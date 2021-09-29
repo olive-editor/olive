@@ -261,6 +261,8 @@ private:
   rational audio_playback_queue_time_;
   PackedProcessor packed_processor_;
   TempoProcessor tempo_processor_;
+  static const int kAudioPlaybackInterval;
+  QTimer *audio_queue_next_timer_;
 
   static QVector<ViewerWidget*> instances_;
 

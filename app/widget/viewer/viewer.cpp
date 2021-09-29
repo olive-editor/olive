@@ -47,6 +47,7 @@ namespace olive {
 #define super TimeBasedWidget
 
 QVector<ViewerWidget*> ViewerWidget::instances_;
+const int ViewerWidget::kAudioPlaybackInterval = 2;
 
 const int kMaxPreQueueSize = 8;
 
@@ -128,6 +129,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   instances_.append(this);
 
   setAcceptDrops(true);
+
+  audio_queue_next_timer_ = new QTimer(this);
+  audio_queue_next_timer_->setInterval(kAudioPlaybackInterval * 1000);
+  audio_queue_next_timer_->setSingleShot(true);
+  connect(audio_queue_next_timer_, &QTimer::timeout, this, &ViewerWidget::QueueNextAudioBuffer);
 }
 
 ViewerWidget::~ViewerWidget()
@@ -422,7 +428,7 @@ void ViewerWidget::StartAudioOutput()
 void ViewerWidget::QueueNextAudioBuffer()
 {
   // NOTE: Hardcoded 2 second interval
-  rational queue_end = audio_playback_queue_time_ + (2 * playback_speed_);
+  rational queue_end = audio_playback_queue_time_ + (kAudioPlaybackInterval * playback_speed_);
 
   // Clamp queue end by zero and the audio length
   queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
@@ -441,7 +447,7 @@ void ViewerWidget::QueueNextAudioBuffer()
 
 void ViewerWidget::ReceivedAudioBufferForPlayback()
 {
-  while (!audio_playback_queue_.empty() && !audio_playback_queue_.front()->IsRunning()) {
+  while (!audio_playback_queue_.empty() && audio_playback_queue_.front()->HasResult()) {
     RenderTicketWatcher *watcher = audio_playback_queue_.front();
     audio_playback_queue_.pop_front();
 
@@ -478,7 +484,8 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
     }
 
     // Do this in the loop so that clearing the array effectively prevents a queue
-    QueueNextAudioBuffer();
+    audio_queue_next_timer_->stop();
+    audio_queue_next_timer_->start();
 
     delete watcher;
   }
@@ -664,7 +671,9 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   audio_playback_device_ = std::make_shared<PreviewAudioDevice>();
   prequeuing_audio_ = true;
   audio_playback_queue_time_ = GetTime();
-  QueueNextAudioBuffer();
+  for (int i=0; i<2; i++) {
+    QueueNextAudioBuffer();
+  }
 }
 
 void ViewerWidget::PauseInternal()
@@ -689,6 +698,7 @@ void ViewerWidget::PauseInternal()
     if (tempo_processor_.IsOpen()) {
       tempo_processor_.Close();
     }
+    audio_queue_next_timer_->stop();
 
     UpdateTextureFromNode();
   }
