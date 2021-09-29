@@ -58,7 +58,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   time_changed_from_timer_(false),
   prequeuing_video_(false),
   prequeuing_audio_(false),
-  active_queue_jobs_(0),
   audio_playback_device_(nullptr)
 {
   // Set up main layout
@@ -515,6 +514,16 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
   delete watcher;
 }
 
+void ViewerWidget::ForceRequeueFromCurrentTime()
+{
+  ClearVideoAutoCacherQueue();
+  int queue = DeterminePlaybackQueueSize();
+  playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
+  for (int i=queue_watchers_.size(); i<queue; i++) {
+    RequestNextFrameForQueue();
+  }
+}
+
 void ViewerWidget::UpdateTextureFromNode()
 {
   rational time = GetTime();
@@ -529,11 +538,9 @@ void ViewerWidget::UpdateTextureFromNode()
     bool popped = false;
 
     if (playback_queue_.empty()) {
-      int queue = DeterminePlaybackQueueSize();
-      playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
-      for (int i=active_queue_jobs_; i<queue; i++) {
-        RequestNextFrameForQueue();
-      }
+
+      ForceRequeueFromCurrentTime();
+
     } else {
       while (!playback_queue_.empty()) {
 
@@ -545,9 +552,15 @@ void ViewerWidget::UpdateTextureFromNode()
           SetDisplayImage(pf.frame, true);
           return;
 
+        } else if (pf.timestamp > time) {
+
+          // The next frame in the queue is too new, so just do a regular update. Either the
+          // frame we want will arrive in time, or we'll just have to skip it.
+          break;
+
         } else {
 
-          // Skip this frame
+          // Frame was too old, skip this frame
           PopOldestFrameFromPlaybackQueue();
           if (popped) {
             // We've already popped a frame in this loop, meaning a frame has been skipped
@@ -559,19 +572,14 @@ void ViewerWidget::UpdateTextureFromNode()
           }
 
           if (playback_queue_.empty()) {
-            // This was the last frame left in the queue. Even though it's old, we'll show it
-            // just for improved user feedback
-            SetDisplayImage(pf.frame, true);
-            return;
+
+            ForceRequeueFromCurrentTime();
+            break;
+
           }
 
         }
       }
-    }
-
-    // Only show warning if frame actually exists
-    if (frame_exists_at_time && !frame_might_be_still) {
-      //qWarning() << "Playback queue failed to keep up";
     }
 
   }
@@ -688,6 +696,9 @@ void ViewerWidget::PauseInternal()
       window->Pause();
     }
 
+    qDeleteAll(queue_watchers_);
+    queue_watchers_.clear();
+
     playback_queue_.clear();
     playback_backup_timer_.stop();
 
@@ -790,7 +801,7 @@ void ViewerWidget::RequestNextFrameForQueue(bool prioritize, bool increment)
     watcher->setProperty("time", QVariant::fromValue(next_time));
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
     watcher->SetTicket(GetFrame(next_time, prioritize));
-    active_queue_jobs_++;
+    queue_watchers_.append(watcher);
   }
 }
 
@@ -959,27 +970,29 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
-  if (watcher->HasResult()) {
-    QVariant frame = watcher->Get();
+  if (queue_watchers_.contains(watcher)) {
+    queue_watchers_.removeOne(watcher);
 
-    // Ignore this signal if we've paused now
-    if (IsPlaying() || prequeuing_video_) {
-      rational ts = watcher->property("time").value<rational>();
+    if (watcher->HasResult()) {
+      QVariant frame = watcher->Get();
 
-      playback_queue_.AppendTimewise({ts, frame}, playback_speed_);
+      // Ignore this signal if we've paused now
+      if (IsPlaying() || prequeuing_video_) {
+        rational ts = watcher->property("time").value<rational>();
 
-      foreach (ViewerWindow* window, windows_) {
-        window->queue()->AppendTimewise({ts, frame}, playback_speed_);
-      }
+        playback_queue_.AppendTimewise({ts, frame}, playback_speed_);
 
-      if (prequeuing_video_ && int(playback_queue_.size()) == prequeue_length_) {
-        prequeuing_video_ = false;
-        FinishPlayPreprocess();
+        foreach (ViewerWindow* window, windows_) {
+          window->queue()->AppendTimewise({ts, frame}, playback_speed_);
+        }
+
+        if (prequeuing_video_ && int(playback_queue_.size()) == prequeue_length_) {
+          prequeuing_video_ = false;
+          FinishPlayPreprocess();
+        }
       }
     }
   }
-
-  active_queue_jobs_--;
 
   delete watcher;
 }

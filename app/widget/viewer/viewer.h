@@ -254,7 +254,7 @@ private:
 
   PreviewAutoCacher auto_cacher_;
 
-  int active_queue_jobs_;
+  QVector<RenderTicketWatcher*> queue_watchers_;
 
   std::shared_ptr<PreviewAudioDevice> audio_playback_device_;
   std::list<RenderTicketWatcher*> audio_playback_queue_;
@@ -316,6 +316,8 @@ private slots:
   void ReceivedAudioBufferForPlayback();
 
   void ReceivedAudioBufferForScrubbing();
+
+  void ForceRequeueFromCurrentTime();
 
 };
 
