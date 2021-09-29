@@ -147,7 +147,6 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
 
   // If we're auto-caching audio or require realtime waveforms, we'll have to render this
   if (viewer_node_->GetAudioAutoCacheEnabled() || kRealTimeWaveformsEnabled) {
-    // We still render for the sake of waveforms
     audio_job_tracker_.insert(range, graph_changed_time_);
 
     // Start jobs to re-render the audio at this range, split into 2 second chunks
