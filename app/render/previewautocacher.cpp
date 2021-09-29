@@ -652,8 +652,9 @@ void PreviewAutoCacher::TryRender()
     // Copy first range in list
     TimeRange r = audio_iterator_.first();
 
-    // Limit to 1 second (FIXME: Hardcoded)
-    r.set_out(qMin(r.out(), r.in() + 1));
+    // Limit to the minimum sample rate supported by AudioVisualWaveform - we use this value so that
+    // whatever chunk we render can be summed down to the smallest mipmap whole
+    r.set_out(qMin(r.out(), r.in() + AudioVisualWaveform::kMinimumSampleRate.flipped()));
 
     // Start job
     RenderAudio(r, true, false);
