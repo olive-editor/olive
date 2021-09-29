@@ -277,7 +277,19 @@ AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const ration
   int start_sample = time_to_samples(start, rate_dbl);
   int sample_length = time_to_samples(length, rate_dbl);
 
-  return ReSumSamples(&using_mipmap->second.constData()[start_sample], sample_length, channels_);
+  const QVector<AudioVisualWaveform::SamplePerChannel> &mipmap_data = using_mipmap->second;
+
+  // Determine if the array actually has this sample
+  sample_length = qMin(sample_length, mipmap_data.size() - start_sample);
+
+  // Based on the above `min`, if sample length <= 0, that means start_sample >= the size of the
+  // array and nothing can be returned.
+  if (sample_length > 0) {
+    return ReSumSamples(&mipmap_data.constData()[start_sample], sample_length, channels_);
+  }
+
+  // Return null samples
+  return AudioVisualWaveform::Sample(channel_count(), {0, 0});
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const float *samples, int nb_samples, int nb_channels)
