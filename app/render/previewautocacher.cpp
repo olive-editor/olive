@@ -741,7 +741,7 @@ void PreviewAutoCacher::ConformFinished()
 void PreviewAutoCacher::VideoAutoCacheEnableChanged(bool e)
 {
   if (e) {
-    RequeueFrames();
+    VideoInvalidatedList(viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength()));
   } else {
     CancelVideoTasks();
     queued_frame_iterator_.reset();
