@@ -368,6 +368,15 @@ jobs:
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
           python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $(dirname $(which qmake))
 
+          # Manual corrections
+          for f in $BUNDLE_NAME/Contents/Frameworks/*.dylib
+          do
+            for r in $(otool -L $f | grep "@rpath" | awk '{print $1;}')
+            do
+              install_name_tool -change $r ${r//rpath/loader_path} $f
+            done
+          done
+
           # Crashpad symbols
           /opt/olive-editor/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
           SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
