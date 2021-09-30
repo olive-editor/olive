@@ -802,8 +802,8 @@ void ViewerWidget::RequestNextFrameForQueue(bool prioritize, bool increment)
     RenderTicketWatcher* watcher = new RenderTicketWatcher();
     watcher->setProperty("time", QVariant::fromValue(next_time));
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
-    watcher->SetTicket(GetFrame(next_time, prioritize));
     queue_watchers_.append(watcher);
+    watcher->SetTicket(GetFrame(next_time, prioritize));
   }
 }
 
