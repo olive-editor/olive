@@ -117,6 +117,13 @@ void DiskManager::CreatedFile(const QString &cache_folder, const QString &file_n
   f->CreatedFile(file_name, hash);
 }
 
+void DiskManager::DeleteSpecificFile(const QString &filename)
+{
+  foreach (DiskCacheFolder* f, open_folders_) {
+    f->DeleteSpecificFile(filename);
+  }
+}
+
 bool DiskManager::ClearDiskCache(const QString &cache_folder)
 {
   DiskCacheFolder* f = GetOpenFolder(cache_folder);
@@ -239,14 +246,8 @@ void DiskCacheFolder::CreatedFile(const QString &file_name, const QByteArray &ha
 
   consumption_ += file_size;
 
-  QList<QByteArray> deleted_hashes;
-
   while (consumption_ > limit_) {
-    deleted_hashes.append(DeleteLeastRecent());
-  }
-
-  foreach (const QByteArray& h, deleted_hashes) {
-    emit DeletedFrame(path_, h);
+    DeleteLeastRecent();
   }
 }
 
@@ -305,7 +306,43 @@ void DiskCacheFolder::SetPath(const QString &path)
   }
 }
 
-QByteArray DiskCacheFolder::DeleteLeastRecent()
+bool DiskCacheFolder::DeleteFileInternal(QMap<QByteArray, HashTime>::iterator hash_to_delete)
+{
+  // Cache HashTime object
+  QByteArray hash = hash_to_delete.key();
+  HashTime ht = hash_to_delete.value();
+
+  // Remove from disk
+  if (QFile::remove(ht.file_name)) {
+    // Remove from internal map
+    disk_data_.erase(hash_to_delete);
+
+    // Reduce consumption
+    consumption_ -= ht.file_size;
+
+    if (!hash.isEmpty()) {
+      emit DeletedFrame(path_, hash);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool DiskCacheFolder::DeleteSpecificFile(const QString &f)
+{
+  for (auto it=disk_data_.begin(); it!=disk_data_.end(); it++) {
+    if (it->file_name == f) {
+      // Break out of this loop, assuming we'll only have one instance of each filename
+      return DeleteFileInternal(it);
+    }
+  }
+
+  return false;
+}
+
+bool DiskCacheFolder::DeleteLeastRecent()
 {
   auto hash_to_delete = disk_data_.begin();
 
@@ -315,15 +352,7 @@ QByteArray DiskCacheFolder::DeleteLeastRecent()
     }
   }
 
-  QByteArray hash = hash_to_delete.key();
-  HashTime ht = hash_to_delete.value();
-  disk_data_.erase(hash_to_delete);
-
-  QFile::remove(ht.file_name);
-
-  consumption_ -= ht.file_size;
-
-  return hash;
+  return DeleteFileInternal(hash_to_delete);
 }
 
 void DiskCacheFolder::CloseCacheFolder()

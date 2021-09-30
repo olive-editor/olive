@@ -72,23 +72,27 @@ public:
     clear_on_close_ = e;
   }
 
+  bool DeleteSpecificFile(const QString &f);
+
 signals:
   void DeletedFrame(const QString& path, const QByteArray& hash);
 
 private:
-  QByteArray DeleteLeastRecent();
+  struct HashTime {
+    QString file_name;
+    qint64 file_size;
+    qint64 access_time;
+  };
+
+  bool DeleteFileInternal(QMap<QByteArray, HashTime>::iterator hash_to_delete);
+
+  bool DeleteLeastRecent();
 
   void CloseCacheFolder();
 
   QString path_;
 
   QString index_path_;
-
-  struct HashTime {
-    QString file_name;
-    qint64 file_size;
-    qint64 access_time;
-  };
 
   QMap<QByteArray, HashTime> disk_data_;
 
@@ -148,6 +152,8 @@ public slots:
   void Accessed(const QString& cache_folder, const QByteArray& hash);
 
   void CreatedFile(const QString& cache_folder, const QString& file_name, const QByteArray& hash);
+
+  void DeleteSpecificFile(const QString &filename);
 
 signals:
   void DeletedFrame(const QString& path, const QByteArray& hash);

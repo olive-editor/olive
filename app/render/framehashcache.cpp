@@ -242,6 +242,9 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
 
       // Clear frame to signal that nothing was loaded
       frame = nullptr;
+
+      // Assume this frame is corrupt in some way and delete it
+      QMetaObject::invokeMethod(DiskManager::instance(), "DeleteSpecificFile", Qt::QueuedConnection, Q_ARG(QString, fn));
     }
 
   }
