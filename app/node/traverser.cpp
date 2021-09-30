@@ -389,19 +389,19 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
         rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
 
         if (!footage_time.isNaN()) {
-          output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessVideoFootage(job, footage_time)), node);
+          output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessVideoFootage(job, footage_time)), node, v.array(), v.tag());
         }
       }
     }
 
     // Run shaders
     foreach (const NodeValue& v, shader_jobs_to_run) {
-      output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessShader(node, range, v.data().value<ShaderJob>())), node);
+      output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessShader(node, range, v.data().value<ShaderJob>())), node, v.array(), v.tag());
     }
 
     // Run generate jobs
     foreach (const NodeValue& v, generate_jobs_to_run) {
-      output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessFrameGeneration(node, v.data().value<GenerateJob>())), node);
+      output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessFrameGeneration(node, v.data().value<GenerateJob>())), node, v.array(), v.tag());
     }
   }
 
@@ -411,13 +411,13 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
     FootageJob job = v.data().value<FootageJob>();
 
     if (job.type() == Track::kAudio) {
-      output_params.Push(NodeValue::kSamples, QVariant::fromValue(ProcessAudioFootage(job, range)), node);
+      output_params.Push(NodeValue::kSamples, QVariant::fromValue(ProcessAudioFootage(job, range)), node, v.array(), v.tag());
     }
   }
 
   // Run any accelerated shader jobs
   foreach (const NodeValue& v, sample_jobs_to_run) {
-    output_params.Push(NodeValue::kSamples, QVariant::fromValue(ProcessSamples(node, range, v.data().value<SampleJob>())), node);
+    output_params.Push(NodeValue::kSamples, QVariant::fromValue(ProcessSamples(node, range, v.data().value<SampleJob>())), node, v.array(), v.tag());
   }
 
   if (CanCacheFrames() && node->GetCacheTextures() && !got_cached_frame) {
