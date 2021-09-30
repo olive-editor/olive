@@ -245,10 +245,9 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, QWidget *parent) :
 
       root_layout->addWidget(array_widget, insert_row, 1, 1, 10);
 
-      int arr_sz = node->InputArraySize(input);
-      for (int j=0; j<arr_sz; j++) {
-        CreateWidgets(array_layout, node, input, j, j);
-      }
+      // Start with zero elements for efficiency. We will make the widgets for them if the user
+      // requests the array UI to be expanded
+      int arr_sz = 0;
 
       // Add one last add button for appending to the array
       NodeParamViewArrayButton* append_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
@@ -462,21 +461,8 @@ void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodePara
   }
 }
 
-void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
+void NodeParamViewItemBody::InputArraySizeChangedInternal(Node *node, const QString &input, int size)
 {
-  const NodeInputPair& input = array_collapse_buttons_.key(static_cast<CollapseButton*>(sender()));
-
-  array_ui_.value(input).widget->setVisible(checked);
-
-  emit ArrayExpandedChanged(checked);
-}
-
-void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int old_sz, int size)
-{
-  Q_UNUSED(old_sz)
-
-  Node* node = static_cast<Node*>(sender());
-
   ArrayUI& array_ui = array_ui_[{node, input}];
 
   if (size != array_ui.count) {
@@ -506,9 +492,31 @@ void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int old_
     }
 
     array_ui.count = size;
+
+    Retranslate();
+  }
+}
+
+void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
+{
+  const NodeInputPair& input = array_collapse_buttons_.key(static_cast<CollapseButton*>(sender()));
+
+  array_ui_.value(input).widget->setVisible(checked);
+  if (checked) {
+    // Ensure widgets are created (the signal will be ignored if they are)
+    InputArraySizeChangedInternal(input.node, input.input, input.node->InputArraySize(input.input));
   }
 
-  Retranslate();
+  emit ArrayExpandedChanged(checked);
+}
+
+void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int old_sz, int size)
+{
+  Q_UNUSED(old_sz)
+
+  Node* node = static_cast<Node*>(sender());
+
+  InputArraySizeChangedInternal(node, input, size);
 }
 
 void NodeParamViewItemBody::ArrayAppendClicked()
