@@ -104,6 +104,16 @@ public:
       startup_language_ = s;
     }
 
+    bool crash_on_startup() const
+    {
+      return crash_;
+    }
+
+    void set_crash_on_startup(bool e)
+    {
+      crash_ = true;
+    }
+
   private:
     RunMode mode_;
 
@@ -112,6 +122,8 @@ public:
     QString startup_language_;
 
     bool run_fullscreen_;
+
+    bool crash_;
 
   };
 

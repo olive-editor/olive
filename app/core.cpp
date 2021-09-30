@@ -169,6 +169,20 @@ void Core::Start()
     qInfo() << "Headless pre-cache is not fully implemented yet";
     break;
   }
+
+  // Manual crash triggering
+  if (core_params_.crash_on_startup()) {
+    const int interval = 5000;
+    qInfo() << "Manual crash was triggered. Application will crash in" << interval << "ms";
+    QTimer *crash_timer = new QTimer(this);
+    crash_timer->setInterval(interval);
+    connect(crash_timer, &QTimer::timeout, this, []{
+      // Try to read invalid memory to crash the application
+      int *invalid_ptr = nullptr;
+      qDebug() << *invalid_ptr;
+    });
+    crash_timer->start();
+  }
 }
 
 void Core::Stop()
@@ -1628,7 +1642,8 @@ void Core::OpenProject()
 
 Core::CoreParams::CoreParams() :
   mode_(kRunNormal),
-  run_fullscreen_(false)
+  run_fullscreen_(false),
+  crash_(false)
 {
 }
 

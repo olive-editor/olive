@@ -133,6 +133,9 @@ int main(int argc, char *argv[])
   parser.AddOption({QStringLiteral("stylesheet")}, QString(), true, QString(), true);
   parser.AddOption({QStringLiteral("widgetcount")}, QString(), false, QString(), true);
 
+  // Hidden crash option for debugging the crash handling
+  auto crash_option = parser.AddOption({QStringLiteral("-crash")}, QString(), true, QString(), true);
+
   parser.Process(argc, argv);
 
   if (help_option->IsSet()) {
@@ -157,6 +160,10 @@ int main(int argc, char *argv[])
     } else {
       startup_params.set_startup_language(ts_option->GetSetting());
     }
+  }
+
+  if (crash_option->IsSet()) {
+    startup_params.set_crash_on_startup(true);
   }
 
   startup_params.set_fullscreen(fullscreen_option->IsSet());
