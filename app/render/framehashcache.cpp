@@ -191,51 +191,59 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
   FramePtr frame = nullptr;
 
   if (!fn.isEmpty() && QFileInfo::exists(fn)) {
-    Imf::InputFile file(fn.toUtf8(), 0);
+    try {
+      Imf::InputFile file(fn.toUtf8(), 0);
 
-    Imath::Box2i dw = file.header().dataWindow();
-    Imf::PixelType pix_type = file.header().channels().begin().channel().type;
-    int width = dw.max.x - dw.min.x + 1;
-    int height = dw.max.y - dw.min.y + 1;
-    bool has_alpha = file.header().channels().findChannel("A");
+      Imath::Box2i dw = file.header().dataWindow();
+      Imf::PixelType pix_type = file.header().channels().begin().channel().type;
+      int width = dw.max.x - dw.min.x + 1;
+      int height = dw.max.y - dw.min.y + 1;
+      bool has_alpha = file.header().channels().findChannel("A");
 
-    int div = qMax(1, static_cast<const Imf::IntAttribute&>(file.header()["oliveDivider"]).value());
+      int div = qMax(1, static_cast<const Imf::IntAttribute&>(file.header()["oliveDivider"]).value());
 
-    VideoParams::Format image_format;
-    if (pix_type == Imf::HALF) {
-      image_format = VideoParams::kFormatFloat16;
-    } else {
-      image_format = VideoParams::kFormatFloat32;
+      VideoParams::Format image_format;
+      if (pix_type == Imf::HALF) {
+        image_format = VideoParams::kFormatFloat16;
+      } else {
+        image_format = VideoParams::kFormatFloat32;
+      }
+
+      int channel_count = has_alpha ? VideoParams::kRGBAChannelCount : VideoParams::kRGBChannelCount;
+
+      frame = Frame::Create();
+      frame->set_video_params(VideoParams(width * div,
+                                          height * div,
+                                          image_format,
+                                          channel_count,
+                                          rational::fromDouble(file.header().pixelAspectRatio()),
+                                          VideoParams::kInterlaceNone,
+                                          div));
+
+      frame->allocate();
+
+      int bpc = VideoParams::GetBytesPerChannel(image_format);
+
+      size_t xs = channel_count * bpc;
+      size_t ys = frame->linesize_bytes();
+
+      Imf::FrameBuffer framebuffer;
+      framebuffer.insert("R", Imf::Slice(pix_type, frame->data(), xs, ys));
+      framebuffer.insert("G", Imf::Slice(pix_type, frame->data() + bpc, xs, ys));
+      framebuffer.insert("B", Imf::Slice(pix_type, frame->data() + 2*bpc, xs, ys));
+      if (has_alpha) {
+        framebuffer.insert("A", Imf::Slice(pix_type, frame->data() + 3*bpc, xs, ys));
+      }
+
+      file.setFrameBuffer(framebuffer);
+      file.readPixels(dw.min.y, dw.max.y);
+    } catch (const std::exception &e) {
+      qCritical() << "Failed to read cache frame:" << e.what();
+
+      // Clear frame to signal that nothing was loaded
+      frame = nullptr;
     }
 
-    int channel_count = has_alpha ? VideoParams::kRGBAChannelCount : VideoParams::kRGBChannelCount;
-
-    frame = Frame::Create();
-    frame->set_video_params(VideoParams(width * div,
-                                        height * div,
-                                        image_format,
-                                        channel_count,
-                                        rational::fromDouble(file.header().pixelAspectRatio()),
-                                        VideoParams::kInterlaceNone,
-                                        div));
-
-    frame->allocate();
-
-    int bpc = VideoParams::GetBytesPerChannel(image_format);
-
-    size_t xs = channel_count * bpc;
-    size_t ys = frame->linesize_bytes();
-
-    Imf::FrameBuffer framebuffer;
-    framebuffer.insert("R", Imf::Slice(pix_type, frame->data(), xs, ys));
-    framebuffer.insert("G", Imf::Slice(pix_type, frame->data() + bpc, xs, ys));
-    framebuffer.insert("B", Imf::Slice(pix_type, frame->data() + 2*bpc, xs, ys));
-    if (has_alpha) {
-      framebuffer.insert("A", Imf::Slice(pix_type, frame->data() + 3*bpc, xs, ys));
-    }
-
-    file.setFrameBuffer(framebuffer);
-    file.readPixels(dw.min.y, dw.max.y);
   }
 
   return frame;
@@ -381,25 +389,31 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
 
   header.insert("oliveDivider", Imf::IntAttribute(vparam.divider()));
 
-  Imf::OutputFile out(filename.toUtf8(), header, 0);
+  try {
+    Imf::OutputFile out(filename.toUtf8(), header, 0);
 
-  int bpc = VideoParams::GetBytesPerChannel(vparam.format());
+    int bpc = VideoParams::GetBytesPerChannel(vparam.format());
 
-  size_t xs = vparam.channel_count() * bpc;
-  size_t ys = linesize_bytes;
+    size_t xs = vparam.channel_count() * bpc;
+    size_t ys = linesize_bytes;
 
-  Imf::FrameBuffer framebuffer;
-  framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));
-  framebuffer.insert("G", Imf::Slice(pix_type, data + bpc, xs, ys));
-  framebuffer.insert("B", Imf::Slice(pix_type, data + 2*bpc, xs, ys));
-  if (vparam.channel_count() == VideoParams::kRGBAChannelCount) {
-    framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
+    Imf::FrameBuffer framebuffer;
+    framebuffer.insert("R", Imf::Slice(pix_type, data, xs, ys));
+    framebuffer.insert("G", Imf::Slice(pix_type, data + bpc, xs, ys));
+    framebuffer.insert("B", Imf::Slice(pix_type, data + 2*bpc, xs, ys));
+    if (vparam.channel_count() == VideoParams::kRGBAChannelCount) {
+      framebuffer.insert("A", Imf::Slice(pix_type, data + 3*bpc, xs, ys));
+    }
+    out.setFrameBuffer(framebuffer);
+
+    out.writePixels(vparam.effective_height());
+
+    return true;
+  } catch (const std::exception &e) {
+    qCritical() << "Failed to write cache frame:" << e.what();
+
+    return false;
   }
-  out.setFrameBuffer(framebuffer);
-
-  out.writePixels(vparam.effective_height());
-
-  return true;
 }
 
 }
