@@ -82,7 +82,6 @@ MainWindow::MainWindow(QWidget *parent) :
   footage_viewer_panel_ = PanelManager::instance()->CreatePanel<FootageViewerPanel>(this);
   param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
   curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
-  table_panel_ = PanelManager::instance()->CreatePanel<NodeTablePanel>(this);
   sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
   pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
   AppendProjectPanel();
@@ -94,8 +93,6 @@ MainWindow::MainWindow(QWidget *parent) :
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
-  connect(node_panel_, &NodePanel::NodesSelected, table_panel_, &NodeTablePanel::SelectNodes);
-  connect(node_panel_, &NodePanel::NodesDeselected, table_panel_, &NodeTablePanel::DeselectNodes);
   connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
     node_panel_->Select(target, true);
   });
@@ -103,13 +100,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
   // Connect time signals together
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
   connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
-  connect(param_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
   connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
-  connect(curve_panel_, &ParamPanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTime);
 
   // Connect node order signals
@@ -566,7 +560,6 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
   connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(panel, &TimelinePanel::TimeChanged, table_panel_, &NodeTablePanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
@@ -792,10 +785,6 @@ void MainWindow::SetDefaultLayout()
   curve_panel_->hide();
   curve_panel_->setFloating(true);
   addDockWidget(Qt::TopDockWidgetArea, curve_panel_);
-
-  table_panel_->hide();
-  table_panel_->setFloating(true);
-  addDockWidget(Qt::TopDockWidgetArea, table_panel_);
 
   sequence_viewer_panel_->show();
   addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);

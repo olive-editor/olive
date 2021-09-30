@@ -160,7 +160,6 @@ private:
   TaskManagerPanel* task_man_panel_;
   PixelSamplerPanel* pixel_sampler_panel_;
   QList<ScopePanel*> scope_panels_;
-  NodeTablePanel* table_panel_;
   QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
 
 #ifdef Q_OS_WINDOWS
