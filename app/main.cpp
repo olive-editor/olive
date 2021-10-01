@@ -44,6 +44,8 @@ extern "C" {
 #include "version.h"
 
 #ifdef _WIN32
+#include <QOffscreenSurface>
+#include <QOpenGLContext>
 #include <Windows.h>
 #endif
 
@@ -216,7 +218,16 @@ int main(int argc, char *argv[])
   // when no driver is installed (e.g. when using the Microsoft Basic Display Adapter). Whether
   // that's true for all users or not is still up in the air, but what we do know is it's a driver
   // issue and users should know what to do rather than simply receive a cryptic crash report.
-  if (!wglGetProcAddress("glGenFramebuffers")) {
+  QOpenGLContext ctx;
+  ctx.create();
+  QOffscreenSurface surface;
+  surface.create();
+  ctx.makeCurrent(&surface);
+  bool has_proc_address = wglGetProcAddress("glGenFramebuffers");
+  ctx.doneCurrent();
+  surface.destroy();
+
+  if (!has_proc_address) {
     QString msg = QCoreApplication::translate("main",
       "Your computer's graphics driver does not appear to support framebuffers. "
       "This means either your graphics driver is not up-to-date or your graphics card is too old to run Olive.\n\n"
