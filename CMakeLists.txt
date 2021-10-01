@@ -122,7 +122,8 @@ list(APPEND OLIVE_LIBRARIES
 
 # Link PortAudio
 find_package(PortAudio REQUIRED)
-list(APPEND OLIVE_LIBRARIES PortAudio)
+list(APPEND OLIVE_INCLUDE_DIRS ${PORTAUDIO_INCLUDE_DIRS})
+list(APPEND OLIVE_LIBRARIES ${PORTAUDIO_LIBRARIES})
 
 # Optional: Link OpenTimelineIO
 find_package(OpenTimelineIO)
