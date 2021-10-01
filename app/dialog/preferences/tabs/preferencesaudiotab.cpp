@@ -33,7 +33,12 @@ PreferencesAudioTab::PreferencesAudioTab()
 {
   QVBoxLayout* audio_tab_layout = new QVBoxLayout(this);
 
-  {
+  QLabel *wip_lbl = new QLabel(tr("We just ported our audio backend to PortAudio so this section will need to be redone. Come back later..."));
+  wip_lbl->setWordWrap(true);
+  wip_lbl->setAlignment(Qt::AlignCenter);
+  audio_tab_layout->addWidget(wip_lbl);
+
+  /*{
     // Backend Layout
     QGridLayout* main_layout = new QGridLayout();
     main_layout->setMargin(0);
@@ -112,11 +117,12 @@ PreferencesAudioTab::PreferencesAudioTab()
     connect(AudioManager::instance(), &AudioManager::InputListReady, this, &PreferencesAudioTab::RetrieveInputList);
   }
 
-  audio_tab_layout->addStretch();
+  audio_tab_layout->addStretch();*/
 }
 
 void PreferencesAudioTab::Accept(MultiUndoCommand *command)
 {
+  /*
   Q_UNUSED(command)
 
   // FIXME: Qt documentation states that QAudioDeviceInfo::deviceName() is a "unique identifiers", which would make them
@@ -161,6 +167,7 @@ void PreferencesAudioTab::Accept(MultiUndoCommand *command)
       AudioManager::instance()->SetInputDevice(selected_input);
     }
   }
+  */
 }
 
 void PreferencesAudioTab::RefreshDevices()

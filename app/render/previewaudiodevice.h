@@ -29,7 +29,7 @@ class PreviewAudioDevice : public QIODevice
 {
   Q_OBJECT
 public:
-  PreviewAudioDevice(QObject *parent = nullptr);
+  PreviewAudioDevice(int bytes_per_frame, QObject *parent = nullptr);
 
   virtual ~PreviewAudioDevice() override;
 
@@ -39,9 +39,20 @@ public:
 
   virtual qint64 readData(char *data, qint64 maxSize) override;
 
-  virtual qint64 writeData(const char *, qint64) override;
+  virtual qint64 writeData(const char *data, qint64 length) override;
 
-  void Push(const QByteArray &b);
+  int bytes_per_frame() const
+  {
+    return bytes_per_frame_;
+  }
+
+  void set_notify_interval(qint64 i)
+  {
+    notify_interval_ = i;
+  }
+
+signals:
+  void Notify();
 
 private:
   enum LockMethod {
@@ -60,6 +71,12 @@ private:
   QByteArray *pushing_;
 
   QAtomicInt swap_requested_;
+
+  int bytes_per_frame_;
+
+  qint64 notify_interval_;
+
+  qint64 bytes_read_;
 
 };
 

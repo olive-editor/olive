@@ -89,35 +89,68 @@ bool AudioManager::IsRefreshingInputs()
 
 void AudioManager::PushToOutput(const QByteArray &samples)
 {
-  output_manager_->Push(samples);
+  if (!output_stream_) {
+    // Start output with no callback so it'll be in "push" mode
+    StartOutputStream();
+  }
 
-  emit OutputPushed(samples);
+  Pa_WriteStream(output_stream_, samples.constData(), output_params_.bytes_to_samples(samples.size()));
 }
 
-void AudioManager::StartOutput(std::shared_ptr<QIODevice> device)
+static PaSampleFormat GetPortAudioSampleFormat(AudioParams::Format fmt)
 {
-  // Move to output manager's thread
-  device->moveToThread(&output_thread_);
+  switch (fmt) {
+  case AudioParams::kFormatUnsigned8:
+    return paUInt8;
+  case AudioParams::kFormatSigned16:
+    return paInt16;
+  case AudioParams::kFormatSigned32:
+    return paInt32;
+  case AudioParams::kFormatFloat32:
+    return paFloat32;
+  case AudioParams::kFormatSigned64:
+  case AudioParams::kFormatFloat64:
+  case AudioParams::kFormatInvalid:
+  case AudioParams::kFormatCount:
+    break;
+  }
 
-  // Queue to output manager in other thread
-  QMetaObject::invokeMethod(output_manager_,
-                            "PullFromDevice",
-                            Qt::QueuedConnection,
-                            Q_ARG(std::shared_ptr<QIODevice>, device));
+  return 0;
+}
+
+int OutputCallback(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
+{
+  PreviewAudioDevice *device = static_cast<PreviewAudioDevice*>(userData);
+
+  device->read(reinterpret_cast<char*>(output), frameCount * device->bytes_per_frame());
+
+  return paContinue;
+}
+
+void AudioManager::StartOutput(std::shared_ptr<PreviewAudioDevice> device)
+{
+  // First stop any current device
+  StopOutputStream();
+
+  // Store device
+  output_device_ = device;
+
+  // Start output stream that pulls from this device
+  StartOutputStream(OutputCallback);
 }
 
 void AudioManager::StopOutput()
 {
-  QMetaObject::invokeMethod(output_manager_,
-                            "ResetToPushMode",
-                            Qt::QueuedConnection);
+  // Stop playback first so the callback won't get called again
+  StopOutputStream();
 
-  emit Stopped();
+  // Then clear our reference to the output devicec
+  output_device_ = nullptr;
 }
 
 void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
 {
-  qInfo() << "Setting output audio device to" << info.deviceName();
+  /*qInfo() << "Setting output audio device to" << info.deviceName();
 
   StopOutput();
 
@@ -142,24 +175,18 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
     } else {
       qWarning() << "Output format not supported by device";
     }
-  }
+  }*/
 }
 
 void AudioManager::SetOutputParams(const AudioParams &params)
 {
   if (output_params_ != params) {
+    // If an output stream is running, stop it now
+    StopOutputStream();
+
+    // Update parameters
     output_params_ = params;
-
-    QMetaObject::invokeMethod(output_manager_,
-                              "SetParameters",
-                              Qt::QueuedConnection,
-                              OLIVE_NS_ARG(AudioParams, params));
-
-    // Refresh output device
-    SetOutputDevice(output_device_info_);
   }
-
-  emit AudioParamsChanged(output_params_);
 }
 
 void AudioManager::SetInputDevice(const QAudioDeviceInfo &info)
@@ -178,50 +205,57 @@ const QList<QAudioDeviceInfo> &AudioManager::ListOutputDevices()
   return output_devices_;
 }
 
-void AudioManager::ReverseBuffer(char *buffer, int buffer_size, int sample_size)
-{
-  int half_buffer_sz = buffer_size / 2;
-  char* temp_buffer = new char[sample_size];
-
-  for (int src_index=0;src_index<half_buffer_sz;src_index+=sample_size) {
-    char* src_ptr = buffer + src_index;
-    char* dst_ptr = buffer + buffer_size - sample_size - src_index;
-
-    // Simple swap
-    memcpy(temp_buffer, src_ptr, static_cast<size_t>(sample_size));
-    memcpy(src_ptr, dst_ptr, static_cast<size_t>(sample_size));
-    memcpy(dst_ptr, temp_buffer, static_cast<size_t>(sample_size));
-  }
-
-  delete [] temp_buffer;
-}
-
 AudioManager::AudioManager() :
   is_refreshing_inputs_(false),
   is_refreshing_outputs_(false),
-  output_is_set_(false),
+  output_stream_(nullptr),
   input_(nullptr),
   input_file_(nullptr)
 {
-  RefreshDevices();
+  //RefreshDevices();
 
-  output_thread_.start(QThread::TimeCriticalPriority);
-  output_manager_ = new AudioOutputManager();
-  output_manager_->moveToThread(&output_thread_);
+  Pa_Initialize();
 
-  connect(output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
+  output_ = Pa_GetDefaultOutputDevice();
 }
 
 AudioManager::~AudioManager()
 {
-  QMetaObject::invokeMethod(output_manager_, "deleteLater", Qt::BlockingQueuedConnection);
-  output_thread_.quit();
-  output_thread_.wait();
+  StopOutputStream();
+
+  Pa_Terminate();
+}
+
+void AudioManager::StartOutputStream(PaStreamCallback *streamCallback)
+{
+  if (output_stream_) {
+    StopOutputStream();
+  }
+
+  PaStreamParameters p;
+
+  p.channelCount = output_params_.channel_count();
+  p.device = output_;
+  p.hostApiSpecificStreamInfo = nullptr;
+  p.sampleFormat = GetPortAudioSampleFormat(output_params_.format());
+  p.suggestedLatency = Pa_GetDeviceInfo(output_)->defaultLowOutputLatency;
+
+  Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, streamCallback, output_device_.get());
+  Pa_StartStream(output_stream_);
+}
+
+void AudioManager::StopOutputStream()
+{
+  if (output_stream_) {
+    Pa_AbortStream(output_stream_);
+    Pa_CloseStream(output_stream_);
+    output_stream_ = nullptr;
+  }
 }
 
 void AudioManager::OutputDevicesRefreshed()
 {
-  QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
+  /*QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
 
   output_devices_ = watcher->result();
   watcher->deleteLater();
@@ -229,7 +263,7 @@ void AudioManager::OutputDevicesRefreshed()
 
   QString preferred_audio_output = Config::Current()["AudioOutput"].toString();
 
-  if (!output_is_set_
+  if (output_ == paNoDevice
       || (!preferred_audio_output.isEmpty() && output_device_info_.deviceName() != preferred_audio_output)) {
     if (preferred_audio_output.isEmpty()) {
       SetOutputDevice(QAudioDeviceInfo::defaultOutputDevice());
@@ -243,7 +277,7 @@ void AudioManager::OutputDevicesRefreshed()
     }
   }
 
-  emit OutputListReady();
+  emit OutputListReady();*/
 }
 
 void AudioManager::InputDevicesRefreshed()

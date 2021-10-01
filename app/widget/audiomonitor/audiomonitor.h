@@ -38,21 +38,42 @@ class AudioMonitor : public QOpenGLWidget
 public:
   AudioMonitor(QWidget* parent = nullptr);
 
+  virtual ~AudioMonitor() override;
+
   bool IsPlaying() const
   {
     return file_ || waveform_;
   }
 
+  static void StartWaveformOnAll(const AudioVisualWaveform *waveform, const rational& start, int playback_speed)
+  {
+    foreach (AudioMonitor *m, instances_) {
+      m->StartWaveform(waveform, start, playback_speed);
+    }
+  }
+
+  static void StopOnAll()
+  {
+    foreach (AudioMonitor *m, instances_) {
+      m->Stop();
+    }
+  }
+
+  static void PushBytesOnAll(const QByteArray &d)
+  {
+    foreach (AudioMonitor *m, instances_) {
+      m->PushBytes(d);
+    }
+  }
+
 public slots:
   void SetParams(const AudioParams& params);
 
-  void OutputDeviceSet(AudioPlaybackCache* cache, qint64 offset, int playback_speed);
-
   void Stop();
 
-  void OutputPushed(const QByteArray& d);
+  void PushBytes(const QByteArray& d);
 
-  void OutputAudioVisualWaveformSet(const AudioVisualWaveform *waveform, const rational& start, int playback_speed);
+  void StartWaveform(const AudioVisualWaveform *waveform, const rational& start, int playback_speed);
 
 protected:
   virtual void paintGL() override;
@@ -87,6 +108,8 @@ private:
 
   QPixmap cached_background_;
   int cached_channels_;
+
+  static QVector<AudioMonitor*> instances_;
 
 };
 

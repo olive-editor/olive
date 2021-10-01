@@ -20,10 +20,6 @@ set(OLIVE_SOURCES
   audio/audiomanager.h
   audio/audiovisualwaveform.cpp
   audio/audiovisualwaveform.h
-  audio/outputdeviceproxy.cpp
-  audio/outputdeviceproxy.h
-  audio/outputmanager.cpp
-  audio/outputmanager.h
   audio/packedprocessor.cpp
   audio/packedprocessor.h
   audio/tempoprocessor.cpp

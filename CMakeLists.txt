@@ -122,6 +122,10 @@ list(APPEND OLIVE_LIBRARIES
   FFMPEG::swresample
 )
 
+# Link PortAudio
+find_package(PortAudio REQUIRED)
+list(APPEND OLIVE_LIBRARIES PortAudio)
+
 # Optional: Link OpenTimelineIO
 find_package(OpenTimelineIO)
 if (OpenTimelineIO_FOUND)

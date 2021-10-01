@@ -33,18 +33,22 @@ const int kDecibelStep = 6;
 const int kDecibelMinimum = -200;
 const int kMaximumSmoothness = 8;
 
+QVector<AudioMonitor*> AudioMonitor::instances_;
+
 AudioMonitor::AudioMonitor(QWidget *parent) :
   QOpenGLWidget(parent),
   file_(nullptr),
   waveform_(nullptr),
   cached_channels_(0)
 {
-  values_.resize(kMaximumSmoothness);
+  instances_.append(this);
 
-  connect(AudioManager::instance(), &AudioManager::OutputWaveformStarted, this, &AudioMonitor::OutputAudioVisualWaveformSet);
-  connect(AudioManager::instance(), &AudioManager::OutputPushed, this, &AudioMonitor::OutputPushed);
-  connect(AudioManager::instance(), &AudioManager::AudioParamsChanged, this, &AudioMonitor::SetParams);
-  connect(AudioManager::instance(), &AudioManager::Stopped, this, &AudioMonitor::Stop);
+  values_.resize(kMaximumSmoothness);
+}
+
+AudioMonitor::~AudioMonitor()
+{
+  instances_.removeOne(this);
 }
 
 void AudioMonitor::SetParams(const AudioParams &params)
@@ -64,32 +68,6 @@ void AudioMonitor::SetParams(const AudioParams &params)
   }
 }
 
-void AudioMonitor::OutputDeviceSet(AudioPlaybackCache *cache, qint64 offset, int playback_speed)
-{
-  Stop();
-
-  file_ = cache->CreatePlaybackDevice(this);
-
-  if (!file_->open(QFile::ReadOnly)) {
-    qWarning() << "Failed to open IO device for AudioMonitor display";
-    Stop();
-    return;
-  }
-
-  if (offset > file_->size()) {
-    Stop();
-    return;
-  }
-
-  file_->seek(offset);
-
-  playback_speed_ = playback_speed;
-
-  last_time_ = QDateTime::currentMSecsSinceEpoch();
-
-  SetUpdateLoop(true);
-}
-
 void AudioMonitor::Stop()
 {
   delete file_;
@@ -100,7 +78,7 @@ void AudioMonitor::Stop()
   // loop will stop itself since file_ and waveform_ are null.
 }
 
-void AudioMonitor::OutputPushed(const QByteArray &d)
+void AudioMonitor::PushBytes(const QByteArray &d)
 {
   QVector<double> v(params_.channel_count(), 0);
 
@@ -111,7 +89,7 @@ void AudioMonitor::OutputPushed(const QByteArray &d)
   SetUpdateLoop(true);
 }
 
-void AudioMonitor::OutputAudioVisualWaveformSet(const AudioVisualWaveform *waveform, const rational &start, int playback_speed)
+void AudioMonitor::StartWaveform(const AudioVisualWaveform *waveform, const rational &start, int playback_speed)
 {
   Stop();
 

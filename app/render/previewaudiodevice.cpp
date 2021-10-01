@@ -22,7 +22,10 @@
 
 namespace olive {
 
-PreviewAudioDevice::PreviewAudioDevice(QObject *parent)
+PreviewAudioDevice::PreviewAudioDevice(int bytes_per_frame, QObject *parent) :
+  bytes_per_frame_(bytes_per_frame),
+  notify_interval_(0),
+  bytes_read_(0)
 {
   // These pointers are always valid
   using_ = &internal_buffer_[0];
@@ -53,35 +56,41 @@ qint64 PreviewAudioDevice::readData(char *data, qint64 maxSize)
   qint64 copy_length = qMin(maxSize, qint64(using_->size()));
 
   if (copy_length) {
+    qint64 new_bytes_read = bytes_read_ + copy_length;
+
+    if (notify_interval_ > 0) {
+      if ((bytes_read_ / notify_interval_) != (new_bytes_read / notify_interval_)) {
+        emit Notify();
+      }
+    }
+
+    bytes_read_ = new_bytes_read;
+
     memcpy(data, using_->constData(), copy_length);
     *using_ = using_->mid(copy_length);
+  }
 
-    if (using_->isEmpty() && !SwapBuffers(kTryLock)) {
-      // Ask push function to swap if it can. If it can't, we'll catch it next read.
-      swap_requested_ = true;
-    }
+  if (using_->isEmpty() && !SwapBuffers(kTryLock)) {
+    // Ask push function to swap if it can. If it can't, we'll catch it next read.
+    swap_requested_ = true;
   }
 
   return copy_length;
 }
 
-qint64 PreviewAudioDevice::writeData(const char *, qint64)
-{
-  // No writing to this device
-  return -1;
-}
-
-void PreviewAudioDevice::Push(const QByteArray &b)
+qint64 PreviewAudioDevice::writeData(const char *data, qint64 length)
 {
   // This function should NEVER touch the buffer in `using_`
   QMutexLocker locker(&lock_);
-  pushing_->append(b);
+  pushing_->append(data, length);
 
   // If swap requested, do this now
   if (swap_requested_) {
     SwapBuffers(kDontLock);
     swap_requested_ = false;
   }
+
+  return length;
 }
 
 bool PreviewAudioDevice::SwapBuffers(LockMethod m)

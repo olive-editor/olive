@@ -23,15 +23,15 @@
 
 #include <memory>
 #include <QAudioInput>
-#include <QAudioOutput>
 #include <QtConcurrent/QtConcurrent>
 #include <QThread>
+#include <portaudio.h>
 
 #include "audiovisualwaveform.h"
 #include "common/define.h"
-#include "outputmanager.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
+#include "render/previewaudiodevice.h"
 
 namespace olive {
 
@@ -68,7 +68,7 @@ public:
   /**
    * @brief Start playing audio from AudioPlaybackCache
    */
-  void StartOutput(std::shared_ptr<QIODevice> device);
+  void StartOutput(std::shared_ptr<PreviewAudioDevice> device);
 
   /**
    * @brief Stop audio output immediately
@@ -84,27 +84,19 @@ public:
   const QList<QAudioDeviceInfo>& ListInputDevices();
   const QList<QAudioDeviceInfo>& ListOutputDevices();
 
-  static void ReverseBuffer(char* buffer, int size, int resolution);
-
 signals:
   void OutputListReady();
 
   void InputListReady();
 
-  void OutputNotified();
-
-  void OutputWaveformStarted(const AudioVisualWaveform* waveform, const rational &start, int playback_speed);
-
-  void AudioParamsChanged(const AudioParams& params);
-
-  void OutputPushed(const QByteArray& data);
-
-  void Stopped();
-
 private:
   AudioManager();
 
   virtual ~AudioManager() override;
+
+  void StartOutputStream(PaStreamCallback *streamCallback = nullptr);
+
+  void StopOutputStream();
 
   QList<QAudioDeviceInfo> input_devices_;
   QList<QAudioDeviceInfo> output_devices_;
@@ -114,12 +106,10 @@ private:
 
   static AudioManager* instance_;
 
-  QThread output_thread_;
-  AudioOutputManager* output_manager_;
-  bool output_is_set_;
-
-  QAudioDeviceInfo output_device_info_;
+  PaDeviceIndex output_;
+  PaStream *output_stream_;
   AudioParams output_params_;
+  std::shared_ptr<QIODevice> output_device_;
 
   std::unique_ptr<QAudioInput> input_;
   QAudioDeviceInfo input_device_info_;
