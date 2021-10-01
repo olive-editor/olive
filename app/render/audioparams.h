@@ -21,7 +21,6 @@
 #ifndef AUDIOPARAMS_H
 #define AUDIOPARAMS_H
 
-#include <QAudioFormat>
 #include <QtMath>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
@@ -183,8 +182,6 @@ public:
 
   bool operator==(const AudioParams& other) const;
   bool operator!=(const AudioParams& other) const;
-
-  static QAudioFormat::SampleType GetQtSampleType(Format format);
 
   static const QVector<uint64_t> kSupportedChannelLayouts;
   static const QVector<int> kSupportedSampleRates;

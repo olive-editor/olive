@@ -28,6 +28,7 @@ set(OLIVE_SOURCES
   common/crashpadutils.h
   common/debug.cpp
   common/debug.h
+  common/decibel.h
   common/define.h
   common/ffmpegutils.cpp
   common/ffmpegutils.h

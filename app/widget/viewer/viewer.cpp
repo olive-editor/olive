@@ -48,7 +48,9 @@ namespace olive {
 #define super TimeBasedWidget
 
 QVector<ViewerWidget*> ViewerWidget::instances_;
-const int ViewerWidget::kAudioPlaybackInterval = 2;
+
+// NOTE: Hardcoded interval of size of audio chunk to render and send to the output at a time
+const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 8);
 
 const int kMaxPreQueueSize = 8;
 

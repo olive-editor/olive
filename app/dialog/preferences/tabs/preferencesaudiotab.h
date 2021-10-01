@@ -21,7 +21,6 @@
 #ifndef PREFERENCESAUDIOTAB_H
 #define PREFERENCESAUDIOTAB_H
 
-#include <QAudioDeviceInfo>
 #include <QComboBox>
 #include <QPushButton>
 
@@ -72,7 +71,7 @@ private:
 
   void UpdateRefreshButtonEnabled();
 
-  static void PopulateComboBox(QComboBox* cb, bool still_refreshing, const QList<QAudioDeviceInfo>& list, const QString &preferred);
+  //static void PopulateComboBox(QComboBox* cb, bool still_refreshing, const QList<QAudioDeviceInfo>& list, const QString &preferred);
 
 };
 

@@ -67,26 +67,6 @@ bool AudioParams::operator!=(const AudioParams &other) const
   return !(*this == other);
 }
 
-QAudioFormat::SampleType AudioParams::GetQtSampleType(AudioParams::Format format)
-{
-  switch (format) {
-  case kFormatUnsigned8:
-    return QAudioFormat::UnSignedInt;
-  case kFormatSigned16:
-  case kFormatSigned32:
-  case kFormatSigned64:
-    return QAudioFormat::SignedInt;
-  case kFormatFloat32:
-  case kFormatFloat64:
-    return QAudioFormat::Float;
-  case kFormatInvalid:
-  case kFormatCount:
-    break;
-  }
-
-  return QAudioFormat::Unknown;
-}
-
 qint64 AudioParams::time_to_bytes(const double &time) const
 {
   return time_to_bytes_per_channel(time) * channel_count();

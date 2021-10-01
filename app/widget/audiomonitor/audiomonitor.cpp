@@ -20,11 +20,11 @@
 
 #include "audiomonitor.h"
 
-#include <QAudio>
 #include <QDebug>
 #include <QPainter>
 
 #include "audio/audiomanager.h"
+#include "common/decibel.h"
 #include "common/qtutils.h"
 
 namespace olive {
@@ -170,7 +170,7 @@ void AudioMonitor::paintGL()
           db_label = QStringLiteral("%1").arg(i);
         }
 
-        qreal log_val = QAudio::convertVolume(i, QAudio::DecibelVolumeScale, QAudio::LogarithmicVolumeScale);
+        qreal log_val = Decibel::toLogarithmic(i);
 
         QRect db_marking_rect = db_labels_rect;
         db_marking_rect.adjust(0, db_labels_rect.height() - qRound(log_val * db_labels_rect.height()), 0, 0);
@@ -278,7 +278,7 @@ void AudioMonitor::paintGL()
     }
 
     // Convert val to logarithmic scale
-    vol = QAudio::convertVolume(vol, QAudio::LinearVolumeScale, QAudio::LogarithmicVolumeScale);
+    vol = Decibel::LinearToLogarithmic(vol);
 
     meter_rect.adjust(0, 0, 0, -qRound(meter_rect.height() * vol));
     p.drawRect(meter_rect);

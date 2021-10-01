@@ -64,10 +64,6 @@ signals:
   void ValueChanged(double);
 
 private:
-  static double LinearToDecibel(double linear);
-
-  static double DecibelToLinear(double decibel);
-
   DisplayType display_type_;
 
 };

@@ -22,7 +22,6 @@
 #define AUDIOMANAGER_H
 
 #include <memory>
-#include <QAudioInput>
 #include <QtConcurrent/QtConcurrent>
 #include <QThread>
 #include <portaudio.h>
@@ -68,9 +67,6 @@ public:
 
   void SetInputDevice(PaDeviceIndex device);
 
-  const QList<QAudioDeviceInfo>& ListInputDevices();
-  const QList<QAudioDeviceInfo>& ListOutputDevices();
-
 signals:
   void OutputListReady();
 
@@ -86,9 +82,6 @@ private:
   static PaSampleFormat GetPortAudioSampleFormat(AudioParams::Format fmt);
 
   void CloseOutputStream();
-
-  QList<QAudioDeviceInfo> input_devices_;
-  QList<QAudioDeviceInfo> output_devices_;
 
   bool is_refreshing_inputs_;
   bool is_refreshing_outputs_;

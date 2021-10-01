@@ -219,7 +219,7 @@ private:
 
   ViewerSizer* sizer_;
 
-  QAtomicInt playback_speed_;
+  int playback_speed_;
 
   rational last_time_;
 
@@ -261,7 +261,7 @@ private:
   PackedProcessor packed_processor_;
   TempoProcessor tempo_processor_;
   QByteArray prequeued_audio_;
-  static const int kAudioPlaybackInterval;
+  static const rational kAudioPlaybackInterval;
 
   static QVector<ViewerWidget*> instances_;
 

@@ -21,8 +21,9 @@
 #include "floatslider.h"
 
 #include <cmath>
-#include <QAudio>
 #include <QDebug>
+
+#include "common/decibel.h"
 
 namespace olive {
 
@@ -91,7 +92,7 @@ QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display,
       return tr("\xE2\x88\x9E");
     }
 
-    val = LinearToDecibel(val);
+    val = Decibel::fromLinear(val);
     break;
   case kPercentage:
     // Multiply value by 100 for user-friendly percentage
@@ -124,7 +125,7 @@ QVariant FloatSlider::StringToValue(const QString &s, bool *ok) const
 
     if (valid) {
       // Convert from decibel scale to linear decimal
-      return DecibelToLinear(decibels);
+      return Decibel::toLinear(decibels);
     }
 
     break;
@@ -159,9 +160,9 @@ QVariant FloatSlider::AdjustDragDistanceInternal(const QVariant &start, const do
     break;
   case kDecibel:
   {
-    double current_db = LinearToDecibel(start.toDouble());
+    double current_db = Decibel::fromLinear(start.toDouble());
     current_db += drag;
-    double adjusted_linear = DecibelToLinear(current_db);
+    double adjusted_linear = Decibel::toLinear(current_db);
 
     return adjusted_linear;
   }
@@ -175,23 +176,6 @@ QVariant FloatSlider::AdjustDragDistanceInternal(const QVariant &start, const do
 void FloatSlider::ValueSignalEvent(const QVariant &value)
 {
   emit ValueChanged(value.toDouble());
-}
-
-double FloatSlider::LinearToDecibel(double linear)
-{
-  return double(20.0) * std::log10(linear);
-}
-
-double FloatSlider::DecibelToLinear(double decibel)
-{
-  double to_linear = std::pow(double(10.0), decibel / double(20.0));
-
-  // Minimum threshold that we figure is close enough to 0 that we may as well just return 0
-  if (to_linear < 0.000001) {
-    return 0;
-  } else {
-    return to_linear;
-  }
 }
 
 }

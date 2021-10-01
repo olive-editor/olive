@@ -48,21 +48,6 @@ AudioManager *AudioManager::instance()
 
 void AudioManager::RefreshDevices()
 {
-  if (!is_refreshing_outputs_) {
-    QFutureWatcher< QList<QAudioDeviceInfo> >* output_watcher = new QFutureWatcher< QList<QAudioDeviceInfo> >();
-    connect(output_watcher, &QFutureWatcher< QList<QAudioDeviceInfo> >::finished, this, &AudioManager::OutputDevicesRefreshed);
-    output_watcher->setFuture(QtConcurrent::run(QAudioDeviceInfo::availableDevices, QAudio::AudioOutput));
-
-    is_refreshing_outputs_ = true;
-  }
-
-  if (!is_refreshing_inputs_) {
-    QFutureWatcher< QList<QAudioDeviceInfo> >* input_watcher = new QFutureWatcher< QList<QAudioDeviceInfo> >();
-    connect(input_watcher, &QFutureWatcher< QList<QAudioDeviceInfo> >::finished, this, &AudioManager::InputDevicesRefreshed);
-    input_watcher->setFuture(QtConcurrent::run(QAudioDeviceInfo::availableDevices, QAudio::AudioInput));
-
-    is_refreshing_inputs_ = true;
-  }
 }
 
 bool AudioManager::IsRefreshingOutputs()
@@ -207,16 +192,6 @@ void AudioManager::SetInputDevice(PaDeviceIndex device)
   qInfo() << "Setting input audio device to" << Pa_GetDeviceInfo(device)->name;
 
   input_device_ = device;
-}
-
-const QList<QAudioDeviceInfo> &AudioManager::ListInputDevices()
-{
-  return input_devices_;
-}
-
-const QList<QAudioDeviceInfo> &AudioManager::ListOutputDevices()
-{
-  return output_devices_;
 }
 
 AudioManager::AudioManager() :

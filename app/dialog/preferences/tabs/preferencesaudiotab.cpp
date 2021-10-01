@@ -179,20 +179,20 @@ void PreferencesAudioTab::RefreshDevices()
 
 void PreferencesAudioTab::RetrieveOutputList()
 {
-  PopulateComboBox(audio_output_devices_,
+  /*PopulateComboBox(audio_output_devices_,
                    AudioManager::instance()->IsRefreshingOutputs(),
                    AudioManager::instance()->ListOutputDevices(),
-                   Config::Current()["AudioOutput"].toString());
+                   Config::Current()["AudioOutput"].toString());*/
 
   UpdateRefreshButtonEnabled();
 }
 
 void PreferencesAudioTab::RetrieveInputList()
 {
-  PopulateComboBox(audio_input_devices_,
+  /*PopulateComboBox(audio_input_devices_,
                    AudioManager::instance()->IsRefreshingInputs(),
                    AudioManager::instance()->ListInputDevices(),
-                   Config::Current()["AudioInput"].toString());
+                   Config::Current()["AudioInput"].toString());*/
 
   UpdateRefreshButtonEnabled();
 }
@@ -209,7 +209,7 @@ void PreferencesAudioTab::UpdateRefreshButtonEnabled()
                                    && audio_input_devices_->isEnabled());
 }
 
-void PreferencesAudioTab::PopulateComboBox(QComboBox *cb, bool still_refreshing, const QList<QAudioDeviceInfo> &list, const QString& preferred)
+/*void PreferencesAudioTab::PopulateComboBox(QComboBox *cb, bool still_refreshing, const QList<QAudioDeviceInfo> &list, const QString& preferred)
 {
   cb->clear();
 
@@ -237,6 +237,6 @@ void PreferencesAudioTab::PopulateComboBox(QComboBox *cb, bool still_refreshing,
     }
 
   }
-}
+}*/
 
 }
