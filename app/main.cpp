@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
   if (!has_proc_address) {
     QString msg = QCoreApplication::translate("main",
       "Your computer's graphics driver does not appear to support framebuffers. "
-      "This means either your graphics driver is not up-to-date or your graphics card is too old to run Olive.\n\n"
+      "This most likely means either your graphics driver is not up-to-date or your graphics card is too old to run Olive.\n\n"
       "Please update your graphics driver to the latest version and try again.\n\n"
       "Current driver information: %1 %2 %3").arg(QString::fromStdString(gpu_vendor), QString::fromStdString(gpu_renderer), QString::fromStdString(gpu_version));
 
