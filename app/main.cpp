@@ -46,6 +46,7 @@ extern "C" {
 #ifdef _WIN32
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
+#include <QOpenGLFunctions>
 #include <Windows.h>
 #endif
 
@@ -224,6 +225,9 @@ int main(int argc, char *argv[])
   surface.create();
   ctx.makeCurrent(&surface);
   bool has_proc_address = wglGetProcAddress("glGenFramebuffers");
+  std::string gpu_vendor = reinterpret_cast<const char*>(ctx.functions()->glGetString(GL_VENDOR));
+  std::string gpu_renderer = reinterpret_cast<const char*>(ctx.functions()->glGetString(GL_RENDERER));
+  std::string gpu_version = reinterpret_cast<const char*>(ctx.functions()->glGetString(GL_VERSION));
   ctx.doneCurrent();
   surface.destroy();
 
@@ -231,7 +235,8 @@ int main(int argc, char *argv[])
     QString msg = QCoreApplication::translate("main",
       "Your computer's graphics driver does not appear to support framebuffers. "
       "This means either your graphics driver is not up-to-date or your graphics card is too old to run Olive.\n\n"
-      "Please update your graphics driver to the latest version and try again.");
+      "Please update your graphics driver to the latest version and try again.\n\n"
+      "Current driver information: %1 %2 %3").arg(QString::fromStdString(gpu_vendor), QString::fromStdString(gpu_renderer), QString::fromStdString(gpu_version));
 
     if (dynamic_cast<QGuiApplication*>(a.get())) {
       QMessageBox::critical(nullptr, QString(), msg);
