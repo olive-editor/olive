@@ -35,6 +35,7 @@ extern "C" {
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QMessageBox>
 #include <QSurfaceFormat>
 
 #include "core.h"
@@ -208,6 +209,28 @@ int main(int argc, char *argv[])
   } else {
     a.reset(new QCoreApplication(argc, argv));
   }
+
+#ifdef _WIN32
+  // On Windows, users seem to frequently run into a crash caused by their graphics driver not
+  // supporting framebuffers, which we require. I personally have only been able to recreate this
+  // when no driver is installed (e.g. when using the Microsoft Basic Display Adapter). Whether
+  // that's true for all users or not is still up in the air, but what we do know is it's a driver
+  // issue and users should know what to do rather than simply receive a cryptic crash report.
+  if (!wglGetProcAddress("glGenFramebuffers")) {
+    QString msg = QCoreApplication::translate("main",
+      "Your computer's graphics driver does not appear to support framebuffers. "
+      "This means either your graphics driver is not up-to-date or your graphics card is too old to run Olive.\n\n"
+      "Please update your graphics driver to the latest version and try again.");
+
+    if (dynamic_cast<QGuiApplication*>(a.get())) {
+      QMessageBox::critical(nullptr, QString(), msg);
+    } else {
+      qCritical().noquote() << msg;
+    }
+
+    return 1;
+  }
+#endif
 
   // Register FFmpeg codecs and filters (deprecated in 4.0+)
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
