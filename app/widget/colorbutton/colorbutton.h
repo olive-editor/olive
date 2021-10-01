@@ -45,6 +45,8 @@ signals:
 private slots:
   void ShowColorDialog();
 
+  void ColorDialogFinished(int e);
+
 private:
   void UpdateColor();
 

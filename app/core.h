@@ -432,6 +432,8 @@ public slots:
 
   void BrowseAutoRecoveries();
 
+  void RequestPixelSamplingInViewers(bool e);
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -471,6 +473,18 @@ signals:
    * @brief Signal emitted when a change is made to the open recent list
    */
   void OpenRecentListChanged();
+
+  /**
+   * @brief Enable mouse color sampling functionality on all viewers
+   *
+   * This can be slow, so we only turn it on when we need it.
+   */
+  void ColorPickerEnabled(bool e);
+
+  /**
+   * @brief A viewer with color picked enabled has emitted a color
+   */
+  void ColorPickerColorEmitted(const Color &reference, const Color &display);
 
 private:
   /**
@@ -594,6 +608,11 @@ private:
    * @brief List of projects that are unsaved but have autorecovery projects
    */
   QVector<QUuid> autorecovered_projects_;
+
+  /**
+   * @brief How many widgets currently need pixel sampling access
+   */
+  int pixel_sampling_users_;
 
 private slots:
   void SaveAutorecovery();

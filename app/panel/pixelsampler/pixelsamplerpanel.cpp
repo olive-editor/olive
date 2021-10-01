@@ -20,6 +20,8 @@
 
 #include "pixelsamplerpanel.h"
 
+#include "core.h"
+
 namespace olive {
 
 PixelSamplerPanel::PixelSamplerPanel(QWidget *parent) :
@@ -27,6 +29,9 @@ PixelSamplerPanel::PixelSamplerPanel(QWidget *parent) :
 {
   sampler_widget_ = new ManagedPixelSamplerWidget();
   SetWidgetWithPadding(sampler_widget_);
+
+  connect(this, &PixelSamplerPanel::visibilityChanged, Core::instance(), &Core::RequestPixelSamplingInViewers);
+  connect(Core::instance(), &Core::ColorPickerColorEmitted, this, &PixelSamplerPanel::SetValues);
 
   Retranslate();
 }

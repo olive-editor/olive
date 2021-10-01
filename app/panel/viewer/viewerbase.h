@@ -47,8 +47,6 @@ public:
 
   void DisconnectTimeBasedPanel(TimeBasedPanel* panel);
 
-  void ConnectPixelSamplerPanel(PixelSamplerPanel *psp);
-
   /**
    * @brief Wrapper for ViewerWidget::SetFullScreen()
    */

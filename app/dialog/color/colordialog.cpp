@@ -57,6 +57,7 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   splitter->addWidget(value_area);
 
   color_values_widget_ = new ColorValuesWidget(color_manager_);
+  color_values_widget_->IgnorePickFrom(this);
   value_layout->addWidget(color_values_widget_);
 
   chooser_ = new ColorSpaceChooser(color_manager_);

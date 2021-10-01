@@ -82,7 +82,8 @@ Core::Core(const CoreParams& params) :
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
-  core_params_(params)
+  core_params_(params),
+  pixel_sampling_users_(0)
 {
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
@@ -1204,6 +1205,25 @@ void Core::BrowseAutoRecoveries()
                          QDir(FileFunctions::GetAutoRecoveryRoot()).entryList(QDir::Dirs | QDir::NoDotAndDotDot),
                          false, main_window_);
   ard.exec();
+}
+
+void Core::RequestPixelSamplingInViewers(bool e)
+{
+  if (e) {
+    if (pixel_sampling_users_ == 0) {
+      // Signal to start pixel sampling
+      emit ColorPickerEnabled(true);
+    }
+
+    pixel_sampling_users_++;
+  } else {
+    pixel_sampling_users_--;
+
+    if (pixel_sampling_users_ == 0) {
+      // Signal to end pixel sampling
+      emit ColorPickerEnabled(false);
+    }
+  }
 }
 
 bool Core::SaveProjectAs(Project* p)

@@ -98,6 +98,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("ShowWelcomeDialog"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("ShowClipWhileDragging"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("StopPlaybackOnLastFrame"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("UseLegacyColorInInputTab"), NodeValue::kBoolean, false);
 
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 

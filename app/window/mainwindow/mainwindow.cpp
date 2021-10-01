@@ -114,9 +114,6 @@ MainWindow::MainWindow(QWidget *parent) :
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
 
-  footage_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
-  sequence_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
-
   UpdateTitle();
 
   QMetaObject::invokeMethod(this, "SetDefaultLayout", Qt::QueuedConnection);

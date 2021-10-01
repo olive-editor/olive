@@ -53,15 +53,26 @@ void ColorButton::SetColor(const ManagedColor &c)
 
 void ColorButton::ShowColorDialog()
 {
-  ColorDialog cd(color_manager_, color_, this);
+  ColorDialog *cd = new ColorDialog(color_manager_, color_, this);
 
-  if (cd.exec() == QDialog::Accepted) {
-    color_ = cd.GetSelectedColor();
+  connect(cd, &ColorDialog::finished, this, &ColorButton::ColorDialogFinished);
+
+  cd->show();
+}
+
+void ColorButton::ColorDialogFinished(int e)
+{
+  ColorDialog *cd = static_cast<ColorDialog*>(sender());
+
+  if (e == QDialog::Accepted) {
+    color_ = cd->GetSelectedColor();
 
     UpdateColor();
 
     emit ColorChanged(color_);
   }
+
+  cd->deleteLater();
 }
 
 void ColorButton::UpdateColor()

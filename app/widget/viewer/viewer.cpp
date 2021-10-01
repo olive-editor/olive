@@ -36,6 +36,7 @@
 #include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
+#include "core.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "task/taskmanager.h"
@@ -128,6 +129,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   instances_.append(this);
 
   setAcceptDrops(true);
+
+  connect(Core::instance(), &Core::ColorPickerEnabled, this, &ViewerWidget::SetSignalCursorColorEnabled);
+  connect(this, &ViewerWidget::CursorColor, Core::instance(), &Core::ColorPickerColorEmitted);
 }
 
 ViewerWidget::~ViewerWidget()

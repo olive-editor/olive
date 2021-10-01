@@ -72,14 +72,6 @@ void ViewerPanelBase::DisconnectTimeBasedPanel(TimeBasedPanel *panel)
   disconnect(panel, &TimeBasedPanel::ShuttleRightRequested, this, &ViewerPanelBase::ShuttleRight);
 }
 
-void ViewerPanelBase::ConnectPixelSamplerPanel(PixelSamplerPanel *psp)
-{
-  ViewerWidget* vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());
-
-  connect(psp, &PixelSamplerPanel::visibilityChanged, vw, &ViewerWidget::SetSignalCursorColorEnabled);
-  connect(vw, &ViewerWidget::CursorColor, psp, &PixelSamplerPanel::SetValues);
-}
-
 void ViewerPanelBase::SetFullScreen(QScreen *screen)
 {
   static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetFullScreen(screen);

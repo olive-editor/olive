@@ -21,7 +21,11 @@
 #include "colorvalueswidget.h"
 
 #include <QGridLayout>
+#include <QMouseEvent>
 #include <QTabWidget>
+
+#include "config/config.h"
+#include "core.h"
 
 namespace olive {
 
@@ -47,6 +51,12 @@ ColorValuesWidget::ColorValuesWidget(ColorManager *manager, QWidget *parent) :
     preview_->setFixedHeight(fontMetrics().height() * 3 / 2);
     preview_layout->addWidget(preview_);
 
+    color_picker_btn_ = new QPushButton(tr("Pick"));
+    color_picker_btn_->setCheckable(true);
+    connect(color_picker_btn_, &QPushButton::toggled, this, &ColorValuesWidget::ColorPickedBtnToggled);
+    connect(Core::instance(), &Core::ColorPickerColorEmitted, this, &ColorValuesWidget::SetReferenceColor);
+    preview_layout->addWidget(color_picker_btn_);
+
     layout->addLayout(preview_layout);
   }
 
@@ -54,7 +64,7 @@ ColorValuesWidget::ColorValuesWidget(ColorManager *manager, QWidget *parent) :
   {
     QTabWidget* tabs = new QTabWidget();
 
-    input_tab_ = new ColorValuesTab();
+    input_tab_ = new ColorValuesTab(true);
     tabs->addTab(input_tab_, tr("Input"));
     connect(input_tab_, &ColorValuesTab::ColorChanged, this, &ColorValuesWidget::UpdateValuesFromInput);
     connect(input_tab_, &ColorValuesTab::ColorChanged, this, &ColorValuesWidget::ColorChanged);
@@ -92,12 +102,49 @@ void ColorValuesWidget::SetColorProcessor(ColorProcessorPtr input_to_ref, ColorP
   preview_->SetColorProcessor(input_to_ref_, ref_to_display_);
 }
 
+bool ColorValuesWidget::eventFilter(QObject *watcher, QEvent *event)
+{
+  if (event->type() == QEvent::MouseButtonPress) {
+    // Should signal to Core to stop pixel sampling and to us to remove our event filter
+    bool use_this_color = true;
+
+    foreach (QWidget *w, ignore_pick_from_) {
+      if (w->underMouse()) {
+        use_this_color = false;
+        break;
+      }
+    }
+
+    if (use_this_color) {
+      picker_end_color_ = GetColor();
+    }
+    color_picker_btn_->setChecked(false);
+    return true;
+  } else if (event->type() == QEvent::KeyPress) {
+    QKeyEvent *key_ev = static_cast<QKeyEvent*>(event);
+
+    if (key_ev->key() == Qt::Key_Escape) {
+      color_picker_btn_->setChecked(false);
+      return true;
+    }
+  }
+
+  return QWidget::eventFilter(watcher, event);
+}
+
 void ColorValuesWidget::SetColor(const Color &c)
 {
   input_tab_->SetColor(c);
   preview_->SetColor(c);
 
   UpdateValuesFromInput();
+}
+
+void ColorValuesWidget::SetReferenceColor(const Color &c)
+{
+  reference_tab_->SetColor(c);
+
+  UpdateValuesFromRef();
 }
 
 void ColorValuesWidget::UpdateValuesFromInput()
@@ -116,6 +163,24 @@ void ColorValuesWidget::UpdateValuesFromDisplay()
 {
   UpdateRefFromDisplay();
   UpdateInputFromRef();
+}
+
+void ColorValuesWidget::ColorPickedBtnToggled(bool e)
+{
+  Core::instance()->RequestPixelSamplingInViewers(e);
+
+  if (e) {
+    qApp->installEventFilter(this);
+
+    // Store current color in case it needs to be restored
+    picker_end_color_ = GetColor();
+  } else {
+    qApp->removeEventFilter(this);
+
+    // Restore original color (or use overridden color from eventFilter)
+    SetColor(picker_end_color_);
+    emit ColorChanged(picker_end_color_);
+  }
 }
 
 void ColorValuesWidget::UpdateInputFromRef()
@@ -157,16 +222,31 @@ void ColorValuesWidget::UpdateRefFromDisplay()
   }
 }
 
-ColorValuesTab::ColorValuesTab(QWidget *parent) :
+const double ColorValuesTab::kLegacyMultiplier = 255.0;
+
+ColorValuesTab::ColorValuesTab(bool with_legacy_option, QWidget *parent) :
   QWidget(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
 
   int row = 0;
 
+  if (with_legacy_option) {
+    legacy_box_ = new QCheckBox(tr("Use legacy (8-bit) values"));
+    legacy_box_->setChecked(Config::Current()[QStringLiteral("UseLegacyColorInInputTab")].toBool());
+    connect(legacy_box_, &QCheckBox::clicked, this, &ColorValuesTab::LegacyChanged);
+    layout->addWidget(legacy_box_, row, 0, 1, 2);
+    row++;
+  } else {
+    legacy_box_ = nullptr;
+  }
+
+  sliders_.resize(3);
+
   layout->addWidget(new QLabel(tr("Red")), row, 0);
 
   red_slider_ = CreateColorSlider();
+  sliders_[0] = red_slider_;
   layout->addWidget(red_slider_, row, 1);
 
   row++;
@@ -174,6 +254,7 @@ ColorValuesTab::ColorValuesTab(QWidget *parent) :
   layout->addWidget(new QLabel(tr("Green")), row, 0);
 
   green_slider_ = CreateColorSlider();
+  sliders_[1] = green_slider_;
   layout->addWidget(green_slider_, row, 1);
 
   row++;
@@ -181,28 +262,87 @@ ColorValuesTab::ColorValuesTab(QWidget *parent) :
   layout->addWidget(new QLabel(tr("Blue")), row, 0);
 
   blue_slider_ = CreateColorSlider();
+  sliders_[2] = blue_slider_;
   layout->addWidget(blue_slider_, row, 1);
+
+  row++;
+
+  hex_lbl_ = new QLabel(tr("Hex"));
+  layout->addWidget(hex_lbl_, row, 0);
+
+  hex_slider_ = new StringSlider();
+  connect(hex_slider_, &StringSlider::ValueChanged, this, &ColorValuesTab::HexChanged);
+  layout->addWidget(hex_slider_, row, 1);
+
+  LegacyChanged(AreSlidersLegacyValues());
 }
 
 Color ColorValuesTab::GetColor() const
 {
-  return Color(red_slider_->GetValue(),
-               green_slider_->GetValue(),
-               blue_slider_->GetValue());
+  return Color(GetRed(), GetGreen(), GetBlue());
 }
 
 void ColorValuesTab::SetColor(const Color &c)
 {
-  red_slider_->SetValue(c.red());
-  green_slider_->SetValue(c.green());
-  blue_slider_->SetValue(c.blue());
+  SetRed(c.red());
+  SetGreen(c.green());
+  SetBlue(c.blue());
+}
+
+double ColorValuesTab::GetRed() const
+{
+  return GetValueInternal(red_slider_);
+}
+
+double ColorValuesTab::GetGreen() const
+{
+  return GetValueInternal(green_slider_);
+}
+
+double ColorValuesTab::GetBlue() const
+{
+  return GetValueInternal(blue_slider_);
+}
+
+void ColorValuesTab::SetRed(double r)
+{
+  SetValueInternal(red_slider_, r);
+}
+
+void ColorValuesTab::SetGreen(double g)
+{
+  SetValueInternal(green_slider_, g);
+}
+
+void ColorValuesTab::SetBlue(double b)
+{
+  SetValueInternal(blue_slider_, b);
+}
+
+double ColorValuesTab::GetValueInternal(FloatSlider *slider) const
+{
+  double d = slider->GetValue();
+
+  if (AreSlidersLegacyValues()) {
+    d /= kLegacyMultiplier;
+  }
+
+  return d;
+}
+
+void ColorValuesTab::SetValueInternal(FloatSlider *slider, double v)
+{
+  if (AreSlidersLegacyValues()) {
+    v *= kLegacyMultiplier;
+  }
+
+  slider->SetValue(v);
+  UpdateHex();
 }
 
 FloatSlider *ColorValuesTab::CreateColorSlider()
 {
   FloatSlider* fs = new FloatSlider();
-  fs->SetDragMultiplier(0.01);
-  fs->SetDecimalPlaces(5);
   fs->SetLadderElementCount(1);
   connect(fs, &FloatSlider::ValueChanged, this, &ColorValuesTab::SliderChanged);
   return fs;
@@ -211,6 +351,69 @@ FloatSlider *ColorValuesTab::CreateColorSlider()
 void ColorValuesTab::SliderChanged()
 {
   emit ColorChanged(GetColor());
+  UpdateHex();
+}
+
+void ColorValuesTab::LegacyChanged(bool legacy)
+{
+  Config::Current()[QStringLiteral("UseLegacyColorInInputTab")] = legacy;
+
+  double legacy_multiplier = legacy ? kLegacyMultiplier : 1.0/kLegacyMultiplier;
+  int decimal_places = legacy ? 0 : 5;
+  double drag_multiplier = legacy ? 1.0 : 0.01;
+
+  foreach (FloatSlider *s, sliders_) {
+    s->SetValue(s->GetValue() * legacy_multiplier);
+    s->SetDecimalPlaces(decimal_places);
+    s->SetDragMultiplier(drag_multiplier);
+  }
+
+  hex_lbl_->setVisible(legacy);
+  hex_slider_->setVisible(legacy);
+  UpdateHex();
+}
+
+void ColorValuesTab::UpdateHex()
+{
+  if (AreSlidersLegacyValues()) {
+    double r = red_slider_->GetValue();
+    double g = green_slider_->GetValue();
+    double b = blue_slider_->GetValue();
+
+    if (r > kLegacyMultiplier || g > kLegacyMultiplier || b > kLegacyMultiplier) {
+      hex_slider_->SetValue(tr("(Invalid)"));
+    } else {
+      uint32_t rgb = (uint8_t(r) << 16) | (uint8_t(g) << 8) | uint8_t(b);
+
+      hex_slider_->SetValue(QStringLiteral("%1").arg(rgb, 6, 16, QLatin1Char('0')).toUpper());
+    }
+  }
+}
+
+void ColorValuesTab::HexChanged(const QString &s)
+{
+  bool ok;
+  uint32_t hex = s.toULong(&ok, 16);
+
+  if (ok) {
+    uint32_t r = (hex & 0xFF0000) >> 16;
+    uint32_t g = (hex & 0x00FF00) >> 8;
+    uint32_t b = (hex & 0x0000FF);
+
+    red_slider_->SetValue(r);
+    green_slider_->SetValue(g);
+    blue_slider_->SetValue(b);
+
+    emit ColorChanged(GetColor());
+  } else {
+    // Return to original value
+    UpdateHex();
+  }
+}
+
+bool ColorValuesTab::AreSlidersLegacyValues() const
+{
+  return legacy_box_ && legacy_box_->isChecked();
 }
 
 }
