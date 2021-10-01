@@ -86,7 +86,6 @@ find_package(Qt5 5.6 REQUIRED
   Core
   Gui
   Widgets
-  Multimedia
   OpenGL
   Svg
   LinguistTools
@@ -96,7 +95,6 @@ list(APPEND OLIVE_LIBRARIES
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
-  Qt5::Multimedia
   Qt5::OpenGL
   Qt5::Svg
   Qt5::Concurrent
