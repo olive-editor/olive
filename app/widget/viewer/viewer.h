@@ -256,11 +256,11 @@ private:
 
   QVector<RenderTicketWatcher*> queue_watchers_;
 
-  std::shared_ptr<PreviewAudioDevice> audio_playback_device_;
   std::list<RenderTicketWatcher*> audio_playback_queue_;
   rational audio_playback_queue_time_;
   PackedProcessor packed_processor_;
   TempoProcessor tempo_processor_;
+  QByteArray prequeued_audio_;
   static const int kAudioPlaybackInterval;
 
   static QVector<ViewerWidget*> instances_;
@@ -307,8 +307,6 @@ private slots:
   void DragEntered(QDragEnterEvent* event);
 
   void Dropped(QDropEvent* event);
-
-  void StartAudioOutput();
 
   void QueueNextAudioBuffer();
 

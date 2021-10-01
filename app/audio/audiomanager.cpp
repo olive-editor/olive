@@ -28,18 +28,6 @@ namespace olive {
 
 AudioManager* AudioManager::instance_ = nullptr;
 
-QString AudioManager::GetAudioBackendName(AudioManager::Backend b)
-{
-  switch (b) {
-  case kAudioBackendQt:
-    return tr("Qt");
-  case kAudioBackendCount:
-    break;
-  }
-
-  return tr("Unknown");
-}
-
 void AudioManager::CreateInstance()
 {
   if (instance_ == nullptr) {
@@ -87,17 +75,57 @@ bool AudioManager::IsRefreshingInputs()
   return is_refreshing_inputs_;
 }
 
-void AudioManager::PushToOutput(const QByteArray &samples)
+void AudioManager::SetOutputNotifyInterval(int n)
 {
-  if (!output_stream_) {
-    // Start output with no callback so it'll be in "push" mode
-    StartOutputStream();
-  }
-
-  Pa_WriteStream(output_stream_, samples.constData(), output_params_.bytes_to_samples(samples.size()));
+  output_buffer_->set_notify_interval(n);
 }
 
-static PaSampleFormat GetPortAudioSampleFormat(AudioParams::Format fmt)
+int OutputCallback(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
+{
+  PreviewAudioDevice *device = static_cast<PreviewAudioDevice*>(userData);
+
+  qint64 max_read = frameCount * device->bytes_per_frame();
+  qint64 read_count = device->read(reinterpret_cast<char*>(output), max_read);
+  if (read_count < max_read) {
+    memset(reinterpret_cast<uint8_t*>(output) + read_count, 0, max_read - read_count);
+  }
+
+  return paContinue;
+}
+
+void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &samples)
+{
+  if (output_params_ != params || output_stream_ == nullptr) {
+    output_params_ = params;
+
+    CloseOutputStream();
+
+    PaStreamParameters p;
+
+    p.channelCount = output_params_.channel_count();
+    p.device = output_device_;
+    p.hostApiSpecificStreamInfo = nullptr;
+    p.sampleFormat = GetPortAudioSampleFormat(output_params_.format());
+    p.suggestedLatency = Pa_GetDeviceInfo(output_device_)->defaultLowOutputLatency;
+
+    Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_.get());
+
+    output_buffer_->set_bytes_per_frame(output_params_.samples_to_bytes(1));
+  }
+
+  output_buffer_->write(samples);
+
+  if (!Pa_IsStreamActive(output_stream_)) {
+    Pa_StartStream(output_stream_);
+  }
+}
+
+void AudioManager::ClearBufferedOutput()
+{
+  output_buffer_->clear();
+}
+
+PaSampleFormat AudioManager::GetPortAudioSampleFormat(AudioParams::Format fmt)
 {
   switch (fmt) {
   case AudioParams::kFormatUnsigned8:
@@ -118,38 +146,34 @@ static PaSampleFormat GetPortAudioSampleFormat(AudioParams::Format fmt)
   return 0;
 }
 
-int OutputCallback(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
+void AudioManager::CloseOutputStream()
 {
-  PreviewAudioDevice *device = static_cast<PreviewAudioDevice*>(userData);
-
-  device->read(reinterpret_cast<char*>(output), frameCount * device->bytes_per_frame());
-
-  return paContinue;
-}
-
-void AudioManager::StartOutput(std::shared_ptr<PreviewAudioDevice> device)
-{
-  // First stop any current device
-  StopOutputStream();
-
-  // Store device
-  output_device_ = device;
-
-  // Start output stream that pulls from this device
-  StartOutputStream(OutputCallback);
+  if (output_stream_) {
+    if (Pa_IsStreamActive(output_stream_)) {
+      StopOutput();
+    }
+    Pa_CloseStream(output_stream_);
+    output_stream_ = nullptr;
+  }
 }
 
 void AudioManager::StopOutput()
 {
-  // Stop playback first so the callback won't get called again
-  StopOutputStream();
-
-  // Then clear our reference to the output devicec
-  output_device_ = nullptr;
+  // Abort the stream so playback stops immediately
+  if (output_stream_) {
+    Pa_AbortStream(output_stream_);
+    ClearBufferedOutput();
+  }
 }
 
-void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
+void AudioManager::SetOutputDevice(PaDeviceIndex device)
 {
+  qInfo() << "Setting output audio device to" << Pa_GetDeviceInfo(device)->name;
+
+  output_device_ = device;
+
+  CloseOutputStream();
+
   /*qInfo() << "Setting output audio device to" << info.deviceName();
 
   StopOutput();
@@ -178,21 +202,11 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
   }*/
 }
 
-void AudioManager::SetOutputParams(const AudioParams &params)
+void AudioManager::SetInputDevice(PaDeviceIndex device)
 {
-  if (output_params_ != params) {
-    // If an output stream is running, stop it now
-    StopOutputStream();
+  qInfo() << "Setting input audio device to" << Pa_GetDeviceInfo(device)->name;
 
-    // Update parameters
-    output_params_ = params;
-  }
-}
-
-void AudioManager::SetInputDevice(const QAudioDeviceInfo &info)
-{
-  input_ = std::unique_ptr<QAudioInput>(new QAudioInput(info, QAudioFormat(), this));
-  input_device_info_ = info;
+  input_device_ = device;
 }
 
 const QList<QAudioDeviceInfo> &AudioManager::ListInputDevices()
@@ -208,49 +222,25 @@ const QList<QAudioDeviceInfo> &AudioManager::ListOutputDevices()
 AudioManager::AudioManager() :
   is_refreshing_inputs_(false),
   is_refreshing_outputs_(false),
-  output_stream_(nullptr),
-  input_(nullptr),
-  input_file_(nullptr)
+  output_stream_(nullptr)
 {
   //RefreshDevices();
 
   Pa_Initialize();
 
-  output_ = Pa_GetDefaultOutputDevice();
+  SetOutputDevice(Pa_GetDefaultOutputDevice());
+  SetInputDevice(Pa_GetDefaultInputDevice());
+
+  output_buffer_ = std::make_unique<PreviewAudioDevice>();
+  output_buffer_->open(PreviewAudioDevice::ReadWrite);
+  connect(output_buffer_.get(), &PreviewAudioDevice::Notify, this, &AudioManager::OutputNotify);
 }
 
 AudioManager::~AudioManager()
 {
-  StopOutputStream();
+  CloseOutputStream();
 
   Pa_Terminate();
-}
-
-void AudioManager::StartOutputStream(PaStreamCallback *streamCallback)
-{
-  if (output_stream_) {
-    StopOutputStream();
-  }
-
-  PaStreamParameters p;
-
-  p.channelCount = output_params_.channel_count();
-  p.device = output_;
-  p.hostApiSpecificStreamInfo = nullptr;
-  p.sampleFormat = GetPortAudioSampleFormat(output_params_.format());
-  p.suggestedLatency = Pa_GetDeviceInfo(output_)->defaultLowOutputLatency;
-
-  Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, streamCallback, output_device_.get());
-  Pa_StartStream(output_stream_);
-}
-
-void AudioManager::StopOutputStream()
-{
-  if (output_stream_) {
-    Pa_AbortStream(output_stream_);
-    Pa_CloseStream(output_stream_);
-    output_stream_ = nullptr;
-  }
 }
 
 void AudioManager::OutputDevicesRefreshed()
@@ -282,7 +272,7 @@ void AudioManager::OutputDevicesRefreshed()
 
 void AudioManager::InputDevicesRefreshed()
 {
-  QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
+  /*QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
 
   input_devices_ = watcher->result();
   watcher->deleteLater();
@@ -304,7 +294,7 @@ void AudioManager::InputDevicesRefreshed()
     }
   }
 
-  emit InputListReady();
+  emit InputListReady();*/
 }
 
 }

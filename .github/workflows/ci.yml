@@ -317,7 +317,7 @@ jobs:
           brew update
           brew upgrade
           brew tap olive-editor/homebrew
-          brew install -f qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio
+          brew install -f qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio portaudio
           echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
 
       - name: Acquire Google Crashpad

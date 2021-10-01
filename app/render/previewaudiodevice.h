@@ -29,7 +29,7 @@ class PreviewAudioDevice : public QIODevice
 {
   Q_OBJECT
 public:
-  PreviewAudioDevice(int bytes_per_frame, QObject *parent = nullptr);
+  PreviewAudioDevice(QObject *parent = nullptr);
 
   virtual ~PreviewAudioDevice() override;
 
@@ -46,31 +46,25 @@ public:
     return bytes_per_frame_;
   }
 
+  void set_bytes_per_frame(int b)
+  {
+    bytes_per_frame_ = b;
+  }
+
   void set_notify_interval(qint64 i)
   {
     notify_interval_ = i;
   }
 
+  void clear();
+
 signals:
   void Notify();
 
 private:
-  enum LockMethod {
-    kDontLock,
-    kTryLock,
-    kFullLock
-  };
-
-  bool SwapBuffers(LockMethod m);
-
   QMutex lock_;
 
-  QByteArray internal_buffer_[2];
-
-  QByteArray *using_;
-  QByteArray *pushing_;
-
-  QAtomicInt swap_requested_;
+  QByteArray buffer_;
 
   int bytes_per_frame_;
 

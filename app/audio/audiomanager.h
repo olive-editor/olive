@@ -45,13 +45,6 @@ class AudioManager : public QObject
 {
   Q_OBJECT
 public:
-  enum Backend {
-    kAudioBackendQt,
-    kAudioBackendCount
-  };
-
-  static QString GetAudioBackendName(Backend b);
-
   static void CreateInstance();
   static void DestroyInstance();
 
@@ -63,29 +56,25 @@ public:
 
   bool IsRefreshingInputs();
 
-  void PushToOutput(const QByteArray& samples);
+  void SetOutputNotifyInterval(int n);
 
-  /**
-   * @brief Start playing audio from AudioPlaybackCache
-   */
-  void StartOutput(std::shared_ptr<PreviewAudioDevice> device);
+  void PushToOutput(const AudioParams &params, const QByteArray& samples);
 
-  /**
-   * @brief Stop audio output immediately
-   */
+  void ClearBufferedOutput();
+
   void StopOutput();
 
-  void SetOutputDevice(const QAudioDeviceInfo& info);
+  void SetOutputDevice(PaDeviceIndex device);
 
-  void SetOutputParams(const AudioParams& params);
-
-  void SetInputDevice(const QAudioDeviceInfo& info);
+  void SetInputDevice(PaDeviceIndex device);
 
   const QList<QAudioDeviceInfo>& ListInputDevices();
   const QList<QAudioDeviceInfo>& ListOutputDevices();
 
 signals:
   void OutputListReady();
+
+  void OutputNotify();
 
   void InputListReady();
 
@@ -94,9 +83,9 @@ private:
 
   virtual ~AudioManager() override;
 
-  void StartOutputStream(PaStreamCallback *streamCallback = nullptr);
+  static PaSampleFormat GetPortAudioSampleFormat(AudioParams::Format fmt);
 
-  void StopOutputStream();
+  void CloseOutputStream();
 
   QList<QAudioDeviceInfo> input_devices_;
   QList<QAudioDeviceInfo> output_devices_;
@@ -106,14 +95,12 @@ private:
 
   static AudioManager* instance_;
 
-  PaDeviceIndex output_;
+  PaDeviceIndex output_device_;
   PaStream *output_stream_;
   AudioParams output_params_;
-  std::shared_ptr<QIODevice> output_device_;
+  std::unique_ptr<PreviewAudioDevice> output_buffer_;
 
-  std::unique_ptr<QAudioInput> input_;
-  QAudioDeviceInfo input_device_info_;
-  QIODevice* input_file_;
+  PaDeviceIndex input_device_;
 
 private slots:
   void OutputDevicesRefreshed();
