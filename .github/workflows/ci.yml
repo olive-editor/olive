@@ -171,12 +171,9 @@ jobs:
       - name: Set up vcpkg and restore cache
         uses: lukka/run-vcpkg@v7
         with:
-          setupOnly: true
           vcpkgGitCommitId: 2a31089e777fc187f1cc05338250b8e1810cfb52
-      - name: Acquire Dependencies
-        shell: bash
-        run: |
-          $VCPKG_ROOT/vcpkg install qt5 ffmpeg openexr openimageio opencolorio portaudio --triplet=x64-windows --clean-after-build
+          vcpkgTriplet: x64-windows
+          vcpkgArguments: qt5 ffmpeg openexr openimageio opencolorio portaudio
 
       - name: Acquire Google Crashpad
         shell: bash
