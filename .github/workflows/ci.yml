@@ -169,11 +169,14 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Acquire Dependencies
-        shell: bash
-        working-directory: ${{ runner.workspace }}
+        uses: lukka/run-vcpkg@v7
+        with:
+          setupOnly: true
+        env:
+          VCPKG_DEFAULT_TRIPLET: x64-windows
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32.tar.gz
-          tar xzf olive-dep-win32.tar.gz
+          $VCPKG_ROOT/vcpkg install qt5 ffmpeg openexr openimageio opencolorio portaudio --triplet=x64-windows-rel
+        shell: bash
 
       - name: Acquire Google Crashpad
         shell: bash
@@ -198,7 +201,7 @@ jobs:
           DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
+          PATH=$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
       - name: Build
