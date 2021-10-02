@@ -679,9 +679,10 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       tempo_processor_.Open(GetConnectedNode()->GetAudioParams(), std::abs(playback_speed_));
     }
 
-    prequeuing_audio_ = 2; // Queue two buffers ahead of time
+    static const int prequeue_count = 2;
+    prequeuing_audio_ = prequeue_count; // Queue two buffers ahead of time
     audio_playback_queue_time_ = GetTime();
-    for (int i=0; i<prequeuing_audio_; i++) {
+    for (int i=0; i<prequeue_count; i++) {
       QueueNextAudioBuffer();
     }
   }
