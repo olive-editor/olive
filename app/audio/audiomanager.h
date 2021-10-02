@@ -91,7 +91,7 @@ private:
   PaDeviceIndex output_device_;
   PaStream *output_stream_;
   AudioParams output_params_;
-  std::unique_ptr<PreviewAudioDevice> output_buffer_;
+  PreviewAudioDevice *output_buffer_;
 
   PaDeviceIndex input_device_;
 

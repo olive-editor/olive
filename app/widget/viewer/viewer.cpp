@@ -495,10 +495,10 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
         samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
       }*/
 
-      QByteArray data = packed_processor_.Convert(samples);
+      QByteArray packed = packed_processor_.Convert(samples);
       AudioManager::instance()->ClearBufferedOutput();
-      AudioManager::instance()->PushToOutput(samples->audio_params(), data);
-      AudioMonitor::PushBytesOnAll(data);
+      AudioManager::instance()->PushToOutput(samples->audio_params(), packed);
+      AudioMonitor::PushBytesOnAll(packed);
     }
   }
 

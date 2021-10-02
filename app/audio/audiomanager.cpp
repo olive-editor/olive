@@ -93,7 +93,7 @@ void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &sam
     p.sampleFormat = GetPortAudioSampleFormat(output_params_.format());
     p.suggestedLatency = Pa_GetDeviceInfo(output_device_)->defaultLowOutputLatency;
 
-    Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_.get());
+    Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_);
 
     output_buffer_->set_bytes_per_frame(output_params_.samples_to_bytes(1));
   }
@@ -206,9 +206,9 @@ AudioManager::AudioManager() :
   SetOutputDevice(Pa_GetDefaultOutputDevice());
   SetInputDevice(Pa_GetDefaultInputDevice());
 
-  output_buffer_ = std::make_unique<PreviewAudioDevice>();
+  output_buffer_ = new PreviewAudioDevice(this);
   output_buffer_->open(PreviewAudioDevice::ReadWrite);
-  connect(output_buffer_.get(), &PreviewAudioDevice::Notify, this, &AudioManager::OutputNotify);
+  connect(output_buffer_, &PreviewAudioDevice::Notify, this, &AudioManager::OutputNotify);
 }
 
 AudioManager::~AudioManager()
