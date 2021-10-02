@@ -67,8 +67,7 @@ list(APPEND OLIVE_LIBRARIES OpenGL::GL)
 
 # Link OpenColorIO
 find_package(OpenColorIO 2.0.0 REQUIRED)
-list(APPEND OLIVE_LIBRARIES ${OCIO_LIBRARIES})
-list(APPEND OLIVE_INCLUDE_DIRS ${OCIO_INCLUDE_DIRS})
+list(APPEND OLIVE_LIBRARIES OpenColorIO)
 
 # Link OpenImageIO
 find_package(OpenImageIO 2.1.12 REQUIRED)
@@ -134,9 +133,8 @@ list(APPEND OLIVE_LIBRARIES ${PORTAUDIO_LIBRARIES})
 find_package(OpenTimelineIO)
 if (OpenTimelineIO_FOUND)
   list(APPEND OLIVE_DEFINITIONS USE_OTIO)
-  list(APPEND OLIVE_INCLUDE_DIRS ${OTIO_INCLUDE_DIRS})
-  list(APPEND OLIVE_LIBRARIES ${OTIO_LIBRARIES})
-else()
+  list(APPEND OLIVE_LIBRARIES OpenTimelineIO)
+  else()
   message("   OpenTimelineIO interchange will be disabled.")
 endif()
 
