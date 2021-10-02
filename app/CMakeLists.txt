@@ -137,6 +137,6 @@ target_include_directories(olive-editor PRIVATE ${OLIVE_INCLUDE_DIRS})
 target_include_directories(libolive-editor PRIVATE ${OLIVE_INCLUDE_DIRS})
 
 # Add crash handler
-if (GoogleCrashpad_FOUND)
+if (GoogleCrashpad_FOUND AND Qt5Network_FOUND)
   add_subdirectory(crashhandler)
 endif()

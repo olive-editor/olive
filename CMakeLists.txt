@@ -90,7 +90,12 @@ find_package(Qt5 5.6 REQUIRED
   Svg
   LinguistTools
   Concurrent
+  OPTIONAL_COMPONENTS
+  Network
 )
+if (NOT Qt5Network_FOUND)
+  message("   Qt5::Network module not found, crash reporting will be disabled.")
+endif()
 list(APPEND OLIVE_LIBRARIES
   Qt5::Core
   Qt5::Gui
