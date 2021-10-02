@@ -176,7 +176,7 @@ jobs:
       - name: Acquire Dependencies
         shell: bash
         run: |
-          $VCPKG_ROOT/vcpkg install qt5 ffmpeg openexr openimageio opencolorio portaudio --triplet=x64-windows
+          $VCPKG_ROOT/vcpkg install qt5 ffmpeg openexr openimageio opencolorio portaudio --triplet=x64-windows --clean-after-build
 
       - name: Acquire Google Crashpad
         shell: bash
