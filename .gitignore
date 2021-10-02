@@ -11,6 +11,7 @@
 .vs/
 /out/
 CmakeSettings.json
+*.code-workspace
 
 # macOS General
 .DS_Store
