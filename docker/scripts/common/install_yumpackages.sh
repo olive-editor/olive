@@ -72,7 +72,8 @@ yum install -y epel-release
 
 # Additional package that are not found initially
 yum install -y \
-    rh-git218
+    rh-git218 \
+    portaudio-devel
 #   lame-devel
 #   libcaca-devel \
 #   libdb4-devel \
