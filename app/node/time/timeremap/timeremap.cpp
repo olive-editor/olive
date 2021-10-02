@@ -67,9 +67,7 @@ QString TimeRemapNode::Description() const
 TimeRange TimeRemapNode::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
 {
   if (input == kInputInput) {
-    rational target_time = GetRemappedTime(input_time.in());
-
-    return TimeRange(target_time, target_time + input_time.length());
+    return TimeRange(GetRemappedTime(input_time.in()), GetRemappedTime(input_time.out()));
   } else {
     return super::InputTimeAdjustment(input, element, input_time);
   }
@@ -91,6 +89,11 @@ void TimeRemapNode::Retranslate()
 {
   SetInputName(kTimeInput, QStringLiteral("Time"));
   SetInputName(kInputInput, QStringLiteral("Input"));
+}
+
+void TimeRemapNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  table->Push(value[kInputInput]);
 }
 
 void TimeRemapNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
