@@ -410,6 +410,14 @@ void ViewerWidget::ClearVideoAutoCacherQueue()
   auto_cacher_.CancelVideoTasks();
 }
 
+void ViewerWidget::DecrementPrequeuedAudio()
+{
+  prequeuing_audio_--;
+  if (!prequeuing_audio_) {
+    FinishPlayPreprocess();
+  }
+}
+
 void ViewerWidget::QueueNextAudioBuffer()
 {
   rational queue_end = audio_playback_queue_time_ + (kAudioPlaybackInterval * playback_speed_);
@@ -418,6 +426,9 @@ void ViewerWidget::QueueNextAudioBuffer()
   queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
   if (queue_end == audio_playback_queue_time_) {
     // This will queue nothing, so stop the loop here
+    if (prequeuing_audio_) {
+      DecrementPrequeuedAudio();
+    }
     return;
   }
 
@@ -459,13 +470,9 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
         if (!pack.isEmpty()) {
           if (prequeuing_audio_) {
             // Add to prequeued audio buffer
-            prequeuing_audio_--;
-
             prequeued_audio_.append(pack);
 
-            if (!prequeuing_audio_) {
-              FinishPlayPreprocess();
-            }
+            DecrementPrequeuedAudio();
           } else {
             // Push directly to audio manager
             AudioManager::instance()->PushToOutput(GetConnectedNode()->GetAudioParams(), pack);

@@ -215,6 +215,8 @@ private:
 
   void ClearVideoAutoCacherQueue();
 
+  void DecrementPrequeuedAudio();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
