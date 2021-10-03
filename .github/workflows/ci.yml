@@ -198,7 +198,7 @@ jobs:
           DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$DEP_LOCATION/crashpad:$PATH \
+          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
 
