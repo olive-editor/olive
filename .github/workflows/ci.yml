@@ -175,6 +175,11 @@ jobs:
           vcpkgTriplet: x64-windows
           vcpkgArguments: qt5 ffmpeg openexr openimageio opencolorio portaudio
 
+      - name: Show me directory
+        shell: bash
+        run: |
+          ls -R $VCPKG_ROOT/installed/x64-windows
+
       - name: Acquire Google Crashpad
         shell: bash
         working-directory: ${{ runner.workspace }}
