@@ -173,7 +173,7 @@ jobs:
         with:
           vcpkgGitCommitId: 2a31089e777fc187f1cc05338250b8e1810cfb52
           vcpkgTriplet: x64-windows
-          vcpkgArguments: qt5-base qt5-tools ffmpeg openexr openimageio opencolorio portaudio
+          vcpkgArguments: qt5 ffmpeg openexr openimageio opencolorio portaudio
 
       - name: Acquire Google Crashpad
         shell: bash
