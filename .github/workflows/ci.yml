@@ -180,7 +180,7 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $VCPKG_ROOT/vcpkg remove opencolorio
+          $VCPKG_ROOT/vcpkg remove opencolorio:x64-windows
           git clone https://github.com/olive-editor/OpenColorIO
           cd OpenColorIO
           git checkout win32-unicode-fix-for-olive-ci
