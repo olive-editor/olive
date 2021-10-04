@@ -186,12 +186,28 @@ jobs:
           git checkout win32-unicode-fix
           mkdir build
           cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
           ninja install
           echo "$(pwd -W)/install" >> $GITHUB_PATH
           echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
+
+      # Should write a package script for this some day
+      - name: Acquire OpenTimelineIO
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          git clone --depth 1 --branch v0.13 https://github.com/PixarAnimationStudios/OpenTimelineIO.git
+          cd OpenTimelineIO
+          mkdir build
+          cd build
+          cmake .. -DOTIO_PYTHON_INSTALL=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
+            ninja install
+            echo "$(pwd -W)/install" >> $GITHUB_PATH
+            echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
 
       - name: Acquire Google Crashpad
         shell: bash
@@ -199,8 +215,9 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-win32-RelWithDebInfo.tar.gz
           tar xzf crashpad-win32-RelWithDebInfo.tar.gz
-          echo "$GITHUB_WORKSPACE/install" >> $GITHUB_PATH
-          echo "$GITHUB_WORKSPACE/install/crashpad" >> $GITHUB_PATH
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
+          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
+          echo "$(pwd -W)/install/crashpad" >> $GITHUB_PATH
 
       - name: Generate Patreon List
         shell: bash
@@ -243,6 +260,7 @@ jobs:
           $VCPKG_ROOT/installed/x64-windows/tools/qt5/bin/windeployqt --no-angle olive-editor/olive-editor.exe
           cp $(cygpath $VCPKG_ROOT)/installed/x64-windows/bin/*.dll olive-editor
           cp $(cygpath $GITHUB_WORKSPACE)/OpenColorIO/build/install/bin/*.dll olive-editor
+          cp $(cygpath $GITHUB_WORKSPACE)/OpenTimelineIO/build/install/bin/*.dll olive-editor
           cp $(cygpath $GITHUB_WORKSPACE)/install/bin/*.dll olive-editor
           cp $(cygpath $GITHUB_WORKSPACE)/install/crashpad/out/Default/crashpad_handler.exe olive-editor
           cp $(cygpath $GITHUB_WORKSPACE)/install/bin/minidump_stackwalk.exe olive-editor
