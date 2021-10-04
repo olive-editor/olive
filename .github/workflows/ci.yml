@@ -183,7 +183,7 @@ jobs:
           $VCPKG_ROOT/vcpkg remove opencolorio:x64-windows
           git clone https://github.com/olive-editor/OpenColorIO
           cd OpenColorIO
-          git checkout win32-unicode-fix-for-olive-ci
+          git checkout win32-unicode-fix
           mkdir build
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
