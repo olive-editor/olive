@@ -250,7 +250,8 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         run: |
-          ctest -C ${{ matrix.build-type }} -V
+          #ctest -C ${{ matrix.build-type }} -V
+          echo Path is: $PATH
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
