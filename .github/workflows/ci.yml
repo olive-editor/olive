@@ -188,9 +188,9 @@ jobs:
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DCMAKE_INSTALL_PREFIX="$(pwd)/install"
+            -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
           ninja install
-          echo "$(pwd)/install" >> $GITHUB_PATH
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
 
       - name: Acquire Google Crashpad
         shell: bash
