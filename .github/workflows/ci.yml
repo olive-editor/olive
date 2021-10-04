@@ -173,7 +173,22 @@ jobs:
         with:
           vcpkgGitCommitId: 2a31089e777fc187f1cc05338250b8e1810cfb52
           vcpkgTriplet: x64-windows
-          vcpkgArguments: qt5 ffmpeg openexr openimageio opencolorio portaudio
+          vcpkgArguments: qt5 ffmpeg openexr openimageio portaudio #opencolorio
+
+      # We require the Unicode fix which hasn't been merged into upstream yet
+      - name: Acquire OpenColorIO
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          git clone https://github.com/olive-editor/OpenColorIO
+          cd OpenColorIO
+          git checkout win32-unicode-fix-for-olive-ci
+          mkdir build
+          cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_INSTALL_PREFIX="$(pwd)/install"
+          ninja install
 
       - name: Acquire Google Crashpad
         shell: bash
@@ -198,7 +213,7 @@ jobs:
           DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
+          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$GITHUB_WORKSPACE/OpenColorIO/build/install:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
 
