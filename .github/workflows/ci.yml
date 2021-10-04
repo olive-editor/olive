@@ -207,6 +207,8 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
           ninja install
+          mkdir -p install/bin
+          mv install/lib/*.dll install/bin
           echo "$(pwd -W)/install" >> $GITHUB_PATH
           echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
           dir $(pwd -W)/install/bin
