@@ -250,8 +250,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         run: |
-          #ctest -C ${{ matrix.build-type }} -V
-          echo Path is: $PATH
+          PATH=$PATH:$VCPKG_ROOT/installed/x64-windows/bin ctest -C ${{ matrix.build-type }} -V
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
