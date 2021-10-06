@@ -31,6 +31,7 @@
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "core.h"
+#include "ui/colorcoding.h"
 #include "ui/style/style.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -102,18 +103,18 @@ void Config::SetDefaults()
 
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
-  SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, 0);
-  SetEntryInternal(QStringLiteral("CatColor1"), NodeValue::kInt, 1);
-  SetEntryInternal(QStringLiteral("CatColor2"), NodeValue::kInt, 2);
-  SetEntryInternal(QStringLiteral("CatColor3"), NodeValue::kInt, 3);
-  SetEntryInternal(QStringLiteral("CatColor4"), NodeValue::kInt, 4);
-  SetEntryInternal(QStringLiteral("CatColor5"), NodeValue::kInt, 5);
-  SetEntryInternal(QStringLiteral("CatColor6"), NodeValue::kInt, 6);
-  SetEntryInternal(QStringLiteral("CatColor7"), NodeValue::kInt, 7);
-  SetEntryInternal(QStringLiteral("CatColor8"), NodeValue::kInt, 8);
-  SetEntryInternal(QStringLiteral("CatColor9"), NodeValue::kInt, 9);
-  SetEntryInternal(QStringLiteral("CatColor10"), NodeValue::kInt, 10);
-  SetEntryInternal(QStringLiteral("CatColor11"), NodeValue::kInt, 11);
+  SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, ColorCoding::kRed);
+  SetEntryInternal(QStringLiteral("CatColor1"), NodeValue::kInt, ColorCoding::kMaroon);
+  SetEntryInternal(QStringLiteral("CatColor2"), NodeValue::kInt, ColorCoding::kOrange);
+  SetEntryInternal(QStringLiteral("CatColor3"), NodeValue::kInt, ColorCoding::kBrown);
+  SetEntryInternal(QStringLiteral("CatColor4"), NodeValue::kInt, ColorCoding::kYellow);
+  SetEntryInternal(QStringLiteral("CatColor5"), NodeValue::kInt, ColorCoding::kOlive);
+  SetEntryInternal(QStringLiteral("CatColor6"), NodeValue::kInt, ColorCoding::kLime);
+  SetEntryInternal(QStringLiteral("CatColor7"), NodeValue::kInt, ColorCoding::kGreen);
+  SetEntryInternal(QStringLiteral("CatColor8"), NodeValue::kInt, ColorCoding::kCyan);
+  SetEntryInternal(QStringLiteral("CatColor9"), NodeValue::kInt, ColorCoding::kTeal);
+  SetEntryInternal(QStringLiteral("CatColor10"), NodeValue::kInt, ColorCoding::kBlue);
+  SetEntryInternal(QStringLiteral("CatColor11"), NodeValue::kInt, ColorCoding::kNavy);
 
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());

@@ -29,6 +29,25 @@ class ColorCoding : public QObject
 {
   Q_OBJECT
 public:
+  enum Code {
+    kRed,
+    kMaroon,
+    kOrange,
+    kBrown,
+    kYellow,
+    kOlive,
+    kLime,
+    kGreen,
+    kCyan,
+    kTeal,
+    kBlue,
+    kNavy,
+    kPink,
+    kPurple,
+    kSilver,
+    kGray
+  };
+
   static QString GetColorName(int c);
 
   static Color GetColor(int c);

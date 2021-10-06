@@ -45,37 +45,37 @@ QString ColorCoding::GetColorName(int c)
 {
   // FIXME: I'm sure we could come up with more creative names for these colors
   switch (c) {
-  case 0:
+  case kRed:
     return tr("Red");
-  case 1:
+  case kMaroon:
     return tr("Maroon");
-  case 2:
+  case kOrange:
     return tr("Orange");
-  case 3:
+  case kBrown:
     return tr("Brown");
-  case 4:
+  case kYellow:
     return tr("Yellow");
-  case 5:
+  case kOlive:
     return tr("Olive");
-  case 6:
+  case kLime:
     return tr("Lime");
-  case 7:
+  case kGreen:
     return tr("Green");
-  case 8:
+  case kCyan:
     return tr("Cyan");
-  case 9:
+  case kTeal:
     return tr("Teal");
-  case 10:
+  case kBlue:
     return tr("Blue");
-  case 11:
+  case kNavy:
     return tr("Navy");
-  case 12:
+  case kPink:
     return tr("Pink");
-  case 13:
+  case kPurple:
     return tr("Purple");
-  case 14:
+  case kSilver:
     return tr("Silver");
-  case 15:
+  case kGray:
     return tr("Gray");
   }
 
