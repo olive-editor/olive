@@ -168,12 +168,50 @@ jobs:
       - name: Enable Developer Command Prompt (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Acquire Dependencies
+      - name: Set up vcpkg and restore cache
+        uses: lukka/run-vcpkg@v7
+        with:
+          vcpkgGitCommitId: 2a31089e777fc187f1cc05338250b8e1810cfb52
+          vcpkgTriplet: x64-windows
+          vcpkgArguments: qt5 ffmpeg openexr openimageio opencolorio portaudio
+
+      # We require the Unicode fix which hasn't been merged into upstream yet
+      - name: Acquire OpenColorIO
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32.tar.gz
-          tar xzf olive-dep-win32.tar.gz
+          $VCPKG_ROOT/vcpkg remove opencolorio:x64-windows
+          git clone https://github.com/olive-editor/OpenColorIO
+          cd OpenColorIO
+          git checkout win32-unicode-fix
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
+          ninja install
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
+          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
+          dir $(pwd -W)/install/bin
+
+      # Should write a package script for this some day
+      - name: Acquire OpenTimelineIO
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          git clone --depth 1 https://github.com/PixarAnimationStudios/OpenTimelineIO.git
+          cd OpenTimelineIO
+          mkdir build
+          cd build
+          cmake .. -DOTIO_PYTHON_INSTALL=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
+          ninja install
+          mkdir -p install/bin
+          mv install/lib/*.dll install/bin
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
+          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
+          dir $(pwd -W)/install/bin
 
       - name: Acquire Google Crashpad
         shell: bash
@@ -181,6 +219,9 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-win32-RelWithDebInfo.tar.gz
           tar xzf crashpad-win32-RelWithDebInfo.tar.gz
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
+          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
+          echo "$(pwd -W)/install/crashpad" >> $GITHUB_PATH
 
       - name: Generate Patreon List
         shell: bash
@@ -194,12 +235,10 @@ jobs:
 
       - name: Configure CMake
         shell: bash
-        env:
-          DEP_LOCATION: ${{ runner.workspace }}/install
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -210,26 +249,27 @@ jobs:
       - name: Test
         working-directory: ${{ runner.workspace }}/build
         shell: bash
-        env:
-          DEP_LOCATION: ${{ runner.workspace }}/install
         run: |
-          PATH=$PATH:$DEP_LOCATION/bin ctest -C ${{ matrix.build-type }} -V
+          PATH=$PATH:$VCPKG_ROOT/installed/x64-windows/bin ctest -C ${{ matrix.build-type }} -V
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         env:
-          DEP_LOCATION: ${{ runner.workspace }}/install
+          ORIGINAL_WORKSPACE: ${{ runner.workspace }}
         run: |
           mkdir olive-editor
           cp app/olive-editor.exe olive-editor
           cp app/crashhandler/olive-crashhandler.exe olive-editor
           cp app/olive-editor.pdb olive-editor
-          $DEP_LOCATION/bin/windeployqt olive-editor/olive-crashhandler.exe
-          $DEP_LOCATION/bin/windeployqt olive-editor/olive-editor.exe
-          cp $(cygpath $DEP_LOCATION)/bin/*.dll olive-editor
-          cp $(cygpath $DEP_LOCATION)/crashpad/out/Default/crashpad_handler.exe olive-editor
-          cp $(cygpath $DEP_LOCATION)/bin/minidump_stackwalk.exe olive-editor
+          $VCPKG_ROOT/installed/x64-windows/tools/qt5/bin/windeployqt --no-angle olive-editor/olive-crashhandler.exe
+          $VCPKG_ROOT/installed/x64-windows/tools/qt5/bin/windeployqt --no-angle olive-editor/olive-editor.exe
+          cp $(cygpath $VCPKG_ROOT)/installed/x64-windows/bin/*.dll olive-editor
+          cp $(cygpath $ORIGINAL_WORKSPACE)/OpenColorIO/build/install/bin/*.dll olive-editor
+          cp $(cygpath $ORIGINAL_WORKSPACE)/OpenTimelineIO/build/install/bin/*.dll olive-editor
+          cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/*.dll olive-editor
+          cp $(cygpath $ORIGINAL_WORKSPACE)/install/crashpad/out/Default/crashpad_handler.exe olive-editor
+          cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/minidump_stackwalk.exe olive-editor
 
       - name: Export Crashpad symbols
         working-directory: ${{ runner.workspace }}/build
@@ -342,7 +382,7 @@ jobs:
         run: |
           brew install ninja
           PATH=/opt/olive-editor/bin:/opt/olive-editor/crashpad:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" -DCMAKE_INSTALL_PREFIX=$DEP_LOCATION
+            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
