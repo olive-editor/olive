@@ -190,14 +190,10 @@ void CrashHandlerDialog::SendErrorReport()
     QMessageBox b(this);
     b.setIcon(QMessageBox::Question);
     b.setWindowModality(Qt::WindowModal);
-    b.setWindowTitle(tr("No Crash Summary"));
-    b.setText(tr("Are you sure you want to send an error report with no crash summary?"));
-    b.addButton(QMessageBox::Yes);
-    b.addButton(QMessageBox::No);
-
-    if (b.exec() == QMessageBox::No) {
-      return;
-    }
+    b.setText(tr("You must write a description to submit this crash report."));
+    b.addButton(QMessageBox::Ok);
+    b.exec();
+    return;
   }
 
   QNetworkAccessManager* manager = new QNetworkAccessManager();
