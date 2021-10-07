@@ -174,7 +174,8 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/vcpkg-registry/releases/download/continuous/olive-dep-x64-windows.zip
           7z x olive-dep-x64-windows.zip
-          echo "VCPKG_ROOT=$(pwd -W)"/vcpkg-* >> $GITHUB_ENV
+          VCPKG_DIR=vcpkg-export-*
+          echo "VCPKG_ROOT=$(pwd -W)/$VCPKG_DIR" >> $GITHUB_ENV
 
       - name: Acquire Google Crashpad
         shell: bash
