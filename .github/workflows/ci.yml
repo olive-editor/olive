@@ -168,50 +168,13 @@ jobs:
       - name: Enable Developer Command Prompt (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Set up vcpkg and restore cache
-        uses: lukka/run-vcpkg@v7
-        with:
-          vcpkgGitCommitId: 2a31089e777fc187f1cc05338250b8e1810cfb52
-          vcpkgTriplet: x64-windows
-          vcpkgArguments: qt5 ffmpeg openexr openimageio opencolorio portaudio
-
-      # We require the Unicode fix which hasn't been merged into upstream yet
-      - name: Acquire OpenColorIO
+      - name: Acquire Dependencies
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $VCPKG_ROOT/vcpkg remove opencolorio:x64-windows
-          git clone https://github.com/olive-editor/OpenColorIO
-          cd OpenColorIO
-          git checkout win32-unicode-fix
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
-          ninja install
-          echo "$(pwd -W)/install" >> $GITHUB_PATH
-          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
-          dir $(pwd -W)/install/bin
-
-      # Should write a package script for this some day
-      - name: Acquire OpenTimelineIO
-        shell: bash
-        working-directory: ${{ runner.workspace }}
-        run: |
-          git clone --depth 1 https://github.com/PixarAnimationStudios/OpenTimelineIO.git
-          cd OpenTimelineIO
-          mkdir build
-          cd build
-          cmake .. -DOTIO_PYTHON_INSTALL=OFF -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DCMAKE_INSTALL_PREFIX="$(pwd -W)/install"
-          ninja install
-          mkdir -p install/bin
-          mv install/lib/*.dll install/bin
-          echo "$(pwd -W)/install" >> $GITHUB_PATH
-          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
-          dir $(pwd -W)/install/bin
+          $DOWNLOAD_TOOL https://github.com/olive-editor/vcpkg-registry/releases/download/continuous/olive-dep-x64-windows.zip
+          7z x olive-dep-x64-windows.zip
+          echo "VCPKG_ROOT=$(pwd -W)"/vcpkg-* >> $GITHUB_ENV
 
       - name: Acquire Google Crashpad
         shell: bash
