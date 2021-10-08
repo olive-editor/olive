@@ -55,7 +55,7 @@ struct XMLNodeData {
 
 };
 
-void XMLConnectNodes(const XMLNodeData& xml_node_data, MultiUndoCommand *command = nullptr);
+void XMLConnectNodes(const XMLNodeData& xml_node_data, uint version, MultiUndoCommand *command = nullptr);
 
 /**
  * @brief Workaround for QXmlStreamReader::readNextStartElement not detecting the end of a document

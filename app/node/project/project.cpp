@@ -196,7 +196,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
   }
 
   // Make connections
-  XMLConnectNodes(xml_node_data);
+  XMLConnectNodes(xml_node_data, version);
 
   // Link blocks
   XMLLinkBlocks(xml_node_data);

@@ -206,7 +206,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   // Make connections
   if (!xml_node_data.desired_connections.isEmpty()) {
-    XMLConnectNodes(xml_node_data, command);
+    XMLConnectNodes(xml_node_data, data_version, command);
   }
 
   // Link blocks

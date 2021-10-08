@@ -27,7 +27,7 @@
 
 namespace olive {
 
-void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command)
+void XMLConnectNodes(const XMLNodeData &xml_node_data, uint version, MultiUndoCommand *command)
 {
   foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
     Node *out = xml_node_data.node_ptrs.value(con.output_node);
@@ -39,13 +39,17 @@ void XMLConnectNodes(const XMLNodeData &xml_node_data, MultiUndoCommand *command
       if (command) {
         command->add_child(new NodeEdgeAddCommand(out, con.input));
 
-        /// Deprecated: backwards compatibility only
-        command->add_child(new NodeSetValueHintCommand(con.input, hint));
+        if (version < 210907) {
+          /// Deprecated: backwards compatibility only
+          command->add_child(new NodeSetValueHintCommand(con.input, hint));
+        }
       } else {
         Node::ConnectEdge(out, con.input);
 
-        /// Deprecated: backwards compatibility only
-        con.input.node()->SetValueHintForInput(con.input.input(), hint, con.input.element());
+        if (version < 210907) {
+          /// Deprecated: backwards compatibility only
+          con.input.node()->SetValueHintForInput(con.input.input(), hint, con.input.element());
+        }
       }
     }
   }
