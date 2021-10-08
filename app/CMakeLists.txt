@@ -67,7 +67,7 @@ add_library(olive-version-obj
 )
 target_link_libraries(olive-version-obj PRIVATE Qt5::Core)
 if(DEFINED GIT_HASH)
-  target_compile_options(olive-version-obj PRIVATE -DGITHASH="${GIT_HASH}")
+  target_compile_options(olive-version-obj PRIVATE -DAPPVERSION="${PROJECT_VERSION}" -DAPPVERSIONLONG="${PROJECT_LONG_VERSION}" )
 endif()
 
 # Add main library
@@ -112,6 +112,11 @@ elseif(APPLE)
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/packaging/macos/MacOSXBundleInfo.plist.in
     MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
     MACOSX_BUNDLE_ICON_FILE olive.icns
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION}
+    MACOSX_BUNDLE_BUNDLE_NAME "Olive"
+    MACOSX_BUNDLE_INFO_STRING "Olive ${PROJECT_LONG_VERSION}"
+    MACOSX_BUNDLE_COPYRIGHT "©2018-2021 Olive Studios LLC and others. Published under the GNU General Public License version 3.0."
     RESOURCE "${OLIVE_ICON}"
     OUTPUT_NAME "Olive"
   )

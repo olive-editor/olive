@@ -59,22 +59,12 @@ int main(int argc, char *argv[])
   // Set up debug handler
   qInstallMessageHandler(olive::DebugHandler);
 
-  // Generate version string
-  QString app_version = APPVERSION;
-  if (!olive::kGitHash.isEmpty()) {
-    // Anything after the hyphen is considered "unimportant" information. Text BEFORE the hyphen is
-    // used in version checking project files and config files
-    app_version.append("-");
-    app_version.append(olive::kGitHash);
-  }
-
   // Set application metadata
   QCoreApplication::setOrganizationName("olivevideoeditor.org");
   QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
   QCoreApplication::setApplicationName("Olive");
   QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
-
-  QCoreApplication::setApplicationVersion(app_version);
+  QCoreApplication::setApplicationVersion(olive::kAppVersionLong);
 
 
   //
@@ -150,7 +140,7 @@ int main(int argc, char *argv[])
 
   if (version_option->IsSet()) {
     // Print version
-    printf("%s\n", app_version.toUtf8().constData());
+    printf("%s\n", QCoreApplication::applicationVersion().toUtf8().constData());
     return 0;
   }
 

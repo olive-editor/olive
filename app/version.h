@@ -25,7 +25,8 @@
 
 namespace olive {
 
-extern QString kGitHash;
+extern QString kAppVersion;
+extern QString kAppVersionLong;
 
 }
 

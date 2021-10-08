@@ -22,10 +22,7 @@
 
 namespace olive {
 
-#ifdef GITHASH
-QString kGitHash = QStringLiteral(GITHASH);
-#else
-QString kGitHash;
-#endif
+QString kAppVersion = QStringLiteral(APPVERSION);
+QString kAppVersionLong = QStringLiteral(APPVERSIONLONG);
 
 }
