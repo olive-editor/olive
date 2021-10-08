@@ -224,7 +224,7 @@ void CrashHandlerDialog::SendErrorReport()
   QHttpPart commit_part;
   commit_part.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("text/plain; charset=UTF-8"));
   commit_part.setHeader(QNetworkRequest::ContentDispositionHeader, QStringLiteral("form-data; name=\"commit\""));
-  commit_part.setBody(kGitHash.toUtf8());
+  commit_part.setBody(kAppVersionLong.toUtf8());
   multipart->append(commit_part);
 
   // Create dump section
