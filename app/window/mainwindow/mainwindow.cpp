@@ -734,7 +734,7 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
   QVector<Node*> old_contexts = node_panel_->GetCurrentContexts();
   node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
   if (viewer && context != old_contexts) {
-    node_panel_->SelectWithDependencies(context, false);
+    node_panel_->SelectAll();
   }
 }
 
@@ -753,30 +753,23 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
   } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
     // Signal project panel focus
     UpdateTitle();
-    if (project->project()) {
-      node_panel_->SetGraph(project->project(), {project->project()->root()});
-
-      bool center = true;
-      auto selected = project->SelectedItems();
-      if (selected.isEmpty()) {
-        selected.append(project->project()->root());
-        center = false;
-      }
-      node_panel_->Select(selected, center);
+    if (Project *p = project->project()) {
+      node_panel_->SetGraph(p, {p->root()});
+      node_panel_->Select({p->color_manager(), p->settings()}, true);
     }
   }
 }
 
 void MainWindow::SetDefaultLayout()
 {
-  node_panel_->show();
-  addDockWidget(Qt::TopDockWidgetArea, node_panel_);
-
   footage_viewer_panel_->show();
   addDockWidget(Qt::TopDockWidgetArea, footage_viewer_panel_);
 
   param_panel_->show();
   tabifyDockWidget(footage_viewer_panel_, param_panel_);
+
+  node_panel_->show();
+  tabifyDockWidget(param_panel_, node_panel_);
   footage_viewer_panel_->raise();
 
   curve_panel_->hide();
@@ -806,8 +799,8 @@ void MainWindow::SetDefaultLayout()
   audio_monitor_panel_->show();
   addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel_);
 
-  resizeDocks({node_panel_, param_panel_, sequence_viewer_panel_},
-  {width()/3, width()/3, width()/3},
+  resizeDocks({param_panel_, sequence_viewer_panel_},
+  {width()/2, width()/2},
               Qt::Horizontal);
 
   resizeDocks({project_panels_.first(), tool_panel_, timeline_panels_.first(), audio_monitor_panel_},
