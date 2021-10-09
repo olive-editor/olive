@@ -153,7 +153,11 @@ void AudioManager::StopOutput()
 
 void AudioManager::SetOutputDevice(PaDeviceIndex device)
 {
-  qInfo() << "Setting output audio device to" << Pa_GetDeviceInfo(device)->name;
+  if (device == paNoDevice) {
+    qInfo() << "No output device found";
+  } else {
+    qInfo() << "Setting output audio device to" << Pa_GetDeviceInfo(device)->name;
+  }
 
   output_device_ = device;
 
@@ -189,7 +193,11 @@ void AudioManager::SetOutputDevice(PaDeviceIndex device)
 
 void AudioManager::SetInputDevice(PaDeviceIndex device)
 {
-  qInfo() << "Setting input audio device to" << Pa_GetDeviceInfo(device)->name;
+  if (device == paNoDevice) {
+    qInfo() << "No input device found";
+  } else {
+    qInfo() << "Setting input audio device to" << Pa_GetDeviceInfo(device)->name;
+  }
 
   input_device_ = device;
 }
