@@ -319,10 +319,10 @@ void MainMenu::FileMenuAboutToShow()
   file_close_all_except_item_->setEnabled(active_project);
 
   if (active_project) {
-    file_save_item_->setText(tr("&Save '%1'").arg(active_project->pretty_filename()));
-    file_save_as_item_->setText(tr("Save '%1' &As").arg(active_project->pretty_filename()));
-    file_close_project_item_->setText(tr("Close '%1'").arg(active_project->pretty_filename()));
-    file_close_all_except_item_->setText(tr("Close All Except '%1'").arg(active_project->pretty_filename()));
+    file_save_item_->setText(tr("&Save '%1'").arg(active_project->name()));
+    file_save_as_item_->setText(tr("Save '%1' &As").arg(active_project->name()));
+    file_close_project_item_->setText(tr("Close '%1'").arg(active_project->name()));
+    file_close_all_except_item_->setText(tr("Close All Except '%1'").arg(active_project->name()));
   } else {
     file_save_item_->setText(tr("&Save Project"));
     file_save_as_item_->setText(tr("Save Project &As"));
