@@ -82,6 +82,7 @@ private:
   }
 
   std::vector<QByteArray> time_hash_map_;
+  std::map<QByteArray, std::vector<int64_t> > hash_time_map_;
 
   rational timebase_;
 

@@ -77,6 +77,7 @@ void FrameHashCache::SetHash(const rational &time, const QByteArray &hash, bool 
     time_hash_map_.resize(ts + 1);
   }
   time_hash_map_[ts] = hash;
+  hash_time_map_[hash].push_back(ts);
 
   TimeRange validated_range;
   if (frame_exists) {
@@ -94,13 +95,14 @@ void FrameHashCache::ValidateFramesWithHash(const QByteArray &hash)
 {
   auto invalidated_ranges = GetInvalidatedRanges(ToTime(GetMapSize()));
 
-  for (int64_t i=0; i<GetMapSize(); i++) {
-    if (time_hash_map_[i] == hash) {
-      TimeRange frame_range(ToTime(i), ToTime(i+1));
+  const std::vector<int64_t> &times = hash_time_map_[hash];
+  for (auto it=times.cbegin(); it!=times.cend(); it++) {
+    const int64_t &i = *it;
 
-      if (invalidated_ranges.contains(frame_range)) {
-        Validate(frame_range);
-      }
+    TimeRange frame_range(ToTime(i), ToTime(i+1));
+
+    if (invalidated_ranges.contains(frame_range)) {
+      Validate(frame_range);
     }
   }
 }
@@ -271,6 +273,20 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
     return;
   }
 
+  int64_t ts_diff = to_ts - from_ts;
+  for (int64_t i=qMin(from_ts, to_ts); i<GetMapSize(); i++) {
+    const QByteArray &hash = time_hash_map_[i];
+    std::vector<int64_t> &times = hash_time_map_[hash];
+
+    for (auto jt=times.begin(); jt!=times.end(); jt++) {
+      int64_t &this_ts = *jt;
+      if (this_ts == i) {
+        this_ts += ts_diff;
+        break;
+      }
+    }
+  }
+
   if (diff_is_negative) {
     // We're moving the frames starting at `from` backwards to where `to` is
     if (to_ts < GetMapSize()) {
@@ -279,7 +295,7 @@ void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
   } else {
     // We're moving the frames starting at `from` forwards to where `to` is
     if (from_ts < GetMapSize()) {
-      time_hash_map_.insert(time_hash_map_.begin() + from_ts, to_ts - from_ts, QByteArray());
+      time_hash_map_.insert(time_hash_map_.begin() + from_ts, ts_diff, QByteArray());
     }
   }
 }
@@ -290,7 +306,19 @@ void FrameHashCache::InvalidateEvent(const TimeRange &range)
     int64_t start = ToTimestamp(range.in(), Timecode::kCeil);
     int64_t end = ToTimestamp(range.out(), Timecode::kCeil);
     for (int64_t i=start; i<GetMapSize() && i<end; i++) {
-      time_hash_map_[i].clear();
+      QByteArray &hash = time_hash_map_[i];
+
+      std::vector<int64_t> &times_for_hash = hash_time_map_[hash];
+      for (auto it=times_for_hash.cbegin(); it!=times_for_hash.cend(); ) {
+        if ((*it) == i) {
+          times_for_hash.erase(it);
+          break;
+        } else {
+          it++;
+        }
+      }
+
+      hash.clear();
     }
   }
 }
@@ -313,10 +341,11 @@ void FrameHashCache::HashDeleted(const QString& s, const QByteArray &hash)
   }
 
   TimeRangeList ranges_to_invalidate;
-  for (int64_t i=0; i<GetMapSize(); i++) {
-    if (time_hash_map_.at(i) == hash) {
-      ranges_to_invalidate.insert(TimeRange(ToTime(i), ToTime(i+1)));
-    }
+  const std::vector<int64_t> &times_for_hash = hash_time_map_[hash];
+
+  for (auto it=times_for_hash.begin(); it!=times_for_hash.end(); it++) {
+    const int64_t &i = *it;
+    ranges_to_invalidate.insert(TimeRange(ToTime(i), ToTime(i+1)));
   }
 
   foreach (const TimeRange& range, ranges_to_invalidate) {
@@ -330,6 +359,7 @@ void FrameHashCache::ProjectInvalidated(Project *p)
 {
   if (GetProject() == p) {
     time_hash_map_.clear();
+    hash_time_map_.clear();
 
     InvalidateAll();
   }
