@@ -172,6 +172,8 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
 {
+  visual_.Shift(from_in_time, to_in_time);
+
   qint64 to = params_.time_to_bytes_per_channel(to_in_time);
   qint64 from = params_.time_to_bytes_per_channel(from_in_time);
 
