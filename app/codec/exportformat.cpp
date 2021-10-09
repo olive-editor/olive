@@ -107,7 +107,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
   case kFormatDNxHD:
     return {ExportCodec::kCodecDNxHD};
   case kFormatMatroska:
-    return {ExportCodec::kCodecH264, ExportCodec::kCodecH265};
+    return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265, ExportCodec::kCodecVP9};
   case kFormatMPEG4:
     return {ExportCodec::kCodecH264, ExportCodec::kCodecH265};
   case kFormatOpenEXR:
@@ -117,7 +117,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
   case kFormatTIFF:
     return {ExportCodec::kCodecTIFF};
   case kFormatQuickTime:
-    return {ExportCodec::kCodecH264, ExportCodec::kCodecH265, ExportCodec::kCodecProRes};
+    return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265, ExportCodec::kCodecProRes};
   case kFormatWebM:
     return {ExportCodec::kCodecVP9};
   case kFormatOgg:
@@ -140,7 +140,7 @@ QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
   case kFormatDNxHD:
     return {ExportCodec::kCodecPCM};
   case kFormatMatroska:
-    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
+    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus, ExportCodec::kCodecFLAC};
   case kFormatMPEG4:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3};
   case kFormatQuickTime:

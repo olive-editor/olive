@@ -37,6 +37,7 @@ public:
     // Video codecs
     kCodecDNxHD,
     kCodecH264,
+    kCodecH264rgb,
     kCodecH265,
     kCodecOpenEXR,
     kCodecPNG,
