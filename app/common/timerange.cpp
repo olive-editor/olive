@@ -295,8 +295,9 @@ TimeRangeListFrameIterator::TimeRangeListFrameIterator() :
 TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase) :
   list_(list),
   timebase_(timebase),
-  index_(-1),
+  range_index_(-1),
   size_(-1),
+  frame_index_(0),
   custom_range_(false)
 {
   if (!list_.isEmpty() && timebase_.isNull()) {
@@ -321,12 +322,15 @@ bool TimeRangeListFrameIterator::GetNext(rational *out)
   // If this time is outside the current range, jump to the next one
   UpdateIndexIfNecessary();
 
+  // Increment frame index
+  frame_index_++;
+
   return true;
 }
 
 bool TimeRangeListFrameIterator::HasNext() const
 {
-  return index_ < list_.size();
+  return range_index_ < list_.size();
 }
 
 int TimeRangeListFrameIterator::size()
@@ -355,11 +359,11 @@ int TimeRangeListFrameIterator::size()
 
 void TimeRangeListFrameIterator::UpdateIndexIfNecessary()
 {
-  while (index_ < list_.size() && (index_ == -1 || current_ >= list_.at(index_).out())) {
-    index_++;
+  while (range_index_ < list_.size() && (range_index_ == -1 || current_ >= list_.at(range_index_).out())) {
+    range_index_++;
 
-    if (index_ < list_.size()) {
-      current_ = Timecode::snap_time_to_timebase(list_.at(index_).in(), timebase_, Timecode::kCeil);
+    if (range_index_ < list_.size()) {
+      current_ = Timecode::snap_time_to_timebase(list_.at(range_index_).in(), timebase_, Timecode::kCeil);
     }
   }
 }

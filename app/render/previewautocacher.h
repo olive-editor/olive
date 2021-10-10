@@ -99,6 +99,11 @@ public:
     return queued_frame_iterator_.IsCustomRange() && queued_frame_iterator_.HasNext();
   }
 
+signals:
+  void StopCacheProxyTasks();
+
+  void SignalCacheProxyTaskProgress(double d);
+
 private:
   void TryRender();
 
@@ -256,6 +261,8 @@ private slots:
   void VideoAutoCacheEnableChanged(bool e);
 
   void AudioAutoCacheEnableChanged(bool e);
+
+  void CacheProxyTaskCancelled();
 
 };
 

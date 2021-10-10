@@ -238,6 +238,11 @@ public:
     custom_range_ = e;
   }
 
+  int frame_index() const
+  {
+    return frame_index_;
+  }
+
 private:
   void UpdateIndexIfNecessary();
 
@@ -247,9 +252,11 @@ private:
 
   rational current_;
 
-  int index_;
+  int range_index_;
 
   int size_;
+
+  int frame_index_;
 
   bool custom_range_;
 

@@ -28,6 +28,8 @@
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "render/renderprocessor.h"
+#include "task/customcache/customcachetask.h"
+#include "task/taskmanager.h"
 #include "widget/slider/base/numericsliderbase.h"
 
 namespace olive {
@@ -661,6 +663,12 @@ void PreviewAutoCacher::TryRender()
       // Don't render any hash more than once
       RenderFrame(hash, t, false, false);
     }
+
+    emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
+
+    if (!queued_frame_iterator_.HasNext()) {
+      emit StopCacheProxyTasks();
+    }
   }
 
   // Handle audio tasks
@@ -724,6 +732,14 @@ void PreviewAutoCacher::RequeueFrames()
 
     queued_frame_iterator_.SetCustomRange(use_custom_range_);
 
+    emit StopCacheProxyTasks();
+
+    CustomCacheTask *cct = new CustomCacheTask(viewer_node_->GetLabelOrName());
+    connect(this, &PreviewAutoCacher::StopCacheProxyTasks, cct, &CustomCacheTask::Finish);
+    connect(this, &PreviewAutoCacher::SignalCacheProxyTaskProgress, cct, &CustomCacheTask::ProgressChanged);
+    connect(cct, &CustomCacheTask::Cancelled, this, &PreviewAutoCacher::CacheProxyTaskCancelled);
+    TaskManager::instance()->AddTask(cct);
+
     use_custom_range_ = false;
 
     TryRender();
@@ -762,6 +778,12 @@ void PreviewAutoCacher::AudioAutoCacheEnableChanged(bool e)
     CancelAudioTasks();
     audio_iterator_.clear();
   }
+}
+
+void PreviewAutoCacher::CacheProxyTaskCancelled()
+{
+  queued_frame_iterator_.reset();
+  RequeueFrames();
 }
 
 void PreviewAutoCacher::ForceCacheRange(const TimeRange &range)

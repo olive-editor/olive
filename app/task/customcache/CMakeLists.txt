@@ -14,17 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(conform)
-add_subdirectory(customcache)
-add_subdirectory(export)
-add_subdirectory(precache)
-add_subdirectory(project)
-add_subdirectory(render)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  task/task.h
-  task/taskmanager.h
-  task/taskmanager.cpp
+  task/customcache/customcachetask.cpp
+  task/customcache/customcachetask.h
   PARENT_SCOPE
 )
