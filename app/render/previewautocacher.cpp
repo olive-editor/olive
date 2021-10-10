@@ -132,10 +132,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 
   // If auto-cache is enabled and a slider is not being dragged, queue up to hash these frames
   if (viewer_node_->GetVideoAutoCacheEnabled() && !NodeInputDragger::IsInputBeingDragged()) {
-    invalidated_video_.insert(range);
-    video_job_tracker_.insert(range, graph_changed_time_);
-
-    TryRender();
+    StartCachingVideoRange(range);
   }
 }
 
@@ -147,12 +144,7 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
 
   // If we're auto-caching audio or require realtime waveforms, we'll have to render this
   if (viewer_node_->GetAudioAutoCacheEnabled() || kRealTimeWaveformsEnabled) {
-    audio_job_tracker_.insert(range, graph_changed_time_);
-
-    // Start jobs to re-render the audio at this range, split into 2 second chunks
-    invalidated_audio_.insert(range);
-
-    TryRender();
+    StartCachingAudioRange(range);
   }
 }
 
@@ -470,6 +462,24 @@ void PreviewAutoCacher::AudioInvalidatedList(const TimeRangeList &list)
   foreach (const TimeRange &range, list) {
     AudioInvalidated(range);
   }
+}
+
+void PreviewAutoCacher::StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker)
+{
+  range_list->insert(range);
+  tracker->insert(range, graph_changed_time_);
+
+  TryRender();
+}
+
+void PreviewAutoCacher::StartCachingVideoRange(const TimeRange &range)
+{
+  StartCachingRange(range, &invalidated_video_, &video_job_tracker_);
+}
+
+void PreviewAutoCacher::StartCachingAudioRange(const TimeRange &range)
+{
+  StartCachingRange(range, &invalidated_audio_, &audio_job_tracker_);
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)

@@ -125,6 +125,10 @@ private:
   void VideoInvalidatedList(const TimeRangeList &list);
   void AudioInvalidatedList(const TimeRangeList &list);
 
+  void StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker);
+  void StartCachingVideoRange(const TimeRange &range);
+  void StartCachingAudioRange(const TimeRange &range);
+
   struct HashData {
     rational time;
     QByteArray hash;
