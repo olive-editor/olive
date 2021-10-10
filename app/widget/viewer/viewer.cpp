@@ -49,8 +49,11 @@ namespace olive {
 
 QVector<ViewerWidget*> ViewerWidget::instances_;
 
-// NOTE: Hardcoded interval of size of audio chunk to render and send to the output at a time
-const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 8);
+// NOTE: Hardcoded interval of size of audio chunk to render and send to the output at a time.
+//       We want this to be as long as possible so the code has plenty of time to send the audio
+//       while also being as short as possible so users get relatively immediate feedback when
+//       changing values. 1/4 second seems to be a good middleground.
+const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 4);
 
 const int kMaxPreQueueSize = 8;
 
