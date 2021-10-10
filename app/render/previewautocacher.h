@@ -94,6 +94,11 @@ public:
   void CancelVideoTasks(bool and_wait_for_them_to_finish = false);
   void CancelAudioTasks(bool and_wait_for_them_to_finish = false);
 
+  bool IsRenderingCustomRange() const
+  {
+    return queued_frame_iterator_.IsCustomRange() && queued_frame_iterator_.HasNext();
+  }
+
 private:
   void TryRender();
 

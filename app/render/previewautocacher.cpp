@@ -487,8 +487,6 @@ void PreviewAutoCacher::SetPlayhead(const rational &playhead)
   cache_range_ = TimeRange(playhead - Config::Current()[QStringLiteral("DiskCacheBehind")].value<rational>(),
       playhead + Config::Current()[QStringLiteral("DiskCacheAhead")].value<rational>());
 
-  use_custom_range_ = false;
-
   RequeueFrames();
 }
 
@@ -717,18 +715,16 @@ void PreviewAutoCacher::RequeueFrames()
   if (viewer_node_
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges(viewer_node_->GetVideoLength())
       && hash_tasks_.isEmpty()
-      && (viewer_node_->GetVideoAutoCacheEnabled() || use_custom_range_)) {
-    TimeRange using_range;
-
-    if (use_custom_range_) {
-      using_range = custom_autocache_range_;
-      use_custom_range_ = false;
-    } else {
-      using_range = cache_range_;
-    }
+      && (viewer_node_->GetVideoAutoCacheEnabled() || use_custom_range_)
+      && !IsRenderingCustomRange()) {
+    TimeRange using_range = use_custom_range_ ? custom_autocache_range_ : cache_range_;
 
     TimeRangeList invalidated = viewer_node_->video_frame_cache()->GetInvalidatedRanges(using_range);
     queued_frame_iterator_ = TimeRangeListFrameIterator(invalidated, viewer_node_->video_frame_cache()->GetTimebase());
+
+    queued_frame_iterator_.SetCustomRange(use_custom_range_);
+
+    use_custom_range_ = false;
 
     TryRender();
   }
@@ -773,7 +769,8 @@ void PreviewAutoCacher::ForceCacheRange(const TimeRange &range)
   use_custom_range_ = true;
   custom_autocache_range_ = range;
 
-  RequeueFrames();
+  // Re-hash these frames and start rendering
+  StartCachingVideoRange(range);
 }
 
 void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)

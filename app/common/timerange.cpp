@@ -296,7 +296,8 @@ TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list
   list_(list),
   timebase_(timebase),
   index_(-1),
-  size_(-1)
+  size_(-1),
+  custom_range_(false)
 {
   if (!list_.isEmpty() && timebase_.isNull()) {
     qCritical() << "TimeRangeListFrameIterator created with null timebase but non-empty list, this will likely lead to infinite loops";

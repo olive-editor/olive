@@ -228,6 +228,16 @@ public:
     list_.insert(list);
   }
 
+  bool IsCustomRange() const
+  {
+    return custom_range_;
+  }
+
+  void SetCustomRange(bool e)
+  {
+    custom_range_ = e;
+  }
+
 private:
   void UpdateIndexIfNecessary();
 
@@ -240,6 +250,8 @@ private:
   int index_;
 
   int size_;
+
+  bool custom_range_;
 
 };
 
