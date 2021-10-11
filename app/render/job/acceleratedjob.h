@@ -47,7 +47,13 @@ public:
 
   void InsertValue(const NodeValueRow &row)
   {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     value_map_.insert(row);
+#else
+    for (auto it=row.cbegin(); it!=row.cend(); it++) {
+      value_map_.insert(it.key(), it.value());
+    }
+#endif
   }
 
   const NodeValueRow &GetValues() const
