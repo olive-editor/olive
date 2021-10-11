@@ -77,8 +77,8 @@ public:
   void transform_volume_for_sample(int sample_index, float volume);
   void transform_volume_for_sample_on_channel(int sample_index, int channel, float volume);
 
-  void fill(const float& f);
-  void fill(const float& f, int start_sample, int end_sample);
+  void silence();
+  void silence(int start_sample, int end_sample);
 
   void set(int channel, const float* data, int sample_offset, int sample_length);
   void set(int channel, const float* data, int sample_length)
