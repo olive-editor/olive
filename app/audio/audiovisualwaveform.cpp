@@ -17,6 +17,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
+#if defined(__x86_64__) || defined(_M_X64) 
+#define x86_64
+#endif 
+
+#ifdef x86_64
+#include <xmmintrin.h>
+#endif
 
 #include "audiovisualwaveform.h"
 
@@ -286,17 +293,47 @@ AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const float *samples
   return summed_samples;
 }
 
+#ifdef x86_64
+void min_max_sse(float *a, int start, int end, float &min_val, float &max_val) {
+    // for time being just assume that length is always mod 4
+    __m128 max = _mm_loadu_ps(a + start); // load the first 4
+    __m128 min = _mm_loadu_ps(a + start); // load the first 4
+    for(int i = 4; i < end; i+=4)
+    {
+      __m128 cur = _mm_loadu_ps(a + start + i);
+      max = _mm_max_ps(max, cur);
+      min = _mm_min_ps(min, cur);
+    }
+    for (int i = 0; i < 3; i++) {
+        max = _mm_max_ps(max, _mm_shuffle_ps(max, max, 0x93));
+        min = _mm_min_ps(min, _mm_shuffle_ps(min, min, 0x93));
+    }
+    _mm_store_ss(&max_val, max);
+    _mm_store_ss(&min_val, min);
+}
+#endif
+
 AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(SampleBufferPtr samples, int start_index, int length)
 {
-  AudioVisualWaveform::Sample summed_samples(samples->audio_params().channel_count());
+  int channels = samples->audio_params().channel_count();
+  AudioVisualWaveform::Sample summed_samples(channels);
 
-  int end_index = start_index + length;
-
-  for (int i=start_index; i<end_index; i++) {
+  #ifdef x86_64
     for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
-      ExpandMinMax(summed_samples[channel], samples->data(channel)[i]);
+      min_max_sse(samples->data(channel), start_index, length, summed_samples[channel].min, summed_samples[channel].max);
     }
-  }
+  #else 
+    int end_index = start_index + length;
+    for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
+      for (int i=start_index; i<end_index; i++) {
+        ExpandMinMax(summed_samples[channel], samples->data(channel)[i]);
+      }
+    }
+    // for reference: this approximation is n x faster (and less accurate) for a n-tracks clip
+    // for (int i=start_index; i<end_index; i++) {
+    //   ExpandMinMax(summed_samples[i%channels], samples->data(i%channels)[i]);
+    // }
+  #endif
 
   return summed_samples;
 }
@@ -444,6 +481,10 @@ void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &su
   if (value > sum.max) {
     sum.max = value;
   }
+
+  // to avoid branching
+  // sum.min = std::min(value, sum.min);
+  // sum.max = std::max(value, sum.max);
 }
 
 }
