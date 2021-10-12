@@ -3255,7 +3255,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="45"/>
         <source>Language:</source>
-        <translation>语言:</translation>
+        <translation>语言：</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="72"/>
@@ -3634,7 +3634,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="156"/>
         <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation>无法设置 OpenColorIO 配置: %1</translation>
+        <translation>无法设置 OpenColorIO 配置：%1</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="175"/>
@@ -4705,7 +4705,7 @@ What would you like to do with these clips?</source>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="843"/>
         <source>Screen %1: %2x%3</source>
-        <translation>屏幕 %1: %2x%3</translation>
+        <translation>屏幕 %1：%2x%3</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="856"/>
