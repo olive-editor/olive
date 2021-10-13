@@ -38,6 +38,7 @@ extern "C" {
 #include <QThread>
 #include <QtConcurrent/QtConcurrent>
 
+#include "codec/planarfiledevice.h"
 #include "common/define.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
@@ -437,7 +438,7 @@ QString FFmpegDecoder::FFmpegError(int error_code)
   return QStringLiteral("%1 %2").arg(QString::number(error_code), err);
 }
 
-bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioParams &params, const QAtomicInt *cancelled)
+bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, const QAtomicInt *cancelled)
 {
   // Iterate through each audio frame and extract the PCM data
 
@@ -454,7 +455,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
   // Create resampling context
   SwrContext* resampler = swr_alloc_set_opts(nullptr,
                                              params.channel_layout(),
-                                             FFmpegUtils::GetFFmpegSampleFormat(params.format()),
+                                             FFmpegUtils::GetFFmpegSampleFormat(params.format(), true),
                                              params.sample_rate(),
                                              channel_layout,
                                              static_cast<AVSampleFormat>(instance_.avstream()->codecpar->format),
@@ -463,8 +464,6 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
                                              nullptr);
 
   swr_init(resampler);
-
-  QFile wave_out(filename);
 
   AVPacket* pkt = av_packet_alloc();
   AVFrame* frame = av_frame_alloc();
@@ -481,7 +480,12 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
     }
   }
 
-  if (wave_out.open(QFile::WriteOnly)) {
+  PlanarFileDevice wave_out;
+  if (wave_out.open(filenames, QFile::WriteOnly)) {
+    int nb_channels = params.channel_count();
+    SampleBuffer data;
+    data.set_audio_params(params);
+
     while (true) {
       // Check if we have a `cancelled` ptr and its value
       if (cancelled && *cancelled) {
@@ -505,28 +509,35 @@ bool FFmpegDecoder::ConformAudioInternal(const QString &filename, const AudioPar
 
       // Allocate buffers
       int nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
-      char* data = new char[params.samples_to_bytes(nb_samples)];
+      int nb_bytes_per_channel = params.samples_to_bytes(nb_samples) / nb_channels;
+      data.set_sample_count(nb_bytes_per_channel);
+      data.allocate();
 
       // Resample audio to our destination parameters
       nb_samples = swr_convert(resampler,
-                               reinterpret_cast<uint8_t**>(&data),
+                               reinterpret_cast<uint8_t**>(data.to_raw_ptrs()),
                                nb_samples,
                                const_cast<const uint8_t**>(frame->data),
                                frame->nb_samples);
 
+      // If no error, write to files
+      if (nb_samples > 0) {
+        // Update byte count for the number of samples we actually received
+        nb_bytes_per_channel = params.samples_to_bytes(nb_samples) / nb_channels;
+
+        // Write to files
+        wave_out.write(const_cast<const char**>(reinterpret_cast<char**>(data.to_raw_ptrs())), nb_bytes_per_channel);
+      }
+
+      // Free buffer
+      data.destroy();
+
+      // Handle error now after freeing
       if (nb_samples < 0) {
         char err_str[512];
         av_strerror(nb_samples, err_str, 512);
         qWarning() << "libswresample failed with error:" << nb_samples << err_str;
         break;
-      }
-
-      // Write packed WAV data to the disk cache
-      wave_out.write(data, params.samples_to_bytes(nb_samples));
-
-      // If we allocated an output for the resampler, delete it here
-      if (data != reinterpret_cast<char*>(frame->data[0])) {
-        delete [] data;
       }
 
       SignalProcessingProgress(frame->pts, duration);

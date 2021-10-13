@@ -24,6 +24,7 @@
 #include <QDebug>
 
 #include "codec/ffmpeg/ffmpegdecoder.h"
+#include "codec/planarfiledevice.h"
 #include "codec/oiio/oiiodecoder.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
@@ -131,7 +132,7 @@ Decoder::RetrieveAudioData Decoder::RetrieveAudio(const TimeRange &range, const 
   }
 
   // See if we got the conform
-  SampleBufferPtr out_buffer = RetrieveAudioFromConform(conform.filename, range, loop_mode, params);
+  SampleBufferPtr out_buffer = RetrieveAudioFromConform(conform.filenames, range, loop_mode, params);
 
   return {kOK, out_buffer, nullptr};
 }
@@ -156,9 +157,9 @@ void Decoder::Close()
   }
 }
 
-bool Decoder::ConformAudio(const QString &output_filename, const AudioParams &params, const QAtomicInt *cancelled)
+bool Decoder::ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, const QAtomicInt *cancelled)
 {
-  return ConformAudioInternal(output_filename, params, cancelled);
+  return ConformAudioInternal(output_filenames, params, cancelled);
 }
 
 /*
@@ -260,25 +261,26 @@ FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const Retrieve
   return nullptr;
 }
 
-bool Decoder::ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled)
+bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, const QAtomicInt* cancelled)
 {
-  Q_UNUSED(filename)
+  Q_UNUSED(filenames)
   Q_UNUSED(cancelled)
   Q_UNUSED(params)
   return false;
 }
 
-SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filename, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
+SampleBufferPtr Decoder::RetrieveAudioFromConform(const QVector<QString> &conform_filenames, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
 {
-  QFile input(conform_filename);
+  PlanarFileDevice input;
+  if (input.open(conform_filenames, QFile::ReadOnly)) {
+    SampleBufferPtr sample_buffer = SampleBuffer::CreateAllocated(input_params, range.length());
 
-  if (input.open(QFile::ReadOnly)) {
-    QByteArray packed_data(input_params.time_to_bytes(range.length()), Qt::Uninitialized);
-
-    qint64 read_index = input_params.time_to_bytes(range.in());
+    qint64 read_index = input_params.time_to_bytes(range.in()) / input_params.channel_count();
     qint64 write_index = 0;
 
-    while (write_index < packed_data.size()) {
+    const qint64 buffer_length_in_bytes = sample_buffer->sample_count() * input_params.bytes_per_sample_per_channel();
+
+    while (write_index < buffer_length_in_bytes) {
       if (loop_mode == Footage::kLoopModeLoop) {
         while (read_index >= input.size()) {
           read_index -= input.size();
@@ -293,16 +295,16 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filenam
 
       if (read_index < 0) {
         // Reading before 0, write silence here until audio data would actually start
-        write_count = qMin(-read_index, qint64(packed_data.size()));
-        memset(packed_data.data() + write_index, 0, write_count);
+        write_count = qMin(-read_index, buffer_length_in_bytes);
+        sample_buffer->silence_bytes(write_index, write_index + write_count);
       } else if (read_index >= input.size()) {
         // Reading after data length, write silence until the end of the buffer
-        write_count = packed_data.size() - write_index;
-        memset(packed_data.data() + write_index, 0, write_count);
+        write_count = buffer_length_in_bytes - write_index;
+        sample_buffer->silence_bytes(write_index, write_index + write_count);
       } else {
-        write_count = qMin(input.size() - read_index, packed_data.size() - write_index);
+        write_count = qMin(input.size() - read_index, buffer_length_in_bytes - write_index);
         input.seek(read_index);
-        input.read(packed_data.data() + write_index, write_count);
+        input.read(reinterpret_cast<char**>(sample_buffer->to_raw_ptrs()), write_count, write_index);
       }
 
       read_index += write_count;
@@ -310,9 +312,6 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QString &conform_filenam
     }
 
     input.close();
-
-    // Create sample buffer
-    SampleBufferPtr sample_buffer = SampleBuffer::CreateFromPackedData(input_params, packed_data);
 
     return sample_buffer;
   }

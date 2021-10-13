@@ -48,30 +48,6 @@ SampleBufferPtr SampleBuffer::CreateAllocated(const AudioParams &audio_params, i
   return buffer;
 }
 
-SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioParams &audio_params, const QByteArray &bytes)
-{
-  if (!audio_params.is_valid()) {
-    qWarning() << "Tried to create from packed data with invalid parameters";
-    return nullptr;
-  }
-
-  int samples_per_channel = audio_params.bytes_to_samples(bytes.size());
-  SampleBufferPtr buffer = CreateAllocated(audio_params, samples_per_channel);
-
-  int total_samples = samples_per_channel * audio_params.channel_count();
-
-  const float* packed_data = reinterpret_cast<const float*>(bytes.constData());
-
-  for (int i=0;i<total_samples;i++) {
-    int channel = i % audio_params.channel_count();
-    int index = i / audio_params.channel_count();
-
-    buffer->data_[channel][index] = packed_data[i];
-  }
-
-  return buffer;
-}
-
 const AudioParams &SampleBuffer::audio_params() const
 {
   return audio_params_;
@@ -128,11 +104,14 @@ void SampleBuffer::allocate()
   for (int i=0; i<audio_params_.channel_count(); i++) {
     data_[i].resize(sample_count_per_channel_);
   }
+
+  update_raw();
 }
 
 void SampleBuffer::destroy()
 {
   data_.clear();
+  raw_ptrs_.clear();
 }
 
 void SampleBuffer::reverse()
@@ -178,6 +157,7 @@ void SampleBuffer::speed(double speed)
   }
 
   data_ = output_data;
+  update_raw();
 }
 
 void SampleBuffer::transform_volume(float f)
@@ -215,13 +195,18 @@ void SampleBuffer::silence()
 
 void SampleBuffer::silence(int start_sample, int end_sample)
 {
+  silence_bytes(start_sample * sizeof(float), end_sample * sizeof(float));
+}
+
+void SampleBuffer::silence_bytes(int start_byte, int end_byte)
+{
   if (!is_allocated()) {
     qWarning() << "Tried to fill an unallocated sample buffer";
     return;
   }
 
   for (int i=0;i<audio_params().channel_count();i++) {
-    memset(data_[i].data(), start_sample * sizeof(float), (end_sample-start_sample) * sizeof(float));
+    memset(reinterpret_cast<char*>(data_[i].data()) + start_byte, 0, end_byte - start_byte);
   }
 }
 
@@ -233,6 +218,14 @@ void SampleBuffer::set(int channel, const float *data, int sample_offset, int sa
   }
 
   memcpy(&data_[channel].data()[sample_offset], data, sizeof(float) * sample_length);
+}
+
+void SampleBuffer::update_raw()
+{
+  raw_ptrs_.resize(data_.size());
+  for (int i=0; i<raw_ptrs_.size(); i++) {
+    raw_ptrs_[i] = data_[i].data();
+  }
 }
 
 }
