@@ -258,7 +258,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
     // All these blocks will need to output to a buffer so we create one here
     SampleBufferPtr block_range_buffer = SampleBuffer::CreateAllocated(audio_params,
                                                                        audio_params.time_to_samples(range.length()));
-    block_range_buffer->fill(0);
+    block_range_buffer->silence();
 
     NodeValueTable merged_table;
 
@@ -284,7 +284,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
             if (qIsNull(speed_value)) {
               // Just silence, don't think there's any other practical application of 0 speed audio
-              samples_from_this_block->fill(0);
+              samples_from_this_block->silence();
             } else if (!qFuzzyCompare(speed_value, 1.0)) {
               // Multiply time
               samples_from_this_block->speed(speed_value);

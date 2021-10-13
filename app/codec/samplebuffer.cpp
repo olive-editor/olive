@@ -208,12 +208,12 @@ void SampleBuffer::transform_volume_for_sample_on_channel(int sample_index, int 
   data_[channel][sample_index] *= volume;
 }
 
-void SampleBuffer::fill(const float &f)
+void SampleBuffer::silence()
 {
-  fill(f, 0, sample_count_per_channel_);
+  silence(0, sample_count_per_channel_);
 }
 
-void SampleBuffer::fill(const float &f, int start_sample, int end_sample)
+void SampleBuffer::silence(int start_sample, int end_sample)
 {
   if (!is_allocated()) {
     qWarning() << "Tried to fill an unallocated sample buffer";
@@ -221,9 +221,7 @@ void SampleBuffer::fill(const float &f, int start_sample, int end_sample)
   }
 
   for (int i=0;i<audio_params().channel_count();i++) {
-    for (int j=start_sample;j<end_sample;j++) {
-      data_[i][j] = f;
-    }
+    memset(data_[i].data(), start_sample * sizeof(float), (end_sample-start_sample) * sizeof(float));
   }
 }
 
