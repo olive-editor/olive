@@ -99,6 +99,8 @@ public:
     return queued_frame_iterator_.IsCustomRange() && queued_frame_iterator_.HasNext();
   }
 
+  void SetAudioPaused(bool e);
+
 signals:
   void StopCacheProxyTasks();
 
@@ -181,6 +183,8 @@ private:
 
   TimeRangeList invalidated_video_;
   TimeRangeList invalidated_audio_;
+
+  bool pause_audio_;
 
   RenderTicketPtr single_frame_render_;
 

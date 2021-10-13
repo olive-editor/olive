@@ -634,6 +634,8 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       viewer->PauseInternal();
       viewer->ClearVideoAutoCacherQueue();
     }
+
+    viewer->auto_cacher_.SetAudioPaused(true);
   }
 
   // If the playhead is beyond the end, restart at 0
@@ -720,6 +722,10 @@ void ViewerWidget::PauseInternal()
     audio_playback_queue_.clear();
     if (tempo_processor_.IsOpen()) {
       tempo_processor_.Close();
+    }
+
+    foreach (ViewerWidget* viewer, instances_) {
+      viewer->auto_cacher_.SetAudioPaused(false);
     }
 
     UpdateTextureFromNode();
