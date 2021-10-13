@@ -333,7 +333,7 @@ Length: %4</source>
     <message>
         <location filename="../render/videoparams.cpp" line="258"/>
         <source>NTSC Standard (%1)</source>
-        <translation>NSTC 标准 (%1)</translation>
+        <translation>NTSC 标准 (%1)</translation>
     </message>
     <message>
         <location filename="../render/videoparams.cpp" line="259"/>
