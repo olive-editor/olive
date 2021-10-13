@@ -236,7 +236,7 @@ public:
   /**
    * @brief Conform audio stream
    */
-  bool ConformAudio(const QString &output_filename, const AudioParams &params, const QAtomicInt *cancelled = nullptr);
+  bool ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, const QAtomicInt *cancelled = nullptr);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -286,7 +286,7 @@ protected:
    */
   virtual FramePtr RetrieveVideoInternal(const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled);
 
-  virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled);
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled);
 
   void SignalProcessingProgress(int64_t ts, int64_t duration);
 
@@ -312,7 +312,7 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  SampleBufferPtr RetrieveAudioFromConform(const QString& conform_filename, const TimeRange &range, Footage::LoopMode loop_mode, const AudioParams &params);
+  SampleBufferPtr RetrieveAudioFromConform(const QVector<QString> &conform_filenames, const TimeRange &range, Footage::LoopMode loop_mode, const AudioParams &params);
 
   CodecStream stream_;
 

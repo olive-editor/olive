@@ -38,7 +38,7 @@ public:
 
   struct Conform {
     ConformState state;
-    QString filename;
+    QVector<QString> filenames;
     ConformTask *task;
   };
 
@@ -65,8 +65,8 @@ private:
     Decoder::CodecStream stream;
     AudioParams params;
     ConformTask *task;
-    QString working_filename;
-    QString finished_filename;
+    QVector<QString> working_filename;
+    QVector<QString> finished_filename;
   };
 
   QVector<ConformData> conforming_;
@@ -74,7 +74,9 @@ private:
   /**
    * @brief Get the destination filename of an audio stream conformed to a set of parameters
    */
-  static QString GetConformedFilename(const QString &cache_path, const Decoder::CodecStream &stream, const AudioParams &params);
+  static QVector<QString> GetConformedFilename(const QString &cache_path, const Decoder::CodecStream &stream, const AudioParams &params);
+
+  static bool AllConformsExist(const QVector<QString> &filenames);
 
 private slots:
   void ConformTaskFinished(Task *task, bool succeeded);

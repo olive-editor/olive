@@ -31,6 +31,8 @@ set(OLIVE_SOURCES
   codec/exportformat.h
   codec/frame.cpp
   codec/frame.h
+  codec/planarfiledevice.cpp
+  codec/planarfiledevice.h
   codec/samplebuffer.cpp
   codec/samplebuffer.h
   PARENT_SCOPE

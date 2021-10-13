@@ -46,7 +46,6 @@ public:
   static SampleBufferPtr Create();
   static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, const rational& length);
   static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, int samples_per_channel);
-  static SampleBufferPtr CreateFromPackedData(const AudioParams& audio_params, const QByteArray& bytes);
 
   DISABLE_COPY_MOVE(SampleBuffer)
 
@@ -66,6 +65,11 @@ public:
     return data_.at(channel).constData();
   }
 
+  float **to_raw_ptrs()
+  {
+    return raw_ptrs_.data();
+  }
+
   bool is_allocated() const;
   void allocate();
   void destroy();
@@ -79,6 +83,7 @@ public:
 
   void silence();
   void silence(int start_sample, int end_sample);
+  void silence_bytes(int start_byte, int end_byte);
 
   void set(int channel, const float* data, int sample_offset, int sample_length);
   void set(int channel, const float* data, int sample_length)
@@ -87,11 +92,14 @@ public:
   }
 
 private:
+  void update_raw();
+
   AudioParams audio_params_;
 
   int sample_count_per_channel_;
 
   QVector< QVector<float> > data_;
+  QVector<float*> raw_ptrs_;
 
 };
 
