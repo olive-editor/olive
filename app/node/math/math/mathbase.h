@@ -101,6 +101,10 @@ protected:
   template<typename T, typename U>
   static T PerformAddSubMultDiv(Operation operation, T a, U b);
 
+#ifdef Q_PROCESSOR_X86
+  static void PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end);
+#endif
+
   static QString GetShaderUniformType(const NodeValue::Type& type);
 
   static QString GetShaderVariableCall(const QString& input_id, const NodeValue::Type& type, const QString &coord_op = QString());

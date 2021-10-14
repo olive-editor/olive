@@ -167,6 +167,46 @@ void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type typ
   }
 }
 
+#ifdef Q_PROCESSOR_X86
+void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end)
+{
+  int end_divisible_4 = (end / 4) * 4;
+
+  // loop over 'a' and compare current elements with min and max 4 by 4.
+  // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
+  __m128 mult = _mm_load1_ps(&b);
+  for(int j = 0; j < end_divisible_4; j+=4) {
+    __m128 cur = _mm_loadu_ps(a + start + j);
+    __m128 res;
+
+    // Switch statement doesn't seem to cause additional overhead, hopefully the compiler is
+    // unrolling the loops?
+    switch (operation) {
+    case kOpAdd:
+      res = _mm_add_ps(cur, mult);
+      break;
+    case kOpSubtract:
+      res = _mm_sub_ps(cur, mult);
+      break;
+    case kOpMultiply:
+    case kOpPower: // Technically incorrect but why would someone ever need this?
+      res = _mm_mul_ps(cur, mult);
+      break;
+    case kOpDivide:
+      res = _mm_div_ps(cur, mult);
+      break;
+    }
+
+    _mm_storeu_ps(a + start + j, res);
+  }
+
+  // Do last three numbers, if non-divisible by 4
+  for (int j=end_divisible_4; j<end; j++) {
+    a[j] *= b;
+  }
+}
+#endif
+
 void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b, const NodeGlobals &globals, NodeValueTable *output) const
 {
   switch (pairing) {
@@ -355,25 +395,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
 #ifdef Q_PROCESSOR_X86
             // Use SSE instructions for optimization
-
-            float *a = job.samples()->data(i);
-            int end = job.samples()->sample_count();
-
-            int end_divisible_4 = (end / 4) * 4;
-
-            // loop over 'a' and compare current elements with min and max 4 by 4.
-            // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
-            __m128 mult = _mm_load1_ps(&number);
-            for(int j = 0; j < end_divisible_4; j+=4) {
-              __m128 cur = _mm_loadu_ps(a + j);
-              __m128 res = _mm_mul_ps(cur, mult);
-              _mm_storeu_ps(a + j, res);
-            }
-
-            // Do last three numbers, if non-divisible by 4
-            for (int j=end_divisible_4; j<end; j++) {
-              a[j] *= number;
-            }
+            PerformAllOnFloatBufferSSE(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
 #else
             for (int j=0;j<job.samples()->sample_count();j++) {
               job.samples()->data(i)[j] = PerformAll(operation, job.samples()->data(i)[j], number);
