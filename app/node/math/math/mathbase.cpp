@@ -23,6 +23,10 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
+#ifdef Q_PROCESSOR_X86
+#include <xmmintrin.h>
+#endif
+
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "render/color.h"
@@ -349,9 +353,32 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       if (IsInputStatic(number_param)) {
         if (!NumberIsNoOp(operation, number)) {
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
+#ifdef Q_PROCESSOR_X86
+            // Use SSE instructions for optimization
+
+            float *a = job.samples()->data(i);
+            int end = job.samples()->sample_count();
+
+            int end_divisible_4 = (end / 4) * 4;
+
+            // loop over 'a' and compare current elements with min and max 4 by 4.
+            // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
+            __m128 mult = _mm_load1_ps(&number);
+            for(int j = 0; j < end_divisible_4; j+=4) {
+              __m128 cur = _mm_loadu_ps(a + j);
+              __m128 res = _mm_mul_ps(cur, mult);
+              _mm_storeu_ps(a + j, res);
+            }
+
+            // Do last three numbers, if non-divisible by 4
+            for (int j=end_divisible_4; j<end; j++) {
+              a[j] *= number;
+            }
+#else
             for (int j=0;j<job.samples()->sample_count();j++) {
               job.samples()->data(i)[j] = PerformAll(operation, job.samples()->data(i)[j], number);
             }
+#endif
           }
         }
 
