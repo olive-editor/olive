@@ -102,6 +102,7 @@ protected:
   static T PerformAddSubMultDiv(Operation operation, T a, U b);
 
 #ifdef Q_PROCESSOR_X86
+  static void PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end);
   static void PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end);
 #endif
 

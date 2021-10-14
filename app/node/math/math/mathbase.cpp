@@ -167,42 +167,58 @@ void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type typ
   }
 }
 
+void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end)
+{
+  for (int j=start;j<end;j++) {
+    a[j] = PerformAll(operation, a[j], b);
+  }
+}
+
 #ifdef Q_PROCESSOR_X86
+typedef __m128 (*SSEOperationFunction)(__m128 a, __m128 b);
 void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end)
 {
   int end_divisible_4 = (end / 4) * 4;
 
-  // loop over 'a' and compare current elements with min and max 4 by 4.
-  // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
+  // Load number to multiply by into buffer
   __m128 mult = _mm_load1_ps(&b);
-  for(int j = 0; j < end_divisible_4; j+=4) {
-    __m128 cur = _mm_loadu_ps(a + start + j);
-    __m128 res;
 
-    // Switch statement doesn't seem to cause additional overhead, hopefully the compiler is
-    // unrolling the loops?
-    switch (operation) {
-    case kOpAdd:
-      res = _mm_add_ps(cur, mult);
-      break;
-    case kOpSubtract:
-      res = _mm_sub_ps(cur, mult);
-      break;
-    case kOpMultiply:
-    case kOpPower: // Technically incorrect but why would someone ever need this?
-      res = _mm_mul_ps(cur, mult);
-      break;
-    case kOpDivide:
-      res = _mm_div_ps(cur, mult);
-      break;
-    }
-
-    _mm_storeu_ps(a + start + j, res);
+  SSEOperationFunction func = nullptr;
+  switch (operation) {
+  case kOpAdd:
+    func = _mm_add_ps;
+    break;
+  case kOpSubtract:
+    func = _mm_sub_ps;
+    break;
+  case kOpMultiply:
+    func = _mm_mul_ps;
+    break;
+  case kOpDivide:
+    func = _mm_div_ps;
+    break;
+  case kOpPower:
+    // Leave as nullptr, which will fallback to non-SSE operation
+    break;
   }
 
-  // Do last three numbers, if non-divisible by 4
-  for (int j=end_divisible_4; j<end; j++) {
-    a[j] *= b;
+  if (func) {
+    // If we have an SSE version of this operation, do this now
+
+    // Loop all values
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      __m128 cur = _mm_loadu_ps(a + start + j);
+      __m128 res = func(cur, mult);
+      _mm_storeu_ps(a + start + j, res);
+    }
+
+    // Do last three numbers, if non-divisible by 4
+    for (int j=end_divisible_4; j<end; j++) {
+      a[j] *= b;
+    }
+  } else {
+    // Fallback for operations we can't support here
+    PerformAllOnFloatBuffer(operation, a, b, start, end);
   }
 }
 #endif
@@ -397,9 +413,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
             // Use SSE instructions for optimization
             PerformAllOnFloatBufferSSE(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
 #else
-            for (int j=0;j<job.samples()->sample_count();j++) {
-              job.samples()->data(i)[j] = PerformAll(operation, job.samples()->data(i)[j], number);
-            }
+            PerformAllOnFloatBuffer(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
 #endif
           }
         }
