@@ -20,6 +20,7 @@
 
 #include "renderprocessor.h"
 
+#include <QDateTime>
 #include <QOpenGLContext>
 #include <QVector2D>
 #include <QVector3D>
@@ -500,12 +501,14 @@ SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRang
     return super::ProcessSamples(node, range, job);
   }
 
+  int sample_count = job.samples()->sample_count();
   SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(job.samples()->audio_params(), job.samples()->sample_count());
   NodeValueRow value_db;
 
   const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
 
-  for (int i=0;i<job.samples()->sample_count();i++) {
+  int granularity = audio_params.sample_rate() / 240;
+  for (int i=0;i<sample_count;i+=granularity) {
     // Calculate the exact rational time at this sample
     double sample_to_second = static_cast<double>(i) / static_cast<double>(audio_params.sample_rate());
 
@@ -518,10 +521,14 @@ SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRang
       value_db.insert(j.key(), GenerateRowValue(node, j.key(), &value));
     }
 
-    node->ProcessSamples(value_db,
-                         job.samples(),
-                         output_buffer,
-                         i);
+    for (int k=i; k<i+granularity; k++){
+      if (k >= sample_count) break;
+      node->ProcessSamples(value_db,
+                          job.samples(),
+                          output_buffer,
+                          k);
+    }
+
   }
 
   return output_buffer;
