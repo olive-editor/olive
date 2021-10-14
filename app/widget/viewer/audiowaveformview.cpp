@@ -40,20 +40,6 @@ AudioWaveformView::AudioWaveformView(QWidget *parent) :
   setBackgroundRole(QPalette::Base);
 }
 
-AudioVisualWaveform GenerateWaveform(QIODevice* device, AudioParams params, TimeRange range)
-{
-  device->open(QFile::ReadOnly);
-  device->seek(params.time_to_bytes(range.in()));
-
-  SampleBufferPtr samples = SampleBuffer::CreateFromPackedData(params, device->read(params.time_to_bytes(range.length())));
-  AudioVisualWaveform waveform;
-  waveform.set_channel_count(params.channel_count());
-  waveform.OverwriteSamples(samples, params.sample_rate());
-  device->close();
-  delete device;
-  return waveform;
-}
-
 void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
 {
   if (playback_) {

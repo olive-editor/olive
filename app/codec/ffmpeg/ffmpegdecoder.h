@@ -64,7 +64,7 @@ public:
 protected:
   virtual bool OpenInternal() override;
   virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
-  virtual bool ConformAudioInternal(const QString& filename, const AudioParams &params, const QAtomicInt* cancelled) override;
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled) override;
   virtual void CloseInternal() override;
 
 private:

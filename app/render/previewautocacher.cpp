@@ -41,6 +41,7 @@ const bool PreviewAutoCacher::kRealTimeWaveformsEnabled = true;
 PreviewAutoCacher::PreviewAutoCacher() :
   viewer_node_(nullptr),
   use_custom_range_(false),
+  pause_audio_(false),
   single_frame_render_(nullptr)
 {
   // Set defaults
@@ -532,6 +533,14 @@ void PreviewAutoCacher::CancelAudioTasks(bool and_wait_for_them_to_finish)
   CancelTasks(audio_tasks_, and_wait_for_them_to_finish);
 }
 
+void PreviewAutoCacher::SetAudioPaused(bool e)
+{
+  pause_audio_ = e;
+  if (!e) {
+    TryRender();
+  }
+}
+
 void PreviewAutoCacher::NodeAdded(Node *node)
 {
   graph_update_queue_.append({QueuedJob::kNodeAdded, node, NodeInput(), nullptr});
@@ -672,7 +681,7 @@ void PreviewAutoCacher::TryRender()
   }
 
   // Handle audio tasks
-  while (!audio_iterator_.isEmpty() && audio_tasks_.size() < max_tasks) {
+  while (!audio_iterator_.isEmpty() && audio_tasks_.size() < max_tasks && !pause_audio_) {
     // Copy first range in list
     TimeRange r = audio_iterator_.first();
 

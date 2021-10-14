@@ -18,36 +18,47 @@
 
 ***/
 
-#ifndef CONFORMTASK_H
-#define CONFORMTASK_H
+#ifndef PLANARFILEDEVICE_H
+#define PLANARFILEDEVICE_H
 
-#include "codec/decoder.h"
-#include "node/project/footage/footage.h"
-#include "render/audioparams.h"
-#include "task/task.h"
+#include <QFile>
+#include <QObject>
+
+#include "codec/samplebuffer.h"
+#include "common/define.h"
 
 namespace olive {
 
-class ConformTask : public Task
+class PlanarFileDevice : public QObject
 {
   Q_OBJECT
 public:
-  ConformTask(const QString &decoder_id, const Decoder::CodecStream &stream, const AudioParams& params, const QVector<QString> &output_filenames);
+  PlanarFileDevice(QObject *parent = nullptr);
 
-protected:
-  virtual bool Run() override;
+  virtual ~PlanarFileDevice() override;
+
+  bool isOpen() const
+  {
+    return !files_.isEmpty();
+  }
+
+  bool open(const QVector<QString> &filenames, QIODevice::OpenMode mode);
+
+  qint64 read(char **data, qint64 bytes_per_channel, qint64 offset = 0);
+
+  qint64 write(const char **data, qint64 bytes_per_channel, qint64 offset = 0);
+
+  qint64 size() const;
+
+  bool seek(qint64 pos);
+
+  void close();
 
 private:
-  QString decoder_id_;
-
-  Decoder::CodecStream stream_;
-
-  AudioParams params_;
-
-  QVector<QString> output_filenames_;
+  QVector<QFile*> files_;
 
 };
 
 }
 
-#endif // CONFORMTASK_H
+#endif // PLANARFILEDEVICE_H
