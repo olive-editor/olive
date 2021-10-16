@@ -80,6 +80,10 @@ int OutputCallback(const void *input, void *output, unsigned long frameCount, co
 
 void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &samples)
 {
+  if (output_device_ == paNoDevice) {
+    return;
+  }
+
   if (output_params_ != params || output_stream_ == nullptr) {
     output_params_ = params;
 
