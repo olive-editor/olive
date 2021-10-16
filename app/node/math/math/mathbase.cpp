@@ -175,7 +175,6 @@ void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float 
 }
 
 #ifdef Q_PROCESSOR_X86
-typedef __m128 (*SSEOperationFunction)(__m128 a, __m128 b);
 void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end)
 {
   int end_divisible_4 = (end / 4) * 4;
@@ -183,43 +182,37 @@ void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, flo
   // Load number to multiply by into buffer
   __m128 mult = _mm_load1_ps(&b);
 
-  SSEOperationFunction func = nullptr;
   switch (operation) {
   case kOpAdd:
-    func = _mm_add_ps;
-    break;
-  case kOpSubtract:
-    func = _mm_sub_ps;
-    break;
-  case kOpMultiply:
-    func = _mm_mul_ps;
-    break;
-  case kOpDivide:
-    func = _mm_div_ps;
-    break;
-  case kOpPower:
-    // Leave as nullptr, which will fallback to non-SSE operation
-    break;
-  }
-
-  if (func) {
-    // If we have an SSE version of this operation, do this now
-
     // Loop all values
     for(int j = 0; j < end_divisible_4; j+=4) {
-      __m128 cur = _mm_loadu_ps(a + start + j);
-      __m128 res = func(cur, mult);
-      _mm_storeu_ps(a + start + j, res);
+      _mm_storeu_ps(a + start + j, _mm_add_ps(_mm_loadu_ps(a + start + j), mult));
     }
-
-    // Do last three numbers, if non-divisible by 4
-    for (int j=end_divisible_4; j<end; j++) {
-      a[j] *= b;
+    break;
+  case kOpSubtract:
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(a + start + j, _mm_sub_ps(_mm_loadu_ps(a + start + j), mult));
     }
-  } else {
+    break;
+  case kOpMultiply:
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(a + start + j, _mm_mul_ps(_mm_loadu_ps(a + start + j), mult));
+    }
+    break;
+  case kOpDivide:
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(a + start + j, _mm_div_ps(_mm_loadu_ps(a + start + j), mult));
+    }
+    break;
+  case kOpPower:
     // Fallback for operations we can't support here
-    PerformAllOnFloatBuffer(operation, a, b, start, end);
+    end_divisible_4 = 0;
+    break;
   }
+
+  // Handle last 1-3 bytes if necessary, or all bytes if we couldn't
+  // support this op on SSE
+  PerformAllOnFloatBuffer(operation, a, b, end_divisible_4, end);
 }
 #endif
 
