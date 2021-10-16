@@ -127,23 +127,22 @@ rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool igno
     return sequence_time;
   }
 
-  rational local_time = sequence_time;
+  rational media_time = sequence_time;
 
   double speed_value = speed();
-
   if (qIsNull(speed_value)) {
     // Effectively holds the frame at the in point
-    local_time = 0;
+    media_time = 0;
   } else if (!qFuzzyCompare(speed_value, 1.0)) {
     // Multiply time
-    local_time = rational::fromDouble(local_time.toDouble() * speed_value);
+    media_time = rational::fromDouble(media_time.toDouble() * speed_value);
   }
-
-  rational media_time = local_time + media_in();
 
   if (reverse() && !ignore_reverse) {
     media_time = length() - media_time;
   }
+
+  media_time += media_in();
 
   return media_time;
 }
@@ -155,21 +154,18 @@ rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
     return media_time;
   }
 
-  rational sequence_time = media_time;
+  rational sequence_time = media_time - media_in();
 
   if (reverse()) {
     sequence_time = length() - sequence_time;
   }
 
-  sequence_time -= media_in();
-
   double speed_value = speed();
-
   if (qIsNull(speed_value)) {
-    // Effectively holds the frame at the in point, also prevents divide by zero
-    sequence_time = 0;
+    // I don't know what to return here yet...
+    sequence_time = rational::NaN;
   } else if (!qFuzzyCompare(speed_value, 1.0)) {
-    // Multiply time
+    // Divide time
     sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
   }
 
@@ -183,10 +179,17 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
   // If signal is from texture input, transform all times from media time to sequence time
   if (from == kBufferIn) {
     // Adjust range from media time to sequence time
-    rational start = MediaToSequenceTime(range.in());
-    rational end = MediaToSequenceTime(range.out());
+    TimeRange adj;
+    double speed_value = speed();
 
-    super::InvalidateCache(TimeRange(start, end), from, element, options);
+    if (qIsNull(speed_value)) {
+      // Handle 0 speed by invalidating the whole clip
+      adj = TimeRange(RATIONAL_MIN, RATIONAL_MAX);
+    } else {
+      adj = TimeRange(MediaToSequenceTime(range.in()), MediaToSequenceTime(range.out()));
+    }
+
+    super::InvalidateCache(adj, from, element, options);
   } else {
     // Otherwise, pass signal along normally
     super::InvalidateCache(range, from, element, options);
