@@ -23,6 +23,10 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
+#ifdef Q_PROCESSOR_X86
+#include <xmmintrin.h>
+#endif
+
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "render/color.h"
@@ -162,6 +166,55 @@ void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type typ
     break;
   }
 }
+
+void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end)
+{
+  for (int j=start;j<end;j++) {
+    a[j] = PerformAll(operation, a[j], b);
+  }
+}
+
+#ifdef Q_PROCESSOR_X86
+void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end)
+{
+  int end_divisible_4 = (end / 4) * 4;
+
+  // Load number to multiply by into buffer
+  __m128 mult = _mm_load1_ps(&b);
+
+  switch (operation) {
+  case kOpAdd:
+    // Loop all values
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(a + start + j, _mm_add_ps(_mm_loadu_ps(a + start + j), mult));
+    }
+    break;
+  case kOpSubtract:
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(a + start + j, _mm_sub_ps(_mm_loadu_ps(a + start + j), mult));
+    }
+    break;
+  case kOpMultiply:
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(a + start + j, _mm_mul_ps(_mm_loadu_ps(a + start + j), mult));
+    }
+    break;
+  case kOpDivide:
+    for(int j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(a + start + j, _mm_div_ps(_mm_loadu_ps(a + start + j), mult));
+    }
+    break;
+  case kOpPower:
+    // Fallback for operations we can't support here
+    end_divisible_4 = 0;
+    break;
+  }
+
+  // Handle last 1-3 bytes if necessary, or all bytes if we couldn't
+  // support this op on SSE
+  PerformAllOnFloatBuffer(operation, a, b, end_divisible_4, end);
+}
+#endif
 
 void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b, const NodeGlobals &globals, NodeValueTable *output) const
 {
@@ -349,9 +402,12 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       if (IsInputStatic(number_param)) {
         if (!NumberIsNoOp(operation, number)) {
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
-            for (int j=0;j<job.samples()->sample_count();j++) {
-              job.samples()->data(i)[j] = PerformAll(operation, job.samples()->data(i)[j], number);
-            }
+#ifdef Q_PROCESSOR_X86
+            // Use SSE instructions for optimization
+            PerformAllOnFloatBufferSSE(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
+#else
+            PerformAllOnFloatBuffer(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
+#endif
           }
         }
 

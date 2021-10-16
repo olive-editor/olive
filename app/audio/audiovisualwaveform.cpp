@@ -21,6 +21,11 @@
 #include "audiovisualwaveform.h"
 
 #include <QDebug>
+#include <QtGlobal>
+
+#ifdef Q_PROCESSOR_X86
+#include <xmmintrin.h>
+#endif
 
 #include "config/config.h"
 #include "common/functiontimer.h"
@@ -286,17 +291,62 @@ AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const float *samples
   return summed_samples;
 }
 
+#ifdef Q_PROCESSOR_X86
+void ExpandMinMaxSSE(float *a, int start, int end, float &min_val, float &max_val)
+{
+  // load the first 4 elements of 'a' into min and max (they are 4 * 32 = 128 bits)
+  __m128 max = _mm_loadu_ps(a + start);
+  __m128 min = _mm_loadu_ps(a + start);
+
+  // loop over 'a' and compare current elements with min and max 4 by 4.
+  // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
+  for(int i = 4; i < end-4; i+=4) {
+    __m128 cur = _mm_loadu_ps(a + start + i);
+    max = _mm_max_ps(max, cur);
+    min = _mm_min_ps(min, cur);
+  }
+  // so we read the last 4 (or less) elements in a safe manner.
+  __m128 cur = _mm_loadu_ps(a + end - 4);
+  max = _mm_max_ps(max, cur);
+  min = _mm_min_ps(min, cur);
+  // this potentially overlaps up to the last 3 elements but it's not an issue.
+
+  // min and max will contain 4 min and max. To get the absolute min and max
+  // we need to compare the 4 values over themselves by shuffling each time.
+  for (int i = 0; i < 3; i++) {
+    max = _mm_max_ps(max, _mm_shuffle_ps(max, max, 0x93));
+    min = _mm_min_ps(min, _mm_shuffle_ps(min, min, 0x93));
+  }
+  // now min and max contain 4 identical items each representing min and max value respectively.
+
+  // and we store the first one into a float variable.
+  _mm_store_ss(&max_val, max);
+  _mm_store_ss(&min_val, min);
+  // I bet you don't find annotated low level code very often.
+}
+#endif
+
 AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(SampleBufferPtr samples, int start_index, int length)
 {
-  AudioVisualWaveform::Sample summed_samples(samples->audio_params().channel_count());
+  int channels = samples->audio_params().channel_count();
+  AudioVisualWaveform::Sample summed_samples(channels);
 
-  int end_index = start_index + length;
-
-  for (int i=start_index; i<end_index; i++) {
+  #ifdef Q_PROCESSOR_X86
     for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
-      ExpandMinMax(summed_samples[channel], samples->data(channel)[i]);
+      ExpandMinMaxSSE(samples->data(channel), start_index, length, summed_samples[channel].min, summed_samples[channel].max);
     }
-  }
+  #else
+    int end_index = start_index + length;
+    for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
+      for (int i=start_index; i<end_index; i++) {
+        ExpandMinMax(summed_samples[channel], samples->data(channel)[i]);
+      }
+    }
+    // for reference: this approximation is n x faster (and less accurate) for a n-tracks clip
+    // for (int i=start_index; i<end_index; i++) {
+    //   ExpandMinMax(summed_samples[i%channels], samples->data(i%channels)[i]);
+    // }
+  #endif
 
   return summed_samples;
 }
@@ -444,6 +494,10 @@ void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &su
   if (value > sum.max) {
     sum.max = value;
   }
+
+  // to avoid branching
+  // sum.min = std::min(value, sum.min);
+  // sum.max = std::max(value, sum.max);
 }
 
 }
