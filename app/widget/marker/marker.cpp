@@ -23,6 +23,7 @@
 #include <QPainter>
 
 #include "common/qtutils.h"
+#include "config/config.h"
 #include "ui/colorcoding.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -33,7 +34,6 @@ namespace olive {
 
 Marker::Marker(QWidget *parent) :
 	QWidget(parent),
-    marker_color_(7), //green FIXME: add default color to config
     active_(false)
 {
   //setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

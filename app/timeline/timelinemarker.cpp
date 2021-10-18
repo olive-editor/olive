@@ -21,15 +21,16 @@
 #include "timelinemarker.h"
 
 #include "common/xmlutils.h"
+#include "config/config.h"
 
 namespace olive {
 
 TimelineMarker::TimelineMarker(const TimeRange &time, const QString &name, QObject *parent) :
   QObject(parent),
   time_(time),
-  name_(name),
-  color_(7) // FIXME: set via config
+  name_(name)
 {
+  color_ = Config::Current()[QStringLiteral("MarkerColor")].toInt();
 }
 
 const TimeRange &TimelineMarker::time() const
