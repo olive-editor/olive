@@ -24,6 +24,7 @@
 
 #include "common/qtutils.h"
 #include "config/config.h"
+#include "dialog/text/text.h"
 #include "ui/colorcoding.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -37,7 +38,7 @@ Marker::Marker(QWidget *parent) :
     active_(false)
 {
   //setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  setMaximumSize(8, 20);
+  setMinimumSize(8, 20);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &Marker::customContextMenuRequested, this, &Marker::ShowContextMenu);
@@ -98,6 +99,10 @@ void Marker::paintEvent(QPaintEvent *event)
   };
 
   p.drawPolygon(points, 6);
+
+  if (!name_.isEmpty()) {
+    p.drawText(x + marker_width_, y - half_text_height, name_);
+  }
 }
 
 void Marker::mousePressEvent(QMouseEvent* e)
@@ -130,12 +135,35 @@ void Marker::ShowContextMenu() {
   m.addSeparator();
   MenuShared::instance()->AddItemsForEditMenu(&m, false);
 
+  m.addSeparator();
+  QAction rename;
+  rename.setText(tr("Rename"));
+  m.addAction(&rename);
+  connect(&rename, &QAction::triggered, this, &Marker::Rename);
+
   m.exec(QCursor::pos());
+}
+
+void Marker::Rename()
+{
+  TextDialog d(this->name_, this);
+  if (d.exec() == QDialog::Accepted) {
+    QString s = d.text();
+    emit NameChanged(s);
+  }
 }
 
 void Marker::SetColor(int c)
 {
   marker_color_ = c;
+
+  update();
+}
+
+void Marker::SetName(QString s)
+{
+  name_ = s;
+  qDebug() << name_;
 
   update();
 }

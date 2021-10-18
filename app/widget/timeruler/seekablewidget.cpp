@@ -210,7 +210,10 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     connect(marker_widget, &Marker::ActiveChanged, marker, &TimelineMarker::set_active);
     connect(marker, &TimelineMarker::ActiveChanged, marker_widget, &Marker::SetActive);
 
-    marker_widget->move(TimeToScreen(marker->time().in()), 20);
+    connect(marker_widget, &Marker::NameChanged, marker, &TimelineMarker::set_name);
+    connect(marker, &TimelineMarker::NameChanged, marker_widget, &Marker::SetName);
+
+    marker_widget->move(TimeToScreen(marker->time().in()), text_height_);
     marker_widget->SetColor(marker->color());
     marker_widget->show();
   }
@@ -233,7 +236,7 @@ void SeekableWidget::updateMarkerPositions()
 {
   foreach (TimelineMarker* marker, marker_map_.keys()) {
     Marker *m = marker_map_.value(marker);
-    m->move(TimeToScreen(marker->time().in()), 20);
+    m->move(TimeToScreen(marker->time().in()), text_height_);
   }
 }
 

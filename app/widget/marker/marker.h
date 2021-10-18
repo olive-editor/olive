@@ -37,9 +37,12 @@ class Marker : public QWidget {
 
   bool active();
 
+  void Rename();
+
  public slots:
   void SetColor(int c);
   void SetActive(bool active);
+  void SetName(QString s);
 
  protected:
   void paintEvent(QPaintEvent* event) override;
@@ -53,12 +56,15 @@ class Marker : public QWidget {
   void ColorChanged(int c);
   void markerSelected(Marker* marker);
   void ActiveChanged(bool active);
+  void NameChanged(QString name);
 
  private:
 
   int marker_color_;
 
   bool active_;
+
+  QString name_;
 
  private slots:
   void ShowContextMenu();
