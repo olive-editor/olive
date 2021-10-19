@@ -101,8 +101,9 @@ protected:
   template<typename T, typename U>
   static T PerformAddSubMultDiv(Operation operation, T a, U b);
 
-#ifdef Q_PROCESSOR_X86
   static void PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end);
+
+#ifdef Q_PROCESSOR_X86
   static void PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end);
 #endif
 
