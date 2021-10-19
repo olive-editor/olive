@@ -25,6 +25,8 @@
 #include <QStyleOptionSlider>
 #include <QtMath>
 
+#include "ui/colorcoding.h"
+
 namespace olive {
 
 ResizableTimelineScrollBar::ResizableTimelineScrollBar(QWidget* parent) :
@@ -109,8 +111,8 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
     }
 
     if (!points_->markers()->list().isEmpty()) {
-      QColor marker_color(0, 255, 0, 128);
       foreach (TimelineMarker* marker, points_->markers()->list()) {
+        QColor marker_color = ColorCoding::GetColor(marker->color()).toQColor();
         int64_t in = qRound64(ratio * TimeToScene(marker->time().in()));
         int64_t out = qRound64(ratio * TimeToScene(marker->time().out()));
         int64_t length = qMax(int64_t(1), out-in);
