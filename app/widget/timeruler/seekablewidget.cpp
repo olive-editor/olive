@@ -237,7 +237,7 @@ void SeekableWidget::updateMarkerPositions()
 {
   foreach (TimelineMarker* marker, marker_map_.keys()) {
     Marker *m = marker_map_.value(marker);
-    m->move(TimeToScreen(marker->time().in()), text_height_);
+    m->move(TimeToScreen(marker->time().in())-2, text_height_);
   }
 }
 

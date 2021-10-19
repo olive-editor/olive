@@ -110,8 +110,12 @@ void Marker::paintEvent(QPaintEvent *event)
 
 void Marker::mousePressEvent(QMouseEvent* e)
 {
-  if (e->button() == Qt::LeftButton) {
-    static_cast<SeekableWidget*>(parent())->SeekToScreenPoint(e->pos().x() + this->x());
+  // Only select if clicking on the icon and not the label
+  if (e->pos().x() >  7) {
+    return;
+  }
+  if (e->button() == Qt::LeftButton || e->button() == Qt::RightButton) {
+    static_cast<SeekableWidget*>(parent())->SeekToScreenPoint(this->x() + 4);
     if (!active_) {
       if (e->modifiers() != Qt::ShiftModifier) {
         static_cast<SeekableWidget *>(parent())->DeselectAllMarkers();
@@ -166,7 +170,6 @@ void Marker::SetColor(int c)
 void Marker::SetName(QString s)
 {
   name_ = s;
-  qDebug() << name_;
 
   update();
 }
