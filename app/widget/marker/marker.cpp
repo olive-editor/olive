@@ -20,11 +20,11 @@
 
 #include "marker.h"
 
+#include <QInputDialog>
 #include <QPainter>
 
 #include "common/qtutils.h"
 #include "config/config.h"
-#include "dialog/text/text.h"
 #include "ui/colorcoding.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -37,8 +37,8 @@ Marker::Marker(QWidget *parent) :
 	QWidget(parent),
     active_(false)
 {
-  //setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  setMinimumSize(8, 20);
+  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  resize(7, 14);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &Marker::customContextMenuRequested, this, &Marker::ShowContextMenu);
@@ -101,7 +101,10 @@ void Marker::paintEvent(QPaintEvent *event)
   p.drawPolygon(points, 6);
 
   if (!name_.isEmpty()) {
+    resize(fm.horizontalAdvance(name_)+10, 14);
     p.drawText(x + marker_width_, y - half_text_height, name_);
+  } else {
+    resize(7, 14);
   }
 }
 
@@ -146,10 +149,10 @@ void Marker::ShowContextMenu() {
 
 void Marker::Rename()
 {
-  TextDialog d(this->name_, this);
-  if (d.exec() == QDialog::Accepted) {
-    QString s = d.text();
-    emit NameChanged(s);
+  bool ok;
+  QString marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
+  if (ok) {
+    emit NameChanged(marker_name);
   }
 }
 
