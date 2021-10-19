@@ -140,8 +140,6 @@ void Marker::mouseMoveEvent(QMouseEvent* e)
   if (active_) {
     dragging_ = true;
 
-    QPoint old_pos = mapToGlobal(pos());
-
     int new_pos = marker_start_x_ + e->globalPos().x() - click_position_.x();
 
     if (new_pos > -3 && new_pos < static_cast<SeekableWidget *>(parent())->width() - 3) {
