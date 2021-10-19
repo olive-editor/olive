@@ -131,7 +131,14 @@ void Marker::mousePressEvent(QMouseEvent* e)
   }
 }
 
-void Marker::ShowContextMenu() {
+void Marker::ShowContextMenu()
+{
+  // Only show context menu if we clicked on the icon and not the label
+  QRect marker_icon(0, 0, 7, 14);
+  if (!marker_icon.contains(this->mapFromGlobal(QCursor::pos()))) {
+    return;
+  }
+
   Menu m(this);
 
   // Color menu
@@ -154,7 +161,7 @@ void Marker::ShowContextMenu() {
 void Marker::Rename()
 {
   bool ok;
-  QString marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
+  QString marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, name_, &ok);
   if (ok) {
     emit NameChanged(marker_name);
   }
