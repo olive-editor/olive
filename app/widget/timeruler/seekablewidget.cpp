@@ -213,6 +213,9 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     connect(marker_widget, &Marker::NameChanged, marker, &TimelineMarker::set_name);
     connect(marker, &TimelineMarker::NameChanged, marker_widget, &Marker::SetName);
 
+    connect(marker_widget, &Marker::TimeChanged, marker, &TimelineMarker::set_time);
+    connect(marker, &TimelineMarker::TimeChanged, marker_widget, &Marker::SetTime);
+
     marker_widget->move(TimeToScreen(marker->time().in())-2, text_height_);
     marker_widget->SetColor(marker->color());
     marker_widget->SetName(marker->name());

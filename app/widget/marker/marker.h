@@ -26,6 +26,7 @@
 #include <QPushButton>
 
 #include "common/define.h"
+#include "common/timerange.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 
 namespace olive {
@@ -43,11 +44,13 @@ class Marker : public QWidget {
   void SetColor(int c);
   void SetActive(bool active);
   void SetName(QString s);
+  void SetTime(TimeRange t);
 
  protected:
   void paintEvent(QPaintEvent* event) override;
   virtual void mousePressEvent(QMouseEvent* event) override;
-  //virtual void mouseReleaseEvent(QMouseEvent* event) override;
+  virtual void mouseMoveEvent(QMouseEvent* event) override;
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
   //virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
  signals:
@@ -57,6 +60,7 @@ class Marker : public QWidget {
   void markerSelected(Marker* marker);
   void ActiveChanged(bool active);
   void NameChanged(QString name);
+  void TimeChanged(TimeRange time);
 
  private:
 
@@ -65,6 +69,12 @@ class Marker : public QWidget {
   bool active_;
 
   QString name_;
+
+  QPointF click_position_;
+
+  int marker_start_x_;
+
+  bool dragging_;
 
  private slots:
   void ShowContextMenu();

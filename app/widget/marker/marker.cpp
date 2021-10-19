@@ -35,7 +35,8 @@ namespace olive {
 
 Marker::Marker(QWidget *parent) :
 	QWidget(parent),
-    active_(false)
+    active_(false),
+    dragging_(false)
 {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   resize(7, 14);
@@ -129,6 +130,36 @@ void Marker::mousePressEvent(QMouseEvent* e)
 
     update();
   }
+
+  click_position_ = e->globalPos();
+  marker_start_x_ = x();
+}
+
+void Marker::mouseMoveEvent(QMouseEvent* e)
+{
+  if (active_) {
+    dragging_ = true;
+
+    QPoint old_pos = mapToGlobal(pos());
+
+    int new_pos = marker_start_x_ + e->globalPos().x() - click_position_.x();
+
+    if (new_pos > -3 && new_pos < static_cast<SeekableWidget *>(parent())->width() - 3) {
+      this->move(new_pos-2, this->pos().y());
+      repaint();
+    }
+  }
+}
+
+void Marker::mouseReleaseEvent(QMouseEvent* e)
+{
+  if (dragging_) {
+    rational time = static_cast<SeekableWidget *>(parent())->SceneToTime(this->x()+4);
+    time = time < 0.0 ? 0.0 : time;
+    emit TimeChanged(TimeRange(time, time));
+
+    dragging_ = false;
+  }
 }
 
 void Marker::ShowContextMenu()
@@ -179,6 +210,11 @@ void Marker::SetName(QString s)
   name_ = s;
 
   update();
+}
+
+void Marker::SetTime(TimeRange time)
+{
+  move(static_cast<SeekableWidget *>(parent())->TimeToScene(time.in())-2, y());
 }
 
 }  // namespace olive
