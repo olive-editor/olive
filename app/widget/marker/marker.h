@@ -74,7 +74,13 @@ class Marker : public QWidget {
 
   int marker_start_x_;
 
+  bool drag_allowed_;
+
   bool dragging_;
+
+  int marker_height_;
+
+  int marker_width_;
 
  private slots:
   void ShowContextMenu();

@@ -36,10 +36,17 @@ namespace olive {
 Marker::Marker(QWidget *parent) :
 	QWidget(parent),
     active_(false),
+    drag_allowed_(false),
     dragging_(false)
 {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  resize(7, 14);
+
+  QFontMetrics fm = fontMetrics();
+  marker_height_ = fm.height();
+  marker_width_ = QtUtils::QFontMetricsWidth(fm, "H");
+  resize(marker_width_, marker_height_);
+
+
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &Marker::customContextMenuRequested, this, &Marker::ShowContextMenu);
@@ -72,11 +79,11 @@ void Marker::paintEvent(QPaintEvent *event)
   int text_height = fm.height();
   int marker_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
-  int y = text_height; //13
+  int y = text_height;
 
   int half_width = marker_width_ / 2;
 
-  int x = half_width; //3
+  int x = half_width;
 
   QPainter p(this);
   if (active_) {
@@ -102,17 +109,17 @@ void Marker::paintEvent(QPaintEvent *event)
   p.drawPolygon(points, 6);
 
   if (!name_.isEmpty()) {
-    resize(fm.horizontalAdvance(name_)+10, 14);
+    resize(marker_width_ + fm.horizontalAdvance(name_) + fm.horizontalAdvance(" "), marker_height_);
     p.drawText(x + marker_width_, y - half_text_height, name_);
   } else {
-    resize(7, 14);
+    resize(marker_width_, marker_height_);
   }
 }
 
 void Marker::mousePressEvent(QMouseEvent* e)
 {
   // Only select if clicking on the icon and not the label
-  if (e->pos().x() >  7) {
+  if (e->pos().x() >  marker_width_) {
     return;
   }
   if (e->button() == Qt::LeftButton || e->button() == Qt::RightButton) {
@@ -133,16 +140,17 @@ void Marker::mousePressEvent(QMouseEvent* e)
 
   click_position_ = e->globalPos();
   marker_start_x_ = x();
+  drag_allowed_ = true;
 }
 
 void Marker::mouseMoveEvent(QMouseEvent* e)
 {
-  if (active_) {
+  if (drag_allowed_) {
     dragging_ = true;
 
     int new_pos = marker_start_x_ + e->globalPos().x() - click_position_.x();
 
-    if (new_pos > -3 && new_pos < static_cast<SeekableWidget *>(parent())->width() - 3) {
+    if (new_pos > -marker_width_ / 2 && new_pos < static_cast<SeekableWidget *>(parent())->width() - marker_width_ / 2) {
       this->move(new_pos-2, this->pos().y());
       repaint();
     }
@@ -158,12 +166,14 @@ void Marker::mouseReleaseEvent(QMouseEvent* e)
 
     dragging_ = false;
   }
+
+  drag_allowed_ = false;
 }
 
 void Marker::ShowContextMenu()
 {
   // Only show context menu if we clicked on the icon and not the label
-  QRect marker_icon(0, 0, 7, 14);
+  QRect marker_icon(0, 0, marker_width_, marker_height_);
   if (!marker_icon.contains(this->mapFromGlobal(QCursor::pos()))) {
     return;
   }
