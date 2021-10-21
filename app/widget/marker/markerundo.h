@@ -61,6 +61,23 @@ class MarkerRemoveCommand : public UndoCommand {
     int color_;
 };
 
+class MarkerChangeColorCommand : public UndoCommand {
+  public:
+    MarkerChangeColorCommand(Project* project, TimelineMarker* marker, int new_color);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override;
+    virtual void undo() override;
+
+  private:
+    Project* project_;
+    TimelineMarker* marker_;
+    int old_color_;
+    int new_color_;
+};
+
 }
 
 #endif  // TIMELINEUNDOTRACK_H

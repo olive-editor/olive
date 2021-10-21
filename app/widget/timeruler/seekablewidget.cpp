@@ -232,9 +232,13 @@ void SeekableWidget::removeMarker(TimelineMarker *marker)
 
 void SeekableWidget::SetMarkerColor(int c)
 {
+  MultiUndoCommand *command = new MultiUndoCommand();
+
   foreach(TimelineMarker* marker, GetActiveTimelineMarkers()) {
-    marker->set_color(c);
+    command->add_child(new MarkerChangeColorCommand(Core::instance()->GetActiveProject(), marker, c));
   }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void SeekableWidget::updateMarkerPositions()

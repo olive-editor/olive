@@ -66,4 +66,27 @@ void MarkerRemoveCommand::undo()
   marker_list_->AddMarker(range_, name_, color_);
 }
 
+MarkerChangeColorCommand::MarkerChangeColorCommand(Project *project, TimelineMarker *marker, int new_color) :
+    project_(project),
+    marker_(marker),
+    old_color_(marker->color()),
+    new_color_(new_color)
+{
+}
+
+Project* MarkerChangeColorCommand::GetRelevantProject() const
+{
+  return project_;
+}
+
+void MarkerChangeColorCommand::redo()
+{
+  marker_->set_color(new_color_);
+}
+
+void MarkerChangeColorCommand::undo()
+{
+  marker_->set_color(old_color_);
+}
+
 }
