@@ -27,6 +27,7 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "widget/timebased/timebasedwidget.h"
+#include "widget/marker/markerundo.h"
 
 namespace olive {
 
@@ -95,7 +96,7 @@ void SeekableWidget::DeleteSelected() {
   MultiUndoCommand* command = new MultiUndoCommand();
 
   foreach (TimelineMarker *marker, GetActiveTimelineMarkers()) {
-    command->add_child(new TimeBasedWidget::MarkerRemoveCommand(Core::instance()->GetActiveProject(), marker, timeline_points_->markers()));
+    command->add_child(new MarkerRemoveCommand(Core::instance()->GetActiveProject(), marker, timeline_points_->markers()));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

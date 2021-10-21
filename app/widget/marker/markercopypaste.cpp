@@ -16,6 +16,7 @@
 #include "markercopypaste.h"
 
 #include "core.h"
+#include "markerundo.h"
 #include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
@@ -108,7 +109,7 @@ void MarkerCopyPasteService::PasteMarkersFromClipboard(TimelineMarkerList* list,
               }
             }
 
-            command->add_child(new TimeBasedWidget::MarkerAddCommand(Core::instance()->GetActiveProject(),
+            command->add_child(new MarkerAddCommand(Core::instance()->GetActiveProject(),
                                                                      list,
                                                                      TimeRange(in + offset, out + offset),
                                                                      name,

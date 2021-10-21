@@ -27,6 +27,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/project/sequence/sequence.h"
+#include "widget/marker/markerundo.h"
 #include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
@@ -663,55 +664,6 @@ void TimeBasedWidget::DeleteSelected()
   if (ruler_->underMouse()) {
     ruler_->DeleteSelected();
   }
-}
-
-TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name, int color) :
-  project_(project),
-  marker_list_(marker_list),
-  range_(range),
-  name_(name),
-  color_(color)
-{
-}
-
-Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
-{
-  return project_;
-}
-
-void TimeBasedWidget::MarkerAddCommand::redo()
-{
-  added_marker_ = marker_list_->AddMarker(range_, name_, color_);
-}
-
-void TimeBasedWidget::MarkerAddCommand::undo()
-{
-  marker_list_->RemoveMarker(added_marker_);
-}
-
-TimeBasedWidget::MarkerRemoveCommand::MarkerRemoveCommand(Project* project, TimelineMarker* marker, TimelineMarkerList* marker_list) :
-    project_(project),
-    marker_(marker),
-    marker_list_(marker_list),
-    range_(marker->time()),
-    name_(marker->name()),
-    color_(marker->color())
-{
-}
-
-Project *TimeBasedWidget::MarkerRemoveCommand::GetRelevantProject() const
-{
-  return project_;
-}
-
-void TimeBasedWidget::MarkerRemoveCommand::redo()
-{
-  marker_list_->RemoveMarker(marker_);
-}
-
-void TimeBasedWidget::MarkerRemoveCommand::undo()
-{
-  marker_list_->AddMarker(range_, name_, color_);
 }
 
 bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
