@@ -76,10 +76,10 @@ void Marker::paintEvent(QPaintEvent *event)
 {
   QFontMetrics fm = fontMetrics();
 
-  int text_height = fm.height();
-  int marker_width_ = QtUtils::QFontMetricsWidth(fm, "H");
+  //int text_height = fm.height();
+  //int marker_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
-  int y = text_height;
+  int y = marker_height_;
 
   int half_width = marker_width_ / 2;
 
@@ -95,14 +95,14 @@ void Marker::paintEvent(QPaintEvent *event)
 
   p.setRenderHint(QPainter::Antialiasing);
 
-  int half_text_height = text_height / 3;
+  int half_marker_height = marker_height_ / 3;
 
   QPoint points[] = {
       QPoint(x, y),
-      QPoint(x - half_width, y - half_text_height),
-      QPoint(x - half_width, y - text_height),
-      QPoint(x + 1 + half_width, y - text_height),
-      QPoint(x + 1 + half_width, y - half_text_height),
+      QPoint(x - half_width, y - half_marker_height),
+      QPoint(x - half_width, y - marker_height_),
+      QPoint(x + 1 + half_width, y - marker_height_),
+      QPoint(x + 1 + half_width, y - half_marker_height),
       QPoint(x + 1, y),
   };
 
@@ -110,7 +110,7 @@ void Marker::paintEvent(QPaintEvent *event)
 
   if (!name_.isEmpty()) {
     resize(marker_width_ + fm.horizontalAdvance(name_) + fm.horizontalAdvance(" "), marker_height_);
-    p.drawText(x + marker_width_, y - half_text_height, name_);
+    p.drawText(x + marker_width_, y - half_marker_height, name_);
   } else {
     resize(marker_width_, marker_height_);
   }
