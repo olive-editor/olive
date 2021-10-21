@@ -644,6 +644,12 @@ public:
   template<class T>
   QVector<T*> FindInputNodes() const;
 
+  /**
+   * @brief Find nodes of a certain type that this Node takes inputs from
+   */
+  template<class T>
+  static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input);
+
   template<class T>
   /**
    * @brief Find a node of a certain type that this Node outputs to
@@ -1169,6 +1175,12 @@ private:
    */
   int GetInternalInputArraySize(const QString& input);
 
+  /**
+   * @brief Find nodes of a certain type that this Node takes inputs from
+   */
+  template<class T>
+  static void FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *>& list);
+
   template<class T>
   static void FindInputNodeInternal(const Node* n, QVector<T *>& list);
 
@@ -1275,17 +1287,37 @@ private slots:
 };
 
 template<class T>
+void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *> &list)
+{
+  Node* edge = input.GetConnectedOutput();
+  if (!edge) {
+    return;
+  }
+
+  T* cast_test = dynamic_cast<T*>(edge);
+
+  if (cast_test) {
+    list.append(cast_test);
+  }
+
+  FindInputNodeInternal<T>(edge, list);
+}
+
+template<class T>
+QVector<T *> Node::FindInputNodesConnectedToInput(const NodeInput &input)
+{
+  QVector<T *> list;
+
+  FindInputNodesConnectedToInputInternal<T>(input, list);
+
+  return list;
+}
+
+template<class T>
 void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
 {
   for (auto it=n->input_connections_.cbegin(); it!=n->input_connections_.cend(); it++) {
-    Node* edge = it->second;
-    T* cast_test = dynamic_cast<T*>(edge);
-
-    if (cast_test) {
-      list.append(cast_test);
-    }
-
-    FindInputNodeInternal<T>(edge, list);
+    FindInputNodesConnectedToInputInternal(it->first, list);
   }
 }
 

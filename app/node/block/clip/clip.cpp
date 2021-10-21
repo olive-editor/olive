@@ -21,6 +21,7 @@
 #include "clip.h"
 
 #include "node/output/track/track.h"
+#include "node/output/viewer/viewer.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/rationalslider.h"
 
@@ -35,7 +36,8 @@ const QString ClipBlock::kReverseInput = QStringLiteral("reverse_in");
 
 ClipBlock::ClipBlock() :
   in_transition_(nullptr),
-  out_transition_(nullptr)
+  out_transition_(nullptr),
+  connected_viewer_(nullptr)
 {
   AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
@@ -187,6 +189,14 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
       adj = TimeRange(RATIONAL_MIN, RATIONAL_MAX);
     } else {
       adj = TimeRange(MediaToSequenceTime(range.in()), MediaToSequenceTime(range.out()));
+    }
+
+    // Find connected viewer node
+    auto viewers = FindInputNodesConnectedToInput<ViewerOutput>(NodeInput(this, kBufferIn));
+    if (viewers.isEmpty()) {
+      connected_viewer_ = nullptr;
+    } else {
+      connected_viewer_ = viewers.first();
     }
 
     super::InvalidateCache(adj, from, element, options);

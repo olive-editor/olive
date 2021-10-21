@@ -26,6 +26,8 @@
 
 namespace olive {
 
+class ViewerOutput;
+
 /**
  * @brief Node that represents a block of Media
  */
@@ -99,6 +101,11 @@ public:
     return waveform_;
   }
 
+  ViewerOutput *connected_viewer() const
+  {
+    return connected_viewer_;
+  }
+
   static const QString kBufferIn;
   static const QString kMediaInInput;
   static const QString kSpeedInput;
@@ -120,6 +127,8 @@ private:
 
   TransitionBlock* in_transition_;
   TransitionBlock* out_transition_;
+
+  ViewerOutput *connected_viewer_;
 
 private:
   AudioVisualWaveform waveform_;
