@@ -342,6 +342,11 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 
   vw->display_widget()->SetImage(QVariant::fromValue(display_widget()->GetCurrentTexture()));
 
+  (*vw->queue()) = playback_queue_;
+  if (IsPlaying()) {
+    vw->Play(GetTimestamp(), playback_speed_, timebase());
+  }
+
   windows_.insert(screen, vw);
 }
 
