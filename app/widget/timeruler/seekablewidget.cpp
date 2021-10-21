@@ -194,6 +194,12 @@ QVector<TimelineMarker *> SeekableWidget::GetActiveTimelineMarkers() {
 
 void SeekableWidget::DeselectAllMarkers()
 {
+  if (timebase().isNull()) {
+    return;
+  }
+  if (!timeline_points()) {
+    return;
+  }
   foreach(TimelineMarker* marker, timeline_points()->markers()->list()) {
       marker->set_active(false);
   }
