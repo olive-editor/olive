@@ -130,6 +130,8 @@ private:
     DrawBlock(painter, foreground, block, top, height, block->in(), block->out());
   }
 
+  void DrawZebraStripes(QPainter *painter, const QRectF &r);
+
   int GetHeightOfAllTracks() const;
 
   void UpdatePlayheadRect();

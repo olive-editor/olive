@@ -485,13 +485,32 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
       painter->setBrush(block->is_enabled() ? block->brush(block_top, block_top + block_height) : Qt::gray);
       painter->drawRect(r);
 
-      // Draw waveform
-      if (show_waveforms_) {
-        if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+      if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+        // Draw waveform
+        if (show_waveforms_) {
           QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
           painter->setPen(shadow_color);
           AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), clip->waveform(),
                                             SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
+        }
+
+        // Draw zebra stripes
+        if (clip->connected_viewer() && !clip->connected_viewer()->GetLength().isNull()) {
+          if (clip->media_in() < 0) {
+            // Draw stripes for sections of clip < 0
+            qreal zebra_right = TimeToScene(-clip->media_in());
+            if (zebra_right > GetTimelineLeftBound()) {
+              DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right, block_height));
+            }
+          }
+
+          if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
+            // Draw stripes for sections for clip > clip length
+            qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
+            if (zebra_left < GetTimelineRightBound()) {
+              DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+            }
+          }
         }
       }
 
@@ -538,6 +557,28 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
     }
 
   }
+}
+
+void TimelineView::DrawZebraStripes(QPainter *painter, const QRectF &r)
+{
+  int zebra_interval = fontMetrics().height();
+
+  painter->setPen(QPen(QColor(0, 0, 0, 128), zebra_interval/4));
+  painter->setBrush(Qt::NoBrush);
+
+  QVector<QLineF> lines;
+  lines.reserve(qCeil(r.width() / zebra_interval));
+
+  qreal left = r.left() - r.height();
+  qreal right = r.right() + r.height();
+
+  for (qreal i=left; i<right; i+=zebra_interval) {
+    lines.append(QLineF(i, r.top(), i - r.height(), r.bottom()));
+  }
+
+  painter->setClipRect(r);
+  painter->drawLines(lines);
+  painter->setClipping(false);
 }
 
 int TimelineView::GetHeightOfAllTracks() const
