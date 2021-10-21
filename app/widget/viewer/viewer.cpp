@@ -532,6 +532,10 @@ void ViewerWidget::ForceRequeueFromCurrentTime()
 
 void ViewerWidget::UpdateTextureFromNode()
 {
+  if (!GetConnectedNode()) {
+    return;
+  }
+
   rational time = GetTime();
   bool frame_exists_at_time = FrameExistsAtTime(time);
   bool frame_might_be_still = ViewerMightBeAStill();

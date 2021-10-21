@@ -51,9 +51,10 @@ void FootageViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 {
   // Cache timestamp in case this footage is opened again later
   cached_timestamps_.insert(n, GetTime());
-  SetTime(0);
 
   super::DisconnectNodeEvent(n);
+
+  SetTime(0);
 }
 
 void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)

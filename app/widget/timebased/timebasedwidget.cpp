@@ -74,17 +74,21 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     return;
   }
 
-  if (viewer_node_) {
+  // Set viewer node
+  ViewerOutput* old = viewer_node_;
+  viewer_node_ = node;
+
+  if (old) {
     // Call potential derivative functions for disconnecting the viewer node
-    DisconnectNodeEvent(viewer_node_);
+    DisconnectNodeEvent(old);
 
     // Disconnect length changed signal
-    disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
-    disconnect(viewer_node_, &ViewerOutput::RemovedFromGraph, this, &TimeBasedWidget::ConnectedNodeRemovedFromGraph);
+    disconnect(old, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+    disconnect(old, &ViewerOutput::RemovedFromGraph, this, &TimeBasedWidget::ConnectedNodeRemovedFromGraph);
 
     // Disconnect rate change signals if they were connected
-    disconnect(viewer_node_, &ViewerOutput::FrameRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
-    disconnect(viewer_node_, &ViewerOutput::SampleRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
+    disconnect(old, &ViewerOutput::FrameRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
+    disconnect(old, &ViewerOutput::SampleRateChanged, this, &TimeBasedWidget::AutoUpdateTimebase);
 
     // Reset timebase to null
     SetTimebase(rational());
@@ -94,9 +98,6 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     scrollbar_->ConnectTimelinePoints(nullptr);
   }
 
-  // Set viewer node
-  ViewerOutput* old = viewer_node_;
-  viewer_node_ = node;
   emit ConnectedNodeChanged(old, node);
 
   // Call derivatives
