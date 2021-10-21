@@ -107,6 +107,17 @@ FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const Retr
   Q_UNUSED(cancelled)
 
   FramePtr frame = Frame::Create();
+  bool greyscale = false;
+
+  // Copy single channel images (greyscale, alpha maps etc.) to three channel images so they are
+  // displayed and behave correctly
+  if (channel_count_ == 1) {
+    channel_count_ = 3;
+    greyscale = true;
+  }
+
+  // FIXME: How should two channel images be handled and should we have a wider reaching
+  // "non color data" image type?
 
   frame->set_video_params(VideoParams(buffer_->spec().width,
                                       buffer_->spec().height,
@@ -116,6 +127,12 @@ FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const Retr
                                       VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
                                       divider.divider));
   frame->allocate();
+
+  if (greyscale) {
+    if (!OIIO::ImageBufAlgo::channels(*buffer_, *buffer_, channel_count_, {0, 0, 0})) {
+      qWarning() << "Converting single channel grayscale to three channel image failed";
+    }
+  }
 
   if (divider.divider == 1) {
 
