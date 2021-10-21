@@ -162,7 +162,11 @@ int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
   case GenerateJob::kAlphaForceOn:
     return VideoParams::kRGBAChannelCount;
   case GenerateJob::kAlphaForceOff:
-    return qMin(VideoParams::kRGBChannelCount, qMax(1, max_channel_count));
+    if (max_channel_count >= 1 && max_channel_count < VideoParams::kRGBChannelCount) {
+      return max_channel_count;
+    } else {
+      return VideoParams::kRGBChannelCount;
+    }
   case GenerateJob::kAlphaAuto:
     return max_channel_count;
   }
