@@ -211,7 +211,7 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     connect(marker_widget, &Marker::ActiveChanged, marker, &TimelineMarker::set_active);
     connect(marker, &TimelineMarker::ActiveChanged, marker_widget, &Marker::SetActive);
 
-    connect(marker_widget, &Marker::NameChanged, marker, &TimelineMarker::set_name);
+    connect(marker_widget, &Marker::NameChanged, marker, &TimelineMarker::set_name_undo);
     connect(marker, &TimelineMarker::NameChanged, marker_widget, &Marker::SetName);
 
     connect(marker_widget, &Marker::TimeChanged, marker, &TimelineMarker::set_time);

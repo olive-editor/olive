@@ -50,6 +50,9 @@ public:
   void Load(QXmlStreamReader* reader);
   void Save(QXmlStreamWriter* writer) const;
 
+public slots:
+  void set_name_undo(QString name);
+
 signals:
   void TimeChanged(const TimeRange& time);
 

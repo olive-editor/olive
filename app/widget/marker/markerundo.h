@@ -78,6 +78,23 @@ class MarkerChangeColorCommand : public UndoCommand {
     int new_color_;
 };
 
+class MarkerChangeNameCommand : public UndoCommand {
+ public:
+  MarkerChangeNameCommand(Project* project, TimelineMarker* marker, QString name);
+
+  virtual Project* GetRelevantProject() const override;
+
+ protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+ private:
+  Project* project_;
+  TimelineMarker* marker_;
+  QString old_name_;
+  QString new_name_;
+};
+
 }
 
 #endif  // TIMELINEUNDOTRACK_H

@@ -22,6 +22,8 @@
 
 #include "common/xmlutils.h"
 #include "config/config.h"
+#include "core.h"
+#include "widget/marker/markerundo.h"
 
 namespace olive {
 
@@ -53,6 +55,13 @@ void TimelineMarker::set_name(const QString &name)
 {
   name_ = name;
   emit NameChanged(name_);
+}
+
+void TimelineMarker::set_name_undo(QString name)
+{
+  UndoCommand *command = new MarkerChangeNameCommand(Core::instance()->GetActiveProject(), this, name);
+
+  Core::instance()->undo_stack()->push(command);
 }
 
 int TimelineMarker::color()

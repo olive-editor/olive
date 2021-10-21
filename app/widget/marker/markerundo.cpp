@@ -89,4 +89,27 @@ void MarkerChangeColorCommand::undo()
   marker_->set_color(old_color_);
 }
 
+MarkerChangeNameCommand::MarkerChangeNameCommand(Project *project, TimelineMarker *marker, QString new_name) :
+    project_(project),
+    marker_(marker),
+    old_name_(marker->name()),
+    new_name_(new_name)
+{
+}
+
+Project* MarkerChangeNameCommand::GetRelevantProject() const
+{
+  return project_;
+}
+
+void MarkerChangeNameCommand::redo()
+{
+  marker_->set_name(new_name_);
+}
+
+void MarkerChangeNameCommand::undo()
+{
+  marker_->set_name(old_name_);
+}
+
 }
