@@ -25,15 +25,14 @@
 
 namespace olive {
 
-class TextGenerator : public Node
+class TextGeneratorLegacy : public Node
 {
   Q_OBJECT
 public:
-  TextGenerator();
+  TextGeneratorLegacy();
 
-  NODE_DEFAULT_DESTRUCTOR(TextGenerator)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_DESTRUCTOR(TextGeneratorLegacy)
+  NODE_COPY_FUNCTION(TextGeneratorLegacy)
 
   virtual QString Name() const override;
   virtual QString id() const override;
