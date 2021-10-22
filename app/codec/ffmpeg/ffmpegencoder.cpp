@@ -57,7 +57,7 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
     codec_info = avcodec_find_encoder(AV_CODEC_ID_H264);
     break;
   case ExportCodec::kCodecH264rgb:
-    codec_info = avcodec_find_decoder_by_name("libx264rgb");
+    codec_info = avcodec_find_encoder_by_name("libx264rgb");
     break;
   case ExportCodec::kCodecDNxHD:
     codec_info = avcodec_find_encoder(AV_CODEC_ID_DNXHD);

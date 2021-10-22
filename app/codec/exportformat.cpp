@@ -109,7 +109,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
   case kFormatMatroska:
     return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265, ExportCodec::kCodecVP9};
   case kFormatMPEG4:
-    return {ExportCodec::kCodecH264, ExportCodec::kCodecH265};
+    return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265};
   case kFormatOpenEXR:
     return {ExportCodec::kCodecOpenEXR};
   case kFormatPNG:
