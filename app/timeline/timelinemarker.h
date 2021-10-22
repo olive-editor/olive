@@ -52,6 +52,7 @@ public:
 
 public slots:
   void set_name_undo(QString name);
+  void set_time_undo(TimeRange time);
 
 signals:
   void TimeChanged(const TimeRange& time);

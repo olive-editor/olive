@@ -220,7 +220,7 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     connect(marker_widget, &Marker::NameChanged, marker, &TimelineMarker::set_name_undo);
     connect(marker, &TimelineMarker::NameChanged, marker_widget, &Marker::SetName);
 
-    connect(marker_widget, &Marker::TimeChanged, marker, &TimelineMarker::set_time);
+    connect(marker_widget, &Marker::TimeChanged, marker, &TimelineMarker::set_time_undo);
     connect(marker, &TimelineMarker::TimeChanged, marker_widget, &Marker::SetTime);
 
     marker_widget->move(TimeToScreen(marker->time().in())-2, text_height_);

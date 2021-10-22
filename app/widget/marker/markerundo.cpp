@@ -112,4 +112,27 @@ void MarkerChangeNameCommand::undo()
   marker_->set_name(old_name_);
 }
 
+MarkerChangeTimeCommand::MarkerChangeTimeCommand(Project* project, TimelineMarker* marker, TimeRange time) :
+    project_(project),
+    marker_(marker),
+    old_time_(marker->time()),
+    new_time_(time)
+{
+}
+
+Project* MarkerChangeTimeCommand::GetRelevantProject() const
+{
+  return project_;
+}
+
+void MarkerChangeTimeCommand::redo()
+{
+  marker_->set_time(new_time_);
+}
+
+void MarkerChangeTimeCommand::undo()
+{
+  marker_->set_time(old_time_);
+}
+
 }

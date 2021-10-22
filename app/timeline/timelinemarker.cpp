@@ -46,6 +46,12 @@ void TimelineMarker::set_time(const TimeRange &time)
   emit TimeChanged(time_);
 }
 
+void TimelineMarker::set_time_undo(TimeRange time) {
+  UndoCommand *command = new MarkerChangeTimeCommand(Core::instance()->GetActiveProject(), this, time);
+
+  Core::instance()->undo_stack()->push(command);
+}
+
 const QString &TimelineMarker::name() const
 {
   return name_;

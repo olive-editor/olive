@@ -95,6 +95,25 @@ class MarkerChangeNameCommand : public UndoCommand {
   QString new_name_;
 };
 
+class MarkerChangeTimeCommand : public UndoCommand {
+  public:
+    MarkerChangeTimeCommand(Project* project, TimelineMarker* marker, TimeRange time);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override;
+    virtual void undo() override;
+
+  private:
+    Project* project_;
+    TimelineMarker* marker_;
+    TimeRange old_time_;
+    TimeRange new_time_;
+
+
+};
+
 }
 
 #endif  // TIMELINEUNDOTRACK_H
