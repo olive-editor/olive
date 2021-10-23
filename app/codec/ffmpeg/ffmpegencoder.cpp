@@ -56,6 +56,9 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
   case ExportCodec::kCodecH264:
     codec_info = avcodec_find_encoder(AV_CODEC_ID_H264);
     break;
+  case ExportCodec::kCodecH264rgb:
+    codec_info = avcodec_find_encoder_by_name("libx264rgb");
+    break;
   case ExportCodec::kCodecDNxHD:
     codec_info = avcodec_find_encoder(AV_CODEC_ID_DNXHD);
     break;
@@ -624,6 +627,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_id = AV_CODEC_ID_MP3;
     break;
   case ExportCodec::kCodecH264:
+  case ExportCodec::kCodecH264rgb:
     codec_id = AV_CODEC_ID_H264;
     break;
   case ExportCodec::kCodecH265:
@@ -669,7 +673,8 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   }
 
   // Find encoder with this name
-  AVCodec* encoder = avcodec_find_encoder(codec_id);
+  AVCodec* encoder =
+      codec == ExportCodec::kCodecH264rgb ? avcodec_find_encoder_by_name("libx264rgb") : avcodec_find_encoder(codec_id);
 
   if (!encoder) {
     SetError(tr("Failed to find codec for %1").arg(codec));

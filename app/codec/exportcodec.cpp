@@ -34,6 +34,8 @@ QString ExportCodec::GetCodecName(ExportCodec::Codec c)
     return tr("DNxHD");
   case kCodecH264:
     return tr("H.264");
+  case kCodecH264rgb:
+    return tr("H.264 RGB");
   case kCodecH265:
     return tr("H.265");
   case kCodecOpenEXR:
@@ -74,6 +76,7 @@ bool ExportCodec::IsCodecAStillImage(ExportCodec::Codec c)
   switch (c) {
   case kCodecDNxHD:
   case kCodecH264:
+  case kCodecH264rgb:
   case kCodecH265:
   case kCodecProRes:
   case kCodecMP2:
