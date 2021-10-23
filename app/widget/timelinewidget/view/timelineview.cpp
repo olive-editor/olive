@@ -518,7 +518,6 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
           if (clip->connected_viewer()->GetTimelinePoints()->markers()->list().size() > 0) {
             QList<TimelineMarker *> marker_list = clip->connected_viewer()->GetTimelinePoints()->markers()->list();
             
-             QFontMetrics fm = fontMetrics();
             int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
 
             if (marker_list.length() * marker_width < block_right - block_left) {
