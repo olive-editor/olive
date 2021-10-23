@@ -512,6 +512,25 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             }
           }
         }
+
+        // Draw markers
+        if (clip->connected_viewer() && !clip->connected_viewer()->GetLength().isNull()) {
+          if (clip->connected_viewer()->GetTimelinePoints()->markers()->list().size() > 0) {
+            QList<TimelineMarker *> marker_list = clip->connected_viewer()->GetTimelinePoints()->markers()->list();
+            
+             QFontMetrics fm = fontMetrics();
+            int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
+
+            if (marker_list.length() * marker_width < block_right - block_left) {
+              foreach (TimelineMarker *marker, marker_list) {
+                if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
+                  DrawClipMarker(painter, TimeToScene(clip->in() - clip->media_in() + marker->time().in()),
+                                 block_top + block_height, marker->color(), marker->name());
+                }
+              }
+            }
+          }
+        }
       }
 
       // For transitions, show lines representing a transition
@@ -579,6 +598,45 @@ void TimelineView::DrawZebraStripes(QPainter *painter, const QRectF &r)
   painter->setClipRect(r);
   painter->drawLines(lines);
   painter->setClipping(false);
+}
+
+void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal marker_y, int marker_color, QString name)
+{
+  QFontMetrics fm = fontMetrics();
+
+  int marker_height = fm.height();
+  int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
+
+  int y = marker_y - 1;
+
+  int half_width = marker_width / 2;
+
+  int x = marker_x + half_width;
+
+  painter->setPen(Qt::black);
+
+  painter->setBrush(ColorCoding::GetColor(marker_color).toQColor());
+
+  painter->setRenderHint(QPainter::Antialiasing);
+
+  int half_marker_height = marker_height / 3;
+
+  qDebug() << x << y;
+
+  QPoint points[] = {
+      QPoint(x, y),
+      QPoint(x - half_width, y - half_marker_height),
+      QPoint(x - half_width, y - marker_height),
+      QPoint(x + 1 + half_width, y - marker_height),
+      QPoint(x + 1 + half_width, y - half_marker_height),
+      QPoint(x + 1, y),
+  };
+
+  painter->drawPolygon(points, 6);
+
+  if (!name.isEmpty()) {
+    painter->drawText(x + marker_width, y - half_marker_height, name);
+  }
 }
 
 int TimelineView::GetHeightOfAllTracks() const
