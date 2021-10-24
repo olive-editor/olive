@@ -109,7 +109,7 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
+  RenderTicketWatcher *RenderFrames(const QByteArray& hash, TimeRange timerange, bool prioritize, bool texture_only);
   RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, bool prioritize);
 
   /**

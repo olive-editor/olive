@@ -620,8 +620,9 @@ void PreviewAutoCacher::TryRender()
     } else if (!hash.isEmpty() && (watcher = video_download_tasks_.key(hash))) {
       single_frame_render_->Finish(watcher->property("frame"));
     } else {
-      watcher = RenderFrame(hash,
-                            single_frame_render_->property("time").value<rational>(),
+      TimeRange timerange(single_frame_render_->property("time").value<rational>(), single_frame_render_->property("time").value<rational>());
+      watcher = RenderFrames(hash,
+                            timerange,
                             single_frame_render_->property("prioritize").toBool(),
                             !viewer_node_->GetVideoAutoCacheEnabled());
 
@@ -670,7 +671,7 @@ void PreviewAutoCacher::TryRender()
     // We want this hash, if we're not already rendering, start render now
     if (!render_task && !video_download_tasks_.key(hash)) {
       // Don't render any hash more than once
-      RenderFrame(hash, t, false, false);
+      RenderFrames(hash, TimeRange(t, t), false, false);
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -696,16 +697,16 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, const rational& time, bool prioritize, bool texture_only)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrames(const QByteArray &hash, TimeRange timerange, bool prioritize, bool texture_only)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("hash", hash);
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
   video_tasks_.insert(watcher, hash);
-  watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
+  watcher->SetTicket(RenderManager::instance()->RenderFrames(copied_viewer_node_,
                                                             copied_color_manager_,
-                                                            time,
+                                                            timerange,
                                                             RenderMode::kOffline,
                                                             viewer_node_->video_frame_cache(),
                                                             prioritize,

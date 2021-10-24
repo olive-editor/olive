@@ -32,6 +32,7 @@
 #include "render/renderer.h"
 #include "rendercache.h"
 #include "threading/threadpool.h"
+#include "common/timerange.h"
 
 namespace olive {
 
@@ -69,9 +70,9 @@ public:
   static QByteArray Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time);
 
   /**
-   * @brief Asynchronously generate a frame at a given time
+   * @brief Asynchronously generate frames at a given timerange
    *
-   * The ticket from this function will return a FramePtr - the rendered frame in reference color
+   * The ticket from this function will return a FramePtr array - the rendered frames in reference color
    * space.
    *
    * Setting `prioritize` to TRUE puts this ticket at the top of the queue. Leaving it as FALSE
@@ -79,11 +80,11 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
-                              const rational& time, RenderMode::Mode mode,
+  RenderTicketPtr RenderFrames(ViewerOutput *viewer, ColorManager* color_manager,
+                              TimeRange timerange, RenderMode::Mode mode,
                               FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
-                              const rational& time, RenderMode::Mode mode,
+  RenderTicketPtr RenderFrames(ViewerOutput* viewer, ColorManager* color_manager,
+                              TimeRange timerange, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,

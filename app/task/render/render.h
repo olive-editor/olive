@@ -29,6 +29,7 @@
 #include "task/task.h"
 #include "threading/threadticket.h"
 #include "threading/threadticketwatcher.h"
+#include "common/timerange.h"
 
 namespace olive {
 
@@ -125,7 +126,7 @@ private:
 
   void IncrementRunningTickets();
 
-  void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
+  void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, TimeRange timerange, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
 
   ViewerOutput* viewer_;
 

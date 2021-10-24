@@ -113,13 +113,13 @@ QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, con
   }
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
+RenderTicketPtr RenderManager::RenderFrames(ViewerOutput *viewer, ColorManager* color_manager,
+                                           TimeRange timerange, RenderMode::Mode mode,
                                            FrameHashCache* cache, bool prioritize, bool texture_only)
 {
-  return RenderFrame(viewer,
+  return RenderFrames(viewer,
                      color_manager,
-                     time,
+                     timerange,
                      mode,
                      viewer->GetVideoParams(),
                      viewer->GetAudioParams(),
@@ -132,8 +132,8 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                      texture_only);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
+RenderTicketPtr RenderManager::RenderFrames(ViewerOutput *viewer, ColorManager* color_manager,
+                                           TimeRange timerange, RenderMode::Mode mode,
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
@@ -144,7 +144,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
-  ticket->setProperty("time", QVariant::fromValue(time));
+  ticket->setProperty("timerange", QVariant::fromValue(timerange));
   ticket->setProperty("size", force_size);
   ticket->setProperty("matrix", force_matrix);
   ticket->setProperty("format", force_format);

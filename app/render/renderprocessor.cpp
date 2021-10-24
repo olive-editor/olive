@@ -25,6 +25,8 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include <QList>
+
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
 #include "node/project/project.h"
@@ -127,46 +129,62 @@ void RenderProcessor::Run()
   case RenderManager::kTypeVideo:
   {
     SetCacheVideoParams(ticket_->property("vparam").value<VideoParams>());
-    rational time = ticket_->property("time").value<rational>();
+    TimeRange time = ticket_->property("timerange").value<TimeRange>();
 
     rational frame_length = GetCacheVideoParams().frame_rate_as_time_base();
     if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
       frame_length /= 2;
     }
 
-    TexturePtr texture = GenerateTexture(time, frame_length);
+    int num_frames = ((time.out().toDouble() - time.in().toDouble()) / frame_length.toDouble()) + 1;
+    qDebug() << "frame_length:" << frame_length << "number of frames:" << num_frames;
 
-    if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
-      // Get next between frame and interlace it
-      TexturePtr top = texture;
-      TexturePtr bottom = GenerateTexture(time + frame_length, frame_length);
+    QList<TexturePtr> textures;
+    QList<FramePtr> frames;
 
-      if (GetCacheVideoParams().interlacing() == VideoParams::kInterlacedBottomFirst) {
-        std::swap(top, bottom);
+    for (int i=0; i<num_frames; i++) {
+
+      TexturePtr texture = GenerateTexture(time.in() + i*frame_length.toDouble() , frame_length);
+
+      if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
+        // Get next between frame and interlace it
+        TexturePtr top = texture;
+        TexturePtr bottom = GenerateTexture(time.in() + i*frame_length.toDouble() + frame_length, frame_length);
+
+        if (GetCacheVideoParams().interlacing() == VideoParams::kInterlacedBottomFirst) {
+          std::swap(top, bottom);
+        }
+
+        texture = render_ctx_->InterlaceTexture(top, bottom, GetCacheVideoParams());
       }
 
-      texture = render_ctx_->InterlaceTexture(top, bottom, GetCacheVideoParams());
+      if (ticket_->IsCancelled()) {
+        // Finish cancelled ticket with nothing since we can't guarantee the frame we generated
+        // is actually "complete
+        ticket_->Finish();
+        break;
+      } else if (ticket_->property("textureonly").toBool()) {
+        // Return GPU texture
+        if (!texture) {
+          texture = render_ctx_->CreateTexture(GetCacheVideoParams());
+          render_ctx_->ClearDestination(texture.get());
+        }
+        textures.append(texture);
+
+      } else {
+        // Convert to CPU frame
+        frames.append(GenerateFrame(texture, time.in()));
+      }
     }
 
-    if (ticket_->IsCancelled()) {
-      // Finish cancelled ticket with nothing since we can't guarantee the frame we generated
-      // is actually "complete
-      ticket_->Finish();
-    } else if (ticket_->property("textureonly").toBool()) {
-      // Return GPU texture
-      if (!texture) {
-        texture = render_ctx_->CreateTexture(GetCacheVideoParams());
-        render_ctx_->ClearDestination(texture.get());
-      }
+    render_ctx_->Flush();
 
-      render_ctx_->Flush();
-
-      ticket_->Finish(QVariant::fromValue(texture));
+    if (!frames.isEmpty()){
+      ticket_->Finish(QVariant::fromValue(frames));
+    } else if (!textures.isEmpty()) {
+      ticket_->Finish(QVariant::fromValue(textures));
     } else {
-      // Convert to CPU frame
-      FramePtr frame = GenerateFrame(texture, time);
-
-      ticket_->Finish(QVariant::fromValue(frame));
+      qDebug() << "RenderProcessor::Run (kTypeVideo) produced nullptr";
     }
     break;
   }

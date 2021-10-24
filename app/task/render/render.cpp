@@ -123,8 +123,9 @@ bool RenderTask::Render(ColorManager* manager,
   const int maximum_rendered_frames = QThread::idealThreadCount();
   auto frame_iterator = frame_render_order.cbegin();
 
+  // TODO: parallel for here
   for (int i=0; i<maximum_rendered_frames && frame_iterator!=frame_render_order.cend(); i++, frame_iterator++) {
-    StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,
+    StartTicket(frame_iterator->second, &watcher_thread, manager, TimeRange(frame_iterator->first, frame_iterator->first),
                 mode, cache, force_size, force_matrix, force_format, force_color_output);
   }
 
@@ -197,6 +198,8 @@ bool RenderTask::Render(ColorManager* manager,
 
       } else if (ticket_type == RenderManager::kTypeVideo && TwoStepFrameRendering()) {
 
+        printf("TwoStepFrameRendering\n");
+
         DownloadFrame(&watcher_thread,
                       watcher->Get().value<FramePtr>(),
                       watcher->property("hash").toByteArray());
@@ -207,6 +210,8 @@ bool RenderTask::Render(ColorManager* manager,
         }
 
       } else {
+
+        printf("single-step video or video download ticket\n");
 
         // Assume single-step video or video download ticket
         QByteArray rendered_hash = watcher->property("hash").toByteArray();
@@ -223,7 +228,7 @@ bool RenderTask::Render(ColorManager* manager,
         }
 
         if (frame_iterator != frame_render_order.cend()) {
-          StartTicket(frame_iterator->second, &watcher_thread, manager, frame_iterator->first,
+          StartTicket(frame_iterator->second, &watcher_thread, manager, TimeRange(frame_iterator->first, frame_iterator->first),
                       mode, cache, force_size, force_matrix, force_format, force_color_output);
 
           frame_iterator++;
@@ -299,7 +304,7 @@ void RenderTask::IncrementRunningTickets()
 }
 
 void RenderTask::StartTicket(const QByteArray& hash, QThread* watcher_thread, ColorManager* manager,
-                             const rational& time, RenderMode::Mode mode, FrameHashCache* cache,
+                             TimeRange timerange, RenderMode::Mode mode, FrameHashCache* cache,
                              const QSize &force_size, const QMatrix4x4 &force_matrix,
                              VideoParams::Format force_format, ColorProcessorPtr force_color_output)
 {
@@ -309,7 +314,7 @@ void RenderTask::StartTicket(const QByteArray& hash, QThread* watcher_thread, Co
 
   IncrementRunningTickets();
 
-  watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_, manager, time,
+  watcher->SetTicket(RenderManager::instance()->RenderFrames(viewer_, manager, timerange,
                                                             mode, video_params_, audio_params_,
                                                             force_size, force_matrix,
                                                             force_format, force_color_output,
