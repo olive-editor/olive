@@ -1368,7 +1368,7 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
   QVector<Timeline::EditToInfo> info_list(tracks.size());
 
   for (int i=0;i<tracks.size();i++) {
-    Timeline::EditToInfo info;
+    Timeline::EditToInfo &info = info_list[i];
 
     Track* track = tracks.at(i);
     info.track = track;
@@ -1397,8 +1397,6 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
     }
 
     info.nearest_block = b;
-
-    info_list[i] = info;
   }
 
   return info_list;
@@ -1415,7 +1413,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
   }
 
   // Find each track's nearest point and determine the overall timeline's nearest point
-  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? 0 : RATIONAL_MAX;
+  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? RATIONAL_MIN : RATIONAL_MAX;
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block) {
@@ -1425,6 +1423,11 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
         closest_point_to_playhead = qMin(info.nearest_time, closest_point_to_playhead);
       }
     }
+  }
+
+  if (closest_point_to_playhead == RATIONAL_MIN || closest_point_to_playhead == RATIONAL_MAX) {
+    // Assume no blocks will be acted upon
+    return;
   }
 
   // If we're not inserting gaps and the edit point is right on the nearest in point, we enter a

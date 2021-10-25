@@ -325,6 +325,10 @@ Block *Track::NearestBlockBefore(const rational &time) const
 {
   foreach (Block* block, blocks_) {
     // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
+    if (block->in() == time) {
+      break;
+    }
+
     if (block->out() >= time) {
       return block;
     }
