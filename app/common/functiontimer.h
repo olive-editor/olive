@@ -25,6 +25,8 @@
 #include <QDebug>
 
 #define TIME_THIS_FUNCTION FunctionTimer __f(__FUNCTION__)
+#define START_TIMING {FunctionTimer *__f = new FunctionTimer(__FUNCTION__)
+#define STOP_TIMING delete __f;}void()
 
 class FunctionTimer {
 public:
