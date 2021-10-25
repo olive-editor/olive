@@ -100,7 +100,6 @@ public:
   static QStringList ListAvailableColorspaces(OCIO::ConstConfigRcPtr config);
 
   void GetDefaultLumaCoefs(double *rgb) const;
-  Color GetDefaultLumaCoefs() const;
 
   class SetLocale
   {

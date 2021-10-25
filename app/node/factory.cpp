@@ -35,6 +35,7 @@
 #include "generator/polygon/polygon.h"
 #include "generator/shape/shapenode.h"
 #include "generator/solid/solid.h"
+#include "generator/text/text.h"
 #include "generator/text/textlegacy.h"
 #include "filter/blur/blur.h"
 #include "filter/mosaic/mosaicfilternode.h"
@@ -214,8 +215,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MergeNode();
   case kStrokeFilter:
     return new StrokeFilterNode();
-  case kTextGenerator:
+  case kTextGeneratorLegacy:
     return new TextGeneratorLegacy();
+  case kTextGenerator:
+    return new TextGenerator();
   case kCrossDissolveTransition:
     return new CrossDissolveTransition();
   case kDipToColorTransition:

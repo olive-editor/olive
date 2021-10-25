@@ -533,6 +533,10 @@ TexturePtr RenderProcessor::ProcessFrameGeneration(const Node *node, const Gener
 
   VideoParams frame_params = GetCacheVideoParams();
   frame_params.set_channel_count(GetChannelCountFromJob(job));
+  if (job.GetRequestedFormat() != VideoParams::kFormatInvalid) {
+    frame_params.set_format(job.GetRequestedFormat());
+  }
+
   frame->set_video_params(frame_params);
   frame->allocate();
 

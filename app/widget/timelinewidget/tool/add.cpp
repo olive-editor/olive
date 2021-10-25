@@ -24,7 +24,7 @@
 #include "node/factory.h"
 #include "node/generator/shape/shapenode.h"
 #include "node/generator/solid/solid.h"
-#include "node/generator/text/textlegacy.h"
+#include "node/generator/text/text.h"
 #include "widget/timelinewidget/timelinewidget.h"
 #include "widget/timelinewidget/undo/timelineundopointer.h"
 
@@ -138,7 +138,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         break;
       case olive::Tool::kAddableTitle:
       {
-        node_to_add = new TextGeneratorLegacy();
+        node_to_add = new TextGenerator();
         break;
       }
       case olive::Tool::kAddableBars:

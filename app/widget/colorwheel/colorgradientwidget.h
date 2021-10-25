@@ -50,7 +50,7 @@ private:
 
   Color end_;
 
-  double val_;
+  float val_;
 
 };
 

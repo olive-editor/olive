@@ -22,6 +22,7 @@
 #define GENERATEJOB_H
 
 #include "acceleratedjob.h"
+#include "render/videoparams.h"
 
 namespace olive {
 
@@ -36,20 +37,21 @@ public:
   GenerateJob()
   {
     alpha_channel_required_ = kAlphaAuto;
+    requested_format_ = VideoParams::kFormatInvalid;
   }
 
-  AlphaChannelSetting GetAlphaChannelRequired() const
-  {
-    return alpha_channel_required_;
-  }
+  AlphaChannelSetting GetAlphaChannelRequired() const { return alpha_channel_required_; }
 
-  void SetAlphaChannelRequired(AlphaChannelSetting e)
-  {
-    alpha_channel_required_ = e;
-  }
+  void SetAlphaChannelRequired(AlphaChannelSetting e) { alpha_channel_required_ = e; }
+
+  VideoParams::Format GetRequestedFormat() const { return requested_format_; }
+
+  void SetRequestedFormat(VideoParams::Format f) { requested_format_ = f; }
 
 private:
   AlphaChannelSetting alpha_channel_required_;
+
+  VideoParams::Format requested_format_;
 
 };
 

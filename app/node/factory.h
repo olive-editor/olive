@@ -48,6 +48,7 @@ public:
     kSolidGenerator,
     kMerge,
     kStrokeFilter,
+    kTextGeneratorLegacy,
     kTextGenerator,
     kCrossDissolveTransition,
     kDipToColorTransition,
