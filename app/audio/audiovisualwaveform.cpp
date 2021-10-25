@@ -23,8 +23,10 @@
 #include <QDebug>
 #include <QtGlobal>
 
-#ifdef Q_PROCESSOR_X86
+#if defined(Q_PROCESSOR_X86)
 #include <xmmintrin.h>
+#elif defined(Q_PROCESSOR_ARM)
+#include <sse2neon.h>
 #endif
 
 #include "config/config.h"
@@ -280,33 +282,24 @@ AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const ration
   return AudioVisualWaveform::Sample(channel_count(), {0, 0});
 }
 
-AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const float *samples, int nb_samples, int nb_channels)
+void ExpandMinMaxChannel(float *a, int start, int length, float &min_val, float &max_val)
 {
-  AudioVisualWaveform::Sample summed_samples(nb_channels);
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+  // SSE optimized
 
-  for (int i=0;i<nb_samples;i++) {
-    ExpandMinMax(summed_samples[i%nb_channels], samples[i]);
-  }
-
-  return summed_samples;
-}
-
-#ifdef Q_PROCESSOR_X86
-void ExpandMinMaxSSE(float *a, int start, int end, float &min_val, float &max_val)
-{
   // load the first 4 elements of 'a' into min and max (they are 4 * 32 = 128 bits)
   __m128 max = _mm_loadu_ps(a + start);
   __m128 min = _mm_loadu_ps(a + start);
 
   // loop over 'a' and compare current elements with min and max 4 by 4.
   // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
-  for(int i = 4; i < end-4; i+=4) {
+  for(int i = 4; i < length-4; i+=4) {
     __m128 cur = _mm_loadu_ps(a + start + i);
     max = _mm_max_ps(max, cur);
     min = _mm_min_ps(min, cur);
   }
   // so we read the last 4 (or less) elements in a safe manner.
-  __m128 cur = _mm_loadu_ps(a + end - 4);
+  __m128 cur = _mm_loadu_ps(a + length - 4);
   max = _mm_max_ps(max, cur);
   min = _mm_min_ps(min, cur);
   // this potentially overlaps up to the last 3 elements but it's not an issue.
@@ -323,30 +316,29 @@ void ExpandMinMaxSSE(float *a, int start, int end, float &min_val, float &max_va
   _mm_store_ss(&max_val, max);
   _mm_store_ss(&min_val, min);
   // I bet you don't find annotated low level code very often.
-}
+#else
+  // Standard unoptimized function
+  int end = start + length;
+  for (int i=start; i<end; i++) {
+    min_val = std::min(min_val, a[i]);
+    max_val = std::max(max_val, a[i]);
+  }
 #endif
+}
 
 AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(SampleBufferPtr samples, int start_index, int length)
 {
   int channels = samples->audio_params().channel_count();
   AudioVisualWaveform::Sample summed_samples(channels);
 
-  #ifdef Q_PROCESSOR_X86
-    for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
-      ExpandMinMaxSSE(samples->data(channel), start_index, length, summed_samples[channel].min, summed_samples[channel].max);
-    }
-  #else
-    int end_index = start_index + length;
-    for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
-      for (int i=start_index; i<end_index; i++) {
-        ExpandMinMax(summed_samples[channel], samples->data(channel)[i]);
-      }
-    }
-    // for reference: this approximation is n x faster (and less accurate) for a n-tracks clip
-    // for (int i=start_index; i<end_index; i++) {
-    //   ExpandMinMax(summed_samples[i%channels], samples->data(i%channels)[i]);
-    // }
-  #endif
+  for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
+    ExpandMinMaxChannel(samples->data(channel), start_index, length, summed_samples[channel].min, summed_samples[channel].max);
+  }
+
+  // for reference: this approximation is n x faster (and less accurate) for a n-tracks clip
+  // for (int i=start_index; i<end_index; i++) {
+  //   ExpandMinMax(summed_samples[i%channels], samples->data(i%channels)[i]);
+  // }
 
   return summed_samples;
 }
@@ -483,21 +475,6 @@ std::map<rational, AudioVisualWaveform::Sample>::const_iterator AudioVisualWavef
 
   // We don't have a mipmap large enough for this scale, so just return the largest we have
   return std::prev(mipmapped_data_.cend());
-}
-
-void AudioVisualWaveform::ExpandMinMax(AudioVisualWaveform::SamplePerChannel &sum, float value)
-{
-  if (value < sum.min) {
-    sum.min = value;
-  }
-
-  if (value > sum.max) {
-    sum.max = value;
-  }
-
-  // to avoid branching
-  // sum.min = std::min(value, sum.min);
-  // sum.max = std::max(value, sum.max);
 }
 
 }

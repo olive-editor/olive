@@ -23,8 +23,10 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
-#ifdef Q_PROCESSOR_X86
+#if defined(Q_PROCESSOR_X86)
 #include <xmmintrin.h>
+#elif defined(Q_PROCESSOR_ARM)
+#include <sse2neon.h>
 #endif
 
 #include "common/tohex.h"
@@ -174,7 +176,7 @@ void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float 
   }
 }
 
-#ifdef Q_PROCESSOR_X86
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
 void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end)
 {
   int end_divisible_4 = (end / 4) * 4;
@@ -402,7 +404,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       if (IsInputStatic(number_param)) {
         if (!NumberIsNoOp(operation, number)) {
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
-#ifdef Q_PROCESSOR_X86
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
             // Use SSE instructions for optimization
             PerformAllOnFloatBufferSSE(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
 #else
