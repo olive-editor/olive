@@ -60,9 +60,9 @@ void Marker::SetActive(bool active)
 
   // Feels very hacky, might it be better to write some access methods?
   if (active) {
-    TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(parent()->parent());
+    TimelinePanel *timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
     if (timeline) {
-      static_cast<TimelineWidget *>(parent()->parent())->DeselectAll();
+      timeline->timeline_widget()->DeselectAll();
     }
   }
 
@@ -117,6 +117,7 @@ void Marker::paintEvent(QPaintEvent *event)
     resize(marker_width_, marker_height_);
   }
 
+  // In case this is a clip marker, redraw the timeline to update the clip marker
   TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
   if (timeline) {
     timeline->timeline_widget()->Refresh();
