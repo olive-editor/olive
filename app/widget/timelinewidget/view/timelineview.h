@@ -132,7 +132,7 @@ private:
 
   void DrawZebraStripes(QPainter *painter, const QRectF &r);
 
-  void DrawClipMarker(QPainter* painter, double narker_x, qreal marker_y, int marker_color, QString name = QString());
+  void DrawClipMarker(QPainter* painter, double narker_x, qreal marker_y, int marker_color, bool draw_name, QString name = QString());
 
   int GetHeightOfAllTracks() const;
 

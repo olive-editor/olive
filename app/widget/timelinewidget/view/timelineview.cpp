@@ -520,11 +520,28 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             
             int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
 
+
+            // Only draw markers if the block UI is large enough to draw all the markers
             if (marker_list.length() * marker_width < block_right - block_left) {
-              foreach (TimelineMarker *marker, marker_list) {
+
+              QListIterator<TimelineMarker*> iterator(marker_list);
+              while(iterator.hasNext()) {
+                TimelineMarker *marker = iterator.next();
+                // Make sure marker is within In/Out points of the clip
                 if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
+                  // Only draw names that we have room for
+                  bool draw_name = true;
+                  if (!marker->name().isEmpty()) {
+                    int length = fm.horizontalAdvance(marker->name());
+                    if (iterator.hasNext()) {
+                      if (TimeToScene(iterator.peekNext()->time().in()) - TimeToScene(marker->time().out()) <
+                          (double)length) {
+                        draw_name = false;
+                      }
+                    }
+                  }
                   DrawClipMarker(painter, TimeToScene(clip->in() - clip->media_in() + marker->time().in()),
-                                 block_top + block_height, marker->color(), marker->name());
+                                 block_top + block_height, marker->color(), draw_name, marker->name());
                 }
               }
             }
@@ -599,7 +616,7 @@ void TimelineView::DrawZebraStripes(QPainter *painter, const QRectF &r)
   painter->setClipping(false);
 }
 
-void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal marker_y, int marker_color, QString name)
+void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal marker_y, int marker_color, bool draw_name, QString name)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -633,7 +650,7 @@ void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal mark
 
   painter->drawPolygon(points, 6);
 
-  if (!name.isEmpty()) {
+  if (!name.isEmpty() && draw_name) {
     painter->drawText(x + marker_width, y - half_marker_height, name);
   }
 }
