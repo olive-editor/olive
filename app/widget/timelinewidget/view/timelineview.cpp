@@ -637,8 +637,6 @@ void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal mark
 
   int half_marker_height = marker_height / 3;
 
-  qDebug() << x << y;
-
   QPoint points[] = {
       QPoint(x, y),
       QPoint(x - half_width, y - half_marker_height),

@@ -218,6 +218,11 @@ public:
    */
   void SignalDeselectedAllBlocks();
 
+  void Refresh()
+  {
+    UpdateViewports();
+  }
+
   MultiUndoCommand *TakeSubtitleSectionCommand()
   {
     // Copy pointer

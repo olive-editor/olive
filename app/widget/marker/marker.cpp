@@ -25,6 +25,8 @@
 
 #include "common/qtutils.h"
 #include "config/config.h"
+#include "panel/panelmanager.h"
+#include "panel/timeline/timeline.h"
 #include "ui/colorcoding.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -113,6 +115,11 @@ void Marker::paintEvent(QPaintEvent *event)
     p.drawText(x + marker_width_, y - half_marker_height, name_);
   } else {
     resize(marker_width_, marker_height_);
+  }
+
+  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+  if (timeline) {
+    timeline->timeline_widget()->Refresh();
   }
 }
 
