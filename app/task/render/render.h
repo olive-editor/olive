@@ -50,7 +50,7 @@ protected:
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
               ColorProcessorPtr force_color_output = nullptr);
 
-  virtual void DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
+  virtual void DownloadFrames(QThread* thread, QVector<FramePtr> frames, QVector<QByteArray> hashes);
 
   virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) = 0;
 
@@ -126,7 +126,7 @@ private:
 
   void IncrementRunningTickets();
 
-  void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, TimeRange timerange, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
+  void StartTicket(QVector<QByteArray> hashes, QThread *watcher_thread, ColorManager *manager, QVector<rational> timestamps, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
 
   ViewerOutput* viewer_;
 

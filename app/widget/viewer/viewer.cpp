@@ -835,7 +835,8 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool prioritize)
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
-    ticket->setProperty("time", QVariant::fromValue(t));
+    QVector<rational> timestamps = {t};
+    ticket->setProperty("timestamps", QVariant::fromValue(timestamps));
     QtConcurrent::run(ViewerWidget::DecodeCachedImage, ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), cached_hash, t);
     return ticket;
   }

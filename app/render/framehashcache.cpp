@@ -115,9 +115,9 @@ bool FrameHashCache::SaveCacheFrame(const QByteArray& hash,
   return SaveCacheFrame(GetCacheDirectory(), hash, data, vparam, linesize_bytes);
 }
 
-bool FrameHashCache::SaveCacheFrame(const QByteArray &hash, FramePtr frame) const
+bool FrameHashCache::SaveCacheFrames(QVector<QByteArray> hashes, QVector<FramePtr> frames) const
 {
-  return SaveCacheFrame(GetCacheDirectory(), hash, frame);
+  return SaveCacheFrames(GetCacheDirectory(), hashes, frames);
 }
 
 bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, char *data, const VideoParams &vparam, int linesize_bytes)
@@ -144,24 +144,29 @@ bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray 
   }
 }
 
-bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QByteArray &hash, FramePtr frame)
+bool FrameHashCache::SaveCacheFrames(const QString &cache_path, QVector<QByteArray> hashes, QVector<FramePtr> frames)
 {
-  if (frame) {
-    QMutexLocker locker(&currently_saving_frames_mutex_);
-    currently_saving_frames_.insert(hash, frame);
-    locker.unlock();
-
-    bool ret = SaveCacheFrame(cache_path, hash, frame->data(), frame->video_params(), frame->linesize_bytes());
-
-    locker.relock();
-    currently_saving_frames_.remove(hash);
-    locker.unlock();
-
-    return ret;
-  } else {
+  if (frames.isEmpty()) {
     qWarning() << "Attempted to save a NULL frame to the cache. This may or may not be desirable.";
     return false;
   }
+
+  QMutexLocker locker(&currently_saving_frames_mutex_);
+
+  bool ret = true;
+
+  for (int i=0; i<hashes.count(); i++){
+    currently_saving_frames_.insert(hashes[i], frames[i]);
+    locker.unlock();
+
+    ret = ret && SaveCacheFrame(cache_path, hashes[i], frames[i]->data(), frames[i]->video_params(), frames[i]->linesize_bytes());
+
+    locker.relock();
+    currently_saving_frames_.remove(hashes[i]);
+    locker.unlock();
+  }
+
+  return ret;
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QByteArray &hash)

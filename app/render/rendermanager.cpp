@@ -114,12 +114,12 @@ QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, con
 }
 
 RenderTicketPtr RenderManager::RenderFrames(ViewerOutput *viewer, ColorManager* color_manager,
-                                           TimeRange timerange, RenderMode::Mode mode,
+                                           QVector<rational> timestamps, RenderMode::Mode mode,
                                            FrameHashCache* cache, bool prioritize, bool texture_only)
 {
   return RenderFrames(viewer,
                      color_manager,
-                     timerange,
+                     timestamps,
                      mode,
                      viewer->GetVideoParams(),
                      viewer->GetAudioParams(),
@@ -133,7 +133,7 @@ RenderTicketPtr RenderManager::RenderFrames(ViewerOutput *viewer, ColorManager* 
 }
 
 RenderTicketPtr RenderManager::RenderFrames(ViewerOutput *viewer, ColorManager* color_manager,
-                                           TimeRange timerange, RenderMode::Mode mode,
+                                           QVector<rational> timestamps, RenderMode::Mode mode,
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
@@ -144,7 +144,7 @@ RenderTicketPtr RenderManager::RenderFrames(ViewerOutput *viewer, ColorManager* 
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
   ticket->setProperty("viewer", Node::PtrToValue(viewer));
-  ticket->setProperty("timerange", QVariant::fromValue(timerange));
+  ticket->setProperty("timestamps", QVariant::fromValue(timestamps));
   ticket->setProperty("size", force_size);
   ticket->setProperty("matrix", force_matrix);
   ticket->setProperty("format", force_format);
@@ -201,14 +201,14 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   return ticket;
 }
 
-RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const QByteArray &hash, bool prioritize)
+RenderTicketPtr RenderManager::SaveFramesToCache(FrameHashCache *cache, QVector<FramePtr> frames, QVector<QByteArray> hashes, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
   ticket->setProperty("cache", cache->GetCacheDirectory());
-  ticket->setProperty("frame", QVariant::fromValue(frame));
-  ticket->setProperty("hash", hash);
+  ticket->setProperty("frames", QVariant::fromValue(frames));
+  ticket->setProperty("hashes", QVariant::fromValue(hashes));
   ticket->setProperty("type", kTypeVideoDownload);
 
   if (ticket->thread() != this->thread()) {

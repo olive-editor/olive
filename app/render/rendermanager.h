@@ -32,7 +32,6 @@
 #include "render/renderer.h"
 #include "rendercache.h"
 #include "threading/threadpool.h"
-#include "common/timerange.h"
 
 namespace olive {
 
@@ -70,7 +69,7 @@ public:
   static QByteArray Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time);
 
   /**
-   * @brief Asynchronously generate frames at a given timerange
+   * @brief Asynchronously generate frames at a given vector of timestamps
    *
    * The ticket from this function will return a FramePtr array - the rendered frames in reference color
    * space.
@@ -81,10 +80,10 @@ public:
    * This function is thread-safe.
    */
   RenderTicketPtr RenderFrames(ViewerOutput *viewer, ColorManager* color_manager,
-                              TimeRange timerange, RenderMode::Mode mode,
+                              QVector<rational> timestamps, RenderMode::Mode mode,
                               FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
   RenderTicketPtr RenderFrames(ViewerOutput* viewer, ColorManager* color_manager,
-                              TimeRange timerange, RenderMode::Mode mode,
+                              QVector<rational> timestamps, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
@@ -104,7 +103,7 @@ public:
   RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
   RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
 
-  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
+  RenderTicketPtr SaveFramesToCache(FrameHashCache* cache, QVector<FramePtr> frames, QVector<QByteArray> hashes, bool prioritize = false);
 
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 

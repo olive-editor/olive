@@ -123,11 +123,16 @@ bool RenderTask::Render(ColorManager* manager,
   const int maximum_rendered_frames = QThread::idealThreadCount();
   auto frame_iterator = frame_render_order.cbegin();
 
-  // TODO: parallel for here
+  QVector<rational> timestamps;
+  QVector<QByteArray> hashes;
+
   for (int i=0; i<maximum_rendered_frames && frame_iterator!=frame_render_order.cend(); i++, frame_iterator++) {
-    StartTicket(frame_iterator->second, &watcher_thread, manager, TimeRange(frame_iterator->first, frame_iterator->first),
-                mode, cache, force_size, force_matrix, force_format, force_color_output);
+    timestamps.append(frame_iterator->first);
+    hashes.append(frame_iterator->second);
   }
+
+  StartTicket(hashes, &watcher_thread, manager, timestamps,
+              mode, cache, force_size, force_matrix, force_format, force_color_output);
 
   // Subtitle loop, loops over all blocks in sequence on all tracks
   if (!subtitle_range.length().isNull()) {
@@ -200,9 +205,9 @@ bool RenderTask::Render(ColorManager* manager,
 
         printf("TwoStepFrameRendering\n");
 
-        DownloadFrame(&watcher_thread,
-                      watcher->Get().value<FramePtr>(),
-                      watcher->property("hash").toByteArray());
+        DownloadFrames(&watcher_thread,
+                      watcher->Get().value<QVector<FramePtr>>(),
+                      watcher->property("hashes").value<QVector<QByteArray>>());
 
         if (native_progress_signalling_) {
           progress_counter += 0.5;
@@ -227,10 +232,12 @@ bool RenderTask::Render(ColorManager* manager,
           emit ProgressChanged(progress_counter / total_length);
         }
 
-        if (frame_iterator != frame_render_order.cend()) {
-          StartTicket(frame_iterator->second, &watcher_thread, manager, TimeRange(frame_iterator->first, frame_iterator->first),
-                      mode, cache, force_size, force_matrix, force_format, force_color_output);
+        QVector<rational> timestamps_1;
+        QVector<QByteArray> hashes_1;
 
+        if (frame_iterator != frame_render_order.cend()) {
+          hashes_1.append(frame_iterator->second);
+          timestamps_1.append(frame_iterator->first);
           frame_iterator++;
         }
 
@@ -271,17 +278,17 @@ bool RenderTask::Render(ColorManager* manager,
   return true;
 }
 
-void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray &hash)
+void RenderTask::DownloadFrames(QThread *thread, QVector<FramePtr> frames, QVector<QByteArray> hashes)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  watcher->setProperty("hash", hash);
+  watcher->setProperty("hashes", QVariant::fromValue(hashes));
   PrepareWatcher(watcher, thread);
 
   IncrementRunningTickets();
 
-  watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(),
-                                                                 frame,
-                                                                 hash));
+  watcher->SetTicket(RenderManager::instance()->SaveFramesToCache(viewer_->video_frame_cache(),
+                                                                 frames,
+                                                                 hashes));
 }
 
 void RenderTask::EncodeSubtitle(const SubtitleBlock *subtitle)
@@ -303,18 +310,18 @@ void RenderTask::IncrementRunningTickets()
   finished_watcher_mutex_.unlock();
 }
 
-void RenderTask::StartTicket(const QByteArray& hash, QThread* watcher_thread, ColorManager* manager,
-                             TimeRange timerange, RenderMode::Mode mode, FrameHashCache* cache,
+void RenderTask::StartTicket(QVector<QByteArray> hashes, QThread* watcher_thread, ColorManager* manager,
+                             QVector<rational> timestamps, RenderMode::Mode mode, FrameHashCache* cache,
                              const QSize &force_size, const QMatrix4x4 &force_matrix,
                              VideoParams::Format force_format, ColorProcessorPtr force_color_output)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  watcher->setProperty("hash", hash);
+  watcher->setProperty("hashes", QVariant::fromValue(hashes));
   PrepareWatcher(watcher, watcher_thread);
 
   IncrementRunningTickets();
 
-  watcher->SetTicket(RenderManager::instance()->RenderFrames(viewer_, manager, timerange,
+  watcher->SetTicket(RenderManager::instance()->RenderFrames(viewer_, manager, timestamps,
                                                             mode, video_params_, audio_params_,
                                                             force_size, force_matrix,
                                                             force_format, force_color_output,
