@@ -132,7 +132,7 @@ private:
 
   void DrawZebraStripes(QPainter *painter, const QRectF &r);
 
-  void DrawClipMarker(QPainter* painter, double narker_x, qreal marker_y, int marker_color, bool draw_name, QString name = QString());
+  void DrawClipMarker(QPainter* painter, double marker_x, qreal marker_y, TimelineMarker* marker, bool draw_name);
 
   int GetHeightOfAllTracks() const;
 
@@ -156,6 +156,8 @@ private:
 
   ClipBlock *transition_overlay_out_;
   ClipBlock *transition_overlay_in_;
+
+  QMap<TimelineMarker*, QRectF> clip_marker_positions_;
 
 private slots:
   void TrackListChanged();

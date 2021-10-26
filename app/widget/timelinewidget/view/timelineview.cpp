@@ -32,7 +32,10 @@
 #include "common/qtutils.h"
 #include "common/timecodefunctions.h"
 #include "node/project/footage/footage.h"
+#include "panel/panelmanager.h"
+#include "panel/timeline/timeline.h"
 #include "ui/colorcoding.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -59,6 +62,15 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
+  foreach (QRectF rect, clip_marker_positions_.values()) {
+    if (rect.contains(mapToScene(event->pos()))) {
+      TimelinePanel *timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+      if (timeline) {
+        timeline->timeline_widget()->SetTime(clip_marker_positions_.key(rect)->time().in());
+      }
+    }
+  }
+
   TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   if (HandPress(event)
@@ -519,7 +531,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             QList<TimelineMarker *> marker_list = clip->connected_viewer()->GetTimelinePoints()->markers()->list();
             
             int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
-
+            clip_marker_positions_.clear();
 
             // Only draw markers if the block UI is large enough to draw all the markers
             if (marker_list.length() * marker_width < block_right - block_left) {
@@ -541,7 +553,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
                     }
                   }
                   DrawClipMarker(painter, TimeToScene(clip->in() - clip->media_in() + marker->time().in()),
-                                 block_top + block_height, marker->color(), draw_name, marker->name());
+                                 block_top + block_height, marker, draw_name);
                 }
               }
             }
@@ -616,7 +628,7 @@ void TimelineView::DrawZebraStripes(QPainter *painter, const QRectF &r)
   painter->setClipping(false);
 }
 
-void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal marker_y, int marker_color, bool draw_name, QString name)
+void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal marker_y, TimelineMarker* marker, bool draw_name)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -631,7 +643,7 @@ void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal mark
 
   painter->setPen(Qt::black);
 
-  painter->setBrush(ColorCoding::GetColor(marker_color).toQColor());
+  painter->setBrush(ColorCoding::GetColor(marker->color()).toQColor());
 
   painter->setRenderHint(QPainter::Antialiasing);
 
@@ -648,9 +660,12 @@ void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal mark
 
   painter->drawPolygon(points, 6);
 
-  if (!name.isEmpty() && draw_name) {
-    painter->drawText(x + marker_width, y - half_marker_height, name);
+  if (!marker->name().isEmpty() && draw_name) {
+    painter->drawText(x + marker_width, y - half_marker_height, marker->name());
   }
+
+  QPointF scenePos = QPoint(x - half_width, y);
+  clip_marker_positions_.insert(marker, (QRectF(scenePos, QSize(marker_width, -marker_height))));
 }
 
 int TimelineView::GetHeightOfAllTracks() const
