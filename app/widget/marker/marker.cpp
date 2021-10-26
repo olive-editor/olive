@@ -146,9 +146,11 @@ void Marker::mousePressEvent(QMouseEvent* e)
     update();
   }
 
-  click_position_ = e->globalPos();
-  marker_start_x_ = x();
-  drag_allowed_ = true;
+  if (e->button() == Qt::LeftButton) {
+    click_position_ = e->globalPos();
+    marker_start_x_ = x();
+    drag_allowed_ = true;
+  }
 }
 
 void Marker::mouseMoveEvent(QMouseEvent* e)
