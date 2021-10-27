@@ -157,6 +157,9 @@ int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
       }
     }
   }
+  if (max_channel_count == 0) {
+    max_channel_count = VideoParams::kRGBChannelCount;
+  }
 
   switch (job.GetAlphaChannelRequired()) {
   case GenerateJob::kAlphaForceOn:
