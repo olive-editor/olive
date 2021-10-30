@@ -1201,6 +1201,10 @@ private:
 
   void SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const;
 
+  void LoadKeyframesDataImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
+
+  void SaveKeyframesDataImmediate(QXmlStreamWriter* writer, const QString& input, int element) const;
+
   /**
    * @brief Intelligently determine how what time range is affected by a keyframe
    */
