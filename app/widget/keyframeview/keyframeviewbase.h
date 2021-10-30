@@ -24,13 +24,14 @@
 #include "keyframeviewitem.h"
 #include "node/keyframe.h"
 #include "widget/curvewidget/beziercontrolpointitem.h"
+#include "widget/keyframeview/keyframecopypaste.h"
 #include "widget/menu/menu.h"
 #include "widget/timebased/timebasedview.h"
 #include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
-class KeyframeViewBase : public TimeBasedView, public TimeTargetObject
+class KeyframeViewBase : public TimeBasedView, public TimeTargetObject, public KeyframeCopyPasteService
 {
   Q_OBJECT
 public:
@@ -59,6 +60,8 @@ public:
   void SelectAll();
 
   void DeselectAll();
+
+  QVector<NodeKeyframe*> GetSelected();
 
 signals:
   void Dragged(int current_x, int current_y);

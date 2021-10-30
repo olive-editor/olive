@@ -1,57 +1,39 @@
 /***
-
   Olive - Non-Linear Video Editor
   Copyright (C) 2021 Olive Team
-
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 ***/
 
-#ifndef CURVEPANEL_H
-#define CURVEPANEL_H
+#ifndef KEYFRAMECOPYPASTEWIDGET_H
+#define KEYFRAMECOPYPASTEWIDGET_H
 
-#include "panel/timebased/timebased.h"
-#include "widget/curvewidget/curvewidget.h"
+#include <QUndoCommand>
+
+#include "node/keyframe.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
-class CurvePanel : public TimeBasedPanel
-{
-  Q_OBJECT
-public:
-  CurvePanel(QWidget* parent);
+class KeyframeCopyPasteService {
+ public:
+  KeyframeCopyPasteService() = default;
+  void CopyKeyframesToClipboard(QVector<NodeKeyframe*> selected_keyframes, void* userdata = nullptr);
 
-  virtual void DeleteSelected() override;
+ protected:
+  
 
-  virtual void SelectAll() override;
-
-  virtual void DeselectAll() override;
-
-  virtual void CopySelected() override;
-
-public slots:
-  void SetNodes(const QVector<Node *> &nodes);
-
-  virtual void IncreaseTrackHeight() override;
-
-  virtual void DecreaseTrackHeight() override;
-
-protected:
-  virtual void Retranslate() override;
-
+  void PasteKeyframesFromClipboard(MultiUndoCommand* command);
 };
 
-}
+}  // namespace olive
 
-#endif // CURVEPANEL_H
+#endif  // KEYFRAMECOPYPASTEWIDGET_H

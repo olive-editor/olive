@@ -72,6 +72,21 @@ void KeyframeViewBase::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+QVector<NodeKeyframe*> KeyframeViewBase::GetSelected()
+{
+  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
+
+  QVector<NodeKeyframe*> active_keyframes;
+
+  for (i = item_map_.constBegin(); i != item_map_.constEnd(); i++) {
+    if (i.value()->isSelected()) {
+      active_keyframes.append(i.key());
+    }
+  }
+
+  return active_keyframes;
+}
+
 void KeyframeViewBase::AddKeyframesOfNode(Node *n)
 {
   foreach (const QString& i, n->inputs()) {

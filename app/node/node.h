@@ -861,6 +861,10 @@ public:
 
   };
 
+  void LoadKeyframeData(QXmlStreamReader* reader, int element, NodeValue::Type data_type, int track, const QAtomicInt* cancelled);
+
+  void SaveKeyframeData(QXmlStreamWriter* writer, NodeKeyframe* key, NodeValue::Type data_type) const;
+
 protected:
   enum InputFlag {
     /// By default, inputs are keyframable, connectable, and NOT arrays
@@ -1200,10 +1204,6 @@ private:
   void LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   void SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const;
-
-  void LoadKeyframesDataImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
-
-  void SaveKeyframesDataImmediate(QXmlStreamWriter* writer, const QString& input, int element) const;
 
   /**
    * @brief Intelligently determine how what time range is affected by a keyframe

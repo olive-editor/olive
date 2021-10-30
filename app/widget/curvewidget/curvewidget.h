@@ -57,7 +57,12 @@ public:
     view_->DeselectAll();
   }
 
-public slots:
+  CurveView* View()
+  {
+      return view_;
+  }
+
+ public slots:
   void SetNodes(const QVector<Node *> &nodes);
 
 protected:

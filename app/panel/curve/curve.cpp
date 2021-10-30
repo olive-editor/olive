@@ -47,6 +47,14 @@ void CurvePanel::DeselectAll()
   static_cast<CurveWidget*>(GetTimeBasedWidget())->DeselectAll();
 }
 
+void CurvePanel::CopySelected()
+{
+  qDebug() << "copy";
+  CurveView* view = static_cast<CurveWidget *>(GetTimeBasedWidget())->View();
+
+  view->CopyKeyframesToClipboard(view->GetSelected());
+}
+
 void CurvePanel::SetNodes(const QVector<Node *> &nodes)
 {
   static_cast<CurveWidget*>(GetTimeBasedWidget())->SetNodes(nodes);

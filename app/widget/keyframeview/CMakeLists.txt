@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/keyframeview/keyframecopypaste.h
+  widget/keyframeview/keyframecopypaste.cpp
   widget/keyframeview/keyframeview.h
   widget/keyframeview/keyframeview.cpp
   widget/keyframeview/keyframeviewbase.h

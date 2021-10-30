@@ -1941,7 +1941,31 @@ void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int ele
     } else if (reader->name() == QStringLiteral("keyframing") && IsInputKeyframable(input)) {
       SetInputIsKeyframing(input, reader->readElementText().toInt(), element);
     } else if (reader->name() == QStringLiteral("keyframes")) {
-      LoadKeyframesDataImmediate(reader, input, element, xml_node_data, cancelled);
+      int track = 0;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
+        }
+
+        if (reader->name() == QStringLiteral("track")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (cancelled && *cancelled) {
+              return;
+            }
+
+            if (reader->name() == QStringLiteral("key")) {
+              LoadKeyframeData(reader, element, data_type, track, cancelled);
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          track++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
     } else if (reader->name() == QStringLiteral("csinput")) {
       SetInputProperty(input, QStringLiteral("col_input"), reader->readElementText());
     } else if (reader->name() == QStringLiteral("csdisplay")) {
@@ -1984,7 +2008,19 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int ele
   writer->writeEndElement(); // standard
 
   // Write keyframes
-  SaveKeyframesDataImmediate(writer, input, element);
+  writer->writeStartElement(QStringLiteral("keyframes"));
+
+  foreach (const NodeKeyframeTrack &track, GetKeyframeTracks(input, element)) {
+    writer->writeStartElement(QStringLiteral("track"));
+
+    foreach (NodeKeyframe *key, track) {
+      SaveKeyframeData(writer, key, data_type);
+    }
+
+    writer->writeEndElement();  // track
+  }
+
+  writer->writeEndElement();  // keyframes
 
   if (data_type == NodeValue::kColor) {
     // Save color management information
@@ -1995,99 +2031,59 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int ele
   }
 }
 
-void Node::LoadKeyframesDataImmediate(QXmlStreamReader *reader, const QString &input, int element,
-                                      XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
+void Node::LoadKeyframeData(QXmlStreamReader *reader, int element, NodeValue::Type data_type, int track, const QAtomicInt *cancelled)
 {
-  NodeValue::Type data_type = GetInputDataType(input);
-  int track = 0;
+  QString key_input;
+  rational key_time;
+  NodeKeyframe::Type key_type = NodeKeyframe::kLinear;
+  QVariant key_value;
+  QPointF key_in_handle;
+  QPointF key_out_handle;
 
-  while (XMLReadNextStartElement(reader)) {
+  XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->name() == QStringLiteral("track")) {
-      while (XMLReadNextStartElement(reader)) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (reader->name() == QStringLiteral("key")) {
-          QString key_input;
-          rational key_time;
-          NodeKeyframe::Type key_type = NodeKeyframe::kLinear;
-          QVariant key_value;
-          QPointF key_in_handle;
-          QPointF key_out_handle;
-
-          XMLAttributeLoop(reader, attr) {
-            if (cancelled && *cancelled) {
-              return;
-            }
-
-            if (attr.name() == QStringLiteral("input")) {
-              key_input = attr.value().toString();
-            } else if (attr.name() == QStringLiteral("time")) {
-              key_time = rational::fromString(attr.value().toString());
-            } else if (attr.name() == QStringLiteral("type")) {
-              key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
-            } else if (attr.name() == QStringLiteral("inhandlex")) {
-              key_in_handle.setX(attr.value().toDouble());
-            } else if (attr.name() == QStringLiteral("inhandley")) {
-              key_in_handle.setY(attr.value().toDouble());
-            } else if (attr.name() == QStringLiteral("outhandlex")) {
-              key_out_handle.setX(attr.value().toDouble());
-            } else if (attr.name() == QStringLiteral("outhandley")) {
-              key_out_handle.setY(attr.value().toDouble());
-            }
-          }
-
-          key_value = NodeValue::StringToValue(data_type, reader->readElementText(), true);
-
-          NodeKeyframe *key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, this);
-          key->set_bezier_control_in(key_in_handle);
-          key->set_bezier_control_out(key_out_handle);
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-
-      track++;
-    } else {
-      reader->skipCurrentElement();
+    if (attr.name() == QStringLiteral("input")) {
+      key_input = attr.value().toString();
+    } else if (attr.name() == QStringLiteral("time")) {
+      key_time = rational::fromString(attr.value().toString());
+    } else if (attr.name() == QStringLiteral("type")) {
+      key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
+    } else if (attr.name() == QStringLiteral("inhandlex")) {
+      key_in_handle.setX(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("inhandley")) {
+      key_in_handle.setY(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("outhandlex")) {
+      key_out_handle.setX(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("outhandley")) {
+      key_out_handle.setY(attr.value().toDouble());
     }
   }
+
+  key_value = NodeValue::StringToValue(data_type, reader->readElementText(), true);
+
+  NodeKeyframe *key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, this);
+  key->set_bezier_control_in(key_in_handle);
+  key->set_bezier_control_out(key_out_handle);
 }
 
-void Node::SaveKeyframesDataImmediate(QXmlStreamWriter* writer, const QString& input, int element) const
+void Node::SaveKeyframeData(QXmlStreamWriter *writer, NodeKeyframe *key, NodeValue::Type data_type) const
 {
-  NodeValue::Type data_type = GetInputDataType(input);
+  writer->writeStartElement(QStringLiteral("key"));
 
-  writer->writeStartElement(QStringLiteral("keyframes"));
+  writer->writeAttribute(QStringLiteral("input"), key->input());
+  writer->writeAttribute(QStringLiteral("time"), key->time().toString());
+  writer->writeAttribute(QStringLiteral("type"), QString::number(key->type()));
+  writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(key->bezier_control_in().x()));
+  writer->writeAttribute(QStringLiteral("inhandley"), QString::number(key->bezier_control_in().y()));
+  writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(key->bezier_control_out().x()));
+  writer->writeAttribute(QStringLiteral("outhandley"), QString::number(key->bezier_control_out().y()));
 
-  foreach (const NodeKeyframeTrack &track, GetKeyframeTracks(input, element)) {
-    writer->writeStartElement(QStringLiteral("track"));
+  writer->writeCharacters(NodeValue::ValueToString(data_type, key->value(), true));
 
-    foreach (NodeKeyframe *key, track) {
-      writer->writeStartElement(QStringLiteral("key"));
-
-      writer->writeAttribute(QStringLiteral("input"), key->input());
-      writer->writeAttribute(QStringLiteral("time"), key->time().toString());
-      writer->writeAttribute(QStringLiteral("type"), QString::number(key->type()));
-      writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(key->bezier_control_in().x()));
-      writer->writeAttribute(QStringLiteral("inhandley"), QString::number(key->bezier_control_in().y()));
-      writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(key->bezier_control_out().x()));
-      writer->writeAttribute(QStringLiteral("outhandley"), QString::number(key->bezier_control_out().y()));
-
-      writer->writeCharacters(NodeValue::ValueToString(data_type, key->value(), true));
-
-      writer->writeEndElement();  // key
-    }
-
-    writer->writeEndElement();  // track
-  }
-
-  writer->writeEndElement();  // keyframes
+  writer->writeEndElement();  // key
 }
 
 TimeRange Node::GetRangeAffectedByKeyframe(NodeKeyframe *key) const
