@@ -861,7 +861,8 @@ public:
 
   };
 
-  void LoadKeyframeData(QXmlStreamReader* reader, int element, NodeValue::Type data_type, int track, const QAtomicInt* cancelled);
+  void LoadKeyframeData(QXmlStreamReader* reader, Node* node, int element, NodeValue::Type data_type, int track,
+                        const QAtomicInt* cancelled);
 
   void SaveKeyframeData(QXmlStreamWriter* writer, NodeKeyframe* key, NodeValue::Type data_type) const;
 

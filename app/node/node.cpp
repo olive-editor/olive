@@ -1955,7 +1955,7 @@ void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int ele
             }
 
             if (reader->name() == QStringLiteral("key")) {
-              LoadKeyframeData(reader, element, data_type, track, cancelled);
+              LoadKeyframeData(reader, this, element, data_type, track, cancelled);
             } else {
               reader->skipCurrentElement();
             }
@@ -2031,7 +2031,7 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int ele
   }
 }
 
-void Node::LoadKeyframeData(QXmlStreamReader *reader, int element, NodeValue::Type data_type, int track, const QAtomicInt *cancelled)
+void Node::LoadKeyframeData(QXmlStreamReader *reader, Node* node, int element, NodeValue::Type data_type, int track, const QAtomicInt *cancelled)
 {
   QString key_input;
   rational key_time;
@@ -2064,7 +2064,7 @@ void Node::LoadKeyframeData(QXmlStreamReader *reader, int element, NodeValue::Ty
 
   key_value = NodeValue::StringToValue(data_type, reader->readElementText(), true);
 
-  NodeKeyframe *key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, this);
+  NodeKeyframe *key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, node);
   key->set_bezier_control_in(key_in_handle);
   key->set_bezier_control_out(key_out_handle);
 }

@@ -27,10 +27,6 @@ class KeyframeCopyPasteService {
  public:
   KeyframeCopyPasteService() = default;
   void CopyKeyframesToClipboard(QVector<NodeKeyframe*> selected_keyframes, void* userdata = nullptr);
-
- protected:
-  
-
   void PasteKeyframesFromClipboard(MultiUndoCommand* command);
 };
 

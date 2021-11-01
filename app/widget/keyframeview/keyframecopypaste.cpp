@@ -31,19 +31,62 @@ void KeyframeCopyPasteService::CopyKeyframesToClipboard(QVector<NodeKeyframe*> s
 
   writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
-  writer.writeStartElement(QStringLiteral("markers"));
+  writer.writeStartElement(QStringLiteral("keyframes"));
 
   foreach(NodeKeyframe* keyframe, selected_keyframes) {
+    writer.writeStartElement(QStringLiteral("node"));
+    writer.writeAttribute(QStringLiteral("node_type"), keyframe->parent()->id());
     NodeValue::Type data_type = keyframe->parent()->GetInputDataType(keyframe->input());
+    int track =  keyframe->track();
+    writer.writeStartElement(QStringLiteral("track"));
+    writer.writeAttribute(QStringLiteral("track"), QString::number(track));
 
 	keyframe->parent()->SaveKeyframeData(&writer, keyframe, data_type);
+
+    writer.writeEndElement(); // track
+    writer.writeEndElement();  // node
   }
 
-  writer.writeEndElement();  // markers
+  writer.writeEndElement();  // keyframes
   writer.writeEndElement();  // olive
   writer.writeEndDocument();
 
   Core::CopyStringToClipboard(copy_str);
+}
+
+void KeyframeCopyPasteService::PasteKeyframesFromClipboard(MultiUndoCommand* command) {
+  // use NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand
+  QString clipboard = Core::PasteStringFromClipboard();
+
+  if (clipboard.isEmpty()) {
+    return;
+  }
+
+  QXmlStreamReader reader(clipboard);
+  uint data_version = 0;
+
+  QVector<TimelineMarker*> pasted_markers;
+
+  while (XMLReadNextStartElement(&reader)) {
+    if (reader.name() == QStringLiteral("olive")) {
+      while (XMLReadNextStartElement(&reader)) {
+        if (reader.name() == QStringLiteral("version")) {
+          data_version = reader.readElementText().toUInt();
+        } else if (reader.name() == QStringLiteral("keyframes")) {
+          while (XMLReadNextStartElement(&reader)) {
+            if (data_version == 0) {
+              return;
+            }
+            XMLAttributeLoop((&reader), attr) {
+              if (attr.name() == QStringLiteral("name")) {
+                // name = attr.value().toString();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 } // namespace olive
