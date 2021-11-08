@@ -15,6 +15,8 @@
 
 #include "markercopypaste.h"
 
+#include <QMessageBox>
+
 #include "core.h"
 #include "markerundo.h"
 #include "widget/timebased/timebasedwidget.h"
@@ -120,6 +122,17 @@ void MarkerCopyPasteService::PasteMarkersFromClipboard(TimelineMarkerList* list,
     }
   }
 
+  if (reader.hasError()) {
+    // If this was NOT an internal error, we assume it's an XML error that the user needs to know about
+    QMessageBox::critical((QWidget*)Core::instance()->main_window(),
+                          QCoreApplication::translate("MarkerCopyPasteWidget", "Error pasting markers"),
+                          QCoreApplication::translate("MarkerCopyPasteWidget", "Failed to paste markers: %1").arg(reader.errorString()),
+                          QMessageBox::Ok);
+
+    return;
+  }
+
   Core::instance()->undo_stack()->pushIfHasChildren(command);
+
 }
 } //namespace olive

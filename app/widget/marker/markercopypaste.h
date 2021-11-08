@@ -16,6 +16,7 @@
 #ifndef MARKERCOPYPASTEWIDGET_H
 #define MARKERCOPYPASTEWIDGET_H
 
+#include <QWidget>
 #include <QUndoCommand>
 
 #include "widget/marker/marker.h"
