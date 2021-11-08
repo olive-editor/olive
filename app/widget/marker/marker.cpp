@@ -158,10 +158,22 @@ void Marker::mouseMoveEvent(QMouseEvent* e)
   if (drag_allowed_) {
     dragging_ = true;
 
-    int new_pos = marker_start_x_ + e->globalPos().x() - click_position_.x();
+    int new_position = marker_start_x_ + e->globalPos().x() - click_position_.x();
 
-    if (new_pos > -marker_width_ / 2 && new_pos < static_cast<SeekableWidget *>(parent())->width() - marker_width_ / 2) {
-      this->move(new_pos-2, this->pos().y());
+    rational marker_time = static_cast<SeekableWidget *>(parent())->ScreenToTime(new_position);
+
+    if (Core::instance()->snapping()) {
+      rational movement;
+      static_cast<SeekableWidget *>(parent())->GetSnapService()->SnapPoint({marker_time}, &movement);
+      if (!movement.isNull()) {
+        marker_time += movement;
+      }
+
+      new_position = static_cast<SeekableWidget *>(parent())->TimeToScene(marker_time);
+    }
+
+    if (new_position > -marker_width_ / 2 && new_position < static_cast<SeekableWidget *>(parent())->width() - marker_width_ / 2) {
+      this->move(new_position-2, this->pos().y());
       repaint();
     }
   }

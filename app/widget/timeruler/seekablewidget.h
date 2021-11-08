@@ -49,6 +49,8 @@ public:
 
   void SetSnapService(SnapService* service);
 
+  SnapService* GetSnapService() { return snap_service_; };
+
   bool IsDraggingPlayhead() const
   {
     return dragging_;
@@ -65,6 +67,9 @@ public:
   void DeselectAllMarkers();
 
   void SeekToScreenPoint(int screen);
+
+  int TimeToScreen(const rational& time) const;
+  rational ScreenToTime(int x) const;
 
 public slots:
   void SetTime(const rational &r);
@@ -90,9 +95,6 @@ protected:
   void DrawTimelinePoints(QPainter *p, int marker_bottom = 0);
 
   TimelinePoints* timeline_points() const;
-
-  int TimeToScreen(const rational& time) const;
-  rational ScreenToTime(int x) const;
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
