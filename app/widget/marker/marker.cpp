@@ -131,10 +131,10 @@ void Marker::mousePressEvent(QMouseEvent* e)
     return;
   }
   if (e->button() == Qt::LeftButton || e->button() == Qt::RightButton) {
-    static_cast<SeekableWidget*>(parent())->SeekToScreenPoint(this->x() + 4);
+    SeekableParent()->SeekToScreenPoint(this->x() + 4);
     if (!active_) {
       if (e->modifiers() != Qt::ShiftModifier) {
-        static_cast<SeekableWidget *>(parent())->DeselectAllMarkers();
+        SeekableParent()->DeselectAllMarkers();
       }
       emit ActiveChanged(true);
     } else {
@@ -160,19 +160,19 @@ void Marker::mouseMoveEvent(QMouseEvent* e)
 
     int new_position = marker_start_x_ + e->globalPos().x() - click_position_.x();
 
-    rational marker_time = static_cast<SeekableWidget *>(parent())->ScreenToTime(new_position);
+    rational marker_time = SeekableParent()->ScreenToTime(new_position);
 
     if (Core::instance()->snapping()) {
       rational movement;
-      static_cast<SeekableWidget *>(parent())->GetSnapService()->SnapPoint({marker_time}, &movement);
+      SeekableParent()->GetSnapService()->SnapPoint({marker_time}, &movement);
       if (!movement.isNull()) {
         marker_time += movement;
       }
 
-      new_position = static_cast<SeekableWidget *>(parent())->TimeToScene(marker_time);
+      new_position = SeekableParent()->TimeToScene(marker_time);
     }
 
-    if (new_position > -marker_width_ / 2 && new_position < static_cast<SeekableWidget *>(parent())->width() - marker_width_ / 2) {
+    if (new_position > -marker_width_ / 2 && new_position < SeekableParent()->width() - marker_width_ / 2) {
       this->move(new_position-2, this->pos().y());
       repaint();
     }
@@ -182,7 +182,7 @@ void Marker::mouseMoveEvent(QMouseEvent* e)
 void Marker::mouseReleaseEvent(QMouseEvent* e)
 {
   if (dragging_) {
-    rational time = static_cast<SeekableWidget *>(parent())->SceneToTime(this->x()+4);
+    rational time = SeekableParent()->SceneToTime(this->x() + 4);
     time = time < 0.0 ? 0.0 : time;
     emit TimeChanged(TimeRange(time, time));
 
@@ -190,6 +190,11 @@ void Marker::mouseReleaseEvent(QMouseEvent* e)
   }
 
   drag_allowed_ = false;
+}
+
+SeekableWidget* Marker::SeekableParent()
+{
+  return static_cast<SeekableWidget *>(parent());
 }
 
 void Marker::ShowContextMenu()
@@ -244,7 +249,7 @@ void Marker::SetName(QString s)
 
 void Marker::SetTime(TimeRange time)
 {
-  move(static_cast<SeekableWidget *>(parent())->TimeToScene(time.in())-2, y());
+  move(SeekableParent()->TimeToScene(time.in())-2, y());
 }
 
 }  // namespace olive

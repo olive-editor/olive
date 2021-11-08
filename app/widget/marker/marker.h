@@ -31,6 +31,8 @@
 
 namespace olive {
 
+class SeekableWidget;
+
 class Marker : public QWidget {
   Q_OBJECT
  public:
@@ -39,6 +41,8 @@ class Marker : public QWidget {
   bool active();
 
   void Rename();
+
+  SeekableWidget* SeekableParent();
 
  public slots:
   void SetColor(int c);
@@ -51,7 +55,6 @@ class Marker : public QWidget {
   virtual void mousePressEvent(QMouseEvent* event) override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
-  //virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
  signals:
   //void MouseClicked();
