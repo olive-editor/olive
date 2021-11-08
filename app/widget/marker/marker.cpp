@@ -93,7 +93,9 @@ void Marker::paintEvent(QPaintEvent *event)
   } else {
     p.setPen(Qt::black);
   }
-  p.setBrush(ColorCoding::GetColor(marker_color_).toQColor());
+
+  QColor color = ColorCoding::GetColor(marker_color_).toQColor();
+  p.setBrush(color);
 
   p.setRenderHint(QPainter::Antialiasing);
 
@@ -112,6 +114,8 @@ void Marker::paintEvent(QPaintEvent *event)
 
   if (!name_.isEmpty()) {
     resize(marker_width_ + fm.horizontalAdvance(name_) + fm.horizontalAdvance(" "), marker_height_);
+    color.setAlphaF(0.5);
+    p.fillRect(x, y, fm.horizontalAdvance(name_) + fm.horizontalAdvance(" ") * 2 + half_width, -marker_height_, color);
     p.drawText(x + marker_width_, y - half_marker_height, name_);
   } else {
     resize(marker_width_, marker_height_);
