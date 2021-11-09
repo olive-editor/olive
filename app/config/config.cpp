@@ -135,7 +135,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat32);
   SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat16);
 
-  SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kRed);
+  SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kGreen);
 }
 
 void Config::Load()

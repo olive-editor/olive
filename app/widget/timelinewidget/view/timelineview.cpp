@@ -62,6 +62,7 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
+  // If we click on marker, jump to that point in the timeline
   foreach (QRectF rect, clip_marker_positions_.values()) {
     if (rect.contains(mapToScene(event->pos()))) {
       TimelinePanel *timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
@@ -546,8 +547,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
                   if (!marker->name().isEmpty()) {
                     int length = fm.horizontalAdvance(marker->name());
                     if (iterator.hasNext()) {
-                      if (TimeToScene(iterator.peekNext()->time().in()) - TimeToScene(marker->time().out()) <
-                          (double)length) {
+                      if (TimeToScene(iterator.peekNext()->time().in()) - TimeToScene(marker->time().out()) < (double)length) {
                         draw_name = false;
                       }
                     }

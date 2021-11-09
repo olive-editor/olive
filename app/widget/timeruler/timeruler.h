@@ -27,7 +27,6 @@
 #include "common/timerange.h"
 #include "seekablewidget.h"
 #include "render/playbackcache.h"
-#include "widget/marker/marker.h"
 
 namespace olive {
 

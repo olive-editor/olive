@@ -57,8 +57,6 @@ class Marker : public QWidget {
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
  signals:
-  //void MouseClicked();
-  //void MouseDoubleClicked();
   void ColorChanged(int c);
   void markerSelected(Marker* marker);
   void ActiveChanged(bool active);

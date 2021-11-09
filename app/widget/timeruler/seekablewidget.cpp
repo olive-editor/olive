@@ -26,8 +26,8 @@
 
 #include "common/qtutils.h"
 #include "core.h"
-#include "widget/timebased/timebasedwidget.h"
 #include "widget/marker/markerundo.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 
@@ -46,7 +46,6 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   playhead_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   setContextMenuPolicy(Qt::CustomContextMenu);
-
 }
 
 void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
@@ -211,6 +210,14 @@ void SeekableWidget::addMarker(TimelineMarker* marker)
     Marker *marker_widget = new Marker(this);
     marker_map_.insert(marker, marker_widget);
 
+    /*
+    Markers are stored as TimelineMarkers and represented in the UI as Markers. As a single
+    TimelineMarker can be represented in various views it is necessary to make sure all instances
+    of the TimelineMarker's (UI) Markers are kept in sync. To do this, whenever a Marker is updated
+    in some way, it signals that change to the relevant TimelineMarker which in turn broadcasts
+    that update out to all the relevant Markers.
+    */
+
     connect(marker_widget, &Marker::ColorChanged, this, &SeekableWidget::SetMarkerColor);
     connect(marker, &TimelineMarker::ColorChanged, marker_widget, &Marker::SetColor);
 
@@ -327,10 +334,7 @@ void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
         continue;
       }
 
-      if (marker->time().length() == 0) {
-        // Single point in time marker
-        //DrawPlayhead(p, marker_left, marker_bottom);
-      } else {
+      if (marker->time().length() != 0) {
         // Marker range
         int rect_left = qMax(0, marker_left);
         int rect_right = qMin(width(), marker_right);

@@ -136,6 +136,7 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
     drag_global_start_ = QCursor::pos();
   }
 
+  // If we click anywhere other than a marker, deselect all markers
   parent()->ruler()->DeselectAllMarkers();
 }
 

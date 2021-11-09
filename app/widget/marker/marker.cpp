@@ -23,8 +23,8 @@
 #include <QInputDialog>
 #include <QPainter>
 
-#include "common/qtutils.h"
 #include "config/config.h"
+#include "common/qtutils.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 #include "ui/colorcoding.h"
@@ -58,7 +58,8 @@ void Marker::SetActive(bool active)
 {
   active_ = active;
 
-  // Feels very hacky, might it be better to write some access methods?
+  // Generaly the same functions delete both markers and timeline blocks. This helps ensure that
+  // markers and timeline blocks can never be selected at the same time
   if (active) {
     TimelinePanel *timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
     if (timeline) {
@@ -77,9 +78,6 @@ bool Marker::active()
 void Marker::paintEvent(QPaintEvent *event)
 {
   QFontMetrics fm = fontMetrics();
-
-  //int text_height = fm.height();
-  //int marker_width_ = QtUtils::QFontMetricsWidth(fm, "H");
 
   int y = marker_height_;
 
@@ -114,8 +112,12 @@ void Marker::paintEvent(QPaintEvent *event)
 
   if (!name_.isEmpty()) {
     resize(marker_width_ + fm.horizontalAdvance(name_) + fm.horizontalAdvance(" "), marker_height_);
+
+    // Draw background rectangle
     color.setAlphaF(0.5);
     p.fillRect(x, y, fm.horizontalAdvance(name_) + fm.horizontalAdvance(" ") * 2 + half_width, -marker_height_, color);
+
+    // Draw text
     p.drawText(x + marker_width_, y - half_marker_height, name_);
   } else {
     resize(marker_width_, marker_height_);
@@ -166,14 +168,16 @@ void Marker::mouseMoveEvent(QMouseEvent* e)
 
     rational marker_time = SeekableParent()->ScreenToTime(new_position);
 
-    if (Core::instance()->snapping()) {
-      rational movement;
-      SeekableParent()->GetSnapService()->SnapPoint({marker_time}, &movement);
-      if (!movement.isNull()) {
-        marker_time += movement;
-      }
+    if (SeekableParent()->GetSnapService()) {
+      if (Core::instance()->snapping()) {
+        rational movement;
+        SeekableParent()->GetSnapService()->SnapPoint({marker_time}, &movement);
+        if (!movement.isNull()) {
+          marker_time += movement;
+        }
 
-      new_position = SeekableParent()->TimeToScene(marker_time);
+        new_position = SeekableParent()->TimeToScene(marker_time);
+      }
     }
 
     if (new_position > -marker_width_ / 2 && new_position < SeekableParent()->width() - marker_width_ / 2) {
@@ -198,7 +202,7 @@ void Marker::mouseReleaseEvent(QMouseEvent* e)
 
 SeekableWidget* Marker::SeekableParent()
 {
-  return static_cast<SeekableWidget *>(parent());
+  return dynamic_cast<SeekableWidget *>(parent());
 }
 
 void Marker::ShowContextMenu()

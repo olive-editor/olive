@@ -20,8 +20,6 @@
 
 #include "timeline.h"
 
-#include <QApplication>
-
 #include "panel/panelmanager.h"
 #include "panel/project/footagemanagementpanel.h"
 

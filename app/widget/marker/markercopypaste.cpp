@@ -77,8 +77,6 @@ void MarkerCopyPasteService::PasteMarkersFromClipboard(TimelineMarkerList* list,
   QXmlStreamReader reader(clipboard);
   uint data_version = 0;
 
-  QVector<TimelineMarker*> pasted_markers;
-
   while (XMLReadNextStartElement(&reader)) {
     if (reader.name() == QStringLiteral("olive")) {
       while (XMLReadNextStartElement(&reader)) {
