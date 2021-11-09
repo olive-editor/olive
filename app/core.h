@@ -401,7 +401,9 @@ public slots:
     /**
    * @brief Show OTIO import dialog
    */
+#ifdef USE_OTIO
   void DialogImportOTIOShow(QList<Sequence*> sequences);
+#endif
 
   /**
    * @brief Create a new folder in the currently active project
