@@ -91,6 +91,10 @@ bool LoadOTIOTask::Run()
   QMap<QString, Footage*> imported_footage;
   QList<Sequence*> sequences;
 
+  // Variables used for loading bar
+  float number_of_clips = 0;
+  float clips_done = 0;
+
   // Generate a list of sequences with the same names as the timelines.
   // Assumes each timeline has a unique name.
   foreach (auto timeline, timelines) {
@@ -99,6 +103,12 @@ bool LoadOTIOTask::Run()
     // Set default params incase they aren't edited.
     sequence->set_default_parameters();
     sequences.append(sequence);
+
+    // Get number of clips for loading bar
+    foreach (auto track, timeline->tracks()->children()) {
+      auto otio_track = static_cast<OTIO::Track*>(track.value);
+      number_of_clips += otio_track->children().size();
+    }
   }
 
   // Dialog has to be called from the main thread so we pass the list of sequences here.
@@ -305,6 +315,8 @@ bool LoadOTIOTask::Run()
             }
           }
         }
+        clips_done++;
+        emit ProgressChanged(clips_done / number_of_clips);
       }
     }
   }
