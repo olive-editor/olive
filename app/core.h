@@ -398,6 +398,11 @@ public slots:
    */
   void DialogExportShow();
 
+    /**
+   * @brief Show OTIO import dialog
+   */
+  void DialogImportOTIOShow(QList<Sequence*> sequences);
+
   /**
    * @brief Create a new folder in the currently active project
    */

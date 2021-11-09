@@ -43,6 +43,7 @@
 #include "dialog/autorecovery/autorecoverydialog.h"
 #include "dialog/export/export.h"
 #include "dialog/footagerelink/footagerelinkdialog.h"
+#include "dialog/otioproperties/otiopropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
@@ -377,6 +378,12 @@ void Core::DialogExportShow()
     connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
     ed->open();
   }
+}
+
+void Core::DialogImportOTIOShow(QList<Sequence*> sequences) {
+  Project* active_project = GetActiveProject();
+  OTIOPropertiesDialog opd(sequences, active_project);
+  opd.exec();
 }
 
 void Core::CreateNewFolder()

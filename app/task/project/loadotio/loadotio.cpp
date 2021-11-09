@@ -30,6 +30,7 @@
 #include <opentimelineio/transition.h>
 #include <QApplication>
 #include <QFileInfo>
+#include <QThread>
 
 #include "core.h"
 #include "node/audio/volume/volume.h"
@@ -88,10 +89,40 @@ bool LoadOTIOTask::Run()
 
   // Keep track of imported footage
   QMap<QString, Footage*> imported_footage;
+  QList<Sequence*> sequences;
+
+  // Generate a list of sequences with the same names as the timelines.
+  // Assumes each timeline has a unique name.
+  foreach (auto timeline, timelines) {
+    Sequence* sequence = new Sequence();
+    sequence->SetLabel(QString::fromStdString(timeline->name()));
+    // Set default params incase they aren't edited.
+    sequence->set_default_parameters();
+    sequences.append(sequence);
+  }
+
+  // Dialog has to be called from the main thread so we pass the list of sequences here.
+  QMetaObject::invokeMethod(Core::instance(),
+                            "DialogImportOTIOShow",
+                            Qt::BlockingQueuedConnection,
+                            Q_ARG(QList<Sequence*>,sequences));
 
   foreach (auto timeline, timelines) {
     // Create sequence
-    Sequence* sequence = new Sequence();
+    Sequence* sequence;
+
+    // Find correct sequence based on itmeline name.
+    foreach (Sequence* seq, sequences) {
+      if (seq->GetLabel() == QString::fromStdString(timeline->name())) {
+        sequence = seq;
+        break;
+      }
+    }
+
+    if (!sequence) {
+      return false;
+    }
+
     sequence->SetLabel(QString::fromStdString(timeline->name()));
     sequence->setParent(project_);
     FolderAddChild(project_->root(), sequence).redo_now();
@@ -101,9 +132,6 @@ bool LoadOTIOTask::Run()
     sequence_footage->SetLabel(QString::fromStdString(timeline->name()));
     sequence_footage->setParent(project_);
     FolderAddChild(project_->root(), sequence_footage).redo_now();
-
-    // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
-    sequence->set_default_parameters();
 
     // Iterate through tracks
     for (auto c : timeline->tracks()->children()) {
