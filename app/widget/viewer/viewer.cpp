@@ -30,6 +30,10 @@
 #include <QtMath>
 #include <QVBoxLayout>
 
+#ifdef _WIN32
+#include "winbase.h"
+#endif
+
 #include "audio/audiomanager.h"
 #include "common/clamp.h"
 #include "common/power.h"
@@ -702,6 +706,10 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       QueueNextAudioBuffer();
     }
   }
+  // Force screen to stay awake
+#ifdef _WIN32
+  SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
+#endif
 }
 
 void ViewerWidget::PauseInternal()
@@ -742,6 +750,11 @@ void ViewerWidget::PauseInternal()
 
   prequeuing_video_ = false;
   prequeuing_audio_ = 0;
+
+  // Reset screen timeout timer
+#ifdef _WIN32
+  SetThreadExecutionState(ES_CONTINUOUS);
+#endif
 }
 
 void ViewerWidget::PushScrubbedAudio()
