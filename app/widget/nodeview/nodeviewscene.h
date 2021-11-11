@@ -25,6 +25,7 @@
 #include <QTimer>
 
 #include "node/graph.h"
+#include "nodeviewcontext.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
 
@@ -99,6 +100,9 @@ public slots:
   NodeViewEdge *AddEdge(Node *output, const NodeInput& input);
   void RemoveEdge(Node *output, const NodeInput& input);
 
+  NodeViewContext *AddContext(Node *node);
+  void RemoveContext(Node *node);
+
   /**
    * @brief Set whether edges in this scene should be curved or not
    */
@@ -112,6 +116,8 @@ private:
   void ConnectNode(Node *n);
 
   void DisconnectNode(Node *n);
+
+  QHash<Node*, NodeViewContext*> context_map_;
 
   QHash<Node*, NodeViewItem*> item_map_;
 

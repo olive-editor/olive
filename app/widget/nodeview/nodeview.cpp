@@ -29,6 +29,7 @@
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
+#include "node/group.h"
 #include "node/traverser.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedview.h"
@@ -62,7 +63,7 @@ NodeView::NodeView(QWidget *parent) :
 
   ConnectSelectionChangedSignal();
 
-  SetFlowDirection(NodeViewCommon::kTopToBottom);
+  SetFlowDirection(NodeViewCommon::kLeftToRight);
 
   UpdateSceneBoundingRect();
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::UpdateSceneBoundingRect);
@@ -85,7 +86,23 @@ NodeView::~NodeView()
 
 void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
 {
-  bool graph_changed = graph_ != graph;
+  // Remove contexts that are no longer in the list
+  foreach (Node *n, filter_nodes_) {
+    if (!nodes.contains(n)) {
+      scene_.RemoveContext(n);
+    }
+  }
+
+  // Add contexts that are now in the list
+  foreach (Node *n, nodes) {
+    if (!filter_nodes_.contains(n)) {
+      scene_.AddContext(n);
+    }
+  }
+
+  filter_nodes_ = nodes;
+
+  /*bool graph_changed = graph_ != graph;
   bool context_changed = last_set_filter_nodes_ != nodes;
 
   if (graph_changed || context_changed) {
@@ -144,7 +161,7 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
       // Center on something
       QMetaObject::invokeMethod(this, &NodeView::CenterOnItemsBoundingRect, Qt::QueuedConnection);
     }
-  }
+  }*/
 }
 
 void NodeView::ClearGraph()
@@ -849,6 +866,15 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     connect(label_action, &QAction::triggered, this, [this](){
       Core::instance()->LabelNodes(scene_.GetSelectedNodes());
     });
+
+    // Grouping
+    if (selected.size() == 1 && dynamic_cast<NodeGroup*>(selected.first()->GetNode())) {
+      QAction *ungroup_action = m.addAction(tr("Ungroup"));
+      connect(ungroup_action, &QAction::triggered, this, &NodeView::UngroupNodes);
+    } else {
+      QAction *group_action = m.addAction(tr("Group"));
+      connect(group_action, &QAction::triggered, this, &NodeView::GroupNodes);
+    }
 
     // Color menu
     MenuShared::instance()->AddColorCodingMenu(&m);
@@ -1601,6 +1627,17 @@ void NodeView::RepositionContexts()
       UpdateNodeItem(it.key());
     }
   }
+}
+
+void NodeView::GroupNodes()
+{
+  /*NodeGroup *group = new NodeGroup();
+  selected_nodes_*/
+}
+
+void NodeView::UngroupNodes()
+{
+  static_cast<NodeGroup*>(selected_nodes_.first());
 }
 
 NodeViewItem *NodeView::UpdateNodeItem(Node *node, bool ignore_own_context)

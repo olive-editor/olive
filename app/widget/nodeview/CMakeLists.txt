@@ -19,6 +19,8 @@ set(OLIVE_SOURCES
   widget/nodeview/nodeview.cpp
   widget/nodeview/nodeview.h
   widget/nodeview/nodeviewcommon.h
+  widget/nodeview/nodeviewcontext.cpp
+  widget/nodeview/nodeviewcontext.h
   widget/nodeview/nodeviewedge.cpp
   widget/nodeview/nodeviewedge.h
   widget/nodeview/nodeviewitem.cpp

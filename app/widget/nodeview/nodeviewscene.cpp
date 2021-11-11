@@ -194,6 +194,31 @@ void NodeViewScene::RemoveEdge(Node *output, const NodeInput &input)
   }
 }
 
+NodeViewContext *NodeViewScene::AddContext(Node *node)
+{
+  NodeViewContext *context_item = context_map_.value(node);
+
+  if (!context_item) {
+    context_item = new NodeViewContext();
+    context_item->SetContext(node);
+    context_item->setPos(0, 0);
+    addItem(context_item);
+
+    const NodeGraph::PositionMap &map = node->parent()->GetNodesForContext(node);
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      context_item->AddChild(it.key());
+    }
+    context_item->UpdateRect();
+  }
+
+  return context_item;
+}
+
+void NodeViewScene::RemoveContext(Node *node)
+{
+  delete context_map_.take(node);
+}
+
 int NodeViewScene::DetermineWeight(Node *n)
 {
   QVector<Node*> inputs = n->GetImmediateDependencies();

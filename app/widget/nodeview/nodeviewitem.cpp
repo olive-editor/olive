@@ -406,6 +406,10 @@ QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
 {
   if (change == ItemPositionHasChanged && node_) {
     ReadjustAllEdges();
+
+    if (NodeViewContext *ctx = dynamic_cast<NodeViewContext*>(parentItem())) {
+      ctx->UpdateRect();
+    }
   }
 
   return QGraphicsItem::itemChange(change, value);

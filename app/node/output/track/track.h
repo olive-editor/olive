@@ -168,17 +168,46 @@ public:
 
     QString ToString() const
     {
-      QString type_string;
-
-      if (type_ == Track::kVideo) {
-        type_string = QStringLiteral("v");
-      } else if (type_ == Track::kAudio) {
-        type_string = QStringLiteral("a");
-      } else {
+      QString type_string = TypeToString(type_);
+      if (type_string.isEmpty()) {
         return QString();
+      } else {
+        return QStringLiteral("%1:%2").arg(type_string, QString::number(index_));
+      }
+    }
+
+    /// For IDs that shouldn't change between localizations
+    static QString TypeToString(Type type)
+    {
+      switch (type) {
+      case kVideo:
+        return QStringLiteral("v");
+      case kAudio:
+        return QStringLiteral("a");
+      case kSubtitle:
+        return QStringLiteral("s");
+      case kCount:
+        break;
       }
 
-      return QStringLiteral("%1:%2").arg(type_string, QString::number(index_));
+      return QString();
+    }
+
+    /// For human-facing strings
+    static QString TypeToTranslatedString(Type type)
+    {
+      switch (type) {
+      case kVideo:
+        return tr("V");
+      case kAudio:
+        return tr("A");
+      case kSubtitle:
+        return tr("S");
+      case kCount:
+        break;
+      }
+
+      return QString();
     }
 
     static Type TypeFromString(const QString& s)

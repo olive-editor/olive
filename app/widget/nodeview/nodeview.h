@@ -27,6 +27,7 @@
 #include "node/graph.h"
 #include "node/nodecopypaste.h"
 #include "nodeviewedge.h"
+#include "nodeviewcontext.h"
 #include "nodeviewminimap.h"
 #include "nodeviewscene.h"
 #include "widget/handmovableview/handmovableview.h"
@@ -302,6 +303,10 @@ private slots:
   void MoveToScenePoint(const QPointF &pos);
 
   void RepositionContexts();
+
+  void GroupNodes();
+
+  void UngroupNodes();
 
 };
 
