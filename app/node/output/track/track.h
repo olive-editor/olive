@@ -26,6 +26,8 @@
 
 namespace olive {
 
+class Sequence;
+
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
  */
@@ -388,8 +390,17 @@ public:
 
   bool IsLocked() const;
 
-
   int GetArrayIndexFromBlock(Block* block) const;
+
+  Sequence *sequence() const
+  {
+    return sequence_;
+  }
+
+  void set_sequence(Sequence *sequence)
+  {
+    sequence_ = sequence;
+  }
 
   static const double kTrackHeightDefault;
   static const double kTrackHeightMinimum;
@@ -471,6 +482,8 @@ private:
   int index_;
 
   bool locked_;
+
+  Sequence *sequence_;
 
 private slots:
   void BlockLengthChanged();

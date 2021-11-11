@@ -38,19 +38,13 @@ void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
 {
   direction_ = direction;
 
-  {
-    // Iterate over node items setting direction
-    QHash<Node*, NodeViewItem*>::const_iterator i;
-    for (i=item_map_.constBegin(); i!=item_map_.constEnd(); i++) {
-      i.value()->SetFlowDirection(direction_);
-    }
+  foreach (NodeViewContext *ctx, context_map_) {
+    ctx->SetFlowDirection(direction_);
   }
 
-  {
-    // Iterate over edge items setting direction
-    foreach (NodeViewEdge* edge, edges_) {
-      edge->SetFlowDirection(direction_);
-    }
+  // Iterate over edge items setting direction
+  foreach (NodeViewEdge* edge, edges_) {
+    edge->SetFlowDirection(direction_);
   }
 }
 
@@ -66,7 +60,6 @@ void NodeViewScene::clear()
   selectedItems();
 
   for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
-    DisconnectNode(it.key());
     delete it.value();
   }
   item_map_.clear();
@@ -150,28 +143,6 @@ QVector<NodeViewEdge *> NodeViewScene::GetSelectedEdges() const
   return edges;
 }
 
-NodeViewItem* NodeViewScene::AddNode(Node* node)
-{
-  NodeViewItem* item = new NodeViewItem();
-
-  item->SetFlowDirection(direction_);
-  item->SetNode(node);
-
-  addItem(item);
-  item_map_.insert(node, item);
-
-  ConnectNode(node);
-
-  return item;
-}
-
-void NodeViewScene::RemoveNode(Node *node)
-{
-  DisconnectNode(node);
-
-  delete item_map_.take(node);
-}
-
 NodeViewEdge* NodeViewScene::AddEdge(Node *output, const NodeInput &input)
 {
   NodeViewEdge *edge = EdgeToUIObject(output, input);
@@ -202,6 +173,8 @@ NodeViewContext *NodeViewScene::AddContext(Node *node)
     context_item = new NodeViewContext();
     context_item->SetContext(node);
     context_item->setPos(0, 0);
+    context_item->SetFlowDirection(GetFlowDirection());
+    context_item->SetCurvedEdges(GetEdgesAreCurved());
     addItem(context_item);
 
     const NodeGraph::PositionMap &map = node->parent()->GetNodesForContext(node);
@@ -209,6 +182,8 @@ NodeViewContext *NodeViewScene::AddContext(Node *node)
       context_item->AddChild(it.key());
     }
     context_item->UpdateRect();
+
+    context_map_.insert(node, context_item);
   }
 
   return context_item;
@@ -250,18 +225,6 @@ NodeViewEdge* NodeViewScene::AddEdgeInternal(Node *output, const NodeInput& inpu
   return edge_ui;
 }
 
-void NodeViewScene::ConnectNode(Node *n)
-{
-  connect(n, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  connect(n, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
-}
-
-void NodeViewScene::DisconnectNode(Node *n)
-{
-  disconnect(n, &Node::ColorChanged, this, &NodeViewScene::NodeAppearanceChanged);
-  disconnect(n, &Node::LabelChanged, this, &NodeViewScene::NodeAppearanceChanged);
-}
-
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
 {
   return NodeViewCommon::GetFlowOrientation(direction_);
@@ -281,12 +244,6 @@ void NodeViewScene::SetEdgesAreCurved(bool curved)
       e->SetCurved(curved_edges_);
     }
   }
-}
-
-void NodeViewScene::NodeAppearanceChanged()
-{
-  // Force item to update
-  item_map_.value(static_cast<Node*>(sender()))->update();
 }
 
 }

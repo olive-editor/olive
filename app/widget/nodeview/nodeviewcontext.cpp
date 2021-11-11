@@ -6,8 +6,11 @@
 #include <QPen>
 #include <QStyleOptionGraphicsItem>
 
+#include "core.h"
 #include "node/block/block.h"
+#include "node/graph.h"
 #include "node/output/track/track.h"
+#include "node/project/sequence/sequence.h"
 #include "nodeviewitem.h"
 #include "ui/colorcoding.h"
 
@@ -31,11 +34,12 @@ void NodeViewContext::SetContext(Node *node)
 
   if (context_) {
     if (Block *block = dynamic_cast<Block*>(node)) {
+      rational timebase = block->track()->sequence()->GetVideoParams().frame_rate_as_time_base();
       lbl_ = QCoreApplication::translate("NodeViewContext",
-                                                "%1 [%2] :: %3 - %4").arg(block->GetLabelAndName(),
-                                                                     Track::Reference::TypeToTranslatedString(block->track()->type()),
-                                                                     block->in().toString(),
-                                                                     block->out().toString());
+                                         "%1 [%2] :: %3 - %4").arg(block->GetLabelAndName(),
+                                                                   Track::Reference::TypeToTranslatedString(block->track()->type()),
+                                                                   Timecode::time_to_timecode(block->in(), timebase, Core::instance()->GetTimecodeDisplay()),
+                                                                   Timecode::time_to_timecode(block->out(), timebase, Core::instance()->GetTimecodeDisplay()));
     } else {
       lbl_ = node->GetLabelAndName();
     }
@@ -52,8 +56,38 @@ void NodeViewContext::SetContext(Node *node)
 
 void NodeViewContext::AddChild(Node *node)
 {
+  if (!context_) {
+    return;
+  }
+
   NodeViewItem *item = new NodeViewItem(this);
   item->SetNode(node);
+  item->SetNodePosition(context_->parent()->GetNodesForContext(context_).value(node));
+  item->SetFlowDirection(flow_dir_);
+
+  if (node == context_) {
+    item->SetLabelAsOutput(true);
+  }
+
+  for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+    foreach (auto child, childItems()) {
+      if (NodeViewItem *other_item = dynamic_cast<NodeViewItem*>(child)) {
+        if (other_item->GetNode() == it->second.node()) {
+          AddEdgeInternal(node, it->second, item, other_item);
+        }
+      }
+    }
+  }
+
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    foreach (auto child, childItems()) {
+      if (NodeViewItem *other_item = dynamic_cast<NodeViewItem*>(child)) {
+        if (it->second == other_item->GetNode()) {
+          AddEdgeInternal(it->second, it->first, other_item, item);
+        }
+      }
+    }
+  }
 }
 
 qreal GetTextOffset(const QFontMetricsF &fm)
@@ -75,10 +109,29 @@ void NodeViewContext::UpdateRect()
 
 void NodeViewContext::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
-  auto children = childItems();
-  foreach (auto child, children) {
+  flow_dir_ = dir;
+
+  foreach (auto child, childItems()) {
     if (NodeViewItem *item = dynamic_cast<NodeViewItem*>(child)) {
       item->SetFlowDirection(dir);
+    }
+  }
+
+  foreach (auto child, childItems()) {
+    if (NodeViewEdge *edge = dynamic_cast<NodeViewEdge*>(child)) {
+      edge->SetFlowDirection(dir);
+    }
+  }
+}
+
+void NodeViewContext::SetCurvedEdges(bool e)
+{
+  curved_edges_ = e;
+
+  const QList<QGraphicsItem*> &children = childItems();
+  foreach (auto child, children) {
+    if (NodeViewEdge *edge = dynamic_cast<NodeViewEdge*>(child)) {
+      edge->SetCurved(e);
     }
   }
 }
@@ -97,7 +150,7 @@ void NodeViewContext::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
   int rounded = painter->fontMetrics().height();
   painter->drawRoundedRect(rect(), rounded, rounded);
 
-  painter->setPen(context_ ? ColorCoding::GetUISelectorColor(context_->color()) : Qt::white);
+  painter->setPen(widget->palette().text().color());
 
   int offset = GetTextOffset(painter->fontMetrics());
 
@@ -109,6 +162,19 @@ void NodeViewContext::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 QVariant NodeViewContext::itemChange(GraphicsItemChange change, const QVariant &value)
 {
   return super::itemChange(change, value);
+}
+
+NodeViewEdge* NodeViewContext::AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+{
+  NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to, this);
+
+  edge_ui->SetFlowDirection(flow_dir_);
+  edge_ui->SetCurved(curved_edges_);
+
+  from->AddEdge(edge_ui);
+  to->AddEdge(edge_ui);
+
+  return edge_ui;
 }
 
 }

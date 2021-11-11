@@ -397,7 +397,7 @@ void ImportTool::DropGhosts(bool insert)
       command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0), false));
 
       // Position footage in its context
-      command->add_child(new NodeSetPositionCommand(footage_stream.footage, clip, QPointF(-2, 0), false));
+      command->add_child(new NodeSetPositionCommand(footage_stream.footage, clip, QPointF(-3, 0), false));
 
       switch (Track::Reference::TypeFromString(footage_stream.output)) {
       case Track::kVideo:
@@ -409,7 +409,7 @@ void ImportTool::DropGhosts(bool insert)
 
         command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
         command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(-1, 0), false));
+        command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(-2, 0), false));
         break;
       }
       case Track::kAudio:
@@ -421,7 +421,7 @@ void ImportTool::DropGhosts(bool insert)
 
         command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
         command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(-1, 0), false));
+        command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(-2, 0), false));
         break;
       }
       default:

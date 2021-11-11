@@ -46,7 +46,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   hide_titlebar_(false),
   highlighted_index_(-1),
   flow_dir_(NodeViewCommon::kLeftToRight),
-  prevent_removing_(false)
+  prevent_removing_(false),
+  label_as_output_(false)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -66,7 +67,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
 
-  output_triangle_.resize(3);
+  input_connector_ = new NodeViewItemConnector(this);
+  output_connector_ = new NodeViewItemConnector(this);
 }
 
 QPointF NodeViewItem::GetNodePosition() const
@@ -208,6 +210,11 @@ int NodeViewItem::GetIndexAt(QPointF pt) const
 
 void NodeViewItem::SetNode(Node *n)
 {
+  if (node_) {
+    disconnect(n, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
+    disconnect(n, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
+  }
+
   node_ = n;
 
   node_inputs_.clear();
@@ -220,6 +227,11 @@ void NodeViewItem::SetNode(Node *n)
         node_inputs_.append(input);
       }
     }
+
+    input_connector_->setVisible(!node_inputs_.isEmpty());
+
+    connect(n, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
+    connect(n, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
   }
 
   update();
@@ -234,6 +246,7 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 
   expanded_ = e;
   hide_titlebar_ = hide_titlebar;
+  input_connector_->setVisible(!expanded_);
 
   if (expanded_ && !node_inputs_.isEmpty()) {
     // Create new rect
@@ -252,7 +265,11 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 
   update();
 
+  UpdateConnectorPositions();
+
   ReadjustAllEdges();
+
+  UpdateContextRect();
 }
 
 void NodeViewItem::ToggleExpanded()
@@ -298,8 +315,14 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     painter->setPen(app_pal.color(QPalette::Text));
 
-    QString node_label = node_->GetLabel();
-    QString node_shortname = node_->ShortName();
+    QString node_label, node_shortname;
+
+    if (label_as_output_) {
+      node_shortname = QCoreApplication::translate("NodeViewItem", "Output");
+    } else {
+      node_label = node_->GetLabel();
+      node_shortname = node_->ShortName();
+    }
 
     int icon_size = painter->fontMetrics().height()/2;
 
@@ -335,41 +358,6 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->setBrush(Qt::NoBrush);
 
   painter->drawRect(rect());
-
-  // Draw output triangle
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(app_pal.color(QPalette::Text));
-  int triangle_sz = title_bar_rect_.height() / 2;
-  int triangle_sz_half = triangle_sz / 2;
-
-  switch (flow_dir_) {
-  case NodeViewCommon::kLeftToRight:
-    // Triangle pointing right
-    output_triangle_[0] = QPointF(rect().right(), rect().center().y() - triangle_sz_half);
-    output_triangle_[1] = QPointF(rect().right() + triangle_sz_half, rect().center().y());
-    output_triangle_[2] = QPointF(rect().right(), rect().center().y() + triangle_sz_half);
-    break;
-  case NodeViewCommon::kTopToBottom:
-    // Triangle pointing down
-    output_triangle_[0] = QPointF(rect().center().x() - triangle_sz_half, rect().bottom());
-    output_triangle_[1] = QPointF(rect().center().x(), rect().bottom() + triangle_sz_half);
-    output_triangle_[2] = QPointF(rect().center().x() + triangle_sz_half, rect().bottom());
-    break;
-  case NodeViewCommon::kBottomToTop:
-    // Triangle pointing up
-    output_triangle_[0] = QPointF(rect().center().x() - triangle_sz_half, rect().top());
-    output_triangle_[1] = QPointF(rect().center().x(), rect().top() - triangle_sz_half);
-    output_triangle_[2] = QPointF(rect().center().x() + triangle_sz_half, rect().top());
-    break;
-  case NodeViewCommon::kRightToLeft:
-    // Triangle pointing left
-    output_triangle_[0] = QPointF(rect().left(), rect().center().y() - triangle_sz_half);
-    output_triangle_[1] = QPointF(rect().left() - triangle_sz_half, rect().center().y());
-    output_triangle_[2] = QPointF(rect().left(), rect().center().y() + triangle_sz_half);
-    break;
-  }
-
-  painter->drawPolygon(output_triangle_);
 }
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -407,9 +395,7 @@ QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
   if (change == ItemPositionHasChanged && node_) {
     ReadjustAllEdges();
 
-    if (NodeViewContext *ctx = dynamic_cast<NodeViewContext*>(parentItem())) {
-      ctx->UpdateRect();
-    }
+    UpdateContextRect();
   }
 
   return QGraphicsItem::itemChange(change, value);
@@ -419,6 +405,13 @@ void NodeViewItem::ReadjustAllEdges()
 {
   foreach (NodeViewEdge* edge, edges_) {
     edge->Adjust();
+  }
+}
+
+void NodeViewItem::UpdateContextRect()
+{
+  if (NodeViewContext *ctx = dynamic_cast<NodeViewContext*>(parentItem())) {
+    ctx->UpdateRect();
   }
 }
 
@@ -487,6 +480,13 @@ void NodeViewItem::SetHighlightedIndex(int index)
   update();
 }
 
+void NodeViewItem::SetLabelAsOutput(bool e)
+{
+  label_as_output_ = e;
+  output_connector_->setVisible(!e);
+  update();
+}
+
 QRectF NodeViewItem::GetInputRect(int index) const
 {
   QRectF r = title_bar_rect_;
@@ -504,28 +504,45 @@ QRectF NodeViewItem::GetInputRect(int index) const
 
 QPointF NodeViewItem::GetInputPoint(const QString &input, int element, const QPointF& source_pos) const
 {
-  return pos() + GetInputPointInternal(node_inputs_.indexOf(input), source_pos);
+  if (expanded_) {
+    return pos() + GetInputPointInternal(node_inputs_.indexOf(input), source_pos);
+  } else {
+    return pos() + input_connector_->pos();
+  }
 }
 
 QPointF NodeViewItem::GetOutputPoint() const
 {
+  QPointF p = pos() + output_connector_->pos();
+  QRectF r = output_connector_->boundingRect();
+
   switch (flow_dir_) {
   case NodeViewCommon::kLeftToRight:
   default:
-    return pos() + QPointF(rect().right(), rect().center().y());
+    p.setX(p.x() + r.width());
+    break;
   case NodeViewCommon::kRightToLeft:
-    return pos() + QPointF(rect().left(), rect().center().y());
+    p.setX(p.x() - r.width());
+    break;
   case NodeViewCommon::kTopToBottom:
-    return pos() + QPointF(rect().center().x(), rect().bottom());
+    p.setY(p.y() + r.height());
+    break;
   case NodeViewCommon::kBottomToTop:
-    return pos() + QPointF(rect().center().x(), rect().top());
+    p.setY(p.y() - r.height());
+    break;
   }
+
+  return p;
 }
 
 void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
   flow_dir_ = dir;
 
+  input_connector_->SetFlowDirection(dir);
+  output_connector_->SetFlowDirection(dir);
+
+  UpdateConnectorPositions();
   UpdateNodePosition();
 }
 
@@ -554,6 +571,35 @@ QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos
 void NodeViewItem::UpdateNodePosition()
 {
   setPos(NodeToScreenPoint(cached_node_pos_, flow_dir_));
+}
+
+void NodeViewItem::UpdateConnectorPositions()
+{
+  QRectF output_rect = output_connector_->boundingRect();
+
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    input_connector_->setPos(rect().left() - output_rect.width(), rect().center().y());
+    output_connector_->setPos(rect().right(), rect().center().y());
+    break;
+  case NodeViewCommon::kRightToLeft:
+    input_connector_->setPos(rect().right() + output_rect.width(), rect().center().y());
+    output_connector_->setPos(rect().left(), rect().center().y());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    input_connector_->setPos(rect().center().x(), rect().top() - output_rect.height());
+    output_connector_->setPos(rect().center().x(), rect().bottom());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    input_connector_->setPos(rect().center().x(), rect().bottom() + output_rect.height());
+    output_connector_->setPos(rect().center().x(), rect().top());
+    break;
+  }
+}
+
+void NodeViewItem::NodeAppearanceChanged()
+{
+  update();
 }
 
 }

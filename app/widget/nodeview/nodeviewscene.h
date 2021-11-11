@@ -81,22 +81,6 @@ public:
   }
 
 public slots:
-  /**
-   * @brief Slot when a Node is added to a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To add a Node to the NodeGraph
-   * use NodeGraph::AddNode().
-   */
-  NodeViewItem *AddNode(Node* node);
-
-  /**
-   * @brief Slot when a Node is removed from a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To remove a Node from the NodeGraph
-   * use NodeGraph::RemoveNode().
-   */
-  void RemoveNode(Node* node);
-
   NodeViewEdge *AddEdge(Node *output, const NodeInput& input);
   void RemoveEdge(Node *output, const NodeInput& input);
 
@@ -113,10 +97,6 @@ private:
 
   NodeViewEdge* AddEdgeInternal(Node *output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
 
-  void ConnectNode(Node *n);
-
-  void DisconnectNode(Node *n);
-
   QHash<Node*, NodeViewContext*> context_map_;
 
   QHash<Node*, NodeViewItem*> item_map_;
@@ -128,12 +108,6 @@ private:
   NodeViewCommon::FlowDirection direction_;
 
   bool curved_edges_;
-
-private slots:
-  /**
-   * @brief Receiver for when a node's label has changed
-   */
-  void NodeAppearanceChanged();
 
 };
 

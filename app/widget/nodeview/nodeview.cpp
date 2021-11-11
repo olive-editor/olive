@@ -847,7 +847,7 @@ void NodeView::UpdateSelectionCache()
 
 void NodeView::ShowContextMenu(const QPoint &pos)
 {
-  if (!graph_) {
+  if (filter_nodes_.isEmpty()) {
     return;
   }
 
@@ -1023,7 +1023,6 @@ void NodeView::RemoveNode(Node *node)
     scene_.RemoveEdge(it->second, it->first);
   }
   positions_.remove(scene_.item_map().value(node));
-  scene_.RemoveNode(node);
 }
 
 void NodeView::AddEdge(Node *output, const NodeInput &input)
@@ -1645,8 +1644,6 @@ NodeViewItem *NodeView::UpdateNodeItem(Node *node, bool ignore_own_context)
   // Get UI item or create if it doesn't exist
   NodeViewItem *item = scene_.item_map().value(node);
   if (!item) {
-    item = scene_.AddNode(node);
-
     for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
       if (scene_.item_map().contains(it->second)) {
         scene_.AddEdge(it->second, it->first);

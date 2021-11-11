@@ -25,6 +25,8 @@ set(OLIVE_SOURCES
   widget/nodeview/nodeviewedge.h
   widget/nodeview/nodeviewitem.cpp
   widget/nodeview/nodeviewitem.h
+  widget/nodeview/nodeviewitemconnector.cpp
+  widget/nodeview/nodeviewitemconnector.h
   widget/nodeview/nodeviewminimap.cpp
   widget/nodeview/nodeviewminimap.h
   widget/nodeview/nodeviewscene.cpp

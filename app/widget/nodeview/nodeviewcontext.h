@@ -6,6 +6,7 @@
 
 #include "node/node.h"
 #include "nodeviewcommon.h"
+#include "nodeviewedge.h"
 
 namespace olive {
 
@@ -22,15 +23,23 @@ public:
 
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
+  void SetCurvedEdges(bool e);
+
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 protected:
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
 private:
+  NodeViewEdge *AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to);
+
   Node *context_;
 
   QString lbl_;
+
+  NodeViewCommon::FlowDirection flow_dir_;
+
+  bool curved_edges_;
 
 };
 

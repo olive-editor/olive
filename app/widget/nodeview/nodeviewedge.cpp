@@ -128,9 +128,11 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->drawPath(path());
 
   // Draw arrow
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(edge_color);
-  painter->drawPolygon(arrow_);
+  if (!connected_) {
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(edge_color);
+    painter->drawPolygon(arrow_);
+  }
 }
 
 void NodeViewEdge::Init()

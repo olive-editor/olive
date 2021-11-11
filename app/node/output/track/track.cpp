@@ -41,7 +41,8 @@ const QString Track::kMutedInput = QStringLiteral("muted_in");
 Track::Track() :
   track_type_(Track::kNone),
   index_(-1),
-  locked_(false)
+  locked_(false),
+  sequence_(nullptr)
 {
   AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
 

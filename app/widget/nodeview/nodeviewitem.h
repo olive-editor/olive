@@ -28,6 +28,7 @@
 
 #include "node/node.h"
 #include "nodeviewcommon.h"
+#include "nodeviewitemconnector.h"
 
 namespace olive {
 
@@ -40,8 +41,9 @@ class NodeViewEdge;
  *
  * To retrieve the NodeViewItem for a certain Node, use NodeView::NodeToUIObject().
  */
-class NodeViewItem : public QGraphicsRectItem
+class NodeViewItem : public QObject, public QGraphicsRectItem
 {
+  Q_OBJECT
 public:
   NodeViewItem(QGraphicsItem* parent = nullptr);
 
@@ -125,10 +127,12 @@ public:
     return prevent_removing_;
   }
 
-  const QPolygonF &GetOutputTriangle() const
+  QPolygonF GetOutputTriangle() const
   {
-    return output_triangle_;
+    return output_connector_->polygon();
   }
+
+  void SetLabelAsOutput(bool e);
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -142,6 +146,8 @@ protected:
 
 private:
   void ReadjustAllEdges();
+
+  void UpdateContextRect();
 
   void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, int icon_size, bool draw_arrow);
 
@@ -159,6 +165,8 @@ private:
    * @brief Internal update function when logical position changes
    */
   void UpdateNodePosition();
+
+  void UpdateConnectorPositions();
 
   /**
    * @brief Reference to attached Node
@@ -195,7 +203,13 @@ private:
 
   bool prevent_removing_;
 
-  QPolygonF output_triangle_;
+  NodeViewItemConnector *input_connector_;
+  NodeViewItemConnector *output_connector_;
+
+  bool label_as_output_;
+
+private slots:
+  void NodeAppearanceChanged();
 
 };
 
