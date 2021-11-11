@@ -189,6 +189,7 @@ public:
       case kSubtitle:
         return QStringLiteral("s");
       case kCount:
+      case kNone:
         break;
       }
 
@@ -206,6 +207,7 @@ public:
       case kSubtitle:
         return tr("S");
       case kCount:
+      case kNone:
         break;
       }
 

@@ -1636,7 +1636,7 @@ void NodeView::GroupNodes()
 
 void NodeView::UngroupNodes()
 {
-  static_cast<NodeGroup*>(selected_nodes_.first());
+  //static_cast<NodeGroup*>(selected_nodes_.first());
 }
 
 NodeViewItem *NodeView::UpdateNodeItem(Node *node, bool ignore_own_context)
