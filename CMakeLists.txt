@@ -81,8 +81,7 @@ list(APPEND OLIVE_LIBRARIES ${OPENEXR_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
 
 # Link Qt 5
-find_package(Qt5 5.6 REQUIRED
-  COMPONENTS
+set(QT_LIBRARIES
   Core
   Gui
   Widgets
@@ -90,8 +89,15 @@ find_package(Qt5 5.6 REQUIRED
   Svg
   LinguistTools
   Concurrent
+)
+if (UNIX AND NOT APPLE)
+  list(APPEND QT_LIBRARIES DBus)
+endif()
+find_package(Qt5 5.6 REQUIRED
+  COMPONENTS
+    ${QT_LIBRARIES}
   OPTIONAL_COMPONENTS
-  Network
+    Network
 )
 if (NOT Qt5Network_FOUND)
   message("   Qt5::Network module not found, crash reporting will be disabled.")
@@ -158,6 +164,8 @@ endif()
 
 if (APPLE)
   list(APPEND OLIVE_LIBRARIES "-framework IOKit")
+elseif(UNIX)
+  list(APPEND OLIVE_LIBRARIES Qt5::DBus)
 endif()
 
 # Generate Git hash
