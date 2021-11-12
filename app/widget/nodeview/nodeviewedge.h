@@ -70,11 +70,6 @@ public:
     return to_item_;
   }
 
-  const QRectF arrow_bounding_rect() const
-  {
-    return arrow_bounding_rect_;
-  }
-
   void Adjust();
 
   /**
@@ -143,12 +138,6 @@ private:
   NodeViewCommon::FlowDirection flow_dir_;
 
   bool curved_;
-
-  QPolygonF arrow_;
-
-  int arrow_size_;
-
-  QRectF arrow_bounding_rect_;
 
   QPointF cached_start_;
   QPointF cached_end_;

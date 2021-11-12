@@ -29,8 +29,9 @@
 
 namespace olive {
 
-NodeViewItemConnector::NodeViewItemConnector(QGraphicsItem *parent) :
-  QGraphicsPolygonItem(parent)
+NodeViewItemConnector::NodeViewItemConnector(bool is_output, QGraphicsItem *parent) :
+  QGraphicsPolygonItem(parent),
+  output_(is_output)
 {
   QColor c = qApp->palette().text().color();
   setPen(QPen(c, NodeViewItem::DefaultItemBorder()));

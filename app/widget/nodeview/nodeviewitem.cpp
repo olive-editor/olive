@@ -67,7 +67,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
 
-  output_connector_ = new NodeViewItemConnector(this);
+  output_connector_ = new NodeViewItemConnector(true, this);
 }
 
 QPointF NodeViewItem::GetNodePosition() const
@@ -196,7 +196,7 @@ void NodeViewItem::RemoveEdge(NodeViewEdge *edge)
 
 int NodeViewItem::GetIndexAt(QPointF pt) const
 {
-  pt -= pos();
+  pt -= this->scenePos();
 
   for (int i=0; i<node_inputs_.size(); i++) {
     if (GetInputRect(i).contains(pt)) {
@@ -217,8 +217,7 @@ void NodeViewItem::SetNode(Node *n)
   node_ = n;
 
   node_inputs_.clear();
-
-  ClearInputConnectors();
+  input_connectors_.clear();
 
   if (node_) {
     node_->Retranslate();
@@ -473,6 +472,17 @@ void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& 
                     text);
 }
 
+NodeViewEdge *NodeViewItem::GetEdgeFromInputIndex(int index)
+{
+  foreach (NodeViewEdge *edge, edges_) {
+    if (edge->input().input() == node_inputs_.at(index)) {
+      return edge;
+    }
+  }
+
+  return nullptr;
+}
+
 void NodeViewItem::SetHighlightedIndex(int index)
 {
   if (highlighted_index_ == index) {
@@ -489,6 +499,23 @@ void NodeViewItem::SetLabelAsOutput(bool e)
   label_as_output_ = e;
   output_connector_->setVisible(!e);
   update();
+}
+
+NodeViewEdge *NodeViewItem::GetEdgeFromInputConnector(NodeViewItemConnector *connector)
+{
+  ssize_t index = -1;
+  for (ssize_t i=0; i<ssize_t(input_connectors_.size()); i++) {
+    if (input_connectors_[i].get() == connector) {
+      index = i;
+      break;
+    }
+  }
+
+  if (index == -1) {
+    return nullptr;
+  } else {
+    return GetEdgeFromInputIndex(index);
+  }
 }
 
 QRectF NodeViewItem::GetInputRect(int index) const
@@ -514,12 +541,12 @@ QPointF NodeViewItem::GetInputPoint(const QString &input, int element) const
     return QPointF();
   }
 
-  return pos() + input_connectors_[index]->pos();
+  return input_connectors_[index]->scenePos();
 }
 
 QPointF NodeViewItem::GetOutputPoint() const
 {
-  QPointF p = pos() + output_connector_->pos();
+  QPointF p = output_connector_->scenePos();
   QRectF r = output_connector_->boundingRect();
 
   switch (flow_dir_) {
@@ -563,13 +590,8 @@ void NodeViewItem::UpdateInputConnectors()
 
   input_connectors_.resize(node_inputs_.size());
   for (size_t i=old_sz; i<input_connectors_.size(); i++) {
-    input_connectors_[i] = std::make_unique<NodeViewItemConnector>(this);
+    input_connectors_[i] = std::make_unique<NodeViewItemConnector>(false, this);
   }
-}
-
-void NodeViewItem::ClearInputConnectors()
-{
-  input_connectors_.clear();
 }
 
 void NodeViewItem::UpdateConnectorPositions()
@@ -627,16 +649,13 @@ NodeViewCommon::FlowDirection NodeViewItem::GetFlowDirectionForInput(int index)
   if (!expanded_ || NodeViewCommon::IsFlowHorizontal(flow_dir_)) {
     return flow_dir_;
   } else {
-    foreach (NodeViewEdge *edge, edges_) {
-      if (edge->input().input() == node_inputs_.at(index)) {
-        if (edge->from_item()->x() < this->x()) {
-          return NodeViewCommon::kLeftToRight;
-        } else {
-          return NodeViewCommon::kRightToLeft;
-        }
-      }
+    NodeViewEdge *edge = GetEdgeFromInputIndex(index);
+
+    if (!edge || edge->from_item()->x() < this->x()) {
+      return NodeViewCommon::kLeftToRight;
+    } else {
+      return NodeViewCommon::kRightToLeft;
     }
-    return NodeViewCommon::kLeftToRight;
   }
 }
 

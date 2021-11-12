@@ -127,12 +127,9 @@ public:
     return prevent_removing_;
   }
 
-  QPolygonF GetOutputTriangle() const
-  {
-    return output_connector_->polygon();
-  }
-
   void SetLabelAsOutput(bool e);
+
+  NodeViewEdge *GetEdgeFromInputConnector(NodeViewItemConnector *connector);
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -151,6 +148,8 @@ private:
 
   void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, int icon_size, bool draw_arrow);
 
+  NodeViewEdge *GetEdgeFromInputIndex(int index);
+
   /**
    * @brief Returns local rect of a NodeInput in array node_inputs_[index]
    */
@@ -162,8 +161,6 @@ private:
   void UpdateNodePosition();
 
   void UpdateInputConnectors();
-
-  void ClearInputConnectors();
 
   void UpdateConnectorPositions();
 

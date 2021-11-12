@@ -126,13 +126,6 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->setPen(QPen(edge_color, edge_width_));
   painter->setBrush(Qt::NoBrush);
   painter->drawPath(path());
-
-  // Draw arrow
-  if (!connected_) {
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(edge_color);
-    painter->drawPolygon(arrow_);
-  }
 }
 
 void NodeViewEdge::Init()
@@ -149,7 +142,6 @@ void NodeViewEdge::Init()
 
   // Use font metrics to set edge width for basic high DPI support
   edge_width_ = QFontMetrics(QFont()).height() / 12;
-  arrow_size_ = QFontMetrics(QFont()).height() / 2;
 }
 
 void NodeViewEdge::UpdateCurve()
@@ -185,7 +177,7 @@ void NodeViewEdge::UpdateCurve()
     path.cubicTo(cp1, cp2, end);
 
     if (!qFuzzyCompare(start.x(), end.x())) {
-      double continue_x = end.x() - qCos(angle)*arrow_size_;
+      double continue_x = end.x() - qCos(angle);
 
       double x1 = start.x();
       double x2 = cp1.x();
@@ -215,18 +207,7 @@ void NodeViewEdge::UpdateCurve()
 
   }
 
-  setPath(path);
-
-  const double arrow_angle = 150.0 * M_PI / 180.0;
-  QVector<QPointF> arrow_points(4);
-  arrow_points[0] = end;
-  arrow_points[1] = end + QPointF(qCos(angle + arrow_angle) * arrow_size_, qSin(angle + arrow_angle) * arrow_size_);
-  arrow_points[2] = end + QPointF(qCos(angle - arrow_angle) * arrow_size_, qSin(angle - arrow_angle) * arrow_size_);
-  arrow_points[3] = end;
-
-  arrow_ = QPolygonF(arrow_points);
-  arrow_bounding_rect_ = arrow_.boundingRect();
-  arrow_bounding_rect_.adjust(-arrow_size_, -arrow_size_, arrow_size_, arrow_size_);
+  setPath(mapFromScene(path));
 }
 
 }

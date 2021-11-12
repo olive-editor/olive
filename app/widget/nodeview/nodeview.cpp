@@ -473,29 +473,26 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (HandPress(event)) return;
 
+  QGraphicsItem* item = itemAt(event->pos());
+
   if (event->button() == Qt::LeftButton) {
-    // See if we're dragging the arrow of an edge
-    QPointF scene_pt = mapToScene(event->pos());
-
-    for (NodeViewEdge *edge_item : scene_.edges()) {
-      if (edge_item->arrow_bounding_rect().contains(scene_pt)) {
-        create_edge_src_ = scene_.NodeToUIObject(edge_item->output());
-        create_edge_ = edge_item;
-        create_edge_already_exists_ = true;
+    // Determine if user clicked on a connector
+    if (NodeViewItemConnector *connector = dynamic_cast<NodeViewItemConnector *>(item)) {
+      NodeViewItem *attached_item = static_cast<NodeViewItem*>(connector->parentItem());
+      if (connector->IsOutput()) {
+        CreateNewEdge(attached_item, event->pos());
         return;
-      }
-    }
-
-    // See if we're dragging the arrow of a node
-    for (NodeViewItem *node_item : scene_.item_map()) {
-      if (node_item->GetOutputTriangle().boundingRect().translated(node_item->pos()).contains(scene_pt)) {
-        CreateNewEdge(node_item, event->pos());
+      } else {
+        NodeViewEdge *edge_item = attached_item->GetEdgeFromInputConnector(connector);
+        if (edge_item) {
+          create_edge_src_ = edge_item->from_item();
+          create_edge_ = edge_item;
+          create_edge_already_exists_ = true;
+        }
         return;
       }
     }
   }
-
-  QGraphicsItem* item = itemAt(event->pos());
 
   if (event->button() == Qt::RightButton) {
     if (!item || !item->isSelected()) {
@@ -668,13 +665,13 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     }
 
     // Update contexts
-    if (!removed_edges.empty()) {
+    /*if (!removed_edges.empty()) {
       UpdateContextsFromEdgeRemove(command, removed_edges);
     }
 
     if (added_edge.first) {
       UpdateContextsFromEdgeAdd(command, added_edge, removed_edges);
-    }
+    }*/
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
     return;
