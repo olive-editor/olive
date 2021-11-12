@@ -156,6 +156,10 @@ else()
   endif()
 endif()
 
+if (APPLE)
+  list(APPEND OLIVE_LIBRARIES "-framework IOKit")
+endif()
+
 # Generate Git hash
 set(PROJECT_LONG_VERSION ${PROJECT_VERSION})
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
