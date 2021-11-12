@@ -1535,7 +1535,7 @@ void NodeView::PositionNewEdge(const QPoint &pos)
   if (highlight_index >= 0) {
     create_edge_dst_input_ = create_edge_dst_->GetInputAtIndex(highlight_index);
     create_edge_->SetPoints(create_edge_src_->GetOutputPoint(),
-                            create_edge_dst_->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element(), create_edge_src_->pos()),
+                            create_edge_dst_->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element()),
                             true);
   } else {
     create_edge_dst_input_.Reset();

@@ -3,6 +3,7 @@
 #include <QBrush>
 #include <QCoreApplication>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 #include <QPen>
 #include <QStyleOptionGraphicsItem>
 
@@ -21,9 +22,6 @@ namespace olive {
 NodeViewContext::NodeViewContext(QGraphicsItem *item) :
   super(item)
 {
-  setFlag(ItemIsMovable);
-  setFlag(ItemIsSelectable);
-
   // Set default label text
   SetContext(nullptr);
 }
@@ -101,10 +99,13 @@ void NodeViewContext::UpdateRect()
   QFontMetricsF fm(f);
   qreal lbl_offset = GetTextOffset(fm);
 
-  QRectF rect = childrenBoundingRect();
+  QRectF cbr = childrenBoundingRect();
+  QRectF rect = cbr;
   int pad = NodeViewItem::DefaultItemHeight();
   rect.adjust(-pad, - lbl_offset*2 - fm.height() - pad, pad, pad);
   setRect(rect);
+
+  last_titlebar_height_ = rect.y() + (cbr.y() - rect.y());
 }
 
 void NodeViewContext::SetFlowDirection(NodeViewCommon::FlowDirection dir)
@@ -162,6 +163,16 @@ void NodeViewContext::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 QVariant NodeViewContext::itemChange(GraphicsItemChange change, const QVariant &value)
 {
   return super::itemChange(change, value);
+}
+
+void NodeViewContext::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  bool clicked_inside_titlebar = (event->pos().y() < last_titlebar_height_);
+
+  setFlag(ItemIsMovable, clicked_inside_titlebar);
+  setFlag(ItemIsSelectable, clicked_inside_titlebar);
+
+  super::mousePressEvent(event);
 }
 
 NodeViewEdge* NodeViewContext::AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)

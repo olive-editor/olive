@@ -30,6 +30,8 @@ public:
 protected:
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+
 private:
   NodeViewEdge *AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to);
 
@@ -40,6 +42,8 @@ private:
   NodeViewCommon::FlowDirection flow_dir_;
 
   bool curved_edges_;
+
+  int last_titlebar_height_;
 
 };
 

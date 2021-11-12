@@ -67,7 +67,6 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
 
-  input_connector_ = new NodeViewItemConnector(this);
   output_connector_ = new NodeViewItemConnector(this);
 }
 
@@ -219,6 +218,8 @@ void NodeViewItem::SetNode(Node *n)
 
   node_inputs_.clear();
 
+  ClearInputConnectors();
+
   if (node_) {
     node_->Retranslate();
 
@@ -228,7 +229,7 @@ void NodeViewItem::SetNode(Node *n)
       }
     }
 
-    input_connector_->setVisible(!node_inputs_.isEmpty());
+    UpdateInputConnectors();
 
     connect(n, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
     connect(n, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
@@ -246,7 +247,6 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 
   expanded_ = e;
   hide_titlebar_ = hide_titlebar;
-  input_connector_->setVisible(!expanded_);
 
   if (expanded_ && !node_inputs_.isEmpty()) {
     // Create new rect
@@ -263,13 +263,15 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
     setRect(title_bar_rect_);
   }
 
-  update();
+  UpdateInputConnectorFlowDirections();
 
   UpdateConnectorPositions();
 
   ReadjustAllEdges();
 
   UpdateContextRect();
+
+  update();
 }
 
 void NodeViewItem::ToggleExpanded()
@@ -403,6 +405,8 @@ QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
 
 void NodeViewItem::ReadjustAllEdges()
 {
+  UpdateInputConnectorFlowDirections();
+  UpdateInputConnectorPositions();
   foreach (NodeViewEdge* edge, edges_) {
     edge->Adjust();
   }
@@ -502,13 +506,15 @@ QRectF NodeViewItem::GetInputRect(int index) const
   return r;
 }
 
-QPointF NodeViewItem::GetInputPoint(const QString &input, int element, const QPointF& source_pos) const
+QPointF NodeViewItem::GetInputPoint(const QString &input, int element) const
 {
-  if (expanded_) {
-    return pos() + GetInputPointInternal(node_inputs_.indexOf(input), source_pos);
-  } else {
-    return pos() + input_connector_->pos();
+  int index = node_inputs_.indexOf(input);
+
+  if (index < 0 || index >= int(input_connectors_.size())) {
+    return QPointF();
   }
+
+  return pos() + input_connectors_[index]->pos();
 }
 
 QPointF NodeViewItem::GetOutputPoint() const
@@ -539,33 +545,11 @@ void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
   flow_dir_ = dir;
 
-  input_connector_->SetFlowDirection(dir);
+  UpdateInputConnectorFlowDirections();
   output_connector_->SetFlowDirection(dir);
 
   UpdateConnectorPositions();
   UpdateNodePosition();
-}
-
-QPointF NodeViewItem::GetInputPointInternal(int index, const QPointF& source_pos) const
-{
-  QRectF input_rect = GetInputRect(index);
-
-  Qt::Orientation flow_orientation = NodeViewCommon::GetFlowOrientation(flow_dir_);
-
-  if (flow_orientation == Qt::Horizontal || IsExpanded()) {
-    if (flow_dir_ == NodeViewCommon::kLeftToRight
-        || (flow_orientation == Qt::Vertical && source_pos.x() < pos().x())) {
-      return QPointF(input_rect.left(), input_rect.center().y());
-    } else {
-      return QPointF(input_rect.right(), input_rect.center().y());
-    }
-  } else {
-    if (flow_dir_ == NodeViewCommon::kTopToBottom) {
-      return QPointF(input_rect.center().x(), input_rect.top());
-    } else {
-      return QPointF(input_rect.center().x(), input_rect.bottom());
-    }
-  }
 }
 
 void NodeViewItem::UpdateNodePosition()
@@ -573,27 +557,86 @@ void NodeViewItem::UpdateNodePosition()
   setPos(NodeToScreenPoint(cached_node_pos_, flow_dir_));
 }
 
+void NodeViewItem::UpdateInputConnectors()
+{
+  int old_sz = input_connectors_.size();
+
+  input_connectors_.resize(node_inputs_.size());
+  for (size_t i=old_sz; i<input_connectors_.size(); i++) {
+    input_connectors_[i] = std::make_unique<NodeViewItemConnector>(this);
+  }
+}
+
+void NodeViewItem::ClearInputConnectors()
+{
+  input_connectors_.clear();
+}
+
 void NodeViewItem::UpdateConnectorPositions()
 {
-  QRectF output_rect = output_connector_->boundingRect();
+  UpdateInputConnectorPositions();
 
   switch (flow_dir_) {
   case NodeViewCommon::kLeftToRight:
-    input_connector_->setPos(rect().left() - output_rect.width(), rect().center().y());
-    output_connector_->setPos(rect().right(), rect().center().y());
+    output_connector_->setPos(rect().right(), title_bar_rect_.center().y());
     break;
   case NodeViewCommon::kRightToLeft:
-    input_connector_->setPos(rect().right() + output_rect.width(), rect().center().y());
-    output_connector_->setPos(rect().left(), rect().center().y());
+    output_connector_->setPos(rect().left(), title_bar_rect_.center().y());
     break;
   case NodeViewCommon::kTopToBottom:
-    input_connector_->setPos(rect().center().x(), rect().top() - output_rect.height());
     output_connector_->setPos(rect().center().x(), rect().bottom());
     break;
   case NodeViewCommon::kBottomToTop:
-    input_connector_->setPos(rect().center().x(), rect().bottom() + output_rect.height());
     output_connector_->setPos(rect().center().x(), rect().top());
     break;
+  }
+}
+
+void NodeViewItem::UpdateInputConnectorPositions()
+{
+  QRectF output_rect = output_connector_->boundingRect();
+
+  // Input connector flow directions change conditionally
+  for (size_t i=0; i<input_connectors_.size(); i++) {
+    switch (GetFlowDirectionForInput(i)) {
+    case NodeViewCommon::kLeftToRight:
+      input_connectors_[i]->setPos(rect().left() - output_rect.width(), GetInputRect(i).center().y());
+      break;
+    case NodeViewCommon::kRightToLeft:
+      input_connectors_[i]->setPos(rect().right() + output_rect.width(), GetInputRect(i).center().y());
+      break;
+    case NodeViewCommon::kTopToBottom:
+      input_connectors_[i]->setPos(rect().center().x(), rect().top() - output_rect.height());
+      break;
+    case NodeViewCommon::kBottomToTop:
+      input_connectors_[i]->setPos(rect().center().x(), rect().bottom() + output_rect.height());
+      break;
+    }
+  }
+}
+
+void NodeViewItem::UpdateInputConnectorFlowDirections()
+{
+  for (size_t i=0; i<input_connectors_.size(); i++) {
+    input_connectors_[i]->SetFlowDirection(GetFlowDirectionForInput(i));
+  }
+}
+
+NodeViewCommon::FlowDirection NodeViewItem::GetFlowDirectionForInput(int index)
+{
+  if (!expanded_ || NodeViewCommon::IsFlowHorizontal(flow_dir_)) {
+    return flow_dir_;
+  } else {
+    foreach (NodeViewEdge *edge, edges_) {
+      if (edge->input().input() == node_inputs_.at(index)) {
+        if (edge->from_item()->x() < this->x()) {
+          return NodeViewCommon::kLeftToRight;
+        } else {
+          return NodeViewCommon::kRightToLeft;
+        }
+      }
+    }
+    return NodeViewCommon::kLeftToRight;
   }
 }
 

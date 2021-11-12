@@ -80,7 +80,7 @@ public:
   /**
    * @brief Returns GLOBAL point that edges should connect to for any NodeParam member of this object
    */
-  QPointF GetInputPoint(const QString& input, int element, const QPointF &source_pos) const;
+  QPointF GetInputPoint(const QString& input, int element) const;
 
   QPointF GetOutputPoint() const;
 
@@ -157,16 +157,20 @@ private:
   QRectF GetInputRect(int index) const;
 
   /**
-   * @brief Returns local point that edges should connect to for a NodeInput in array node_inputs_[index]
-   */
-  QPointF GetInputPointInternal(int index, const QPointF &source_pos) const;
-
-  /**
    * @brief Internal update function when logical position changes
    */
   void UpdateNodePosition();
 
+  void UpdateInputConnectors();
+
+  void ClearInputConnectors();
+
   void UpdateConnectorPositions();
+
+  void UpdateInputConnectorPositions();
+  void UpdateInputConnectorFlowDirections();
+
+  NodeViewCommon::FlowDirection GetFlowDirectionForInput(int index);
 
   /**
    * @brief Reference to attached Node
@@ -203,7 +207,7 @@ private:
 
   bool prevent_removing_;
 
-  NodeViewItemConnector *input_connector_;
+  std::vector<std::unique_ptr<NodeViewItemConnector> > input_connectors_;
   NodeViewItemConnector *output_connector_;
 
   bool label_as_output_;

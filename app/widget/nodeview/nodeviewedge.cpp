@@ -60,7 +60,7 @@ void NodeViewEdge::Adjust()
 {
   // Draw a line between the two
   SetPoints(from_item()->GetOutputPoint(),
-            to_item()->GetInputPoint(input_.input(), input_.element(), from_item()->pos()),
+            to_item()->GetInputPoint(input_.input(), input_.element()),
             to_item()->IsExpanded());
 }
 

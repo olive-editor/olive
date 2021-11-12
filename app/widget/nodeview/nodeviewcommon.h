@@ -44,6 +44,16 @@ public:
     }
   }
 
+  static bool IsFlowVertical(FlowDirection dir)
+  {
+    return dir == kTopToBottom || dir == kBottomToTop;
+  }
+
+  static bool IsFlowHorizontal(FlowDirection dir)
+  {
+    return dir == kLeftToRight || dir == kRightToLeft;
+  }
+
   static bool DirectionsAreOpposing(FlowDirection a, FlowDirection b) {
     return ((a == NodeViewCommon::kLeftToRight && b == NodeViewCommon::kRightToLeft)
             || (a == NodeViewCommon::kRightToLeft && b == NodeViewCommon::kLeftToRight)
