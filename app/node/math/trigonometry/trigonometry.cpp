@@ -74,6 +74,8 @@ void TrigonometryNode::Retranslate()
   SetComboBoxStrings(kMethodIn, strings);
 
   SetInputName(kMethodIn, tr("Method"));
+
+  SetInputName(kXIn, tr("Value"));
 }
 
 void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
