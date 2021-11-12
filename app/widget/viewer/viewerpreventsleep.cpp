@@ -3,7 +3,7 @@
 #include <QtGlobal>
 
 #if defined(Q_OS_WINDOWS)
-#include <winbase.h>
+#include <windows.h>
 #elif defined(Q_OS_MAC)
 #include <IOKit/pwr_mgt/IOPMLib.h>
 #elif defined(Q_OS_LINUX)
