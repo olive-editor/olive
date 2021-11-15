@@ -89,7 +89,7 @@ bool LoadOTIOTask::Run()
 
   // Keep track of imported footage
   QMap<QString, Footage*> imported_footage;
-  QList<Sequence*> sequences;
+  QMap<OTIO::Timeline*, Sequence*> timeline_sequnce_map;
 
   // Variables used for loading bar
   float number_of_clips = 0;
@@ -102,7 +102,7 @@ bool LoadOTIOTask::Run()
     sequence->SetLabel(QString::fromStdString(timeline->name()));
     // Set default params incase they aren't edited.
     sequence->set_default_parameters();
-    sequences.append(sequence);
+    timeline_sequnce_map.insert(timeline, sequence);
 
     // Get number of clips for loading bar
     foreach (auto track, timeline->tracks()->children()) {
@@ -115,25 +115,10 @@ bool LoadOTIOTask::Run()
   QMetaObject::invokeMethod(Core::instance(),
                             "DialogImportOTIOShow",
                             Qt::BlockingQueuedConnection,
-                            Q_ARG(QList<Sequence*>,sequences));
+                            Q_ARG(QList<Sequence*>,timeline_sequnce_map.values()));
 
-  foreach (auto timeline, timelines) {
-    // Create sequence
-    Sequence* sequence;
-
-    // Find correct sequence based on itmeline name.
-    foreach (Sequence* seq, sequences) {
-      if (seq->GetLabel() == QString::fromStdString(timeline->name())) {
-        sequence = seq;
-        break;
-      }
-    }
-
-    if (!sequence) {
-      return false;
-    }
-
-    sequence->SetLabel(QString::fromStdString(timeline->name()));
+  foreach (auto timeline, timeline_sequnce_map.keys()) {
+    Sequence* sequence = timeline_sequnce_map.value(timeline);
     sequence->setParent(project_);
     FolderAddChild(project_->root(), sequence).redo_now();
 
