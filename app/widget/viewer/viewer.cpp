@@ -433,7 +433,7 @@ void ViewerWidget::QueueNextAudioBuffer()
 
   // Clamp queue end by zero and the audio length
   queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
-  if (queue_end == audio_playback_queue_time_) {
+  if (queue_end <= audio_playback_queue_time_) {
     // This will queue nothing, so stop the loop here
     if (prequeuing_audio_) {
       DecrementPrequeuedAudio();
@@ -480,14 +480,16 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
           if (prequeuing_audio_) {
             // Add to prequeued audio buffer
             prequeued_audio_.append(pack);
-
-            DecrementPrequeuedAudio();
           } else {
             // Push directly to audio manager
             AudioManager::instance()->PushToOutput(GetConnectedNode()->GetAudioParams(), pack);
           }
         }
       }
+    }
+
+    if (prequeuing_audio_) {
+      DecrementPrequeuedAudio();
     }
 
     delete watcher;
