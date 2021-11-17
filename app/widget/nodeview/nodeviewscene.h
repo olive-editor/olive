@@ -81,9 +81,6 @@ public:
   }
 
 public slots:
-  NodeViewEdge *AddEdge(Node *output, const NodeInput& input);
-  void RemoveEdge(Node *output, const NodeInput& input);
-
   NodeViewContext *AddContext(Node *node);
   void RemoveContext(Node *node);
 
@@ -94,8 +91,6 @@ public slots:
 
 private:
   static int DetermineWeight(Node* n);
-
-  NodeViewEdge* AddEdgeInternal(Node *output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
 
   QHash<Node*, NodeViewContext*> context_map_;
 

@@ -115,6 +115,8 @@ public:
     return node_ && !input_.isEmpty() && element_ >= -1;
   }
 
+  bool IsHidden() const;
+
   bool IsConnected() const;
 
   bool IsKeyframing() const;

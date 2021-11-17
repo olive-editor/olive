@@ -10,14 +10,11 @@
 
 namespace olive {
 
-class NodeViewContext : public QGraphicsRectItem
+class NodeViewContext : public QObject, public QGraphicsRectItem
 {
+  Q_OBJECT
 public:
-  NodeViewContext(QGraphicsItem *item = nullptr);
-
-  void SetContext(Node *node);
-
-  void AddChild(Node *node);
+  NodeViewContext(Node *context, QGraphicsItem *item = nullptr);
 
   void UpdateRect();
 
@@ -26,6 +23,17 @@ public:
   void SetCurvedEdges(bool e);
 
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
+public slots:
+  void AddChild(Node *node);
+
+  void SetChildPosition(Node *node, const QPointF &pos);
+
+  void RemoveChild(Node *node);
+
+  void ChildInputConnected(Node *output, const NodeInput& input);
+
+  bool ChildInputDisconnected(Node *output, const NodeInput& input);
 
 protected:
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
@@ -44,6 +52,10 @@ private:
   bool curved_edges_;
 
   int last_titlebar_height_;
+
+  QMap<Node*, NodeViewItem*> item_map_;
+
+  QVector<NodeViewEdge*> edges_;
 
 };
 

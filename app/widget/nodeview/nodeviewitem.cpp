@@ -42,6 +42,7 @@ namespace olive {
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
+  context_(nullptr),
   expanded_(false),
   hide_titlebar_(false),
   highlighted_index_(-1),
@@ -207,7 +208,7 @@ int NodeViewItem::GetIndexAt(QPointF pt) const
   return -1;
 }
 
-void NodeViewItem::SetNode(Node *n)
+void NodeViewItem::SetNode(Node *n, Node *context)
 {
   if (node_) {
     disconnect(n, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
@@ -215,6 +216,7 @@ void NodeViewItem::SetNode(Node *n)
   }
 
   node_ = n;
+  context_ = context;
 
   node_inputs_.clear();
   input_connectors_.clear();
@@ -223,7 +225,7 @@ void NodeViewItem::SetNode(Node *n)
     node_->Retranslate();
 
     foreach (const QString& input, node_->inputs()) {
-      if (node_->IsInputConnectable(input)) {
+      if (node_->IsInputConnectable(input) && !node_->IsInputHidden(input)) {
         node_inputs_.append(input);
       }
     }
@@ -327,9 +329,11 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     int icon_size = painter->fontMetrics().height()/2;
 
+    bool draw_arrow = !node_inputs_.isEmpty();
+
     if (node_label.isEmpty()) {
       // Draw shortname only
-      DrawNodeTitle(painter, node_shortname, title_bar_rect_, Qt::AlignVCenter, icon_size, true);
+      DrawNodeTitle(painter, node_shortname, title_bar_rect_, Qt::AlignVCenter, icon_size, draw_arrow);
     } else {
       int text_pad = DefaultTextPadding()/2;
       QRectF safe_label_bounds = title_bar_rect_.adjusted(text_pad, text_pad, -text_pad, -text_pad);
@@ -337,7 +341,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       qreal font_sz = f.pointSizeF();
       f.setPointSizeF(font_sz * 0.8);
       painter->setFont(f);
-      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, icon_size, true);
+      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, icon_size, draw_arrow);
       f.setPointSizeF(font_sz * 0.6);
       painter->setFont(f);
       DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom, icon_size, false);

@@ -53,7 +53,7 @@ public:
   /**
    * @brief Set the Node to correspond to this widget
    */
-  void SetNode(Node* n);
+  void SetNode(Node* n, Node *context);
 
   /**
    * @brief Get currently attached node
@@ -173,6 +173,8 @@ private:
    * @brief Reference to attached Node
    */
   Node* node_;
+
+  Node *context_;
 
   /**
    * @brief Cached list of node inputs

@@ -31,15 +31,13 @@ public:
     block_(block),
     new_block_(nullptr),
     point_(point),
-    reconnect_tree_command_(nullptr),
-    position_command_(nullptr)
+    reconnect_tree_command_(nullptr)
   {
   }
 
   virtual ~BlockSplitCommand() override
   {
     delete reconnect_tree_command_;
-    delete position_command_;
   }
 
   virtual Project* GetRelevantProject() const override
@@ -69,8 +67,6 @@ private:
   MultiUndoCommand* reconnect_tree_command_;
 
   NodeInput moved_transition_;
-
-  NodeSetPositionAsChildCommand* position_command_;
 
 };
 

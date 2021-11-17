@@ -38,6 +38,7 @@ NodePanel::NodePanel(QWidget *parent) :
   // Create NodeView widget
   node_view_ = new NodeView(this);
   outer_layout->addWidget(node_view_);
+  connect(this, &NodePanel::visibilityChanged, node_view_, &NodeView::CenterOnItemsBoundingRect);
 
   // Connect toolbar to NodeView
   connect(toolbar_, &NodeViewToolBar::MiniMapEnabledToggled, node_view_, &NodeView::SetMiniMapEnabled);

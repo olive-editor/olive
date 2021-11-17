@@ -116,7 +116,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
       command->add_child(new NodeAddCommand(graph, clip));
-      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0), false));
+      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
                                                     track.index(),
                                                     clip,
@@ -155,10 +155,10 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
       }
 
       if (node_to_add) {
-        QPointF extra_node_offset(-1, 0);
+        QPointF extra_node_offset(kDefaultDistanceFromOutput, 0);
         command->add_child(new NodeAddCommand(graph, node_to_add));
         command->add_child(new NodeEdgeAddCommand(node_to_add, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(node_to_add, clip, extra_node_offset, false));
+        command->add_child(new NodeSetPositionCommand(node_to_add, clip, extra_node_offset));
       }
 
       Core::instance()->undo_stack()->push(command);

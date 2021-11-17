@@ -53,11 +53,11 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   writer.writeStartElement(QStringLiteral("contexts"));
   foreach (Node* n, nodes) {
     // Determine if this node is a context
-    if (n->parent()->GetPositionMap().contains(n)) {
+    if (!n->GetContextPositions().isEmpty()) {
       writer.writeStartElement(QStringLiteral("context"));
       writer.writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
 
-      const NodeGraph::PositionMap &map = n->parent()->GetNodesForContext(n);
+      const Node::PositionMap &map = n->GetContextPositions();
       for (auto it=map.cbegin(); it!=map.cend(); it++) {
         writer.writeStartElement(QStringLiteral("node"));
         Project::SavePosition(&writer, it.key(), it.value());
@@ -220,7 +220,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
       for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
         Node *subnode = xml_node_data.node_ptrs.value(jt.key());
         if (subnode) {
-          command->add_child(new NodeSetPositionCommand(subnode, context, jt.value(), false));
+          command->add_child(new NodeSetPositionCommand(subnode, context, jt.value()));
         }
       }
     }

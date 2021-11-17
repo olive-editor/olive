@@ -44,7 +44,7 @@ Track::Track() :
   locked_(false),
   sequence_(nullptr)
 {
-  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
+  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden));
 
   // Since blocks are time based, we can handle the invalidate timing a little more intelligently
   // on our end

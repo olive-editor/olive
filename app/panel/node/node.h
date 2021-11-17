@@ -36,20 +36,15 @@ class NodePanel : public PanelWidget
 public:
   NodePanel(QWidget* parent);
 
-  NodeGraph* GetGraph() const
+  void SetContexts(const QVector<Node*> &nodes)
   {
-    return node_view_->GetGraph();
+    node_view_->SetContexts(nodes);
+    toolbar_->setEnabled(!nodes.isEmpty());
   }
 
-  void SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
+  void CloseContextsBelongingToProject(Project *project)
   {
-    node_view_->SetGraph(graph, nodes);
-    toolbar_->setEnabled(graph);
-  }
-
-  void ClearGraph()
-  {
-    node_view_->ClearGraph();
+    node_view_->CloseContextsBelongingToProject(project);
   }
 
   const QVector<Node*> &GetCurrentContexts() const
@@ -111,11 +106,6 @@ public slots:
   void Select(const QVector<Node*>& nodes, bool center_view_on_item)
   {
     node_view_->Select(nodes, center_view_on_item);
-  }
-
-  void SelectWithDependencies(const QVector<Node*>& nodes, bool center_view_on_item)
-  {
-    node_view_->SelectWithDependencies(nodes, center_view_on_item);
   }
 
 signals:

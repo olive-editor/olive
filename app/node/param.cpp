@@ -33,6 +33,15 @@ QString NodeInput::name() const
   }
 }
 
+bool NodeInput::IsHidden() const
+{
+  if (IsValid()) {
+    return node_->IsInputHidden(input_);
+  } else {
+    return false;
+  }
+}
+
 bool NodeInput::IsConnected() const
 {
   if (IsValid()) {

@@ -208,6 +208,23 @@ public:
     return HasInputWithID(id);
   }
 
+  using PositionMap = QHash<Node*, QPointF>;
+  const PositionMap &GetContextPositions() const
+  {
+    return context_positions_;
+  }
+
+  bool ContextContainsNode(Node *node) const
+  {
+    return context_positions_.contains(node);
+  }
+
+  QPointF GetNodePositionInContext(Node *node);
+
+  bool SetNodePositionInContext(Node *node, const QPointF &pos);
+
+  bool RemoveNodeFromContext(Node *node);
+
   /**
    * @brief Retrieve the color of this node
    */
@@ -248,6 +265,7 @@ public:
   void LoadInput(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled);
   void SaveInput(QXmlStreamWriter* writer, const QString& id) const;
 
+  bool IsInputHidden(const QString& input) const;
   bool IsInputConnectable(const QString& input) const;
   bool IsInputKeyframable(const QString& input) const;
 
@@ -867,7 +885,8 @@ protected:
     kInputFlagNormal = 0x0,
     kInputFlagArray = 0x1,
     kInputFlagNotKeyframable = 0x2,
-    kInputFlagNotConnectable = 0x4
+    kInputFlagNotConnectable = 0x4,
+    kInputFlagHidden = 0x8
   };
 
   class InputFlags {
@@ -1036,6 +1055,12 @@ signals:
   void AddedToGraph(NodeGraph* graph);
 
   void RemovedFromGraph(NodeGraph* graph);
+
+  void NodeAddedToContext(Node *node);
+
+  void NodePositionInContextChanged(Node *node, const QPointF &pos);
+
+  void NodeRemovedFromContext(Node *node);
 
 private:
   class ArrayInsertCommand : public UndoCommand
@@ -1258,6 +1283,8 @@ private:
 
   QMap<InputElementPair, ValueHint> value_hints_;
 
+  PositionMap context_positions_;
+
 private slots:
   /**
    * @brief Slot when a keyframe's time changes to keep the keyframes correctly sorted by time
@@ -1367,10 +1394,10 @@ using NodePtr = std::shared_ptr<Node>;
 class NodeSetPositionCommand : public UndoCommand
 {
 public:
-  NodeSetPositionCommand(Node* node, Node* relevant, const QPointF& pos, bool move_dependencies_relatively)
+  NodeSetPositionCommand(Node* node, Node* context, const QPointF& pos, bool move_dependencies_relatively = false)
   {
     node_ = node;
-    relevant_ = relevant;
+    context_ = context;
     pos_ = pos;
     move_deps_ = move_dependencies_relatively;
   }
@@ -1386,151 +1413,14 @@ protected:
   virtual void undo() override;
 
 private:
+  static void move(Node *context, Node *node, const QPointF &diff, bool recursive);
+
   Node* node_;
-  Node* relevant_;
+  Node* context_;
   QPointF pos_;
   QPointF old_pos_;
   bool added_;
   bool move_deps_;
-  NodeGraph *graph_;
-
-};
-
-class NodeSetPositionAndShiftSurroundingsCommand : public UndoCommand
-{
-public:
-  NodeSetPositionAndShiftSurroundingsCommand(Node* node, Node *relative, const QPointF& pos, bool move_dependencies_relatively) :
-    node_(node),
-    relative_(relative),
-    position_(pos),
-    move_dependencies_(move_dependencies_relatively)
-  {}
-
-  virtual ~NodeSetPositionAndShiftSurroundingsCommand() override
-  {
-    qDeleteAll(commands_);
-  }
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override
-  {
-    for (int i=commands_.size()-1; i>=0; i--) {
-      commands_.at(i)->undo_now();
-    }
-  }
-
-private:
-  Node* node_;
-
-  Node *relative_;
-
-  QPointF position_;
-
-  bool move_dependencies_;
-
-  QVector<UndoCommand*> commands_;
-
-};
-
-class NodeSetPositionAsChildCommand : public UndoCommand
-{
-public:
-  NodeSetPositionAsChildCommand(Node* node, Node* parent, Node *relative, double this_index, int child_count, bool shift_surroundings) :
-    node_(node),
-    parent_(parent),
-    relative_(relative),
-    this_index_(this_index),
-    child_count_(child_count),
-    shift_surroundings_(shift_surroundings),
-    sub_command_(nullptr)
-  {
-  }
-
-  virtual ~NodeSetPositionAsChildCommand() override
-  {
-    delete sub_command_;
-  }
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override
-  {
-    sub_command_->undo_now();
-  }
-
-private:
-  Node* node_;
-  Node* parent_;
-  Node *relative_;
-
-  double this_index_;
-  int child_count_;
-
-  bool shift_surroundings_;
-
-  MultiUndoCommand* sub_command_;
-
-};
-
-class NodePositionCloseChildGapCommand : public UndoCommand
-{
-public:
-  NodePositionCloseChildGapCommand(Node *parent, void *relative, int remove_index, int child_count, bool shift_surroundings);
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return parent_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Node *parent_;
-
-};
-
-class NodeSetPositionToOffsetOfAnotherNodeCommand : public UndoCommand
-{
-public:
-  NodeSetPositionToOffsetOfAnotherNodeCommand(Node* node, Node* other_node, Node *relative, const QPointF& offset) :
-    node_(node),
-    other_node_(other_node),
-    relative_(relative),
-    offset_(offset)
-  {}
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Node* node_;
-  Node* other_node_;
-  Node *relative_;
-  QPointF offset_;
-  QPointF old_pos_;
 
 };
 
@@ -1585,7 +1475,7 @@ protected:
 private:
   Node *node_;
 
-  std::map<Node *, QPointF> points_;
+  std::map<Node *, QPointF> contexts_;
 
 };
 

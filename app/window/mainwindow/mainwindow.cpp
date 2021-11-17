@@ -378,9 +378,7 @@ void MainWindow::ProjectClose(Project *p)
   }
 
   // Close project from NodeView
-  if (node_panel_->GetGraph() == p) {
-    node_panel_->ClearGraph();
-  }
+  node_panel_->CloseContextsBelongingToProject(p);
 }
 
 void MainWindow::SetApplicationProgressStatus(ProgressStatus status)
@@ -731,11 +729,7 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
     context.append(viewer);
   }
 
-  QVector<Node*> old_contexts = node_panel_->GetCurrentContexts();
-  node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
-  if (viewer && context != old_contexts) {
-    node_panel_->SelectAll();
-  }
+  node_panel_->SetContexts(context);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
@@ -753,10 +747,6 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
   } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
     // Signal project panel focus
     UpdateTitle();
-    if (Project *p = project->project()) {
-      node_panel_->SetGraph(p, {p->root()});
-      node_panel_->Select({p->color_manager(), p->settings()}, true);
-    }
   }
 }
 

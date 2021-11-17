@@ -143,45 +143,25 @@ QVector<NodeViewEdge *> NodeViewScene::GetSelectedEdges() const
   return edges;
 }
 
-NodeViewEdge* NodeViewScene::AddEdge(Node *output, const NodeInput &input)
-{
-  NodeViewEdge *edge = EdgeToUIObject(output, input);
-
-  if (!edge) {
-    edge = AddEdgeInternal(output, input, NodeToUIObject(output), NodeToUIObject(input.node()));
-  }
-
-  return edge;
-}
-
-void NodeViewScene::RemoveEdge(Node *output, const NodeInput &input)
-{
-  NodeViewEdge* edge = EdgeToUIObject(output, input);
-  if (edge) {
-    edge->from_item()->RemoveEdge(edge);
-    edge->to_item()->RemoveEdge(edge);
-    edges_.removeOne(edge);
-    delete edge;
-  }
-}
-
 NodeViewContext *NodeViewScene::AddContext(Node *node)
 {
   NodeViewContext *context_item = context_map_.value(node);
 
   if (!context_item) {
-    context_item = new NodeViewContext();
-    context_item->SetContext(node);
-    context_item->setPos(0, 0);
+    context_item = new NodeViewContext(node);
+
     context_item->SetFlowDirection(GetFlowDirection());
     context_item->SetCurvedEdges(GetEdgesAreCurved());
-    addItem(context_item);
 
-    const NodeGraph::PositionMap &map = node->parent()->GetNodesForContext(node);
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      context_item->AddChild(it.key());
+    QPointF pos(0, 0);
+    QRectF item_rect = context_item->rect();
+    while (!items(item_rect).isEmpty()) {
+      pos.setY(pos.y() + item_rect.height());
+      item_rect = context_item->rect().translated(pos);
     }
-    context_item->UpdateRect();
+    context_item->setPos(pos);
+
+    addItem(context_item);
 
     context_map_.insert(node, context_item);
   }
@@ -209,22 +189,6 @@ int NodeViewScene::DetermineWeight(Node *n)
   return qMax(1, weight);
 }
 
-NodeViewEdge* NodeViewScene::AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
-{
-  NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to);
-
-  edge_ui->SetFlowDirection(direction_);
-  edge_ui->SetCurved(curved_edges_);
-
-  from->AddEdge(edge_ui);
-  to->AddEdge(edge_ui);
-
-  addItem(edge_ui);
-  edges_.append(edge_ui);
-
-  return edge_ui;
-}
-
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
 {
   return NodeViewCommon::GetFlowOrientation(direction_);
@@ -240,8 +204,8 @@ void NodeViewScene::SetEdgesAreCurved(bool curved)
   if (curved_edges_ != curved) {
     curved_edges_ = curved;
 
-    foreach (NodeViewEdge* e, edges_) {
-      e->SetCurved(curved_edges_);
+    foreach (NodeViewContext *ctx, context_map_) {
+      ctx->SetCurvedEdges(curved_edges_);
     }
   }
 }

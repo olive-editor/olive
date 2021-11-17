@@ -42,15 +42,13 @@ const double NodeView::kMinimumScale = 0.1;
 
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
-  graph_(nullptr),
   drop_edge_(nullptr),
   create_edge_(nullptr),
   create_edge_dst_(nullptr),
   create_edge_dst_temp_expanded_(false),
   paste_command_(nullptr),
-  filter_mode_(kFilterShowSelective),
   scale_(1.0),
-  queue_reposition_contexts_(false)
+  first_show_(true)
 {
   setScene(&scene_);
   SetDefaultDragMode(RubberBandDrag);
@@ -84,10 +82,10 @@ NodeView::~NodeView()
   ClearGraph();
 }
 
-void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
+void NodeView::SetContexts(const QVector<Node*> &nodes)
 {
   // Remove contexts that are no longer in the list
-  foreach (Node *n, filter_nodes_) {
+  foreach (Node *n, contexts_) {
     if (!nodes.contains(n)) {
       scene_.RemoveContext(n);
     }
@@ -95,86 +93,38 @@ void NodeView::SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
 
   // Add contexts that are now in the list
   foreach (Node *n, nodes) {
-    if (!filter_nodes_.contains(n)) {
+    if (!contexts_.contains(n)) {
       scene_.AddContext(n);
     }
   }
 
-  filter_nodes_ = nodes;
+  contexts_ = nodes;
 
-  /*bool graph_changed = graph_ != graph;
-  bool context_changed = last_set_filter_nodes_ != nodes;
+  CenterOnItemsBoundingRect();
+}
 
-  if (graph_changed || context_changed) {
-    // Clear nodes if necessary
-    bool refresh_required = (graph_changed && filter_mode_ == kFilterShowAll)
-        || (context_changed && filter_mode_ == kFilterShowSelective);
-    bool nodes_visible = (graph && filter_mode_ == kFilterShowAll)
-        || (!nodes.isEmpty() && filter_mode_ == kFilterShowSelective);
+void NodeView::CloseContextsBelongingToProject(Project *project)
+{
+  QVector<Node*> new_contexts = contexts_;
 
-    if (refresh_required) {
-      DeselectAll();
-      positions_.clear();
-      scene_.clear();
-      context_offsets_.clear();
+  for (auto it = new_contexts.begin(); it != new_contexts.end(); ) {
+    if ((*it)->project() == project) {
+      it = new_contexts.erase(it);
+    } else {
+      it++;
     }
+  }
 
-    // Handle graph change
-    if (graph_changed) {
-      if (graph_) {
-        // Disconnect from current graph
-        disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
-        disconnect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
-        disconnect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
-        disconnect(graph_, &NodeGraph::NodePositionAdded, this, &NodeView::AddNodePosition);
-        disconnect(graph_, &NodeGraph::NodePositionRemoved, this, &NodeView::RemoveNodePosition);
-      }
-
-      graph_ = graph;
-
-      if (graph_) {
-        // Connect to new graph
-        connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
-        connect(graph_, &NodeGraph::InputConnected, this, &NodeView::AddEdge);
-        connect(graph_, &NodeGraph::InputDisconnected, this, &NodeView::RemoveEdge);
-        connect(graph_, &NodeGraph::NodePositionAdded, this, &NodeView::AddNodePosition);
-        connect(graph_, &NodeGraph::NodePositionRemoved, this, &NodeView::RemoveNodePosition);
-      }
-    }
-
-    if (context_changed) {
-      last_set_filter_nodes_ = nodes;
-
-      if (filter_mode_ == kFilterShowSelective) {
-        filter_nodes_ = nodes;
-      }
-    }
-
-    if (refresh_required && nodes_visible) {
-      if (filter_mode_ == kFilterShowAll) {
-        // Just make the filter nodes all of the graph's contexts
-        filter_nodes_ = graph->GetPositionMap().keys().toVector();
-      }
-
-      RepositionContexts();
-
-      // Center on something
-      QMetaObject::invokeMethod(this, &NodeView::CenterOnItemsBoundingRect, Qt::QueuedConnection);
-    }
-  }*/
+  SetContexts(new_contexts);
 }
 
 void NodeView::ClearGraph()
 {
-  SetGraph(nullptr, QVector<Node*>());
+  SetContexts(QVector<Node*>());
 }
 
 void NodeView::DeleteSelected()
 {
-  if (!graph_) {
-    return;
-  }
-
   MultiUndoCommand* command = new MultiUndoCommand();
 
   {
@@ -189,9 +139,6 @@ void NodeView::DeleteSelected()
         command->add_child(new NodeEdgeRemoveCommand(edge->output(), edge->input()));
         removed_connections[i] = {edge->output(), edge->input()};
       }
-
-      // Update contexts
-      UpdateContextsFromEdgeRemove(command, removed_connections);
     }
   }
 
@@ -219,10 +166,6 @@ void NodeView::DeleteSelected()
 
 void NodeView::SelectAll()
 {
-  if (!graph_) {
-    return;
-  }
-
   // Optimization: rather than respond to every single item being selected, ignore the signal and
   //               then handle them all at the end.
   DisconnectSelectionChangedSignal();
@@ -249,7 +192,7 @@ void NodeView::SelectAll()
 
 void NodeView::DeselectAll()
 {
-  if (!graph_ || selected_nodes_.isEmpty()) {
+  if (selected_nodes_.isEmpty()) {
     return;
   }
 
@@ -268,10 +211,6 @@ void NodeView::DeselectAll()
 
 void NodeView::Select(QVector<Node *> nodes, bool center_view_on_item)
 {
-  if (!graph_) {
-    return;
-  }
-
   // Optimization: rather than respond to every single item being selected, ignore the signal and
   //               then handle them all at the end.
   DisconnectSelectionChangedSignal();
@@ -331,39 +270,13 @@ void NodeView::Select(QVector<Node *> nodes, bool center_view_on_item)
   selected_nodes_ = nodes;
 }
 
-void NodeView::SelectWithDependencies(QVector<Node *> nodes, bool center_view_on_item)
-{
-  if (!graph_) {
-    return;
-  }
-
-  int original_length = nodes.size();
-  for (int i=0;i<original_length;i++) {
-    QVector<Node*> dependencies = nodes.at(i)->GetDependencies();
-
-    foreach (Node *d, dependencies) {
-      if (scene_.item_map().contains(d) && !nodes.contains(d)) {
-        nodes.append(d);
-      }
-    }
-  }
-
-  Select(nodes, center_view_on_item);
-}
-
 void NodeView::CopySelected(bool cut)
 {
-  if (!graph_) {
+  if (selected_nodes_.isEmpty()) {
     return;
   }
 
-  QVector<Node*> selected = scene_.GetSelectedNodes();
-
-  if (selected.isEmpty()) {
-    return;
-  }
-
-  CopyNodesToClipboard(selected);
+  CopyNodesToClipboard(selected_nodes_);
 
   if (cut) {
     DeleteSelected();
@@ -409,43 +322,41 @@ void NodeView::keyPressEvent(QKeyEvent *event)
   case Qt::Key_Up:
   case Qt::Key_Down:
   {
-    if (graph_) {
-      MultiUndoCommand *pos_command = new MultiUndoCommand();
-      for (Node *n : qAsConst(selected_nodes_)) {
-        for (Node *context : qAsConst(filter_nodes_)) {
-          if (graph_->GetNodesForContext(context).contains(n)) {
-            QPointF old_pos = graph_->GetNodePosition(n, context);
+    MultiUndoCommand *pos_command = new MultiUndoCommand();
+    for (Node *n : qAsConst(selected_nodes_)) {
+      for (Node *context : qAsConst(contexts_)) {
+        if (context->ContextContainsNode(n)) {
+          QPointF old_pos = context->GetNodePositionInContext(n);
 
-            // Determine one pixel in scene units
-            double movement_amt = 1.0 / scale_;
+          // Determine one pixel in scene units
+          double movement_amt = 1.0 / scale_;
 
-            // Translate to 2D movement
-            QPointF node_movement;
-            switch (event->key()) {
-            case Qt::Key_Left:
-              node_movement.setX(-movement_amt);
-              break;
-            case Qt::Key_Right:
-              node_movement.setX(movement_amt);
-              break;
-            case Qt::Key_Up:
-              node_movement.setY(-movement_amt);
-              break;
-            case Qt::Key_Down:
-              node_movement.setY(movement_amt);
-              break;
-            }
-
-            // Translate from screen units into node units
-            node_movement = NodeViewItem::ScreenToNodePoint(node_movement, scene_.GetFlowDirection());
-
-            // Move command
-            pos_command->add_child(new NodeSetPositionCommand(n, context, old_pos + node_movement, false));
+          // Translate to 2D movement
+          QPointF node_movement;
+          switch (event->key()) {
+          case Qt::Key_Left:
+            node_movement.setX(-movement_amt);
+            break;
+          case Qt::Key_Right:
+            node_movement.setX(movement_amt);
+            break;
+          case Qt::Key_Up:
+            node_movement.setY(-movement_amt);
+            break;
+          case Qt::Key_Down:
+            node_movement.setY(movement_amt);
+            break;
           }
+
+          // Translate from screen units into node units
+          node_movement = NodeViewItem::ScreenToNodePoint(node_movement, scene_.GetFlowDirection());
+
+          // Move command
+          pos_command->add_child(new NodeSetPositionCommand(n, context, old_pos + node_movement));
         }
       }
-      Core::instance()->undo_stack()->pushIfHasChildren(pos_command);
     }
+    Core::instance()->undo_stack()->pushIfHasChildren(pos_command);
     break;
   }
   case Qt::Key_Escape:
@@ -664,15 +575,6 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       create_edge_dst_ = nullptr;
     }
 
-    // Update contexts
-    /*if (!removed_edges.empty()) {
-      UpdateContextsFromEdgeRemove(command, removed_edges);
-    }
-
-    if (added_edge.first) {
-      UpdateContextsFromEdgeAdd(command, added_edge, removed_edges);
-    }*/
-
     Core::instance()->undo_stack()->pushIfHasChildren(command);
     return;
   }
@@ -688,38 +590,6 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       paste_command_ = nullptr;
     }
   }
-
-  {
-    // If any node positions changed, set them in their contexts now
-    MultiUndoCommand *set_pos_command = new MultiUndoCommand();
-    for (auto it=positions_.begin(); it!=positions_.end(); it++) {
-      NodeViewItem *item = it.key();
-      Position &pos_data = it.value();
-      QPointF current_item_pos = item->GetNodePosition();
-      Node *node = pos_data.node;
-
-      if (pos_data.original_item_pos != current_item_pos) {
-        QPointF diff = current_item_pos - pos_data.original_item_pos;
-
-        for (Node *context : qAsConst(filter_nodes_)) {
-          if (graph_->ContextContainsNode(node, context)) {
-            QPointF current_node_pos_in_context = graph_->GetNodePosition(node, context);
-            current_node_pos_in_context += diff;
-            set_pos_command->add_child(new NodeSetPositionCommand(node, context, current_node_pos_in_context, false));
-          }
-        }
-
-        pos_data.original_item_pos = current_item_pos;
-      }
-    }
-    if (set_pos_command->child_count()) {
-      set_pos_command->redo_now();
-      command->add_child(set_pos_command);
-    } else {
-      delete set_pos_command;
-    }
-  }
-
 
   if (!attached_items_.isEmpty()) {
     {
@@ -757,7 +627,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
         bool removed = false;
         QVector<Node*> relevant_contexts;
-        for (Node *context : qAsConst(filter_nodes_)) {
+        for (Node *context : qAsConst(contexts_)) {
           if (attached_node->OutputsTo(context, true)) {
             relevant_contexts.append(context);
           } else {
@@ -768,7 +638,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
         if (removed && !relevant_contexts.isEmpty()) {
           for (Node *relevant : qAsConst(relevant_contexts)) {
-            remove_pos_subcommand->add_child(new NodeSetPositionCommand(attached_node, relevant, GetEstimatedPositionForContext(attached.item, relevant), false));
+            remove_pos_subcommand->add_child(new NodeSetPositionCommand(attached_node, relevant, GetEstimatedPositionForContext(attached.item, relevant)));
           }
 
           remove_pos_command->add_child(remove_pos_subcommand);
@@ -844,7 +714,7 @@ void NodeView::UpdateSelectionCache()
 
 void NodeView::ShowContextMenu(const QPoint &pos)
 {
-  if (filter_nodes_.isEmpty()) {
+  if (contexts_.isEmpty()) {
     return;
   }
 
@@ -896,17 +766,6 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
     m.addSeparator();
 
-    Menu* filter_menu = new Menu(tr("Filter"), &m);
-    m.addMenu(filter_menu);
-
-    filter_menu->AddActionWithData(tr("Show All Nodes"), kFilterShowAll, filter_mode_);
-
-    filter_menu->AddActionWithData(tr("Show Selected"), kFilterShowSelective, filter_mode_);
-
-    connect(filter_menu, &Menu::triggered, this, &NodeView::ContextMenuFilterChanged);
-
-
-
     Menu* direction_menu = new Menu(tr("Direction"), &m);
     m.addMenu(direction_menu);
 
@@ -940,48 +799,25 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
 void NodeView::CreateNodeSlot(QAction *action)
 {
-  if (!graph_) {
-    return;
-  }
-
-  Node* new_node = NodeFactory::CreateFromMenuAction(action);
+  qDebug() << "STUB!";
+  /*Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {
     paste_command_ = new MultiUndoCommand();
     paste_command_->add_child(new NodeAddCommand(graph_, new_node));
-    for (Node *context : qAsConst(filter_nodes_)) {
+    for (Node *context : qAsConst(contexts_)) {
       paste_command_->add_child(new NodeSetPositionCommand(new_node, context, QPointF(0, 0), false));
     }
     paste_command_->add_child(new NodeViewAttachNodesToCursor(this, {new_node}));
     paste_command_->redo_now();
 
     this->setFocus();
-  }
+  }*/
 }
 
 void NodeView::ContextMenuSetDirection(QAction *action)
 {
   SetFlowDirection(static_cast<NodeViewCommon::FlowDirection>(action->data().toInt()));
-}
-
-void NodeView::ContextMenuFilterChanged(QAction *action)
-{
-  FilterMode mode = static_cast<FilterMode>(action->data().toInt());
-
-  if (filter_mode_ != mode) {
-    // Store temporary graph variables
-    NodeGraph *graph = graph_;
-    QVector<Node*> nodes = last_set_filter_nodes_;
-
-    // Unset graph with current filter mode
-    ClearGraph();
-
-    // Change filter mode
-    filter_mode_ = mode;
-
-    // Re-set graph with new filter mode
-    SetGraph(graph, nodes);
-  }
 }
 
 void NodeView::OpenSelectedNodeInViewer()
@@ -991,100 +827,6 @@ void NodeView::OpenSelectedNodeInViewer()
 
   if (viewer) {
     Core::instance()->OpenNodeInViewer(viewer);
-  }
-}
-
-// Commenting out because there shouldn't be any situations where a node would be added without
-// being in a context. We're keeping RemoveNode as a fail-safe because it could provide crash
-// resistance where RemoveNodePosition might be missed.
-//void NodeView::AddNode(Node *node)
-//{
-//  if (filter_mode_ == kFilterShowAll) {
-//    scene_.AddNode(node);
-//  }
-//}
-
-void NodeView::RemoveNode(Node *node)
-{
-  for (auto it=attached_items_.begin(); it!=attached_items_.end(); ) {
-    if (it->item->GetNode() == node) {
-      it = attached_items_.erase(it);
-    } else {
-      it++;
-    }
-  }
-  for (const Node::OutputConnection &oc : node->output_connections()) {
-    scene_.RemoveEdge(oc.first, oc.second);
-  }
-  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    scene_.RemoveEdge(it->second, it->first);
-  }
-  positions_.remove(scene_.item_map().value(node));
-}
-
-void NodeView::AddEdge(Node *output, const NodeInput &input)
-{
-  Node *output_node = output;
-  Node *input_node = input.node();
-
-  if (scene_.item_map().contains(output_node) && scene_.item_map().contains(input_node)) {
-    scene_.AddEdge(output, input);
-  }
-}
-
-void NodeView::RemoveEdge(Node *output, const NodeInput &input)
-{
-  scene_.RemoveEdge(output, input);
-}
-
-void NodeView::AddNodePosition(Node *node, Node *relative)
-{
-  bool listening_to_node = filter_nodes_.contains(relative);
-
-  if (!listening_to_node) {
-    if (filter_mode_ == kFilterShowAll) {
-      // We're not listening to this context, but because we're showing all, add it
-      filter_nodes_.append(relative);
-    } else {
-      // Ignore signal
-      return;
-    }
-  }
-
-  // Reposition contexts because one of their heights may have changed or a new one may have been
-  // added
-  UpdateNodeItem(node);
-
-  if (filter_mode_ == kFilterShowAll) {
-    queue_reposition_contexts_ = true;
-    viewport()->update();
-  }
-}
-
-void NodeView::RemoveNodePosition(Node *node, Node *relative)
-{
-  if (filter_nodes_.contains(relative)) {
-    NodeViewItem *item = scene_.item_map().value(node);
-
-    if (item && !item->GetPreventRemoving()) {
-      // Determine if any other contexts have this node
-      bool found = false;
-
-      for (Node *context : qAsConst(filter_nodes_)) {
-        if (graph_->ContextContainsNode(node, context)) {
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        RemoveNode(node);
-      }
-    }
-
-    if (filter_mode_ == kFilterShowAll) {
-      RepositionContexts();
-    }
   }
 }
 
@@ -1229,13 +971,6 @@ bool NodeView::event(QEvent *event)
 
 bool NodeView::eventFilter(QObject *object, QEvent *event)
 {
-  if (object == viewport() && event->type() == QEvent::Paint) {
-    if (queue_reposition_contexts_) {
-      RepositionContexts();
-      queue_reposition_contexts_ = false;
-    }
-  }
-
   return super::eventFilter(object, event);
 }
 
@@ -1259,7 +994,8 @@ void NodeView::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVec
 
 void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void *userdata)
 {
-  NodeGraph::PositionMap *map = static_cast<NodeGraph::PositionMap *>(userdata);
+  qDebug() << "STUB!";
+  /*NodeGraph::PositionMap *map = static_cast<NodeGraph::PositionMap *>(userdata);
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("pos")) {
@@ -1295,7 +1031,7 @@ void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNode
     } else {
       reader->skipCurrentElement();
     }
-  }
+  }*/
 }
 
 void NodeView::ZoomFromKeyboard(double multiplier)
@@ -1308,148 +1044,6 @@ void NodeView::ZoomFromKeyboard(double multiplier)
   }
 
   ZoomIntoCursorPosition(nullptr, multiplier, cursor_pos);
-}
-
-bool NodeView::DetermineIfNodeIsFloatingInContext(Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge)
-{
-  // Determines whether `node` outputs to another node in `context` besides `source`
-  for (const Node::OutputConnection &conn : node->output_connections()) {
-    Node *output_candidate = conn.second.node();
-
-    if (output_candidate == source) {
-      continue;
-    }
-
-    if (graph_->ContextContainsNode(output_candidate, context)) {
-      if (!output_candidate->OutputsTo(source, true, removed_edges, added_edge)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-void NodeView::UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Node::OutputConnections &remove_edges)
-{
-  // For each edge we remove, determine if we should remove the node from a context as well
-  for (const Node::OutputConnection &edge : remove_edges) {
-    Node *output_node = edge.first;
-    QVector<Node *> contexts_to_remove_from;
-    int contexts_containing = 0;
-
-    for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
-      Node *context = it.key();
-
-      if (it.value().contains(output_node)) {
-        bool currently_outputs = output_node->OutputsTo(context, true);
-        bool will_output_after_operation = output_node->OutputsTo(context, true, remove_edges);
-
-        if (currently_outputs && !will_output_after_operation) {
-          // Will remove
-          contexts_to_remove_from.append(context);
-        }
-
-        contexts_containing++;
-      }
-    }
-
-    // Removing from all current contexts, convert to a floating node (i.e. don't remove from the context)
-    if (contexts_to_remove_from.size() != contexts_containing) {
-      // Not removing from all contexts, can remove
-      bool removing_from_all_current_contexts = true;
-
-      for (Node *context : qAsConst(filter_nodes_)) {
-        if (graph_->ContextContainsNode(output_node, context)) {
-          if (!contexts_to_remove_from.contains(context)) {
-            removing_from_all_current_contexts = false;
-            break;
-          }
-        }
-      }
-
-      for (Node *context : qAsConst(contexts_to_remove_from)) {
-        RecursivelyRemoveFloatingNodeFromContext(command, output_node, context, output_node, remove_edges, Node::OutputConnection(), removing_from_all_current_contexts);
-      }
-    }
-  }
-}
-
-void NodeView::RecursivelyRemoveFloatingNodeFromContext(MultiUndoCommand *command, Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge, bool prevent_removing)
-{
-  if (prevent_removing) {
-    command->add_child(new NodeViewItemPreventRemovingCommand(this, node, true));
-  }
-
-  command->add_child(new NodeRemovePositionFromContextCommand(node, context));
-
-  // Remove any dependency from the context that's also floating
-  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node *dependency = it->second;
-
-    // Determine if this node happens to output to anything else in the context (which may be
-    // another floating node that won't be removed by this operation)
-    if (!DetermineIfNodeIsFloatingInContext(dependency, context, source, removed_edges, added_edge)) {
-      RecursivelyRemoveFloatingNodeFromContext(command, dependency, context, source, removed_edges, added_edge, prevent_removing);
-    }
-  }
-}
-
-void NodeView::RecursivelyAddNodeToContext(MultiUndoCommand *command, Node *node, Node *context)
-{
-  NodeViewItem *item = scene_.item_map().value(node);
-
-  if (item) {
-    command->add_child(new NodeSetPositionCommand(node, context, GetEstimatedPositionForContext(item, context), false));
-
-    // Add dependency
-    for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-      Node *dependency = it->second;
-      RecursivelyAddNodeToContext(command, dependency, context);
-    }
-  }
-}
-
-void NodeView::UpdateContextsFromEdgeAdd(MultiUndoCommand *command, const Node::OutputConnection &added_edge, const Node::OutputConnections &removed_edges)
-{
-  // Determine if node currently does NOT output to a context that it WILL after this operation
-  QVector<Node*> contexts_to_add_to;
-  Node *connecting_node = added_edge.first;
-  Node *input_node = added_edge.second.node();
-  for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
-    if (it.value().contains(input_node)) {
-      contexts_to_add_to.append(it.key());
-    }
-  }
-
-  if (!contexts_to_add_to.isEmpty()) {
-    // Determine whether the node is currently "floating", i.e. it outputs to none of the contexts
-    // that it currently belongs to. If so, we will take ownership of it with this node.
-    bool node_is_floating = true;
-    QVector<Node*> current_contexts;
-    for (auto it=graph_->GetPositionMap().cbegin(); it!=graph_->GetPositionMap().cend(); it++) {
-      if (it.value().contains(connecting_node)) {
-        if (connecting_node->OutputsTo(it.key(), true, removed_edges)) {
-          node_is_floating = false;
-          break;
-        } else {
-          current_contexts.append(it.key());
-        }
-      }
-    }
-
-    if (node_is_floating) {
-      // This action will unfloat this node, so remove it from all current contexts
-      for (Node *context : qAsConst(current_contexts)) {
-        RecursivelyRemoveFloatingNodeFromContext(command, connecting_node, context, connecting_node, removed_edges, added_edge, false);
-      }
-    }
-
-    // Add nodes to contexts
-    for (Node *context : qAsConst(contexts_to_add_to)) {
-      RecursivelyAddNodeToContext(command, connecting_node, context);
-    }
-  }
 }
 
 QPointF NodeView::GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const
@@ -1545,86 +1139,6 @@ void NodeView::PositionNewEdge(const QPoint &pos)
   create_edge_->SetConnected(create_edge_dst_input_.IsValid());
 }
 
-void NodeView::RepositionContexts()
-{
-  // Determine which contexts are root-level
-  QVector<Node*> processing_filters = filter_nodes_;
-
-  // Level counter as we iterate through the list a few times
-  int level = 0;
-
-  // Root-level positioning variables
-  qreal last_offset = 0;
-  int additional_spacing = 0;
-
-  while (!processing_filters.isEmpty()) {
-    QVector<Node*> contexts_on_this_level;
-
-    for (int i=0; i<processing_filters.size(); i++) {
-      Node *context = processing_filters.at(i);
-
-      // Determine if this context is on an upper level or not
-      bool this_level = true;
-      for (int j=0; j<processing_filters.size(); j++) {
-        Node *other_context = processing_filters.at(j);
-
-        if (i != j && graph_->ContextContainsNode(context, other_context)) {
-          this_level = false;
-          break;
-        }
-      }
-
-      if (this_level) {
-        contexts_on_this_level.append(context);
-      }
-    }
-
-    for (Node *context : qAsConst(contexts_on_this_level)) {
-      if (level == 0) {
-        const NodeGraph::PositionMap &map = graph_->GetNodesForContext(context);
-
-        // First determine the total "height" of this graph and how much we need to offset it
-        qreal top = 0;
-        qreal bottom = 0;
-        for (auto it=map.cbegin(); it!=map.cend(); it++) {
-          const QPointF &node_pos_in_context = it.value();
-          top = qMin(node_pos_in_context.y(), top);
-          bottom = qMax(node_pos_in_context.y(), bottom);
-        }
-
-        last_offset += (additional_spacing + (bottom - top));
-        additional_spacing = 1;
-        context_offsets_.insert(context, QPointF(0, last_offset));
-      } else {
-        // Create/update item
-        NodeViewItem *item = UpdateNodeItem(context, true);
-
-        // Get position generated by UpdateNodeItem
-        QPointF context_pos = item->GetNodePosition();
-
-        // Adjust by the context node's position in its own context (this will usually be 0,0)
-        context_pos -= graph_->GetNodesForContext(context).value(context);
-
-        // Insert this context's offset
-        context_offsets_.insert(context, context_pos);
-      }
-
-      // Remove from list so we don't process again
-      processing_filters.removeOne(context);
-    }
-
-    level++;
-  }
-
-  // Now that we've positioned all the contexts, position all other nodes relative to those contexts
-  for (Node *context : qAsConst(filter_nodes_)) {
-    const NodeGraph::PositionMap &map = graph_->GetNodesForContext(context);
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      UpdateNodeItem(it.key());
-    }
-  }
-}
-
 void NodeView::GroupNodes()
 {
   /*NodeGroup *group = new NodeGroup();
@@ -1636,54 +1150,11 @@ void NodeView::UngroupNodes()
   //static_cast<NodeGroup*>(selected_nodes_.first());
 }
 
-NodeViewItem *NodeView::UpdateNodeItem(Node *node, bool ignore_own_context)
-{
-  // Get UI item or create if it doesn't exist
-  NodeViewItem *item = scene_.item_map().value(node);
-  if (!item) {
-    for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-      if (scene_.item_map().contains(it->second)) {
-        scene_.AddEdge(it->second, it->first);
-      }
-    }
-
-    for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
-      if (scene_.item_map().contains(it->second.node())) {
-        scene_.AddEdge(it->first, it->second);
-      }
-    }
-  }
-
-  // Determine "view" position by averaging the Y value and "min"ing the X value of all contexts
-  QPointF item_pos(std::numeric_limits<qreal>::max(), 0.0);
-  int average_count = 0;
-  for (Node *context : qAsConst(filter_nodes_)) {
-    if (context == node && ignore_own_context) {
-      continue;
-    }
-
-    if (graph_->GetNodesForContext(context).contains(node)) {
-      QPointF this_context_pos = graph_->GetNodePosition(node, context);
-      this_context_pos += context_offsets_.value(context);
-
-      item_pos.setX(qMin(item_pos.x(), this_context_pos.x()));
-      item_pos.setY(item_pos.y() + this_context_pos.y());
-      average_count++;
-    }
-  }
-  item_pos.setY(item_pos.y() / average_count);
-
-  // Set position
-  item->SetNodePosition(item_pos);
-  positions_.insert(item, {node, item_pos});
-
-  return item;
-}
-
 void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
 {
+  /*
   // If no graph, do nothing
-  if (!graph_) {
+  if (contexts_.isEmpty()) {
     return;
   }
 
@@ -1696,7 +1167,7 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
     new_nodes = PasteNodesFromClipboard(graph_, paste_command_, &map);
 
     for (auto it=new_nodes.cbegin(); it!=new_nodes.cend(); it++) {
-      for (Node *context : qAsConst(filter_nodes_)) {
+      for (Node *context : qAsConst(contexts_)) {
         paste_command_->add_child(new NodeSetPositionCommand(*it, context, map.value(*it), false));
       }
     }
@@ -1707,7 +1178,7 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
       Node *src = duplicate_nodes.at(i);
       Node *copy = new_nodes.at(i);
 
-      for (Node *context : qAsConst(filter_nodes_)) {
+      for (Node *context : qAsConst(contexts_)) {
         QPointF p = scene_.item_map().value(src)->GetNodePosition();
         paste_command_->add_child(new NodeSetPositionCommand(copy, context, p, false));
       }
@@ -1725,6 +1196,7 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
   paste_command_->add_child(new NodeViewAttachNodesToCursor(this, new_nodes));
 
   paste_command_->redo_now();
+  */
 }
 
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :
@@ -1745,8 +1217,7 @@ void NodeView::NodeViewAttachNodesToCursor::undo()
 
 Project *NodeView::NodeViewAttachNodesToCursor::GetRelevantProject() const
 {
-  // Will either return a project or a nullptr which is also acceptable
-  return dynamic_cast<Project*>(view_->graph_);
+  return nullptr;
 }
 
 void NodeView::NodeViewItemPreventRemovingCommand::redo()

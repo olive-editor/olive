@@ -46,6 +46,9 @@ NodeViewEdge::NodeViewEdge(Node *output, const NodeInput &input,
 {
   Init();
   SetConnected(true);
+
+  from_item_->AddEdge(this);
+  to_item_->AddEdge(this);
 }
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
@@ -54,6 +57,17 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   to_item_(nullptr)
 {
   Init();
+}
+
+NodeViewEdge::~NodeViewEdge()
+{
+  if (from_item_) {
+    from_item_->RemoveEdge(this);
+  }
+
+  if (to_item_) {
+    to_item_->RemoveEdge(this);
+  }
 }
 
 void NodeViewEdge::Adjust()

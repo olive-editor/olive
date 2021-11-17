@@ -49,12 +49,9 @@ public:
 
   virtual ~NodeView() override;
 
-  NodeGraph* GetGraph() const
-  {
-    return graph_;
-  }
+  void SetContexts(const QVector<Node *> &nodes);
 
-  void SetGraph(NodeGraph *graph, const QVector<Node *> &nodes);
+  void CloseContextsBelongingToProject(Project *project);
 
   void ClearGraph();
 
@@ -67,7 +64,6 @@ public:
   void DeselectAll();
 
   void Select(QVector<Node *> nodes, bool center_view_on_item);
-  void SelectWithDependencies(QVector<Node *> nodes, bool center_view_on_item);
 
   void CopySelected(bool cut);
   void Paste();
@@ -82,7 +78,7 @@ public:
 
   const QVector<Node*> &GetCurrentContexts() const
   {
-    return filter_nodes_;
+    return contexts_;
   }
 
 public slots:
@@ -97,6 +93,8 @@ public slots:
     m->exec(QCursor::pos());
     delete m;
   }
+
+  void CenterOnItemsBoundingRect();
 
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
@@ -137,12 +135,6 @@ private:
 
   void ZoomFromKeyboard(double multiplier);
 
-  bool DetermineIfNodeIsFloatingInContext(Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge);
-  void UpdateContextsFromEdgeRemove(MultiUndoCommand *command, const Node::OutputConnections &remove_edges);
-  void UpdateContextsFromEdgeAdd(MultiUndoCommand *command, const Node::OutputConnection &added_edge, const Node::OutputConnections &removed_edges = Node::OutputConnections());
-  void RecursivelyAddNodeToContext(MultiUndoCommand *command, Node *node, Node *context);
-  void RecursivelyRemoveFloatingNodeFromContext(MultiUndoCommand *command, Node *node, Node *context, Node *source, const Node::OutputConnections &removed_edges, const Node::OutputConnection &added_edge, bool prevent_removing);
-
   QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
 
   Menu *CreateAddMenu(Menu *parent);
@@ -150,8 +142,6 @@ private:
   void CreateNewEdge(NodeViewItem *output_item, const QPoint &mouse_pos);
 
   void PositionNewEdge(const QPoint &pos);
-
-  NodeViewItem *UpdateNodeItem(Node *node, bool ignore_own_context = false);
 
   void PasteNodesInternal(const QVector<Node*> &duplicate_nodes = QVector<Node *>());
 
@@ -175,8 +165,6 @@ private:
   };
 
   NodeViewMiniMap *minimap_;
-
-  NodeGraph* graph_;
 
   struct AttachedItem {
     NodeViewItem* item;
@@ -227,21 +215,7 @@ private:
 
   QVector<Node*> selected_nodes_;
 
-  enum FilterMode {
-    kFilterShowAll,
-    kFilterShowSelective
-  };
-
-  struct Position {
-    Node *node;
-    QPointF original_item_pos;
-  };
-
-  QMap<NodeViewItem *, Position> positions_;
-
-  FilterMode filter_mode_;
-
-  QVector<Node*> filter_nodes_;
+  QVector<Node*> contexts_;
   QVector<Node*> last_set_filter_nodes_;
   QMap<Node*, QPointF> context_offsets_;
 
@@ -249,7 +223,7 @@ private:
 
   bool create_edge_already_exists_;
 
-  bool queue_reposition_contexts_;
+  bool first_show_;
 
   static const double kMinimumScale;
 
@@ -275,34 +249,17 @@ private slots:
   void ContextMenuSetDirection(QAction* action);
 
   /**
-   * @brief Receiver for the user changing the filter
-   */
-  void ContextMenuFilterChanged(QAction* action);
-
-  /**
    * @brief Opens the selected node in a Viewer
    */
   void OpenSelectedNodeInViewer();
 
-  //void AddNode(Node *node);
-  void RemoveNode(Node *node);
-  void AddEdge(Node *output, const NodeInput& input);
-  void RemoveEdge(Node *output, const NodeInput& input);
-
-  void AddNodePosition(Node *node, Node *relative);
-  void RemoveNodePosition(Node *node, Node *relative);
-
   void UpdateSceneBoundingRect();
-
-  void CenterOnItemsBoundingRect();
 
   void RepositionMiniMap();
 
   void UpdateViewportOnMiniMap();
 
   void MoveToScenePoint(const QPointF &pos);
-
-  void RepositionContexts();
 
   void GroupNodes();
 

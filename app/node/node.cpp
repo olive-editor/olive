@@ -243,6 +243,36 @@ QIcon Node::icon() const
   return icon::New;
 }
 
+QPointF Node::GetNodePositionInContext(Node *node)
+{
+  return context_positions_.value(node);
+}
+
+bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)
+{
+  bool added = !ContextContainsNode(node);
+  context_positions_.insert(node, pos);
+
+  if (added) {
+    emit NodeAddedToContext(node);
+  }
+
+  emit NodePositionInContextChanged(node, pos);
+
+  return added;
+}
+
+bool Node::RemoveNodeFromContext(Node *node)
+{
+  if (ContextContainsNode(node)) {
+    context_positions_.remove(node);
+    emit NodeRemovedFromContext(node);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 Color Node::color() const
 {
   int c;
@@ -427,6 +457,11 @@ void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
   }
 
   writer->writeEndElement(); // subelements
+}
+
+bool Node::IsInputHidden(const QString &input) const
+{
+  return (GetInputFlags(input) & kInputFlagHidden);
 }
 
 bool Node::IsInputConnectable(const QString &input) const
@@ -1196,13 +1231,10 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
     command->add_child(new NodeSetValueHintCommand(copied_input, node->GetValueHintForInput(input.input(), input.element())));
   }
 
-  if (node->parent()->GetPositionMap().contains(node)) {
-    // This node is a context, copy the context
-    const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      // Add either the copy (if it exists) or the original node to the context
-      command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value(), false));
-    }
+  const PositionMap &map = node->GetContextPositions();
+  for (auto it=map.cbegin(); it!=map.cend(); it++) {
+    // Add either the copy (if it exists) or the original node to the context
+    command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value()));
   }
 
   return copy;
@@ -1229,13 +1261,10 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
     command->add_child(new NodeCopyInputsCommand(node, copy, true));
 
-    if (node->parent()->GetPositionMap().contains(node)) {
-      // This node is a context, copy the context
-      const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
-      for (auto it=map.cbegin(); it!=map.cend(); it++) {
-        // Add to the context
-        command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value(), false));
-      }
+    const PositionMap &map = node->GetContextPositions();
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      // Add to the context
+      command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value()));
     }
   }
 
@@ -2318,119 +2347,58 @@ Project *Node::ArrayResizeCommand::GetRelevantProject() const
   return node_->project();
 }
 
-void NodeSetPositionAndShiftSurroundingsCommand::redo()
-{
-  if (commands_.isEmpty()) {
-    // Move first node
-    NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, relative_, position_, move_dependencies_);
-    set_pos_command->redo_now();
-    commands_.append(set_pos_command);
-
-    // Get bounding rect
-    qreal bounding_rect_sz = 1.0;
-    qreal bounding_rect_half_sz = bounding_rect_sz * 0.5;
-    QRectF bounding_rect(position_.x() - bounding_rect_half_sz, position_.y() - bounding_rect_half_sz, bounding_rect_sz, bounding_rect_sz);
-
-    // Start moving other nodes
-    foreach (Node* surrounding, node_->parent()->nodes()) {
-      if (surrounding != node_) {
-        QPointF surrounding_position = node_->parent()->GetNodePosition(surrounding, relative_);
-        if (bounding_rect.contains(surrounding_position)) {
-          QPointF new_pos = surrounding_position;
-
-          qreal move_rate = 0.50;
-
-          if (surrounding_position.y() < position_.y()) {
-            move_rate = -move_rate;
-          }
-
-          new_pos.setY(new_pos.y() + move_rate);
-
-          auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, relative_, new_pos, true);
-          sur_command->redo();
-          commands_.append(sur_command);
-        }
-      }
-    }
-  } else {
-    for (int i=0; i<commands_.size(); i++) {
-      commands_.at(i)->redo_now();
-    }
-  }
-}
-
 void NodeSetPositionCommand::redo()
 {
-  graph_ = node_->parent();
-  if (!(added_ = !graph_->NodeMapContainsNode(node_, relevant_))) {
-    old_pos_ = graph_->GetNodePosition(node_, relevant_);
+  if (!(added_ = !context_->ContextContainsNode(node_))) {
+    old_pos_ = context_->GetNodePositionInContext(node_);
   }
-  graph_->SetNodePosition(node_, relevant_, pos_);
+
+  if (added_) {
+    context_->SetNodePositionInContext(node_, pos_);
+  } else {
+    move(context_, node_, pos_ - old_pos_, move_deps_);
+  }
 }
 
 void NodeSetPositionCommand::undo()
 {
   if (added_) {
-    graph_->RemoveNodePosition(node_, relevant_);
+    context_->RemoveNodeFromContext(node_);
   } else {
-    graph_->SetNodePosition(node_, relevant_, old_pos_);
+    move(context_, node_, old_pos_ - pos_, move_deps_);
   }
 }
 
-void NodeSetPositionAsChildCommand::redo()
+void NodeSetPositionCommand::move(Node *context, Node *node, const QPointF &diff, bool recursive)
 {
-  if (!sub_command_) {
-    // Calculate position of node
-    NodeGraph *graph = parent_->parent();
-    QPointF pos = graph->GetNodePosition(parent_, relative_);
+  QPointF p = context->GetNodePositionInContext(node);
+  p += diff;
+  context->SetNodePositionInContext(node, p);
 
-    // This is a dependency, so we'll place it one X before
-    pos.setX(pos.x() - 1);
-
-    // The Y will be calculated using the index and child count
-    pos.setY(pos.y() - (double(child_count_)*0.5) + this_index_ + 0.5);
-
-    sub_command_ = new MultiUndoCommand();
-    if (shift_surroundings_) {
-      sub_command_->add_child(new NodeSetPositionAndShiftSurroundingsCommand(node_, relative_, pos, true));
-    } else {
-      sub_command_->add_child(new NodeSetPositionCommand(node_, relative_, pos, true));
+  if (recursive) {
+    for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+      Node *output = it->second;
+      if (context->ContextContainsNode(output)) {
+        move(context, output, diff, recursive);
+      }
     }
   }
-
-  sub_command_->redo_now();
-}
-
-void NodeSetPositionToOffsetOfAnotherNodeCommand::redo()
-{
-  NodeGraph *graph = node_->parent();
-  old_pos_ = graph->GetNodePosition(node_, relative_);
-  graph->SetNodePosition(node_, relative_, graph->GetNodePosition(other_node_, relative_) + offset_);
-}
-
-void NodeSetPositionToOffsetOfAnotherNodeCommand::undo()
-{
-  NodeGraph *graph = node_->parent();
-  graph->SetNodePosition(node_, relative_, old_pos_);
 }
 
 void NodeRemovePositionFromContextCommand::redo()
 {
-  NodeGraph *graph = node_->parent();
-
-  contained_ = graph->ContextContainsNode(node_, context_);
+  contained_ = context_->ContextContainsNode(node_);
 
   if (contained_) {
-    old_pos_ = graph->GetNodePosition(node_, context_);
-    graph->RemoveNodePosition(node_, context_);
+    old_pos_ = context_->GetNodePositionInContext(node_);
+    context_->RemoveNodeFromContext(node_);
   }
 }
 
 void NodeRemovePositionFromContextCommand::undo()
 {
   if (contained_) {
-    NodeGraph *graph = node_->parent();
-    graph->SetNodePosition(node_, context_, old_pos_);
+    context_->SetNodePositionInContext(node_, old_pos_);
   }
 }
 
@@ -2438,28 +2406,21 @@ void NodeRemovePositionFromAllContextsCommand::redo()
 {
   NodeGraph *graph = node_->parent();
 
-  if (points_.empty()) {
-    // No points yet, let's see what points we should remove
-    auto map = graph->GetPositionMap();
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      if (it.value().contains(node_)) {
-        points_.insert({it.key(), it.value().value(node_)});
-      }
+  foreach (Node* context, graph->nodes()) {
+    if (context->ContextContainsNode(node_)) {
+      contexts_.insert({context, context->GetNodePositionInContext(node_)});
+      context->RemoveNodeFromContext(node_);
     }
-  }
-
-  for (auto it=points_.cbegin(); it!=points_.cend(); it++) {
-    graph->RemoveNodePosition(node_, it->first);
   }
 }
 
 void NodeRemovePositionFromAllContextsCommand::undo()
 {
-  NodeGraph *graph = node_->parent();
-
-  for (auto it=points_.crbegin(); it!=points_.crend(); it++) {
-    graph->SetNodePosition(node_, it->first, it->second);
+  for (auto it = contexts_.crbegin(); it != contexts_.crend(); it++) {
+    it->first->SetNodePositionInContext(node_, it->second);
   }
+
+  contexts_.clear();
 }
 
 void Node::ValueHint::Hash(QCryptographicHash &hash) const

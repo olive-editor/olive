@@ -45,6 +45,8 @@ public:
 
   NodeViewEdge(QGraphicsItem* parent = nullptr);
 
+  virtual ~NodeViewEdge() override;
+
   Node *output() const
   {
     return output_;
