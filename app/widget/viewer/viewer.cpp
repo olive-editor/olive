@@ -30,10 +30,6 @@
 #include <QtMath>
 #include <QVBoxLayout>
 
-#ifdef _WIN32
-#include "winbase.h"
-#endif
-
 #include "audio/audiomanager.h"
 #include "common/clamp.h"
 #include "common/power.h"
@@ -44,6 +40,7 @@
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "task/taskmanager.h"
+#include "viewerpreventsleep.h"
 #include "widget/menu/menu.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -436,7 +433,7 @@ void ViewerWidget::QueueNextAudioBuffer()
 
   // Clamp queue end by zero and the audio length
   queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
-  if (queue_end == audio_playback_queue_time_) {
+  if (queue_end <= audio_playback_queue_time_) {
     // This will queue nothing, so stop the loop here
     if (prequeuing_audio_) {
       DecrementPrequeuedAudio();
@@ -483,14 +480,16 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
           if (prequeuing_audio_) {
             // Add to prequeued audio buffer
             prequeued_audio_.append(pack);
-
-            DecrementPrequeuedAudio();
           } else {
             // Push directly to audio manager
             AudioManager::instance()->PushToOutput(GetConnectedNode()->GetAudioParams(), pack);
           }
         }
       }
+    }
+
+    if (prequeuing_audio_) {
+      DecrementPrequeuedAudio();
     }
 
     delete watcher;
@@ -707,9 +706,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     }
   }
   // Force screen to stay awake
-#ifdef _WIN32
-  SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
-#endif
+  PreventSleep(true);
 }
 
 void ViewerWidget::PauseInternal()
@@ -752,9 +749,7 @@ void ViewerWidget::PauseInternal()
   prequeuing_audio_ = 0;
 
   // Reset screen timeout timer
-#ifdef _WIN32
-  SetThreadExecutionState(ES_CONTINUOUS);
-#endif
+  PreventSleep(false);
 }
 
 void ViewerWidget::PushScrubbedAudio()

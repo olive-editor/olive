@@ -36,6 +36,8 @@ ExportTask::ExportTask(ViewerOutput *viewer_node,
   // Adjust video params to have no divider
   VideoParams vp = viewer_node->GetVideoParams();
   vp.set_divider(1);
+  vp.set_time_base(params.video_params().time_base());
+  vp.set_frame_rate(params.video_params().frame_rate());
   set_video_params(vp);
 
   set_audio_params(viewer_node->GetAudioParams());
