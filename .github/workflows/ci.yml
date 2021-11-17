@@ -294,9 +294,6 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v2
 
-      - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-
       - name: Automatically Generate Package Name
         shell: bash
         env:
@@ -313,14 +310,10 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          # HACK: Workaround for https://github.com/actions/virtual-environments/issues/4020
-          rm -rf /usr/local/bin/2to3
-
-          brew update
-          brew upgrade
-          brew tap olive-editor/homebrew
-          brew install -f qt5 ffmpeg-olive openimageio-olive opencolorio opentimelineio portaudio
-          echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
+          $DOWNLOAD_TOOL https://github.com/olive-editor/vcpkg-registry/releases/download/continuous/olive-dep-x64-osx.zip
+          unzip olive-dep-x64-osx.zip
+          VCPKG_DIR=(vcpkg-export-*)
+          echo "VCPKG_ROOT=$(pwd -W)/$VCPKG_DIR" >> $GITHUB_ENV
 
       - name: Acquire Google Crashpad
         shell: bash
@@ -344,7 +337,9 @@ jobs:
         run: |
           brew install ninja
           PATH=/opt/olive-editor/bin:/opt/olive-editor/crashpad:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}"
+            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}" \
+              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -366,9 +361,9 @@ jobs:
         run: |
           # Use macdeployqt and macdeployqt to bundle dependencies
           mv app/$BUNDLE_NAME .
-          macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
+          $VCPKG_ROOT/installed/x64-osx/tools/qt5-tools/bin/macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $(dirname $(which qmake))
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $VCPKG_ROOT/installed/x64-osx
 
           # Manual corrections
           for f in $BUNDLE_NAME/Contents/Frameworks/*.dylib
