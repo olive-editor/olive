@@ -170,7 +170,7 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   // Transplant alpha channel to frame
   Color rgba = job.GetValue(kColorInput).data().value<Color>();
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-  __m128 sse_color = _mm_load_ps(rgba.data());
+  __m128 sse_color = _mm_loadu_ps(rgba.data());
 #endif
 
   float *frame_dst = reinterpret_cast<float*>(frame->data());
