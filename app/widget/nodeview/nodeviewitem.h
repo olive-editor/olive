@@ -45,15 +45,10 @@ class NodeViewItem : public QObject, public QGraphicsRectItem
 {
   Q_OBJECT
 public:
-  NodeViewItem(QGraphicsItem* parent = nullptr);
+  NodeViewItem(Node* n, Node *context, QGraphicsItem* parent = nullptr);
 
   QPointF GetNodePosition() const;
   void SetNodePosition(const QPointF& pos);
-
-  /**
-   * @brief Set the Node to correspond to this widget
-   */
-  void SetNode(Node* n, Node *context);
 
   /**
    * @brief Get currently attached node
@@ -61,6 +56,11 @@ public:
   Node* GetNode() const
   {
     return node_;
+  }
+
+  Node *GetContext() const
+  {
+    return context_;
   }
 
   /**

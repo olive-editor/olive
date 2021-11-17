@@ -50,9 +50,7 @@ void NodeViewContext::AddChild(Node *node)
     return;
   }
 
-  NodeViewItem *item = new NodeViewItem(this);
-  item->SetNode(node, context_);
-  item->SetNodePosition(context_->GetNodePositionInContext(node));
+  NodeViewItem *item = new NodeViewItem(node, context_, this);
   item->SetFlowDirection(flow_dir_);
 
   connect(node, &Node::InputConnected, this, &NodeViewContext::ChildInputConnected);
@@ -160,6 +158,36 @@ void NodeViewContext::SetCurvedEdges(bool e)
   foreach (NodeViewEdge *edge, edges_) {
     edge->SetCurved(e);
   }
+}
+
+void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
+{
+  // Delete any selected edges
+  foreach (NodeViewEdge *edge, edges_) {
+    if (edge->isSelected()) {
+      command->AddEdge(edge->output(), edge->input());
+    }
+  }
+
+  // Delete any selected nodes
+  foreach (NodeViewItem *node, item_map_) {
+    if (node->isSelected()) {
+      command->AddNode(node->GetNode(), context_);
+    }
+  }
+}
+
+QVector<NodeViewItem *> NodeViewContext::GetSelectedItems() const
+{
+  QVector<NodeViewItem *> items;
+
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    if (it.value()->isSelected()) {
+      items.append(it.value());
+    }
+  }
+
+  return items;
 }
 
 void NodeViewContext::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

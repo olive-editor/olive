@@ -44,6 +44,19 @@ void NodeGraph::Clear()
   }
 }
 
+int NodeGraph::GetNumberOfContextsNodeIsIn(Node *node, bool except_itself) const
+{
+  int count = 0;
+
+  foreach (Node *ctx, node_children_) {
+    if (ctx->ContextContainsNode(node) && (!except_itself || ctx != node)) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
 void NodeGraph::childEvent(QChildEvent *event)
 {
   super::childEvent(event);

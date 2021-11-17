@@ -125,43 +125,7 @@ void NodeView::ClearGraph()
 
 void NodeView::DeleteSelected()
 {
-  MultiUndoCommand* command = new MultiUndoCommand();
-
-  {
-    // First remove any selected edges
-    QVector<NodeViewEdge *> selected_edges = scene_.GetSelectedEdges();
-
-    if (!selected_edges.isEmpty()) {
-      Node::OutputConnections removed_connections(selected_edges.size());
-
-      for (int i=0; i<selected_edges.size(); i++) {
-        NodeViewEdge* edge = selected_edges.at(i);
-        command->add_child(new NodeEdgeRemoveCommand(edge->output(), edge->input()));
-        removed_connections[i] = {edge->output(), edge->input()};
-      }
-    }
-  }
-
-  {
-    // Secondly remove any nodes
-    QVector<Node*> selected_nodes = scene_.GetSelectedNodes();
-
-    // Ensure no nodes are "undeletable"
-    for (int i=0;i<selected_nodes.size();i++) {
-      if (!selected_nodes.at(i)->CanBeDeleted()) {
-        selected_nodes.removeAt(i);
-        i--;
-      }
-    }
-
-    if (!selected_nodes.isEmpty()) {
-      for (Node* node : qAsConst(selected_nodes)) {
-        command->add_child(new NodeRemoveAndDisconnectCommand(node));
-      }
-    }
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  scene_.DeleteSelected();
 }
 
 void NodeView::SelectAll()
@@ -428,6 +392,11 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   }
 
   super::mousePressEvent(event);
+
+  auto selected_items = scene_.GetSelectedItems();
+  foreach (NodeViewItem *i, selected_items) {
+    dragging_nodes_.insert(i, i->GetNodePosition());
+  }
 }
 
 void NodeView::mouseMoveEvent(QMouseEvent *event)
@@ -657,6 +626,15 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
     DetachItemsFromCursor();
   }
+
+  for (auto it=dragging_nodes_.cbegin(); it!=dragging_nodes_.cend(); it++) {
+    NodeViewItem *i = it.key();
+    QPointF current_pos = i->GetNodePosition();
+    if (it.value() != current_pos) {
+      command->add_child(new NodeSetPositionCommand(i->GetNode(), i->GetContext(), current_pos));
+    }
+  }
+  dragging_nodes_.clear();
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 

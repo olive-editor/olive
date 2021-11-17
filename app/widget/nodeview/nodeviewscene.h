@@ -42,6 +42,8 @@ public:
   void SelectAll();
   void DeselectAll();
 
+  void DeleteSelected();
+
   /**
    * @brief Retrieve the graphical widget corresponding to a specific Node
    *
@@ -54,20 +56,13 @@ public:
    * in this view/scene), this function returns nullptr.
    */
   NodeViewItem* NodeToUIObject(Node* n);
-  NodeViewEdge *EdgeToUIObject(Node *output, const NodeInput &input);
 
   QVector<Node *> GetSelectedNodes() const;
   QVector<NodeViewItem*> GetSelectedItems() const;
-  QVector<NodeViewEdge*> GetSelectedEdges() const;
 
   const QHash<Node*, NodeViewItem*>& item_map() const
   {
     return item_map_;
-  }
-
-  const QVector<NodeViewEdge*>& edges() const
-  {
-    return edges_;
   }
 
   Qt::Orientation GetFlowOrientation() const;
@@ -95,8 +90,6 @@ private:
   QHash<Node*, NodeViewContext*> context_map_;
 
   QHash<Node*, NodeViewItem*> item_map_;
-
-  QVector<NodeViewEdge*> edges_;
 
   NodeGraph* graph_;
 

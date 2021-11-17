@@ -21,6 +21,7 @@
 #include "nodeviewscene.h"
 
 #include "common/functiontimer.h"
+#include "core.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
@@ -41,11 +42,6 @@ void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
   foreach (NodeViewContext *ctx, context_map_) {
     ctx->SetFlowDirection(direction_);
   }
-
-  // Iterate over edge items setting direction
-  foreach (NodeViewEdge* edge, edges_) {
-    edge->SetFlowDirection(direction_);
-  }
 }
 
 void NodeViewScene::clear()
@@ -63,9 +59,6 @@ void NodeViewScene::clear()
     delete it.value();
   }
   item_map_.clear();
-
-  qDeleteAll(edges_);
-  edges_.clear();
 }
 
 void NodeViewScene::SelectAll()
@@ -86,20 +79,20 @@ void NodeViewScene::DeselectAll()
   }
 }
 
+void NodeViewScene::DeleteSelected()
+{
+  NodeViewDeleteCommand* command = new NodeViewDeleteCommand();
+
+  foreach (NodeViewContext *ctx, context_map_) {
+    ctx->DeleteSelected(command);
+  }
+
+  Core::instance()->undo_stack()->push(command);
+}
+
 NodeViewItem *NodeViewScene::NodeToUIObject(Node *n)
 {
   return item_map_.value(n);
-}
-
-NodeViewEdge *NodeViewScene::EdgeToUIObject(Node *output, const NodeInput& input)
-{
-  foreach (NodeViewEdge* edge, edges_) {
-    if (edge->output() == output && edge->input() == input) {
-      return edge;
-    }
-  }
-
-  return nullptr;
 }
 
 QVector<Node *> NodeViewScene::GetSelectedNodes() const
@@ -118,29 +111,13 @@ QVector<Node *> NodeViewScene::GetSelectedNodes() const
 
 QVector<NodeViewItem *> NodeViewScene::GetSelectedItems() const
 {
-  QHash<Node*, NodeViewItem*>::const_iterator iterator;
-  QVector<NodeViewItem *> selected;
+  QVector<NodeViewItem *> items;
 
-  for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
-    if (iterator.value()->isSelected()) {
-      selected.append(iterator.value());
-    }
+  foreach (NodeViewContext *ctx, context_map_) {
+    items.append(ctx->GetSelectedItems());
   }
 
-  return selected;
-}
-
-QVector<NodeViewEdge *> NodeViewScene::GetSelectedEdges() const
-{
-  QVector<NodeViewEdge*> edges;
-
-  foreach (NodeViewEdge* e, edges_) {
-    if (e->isSelected()) {
-      edges.append(e);
-    }
-  }
-
-  return edges;
+  return items;
 }
 
 NodeViewContext *NodeViewScene::AddContext(Node *node)

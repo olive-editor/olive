@@ -7,6 +7,7 @@
 #include "node/node.h"
 #include "nodeviewcommon.h"
 #include "nodeviewedge.h"
+#include "nodeviewundo.h"
 
 namespace olive {
 
@@ -21,6 +22,10 @@ public:
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
   void SetCurvedEdges(bool e);
+
+  void DeleteSelected(NodeViewDeleteCommand *command);
+
+  QVector<NodeViewItem*> GetSelectedItems() const;
 
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 

@@ -39,10 +39,10 @@
 
 namespace olive {
 
-NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
+NodeViewItem::NodeViewItem(Node* n, Node *context, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
-  node_(nullptr),
-  context_(nullptr),
+  node_(n),
+  context_(context),
   expanded_(false),
   hide_titlebar_(false),
   highlighted_index_(-1),
@@ -69,6 +69,24 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   setRect(title_bar_rect_);
 
   output_connector_ = new NodeViewItemConnector(true, this);
+
+  // Set up node
+  node_->Retranslate();
+
+  foreach (const QString& input, node_->inputs()) {
+    if (node_->IsInputConnectable(input) && !node_->IsInputHidden(input)) {
+      node_inputs_.append(input);
+    }
+  }
+
+  UpdateInputConnectors();
+
+  connect(node_, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
+  connect(node_, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
+
+  SetNodePosition(context_->GetNodePositionInContext(node_));
+
+  SetExpanded(node_->property("expanded").toBool());
 }
 
 QPointF NodeViewItem::GetNodePosition() const
@@ -208,37 +226,6 @@ int NodeViewItem::GetIndexAt(QPointF pt) const
   return -1;
 }
 
-void NodeViewItem::SetNode(Node *n, Node *context)
-{
-  if (node_) {
-    disconnect(n, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
-    disconnect(n, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
-  }
-
-  node_ = n;
-  context_ = context;
-
-  node_inputs_.clear();
-  input_connectors_.clear();
-
-  if (node_) {
-    node_->Retranslate();
-
-    foreach (const QString& input, node_->inputs()) {
-      if (node_->IsInputConnectable(input) && !node_->IsInputHidden(input)) {
-        node_inputs_.append(input);
-      }
-    }
-
-    UpdateInputConnectors();
-
-    connect(n, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
-    connect(n, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
-  }
-
-  update();
-}
-
 void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 {
   if (node_inputs_.isEmpty()
@@ -248,6 +235,7 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 
   expanded_ = e;
   hide_titlebar_ = hide_titlebar;
+  node_->setProperty("expanded", e);
 
   if (expanded_ && !node_inputs_.isEmpty()) {
     // Create new rect
@@ -507,8 +495,8 @@ void NodeViewItem::SetLabelAsOutput(bool e)
 
 NodeViewEdge *NodeViewItem::GetEdgeFromInputConnector(NodeViewItemConnector *connector)
 {
-  ssize_t index = -1;
-  for (ssize_t i=0; i<ssize_t(input_connectors_.size()); i++) {
+  int index = -1;
+  for (int i=0; i<int(input_connectors_.size()); i++) {
     if (input_connectors_[i].get() == connector) {
       index = i;
       break;

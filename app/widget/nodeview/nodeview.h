@@ -219,6 +219,8 @@ private:
   QVector<Node*> last_set_filter_nodes_;
   QMap<Node*, QPointF> context_offsets_;
 
+  QMap<NodeViewItem*, QPointF> dragging_nodes_;
+
   double scale_;
 
   bool create_edge_already_exists_;

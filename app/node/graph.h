@@ -63,6 +63,8 @@ public:
     return default_nodes_;
   }
 
+  int GetNumberOfContextsNodeIsIn(Node *node, bool except_itself = false) const;
+
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph
