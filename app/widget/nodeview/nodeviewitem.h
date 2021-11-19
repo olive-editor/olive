@@ -71,6 +71,11 @@ public:
     return expanded_;
   }
 
+  const QVector<NodeViewEdge*> &edges() const
+  {
+    return edges_;
+  }
+
   /**
    * @brief Set expanded state
    */
@@ -129,6 +134,7 @@ public:
 
   void SetLabelAsOutput(bool e);
 
+  NodeInput GetInputFromInputConnector(NodeViewItemConnector *connector);
   NodeViewEdge *GetEdgeFromInputConnector(NodeViewItemConnector *connector);
 
 protected:

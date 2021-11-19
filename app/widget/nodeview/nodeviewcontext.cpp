@@ -91,7 +91,16 @@ void NodeViewContext::RemoveChild(Node *node)
   disconnect(node, &Node::InputConnected, this, &NodeViewContext::ChildInputConnected);
   disconnect(node, &Node::InputDisconnected, this, &NodeViewContext::ChildInputDisconnected);
 
-  delete item_map_.take(node);
+  NodeViewItem *item = item_map_.take(node);
+
+  // Delete edges first because the edge destructor will try to reference item (maybe that should
+  // be changed...)
+  QVector<NodeViewEdge*> edges_to_remove = item->edges();
+  foreach (NodeViewEdge *edge, edges_to_remove) {
+    ChildInputDisconnected(edge->output(), edge->input());
+  }
+
+  delete item;
 }
 
 void NodeViewContext::ChildInputConnected(Node *output, const NodeInput &input)
@@ -188,6 +197,15 @@ QVector<NodeViewItem *> NodeViewContext::GetSelectedItems() const
   }
 
   return items;
+}
+
+QPointF NodeViewContext::MapScenePosToNodePosInContext(const QPointF &pos) const
+{
+  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
+    QPointF pos_inside_parent = it.value()->mapToParent(it.value()->mapFromScene(pos));
+    return NodeViewItem::ScreenToNodePoint(pos_inside_parent, flow_dir_);
+  }
+  return QPointF(0, 0);
 }
 
 void NodeViewContext::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

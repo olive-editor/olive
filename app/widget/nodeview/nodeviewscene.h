@@ -60,6 +60,11 @@ public:
   QVector<Node *> GetSelectedNodes() const;
   QVector<NodeViewItem*> GetSelectedItems() const;
 
+  const QHash<Node*, NodeViewContext*> &context_map() const
+  {
+    return context_map_;
+  }
+
   const QHash<Node*, NodeViewItem*>& item_map() const
   {
     return item_map_;

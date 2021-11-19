@@ -23,6 +23,7 @@
 #include <QInputDialog>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QToolTip>
 
 #include "core.h"
 #include "nodeviewundo.h"
@@ -44,7 +45,8 @@ NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
   drop_edge_(nullptr),
   create_edge_(nullptr),
-  create_edge_dst_(nullptr),
+  create_edge_output_item_(nullptr),
+  create_edge_input_item_(nullptr),
   create_edge_dst_temp_expanded_(false),
   paste_command_(nullptr),
   scale_(1.0),
@@ -87,14 +89,14 @@ void NodeView::SetContexts(const QVector<Node*> &nodes)
   // Remove contexts that are no longer in the list
   foreach (Node *n, contexts_) {
     if (!nodes.contains(n)) {
-      scene_.RemoveContext(n);
+      RemoveContext(n);
     }
   }
 
   // Add contexts that are now in the list
   foreach (Node *n, nodes) {
     if (!contexts_.contains(n)) {
-      scene_.AddContext(n);
+      AddContext(n);
     }
   }
 
@@ -346,29 +348,56 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 
 void NodeView::mousePressEvent(QMouseEvent *event)
 {
+  // Handle mouse press event
   if (HandPress(event)) return;
 
+  // Get the item that the user clicked on, if any
   QGraphicsItem* item = itemAt(event->pos());
 
   if (event->button() == Qt::LeftButton) {
     // Determine if user clicked on a connector
-    if (NodeViewItemConnector *connector = dynamic_cast<NodeViewItemConnector *>(item)) {
-      NodeViewItem *attached_item = static_cast<NodeViewItem*>(connector->parentItem());
-      if (connector->IsOutput()) {
-        CreateNewEdge(attached_item, event->pos());
-        return;
-      } else {
-        NodeViewEdge *edge_item = attached_item->GetEdgeFromInputConnector(connector);
-        if (edge_item) {
-          create_edge_src_ = edge_item->from_item();
-          create_edge_ = edge_item;
+    NodeViewItemConnector *connector = dynamic_cast<NodeViewItemConnector *>(item);
+
+    // If the user clicked on a connector OR the user is holding Ctrl
+    if (connector || (event->modifiers() & Qt::ControlModifier)) {
+      // Get the relevant item, either the one attached to the connector or the item if Ctrl+Clicked
+      NodeViewItem *attached_item = connector ? static_cast<NodeViewItem*>(connector->parentItem()) : dynamic_cast<NodeViewItem*>(item);
+
+      if (attached_item) {
+        if (connector && !connector->IsOutput() && (create_edge_ = attached_item->GetEdgeFromInputConnector(connector))) {
+          // Since inputs can only have one edge connected, we grab the existing edge, if one exists
+          create_edge_output_item_ = create_edge_->from_item();
           create_edge_already_exists_ = true;
+          create_edge_from_output_ = true;
+        } else {
+          // Create a new edge from this output
+          create_edge_ = new NodeViewEdge();
+          create_edge_->SetCurved(scene_.GetEdgesAreCurved());
+          create_edge_->SetFlowDirection(scene_.GetFlowDirection());
+
+          // Set source and declare that we created this edge
+          if ((create_edge_from_output_ = (!connector || connector->IsOutput()))) {
+            // Edge is being created from output
+            create_edge_output_item_ = attached_item;
+          } else {
+            // Edge is being created from input
+            create_edge_input_item_ = attached_item;
+            create_edge_input_ = attached_item->GetInputFromInputConnector(connector);
+          }
+          create_edge_already_exists_ = false;
+
+          // Add edge to scene
+          scene_.addItem(create_edge_);
+
+          // Position edge to mouse cursor
+          PositionNewEdge(event->pos());
         }
         return;
       }
     }
   }
 
+  // Handle selections with the right mouse button
   if (event->button() == Qt::RightButton) {
     if (!item || !item->isSelected()) {
       // Qt doesn't do this by default for some reason
@@ -383,19 +412,16 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     }
   }
 
-  if (event->modifiers() & Qt::ControlModifier) {
-    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
-    if (node_item) {
-      CreateNewEdge(node_item, event->pos());
-      return;
-    }
-  }
-
+  // Default QGraphicsView functionality (selecting, dragging, etc.)
   super::mousePressEvent(event);
 
+  // For any selected item, store its position in case the user is dragging it somewhere else
   auto selected_items = scene_.GetSelectedItems();
   foreach (NodeViewItem *i, selected_items) {
-    dragging_nodes_.insert(i, i->GetNodePosition());
+    // Ignore items attached to the cursor
+    if (!IsItemAttachedToCursor(i)) {
+      dragging_nodes_.insert(i, i->GetNodePosition());
+    }
   }
 }
 
@@ -487,23 +513,17 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   if (HandRelease(event)) return;
 
   if (create_edge_) {
-    // We are creating a new edge or moving an existing one
+    // Check if the edge was reconnected to the same place as before
     MultiUndoCommand* command = new MultiUndoCommand();
-
-    Node::OutputConnections removed_edges;
-    Node::OutputConnection added_edge;
 
     bool reconnected_to_itself = false;
 
     if (create_edge_already_exists_) {
-      if (create_edge_dst_input_ == create_edge_->input()) {
+      if (create_edge_output_item_ == create_edge_->from_item() && create_edge_->input() == create_edge_input_) {
         reconnected_to_itself = true;
       } else {
         // We are moving (or removing) an existing edge
         command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
-
-        // Update contexts for edge removal
-        removed_edges.push_back({create_edge_->output(), create_edge_->input()});
       }
     } else {
       // We're creating a new edge, which means this UI object is only temporary
@@ -512,36 +532,35 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
     create_edge_ = nullptr;
 
-    if (create_edge_dst_) {
-      // Clear highlight
-      create_edge_dst_->SetHighlightedIndex(-1);
+    if (create_edge_output_item_ && create_edge_input_item_) {
+      // Clear highlight if we set one
+      create_edge_input_item_->SetHighlightedIndex(-1);
 
       // Collapse if we expanded it
       if (create_edge_dst_temp_expanded_) {
-        create_edge_dst_->SetExpanded(false);
-        create_edge_dst_->setZValue(0);
+        create_edge_input_item_->SetExpanded(false);
+        create_edge_input_item_->setZValue(0);
       }
 
-      NodeInput &creating_input = create_edge_dst_input_;
+      NodeInput &creating_input = create_edge_input_;
       if (creating_input.IsValid()) {
         // Make connection
         if (!reconnected_to_itself) {
-          Node *creating_output = create_edge_src_->GetNode();
+          Node *creating_output = create_edge_output_item_->GetNode();
 
           if (creating_input.IsConnected()) {
             Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
             command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
-            removed_edges.push_back(existing_edge_to_remove);
           }
 
           command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
-          added_edge = {creating_output, creating_input};
         }
 
         creating_input.Reset();
       }
 
-      create_edge_dst_ = nullptr;
+      create_edge_output_item_ = nullptr;
+      create_edge_input_item_ = nullptr;
     }
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -551,6 +570,21 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   MultiUndoCommand* command = new MultiUndoCommand();
 
   if (!attached_items_.isEmpty()) {
+    Node *context = nullptr;
+
+    QList<QGraphicsItem*> items_at_cursor = this->items(event->pos());
+    foreach (QGraphicsItem *i, items_at_cursor) {
+      if (NodeViewContext *context_item = dynamic_cast<NodeViewContext*>(i)) {
+        context = context_item->GetContext();
+        break;
+      }
+    }
+
+    if (!context) {
+      QToolTip::showText(QCursor::pos(), tr("Nodes must be placed inside a context."));
+      return;
+    }
+
     if (paste_command_) {
       // We've already "done" this command, but MultiUndoCommand prevents "redoing" twice, so we
       // add it to this command (which may have extra commands added too) so that it all gets undone
@@ -558,9 +592,26 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       command->add_child(paste_command_);
       paste_command_ = nullptr;
     }
-  }
 
-  if (!attached_items_.isEmpty()) {
+    {
+      MultiUndoCommand *add_command = new MultiUndoCommand();
+
+      foreach (const AttachedItem &ai, attached_items_) {
+        // Add node to the same graph that the context is in
+        add_command->add_child(new NodeAddCommand(context->parent(), ai.item->GetNode()));
+
+        // Add node to the context
+        add_command->add_child(new NodeSetPositionCommand(ai.item->GetNode(), context, scene_.context_map().value(context)->MapScenePosToNodePosInContext(ai.item->pos())));
+      }
+
+      if (add_command->child_count()) {
+        add_command->redo_now();
+        command->add_child(add_command);
+      } else {
+        delete add_command;
+      }
+    }
+
     {
       // Dropped attached item onto an edge, connect it between them
       MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
@@ -583,44 +634,6 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         command->add_child(drop_edge_command);
       } else {
         delete drop_edge_command;
-      }
-    }
-
-    {
-      // Remove from context any nodes that don't specifically output to said context
-      MultiUndoCommand *remove_pos_command = new MultiUndoCommand();
-
-      for (const AttachedItem &attached : qAsConst(attached_items_)) {
-        MultiUndoCommand *remove_pos_subcommand = new MultiUndoCommand();
-        Node *attached_node = scene_.item_map().key(attached.item);
-
-        bool removed = false;
-        QVector<Node*> relevant_contexts;
-        for (Node *context : qAsConst(contexts_)) {
-          if (attached_node->OutputsTo(context, true)) {
-            relevant_contexts.append(context);
-          } else {
-            remove_pos_subcommand->add_child(new NodeRemovePositionFromContextCommand(attached_node, context));
-            removed = true;
-          }
-        }
-
-        if (removed && !relevant_contexts.isEmpty()) {
-          for (Node *relevant : qAsConst(relevant_contexts)) {
-            remove_pos_subcommand->add_child(new NodeSetPositionCommand(attached_node, relevant, GetEstimatedPositionForContext(attached.item, relevant)));
-          }
-
-          remove_pos_command->add_child(remove_pos_subcommand);
-        } else {
-          delete remove_pos_subcommand;
-        }
-      }
-
-      if (remove_pos_command->child_count()) {
-        remove_pos_command->redo_now();
-        command->add_child(remove_pos_command);
-      } else {
-        delete remove_pos_command;
       }
     }
 
@@ -777,20 +790,14 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
 void NodeView::CreateNodeSlot(QAction *action)
 {
-  qDebug() << "STUB!";
-  /*Node* new_node = NodeFactory::CreateFromMenuAction(action);
+  Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {
-    paste_command_ = new MultiUndoCommand();
-    paste_command_->add_child(new NodeAddCommand(graph_, new_node));
-    for (Node *context : qAsConst(contexts_)) {
-      paste_command_->add_child(new NodeSetPositionCommand(new_node, context, QPointF(0, 0), false));
-    }
-    paste_command_->add_child(new NodeViewAttachNodesToCursor(this, {new_node}));
-    paste_command_->redo_now();
-
-    this->setFocus();
-  }*/
+    NodeViewItem *new_item = new NodeViewItem(new_node, nullptr);
+    new_item->SetFlowDirection(scene_.GetFlowDirection());
+    scene_.addItem(new_item);
+    AttachItemsToCursor({new_item});
+  }
 }
 
 void NodeView::ContextMenuSetDirection(QAction *action)
@@ -859,6 +866,15 @@ void NodeView::MoveToScenePoint(const QPointF &pos)
   centerOn(pos);
 }
 
+void NodeView::NodeRemovedFromGraph()
+{
+  Node *context = static_cast<Node*>(sender());
+
+  RemoveContext(context);
+
+  contexts_.removeOne(context);
+}
+
 void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)
 {
   QVector<NodeViewItem*> items(nodes.size());
@@ -885,6 +901,10 @@ void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
 
 void NodeView::DetachItemsFromCursor()
 {
+  foreach (const AttachedItem &ai, attached_items_) {
+    delete ai.item;
+  }
+
   attached_items_.clear();
 }
 
@@ -1037,20 +1057,6 @@ Menu *NodeView::CreateAddMenu(Menu *parent)
   return add_menu;
 }
 
-void NodeView::CreateNewEdge(NodeViewItem *output_item, const QPoint &mouse_pos)
-{
-  create_edge_ = new NodeViewEdge();
-  create_edge_src_ = output_item;
-  create_edge_already_exists_ = false;
-
-  create_edge_->SetCurved(scene_.GetEdgesAreCurved());
-  create_edge_->SetFlowDirection(scene_.GetFlowDirection());
-
-  scene_.addItem(create_edge_);
-
-  PositionNewEdge(mouse_pos);
-}
-
 void NodeView::PositionNewEdge(const QPoint &pos)
 {
   // Determine scene coordinate
@@ -1059,62 +1065,66 @@ void NodeView::PositionNewEdge(const QPoint &pos)
   // Find if the cursor is currently inside an item
   NodeViewItem* item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(pos));
 
+  NodeViewItem *source_item = create_edge_from_output_ ? create_edge_output_item_ : create_edge_input_item_;
+  NodeViewItem *&opposing_item = create_edge_from_output_ ? create_edge_input_item_ : create_edge_output_item_;
+
   // Filter out connecting to self
-  if (item_at_cursor == create_edge_src_) {
+  if (item_at_cursor == source_item) {
     item_at_cursor = nullptr;
   }
 
   // Filter out connecting to a node that connects to us
-  if (item_at_cursor && item_at_cursor->GetNode()->OutputsTo(create_edge_src_->GetNode(), true)) {
+  if (item_at_cursor
+      && ((create_edge_from_output_ && item_at_cursor->GetNode()->OutputsTo(source_item->GetNode(), true))
+          || (!create_edge_from_output_ && item_at_cursor->GetNode()->InputsFrom(source_item->GetNode(), true)))) {
     item_at_cursor = nullptr;
   }
 
   // If the item has changed
-  if (item_at_cursor != create_edge_dst_) {
+  if (item_at_cursor != opposing_item) {
     // If we had a destination active, disconnect from it since the item has changed
-    if (create_edge_dst_) {
-      create_edge_dst_->SetHighlightedIndex(-1);
+    if (opposing_item) {
+      opposing_item->SetHighlightedIndex(-1);
 
       if (create_edge_dst_temp_expanded_) {
         // We expanded this item, so we can un-expand it
-        create_edge_dst_->SetExpanded(false);
-        create_edge_dst_->setZValue(0);
+        opposing_item->SetExpanded(false);
+        opposing_item->setZValue(0);
       }
     }
 
     // Set destination
-    create_edge_dst_ = item_at_cursor;
+    opposing_item = item_at_cursor;
 
     // If our destination is an item, ensure it's expanded
-    if (create_edge_dst_) {
-      if ((create_edge_dst_temp_expanded_ = (!create_edge_dst_->IsExpanded()))) {
-        create_edge_dst_->SetExpanded(true, true);
-        create_edge_dst_->setZValue(100); // Ensure item is in front
+    if (opposing_item) {
+      if (create_edge_from_output_ && (create_edge_dst_temp_expanded_ = (!create_edge_input_item_->IsExpanded()))) {
+        create_edge_input_item_->SetExpanded(true, true);
+        create_edge_input_item_->setZValue(100); // Ensure item is in front
       }
     }
   }
 
   // If we have a destination, highlight the appropriate input
-  int highlight_index = -1;
-  if (create_edge_dst_) {
-    highlight_index = create_edge_dst_->GetIndexAt(scene_pt);
-    create_edge_dst_->SetHighlightedIndex(highlight_index);
+  if (create_edge_from_output_) {
+    int highlight_index = -1;
+    if (create_edge_input_item_) {
+      highlight_index = create_edge_input_item_->GetIndexAt(scene_pt);
+      create_edge_input_item_->SetHighlightedIndex(highlight_index);
+    }
+
+    if (highlight_index >= 0) {
+      create_edge_input_ = create_edge_input_item_->GetInputAtIndex(highlight_index);
+    } else {
+      create_edge_input_.Reset();
+    }
   }
 
-  if (highlight_index >= 0) {
-    create_edge_dst_input_ = create_edge_dst_->GetInputAtIndex(highlight_index);
-    create_edge_->SetPoints(create_edge_src_->GetOutputPoint(),
-                            create_edge_dst_->GetInputPoint(create_edge_dst_input_.input(), create_edge_dst_input_.element()),
-                            true);
-  } else {
-    create_edge_dst_input_.Reset();
-    create_edge_->SetPoints(create_edge_src_->GetOutputPoint(),
-                            scene_pt,
-                            false);
-  }
+  QPointF output_point = create_edge_output_item_ ? create_edge_output_item_->GetOutputPoint() : scene_pt;
+  QPointF input_point = create_edge_input_.IsValid() ? create_edge_input_item_->GetInputPoint(create_edge_input_.input(), create_edge_input_.element()) : scene_pt;
 
-  // Set connected to whether we have a valid input destination
-  create_edge_->SetConnected(create_edge_dst_input_.IsValid());
+  create_edge_->SetPoints(output_point, input_point, create_edge_input_item_ && create_edge_input_item_->IsExpanded());
+  create_edge_->SetConnected(create_edge_output_item_ && create_edge_input_.IsValid());
 }
 
 void NodeView::GroupNodes()
@@ -1177,6 +1187,29 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
   */
 }
 
+void NodeView::AddContext(Node *n)
+{
+  scene_.AddContext(n);
+  connect(n, &Node::RemovedFromGraph, this, &NodeView::NodeRemovedFromGraph);
+}
+
+void NodeView::RemoveContext(Node *n)
+{
+  scene_.RemoveContext(n);
+  disconnect(n, &Node::RemovedFromGraph, this, &NodeView::NodeRemovedFromGraph);
+}
+
+bool NodeView::IsItemAttachedToCursor(NodeViewItem *item) const
+{
+  foreach (const AttachedItem &ai, attached_items_) {
+    if (ai.item == item) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :
   view_(view),
   nodes_(nodes)
@@ -1196,25 +1229,6 @@ void NodeView::NodeViewAttachNodesToCursor::undo()
 Project *NodeView::NodeViewAttachNodesToCursor::GetRelevantProject() const
 {
   return nullptr;
-}
-
-void NodeView::NodeViewItemPreventRemovingCommand::redo()
-{
-  NodeViewItem *item = view_->scene_.item_map().value(node_);
-
-  if (item) {
-    old_prevent_removing_ = item->GetPreventRemoving();
-    item->SetPreventRemoving(new_prevent_removing_);
-  }
-}
-
-void NodeView::NodeViewItemPreventRemovingCommand::undo()
-{
-  NodeViewItem *item = view_->scene_.item_map().value(node_);
-
-  if (item) {
-    item->SetPreventRemoving(old_prevent_removing_);
-  }
 }
 
 }

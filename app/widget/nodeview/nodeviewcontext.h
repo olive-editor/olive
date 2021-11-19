@@ -17,6 +17,11 @@ class NodeViewContext : public QObject, public QGraphicsRectItem
 public:
   NodeViewContext(Node *context, QGraphicsItem *item = nullptr);
 
+  Node *GetContext() const
+  {
+    return context_;
+  }
+
   void UpdateRect();
 
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
@@ -26,6 +31,8 @@ public:
   void DeleteSelected(NodeViewDeleteCommand *command);
 
   QVector<NodeViewItem*> GetSelectedItems() const;
+
+  QPointF MapScenePosToNodePosInContext(const QPointF &pos) const;
 
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 

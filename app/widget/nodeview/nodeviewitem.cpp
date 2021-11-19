@@ -84,7 +84,9 @@ NodeViewItem::NodeViewItem(Node* n, Node *context, QGraphicsItem *parent) :
   connect(node_, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
   connect(node_, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
 
-  SetNodePosition(context_->GetNodePositionInContext(node_));
+  if (context_) {
+    SetNodePosition(context_->GetNodePositionInContext(node_));
+  }
 
   SetExpanded(node_->property("expanded").toBool());
 }
@@ -491,6 +493,17 @@ void NodeViewItem::SetLabelAsOutput(bool e)
   label_as_output_ = e;
   output_connector_->setVisible(!e);
   update();
+}
+
+NodeInput NodeViewItem::GetInputFromInputConnector(NodeViewItemConnector *connector)
+{
+  for (int i=0; i<int(input_connectors_.size()); i++) {
+    if (input_connectors_[i].get() == connector) {
+      return NodeInput(node_, node_inputs_.at(i));
+    }
+  }
+
+  return NodeInput();
 }
 
 NodeViewEdge *NodeViewItem::GetEdgeFromInputConnector(NodeViewItemConnector *connector)

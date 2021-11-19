@@ -139,11 +139,15 @@ private:
 
   Menu *CreateAddMenu(Menu *parent);
 
-  void CreateNewEdge(NodeViewItem *output_item, const QPoint &mouse_pos);
-
   void PositionNewEdge(const QPoint &pos);
 
   void PasteNodesInternal(const QVector<Node*> &duplicate_nodes = QVector<Node *>());
+
+  void AddContext(Node *n);
+
+  void RemoveContext(Node *n);
+
+  bool IsItemAttachedToCursor(NodeViewItem *item) const;
 
   class NodeViewAttachNodesToCursor : public UndoCommand
   {
@@ -171,43 +175,18 @@ private:
     QPointF original_pos;
   };
 
-  class NodeViewItemPreventRemovingCommand : public UndoCommand
-  {
-  public:
-    NodeViewItemPreventRemovingCommand(NodeView *view, Node *node, bool prevent_removing) :
-      view_(view),
-      node_(node),
-      new_prevent_removing_(prevent_removing)
-    {}
-
-    virtual Project * GetRelevantProject() const override
-    {
-      return node_->project();
-    }
-
-  protected:
-    virtual void redo() override;
-
-    virtual void undo() override;
-
-  private:
-    NodeView *view_;
-    Node *node_;
-    bool new_prevent_removing_;
-    bool old_prevent_removing_;
-
-  };
-
   QList<AttachedItem> attached_items_;
 
   NodeViewEdge* drop_edge_;
   NodeInput drop_input_;
 
   NodeViewEdge* create_edge_;
-  NodeViewItem* create_edge_src_;
-  NodeViewItem* create_edge_dst_;
-  NodeInput create_edge_dst_input_;
+  NodeViewItem* create_edge_output_item_;
+  NodeViewItem* create_edge_input_item_;
+  NodeInput create_edge_input_;
   bool create_edge_dst_temp_expanded_;
+  bool create_edge_already_exists_;
+  bool create_edge_from_output_;
 
   NodeViewScene scene_;
 
@@ -222,8 +201,6 @@ private:
   QMap<NodeViewItem*, QPointF> dragging_nodes_;
 
   double scale_;
-
-  bool create_edge_already_exists_;
 
   bool first_show_;
 
@@ -262,6 +239,8 @@ private slots:
   void UpdateViewportOnMiniMap();
 
   void MoveToScenePoint(const QPointF &pos);
+
+  void NodeRemovedFromGraph();
 
   void GroupNodes();
 

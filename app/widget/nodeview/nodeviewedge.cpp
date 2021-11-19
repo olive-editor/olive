@@ -162,7 +162,6 @@ void NodeViewEdge::UpdateCurve()
 {
   const QPointF &start = cached_start_;
   const QPointF &end = cached_end_;
-  const bool input_is_expanded = cached_input_is_expanded_;
 
   QPainterPath path;
   path.moveTo(start);
@@ -182,7 +181,7 @@ void NodeViewEdge::UpdateCurve()
       cp1 = QPointF(start.x(), half_y);
     }
 
-    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
+    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || cached_input_is_expanded_) {
       cp2 = QPointF(half_x, end.y());
     } else {
       cp2 = QPointF(end.x(), half_y);
