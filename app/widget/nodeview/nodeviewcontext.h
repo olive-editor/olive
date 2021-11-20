@@ -30,6 +30,8 @@ public:
 
   void DeleteSelected(NodeViewDeleteCommand *command);
 
+  void Select(const QVector<Node*> &nodes);
+
   QVector<NodeViewItem*> GetSelectedItems() const;
 
   QPointF MapScenePosToNodePosInContext(const QPointF &pos) const;

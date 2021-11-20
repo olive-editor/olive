@@ -122,16 +122,6 @@ public:
 
   void SetHighlightedIndex(int index);
 
-  void SetPreventRemoving(bool e)
-  {
-    prevent_removing_ = e;
-  }
-
-  bool GetPreventRemoving() const
-  {
-    return prevent_removing_;
-  }
-
   void SetLabelAsOutput(bool e);
 
   NodeInput GetInputFromInputConnector(NodeViewItemConnector *connector);
@@ -209,8 +199,6 @@ private:
   QVector<NodeViewEdge*> edges_;
 
   QPointF cached_node_pos_;
-
-  bool prevent_removing_;
 
   std::vector<std::unique_ptr<NodeViewItemConnector> > input_connectors_;
   NodeViewItemConnector *output_connector_;

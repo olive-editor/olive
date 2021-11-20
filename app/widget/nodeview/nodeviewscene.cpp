@@ -44,37 +44,16 @@ void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
   }
 }
 
-void NodeViewScene::clear()
-{
-  // Deselect everything (prevents signals that a selection has changed after deleting an object)
-  DeselectAll();
-
-  // HACK: QGraphicsScene contains some sort of internal caching of the selected items which doesn't update unless
-  //       we call a function like this. That means even though we deselect all items above, QGraphicsScene will
-  //       continue to incorrectly signal selectionChanged() when items that were selected (but are now not) get
-  //       deleted. Calling this function appears to update the internal cache and prevent this.
-  selectedItems();
-
-  for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
-    delete it.value();
-  }
-  item_map_.clear();
-}
-
 void NodeViewScene::SelectAll()
 {
-  QList<QGraphicsItem *> all_items = this->items();
-
-  foreach (QGraphicsItem* i, all_items) {
+  foreach (QGraphicsItem* i, items()) {
     i->setSelected(true);
   }
 }
 
 void NodeViewScene::DeselectAll()
 {
-  QList<QGraphicsItem *> selected_items = this->selectedItems();
-
-  foreach (QGraphicsItem* i, selected_items) {
+  foreach (QGraphicsItem* i, items()) {
     i->setSelected(false);
   }
 }
@@ -88,25 +67,6 @@ void NodeViewScene::DeleteSelected()
   }
 
   Core::instance()->undo_stack()->push(command);
-}
-
-NodeViewItem *NodeViewScene::NodeToUIObject(Node *n)
-{
-  return item_map_.value(n);
-}
-
-QVector<Node *> NodeViewScene::GetSelectedNodes() const
-{
-  QHash<Node*, NodeViewItem*>::const_iterator iterator;
-  QVector<Node *> selected;
-
-  for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
-    if (iterator.value()->isSelected()) {
-      selected.append(iterator.key());
-    }
-  }
-
-  return selected;
 }
 
 QVector<NodeViewItem *> NodeViewScene::GetSelectedItems() const
@@ -151,29 +111,9 @@ void NodeViewScene::RemoveContext(Node *node)
   delete context_map_.take(node);
 }
 
-int NodeViewScene::DetermineWeight(Node *n)
-{
-  QVector<Node*> inputs = n->GetImmediateDependencies();
-
-  int weight = 0;
-
-  foreach (Node* i, inputs) {
-    if (i->GetNumberOfRoutesTo(n) == 1) {
-      weight += DetermineWeight(i);
-    }
-  }
-
-  return qMax(1, weight);
-}
-
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
 {
   return NodeViewCommon::GetFlowOrientation(direction_);
-}
-
-NodeViewCommon::FlowDirection NodeViewScene::GetFlowDirection() const
-{
-  return direction_;
 }
 
 void NodeViewScene::SetEdgesAreCurved(bool curved)

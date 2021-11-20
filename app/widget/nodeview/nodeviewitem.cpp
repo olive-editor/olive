@@ -47,7 +47,6 @@ NodeViewItem::NodeViewItem(Node* n, Node *context, QGraphicsItem *parent) :
   hide_titlebar_(false),
   highlighted_index_(-1),
   flow_dir_(NodeViewCommon::kLeftToRight),
-  prevent_removing_(false),
   label_as_output_(false)
 {
   // Set flags for this widget

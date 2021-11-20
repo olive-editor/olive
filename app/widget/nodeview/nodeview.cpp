@@ -140,20 +140,7 @@ void NodeView::SelectAll()
 
   ConnectSelectionChangedSignal();
 
-  // Determine which nodes aren't selected and add them to a separate vector
-  QVector<Node*> new_selection;
-  for (auto it=scene_.item_map().cbegin(); it!=scene_.item_map().cend(); it++) {
-    Node *n = it.key();
-    if (!selected_nodes_.contains(n)) {
-      new_selection.append(n);
-    }
-  }
-
-  // Add this vector to our total selection vector
-  selected_nodes_.append(new_selection);
-
-  // Signal new nodes
-  emit NodesSelected(new_selection);
+  UpdateSelectionCache();
 }
 
 void NodeView::DeselectAll()
@@ -175,7 +162,7 @@ void NodeView::DeselectAll()
   selected_nodes_.clear();
 }
 
-void NodeView::Select(QVector<Node *> nodes, bool center_view_on_item)
+void NodeView::Select(const QVector<Node *> &nodes, bool center_view_on_item)
 {
   // Optimization: rather than respond to every single item being selected, ignore the signal and
   //               then handle them all at the end.
@@ -186,54 +173,21 @@ void NodeView::Select(QVector<Node *> nodes, bool center_view_on_item)
 
   scene_.DeselectAll();
 
-  // Remove any duplicates
-  QVector<Node*> processed;
-
-  NodeViewItem *first_item = nullptr;
-
-  for (Node* n : qAsConst(nodes)) {
-    if (processed.contains(n)) {
-      continue;
-    }
-
-    processed.append(n);
-
-    NodeViewItem* item = scene_.NodeToUIObject(n);
-
-    if (item) {
-      item->setSelected(true);
-
-      if (!first_item) {
-        first_item = item;
-      }
-
-      if (deselections.contains(n)) {
-        deselections.removeOne(n);
-      } else {
-        new_selections.append(n);
-      }
-    }
+  foreach (NodeViewContext *context, scene_.context_map()) {
+    context->Select(nodes);
   }
 
+  /*
   // Center on something
+  Node *first_item = nodes.isEmpty() ? nullptr : nodes.first();
   if (center_view_on_item && first_item) {
     centerOn(first_item);
   }
+  */
 
   ConnectSelectionChangedSignal();
 
-  // Emit deselect signal for any nodes that weren't in the list
-  if (!deselections.isEmpty()) {
-    emit NodesDeselected(deselections);
-  }
-
-  // Emit select signal for any nodes that weren't in the list
-  if (!new_selections.isEmpty()) {
-    emit NodesSelected(new_selections);
-  }
-
-  // Update selected list to the list we received
-  selected_nodes_ = nodes;
+  UpdateSelectionCache();
 }
 
 void NodeView::CopySelected(bool cut)
@@ -256,7 +210,7 @@ void NodeView::Paste()
 
 void NodeView::Duplicate()
 {
-  PasteNodesInternal(scene_.GetSelectedNodes());
+  PasteNodesInternal(selected_nodes_);
 }
 
 void NodeView::SetColorLabel(int index)
@@ -292,7 +246,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
     for (Node *n : qAsConst(selected_nodes_)) {
       for (Node *context : qAsConst(contexts_)) {
         if (context->ContextContainsNode(n)) {
-          QPointF old_pos = context->GetNodePositionInContext(n);
+          Node::Position old_pos = context->GetNodePositionInContext(n);
 
           // Determine one pixel in scene units
           double movement_amt = 1.0 / scale_;
@@ -420,7 +374,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   foreach (NodeViewItem *i, selected_items) {
     // Ignore items attached to the cursor
     if (!IsItemAttachedToCursor(i)) {
-      dragging_nodes_.insert(i, i->GetNodePosition());
+      dragging_items_.insert(i, i->GetNodePosition());
     }
   }
 }
@@ -554,6 +508,11 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
           }
 
           command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
+
+          // If the output is not in the input's context, add it now
+          if (!create_edge_input_item_->GetContext()->ContextContainsNode(creating_output)) {
+            command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
+          }
         }
 
         creating_input.Reset();
@@ -640,14 +599,14 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     DetachItemsFromCursor();
   }
 
-  for (auto it=dragging_nodes_.cbegin(); it!=dragging_nodes_.cend(); it++) {
+  for (auto it=dragging_items_.cbegin(); it!=dragging_items_.cend(); it++) {
     NodeViewItem *i = it.key();
     QPointF current_pos = i->GetNodePosition();
     if (it.value() != current_pos) {
       command->add_child(new NodeSetPositionCommand(i->GetNode(), i->GetContext(), current_pos));
     }
   }
-  dragging_nodes_.clear();
+  dragging_items_.clear();
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
@@ -663,36 +622,41 @@ void NodeView::resizeEvent(QResizeEvent *event)
 
 void NodeView::UpdateSelectionCache()
 {
-  QVector<Node*> current_selection = scene_.GetSelectedNodes();
+  QVector<NodeViewItem*> current_selection = scene_.GetSelectedItems();
 
   QVector<Node*> selected;
   QVector<Node*> deselected;
 
   // Determine which nodes are newly selected
-  if (selected_nodes_.isEmpty()) {
-    // All nodes in the current selection have just been selected
-    selected = current_selection;
-  } else {
-    for (Node* n : qAsConst(current_selection)) {
-      if (!selected_nodes_.contains(n)) {
-        selected.append(n);
-      }
+  foreach (NodeViewItem* i, current_selection) {
+    Node *n = i->GetNode();
+    if (!selected_nodes_.contains(n)) {
+      selected.append(n);
+      selected_nodes_.append(n);
     }
   }
 
   // Determine which nodes are newly deselected
   if (current_selection.isEmpty()) {
-    // All nodes that were selected have been deselected
+    // All nodes that were selected have been deselected, so we'll just set them all to `deselected`
     deselected = selected_nodes_;
   } else {
-    for (Node* n : qAsConst(selected_nodes_)) {
-      if (!current_selection.contains(n)) {
+    foreach (Node* n, selected_nodes_) {
+      bool still_selected = false;
+
+      foreach (NodeViewItem *i, current_selection) {
+        if (i->GetNode() == n) {
+          still_selected = true;
+          break;
+        }
+      }
+
+      if (still_selected) {
         deselected.append(n);
+        selected_nodes_.removeOne(n);
       }
     }
   }
-
-  selected_nodes_ = current_selection;
 
   if (!selected.isEmpty()) {
     emit NodesSelected(selected);
@@ -722,7 +686,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     // Label node action
     QAction* label_action = m.addAction(tr("Label"));
     connect(label_action, &QAction::triggered, this, [this](){
-      Core::instance()->LabelNodes(scene_.GetSelectedNodes());
+      Core::instance()->LabelNodes(selected_nodes_);
     });
 
     // Grouping
@@ -807,11 +771,12 @@ void NodeView::ContextMenuSetDirection(QAction *action)
 
 void NodeView::OpenSelectedNodeInViewer()
 {
-  QVector<Node*> selected = scene_.GetSelectedNodes();
-  ViewerOutput* viewer = selected.isEmpty() ? nullptr : dynamic_cast<ViewerOutput*>(selected.first());
-
-  if (viewer) {
-    Core::instance()->OpenNodeInViewer(viewer);
+  // Find first viewer in list of selected nodes and open it
+  foreach (Node *n, selected_nodes_) {
+    if (ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(n)) {
+      Core::instance()->OpenNodeInViewer(viewer);
+      break;
+    }
   }
 }
 
@@ -873,17 +838,6 @@ void NodeView::NodeRemovedFromGraph()
   RemoveContext(context);
 
   contexts_.removeOne(context);
-}
-
-void NodeView::AttachNodesToCursor(const QVector<Node *> &nodes)
-{
-  QVector<NodeViewItem*> items(nodes.size());
-
-  for (int i=0; i<nodes.size(); i++) {
-    items[i] = scene_.NodeToUIObject(nodes.at(i));
-  }
-
-  AttachItemsToCursor(items);
 }
 
 void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
@@ -974,7 +928,8 @@ bool NodeView::eventFilter(QObject *object, QEvent *event)
 
 void NodeView::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void *userdata)
 {
-  writer->writeStartElement(QStringLiteral("pos"));
+  qDebug() << "STUB!";
+  /*writer->writeStartElement(QStringLiteral("pos"));
 
   for (Node *n : nodes) {
     NodeViewItem *item = scene_.item_map().value(n);
@@ -987,7 +942,7 @@ void NodeView::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVec
     writer->writeEndElement(); // node
   }
 
-  writer->writeEndElement(); // pos
+  writer->writeEndElement(); // pos*/
 }
 
 void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void *userdata)
@@ -1208,27 +1163,6 @@ bool NodeView::IsItemAttachedToCursor(NodeViewItem *item) const
   }
 
   return false;
-}
-
-NodeView::NodeViewAttachNodesToCursor::NodeViewAttachNodesToCursor(NodeView *view, const QVector<Node *> &nodes) :
-  view_(view),
-  nodes_(nodes)
-{
-}
-
-void NodeView::NodeViewAttachNodesToCursor::redo()
-{
-  view_->AttachNodesToCursor(nodes_);
-}
-
-void NodeView::NodeViewAttachNodesToCursor::undo()
-{
-  view_->DetachItemsFromCursor();
-}
-
-Project *NodeView::NodeViewAttachNodesToCursor::GetRelevantProject() const
-{
-  return nullptr;
 }
 
 }

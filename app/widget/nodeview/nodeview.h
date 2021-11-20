@@ -63,7 +63,7 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(QVector<Node *> nodes, bool center_view_on_item);
+  void Select(const QVector<Node *> &nodes, bool center_view_on_item);
 
   void CopySelected(bool cut);
   void Paste();
@@ -120,8 +120,6 @@ protected:
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
 
 private:
-  void AttachNodesToCursor(const QVector<Node *> &nodes);
-
   void AttachItemsToCursor(const QVector<NodeViewItem *> &items);
 
   void DetachItemsFromCursor();
@@ -148,25 +146,6 @@ private:
   void RemoveContext(Node *n);
 
   bool IsItemAttachedToCursor(NodeViewItem *item) const;
-
-  class NodeViewAttachNodesToCursor : public UndoCommand
-  {
-  public:
-    NodeViewAttachNodesToCursor(NodeView* view, const QVector<Node*>& nodes);
-
-    virtual Project * GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override;
-
-    virtual void undo() override;
-
-  private:
-    NodeView* view_;
-
-    QVector<Node*> nodes_;
-
-  };
 
   NodeViewMiniMap *minimap_;
 
@@ -198,7 +177,7 @@ private:
   QVector<Node*> last_set_filter_nodes_;
   QMap<Node*, QPointF> context_offsets_;
 
-  QMap<NodeViewItem*, QPointF> dragging_nodes_;
+  QMap<NodeViewItem*, QPointF> dragging_items_;
 
   double scale_;
 

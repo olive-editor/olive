@@ -37,27 +37,11 @@ class NodeViewScene : public QGraphicsScene
 public:
   NodeViewScene(QObject *parent = nullptr);
 
-  void clear();
-
   void SelectAll();
   void DeselectAll();
 
   void DeleteSelected();
 
-  /**
-   * @brief Retrieve the graphical widget corresponding to a specific Node
-   *
-   * In situations where you know what Node you're working with but need the UI object (e.g. for positioning), this
-   * static function will retrieve the NodeViewItem (Node UI representation) connected to this Node in a certain
-   * QGraphicsScene. This can be called from any other UI object, since it'll have a reference to the QGraphicsScene
-   * through QGraphicsItem::scene().
-   *
-   * If the scene does not contain a widget for this node (usually meaning the node's graph is not the active graph
-   * in this view/scene), this function returns nullptr.
-   */
-  NodeViewItem* NodeToUIObject(Node* n);
-
-  QVector<Node *> GetSelectedNodes() const;
   QVector<NodeViewItem*> GetSelectedItems() const;
 
   const QHash<Node*, NodeViewContext*> &context_map() const
@@ -65,14 +49,13 @@ public:
     return context_map_;
   }
 
-  const QHash<Node*, NodeViewItem*>& item_map() const
-  {
-    return item_map_;
-  }
-
   Qt::Orientation GetFlowOrientation() const;
 
-  NodeViewCommon::FlowDirection GetFlowDirection() const;
+  NodeViewCommon::FlowDirection GetFlowDirection() const
+  {
+    return direction_;
+  }
+
   void SetFlowDirection(NodeViewCommon::FlowDirection direction);
 
   bool GetEdgesAreCurved() const
@@ -90,11 +73,7 @@ public slots:
   void SetEdgesAreCurved(bool curved);
 
 private:
-  static int DetermineWeight(Node* n);
-
   QHash<Node*, NodeViewContext*> context_map_;
-
-  QHash<Node*, NodeViewItem*> item_map_;
 
   NodeGraph* graph_;
 
