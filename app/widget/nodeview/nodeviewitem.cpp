@@ -85,9 +85,8 @@ NodeViewItem::NodeViewItem(Node* n, Node *context, QGraphicsItem *parent) :
 
   if (context_) {
     SetNodePosition(context_->GetNodePositionInContext(node_));
+    SetExpanded(context_->IsNodeExpandedInContext(node_));
   }
-
-  SetExpanded(node_->property("expanded").toBool());
 }
 
 QPointF NodeViewItem::GetNodePosition() const
@@ -236,7 +235,10 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 
   expanded_ = e;
   hide_titlebar_ = hide_titlebar;
-  node_->setProperty("expanded", e);
+
+  if (context_) {
+    context_->SetNodeExpandedInContext(node_, e);
+  }
 
   if (expanded_ && !node_inputs_.isEmpty()) {
     // Create new rect

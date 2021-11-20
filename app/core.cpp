@@ -437,7 +437,7 @@ void Core::CreateNewSequence()
 
     command->add_child(new NodeAddCommand(active_project, new_sequence));
     command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
-    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0)));
+    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, Node::Position()));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);

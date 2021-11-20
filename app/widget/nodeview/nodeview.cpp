@@ -523,7 +523,6 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     }
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
-    return;
   }
 
   MultiUndoCommand* command = new MultiUndoCommand();
@@ -539,64 +538,63 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       }
     }
 
-    if (!context) {
-      QToolTip::showText(QCursor::pos(), tr("Nodes must be placed inside a context."));
-      return;
-    }
-
-    if (paste_command_) {
-      // We've already "done" this command, but MultiUndoCommand prevents "redoing" twice, so we
-      // add it to this command (which may have extra commands added too) so that it all gets undone
-      // in the same action
-      command->add_child(paste_command_);
-      paste_command_ = nullptr;
-    }
-
-    {
-      MultiUndoCommand *add_command = new MultiUndoCommand();
-
-      foreach (const AttachedItem &ai, attached_items_) {
-        // Add node to the same graph that the context is in
-        add_command->add_child(new NodeAddCommand(context->parent(), ai.item->GetNode()));
-
-        // Add node to the context
-        add_command->add_child(new NodeSetPositionCommand(ai.item->GetNode(), context, scene_.context_map().value(context)->MapScenePosToNodePosInContext(ai.item->pos())));
+    if (context) {
+      if (paste_command_) {
+        // We've already "done" this command, but MultiUndoCommand prevents "redoing" twice, so we
+        // add it to this command (which may have extra commands added too) so that it all gets undone
+        // in the same action
+        command->add_child(paste_command_);
+        paste_command_ = nullptr;
       }
 
-      if (add_command->child_count()) {
-        add_command->redo_now();
-        command->add_child(add_command);
-      } else {
-        delete add_command;
-      }
-    }
+      {
+        MultiUndoCommand *add_command = new MultiUndoCommand();
 
-    {
-      // Dropped attached item onto an edge, connect it between them
-      MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
-      if (attached_items_.size() == 1) {
-        Node* dropping_node = attached_items_.first().item->GetNode();
+        foreach (const AttachedItem &ai, attached_items_) {
+          // Add node to the same graph that the context is in
+          add_command->add_child(new NodeAddCommand(context->parent(), ai.item->GetNode()));
 
-        if (drop_edge_) {
-          // Remove old edge
-          drop_edge_command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
-
-          // Place new edges
-          drop_edge_command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
-          drop_edge_command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
+          // Add node to the context
+          add_command->add_child(new NodeSetPositionCommand(ai.item->GetNode(), context, scene_.context_map().value(context)->MapScenePosToNodePosInContext(ai.item->pos())));
         }
 
-        drop_edge_ = nullptr;
+        if (add_command->child_count()) {
+          add_command->redo_now();
+          command->add_child(add_command);
+        } else {
+          delete add_command;
+        }
       }
-      if (drop_edge_command->child_count()) {
-        drop_edge_command->redo_now();
-        command->add_child(drop_edge_command);
-      } else {
-        delete drop_edge_command;
-      }
-    }
 
-    DetachItemsFromCursor();
+      {
+        // Dropped attached item onto an edge, connect it between them
+        MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
+        if (attached_items_.size() == 1) {
+          Node* dropping_node = attached_items_.first().item->GetNode();
+
+          if (drop_edge_) {
+            // Remove old edge
+            drop_edge_command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
+
+            // Place new edges
+            drop_edge_command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
+            drop_edge_command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
+          }
+
+          drop_edge_ = nullptr;
+        }
+        if (drop_edge_command->child_count()) {
+          drop_edge_command->redo_now();
+          command->add_child(drop_edge_command);
+        } else {
+          delete drop_edge_command;
+        }
+      }
+
+      DetachItemsFromCursor();
+    } else {
+      QToolTip::showText(QCursor::pos(), tr("Nodes must be placed inside a context."));
+    }
   }
 
   for (auto it=dragging_items_.cbegin(); it!=dragging_items_.cend(); it++) {

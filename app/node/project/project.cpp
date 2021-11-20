@@ -158,7 +158,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
             while (XMLReadNextStartElement(reader)) {
               if (reader->name() == QStringLiteral("node")) {
                 quintptr node_ptr;
-                QPointF node_pos;
+                Node::Position node_pos;
 
                 if (LoadPosition(reader, &node_ptr, &node_pos)) {
                   Node *node = xml_node_data.node_ptrs.value(node_ptr);
@@ -350,7 +350,7 @@ void Project::RegenerateUuid()
   uuid_ = QUuid::createUuid();
 }
 
-bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF *pos)
+bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos)
 {
   bool got_node_ptr = false;
   bool got_pos_x = false;
@@ -366,11 +366,13 @@ bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("x")) {
-      pos->setX(reader->readElementText().toDouble());
+      pos->position.setX(reader->readElementText().toDouble());
       got_pos_x = true;
     } else if (reader->name() == QStringLiteral("y")) {
-      pos->setY(reader->readElementText().toDouble());
+      pos->position.setY(reader->readElementText().toDouble());
       got_pos_y = true;
+    } else if (reader->name() == QStringLiteral("expanded")) {
+      pos->expanded = reader->readElementText().toInt();
     } else {
       reader->skipCurrentElement();
     }
@@ -379,12 +381,13 @@ bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF
   return got_node_ptr && got_pos_x && got_pos_y;
 }
 
-void Project::SavePosition(QXmlStreamWriter *writer, Node *node, const QPointF &pos)
+void Project::SavePosition(QXmlStreamWriter *writer, Node *node, const Node::Position &pos)
 {
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(node)));
 
-  writer->writeTextElement(QStringLiteral("x"), QString::number(pos.x()));
-  writer->writeTextElement(QStringLiteral("y"), QString::number(pos.y()));
+  writer->writeTextElement(QStringLiteral("x"), QString::number(pos.position.x()));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(pos.position.y()));
+  writer->writeTextElement(QStringLiteral("expanded"), QString::number(pos.expanded));
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)

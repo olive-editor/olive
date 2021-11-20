@@ -208,10 +208,51 @@ public:
     return HasInputWithID(id);
   }
 
-  using PositionMap = QHash<Node*, QPointF>;
+  struct Position
+  {
+    Position(const QPointF &p = QPointF(0, 0), bool e = false)
+    {
+      position = p;
+      expanded = e;
+    }
+
+    QPointF position;
+    bool expanded;
+
+    inline Position &operator+=(const Position &p)
+    {
+      position += p.position;
+      return *this;
+    }
+
+    inline Position &operator-=(const Position &p)
+    {
+      position -= p.position;
+      return *this;
+    }
+
+    friend inline const Position operator+(Position a, const Position &b)
+    {
+      a += b;
+      return a;
+    }
+
+    friend inline const Position operator-(Position a, const Position &b)
+    {
+      a -= b;
+      return a;
+    }
+  };
+
+  using PositionMap = QHash<Node*, Position>;
   const PositionMap &GetContextPositions() const
   {
     return context_positions_;
+  }
+
+  bool IsNodeExpandedInContext(Node *node) const
+  {
+    return context_positions_.value(node).expanded;
   }
 
   bool ContextContainsNode(Node *node) const
@@ -219,9 +260,24 @@ public:
     return context_positions_.contains(node);
   }
 
-  QPointF GetNodePositionInContext(Node *node);
+  Position GetNodePositionDataInContext(Node *node)
+  {
+    return context_positions_.value(node);
+  }
+
+  QPointF GetNodePositionInContext(Node *node)
+  {
+    return GetNodePositionDataInContext(node).position;
+  }
 
   bool SetNodePositionInContext(Node *node, const QPointF &pos);
+
+  bool SetNodePositionInContext(Node *node, const Position &pos);
+
+  void SetNodeExpandedInContext(Node *node, bool e)
+  {
+    context_positions_[node].expanded = e;
+  }
 
   bool RemoveNodeFromContext(Node *node);
 
@@ -1007,11 +1063,6 @@ protected:
 
 signals:
   /**
-   * @brief Signal emitted whenever the position is set through SetPosition()
-   */
-  void PositionChanged(const QPointF& pos);
-
-  /**
    * @brief Signal emitted when SetLabel() is called
    */
   void LabelChanged(const QString& s);
@@ -1394,7 +1445,7 @@ using NodePtr = std::shared_ptr<Node>;
 class NodeSetPositionCommand : public UndoCommand
 {
 public:
-  NodeSetPositionCommand(Node* node, Node* context, const QPointF& pos, bool move_dependencies_relatively = false)
+  NodeSetPositionCommand(Node* node, Node* context, const Node::Position& pos, bool move_dependencies_relatively = false)
   {
     node_ = node;
     context_ = context;
@@ -1417,8 +1468,8 @@ private:
 
   Node* node_;
   Node* context_;
-  QPointF pos_;
-  QPointF old_pos_;
+  Node::Position pos_;
+  Node::Position old_pos_;
   bool added_;
   bool move_deps_;
 

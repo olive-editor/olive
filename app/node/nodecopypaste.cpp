@@ -92,7 +92,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   QVector<Node*> pasted_nodes;
   XMLNodeData xml_node_data;
-  QMap<quintptr, QMap<quintptr, QPointF> > pasted_contexts;
+  QMap<quintptr, QMap<quintptr, Node::Position> > pasted_contexts;
 
   while (XMLReadNextStartElement(&reader)) {
     if (reader.name() == QStringLiteral("olive")) {
@@ -131,7 +131,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
           while (XMLReadNextStartElement(&reader)) {
             if (reader.name() == QStringLiteral("context")) {
               // Get context ptr
-              QMap<quintptr, QPointF> map;
+              QMap<quintptr, Node::Position> map;
               quintptr context_ptr = 0;
               XMLAttributeLoop((&reader), attr) {
                 if (attr.name() == QStringLiteral("ptr")) {
@@ -144,7 +144,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
               while (XMLReadNextStartElement(&reader)) {
                 if (reader.name() == QStringLiteral("node")) {
                   quintptr node_ptr;
-                  QPointF node_pos;
+                  Node::Position node_pos;
 
                   if (Project::LoadPosition(&reader, &node_ptr, &node_pos)) {
                     map.insert(node_ptr, node_pos);
@@ -216,7 +216,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
   for (auto it=pasted_contexts.cbegin(); it!=pasted_contexts.cend(); it++) {
     Node *context = xml_node_data.node_ptrs.value(it.key());
     if (context) {
-      const QMap<quintptr, QPointF> &map = it.value();
+      auto map = it.value();
       for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
         Node *subnode = xml_node_data.node_ptrs.value(jt.key());
         if (subnode) {

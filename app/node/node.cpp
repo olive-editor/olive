@@ -243,12 +243,16 @@ QIcon Node::icon() const
   return icon::New;
 }
 
-QPointF Node::GetNodePositionInContext(Node *node)
+bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)
 {
-  return context_positions_.value(node);
+  Position p = context_positions_.value(node);
+
+  p.position = pos;
+
+  return SetNodePositionInContext(node, p);
 }
 
-bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)
+bool Node::SetNodePositionInContext(Node *node, const Position &pos)
 {
   bool added = !ContextContainsNode(node);
   context_positions_.insert(node, pos);
@@ -257,7 +261,7 @@ bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)
     emit NodeAddedToContext(node);
   }
 
-  emit NodePositionInContextChanged(node, pos);
+  emit NodePositionInContextChanged(node, pos.position);
 
   return added;
 }
@@ -2350,13 +2354,13 @@ Project *Node::ArrayResizeCommand::GetRelevantProject() const
 void NodeSetPositionCommand::redo()
 {
   if (!(added_ = !context_->ContextContainsNode(node_))) {
-    old_pos_ = context_->GetNodePositionInContext(node_);
+    old_pos_ = context_->GetNodePositionDataInContext(node_);
   }
 
   if (added_) {
     context_->SetNodePositionInContext(node_, pos_);
   } else {
-    move(context_, node_, pos_ - old_pos_, move_deps_);
+    move(context_, node_, pos_.position - old_pos_.position, move_deps_);
   }
 }
 
@@ -2365,7 +2369,7 @@ void NodeSetPositionCommand::undo()
   if (added_) {
     context_->RemoveNodeFromContext(node_);
   } else {
-    move(context_, node_, old_pos_ - pos_, move_deps_);
+    move(context_, node_, old_pos_.position - pos_.position, move_deps_);
   }
 }
 
