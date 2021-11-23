@@ -615,6 +615,16 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
       }
     }
 
+    if (codec == ExportCodec::kCodecDNxHD) {
+          // FFmpeg needs the profile to be set manually, Hardcoding will need to be before ready for merge.
+          // dnxhr can accomdate 4k -> 8k, dnxhd is for 1080p and 720p resolutions,
+          // however with mov 1080p works too as ffmpeg does not hold dnxhd to spec when using mov.
+          // profile arguments are dnxhd, dnxhr_444, dnxhr_hqx, dnxhr_hq, dnxhr_sq, dnxhr_lb.
+          // more information about the differences see here 
+          // https://avid.secure.force.com/pkb/articles/en_US/white_paper/DNxHR-Codec-Bandwidth-Specifications
+          av_opt_set(codec_ctx->priv_data, "profile", "dnxhr_lb", AV_OPT_SEARCH_CHILDREN);
+        }
+
     // Set custom options
     {
       for (auto i=params().video_opts().begin();i!=params().video_opts().end();i++) {
