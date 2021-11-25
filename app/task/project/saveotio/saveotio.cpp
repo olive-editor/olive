@@ -135,12 +135,33 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
     if (dynamic_cast<ClipBlock*>(block)) {
       auto otio_clip = new OTIO::Clip(block->GetLabel().toStdString());
 
+      auto rate = 0.0;
+      rational frame_rate = static_cast<ClipBlock*>(block)->connected_viewer()->GetVideoParams().frame_rate();
+      if (frame_rate.denominator() == 1) {
+        rate = frame_rate.numerator();
+      } else {
+        // Handle strange rates
+        rate = static_cast<double>(frame_rate.numerator()) /
+               static_cast<double>(frame_rate.denominator());
+      }
+
       otio_clip->set_source_range(OTIO::TimeRange(block->in().toRationalTime(),
-                                                  block->length().toRationalTime()));
+                                                  block->length().toRationalTime(rate)));
 
       QVector<Footage*> media_nodes = block->FindInputNodes<Footage>();
       if (!media_nodes.isEmpty()) {
-        auto media_ref = new OTIO::ExternalReference(media_nodes.first()->filename().toStdString());
+
+        OTIO::TimeRange range;
+        if (otio_track->kind().compare("Video") == 0) {
+          range = OTIO::TimeRange(OTIO::RationalTime(0, rate),
+                                            OTIO::RationalTime(media_nodes.first()->GetVideoParams().duration(),
+                                                               rate));
+        } else if (otio_track->kind().compare("Audio") == 0) {
+          range = OTIO::TimeRange(OTIO::RationalTime(0, media_nodes.first()->GetAudioParams().sample_rate()),
+                                  OTIO::RationalTime(media_nodes.first()->GetAudioParams().duration(),
+                                                     media_nodes.first()->GetAudioParams().sample_rate()));
+        }
+        auto media_ref = new OTIO::ExternalReference(media_nodes.first()->filename().toStdString(), range);
         otio_clip->set_media_reference(media_ref);
       }
 
