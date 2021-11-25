@@ -87,15 +87,14 @@ bool ExportTask::Run()
   if (params_.video_enabled()) {
 
     // If a transformation matrix is applied to this video, create it here
-    VideoParams vp = viewer()->GetVideoParams();
-    if (vp.width() != params_.video_params().width()
-        || params_.video_params().height() != params_.video_params().height()) {
+    if (video_params().width() != params_.video_params().width()
+        || video_params().height() != params_.video_params().height()) {
       video_force_size = QSize(params_.video_params().width(), params_.video_params().height());
 
       if (params_.video_scaling_method() != ExportParams::kStretch) {
         video_force_matrix = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                                          vp.width(),
-                                                          vp.height(),
+                                                          video_params().width(),
+                                                          video_params().height(),
                                                           params_.video_params().width(),
                                                           params_.video_params().height());
       }
