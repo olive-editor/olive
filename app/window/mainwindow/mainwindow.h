@@ -193,8 +193,6 @@ private slots:
 
   void TimelinePanelSelectionChanged(const QVector<Block*> &blocks);
 
-  void ProjectPanelSelectionChanged(const QVector<Node*> &nodes);
-
   void ShowWelcomeDialog();
 
 };

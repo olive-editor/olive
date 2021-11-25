@@ -36,6 +36,11 @@ public:
 
   QPointF MapScenePosToNodePosInContext(const QPointF &pos) const;
 
+  NodeViewItem *GetItemFromMap(Node *node) const
+  {
+    return item_map_.value(node);
+  }
+
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 public slots:

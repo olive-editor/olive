@@ -189,7 +189,9 @@ void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
 void NodeViewContext::Select(const QVector<Node *> &nodes)
 {
   foreach (Node *n, nodes) {
-    item_map_.value(n)->setSelected(true);
+    if (NodeViewItem *item = item_map_.value(n)) {
+      item->setSelected(true);
+    }
   }
 }
 

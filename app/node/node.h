@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QPainter>
 #include <QPointF>
+#include <QUuid>
 #include <QXmlStreamWriter>
 
 #include "codec/frame.h"
@@ -111,6 +112,9 @@ public:
   NodeGraph* parent() const;
 
   Project* project() const;
+
+  const QUuid &GetUUID() const {return uuid_;}
+  void SetUUID(const QUuid &uuid) {uuid_ = uuid;}
 
   /**
    * @brief Clear current node variables and replace them with
@@ -935,38 +939,9 @@ public:
 
   };
 
+  InputFlags GetInputFlags(const QString& input) const;
+
 protected:
-  enum InputFlag {
-    /// By default, inputs are keyframable, connectable, and NOT arrays
-    kInputFlagNormal = 0x0,
-    kInputFlagArray = 0x1,
-    kInputFlagNotKeyframable = 0x2,
-    kInputFlagNotConnectable = 0x4,
-    kInputFlagHidden = 0x8
-  };
-
-  class InputFlags {
-  public:
-    explicit InputFlags()
-    {
-      f_ = kInputFlagNormal;
-    }
-
-    explicit InputFlags(uint64_t flags)
-    {
-      f_ = flags;
-    }
-
-    bool operator&(const InputFlag& f) const
-    {
-      return f_ & f;
-    }
-
-  private:
-    uint64_t f_;
-
-  };
-
   virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   void HashAddNodeSignature(QCryptographicHash &hash) const;
@@ -1216,8 +1191,6 @@ private:
     return input_ids_.indexOf(input);
   }
 
-  InputFlags GetInputFlags(const QString& input) const;
-
   Input* GetInternalInputData(const QString& input)
   {
     int i = GetInternalInputIndex(input);
@@ -1335,6 +1308,8 @@ private:
   QMap<InputElementPair, ValueHint> value_hints_;
 
   PositionMap context_positions_;
+
+  QUuid uuid_;
 
 private slots:
   /**

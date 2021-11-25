@@ -544,7 +544,7 @@ QPointF NodeViewItem::GetInputPoint(const QString &input, int element) const
   int index = node_inputs_.indexOf(input);
 
   if (index < 0 || index >= int(input_connectors_.size())) {
-    return QPointF();
+    return pos();
   }
 
   return input_connectors_[index]->scenePos();

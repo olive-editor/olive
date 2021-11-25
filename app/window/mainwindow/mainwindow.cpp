@@ -467,15 +467,6 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
   }
 }
 
-void MainWindow::ProjectPanelSelectionChanged(const QVector<Node *> &nodes)
-{
-  ProjectPanel *panel = static_cast<ProjectPanel *>(sender());
-
-  if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
-    node_panel_->Select(nodes, true);
-  }
-}
-
 void MainWindow::ShowWelcomeDialog()
 {
   if (Config::Current()[QStringLiteral("ShowWelcomeDialog")].toBool()) {
@@ -572,7 +563,6 @@ ProjectPanel *MainWindow::AppendProjectPanel()
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::ProjectCloseRequested);
   connect(panel, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
-  connect(panel, &ProjectPanel::SelectionChanged, this, &MainWindow::ProjectPanelSelectionChanged);
 
   return panel;
 }

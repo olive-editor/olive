@@ -21,16 +21,18 @@
 #include "nodeview.h"
 
 #include <QInputDialog>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QScrollBar>
 #include <QToolTip>
 
 #include "core.h"
+#include "dialog/nodegroup/nodegroupdialog.h"
 #include "nodeviewundo.h"
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
-#include "node/group.h"
+#include "node/group/group.h"
 #include "node/traverser.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedview.h"
@@ -638,6 +640,7 @@ void NodeView::UpdateSelectionCache()
   if (current_selection.isEmpty()) {
     // All nodes that were selected have been deselected, so we'll just set them all to `deselected`
     deselected = selected_nodes_;
+    selected_nodes_.clear();
   } else {
     foreach (Node* n, selected_nodes_) {
       bool still_selected = false;
@@ -649,19 +652,19 @@ void NodeView::UpdateSelectionCache()
         }
       }
 
-      if (still_selected) {
+      if (!still_selected) {
         deselected.append(n);
         selected_nodes_.removeOne(n);
       }
     }
   }
 
-  if (!selected.isEmpty()) {
-    emit NodesSelected(selected);
-  }
-
   if (!deselected.isEmpty()) {
     emit NodesDeselected(deselected);
+  }
+
+  if (!selected.isEmpty()) {
+    emit NodesSelected(selected);
   }
 }
 
@@ -1082,13 +1085,88 @@ void NodeView::PositionNewEdge(const QPoint &pos)
 
 void NodeView::GroupNodes()
 {
-  /*NodeGroup *group = new NodeGroup();
-  selected_nodes_*/
+  // Get items
+  QVector<NodeViewItem*> items = scene_.GetSelectedItems();
+  if (items.isEmpty()) {
+    return;
+  }
+
+  // Get node context
+  Node *context = items.first()->GetContext();
+  QPointF avg_pos = items.first()->GetNodePosition();
+  for (int i=1; i<items.size(); i++) {
+    if (items.at(i)->GetContext() != context) {
+      QMessageBox::critical(this, tr("Failed to group nodes"), tr("Nodes can only be grouped if they're in the same context."));
+      return;
+    }
+
+    avg_pos += items.at(i)->GetNodePosition();
+  }
+  avg_pos /= items.size();
+
+  // Create group
+  NodeGroup *group = new NodeGroup();
+
+  // Add group to graph and context
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  command->add_child(new NodeAddCommand(context->parent(), group));
+  command->add_child(new NodeSetPositionCommand(group, context, avg_pos));
+
+  // Add nodes to group
+  QVector<Node*> nodes_to_group = selected_nodes_;
+  DeselectAll();
+  foreach (Node *n, nodes_to_group) {
+    for (auto it=n->input_connections().cbegin(); it!=n->input_connections().cend(); it++) {
+      Node *output = it->second;
+      const NodeInput &input = it->first;
+
+      if (!nodes_to_group.contains(output)) {
+        command->add_child(new NodeEdgeRemoveCommand(output, input));
+        command->add_child(new NodeEdgeAddCommand(output, NodeInput(group, input.input(), input.element())));
+      }
+    }
+
+    for (auto it=n->output_connections().cbegin(); it!=n->output_connections().cend(); it++) {
+      Node *output = it->first;
+      const NodeInput &input = it->second;
+
+      if (!nodes_to_group.contains(input.node())) {
+        command->add_child(new NodeEdgeRemoveCommand(output, input));
+        command->add_child(new NodeEdgeAddCommand(group, input));
+      }
+    }
+
+    command->add_child(new NodeRemovePositionFromContextCommand(n, context));
+    command->add_child(new NodeAddToGroupCommand(n, group));
+    command->add_child(new NodeSetPositionCommand(n, group, scene_.context_map().value(context)->GetItemFromMap(n)->GetNodePosition()));
+
+    for (auto it=n->inputs().cbegin(); it!=n->inputs().cend(); it++) {
+      NodeInput input(n, *it, -1);
+
+      if (!input.IsConnected() || !nodes_to_group.contains(input.GetConnectedOutput())) {
+        command->add_child(new NodeGroupAddInputPassthrough(group, input));
+      }
+    }
+  }
+
+  // Do command
+  command->redo_now();
+
+  NodeGroupDialog ngd(group, this);
+  if (ngd.exec() == QDialog::Accepted) {
+    // Push to stack so it can be undone (MultiUndoCommand will ignore the request to redo again)
+    Core::instance()->undo_stack()->push(command);
+  } else {
+    // Undo command and delete
+    command->undo_now();
+    delete command;
+  }
 }
 
 void NodeView::UngroupNodes()
 {
-  //static_cast<NodeGroup*>(selected_nodes_.first());
+  //NodeGroup *group = static_cast<NodeGroup*>(selected_nodes_.first());
 }
 
 void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)

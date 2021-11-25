@@ -18,26 +18,41 @@
 
 ***/
 
-#ifndef NODEGROUP_H
-#define NODEGROUP_H
+#ifndef NODEGROUPDIALOG_H
+#define NODEGROUPDIALOG_H
 
-#include "node.h"
+#include <QDialog>
+#include <QLineEdit>
+
+#include "node/group/group.h"
 
 namespace olive {
 
-class NodeGroup : public Node
+class NodeGroupDialog : public QDialog
 {
   Q_OBJECT
 public:
-  NodeGroup();
+  explicit NodeGroupDialog(NodeGroup *group, QWidget *parent = nullptr);
 
-  void SetNodes(Node *nodes);
+  void SetParentUndoCommand(MultiUndoCommand *c)
+  {
+    parent_undo_ = c;
+  }
+
+public slots:
+  virtual void accept() override;
+
+signals:
 
 private:
-  QVector<Node*> nodes_;
+  NodeGroup *group_;
+
+  QLineEdit *name_edit_;
+
+  MultiUndoCommand *parent_undo_;
 
 };
 
 }
 
-#endif // NODEGROUP_H
+#endif // NODEGROUPDIALOG_H

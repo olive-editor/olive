@@ -69,6 +69,15 @@ bool NodeInput::IsArray() const
   }
 }
 
+InputFlags NodeInput::GetFlags() const
+{
+  if (IsValid()) {
+    return node_->GetInputFlags(input_);
+  } else {
+    return InputFlags(kInputFlagNormal);
+  }
+}
+
 Node *NodeInput::GetConnectedOutput() const
 {
   if (IsValid()) {
@@ -84,6 +93,15 @@ NodeValue::Type NodeInput::GetDataType() const
     return node_->GetInputDataType(input_);
   } else {
     return NodeValue::kNone;
+  }
+}
+
+QVariant NodeInput::GetDefaultValue() const
+{
+  if (IsValid()) {
+    return node_->GetDefaultValue(input_);
+  } else {
+    return QVariant();
   }
 }
 

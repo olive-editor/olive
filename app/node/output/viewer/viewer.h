@@ -254,8 +254,6 @@ private:
 
   AudioPlaybackCache audio_playback_cache_;
 
-  int operation_stack_;
-
   VideoParams cached_video_params_;
 
   AudioParams cached_audio_params_;

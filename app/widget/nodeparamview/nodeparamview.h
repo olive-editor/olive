@@ -58,10 +58,24 @@ class NodeParamView : public TimeBasedWidget
 {
   Q_OBJECT
 public:
-  NodeParamView(QWidget* parent = nullptr);
+  NodeParamView(bool create_keyframe_view, QWidget* parent = nullptr);
+  NodeParamView(QWidget* parent = nullptr) :
+    NodeParamView(true, parent)
+  {
+  }
 
   void SelectNodes(const QVector<Node *> &nodes);
   void DeselectNodes(const QVector<Node*>& nodes);
+
+  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
+  {
+    create_checkboxes_ = e;
+  }
+
+  bool IsInputChecked(const NodeInput &input) const
+  {
+    return input_checked_.value(input);
+  }
 
   const QMap<Node*, NodeParamViewItem*>& GetItemMap() const
   {
@@ -81,6 +95,9 @@ public:
   {
     keyframe_view_->DeselectAll();
   }
+
+public slots:
+  void SetInputChecked(const NodeInput &input, bool e);
 
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
@@ -117,10 +134,10 @@ private:
 
   int last_scroll_val_;
 
+  QScrollArea* param_scroll_area_;
+
   NodeParamViewParamContainer* param_widget_container_;
 
-  // This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
-  // docking windows
   NodeParamViewDockArea* param_widget_area_;
 
   QVector<Node*> pinned_nodes_;
@@ -130,6 +147,12 @@ private:
   QMap<Node*, bool> node_expanded_state_;
 
   Node* focused_node_;
+
+  NodeParamViewCheckBoxBehavior create_checkboxes_;
+
+  Node *time_target_;
+
+  QHash<NodeInput, bool> input_checked_;
 
 private slots:
   void UpdateGlobalScrollBar();

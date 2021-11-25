@@ -373,6 +373,9 @@ void PreviewAutoCacher::AddNode(Node *node)
   // Add to project
   copy->setParent(&copied_project_);
 
+  // Copy UUID
+  copy->SetUUID(node->GetUUID());
+
   // Insert into map
   InsertIntoCopyMap(node, copy);
 

@@ -46,7 +46,7 @@ NodePropertiesDialog::NodePropertiesDialog(Node *node, const rational &timebase,
   label_edit_->setText(node->GetLabel());
   label_layout->addWidget(label_edit_);
 
-  NodeParamViewItem *item = new NodeParamViewItem(node);
+  NodeParamViewItem *item = new NodeParamViewItem(node, kNoCheckBoxes);
   item->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   item->SetTimebase(timebase);
   item->setTitleBarWidget(new QWidget());

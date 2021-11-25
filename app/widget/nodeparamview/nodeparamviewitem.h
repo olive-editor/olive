@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEWITEM_H
 #define NODEPARAMVIEWITEM_H
 
+#include <QCheckBox>
 #include <QDockWidget>
 #include <QGridLayout>
 #include <QLabel>
@@ -37,6 +38,12 @@
 #include "widget/collapsebutton/collapsebutton.h"
 
 namespace olive {
+
+enum NodeParamViewCheckBoxBehavior {
+  kNoCheckBoxes,
+  kCheckBoxesOn,
+  kCheckBoxesOnNonConnected
+};
 
 class NodeParamViewItemTitleBar : public QWidget
 {
@@ -75,7 +82,7 @@ private:
 class NodeParamViewItemBody : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewItemBody(Node* node, QWidget* parent = nullptr);
+  NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
   void SetTimeTarget(Node* target);
 
@@ -86,7 +93,9 @@ public:
   int GetElementY(NodeInput c) const;
 
   // Set the timebase of any timebased widgets contained here
-   void SetTimebase(const rational& timebase);
+  void SetTimebase(const rational& timebase);
+
+  void SetInputChecked(const NodeInput &input, bool e);
 
 signals:
   void RequestSetTime(const rational& time);
@@ -94,6 +103,8 @@ signals:
   void RequestSelectNode(const QVector<Node*>& node);
 
   void ArrayExpandedChanged(bool e);
+
+  void InputCheckedChanged(const NodeInput &input, bool e);
 
 private:
   void CreateWidgets(QGridLayout *layout, Node* node, const QString& input, int element, int row_index);
@@ -114,6 +125,7 @@ private:
     QGridLayout* layout;
     int row;
     QPushButton *extra_btn;
+    QCheckBox *optional_checkbox;
 
     NodeParamViewArrayButton* array_insert_btn;
     NodeParamViewArrayButton* array_remove_btn;
@@ -135,6 +147,8 @@ private:
 
   rational timebase_;
 
+  NodeParamViewCheckBoxBehavior create_checkboxes_;
+
   /**
    * @brief The column to place the keyframe controls in
    *
@@ -147,6 +161,9 @@ private:
   static const int kArrayRemoveColumn;
   static const int kExtraButtonColumn;
 
+  static const int kOptionalCheckBox;
+  static const int kArrayCollapseBtnColumn;
+  static const int kLabelColumn;
   static const int kWidgetStartColumn;
 
 private slots:
@@ -168,13 +185,15 @@ private slots:
 
   void ShowSpeedDurationDialogForNode();
 
+  void OptionalCheckBoxClicked(bool e);
+
 };
 
 class NodeParamViewItem : public QDockWidget
 {
   Q_OBJECT
 public:
-  NodeParamViewItem(Node* node, QWidget* parent = nullptr);
+  NodeParamViewItem(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
   void SetTimeTarget(Node* target);
 
@@ -196,6 +215,8 @@ public:
 
   int GetElementY(const NodeInput& c) const;
 
+  void SetInputChecked(const NodeInput &input, bool e);
+
 public slots:
   void SetExpanded(bool e);
 
@@ -213,6 +234,8 @@ signals:
   void ArrayExpandedChanged(bool e);
 
   void Moved();
+
+  void InputCheckedChanged(const NodeInput &input, bool e);
 
 protected:
   virtual void changeEvent(QEvent *e) override;

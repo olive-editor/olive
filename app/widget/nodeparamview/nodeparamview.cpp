@@ -32,10 +32,12 @@ namespace olive {
 
 #define super TimeBasedWidget
 
-NodeParamView::NodeParamView(QWidget *parent) :
+NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   super(true, false, parent),
   last_scroll_val_(0),
-  focused_node_(nullptr)
+  focused_node_(nullptr),
+  create_checkboxes_(kNoCheckBoxes),
+  time_target_(nullptr)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -46,16 +48,16 @@ NodeParamView::NodeParamView(QWidget *parent) :
   layout->addWidget(splitter);
 
   // Set up scroll area for params
-  QScrollArea* scroll_area = new QScrollArea();
-  scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-  scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  scroll_area->setWidgetResizable(true);
-  splitter->addWidget(scroll_area);
+  param_scroll_area_ = new QScrollArea();
+  param_scroll_area_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  param_scroll_area_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  param_scroll_area_->setWidgetResizable(true);
+  splitter->addWidget(param_scroll_area_);
 
   // Param widget
   param_widget_container_ = new NodeParamViewParamContainer();
   connect(param_widget_container_, &NodeParamViewParamContainer::Resized, this, &NodeParamView::UpdateGlobalScrollBar);
-  scroll_area->setWidget(param_widget_container_);
+  param_scroll_area_->setWidget(param_widget_container_);
 
   param_widget_area_ = new NodeParamViewDockArea();
 
@@ -74,37 +76,41 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   param_widget_container_layout->addStretch(INT_MAX);
 
-  // Set up keyframe view
-  QWidget* keyframe_area = new QWidget();
-  QVBoxLayout* keyframe_area_layout = new QVBoxLayout(keyframe_area);
-  keyframe_area_layout->setSpacing(0);
-  keyframe_area_layout->setMargin(0);
-
-  // Create ruler object
-  keyframe_area_layout->addWidget(ruler());
-
-  // Create keyframe view
-  keyframe_view_ = new KeyframeView();
-  keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  ConnectTimelineView(keyframe_view_);
-  keyframe_area_layout->addWidget(keyframe_view_);
-
-  // Connect ruler and keyframe view together
-  connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
-  connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
-  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
-  connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
-
-  // Connect keyframe view scaling to this
-  connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
-
-  splitter->addWidget(keyframe_area);
-
-  // Set both widgets to 50/50
-  splitter->setSizes({INT_MAX, INT_MAX});
-
   // Disable collapsing param view (but collapsing keyframe view is permitted)
   splitter->setCollapsible(0, false);
+
+  if (create_keyframe_view) {
+    // Set up keyframe view
+    QWidget* keyframe_area = new QWidget();
+    QVBoxLayout* keyframe_area_layout = new QVBoxLayout(keyframe_area);
+    keyframe_area_layout->setSpacing(0);
+    keyframe_area_layout->setMargin(0);
+
+    // Create ruler object
+    keyframe_area_layout->addWidget(ruler());
+
+    // Create keyframe view
+    keyframe_view_ = new KeyframeView();
+    keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ConnectTimelineView(keyframe_view_);
+    keyframe_area_layout->addWidget(keyframe_view_);
+
+    // Connect ruler and keyframe view together
+    connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
+    connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
+    connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
+    connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
+
+    // Connect keyframe view scaling to this
+    connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
+
+    splitter->addWidget(keyframe_area);
+
+    // Set both widgets to 50/50
+    splitter->setSizes({INT_MAX, INT_MAX});
+  } else {
+    keyframe_view_ = nullptr;
+  }
 
   // Create global vertical scrollbar on the right
   vertical_scrollbar_ = new QScrollBar();
@@ -112,18 +118,21 @@ NodeParamView::NodeParamView(QWidget *parent) :
   layout->addWidget(vertical_scrollbar_);
 
   // Connect scrollbars together
-  connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
-  connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
-  connect(scroll_area->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
-  connect(scroll_area->verticalScrollBar(), &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
-  connect(vertical_scrollbar_, &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
-  connect(vertical_scrollbar_, &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
+  connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
+  connect(vertical_scrollbar_, &QScrollBar::valueChanged, param_scroll_area_->verticalScrollBar(), &QScrollBar::setValue);
 
-  // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
-  keyframe_view_->setHorizontalScrollBar(scrollbar());
-  keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  if (keyframe_view_) {
+    connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
+    connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, param_scroll_area_->verticalScrollBar(), &QScrollBar::setValue);
+    connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
+    connect(vertical_scrollbar_, &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
 
-  connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
+    // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
+    keyframe_view_->setHorizontalScrollBar(scrollbar());
+    keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
+  }
 
   // Set a default scale - FIXME: Hardcoded
   SetScale(120);
@@ -192,6 +201,14 @@ void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
   }
 }
 
+void NodeParamView::SetInputChecked(const NodeInput &input, bool e)
+{
+  input_checked_.insert(input, e);
+  if (NodeParamViewItem *item = items_.value(input.node())) {
+    item->SetInputChecked(input, e);
+  }
+}
+
 void NodeParamView::resizeEvent(QResizeEvent *event)
 {
   super::resizeEvent(event);
@@ -205,17 +222,21 @@ void NodeParamView::ScaleChangedEvent(const double &scale)
 {
   super::ScaleChangedEvent(scale);
 
-  keyframe_view_->SetScale(scale);
+  if (keyframe_view_) {
+    keyframe_view_->SetScale(scale);
+  }
 }
 
 void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 {
   super::TimebaseChangedEvent(timebase);
 
-  keyframe_view_->SetTimebase(timebase);
+  if (keyframe_view_) {
+    keyframe_view_->SetTimebase(timebase);
+  }
 
   foreach (NodeParamViewItem* item, items_) {
-      item->SetTimebase(timebase);
+    item->SetTimebase(timebase);
   }
 
   UpdateItemTime(GetTime());
@@ -225,29 +246,37 @@ void NodeParamView::TimeChangedEvent(const rational &time)
 {
   super::TimeChangedEvent(time);
 
-  keyframe_view_->SetTime(time);
+  if (keyframe_view_) {
+    keyframe_view_->SetTime(time);
+  }
 
   UpdateItemTime(time);
 }
 
 void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
-  // Set viewer as a time target
-  keyframe_view_->SetTimeTarget(n);
+  if (keyframe_view_) {
+    // Set viewer as a time target
+    keyframe_view_->SetTimeTarget(n);
+  }
 
   foreach (NodeParamViewItem* item, items_) {
     item->SetTimeTarget(n);
   }
+
+  time_target_ = n;
 }
 
 Node *NodeParamView::GetTimeTarget() const
 {
-  return keyframe_view_->GetTimeTarget();
+  return time_target_;
 }
 
 void NodeParamView::DeleteSelected()
 {
-  keyframe_view_->DeleteSelected();
+  if (keyframe_view_) {
+    keyframe_view_->DeleteSelected();
+  }
 }
 
 void NodeParamView::UpdateItemTime(const rational &time)
@@ -293,14 +322,16 @@ void NodeParamView::SignalNodeOrder()
 
 void NodeParamView::AddNode(Node *n)
 {
-  NodeParamViewItem* item = new NodeParamViewItem(n, param_widget_area_);
+  NodeParamViewItem* item = new NodeParamViewItem(n, create_checkboxes_, param_widget_area_);
 
   item->setAllowedAreas(Qt::LeftDockWidgetArea);
   item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
   item->SetExpanded(node_expanded_state_.value(n, true));
 
-  connect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-  connect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+  if (keyframe_view_) {
+    connect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+    connect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+  }
 
   connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
@@ -310,6 +341,15 @@ void NodeParamView::AddNode(Node *n)
   connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
   connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
   connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
+  connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::SetInputChecked);
+
+  if (create_checkboxes_) {
+    for (auto it=input_checked_.cbegin(); it!=input_checked_.cend(); it++) {
+      if (it.key().node() == n) {
+        item->SetInputChecked(it.key(), it.value());
+      }
+    }
+  }
 
   // Set time target
   item->SetTimeTarget(GetTimeTarget());
@@ -327,15 +367,19 @@ void NodeParamView::AddNode(Node *n)
     emit FocusedNodeChanged(focused_node_);
   }
 
-  keyframe_view_->AddKeyframesOfNode(n);
+  if (keyframe_view_) {
+    keyframe_view_->AddKeyframesOfNode(n);
+  }
 }
 
 void NodeParamView::RemoveNode(Node *n)
 {
-  keyframe_view_->RemoveKeyframesOfNode(n);
+  if (keyframe_view_) {
+    keyframe_view_->RemoveKeyframesOfNode(n);
 
-  disconnect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-  disconnect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+    disconnect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+    disconnect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+  }
 
   delete items_.take(n);
 
@@ -358,8 +402,10 @@ void NodeParamView::UpdateGlobalScrollBar()
 {
   int height_offscreen = param_widget_container_->height() - ruler()->height() + scrollbar()->height();
 
-  keyframe_view_->SetMaxScroll(height_offscreen);
-  vertical_scrollbar_->setRange(0, height_offscreen - keyframe_view_->height());
+  if (keyframe_view_) {
+    keyframe_view_->SetMaxScroll(height_offscreen);
+  }
+  vertical_scrollbar_->setRange(0, height_offscreen - param_scroll_area_->height());
 }
 
 void NodeParamView::PinNode(bool pin)
@@ -390,18 +436,20 @@ void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
     item = dynamic_cast<NodeParamViewItem*>(parent);
 
     if (item) {
-      // Found it!
-      if (item->GetNode() != focused_node_) {
-        if (focused_node_) {
-          // De-focus current node
-          items_.value(focused_node_)->SetHighlighted(false);
+      if (item->parent() == param_widget_area_) {
+        // Found it!
+        if (item->GetNode() != focused_node_) {
+          if (focused_node_) {
+            // De-focus current node
+            items_.value(focused_node_)->SetHighlighted(false);
+          }
+
+          focused_node_ = item->GetNode();
+
+          item->SetHighlighted(true);
+
+          emit FocusedNodeChanged(focused_node_);
         }
-
-        focused_node_ = item->GetNode();
-
-        item->SetHighlighted(true);
-
-        emit FocusedNodeChanged(focused_node_);
       }
 
       break;
@@ -421,15 +469,17 @@ void NodeParamView::KeyframeViewDragged(int x, int y)
 
 void NodeParamView::UpdateElementY()
 {
-  for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
-    foreach (const QString& input, it.key()->inputs()) {
-      int arr_sz = it.key()->InputArraySize(input);
+  if (keyframe_view_) {
+    for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
+      foreach (const QString& input, it.key()->inputs()) {
+        int arr_sz = it.key()->InputArraySize(input);
 
-      for (int i=-1; i<arr_sz; i++) {
-        NodeInput ic = {it.key(), input, i};
+        for (int i=-1; i<arr_sz; i++) {
+          NodeInput ic = {it.key(), input, i};
 
-        int y = it.value()->GetElementY(ic);
-        keyframe_view_->SetElementY(ic, y);
+          int y = it.value()->GetElementY(ic);
+          keyframe_view_->SetElementY(ic, y);
+        }
       }
     }
   }

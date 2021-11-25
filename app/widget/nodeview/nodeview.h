@@ -45,7 +45,7 @@ class NodeView : public HandMovableView, public NodeCopyPasteService
 {
   Q_OBJECT
 public:
-  NodeView(QWidget* parent);
+  NodeView(QWidget* parent = nullptr);
 
   virtual ~NodeView() override;
 

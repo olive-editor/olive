@@ -25,6 +25,8 @@
 
 namespace olive {
 
+// This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
+// for docking QDockWidgets
 class NodeParamViewDockArea : public QMainWindow
 {
   Q_OBJECT

@@ -49,6 +49,7 @@ Node::Node() :
   operation_stack_(0),
   cache_result_(false)
 {
+  uuid_ = QUuid::createUuid();
 }
 
 Node::~Node()
@@ -88,6 +89,8 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
       xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), this);
     } else if (reader->name() == QStringLiteral("label")) {
       SetLabel(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("uuid")) {
+      SetUUID(QUuid::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("color")) {
       override_color_ = reader->readElementText().toInt();
     } else if (reader->name() == QStringLiteral("links")) {
@@ -169,6 +172,7 @@ void Node::Save(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
+  writer->writeTextElement(QStringLiteral("uuid"), uuid_.toString());
   writer->writeTextElement(QStringLiteral("label"), GetLabel());
   writer->writeTextElement(QStringLiteral("color"), QString::number(override_color_));
 
@@ -219,7 +223,16 @@ void Node::Save(QXmlStreamWriter *writer) const
 
 Project* Node::project() const
 {
-  return dynamic_cast<Project*>(parent());
+  QObject *t = this->parent();
+
+  while (t) {
+    if (Project *p = dynamic_cast<Project*>(t)) {
+      return p;
+    }
+    t = t->parent();
+  }
+
+  return nullptr;
 }
 
 QString Node::ShortName() const
@@ -1089,7 +1102,7 @@ NodeInputImmediate *Node::GetImmediate(const QString &input, int element) const
   return nullptr;
 }
 
-Node::InputFlags Node::GetInputFlags(const QString &input) const
+InputFlags Node::GetInputFlags(const QString &input) const
 {
   const Input* i = GetInternalInputData(input);
 
@@ -1343,7 +1356,7 @@ void Node::HashAddNodeSignature(QCryptographicHash &hash) const
   hash.addData(id().toUtf8());
 }
 
-void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
+void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
 {
   if (id.isEmpty()) {
     qWarning() << "Rejected adding input with an empty ID on node" << this->id();

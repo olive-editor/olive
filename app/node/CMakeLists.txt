@@ -20,6 +20,7 @@ add_subdirectory(color)
 add_subdirectory(distort)
 add_subdirectory(filter)
 add_subdirectory(generator)
+add_subdirectory(group)
 add_subdirectory(input)
 add_subdirectory(math)
 add_subdirectory(output)
@@ -34,8 +35,6 @@ set(OLIVE_SOURCES
   node/globals.h
   node/graph.cpp
   node/graph.h
-  node/group.cpp
-  node/group.h
   node/hashtraverser.cpp
   node/hashtraverser.h
   node/inputdragger.cpp

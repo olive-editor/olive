@@ -38,12 +38,14 @@ const int NodeParamViewItemBody::kArrayInsertColumn = kKeyControlColumn-1;
 const int NodeParamViewItemBody::kArrayRemoveColumn = kArrayInsertColumn-1;
 const int NodeParamViewItemBody::kExtraButtonColumn = kKeyControlColumn-1;
 
-// 0 is for the array collapse button, 1 is for the main label, widgets start at 2
-const int NodeParamViewItemBody::kWidgetStartColumn = 2;
+const int NodeParamViewItemBody::kOptionalCheckBox = 0;
+const int NodeParamViewItemBody::kArrayCollapseBtnColumn = 1;
+const int NodeParamViewItemBody::kLabelColumn = 2;
+const int NodeParamViewItemBody::kWidgetStartColumn = 3;
 
 #define super QDockWidget
 
-NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
+NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
   node_(node),
   highlighted_(false)
@@ -55,10 +57,11 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   this->setTitleBarWidget(title_bar_);
 
   // Create and add contents widget
-  body_ = new NodeParamViewItemBody(node_);
+  body_ = new NodeParamViewItemBody(node_, create_checkboxes);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
+  connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
   connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this, &NodeParamViewItem::SetExpanded);
   connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this, &NodeParamViewItem::PinToggled);
 
@@ -165,6 +168,11 @@ int NodeParamViewItem::GetElementY(const NodeInput &c) const
   }
 }
 
+void NodeParamViewItem::SetInputChecked(const NodeInput &input, bool e)
+{
+  body_->SetInputChecked(input, e);
+}
+
 void NodeParamViewItem::ToggleExpanded()
 {
   SetExpanded(!IsExpanded());
@@ -222,9 +230,10 @@ void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
   collapse_btn_->click();
 }
 
-NodeParamViewItemBody::NodeParamViewItemBody(Node* node, QWidget *parent) :
+NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   QWidget(parent),
-  node_(node)
+  node_(node),
+  create_checkboxes_(create_checkboxes)
 {
   QGridLayout* root_layout = new QGridLayout(this);
 
@@ -277,11 +286,22 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   ui_objects.layout = layout;
   ui_objects.row = row;
 
+  // Create optional checkbox if requested
+  if (create_checkboxes_) {
+    ui_objects.optional_checkbox = new QCheckBox();
+    connect(ui_objects.optional_checkbox, &QCheckBox::clicked, this, &NodeParamViewItemBody::OptionalCheckBoxClicked);
+    layout->addWidget(ui_objects.optional_checkbox, row, kOptionalCheckBox);
+
+    if (create_checkboxes_ == kCheckBoxesOnNonConnected && input_ref.IsConnected()) {
+      ui_objects.optional_checkbox->setVisible(false);
+    }
+  }
+
   // Add descriptor label
   ui_objects.main_label = new QLabel();
 
-  // Label always goes into column 1 (array collapse button goes into 0 if applicable)
-  layout->addWidget(ui_objects.main_label, row, 1);
+  // Create input label
+  layout->addWidget(ui_objects.main_label, row, kLabelColumn);
 
   if (node->InputIsArray(input)) {
     if (element == -1) {
@@ -292,8 +312,8 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
       // Default to collapsed
       array_collapse_btn->setChecked(false);
 
-      // Collapse button always goes into column 0
-      layout->addWidget(array_collapse_btn, row, 0);
+      // Add collapse button to layout
+      layout->addWidget(array_collapse_btn, row, kArrayCollapseBtnColumn);
 
       // Connect signal to show/hide array params when toggled
       connect(array_collapse_btn, &CollapseButton::toggled, this, &NodeParamViewItemBody::ArrayCollapseBtnPressed);
@@ -448,6 +468,11 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
     if (ui_objects.key_control) {
       ui_objects.key_control->setVisible(!input.IsConnected());
     }
+
+    // Show/hide optional checkbox if requested
+    if (create_checkboxes_ == kCheckBoxesOnNonConnected) {
+      ui_objects.optional_checkbox->setVisible(!input.IsConnected());
+    }
   }
 }
 
@@ -575,6 +600,16 @@ void NodeParamViewItemBody::SetTimebase(const rational& timebase)
   }
 }
 
+void NodeParamViewItemBody::SetInputChecked(const NodeInput &input, bool e)
+{
+  if (input_ui_map_.contains(input)) {
+    QCheckBox *cb = input_ui_map_.value(input).optional_checkbox;
+    if (cb) {
+      cb->setChecked(e);
+    }
+  }
+}
+
 void NodeParamViewItemBody::ReplaceWidgets(const NodeInput &input)
 {
   InputUI ui = input_ui_map_.value(input);
@@ -588,12 +623,25 @@ void NodeParamViewItemBody::ShowSpeedDurationDialogForNode()
   sdd.exec();
 }
 
+void NodeParamViewItemBody::OptionalCheckBoxClicked(bool e)
+{
+  QCheckBox *cb = static_cast<QCheckBox*>(sender());
+
+  for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
+    if (it.value().optional_checkbox == cb) {
+      emit InputCheckedChanged(it.key(), e);
+      break;
+    }
+  }
+}
+
 NodeParamViewItemBody::InputUI::InputUI() :
   main_label(nullptr),
   widget_bridge(nullptr),
   connected_label(nullptr),
   key_control(nullptr),
   extra_btn(nullptr),
+  optional_checkbox(nullptr),
   array_insert_btn(nullptr),
   array_remove_btn(nullptr)
 {
