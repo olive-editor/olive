@@ -520,13 +520,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
     cb->blockSignals(true);
     int index = input_.GetValueAtTime(node_time).toInt();
-    int real_row = -1;
     for (int i=0; i<cb->count(); i++) {
-      if (!cb->itemText(i).isEmpty()) {
-        real_row++;
-      }
-
-      if (real_row == index) {
+      if (cb->itemData(i).toInt() == index) {
         cb->setCurrentIndex(i);
       }
     }
@@ -728,11 +723,14 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
     cb->clear();
 
     QStringList items = input_.GetComboBoxStrings();
+    int index = 0;
     foreach (const QString& s, items) {
       if (s.isEmpty()) {
         cb->insertSeparator(cb->count());
+        cb->setItemData(cb->count()-1, -1);
       } else {
-        cb->addItem(s);
+        cb->addItem(s, index);
+        index++;
       }
     }
 
