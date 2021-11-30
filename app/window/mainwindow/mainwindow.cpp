@@ -750,7 +750,7 @@ void MainWindow::SetDefaultLayout()
 
   node_panel_->show();
   tabifyDockWidget(param_panel_, node_panel_);
-  footage_viewer_panel_->raise();
+  param_panel_->raise();
 
   curve_panel_->hide();
   curve_panel_->setFloating(true);

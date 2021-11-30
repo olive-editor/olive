@@ -39,21 +39,17 @@
 
 namespace olive {
 
-NodeViewItem::NodeViewItem(Node* n, Node *context, QGraphicsItem *parent) :
+NodeViewItem::NodeViewItem(Node *node, const QString &input, int element, Node *context, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
-  node_(n),
+  node_(node),
+  input_(input),
+  element_(element),
   context_(context),
   expanded_(false),
-  hide_titlebar_(false),
-  highlighted_index_(-1),
-  flow_dir_(NodeViewCommon::kLeftToRight),
+  highlighted_(false),
+  flow_dir_(NodeViewCommon::kInvalidDirection),
   label_as_output_(false)
 {
-  // Set flags for this widget
-  setFlag(QGraphicsItem::ItemIsMovable);
-  setFlag(QGraphicsItem::ItemIsSelectable);
-  setFlag(QGraphicsItem::ItemSendsGeometryChanges);
-
   //
   // We use font metrics to set all the UI measurements for DPI-awareness
   //
@@ -61,32 +57,41 @@ NodeViewItem::NodeViewItem(Node* n, Node *context, QGraphicsItem *parent) :
   // Set border width
   node_border_width_ = DefaultItemBorder();
 
-  int widget_width = DefaultItemWidth();
-  int widget_height = DefaultItemHeight();
+  // Set rect size to default
+  SetRectSize();
 
-  title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
-  setRect(title_bar_rect_);
-
+  // Create connector
+  input_connector_ = new NodeViewItemConnector(false, this);
   output_connector_ = new NodeViewItemConnector(true, this);
-
-  // Set up node
-  node_->Retranslate();
-
-  foreach (const QString& input, node_->inputs()) {
-    if (node_->IsInputConnectable(input) && !node_->IsInputHidden(input)) {
-      node_inputs_.append(input);
-    }
-  }
-
-  UpdateInputConnectors();
 
   connect(node_, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
   connect(node_, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
 
-  if (context_) {
-    SetNodePosition(context_->GetNodePositionInContext(node_));
-    SetExpanded(context_->IsNodeExpandedInContext(node_));
+  if (IsOutputItem()) {
+    connect(node_, &Node::InputAdded, this, &NodeViewItem::RepopulateInputs);
+    connect(node_, &Node::InputRemoved, this, &NodeViewItem::RepopulateInputs);
+    RepopulateInputs();
+
+    // Set flags for this widget
+    setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+    setFlag(QGraphicsItem::ItemIsMovable);
+    setFlag(QGraphicsItem::ItemIsSelectable);
+
+    if (context_) {
+      SetNodePosition(context_->GetNodePositionInContext(node_));
+      SetExpanded(context_->IsNodeExpandedInContext(node_));
+    }
+  } else {
+    output_connector_->setVisible(false);
   }
+
+  // This should be set during runtime, but just in case here's a default fallback
+  SetFlowDirection(NodeViewCommon::kLeftToRight);
+}
+
+NodeViewItem::~NodeViewItem()
+{
+  Q_ASSERT(edges_.isEmpty());
 }
 
 QPointF NodeViewItem::GetNodePosition() const
@@ -99,6 +104,17 @@ void NodeViewItem::SetNodePosition(const QPointF &pos)
   cached_node_pos_ = pos;
 
   UpdateNodePosition();
+}
+
+QVector<NodeViewEdge *> NodeViewItem::GetAllEdgesRecursively() const
+{
+  QVector<NodeViewEdge *> list = edges_;
+
+  foreach (NodeViewItem *item, children_) {
+    list.append(item->GetAllEdgesRecursively());
+  }
+
+  return list;
 }
 
 int NodeViewItem::DefaultTextPadding()
@@ -139,6 +155,8 @@ QPointF NodeViewItem::NodeToScreenPoint(QPointF p, NodeViewCommon::FlowDirection
     // Swap X/Y and invert Y
     p = QPointF(p.y(), -p.x());
     break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
   }
 
   // Multiply by item sizes for this direction
@@ -164,11 +182,13 @@ QPointF NodeViewItem::ScreenToNodePoint(QPointF p, NodeViewCommon::FlowDirection
     break;
   case NodeViewCommon::kTopToBottom:
     // Swap X/Y
-      p = QPointF(p.y(), p.x());
+    p = QPointF(p.y(), p.x());
     break;
   case NodeViewCommon::kBottomToTop:
     // Swap X/Y and invert Y
     p = QPointF(-p.y(), p.x());
+    break;
+  case NodeViewCommon::kInvalidDirection:
     break;
   }
 
@@ -213,51 +233,79 @@ void NodeViewItem::RemoveEdge(NodeViewEdge *edge)
   edges_.removeOne(edge);
 }
 
-int NodeViewItem::GetIndexAt(QPointF pt) const
-{
-  pt -= this->scenePos();
-
-  for (int i=0; i<node_inputs_.size(); i++) {
-    if (GetInputRect(i).contains(pt)) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
 void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 {
-  if (node_inputs_.isEmpty()
-      || (expanded_ == e && hide_titlebar_ == hide_titlebar)) {
+  if ((IsOutputItem() && !has_connectable_inputs_)
+      || (!IsOutputItem() && !(node_->GetInputFlags(input_) & kInputFlagArray))
+      || (expanded_ == e)) {
     return;
   }
 
   expanded_ = e;
-  hide_titlebar_ = hide_titlebar;
 
   if (context_) {
     context_->SetNodeExpandedInContext(node_, e);
   }
 
-  if (expanded_ && !node_inputs_.isEmpty()) {
-    // Create new rect
-    QRectF new_rect = title_bar_rect_;
-
-    if (hide_titlebar_) {
-      new_rect.setHeight(new_rect.height() * node_inputs_.size());
-    } else {
-      new_rect.setHeight(new_rect.height() * (node_inputs_.size() + 1));
-    }
-
-    setRect(new_rect);
-  } else {
-    setRect(title_bar_rect_);
+  if (IsOutputItem()) {
+    // We don't have to check has_connectable_inputs_ here because we did it at the top
+    input_connector_->setVisible(!expanded_);
   }
 
-  UpdateInputConnectorFlowDirections();
+  if (expanded_) {
+    if (IsOutputItem()) {
+      // Create items for each input of the node
+      int i = 1;
+      foreach (const QString &input, node_->inputs()) {
+        if (IsInputValid(input)) {
+          NodeViewItem *item = new NodeViewItem(node_, input, -1, context_, this);
+          item->setPos(QPointF(0, i * item->rect().height()));
+          children_.append(item);
+          i++;
+        }
+      }
 
-  UpdateConnectorPositions();
+      QVector<NodeViewEdge*> edges = edges_;
+      for (auto it=edges.cbegin(); it!=edges.cend(); it++) {
+        if ((*it)->to_item() == this) {
+          (*it)->set_to_item(GetItemForInput((*it)->input()));
+        }
+      }
+
+      SetRectSize(i);
+    } else {
+      // Create items for each element of the input array
+      int arr_sz = node_->InputArraySize(input_);
+      children_.resize(arr_sz);
+      for (int i=0; i<arr_sz; i++) {
+        NodeViewItem *item = new NodeViewItem(node_, input_, i, context_, this);
+        item->setPos(pos() + QPointF(0, (i+1) * item->rect().height()));
+        children_[i] = item;
+      }
+
+      QVector<NodeViewEdge*> edges = edges_;
+      for (auto it=edges.cbegin(); it!=edges.cend(); it++) {
+        if ((*it)->to_item() == this) {
+          (*it)->set_to_item(GetItemForInput((*it)->input()));
+        }
+      }
+    }
+  } else {
+    foreach (NodeViewItem *child, children_) {
+      QVector<NodeViewEdge*> child_edges = child->edges();
+      foreach (NodeViewEdge *edge, child_edges) {
+        edge->set_to_item(this);
+      }
+      delete child;
+    }
+    children_.clear();
+
+    SetRectSize(1);
+  }
+
+  if (flow_dir_ == NodeViewCommon::kTopToBottom) {
+    UpdateOutputConnectorPosition();
+  }
 
   ReadjustAllEdges();
 
@@ -277,35 +325,16 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   // has been slightly modified
   QPalette app_pal = Core::instance()->main_window()->palette();
 
-  // Draw background rect if expanded
-  if (IsExpanded()) {
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(app_pal.color(QPalette::Window));
-
-    painter->drawRect(rect());
-
-    painter->setPen(app_pal.color(QPalette::Text));
-
-    for (int i=0;i<node_inputs_.size();i++) {
-      QRectF input_rect = GetInputRect(i);
-
-      if (highlighted_index_ == i) {
-        QColor highlight_col = app_pal.color(QPalette::Text);
-        highlight_col.setAlpha(64);
-        painter->fillRect(input_rect, highlight_col);
-      }
-
-      painter->drawText(input_rect, Qt::AlignCenter, node_->GetInputName(node_inputs_.at(i)));
-    }
-  }
-
   // Draw the titlebar
-  if (!hide_titlebar_ && node_) {
+  if (IsOutputItem()) {
+    QRectF single_unit_rect = rect();
+    single_unit_rect.setHeight(DefaultItemHeight());
 
+    // Output item drawing code
     painter->setPen(Qt::black);
-    painter->setBrush(node_->brush(title_bar_rect_.top(), title_bar_rect_.bottom()));
+    painter->setBrush(node_->brush(single_unit_rect.top(), single_unit_rect.bottom()));
 
-    painter->drawRect(title_bar_rect_);
+    painter->drawRect(single_unit_rect);
 
     painter->setPen(app_pal.color(QPalette::Text));
 
@@ -320,40 +349,54 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     int icon_size = painter->fontMetrics().height()/2;
 
-    bool draw_arrow = !node_inputs_.isEmpty();
-
     if (node_label.isEmpty()) {
       // Draw shortname only
-      DrawNodeTitle(painter, node_shortname, title_bar_rect_, Qt::AlignVCenter, icon_size, draw_arrow);
+      DrawNodeTitle(painter, node_shortname, single_unit_rect, Qt::AlignVCenter, icon_size, has_connectable_inputs_);
     } else {
       int text_pad = DefaultTextPadding()/2;
-      QRectF safe_label_bounds = title_bar_rect_.adjusted(text_pad, text_pad, -text_pad, -text_pad);
+      QRectF safe_label_bounds = single_unit_rect.adjusted(text_pad, text_pad, -text_pad, -text_pad);
       QFont f;
       qreal font_sz = f.pointSizeF();
       f.setPointSizeF(font_sz * 0.8);
       painter->setFont(f);
-      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, icon_size, draw_arrow);
+      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, icon_size, has_connectable_inputs_);
       f.setPointSizeF(font_sz * 0.6);
       painter->setFont(f);
       DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom, icon_size, false);
     }
 
-  }
+    // Draw final border
+    QPen border_pen;
+    border_pen.setWidth(node_border_width_);
 
-  // Draw final border
-  QPen border_pen;
-  border_pen.setWidth(node_border_width_);
+    if (option->state & QStyle::State_Selected) {
+      border_pen.setColor(app_pal.color(QPalette::Highlight));
+    } else {
+      border_pen.setColor(Qt::black);
+    }
 
-  if (option->state & QStyle::State_Selected) {
-    border_pen.setColor(app_pal.color(QPalette::Highlight));
+    painter->setPen(border_pen);
+    painter->setBrush(Qt::NoBrush);
+
+    painter->drawRect(rect());
   } else {
-    border_pen.setColor(Qt::black);
+    // Input item drawing code
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(app_pal.color(QPalette::Window));
+
+    painter->drawRect(rect());
+
+    if (highlighted_) {
+      QColor highlight_col = app_pal.color(QPalette::Text);
+      highlight_col.setAlpha(64);
+      painter->setBrush(highlight_col);
+      painter->drawRect(rect());
+    }
+
+    painter->setPen(app_pal.color(QPalette::Text));
+
+    painter->drawText(rect(), Qt::AlignCenter, node_->GetInputName(input_));
   }
-
-  painter->setPen(border_pen);
-  painter->setBrush(Qt::NoBrush);
-
-  painter->drawRect(rect());
 }
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -399,10 +442,15 @@ QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
 
 void NodeViewItem::ReadjustAllEdges()
 {
-  UpdateInputConnectorFlowDirections();
-  UpdateInputConnectorPositions();
   foreach (NodeViewEdge* edge, edges_) {
+    if (NodeViewItem *to_item = edge->to_item()) {
+      static_cast<NodeViewItem*>(to_item->parentItem())->UpdateFlowDirectionOfInputItem(to_item);
+    }
+
     edge->Adjust();
+  }
+  foreach (NodeViewItem *child, children_) {
+    child->ReadjustAllEdges();
   }
 }
 
@@ -420,19 +468,19 @@ void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& 
   painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
   // Draw right or down arrow based on expanded state
-  int icon_padding = title_bar_rect_.height() / 2 - icon_size / 2;
+  int icon_padding = DefaultItemHeight() / 2 - icon_size / 2;
   int icon_full_size = icon_size + icon_padding * 2;
   if (draw_arrow) {
     const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
     int icon_size_scaled = icon_size * painter->transform().m11();
-    painter->drawPixmap(QRect(title_bar_rect_.x() + icon_padding,
-                              title_bar_rect_.y() + icon_padding,
+    painter->drawPixmap(QRect(this->rect().x() + icon_padding,
+                              this->rect().y() + icon_padding,
                               icon_size,
                               icon_size), expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
   }
 
   // Calculate how much space we have for text
-  int item_width = title_bar_rect_.width();
+  int item_width = this->rect().width();
   int max_text_width = item_width - DefaultTextPadding() * 2 - icon_full_size;
   int label_width = QtUtils::QFontMetricsWidth(fm, text);
 
@@ -467,28 +515,6 @@ void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& 
                     text);
 }
 
-NodeViewEdge *NodeViewItem::GetEdgeFromInputIndex(int index)
-{
-  foreach (NodeViewEdge *edge, edges_) {
-    if (edge->input().input() == node_inputs_.at(index)) {
-      return edge;
-    }
-  }
-
-  return nullptr;
-}
-
-void NodeViewItem::SetHighlightedIndex(int index)
-{
-  if (highlighted_index_ == index) {
-    return;
-  }
-
-  highlighted_index_ = index;
-
-  update();
-}
-
 void NodeViewItem::SetLabelAsOutput(bool e)
 {
   label_as_output_ = e;
@@ -496,58 +522,9 @@ void NodeViewItem::SetLabelAsOutput(bool e)
   update();
 }
 
-NodeInput NodeViewItem::GetInputFromInputConnector(NodeViewItemConnector *connector)
+QPointF NodeViewItem::GetInputPoint() const
 {
-  for (int i=0; i<int(input_connectors_.size()); i++) {
-    if (input_connectors_[i].get() == connector) {
-      return NodeInput(node_, node_inputs_.at(i));
-    }
-  }
-
-  return NodeInput();
-}
-
-NodeViewEdge *NodeViewItem::GetEdgeFromInputConnector(NodeViewItemConnector *connector)
-{
-  int index = -1;
-  for (int i=0; i<int(input_connectors_.size()); i++) {
-    if (input_connectors_[i].get() == connector) {
-      index = i;
-      break;
-    }
-  }
-
-  if (index == -1) {
-    return nullptr;
-  } else {
-    return GetEdgeFromInputIndex(index);
-  }
-}
-
-QRectF NodeViewItem::GetInputRect(int index) const
-{
-  QRectF r = title_bar_rect_;
-
-  if (!hide_titlebar_) {
-    index++;
-  }
-
-  if (IsExpanded()) {
-    r.translate(0, r.height() * index);
-  }
-
-  return r;
-}
-
-QPointF NodeViewItem::GetInputPoint(const QString &input, int element) const
-{
-  int index = node_inputs_.indexOf(input);
-
-  if (index < 0 || index >= int(input_connectors_.size())) {
-    return pos();
-  }
-
-  return input_connectors_[index]->scenePos();
+  return input_connector_->scenePos();
 }
 
 QPointF NodeViewItem::GetOutputPoint() const
@@ -576,13 +553,21 @@ QPointF NodeViewItem::GetOutputPoint() const
 
 void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 {
-  flow_dir_ = dir;
+  if (flow_dir_ != dir) {
+    flow_dir_ = dir;
 
-  UpdateInputConnectorFlowDirections();
-  output_connector_->SetFlowDirection(dir);
+    input_connector_->SetFlowDirection(dir);
+    output_connector_->SetFlowDirection(dir);
 
-  UpdateConnectorPositions();
-  UpdateNodePosition();
+    UpdateInputConnectorPosition();
+    UpdateOutputConnectorPosition();
+
+    if (IsOutputItem()) {
+      UpdateNodePosition();
+    }
+
+    ReadjustAllEdges();
+  }
 }
 
 void NodeViewItem::UpdateNodePosition()
@@ -590,26 +575,47 @@ void NodeViewItem::UpdateNodePosition()
   setPos(NodeToScreenPoint(cached_node_pos_, flow_dir_));
 }
 
-void NodeViewItem::UpdateInputConnectors()
+void NodeViewItem::UpdateInputConnectorPosition()
 {
-  int old_sz = input_connectors_.size();
+  QRectF output_rect = input_connector_->boundingRect();
 
-  input_connectors_.resize(node_inputs_.size());
-  for (size_t i=old_sz; i<input_connectors_.size(); i++) {
-    input_connectors_[i] = std::make_unique<NodeViewItemConnector>(false, this);
+  NodeViewCommon::FlowDirection using_flow_dir = flow_dir_;
+
+  if (IsExpanded() && !NodeViewCommon::IsFlowHorizontal(flow_dir_)) {
+    if (edges_.isEmpty() || edges_.first()->from_item()->x() < this->x()) {
+      using_flow_dir = NodeViewCommon::kLeftToRight;
+    } else {
+      using_flow_dir = NodeViewCommon::kRightToLeft;
+    }
+  }
+
+  // Input connector flow directions change conditionally
+  switch (using_flow_dir) {
+  case NodeViewCommon::kLeftToRight:
+    input_connector_->setPos(rect().left() - output_rect.width(), 0);
+    break;
+  case NodeViewCommon::kRightToLeft:
+    input_connector_->setPos(rect().right() + output_rect.width(), 0);
+    break;
+  case NodeViewCommon::kTopToBottom:
+    input_connector_->setPos(rect().center().x(), rect().top() - output_rect.height());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    input_connector_->setPos(rect().center().x(), rect().bottom() + output_rect.height());
+    break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
   }
 }
 
-void NodeViewItem::UpdateConnectorPositions()
+void NodeViewItem::UpdateOutputConnectorPosition()
 {
-  UpdateInputConnectorPositions();
-
   switch (flow_dir_) {
   case NodeViewCommon::kLeftToRight:
-    output_connector_->setPos(rect().right(), title_bar_rect_.center().y());
+    output_connector_->setPos(rect().right(), 0);
     break;
   case NodeViewCommon::kRightToLeft:
-    output_connector_->setPos(rect().left(), title_bar_rect_.center().y());
+    output_connector_->setPos(rect().left(), 0);
     break;
   case NodeViewCommon::kTopToBottom:
     output_connector_->setPos(rect().center().x(), rect().bottom());
@@ -617,57 +623,94 @@ void NodeViewItem::UpdateConnectorPositions()
   case NodeViewCommon::kBottomToTop:
     output_connector_->setPos(rect().center().x(), rect().top());
     break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
   }
 }
 
-void NodeViewItem::UpdateInputConnectorPositions()
+bool NodeViewItem::IsInputValid(const QString &input)
 {
-  QRectF output_rect = output_connector_->boundingRect();
-
-  // Input connector flow directions change conditionally
-  for (size_t i=0; i<input_connectors_.size(); i++) {
-    switch (GetFlowDirectionForInput(i)) {
-    case NodeViewCommon::kLeftToRight:
-      input_connectors_[i]->setPos(rect().left() - output_rect.width(), GetInputRect(i).center().y());
-      break;
-    case NodeViewCommon::kRightToLeft:
-      input_connectors_[i]->setPos(rect().right() + output_rect.width(), GetInputRect(i).center().y());
-      break;
-    case NodeViewCommon::kTopToBottom:
-      input_connectors_[i]->setPos(rect().center().x(), rect().top() - output_rect.height());
-      break;
-    case NodeViewCommon::kBottomToTop:
-      input_connectors_[i]->setPos(rect().center().x(), rect().bottom() + output_rect.height());
-      break;
-    }
-  }
+  return node_->IsInputConnectable(input) && !node_->IsInputHidden(input);
 }
 
-void NodeViewItem::UpdateInputConnectorFlowDirections()
+void NodeViewItem::SetRectSize(int height_units)
 {
-  for (size_t i=0; i<input_connectors_.size(); i++) {
-    input_connectors_[i]->SetFlowDirection(GetFlowDirectionForInput(i));
-  }
+  // Set rect
+  int widget_width = DefaultItemWidth();
+  int widget_height = DefaultItemHeight();
+
+  setRect(QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height * height_units));
 }
 
-NodeViewCommon::FlowDirection NodeViewItem::GetFlowDirectionForInput(int index)
+void NodeViewItem::UpdateFlowDirectionOfInputItem(NodeViewItem *child)
 {
-  if (!expanded_ || NodeViewCommon::IsFlowHorizontal(flow_dir_)) {
-    return flow_dir_;
-  } else {
-    NodeViewEdge *edge = GetEdgeFromInputIndex(index);
-
-    if (!edge || edge->from_item()->x() < this->x()) {
-      return NodeViewCommon::kLeftToRight;
+  if (!child->IsOutputItem()) {
+    if (NodeViewCommon::IsFlowVertical(flow_dir_)) {
+      if (!child->edges().isEmpty() && child->edges().first()->from_item()->scenePos().x() > child->scenePos().x()) {
+        child->SetFlowDirection(NodeViewCommon::kRightToLeft);
+      } else {
+        child->SetFlowDirection(NodeViewCommon::kLeftToRight);
+      }
     } else {
-      return NodeViewCommon::kRightToLeft;
+      child->SetFlowDirection(flow_dir_);
     }
   }
+}
+
+void NodeViewItem::RepopulateInputs()
+{
+  has_connectable_inputs_ = false;
+
+  foreach (const QString& input, node_->inputs()) {
+    if (IsInputValid(input)) {
+      has_connectable_inputs_ = true;
+      break;
+    }
+  }
+
+  input_connector_->setVisible(has_connectable_inputs_);
 }
 
 void NodeViewItem::NodeAppearanceChanged()
 {
   update();
+}
+
+void NodeViewItem::SetHighlighted(bool e)
+{
+  highlighted_ = e;
+  update();
+}
+
+NodeViewItem *NodeViewItem::GetItemForInput(NodeInput input)
+{
+  if (NodeGroup *group = dynamic_cast<NodeGroup*>(node_)) {
+    if (input.node() != group) {
+      // Translate input to group input
+      QString id = NodeGroup::GetGroupInputIDFromInput(input);
+      input.set_node(group);
+      input.set_input(id);
+    }
+  }
+
+  if (IsExpanded()) {
+    if (input_.isEmpty()) {
+      // Look for the input in our children
+      foreach (NodeViewItem *i, children_) {
+        if (i->input_ == input.input()) {
+          return i;
+        }
+      }
+    } else {
+      // Look for element in our children
+      if (input.element() >= 0 && input.element() < children_.size()) {
+        return children_.at(input.element());
+      }
+    }
+  }
+
+  // Fallback to this object
+  return this;
 }
 
 }

@@ -21,6 +21,7 @@
 #ifndef NODEGRAPH_H
 #define NODEGRAPH_H
 
+#include "node/group/group.h"
 #include "node/node.h"
 
 namespace olive {
@@ -84,9 +85,11 @@ signals:
 
   void InputValueHintChanged(const NodeInput& input);
 
-  void NodePositionAdded(Node *node, Node *relative, const QPointF &position);
+  void GroupAddedInputPassthrough(NodeGroup *group, const NodeInput &input);
 
-  void NodePositionRemoved(Node *node, Node *relative);
+  void GroupRemovedInputPassthrough(NodeGroup *group, const NodeInput &input);
+
+  void GroupChangedOutputPassthrough(NodeGroup *group, Node *output);
 
 protected:
   void AddDefaultNode(Node* n)

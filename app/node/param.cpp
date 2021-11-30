@@ -150,6 +150,15 @@ QVariant NodeInput::GetSplitDefaultValueForTrack(int track) const
   }
 }
 
+int NodeInput::GetArraySize() const
+{
+  if (IsValid() && element_ == -1) {
+    return node_->InputArraySize(input_);
+  } else {
+    return 0;
+  }
+}
+
 uint qHash(const NodeInput &i)
 {
   return qHash(i.node()) ^ qHash(i.input()) ^ qHash(i.element());

@@ -32,6 +32,7 @@
 
 namespace olive {
 
+class NodeViewItem;
 class NodeViewEdge;
 
 /**
@@ -45,10 +46,18 @@ class NodeViewItem : public QObject, public QGraphicsRectItem
 {
   Q_OBJECT
 public:
-  NodeViewItem(Node* n, Node *context, QGraphicsItem* parent = nullptr);
+  NodeViewItem(Node *node, const QString &input, int element, Node *context, QGraphicsItem* parent = nullptr);
+  NodeViewItem(Node *node, Node *context, QGraphicsItem* parent = nullptr) :
+    NodeViewItem(node, QString(), -1, context, parent)
+  {
+  }
+
+  virtual ~NodeViewItem() override;
 
   QPointF GetNodePosition() const;
   void SetNodePosition(const QPointF& pos);
+
+  QVector<NodeViewEdge*> GetAllEdgesRecursively() const;
 
   /**
    * @brief Get currently attached node
@@ -56,6 +65,11 @@ public:
   Node* GetNode() const
   {
     return node_;
+  }
+
+  NodeInput GetInput() const
+  {
+    return NodeInput(node_, input_, element_);
   }
 
   Node *GetContext() const
@@ -82,17 +96,18 @@ public:
   void SetExpanded(bool e, bool hide_titlebar = false);
   void ToggleExpanded();
 
-  /**
-   * @brief Returns GLOBAL point that edges should connect to for any NodeParam member of this object
-   */
-  QPointF GetInputPoint(const QString& input, int element) const;
-
+  QPointF GetInputPoint() const;
   QPointF GetOutputPoint() const;
 
   /**
    * @brief Sets the direction nodes are flowing
    */
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+
+  NodeViewCommon::FlowDirection GetFlowDirection() const
+  {
+    return flow_dir_;
+  }
 
   static int DefaultTextPadding();
 
@@ -113,19 +128,20 @@ public:
   void AddEdge(NodeViewEdge* edge);
   void RemoveEdge(NodeViewEdge* edge);
 
-  int GetIndexAt(QPointF pt) const;
-
-  NodeInput GetInputAtIndex(int index) const
-  {
-    return NodeInput(node_, node_inputs_.at(index));
-  }
-
-  void SetHighlightedIndex(int index);
-
   void SetLabelAsOutput(bool e);
 
-  NodeInput GetInputFromInputConnector(NodeViewItemConnector *connector);
-  NodeViewEdge *GetEdgeFromInputConnector(NodeViewItemConnector *connector);
+  void SetHighlighted(bool e);
+
+  NodeViewItem *GetItemForInput(NodeInput input);
+
+  bool IsOutputItem() const
+  {
+    return input_.isEmpty();
+  }
+
+  void ReadjustAllEdges();
+
+  void UpdateFlowDirectionOfInputItem(NodeViewItem *child);
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -138,49 +154,35 @@ protected:
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
 private:
-  void ReadjustAllEdges();
-
   void UpdateContextRect();
 
   void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, int icon_size, bool draw_arrow);
-
-  NodeViewEdge *GetEdgeFromInputIndex(int index);
-
-  /**
-   * @brief Returns local rect of a NodeInput in array node_inputs_[index]
-   */
-  QRectF GetInputRect(int index) const;
 
   /**
    * @brief Internal update function when logical position changes
    */
   void UpdateNodePosition();
 
-  void UpdateInputConnectors();
+  void UpdateInputConnectorPosition();
+  void UpdateOutputConnectorPosition();
 
-  void UpdateConnectorPositions();
+  bool IsInputValid(const QString &input);
 
-  void UpdateInputConnectorPositions();
-  void UpdateInputConnectorFlowDirections();
-
-  NodeViewCommon::FlowDirection GetFlowDirectionForInput(int index);
+  void SetRectSize(int height_units = 1);
 
   /**
    * @brief Reference to attached Node
    */
-  Node* node_;
+  Node *node_;
+  QString input_;
+  int element_;
 
   Node *context_;
 
   /**
    * @brief Cached list of node inputs
    */
-  QVector<QString> node_inputs_;
-
-  /**
-   * @brief Rectangle of the Node's title bar (equal to rect() when collapsed)
-   */
-  QRectF title_bar_rect_;
+  QVector<NodeViewItem*> children_;
 
   /// Sizing variables to use when drawing
   int node_border_width_;
@@ -190,9 +192,7 @@ private:
    */
   bool expanded_;
 
-  bool hide_titlebar_;
-
-  int highlighted_index_;
+  bool highlighted_;
 
   NodeViewCommon::FlowDirection flow_dir_;
 
@@ -200,13 +200,17 @@ private:
 
   QPointF cached_node_pos_;
 
-  std::vector<std::unique_ptr<NodeViewItemConnector> > input_connectors_;
+  NodeViewItemConnector *input_connector_;
   NodeViewItemConnector *output_connector_;
+
+  bool has_connectable_inputs_;
 
   bool label_as_output_;
 
 private slots:
   void NodeAppearanceChanged();
+
+  void RepopulateInputs();
 
 };
 

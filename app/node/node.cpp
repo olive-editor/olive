@@ -1610,7 +1610,9 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   dst->SetSplitStandardValue(input, src->GetSplitStandardValue(input, src_element), dst_element);
 
   // Copy keyframes
-  dst->GetImmediate(input, dst_element)->delete_all_keyframes();
+  if (NodeInputImmediate *immediate = dst->GetImmediate(input, dst_element)) {
+    immediate->delete_all_keyframes();
+  }
   foreach (const NodeKeyframeTrack& track, src->GetImmediate(input, src_element)->keyframe_tracks()) {
     foreach (NodeKeyframe* key, track) {
       key->copy(dst_element, dst);
@@ -2366,15 +2368,13 @@ Project *Node::ArrayResizeCommand::GetRelevantProject() const
 
 void NodeSetPositionCommand::redo()
 {
-  if (!(added_ = !context_->ContextContainsNode(node_))) {
+  added_ = !context_->ContextContainsNode(node_);
+
+  if (!added_) {
     old_pos_ = context_->GetNodePositionDataInContext(node_);
   }
 
-  if (added_) {
-    context_->SetNodePositionInContext(node_, pos_);
-  } else {
-    move(context_, node_, pos_.position - old_pos_.position, move_deps_);
-  }
+  context_->SetNodePositionInContext(node_, pos_);
 }
 
 void NodeSetPositionCommand::undo()
@@ -2382,23 +2382,7 @@ void NodeSetPositionCommand::undo()
   if (added_) {
     context_->RemoveNodeFromContext(node_);
   } else {
-    move(context_, node_, old_pos_.position - pos_.position, move_deps_);
-  }
-}
-
-void NodeSetPositionCommand::move(Node *context, Node *node, const QPointF &diff, bool recursive)
-{
-  QPointF p = context->GetNodePositionInContext(node);
-  p += diff;
-  context->SetNodePositionInContext(node, p);
-
-  if (recursive) {
-    for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-      Node *output = it->second;
-      if (context->ContextContainsNode(output)) {
-        move(context, output, diff, recursive);
-      }
-    }
+    context_->SetNodePositionInContext(node_, old_pos_);
   }
 }
 
@@ -2407,7 +2391,7 @@ void NodeRemovePositionFromContextCommand::redo()
   contained_ = context_->ContextContainsNode(node_);
 
   if (contained_) {
-    old_pos_ = context_->GetNodePositionInContext(node_);
+    old_pos_ = context_->GetNodePositionDataInContext(node_);
     context_->RemoveNodeFromContext(node_);
   }
 }
@@ -2484,6 +2468,39 @@ void Node::ValueHint::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("index"), QString::number(index_));
 
   writer->writeTextElement(QStringLiteral("tag"), tag_);
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()
+{
+  move_recursively(node_, pos_.position - context_->GetNodePositionDataInContext(node_).position);
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::redo()
+{
+  for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
+    (*it)->redo_now();
+  }
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::undo()
+{
+  for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
+    (*it)->undo_now();
+  }
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *node, const QPointF &diff)
+{
+  Node::Position pos = context_->GetNodePositionDataInContext(node);
+  pos += diff;
+  commands_.append(new NodeSetPositionCommand(node_, context_, pos));
+
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    Node *output = it->second;
+    if (context_->ContextContainsNode(output)) {
+      move_recursively(output, diff);
+    }
+  }
 }
 
 }

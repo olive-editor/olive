@@ -74,6 +74,12 @@ void NodeGraph::childEvent(QChildEvent *event)
       connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged, Qt::DirectConnection);
       connect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged, Qt::DirectConnection);
 
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        connect(group, &NodeGroup::InputPassthroughAdded, this, &NodeGraph::GroupAddedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeGraph::GroupRemovedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::OutputPassthroughChanged, this, &NodeGraph::GroupChangedOutputPassthrough, Qt::DirectConnection);
+      }
+
       emit NodeAdded(node);
       emit node->AddedToGraph(this);
 
@@ -87,12 +93,22 @@ void NodeGraph::childEvent(QChildEvent *event)
       disconnect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
       disconnect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged);
 
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        disconnect(group, &NodeGroup::InputPassthroughAdded, this, &NodeGraph::GroupAddedInputPassthrough);
+        disconnect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeGraph::GroupRemovedInputPassthrough);
+        disconnect(group, &NodeGroup::OutputPassthroughChanged, this, &NodeGraph::GroupChangedOutputPassthrough);
+      }
+
       emit NodeRemoved(node);
       emit node->RemovedFromGraph(this);
 
       // Remove from any contexts
       foreach (Node *context, node_children_) {
         context->RemoveNodeFromContext(node);
+
+        if (NodeGroup *group = dynamic_cast<NodeGroup*>(context)) {
+          group->RemoveNode(node);
+        }
       }
     }
   }

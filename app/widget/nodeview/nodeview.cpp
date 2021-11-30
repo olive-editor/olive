@@ -49,10 +49,9 @@ NodeView::NodeView(QWidget *parent) :
   create_edge_(nullptr),
   create_edge_output_item_(nullptr),
   create_edge_input_item_(nullptr),
-  create_edge_dst_temp_expanded_(false),
+  create_edge_expand_item_(nullptr),
   paste_command_(nullptr),
-  scale_(1.0),
-  first_show_(true)
+  scale_(1.0)
 {
   setScene(&scene_);
   SetDefaultDragMode(RubberBandDrag);
@@ -311,45 +310,54 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   QGraphicsItem* item = itemAt(event->pos());
 
   if (event->button() == Qt::LeftButton) {
-    // Determine if user clicked on a connector
-    NodeViewItemConnector *connector = dynamic_cast<NodeViewItemConnector *>(item);
+    // Sane defaults
+    create_edge_output_item_ = nullptr;
+    create_edge_input_item_ = nullptr;
+    create_edge_already_exists_ = false;
+    create_edge_from_output_ = true;
 
-    // If the user clicked on a connector OR the user is holding Ctrl
-    if (connector || (event->modifiers() & Qt::ControlModifier)) {
-      // Get the relevant item, either the one attached to the connector or the item if Ctrl+Clicked
-      NodeViewItem *attached_item = connector ? static_cast<NodeViewItem*>(connector->parentItem()) : dynamic_cast<NodeViewItem*>(item);
-
-      if (attached_item) {
-        if (connector && !connector->IsOutput() && (create_edge_ = attached_item->GetEdgeFromInputConnector(connector))) {
-          // Since inputs can only have one edge connected, we grab the existing edge, if one exists
-          create_edge_output_item_ = create_edge_->from_item();
-          create_edge_already_exists_ = true;
-          create_edge_from_output_ = true;
-        } else {
-          // Create a new edge from this output
-          create_edge_ = new NodeViewEdge();
-          create_edge_->SetCurved(scene_.GetEdgesAreCurved());
-          create_edge_->SetFlowDirection(scene_.GetFlowDirection());
-
-          // Set source and declare that we created this edge
-          if ((create_edge_from_output_ = (!connector || connector->IsOutput()))) {
-            // Edge is being created from output
-            create_edge_output_item_ = attached_item;
-          } else {
-            // Edge is being created from input
-            create_edge_input_item_ = attached_item;
-            create_edge_input_ = attached_item->GetInputFromInputConnector(connector);
-          }
-          create_edge_already_exists_ = false;
-
-          // Add edge to scene
-          scene_.addItem(create_edge_);
-
-          // Position edge to mouse cursor
-          PositionNewEdge(event->pos());
-        }
-        return;
+    if (event->modifiers() & Qt::ControlModifier) {
+      create_edge_output_item_ = dynamic_cast<NodeViewItem*>(item);
+      if (create_edge_output_item_ && !create_edge_output_item_->IsOutputItem()) {
+        create_edge_output_item_ = nullptr;
       }
+    }
+
+    if (!create_edge_output_item_) {
+      // Determine if user clicked on a connector
+      if (NodeViewItemConnector *connector = dynamic_cast<NodeViewItemConnector *>(item)) {
+        NodeViewItem *attached = static_cast<NodeViewItem*>(connector->parentItem());
+
+        if (connector->IsOutput()) {
+          create_edge_output_item_ = attached;
+        } else {
+          create_edge_input_item_ = attached;
+
+          if (!create_edge_input_item_->edges().isEmpty()) {
+            // Drag existing edge instead
+            create_edge_ = create_edge_input_item_->edges().first();
+            create_edge_input_item_ = nullptr;
+            create_edge_output_item_ = create_edge_->from_item();
+            create_edge_already_exists_ = true;
+          } else {
+            create_edge_from_output_ = false;
+            create_edge_input_ = create_edge_input_item_->GetInput();
+          }
+        }
+      }
+    }
+
+    if ((create_edge_output_item_ || create_edge_input_item_) && !create_edge_already_exists_) {
+      // Create a new edge from this output
+      create_edge_ = new NodeViewEdge();
+      create_edge_->SetCurved(scene_.GetEdgesAreCurved());
+
+      // Add edge to scene
+      scene_.addItem(create_edge_);
+
+      // Position edge to mouse cursor
+      PositionNewEdge(event->pos());
+      return;
     }
   }
 
@@ -490,12 +498,12 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
     if (create_edge_output_item_ && create_edge_input_item_) {
       // Clear highlight if we set one
-      create_edge_input_item_->SetHighlightedIndex(-1);
+      create_edge_input_item_->SetHighlighted(false);
 
       // Collapse if we expanded it
-      if (create_edge_dst_temp_expanded_) {
-        create_edge_input_item_->SetExpanded(false);
-        create_edge_input_item_->setZValue(0);
+      if (create_edge_expand_item_) {
+        create_edge_expand_item_->SetExpanded(false);
+        create_edge_expand_item_->setZValue(0);
       }
 
       NodeInput &creating_input = create_edge_input_;
@@ -504,17 +512,20 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         if (!reconnected_to_itself) {
           Node *creating_output = create_edge_output_item_->GetNode();
 
+          if (NodeGroup *output_group = dynamic_cast<NodeGroup*>(creating_output)) {
+            creating_output = output_group->GetOutputPassthrough();
+          }
+
+          if (NodeGroup *input_group = dynamic_cast<NodeGroup*>(creating_input.node())) {
+            creating_input = input_group->GetInputPassthroughs().value(creating_input.input());
+          }
+
           if (creating_input.IsConnected()) {
             Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
             command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
           }
 
           command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
-
-          // If the output is not in the input's context, add it now
-          if (!create_edge_input_item_->GetContext()->ContextContainsNode(creating_output)) {
-            command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
-          }
         }
 
         creating_input.Reset();
@@ -686,9 +697,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
     // Label node action
     QAction* label_action = m.addAction(tr("Label"));
-    connect(label_action, &QAction::triggered, this, [this](){
-      Core::instance()->LabelNodes(selected_nodes_);
-    });
+    connect(label_action, &QAction::triggered, this, &NodeView::LabelSelectedNodes);
 
     // Grouping
     if (selected.size() == 1 && dynamic_cast<NodeGroup*>(selected.first()->GetNode())) {
@@ -702,12 +711,18 @@ void NodeView::ShowContextMenu(const QPoint &pos)
     // Color menu
     MenuShared::instance()->AddColorCodingMenu(&m);
 
-    ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(selected.first()->GetNode());
-    if (viewer) {
+    // Show in Viewer option for nodes based on Viewer
+    if (ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(selected.first()->GetNode())) {
       m.addSeparator();
       QAction* open_in_viewer_action = m.addAction(tr("Open in Viewer"));
       connect(open_in_viewer_action, &QAction::triggered, this, &NodeView::OpenSelectedNodeInViewer);
     }
+
+    m.addSeparator();
+
+    // Properties
+    QAction *properties_action = m.addAction(tr("P&roperties"));
+    connect(properties_action, &QAction::triggered, this, &NodeView::ShowNodeProperties);
 
   } else {
 
@@ -988,6 +1003,13 @@ void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNode
   }*/
 }
 
+void NodeView::changeEvent(QEvent *e)
+{
+  // Add translation code
+
+  super::changeEvent(e);
+}
+
 void NodeView::ZoomFromKeyboard(double multiplier)
 {
   QPoint cursor_pos = mapFromGlobal(QCursor::pos());
@@ -1029,10 +1051,11 @@ void NodeView::PositionNewEdge(const QPoint &pos)
     item_at_cursor = nullptr;
   }
 
-  // Filter out connecting to a node that connects to us
+  // Filter out connecting to a node that connects to us or an item of the same type
   if (item_at_cursor
       && ((create_edge_from_output_ && item_at_cursor->GetNode()->OutputsTo(source_item->GetNode(), true))
-          || (!create_edge_from_output_ && item_at_cursor->GetNode()->InputsFrom(source_item->GetNode(), true)))) {
+          || (!create_edge_from_output_ && item_at_cursor->GetNode()->InputsFrom(source_item->GetNode(), true))
+          || (create_edge_from_output_ == item_at_cursor->IsOutputItem()))) {
     item_at_cursor = nullptr;
   }
 
@@ -1040,46 +1063,32 @@ void NodeView::PositionNewEdge(const QPoint &pos)
   if (item_at_cursor != opposing_item) {
     // If we had a destination active, disconnect from it since the item has changed
     if (opposing_item) {
-      opposing_item->SetHighlightedIndex(-1);
+      opposing_item->SetHighlighted(false);
+      opposing_item = nullptr;
+    }
 
-      if (create_edge_dst_temp_expanded_) {
-        // We expanded this item, so we can un-expand it
-        opposing_item->SetExpanded(false);
-        opposing_item->setZValue(0);
+    // Clear cached input
+    if (create_edge_from_output_) {
+      if (create_edge_input_.IsValid()) {
+        create_edge_input_.Reset();
       }
     }
 
-    // Set destination
+    // If this is an input and we're
     opposing_item = item_at_cursor;
 
-    // If our destination is an item, ensure it's expanded
     if (opposing_item) {
-      if (create_edge_from_output_ && (create_edge_dst_temp_expanded_ = (!create_edge_input_item_->IsExpanded()))) {
-        create_edge_input_item_->SetExpanded(true, true);
-        create_edge_input_item_->setZValue(100); // Ensure item is in front
+      opposing_item->SetHighlighted(true);
+      if (!opposing_item->IsOutputItem()) {
+        create_edge_input_ = opposing_item->GetInput();
       }
-    }
-  }
-
-  // If we have a destination, highlight the appropriate input
-  if (create_edge_from_output_) {
-    int highlight_index = -1;
-    if (create_edge_input_item_) {
-      highlight_index = create_edge_input_item_->GetIndexAt(scene_pt);
-      create_edge_input_item_->SetHighlightedIndex(highlight_index);
-    }
-
-    if (highlight_index >= 0) {
-      create_edge_input_ = create_edge_input_item_->GetInputAtIndex(highlight_index);
-    } else {
-      create_edge_input_.Reset();
     }
   }
 
   QPointF output_point = create_edge_output_item_ ? create_edge_output_item_->GetOutputPoint() : scene_pt;
-  QPointF input_point = create_edge_input_.IsValid() ? create_edge_input_item_->GetInputPoint(create_edge_input_.input(), create_edge_input_.element()) : scene_pt;
+  QPointF input_point = create_edge_input_.IsValid() ? create_edge_input_item_->GetInputPoint() : scene_pt;
 
-  create_edge_->SetPoints(output_point, input_point, create_edge_input_item_ && create_edge_input_item_->IsExpanded());
+  create_edge_->SetPoints(output_point, input_point);
   create_edge_->SetConnected(create_edge_output_item_ && create_edge_input_.IsValid());
 }
 
@@ -1110,36 +1119,14 @@ void NodeView::GroupNodes()
   // Add group to graph and context
   MultiUndoCommand *command = new MultiUndoCommand();
 
-  command->add_child(new NodeAddCommand(context->parent(), group));
-  command->add_child(new NodeSetPositionCommand(group, context, avg_pos));
-
   // Add nodes to group
+  Node *output_passthrough = nullptr;
   QVector<Node*> nodes_to_group = selected_nodes_;
   DeselectAll();
   foreach (Node *n, nodes_to_group) {
-    for (auto it=n->input_connections().cbegin(); it!=n->input_connections().cend(); it++) {
-      Node *output = it->second;
-      const NodeInput &input = it->first;
-
-      if (!nodes_to_group.contains(output)) {
-        command->add_child(new NodeEdgeRemoveCommand(output, input));
-        command->add_child(new NodeEdgeAddCommand(output, NodeInput(group, input.input(), input.element())));
-      }
-    }
-
-    for (auto it=n->output_connections().cbegin(); it!=n->output_connections().cend(); it++) {
-      Node *output = it->first;
-      const NodeInput &input = it->second;
-
-      if (!nodes_to_group.contains(input.node())) {
-        command->add_child(new NodeEdgeRemoveCommand(output, input));
-        command->add_child(new NodeEdgeAddCommand(group, input));
-      }
-    }
-
     command->add_child(new NodeRemovePositionFromContextCommand(n, context));
     command->add_child(new NodeAddToGroupCommand(n, group));
-    command->add_child(new NodeSetPositionCommand(n, group, scene_.context_map().value(context)->GetItemFromMap(n)->GetNodePosition()));
+    command->add_child(new NodeSetPositionCommand(n, group, context->GetNodePositionDataInContext(n)));
 
     for (auto it=n->inputs().cbegin(); it!=n->inputs().cend(); it++) {
       NodeInput input(n, *it, -1);
@@ -1148,7 +1135,24 @@ void NodeView::GroupNodes()
         command->add_child(new NodeGroupAddInputPassthrough(group, input));
       }
     }
+
+    if (!output_passthrough) {
+      // Default to the first node we find that doesn't output to a node inside the group
+      foreach (Node *potential_in, nodes_to_group) {
+        if (potential_in != n && !n->OutputsTo(potential_in, false)) {
+          output_passthrough = n;
+          break;
+        }
+      }
+    }
   }
+
+  // Set output passthrough
+  command->add_child(new NodeGroupSetOutputPassthrough(group, output_passthrough));
+
+  // Add group to graph
+  command->add_child(new NodeAddCommand(context->parent(), group));
+  command->add_child(new NodeSetPositionCommand(group, context, avg_pos));
 
   // Do command
   command->redo_now();
@@ -1166,7 +1170,55 @@ void NodeView::GroupNodes()
 
 void NodeView::UngroupNodes()
 {
-  //NodeGroup *group = static_cast<NodeGroup*>(selected_nodes_.first());
+  NodeViewItem *group_item = nullptr;
+  QVector<NodeViewItem*> items = scene_.GetSelectedItems();
+  if (items.isEmpty()) {
+    return;
+  }
+
+  NodeGroup *group;
+  foreach (NodeViewItem *i, items) {
+    if ((group = dynamic_cast<NodeGroup*>(i->GetNode()))) {
+      group_item = i;
+      break;
+    }
+  }
+
+  if (!group_item) {
+    return;
+  }
+
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  Node *context = group_item->GetContext();
+
+  command->add_child(new NodeRemovePositionFromContextCommand(group, context));
+  command->add_child(new NodeRemoveAndDisconnectCommand(group));
+
+  foreach (Node *n, group->GetNodes()) {
+    command->add_child(new NodeRemovePositionFromContextCommand(n, group));
+    command->add_child(new NodeRemoveFromGroupCommand(n, group));
+    command->add_child(new NodeSetPositionCommand(n, context, group->GetNodePositionDataInContext(n)));
+  }
+
+  Core::instance()->undo_stack()->push(command);
+}
+
+void NodeView::ShowNodeProperties()
+{
+  Node *first_node = selected_nodes_.first();
+
+  if (NodeGroup *group = dynamic_cast<NodeGroup*>(first_node)) {
+    NodeGroupDialog ngd(group, this);
+    ngd.exec();
+  } else {
+    LabelSelectedNodes();
+  }
+}
+
+void NodeView::LabelSelectedNodes()
+{
+  Core::instance()->LabelNodes(selected_nodes_);
 }
 
 void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)

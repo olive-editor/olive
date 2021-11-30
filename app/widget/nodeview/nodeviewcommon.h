@@ -30,6 +30,7 @@ namespace olive {
 class NodeViewCommon {
 public:
   enum FlowDirection {
+    kInvalidDirection = -1,
     kTopToBottom,
     kBottomToTop,
     kLeftToRight,

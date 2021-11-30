@@ -74,6 +74,8 @@ void NodeViewItemConnector::SetFlowDirection(NodeViewCommon::FlowDirection dir)
     p[1] = QPointF(-triangle_sz_half, 0);
     p[2] = QPointF(0, triangle_sz_half);
     break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
   }
 
   setPolygon(p);

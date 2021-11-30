@@ -72,6 +72,10 @@ public:
     return to_item_;
   }
 
+  void set_from_item(NodeViewItem *i);
+
+  void set_to_item(NodeViewItem *i);
+
   void Adjust();
 
   /**
@@ -101,12 +105,7 @@ public:
   /**
    * @brief Set points to create curve from
    */
-  void SetPoints(const QPointF& start, const QPointF& end, bool input_is_expanded);
-
-  /**
-   * @brief Sets the direction nodes are flowing
-   */
-  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+  void SetPoints(const QPointF& start, const QPointF& end);
 
   /**
    * @brief Set whether edges should be drawn as curved or as straight lines
@@ -137,13 +136,10 @@ private:
 
   bool highlighted_;
 
-  NodeViewCommon::FlowDirection flow_dir_;
-
   bool curved_;
 
   QPointF cached_start_;
   QPointF cached_end_;
-  bool cached_input_is_expanded_;
 
 };
 

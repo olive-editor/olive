@@ -27,8 +27,6 @@ namespace olive {
 NodeGroup::NodeGroup() :
   output_passthrough_(nullptr)
 {
-  graph_ = new NodeGraph();
-  graph_->setParent(this);
 }
 
 QString NodeGroup::Name() const
@@ -57,26 +55,28 @@ QString NodeGroup::Description() const
 
 void NodeGroup::Retranslate()
 {
-  foreach (Node *n, graph_->nodes()) {
+  foreach (Node *n, nodes_) {
     n->Retranslate();
   }
 }
 
 void NodeGroup::AddNode(Node *node)
 {
-  node->setParent(graph_);
+  nodes_.append(node);
+
+  emit NodeAddedToGroup(node);
 }
 
-void NodeGroup::RemoveNode(Node *node, QObject *new_parent)
+void NodeGroup::RemoveNode(Node *node)
 {
-  if (node->parent() == graph_) {
-    node->setParent(new_parent);
+  if (nodes_.removeOne(node)) {
+    emit NodeRemovedFromGroup(node);
   }
 }
 
 void NodeGroup::AddInputPassthrough(const NodeInput &input)
 {
-  Q_ASSERT(graph_->nodes().contains(input.node()));
+  Q_ASSERT(nodes_.contains(input.node()));
 
   for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
     if (it.value() == input) {
@@ -91,6 +91,8 @@ void NodeGroup::AddInputPassthrough(const NodeInput &input)
   AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags());
 
   input_passthroughs_.insert(id, input);
+
+  emit InputPassthroughAdded(this, input);
 }
 
 void NodeGroup::RemoveInputPassthrough(const NodeInput &input)
@@ -99,6 +101,7 @@ void NodeGroup::RemoveInputPassthrough(const NodeInput &input)
     if (it.value() == input) {
       RemoveInput(it.key());
       input_passthroughs_.erase(it);
+      emit InputPassthroughRemoved(this, it.value());
       break;
     }
   }
@@ -106,9 +109,11 @@ void NodeGroup::RemoveInputPassthrough(const NodeInput &input)
 
 void NodeGroup::SetOutputPassthrough(Node *node)
 {
-  Q_ASSERT(graph_->nodes().contains(node));
+  Q_ASSERT(!node || nodes_.contains(node));
 
   output_passthrough_ = node;
+
+  emit OutputPassthroughChanged(this, output_passthrough_);
 }
 
 QString NodeGroup::GetGroupInputIDFromInput(const NodeInput &input)
@@ -135,15 +140,19 @@ bool NodeGroup::ContainsInputPassthrough(const NodeInput &input) const
   return false;
 }
 
+QString NodeGroup::GetInputName(const QString &id) const
+{
+  return input_passthroughs_.value(id).name();
+}
+
 void NodeAddToGroupCommand::redo()
 {
-  previous_parent_ = node_->parent();
   group_->AddNode(node_);
 }
 
 void NodeAddToGroupCommand::undo()
 {
-  group_->RemoveNode(node_, previous_parent_);
+  group_->RemoveNode(node_);
 }
 
 void NodeGroupSetCustomNameCommand::redo()
@@ -172,6 +181,27 @@ void NodeGroupAddInputPassthrough::undo()
   if (actually_added_) {
     group_->RemoveInputPassthrough(input_);
   }
+}
+
+void NodeRemoveFromGroupCommand::redo()
+{
+  group_->RemoveNode(node_);
+}
+
+void NodeRemoveFromGroupCommand::undo()
+{
+  group_->AddNode(node_);
+}
+
+void NodeGroupSetOutputPassthrough::redo()
+{
+  old_output_ = group_->GetOutputPassthrough();
+  group_->SetOutputPassthrough(new_output_);
+}
+
+void NodeGroupSetOutputPassthrough::undo()
+{
+  group_->SetOutputPassthrough(old_output_);
 }
 
 }

@@ -60,7 +60,9 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-  NodeViewEdge *AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to);
+  void AddNodeInternal(Node *node, NodeViewItem *item);
+
+  void AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to);
 
   Node *context_;
 
@@ -75,6 +77,11 @@ private:
   QMap<Node*, NodeViewItem*> item_map_;
 
   QVector<NodeViewEdge*> edges_;
+
+private slots:
+  void GroupAddedNode(Node *node);
+
+  void GroupRemovedNode(Node *node);
 
 };
 

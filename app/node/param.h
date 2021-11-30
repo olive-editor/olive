@@ -134,6 +134,16 @@ public:
     return element_;
   }
 
+  void set_node(Node *node)
+  {
+    node_ = node;
+  }
+
+  void set_input(const QString &input)
+  {
+    input_ = input;
+  }
+
   void set_element(int e)
   {
     element_ = e;
@@ -171,6 +181,8 @@ public:
   NodeKeyframe *GetKeyframeAtTimeOnTrack(const rational& time, int track) const;
 
   QVariant GetSplitDefaultValueForTrack(int track) const;
+
+  int GetArraySize() const;
 
   void Reset()
   {

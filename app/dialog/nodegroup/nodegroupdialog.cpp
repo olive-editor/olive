@@ -60,6 +60,8 @@ NodeGroupDialog::NodeGroupDialog(NodeGroup *group, QWidget *parent) :
   QMetaObject::invokeMethod(node_view, &NodeView::CenterOnItemsBoundingRect, Qt::QueuedConnection);
   splitter->addWidget(node_view);
 
+  splitter->setSizes({splitter->width() / 4, splitter->width() / 4 * 3});
+
   for (auto it=group->GetInputPassthroughs().cbegin(); it!=group->GetInputPassthroughs().cend(); it++) {
     param_view->SetInputChecked(it.value(), true);
   }

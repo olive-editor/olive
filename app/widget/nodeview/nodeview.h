@@ -119,6 +119,8 @@ protected:
   virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata) override;
   virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
 
+  virtual void changeEvent(QEvent *e) override;
+
 private:
   void AttachItemsToCursor(const QVector<NodeViewItem *> &items);
 
@@ -162,8 +164,8 @@ private:
   NodeViewEdge* create_edge_;
   NodeViewItem* create_edge_output_item_;
   NodeViewItem* create_edge_input_item_;
+  NodeViewItem *create_edge_expand_item_;
   NodeInput create_edge_input_;
-  bool create_edge_dst_temp_expanded_;
   bool create_edge_already_exists_;
   bool create_edge_from_output_;
 
@@ -180,8 +182,6 @@ private:
   QMap<NodeViewItem*, QPointF> dragging_items_;
 
   double scale_;
-
-  bool first_show_;
 
   static const double kMinimumScale;
 
@@ -224,6 +224,10 @@ private slots:
   void GroupNodes();
 
   void UngroupNodes();
+
+  void ShowNodeProperties();
+
+  void LabelSelectedNodes();
 
 };
 

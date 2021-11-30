@@ -53,29 +53,16 @@ void NodeViewContext::AddChild(Node *node)
   NodeViewItem *item = new NodeViewItem(node, context_, this);
   item->SetFlowDirection(flow_dir_);
 
-  connect(node, &Node::InputConnected, this, &NodeViewContext::ChildInputConnected);
-  connect(node, &Node::InputDisconnected, this, &NodeViewContext::ChildInputDisconnected);
+  AddNodeInternal(node, item);
 
-  item_map_.insert(node, item);
-
-  if (node == context_) {
-    item->SetLabelAsOutput(true);
-  }
-
-  for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
-    if (!it->second.IsHidden()) {
-      if (NodeViewItem *other_item = item_map_.value(it->second.node())) {
-        AddEdgeInternal(node, it->second, item, other_item);
-      }
+  if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+    foreach (Node *n, group->GetNodes()) {
+      // Use this item as the representative for all of these nodes too
+      AddNodeInternal(n, item);
     }
-  }
 
-  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    if (!it->first.IsHidden()) {
-      if (NodeViewItem *other_item = item_map_.value(it->second)) {
-        AddEdgeInternal(it->second, it->first, other_item, item);
-      }
-    }
+    connect(group, &NodeGroup::NodeAddedToGroup, this, &NodeViewContext::GroupAddedNode);
+    connect(group, &NodeGroup::NodeRemovedFromGroup, this, &NodeViewContext::GroupRemovedNode);
   }
 
   UpdateRect();
@@ -95,12 +82,28 @@ void NodeViewContext::RemoveChild(Node *node)
 
   // Delete edges first because the edge destructor will try to reference item (maybe that should
   // be changed...)
-  QVector<NodeViewEdge*> edges_to_remove = item->edges();
+  QVector<NodeViewEdge*> edges_to_remove = item->GetAllEdgesRecursively();
   foreach (NodeViewEdge *edge, edges_to_remove) {
-    ChildInputDisconnected(edge->output(), edge->input());
+    if (node == item->GetNode() || edge->output() == node || edge->input().node() == node) {
+      ChildInputDisconnected(edge->output(), edge->input());
+    }
   }
 
-  delete item;
+  // Check if this item is specifically for this node and the node is a group. If so, remove it for
+  // all other entries in the map.
+  if (item->GetNode() == node) {
+    if (dynamic_cast<NodeGroup*>(item->GetNode())) {
+      for (auto it=item_map_.begin(); it!=item_map_.end(); ) {
+        if (it.value() == item) {
+          it = item_map_.erase(it);
+        } else {
+          it++;
+        }
+      }
+    }
+
+    delete item;
+  }
 }
 
 void NodeViewContext::ChildInputConnected(Node *output, const NodeInput &input)
@@ -108,7 +111,7 @@ void NodeViewContext::ChildInputConnected(Node *output, const NodeInput &input)
   // Add edge
   if (!input.IsHidden()) {
     if (NodeViewItem* output_item = item_map_.value(output)) {
-      AddEdgeInternal(output, input, output_item, item_map_.value(input.node()));
+      AddEdgeInternal(output, input, output_item, item_map_.value(input.node())->GetItemForInput(input));
     }
   }
 }
@@ -117,8 +120,9 @@ bool NodeViewContext::ChildInputDisconnected(Node *output, const NodeInput &inpu
 {
   // Remove edge
   for (int i=0; i<edges_.size(); i++) {
-    if (edges_.at(i)->output() == output && edges_.at(i)->input() == input) {
-      delete edges_.at(i);
+    NodeViewEdge *e = edges_.at(i);
+    if (e->output() == output && e->input() == input) {
+      delete e;
       edges_.removeAt(i);
       return true;
     }
@@ -153,10 +157,6 @@ void NodeViewContext::SetFlowDirection(NodeViewCommon::FlowDirection dir)
 
   foreach (NodeViewItem *item, item_map_) {
     item->SetFlowDirection(dir);
-  }
-
-  foreach (NodeViewEdge *edge, edges_) {
-    edge->SetFlowDirection(dir);
   }
 }
 
@@ -201,7 +201,9 @@ QVector<NodeViewItem *> NodeViewContext::GetSelectedItems() const
 
   for (auto it=item_map_.cbegin(); it!=item_map_.cend(); it++) {
     if (it.value()->isSelected()) {
-      items.append(it.value());
+      if (!items.contains(it.value())) {
+        items.append(it.value());
+      }
     }
   }
 
@@ -269,16 +271,62 @@ void NodeViewContext::mousePressEvent(QGraphicsSceneMouseEvent *event)
   super::mousePressEvent(event);
 }
 
-NodeViewEdge* NodeViewContext::AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+void NodeViewContext::AddNodeInternal(Node *node, NodeViewItem *item)
 {
+  connect(node, &Node::InputConnected, this, &NodeViewContext::ChildInputConnected);
+  connect(node, &Node::InputDisconnected, this, &NodeViewContext::ChildInputDisconnected);
+
+  item_map_.insert(node, item);
+
+  if (node == context_) {
+    item->SetLabelAsOutput(true);
+  }
+
+  for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+    if (!it->second.IsHidden()) {
+      if (NodeViewItem *other_item = item_map_.value(it->second.node())) {
+        AddEdgeInternal(node, it->second, item, other_item->GetItemForInput(it->second));
+      }
+    }
+  }
+
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    if (!it->first.IsHidden()) {
+      if (NodeViewItem *other_item = item_map_.value(it->second)) {
+        AddEdgeInternal(it->second, it->first, other_item, item->GetItemForInput(it->first));
+      }
+    }
+  }
+}
+
+void NodeViewContext::AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+{
+  if (from == to) {
+    return;
+  }
+
   NodeViewEdge* edge_ui = new NodeViewEdge(output, input, from, to, this);
 
-  edge_ui->SetFlowDirection(flow_dir_);
+  edge_ui->Adjust();
   edge_ui->SetCurved(curved_edges_);
 
   edges_.append(edge_ui);
+}
 
-  return edge_ui;
+void NodeViewContext::GroupAddedNode(Node *node)
+{
+  NodeGroup *group = static_cast<NodeGroup*>(sender());
+
+  AddNodeInternal(node, item_map_.value(group));
+}
+
+void NodeViewContext::GroupRemovedNode(Node *node)
+{
+  NodeGroup *group = static_cast<NodeGroup*>(sender());
+
+  if (item_map_.value(node) == item_map_.value(group)) {
+    item_map_.remove(node);
+  }
 }
 
 }

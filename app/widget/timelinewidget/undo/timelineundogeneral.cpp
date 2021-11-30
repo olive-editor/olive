@@ -153,7 +153,7 @@ void TimelineAddTrackCommand::redo()
     if (create_pos_command) {
       position_command_->add_child(new NodeSetPositionCommand(track_, sequence, sequence->GetNodePositionInContext(sequence) + QPointF(-1, -position_factor)));
       position_command_->add_child(new NodeSetPositionCommand(merge_, sequence, sequence->GetNodePositionInContext(sequence)));
-      position_command_->add_child(new NodeSetPositionCommand(merge_, sequence, sequence->GetNodePositionInContext(sequence) + QPointF(-1, position_factor * timeline_->GetTrackCount()), true));
+      position_command_->add_child(new NodeSetPositionAndDependenciesRecursivelyCommand(merge_, sequence, sequence->GetNodePositionInContext(sequence) + QPointF(-1, position_factor * timeline_->GetTrackCount())));
     }
   } else if (direct_.IsValid() && !direct_.IsConnected()) {
     // If no merge, we have a direct connection, and nothing else is connected, connect this

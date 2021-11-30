@@ -320,7 +320,7 @@ public:
 
   static void DisconnectEdge(Node *output, const NodeInput& input);
 
-  QString GetInputName(const QString& id) const;
+  virtual QString GetInputName(const QString& id) const;
 
   void LoadInput(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled);
   void SaveInput(QXmlStreamWriter* writer, const QString& id) const;
@@ -1420,12 +1420,11 @@ using NodePtr = std::shared_ptr<Node>;
 class NodeSetPositionCommand : public UndoCommand
 {
 public:
-  NodeSetPositionCommand(Node* node, Node* context, const Node::Position& pos, bool move_dependencies_relatively = false)
+  NodeSetPositionCommand(Node* node, Node* context, const Node::Position& pos)
   {
     node_ = node;
     context_ = context;
     pos_ = pos;
-    move_deps_ = move_dependencies_relatively;
   }
 
   virtual Project* GetRelevantProject() const override
@@ -1439,14 +1438,41 @@ protected:
   virtual void undo() override;
 
 private:
-  static void move(Node *context, Node *node, const QPointF &diff, bool recursive);
-
   Node* node_;
   Node* context_;
   Node::Position pos_;
   Node::Position old_pos_;
   bool added_;
-  bool move_deps_;
+
+};
+
+class NodeSetPositionAndDependenciesRecursivelyCommand : public UndoCommand{
+public:
+  NodeSetPositionAndDependenciesRecursivelyCommand(Node* node, Node* context, const Node::Position& pos) :
+    node_(node),
+    context_(context),
+    pos_(pos)
+  {}
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return node_->project();
+  }
+
+protected:
+  virtual void prepare() override;
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  void move_recursively(Node *node, const QPointF &diff);
+
+  Node* node_;
+  Node* context_;
+  Node::Position pos_;
+  QVector<UndoCommand*> commands_;
 
 };
 
@@ -1474,7 +1500,7 @@ private:
 
   Node *context_;
 
-  QPointF old_pos_;
+  Node::Position old_pos_;
 
   bool contained_;
 

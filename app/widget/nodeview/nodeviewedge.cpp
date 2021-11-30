@@ -70,12 +70,40 @@ NodeViewEdge::~NodeViewEdge()
   }
 }
 
+void NodeViewEdge::set_from_item(NodeViewItem *i)
+{
+  if (from_item_) {
+    from_item_->RemoveEdge(this);
+  }
+
+  from_item_ = i;
+
+  if (from_item_) {
+    from_item_->AddEdge(this);
+  }
+
+  Adjust();
+}
+
+void NodeViewEdge::set_to_item(NodeViewItem *i)
+{
+  if (to_item_) {
+    to_item_->RemoveEdge(this);
+  }
+
+  to_item_ = i;
+
+  if (to_item_) {
+    to_item_->AddEdge(this);
+  }
+
+  Adjust();
+}
+
 void NodeViewEdge::Adjust()
 {
   // Draw a line between the two
-  SetPoints(from_item()->GetOutputPoint(),
-            to_item()->GetInputPoint(input_.input(), input_.element()),
-            to_item()->IsExpanded());
+  SetPoints(from_item()->GetOutputPoint(), to_item()->GetInputPoint());
 }
 
 void NodeViewEdge::SetConnected(bool c)
@@ -92,22 +120,12 @@ void NodeViewEdge::SetHighlighted(bool e)
   update();
 }
 
-void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool input_is_expanded)
+void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end)
 {
   cached_start_ = start;
   cached_end_ = end;
-  cached_input_is_expanded_ = input_is_expanded;
 
   UpdateCurve();
-}
-
-void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
-{
-  flow_dir_ = dir;
-
-  if (from_item_ && to_item_) {
-    Adjust();
-  }
 }
 
 void NodeViewEdge::SetCurved(bool e)
@@ -146,7 +164,6 @@ void NodeViewEdge::Init()
 {
   connected_ = false;
   highlighted_ = false;
-  flow_dir_ = NodeViewCommon::kLeftToRight;
   curved_ = true;
 
   setFlag(QGraphicsItem::ItemIsSelectable);
@@ -175,13 +192,26 @@ void NodeViewEdge::UpdateCurve()
 
     QPointF cp1, cp2;
 
-    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    NodeViewCommon::FlowDirection from_flow = from_item_ ? from_item_->GetFlowDirection() : NodeViewCommon::kInvalidDirection;
+    NodeViewCommon::FlowDirection to_flow = to_item_ ? to_item_->GetFlowDirection() : NodeViewCommon::kInvalidDirection;
+
+    if (from_flow == NodeViewCommon::kInvalidDirection && to_flow == NodeViewCommon::kInvalidDirection) {
+      // This is a technically unsupported scenario, but to avoid issues, we'll use a fallback
+      from_flow = NodeViewCommon::kLeftToRight;
+      to_flow = NodeViewCommon::kLeftToRight;
+    } else if (from_flow == NodeViewCommon::kInvalidDirection) {
+      from_flow = to_flow;
+    } else if (to_flow == NodeViewCommon::kInvalidDirection) {
+      to_flow = from_flow;
+    }
+
+    if (NodeViewCommon::GetFlowOrientation(from_flow) == Qt::Horizontal) {
       cp1 = QPointF(half_x, start.y());
     } else {
       cp1 = QPointF(start.x(), half_y);
     }
 
-    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || cached_input_is_expanded_) {
+    if (NodeViewCommon::GetFlowOrientation(to_flow) == Qt::Horizontal) {
       cp2 = QPointF(half_x, end.y());
     } else {
       cp2 = QPointF(end.x(), half_y);
