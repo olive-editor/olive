@@ -59,7 +59,7 @@ bool LoadOTIOTask::Run()
 
   auto root = OTIO::SerializableObjectWithMetadata::from_json_file(GetFilename().toStdString(), &es);
 
-  if (es != OTIO::ErrorStatus::OK) {
+  if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
     SetError(tr("Failed to load OpenTimelineIO from file \"%1\"").arg(GetFilename()));
     return false;
   }
@@ -133,7 +133,7 @@ bool LoadOTIOTask::Run()
 
       // Get clips from track
       auto clip_map = otio_track->children();
-      if (es != OTIO::ErrorStatus::OK) {
+      if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
         SetError(tr("Failed to load clip"));
         return false;
       }

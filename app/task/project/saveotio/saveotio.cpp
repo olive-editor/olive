@@ -91,7 +91,7 @@ bool SaveOTIOTask::Run()
     }
   }
 
-  return (es == OTIO::ErrorStatus::OK);
+  return (es.outcome == OTIO::ErrorStatus::Outcome::OK);
 }
 
 OTIO::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequence)
@@ -168,7 +168,7 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
 
     otio_track->append_child(otio_block, &es);
 
-    if (es != OTIO::ErrorStatus::OK) {
+    if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
       goto fail;
     }
   }
@@ -194,7 +194,7 @@ bool SaveOTIOTask::SerializeTrackList(TrackList *list, OTIO::Timeline* otio_time
 
     otio_timeline->tracks()->append_child(otio_track, &es);
 
-    if (es != OTIO::ErrorStatus::OK) {
+    if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
       otio_track->possibly_delete();
       return false;
     }
