@@ -107,6 +107,7 @@ protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -135,6 +136,8 @@ private:
 
   void ZoomFromKeyboard(double multiplier);
 
+  void ClearCreateEdgeInputIfNecessary();
+
   QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
 
   Menu *CreateAddMenu(Menu *parent);
@@ -148,6 +151,10 @@ private:
   void RemoveContext(Node *n);
 
   bool IsItemAttachedToCursor(NodeViewItem *item) const;
+
+  void ExpandItem(NodeViewItem *item);
+
+  void CollapseItem(NodeViewItem *item);
 
   NodeViewMiniMap *minimap_;
 
@@ -164,10 +171,11 @@ private:
   NodeViewEdge* create_edge_;
   NodeViewItem* create_edge_output_item_;
   NodeViewItem* create_edge_input_item_;
-  NodeViewItem *create_edge_expand_item_;
   NodeInput create_edge_input_;
   bool create_edge_already_exists_;
   bool create_edge_from_output_;
+
+  QVector<NodeViewItem*> create_edge_expanded_items_;
 
   NodeViewScene scene_;
 

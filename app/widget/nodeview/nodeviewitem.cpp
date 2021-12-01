@@ -48,6 +48,7 @@ NodeViewItem::NodeViewItem(Node *node, const QString &input, int element, Node *
   expanded_(false),
   highlighted_(false),
   flow_dir_(NodeViewCommon::kInvalidDirection),
+  arrow_click_(false),
   label_as_output_(false)
 {
   //
@@ -235,9 +236,7 @@ void NodeViewItem::RemoveEdge(NodeViewEdge *edge)
 
 void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 {
-  if ((IsOutputItem() && !has_connectable_inputs_)
-      || (!IsOutputItem() && !(node_->GetInputFlags(input_) & kInputFlagArray))
-      || (expanded_ == e)) {
+  if (!CanBeExpanded() || (expanded_ == e)) {
     return;
   }
 
@@ -253,13 +252,14 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
   }
 
   if (expanded_) {
+    node_->Retranslate();
+
     if (IsOutputItem()) {
       // Create items for each input of the node
       int i = 1;
       foreach (const QString &input, node_->inputs()) {
         if (IsInputValid(input)) {
           NodeViewItem *item = new NodeViewItem(node_, input, -1, context_, this);
-          item->setPos(QPointF(0, i * item->rect().height()));
           children_.append(item);
           i++;
         }
@@ -271,15 +271,12 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
           (*it)->set_to_item(GetItemForInput((*it)->input()));
         }
       }
-
-      SetRectSize(i);
     } else {
       // Create items for each element of the input array
       int arr_sz = node_->InputArraySize(input_);
       children_.resize(arr_sz);
       for (int i=0; i<arr_sz; i++) {
         NodeViewItem *item = new NodeViewItem(node_, input_, i, context_, this);
-        item->setPos(pos() + QPointF(0, (i+1) * item->rect().height()));
         children_[i] = item;
       }
 
@@ -299,9 +296,9 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
       delete child;
     }
     children_.clear();
-
-    SetRectSize(1);
   }
+
+  UpdateChildrenPositions();
 
   if (flow_dir_ == NodeViewCommon::kTopToBottom) {
     UpdateOutputConnectorPosition();
@@ -325,47 +322,81 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   // has been slightly modified
   QPalette app_pal = Core::instance()->main_window()->palette();
 
-  // Draw the titlebar
-  if (IsOutputItem()) {
-    QRectF single_unit_rect = rect();
-    single_unit_rect.setHeight(DefaultItemHeight());
+  // We only draw a single unit's worth
+  QRectF single_unit_rect = rect();
+  single_unit_rect.setHeight(DefaultItemHeight());
 
-    // Output item drawing code
+  if (IsOutputItem()) {
+    // Set output item colors
     painter->setPen(Qt::black);
     painter->setBrush(node_->brush(single_unit_rect.top(), single_unit_rect.bottom()));
+  } else {
+    // Set input item colors
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(element_ == -1 ? app_pal.color(QPalette::Window) : app_pal.color(QPalette::Base));
+  }
 
-    painter->drawRect(single_unit_rect);
+  painter->drawRect(single_unit_rect);
 
-    painter->setPen(app_pal.color(QPalette::Text));
+  // Draw highlight if applicable
+  if (highlighted_) {
+    QColor highlight_col = app_pal.color(QPalette::Text);
+    highlight_col.setAlpha(64);
+    painter->setBrush(highlight_col);
+    painter->drawRect(rect());
+  }
 
-    QString node_label, node_shortname;
+  // Determine what text to draw and whether to draw an arrow
+  QString node_label, node_name;
 
+  if (IsOutputItem()) {
     if (label_as_output_) {
-      node_shortname = QCoreApplication::translate("NodeViewItem", "Output");
+      node_name = QCoreApplication::translate("NodeViewItem", "Output");
     } else {
       node_label = node_->GetLabel();
-      node_shortname = node_->ShortName();
+      node_name = node_->ShortName();
     }
-
-    int icon_size = painter->fontMetrics().height()/2;
-
-    if (node_label.isEmpty()) {
-      // Draw shortname only
-      DrawNodeTitle(painter, node_shortname, single_unit_rect, Qt::AlignVCenter, icon_size, has_connectable_inputs_);
+  } else {
+    if (element_ == -1) {
+      node_name = node_->GetInputName(input_);
     } else {
-      int text_pad = DefaultTextPadding()/2;
-      QRectF safe_label_bounds = single_unit_rect.adjusted(text_pad, text_pad, -text_pad, -text_pad);
-      QFont f;
-      qreal font_sz = f.pointSizeF();
-      f.setPointSizeF(font_sz * 0.8);
-      painter->setFont(f);
-      DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, icon_size, has_connectable_inputs_);
-      f.setPointSizeF(font_sz * 0.6);
-      painter->setFont(f);
-      DrawNodeTitle(painter, node_shortname, safe_label_bounds, Qt::AlignBottom, icon_size, false);
+      node_name = QString::number(element_);
     }
+  }
 
-    // Draw final border
+  // Draw arrow if necessary
+  int arrow_size = CanBeExpanded() ? DrawExpandArrow(painter) : 0;
+
+  if (IsOutputItem()) {
+    // Determine the text color (automatically calculate from node background color)
+    painter->setPen(ColorCoding::GetUISelectorColor(node_->color()));
+  } else {
+    // Just use text item
+    painter->setPen(app_pal.text().color());
+  }
+
+  if (node_label.isEmpty()) {
+    // Draw name only
+    DrawNodeTitle(painter, node_name, single_unit_rect, Qt::AlignVCenter, arrow_size);
+  } else {
+    int text_pad = DefaultTextPadding()/2;
+    QRectF safe_label_bounds = single_unit_rect.adjusted(text_pad, text_pad, -text_pad, -text_pad);
+    QFont f;
+    qreal font_sz = f.pointSizeF();
+
+    // Draw label as larger/upper text
+    f.setPointSizeF(font_sz * 0.8);
+    painter->setFont(f);
+    DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, arrow_size);
+
+    // Draw node name as smaller/lower text
+    f.setPointSizeF(font_sz * 0.6);
+    painter->setFont(f);
+    DrawNodeTitle(painter, node_name, safe_label_bounds, Qt::AlignBottom, arrow_size);
+  }
+
+  // Draw final border (output only)
+  if (IsOutputItem()) {
     QPen border_pen;
     border_pen.setWidth(node_border_width_);
 
@@ -379,28 +410,17 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setBrush(Qt::NoBrush);
 
     painter->drawRect(rect());
-  } else {
-    // Input item drawing code
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(app_pal.color(QPalette::Window));
-
-    painter->drawRect(rect());
-
-    if (highlighted_) {
-      QColor highlight_col = app_pal.color(QPalette::Text);
-      highlight_col.setAlpha(64);
-      painter->setBrush(highlight_col);
-      painter->drawRect(rect());
-    }
-
-    painter->setPen(app_pal.color(QPalette::Text));
-
-    painter->drawText(rect(), Qt::AlignCenter, node_->GetInputName(input_));
   }
 }
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  if (last_arrow_rect_.contains(event->pos().toPoint())) {
+    arrow_click_ = true;
+    ToggleExpanded();
+    return;
+  }
+
   event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mousePressEvent(event);
@@ -408,6 +428,10 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+  if (arrow_click_) {
+    return;
+  }
+
   event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mouseMoveEvent(event);
@@ -415,18 +439,14 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  if (arrow_click_) {
+    arrow_click_ = false;
+    return;
+  }
+
   event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mouseReleaseEvent(event);
-}
-
-void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsRectItem::mouseDoubleClickEvent(event);
-
-  if (!(event->modifiers() & Qt::ControlModifier)) {
-    SetExpanded(!IsExpanded());
-  }
 }
 
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
@@ -456,28 +476,21 @@ void NodeViewItem::ReadjustAllEdges()
 
 void NodeViewItem::UpdateContextRect()
 {
-  if (NodeViewContext *ctx = dynamic_cast<NodeViewContext*>(parentItem())) {
-    ctx->UpdateRect();
+  QGraphicsItem *item = parentItem();
+
+  while (item) {
+    if (NodeViewContext *ctx = dynamic_cast<NodeViewContext*>(item)) {
+      ctx->UpdateRect();
+      break;
+    }
+
+    item = item->parentItem();
   }
 }
 
-void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align, int icon_size, bool draw_arrow)
+void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align, int icon_full_size)
 {
   QFontMetrics fm = painter->fontMetrics();
-
-  painter->setRenderHint(QPainter::SmoothPixmapTransform);
-
-  // Draw right or down arrow based on expanded state
-  int icon_padding = DefaultItemHeight() / 2 - icon_size / 2;
-  int icon_full_size = icon_size + icon_padding * 2;
-  if (draw_arrow) {
-    const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
-    int icon_size_scaled = icon_size * painter->transform().m11();
-    painter->drawPixmap(QRect(this->rect().x() + icon_padding,
-                              this->rect().y() + icon_padding,
-                              icon_size,
-                              icon_size), expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
-  }
 
   // Calculate how much space we have for text
   int item_width = this->rect().width();
@@ -497,9 +510,6 @@ void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& 
     text = concatenated;
   }
 
-  // Determine the text color (automatically calculate from node background color)
-  painter->setPen(ColorCoding::GetUISelectorColor(node_->color()));
-
   // Determine X position (favors horizontal centering unless it'll overrun the arrow)
   QRectF text_rect = rect;
   Qt::Alignment text_align = Qt::AlignHCenter | vertical_align;
@@ -513,6 +523,28 @@ void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& 
   painter->drawText(text_rect,
                     text_align,
                     text);
+}
+
+int NodeViewItem::DrawExpandArrow(QPainter *painter)
+{
+  // Draw right or down arrow based on expanded state
+  int icon_size = painter->fontMetrics().height()/2;
+  int icon_padding = DefaultItemHeight() / 2 - icon_size / 2;
+  int icon_full_size = icon_size + icon_padding * 2;
+
+  painter->setRenderHint(QPainter::SmoothPixmapTransform);
+
+  const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
+  int icon_size_scaled = icon_size * painter->transform().m11();
+
+  last_arrow_rect_ = QRect(this->rect().x() + icon_padding,
+                           this->rect().y() + icon_padding,
+                           icon_size,
+                           icon_size);
+
+  painter->drawPixmap(last_arrow_rect_, expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
+
+  return icon_full_size;
 }
 
 void NodeViewItem::SetLabelAsOutput(bool e)
@@ -642,6 +674,44 @@ void NodeViewItem::SetRectSize(int height_units)
   setRect(QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height * height_units));
 }
 
+bool NodeViewItem::CanBeExpanded() const
+{
+  if (IsOutputItem()) {
+    return has_connectable_inputs_;
+  } else {
+    return node_->GetInputFlags(input_) & kInputFlagArray && element_ == -1 && !node_->IsInputConnected(input_);
+  }
+}
+
+void NodeViewItem::UpdateChildrenPositions()
+{
+  int y = 1;
+  int h = DefaultItemHeight();
+
+  foreach (NodeViewItem *c, children_) {
+    c->setPos(QPointF(0, y * h));
+
+    y += c->GetLogicalHeightWithChildren();
+  }
+
+  SetRectSize(y);
+
+  if (NodeViewItem *p = dynamic_cast<NodeViewItem*>(parentItem())) {
+    p->UpdateChildrenPositions();
+  }
+}
+
+int NodeViewItem::GetLogicalHeightWithChildren() const
+{
+  int h = 1;
+
+  foreach (NodeViewItem *c, children_) {
+    h += c->GetLogicalHeightWithChildren();
+  }
+
+  return h;
+}
+
 void NodeViewItem::UpdateFlowDirectionOfInputItem(NodeViewItem *child)
 {
   if (!child->IsOutputItem()) {
@@ -659,16 +729,26 @@ void NodeViewItem::UpdateFlowDirectionOfInputItem(NodeViewItem *child)
 
 void NodeViewItem::RepopulateInputs()
 {
-  has_connectable_inputs_ = false;
+  if (IsOutputItem()) {
+    has_connectable_inputs_ = false;
 
-  foreach (const QString& input, node_->inputs()) {
-    if (IsInputValid(input)) {
-      has_connectable_inputs_ = true;
-      break;
+    foreach (const QString& input, node_->inputs()) {
+      if (IsInputValid(input)) {
+        has_connectable_inputs_ = true;
+        break;
+      }
+    }
+
+    input_connector_->setVisible(has_connectable_inputs_);
+
+    if (IsExpanded()) {
+      // Create or remove inputs when necessary
+    }
+  } else {
+    if (IsExpanded() && element_ == -1) {
+      // Create or remove array elements when necessary
     }
   }
-
-  input_connector_->setVisible(has_connectable_inputs_);
 }
 
 void NodeViewItem::NodeAppearanceChanged()
@@ -698,13 +778,13 @@ NodeViewItem *NodeViewItem::GetItemForInput(NodeInput input)
       // Look for the input in our children
       foreach (NodeViewItem *i, children_) {
         if (i->input_ == input.input()) {
-          return i;
+          return i->GetItemForInput(input);
         }
       }
     } else {
       // Look for element in our children
       if (input.element() >= 0 && input.element() < children_.size()) {
-        return children_.at(input.element());
+        return children_.at(input.element())->GetItemForInput(input);
       }
     }
   }

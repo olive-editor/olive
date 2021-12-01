@@ -49,7 +49,6 @@ NodeView::NodeView(QWidget *parent) :
   create_edge_(nullptr),
   create_edge_output_item_(nullptr),
   create_edge_input_item_(nullptr),
-  create_edge_expand_item_(nullptr),
   paste_command_(nullptr),
   scale_(1.0)
 {
@@ -500,11 +499,11 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       // Clear highlight if we set one
       create_edge_input_item_->SetHighlighted(false);
 
-      // Collapse if we expanded it
-      if (create_edge_expand_item_) {
-        create_edge_expand_item_->SetExpanded(false);
-        create_edge_expand_item_->setZValue(0);
+      // Collapse any items we expanded
+      for (auto it=create_edge_expanded_items_.crbegin(); it!=create_edge_expanded_items_.crend(); it++) {
+        CollapseItem(*it);
       }
+      create_edge_expanded_items_.clear();
 
       NodeInput &creating_input = create_edge_input_;
       if (creating_input.IsValid()) {
@@ -526,6 +525,13 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
           }
 
           command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
+
+          // If the output is not in the input's context, add it now. We check the item rather than
+          // the node itself, because sometimes a node may not be in the context but another node
+          // representing it will be (e.g. groups)
+          if (!scene_.context_map().value(create_edge_input_item_->GetContext())->GetItemFromMap(creating_output)) {
+            command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
+          }
         }
 
         creating_input.Reset();
@@ -622,6 +628,18 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   super::mouseReleaseEvent(event);
+}
+
+void NodeView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+  super::mouseDoubleClickEvent(event);
+
+  if (!(event->modifiers() & Qt::ControlModifier)) {
+    NodeViewItem *item_at_cursor = dynamic_cast<NodeViewItem*>(itemAt(event->pos()));
+    if (item_at_cursor) {
+      item_at_cursor->ToggleExpanded();
+    }
+  }
 }
 
 void NodeView::resizeEvent(QResizeEvent *event)
@@ -1022,6 +1040,13 @@ void NodeView::ZoomFromKeyboard(double multiplier)
   ZoomIntoCursorPosition(nullptr, multiplier, cursor_pos);
 }
 
+void NodeView::ClearCreateEdgeInputIfNecessary()
+{
+  if (create_edge_from_output_ && create_edge_input_.IsValid()) {
+    create_edge_input_.Reset();
+  }
+}
+
 QPointF NodeView::GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const
 {
   return item->GetNodePosition() - context_offsets_.value(context);
@@ -1051,6 +1076,37 @@ void NodeView::PositionNewEdge(const QPoint &pos)
     item_at_cursor = nullptr;
   }
 
+  // Collapse any items that the cursor is no longer inside
+  int i=create_edge_expanded_items_.size() - 1;
+  for ( ; i>=0; i--) {
+    NodeViewItem* nvi = create_edge_expanded_items_.at(i);
+    QPointF local_pt = nvi->mapFromScene(scene_pt);
+
+    if (nvi->contains(local_pt) || (!nvi->IsOutputItem() && nvi->parentItem()->contains(nvi->parentItem()->mapFromScene(scene_pt)) && local_pt.y() > nvi->rect().bottom())) {
+      break;
+    } else {
+      // Collapsing an item will destroy its children, so if the cursor item happens to be a child
+      // of the item we're about to collapse, set it to null
+      if (item_at_cursor && item_at_cursor->parentItem() == nvi) {
+        item_at_cursor = nullptr;
+      }
+
+      if (opposing_item && opposing_item->parentItem() == nvi) {
+        opposing_item = nullptr;
+        ClearCreateEdgeInputIfNecessary();
+      }
+
+      CollapseItem(nvi);
+    }
+  }
+  create_edge_expanded_items_.resize(i + 1);
+
+  // Expand item if possible
+  if (item_at_cursor && item_at_cursor->CanBeExpanded() && !item_at_cursor->IsExpanded()) {
+    ExpandItem(item_at_cursor);
+    create_edge_expanded_items_.append(item_at_cursor);
+  }
+
   // Filter out connecting to a node that connects to us or an item of the same type
   if (item_at_cursor
       && ((create_edge_from_output_ && item_at_cursor->GetNode()->OutputsTo(source_item->GetNode(), true))
@@ -1068,11 +1124,7 @@ void NodeView::PositionNewEdge(const QPoint &pos)
     }
 
     // Clear cached input
-    if (create_edge_from_output_) {
-      if (create_edge_input_.IsValid()) {
-        create_edge_input_.Reset();
-      }
-    }
+    ClearCreateEdgeInputIfNecessary();
 
     // If this is an input and we're
     opposing_item = item_at_cursor;
@@ -1291,6 +1343,18 @@ bool NodeView::IsItemAttachedToCursor(NodeViewItem *item) const
   }
 
   return false;
+}
+
+void NodeView::ExpandItem(NodeViewItem *item)
+{
+  item->SetExpanded(true);
+  item->setZValue(100);
+}
+
+void NodeView::CollapseItem(NodeViewItem *item)
+{
+  item->SetExpanded(false);
+  item->setZValue(0);
 }
 
 }

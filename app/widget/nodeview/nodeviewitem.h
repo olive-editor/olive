@@ -143,20 +143,23 @@ public:
 
   void UpdateFlowDirectionOfInputItem(NodeViewItem *child);
 
+  bool CanBeExpanded() const;
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
-  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
 private:
   void UpdateContextRect();
 
-  void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, int icon_size, bool draw_arrow);
+  void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, int icon_full_size);
+
+  int DrawExpandArrow(QPainter *painter);
 
   /**
    * @brief Internal update function when logical position changes
@@ -169,6 +172,10 @@ private:
   bool IsInputValid(const QString &input);
 
   void SetRectSize(int height_units = 1);
+
+  void UpdateChildrenPositions();
+
+  int GetLogicalHeightWithChildren() const;
 
   /**
    * @brief Reference to attached Node
@@ -199,6 +206,9 @@ private:
   QVector<NodeViewEdge*> edges_;
 
   QPointF cached_node_pos_;
+
+  QRect last_arrow_rect_;
+  bool arrow_click_;
 
   NodeViewItemConnector *input_connector_;
   NodeViewItemConnector *output_connector_;
