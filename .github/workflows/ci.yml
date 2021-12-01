@@ -338,8 +338,7 @@ jobs:
           brew install ninja
           PATH=$DEP_LOCATION:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}" \
-              -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
