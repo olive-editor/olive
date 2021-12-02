@@ -240,12 +240,21 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
   int insert_row = 0;
 
   // Create widgets all root level components
-  foreach (const QString& input, node->inputs()) {
-    CreateWidgets(root_layout, node, input, -1, insert_row);
+  foreach (QString input, node->inputs()) {
+    Node *n;
+    if (NodeGroup *g = dynamic_cast<NodeGroup*>(node)) {
+      const NodeInput &ni = g->GetInputPassthroughs().value(input);
+      n = ni.node();
+      input = ni.input();
+    } else {
+      n = node;
+    }
+
+    CreateWidgets(root_layout, n, input, -1, insert_row);
 
     insert_row++;
 
-    if (node->InputIsArray(input)) {
+    if (n->InputIsArray(input)) {
       // Insert here
       QWidget* array_widget = new QWidget();
 
@@ -265,7 +274,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
 
       array_widget->setVisible(false);
 
-      array_ui_.insert({node, input}, {array_widget, arr_sz, append_btn});
+      array_ui_.insert({n, input}, {array_widget, arr_sz, append_btn});
 
       insert_row++;
     }
@@ -430,6 +439,12 @@ int NodeParamViewItemBody::GetElementY(NodeInput c) const
   if (c.IsArray() && !array_ui_.value(c.input_pair()).widget->isVisible()) {
     // Array is collapsed, so we'll return the Y of its root
     c.set_element(-1);
+  }
+
+  if (NodeGroup *g = dynamic_cast<NodeGroup*>(c.node())) {
+    const NodeInput &passthrough = g->GetInputPassthroughs().value(c.input());
+    c.set_node(passthrough.node());
+    c.set_input(passthrough.input());
   }
 
   // Find its row in the parameters
