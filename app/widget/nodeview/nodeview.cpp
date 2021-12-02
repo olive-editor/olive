@@ -316,13 +316,20 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     create_edge_from_output_ = true;
 
     if (event->modifiers() & Qt::ControlModifier) {
-      create_edge_output_item_ = dynamic_cast<NodeViewItem*>(item);
-      if (create_edge_output_item_ && !create_edge_output_item_->IsOutputItem()) {
-        create_edge_output_item_ = nullptr;
+      NodeViewItem *mouse_item = dynamic_cast<NodeViewItem*>(item);
+
+      if (mouse_item) {
+        if (mouse_item->IsOutputItem()) {
+          create_edge_output_item_ = mouse_item;
+        } else {
+          create_edge_input_item_ = mouse_item;
+          create_edge_input_ = mouse_item->GetInput();
+          create_edge_from_output_ = false;
+        }
       }
     }
 
-    if (!create_edge_output_item_) {
+    if (!create_edge_output_item_ && !create_edge_input_item_) {
       // Determine if user clicked on a connector
       if (NodeViewItemConnector *connector = dynamic_cast<NodeViewItemConnector *>(item)) {
         NodeViewItem *attached = static_cast<NodeViewItem*>(connector->parentItem());
