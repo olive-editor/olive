@@ -310,8 +310,6 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 
   if (event->button() == Qt::LeftButton) {
     // Sane defaults
-    create_edge_output_item_ = nullptr;
-    create_edge_input_item_ = nullptr;
     create_edge_already_exists_ = false;
     create_edge_from_output_ = true;
 
@@ -502,16 +500,15 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
     create_edge_ = nullptr;
 
-    if (create_edge_output_item_ && create_edge_input_item_) {
-      // Clear highlight if we set one
+    // Clear highlight if we set one
+    if (create_edge_output_item_) {
+      create_edge_output_item_->SetHighlighted(false);
+    }
+    if (create_edge_input_item_) {
       create_edge_input_item_->SetHighlighted(false);
+    }
 
-      // Collapse any items we expanded
-      for (auto it=create_edge_expanded_items_.crbegin(); it!=create_edge_expanded_items_.crend(); it++) {
-        CollapseItem(*it);
-      }
-      create_edge_expanded_items_.clear();
-
+    if (create_edge_output_item_ && create_edge_input_item_) {
       NodeInput &creating_input = create_edge_input_;
       if (creating_input.IsValid()) {
         // Make connection
@@ -543,10 +540,16 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
         creating_input.Reset();
       }
-
-      create_edge_output_item_ = nullptr;
-      create_edge_input_item_ = nullptr;
     }
+
+    create_edge_output_item_ = nullptr;
+    create_edge_input_item_ = nullptr;
+
+    // Collapse any items we expanded
+    for (auto it=create_edge_expanded_items_.crbegin(); it!=create_edge_expanded_items_.crend(); it++) {
+      CollapseItem(*it);
+    }
+    create_edge_expanded_items_.clear();
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
@@ -1109,7 +1112,8 @@ void NodeView::PositionNewEdge(const QPoint &pos)
   create_edge_expanded_items_.resize(i + 1);
 
   // Expand item if possible
-  if (item_at_cursor && item_at_cursor->CanBeExpanded() && !item_at_cursor->IsExpanded()) {
+  if (item_at_cursor && item_at_cursor->CanBeExpanded() && !item_at_cursor->IsExpanded()
+      && (create_edge_from_output_ || !item_at_cursor->IsOutputItem())) {
     ExpandItem(item_at_cursor);
     create_edge_expanded_items_.append(item_at_cursor);
   }
