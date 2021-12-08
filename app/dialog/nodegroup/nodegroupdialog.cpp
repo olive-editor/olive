@@ -66,9 +66,7 @@ NodeGroupDialog::NodeGroupDialog(NodeGroup *group, QWidget *parent) :
     param_view->SetInputChecked(it.value(), true);
   }
 
-  connect(node_view, &NodeView::NodesSelected, param_view, &NodeParamView::SelectNodes);
-  connect(node_view, &NodeView::NodesDeselected, param_view, &NodeParamView::DeselectNodes);
-  node_view->SelectAll();
+  param_view->SetContexts({group});
 
   row++;
 

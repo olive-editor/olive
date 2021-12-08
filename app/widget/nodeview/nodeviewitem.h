@@ -222,6 +222,8 @@ private slots:
 
   void RepopulateInputs();
 
+  void InputArraySizeChanged(const QString &input);
+
 };
 
 }

@@ -515,11 +515,11 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         if (!reconnected_to_itself) {
           Node *creating_output = create_edge_output_item_->GetNode();
 
-          if (NodeGroup *output_group = dynamic_cast<NodeGroup*>(creating_output)) {
+          while (NodeGroup *output_group = dynamic_cast<NodeGroup*>(creating_output)) {
             creating_output = output_group->GetOutputPassthrough();
           }
 
-          if (NodeGroup *input_group = dynamic_cast<NodeGroup*>(creating_input.node())) {
+          while (NodeGroup *input_group = dynamic_cast<NodeGroup*>(creating_input.node())) {
             creating_input = input_group->GetInputPassthroughs().value(creating_input.input());
           }
 

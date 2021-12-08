@@ -720,6 +720,7 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
   }
 
   node_panel_->SetContexts(context);
+  param_panel_->SetContexts(context);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)

@@ -22,8 +22,6 @@
 
 #include <QCheckBox>
 #include <QDebug>
-#include <QEvent>
-#include <QPainter>
 
 #include "common/qtutils.h"
 #include "core.h"
@@ -43,18 +41,13 @@ const int NodeParamViewItemBody::kArrayCollapseBtnColumn = 1;
 const int NodeParamViewItemBody::kLabelColumn = 2;
 const int NodeParamViewItemBody::kWidgetStartColumn = 3;
 
-#define super QDockWidget
+#define super NodeParamViewItemBase
 
 NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
-  node_(node),
-  highlighted_(false)
+  node_(node)
 {
-  // Create title bar widget
-  title_bar_ = new NodeParamViewItemTitleBar(this);
-
-  // Add title bar to widget
-  this->setTitleBarWidget(title_bar_);
+  node_->Retranslate();
 
   // Create and add contents widget
   body_ = new NodeParamViewItemBody(node_, create_checkboxes);
@@ -62,100 +55,22 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
   connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
-  connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this, &NodeParamViewItem::SetExpanded);
-  connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this, &NodeParamViewItem::PinToggled);
-
-  this->setWidget(body_);
-
-  // Use dummy QWidget to retain width when not expanded (QDockWidget seems to ignore the titlebar
-  // size hints and will shrink as small as possible if the body is hidden)
-  hidden_body_ = new QWidget(this);
+  SetBody(body_);
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
 
-  setBackgroundRole(QPalette::Base);
-  setAutoFillBackground(true);
-
-  setFocusPolicy(Qt::ClickFocus);
+  setBackgroundRole(QPalette::Window);
 
   Retranslate();
-}
-
-void NodeParamViewItem::SetTimeTarget(Node *target)
-{
-  body_->SetTimeTarget(target);
-}
-
-void NodeParamViewItem::SetTime(const rational &time)
-{
-  time_ = time;
-
-  body_->SetTime(time_);
-}
-
-void NodeParamViewItem::SetTimebase(const rational& timebase)
-{
-  body_->SetTimebase(timebase);
-}
-
-Node *NodeParamViewItem::GetNode() const
-{
-  return node_;
-}
-
-void NodeParamViewItem::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-
-  super::changeEvent(e);
-}
-
-void NodeParamViewItem::paintEvent(QPaintEvent *event)
-{
-  super::paintEvent(event);
-
-  // Draw border if focused
-  if (highlighted_) {
-    QPainter p(this);
-    p.setBrush(Qt::NoBrush);
-    p.setPen(palette().highlight().color());
-    p.drawRect(rect().adjusted(0, 0, -1, -1));
-  }
-}
-
-void NodeParamViewItem::moveEvent(QMoveEvent *event)
-{
-  super::moveEvent(event);
-
-  emit Moved();
 }
 
 void NodeParamViewItem::Retranslate()
 {
   node_->Retranslate();
 
-  if (node_->GetLabel().isEmpty()) {
-    title_bar_->SetText(node_->Name());
-  } else {
-    title_bar_->SetText(tr("%1 (%2)").arg(node_->GetLabel(), node_->Name()));
-  }
+  title_bar()->SetText(GetTitleBarTextFromNode(node_));
 
   body_->Retranslate();
-}
-
-void NodeParamViewItem::SetExpanded(bool e)
-{
-  setWidget(e ? body_ : hidden_body_);
-  title_bar_->SetExpanded(e);
-
-  emit ExpandedChanged(e);
-}
-
-bool NodeParamViewItem::IsExpanded() const
-{
-  return body_->isVisible();
 }
 
 int NodeParamViewItem::GetElementY(const NodeInput &c) const
@@ -164,70 +79,13 @@ int NodeParamViewItem::GetElementY(const NodeInput &c) const
     return body_->GetElementY(c);
   } else {
     // Not expanded, put keyframes at the titlebar Y
-    return mapToGlobal(title_bar_->rect().center()).y();
+    return mapToGlobal(title_bar()->rect().center()).y();
   }
 }
 
 void NodeParamViewItem::SetInputChecked(const NodeInput &input, bool e)
 {
   body_->SetInputChecked(input, e);
-}
-
-void NodeParamViewItem::ToggleExpanded()
-{
-  SetExpanded(!IsExpanded());
-}
-
-NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
-  QWidget(parent),
-  draw_border_(true)
-{
-  QHBoxLayout* layout = new QHBoxLayout(this);
-
-  collapse_btn_ = new CollapseButton();
-  connect(collapse_btn_, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::ExpandedStateChanged);
-  layout->addWidget(collapse_btn_);
-
-  lbl_ = new QLabel();
-  layout->addWidget(lbl_);
-
-  // Place next buttons on the far side
-  layout->addStretch();
-
-  QPushButton* pin_btn = new QPushButton(QStringLiteral("P"));
-  pin_btn->setCheckable(true);
-  pin_btn->setFixedSize(pin_btn->sizeHint().height(), pin_btn->sizeHint().height());
-  layout->addWidget(pin_btn);
-  connect(pin_btn, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::PinToggled);
-}
-
-void NodeParamViewItemTitleBar::SetExpanded(bool e)
-{
-  draw_border_ = e;
-  collapse_btn_->setChecked(e);
-
-  update();
-}
-
-void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
-{
-  QWidget::paintEvent(event);
-
-  if (draw_border_) {
-    QPainter p(this);
-
-    // Draw bottom border using text color
-    int bottom = height() - 1;
-    p.setPen(palette().text().color());
-    p.drawLine(0, bottom, width(), bottom);
-  }
-}
-
-void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
-{
-  QWidget::mouseDoubleClickEvent(event);
-
-  collapse_btn_->click();
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
@@ -241,42 +99,42 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
 
   // Create widgets all root level components
   foreach (QString input, node->inputs()) {
-    Node *n;
-    if (NodeGroup *g = dynamic_cast<NodeGroup*>(node)) {
+    Node *n = node;
+    while (NodeGroup *g = dynamic_cast<NodeGroup*>(n)) {
       const NodeInput &ni = g->GetInputPassthroughs().value(input);
       n = ni.node();
       input = ni.input();
-    } else {
-      n = node;
     }
 
-    CreateWidgets(root_layout, n, input, -1, insert_row);
-
-    insert_row++;
-
-    if (n->InputIsArray(input)) {
-      // Insert here
-      QWidget* array_widget = new QWidget();
-
-      QGridLayout* array_layout = new QGridLayout(array_widget);
-      array_layout->setContentsMargins(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("    ")), 0, 0, 0);
-
-      root_layout->addWidget(array_widget, insert_row, 1, 1, 10);
-
-      // Start with zero elements for efficiency. We will make the widgets for them if the user
-      // requests the array UI to be expanded
-      int arr_sz = 0;
-
-      // Add one last add button for appending to the array
-      NodeParamViewArrayButton* append_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
-      connect(append_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayAppendClicked);
-      array_layout->addWidget(append_btn, arr_sz, kArrayInsertColumn);
-
-      array_widget->setVisible(false);
-
-      array_ui_.insert({n, input}, {array_widget, arr_sz, append_btn});
+    if (!(n->GetInputFlags(input) & kInputFlagHidden)) {
+      CreateWidgets(root_layout, n, input, -1, insert_row);
 
       insert_row++;
+
+      if (n->InputIsArray(input)) {
+        // Insert here
+        QWidget* array_widget = new QWidget();
+
+        QGridLayout* array_layout = new QGridLayout(array_widget);
+        array_layout->setContentsMargins(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("    ")), 0, 0, 0);
+
+        root_layout->addWidget(array_widget, insert_row, 1, 1, 10);
+
+        // Start with zero elements for efficiency. We will make the widgets for them if the user
+        // requests the array UI to be expanded
+        int arr_sz = 0;
+
+        // Add one last add button for appending to the array
+        NodeParamViewArrayButton* append_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
+        connect(append_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayAppendClicked);
+        array_layout->addWidget(append_btn, arr_sz, kArrayInsertColumn);
+
+        array_widget->setVisible(false);
+
+        array_ui_.insert({n, input}, {array_widget, arr_sz, append_btn});
+
+        insert_row++;
+      }
     }
   }
 
@@ -441,7 +299,7 @@ int NodeParamViewItemBody::GetElementY(NodeInput c) const
     c.set_element(-1);
   }
 
-  if (NodeGroup *g = dynamic_cast<NodeGroup*>(c.node())) {
+  while (NodeGroup *g = dynamic_cast<NodeGroup*>(c.node())) {
     const NodeInput &passthrough = g->GetInputPassthroughs().value(c.input());
     c.set_node(passthrough.node());
     c.set_input(passthrough.input());
@@ -503,7 +361,13 @@ void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodePara
 
 void NodeParamViewItemBody::InputArraySizeChangedInternal(Node *node, const QString &input, int size)
 {
-  ArrayUI& array_ui = array_ui_[{node, input}];
+  NodeInputPair nip = {node, input};
+
+  if (!array_ui_.contains(nip)) {
+    return;
+  }
+
+  ArrayUI& array_ui = array_ui_[nip];
 
   if (size != array_ui.count) {
     QGridLayout* grid = static_cast<QGridLayout*>(array_ui.widget->layout());

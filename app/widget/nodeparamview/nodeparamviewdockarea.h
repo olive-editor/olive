@@ -35,6 +35,8 @@ public:
 
   virtual QMenu *createPopupMenu() override;
 
+  void AddItem(QDockWidget *item);
+
 };
 
 }

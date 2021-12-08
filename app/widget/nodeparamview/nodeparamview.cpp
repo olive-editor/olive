@@ -25,6 +25,7 @@
 #include <QScrollBar>
 #include <QSplitter>
 
+#include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 
@@ -61,12 +62,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
 
   param_widget_area_ = new NodeParamViewDockArea();
 
-  // Disable dock widgets from tabbing and disable glitchy animations
-  param_widget_area_->setDockOptions(static_cast<QMainWindow::DockOption>(0));
-
-  // HACK: Hide the main window separators (unfortunately the cursors still appear)
-  param_widget_area_->setStyleSheet(QStringLiteral("QMainWindow::separator {background: rgba(0, 0, 0, 0)}"));
-
   QVBoxLayout* param_widget_container_layout = new QVBoxLayout(param_widget_container_);
   QMargins param_widget_margin = param_widget_container_layout->contentsMargins();
   param_widget_margin.setTop(ruler()->height());
@@ -76,8 +71,28 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
 
   param_widget_container_layout->addStretch(INT_MAX);
 
+  // Create contexts for three different types
+  context_items_.resize(Track::kCount + 1);
+  for (int i=0; i<context_items_.size(); i++) {
+    NodeParamViewContext *c = new NodeParamViewContext;
+    c->setVisible(false);
+    static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget())->SetAddEffectButtonVisible(i == Track::kVideo || i == Track::kAudio);
+    static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget())->SetText(Footage::GetStreamTypeName(static_cast<Track::Type>(i)));
+    context_items_[i] = c;
+    param_widget_area_->AddItem(c);
+  }
+
   // Disable collapsing param view (but collapsing keyframe view is permitted)
   splitter->setCollapsible(0, false);
+
+  // Create global vertical scrollbar on the right
+  vertical_scrollbar_ = new QScrollBar();
+  vertical_scrollbar_->setMaximum(0);
+  layout->addWidget(vertical_scrollbar_);
+
+  // Connect scrollbars together
+  connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
+  connect(vertical_scrollbar_, &QScrollBar::valueChanged, param_scroll_area_->verticalScrollBar(), &QScrollBar::setValue);
 
   if (create_keyframe_view) {
     // Set up keyframe view
@@ -108,20 +123,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
 
     // Set both widgets to 50/50
     splitter->setSizes({INT_MAX, INT_MAX});
-  } else {
-    keyframe_view_ = nullptr;
-  }
 
-  // Create global vertical scrollbar on the right
-  vertical_scrollbar_ = new QScrollBar();
-  vertical_scrollbar_->setMaximum(0);
-  layout->addWidget(vertical_scrollbar_);
-
-  // Connect scrollbars together
-  connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
-  connect(vertical_scrollbar_, &QScrollBar::valueChanged, param_scroll_area_->verticalScrollBar(), &QScrollBar::setValue);
-
-  if (keyframe_view_) {
     connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
     connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, param_scroll_area_->verticalScrollBar(), &QScrollBar::setValue);
     connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
@@ -132,6 +134,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
+  } else {
+    keyframe_view_ = nullptr;
   }
 
   // Set a default scale - FIXME: Hardcoded
@@ -144,8 +148,14 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
           &NodeParamView::FocusChanged);
 }
 
-void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
+NodeParamView::~NodeParamView()
 {
+  qDeleteAll(context_items_);
+}
+
+/*void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
+{
+  return;
   int original_node_count = items_.size();
 
   foreach (Node* n, nodes) {
@@ -158,7 +168,7 @@ void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
     active_nodes_.append(n);
 
     // Create node UI
-    AddNode(n);
+    AddNode(n, param_widget_area_);
   }
 
   if (items_.size() > original_node_count ) {
@@ -173,6 +183,7 @@ void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 
 void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 {
+  return;
   // Remove item from map and delete the widget
   int original_node_count = items_.size();
 
@@ -199,13 +210,59 @@ void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 
     SignalNodeOrder();
   }
-}
+}*/
 
 void NodeParamView::SetInputChecked(const NodeInput &input, bool e)
 {
   input_checked_.insert(input, e);
-  if (NodeParamViewItem *item = items_.value(input.node())) {
-    item->SetInputChecked(input, e);
+  foreach (NodeParamViewContext *ctx, context_items_) {
+    ctx->SetInputChecked(input, e);
+  }
+}
+
+void NodeParamView::SetContexts(const QVector<Node *> &contexts)
+{
+  TIME_THIS_FUNCTION;
+
+  foreach (NodeParamViewContext *ctx, context_items_) {
+    ctx->Clear();
+    ctx->setVisible(false);
+  }
+
+  if (focused_node_) {
+    focused_node_ = nullptr;
+    emit FocusedNodeChanged(nullptr);
+  }
+
+  foreach (Node *ctx, contexts) {
+    Track::Type ctx_type = Track::kCount;
+
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(ctx)) {
+      if (clip->track()) {
+        if (clip->track()->type() != Track::kNone) {
+          ctx_type = clip->track()->type();
+        }
+      }
+    } else if (Track *track = dynamic_cast<Track*>(ctx)) {
+      if (track->type() != Track::kNone) {
+        ctx_type = track->type();
+      }
+    }
+
+    NodeParamViewContext *item = context_items_.at(ctx_type);
+
+    item->AddContext(ctx);
+    item->setVisible(true);
+
+    for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
+      if (!dynamic_cast<Footage*>(it.key()) && !dynamic_cast<ClipBlock*>(it.key())) {
+        AddNode(it.key(), item);
+      }
+    }
+  }
+
+  foreach (NodeParamViewContext *ctx, context_items_) {
+    SortItemsInContext(ctx);
   }
 }
 
@@ -235,8 +292,8 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
     keyframe_view_->SetTimebase(timebase);
   }
 
-  foreach (NodeParamViewItem* item, items_) {
-    item->SetTimebase(timebase);
+  foreach (NodeParamViewContext* ctx, context_items_) {
+    ctx->SetTimebase(timebase);
   }
 
   UpdateItemTime(GetTime());
@@ -260,7 +317,7 @@ void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
     keyframe_view_->SetTimeTarget(n);
   }
 
-  foreach (NodeParamViewItem* item, items_) {
+  foreach (NodeParamViewContext* item, context_items_) {
     item->SetTimeTarget(n);
   }
 
@@ -281,7 +338,7 @@ void NodeParamView::DeleteSelected()
 
 void NodeParamView::UpdateItemTime(const rational &time)
 {
-  foreach (NodeParamViewItem* item, items_) {
+  foreach (NodeParamViewContext* item, context_items_) {
     item->SetTime(time);
   }
 }
@@ -293,6 +350,7 @@ void NodeParamView::QueueKeyframePositionUpdate()
 
 void NodeParamView::SignalNodeOrder()
 {
+  /*
   // Sort by item Y (apparently there's no way in Qt to get the order of dock widgets)
   QVector<Node*> nodes;
   QVector<int> item_ys;
@@ -318,15 +376,12 @@ void NodeParamView::SignalNodeOrder()
   }
 
   emit NodeOrderChanged(nodes);
+  */
 }
 
-void NodeParamView::AddNode(Node *n)
+void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
 {
-  NodeParamViewItem* item = new NodeParamViewItem(n, create_checkboxes_, param_widget_area_);
-
-  item->setAllowedAreas(Qt::LeftDockWidgetArea);
-  item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
-  item->SetExpanded(node_expanded_state_.value(n, true));
+  NodeParamViewItem* item = new NodeParamViewItem(n, create_checkboxes_, context);
 
   if (keyframe_view_) {
     connect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
@@ -357,14 +412,13 @@ void NodeParamView::AddNode(Node *n)
   // Set the timebase
   item->SetTimebase(timebase());
 
-  items_.insert(n, item);
-  param_widget_area_->addDockWidget(Qt::LeftDockWidgetArea, item);
+  context->AddNode(item);
 
   if (!focused_node_ && n->HasGizmos()) {
     // We'll focus this node now
     item->SetHighlighted(true);
-    focused_node_ = n;
-    emit FocusedNodeChanged(focused_node_);
+    focused_node_ = item;
+    emit FocusedNodeChanged(n);
   }
 
   if (keyframe_view_) {
@@ -372,9 +426,21 @@ void NodeParamView::AddNode(Node *n)
   }
 }
 
+/*void NodeParamView::AddNode(Node *node, Node *context, NodeParamViewContext *ctx_item)
+{
+  int dist = GetDistanceBetweenNodes(context, node);
+
+  if (dist == -1) {
+    dist = 0;
+  }
+
+  ctx_item->GetDockArea()->insert
+}*/
+
 void NodeParamView::RemoveNode(Node *n)
 {
-  if (keyframe_view_) {
+  qDebug() << "STUB!";
+  /*if (keyframe_view_) {
     keyframe_view_->RemoveKeyframesOfNode(n);
 
     disconnect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
@@ -395,16 +461,64 @@ void NodeParamView::RemoveNode(Node *n)
     }
 
     emit FocusedNodeChanged(focused_node_);
+  }*/
+}
+
+int GetDistanceBetweenNodes(Node *start, Node *end)
+{
+  if (start == end) {
+    return 0;
+  }
+
+  for (auto it=start->input_connections().cbegin(); it!=start->input_connections().cend(); it++) {
+    int this_node_dist = GetDistanceBetweenNodes(it->second, end);
+    if (this_node_dist != -1) {
+      return 1 + this_node_dist;
+    }
+  }
+
+  return -1;
+}
+
+void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
+{
+  QVector<QPair<NodeParamViewItem*, int> > distances;
+
+  for (auto it=context_item->GetItems().cbegin(); it!=context_item->GetItems().cend(); it++) {
+    int distance = 0;
+    foreach (Node *ctx, context_item->GetContexts()) {
+      distance = qMax(distance, GetDistanceBetweenNodes(ctx, it.key()));
+    }
+
+    bool inserted = false;
+    QPair<NodeParamViewItem*, int> dist(it.value(), distance);
+
+    for (int i=0; i<distances.size(); i++) {
+      if (distances.at(i).second < distance) {
+        distances.insert(i, dist);
+        inserted = true;
+        break;
+      }
+    }
+
+    if (!inserted) {
+      distances.append(dist);
+    }
+  }
+
+  foreach (auto info, distances) {
+    context_item->GetDockArea()->AddItem(info.first);
   }
 }
 
 void NodeParamView::UpdateGlobalScrollBar()
 {
-  int height_offscreen = param_widget_container_->height() - ruler()->height() + scrollbar()->height();
+  int height_offscreen = param_widget_container_->height() + scrollbar()->height();
 
   if (keyframe_view_) {
     keyframe_view_->SetMaxScroll(height_offscreen);
   }
+
   vertical_scrollbar_->setRange(0, height_offscreen - param_scroll_area_->height());
 }
 
@@ -430,28 +544,36 @@ void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
   Q_UNUSED(old)
 
   QObject* parent = now;
-  NodeParamViewItem* item;
 
   while (parent) {
-    item = dynamic_cast<NodeParamViewItem*>(parent);
+    if (NodeParamViewItem* item = dynamic_cast<NodeParamViewItem*>(parent)) {
+      if (item != focused_node_) {
+        // Found a NodeParamViewItem that isn't already focused, see if it belongs to us
+        bool ours = false;
 
-    if (item) {
-      if (item->parent() == param_widget_area_) {
-        // Found it!
-        if (item->GetNode() != focused_node_) {
+        do {
+          parent = parent->parent();
+
+          if (parent == this) {
+            ours = true;
+            break;
+          }
+        } while (parent);
+
+        if (ours) {
+          // This item is ours,
           if (focused_node_) {
             // De-focus current node
-            items_.value(focused_node_)->SetHighlighted(false);
+            focused_node_->SetHighlighted(false);
           }
 
-          focused_node_ = item->GetNode();
+          focused_node_ = item;
 
           item->SetHighlighted(true);
 
-          emit FocusedNodeChanged(focused_node_);
+          emit FocusedNodeChanged(item->GetNode());
         }
       }
-
       break;
     }
 
@@ -469,7 +591,8 @@ void NodeParamView::KeyframeViewDragged(int x, int y)
 
 void NodeParamView::UpdateElementY()
 {
-  if (keyframe_view_) {
+  qDebug() << "STUB";
+  /*if (keyframe_view_) {
     for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
       foreach (const QString& input, it.key()->inputs()) {
         int arr_sz = it.key()->InputArraySize(input);
@@ -482,7 +605,7 @@ void NodeParamView::UpdateElementY()
         }
       }
     }
-  }
+  }*/
 }
 
 }

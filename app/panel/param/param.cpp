@@ -38,16 +38,12 @@ ParamPanel::ParamPanel(QWidget* parent) :
 
 void ParamPanel::SelectNodes(const QVector<Node *> &nodes)
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
-
-  Retranslate();
+  //static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
 }
 
 void ParamPanel::DeselectNodes(const QVector<Node *> &nodes)
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
-
-  Retranslate();
+  //static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
 }
 
 void ParamPanel::DeleteSelected()
@@ -65,19 +61,14 @@ void ParamPanel::DeselectAll()
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectAll();
 }
 
+void ParamPanel::SetContexts(const QVector<Node *> &contexts)
+{
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetContexts(contexts);
+}
+
 void ParamPanel::Retranslate()
 {
   SetTitle(tr("Parameter Editor"));
-
-  NodeParamView* view = static_cast<NodeParamView*>(GetTimeBasedWidget());
-
-  if (view->GetItemMap().isEmpty()) {
-    SetSubtitle(tr("(none)"));
-  } else if (view->GetItemMap().size() == 1) {
-    SetSubtitle(view->GetItemMap().firstKey()->Name());
-  } else {
-    SetSubtitle(tr("(multiple)"));
-  }
 }
 
 }

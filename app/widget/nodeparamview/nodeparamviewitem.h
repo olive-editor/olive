@@ -22,7 +22,6 @@
 #define NODEPARAMVIEWITEM_H
 
 #include <QCheckBox>
-#include <QDockWidget>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -33,6 +32,7 @@
 #include "nodeparamviewarraywidget.h"
 #include "nodeparamviewconnectedlabel.h"
 #include "nodeparamviewkeyframecontrol.h"
+#include "nodeparamviewitembase.h"
 #include "nodeparamviewwidgetbridge.h"
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/collapsebutton/collapsebutton.h"
@@ -43,40 +43,6 @@ enum NodeParamViewCheckBoxBehavior {
   kNoCheckBoxes,
   kCheckBoxesOn,
   kCheckBoxesOnNonConnected
-};
-
-class NodeParamViewItemTitleBar : public QWidget
-{
-  Q_OBJECT
-public:
-  NodeParamViewItemTitleBar(QWidget* parent = nullptr);
-
-  void SetExpanded(bool e);
-
-  void SetText(const QString& s)
-  {
-    lbl_->setText(s);
-    lbl_->setToolTip(s);
-    lbl_->setMinimumWidth(1);
-  }
-
-signals:
-  void ExpandedStateChanged(bool e);
-
-  void PinToggled(bool e);
-
-protected:
-  virtual void paintEvent(QPaintEvent *event) override;
-
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-
-private:
-  bool draw_border_;
-
-  QLabel* lbl_;
-
-  CollapseButton* collapse_btn_;
-
 };
 
 class NodeParamViewItemBody : public QWidget {
@@ -189,76 +155,56 @@ private slots:
 
 };
 
-class NodeParamViewItem : public QDockWidget
+class NodeParamViewItem : public NodeParamViewItemBase
 {
   Q_OBJECT
 public:
   NodeParamViewItem(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
-  void SetTimeTarget(Node* target);
-
-  void SetTime(const rational& time);
-
-  // Set the timebase of the NodeParamViewItemBody
-  void SetTimebase(const rational& timebase);
-
-  Node* GetNode() const;
-
-  bool IsExpanded() const;
-
-  void SetHighlighted(bool e)
+  void SetTimeTarget(Node* target)
   {
-    highlighted_ = e;
+    body_->SetTimeTarget(target);
+  }
 
-    update();
+  void SetTime(const rational& time)
+  {
+    time_ = time;
+
+    body_->SetTime(time_);
+  }
+
+  void SetTimebase(const rational& timebase)
+  {
+    body_->SetTimebase(timebase);
+  }
+
+  Node* GetNode() const
+  {
+    return node_;
   }
 
   int GetElementY(const NodeInput& c) const;
 
   void SetInputChecked(const NodeInput &input, bool e);
 
-public slots:
-  void SetExpanded(bool e);
-
-  void ToggleExpanded();
-
 signals:
   void RequestSetTime(const rational& time);
 
   void RequestSelectNode(const QVector<Node*>& node);
 
-  void PinToggled(bool e);
-
-  void ExpandedChanged(bool e);
-
   void ArrayExpandedChanged(bool e);
-
-  void Moved();
 
   void InputCheckedChanged(const NodeInput &input, bool e);
 
-protected:
-  virtual void changeEvent(QEvent *e) override;
-
-  virtual void paintEvent(QPaintEvent *event) override;
-
-  virtual void moveEvent(QMoveEvent *event) override;
+protected slots:
+  virtual void Retranslate() override;
 
 private:
-  NodeParamViewItemTitleBar* title_bar_;
-
   NodeParamViewItemBody* body_;
-
-  QWidget *hidden_body_;
 
   Node* node_;
 
   rational time_;
-
-  bool highlighted_;
-
-private slots:
-  void Retranslate();
 
 };
 

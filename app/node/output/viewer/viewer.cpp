@@ -47,10 +47,10 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   video_cache_enabled_(true),
   audio_cache_enabled_(true)
 {
-  AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
+  AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
   SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
 
-  AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
+  AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
   if (create_buffer_inputs) {
     AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));

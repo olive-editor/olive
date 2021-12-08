@@ -84,6 +84,9 @@ NodeViewItem::NodeViewItem(Node *node, const QString &input, int element, Node *
     }
   } else {
     output_connector_->setVisible(false);
+
+    connect(node_, &Node::InputArraySizeChanged, this, &NodeViewItem::InputArraySizeChanged);
+    connect(node_, &Node::InputArraySizeChanged, this, &NodeViewItem::InputArraySizeChanged);
   }
 
   // This should be set during runtime, but just in case here's a default fallback
@@ -740,14 +743,20 @@ void NodeViewItem::RepopulateInputs()
     }
 
     input_connector_->setVisible(has_connectable_inputs_);
+  }
 
-    if (IsExpanded()) {
-      // Create or remove inputs when necessary
-    }
-  } else {
-    if (IsExpanded() && element_ == -1) {
-      // Create or remove array elements when necessary
-    }
+  if (IsExpanded() && (IsOutputItem() || element_ == -1)) {
+    // Create or remove inputs when necessary
+    // NOTE: This is not the most efficient thing in the world, but it does work
+    SetExpanded(false);
+    SetExpanded(true);
+  }
+}
+
+void NodeViewItem::InputArraySizeChanged(const QString &input)
+{
+  if (input == input_) {
+    RepopulateInputs();
   }
 }
 

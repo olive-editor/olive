@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewcontext.h"
 #include "nodeparamviewdockarea.h"
 #include "nodeparamviewitem.h"
 #include "widget/keyframeview/keyframeview.h"
@@ -64,8 +65,7 @@ public:
   {
   }
 
-  void SelectNodes(const QVector<Node *> &nodes);
-  void DeselectNodes(const QVector<Node*>& nodes);
+  virtual ~NodeParamView() override;
 
   void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
   {
@@ -75,11 +75,6 @@ public:
   bool IsInputChecked(const NodeInput &input) const
   {
     return input_checked_.value(input);
-  }
-
-  const QMap<Node*, NodeParamViewItem*>& GetItemMap() const
-  {
-    return items_;
   }
 
   Node* GetTimeTarget() const;
@@ -98,6 +93,8 @@ public:
 
 public slots:
   void SetInputChecked(const NodeInput &input, bool e);
+
+  void SetContexts(const QVector<Node*> &contexts);
 
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
@@ -122,13 +119,17 @@ private:
 
   void SignalNodeOrder();
 
-  void AddNode(Node* n);
+  void AddNode(Node* n, NodeParamViewContext *context);
+
+  //void AddNode(Node *node, Node *context, NodeParamViewContext *ctx_item);
 
   void RemoveNode(Node* n);
 
+  void SortItemsInContext(NodeParamViewContext *context);
+
   KeyframeView* keyframe_view_;
 
-  QMap<Node*, NodeParamViewItem*> items_;
+  QVector<NodeParamViewContext*> context_items_;
 
   QScrollBar* vertical_scrollbar_;
 
@@ -144,9 +145,7 @@ private:
 
   QVector<Node*> active_nodes_;
 
-  QMap<Node*, bool> node_expanded_state_;
-
-  Node* focused_node_;
+  NodeParamViewItem* focused_node_;
 
   NodeParamViewCheckBoxBehavior create_checkboxes_;
 
