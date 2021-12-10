@@ -136,7 +136,7 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
       auto otio_clip = new OTIO::Clip(block->GetLabel().toStdString());
 
       double rate = static_cast<ClipBlock*>(block)->connected_viewer()->GetVideoParams().frame_rate().toDouble();
-      if (rate == qSNaN()) {
+      if (qIsNaN(rate)) {
         // We shouldn't ever get here, but catch without crashing if we ever do
         goto fail;
       }
