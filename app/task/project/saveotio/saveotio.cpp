@@ -135,14 +135,10 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track)
     if (dynamic_cast<ClipBlock*>(block)) {
       auto otio_clip = new OTIO::Clip(block->GetLabel().toStdString());
 
-      auto rate = 0.0;
-      rational frame_rate = static_cast<ClipBlock*>(block)->connected_viewer()->GetVideoParams().frame_rate();
-      if (frame_rate.denominator() == 1) {
-        rate = frame_rate.numerator();
-      } else {
-        // Handle strange rates
-        rate = static_cast<double>(frame_rate.numerator()) /
-               static_cast<double>(frame_rate.denominator());
+      double rate = static_cast<ClipBlock*>(block)->connected_viewer()->GetVideoParams().frame_rate().toDouble();
+      if (rate == qSNaN()) {
+        // We shouldn't ever get here, but catch without crashing if we ever do
+        goto fail;
       }
 
       otio_clip->set_source_range(OTIO::TimeRange(block->in().toRationalTime(),
