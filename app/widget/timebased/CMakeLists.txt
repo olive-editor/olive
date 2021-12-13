@@ -18,6 +18,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timebased/timebasedview.cpp
   widget/timebased/timebasedview.h
+  widget/timebased/timebasedviewselectionmanager.cpp
+  widget/timebased/timebasedviewselectionmanager.h
   widget/timebased/timebasedwidget.cpp
   widget/timebased/timebasedwidget.h
   widget/timebased/timescaledobject.cpp

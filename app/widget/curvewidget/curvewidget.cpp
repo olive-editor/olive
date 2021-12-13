@@ -113,12 +113,6 @@ CurveWidget::CurveWidget(QWidget *parent) :
   SetScale(120.0);
 }
 
-CurveWidget::~CurveWidget()
-{
-  // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after other members have been destroyed
-  view_->Clear();
-}
-
 const double &CurveWidget::GetVerticalScale()
 {
   return view_->GetYScale();
@@ -223,15 +217,6 @@ void CurveWidget::ConnectNode(Node *node, bool connect)
       ConnectInput(node, input, connect);
     }
   }
-
-  // Connect add/remove signals
-  if (connect) {
-    QObject::connect(node, &Node::KeyframeAdded, this, &CurveWidget::AddKeyframe);
-    QObject::connect(node, &Node::KeyframeRemoved, this, &CurveWidget::RemoveKeyframe);
-  } else {
-    QObject::disconnect(node, &Node::KeyframeAdded, this, &CurveWidget::AddKeyframe);
-    QObject::disconnect(node, &Node::KeyframeRemoved, this, &CurveWidget::RemoveKeyframe);
-  }
 }
 
 void CurveWidget::ConnectInput(Node *node, const QString &input, bool connect)
@@ -287,20 +272,20 @@ void CurveWidget::ConnectInput(Node *node, const QString &input, bool connect)
 
 void CurveWidget::SelectionChanged()
 {
-  QList<QGraphicsItem*> selected = view_->scene()->selectedItems();
+  const QVector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
 
   SetKeyframeButtonChecked(false);
   SetKeyframeButtonEnabled(!selected.isEmpty());
 
   if (!selected.isEmpty()) {
     bool all_same_type = true;
-    NodeKeyframe::Type type = static_cast<KeyframeViewItem*>(selected.first())->key()->type();
+    NodeKeyframe::Type type = selected.first()->type();
 
     for (int i=1;i<selected.size();i++) {
-      KeyframeViewItem* prev_item = static_cast<KeyframeViewItem*>(selected.at(i-1));
-      KeyframeViewItem* this_item = static_cast<KeyframeViewItem*>(selected.at(i));
+      NodeKeyframe* prev_item = selected.at(i-1);
+      NodeKeyframe* this_item = selected.at(i);
 
-      if (prev_item->key()->type() != this_item->key()->type()) {
+      if (prev_item->type() != this_item->type()) {
         all_same_type = false;
         break;
       }
@@ -323,7 +308,7 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
   }
 
   // Get selected items and do nothing if there are none
-  QList<QGraphicsItem*> selected = view_->scene()->selectedItems();
+  const QVector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
   if (selected.isEmpty()) {
     return;
   }
@@ -345,10 +330,8 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (QGraphicsItem* item, selected) {
-    KeyframeViewItem* key_item = static_cast<KeyframeViewItem*>(item);
-
-    command->add_child(new KeyframeSetTypeCommand(key_item->key(), new_type));
+  foreach (NodeKeyframe* item, selected) {
+    command->add_child(new KeyframeSetTypeCommand(item, new_type));
   }
 
   Core::instance()->undo_stack()->push(command);
@@ -366,16 +349,6 @@ void CurveWidget::InputEnabledChanged(const NodeKeyframeTrackReference& ref, boo
   } else {
     view_->DisconnectInput(ref);
   }
-}
-
-void CurveWidget::AddKeyframe(NodeKeyframe *key)
-{
-  view_->AddKeyframe(key);
-}
-
-void CurveWidget::RemoveKeyframe(NodeKeyframe *key)
-{
-  view_->RemoveKeyframe(key);
 }
 
 void CurveWidget::InputSelectionChanged(const NodeKeyframeTrackReference& ref)

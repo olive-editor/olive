@@ -99,8 +99,6 @@ public slots:
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
 
-  void NodeOrderChanged(const QVector<Node*>& nodes);
-
   void FocusedNodeChanged(Node* n);
 
 protected:
@@ -117,13 +115,7 @@ private:
 
   void QueueKeyframePositionUpdate();
 
-  void SignalNodeOrder();
-
   void AddNode(Node* n, NodeParamViewContext *context);
-
-  //void AddNode(Node *node, Node *context, NodeParamViewContext *ctx_item);
-
-  void RemoveNode(Node* n);
 
   void SortItemsInContext(NodeParamViewContext *context);
 

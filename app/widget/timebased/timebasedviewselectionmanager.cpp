@@ -18,33 +18,9 @@
 
 ***/
 
-#ifndef KEYFRAMEVIEW_H
-#define KEYFRAMEVIEW_H
-
-#include "keyframeviewbase.h"
+#include "timebasedviewselectionmanager.h"
 
 namespace olive {
 
-class KeyframeView : public KeyframeViewBase
-{
-  Q_OBJECT
-public:
-  KeyframeView(QWidget* parent = nullptr);
-
-  void SetMaxScroll(int i)
-  {
-    max_scroll_ = i;
-    UpdateSceneRect();
-  }
-
-protected:
-  virtual void SceneRectUpdateEvent(QRectF& rect) override;
-
-private:
-  int max_scroll_;
-
-};
 
 }
-
-#endif // KEYFRAMEVIEW_H

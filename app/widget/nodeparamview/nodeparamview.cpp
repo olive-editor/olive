@@ -229,6 +229,10 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
     ctx->setVisible(false);
   }
 
+  if (keyframe_view_) {
+    keyframe_view_->Clear();
+  }
+
   if (focused_node_) {
     focused_node_ = nullptr;
     emit FocusedNodeChanged(nullptr);
@@ -263,6 +267,10 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
 
   foreach (NodeParamViewContext *ctx, context_items_) {
     SortItemsInContext(ctx);
+  }
+
+  if (keyframe_view_) {
+    QueueKeyframePositionUpdate();
   }
 }
 
@@ -348,54 +356,13 @@ void NodeParamView::QueueKeyframePositionUpdate()
   QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
 }
 
-void NodeParamView::SignalNodeOrder()
-{
-  /*
-  // Sort by item Y (apparently there's no way in Qt to get the order of dock widgets)
-  QVector<Node*> nodes;
-  QVector<int> item_ys;
-
-  for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
-    int item_y = it.value()->pos().y();
-
-    bool inserted = false;
-
-    for (int i=0; i<item_ys.size(); i++) {
-      if (item_ys.at(i) > item_y) {
-        item_ys.insert(i, item_y);
-        nodes.insert(i, it.key());
-        inserted = true;
-        break;
-      }
-    }
-
-    if (!inserted) {
-      item_ys.append(item_y);
-      nodes.append(it.key());
-    }
-  }
-
-  emit NodeOrderChanged(nodes);
-  */
-}
-
 void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
 {
   NodeParamViewItem* item = new NodeParamViewItem(n, create_checkboxes_, context);
 
-  if (keyframe_view_) {
-    connect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-    connect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
-  }
-
   connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
-  connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
-  connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::SignalNodeOrder);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
-  connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
-  connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
-  connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::SetInputChecked);
 
   if (create_checkboxes_) {
@@ -422,46 +389,13 @@ void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
   }
 
   if (keyframe_view_) {
-    keyframe_view_->AddKeyframesOfNode(n);
+    connect(item, &NodeParamViewItem::dockLocationChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+    connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+    connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
+    connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
+
+    item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
   }
-}
-
-/*void NodeParamView::AddNode(Node *node, Node *context, NodeParamViewContext *ctx_item)
-{
-  int dist = GetDistanceBetweenNodes(context, node);
-
-  if (dist == -1) {
-    dist = 0;
-  }
-
-  ctx_item->GetDockArea()->insert
-}*/
-
-void NodeParamView::RemoveNode(Node *n)
-{
-  qDebug() << "STUB!";
-  /*if (keyframe_view_) {
-    keyframe_view_->RemoveKeyframesOfNode(n);
-
-    disconnect(n, &Node::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-    disconnect(n, &Node::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
-  }
-
-  delete items_.take(n);
-
-  if (focused_node_ == n) {
-    // Try to find new node with gizmos to focus
-    focused_node_ = nullptr;
-    for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
-      if (it.key()->HasGizmos()) {
-        focused_node_ = it.key();
-        it.value()->SetHighlighted(true);
-        break;
-      }
-    }
-
-    emit FocusedNodeChanged(focused_node_);
-  }*/
 }
 
 int GetDistanceBetweenNodes(Node *start, Node *end)
@@ -516,7 +450,7 @@ void NodeParamView::UpdateGlobalScrollBar()
   int height_offscreen = param_widget_container_->height() + scrollbar()->height();
 
   if (keyframe_view_) {
-    keyframe_view_->SetMaxScroll(height_offscreen);
+    keyframe_view_->SetMaxScroll(height_offscreen + 2000);
   }
 
   vertical_scrollbar_->setRange(0, height_offscreen - param_scroll_area_->height());
@@ -533,8 +467,7 @@ void NodeParamView::PinNode(bool pin)
     pinned_nodes_.removeOne(node);
 
     if (!active_nodes_.contains(node)) {
-      RemoveNode(node);
-      SignalNodeOrder();
+      //RemoveNode(node);
     }
   }
 }
@@ -591,21 +524,34 @@ void NodeParamView::KeyframeViewDragged(int x, int y)
 
 void NodeParamView::UpdateElementY()
 {
-  qDebug() << "STUB";
-  /*if (keyframe_view_) {
-    for (auto it=items_.cbegin(); it!=items_.cend(); it++) {
-      foreach (const QString& input, it.key()->inputs()) {
-        int arr_sz = it.key()->InputArraySize(input);
+  foreach (NodeParamViewContext *ctx, context_items_) {
+    for (auto it=ctx->GetItems().cbegin(); it!=ctx->GetItems().cend(); it++) {
+      const KeyframeViewBase::NodeConnections &connections = it.value()->GetKeyframeConnections();
 
-        for (int i=-1; i<arr_sz; i++) {
-          NodeInput ic = {it.key(), input, i};
+      if (!connections.isEmpty()) {
+        foreach (const QString& input, it.key()->inputs()) {
+          if (!(it.key()->GetInputFlags(input) & kInputFlagHidden)) {
+            int arr_sz = it.key()->InputArraySize(input);
 
-          int y = it.value()->GetElementY(ic);
-          keyframe_view_->SetElementY(ic, y);
+            for (int i=-1; i<arr_sz; i++) {
+              NodeInput ic = {it.key(), input, i};
+
+              int y = it.value()->GetElementY(ic);
+
+              const KeyframeViewBase::InputConnections &input_con = connections.value(input);
+              int use_index = i + 1;
+              if (use_index < input_con.size()) {
+                const KeyframeViewBase::ElementConnections &ele_con = input_con.at(ic.element()+1);
+                foreach (KeyframeViewInputConnection *track, ele_con) {
+                  track->SetKeyframeY(y);
+                }
+              }
+            }
+          }
         }
       }
     }
-  }*/
+  }
 }
 
 }

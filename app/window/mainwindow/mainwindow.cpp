@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef Q_OS_WINDOWS
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
-  taskbar_btn_id_ = RegisterWindowMessage("TaskbarButtonCreated");
+  taskbar_btn_id_ = RegisterWindowMessage(TEXT("TaskbarButtonCreated"));
   taskbar_interface_ = nullptr;
 #endif
 
@@ -106,9 +106,6 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTime);
 
-  // Connect node order signals
-  connect(param_panel_, &ParamPanel::NodeOrderChanged, curve_panel_, &CurvePanel::SetNodes);
-
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
@@ -116,7 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   UpdateTitle();
 
-  QMetaObject::invokeMethod(this, "SetDefaultLayout", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &MainWindow::SetDefaultLayout, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()

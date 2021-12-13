@@ -36,6 +36,7 @@
 #include "nodeparamviewwidgetbridge.h"
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/collapsebutton/collapsebutton.h"
+#include "widget/keyframeview/keyframeviewbase.h"
 
 namespace olive {
 
@@ -187,6 +188,16 @@ public:
 
   void SetInputChecked(const NodeInput &input, bool e);
 
+  const KeyframeViewBase::NodeConnections &GetKeyframeConnections() const
+  {
+    return keyframe_connections_;
+  }
+
+  void SetKeyframeConnections(const KeyframeViewBase::NodeConnections &c)
+  {
+    keyframe_connections_ = c;
+  }
+
 signals:
   void RequestSetTime(const rational& time);
 
@@ -205,6 +216,8 @@ private:
   Node* node_;
 
   rational time_;
+
+  KeyframeViewBase::NodeConnections keyframe_connections_;
 
 };
 

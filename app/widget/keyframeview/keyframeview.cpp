@@ -31,29 +31,10 @@ KeyframeView::KeyframeView(QWidget *parent) :
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
-void KeyframeView::SetElementY(const NodeInput &c, int y)
-{
-  qreal scene_y = mapToScene(mapFromGlobal(QPoint(0, y))).y();
-
-  element_y_.insert(c, scene_y);
-
-  for (auto it=item_map().cbegin(); it!=item_map().cend(); it++) {
-    if (it.key()->key_track_ref().input() == c) {
-      it.value()->SetOverrideY(scene_y);
-    }
-  }
-}
 void KeyframeView::SceneRectUpdateEvent(QRectF &rect)
 {
   rect.setY(0);
   rect.setHeight(max_scroll_);
-}
-
-KeyframeViewItem* KeyframeView::AddKeyframe(NodeKeyframe* key)
-{
-  KeyframeViewItem* item = super::AddKeyframe(key);
-  item->SetOverrideY(element_y_.value(key->key_track_ref().input()));
-  return item;
 }
 
 }

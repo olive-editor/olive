@@ -40,8 +40,6 @@ class CurveWidget : public TimeBasedWidget, public TimeTargetObject
 public:
   CurveWidget(QWidget* parent = nullptr);
 
-  virtual ~CurveWidget() override;
-
   const double& GetVerticalScale();
   void SetVerticalScale(const double& vscale);
 
@@ -106,10 +104,6 @@ private slots:
   void NodeEnabledChanged(Node* n, bool e);
 
   void InputEnabledChanged(const NodeKeyframeTrackReference &ref, bool e);
-
-  void AddKeyframe(NodeKeyframe* key);
-
-  void RemoveKeyframe(NodeKeyframe* key);
 
   void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
 

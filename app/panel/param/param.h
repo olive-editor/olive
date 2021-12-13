@@ -48,8 +48,6 @@ public slots:
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
 
-  void NodeOrderChanged(const QVector<Node*>& nodes);
-
   void FocusedNodeChanged(Node* n);
 
 protected:

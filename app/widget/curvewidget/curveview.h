@@ -24,7 +24,6 @@
 #include "beziercontrolpointitem.h"
 #include "node/keyframe.h"
 #include "widget/keyframeview/keyframeview.h"
-#include "widget/keyframeview/keyframeviewitem.h"
 
 namespace olive {
 
@@ -33,10 +32,6 @@ class CurveView : public KeyframeViewBase
   Q_OBJECT
 public:
   CurveView(QWidget* parent = nullptr);
-
-  virtual ~CurveView() override;
-
-  virtual void Clear() override;
 
   void ConnectInput(const NodeKeyframeTrackReference &ref);
 
@@ -49,8 +44,6 @@ public:
   void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
 
 public slots:
-  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key) override;
-
   void ZoomToFit();
 
   void ZoomToFitSelected();
@@ -59,8 +52,6 @@ public slots:
 
 protected:
   virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
-
-  virtual void KeyframeAboutToBeRemoved(NodeKeyframe *key) override;
 
   virtual void ScaleChangedEvent(const double &scale) override;
 
@@ -71,20 +62,21 @@ protected:
   virtual void SceneRectUpdateEvent(QRectF &r) override;
 
 private:
-  void ZoomToFitInternal(const QList<NodeKeyframe *> &keys);
+  void ZoomToFitInternal(const QVector<NodeKeyframe *> &keys);
 
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
   qreal GetItemYFromKeyframeValue(double value);
-
-  void SetItemYFromKeyframeValue(NodeKeyframe* key, KeyframeViewItem* item);
 
   QPointF ScalePoint(const QPointF& point);
 
   void AdjustLines();
 
-  void CreateBezierControlPoints(KeyframeViewItem *item);
+  void CreateBezierControlPoints(NodeKeyframe *item);
+
+  QPointF GetKeyframePosition(NodeKeyframe *key);
 
   QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
+  QHash<NodeKeyframeTrackReference, KeyframeViewInputConnection*> track_connections_;
 
   int text_padding_;
 

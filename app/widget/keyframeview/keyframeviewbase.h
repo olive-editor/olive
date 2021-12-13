@@ -21,11 +21,12 @@
 #ifndef KEYFRAMEVIEWBASE_H
 #define KEYFRAMEVIEWBASE_H
 
-#include "keyframeviewitem.h"
+#include "keyframeviewinputconnection.h"
 #include "node/keyframe.h"
 #include "widget/curvewidget/beziercontrolpointitem.h"
 #include "widget/menu/menu.h"
 #include "widget/timebased/timebasedview.h"
+#include "widget/timebased/timebasedviewselectionmanager.h"
 #include "widget/timetarget/timetarget.h"
 
 namespace olive {
@@ -36,50 +37,48 @@ class KeyframeViewBase : public TimeBasedView, public TimeTargetObject
 public:
   KeyframeViewBase(QWidget* parent = nullptr);
 
-  virtual void Clear();
-
   void DeleteSelected();
 
-  void AddKeyframesOfNode(Node* n);
+  using ElementConnections = QVector<KeyframeViewInputConnection *>;
+  using InputConnections = QVector<ElementConnections>;
+  using NodeConnections = QMap<QString, InputConnections>;
 
-  void AddKeyframesOfInput(Node *n, const QString &input);
+  NodeConnections AddKeyframesOfNode(Node* n);
 
-  void AddKeyframesOfElement(const NodeInput &input);
+  InputConnections AddKeyframesOfInput(Node *n, const QString &input);
 
-  void AddKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
+  ElementConnections AddKeyframesOfElement(const NodeInput &input);
 
-  void RemoveKeyframesOfNode(Node* n);
+  KeyframeViewInputConnection *AddKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
 
-  void RemoveKeyframesOfInput(Node *n, const QString &input);
-
-  void RemoveKeyframesOfElement(const NodeInput &input);
-
-  void RemoveKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
+  void RemoveKeyframesOfTrack(KeyframeViewInputConnection *connection);
 
   void SelectAll();
 
   void DeselectAll();
 
+  void Clear();
+
+  const QVector<NodeKeyframe*> &GetSelectedKeyframes() const
+  {
+    return selection_manager_.GetSelectedObjects();
+  }
+
 signals:
   void Dragged(int current_x, int current_y);
-
-public slots:
-  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key);
-
-  void RemoveKeyframe(NodeKeyframe* key);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
+
   virtual void ScaleChangedEvent(const double& scale) override;
 
-  const QMap<NodeKeyframe*, KeyframeViewItem*>& item_map() const;
-
-  virtual void KeyframeAboutToBeRemoved(NodeKeyframe* key);
-
   virtual void TimeTargetChangedEvent(Node*) override;
+
+  virtual void TimebaseChangedEvent(const rational &timebase) override;
 
   virtual void ContextMenuEvent(Menu &m);
 
@@ -87,6 +86,19 @@ protected:
   {
     return dragging_;
   }
+
+  void SelectKeyframe(NodeKeyframe *key);
+
+  void DeselectKeyframe(NodeKeyframe *key);
+
+  bool IsKeyframeSelected(NodeKeyframe *key) const
+  {
+    return selection_manager_.IsSelected(key);
+  }
+
+  rational GetAdjustedKeyframeTime(NodeKeyframe *key);
+
+  double GetKeyframeSceneX(NodeKeyframe *key);
 
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
@@ -97,30 +109,19 @@ private:
 
   QPointF GetScaledCursorPos(const QPointF &cursor_pos);
 
-  struct KeyframeItemAndTime {
-    KeyframeViewItem* key;
-    qreal item_x;
-    rational time;
-    double value;
-  };
-
-  QMap<NodeKeyframe*, KeyframeViewItem*> item_map_;
-
-  Tool::Item active_tool_;
-
   QPointF drag_start_;
 
   BezierControlPointItem* dragging_bezier_point_;
   QPointF dragging_bezier_point_start_;
   QPointF dragging_bezier_point_opposing_start_;
 
-  KeyframeViewItem* initial_drag_item_;
-
-  QVector<KeyframeItemAndTime> selected_keys_;
+  QVector<KeyframeViewInputConnection*> tracks_;
 
   bool currently_autoselecting_;
 
   bool dragging_;
+
+  TimeBasedViewSelectionManager<NodeKeyframe> selection_manager_;
 
 private slots:
   void ShowContextMenu();
@@ -128,6 +129,8 @@ private slots:
   void ShowKeyframePropertiesDialog();
 
   void AutoSelectKeyTimeNeighbors();
+
+  void Redraw();
 
 };
 
