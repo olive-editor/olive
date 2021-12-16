@@ -482,19 +482,21 @@ bool Core::AddOpenProjectFromTask(Task *task)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
-  Project* project = load_task->GetLoadedProject();
-  MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
+  if (!load_task->IsCancelled()) {
+    Project* project = load_task->GetLoadedProject();
+    MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
 
-  if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
-    AddOpenProject(project);
-    main_window_->LoadLayout(layout);
+    if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
+      AddOpenProject(project);
+      main_window_->LoadLayout(layout);
 
-    return true;
-  } else {
-    delete project;
-
-    return false;
+      return true;
+    } else {
+      delete project;
+    }
   }
+
+  return false;
 }
 
 void Core::ImportTaskComplete(Task* task)
