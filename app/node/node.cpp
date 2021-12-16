@@ -2246,7 +2246,6 @@ void Node::childEvent(QChildEvent *event)
       GetImmediate(key->input(), key->element())->insert_keyframe(key);
 
       connect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
-      connect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
       connect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
       connect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
       connect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
@@ -2258,15 +2257,14 @@ void Node::childEvent(QChildEvent *event)
       TimeRange time_affected = GetRangeAffectedByKeyframe(key);
 
       disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
-      disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
       disconnect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
       disconnect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
       disconnect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
       disconnect(key, &NodeKeyframe::BezierControlOutChanged, this, &Node::InvalidateFromKeyframeBezierOutChange);
 
-      GetImmediate(key->input(), key->element())->remove_keyframe(key);
-
       emit KeyframeRemoved(key);
+
+      GetImmediate(key->input(), key->element())->remove_keyframe(key);
       ParameterValueChanged(i, time_affected);
     }
   }
@@ -2329,12 +2327,16 @@ void Node::InvalidateFromKeyframeTimeChange()
   foreach (const TimeRange& r, invalidate_range) {
     ParameterValueChanged(key->key_track_ref().input(), r);
   }
+
+  emit KeyframeTimeChanged(key);
 }
 
 void Node::InvalidateFromKeyframeValueChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   ParameterValueChanged(key->key_track_ref().input(), GetRangeAffectedByKeyframe(key));
+
+  emit KeyframeValueChanged(key);
 }
 
 void Node::InvalidateFromKeyframeTypeChanged()
@@ -2349,6 +2351,8 @@ void Node::InvalidateFromKeyframeTypeChanged()
 
   // Invalidate entire range
   ParameterValueChanged(key->key_track_ref().input(), GetRangeAroundIndex(key->input(), track.indexOf(key), key->track(), key->element()));
+
+  emit KeyframeTypeChanged(key);
 }
 
 Project *Node::ArrayInsertCommand::GetRelevantProject() const

@@ -1,6 +1,7 @@
 #ifndef SEQUENCEDIALOGPARAMETERTAB_H
 #define SEQUENCEDIALOGPARAMETERTAB_H
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QList>
 #include <QSpinBox>
@@ -9,7 +10,6 @@
 #include "sequencepreset.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
-#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -21,27 +21,27 @@ public:
 
   int GetSelectedVideoWidth() const
   {
-    return video_section_->GetWidth();
+    return width_slider_->GetValue();
   }
 
   int GetSelectedVideoHeight() const
   {
-    return video_section_->GetHeight();
+    return height_slider_->GetValue();
   }
 
   rational GetSelectedVideoFrameRate() const
   {
-    return video_section_->GetFrameRate();
+    return framerate_combo_->GetFrameRate();
   }
 
   rational GetSelectedVideoPixelAspect() const
   {
-    return video_section_->GetPixelAspectRatio();
+    return pixelaspect_combo_->GetPixelAspectRatio();
   }
 
   VideoParams::Interlacing GetSelectedVideoInterlacingMode() const
   {
-    return video_section_->GetInterlaceMode();
+    return interlacing_combo_->GetInterlaceMode();
   }
 
   int GetSelectedAudioSampleRate() const
@@ -76,7 +76,15 @@ signals:
   void SaveParametersAsPreset(const SequencePreset& preset);
 
 private:
-  VideoParamEdit* video_section_;
+  IntegerSlider *width_slider_;
+
+  IntegerSlider *height_slider_;
+
+  FrameRateComboBox *framerate_combo_;
+
+  PixelAspectRatioComboBox *pixelaspect_combo_;
+
+  InterlacedComboBox *interlacing_combo_;
 
   SampleRateComboBox* audio_sample_rate_field_;
 

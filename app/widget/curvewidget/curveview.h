@@ -21,13 +21,12 @@
 #ifndef CURVEVIEW_H
 #define CURVEVIEW_H
 
-#include "beziercontrolpointitem.h"
 #include "node/keyframe.h"
 #include "widget/keyframeview/keyframeview.h"
 
 namespace olive {
 
-class CurveView : public KeyframeViewBase
+class CurveView : public KeyframeView
 {
   Q_OBJECT
 public:
@@ -52,14 +51,23 @@ public slots:
 
 protected:
   virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
-
-  virtual void ScaleChangedEvent(const double &scale) override;
-
-  virtual void VerticalScaleChangedEvent(double scale) override;
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
   virtual void ContextMenuEvent(Menu &m) override;
 
   virtual void SceneRectUpdateEvent(QRectF &r) override;
+
+  virtual qreal GetKeyframeSceneY(KeyframeViewInputConnection *track, NodeKeyframe *key) override;
+
+  virtual void DrawKeyframe(QPainter *painter, NodeKeyframe *key, KeyframeViewInputConnection *track, const QRectF &key_rect) override;
+
+  virtual bool FirstChanceMousePress(QMouseEvent *event) override;
+  virtual void FirstChanceMouseMove(QMouseEvent *event) override;
+  virtual void FirstChanceMouseRelease(QMouseEvent *event) override;
+
+  virtual void KeyframeDragStart(QMouseEvent *event) override;
+  virtual void KeyframeDragMove(QMouseEvent *event, QString &tip) override;
+  virtual void KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command) override;
 
 private:
   void ZoomToFitInternal(const QVector<NodeKeyframe *> &keys);
@@ -71,9 +79,13 @@ private:
 
   void AdjustLines();
 
-  void CreateBezierControlPoints(NodeKeyframe *item);
-
   QPointF GetKeyframePosition(NodeKeyframe *key);
+
+  static QPointF GenerateBezierControlPosition(const NodeKeyframe::BezierType mode,
+                                               const QPointF& start_point,
+                                               const QPointF& scaled_cursor_diff);
+
+  QPointF GetScaledCursorPos(const QPointF &cursor_pos);
 
   QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
   QHash<NodeKeyframeTrackReference, KeyframeViewInputConnection*> track_connections_;
@@ -82,20 +94,26 @@ private:
 
   int minimum_grid_space_;
 
-  QVector<QGraphicsLineItem*> lines_;
-
-  QVector<BezierControlPointItem*> bezier_control_points_;
-
   QVector<NodeKeyframeTrackReference> connected_inputs_;
 
+  struct BezierPoint
+  {
+    QRectF rect;
+    NodeKeyframe *keyframe;
+    NodeKeyframe::BezierType type;
+  };
+
+  QVector<BezierPoint> bezier_pts_;
+  const BezierPoint *dragging_bezier_pt_;
+
+  QPointF dragging_bezier_point_start_;
+  QPointF dragging_bezier_point_opposing_start_;
+  QPointF drag_start_;
+
+  QVector<QVariant> drag_keyframe_values_;
+
 private slots:
-  void KeyframeValueChanged();
-
   void KeyframeTypeChanged();
-
-  void SelectionChanged();
-
-  void BezierControlPointDestroyed();
 
 };
 

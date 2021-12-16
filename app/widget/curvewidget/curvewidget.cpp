@@ -34,8 +34,10 @@
 
 namespace olive {
 
+#define super TimeBasedWidget
+
 CurveWidget::CurveWidget(QWidget *parent) :
-  TimeBasedWidget(parent)
+  super(parent)
 {
   QHBoxLayout* outer_layout = new QHBoxLayout(this);
 
@@ -152,7 +154,7 @@ void CurveWidget::SetNodes(const QVector<Node *> &nodes)
 
 void CurveWidget::TimeChangedEvent(const rational &time)
 {
-  TimeBasedWidget::TimeChangedEvent(time);
+  super::TimeChangedEvent(time);
 
   view_->SetTime(time);
   UpdateBridgeTime(time);
@@ -160,14 +162,14 @@ void CurveWidget::TimeChangedEvent(const rational &time)
 
 void CurveWidget::TimebaseChangedEvent(const rational &timebase)
 {
-  TimeBasedWidget::TimebaseChangedEvent(timebase);
+  super::TimebaseChangedEvent(timebase);
 
   view_->SetTimebase(timebase);
 }
 
 void CurveWidget::ScaleChangedEvent(const double &scale)
 {
-  TimeBasedWidget::ScaleChangedEvent(scale);
+  super::ScaleChangedEvent(scale);
 
   view_->SetScale(scale);
 }
@@ -238,7 +240,7 @@ void CurveWidget::ConnectInput(Node *node, const QString &input, bool connect)
       NodeKeyframeTrackReference ref(NodeInput(node, input, i), j);
 
       if (!keyframe_colors_.contains(ref)) {
-        QColor c = QColor::fromHsv(std::rand()%360, std::rand()%255, 255);
+        QColor c = QColor::fromHsl(std::rand()%360, 255, 160);
 
         keyframe_colors_.insert(ref, c);
         tree_view_->SetKeyframeTrackColor(ref, c);

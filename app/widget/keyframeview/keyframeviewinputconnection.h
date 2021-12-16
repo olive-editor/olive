@@ -28,13 +28,13 @@
 
 namespace olive {
 
-class KeyframeViewBase;
+class KeyframeView;
 
 class KeyframeViewInputConnection : public QObject
 {
   Q_OBJECT
 public:
-  KeyframeViewInputConnection(const NodeKeyframeTrackReference &input, KeyframeViewBase *parent);
+  KeyframeViewInputConnection(const NodeKeyframeTrackReference &input, KeyframeView *parent);
 
   const int &GetKeyframeY() const
   {
@@ -66,7 +66,7 @@ signals:
   void RequireUpdate();
 
 private:
-  KeyframeViewBase *keyframe_view_;
+  KeyframeView *keyframe_view_;
 
   NodeKeyframeTrackReference input_;
 
@@ -80,6 +80,8 @@ private slots:
   void AddKeyframe(NodeKeyframe *key);
 
   void RemoveKeyframe(NodeKeyframe *key);
+
+  void KeyframeChanged(NodeKeyframe *key);
 
 };
 

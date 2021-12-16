@@ -53,6 +53,10 @@ public:
     return dragging_playhead_;
   }
 
+  // To be called only by selection managers
+  virtual void SelectionManagerSelectEvent(void *obj){}
+  virtual void SelectionManagerDeselectEvent(void *obj){}
+
 public slots:
   void SetTime(const rational &time);
 

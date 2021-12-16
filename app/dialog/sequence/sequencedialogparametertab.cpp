@@ -19,11 +19,28 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   // Set up video section
   QGroupBox* video_group = new QGroupBox();
   video_group->setTitle(tr("Video"));
-  QHBoxLayout* video_layout = new QHBoxLayout(video_group);
-  video_section_ = new VideoParamEdit();
-  video_section_->SetParameterMask(Sequence::kVideoParamEditMask);
-  connect(video_section_, &VideoParamEdit::Changed, this, &SequenceDialogParameterTab::UpdatePreviewResolutionLabel);
-  video_layout->addWidget(video_section_);
+  QGridLayout *video_layout = new QGridLayout(video_group);
+  video_layout->addWidget(new QLabel(tr("Width:")), row, 0);
+  width_slider_ = new IntegerSlider();
+  width_slider_->SetMinimum(0);
+  video_layout->addWidget(width_slider_, row, 1);
+  row++;
+  video_layout->addWidget(new QLabel(tr("Height:")), row, 0);
+  height_slider_ = new IntegerSlider();
+  height_slider_->SetMinimum(0);
+  video_layout->addWidget(height_slider_, row, 1);
+  row++;
+  video_layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
+  framerate_combo_ = new FrameRateComboBox();
+  video_layout->addWidget(framerate_combo_, row, 1);
+  row++;
+  video_layout->addWidget(new QLabel(tr("Pixel Aspect Ratio:")), row, 0);
+  pixelaspect_combo_ = new PixelAspectRatioComboBox();
+  video_layout->addWidget(pixelaspect_combo_, row, 1);
+  row++;
+  video_layout->addWidget(new QLabel(tr("Interlacing:")), row, 0);
+  interlacing_combo_ = new InterlacedComboBox();
+  video_layout->addWidget(interlacing_combo_, row, 1);
   layout->addWidget(video_group);
 
   row = 0;
@@ -65,7 +82,11 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   // Set values based on input sequence
   VideoParams vp = sequence->GetVideoParams();
   AudioParams ap = sequence->GetAudioParams();
-  video_section_->SetVideoParams(vp);
+  width_slider_->SetValue(vp.width());
+  height_slider_->SetValue(vp.height());
+  framerate_combo_->SetFrameRate(vp.time_base().flipped());
+  pixelaspect_combo_->SetPixelAspectRatio(vp.pixel_aspect_ratio());
+  interlacing_combo_->SetInterlaceMode(vp.interlacing());
   preview_resolution_field_->SetDivider(vp.divider());
   preview_format_field_->SetPixelFormat(vp.format());
   preview_autocache_field_->setChecked(sequence->GetVideoAutoCacheEnabled());
@@ -86,11 +107,11 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
 
 void SequenceDialogParameterTab::PresetChanged(const SequencePreset &preset)
 {
-  video_section_->SetWidth(preset.width());
-  video_section_->SetHeight(preset.height());
-  video_section_->SetFrameRate(preset.frame_rate());
-  video_section_->SetPixelAspectRatio(preset.pixel_aspect());
-  video_section_->SetInterlaceMode(preset.interlacing());
+  width_slider_->SetValue(preset.width());
+  height_slider_->SetValue(preset.height());
+  framerate_combo_->SetFrameRate(preset.frame_rate());
+  pixelaspect_combo_->SetPixelAspectRatio(preset.pixel_aspect());
+  interlacing_combo_->SetInterlaceMode(preset.interlacing());
   audio_sample_rate_field_->SetSampleRate(preset.sample_rate());
   audio_channels_field_->SetChannelLayout(preset.channel_layout());
   preview_resolution_field_->SetDivider(preset.preview_divider());
@@ -115,8 +136,8 @@ void SequenceDialogParameterTab::SavePresetClicked()
 
 void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()
 {
-  VideoParams test_param(video_section_->GetWidth(),
-                         video_section_->GetHeight(),
+  VideoParams test_param(GetSelectedVideoWidth(),
+                         GetSelectedVideoHeight(),
                          VideoParams::kFormatInvalid,
                          VideoParams::kInternalChannelCount,
                          rational(1),

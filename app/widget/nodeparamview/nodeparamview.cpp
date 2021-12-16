@@ -373,11 +373,9 @@ void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
     }
   }
 
-  // Set time target
   item->SetTimeTarget(GetTimeTarget());
-
-  // Set the timebase
   item->SetTimebase(timebase());
+  item->SetTime(GetTime());
 
   context->AddNode(item);
 
@@ -526,7 +524,7 @@ void NodeParamView::UpdateElementY()
 {
   foreach (NodeParamViewContext *ctx, context_items_) {
     for (auto it=ctx->GetItems().cbegin(); it!=ctx->GetItems().cend(); it++) {
-      const KeyframeViewBase::NodeConnections &connections = it.value()->GetKeyframeConnections();
+      const KeyframeView::NodeConnections &connections = it.value()->GetKeyframeConnections();
 
       if (!connections.isEmpty()) {
         foreach (const QString& input, it.key()->inputs()) {
@@ -538,10 +536,10 @@ void NodeParamView::UpdateElementY()
 
               int y = it.value()->GetElementY(ic);
 
-              const KeyframeViewBase::InputConnections &input_con = connections.value(input);
+              const KeyframeView::InputConnections &input_con = connections.value(input);
               int use_index = i + 1;
               if (use_index < input_con.size()) {
-                const KeyframeViewBase::ElementConnections &ele_con = input_con.at(ic.element()+1);
+                const KeyframeView::ElementConnections &ele_con = input_con.at(ic.element()+1);
                 foreach (KeyframeViewInputConnection *track, ele_con) {
                   track->SetKeyframeY(y);
                 }

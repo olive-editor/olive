@@ -23,7 +23,6 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/traverser.h"
-#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -33,8 +32,6 @@ const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 const QString ViewerOutput::kVideoAutoCacheInput = QStringLiteral("video_autocache_in");
 const QString ViewerOutput::kAudioAutoCacheInput = QStringLiteral("audio_autocache_in");
-
-const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight | VideoParamEdit::kInterlacing | VideoParamEdit::kFrameRate | VideoParamEdit::kPixelAspect;
 
 #define super Node
 
@@ -48,7 +45,6 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   audio_cache_enabled_(true)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
-  SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
 
   AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 

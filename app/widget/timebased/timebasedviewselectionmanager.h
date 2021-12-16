@@ -23,6 +23,7 @@
 
 #include <QGraphicsView>
 #include <QMouseEvent>
+#include <QRubberBand>
 #include <QToolTip>
 
 #include "common/rational.h"
@@ -36,7 +37,8 @@ class TimeBasedViewSelectionManager
 {
 public:
   TimeBasedViewSelectionManager(TimeBasedView *view) :
-    view_(view)
+    view_(view),
+    rubberband_(nullptr)
   {}
 
   void ClearDrawnObjects()
@@ -51,6 +53,8 @@ public:
 
   bool Select(T *key)
   {
+    Q_ASSERT(key);
+
     if (!IsSelected(key)) {
       selected_.append(key);
       return true;
@@ -61,6 +65,8 @@ public:
 
   bool Deselect(T *key)
   {
+    Q_ASSERT(key);
+
     return selected_.removeOne(key);
   }
 
@@ -84,35 +90,48 @@ public:
     timebase_ = tb;
   }
 
+  T *GetObjectAtPoint(const QPointF &scene_pt)
+  {
+    foreach (const DrawnObject &kp, drawn_objects_) {
+      if (kp.second.contains(scene_pt)) {
+        return kp.first;
+      }
+    }
+
+    return nullptr;
+  }
+
+  T *GetObjectAtPoint(const QPoint &pt)
+  {
+    return GetObjectAtPoint(view_->mapToScene(pt));
+  }
+
   T *MousePress(QMouseEvent *event)
   {
     T *key_under_cursor = nullptr;
 
-    if (event->button() == Qt::LeftButton) {
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
       // See if there's a keyframe in this position
-      QPointF scene_pos = view_->mapToScene(event->pos());
-      foreach (const DrawnObject &kp, drawn_objects_) {
-        if (kp.second.contains(scene_pos)) {
-          key_under_cursor = kp.first;
-          break;
-        }
-      }
+      key_under_cursor = GetObjectAtPoint(event->pos());
 
       bool holding_shift = event->modifiers() & Qt::ShiftModifier;
 
-      if (IsSelected(key_under_cursor)) {
-        if (holding_shift) {
-          // If selected and holding shift, de-select this item but do nothing else
-          Deselect(key_under_cursor);
-        }
-      } else {
+      if (!key_under_cursor || !IsSelected(key_under_cursor)) {
         if (!holding_shift) {
           // If not already selecting and not holding shift, clear the current selection
           ClearSelection();
         }
 
         // Add item to selection, either nothing if shift wasn't held, or the existing selection
-        Select(key_under_cursor);
+        if (key_under_cursor) {
+          Select(key_under_cursor);
+          view_->SelectionManagerSelectEvent(key_under_cursor);
+        }
+      } else if (holding_shift) {
+        // If selected and holding shift, de-select this item but do nothing else
+        Deselect(key_under_cursor);
+        view_->SelectionManagerDeselectEvent(key_under_cursor);
+        key_under_cursor = nullptr;
       }
     }
 
@@ -185,6 +204,51 @@ public:
     for (int i=0; i<selected_.size(); i++) {
       command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i).time));
     }
+
+    dragging_.clear();
+  }
+
+  void RubberBandStart(QMouseEvent *event)
+  {
+    if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
+      rubberband_start_ = event->pos();
+
+      rubberband_ = new QRubberBand(QRubberBand::Rectangle, view_);
+      rubberband_->setGeometry(QRect(rubberband_start_.x(), rubberband_start_.y(), 0, 0));
+      rubberband_->show();
+
+      rubberband_preselected_ = selected_;
+    }
+  }
+
+  void RubberBandMove(QMouseEvent *event)
+  {
+    if (IsRubberBanding()) {
+      QRect band_rect = QRect(rubberband_start_, event->pos()).normalized();
+      rubberband_->setGeometry(band_rect);
+
+      QRectF scene_rect = view_->mapToScene(band_rect).boundingRect();
+
+      selected_ = rubberband_preselected_;
+      foreach (const DrawnObject &kp, drawn_objects_) {
+        if (scene_rect.intersects(kp.second)) {
+          Select(kp.first);
+        }
+      }
+    }
+  }
+
+  void RubberBandStop()
+  {
+    if (IsRubberBanding()) {
+      delete rubberband_;
+      rubberband_ = nullptr;
+    }
+  }
+
+  bool IsRubberBanding() const
+  {
+    return rubberband_;
   }
 
 private:
@@ -248,6 +312,10 @@ private:
   QPointF drag_mouse_start_;
 
   rational timebase_;
+
+  QRubberBand *rubberband_;
+  QPoint rubberband_start_;
+  QVector<T*> rubberband_preselected_;
 
 };
 

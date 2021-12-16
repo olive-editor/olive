@@ -114,6 +114,8 @@ void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
     } else {
       delete node_item;
     }
+
+    node_item->setExpanded(true);
   }
 }
 

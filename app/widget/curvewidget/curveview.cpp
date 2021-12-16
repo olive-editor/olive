@@ -20,31 +20,33 @@
 
 #include "curveview.h"
 
+#include <cfloat>
 #include <QHash>
 #include <QMouseEvent>
+#include <QPainterPath>
 #include <QScrollBar>
 #include <QtMath>
-#include <cfloat>
 
 #include "common/qtutils.h"
+#include "widget/keyframeview/keyframeviewundo.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
-#define super KeyframeViewBase
+#define super KeyframeView
 
 CurveView::CurveView(QWidget *parent) :
-  KeyframeViewBase(parent)
+  KeyframeView(parent),
+  dragging_bezier_pt_(nullptr)
 {
   setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-  setDragMode(RubberBandDrag);
-  setViewportUpdateMode(FullViewportUpdate);
   SetYAxisEnabled(true);
+  SetAutoSelectSiblings(false);
 
   text_padding_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
 
   minimum_grid_space_ = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("00000"));
-
-  connect(scene(), &QGraphicsScene::selectionChanged, this, &CurveView::SelectionChanged);
 }
 
 void CurveView::ConnectInput(const NodeKeyframeTrackReference& ref)
@@ -90,7 +92,9 @@ void CurveView::SelectKeyframesOfInput(const NodeKeyframeTrackReference& ref)
 
 void CurveView::ZoomToFitInput(const NodeKeyframeTrackReference& ref)
 {
-  ZoomToFitInternal(track_connections_.value(ref)->GetKeyframes());
+  if (KeyframeViewInputConnection *con = track_connections_.value(ref)) {
+    ZoomToFitInternal(con->GetKeyframes());
+  }
 }
 
 void CurveView::SetKeyframeTrackColor(const NodeKeyframeTrackReference &ref, const QColor &color)
@@ -98,8 +102,10 @@ void CurveView::SetKeyframeTrackColor(const NodeKeyframeTrackReference &ref, con
   // Insert color into hashmap
   keyframe_colors_.insert(ref, color);
 
-  // Update all keyframes
-  track_connections_.value(ref)->SetBrush(color);
+  if (KeyframeViewInputConnection *con = track_connections_.value(ref)) {
+    // Update all keyframes
+    con->SetBrush(color);
+  }
 }
 
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
@@ -235,40 +241,13 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
       }
     }
   }
-
-  // Draw bezier control point lines
-  /*if (!bezier_control_points_.isEmpty()) {
-    painter->setPen(QPen(palette().text().color(), 1));
-
-    QVector<QLineF> bezier_lines;
-    foreach (BezierControlPointItem* item, bezier_control_points_) {
-      // All BezierControlPointItems should be children of a KeyframeViewItem
-      KeyframeViewItem* par = static_cast<KeyframeViewItem*>(item->parentItem());
-
-      bezier_lines.append(QLineF(par->pos(), par->pos() + item->pos()));
-    }
-    painter->drawLines(bezier_lines);
-  }*/
 }
 
-void CurveView::ScaleChangedEvent(const double& scale)
+void CurveView::drawForeground(QPainter *painter, const QRectF &rect)
 {
-  KeyframeViewBase::ScaleChangedEvent(scale);
+  bezier_pts_.clear();
 
-  foreach (BezierControlPointItem* item, bezier_control_points_) {
-    item->SetXScale(scale);
-  }
-}
-
-void CurveView::VerticalScaleChangedEvent(double scale)
-{
-  Q_UNUSED(scale)
-
-  foreach (BezierControlPointItem* item, bezier_control_points_) {
-    item->SetYScale(scale);
-  }
-
-  viewport()->update();
+  super::drawForeground(painter, rect);
 }
 
 void CurveView::ContextMenuEvent(Menu &m)
@@ -288,6 +267,225 @@ void CurveView::SceneRectUpdateEvent(QRectF &r)
 {
   r.setTop(r.top() - this->height());
   r.setBottom(r.bottom() + this->height());
+}
+
+qreal CurveView::GetKeyframeSceneY(KeyframeViewInputConnection *track, NodeKeyframe *key)
+{
+  return GetItemYFromKeyframeValue(key);
+}
+
+void CurveView::DrawKeyframe(QPainter *painter, NodeKeyframe *key, KeyframeViewInputConnection *track, const QRectF &key_rect)
+{
+  if (IsKeyframeSelected(key) && key->type() == NodeKeyframe::kBezier) {
+    // Draw bezier control points if keyframe is selected
+    int control_point_size = QtUtils::QFontMetricsWidth(fontMetrics(), "o");
+    int half_sz = control_point_size / 2;
+    QRectF control_point_rect(-half_sz, -half_sz, control_point_size, control_point_size);
+
+    painter->setPen(palette().text().color());
+    painter->setBrush(Qt::NoBrush);
+
+    QRectF cp_in = control_point_rect.translated(key_rect.center() + ScalePoint(key->bezier_control_in()));
+    QRectF cp_out = control_point_rect.translated(key_rect.center() + ScalePoint(key->bezier_control_out()));
+
+    painter->drawLine(key_rect.center(), cp_in.center());
+    painter->drawLine(key_rect.center(), cp_out.center());
+
+    painter->drawEllipse(cp_in);
+    painter->drawEllipse(cp_out);
+
+    bezier_pts_.append({cp_in, key, NodeKeyframe::kInHandle});
+    bezier_pts_.append({cp_out, key, NodeKeyframe::kOutHandle});
+  }
+
+  super::DrawKeyframe(painter, key, track, key_rect);
+}
+
+bool CurveView::FirstChanceMousePress(QMouseEvent *event)
+{
+  dragging_bezier_pt_ = nullptr;
+  QPointF scene_pt = mapToScene(event->pos());
+  foreach (const BezierPoint &b, bezier_pts_) {
+    if (b.rect.contains(scene_pt)) {
+      dragging_bezier_pt_ = &b;
+      break;
+    }
+  }
+
+  if (dragging_bezier_pt_) {
+    NodeKeyframe *key = dragging_bezier_pt_->keyframe;
+    dragging_bezier_point_start_ = (dragging_bezier_pt_->type == NodeKeyframe::kInHandle) ? key->bezier_control_in() : key->bezier_control_out();
+    dragging_bezier_point_opposing_start_ = (dragging_bezier_pt_->type == NodeKeyframe::kInHandle) ? key->bezier_control_out() : key->bezier_control_in();
+
+    drag_start_ = mapToScene(event->pos());
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void CurveView::FirstChanceMouseMove(QMouseEvent *event)
+{
+  // Calculate cursor difference and scale it
+  QPointF scene_pos = mapToScene(event->pos());
+  QPointF mouse_diff_scaled = GetScaledCursorPos(scene_pos - drag_start_);
+
+  if (event->modifiers() & Qt::ShiftModifier) {
+    // If holding shift, only move one axis
+    mouse_diff_scaled.setY(0);
+  }
+
+  // Flip the mouse Y because bezier control points are drawn bottom to top, not top to bottom
+  mouse_diff_scaled.setY(-mouse_diff_scaled.y());
+
+  QPointF new_bezier_pos = GenerateBezierControlPosition(dragging_bezier_pt_->type,
+                                                         dragging_bezier_point_start_,
+                                                         mouse_diff_scaled);
+
+  // If the user is NOT holding control, we set the other handle to the exact negative of this handle
+  QPointF new_opposing_pos;
+  NodeKeyframe::BezierType opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_pt_->type);
+
+
+  if (!(event->modifiers() & Qt::ControlModifier)) {
+    new_opposing_pos = GenerateBezierControlPosition(opposing_type,
+                                                     dragging_bezier_point_opposing_start_,
+                                                     -mouse_diff_scaled);
+  } else {
+    new_opposing_pos = dragging_bezier_point_opposing_start_;
+  }
+
+  dragging_bezier_pt_->keyframe->set_bezier_control(dragging_bezier_pt_->type,
+                                                    new_bezier_pos);
+
+  dragging_bezier_pt_->keyframe->set_bezier_control(opposing_type,
+                                                    new_opposing_pos);
+
+  Redraw();
+}
+
+void CurveView::FirstChanceMouseRelease(QMouseEvent *event)
+{
+  MultiUndoCommand* command = new MultiUndoCommand();
+
+  // Create undo command with the current bezier point and the old one
+  command->add_child(new KeyframeSetBezierControlPoint(dragging_bezier_pt_->keyframe,
+                                                       dragging_bezier_pt_->type,
+                                                       dragging_bezier_pt_->keyframe->bezier_control(dragging_bezier_pt_->type),
+                                                       dragging_bezier_point_start_));
+
+  if (!(event->modifiers() & Qt::ControlModifier)) {
+    auto opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_pt_->type);
+
+    command->add_child(new KeyframeSetBezierControlPoint(dragging_bezier_pt_->keyframe,
+                                                         opposing_type,
+                                                         dragging_bezier_pt_->keyframe->bezier_control(opposing_type),
+                                                         dragging_bezier_point_opposing_start_));
+  }
+
+  dragging_bezier_pt_ = nullptr;
+
+  Core::instance()->undo_stack()->push(command);
+}
+
+void CurveView::KeyframeDragStart(QMouseEvent *event)
+{
+  drag_keyframe_values_.resize(GetSelectedKeyframes().size());
+  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+    drag_keyframe_values_[i] = GetSelectedKeyframes().at(i)->value();
+  }
+
+  drag_start_ = mapToScene(event->pos());
+}
+
+void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
+{
+  if (event->modifiers() & Qt::ShiftModifier) {
+    // Lock to X axis only
+    return;
+  }
+
+  // Calculate cursor difference
+  double scaled_diff = (mapToScene(event->pos()).y() - drag_start_.y()) / GetYScale();
+
+  // Validate movement - ensure no keyframe goes above its max point or below its min point
+  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+    NodeKeyframe *key = GetSelectedKeyframes().at(i);
+
+    Node* node = key->parent();
+    double original_val = drag_keyframe_values_.at(i).toDouble();
+    const QString& input = key->input();
+    double new_val = original_val - scaled_diff;
+    double limited = new_val;
+
+    if (node->HasInputProperty(input, QStringLiteral("min"))) {
+      limited = qMax(limited, node->GetInputProperty(input, QStringLiteral("min")).toDouble());
+    }
+
+    if (node->HasInputProperty(input, QStringLiteral("max"))) {
+      limited = qMin(limited, node->GetInputProperty(input, QStringLiteral("max")).toDouble());
+    }
+
+    if (limited != new_val) {
+      scaled_diff = original_val - limited;
+    }
+  }
+
+  // Set values
+  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+    NodeKeyframe *key = GetSelectedKeyframes().at(i);
+    key->set_value(drag_keyframe_values_.at(i).toDouble() - scaled_diff);
+  }
+
+  NodeKeyframe *tip_item = GetSelectedKeyframes().first();
+  FloatSlider::DisplayType display_type = FloatSlider::kNormal;
+  Node* initial_drag_input = tip_item->parent();
+  const QString& initial_drag_input_id = tip_item->input();
+  if (initial_drag_input->HasInputProperty(initial_drag_input_id, QStringLiteral("view"))) {
+    display_type = static_cast<FloatSlider::DisplayType>(initial_drag_input->GetInputProperty(initial_drag_input_id, QStringLiteral("view")).toInt());
+  }
+
+  bool ok;
+  double num_value = tip_item->value().toDouble(&ok);
+
+  if (ok) {
+    tip = QStringLiteral("%1\n");
+    tip.append(FloatSlider::ValueToString(num_value, display_type, 2, true));
+  }
+}
+
+void CurveView::KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command)
+{
+  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+    NodeKeyframe *k = GetSelectedKeyframes().at(i);
+    command->add_child(new NodeParamSetKeyframeValueCommand(k, k->value(), drag_keyframe_values_.at(i)));
+  }
+}
+
+QPointF CurveView::GenerateBezierControlPosition(const NodeKeyframe::BezierType mode, const QPointF &start_point, const QPointF &scaled_cursor_diff)
+{
+  QPointF new_bezier_pos = start_point;
+
+  new_bezier_pos += scaled_cursor_diff;
+
+  // LIMIT bezier handles from overlapping each other
+  if (mode == NodeKeyframe::kInHandle) {
+    if (new_bezier_pos.x() > 0) {
+      new_bezier_pos.setX(0);
+    }
+  } else {
+    if (new_bezier_pos.x() < 0) {
+      new_bezier_pos.setX(0);
+    }
+  }
+
+  return new_bezier_pos;
+}
+
+QPointF CurveView::GetScaledCursorPos(const QPointF &cursor_pos)
+{
+  return QPointF(cursor_pos.x() / GetScale(),
+                 cursor_pos.y() / GetYScale());
 }
 
 void CurveView::ZoomToFitInternal(const QVector<NodeKeyframe *> &keys)
@@ -345,34 +543,9 @@ QPointF CurveView::ScalePoint(const QPointF &point)
   return QPointF(point.x() * GetScale(), - point.y() * GetYScale());
 }
 
-void CurveView::CreateBezierControlPoints(NodeKeyframe* item)
-{
-  qDebug() << "STUB!";
-  /*BezierControlPointItem* bezier_in_pt = new BezierControlPointItem(item, NodeKeyframe::kInHandle, item);
-  bezier_in_pt->SetXScale(GetScale());
-  bezier_in_pt->SetYScale(GetYScale());
-  bezier_control_points_.append(bezier_in_pt);
-  connect(bezier_in_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
-
-  BezierControlPointItem* bezier_out_pt = new BezierControlPointItem(item, NodeKeyframe::kOutHandle, item);
-  bezier_out_pt->SetXScale(GetScale());
-  bezier_out_pt->SetYScale(GetYScale());
-  bezier_control_points_.append(bezier_out_pt);
-  connect(bezier_out_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);*/
-}
-
 QPointF CurveView::GetKeyframePosition(NodeKeyframe *key)
 {
   return QPointF(GetKeyframeSceneX(key), GetItemYFromKeyframeValue(key));
-}
-
-void CurveView::KeyframeValueChanged()
-{
-  qDebug() << "STUB!";
-  /*NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  KeyframeViewItem* item = item_map().value(key);
-
-  SetItemYFromKeyframeValue(key, item);*/
 }
 
 void CurveView::KeyframeTypeChanged()
@@ -385,33 +558,6 @@ void CurveView::KeyframeTypeChanged()
     item->setSelected(false);
     item->setSelected(true);
   }*/
-}
-
-void CurveView::SelectionChanged()
-{
-  qDebug() << "STUB!";
-  /*
-  // Clear current bezier handles
-  while (!bezier_control_points_.isEmpty()) {
-    delete bezier_control_points_.first();
-  }
-
-  QList<QGraphicsItem*> selected = scene()->selectedItems();
-
-  foreach (QGraphicsItem* item, selected) {
-    KeyframeViewItem* this_item = static_cast<KeyframeViewItem*>(item);
-
-    if (this_item->key()->type() == NodeKeyframe::kBezier) {
-      CreateBezierControlPoints(this_item);
-    }
-  }
-  */
-}
-
-void CurveView::BezierControlPointDestroyed()
-{
-  BezierControlPointItem* item = static_cast<BezierControlPointItem*>(sender());
-  bezier_control_points_.removeOne(item);
 }
 
 void CurveView::ZoomToFit()

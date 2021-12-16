@@ -38,7 +38,6 @@
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
 #include "widget/slider/rationalslider.h"
-#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -89,6 +88,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kShaderJob:
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
+    case NodeValue::kVideoParams:
+    case NodeValue::kAudioParams:
       break;
     case NodeValue::kInt:
     {
@@ -154,19 +155,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       QFontComboBox* font_combobox = new QFontComboBox();
       widgets_.append(font_combobox);
       connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-      break;
-    }
-    case NodeValue::kVideoParams:
-    {
-      VideoParamEdit* edit = new VideoParamEdit();
-      edit->SetColorManager(input_.node()->project()->color_manager());
-      widgets_.append(edit);
-      connect(edit, &VideoParamEdit::Changed, this, &NodeParamViewWidgetBridge::WidgetCallback);
-      break;
-    }
-    case NodeValue::kAudioParams:
-    {
-      // FIXME: Create audio param widget
       break;
     }
     }
@@ -278,6 +266,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {
@@ -388,15 +378,6 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValue(index, 0);
     break;
   }
-  case NodeValue::kVideoParams:
-  {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(sender());
-    SetInputValue(QVariant::fromValue(edit->GetVideoParams()), 0);
-    break;
-  }
-  case NodeValue::kAudioParams:
-    // FIXME: No audio param widget yet
-    break;
   }
 }
 
@@ -434,6 +415,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {
@@ -533,15 +516,6 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     cb->blockSignals(false);
     break;
   }
-  case NodeValue::kVideoParams:
-  {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(widgets_.first());
-    edit->SetVideoParams(input_.GetValueAtTime(node_time).value<VideoParams>());
-    break;
-  }
-  case NodeValue::kAudioParams:
-    // FIXME: No audio param widget
-    break;
   }
 }
 
@@ -794,15 +768,6 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
       ff->SetPlaceholder(value.toString());
     } else if (key == QStringLiteral("directory")) {
       ff->SetDirectoryMode(value.toBool());
-    }
-  }
-
-  // Parameters for video param objects
-  if (data_type == NodeValue::kVideoParams) {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(widgets_.first());
-
-    if (key == QStringLiteral("mask")) {
-      edit->SetParameterMask(value.toULongLong());
     }
   }
 }

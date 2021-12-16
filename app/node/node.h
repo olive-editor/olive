@@ -1066,7 +1066,11 @@ signals:
 
   void KeyframeRemoved(NodeKeyframe* key);
 
-  void KeyframeTimeChanged();
+  void KeyframeTimeChanged(NodeKeyframe* key);
+
+  void KeyframeTypeChanged(NodeKeyframe* key);
+
+  void KeyframeValueChanged(NodeKeyframe* key);
 
   void KeyframeEnableChanged(const NodeInput& input, bool enabled);
 

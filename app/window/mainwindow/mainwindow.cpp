@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
     node_panel_->Select(target, true);
   });
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
+  connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
 
   // Connect time signals together
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
