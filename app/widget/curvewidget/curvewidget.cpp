@@ -131,22 +131,33 @@ void CurveWidget::SetNodes(const QVector<Node *> &nodes)
 {
   tree_view_->SetNodes(nodes);
 
-  // Detect removed nodes
-  foreach (Node* n, nodes_) {
-    if (!nodes.contains(n)) {
-      ConnectNode(n, false);
-    }
-  }
-
-  // Detect added nodes
-  foreach (Node* n, nodes) {
-    if (tree_view_->IsNodeEnabled(n) && !nodes_.contains(n)) {
-      ConnectNode(n, true);
-    }
-  }
-
   // Save new node list
   nodes_ = nodes;
+
+  // Generate colors
+  foreach (Node *node, nodes_) {
+    foreach (const QString& input, node->inputs()) {
+      if (node->IsInputKeyframable(input) && !node->IsInputHidden(input)) {
+        int arr_sz = node->InputArraySize(input);
+        for (int i=-1; i<arr_sz; i++) {
+          // Generate a random color for this input
+          const QVector<NodeKeyframeTrack>& tracks = node->GetKeyframeTracks(input, i);
+
+          for (int j=0; j<tracks.size(); j++) {
+            NodeKeyframeTrackReference ref(NodeInput(node, input, i), j);
+
+            if (!keyframe_colors_.contains(ref)) {
+              QColor c = QColor::fromHsl(std::rand()%360, 255, 160);
+
+              keyframe_colors_.insert(ref, c);
+              tree_view_->SetKeyframeTrackColor(ref, c);
+              view_->SetKeyframeTrackColor(ref, c);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 void CurveWidget::TimeChangedEvent(const rational &time)
@@ -213,38 +224,28 @@ void CurveWidget::UpdateBridgeTime(const rational &time)
   key_control_->SetTime(time);
 }
 
-void CurveWidget::ConnectNode(Node *node, bool connect)
+void CurveWidget::ConnectInput(Node *node, const QString &input, int element)
 {
-  foreach (const QString& input, node->inputs()) {
-    if (node->IsInputKeyframable(input) && !node->IsInputHidden(input)) {
-      ConnectInput(node, input, connect);
+  if (element == -1 && node->InputIsArray(input)) {
+    // This is the root element, connect all elements (if applicable)
+    int arr_sz = node->InputArraySize(input);
+    for (int i=-1; i<arr_sz; i++) {
+      ConnectInputInternal(node, input, i);
     }
+  } else {
+    // This is a single element, just connect it as-is
+    ConnectInputInternal(node, input, element);
   }
 }
 
-void CurveWidget::ConnectInput(Node *node, const QString &input, bool connect)
+void CurveWidget::ConnectInputInternal(Node *node, const QString &input, int element)
 {
-  if (!node->IsInputKeyframable(input)) {
-    qWarning() << "Tried to connect input that isn't keyframable";
-    return;
-  }
-
-  int arr_sz = node->InputArraySize(input);
-  for (int i=-1; i<arr_sz; i++) {
-    // Generate a random color for this input
-    const QVector<NodeKeyframeTrack>& tracks = node->GetKeyframeTracks(input, i);
-
-    for (int j=0; j<tracks.size(); j++) {
-      NodeKeyframeTrackReference ref(NodeInput(node, input, i), j);
-
-      if (!keyframe_colors_.contains(ref)) {
-        QColor c = QColor::fromHsl(std::rand()%360, 255, 160);
-
-        keyframe_colors_.insert(ref, c);
-        tree_view_->SetKeyframeTrackColor(ref, c);
-        view_->SetKeyframeTrackColor(ref, c);
-      }
-    }
+  NodeInput input_ref(node, input, element);
+  int track_count = NodeValue::get_number_of_keyframe_tracks(input_ref.GetDataType());
+  for (int i=0; i<track_count; i++) {
+    NodeKeyframeTrackReference track_ref(input_ref, i);
+    view_->ConnectInput(track_ref);
+    selected_tracks_.append(track_ref);
   }
 }
 
@@ -325,20 +326,18 @@ void CurveWidget::InputSelectionChanged(const NodeKeyframeTrackReference& ref)
 
   selected_tracks_.clear();
 
-  if (ref.IsValid()) {
+  if (ref.IsValid() && !ref.input().IsArray()) {
+    // This reference is a track, connect it only
     view_->ConnectInput(ref);
     selected_tracks_.append(ref);
   } else if (ref.input().IsValid()) {
-    int track_count = NodeValue::get_number_of_keyframe_tracks(ref.input().GetDataType());
-    for (int i=0; i<track_count; i++) {
-      NodeKeyframeTrackReference track_ref(ref.input(), i);
-      view_->ConnectInput(track_ref);
-      selected_tracks_.append(track_ref);
-    }
+    // This reference is a input, connect all tracks
+    ConnectInput(ref.input().node(), ref.input().input(), ref.input().element());
   } else if (Node *node = ref.input().node()) {
+    // This is a node, add all inputs
     foreach (const QString &input, node->inputs()) {
-      if (!node->IsInputKeyframable(input) || node->IsInputHidden(input)) {
-
+      if (node->IsInputKeyframable(input) && !node->IsInputHidden(input)) {
+        ConnectInput(node, input, -1);
       }
     }
   }

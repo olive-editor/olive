@@ -76,9 +76,9 @@ private:
 
   void UpdateBridgeTime(const rational &time);
 
-  void ConnectNode(Node* node, bool connect);
+  void ConnectInput(Node *node, const QString &input, int element);
 
-  void ConnectInput(Node* node, const QString& input, bool connect);
+  void ConnectInputInternal(Node *node, const QString &input, int element);
 
   QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
