@@ -128,6 +128,11 @@ public:
   void AddEdge(NodeViewEdge* edge);
   void RemoveEdge(NodeViewEdge* edge);
 
+  bool IsLabelledAsOutputOfContext() const
+  {
+    return label_as_output_;
+  }
+
   void SetLabelAsOutput(bool e);
 
   void SetHighlighted(bool e);

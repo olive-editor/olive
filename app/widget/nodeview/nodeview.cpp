@@ -312,6 +312,7 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     // Sane defaults
     create_edge_already_exists_ = false;
     create_edge_from_output_ = true;
+    create_edge_input_.Reset();
 
     if (event->modifiers() & Qt::ControlModifier) {
       NodeViewItem *mouse_item = dynamic_cast<NodeViewItem*>(item);
@@ -324,6 +325,9 @@ void NodeView::mousePressEvent(QMouseEvent *event)
           create_edge_input_ = mouse_item->GetInput();
           create_edge_from_output_ = false;
         }
+
+        // Highlight start item for better user experience
+        mouse_item->SetHighlighted(true);
       }
     }
 
@@ -1082,7 +1086,7 @@ void NodeView::PositionNewEdge(const QPoint &pos)
   NodeViewItem *&opposing_item = create_edge_from_output_ ? create_edge_input_item_ : create_edge_output_item_;
 
   // Filter out connecting to self
-  if (item_at_cursor == source_item) {
+  if (item_at_cursor && item_at_cursor->GetNode() == source_item->GetNode()) {
     item_at_cursor = nullptr;
   }
 
@@ -1112,8 +1116,10 @@ void NodeView::PositionNewEdge(const QPoint &pos)
   create_edge_expanded_items_.resize(i + 1);
 
   // Expand item if possible
-  if (item_at_cursor && item_at_cursor->CanBeExpanded() && !item_at_cursor->IsExpanded()
-      && (create_edge_from_output_ || !item_at_cursor->IsOutputItem())) {
+  if (item_at_cursor
+      && item_at_cursor->CanBeExpanded()
+      && !item_at_cursor->IsExpanded()
+      && create_edge_from_output_) {
     ExpandItem(item_at_cursor);
     create_edge_expanded_items_.append(item_at_cursor);
   }
@@ -1123,6 +1129,11 @@ void NodeView::PositionNewEdge(const QPoint &pos)
       && ((create_edge_from_output_ && item_at_cursor->GetNode()->OutputsTo(source_item->GetNode(), true))
           || (!create_edge_from_output_ && item_at_cursor->GetNode()->InputsFrom(source_item->GetNode(), true))
           || (create_edge_from_output_ == item_at_cursor->IsOutputItem()))) {
+    item_at_cursor = nullptr;
+  }
+
+  // Filter out "output node" of the context, we assume users won't want to fetch the output of this
+  if (item_at_cursor && !create_edge_from_output_ && item_at_cursor->IsLabelledAsOutputOfContext()) {
     item_at_cursor = nullptr;
   }
 
