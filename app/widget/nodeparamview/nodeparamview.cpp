@@ -443,7 +443,6 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
   }
 
   foreach (auto info, distances) {
-    qDebug() << "Inserting" << info.first->GetNode() << "with distance" << info.second;
     context_item->GetDockArea()->AddItem(info.first);
   }
 }
