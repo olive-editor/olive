@@ -96,18 +96,14 @@ private:
 
   QVector<Node*> nodes_;
 
+  QVector<NodeKeyframeTrackReference> selected_tracks_;
+
 private slots:
   void SelectionChanged();
 
   void KeyframeTypeButtonTriggered(bool checked);
 
-  void NodeEnabledChanged(Node* n, bool e);
-
-  void InputEnabledChanged(const NodeKeyframeTrackReference &ref, bool e);
-
   void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
-
-  void InputDoubleClicked(const NodeKeyframeTrackReference& ref);
 
   void KeyframeViewDragged(int x, int y);
 

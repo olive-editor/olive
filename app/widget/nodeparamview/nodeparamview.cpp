@@ -417,9 +417,13 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
   QVector<QPair<NodeParamViewItem*, int> > distances;
 
   for (auto it=context_item->GetItems().cbegin(); it!=context_item->GetItems().cend(); it++) {
-    int distance = 0;
+    int distance = -1;
     foreach (Node *ctx, context_item->GetContexts()) {
       distance = qMax(distance, GetDistanceBetweenNodes(ctx, it.key()));
+    }
+
+    if (distance == -1) {
+      distance = INT_MAX;
     }
 
     bool inserted = false;
@@ -439,6 +443,7 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
   }
 
   foreach (auto info, distances) {
+    qDebug() << "Inserting" << info.first->GetNode() << "with distance" << info.second;
     context_item->GetDockArea()->AddItem(info.first);
   }
 }

@@ -65,6 +65,8 @@ public:
 signals:
   void RequireUpdate();
 
+  void TypeChanged();
+
 private:
   KeyframeView *keyframe_view_;
 
@@ -82,6 +84,8 @@ private slots:
   void RemoveKeyframe(NodeKeyframe *key);
 
   void KeyframeChanged(NodeKeyframe *key);
+
+  void KeyframeTypeChanged(NodeKeyframe *key);
 
 };
 

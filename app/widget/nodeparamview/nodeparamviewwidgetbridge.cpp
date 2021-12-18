@@ -648,42 +648,12 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         break;
       }
     } else if (key == QStringLiteral("offset")) {
-      switch (data_type) {
-      case NodeValue::kInt:
-        static_cast<IntegerSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kFloat:
-        static_cast<FloatSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kRational:
-        static_cast<RationalSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kVec2:
-      {
-        QVector2D offs = value.value<QVector2D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        break;
-      }
-      case NodeValue::kVec3:
-      {
-        QVector3D offs = value.value<QVector3D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        static_cast<FloatSlider*>(widgets_.at(2))->SetOffset(offs.z());
-        break;
-      }
-      case NodeValue::kVec4:
-      {
-        QVector4D offs = value.value<QVector4D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        static_cast<FloatSlider*>(widgets_.at(2))->SetOffset(offs.z());
-        static_cast<FloatSlider*>(widgets_.at(3))->SetOffset(offs.w());
-        break;
-      }
-      default:
-        break;
+      int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
+
+      QVector<QVariant> offsets = NodeValue::split_normal_value_into_track_values(data_type, value);
+
+      for (int i=0; i<tracks; i++) {
+        static_cast<NumericSliderBase*>(widgets_.at(i))->SetOffset(offsets.at(i));
       }
 
       UpdateWidgetValues();

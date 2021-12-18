@@ -116,6 +116,7 @@ void KeyframeView::RemoveKeyframesOfTrack(KeyframeViewInputConnection *connectio
     }
     delete connection;
     Redraw();
+    emit SelectionChanged();
   }
 }
 
@@ -157,6 +158,8 @@ void KeyframeView::SelectionManagerSelectEvent(void *obj)
       }
     }
   }
+
+  emit SelectionChanged();
 }
 
 void KeyframeView::SelectionManagerDeselectEvent(void *obj)
@@ -170,6 +173,8 @@ void KeyframeView::SelectionManagerDeselectEvent(void *obj)
       }
     }
   }
+
+  emit SelectionChanged();
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event)
@@ -235,6 +240,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
+    emit SelectionChanged();
   }
 }
 
@@ -325,6 +331,8 @@ void KeyframeView::SelectKeyframe(NodeKeyframe *key)
 {
   if (selection_manager_.Select(key)) {
     Redraw();
+
+    emit SelectionChanged();
   }
 }
 
@@ -332,6 +340,8 @@ void KeyframeView::DeselectKeyframe(NodeKeyframe *key)
 {
   if (selection_manager_.Deselect(key)) {
     Redraw();
+
+    emit SelectionChanged();
   }
 }
 

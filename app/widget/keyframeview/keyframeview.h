@@ -75,6 +75,8 @@ public:
 signals:
   void Dragged(int current_x, int current_y);
 
+  void SelectionChanged();
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

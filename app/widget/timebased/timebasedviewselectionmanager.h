@@ -92,7 +92,9 @@ public:
 
   T *GetObjectAtPoint(const QPointF &scene_pt)
   {
-    foreach (const DrawnObject &kp, drawn_objects_) {
+    // Iterate in reverse order because the objects drawn later will appear on top to the user
+    for (auto it=drawn_objects_.crbegin(); it!=drawn_objects_.crend(); it++) {
+      const DrawnObject &kp = *it;
       if (kp.second.contains(scene_pt)) {
         return kp.first;
       }
@@ -147,13 +149,11 @@ public:
   {
     initial_drag_item_ = initial_item;
 
-    dragging_.clear();
-
     dragging_.resize(selected_.size());
     for (int i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
-      dragging_[i] = {obj->time()};
+      dragging_[i] = {obj->time(), view_->TimeToScene(obj->time())};
     }
 
     drag_mouse_start_ = view_->mapToScene(event->pos());
@@ -164,15 +164,15 @@ public:
     QPointF diff = view_->mapToScene(event->pos()) - drag_mouse_start_;
 
     for (int i=0; i<selected_.size(); i++) {
-      const rational &old_time = dragging_.at(i).time;
-      rational proposed_time = old_time + view_->SceneToTimeNoGrid(diff.x());
+      rational proposed_time = view_->SceneToTimeNoGrid(dragging_.at(i).x + diff.x());
       T *sel = selected_.at(i);
 
       // Magic number: use interval of 1ms to avoid collisions
       rational adj(1, 1000);
-      if (old_time < proposed_time) {
+      if (dragging_.at(i).time < proposed_time) {
         adj = -adj;
       }
+
       while (true) {
         NodeKeyframe *key_at_time = sel->parent()->GetKeyframeAtTimeOnTrack(sel->input(), proposed_time, sel->track(), sel->element());
         if (!key_at_time || key_at_time == sel) {
@@ -303,6 +303,7 @@ private:
   struct DragObject
   {
     rational time;
+    double x;
   };
 
   QVector<DragObject> dragging_;

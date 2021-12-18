@@ -38,6 +38,7 @@ KeyframeViewInputConnection::KeyframeViewInputConnection(const NodeKeyframeTrack
   connect(n, &Node::KeyframeRemoved, this, &KeyframeViewInputConnection::RemoveKeyframe);
   connect(n, &Node::KeyframeTimeChanged, this, &KeyframeViewInputConnection::KeyframeChanged);
   connect(n, &Node::KeyframeTypeChanged, this, &KeyframeViewInputConnection::KeyframeChanged);
+  connect(n, &Node::KeyframeTypeChanged, this, &KeyframeViewInputConnection::KeyframeTypeChanged);
   connect(n, &Node::KeyframeValueChanged, this, &KeyframeViewInputConnection::KeyframeChanged);
 }
 
@@ -86,6 +87,13 @@ void KeyframeViewInputConnection::KeyframeChanged(NodeKeyframe *key)
 {
   if (key->key_track_ref() == input_) {
     emit RequireUpdate();
+  }
+}
+
+void KeyframeViewInputConnection::KeyframeTypeChanged(NodeKeyframe *key)
+{
+  if (key->key_track_ref() == input_) {
+    emit TypeChanged();
   }
 }
 

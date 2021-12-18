@@ -23,6 +23,7 @@
 
 #include "node/keyframe.h"
 #include "widget/keyframeview/keyframeview.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
@@ -37,8 +38,6 @@ public:
   void DisconnectInput(const NodeKeyframeTrackReference &ref);
 
   void SelectKeyframesOfInput(const NodeKeyframeTrackReference &ref);
-
-  void ZoomToFitInput(const NodeKeyframeTrackReference &ref);
 
   void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
 
@@ -70,12 +69,16 @@ protected:
   virtual void KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command) override;
 
 private:
-  void ZoomToFitInternal(const QVector<NodeKeyframe *> &keys);
+  void ZoomToFitInternal(bool selected_only);
 
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
-  qreal GetItemYFromKeyframeValue(double value);
+  qreal GetUnscaledItemYFromKeyframeValue(NodeKeyframe* key);
 
   QPointF ScalePoint(const QPointF& point);
+
+  static FloatSlider::DisplayType GetFloatDisplayTypeFromKeyframe(NodeKeyframe *key);
+
+  static double GetOffsetFromKeyframe(NodeKeyframe *key);
 
   void AdjustLines();
 
@@ -111,9 +114,6 @@ private:
   QPointF drag_start_;
 
   QVector<QVariant> drag_keyframe_values_;
-
-private slots:
-  void KeyframeTypeChanged();
 
 };
 

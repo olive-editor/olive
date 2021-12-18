@@ -30,7 +30,6 @@
 #include "common/qtutils.h"
 #include "widget/keyframeview/keyframeviewundo.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/slider/floatslider.h"
 
 namespace olive {
 
@@ -61,6 +60,9 @@ void CurveView::ConnectInput(const NodeKeyframeTrackReference& ref)
   track_con->SetBrush(keyframe_colors_.value(ref));
   track_connections_.insert(ref, track_con);
 
+  // Signal to CurveWidget to update its bezier/linear/hold buttons if a key type changes
+  connect(track_con, &KeyframeViewInputConnection::TypeChanged, this, &CurveView::SelectionChanged);
+
   // Append to the list
   connected_inputs_.append(ref);
 }
@@ -87,13 +89,6 @@ void CurveView::SelectKeyframesOfInput(const NodeKeyframeTrackReference& ref)
     foreach (NodeKeyframe *key, con->GetKeyframes()) {
       SelectKeyframe(key);
     }
-  }
-}
-
-void CurveView::ZoomToFitInput(const NodeKeyframeTrackReference& ref)
-{
-  if (KeyframeViewInputConnection *con = track_connections_.value(ref)) {
-    ZoomToFitInternal(con->GetKeyframes());
   }
 }
 
@@ -265,8 +260,28 @@ void CurveView::ContextMenuEvent(Menu &m)
 
 void CurveView::SceneRectUpdateEvent(QRectF &r)
 {
-  r.setTop(r.top() - this->height());
-  r.setBottom(r.bottom() + this->height());
+  double min_val, max_val;
+  bool got_val = false;
+
+  foreach (KeyframeViewInputConnection *con, track_connections_) {
+    foreach (NodeKeyframe *key, con->GetKeyframes()) {
+      qreal key_y = GetItemYFromKeyframeValue(key);
+
+      if (got_val) {
+        min_val = qMin(key_y, min_val);
+        max_val = qMax(key_y, max_val);
+      } else {
+        min_val = key_y;
+        max_val = key_y;
+        got_val = true;
+      }
+    }
+  }
+
+  if (got_val) {
+    r.setTop(min_val - this->height());
+    r.setBottom(max_val + this->height());
+  }
 }
 
 qreal CurveView::GetKeyframeSceneY(KeyframeViewInputConnection *track, NodeKeyframe *key)
@@ -392,7 +407,8 @@ void CurveView::KeyframeDragStart(QMouseEvent *event)
 {
   drag_keyframe_values_.resize(GetSelectedKeyframes().size());
   for (int i=0; i<GetSelectedKeyframes().size(); i++) {
-    drag_keyframe_values_[i] = GetSelectedKeyframes().at(i)->value();
+    NodeKeyframe *key = GetSelectedKeyframes().at(i);
+    drag_keyframe_values_[i] = key->value();
   }
 
   drag_start_ = mapToScene(event->pos());
@@ -401,7 +417,11 @@ void CurveView::KeyframeDragStart(QMouseEvent *event)
 void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
 {
   if (event->modifiers() & Qt::ShiftModifier) {
-    // Lock to X axis only
+    // Lock to X axis only and set original values on all keys
+    for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+      NodeKeyframe *key = GetSelectedKeyframes().at(i);
+      key->set_value(drag_keyframe_values_.at(i));
+    }
     return;
   }
 
@@ -412,10 +432,11 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
   for (int i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *key = GetSelectedKeyframes().at(i);
 
+    FloatSlider::DisplayType display = GetFloatDisplayTypeFromKeyframe(key);
     Node* node = key->parent();
-    double original_val = drag_keyframe_values_.at(i).toDouble();
+    double original_val = FloatSlider::TransformValueToDisplay(drag_keyframe_values_.at(i).toDouble(), display);
     const QString& input = key->input();
-    double new_val = original_val - scaled_diff;
+    double new_val = FloatSlider::TransformDisplayToValue(original_val - scaled_diff, display);
     double limited = new_val;
 
     if (node->HasInputProperty(input, QStringLiteral("min"))) {
@@ -434,23 +455,18 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
   // Set values
   for (int i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *key = GetSelectedKeyframes().at(i);
-    key->set_value(drag_keyframe_values_.at(i).toDouble() - scaled_diff);
+    FloatSlider::DisplayType display = GetFloatDisplayTypeFromKeyframe(key);
+    key->set_value(FloatSlider::TransformDisplayToValue(FloatSlider::TransformValueToDisplay(drag_keyframe_values_.at(i).toDouble(), display) - scaled_diff, display));
   }
 
   NodeKeyframe *tip_item = GetSelectedKeyframes().first();
-  FloatSlider::DisplayType display_type = FloatSlider::kNormal;
-  Node* initial_drag_input = tip_item->parent();
-  const QString& initial_drag_input_id = tip_item->input();
-  if (initial_drag_input->HasInputProperty(initial_drag_input_id, QStringLiteral("view"))) {
-    display_type = static_cast<FloatSlider::DisplayType>(initial_drag_input->GetInputProperty(initial_drag_input_id, QStringLiteral("view")).toInt());
-  }
 
   bool ok;
   double num_value = tip_item->value().toDouble(&ok);
 
   if (ok) {
     tip = QStringLiteral("%1\n");
-    tip.append(FloatSlider::ValueToString(num_value, display_type, 2, true));
+    tip.append(FloatSlider::ValueToString(num_value + GetOffsetFromKeyframe(tip_item), GetFloatDisplayTypeFromKeyframe(tip_item), 2, true));
   }
 }
 
@@ -458,7 +474,9 @@ void CurveView::KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *comman
 {
   for (int i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *k = GetSelectedKeyframes().at(i);
-    command->add_child(new NodeParamSetKeyframeValueCommand(k, k->value(), drag_keyframe_values_.at(i)));
+    if (!qFuzzyCompare(k->value().toDouble(), drag_keyframe_values_.at(i).toDouble())) {
+      command->add_child(new NodeParamSetKeyframeValueCommand(k, k->value(), drag_keyframe_values_.at(i)));
+    }
   }
 }
 
@@ -488,53 +506,88 @@ QPointF CurveView::GetScaledCursorPos(const QPointF &cursor_pos)
                  cursor_pos.y() / GetYScale());
 }
 
-void CurveView::ZoomToFitInternal(const QVector<NodeKeyframe *> &keys)
+void CurveView::ZoomToFitInternal(bool selected_only)
 {
-  if (keys.isEmpty()) {
-    // Prevent scaling to DBL_MIN/DBL_MAX
-    return;
+  bool got_val = false;
+
+  rational min_time, max_time;
+  double min_val, max_val;
+
+  foreach (KeyframeViewInputConnection *con, track_connections_) {
+    foreach (NodeKeyframe *key, con->GetKeyframes()) {
+      if (!selected_only || IsKeyframeSelected(key)) {
+        rational transformed_time = GetAdjustedTime(key->parent(),
+                                                    GetTimeTarget(),
+                                                    key->time(),
+                                                    false);
+
+        qreal key_y = GetUnscaledItemYFromKeyframeValue(key);
+
+        if (got_val) {
+          min_time = qMin(transformed_time, min_time);
+          max_time = qMax(transformed_time, max_time);
+
+          min_val = qMin(key_y, min_val);
+          max_val = qMax(key_y, max_val);
+        } else {
+          min_time = transformed_time;
+          max_time = transformed_time;
+
+          min_val = key_y;
+          max_val = key_y;
+
+          got_val = true;
+        }
+      }
+    }
   }
 
-  rational min_time = RATIONAL_MAX;
-  rational max_time = RATIONAL_MIN;
+  // Prevent scaling if no keyframes were found
+  if (got_val) {
+    QRectF desired(QPointF(min_time.toDouble(), min_val), QPointF(max_time.toDouble(), max_val));
 
-  double min_val = DBL_MAX;
-  double max_val = DBL_MIN;
+    const double scale_divider = 0.5;
+    double scale_half_divider = scale_divider*0.5;
 
-  foreach (NodeKeyframe* key, keys) {
-    rational transformed_time = GetAdjustedTime(key->parent(),
-                                                GetTimeTarget(),
-                                                key->time(),
-                                                false);
+    double new_x_scale = viewport()->width() / desired.width() * scale_divider;
+    double new_y_scale;
 
-    min_time = qMin(transformed_time, min_time);
-    max_time = qMax(transformed_time, max_time);
+    if (qFuzzyIsNull(desired.height())) {
+      // Catch divide by zero
+      new_y_scale = 1.0;
+      scale_half_divider = 0.5;
+    } else {
+      // Use height as normal
+      new_y_scale = viewport()->height() / desired.height() * scale_divider;
+    }
 
-    min_val = qMin(key->value().toDouble(), min_val);
-    max_val = qMax(key->value().toDouble(), max_val);
+    emit ScaleChanged(new_x_scale);
+    SetYScale(new_y_scale);
+
+    UpdateSceneRect();
+
+    int sb_x = desired.left() * new_x_scale - viewport()->width() * scale_half_divider;
+    QMetaObject::invokeMethod(horizontalScrollBar(), "setValue", Qt::QueuedConnection, Q_ARG(int, sb_x));
+
+    int sb_y = desired.top() * new_y_scale - viewport()->height() * scale_half_divider;
+    QMetaObject::invokeMethod(verticalScrollBar(), "setValue", Qt::QueuedConnection, Q_ARG(int, sb_y));
   }
-
-  double time_range = max_time.toDouble() - min_time.toDouble();
-  double new_x_scale = CalculateScaleFromDimensions(this->width(), time_range);
-  double new_y_scale = CalculateScaleFromDimensions(this->height(), max_val - min_val);
-
-  emit ScaleChanged(new_x_scale);
-  SetYScale(new_y_scale);
-
-  QMetaObject::invokeMethod(horizontalScrollBar(), "setValue", Qt::QueuedConnection,
-                            Q_ARG(int, TimeToScene(min_time) - CalculatePaddingFromDimensionScale(this->width())));
-  QMetaObject::invokeMethod(verticalScrollBar(), "setValue", Qt::QueuedConnection,
-                            Q_ARG(int, GetItemYFromKeyframeValue(max_val) - CalculatePaddingFromDimensionScale(this->height())));
 }
 
 qreal CurveView::GetItemYFromKeyframeValue(NodeKeyframe *key)
 {
-  return GetItemYFromKeyframeValue(key->value().toDouble());
+  return GetUnscaledItemYFromKeyframeValue(key) * GetYScale();
 }
 
-qreal CurveView::GetItemYFromKeyframeValue(double value)
+qreal CurveView::GetUnscaledItemYFromKeyframeValue(NodeKeyframe *key)
 {
-  return -value * GetYScale();
+  double val = key->value().toDouble();
+
+  val = FloatSlider::TransformValueToDisplay(val, GetFloatDisplayTypeFromKeyframe(key));
+
+  val += GetOffsetFromKeyframe(key);
+
+  return -val;
 }
 
 QPointF CurveView::ScalePoint(const QPointF &point)
@@ -543,41 +596,48 @@ QPointF CurveView::ScalePoint(const QPointF &point)
   return QPointF(point.x() * GetScale(), - point.y() * GetYScale());
 }
 
+FloatSlider::DisplayType CurveView::GetFloatDisplayTypeFromKeyframe(NodeKeyframe *key)
+{
+  Node* node = key->parent();
+  const QString& input = key->input();
+  if (node->HasInputProperty(input, QStringLiteral("view"))) {
+    // Try to get view from input (which will be normal if unset)
+    return static_cast<FloatSlider::DisplayType>(node->GetInputProperty(input, QStringLiteral("view")).toInt());
+  }
+
+  // Fallback to normal
+  return FloatSlider::kNormal;
+}
+
+double CurveView::GetOffsetFromKeyframe(NodeKeyframe *key)
+{
+  Node *node = key->parent();
+  const QString &input = key->input();
+  if (node->HasInputProperty(input, QStringLiteral("offset"))) {
+    QVariant v = node->GetInputProperty(input, QStringLiteral("offset"));
+
+    // NOTE: Implement getting correct offset for the track based on the data type
+    QVector<QVariant> track_vals = NodeValue::split_normal_value_into_track_values(node->GetInputDataType(input), v);
+
+    return track_vals.at(key->track()).toDouble();
+  }
+
+  return 0;
+}
+
 QPointF CurveView::GetKeyframePosition(NodeKeyframe *key)
 {
   return QPointF(GetKeyframeSceneX(key), GetItemYFromKeyframeValue(key));
 }
 
-void CurveView::KeyframeTypeChanged()
-{
-  qDebug() << "STUB!";
-  /*NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  KeyframeViewItem* item = item_map().value(key);
-
-  if (item->isSelected()) {
-    item->setSelected(false);
-    item->setSelected(true);
-  }*/
-}
-
 void CurveView::ZoomToFit()
 {
-  QVector<NodeKeyframe*> keys;
-
-  foreach (KeyframeViewInputConnection *con, track_connections_) {
-    foreach (NodeKeyframe *k, con->GetKeyframes()) {
-      if (!keys.contains(k)) {
-        keys.append(k);
-      }
-    }
-  }
-
-  ZoomToFitInternal(keys);
+  ZoomToFitInternal(false);
 }
 
 void CurveView::ZoomToFitSelected()
 {
-  ZoomToFitInternal(GetSelectedKeyframes());
+  ZoomToFitInternal(true);
 }
 
 void CurveView::ResetZoom()
