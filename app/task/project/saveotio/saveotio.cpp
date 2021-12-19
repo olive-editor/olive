@@ -116,7 +116,7 @@ OTIO::Timeline *SaveOTIOTask::SerializeTimeline(Sequence *sequence)
   return otio_timeline;
 }
 
-OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track, double sequence_rate)
+OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track, double sequence_rate, rational max_track_length)
 {
   auto otio_track = new OTIO::Track();
 
@@ -192,6 +192,19 @@ OTIO::Track *SaveOTIOTask::SerializeTrack(Track *track, double sequence_rate)
     }
   }
 
+  // All OTIO tracks must have the same duration so we add a Gap to fill the remaining time
+  if (otio_track->duration(&es).to_seconds() < max_track_length.toDouble()) {
+    double time_left = max_track_length.toDouble() - otio_track->duration(&es).to_seconds();
+
+    OTIO::Gap* gap = new OTIO::Gap(OTIO::TimeRange(otio_track->duration(&es),
+                                   OTIO::RationalTime(time_left, 1.0)));
+    otio_track->append_child(gap, &es);
+
+    if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
+      goto fail;
+    }
+  }
+
   return otio_track;
 
 fail:
@@ -204,8 +217,16 @@ bool SaveOTIOTask::SerializeTrackList(TrackList *list, OTIO::Timeline* otio_time
 {
   OTIO::ErrorStatus es;
 
+  rational max_track_length = RATIONAL_MIN;
+
   foreach (Track* track, list->GetTracks()) {
-    auto otio_track = SerializeTrack(track, sequence_rate);
+    if (track->track_length() > max_track_length) {
+      max_track_length = track->track_length();
+    }
+  }
+
+  foreach (Track* track, list->GetTracks()) {
+    auto otio_track = SerializeTrack(track, sequence_rate, max_track_length);
 
     if (!otio_track) {
       return false;
