@@ -94,6 +94,11 @@ public:
     kCategoryCount
   };
 
+  enum Flag {
+    kNone = 0,
+    kDontShowInParamView = 0x1
+  };
+
   Node();
 
   virtual ~Node() override;
@@ -115,6 +120,11 @@ public:
 
   const QUuid &GetUUID() const {return uuid_;}
   void SetUUID(const QUuid &uuid) {uuid_ = uuid;}
+
+  const uint64_t &GetFlags() const
+  {
+    return flags_;
+  }
 
   /**
    * @brief Clear current node variables and replace them with
@@ -1036,6 +1046,11 @@ protected:
     tooltip_ = s;
   }
 
+  void SetFlags(const uint64_t &f)
+  {
+    flags_ = f;
+  }
+
 signals:
   /**
    * @brief Signal emitted when SetLabel() is called
@@ -1314,6 +1329,8 @@ private:
   PositionMap context_positions_;
 
   QUuid uuid_;
+
+  uint64_t flags_;
 
 private slots:
   /**

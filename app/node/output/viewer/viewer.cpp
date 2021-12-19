@@ -66,6 +66,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
     AddStream(Track::kAudio, QVariant());
     set_default_parameters();
   }
+
+  SetFlags(kDontShowInParamView);
 }
 
 Node *ViewerOutput::copy() const

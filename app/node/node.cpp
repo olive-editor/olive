@@ -47,7 +47,8 @@ Node::Node() :
   override_color_(-1),
   folder_(nullptr),
   operation_stack_(0),
-  cache_result_(false)
+  cache_result_(false),
+  flags_(kNone)
 {
   uuid_ = QUuid::createUuid();
 }

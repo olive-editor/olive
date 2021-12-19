@@ -76,8 +76,16 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   for (int i=0; i<context_items_.size(); i++) {
     NodeParamViewContext *c = new NodeParamViewContext;
     c->setVisible(false);
-    static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget())->SetAddEffectButtonVisible(i == Track::kVideo || i == Track::kAudio);
-    static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget())->SetText(Footage::GetStreamTypeName(static_cast<Track::Type>(i)));
+
+    NodeParamViewItemTitleBar *title_bar = static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget());
+
+    if (i == Track::kVideo || i == Track::kAudio) {
+      title_bar->SetAddEffectButtonVisible(true);
+      title_bar->SetText(tr("%1 Nodes").arg(Footage::GetStreamTypeName(static_cast<Track::Type>(i))));
+    } else {
+      title_bar->SetText(tr("Other"));
+    }
+
     context_items_[i] = c;
     param_widget_area_->AddItem(c);
   }
@@ -259,7 +267,7 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
     item->setVisible(true);
 
     for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
-      if (!dynamic_cast<Footage*>(it.key()) && !dynamic_cast<ClipBlock*>(it.key())) {
+      if (!(it.key()->GetFlags() & Node::kDontShowInParamView)) {
         AddNode(it.key(), item);
       }
     }
