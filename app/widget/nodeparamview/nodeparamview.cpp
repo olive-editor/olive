@@ -56,8 +56,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   splitter->addWidget(param_scroll_area_);
 
   // Param widget
-  param_widget_container_ = new NodeParamViewParamContainer();
-  connect(param_widget_container_, &NodeParamViewParamContainer::Resized, this, &NodeParamView::UpdateGlobalScrollBar);
+  param_widget_container_ = new QWidget();
   param_scroll_area_->setWidget(param_widget_container_);
 
   param_widget_area_ = new NodeParamViewDockArea();
@@ -100,6 +99,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
 
   // Connect scrollbars together
   connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
+  connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::rangeChanged, vertical_scrollbar_, &QScrollBar::setRange);
+  connect(param_scroll_area_->verticalScrollBar(), &QScrollBar::rangeChanged, this, &NodeParamView::UpdateGlobalScrollBar);
   connect(vertical_scrollbar_, &QScrollBar::valueChanged, param_scroll_area_->verticalScrollBar(), &QScrollBar::setValue);
 
   if (create_keyframe_view) {
@@ -287,8 +288,6 @@ void NodeParamView::resizeEvent(QResizeEvent *event)
   super::resizeEvent(event);
 
   vertical_scrollbar_->setPageStep(vertical_scrollbar_->height());
-
-  UpdateGlobalScrollBar();
 }
 
 void NodeParamView::ScaleChangedEvent(const double &scale)
@@ -457,13 +456,9 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
 
 void NodeParamView::UpdateGlobalScrollBar()
 {
-  int height_offscreen = param_widget_container_->height() + scrollbar()->height();
-
   if (keyframe_view_) {
-    keyframe_view_->SetMaxScroll(height_offscreen + 2000);
+    keyframe_view_->SetMaxScroll(param_widget_container_->height() - ruler()->height());
   }
-
-  vertical_scrollbar_->setRange(0, height_offscreen - param_scroll_area_->height());
 }
 
 void NodeParamView::PinNode(bool pin)

@@ -33,28 +33,6 @@
 
 namespace olive {
 
-class NodeParamViewParamContainer : public QWidget
-{
-  Q_OBJECT
-public:
-  NodeParamViewParamContainer(QWidget* parent = nullptr) :
-    QWidget(parent)
-  {
-  }
-
-protected:
-  virtual void resizeEvent(QResizeEvent *event) override
-  {
-    QWidget::resizeEvent(event);
-
-    emit Resized(event->size().height());
-  }
-
-signals:
-  void Resized(int new_height);
-
-};
-
 class NodeParamView : public TimeBasedWidget
 {
   Q_OBJECT
@@ -129,7 +107,7 @@ private:
 
   QScrollArea* param_scroll_area_;
 
-  NodeParamViewParamContainer* param_widget_container_;
+  QWidget* param_widget_container_;
 
   NodeParamViewDockArea* param_widget_area_;
 
