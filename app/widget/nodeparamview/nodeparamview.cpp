@@ -38,7 +38,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   last_scroll_val_(0),
   focused_node_(nullptr),
   create_checkboxes_(kNoCheckBoxes),
-  time_target_(nullptr)
+  time_target_(nullptr),
+  ignore_flags_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -268,7 +269,7 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
     item->setVisible(true);
 
     for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
-      if (!(it.key()->GetFlags() & Node::kDontShowInParamView)) {
+      if (!(it.key()->GetFlags() & Node::kDontShowInParamView) || ignore_flags_) {
         AddNode(it.key(), item);
       }
     }
@@ -349,6 +350,16 @@ void NodeParamView::DeleteSelected()
   if (keyframe_view_) {
     keyframe_view_->DeleteSelected();
   }
+}
+
+void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
+{
+  // Do nothing, this is a placeholder if we ever need this to do anything in the future
+}
+
+void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
+{
+  // Do nothing, this is a placeholder if we ever need this to do anything in the future
 }
 
 void NodeParamView::UpdateItemTime(const rational &time)
@@ -542,6 +553,9 @@ void NodeParamView::UpdateElementY()
               NodeInput ic = {it.key(), input, i};
 
               int y = it.value()->GetElementY(ic);
+
+              // For some reason Qt's mapToGlobal doesn't seem to handle this, so we offset here
+              y += vertical_scrollbar_->value();
 
               const KeyframeView::InputConnections &input_con = connections.value(input);
               int use_index = i + 1;

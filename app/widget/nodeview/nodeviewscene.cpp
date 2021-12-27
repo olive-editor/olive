@@ -58,17 +58,6 @@ void NodeViewScene::DeselectAll()
   }
 }
 
-void NodeViewScene::DeleteSelected()
-{
-  NodeViewDeleteCommand* command = new NodeViewDeleteCommand();
-
-  foreach (NodeViewContext *ctx, context_map_) {
-    ctx->DeleteSelected(command);
-  }
-
-  Core::instance()->undo_stack()->push(command);
-}
-
 QVector<NodeViewItem *> NodeViewScene::GetSelectedItems() const
 {
   QVector<NodeViewItem *> items;

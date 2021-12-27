@@ -69,6 +69,14 @@ public:
     keyframe_view_->DeselectAll();
   }
 
+  void SetIgnoreNodeFlags(bool e)
+  {
+    ignore_flags_ = e;
+  }
+
+  void SelectNodes(const QVector<Node*> &nodes);
+  void DeselectNodes(const QVector<Node*> &nodes);
+
 public slots:
   void SetInputChecked(const NodeInput &input, bool e);
 
@@ -122,6 +130,8 @@ private:
   Node *time_target_;
 
   QHash<NodeInput, bool> input_checked_;
+
+  bool ignore_flags_;
 
 private slots:
   void UpdateGlobalScrollBar();

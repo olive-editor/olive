@@ -26,7 +26,6 @@
 #include <QScrollBar>
 #include <QToolTip>
 
-#include "core.h"
 #include "dialog/nodegroup/nodegroupdialog.h"
 #include "nodeviewundo.h"
 #include "node/audio/volume/volume.h"
@@ -50,6 +49,7 @@ NodeView::NodeView(QWidget *parent) :
   create_edge_output_item_(nullptr),
   create_edge_input_item_(nullptr),
   paste_command_(nullptr),
+  undo_stack_(Core::instance()->undo_stack()),
   scale_(1.0)
 {
   setScene(&scene_);
@@ -127,7 +127,13 @@ void NodeView::ClearGraph()
 
 void NodeView::DeleteSelected()
 {
-  scene_.DeleteSelected();
+  NodeViewDeleteCommand* command = new NodeViewDeleteCommand();
+
+  foreach (NodeViewContext *ctx, scene_.context_map()) {
+    ctx->DeleteSelected(command);
+  }
+
+  undo_stack_->push(command);
 }
 
 void NodeView::SelectAll()
@@ -221,7 +227,7 @@ void NodeView::SetColorLabel(int index)
     command->add_child(new NodeOverrideColorCommand(node, index));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  undo_stack_->push(command);
 }
 
 void NodeView::ZoomIn()
@@ -276,7 +282,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
         }
       }
     }
-    Core::instance()->undo_stack()->pushIfHasChildren(pos_command);
+    undo_stack_->pushIfHasChildren(pos_command);
     break;
   }
   case Qt::Key_Escape:
@@ -555,7 +561,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     }
     create_edge_expanded_items_.clear();
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    undo_stack_->pushIfHasChildren(command);
   }
 
   MultiUndoCommand* command = new MultiUndoCommand();
@@ -639,7 +645,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   }
   dragging_items_.clear();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  undo_stack_->pushIfHasChildren(command);
 
   super::mouseReleaseEvent(event);
 }
@@ -1199,7 +1205,6 @@ void NodeView::GroupNodes()
   DeselectAll();
   foreach (Node *n, nodes_to_group) {
     command->add_child(new NodeRemovePositionFromContextCommand(n, context));
-    command->add_child(new NodeAddToGroupCommand(n, group));
     command->add_child(new NodeSetPositionCommand(n, group, context->GetNodePositionDataInContext(n)));
 
     for (auto it=n->inputs().cbegin(); it!=n->inputs().cend(); it++) {
@@ -1232,14 +1237,8 @@ void NodeView::GroupNodes()
   command->redo_now();
 
   NodeGroupDialog ngd(group, this);
-  if (ngd.exec() == QDialog::Accepted) {
-    // Push to stack so it can be undone (MultiUndoCommand will ignore the request to redo again)
-    Core::instance()->undo_stack()->push(command);
-  } else {
-    // Undo command and delete
-    command->undo_now();
-    delete command;
-  }
+  ngd.PrependUndoCommand(command);
+  ngd.exec();
 }
 
 void NodeView::UngroupNodes()
@@ -1269,13 +1268,12 @@ void NodeView::UngroupNodes()
   command->add_child(new NodeRemovePositionFromContextCommand(group, context));
   command->add_child(new NodeRemoveAndDisconnectCommand(group));
 
-  foreach (Node *n, group->GetNodes()) {
-    command->add_child(new NodeRemovePositionFromContextCommand(n, group));
-    command->add_child(new NodeRemoveFromGroupCommand(n, group));
-    command->add_child(new NodeSetPositionCommand(n, context, group->GetNodePositionDataInContext(n)));
+  for (auto it=group->GetContextPositions().cbegin(); it!=group->GetContextPositions().cend(); it++) {
+    command->add_child(new NodeRemovePositionFromContextCommand(it.key(), group));
+    command->add_child(new NodeSetPositionCommand(it.key(), context, group->GetNodePositionDataInContext(it.key())));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  undo_stack_->push(command);
 }
 
 void NodeView::ShowNodeProperties()

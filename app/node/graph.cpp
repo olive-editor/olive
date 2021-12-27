@@ -105,10 +105,6 @@ void NodeGraph::childEvent(QChildEvent *event)
       // Remove from any contexts
       foreach (Node *context, node_children_) {
         context->RemoveNodeFromContext(node);
-
-        if (NodeGroup *group = dynamic_cast<NodeGroup*>(context)) {
-          group->RemoveNode(node);
-        }
       }
     }
   }

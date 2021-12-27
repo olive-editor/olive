@@ -33,6 +33,11 @@ class ParamPanel : public TimeBasedPanel
 public:
   ParamPanel(QWidget* parent);
 
+  NodeParamView *GetParamView() const
+  {
+    return static_cast<NodeParamView *>(GetTimeBasedWidget());
+  }
+
 public slots:
   void SelectNodes(const QVector<Node*>& nodes);
   void DeselectNodes(const QVector<Node*>& nodes);

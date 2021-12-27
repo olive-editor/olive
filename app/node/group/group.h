@@ -41,20 +41,6 @@ public:
 
   virtual void Retranslate() override;
 
-  void AddNode(Node *node);
-
-  void RemoveNode(Node *node);
-
-  bool ContainsNode(Node *node) const
-  {
-    return nodes_.contains(node);
-  }
-
-  const QVector<Node*> &GetNodes() const
-  {
-    return nodes_;
-  }
-
   void AddInputPassthrough(const NodeInput &input);
 
   void RemoveInputPassthrough(const NodeInput &input);
@@ -96,10 +82,6 @@ public:
   virtual QString GetInputName(const QString& id) const override;
 
 signals:
-  void NodeAddedToGroup(Node *node);
-
-  void NodeRemovedFromGroup(Node *node);
-
   void InputPassthroughAdded(NodeGroup *group, const NodeInput &input);
 
   void InputPassthroughRemoved(NodeGroup *group, const NodeInput &input);
@@ -107,63 +89,11 @@ signals:
   void OutputPassthroughChanged(NodeGroup *group, Node *output);
 
 private:
-  QVector<Node*> nodes_;
-
   QHash<QString, NodeInput> input_passthroughs_;
 
   Node *output_passthrough_;
 
   QString custom_name_;
-
-};
-
-class NodeAddToGroupCommand : public UndoCommand
-{
-public:
-  NodeAddToGroupCommand(Node *node, NodeGroup *group) :
-    node_(node),
-    group_(group)
-  {}
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Node *node_;
-
-  NodeGroup *group_;
-
-};
-
-class NodeRemoveFromGroupCommand : public UndoCommand
-{
-public:
-  NodeRemoveFromGroupCommand(Node *node, NodeGroup *group) :
-    node_(node),
-    group_(group)
-  {}
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Node *node_;
-
-  NodeGroup *group_;
 
 };
 

@@ -24,6 +24,7 @@
 #include <QGraphicsView>
 #include <QTimer>
 
+#include "core.h"
 #include "node/graph.h"
 #include "node/nodecopypaste.h"
 #include "nodeviewedge.h"
@@ -75,6 +76,11 @@ public:
   void ZoomIn();
 
   void ZoomOut();
+
+  void OverrideUndoStack(UndoStack *stack)
+  {
+    undo_stack_ = stack;
+  }
 
   const QVector<Node*> &GetCurrentContexts() const
   {
@@ -188,6 +194,8 @@ private:
   QMap<Node*, QPointF> context_offsets_;
 
   QMap<NodeViewItem*, QPointF> dragging_items_;
+
+  UndoStack *undo_stack_;
 
   double scale_;
 

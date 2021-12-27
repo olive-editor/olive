@@ -367,6 +367,11 @@ void PreviewAutoCacher::ProcessUpdateQueue()
 
 void PreviewAutoCacher::AddNode(Node *node)
 {
+  if (dynamic_cast<NodeGroup*>(node)) {
+    // Group nodes are just dummy nodes, no need to copy them
+    return;
+  }
+
   // Copy node
   Node* copy = node->copy();
 

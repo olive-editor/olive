@@ -56,13 +56,13 @@ void NodeViewContext::AddChild(Node *node)
   AddNodeInternal(node, item);
 
   if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
-    foreach (Node *n, group->GetNodes()) {
+    for (auto it=group->GetContextPositions().cbegin(); it!=group->GetContextPositions().cend(); it++) {
       // Use this item as the representative for all of these nodes too
-      AddNodeInternal(n, item);
+      AddNodeInternal(it.key(), item);
     }
 
-    connect(group, &NodeGroup::NodeAddedToGroup, this, &NodeViewContext::GroupAddedNode);
-    connect(group, &NodeGroup::NodeRemovedFromGroup, this, &NodeViewContext::GroupRemovedNode);
+    connect(group, &NodeGroup::NodeAddedToContext, this, &NodeViewContext::GroupAddedNode);
+    connect(group, &NodeGroup::NodeRemovedFromContext, this, &NodeViewContext::GroupRemovedNode);
   }
 
   UpdateRect();
@@ -77,6 +77,11 @@ void NodeViewContext::RemoveChild(Node *node)
 {
   disconnect(node, &Node::InputConnected, this, &NodeViewContext::ChildInputConnected);
   disconnect(node, &Node::InputDisconnected, this, &NodeViewContext::ChildInputDisconnected);
+
+  if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+    disconnect(group, &NodeGroup::NodeAddedToContext, this, &NodeViewContext::GroupAddedNode);
+    disconnect(group, &NodeGroup::NodeRemovedFromContext, this, &NodeViewContext::GroupRemovedNode);
+  }
 
   NodeViewItem *item = item_map_.take(node);
 

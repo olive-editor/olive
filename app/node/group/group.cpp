@@ -55,28 +55,14 @@ QString NodeGroup::Description() const
 
 void NodeGroup::Retranslate()
 {
-  foreach (Node *n, nodes_) {
-    n->Retranslate();
-  }
-}
-
-void NodeGroup::AddNode(Node *node)
-{
-  nodes_.append(node);
-
-  emit NodeAddedToGroup(node);
-}
-
-void NodeGroup::RemoveNode(Node *node)
-{
-  if (nodes_.removeOne(node)) {
-    emit NodeRemovedFromGroup(node);
+  for (auto it=GetContextPositions().cbegin(); it!=GetContextPositions().cend(); it++) {
+    it.key()->Retranslate();
   }
 }
 
 void NodeGroup::AddInputPassthrough(const NodeInput &input)
 {
-  Q_ASSERT(nodes_.contains(input.node()));
+  Q_ASSERT(ContextContainsNode(input.node()));
 
   for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
     if (it.value() == input) {
@@ -109,7 +95,7 @@ void NodeGroup::RemoveInputPassthrough(const NodeInput &input)
 
 void NodeGroup::SetOutputPassthrough(Node *node)
 {
-  Q_ASSERT(!node || nodes_.contains(node));
+  Q_ASSERT(!node || ContextContainsNode(node));
 
   output_passthrough_ = node;
 
@@ -145,16 +131,6 @@ QString NodeGroup::GetInputName(const QString &id) const
   return input_passthroughs_.value(id).name();
 }
 
-void NodeAddToGroupCommand::redo()
-{
-  group_->AddNode(node_);
-}
-
-void NodeAddToGroupCommand::undo()
-{
-  group_->RemoveNode(node_);
-}
-
 void NodeGroupSetCustomNameCommand::redo()
 {
   old_name_ = group_->GetCustomName();
@@ -181,16 +157,6 @@ void NodeGroupAddInputPassthrough::undo()
   if (actually_added_) {
     group_->RemoveInputPassthrough(input_);
   }
-}
-
-void NodeRemoveFromGroupCommand::redo()
-{
-  group_->RemoveNode(node_);
-}
-
-void NodeRemoveFromGroupCommand::undo()
-{
-  group_->AddNode(node_);
 }
 
 void NodeGroupSetOutputPassthrough::redo()

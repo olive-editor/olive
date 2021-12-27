@@ -18,25 +18,40 @@
 
 ***/
 
-#include "node.h"
+#ifndef NODEWIDGET_H
+#define NODEWIDGET_H
+
+#include <QWidget>
+
+#include "nodeview.h"
+#include "nodeviewtoolbar.h"
 
 namespace olive {
 
-NodePanel::NodePanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("NodePanel"), parent)
+class NodeWidget : public QWidget
 {
-  node_widget_ = new NodeWidget();
-  connect(this, &NodePanel::visibilityChanged, node_widget_->view(), &NodeView::CenterOnItemsBoundingRect);
+  Q_OBJECT
+public:
+  NodeWidget(QWidget *parent = nullptr);
 
-  // Connect node view signals to this panel - MAY REMOVE
-  connect(node_widget_->view(), &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
-  connect(node_widget_->view(), &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
+  NodeView *view() const
+  {
+    return node_view_;
+  }
 
-  // Set it as the main widget of this panel
-  SetWidgetWithPadding(node_widget_);
+  void SetContexts(const QVector<Node*> &nodes)
+  {
+    node_view_->SetContexts(nodes);
+    toolbar_->setEnabled(!nodes.isEmpty());
+  }
 
-  // Set strings
-  Retranslate();
+private:
+  NodeView *node_view_;
+
+  NodeViewToolBar *toolbar_;
+
+};
+
 }
 
-}
+#endif // NODEWIDGET_H

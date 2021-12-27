@@ -28,6 +28,7 @@
 #include "nodeviewcontext.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
+#include "undo/undostack.h"
 
 namespace olive {
 
@@ -39,8 +40,6 @@ public:
 
   void SelectAll();
   void DeselectAll();
-
-  void DeleteSelected();
 
   QVector<NodeViewItem*> GetSelectedItems() const;
 

@@ -18,25 +18,34 @@
 
 ***/
 
-#include "node.h"
+#include "nodewidget.h"
+
+#include <QVBoxLayout>
 
 namespace olive {
 
-NodePanel::NodePanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("NodePanel"), parent)
+NodeWidget::NodeWidget(QWidget *parent) :
+  QWidget(parent)
 {
-  node_widget_ = new NodeWidget();
-  connect(this, &NodePanel::visibilityChanged, node_widget_->view(), &NodeView::CenterOnItemsBoundingRect);
+  QVBoxLayout *outer_layout = new QVBoxLayout(this);
+  outer_layout->setMargin(0);
 
-  // Connect node view signals to this panel - MAY REMOVE
-  connect(node_widget_->view(), &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
-  connect(node_widget_->view(), &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
+  toolbar_ = new NodeViewToolBar();
+  outer_layout->addWidget(toolbar_);
 
-  // Set it as the main widget of this panel
-  SetWidgetWithPadding(node_widget_);
+  // Create NodeView widget
+  node_view_ = new NodeView(this);
+  outer_layout->addWidget(node_view_);
 
-  // Set strings
-  Retranslate();
+  // Connect toolbar to NodeView
+  connect(toolbar_, &NodeViewToolBar::MiniMapEnabledToggled, node_view_, &NodeView::SetMiniMapEnabled);
+  connect(toolbar_, &NodeViewToolBar::AddNodeClicked, node_view_, &NodeView::ShowAddMenu);
+
+  // Set defaults
+  toolbar_->SetMiniMapEnabled(true);
+  node_view_->SetMiniMapEnabled(true);
+
+  setSizePolicy(node_view_->sizePolicy());
 }
 
 }

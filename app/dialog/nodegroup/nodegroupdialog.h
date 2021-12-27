@@ -23,8 +23,10 @@
 
 #include <QDialog>
 #include <QLineEdit>
+#include <QMainWindow>
 
 #include "node/group/group.h"
+#include "undo/undostack.h"
 
 namespace olive {
 
@@ -34,22 +36,37 @@ class NodeGroupDialog : public QDialog
 public:
   explicit NodeGroupDialog(NodeGroup *group, QWidget *parent = nullptr);
 
-  void SetParentUndoCommand(MultiUndoCommand *c)
+  void PrependUndoCommand(MultiUndoCommand *c)
   {
-    parent_undo_ = c;
+    prepend_undo_ = c;
   }
 
 public slots:
   virtual void accept() override;
 
+  virtual void reject() override;
+
 signals:
 
 private:
+  QVector<Node*> GetNodesToDelete();
+
+  QVector<Node::OutputConnection> GetNewConnections();
+
+  bool OperationWillAffectOutsideGroup(const QVector<Node *> &deleted, const QVector<Node::OutputConnection> &connections);
+
   NodeGroup *group_;
 
   QLineEdit *name_edit_;
 
-  MultiUndoCommand *parent_undo_;
+  MultiUndoCommand *prepend_undo_;
+
+  Project *copied_project_;
+  NodeGroup *copy_group_;
+  QMap<Node*, Node*> copy_subnodes_;
+  QVector<Node::OutputConnection> copied_edges_;
+
+  UndoStack undo_stack_;
 
 };
 
