@@ -77,11 +77,6 @@ public:
 
   void ZoomOut();
 
-  void OverrideUndoStack(UndoStack *stack)
-  {
-    undo_stack_ = stack;
-  }
-
   const QVector<Node*> &GetCurrentContexts() const
   {
     return contexts_;
@@ -194,8 +189,6 @@ private:
   QMap<Node*, QPointF> context_offsets_;
 
   QMap<NodeViewItem*, QPointF> dragging_items_;
-
-  UndoStack *undo_stack_;
 
   double scale_;
 
