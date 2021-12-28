@@ -1504,7 +1504,7 @@ void Node::GizmoMove(const QPointF &, const rational&, const Qt::KeyboardModifie
 {
 }
 
-void Node::GizmoRelease()
+void Node::GizmoRelease(MultiUndoCommand *)
 {
 }
 

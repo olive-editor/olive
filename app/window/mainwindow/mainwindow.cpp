@@ -78,17 +78,17 @@ MainWindow::MainWindow(QWidget *parent) :
   setStatusBar(status_bar);
 
   // Create standard panels
-  node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);
-  footage_viewer_panel_ = PanelManager::instance()->CreatePanel<FootageViewerPanel>(this);
-  param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
-  curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
-  sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
-  pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
+  node_panel_ = new NodePanel(undo_stack_, this);
+  footage_viewer_panel_ = new FootageViewerPanel(undo_stack_, this);
+  param_panel_ = new ParamPanel(undo_stack_, this);
+  curve_panel_ = new CurvePanel(undo_stack_, this);
+  sequence_viewer_panel_ = new SequenceViewerPanel(undo_stack_, this);
+  pixel_sampler_panel_ = new PixelSamplerPanel(undo_stack_, this);
   AppendProjectPanel();
-  tool_panel_ = PanelManager::instance()->CreatePanel<ToolPanel>(this);
-  task_man_panel_ = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
+  tool_panel_ = new ToolPanel(undo_stack_, this);
+  task_man_panel_ = new TaskManagerPanel(undo_stack_, this);
   AppendTimelinePanel();
-  audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
+  audio_monitor_panel_ = new AudioMonitorPanel(undo_stack_, this);
 
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
@@ -218,7 +218,7 @@ bool MainWindow::IsSequenceOpen(Sequence *sequence) const
 
 void MainWindow::FolderOpen(Project* p, Folder *i, bool floating)
 {
-  ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
+  ProjectPanel* panel = new ProjectPanel(undo_stack_, this);
 
   panel->set_project(p);
   panel->set_root(i);
@@ -256,7 +256,7 @@ void MainWindow::OpenNodeInViewer(ViewerOutput *node)
     viewer_panels_.value(node)->raise();
   } else {
     // Create a viewer for this node
-    ViewerPanel* viewer = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
+    ViewerPanel* viewer = new ViewerPanel(undo_stack_, this);
 
     viewer->SetSignalInsteadOfClose(true);
     viewer->setFloating(true);
@@ -816,7 +816,7 @@ void MainWindow::showEvent(QShowEvent *e)
 template<typename T>
 T *MainWindow::AppendPanelInternal(QList<T*>& list)
 {
-  T* panel = PanelManager::instance()->CreatePanel<T>(this);
+  T* panel = new T(undo_stack_, this);
 
   if (!list.isEmpty()) {
     tabifyDockWidget(list.last(), panel);
@@ -837,7 +837,7 @@ T *MainWindow::AppendPanelInternal(QList<T*>& list)
 template<typename T>
 T *MainWindow::AppendFloatingPanelInternal(QList<T *> &list)
 {
-  T* panel = PanelManager::instance()->CreatePanel<T>(this);
+  T* panel = new T(undo_stack_, this);
 
   panel->setFloating(true);
   panel->show();

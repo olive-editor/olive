@@ -855,7 +855,7 @@ public:
 
   virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF& p);
   virtual void GizmoMove(const QPointF& p, const rational &time, const Qt::KeyboardModifiers &modifiers);
-  virtual void GizmoRelease();
+  virtual void GizmoRelease(MultiUndoCommand *command);
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
