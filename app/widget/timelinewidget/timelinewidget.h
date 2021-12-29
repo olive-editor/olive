@@ -359,7 +359,7 @@ private:
 
   void UpdateViewTimebases();
 
-  void NudgeInternal(const rational &amount);
+  void NudgeInternal(rational amount);
 
   void MoveToPlayheadInternal(bool out);
 
