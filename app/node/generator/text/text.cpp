@@ -117,7 +117,13 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
   img.fill(Qt::transparent);
 
+  // 72 DPI in DPM (72 / 2.54 * 100)
+  const int dpm = 2835;
+  img.setDotsPerMeterX(dpm);
+  img.setDotsPerMeterY(dpm);
+
   QTextDocument text_doc;
+  text_doc.documentLayout()->setPaintDevice(&img);
 
   // Set default font
   QFont default_font;
