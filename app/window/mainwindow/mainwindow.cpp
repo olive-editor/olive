@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef Q_OS_WINDOWS
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
-  taskbar_btn_id_ = RegisterWindowMessage("TaskbarButtonCreated");
+  taskbar_btn_id_ = RegisterWindowMessage(TEXT("TaskbarButtonCreated"));
   taskbar_interface_ = nullptr;
 #endif
 
