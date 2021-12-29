@@ -244,6 +244,27 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
   }
 }
 
+int BinarySearchFirstKeyframeAfterOrAt(const QVector<NodeKeyframe*> &keys, const rational &time)
+{
+  int low = 0;
+  int high = keys.size()-1;
+
+  while (low <= high) {
+    int mid = low + (high-low)/2;
+    NodeKeyframe *test_key = keys.at(mid);
+
+    if (test_key->time() == time || (test_key->time() > time && (mid == 0 || keys.at(mid-1)->time() < time))) {
+      return mid;
+    } else if (test_key->time() < time) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  return -1;
+}
+
 void KeyframeView::drawForeground(QPainter *painter, const QRectF &rect)
 {
   int key_sz = QtUtils::QFontMetricsWidth(fontMetrics(), "Oi");
@@ -254,15 +275,64 @@ void KeyframeView::drawForeground(QPainter *painter, const QRectF &rect)
   painter->setRenderHint(QPainter::Antialiasing);
 
   foreach (KeyframeViewInputConnection *track, tracks_) {
-    foreach (NodeKeyframe *key, track->GetKeyframes()) {
-      QRectF key_rect(-key_rad, -key_rad, key_sz, key_sz);
-      key_rect.translate(GetKeyframeSceneX(key), GetKeyframeSceneY(track, key));
+    const QVector<NodeKeyframe*> &keys = track->GetKeyframes();
 
-      if (!rect.intersects(key_rect)) {
+    if (keys.isEmpty()) {
+      continue;
+    }
+
+    if (!IsYAxisEnabled()) {
+      // Filter out if the keyframes are offscreen Y
+      qreal y = GetKeyframeSceneY(track, keys.first());
+      if (y + key_rad < rect.top() || y - key_rad >= rect.bottom()) {
         continue;
+      }
+    }
+
+    // Find first keyframe to show with binary search
+    rational left_time = SceneToTime(rect.left() - key_sz);
+    int using_index = BinarySearchFirstKeyframeAfterOrAt(keys, left_time);
+
+    rational next_key = RATIONAL_MIN;
+    NodeKeyframe::Type last_type = NodeKeyframe::kInvalid;
+    for (int i=using_index; i<keys.size(); i++) {
+      NodeKeyframe *key = keys.at(i);
+
+      if (key->time() < next_key && key->type() == last_type) {
+        // This key will be drawn at exactly the same location as the last one and therefore
+        // doesn't need to be drawn. See if the next one will be drawn.
+        i++;
+        if (i == keys.size()) {
+          break;
+        }
+
+        key = keys.at(i);
+
+        if (key->time() < next_key) {
+          // Next key still won't be drawn, so we'll switch to a binary search
+          i = BinarySearchFirstKeyframeAfterOrAt(keys, next_key);
+
+          if (i == -1) {
+            break;
+          }
+
+          key = keys.at(i);
+        }
+      }
+
+      QRectF key_rect(-key_rad, -key_rad, key_sz, key_sz);
+      qreal key_x = GetKeyframeSceneX(key);
+      key_rect.translate(key_x, GetKeyframeSceneY(track, key));
+
+      if (key_rect.left() >= rect.right()) {
+        // Break after last keyframe
+        break;
       }
 
       DrawKeyframe(painter, key, track, key_rect);
+
+      next_key = SceneToTime(key_x + 1);
+      last_type = key->type();
     }
   }
 
@@ -282,6 +352,8 @@ void KeyframeView::DrawKeyframe(QPainter *painter, NodeKeyframe *key, KeyframeVi
   selection_manager_.DeclareDrawnObject(key, key_rect);
 
   switch (key->type()) {
+  case NodeKeyframe::kInvalid:
+    break;
   case NodeKeyframe::kLinear:
   {
     QPointF points[] = {
@@ -403,6 +475,8 @@ void KeyframeView::ShowContextMenu()
 
     if (all_keys_are_same_type) {
       switch (type) {
+      case NodeKeyframe::kInvalid:
+        break;
       case NodeKeyframe::kLinear:
         linear_key_action->setChecked(true);
         break;
