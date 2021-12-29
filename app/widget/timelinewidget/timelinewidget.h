@@ -295,8 +295,6 @@ private:
 
   QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
 
-  QVector<Block*> GetBlocksInSelection(const TimelineWidgetSelections &sel);
-
   QPoint drag_origin_;
 
   QRubberBand rubberband_;

@@ -1700,6 +1700,7 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool proce
       }
     }
 
+    // NOTE: This loop could do with some optimization
     for (auto it=s.cbegin(); it!=s.cend(); it++) {
       Track *track = GetTrackFromReference(it.key());
       if (track) {
