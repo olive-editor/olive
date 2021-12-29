@@ -199,10 +199,7 @@ void Core::Stop()
   {
     QFile recent_projects_file(GetRecentProjectsFilePath());
     if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
-      QTextStream ts(&recent_projects_file);
-
-      ts << recent_projects_.join('\n');
-
+      recent_projects_file.write(recent_projects_.join('\n').toUtf8());
       recent_projects_file.close();
     }
   }
@@ -731,13 +728,10 @@ void Core::StartGUI(bool full_screen)
   {
     QFile recent_projects_file(GetRecentProjectsFilePath());
     if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
-      QTextStream ts(&recent_projects_file);
-
-      QString s;
-      while (!(s = ts.readLine()).isEmpty()) {
-        recent_projects_.append(s);
+      QString r = QString::fromUtf8(recent_projects_file.readAll());
+      if (!r.isEmpty()) {
+        recent_projects_ = r.split('\n');
       }
-
       recent_projects_file.close();
     }
 
