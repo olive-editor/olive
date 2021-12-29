@@ -205,12 +205,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
   }
 
   // Make connections
-  if (!xml_node_data.desired_connections.isEmpty()) {
-    XMLConnectNodes(xml_node_data, data_version, command);
-  }
-
-  // Link blocks
-  XMLLinkBlocks(xml_node_data);
+  xml_node_data.PostConnect(data_version, command);
 
   // Process contexts
   for (auto it=pasted_contexts.cbegin(); it!=pasted_contexts.cend(); it++) {

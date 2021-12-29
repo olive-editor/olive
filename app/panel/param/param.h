@@ -38,6 +38,16 @@ public:
     return static_cast<NodeParamView *>(GetTimeBasedWidget());
   }
 
+  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
+  {
+    GetParamView()->SetCreateCheckBoxes(e);
+  }
+
+  void SetIgnoreNodeFlags(bool e)
+  {
+    GetParamView()->SetIgnoreNodeFlags(e);
+  }
+
 public slots:
   void SelectNodes(const QVector<Node*>& nodes);
   void DeselectNodes(const QVector<Node*>& nodes);

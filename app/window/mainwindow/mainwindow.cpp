@@ -93,6 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
+  connect(node_panel_, &NodePanel::NodeGroupOpenRequested, this, &MainWindow::NodeGroupRequested);
   connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
     node_panel_->Select(target, true);
   });
@@ -451,6 +452,17 @@ void MainWindow::StatusBarDoubleClicked()
   task_man_panel_->raise();
 }
 
+void MainWindow::NodeGroupRequested(NodeGroup *group)
+{
+  NodePanel *panel = new NodePanel(this);
+  panel->setFloating(true);
+  panel->setVisible(true);
+  panel->SetContexts({group});
+  panel->SetSignalInsteadOfClose(true);
+  addDockWidget(Qt::LeftDockWidgetArea, panel);
+  connect(panel, &NodePanel::CloseRequested, panel, &NodePanel::deleteLater);
+}
+
 void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 {
   TimelinePanel *panel = static_cast<TimelinePanel *>(sender());
@@ -723,7 +735,13 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     UpdateAudioMonitorParams(tbp->GetConnectedViewer());
   }
 
-  if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
+  if (NodePanel *node_panel = dynamic_cast<NodePanel*>(panel)) {
+    // Set param view contexts to these
+    bool is_default_node_panel = node_panel == node_panel_;
+    param_panel_->SetIgnoreNodeFlags(!is_default_node_panel);
+    param_panel_->SetCreateCheckBoxes(is_default_node_panel ? kNoCheckBoxes : kCheckBoxesOnNonConnected);
+    param_panel_->SetContexts(node_panel->GetContexts());
+  } else if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
     // Signal timeline focus
     TimelineFocused(timeline->GetConnectedViewer());
 

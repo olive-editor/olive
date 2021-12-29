@@ -52,24 +52,6 @@ public:
 
   void SetOutputPassthrough(Node *node);
 
-  const QString &GetCustomName() const
-  {
-    return custom_name_;
-  }
-
-  void SetCustomName(const QString &name)
-  {
-    custom_name_ = name;
-
-    // NOTE: Not technically the right signal, but should achieve the right goal
-    emit LabelChanged(custom_name_);
-  }
-
-  void ClearCustomName()
-  {
-    custom_name_.clear();
-  }
-
   static QString GetGroupInputIDFromInput(const NodeInput &input);
 
   const QHash<QString, NodeInput> &GetInputPassthroughs() const
@@ -88,39 +70,15 @@ signals:
 
   void OutputPassthroughChanged(NodeGroup *group, Node *output);
 
+protected:
+  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
+
+  virtual void SaveCustom(QXmlStreamWriter* writer) const override;
+
 private:
   QHash<QString, NodeInput> input_passthroughs_;
 
   Node *output_passthrough_;
-
-  QString custom_name_;
-
-};
-
-class NodeGroupSetCustomNameCommand : public UndoCommand
-{
-public:
-  NodeGroupSetCustomNameCommand(NodeGroup *group, const QString &name) :
-    group_(group),
-    new_name_(name)
-  {}
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return group_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  NodeGroup *group_;
-
-  QString old_name_;
-
-  QString new_name_;
 
 };
 

@@ -193,10 +193,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
   }
 
   // Make connections
-  XMLConnectNodes(xml_node_data, version);
-
-  // Link blocks
-  XMLLinkBlocks(xml_node_data);
+  xml_node_data.PostConnect(version);
 }
 
 void Project::Save(QXmlStreamWriter *writer) const

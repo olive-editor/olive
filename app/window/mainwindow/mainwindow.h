@@ -187,6 +187,8 @@ private slots:
 
   void StatusBarDoubleClicked();
 
+  void NodeGroupRequested(NodeGroup *group);
+
 #ifdef Q_OS_LINUX
   void ShowNouveauWarning();
 #endif

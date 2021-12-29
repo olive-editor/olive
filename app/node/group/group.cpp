@@ -24,6 +24,8 @@
 
 namespace olive {
 
+#define super Node
+
 NodeGroup::NodeGroup() :
   output_passthrough_(nullptr)
 {
@@ -31,11 +33,7 @@ NodeGroup::NodeGroup() :
 
 QString NodeGroup::Name() const
 {
-  if (custom_name_.isEmpty()) {
-    return tr("Group");
-  } else {
-    return custom_name_;
-  }
+  return tr("Group");
 }
 
 QString NodeGroup::id() const
@@ -131,15 +129,59 @@ QString NodeGroup::GetInputName(const QString &id) const
   return input_passthroughs_.value(id).name();
 }
 
-void NodeGroupSetCustomNameCommand::redo()
+bool NodeGroup::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled)
 {
-  old_name_ = group_->GetCustomName();
-  group_->SetCustomName(new_name_);
+  if (reader->name() == QStringLiteral("inputpassthroughs")) {
+    while (XMLReadNextStartElement(reader)) {
+      if (reader->name() == QStringLiteral("inputpassthrough")) {
+        XMLNodeData::GroupLink link;
+
+        link.group = this;
+
+        while (XMLReadNextStartElement(reader)) {
+          if (reader->name() == QStringLiteral("node")) {
+            link.input_node = reader->readElementText().toULongLong();
+          } else if (reader->name() == QStringLiteral("input")) {
+            link.input_id = reader->readElementText();
+          } else if (reader->name() == QStringLiteral("element")) {
+            link.input_element = reader->readElementText().toInt();
+          } else {
+            reader->skipCurrentElement();
+          }
+        }
+
+        xml_node_data.group_input_links.append(link);
+      } else {
+        reader->skipCurrentElement();
+      }
+    }
+
+    return true;
+  } else if (reader->name() == QStringLiteral("outputpassthrough")) {
+    xml_node_data.group_output_links.insert(this, reader->readElementText().toULongLong());
+    return true;
+  } else {
+    return super::LoadCustom(reader, xml_node_data, version, cancelled);
+  }
 }
 
-void NodeGroupSetCustomNameCommand::undo()
+void NodeGroup::SaveCustom(QXmlStreamWriter *writer) const
 {
-  group_->SetCustomName(old_name_);
+  super::SaveCustom(writer);
+
+  writer->writeStartElement(QStringLiteral("inputpassthroughs"));
+
+  foreach (const NodeInput &ip, input_passthroughs_) {
+    writer->writeStartElement(QStringLiteral("inputpassthrough"));
+    writer->writeTextElement(QStringLiteral("node"), QString::number(reinterpret_cast<quintptr>(ip.node())));
+    writer->writeTextElement(QStringLiteral("input"), ip.input());
+    writer->writeTextElement(QStringLiteral("element"), QString::number(ip.element()));
+    writer->writeEndElement(); // input
+  }
+
+  writer->writeEndElement(); // inputpassthroughs
+
+  writer->writeTextElement(QStringLiteral("outputpassthrough"), QString::number(reinterpret_cast<quintptr>(output_passthrough_)));
 }
 
 void NodeGroupAddInputPassthrough::redo()

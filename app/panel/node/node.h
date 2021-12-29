@@ -40,6 +40,11 @@ public:
     return node_widget_;
   }
 
+  const QVector<Node*> &GetContexts() const
+  {
+    return node_widget_->view()->GetContexts();
+  }
+
   void SetContexts(const QVector<Node*> &nodes)
   {
     node_widget_->SetContexts(nodes);
@@ -109,12 +114,15 @@ public slots:
   void Select(const QVector<Node*>& nodes, bool center_view_on_item)
   {
     node_widget_->view()->Select(nodes, center_view_on_item);
+    this->raise();
   }
 
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
   void NodesDeselected(const QVector<Node*>& nodes);
+
+  void NodeGroupOpenRequested(NodeGroup *group);
 
 private:
   virtual void Retranslate() override
