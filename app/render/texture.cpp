@@ -40,4 +40,11 @@ void Texture::Upload(void *data, int linesize)
   }
 }
 
+void Texture::Download(void *data, int linesize)
+{
+  if (renderer_) {
+    renderer_->DownloadFromTexture(this, data, linesize);
+  }
+}
+
 }
