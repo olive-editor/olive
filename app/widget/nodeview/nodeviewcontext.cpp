@@ -189,6 +189,8 @@ void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
       command->AddNode(node->GetNode(), context_);
     }
   }
+
+  UpdateRect();
 }
 
 void NodeViewContext::Select(const QVector<Node *> &nodes)

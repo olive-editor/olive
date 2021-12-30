@@ -53,16 +53,15 @@ void XMLNodeData::PostConnect(uint version, MultiUndoCommand *command) const
 
       if (command) {
         command->add_child(new NodeEdgeAddCommand(out, con.input));
-
-        if (version < 210907) {
-          /// Deprecated: backwards compatibility only
-          command->add_child(new NodeSetValueHintCommand(con.input, hint));
-        }
       } else {
         Node::ConnectEdge(out, con.input);
+      }
 
-        if (version < 210907) {
-          /// Deprecated: backwards compatibility only
+      if (version < 210907) {
+        /// Deprecated: backwards compatibility only
+        if (command) {
+          command->add_child(new NodeSetValueHintCommand(con.input, hint));
+        } else {
           con.input.node()->SetValueHintForInput(con.input.input(), hint, con.input.element());
         }
       }

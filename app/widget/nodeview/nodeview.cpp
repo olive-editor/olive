@@ -181,13 +181,10 @@ void NodeView::Select(const QVector<Node *> &nodes, bool center_view_on_item)
     context->Select(nodes);
   }
 
-  /*
   // Center on something
-  Node *first_item = nodes.isEmpty() ? nullptr : nodes.first();
-  if (center_view_on_item && first_item) {
-    centerOn(first_item);
+  if (center_view_on_item && !nodes.isEmpty()) {
+    QMetaObject::invokeMethod(this, "CenterOnNode", Qt::QueuedConnection, OLIVE_NS_ARG(Node*, nodes.first()));
   }
-  */
 
   ConnectSelectionChangedSignal();
 
@@ -849,6 +846,16 @@ void NodeView::CenterOnItemsBoundingRect()
   centerOn(scene_.itemsBoundingRect().center());
 }
 
+void NodeView::CenterOnNode(Node *n)
+{
+  foreach (NodeViewContext *ctx, scene_.context_map()) {
+    if (NodeViewItem* item = ctx->GetItemFromMap(n)) {
+      centerOn(item);
+      break;
+    }
+  }
+}
+
 void NodeView::RepositionMiniMap()
 {
   if (minimap_->isVisible()) {
@@ -980,34 +987,32 @@ bool NodeView::eventFilter(QObject *object, QEvent *event)
 
 void NodeView::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void *userdata)
 {
-  qDebug() << "STUB!";
-  /*writer->writeStartElement(QStringLiteral("pos"));
+  writer->writeStartElement(QStringLiteral("pos"));
 
   for (Node *n : nodes) {
-    NodeViewItem *item = scene_.item_map().value(n);
-    QPointF pos = item->GetNodePosition();
+    Node::Position pos = GetAssumedPositionForSelectedNode(n);
 
     writer->writeStartElement(QStringLiteral("node"));
     writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
-    writer->writeTextElement(QStringLiteral("x"), QString::number(pos.x()));
-    writer->writeTextElement(QStringLiteral("y"), QString::number(pos.y()));
+    writer->writeTextElement(QStringLiteral("x"), QString::number(pos.position.x()));
+    writer->writeTextElement(QStringLiteral("y"), QString::number(pos.position.y()));
+    writer->writeTextElement(QStringLiteral("expanded"), QString::number(pos.expanded));
     writer->writeEndElement(); // node
   }
 
-  writer->writeEndElement(); // pos*/
+  writer->writeEndElement(); // pos
 }
 
 void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void *userdata)
 {
-  qDebug() << "STUB!";
-  /*NodeGraph::PositionMap *map = static_cast<NodeGraph::PositionMap *>(userdata);
+  Node::PositionMap *map = static_cast<Node::PositionMap *>(userdata);
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("pos")) {
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("node")) {
           Node *n = nullptr;
-          QPointF pos;
+          Node::Position pos;
 
           XMLAttributeLoop(reader, attr) {
             if (attr.name() == QStringLiteral("ptr")) {
@@ -1018,9 +1023,11 @@ void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNode
 
           while (XMLReadNextStartElement(reader)) {
             if (reader->name() == QStringLiteral("x")) {
-              pos.setX(reader->readElementText().toDouble());
+              pos.position.setX(reader->readElementText().toDouble());
             } else if (reader->name() == QStringLiteral("y")) {
-              pos.setY(reader->readElementText().toDouble());
+              pos.position.setY(reader->readElementText().toDouble());
+            } else if (reader->name() == QStringLiteral("expanded")) {
+              pos.expanded = reader->readElementText().toInt();
             } else {
               reader->skipCurrentElement();
             }
@@ -1036,7 +1043,7 @@ void NodeView::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNode
     } else {
       reader->skipCurrentElement();
     }
-  }*/
+  }
 }
 
 void NodeView::changeEvent(QEvent *e)
@@ -1068,6 +1075,21 @@ void NodeView::ClearCreateEdgeInputIfNecessary()
 QPointF NodeView::GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const
 {
   return item->GetNodePosition() - context_offsets_.value(context);
+}
+
+Node::Position NodeView::GetAssumedPositionForSelectedNode(Node *node)
+{
+  // Try to find corresponding selected item
+  foreach (NodeViewContext *ctx, scene_.context_map()) {
+    NodeViewItem *item = ctx->GetItemFromMap(node);
+    if (item && item->isSelected()) {
+      // Good enough
+      return Node::Position(item->GetNodePosition(), item->IsExpanded());
+    }
+  }
+
+  // Fallback
+  return Node::Position();
 }
 
 Menu *NodeView::CreateAddMenu(Menu *parent)
@@ -1277,7 +1299,7 @@ void NodeView::ShowNodeProperties()
   Node *first_node = selected_nodes_.first();
 
   if (NodeGroup *group = dynamic_cast<NodeGroup*>(first_node)) {
-    qDebug() << "STUB!";
+    emit NodeGroupOpenRequested(group);
   } else {
     LabelSelectedNodes();
   }
@@ -1290,51 +1312,46 @@ void NodeView::LabelSelectedNodes()
 
 void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
 {
-  /*
   // If no graph, do nothing
   if (contexts_.isEmpty()) {
     return;
   }
 
-  paste_command_ = new MultiUndoCommand();
-
   // If duplicating nodes, duplicate, otherwise paste
   QVector<Node*> new_nodes;
-  NodeGraph::PositionMap map;
+  Node::PositionMap map;
   if (duplicate_nodes.isEmpty()) {
-    new_nodes = PasteNodesFromClipboard(graph_, paste_command_, &map);
-
-    for (auto it=new_nodes.cbegin(); it!=new_nodes.cend(); it++) {
-      for (Node *context : qAsConst(contexts_)) {
-        paste_command_->add_child(new NodeSetPositionCommand(*it, context, map.value(*it), false));
-      }
-    }
+    new_nodes = PasteNodesFromClipboard(nullptr, nullptr, &map);
   } else {
-    new_nodes = Node::CopyDependencyGraph(duplicate_nodes, paste_command_);
+    new_nodes.resize(selected_nodes_.size());
 
-    for (int i=0; i<duplicate_nodes.size(); i++) {
-      Node *src = duplicate_nodes.at(i);
-      Node *copy = new_nodes.at(i);
-
-      for (Node *context : qAsConst(contexts_)) {
-        QPointF p = scene_.item_map().value(src)->GetNodePosition();
-        paste_command_->add_child(new NodeSetPositionCommand(copy, context, p, false));
-      }
+    for (int i=0; i<new_nodes.size(); i++) {
+      Node *og = selected_nodes_.at(i);
+      Node *copy = og->copy();
+      Node::CopyInputs(og, copy, false);
+      map.insert(copy, GetAssumedPositionForSelectedNode(og));
+      new_nodes[i] = copy;
     }
+
+    Node::CopyDependencyGraph(selected_nodes_, new_nodes, nullptr);
   }
 
   // If no nodes were retrieved, do nothing
-  if (new_nodes.isEmpty()) {
-    delete paste_command_;
-    paste_command_ = nullptr;
-    return;
+  if (!new_nodes.isEmpty()) {
+    QVector<NodeViewItem*> items(new_nodes.size());
+
+    for (int i=0; i<new_nodes.size(); i++) {
+      Node *node = new_nodes.at(i);
+      NodeViewItem *new_item = new NodeViewItem(node, nullptr);
+      new_item->SetFlowDirection(scene_.GetFlowDirection());
+      new_item->SetNodePosition(map.value(node));
+      scene_.addItem(new_item);
+      items[i] = new_item;
+    }
+
+    // Attach nodes to cursor
+    AttachItemsToCursor(items);
   }
-
-  // Attach nodes to cursor
-  paste_command_->add_child(new NodeViewAttachNodesToCursor(this, new_nodes));
-
-  paste_command_->redo_now();
-  */
 }
 
 void NodeView::AddContext(Node *n)

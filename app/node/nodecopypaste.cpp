@@ -201,7 +201,11 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   // Add all nodes to graph
   foreach (Node* n, pasted_nodes) {
-    command->add_child(new NodeAddCommand(graph, n));
+    if (command) {
+      command->add_child(new NodeAddCommand(graph, n));
+    } else {
+      n->setParent(graph);
+    }
   }
 
   // Make connections
@@ -215,7 +219,11 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
       for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
         Node *subnode = xml_node_data.node_ptrs.value(jt.key());
         if (subnode) {
-          command->add_child(new NodeSetPositionCommand(subnode, context, jt.value()));
+          if (command) {
+            command->add_child(new NodeSetPositionCommand(subnode, context, jt.value()));
+          } else {
+            context->SetNodePositionInContext(subnode, jt.value());
+          }
         }
       }
     }

@@ -52,6 +52,11 @@ public:
 
   void SetContexts(const QVector<Node *> &nodes);
 
+  const QVector<Node*> &GetContexts() const
+  {
+    return contexts_;
+  }
+
   void CloseContextsBelongingToProject(Project *project);
 
   void ClearGraph();
@@ -97,10 +102,14 @@ public slots:
 
   void CenterOnItemsBoundingRect();
 
+  void CenterOnNode(olive::Node *n);
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
   void NodesDeselected(const QVector<Node*>& nodes);
+
+  void NodeGroupOpenRequested(NodeGroup *group);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
@@ -140,6 +149,8 @@ private:
   void ClearCreateEdgeInputIfNecessary();
 
   QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
+
+  Node::Position GetAssumedPositionForSelectedNode(Node *node);
 
   Menu *CreateAddMenu(Menu *parent);
 

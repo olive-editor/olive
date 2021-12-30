@@ -79,8 +79,7 @@ NodeViewItem::NodeViewItem(Node *node, const QString &input, int element, Node *
     setFlag(QGraphicsItem::ItemIsSelectable);
 
     if (context_) {
-      SetNodePosition(context_->GetNodePositionInContext(node_));
-      SetExpanded(context_->IsNodeExpandedInContext(node_));
+      SetNodePosition(context_->GetNodePositionDataInContext(node_));
     }
   } else {
     output_connector_->setVisible(false);
@@ -108,6 +107,12 @@ void NodeViewItem::SetNodePosition(const QPointF &pos)
   cached_node_pos_ = pos;
 
   UpdateNodePosition();
+}
+
+void NodeViewItem::SetNodePosition(const Node::Position &pos)
+{
+  SetNodePosition(pos.position);
+  SetExpanded(pos.expanded);
 }
 
 QVector<NodeViewEdge *> NodeViewItem::GetAllEdgesRecursively() const

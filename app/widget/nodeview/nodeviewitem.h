@@ -56,6 +56,7 @@ public:
 
   QPointF GetNodePosition() const;
   void SetNodePosition(const QPointF& pos);
+  void SetNodePosition(const Node::Position& pos);
 
   QVector<NodeViewEdge*> GetAllEdgesRecursively() const;
 
