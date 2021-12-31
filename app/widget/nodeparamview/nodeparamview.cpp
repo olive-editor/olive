@@ -238,6 +238,7 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
     ctx->Clear();
     ctx->setVisible(false);
   }
+  contexts_ = contexts;
 
   if (keyframe_view_) {
     keyframe_view_->Clear();

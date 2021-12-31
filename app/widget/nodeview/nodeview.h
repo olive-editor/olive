@@ -133,9 +133,7 @@ protected:
   virtual void changeEvent(QEvent *e) override;
 
 private:
-  void AttachItemsToCursor(const QVector<NodeViewItem *> &items);
-
-  void DetachItemsFromCursor();
+  void DetachItemsFromCursor(bool delete_nodes_too = true);
 
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
@@ -150,6 +148,7 @@ private:
 
   QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
 
+  NodeViewItem *GetAssumedItemForSelectedNode(Node *node);
   Node::Position GetAssumedPositionForSelectedNode(Node *node);
 
   Menu *CreateAddMenu(Menu *parent);
@@ -172,10 +171,12 @@ private:
 
   struct AttachedItem {
     NodeViewItem* item;
+    Node *node;
     QPointF original_pos;
   };
 
-  QList<AttachedItem> attached_items_;
+  void SetAttachedItems(const QVector<AttachedItem> &items);
+  QVector<AttachedItem> attached_items_;
 
   NodeViewEdge* drop_edge_;
   NodeInput drop_input_;
@@ -190,8 +191,6 @@ private:
   QVector<NodeViewItem*> create_edge_expanded_items_;
 
   NodeViewScene scene_;
-
-  MultiUndoCommand* paste_command_;
 
   QVector<Node*> selected_nodes_;
 

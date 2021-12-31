@@ -29,7 +29,7 @@
 
 namespace olive {
 
-void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
+void NodeCopyPasteService::CopyNodesToClipboard(QVector<Node *> nodes, void *userdata)
 {
   QString copy_str;
 
@@ -42,11 +42,22 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
   writer.writeStartElement(QStringLiteral("nodes"));
-  foreach (Node* n, nodes) {
+  for (int i=0; i<nodes.size(); i++) {
+    Node *n = nodes.at(i);
+
     writer.writeStartElement(QStringLiteral("node"));
     writer.writeAttribute(QStringLiteral("id"), n->id());
     n->Save(&writer);
     writer.writeEndElement(); // node
+
+    // If this is a group, add the child nodes too
+    if (NodeGroup *g = dynamic_cast<NodeGroup*>(n)) {
+      for (auto it=g->GetContextPositions().cbegin(); it!=g->GetContextPositions().cend(); it++) {
+        if (!nodes.contains(it.key())) {
+          nodes.append(it.key());
+        }
+      }
+    }
   }
   writer.writeEndElement(); // nodes
 
@@ -208,9 +219,6 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
     }
   }
 
-  // Make connections
-  xml_node_data.PostConnect(data_version, command);
-
   // Process contexts
   for (auto it=pasted_contexts.cbegin(); it!=pasted_contexts.cend(); it++) {
     Node *context = xml_node_data.node_ptrs.value(it.key());
@@ -228,6 +236,9 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
       }
     }
   }
+
+  // Make connections
+  xml_node_data.PostConnect(data_version, command);
 
   return pasted_nodes;
 }

@@ -54,6 +54,7 @@ public:
 
   virtual ~NodeViewItem() override;
 
+  Node::Position GetNodePositionData() const;
   QPointF GetNodePosition() const;
   void SetNodePosition(const QPointF& pos);
   void SetNodePosition(const Node::Position& pos);

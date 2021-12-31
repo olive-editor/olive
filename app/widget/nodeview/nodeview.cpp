@@ -47,7 +47,6 @@ NodeView::NodeView(QWidget *parent) :
   create_edge_(nullptr),
   create_edge_output_item_(nullptr),
   create_edge_input_item_(nullptr),
-  paste_command_(nullptr),
   scale_(1.0)
 {
   setScene(&scene_);
@@ -283,14 +282,6 @@ void NodeView::keyPressEvent(QKeyEvent *event)
   case Qt::Key_Escape:
     if (!attached_items_.isEmpty()) {
       DetachItemsFromCursor();
-
-      // We undo the last action which SHOULD be adding the node
-      if (paste_command_) {
-        paste_command_->undo_now();
-        delete paste_command_;
-        paste_command_ = nullptr;
-      }
-
       break;
     }
 
@@ -573,23 +564,18 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
     }
 
     if (context) {
-      if (paste_command_) {
-        // We've already "done" this command, but MultiUndoCommand prevents "redoing" twice, so we
-        // add it to this command (which may have extra commands added too) so that it all gets undone
-        // in the same action
-        command->add_child(paste_command_);
-        paste_command_ = nullptr;
-      }
-
       {
         MultiUndoCommand *add_command = new MultiUndoCommand();
 
         foreach (const AttachedItem &ai, attached_items_) {
           // Add node to the same graph that the context is in
-          add_command->add_child(new NodeAddCommand(context->parent(), ai.item->GetNode()));
+          add_command->add_child(new NodeAddCommand(context->parent(), ai.node));
 
           // Add node to the context
-          add_command->add_child(new NodeSetPositionCommand(ai.item->GetNode(), context, scene_.context_map().value(context)->MapScenePosToNodePosInContext(ai.item->pos())));
+          if (ai.item) {
+            qDebug() << "Placing an item!";
+            add_command->add_child(new NodeSetPositionCommand(ai.node, context, scene_.context_map().value(context)->MapScenePosToNodePosInContext(ai.item->pos())));
+          }
         }
 
         if (add_command->child_count()) {
@@ -604,9 +590,16 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         // Dropped attached item onto an edge, connect it between them
         MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
         if (attached_items_.size() == 1) {
-          Node* dropping_node = attached_items_.first().item->GetNode();
+          Node* dropping_node = nullptr;
 
-          if (drop_edge_) {
+          foreach (const AttachedItem &ai, attached_items_) {
+            if (ai.item) {
+              dropping_node = ai.node;
+              break;
+            }
+          }
+
+          if (dropping_node && drop_edge_) {
             // Remove old edge
             drop_edge_command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
 
@@ -625,7 +618,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
         }
       }
 
-      DetachItemsFromCursor();
+      DetachItemsFromCursor(false);
     } else {
       QToolTip::showText(QCursor::pos(), tr("Nodes must be placed inside a context."));
     }
@@ -809,7 +802,8 @@ void NodeView::CreateNodeSlot(QAction *action)
     NodeViewItem *new_item = new NodeViewItem(new_node, nullptr);
     new_item->SetFlowDirection(scene_.GetFlowDirection());
     scene_.addItem(new_item);
-    AttachItemsToCursor({new_item});
+
+    SetAttachedItems({{new_item, new_node, QPointF(0, 0)}});
   }
 }
 
@@ -899,23 +893,14 @@ void NodeView::NodeRemovedFromGraph()
   contexts_.removeOne(context);
 }
 
-void NodeView::AttachItemsToCursor(const QVector<NodeViewItem*>& items)
-{
-  DetachItemsFromCursor();
-
-  if (!items.isEmpty()) {
-    for (NodeViewItem* i : items) {
-      attached_items_.append({i, i->pos() - items.first()->pos()});
-    }
-
-    MoveAttachedNodesToCursor(mapFromGlobal(QCursor::pos()));
-  }
-}
-
-void NodeView::DetachItemsFromCursor()
+void NodeView::DetachItemsFromCursor(bool delete_nodes_too)
 {
   foreach (const AttachedItem &ai, attached_items_) {
     delete ai.item;
+
+    if (delete_nodes_too) {
+      delete ai.node;
+    }
   }
 
   attached_items_.clear();
@@ -931,7 +916,9 @@ void NodeView::MoveAttachedNodesToCursor(const QPoint& p)
   QPointF item_pos = mapToScene(p);
 
   for (const AttachedItem& i : qAsConst(attached_items_)) {
-    i.item->setPos(item_pos + i.original_pos);
+    if (i.item) {
+      i.item->setPos(item_pos + i.original_pos);
+    }
   }
 }
 
@@ -990,14 +977,18 @@ void NodeView::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVec
   writer->writeStartElement(QStringLiteral("pos"));
 
   for (Node *n : nodes) {
-    Node::Position pos = GetAssumedPositionForSelectedNode(n);
+    NodeViewItem *item = GetAssumedItemForSelectedNode(n);
 
-    writer->writeStartElement(QStringLiteral("node"));
-    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
-    writer->writeTextElement(QStringLiteral("x"), QString::number(pos.position.x()));
-    writer->writeTextElement(QStringLiteral("y"), QString::number(pos.position.y()));
-    writer->writeTextElement(QStringLiteral("expanded"), QString::number(pos.expanded));
-    writer->writeEndElement(); // node
+    if (item) {
+      Node::Position pos = item->GetNodePositionData();
+
+      writer->writeStartElement(QStringLiteral("node"));
+      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
+      writer->writeTextElement(QStringLiteral("x"), QString::number(pos.position.x()));
+      writer->writeTextElement(QStringLiteral("y"), QString::number(pos.position.y()));
+      writer->writeTextElement(QStringLiteral("expanded"), QString::number(pos.expanded));
+      writer->writeEndElement(); // node
+    }
   }
 
   writer->writeEndElement(); // pos
@@ -1077,19 +1068,27 @@ QPointF NodeView::GetEstimatedPositionForContext(NodeViewItem *item, Node *conte
   return item->GetNodePosition() - context_offsets_.value(context);
 }
 
-Node::Position NodeView::GetAssumedPositionForSelectedNode(Node *node)
+NodeViewItem *NodeView::GetAssumedItemForSelectedNode(Node *node)
 {
   // Try to find corresponding selected item
   foreach (NodeViewContext *ctx, scene_.context_map()) {
     NodeViewItem *item = ctx->GetItemFromMap(node);
-    if (item && item->isSelected()) {
+    if (item && item->GetNode() == node && item->isSelected()) {
       // Good enough
-      return Node::Position(item->GetNodePosition(), item->IsExpanded());
+      return item;
     }
   }
 
-  // Fallback
-  return Node::Position();
+  return nullptr;
+}
+
+Node::Position NodeView::GetAssumedPositionForSelectedNode(Node *node)
+{
+  if (NodeViewItem *item = GetAssumedItemForSelectedNode(node)) {
+    return item->GetNodePositionData();
+  } else {
+    return Node::Position();
+  }
 }
 
 Menu *NodeView::CreateAddMenu(Menu *parent)
@@ -1338,19 +1337,44 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
 
   // If no nodes were retrieved, do nothing
   if (!new_nodes.isEmpty()) {
-    QVector<NodeViewItem*> items(new_nodes.size());
+    QVector<AttachedItem> new_attached;
+
+    NodeViewItem *first_item = nullptr;
 
     for (int i=0; i<new_nodes.size(); i++) {
       Node *node = new_nodes.at(i);
-      NodeViewItem *new_item = new NodeViewItem(node, nullptr);
-      new_item->SetFlowDirection(scene_.GetFlowDirection());
-      new_item->SetNodePosition(map.value(node));
-      scene_.addItem(new_item);
-      items[i] = new_item;
+
+      // Determine if item had a position, if not don't create an item for it
+      NodeViewItem *new_item;
+
+      if (map.contains(node)) {
+        new_item = new NodeViewItem(node, nullptr);
+        new_item->SetFlowDirection(scene_.GetFlowDirection());
+        new_item->SetNodePosition(map.value(node));
+        scene_.addItem(new_item);
+
+        if (!first_item) {
+          first_item = new_item;
+        }
+      } else {
+        new_item = nullptr;
+      }
+
+      new_attached.append({new_item, node, QPointF(0, 0)});
     }
 
-    // Attach nodes to cursor
-    AttachItemsToCursor(items);
+    // Correct positions
+    if (first_item) {
+      for (int i=0; i<new_attached.size(); i++) {
+        AttachedItem &ai = new_attached[i];
+
+        if (ai.item) {
+          ai.original_pos = first_item->pos() - ai.item->pos();
+        }
+      }
+    }
+
+    SetAttachedItems(new_attached);
   }
 }
 
@@ -1387,6 +1411,17 @@ void NodeView::CollapseItem(NodeViewItem *item)
 {
   item->SetExpanded(false);
   item->setZValue(0);
+}
+
+void NodeView::SetAttachedItems(const QVector<AttachedItem> &items)
+{
+  // Detach anything currently attached
+  DetachItemsFromCursor();
+
+  attached_items_ = items;
+
+  // Move to cursor
+  MoveAttachedNodesToCursor(mapFromGlobal(QCursor::pos()));
 }
 
 }

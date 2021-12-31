@@ -97,6 +97,11 @@ NodeViewItem::~NodeViewItem()
   Q_ASSERT(edges_.isEmpty());
 }
 
+Node::Position NodeViewItem::GetNodePositionData() const
+{
+  return Node::Position(GetNodePosition(), IsExpanded());
+}
+
 QPointF NodeViewItem::GetNodePosition() const
 {
   return ScreenToNodePoint(pos(), flow_dir_);

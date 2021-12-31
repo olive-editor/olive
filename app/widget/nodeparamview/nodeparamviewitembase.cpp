@@ -52,7 +52,7 @@ NodeParamViewItemBase::NodeParamViewItemBase(QWidget *parent) :
 
 bool NodeParamViewItemBase::IsExpanded() const
 {
-  return body_->isVisible();
+  return title_bar_->IsExpanded();
 }
 
 QString NodeParamViewItemBase::GetTitleBarTextFromNode(Node *n)

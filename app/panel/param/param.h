@@ -38,6 +38,11 @@ public:
     return static_cast<NodeParamView *>(GetTimeBasedWidget());
   }
 
+  const QVector<Node*> &GetContexts() const
+  {
+    return GetParamView()->GetContexts();
+  }
+
   void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
   {
     GetParamView()->SetCreateCheckBoxes(e);

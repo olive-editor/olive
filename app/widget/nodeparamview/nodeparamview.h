@@ -77,6 +77,11 @@ public:
   void SelectNodes(const QVector<Node*> &nodes);
   void DeselectNodes(const QVector<Node*> &nodes);
 
+  const QVector<Node*> &GetContexts() const
+  {
+    return contexts_;
+  }
+
 public slots:
   void SetInputChecked(const NodeInput &input, bool e);
 
@@ -132,6 +137,8 @@ private:
   QHash<NodeInput, bool> input_checked_;
 
   bool ignore_flags_;
+
+  QVector<Node*> contexts_;
 
 private slots:
   void UpdateGlobalScrollBar();

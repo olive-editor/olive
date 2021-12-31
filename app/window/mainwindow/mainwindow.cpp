@@ -737,10 +737,14 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 
   if (NodePanel *node_panel = dynamic_cast<NodePanel*>(panel)) {
     // Set param view contexts to these
-    bool is_default_node_panel = node_panel == node_panel_;
-    param_panel_->SetIgnoreNodeFlags(!is_default_node_panel);
-    param_panel_->SetCreateCheckBoxes(is_default_node_panel ? kNoCheckBoxes : kCheckBoxesOnNonConnected);
-    param_panel_->SetContexts(node_panel->GetContexts());
+    const QVector<Node*> &new_ctxs = node_panel->GetContexts();
+
+    if (new_ctxs != param_panel_->GetContexts()) {
+      bool is_default_node_panel = node_panel == node_panel_;
+      param_panel_->SetIgnoreNodeFlags(!is_default_node_panel);
+      param_panel_->SetCreateCheckBoxes(is_default_node_panel ? kNoCheckBoxes : kCheckBoxesOnNonConnected);
+      param_panel_->SetContexts(node_panel->GetContexts());
+    }
   } else if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
     // Signal timeline focus
     TimelineFocused(timeline->GetConnectedViewer());
