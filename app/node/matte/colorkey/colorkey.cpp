@@ -19,13 +19,30 @@ namespace olive {
 
 const QString ColorKeyNode::kTextureInput = QStringLiteral("tex_in");
 const QString ColorKeyNode::kColorInput = QStringLiteral("color_in");
-//const QString BlurFilterNode::kMethodInput = QStringLiteral("method_in");
+const QString ColorKeyNode::kMinLevelInput = QStringLiteral("min_level_in");
+const QString ColorKeyNode::kMaxLevelInput = QStringLiteral("max_level_in");
+const QString ColorKeyNode::kContrastInput = QStringLiteral("contrast_in");
+const QString ColorKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
+const QString ColorKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
 
 
 ColorKeyNode::ColorKeyNode() {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
+  //AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0.0f, 1.0f, 0.0f, 1.0f)));
+
+  AddInput(kMinLevelInput, NodeValue::kFloat, 0.0f);
+  SetInputProperty(kMinLevelInput, QStringLiteral("min"), 0.0);
+
+  AddInput(kMaxLevelInput, NodeValue::kFloat, 1.0f);
+  SetInputProperty(kMaxLevelInput, QStringLiteral("min"), 0.0);
+
+  AddInput(kContrastInput, NodeValue::kFloat, 1.0f);
+  SetInputProperty(kContrastInput, QStringLiteral("min"), 0.0);
+
+  AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 
   // AddInput(kMethodInput, NodeValue::kCombo, 0);
 }
@@ -60,6 +77,11 @@ void ColorKeyNode::Retranslate()
 {
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kColorInput, tr("Key Color"));
+  SetInputName(kMinLevelInput, tr("Minimum Threshold"));
+  SetInputName(kMaxLevelInput, tr("Maximum Threshold"));
+  SetInputName(kContrastInput, tr("Matte Contrast"));
+  SetInputName(kMaskOnlyInput, tr("Output Mask"));
+  //SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
 }
 
 ShaderCode ColorKeyNode::GetShaderCode(const QString &shader_id) const
@@ -72,8 +94,8 @@ void ColorKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, 
 {
   ShaderJob job;
   job.InsertValue(value);
+  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  qDebug() << job.GetValue(kColorInput).data();
   table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
 }
 

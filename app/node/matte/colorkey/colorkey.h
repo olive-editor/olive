@@ -38,6 +38,11 @@ class ColorKeyNode : public Node {
  
   static const QString kTextureInput;
   static const QString kColorInput;
+  static const QString kMaskOnlyInput;
+  static const QString kMinLevelInput;
+  static const QString kMaxLevelInput;
+  static const QString kContrastInput;
+  static const QString kGarbageMatteInput;
 };
 
 }  // namespace olive
