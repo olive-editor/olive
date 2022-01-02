@@ -36,7 +36,7 @@ ColorKeyNode::ColorKeyNode() {
   AddInput(kBrightsInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kBrightsInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kDarksInput, NodeValue::kFloat, 0.0f);
+  AddInput(kDarksInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kDarksInput, QStringLiteral("min"), 0.0);
 
   AddInput(kContrastInput, NodeValue::kFloat, 1.0f);

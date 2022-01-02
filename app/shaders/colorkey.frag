@@ -29,7 +29,8 @@ void main(void) {
     if (core_in_enabled) {
       // Force anything we want to be black
       vec4 core = texture2D(core_in, ove_texcoord);
-      mask *= core;
+      vec4 core_invert = vec4(1.0 - core.r, 1.0 - core.g, 1.0 - core.b, 1.0);
+      mask *= core_invert;
       mask = clamp(mask, 0.0, 1.0);
     }
 
