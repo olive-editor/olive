@@ -83,6 +83,9 @@ private:
 
   QMap<Node*, NodeParamViewItem*> items_;
 
+private slots:
+  void AddEffectButtonClicked();
+
 };
 
 }

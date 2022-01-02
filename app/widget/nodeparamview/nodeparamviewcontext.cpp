@@ -20,6 +20,8 @@
 
 #include "nodeparamviewcontext.h"
 
+#include <QMessageBox>
+
 #include "node/block/clip/clip.h"
 
 namespace olive {
@@ -39,6 +41,8 @@ NodeParamViewContext::NodeParamViewContext(QWidget *parent) :
   setBackgroundRole(QPalette::Base);
 
   Retranslate();
+
+  connect(title_bar(), &NodeParamViewItemTitleBar::AddEffectButtonClicked, this, &NodeParamViewContext::AddEffectButtonClicked);
 }
 
 void NodeParamViewContext::AddNode(NodeParamViewItem *item)
@@ -87,6 +91,11 @@ void NodeParamViewContext::SetTime(const rational &time)
 
 void NodeParamViewContext::Retranslate()
 {
+}
+
+void NodeParamViewContext::AddEffectButtonClicked()
+{
+  QMessageBox::information(this, tr("STUB"), tr("This feature is coming soon. Thanks for testing development builds of Olive :)"));
 }
 
 }
