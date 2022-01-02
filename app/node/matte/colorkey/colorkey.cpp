@@ -43,8 +43,6 @@ ColorKeyNode::ColorKeyNode() {
   SetInputProperty(kContrastInput, QStringLiteral("min"), 0.0);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
-
-  // AddInput(kMethodInput, NodeValue::kCombo, 0);
 }
 
 Node *ColorKeyNode::copy() const
