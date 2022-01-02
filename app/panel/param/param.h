@@ -33,6 +33,26 @@ class ParamPanel : public TimeBasedPanel
 public:
   ParamPanel(QWidget* parent);
 
+  NodeParamView *GetParamView() const
+  {
+    return static_cast<NodeParamView *>(GetTimeBasedWidget());
+  }
+
+  const QVector<Node*> &GetContexts() const
+  {
+    return GetParamView()->GetContexts();
+  }
+
+  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
+  {
+    GetParamView()->SetCreateCheckBoxes(e);
+  }
+
+  void SetIgnoreNodeFlags(bool e)
+  {
+    GetParamView()->SetIgnoreNodeFlags(e);
+  }
+
 public slots:
   void SelectNodes(const QVector<Node*>& nodes);
   void DeselectNodes(const QVector<Node*>& nodes);
@@ -43,10 +63,10 @@ public slots:
 
   virtual void DeselectAll() override;
 
+  void SetContexts(const QVector<Node*> &contexts);
+
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
-
-  void NodeOrderChanged(const QVector<Node*>& nodes);
 
   void FocusedNodeChanged(Node* n);
 

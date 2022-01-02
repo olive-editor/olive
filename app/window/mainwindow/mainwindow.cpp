@@ -78,25 +78,27 @@ MainWindow::MainWindow(QWidget *parent) :
   setStatusBar(status_bar);
 
   // Create standard panels
-  node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);
-  footage_viewer_panel_ = PanelManager::instance()->CreatePanel<FootageViewerPanel>(this);
-  param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
-  curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
-  sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
-  pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
+  node_panel_ = new NodePanel(this);
+  footage_viewer_panel_ = new FootageViewerPanel(this);
+  param_panel_ = new ParamPanel(this);
+  curve_panel_ = new CurvePanel(this);
+  sequence_viewer_panel_ = new SequenceViewerPanel(this);
+  pixel_sampler_panel_ = new PixelSamplerPanel(this);
   AppendProjectPanel();
-  tool_panel_ = PanelManager::instance()->CreatePanel<ToolPanel>(this);
-  task_man_panel_ = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
+  tool_panel_ = new ToolPanel(this);
+  task_man_panel_ = new TaskManagerPanel(this);
   AppendTimelinePanel();
-  audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
+  audio_monitor_panel_ = new AudioMonitorPanel(this);
 
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
   connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
+  connect(node_panel_, &NodePanel::NodeGroupOpenRequested, this, &MainWindow::NodeGroupRequested);
   connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
     node_panel_->Select(target, true);
   });
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
+  connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
 
   // Connect time signals together
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
@@ -106,9 +108,6 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTime);
 
-  // Connect node order signals
-  connect(param_panel_, &ParamPanel::NodeOrderChanged, curve_panel_, &CurvePanel::SetNodes);
-
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
@@ -116,7 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   UpdateTitle();
 
-  QMetaObject::invokeMethod(this, "SetDefaultLayout", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &MainWindow::SetDefaultLayout, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -220,12 +219,7 @@ bool MainWindow::IsSequenceOpen(Sequence *sequence) const
 
 void MainWindow::FolderOpen(Project* p, Folder *i, bool floating)
 {
-  ProjectPanel* panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
-
-  // Set custom name to distinguish it from regular ProjectPanels
-  panel->setObjectName(QStringLiteral("FolderPanel"));
-
-  SetUniquePanelID<ProjectPanel>(panel, folder_panels_);
+  ProjectPanel* panel = new ProjectPanel(this);
 
   panel->set_project(p);
   panel->set_root(i);
@@ -263,7 +257,7 @@ void MainWindow::OpenNodeInViewer(ViewerOutput *node)
     viewer_panels_.value(node)->raise();
   } else {
     // Create a viewer for this node
-    ViewerPanel* viewer = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
+    ViewerPanel* viewer = new ViewerPanel(this);
 
     viewer->SetSignalInsteadOfClose(true);
     viewer->setFloating(true);
@@ -378,9 +372,7 @@ void MainWindow::ProjectClose(Project *p)
   }
 
   // Close project from NodeView
-  if (node_panel_->GetGraph() == p) {
-    node_panel_->ClearGraph();
-  }
+  node_panel_->CloseContextsBelongingToProject(p);
 }
 
 void MainWindow::SetApplicationProgressStatus(ProgressStatus status)
@@ -460,21 +452,23 @@ void MainWindow::StatusBarDoubleClicked()
   task_man_panel_->raise();
 }
 
+void MainWindow::NodeGroupRequested(NodeGroup *group)
+{
+  NodePanel *panel = new NodePanel(this);
+  panel->setFloating(true);
+  panel->setVisible(true);
+  panel->SetContexts({group});
+  panel->SetSignalInsteadOfClose(true);
+  addDockWidget(Qt::LeftDockWidgetArea, panel);
+  connect(panel, &NodePanel::CloseRequested, panel, &NodePanel::deleteLater);
+}
+
 void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 {
   TimelinePanel *panel = static_cast<TimelinePanel *>(sender());
 
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
     UpdateNodePanelContextFromTimelinePanel(panel);
-  }
-}
-
-void MainWindow::ProjectPanelSelectionChanged(const QVector<Node *> &nodes)
-{
-  ProjectPanel *panel = static_cast<ProjectPanel *>(sender());
-
-  if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
-    node_panel_->Select(nodes, true);
   }
 }
 
@@ -574,7 +568,6 @@ ProjectPanel *MainWindow::AppendProjectPanel()
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::ProjectCloseRequested);
   connect(panel, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
-  connect(panel, &ProjectPanel::SelectionChanged, this, &MainWindow::ProjectPanelSelectionChanged);
 
   return panel;
 }
@@ -731,11 +724,8 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
     context.append(viewer);
   }
 
-  QVector<Node*> old_contexts = node_panel_->GetCurrentContexts();
-  node_panel_->SetGraph(viewer ? viewer->parent() : nullptr, context);
-  if (viewer && context != old_contexts) {
-    node_panel_->SelectAll();
-  }
+  node_panel_->SetContexts(context);
+  param_panel_->SetContexts(context);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
@@ -745,7 +735,17 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     UpdateAudioMonitorParams(tbp->GetConnectedViewer());
   }
 
-  if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
+  if (NodePanel *node_panel = dynamic_cast<NodePanel*>(panel)) {
+    // Set param view contexts to these
+    const QVector<Node*> &new_ctxs = node_panel->GetContexts();
+
+    if (new_ctxs != param_panel_->GetContexts()) {
+      bool is_default_node_panel = node_panel == node_panel_;
+      param_panel_->SetIgnoreNodeFlags(!is_default_node_panel);
+      param_panel_->SetCreateCheckBoxes(is_default_node_panel ? kNoCheckBoxes : kCheckBoxesOnNonConnected);
+      param_panel_->SetContexts(node_panel->GetContexts());
+    }
+  } else if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
     // Signal timeline focus
     TimelineFocused(timeline->GetConnectedViewer());
 
@@ -753,10 +753,6 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
   } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
     // Signal project panel focus
     UpdateTitle();
-    if (Project *p = project->project()) {
-      node_panel_->SetGraph(p, {p->root()});
-      node_panel_->Select({p->color_manager(), p->settings()}, true);
-    }
   }
 }
 
@@ -770,7 +766,7 @@ void MainWindow::SetDefaultLayout()
 
   node_panel_->show();
   tabifyDockWidget(param_panel_, node_panel_);
-  footage_viewer_panel_->raise();
+  param_panel_->raise();
 
   curve_panel_->hide();
   curve_panel_->setFloating(true);
@@ -842,9 +838,7 @@ void MainWindow::showEvent(QShowEvent *e)
 template<typename T>
 T *MainWindow::AppendPanelInternal(QList<T*>& list)
 {
-  T* panel = PanelManager::instance()->CreatePanel<T>(this);
-
-  SetUniquePanelID(panel, list);
+  T* panel = new T(this);
 
   if (!list.isEmpty()) {
     tabifyDockWidget(list.last(), panel);
@@ -863,18 +857,9 @@ T *MainWindow::AppendPanelInternal(QList<T*>& list)
 }
 
 template<typename T>
-void MainWindow::SetUniquePanelID(T *panel, const QList<T *> &list)
-{
-  // Set unique object name so it can be identified by QMainWindow's save and restore state functions
-  panel->setObjectName(panel->objectName().append(QString::number(list.size())));
-}
-
-template<typename T>
 T *MainWindow::AppendFloatingPanelInternal(QList<T *> &list)
 {
-  T* panel = PanelManager::instance()->CreatePanel<T>(this);
-
-  SetUniquePanelID(panel, list);
+  T* panel = new T(this);
 
   panel->setFloating(true);
   panel->show();

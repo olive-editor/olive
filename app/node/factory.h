@@ -61,6 +61,7 @@ public:
     kTimeRemapNode,
     kSubtitleBlock,
     kShapeGenerator,
+    kGroupNode,
 
     // Count value
     kInternalNodeCount
@@ -86,6 +87,8 @@ public:
 
 private:
   static QList<Node*> library_;
+
+  static QVector<int> hidden_;
 
 };
 

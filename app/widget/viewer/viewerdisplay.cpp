@@ -271,7 +271,9 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   } else if (gizmo_click_) {
 
     // Handle gizmo
-    gizmos_->GizmoRelease();
+    MultiUndoCommand *command = new MultiUndoCommand();
+    gizmos_->GizmoRelease(command);
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
     gizmo_click_ = false;
 
   } else {

@@ -25,24 +25,6 @@ namespace olive {
 ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
   ViewerPanelBase(object_name, parent)
 {
-  Init();
-}
-
-ViewerPanel::ViewerPanel(QWidget *parent) :
-  ViewerPanelBase(QStringLiteral("ViewerPanel"), parent)
-{
-  Init();
-}
-
-void ViewerPanel::Retranslate()
-{
-  ViewerPanelBase::Retranslate();
-
-  SetTitle(tr("Viewer"));
-}
-
-void ViewerPanel::Init()
-{
   // Set ViewerWidget as the central widget
   ViewerWidget* vw = new ViewerWidget();
   connect(vw, &ViewerWidget::RequestScopePanel, this, &ViewerPanel::CreateScopePanel);
@@ -50,6 +32,13 @@ void ViewerPanel::Init()
 
   // Set strings
   Retranslate();
+}
+
+void ViewerPanel::Retranslate()
+{
+  ViewerPanelBase::Retranslate();
+
+  SetTitle(tr("Viewer"));
 }
 
 }

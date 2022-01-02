@@ -41,7 +41,7 @@ Sequence::Sequence()
     // Create track input
     QString track_input_id = kTrackInputFormat.arg(i);
 
-    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray));
+    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
     IgnoreInvalidationsFrom(track_input_id);
 

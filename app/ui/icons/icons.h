@@ -86,6 +86,7 @@ extern QIcon Clock;
 extern QIcon Diamond;
 extern QIcon Plus;
 extern QIcon Minus;
+extern QIcon AddEffect;
 
 /**
  * @brief Create an icon object loaded from file

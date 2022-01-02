@@ -24,6 +24,8 @@
 
 namespace olive {
 
+const int TimelineTool::kDefaultDistanceFromOutput = -4;
+
 TimelineTool::TimelineTool(TimelineWidget *parent) :
   dragging_(false),
   parent_(parent)

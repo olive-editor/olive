@@ -113,7 +113,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
       command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
                                             transition));
 
-      command->add_child(new NodeSetPositionCommand(transition, transition, QPointF(0, 0), false));
+      command->add_child(new NodeSetPositionCommand(transition, transition, QPointF(0, 0)));
 
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
                                                     track.index(),
@@ -138,8 +138,8 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(new NodeEdgeAddCommand(in_block,
                                                   NodeInput(transition, TransitionBlock::kInBlockInput)));
 
-        command->add_child(new NodeSetPositionCommand(out_block, transition, QPointF(-1, -0.5), false));
-        command->add_child(new NodeSetPositionCommand(in_block, transition, QPointF(-1, 0.5), false));
+        command->add_child(new NodeSetPositionCommand(out_block, transition, QPointF(-1, -0.5)));
+        command->add_child(new NodeSetPositionCommand(in_block, transition, QPointF(-1, 0.5)));
       } else {
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
         QString transition_input_to_connect;
@@ -154,7 +154,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(new NodeEdgeAddCommand(block_to_transition,
                                                   NodeInput(transition, transition_input_to_connect)));
 
-        command->add_child(new NodeSetPositionCommand(block_to_transition, transition, QPointF(-1, 0), false));
+        command->add_child(new NodeSetPositionCommand(block_to_transition, transition, QPointF(-1, 0)));
       }
 
       Core::instance()->undo_stack()->push(command);

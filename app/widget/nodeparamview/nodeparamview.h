@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewcontext.h"
 #include "nodeparamviewdockarea.h"
 #include "nodeparamviewitem.h"
 #include "widget/keyframeview/keyframeview.h"
@@ -32,40 +33,26 @@
 
 namespace olive {
 
-class NodeParamViewParamContainer : public QWidget
-{
-  Q_OBJECT
-public:
-  NodeParamViewParamContainer(QWidget* parent = nullptr) :
-    QWidget(parent)
-  {
-  }
-
-protected:
-  virtual void resizeEvent(QResizeEvent *event) override
-  {
-    QWidget::resizeEvent(event);
-
-    emit Resized(event->size().height());
-  }
-
-signals:
-  void Resized(int new_height);
-
-};
-
 class NodeParamView : public TimeBasedWidget
 {
   Q_OBJECT
 public:
-  NodeParamView(QWidget* parent = nullptr);
-
-  void SelectNodes(const QVector<Node *> &nodes);
-  void DeselectNodes(const QVector<Node*>& nodes);
-
-  const QMap<Node*, NodeParamViewItem*>& GetItemMap() const
+  NodeParamView(bool create_keyframe_view, QWidget* parent = nullptr);
+  NodeParamView(QWidget* parent = nullptr) :
+    NodeParamView(true, parent)
   {
-    return items_;
+  }
+
+  virtual ~NodeParamView() override;
+
+  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
+  {
+    create_checkboxes_ = e;
+  }
+
+  bool IsInputChecked(const NodeInput &input) const
+  {
+    return input_checked_.value(input);
   }
 
   Node* GetTimeTarget() const;
@@ -82,10 +69,26 @@ public:
     keyframe_view_->DeselectAll();
   }
 
+  void SetIgnoreNodeFlags(bool e)
+  {
+    ignore_flags_ = e;
+  }
+
+  void SelectNodes(const QVector<Node*> &nodes);
+  void DeselectNodes(const QVector<Node*> &nodes);
+
+  const QVector<Node*> &GetContexts() const
+  {
+    return contexts_;
+  }
+
+public slots:
+  void SetInputChecked(const NodeInput &input, bool e);
+
+  void SetContexts(const QVector<Node*> &contexts);
+
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
-
-  void NodeOrderChanged(const QVector<Node*>& nodes);
 
   void FocusedNodeChanged(Node* n);
 
@@ -103,33 +106,39 @@ private:
 
   void QueueKeyframePositionUpdate();
 
-  void SignalNodeOrder();
+  void AddNode(Node* n, NodeParamViewContext *context);
 
-  void AddNode(Node* n);
-
-  void RemoveNode(Node* n);
+  void SortItemsInContext(NodeParamViewContext *context);
 
   KeyframeView* keyframe_view_;
 
-  QMap<Node*, NodeParamViewItem*> items_;
+  QVector<NodeParamViewContext*> context_items_;
 
   QScrollBar* vertical_scrollbar_;
 
   int last_scroll_val_;
 
-  NodeParamViewParamContainer* param_widget_container_;
+  QScrollArea* param_scroll_area_;
 
-  // This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
-  // docking windows
+  QWidget* param_widget_container_;
+
   NodeParamViewDockArea* param_widget_area_;
 
   QVector<Node*> pinned_nodes_;
 
   QVector<Node*> active_nodes_;
 
-  QMap<Node*, bool> node_expanded_state_;
+  NodeParamViewItem* focused_node_;
 
-  Node* focused_node_;
+  NodeParamViewCheckBoxBehavior create_checkboxes_;
+
+  Node *time_target_;
+
+  QHash<NodeInput, bool> input_checked_;
+
+  bool ignore_flags_;
+
+  QVector<Node*> contexts_;
 
 private slots:
   void UpdateGlobalScrollBar();

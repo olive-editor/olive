@@ -38,6 +38,7 @@ NodeViewMiniMap::NodeViewMiniMap(NodeViewScene *scene, QWidget *parent) :
   setViewportUpdateMode(FullViewportUpdate);
   setFrameShape(QFrame::Panel);
   setFrameShadow(QFrame::Plain);
+  setMouseTracking(true);
 
   QMetaObject::invokeMethod(this, &NodeViewMiniMap::SetDefaultSize, Qt::QueuedConnection);
 
@@ -87,7 +88,7 @@ void NodeViewMiniMap::resizeEvent(QResizeEvent *event)
 void NodeViewMiniMap::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton) {
-    if (event->pos().x() <= resize_triangle_sz_ && event->pos().y() <= resize_triangle_sz_) {
+    if (MouseInsideResizeTriangle(event)) {
       // Resizing!
       resizing_ = true;
       resize_anchor_ = QCursor::pos();
@@ -107,6 +108,8 @@ void NodeViewMiniMap::mouseMoveEvent(QMouseEvent *event)
     } else {
       EmitMoveSignal(event);
     }
+  } else {
+    setCursor(MouseInsideResizeTriangle(event) ? Qt::SizeFDiagCursor : Qt::ArrowCursor);
   }
 }
 
@@ -133,6 +136,11 @@ void NodeViewMiniMap::SetDefaultSize()
   if (parentWidget()) {
     resize(parentWidget()->width()/4, parentWidget()->height()/4);
   }
+}
+
+bool NodeViewMiniMap::MouseInsideResizeTriangle(QMouseEvent *event)
+{
+  return event->pos().x() <= resize_triangle_sz_ && event->pos().y() <= resize_triangle_sz_;
 }
 
 void NodeViewMiniMap::EmitMoveSignal(QMouseEvent *event)

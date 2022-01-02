@@ -30,6 +30,7 @@ namespace olive {
 class NodeViewCommon {
 public:
   enum FlowDirection {
+    kInvalidDirection = -1,
     kTopToBottom,
     kBottomToTop,
     kLeftToRight,
@@ -42,6 +43,16 @@ public:
     } else {
       return Qt::Horizontal;
     }
+  }
+
+  static bool IsFlowVertical(FlowDirection dir)
+  {
+    return dir == kTopToBottom || dir == kBottomToTop;
+  }
+
+  static bool IsFlowHorizontal(FlowDirection dir)
+  {
+    return dir == kLeftToRight || dir == kRightToLeft;
   }
 
   static bool DirectionsAreOpposing(FlowDirection a, FlowDirection b) {
