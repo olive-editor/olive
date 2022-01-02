@@ -331,7 +331,7 @@ void KeyframeView::drawForeground(QPainter *painter, const QRectF &rect)
 
       DrawKeyframe(painter, key, track, key_rect);
 
-      next_key = SceneToTime(key_x + 1);
+      next_key = GetUnadjustedKeyframeTime(key, SceneToTime(key_x + 1));
       last_type = key->type();
     }
   }
@@ -415,6 +415,11 @@ void KeyframeView::DeselectKeyframe(NodeKeyframe *key)
 
     emit SelectionChanged();
   }
+}
+
+rational KeyframeView::GetUnadjustedKeyframeTime(NodeKeyframe *key, const rational &time)
+{
+  return GetAdjustedTime(GetTimeTarget(), key->parent(), time, true);
 }
 
 rational KeyframeView::GetAdjustedKeyframeTime(NodeKeyframe *key)

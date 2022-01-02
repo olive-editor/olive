@@ -111,6 +111,12 @@ protected:
     return selection_manager_.IsSelected(key);
   }
 
+  rational GetUnadjustedKeyframeTime(NodeKeyframe *key, const rational &time);
+  rational GetUnadjustedKeyframeTime(NodeKeyframe *key)
+  {
+    return GetUnadjustedKeyframeTime(key, key->time());
+  }
+
   rational GetAdjustedKeyframeTime(NodeKeyframe *key);
 
   double GetKeyframeSceneX(NodeKeyframe *key);
