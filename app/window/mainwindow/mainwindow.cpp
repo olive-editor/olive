@@ -89,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
   task_man_panel_ = new TaskManagerPanel(this);
   AppendTimelinePanel();
   audio_monitor_panel_ = new AudioMonitorPanel(this);
+  scope_panel_ = new ScopePanel(this);
 
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
@@ -112,6 +113,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
+
+  scope_panel_->SetViewerPanel(sequence_viewer_panel_);
 
   UpdateTitle();
 
@@ -243,11 +246,6 @@ void MainWindow::FolderOpen(Project* p, Folder *i, bool floating)
   connect(panel, &ProjectPanel::CloseRequested, this, &MainWindow::FloatingPanelCloseRequested);
 
   folder_panels_.append(panel);
-}
-
-ScopePanel *MainWindow::AppendScopePanel()
-{
-  return AppendFloatingPanelInternal<ScopePanel>(scope_panels_);
 }
 
 void MainWindow::OpenNodeInViewer(ViewerOutput *node)
@@ -414,6 +412,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
     return;
   }
 
+  scope_panel_->SetViewerPanel(nullptr);
+
   PanelManager::instance()->DeleteAllPanels();
 
   SaveCustomShortcuts();
@@ -520,6 +520,10 @@ void MainWindow::ProjectCloseRequested()
 void MainWindow::ViewerCloseRequested()
 {
   ViewerPanel* panel = static_cast<ViewerPanel*>(sender());
+
+  if (panel == scope_panel_->GetConnectedViewerPanel()) {
+    scope_panel_->SetViewerPanel(sequence_viewer_panel_);
+  }
 
   viewer_panels_.remove(viewer_panels_.key(panel));
 
@@ -753,6 +757,9 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
   } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
     // Signal project panel focus
     UpdateTitle();
+  } else if (ViewerPanelBase *viewer = dynamic_cast<ViewerPanelBase*>(panel)) {
+    // Update scopes for viewer
+    scope_panel_->SetViewerPanel(viewer);
   }
 }
 
@@ -771,6 +778,10 @@ void MainWindow::SetDefaultLayout()
   curve_panel_->hide();
   curve_panel_->setFloating(true);
   addDockWidget(Qt::TopDockWidgetArea, curve_panel_);
+
+  scope_panel_->hide();
+  scope_panel_->setFloating(true);
+  addDockWidget(Qt::TopDockWidgetArea, scope_panel_);
 
   sequence_viewer_panel_->show();
   addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);

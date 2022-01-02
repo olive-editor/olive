@@ -92,20 +92,13 @@ void ViewerPanelBase::CacheSequenceInOut()
   static_cast<ViewerWidget*>(GetTimeBasedWidget())->CacheSequenceInOut();
 }
 
-void ViewerPanelBase::CreateScopePanel(ScopePanel::Type type)
+void ViewerPanelBase::SetViewerWidget(ViewerWidget *vw)
 {
-  ViewerWidget* vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());
-  ScopePanel* p = Core::instance()->main_window()->AppendScopePanel();
+  connect(vw, &ViewerWidget::TextureChanged, this, &ViewerPanelBase::TextureChanged);
+  connect(vw, &ViewerWidget::ColorProcessorChanged, this, &ViewerPanelBase::ColorProcessorChanged);
+  connect(vw, &ViewerWidget::ColorManagerChanged, this, &ViewerPanelBase::ColorManagerChanged);
 
-  p->SetType(type);
-
-  // Connect viewer widget texture drawing to scope panel
-  connect(vw, &ViewerWidget::TextureChanged, p, &ScopePanel::SetReferenceBuffer);
-  connect(vw, &ViewerWidget::ColorManagerChanged, p, &ScopePanel::SetColorManager);
-
-  p->SetColorManager(vw->color_manager());
-
-  vw->UpdateTextureFromNode();
+  SetTimeBasedWidget(vw);
 }
 
 void ViewerPanelBase::closeEvent(QCloseEvent *e)

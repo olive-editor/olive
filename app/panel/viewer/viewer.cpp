@@ -27,8 +27,7 @@ ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
 {
   // Set ViewerWidget as the central widget
   ViewerWidget* vw = new ViewerWidget();
-  connect(vw, &ViewerWidget::RequestScopePanel, this, &ViewerPanel::CreateScopePanel);
-  SetTimeBasedWidget(vw);
+  SetViewerWidget(vw);
 
   // Set strings
   Retranslate();

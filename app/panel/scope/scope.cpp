@@ -27,7 +27,8 @@
 namespace olive {
 
 ScopePanel::ScopePanel(QWidget* parent) :
-  PanelWidget(QStringLiteral("ScopePanel"), parent)
+  PanelWidget(QStringLiteral("ScopePanel"), parent),
+  viewer_(nullptr)
 {
   QWidget* central = new QWidget();
   setWidget(central);
@@ -84,6 +85,30 @@ QString ScopePanel::TypeToName(ScopePanel::Type t)
   return QString();
 }
 
+void ScopePanel::SetViewerPanel(ViewerPanelBase *vp)
+{
+  if (viewer_ == vp) {
+    return;
+  }
+
+  if (viewer_) {
+    disconnect(viewer_, &ViewerPanelBase::TextureChanged, this, &ScopePanel::SetReferenceBuffer);
+    disconnect(viewer_, &ViewerPanelBase::ColorManagerChanged, this, &ScopePanel::SetColorManager);
+  }
+
+  viewer_ = vp;
+
+  if (viewer_) {
+    // Connect viewer widget texture drawing to scope panel
+    connect(viewer_, &ViewerPanelBase::TextureChanged, this, &ScopePanel::SetReferenceBuffer);
+    connect(viewer_, &ViewerPanelBase::ColorManagerChanged, this, &ScopePanel::SetColorManager);
+
+    SetColorManager(viewer_->GetColorManager());
+
+    viewer_->UpdateTextureFromNode();
+  }
+}
+
 void ScopePanel::SetReferenceBuffer(TexturePtr frame)
 {
   histogram_->SetBuffer(frame);
@@ -98,7 +123,7 @@ void ScopePanel::SetColorManager(ColorManager *manager)
 
 void ScopePanel::Retranslate()
 {
-  SetTitle(tr("Scope"));
+  SetTitle(tr("Scopes"));
 
   for (int i=0;i<ScopePanel::kTypeCount;i++) {
     scope_type_combobox_->setItemText(i, TypeToName(static_cast<Type>(i)));

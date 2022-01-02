@@ -52,6 +52,16 @@ public:
    */
   void SetFullScreen(QScreen* screen = nullptr);
 
+  ColorManager *GetColorManager()
+  {
+    return static_cast<ViewerWidget*>(GetTimeBasedWidget())->color_manager();
+  }
+
+  void UpdateTextureFromNode()
+  {
+    static_cast<ViewerWidget*>(GetTimeBasedWidget())->UpdateTextureFromNode();
+  }
+
 public slots:
   void SetGizmos(Node* node);
 
@@ -59,8 +69,24 @@ public slots:
 
   void CacheSequenceInOut();
 
+signals:
+  /**
+   * @brief Signal emitted when a new frame is loaded
+   */
+  void TextureChanged(TexturePtr t);
+
+  /**
+   * @brief Wrapper for ViewerGLWidget::ColorProcessorChanged()
+   */
+  void ColorProcessorChanged(ColorProcessorPtr processor);
+
+  /**
+   * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
+   */
+  void ColorManagerChanged(ColorManager* color_manager);
+
 protected:
-  void CreateScopePanel(ScopePanel::Type type);
+  void SetViewerWidget(ViewerWidget *vw);
 
   virtual void closeEvent(QCloseEvent* e) override;
 

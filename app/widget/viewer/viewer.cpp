@@ -973,11 +973,6 @@ void ViewerWidget::WindowAboutToClose()
   windows_.remove(windows_.key(static_cast<ViewerWindow*>(sender())));
 }
 
-void ViewerWidget::ContextMenuScopeTriggered(QAction *action)
-{
-  emit RequestScopePanel(static_cast<ScopePanel::Type>(action->data().toInt()));
-}
-
 void ViewerWidget::RendererGeneratedFrame()
 {
   RenderTicketWatcher* ticket = static_cast<RenderTicketWatcher*>(sender());
@@ -1113,21 +1108,6 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
         deinterlace_action->setChecked(display_widget_->IsDeinterlacing());
         connect(deinterlace_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetDeinterlacing);
       }
-    }
-
-    menu.addSeparator();
-
-    {
-      // Scopes
-      Menu* scopes_menu = new Menu(tr("Scopes"), &menu);
-      menu.addMenu(scopes_menu);
-
-      for (int i=0;i<ScopePanel::kTypeCount;i++) {
-        QAction* scope_action = scopes_menu->addAction(ScopePanel::TypeToName(static_cast<ScopePanel::Type>(i)));
-        scope_action->setData(i);
-      }
-
-      connect(scopes_menu, &Menu::triggered, this, &ViewerWidget::ContextMenuScopeTriggered);
     }
 
     menu.addSeparator();

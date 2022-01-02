@@ -33,7 +33,6 @@
 #include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
-#include "panel/scope/scope.h"
 #include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"
 #include "threading/threadticketwatcher.h"
@@ -130,13 +129,6 @@ signals:
    * @brief Signal emitted when a new frame is loaded
    */
   void TextureChanged(TexturePtr t);
-
-  /**
-   * @brief Request a scope panel
-   *
-   * As a widget, we don't handle panels, but a parent panel may pick this signal up.
-   */
-  void RequestScopePanel(ScopePanel::Type type);
 
   /**
    * @brief Wrapper for ViewerGLWidget::ColorProcessorChanged()
@@ -295,8 +287,6 @@ private slots:
   void ContextMenuSetCustomSafeMargins();
 
   void WindowAboutToClose();
-
-  void ContextMenuScopeTriggered(QAction* action);
 
   void RendererGeneratedFrame();
 
