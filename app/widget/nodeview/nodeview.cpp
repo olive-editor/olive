@@ -739,6 +739,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
     // Show in Viewer option for nodes based on Viewer
     if (ViewerOutput* viewer = dynamic_cast<ViewerOutput*>(selected.first()->GetNode())) {
+      Q_UNUSED(viewer)
       m.addSeparator();
       QAction* open_in_viewer_action = m.addAction(tr("Open in Viewer"));
       connect(open_in_viewer_action, &QAction::triggered, this, &NodeView::OpenSelectedNodeInViewer);
