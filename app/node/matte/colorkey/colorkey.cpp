@@ -24,12 +24,15 @@ const QString ColorKeyNode::kMaxLevelInput = QStringLiteral("max_level_in");
 const QString ColorKeyNode::kContrastInput = QStringLiteral("contrast_in");
 const QString ColorKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
 const QString ColorKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
+const QString ColorKeyNode::kCoreMatteInput = QStringLiteral("core_in");
 
 
 ColorKeyNode::ColorKeyNode() {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  //AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kCoreMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0.0f, 1.0f, 0.0f, 1.0f)));
 
@@ -81,7 +84,9 @@ void ColorKeyNode::Retranslate()
   SetInputName(kMaxLevelInput, tr("Maximum Threshold"));
   SetInputName(kContrastInput, tr("Matte Contrast"));
   SetInputName(kMaskOnlyInput, tr("Output Mask"));
-  //SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
+  SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
+  SetInputName(kCoreMatteInput, tr("Core Matte"));
+
 }
 
 ShaderCode ColorKeyNode::GetShaderCode(const QString &shader_id) const
