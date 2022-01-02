@@ -122,7 +122,7 @@ void BlockSplitPreservingLinksCommand::redo()
 
         if (b->in() < time && b->out() > time) {
           BlockSplitCommand* split_command = new BlockSplitCommand(b, time);
-          split_command->redo();
+          split_command->redo_now();
           splits.replace(j, split_command->new_block());
           commands_.append(split_command);
         } else {

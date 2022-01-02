@@ -65,6 +65,7 @@ private:
 
     virtual Project* GetRelevantProject() const override;
 
+  protected:
     virtual void redo() override;
     virtual void undo() override;
 

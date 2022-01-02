@@ -364,7 +364,7 @@ void TrackListInsertGaps::redo()
   }
 
   if (split_command_) {
-    split_command_->redo();
+    split_command_->redo_now();
   }
 
   foreach (auto add_gap, gaps_added_) {
@@ -406,7 +406,7 @@ void TrackListInsertGaps::undo()
 
   // Un-split blocks
   if (split_command_) {
-    split_command_->undo();
+    split_command_->undo_now();
   }
 
   // Restore original length of gaps

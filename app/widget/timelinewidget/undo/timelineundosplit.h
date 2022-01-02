@@ -53,6 +53,7 @@ public:
     return new_block_;
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override;
@@ -88,6 +89,7 @@ public:
     return blocks_.first()->project();
   }
 
+protected:
   virtual void redo() override;
 
   virtual void undo() override
@@ -125,6 +127,7 @@ public:
     return track_->project();
   }
 
+protected:
   virtual void prepare() override;
 
   virtual void redo() override
