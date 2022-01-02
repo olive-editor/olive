@@ -37,10 +37,9 @@ class ColorKeyNode : public Node {
   virtual void Value(const NodeValueRow& value, const NodeGlobals& globals, NodeValueTable* table) const override;
  
   static const QString kTextureInput;
-  static const QString kColorInput;
   static const QString kMaskOnlyInput;
-  static const QString kMinLevelInput;
-  static const QString kMaxLevelInput;
+  static const QString kDarksInput;
+  static const QString kBrightsInput;
   static const QString kContrastInput;
   static const QString kGarbageMatteInput;
   static const QString kCoreMatteInput;

@@ -3,9 +3,8 @@ uniform sampler2D garbage_in;
 uniform sampler2D core_in;
 uniform bool garbage_in_enabled;
 uniform bool core_in_enabled;
-uniform vec4 color_in;
-uniform float min_level_in;
-uniform float max_level_in;
+uniform float darks_in;
+uniform float brights_in;
 uniform float contrast_in;
 uniform bool mask_only_in;
 
@@ -13,8 +12,6 @@ varying vec2 ove_texcoord;
 
 
 void main(void) {
-    vec4 col_in = color_in;
-
     vec4 tex_col = texture2D(tex_in, ove_texcoord);
     
     // Simple keyer, generates a inverted mask (background is white, foreground black)
@@ -36,27 +33,17 @@ void main(void) {
       mask = clamp(mask, 0.0, 1.0);
     }
 
-    // Push whites
-    mask = contrast_in*mask;
-
-    // Pull blacks
-    //mask = contrast * (mask - 1) + 1
-
     // Combined
-    // mask = blacks*(whites*x - 1) + 1
+    mask = darks_in*(brights_in*mask - 1.0) + 1.0;
+    mask = clamp(mask, 0.0, 1.0);
 
-
-    if (mask < min_level_in) {
-        mask = 0.0;
-    }
-    if (mask > max_level_in) {
-        mask = 1.0;
-    }
-
+    // Invert mask
     mask = 1.0 - mask;
 
+    // Set Alpha channel as mask
     tex_col.w = mask;
 
+    // Pre mulitply
     tex_col.rgb *= tex_col.w;
 
     // Despill (should be another node really)

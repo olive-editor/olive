@@ -18,9 +18,8 @@
 namespace olive {
 
 const QString ColorKeyNode::kTextureInput = QStringLiteral("tex_in");
-const QString ColorKeyNode::kColorInput = QStringLiteral("color_in");
-const QString ColorKeyNode::kMinLevelInput = QStringLiteral("min_level_in");
-const QString ColorKeyNode::kMaxLevelInput = QStringLiteral("max_level_in");
+const QString ColorKeyNode::kDarksInput = QStringLiteral("darks_in");
+const QString ColorKeyNode::kBrightsInput = QStringLiteral("brights_in");
 const QString ColorKeyNode::kContrastInput = QStringLiteral("contrast_in");
 const QString ColorKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
 const QString ColorKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
@@ -34,13 +33,11 @@ ColorKeyNode::ColorKeyNode() {
 
   AddInput(kCoreMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0.0f, 1.0f, 0.0f, 1.0f)));
+  AddInput(kBrightsInput, NodeValue::kFloat, 1.0f);
+  SetInputProperty(kBrightsInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kMinLevelInput, NodeValue::kFloat, 0.0f);
-  SetInputProperty(kMinLevelInput, QStringLiteral("min"), 0.0);
-
-  AddInput(kMaxLevelInput, NodeValue::kFloat, 1.0f);
-  SetInputProperty(kMaxLevelInput, QStringLiteral("min"), 0.0);
+  AddInput(kDarksInput, NodeValue::kFloat, 0.0f);
+  SetInputProperty(kDarksInput, QStringLiteral("min"), 0.0);
 
   AddInput(kContrastInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kContrastInput, QStringLiteral("min"), 0.0);
@@ -79,9 +76,9 @@ QString ColorKeyNode::Description() const
 void ColorKeyNode::Retranslate()
 {
   SetInputName(kTextureInput, tr("Input"));
-  SetInputName(kColorInput, tr("Key Color"));
-  SetInputName(kMinLevelInput, tr("Minimum Threshold"));
-  SetInputName(kMaxLevelInput, tr("Maximum Threshold"));
+  // These seem the wrong way around but the mask is inverted internally
+  SetInputName(kDarksInput, tr("Brights"));
+  SetInputName(kBrightsInput, tr("Darks"));
   SetInputName(kContrastInput, tr("Matte Contrast"));
   SetInputName(kMaskOnlyInput, tr("Output Mask"));
   SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
