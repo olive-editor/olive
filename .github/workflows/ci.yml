@@ -64,6 +64,7 @@ jobs:
           cd $GITHUB_WORKSPACE/app/dialog/about
           python3 patreon.py
         if: github.event_name == 'push'
+        continue-on-error: true
 
       - name: Configure CMake
         run: |
@@ -196,6 +197,7 @@ jobs:
           cd $GITHUB_WORKSPACE/app/dialog/about
           python3 patreon.py
         if: github.event_name == 'push'
+        continue-on-error: true
 
       - name: Configure CMake
         shell: bash
@@ -330,6 +332,7 @@ jobs:
           cd $GITHUB_WORKSPACE/app/dialog/about
           python3 patreon.py
         if: github.event_name == 'push'
+        continue-on-error: true
 
       - name: Configure CMake
         shell: bash
