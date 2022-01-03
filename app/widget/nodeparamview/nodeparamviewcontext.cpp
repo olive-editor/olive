@@ -59,6 +59,8 @@ void NodeParamViewContext::Clear()
 {
   qDeleteAll(items_);
   items_.clear();
+
+  contexts_.clear();
 }
 
 void NodeParamViewContext::SetInputChecked(const NodeInput &input, bool e)
