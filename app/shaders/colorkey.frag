@@ -22,7 +22,8 @@ void main(void) {
     if (garbage_in_enabled) {
       // Force anything we want to remove to be 1.0
       vec4 garbage = texture2D(garbage_in, ove_texcoord);
-      mask += garbage;
+      // Assumes garbage is achromatic
+      mask += garbage.r;
       mask = clamp(mask, 0.0, 1.0);
     }
 
@@ -30,7 +31,8 @@ void main(void) {
       // Force anything we want to keep to be 0.1
       vec4 core = texture2D(core_in, ove_texcoord);
       vec4 core_invert = vec4(1.0 - core.r, 1.0 - core.g, 1.0 - core.b, 1.0);
-      mask *= core_invert;
+      // Assumes core is achromatic
+      mask *= core_invert.r;
       mask = clamp(mask, 0.0, 1.0);
     }
 
