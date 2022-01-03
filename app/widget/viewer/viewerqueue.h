@@ -50,6 +50,16 @@ public:
     }
   }
 
+  void PurgeBefore(const rational &time, int playback_speed)
+  {
+    int popped = 0;
+    while (!this->empty() && this->front().timestamp < time) {
+      popped++;
+      this->pop_front();
+    }
+    if (popped > 0) qDebug() << "Purged" << popped;
+  }
+
 };
 
 }

@@ -313,16 +313,20 @@ void ViewerDisplayWidget::dropEvent(QDropEvent *event)
 
 void ViewerDisplayWidget::showEvent(QShowEvent *event)
 {
-  emit VisibilityChanged(true);
-
   super::showEvent(event);
+
+  if (isVisible()) {
+    emit VisibilityChanged(true);
+  }
 }
 
 void ViewerDisplayWidget::hideEvent(QHideEvent *event)
 {
-  emit VisibilityChanged(false);
-
   super::hideEvent(event);
+
+  if (!isVisible()) {
+    emit VisibilityChanged(false);
+  }
 }
 
 void ViewerDisplayWidget::OnPaint()
@@ -598,6 +602,75 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
 void ViewerDisplayWidget::SetShowFPS(bool e)
 {
   show_fps_ = e;
+
+  update();
+}
+
+void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase)
+{
+  playback_timebase_ = timebase;
+
+  timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
+
+  connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
+
+  update();
+}
+
+void ViewerDisplayWidget::Pause()
+{
+  disconnect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
+
+  queue_.clear();
+}
+
+void ViewerDisplayWidget::UpdateFromQueue()
+{
+  int64_t t = timer_.GetTimestampNow();
+
+  rational time = Timecode::timestamp_to_time(t, playback_timebase_);
+
+  bool popped = false;
+
+  if (queue_.empty()) {
+    //ForceRequeueFromCurrentTime();
+  } else {
+    while (!queue_.empty()) {
+      const ViewerPlaybackFrame& pf = queue_.front();
+
+      if (pf.timestamp == time) {
+
+        // Frame was in queue, no need to decode anything
+        SetImage(pf.frame);
+        return;
+
+      } else if (pf.timestamp > time) {
+
+        // The next frame in the queue is too new, so just do a regular update. Either the
+        // frame we want will arrive in time, or we'll just have to skip it.
+        break;
+
+      } else {
+
+        queue_.pop_front();
+
+        if (popped) {
+          // We've already popped a frame in this loop, meaning a frame has been skipped
+          IncrementSkippedFrames();
+        } else {
+          // Shown a frame and progressed to the next one
+          IncrementFrameCount();
+          popped = true;
+        }
+
+        if (queue_.empty()) {
+          //ForceRequeueFromCurrentTime();
+          break;
+        }
+
+      }
+    }
+  }
 
   update();
 }

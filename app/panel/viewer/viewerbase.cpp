@@ -101,11 +101,4 @@ void ViewerPanelBase::SetViewerWidget(ViewerWidget *vw)
   SetTimeBasedWidget(vw);
 }
 
-void ViewerPanelBase::closeEvent(QCloseEvent *e)
-{
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->Pause();
-
-  TimeBasedPanel::closeEvent(e);
-}
-
 }

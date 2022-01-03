@@ -81,13 +81,13 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   display_widget_ = new ViewerDisplayWidget();
   display_widget_->setAcceptDrops(true);
   display_widget_->SetShowWidgetBackground(true);
+  playback_devices_.append(display_widget_);
   connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
   connect(display_widget_, &ViewerDisplayWidget::CursorColor, this, &ViewerWidget::CursorColor);
   connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, this, &ViewerWidget::ColorProcessorChanged);
   connect(display_widget_, &ViewerDisplayWidget::ColorManagerChanged, this, &ViewerWidget::ColorManagerChanged);
   connect(display_widget_, &ViewerDisplayWidget::DragEntered, this, &ViewerWidget::DragEntered);
   connect(display_widget_, &ViewerDisplayWidget::Dropped, this, &ViewerWidget::Dropped);
-  connect(display_widget_, &ViewerDisplayWidget::VisibilityChanged, this, &ViewerWidget::Pause);
   connect(display_widget_, &ViewerDisplayWidget::TextureChanged, this, &ViewerWidget::TextureChanged);
   connect(sizer_, &ViewerSizer::RequestScale, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
   connect(sizer_, &ViewerSizer::RequestTranslate, display_widget_, &ViewerDisplayWidget::SetMatrixTranslate);
@@ -207,9 +207,8 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
 
   ColorManager* color_manager = n->project()->color_manager();
 
-  display_widget_->ConnectColorManager(color_manager);
-  foreach (ViewerWindow* window, windows_) {
-    window->display_widget()->ConnectColorManager(color_manager);
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->ConnectColorManager(color_manager);
   }
 
   UpdateStack();
@@ -247,9 +246,8 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   // Effectively disables the viewer and clears the state
   SetViewerResolution(0, 0);
 
-  display_widget_->DisconnectColorManager();
-  foreach (ViewerWindow* window, windows_) {
-    window->display_widget()->DisconnectColorManager();
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->DisconnectColorManager();
   }
 
   waveform_view_->SetViewer(nullptr);
@@ -299,9 +297,8 @@ void ViewerWidget::SetColorMenuEnabled(bool enabled)
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
 {
-  display_widget_->SetMatrixCrop(mat);
-  foreach (ViewerWindow* vw, windows_) {
-    vw->display_widget()->SetMatrixCrop(mat);
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetMatrixCrop(mat);
   }
 }
 
@@ -343,9 +340,11 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 
   vw->display_widget()->SetImage(QVariant::fromValue(display_widget()->GetCurrentTexture()));
 
-  (*vw->queue()) = playback_queue_;
+  playback_devices_.append(vw->display_widget());
+
+  (*vw->display_widget()->queue()) = *playback_devices_.first()->queue();
   if (IsPlaying()) {
-    vw->Play(GetTimestamp(), playback_speed_, timebase());
+    vw->display_widget()->Play(GetTimestamp(), playback_speed_, timebase());
   }
 
   windows_.insert(screen, vw);
@@ -402,10 +401,8 @@ bool ViewerWidget::ShouldForceWaveform() const
 
 void ViewerWidget::SetEmptyImage()
 {
-  display_widget()->SetBlank();
-
-  foreach (ViewerWindow *vw, windows_) {
-    vw->display_widget()->SetBlank();
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetBlank();
   }
 }
 
@@ -539,85 +536,30 @@ void ViewerWidget::UpdateTextureFromNode()
     return;
   }
 
+  if (IsPlaying()) {
+    qDebug() << "UpdateTextureFromNode called while playing";
+    return;
+  }
+
   rational time = GetTime();
   bool frame_exists_at_time = FrameExistsAtTime(time);
   bool frame_might_be_still = ViewerMightBeAStill();
 
-  // Check playback queue for a frame
-  if (IsPlaying()) {
-    // We still run the playback queue even when FrameExistsAtTime returns false because we might be
-    // playing backwards and about to start showing frames, so the queue should be prepared for
-    // that.
-    bool popped = false;
-
-    if (playback_queue_.empty()) {
-
-      ForceRequeueFromCurrentTime();
-
-    } else {
-      while (!playback_queue_.empty()) {
-
-        ViewerPlaybackFrame pf = playback_queue_.front();
-
-        if (pf.timestamp == time) {
-
-          // Frame was in queue, no need to decode anything
-          SetDisplayImage(pf.frame, true);
-          return;
-
-        } else if (pf.timestamp > time) {
-
-          // The next frame in the queue is too new, so just do a regular update. Either the
-          // frame we want will arrive in time, or we'll just have to skip it.
-          break;
-
-        } else {
-
-          // Frame was too old, skip this frame
-          PopOldestFrameFromPlaybackQueue();
-          if (popped) {
-            // We've already popped a frame in this loop, meaning a frame has been skipped
-            display_widget_->IncrementSkippedFrames();
-          } else {
-            // Shown a frame and progressed to the next one
-            display_widget_->IncrementFrameCount();
-            popped = true;
-          }
-
-          if (playback_queue_.empty()) {
-
-            ForceRequeueFromCurrentTime();
-            break;
-
-          }
-
-        }
-      }
-    }
-
-  }
-
   if (frame_exists_at_time || frame_might_be_still) {
     // Frame was not in queue, will require rendering or decoding from cache
-    if (IsPlaying()) {
-      // Is playing, yet the queue above failed to retrieve the frame. We effectively do a quick
-      // reboot of the queue here, assuming the above loop has emptied it so far.
-      display_widget_->update();
-    } else {
-      // Not playing, run a task to get the frame either from the cache or the renderer
-      RenderTicketWatcher* watcher = new RenderTicketWatcher();
-      watcher->setProperty("start", QDateTime::currentMSecsSinceEpoch());
-      watcher->setProperty("time", QVariant::fromValue(time));
-      connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
-      nonqueue_watchers_.append(watcher);
+    // Not playing, run a task to get the frame either from the cache or the renderer
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    watcher->setProperty("start", QDateTime::currentMSecsSinceEpoch());
+    watcher->setProperty("time", QVariant::fromValue(time));
+    connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
+    nonqueue_watchers_.append(watcher);
 
-      // Clear queue because we want this frame more than any others
-      if (!GetConnectedNode()->GetVideoAutoCacheEnabled() && !auto_cacher_.IsRenderingCustomRange()) {
-        ClearVideoAutoCacherQueue();
-      }
-
-      watcher->SetTicket(GetFrame(time, true));
+    // Clear queue because we want this frame more than any others
+    if (!GetConnectedNode()->GetVideoAutoCacheEnabled() && !auto_cacher_.IsRenderingCustomRange()) {
+      ClearVideoAutoCacherQueue();
     }
+
+    watcher->SetTicket(GetFrame(time, true));
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
@@ -673,6 +615,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
     if (prequeue_length_ > 0) {
       prequeuing_video_ = true;
+      prequeue_count_ = 0;
 
       // We "prioritize" the frames, which means they're pushed to the top of the render queue,
       // we queue in reverse so that they're still queued in order
@@ -715,16 +658,13 @@ void ViewerWidget::PauseInternal()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
 
-    disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
-
-    foreach (ViewerWindow* window, windows_) {
-      window->Pause();
+    foreach (ViewerDisplayWidget *dw, playback_devices_){
+      dw->Pause();
     }
 
     qDeleteAll(queue_watchers_);
     queue_watchers_.clear();
 
-    playback_queue_.clear();
     playback_backup_timer_.stop();
 
     // Handle audio
@@ -811,14 +751,10 @@ bool ViewerWidget::ViewerMightBeAStill()
   return GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput() && GetConnectedNode()->GetVideoLength().isNull();
 }
 
-void ViewerWidget::SetDisplayImage(QVariant frame, bool main_only)
+void ViewerWidget::SetDisplayImage(QVariant frame)
 {
-  display_widget_->SetImage(frame);
-
-  if (!main_only) {
-    foreach (ViewerWindow* vw, windows_) {
-      vw->display_widget()->SetImage(frame);
-    }
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetImage(frame);
   }
 }
 
@@ -876,19 +812,15 @@ void ViewerWidget::FinishPlayPreprocess()
                                      GetTime(), playback_speed_);
   }
 
-  playback_timer_.Start(playback_start_time, playback_speed_, timebase_dbl());
   display_widget_->ResetFPSTimer();
 
-  foreach (ViewerWindow* window, windows_) {
-    window->Play(playback_start_time, playback_speed_, timebase());
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->Play(playback_start_time, playback_speed_, timebase());
   }
 
-  if (display_widget_->isVisible()) {
-    connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
-  } else {
-    playback_backup_timer_.setInterval(qFloor(timebase_dbl()));
-    playback_backup_timer_.start();
-  }
+  // This is our timer for loading the queue and setting the time
+  playback_backup_timer_.setInterval(qFloor(timebase_dbl()));
+  playback_backup_timer_.start();
 
   PlaybackTimerUpdate();
 }
@@ -907,15 +839,6 @@ int ViewerWidget::DeterminePlaybackQueueSize()
   int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
 
   return qMin(kMaxPreQueueSize, remaining_frames);
-}
-
-void ViewerWidget::PopOldestFrameFromPlaybackQueue()
-{
-  playback_queue_.pop_front();
-
-  if (int(playback_queue_.size()) < DeterminePlaybackQueueSize()) {
-    RequestNextFrameForQueue();
-  }
 }
 
 void ViewerWidget::UpdateStack()
@@ -970,7 +893,9 @@ void ViewerWidget::ContextMenuSetCustomSafeMargins()
 
 void ViewerWidget::WindowAboutToClose()
 {
-  windows_.remove(windows_.key(static_cast<ViewerWindow*>(sender())));
+  ViewerWindow *vw = static_cast<ViewerWindow*>(sender());
+  windows_.remove(windows_.key(vw));
+  playback_devices_.removeOne(vw->display_widget());
 }
 
 void ViewerWidget::RendererGeneratedFrame()
@@ -1017,13 +942,12 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
       if (IsPlaying() || prequeuing_video_) {
         rational ts = watcher->property("time").value<rational>();
 
-        playback_queue_.AppendTimewise({ts, frame}, playback_speed_);
-
-        foreach (ViewerWindow* window, windows_) {
-          window->queue()->AppendTimewise({ts, frame}, playback_speed_);
+        foreach (ViewerDisplayWidget *dw, playback_devices_) {
+          dw->queue()->AppendTimewise({ts, frame}, playback_speed_);
         }
+        prequeue_count_++;
 
-        if (prequeuing_video_ && int(playback_queue_.size()) == prequeue_length_) {
+        if (prequeuing_video_ && prequeue_count_ == prequeue_length_) {
           prequeuing_video_ = false;
           FinishPlayPreprocess();
         }
@@ -1251,10 +1175,8 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform)
 
 void ViewerWidget::SetSignalCursorColorEnabled(bool e)
 {
-  display_widget_->SetSignalCursorColorEnabled(e);
-
-  foreach (ViewerWindow* vw, windows_) {
-    vw->display_widget()->SetSignalCursorColorEnabled(e);
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetSignalCursorColorEnabled(e);
   }
 }
 
@@ -1270,7 +1192,7 @@ void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
 
 void ViewerWidget::PlaybackTimerUpdate()
 {
-  rational current_time = Timecode::timestamp_to_time(playback_timer_.GetTimestampNow(), timebase());
+  rational current_time = Timecode::timestamp_to_time(display_widget_->timer()->GetTimestampNow(), timebase());
 
   rational min_time, max_time;
 
@@ -1352,14 +1274,15 @@ void ViewerWidget::PlaybackTimerUpdate()
     }
   }
 
-  if (display_widget_->isVisible()) {
-    // Updating display widget
-    UpdateTextureFromNode();
-  } else if (!windows_.empty()) {
-    // We still run the queue if windows are visible even if our own display widget isn't visible
-    while (!playback_queue_.empty() && playback_queue_.front().timestamp != GetTime()) {
-      PopOldestFrameFromPlaybackQueue();
-    }
+  // We still run the queue if windows are visible even if our own display widget isn't visible
+  /*while (!playback_queue_.empty() && playback_queue_.front().timestamp != GetTime()) {
+    PopOldestFrameFromPlaybackQueue();
+  }*/
+  // NOTE: There should be some calculation here to determine how many frames need to be queued
+  RequestNextFrameForQueue();
+
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->queue()->PurgeBefore(current_time, playback_speed_);
   }
 }
 
@@ -1398,10 +1321,10 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
 void ViewerWidget::InterlacingChangedSlot(VideoParams::Interlacing interlacing)
 {
   // Automatically set a "sane" deinterlacing option
-  display_widget_->SetDeinterlacing(interlacing != VideoParams::kInterlaceNone);
+  bool deint = interlacing != VideoParams::kInterlaceNone;
 
-  foreach (ViewerWindow* vw, windows_) {
-    vw->display_widget()->SetDeinterlacing(interlacing != VideoParams::kInterlaceNone);
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetDeinterlacing(deint);
   }
 }
 
@@ -1409,9 +1332,8 @@ void ViewerWidget::UpdateRendererVideoParameters()
 {
   VideoParams vp = GetConnectedNode()->GetVideoParams();
 
-  display_widget_->SetVideoParams(vp);
-  foreach (ViewerWindow* window, windows_) {
-    window->display_widget()->SetVideoParams(vp);
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetVideoParams(vp);
   }
 }
 

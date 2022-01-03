@@ -28,6 +28,8 @@
 #include "node/node.h"
 #include "render/color.h"
 #include "tool/tool.h"
+#include "viewerplaybacktimer.h"
+#include "viewerqueue.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
@@ -105,6 +107,20 @@ public:
   TexturePtr GetCurrentTexture() const
   {
     return texture_;
+  }
+
+  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase);
+
+  void Pause();
+
+  ViewerQueue* queue()
+  {
+    return &queue_;
+  }
+
+  ViewerPlaybackTimer *timer()
+  {
+    return &timer_;
   }
 
 public slots:
@@ -209,6 +225,8 @@ protected:
   virtual void showEvent(QShowEvent* event) override;
 
   virtual void hideEvent(QHideEvent* event) override;
+
+  //virtual void closeEvent(QCloseEvent* event) override;
 
 protected slots:
   /**
@@ -334,8 +352,17 @@ private:
 
   PushMode push_mode_;
 
+  // Playback
+  ViewerQueue queue_;
+
+  ViewerPlaybackTimer timer_;
+
+  rational playback_timebase_;
+
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);
+
+  void UpdateFromQueue();
 
 };
 

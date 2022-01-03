@@ -88,8 +88,6 @@ signals:
 protected:
   void SetViewerWidget(ViewerWidget *vw);
 
-  virtual void closeEvent(QCloseEvent* e) override;
-
 };
 
 }
