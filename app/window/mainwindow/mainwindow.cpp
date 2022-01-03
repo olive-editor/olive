@@ -756,6 +756,7 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     UpdateNodePanelContextFromTimelinePanel(timeline);
   } else if (ProjectPanel* project = dynamic_cast<ProjectPanel*>(panel)) {
     // Signal project panel focus
+    Q_UNUSED(project)
     UpdateTitle();
   } else if (ViewerPanelBase *viewer = dynamic_cast<ViewerPanelBase*>(panel)) {
     // Update scopes for viewer
