@@ -96,7 +96,10 @@ void ColorKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, 
   job.InsertValue(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  // If there's no texture, no need to run an operation
+  if (!job.GetValue(kTextureInput).data().isNull()) {
+    table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  }
 }
 
 }  // namespace olive
