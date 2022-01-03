@@ -1,6 +1,7 @@
 uniform sampler2D tex_in;
 uniform sampler2D garbage_in;
 uniform sampler2D core_in;
+uniform int color_in;
 uniform bool garbage_in_enabled;
 uniform bool core_in_enabled;
 uniform float darks_in;
@@ -15,7 +16,12 @@ void main(void) {
     vec4 tex_col = texture2D(tex_in, ove_texcoord);
     
     // Simple keyer, generates a inverted mask (background is white, foreground black)
-    float mask = (tex_col.g - max(tex_col.r, tex_col.b));
+    float mask;
+    if (color_in == 0){
+      mask = (tex_col.g - max(tex_col.r, tex_col.b));
+    } else{
+      mask = (tex_col.b - max(tex_col.r, tex_col.g));
+    }
     mask = clamp(mask, 0.0, 1.0);
 
 

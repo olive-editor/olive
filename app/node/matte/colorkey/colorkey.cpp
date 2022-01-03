@@ -18,12 +18,14 @@
 namespace olive {
 
 const QString ColorKeyNode::kTextureInput = QStringLiteral("tex_in");
+const QString ColorKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
+const QString ColorKeyNode::kCoreMatteInput = QStringLiteral("core_in");
+const QString ColorKeyNode::kColorInput = QStringLiteral("color_in");
 const QString ColorKeyNode::kDarksInput = QStringLiteral("darks_in");
 const QString ColorKeyNode::kBrightsInput = QStringLiteral("brights_in");
 const QString ColorKeyNode::kContrastInput = QStringLiteral("contrast_in");
 const QString ColorKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
-const QString ColorKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
-const QString ColorKeyNode::kCoreMatteInput = QStringLiteral("core_in");
+
 
 
 ColorKeyNode::ColorKeyNode() {
@@ -32,6 +34,8 @@ ColorKeyNode::ColorKeyNode() {
   AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kCoreMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kColorInput, NodeValue::kCombo, 0);
 
   AddInput(kBrightsInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kBrightsInput, QStringLiteral("min"), 0.0);
@@ -74,13 +78,16 @@ QString ColorKeyNode::Description() const
 void ColorKeyNode::Retranslate()
 {
   SetInputName(kTextureInput, tr("Input"));
+  SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
+  SetInputName(kCoreMatteInput, tr("Core Matte"));
+  SetInputName(kColorInput, tr("Key Color"));
+  SetComboBoxStrings(kColorInput, {tr("Green"), tr("Blue")});
   // These seem the wrong way around but the mask is inverted internally
   SetInputName(kDarksInput, tr("Brights"));
   SetInputName(kBrightsInput, tr("Darks"));
   SetInputName(kContrastInput, tr("Matte Contrast"));
   SetInputName(kMaskOnlyInput, tr("Output Mask"));
-  SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
-  SetInputName(kCoreMatteInput, tr("Core Matte"));
+  
 
 }
 
