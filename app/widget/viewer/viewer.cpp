@@ -89,6 +89,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::DragEntered, this, &ViewerWidget::DragEntered);
   connect(display_widget_, &ViewerDisplayWidget::Dropped, this, &ViewerWidget::Dropped);
   connect(display_widget_, &ViewerDisplayWidget::TextureChanged, this, &ViewerWidget::TextureChanged);
+  connect(display_widget_, &ViewerDisplayWidget::QueueStarved, this, &ViewerWidget::ForceRequeueFromCurrentTime);
   connect(sizer_, &ViewerSizer::RequestScale, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
   connect(sizer_, &ViewerSizer::RequestTranslate, display_widget_, &ViewerDisplayWidget::SetMatrixTranslate);
   connect(display_widget_, &ViewerDisplayWidget::HandDragMoved, sizer_, &ViewerSizer::HandDragMove);
@@ -537,7 +538,7 @@ void ViewerWidget::UpdateTextureFromNode()
   }
 
   if (IsPlaying()) {
-    qDebug() << "UpdateTextureFromNode called while playing";
+    qWarning() << "UpdateTextureFromNode called while playing";
     return;
   }
 
@@ -827,6 +828,10 @@ void ViewerWidget::FinishPlayPreprocess()
 
 int ViewerWidget::DeterminePlaybackQueueSize()
 {
+  if (playback_speed_ == 0) {
+    return 0;
+  }
+
   int64_t end_ts;
 
   if (playback_speed_ > 0) {
@@ -1192,6 +1197,8 @@ void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
 
 void ViewerWidget::PlaybackTimerUpdate()
 {
+  Q_ASSERT(playback_speed_ != 0);
+
   rational current_time = Timecode::timestamp_to_time(display_widget_->timer()->GetTimestampNow(), timebase());
 
   rational min_time, max_time;
@@ -1274,12 +1281,13 @@ void ViewerWidget::PlaybackTimerUpdate()
     }
   }
 
-  // We still run the queue if windows are visible even if our own display widget isn't visible
-  /*while (!playback_queue_.empty() && playback_queue_.front().timestamp != GetTime()) {
-    PopOldestFrameFromPlaybackQueue();
-  }*/
-  // NOTE: There should be some calculation here to determine how many frames need to be queued
-  RequestNextFrameForQueue();
+  if (IsPlaying()) {
+    int count = 0;
+    for (int i=display_widget_->queue()->size(); i<DeterminePlaybackQueueSize(); i++) {
+      RequestNextFrameForQueue();
+      count++;
+    }
+  }
 
   foreach (ViewerDisplayWidget *dw, playback_devices_) {
     dw->queue()->PurgeBefore(current_time, playback_speed_);

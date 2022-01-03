@@ -311,24 +311,6 @@ void ViewerDisplayWidget::dropEvent(QDropEvent *event)
   }
 }
 
-void ViewerDisplayWidget::showEvent(QShowEvent *event)
-{
-  super::showEvent(event);
-
-  if (isVisible()) {
-    emit VisibilityChanged(true);
-  }
-}
-
-void ViewerDisplayWidget::hideEvent(QHideEvent *event)
-{
-  super::hideEvent(event);
-
-  if (!isVisible()) {
-    emit VisibilityChanged(false);
-  }
-}
-
 void ViewerDisplayWidget::OnPaint()
 {
   // Clear background to empty
@@ -633,7 +615,7 @@ void ViewerDisplayWidget::UpdateFromQueue()
   bool popped = false;
 
   if (queue_.empty()) {
-    //ForceRequeueFromCurrentTime();
+    emit QueueStarved();
   } else {
     while (!queue_.empty()) {
       const ViewerPlaybackFrame& pf = queue_.front();
@@ -664,7 +646,7 @@ void ViewerDisplayWidget::UpdateFromQueue()
         }
 
         if (queue_.empty()) {
-          //ForceRequeueFromCurrentTime();
+          emit QueueStarved();
           break;
         }
 

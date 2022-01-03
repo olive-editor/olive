@@ -196,9 +196,9 @@ signals:
 
   void Dropped(QDropEvent* event);
 
-  void VisibilityChanged(bool visible);
-
   void TextureChanged(TexturePtr texture);
+
+  void QueueStarved();
 
 protected:
   /**
@@ -221,12 +221,6 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
 
   virtual void dropEvent(QDropEvent* event) override;
-
-  virtual void showEvent(QShowEvent* event) override;
-
-  virtual void hideEvent(QHideEvent* event) override;
-
-  //virtual void closeEvent(QCloseEvent* event) override;
 
 protected slots:
   /**

@@ -52,12 +52,10 @@ public:
 
   void PurgeBefore(const rational &time, int playback_speed)
   {
-    int popped = 0;
-    while (!this->empty() && this->front().timestamp < time) {
-      popped++;
+    while (!this->empty()
+           && ((playback_speed > 0 && this->front().timestamp < time) || (playback_speed < 0 && this->front().timestamp > time))) {
       this->pop_front();
     }
-    if (popped > 0) qDebug() << "Purged" << popped;
   }
 
 };
