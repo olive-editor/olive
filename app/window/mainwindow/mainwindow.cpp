@@ -371,6 +371,9 @@ void MainWindow::ProjectClose(Project *p)
 
   // Close project from NodeView
   node_panel_->CloseContextsBelongingToProject(p);
+
+  // Close project from NodeParamView
+  param_panel_->CloseContextsBelongingToProject(p);
 }
 
 void MainWindow::SetApplicationProgressStatus(ProgressStatus status)

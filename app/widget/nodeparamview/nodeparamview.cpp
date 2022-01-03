@@ -163,6 +163,20 @@ NodeParamView::~NodeParamView()
   qDeleteAll(context_items_);
 }
 
+void NodeParamView::CloseContextsBelongingToProject(Project *p)
+{
+  QVector<Node*> new_contexts = contexts_;
+
+  for (int i=0; i<new_contexts.size(); i++) {
+    if (new_contexts.at(i)->project() == p) {
+      new_contexts.removeAt(i);
+      i--;
+    }
+  }
+
+  SetContexts(new_contexts);
+}
+
 /*void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
 {
   return;

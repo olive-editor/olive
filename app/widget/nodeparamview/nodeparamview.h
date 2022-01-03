@@ -55,6 +55,8 @@ public:
     return input_checked_.value(input);
   }
 
+  void CloseContextsBelongingToProject(Project *p);
+
   Node* GetTimeTarget() const;
 
   void DeleteSelected();

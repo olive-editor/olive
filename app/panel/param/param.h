@@ -53,6 +53,11 @@ public:
     GetParamView()->SetIgnoreNodeFlags(e);
   }
 
+  void CloseContextsBelongingToProject(Project *p)
+  {
+    GetParamView()->CloseContextsBelongingToProject(p);
+  }
+
 public slots:
   void SelectNodes(const QVector<Node*>& nodes);
   void DeselectNodes(const QVector<Node*>& nodes);
