@@ -106,6 +106,9 @@ void ScopePanel::SetViewerPanel(ViewerPanelBase *vp)
     SetColorManager(viewer_->GetColorManager());
 
     viewer_->UpdateTextureFromNode();
+  } else {
+    SetReferenceBuffer(nullptr);
+    SetColorManager(nullptr);
   }
 }
 
