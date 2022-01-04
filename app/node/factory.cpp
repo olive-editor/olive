@@ -56,6 +56,7 @@
 
 namespace olive {
 QList<Node*> NodeFactory::library_;
+QVector<int> NodeFactory::hidden_;
 
 void NodeFactory::Initialize()
 {
@@ -67,6 +68,9 @@ void NodeFactory::Initialize()
 
     library_.append(created_node);
   }
+
+  hidden_.append(kTextGeneratorLegacy);
+  hidden_.append(kGroupNode);
 }
 
 void NodeFactory::Destroy()
@@ -84,6 +88,11 @@ Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::Cate
     Node* n = library_.at(i);
 
     if (restrict_to != Node::kCategoryUnknown && !n->Category().contains(restrict_to)) {
+      // Skip this node
+      continue;
+    }
+
+    if (hidden_.contains(i)) {
       // Skip this node
       continue;
     }
@@ -247,6 +256,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new ColorDifferenceKeyNode();
   case kDespillKeying:
     return new DespillNode();
+  case kGroupNode:
+    return new NodeGroup();
 
   case kInternalNodeCount:
     break;

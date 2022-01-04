@@ -40,8 +40,6 @@ class CurveWidget : public TimeBasedWidget, public TimeTargetObject
 public:
   CurveWidget(QWidget* parent = nullptr);
 
-  virtual ~CurveWidget() override;
-
   const double& GetVerticalScale();
   void SetVerticalScale(const double& vscale);
 
@@ -78,9 +76,9 @@ private:
 
   void UpdateBridgeTime(const rational &time);
 
-  void ConnectNode(Node* node, bool connect);
+  void ConnectInput(Node *node, const QString &input, int element);
 
-  void ConnectInput(Node* node, const QString& input, bool connect);
+  void ConnectInputInternal(Node *node, const QString &input, int element);
 
   QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
@@ -98,22 +96,14 @@ private:
 
   QVector<Node*> nodes_;
 
+  QVector<NodeKeyframeTrackReference> selected_tracks_;
+
 private slots:
   void SelectionChanged();
 
   void KeyframeTypeButtonTriggered(bool checked);
 
-  void NodeEnabledChanged(Node* n, bool e);
-
-  void InputEnabledChanged(const NodeKeyframeTrackReference &ref, bool e);
-
-  void AddKeyframe(NodeKeyframe* key);
-
-  void RemoveKeyframe(NodeKeyframe* key);
-
   void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
-
-  void InputDoubleClicked(const NodeKeyframeTrackReference& ref);
 
   void KeyframeViewDragged(int x, int y);
 

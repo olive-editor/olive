@@ -28,7 +28,6 @@
 #include "core.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
-#include "dialog/nodeproperties/nodepropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/speedduration/speeddurationdialog.h"
 #include "node/block/transition/transition.h"
@@ -1027,17 +1026,7 @@ void TimelineWidget::ShowContextMenu()
     menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));
-    connect(properties_action, &QAction::triggered, this, [this](){
-      QVector<Block*> block_items = GetSelectedBlocks();
-      QVector<Node*> nodes;
-
-      foreach (Block* i, block_items) {
-        nodes.append(i);
-      }
-
-      NodePropertiesDialog npd(nodes, timebase(), this);
-      npd.exec();
-    });
+    connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialogForSelectedClips);
   }
 
   if (selected.isEmpty()) {

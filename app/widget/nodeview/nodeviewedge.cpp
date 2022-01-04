@@ -46,6 +46,9 @@ NodeViewEdge::NodeViewEdge(Node *output, const NodeInput &input,
 {
   Init();
   SetConnected(true);
+
+  from_item_->AddEdge(this);
+  to_item_->AddEdge(this);
 }
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
@@ -56,12 +59,51 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   Init();
 }
 
+NodeViewEdge::~NodeViewEdge()
+{
+  if (from_item_) {
+    from_item_->RemoveEdge(this);
+  }
+
+  if (to_item_) {
+    to_item_->RemoveEdge(this);
+  }
+}
+
+void NodeViewEdge::set_from_item(NodeViewItem *i)
+{
+  if (from_item_) {
+    from_item_->RemoveEdge(this);
+  }
+
+  from_item_ = i;
+
+  if (from_item_) {
+    from_item_->AddEdge(this);
+  }
+
+  Adjust();
+}
+
+void NodeViewEdge::set_to_item(NodeViewItem *i)
+{
+  if (to_item_) {
+    to_item_->RemoveEdge(this);
+  }
+
+  to_item_ = i;
+
+  if (to_item_) {
+    to_item_->AddEdge(this);
+  }
+
+  Adjust();
+}
+
 void NodeViewEdge::Adjust()
 {
   // Draw a line between the two
-  SetPoints(from_item()->GetOutputPoint(),
-            to_item()->GetInputPoint(input_.input(), input_.element(), from_item()->pos()),
-            to_item()->IsExpanded());
+  SetPoints(from_item()->GetOutputPoint(), to_item()->GetInputPoint());
 }
 
 void NodeViewEdge::SetConnected(bool c)
@@ -78,22 +120,12 @@ void NodeViewEdge::SetHighlighted(bool e)
   update();
 }
 
-void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end, bool input_is_expanded)
+void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end)
 {
   cached_start_ = start;
   cached_end_ = end;
-  cached_input_is_expanded_ = input_is_expanded;
 
   UpdateCurve();
-}
-
-void NodeViewEdge::SetFlowDirection(NodeViewCommon::FlowDirection dir)
-{
-  flow_dir_ = dir;
-
-  if (from_item_ && to_item_) {
-    Adjust();
-  }
 }
 
 void NodeViewEdge::SetCurved(bool e)
@@ -126,18 +158,12 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   painter->setPen(QPen(edge_color, edge_width_));
   painter->setBrush(Qt::NoBrush);
   painter->drawPath(path());
-
-  // Draw arrow
-  painter->setPen(Qt::NoPen);
-  painter->setBrush(edge_color);
-  painter->drawPolygon(arrow_);
 }
 
 void NodeViewEdge::Init()
 {
   connected_ = false;
   highlighted_ = false;
-  flow_dir_ = NodeViewCommon::kLeftToRight;
   curved_ = true;
 
   setFlag(QGraphicsItem::ItemIsSelectable);
@@ -147,14 +173,12 @@ void NodeViewEdge::Init()
 
   // Use font metrics to set edge width for basic high DPI support
   edge_width_ = QFontMetrics(QFont()).height() / 12;
-  arrow_size_ = QFontMetrics(QFont()).height() / 2;
 }
 
 void NodeViewEdge::UpdateCurve()
 {
   const QPointF &start = cached_start_;
   const QPointF &end = cached_end_;
-  const bool input_is_expanded = cached_input_is_expanded_;
 
   QPainterPath path;
   path.moveTo(start);
@@ -168,13 +192,26 @@ void NodeViewEdge::UpdateCurve()
 
     QPointF cp1, cp2;
 
-    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal) {
+    NodeViewCommon::FlowDirection from_flow = from_item_ ? from_item_->GetFlowDirection() : NodeViewCommon::kInvalidDirection;
+    NodeViewCommon::FlowDirection to_flow = to_item_ ? to_item_->GetFlowDirection() : NodeViewCommon::kInvalidDirection;
+
+    if (from_flow == NodeViewCommon::kInvalidDirection && to_flow == NodeViewCommon::kInvalidDirection) {
+      // This is a technically unsupported scenario, but to avoid issues, we'll use a fallback
+      from_flow = NodeViewCommon::kLeftToRight;
+      to_flow = NodeViewCommon::kLeftToRight;
+    } else if (from_flow == NodeViewCommon::kInvalidDirection) {
+      from_flow = to_flow;
+    } else if (to_flow == NodeViewCommon::kInvalidDirection) {
+      to_flow = from_flow;
+    }
+
+    if (NodeViewCommon::GetFlowOrientation(from_flow) == Qt::Horizontal) {
       cp1 = QPointF(half_x, start.y());
     } else {
       cp1 = QPointF(start.x(), half_y);
     }
 
-    if (NodeViewCommon::GetFlowOrientation(flow_dir_) == Qt::Horizontal || input_is_expanded) {
+    if (NodeViewCommon::GetFlowOrientation(to_flow) == Qt::Horizontal) {
       cp2 = QPointF(half_x, end.y());
     } else {
       cp2 = QPointF(end.x(), half_y);
@@ -183,7 +220,7 @@ void NodeViewEdge::UpdateCurve()
     path.cubicTo(cp1, cp2, end);
 
     if (!qFuzzyCompare(start.x(), end.x())) {
-      double continue_x = end.x() - qCos(angle)*arrow_size_;
+      double continue_x = end.x() - qCos(angle);
 
       double x1 = start.x();
       double x2 = cp1.x();
@@ -213,18 +250,7 @@ void NodeViewEdge::UpdateCurve()
 
   }
 
-  setPath(path);
-
-  const double arrow_angle = 150.0 * M_PI / 180.0;
-  QVector<QPointF> arrow_points(4);
-  arrow_points[0] = end;
-  arrow_points[1] = end + QPointF(qCos(angle + arrow_angle) * arrow_size_, qSin(angle + arrow_angle) * arrow_size_);
-  arrow_points[2] = end + QPointF(qCos(angle - arrow_angle) * arrow_size_, qSin(angle - arrow_angle) * arrow_size_);
-  arrow_points[3] = end;
-
-  arrow_ = QPolygonF(arrow_points);
-  arrow_bounding_rect_ = arrow_.boundingRect();
-  arrow_bounding_rect_.adjust(-arrow_size_, -arrow_size_, arrow_size_, arrow_size_);
+  setPath(mapFromScene(path));
 }
 
 }

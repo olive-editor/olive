@@ -110,7 +110,7 @@ void TrackRippleRemoveAreaCommand::redo()
 
   if (splice_split_command_) {
     // We're just splicing
-    splice_split_command_->redo();
+    splice_split_command_->redo_now();
 
     // Trim the in of the split
     Block* split = splice_split_command_->new_block();
@@ -157,7 +157,7 @@ void TrackRippleRemoveAreaCommand::undo()
   track_->BeginOperation();
 
   if (splice_split_command_) {
-    splice_split_command_->undo();
+    splice_split_command_->undo_now();
   } else {
     if (trim_out_.block) {
       trim_out_.block->set_length_and_media_out(trim_out_.old_length);

@@ -75,7 +75,7 @@
 namespace olive {
 
 Core* Core::instance_ = nullptr;
-const uint Core::kProjectVersion = 210907;
+const uint Core::kProjectVersion = 211228;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),
@@ -434,7 +434,7 @@ void Core::CreateNewSequence()
 
     command->add_child(new NodeAddCommand(active_project, new_sequence));
     command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
-    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0), false));
+    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, Node::Position()));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);
@@ -1354,10 +1354,10 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QVector<Node *> &nodes)
+bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
 {
   if (nodes.isEmpty()) {
-    return;
+    return false;
   }
 
   bool ok;
@@ -1386,8 +1386,16 @@ void Core::LabelNodes(const QVector<Node *> &nodes)
       rename_command->AddNode(n, s);
     }
 
-    undo_stack_.push(rename_command);
+    if (parent) {
+      parent->add_child(rename_command);
+    } else {
+      undo_stack_.push(rename_command);
+    }
+
+    return true;
   }
+
+  return false;
 }
 
 Sequence *Core::CreateNewSequenceForProject(Project* project) const

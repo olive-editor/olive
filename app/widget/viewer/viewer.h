@@ -33,13 +33,10 @@
 #include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
-#include "panel/scope/scope.h"
 #include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"
 #include "threading/threadticketwatcher.h"
 #include "viewerdisplay.h"
-#include "viewerplaybacktimer.h"
-#include "viewerqueue.h"
 #include "viewersizer.h"
 #include "viewerwindow.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
@@ -132,13 +129,6 @@ signals:
   void TextureChanged(TexturePtr t);
 
   /**
-   * @brief Request a scope panel
-   *
-   * As a widget, we don't handle panels, but a parent panel may pick this signal up.
-   */
-  void RequestScopePanel(ScopePanel::Type type);
-
-  /**
    * @brief Wrapper for ViewerGLWidget::ColorProcessorChanged()
    */
   void ColorProcessorChanged(ColorProcessorPtr processor);
@@ -191,7 +181,7 @@ private:
 
   bool ViewerMightBeAStill();
 
-  void SetDisplayImage(QVariant frame, bool main_only = false);
+  void SetDisplayImage(QVariant frame);
 
   void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
 
@@ -200,8 +190,6 @@ private:
   void FinishPlayPreprocess();
 
   int DeterminePlaybackQueueSize();
-
-  void PopOldestFrameFromPlaybackQueue();
 
   static FramePtr DecodeCachedImage(const QString &cache_path, const QByteArray &hash, const rational& time);
 
@@ -239,11 +227,10 @@ private:
 
   ViewerDisplayWidget* context_menu_widget_;
 
-  ViewerPlaybackTimer playback_timer_;
   QTimer playback_backup_timer_;
 
-  ViewerQueue playback_queue_;
   int64_t playback_queue_next_frame_;
+  QVector<ViewerDisplayWidget*> playback_devices_;
 
   bool prequeuing_video_;
   int prequeuing_audio_;
@@ -253,6 +240,7 @@ private:
   rational last_length_;
 
   int prequeue_length_;
+  int prequeue_count_;
 
   PreviewAutoCacher auto_cacher_;
 
@@ -295,8 +283,6 @@ private slots:
   void ContextMenuSetCustomSafeMargins();
 
   void WindowAboutToClose();
-
-  void ContextMenuScopeTriggered(QAction* action);
 
   void RendererGeneratedFrame();
 

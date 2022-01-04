@@ -69,8 +69,6 @@ public:
 
   void FolderOpen(Project* p, Folder *i, bool floating);
 
-  ScopePanel* AppendScopePanel();
-
   void OpenNodeInViewer(ViewerOutput* node);
 
   enum ProgressStatus {
@@ -159,7 +157,7 @@ private:
   AudioMonitorPanel* audio_monitor_panel_;
   TaskManagerPanel* task_man_panel_;
   PixelSamplerPanel* pixel_sampler_panel_;
-  QList<ScopePanel*> scope_panels_;
+  ScopePanel* scope_panel_;
   QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
 
 #ifdef Q_OS_WINDOWS
@@ -187,13 +185,13 @@ private slots:
 
   void StatusBarDoubleClicked();
 
+  void NodeGroupRequested(NodeGroup *group);
+
 #ifdef Q_OS_LINUX
   void ShowNouveauWarning();
 #endif
 
   void TimelinePanelSelectionChanged(const QVector<Block*> &blocks);
-
-  void ProjectPanelSelectionChanged(const QVector<Node*> &nodes);
 
   void ShowWelcomeDialog();
 

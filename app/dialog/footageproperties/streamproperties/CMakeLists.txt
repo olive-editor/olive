@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2020 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,11 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/nodeproperties/nodepropertiesdialog.cpp
-  dialog/nodeproperties/nodepropertiesdialog.h
+  dialog/footageproperties/streamproperties/streamproperties.h
+  dialog/footageproperties/streamproperties/streamproperties.cpp
+  dialog/footageproperties/streamproperties/audiostreamproperties.h
+  dialog/footageproperties/streamproperties/audiostreamproperties.cpp
+  dialog/footageproperties/streamproperties/videostreamproperties.h
+  dialog/footageproperties/streamproperties/videostreamproperties.cpp
   PARENT_SCOPE
 )

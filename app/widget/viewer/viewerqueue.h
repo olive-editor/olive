@@ -50,6 +50,14 @@ public:
     }
   }
 
+  void PurgeBefore(const rational &time, int playback_speed)
+  {
+    while (!this->empty()
+           && ((playback_speed > 0 && this->front().timestamp < time) || (playback_speed < 0 && this->front().timestamp > time))) {
+      this->pop_front();
+    }
+  }
+
 };
 
 }

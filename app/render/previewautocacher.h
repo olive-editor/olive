@@ -24,8 +24,9 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "config/config.h"
-#include "node/graph.h"
 #include "node/color/colormanager/colormanager.h"
+#include "node/graph.h"
+#include "node/group/group.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/project.h"
@@ -172,6 +173,7 @@ private:
 
   QVector<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
+  QHash<NodeGraph*, NodeGraph*> graph_map_;
   ViewerOutput* copied_viewer_node_;
   ColorManager* copied_color_manager_;
   QVector<Node*> created_nodes_;

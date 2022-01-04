@@ -19,10 +19,14 @@ set(OLIVE_SOURCES
   widget/nodeview/nodeview.cpp
   widget/nodeview/nodeview.h
   widget/nodeview/nodeviewcommon.h
+  widget/nodeview/nodeviewcontext.cpp
+  widget/nodeview/nodeviewcontext.h
   widget/nodeview/nodeviewedge.cpp
   widget/nodeview/nodeviewedge.h
   widget/nodeview/nodeviewitem.cpp
   widget/nodeview/nodeviewitem.h
+  widget/nodeview/nodeviewitemconnector.cpp
+  widget/nodeview/nodeviewitemconnector.h
   widget/nodeview/nodeviewminimap.cpp
   widget/nodeview/nodeviewminimap.h
   widget/nodeview/nodeviewscene.cpp
@@ -31,5 +35,7 @@ set(OLIVE_SOURCES
   widget/nodeview/nodeviewtoolbar.h
   widget/nodeview/nodeviewundo.cpp
   widget/nodeview/nodeviewundo.h
+  widget/nodeview/nodewidget.cpp
+  widget/nodeview/nodewidget.h
   PARENT_SCOPE
 )

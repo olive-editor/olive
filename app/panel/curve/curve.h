@@ -39,6 +39,18 @@ public:
   virtual void DeselectAll() override;
 
 public slots:
+  void SetNode(Node *node)
+  {
+    // Convert single pointer to either an empty vector or a vector of one
+    QVector<Node *> nodes;
+
+    if (node) {
+      nodes.append(node);
+    }
+
+    SetNodes(nodes);
+  }
+
   void SetNodes(const QVector<Node *> &nodes);
 
   virtual void IncreaseTrackHeight() override;

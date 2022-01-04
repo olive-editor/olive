@@ -44,19 +44,16 @@ Project::Project() :
   root_->setParent(this);
   root_->SetLabel(tr("Root"));
   root_->SetCanBeDeleted(false);
-  SetNodePosition(root_, root_, QPointF(0, 0));
 
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
-  SetNodePosition(color_manager_, root_, QPointF(1, 0));
   color_manager_->SetCanBeDeleted(false);
   AddDefaultNode(color_manager_);
 
   // Same with project settings
   settings_ = new ProjectSettingsNode();
   settings_->setParent(this);
-  SetNodePosition(settings_, root_, QPointF(2, 0));
   settings_->SetCanBeDeleted(false);
   AddDefaultNode(settings_);
 
@@ -161,13 +158,13 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
             while (XMLReadNextStartElement(reader)) {
               if (reader->name() == QStringLiteral("node")) {
                 quintptr node_ptr;
-                QPointF node_pos;
+                Node::Position node_pos;
 
                 if (LoadPosition(reader, &node_ptr, &node_pos)) {
                   Node *node = xml_node_data.node_ptrs.value(node_ptr);
 
                   if (node) {
-                    SetNodePosition(node, context, node_pos);
+                    context->SetNodePositionInContext(node, node_pos);
                   } else {
                     qWarning() << "Failed to find pointer for node position";
                     reader->skipCurrentElement();
@@ -196,10 +193,7 @@ void Project::Load(QXmlStreamReader *reader, MainWindowLayoutInfo* layout, uint 
   }
 
   // Make connections
-  XMLConnectNodes(xml_node_data, version);
-
-  // Link blocks
-  XMLLinkBlocks(xml_node_data);
+  xml_node_data.PostConnect(version);
 }
 
 void Project::Save(QXmlStreamWriter *writer) const
@@ -230,20 +224,22 @@ void Project::Save(QXmlStreamWriter *writer) const
 
   writer->writeStartElement(QStringLiteral("positions"));
 
-  for (auto it=GetPositionMap().cbegin(); it!=GetPositionMap().cend(); it++) {
-    writer->writeStartElement(QStringLiteral("context"));
+  foreach (Node* context, nodes()) {
+    const Node::PositionMap &map = context->GetContextPositions();
 
-    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(it.key())));
+    if (!map.isEmpty()) {
+      writer->writeStartElement(QStringLiteral("context"));
 
-    const PositionMap &map = it.value();
+      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(context)));
 
-    for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
-      writer->writeStartElement(QStringLiteral("node"));
-      SavePosition(writer, jt.key(), jt.value());
-      writer->writeEndElement(); // node
+      for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
+        writer->writeStartElement(QStringLiteral("node"));
+        SavePosition(writer, jt.key(), jt.value());
+        writer->writeEndElement(); // node
+      }
+
+      writer->writeEndElement(); // context
     }
-
-    writer->writeEndElement(); // context
   }
 
   writer->writeEndElement(); // positions
@@ -351,7 +347,7 @@ void Project::RegenerateUuid()
   uuid_ = QUuid::createUuid();
 }
 
-bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF *pos)
+bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos)
 {
   bool got_node_ptr = false;
   bool got_pos_x = false;
@@ -367,11 +363,13 @@ bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("x")) {
-      pos->setX(reader->readElementText().toDouble());
+      pos->position.setX(reader->readElementText().toDouble());
       got_pos_x = true;
     } else if (reader->name() == QStringLiteral("y")) {
-      pos->setY(reader->readElementText().toDouble());
+      pos->position.setY(reader->readElementText().toDouble());
       got_pos_y = true;
+    } else if (reader->name() == QStringLiteral("expanded")) {
+      pos->expanded = reader->readElementText().toInt();
     } else {
       reader->skipCurrentElement();
     }
@@ -380,12 +378,13 @@ bool Project::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF
   return got_node_ptr && got_pos_x && got_pos_y;
 }
 
-void Project::SavePosition(QXmlStreamWriter *writer, Node *node, const QPointF &pos)
+void Project::SavePosition(QXmlStreamWriter *writer, Node *node, const Node::Position &pos)
 {
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(node)));
 
-  writer->writeTextElement(QStringLiteral("x"), QString::number(pos.x()));
-  writer->writeTextElement(QStringLiteral("y"), QString::number(pos.y()));
+  writer->writeTextElement(QStringLiteral("x"), QString::number(pos.position.x()));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(pos.position.y()));
+  writer->writeTextElement(QStringLiteral("expanded"), QString::number(pos.expanded));
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)

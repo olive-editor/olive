@@ -367,11 +367,19 @@ void PreviewAutoCacher::ProcessUpdateQueue()
 
 void PreviewAutoCacher::AddNode(Node *node)
 {
+  if (dynamic_cast<NodeGroup*>(node)) {
+    // Group nodes are just dummy nodes, no need to copy them
+    return;
+  }
+
   // Copy node
   Node* copy = node->copy();
 
   // Add to project
   copy->setParent(&copied_project_);
+
+  // Copy UUID
+  copy->SetUUID(node->GetUUID());
 
   // Insert into map
   InsertIntoCopyMap(node, copy);

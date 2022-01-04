@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDebug>
+#include <QScreen>
 #include <QtMath>
 #include <QVBoxLayout>
 
@@ -191,6 +192,23 @@ void SliderLadder::TimerUpdate()
       }
 
       emit DraggedByValue(now_pos - drag_start_x_, elements_.at(active_element_)->GetMultiplier());
+
+      // Determine if cursor is at desktop edge, if so wrap around to other side
+      int left = 0;
+      int right = 0;
+      foreach (QScreen *screen, qApp->screens()) {
+        left = qMin(left, screen->geometry().left());
+        right = qMax(right, screen->geometry().right());
+      }
+      if (now_pos == left || now_pos == right) {
+        if (now_pos == left) {
+          now_pos = right-1;
+        } else {
+          now_pos = left+1;
+        }
+        QCursor::setPos(now_pos, QCursor::pos().y());
+      }
+
       drag_start_x_ = now_pos;
 
     }

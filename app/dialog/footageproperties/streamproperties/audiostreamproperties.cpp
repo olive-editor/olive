@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,35 +18,20 @@
 
 ***/
 
-#ifndef NODEPROPERTIESDIALOG_H
-#define NODEPROPERTIESDIALOG_H
-
-#include <QDialog>
-
-#include "widget/nodeparamview/nodeparamviewitem.h"
+#include "audiostreamproperties.h"
 
 namespace olive {
 
-class NodePropertiesDialog : public QDialog
+AudioStreamProperties::AudioStreamProperties(Footage *footage, int audio_index) :
+  footage_(footage),
+  audio_index_(audio_index)
 {
-  Q_OBJECT
-public:
-  NodePropertiesDialog(Node *node, const rational &timebase, QWidget *parent = nullptr);
-  NodePropertiesDialog(const QVector<Node *> &node, const rational &timebase, QWidget *parent = nullptr) :
-    NodePropertiesDialog(node.first(), timebase, parent)
-  {
-  }
-
-public slots:
-  virtual void accept() override;
-
-private:
-  Node *node_;
-
-  QLineEdit *label_edit_;
-
-};
-
 }
 
-#endif // NODEPROPERTIESDIALOG_H
+void AudioStreamProperties::Accept(MultiUndoCommand*)
+{
+  Q_UNUSED(footage_)
+  Q_UNUSED(audio_index_)
+}
+
+}

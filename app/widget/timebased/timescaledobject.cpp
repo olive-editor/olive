@@ -72,6 +72,13 @@ rational TimeScaledObject::SceneToTime(const double &x, const double &x_scale, c
   return rational(rounded_x_mvmt * timebase.numerator(), timebase.denominator());
 }
 
+rational TimeScaledObject::SceneToTimeNoGrid(const double &x, const double &x_scale)
+{
+  double unscaled_time = x / x_scale;
+
+  return rational::fromDouble(unscaled_time);
+}
+
 double TimeScaledObject::TimeToScene(const rational &time) const
 {
   return time.toDouble() * scale_;
@@ -80,6 +87,11 @@ double TimeScaledObject::TimeToScene(const rational &time) const
 rational TimeScaledObject::SceneToTime(const double &x, bool round) const
 {
   return SceneToTime(x, scale_, timebase_, round);
+}
+
+rational TimeScaledObject::SceneToTimeNoGrid(const double &x) const
+{
+  return SceneToTimeNoGrid(x, scale_);
 }
 
 void TimeScaledObject::SetMaximumScale(const double &max)
