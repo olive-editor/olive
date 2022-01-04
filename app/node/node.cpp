@@ -1818,8 +1818,8 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Distort");
   case kCategoryMath:
     return tr("Math");
-  case kCategoryMatte:
-    return tr("Matte");
+  case kCategoryKeying:
+    return tr("Keying");
   case kCategoryColor:
     return tr("Color");
   case kCategoryFilter:

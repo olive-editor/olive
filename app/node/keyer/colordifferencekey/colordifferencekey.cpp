@@ -13,22 +13,22 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
-#include "colorkey.h"
+#include "colordifferencekey.h"
 
 namespace olive {
 
-const QString ColorKeyNode::kTextureInput = QStringLiteral("tex_in");
-const QString ColorKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
-const QString ColorKeyNode::kCoreMatteInput = QStringLiteral("core_in");
-const QString ColorKeyNode::kColorInput = QStringLiteral("color_in");
-const QString ColorKeyNode::kDarksInput = QStringLiteral("darks_in");
-const QString ColorKeyNode::kBrightsInput = QStringLiteral("brights_in");
-const QString ColorKeyNode::kContrastInput = QStringLiteral("contrast_in");
-const QString ColorKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
+const QString ColorDifferenceKeyNode::kTextureInput = QStringLiteral("tex_in");
+const QString ColorDifferenceKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
+const QString ColorDifferenceKeyNode::kCoreMatteInput = QStringLiteral("core_in");
+const QString ColorDifferenceKeyNode::kColorInput = QStringLiteral("color_in");
+const QString ColorDifferenceKeyNode::kDarksInput = QStringLiteral("darks_in");
+const QString ColorDifferenceKeyNode::kBrightsInput = QStringLiteral("brights_in");
+const QString ColorDifferenceKeyNode::kContrastInput = QStringLiteral("contrast_in");
+const QString ColorDifferenceKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
 
 
 
-ColorKeyNode::ColorKeyNode() {
+ColorDifferenceKeyNode::ColorDifferenceKeyNode() {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -49,33 +49,33 @@ ColorKeyNode::ColorKeyNode() {
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 }
 
-Node *ColorKeyNode::copy() const
+Node *ColorDifferenceKeyNode::copy() const
 {
-  return new ColorKeyNode();
+  return new ColorDifferenceKeyNode();
 }
 
-QString ColorKeyNode::Name() const
+QString ColorDifferenceKeyNode::Name() const
 {
-  return tr("Color Key");
+  return tr("Color Difference Key");
 }
 
-QString ColorKeyNode::id() const
+QString ColorDifferenceKeyNode::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.colorkey");
+  return QStringLiteral("org.olivevideoeditor.Olive.ColorDifferenceKey");
 }
 
 
-QVector<Node::CategoryID> ColorKeyNode::Category() const
+QVector<Node::CategoryID> ColorDifferenceKeyNode::Category() const
 {
-  return {kCategoryMatte};
+  return {kCategoryKeying};
 }
 
-QString ColorKeyNode::Description() const
+QString ColorDifferenceKeyNode::Description() const
 {
-  return tr("Color keyer");
+  return tr("Color difference keyer");
 }
 
-void ColorKeyNode::Retranslate()
+void ColorDifferenceKeyNode::Retranslate()
 {
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
@@ -91,13 +91,13 @@ void ColorKeyNode::Retranslate()
 
 }
 
-ShaderCode ColorKeyNode::GetShaderCode(const QString &shader_id) const
+ShaderCode ColorDifferenceKeyNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/colorkey.frag"));
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/colordifferencekey.frag"));
 }
 
-void ColorKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
   job.InsertValue(value);

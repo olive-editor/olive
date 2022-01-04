@@ -61,8 +61,8 @@ public:
     kTimeRemapNode,
     kSubtitleBlock,
     kShapeGenerator,
-    kColorKeyMatte,
-    kDespillMatte,
+    kColorDifferenceKeyKeying,
+    kDespillKeying,
 
     // Count value
     kInternalNodeCount

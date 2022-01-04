@@ -52,7 +52,7 @@ QString DespillNode::id() const
 
 QVector<Node::CategoryID> DespillNode::Category() const
 {
-  return {kCategoryMatte};
+  return {kCategoryKeying};
 }
 
 QString DespillNode::Description() const

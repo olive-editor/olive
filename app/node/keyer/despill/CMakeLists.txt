@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/matte/colorkey/colorkey.h
-  node/matte/colorkey/colorkey.cpp
+  node/keyer/despill/despill.h
+  node/keyer/despill/despill.cpp
   PARENT_SCOPE
 )

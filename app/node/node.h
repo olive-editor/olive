@@ -81,7 +81,7 @@ public:
     kCategoryOutput,
     kCategoryGenerator,
     kCategoryMath,
-    kCategoryMatte,
+    kCategoryKeying,
     kCategoryFilter,
     kCategoryColor,
     kCategoryGeneral,

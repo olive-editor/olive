@@ -13,16 +13,16 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***/
 
-#ifndef COLORKEYNODE_H
-#define COLORKEYNODE_H
+#ifndef COLORDIFFERENCEKEYNODE_H
+#define COLORDIFFERENCEKEYNODE_H
 
 #include "node/node.h"
 
 namespace olive {
 
-class ColorKeyNode : public Node {
+class ColorDifferenceKeyNode : public Node {
  public:
-  ColorKeyNode();
+  ColorDifferenceKeyNode();
 
   virtual Node* copy() const override;
 
@@ -49,4 +49,4 @@ class ColorKeyNode : public Node {
 
 }  // namespace olive
 
-#endif  // COLORKEYNODE_H
+#endif  // COLORDIFFERENCEKEYNODE_H
