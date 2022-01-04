@@ -477,77 +477,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   if (HandRelease(event)) return;
 
   if (create_edge_) {
-    // Check if the edge was reconnected to the same place as before
-    MultiUndoCommand* command = new MultiUndoCommand();
-
-    bool reconnected_to_itself = false;
-
-    if (create_edge_already_exists_) {
-      if (create_edge_output_item_ == create_edge_->from_item() && create_edge_->input() == create_edge_input_) {
-        reconnected_to_itself = true;
-      } else {
-        // We are moving (or removing) an existing edge
-        command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
-      }
-    } else {
-      // We're creating a new edge, which means this UI object is only temporary
-      delete create_edge_;
-    }
-
-    create_edge_ = nullptr;
-
-    // Clear highlight if we set one
-    if (create_edge_output_item_) {
-      create_edge_output_item_->SetHighlighted(false);
-    }
-    if (create_edge_input_item_) {
-      create_edge_input_item_->SetHighlighted(false);
-    }
-
-    if (create_edge_output_item_ && create_edge_input_item_) {
-      NodeInput &creating_input = create_edge_input_;
-      if (creating_input.IsValid()) {
-        // Make connection
-        if (!reconnected_to_itself) {
-          Node *creating_output = create_edge_output_item_->GetNode();
-
-          while (NodeGroup *output_group = dynamic_cast<NodeGroup*>(creating_output)) {
-            creating_output = output_group->GetOutputPassthrough();
-          }
-
-          while (NodeGroup *input_group = dynamic_cast<NodeGroup*>(creating_input.node())) {
-            creating_input = input_group->GetInputPassthroughs().value(creating_input.input());
-          }
-
-          if (creating_input.IsConnected()) {
-            Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
-            command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
-          }
-
-          command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
-
-          // If the output is not in the input's context, add it now. We check the item rather than
-          // the node itself, because sometimes a node may not be in the context but another node
-          // representing it will be (e.g. groups)
-          if (!scene_.context_map().value(create_edge_input_item_->GetContext())->GetItemFromMap(creating_output)) {
-            command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
-          }
-        }
-
-        creating_input.Reset();
-      }
-    }
-
-    create_edge_output_item_ = nullptr;
-    create_edge_input_item_ = nullptr;
-
-    // Collapse any items we expanded
-    for (auto it=create_edge_expanded_items_.crbegin(); it!=create_edge_expanded_items_.crend(); it++) {
-      CollapseItem(*it);
-    }
-    create_edge_expanded_items_.clear();
-
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    EndEdgeDrag();
   }
 
   MultiUndoCommand* command = new MultiUndoCommand();
@@ -1122,7 +1052,7 @@ void NodeView::PositionNewEdge(const QPoint &pos)
     NodeViewItem* nvi = create_edge_expanded_items_.at(i);
     QPointF local_pt = nvi->mapFromScene(scene_pt);
 
-    if (nvi->contains(local_pt) || (!nvi->IsOutputItem() && nvi->parentItem()->contains(nvi->parentItem()->mapFromScene(scene_pt)) && local_pt.y() > nvi->rect().bottom())) {
+    if (nvi->scene() == &scene_ && (nvi->contains(local_pt) || (!nvi->IsOutputItem() && nvi->parentItem()->contains(nvi->parentItem()->mapFromScene(scene_pt)) && local_pt.y() > nvi->rect().bottom()))) {
       break;
     } else {
       // Collapsing an item will destroy its children, so if the cursor item happens to be a child
@@ -1310,6 +1240,31 @@ void NodeView::LabelSelectedNodes()
   Core::instance()->LabelNodes(selected_nodes_);
 }
 
+void NodeView::ItemAboutToBeDeleted(NodeViewItem *item)
+{
+  dragging_items_.remove(item);
+
+  if (create_edge_) {
+    // Item should be removed from scene, but not yet deleted, allowing a safe PositionNewEdge call
+    // to disconnect
+    PositionNewEdge(mapFromGlobal(QCursor::pos()));
+
+    QGraphicsItem *test = item;
+    do {
+      if (test == item) {
+        break;
+      }
+
+      test = test->parentItem();
+    } while (test);
+
+    if (test == item) {
+      // Cancel edge function
+      EndEdgeDrag(true);
+    }
+  }
+}
+
 void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
 {
   // If no graph, do nothing
@@ -1381,7 +1336,10 @@ void NodeView::PasteNodesInternal(const QVector<Node *> &duplicate_nodes)
 
 void NodeView::AddContext(Node *n)
 {
-  scene_.AddContext(n);
+  NodeViewContext *ctx = scene_.AddContext(n);
+
+  connect(ctx, &NodeViewContext::ItemAboutToBeDeleted, this, &NodeView::ItemAboutToBeDeleted);
+
   connect(n, &Node::RemovedFromGraph, this, &NodeView::NodeRemovedFromGraph);
 }
 
@@ -1412,6 +1370,83 @@ void NodeView::CollapseItem(NodeViewItem *item)
 {
   item->SetExpanded(false);
   item->setZValue(0);
+}
+
+void NodeView::EndEdgeDrag(bool cancel)
+{
+  // Check if the edge was reconnected to the same place as before
+  MultiUndoCommand* command = new MultiUndoCommand();
+
+  bool reconnected_to_itself = false;
+
+  if (create_edge_already_exists_) {
+    if (!cancel) {
+      if (create_edge_output_item_ == create_edge_->from_item() && create_edge_->input() == create_edge_input_) {
+        reconnected_to_itself = true;
+      } else {
+        // We are moving (or removing) an existing edge
+        command->add_child(new NodeEdgeRemoveCommand(create_edge_->output(), create_edge_->input()));
+      }
+    }
+  } else {
+    // We're creating a new edge, which means this UI object is only temporary
+    delete create_edge_;
+  }
+
+  create_edge_ = nullptr;
+
+  // Clear highlight if we set one
+  if (create_edge_output_item_) {
+    create_edge_output_item_->SetHighlighted(false);
+  }
+  if (create_edge_input_item_) {
+    create_edge_input_item_->SetHighlighted(false);
+  }
+
+  if (create_edge_output_item_ && create_edge_input_item_ && !cancel) {
+    NodeInput &creating_input = create_edge_input_;
+    if (creating_input.IsValid()) {
+      // Make connection
+      if (!reconnected_to_itself) {
+        Node *creating_output = create_edge_output_item_->GetNode();
+
+        while (NodeGroup *output_group = dynamic_cast<NodeGroup*>(creating_output)) {
+          creating_output = output_group->GetOutputPassthrough();
+        }
+
+        while (NodeGroup *input_group = dynamic_cast<NodeGroup*>(creating_input.node())) {
+          creating_input = input_group->GetInputPassthroughs().value(creating_input.input());
+        }
+
+        if (creating_input.IsConnected()) {
+          Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
+          command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
+        }
+
+        command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
+
+        // If the output is not in the input's context, add it now. We check the item rather than
+        // the node itself, because sometimes a node may not be in the context but another node
+        // representing it will be (e.g. groups)
+        if (!scene_.context_map().value(create_edge_input_item_->GetContext())->GetItemFromMap(creating_output)) {
+          command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
+        }
+      }
+
+      creating_input.Reset();
+    }
+  }
+
+  create_edge_output_item_ = nullptr;
+  create_edge_input_item_ = nullptr;
+
+  // Collapse any items we expanded
+  for (auto it=create_edge_expanded_items_.crbegin(); it!=create_edge_expanded_items_.crend(); it++) {
+    CollapseItem(*it);
+  }
+  create_edge_expanded_items_.clear();
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeView::SetAttachedItems(const QVector<AttachedItem> &items)

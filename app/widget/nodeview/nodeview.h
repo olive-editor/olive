@@ -167,6 +167,8 @@ private:
 
   void CollapseItem(NodeViewItem *item);
 
+  void EndEdgeDrag(bool cancel = false);
+
   NodeViewMiniMap *minimap_;
 
   struct AttachedItem {
@@ -247,6 +249,8 @@ private slots:
   void ShowNodeProperties();
 
   void LabelSelectedNodes();
+
+  void ItemAboutToBeDeleted(NodeViewItem *item);
 
 };
 

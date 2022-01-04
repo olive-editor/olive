@@ -85,6 +85,12 @@ void NodeViewContext::RemoveChild(Node *node)
 
   NodeViewItem *item = item_map_.take(node);
 
+  // Remove from scene before emitting signal so that any drag functions that might be happening
+  // now can be handled before the item is destroyed
+  scene()->removeItem(item);
+
+  emit ItemAboutToBeDeleted(item);
+
   // Delete edges first because the edge destructor will try to reference item (maybe that should
   // be changed...)
   QVector<NodeViewEdge*> edges_to_remove = item->GetAllEdgesRecursively();

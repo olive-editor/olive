@@ -54,6 +54,9 @@ public slots:
 
   bool ChildInputDisconnected(Node *output, const NodeInput& input);
 
+signals:
+  void ItemAboutToBeDeleted(NodeViewItem *item);
+
 protected:
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
