@@ -46,6 +46,7 @@
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
 #include "matte/colorkey/colorkey.h"
+#include "matte/despill/despill.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
@@ -242,8 +243,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new SubtitleBlock();
   case kShapeGenerator:
     return new ShapeNode();
-  case kColorKey:
+  case kColorKeyMatte:
     return new ColorKeyNode();
+  case kDespillMatte:
+    return new DespillNode();
 
   case kInternalNodeCount:
     break;

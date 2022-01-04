@@ -55,9 +55,6 @@ void main(void) {
     // Pre mulitply
     tex_col.rgb *= tex_col.w;
 
-    // Despill (should be another node really)
-    tex_col.g = tex_col.g > (tex_col.r+tex_col.b)/2.0 ?(tex_col.r+tex_col.b)/2.0 : tex_col.g; 
-
     if (!mask_only_in) {
         gl_FragColor = tex_col;
     } else {
