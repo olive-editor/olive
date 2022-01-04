@@ -112,6 +112,8 @@ private:
 
   void SortItemsInContext(NodeParamViewContext *context);
 
+  NodeParamViewContext *GetContextItemFromContext(Node *context);
+
   KeyframeView* keyframe_view_;
 
   QVector<NodeParamViewContext*> context_items_;
@@ -152,6 +154,8 @@ private slots:
   void KeyframeViewDragged(int x, int y);
 
   void UpdateElementY();
+
+  void NodeAddedToContext(Node *n);
 
 };
 

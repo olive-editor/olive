@@ -252,7 +252,18 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
     ctx->Clear();
     ctx->setVisible(false);
   }
+
+  foreach (Node *ctx, contexts_) {
+    disconnect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext);
+  }
+
   contexts_ = contexts;
+
+  foreach (Node *ctx, contexts_) {
+    // Queued so that if any further work is done in connecting this node to the context, it'll be
+    // done before our sorting function is called
+    connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
+  }
 
   if (keyframe_view_) {
     keyframe_view_->Clear();
@@ -264,29 +275,13 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
   }
 
   foreach (Node *ctx, contexts) {
-    Track::Type ctx_type = Track::kCount;
-
-    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(ctx)) {
-      if (clip->track()) {
-        if (clip->track()->type() != Track::kNone) {
-          ctx_type = clip->track()->type();
-        }
-      }
-    } else if (Track *track = dynamic_cast<Track*>(ctx)) {
-      if (track->type() != Track::kNone) {
-        ctx_type = track->type();
-      }
-    }
-
-    NodeParamViewContext *item = context_items_.at(ctx_type);
+    NodeParamViewContext *item = GetContextItemFromContext(ctx);
 
     item->AddContext(ctx);
     item->setVisible(true);
 
     for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
-      if (!(it.key()->GetFlags() & Node::kDontShowInParamView) || ignore_flags_) {
-        AddNode(it.key(), item);
-      }
+      AddNode(it.key(), item);
     }
   }
 
@@ -391,6 +386,10 @@ void NodeParamView::QueueKeyframePositionUpdate()
 
 void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
 {
+  if ((n->GetFlags() & Node::kDontShowInParamView) && !ignore_flags_) {
+    return;
+  }
+
   NodeParamViewItem* item = new NodeParamViewItem(n, create_checkboxes_, context);
 
   connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
@@ -478,6 +477,25 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
   foreach (auto info, distances) {
     context_item->GetDockArea()->AddItem(info.first);
   }
+}
+
+NodeParamViewContext *NodeParamView::GetContextItemFromContext(Node *ctx)
+{
+  Track::Type ctx_type = Track::kCount;
+
+  if (ClipBlock *clip = dynamic_cast<ClipBlock*>(ctx)) {
+    if (clip->track()) {
+      if (clip->track()->type() != Track::kNone) {
+        ctx_type = clip->track()->type();
+      }
+    }
+  } else if (Track *track = dynamic_cast<Track*>(ctx)) {
+    if (track->type() != Track::kNone) {
+      ctx_type = track->type();
+    }
+  }
+
+  return context_items_.at(ctx_type);
 }
 
 void NodeParamView::UpdateGlobalScrollBar()
@@ -586,6 +604,16 @@ void NodeParamView::UpdateElementY()
       }
     }
   }
+}
+
+void NodeParamView::NodeAddedToContext(Node *n)
+{
+  Node *ctx = static_cast<Node*>(sender());
+  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+
+  AddNode(n, item);
+
+  SortItemsInContext(item);
 }
 
 }
