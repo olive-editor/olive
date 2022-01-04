@@ -262,7 +262,7 @@ int BinarySearchFirstKeyframeAfterOrAt(const QVector<NodeKeyframe*> &keys, const
     }
   }
 
-  return -1;
+  return keys.size();
 }
 
 void KeyframeView::drawForeground(QPainter *painter, const QRectF &rect)
@@ -312,7 +312,7 @@ void KeyframeView::drawForeground(QPainter *painter, const QRectF &rect)
           // Next key still won't be drawn, so we'll switch to a binary search
           i = BinarySearchFirstKeyframeAfterOrAt(keys, next_key);
 
-          if (i == -1) {
+          if (i == keys.size()) {
             break;
           }
 
