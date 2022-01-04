@@ -98,8 +98,6 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     scrollbar_->ConnectTimelinePoints(nullptr);
   }
 
-  emit ConnectedNodeChanged(old, node);
-
   // Call derivatives
   ConnectedNodeChangeEvent(viewer_node_);
 
@@ -124,6 +122,8 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   }
 
   UpdateMaximumScroll();
+
+  emit ConnectedNodeChanged(old, node);
 }
 
 void TimeBasedWidget::UpdateMaximumScroll()
