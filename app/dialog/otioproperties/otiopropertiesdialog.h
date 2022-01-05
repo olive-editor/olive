@@ -20,12 +20,12 @@ namespace olive {
   class OTIOPropertiesDialog : public QDialog {
     Q_OBJECT
    public:
-    OTIOPropertiesDialog(QList<Sequence*> sequences, Project* active_project, QWidget* parent = nullptr);
+    OTIOPropertiesDialog(const QList<Sequence*>& sequences, Project* active_project, QWidget* parent = nullptr);
 
    private:
     QTreeWidget* table_;
 
-    QList<Sequence*> sequences_;
+    const QList<Sequence*> sequences_;
 
    private slots:
     /**

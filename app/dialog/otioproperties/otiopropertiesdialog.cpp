@@ -27,13 +27,14 @@
 
 namespace olive {
 
-OTIOPropertiesDialog::OTIOPropertiesDialog(QList<Sequence*> sequences, Project* active_project, QWidget* parent) :
+OTIOPropertiesDialog::OTIOPropertiesDialog(const QList<Sequence*>& sequences, Project* active_project, QWidget* parent)
+    :
     QDialog(parent),
     sequences_(sequences)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
-  layout->addWidget(new QLabel("Change settings for each OTIO sequence to be loaded"));
+  layout->addWidget(new QLabel(tr("Change settings for each OTIO sequence to be loaded")));
 
   table_ = new QTreeWidget();
   table_->setColumnCount(2);
