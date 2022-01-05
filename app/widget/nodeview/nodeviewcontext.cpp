@@ -44,6 +44,13 @@ NodeViewContext::NodeViewContext(Node *context, QGraphicsItem *item) :
   connect(context_, &Node::NodeRemovedFromContext, this, &NodeViewContext::RemoveChild, Qt::DirectConnection);
 }
 
+NodeViewContext::~NodeViewContext()
+{
+  // Delete edges before items, because the edge constructor references the items
+  qDeleteAll(edges_);
+  edges_.clear();
+}
+
 void NodeViewContext::AddChild(Node *node)
 {
   if (!context_) {

@@ -17,6 +17,8 @@ class NodeViewContext : public QObject, public QGraphicsRectItem
 public:
   NodeViewContext(Node *context, QGraphicsItem *item = nullptr);
 
+  virtual ~NodeViewContext() override;
+
   Node *GetContext() const
   {
     return context_;
