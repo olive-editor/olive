@@ -290,7 +290,7 @@ void KeyframeView::drawForeground(QPainter *painter, const QRectF &rect)
     }
 
     // Find first keyframe to show with binary search
-    rational left_time = SceneToTime(rect.left() - key_sz);
+    rational left_time = GetUnadjustedKeyframeTime(keys.first(), SceneToTime(rect.left() - key_sz));
     int using_index = BinarySearchFirstKeyframeAfterOrAt(keys, left_time);
 
     rational next_key = RATIONAL_MIN;
