@@ -330,6 +330,20 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
 
         // Create ghost for this block
         AddGhostFromBlock(block, trim_mode, true);
+
+        // Check if the clip has transitions attached and move them with the clip
+        ClipBlock *cb = dynamic_cast<ClipBlock*>(block);
+        if (cb) {
+          TransitionBlock* connected_in_transition = cb->in_transition();
+          TransitionBlock* connected_out_transition = cb->out_transition();
+
+          if (connected_in_transition) {
+            AddGhostFromBlock(connected_in_transition, Timeline::kMove);
+          }
+          if (connected_out_transition) {
+            AddGhostFromBlock(connected_out_transition, Timeline::kMove);
+          }
+        }
       }
     }
 
