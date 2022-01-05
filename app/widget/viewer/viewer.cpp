@@ -503,18 +503,20 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
 
   if (watcher->HasResult()) {
     if (SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>()) {
-      /* Fade code
-      const int kFadeSz = qMin(200, samples->sample_count()/4);
-      for (int i=0; i<kFadeSz; i++) {
-        float amt = float(i)/float(kFadeSz);
-        samples->transform_volume_for_sample(i, amt);
-        samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
-      }*/
+      if (samples->audio_params().channel_count() > 0) {
+        /* Fade code
+        const int kFadeSz = qMin(200, samples->sample_count()/4);
+        for (int i=0; i<kFadeSz; i++) {
+          float amt = float(i)/float(kFadeSz);
+          samples->transform_volume_for_sample(i, amt);
+          samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
+        }*/
 
-      QByteArray packed = packed_processor_.Convert(samples);
-      AudioManager::instance()->ClearBufferedOutput();
-      AudioManager::instance()->PushToOutput(samples->audio_params(), packed);
-      AudioMonitor::PushBytesOnAll(packed);
+        QByteArray packed = packed_processor_.Convert(samples);
+        AudioManager::instance()->ClearBufferedOutput();
+        AudioManager::instance()->PushToOutput(samples->audio_params(), packed);
+        AudioMonitor::PushBytesOnAll(packed);
+      }
     }
   }
 
