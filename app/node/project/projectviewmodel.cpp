@@ -297,15 +297,16 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
       // Check if we've dragged this item before
       if (!dragged_items.contains(index.internalPointer())) {
         // If not, add it to the stream (and also keep track of it in the vector)
-        ViewerOutput* footage = dynamic_cast<ViewerOutput*>(static_cast<Node*>(index.internalPointer()));
+        Node *item = static_cast<Node*>(index.internalPointer());
+        QVector<Track::Reference> streams;
 
-        if (footage) {
-          QVector<Track::Reference> streams = footage->GetEnabledStreamsAsReferences();
-
-          stream << streams << reinterpret_cast<quintptr>(footage);
-
-          dragged_items.append(footage);
+        if (ViewerOutput* footage = dynamic_cast<ViewerOutput*>(item)) {
+          streams = footage->GetEnabledStreamsAsReferences();
         }
+
+        stream << streams << reinterpret_cast<quintptr>(item);
+
+        dragged_items.append(item);
       }
     }
   }

@@ -16,11 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/curvewidget/beziercontrolpointitem.h
-  widget/curvewidget/beziercontrolpointitem.cpp
-  widget/curvewidget/curveview.h
   widget/curvewidget/curveview.cpp
-  widget/curvewidget/curvewidget.h
+  widget/curvewidget/curveview.h
   widget/curvewidget/curvewidget.cpp
+  widget/curvewidget/curvewidget.h
   PARENT_SCOPE
 )

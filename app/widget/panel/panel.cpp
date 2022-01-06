@@ -28,6 +28,8 @@
 #include <QStyleOption>
 #include <QVariant>
 
+#include "panel/panelmanager.h"
+
 namespace olive {
 
 PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
@@ -39,6 +41,13 @@ PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
   setFocusPolicy(Qt::ClickFocus);
 
   connect(this, &PanelWidget::visibilityChanged, this, &PanelWidget::PanelVisibilityChanged);
+
+  PanelManager::instance()->RegisterPanel(this);
+}
+
+PanelWidget::~PanelWidget()
+{
+  PanelManager::instance()->UnregisterPanel(this);
 }
 
 void PanelWidget::SetMovementLocked(bool locked)

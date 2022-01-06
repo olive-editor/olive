@@ -66,9 +66,7 @@ add_library(olive-version-obj
   version.h
 )
 target_link_libraries(olive-version-obj PRIVATE Qt5::Core)
-if(DEFINED GIT_HASH)
-  target_compile_options(olive-version-obj PRIVATE -DAPPVERSION="${PROJECT_VERSION}" -DAPPVERSIONLONG="${PROJECT_LONG_VERSION}" )
-endif()
+target_compile_options(olive-version-obj PRIVATE -DAPPVERSION="${PROJECT_VERSION}" -DAPPVERSIONLONG="${PROJECT_LONG_VERSION}" )
 
 # Add main library
 add_library(libolive-editor

@@ -84,6 +84,8 @@ protected:
 
   TimelineCoordinate drag_start_;
 
+  static const int kDefaultDistanceFromOutput;
+
 private:
   TimelineWidget* parent_;
 

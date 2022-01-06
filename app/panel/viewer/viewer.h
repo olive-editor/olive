@@ -34,13 +34,13 @@ class ViewerPanel : public ViewerPanelBase {
   Q_OBJECT
 public:
   ViewerPanel(const QString& object_name, QWidget* parent);
-  ViewerPanel(QWidget* parent);
+  ViewerPanel(QWidget *parent) :
+    ViewerPanel(QStringLiteral("ViewerPanel"), parent)
+  {
+  }
 
 protected:
   virtual void Retranslate() override;
-
-private:
-  void Init();
 
 };
 

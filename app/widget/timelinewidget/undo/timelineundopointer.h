@@ -198,7 +198,6 @@ private:
   QVector<TimelineAddTrackCommand*> add_track_commands_;
   QObject memory_manager_;
   TrackRippleRemoveAreaCommand* ripple_remove_command_;
-  QVector<NodeSetPositionAsChildCommand*> position_commands_;
 
 };
 

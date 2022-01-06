@@ -37,6 +37,11 @@ public:
 
   bool IsInputEnabled(const NodeKeyframeTrackReference& ref) const;
 
+  void SetCheckBoxesEnabled(bool e)
+  {
+    checkboxes_enabled_ = e;
+  }
+
   void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
 
   void SetOnlyShowKeyframable(bool e)
@@ -75,6 +80,8 @@ private:
 
   void CreateItemsForTracks(QTreeWidgetItem* parent, const NodeInput& input, int track_count);
 
+  static bool UseRGBAOverXYZW(const NodeKeyframeTrackReference &ref);
+
   enum ItemType {
     kItemTypeNode,
     kItemTypeInput
@@ -97,6 +104,8 @@ private:
   bool show_keyframe_tracks_as_rows_;
 
   QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
+
+  bool checkboxes_enabled_;
 
 private slots:
   void ItemCheckStateChanged(QTreeWidgetItem* item, int column);

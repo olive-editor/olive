@@ -58,6 +58,10 @@ double Bezier::CalculateTFromX(bool cubic, double x, double a, double b, double 
   double top = 1.0;
 
   while (true) {
+    if (bottom == top) {
+      return bottom;
+    }
+
     double mid = (bottom + top) * 0.5;
     double test = cubic ? CubicTtoY(a, b, c, d, mid) : QuadraticTtoY(a, b, c, mid);
 

@@ -25,8 +25,10 @@
 #include <QTimer>
 
 #include "node/graph.h"
+#include "nodeviewcontext.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
+#include "undo/undostack.h"
 
 namespace olive {
 
@@ -36,42 +38,23 @@ class NodeViewScene : public QGraphicsScene
 public:
   NodeViewScene(QObject *parent = nullptr);
 
-  void clear();
-
   void SelectAll();
   void DeselectAll();
 
-  /**
-   * @brief Retrieve the graphical widget corresponding to a specific Node
-   *
-   * In situations where you know what Node you're working with but need the UI object (e.g. for positioning), this
-   * static function will retrieve the NodeViewItem (Node UI representation) connected to this Node in a certain
-   * QGraphicsScene. This can be called from any other UI object, since it'll have a reference to the QGraphicsScene
-   * through QGraphicsItem::scene().
-   *
-   * If the scene does not contain a widget for this node (usually meaning the node's graph is not the active graph
-   * in this view/scene), this function returns nullptr.
-   */
-  NodeViewItem* NodeToUIObject(Node* n);
-  NodeViewEdge *EdgeToUIObject(Node *output, const NodeInput &input);
-
-  QVector<Node *> GetSelectedNodes() const;
   QVector<NodeViewItem*> GetSelectedItems() const;
-  QVector<NodeViewEdge*> GetSelectedEdges() const;
 
-  const QHash<Node*, NodeViewItem*>& item_map() const
+  const QHash<Node*, NodeViewContext*> &context_map() const
   {
-    return item_map_;
-  }
-
-  const QVector<NodeViewEdge*>& edges() const
-  {
-    return edges_;
+    return context_map_;
   }
 
   Qt::Orientation GetFlowOrientation() const;
 
-  NodeViewCommon::FlowDirection GetFlowDirection() const;
+  NodeViewCommon::FlowDirection GetFlowDirection() const
+  {
+    return direction_;
+  }
+
   void SetFlowDirection(NodeViewCommon::FlowDirection direction);
 
   bool GetEdgesAreCurved() const
@@ -80,24 +63,8 @@ public:
   }
 
 public slots:
-  /**
-   * @brief Slot when a Node is added to a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To add a Node to the NodeGraph
-   * use NodeGraph::AddNode().
-   */
-  NodeViewItem *AddNode(Node* node);
-
-  /**
-   * @brief Slot when a Node is removed from a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To remove a Node from the NodeGraph
-   * use NodeGraph::RemoveNode().
-   */
-  void RemoveNode(Node* node);
-
-  NodeViewEdge *AddEdge(Node *output, const NodeInput& input);
-  void RemoveEdge(Node *output, const NodeInput& input);
+  NodeViewContext *AddContext(Node *node);
+  void RemoveContext(Node *node);
 
   /**
    * @brief Set whether edges in this scene should be curved or not
@@ -105,29 +72,13 @@ public slots:
   void SetEdgesAreCurved(bool curved);
 
 private:
-  static int DetermineWeight(Node* n);
-
-  NodeViewEdge* AddEdgeInternal(Node *output, const NodeInput &input, NodeViewItem* from, NodeViewItem* to);
-
-  void ConnectNode(Node *n);
-
-  void DisconnectNode(Node *n);
-
-  QHash<Node*, NodeViewItem*> item_map_;
-
-  QVector<NodeViewEdge*> edges_;
+  QHash<Node*, NodeViewContext*> context_map_;
 
   NodeGraph* graph_;
 
   NodeViewCommon::FlowDirection direction_;
 
   bool curved_edges_;
-
-private slots:
-  /**
-   * @brief Receiver for when a node's label has changed
-   */
-  void NodeAppearanceChanged();
 
 };
 

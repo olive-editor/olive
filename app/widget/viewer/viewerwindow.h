@@ -24,8 +24,6 @@
 #include <QWidget>
 
 #include "viewerdisplay.h"
-#include "viewerplaybacktimer.h"
-#include "viewerqueue.h"
 
 namespace olive {
 
@@ -54,36 +52,19 @@ public:
    */
   void SetPixelAspectRatio(const rational& pixel_aspect);
 
-  ViewerQueue* queue() {
-    return &queue_;
-  }
-
-  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase);
-
-  void Pause();
-
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 
   virtual void closeEvent(QCloseEvent* e) override;
 
-private slots:
-  void UpdateFromQueue();
-
 private:
   void UpdateMatrix();
-
-  ViewerDisplayWidget* display_widget_;
-
-  ViewerQueue queue_;
-
-  ViewerPlaybackTimer timer_;
-
-  rational playback_timebase_;
 
   int width_;
 
   int height_;
+
+  ViewerDisplayWidget* display_widget_;
 
   rational pixel_aspect_;
 

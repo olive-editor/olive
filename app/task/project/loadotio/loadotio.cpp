@@ -60,7 +60,7 @@ bool LoadOTIOTask::Run()
 
   auto root = OTIO::SerializableObjectWithMetadata::from_json_file(GetFilename().toStdString(), &es);
 
-  if (es != OTIO::ErrorStatus::OK) {
+  if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
     SetError(tr("Failed to load OpenTimelineIO from file \"%1\"").arg(GetFilename()));
     return false;
   }
@@ -156,7 +156,7 @@ bool LoadOTIOTask::Run()
 
       // Get clips from track
       auto clip_map = otio_track->children();
-      if (es != OTIO::ErrorStatus::OK) {
+      if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
         SetError(tr("Failed to load clip"));
         return false;
       }
@@ -233,7 +233,7 @@ bool LoadOTIOTask::Run()
           block->setParent(sequence->parent());
 
           // Position transition in its own context
-          sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
+          block->SetNodePositionInContext(block, QPointF(0, 0));
         }
 
         if (otio_block->schema_name() == "Gap") {
@@ -241,7 +241,7 @@ bool LoadOTIOTask::Run()
           block->setParent(sequence->parent());
 
           // Position transition in its own context
-          sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
+          block->SetNodePositionInContext(block, QPointF(0, 0));
         }
 
         // Update this after it's used but before any continue statements
@@ -269,7 +269,7 @@ bool LoadOTIOTask::Run()
               QFileInfo info(probed_item->filename());
               probed_item->SetLabel(info.fileName());
 
-              FolderAddChild add(sequence_footage, probed_item, true);
+              FolderAddChild add(sequence_footage, probed_item);
               add.redo_now();
             }
 
@@ -277,10 +277,10 @@ bool LoadOTIOTask::Run()
             block->setParent(sequence->parent());
 
             // Position clip in its own context
-            sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
+            block->SetNodePositionInContext(block, QPointF(0, 0));
 
             // Position footage in its context
-            sequence->parent()->SetNodePosition(probed_item, block, QPointF(-2, 0));
+            block->SetNodePositionInContext(probed_item, QPointF(-2, 0));
 
 
             if (track->type() == Track::kVideo) {
@@ -289,14 +289,14 @@ bool LoadOTIOTask::Run()
 
               Node::ConnectEdge(probed_item, NodeInput(transform, TransformDistortNode::kTextureInput));
               Node::ConnectEdge(transform, NodeInput(block, ClipBlock::kBufferIn));
-              sequence->parent()->SetNodePosition(transform, block, QPointF(-1, 0));
+              block->SetNodePositionInContext(transform, QPointF(-1, 0));
             } else {
               VolumeNode* volume_node = new VolumeNode();
               volume_node->setParent(sequence->parent());
 
               Node::ConnectEdge(probed_item, NodeInput(volume_node, VolumeNode::kSamplesInput));
               Node::ConnectEdge(volume_node, NodeInput(block, ClipBlock::kBufferIn));
-              sequence->parent()->SetNodePosition(volume_node, block, QPointF(-1, 0));
+              block->SetNodePositionInContext(volume_node, QPointF(-1, 0));
             }
           }
         }

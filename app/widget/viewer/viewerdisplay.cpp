@@ -271,7 +271,9 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
   } else if (gizmo_click_) {
 
     // Handle gizmo
-    gizmos_->GizmoRelease();
+    MultiUndoCommand *command = new MultiUndoCommand();
+    gizmos_->GizmoRelease(command);
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
     gizmo_click_ = false;
 
   } else {
@@ -307,20 +309,6 @@ void ViewerDisplayWidget::dropEvent(QDropEvent *event)
   if (!event->isAccepted()) {
     super::dropEvent(event);
   }
-}
-
-void ViewerDisplayWidget::showEvent(QShowEvent *event)
-{
-  emit VisibilityChanged(true);
-
-  super::showEvent(event);
-}
-
-void ViewerDisplayWidget::hideEvent(QHideEvent *event)
-{
-  emit VisibilityChanged(false);
-
-  super::hideEvent(event);
 }
 
 void ViewerDisplayWidget::OnPaint()
@@ -391,7 +379,9 @@ void ViewerDisplayWidget::OnPaint()
         texture_to_draw = deinterlace_texture_;
       }
 
-      renderer()->BlitColorManaged(color_service(), texture_to_draw, Renderer::kAlphaNone, device_params, false,
+      renderer()->BlitColorManaged(color_service(), texture_to_draw,
+                                   Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
+                                   device_params, false,
                                    combined_matrix_flipped_, crop_matrix_);
     }
   }
@@ -594,6 +584,75 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
 void ViewerDisplayWidget::SetShowFPS(bool e)
 {
   show_fps_ = e;
+
+  update();
+}
+
+void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase)
+{
+  playback_timebase_ = timebase;
+
+  timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
+
+  connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
+
+  update();
+}
+
+void ViewerDisplayWidget::Pause()
+{
+  disconnect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
+
+  queue_.clear();
+}
+
+void ViewerDisplayWidget::UpdateFromQueue()
+{
+  int64_t t = timer_.GetTimestampNow();
+
+  rational time = Timecode::timestamp_to_time(t, playback_timebase_);
+
+  bool popped = false;
+
+  if (queue_.empty()) {
+    emit QueueStarved();
+  } else {
+    while (!queue_.empty()) {
+      const ViewerPlaybackFrame& pf = queue_.front();
+
+      if (pf.timestamp == time) {
+
+        // Frame was in queue, no need to decode anything
+        SetImage(pf.frame);
+        return;
+
+      } else if (pf.timestamp > time) {
+
+        // The next frame in the queue is too new, so just do a regular update. Either the
+        // frame we want will arrive in time, or we'll just have to skip it.
+        break;
+
+      } else {
+
+        queue_.pop_front();
+
+        if (popped) {
+          // We've already popped a frame in this loop, meaning a frame has been skipped
+          IncrementSkippedFrames();
+        } else {
+          // Shown a frame and progressed to the next one
+          IncrementFrameCount();
+          popped = true;
+        }
+
+        if (queue_.empty()) {
+          emit QueueStarved();
+          break;
+        }
+
+      }
+    }
+  }
 
   update();
 }

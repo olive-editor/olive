@@ -193,4 +193,100 @@ void NodeOverrideColorCommand::undo()
   node_->SetOverrideColor(old_index_);
 }
 
+NodeViewDeleteCommand::NodeViewDeleteCommand()
+{
+}
+
+void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
+{
+  foreach (const NodePair &pair, nodes_) {
+    if (pair.first == node && pair.second == context) {
+      return;
+    }
+  }
+
+  nodes_.append(NodePair({node, context}));
+
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    if (context->ContextContainsNode(it->second)) {
+      AddEdge(it->second, it->first);
+    }
+  }
+
+  for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+    if (context->ContextContainsNode(it->second.node())) {
+      AddEdge(it->first, it->second);
+    }
+  }
+}
+
+void NodeViewDeleteCommand::AddEdge(Node *output, const NodeInput &input)
+{
+  foreach (const Node::OutputConnection &edge, edges_) {
+    if (edge.first == output && edge.second == input) {
+      return;
+    }
+  }
+
+  edges_.append({output, input});
+}
+
+Project *NodeViewDeleteCommand::GetRelevantProject() const
+{
+  if (!nodes_.isEmpty()) {
+    return nodes_.first().first->project();
+  }
+
+  if (!edges_.isEmpty()) {
+    return edges_.first().first->project();
+  }
+
+  return nullptr;
+}
+
+void NodeViewDeleteCommand::redo()
+{
+  foreach (const Node::OutputConnection &edge, edges_) {
+    Node::DisconnectEdge(edge.first, edge.second);
+  }
+
+  foreach (const NodePair &pair, nodes_) {
+    RemovedNode rn;
+
+    rn.node = pair.first;
+    rn.context = pair.second;
+    rn.pos = rn.context->GetNodePositionInContext(rn.node);
+
+    rn.context->RemoveNodeFromContext(rn.node);
+
+    // If node is no longer in any contexts and is not connected to anything, remove it
+    if (rn.node->parent()->GetNumberOfContextsNodeIsIn(rn.node, true) == 0
+        && rn.node->input_connections().empty()
+        && rn.node->output_connections().empty()) {
+      rn.removed_from_graph = rn.node->parent();
+      rn.node->setParent(&memory_manager_);
+    } else {
+      rn.removed_from_graph = nullptr;
+    }
+
+    removed_nodes_.append(rn);
+  }
+}
+
+void NodeViewDeleteCommand::undo()
+{
+  for (auto rn=removed_nodes_.crbegin(); rn!=removed_nodes_.crend(); rn++) {
+    if (rn->removed_from_graph) {
+      rn->node->setParent(rn->removed_from_graph);
+    }
+
+    rn->context->SetNodePositionInContext(rn->node, rn->pos);
+  }
+  removed_nodes_.clear();
+
+  for (auto edge=edges_.crbegin(); edge!=edges_.crend(); edge++) {
+    Node::ConnectEdge(edge->first, edge->second);
+  }
+}
+
 }

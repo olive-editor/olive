@@ -25,7 +25,7 @@
 namespace olive {
 
 PixelSamplerPanel::PixelSamplerPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("ProjectPanel"), parent)
+  PanelWidget(QStringLiteral("PixelSamplerPanel"), parent)
 {
   sampler_widget_ = new ManagedPixelSamplerWidget();
   SetWidgetWithPadding(sampler_widget_);

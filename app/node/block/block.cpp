@@ -47,6 +47,8 @@ Block::Block() :
   IgnoreHashingFrom(kLengthInput);
 
   AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
+  SetFlags(kDontShowInParamView);
 }
 
 QVector<Node::CategoryID> Block::Category() const

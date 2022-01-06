@@ -38,7 +38,6 @@
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
 #include "widget/slider/rationalslider.h"
-#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -89,6 +88,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kShaderJob:
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
+    case NodeValue::kVideoParams:
+    case NodeValue::kAudioParams:
       break;
     case NodeValue::kInt:
     {
@@ -154,19 +155,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       QFontComboBox* font_combobox = new QFontComboBox();
       widgets_.append(font_combobox);
       connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-      break;
-    }
-    case NodeValue::kVideoParams:
-    {
-      VideoParamEdit* edit = new VideoParamEdit();
-      edit->SetColorManager(input_.node()->project()->color_manager());
-      widgets_.append(edit);
-      connect(edit, &VideoParamEdit::Changed, this, &NodeParamViewWidgetBridge::WidgetCallback);
-      break;
-    }
-    case NodeValue::kAudioParams:
-    {
-      // FIXME: Create audio param widget
       break;
     }
     }
@@ -278,6 +266,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {
@@ -388,15 +378,6 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValue(index, 0);
     break;
   }
-  case NodeValue::kVideoParams:
-  {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(sender());
-    SetInputValue(QVariant::fromValue(edit->GetVideoParams()), 0);
-    break;
-  }
-  case NodeValue::kAudioParams:
-    // FIXME: No audio param widget yet
-    break;
   }
 }
 
@@ -434,6 +415,8 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {
@@ -520,28 +503,14 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
     cb->blockSignals(true);
     int index = input_.GetValueAtTime(node_time).toInt();
-    int real_row = -1;
     for (int i=0; i<cb->count(); i++) {
-      if (!cb->itemText(i).isEmpty()) {
-        real_row++;
-      }
-
-      if (real_row == index) {
+      if (cb->itemData(i).toInt() == index) {
         cb->setCurrentIndex(i);
       }
     }
     cb->blockSignals(false);
     break;
   }
-  case NodeValue::kVideoParams:
-  {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(widgets_.first());
-    edit->SetVideoParams(input_.GetValueAtTime(node_time).value<VideoParams>());
-    break;
-  }
-  case NodeValue::kAudioParams:
-    // FIXME: No audio param widget
-    break;
   }
 }
 
@@ -674,42 +643,12 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         break;
       }
     } else if (key == QStringLiteral("offset")) {
-      switch (data_type) {
-      case NodeValue::kInt:
-        static_cast<IntegerSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kFloat:
-        static_cast<FloatSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kRational:
-        static_cast<RationalSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kVec2:
-      {
-        QVector2D offs = value.value<QVector2D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        break;
-      }
-      case NodeValue::kVec3:
-      {
-        QVector3D offs = value.value<QVector3D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        static_cast<FloatSlider*>(widgets_.at(2))->SetOffset(offs.z());
-        break;
-      }
-      case NodeValue::kVec4:
-      {
-        QVector4D offs = value.value<QVector4D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        static_cast<FloatSlider*>(widgets_.at(2))->SetOffset(offs.z());
-        static_cast<FloatSlider*>(widgets_.at(3))->SetOffset(offs.w());
-        break;
-      }
-      default:
-        break;
+      int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
+
+      QVector<QVariant> offsets = NodeValue::split_normal_value_into_track_values(data_type, value);
+
+      for (int i=0; i<tracks; i++) {
+        static_cast<NumericSliderBase*>(widgets_.at(i))->SetOffset(offsets.at(i));
       }
 
       UpdateWidgetValues();
@@ -728,11 +667,14 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
     cb->clear();
 
     QStringList items = input_.GetComboBoxStrings();
+    int index = 0;
     foreach (const QString& s, items) {
       if (s.isEmpty()) {
         cb->insertSeparator(cb->count());
+        cb->setItemData(cb->count()-1, -1);
       } else {
-        cb->addItem(s);
+        cb->addItem(s, index);
+        index++;
       }
     }
 
@@ -794,15 +736,6 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
       ff->SetPlaceholder(value.toString());
     } else if (key == QStringLiteral("directory")) {
       ff->SetDirectoryMode(value.toBool());
-    }
-  }
-
-  // Parameters for video param objects
-  if (data_type == NodeValue::kVideoParams) {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(widgets_.first());
-
-    if (key == QStringLiteral("mask")) {
-      edit->SetParameterMask(value.toULongLong());
     }
   }
 }

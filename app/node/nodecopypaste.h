@@ -35,7 +35,7 @@ public:
   NodeCopyPasteService() = default;
 
 protected:
-  void CopyNodesToClipboard(const QVector<Node *> &nodes, void* userdata = nullptr);
+  void CopyNodesToClipboard(QVector<Node *> nodes, void* userdata = nullptr);
 
   QVector<Node*> PasteNodesFromClipboard(NodeGraph *graph, MultiUndoCommand *command, void* userdata = nullptr);
 

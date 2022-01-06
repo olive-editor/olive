@@ -61,12 +61,6 @@ void BlockSplitCommand::redo()
   // Insert new block
   track->InsertBlockAfter(new_block(), block_);
 
-  // Position the block
-  if (!position_command_) {
-    position_command_ = new NodeSetPositionAsChildCommand(new_block(), track, track, new_block()->index(), track->Blocks().size(), true);
-  }
-  position_command_->redo_now();
-
   // If the block had an out transition, we move it to the new block
   moved_transition_ = NodeInput();
 
@@ -95,8 +89,6 @@ void BlockSplitCommand::undo()
     Node::DisconnectEdge(new_block(), moved_transition_);
     Node::ConnectEdge(block_, moved_transition_);
   }
-
-  position_command_->undo_now();
 
   block_->set_length_and_media_out(old_length_);
   track->RippleRemoveBlock(new_block());
@@ -130,7 +122,7 @@ void BlockSplitPreservingLinksCommand::redo()
 
         if (b->in() < time && b->out() > time) {
           BlockSplitCommand* split_command = new BlockSplitCommand(b, time);
-          split_command->redo();
+          split_command->redo_now();
           splits.replace(j, split_command->new_block());
           commands_.append(split_command);
         } else {

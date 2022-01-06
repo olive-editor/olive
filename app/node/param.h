@@ -31,6 +31,37 @@ namespace olive {
 class Node;
 class NodeKeyframe;
 
+enum InputFlag {
+  /// By default, inputs are keyframable, connectable, and NOT arrays
+  kInputFlagNormal = 0x0,
+  kInputFlagArray = 0x1,
+  kInputFlagNotKeyframable = 0x2,
+  kInputFlagNotConnectable = 0x4,
+  kInputFlagHidden = 0x8
+};
+
+class InputFlags {
+public:
+  explicit InputFlags()
+  {
+    f_ = kInputFlagNormal;
+  }
+
+  explicit InputFlags(uint64_t flags)
+  {
+    f_ = flags;
+  }
+
+  bool operator&(const InputFlag& f) const
+  {
+    return f_ & f;
+  }
+
+private:
+  uint64_t f_;
+
+};
+
 struct NodeInputPair {
   bool operator==(const NodeInputPair& rhs) const
   {
@@ -98,9 +129,19 @@ public:
     return input_;
   }
 
-  int element() const
+  const int &element() const
   {
     return element_;
+  }
+
+  void set_node(Node *node)
+  {
+    node_ = node;
+  }
+
+  void set_input(const QString &input)
+  {
+    input_ = input;
   }
 
   void set_element(int e)
@@ -115,15 +156,21 @@ public:
     return node_ && !input_.isEmpty() && element_ >= -1;
   }
 
+  bool IsHidden() const;
+
   bool IsConnected() const;
 
   bool IsKeyframing() const;
 
   bool IsArray() const;
 
+  InputFlags GetFlags() const;
+
   Node *GetConnectedOutput() const;
 
   NodeValue::Type GetDataType() const;
+
+  QVariant GetDefaultValue() const;
 
   QStringList GetComboBoxStrings() const;
 
@@ -134,6 +181,8 @@ public:
   NodeKeyframe *GetKeyframeAtTimeOnTrack(const rational& time, int track) const;
 
   QVariant GetSplitDefaultValueForTrack(int track) const;
+
+  int GetArraySize() const;
 
   void Reset()
   {

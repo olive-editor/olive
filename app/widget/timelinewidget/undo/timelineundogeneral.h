@@ -203,14 +203,8 @@ public:
     existing_gap_(nullptr),
     existing_merged_gap_(nullptr),
     our_gap_(nullptr),
-    handle_transitions_(handle_transitions),
-    position_command_(nullptr)
+    handle_transitions_(handle_transitions)
   {
-  }
-
-  virtual ~TrackReplaceBlockWithGapCommand() override
-  {
-    delete position_command_;
   }
 
   virtual Project* GetRelevantProject() const override
@@ -235,8 +229,6 @@ private:
   GapBlock* our_gap_;
 
   bool handle_transitions_;
-
-  NodeSetPositionAsChildCommand* position_command_;
 
   QObject memory_manager_;
 

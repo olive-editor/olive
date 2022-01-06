@@ -68,24 +68,6 @@ void ViewerWindow::SetPixelAspectRatio(const rational &pixel_aspect)
   UpdateMatrix();
 }
 
-void ViewerWindow::Play(const int64_t& start_timestamp, const int& playback_speed, const rational &timebase)
-{
-  timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
-
-  playback_timebase_ = timebase;
-
-  connect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWindow::UpdateFromQueue);
-
-  display_widget_->update();
-}
-
-void ViewerWindow::Pause()
-{
-  disconnect(display_widget_, &ViewerDisplayWidget::frameSwapped, this, &ViewerWindow::UpdateFromQueue);
-
-  queue_.clear();
-}
-
 void ViewerWindow::keyPressEvent(QKeyEvent *e)
 {
   QWidget::keyPressEvent(e);
@@ -100,27 +82,6 @@ void ViewerWindow::closeEvent(QCloseEvent *e)
   QWidget::closeEvent(e);
 
   deleteLater();
-}
-
-void ViewerWindow::UpdateFromQueue()
-{
-  int64_t t = timer_.GetTimestampNow();
-
-  rational time = Timecode::timestamp_to_time(t, playback_timebase_);
-
-  while (!queue_.empty()) {
-    const ViewerPlaybackFrame& pf = queue_.front();
-
-    if (pf.timestamp == time) {
-      // Frame was in queue, no need to decode anything
-      display_widget_->SetImage(pf.frame);
-      return;
-    } else {
-      queue_.pop_front();
-    }
-  }
-
-  display_widget_->update();
 }
 
 void ViewerWindow::UpdateMatrix()

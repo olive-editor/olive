@@ -52,16 +52,16 @@ const CommandLineParser::PositionalArgument *CommandLineParser::AddPositionalArg
   return a;
 }
 
-void CommandLineParser::Process(int argc, char **argv)
+void CommandLineParser::Process(const QVector<QString> &argv)
 {
   int positional_index = 0;
 
-  for (int i=1; i<argc; i++) {
+  for (int i=1; i<argv.size(); i++) {
     if (argv[i][0] == '-') {
       // Must be an option
 
       // Skip past first dashes
-      const char* arg_basename = &argv[i][1];
+      QString arg_basename = argv[i].mid(1);
 
       bool matched_known = false;
 
@@ -73,7 +73,7 @@ void CommandLineParser::Process(int argc, char **argv)
             // Flag discovered!
             o.option->Set();
 
-            if (o.takes_arg && i+1 < argc) {
+            if (o.takes_arg && i+1 < argv.size()) {
               o.option->SetSetting(argv[i+1]);
               i++;
             }

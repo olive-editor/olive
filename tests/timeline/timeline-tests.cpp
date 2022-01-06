@@ -553,11 +553,11 @@ OLIVE_ADD_TEST(InsertGaps_SingleTrack)
 
     command.undo_now();
 
-    OLIVE_ASSERT(track->Blocks().size() == 3);
-    OLIVE_ASSERT(track->Blocks().at(0) == a);
-    OLIVE_ASSERT(track->Blocks().at(0)->length() = 1);
-    OLIVE_ASSERT(track->Blocks().at(1) == b);
-    OLIVE_ASSERT(track->Blocks().at(2) == c);
+    OLIVE_ASSERT_EQUAL(track->Blocks().size(), 3);
+    OLIVE_ASSERT_EQUAL(track->Blocks().at(0), a);
+    OLIVE_ASSERT_EQUAL(track->Blocks().at(0)->length(), 1);
+    OLIVE_ASSERT_EQUAL(track->Blocks().at(1), b);
+    OLIVE_ASSERT_EQUAL(track->Blocks().at(2), c);
   }
 
   {

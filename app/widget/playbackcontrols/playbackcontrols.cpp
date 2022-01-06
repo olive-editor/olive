@@ -39,7 +39,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_control_layout->setSpacing(0);
   lower_control_layout->setMargin(0);
 
-  QSizePolicy lower_container_size_policy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+  QSizePolicy lower_container_size_policy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   lower_container_size_policy.setHorizontalStretch(1);
 
   // In the lower-left, we create a current timecode label wrapped in a QWidget for fixed sizing

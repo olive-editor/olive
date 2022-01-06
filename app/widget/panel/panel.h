@@ -45,6 +45,8 @@ public:
    */
   PanelWidget(const QString& object_name, QWidget* parent);
 
+  virtual ~PanelWidget() override;
+
   /**
    * @brief Set whether panel movement is locked or not
    */
