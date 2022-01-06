@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/graphics">
+        <file>throbber.png</file>
+        <file>olive-splash.png</file>
+    </qresource>
+</RCC>
