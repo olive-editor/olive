@@ -54,7 +54,7 @@ bool ProjectSaveTask::Run()
 
     // Version is stored in YYMMDD from whenever the project format was last changed
     // Allows easy integer math for checking project versions.
-    writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
+    writer.writeTextElement(QStringLiteral("version"), QString::number(Project::kProjectVersion));
 
     writer.writeTextElement("url", using_filename);
 

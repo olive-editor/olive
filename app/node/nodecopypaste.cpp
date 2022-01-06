@@ -39,7 +39,7 @@ void NodeCopyPasteService::CopyNodesToClipboard(QVector<Node *> nodes, void *use
   writer.writeStartDocument();
   writer.writeStartElement(QStringLiteral("olive"));
 
-  writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
+  writer.writeTextElement(QStringLiteral("version"), QString::number(Project::kProjectVersion));
 
   writer.writeStartElement(QStringLiteral("nodes"));
   for (int i=0; i<nodes.size(); i++) {

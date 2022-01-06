@@ -32,6 +32,12 @@
 
 namespace olive {
 
+// This is the project version that Olive will save
+const uint Project::kProjectVersion = 211228;
+
+// This is the minimum project version that Olive can load
+const uint Project::kProjectMinimumVersion = 210528;
+
 Project::Project() :
   is_modified_(false),
   autorecovery_saved_(true)

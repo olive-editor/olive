@@ -316,8 +316,6 @@ public:
 
   void OpenNodeInViewer(ViewerOutput* viewer);
 
-  static const uint kProjectVersion;
-
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file

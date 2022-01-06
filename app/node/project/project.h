@@ -85,6 +85,9 @@ public:
   static bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos);
   static void SavePosition(QXmlStreamWriter *writer, Node *node, const Node::Position &pos);
 
+  static const uint kProjectVersion;
+  static const uint kProjectMinimumVersion;
+
 signals:
   void NameChanged();
 

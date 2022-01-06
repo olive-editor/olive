@@ -54,11 +54,11 @@ bool ProjectLoadTask::Run()
             if (!ok) {
               SetError(tr("Failed to parse project version."));
               return false;
-            } else if (project_version > Core::kProjectVersion) {
+            } else if (project_version > Project::kProjectVersion) {
               // Project is newer than we support
-              SetError(tr("This project is newer than this version of Olive and cannot be opened."));
+              SetError(tr("This project is from a newer version of Olive and cannot be opened in this version."));
               return false;
-            } else if (project_version < 210528) { // Change this if we drop support for a project version
+            } else if (project_version < Project::kProjectMinimumVersion) { // Change this if we drop support for a project version
               // Project is older than we support
               SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
               return false;
