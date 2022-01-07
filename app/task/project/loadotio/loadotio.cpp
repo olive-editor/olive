@@ -105,7 +105,7 @@ bool LoadOTIOTask::Run()
     } else {
       // If the otio timeline does not provide a name, create a default one here
       unnamed_sequence_count++;
-      QString label = tr("Sequence") + QString(" ") + QString::number(unnamed_sequence_count);
+      QString label = tr("Sequence %1").arg(unnamed_sequence_count);
       sequence->SetLabel(QString::fromStdString(label.toStdString()));
     }
     // Set default params incase they aren't edited.
