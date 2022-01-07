@@ -44,9 +44,9 @@ protected:
 private:
   OTIO::Timeline* SerializeTimeline(Sequence* sequence);
 
-  OTIO::Track* SerializeTrack(Track* track);
+  OTIO::Track* SerializeTrack(Track* track, double sequence_rate, rational max_track_length);
 
-  bool SerializeTrackList(TrackList* list, OTIO::Timeline *otio_timeline);
+  bool SerializeTrackList(TrackList* list, OTIO::Timeline *otio_timeline, double sequence_rate);
 
   Project* project_;
 

@@ -367,11 +367,19 @@ void PreviewAutoCacher::ProcessUpdateQueue()
 
 void PreviewAutoCacher::AddNode(Node *node)
 {
+  if (dynamic_cast<NodeGroup*>(node)) {
+    // Group nodes are just dummy nodes, no need to copy them
+    return;
+  }
+
   // Copy node
   Node* copy = node->copy();
 
   // Add to project
   copy->setParent(&copied_project_);
+
+  // Copy UUID
+  copy->SetUUID(node->GetUUID());
 
   // Insert into map
   InsertIntoCopyMap(node, copy);
@@ -730,9 +738,9 @@ void PreviewAutoCacher::RequeueFrames()
   delayed_requeue_timer_.stop();
 
   if (viewer_node_
+      && (viewer_node_->GetVideoAutoCacheEnabled() || use_custom_range_)
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges(viewer_node_->GetVideoLength())
       && hash_tasks_.isEmpty()
-      && (viewer_node_->GetVideoAutoCacheEnabled() || use_custom_range_)
       && !IsRenderingCustomRange()) {
     TimeRange using_range = use_custom_range_ ? custom_autocache_range_ : cache_range_;
 
@@ -743,11 +751,13 @@ void PreviewAutoCacher::RequeueFrames()
 
     emit StopCacheProxyTasks();
 
-    CustomCacheTask *cct = new CustomCacheTask(viewer_node_->GetLabelOrName());
-    connect(this, &PreviewAutoCacher::StopCacheProxyTasks, cct, &CustomCacheTask::Finish);
-    connect(this, &PreviewAutoCacher::SignalCacheProxyTaskProgress, cct, &CustomCacheTask::ProgressChanged);
-    connect(cct, &CustomCacheTask::Cancelled, this, &PreviewAutoCacher::CacheProxyTaskCancelled);
-    TaskManager::instance()->AddTask(cct);
+    if (use_custom_range_) {
+      CustomCacheTask *cct = new CustomCacheTask(viewer_node_->GetLabelOrName());
+      connect(this, &PreviewAutoCacher::StopCacheProxyTasks, cct, &CustomCacheTask::Finish);
+      connect(this, &PreviewAutoCacher::SignalCacheProxyTaskProgress, cct, &CustomCacheTask::ProgressChanged);
+      connect(cct, &CustomCacheTask::Cancelled, this, &PreviewAutoCacher::CacheProxyTaskCancelled);
+      TaskManager::instance()->AddTask(cct);
+    }
 
     use_custom_range_ = false;
 

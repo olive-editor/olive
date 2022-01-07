@@ -200,8 +200,6 @@ public:
   static const QString kVideoAutoCacheInput;
   static const QString kAudioAutoCacheInput;
 
-  static const uint64_t kVideoParamEditMask;
-
 signals:
   void FrameRateChanged(const rational&);
 
@@ -253,8 +251,6 @@ private:
   FrameHashCache video_frame_cache_;
 
   AudioPlaybackCache audio_playback_cache_;
-
-  int operation_stack_;
 
   VideoParams cached_video_params_;
 

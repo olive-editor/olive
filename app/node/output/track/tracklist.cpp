@@ -83,6 +83,7 @@ void TrackList::TrackConnected(Node *node, int element)
   connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
 
   track->set_type(type_);
+  track->set_sequence(parent());
 
   emit TrackListChanged();
 
@@ -121,6 +122,7 @@ void TrackList::TrackDisconnected(Node *node, int element)
 
   track->SetIndex(-1);
   track->set_type(Track::kNone);
+  track->set_sequence(nullptr);
 
   disconnect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
 

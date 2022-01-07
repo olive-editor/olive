@@ -363,6 +363,42 @@ private:
 
 };
 
+class NodeViewDeleteCommand : public UndoCommand
+{
+public:
+  NodeViewDeleteCommand();
+
+  void AddNode(Node *node, Node *context);
+
+  void AddEdge(Node *output, const NodeInput &input);
+
+  virtual Project * GetRelevantProject() const override;
+
+protected:
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  using NodePair = QPair<Node *, Node*>;
+
+  QVector<NodePair> nodes_;
+
+  QVector<Node::OutputConnection> edges_;
+
+  struct RemovedNode {
+    Node *node;
+    Node *context;
+    QPointF pos;
+    NodeGraph *removed_from_graph;
+  };
+
+  QVector<RemovedNode> removed_nodes_;
+
+  QObject memory_manager_;
+
+};
+
 }
 
 #endif // NODEVIEWUNDO_H

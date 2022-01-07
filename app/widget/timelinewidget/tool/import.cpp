@@ -355,7 +355,7 @@ void ImportTool::DropGhosts(bool insert)
 
           command->add_child(new NodeAddCommand(dst_graph, new_sequence));
           command->add_child(new FolderAddChild(Core::instance()->GetSelectedFolderInActiveProject(), new_sequence));
-          command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0), false));
+          command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0)));
           new_sequence->add_default_nodes(command);
 
           FootageToGhosts(0, dragged_footage_, new_sequence->GetVideoParams().time_base(), 0);
@@ -394,10 +394,14 @@ void ImportTool::DropGhosts(bool insert)
       command->add_child(new NodeAddCommand(dst_graph, clip));
 
       // Position clip in its own context
-      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0), false));
+      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));
+
+      int dep_pos = kDefaultDistanceFromOutput;
 
       // Position footage in its context
-      command->add_child(new NodeSetPositionCommand(footage_stream.footage, clip, QPointF(-2, 0), false));
+      command->add_child(new NodeSetPositionCommand(footage_stream.footage, clip, QPointF(dep_pos, 0)));
+
+      dep_pos++;
 
       switch (Track::Reference::TypeFromString(footage_stream.output)) {
       case Track::kVideo:
@@ -409,7 +413,7 @@ void ImportTool::DropGhosts(bool insert)
 
         command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
         command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(-1, 0), false));
+        command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(dep_pos, 0)));
         break;
       }
       case Track::kAudio:
@@ -421,7 +425,7 @@ void ImportTool::DropGhosts(bool insert)
 
         command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
         command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(-1, 0), false));
+        command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(dep_pos, 0)));
         break;
       }
       default:

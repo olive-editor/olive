@@ -27,7 +27,8 @@ namespace olive {
 NodeTreeView::NodeTreeView(QWidget *parent) :
   QTreeWidget(parent),
   only_show_keyframable_(false),
-  show_keyframe_tracks_as_rows_(false)
+  show_keyframe_tracks_as_rows_(false),
+  checkboxes_enabled_(false)
 {
   connect(this, &NodeTreeView::itemChanged, this, &NodeTreeView::ItemCheckStateChanged);
   connect(this, &NodeTreeView::itemSelectionChanged, this, &NodeTreeView::SelectionChanged);
@@ -67,12 +68,14 @@ void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
   foreach (Node* n, nodes_) {
     QTreeWidgetItem* node_item = new QTreeWidgetItem();
     node_item->setText(0, n->Name());
-    node_item->setCheckState(0, disabled_nodes_.contains(n) ? Qt::Unchecked : Qt::Checked);
+    if (checkboxes_enabled_) {
+      node_item->setCheckState(0, disabled_nodes_.contains(n) ? Qt::Unchecked : Qt::Checked);
+    }
     node_item->setData(0, kItemType, kItemTypeNode);
     node_item->setData(0, kItemNodePointer, Node::PtrToValue(n));
 
     foreach (const QString& input, n->inputs()) {
-      if (only_show_keyframable_ && !n->IsInputKeyframable(input)) {
+      if (n->IsInputHidden(input) || (only_show_keyframable_ && !n->IsInputKeyframable(input))) {
         continue;
       }
 
@@ -105,7 +108,6 @@ void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
           CreateItemsForTracks(element_item, input_ref, key_tracks.size());
         }
       }
-
     }
 
     // Add at the end to prevent unnecessary signalling while we're setting these objects up
@@ -115,6 +117,8 @@ void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
       delete node_item;
     }
   }
+
+  expandAll();
 }
 
 void NodeTreeView::changeEvent(QEvent *e)
@@ -153,6 +157,8 @@ NodeKeyframeTrackReference NodeTreeView::GetSelectedInput()
 
     if (item->data(0, kItemType).toInt() == kItemTypeInput) {
       selected_ref = item->data(0, kItemInputReference).value<NodeKeyframeTrackReference>();
+    } else {
+      selected_ref = NodeKeyframeTrackReference(NodeInput(Node::ValueToPtr<Node>(item->data(0, kItemNodePointer)), QString()));
     }
   }
 
@@ -164,21 +170,27 @@ QTreeWidgetItem* NodeTreeView::CreateItem(QTreeWidgetItem *parent, const NodeKey
   QTreeWidgetItem* input_item = new QTreeWidgetItem(parent);
 
   QString item_name;
-  if (ref.track() == -1 || NodeValue::get_number_of_keyframe_tracks(ref.input().GetDataType()) == 1) {
-    item_name = ref.input().name();
+  if (ref.track() == -1
+      || NodeValue::get_number_of_keyframe_tracks(ref.input().GetDataType()) == 1
+      || (ref.input().IsArray() && ref.input().element() == -1)) {
+    if (ref.input().element() == -1) {
+      item_name = ref.input().name();
+    } else {
+      item_name = QString::number(ref.input().element());
+    }
   } else {
     switch (ref.track()) {
     case 0:
-      item_name = tr("X");
+      item_name = UseRGBAOverXYZW(ref) ? tr("R") : tr("X");
       break;
     case 1:
-      item_name = tr("Y");
+      item_name = UseRGBAOverXYZW(ref) ? tr("G") : tr("Y");
       break;
     case 2:
-      item_name = tr("Z");
+      item_name = UseRGBAOverXYZW(ref) ? tr("B") : tr("Z");
       break;
     case 3:
-      item_name = tr("W");
+      item_name = UseRGBAOverXYZW(ref) ? tr("A") : tr("W");
       break;
     default:
       item_name = QString::number(ref.track());
@@ -186,7 +198,9 @@ QTreeWidgetItem* NodeTreeView::CreateItem(QTreeWidgetItem *parent, const NodeKey
   }
   input_item->setText(0, item_name);
 
-  input_item->setCheckState(0, disabled_inputs_.contains(ref) ? Qt::Unchecked : Qt::Checked);
+  if (checkboxes_enabled_) {
+    input_item->setCheckState(0, disabled_inputs_.contains(ref) ? Qt::Unchecked : Qt::Checked);
+  }
   input_item->setData(0, kItemType, kItemTypeInput);
   input_item->setData(0, kItemInputReference, QVariant::fromValue(ref));
 
@@ -204,6 +218,11 @@ void NodeTreeView::CreateItemsForTracks(QTreeWidgetItem *parent, const NodeInput
   for (int j=0; j<track_count; j++) {
     CreateItem(parent, NodeKeyframeTrackReference(input, j));
   }
+}
+
+bool NodeTreeView::UseRGBAOverXYZW(const NodeKeyframeTrackReference &ref)
+{
+  return ref.input().GetDataType() == NodeValue::kColor;
 }
 
 void NodeTreeView::ItemCheckStateChanged(QTreeWidgetItem *item, int column)

@@ -16,23 +16,29 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/nodeparamview/nodeparamview.h
   widget/nodeparamview/nodeparamview.cpp
-  widget/nodeparamview/nodeparamviewarraywidget.h
+  widget/nodeparamview/nodeparamview.h
   widget/nodeparamview/nodeparamviewarraywidget.cpp
-  widget/nodeparamview/nodeparamviewconnectedlabel.h
+  widget/nodeparamview/nodeparamviewarraywidget.h
   widget/nodeparamview/nodeparamviewconnectedlabel.cpp
-  widget/nodeparamview/nodeparamviewdockarea.h
+  widget/nodeparamview/nodeparamviewconnectedlabel.h
+  widget/nodeparamview/nodeparamviewcontext.cpp
+  widget/nodeparamview/nodeparamviewcontext.h
   widget/nodeparamview/nodeparamviewdockarea.cpp
-  widget/nodeparamview/nodeparamviewitem.h
+  widget/nodeparamview/nodeparamviewdockarea.h
   widget/nodeparamview/nodeparamviewitem.cpp
-  widget/nodeparamview/nodeparamviewkeyframecontrol.h
+  widget/nodeparamview/nodeparamviewitem.h
+  widget/nodeparamview/nodeparamviewitembase.cpp
+  widget/nodeparamview/nodeparamviewitembase.h
+  widget/nodeparamview/nodeparamviewitemtitlebar.cpp
+  widget/nodeparamview/nodeparamviewitemtitlebar.h
   widget/nodeparamview/nodeparamviewkeyframecontrol.cpp
-  widget/nodeparamview/nodeparamviewtextedit.h
+  widget/nodeparamview/nodeparamviewkeyframecontrol.h
   widget/nodeparamview/nodeparamviewtextedit.cpp
-  widget/nodeparamview/nodeparamviewundo.h
+  widget/nodeparamview/nodeparamviewtextedit.h
   widget/nodeparamview/nodeparamviewundo.cpp
-  widget/nodeparamview/nodeparamviewwidgetbridge.h
+  widget/nodeparamview/nodeparamviewundo.h
   widget/nodeparamview/nodeparamviewwidgetbridge.cpp
+  widget/nodeparamview/nodeparamviewwidgetbridge.h
   PARENT_SCOPE
 )

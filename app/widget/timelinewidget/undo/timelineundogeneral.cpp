@@ -73,131 +73,121 @@ void BlockSetMediaInCommand::undo()
 //
 // TimelineAddTrackCommand
 //
-TimelineAddTrackCommand::TimelineAddTrackCommand(TrackList *timeline, bool automerge_tracks)
+TimelineAddTrackCommand::TimelineAddTrackCommand(TrackList *timeline, bool automerge_tracks) :
+  timeline_(timeline),
+  merge_(nullptr),
+  position_command_(nullptr)
 {
-  timeline_ = timeline;
-  position_command_ = nullptr;
-
+  // Create new track
   track_ = new Track();
   track_->setParent(&memory_manager_);
 
-  if (timeline->GetTrackCount() > 0 && automerge_tracks) {
-    if (timeline_->type() == Track::kVideo) {
-      merge_ = new MergeNode();
-      base_ = NodeInput(merge_, MergeNode::kBaseIn);
-      blend_ = NodeInput(merge_, MergeNode::kBlendIn);
-    } else if (timeline_->type() == Track::kAudio) {
-      merge_ = new MathNode();
-      base_ = NodeInput(merge_, MathNode::kParamAIn);
-      blend_ = NodeInput(merge_, MathNode::kParamBIn);
-    } else {
-      merge_ = nullptr;
-    }
-  } else {
-    merge_ = nullptr;
+  // Determine what input to connect it to
+  QString relevant_input;
+
+  if (timeline_->type() == Track::kVideo) {
+    relevant_input = Sequence::kTextureInput;
+  } else if (timeline_->type() == Track::kAudio) {
+    relevant_input = Sequence::kSamplesInput;
   }
 
-  if (merge_) {
-    merge_->setParent(&memory_manager_);
+  // If we have an input to connect to, set it as our `direct` connection
+  if (!relevant_input.isEmpty()) {
+    direct_ = NodeInput(timeline_->parent(), relevant_input);
+
+    // If we're automerging and something is already connected, determine if/how to merge it
+    if (automerge_tracks && direct_.IsConnected()) {
+      if (timeline_->type() == Track::kVideo) {
+        // Use merge for video
+        merge_ = new MergeNode();
+        base_ = NodeInput(merge_, MergeNode::kBaseIn);
+        blend_ = NodeInput(merge_, MergeNode::kBlendIn);
+      } else if (timeline_->type() == Track::kAudio) {
+        // Use math (add) for audio
+        merge_ = new MathNode();
+        base_ = NodeInput(merge_, MathNode::kParamAIn);
+        blend_ = NodeInput(merge_, MathNode::kParamBIn);
+      }
+
+      if (merge_) {
+        // If we got created a merge node, ensure it's parented
+        merge_->setParent(&memory_manager_);
+      }
+    }
   }
 }
 
 void TimelineAddTrackCommand::redo()
 {
-  // Add track
+  // Get sequence
+  Sequence* sequence = timeline_->parent();
+
+  // Add track to sequence
   track_->setParent(timeline_->GetParentGraph());
   timeline_->ArrayAppend();
   Node::ConnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
 
+  qreal position_factor = 0.5;
+  if (timeline_->type() == Track::kVideo) {
+    position_factor = -position_factor;
+  }
+  bool create_pos_command = (!position_command_ && (timeline_->type() == Track::kVideo || timeline_->type() == Track::kAudio));
+  if (create_pos_command) {
+    position_command_ = new MultiUndoCommand();
+  }
+
   // Add merge if applicable
-  Track* last_track = nullptr;
   if (merge_) {
+    // Determine what was previously connected
+    Node *previous_connection = direct_.GetConnectedOutput();
+
+    // Add merge to graph
     merge_->setParent(timeline_->GetParentGraph());
 
-    last_track = timeline_->GetTrackAt(timeline_->GetTrackCount()-2);
-
-    // Whatever this track used to be connected to, connect the merge instead
-    const Node::OutputConnections edges = last_track->output_connections();
-    for (const Node::OutputConnection& ic : edges) {
-      const NodeInput& i = ic.second;
-
-      // Ignore the track input, but funnel everything else through our merge
-      if (i.node() != timeline_->parent() || i.input() != timeline_->track_input()) {
-        Node::DisconnectEdge(last_track, i);
-        Node::ConnectEdge(merge_, i);
-      }
-    }
-
-    // Connect this as the "blend" track
+    // Connect merge between what used to be here
+    Node::DisconnectEdge(previous_connection, direct_);
+    Node::ConnectEdge(merge_, direct_);
+    Node::ConnectEdge(previous_connection, base_);
     Node::ConnectEdge(track_, blend_);
-    Node::ConnectEdge(last_track, base_);
-  } else if (timeline_->GetTrackCount() == 1) {
-    // If this was the first track we added,
-    QString relevant_input;
 
-    if (timeline_->type() == Track::kVideo) {
-      relevant_input = ViewerOutput::kTextureInput;
-    } else if (timeline_->type() == Track::kAudio) {
-      relevant_input = ViewerOutput::kSamplesInput;
+    if (create_pos_command) {
+      position_command_->add_child(new NodeSetPositionCommand(track_, sequence, sequence->GetNodePositionInContext(sequence) + QPointF(-1, -position_factor)));
+      position_command_->add_child(new NodeSetPositionCommand(merge_, sequence, sequence->GetNodePositionInContext(sequence)));
+      position_command_->add_child(new NodeSetPositionAndDependenciesRecursivelyCommand(merge_, sequence, sequence->GetNodePositionInContext(sequence) + QPointF(-1, position_factor * timeline_->GetTrackCount())));
     }
+  } else if (direct_.IsValid() && !direct_.IsConnected()) {
+    // If no merge, we have a direct connection, and nothing else is connected, connect this
+    Node::ConnectEdge(track_, direct_);
 
-    if (!relevant_input.isEmpty() && !timeline_->parent()->IsInputConnected(relevant_input)) {
-      direct_ = NodeInput(timeline_->parent(), relevant_input);
-
-      Node::ConnectEdge(track_, direct_);
-    } else {
-      direct_ = NodeInput();
+    if (create_pos_command) {
+      // Just position directly next to the context node
+      position_command_->add_child(new NodeSetPositionCommand(track_, sequence, sequence->GetNodePositionInContext(sequence) + QPointF(-1, position_factor)));
     }
   }
 
-  // Position track in context
-  if (!position_command_) {
-    int track_count = timeline_->parent()->GetTracks().size();
-    position_command_ = new MultiUndoCommand();
-
-    // Position either the merge or the track as an "element"
-    Node *node_to_position = merge_ ? merge_ : track_;
-    double node_index = track_count - 1;
-    if (merge_) {
-      node_index -= 1;
-      position_command_->add_child(new NodeRemovePositionFromContextCommand(last_track, timeline_->parent()));
-    }
-
-    position_command_->add_child(new NodeSetPositionAsChildCommand(node_to_position, timeline_->parent(), timeline_->parent(), node_index, track_count, true));
-
-    // If we positioned a merge, position the tracks as children of the merge
-    if (merge_) {
-      // `last_track` should be non-null if `merge_` is non-null
-      position_command_->add_child(new NodeSetPositionAsChildCommand(last_track, merge_, timeline_->parent(), 0, 2, true));
-      position_command_->add_child(new NodeSetPositionAsChildCommand(track_, merge_, timeline_->parent(), 1, 2, true));
-    }
+  // Run position command if we created one
+  if (position_command_) {
+    position_command_->redo_now();
   }
-  position_command_->redo_now();
 }
 
 void TimelineAddTrackCommand::undo()
 {
-  position_command_->undo_now();
+  if (position_command_) {
+    position_command_->undo_now();
+  }
 
   // Remove merge if applicable
   if (merge_) {
-    // Assume whatever this merge is connected to USED to be connected to the last track
-    Track* last_track = timeline_->GetTrackAt(timeline_->GetTrackCount()-2);
+    Node *previous_connection = base_.GetConnectedOutput();
 
     Node::DisconnectEdge(track_, blend_);
-    Node::DisconnectEdge(last_track, base_);
-
-    // Make copy of edges since the node's internal array will change as we disconnect things
-    const Node::OutputConnections edges = merge_->output_connections();
-    for (const Node::OutputConnection& ic : edges) {
-      const NodeInput& i = ic.second;
-
-      Node::DisconnectEdge(merge_, i);
-      Node::ConnectEdge(last_track, i);
-    }
+    Node::DisconnectEdge(previous_connection, base_);
+    Node::DisconnectEdge(merge_, direct_);
+    Node::ConnectEdge(previous_connection, direct_);
 
     merge_->setParent(&memory_manager_);
-  } else if (direct_.IsValid()) {
+  } else if (direct_.IsValid() && direct_.GetConnectedOutput() == track_) {
     Node::DisconnectEdge(track_, direct_);
   }
 
@@ -374,7 +364,7 @@ void TrackListInsertGaps::redo()
   }
 
   if (split_command_) {
-    split_command_->redo();
+    split_command_->redo_now();
   }
 
   foreach (auto add_gap, gaps_added_) {
@@ -416,7 +406,7 @@ void TrackListInsertGaps::undo()
 
   // Un-split blocks
   if (split_command_) {
-    split_command_->undo();
+    split_command_->undo_now();
   }
 
   // Restore original length of gaps
@@ -496,11 +486,6 @@ void TrackReplaceBlockWithGapCommand::redo()
 
       our_gap_->setParent(track_->parent());
       track_->ReplaceBlock(block_, our_gap_);
-
-      if (!position_command_) {
-        position_command_ = new NodeSetPositionAsChildCommand(our_gap_, track_, track_, our_gap_->index(), track_->Blocks().size(), true);
-      }
-      position_command_->redo_now();
     }
 
     track_->EndOperation();
@@ -532,8 +517,6 @@ void TrackReplaceBlockWithGapCommand::undo()
       // We made this gap, simply swap our gap back
       track_->ReplaceBlock(our_gap_, block_);
       our_gap_->setParent(&memory_manager_);
-
-      position_command_->undo_now();
 
     } else {
 

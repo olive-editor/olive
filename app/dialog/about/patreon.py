@@ -27,6 +27,6 @@ while True:
     else:
        break
 
-text_file = open("patreon.h", "w")
+text_file = open("patreon.h", "w", encoding="utf-8")
 text_file.write("#ifndef PATREON_H\n#define PATREON_H\n\n#include <QStringList>\n\nQStringList patrons = {\n%s\n};\n\n#endif // PATREON_H\n" % name_list)
 text_file.close()

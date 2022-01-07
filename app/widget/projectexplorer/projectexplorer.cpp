@@ -30,7 +30,7 @@
 
 #include "common/define.h"
 #include "core.h"
-#include "dialog/nodeproperties/nodepropertiesdialog.h"
+#include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
 #include "projectexplorerundo.h"
 #include "task/precache/precachetask.h"
@@ -446,8 +446,8 @@ void ProjectExplorer::ShowItemPropertiesDialog()
   // FIXME: Support for multiple items
   if (dynamic_cast<Footage*>(sel)) {
 
-    NodePropertiesDialog npd(sel, static_cast<Footage*>(sel)->GetVideoParams().time_base(), this);
-    npd.exec();
+    FootagePropertiesDialog fpd(this, static_cast<Footage*>(sel));
+    fpd.exec();
 
   } else if (dynamic_cast<Folder*>(sel)) {
 

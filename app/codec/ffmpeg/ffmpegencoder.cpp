@@ -572,7 +572,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   // Find encoder
   AVCodec* encoder = GetEncoder(codec);
   if (!encoder) {
-    SetError(tr("Failed to find codec for %1").arg(codec));
+    SetError(tr("Failed to find codec for 0x%1").arg(codec, 16));
     return false;
   }
 

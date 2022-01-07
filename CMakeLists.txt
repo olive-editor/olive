@@ -55,6 +55,9 @@ else()
 endif()
 
 set(OLIVE_DEFINITIONS -DQT_DEPRECATED_WARNINGS)
+if (WIN32)
+  list(APPEND OLIVE_DEFINITIONS -DUNICODE -D_UNICODE)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -81,8 +84,7 @@ list(APPEND OLIVE_LIBRARIES ${OPENEXR_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
 
 # Link Qt 5
-find_package(Qt5 5.6 REQUIRED
-  COMPONENTS
+set(QT_LIBRARIES
   Core
   Gui
   Widgets
@@ -90,8 +92,15 @@ find_package(Qt5 5.6 REQUIRED
   Svg
   LinguistTools
   Concurrent
+)
+if (UNIX AND NOT APPLE)
+  list(APPEND QT_LIBRARIES DBus)
+endif()
+find_package(Qt5 5.6 REQUIRED
+  COMPONENTS
+    ${QT_LIBRARIES}
   OPTIONAL_COMPONENTS
-  Network
+    Network
 )
 if (NOT Qt5Network_FOUND)
   message("   Qt5::Network module not found, crash reporting will be disabled.")
@@ -154,6 +163,14 @@ else()
     # because Crashpad links it itself and will cause duplicate references if we also link it
     list(APPEND OLIVE_LIBRARIES "-framework ApplicationServices")
   endif()
+endif()
+
+if (WIN32)
+  list(APPEND OLIVE_DEFINITIONS "-DUNICODE -D_UNICODE")
+elseif (APPLE)
+  list(APPEND OLIVE_LIBRARIES "-framework IOKit")
+elseif(UNIX)
+  list(APPEND OLIVE_LIBRARIES Qt5::DBus)
 endif()
 
 # Generate Git hash

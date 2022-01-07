@@ -44,43 +44,17 @@ void NodeGraph::Clear()
   }
 }
 
-qreal NodeGraph::GetNodeContextHeight(Node *context)
-{
-  const PositionMap &map = position_map_.value(context);
-
-  qreal top = 0, bottom = 0;
-
-  foreach (const QPointF &pt, map) {
-    top = qMin(pt.y(), top);
-    bottom = qMax(pt.y(), bottom);
-  }
-
-  return bottom - top;
-}
-
-int NodeGraph::GetNumberOfContextsNodeIsIn(Node *node) const
+int NodeGraph::GetNumberOfContextsNodeIsIn(Node *node, bool except_itself) const
 {
   int count = 0;
 
-  for (auto it=position_map_.cbegin(); it!=position_map_.cend(); it++) {
-    if (it.value().contains(node)) {
+  foreach (Node *ctx, node_children_) {
+    if (ctx->ContextContainsNode(node) && (!except_itself || ctx != node)) {
       count++;
     }
   }
 
   return count;
-}
-
-bool NodeGraph::NodeOutputsToContext(Node *node) const
-{
-  for (auto it=position_map_.cbegin(); it!=position_map_.cend(); it++) {
-    const PositionMap &pm = it.value();
-    if (pm.contains(node) && node->OutputsTo(it.key(), true)) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 void NodeGraph::childEvent(QChildEvent *event)
@@ -100,6 +74,12 @@ void NodeGraph::childEvent(QChildEvent *event)
       connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged, Qt::DirectConnection);
       connect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged, Qt::DirectConnection);
 
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        connect(group, &NodeGroup::InputPassthroughAdded, this, &NodeGraph::GroupAddedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeGraph::GroupRemovedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::OutputPassthroughChanged, this, &NodeGraph::GroupChangedOutputPassthrough, Qt::DirectConnection);
+      }
+
       emit NodeAdded(node);
       emit node->AddedToGraph(this);
 
@@ -113,21 +93,19 @@ void NodeGraph::childEvent(QChildEvent *event)
       disconnect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
       disconnect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged);
 
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        disconnect(group, &NodeGroup::InputPassthroughAdded, this, &NodeGraph::GroupAddedInputPassthrough);
+        disconnect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeGraph::GroupRemovedInputPassthrough);
+        disconnect(group, &NodeGroup::OutputPassthroughChanged, this, &NodeGraph::GroupChangedOutputPassthrough);
+      }
+
       emit NodeRemoved(node);
       emit node->RemovedFromGraph(this);
 
-      for (auto it=position_map_.begin(); it!=position_map_.end(); it++) {
-        PositionMap &map = it.value();
-        for (auto jt=map.begin(); jt!=map.end(); ) {
-          if (jt.key() == node) {
-            jt = map.erase(jt);
-            emit NodePositionRemoved(node, it.key());
-          } else {
-            jt++;
-          }
-        }
+      // Remove from any contexts
+      foreach (Node *context, node_children_) {
+        context->RemoveNodeFromContext(node);
       }
-
     }
   }
 }

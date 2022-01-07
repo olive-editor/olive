@@ -29,8 +29,7 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
 {
   // Set ViewerWidget as the central widget
   FootageViewerWidget* fvw = new FootageViewerWidget();
-  connect(fvw, &FootageViewerWidget::RequestScopePanel, this, &FootageViewerPanel::CreateScopePanel);
-  SetTimeBasedWidget(fvw);
+  SetViewerWidget(fvw);
 
   // Set strings
   Retranslate();

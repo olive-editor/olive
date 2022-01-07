@@ -75,12 +75,14 @@ private:
 
   bool prepared_;
 
+  bool done_;
+
 };
 
 class MultiUndoCommand : public UndoCommand
 {
 public:
-  MultiUndoCommand();
+  MultiUndoCommand() = default;
 
   virtual Project* GetRelevantProject() const override
   {
@@ -108,8 +110,6 @@ protected:
 
 private:
   std::vector<UndoCommand*> children_;
-
-  bool done_;
 
 };
 

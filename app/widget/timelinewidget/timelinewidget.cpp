@@ -28,7 +28,6 @@
 #include "core.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
-#include "dialog/nodeproperties/nodepropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/speedduration/speeddurationdialog.h"
 #include "node/block/transition/transition.h"
@@ -920,6 +919,10 @@ void TimelineWidget::AddBlock(Block *block)
     connect(block, &Block::PreviewChanged, this, &TimelineWidget::BlockUpdated);
 
     added_blocks_.append(block);
+
+    if (selections_[block->track()->ToReference()].contains(block->range()) && !selected_blocks_.contains(block)) {
+      selected_blocks_.append(block);
+    }
   }
 }
 
@@ -1023,17 +1026,7 @@ void TimelineWidget::ShowContextMenu()
     menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));
-    connect(properties_action, &QAction::triggered, this, [this](){
-      QVector<Block*> block_items = GetSelectedBlocks();
-      QVector<Node*> nodes;
-
-      foreach (Block* i, block_items) {
-        nodes.append(i);
-      }
-
-      NodePropertiesDialog npd(nodes, timebase(), this);
-      npd.exec();
-    });
+    connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialogForSelectedClips);
   }
 
   if (selected.isEmpty()) {
@@ -1195,9 +1188,20 @@ void TimelineWidget::UpdateViewTimebases()
   }
 }
 
-void TimelineWidget::NudgeInternal(const rational &amount)
+void TimelineWidget::NudgeInternal(rational amount)
 {
   if (!selected_blocks_.isEmpty()) {
+    // Validate
+    foreach (Block* b, selected_blocks_) {
+      if (b->in() + amount < 0) {
+        amount = -b->in();
+      }
+    }
+
+    if (amount.isNull()) {
+      return;
+    }
+
     MultiUndoCommand *command = new MultiUndoCommand();
 
     foreach (Block* b, selected_blocks_) {
@@ -1552,31 +1556,6 @@ QVector<Block *> TimelineWidget::GetBlocksInGlobalRect(const QPoint &p1, const Q
   return blocks_in_rect;
 }
 
-QVector<Block *> TimelineWidget::GetBlocksInSelection(const TimelineWidgetSelections &sel)
-{
-  QVector<Block *> blocks;
-
-  for (auto it=sel.cbegin(); it!=sel.cend(); it++) {
-    const Track::Reference &ref = it.key();
-    const TimeRangeList &list = it.value();
-
-    for (const TimeRange &r : list) {
-      Track *track = GetTrackFromReference(ref);
-      if (track) {
-        for (Block *b : track->Blocks()) {
-          if (r.Contains(b->range())) {
-            blocks.append(b);
-          } else if (b->in() >= r.out()) {
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  return blocks;
-}
-
 void TimelineWidget::HideSnaps()
 {
   foreach (TimelineAndTrackView* tview, views_) {
@@ -1701,8 +1680,31 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool proce
   }
 
   if (process_block_changes) {
-    SignalDeselectedBlocks(GetBlocksInSelection(selections_.Subtracted(s)));
-    SignalSelectedBlocks(GetBlocksInSelection(s.Subtracted(selections_)));
+    QVector<Block*> deselected;
+    QVector<Block*> selected;
+
+    foreach (Block *b, selected_blocks_) {
+      if (!s[b->track()->ToReference()].contains(b->range())) {
+        deselected.append(b);
+      }
+    }
+
+    // NOTE: This loop could do with some optimization
+    for (auto it=s.cbegin(); it!=s.cend(); it++) {
+      Track *track = GetTrackFromReference(it.key());
+      if (track) {
+        const TimeRangeList &ranges = it.value();
+
+        foreach (Block *b, track->Blocks()) {
+          if (!selected_blocks_.contains(b) && ranges.contains(b->range())) {
+            selected.append(b);
+          }
+        }
+      }
+    }
+
+    SignalDeselectedBlocks(deselected);
+    SignalSelectedBlocks(selected);
   }
 
   selections_ = s;

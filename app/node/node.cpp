@@ -47,8 +47,10 @@ Node::Node() :
   override_color_(-1),
   folder_(nullptr),
   operation_stack_(0),
-  cache_result_(false)
+  cache_result_(false),
+  flags_(kNone)
 {
+  uuid_ = QUuid::createUuid();
 }
 
 Node::~Node()
@@ -88,6 +90,8 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint versi
       xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), this);
     } else if (reader->name() == QStringLiteral("label")) {
       SetLabel(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("uuid")) {
+      SetUUID(QUuid::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("color")) {
       override_color_ = reader->readElementText().toInt();
     } else if (reader->name() == QStringLiteral("links")) {
@@ -169,6 +173,7 @@ void Node::Save(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
+  writer->writeTextElement(QStringLiteral("uuid"), uuid_.toString());
   writer->writeTextElement(QStringLiteral("label"), GetLabel());
   writer->writeTextElement(QStringLiteral("color"), QString::number(override_color_));
 
@@ -219,7 +224,16 @@ void Node::Save(QXmlStreamWriter *writer) const
 
 Project* Node::project() const
 {
-  return dynamic_cast<Project*>(parent());
+  QObject *t = this->parent();
+
+  while (t) {
+    if (Project *p = dynamic_cast<Project*>(t)) {
+      return p;
+    }
+    t = t->parent();
+  }
+
+  return nullptr;
 }
 
 QString Node::ShortName() const
@@ -241,6 +255,40 @@ QIcon Node::icon() const
 {
   // Just a meaningless default icon to be used where necessary
   return icon::New;
+}
+
+bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)
+{
+  Position p = context_positions_.value(node);
+
+  p.position = pos;
+
+  return SetNodePositionInContext(node, p);
+}
+
+bool Node::SetNodePositionInContext(Node *node, const Position &pos)
+{
+  bool added = !ContextContainsNode(node);
+  context_positions_.insert(node, pos);
+
+  if (added) {
+    emit NodeAddedToContext(node);
+  }
+
+  emit NodePositionInContextChanged(node, pos.position);
+
+  return added;
+}
+
+bool Node::RemoveNodeFromContext(Node *node)
+{
+  if (ContextContainsNode(node)) {
+    context_positions_.remove(node);
+    emit NodeRemovedFromContext(node);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 Color Node::color() const
@@ -427,6 +475,11 @@ void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
   }
 
   writer->writeEndElement(); // subelements
+}
+
+bool Node::IsInputHidden(const QString &input) const
+{
+  return (GetInputFlags(input) & kInputFlagHidden);
 }
 
 bool Node::IsInputConnectable(const QString &input) const
@@ -1050,7 +1103,7 @@ NodeInputImmediate *Node::GetImmediate(const QString &input, int element) const
   return nullptr;
 }
 
-Node::InputFlags Node::GetInputFlags(const QString &input) const
+InputFlags Node::GetInputFlags(const QString &input) const
 {
   const Input* i = GetInternalInputData(input);
 
@@ -1196,13 +1249,10 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
     command->add_child(new NodeSetValueHintCommand(copied_input, node->GetValueHintForInput(input.input(), input.element())));
   }
 
-  if (node->parent()->GetPositionMap().contains(node)) {
-    // This node is a context, copy the context
-    const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      // Add either the copy (if it exists) or the original node to the context
-      command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value(), false));
-    }
+  const PositionMap &map = node->GetContextPositions();
+  for (auto it=map.cbegin(); it!=map.cend(); it++) {
+    // Add either the copy (if it exists) or the original node to the context
+    command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value()));
   }
 
   return copy;
@@ -1229,13 +1279,10 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
     command->add_child(new NodeCopyInputsCommand(node, copy, true));
 
-    if (node->parent()->GetPositionMap().contains(node)) {
-      // This node is a context, copy the context
-      const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
-      for (auto it=map.cbegin(); it!=map.cend(); it++) {
-        // Add to the context
-        command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value(), false));
-      }
+    const PositionMap &map = node->GetContextPositions();
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      // Add to the context
+      command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value()));
     }
   }
 
@@ -1310,7 +1357,7 @@ void Node::HashAddNodeSignature(QCryptographicHash &hash) const
   hash.addData(id().toUtf8());
 }
 
-void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
+void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
 {
   if (id.isEmpty()) {
     qWarning() << "Rejected adding input with an empty ID on node" << this->id();
@@ -1457,7 +1504,7 @@ void Node::GizmoMove(const QPointF &, const rational&, const Qt::KeyboardModifie
 {
 }
 
-void Node::GizmoRelease()
+void Node::GizmoRelease(MultiUndoCommand *)
 {
 }
 
@@ -1564,7 +1611,9 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   dst->SetSplitStandardValue(input, src->GetSplitStandardValue(input, src_element), dst_element);
 
   // Copy keyframes
-  dst->GetImmediate(input, dst_element)->delete_all_keyframes();
+  if (NodeInputImmediate *immediate = dst->GetImmediate(input, dst_element)) {
+    immediate->delete_all_keyframes();
+  }
   foreach (const NodeKeyframeTrack& track, src->GetImmediate(input, src_element)->keyframe_tracks()) {
     foreach (NodeKeyframe* key, track) {
       key->copy(dst_element, dst);
@@ -2198,7 +2247,6 @@ void Node::childEvent(QChildEvent *event)
       GetImmediate(key->input(), key->element())->insert_keyframe(key);
 
       connect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
-      connect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
       connect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
       connect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
       connect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
@@ -2210,15 +2258,14 @@ void Node::childEvent(QChildEvent *event)
       TimeRange time_affected = GetRangeAffectedByKeyframe(key);
 
       disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
-      disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
       disconnect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
       disconnect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
       disconnect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
       disconnect(key, &NodeKeyframe::BezierControlOutChanged, this, &Node::InvalidateFromKeyframeBezierOutChange);
 
-      GetImmediate(key->input(), key->element())->remove_keyframe(key);
-
       emit KeyframeRemoved(key);
+
+      GetImmediate(key->input(), key->element())->remove_keyframe(key);
       ParameterValueChanged(i, time_affected);
     }
   }
@@ -2281,12 +2328,16 @@ void Node::InvalidateFromKeyframeTimeChange()
   foreach (const TimeRange& r, invalidate_range) {
     ParameterValueChanged(key->key_track_ref().input(), r);
   }
+
+  emit KeyframeTimeChanged(key);
 }
 
 void Node::InvalidateFromKeyframeValueChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   ParameterValueChanged(key->key_track_ref().input(), GetRangeAffectedByKeyframe(key));
+
+  emit KeyframeValueChanged(key);
 }
 
 void Node::InvalidateFromKeyframeTypeChanged()
@@ -2301,6 +2352,8 @@ void Node::InvalidateFromKeyframeTypeChanged()
 
   // Invalidate entire range
   ParameterValueChanged(key->key_track_ref().input(), GetRangeAroundIndex(key->input(), track.indexOf(key), key->track(), key->element()));
+
+  emit KeyframeTypeChanged(key);
 }
 
 Project *Node::ArrayInsertCommand::GetRelevantProject() const
@@ -2318,119 +2371,40 @@ Project *Node::ArrayResizeCommand::GetRelevantProject() const
   return node_->project();
 }
 
-void NodeSetPositionAndShiftSurroundingsCommand::redo()
-{
-  if (commands_.isEmpty()) {
-    // Move first node
-    NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, relative_, position_, move_dependencies_);
-    set_pos_command->redo_now();
-    commands_.append(set_pos_command);
-
-    // Get bounding rect
-    qreal bounding_rect_sz = 1.0;
-    qreal bounding_rect_half_sz = bounding_rect_sz * 0.5;
-    QRectF bounding_rect(position_.x() - bounding_rect_half_sz, position_.y() - bounding_rect_half_sz, bounding_rect_sz, bounding_rect_sz);
-
-    // Start moving other nodes
-    foreach (Node* surrounding, node_->parent()->nodes()) {
-      if (surrounding != node_) {
-        QPointF surrounding_position = node_->parent()->GetNodePosition(surrounding, relative_);
-        if (bounding_rect.contains(surrounding_position)) {
-          QPointF new_pos = surrounding_position;
-
-          qreal move_rate = 0.50;
-
-          if (surrounding_position.y() < position_.y()) {
-            move_rate = -move_rate;
-          }
-
-          new_pos.setY(new_pos.y() + move_rate);
-
-          auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, relative_, new_pos, true);
-          sur_command->redo();
-          commands_.append(sur_command);
-        }
-      }
-    }
-  } else {
-    for (int i=0; i<commands_.size(); i++) {
-      commands_.at(i)->redo_now();
-    }
-  }
-}
-
 void NodeSetPositionCommand::redo()
 {
-  graph_ = node_->parent();
-  if (!(added_ = !graph_->NodeMapContainsNode(node_, relevant_))) {
-    old_pos_ = graph_->GetNodePosition(node_, relevant_);
+  added_ = !context_->ContextContainsNode(node_);
+
+  if (!added_) {
+    old_pos_ = context_->GetNodePositionDataInContext(node_);
   }
-  graph_->SetNodePosition(node_, relevant_, pos_);
+
+  context_->SetNodePositionInContext(node_, pos_);
 }
 
 void NodeSetPositionCommand::undo()
 {
   if (added_) {
-    graph_->RemoveNodePosition(node_, relevant_);
+    context_->RemoveNodeFromContext(node_);
   } else {
-    graph_->SetNodePosition(node_, relevant_, old_pos_);
+    context_->SetNodePositionInContext(node_, old_pos_);
   }
-}
-
-void NodeSetPositionAsChildCommand::redo()
-{
-  if (!sub_command_) {
-    // Calculate position of node
-    NodeGraph *graph = parent_->parent();
-    QPointF pos = graph->GetNodePosition(parent_, relative_);
-
-    // This is a dependency, so we'll place it one X before
-    pos.setX(pos.x() - 1);
-
-    // The Y will be calculated using the index and child count
-    pos.setY(pos.y() - (double(child_count_)*0.5) + this_index_ + 0.5);
-
-    sub_command_ = new MultiUndoCommand();
-    if (shift_surroundings_) {
-      sub_command_->add_child(new NodeSetPositionAndShiftSurroundingsCommand(node_, relative_, pos, true));
-    } else {
-      sub_command_->add_child(new NodeSetPositionCommand(node_, relative_, pos, true));
-    }
-  }
-
-  sub_command_->redo_now();
-}
-
-void NodeSetPositionToOffsetOfAnotherNodeCommand::redo()
-{
-  NodeGraph *graph = node_->parent();
-  old_pos_ = graph->GetNodePosition(node_, relative_);
-  graph->SetNodePosition(node_, relative_, graph->GetNodePosition(other_node_, relative_) + offset_);
-}
-
-void NodeSetPositionToOffsetOfAnotherNodeCommand::undo()
-{
-  NodeGraph *graph = node_->parent();
-  graph->SetNodePosition(node_, relative_, old_pos_);
 }
 
 void NodeRemovePositionFromContextCommand::redo()
 {
-  NodeGraph *graph = node_->parent();
-
-  contained_ = graph->ContextContainsNode(node_, context_);
+  contained_ = context_->ContextContainsNode(node_);
 
   if (contained_) {
-    old_pos_ = graph->GetNodePosition(node_, context_);
-    graph->RemoveNodePosition(node_, context_);
+    old_pos_ = context_->GetNodePositionDataInContext(node_);
+    context_->RemoveNodeFromContext(node_);
   }
 }
 
 void NodeRemovePositionFromContextCommand::undo()
 {
   if (contained_) {
-    NodeGraph *graph = node_->parent();
-    graph->SetNodePosition(node_, context_, old_pos_);
+    context_->SetNodePositionInContext(node_, old_pos_);
   }
 }
 
@@ -2438,28 +2412,21 @@ void NodeRemovePositionFromAllContextsCommand::redo()
 {
   NodeGraph *graph = node_->parent();
 
-  if (points_.empty()) {
-    // No points yet, let's see what points we should remove
-    auto map = graph->GetPositionMap();
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      if (it.value().contains(node_)) {
-        points_.insert({it.key(), it.value().value(node_)});
-      }
+  foreach (Node* context, graph->nodes()) {
+    if (context->ContextContainsNode(node_)) {
+      contexts_.insert({context, context->GetNodePositionInContext(node_)});
+      context->RemoveNodeFromContext(node_);
     }
-  }
-
-  for (auto it=points_.cbegin(); it!=points_.cend(); it++) {
-    graph->RemoveNodePosition(node_, it->first);
   }
 }
 
 void NodeRemovePositionFromAllContextsCommand::undo()
 {
-  NodeGraph *graph = node_->parent();
-
-  for (auto it=points_.crbegin(); it!=points_.crend(); it++) {
-    graph->SetNodePosition(node_, it->first, it->second);
+  for (auto it = contexts_.crbegin(); it != contexts_.crend(); it++) {
+    it->first->SetNodePositionInContext(node_, it->second);
   }
+
+  contexts_.clear();
 }
 
 void Node::ValueHint::Hash(QCryptographicHash &hash) const
@@ -2506,6 +2473,39 @@ void Node::ValueHint::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("index"), QString::number(index_));
 
   writer->writeTextElement(QStringLiteral("tag"), tag_);
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()
+{
+  move_recursively(node_, pos_.position - context_->GetNodePositionDataInContext(node_).position);
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::redo()
+{
+  for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
+    (*it)->redo_now();
+  }
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::undo()
+{
+  for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
+    (*it)->undo_now();
+  }
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *node, const QPointF &diff)
+{
+  Node::Position pos = context_->GetNodePositionDataInContext(node);
+  pos += diff;
+  commands_.append(new NodeSetPositionCommand(node_, context_, pos));
+
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    Node *output = it->second;
+    if (context_->ContextContainsNode(output)) {
+      move_recursively(output, diff);
+    }
+  }
 }
 
 }

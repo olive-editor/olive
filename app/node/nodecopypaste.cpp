@@ -29,7 +29,7 @@
 
 namespace olive {
 
-void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, void *userdata)
+void NodeCopyPasteService::CopyNodesToClipboard(QVector<Node *> nodes, void *userdata)
 {
   QString copy_str;
 
@@ -42,22 +42,33 @@ void NodeCopyPasteService::CopyNodesToClipboard(const QVector<Node *> &nodes, vo
   writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
   writer.writeStartElement(QStringLiteral("nodes"));
-  foreach (Node* n, nodes) {
+  for (int i=0; i<nodes.size(); i++) {
+    Node *n = nodes.at(i);
+
     writer.writeStartElement(QStringLiteral("node"));
     writer.writeAttribute(QStringLiteral("id"), n->id());
     n->Save(&writer);
     writer.writeEndElement(); // node
+
+    // If this is a group, add the child nodes too
+    if (NodeGroup *g = dynamic_cast<NodeGroup*>(n)) {
+      for (auto it=g->GetContextPositions().cbegin(); it!=g->GetContextPositions().cend(); it++) {
+        if (!nodes.contains(it.key())) {
+          nodes.append(it.key());
+        }
+      }
+    }
   }
   writer.writeEndElement(); // nodes
 
   writer.writeStartElement(QStringLiteral("contexts"));
   foreach (Node* n, nodes) {
     // Determine if this node is a context
-    if (n->parent()->GetPositionMap().contains(n)) {
+    if (!n->GetContextPositions().isEmpty()) {
       writer.writeStartElement(QStringLiteral("context"));
       writer.writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(n)));
 
-      const NodeGraph::PositionMap &map = n->parent()->GetNodesForContext(n);
+      const Node::PositionMap &map = n->GetContextPositions();
       for (auto it=map.cbegin(); it!=map.cend(); it++) {
         writer.writeStartElement(QStringLiteral("node"));
         Project::SavePosition(&writer, it.key(), it.value());
@@ -92,7 +103,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   QVector<Node*> pasted_nodes;
   XMLNodeData xml_node_data;
-  QMap<quintptr, QMap<quintptr, QPointF> > pasted_contexts;
+  QMap<quintptr, QMap<quintptr, Node::Position> > pasted_contexts;
 
   while (XMLReadNextStartElement(&reader)) {
     if (reader.name() == QStringLiteral("olive")) {
@@ -131,7 +142,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
           while (XMLReadNextStartElement(&reader)) {
             if (reader.name() == QStringLiteral("context")) {
               // Get context ptr
-              QMap<quintptr, QPointF> map;
+              QMap<quintptr, Node::Position> map;
               quintptr context_ptr = 0;
               XMLAttributeLoop((&reader), attr) {
                 if (attr.name() == QStringLiteral("ptr")) {
@@ -144,7 +155,7 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
               while (XMLReadNextStartElement(&reader)) {
                 if (reader.name() == QStringLiteral("node")) {
                   quintptr node_ptr;
-                  QPointF node_pos;
+                  Node::Position node_pos;
 
                   if (Project::LoadPosition(&reader, &node_ptr, &node_pos)) {
                     map.insert(node_ptr, node_pos);
@@ -201,30 +212,33 @@ QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(NodeGraph *graph, 
 
   // Add all nodes to graph
   foreach (Node* n, pasted_nodes) {
-    command->add_child(new NodeAddCommand(graph, n));
+    if (command) {
+      command->add_child(new NodeAddCommand(graph, n));
+    } else {
+      n->setParent(graph);
+    }
   }
-
-  // Make connections
-  if (!xml_node_data.desired_connections.isEmpty()) {
-    XMLConnectNodes(xml_node_data, data_version, command);
-  }
-
-  // Link blocks
-  XMLLinkBlocks(xml_node_data);
 
   // Process contexts
   for (auto it=pasted_contexts.cbegin(); it!=pasted_contexts.cend(); it++) {
     Node *context = xml_node_data.node_ptrs.value(it.key());
     if (context) {
-      const QMap<quintptr, QPointF> &map = it.value();
+      auto map = it.value();
       for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
         Node *subnode = xml_node_data.node_ptrs.value(jt.key());
         if (subnode) {
-          command->add_child(new NodeSetPositionCommand(subnode, context, jt.value(), false));
+          if (command) {
+            command->add_child(new NodeSetPositionCommand(subnode, context, jt.value()));
+          } else {
+            context->SetNodePositionInContext(subnode, jt.value());
+          }
         }
       }
     }
   }
+
+  // Make connections
+  xml_node_data.PostConnect(data_version, command);
 
   return pasted_nodes;
 }

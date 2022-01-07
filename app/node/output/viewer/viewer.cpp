@@ -23,7 +23,6 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/traverser.h"
-#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -33,8 +32,6 @@ const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 const QString ViewerOutput::kVideoAutoCacheInput = QStringLiteral("video_autocache_in");
 const QString ViewerOutput::kAudioAutoCacheInput = QStringLiteral("audio_autocache_in");
-
-const uint64_t ViewerOutput::kVideoParamEditMask = VideoParamEdit::kWidthHeight | VideoParamEdit::kInterlacing | VideoParamEdit::kFrameRate | VideoParamEdit::kPixelAspect;
 
 #define super Node
 
@@ -47,10 +44,9 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   video_cache_enabled_(true),
   audio_cache_enabled_(true)
 {
-  AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
-  SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(kVideoParamEditMask));
+  AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
-  AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray));
+  AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
   if (create_buffer_inputs) {
     AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -70,6 +66,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
     AddStream(Track::kAudio, QVariant());
     set_default_parameters();
   }
+
+  SetFlags(kDontShowInParamView);
 }
 
 Node *ViewerOutput::copy() const

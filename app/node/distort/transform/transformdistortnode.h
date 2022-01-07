@@ -78,7 +78,7 @@ public:
 
   virtual bool GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p) override;
   virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  virtual void GizmoRelease() override;
+  virtual void GizmoRelease(MultiUndoCommand *command) override;
 
   enum AutoScaleType {
     kAutoScaleNone,

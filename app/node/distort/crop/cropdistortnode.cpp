@@ -233,13 +233,11 @@ void CropDistortNode::GizmoMove(const QPointF &p, const rational &time, const Qt
   }
 }
 
-void CropDistortNode::GizmoRelease()
+void CropDistortNode::GizmoRelease(MultiUndoCommand *command)
 {
-  MultiUndoCommand *command = new MultiUndoCommand();
   for (NodeInputDragger& i : gizmo_dragger_) {
     i.End(command);
   }
-  Core::instance()->undo_stack()->push(command);
   gizmo_dragger_.clear();
 
   gizmo_start_.clear();

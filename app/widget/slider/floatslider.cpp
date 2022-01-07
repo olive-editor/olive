@@ -78,29 +78,46 @@ void FloatSlider::SetDisplayType(const FloatSlider::DisplayType &type)
   }
 }
 
-QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display, int decimal_places, bool autotrim_decimal_places)
+double FloatSlider::TransformValueToDisplay(double val, DisplayType display)
 {
   switch (display) {
   case kNormal:
-    // Do nothing, skip to the return string at the end
     break;
   case kDecibel:
-    // Convert to decibels and return dB formatted string
-
-    // Return negative infinity for zero volume
-    if (qIsNull(val)) {
-      return tr("\xE2\x88\x9E");
-    }
-
     val = Decibel::fromLinear(val);
     break;
   case kPercentage:
-    // Multiply value by 100 for user-friendly percentage
     val *= 100.0;
     break;
   }
 
-  return FloatToString(val, decimal_places, autotrim_decimal_places);
+  return val;
+}
+
+double FloatSlider::TransformDisplayToValue(double val, DisplayType display)
+{
+  switch (display) {
+  case kNormal:
+    break;
+  case kDecibel:
+    val = Decibel::toLinear(val);
+    break;
+  case kPercentage:
+    val *= 0.01;
+    break;
+  }
+
+  return val;
+}
+
+QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display, int decimal_places, bool autotrim_decimal_places)
+{
+  // Return negative infinity for zero volume
+  if (display == kDecibel && qIsNull(val)) {
+    return tr("\xE2\x88\x9E");
+  }
+
+  return FloatToString(TransformValueToDisplay(val, display), decimal_places, autotrim_decimal_places);
 }
 
 QString FloatSlider::ValueToString(const QVariant &v) const
@@ -110,46 +127,21 @@ QString FloatSlider::ValueToString(const QVariant &v) const
 
 QVariant FloatSlider::StringToValue(const QString &s, bool *ok) const
 {
-  switch (display_type_) {
-  case kNormal:
-    // Do nothing, skip to the return string at the end
-    break;
-  case kDecibel:
-  {
-    bool valid;
+  bool valid;
+  double val = s.toDouble(&valid);
 
-    // See if we can get a decimal number out of this
-    qreal decibels = s.toDouble(&valid);
-
-    if (ok) *ok = valid;
-
-    if (valid) {
-      // Convert from decibel scale to linear decimal
-      return Decibel::toLinear(decibels);
-    }
-
-    break;
-  }
-  case kPercentage:
-  {
-    bool valid;
-
-    // Try to get double value
-    double val = s.toDouble(&valid);
-
-    if (ok) *ok = valid;
-
-    // If we could get it, convert back to a 0.0 - 1.0 value and return
-    if (valid) {
-      return val * 0.01;
-    }
-
-    break;
-  }
+  // If we were given an `ok` pointer, set it to `valid`
+  if (ok) {
+    *ok = valid;
   }
 
-  // Just try to convert the string to a double
-  return s.toDouble(ok) - GetOffset().toDouble();
+  // If valid, transform it from display
+  if (valid) {
+    val = TransformDisplayToValue(val, display_type_);
+  }
+
+  // Return un-offset value
+  return val - GetOffset().toDouble();
 }
 
 QVariant FloatSlider::AdjustDragDistanceInternal(const QVariant &start, const double &drag) const

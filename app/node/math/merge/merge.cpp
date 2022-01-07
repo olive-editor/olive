@@ -32,6 +32,8 @@ MergeNode::MergeNode()
   AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kBlendIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  SetFlags(kDontShowInParamView);
 }
 
 Node *MergeNode::copy() const

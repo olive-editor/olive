@@ -28,6 +28,8 @@
 #include "node/node.h"
 #include "render/color.h"
 #include "tool/tool.h"
+#include "viewerplaybacktimer.h"
+#include "viewerqueue.h"
 #include "viewersafemargininfo.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
@@ -107,6 +109,20 @@ public:
     return texture_;
   }
 
+  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase);
+
+  void Pause();
+
+  ViewerQueue* queue()
+  {
+    return &queue_;
+  }
+
+  ViewerPlaybackTimer *timer()
+  {
+    return &timer_;
+  }
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
@@ -180,9 +196,9 @@ signals:
 
   void Dropped(QDropEvent* event);
 
-  void VisibilityChanged(bool visible);
-
   void TextureChanged(TexturePtr texture);
+
+  void QueueStarved();
 
 protected:
   /**
@@ -205,10 +221,6 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
 
   virtual void dropEvent(QDropEvent* event) override;
-
-  virtual void showEvent(QShowEvent* event) override;
-
-  virtual void hideEvent(QHideEvent* event) override;
 
 protected slots:
   /**
@@ -334,8 +346,17 @@ private:
 
   PushMode push_mode_;
 
+  // Playback
+  ViewerQueue queue_;
+
+  ViewerPlaybackTimer timer_;
+
+  rational playback_timebase_;
+
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);
+
+  void UpdateFromQueue();
 
 };
 

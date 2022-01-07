@@ -18,39 +18,141 @@
 
 ***/
 
-#ifndef KEYFRAMEVIEW_H
-#define KEYFRAMEVIEW_H
+#ifndef KEYFRAMEVIEWBASE_H
+#define KEYFRAMEVIEWBASE_H
 
-#include "keyframeviewbase.h"
+#include "keyframeviewinputconnection.h"
+#include "node/keyframe.h"
+#include "widget/menu/menu.h"
+#include "widget/timebased/timebasedview.h"
+#include "widget/timebased/timebasedviewselectionmanager.h"
+#include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
-class KeyframeView : public KeyframeViewBase
+class KeyframeView : public TimeBasedView, public TimeTargetObject
 {
   Q_OBJECT
 public:
   KeyframeView(QWidget* parent = nullptr);
 
+  void DeleteSelected();
+
+  using ElementConnections = QVector<KeyframeViewInputConnection *>;
+  using InputConnections = QVector<ElementConnections>;
+  using NodeConnections = QMap<QString, InputConnections>;
+
+  NodeConnections AddKeyframesOfNode(Node* n);
+
+  InputConnections AddKeyframesOfInput(Node *n, const QString &input);
+
+  ElementConnections AddKeyframesOfElement(const NodeInput &input);
+
+  KeyframeViewInputConnection *AddKeyframesOfTrack(const NodeKeyframeTrackReference &ref);
+
+  void RemoveKeyframesOfTrack(KeyframeViewInputConnection *connection);
+
+  void SelectAll();
+
+  void DeselectAll();
+
+  void Clear();
+
+  const QVector<NodeKeyframe*> &GetSelectedKeyframes() const
+  {
+    return selection_manager_.GetSelectedObjects();
+  }
+
+  virtual void SelectionManagerSelectEvent(void *obj) override;
+  virtual void SelectionManagerDeselectEvent(void *obj) override;
+
   void SetMaxScroll(int i)
   {
     max_scroll_ = i;
+    UpdateSceneRect();
   }
 
-  void SetElementY(const NodeInput& c, int y);
+signals:
+  void Dragged(int current_x, int current_y);
+
+  void SelectionChanged();
 
 protected:
+  virtual void mousePressEvent(QMouseEvent *event) override;
+  virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent *event) override;
+
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
+
+  virtual void DrawKeyframe(QPainter *painter, NodeKeyframe *key, KeyframeViewInputConnection *track, const QRectF &key_rect);
+
+  virtual void ScaleChangedEvent(const double& scale) override;
+
+  virtual void TimeTargetChangedEvent(Node*) override;
+
+  virtual void TimebaseChangedEvent(const rational &timebase) override;
+
+  virtual void ContextMenuEvent(Menu &m);
+
+  virtual bool FirstChanceMousePress(QMouseEvent *event){return false;}
+  virtual void FirstChanceMouseMove(QMouseEvent *event){}
+  virtual void FirstChanceMouseRelease(QMouseEvent *event){}
+
+  virtual void KeyframeDragStart(QMouseEvent *event){}
+  virtual void KeyframeDragMove(QMouseEvent *event, QString &tip){}
+  virtual void KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command){}
+
+  void SelectKeyframe(NodeKeyframe *key);
+
+  void DeselectKeyframe(NodeKeyframe *key);
+
+  bool IsKeyframeSelected(NodeKeyframe *key) const
+  {
+    return selection_manager_.IsSelected(key);
+  }
+
+  rational GetUnadjustedKeyframeTime(NodeKeyframe *key, const rational &time);
+  rational GetUnadjustedKeyframeTime(NodeKeyframe *key)
+  {
+    return GetUnadjustedKeyframeTime(key, key->time());
+  }
+
+  rational GetAdjustedKeyframeTime(NodeKeyframe *key);
+
+  double GetKeyframeSceneX(NodeKeyframe *key);
+
+  virtual qreal GetKeyframeSceneY(KeyframeViewInputConnection *track, NodeKeyframe *key);
+
+  void SetAutoSelectSiblings(bool e)
+  {
+    autoselect_siblings_ = e;
+  }
+
   virtual void SceneRectUpdateEvent(QRectF& rect) override;
 
-public slots:
-  virtual KeyframeViewItem* AddKeyframe(NodeKeyframe* key) override;
+protected slots:
+  void Redraw();
 
 private:
-  QHash<NodeInput, qreal> element_y_;
+  rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
+
+  QVector<KeyframeViewInputConnection*> tracks_;
+
+  TimeBasedViewSelectionManager<NodeKeyframe> selection_manager_;
+
+  bool autoselect_siblings_;
 
   int max_scroll_;
+
+  bool first_chance_mouse_event_;
+
+private slots:
+  void ShowContextMenu();
+
+  void ShowKeyframePropertiesDialog();
 
 };
 
 }
 
-#endif // KEYFRAMEVIEW_H
+#endif // KEYFRAMEVIEWBASE_H

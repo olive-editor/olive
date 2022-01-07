@@ -91,7 +91,7 @@ public:
 
   const PositionalArgument* AddPositionalArgument(const QString& name, const QString& description, bool required = false);
 
-  void Process(int argc, char** argv);
+  void Process(const QVector<QString> &argv);
 
   void PrintHelp(const char* filename);
 

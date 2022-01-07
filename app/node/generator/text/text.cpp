@@ -117,7 +117,13 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
   img.fill(Qt::transparent);
 
+  // 72 DPI in DPM (72 / 2.54 * 100)
+  const int dpm = 2835;
+  img.setDotsPerMeterX(dpm);
+  img.setDotsPerMeterY(dpm);
+
   QTextDocument text_doc;
+  text_doc.documentLayout()->setPaintDevice(&img);
 
   // Set default font
   QFont default_font;
@@ -170,7 +176,7 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   // Transplant alpha channel to frame
   Color rgba = job.GetValue(kColorInput).data().value<Color>();
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-  __m128 sse_color = _mm_load_ps(rgba.data());
+  __m128 sse_color = _mm_loadu_ps(rgba.data());
 #endif
 
   float *frame_dst = reinterpret_cast<float*>(frame->data());

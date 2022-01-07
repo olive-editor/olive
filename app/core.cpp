@@ -78,7 +78,7 @@
 namespace olive {
 
 Core* Core::instance_ = nullptr;
-const uint Core::kProjectVersion = 210907;
+const uint Core::kProjectVersion = 211228;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),
@@ -202,10 +202,7 @@ void Core::Stop()
   {
     QFile recent_projects_file(GetRecentProjectsFilePath());
     if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
-      QTextStream ts(&recent_projects_file);
-
-      ts << recent_projects_.join('\n');
-
+      recent_projects_file.write(recent_projects_.join('\n').toUtf8());
       recent_projects_file.close();
     }
   }
@@ -448,7 +445,7 @@ void Core::CreateNewSequence()
 
     command->add_child(new NodeAddCommand(active_project, new_sequence));
     command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
-    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0), false));
+    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, Node::Position()));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);
@@ -493,19 +490,21 @@ bool Core::AddOpenProjectFromTask(Task *task)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
-  Project* project = load_task->GetLoadedProject();
-  MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
+  if (!load_task->IsCancelled()) {
+    Project* project = load_task->GetLoadedProject();
+    MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
 
-  if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
-    AddOpenProject(project);
-    main_window_->LoadLayout(layout);
+    if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
+      AddOpenProject(project);
+      main_window_->LoadLayout(layout);
 
-    return true;
-  } else {
-    delete project;
-
-    return false;
+      return true;
+    } else {
+      delete project;
+    }
   }
+
+  return false;
 }
 
 void Core::ImportTaskComplete(Task* task)
@@ -740,13 +739,10 @@ void Core::StartGUI(bool full_screen)
   {
     QFile recent_projects_file(GetRecentProjectsFilePath());
     if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
-      QTextStream ts(&recent_projects_file);
-
-      QString s;
-      while (!(s = ts.readLine()).isEmpty()) {
-        recent_projects_.append(s);
+      QString r = QString::fromUtf8(recent_projects_file.readAll());
+      if (!r.isEmpty()) {
+        recent_projects_ = r.split('\n');
       }
-
       recent_projects_file.close();
     }
 
@@ -1369,10 +1365,10 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QVector<Node *> &nodes)
+bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
 {
   if (nodes.isEmpty()) {
-    return;
+    return false;
   }
 
   bool ok;
@@ -1401,8 +1397,16 @@ void Core::LabelNodes(const QVector<Node *> &nodes)
       rename_command->AddNode(n, s);
     }
 
-    undo_stack_.push(rename_command);
+    if (parent) {
+      parent->add_child(rename_command);
+    } else {
+      undo_stack_.push(rename_command);
+    }
+
+    return true;
   }
+
+  return false;
 }
 
 Sequence *Core::CreateNewSequenceForProject(Project* project) const

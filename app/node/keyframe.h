@@ -43,6 +43,7 @@ public:
    * @brief Methods of interpolation to use with this keyframe
    */
   enum Type {
+    kInvalid = -1,
     kLinear,
     kHold,
     kBezier

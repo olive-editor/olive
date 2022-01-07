@@ -253,7 +253,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QVector<Node *> &nodes);
+  bool LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent = nullptr);
 
   /**
    * @brief Create a new sequence named appropriately for the active project
