@@ -97,16 +97,16 @@ bool LoadOTIOTask::Run()
 
   // Generate a list of sequences with the same names as the timelines.
   // Assumes each timeline has a unique name.
-  int unnamedSequenceCount = 1;
+  int unnamed_sequence_count = 0;
   foreach (auto timeline, timelines) {
     Sequence* sequence = new Sequence();
     if (!timeline->name().empty()) {
       sequence->SetLabel(QString::fromStdString(timeline->name()));
     } else {
       // If the otio timeline does not provide a name, create a default one here
-      QString label = "Sequence " + QString::number(unnamedSequenceCount);
+      unnamed_sequence_count++;
+      QString label = tr("Sequence") + QString(" ") + QString::number(unnamed_sequence_count);
       sequence->SetLabel(QString::fromStdString(label.toStdString()));
-      unnamedSequenceCount++;
     }
     // Set default params incase they aren't edited.
     sequence->set_default_parameters();
