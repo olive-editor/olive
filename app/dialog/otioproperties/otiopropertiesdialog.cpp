@@ -34,7 +34,8 @@ OTIOPropertiesDialog::OTIOPropertiesDialog(const QList<Sequence*>& sequences, Pr
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
-  layout->addWidget(new QLabel(tr("Change settings for each OTIO sequence to be loaded")));
+  layout->addWidget(new QLabel(tr("OpenTimelineIO files to not store sequence properties (resolution, framerate etc.).\n"
+                                  "Set the correct parameters here or they will be left at the default setting.")));
 
   table_ = new QTreeWidget();
   table_->setColumnCount(2);
@@ -66,7 +67,7 @@ OTIOPropertiesDialog::OTIOPropertiesDialog(const QList<Sequence*>& sequences, Pr
   connect(buttons, &QDialogButtonBox::rejected, this, &OTIOPropertiesDialog::reject);
   layout->addWidget(buttons);
 
-  setWindowTitle(tr("Load OTIO File"));
+  setWindowTitle(tr("Load OpenTimelineIO File"));
 }
 
 void OTIOPropertiesDialog::SetupSequence() {

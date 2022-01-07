@@ -383,10 +383,10 @@ void Core::DialogExportShow()
 }
 
 #ifdef USE_OTIO
-void Core::DialogImportOTIOShow(const QList<Sequence*>& sequences) {
+bool Core::DialogImportOTIOShow(const QList<Sequence*>& sequences) {
   Project* active_project = GetActiveProject();
   OTIOPropertiesDialog opd(sequences, active_project);
-  opd.exec();
+  return opd.exec() == QDialog::Accepted;
 }
 #endif
 

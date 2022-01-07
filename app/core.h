@@ -402,7 +402,7 @@ public slots:
    * @brief Show OTIO import dialog
    */
 #ifdef USE_OTIO
-  void DialogImportOTIOShow(const QList<Sequence*>& sequences);
+  bool DialogImportOTIOShow(const QList<Sequence*>& sequences);
 #endif
 
   /**

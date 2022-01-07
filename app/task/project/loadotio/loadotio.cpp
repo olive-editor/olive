@@ -97,9 +97,17 @@ bool LoadOTIOTask::Run()
 
   // Generate a list of sequences with the same names as the timelines.
   // Assumes each timeline has a unique name.
+  int unnamedSequenceCount = 1;
   foreach (auto timeline, timelines) {
     Sequence* sequence = new Sequence();
-    sequence->SetLabel(QString::fromStdString(timeline->name()));
+    if (!timeline->name().empty()) {
+      sequence->SetLabel(QString::fromStdString(timeline->name()));
+    } else {
+      // If the otio timeline does not provide a name, create a default one here
+      QString label = "Sequence " + QString::number(unnamedSequenceCount);
+      sequence->SetLabel(QString::fromStdString(label.toStdString()));
+      unnamedSequenceCount++;
+    }
     // Set default params incase they aren't edited.
     sequence->set_default_parameters();
     timeline_sequnce_map.insert(timeline, sequence);
@@ -112,10 +120,17 @@ bool LoadOTIOTask::Run()
   }
 
   // Dialog has to be called from the main thread so we pass the list of sequences here.
+  bool accepted = false;
   QMetaObject::invokeMethod(Core::instance(),
                             "DialogImportOTIOShow",
                             Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(bool, accepted),
                             Q_ARG(QList<Sequence*>,timeline_sequnce_map.values()));
+
+  if (!accepted) {
+    SetError(tr("Loading OpenTimelineIO file(s) was canceled"));
+    return false;
+  }
 
   foreach (auto timeline, timeline_sequnce_map.keys()) {
     Sequence* sequence = timeline_sequnce_map.value(timeline);
