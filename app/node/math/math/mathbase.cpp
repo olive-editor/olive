@@ -105,7 +105,9 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
                         "varying vec2 ove_texcoord;\n"
                         "\n"
                         "void main(void) {\n"
-                        "    gl_FragColor = %5;\n"
+                        "    vec4 c = %5;\n"
+                        "    c.a = clamp(c.a, 0.0, 1.0);\n" // Ensure alpha is 1.0
+                        "    gl_FragColor = c;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
                                    param_a_in,
