@@ -18,6 +18,7 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -34,8 +35,10 @@ OTIOPropertiesDialog::OTIOPropertiesDialog(const QList<Sequence*>& sequences, Pr
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
-  layout->addWidget(new QLabel(tr("OpenTimelineIO files to not store sequence properties (resolution, framerate etc.).\n"
-                                  "Set the correct parameters here or they will be left at the default setting.")));
+  QLabel *msg = new QLabel(tr("OpenTimelineIO files do not store sequence parameters (resolution, frame rate, etc.)\n\n"
+                              "Please set the correct parameters on the sequences below (they have been set to your default sequence parameters as a starting point)."));
+  msg->setWordWrap(true);
+  layout->addWidget(msg);
 
   table_ = new QTreeWidget();
   table_->setColumnCount(2);
@@ -60,6 +63,11 @@ OTIOPropertiesDialog::OTIOPropertiesDialog(const QList<Sequence*>& sequences, Pr
     table_->setItemWidget(item, 1, item_actions);
   }
 
+  // Stretch first column to take up as much space as possible, and second column to take as little
+  table_->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+  table_->header()->setSectionResizeMode(1, QHeaderView::Fixed);
+  table_->header()->setStretchLastSection(false);
+
   layout->addWidget(table_);
 
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
@@ -67,7 +75,7 @@ OTIOPropertiesDialog::OTIOPropertiesDialog(const QList<Sequence*>& sequences, Pr
   connect(buttons, &QDialogButtonBox::rejected, this, &OTIOPropertiesDialog::reject);
   layout->addWidget(buttons);
 
-  setWindowTitle(tr("Load OpenTimelineIO File"));
+  setWindowTitle(tr("Load OpenTimelineIO Project"));
 }
 
 void OTIOPropertiesDialog::SetupSequence() {

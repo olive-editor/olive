@@ -128,8 +128,10 @@ bool LoadOTIOTask::Run()
                             Q_ARG(QList<Sequence*>,timeline_sequnce_map.values()));
 
   if (!accepted) {
-    SetError(tr("Loading OpenTimelineIO file(s) was canceled"));
-    return false;
+    // Cancel to indicate to caller that this task did not complete and to simply dispose of it
+    Cancel();
+    qDeleteAll(timeline_sequnce_map); // Clear sequences
+    return true;
   }
 
   foreach (auto timeline, timeline_sequnce_map.keys()) {
