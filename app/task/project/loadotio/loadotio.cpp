@@ -30,6 +30,7 @@
 #include <opentimelineio/transition.h>
 #include <QApplication>
 #include <QFileInfo>
+#include <QThread>
 
 #include "core.h"
 #include "node/audio/volume/volume.h"
@@ -88,11 +89,51 @@ bool LoadOTIOTask::Run()
 
   // Keep track of imported footage
   QMap<QString, Footage*> imported_footage;
+  QMap<OTIO::Timeline*, Sequence*> timeline_sequnce_map;
 
+  // Variables used for loading bar
+  float number_of_clips = 0;
+  float clips_done = 0;
+
+  // Generate a list of sequences with the same names as the timelines.
+  // Assumes each timeline has a unique name.
+  int unnamed_sequence_count = 0;
   foreach (auto timeline, timelines) {
-    // Create sequence
     Sequence* sequence = new Sequence();
-    sequence->SetLabel(QString::fromStdString(timeline->name()));
+    if (!timeline->name().empty()) {
+      sequence->SetLabel(QString::fromStdString(timeline->name()));
+    } else {
+      // If the otio timeline does not provide a name, create a default one here
+      unnamed_sequence_count++;
+      QString label = tr("Sequence %1").arg(unnamed_sequence_count);
+      sequence->SetLabel(QString::fromStdString(label.toStdString()));
+    }
+    // Set default params incase they aren't edited.
+    sequence->set_default_parameters();
+    timeline_sequnce_map.insert(timeline, sequence);
+
+    // Get number of clips for loading bar
+    foreach (auto track, timeline->tracks()->children()) {
+      auto otio_track = static_cast<OTIO::Track*>(track.value);
+      number_of_clips += otio_track->children().size();
+    }
+  }
+
+  // Dialog has to be called from the main thread so we pass the list of sequences here.
+  bool accepted = false;
+  QMetaObject::invokeMethod(Core::instance(),
+                            "DialogImportOTIOShow",
+                            Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(bool, accepted),
+                            Q_ARG(QList<Sequence*>,timeline_sequnce_map.values()));
+
+  if (!accepted) {
+    SetError(tr("Loading OpenTimelineIO file(s) was canceled"));
+    return false;
+  }
+
+  foreach (auto timeline, timeline_sequnce_map.keys()) {
+    Sequence* sequence = timeline_sequnce_map.value(timeline);
     sequence->setParent(project_);
     FolderAddChild(project_->root(), sequence).redo_now();
 
@@ -101,9 +142,6 @@ bool LoadOTIOTask::Run()
     sequence_footage->SetLabel(QString::fromStdString(timeline->name()));
     sequence_footage->setParent(project_);
     FolderAddChild(project_->root(), sequence_footage).redo_now();
-
-    // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
-    sequence->set_default_parameters();
 
     // Iterate through tracks
     for (auto c : timeline->tracks()->children()) {
@@ -277,6 +315,8 @@ bool LoadOTIOTask::Run()
             }
           }
         }
+        clips_done++;
+        emit ProgressChanged(clips_done / number_of_clips);
       }
     }
   }

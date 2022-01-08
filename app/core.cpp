@@ -43,6 +43,9 @@
 #include "dialog/autorecovery/autorecoverydialog.h"
 #include "dialog/export/export.h"
 #include "dialog/footagerelink/footagerelinkdialog.h"
+#ifdef USE_OTIO
+#include "dialog/otioproperties/otiopropertiesdialog.h"
+#endif
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
@@ -374,6 +377,14 @@ void Core::DialogExportShow()
     ed->open();
   }
 }
+
+#ifdef USE_OTIO
+bool Core::DialogImportOTIOShow(const QList<Sequence*>& sequences) {
+  Project* active_project = GetActiveProject();
+  OTIOPropertiesDialog opd(sequences, active_project);
+  return opd.exec() == QDialog::Accepted;
+}
+#endif
 
 void Core::CreateNewFolder()
 {

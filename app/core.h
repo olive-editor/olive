@@ -396,6 +396,13 @@ public slots:
    */
   void DialogExportShow();
 
+    /**
+   * @brief Show OTIO import dialog
+   */
+#ifdef USE_OTIO
+  bool DialogImportOTIOShow(const QList<Sequence*>& sequences);
+#endif
+
   /**
    * @brief Create a new folder in the currently active project
    */
