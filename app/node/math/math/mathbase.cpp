@@ -106,7 +106,7 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
                         "\n"
                         "void main(void) {\n"
                         "    vec4 c = %5;\n"
-                        "    c.a = clamp(c.a, 0.0, 1.0);\n" // Ensure alpha is 1.0
+                        "    c.a = clamp(c.a, 0.0, 1.0);\n" // Ensure alpha is between 0.0 and 1.0
                         "    gl_FragColor = c;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
