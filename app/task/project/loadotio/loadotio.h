@@ -22,15 +22,15 @@
 #define OTIODECODER_H
 
 #ifdef USE_OTIO
+#include <opentimelineio/composable.h>
+#include <opentimelineio/serializableCollection.h>
 
 #include "common/otioutils.h"
-#include "node/project/project.h"
-#include "task/project/load/loadbasetask.h"
-#include <opentimelineio/serializableCollection.h>
-#include <opentimelineio/composable.h>
 #include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
+#include "node/project/project.h"
+#include "task/project/load/loadbasetask.h"
 
 namespace olive {
 

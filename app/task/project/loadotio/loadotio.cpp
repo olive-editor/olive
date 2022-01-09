@@ -25,7 +25,6 @@
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/gap.h>
-
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/transition.h>
 #include <QApplication>
@@ -34,8 +33,6 @@
 
 #include "core.h"
 #include "node/audio/volume/volume.h"
-
-
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
