@@ -26,6 +26,8 @@
 #include "common/otioutils.h"
 #include "node/project/project.h"
 #include "task/project/load/loadbasetask.h"
+#include <opentimelineio/serializableCollection.h>
+#include <opentimelineio/composable.h>
 
 namespace olive {
 
@@ -38,6 +40,17 @@ public:
 protected:
   virtual bool Run() override;
 
+private:
+  void LoadClip(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence, Folder* sequence_footage);
+  
+  void LoadGap(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence);
+
+  void LoadTransition(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence);
+
+  Block* previous_block_;
+  bool prev_block_transition_;
+
+  QMap<QString, Footage*> imported_footage_;
 };
 
 }
