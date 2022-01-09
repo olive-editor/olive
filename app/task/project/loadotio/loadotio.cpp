@@ -305,7 +305,7 @@ ClipBlock* LoadOTIOTask::LoadClip(OTIO::Composable* otio_block, Track* track, Se
 
   auto otio_clip = static_cast<OTIO::Clip*>(otio_block);
 
-  Footage* probed_item;
+  Footage* probed_item = nullptr;
 
   if (otio_clip->media_reference()) {
     if (otio_clip->media_reference()->schema_name() == "ExternalReference") {
