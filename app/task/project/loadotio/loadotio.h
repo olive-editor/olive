@@ -28,6 +28,9 @@
 #include "task/project/load/loadbasetask.h"
 #include <opentimelineio/serializableCollection.h>
 #include <opentimelineio/composable.h>
+#include "node/block/clip/clip.h"
+#include "node/block/gap/gap.h"
+#include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 
 namespace olive {
 
@@ -41,14 +44,15 @@ protected:
   virtual bool Run() override;
 
 private:
-  void LoadClip(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence, Folder* sequence_footage);
+  ClipBlock* LoadClip(OTIO::Composable* otio_block, Track* track, Sequence* sequence, Folder* sequence_footage);
   
-  void LoadGap(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence);
+  GapBlock* LoadGap(OTIO::Composable* otio_block, Track* track, Sequence* sequence);
 
-  void LoadTransition(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence);
+  CrossDissolveTransition* LoadTransition(OTIO::Composable* otio_block, Track* track, Sequence* sequence);
 
   Block* previous_block_;
   bool prev_block_transition_;
+  bool transition_flag_;
 
   QMap<QString, Footage*> imported_footage_;
 };

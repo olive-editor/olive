@@ -34,8 +34,8 @@
 
 #include "core.h"
 #include "node/audio/volume/volume.h"
-#include "node/block/clip/clip.h"
-#include "node/block/gap/gap.h"
+
+
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
@@ -52,7 +52,8 @@ namespace olive {
 LoadOTIOTask::LoadOTIOTask(const QString& s) :
   ProjectLoadBaseTask(s),
   previous_block_(nullptr),
-  prev_block_transition_(false)
+  prev_block_transition_(false),
+  transition_flag_(false)
 {
 }
 
@@ -190,22 +191,22 @@ bool LoadOTIOTask::Run()
 
         if (otio_block->schema_name() == "Clip") {
 
-          LoadClip(block, otio_block, track, sequence, sequence_footage);
+          block = LoadClip(otio_block, track, sequence, sequence_footage);
 
         } else if (otio_block->schema_name() == "Gap") {
 
-          LoadGap(block, otio_block, track, sequence);
+          block = LoadGap(otio_block, track, sequence);
 
         } else if (otio_block->schema_name() == "Transition") {
 
-          LoadTransition(block, otio_block, track, sequence);
+          block = LoadTransition(otio_block, track, sequence);
 
         } else {
 
           // We don't know what this is yet, just create a gap for now so that *something* is there
           // TODO: Add a UI warning message listing unkown block types (see ProjectImportErrorDialog)
           qWarning() << "Found unknown block type:" << otio_block->schema_name().c_str();
-          LoadGap(block, otio_block, track, sequence);
+          LoadGap(otio_block, track, sequence);
         }
 
         // If the previous block was a transition, connect the current block to it
@@ -213,9 +214,14 @@ bool LoadOTIOTask::Run()
         if (prev_block_transition_ && previous_block_) {
           TransitionBlock* previous_transition_block = static_cast<TransitionBlock*>(previous_block_);
           Node::ConnectEdge(block, NodeInput(previous_transition_block, TransitionBlock::kInBlockInput));
-          NodeSetPositionCommand add_previous(block, previous_block_, QPointF(-1, -0.5));
+          NodeSetPositionCommand add_previous(block, previous_block_, QPointF(-1, 0.5));
           add_previous.redo_now();
           prev_block_transition_ = false;
+        }
+
+        if (transition_flag_) {
+          prev_block_transition_ = true;
+          transition_flag_ = false;
         }
 
         previous_block_ = block;
@@ -231,69 +237,73 @@ bool LoadOTIOTask::Run()
   return true;
 }
 
-void LoadOTIOTask::LoadGap(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence)
+GapBlock* LoadOTIOTask::LoadGap(OTIO::Composable* otio_block, Track* track, Sequence* sequence)
 {
-  block = new GapBlock();
+  GapBlock* gap = new GapBlock();
 
-  block->setParent(project_);
-  block->SetLabel(QString::fromStdString(otio_block->name()));
+  gap->setParent(project_);
+  gap->SetLabel(QString::fromStdString(otio_block->name()));
 
-  track->AppendBlock(block);
+  track->AppendBlock(gap);
 
-  block->set_length_and_media_out(
+  gap->set_length_and_media_out(
       rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->duration().to_seconds()));
 
   // Add nodes to the graph and set up contexts
-  block->setParent(sequence->parent());
+  gap->setParent(sequence->parent());
 
   // Position transition in its own context
-  block->SetNodePositionInContext(block, QPointF(0, 0));
+  gap->SetNodePositionInContext(gap, QPointF(0, 0));
+
+  return gap;
 }
 
-void LoadOTIOTask::LoadTransition(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence)
-{
+CrossDissolveTransition* LoadOTIOTask::LoadTransition(OTIO::Composable* otio_block, Track* track,
+                                                      Sequence* sequence) {
   // Todo: Look into OTIO supported transitions and add them to Olive
-  block = new CrossDissolveTransition();
+  CrossDissolveTransition* transition = new CrossDissolveTransition();
 
-  block->setParent(project_);
-  block->SetLabel(QString::fromStdString(otio_block->name()));
+  transition->setParent(project_);
+  transition->SetLabel(QString::fromStdString(otio_block->name()));
 
-  track->AppendBlock(block);
+  track->AppendBlock(transition);
 
-  TransitionBlock* transition_block = static_cast<TransitionBlock*>(block);
+  //TransitionBlock* transition_block = static_cast<TransitionBlock*>(block);
   OTIO::Transition* otio_block_transition = static_cast<OTIO::Transition*>(otio_block);
 
   // Set how far the transition eats into the previous clip
-  transition_block->set_offsets_and_length(rational::fromRationalTime(otio_block_transition->in_offset()),
+  transition->set_offsets_and_length(rational::fromRationalTime(otio_block_transition->in_offset()),
                                            rational::fromRationalTime(otio_block_transition->out_offset()));
 
 
   if (previous_block_) {
-    Node::ConnectEdge(previous_block_, NodeInput(transition_block, TransitionBlock::kOutBlockInput));
-    NodeSetPositionCommand add_previous(previous_block_, block, QPointF(-1, -0.5));
+    Node::ConnectEdge(previous_block_, NodeInput(transition, TransitionBlock::kOutBlockInput));
+    NodeSetPositionCommand add_previous(previous_block_, transition, QPointF(-1, -0.5));
     add_previous.redo_now();
   }
-  prev_block_transition_ = true;
+  transition_flag_ = true;
 
   // Add nodes to the graph and set up contexts
-  block->setParent(sequence->parent());
+  transition->setParent(sequence->parent());
 
   // Position transition in its own context
-  block->SetNodePositionInContext(block, QPointF(0, 0));
+  transition->SetNodePositionInContext(transition, QPointF(0, 0));
+
+  return transition;
 }
 
-void LoadOTIOTask::LoadClip(Block* block, OTIO::Composable* otio_block, Track* track, Sequence* sequence, Folder* sequence_footage)
+ClipBlock* LoadOTIOTask::LoadClip(OTIO::Composable* otio_block, Track* track, Sequence* sequence, Folder* sequence_footage)
 {
-  block = new ClipBlock();
+  ClipBlock* clip = new ClipBlock();
 
-  block->setParent(project_);
-  block->SetLabel(QString::fromStdString(otio_block->name()));
+  clip->setParent(project_);
+  clip->SetLabel(QString::fromStdString(otio_block->name()));
 
-  track->AppendBlock(block);
+  track->AppendBlock(clip);
 
-  static_cast<ClipBlock*>(block)->set_media_in(
+  static_cast<ClipBlock*>(clip)->set_media_in(
       rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->start_time().to_seconds()));
-  block->set_length_and_media_out(
+  clip->set_length_and_media_out(
       rational::fromDouble(static_cast<OTIO::Item*>(otio_block)->source_range()->duration().to_seconds()));
 
   auto otio_clip = static_cast<OTIO::Clip*>(otio_block);
@@ -322,32 +332,35 @@ void LoadOTIOTask::LoadClip(Block* block, OTIO::Composable* otio_block, Track* t
     }
   } else {
     probed_item = new Footage();
+    probed_item->setParent(project_);
   }
 
   // Add nodes to the graph and set up contexts
-  block->setParent(sequence->parent());
+  clip->setParent(sequence->parent());
 
   // Position clip in its own context
-  block->SetNodePositionInContext(block, QPointF(0, 0));
+  clip->SetNodePositionInContext(clip, QPointF(0, 0));
 
   // Position footage in its context
-  block->SetNodePositionInContext(probed_item, QPointF(-2, 0));
+  clip->SetNodePositionInContext(probed_item, QPointF(-2, 0));
 
   if (track->type() == Track::kVideo) {
     TransformDistortNode* transform = new TransformDistortNode();
     transform->setParent(sequence->parent());
 
     Node::ConnectEdge(probed_item, NodeInput(transform, TransformDistortNode::kTextureInput));
-    Node::ConnectEdge(transform, NodeInput(block, ClipBlock::kBufferIn));
-    block->SetNodePositionInContext(transform, QPointF(-1, 0));
+    Node::ConnectEdge(transform, NodeInput(clip, ClipBlock::kBufferIn));
+    clip->SetNodePositionInContext(transform, QPointF(-1, 0));
   } else {
     VolumeNode* volume_node = new VolumeNode();
     volume_node->setParent(sequence->parent());
 
     Node::ConnectEdge(probed_item, NodeInput(volume_node, VolumeNode::kSamplesInput));
-    Node::ConnectEdge(volume_node, NodeInput(block, ClipBlock::kBufferIn));
-    block->SetNodePositionInContext(volume_node, QPointF(-1, 0));
+    Node::ConnectEdge(volume_node, NodeInput(clip, ClipBlock::kBufferIn));
+    clip->SetNodePositionInContext(volume_node, QPointF(-1, 0));
   }
+
+  return clip;
 }
 
 
