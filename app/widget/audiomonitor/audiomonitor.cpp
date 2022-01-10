@@ -80,6 +80,10 @@ void AudioMonitor::Stop()
 
 void AudioMonitor::PushBytes(const QByteArray &d)
 {
+  if (!params_.channel_count()) {
+    return;
+  }
+
   QVector<double> v(params_.channel_count(), 0);
 
   BytesToSampleSummary(d, v);
