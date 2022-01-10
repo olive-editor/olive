@@ -36,6 +36,7 @@
 #include "dialog/task/task.h"
 #include "node/project/project.h"
 #include "node/project/sequence/sequence.h"
+#include "task/taskmanager.h"
 #include "ui/icons/icons.h"
 
 namespace olive {
@@ -152,13 +153,27 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   row++;
 
-  buttons_ = new QDialogButtonBox();
-  buttons_->setCenterButtons(true);
-  buttons_->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
-  buttons_->addButton(QDialogButtonBox::Cancel);
-  connect(buttons_, &QDialogButtonBox::accepted, this, &ExportDialog::StartExport);
-  connect(buttons_, &QDialogButtonBox::rejected, this, &ExportDialog::reject);
-  preferences_layout->addWidget(buttons_, row, 0, 1, 4);
+  QHBoxLayout *btn_layout = new QHBoxLayout();
+  btn_layout->setMargin(0);
+  preferences_layout->addLayout(btn_layout, row, 0, 1, 4);
+
+  btn_layout->addStretch();
+
+  QPushButton *export_btn = new QPushButton(tr("Export"));
+  btn_layout->addWidget(export_btn);
+  connect(export_btn, &QPushButton::clicked, this, &ExportDialog::StartExport);
+
+  QPushButton *cancel_btn = new QPushButton(tr("Cancel"));
+  btn_layout->addWidget(cancel_btn);
+  connect(cancel_btn, &QPushButton::clicked, this, &ExportDialog::reject);
+
+  export_bkg_box_ = new QCheckBox(tr("Run In Background"));
+  export_bkg_box_->setToolTip(tr("Exporting in the background allows you to continue using Olive while "
+                                 "exporting, but may result in slower export speeds, and may"
+                                 "severely impact editing and playback performance."));
+  btn_layout->addWidget(export_bkg_box_);
+
+  btn_layout->addStretch();
 
   splitter->addWidget(preferences_area_);
 
@@ -346,9 +361,17 @@ void ExportDialog::StartExport()
   }
 
   ExportTask* task = new ExportTask(viewer_node_, color_manager_, GenerateParams());
-  TaskDialog* td = new TaskDialog(task, tr("Export"), this);
-  connect(td, &TaskDialog::TaskSucceeded, this, &ExportDialog::ExportFinished);
-  td->open();
+
+  if (export_bkg_box_->isChecked()) {
+    // Send to TaskManager to export in background
+    TaskManager::instance()->AddTask(task);
+    this->accept();
+  } else {
+    // Use modal dialog box
+    TaskDialog* td = new TaskDialog(task, tr("Export"), this);
+    connect(td, &TaskDialog::TaskSucceeded, this, &ExportDialog::ExportFinished);
+    td->open();
+  }
 }
 
 void ExportDialog::ExportFinished()
