@@ -281,7 +281,7 @@ TexturePtr NodeTraverser::ProcessVideoFootage(const FootageJob &stream, const ra
   Q_UNUSED(input_time)
 
   // Create dummy texture with footage params
-  return std::make_shared<Texture>(stream.video_params());
+  return CreateDummyTexture(stream.video_params());
 }
 
 SampleBufferPtr NodeTraverser::ProcessAudioFootage(const FootageJob& stream, const TimeRange &input_time)
@@ -301,7 +301,7 @@ TexturePtr NodeTraverser::ProcessShader(const Node *node, const TimeRange &range
   // Create dummy texture with sequence params
   VideoParams tex_params = video_params_;
   tex_params.set_channel_count(GetChannelCountFromJob(job));
-  return std::make_shared<Texture>(tex_params);
+  return CreateDummyTexture(tex_params);
 }
 
 SampleBufferPtr NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
@@ -321,7 +321,7 @@ TexturePtr NodeTraverser::ProcessFrameGeneration(const Node *node, const Generat
   // Create dummy texture with sequence params
   VideoParams tex_params = video_params_;
   tex_params.set_channel_count(GetChannelCountFromJob(job));
-  return std::make_shared<Texture>(tex_params);
+  return CreateDummyTexture(tex_params);
 }
 
 void NodeTraverser::SaveCachedTexture(const QByteArray &hash, TexturePtr texture)
@@ -396,7 +396,10 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
       if (job.type() == Track::kVideo) {
         rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
 
-        if (!footage_time.isNaN()) {
+        if (footage_time.isNaN()) {
+          // Push dummy texture
+          output_params.Push(NodeValue::kTexture, QVariant::fromValue(CreateDummyTexture(job.video_params())), node, v.array(), v.tag());
+        } else {
           output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessVideoFootage(job, footage_time)), node, v.array(), v.tag());
         }
       }
@@ -432,6 +435,11 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
     // Save cached texture
     SaveCachedTexture(cached_node_hash, output_params.Get(NodeValue::kTexture).value<TexturePtr>());
   }
+}
+
+TexturePtr NodeTraverser::CreateDummyTexture(const VideoParams &p)
+{
+  return std::make_shared<Texture>(p);
 }
 
 }
