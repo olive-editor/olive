@@ -23,7 +23,8 @@ NodeViewContext::NodeViewContext(Node *context, QGraphicsItem *item) :
   super(item),
   context_(context)
 {
-  if (Block *block = dynamic_cast<Block*>(context_)) {
+  Block *block = dynamic_cast<Block*>(context_);
+  if (block && block->track() && block->track()->sequence()) {
     rational timebase = block->track()->sequence()->GetVideoParams().frame_rate_as_time_base();
     lbl_ = QCoreApplication::translate("NodeViewContext",
                                        "%1 [%2] :: %3 - %4").arg(block->GetLabelAndName(),
