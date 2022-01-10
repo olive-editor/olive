@@ -38,11 +38,11 @@ public:
 protected:
   virtual bool Run() override;
 
-  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) override;
+  virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) override;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+  virtual bool AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
 
-  virtual void EncodeSubtitle(const SubtitleBlock *sub) override;
+  virtual bool EncodeSubtitle(const SubtitleBlock *sub) override;
 
   virtual bool TwoStepFrameRendering() const override
   {
@@ -50,7 +50,7 @@ protected:
   }
 
 private:
-  void WriteAudioLoop(const TimeRange &time, SampleBufferPtr samples);
+  bool WriteAudioLoop(const TimeRange &time, SampleBufferPtr samples);
 
   QHash<rational, FramePtr> time_map_;
 

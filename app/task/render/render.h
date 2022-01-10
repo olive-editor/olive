@@ -49,13 +49,13 @@ protected:
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
               ColorProcessorPtr force_color_output = nullptr);
 
-  virtual void DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
+  virtual bool DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
 
-  virtual void FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) = 0;
+  virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) = 0;
 
-  virtual void AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
+  virtual bool AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
 
-  virtual void EncodeSubtitle(const SubtitleBlock *subtitle);
+  virtual bool EncodeSubtitle(const SubtitleBlock *subtitle);
 
   ViewerOutput* viewer() const
   {

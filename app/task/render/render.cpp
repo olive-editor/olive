@@ -128,6 +128,8 @@ bool RenderTask::Render(ColorManager* manager,
                 mode, cache, force_size, force_matrix, force_format, force_color_output);
   }
 
+  bool result = true;
+
   // Subtitle loop, loops over all blocks in sequence on all tracks
   if (!subtitle_range.length().isNull()) {
     Sequence *sequence = dynamic_cast<Sequence*>(viewer_);
@@ -163,7 +165,10 @@ bool RenderTask::Render(ColorManager* manager,
           Block *this_block = this_track->Blocks().at(block_indexes.at(tracks_to_push.at(i)));
 
           if (const SubtitleBlock *sub = dynamic_cast<const SubtitleBlock*>(this_block)) {
-            EncodeSubtitle(sub);
+            if (!EncodeSubtitle(sub)) {
+              result = false;
+              break;
+            }
           }
 
           block_indexes[tracks_to_push.at(i)]++;
@@ -174,8 +179,8 @@ bool RenderTask::Render(ColorManager* manager,
 
   finished_watcher_mutex_.lock();
 
-  while (!IsCancelled()) {
-    while (!finished_watchers_.empty() && !IsCancelled()) {
+  while (result && !IsCancelled()) {
+    while (!finished_watchers_.empty() && !IsCancelled() && result) {
       RenderTicketWatcher* watcher = finished_watchers_.front();
       finished_watchers_.pop_front();
 
@@ -188,7 +193,9 @@ bool RenderTask::Render(ColorManager* manager,
 
         TimeRange range = watcher->property("range").value<TimeRange>();
 
-        AudioDownloaded(range, watcher->Get().value<SampleBufferPtr>());
+        if (!AudioDownloaded(range, watcher->Get().value<SampleBufferPtr>())) {
+          result = false;
+        }
 
         // Don't count audio progress, since it's generally a lot faster than video and is weighted at
         // 50%, which makes the progress bar look weird to the uninitiated
@@ -197,9 +204,11 @@ bool RenderTask::Render(ColorManager* manager,
 
       } else if (ticket_type == RenderManager::kTypeVideo && TwoStepFrameRendering()) {
 
-        DownloadFrame(&watcher_thread,
-                      watcher->Get().value<FramePtr>(),
-                      watcher->property("hash").toByteArray());
+        if (!DownloadFrame(&watcher_thread,
+                           watcher->Get().value<FramePtr>(),
+                           watcher->property("hash").toByteArray())) {
+          result = false;
+        }
 
         if (native_progress_signalling_) {
           progress_counter += 0.5;
@@ -210,7 +219,9 @@ bool RenderTask::Render(ColorManager* manager,
 
         // Assume single-step video or video download ticket
         QByteArray rendered_hash = watcher->property("hash").toByteArray();
-        FrameDownloaded(watcher->Get().value<FramePtr>(), rendered_hash, time_map.value(rendered_hash));
+        if (!FrameDownloaded(watcher->Get().value<FramePtr>(), rendered_hash, time_map.value(rendered_hash))) {
+          result = false;
+        }
 
         if (native_progress_signalling_) {
           double progress_to_add = 1.0;
@@ -237,7 +248,7 @@ bool RenderTask::Render(ColorManager* manager,
       finished_watcher_mutex_.lock();
     }
 
-    if (IsCancelled()) {
+    if (IsCancelled() || !result) {
       break;
     }
 
@@ -252,7 +263,7 @@ bool RenderTask::Render(ColorManager* manager,
 
   finished_watcher_mutex_.unlock();
 
-  if (IsCancelled()) {
+  if (IsCancelled() || !result) {
     // Cancel every watcher we created
     foreach (RenderTicketWatcher* watcher, running_watchers_) {
       disconnect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone);
@@ -263,10 +274,10 @@ bool RenderTask::Render(ColorManager* manager,
   watcher_thread.quit();
   watcher_thread.wait();
 
-  return true;
+  return result;
 }
 
-void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray &hash)
+bool RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray &hash)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("hash", hash);
@@ -277,11 +288,15 @@ void RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const QByteArray
   watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(),
                                                                  frame,
                                                                  hash));
+
+  // NOTE: Doesn't reflect the actual return result of SaveFrameToCache
+  return true;
 }
 
-void RenderTask::EncodeSubtitle(const SubtitleBlock *subtitle)
+bool RenderTask::EncodeSubtitle(const SubtitleBlock *subtitle)
 {
   Q_UNUSED(subtitle)
+  return true;
 }
 
 void RenderTask::PrepareWatcher(RenderTicketWatcher *watcher, QThread *thread)
