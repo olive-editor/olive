@@ -79,19 +79,13 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   }
 }
 
-SequenceDialogPresetTab::~SequenceDialogPresetTab()
-{
-  qDeleteAll(default_preset_data_);
-}
-
 void SequenceDialogPresetTab::SaveParametersAsPreset(SequencePreset preset)
 {
-  Preset* preset_ptr = new SequencePreset(preset);
+  PresetPtr preset_ptr = std::make_shared<SequencePreset>(preset);
 
-  if (SavePreset(preset_ptr)) {
+  // If replaced, no need to make another item. If not saved, shared ptr will delete itself
+  if (SavePreset(preset_ptr) == kAppended) {
     AddCustomItem(my_presets_folder_, preset_ptr, GetNumberOfPresets() - 1);
-  } else {
-    delete preset_ptr;
   }
 }
 
@@ -108,7 +102,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
   const VideoParams::Format default_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
   const bool default_autocache = Config::Current()[QStringLiteral("DefaultSequenceAutoCache")].toBool();
   QTreeWidgetItem* parent = CreateFolder(name);
-  AddStandardItem(parent, new SequencePreset(tr("%1 23.976 FPS").arg(name),
+  AddStandardItem(parent, std::make_shared<SequencePreset>(tr("%1 23.976 FPS").arg(name),
                                              width,
                                              height,
                                              rational(24000, 1001),
@@ -119,7 +113,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              divider,
                                              default_format,
                                              default_autocache));
-  AddStandardItem(parent, new SequencePreset(tr("%1 25 FPS").arg(name),
+  AddStandardItem(parent, std::make_shared<SequencePreset>(tr("%1 25 FPS").arg(name),
                                              width,
                                              height,
                                              rational(25, 1),
@@ -130,7 +124,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              divider,
                                              default_format,
                                              default_autocache));
-  AddStandardItem(parent, new SequencePreset(tr("%1 29.97 FPS").arg(name),
+  AddStandardItem(parent, std::make_shared<SequencePreset>(tr("%1 29.97 FPS").arg(name),
                                              width,
                                              height,
                                              rational(30000, 1001),
@@ -141,7 +135,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              divider,
                                              default_format,
                                              default_autocache));
-  AddStandardItem(parent, new SequencePreset(tr("%1 50 FPS").arg(name),
+  AddStandardItem(parent, std::make_shared<SequencePreset>(tr("%1 50 FPS").arg(name),
                                              width,
                                              height,
                                              rational(50, 1),
@@ -152,7 +146,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              divider,
                                              default_format,
                                              default_autocache));
-  AddStandardItem(parent, new SequencePreset(tr("%1 59.94 FPS").arg(name),
+  AddStandardItem(parent, std::make_shared<SequencePreset>(tr("%1 59.94 FPS").arg(name),
                                              width,
                                              height,
                                              rational(60000, 1001),
@@ -172,7 +166,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
   const bool default_autocache = Config::Current()[QStringLiteral("DefaultSequenceAutoCache")].toBool();
   QTreeWidgetItem* parent = CreateFolder(name);
   preset_tree_->addTopLevelItem(parent);
-  AddStandardItem(parent, new SequencePreset(tr("%1 Standard").arg(name),
+  AddStandardItem(parent, std::make_shared<SequencePreset>(tr("%1 Standard").arg(name),
                                              width,
                                              height,
                                              frame_rate,
@@ -183,7 +177,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
                                              divider,
                                              default_format,
                                              default_autocache));
-  AddStandardItem(parent, new SequencePreset(tr("%1 Widescreen").arg(name),
+  AddStandardItem(parent, std::make_shared<SequencePreset>(tr("%1 Widescreen").arg(name),
                                              width,
                                              height,
                                              frame_rate,
@@ -221,19 +215,19 @@ QTreeWidgetItem *SequenceDialogPresetTab::GetSelectedCustomPreset()
   return nullptr;
 }
 
-void SequenceDialogPresetTab::AddStandardItem(QTreeWidgetItem *folder, Preset* preset, const QString& description)
+void SequenceDialogPresetTab::AddStandardItem(QTreeWidgetItem *folder, PresetPtr preset, const QString& description)
 {
   int index = default_preset_data_.size();
   default_preset_data_.append(preset);
   AddItemInternal(folder, preset, false, index, description);
 }
 
-void SequenceDialogPresetTab::AddCustomItem(QTreeWidgetItem *folder, Preset* preset, int index, const QString &description)
+void SequenceDialogPresetTab::AddCustomItem(QTreeWidgetItem *folder, PresetPtr preset, int index, const QString &description)
 {
   AddItemInternal(folder, preset, true, index, description);
 }
 
-void SequenceDialogPresetTab::AddItemInternal(QTreeWidgetItem *folder, Preset* preset, bool is_custom, int index, const QString &description)
+void SequenceDialogPresetTab::AddItemInternal(QTreeWidgetItem *folder, PresetPtr preset, bool is_custom, int index, const QString &description)
 {
   QTreeWidgetItem* item = new QTreeWidgetItem();
 
@@ -254,11 +248,11 @@ void SequenceDialogPresetTab::SelectedItemChanged(QTreeWidgetItem* current, QTre
   if (current->data(0, kDataIsPreset).toBool()) {
     int preset_index = current->data(0, kDataPresetDataRole).toInt();
 
-    Preset* preset_data = (current->data(0, kDataPresetIsCustomRole).toBool())
+    PresetPtr preset_data = (current->data(0, kDataPresetIsCustomRole).toBool())
         ? GetPreset(preset_index)
         : default_preset_data_.at(preset_index);
 
-    emit PresetChanged(*static_cast<SequencePreset*>(preset_data));
+    emit PresetChanged(*static_cast<SequencePreset*>(preset_data.get()));
   }
 }
 
