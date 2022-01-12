@@ -320,6 +320,15 @@ bool Project::is_new() const
   return !is_modified_ && filename_.isEmpty();
 }
 
+QString Project::get_cache_alongside_project_path() const
+{
+  if (!filename_.isEmpty()) {
+    // Non-translated string so the path doesn't change if the language does
+    return QFileInfo(filename_).dir().filePath(QStringLiteral("cache"));
+  }
+  return QString();
+}
+
 QString Project::cache_path() const
 {
   ProjectSettingsNode::CacheSetting setting = settings_->GetCacheSetting();
@@ -330,7 +339,6 @@ QString Project::cache_path() const
   case ProjectSettingsNode::kCacheCustomPath:
   {
     QString cache_path = settings_->GetCustomCachePath();
-
     if (cache_path.isEmpty()) {
       return cache_path;
     }
@@ -338,8 +346,9 @@ QString Project::cache_path() const
   }
   case ProjectSettingsNode::kCacheStoreAlongsideProject:
   {
-    if (!filename_.isEmpty()) {
-      return QFileInfo(filename_).path();
+    QString alongside = get_cache_alongside_project_path();
+    if (!alongside.isEmpty()) {
+      return alongside;
     }
     break;
   }

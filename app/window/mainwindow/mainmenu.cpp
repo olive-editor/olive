@@ -69,6 +69,8 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_close_all_projects_item_ = file_menu_->AddItem("closeallproj", Core::instance(), static_cast<bool(Core::*)()>(&Core::CloseAllProjects));
   file_close_all_except_item_ = file_menu_->AddItem("closeallexcept", Core::instance(), &Core::CloseAllExceptActiveProject);
   file_menu_->addSeparator();
+  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, tr("Shift+F10"));
+  file_menu_->addSeparator();
   file_exit_item_ = file_menu_->AddItem("exit", parent, &MainWindow::close);
 
   //
@@ -696,6 +698,7 @@ void MainMenu::Retranslate()
   file_export_menu_->setTitle(tr("&Export"));
   file_export_media_item_->setText(tr("&Media..."));
   file_close_all_projects_item_->setText(tr("Close All Projects"));
+  file_project_properties_item_->setText(tr("Project Properties"));
   file_exit_item_->setText(tr("E&xit"));
 
   // Edit menu

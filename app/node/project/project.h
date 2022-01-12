@@ -73,6 +73,7 @@ public:
 
   bool is_new() const;
 
+  QString get_cache_alongside_project_path() const;
   QString cache_path() const;
 
   const QUuid& GetUuid() const
