@@ -24,7 +24,6 @@
 #include "node/factory.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
-//#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 
@@ -42,62 +41,6 @@ bool XMLReadNextStartElement(QXmlStreamReader *reader)
   }
 
   return false;
-}
-
-void XMLNodeData::PostConnect(uint version, MultiUndoCommand *command) const
-{
-  foreach (const XMLNodeData::SerializedConnection& con, desired_connections) {
-    if (Node *out = node_ptrs.value(con.output_node)) {
-      // Use output param as hint tag since we grandfathered those in
-      Node::ValueHint hint(con.output_param);
-
-      if (command) {
-        command->add_child(new NodeEdgeAddCommand(out, con.input));
-      } else {
-        Node::ConnectEdge(out, con.input);
-      }
-
-      if (version < 210907) {
-        /// Deprecated: backwards compatibility only
-        if (command) {
-          command->add_child(new NodeSetValueHintCommand(con.input, hint));
-        } else {
-          con.input.node()->SetValueHintForInput(con.input.input(), hint, con.input.element());
-        }
-      }
-    }
-  }
-
-  foreach (const XMLNodeData::BlockLink& l, block_links) {
-    Node *a = l.block;
-    Node *b = node_ptrs.value(l.link);
-    if (command) {
-      command->add_child(new NodeLinkCommand(a, b, true));
-    } else {
-      Node::Link(a, b);
-    }
-  }
-
-  foreach (const XMLNodeData::GroupLink &l, group_input_links) {
-    if (Node *input_node = node_ptrs.value(l.input_node)) {
-      NodeInput resolved(input_node, l.input_id, l.input_element);
-      if (command) {
-        command->add_child(new NodeGroupAddInputPassthrough(l.group, resolved));
-      } else {
-        l.group->AddInputPassthrough(resolved);
-      }
-    }
-  }
-
-  for (auto it=group_output_links.cbegin(); it!=group_output_links.cend(); it++) {
-    if (Node *output_node = node_ptrs.value(it.value())) {
-      if (command) {
-        command->add_child(new NodeGroupSetOutputPassthrough(it.key(), output_node));
-      } else {
-        it.key()->SetOutputPassthrough(output_node);
-      }
-    }
-  }
 }
 
 }

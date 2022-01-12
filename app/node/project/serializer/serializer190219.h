@@ -18,33 +18,28 @@
 
 ***/
 
-#ifndef NODECOPYPASTEWIDGET_H
-#define NODECOPYPASTEWIDGET_H
+#ifndef PROJECTSERIALIZER190219_H
+#define PROJECTSERIALIZER190219_H
 
-#include <QWidget>
-#include <QUndoCommand>
-
-#include "node/node.h"
-#include "node/project/sequence/sequence.h"
+#include "serializer.h"
 
 namespace olive {
 
-class NodeCopyPasteService
+class ProjectSerializer190219 : public ProjectSerializer
 {
 public:
-  NodeCopyPasteService() = default;
+  ProjectSerializer190219() = default;
 
 protected:
-  void CopyNodesToClipboard(QVector<Node *> nodes, void* userdata = nullptr);
+  virtual void Load(Project *project, QXmlStreamReader *reader, void *reserved) const override;
 
-  QVector<Node*> PasteNodesFromClipboard(Project *project, MultiUndoCommand *command, void* userdata = nullptr);
-
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata);
-
-  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata);
+  virtual uint Version() const override
+  {
+    return 190219;
+  }
 
 };
 
 }
 
-#endif // NODECOPYPASTEWIDGET_H
+#endif // SERIALIZER190219_H

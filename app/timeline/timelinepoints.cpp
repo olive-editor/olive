@@ -39,30 +39,6 @@ const TimelineWorkArea *TimelinePoints::workarea() const
   return &workarea_;
 }
 
-void TimelinePoints::Load(QXmlStreamReader *reader)
-{
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("markers")) {
-      markers_.Load(reader);
-    } else if (reader->name() == QStringLiteral("workarea")) {
-      workarea_.Load(reader);
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
-}
-
-void TimelinePoints::Save(QXmlStreamWriter *writer) const
-{
-  writer->writeStartElement(QStringLiteral("workarea"));
-    workarea_.Save(writer);
-  writer->writeEndElement(); // workarea
-
-  writer->writeStartElement(QStringLiteral("markers"));
-    markers_.Save(writer);
-  writer->writeEndElement(); // markers
-}
-
 TimelineWorkArea *TimelinePoints::workarea()
 {
   return &workarea_;

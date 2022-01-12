@@ -37,21 +37,6 @@ public:
     return project_;
   }
 
-  MainWindowLayoutInfo GetLoadedLayout() const
-  {
-    return layout_info_;
-  }
-
-  /**
-   * @brief Returns the filename the project was saved as, but not necessarily where it is now
-   *
-   * May help for resolving relative paths.
-   */
-  const QString& GetFilenameProjectWasSavedAs() const
-  {
-    return project_saved_url_;
-  }
-
   const QString& GetFilename() const
   {
     return filename_;
@@ -59,10 +44,6 @@ public:
 
 protected:
   Project* project_;
-
-  MainWindowLayoutInfo layout_info_;
-
-  QString project_saved_url_;
 
 private:
   QString filename_;

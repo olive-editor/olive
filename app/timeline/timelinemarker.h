@@ -67,9 +67,6 @@ public:
 
   const QList<TimelineMarker *> &list() const;
 
-  void Load(QXmlStreamReader* reader);
-  void Save(QXmlStreamWriter* writer) const;
-
 signals:
   void MarkerAdded(TimelineMarker* marker);
 

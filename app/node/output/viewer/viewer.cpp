@@ -508,26 +508,6 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
   }
 }
 
-bool ViewerOutput::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled)
-{
-  if (reader->name() == QStringLiteral("points")) {
-    timeline_points_.Load(reader);
-    return true;
-  } else {
-    return super::LoadCustom(reader, xml_node_data, version, cancelled);
-  }
-}
-
-void ViewerOutput::SaveCustom(QXmlStreamWriter *writer) const
-{
-  super::SaveCustom(writer);
-
-  // Write TimelinePoints
-  writer->writeStartElement(QStringLiteral("points"));
-  timeline_points_.Save(writer);
-  writer->writeEndElement(); // points
-}
-
 int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
 {
   QString id;

@@ -127,16 +127,6 @@ public:
   }
 
   /**
-   * @brief Clear current node variables and replace them with
-   */
-  void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled);
-
-  /**
-   * @brief Save this node into a text/XML format
-   */
-  void Save(QXmlStreamWriter* writer) const;
-
-  /**
    * @brief Return the name of the node
    *
    * This is the node's name shown to the user. This must be overridden by subclasses, and preferably run through the
@@ -331,9 +321,6 @@ public:
   static void DisconnectEdge(Node *output, const NodeInput& input);
 
   virtual QString GetInputName(const QString& id) const;
-
-  void LoadInput(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled);
-  void SaveInput(QXmlStreamWriter* writer, const QString& id) const;
 
   bool IsInputHidden(const QString& input) const;
   bool IsInputConnectable(const QString& input) const;
@@ -579,9 +566,6 @@ public:
 
     void Hash(QCryptographicHash &hash) const;
 
-    void Load(QXmlStreamReader *reader);
-    void Save(QXmlStreamWriter *writer) const;
-
     const QVector<NodeValue::Type> &types() const { return type_; }
     const int &index() const { return index_; }
     const QString& tag() const { return tag_; }
@@ -598,6 +582,11 @@ public:
   };
 
   static void Hash(const Node *node, const ValueHint &hint, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params);
+
+  const QMap<InputElementPair, ValueHint> &GetValueHints() const
+  {
+    return value_hints_;
+  }
 
   ValueHint GetValueHintForInput(const QString &input, int element = -1) const
   {
@@ -1005,10 +994,6 @@ protected:
     return operation_stack_;
   }
 
-  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled);
-
-  virtual void SaveCustom(QXmlStreamWriter* writer) const;
-
   enum GizmoScaleHandles {
     kGizmoScaleTopLeft,
     kGizmoScaleTopCenter,
@@ -1264,10 +1249,6 @@ private:
   {
     ParameterValueChanged(input.input(), input.element(), range);
   }
-
-  void LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
-
-  void SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const;
 
   /**
    * @brief Intelligently determine how what time range is affected by a keyframe

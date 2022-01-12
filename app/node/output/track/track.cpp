@@ -137,23 +137,6 @@ void Track::SetTrackHeight(const double &height)
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
 }
 
-bool Track::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
-{
-  if (reader->name() == QStringLiteral("height")) {
-    SetTrackHeight(reader->readElementText().toDouble());
-    return true;
-  } else {
-    return super::LoadCustom(reader, xml_node_data, version, cancelled);
-  }
-}
-
-void Track::SaveCustom(QXmlStreamWriter *writer) const
-{
-  super::SaveCustom(writer);
-
-  writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
-}
-
 void Track::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kBlockInput) {

@@ -629,7 +629,7 @@ void TimelineWidget::Paste(bool insert)
   MultiUndoCommand* command = new MultiUndoCommand();
 
   QVector<BlockPasteData> paste_data;
-  QVector<Node*> pasted = PasteNodesFromClipboard(GetConnectedNode()->parent(), command, &paste_data);
+  QVector<Node*> pasted = PasteNodesFromClipboard(GetConnectedNode()->project(), command, &paste_data);
 
   rational paste_start = GetTime();
 
