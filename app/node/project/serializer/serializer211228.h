@@ -31,9 +31,9 @@ public:
   ProjectSerializer211228() = default;
 
 protected:
-  virtual void Load(Project *project, QXmlStreamReader *reader, void *reserved) const override;
+  virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const override;
 
-  virtual void Save(Project *project, QXmlStreamWriter *writer, const QVector<Node*> &only, void *reserved) const override;
+  virtual void Save(QXmlStreamWriter *writer, const SaveData &data, void *reserved) const override;
 
   virtual uint Version() const override
   {

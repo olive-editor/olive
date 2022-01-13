@@ -300,55 +300,64 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
   }
 }
 
-void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void* userdata)
+void TimelineWidget::CopyNodesToClipboardCallback(const QVector<Node *> &nodes, ProjectSerializer::SaveData *sdata, void *userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
   QVector<Block*>& selected = *static_cast<QVector<Block*>*>(userdata);
   rational earliest_in = RATIONAL_MAX;
+  ProjectSerializer::SerializedProperties properties;
 
   foreach (Block* block, selected) {
     earliest_in = qMin(earliest_in, block->in());
   }
 
   foreach (Block* block, selected) {
-    writer->writeStartElement(QStringLiteral("block"));
-
-    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(block)));
-    writer->writeAttribute(QStringLiteral("in"), (block->in() - earliest_in).toString());
-
-    Track* track = block->track();
-    writer->writeAttribute(QStringLiteral("tracktype"), QString::number(track->type()));
-    writer->writeAttribute(QStringLiteral("trackindex"), QString::number(track->Index()));
-
-    writer->writeEndElement();
+    properties[block][QStringLiteral("in")] = (block->in() - earliest_in).toString();
+    properties[block][QStringLiteral("track")] = block->track()->ToReference().ToString();
   }
+
+  sdata->SetProperties(properties);
 }
 
-void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData& xml_node_data, void *userdata)
+void TimelineWidget::PasteNodesToClipboardCallback(const QVector<Node *> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata)
 {
-  QVector<BlockPasteData>& paste_data = *static_cast<QVector<BlockPasteData>*>(userdata);
+  bool insert = *(bool*)userdata;
 
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("block")) {
-      BlockPasteData bpd;
+  MultiUndoCommand *command = new MultiUndoCommand();
 
-      foreach (QXmlStreamAttribute attr, reader->attributes()) {
-        if (attr.name() == QStringLiteral("ptr")) {
-          bpd.block = static_cast<Block*>(xml_node_data.node_ptrs.value(attr.value().toULongLong()));
-        } else if (attr.name() == QStringLiteral("in")) {
-          bpd.in = rational::fromString(attr.value().toString());
-        } else if (attr.name() == QStringLiteral("tracktype")) {
-          bpd.track_type = static_cast<Track::Type>(attr.value().toInt());
-        } else if (attr.name() == QStringLiteral("trackindex")) {
-          bpd.track_index = attr.value().toInt();
-        }
-      }
+  foreach (Node *n, nodes) {
+    command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
+  }
 
-      paste_data.append(bpd);
+  rational paste_start = GetTime();
 
-      reader->skipCurrentElement();
+  if (insert) {
+    rational paste_end = GetTime();
+
+    for (auto it=load_data.properties.cbegin(); it!=load_data.properties.cend(); it++) {
+      rational length = static_cast<Block*>(it.key())->length();
+      rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+
+      paste_end = qMax(paste_end, paste_start + in + length);
+    }
+
+    if (paste_end != paste_start) {
+      InsertGapsAt(paste_start, paste_end - paste_start, command);
     }
   }
+
+  for (auto it=load_data.properties.cbegin(); it!=load_data.properties.cend(); it++) {
+    Block *block = static_cast<Block*>(it.key());
+    rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+    Track::Reference track = Track::Reference::FromString(it.value()[QStringLiteral("track")]);
+
+    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
+                                                  track.index(),
+                                                  block,
+                                                  paste_start + in));
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void TimelineWidget::SelectAll()
@@ -626,34 +635,7 @@ void TimelineWidget::Paste(bool insert)
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
-
-  QVector<BlockPasteData> paste_data;
-  QVector<Node*> pasted = PasteNodesFromClipboard(GetConnectedNode()->project(), command, &paste_data);
-
-  rational paste_start = GetTime();
-
-  if (insert) {
-    rational paste_end = GetTime();
-
-    foreach (const BlockPasteData& bpd, paste_data) {
-      paste_end = qMax(paste_end, paste_start + bpd.in + bpd.block->length());
-    }
-
-    if (paste_end != paste_start) {
-      InsertGapsAt(paste_start, paste_end - paste_start, command);
-    }
-  }
-
-  foreach (const BlockPasteData& bpd, paste_data) {
-    qDebug() << "Placing" << bpd.block;
-    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(bpd.track_type),
-                                                  bpd.track_index,
-                                                  bpd.block,
-                                                  paste_start + bpd.in));
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  PasteNodesFromClipboard(&insert);
 }
 
 void TimelineWidget::DeleteInToOut(bool ripple)

@@ -39,7 +39,7 @@ class ProjectSerializer
 public:
   ProjectSerializer() = default;
 
-  virtual ~ProjectSerializer(){};
+  virtual ~ProjectSerializer(){}
 
   DISABLE_COPY_MOVE(ProjectSerializer)
 
@@ -50,7 +50,18 @@ public:
     kUnknownVersion,
     kFileError,
     kXmlError,
-    kOverwriteError,
+    kOverwriteError
+  };
+
+  using SerializedProperties = QHash<Node*, QMap<QString, QString> >;
+
+  class LoadData
+  {
+  public:
+    LoadData() = default;
+
+    SerializedProperties properties;
+
   };
 
   class Result
@@ -63,25 +74,62 @@ public:
     bool operator==(const ResultCode &code) { return code_ == code; }
     bool operator!=(const ResultCode &code) { return code_ != code; }
 
-    const ResultCode &code() const
-    {
-      return code_;
-    }
+    const ResultCode &code() const { return code_; }
 
-    const QString &GetDetails() const
-    {
-      return details_;
-    }
+    const QString &GetDetails() const { return details_; }
 
-    void SetDetails(const QString &s)
-    {
-      details_ = s;
-    }
+    void SetDetails(const QString &s) { details_ = s; }
+
+    const LoadData &GetLoadData() const { return load_data_; }
+
+    void SetLoadData(const LoadData &p) { load_data_ = p; }
 
   private:
     ResultCode code_;
 
     QString details_;
+
+    LoadData load_data_;
+
+  };
+
+  class SaveData
+  {
+  public:
+    SaveData(Project *project, const QString &filename, const QVector<Node*> &only = QVector<Node*>(), const SerializedProperties &p = SerializedProperties())
+    {
+      project_ = project;
+      filename_ = filename;
+      only_serialize_nodes_ = only;
+      properties_ = p;
+    }
+
+    Project *GetProject() const
+    {
+      return project_;
+    }
+
+    const QString &GetFilename() const
+    {
+      return filename_;
+    }
+
+    const QVector<Node*> &GetOnlySerializeNodes() const { return only_serialize_nodes_; }
+
+    void SetOnlySerializeNodes(const QVector<Node*> &only) { only_serialize_nodes_ = only; }
+
+    const SerializedProperties &GetProperties() const { return properties_; }
+
+    void SetProperties(const SerializedProperties &p) { properties_ = p; }
+
+  private:
+    Project *project_;
+
+    QString filename_;
+
+    QVector<Node*> only_serialize_nodes_;
+
+    SerializedProperties properties_;
 
   };
 
@@ -92,17 +140,13 @@ public:
   static Result Load(Project *project, const QString &filename);
   static Result Load(Project *project, QXmlStreamReader *read_device);
 
-  static Result Save(Project *project, const QString &filename, const QVector<Node*> &only = QVector<Node*>());
-  static Result Save(Project *project, QXmlStreamWriter *write_device, const QString &filename, const QVector<Node*> &only = QVector<Node*>());
-  static Result Save(Project *project, QXmlStreamWriter *write_device, const QVector<Node*> &only = QVector<Node*>())
-  {
-    return Save(project, write_device, QString(), only);
-  }
+  static Result Save(const SaveData &data);
+  static Result Save(QXmlStreamWriter *write_device, const SaveData &data);
 
 protected:
-  virtual void Load(Project *project, QXmlStreamReader *reader, void *reserved) const = 0;
+  virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const = 0;
 
-  virtual void Save(Project *project, QXmlStreamWriter *writer, const QVector<Node*> &only, void *reserved) const {}
+  virtual void Save(QXmlStreamWriter *writer, const SaveData &data, void *reserved) const {}
 
   virtual uint Version() const = 0;
 

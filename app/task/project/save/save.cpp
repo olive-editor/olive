@@ -40,7 +40,9 @@ bool ProjectSaveTask::Run()
 {
   QString using_filename = override_filename_.isEmpty() ? project_->filename() : override_filename_;
 
-  ProjectSerializer::Result result = ProjectSerializer::Save(project_, using_filename);
+  ProjectSerializer::SaveData data(project_, using_filename);
+
+  ProjectSerializer::Result result = ProjectSerializer::Save(data);
 
   bool success = false;
 

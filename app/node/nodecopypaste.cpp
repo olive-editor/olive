@@ -24,7 +24,6 @@
 
 #include "core.h"
 #include "node/factory.h"
-#include "node/project/serializer/serializer.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -48,47 +47,45 @@ void NodeCopyPasteService::CopyNodesToClipboard(QVector<Node *> nodes, void *use
     }
   }
 
-  ProjectSerializer::Save(nodes.first()->project(), &writer, nodes);
+  ProjectSerializer::SaveData data(nodes.first()->project(), QString(), nodes);
 
-  /*writer.writeStartElement(QStringLiteral("custom"));
-  CopyNodesToClipboardInternal(&writer, nodes, userdata);
-  writer.writeEndElement(); // custom*/
+  CopyNodesToClipboardCallback(nodes, &data, userdata);
+
+  ProjectSerializer::Save(&writer, data);
 
   Core::CopyStringToClipboard(copy_str);
 }
 
-QVector<Node *> NodeCopyPasteService::PasteNodesFromClipboard(Project *project, MultiUndoCommand* command, void *userdata)
+void NodeCopyPasteService::PasteNodesFromClipboard(void *userdata)
 {
-  QVector<Node*> pasted_nodes;
-
   QString clipboard = Core::PasteStringFromClipboard();
   if (clipboard.isEmpty()) {
-    return pasted_nodes;
+    return;
   }
 
   QXmlStreamReader reader(clipboard);
 
   Project temp;
-  ProjectSerializer::Load(&temp, &reader);
+  ProjectSerializer::Result res = ProjectSerializer::Load(&temp, &reader);
 
+  if (res.code() != ProjectSerializer::kSuccess) {
+    return;
+  }
+
+  QVector<Node*> pasted_nodes;
   foreach (Node *n, temp.nodes()) {
     if (!temp.default_nodes().contains(n)) {
+      // Move nodes out of Project
       n->setParent(nullptr);
       pasted_nodes.append(n);
     }
   }
 
-  return pasted_nodes;
-}
+  if (pasted_nodes.isEmpty()) {
+    return;
+  }
 
-void NodeCopyPasteService::CopyNodesToClipboardInternal(QXmlStreamWriter*, const QVector<Node *> &, void*)
-{
-}
-
-void NodeCopyPasteService::PasteNodesFromClipboardInternal(QXmlStreamReader* reader, XMLNodeData &xml_node_data, void*)
-{
-  Q_UNUSED(xml_node_data)
-  reader->skipCurrentElement();
+  PasteNodesToClipboardCallback(pasted_nodes, res.GetLoadData(), userdata);
 }
 
 }

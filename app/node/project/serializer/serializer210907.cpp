@@ -24,7 +24,7 @@
 
 namespace olive {
 
-void ProjectSerializer210907::Load(Project *project, QXmlStreamReader *reader, void *reserved) const
+ProjectSerializer210907::LoadData ProjectSerializer210907::Load(Project *project, QXmlStreamReader *reader, void *reserved) const
 {
   XMLNodeData xml_node_data;
 
@@ -161,6 +161,8 @@ void ProjectSerializer210907::Load(Project *project, QXmlStreamReader *reader, v
 
   // Make connections
   PostConnect(xml_node_data);
+
+  return LoadData();
 }
 
 void ProjectSerializer210907::LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const

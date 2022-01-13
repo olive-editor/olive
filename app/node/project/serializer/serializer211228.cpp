@@ -24,8 +24,10 @@
 
 namespace olive {
 
-void ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, void *reserved) const
+ProjectSerializer211228::LoadData ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, void *reserved) const
 {
+  QMap<quintptr, QMap<QString, QString> > properties;
+  QMap<quintptr, QMap<quintptr, Node::Position> > positions;
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(reader)) {
@@ -112,22 +114,15 @@ void ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, v
                 }
               }
 
-              Node *context = xml_node_data.node_ptrs.value(context_ptr);
-
-              if (!context) {
-                qWarning() << "Failed to find pointer for context";
-                reader->skipCurrentElement();
-              } else {
+              if (context_ptr) {
                 while (XMLReadNextStartElement(reader)) {
                   if (reader->name() == QStringLiteral("node")) {
                     quintptr node_ptr;
                     Node::Position node_pos;
 
                     if (LoadPosition(reader, &node_ptr, &node_pos)) {
-                      Node *node = xml_node_data.node_ptrs.value(node_ptr);
-
-                      if (node) {
-                        context->SetNodePositionInContext(node, node_pos);
+                      if (node_ptr) {
+                        positions[context_ptr].insert(node_ptr, node_pos);
                       } else {
                         qWarning() << "Failed to find pointer for node position";
                         reader->skipCurrentElement();
@@ -137,6 +132,9 @@ void ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, v
                     reader->skipCurrentElement();
                   }
                 }
+              } else {
+                qWarning() << "Attempted to load context with no pointer";
+                reader->skipCurrentElement();
               }
 
             } else {
@@ -145,6 +143,34 @@ void ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, v
 
             }
 
+          }
+
+
+        } else if (reader->name() == QStringLiteral("properties")) {
+
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("node")) {
+              quintptr ptr = 0;
+
+              XMLAttributeLoop(reader, attr) {
+                if (attr.name() == QStringLiteral("ptr")) {
+                  ptr = attr.value().toULongLong();
+
+                  // Only attribute we're looking for right now
+                  break;
+                }
+              }
+
+              if (ptr) {
+                QMap<QString, QString> properties_for_node;
+                while (XMLReadNextStartElement(reader)) {
+                  properties_for_node.insert(reader->name().toString(), reader->readElementText());
+                }
+                properties.insert(ptr, properties_for_node);
+              }
+            } else {
+              reader->skipCurrentElement();
+            }
           }
 
         } else {
@@ -159,17 +185,44 @@ void ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, v
     }
   }
 
+  // Resolve positions
+  for (auto it=positions.cbegin(); it!=positions.cend(); it++) {
+    Node *ctx = xml_node_data.node_ptrs.value(it.key());
+    if (ctx) {
+      for (auto jt=it.value().cbegin(); jt!=it.value().cend(); jt++) {
+        Node *n = xml_node_data.node_ptrs.value(jt.key());
+        if (n) {
+          ctx->SetNodePositionInContext(n, jt.value());
+        }
+      }
+    }
+  }
+
   // Make connections
   PostConnect(xml_node_data);
+
+  LoadData load_data;
+
+  // Resolve serialized properties (if any)
+  for (auto it=properties.cbegin(); it!=properties.cend(); it++) {
+    Node *node = xml_node_data.node_ptrs.value(it.key());
+    if (node) {
+      load_data.properties.insert(node, it.value());
+    }
+  }
+
+  return load_data;
 }
 
-void ProjectSerializer211228::Save(Project *project, QXmlStreamWriter *writer, const QVector<Node *> &only, void *reserved) const
+void ProjectSerializer211228::Save(QXmlStreamWriter *writer, const SaveData &data, void *reserved) const
 {
-  writer->writeTextElement(QStringLiteral("uuid"), project->GetUuid().toString());
+  Project *project = data.GetProject();
+
+  writer->writeTextElement(QStringLiteral("uuid"), data.GetProject()->GetUuid().toString());
 
   writer->writeStartElement(QStringLiteral("nodes"));
 
-  const QVector<Node*> &using_node_list = (only.isEmpty()) ? project->nodes() : only;
+  const QVector<Node*> &using_node_list = (data.GetOnlySerializeNodes().isEmpty()) ? project->nodes() : data.GetOnlySerializeNodes();
 
   foreach (Node* node, using_node_list) {
     writer->writeStartElement(QStringLiteral("node"));
@@ -202,7 +255,7 @@ void ProjectSerializer211228::Save(Project *project, QXmlStreamWriter *writer, c
       writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(context)));
 
       for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
-        if (only.isEmpty() || only.contains(jt.key())) {
+        if (data.GetOnlySerializeNodes().isEmpty() || data.GetOnlySerializeNodes().contains(jt.key())) {
           writer->writeStartElement(QStringLiteral("node"));
           SavePosition(writer, jt.key(), jt.value());
           writer->writeEndElement(); // node
@@ -214,6 +267,22 @@ void ProjectSerializer211228::Save(Project *project, QXmlStreamWriter *writer, c
   }
 
   writer->writeEndElement(); // positions
+
+  writer->writeStartElement(QStringLiteral("properties"));
+
+  for (auto it=data.GetProperties().cbegin(); it!=data.GetProperties().cend(); it++) {
+    writer->writeStartElement(QStringLiteral("node"));
+
+    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(it.key())));
+
+    for (auto jt=it.value().cbegin(); jt!=it.value().cend(); jt++) {
+      writer->writeTextElement(jt.key(), jt.value());
+    }
+
+    writer->writeEndElement(); // node
+  }
+
+  writer->writeEndElement(); // properties
 
   // Save main window project layout
   project->GetLayoutInfo().toXml(writer);
@@ -229,7 +298,9 @@ void ProjectSerializer211228::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
     if (reader->name() == QStringLiteral("input")) {
       LoadInput(node, reader, xml_node_data);
     } else if (reader->name() == QStringLiteral("ptr")) {
-      xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), node);
+      quintptr ptr = reader->readElementText().toULongLong();
+      xml_node_data.node_ptrs.insert(ptr, node);
+      qDebug() << "Inserting" << ptr << "as" << node;
     } else if (reader->name() == QStringLiteral("label")) {
       node->SetLabel(reader->readElementText());
     } else if (reader->name() == QStringLiteral("uuid")) {
@@ -245,9 +316,7 @@ void ProjectSerializer211228::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
         }
       }
     } else if (reader->name() == QStringLiteral("custom")) {
-
       LoadNodeCustom(reader, node, xml_node_data);
-
     } else if (reader->name() == QStringLiteral("connections")) {
       // Load connections
       while (XMLReadNextStartElement(reader)) {
@@ -307,7 +376,7 @@ void ProjectSerializer211228::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
 
 void ProjectSerializer211228::SaveNode(Node *node, QXmlStreamWriter *writer) const
 {
-  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
+  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(node)));
 
   writer->writeTextElement(QStringLiteral("uuid"), node->GetUUID().toString());
   writer->writeTextElement(QStringLiteral("label"), node->GetLabel());

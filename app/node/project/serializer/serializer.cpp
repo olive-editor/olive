@@ -119,24 +119,30 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
   }
 
   if (serializer) {
-    serializer->Load(project, reader, nullptr);
-    return kSuccess;
+    LoadData ld = serializer->Load(project, reader, nullptr);
+    Result r(kSuccess);
+    if (reader->hasError()) {
+      r = Result(kXmlError);
+      r.SetDetails(reader->errorString());
+    }
+    r.SetLoadData(ld);
+    return r;
   } else {
     // Reached the end of the list with no serializer, assume too new
     return kProjectTooNew;
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Save(Project *project, const QString &filename, const QVector<Node *> &only)
+ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data)
 {
-  QString temp_save = FileFunctions::GetSafeTemporaryFilename(filename);
+  QString temp_save = FileFunctions::GetSafeTemporaryFilename(data.GetFilename());
 
   QFile project_file(temp_save);
 
   if (project_file.open(QFile::WriteOnly | QFile::Text)) {
     QXmlStreamWriter writer(&project_file);
 
-    Result inner_result = Save(project, &writer, filename, only);
+    Result inner_result = Save(&writer, data);
 
     project_file.close();
 
@@ -145,7 +151,7 @@ ProjectSerializer::Result ProjectSerializer::Save(Project *project, const QStrin
     }
 
     // Save was successful, we can now rewrite the original file
-    if (FileFunctions::RenameFileAllowOverwrite(temp_save, filename)) {
+    if (FileFunctions::RenameFileAllowOverwrite(temp_save, data.GetFilename())) {
       return kSuccess;
     } else {
       Result r(kOverwriteError);
@@ -159,7 +165,7 @@ ProjectSerializer::Result ProjectSerializer::Save(Project *project, const QStrin
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Save(Project *project, QXmlStreamWriter *writer, const QString &filename, const QVector<Node *> &only)
+ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, const SaveData &data)
 {
   writer->setAutoFormatting(true);
 
@@ -175,13 +181,13 @@ ProjectSerializer::Result ProjectSerializer::Save(Project *project, QXmlStreamWr
   // Allows easy integer math for checking project versions.
   writer->writeTextElement(QStringLiteral("version"), QString::number(serializer->Version()));
 
-  if (!filename.isEmpty()) {
-    writer->writeTextElement("url", filename);
+  if (!data.GetFilename().isEmpty()) {
+    writer->writeTextElement("url", data.GetFilename());
   }
 
   writer->writeStartElement(QStringLiteral("project"));
 
-  serializer->Save(project, writer, only, nullptr);
+  serializer->Save(writer, data, nullptr);
 
   writer->writeEndElement(); // project
 
