@@ -25,7 +25,9 @@
 #include <QUndoCommand>
 
 #include "node/node.h"
+#include "node/project/project.h"
 #include "node/project/sequence/sequence.h"
+#include "node/project/serializer/serializer.h"
 
 namespace olive {
 
@@ -37,11 +39,11 @@ public:
 protected:
   void CopyNodesToClipboard(QVector<Node *> nodes, void* userdata = nullptr);
 
-  QVector<Node*> PasteNodesFromClipboard(NodeGraph *graph, MultiUndoCommand *command, void* userdata = nullptr);
+  void PasteNodesFromClipboard(void* userdata = nullptr);
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata);
+  virtual void CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *data, void *userdata){}
 
-  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata);
+  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata){}
 
 };
 

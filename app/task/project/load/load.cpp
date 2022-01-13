@@ -21,11 +21,8 @@
 #include "load.h"
 
 #include <QApplication>
-#include <QFile>
-#include <QXmlStreamReader>
 
-#include "common/xmlutils.h"
-#include "core.h"
+#include "node/project/serializer/serializer.h"
 
 namespace olive {
 
@@ -36,78 +33,42 @@ ProjectLoadTask::ProjectLoadTask(const QString &filename) :
 
 bool ProjectLoadTask::Run()
 {
-  QFile project_file(GetFilename());
+  project_ = new Project();
 
-  if (project_file.open(QFile::ReadOnly | QFile::Text)) {
-    QXmlStreamReader reader(&project_file);
+  project_->set_filename(GetFilename());
 
-    uint project_version = 0;
+  ProjectSerializer::Result result = ProjectSerializer::Load(project_, GetFilename());
 
-    while (XMLReadNextStartElement(&reader)) {
-      if (reader.name() == QStringLiteral("olive")) {
-        while(XMLReadNextStartElement(&reader)) {
-          if (reader.name() == QStringLiteral("version")) {
-            bool ok;
-
-            project_version = reader.readElementText().toUInt(&ok);
-
-            if (!ok) {
-              SetError(tr("Failed to parse project version."));
-              return false;
-            } else if (project_version > Project::kProjectVersion) {
-              // Project is newer than we support
-              SetError(tr("This project is from a newer version of Olive and cannot be opened in this version."));
-              return false;
-            } else if (project_version < Project::kProjectMinimumVersion) { // Change this if we drop support for a project version
-              // Project is older than we support
-              SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
-              return false;
-            }
-          } else if (reader.name() == QStringLiteral("url")) {
-            project_saved_url_ = reader.readElementText();
-          } else if (reader.name() == QStringLiteral("project")) {
-            if (project_version == 0) {
-              // Failed to find project version, throw error before we create project
-              SetError(tr("Failed to find project version."));
-              return false;
-            }
-
-            project_ = new Project();
-
-            project_->set_filename(GetFilename());
-
-            project_->Load(&reader, &layout_info_, project_version, &IsCancelled());
-
-            // Ensure project is in main thread
-            project_->moveToThread(qApp->thread());
-            break;
-          } else {
-            reader.skipCurrentElement();
-          }
-        }
-      } else if (reader.name() == QStringLiteral("project")) {
-        // 0.1 projects use "project" as the root instead of Olive. We don't currently support
-        // these projects
-        SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
-        return false;
-      } else {
-        reader.skipCurrentElement();
-      }
-    }
-
-    project_file.close();
-
-    emit ProgressChanged(1);
-
-    if (reader.hasError()) {
-      SetError(reader.errorString());
-      return false;
-    } else {
-      return true;
-    }
-
-  } else {
+  switch (result.code()) {
+  case ProjectSerializer::kSuccess:
+    break;
+  case ProjectSerializer::kProjectTooOld:
+    SetError(tr("This project is from a version of Olive that is no longer supported in this version."));
+    break;
+  case ProjectSerializer::kProjectTooNew:
+    SetError(tr("This project is from a newer version of Olive and cannot be opened in this version."));
+    break;
+  case ProjectSerializer::kUnknownVersion:
+    SetError(tr("Failed to determine project version."));
+    break;
+  case ProjectSerializer::kFileError:
     SetError(tr("Failed to read file \"%1\" for reading.").arg(GetFilename()));
+    break;
+  case ProjectSerializer::kXmlError:
+    SetError(tr("Failed to read XML document. File may be corrupt. Error was: %1").arg(result.GetDetails()));
+    break;
+
+    // Errors that should never be thrown by a load
+  case ProjectSerializer::kOverwriteError:
+    SetError(tr("Unknown error."));
+    break;
+  }
+
+  if (result == ProjectSerializer::kSuccess) {
+    project_->moveToThread(qApp->thread());
+    return true;
+  } else {
+    delete project_;
     return false;
   }
 }

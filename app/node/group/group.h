@@ -70,11 +70,6 @@ signals:
 
   void OutputPassthroughChanged(NodeGroup *group, Node *output);
 
-protected:
-  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled) override;
-
-  virtual void SaveCustom(QXmlStreamWriter* writer) const override;
-
 private:
   QHash<QString, NodeInput> input_passthroughs_;
 

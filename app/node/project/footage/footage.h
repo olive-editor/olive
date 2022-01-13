@@ -196,16 +196,6 @@ public:
   static const QString kLoopModeInput;
 
 protected:
-  /**
-   * @brief Load function
-   */
-  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt *cancelled) override;
-
-  /**
-   * @brief Save function
-   */
-  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
-
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
   virtual rational VerifyLengthInternal(Track::Type type) const override;

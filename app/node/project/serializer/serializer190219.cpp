@@ -18,35 +18,13 @@
 
 ***/
 
-#ifndef TIMELINEPOINTS_H
-#define TIMELINEPOINTS_H
-
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-
-#include "timelinemarker.h"
-#include "timelineworkarea.h"
+#include "serializer190219.h"
 
 namespace olive {
 
-class TimelinePoints
+ProjectSerializer::LoadData ProjectSerializer190219::Load(Project *project, QXmlStreamReader *reader, void *reserved) const
 {
-public:
-  TimelinePoints() = default;
-
-  TimelineMarkerList* markers();
-  const TimelineMarkerList* markers() const;
-
-  TimelineWorkArea* workarea();
-  const TimelineWorkArea* workarea() const;
-
-private:
-  TimelineMarkerList markers_;
-
-  TimelineWorkArea workarea_;
-
-};
-
+  return LoadData();
 }
 
-#endif // TIMELINEPOINTS_H
+}

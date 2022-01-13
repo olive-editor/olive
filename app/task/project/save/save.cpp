@@ -26,6 +26,7 @@
 
 #include "common/filefunctions.h"
 #include "core.h"
+#include "node/project/serializer/serializer.h"
 
 namespace olive {
 
@@ -39,54 +40,37 @@ bool ProjectSaveTask::Run()
 {
   QString using_filename = override_filename_.isEmpty() ? project_->filename() : override_filename_;
 
-  // File to temporarily save to (ensures we can't half-write the user's main file and crash)
-  QString temp_save = FileFunctions::GetSafeTemporaryFilename(using_filename);
+  ProjectSerializer::SaveData data(project_, using_filename);
 
-  QFile project_file(temp_save);
+  ProjectSerializer::Result result = ProjectSerializer::Save(data);
 
-  if (project_file.open(QFile::WriteOnly | QFile::Text)) {
-    QXmlStreamWriter writer(&project_file);
-    writer.setAutoFormatting(true);
+  bool success = false;
 
-    writer.writeStartDocument();
+  switch (result.code()) {
+  case ProjectSerializer::kSuccess:
+    success = true;
+    break;
+  case ProjectSerializer::kXmlError:
+    SetError(tr("Failed to write XML data."));
+    break;
+  case ProjectSerializer::kFileError:
+    SetError(tr("Failed to open file \"%1\" for writing.").arg(result.GetDetails()));
+    break;
+  case ProjectSerializer::kOverwriteError:
+    SetError(tr("Failed to overwrite \"%1\". Project has been saved as \"%2\" instead.")
+             .arg(using_filename, result.GetDetails()));
+    success = true;
+    break;
 
-    writer.writeStartElement("olive");
-
-    // Version is stored in YYMMDD from whenever the project format was last changed
-    // Allows easy integer math for checking project versions.
-    writer.writeTextElement(QStringLiteral("version"), QString::number(Project::kProjectVersion));
-
-    writer.writeTextElement("url", using_filename);
-
-    writer.writeStartElement(QStringLiteral("project"));
-
-    project_->Save(&writer);
-
-    writer.writeEndElement(); // project
-
-    writer.writeEndElement(); // olive
-
-    writer.writeEndDocument();
-
-    project_file.close();
-
-    if (writer.hasError()) {
-      SetError(tr("Failed to write XML data"));
-      return false;
-    }
-
-    // Save was successful, we can now rewrite the original file
-    if (FileFunctions::RenameFileAllowOverwrite(temp_save, using_filename)) {
-      return true;
-    } else {
-      SetError(tr("Failed to overwrite \"%1\". Project has been saved as \"%2\" instead.")
-               .arg(using_filename, temp_save));
-      return false;
-    }
-  } else {
-    SetError(tr("Failed to open temporary file \"%1\" for writing.").arg(temp_save));
-    return false;
+    // Errors that should never be thrown by a save
+  case ProjectSerializer::kProjectTooNew:
+  case ProjectSerializer::kProjectTooOld:
+  case ProjectSerializer::kUnknownVersion:
+    SetError(tr("Unknown error."));
+    break;
   }
+
+  return success;
 }
 
 }

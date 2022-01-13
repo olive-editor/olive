@@ -55,37 +55,6 @@ void TimelineWorkArea::set_range(const TimeRange &range)
   emit RangeChanged(workarea_range_);
 }
 
-void TimelineWorkArea::Load(QXmlStreamReader *reader)
-{
-  rational range_in = workarea_range_.in();
-  rational range_out = workarea_range_.out();
-
-  XMLAttributeLoop(reader, attr) {
-    if (attr.name() == QStringLiteral("enabled")) {
-      set_enabled(attr.value() != QStringLiteral("0"));
-    } else if (attr.name() == QStringLiteral("in")) {
-      range_in = rational::fromString(attr.value().toString());
-    } else if (attr.name() == QStringLiteral("out")) {
-      range_out = rational::fromString(attr.value().toString());
-    }
-  }
-
-  TimeRange loaded_workarea(range_in, range_out);
-
-  if (loaded_workarea != workarea_range_) {
-    set_range(loaded_workarea);
-  }
-
-  reader->skipCurrentElement();
-}
-
-void TimelineWorkArea::Save(QXmlStreamWriter *writer) const
-{
-  writer->writeAttribute(QStringLiteral("enabled"), QString::number(workarea_enabled_));
-  writer->writeAttribute(QStringLiteral("in"), workarea_range_.in().toString());
-  writer->writeAttribute(QStringLiteral("out"), workarea_range_.out().toString());
-}
-
 const rational &TimelineWorkArea::in() const
 {
   return workarea_range_.in();

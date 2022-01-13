@@ -83,6 +83,20 @@ void NodeGraph::childEvent(QChildEvent *event)
       emit NodeAdded(node);
       emit node->AddedToGraph(this);
 
+      // Emit input connections
+      for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+        if (nodes().contains(it->second)) {
+          emit InputConnected(it->second, it->first);
+        }
+      }
+
+      // Emit output connections
+      for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+        if (nodes().contains(it->second.node())) {
+          emit InputConnected(it->first, it->second);
+        }
+      }
+
     } else if (event->type() == QEvent::ChildRemoved) {
 
       node_children_.removeOne(node);

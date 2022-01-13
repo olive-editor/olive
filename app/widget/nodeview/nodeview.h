@@ -127,8 +127,8 @@ protected:
 
   virtual bool eventFilter(QObject *object, QEvent *event) override;
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata) override;
-  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
+  virtual void CopyNodesToClipboardCallback(const QVector<Node *> &nodes, ProjectSerializer::SaveData *data, void* userdata) override;
+  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &ldata, void *userdata) override;
 
   virtual void changeEvent(QEvent *e) override;
 
@@ -155,8 +155,6 @@ private:
 
   void PositionNewEdge(const QPoint &pos);
 
-  void PasteNodesInternal(const QVector<Node*> &duplicate_nodes = QVector<Node *>());
-
   void AddContext(Node *n);
 
   void RemoveContext(Node *n);
@@ -168,6 +166,8 @@ private:
   void CollapseItem(NodeViewItem *item);
 
   void EndEdgeDrag(bool cancel = false);
+
+  void PostPaste(const QVector<Node*> &new_nodes, const Node::PositionMap &map);
 
   NodeViewMiniMap *minimap_;
 

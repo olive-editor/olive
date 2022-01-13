@@ -14,17 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(folder)
-add_subdirectory(footage)
-add_subdirectory(projectsettings)
-add_subdirectory(sequence)
-add_subdirectory(serializer)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/project/project.h
-  node/project/project.cpp
-  node/project/projectviewmodel.h
-  node/project/projectviewmodel.cpp
+  node/project/serializer/serializer.cpp
+  node/project/serializer/serializer.h
+  node/project/serializer/serializer190219.cpp
+  node/project/serializer/serializer190219.h
+  node/project/serializer/serializer210528.cpp
+  node/project/serializer/serializer210528.h
+  node/project/serializer/serializer210907.cpp
+  node/project/serializer/serializer210907.h
+  node/project/serializer/serializer211228.cpp
+  node/project/serializer/serializer211228.h
   PARENT_SCOPE
 )

@@ -72,23 +72,6 @@ void Footage::Retranslate()
   SetComboBoxStrings(kLoopModeInput, {tr("None"), tr("Loop"), tr("Clamp")});
 }
 
-bool Footage::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
-{
-  if (reader->name() == QStringLiteral("timestamp")) {
-    set_timestamp(reader->readElementText().toLongLong());
-    return true;
-  } else {
-    return super::LoadCustom(reader, xml_node_data, version, cancelled);
-  }
-}
-
-void Footage::SaveCustom(QXmlStreamWriter *writer) const
-{
-  super::SaveCustom(writer);
-
-  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(timestamp_));
-}
-
 void Footage::InputValueChangedEvent(const QString &input, int element)
 {
   if (input == kFilenameInput) {

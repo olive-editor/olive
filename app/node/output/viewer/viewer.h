@@ -237,10 +237,6 @@ protected:
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
-
-  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
-
   int AddStream(Track::Type type, const QVariant &value);
 
 private:
