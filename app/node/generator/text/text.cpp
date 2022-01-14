@@ -20,6 +20,8 @@
 
 #include "text.h"
 
+#include "common/clamp.h"
+#include "widget/slider/floatslider.h"
 #include <QAbstractTextDocumentLayout>
 #include <QDateTime>
 #include <QTextDocument>
@@ -47,6 +49,7 @@ const QString TextGenerator::kHtmlInput = QStringLiteral("html_in");
 const QString TextGenerator::kVAlignInput = QStringLiteral("valign_in");
 const QString TextGenerator::kFontInput = QStringLiteral("font_in");
 const QString TextGenerator::kFontSizeInput = QStringLiteral("font_size_in");
+const QString TextGenerator::kTextTypewriterInput = QStringLiteral("text_typewriter_in");
 
 TextGenerator::TextGenerator()
 {
@@ -59,6 +62,12 @@ TextGenerator::TextGenerator()
   AddInput(kFontInput, NodeValue::kFont);
 
   AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
+
+  AddInput(kTextTypewriterInput, NodeValue::kFloat, 100);
+  SetInputProperty(kTextTypewriterInput, QStringLiteral("min"), 0.0f);
+  SetInputProperty(kTextTypewriterInput, QStringLiteral("max"), GetStandardValue(kTextInput).toString().length());
+  SetInputProperty(kTextTypewriterInput, QStringLiteral("view"), FloatSlider::kNormal);
+  SetInputProperty(kTextTypewriterInput, QStringLiteral("decimalplaces"), 0);
 
   SetStandardValue(kColorInput, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
   SetStandardValue(kSizeInput, QVector2D(400, 300));
@@ -94,6 +103,7 @@ void TextGenerator::Retranslate()
   SetInputName(kFontSizeInput, tr("Font Size"));
   SetInputName(kVAlignInput, tr("Vertical Align"));
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
+  SetInputName(kTextTypewriterInput, tr("Text typewriter progress"));
 }
 
 void TextGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
@@ -136,7 +146,9 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
     html.replace('\n', QStringLiteral("<br>"));
     text_doc.setHtml(html);
   } else {
-    text_doc.setPlainText(html);
+    int length = clamp(job.GetValue(kTextTypewriterInput).data().toInt(), 0, html.length());
+    QString trimmed_text = html.mid(0, length);
+    text_doc.setPlainText(trimmed_text);
   }
 
   QVector2D size = job.GetValue(kSizeInput).data().value<QVector2D>();
@@ -201,5 +213,17 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
     }
   }
 }
+
+void TextGenerator::InputValueChangedEvent(const QString &input, int element)
+{
+  Q_UNUSED(element)
+
+  if (input == kTextInput) {
+    SetInputProperty(kTextTypewriterInput, QStringLiteral("max"), GetStandardValue(kTextInput).toString().length());
+  } else if (input == kHtmlInput) {
+    SetInputProperty(kTextTypewriterInput, QStringLiteral("enabled"), ! GetStandardValue(kHtmlInput).toBool());
+  }
+}
+
 
 }

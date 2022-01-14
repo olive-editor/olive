@@ -45,11 +45,14 @@ public:
 
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
+  virtual void InputValueChangedEvent(const QString &input, int element);
+
   static const QString kTextInput;
   static const QString kHtmlInput;
   static const QString kVAlignInput;
   static const QString kFontInput;
   static const QString kFontSizeInput;
+  static const QString kTextTypewriterInput;
 
 };
 
