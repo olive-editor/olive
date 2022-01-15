@@ -138,6 +138,8 @@ void PreferencesAudioTab::RefreshBackends()
   }
 
   RefreshDevices();
+
+  AttemptToSetDevicesFromConfig();
 }
 
 void PreferencesAudioTab::RefreshDevices()
@@ -164,8 +166,6 @@ void PreferencesAudioTab::RefreshDevices()
       audio_input_devices_->addItem(device->name, device_index);
     }
   }
-
-  AttemptToSetDevicesFromConfig();
 }
 
 void PreferencesAudioTab::HardRefreshBackends()
