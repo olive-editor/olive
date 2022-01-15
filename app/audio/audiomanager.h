@@ -49,12 +49,6 @@ public:
 
   static AudioManager* instance();
 
-  void RefreshDevices();
-
-  bool IsRefreshingOutputs();
-
-  bool IsRefreshingInputs();
-
   void SetOutputNotifyInterval(int n);
 
   void PushToOutput(const AudioParams &params, const QByteArray& samples);
@@ -63,16 +57,27 @@ public:
 
   void StopOutput();
 
+  PaDeviceIndex GetOutputDevice() const
+  {
+    return output_device_;
+  }
+
+  PaDeviceIndex GetInputDevice() const
+  {
+    return input_device_;
+  }
+
   void SetOutputDevice(PaDeviceIndex device);
 
   void SetInputDevice(PaDeviceIndex device);
 
+  void HardReset();
+
+  static PaDeviceIndex FindConfigDeviceByName(bool is_output_device);
+  static PaDeviceIndex FindDeviceByName(const QString &s, bool is_output_device);
+
 signals:
-  void OutputListReady();
-
   void OutputNotify();
-
-  void InputListReady();
 
 private:
   AudioManager();
@@ -83,9 +88,6 @@ private:
 
   void CloseOutputStream();
 
-  bool is_refreshing_inputs_;
-  bool is_refreshing_outputs_;
-
   static AudioManager* instance_;
 
   PaDeviceIndex output_device_;
@@ -94,11 +96,6 @@ private:
   PreviewAudioDevice *output_buffer_;
 
   PaDeviceIndex input_device_;
-
-private slots:
-  void OutputDevicesRefreshed();
-
-  void InputDevicesRefreshed();
 
 };
 
