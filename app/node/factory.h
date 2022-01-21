@@ -90,6 +90,8 @@ private:
 
   static QVector<int> hidden_;
 
+private:
+  static void CreateCustomFilters();
 };
 
 }
