@@ -752,7 +752,17 @@ void NodeView::CreateNodeSlot(QAction *action)
     new_item->SetFlowDirection(scene_.GetFlowDirection());
     scene_.addItem(new_item);
 
-    SetAttachedItems({{new_item, new_node, QPointF(0, 0)}});
+    QVector<AttachedItem> new_attached;
+
+    new_attached.append({new_item, new_node, QPointF(0, 0)});
+
+    if (NodeGroup *new_group = dynamic_cast<NodeGroup*>(new_node)) {
+      for (auto it=new_group->GetContextPositions().cbegin(); it!=new_group->GetContextPositions().cend(); it++) {
+        new_attached.append({nullptr, it.key(), QPointF(0, 0)});
+      }
+    }
+
+    SetAttachedItems(new_attached);
   }
 }
 
