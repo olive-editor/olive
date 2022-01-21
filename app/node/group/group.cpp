@@ -128,7 +128,15 @@ bool NodeGroup::ContainsInputPassthrough(const NodeInput &input) const
 
 QString NodeGroup::GetInputName(const QString &id) const
 {
-  return input_passthroughs_.value(id).name();
+  // If an override name was set, use that
+  QString override = super::GetInputName(id);
+  if (!override.isEmpty()) {
+    return override;
+  }
+
+  // Call GetInputName of passed through node, which may be another group
+  NodeInput pass = input_passthroughs_.value(id);
+  return pass.node()->GetInputName(pass.input());
 }
 
 void NodeGroupAddInputPassthrough::redo()
