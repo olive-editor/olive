@@ -90,6 +90,8 @@ public:
     kCategoryTransition,
     kCategoryDistort,
     kCategoryProject,
+    kCategoryVideoEffect,
+    kCategoryAudioEffect,
 
     kCategoryCount
   };

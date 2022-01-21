@@ -31,6 +31,7 @@
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
+#include "effect/opacity/opacityeffect.h"
 #include "generator/matrix/matrix.h"
 #include "generator/polygon/polygon.h"
 #include "generator/shape/shapenode.h"
@@ -252,6 +253,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new ShapeNode();
   case kGroupNode:
     return new NodeGroup();
+  case kOpacityEffect:
+    return new OpacityEffect();
 
   case kInternalNodeCount:
     break;

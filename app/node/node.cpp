@@ -1643,6 +1643,10 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Transition");
   case kCategoryProject:
     return tr("Project");
+  case kCategoryVideoEffect:
+    return tr("Video Effect");
+  case kCategoryAudioEffect:
+    return tr("Audio Effect");
   case kCategoryUnknown:
   case kCategoryCount:
     break;
