@@ -58,14 +58,14 @@ void NodeGroup::Retranslate()
   }
 }
 
-void NodeGroup::AddInputPassthrough(const NodeInput &input)
+QString NodeGroup::AddInputPassthrough(const NodeInput &input)
 {
   Q_ASSERT(ContextContainsNode(input.node()));
 
   for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
     if (it.value() == input) {
       // Already passing this input through
-      return;
+      return it.key();
     }
   }
 
@@ -77,6 +77,8 @@ void NodeGroup::AddInputPassthrough(const NodeInput &input)
   input_passthroughs_.insert(id, input);
 
   emit InputPassthroughAdded(this, input);
+
+  return id;
 }
 
 void NodeGroup::RemoveInputPassthrough(const NodeInput &input)

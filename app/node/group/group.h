@@ -41,7 +41,7 @@ public:
 
   virtual void Retranslate() override;
 
-  void AddInputPassthrough(const NodeInput &input);
+  QString AddInputPassthrough(const NodeInput &input);
 
   void RemoveInputPassthrough(const NodeInput &input);
 
