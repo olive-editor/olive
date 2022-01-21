@@ -97,6 +97,8 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
 
   int insert_row = 0;
 
+  QVector<Node*> connected_signals;
+
   // Create widgets all root level components
   foreach (QString input, node->inputs()) {
     Node *n = node;
@@ -104,6 +106,14 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
       const NodeInput &ni = g->GetInputPassthroughs().value(input);
       n = ni.node();
       input = ni.input();
+    }
+
+    if (!connected_signals.contains(n)) {
+      connect(n, &Node::InputArraySizeChanged, this, &NodeParamViewItemBody::InputArraySizeChanged);
+      connect(n, &Node::InputConnected, this, &NodeParamViewItemBody::EdgeChanged);
+      connect(n, &Node::InputDisconnected, this, &NodeParamViewItemBody::EdgeChanged);
+
+      connected_signals.append(n);
     }
 
     if (!(n->GetInputFlags(input) & kInputFlagHidden)) {
@@ -137,10 +147,6 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
       }
     }
   }
-
-  connect(node, &Node::InputArraySizeChanged, this, &NodeParamViewItemBody::InputArraySizeChanged);
-  connect(node, &Node::InputConnected, this, &NodeParamViewItemBody::EdgeChanged);
-  connect(node, &Node::InputDisconnected, this, &NodeParamViewItemBody::EdgeChanged);
 }
 
 void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const QString &input, int element, int row)
