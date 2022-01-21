@@ -500,29 +500,32 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
+  Node *select_context = nullptr;
+  QVector<Node*> select_nodes;
+
   if (!attached_items_.isEmpty()) {
-    Node *context = nullptr;
+    select_context = nullptr;
 
     QList<QGraphicsItem*> items_at_cursor = this->items(event->pos());
     foreach (QGraphicsItem *i, items_at_cursor) {
       if (NodeViewContext *context_item = dynamic_cast<NodeViewContext*>(i)) {
-        context = context_item->GetContext();
+        select_context = context_item->GetContext();
         break;
       }
     }
 
-    if (context) {
+    if (select_context) {
       {
         MultiUndoCommand *add_command = new MultiUndoCommand();
 
         foreach (const AttachedItem &ai, attached_items_) {
           // Add node to the same graph that the context is in
-          add_command->add_child(new NodeAddCommand(context->parent(), ai.node));
+          add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
 
           // Add node to the context
           if (ai.item) {
-            qDebug() << "Placing an item!";
-            add_command->add_child(new NodeSetPositionCommand(ai.node, context, scene_.context_map().value(context)->MapScenePosToNodePosInContext(ai.item->pos())));
+            add_command->add_child(new NodeSetPositionCommand(ai.node, select_context, scene_.context_map().value(select_context)->MapScenePosToNodePosInContext(ai.item->pos())));
+            select_nodes.append(ai.node);
           }
         }
 
@@ -584,6 +587,10 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   super::mouseReleaseEvent(event);
+
+  if (select_context) {
+    scene_.context_map().value(select_context)->Select(select_nodes);
+  }
 }
 
 void NodeView::mouseDoubleClickEvent(QMouseEvent *event)
