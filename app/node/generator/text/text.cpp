@@ -24,12 +24,7 @@
 #include <QDateTime>
 #include <QTextDocument>
 
-#if defined(Q_PROCESSOR_X86)
-#include <xmmintrin.h>
-#elif defined(Q_PROCESSOR_ARM)
-#include <sse2neon.h>
-#endif
-
+#include "common/cpuoptimize.h"
 #include "common/functiontimer.h"
 
 namespace olive {

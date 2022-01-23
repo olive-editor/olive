@@ -23,12 +23,7 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
-#if defined(Q_PROCESSOR_X86)
-#include <xmmintrin.h>
-#elif defined(Q_PROCESSOR_ARM)
-#include <sse2neon.h>
-#endif
-
+#include "common/cpuoptimize.h"
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "render/color.h"
