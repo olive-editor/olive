@@ -40,7 +40,7 @@ ProjectSerializer210907::LoadData ProjectSerializer210907::Load(Project *project
           // can continue loading and queue it with the main window so it can handle the data
           // appropriately in its own thread.
 
-          project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data));
+          project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data.node_ptrs));
 
         } else if (reader->name() == QStringLiteral("uuid")) {
 
@@ -219,7 +219,7 @@ void ProjectSerializer210907::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
             }
           }
 
-          xml_node_data.desired_connections.append({NodeInput(node, param_id, ele), output_node_id.toULongLong(), QString()});
+          xml_node_data.desired_connections.append({NodeInput(node, param_id, ele), output_node_id.toULongLong()});
         } else {
           reader->skipCurrentElement();
         }

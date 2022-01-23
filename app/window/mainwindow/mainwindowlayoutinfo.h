@@ -13,7 +13,7 @@ public:
 
   void toXml(QXmlStreamWriter* writer) const;
 
-  static MainWindowLayoutInfo fromXml(QXmlStreamReader* reader, XMLNodeData &xml_data);
+  static MainWindowLayoutInfo fromXml(QXmlStreamReader* reader, const QHash<quintptr, Node*> &node_map);
 
   void add_folder(Folder* f);
 

@@ -40,7 +40,7 @@ ProjectSerializer210528::LoadData ProjectSerializer210528::Load(Project *project
           // can continue loading and queue it with the main window so it can handle the data
           // appropriately in its own thread.
 
-          project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data));
+          project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data.node_ptrs));
 
         } else if (reader->name() == QStringLiteral("uuid")) {
 

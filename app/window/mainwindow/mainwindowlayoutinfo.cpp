@@ -32,7 +32,7 @@ void MainWindowLayoutInfo::toXml(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // layout
 }
 
-MainWindowLayoutInfo MainWindowLayoutInfo::fromXml(QXmlStreamReader *reader, XMLNodeData &xml_data)
+MainWindowLayoutInfo MainWindowLayoutInfo::fromXml(QXmlStreamReader *reader, const QHash<quintptr, Node *> &node_ptrs)
 {
   MainWindowLayoutInfo info;
 
@@ -43,7 +43,7 @@ MainWindowLayoutInfo MainWindowLayoutInfo::fromXml(QXmlStreamReader *reader, XML
         if (reader->name() == QStringLiteral("folder")) {
           quintptr item_id = reader->readElementText().toULongLong();
 
-          Folder* open_item = static_cast<Folder*>(xml_data.node_ptrs.value(item_id));
+          Folder* open_item = static_cast<Folder*>(node_ptrs.value(item_id));
           info.open_folders_.append(open_item);
         } else {
           reader->skipCurrentElement();
@@ -59,7 +59,7 @@ MainWindowLayoutInfo MainWindowLayoutInfo::fromXml(QXmlStreamReader *reader, XML
         if (reader->name() == QStringLiteral("sequence")) {
           quintptr item_id = reader->readElementText().toULongLong();
 
-          open_seq = static_cast<Sequence*>(xml_data.node_ptrs.value(item_id));
+          open_seq = static_cast<Sequence*>(node_ptrs.value(item_id));
         } else if (reader->name() == QStringLiteral("state")) {
           tl_state = QByteArray::fromBase64(reader->readElementText().toUtf8());
         } else {

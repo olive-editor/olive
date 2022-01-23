@@ -36,37 +36,6 @@ class NodeGroup;
 #define XMLAttributeLoop(reader, item) \
   foreach (const QXmlStreamAttribute& item, reader->attributes())
 
-struct XMLNodeData {
-  struct SerializedConnection {
-    NodeInput input;
-    quintptr output_node;
-
-    /// Deprecated
-    QString output_param;
-  };
-
-  struct BlockLink {
-    Node* block;
-    quintptr link;
-  };
-
-  struct GroupLink {
-    NodeGroup *group;
-    quintptr input_node;
-    QString input_id;
-    int input_element;
-  };
-
-  QHash<quintptr, Node*> node_ptrs;
-  QList<SerializedConnection> desired_connections;
-  QList<BlockLink> block_links;
-  QVector<GroupLink> group_input_links;
-  QHash<NodeGroup*, quintptr> group_output_links;
-
-  void PostConnect(uint version, MultiUndoCommand *command = nullptr) const;
-
-};
-
 /**
  * @brief Workaround for QXmlStreamReader::readNextStartElement not detecting the end of a document
  *
