@@ -21,7 +21,10 @@
 #include "polygon.h"
 
 #include <QGuiApplication>
+#include <QPainterPath>
 #include <QVector2D>
+
+#include "common/cpuoptimize.h"
 
 namespace olive {
 
@@ -36,16 +39,16 @@ PolygonGenerator::PolygonGenerator()
 
   // The Default Pentagon(tm)
   InputArrayResize(kPointsInput, 5);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 960, 0);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, 240, 0);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 640, 1);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, 480, 1);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 760, 2);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, 800, 2);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 1100, 3);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, 800, 3);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 1200, 4);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, 480, 4);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 0, 0);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, -146, 0);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, -142, 1);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, -45, 1);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, -87, 2);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, 123, 2);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 87, 3);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, 123, 3);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 142, 4);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, -44, 4);
 }
 
 Node *PolygonGenerator::copy() const
@@ -79,22 +82,75 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderCode PolygonGenerator::GetShaderCode(const QString &shader_id) const
-{
-  Q_UNUSED(shader_id)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/polygon.frag")));
-}
-
 void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
+  GenerateJob job;
 
   job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.SetRequestedFormat(VideoParams::kFormatFloat32);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+}
+
+void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const
+{
+  // This could probably be more optimized, but for now we use Qt to draw to a QImage.
+  // QImages only support integer pixels and we use float pixels, so what we do here is draw onto
+  // a single-channel QImage (alpha only) and then transplant that alpha channel to our float buffer
+  // with correct float RGB.
+  QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
+  img.fill(Qt::transparent);
+
+  QPainterPath path;
+
+  QVector<NodeValue> points = job.GetValue(kPointsInput).data().value< QVector<NodeValue> >();
+
+  if (!points.isEmpty()) {
+    path.moveTo(points.first().data().value<QVector2D>().toPointF());
+
+    // TODO: Implement bezier
+    for (int i=1; i<points.size(); i++) {
+      path.lineTo(points.at(i).data().value<QVector2D>().toPointF());
+    }
+  }
+
+  QPainter p(&img);
+  double par = frame->video_params().pixel_aspect_ratio().toDouble();
+  p.scale(1.0 / frame->video_params().divider() / par, 1.0 / frame->video_params().divider());
+  p.translate(frame->video_params().width()/2 * par, frame->video_params().height()/2);
+  p.setBrush(Qt::white);
+  p.setPen(Qt::NoPen);
+
+  p.drawPath(path);
+
+  // Transplant alpha channel to frame
+  Color rgba = job.GetValue(kColorInput).data().value<Color>();
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+  __m128 sse_color = _mm_loadu_ps(rgba.data());
+#endif
+
+  float *frame_dst = reinterpret_cast<float*>(frame->data());
+  for (int y=0; y<frame->height(); y++) {
+    uchar *src_y = img.bits() + img.bytesPerLine() * y;
+    float *dst_y = frame_dst + y*frame->linesize_pixels()*VideoParams::kRGBAChannelCount;
+
+    for (int x=0; x<frame->width(); x++) {
+      float alpha = float(src_y[x]) / 255.0f;
+      float *dst = dst_y + x*VideoParams::kRGBAChannelCount;
+
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+      __m128 sse_alpha = _mm_load1_ps(&alpha);
+      __m128 sse_res = _mm_mul_ps(sse_color, sse_alpha);
+
+      _mm_store_ps(dst, sse_res);
+#else
+      for (int i=0; i<VideoParams::kRGBAChannelCount; i++) {
+        dst[i] = rgba.data()[i] * alpha;
+      }
+#endif
+    }
+  }
 }
 
 bool PolygonGenerator::HasGizmos() const
