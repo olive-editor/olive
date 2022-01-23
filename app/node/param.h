@@ -57,6 +57,19 @@ public:
     return f_ & f;
   }
 
+  InputFlags operator|(const InputFlags &f) const
+  {
+    InputFlags i = *this;
+    i |= f;
+    return i;
+  }
+
+  InputFlags &operator|=(const InputFlags &f)
+  {
+    f_ |= f.f_;
+    return *this;
+  }
+
 private:
   uint64_t f_;
 

@@ -58,7 +58,7 @@ void NodeGroup::Retranslate()
   }
 }
 
-QString NodeGroup::AddInputPassthrough(const NodeInput &input)
+QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags &flags)
 {
   Q_ASSERT(ContextContainsNode(input.node()));
 
@@ -72,7 +72,7 @@ QString NodeGroup::AddInputPassthrough(const NodeInput &input)
   // Add input
   QString id = GetGroupInputIDFromInput(input);
 
-  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags());
+  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags() | flags);
 
   input_passthroughs_.insert(id, input);
 
