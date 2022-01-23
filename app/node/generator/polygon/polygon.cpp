@@ -37,18 +37,24 @@ PolygonGenerator::PolygonGenerator()
 
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0, 1.0, 1.0)));
 
+  const int kMiddleX = 135;
+  const int kMiddleY = 45;
+  const int kBottomX = 90;
+  const int kBottomY = 120;
+  const int kTopY = 135;
+
   // The Default Pentagon(tm)
   InputArrayResize(kPointsInput, 5);
   SetSplitStandardValueOnTrack(kPointsInput, 0, 0, 0);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, -146, 0);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, -142, 1);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, -45, 1);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, -87, 2);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, 123, 2);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 87, 3);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, 123, 3);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 142, 4);
-  SetSplitStandardValueOnTrack(kPointsInput, 1, -44, 4);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, -kTopY, 0);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, -kMiddleX, 1);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, -kMiddleY, 1);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, -kBottomX, 2);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, kBottomY, 2);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, kBottomX, 3);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, kBottomY, 3);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, kMiddleX, 4);
+  SetSplitStandardValueOnTrack(kPointsInput, 1, -kMiddleY, 4);
 }
 
 Node *PolygonGenerator::copy() const
