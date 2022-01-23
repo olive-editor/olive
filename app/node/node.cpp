@@ -755,7 +755,7 @@ void Node::InputArrayInsert(const QString &id, int index, bool undoable)
     // Move connections down
     InputConnections copied_edges = input_connections();
     for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
-      if (it->first.element() >= index) {
+      if (it->first.input() == id && it->first.element() >= index) {
         // Disconnect this and reconnect it one element down
         NodeInput new_edge = it->first;
         new_edge.set_element(new_edge.element() + 1);
@@ -802,7 +802,7 @@ void Node::InputArrayRemove(const QString &id, int index, bool undoable)
     // Move connections up
     InputConnections copied_edges = input_connections();
     for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-      if (it->first.element() >= index) {
+      if (it->first.input() == id && it->first.element() >= index) {
         // Disconnect this and reconnect it one element up if it's not the element being removed
         DisconnectEdge(it->second, it->first);
 
