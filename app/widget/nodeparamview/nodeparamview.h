@@ -89,6 +89,8 @@ public slots:
 
   void SetContexts(const QVector<Node*> &contexts);
 
+  void UpdateElementY();
+
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
 
@@ -152,8 +154,6 @@ private slots:
   void FocusChanged(QWidget *old, QWidget *now);
 
   void KeyframeViewDragged(int x, int y);
-
-  void UpdateElementY();
 
   void NodeAddedToContext(Node *n);
 
