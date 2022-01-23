@@ -15,7 +15,7 @@ OpacityEffect::OpacityEffect()
 
   SetNodePositionInContext(math, QPointF(0, 0));
 
-  tex_in_pass_ = AddInputPassthrough(NodeInput(math, MathNode::kParamAIn));
+  tex_in_pass_ = AddInputPassthrough(NodeInput(math, MathNode::kParamAIn), InputFlags(kInputFlagNotKeyframable));
   SetInputDataType(tex_in_pass_, NodeValue::kTexture);
 
   value_in_pass_ = AddInputPassthrough(NodeInput(math, MathNode::kParamBIn));
