@@ -1,6 +1,7 @@
 #ifndef TOHEX_H
 #define TOHEX_H
 
+#include <QString>
 #include <QtGlobal>
 
 #include "common/define.h"
