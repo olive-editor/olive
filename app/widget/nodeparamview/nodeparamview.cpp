@@ -246,7 +246,7 @@ void NodeParamView::SetInputChecked(const NodeInput &input, bool e)
 
 void NodeParamView::SetContexts(const QVector<Node *> &contexts)
 {
-  TIME_THIS_FUNCTION;
+  //TIME_THIS_FUNCTION;
 
   foreach (NodeParamViewContext *ctx, context_items_) {
     ctx->Clear();
