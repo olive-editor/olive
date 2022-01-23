@@ -141,7 +141,7 @@ int NodeTraverser::GenerateRowValueElementIndex(const Node *node, const QString 
 
 NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const TimeRange &time)
 {
-  return NodeGlobals(QVector2D(params.width(), params.height()), time);
+  return NodeGlobals(QVector2D(params.width(), params.height()), params.pixel_aspect_ratio(), time);
 }
 
 int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
