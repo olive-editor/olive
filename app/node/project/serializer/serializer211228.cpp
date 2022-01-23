@@ -300,7 +300,6 @@ void ProjectSerializer211228::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
     } else if (reader->name() == QStringLiteral("ptr")) {
       quintptr ptr = reader->readElementText().toULongLong();
       xml_node_data.node_ptrs.insert(ptr, node);
-      qDebug() << "Inserting" << ptr << "as" << node;
     } else if (reader->name() == QStringLiteral("label")) {
       node->SetLabel(reader->readElementText());
     } else if (reader->name() == QStringLiteral("uuid")) {
@@ -544,7 +543,7 @@ void ProjectSerializer211228::LoadImmediate(QXmlStreamReader *reader, Node *node
             QString value_text = reader->readElementText();
 
             if (!value_text.isEmpty()) {
-              value_on_track = NodeValue::StringToValue(data_type, value_text, element);
+              value_on_track = NodeValue::StringToValue(data_type, value_text, true);
             }
           }
 

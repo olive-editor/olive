@@ -342,7 +342,7 @@ void ProjectSerializer210528::LoadImmediate(QXmlStreamReader *reader, Node *node
             QString value_text = reader->readElementText();
 
             if (!value_text.isEmpty()) {
-              value_on_track = NodeValue::StringToValue(data_type, value_text, element);
+              value_on_track = NodeValue::StringToValue(data_type, value_text, true);
             }
           }
 
