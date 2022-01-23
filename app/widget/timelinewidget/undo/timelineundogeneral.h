@@ -163,6 +163,32 @@ private:
 
 };
 
+class TimelineRemoveTrackCommand : public UndoCommand
+{
+public:
+  TimelineRemoveTrackCommand(Track *track) :
+    track_(track)
+  {}
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return track_->project();
+  }
+
+protected:
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Track *track_;
+
+  TrackList *list_;
+
+  int index_;
+
+};
+
 class TransitionRemoveCommand : public UndoCommand {
 public:
   TransitionRemoveCommand(TransitionBlock* block, bool remove_from_graph) :

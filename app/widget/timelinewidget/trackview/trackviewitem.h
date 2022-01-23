@@ -61,6 +61,10 @@ private slots:
 
   void UpdateLabel();
 
+  void ShowContextMenu(const QPoint &p);
+
+  void DeleteTrack();
+
 };
 
 }

@@ -26,6 +26,10 @@
 #include <QPainter>
 #include <QtMath>
 
+#include "core.h"
+#include "widget/menu/menu.h"
+#include "widget/timelinewidget/undo/timelineundogeneral.h"
+
 namespace olive {
 
 TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
@@ -63,8 +67,10 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
   layout->addWidget(lock_button_);
 
   setMinimumHeight(mute_button_->height());
+  setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(track, &Track::MutedChanged, mute_button_, &QPushButton::setChecked);
+  connect(this, &QWidget::customContextMenuRequested, this, &TrackViewItem::ShowContextMenu);
 }
 
 QPushButton *TrackViewItem::CreateMSLButton(const QString& text, const QColor& checked_color) const
@@ -112,6 +118,21 @@ void TrackViewItem::LineEditCancelled()
 void TrackViewItem::UpdateLabel()
 {
   label_->setText(track_->GetLabelOrName());
+}
+
+void TrackViewItem::ShowContextMenu(const QPoint &p)
+{
+  Menu m(this);
+
+  QAction *delete_action = m.addAction(tr("&Delete"));
+  connect(delete_action, &QAction::triggered, this, &TrackViewItem::DeleteTrack, Qt::QueuedConnection);
+
+  m.exec(mapToGlobal(p));
+}
+
+void TrackViewItem::DeleteTrack()
+{
+  Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_));
 }
 
 }

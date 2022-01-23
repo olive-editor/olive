@@ -591,4 +591,22 @@ void TrackReplaceBlockWithGapCommand::CreateRemoveTransitionCommandIfNecessary(b
   }
 }
 
+void TimelineRemoveTrackCommand::redo()
+{
+  list_ = track_->sequence()->track_list(track_->type());
+
+  index_ = list_->GetArrayIndexFromCacheIndex(track_->Index());
+
+  Node::DisconnectEdge(track_, list_->track_input(index_));
+
+  list_->parent()->InputArrayRemove(list_->track_input(), index_);
+}
+
+void TimelineRemoveTrackCommand::undo()
+{
+  list_->parent()->InputArrayInsert(list_->track_input(), index_);
+
+  Node::ConnectEdge(track_, list_->track_input(index_));
+}
+
 }
