@@ -13,6 +13,9 @@
 CmakeSettings.json
 *.code-workspace
 
+# clangd's index and likely other things that need not be in the repository
+.cache/
+
 # macOS General
 .DS_Store
 .AppleDouble
