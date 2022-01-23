@@ -580,7 +580,7 @@ void NodeParamView::UpdateElementY()
       if (!connections.isEmpty()) {
         foreach (const QString& input, it.key()->inputs()) {
           if (!(it.key()->GetInputFlags(input) & kInputFlagHidden)) {
-            int arr_sz = it.key()->InputArraySize(input);
+            int arr_sz = NodeGroup::ResolveInput(NodeInput(it.key(), input)).GetArraySize();
 
             for (int i=-1; i<arr_sz; i++) {
               NodeInput ic = {it.key(), input, i};

@@ -63,6 +63,9 @@ public:
 
   virtual QString GetInputName(const QString& id) const override;
 
+  static NodeInput ResolveInput(NodeInput input);
+  static bool GetInner(NodeInput *input);
+
 signals:
   void InputPassthroughAdded(NodeGroup *group, const NodeInput &input);
 

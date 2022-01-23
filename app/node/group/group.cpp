@@ -139,6 +139,25 @@ QString NodeGroup::GetInputName(const QString &id) const
   return pass.node()->GetInputName(pass.input());
 }
 
+NodeInput NodeGroup::ResolveInput(NodeInput input)
+{
+  while (GetInner(&input)) {}
+
+  return input;
+}
+
+bool NodeGroup::GetInner(NodeInput *input)
+{
+  if (NodeGroup *g = dynamic_cast<NodeGroup*>(input->node())) {
+    const NodeInput &passthrough = g->GetInputPassthroughs().value(input->input());
+    input->set_node(passthrough.node());
+    input->set_input(passthrough.input());
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void NodeGroupAddInputPassthrough::redo()
 {
   if (!group_->ContainsInputPassthrough(input_)) {
