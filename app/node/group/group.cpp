@@ -58,25 +58,27 @@ void NodeGroup::Retranslate()
   }
 }
 
-void NodeGroup::AddInputPassthrough(const NodeInput &input)
+QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags &flags)
 {
   Q_ASSERT(ContextContainsNode(input.node()));
 
   for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
     if (it.value() == input) {
       // Already passing this input through
-      return;
+      return it.key();
     }
   }
 
   // Add input
   QString id = GetGroupInputIDFromInput(input);
 
-  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags());
+  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags() | flags);
 
   input_passthroughs_.insert(id, input);
 
   emit InputPassthroughAdded(this, input);
+
+  return id;
 }
 
 void NodeGroup::RemoveInputPassthrough(const NodeInput &input)
@@ -126,7 +128,34 @@ bool NodeGroup::ContainsInputPassthrough(const NodeInput &input) const
 
 QString NodeGroup::GetInputName(const QString &id) const
 {
-  return input_passthroughs_.value(id).name();
+  // If an override name was set, use that
+  QString override = super::GetInputName(id);
+  if (!override.isEmpty()) {
+    return override;
+  }
+
+  // Call GetInputName of passed through node, which may be another group
+  NodeInput pass = input_passthroughs_.value(id);
+  return pass.node()->GetInputName(pass.input());
+}
+
+NodeInput NodeGroup::ResolveInput(NodeInput input)
+{
+  while (GetInner(&input)) {}
+
+  return input;
+}
+
+bool NodeGroup::GetInner(NodeInput *input)
+{
+  if (NodeGroup *g = dynamic_cast<NodeGroup*>(input->node())) {
+    const NodeInput &passthrough = g->GetInputPassthroughs().value(input->input());
+    input->set_node(passthrough.node());
+    input->set_input(passthrough.input());
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void NodeGroupAddInputPassthrough::redo()

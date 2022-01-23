@@ -123,6 +123,8 @@ void NodeViewContext::RemoveChild(Node *node)
 
     delete item;
   }
+
+  UpdateRect();
 }
 
 void NodeViewContext::ChildInputConnected(Node *output, const NodeInput &input)
@@ -203,8 +205,6 @@ void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
       command->AddNode(node->GetNode(), context_);
     }
   }
-
-  UpdateRect();
 }
 
 void NodeViewContext::Select(const QVector<Node *> &nodes)

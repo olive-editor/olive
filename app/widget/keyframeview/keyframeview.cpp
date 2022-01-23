@@ -72,9 +72,13 @@ KeyframeView::NodeConnections KeyframeView::AddKeyframesOfNode(Node *n)
   return map;
 }
 
-KeyframeView::InputConnections KeyframeView::AddKeyframesOfInput(Node* n, const QString& input)
+KeyframeView::InputConnections KeyframeView::AddKeyframesOfInput(Node* on, const QString& oinput)
 {
   InputConnections vec;
+
+  NodeInput resolved = NodeGroup::ResolveInput(NodeInput(on, oinput));
+  Node *n = resolved.node();
+  const QString &input = resolved.input();
 
   if (n->IsInputKeyframable(input)) {
     int arr_sz = n->InputArraySize(input);

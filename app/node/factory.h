@@ -62,6 +62,7 @@ public:
     kSubtitleBlock,
     kShapeGenerator,
     kGroupNode,
+    kOpacityEffect,
 
     // Count value
     kInternalNodeCount

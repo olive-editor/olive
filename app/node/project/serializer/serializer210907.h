@@ -39,6 +39,32 @@ protected:
   }
 
 private:
+  struct XMLNodeData {
+    struct SerializedConnection {
+      NodeInput input;
+      quintptr output_node;
+    };
+
+    struct BlockLink {
+      Node* block;
+      quintptr link;
+    };
+
+    struct GroupLink {
+      NodeGroup *group;
+      quintptr input_node;
+      QString input_id;
+      int input_element;
+    };
+
+    QHash<quintptr, Node*> node_ptrs;
+    QList<SerializedConnection> desired_connections;
+    QList<BlockLink> block_links;
+    QVector<GroupLink> group_input_links;
+    QHash<NodeGroup*, quintptr> group_output_links;
+
+  };
+
   void LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const;
 
   void LoadInput(Node *node, QXmlStreamReader* reader, XMLNodeData &xml_node_data) const;

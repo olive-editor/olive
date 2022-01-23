@@ -41,7 +41,7 @@ public:
 
   virtual void Retranslate() override;
 
-  void AddInputPassthrough(const NodeInput &input);
+  QString AddInputPassthrough(const NodeInput &input, const InputFlags &flags = InputFlags());
 
   void RemoveInputPassthrough(const NodeInput &input);
 
@@ -62,6 +62,9 @@ public:
   bool ContainsInputPassthrough(const NodeInput &input) const;
 
   virtual QString GetInputName(const QString& id) const override;
+
+  static NodeInput ResolveInput(NodeInput input);
+  static bool GetInner(NodeInput *input);
 
 signals:
   void InputPassthroughAdded(NodeGroup *group, const NodeInput &input);

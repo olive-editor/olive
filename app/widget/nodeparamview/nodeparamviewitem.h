@@ -116,6 +116,8 @@ private:
 
   NodeParamViewCheckBoxBehavior create_checkboxes_;
 
+  QHash<NodeInputPair, NodeInputPair> input_group_lookup_;
+
   /**
    * @brief The column to place the keyframe controls in
    *

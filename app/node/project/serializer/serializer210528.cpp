@@ -40,7 +40,7 @@ ProjectSerializer210528::LoadData ProjectSerializer210528::Load(Project *project
           // can continue loading and queue it with the main window so it can handle the data
           // appropriately in its own thread.
 
-          project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data));
+          project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data.node_ptrs));
 
         } else if (reader->name() == QStringLiteral("uuid")) {
 
@@ -342,7 +342,7 @@ void ProjectSerializer210528::LoadImmediate(QXmlStreamReader *reader, Node *node
             QString value_text = reader->readElementText();
 
             if (!value_text.isEmpty()) {
-              value_on_track = NodeValue::StringToValue(data_type, value_text, element);
+              value_on_track = NodeValue::StringToValue(data_type, value_text, true);
             }
           }
 

@@ -97,14 +97,22 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
 
   int insert_row = 0;
 
+  QVector<Node*> connected_signals;
+
   // Create widgets all root level components
   foreach (QString input, node->inputs()) {
     Node *n = node;
-    while (NodeGroup *g = dynamic_cast<NodeGroup*>(n)) {
-      const NodeInput &ni = g->GetInputPassthroughs().value(input);
-      n = ni.node();
-      input = ni.input();
+
+    NodeInput resolved = NodeGroup::ResolveInput(NodeInput(n, input));
+    if (!connected_signals.contains(resolved.node())) {
+      connect(resolved.node(), &Node::InputArraySizeChanged, this, &NodeParamViewItemBody::InputArraySizeChanged);
+      connect(resolved.node(), &Node::InputConnected, this, &NodeParamViewItemBody::EdgeChanged);
+      connect(resolved.node(), &Node::InputDisconnected, this, &NodeParamViewItemBody::EdgeChanged);
+
+      connected_signals.append(resolved.node());
     }
+
+    input_group_lookup_.insert({resolved.node(), resolved.input()}, {n, input});
 
     if (!(n->GetInputFlags(input) & kInputFlagHidden)) {
       CreateWidgets(root_layout, n, input, -1, insert_row);
@@ -137,10 +145,6 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
       }
     }
   }
-
-  connect(node, &Node::InputArraySizeChanged, this, &NodeParamViewItemBody::InputArraySizeChanged);
-  connect(node, &Node::InputConnected, this, &NodeParamViewItemBody::EdgeChanged);
-  connect(node, &Node::InputDisconnected, this, &NodeParamViewItemBody::EdgeChanged);
 }
 
 void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const QString &input, int element, int row)
@@ -202,14 +206,6 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
       connect(remove_element_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayRemoveClicked);
 
     }
-  } else if (dynamic_cast<ClipBlock*>(node) && input == ClipBlock::kSpeedInput) {
-    // Special behavior - this was the most preferable way to do this so we could support multiple
-    // nodes per item one day
-    QPushButton *btn = new QPushButton(tr("..."));
-    btn->setFixedWidth(btn->sizeHint().height());
-    connect(btn, &QPushButton::clicked, this, &NodeParamViewItemBody::ShowSpeedDurationDialogForNode);
-    layout->addWidget(btn, row, kExtraButtonColumn);
-    ui_objects.extra_btn = btn;
   }
 
   // Create a widget/input bridge for this input
@@ -227,9 +223,12 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
     layout->addWidget(w, row, i+kWidgetStartColumn);
   }
 
+  // In case this input is a group, resolve that actual input to use for connected labels
+  NodeInput resolved = NodeGroup::ResolveInput(input_ref);
+
   if (node->IsInputConnectable(input)) {
     // Create clickable label used when an input is connected
-    ui_objects.connected_label = new NodeParamViewConnectedLabel(input_ref);
+    ui_objects.connected_label = new NodeParamViewConnectedLabel(resolved);
     connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
     layout->addWidget(ui_objects.connected_label, row, kWidgetStartColumn, 1, kKeyControlColumn - kWidgetStartColumn);
   }
@@ -237,7 +236,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   // Add keyframe control to this layout if parameter is keyframable
   if (node->IsInputKeyframable(input)) {
     ui_objects.key_control = new NodeParamViewKeyframeControl();
-    ui_objects.key_control->SetInput(input_ref);
+    ui_objects.key_control->SetInput(resolved);
     layout->addWidget(ui_objects.key_control, row, kKeyControlColumn);
     connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
   }
@@ -299,11 +298,7 @@ int NodeParamViewItemBody::GetElementY(NodeInput c) const
     c.set_element(-1);
   }
 
-  while (NodeGroup *g = dynamic_cast<NodeGroup*>(c.node())) {
-    const NodeInput &passthrough = g->GetInputPassthroughs().value(c.input());
-    c.set_node(passthrough.node());
-    c.set_input(passthrough.input());
-  }
+  //c = NodeGroup::ResolveInput(c);
 
   // Find its row in the parameters
   QLabel* lbl = input_ui_map_.value(c).main_label;
@@ -322,7 +317,10 @@ void NodeParamViewItemBody::EdgeChanged(Node *output, const NodeInput& input)
 {
   Q_UNUSED(output)
 
-  UpdateUIForEdgeConnection(input);
+  const NodeInputPair &pair = input_group_lookup_.value({input.node(), input.input()});
+  NodeInput resolved(pair.node, pair.input, input.element());
+
+  UpdateUIForEdgeConnection(resolved);
 }
 
 void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
@@ -331,20 +329,22 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
   if (input_ui_map_.contains(input)) {
     const InputUI& ui_objects = input_ui_map_[input];
 
+    bool is_connected = NodeGroup::ResolveInput(input).IsConnected();
+
     foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-      w->setVisible(!input.IsConnected());
+      w->setVisible(!is_connected);
     }
 
     // Show/hide connection label
-    ui_objects.connected_label->setVisible(input.IsConnected());
+    ui_objects.connected_label->setVisible(is_connected);
 
     if (ui_objects.key_control) {
-      ui_objects.key_control->setVisible(!input.IsConnected());
+      ui_objects.key_control->setVisible(!is_connected);
     }
 
     // Show/hide optional checkbox if requested
     if (create_checkboxes_ == kCheckBoxesOnNonConnected) {
-      ui_objects.optional_checkbox->setVisible(!input.IsConnected());
+      ui_objects.optional_checkbox->setVisible(!is_connected);
     }
   }
 }
@@ -408,7 +408,8 @@ void NodeParamViewItemBody::ArrayCollapseBtnPressed(bool checked)
   array_ui_.value(input).widget->setVisible(checked);
   if (checked) {
     // Ensure widgets are created (the signal will be ignored if they are)
-    InputArraySizeChangedInternal(input.node, input.input, input.node->InputArraySize(input.input));
+    NodeInput resolved = NodeGroup::ResolveInput(NodeInput(input.node, input.input));
+    InputArraySizeChangedInternal(input.node, input.input, resolved.GetArraySize());
   }
 
   emit ArrayExpandedChanged(checked);
@@ -418,16 +419,17 @@ void NodeParamViewItemBody::InputArraySizeChanged(const QString& input, int old_
 {
   Q_UNUSED(old_sz)
 
-  Node* node = static_cast<Node*>(sender());
+  NodeInputPair nip = input_group_lookup_.value({static_cast<Node*>(sender()), input});
 
-  InputArraySizeChangedInternal(node, input, size);
+  InputArraySizeChangedInternal(nip.node, nip.input, size);
 }
 
 void NodeParamViewItemBody::ArrayAppendClicked()
 {
   for (auto it=array_ui_.cbegin(); it!=array_ui_.cend(); it++) {
     if (it.value().append_btn == sender()) {
-      it.key().node->InputArrayAppend(it.key().input, true);
+      NodeInput real_input = NodeGroup::ResolveInput(NodeInput(it.key().node, it.key().input));
+      real_input.node()->InputArrayAppend(real_input.input(), true);
       break;
     }
   }
@@ -438,7 +440,7 @@ void NodeParamViewItemBody::ArrayInsertClicked()
   for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
     if (it.value().array_insert_btn == sender()) {
       // Found our input and element
-      const NodeInput& ic = it.key();
+      NodeInput ic = NodeGroup::ResolveInput(it.key());
       ic.node()->InputArrayInsert(ic.input(), ic.element(), true);
       break;
     }
@@ -450,7 +452,7 @@ void NodeParamViewItemBody::ArrayRemoveClicked()
   for (auto it=input_ui_map_.cbegin(); it!=input_ui_map_.cend(); it++) {
     if (it.value().array_remove_btn == sender()) {
       // Found our input and element
-      const NodeInput& ic = it.key();
+      NodeInput ic = NodeGroup::ResolveInput(it.key());
       ic.node()->InputArrayRemove(ic.input(), ic.element(), true);
       break;
     }
