@@ -495,8 +495,6 @@ void TimelineWidget::DeleteSelected(bool ripple)
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
-
   QVector<Block*> clips_to_delete;
   QVector<TransitionBlock*> transitions_to_delete;
 
@@ -508,9 +506,16 @@ void TimelineWidget::DeleteSelected(bool ripple)
     }
   }
 
+  MultiUndoCommand* command = new MultiUndoCommand();
+
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    command->add_child(new TransitionRemoveCommand(transition, true));
+    TransitionRemoveCommand *trc = new TransitionRemoveCommand(transition, true);
+
+    // Perform the transition removal now so that replacing blocks with gaps below won't get confused
+    trc->redo_now();
+
+    command->add_child(trc);
   }
 
   // Replace clips with gaps (effectively deleting them)
