@@ -22,6 +22,7 @@
 
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QtMath>
@@ -127,12 +128,45 @@ void TrackViewItem::ShowContextMenu(const QPoint &p)
   QAction *delete_action = m.addAction(tr("&Delete"));
   connect(delete_action, &QAction::triggered, this, &TrackViewItem::DeleteTrack, Qt::QueuedConnection);
 
+  m.addSeparator();
+
+  QAction *delete_unused_action = m.addAction(tr("Delete All &Empty"));
+  connect(delete_unused_action, &QAction::triggered, this, &TrackViewItem::DeleteAllEmptyTracks, Qt::QueuedConnection);
+
   m.exec(mapToGlobal(p));
 }
 
 void TrackViewItem::DeleteTrack()
 {
   Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_));
+}
+
+void TrackViewItem::DeleteAllEmptyTracks()
+{
+  Sequence *sequence = track_->sequence();
+  QVector<Track*> tracks_to_remove;
+  QStringList track_names_to_remove;
+
+  foreach (Track *t, sequence->GetTracks()) {
+    if (t->Blocks().isEmpty()) {
+      tracks_to_remove.append(t);
+      track_names_to_remove.append(t->GetLabelOrName());
+    }
+  }
+
+  if (tracks_to_remove.isEmpty()) {
+    QMessageBox::information(this, tr("Delete All Empty"), tr("No tracks are currently empty"));
+  } else {
+    if (QMessageBox::question(this, tr("Delete All Empty"),
+                              tr("This will delete the following tracks:\n\n%1\n\nDo you wish to continue?").arg(track_names_to_remove.join('\n')),
+                              QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
+      MultiUndoCommand *command = new MultiUndoCommand();
+      foreach (Track *track, tracks_to_remove) {
+        command->add_child(new TimelineRemoveTrackCommand(track));
+      }
+      Core::instance()->undo_stack()->push(command);
+    }
+  }
 }
 
 }

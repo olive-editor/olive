@@ -65,6 +65,8 @@ private slots:
 
   void DeleteTrack();
 
+  void DeleteAllEmptyTracks();
+
 };
 
 }
