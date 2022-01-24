@@ -202,7 +202,7 @@ private:
 
 class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand {
 public:
-  TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const TimeRangeList& regions) :
+  TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const QVector<QPair<Track*, TimeRange> >& regions) :
     timeline_(vo),
     regions_(regions)
   {
@@ -218,21 +218,28 @@ public:
     return timeline_->project();
   }
 
+  bool HasCommands() const
+  {
+    return !commands_.isEmpty();
+  }
+
 protected:
+  virtual void prepare() override;
+
   virtual void redo() override;
 
-  virtual void undo() override
-  {
-    for (int i=commands_.size()-1;i>=0;i--) {
-      commands_.at(i)->undo_now();
-    }
-  }
+  virtual void undo() override;
 
 private:
   Sequence* timeline_;
-  TimeRangeList regions_;
+  QVector<QPair<Track*, TimeRange> > regions_;
 
   QVector<UndoCommand*> commands_;
+
+  struct RemovalRequest {
+    GapBlock *gap;
+    TimeRange range;
+  };
 
 };
 

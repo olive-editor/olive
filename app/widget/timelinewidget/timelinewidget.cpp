@@ -520,20 +520,28 @@ void TimelineWidget::DeleteSelected(bool ripple)
   command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), false));
 
   // Insert ripple command now that it's all cleaned up gaps
+  TimelineRippleDeleteGapsAtRegionsCommand *ripple_command = nullptr;
+  rational new_playhead = RATIONAL_MAX;
   if (ripple) {
-    TimeRangeList range_list;
+    QVector<QPair<Track*, TimeRange> > range_list;
 
     foreach (Block* b, blocks_to_delete) {
-      range_list.insert(TimeRange(b->in(), b->out()));
+      range_list.append({b->track(), b->range()});
+      new_playhead = qMin(new_playhead, b->in());
     }
 
-    command->add_child(new TimelineRippleDeleteGapsAtRegionsCommand(sequence(), range_list));
+    ripple_command = new TimelineRippleDeleteGapsAtRegionsCommand(sequence(), range_list);
+    command->add_child(ripple_command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   // Ensures any current drag operations are cancelled
   ClearGhosts();
+
+  if (ripple_command && ripple_command->HasCommands() && new_playhead != RATIONAL_MAX) {
+    SetTimeAndSignal(new_playhead);
+  }
 }
 
 void TimelineWidget::IncreaseTrackHeight()
