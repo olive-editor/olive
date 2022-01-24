@@ -167,8 +167,14 @@ class TimelineRemoveTrackCommand : public UndoCommand
 {
 public:
   TimelineRemoveTrackCommand(Track *track) :
-    track_(track)
+    track_(track),
+    remove_command_(nullptr)
   {}
+
+  virtual ~TimelineRemoveTrackCommand()
+  {
+    delete remove_command_;
+  }
 
   virtual Project* GetRelevantProject() const override
   {
@@ -176,6 +182,8 @@ public:
   }
 
 protected:
+  virtual void prepare() override;
+
   virtual void redo() override;
 
   virtual void undo() override;
@@ -186,6 +194,8 @@ private:
   TrackList *list_;
 
   int index_;
+
+  UndoCommand *remove_command_;
 
 };
 
