@@ -1779,6 +1779,9 @@ double Node::GetGizmoHandleRadius(const QTransform &transform)
 
 void Node::DrawAndExpandGizmoHandles(QPainter *p, int handle_radius, QRectF *rects, int count)
 {
+  p->setPen(Qt::NoPen);
+  p->setBrush(Qt::white);
+
   for (int i=0; i<count; i++) {
     QRectF& r = rects[i];
 

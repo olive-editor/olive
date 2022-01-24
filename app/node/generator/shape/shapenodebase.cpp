@@ -85,8 +85,6 @@ void ShapeNodeBase::DrawGizmos(const NodeValueRow &row, const NodeGlobals &globa
   gizmo_resize_handle_[kGizmoScaleCenterLeft] = CreateGizmoHandleRect(QPointF(left_pt, center_y_pt), handle_radius);
   gizmo_resize_handle_[kGizmoScaleCenterRight] = CreateGizmoHandleRect(QPointF(right_pt, center_y_pt), handle_radius);
 
-  p->setPen(Qt::NoPen);
-  p->setBrush(Qt::white);
   DrawAndExpandGizmoHandles(p, handle_radius, gizmo_resize_handle_, kGizmoScaleCount);
 }
 
