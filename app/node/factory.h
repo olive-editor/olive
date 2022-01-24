@@ -63,6 +63,7 @@ public:
     kShapeGenerator,
     kGroupNode,
     kOpacityEffect,
+    kNoiseGenerator,
 
     // Count value
     kInternalNodeCount
