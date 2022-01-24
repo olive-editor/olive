@@ -23,11 +23,14 @@
 namespace olive {
 
 const QString DilateErodeFilterNode::kTextureInput = QStringLiteral("tex_in");
+const QString DilateErodeFilterNode::kMethodInput = QStringLiteral("method_in");
 const QString DilateErodeFilterNode::kPixelsInput = QStringLiteral("pixels_in");
 
 DilateErodeFilterNode::DilateErodeFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kMethodInput, NodeValue::kCombo, 0);
 
   AddInput(kPixelsInput, NodeValue::kInt, 0);
 }
@@ -60,6 +63,8 @@ QString DilateErodeFilterNode::Description() const
 void DilateErodeFilterNode::Retranslate()
 {
   SetInputName(kTextureInput, tr("Input"));
+  SetInputName(kMethodInput, tr("Method"));
+  SetComboBoxStrings(kMethodInput, {tr("Box"), tr("Distance"), tr("Gaussian")});
   SetInputName(kPixelsInput, tr("Pixels"));
 }
 
@@ -78,7 +83,7 @@ void DilateErodeFilterNode::Value(const NodeValueRow& value, const NodeGlobals& 
 
   // If there's no texture and no dilation/erosion, no need to run an operation
   if (!job.GetValue(kTextureInput).data().isNull() && job.GetValue(kPixelsInput).data().toInt() != 0) {
-    job.SetIterations(2, kTextureInput);
+    //job.SetIterations(2, kTextureInput);
 
     table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
   } else {

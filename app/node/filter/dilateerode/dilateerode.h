@@ -46,6 +46,7 @@ public:
   virtual void Value(const NodeValueRow& value, const NodeGlobals& globals, NodeValueTable* table) const override;
 
   static const QString kTextureInput;
+  static const QString kMethodInput;
   static const QString kPixelsInput;
 
 };
