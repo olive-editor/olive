@@ -29,23 +29,30 @@ void main(void) {
     
 
     pixel_coord = ove_texcoord;
-    float max_weight = gaussian2(0.0, 0.0, float(size)/2.0);
+
+    // Constants for gaussian method
+    float sigma = float(size) / 2.0;
+    float max_weight = gaussian2(0.0, 0.0, sigma);
     size*=3;
 
     // GLSL has no FLOAT_MIN or FLOAT_MAX
+    // Gaussian erode essentially inverts the image, does a gaussian dilate and then
+    // reinverts the image hence there being a special case here for method_in == 2
     composite = pixels_in > 0 || method_in == 2 ? vec4(-9999.0) : vec4(9999.0);
     for (int j = -size; j <= size; j++) {
         for(int i = -size; i <= size; i++) {
+
             offset.x = float(i) / resolution_in.x;
             offset.y = float(j) / resolution_in.y;
-            if (method_in == 0) {
+
+            if (method_in == 0) { // Box
                 sample = texture2D(tex_in, pixel_coord+offset);
                 if (pixels_in > 0) {
                     composite = max(sample, composite);
                 } else if (pixels_in < 0) {
                     composite = min(sample, composite);
                 }
-            } else if (method_in == 1) {
+            } else if (method_in == 1) { // Distance
                 float len = length(offset);
                 float scaled_size = float(size) / length(resolution_in);
                 if (len <= scaled_size){
@@ -56,11 +63,12 @@ void main(void) {
                         composite = min(sample, composite);
                     } 
                 }
-            } else if (method_in == 2) {
-                float weight = gaussian2(float(i), float(j), float(size)/6.0) / max_weight;
+            } else if (method_in == 2) { // Gaussian
+                float weight = gaussian2(float(i), float(j), sigma) / max_weight;
 
                 sample = texture2D(tex_in, pixel_coord+offset);
                 if (pixels_in > 0) {
+                    // weight^2 seems to give a better result
                     composite = max(sample*weight*weight, composite);
                 } else if (pixels_in < 0) {
                     composite = max((1.0-sample)*weight*weight, composite);
