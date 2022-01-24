@@ -34,12 +34,5 @@ void main(void) {
 		noise = vec3(gold_noise(ove_texcoord, time_in + 69420.0));
 	}
 
-/*	if (blend) {
-		noise = (noise - vec3(amount*0.005))*vec3(2.0);
-		//
-		vec4 textureColor = texture2D(tex_in, ove_texcoord);
-		gl_FragColor = vec4(textureColor.rgb+noise, textureColor.a);
-	} else {*/
-		gl_FragColor = vec4(noise, 1.0);
-	//}
+    gl_FragColor = vec4(noise, 1.0);
 }
