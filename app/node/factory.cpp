@@ -39,6 +39,7 @@
 #include "generator/text/text.h"
 #include "generator/text/textlegacy.h"
 #include "filter/blur/blur.h"
+#include "filter/dilateerode/dilateerode.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
 #include "input/time/timeinput.h"
@@ -255,6 +256,9 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new NodeGroup();
   case kOpacityEffect:
     return new OpacityEffect();
+  case kDilateErodeFilter:
+    return new DilateErodeFilterNode();
+
 
   case kInternalNodeCount:
     break;

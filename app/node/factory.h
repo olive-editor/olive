@@ -63,6 +63,7 @@ public:
     kShapeGenerator,
     kGroupNode,
     kOpacityEffect,
+    kDilateErodeFilter,
 
     // Count value
     kInternalNodeCount
