@@ -33,7 +33,7 @@ void main(void) {
     size*=3;
 
     // GLSL has no FLOAT_MIN or FLOAT_MAX
-    composite = pixels_in > 0? vec4(-9999.0) : vec4(9999.0);
+    composite = pixels_in > 0 || method_in == 2 ? vec4(-9999.0) : vec4(9999.0);
     for (int j = -size; j <= size; j++) {
         for(int i = -size; i <= size; i++) {
             offset.x = float(i) / resolution_in.x;
@@ -63,11 +63,14 @@ void main(void) {
                 if (pixels_in > 0) {
                     composite = max(sample*weight*weight, composite);
                 } else if (pixels_in < 0) {
-                    composite = min(sample, composite);
+                    composite = max((1.0-sample)*weight*weight, composite);
                 }
             }
         }
     }
-
-    gl_FragColor = vec4(composite);
+    if (method_in == 2 && pixels_in < 0) {
+        gl_FragColor = vec4(1.0-composite);
+    } else{
+        gl_FragColor = vec4(composite);
+    }
 }
