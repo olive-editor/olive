@@ -71,8 +71,8 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
 ShaderCode CornerPinDistortNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  // Need vertex as well
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")));
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),
+                    FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
 }
 
 void CornerPinDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p)
@@ -115,8 +115,6 @@ void CornerPinDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
 
 bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p)
 {
-  bool found_handle = false;
-
   bool gizmo_active[kGizmoCornerCount] = {false};
 
   for (int i = 0; i < kGizmoCornerCount; i++) {
@@ -130,14 +128,17 @@ bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals
       switch (i) {
         case 0:
           gizmo_start_ = row[kTopLeftInput].data();
+          break;
         case 1:
           gizmo_start_ = row[kTopRightInput].data();
+          break;
         case 2:
           gizmo_start_ = row[kBottomRightInput].data();
+          break;
         case 3:
           gizmo_start_ = row[kBottomLeftInput].data();
+          break;
       }
-      qDebug() << gizmo_start_.value<QVector2D>();
       return true;
     }
   }
