@@ -109,12 +109,76 @@ void CornerPinDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
   gizmo_resize_handle_[2] = CreateGizmoHandleRect(bottom_right, handle_radius);
   gizmo_resize_handle_[3] = CreateGizmoHandleRect(bottom_left, handle_radius);
 
-  DrawAndExpandGizmoHandles(p, handle_radius, gizmo_resize_handle_, 4);
+  DrawAndExpandGizmoHandles(p, handle_radius, gizmo_resize_handle_, kGizmoCornerCount);
 }
 
 bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p)
 {
+  bool found_handle = false;
+
+  bool gizmo_active[kGizmoScaleCount] = {false};
+
+  for (int i = 0; i < kGizmoScaleCount; i++) {
+    gizmo_active[i] = gizmo_resize_handle_[i].contains(p);
+
+    if (gizmo_active[i]) {
+      gizmo_drag_start_ = p;
+      gizmo_res_ = globals.resolution();
+      gizmo_drag_ = i;
+
+      switch (i) {
+        case 0:
+          gizmo_start_.append(row[kTopLeftInput].data());
+        case 1:
+          gizmo_start_.append(row[kTopRightInput].data());
+        case 2:
+          gizmo_start_.append(row[kBottomRightInput].data());
+        case 3:
+          gizmo_start_.append(row[kBottomLeftInput].data());
+      }
+
+      return true;
+    }
+  }
+
   return false;
+}
+
+void CornerPinDistortNode::GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers)
+{
+  if (gizmo_dragger_.isEmpty()) {
+    gizmo_dragger_.resize(gizmo_start_.size());
+    if (gizmo_drag_ == 0) {
+      gizmo_dragger_[0].Start(NodeInput(this, kTopLeftInput), time);
+    }
+    if (gizmo_drag_ == 1) {
+      gizmo_dragger_[0].Start(NodeInput(this, kTopRightInput), time);
+    }
+    if (gizmo_drag_ == 2) {
+      gizmo_dragger_[0].Start(NodeInput(this, kBottomRightInput), time);
+    }
+    if (gizmo_drag_ == 3) {
+      gizmo_dragger_[0].Start(NodeInput(this, kBottomLeftInput), time);
+    }
+  }
+
+  double x_diff = (p.x() - gizmo_drag_start_.x()); // / gizmo_res_.x();
+  double y_diff = (p.y() - gizmo_drag_start_.y());// / gizmo_res_.y();
+
+  QVector2D diff = QVector2D(x_diff, y_diff);
+  qDebug() << diff;
+
+  gizmo_dragger_[0].Drag(gizmo_start_[0].value<QVector2D>() + diff);
+
+}
+
+void CornerPinDistortNode::GizmoRelease(MultiUndoCommand *command) {
+  for (NodeInputDragger &i : gizmo_dragger_) {
+    i.End(command);
+  }
+  gizmo_dragger_.clear();
+
+  gizmo_start_.clear();
 }
 
 }

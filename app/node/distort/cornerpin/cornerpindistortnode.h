@@ -74,8 +74,8 @@ public:
   virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter *p) override;
 
   virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
-  //virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  //virtual void GizmoRelease(MultiUndoCommand *command) override;
+  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
+  virtual void GizmoRelease(MultiUndoCommand *command) override;
 
   static const QString kTextureInput;
   static const QString kTopLeftInput;
@@ -85,7 +85,8 @@ public:
 
 private:
   // Gizmo variables
-  QRectF gizmo_resize_handle_[4];
+  static const int kGizmoCornerCount = 4;
+  QRectF gizmo_resize_handle_[kGizmoCornerCount];
   QRectF gizmo_whole_rect_;
 
   int gizmo_drag_;
