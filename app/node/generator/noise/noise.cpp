@@ -44,7 +44,7 @@ QString NoiseGeneratorNode::Name() const
 
 QString NoiseGeneratorNode::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.blue");
+  return QStringLiteral("org.olivevideoeditor.Olive.noise");
 }
 
 QVector<Node::CategoryID> NoiseGeneratorNode::Category() const
