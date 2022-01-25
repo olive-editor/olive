@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(crop)
-add_subdirectory(flipflop)
+add_subdirectory(flip)
 add_subdirectory(transform)
 
 set(OLIVE_SOURCES

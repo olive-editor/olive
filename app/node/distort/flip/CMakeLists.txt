@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/distort/flipflop/flipflopdistortnode.cpp
-  node/distort/flipflop/flipflopdistortnode.h
+  node/distort/flip/flipdistortnode.cpp
+  node/distort/flip/flipdistortnode.h
   PARENT_SCOPE
 )
