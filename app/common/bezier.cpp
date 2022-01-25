@@ -26,6 +26,36 @@
 
 namespace olive {
 
+Bezier::Bezier() :
+  x_(0),
+  y_(0),
+  cp1_x_(0),
+  cp1_y_(0),
+  cp2_x_(0),
+  cp2_y_(0)
+{
+}
+
+Bezier::Bezier(double x, double y) :
+  x_(x),
+  y_(y),
+  cp1_x_(0),
+  cp1_y_(0),
+  cp2_x_(0),
+  cp2_y_(0)
+{
+}
+
+Bezier::Bezier(double x, double y, double cp1_x, double cp1_y, double cp2_x, double cp2_y) :
+  x_(x),
+  y_(y),
+  cp1_x_(cp1_x),
+  cp1_y_(cp1_y),
+  cp2_x_(cp2_x),
+  cp2_y_(cp2_y)
+{
+}
+
 double Bezier::QuadraticXtoT(double x, double a, double b, double c)
 {
   // Clamp to prevent infinite loop

@@ -45,6 +45,10 @@ NodeParamViewItemBase::NodeParamViewItemBase(QWidget *parent) :
   // size hints and will shrink as small as possible if the body is hidden)
   hidden_body_ = new QWidget(this);
 
+  // Default to hidden body, this also seems to fix an issue with clicks being intermittent
+  // on the titlebar
+  setWidget(hidden_body_);
+
   setAutoFillBackground(true);
 
   setFocusPolicy(Qt::ClickFocus);
