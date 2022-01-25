@@ -63,7 +63,7 @@ public:
     kShapeGenerator,
     kGroupNode,
     kOpacityEffect,
-    kFlipFlopDistort,
+    kFlipDistort,
 
     // Count value
     kInternalNodeCount

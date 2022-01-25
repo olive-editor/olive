@@ -18,20 +18,20 @@
 
 ***/
 
-#ifndef FLIPFLOPDISTORTNODE_H
-#define FLIPFLOPDISTORTNODE_H
+#ifndef FLIPDISTORTNODE_H
+#define FLIPDISTORTNODE_H
 
 #include "node/node.h"
 
 namespace olive {
 
-class FlipFlopDistortNode : public Node
+class FlipDistortNode : public Node
 {
   Q_OBJECT
 public:
-  FlipFlopDistortNode();
+  FlipDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(FlipFlopDistortNode)
+  NODE_DEFAULT_DESTRUCTOR(FlipDistortNode)
 
   virtual Node* copy() const override;
 
@@ -53,4 +53,4 @@ public:
 
 }
 
-#endif // FLIPFLOPDISTORTNODE_H
+#endif // FLIPDISTORTNODE_H

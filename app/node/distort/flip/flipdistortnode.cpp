@@ -18,15 +18,15 @@
 
 ***/
 
-#include "flipflopdistortnode.h"
+#include "flipdistortnode.h"
 
 namespace olive {
 
-const QString FlipFlopDistortNode::kTextureInput = QStringLiteral("tex_in");
-const QString FlipFlopDistortNode::kHorizontalInput = QStringLiteral("horiz_in");
-const QString FlipFlopDistortNode::kVerticalInput = QStringLiteral("vert_in");
+const QString FlipDistortNode::kTextureInput = QStringLiteral("tex_in");
+const QString FlipDistortNode::kHorizontalInput = QStringLiteral("horiz_in");
+const QString FlipDistortNode::kVerticalInput = QStringLiteral("vert_in");
 
-FlipFlopDistortNode::FlipFlopDistortNode()
+FlipDistortNode::FlipDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
@@ -35,45 +35,45 @@ FlipFlopDistortNode::FlipFlopDistortNode()
   AddInput(kVerticalInput, NodeValue::kBoolean, false);
 }
 
-Node* FlipFlopDistortNode::copy() const
+Node* FlipDistortNode::copy() const
 {
-  return new FlipFlopDistortNode();
+  return new FlipDistortNode();
 }
 
-QString FlipFlopDistortNode::Name() const
+QString FlipDistortNode::Name() const
 {
-  return tr("Flip/Flop");
+  return tr("Flip");
 }
 
-QString FlipFlopDistortNode::id() const
+QString FlipDistortNode::id() const
 {
-  return QStringLiteral("org.oliveeditor.Olive.flipflop");
+  return QStringLiteral("org.oliveeditor.Olive.flip");
 }
 
-QVector<Node::CategoryID> FlipFlopDistortNode::Category() const
+QVector<Node::CategoryID> FlipDistortNode::Category() const
 {
   return {kCategoryDistort};
 }
 
-QString FlipFlopDistortNode::Description() const
+QString FlipDistortNode::Description() const
 {
-  return tr("Flips an image horizontally. Flops an image vertically");
+  return tr("Flips an image horizontally or vertically");
 }
 
-void FlipFlopDistortNode::Retranslate()
+void FlipDistortNode::Retranslate()
 {
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kHorizontalInput, tr("Horizontal"));
   SetInputName(kVerticalInput, tr("Vertical"));
 }
 
-ShaderCode FlipFlopDistortNode::GetShaderCode(const QString& shader_id) const
+ShaderCode FlipDistortNode::GetShaderCode(const QString& shader_id) const
 {
   Q_UNUSED(shader_id)
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flipflop.frag"));
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 
-void FlipFlopDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
 
