@@ -34,6 +34,7 @@
 #include "distort/transform/transformdistortnode.h"
 #include "effect/opacity/opacityeffect.h"
 #include "generator/matrix/matrix.h"
+#include "generator/noise/noise.h"
 #include "generator/polygon/polygon.h"
 #include "generator/shape/shapenode.h"
 #include "generator/solid/solid.h"
@@ -258,6 +259,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new OpacityEffect();
   case kFlipDistort:
     return new FlipDistortNode();
+  case kNoiseGenerator:
+    return new NoiseGeneratorNode();
 
   case kInternalNodeCount:
     break;

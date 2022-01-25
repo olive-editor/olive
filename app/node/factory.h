@@ -64,6 +64,7 @@ public:
     kGroupNode,
     kOpacityEffect,
     kFlipDistort,
+    kNoiseGenerator,
 
     // Count value
     kInternalNodeCount
