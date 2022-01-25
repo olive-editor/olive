@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(crop)
-add_subdirectory(flipflop)
-add_subdirectory(transform)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/distort/flipflop/flipflopdistortnode.cpp
+  node/distort/flipflop/flipflopdistortnode.h
   PARENT_SCOPE
 )

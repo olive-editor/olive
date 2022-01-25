@@ -30,6 +30,7 @@
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "distort/crop/cropdistortnode.h"
+#include "distort/flipflop/flipflopdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
 #include "effect/opacity/opacityeffect.h"
 #include "generator/matrix/matrix.h"
@@ -255,6 +256,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new NodeGroup();
   case kOpacityEffect:
     return new OpacityEffect();
+  case kFlipFlopDistort:
+    return new FlipFlopDistortNode();
 
   case kInternalNodeCount:
     break;
