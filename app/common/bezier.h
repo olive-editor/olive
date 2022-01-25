@@ -98,6 +98,6 @@ private:
 
 }
 
-Q_DECLARE_METATYPE(olive::Bezier);
+Q_DECLARE_METATYPE(olive::Bezier)
 
 #endif // BEZIER_H
