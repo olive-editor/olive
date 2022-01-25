@@ -29,6 +29,7 @@
 #include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
 #include "effect/opacity/opacityeffect.h"
@@ -255,6 +256,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new NodeGroup();
   case kOpacityEffect:
     return new OpacityEffect();
+  case kCornerPinDistort:
+    return new CornerPinDistortNode();
 
   case kInternalNodeCount:
     break;
