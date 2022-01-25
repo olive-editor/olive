@@ -87,12 +87,13 @@ void CornerPinDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
                              row[kTopLeftInput].data().value<QVector2D>().y());
 
   QPointF top_right = QPointF(resolution.x() + row[kTopRightInput].data().value<QVector2D>().x(),
-                              row[kTopRightInput].data().value<QVector2D>().y());
+                                               row[kTopRightInput].data().value<QVector2D>().y());
 
   QPointF bottom_right = QPointF(resolution.x() + row[kBottomRightInput].data().value<QVector2D>().x(),
                                  resolution.y() + row[kBottomRightInput].data().value<QVector2D>().y());
+
   QPointF bottom_left = QPointF(row[kBottomLeftInput].data().value<QVector2D>().x(),
-                                resolution.y() + row[kBottomLeftInput].data().value<QVector2D>().y());
+                                row[kBottomLeftInput].data().value<QVector2D>().y() + resolution.y());
 
   SetInputProperty(kTopLeftInput, QStringLiteral("offset"), QVector2D(0.0, 0.0));
   SetInputProperty(kTopRightInput, QStringLiteral("offset"), QVector2D(resolution.x() , 0.0));
@@ -116,9 +117,9 @@ bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals
 {
   bool found_handle = false;
 
-  bool gizmo_active[kGizmoScaleCount] = {false};
+  bool gizmo_active[kGizmoCornerCount] = {false};
 
-  for (int i = 0; i < kGizmoScaleCount; i++) {
+  for (int i = 0; i < kGizmoCornerCount; i++) {
     gizmo_active[i] = gizmo_resize_handle_[i].contains(p);
 
     if (gizmo_active[i]) {
@@ -128,15 +129,15 @@ bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals
 
       switch (i) {
         case 0:
-          gizmo_start_.append(row[kTopLeftInput].data());
+          gizmo_start_ = row[kTopLeftInput].data();
         case 1:
-          gizmo_start_.append(row[kTopRightInput].data());
+          gizmo_start_ = row[kTopRightInput].data();
         case 2:
-          gizmo_start_.append(row[kBottomRightInput].data());
+          gizmo_start_ = row[kBottomRightInput].data();
         case 3:
-          gizmo_start_.append(row[kBottomLeftInput].data());
+          gizmo_start_ = row[kBottomLeftInput].data();
       }
-
+      qDebug() << gizmo_start_.value<QVector2D>();
       return true;
     }
   }
@@ -147,28 +148,32 @@ bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals
 void CornerPinDistortNode::GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers)
 {
   if (gizmo_dragger_.isEmpty()) {
-    gizmo_dragger_.resize(gizmo_start_.size());
+    gizmo_dragger_.resize(2);
     if (gizmo_drag_ == 0) {
-      gizmo_dragger_[0].Start(NodeInput(this, kTopLeftInput), time);
+      gizmo_dragger_[0].Start(NodeKeyframeTrackReference(NodeInput(this, kTopLeftInput), 0), time);
+      gizmo_dragger_[1].Start(NodeKeyframeTrackReference(NodeInput(this, kTopLeftInput), 1), time);
     }
     if (gizmo_drag_ == 1) {
-      gizmo_dragger_[0].Start(NodeInput(this, kTopRightInput), time);
+      gizmo_dragger_[0].Start(NodeKeyframeTrackReference(NodeInput(this, kTopRightInput), 0), time);
+      gizmo_dragger_[1].Start(NodeKeyframeTrackReference(NodeInput(this, kTopRightInput), 1), time);
     }
     if (gizmo_drag_ == 2) {
-      gizmo_dragger_[0].Start(NodeInput(this, kBottomRightInput), time);
+      gizmo_dragger_[0].Start(NodeKeyframeTrackReference(NodeInput(this, kBottomRightInput), 0), time);
+      gizmo_dragger_[1].Start(NodeKeyframeTrackReference(NodeInput(this, kBottomRightInput), 1), time);
     }
     if (gizmo_drag_ == 3) {
-      gizmo_dragger_[0].Start(NodeInput(this, kBottomLeftInput), time);
+      gizmo_dragger_[0].Start(NodeKeyframeTrackReference(NodeInput(this, kBottomLeftInput), 0), time);
+      gizmo_dragger_[1].Start(NodeKeyframeTrackReference(NodeInput(this, kBottomLeftInput), 1), time);
     }
   }
 
   double x_diff = (p.x() - gizmo_drag_start_.x()); // / gizmo_res_.x();
   double y_diff = (p.y() - gizmo_drag_start_.y());// / gizmo_res_.y();
 
-  QVector2D diff = QVector2D(x_diff, y_diff);
-  qDebug() << diff;
+  QVector2D move = QVector2D(gizmo_start_.value<QVector2D>().x() + x_diff, gizmo_start_.value<QVector2D>().y() + y_diff);
 
-  gizmo_dragger_[0].Drag(gizmo_start_[0].value<QVector2D>() + diff);
+  gizmo_dragger_[0].Drag(move.x());
+  gizmo_dragger_[1].Drag(move.y());
 
 }
 

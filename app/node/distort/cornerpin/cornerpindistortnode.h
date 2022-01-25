@@ -91,7 +91,7 @@ private:
 
   int gizmo_drag_;
   QVector<NodeInputDragger> gizmo_dragger_;
-  QVector<QVariant> gizmo_start_;
+  QVariant gizmo_start_;
   QPointF gizmo_drag_start_;
   QVector2D gizmo_res_;
 
