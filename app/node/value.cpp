@@ -26,6 +26,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "common/bezier.h"
 #include "common/tohex.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
@@ -64,6 +65,15 @@ QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool val
                                              QString::number(c.green()),
                                              QString::number(c.blue()),
                                              QString::number(c.alpha()));
+  } else if (!value_is_a_key_track && data_type == kBezier) {
+    Bezier b = value.value<Bezier>();
+
+    return QStringLiteral("%1:%2:%3:%4:%5:%6").arg(QString::number(b.x()),
+                                                   QString::number(b.y()),
+                                                   QString::number(b.cp1_x()),
+                                                   QString::number(b.cp1_y()),
+                                                   QString::number(b.cp2_x()),
+                                                   QString::number(b.cp2_y()));
   } else if (data_type == kRational) {
     return value.value<rational>().toString();
   } else if (data_type == kTexture
@@ -116,6 +126,7 @@ QByteArray NodeValue::ValueToBytes(NodeValue::Type type, const QVariant &value)
   case kVec3: return ValueToBytesInternal<QVector3D>(value);
   case kVec4: return ValueToBytesInternal<QVector4D>(value);
   case kCombo: return ValueToBytesInternal<int>(value);
+  case kBezier: return ValueToBytesInternal<Bezier>(value);
 
   case kVideoParams:
     return value.value<VideoParams>().toBytes();
@@ -174,6 +185,17 @@ QVector<QVariant> NodeValue::split_normal_value_into_track_values(Type type, con
     vals.replace(3, c.alpha());
     break;
   }
+  case kBezier:
+  {
+    Bezier b = value.value<Bezier>();
+    vals.replace(0, b.x());
+    vals.replace(1, b.y());
+    vals.replace(2, b.cp1_x());
+    vals.replace(3, b.cp1_y());
+    vals.replace(4, b.cp2_x());
+    vals.replace(5, b.cp2_y());
+    break;
+  }
   default:
     vals.replace(0, value);
   }
@@ -213,6 +235,13 @@ QVariant NodeValue::combine_track_values_into_normal_value(Type type, const QVec
                                      split.at(2).toFloat(),
                                      split.at(3).toFloat()));
   }
+  case kBezier:
+    return QVariant::fromValue(Bezier(split.at(0).toDouble(),
+                                      split.at(1).toDouble(),
+                                      split.at(2).toDouble(),
+                                      split.at(3).toDouble(),
+                                      split.at(4).toDouble(),
+                                      split.at(5).toDouble()));
   default:
     return split.first();
   }
@@ -228,6 +257,8 @@ int NodeValue::get_number_of_keyframe_tracks(Type type)
   case NodeValue::kVec4:
   case NodeValue::kColor:
     return 4;
+  case NodeValue::kBezier:
+    return 6;
   default:
     return 1;
   }
@@ -259,6 +290,12 @@ QVariant NodeValue::StringToValue(Type data_type, const QString &string, bool va
     ValidateVectorString(&vals, 4);
 
     return QVariant::fromValue(Color(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble()));
+  } else if (!value_is_a_key_track && data_type == kBezier) {
+    QStringList vals = string.split(':');
+
+    ValidateVectorString(&vals, 6);
+
+    return QVariant::fromValue(Bezier(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble(), vals.at(4).toDouble(), vals.at(5).toDouble()));
   } else if (data_type == kInt) {
     return QVariant::fromValue(string.toLongLong());
   } else if (data_type == kRational) {
@@ -309,6 +346,8 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
     return QCoreApplication::translate("NodeValue", "Vector 3D");
   case kVec4:
     return QCoreApplication::translate("NodeValue", "Vector 4D");
+  case kBezier:
+    return QCoreApplication::translate("NodeValue", "Bezier");
   case kVideoParams:
     return QCoreApplication::translate("NodeValue", "Video Parameters");
   case kAudioParams:

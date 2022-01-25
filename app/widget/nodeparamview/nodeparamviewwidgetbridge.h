@@ -64,7 +64,11 @@ private:
 
   void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
-  void ProcessSlider(NumericSliderBase* slider, const QVariant& value);
+  void ProcessSlider(NumericSliderBase* slider, int slider_track, const QVariant& value);
+  void ProcessSlider(NumericSliderBase* slider, const QVariant& value)
+  {
+    ProcessSlider(slider, widgets_.indexOf(slider), value);
+  }
 
   void SetProperty(const QString &key, const QVariant &value);
 

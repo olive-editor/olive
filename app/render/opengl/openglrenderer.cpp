@@ -521,6 +521,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
     case NodeValue::kFootageJob:
+    case NodeValue::kBezier:
     case NodeValue::kNone:
       break;
     }
