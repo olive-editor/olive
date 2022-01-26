@@ -84,6 +84,7 @@ public:
   QPointF ValueToPixel(int value, const NodeValueRow &row, const QVector2D &resolution) const;
 
   static const QString kTextureInput;
+  static const QString kPerspectiveInput;
   static const QString kTopLeftInput;
   static const QString kTopRightInput;
   static const QString kBottomRightInput;
