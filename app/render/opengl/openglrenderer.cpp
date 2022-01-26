@@ -569,6 +569,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   QOpenGLBuffer vert_vbo_;
   vert_vbo_.create();
   vert_vbo_.bind();
+  // If the job has vertex coordinate overrides use them instead of the defaults.
   if (!job.GetVertexCoordinates().isEmpty()) {
     Q_ASSERT(job.GetVertexCoordinates().size() == 18);
     vert_vbo_.allocate(job.GetVertexCoordinates().constData(), job.GetVertexCoordinates().size() * sizeof(float));

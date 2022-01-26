@@ -77,6 +77,10 @@ public:
   virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
   virtual void GizmoRelease(MultiUndoCommand *command) override;
 
+  /**
+   * @brief Convenience function - converts the 2D slider values from being
+   * an offset to the actual pixel value.
+   */
   QPointF ValueToPixel(int value, const NodeValueRow &row, const QVector2D &resolution) const;
 
   static const QString kTextureInput;
