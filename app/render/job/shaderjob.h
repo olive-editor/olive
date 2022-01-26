@@ -22,6 +22,7 @@
 #define SHADERJOB_H
 
 #include <QMatrix4x4>
+#include <QVector>
 
 #include "generatejob.h"
 #include "render/texture.h"
@@ -87,6 +88,19 @@ public:
     interpolation_.insert(id, interp);
   }
 
+  void SetVertexCoordinates(QVector<float> vertex_coords)
+  {
+    vertex_overrides_.clear();  
+    foreach (float value, vertex_coords) {
+        vertex_overrides_.append(value);
+    }
+  }
+
+  QVector<float> GetVertexCoordinates()
+  {
+    return vertex_overrides_;
+  }
+
 private:
   QString shader_id_;
 
@@ -95,6 +109,8 @@ private:
   QString iterative_input_;
 
   QHash<QString, Texture::Interpolation> interpolation_;
+
+  QVector<float> vertex_overrides_;
 
 };
 
