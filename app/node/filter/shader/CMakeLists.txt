@@ -16,7 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/filter/generic/generic.h
-  node/filter/generic/generic.cpp
+  node/filter/shader/shader.h
+  node/filter/shader/shader.cpp
+  node/filter/shader/shaderinputsparser.h
+  node/filter/shader/shaderinputsparser.cpp
   PARENT_SCOPE
 )

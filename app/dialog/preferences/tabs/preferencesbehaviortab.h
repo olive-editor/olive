@@ -22,7 +22,6 @@
 #define PREFERENCESBEHAVIORTAB_H
 
 #include <QTreeWidget>
-#include <QTextEdit>
 
 #include "dialog/configbase/configdialogbase.h"
 
@@ -46,7 +45,6 @@ private:
   QMap<QTreeWidgetItem*, QString> config_map_;
 
   QTreeWidget* behavior_tree_;
-  QTextEdit * glsl_fileList_edit_;
 };
 
 }

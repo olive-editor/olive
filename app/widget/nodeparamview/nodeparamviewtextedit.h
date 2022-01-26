@@ -39,6 +39,10 @@ public:
     return line_edit_->toPlainText();
   }
 
+  // if this function is called, the text editor is used
+  // for shader code
+  void setCodeEditoFlag();
+
 public slots:
   void setText(const QString &s)
   {
@@ -66,6 +70,7 @@ signals:
 
 private:
   QPlainTextEdit* line_edit_;
+  bool code_editor_flag_;
 
 private slots:
   void ShowTextDialog();

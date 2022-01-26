@@ -18,21 +18,20 @@
 
 ***/
 
-#ifndef GENERICFILTERNODE_H
-#define GENERICFILTERNODE_H
+#ifndef ShaderFilterNode_H
+#define ShaderFilterNode_H
 
 #include "node/node.h"
 
 namespace olive {
 
-class GenericFilterNode : public Node
+class ShaderFilterNode : public Node
 {
   Q_OBJECT
 public:
-  // constructor accepts the full path of GLSL frag file
-  GenericFilterNode( const QString & srcFilePath);
+  ShaderFilterNode();
 
-  NODE_DEFAULT_DESTRUCTOR(GenericFilterNode)
+  NODE_DEFAULT_DESTRUCTOR(ShaderFilterNode)
 
   virtual Node* copy() const override;
 
@@ -45,17 +44,22 @@ public:
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  void InputValueChangedEvent(const QString &input, int element) override;
 
-  static const QString kTextureInput;
+  static const QString kShaderCode;
 
 private:
-  void searchParametersInSourceFile(const QString &src_file_path);
-  NodeValue::Type typeFromName( const QString & paramName);
+  void parseShaderCode();
+  void onShaderCodeChanged();
 
-  QString src_file_path_;
-  QString filter_name_;
+private:
+
+  QString shader_code_;
+  // user defined inputs
+  QStringList input_list_;
+
 };
 
 }
 
-#endif // GENERICFILTERNODE_H
+#endif // ShaderFilterNode_H

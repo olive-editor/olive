@@ -26,10 +26,12 @@
 #include "dialog/text/text.h"
 #include "ui/icons/icons.h"
 
+#include <qdebug.h>
 namespace olive {
 
 NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  code_editor_flag_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
@@ -60,6 +62,16 @@ void NodeParamViewTextEdit::ShowTextDialog()
 void NodeParamViewTextEdit::InnerWidgetTextChanged()
 {
   emit textEdited(this->text());
+}
+
+void NodeParamViewTextEdit::setCodeEditoFlag()
+{
+  code_editor_flag_ = true;
+
+  // if the text box is a shader code editor, make it read only so that
+  // the shader code is not re-parsed on every key pressed by the user.
+  // Please use the Text Dialog to edit code.
+  line_edit_->setEnabled( false);
 }
 
 }

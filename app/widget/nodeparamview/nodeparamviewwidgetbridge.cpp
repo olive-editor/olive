@@ -142,6 +142,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     {
       NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit();
       widgets_.append(line_edit);
+
+      // plain text editor or code editor
+      if (GetInnerInput().GetProperty(QStringLiteral("is_shader_code")).toBool()) {
+        line_edit->setCodeEditoFlag();
+      }
+
       connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }

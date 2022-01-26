@@ -41,7 +41,7 @@
 #include "generator/text/text.h"
 #include "generator/text/textlegacy.h"
 #include "filter/blur/blur.h"
-#include "filter/generic/generic.h"
+#include "filter/shader/shader.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
 #include "input/time/timeinput.h"
@@ -71,9 +71,6 @@ void NodeFactory::Initialize()
 
     library_.append(created_node);
   }
-
-  // create GLSL filters listed in preferences
-  CreateCustomFilters();
 
   hidden_.append(kTextGeneratorLegacy);
   hidden_.append(kGroupNode);
@@ -226,6 +223,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new TimeInput();
   case kBlurFilter:
     return new BlurFilterNode();
+  case kShaderFilter:
+    return new ShaderFilterNode();
   case kSolidGenerator:
     return new SolidGenerator();
   case kMerge:
@@ -268,29 +267,6 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
   }
 
   return nullptr;
-}
-
-// parse all GLSL files listed in preferences and
-// create a new node for each file (if exists)
-void NodeFactory::CreateCustomFilters()
-{
-  QString custom_filter_config = Config::Current()["GlslFileList"].toString();
-
-  // The configuration holds a text string where each file is separated by
-  // new line or simbol ";".
-  // If a new line starts with "#" it is not considered to hold a file path
-  QStringList glsl_files = custom_filter_config.split( QRegularExpression("[\\n\\r;]+"), Qt::SkipEmptyParts);
-
-  for( QString file_path : glsl_files) {
-    QString file_path_trim = file_path.trimmed();
-
-    // create a node only if file path is valid
-    if ( ( ! file_path_trim.startsWith("#")) &&
-          (QFileInfo::exists(file_path_trim)) )
-    {
-      library_.append( new GenericFilterNode(file_path));
-    }
-  }
 }
 
 }

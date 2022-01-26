@@ -104,17 +104,6 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           tr("Multiple clips can share the same nodes. Disable this to automatically share node "
              "dependencies among clips when copying or splitting them."),
           node_group);
-
-  // Add a widget for the list of GLSL filters files
-  QGroupBox* glsl_filters_group = new QGroupBox(tr("GLSL filters (one full path per line)"));
-  layout->addWidget(glsl_filters_group );
-  glsl_filters_group->setLayout( new QVBoxLayout(this));
-
-  glsl_fileList_edit_ = new QTextEdit( glsl_filters_group);
-  glsl_fileList_edit_->setLineWrapMode( QTextEdit::NoWrap);
-  glsl_filters_group->layout()->addWidget( glsl_fileList_edit_);
-  glsl_fileList_edit_->setText( Config::Current()["GlslFileList"].toString());
-
 }
 
 void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)
@@ -126,9 +115,6 @@ void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)
   for (iterator=config_map_.begin();iterator!=config_map_.end();iterator++) {
     Config::Current()[iterator.value()] = (iterator.key()->checkState(0) == Qt::Checked);
   }
-
-  // save the list of GLSL files as a single string
-  Config::Current()["GlslFileList"] = QVariant(glsl_fileList_edit_->toPlainText());
 }
 
 QTreeWidgetItem* PreferencesBehaviorTab::AddItem(const QString &text, const QString &config_key, const QString& tooltip, QTreeWidgetItem* parent)
