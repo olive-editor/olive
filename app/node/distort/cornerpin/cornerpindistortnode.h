@@ -77,6 +77,8 @@ public:
   virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
   virtual void GizmoRelease(MultiUndoCommand *command) override;
 
+  QPointF ValueToPixel(int value, const NodeValueRow &row, const QVector2D &resolution) const;
+
   static const QString kTextureInput;
   static const QString kTopLeftInput;
   static const QString kTopRightInput;

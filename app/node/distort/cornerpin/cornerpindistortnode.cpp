@@ -57,13 +57,19 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
-  QVector<float> blit_vertices = {-1.0f, -1.0f, 0.0f,
-                                   1.0f, -1.0f, 0.0f,
-                                   1.0f,  1.0f, 0.0f,
+  const QVector2D &resolution = globals.resolution();
+  QVector2D top_left = QVector2D(ValueToPixel(0, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
+  QVector2D top_right = QVector2D(ValueToPixel(1, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
+  QVector2D bottom_right = QVector2D(ValueToPixel(2, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
+  QVector2D bottom_left = QVector2D(ValueToPixel(3, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
 
-                                  -1.0f, -1.0f, 0.0f,
-                                  -1.0f,  1.0f, 0.0f,
-                                   1.0f,  1.0f, 0.0f};
+  QVector<float> blit_vertices = {top_left.x(), top_left.y(), 0.0f, //
+                                  top_right.x(), top_right.y(), 0.0f,
+                                  bottom_right.x(),  bottom_right.y(), 0.0f,
+
+                                  top_left.x(), top_left.y(), 0.0f,
+                                  bottom_left.x(),  bottom_left.y(), 0.0f,
+                                  bottom_right.x(),  bottom_right.y(), 0.0f};
   job.SetVertexCoordinates(blit_vertices);
 
   table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
@@ -72,12 +78,13 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
 ShaderCode CornerPinDistortNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")));//,
-                    //FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),//);//,
+                    FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
 }
 
-QPointF CornerPinDistortNode::ValueToPixel(int value, const NodeValueRow& row, const QVector2D &resolution)
+QPointF CornerPinDistortNode::ValueToPixel(int value, const NodeValueRow& row, const QVector2D &resolution) const
 {
+  Q_ASSERT(value >= 0 && value <= 3);
   switch (value) {
     case 0:
       return QPointF(row[kTopLeftInput].data().value<QVector2D>().x(),
@@ -95,6 +102,8 @@ QPointF CornerPinDistortNode::ValueToPixel(int value, const NodeValueRow& row, c
       return QPointF(row[kBottomLeftInput].data().value<QVector2D>().x(),
                      row[kBottomLeftInput].data().value<QVector2D>().y() + resolution.y());
       break;
+    default:
+      return QPointF(); // should never happen
   }
 }
 
@@ -106,17 +115,13 @@ void CornerPinDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
 
   p->setPen(QPen(Qt::white, 0));
 
-  QPointF top_left = QPointF(row[kTopLeftInput].data().value<QVector2D>().x(),
-                             row[kTopLeftInput].data().value<QVector2D>().y());
+  QPointF top_left = ValueToPixel(0, row, resolution);
 
-  QPointF top_right = QPointF(resolution.x() + row[kTopRightInput].data().value<QVector2D>().x(),
-                                               row[kTopRightInput].data().value<QVector2D>().y());
+  QPointF top_right = ValueToPixel(1, row, resolution);
 
-  QPointF bottom_right = QPointF(resolution.x() + row[kBottomRightInput].data().value<QVector2D>().x(),
-                                 resolution.y() + row[kBottomRightInput].data().value<QVector2D>().y());
+  QPointF bottom_right = ValueToPixel(2, row, resolution);
 
-  QPointF bottom_left = QPointF(row[kBottomLeftInput].data().value<QVector2D>().x(),
-                                row[kBottomLeftInput].data().value<QVector2D>().y() + resolution.y());
+  QPointF bottom_left = ValueToPixel(3, row, resolution);
 
   SetInputProperty(kTopLeftInput, QStringLiteral("offset"), QVector2D(0.0, 0.0));
   SetInputProperty(kTopRightInput, QStringLiteral("offset"), QVector2D(resolution.x() , 0.0));
@@ -147,13 +152,13 @@ void CornerPinDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
   float d1 = QVector2D(bottom_right.x() - mid_x, mid_y - bottom_right.y()).length();
   float d2 = QVector2D(top_right.x() - mid_x, top_right.y() - mid_y).length();
   float d3 = QVector2D(mid_x - top_left.x(), top_left.y() - mid_y).length();
-
+  /*
   qDebug() << "Vert 0" << (d1 + d3) / d3;
   qDebug() << "Vert 1" << (d0 + d2) / d2;
   qDebug() << "Vert 2" << (d3 + d1) / d1;
   qDebug() << "Vert 3" << (d2 + d0) / d0;
   qDebug() << "=========";
-
+  */
 }
 
 bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p)

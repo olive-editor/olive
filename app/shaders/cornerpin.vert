@@ -81,13 +81,13 @@ void main() {
 
     float q  = 1.0;
 
-    if (gl_VertexID == 0) {
+    if (gl_VertexID == 0 || gl_VertexID == 3) {
         q = (d1+d3)/d3;
         //q = d0/1920.0;
     } else if (gl_VertexID == 1) {
         q = (d0+d2)/d2;
        // q = 1.0;
-    } else if (gl_VertexID == 2) {
+    } else if (gl_VertexID == 2 || gl_VertexID == 5) {
         q = (d3+d1)/d1;
        // q = 1.0;
     } else {
