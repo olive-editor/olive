@@ -25,6 +25,12 @@
 
 namespace olive {
 
+class ShaderInputsParser;
+
+/** @brief
+ * A node that implements a GLSL script. The inputs of this node
+ * are defined in GLSL by markup comments
+ */ 
 class ShaderFilterNode : public Node
 {
   Q_OBJECT
@@ -51,6 +57,8 @@ public:
 private:
   void parseShaderCode();
   void onShaderCodeChanged();
+  void reportErrorList( const ShaderInputsParser & parser);
+  void updateInputList( const ShaderInputsParser & parser);
 
 private:
 

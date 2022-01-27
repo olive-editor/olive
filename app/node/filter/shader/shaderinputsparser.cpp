@@ -23,6 +23,7 @@
 #include <QStringRef>
 #include <QRegularExpression>
 #include <QMap>
+#include <QColor>
 
 namespace olive {
 
@@ -57,7 +58,7 @@ QRegularExpression INPUT_MIN_REGEX("^\\s*//OVE\\s*min:\\s*(?<min>.*)\\s*$");
 // maximum value
 QRegularExpression INPUT_MAX_REGEX("^\\s*//OVE\\s*max:\\s*(?<max>.*)\\s*$");
 // default value
-QRegularExpression INPUT_DEFAULT_REGEX("^\\s*//OVE\\s*default:\\*(?<def>.*)\\s*$");
+QRegularExpression INPUT_DEFAULT_REGEX("^\\s*//OVE\\s*default:\\s*(?<default>.*)\\s*$");
 // description. So far not used by application
 QRegularExpression INPUT_DESCRIPTION_REGEX("^\\s*//OVE\\s*description:\\s*(?<description>.*)\\s*$");
 
@@ -88,18 +89,24 @@ void clearCurrentInput()
   currentInput.default_value = QVariant();
 }
 
+QString textForType( NodeValue::Type type)
+{
+  return INPUT_TYPE_TABLE.key( type, "NONE");
+}
+
 }  // namespace
 
 
 ShaderInputsParser::ShaderInputsParser( const QString & shader_code) :
-  shader_code_(shader_code)
+  shader_code_(shader_code),
+  line_number_(1)
 {
   clearCurrentInput();
 
   // build the table that matches an OVE markup comment with its parse function
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_NAME_REGEX, & ShaderInputsParser::parseShaderName);
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_DESCRIPTION_REGEX, & ShaderInputsParser::parseShaderDescription);
-  INPUT_PARAM_PARSE_TABLE.insert( & SHADER_VERSION_REGEX, & ShaderInputsParser::parseShaderVerion);
+  INPUT_PARAM_PARSE_TABLE.insert( & SHADER_VERSION_REGEX, & ShaderInputsParser::parseShaderVersion);
 
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_NAME_REGEX, & ShaderInputsParser::parseInputName);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_UNIFORM_REGEX, & ShaderInputsParser::parseInputUniform);
@@ -120,9 +127,11 @@ void ShaderInputsParser::Parse()
   QStringRef line;
   InputParseState state = PARSING;
 
-  QRegularExpression LINE_BREAK = QRegularExpression("[\\n\\r]+");
+  static const QRegularExpression LINE_BREAK = QRegularExpression("[\\n\\r]+");
 
   input_list_.clear();
+  error_list_.clear();
+  line_number_ = 1;
 
   // parse line by line
   while (state != SHADER_COMPLETE) {
@@ -144,6 +153,7 @@ void ShaderInputsParser::Parse()
     // check if this line must be parsed
     if ( (line.startsWith(OLIVE_MARKED_COMMENT)) ||
          (line.startsWith(UNIFORM_TAG)) ) {
+
       state = parseSingleLine( line);
 
       if (state == INPUT_COMPLETE) {
@@ -158,6 +168,10 @@ void ShaderInputsParser::Parse()
       // Different platforms have different end of line.
       while ((cursor < fragment_size) &&
              (shader_code_.at(cursor).isSpace()) ) {
+
+        if (shader_code_.at(cursor) == '\n') {
+          line_number_++;
+        }
         ++cursor;
       }
 
@@ -177,8 +191,7 @@ ShaderInputsParser::InputParseState ShaderInputsParser::parseSingleLine( const Q
 
   QMap<const QRegularExpression *, LineParseFunction>::iterator it;
 
-  // iterate over all regular expressions up to the first match.
-  // return as soon as the first match is found
+  // iterate over all regular expressions for lines
   for (it = INPUT_PARAM_PARSE_TABLE.begin(); it != INPUT_PARAM_PARSE_TABLE.end(); ++it) {
 
     match = it.key()->match( line);
@@ -187,6 +200,7 @@ ShaderInputsParser::InputParseState ShaderInputsParser::parseSingleLine( const Q
       LineParseFunction parseFunction = it.value();
       new_state = (this->*parseFunction)( match);
 
+      // stop at the first match
       break;
     }
   }
@@ -209,7 +223,7 @@ ShaderInputsParser::parseShaderDescription(const QRegularExpressionMatch & /*mat
 }
 
 ShaderInputsParser::InputParseState
-ShaderInputsParser::parseShaderVerion(const QRegularExpressionMatch & /*match*/)
+ShaderInputsParser::parseShaderVersion(const QRegularExpressionMatch & /*match*/)
 {
   // nothing to do. SO far.
   return PARSING;
@@ -242,34 +256,58 @@ ShaderInputsParser::parseInputType(const QRegularExpressionMatch & match)
   currentInput.type = INPUT_TYPE_TABLE.value( match.captured("type"), NodeValue::kNone);
 
   if (currentInput.type == NodeValue::kNone) {
-    // TODO_ report error
-    qDebug() << "invalid type: " << match.captured("type");
+    reportError(QObject::tr("type %1 is invalid").arg(match.captured("type")));
   }
 
   return PARSING;
 }
 
 ShaderInputsParser::InputParseState
-ShaderInputsParser::parseInputFlags(const QRegularExpressionMatch & /*match*/)
+ShaderInputsParser::parseInputFlags(const QRegularExpressionMatch & line_match)
 {
-  // TODO_
+  // more flags can be present in one line
+  static const QRegularExpression FLAG_REGEX("(ARRAY|NOT_CONNECTABLE|NOT_KEYFRAMABLE|HIDDEN)");
+
+  static const QMap<QString, InputFlag> FLAG_TABLE{{"ARRAY", kInputFlagArray},
+                                                   {"NOT_CONNECTABLE", kInputFlagNotConnectable},
+                                                   {"NOT_KEYFRAMABLE", kInputFlagNotKeyframable},
+                                                   {"HIDDEN", kInputFlagHidden},
+                                                  };
+
+
+  QStringRef flags_line = line_match.capturedRef("flags");
+  QRegularExpressionMatchIterator flag_match = FLAG_REGEX.globalMatch( flags_line);
+
+  while (flag_match.hasNext()) {
+    QRegularExpressionMatch flag = flag_match.next();
+    QString flag_str = flag.captured(1);
+
+    currentInput.flags |= InputFlags(FLAG_TABLE.value( flag_str, kInputFlagNormal));
+  }
+
+
   return PARSING;
 }
 
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputMin(const QRegularExpressionMatch & match)
 {
-  bool ok = true;
+  bool ok = false;
+  QStringRef min_str = match.capturedRef("min");
 
   if (currentInput.type == NodeValue::kFloat) {
-    currentInput.min = match.capturedRef("min").toFloat( &ok);
+    currentInput.min = min_str.toFloat( &ok);
+  }
+  else if (currentInput.type == NodeValue::kInt) {
+    currentInput.min = min_str.toInt( &ok);
   }
   else {
-    currentInput.min = match.capturedRef("min").toInt( &ok);
+    // this type does not support "min" property
   }
 
   if (ok == false) {
-    // TODO_ report error
+    reportError(QObject::tr("%1 is not valid as minimum for type %2").
+                arg(min_str).arg(textForType(currentInput.type)));
   }
 
   return PARSING;
@@ -278,26 +316,87 @@ ShaderInputsParser::parseInputMin(const QRegularExpressionMatch & match)
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputMax(const QRegularExpressionMatch & match)
 {
-  bool ok = true;
+  bool ok = false;
+  QStringRef max_str = match.capturedRef("max");
 
   if (currentInput.type == NodeValue::kFloat) {
-    currentInput.max = match.capturedRef("max").toFloat( &ok);
+    currentInput.max = max_str.toFloat( &ok);
+  }
+  else if (currentInput.type == NodeValue::kInt) {
+    currentInput.max = max_str.toInt( &ok);
   }
   else {
-    currentInput.max = match.capturedRef("max").toInt( &ok);
+    // this type does not support "max" property
   }
 
   if (ok == false) {
-    // TODO_ report error
+    reportError(QObject::tr("%1 is not valid as maximum for type %2").
+                arg(max_str).arg(textForType(currentInput.type)));
   }
 
   return PARSING;
 }
 
 ShaderInputsParser::InputParseState
-ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & /*match*/)
+ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
 {
-  // TODO_
+  QStringRef default_string = match.capturedRef("default").trimmed();
+  bool ok = false;
+  float float_value;
+  int int_value;
+
+  switch (currentInput.type)
+  {
+  case NodeValue::kFloat:
+    float_value = default_string.toFloat( &ok);
+
+    if (ok)
+    {
+      currentInput.default_value = QVariant::fromValue<float>(float_value);
+    }
+    else
+    {
+      reportError(QObject::tr("%1 is not a valid float").
+                  arg(default_string));
+    }
+    break;
+
+  case NodeValue::kInt:
+    int_value = default_string.toInt( &ok);
+
+    if (ok)
+    {
+      currentInput.default_value = QVariant::fromValue<int>(int_value);
+    }
+    else
+    {
+      reportError(QObject::tr("%1 is not a valid integer").arg(default_string));
+    }
+    break;
+
+  case NodeValue::kBoolean:
+    if (default_string == "false") {
+      currentInput.default_value = QVariant::fromValue<bool>(false);
+    }
+    else if (default_string == "true") {
+      currentInput.default_value = QVariant::fromValue<bool>(true);
+    }
+    else {
+      reportError(QObject::tr("value must be 'true' or 'false'"));
+    }
+    break;
+
+  case NodeValue::kColor:
+    currentInput.default_value = parseColor( default_string);
+    break;
+
+  default:
+  case NodeValue::kTexture:
+  case NodeValue::kNone:
+    reportError(QObject::tr("type %1 does not support a default value").arg(textForType(currentInput.type)));
+    break;
+  }
+
   return PARSING;
 }
 
@@ -312,6 +411,46 @@ ShaderInputsParser::InputParseState
 ShaderInputsParser::stopParse(const QRegularExpressionMatch & /*match*/)
 {
   return SHADER_COMPLETE;
+}
+
+// Assume 'line' has format RGBA( r,g,b,a), where 'r,g,b,a' are in range 0 .. 255
+// and stand for 'red', 'green', 'blue', 'alpha'
+QVariant ShaderInputsParser::parseColor(const QStringRef& line)
+{
+  static const QRegularExpression
+      COLOR_REGEX("RGBA\\(\\s*(?<r>\\d+)\\s*,\\s*(?<g>\\d+)\\s*,\\s*(?<b>\\d+)\\s*,\\s*(?<a>\\d+)\\s*\\)");
+
+  QVariant color;
+  QRegularExpressionMatch match = COLOR_REGEX.match(line);
+
+  if (match.hasMatch()) {
+    bool ok_r, ok_g, ok_b, ok_a;
+    int r,g,b,a;
+
+    r = match.captured("r").toInt( & ok_r);
+    g = match.captured("g").toInt( & ok_g);
+    b = match.captured("b").toInt( & ok_b);
+    a = match.captured("a").toInt( & ok_a);
+
+    if (ok_r && ok_g && ok_b && ok_a) {
+      color = QVariant::fromValue<QColor>( QColor(r,g,b,a));
+    }
+    else {
+      reportError(QObject::tr("Color must be in format 'RGBA(r,g,b,a)' "
+                              "where r,g,b,a are in range 0-255 "));
+    }
+  }
+
+  return color;
+}
+
+void ShaderInputsParser::reportError(const QString& error)
+{
+  Error new_err;
+  new_err.line = line_number_;
+  new_err.issue = error;
+
+  error_list_.append( new_err);
 }
 
 }  // namespace olive

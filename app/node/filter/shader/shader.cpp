@@ -22,6 +22,7 @@
 
 #include <QRegularExpression>
 #include <QFileInfo>
+#include <QMessageBox>
 
 #include "shaderinputsparser.h"
 
@@ -44,6 +45,9 @@ ShaderFilterNode::ShaderFilterNode()
 Node *ShaderFilterNode::copy() const
 {
   ShaderFilterNode * new_node = new ShaderFilterNode();
+
+  // the new node must have the same inputs as the original.
+  // the constructor only creates the "shader code" input
   new_node->shader_code_ = this->shader_code_;
   new_node->input_list_ = this->input_list_;
   new_node->onShaderCodeChanged();
@@ -66,23 +70,10 @@ QVector<Node::CategoryID> ShaderFilterNode::Category() const
   return {kCategoryFilter};
 }
 
-void olive::ShaderFilterNode::onShaderCodeChanged()
-{
-  qDebug() << "parsing shader code";
-
-  // pre-remove all inputs
-  for (QString oldInput : input_list_)
-  {
-    RemoveInput(oldInput);
-  }
-  input_list_.clear();
-
-  parseShaderCode();
-}
-
 void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element)
+
 
   if (input == kShaderCode)
   {
@@ -94,6 +85,23 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
     // to fix shader name and input parameters.
     onShaderCodeChanged();
   }
+}
+
+void olive::ShaderFilterNode::onShaderCodeChanged()
+{
+  // pre-remove all inputs ...
+  for (QString oldInput : input_list_)
+  {
+    if (HasInputWithID(oldInput)) {
+      RemoveInput(oldInput);
+    }
+  }
+  input_list_.clear();
+
+  // ... and create new inputs
+  parseShaderCode();
+
+  qDebug() << "parsed shader code for " << GetLabel();
 }
 
 QString ShaderFilterNode::Description() const
@@ -137,7 +145,29 @@ void ShaderFilterNode::parseShaderCode()
   // update name, if defined in script
   SetLabel( parser.ShaderName());
 
-  // update input list
+  reportErrorList( parser);
+
+  updateInputList( parser);
+}
+
+void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
+{
+  const QList<ShaderInputsParser::Error> & errors = parser.ErrorList();
+  QString message;
+
+  for (ShaderInputsParser::Error e : errors ) {
+    // need to translate?
+    message.append(QString("<p><i>Line <b>%1</b>:</i> %2</p>").arg(e.line).arg( e.issue));
+  }
+
+  // we use a message box because the editor has been closed
+  if (message != QString()) {
+    QMessageBox::warning(nullptr, tr("Shader metadata errors"), message);
+  }
+}
+
+void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
+{
   const QList< ShaderInputsParser::InputParam> & input_list = parser.InputList();
   QList< ShaderInputsParser::InputParam>::const_iterator it;
 

@@ -55,6 +55,11 @@ public:
     QVariant default_value;
   };
 
+  struct Error {
+     int line;
+     QString issue;
+  };
+
 
   // The constructor accepts the full code of the shader
   ShaderInputsParser( const QString & shader_code);
@@ -76,7 +81,10 @@ public:
     return shader_name_;
   }
 
-  // TODO_ parse error list
+  // list of issue found in parsing inputs
+  const QList<Error> & ErrorList() const {
+     return error_list_;
+  }
 
 private:
   // value returned after parsing one line
@@ -96,7 +104,7 @@ private:
 
   InputParseState parseShaderName( const QRegularExpressionMatch &);
   InputParseState parseShaderDescription( const QRegularExpressionMatch &);
-  InputParseState parseShaderVerion( const QRegularExpressionMatch &);
+  InputParseState parseShaderVersion( const QRegularExpressionMatch &);
   InputParseState parseInputName( const QRegularExpressionMatch &);
   InputParseState parseInputUniform( const QRegularExpressionMatch &);
   InputParseState parseInputType( const QRegularExpressionMatch &);
@@ -109,9 +117,14 @@ private:
 
   QMap< const QRegularExpression *, LineParseFunction> INPUT_PARAM_PARSE_TABLE;
 
+  QVariant parseColor( const QStringRef & line);
+  void reportError( const QString & error);
+
 private:
   const QString & shader_code_;
   QList< InputParam> input_list_;
+  QList<Error> error_list_;
+  int line_number_;
 
   QString shader_name_;
 };
