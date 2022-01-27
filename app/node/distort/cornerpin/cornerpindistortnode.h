@@ -57,7 +57,7 @@ public:
 
   virtual QString Description() const override
   {
-    return tr("Distort the image by dragging the corners around");
+    return tr("Distort the image by dragging the corners.");
   }
 
   virtual void Retranslate() override;
