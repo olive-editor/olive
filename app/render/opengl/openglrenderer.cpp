@@ -886,6 +886,7 @@ GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
 #ifndef Q_OS_MAC
       // Use appropriate GL ES 2.0 shader header
       QStringLiteral("#version 100\n\n"
+                     "#extension GL_EXT_gpu_shader4 : enable\n\n"
                      "precision highp float;\n\n");
 #else
       // Use desktop GL equivalent header because apparently macOS doesn't support the ES header

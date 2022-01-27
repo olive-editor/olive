@@ -1,5 +1,3 @@
-#extension GL_EXT_gpu_shader4 : enable
-
 uniform bool perspective_in;
 uniform vec2 top_left_in;
 uniform vec2 top_right_in;
