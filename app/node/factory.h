@@ -63,6 +63,8 @@ public:
     kShapeGenerator,
     kGroupNode,
     kOpacityEffect,
+    kFlipDistort,
+    kNoiseGenerator,
     kCornerPinDistort,
 
     // Count value
