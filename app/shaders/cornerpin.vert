@@ -53,7 +53,7 @@ void main() {
         float q  = 1.0;
 
         /*
-        Vertex Ids (aspect ratio irrelevant):
+        Vertex IDs (aspect ratio irrelevant):
              0_____1
             3|\    |
              | \   |
