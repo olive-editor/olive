@@ -77,8 +77,18 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
                                   bottom_right.x(),  bottom_right.y(), 0.0f};
   job.SetVertexCoordinates(blit_vertices);
 
-  // TODO: optimize
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  if (!job.GetValue(kTextureInput).data().isNull()) {
+    if (!(job.GetValue(kTopLeftInput).data().value<QVector2D>().isNull()
+        && job.GetValue(kTopRightInput).data().value<QVector2D>().isNull() &&
+        job.GetValue(kBottomRightInput).data().value<QVector2D>().isNull() &&
+        job.GetValue(kBottomLeftInput).data().value<QVector2D>().isNull())) {
+      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+    } else {
+      table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
+    }
+  } else {
+    table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
+  }
 }
 
 ShaderCode CornerPinDistortNode::GetShaderCode(const QString &shader_id) const
