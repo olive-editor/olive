@@ -26,6 +26,8 @@ set(OLIVE_SOURCES
   widget/viewer/viewerdisplay.h
   widget/viewer/viewerplaybacktimer.cpp
   widget/viewer/viewerplaybacktimer.h
+  widget/viewer/viewerpreventsleep.cpp
+  widget/viewer/viewerpreventsleep.h
   widget/viewer/viewerqueue.h
   widget/viewer/viewersafemargininfo.h
   widget/viewer/viewersizer.cpp

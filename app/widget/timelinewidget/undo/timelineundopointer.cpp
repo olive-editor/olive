@@ -324,7 +324,6 @@ TrackPlaceBlockCommand::~TrackPlaceBlockCommand()
 {
   delete ripple_remove_command_;
   qDeleteAll(add_track_commands_);
-  qDeleteAll(position_commands_);
 }
 
 void TrackPlaceBlockCommand::redo()
@@ -367,14 +366,6 @@ void TrackPlaceBlockCommand::redo()
     }
 
     track->AppendBlock(insert_);
-
-    if (position_commands_.isEmpty()) {
-      // Create position commands for insert and gap if necessary
-      if (gap_) {
-        position_commands_.append(new NodeSetPositionAsChildCommand(gap_, track, track, gap_->index(), track->Blocks().size(), true));
-      }
-      position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, track, insert_->index(), track->Blocks().size(), true));
-    }
   } else {
     // Place the Block at this point
     if (!ripple_remove_command_) {
@@ -384,10 +375,6 @@ void TrackPlaceBlockCommand::redo()
 
     ripple_remove_command_->redo_now();
     track->InsertBlockAfter(insert_, ripple_remove_command_->GetInsertionIndex());
-
-    if (position_commands_.isEmpty()) {
-      position_commands_.append(new NodeSetPositionAsChildCommand(insert_, track, track, insert_->index(), track->Blocks().size(), true));
-    }
   }
 
   track->EndOperation();
@@ -397,18 +384,10 @@ void TrackPlaceBlockCommand::redo()
   foreach (const TimeRange &r, ranges_to_invalidate) {
     track->Node::InvalidateCache(r, Track::kBlockInput);
   }
-
-  for (int i=0; i<position_commands_.size(); i++) {
-    position_commands_.at(i)->redo_now();
-  }
 }
 
 void TrackPlaceBlockCommand::undo()
 {
-  for (int i=position_commands_.size()-1; i>=0; i--) {
-    position_commands_.at(i)->undo_now();
-  }
-
   Track* t = timeline_->GetTrackAt(track_index_);
 
   TimeRange insert_range(insert_->in(), insert_->out());

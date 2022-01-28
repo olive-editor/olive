@@ -76,6 +76,7 @@ QIcon icon::Clock;
 QIcon icon::Diamond;
 QIcon icon::Plus;
 QIcon icon::Minus;
+QIcon icon::AddEffect;
 
 void icon::LoadAll(const QString& theme)
 {
@@ -129,6 +130,7 @@ void icon::LoadAll(const QString& theme)
   Diamond = Create(theme, "diamond");
   Plus = Create(theme, "plus");
   Minus = Create(theme, "minus");
+  AddEffect = Create(theme, "add-effect");
 }
 
 QIcon icon::Create(const QString& theme, const QString &name)

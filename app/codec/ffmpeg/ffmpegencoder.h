@@ -77,6 +77,8 @@ private:
 
   bool InitializeResampleContext(SampleBufferPtr audio);
 
+  static AVCodec *GetEncoder(ExportCodec::Codec c);
+
   AVFormatContext* fmt_ctx_;
 
   AVStream* video_stream_;

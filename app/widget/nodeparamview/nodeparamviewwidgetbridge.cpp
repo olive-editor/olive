@@ -33,33 +33,34 @@
 #include "nodeparamviewtextedit.h"
 #include "nodeparamviewundo.h"
 #include "undo/undostack.h"
+#include "widget/bezier/bezierwidget.h"
 #include "widget/colorbutton/colorbutton.h"
 #include "widget/filefield/filefield.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
 #include "widget/slider/rationalslider.h"
-#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
-NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(const NodeInput &input, QObject *parent) :
-  QObject(parent),
-  input_(input)
+NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput input, QObject *parent) :
+  QObject(parent)
 {
-  CreateWidgets();
+  do {
+    input_hierarchy_.append(input);
 
-  connect(input_.node(), &Node::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
-  connect(input_.node(), &Node::InputPropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
-  connect(input_.node(), &Node::InputDataTypeChanged, this, &NodeParamViewWidgetBridge::InputDataTypeChanged);
+    connect(input.node(), &Node::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
+    connect(input.node(), &Node::InputPropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
+    connect(input.node(), &Node::InputDataTypeChanged, this, &NodeParamViewWidgetBridge::InputDataTypeChanged);
+  } while (NodeGroup::GetInner(&input));
+
+  CreateWidgets();
 }
 
 void NodeParamViewWidgetBridge::SetTime(const rational &time)
 {
   time_ = time;
 
-  if (input_.IsValid()) {
-    UpdateWidgetValues();
-  }
+  UpdateWidgetValues();
 }
 
 int GetSliderCount(NodeValue::Type type)
@@ -69,16 +70,16 @@ int GetSliderCount(NodeValue::Type type)
 
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
-  if (input_.IsArray() && input_.element() == -1) {
+  if (GetInnerInput().IsArray() && GetInnerInput().element() == -1) {
 
-    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(input_.node(), input_.input());
+    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(GetInnerInput().node(), GetInnerInput().input());
     connect(w, &NodeParamViewArrayWidget::DoubleClicked, this, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked);
     widgets_.append(w);
 
   } else {
 
     // We assume the first data type is the "primary" type
-    NodeValue::Type t = input_.GetDataType();
+    NodeValue::Type t = GetDataType();
     switch (t) {
     // None of these inputs have applicable UI widgets
     case NodeValue::kNone:
@@ -89,6 +90,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kShaderJob:
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
+    case NodeValue::kVideoParams:
+    case NodeValue::kAudioParams:
       break;
     case NodeValue::kInt:
     {
@@ -112,7 +115,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     {
       QComboBox* combobox = new QComboBox();
 
-      QStringList items = input_.GetComboBoxStrings();
+      QStringList items = GetInnerInput().GetComboBoxStrings();
       foreach (const QString& s, items) {
         combobox->addItem(s);
       }
@@ -130,7 +133,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeValue::kColor:
     {
-      ColorButton* color_button = new ColorButton(input_.node()->project()->color_manager());
+      ColorButton* color_button = new ColorButton(GetInnerInput().node()->project()->color_manager());
       widgets_.append(color_button);
       connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
@@ -156,26 +159,23 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
-    case NodeValue::kVideoParams:
+    case NodeValue::kBezier:
     {
-      VideoParamEdit* edit = new VideoParamEdit();
-      edit->SetColorManager(input_.node()->project()->color_manager());
-      widgets_.append(edit);
-      connect(edit, &VideoParamEdit::Changed, this, &NodeParamViewWidgetBridge::WidgetCallback);
-      break;
-    }
-    case NodeValue::kAudioParams:
-    {
-      // FIXME: Create audio param widget
+      BezierWidget *bezier = new BezierWidget();
+      widgets_.append(bezier);
+
+      connect(bezier->x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->y_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp1_x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp1_y_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp2_x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp2_y_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     }
 
     // Check all properties
-    auto input_properties = input_.node()->GetInputProperties(input_.input());
-    for (auto it=input_properties.cbegin(); it!=input_properties.cend(); it++) {
-      PropertyChanged(input_.input(), it.key(), it.value());
-    }
+    UpdateProperties();
 
     UpdateWidgetValues();
 
@@ -198,16 +198,16 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
 {
-  if (input_.IsKeyframing()) {
+  if (GetInnerInput().IsKeyframing()) {
     rational node_time = GetCurrentTimeAsNodeTime();
 
-    NodeKeyframe* existing_key = input_.GetKeyframeAtTimeOnTrack(node_time, track);
+    NodeKeyframe* existing_key = GetInnerInput().GetKeyframeAtTimeOnTrack(node_time, track);
 
     if (existing_key) {
       command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
     } else {
       // No existing key, create a new one
-      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(input_.node()->GetInputDataType(input_.input()));
+      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(GetInnerInput().node()->GetInputDataType(GetInnerInput().input()));
       for (int i=0; i<nb_tracks; i++) {
         QVariant track_value;
 
@@ -216,35 +216,33 @@ void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int
         } else if (!insert_on_all_tracks_if_no_key) {
           continue;
         } else {
-          track_value = input_.node()->GetSplitValueAtTimeOnTrack(input_.input(), node_time, i, input_.element());
+          track_value = GetInnerInput().node()->GetSplitValueAtTimeOnTrack(GetInnerInput().input(), node_time, i, GetInnerInput().element());
         }
 
         NodeKeyframe* new_key = new NodeKeyframe(node_time,
                                                  track_value,
-                                                 input_.node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(input_, i), node_time),
+                                                 GetInnerInput().node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(GetInnerInput(), i), node_time),
                                                  i,
-                                                 input_.element(),
-                                                 input_.input());
+                                                 GetInnerInput().element(),
+                                                 GetInnerInput().input());
 
-        command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), new_key));
+        command->add_child(new NodeParamInsertKeyframeCommand(GetInnerInput().node(), new_key));
       }
     }
   } else {
-    command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, track), value));
+    command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(GetInnerInput(), track), value));
   }
 }
 
-void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, const QVariant &value)
+void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, int slider_track, const QVariant &value)
 {
-  int slider_track = widgets_.indexOf(slider);
-
   if (slider->IsDragging()) {
 
     // While we're dragging, we block the input's normal signalling and create our own
     if (!dragger_.IsStarted()) {
       rational node_time = GetCurrentTimeAsNodeTime();
 
-      dragger_.Start(NodeKeyframeTrackReference(input_, slider_track), node_time);
+      dragger_.Start(NodeKeyframeTrackReference(GetInnerInput(), slider_track), node_time);
     }
 
     dragger_.Drag(value);
@@ -268,7 +266,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, const Q
 
 void NodeParamViewWidgetBridge::WidgetCallback()
 {
-  switch (input_.GetDataType()) {
+  switch (GetDataType()) {
   // None of these inputs have applicable UI widgets
   case NodeValue::kNone:
   case NodeValue::kTexture:
@@ -278,6 +276,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {
@@ -343,12 +343,12 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValueInternal(c.blue(), 2, command, false);
     SetInputValueInternal(c.alpha(), 3, command, false);
 
-    Node* n = input_.node();
+    Node* n = GetInnerInput().node();
     n->blockSignals(true);
-    n->SetInputProperty(input_.input(), QStringLiteral("col_input"), c.color_input());
-    n->SetInputProperty(input_.input(), QStringLiteral("col_display"), c.color_output().display());
-    n->SetInputProperty(input_.input(), QStringLiteral("col_view"), c.color_output().view());
-    n->SetInputProperty(input_.input(), QStringLiteral("col_look"), c.color_output().look());
+    n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_input"), c.color_input());
+    n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_display"), c.color_output().display());
+    n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_view"), c.color_output().view());
+    n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_look"), c.color_output().look());
     n->blockSignals(false);
 
     Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -383,20 +383,38 @@ void NodeParamViewWidgetBridge::WidgetCallback()
       if (cb->itemData(i, Qt::AccessibleDescriptionRole).toString() == QStringLiteral("separator")) {
         index--;
       }
+
     }
 
     SetInputValue(index, 0);
     break;
   }
-  case NodeValue::kVideoParams:
+  case NodeValue::kBezier:
   {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(sender());
-    SetInputValue(QVariant::fromValue(edit->GetVideoParams()), 0);
+    // Widget is a FloatSlider (child of BezierWidget)
+    BezierWidget *bw = static_cast<BezierWidget*>(widgets_.first());
+    FloatSlider *fs = static_cast<FloatSlider*>(sender());
+
+    int index = -1;
+    if (fs == bw->x_slider()) {
+      index = 0;
+    } else if (fs == bw->y_slider()) {
+      index = 1;
+    } else if (fs == bw->cp1_x_slider()) {
+      index = 2;
+    } else if (fs == bw->cp1_y_slider()) {
+      index = 3;
+    } else if (fs == bw->cp2_x_slider()) {
+      index = 4;
+    } else if (fs == bw->cp2_y_slider()) {
+      index = 5;
+    }
+
+    if (index != -1) {
+      ProcessSlider(fs, index, fs->GetValue());
+    }
     break;
   }
-  case NodeValue::kAudioParams:
-    // FIXME: No audio param widget yet
-    break;
   }
 }
 
@@ -405,7 +423,7 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 {
   for (int i=0;i<count;i++) {
     T* fs = new T();
-    fs->SliderBase::SetDefaultValue(input_.GetSplitDefaultValueForTrack(i));
+    fs->SliderBase::SetDefaultValue(GetInnerInput().GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
     widgets_.append(fs);
     connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
@@ -414,17 +432,17 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
 
 void NodeParamViewWidgetBridge::UpdateWidgetValues()
 {
-  if (input_.IsArray() && input_.element() == -1) {
+  if (GetInnerInput().IsArray() && GetInnerInput().element() == -1) {
     return;
   }
 
   rational node_time;
-  if (input_.IsKeyframing()) {
+  if (GetInnerInput().IsKeyframing()) {
     node_time = GetCurrentTimeAsNodeTime();
   }
 
   // We assume the first data type is the "primary" type
-  switch (input_.GetDataType()) {
+  switch (GetDataType()) {
   // None of these inputs have applicable UI widgets
   case NodeValue::kNone:
   case NodeValue::kTexture:
@@ -434,25 +452,27 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kVideoParams:
+  case NodeValue::kAudioParams:
     break;
   case NodeValue::kInt:
   {
-    static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).toLongLong());
+    static_cast<IntegerSlider*>(widgets_.first())->SetValue(GetInnerInput().GetValueAtTime(node_time).toLongLong());
     break;
   }
   case NodeValue::kFloat:
   {
-    static_cast<FloatSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).toDouble());
+    static_cast<FloatSlider*>(widgets_.first())->SetValue(GetInnerInput().GetValueAtTime(node_time).toDouble());
     break;
   }
   case NodeValue::kRational:
   {
-    static_cast<RationalSlider*>(widgets_.first())->SetValue(input_.GetValueAtTime(node_time).value<rational>());
+    static_cast<RationalSlider*>(widgets_.first())->SetValue(GetInnerInput().GetValueAtTime(node_time).value<rational>());
     break;
   }
   case NodeValue::kVec2:
   {
-    QVector2D vec2 = input_.GetValueAtTime(node_time).value<QVector2D>();
+    QVector2D vec2 = GetInnerInput().GetValueAtTime(node_time).value<QVector2D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec2.y()));
@@ -460,7 +480,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeValue::kVec3:
   {
-    QVector3D vec3 = input_.GetValueAtTime(node_time).value<QVector3D>();
+    QVector3D vec3 = GetInnerInput().GetValueAtTime(node_time).value<QVector3D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec3.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec3.y()));
@@ -469,7 +489,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeValue::kVec4:
   {
-    QVector4D vec4 = input_.GetValueAtTime(node_time).value<QVector4D>();
+    QVector4D vec4 = GetInnerInput().GetValueAtTime(node_time).value<QVector4D>();
 
     static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec4.x()));
     static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec4.y()));
@@ -480,18 +500,18 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kFile:
   {
     FileField* ff = static_cast<FileField*>(widgets_.first());
-    ff->SetFilename(input_.GetValueAtTime(node_time).toString());
+    ff->SetFilename(GetInnerInput().GetValueAtTime(node_time).toString());
     break;
   }
   case NodeValue::kColor:
   {
-    ManagedColor mc = input_.GetValueAtTime(node_time).value<Color>();
+    ManagedColor mc = GetInnerInput().GetValueAtTime(node_time).value<Color>();
 
-    mc.set_color_input(input_.GetProperty("col_input").toString());
+    mc.set_color_input(GetInnerInput().GetProperty("col_input").toString());
 
-    QString d = input_.GetProperty("col_display").toString();
-    QString v = input_.GetProperty("col_view").toString();
-    QString l = input_.GetProperty("col_look").toString();
+    QString d = GetInnerInput().GetProperty("col_display").toString();
+    QString v = GetInnerInput().GetProperty("col_view").toString();
+    QString l = GetInnerInput().GetProperty("col_look").toString();
 
     mc.set_color_output(ColorTransform(d, v, l));
 
@@ -501,17 +521,17 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kText:
   {
     NodeParamViewTextEdit* e = static_cast<NodeParamViewTextEdit*>(widgets_.first());
-    e->setTextPreservingCursor(input_.GetValueAtTime(node_time).toString());
+    e->setTextPreservingCursor(GetInnerInput().GetValueAtTime(node_time).toString());
     break;
   }
   case NodeValue::kBoolean:
-    static_cast<QCheckBox*>(widgets_.first())->setChecked(input_.GetValueAtTime(node_time).toBool());
+    static_cast<QCheckBox*>(widgets_.first())->setChecked(GetInnerInput().GetValueAtTime(node_time).toBool());
     break;
   case NodeValue::kFont:
   {
     QFontComboBox* fc = static_cast<QFontComboBox*>(widgets_.first());
     fc->blockSignals(true);
-    fc->setCurrentFont(input_.GetValueAtTime(node_time).toString());
+    fc->setCurrentFont(GetInnerInput().GetValueAtTime(node_time).toString());
     fc->blockSignals(false);
     break;
   }
@@ -519,47 +539,39 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   {
     QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
     cb->blockSignals(true);
-    int index = input_.GetValueAtTime(node_time).toInt();
-    int real_row = -1;
+    int index = GetInnerInput().GetValueAtTime(node_time).toInt();
     for (int i=0; i<cb->count(); i++) {
-      if (!cb->itemText(i).isEmpty()) {
-        real_row++;
-      }
-
-      if (real_row == index) {
+      if (cb->itemData(i).toInt() == index) {
         cb->setCurrentIndex(i);
       }
     }
     cb->blockSignals(false);
     break;
   }
-  case NodeValue::kVideoParams:
+  case NodeValue::kBezier:
   {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(widgets_.first());
-    edit->SetVideoParams(input_.GetValueAtTime(node_time).value<VideoParams>());
+    BezierWidget* bw = static_cast<BezierWidget*>(widgets_.first());
+    bw->SetValue(GetInnerInput().GetValueAtTime(node_time).value<Bezier>());
     break;
   }
-  case NodeValue::kAudioParams:
-    // FIXME: No audio param widget
-    break;
   }
 }
 
 rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, true);
+  return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), time_, true);
 }
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
 {
-  if (input_.GetDataType() == NodeValue::kRational) {
+  if (GetDataType() == NodeValue::kRational) {
     static_cast<RationalSlider*>(widgets_.first())->SetTimebase(timebase);
   }
 }
 
 void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const TimeRange &range)
 {
-  if (input_ == input
+  if (GetInnerInput() == input
       && !dragger_.IsStarted()
       && range.in() <= time_ && range.out() >= time_) {
     // We'll need to update the widgets because the values have changed on our current time
@@ -567,13 +579,9 @@ void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const 
   }
 }
 
-void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QString &key, const QVariant &value)
+void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &value)
 {
-  if (input != input_.input() || (input_.IsArray() && input_.element() == -1)) {
-    return;
-  }
-
-  NodeValue::Type data_type = input_.GetDataType();
+  NodeValue::Type data_type = GetDataType();
 
   // Parameters for all types
   if (key == QStringLiteral("enabled")) {
@@ -674,42 +682,12 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
         break;
       }
     } else if (key == QStringLiteral("offset")) {
-      switch (data_type) {
-      case NodeValue::kInt:
-        static_cast<IntegerSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kFloat:
-        static_cast<FloatSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kRational:
-        static_cast<RationalSlider*>(widgets_.first())->SetOffset(value);
-        break;
-      case NodeValue::kVec2:
-      {
-        QVector2D offs = value.value<QVector2D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        break;
-      }
-      case NodeValue::kVec3:
-      {
-        QVector3D offs = value.value<QVector3D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        static_cast<FloatSlider*>(widgets_.at(2))->SetOffset(offs.z());
-        break;
-      }
-      case NodeValue::kVec4:
-      {
-        QVector4D offs = value.value<QVector4D>();
-        static_cast<FloatSlider*>(widgets_.at(0))->SetOffset(offs.x());
-        static_cast<FloatSlider*>(widgets_.at(1))->SetOffset(offs.y());
-        static_cast<FloatSlider*>(widgets_.at(2))->SetOffset(offs.z());
-        static_cast<FloatSlider*>(widgets_.at(3))->SetOffset(offs.w());
-        break;
-      }
-      default:
-        break;
+      int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
+
+      QVector<QVariant> offsets = NodeValue::split_normal_value_into_track_values(data_type, value);
+
+      for (int i=0; i<tracks; i++) {
+        static_cast<NumericSliderBase*>(widgets_.at(i))->SetOffset(offsets.at(i));
       }
 
       UpdateWidgetValues();
@@ -718,32 +696,37 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
 
   // ComboBox strings changing
   if (data_type == NodeValue::kCombo) {
-    QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
+    if (key == QStringLiteral("combo_str")) {
+      QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
 
-    int old_index = cb->currentIndex();
+      int old_index = cb->currentIndex();
 
-    // Block the combobox changed signals since we anticipate the index will be the same and not require a re-render
-    cb->blockSignals(true);
+      // Block the combobox changed signals since we anticipate the index will be the same and not require a re-render
+      cb->blockSignals(true);
 
-    cb->clear();
+      cb->clear();
 
-    QStringList items = input_.GetComboBoxStrings();
-    foreach (const QString& s, items) {
-      if (s.isEmpty()) {
-        cb->insertSeparator(cb->count());
-      } else {
-        cb->addItem(s);
+      QStringList items = value.toStringList();
+      int index = 0;
+      foreach (const QString& s, items) {
+        if (s.isEmpty()) {
+          cb->insertSeparator(cb->count());
+          cb->setItemData(cb->count()-1, -1);
+        } else {
+          cb->addItem(s, index);
+          index++;
+        }
       }
-    }
 
-    cb->setCurrentIndex(old_index);
+      cb->setCurrentIndex(old_index);
 
-    cb->blockSignals(false);
+      cb->blockSignals(false);
 
-    // In case the amount of items is LESS and the previous index cannot be set, NOW we trigger a re-cache since the
-    // value has changed
-    if (cb->currentIndex() != old_index) {
-      WidgetCallback();
+      // In case the amount of items is LESS and the previous index cannot be set, NOW we trigger a re-cache since the
+      // value has changed
+      if (cb->currentIndex() != old_index) {
+        WidgetCallback();
+      }
     }
   }
 
@@ -796,21 +779,11 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString& input, const QStr
       ff->SetDirectoryMode(value.toBool());
     }
   }
-
-  // Parameters for video param objects
-  if (data_type == NodeValue::kVideoParams) {
-    VideoParamEdit* edit = static_cast<VideoParamEdit*>(widgets_.first());
-
-    if (key == QStringLiteral("mask")) {
-      edit->SetParameterMask(value.toULongLong());
-    }
-  }
 }
 
 void NodeParamViewWidgetBridge::InputDataTypeChanged(const QString &input, NodeValue::Type type)
 {
-  Q_UNUSED(type)
-  if (input == this->input_.input()) {
+  if (sender() == GetOuterInput().node() && input == GetOuterInput().input()) {
     // Delete all widgets
     qDeleteAll(widgets_);
     widgets_.clear();
@@ -819,7 +792,34 @@ void NodeParamViewWidgetBridge::InputDataTypeChanged(const QString &input, NodeV
     CreateWidgets();
 
     // Signal that widgets are new
-    emit WidgetsRecreated(input_);
+    emit WidgetsRecreated(GetOuterInput());
+  }
+}
+
+void NodeParamViewWidgetBridge::PropertyChanged(const QString &input, const QString &key, const QVariant &value)
+{
+  bool found = false;
+
+  for (auto it=input_hierarchy_.cbegin(); it!=input_hierarchy_.cend(); it++) {
+    if (it->input() == input) {
+      found = true;
+      break;
+    }
+  }
+
+  if (found) {
+    UpdateProperties();
+  }
+}
+
+void NodeParamViewWidgetBridge::UpdateProperties()
+{
+  // Set properties from the last entry (the innermost input) to the first (the outermost)
+  for (auto it=input_hierarchy_.crbegin(); it!=input_hierarchy_.crend(); it++) {
+    auto input_properties = it->node()->GetInputProperties(it->input());
+    for (auto jt=input_properties.cbegin(); jt!=input_properties.cend(); jt++) {
+      SetProperty(jt.key(), jt.value());
+    }
   }
 }
 

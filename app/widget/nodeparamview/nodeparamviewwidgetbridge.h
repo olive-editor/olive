@@ -40,7 +40,7 @@ class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 {
   Q_OBJECT
 public:
-  NodeParamViewWidgetBridge(const NodeInput& input, QObject* parent);
+  NodeParamViewWidgetBridge(NodeInput input, QObject* parent);
 
   void SetTime(const rational& time);
 
@@ -64,7 +64,13 @@ private:
 
   void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
-  void ProcessSlider(NumericSliderBase* slider, const QVariant& value);
+  void ProcessSlider(NumericSliderBase* slider, int slider_track, const QVariant& value);
+  void ProcessSlider(NumericSliderBase* slider, const QVariant& value)
+  {
+    ProcessSlider(slider, widgets_.indexOf(slider), value);
+  }
+
+  void SetProperty(const QString &key, const QVariant &value);
 
   template <typename T>
   void CreateSliders(int count);
@@ -73,7 +79,24 @@ private:
 
   rational GetCurrentTimeAsNodeTime() const;
 
-  NodeInput input_;
+  const NodeInput &GetOuterInput() const
+  {
+    return input_hierarchy_.first();
+  }
+
+  const NodeInput &GetInnerInput() const
+  {
+    return input_hierarchy_.last();
+  }
+
+  NodeValue::Type GetDataType() const
+  {
+    return GetOuterInput().GetDataType();
+  }
+
+  void UpdateProperties();
+
+  QVector<NodeInput> input_hierarchy_;
 
   QVector<QWidget*> widgets_;
 
@@ -88,9 +111,9 @@ private slots:
 
   void InputValueChanged(const NodeInput& input, const TimeRange& range);
 
-  void PropertyChanged(const QString &input, const QString& key, const QVariant& value);
-
   void InputDataTypeChanged(const QString& input, NodeValue::Type type);
+
+  void PropertyChanged(const QString &input, const QString &key, const QVariant &value);
 
 };
 

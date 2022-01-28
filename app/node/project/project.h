@@ -50,10 +50,6 @@ class Project : public NodeGraph
 public:
   Project();
 
-  void Load(QXmlStreamReader* reader, MainWindowLayoutInfo *layout, uint version, const QAtomicInt* cancelled);
-
-  void Save(QXmlStreamWriter* writer) const;
-
   Folder* root();
 
   QString name() const;
@@ -73,6 +69,7 @@ public:
 
   bool is_new() const;
 
+  QString get_cache_alongside_project_path() const;
   QString cache_path() const;
 
   const QUuid& GetUuid() const
@@ -80,10 +77,37 @@ public:
     return uuid_;
   }
 
+  void SetUuid(const QUuid &uuid)
+  {
+    uuid_ = uuid;
+  }
+
   void RegenerateUuid();
 
-  static bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, QPointF *pos);
-  static void SavePosition(QXmlStreamWriter *writer, Node *node, const QPointF &pos);
+  const MainWindowLayoutInfo &GetLayoutInfo() const
+  {
+    return layout_info_;
+  }
+
+  void SetLayoutInfo(const MainWindowLayoutInfo &info)
+  {
+    layout_info_ = info;
+  }
+
+  /**
+   * @brief Returns the filename the project was saved as, but not necessarily where it is now
+   *
+   * May help for resolving relative paths.
+   */
+  const QString &GetSavedURL() const
+  {
+    return saved_url_;
+  }
+
+  void SetSavedURL(const QString &url)
+  {
+    saved_url_ = url;
+  }
 
 signals:
   void NameChanged();
@@ -97,6 +121,8 @@ private:
 
   QString filename_;
 
+  QString saved_url_;
+
   ColorManager* color_manager_;
 
   ProjectSettingsNode* settings_;
@@ -104,6 +130,8 @@ private:
   bool is_modified_;
 
   bool autorecovery_saved_;
+
+  MainWindowLayoutInfo layout_info_;
 
 private slots:
   void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);

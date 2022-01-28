@@ -85,8 +85,6 @@ void ShapeNodeBase::DrawGizmos(const NodeValueRow &row, const NodeGlobals &globa
   gizmo_resize_handle_[kGizmoScaleCenterLeft] = CreateGizmoHandleRect(QPointF(left_pt, center_y_pt), handle_radius);
   gizmo_resize_handle_[kGizmoScaleCenterRight] = CreateGizmoHandleRect(QPointF(right_pt, center_y_pt), handle_radius);
 
-  p->setPen(Qt::NoPen);
-  p->setBrush(Qt::white);
   DrawAndExpandGizmoHandles(p, handle_radius, gizmo_resize_handle_, kGizmoScaleCount);
 }
 
@@ -297,13 +295,11 @@ void ShapeNodeBase::GizmoMove(const QPointF &p, const rational &time, const Qt::
   }
 }
 
-void ShapeNodeBase::GizmoRelease()
+void ShapeNodeBase::GizmoRelease(MultiUndoCommand *command)
 {
-  MultiUndoCommand *command = new MultiUndoCommand();
   for (NodeInputDragger& i : gizmo_dragger_) {
     i.End(command);
   }
-  Core::instance()->undo_stack()->push(command);
   gizmo_dragger_.clear();
 }
 

@@ -36,6 +36,8 @@ ExportTask::ExportTask(ViewerOutput *viewer_node,
   // Adjust video params to have no divider
   VideoParams vp = viewer_node->GetVideoParams();
   vp.set_divider(1);
+  vp.set_time_base(params.video_params().time_base());
+  vp.set_frame_rate(params.video_params().frame_rate());
   set_video_params(vp);
 
   set_audio_params(viewer_node->GetAudioParams());
@@ -85,15 +87,14 @@ bool ExportTask::Run()
   if (params_.video_enabled()) {
 
     // If a transformation matrix is applied to this video, create it here
-    VideoParams vp = viewer()->GetVideoParams();
-    if (vp.width() != params_.video_params().width()
-        || params_.video_params().height() != params_.video_params().height()) {
+    if (video_params().width() != params_.video_params().width()
+        || video_params().height() != params_.video_params().height()) {
       video_force_size = QSize(params_.video_params().width(), params_.video_params().height());
 
       if (params_.video_scaling_method() != ExportParams::kStretch) {
         video_force_matrix = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                                          vp.width(),
-                                                          vp.height(),
+                                                          video_params().width(),
+                                                          video_params().height(),
                                                           params_.video_params().width(),
                                                           params_.video_params().height());
       }
@@ -155,7 +156,7 @@ bool ExportTask::Run()
   return success;
 }
 
-void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVector<rational> &times)
+bool ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVector<rational> &times)
 {
   Q_UNUSED(hash)
 
@@ -179,14 +180,19 @@ void ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
 
     // Unfortunately this can't be done in another thread since the frames need to be sent
     // one after the other chronologically.
-    encoder_->WriteFrame(time_map_.take(real_time), real_time);
+    if (!encoder_->WriteFrame(time_map_.take(real_time), real_time)) {
+      SetError(encoder_->GetError());
+      return false;
+    }
 
     frame_time_++;
     emit ProgressChanged(double(frame_time_) / double(GetTotalNumberOfFrames()));
   }
+
+  return true;
 }
 
-void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+bool ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
 {
   TimeRange adjusted_range = range;
 
@@ -195,20 +201,33 @@ void ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
   }
 
   if (adjusted_range.in() == audio_time_) {
-    WriteAudioLoop(adjusted_range, samples);
+    if (!WriteAudioLoop(adjusted_range, samples)) {
+      return false;
+    }
   } else {
     audio_map_.insert(adjusted_range, samples);
   }
+
+  return true;
 }
 
-void ExportTask::EncodeSubtitle(const SubtitleBlock *sub)
+bool ExportTask::EncodeSubtitle(const SubtitleBlock *sub)
 {
-  encoder_->WriteSubtitle(sub);
+  if (!encoder_->WriteSubtitle(sub)) {
+    SetError(encoder_->GetError());
+    return false;
+  } else {
+    return true;
+  }
 }
 
-void ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)
+bool ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)
 {
-  encoder_->WriteAudio(samples);
+  if (!encoder_->WriteAudio(samples)) {
+    SetError(encoder_->GetError());
+    return false;
+  }
+
   audio_time_ = time.out();
 
   for (auto it=audio_map_.begin(); it!=audio_map_.end(); it++) {
@@ -220,12 +239,16 @@ void ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)
       audio_map_.erase(it);
 
       // Call recursively to write the next sample buffer
-      WriteAudioLoop(t, s);
+      if (!WriteAudioLoop(t, s)) {
+        return false;
+      }
 
       // Break out of loop
       break;
     }
   }
+
+  return true;
 }
 
 }

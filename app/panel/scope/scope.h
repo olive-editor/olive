@@ -24,13 +24,12 @@
 #include <QComboBox>
 #include <QStackedWidget>
 
+#include "panel/viewer/viewerbase.h"
 #include "widget/panel/panel.h"
 #include "widget/scope/histogram/histogram.h"
 #include "widget/scope/waveform/waveform.h"
 
 namespace olive {
-
-class ViewerPanel;
 
 class ScopePanel : public PanelWidget
 {
@@ -48,6 +47,13 @@ public:
   void SetType(Type t);
 
   static QString TypeToName(Type t);
+
+  void SetViewerPanel(ViewerPanelBase *vp);
+
+  ViewerPanelBase *GetConnectedViewerPanel() const
+  {
+    return viewer_;
+  }
 
 public slots:
   void SetReferenceBuffer(TexturePtr frame);
@@ -67,6 +73,8 @@ private:
   WaveformScope* waveform_view_;
 
   HistogramScope* histogram_;
+
+  ViewerPanelBase *viewer_;
 
 };
 

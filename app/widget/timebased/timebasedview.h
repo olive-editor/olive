@@ -53,10 +53,19 @@ public:
     return dragging_playhead_;
   }
 
+  // To be called only by selection managers
+  virtual void SelectionManagerSelectEvent(void *obj){}
+  virtual void SelectionManagerDeselectEvent(void *obj){}
+
 public slots:
   void SetTime(const rational &time);
 
   void SetEndTime(const rational& length);
+
+  /**
+   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
+   */
+  void UpdateSceneRect();
 
 signals:
   void TimeChanged(const rational& time);
@@ -96,12 +105,6 @@ protected:
   {
     y_axis_enabled_ = e;
   }
-
-protected slots:
-  /**
-   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
-   */
-  void UpdateSceneRect();
 
 private:
   qreal GetPlayheadX();

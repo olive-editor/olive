@@ -27,12 +27,12 @@
 
 namespace olive {
 
-Color Color::fromHsv(const double &h, const double &s, const double &v)
+Color Color::fromHsv(const float &h, const float &s, const float &v)
 {
-  double C = s * v;
-  double X = C * (1.0 - abs(fmod(h / 60.0, 2.0) - 1.0));
-  double m = v - C;
-  double Rs, Gs, Bs;
+  float C = s * v;
+  float X = C * (1.0 - abs(fmod(h / 60.0, 2.0) - 1.0));
+  float m = v - C;
+  float Rs, Gs, Bs;
 
   if(h >= 0.0 && h < 60.0) {
     Rs = C;
@@ -81,11 +81,11 @@ Color::Color(const QColor &c)
   set_alpha(c.alphaF());
 }
 
-void Color::toHsv(double *hue, double *sat, double *val) const
+void Color::toHsv(float *hue, float *sat, float *val) const
 {
-  double fCMax = qMax(qMax(red(), green()), blue());
-  double fCMin = qMin(qMin(red(), green()), blue());
-  double fDelta = fCMax - fCMin;
+  float fCMax = qMax(qMax(red(), green()), blue());
+  float fCMin = qMin(qMin(red(), green()), blue());
+  float fDelta = fCMax - fCMin;
 
   if(fDelta > 0) {
     if(fCMax == red()) {
@@ -114,31 +114,31 @@ void Color::toHsv(double *hue, double *sat, double *val) const
   }
 }
 
-double Color::hsv_hue() const
+float Color::hsv_hue() const
 {
-  double h, s, v;
+  float h, s, v;
   toHsv(&h, &s, &v);
   return h;
 }
 
-double Color::hsv_saturation() const
+float Color::hsv_saturation() const
 {
-  double h, s, v;
+  float h, s, v;
   toHsv(&h, &s, &v);
   return s;
 }
 
-double Color::value() const
+float Color::value() const
 {
-  double h, s, v;
+  float h, s, v;
   toHsv(&h, &s, &v);
   return v;
 }
 
-void Color::toHsl(double *hue, double *sat, double *lightness) const
+void Color::toHsl(float *hue, float *sat, float *lightness) const
 {
-  double fCMin = qMin(red(), qMin(green(), blue()));
-  double fCMax = qMax(red(), qMax(green(), blue()));
+  float fCMin = qMin(red(), qMin(green(), blue()));
+  float fCMax = qMax(red(), qMax(green(), blue()));
 
   *lightness = 0.5 * (fCMin + fCMax);
 
@@ -176,30 +176,30 @@ void Color::toHsl(double *hue, double *sat, double *lightness) const
   }
 }
 
-double Color::hsl_hue() const
+float Color::hsl_hue() const
 {
-  double h, s, l;
+  float h, s, l;
   toHsl(&h, &s, &l);
   return h;
 }
 
-double Color::hsl_saturation() const
+float Color::hsl_saturation() const
 {
-  double h, s, l;
+  float h, s, l;
   toHsl(&h, &s, &l);
   return s;
 }
 
-double Color::lightness() const
+float Color::lightness() const
 {
-  double h, s, l;
+  float h, s, l;
   toHsl(&h, &s, &l);
   return l;
 }
 
 void Color::toData(char *data, const VideoParams::Format &format, int ch_layout) const
 {
-  OIIO::convert_pixel_values(OIIO::TypeDesc::DOUBLE,
+  OIIO::convert_pixel_values(OIIO::TypeDesc::FLOAT,
                              data_,
                              OIIOUtils::GetOIIOBaseTypeFromFormat(format),
                              data,
@@ -212,7 +212,7 @@ Color Color::fromData(const char *data, const VideoParams::Format &format, int c
 
   OIIO::convert_pixel_values(OIIOUtils::GetOIIOBaseTypeFromFormat(format),
                              data,
-                             OIIO::TypeDesc::DOUBLE,
+                             OIIO::TypeDesc::FLOAT,
                              c.data_,
                              ch_layout);
 
@@ -224,15 +224,15 @@ QColor Color::toQColor() const
   QColor c;
 
   // QColor only supports values from 0.0 to 1.0 and are only used for UI representations
-  c.setRedF(clamp(red(), 0.0, 1.0));
-  c.setGreenF(clamp(green(), 0.0, 1.0));
-  c.setBlueF(clamp(blue(), 0.0, 1.0));
-  c.setAlphaF(clamp(alpha(), 0.0, 1.0));
+  c.setRedF(clamp(red(), 0.0f, 1.0f));
+  c.setGreenF(clamp(green(), 0.0f, 1.0f));
+  c.setBlueF(clamp(blue(), 0.0f, 1.0f));
+  c.setAlphaF(clamp(alpha(), 0.0f, 1.0f));
 
   return c;
 }
 
-double Color::GetRoughLuminance() const
+float Color::GetRoughLuminance() const
 {
   return (2*red()+blue()+3*green())/6.0;
 }
@@ -255,7 +255,7 @@ const Color &Color::operator-=(const Color &rhs)
   return *this;
 }
 
-const Color &Color::operator*=(const double &rhs)
+const Color &Color::operator*=(const float &rhs)
 {
   for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] *= rhs;
@@ -264,7 +264,7 @@ const Color &Color::operator*=(const double &rhs)
   return *this;
 }
 
-const Color &Color::operator/=(const double &rhs)
+const Color &Color::operator/=(const float &rhs)
 {
   for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] /= rhs;
@@ -287,14 +287,14 @@ Color Color::operator-(const Color &rhs) const
   return c;
 }
 
-Color Color::operator*(const double &rhs) const
+Color Color::operator*(const float &rhs) const
 {
   Color c(*this);
   c *= rhs;
   return c;
 }
 
-Color Color::operator/(const double &rhs) const
+Color Color::operator/(const float &rhs) const
 {
   Color c(*this);
   c /= rhs;

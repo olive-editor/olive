@@ -43,11 +43,16 @@
 #include "dialog/autorecovery/autorecoverydialog.h"
 #include "dialog/export/export.h"
 #include "dialog/footagerelink/footagerelinkdialog.h"
+#ifdef USE_OTIO
+#include "dialog/otioproperties/otiopropertiesdialog.h"
+#endif
+#include "dialog/projectproperties/projectproperties.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
 #include "node/color/colormanager/colormanager.h"
 #include "node/factory.h"
+#include "node/project/serializer/serializer.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
@@ -75,7 +80,6 @@
 namespace olive {
 
 Core* Core::instance_ = nullptr;
-const uint Core::kProjectVersion = 210907;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),
@@ -149,6 +153,9 @@ void Core::Start()
   // Initialize ConformManager
   ConformManager::CreateInstance();
 
+  // Initialize project serializers
+  ProjectSerializer::Initialize();
+
   //
   // Start application
   //
@@ -199,13 +206,12 @@ void Core::Stop()
   {
     QFile recent_projects_file(GetRecentProjectsFilePath());
     if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
-      QTextStream ts(&recent_projects_file);
-
-      ts << recent_projects_.join('\n');
-
+      recent_projects_file.write(recent_projects_.join('\n').toUtf8());
       recent_projects_file.close();
     }
   }
+
+  ProjectSerializer::Destroy();
 
   ConformManager::DestroyInstance();
 
@@ -368,6 +374,21 @@ void Core::DialogPreferencesShow()
   pd.exec();
 }
 
+void Core::DialogProjectPropertiesShow()
+{
+  Project *proj = GetActiveProject();
+
+  if (proj) {
+    ProjectPropertiesDialog ppd(proj, main_window_);
+    ppd.exec();
+  } else {
+    QMessageBox::critical(main_window_,
+                          tr("No Active Project"),
+                          tr("No project is currently open to set the properties for"),
+                          QMessageBox::Ok);
+  }
+}
+
 void Core::DialogExportShow()
 {
   ViewerOutput* viewer = GetSequenceToExport();
@@ -378,6 +399,14 @@ void Core::DialogExportShow()
     ed->open();
   }
 }
+
+#ifdef USE_OTIO
+bool Core::DialogImportOTIOShow(const QList<Sequence*>& sequences) {
+  Project* active_project = GetActiveProject();
+  OTIOPropertiesDialog opd(sequences, active_project);
+  return opd.exec() == QDialog::Accepted;
+}
+#endif
 
 void Core::CreateNewFolder()
 {
@@ -437,7 +466,7 @@ void Core::CreateNewSequence()
 
     command->add_child(new NodeAddCommand(active_project, new_sequence));
     command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
-    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0), false));
+    command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, Node::Position()));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);
@@ -482,19 +511,20 @@ bool Core::AddOpenProjectFromTask(Task *task)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
-  Project* project = load_task->GetLoadedProject();
-  MainWindowLayoutInfo layout = load_task->GetLoadedLayout();
+  if (!load_task->IsCancelled()) {
+    Project* project = load_task->GetLoadedProject();
 
-  if (ValidateFootageInLoadedProject(project, load_task->GetFilenameProjectWasSavedAs())) {
-    AddOpenProject(project);
-    main_window_->LoadLayout(layout);
+    if (ValidateFootageInLoadedProject(project, project->GetSavedURL())) {
+      AddOpenProject(project);
+      main_window_->LoadLayout(project->GetLayoutInfo());
 
-    return true;
-  } else {
-    delete project;
-
-    return false;
+      return true;
+    } else {
+      delete project;
+    }
   }
+
+  return false;
 }
 
 void Core::ImportTaskComplete(Task* task)
@@ -729,13 +759,10 @@ void Core::StartGUI(bool full_screen)
   {
     QFile recent_projects_file(GetRecentProjectsFilePath());
     if (recent_projects_file.open(QFile::ReadOnly | QFile::Text)) {
-      QTextStream ts(&recent_projects_file);
-
-      QString s;
-      while (!(s = ts.readLine()).isEmpty()) {
-        recent_projects_.append(s);
+      QString r = QString::fromUtf8(recent_projects_file.readAll());
+      if (!r.isEmpty()) {
+        recent_projects_ = r.split('\n');
       }
-
       recent_projects_file.close();
     }
 
@@ -747,6 +774,9 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
 {
   // Create save manager
   Task* psm;
+
+  // Put layout into project
+  project->SetLayoutInfo(main_window_->SaveLayout());
 
   if (project->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
 #ifdef USE_OTIO
@@ -1358,10 +1388,10 @@ void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &pref
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
-void Core::LabelNodes(const QVector<Node *> &nodes)
+bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
 {
   if (nodes.isEmpty()) {
-    return;
+    return false;
   }
 
   bool ok;
@@ -1390,8 +1420,16 @@ void Core::LabelNodes(const QVector<Node *> &nodes)
       rename_command->AddNode(n, s);
     }
 
-    undo_stack_.push(rename_command);
+    if (parent) {
+      parent->add_child(rename_command);
+    } else {
+      undo_stack_.push(rename_command);
+    }
+
+    return true;
   }
+
+  return false;
 }
 
 Sequence *Core::CreateNewSequenceForProject(Project* project) const

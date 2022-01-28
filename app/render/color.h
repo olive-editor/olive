@@ -30,7 +30,7 @@
 namespace olive {
 
 /**
- * @brief High precision 64-bit float based RGBA color value
+ * @brief High precision 32-bit float based RGBA color value
  */
 class Color
 {
@@ -42,7 +42,7 @@ public:
     }
   }
 
-  Color(const double& r, const double& g, const double& b, const double& a = 1.0)
+  Color(const float& r, const float& g, const float& b, const float& a = 1.0f)
   {
     data_[0] = r;
     data_[1] = g;
@@ -59,30 +59,30 @@ public:
    *
    * Hue expects a value between 0.0 and 360.0. Saturation and Value expect a value between 0.0 and 1.0.
    */
-  static Color fromHsv(const double& h, const double& s, const double &v);
+  static Color fromHsv(const float& h, const float& s, const float &v);
 
-  const double& red() const {return data_[0];}
-  const double& green() const {return data_[1];}
-  const double& blue() const {return data_[2];}
-  const double& alpha() const {return data_[3];}
+  const float& red() const {return data_[0];}
+  const float& green() const {return data_[1];}
+  const float& blue() const {return data_[2];}
+  const float& alpha() const {return data_[3];}
 
-  void toHsv(double* hue, double* sat, double* val) const;
-  double hsv_hue() const;
-  double hsv_saturation() const;
-  double value() const;
+  void toHsv(float* hue, float* sat, float* val) const;
+  float hsv_hue() const;
+  float hsv_saturation() const;
+  float value() const;
 
-  void toHsl(double* hue, double* sat, double* lightness) const;
-  double hsl_hue() const;
-  double hsl_saturation() const;
-  double lightness() const;
+  void toHsl(float* hue, float* sat, float* lightness) const;
+  float hsl_hue() const;
+  float hsl_saturation() const;
+  float lightness() const;
 
-  void set_red(const double& red) {data_[0] = red;}
-  void set_green(const double& green) {data_[1] = green;}
-  void set_blue(const double& blue) {data_[2] = blue;}
-  void set_alpha(const double& alpha) {data_[3] = alpha;}
+  void set_red(const float& red) {data_[0] = red;}
+  void set_green(const float& green) {data_[1] = green;}
+  void set_blue(const float& blue) {data_[2] = blue;}
+  void set_alpha(const float& alpha) {data_[3] = alpha;}
 
-  double* data() {return data_;}
-  const double* data() const {return data_;}
+  float* data() {return data_;}
+  const float* data() const {return data_;}
 
   void toData(char* data, const VideoParams::Format& format, int ch_layout) const;
 
@@ -92,22 +92,22 @@ public:
 
   // Suuuuper rough luminance value mostly used for UI (determining whether to overlay with black
   // or white text)
-  double GetRoughLuminance() const;
+  float GetRoughLuminance() const;
 
   // Assignment math operators
   const Color& operator+=(const Color& rhs);
   const Color& operator-=(const Color& rhs);
-  const Color& operator*=(const double& rhs);
-  const Color& operator/=(const double& rhs);
+  const Color& operator*=(const float& rhs);
+  const Color& operator/=(const float& rhs);
 
   // Binary math operators
   Color operator+(const Color& rhs) const;
   Color operator-(const Color& rhs) const;
-  Color operator*(const double& rhs) const;
-  Color operator/(const double& rhs) const;
+  Color operator*(const float& rhs) const;
+  Color operator/(const float& rhs) const;
 
 private:
-  double data_[VideoParams::kRGBAChannelCount];
+  float data_[VideoParams::kRGBAChannelCount];
 
 };
 

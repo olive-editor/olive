@@ -16,13 +16,11 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/keyframeview/keyframeview.h
   widget/keyframeview/keyframeview.cpp
-  widget/keyframeview/keyframeviewbase.h
-  widget/keyframeview/keyframeviewbase.cpp
-  widget/keyframeview/keyframeviewitem.h
-  widget/keyframeview/keyframeviewitem.cpp
-  widget/keyframeview/keyframeviewundo.h
+  widget/keyframeview/keyframeview.h
+  widget/keyframeview/keyframeviewinputconnection.cpp
+  widget/keyframeview/keyframeviewinputconnection.h
   widget/keyframeview/keyframeviewundo.cpp
+  widget/keyframeview/keyframeviewundo.h
   PARENT_SCOPE
 )

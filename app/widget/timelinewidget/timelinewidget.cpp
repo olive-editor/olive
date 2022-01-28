@@ -28,7 +28,6 @@
 #include "core.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
-#include "dialog/nodeproperties/nodepropertiesdialog.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/speedduration/speeddurationdialog.h"
 #include "node/block/transition/transition.h"
@@ -301,55 +300,64 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
   }
 }
 
-void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node *> &nodes, void* userdata)
+void TimelineWidget::CopyNodesToClipboardCallback(const QVector<Node *> &nodes, ProjectSerializer::SaveData *sdata, void *userdata)
 {
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
   QVector<Block*>& selected = *static_cast<QVector<Block*>*>(userdata);
   rational earliest_in = RATIONAL_MAX;
+  ProjectSerializer::SerializedProperties properties;
 
   foreach (Block* block, selected) {
     earliest_in = qMin(earliest_in, block->in());
   }
 
   foreach (Block* block, selected) {
-    writer->writeStartElement(QStringLiteral("block"));
-
-    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(block)));
-    writer->writeAttribute(QStringLiteral("in"), (block->in() - earliest_in).toString());
-
-    Track* track = block->track();
-    writer->writeAttribute(QStringLiteral("tracktype"), QString::number(track->type()));
-    writer->writeAttribute(QStringLiteral("trackindex"), QString::number(track->Index()));
-
-    writer->writeEndElement();
+    properties[block][QStringLiteral("in")] = (block->in() - earliest_in).toString();
+    properties[block][QStringLiteral("track")] = block->track()->ToReference().ToString();
   }
+
+  sdata->SetProperties(properties);
 }
 
-void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData& xml_node_data, void *userdata)
+void TimelineWidget::PasteNodesToClipboardCallback(const QVector<Node *> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata)
 {
-  QVector<BlockPasteData>& paste_data = *static_cast<QVector<BlockPasteData>*>(userdata);
+  bool insert = *(bool*)userdata;
 
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("block")) {
-      BlockPasteData bpd;
+  MultiUndoCommand *command = new MultiUndoCommand();
 
-      foreach (QXmlStreamAttribute attr, reader->attributes()) {
-        if (attr.name() == QStringLiteral("ptr")) {
-          bpd.block = static_cast<Block*>(xml_node_data.node_ptrs.value(attr.value().toULongLong()));
-        } else if (attr.name() == QStringLiteral("in")) {
-          bpd.in = rational::fromString(attr.value().toString());
-        } else if (attr.name() == QStringLiteral("tracktype")) {
-          bpd.track_type = static_cast<Track::Type>(attr.value().toInt());
-        } else if (attr.name() == QStringLiteral("trackindex")) {
-          bpd.track_index = attr.value().toInt();
-        }
-      }
+  foreach (Node *n, nodes) {
+    command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
+  }
 
-      paste_data.append(bpd);
+  rational paste_start = GetTime();
 
-      reader->skipCurrentElement();
+  if (insert) {
+    rational paste_end = GetTime();
+
+    for (auto it=load_data.properties.cbegin(); it!=load_data.properties.cend(); it++) {
+      rational length = static_cast<Block*>(it.key())->length();
+      rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+
+      paste_end = qMax(paste_end, paste_start + in + length);
+    }
+
+    if (paste_end != paste_start) {
+      InsertGapsAt(paste_start, paste_end - paste_start, command);
     }
   }
+
+  for (auto it=load_data.properties.cbegin(); it!=load_data.properties.cend(); it++) {
+    Block *block = static_cast<Block*>(it.key());
+    rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+    Track::Reference track = Track::Reference::FromString(it.value()[QStringLiteral("track")]);
+
+    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
+                                                  track.index(),
+                                                  block,
+                                                  paste_start + in));
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void TimelineWidget::SelectAll()
@@ -500,8 +508,6 @@ void TimelineWidget::DeleteSelected(bool ripple)
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
-
   QVector<Block*> clips_to_delete;
   QVector<TransitionBlock*> transitions_to_delete;
 
@@ -513,9 +519,16 @@ void TimelineWidget::DeleteSelected(bool ripple)
     }
   }
 
+  MultiUndoCommand* command = new MultiUndoCommand();
+
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    command->add_child(new TransitionRemoveCommand(transition, true));
+    TransitionRemoveCommand *trc = new TransitionRemoveCommand(transition, true);
+
+    // Perform the transition removal now so that replacing blocks with gaps below won't get confused
+    trc->redo_now();
+
+    command->add_child(trc);
   }
 
   // Replace clips with gaps (effectively deleting them)
@@ -525,20 +538,28 @@ void TimelineWidget::DeleteSelected(bool ripple)
   command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), false));
 
   // Insert ripple command now that it's all cleaned up gaps
+  TimelineRippleDeleteGapsAtRegionsCommand *ripple_command = nullptr;
+  rational new_playhead = RATIONAL_MAX;
   if (ripple) {
-    TimeRangeList range_list;
+    QVector<QPair<Track*, TimeRange> > range_list;
 
     foreach (Block* b, blocks_to_delete) {
-      range_list.insert(TimeRange(b->in(), b->out()));
+      range_list.append({b->track(), b->range()});
+      new_playhead = qMin(new_playhead, b->in());
     }
 
-    command->add_child(new TimelineRippleDeleteGapsAtRegionsCommand(sequence(), range_list));
+    ripple_command = new TimelineRippleDeleteGapsAtRegionsCommand(sequence(), range_list);
+    command->add_child(ripple_command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   // Ensures any current drag operations are cancelled
   ClearGhosts();
+
+  if (ripple_command && ripple_command->HasCommands() && new_playhead != RATIONAL_MAX) {
+    SetTimeAndSignal(new_playhead);
+  }
 }
 
 void TimelineWidget::IncreaseTrackHeight()
@@ -651,34 +672,7 @@ void TimelineWidget::Paste(bool insert)
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
-
-  QVector<BlockPasteData> paste_data;
-  QVector<Node*> pasted = PasteNodesFromClipboard(GetConnectedNode()->parent(), command, &paste_data);
-
-  rational paste_start = GetTime();
-
-  if (insert) {
-    rational paste_end = GetTime();
-
-    foreach (const BlockPasteData& bpd, paste_data) {
-      paste_end = qMax(paste_end, paste_start + bpd.in + bpd.block->length());
-    }
-
-    if (paste_end != paste_start) {
-      InsertGapsAt(paste_start, paste_end - paste_start, command);
-    }
-  }
-
-  foreach (const BlockPasteData& bpd, paste_data) {
-    qDebug() << "Placing" << bpd.block;
-    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(bpd.track_type),
-                                                  bpd.track_index,
-                                                  bpd.block,
-                                                  paste_start + bpd.in));
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  PasteNodesFromClipboard(&insert);
 }
 
 void TimelineWidget::DeleteInToOut(bool ripple)
@@ -944,6 +938,10 @@ void TimelineWidget::AddBlock(Block *block)
     connect(block, &Block::PreviewChanged, this, &TimelineWidget::BlockUpdated);
 
     added_blocks_.append(block);
+
+    if (selections_[block->track()->ToReference()].contains(block->range()) && !selected_blocks_.contains(block)) {
+      selected_blocks_.append(block);
+    }
   }
 }
 
@@ -1047,17 +1045,7 @@ void TimelineWidget::ShowContextMenu()
     menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));
-    connect(properties_action, &QAction::triggered, this, [this](){
-      QVector<Block*> block_items = GetSelectedBlocks();
-      QVector<Node*> nodes;
-
-      foreach (Block* i, block_items) {
-        nodes.append(i);
-      }
-
-      NodePropertiesDialog npd(nodes, timebase(), this);
-      npd.exec();
-    });
+    connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialogForSelectedClips);
   }
 
   if (selected.isEmpty()) {
@@ -1219,9 +1207,20 @@ void TimelineWidget::UpdateViewTimebases()
   }
 }
 
-void TimelineWidget::NudgeInternal(const rational &amount)
+void TimelineWidget::NudgeInternal(rational amount)
 {
   if (!selected_blocks_.isEmpty()) {
+    // Validate
+    foreach (Block* b, selected_blocks_) {
+      if (b->in() + amount < 0) {
+        amount = -b->in();
+      }
+    }
+
+    if (amount.isNull()) {
+      return;
+    }
+
     MultiUndoCommand *command = new MultiUndoCommand();
 
     foreach (Block* b, selected_blocks_) {
@@ -1392,7 +1391,7 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
   QVector<Timeline::EditToInfo> info_list(tracks.size());
 
   for (int i=0;i<tracks.size();i++) {
-    Timeline::EditToInfo info;
+    Timeline::EditToInfo &info = info_list[i];
 
     Track* track = tracks.at(i);
     info.track = track;
@@ -1421,8 +1420,6 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
     }
 
     info.nearest_block = b;
-
-    info_list[i] = info;
   }
 
   return info_list;
@@ -1439,7 +1436,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
   }
 
   // Find each track's nearest point and determine the overall timeline's nearest point
-  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? 0 : RATIONAL_MAX;
+  rational closest_point_to_playhead = (mode == Timeline::kTrimIn) ? RATIONAL_MIN : RATIONAL_MAX;
 
   foreach (const Timeline::EditToInfo& info, tracks) {
     if (info.nearest_block) {
@@ -1449,6 +1446,11 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
         closest_point_to_playhead = qMin(info.nearest_time, closest_point_to_playhead);
       }
     }
+  }
+
+  if (closest_point_to_playhead == RATIONAL_MIN || closest_point_to_playhead == RATIONAL_MAX) {
+    // Assume no blocks will be acted upon
+    return;
   }
 
   // If we're not inserting gaps and the edit point is right on the nearest in point, we enter a
@@ -1571,31 +1573,6 @@ QVector<Block *> TimelineWidget::GetBlocksInGlobalRect(const QPoint &p1, const Q
   }
 
   return blocks_in_rect;
-}
-
-QVector<Block *> TimelineWidget::GetBlocksInSelection(const TimelineWidgetSelections &sel)
-{
-  QVector<Block *> blocks;
-
-  for (auto it=sel.cbegin(); it!=sel.cend(); it++) {
-    const Track::Reference &ref = it.key();
-    const TimeRangeList &list = it.value();
-
-    for (const TimeRange &r : list) {
-      Track *track = GetTrackFromReference(ref);
-      if (track) {
-        for (Block *b : track->Blocks()) {
-          if (r.Contains(b->range())) {
-            blocks.append(b);
-          } else if (b->in() >= r.out()) {
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  return blocks;
 }
 
 void TimelineWidget::HideSnaps()
@@ -1722,8 +1699,31 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool proce
   }
 
   if (process_block_changes) {
-    SignalDeselectedBlocks(GetBlocksInSelection(selections_.Subtracted(s)));
-    SignalSelectedBlocks(GetBlocksInSelection(s.Subtracted(selections_)));
+    QVector<Block*> deselected;
+    QVector<Block*> selected;
+
+    foreach (Block *b, selected_blocks_) {
+      if (!s[b->track()->ToReference()].contains(b->range())) {
+        deselected.append(b);
+      }
+    }
+
+    // NOTE: This loop could do with some optimization
+    for (auto it=s.cbegin(); it!=s.cend(); it++) {
+      Track *track = GetTrackFromReference(it.key());
+      if (track) {
+        const TimeRangeList &ranges = it.value();
+
+        foreach (Block *b, track->Blocks()) {
+          if (!selected_blocks_.contains(b) && ranges.contains(b->range())) {
+            selected.append(b);
+          }
+        }
+      }
+    }
+
+    SignalDeselectedBlocks(deselected);
+    SignalSelectedBlocks(selected);
   }
 
   selections_ = s;

@@ -16,7 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/generator/text/text.h
   node/generator/text/text.cpp
+  node/generator/text/text.h
+  node/generator/text/textlegacy.cpp
+  node/generator/text/textlegacy.h
   PARENT_SCOPE
 )

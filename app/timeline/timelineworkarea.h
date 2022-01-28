@@ -44,9 +44,6 @@ public:
   const TimeRange& range() const;
   void set_range(const TimeRange& range);
 
-  void Load(QXmlStreamReader* reader);
-  void Save(QXmlStreamWriter* writer) const;
-
   static const rational kResetIn;
   static const rational kResetOut;
 

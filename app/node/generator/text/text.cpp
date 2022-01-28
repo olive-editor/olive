@@ -21,9 +21,15 @@
 #include "text.h"
 
 #include <QAbstractTextDocumentLayout>
+#include <QDateTime>
 #include <QTextDocument>
 
+#include "common/cpuoptimize.h"
+#include "common/functiontimer.h"
+
 namespace olive {
+
+#define super ShapeNodeBase
 
 enum TextVerticalAlign {
   kVerticalAlignTop,
@@ -33,7 +39,6 @@ enum TextVerticalAlign {
 
 const QString TextGenerator::kTextInput = QStringLiteral("text_in");
 const QString TextGenerator::kHtmlInput = QStringLiteral("html_in");
-const QString TextGenerator::kColorInput = QStringLiteral("color_in");
 const QString TextGenerator::kVAlignInput = QStringLiteral("valign_in");
 const QString TextGenerator::kFontInput = QStringLiteral("font_in");
 const QString TextGenerator::kFontSizeInput = QStringLiteral("font_size_in");
@@ -44,18 +49,14 @@ TextGenerator::TextGenerator()
 
   AddInput(kHtmlInput, NodeValue::kBoolean, false);
 
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
-
-  AddInput(kVAlignInput, NodeValue::kCombo, 1);
+  AddInput(kVAlignInput, NodeValue::kCombo, kVerticalAlignTop);
 
   AddInput(kFontInput, NodeValue::kFont);
 
   AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
-}
 
-Node *TextGenerator::copy() const
-{
-  return new TextGenerator();
+  SetStandardValue(kColorInput, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
+  SetStandardValue(kSizeInput, QVector2D(400, 300));
 }
 
 QString TextGenerator::Name() const
@@ -65,7 +66,7 @@ QString TextGenerator::Name() const
 
 QString TextGenerator::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.textgenerator");
+  return QStringLiteral("org.olivevideoeditor.Olive.text2");
 }
 
 QVector<Node::CategoryID> TextGenerator::Category() const
@@ -80,11 +81,12 @@ QString TextGenerator::Description() const
 
 void TextGenerator::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextInput, tr("Text"));
   SetInputName(kHtmlInput, tr("Enable HTML"));
   SetInputName(kFontInput, tr("Font"));
   SetInputName(kFontSizeInput, tr("Font Size"));
-  SetInputName(kColorInput, tr("Color"));
   SetInputName(kVAlignInput, tr("Vertical Align"));
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
@@ -94,6 +96,7 @@ void TextGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals,
   GenerateJob job;
   job.InsertValue(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+  job.SetRequestedFormat(VideoParams::kFormatFloat32);
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
     table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
@@ -107,18 +110,21 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
   // a single-channel QImage (alpha only) and then transplant that alpha channel to our float buffer
   // with correct float RGB.
   QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
-  img.fill(0);
+  img.fill(Qt::transparent);
+
+  // 72 DPI in DPM (72 / 2.54 * 100)
+  const int dpm = 2835;
+  img.setDotsPerMeterX(dpm);
+  img.setDotsPerMeterY(dpm);
 
   QTextDocument text_doc;
+  text_doc.documentLayout()->setPaintDevice(&img);
 
   // Set default font
   QFont default_font;
   default_font.setFamily(job.GetValue(kFontInput).data().toString());
   default_font.setPointSizeF(job.GetValue(kFontSizeInput).data().toFloat());
   text_doc.setDefaultFont(default_font);
-
-  // Center by default
-  text_doc.setDefaultTextOption(QTextOption(Qt::AlignCenter));
 
   QString html = job.GetValue(kTextInput).data().toString();
   if (job.GetValue(kHtmlInput).data().toBool()) {
@@ -128,47 +134,65 @@ void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
     text_doc.setPlainText(html);
   }
 
-  // Align to 80% width because that's considered the "title safe" area
-  int tenth_of_width = frame->video_params().width() / 10;
-  text_doc.setTextWidth(tenth_of_width * 8);
+  QVector2D size = job.GetValue(kSizeInput).data().value<QVector2D>();
+  text_doc.setTextWidth(size.x());
 
   // Draw rich text onto image
   QPainter p(&img);
   p.scale(1.0 / frame->video_params().divider(), 1.0 / frame->video_params().divider());
 
-  // Push 10% inwards to compensate for title safe area
-  p.translate(tenth_of_width, 0);
+
+  QVector2D pos = job.GetValue(kPositionInput).data().value<QVector2D>();
+  p.translate(pos.x() - size.x()/2, pos.y() - size.y()/2);
+  p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
+  p.setClipRect(0, 0, size.x(), size.y());
 
   TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(kVAlignInput).data().toInt());
   int doc_height = text_doc.size().height();
 
   switch (valign) {
   case kVerticalAlignTop:
-    // Push 10% inwards for title safe area
-    p.translate(0, frame->video_params().height() / 10);
+    // Do nothing
     break;
   case kVerticalAlignCenter:
     // Center align
-    p.translate(0, frame->video_params().height() / 2 - doc_height / 2);
+    p.translate(0, size.y() / 2 - doc_height / 2);
     break;
   case kVerticalAlignBottom:
-    // Push 10% inwards for title safe area
-    p.translate(0, frame->video_params().height() - doc_height - frame->video_params().height() / 10);
+    p.translate(0, size.y() - doc_height);
     break;
   }
 
   QAbstractTextDocumentLayout::PaintContext ctx;
   ctx.palette.setColor(QPalette::Text, Qt::white);
+
   text_doc.documentLayout()->draw(&p, ctx);
 
   // Transplant alpha channel to frame
-  Color rgb = job.GetValue(kColorInput).data().value<Color>();
-  for (int x=0; x<frame->width(); x++) {
-    for (int y=0; y<frame->height(); y++) {
-      uchar src_alpha = img.bits()[img.bytesPerLine() * y + x];
-      float alpha = float(src_alpha) / 255.0f;
+  Color rgba = job.GetValue(kColorInput).data().value<Color>();
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+  __m128 sse_color = _mm_loadu_ps(rgba.data());
+#endif
 
-      frame->set_pixel(x, y, Color(rgb.red() * alpha, rgb.green() * alpha, rgb.blue() * alpha, alpha));
+  float *frame_dst = reinterpret_cast<float*>(frame->data());
+  for (int y=0; y<frame->height(); y++) {
+    uchar *src_y = img.bits() + img.bytesPerLine() * y;
+    float *dst_y = frame_dst + y*frame->linesize_pixels()*VideoParams::kRGBAChannelCount;
+
+    for (int x=0; x<frame->width(); x++) {
+      float alpha = float(src_y[x]) / 255.0f;
+      float *dst = dst_y + x*VideoParams::kRGBAChannelCount;
+
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+      __m128 sse_alpha = _mm_load1_ps(&alpha);
+      __m128 sse_res = _mm_mul_ps(sse_color, sse_alpha);
+
+      _mm_store_ps(dst, sse_res);
+#else
+      for (int i=0; i<VideoParams::kRGBAChannelCount; i++) {
+        dst[i] = rgba.data()[i] * alpha;
+      }
+#endif
     }
   }
 }

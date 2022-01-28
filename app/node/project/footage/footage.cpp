@@ -33,7 +33,6 @@
 #include "core.h"
 #include "render/job/footagejob.h"
 #include "ui/icons/icons.h"
-#include "widget/videoparamedit/videoparamedit.h"
 
 namespace olive {
 
@@ -71,23 +70,6 @@ void Footage::Retranslate()
   SetInputName(kFilenameInput, tr("Filename"));
   SetInputName(kLoopModeInput, tr("Loop Mode"));
   SetComboBoxStrings(kLoopModeInput, {tr("None"), tr("Loop"), tr("Clamp")});
-}
-
-bool Footage::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
-{
-  if (reader->name() == QStringLiteral("timestamp")) {
-    set_timestamp(reader->readElementText().toLongLong());
-    return true;
-  } else {
-    return super::LoadCustom(reader, xml_node_data, version, cancelled);
-  }
-}
-
-void Footage::SaveCustom(QXmlStreamWriter *writer) const
-{
-  super::SaveCustom(writer);
-
-  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(timestamp_));
 }
 
 void Footage::InputValueChangedEvent(const QString &input, int element)
@@ -142,39 +124,6 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
           vp.set_divider(VideoParams::generate_auto_divider(vp.width(), vp.height()));
 
           AddStream(Track::kVideo, QVariant::fromValue(vp));
-        }
-
-        if (!footage_info.GetVideoStreams().isEmpty()) {
-          // FIXME: This will break on multiple video streams. Currently we don't have
-          //        infrastructure for different properties per element. We'll see if this becomes
-          //        a problem.
-          VideoParams vp = footage_info.GetVideoStreams().first();
-
-          uint64_t video_param_mask = 0;
-
-          video_param_mask |= VideoParamEdit::kEnabled;
-          video_param_mask |= VideoParamEdit::kColorspace;
-          video_param_mask |= VideoParamEdit::kPixelAspect;
-          video_param_mask |= VideoParamEdit::kInterlacing;
-          video_param_mask |= VideoParamEdit::kFrameRateIsArbitrary;
-
-          if (vp.channel_count() == VideoParams::kRGBAChannelCount) {
-            // Add premultiplied setting if this footage has an alpha channel
-            video_param_mask |= VideoParamEdit::kPremultipliedAlpha;
-          }
-
-          if (vp.video_type() == VideoParams::kVideoTypeVideo) {
-            // This is video, ensure that the frame rate does not overwrite the timebase
-            video_param_mask |= VideoParamEdit::kFrameRateIsNotTimebase;
-          } else {
-            // This is not a video, so it's either a still image or an image sequence
-            video_param_mask |= VideoParamEdit::kIsImageSequence;
-            video_param_mask |= VideoParamEdit::kStartTime;
-            video_param_mask |= VideoParamEdit::kEndTime;
-            video_param_mask |= VideoParamEdit::kFrameRate;
-          }
-
-          SetInputProperty(kVideoParamsInput, QStringLiteral("mask"), QVariant::fromValue(video_param_mask));
         }
 
         for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {

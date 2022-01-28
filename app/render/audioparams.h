@@ -218,7 +218,7 @@ private:
   Format format_;
 
   // Footage-specific
-  bool enabled_;
+  int enabled_; // Switching this to int fixes GCC 11 stringop-overflow issue, I guess a byte-alignment issue?
   int stream_index_;
   int64_t duration_;
   rational timebase_;

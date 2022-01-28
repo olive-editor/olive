@@ -48,6 +48,7 @@ public:
     kSolidGenerator,
     kMerge,
     kStrokeFilter,
+    kTextGeneratorLegacy,
     kTextGenerator,
     kCrossDissolveTransition,
     kDipToColorTransition,
@@ -60,6 +61,10 @@ public:
     kTimeRemapNode,
     kSubtitleBlock,
     kShapeGenerator,
+    kGroupNode,
+    kOpacityEffect,
+    kFlipDistort,
+    kNoiseGenerator,
 
     // Count value
     kInternalNodeCount
@@ -85,6 +90,8 @@ public:
 
 private:
   static QList<Node*> library_;
+
+  static QVector<int> hidden_;
 
 };
 

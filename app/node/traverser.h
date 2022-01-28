@@ -111,6 +111,8 @@ protected:
 private:
   void PostProcessTable(const Node *node, const Node::ValueHint &hint, const TimeRange &range, NodeValueTable &output_params);
 
+  TexturePtr CreateDummyTexture(const VideoParams &p);
+
   VideoParams video_params_;
 
   const QAtomicInt *cancel_;

@@ -50,45 +50,7 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
 {
   QStringList pix_fmts;
 
-  AVCodec* codec_info = nullptr;
-
-  switch (c) {
-  case ExportCodec::kCodecH264:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_H264);
-    break;
-  case ExportCodec::kCodecDNxHD:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_DNXHD);
-    break;
-  case ExportCodec::kCodecProRes:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_PRORES);
-    break;
-  case ExportCodec::kCodecH265:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_HEVC);
-    break;
-  case ExportCodec::kCodecVP9:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_VP9);
-    break;
-  case ExportCodec::kCodecOpenEXR:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_EXR);
-    break;
-  case ExportCodec::kCodecPNG:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_PNG);
-    break;
-  case ExportCodec::kCodecTIFF:
-    codec_info = avcodec_find_encoder(AV_CODEC_ID_TIFF);
-    break;
-  case ExportCodec::kCodecMP2:
-  case ExportCodec::kCodecMP3:
-  case ExportCodec::kCodecAAC:
-  case ExportCodec::kCodecPCM:
-  case ExportCodec::kCodecFLAC:
-  case ExportCodec::kCodecOpus:
-  case ExportCodec::kCodecVorbis:
-  case ExportCodec::kCodecSRT:
-  case ExportCodec::kCodecCount:
-    // These are audio or invalid codecs and therefore have no pixel formats
-    break;
-  }
+  AVCodec* codec_info = GetEncoder(c);
 
   if (codec_info) {
     for (int i=0; codec_info->pix_fmts[i]!=-1; i++) {
@@ -607,72 +569,10 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     return false;
   }
 
-  // Retrieve codec
-  AVCodecID codec_id = AV_CODEC_ID_NONE;
-
-  switch (codec) {
-  case ExportCodec::kCodecDNxHD:
-    codec_id = AV_CODEC_ID_DNXHD;
-    break;
-  case ExportCodec::kCodecAAC:
-    codec_id = AV_CODEC_ID_AAC;
-    break;
-  case ExportCodec::kCodecMP2:
-    codec_id = AV_CODEC_ID_MP2;
-    break;
-  case ExportCodec::kCodecMP3:
-    codec_id = AV_CODEC_ID_MP3;
-    break;
-  case ExportCodec::kCodecH264:
-    codec_id = AV_CODEC_ID_H264;
-    break;
-  case ExportCodec::kCodecH265:
-    codec_id = AV_CODEC_ID_HEVC;
-    break;
-  case ExportCodec::kCodecOpenEXR:
-    codec_id = AV_CODEC_ID_EXR;
-    break;
-  case ExportCodec::kCodecPNG:
-    codec_id = AV_CODEC_ID_PNG;
-    break;
-  case ExportCodec::kCodecTIFF:
-    codec_id = AV_CODEC_ID_TIFF;
-    break;
-  case ExportCodec::kCodecProRes:
-    codec_id = AV_CODEC_ID_PRORES;
-    break;
-  case ExportCodec::kCodecPCM:
-    codec_id = AV_CODEC_ID_PCM_S16LE;
-    break;
-  case ExportCodec::kCodecVP9:
-    codec_id = AV_CODEC_ID_VP9;
-    break;
-  case ExportCodec::kCodecOpus:
-    codec_id = AV_CODEC_ID_OPUS;
-    break;
-  case ExportCodec::kCodecVorbis:
-    codec_id = AV_CODEC_ID_VORBIS;
-    break;
-  case ExportCodec::kCodecFLAC:
-    codec_id = AV_CODEC_ID_FLAC;
-    break;
-  case ExportCodec::kCodecSRT:
-    codec_id = AV_CODEC_ID_SUBRIP;
-    break;
-  case ExportCodec::kCodecCount:
-    break;
-  }
-
-  if (codec_id == AV_CODEC_ID_NONE) {
-    SetError(tr("Unknown internal codec"));
-    return false;
-  }
-
-  // Find encoder with this name
-  AVCodec* encoder = avcodec_find_encoder(codec_id);
-
+  // Find encoder
+  AVCodec* encoder = GetEncoder(codec);
   if (!encoder) {
-    SetError(tr("Failed to find codec for %1").arg(codec));
+    SetError(tr("Failed to find codec for 0x%1").arg(codec, 16));
     return false;
   }
 
@@ -708,7 +608,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
       } else {
         codec_ctx->field_order = AV_FIELD_BB;
 
-        if (codec_id == AV_CODEC_ID_H264) {
+        if (codec == ExportCodec::kCodecH264 || codec == ExportCodec::kCodecH264rgb) {
           // For some reason, FFmpeg doesn't set libx264's bff flag so we have to do it ourselves
           av_opt_set(codec_ctx->priv_data, "x264opts", "bff=1", AV_OPT_SEARCH_CHILDREN);
         }
@@ -931,6 +831,51 @@ bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
   audio_write_count_ = 0;
 
   return true;
+}
+
+AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c)
+{
+  switch (c) {
+  case ExportCodec::kCodecH264:
+    return avcodec_find_encoder_by_name("libx264");
+  case ExportCodec::kCodecH264rgb:
+    return avcodec_find_encoder_by_name("libx264rgb");
+  case ExportCodec::kCodecDNxHD:
+    return avcodec_find_encoder(AV_CODEC_ID_DNXHD);
+  case ExportCodec::kCodecProRes:
+    return avcodec_find_encoder(AV_CODEC_ID_PRORES);
+  case ExportCodec::kCodecH265:
+    return avcodec_find_encoder(AV_CODEC_ID_HEVC);
+  case ExportCodec::kCodecVP9:
+    return avcodec_find_encoder(AV_CODEC_ID_VP9);
+  case ExportCodec::kCodecOpenEXR:
+    return avcodec_find_encoder(AV_CODEC_ID_EXR);
+  case ExportCodec::kCodecPNG:
+    return avcodec_find_encoder(AV_CODEC_ID_PNG);
+  case ExportCodec::kCodecTIFF:
+    return avcodec_find_encoder(AV_CODEC_ID_TIFF);
+  case ExportCodec::kCodecMP2:
+    return avcodec_find_encoder(AV_CODEC_ID_MP2);
+  case ExportCodec::kCodecMP3:
+    return avcodec_find_encoder(AV_CODEC_ID_MP3);
+  case ExportCodec::kCodecAAC:
+    return avcodec_find_encoder(AV_CODEC_ID_AAC);
+  case ExportCodec::kCodecPCM:
+    return avcodec_find_encoder(AV_CODEC_ID_PCM_S16LE);
+  case ExportCodec::kCodecFLAC:
+    return avcodec_find_encoder(AV_CODEC_ID_FLAC);
+  case ExportCodec::kCodecOpus:
+    return avcodec_find_encoder(AV_CODEC_ID_OPUS);
+  case ExportCodec::kCodecVorbis:
+    return avcodec_find_encoder(AV_CODEC_ID_VORBIS);
+  case ExportCodec::kCodecSRT:
+    return avcodec_find_encoder(AV_CODEC_ID_SUBRIP);
+  case ExportCodec::kCodecCount:
+    // These are audio or invalid codecs and therefore have no pixel formats
+    break;
+  }
+
+  return nullptr;
 }
 
 }

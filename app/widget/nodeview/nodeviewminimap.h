@@ -57,6 +57,8 @@ private slots:
   void SetDefaultSize();
 
 private:
+  bool MouseInsideResizeTriangle(QMouseEvent *event);
+
   void EmitMoveSignal(QMouseEvent *event);
 
   int resize_triangle_sz_;

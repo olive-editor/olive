@@ -20,39 +20,21 @@
 
 #include "node.h"
 
-#include <QVBoxLayout>
-
 namespace olive {
 
 NodePanel::NodePanel(QWidget *parent) :
   PanelWidget(QStringLiteral("NodePanel"), parent)
 {
-  QWidget *outer_widget = new QWidget(this);
+  node_widget_ = new NodeWidget();
+  connect(this, &NodePanel::visibilityChanged, node_widget_->view(), &NodeView::CenterOnItemsBoundingRect);
 
-  QVBoxLayout *outer_layout = new QVBoxLayout(outer_widget);
-  outer_layout->setMargin(0);
-
-  toolbar_ = new NodeViewToolBar();
-  outer_layout->addWidget(toolbar_);
-
-  // Create NodeView widget
-  node_view_ = new NodeView(this);
-  outer_layout->addWidget(node_view_);
-
-  // Connect toolbar to NodeView
-  connect(toolbar_, &NodeViewToolBar::MiniMapEnabledToggled, node_view_, &NodeView::SetMiniMapEnabled);
-  connect(toolbar_, &NodeViewToolBar::AddNodeClicked, node_view_, &NodeView::ShowAddMenu);
-
-  // Set defaults
-  toolbar_->SetMiniMapEnabled(true);
-  node_view_->SetMiniMapEnabled(true);
-
-  // Connect node view signals to this panel
-  connect(node_view_, &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
-  connect(node_view_, &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
+  // Connect node view signals to this panel - MAY REMOVE
+  connect(node_widget_->view(), &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
+  connect(node_widget_->view(), &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
+  connect(node_widget_->view(), &NodeView::NodeGroupOpenRequested, this, &NodePanel::NodeGroupOpenRequested);
 
   // Set it as the main widget of this panel
-  SetWidgetWithPadding(outer_widget);
+  SetWidgetWithPadding(node_widget_);
 
   // Set strings
   Retranslate();

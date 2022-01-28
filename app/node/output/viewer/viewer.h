@@ -200,8 +200,6 @@ public:
   static const QString kVideoAutoCacheInput;
   static const QString kAudioAutoCacheInput;
 
-  static const uint64_t kVideoParamEditMask;
-
 signals:
   void FrameRateChanged(const rational&);
 
@@ -239,10 +237,6 @@ protected:
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  virtual bool LoadCustom(QXmlStreamReader* reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled) override;
-
-  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
-
   int AddStream(Track::Type type, const QVariant &value);
 
 private:
@@ -253,8 +247,6 @@ private:
   FrameHashCache video_frame_cache_;
 
   AudioPlaybackCache audio_playback_cache_;
-
-  int operation_stack_;
 
   VideoParams cached_video_params_;
 

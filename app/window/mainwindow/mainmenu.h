@@ -210,6 +210,7 @@ private:
   QAction* file_close_project_item_;
   QAction* file_close_all_projects_item_;
   QAction* file_close_all_except_item_;
+  QAction* file_project_properties_item_;
   QAction* file_exit_item_;
 
   Menu* edit_menu_;

@@ -18,6 +18,7 @@ add_subdirectory(folder)
 add_subdirectory(footage)
 add_subdirectory(projectsettings)
 add_subdirectory(sequence)
+add_subdirectory(serializer)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

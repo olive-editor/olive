@@ -103,7 +103,7 @@ protected:
 
   static void PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end);
 
-#ifdef Q_PROCESSOR_X86
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   static void PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end);
 #endif
 

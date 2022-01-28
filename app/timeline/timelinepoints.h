@@ -40,9 +40,6 @@ public:
   TimelineWorkArea* workarea();
   const TimelineWorkArea* workarea() const;
 
-  void Load(QXmlStreamReader* reader);
-  void Save(QXmlStreamWriter* writer) const;
-
 private:
   TimelineMarkerList markers_;
 

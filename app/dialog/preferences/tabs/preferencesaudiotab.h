@@ -60,18 +60,13 @@ private:
   QPushButton* refresh_devices_btn_;
 
 private slots:
+  void RefreshBackends();
+
   void RefreshDevices();
 
-  void RetrieveOutputList();
+  void HardRefreshBackends();
 
-  void RetrieveInputList();
-
-private:
-  void RetrieveDeviceLists();
-
-  void UpdateRefreshButtonEnabled();
-
-  //static void PopulateComboBox(QComboBox* cb, bool still_refreshing, const QList<QAudioDeviceInfo>& list, const QString &preferred);
+  void AttemptToSetDevicesFromConfig();
 
 };
 

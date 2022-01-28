@@ -108,7 +108,7 @@ void TrackViewSplitter::SetHeightWithSizes(QList<int> sizes)
   if (alignment_ == Qt::AlignBottom) {
     sizes.replace(0, spacer_height_);
   } else {
-    sizes.replace(count() - 1, spacer_height_);
+    sizes.replace(sizes.size() - 1, spacer_height_);
   }
 
   foreach (int s, sizes) {

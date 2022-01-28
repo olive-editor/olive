@@ -20,6 +20,10 @@
 
 #include "audiomanager.h"
 
+#ifdef PA_HAS_JACK
+#include <pa_jack.h>
+#endif
+
 #include <QApplication>
 
 #include "config/config.h"
@@ -44,20 +48,6 @@ void AudioManager::DestroyInstance()
 AudioManager *AudioManager::instance()
 {
   return instance_;
-}
-
-void AudioManager::RefreshDevices()
-{
-}
-
-bool AudioManager::IsRefreshingOutputs()
-{
-  return is_refreshing_outputs_;
-}
-
-bool AudioManager::IsRefreshingInputs()
-{
-  return is_refreshing_inputs_;
 }
 
 void AudioManager::SetOutputNotifyInterval(int n)
@@ -166,33 +156,6 @@ void AudioManager::SetOutputDevice(PaDeviceIndex device)
   output_device_ = device;
 
   CloseOutputStream();
-
-  /*qInfo() << "Setting output audio device to" << info.deviceName();
-
-  StopOutput();
-
-  output_device_info_ = info;
-
-  if (output_params_.is_valid()) {
-    QAudioFormat format;
-    format.setSampleRate(output_params_.sample_rate());
-    format.setChannelCount(output_params_.channel_count());
-    format.setCodec("audio/pcm");
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleSize(output_params_.bits_per_sample());
-    format.setSampleType(AudioParams::GetQtSampleType(output_params_.format()));
-
-    if (info.isFormatSupported(format)) {
-      QMetaObject::invokeMethod(output_manager_,
-                                "SetOutputDevice",
-                                Qt::QueuedConnection,
-                                Q_ARG(const QAudioDeviceInfo&, info),
-                                Q_ARG(const QAudioFormat&, format));
-      output_is_set_ = true;
-    } else {
-      qWarning() << "Output format not supported by device";
-    }
-  }*/
 }
 
 void AudioManager::SetInputDevice(PaDeviceIndex device)
@@ -206,17 +169,53 @@ void AudioManager::SetInputDevice(PaDeviceIndex device)
   input_device_ = device;
 }
 
+void AudioManager::HardReset()
+{
+  CloseOutputStream();
+  Pa_Terminate();
+  Pa_Initialize();
+}
+
+PaDeviceIndex AudioManager::FindConfigDeviceByName(bool is_output_device)
+{
+  QString entry = is_output_device ? QStringLiteral("AudioOutput") : QStringLiteral("AudioInput");
+
+  return FindDeviceByName(Config::Current()[entry].toString(), is_output_device);
+}
+
+PaDeviceIndex AudioManager::FindDeviceByName(const QString &s, bool is_output_device)
+{
+  if (!s.isEmpty()) {
+    for (PaDeviceIndex i=0, end=Pa_GetDeviceCount(); i<end; i++) {
+      const PaDeviceInfo *device = Pa_GetDeviceInfo(i);
+
+      if (((is_output_device && device->maxOutputChannels) || (!is_output_device && device->maxInputChannels))
+          && !s.compare(device->name)) {
+        return i;
+      }
+    }
+  }
+
+  return is_output_device ? Pa_GetDefaultOutputDevice() : Pa_GetDefaultInputDevice();
+}
+
 AudioManager::AudioManager() :
-  is_refreshing_inputs_(false),
-  is_refreshing_outputs_(false),
   output_stream_(nullptr)
 {
-  //RefreshDevices();
+#ifdef PA_HAS_JACK
+  // PortAudio doesn't do a strcpy, so we need a const char that's readily accessible (i.e. not
+  // a QString converted to UTF-8)
+  PaJack_SetClientName("Olive");
+#endif
 
   Pa_Initialize();
 
-  SetOutputDevice(Pa_GetDefaultOutputDevice());
-  SetInputDevice(Pa_GetDefaultInputDevice());
+  // Get device from config
+  PaDeviceIndex output_device = FindConfigDeviceByName(true);
+  PaDeviceIndex input_device = FindConfigDeviceByName(false);
+
+  SetOutputDevice(output_device);
+  SetInputDevice(input_device);
 
   output_buffer_ = new PreviewAudioDevice(this);
   output_buffer_->open(PreviewAudioDevice::ReadWrite);
@@ -228,60 +227,6 @@ AudioManager::~AudioManager()
   CloseOutputStream();
 
   Pa_Terminate();
-}
-
-void AudioManager::OutputDevicesRefreshed()
-{
-  /*QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
-
-  output_devices_ = watcher->result();
-  watcher->deleteLater();
-  is_refreshing_outputs_ = false;
-
-  QString preferred_audio_output = Config::Current()["AudioOutput"].toString();
-
-  if (output_ == paNoDevice
-      || (!preferred_audio_output.isEmpty() && output_device_info_.deviceName() != preferred_audio_output)) {
-    if (preferred_audio_output.isEmpty()) {
-      SetOutputDevice(QAudioDeviceInfo::defaultOutputDevice());
-    } else {
-      foreach (const QAudioDeviceInfo& info, output_devices_) {
-        if (info.deviceName() == preferred_audio_output) {
-          SetOutputDevice(info);
-          break;
-        }
-      }
-    }
-  }
-
-  emit OutputListReady();*/
-}
-
-void AudioManager::InputDevicesRefreshed()
-{
-  /*QFutureWatcher< QList<QAudioDeviceInfo> >* watcher = static_cast<QFutureWatcher< QList<QAudioDeviceInfo> >*>(sender());
-
-  input_devices_ = watcher->result();
-  watcher->deleteLater();
-  is_refreshing_inputs_ = false;
-
-  QString preferred_audio_input = Config::Current()["AudioInput"].toString();
-
-  if (input_ == nullptr
-      || (!preferred_audio_input.isEmpty() && input_device_info_.deviceName() != preferred_audio_input)) {
-    if (preferred_audio_input.isEmpty()) {
-      SetInputDevice(QAudioDeviceInfo::defaultInputDevice());
-    } else {
-      foreach (const QAudioDeviceInfo& info, input_devices_) {
-        if (info.deviceName() == preferred_audio_input) {
-          SetInputDevice(info);
-          break;
-        }
-      }
-    }
-  }
-
-  emit InputListReady();*/
 }
 
 }

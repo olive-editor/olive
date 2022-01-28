@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+APPDIR=$(readlink -f $(dirname "$0"))
 
 # Custom AppRun that ensures the AppImage doesn't dismount before olive-crashhandler exits
 
 # Run main program
-$APPDIR/usr/bin/olive-editor
+"$APPDIR/usr/bin/olive-editor" "$@"
 
 # Wait arbitrary amount of time
 sleep 5

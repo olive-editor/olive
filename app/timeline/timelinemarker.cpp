@@ -114,7 +114,7 @@ void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
     marker->Save(writer);
   }
 }
-
+  
 TimelineMarkerList::~TimelineMarkerList()
 {
   qDeleteAll(markers_);

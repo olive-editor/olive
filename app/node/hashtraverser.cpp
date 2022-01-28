@@ -155,9 +155,7 @@ void HashTraverser::HashNodeValue(const NodeValue &value)
       id_for_buffer = texture_ids_.value(samples.get());
     }
 
-    if (id_for_buffer.isEmpty()) {
-      qWarning() << "Found ID-less buffer while hashing, collisions are likely to occur";
-    } else {
+    if (!id_for_buffer.isEmpty()) {
       Hash(id_for_buffer);
     }
   } else {

@@ -21,8 +21,7 @@
 #ifndef NODEPANEL_H
 #define NODEPANEL_H
 
-#include "widget/nodeview/nodeview.h"
-#include "widget/nodeview/nodeviewtoolbar.h"
+#include "widget/nodeview/nodewidget.h"
 #include "widget/panel/panel.h"
 
 namespace olive {
@@ -36,86 +35,86 @@ class NodePanel : public PanelWidget
 public:
   NodePanel(QWidget* parent);
 
-  NodeGraph* GetGraph() const
+  NodeWidget *GetNodeWidget() const
   {
-    return node_view_->GetGraph();
+    return node_widget_;
   }
 
-  void SetGraph(NodeGraph *graph, const QVector<Node*> &nodes)
+  const QVector<Node*> &GetContexts() const
   {
-    node_view_->SetGraph(graph, nodes);
-    toolbar_->setEnabled(graph);
+    return node_widget_->view()->GetContexts();
   }
 
-  void ClearGraph()
+  void SetContexts(const QVector<Node*> &nodes)
   {
-    node_view_->ClearGraph();
+    node_widget_->SetContexts(nodes);
+  }
+
+  void CloseContextsBelongingToProject(Project *project)
+  {
+    node_widget_->view()->CloseContextsBelongingToProject(project);
   }
 
   const QVector<Node*> &GetCurrentContexts() const
   {
-    return node_view_->GetCurrentContexts();
+    return node_widget_->view()->GetCurrentContexts();
   }
 
   virtual void SelectAll() override
   {
-    node_view_->SelectAll();
+    node_widget_->view()->SelectAll();
   }
 
   virtual void DeselectAll() override
   {
-    node_view_->DeselectAll();
+    node_widget_->view()->DeselectAll();
   }
 
   virtual void DeleteSelected() override
   {
-    node_view_->DeleteSelected();
+    node_widget_->view()->DeleteSelected();
   }
 
   virtual void CutSelected() override
   {
-    node_view_->CopySelected(true);
+    node_widget_->view()->CopySelected(true);
   }
 
   virtual void CopySelected() override
   {
-    node_view_->CopySelected(false);
+    node_widget_->view()->CopySelected(false);
   }
 
   virtual void Paste() override
   {
-    node_view_->Paste();
+    node_widget_->view()->Paste();
   }
 
   virtual void Duplicate() override
   {
-    node_view_->Duplicate();
+    node_widget_->view()->Duplicate();
   }
 
   virtual void SetColorLabel(int index) override
   {
-    node_view_->SetColorLabel(index);
+    node_widget_->view()->SetColorLabel(index);
   }
 
   virtual void ZoomIn() override
   {
-    node_view_->ZoomIn();
+    node_widget_->view()->ZoomIn();
   }
 
   virtual void ZoomOut() override
   {
-    node_view_->ZoomOut();
+    node_widget_->view()->ZoomOut();
   }
 
 public slots:
   void Select(const QVector<Node*>& nodes, bool center_view_on_item)
   {
-    node_view_->Select(nodes, center_view_on_item);
-  }
-
-  void SelectWithDependencies(const QVector<Node*>& nodes, bool center_view_on_item)
-  {
-    node_view_->SelectWithDependencies(nodes, center_view_on_item);
+    node_widget_->view()->Select(nodes, center_view_on_item);
+    this->raise();
   }
 
 signals:
@@ -123,15 +122,15 @@ signals:
 
   void NodesDeselected(const QVector<Node*>& nodes);
 
+  void NodeGroupOpenRequested(NodeGroup *group);
+
 private:
   virtual void Retranslate() override
   {
     SetTitle(tr("Node Editor"));
   }
 
-  NodeView* node_view_;
-
-  NodeViewToolBar *toolbar_;
+  NodeWidget *node_widget_;
 
 };
 

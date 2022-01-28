@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(audiomonitor)
+add_subdirectory(bezier)
 add_subdirectory(clickablelabel)
 add_subdirectory(collapsebutton)
 add_subdirectory(colorbutton)
@@ -52,7 +53,6 @@ add_subdirectory(timelinewidget)
 add_subdirectory(timeruler)
 add_subdirectory(timetarget)
 add_subdirectory(toolbar)
-add_subdirectory(videoparamedit)
 add_subdirectory(viewer)
 
 set(OLIVE_SOURCES

@@ -87,6 +87,7 @@ private:
 
   int drag_start_x_;
   int drag_start_y_;
+  int wrap_count_;
 
   QList<SliderLadderElement*> elements_;
 

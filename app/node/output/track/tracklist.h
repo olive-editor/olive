@@ -71,6 +71,16 @@ public:
   void ArrayAppend(bool undoable = false);
   void ArrayRemoveLast(bool undoable = false);
 
+  int GetArrayIndexFromCacheIndex(int index) const
+  {
+    return track_array_indexes_.at(index);
+  }
+
+  int GetCacheIndexFromArrayIndex(int index) const
+  {
+    return track_array_indexes_.indexOf(index);
+  }
+
 public slots:
   /**
    * @brief Slot for when the track connection is added
@@ -99,16 +109,6 @@ private:
    */
   QVector<Track*> track_cache_;
   QVector<int> track_array_indexes_;
-
-  int GetArrayIndexFromCacheIndex(int index) const
-  {
-    return track_array_indexes_.at(index);
-  }
-
-  int GetCacheIndexFromArrayIndex(int index) const
-  {
-    return track_array_indexes_.indexOf(index);
-  }
 
   QString track_input_;
 

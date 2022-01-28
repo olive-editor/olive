@@ -71,6 +71,22 @@ int main(int argc, char *argv[])
   // Parse command line arguments
   //
 
+  QVector<QString> args;
+#if defined(_WIN32) && defined(UNICODE)
+  int wargc;
+  LPWSTR *wargv = CommandLineToArgvW(GetCommandLineW(), &wargc);
+  args.resize(wargc);
+  for (int i=0; i<wargc; i++) {
+    args[i] = QString::fromWCharArray(wargv[i]);
+  }
+  LocalFree(wargv);
+#else
+  args.resize(argc);
+  for (int i=0; i<argc; i++) {
+    args[i] = QString::fromLocal8Bit(argv[i]);
+  }
+#endif
+
   olive::Core::CoreParams startup_params;
 
   CommandLineParser parser;
@@ -130,7 +146,7 @@ int main(int argc, char *argv[])
   // Hidden crash option for debugging the crash handling
   auto crash_option = parser.AddOption({QStringLiteral("-crash")}, QString(), true, QString(), true);
 
-  parser.Process(argc, argv);
+  parser.Process(args);
 
   if (help_option->IsSet()) {
     // Show help

@@ -30,6 +30,7 @@
 #include <opentimelineio/transition.h>
 #include <QApplication>
 #include <QFileInfo>
+#include <QThread>
 
 #include "core.h"
 #include "node/audio/volume/volume.h"
@@ -59,7 +60,7 @@ bool LoadOTIOTask::Run()
 
   auto root = OTIO::SerializableObjectWithMetadata::from_json_file(GetFilename().toStdString(), &es);
 
-  if (es != OTIO::ErrorStatus::OK) {
+  if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
     SetError(tr("Failed to load OpenTimelineIO from file \"%1\"").arg(GetFilename()));
     return false;
   }
@@ -88,11 +89,53 @@ bool LoadOTIOTask::Run()
 
   // Keep track of imported footage
   QMap<QString, Footage*> imported_footage;
+  QMap<OTIO::Timeline*, Sequence*> timeline_sequnce_map;
 
+  // Variables used for loading bar
+  float number_of_clips = 0;
+  float clips_done = 0;
+
+  // Generate a list of sequences with the same names as the timelines.
+  // Assumes each timeline has a unique name.
+  int unnamed_sequence_count = 0;
   foreach (auto timeline, timelines) {
-    // Create sequence
     Sequence* sequence = new Sequence();
-    sequence->SetLabel(QString::fromStdString(timeline->name()));
+    if (!timeline->name().empty()) {
+      sequence->SetLabel(QString::fromStdString(timeline->name()));
+    } else {
+      // If the otio timeline does not provide a name, create a default one here
+      unnamed_sequence_count++;
+      QString label = tr("Sequence %1").arg(unnamed_sequence_count);
+      sequence->SetLabel(QString::fromStdString(label.toStdString()));
+    }
+    // Set default params incase they aren't edited.
+    sequence->set_default_parameters();
+    timeline_sequnce_map.insert(timeline, sequence);
+
+    // Get number of clips for loading bar
+    foreach (auto track, timeline->tracks()->children()) {
+      auto otio_track = static_cast<OTIO::Track*>(track.value);
+      number_of_clips += otio_track->children().size();
+    }
+  }
+
+  // Dialog has to be called from the main thread so we pass the list of sequences here.
+  bool accepted = false;
+  QMetaObject::invokeMethod(Core::instance(),
+                            "DialogImportOTIOShow",
+                            Qt::BlockingQueuedConnection,
+                            Q_RETURN_ARG(bool, accepted),
+                            Q_ARG(QList<Sequence*>,timeline_sequnce_map.values()));
+
+  if (!accepted) {
+    // Cancel to indicate to caller that this task did not complete and to simply dispose of it
+    Cancel();
+    qDeleteAll(timeline_sequnce_map); // Clear sequences
+    return true;
+  }
+
+  foreach (auto timeline, timeline_sequnce_map.keys()) {
+    Sequence* sequence = timeline_sequnce_map.value(timeline);
     sequence->setParent(project_);
     FolderAddChild(project_->root(), sequence).redo_now();
 
@@ -101,9 +144,6 @@ bool LoadOTIOTask::Run()
     sequence_footage->SetLabel(QString::fromStdString(timeline->name()));
     sequence_footage->setParent(project_);
     FolderAddChild(project_->root(), sequence_footage).redo_now();
-
-    // FIXME: As far as I know, OTIO doesn't store video/audio parameters?
-    sequence->set_default_parameters();
 
     // Iterate through tracks
     for (auto c : timeline->tracks()->children()) {
@@ -133,7 +173,7 @@ bool LoadOTIOTask::Run()
 
       // Get clips from track
       auto clip_map = otio_track->children();
-      if (es != OTIO::ErrorStatus::OK) {
+      if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
         SetError(tr("Failed to load clip"));
         return false;
       }
@@ -210,7 +250,7 @@ bool LoadOTIOTask::Run()
           block->setParent(sequence->parent());
 
           // Position transition in its own context
-          sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
+          block->SetNodePositionInContext(block, QPointF(0, 0));
         }
 
         if (otio_block->schema_name() == "Gap") {
@@ -218,7 +258,7 @@ bool LoadOTIOTask::Run()
           block->setParent(sequence->parent());
 
           // Position transition in its own context
-          sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
+          block->SetNodePositionInContext(block, QPointF(0, 0));
         }
 
         // Update this after it's used but before any continue statements
@@ -246,7 +286,7 @@ bool LoadOTIOTask::Run()
               QFileInfo info(probed_item->filename());
               probed_item->SetLabel(info.fileName());
 
-              FolderAddChild add(sequence_footage, probed_item, true);
+              FolderAddChild add(sequence_footage, probed_item);
               add.redo_now();
             }
 
@@ -254,10 +294,10 @@ bool LoadOTIOTask::Run()
             block->setParent(sequence->parent());
 
             // Position clip in its own context
-            sequence->parent()->SetNodePosition(block, block, QPointF(0, 0));
+            block->SetNodePositionInContext(block, QPointF(0, 0));
 
             // Position footage in its context
-            sequence->parent()->SetNodePosition(probed_item, block, QPointF(-2, 0));
+            block->SetNodePositionInContext(probed_item, QPointF(-2, 0));
 
 
             if (track->type() == Track::kVideo) {
@@ -266,17 +306,19 @@ bool LoadOTIOTask::Run()
 
               Node::ConnectEdge(probed_item, NodeInput(transform, TransformDistortNode::kTextureInput));
               Node::ConnectEdge(transform, NodeInput(block, ClipBlock::kBufferIn));
-              sequence->parent()->SetNodePosition(transform, block, QPointF(-1, 0));
+              block->SetNodePositionInContext(transform, QPointF(-1, 0));
             } else {
               VolumeNode* volume_node = new VolumeNode();
               volume_node->setParent(sequence->parent());
 
               Node::ConnectEdge(probed_item, NodeInput(volume_node, VolumeNode::kSamplesInput));
               Node::ConnectEdge(volume_node, NodeInput(block, ClipBlock::kBufferIn));
-              sequence->parent()->SetNodePosition(volume_node, block, QPointF(-1, 0));
+              block->SetNodePositionInContext(volume_node, QPointF(-1, 0));
             }
           }
         }
+        clips_done++;
+        emit ProgressChanged(clips_done / number_of_clips);
       }
     }
   }

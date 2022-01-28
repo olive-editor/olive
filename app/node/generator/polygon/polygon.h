@@ -21,6 +21,9 @@
 #ifndef POLYGONGENERATOR_H
 #define POLYGONGENERATOR_H
 
+#include <QPainterPath>
+
+#include "common/bezier.h"
 #include "node/node.h"
 #include "node/inputdragger.h"
 
@@ -43,29 +46,34 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual bool HasGizmos() const override;
-  //virtual void DrawGizmos(NodeValueDatabase& db, QPainter *p) const override;
+  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
-  //virtual bool GizmoPress(NodeValueDatabase &db, const QPointF &p) override;
-  //virtual void GizmoMove(const QPointF &p, const QVector2D &scale, const rational &time) override;
-  //virtual void GizmoRelease() override;
+  virtual bool HasGizmos() const override;
+  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter *p) override;
+
+  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
+  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
+  virtual void GizmoRelease(MultiUndoCommand *command) override;
 
   static const QString kPointsInput;
   static const QString kColorInput;
 
 private:
-  QVector<QPointF> GetGizmoCoordinates(NodeValueDatabase &db, const QVector2D &scale) const;
+  static void AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after);
 
-  QVector<QRectF> GetGizmoRects(const QVector<QPointF>& points) const;
+  static QPainterPath GeneratePath(const QVector<NodeValue> &points);
 
-  NodeInput* gizmo_drag_;
+  QPainterPath gizmo_polygon_path_;
+  QVector<QRectF> gizmo_position_handles_;
+  QVector<QRectF> gizmo_bezier_handles_;
+
+  QVector<NodeKeyframeTrackReference> gizmo_x_active_;
+  QVector<NodeKeyframeTrackReference> gizmo_y_active_;
+  QVector<NodeInputDragger> gizmo_x_draggers_;
+  QVector<NodeInputDragger> gizmo_y_draggers_;
   QPointF gizmo_drag_start_;
-
-  NodeInputDragger gizmo_x_dragger_;
-  NodeInputDragger gizmo_y_dragger_;
 
 };
 

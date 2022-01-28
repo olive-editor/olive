@@ -47,8 +47,10 @@ Node::Node() :
   override_color_(-1),
   folder_(nullptr),
   operation_stack_(0),
-  cache_result_(false)
+  cache_result_(false),
+  flags_(kNone)
 {
+  uuid_ = QUuid::createUuid();
 }
 
 Node::~Node()
@@ -75,151 +77,18 @@ NodeGraph *Node::parent() const
   return static_cast<NodeGraph*>(QObject::parent());
 }
 
-void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, uint version, const QAtomicInt* cancelled)
-{
-  while (XMLReadNextStartElement(reader)) {
-    if (cancelled && *cancelled) {
-      return;
-    }
-
-    if (reader->name() == QStringLiteral("input")) {
-      LoadInput(reader, xml_node_data, cancelled);
-    } else if (reader->name() == QStringLiteral("ptr")) {
-      xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), this);
-    } else if (reader->name() == QStringLiteral("label")) {
-      SetLabel(reader->readElementText());
-    } else if (reader->name() == QStringLiteral("color")) {
-      override_color_ = reader->readElementText().toInt();
-    } else if (reader->name() == QStringLiteral("links")) {
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("link")) {
-          xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("custom")) {
-      while (XMLReadNextStartElement(reader)) {
-        if (!LoadCustom(reader, xml_node_data, version, cancelled)) {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("connections")) {
-      // Load connections
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("connection")) {
-          QString param_id;
-          int ele = -1;
-
-          XMLAttributeLoop(reader, attr) {
-            if (attr.name() == QStringLiteral("element")) {
-              ele = attr.value().toInt();
-            } else if (attr.name() == QStringLiteral("input")) {
-              param_id = attr.value().toString();
-            }
-          }
-
-          QString output_node_id;
-          QString output_param_id;
-
-          while (XMLReadNextStartElement(reader)) {
-            if ((version >= 210907 && reader->name() == QStringLiteral("output")) || reader->name() == QStringLiteral("node")) {
-              output_node_id = reader->readElementText();
-            } else if (version < 210907 && reader->name() == QStringLiteral("output")) {
-              output_param_id = reader->readElementText();
-            } else {
-              reader->skipCurrentElement();
-            }
-          }
-
-          xml_node_data.desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong(), output_param_id});
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("hints")) {
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("hint")) {
-          QString input;
-          int element = -1;
-
-          XMLAttributeLoop(reader, attr) {
-            if (attr.name() == QStringLiteral("input")) {
-              input = attr.value().toString();
-            } else if (attr.name() == QStringLiteral("element")) {
-              element = attr.value().toInt();
-            }
-          }
-
-          ValueHint vh;
-          vh.Load(reader);
-
-          value_hints_.insert({input, element}, vh);
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
-}
-
-void Node::Save(QXmlStreamWriter *writer) const
-{
-  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
-
-  writer->writeTextElement(QStringLiteral("label"), GetLabel());
-  writer->writeTextElement(QStringLiteral("color"), QString::number(override_color_));
-
-  foreach (const QString& input, input_ids_) {
-    writer->writeStartElement(QStringLiteral("input"));
-
-    SaveInput(writer, input);
-
-    writer->writeEndElement(); // input
-  }
-
-  writer->writeStartElement(QStringLiteral("links"));
-  foreach (Node* link, links_) {
-    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
-  }
-  writer->writeEndElement(); // links
-
-  writer->writeStartElement(QStringLiteral("connections"));
-  for (auto it=input_connections().cbegin(); it!=input_connections().cend(); it++) {
-    writer->writeStartElement(QStringLiteral("connection"));
-
-    writer->writeAttribute(QStringLiteral("input"), it->first.input());
-    writer->writeAttribute(QStringLiteral("element"), QString::number(it->first.element()));
-
-    writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->second)));
-
-    writer->writeEndElement(); // connection
-  }
-  writer->writeEndElement(); // connections
-
-  writer->writeStartElement(QStringLiteral("hints"));
-  for (auto it=value_hints_.cbegin(); it!=value_hints_.cend(); it++) {
-    writer->writeStartElement(QStringLiteral("hint"));
-
-    writer->writeAttribute(QStringLiteral("input"), it.key().input);
-    writer->writeAttribute(QStringLiteral("element"), QString::number(it.key().element));
-
-    it.value().Save(writer);
-
-    writer->writeEndElement(); // hint
-  }
-  writer->writeEndElement();
-
-  writer->writeStartElement(QStringLiteral("custom"));
-  SaveCustom(writer);
-  writer->writeEndElement(); // custom
-}
-
 Project* Node::project() const
 {
-  return dynamic_cast<Project*>(parent());
+  QObject *t = this->parent();
+
+  while (t) {
+    if (Project *p = dynamic_cast<Project*>(t)) {
+      return p;
+    }
+    t = t->parent();
+  }
+
+  return nullptr;
 }
 
 QString Node::ShortName() const
@@ -241,6 +110,40 @@ QIcon Node::icon() const
 {
   // Just a meaningless default icon to be used where necessary
   return icon::New;
+}
+
+bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)
+{
+  Position p = context_positions_.value(node);
+
+  p.position = pos;
+
+  return SetNodePositionInContext(node, p);
+}
+
+bool Node::SetNodePositionInContext(Node *node, const Position &pos)
+{
+  bool added = !ContextContainsNode(node);
+  context_positions_.insert(node, pos);
+
+  if (added) {
+    emit NodeAddedToContext(node);
+  }
+
+  emit NodePositionInContextChanged(node, pos.position);
+
+  return added;
+}
+
+bool Node::RemoveNodeFromContext(Node *node)
+{
+  if (ContextContainsNode(node)) {
+    context_positions_.remove(node);
+    emit NodeRemovedFromContext(node);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 Color Node::color() const
@@ -345,88 +248,9 @@ QString Node::GetInputName(const QString &id) const
   }
 }
 
-void Node::LoadInput(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
+bool Node::IsInputHidden(const QString &input) const
 {
-  QString param_id;
-
-  XMLAttributeLoop(reader, attr) {
-    if (attr.name() == QStringLiteral("id")) {
-      param_id = attr.value().toString();
-
-      break;
-    }
-  }
-
-  if (param_id.isEmpty()) {
-    qWarning() << "Failed to load parameter with missing ID";
-    reader->skipCurrentElement();
-    return;
-  }
-
-  if (!HasInputWithID(param_id)) {
-    qWarning() << "Failed to load parameter that didn't exist:" << param_id;
-    reader->skipCurrentElement();
-    return;
-  }
-
-  while (XMLReadNextStartElement(reader)) {
-    if (cancelled && *cancelled) {
-      return;
-    }
-
-    if (reader->name() == QStringLiteral("primary")) {
-      // Load primary immediate
-      LoadImmediate(reader, param_id, -1, xml_node_data, cancelled);
-    } else if (reader->name() == QStringLiteral("subelements")) {
-      // Load subelements
-      XMLAttributeLoop(reader, attr) {
-        if (attr.name() == QStringLiteral("count")) {
-          InputArrayResize(param_id, attr.value().toInt());
-        }
-      }
-
-      int element_counter = 0;
-
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("element")) {
-          LoadImmediate(reader, param_id, element_counter, xml_node_data, cancelled);
-
-          element_counter++;
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
-}
-
-void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
-{
-  writer->writeAttribute(QStringLiteral("id"), id);
-
-  writer->writeStartElement(QStringLiteral("primary"));
-
-  SaveImmediate(writer, id, -1);
-
-  writer->writeEndElement(); // primary
-
-  writer->writeStartElement(QStringLiteral("subelements"));
-
-  int arr_sz = InputArraySize(id);
-
-  writer->writeAttribute(QStringLiteral("count"), QString::number(arr_sz));
-
-  for (int i=0; i<arr_sz; i++) {
-    writer->writeStartElement(QStringLiteral("element"));
-
-    SaveImmediate(writer, id, i);
-
-    writer->writeEndElement(); // element
-  }
-
-  writer->writeEndElement(); // subelements
+  return (GetInputFlags(input) & kInputFlagHidden);
 }
 
 bool Node::IsInputConnectable(const QString &input) const
@@ -931,7 +755,7 @@ void Node::InputArrayInsert(const QString &id, int index, bool undoable)
     // Move connections down
     InputConnections copied_edges = input_connections();
     for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
-      if (it->first.element() >= index) {
+      if (it->first.input() == id && it->first.element() >= index) {
         // Disconnect this and reconnect it one element down
         NodeInput new_edge = it->first;
         new_edge.set_element(new_edge.element() + 1);
@@ -978,7 +802,7 @@ void Node::InputArrayRemove(const QString &id, int index, bool undoable)
     // Move connections up
     InputConnections copied_edges = input_connections();
     for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-      if (it->first.element() >= index) {
+      if (it->first.input() == id && it->first.element() >= index) {
         // Disconnect this and reconnect it one element up if it's not the element being removed
         DisconnectEdge(it->second, it->first);
 
@@ -1050,7 +874,7 @@ NodeInputImmediate *Node::GetImmediate(const QString &input, int element) const
   return nullptr;
 }
 
-Node::InputFlags Node::GetInputFlags(const QString &input) const
+InputFlags Node::GetInputFlags(const QString &input) const
 {
   const Input* i = GetInternalInputData(input);
 
@@ -1196,13 +1020,10 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
     command->add_child(new NodeSetValueHintCommand(copied_input, node->GetValueHintForInput(input.input(), input.element())));
   }
 
-  if (node->parent()->GetPositionMap().contains(node)) {
-    // This node is a context, copy the context
-    const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      // Add either the copy (if it exists) or the original node to the context
-      command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value(), false));
-    }
+  const PositionMap &map = node->GetContextPositions();
+  for (auto it=map.cbegin(); it!=map.cend(); it++) {
+    // Add either the copy (if it exists) or the original node to the context
+    command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value()));
   }
 
   return copy;
@@ -1229,13 +1050,10 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
     command->add_child(new NodeCopyInputsCommand(node, copy, true));
 
-    if (node->parent()->GetPositionMap().contains(node)) {
-      // This node is a context, copy the context
-      const NodeGraph::PositionMap &map = node->parent()->GetPositionMap().value(node);
-      for (auto it=map.cbegin(); it!=map.cend(); it++) {
-        // Add to the context
-        command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value(), false));
-      }
+    const PositionMap &map = node->GetContextPositions();
+    for (auto it=map.cbegin(); it!=map.cend(); it++) {
+      // Add to the context
+      command->add_child(new NodeSetPositionCommand(it.key(), copy, it.value()));
     }
   }
 
@@ -1310,7 +1128,7 @@ void Node::HashAddNodeSignature(QCryptographicHash &hash) const
   hash.addData(id().toUtf8());
 }
 
-void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, Node::InputFlags flags, int index)
+void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
 {
   if (id.isEmpty()) {
     qWarning() << "Rejected adding input with an empty ID on node" << this->id();
@@ -1430,15 +1248,6 @@ void Node::IgnoreHashingFrom(const QString &input_id)
   ignore_when_hashing_.append(input_id);
 }
 
-bool Node::LoadCustom(QXmlStreamReader *, XMLNodeData &, uint, const QAtomicInt*)
-{
-  return false;
-}
-
-void Node::SaveCustom(QXmlStreamWriter *) const
-{
-}
-
 bool Node::HasGizmos() const
 {
   return false;
@@ -1457,7 +1266,7 @@ void Node::GizmoMove(const QPointF &, const rational&, const Qt::KeyboardModifie
 {
 }
 
-void Node::GizmoRelease()
+void Node::GizmoRelease(MultiUndoCommand *)
 {
 }
 
@@ -1564,7 +1373,9 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   dst->SetSplitStandardValue(input, src->GetSplitStandardValue(input, src_element), dst_element);
 
   // Copy keyframes
-  dst->GetImmediate(input, dst_element)->delete_all_keyframes();
+  if (NodeInputImmediate *immediate = dst->GetImmediate(input, dst_element)) {
+    immediate->delete_all_keyframes();
+  }
   foreach (const NodeKeyframeTrack& track, src->GetImmediate(input, src_element)->keyframe_tracks()) {
     foreach (NodeKeyframe* key, track) {
       key->copy(dst_element, dst);
@@ -1832,6 +1643,10 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Transition");
   case kCategoryProject:
     return tr("Project");
+  case kCategoryVideoEffect:
+    return tr("Video Effect");
+  case kCategoryAudioEffect:
+    return tr("Audio Effect");
   case kCategoryUnknown:
   case kCategoryCount:
     break;
@@ -1894,186 +1709,6 @@ void Node::ParameterValueChanged(const QString& input, int element, const TimeRa
   }
 
   InvalidateCache(range, input, element);
-}
-
-void Node::LoadImmediate(QXmlStreamReader *reader, const QString& input, int element, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
-{
-  Q_UNUSED(xml_node_data)
-
-  NodeValue::Type data_type = GetInputDataType(input);
-
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("standard")) {
-      // Load standard value
-      int val_index = 0;
-
-      while (XMLReadNextStartElement(reader)) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (reader->name() == QStringLiteral("track")) {
-          QVariant value_on_track;
-
-          if (data_type == NodeValue::kVideoParams) {
-            VideoParams vp;
-            vp.Load(reader);
-            value_on_track = QVariant::fromValue(vp);
-          } else if (data_type == NodeValue::kAudioParams) {
-            AudioParams ap;
-            ap.Load(reader);
-            value_on_track = QVariant::fromValue(ap);
-          } else {
-            QString value_text = reader->readElementText();
-
-            if (!value_text.isEmpty()) {
-              value_on_track = NodeValue::StringToValue(data_type, value_text, element);
-            }
-          }
-
-          SetSplitStandardValueOnTrack(input, val_index, value_on_track, element);
-
-          val_index++;
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("keyframing") && IsInputKeyframable(input)) {
-      SetInputIsKeyframing(input, reader->readElementText().toInt(), element);
-    } else if (reader->name() == QStringLiteral("keyframes")) {
-      int track = 0;
-
-      while (XMLReadNextStartElement(reader)) {
-        if (cancelled && *cancelled) {
-          return;
-        }
-
-        if (reader->name() == QStringLiteral("track")) {
-          while (XMLReadNextStartElement(reader)) {
-            if (cancelled && *cancelled) {
-              return;
-            }
-
-            if (reader->name() == QStringLiteral("key")) {
-              QString key_input;
-              rational key_time;
-              NodeKeyframe::Type key_type = NodeKeyframe::kLinear;
-              QVariant key_value;
-              QPointF key_in_handle;
-              QPointF key_out_handle;
-
-              XMLAttributeLoop(reader, attr) {
-                if (cancelled && *cancelled) {
-                  return;
-                }
-
-                if (attr.name() == QStringLiteral("input")) {
-                  key_input = attr.value().toString();
-                } else if (attr.name() == QStringLiteral("time")) {
-                  key_time = rational::fromString(attr.value().toString());
-                } else if (attr.name() == QStringLiteral("type")) {
-                  key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
-                } else if (attr.name() == QStringLiteral("inhandlex")) {
-                  key_in_handle.setX(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("inhandley")) {
-                  key_in_handle.setY(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("outhandlex")) {
-                  key_out_handle.setX(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("outhandley")) {
-                  key_out_handle.setY(attr.value().toDouble());
-                }
-              }
-
-              key_value = NodeValue::StringToValue(data_type, reader->readElementText(), true);
-
-              NodeKeyframe* key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, this);
-              key->set_bezier_control_in(key_in_handle);
-              key->set_bezier_control_out(key_out_handle);
-            } else {
-              reader->skipCurrentElement();
-            }
-          }
-
-          track++;
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("csinput")) {
-      SetInputProperty(input, QStringLiteral("col_input"), reader->readElementText());
-    } else if (reader->name() == QStringLiteral("csdisplay")) {
-      SetInputProperty(input, QStringLiteral("col_display"), reader->readElementText());
-    } else if (reader->name() == QStringLiteral("csview")) {
-      SetInputProperty(input, QStringLiteral("col_view"), reader->readElementText());
-    } else if (reader->name() == QStringLiteral("cslook")) {
-      SetInputProperty(input, QStringLiteral("col_look"), reader->readElementText());
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
-}
-
-void Node::SaveImmediate(QXmlStreamWriter *writer, const QString& input, int element) const
-{
-  if (IsInputKeyframable(input)) {
-    writer->writeTextElement(QStringLiteral("keyframing"), QString::number(IsInputKeyframing(input, element)));
-  }
-
-  NodeValue::Type data_type = GetInputDataType(input);
-
-  // Write standard value
-  writer->writeStartElement(QStringLiteral("standard"));
-
-  foreach (const QVariant& v, GetSplitStandardValue(input, element)) {
-    writer->writeStartElement(QStringLiteral("track"));
-
-    if (data_type == NodeValue::kVideoParams) {
-      v.value<VideoParams>().Save(writer);
-    } else if (data_type == NodeValue::kAudioParams) {
-      v.value<AudioParams>().Save(writer);
-    } else {
-      writer->writeCharacters(NodeValue::ValueToString(data_type, v, true));
-    }
-
-    writer->writeEndElement(); // track
-  }
-
-  writer->writeEndElement(); // standard
-
-  // Write keyframes
-  writer->writeStartElement(QStringLiteral("keyframes"));
-
-  foreach (const NodeKeyframeTrack& track, GetKeyframeTracks(input, element)) {
-    writer->writeStartElement(QStringLiteral("track"));
-
-    foreach (NodeKeyframe* key, track) {
-      writer->writeStartElement(QStringLiteral("key"));
-
-      writer->writeAttribute(QStringLiteral("input"), key->input());
-      writer->writeAttribute(QStringLiteral("time"), key->time().toString());
-      writer->writeAttribute(QStringLiteral("type"), QString::number(key->type()));
-      writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(key->bezier_control_in().x()));
-      writer->writeAttribute(QStringLiteral("inhandley"), QString::number(key->bezier_control_in().y()));
-      writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(key->bezier_control_out().x()));
-      writer->writeAttribute(QStringLiteral("outhandley"), QString::number(key->bezier_control_out().y()));
-
-      writer->writeCharacters(NodeValue::ValueToString(data_type, key->value(), true));
-
-      writer->writeEndElement(); // key
-    }
-
-    writer->writeEndElement(); // track
-  }
-
-  writer->writeEndElement(); // keyframes
-
-  if (data_type == NodeValue::kColor) {
-    // Save color management information
-    writer->writeTextElement(QStringLiteral("csinput"), GetInputProperty(input, QStringLiteral("col_input")).toString());
-    writer->writeTextElement(QStringLiteral("csdisplay"), GetInputProperty(input, QStringLiteral("col_display")).toString());
-    writer->writeTextElement(QStringLiteral("csview"), GetInputProperty(input, QStringLiteral("col_view")).toString());
-    writer->writeTextElement(QStringLiteral("cslook"), GetInputProperty(input, QStringLiteral("col_look")).toString());
-  }
 }
 
 TimeRange Node::GetRangeAffectedByKeyframe(NodeKeyframe *key) const
@@ -2144,6 +1779,9 @@ double Node::GetGizmoHandleRadius(const QTransform &transform)
 
 void Node::DrawAndExpandGizmoHandles(QPainter *p, int handle_radius, QRectF *rects, int count)
 {
+  p->setPen(Qt::NoPen);
+  p->setBrush(Qt::white);
+
   for (int i=0; i<count; i++) {
     QRectF& r = rects[i];
 
@@ -2198,7 +1836,6 @@ void Node::childEvent(QChildEvent *event)
       GetImmediate(key->input(), key->element())->insert_keyframe(key);
 
       connect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
-      connect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
       connect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
       connect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
       connect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
@@ -2210,15 +1847,14 @@ void Node::childEvent(QChildEvent *event)
       TimeRange time_affected = GetRangeAffectedByKeyframe(key);
 
       disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
-      disconnect(key, &NodeKeyframe::TimeChanged, this, &Node::KeyframeTimeChanged);
       disconnect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);
       disconnect(key, &NodeKeyframe::TypeChanged, this, &Node::InvalidateFromKeyframeTypeChanged);
       disconnect(key, &NodeKeyframe::BezierControlInChanged, this, &Node::InvalidateFromKeyframeBezierInChange);
       disconnect(key, &NodeKeyframe::BezierControlOutChanged, this, &Node::InvalidateFromKeyframeBezierOutChange);
 
-      GetImmediate(key->input(), key->element())->remove_keyframe(key);
-
       emit KeyframeRemoved(key);
+
+      GetImmediate(key->input(), key->element())->remove_keyframe(key);
       ParameterValueChanged(i, time_affected);
     }
   }
@@ -2281,12 +1917,16 @@ void Node::InvalidateFromKeyframeTimeChange()
   foreach (const TimeRange& r, invalidate_range) {
     ParameterValueChanged(key->key_track_ref().input(), r);
   }
+
+  emit KeyframeTimeChanged(key);
 }
 
 void Node::InvalidateFromKeyframeValueChange()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   ParameterValueChanged(key->key_track_ref().input(), GetRangeAffectedByKeyframe(key));
+
+  emit KeyframeValueChanged(key);
 }
 
 void Node::InvalidateFromKeyframeTypeChanged()
@@ -2301,6 +1941,8 @@ void Node::InvalidateFromKeyframeTypeChanged()
 
   // Invalidate entire range
   ParameterValueChanged(key->key_track_ref().input(), GetRangeAroundIndex(key->input(), track.indexOf(key), key->track(), key->element()));
+
+  emit KeyframeTypeChanged(key);
 }
 
 Project *Node::ArrayInsertCommand::GetRelevantProject() const
@@ -2318,119 +1960,40 @@ Project *Node::ArrayResizeCommand::GetRelevantProject() const
   return node_->project();
 }
 
-void NodeSetPositionAndShiftSurroundingsCommand::redo()
-{
-  if (commands_.isEmpty()) {
-    // Move first node
-    NodeSetPositionCommand* set_pos_command = new NodeSetPositionCommand(node_, relative_, position_, move_dependencies_);
-    set_pos_command->redo_now();
-    commands_.append(set_pos_command);
-
-    // Get bounding rect
-    qreal bounding_rect_sz = 1.0;
-    qreal bounding_rect_half_sz = bounding_rect_sz * 0.5;
-    QRectF bounding_rect(position_.x() - bounding_rect_half_sz, position_.y() - bounding_rect_half_sz, bounding_rect_sz, bounding_rect_sz);
-
-    // Start moving other nodes
-    foreach (Node* surrounding, node_->parent()->nodes()) {
-      if (surrounding != node_) {
-        QPointF surrounding_position = node_->parent()->GetNodePosition(surrounding, relative_);
-        if (bounding_rect.contains(surrounding_position)) {
-          QPointF new_pos = surrounding_position;
-
-          qreal move_rate = 0.50;
-
-          if (surrounding_position.y() < position_.y()) {
-            move_rate = -move_rate;
-          }
-
-          new_pos.setY(new_pos.y() + move_rate);
-
-          auto sur_command = new NodeSetPositionAndShiftSurroundingsCommand(surrounding, relative_, new_pos, true);
-          sur_command->redo();
-          commands_.append(sur_command);
-        }
-      }
-    }
-  } else {
-    for (int i=0; i<commands_.size(); i++) {
-      commands_.at(i)->redo_now();
-    }
-  }
-}
-
 void NodeSetPositionCommand::redo()
 {
-  graph_ = node_->parent();
-  if (!(added_ = !graph_->NodeMapContainsNode(node_, relevant_))) {
-    old_pos_ = graph_->GetNodePosition(node_, relevant_);
+  added_ = !context_->ContextContainsNode(node_);
+
+  if (!added_) {
+    old_pos_ = context_->GetNodePositionDataInContext(node_);
   }
-  graph_->SetNodePosition(node_, relevant_, pos_);
+
+  context_->SetNodePositionInContext(node_, pos_);
 }
 
 void NodeSetPositionCommand::undo()
 {
   if (added_) {
-    graph_->RemoveNodePosition(node_, relevant_);
+    context_->RemoveNodeFromContext(node_);
   } else {
-    graph_->SetNodePosition(node_, relevant_, old_pos_);
+    context_->SetNodePositionInContext(node_, old_pos_);
   }
-}
-
-void NodeSetPositionAsChildCommand::redo()
-{
-  if (!sub_command_) {
-    // Calculate position of node
-    NodeGraph *graph = parent_->parent();
-    QPointF pos = graph->GetNodePosition(parent_, relative_);
-
-    // This is a dependency, so we'll place it one X before
-    pos.setX(pos.x() - 1);
-
-    // The Y will be calculated using the index and child count
-    pos.setY(pos.y() - (double(child_count_)*0.5) + this_index_ + 0.5);
-
-    sub_command_ = new MultiUndoCommand();
-    if (shift_surroundings_) {
-      sub_command_->add_child(new NodeSetPositionAndShiftSurroundingsCommand(node_, relative_, pos, true));
-    } else {
-      sub_command_->add_child(new NodeSetPositionCommand(node_, relative_, pos, true));
-    }
-  }
-
-  sub_command_->redo_now();
-}
-
-void NodeSetPositionToOffsetOfAnotherNodeCommand::redo()
-{
-  NodeGraph *graph = node_->parent();
-  old_pos_ = graph->GetNodePosition(node_, relative_);
-  graph->SetNodePosition(node_, relative_, graph->GetNodePosition(other_node_, relative_) + offset_);
-}
-
-void NodeSetPositionToOffsetOfAnotherNodeCommand::undo()
-{
-  NodeGraph *graph = node_->parent();
-  graph->SetNodePosition(node_, relative_, old_pos_);
 }
 
 void NodeRemovePositionFromContextCommand::redo()
 {
-  NodeGraph *graph = node_->parent();
-
-  contained_ = graph->ContextContainsNode(node_, context_);
+  contained_ = context_->ContextContainsNode(node_);
 
   if (contained_) {
-    old_pos_ = graph->GetNodePosition(node_, context_);
-    graph->RemoveNodePosition(node_, context_);
+    old_pos_ = context_->GetNodePositionDataInContext(node_);
+    context_->RemoveNodeFromContext(node_);
   }
 }
 
 void NodeRemovePositionFromContextCommand::undo()
 {
   if (contained_) {
-    NodeGraph *graph = node_->parent();
-    graph->SetNodePosition(node_, context_, old_pos_);
+    context_->SetNodePositionInContext(node_, old_pos_);
   }
 }
 
@@ -2438,28 +2001,21 @@ void NodeRemovePositionFromAllContextsCommand::redo()
 {
   NodeGraph *graph = node_->parent();
 
-  if (points_.empty()) {
-    // No points yet, let's see what points we should remove
-    auto map = graph->GetPositionMap();
-    for (auto it=map.cbegin(); it!=map.cend(); it++) {
-      if (it.value().contains(node_)) {
-        points_.insert({it.key(), it.value().value(node_)});
-      }
+  foreach (Node* context, graph->nodes()) {
+    if (context->ContextContainsNode(node_)) {
+      contexts_.insert({context, context->GetNodePositionInContext(node_)});
+      context->RemoveNodeFromContext(node_);
     }
-  }
-
-  for (auto it=points_.cbegin(); it!=points_.cend(); it++) {
-    graph->RemoveNodePosition(node_, it->first);
   }
 }
 
 void NodeRemovePositionFromAllContextsCommand::undo()
 {
-  NodeGraph *graph = node_->parent();
-
-  for (auto it=points_.crbegin(); it!=points_.crend(); it++) {
-    graph->SetNodePosition(node_, it->first, it->second);
+  for (auto it = contexts_.crbegin(); it != contexts_.crend(); it++) {
+    it->first->SetNodePositionInContext(node_, it->second);
   }
+
+  contexts_.clear();
 }
 
 void Node::ValueHint::Hash(QCryptographicHash &hash) const
@@ -2472,40 +2028,37 @@ void Node::ValueHint::Hash(QCryptographicHash &hash) const
   hash.addData(tag().toUtf8());
 }
 
-void Node::ValueHint::Load(QXmlStreamReader *reader)
+void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()
 {
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("types")) {
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("type")) {
-          type_.append(static_cast<NodeValue::Type>(reader->readElementText().toInt()));
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("index")) {
-      index_ = reader->readElementText().toInt();
-    } else if (reader->name() == QStringLiteral("tag")) {
-      tag_ = reader->readElementText();
-    } else {
-      reader->skipCurrentElement();
-    }
+  move_recursively(node_, pos_.position - context_->GetNodePositionDataInContext(node_).position);
+}
+
+void NodeSetPositionAndDependenciesRecursivelyCommand::redo()
+{
+  for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
+    (*it)->redo_now();
   }
 }
 
-void Node::ValueHint::Save(QXmlStreamWriter *writer) const
+void NodeSetPositionAndDependenciesRecursivelyCommand::undo()
 {
-  writer->writeStartElement(QStringLiteral("types"));
-
-  for (auto it=type_.cbegin(); it!=type_.cend(); it++) {
-    writer->writeTextElement(QStringLiteral("type"), QString::number(*it));
+  for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
+    (*it)->undo_now();
   }
+}
 
-  writer->writeEndElement(); // types
+void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *node, const QPointF &diff)
+{
+  Node::Position pos = context_->GetNodePositionDataInContext(node);
+  pos += diff;
+  commands_.append(new NodeSetPositionCommand(node_, context_, pos));
 
-  writer->writeTextElement(QStringLiteral("index"), QString::number(index_));
-
-  writer->writeTextElement(QStringLiteral("tag"), tag_);
+  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+    Node *output = it->second;
+    if (context_->ContextContainsNode(output)) {
+      move_recursively(output, diff);
+    }
+  }
 }
 
 }

@@ -95,6 +95,40 @@ PanelManager *PanelManager::instance()
   return instance_;
 }
 
+void PanelManager::RegisterPanel(PanelWidget *panel)
+{
+  // Add panel to the bottom of the focus history
+  focus_history_.append(panel);
+
+  panel->SetMovementLocked(locked_);
+
+  // Get panel parent (it's assumed it has one)
+  QWidget *parent = panel->parentWidget();
+
+  // Sane default for panel size
+  panel->resize(parent->size() / 3);
+
+  // We're about to center the panel relative to the parent (usually the main window), but for some
+  // reason this requires the panel to be shown first.
+  panel->show();
+
+  // Center the panel relative to the parent
+  QPoint parent_center = panel->mapFromGlobal(parent->mapToGlobal(parent->rect().center()));
+  QPoint panel_center = panel->rect().center();
+  panel->move(parent_center - panel_center);
+
+  if (focus_history_.size() == 1) {
+    // This is the first panel, focus it
+    panel->SetBorderVisible(true);
+    emit FocusedPanelChanged(panel);
+  }
+}
+
+void PanelManager::UnregisterPanel(PanelWidget *panel)
+{
+  focus_history_.removeOne(panel);
+}
+
 void PanelManager::FocusChanged(QWidget *old, QWidget *now)
 {
   Q_UNUSED(old)
@@ -149,13 +183,6 @@ void PanelManager::SetPanelsLocked(bool locked)
   }
 
   locked_ = locked;
-}
-
-void PanelManager::PanelDestroyed()
-{
-  PanelWidget* panel = static_cast<PanelWidget*>(sender());
-
-  focus_history_.removeOne(panel);
 }
 
 }

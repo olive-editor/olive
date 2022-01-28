@@ -110,7 +110,7 @@ void TrackRippleRemoveAreaCommand::redo()
 
   if (splice_split_command_) {
     // We're just splicing
-    splice_split_command_->redo();
+    splice_split_command_->redo_now();
 
     // Trim the in of the split
     Block* split = splice_split_command_->new_block();
@@ -157,7 +157,7 @@ void TrackRippleRemoveAreaCommand::undo()
   track_->BeginOperation();
 
   if (splice_split_command_) {
-    splice_split_command_->undo();
+    splice_split_command_->undo_now();
   } else {
     if (trim_out_.block) {
       trim_out_.block->set_length_and_media_out(trim_out_.old_length);
@@ -457,46 +457,128 @@ void TrackListRippleToolCommand::ripple(bool redo)
 //
 // TimelineRippleDeleteGapsAtRegionsCommand
 //
-void TimelineRippleDeleteGapsAtRegionsCommand::redo()
+void TimelineRippleDeleteGapsAtRegionsCommand::prepare()
 {
-  if (commands_.isEmpty()) {
-    foreach (const TimeRange& range, regions_) {
-      rational max_ripple_length = range.length();
+  int max_gaps = 0;
+  QHash<Track*, QVector<RemovalRequest> > requested_gaps;
 
-      QVector<Block*> blocks_around_range;
+  // Convert regions to gaps
+  for (const QPair<Track*, TimeRange> &region : qAsConst(regions_)) {
+    Track *track = region.first;
+    const TimeRange &range = region.second;
 
-      foreach (Track* track, timeline_->GetTracks()) {
-        // Get the block from every other track that is either at or just before our block's in point
-        Block* block_at_time = track->NearestBlockBeforeOrAt(range.in());
+    GapBlock *gap = dynamic_cast<GapBlock*>(track->NearestBlockBeforeOrAt(range.in()));
 
-        if (block_at_time) {
-          if (dynamic_cast<GapBlock*>(block_at_time)) {
-            max_ripple_length = qMin(block_at_time->length(), max_ripple_length);
-          } else {
-            max_ripple_length = 0;
-            break;
+    if (gap) {
+      QVector<RemovalRequest> &gaps_on_track = requested_gaps[track];
+
+      RemovalRequest this_req = {gap, range};
+
+      // Insertion sort
+      bool inserted = false;
+      for (int i=0; i<gaps_on_track.size(); i++) {
+        if (gaps_on_track.at(i).range.in() < range.in()) {
+          gaps_on_track.insert(i, this_req);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) {
+        gaps_on_track.append(this_req);
+      }
+
+      max_gaps = qMax(max_gaps, gaps_on_track.size());
+    }
+  }
+
+  for (int gap_index=0; gap_index<max_gaps; gap_index++) {
+    rational earliest_point = RATIONAL_MAX;
+    rational ripple_length = RATIONAL_MAX;
+
+    foreach (const QVector<RemovalRequest> &gaps_on_track, requested_gaps) {
+      if (gap_index < gaps_on_track.size()) {
+        const RemovalRequest &gap = gaps_on_track.at(gap_index);
+        earliest_point = qMin(earliest_point, gap.range.in());
+        ripple_length = qMin(ripple_length, gap.range.length());
+      }
+    }
+
+    // Determine which gaps will be involved in this operation
+    QVector<GapBlock*> gaps;
+
+    foreach (Track* track, timeline_->GetTracks()) {
+      if (track->IsLocked()) {
+        continue;
+      }
+
+      const QVector<RemovalRequest> &requested_gaps_on_track = requested_gaps.value(track);
+      GapBlock *gap = nullptr;
+      if (gap_index < requested_gaps_on_track.size()) {
+        // A requested gap was at this index, use it
+        gap = requested_gaps_on_track.at(gap_index).gap;
+      } else {
+        // No requested gap was at this index, find one
+        Block *block = track->NearestBlockAfterOrAt(earliest_point);
+
+        if (block) {
+          // Found a block, test if it's a gap
+          gap = dynamic_cast<GapBlock*>(block);
+
+          if (!gap) {
+            if (block->in() == earliest_point) {
+              if (block->next()) {
+                gap = dynamic_cast<GapBlock*>(block->next());
+
+                if (!gap) {
+                  ripple_length = 0;
+                }
+              }
+            } else {
+              gap = dynamic_cast<GapBlock*>(block->previous());
+
+              if (!gap) {
+                ripple_length = 0;
+              }
+            }
           }
-
-          blocks_around_range.append(block_at_time);
+        } else {
+          // Assume track finishes here and track won't be affected by this operation
         }
       }
 
-      if (max_ripple_length > 0) {
-        foreach (Block* resize, blocks_around_range) {
-          if (resize->length() == max_ripple_length) {
-            // Remove block entirely
-            commands_.append(new TrackRippleRemoveBlockCommand(resize->track(), resize));
-          } else {
-            // Resize block
-            commands_.append(new BlockResizeCommand(resize, resize->length() - max_ripple_length));
-          }
+      if (gap) {
+        gaps.append(gap);
+        ripple_length = qMin(ripple_length, gap->length());
+      }
+
+      if (ripple_length == 0) {
+        break;
+      }
+    }
+
+    if (ripple_length > 0) {
+      foreach (GapBlock *gap, gaps) {
+        if (gap->length() == ripple_length) {
+          commands_.append(new TrackRippleRemoveBlockCommand(gap->track(), gap));
+        } else {
+          commands_.append(new BlockResizeCommand(gap, gap->length() - ripple_length));
         }
       }
     }
   }
+}
 
-  foreach (UndoCommand* c, commands_) {
-    c->redo_now();
+void TimelineRippleDeleteGapsAtRegionsCommand::redo()
+{
+  for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
+    (*it)->redo_now();
+  }
+}
+
+void TimelineRippleDeleteGapsAtRegionsCommand::undo()
+{
+  for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
+    (*it)->undo_now();
   }
 }
 

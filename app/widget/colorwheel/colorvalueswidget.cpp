@@ -178,7 +178,7 @@ void ColorValuesWidget::ColorPickedBtnToggled(bool e)
     qApp->removeEventFilter(this);
 
     // Restore original color (or use overridden color from eventFilter)
-    SetColor(picker_end_color_);
+    SetReferenceColor(picker_end_color_);
     emit ColorChanged(picker_end_color_);
   }
 }

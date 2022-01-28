@@ -31,31 +31,10 @@ namespace olive {
 class Block;
 class Node;
 class NodeInput;
+class NodeGroup;
 
 #define XMLAttributeLoop(reader, item) \
   foreach (const QXmlStreamAttribute& item, reader->attributes())
-
-struct XMLNodeData {
-  struct SerializedConnection {
-    NodeInput input;
-    quintptr output_node;
-
-    /// Deprecated
-    QString output_param;
-  };
-
-  struct BlockLink {
-    Node* block;
-    quintptr link;
-  };
-
-  QHash<quintptr, Node*> node_ptrs;
-  QList<SerializedConnection> desired_connections;
-  QList<BlockLink> block_links;
-
-};
-
-void XMLConnectNodes(const XMLNodeData& xml_node_data, uint version, MultiUndoCommand *command = nullptr);
 
 /**
  * @brief Workaround for QXmlStreamReader::readNextStartElement not detecting the end of a document
@@ -67,8 +46,6 @@ void XMLConnectNodes(const XMLNodeData& xml_node_data, uint version, MultiUndoCo
  * See also: https://stackoverflow.com/questions/46346450/qt-qxmlstreamreader-always-returns-premature-end-of-document-error
  */
 bool XMLReadNextStartElement(QXmlStreamReader* reader);
-
-void XMLLinkBlocks(const XMLNodeData& xml_node_data);
 
 }
 

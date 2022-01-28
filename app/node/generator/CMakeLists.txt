@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(matrix)
+add_subdirectory(noise)
 add_subdirectory(polygon)
 add_subdirectory(shape)
 add_subdirectory(solid)

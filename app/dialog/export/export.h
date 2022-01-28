@@ -93,7 +93,7 @@ private:
   ColorManager* color_manager_;
 
   QWidget* preferences_area_;
-  QDialogButtonBox* buttons_;
+  QCheckBox *export_bkg_box_;
 
 private slots:
   void BrowseFilename();

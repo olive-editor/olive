@@ -232,14 +232,16 @@ void ExportVideoTab::VideoCodecChanged()
 {
   ExportCodec::Codec codec = GetSelectedCodec();
 
-  if (codec == ExportCodec::kCodecH264) {
-    SetCodecSection(h264_section_);
-  } else if (codec == ExportCodec::kCodecH265) {
-    SetCodecSection(h265_section_);
-  } else if (ExportCodec::IsCodecAStillImage(codec)) {
-    SetCodecSection(image_section_);
-  } else {
-    SetCodecSection(nullptr);
+  switch (codec) {
+    case ExportCodec::kCodecH264:
+    case ExportCodec::kCodecH264rgb:
+      SetCodecSection(h264_section_);
+      break;
+    case ExportCodec::kCodecH265:
+      SetCodecSection(h265_section_);
+      break;
+    default:
+      SetCodecSection(ExportCodec::IsCodecAStillImage(codec) ? image_section_ : nullptr);
   }
 
   // Set default pixel format

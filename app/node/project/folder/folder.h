@@ -208,9 +208,7 @@ private:
 class FolderAddChild : public UndoCommand
 {
 public:
-  FolderAddChild(Folder* folder, Node* child, bool autoposition = true);
-
-  virtual ~FolderAddChild() override;
+  FolderAddChild(Folder* folder, Node* child);
 
   virtual Project * GetRelevantProject() const override;
 
@@ -223,10 +221,6 @@ private:
   Folder* folder_;
 
   Node* child_;
-
-  bool autoposition_;
-
-  NodeSetPositionAsChildCommand* position_command_;
 
 };
 

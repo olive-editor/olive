@@ -23,10 +23,7 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
-#ifdef Q_PROCESSOR_X86
-#include <xmmintrin.h>
-#endif
-
+#include "common/cpuoptimize.h"
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "render/color.h"
@@ -103,7 +100,9 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
                         "varying vec2 ove_texcoord;\n"
                         "\n"
                         "void main(void) {\n"
-                        "    gl_FragColor = %5;\n"
+                        "    vec4 c = %5;\n"
+                        "    c.a = clamp(c.a, 0.0, 1.0);\n" // Ensure alpha is between 0.0 and 1.0
+                        "    gl_FragColor = c;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
                                    param_a_in,
@@ -174,7 +173,7 @@ void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float 
   }
 }
 
-#ifdef Q_PROCESSOR_X86
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
 void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end)
 {
   int end_divisible_4 = (end / 4) * 4;
@@ -402,7 +401,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       if (IsInputStatic(number_param)) {
         if (!NumberIsNoOp(operation, number)) {
           for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
-#ifdef Q_PROCESSOR_X86
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
             // Use SSE instructions for optimization
             PerformAllOnFloatBufferSSE(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
 #else

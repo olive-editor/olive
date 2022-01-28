@@ -63,6 +63,8 @@ private:
 
 };
 
+using PresetPtr = std::shared_ptr<Preset>;
+
 template <typename T>
 class PresetManager
 {
@@ -80,7 +82,7 @@ public:
         if (reader.name() == QStringLiteral("presets")) {
           while (XMLReadNextStartElement(&reader)) {
             if (reader.name() == QStringLiteral("preset")) {
-              Preset* p = new T();
+              PresetPtr p = std::make_unique<T>();
 
               p->Load(&reader);
 
@@ -110,7 +112,7 @@ public:
 
       writer.writeStartElement(QStringLiteral("presets"));
 
-      foreach (Preset* p, custom_preset_data_) {
+      foreach (PresetPtr p, custom_preset_data_) {
         writer.writeStartElement(QStringLiteral("preset"));
 
         p->Save(&writer);
@@ -124,8 +126,6 @@ public:
 
       preset_file.close();
     }
-
-    qDeleteAll(custom_preset_data_);
   }
 
   QString GetPresetName(QString start) const
@@ -159,7 +159,13 @@ public:
     return start;
   }
 
-  bool SavePreset(Preset* preset)
+  enum SaveStatus {
+    kAppended,
+    kReplaced,
+    kNotSaved
+  };
+
+  SaveStatus SavePreset(PresetPtr preset)
   {
     QString preset_name;
     int existing_preset;
@@ -169,7 +175,7 @@ public:
 
       if (preset_name.isEmpty()) {
         // Dialog cancelled - leave function entirely
-        return false;
+        return kNotSaved;
       }
 
       existing_preset = -1;
@@ -194,10 +200,10 @@ public:
 
     if (existing_preset >= 0) {
       custom_preset_data_.replace(existing_preset, preset);
-      return false;
+      return kReplaced;
     } else {
       custom_preset_data_.append(preset);
-      return true;
+      return kAppended;
     }
   }
 
@@ -206,7 +212,7 @@ public:
     return QDir(FileFunctions::GetConfigurationLocation()).filePath(preset_name_);
   }
 
-  Preset* GetPreset(int index)
+  PresetPtr GetPreset(int index)
   {
     return custom_preset_data_.at(index);
   }
@@ -221,13 +227,13 @@ public:
     return custom_preset_data_.size();
   }
 
-  const QVector<Preset*>& GetPresetData() const
+  const QVector<PresetPtr>& GetPresetData() const
   {
     return custom_preset_data_;
   }
 
 private:
-  QVector<Preset*> custom_preset_data_;
+  QVector<PresetPtr> custom_preset_data_;
 
   QString preset_name_;
 

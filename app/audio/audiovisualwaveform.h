@@ -98,7 +98,6 @@ public:
 
   Sample GetSummaryFromTime(const rational& start, const rational& length) const;
 
-  static Sample SumSamples(const float* samples, int nb_samples, int nb_channels);
   static Sample SumSamples(SampleBufferPtr samples, int start_index, int length);
 
   static Sample ReSumSamples(const SamplePerChannel *samples, int nb_samples, int nb_channels);
@@ -112,8 +111,6 @@ public:
   static const rational kMaximumSampleRate;
 
 private:
-  static void ExpandMinMax(SamplePerChannel &sum, float value);
-
   void OverwriteSamplesFromBuffer(SampleBufferPtr samples, int sample_rate, const rational& start, double target_rate, Sample &data, int &start_index, int &samples_length);
 
   void OverwriteSamplesFromMipmap(const Sample& input, double input_sample_rate, int &input_start, int &input_length, const rational& start, double output_rate, Sample &output_data);

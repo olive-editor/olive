@@ -41,9 +41,10 @@ const QString Track::kMutedInput = QStringLiteral("muted_in");
 Track::Track() :
   track_type_(Track::kNone),
   index_(-1),
-  locked_(false)
+  locked_(false),
+  sequence_(nullptr)
 {
-  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
+  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden));
 
   // Since blocks are time based, we can handle the invalidate timing a little more intelligently
   // on our end
@@ -134,23 +135,6 @@ void Track::SetTrackHeight(const double &height)
 {
   track_height_ = height;
   emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
-}
-
-bool Track::LoadCustom(QXmlStreamReader *reader, XMLNodeData &xml_node_data, uint version, const QAtomicInt* cancelled)
-{
-  if (reader->name() == QStringLiteral("height")) {
-    SetTrackHeight(reader->readElementText().toDouble());
-    return true;
-  } else {
-    return super::LoadCustom(reader, xml_node_data, version, cancelled);
-  }
-}
-
-void Track::SaveCustom(QXmlStreamWriter *writer) const
-{
-  super::SaveCustom(writer);
-
-  writer->writeTextElement(QStringLiteral("height"), QString::number(GetTrackHeight()));
 }
 
 void Track::InputConnectedEvent(const QString &input, int element, Node *output)
@@ -325,6 +309,10 @@ Block *Track::NearestBlockBefore(const rational &time) const
 {
   foreach (Block* block, blocks_) {
     // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
+    if (block->in() == time) {
+      break;
+    }
+
     if (block->out() >= time) {
       return block;
     }

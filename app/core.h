@@ -253,7 +253,7 @@ public:
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */
-  void LabelNodes(const QVector<Node *> &nodes);
+  bool LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent = nullptr);
 
   /**
    * @brief Create a new sequence named appropriately for the active project
@@ -315,8 +315,6 @@ public:
   void OpenRecoveryProject(const QString& filename);
 
   void OpenNodeInViewer(ViewerOutput* viewer);
-
-  static const uint kProjectVersion;
 
 public slots:
   /**
@@ -394,9 +392,21 @@ public slots:
   void DialogPreferencesShow();
 
   /**
+   * @brief Show Project Properties dialog
+   */
+  void DialogProjectPropertiesShow();
+
+  /**
    * @brief Show Export dialog
    */
   void DialogExportShow();
+
+    /**
+   * @brief Show OTIO import dialog
+   */
+#ifdef USE_OTIO
+  bool DialogImportOTIOShow(const QList<Sequence*>& sequences);
+#endif
 
   /**
    * @brief Create a new folder in the currently active project

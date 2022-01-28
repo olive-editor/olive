@@ -30,12 +30,16 @@
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "distort/crop/cropdistortnode.h"
+#include "distort/flip/flipdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
+#include "effect/opacity/opacityeffect.h"
 #include "generator/matrix/matrix.h"
+#include "generator/noise/noise.h"
 #include "generator/polygon/polygon.h"
 #include "generator/shape/shapenode.h"
 #include "generator/solid/solid.h"
 #include "generator/text/text.h"
+#include "generator/text/textlegacy.h"
 #include "filter/blur/blur.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
@@ -53,6 +57,7 @@
 
 namespace olive {
 QList<Node*> NodeFactory::library_;
+QVector<int> NodeFactory::hidden_;
 
 void NodeFactory::Initialize()
 {
@@ -64,6 +69,9 @@ void NodeFactory::Initialize()
 
     library_.append(created_node);
   }
+
+  hidden_.append(kTextGeneratorLegacy);
+  hidden_.append(kGroupNode);
 }
 
 void NodeFactory::Destroy()
@@ -81,6 +89,11 @@ Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::Cate
     Node* n = library_.at(i);
 
     if (restrict_to != Node::kCategoryUnknown && !n->Category().contains(restrict_to)) {
+      // Skip this node
+      continue;
+    }
+
+    if (hidden_.contains(i)) {
       // Skip this node
       continue;
     }
@@ -214,6 +227,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MergeNode();
   case kStrokeFilter:
     return new StrokeFilterNode();
+  case kTextGeneratorLegacy:
+    return new TextGeneratorLegacy();
   case kTextGenerator:
     return new TextGenerator();
   case kCrossDissolveTransition:
@@ -238,6 +253,14 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new SubtitleBlock();
   case kShapeGenerator:
     return new ShapeNode();
+  case kGroupNode:
+    return new NodeGroup();
+  case kOpacityEffect:
+    return new OpacityEffect();
+  case kFlipDistort:
+    return new FlipDistortNode();
+  case kNoiseGenerator:
+    return new NoiseGeneratorNode();
 
   case kInternalNodeCount:
     break;

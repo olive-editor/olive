@@ -80,6 +80,8 @@ public:
 
   void Upload(void* data, int linesize);
 
+  void Download(void* data, int linesize);
+
   bool IsDummy() const
   {
     return !renderer_;

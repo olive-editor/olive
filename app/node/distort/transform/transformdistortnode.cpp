@@ -301,13 +301,11 @@ void TransformDistortNode::GizmoMove(const QPointF &p, const rational &time, con
   }
 }
 
-void TransformDistortNode::GizmoRelease()
+void TransformDistortNode::GizmoRelease(MultiUndoCommand *command)
 {
-  MultiUndoCommand *command = new MultiUndoCommand();
   for (NodeInputDragger& i : gizmo_dragger_) {
     i.End(command);
   }
-  Core::instance()->undo_stack()->push(command);
   gizmo_dragger_.clear();
 
   gizmo_start_.clear();
@@ -475,9 +473,6 @@ void TransformDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals
                 anchor_pt.x(), anchor_pt.y() + anchor_pt_radius)});
 
   // Draw scale handles
-  p->setPen(Qt::NoPen);
-  p->setBrush(Qt::white);
-
   gizmo_resize_handle_[kGizmoScaleTopLeft]      = CreateGizmoHandleRect(CreateScalePoint(-1, -1, sequence_half_res_pt, rectangle_matrix), resize_handle_rad);
   gizmo_resize_handle_[kGizmoScaleTopCenter]    = CreateGizmoHandleRect(CreateScalePoint( 0, -1, sequence_half_res_pt, rectangle_matrix), resize_handle_rad);
   gizmo_resize_handle_[kGizmoScaleTopRight]     = CreateGizmoHandleRect(CreateScalePoint( 1, -1, sequence_half_res_pt, rectangle_matrix), resize_handle_rad);

@@ -27,34 +27,6 @@
 
 namespace olive {
 
-void XMLConnectNodes(const XMLNodeData &xml_node_data, uint version, MultiUndoCommand *command)
-{
-  foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
-    Node *out = xml_node_data.node_ptrs.value(con.output_node);
-
-    if (out) {
-      // Use output param as hint tag since we grandfathered those in
-      Node::ValueHint hint(con.output_param);
-
-      if (command) {
-        command->add_child(new NodeEdgeAddCommand(out, con.input));
-
-        if (version < 210907) {
-          /// Deprecated: backwards compatibility only
-          command->add_child(new NodeSetValueHintCommand(con.input, hint));
-        }
-      } else {
-        Node::ConnectEdge(out, con.input);
-
-        if (version < 210907) {
-          /// Deprecated: backwards compatibility only
-          con.input.node()->SetValueHintForInput(con.input.input(), hint, con.input.element());
-        }
-      }
-    }
-  }
-}
-
 bool XMLReadNextStartElement(QXmlStreamReader *reader)
 {
   QXmlStreamReader::TokenType token;
@@ -69,13 +41,6 @@ bool XMLReadNextStartElement(QXmlStreamReader *reader)
   }
 
   return false;
-}
-
-void XMLLinkBlocks(const XMLNodeData &xml_node_data)
-{
-  foreach (const XMLNodeData::BlockLink& l, xml_node_data.block_links) {
-    Block::Link(l.block, static_cast<Block*>(xml_node_data.node_ptrs.value(l.link)));
-  }
 }
 
 }

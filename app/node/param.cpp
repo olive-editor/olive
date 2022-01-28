@@ -33,6 +33,15 @@ QString NodeInput::name() const
   }
 }
 
+bool NodeInput::IsHidden() const
+{
+  if (IsValid()) {
+    return node_->IsInputHidden(input_);
+  } else {
+    return false;
+  }
+}
+
 bool NodeInput::IsConnected() const
 {
   if (IsValid()) {
@@ -60,6 +69,15 @@ bool NodeInput::IsArray() const
   }
 }
 
+InputFlags NodeInput::GetFlags() const
+{
+  if (IsValid()) {
+    return node_->GetInputFlags(input_);
+  } else {
+    return InputFlags(kInputFlagNormal);
+  }
+}
+
 Node *NodeInput::GetConnectedOutput() const
 {
   if (IsValid()) {
@@ -75,6 +93,15 @@ NodeValue::Type NodeInput::GetDataType() const
     return node_->GetInputDataType(input_);
   } else {
     return NodeValue::kNone;
+  }
+}
+
+QVariant NodeInput::GetDefaultValue() const
+{
+  if (IsValid()) {
+    return node_->GetDefaultValue(input_);
+  } else {
+    return QVariant();
   }
 }
 
@@ -120,6 +147,15 @@ QVariant NodeInput::GetSplitDefaultValueForTrack(int track) const
     return node_->GetSplitDefaultValueOnTrack(input_, track);
   } else {
     return QVariant();
+  }
+}
+
+int NodeInput::GetArraySize() const
+{
+  if (IsValid() && element_ == -1) {
+    return node_->InputArraySize(input_);
+  } else {
+    return 0;
   }
 }
 

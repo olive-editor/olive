@@ -163,6 +163,42 @@ private:
 
 };
 
+class TimelineRemoveTrackCommand : public UndoCommand
+{
+public:
+  TimelineRemoveTrackCommand(Track *track) :
+    track_(track),
+    remove_command_(nullptr)
+  {}
+
+  virtual ~TimelineRemoveTrackCommand()
+  {
+    delete remove_command_;
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return track_->project();
+  }
+
+protected:
+  virtual void prepare() override;
+
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Track *track_;
+
+  TrackList *list_;
+
+  int index_;
+
+  UndoCommand *remove_command_;
+
+};
+
 class TransitionRemoveCommand : public UndoCommand {
 public:
   TransitionRemoveCommand(TransitionBlock* block, bool remove_from_graph) :
@@ -203,14 +239,8 @@ public:
     existing_gap_(nullptr),
     existing_merged_gap_(nullptr),
     our_gap_(nullptr),
-    handle_transitions_(handle_transitions),
-    position_command_(nullptr)
+    handle_transitions_(handle_transitions)
   {
-  }
-
-  virtual ~TrackReplaceBlockWithGapCommand() override
-  {
-    delete position_command_;
   }
 
   virtual Project* GetRelevantProject() const override
@@ -235,8 +265,6 @@ private:
   GapBlock* our_gap_;
 
   bool handle_transitions_;
-
-  NodeSetPositionAsChildCommand* position_command_;
 
   QObject memory_manager_;
 

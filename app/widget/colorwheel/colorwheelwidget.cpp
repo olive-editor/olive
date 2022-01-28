@@ -121,7 +121,7 @@ void ColorWheelWidget::SelectedColorChangedEvent(const Color &c, bool external)
 {
   if (external) {
     force_redraw_ = true;
-    val_ = clamp(c.value(), 0.0, 1.0);
+    val_ = clamp(c.value(), 0.0f, 1.0f);
   }
 }
 
@@ -159,7 +159,7 @@ Color ColorWheelWidget::GetColorFromTriangle(const ColorWheelWidget::Triangle &t
 
 QPoint ColorWheelWidget::GetCoordsFromColor(const Color &c) const
 {
-  double hue, sat, val;
+  float hue, sat, val;
   c.toHsv(&hue, &sat, &val);
 
   qreal hypotenuse = sat * GetRadius();

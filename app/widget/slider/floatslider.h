@@ -49,6 +49,10 @@ public:
 
   void SetDisplayType(const DisplayType& type);
 
+  static double TransformValueToDisplay(double val, DisplayType display);
+
+  static double TransformDisplayToValue(double val, DisplayType display);
+
   static QString ValueToString(double val, DisplayType display, int decimal_places, bool autotrim_decimal_places);
 
 protected:

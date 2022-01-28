@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDebug>
+#include <QScreen>
 #include <QtMath>
 #include <QVBoxLayout>
 
@@ -78,6 +79,7 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString 
 
   if (UsingLadders()) {
     drag_start_x_ = -1;
+    wrap_count_ = 0;
   } else {
 #if defined(Q_OS_MAC)
     CGAssociateMouseAndMouseCursorPosition(false);
@@ -144,7 +146,7 @@ void SliderLadder::TimerUpdate()
 
   if (UsingLadders()) {
 
-    bool is_under_mouse = (now_pos >= ladder_left && now_pos <= ladder_right);
+    bool is_under_mouse = (now_pos >= ladder_left && now_pos <= ladder_right && wrap_count_ == 0);
 
     if (drag_start_x_ != -1 && (is_under_mouse
         || (drag_start_x_ < ladder_left && now_pos > ladder_right)
@@ -191,6 +193,25 @@ void SliderLadder::TimerUpdate()
       }
 
       emit DraggedByValue(now_pos - drag_start_x_, elements_.at(active_element_)->GetMultiplier());
+
+      // Determine if cursor is at desktop edge, if so wrap around to other side
+      int left = 0;
+      int right = 0;
+      foreach (QScreen *screen, qApp->screens()) {
+        left = qMin(left, screen->geometry().left());
+        right = qMax(right, screen->geometry().right());
+      }
+      if (now_pos == left || now_pos == right) {
+        if (now_pos == left) {
+          wrap_count_--;
+          now_pos = right-1;
+        } else {
+          wrap_count_++;
+          now_pos = left+1;
+        }
+        QCursor::setPos(now_pos, QCursor::pos().y());
+      }
+
       drag_start_x_ = now_pos;
 
     }

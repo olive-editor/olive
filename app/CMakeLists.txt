@@ -66,9 +66,7 @@ add_library(olive-version-obj
   version.h
 )
 target_link_libraries(olive-version-obj PRIVATE Qt5::Core)
-if(DEFINED GIT_HASH)
-  target_compile_options(olive-version-obj PRIVATE -DAPPVERSION="${PROJECT_VERSION}" -DAPPVERSIONLONG="${PROJECT_LONG_VERSION}" )
-endif()
+target_compile_options(olive-version-obj PRIVATE -DAPPVERSION="${PROJECT_VERSION}" -DAPPVERSIONLONG="${PROJECT_LONG_VERSION}" )
 
 # Add main library
 add_library(libolive-editor
@@ -100,6 +98,9 @@ endif()
 if (WIN32)
   # Set Windows application icon
   target_sources(olive-editor PRIVATE packaging/windows/resources.rc)
+
+  # Preserve folder structure in visual studio 
+  source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${OLIVE_SOURCES})
 
 elseif(APPLE)
   # Set Mac application icon

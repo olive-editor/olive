@@ -143,6 +143,13 @@ public:
     kVec4,
 
     /**
+     * Cubic bezier type that contains three X/Y coordinates, the main point, and two control points
+     *
+     * Resolves to `Bezier`
+     */
+    kBezier,
+
+    /**
      * ComboBox type
      *
      * Resolves to `int` - the index currently selected

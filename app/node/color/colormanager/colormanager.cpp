@@ -77,7 +77,7 @@ OCIO::ConstConfigRcPtr ColorManager::GetDefaultConfig()
 
 void ColorManager::SetUpDefaultConfig()
 {
-  if (!qgetenv("OCIO").isEmpty()) {
+  if (!qEnvironmentVariableIsEmpty("OCIO")) {
     // Attempt to set config from "OCIO" environment variable
     try {
       OCIO_SET_C_LOCALE_FOR_SCOPE;
@@ -249,19 +249,6 @@ QStringList ColorManager::ListAvailableColorspaces(OCIO::ConstConfigRcPtr config
 void ColorManager::GetDefaultLumaCoefs(double *rgb) const
 {
   config_->getDefaultLumaCoefs(rgb);
-}
-
-Color ColorManager::GetDefaultLumaCoefs() const
-{
-  Color c;
-
-  // Just a default value, shouldn't be significant
-  c.set_alpha(1.0f);
-
-  // The float data in Color lines up with the "rgb" param of this function
-  GetDefaultLumaCoefs(c.data());
-
-  return c;
 }
 
 void ColorManager::Retranslate()

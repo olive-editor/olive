@@ -279,15 +279,8 @@ protected:
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
   virtual void DisconnectNodeEvent(ViewerOutput* n) override;
 
-  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, const QVector<Node*> &nodes, void* userdata) override;
-  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data, void* userdata) override;
-
-  struct BlockPasteData {
-    Block* block;
-    rational in;
-    Track::Type track_type;
-    int track_index;
-  };
+  virtual void CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *data, void *userdata) override;
+  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata) override;
 
 private:
   QVector<Timeline::EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
@@ -301,8 +294,6 @@ private:
   void UpdateViewports(const Track::Type& type = Track::kNone);
 
   QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
-
-  QVector<Block*> GetBlocksInSelection(const TimelineWidgetSelections &sel);
 
   QPoint drag_origin_;
 
@@ -366,7 +357,7 @@ private:
 
   void UpdateViewTimebases();
 
-  void NudgeInternal(const rational &amount);
+  void NudgeInternal(rational amount);
 
   void MoveToPlayheadInternal(bool out);
 
