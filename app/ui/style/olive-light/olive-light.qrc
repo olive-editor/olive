@@ -18,6 +18,22 @@
     <file>png/align-center.32.png</file>
     <file>png/align-center.64.png</file>
     <file>png/align-center.128.png</file>
+    <file>png/align-justify-all.16.png</file>
+    <file>png/align-justify-all.32.png</file>
+    <file>png/align-justify-all.64.png</file>
+    <file>png/align-justify-all.128.png</file>
+    <file>png/align-justify-center.16.png</file>
+    <file>png/align-justify-center.32.png</file>
+    <file>png/align-justify-center.64.png</file>
+    <file>png/align-justify-center.128.png</file>
+    <file>png/align-justify-left.16.png</file>
+    <file>png/align-justify-left.32.png</file>
+    <file>png/align-justify-left.64.png</file>
+    <file>png/align-justify-left.128.png</file>
+    <file>png/align-justify-right.16.png</file>
+    <file>png/align-justify-right.32.png</file>
+    <file>png/align-justify-right.64.png</file>
+    <file>png/align-justify-right.128.png</file>
     <file>png/align-left.16.png</file>
     <file>png/align-left.32.png</file>
     <file>png/align-left.64.png</file>
@@ -94,14 +110,6 @@
     <file>png/import.32.png</file>
     <file>png/import.64.png</file>
     <file>png/import.128.png</file>
-    <file>png/italic.16.png</file>
-    <file>png/italic.32.png</file>
-    <file>png/italic.64.png</file>
-    <file>png/italic.128.png</file>
-    <file>png/justify-center.16.png</file>
-    <file>png/justify-center.32.png</file>
-    <file>png/justify-center.64.png</file>
-    <file>png/justify-center.128.png</file>
     <file>png/listview.16.png</file>
     <file>png/listview.32.png</file>
     <file>png/listview.64.png</file>
@@ -210,6 +218,18 @@
     <file>png/smooth_edges.32.png</file>
     <file>png/smooth_edges.64.png</file>
     <file>png/smooth_edges.128.png</file>
+    <file>png/text-bold.16.png</file>
+    <file>png/text-bold.32.png</file>
+    <file>png/text-bold.64.png</file>
+    <file>png/text-bold.128.png</file>
+    <file>png/text-italic.16.png</file>
+    <file>png/text-italic.32.png</file>
+    <file>png/text-italic.64.png</file>
+    <file>png/text-italic.128.png</file>
+    <file>png/text-underline.16.png</file>
+    <file>png/text-underline.32.png</file>
+    <file>png/text-underline.64.png</file>
+    <file>png/text-underline.128.png</file>
     <file>png/transition-tool.16.png</file>
     <file>png/transition-tool.32.png</file>
     <file>png/transition-tool.64.png</file>
@@ -234,10 +254,6 @@
     <file>png/tri-up.32.png</file>
     <file>png/tri-up.64.png</file>
     <file>png/tri-up.128.png</file>
-    <file>png/underline.16.png</file>
-    <file>png/underline.32.png</file>
-    <file>png/underline.64.png</file>
-    <file>png/underline.128.png</file>
     <file>png/undo.16.png</file>
     <file>png/undo.32.png</file>
     <file>png/undo.64.png</file>
