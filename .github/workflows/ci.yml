@@ -363,6 +363,7 @@ jobs:
         shell: bash
         run: |
           ctest -C ${{ matrix.build-type }} -V
+        if: matrix.os-arch == 'x86_64' # ARM64 tests naturally won't be able to run on x86_64 runners
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
