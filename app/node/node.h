@@ -1094,6 +1094,10 @@ signals:
 
   void NodeRemovedFromContext(Node *node);
 
+  // emitted after one or more inputs have been added or removed.
+  // Only applicable for nodes that change input list dynamically.
+  void InputListChanged();
+
 private:
   class ArrayInsertCommand : public UndoCommand
   {

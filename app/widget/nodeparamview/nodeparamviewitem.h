@@ -118,6 +118,8 @@ private:
 
   QHash<NodeInputPair, NodeInputPair> input_group_lookup_;
 
+  QGridLayout *root_layout_;
+
   /**
    * @brief The column to place the keyframe controls in
    *
@@ -211,6 +213,9 @@ signals:
 
 protected slots:
   virtual void Retranslate() override;
+
+private slots:
+  void OnInputListChanged();
 
 private:
   NodeParamViewItemBody* body_;

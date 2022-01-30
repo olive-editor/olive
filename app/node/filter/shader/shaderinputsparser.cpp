@@ -23,7 +23,8 @@
 #include <QStringRef>
 #include <QRegularExpression>
 #include <QMap>
-#include <QColor>
+
+#include "render/color.h"
 
 namespace olive {
 
@@ -79,7 +80,7 @@ ShaderInputsParser::InputParam currentInput;
 
 void clearCurrentInput()
 {
-  currentInput.readable_name.clear();
+  currentInput.human_name.clear();
   currentInput.uniform_name.clear();
   currentInput.description.clear();
   currentInput.type = NodeValue::kNone;
@@ -232,7 +233,7 @@ ShaderInputsParser::parseShaderVersion(const QRegularExpressionMatch & /*match*/
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputName(const QRegularExpressionMatch & match)
 {
-  currentInput.readable_name = match.captured("name");
+  currentInput.human_name = match.captured("name");
   return PARSING;
 }
 
@@ -413,32 +414,41 @@ ShaderInputsParser::stopParse(const QRegularExpressionMatch & /*match*/)
   return SHADER_COMPLETE;
 }
 
-// Assume 'line' has format RGBA( r,g,b,a), where 'r,g,b,a' are in range 0 .. 255
+// Assume 'line' has format RGBA( r,g,b,a), where 'r,g,b,a' are in range 0.0 .. 1.0
 // and stand for 'red', 'green', 'blue', 'alpha'
 QVariant ShaderInputsParser::parseColor(const QStringRef& line)
 {
   static const QRegularExpression
-      COLOR_REGEX("RGBA\\(\\s*(?<r>\\d+)\\s*,\\s*(?<g>\\d+)\\s*,\\s*(?<b>\\d+)\\s*,\\s*(?<a>\\d+)\\s*\\)");
+      COLOR_REGEX("RGBA\\(\\s*(?<r>[\\d\\.]+)\\s*,\\s*(?<g>[\\d\\.]+)\\s*,\\s*(?<b>[\\d\\.]+)\\s*,\\s*(?<a>[\\d\\.]+)\\s*\\)");
 
   QVariant color;
   QRegularExpressionMatch match = COLOR_REGEX.match(line);
+  bool valid = false;
 
   if (match.hasMatch()) {
     bool ok_r, ok_g, ok_b, ok_a;
-    int r,g,b,a;
+    float r,g,b,a;
 
-    r = match.captured("r").toInt( & ok_r);
-    g = match.captured("g").toInt( & ok_g);
-    b = match.captured("b").toInt( & ok_b);
-    a = match.captured("a").toInt( & ok_a);
+    r = match.captured("r").toFloat( & ok_r);
+    g = match.captured("g").toFloat( & ok_g);
+    b = match.captured("b").toFloat( & ok_b);
+    a = match.captured("a").toFloat( & ok_a);
+
+    // check ranges
+    ok_r &= ((r>=0.0f) && (r <= 1.0f));
+    ok_g &= ((g>=0.0f) && (g <= 1.0f));
+    ok_b &= ((b>=0.0f) && (b <= 1.0f));
+    ok_a &= ((a>=0.0f) && (a <= 1.0f));
 
     if (ok_r && ok_g && ok_b && ok_a) {
-      color = QVariant::fromValue<QColor>( QColor(r,g,b,a));
+      color = QVariant::fromValue<Color>( Color(r,g,b,a));
+      valid = true;
     }
-    else {
-      reportError(QObject::tr("Color must be in format 'RGBA(r,g,b,a)' "
-                              "where r,g,b,a are in range 0-255 "));
-    }
+  }
+
+  if (valid == false) {
+    reportError(QObject::tr("Color must be in format 'RGBA(r,g,b,a)' "
+                            "where r,g,b,a are in range (0,1)"));
   }
 
   return color;

@@ -46,18 +46,15 @@ Node *ShaderFilterNode::copy() const
 {
   ShaderFilterNode * new_node = new ShaderFilterNode();
 
-  // the new node must have the same inputs as the original.
-  // the constructor only creates the "shader code" input
-  new_node->shader_code_ = this->shader_code_;
-  new_node->input_list_ = this->input_list_;
-  new_node->onShaderCodeChanged();
+  // copy all inputs not created in constructor
+  CopyInputs( this, new_node, false);
 
   return new_node;
 }
 
 QString ShaderFilterNode::Name() const
 {
-  return QString("shader");
+  return QString("Shader");
 }
 
 QString ShaderFilterNode::id() const
@@ -90,13 +87,13 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
 void olive::ShaderFilterNode::onShaderCodeChanged()
 {
   // pre-remove all inputs ...
-  for (QString oldInput : input_list_)
+  for (QString oldInput : user_input_list_)
   {
     if (HasInputWithID(oldInput)) {
       RemoveInput(oldInput);
     }
   }
-  input_list_.clear();
+  user_input_list_.clear();
 
   // ... and create new inputs
   parseShaderCode();
@@ -142,18 +139,24 @@ void ShaderFilterNode::parseShaderCode()
 
   parser.Parse();
 
-  // update name, if defined in script
-  SetLabel( parser.ShaderName());
-
   reportErrorList( parser);
-
   updateInputList( parser);
+
+  // update name, if defined in script; otherwise use a default.
+  QString label = (parser.ShaderName().isEmpty()) ? "unnamed" : parser.ShaderName();
+  SetLabel( label);
 }
 
 void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
 {
   const QList<ShaderInputsParser::Error> & errors = parser.ErrorList();
   QString message;
+
+  if (errors.length() > 0) {
+    message.append(tr("<p>Shader %1 has metadata errors. "
+                      "These are not related to the shader code, just to metadata</p>").
+                   arg("parser.ShaderName()"));
+  }
 
   for (ShaderInputsParser::Error e : errors ) {
     // need to translate?
@@ -174,14 +177,17 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
   for( it = input_list.begin(); it != input_list.end(); ++it) {
 
     if (HasInputWithID(it->uniform_name) == false) {
+      qDebug() << "adding " <<  it->human_name;
       AddInput( it->uniform_name, it->type, it->default_value, it->flags );
-      input_list_.append( it->uniform_name);
+      user_input_list_.append( it->uniform_name);
     }
 
-    SetInputName( it->uniform_name, it->readable_name);
+    SetInputName( it->uniform_name, it->human_name);
     SetInputProperty( it->uniform_name, QStringLiteral("min"), it->min);
     SetInputProperty( it->uniform_name, QStringLiteral("max"), it->max);
   }
+
+  emit InputListChanged();
 }
 
 }  // namespace olive

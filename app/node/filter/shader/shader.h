@@ -64,7 +64,7 @@ private:
 
   QString shader_code_;
   // user defined inputs
-  QStringList input_list_;
+  QStringList user_input_list_;
 
 };
 

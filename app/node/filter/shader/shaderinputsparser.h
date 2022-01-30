@@ -41,7 +41,7 @@ public:
   struct InputParam
   {
     // name that appares in GUI
-    QString readable_name;
+    QString human_name;
     // name of uniform in code
     QString uniform_name;
     // so far, not used
