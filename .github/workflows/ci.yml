@@ -378,7 +378,7 @@ jobs:
           then
             # Must acquire Qt tools from x86_64 package
             $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
-            tar xzf https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
+            tar xzf olive-dep-mac-x86_64.tar.gz
             MACDEPLOYQT=$(pwd)/opt/olive-editor/bin/macdeployqt
           else
             MACDEPLOYQT=$DEP_LOCATION/bin/macdeployqt
