@@ -408,6 +408,13 @@ jobs:
             mv Olive.sym "$SYM_DIR"
           fi
 
+          if [ "${{ matrix.os-arch }}" == "arm64" ]
+          then
+            # macdeployqt is smart enough to pull the right libraries, but not the right platform
+            # plugin. We have to replace it with the correct arm64 one.
+            cp $DEP_LOCATION/plugins/platforms/libqcocoa.dylib $BUNDLE_NAME/Contents/PlugIns/platforms
+          fi
+
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
         shell: bash
