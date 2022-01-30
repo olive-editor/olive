@@ -48,7 +48,6 @@ public:
   void set_active(bool active);
 
   void Load(QXmlStreamReader* reader);
-  void Save(QXmlStreamWriter* writer) const;
 
 public slots:
   void set_name_undo(QString name);
@@ -82,7 +81,7 @@ public:
 
   virtual ~TimelineMarkerList() override;
 
-  TimelineMarker *AddMarker(const TimeRange& time = TimeRange(), const QString& name = QString(), int color = -1);
+  TimelineMarker* AddMarker(const TimeRange& time = TimeRange(), const QString& name = QString(), int color = -1);
 
   void RemoveMarker(TimelineMarker* marker);
 

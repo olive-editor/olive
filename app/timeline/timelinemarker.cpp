@@ -93,27 +93,6 @@ void TimelineMarker::set_active(bool active)
 
     emit ActiveChanged(active_);
 }
-
-void TimelineMarker::Save(QXmlStreamWriter* writer) const
-{
-  writer->writeStartElement(QStringLiteral("marker"));
-
-  writer->writeAttribute(QStringLiteral("name"), name_);
-
-  writer->writeAttribute(QStringLiteral("color"), QString::number(color_));
-
-  writer->writeAttribute(QStringLiteral("in"), time_.in().toString());
-  writer->writeAttribute(QStringLiteral("out"), time_.out().toString());
-
-  writer->writeEndElement();  // marker
-}
-
-void TimelineMarkerList::Save(QXmlStreamWriter *writer) const
-{
-  foreach (TimelineMarker* marker, markers_) {
-    marker->Save(writer);
-  }
-}
   
 TimelineMarkerList::~TimelineMarkerList()
 {
@@ -148,33 +127,6 @@ void TimelineMarkerList::RemoveMarker(TimelineMarker *marker)
 const QList<TimelineMarker*> &TimelineMarkerList::list() const
 {
   return markers_;
-}
-
-void TimelineMarkerList::Load(QXmlStreamReader *reader)
-{
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("marker")) {
-      QString name;
-      int color = -1;
-      rational in, out;
-
-      XMLAttributeLoop(reader, attr) {
-        if (attr.name() == QStringLiteral("name")) {
-          name = attr.value().toString();
-        }else if(attr.name() == QStringLiteral("color")){
-          color = attr.value().toInt();
-        } else if (attr.name() == QStringLiteral("in")) {
-          in = rational::fromString(attr.value().toString());
-        } else if (attr.name() == QStringLiteral("out")) {
-          out = rational::fromString(attr.value().toString());
-        }
-      }
-
-      AddMarker(TimeRange(in, out), name, color);
-    }
-
-    reader->skipCurrentElement();
-  }
 }
 
 }

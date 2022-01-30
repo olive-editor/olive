@@ -20,6 +20,7 @@
 #include <QUndoCommand>
 
 #include "widget/marker/marker.h"
+#include "node/project/serializer/serializer.h"
 #include "timeline/timelinemarker.h"
 #include "undo/undocommand.h"
 

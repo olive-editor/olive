@@ -97,6 +97,10 @@ private:
 
   void SaveWorkArea(QXmlStreamWriter *writer, TimelineWorkArea *workarea) const;
 
+  void LoadMarker(QXmlStreamReader *reader);
+  
+  void SaveMarker(QXmlStreamWriter *writer, TimelineMarker *marker) const;
+
   void LoadMarkerList(QXmlStreamReader *reader, TimelineMarkerList *markers) const;
 
   void SaveMarkerList(QXmlStreamWriter *writer, TimelineMarkerList *markers) const;

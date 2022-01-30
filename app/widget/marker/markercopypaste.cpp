@@ -33,7 +33,7 @@ void MarkerCopyPasteService::CopyMarkersToClipboard(const QVector<TimelineMarker
   writer.writeStartDocument();
   writer.writeStartElement(QStringLiteral("olive"));
 
-  writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
+  //writer.writeTextElement(QStringLiteral("version"), QString::number(Core::kProjectVersion));
 
   writer.writeStartElement(QStringLiteral("markers"));
 
@@ -52,7 +52,7 @@ void MarkerCopyPasteService::CopyMarkersToClipboard(const QVector<TimelineMarker
 
     // Temporarily set in/out to be relative to the earliest selected marker
     marker->set_time(TimeRange(in - min_start, marker->time().out() - min_start));
-	marker->Save(&writer);
+	//marker->Save(&writer);
 
     // Reset in/out
     marker->set_time(TimeRange(in, out));
