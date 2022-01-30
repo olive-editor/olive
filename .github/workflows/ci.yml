@@ -373,7 +373,18 @@ jobs:
         run: |
           # Use macdeployqt and macdeployqt to bundle dependencies
           mv app/$BUNDLE_NAME .
-          $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
+
+          if [ "${{ matrix.os-arch }}" != "x86_64" ]
+          then
+            # Must acquire Qt tools from x86_64 package
+            $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
+            tar xzf https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
+            MACDEPLOYQT=$(pwd)/opt/olive-editor/bin/macdeployqt
+          else
+            MACDEPLOYQT=$DEP_LOCATION/bin/macdeployqt
+          fi
+
+          $MACDEPLOYQT $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
           python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
 
