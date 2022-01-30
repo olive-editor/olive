@@ -57,21 +57,24 @@ void PlaybackCache::Shift(rational from, rational to)
   // An region between `from` and `to` will be inserted or spliced out
   TimeRangeList ranges_to_shift = validated_.Intersects(TimeRange(from, RATIONAL_MAX));
 
-  // Remove everything from the minimum point
-  TimeRange remove_range = TimeRange(qMin(from, to), RATIONAL_MAX);
-  Invalidate(remove_range, false);
+  // Remove all ranges starting at to
+  validated_.remove(TimeRange(qMin(from, to), RATIONAL_MAX));
 
-  // Shift invalidated ranges
-  // (`diff` is POSITIVE when moving forward -> and NEGATIVE when moving backward <-)
+  // Restore ranges shifted
   rational diff = to - from;
   foreach (const TimeRange& r, ranges_to_shift) {
-    Validate(r + diff, false);
+    validated_.insert(r + diff);
   }
 
+  // Tell derivatives that a shift has occurred
   ShiftEvent(from, to);
 
   // Emit signals
   emit Shifted(from, to);
+
+  if (diff > 0) {
+    //emit Invalidated(TimeRange(from, to));
+  }
 }
 
 void PlaybackCache::Validate(const TimeRange &r, bool signal)
