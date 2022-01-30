@@ -330,7 +330,7 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-${{ matrix.os-arch }}.tar.gz
           sudo tar xzf crashpad-mac-${{ matrix.os-arch }}.tar.gz -C /
-        if: ${{ matrix.os-arch }} == "x86_64" # TEMPORARY: Crashpad isn't compiling on ARM64 yet for some reason
+        if: matrix.os-arch == 'x86_64' # TEMPORARY: Crashpad isn't compiling on ARM64 yet for some reason
 
       - name: Generate Patreon List
         env:
