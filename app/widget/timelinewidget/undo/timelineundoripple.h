@@ -38,7 +38,8 @@ namespace olive {
  * By default, nothing takes this area meaning all subsequent clips are pushed backward, however you can specify
  * a block to insert at the `in` point. No checking is done to ensure `insert` is the same length as `in` to `out`.
  */
-class TrackRippleRemoveAreaCommand : public UndoCommand {
+class TrackRippleRemoveAreaCommand : public UndoCommand
+{
 public:
   TrackRippleRemoveAreaCommand(Track* track, const TimeRange& range);
 
@@ -98,7 +99,8 @@ private:
 
 };
 
-class TrackListRippleRemoveAreaCommand : public UndoCommand {
+class TrackListRippleRemoveAreaCommand : public UndoCommand
+{
 public:
   TrackListRippleRemoveAreaCommand(TrackList* list, rational in, rational out) :
     list_(list),
@@ -134,7 +136,8 @@ private:
 
 };
 
-class TimelineRippleRemoveAreaCommand : public MultiUndoCommand {
+class TimelineRippleRemoveAreaCommand : public MultiUndoCommand
+{
 public:
   TimelineRippleRemoveAreaCommand(Sequence* timeline, rational in, rational out);
 
@@ -148,7 +151,8 @@ private:
 
 };
 
-class TrackListRippleToolCommand : public UndoCommand {
+class TrackListRippleToolCommand : public UndoCommand
+{
 public:
   struct RippleInfo {
     Block* block;
@@ -200,7 +204,8 @@ private:
 
 };
 
-class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand {
+class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand
+{
 public:
   TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const QVector<QPair<Track*, TimeRange> >& regions) :
     timeline_(vo),
@@ -240,6 +245,34 @@ private:
     GapBlock *gap;
     TimeRange range;
   };
+
+};
+
+class TimelineShiftCacheCommand : public UndoCommand
+{
+public:
+  TimelineShiftCacheCommand(Sequence* timeline, const rational &from, const rational &to) :
+    timeline_(timeline),
+    from_(from),
+    to_(to)
+  {}
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return timeline_->project();
+  }
+
+protected:
+  virtual void redo() override;
+
+  virtual void undo() override;
+
+private:
+  Sequence* timeline_;
+
+  rational from_;
+
+  rational to_;
 
 };
 
