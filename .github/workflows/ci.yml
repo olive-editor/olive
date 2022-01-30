@@ -285,11 +285,18 @@ jobs:
             os-arch: x86_64
             os: macos-10.15
             cmake-gen: Ninja
+          - build-type: RelWithDebInfo
+            compiler-name: Clang LLVM
+            os-name: macOS
+            os-arch: arm64
+            os: macos-11.0
+            cmake-gen: Ninja
     env:
       DEP_LOCATION: /opt/olive-editor
     name: |
       ${{ matrix.os-name }}
-      <${{ matrix.compiler-name }},
+      <${{ matrix.os-arch }},
+       ${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
@@ -314,15 +321,17 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
-          sudo tar xzf olive-dep-mac-x86_64.tar.gz -C /
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-${{ matrix.os-arch }}.tar.gz
+          sudo tar xzf olive-dep-mac-${{ matrix.os-arch }}.tar.gz -C /
 
       - name: Acquire Google Crashpad
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-x86_64.tar.gz
-          sudo tar xzf crashpad-mac-x86_64.tar.gz -C /
+          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-${{ matrix.os-arch }}.tar.gz
+          sudo tar xzf crashpad-mac-${{ matrix.os-arch }}.tar.gz -C /
+        # TEMPORARY: Crashpad isn't compiling on ARM64 yet for some reason
+        if: ${{ matrix.os-arch == "x86_64" }}
 
       - name: Generate Patreon List
         env:
@@ -341,7 +350,8 @@ jobs:
           brew install ninja
           PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}"
+              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}" \
+              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -365,7 +375,7 @@ jobs:
           mv app/$BUNDLE_NAME .
           $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
           $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $VCPKG_ROOT/installed/x64-osx
+          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
 
           # Manual corrections
           for f in $BUNDLE_NAME/Contents/Frameworks/*.dylib
