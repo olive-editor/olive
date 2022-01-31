@@ -380,11 +380,15 @@ jobs:
 
           mv app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
-          dylibbundler -b -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
+          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # Copy Qt frameworks and plugins
           cp -R $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
           cp -R $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
+
+          # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
+          #       but perhaps I'll bring it up with them soon.
+          cp $DEP_LOCATION/Frameworks/libpng16.16.37.0.dylib $DEP_LOCATION/Frameworks/libpng16.16.dylib
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
           then
@@ -395,6 +399,9 @@ jobs:
             mkdir -p "$SYM_DIR"
             mv Olive.sym "$SYM_DIR"
           fi
+
+          # TEMP: Not sure if this will do anything, just trying it out
+          xattr -cr $BUNDLE_NAME
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
