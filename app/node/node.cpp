@@ -1230,7 +1230,6 @@ void Node::SetInputName(const QString &id, const QString &name)
   Input* i = GetInternalInputData(id);
 
   if (i) {
-    qDebug() << "setting name " <<  name;
     i->human_name = name;
 
     emit InputNameChanged(id, name);

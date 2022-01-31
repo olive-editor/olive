@@ -45,7 +45,8 @@ const int NodeParamViewItemBody::kWidgetStartColumn = 3;
 
 NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
-  node_(node)
+  node_(node),
+  keyframe_view_(nullptr)
 {
   node_->Retranslate();
 
@@ -88,8 +89,16 @@ void NodeParamViewItem::OnInputListChanged()
   // delete body_; // TODO_ memory leak?
   body_ = new NodeParamViewItemBody(node_, kNoCheckBoxes);  // TODO_  NodeParamViewCheckBoxBehavior create_checkboxes
 
+  connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
+  connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
+  connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
+  connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
+
   SetBody(body_);
   body_->Retranslate();
+
+  Q_ASSERT( keyframe_view_ != nullptr);
+  keyframe_connections_ = keyframe_view_->AddKeyframesOfNode(node_);
 }
 
 int NodeParamViewItem::GetElementY(const NodeInput &c) const

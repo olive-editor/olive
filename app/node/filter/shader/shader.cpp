@@ -177,7 +177,6 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
   for( it = input_list.begin(); it != input_list.end(); ++it) {
 
     if (HasInputWithID(it->uniform_name) == false) {
-      qDebug() << "adding " <<  it->human_name;
       AddInput( it->uniform_name, it->type, it->default_value, it->flags );
       user_input_list_.append( it->uniform_name);
     }

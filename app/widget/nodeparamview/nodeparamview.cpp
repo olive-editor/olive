@@ -425,6 +425,9 @@ void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
     connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
 
     item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
+
+    // needed to update keyframe connections dynamically
+    item->SetKeyframeView( keyframe_view_);
   }
 }
 

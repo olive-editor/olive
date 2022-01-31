@@ -202,6 +202,10 @@ public:
     keyframe_connections_ = c;
   }
 
+  void SetKeyframeView( KeyframeView * kfv) {
+    keyframe_view_ = kfv;
+  }
+
 signals:
   void RequestSetTime(const rational& time);
 
@@ -225,7 +229,7 @@ private:
   rational time_;
 
   KeyframeView::NodeConnections keyframe_connections_;
-
+  KeyframeView * keyframe_view_;
 };
 
 }
