@@ -371,31 +371,25 @@ jobs:
           BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
-          # Use macdeployqt and macdeployqt to bundle dependencies
-          mv app/$BUNDLE_NAME .
+          brew install dylibbundler
 
-          if [ "${{ matrix.os-arch }}" != "x86_64" ]
+          if [ "${{ matrix.os-arch }}" == "x86_64" ]
           then
-            # Must acquire x86_64 Qt tools to finish deployment
-            brew install qt5
-            MACDEPLOYQT=/usr/local/opt/qt@5/bin/macdeployqt
-          else
-            MACDEPLOYQT=$DEP_LOCATION/bin/macdeployqt
-            MACDEPLOYQT_ARGS="-executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler"
+            DYLIBBUNDLER_EXTRA_ARGS="-x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler"
           fi
 
-          $MACDEPLOYQT $BUNDLE_NAME $MACDEPLOYQT_ARGS
-          $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $DEP_LOCATION
+          mv app/$BUNDLE_NAME .
+          mkdir $BUNDLE_NAME/Contents/Frameworks
+          dylibbundler -b \
+            -x $BUNDLE_NAME/Contents/MacOS/Olive \                # Main executable
+            -s $DEP_LOCATION/lib \                                # Location to search for dylibs
+            -d $BUNDLE_NAME/Contents/Frameworks \                 # Destination for dylibs
+            -p @executable_path/../Frameworks \                   # "Install path" in executable
+            $DYLIBBUNDLER_EXTRA_ARGS
 
-          # Manual corrections
-          for f in $BUNDLE_NAME/Contents/Frameworks/*.dylib
-          do
-            for r in $(otool -L $f | grep "@rpath" | awk '{print $1;}')
-            do
-              install_name_tool -change $r ${r//rpath/loader_path} $f
-            done
-          done
+          # Copy Qt frameworks and plugins
+          cp -R $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
+          cp -R $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
           then
@@ -405,13 +399,6 @@ jobs:
             SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
             mkdir -p "$SYM_DIR"
             mv Olive.sym "$SYM_DIR"
-          fi
-
-          if [ "${{ matrix.os-arch }}" == "arm64" ]
-          then
-            # macdeployqt is smart enough to pull the right libraries, but not the right platform
-            # plugin. We have to replace it with the correct arm64 one.
-            cp $DEP_LOCATION/plugins/platforms/libqcocoa.dylib $BUNDLE_NAME/Contents/PlugIns/platforms
           fi
 
       - name: Deploy Packages
