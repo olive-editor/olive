@@ -388,7 +388,7 @@ jobs:
 
           # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
           #       but perhaps I'll bring it up with them soon.
-          cp $DEP_LOCATION/Frameworks/libpng16.16.37.0.dylib $DEP_LOCATION/Frameworks/libpng16.16.dylib
+          cp $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
           then
@@ -399,9 +399,6 @@ jobs:
             mkdir -p "$SYM_DIR"
             mv Olive.sym "$SYM_DIR"
           fi
-
-          # TEMP: Not sure if this will do anything, just trying it out
-          xattr -cr $BUNDLE_NAME
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
