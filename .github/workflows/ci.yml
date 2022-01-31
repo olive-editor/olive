@@ -376,10 +376,9 @@ jobs:
 
           if [ "${{ matrix.os-arch }}" != "x86_64" ]
           then
-            # Must acquire Qt tools from x86_64 package
-            $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
-            tar xzf olive-dep-mac-x86_64.tar.gz
-            MACDEPLOYQT=$(pwd)/opt/olive-editor/bin/macdeployqt
+            # Must acquire x86_64 Qt tools to finish deployment
+            brew install qt5
+            MACDEPLOYQT=/usr/local/opt/qt@5/bin/macdeployqt
           else
             MACDEPLOYQT=$DEP_LOCATION/bin/macdeployqt
             MACDEPLOYQT_ARGS="-executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler"
