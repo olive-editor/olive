@@ -380,12 +380,7 @@ jobs:
 
           mv app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
-          dylibbundler -b \
-            -x $BUNDLE_NAME/Contents/MacOS/Olive \                # Main executable
-            -s $DEP_LOCATION/lib \                                # Location to search for dylibs
-            -d $BUNDLE_NAME/Contents/Frameworks \                 # Destination for dylibs
-            -p @executable_path/../Frameworks \                   # "Install path" in executable
-            $DYLIBBUNDLER_EXTRA_ARGS
+          dylibbundler -b -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # Copy Qt frameworks and plugins
           cp -R $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
