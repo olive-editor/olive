@@ -140,7 +140,8 @@ bool Renderer::GetCustomColorContext(ColorProcessorPtr color_processor, Renderer
 }
 
 bool Renderer::SetupColorContextTextures(ColorContext& color_ctx, OCIO::ConstGpuShaderDescRcPtr shader_desc,
-                                         ColorProcessorPtr color_processor) {
+                                         ColorProcessorPtr color_processor)
+{
   color_ctx.lut3d_textures.resize(shader_desc->getNum3DTextures());
   for (unsigned int i = 0; i < shader_desc->getNum3DTextures(); i++) {
     const char* tex_name = nullptr;
