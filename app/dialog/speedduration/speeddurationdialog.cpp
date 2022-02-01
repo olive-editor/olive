@@ -104,11 +104,11 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
       start_duration_ = -1;
     }
 
-    if (clips.at(i)->reverse() != start_reverse_) {
+    if (clips.at(i)->reverse() != static_cast<int>(start_reverse_)) {
       start_reverse_ = -1;
     }
 
-    if (clips.at(i)->maintain_audio_pitch() != start_maintain_audio_pitch_) {
+    if (clips.at(i)->maintain_audio_pitch() != static_cast<int>(start_maintain_audio_pitch_)) {
       start_maintain_audio_pitch_ = -1;
     }
   }
