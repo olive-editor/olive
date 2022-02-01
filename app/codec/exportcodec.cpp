@@ -44,6 +44,8 @@ QString ExportCodec::GetCodecName(ExportCodec::Codec c)
     return tr("PNG");
   case kCodecProRes:
     return tr("ProRes");
+    case kCodecCineform:
+    return tr("Cineform");
   case kCodecTIFF:
     return tr("TIFF");
   case kCodecMP2:
@@ -79,6 +81,7 @@ bool ExportCodec::IsCodecAStillImage(ExportCodec::Codec c)
   case kCodecH264rgb:
   case kCodecH265:
   case kCodecProRes:
+  case kCodecCineform:
   case kCodecMP2:
   case kCodecMP3:
   case kCodecAAC:
