@@ -62,6 +62,23 @@ void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr so
   BlitColorManagedInternal(color_processor, source, source_alpha_association, nullptr, params, clear_destination, matrix, crop_matrix);
 }
 
+void Renderer::ShaderJobInsertTextures(ColorProcessorPtr color_processor, ShaderJob* job,
+                                       OCIO::GpuShaderDescRcPtr shader_desc) {
+  ColorContext color_ctx;
+  if (!GetCustomColorContext(color_processor, &color_ctx, shader_desc)) {
+    return;
+  }
+
+  foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
+    job->InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
+    job->SetInterpolation(l.name, l.interpolation);
+  }
+  foreach (const ColorContext::LUT& l, color_ctx.lut1d_textures) {
+    job->InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
+    job->SetInterpolation(l.name, l.interpolation);
+  }
+}
+
 TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params)
 {
   color_cache_mutex_.lock();
@@ -103,6 +120,95 @@ TexturePtr Renderer::CreateTextureFromNativeHandle(const QVariant &v, const Vide
   return std::make_shared<Texture>(this, v, params, type);
 }
 
+bool Renderer::GetCustomColorContext(ColorProcessorPtr color_processor, Renderer::ColorContext* ctx,
+                                     OCIO::GpuShaderDescRcPtr shader_desc) {
+  QMutexLocker locker(&color_cache_mutex_);
+
+  ColorContext& color_ctx = *ctx;
+
+  if (color_cache_.contains(color_processor->id())) {
+    color_ctx = color_cache_.value(color_processor->id());
+    return true;
+  } else {
+    if (SetupColorContextTextures(color_ctx, shader_desc, color_processor)) {
+      return true;
+    } else {
+      qCritical() << "Failed to allocate OCIO shader textures";
+      return false;
+    }
+  }
+}
+
+bool Renderer::SetupColorContextTextures(ColorContext& color_ctx, OCIO::ConstGpuShaderDescRcPtr shader_desc,
+                                         ColorProcessorPtr color_processor) {
+  color_ctx.lut3d_textures.resize(shader_desc->getNum3DTextures());
+  for (unsigned int i = 0; i < shader_desc->getNum3DTextures(); i++) {
+    const char* tex_name = nullptr;
+    const char* sampler_name = nullptr;
+    unsigned int edge_len = 0;
+    OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+
+    shader_desc->get3DTexture(i, tex_name, sampler_name, edge_len, interpolation);
+
+    if (!tex_name || !*tex_name || !sampler_name || !*sampler_name || !edge_len) {
+      qCritical() << "3D LUT texture data is corrupted";
+      return false;
+    }
+
+    const float* values = nullptr;
+    shader_desc->get3DTextureValues(i, values);
+    if (!values) {
+      qCritical() << "3D LUT texture values are missing";
+      return false;
+    }
+
+    // Allocate 3D LUT
+    color_ctx.lut3d_textures[i].texture = CreateTexture(
+        VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount),
+        Texture::k3D, values);
+    color_ctx.lut3d_textures[i].name = sampler_name;
+    color_ctx.lut3d_textures[i].interpolation =
+        (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
+  }
+
+  color_ctx.lut1d_textures.resize(shader_desc->getNumTextures());
+  for (unsigned int i = 0; i < shader_desc->getNumTextures(); i++) {
+    const char* tex_name = nullptr;
+    const char* sampler_name = nullptr;
+    unsigned int width = 0, height = 0;
+    OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
+    OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
+
+    shader_desc->getTexture(i, tex_name, sampler_name, width, height, channel, interpolation);
+
+    if (!tex_name || !*tex_name || !sampler_name || !*sampler_name || !width) {
+      qCritical() << "1D LUT texture data is corrupted";
+      return false;
+    }
+
+    const float* values = nullptr;
+    shader_desc->getTextureValues(i, values);
+    if (!values) {
+      qCritical() << "1D LUT texture values are missing";
+      return false;
+    }
+
+    // Allocate 1D LUT
+    color_ctx.lut1d_textures[i].texture = CreateTexture(
+        VideoParams(width, height, VideoParams::kFormatFloat32,
+                    (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount),
+        Texture::k2D, values);
+    color_ctx.lut1d_textures[i].name = sampler_name;
+    color_ctx.lut1d_textures[i].interpolation =
+        (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
+  }
+
+  color_cache_.insert(color_processor->id(), color_ctx);
+
+  return true;
+
+}
+
 bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::ColorContext *ctx)
 {
   QMutexLocker locker(&color_cache_mutex_);
@@ -137,71 +243,12 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
       return false;
     }
 
-    color_ctx.lut3d_textures.resize(shader_desc->getNum3DTextures());
-    for (unsigned int i=0; i<shader_desc->getNum3DTextures(); i++) {
-      const char* tex_name = nullptr;
-      const char* sampler_name = nullptr;
-      unsigned int edge_len = 0;
-      OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-
-      shader_desc->get3DTexture(i, tex_name, sampler_name, edge_len, interpolation);
-
-      if (!tex_name || !*tex_name
-          || !sampler_name || !*sampler_name
-          || !edge_len) {
-        qCritical() << "3D LUT texture data is corrupted";
-        return false;
-      }
-
-      const float* values = nullptr;
-      shader_desc->get3DTextureValues(i, values);
-      if (!values) {
-        qCritical() << "3D LUT texture values are missing";
-        return false;
-      }
-
-      // Allocate 3D LUT
-      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount),
-                                                          Texture::k3D, values);
-      color_ctx.lut3d_textures[i].name = sampler_name;
-      color_ctx.lut3d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
+    if (SetupColorContextTextures(color_ctx, shader_desc, color_processor)) {
+      return true;
+    } else {
+      qCritical() << "Failed to allocate OCIO shader textures";
+      return false;
     }
-
-    color_ctx.lut1d_textures.resize(shader_desc->getNumTextures());
-    for (unsigned int i=0; i<shader_desc->getNumTextures(); i++) {
-      const char* tex_name = nullptr;
-      const char* sampler_name = nullptr;
-      unsigned int width = 0, height = 0;
-      OCIO::GpuShaderDesc::TextureType channel = OCIO::GpuShaderDesc::TEXTURE_RGB_CHANNEL;
-      OCIO::Interpolation interpolation = OCIO::INTERP_LINEAR;
-
-      shader_desc->getTexture(i, tex_name, sampler_name, width, height, channel, interpolation);
-
-      if (!tex_name || !*tex_name
-          || !sampler_name || !*sampler_name
-          || !width) {
-        qCritical() << "1D LUT texture data is corrupted";
-        return false;
-      }
-
-      const float* values = nullptr;
-      shader_desc->getTextureValues(i, values);
-      if (!values) {
-        qCritical() << "1D LUT texture values are missing";
-        return false;
-      }
-
-      // Allocate 1D LUT
-      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, VideoParams::kFormatFloat32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount),
-                                                          Texture::k2D,
-                                                          values);
-      color_ctx.lut1d_textures[i].name = sampler_name;
-      color_ctx.lut1d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
-    }
-
-    color_cache_.insert(color_processor->id(), color_ctx);
-
-    return true;
   }
 }
 

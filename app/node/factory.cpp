@@ -29,6 +29,7 @@
 #include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "color/displaytransform/displaytransform.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
@@ -261,6 +262,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new FlipDistortNode();
   case kNoiseGenerator:
     return new NoiseGeneratorNode();
+  case kDisplayTransform:
+    return new DisplayTransformNode();
 
   case kInternalNodeCount:
     break;
