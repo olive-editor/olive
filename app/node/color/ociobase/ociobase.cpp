@@ -29,6 +29,8 @@ OCIONodeBase::OCIONodeBase()
   if (true){//RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     // Create OpenGL renderer
     attached_renderer_ = new OpenGLRenderer(this);
+    attached_renderer_->Init();
+    attached_renderer_->PostInit();
   }
 }
 

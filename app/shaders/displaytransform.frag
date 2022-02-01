@@ -1,12 +1,13 @@
 uniform sampler2D tex_in;
+varying vec2 ove_texcoord;
 
 // Program will replace this with OCIO's auto-generated shader code
 %1
 
 void main() {
-  col = texture2D(tex_in, ove_texcoord);
+  vec4 col = texture2D(tex_in, ove_texcoord);
 
-  col = DIsplayTransform(col)
+  col = DisplayTransform(col);
 
   gl_FragColor - col;
 }

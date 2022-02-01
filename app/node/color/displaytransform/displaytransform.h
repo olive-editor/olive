@@ -36,6 +36,7 @@ class DisplayTransformNode : public OCIONodeBase {
   virtual QString Description() const override;
 
   virtual void Retranslate() override;
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
   virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;

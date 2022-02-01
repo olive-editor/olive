@@ -37,8 +37,11 @@ void DisplayTransformNode::GenerateProcessor(bool direction)
   if (!project()) {
     return;
   }
+  qDebug() << project()->color_manager()->GetReferenceColorSpace() << project()->color_manager()->GetDefaultDisplay();
+
+  ColorTransform transform("sRGB OETF");
   reference_to_display_ = ColorProcessor::Create(project()->color_manager(), project()->color_manager()->GetReferenceColorSpace(),
-                                                 project()->color_manager()->GetDefaultDisplay());
+                                                 transform);
 
   // Create shader description
   shader_desc_ = OCIO::GpuShaderDesc::CreateShaderDesc();
@@ -81,6 +84,14 @@ void DisplayTransformNode::Retranslate()
   SetInputName(kDirectionInput, tr("Direction"));
   SetComboBoxStrings(kDirectionInput, {tr("Forward"), tr("Inverse")});
   GenerateProcessor(true);
+}
+
+void DisplayTransformNode::InputValueChangedEvent(const QString& input, int element)
+{
+    Q_UNUSED(element);
+  if (input == kDirectionInput) {
+      GenerateProcessor(true);
+  }
 }
 
 ShaderCode DisplayTransformNode::GetShaderCode(const QString &shader_id) const

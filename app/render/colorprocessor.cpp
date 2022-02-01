@@ -69,8 +69,11 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
   } else {
 
     OCIO_SET_C_LOCALE_FOR_SCOPE;
-    processor_ = config->GetConfig()->getProcessor(input.toUtf8(),
-                                                   output.toUtf8());
+    try {
+      processor_ = config->GetConfig()->getProcessor(input.toUtf8(), output.toUtf8());
+    } catch (OCIO::Exception &e) {
+      qWarning() << "ColorProcessor exception:" << e.what();
+    }
 
   }
 
