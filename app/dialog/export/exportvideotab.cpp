@@ -251,7 +251,6 @@ void ExportVideoTab::VideoCodecChanged()
   } else {
     pix_fmt_.clear();
   }
-  qDebug() << "Set default pix fmt" << pix_fmt_;
 }
 
 void ExportVideoTab::SetTime(const rational &time)

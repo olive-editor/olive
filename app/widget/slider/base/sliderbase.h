@@ -49,6 +49,12 @@ public:
 
   QString GetFormattedValueToString(const QVariant& v) const;
 
+  void InsertLabelSubstitution(const QVariant &value, const QString &label)
+  {
+    label_substitutions_.insert(value, label);
+    UpdateLabel();
+  }
+
 public slots:
   void ShowEditor();
 
@@ -91,6 +97,8 @@ private:
   QString custom_format_;
 
   bool format_plural_;
+
+  QMap<QVariant, QString> label_substitutions_;
 
 private slots:
   void LineEditConfirmed();
