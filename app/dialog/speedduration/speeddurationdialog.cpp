@@ -95,20 +95,25 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
   start_reverse_ = clips.first()->reverse();
   start_maintain_audio_pitch_ = clips.first()->maintain_audio_pitch();
   for (int i=1; i<clips.size(); i++) {
-    if (!qIsNaN(start_speed_) && !qFuzzyCompare(start_speed_, clips.at(i)->speed())) {
+    ClipBlock *c = clips.at(i);
+
+    if (!qIsNaN(start_speed_) && !qFuzzyCompare(start_speed_, c->speed())) {
       // Speed differs per clip
       start_speed_ = qSNaN();
     }
 
-    if (start_duration_ != -1 && clips.at(i)->length() != start_duration_) {
+    if (start_duration_ != -1 && c->length() != start_duration_) {
       start_duration_ = -1;
     }
 
-    if (clips.at(i)->reverse() != static_cast<int>(start_reverse_)) {
+    // Yes, in theory a bool should only ever be 0 or 1 anyway, but MSVC complained and it is
+    // *possible* that a bool could be something else, so this code is safer
+    int clip_reverse = c->reverse() ? 1 : 0;
+    int clip_maintain_pitch = c->maintain_audio_pitch() ? 1 : 0;
+    if (start_reverse_ != -1 && clip_reverse != start_reverse_) {
       start_reverse_ = -1;
     }
-
-    if (clips.at(i)->maintain_audio_pitch() != static_cast<int>(start_maintain_audio_pitch_)) {
+    if (start_maintain_audio_pitch_ != -1 && clip_maintain_pitch != start_maintain_audio_pitch_) {
       start_maintain_audio_pitch_ = -1;
     }
   }
