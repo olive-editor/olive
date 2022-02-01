@@ -174,11 +174,13 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
   const QList< ShaderInputsParser::InputParam> & input_list = parser.InputList();
   QList< ShaderInputsParser::InputParam>::const_iterator it;
 
+  QStringList new_input_list;
+
   for( it = input_list.begin(); it != input_list.end(); ++it) {
 
     if (HasInputWithID(it->uniform_name) == false) {
       AddInput( it->uniform_name, it->type, it->default_value, it->flags );
-      user_input_list_.append( it->uniform_name);
+      new_input_list.append( it->uniform_name);
     }
 
     SetInputName( it->uniform_name, it->human_name);
@@ -186,7 +188,24 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
     SetInputProperty( it->uniform_name, QStringLiteral("max"), it->max);
   }
 
+  // compare 'new_input_list' and 'user_input_list_' to find deleted inputs.
+  checkDeletedInputs( new_input_list);
+
+  // update inputs
+  user_input_list_.clear();
+  user_input_list_ = new_input_list;
+
   emit InputListChanged();
+}
+
+void ShaderFilterNode::checkDeletedInputs(const QStringList & new_inputs)
+{
+  // search old inputs that are not present in new inputs
+  for( const QString & input : user_input_list_) {
+    if (new_inputs.contains(input) == false) {
+      InputRemoved( input);
+    }
+  }
 }
 
 }  // namespace olive

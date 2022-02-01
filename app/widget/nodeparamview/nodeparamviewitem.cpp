@@ -46,6 +46,7 @@ const int NodeParamViewItemBody::kWidgetStartColumn = 3;
 NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
   node_(node),
+  create_checkboxes_(create_checkboxes),
   keyframe_view_(nullptr)
 {
   node_->Retranslate();
@@ -62,6 +63,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
 
   // for dynamically changed inputs
   connect(node_, &Node::InputListChanged, this, &NodeParamViewItem::OnInputListChanged);
+  connect(node_, &Node::InputRemoved, this, &NodeParamViewItem::OnInputRemoved);
 
   setBackgroundRole(QPalette::Window);
 
@@ -86,8 +88,11 @@ void NodeParamViewItem::OnInputListChanged()
   disconnect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
   disconnect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
 
-  // delete body_; // TODO_ memory leak?
-  body_ = new NodeParamViewItemBody(node_, kNoCheckBoxes);  // TODO_  NodeParamViewCheckBoxBehavior create_checkboxes
+  // TODO: Before creating a new 'NodeParamViewItemBody', we should delete the old one.
+  // However this causes a segmentation fault. Does QT handle this? Is this a memory leak?
+
+  // delete body_;
+  body_ = new NodeParamViewItemBody(node_, create_checkboxes_);
 
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
@@ -98,7 +103,27 @@ void NodeParamViewItem::OnInputListChanged()
   body_->Retranslate();
 
   Q_ASSERT( keyframe_view_ != nullptr);
+
   keyframe_connections_ = keyframe_view_->AddKeyframesOfNode(node_);
+}
+
+void NodeParamViewItem::OnInputRemoved( const QString & id)
+{
+  // remove keyframes of the input, if any.
+  // It is required to find all keyframe view input connections of the input.
+  KeyframeView::InputConnections con = keyframe_connections_.value( id);
+
+  QVectorIterator<KeyframeView::ElementConnections> elem_it( con);
+
+  while (elem_it.hasNext()) {
+    KeyframeView::ElementConnections elem_con = elem_it.next();
+
+    QVectorIterator<KeyframeViewInputConnection *> keyframe_it(elem_con);
+
+    while (keyframe_it.hasNext()) {
+      keyframe_view_->RemoveKeyframesOfTrack( keyframe_it.next());
+    }
+  }
 }
 
 int NodeParamViewItem::GetElementY(const NodeInput &c) const

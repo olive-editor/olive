@@ -23,6 +23,7 @@
 #include <QStringRef>
 #include <QRegularExpression>
 #include <QMap>
+#include <limits>
 
 #include "render/color.h"
 
@@ -74,6 +75,15 @@ const QMap<QString, NodeValue::Type> INPUT_TYPE_TABLE{{"TEXTURE", NodeValue::kTe
                                                       {"BOOLEAN", NodeValue::kBoolean}
                                                      };
 
+// table with default minimum and maximum values for a node type.
+// This is needed to avoid that 0 is used as minimum and maximum if user does not specify one
+const QMap<NodeValue::Type, QVariant> MINIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<float>::min())},
+                                                    {NodeValue::kInt, QVariant( std::numeric_limits<int>::min())}
+                                                   };
+
+const QMap<NodeValue::Type, QVariant> MAXIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<int>::max())},
+                                                    {NodeValue::kInt, QVariant()}
+                                                   };
 
 // features of the input that's currently being parsed
 ShaderInputsParser::InputParam currentInput;
@@ -259,6 +269,9 @@ ShaderInputsParser::parseInputType(const QRegularExpressionMatch & match)
   if (currentInput.type == NodeValue::kNone) {
     reportError(QObject::tr("type %1 is invalid").arg(match.captured("type")));
   }
+
+  currentInput.min = MINIMUM_TABLE.value( currentInput.type, QVariant());
+  currentInput.max = MAXIMUM_TABLE.value( currentInput.type, QVariant());
 
   return PARSING;
 }

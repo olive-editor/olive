@@ -24,6 +24,7 @@
 #include <QPushButton>
 
 #include "dialog/text/text.h"
+#include "dialog/codeeditor/codeeditordialog.h"
 #include "ui/icons/icons.h"
 
 #include <qdebug.h>
@@ -50,12 +51,26 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
 
 void NodeParamViewTextEdit::ShowTextDialog()
 {
-  TextDialog d(this->text(), this);
-  if (d.exec() == QDialog::Accepted) {
-    QString s = d.text();
+  QString text;
 
-    line_edit_->setPlainText(s);
-    emit textEdited(s);
+  if (code_editor_flag_) {
+    CodeEditorDialog d(this->text(), this);
+
+    if (d.exec() == QDialog::Accepted) {
+      text = d.text();
+    }
+  }
+  else {
+    TextDialog d(this->text(), this);
+
+    if (d.exec() == QDialog::Accepted) {
+      text= d.text();
+    }
+  }
+
+  if (text != QString()) {
+    line_edit_->setPlainText( text);
+    emit textEdited( text);
   }
 }
 

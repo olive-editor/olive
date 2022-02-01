@@ -220,6 +220,7 @@ protected slots:
 
 private slots:
   void OnInputListChanged();
+  void OnInputRemoved(const QString &id);
 
 private:
   NodeParamViewItemBody* body_;
@@ -228,6 +229,7 @@ private:
 
   rational time_;
 
+  NodeParamViewCheckBoxBehavior create_checkboxes_;
   KeyframeView::NodeConnections keyframe_connections_;
   KeyframeView * keyframe_view_;
 };
