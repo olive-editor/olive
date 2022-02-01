@@ -42,7 +42,6 @@ public:
     kCodecOpenEXR,
     kCodecPNG,
     kCodecProRes,
-    kCodecCineform,
     kCodecTIFF,
     kCodecVP9,
 

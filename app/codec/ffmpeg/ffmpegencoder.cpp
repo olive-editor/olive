@@ -844,8 +844,6 @@ AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c)
     return avcodec_find_encoder(AV_CODEC_ID_DNXHD);
   case ExportCodec::kCodecProRes:
     return avcodec_find_encoder(AV_CODEC_ID_PRORES);
-    case ExportCodec::kCodecCineform:
-    return avcodec_find_encoder(AV_CODEC_ID_CFHD);
   case ExportCodec::kCodecH265:
     return avcodec_find_encoder(AV_CODEC_ID_HEVC);
   case ExportCodec::kCodecVP9:
