@@ -185,6 +185,9 @@ QWidget *ExportVideoTab::SetupCodecSection()
   h265_section_ = new H265Section();
   codec_stack_->addWidget(h265_section_);
 
+  cineform_section_ = new CineformSection();
+  codec_stack_->addWidget(cineform_section_);
+
   row++;
 
   QPushButton* advanced_btn = new QPushButton(tr("Advanced"));
@@ -239,6 +242,9 @@ void ExportVideoTab::VideoCodecChanged()
       break;
     case ExportCodec::kCodecH265:
       SetCodecSection(h265_section_);
+      break;
+    case ExportCodec::kCodecCineform:
+      SetCodecSection(cineform_section_);
       break;
     default:
       SetCodecSection(ExportCodec::IsCodecAStillImage(codec) ? image_section_ : nullptr);
