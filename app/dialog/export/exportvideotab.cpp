@@ -173,7 +173,7 @@ QWidget *ExportVideoTab::SetupCodecSection()
 
   row++;
 
-  codec_stack_ = new QStackedWidget();
+  codec_stack_ = new CodecStack();
   codec_layout->addWidget(codec_stack_, row, 0, 1, 2);
 
   image_section_ = new ImageSection();

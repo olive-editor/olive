@@ -26,6 +26,7 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "dialog/export/codec/codecstack.h"
 #include "dialog/export/codec/h264section.h"
 #include "dialog/export/codec/imagesection.h"
 #include "node/color/colormanager/colormanager.h"
@@ -155,7 +156,7 @@ private:
   QCheckBox* maintain_aspect_checkbox_;
   QComboBox* scaling_method_combobox_;
 
-  QStackedWidget* codec_stack_;
+  CodecStack* codec_stack_;
   ImageSection* image_section_;
   H264Section* h264_section_;
   H264Section* h265_section_;
