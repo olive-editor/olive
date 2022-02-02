@@ -914,51 +914,57 @@ void ProjectSerializer211228::SaveWorkArea(QXmlStreamWriter *writer, TimelineWor
   writer->writeAttribute(QStringLiteral("out"), workarea->out().toString());
 }
 
+void ProjectSerializer211228::LoadMarker(QXmlStreamReader *reader, TimelineMarkerList *markers) const
+{
+  QString name;
+  int color = -1;
+  rational in, out;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("name")) {
+      name = attr.value().toString();
+    } else if (attr.name() == QStringLiteral("color")) {
+      color = attr.value().toInt();
+    } else if (attr.name() == QStringLiteral("in")) {
+      in = rational::fromString(attr.value().toString());
+    } else if (attr.name() == QStringLiteral("out")) {
+      out = rational::fromString(attr.value().toString());
+    }
+  }
+
+  markers->AddMarker(TimeRange(in, out), name, color);
+
+  // Required to move XML reader to the end of element
+  reader->readElementText();
+}
+
 void ProjectSerializer211228::SaveMarker(QXmlStreamWriter* writer, TimelineMarker* marker) const
 {
-  writer->writeStartElement(QStringLiteral("marker"));
-
   writer->writeAttribute(QStringLiteral("name"), marker->name());
 
   writer->writeAttribute(QStringLiteral("color"), QString::number(marker->color()));
 
   writer->writeAttribute(QStringLiteral("in"), marker->time().in().toString());
   writer->writeAttribute(QStringLiteral("out"), marker->time().out().toString());
-
-  writer->writeEndElement();  // marker
 }
 
 void ProjectSerializer211228::LoadMarkerList(QXmlStreamReader *reader, TimelineMarkerList *markers) const
 {
   while(XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("marker")) {
-      QString name;
-      int color = -1;
-      rational in, out;
-
-      XMLAttributeLoop(reader, attr) {
-        if (attr.name() == QStringLiteral("name")) {
-          name = attr.value().toString();
-        } else if (attr.name() == QStringLiteral("color")) {
-          color = attr.value().toInt();
-        } else if (attr.name() == QStringLiteral("in")) {
-          in = rational::fromString(attr.value().toString());
-        } else if (attr.name() == QStringLiteral("out")) {
-          out = rational::fromString(attr.value().toString());
-        }
-      }
-
-      markers->AddMarker(TimeRange(in, out), name, color);
+      LoadMarker(reader, markers);
+    } else {
+      reader->skipCurrentElement();
     }
-
-    reader->skipCurrentElement();
   }
 }
 
 void ProjectSerializer211228::SaveMarkerList(QXmlStreamWriter *writer, TimelineMarkerList *markers) const
 {
   foreach (TimelineMarker* marker, markers->list()) {
+    writer->writeStartElement(QStringLiteral("marker"));
     SaveMarker(writer, marker);
+    writer->writeEndElement();  // marker
   }
 }
 
