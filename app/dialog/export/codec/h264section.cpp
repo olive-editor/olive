@@ -42,6 +42,26 @@ H264Section::H264Section(int default_crf, QWidget *parent) :
   layout->setMargin(0);
 
   int row = 0;
+  layout->addWidget(new QLabel(tr("Preset:")), row, 0);
+
+  preset_combobox_ = new QComboBox();
+
+  preset_combobox_->addItem(tr("Ultrafast"));
+  preset_combobox_->addItem(tr("Superfast"));
+  preset_combobox_->addItem(tr("Veryfast"));
+  preset_combobox_->addItem(tr("Faster"));
+  preset_combobox_->addItem(tr("Fast"));
+  preset_combobox_->addItem(tr("Medium"));
+  preset_combobox_->addItem(tr("Slow"));
+  preset_combobox_->addItem(tr("Slower"));
+  preset_combobox_->addItem(tr("Veryslow"));
+  
+  //Default to "medium"
+  preset_combobox_->setCurrentIndex(5);
+
+  layout->addWidget(preset_combobox_, row, 1);
+
+  row++;
 
   layout->addWidget(new QLabel(tr("Compression Method:")), row, 0);
 
@@ -110,6 +130,8 @@ void H264Section::AddOpts(EncodingParams *params)
     params->set_video_buffer_size(2000000);
 
   }
+  
+  params->set_video_option(QStringLiteral("preset"), QString::number(preset_combobox_->currentIndex()));
 }
 
 H264CRFSection::H264CRFSection(int default_crf, QWidget *parent) :
