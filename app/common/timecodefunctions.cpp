@@ -157,10 +157,12 @@ int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational 
     // Convert values to integers
     QList<int64_t> timecode_numbers;
 
+    bool negative = timecode.trimmed().startsWith('-');
+
     foreach (const QString& element, timecode_split) {
       valid = true;
 
-      timecode_numbers.append((element.isEmpty()) ? 0 : element.toLong(&valid));
+      timecode_numbers.append((element.isEmpty()) ? 0 : qAbs(element.toLong(&valid)));
 
       // If element cannot be converted to a number,
       if (!valid) {
@@ -203,6 +205,9 @@ int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational 
     }
 
     if (ok) *ok = true;
+
+    if (negative) timestamp = -timestamp;
+
     return timestamp;
   }
   case kMilliseconds:
