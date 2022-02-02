@@ -36,7 +36,6 @@ TempoProcessor::TempoProcessor() :
   filter_graph_(nullptr),
   buffersrc_ctx_(nullptr),
   buffersink_ctx_(nullptr),
-  processed_frame_(nullptr),
   open_(false)
 {
 }
@@ -150,46 +149,41 @@ bool TempoProcessor::Open(const AudioParams &params, const double& speed)
   return true;
 }
 
-void TempoProcessor::Push(const char *data, int length)
+void TempoProcessor::Push(const QByteArray &packed)
 {
-  if (flushed_) {
-    if (length > 0) {
-      qCritical() << "Tried to push" << length << "bytes after TempoProcessor was closed";
-    }
+  if (!IsOpen()) {
+    qWarning() << "Tried to push to closed TempoProcessor";
     return;
   }
 
-  AVFrame* src_frame;
-
-  if (length == 0) {
-    // No audio data, flush the last out of the filter graph
-    src_frame = nullptr;
-    flushed_ = true;
-  } else {
-    src_frame = av_frame_alloc();
-
-    if (!src_frame) {
-      qCritical() << "Failed to allocate source frame";
-      return;
-    }
-
-    // Allocate a buffer for the number of samples we got
-    src_frame->sample_rate = params_.sample_rate();
-    src_frame->format = FFmpegUtils::GetFFmpegSampleFormat(params_.format());
-    src_frame->channel_layout = params_.channel_layout();
-    src_frame->nb_samples = params_.bytes_to_samples(length);
-    src_frame->pts = timestamp_;
-    timestamp_ += src_frame->nb_samples;
-
-    if (av_frame_get_buffer(src_frame, 0) < 0) {
-      qCritical() << "Failed to allocate buffer for source frame";
-      av_frame_free(&src_frame);
-      return;
-    }
-
-    // Copy buffer from data array to frame
-    memcpy(src_frame->data[0], data, static_cast<size_t>(length));
+  if (flushed_) {
+    qWarning() << "Tried to push to flushed TempoProcessor";
+    return;
   }
+
+  AVFrame* src_frame = av_frame_alloc();
+
+  if (!src_frame) {
+    qCritical() << "Failed to allocate source frame";
+    return;
+  }
+
+  // Allocate a buffer for the number of samples we got
+  src_frame->sample_rate = params_.sample_rate();
+  src_frame->format = FFmpegUtils::GetFFmpegSampleFormat(params_.format());
+  src_frame->channel_layout = params_.channel_layout();
+  src_frame->nb_samples = params_.bytes_to_samples(packed.size());
+  src_frame->pts = timestamp_;
+  timestamp_ += src_frame->nb_samples;
+
+  if (av_frame_get_buffer(src_frame, 0) < 0) {
+    qCritical() << "Failed to allocate buffer for source frame";
+    av_frame_free(&src_frame);
+    return;
+  }
+
+  // Copy buffer from data array to frame
+  memcpy(src_frame->data[0], packed, packed.size());
 
   int ret = av_buffersrc_add_frame_flags(buffersrc_ctx_, src_frame, AV_BUFFERSRC_FLAG_KEEP_REF);
 
@@ -202,46 +196,45 @@ void TempoProcessor::Push(const char *data, int length)
   }
 }
 
-int TempoProcessor::Pull(char *data, int max_length)
+void TempoProcessor::Flush()
 {
-  if (!processed_frame_) {
-    processed_frame_ = av_frame_alloc();
-
-    // Try to pull samples from the buffersink
-    int ret = av_buffersink_get_frame(buffersink_ctx_, processed_frame_);
-
+  if (!flushed_) {
+    int ret = av_buffersrc_add_frame_flags(buffersrc_ctx_, nullptr, AV_BUFFERSRC_FLAG_KEEP_REF);
     if (ret < 0) {
-      // We couldn't pull for some reason, if the error was EAGAIN, we just need to send more samples. Otherwise the
-      // error might be fatal...
-      if (ret != AVERROR(EAGAIN)) {
-        qCritical() << "Failed to pull from buffersink" << ret;
-      }
+      qCritical() << "Failed to feed buffer source" << ret;
+    }
+    flushed_ = true;
+  }
+}
 
-      av_frame_free(&processed_frame_);
+QByteArray TempoProcessor::Pull()
+{
+  QByteArray b;
+  AVFrame *processed_frame = av_frame_alloc();
 
-      return 0;
+  // Try to pull samples from the buffersink
+  int ret = av_buffersink_get_frame(buffersink_ctx_, processed_frame);
+
+  if (ret < 0) {
+    // We couldn't pull for some reason, if the error was EAGAIN, we just need to send more samples. Otherwise the
+    // error might be fatal...
+    if (ret != AVERROR(EAGAIN)) {
+      qCritical() << "Failed to pull from buffersink" << ret;
     }
 
-    processed_frame_byte_index_ = 0;
-    processed_frame_max_bytes_ = params_.samples_to_bytes(processed_frame_->nb_samples);
+    av_frame_free(&processed_frame);
+    return b;
   }
 
-  // Determine how many bytes we should copy into the data array
-  int copy_length = qMin(max_length, processed_frame_max_bytes_ - processed_frame_byte_index_);
+  b.resize(params_.samples_to_bytes(processed_frame->nb_samples));
 
   // Copy the bytes
-  memcpy(data, processed_frame_->data[0] + processed_frame_byte_index_, static_cast<size_t>(copy_length));
-
-  // Add the copied amount to the current index
-  processed_frame_byte_index_ += copy_length;
+  memcpy(b.data(), processed_frame->data[0], b.size());
 
   // If the index has reached the limit of this processed frame, we can dispose of the frame now
-  if (processed_frame_byte_index_ == processed_frame_max_bytes_) {
-    av_frame_free(&processed_frame_);
-    processed_frame_ = nullptr;
-  }
+  av_frame_free(&processed_frame);
 
-  return copy_length;
+  return b;
 }
 
 void TempoProcessor::Close()
@@ -251,11 +244,6 @@ void TempoProcessor::Close()
   if (filter_graph_) {
     avfilter_graph_free(&filter_graph_);
     filter_graph_ = nullptr;
-  }
-
-  if (processed_frame_) {
-    av_frame_free(&processed_frame_);
-    processed_frame_ = nullptr;
   }
 
   buffersrc_ctx_ = nullptr;

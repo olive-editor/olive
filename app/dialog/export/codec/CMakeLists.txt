@@ -20,6 +20,8 @@ set(OLIVE_SOURCES
   dialog/export/codec/cineformsection.h
   dialog/export/codec/codecsection.cpp
   dialog/export/codec/codecsection.h
+  dialog/export/codec/codecstack.cpp
+  dialog/export/codec/codecstack.h
   dialog/export/codec/h264section.cpp
   dialog/export/codec/h264section.h
   dialog/export/codec/imagesection.cpp
