@@ -22,6 +22,8 @@ set(OLIVE_SOURCES
   audio/audiovisualwaveform.h
   audio/packedprocessor.cpp
   audio/packedprocessor.h
+  audio/planarprocessor.cpp
+  audio/planarprocessor.h
   audio/tempoprocessor.cpp
   audio/tempoprocessor.h
   PARENT_SCOPE

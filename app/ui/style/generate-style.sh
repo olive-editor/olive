@@ -31,12 +31,10 @@ OUTPUT_SIZES=( 16 32 64 128 )
 
 if [ $# -lt 1 ]
 then
-  echo "Usage: $0 icon-pack-name [options]"
+  echo "Generates sized PNG icons from SVG files"
+  echo "Usage: $0 icon-pack-name"
   echo
   echo "Example: $0 olive-dark"
-  echo
-  echo "Options:"
-  echo "    -n    Only generate QRC file"
   echo
   exit 1
 fi
@@ -44,33 +42,12 @@ fi
 PACKNAME=$1
 SVGDIR=$1/svg
 PNGDIR=$1/png
-QRCFILE=$1/$1.qrc
 
 mkdir -p $PNGDIR
 
-ONLYQRC=0
-
-if [ "$2" == "-n" ]
-then
-  ONLYQRC=1
-fi
-
-truncate -s 0 $QRCFILE
-
-echo "<RCC>" >> $QRCFILE
-echo "  <qresource prefix=\"/style/$PACKNAME\">" >> $QRCFILE
-echo "    <file>style.css</file>" >> $QRCFILE
-echo "    <file>palette.ini</file>" >> $QRCFILE
-
 OutputPng() {
-  echo Creating $2...
-
-  echo "    <file>png/$(basename $2)</file>" >> $QRCFILE
-
-  if [ $ONLYQRC -eq 0 ]
-  then
-    inkscape -z -e $(pwd)/$2 -w $s -h $s $1
-  fi
+  inkscape --export-filename $2.png --export-width $s --export-height $s $1
+  convert $2.png -alpha set -background none -channel A -evaluate multiply 0.25 +channel $2.disabled.png
 }
 
 for f in $SVGDIR/*.svg
@@ -79,9 +56,6 @@ do
 
   for s in "${OUTPUT_SIZES[@]}"
   do
-    OutputPng $f $PNGDIR/$FNBASE.$s.png
+    OutputPng $f $PNGDIR/$FNBASE.$s
   done
 done
-
-echo "  </qresource>" >> $QRCFILE
-echo "</RCC>" >> $QRCFILE

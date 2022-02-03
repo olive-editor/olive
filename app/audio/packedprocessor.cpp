@@ -76,17 +76,12 @@ QByteArray PackedProcessor::Convert(SampleBufferPtr planar)
     return QByteArray();
   }
 
-  int nb_channels = planar->audio_params().channel_count();
-
   QByteArray output(planar->audio_params().samples_to_bytes(nb_samples), Qt::Uninitialized);
   uint8_t *output_data = reinterpret_cast<uint8_t*>(output.data());
 
-  QVector<const uint8_t*> input_arrays(nb_channels);
-  for (int i=0; i<nb_channels; i++) {
-    input_arrays[i] = reinterpret_cast<const uint8_t*>(planar->data(i));
-  }
-
-  int ret = swr_convert(swr_ctx_, &output_data, nb_samples, input_arrays.data(), nb_samples);
+  int ret = swr_convert(swr_ctx_, &output_data, nb_samples,
+                        const_cast<const uint8_t**>(reinterpret_cast<uint8_t**>(planar->to_raw_ptrs())),
+                        nb_samples);
   if (ret < 0) {
     char buf[200];
     av_strerror(ret, buf, 200);

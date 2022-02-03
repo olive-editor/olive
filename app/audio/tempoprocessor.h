@@ -52,9 +52,11 @@ public:
 
   bool Open(const AudioParams& params, const double &speed);
 
-  void Push(const char *data, int length);
+  void Push(const QByteArray &packed);
 
-  int Pull(char* data, int max_length);
+  void Flush();
+
+  QByteArray Pull();
 
   void Close();
 
@@ -66,10 +68,6 @@ private:
   AVFilterContext* buffersrc_ctx_;
 
   AVFilterContext* buffersink_ctx_;
-
-  AVFrame* processed_frame_;
-  int processed_frame_byte_index_;
-  int processed_frame_max_bytes_;
 
   AudioParams params_;
 

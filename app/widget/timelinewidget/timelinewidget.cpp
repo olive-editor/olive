@@ -462,7 +462,8 @@ void TimelineWidget::SplitAtPlayhead()
 void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                            bool remove_from_graph,
                                            MultiUndoCommand *command,
-                                           bool handle_transitions)
+                                           bool handle_transitions,
+                                           bool handle_invalidations)
 {
   foreach (Block* b, blocks) {
     if (dynamic_cast<GapBlock*>(b)) {
@@ -473,7 +474,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
     Track* original_track = b->track();
 
-    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b, handle_transitions));
+    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b, handle_transitions, handle_invalidations));
 
     if (remove_from_graph) {
       command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(b));
@@ -508,6 +509,9 @@ void TimelineWidget::DeleteSelected(bool ripple)
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
+  // Remove all selections
+  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections()));
+
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
     TransitionRemoveCommand *trc = new TransitionRemoveCommand(transition, true);
@@ -519,10 +523,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   }
 
   // Replace clips with gaps (effectively deleting them)
-  ReplaceBlocksWithGaps(clips_to_delete, true, command);
-
-  // Remove all selections
-  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), false));
+  ReplaceBlocksWithGaps(clips_to_delete, true, command, false, !ripple);
 
   // Insert ripple command now that it's all cleaned up gaps
   TimelineRippleDeleteGapsAtRegionsCommand *ripple_command = nullptr;
@@ -1207,7 +1208,7 @@ void TimelineWidget::NudgeInternal(rational amount)
     // Nudge selections
     TimelineWidgetSelections new_sel = GetSelections();
     new_sel.ShiftTime(amount);
-    command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections(), true));
+    command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections()));
 
     Core::instance()->undo_stack()->push(command);
   }
@@ -1259,7 +1260,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
         it.value().shift(track_adj);
       }
     }
-    command->add_child(new SetSelectionsCommand(this, new_sel, GetSelections(), true));
+    command->add_child(new SetSelectionsCommand(this, new_sel, GetSelections()));
 
     Core::instance()->undo_stack()->push(command);
   }
