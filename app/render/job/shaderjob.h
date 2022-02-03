@@ -88,15 +88,12 @@ public:
     interpolation_.insert(id, interp);
   }
 
-  void SetVertexCoordinates(QVector<float> vertex_coords)
+  void SetVertexCoordinates(const QVector<float> &vertex_coords)
   {
-    vertex_overrides_.clear();  
-    foreach (float value, vertex_coords) {
-        vertex_overrides_.append(value);
-    }
+    vertex_overrides_ = vertex_coords;
   }
 
-  QVector<float> GetVertexCoordinates()
+  const QVector<float>& GetVertexCoordinates()
   {
     return vertex_overrides_;
   }
