@@ -63,10 +63,11 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   // Convert slider values to their pixel values and then convert to clip space (-1.0 ... 1.0) for overriding the
   // vertex coordinates.
   const QVector2D &resolution = globals.resolution();
-  QVector2D top_left = QVector2D(ValueToPixel(0, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
-  QVector2D top_right = QVector2D(ValueToPixel(1, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
-  QVector2D bottom_right = QVector2D(ValueToPixel(2, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
-  QVector2D bottom_left = QVector2D(ValueToPixel(3, value, resolution)) / (resolution / 2.0) - QVector2D(1.0, 1.0);
+  QVector2D half_resolution = resolution * 0.5;
+  QVector2D top_left = QVector2D(ValueToPixel(0, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+  QVector2D top_right = QVector2D(ValueToPixel(1, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+  QVector2D bottom_right = QVector2D(ValueToPixel(2, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+  QVector2D bottom_left = QVector2D(ValueToPixel(3, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
 
   // Override default vertex coordinates.
   QVector<float> adjusted_vertices = {top_left.x(), top_left.y(), 0.0f,
