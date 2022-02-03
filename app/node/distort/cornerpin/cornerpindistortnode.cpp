@@ -172,21 +172,6 @@ bool CornerPinDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals
       gizmo_drag_start_ = p;
       gizmo_res_ = globals.resolution();
       gizmo_drag_ = i;
-
-      switch (i) {
-        case 0:
-          gizmo_start_ = row[kTopLeftInput].data();
-          break;
-        case 1:
-          gizmo_start_ = row[kTopRightInput].data();
-          break;
-        case 2:
-          gizmo_start_ = row[kBottomRightInput].data();
-          break;
-        case 3:
-          gizmo_start_ = row[kBottomLeftInput].data();
-          break;
-      }
       return true;
     }
   }
@@ -216,14 +201,9 @@ void CornerPinDistortNode::GizmoMove(const QPointF &p, const rational &time, con
     }
   }
 
-  double x_diff = (p.x() - gizmo_drag_start_.x());
-  double y_diff = (p.y() - gizmo_drag_start_.y());
-
-  QVector2D move = QVector2D(gizmo_start_.value<QVector2D>().x() + x_diff, gizmo_start_.value<QVector2D>().y() + y_diff);
-
-  gizmo_dragger_[0].Drag(move.x());
-  gizmo_dragger_[1].Drag(move.y());
-
+  QPointF diff = p - gizmo_drag_start_;
+  gizmo_dragger_[0].Drag(gizmo_dragger_[0].GetStartValue().toDouble() + diff.x());
+  gizmo_dragger_[1].Drag(gizmo_dragger_[1].GetStartValue().toDouble() + diff.y());
 }
 
 void CornerPinDistortNode::GizmoRelease(MultiUndoCommand *command) {
@@ -231,8 +211,6 @@ void CornerPinDistortNode::GizmoRelease(MultiUndoCommand *command) {
     i.End(command);
   }
   gizmo_dragger_.clear();
-
-  gizmo_start_.clear();
 }
 
 }
