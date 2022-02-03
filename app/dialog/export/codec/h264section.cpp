@@ -42,19 +42,25 @@ H264Section::H264Section(int default_crf, QWidget *parent) :
   layout->setMargin(0);
 
   int row = 0;
-  layout->addWidget(new QLabel(tr("Preset:")), row, 0);
+  layout->addWidget(new QLabel(tr("Encode Speed:")), row, 0);
 
+
+  char presettooltip[] = "<head/><body>This setting allows you to tweak the ratio of export speed to compression quality. <br /> <br />"\
+    " If using Constant Rate Factor, slower speeds will result in smaller file sizes for the same quaity. <br /> <br />"\
+    " If using Target Bit Rate or Target File Size, slower speeds will result in higher quality for the same bitrate/filesize. <br /> <br />"\
+    " This setting is equivalent to the `preset` setting in libx264.<head/>";
   preset_combobox_ = new QComboBox();
+  preset_combobox_->setToolTip(presettooltip);
 
-  preset_combobox_->addItem(tr("Ultrafast"));
-  preset_combobox_->addItem(tr("Superfast"));
-  preset_combobox_->addItem(tr("Veryfast"));
+  preset_combobox_->addItem(tr("Ultra Fast"));
+  preset_combobox_->addItem(tr("Super Fast"));
+  preset_combobox_->addItem(tr("Very Fast"));
   preset_combobox_->addItem(tr("Faster"));
   preset_combobox_->addItem(tr("Fast"));
   preset_combobox_->addItem(tr("Medium"));
   preset_combobox_->addItem(tr("Slow"));
   preset_combobox_->addItem(tr("Slower"));
-  preset_combobox_->addItem(tr("Veryslow"));
+  preset_combobox_->addItem(tr("Very Slow"));
   
   //Default to "medium"
   preset_combobox_->setCurrentIndex(5);
