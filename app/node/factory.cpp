@@ -56,6 +56,7 @@
 #include "project/folder/folder.h"
 #include "project/footage/footage.h"
 #include "project/sequence/sequence.h"
+#include "time/timeoffset/timeoffsetnode.h"
 #include "time/timeremap/timeremap.h"
 #include "config/config.h"
 
@@ -267,6 +268,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new FlipDistortNode();
   case kNoiseGenerator:
     return new NoiseGeneratorNode();
+  case kTimeOffsetNode:
+    return new TimeOffsetNode();
 
   case kInternalNodeCount:
     break;

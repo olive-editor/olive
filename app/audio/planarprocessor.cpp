@@ -18,23 +18,23 @@
 
 ***/
 
-#include "packedprocessor.h"
+#include "planarprocessor.h"
 
 #include "common/ffmpegutils.h"
 
 namespace olive {
 
-PackedProcessor::PackedProcessor() :
+PlanarProcessor::PlanarProcessor() :
   swr_ctx_(nullptr)
 {
 }
 
-PackedProcessor::~PackedProcessor()
+PlanarProcessor::~PlanarProcessor()
 {
   Close();
 }
 
-bool PackedProcessor::Open(const AudioParams &params)
+bool PlanarProcessor::Open(const AudioParams &params)
 {
   if (IsOpen()) {
     return true;
@@ -42,10 +42,10 @@ bool PackedProcessor::Open(const AudioParams &params)
 
   swr_ctx_ = swr_alloc_set_opts(nullptr,
                                 params.channel_layout(),
-                                FFmpegUtils::GetFFmpegSampleFormat(params.format(), false),
+                                FFmpegUtils::GetFFmpegSampleFormat(params.format(), true),
                                 params.sample_rate(),
                                 params.channel_layout(),
-                                FFmpegUtils::GetFFmpegSampleFormat(params.format(), true),
+                                FFmpegUtils::GetFFmpegSampleFormat(params.format(), false),
                                 params.sample_rate(),
                                 0,
                                 nullptr);
@@ -61,37 +61,40 @@ bool PackedProcessor::Open(const AudioParams &params)
     return false;
   }
 
+  params_ = params;
+
   return true;
 }
 
-QByteArray PackedProcessor::Convert(SampleBufferPtr planar)
+SampleBufferPtr PlanarProcessor::Convert(const QByteArray &packed)
 {
   if (!IsOpen()) {
     qCritical() << "Tried to convert while closed";
-    return QByteArray();
+    return nullptr;
   }
 
-  int nb_samples = planar->sample_count();
-  if (nb_samples == 0) {
-    return QByteArray();
+  if (packed.isEmpty()) {
+    return nullptr;
   }
 
-  QByteArray output(planar->audio_params().samples_to_bytes(nb_samples), Qt::Uninitialized);
-  uint8_t *output_data = reinterpret_cast<uint8_t*>(output.data());
+  int nb_samples_per_channel = params_.bytes_to_samples(packed.size());
 
-  int ret = swr_convert(swr_ctx_, &output_data, nb_samples,
-                        const_cast<const uint8_t**>(reinterpret_cast<uint8_t**>(planar->to_raw_ptrs())),
-                        nb_samples);
+  SampleBufferPtr output = SampleBuffer::CreateAllocated(params_, nb_samples_per_channel);
+
+  const uint8_t *input = reinterpret_cast<const uint8_t*>(packed.constData());
+  int ret = swr_convert(swr_ctx_,
+                        reinterpret_cast<uint8_t**>(output->to_raw_ptrs()), nb_samples_per_channel,
+                        &input, nb_samples_per_channel);
   if (ret < 0) {
     char buf[200];
     av_strerror(ret, buf, 200);
-    qDebug() << "Packed processor failed with error:" << buf << ret;
+    qDebug() << "Planar processor failed with error:" << buf << ret;
   }
 
   return output;
 }
 
-void PackedProcessor::Close()
+void PlanarProcessor::Close()
 {
   if (swr_ctx_) {
     swr_free(&swr_ctx_);

@@ -56,7 +56,15 @@ private:
 
   QCheckBox *link_box_;
 
+  QCheckBox *reverse_box_;
+
+  QCheckBox *maintain_audio_pitch_box_;
+
   QCheckBox *ripple_box_;
+
+  int start_reverse_;
+
+  int start_maintain_audio_pitch_;
 
   double start_speed_;
 

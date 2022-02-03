@@ -33,6 +33,7 @@ const QString ClipBlock::kBufferIn = QStringLiteral("buffer_in");
 const QString ClipBlock::kMediaInInput = QStringLiteral("media_in_in");
 const QString ClipBlock::kSpeedInput = QStringLiteral("speed_in");
 const QString ClipBlock::kReverseInput = QStringLiteral("reverse_in");
+const QString ClipBlock::kMaintainAudioPitchInput = QStringLiteral("maintain_audio_pitch_in");
 
 ClipBlock::ClipBlock() :
   in_transition_(nullptr),
@@ -51,6 +52,8 @@ ClipBlock::ClipBlock() :
 
   AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   IgnoreHashingFrom(kReverseInput);
+
+  AddInput(kMaintainAudioPitchInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
   SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
