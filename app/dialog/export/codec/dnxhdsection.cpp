@@ -29,9 +29,13 @@ DNxHDSection::DNxHDSection(QWidget *parent) :
 
   int row = 0;
 
-  layout->addWidget(new QLabel(tr("preset:")), row, 0);
+  layout->addWidget(new QLabel(tr("Profile:")), row, 0);
 
   preset_combobox_ = new QComboBox();
+
+  preset_combobox_->setToolTip(tr("While using DNxHD you may need to manually change pixel format. \n\n"
+            "dnxhr_hqx profile will need you to manually specify pixel format `422p10le` in the advanced menu. \n\n"
+            "dnxhr_444 profile will need you to manually specify pixel format `444p10le` or `gbrp10le` in the advanced menu."));
 
   /* Correspond to the following indexes for FFmpeg
    *
@@ -52,8 +56,8 @@ DNxHDSection::DNxHDSection(QWidget *parent) :
   preset_combobox_->addItem(tr("dnxhr_hqx"));
   preset_combobox_->addItem(tr("dnxhr_444"));
 
-  //Default to "medium"
-  preset_combobox_->setCurrentIndex(3);
+  
+  preset_combobox_->setCurrentIndex(1);
 
   layout->addWidget(preset_combobox_, row, 1);
 }
