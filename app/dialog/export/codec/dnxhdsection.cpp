@@ -45,7 +45,7 @@ DNxHDSection::DNxHDSection(QWidget *parent) :
    *
    */
 
-  preset_combobox_->addItem(tr("dnxhd"));
+  //preset_combobox_->addItem(tr("dnxhd"));
   preset_combobox_->addItem(tr("dnxhr_lb"));
   preset_combobox_->addItem(tr("dnxhr_sq"));
   preset_combobox_->addItem(tr("dnxhr_hq"));
@@ -60,7 +60,7 @@ DNxHDSection::DNxHDSection(QWidget *parent) :
 
 void DNxHDSection::AddOpts(EncodingParams *params)
 {
-  params->set_video_option(QStringLiteral("profile"), QString::number(preset_combobox_->currentIndex()));
+  params->set_video_option(QStringLiteral("profile"), QString::number(preset_combobox_->currentIndex() + 1));
 }
 
 } 
