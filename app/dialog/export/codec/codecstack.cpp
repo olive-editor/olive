@@ -18,55 +18,36 @@
 
 ***/
 
-#ifndef EXPORTCODEC_H
-#define EXPORTCODEC_H
-
-#include <QObject>
-#include <QString>
-
-#include "common/define.h"
-#include "render/subtitleparams.h"
+#include "codecstack.h"
 
 namespace olive {
 
-class ExportCodec : public QObject
+#define super QStackedWidget
+
+CodecStack::CodecStack(QWidget *parent)
+  : super{parent}
 {
-  Q_OBJECT
-public:
-  enum Codec {
-    // Video codecs
-    kCodecDNxHD,
-    kCodecH264,
-    kCodecH264rgb,
-    kCodecH265,
-    kCodecOpenEXR,
-    kCodecPNG,
-    kCodecProRes,
-    kCodecCineform,
-    kCodecTIFF,
-    kCodecVP9,
-
-    // Audio codecs
-    kCodecMP2,
-    kCodecMP3,
-    kCodecAAC,
-    kCodecPCM,
-    kCodecOpus,
-    kCodecVorbis,
-    kCodecFLAC,
-
-    // Subtitle codecs
-    kCodecSRT,
-
-    kCodecCount
-  };
-
-  static QString GetCodecName(Codec c);
-
-  static bool IsCodecAStillImage(Codec c);
-
-};
-
+  connect(this, &CodecStack::currentChanged, this, &CodecStack::OnChange);
 }
 
-#endif // EXPORTCODEC_H
+void CodecStack::addWidget(QWidget *widget)
+{
+  super::addWidget(widget);
+
+  OnChange(currentIndex());
+}
+
+void CodecStack::OnChange(int index)
+{
+  for (int i=0; i<count(); i++) {
+    if (i == index) {
+      widget(i)->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    } else {
+      widget(i)->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    }
+    widget(i)->adjustSize();
+  }
+  adjustSize();
+}
+
+}

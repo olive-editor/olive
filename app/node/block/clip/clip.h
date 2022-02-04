@@ -71,6 +71,21 @@ public:
     return GetStandardValue(kReverseInput).toBool();
   }
 
+  void set_reverse(bool e)
+  {
+    SetStandardValue(kReverseInput, e);
+  }
+
+  bool maintain_audio_pitch() const
+  {
+    return GetStandardValue(kMaintainAudioPitchInput).toBool();
+  }
+
+  void set_maintain_audio_pitch(bool e)
+  {
+    SetStandardValue(kMaintainAudioPitchInput, e);
+  }
+
   TransitionBlock* in_transition()
   {
     return in_transition_;
@@ -110,6 +125,7 @@ public:
   static const QString kMediaInInput;
   static const QString kSpeedInput;
   static const QString kReverseInput;
+  static const QString kMaintainAudioPitchInput;
 
 protected:
   virtual void LinkChangeEvent() override;

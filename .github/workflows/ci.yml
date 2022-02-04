@@ -285,11 +285,18 @@ jobs:
             os-arch: x86_64
             os: macos-10.15
             cmake-gen: Ninja
+          - build-type: RelWithDebInfo
+            compiler-name: Clang LLVM
+            os-name: macOS
+            os-arch: arm64
+            os: macos-11.0
+            cmake-gen: Ninja
     env:
       DEP_LOCATION: /opt/olive-editor
     name: |
       ${{ matrix.os-name }}
-      <${{ matrix.compiler-name }},
+      <${{ matrix.os-arch }},
+       ${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ${{ matrix.os }}
@@ -314,15 +321,16 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-x86_64.tar.gz
-          sudo tar xzf olive-dep-mac-x86_64.tar.gz -C /
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-${{ matrix.os-arch }}.tar.gz
+          sudo tar xzf olive-dep-mac-${{ matrix.os-arch }}.tar.gz -C /
 
       - name: Acquire Google Crashpad
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-x86_64.tar.gz
-          sudo tar xzf crashpad-mac-x86_64.tar.gz -C /
+          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-${{ matrix.os-arch }}.tar.gz
+          sudo tar xzf crashpad-mac-${{ matrix.os-arch }}.tar.gz -C /
+        if: matrix.os-arch == 'x86_64' # TEMPORARY: Crashpad isn't compiling on ARM64 yet for some reason
 
       - name: Generate Patreon List
         env:
@@ -341,7 +349,8 @@ jobs:
           brew install ninja
           PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}"
+              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}" \
+              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}"
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -354,6 +363,7 @@ jobs:
         shell: bash
         run: |
           ctest -C ${{ matrix.build-type }} -V
+        if: matrix.os-arch == 'x86_64' # ARM64 tests naturally won't be able to run on x86_64 runners
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
@@ -361,27 +371,34 @@ jobs:
           BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
-          # Use macdeployqt and macdeployqt to bundle dependencies
+          brew install dylibbundler
+
+          if [ "${{ matrix.os-arch }}" == "x86_64" ]
+          then
+            DYLIBBUNDLER_EXTRA_ARGS="-x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler"
+          fi
+
           mv app/$BUNDLE_NAME .
-          $DEP_LOCATION/bin/macdeployqt $BUNDLE_NAME -executable=$BUNDLE_NAME/Contents/MacOS/olive-crashhandler
-          $DOWNLOAD_TOOL https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-          python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive $VCPKG_ROOT/installed/x64-osx
+          mkdir $BUNDLE_NAME/Contents/Frameworks
+          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
-          # Manual corrections
-          for f in $BUNDLE_NAME/Contents/Frameworks/*.dylib
-          do
-            for r in $(otool -L $f | grep "@rpath" | awk '{print $1;}')
-            do
-              install_name_tool -change $r ${r//rpath/loader_path} $f
-            done
-          done
+          # Copy Qt frameworks and plugins
+          cp -R $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
+          cp -R $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
 
-          # Crashpad symbols
-          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
-          SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
-          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
-          mkdir -p "$SYM_DIR"
-          mv Olive.sym "$SYM_DIR"
+          # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
+          #       but perhaps I'll bring it up with them soon.
+          cp $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
+
+          if [ "${{ matrix.os-arch }}" == "x86_64" ]
+          then
+            # Crashpad symbols
+            $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
+            SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
+            SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
+            mkdir -p "$SYM_DIR"
+            mv Olive.sym "$SYM_DIR"
+          fi
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build

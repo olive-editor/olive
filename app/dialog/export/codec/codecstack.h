@@ -18,55 +18,28 @@
 
 ***/
 
-#ifndef EXPORTCODEC_H
-#define EXPORTCODEC_H
+#ifndef CODECSTACK_H
+#define CODECSTACK_H
 
-#include <QObject>
-#include <QString>
-
-#include "common/define.h"
-#include "render/subtitleparams.h"
+#include <QStackedWidget>
 
 namespace olive {
 
-class ExportCodec : public QObject
+class CodecStack : public QStackedWidget
 {
   Q_OBJECT
 public:
-  enum Codec {
-    // Video codecs
-    kCodecDNxHD,
-    kCodecH264,
-    kCodecH264rgb,
-    kCodecH265,
-    kCodecOpenEXR,
-    kCodecPNG,
-    kCodecProRes,
-    kCodecCineform,
-    kCodecTIFF,
-    kCodecVP9,
+  explicit CodecStack(QWidget *parent = nullptr);
 
-    // Audio codecs
-    kCodecMP2,
-    kCodecMP3,
-    kCodecAAC,
-    kCodecPCM,
-    kCodecOpus,
-    kCodecVorbis,
-    kCodecFLAC,
+  void addWidget(QWidget *widget);
 
-    // Subtitle codecs
-    kCodecSRT,
+signals:
 
-    kCodecCount
-  };
-
-  static QString GetCodecName(Codec c);
-
-  static bool IsCodecAStillImage(Codec c);
+private slots:
+  void OnChange(int index);
 
 };
 
 }
 
-#endif // EXPORTCODEC_H
+#endif // CODECSTACK_H

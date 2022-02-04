@@ -23,6 +23,7 @@
 
 #include <QSlider>
 #include <QStackedWidget>
+#include <QComboBox>
 
 #include "codecsection.h"
 #include "widget/slider/floatslider.h"
@@ -111,6 +112,7 @@ private:
 
   H264FileSizeSection* filesize_section_;
 
+  QComboBox *preset_combobox_;
 };
 
 class H265Section : public H264Section
