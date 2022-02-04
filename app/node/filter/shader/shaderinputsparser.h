@@ -46,6 +46,8 @@ public:
     QString uniform_name;
     // so far, not used
     QString description;
+    // string for input type
+    QString type_string;
 
     NodeValue::Type type;
     InputFlags flags;

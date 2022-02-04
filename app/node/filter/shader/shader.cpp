@@ -72,15 +72,20 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
   Q_UNUSED(element)
 
 
-  if (input == kShaderCode)
-  {
-    // save shader code to return it by 'GetShaderCode'
-    shader_code_ = GetStandardValue(kShaderCode).value<QString>();
+  if (input == kShaderCode) {
+    // for some reason, this function is called more than once for each input
+    // of each instance. Parse code only if it has changed
+    QString new_code = GetStandardValue(kShaderCode).value<QString>();
 
-    // the code of the shader has changed.
-    // Remove all inputs and re-parse the code
-    // to fix shader name and input parameters.
-    onShaderCodeChanged();
+    if (shader_code_ != new_code) {
+
+      shader_code_ = new_code;
+
+      // the code of the shader has changed.
+      // Remove all inputs and re-parse the code
+      // to fix shader name and input parameters.
+      onShaderCodeChanged();
+    }
   }
 }
 
@@ -98,7 +103,7 @@ void olive::ShaderFilterNode::onShaderCodeChanged()
   // ... and create new inputs
   parseShaderCode();
 
-  qDebug() << "parsed shader code for " << GetLabel();
+  qDebug() << "parsed shader code for " << GetLabel() << " @ " << (uint64_t)this;
 }
 
 QString ShaderFilterNode::Description() const
@@ -155,7 +160,7 @@ void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
   if (errors.length() > 0) {
     message.append(tr("<p>Shader %1 has metadata errors. "
                       "These are not related to the shader code, just to metadata</p>").
-                   arg("parser.ShaderName()"));
+                   arg(parser.ShaderName()));
   }
 
   for (ShaderInputsParser::Error e : errors ) {

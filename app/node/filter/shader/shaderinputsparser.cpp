@@ -93,16 +93,12 @@ void clearCurrentInput()
   currentInput.human_name.clear();
   currentInput.uniform_name.clear();
   currentInput.description.clear();
+  currentInput.type_string.clear();
   currentInput.type = NodeValue::kNone;
   currentInput.flags = InputFlags(kInputFlagNormal);
   currentInput.min = QVariant();
   currentInput.max = QVariant();
   currentInput.default_value = QVariant();
-}
-
-QString textForType( NodeValue::Type type)
-{
-  return INPUT_TYPE_TABLE.key( type, "NONE");
 }
 
 }  // namespace
@@ -264,12 +260,14 @@ ShaderInputsParser::parseInputUniform(const QRegularExpressionMatch & match)
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputType(const QRegularExpressionMatch & match)
 {
-  currentInput.type = INPUT_TYPE_TABLE.value( match.captured("type"), NodeValue::kNone);
+  currentInput.type_string = match.captured("type");
+  currentInput.type = INPUT_TYPE_TABLE.value( currentInput.type_string, NodeValue::kNone);
 
   if (currentInput.type == NodeValue::kNone) {
-    reportError(QObject::tr("type %1 is invalid").arg(match.captured("type")));
+    reportError(QObject::tr("type %1 is invalid").arg(currentInput.type_string));
   }
 
+  // preset 'min' and 'max', in case they are not defined
   currentInput.min = MINIMUM_TABLE.value( currentInput.type, QVariant());
   currentInput.max = MAXIMUM_TABLE.value( currentInput.type, QVariant());
 
@@ -321,7 +319,7 @@ ShaderInputsParser::parseInputMin(const QRegularExpressionMatch & match)
 
   if (ok == false) {
     reportError(QObject::tr("%1 is not valid as minimum for type %2").
-                arg(min_str).arg(textForType(currentInput.type)));
+                arg(min_str).arg(currentInput.type_string));
   }
 
   return PARSING;
@@ -345,7 +343,7 @@ ShaderInputsParser::parseInputMax(const QRegularExpressionMatch & match)
 
   if (ok == false) {
     reportError(QObject::tr("%1 is not valid as maximum for type %2").
-                arg(max_str).arg(textForType(currentInput.type)));
+                arg(max_str).arg(currentInput.type_string));
   }
 
   return PARSING;
@@ -407,7 +405,7 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
   default:
   case NodeValue::kTexture:
   case NodeValue::kNone:
-    reportError(QObject::tr("type %1 does not support a default value").arg(textForType(currentInput.type)));
+    reportError(QObject::tr("type %1 does not support a default value").arg(currentInput.type_string));
     break;
   }
 
