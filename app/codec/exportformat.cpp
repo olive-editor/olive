@@ -117,7 +117,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
   case kFormatTIFF:
     return {ExportCodec::kCodecTIFF};
   case kFormatQuickTime:
-    return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265, ExportCodec::kCodecProRes, ExportCodec::kCodecCineform};
+    return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265, ExportCodec::kCodecProRes, ExportCodec::kCodecCineform, ExportCodec::kCodecDNxHD};
   case kFormatWebM:
     return {ExportCodec::kCodecVP9};
   case kFormatOgg:

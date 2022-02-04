@@ -188,6 +188,9 @@ QWidget *ExportVideoTab::SetupCodecSection()
   cineform_section_ = new CineformSection();
   codec_stack_->addWidget(cineform_section_);
 
+  dnxhd_section_ = new DNxHDSection();
+  codec_stack_->addWidget(dnxhd_section_);
+  
   row++;
 
   QPushButton* advanced_btn = new QPushButton(tr("Advanced"));
@@ -245,6 +248,9 @@ void ExportVideoTab::VideoCodecChanged()
       break;
     case ExportCodec::kCodecCineform:
       SetCodecSection(cineform_section_);
+      break;
+    case ExportCodec::kCodecDNxHD:
+      SetCodecSection(dnxhd_section_);
       break;
     default:
       SetCodecSection(ExportCodec::IsCodecAStillImage(codec) ? image_section_ : nullptr);

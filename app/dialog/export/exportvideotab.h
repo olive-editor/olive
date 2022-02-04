@@ -29,6 +29,7 @@
 #include "dialog/export/codec/cineformsection.h"
 #include "dialog/export/codec/codecstack.h"
 #include "dialog/export/codec/h264section.h"
+#include "dialog/export/codec/dnxhdsection.h"
 #include "dialog/export/codec/imagesection.h"
 #include "node/color/colormanager/colormanager.h"
 #include "widget/colorwheel/colorspacechooser.h"
@@ -162,6 +163,7 @@ private:
   H264Section* h264_section_;
   H264Section* h265_section_;
   CineformSection *cineform_section_;
+  DNxHDSection *dnxhd_section_;
 
   ColorSpaceChooser* color_space_chooser_;
 
