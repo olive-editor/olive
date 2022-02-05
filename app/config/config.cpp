@@ -135,6 +135,13 @@ void Config::SetDefaults()
   // Online/offline settings
   SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat32);
   SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat16);
+
+  // Code editor
+  SetEntryInternal(QStringLiteral("EditorUseInternal"), NodeValue::kBoolean, true);
+
+  SetEntryInternal(QStringLiteral("EditorExternalCommand"), NodeValue::kText, QString());
+  SetEntryInternal(QStringLiteral("EditorInternalFontSize"), NodeValue::kInt, 14);
+  SetEntryInternal(QStringLiteral("EditorInternalIndentSize"), NodeValue::kInt, 3);
 }
 
 void Config::Load()

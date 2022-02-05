@@ -32,6 +32,7 @@
 #include "tabs/preferencesdisktab.h"
 #include "tabs/preferencesaudiotab.h"
 #include "tabs/preferenceskeyboardtab.h"
+#include "tabs/preferencesedittab.h"
 
 namespace olive {
 
@@ -46,6 +47,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   AddTab(new PreferencesDiskTab(), tr("Disk"));
   AddTab(new PreferencesAudioTab(), tr("Audio"));
   AddTab(new PreferencesKeyboardTab(main_menu_bar), tr("Keyboard"));
+  AddTab(new PreferencesEditTab(), tr("Text Editor"));
 }
 
 }

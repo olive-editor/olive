@@ -47,15 +47,19 @@ signals:
 
 protected:
   void resizeEvent(QResizeEvent *event) override;
+  void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
   void updateLineNumberAreaWidth(int newBlockCount);
   void highlightCurrentLine();
   void updateLineNumberArea(const QRect &, int);
 
+private:
+  int countTrailingSpaces( int block_position);
 
 private:
   QWidget * m_lineNumberArea;
+  int indent_size_;
 };
 
 /// @brief helper widget to print line numbers

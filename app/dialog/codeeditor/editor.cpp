@@ -19,6 +19,7 @@
 ***/
 
 #include "editor.h"
+#include "config/config.h"
 
 #include <QDebug>
 #include <QDialogButtonBox>
@@ -57,8 +58,17 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
   QFont font("Monospace");
   font.setStyleHint(QFont::TypeWriter);  // use monospaced font for all platform
-  font.setPointSize( 14);
   setFont( font);
+  QFontMetrics metrics(font);
+
+  bool valid;
+  int fontSize = Config::Current()["EditorInternalFontSize"].toInt( & valid);
+  fontSize = valid ? fontSize : 14;
+  font.setPointSize( fontSize);
+
+  indent_size_ = Config::Current()["EditorInternalIndentSize"].toInt( & valid);
+  indent_size_ = (valid && (indent_size_ > 0)) ? indent_size_ : 3;
+  setTabStopDistance( (qreal)(indent_size_) * metrics.horizontalAdvance(' '));
 
   setStyleSheet("QPlainTextEdit { background-color: black }");
 }
@@ -175,4 +185,63 @@ void LineNumberArea::paintEvent(QPaintEvent *event)
   code_editor_->lineNumberAreaPaintEvent(event);
 }
 
+void CodeEditor::keyPressEvent(QKeyEvent *event)
+{
+  // replace tab with spaces
+  if (event->key() == Qt::Key_Tab) {
+    int currentColumn = textCursor().positionInBlock();
+
+    // always add at least one space
+    do {
+      insertPlainText(" ");
+      currentColumn++;
+    } while( (currentColumn % indent_size_) != 0);
+  }
+  else if ((event->key() == Qt::Key_Return) || (event->key() == Qt::Key_Enter)) {
+    // we have not changed line yet. Count blanks of current line
+    int n_space = countTrailingSpaces( textCursor().block().position());
+
+    // append new line
+    QPlainTextEdit::keyPressEvent( event);
+
+    // indent the new line with the same white spaces as previous line
+    insertPlainText( QString(' ').repeated(n_space));
+  }
+  else {
+    QPlainTextEdit::keyPressEvent( event);
+  }
+}
+
+// count the number of whitespaces at the begin of current line.
+// In case of TAB, a number between 1 and 'indent_size_' is added.
+// The returned value is always in spaces, not in tabs.
+int CodeEditor::countTrailingSpaces(int block_position)
+{
+  int n_spaces = 0;
+  QString text = toPlainText();
+  bool done = false;
+
+  Q_ASSERT( indent_size_ > 0);
+
+  while( done == false) {
+    switch (text.at(block_position).toLatin1()) {
+    case ' ':
+      n_spaces++;
+      break;
+    case '\t':
+      n_spaces =((n_spaces / indent_size_) * indent_size_) + indent_size_;
+      break;
+    default:
+      done = true;
+    }
+
+    block_position++;
+  }
+
+  return n_spaces;
+}
+
+
+
 }  // namespace olive
+
