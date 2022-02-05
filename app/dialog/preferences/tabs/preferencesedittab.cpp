@@ -38,6 +38,10 @@ PreferencesEditTab::PreferencesEditTab()
 
   QGroupBox* selection_group = new QGroupBox(tr("Select editor"));
   outer_layout->addWidget(selection_group);
+  QGroupBox * internal_editor_box = new QGroupBox(tr("Internal editor"));
+  outer_layout->addWidget(internal_editor_box);
+  QGroupBox * external_editor_box = new QGroupBox(tr("External editor"));
+  outer_layout->addWidget(external_editor_box);
 
   QVBoxLayout* editor_slect_layout = new QVBoxLayout(selection_group);
   use_internal_editor_ = new QRadioButton(tr("Use internal code editor"));
@@ -46,22 +50,17 @@ PreferencesEditTab::PreferencesEditTab()
   editor_slect_layout->addWidget(use_internal_editor_);
   editor_slect_layout->addWidget(use_external_editor_);
 
-  internal_editor_box_ = new QGroupBox(tr("Internal editor"));
-  external_editor_box_ = new QGroupBox(tr("External editor"));
-  outer_layout->addWidget(internal_editor_box_);
-  outer_layout->addWidget(external_editor_box_);
-
   connect( use_internal_editor_, & QRadioButton::clicked,
-           internal_editor_box_, & QGroupBox::setEnabled);
+           internal_editor_box, & QGroupBox::setEnabled);
   connect( use_internal_editor_, & QRadioButton::clicked,
-           external_editor_box_, & QGroupBox::setDisabled);
+           external_editor_box, & QGroupBox::setDisabled);
   connect( use_external_editor_, & QRadioButton::clicked,
-           external_editor_box_, & QGroupBox::setEnabled);
+           external_editor_box, & QGroupBox::setEnabled);
   connect( use_external_editor_, & QRadioButton::clicked,
-           internal_editor_box_, & QGroupBox::setDisabled);
+           internal_editor_box, & QGroupBox::setDisabled);
 
   //internal editor
-  QGridLayout * internal_editor_layout = new QGridLayout(internal_editor_box_);
+  QGridLayout * internal_editor_layout = new QGridLayout(internal_editor_box);
   internal_editor_layout->addWidget( new QLabel(tr("Font size")), 1, 1);
   font_size_ = new QSpinBox();
   internal_editor_layout->addWidget( font_size_, 1, 2);
@@ -70,24 +69,24 @@ PreferencesEditTab::PreferencesEditTab()
   internal_editor_layout->addWidget( indent_size_, 2, 2);
   internal_editor_layout->addItem( new QSpacerItem(1,1, QSizePolicy::Expanding), 1, 3);
   internal_editor_layout->addItem( new QSpacerItem(1,1, QSizePolicy::Expanding), 2, 3);
-  outer_layout->addWidget(internal_editor_box_);
+  outer_layout->addWidget(internal_editor_box);
 
   //external editor
-  QVBoxLayout * external_editor_layout = new QVBoxLayout(external_editor_box_);
+  QVBoxLayout * external_editor_layout = new QVBoxLayout(external_editor_box);
   external_editor_layout->addWidget(
         new QLabel(tr("<p>Command to launch external editor.</p>"
                       "<p>Use <i>%FILE</i> for text file path and <i>%LINE</i> for line number.</p>")));
   ext_command_ = new QLineEdit();
   external_editor_layout->addWidget( ext_command_);
-  outer_layout->addWidget(external_editor_box_);
+  outer_layout->addWidget(external_editor_box);
 
   outer_layout->addStretch();
 
   bool use_internal = Config::Current()["EditorUseInternal"].toBool();
   use_internal_editor_->setChecked( use_internal);
   use_external_editor_->setChecked( ! use_internal);
-  internal_editor_box_->setEnabled( use_internal);
-  external_editor_box_->setEnabled( ! use_internal);
+  internal_editor_box->setEnabled( use_internal);
+  external_editor_box->setEnabled( ! use_internal);
   font_size_->setValue( Config::Current()["EditorInternalFontSize"].toInt());
   indent_size_->setValue( Config::Current()["EditorInternalIndentSize"].toInt());
   ext_command_->setText( Config::Current()["EditorExternalCommand"].toString());

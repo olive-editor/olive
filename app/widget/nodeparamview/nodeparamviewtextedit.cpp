@@ -26,6 +26,9 @@
 #include "dialog/text/text.h"
 #include "dialog/codeeditor/codeeditordialog.h"
 #include "ui/icons/icons.h"
+#include "dialog/codeeditor/externaleditorproxy.h"
+#include "config/config.h"
+
 
 #include <qdebug.h>
 namespace olive {
@@ -47,6 +50,10 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   edit_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   layout->addWidget(edit_btn);
   connect(edit_btn, &QPushButton::clicked, this, &NodeParamViewTextEdit::ShowTextDialog);
+
+  ext_editor_proxy_ = new ExternalEditorProxy( this);
+  connect( ext_editor_proxy_, & ExternalEditorProxy::textChanged,
+           this, & NodeParamViewTextEdit::OnTextChangedExternally);
 }
 
 void NodeParamViewTextEdit::ShowTextDialog()
@@ -54,10 +61,16 @@ void NodeParamViewTextEdit::ShowTextDialog()
   QString text;
 
   if (code_editor_flag_) {
-    CodeEditorDialog d(this->text(), this);
 
-    if (d.exec() == QDialog::Accepted) {
-      text = d.text();
+    if (Config::Current()["EditorUseInternal"].toBool()) {
+      CodeEditorDialog d(this->text(), this);
+
+      if (d.exec() == QDialog::Accepted) {
+        text = d.text();
+      }
+    }
+    else {
+      ext_editor_proxy_->launch( this->text());
     }
   }
   else {
@@ -77,6 +90,12 @@ void NodeParamViewTextEdit::ShowTextDialog()
 void NodeParamViewTextEdit::InnerWidgetTextChanged()
 {
   emit textEdited(this->text());
+}
+
+void NodeParamViewTextEdit::OnTextChangedExternally(const QString &new_text)
+{
+  line_edit_->setPlainText( new_text);
+  emit textEdited( new_text);
 }
 
 void NodeParamViewTextEdit::setCodeEditoFlag()

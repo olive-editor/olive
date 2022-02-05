@@ -28,6 +28,9 @@
 
 namespace olive {
 
+class ExternalEditorProxy;
+
+
 class NodeParamViewTextEdit : public QWidget
 {
   Q_OBJECT
@@ -71,11 +74,14 @@ signals:
 private:
   QPlainTextEdit* line_edit_;
   bool code_editor_flag_;
+  ExternalEditorProxy * ext_editor_proxy_;
 
 private slots:
   void ShowTextDialog();
 
   void InnerWidgetTextChanged();
+
+  void OnTextChangedExternally( const QString & new_text);
 
 };
 

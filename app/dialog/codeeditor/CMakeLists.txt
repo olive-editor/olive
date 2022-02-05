@@ -22,5 +22,7 @@ set(OLIVE_SOURCES
   dialog/codeeditor/glslhighlighter.cpp
   dialog/codeeditor/codeeditordialog.h
   dialog/codeeditor/codeeditordialog.cpp
+  dialog/codeeditor/externaleditorproxy.h
+  dialog/codeeditor/externaleditorproxy.cpp
   PARENT_SCOPE
 )

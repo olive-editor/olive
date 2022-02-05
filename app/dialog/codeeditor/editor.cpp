@@ -58,13 +58,13 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
   QFont font("Monospace");
   font.setStyleHint(QFont::TypeWriter);  // use monospaced font for all platform
-  setFont( font);
   QFontMetrics metrics(font);
-
   bool valid;
   int fontSize = Config::Current()["EditorInternalFontSize"].toInt( & valid);
   fontSize = valid ? fontSize : 14;
   font.setPointSize( fontSize);
+
+  setFont( font);
 
   indent_size_ = Config::Current()["EditorInternalIndentSize"].toInt( & valid);
   indent_size_ = (valid && (indent_size_ > 0)) ? indent_size_ : 3;

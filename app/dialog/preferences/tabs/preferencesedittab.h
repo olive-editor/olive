@@ -44,12 +44,8 @@ public:
   virtual void Accept(MultiUndoCommand* command) override;
 
 private:
-  // TODO_ can be local !!
   QRadioButton * use_internal_editor_;
   QRadioButton * use_external_editor_;
-
-  QGroupBox * internal_editor_box_;
-  QGroupBox * external_editor_box_;
 
   // for internal editor
   QSpinBox * font_size_;
