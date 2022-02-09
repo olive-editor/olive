@@ -24,11 +24,16 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include <QDialog>
+#include <QLabel>
+#include <QLayout>
+
 #include "shaderinputsparser.h"
 
 namespace olive {
 
 const QString ShaderFilterNode::kShaderCode = QStringLiteral("source");
+const QString ShaderFilterNode::kOutputMessages = QStringLiteral("issues");
 
 
 ShaderFilterNode::ShaderFilterNode()
@@ -37,9 +42,13 @@ ShaderFilterNode::ShaderFilterNode()
   // with mark-up comments.
   AddInput(kShaderCode, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  // mark this text input as code, so it will be edited with code editor and not
-  // with a simple textbox
-  SetInputProperty( kShaderCode, QStringLiteral("is_shader_code"), true);
+  // Output messages of shader parser
+  AddInput(kOutputMessages, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
+  // mark this text input as code, so it will be edited with code editor
+  SetInputProperty( kShaderCode, QStringLiteral("text_type"), QString("shader_code"));
+  // mark this text input as output messages
+  SetInputProperty( kOutputMessages, QStringLiteral("text_type"), QString("shader_issues"));
 }
 
 Node *ShaderFilterNode::copy() const
@@ -113,9 +122,10 @@ QString ShaderFilterNode::Description() const
 
 void ShaderFilterNode::Retranslate()
 {
-  // Retranslate the only fixed input.
+  // Retranslate the only fixed inputs.
   // Other inputs are read from the shader code
   SetInputName( kShaderCode, tr("Shader code"));
+  SetInputName( kOutputMessages, tr("Issues"));
 }
 
 ShaderCode ShaderFilterNode::GetShaderCode(const QString &shader_id) const
@@ -155,23 +165,15 @@ void ShaderFilterNode::parseShaderCode()
 void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
 {
   const QList<ShaderInputsParser::Error> & errors = parser.ErrorList();
-  QString message;
 
-  if (errors.length() > 0) {
-    message.append(tr("<p>Shader %1 has metadata errors. "
-                      "These are not related to the shader code, just to metadata</p>").
-                   arg(parser.ShaderName()));
-  }
+  QString message = QString(tr("There are %1 issues.\n").arg(errors.size()));
 
   for (ShaderInputsParser::Error e : errors ) {
-    // need to translate?
-    message.append(QString("<p><i>Line <b>%1</b>:</i> %2</p>").arg(e.line).arg( e.issue));
+    message.append(QString("\"%1\" line %2: %3\n").
+                   arg( parser.ShaderName()).arg(e.line).arg(e.issue));
   }
 
-  // we use a message box because the editor has been closed
-  if (message != QString()) {
-    QMessageBox::warning(nullptr, tr("Shader metadata errors"), message);
-  }
+  SetStandardValue( kOutputMessages, QVariant::fromValue<QString>(message));
 }
 
 void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)

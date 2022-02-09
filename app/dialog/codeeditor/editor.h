@@ -22,6 +22,7 @@
 #define CODEEDITOR_H
 
 #include <QPlainTextEdit>
+#include <QTextDocument>
 
 namespace olive {
 
@@ -38,12 +39,17 @@ public:
   void lineNumberAreaPaintEvent(QPaintEvent *event);
   int lineNumberAreaWidth();
 
-  void setEditMode( bool isEditMode);
-
   void gotoLineNumber(int lineNumber);
 
+public slots:
+   void onSearchBackwardRequest( const QString & text, QTextDocument::FindFlags flags);
+   void onSearchForwardRequest( const QString & text, QTextDocument::FindFlags flags);
+   void onReplaceTextRequest( const QString &src, const QString &dest,
+                              QTextDocument::FindFlags flags, bool thenFind);
+
 signals:
-  void lineDoubleClicked( int blockNumber);
+   // search operation failed
+   void textNotFound();
 
 protected:
   void resizeEvent(QResizeEvent *event) override;

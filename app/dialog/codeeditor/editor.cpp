@@ -28,6 +28,7 @@
 #include <QVBoxLayout>
 #include <QPainter>
 #include <QTextBlock>
+#include <QTextDocumentFragment>
 
 #include "glslhighlighter.h"
 
@@ -94,6 +95,73 @@ void CodeEditor::gotoLineNumber(int lineNumber)
   QTextCursor cursor(document()->findBlockByLineNumber(lineNumber - 1));
   setTextCursor(cursor);
   highlightCurrentLine();
+}
+
+void CodeEditor::onSearchBackwardRequest(const QString &text, QTextDocument::FindFlags flags)
+{
+  // try to find backword
+  bool found = find( text, flags | QTextDocument::FindBackward);
+
+  if ( ! found)
+  {
+    QTextCursor cursor = textCursor();
+    int currentPosition = cursor.position();
+
+    // search again from the end
+    cursor.movePosition( QTextCursor::End);
+    setTextCursor( cursor);
+
+    found = find( text, flags | QTextDocument::FindBackward);
+
+    if ( ! found)
+    {
+      // 'text' is not present. Go back where we were
+      cursor.setPosition( currentPosition );
+      setTextCursor( cursor);
+
+      emit textNotFound();
+    }
+  }
+}
+
+void CodeEditor::onSearchForwardRequest(const QString &text, QTextDocument::FindFlags flags)
+{
+  // try to find forward
+  bool found = find( text, flags);
+
+  if ( ! found)
+  {
+     QTextCursor cursor = textCursor();
+     int currentPosition = cursor.position();
+
+     // search again from the begin
+     cursor.movePosition( QTextCursor::Start);
+     setTextCursor( cursor);
+
+     found = find( text, flags);
+
+     if ( ! found)
+     {
+        // 'text' is not present. Go back where we were
+        cursor.setPosition( currentPosition );
+        setTextCursor( cursor);
+
+        emit textNotFound();
+     }
+  }
+}
+
+void CodeEditor::onReplaceTextRequest( const QString & src, const QString & dest,
+                                       QTextDocument::FindFlags flags, bool thenFind)
+{
+  // replace only if selection holds 'src' text
+  if ( src == textCursor().selection().toPlainText()) {
+    textCursor().insertText( dest);
+  }
+
+  if (thenFind == true) {
+    onSearchForwardRequest( src, flags);
+  }
 }
 
 void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -201,6 +269,11 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
     // we have not changed line yet. Count blanks of current line
     int n_space = countTrailingSpaces( textCursor().block().position());
 
+    // indent if previous line ends with opening bracket
+    if (textCursor().block().text().trimmed().endsWith('{')) {
+      n_space += indent_size_;
+    }
+
     // append new line
     QPlainTextEdit::keyPressEvent( event);
 
@@ -219,12 +292,17 @@ int CodeEditor::countTrailingSpaces(int block_position)
 {
   int n_spaces = 0;
   QString text = toPlainText();
+  int text_size = text.length();
   bool done = false;
 
   Q_ASSERT( indent_size_ > 0);
 
   while( done == false) {
-    switch (text.at(block_position).toLatin1()) {
+
+    // read one char until text finishes or a non blank is found
+    QChar c = (block_position < text_size) ? text.at(block_position) : '*';
+
+    switch (c.toLatin1()) {
     case ' ':
       n_spaces++;
       break;

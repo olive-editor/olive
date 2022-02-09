@@ -87,12 +87,11 @@ void ExternalEditorProxy::launch(const QString &start_text)
              this, &ExternalEditorProxy::onProcessFinished);
 
     QString cmd = Config::Current()["EditorExternalCommand"].toString();
-    cmd.replace("%FILE", file_path_);
-    cmd.replace("%LINE", "1");  // not yet supported
+    QString params = Config::Current()["EditorExternalParams"].toString();
+    params.replace("%FILE", file_path_);
+    params.replace("%LINE", "1");  // not yet supported
 
-    QStringList params = cmd.split(' ', Qt::SkipEmptyParts);
-    QString opcode = params.takeAt(0);
-    process_->start( opcode, params);
+    process_->start( cmd, params.split(' ', Qt::SkipEmptyParts));
   }
 }
 

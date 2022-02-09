@@ -74,10 +74,15 @@ PreferencesEditTab::PreferencesEditTab()
   //external editor
   QVBoxLayout * external_editor_layout = new QVBoxLayout(external_editor_box);
   external_editor_layout->addWidget(
-        new QLabel(tr("<p>Command to launch external editor.</p>"
-                      "<p>Use <i>%FILE</i> for text file path and <i>%LINE</i> for line number.</p>")));
+        new QLabel(tr("Command or full file path of external editor.\n"
+                      "Use double quotes if executable path has spaces")) );
   ext_command_ = new QLineEdit();
+  ext_params_ = new QLineEdit();
   external_editor_layout->addWidget( ext_command_);
+  external_editor_layout->addWidget(
+        new QLabel(tr("Parameters of external editor.\n"
+                      "Use %FILE and %LINE for file path and line number")) );
+  external_editor_layout->addWidget( ext_params_);
   outer_layout->addWidget(external_editor_box);
 
   outer_layout->addStretch();
@@ -90,6 +95,7 @@ PreferencesEditTab::PreferencesEditTab()
   font_size_->setValue( Config::Current()["EditorInternalFontSize"].toInt());
   indent_size_->setValue( Config::Current()["EditorInternalIndentSize"].toInt());
   ext_command_->setText( Config::Current()["EditorExternalCommand"].toString());
+  ext_params_->setText( Config::Current()["EditorExternalParams"].toString());
 }
 
 bool PreferencesEditTab::Validate()
@@ -103,6 +109,7 @@ void PreferencesEditTab::Accept(MultiUndoCommand *command)
 
   Config::Current()["EditorUseInternal"] = QVariant::fromValue( use_internal_editor_->isChecked());
   Config::Current()["EditorExternalCommand"] = QVariant::fromValue(ext_command_->text());
+  Config::Current()["EditorExternalParams"] = QVariant::fromValue(ext_params_->text());
   Config::Current()["EditorInternalFontSize"] = QVariant::fromValue(font_size_->value());
   Config::Current()["EditorInternalIndentSize"] = QVariant::fromValue(indent_size_->value());
 }

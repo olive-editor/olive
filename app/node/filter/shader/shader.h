@@ -26,6 +26,8 @@
 namespace olive {
 
 class ShaderInputsParser;
+class MessageDialog;
+
 
 /** @brief
  * A node that implements a GLSL script. The inputs of this node
@@ -53,6 +55,8 @@ public:
   void InputValueChangedEvent(const QString &input, int element) override;
 
   static const QString kShaderCode;
+
+  static const QString kOutputMessages;
 
 private:
   void parseShaderCode();

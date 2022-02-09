@@ -25,9 +25,11 @@
 
 #include "dialog/text/text.h"
 #include "dialog/codeeditor/codeeditordialog.h"
-#include "ui/icons/icons.h"
 #include "dialog/codeeditor/externaleditorproxy.h"
+#include "dialog/codeeditor/messagehighlighter.h"
+#include "ui/icons/icons.h"
 #include "config/config.h"
+
 
 
 #include <qdebug.h>
@@ -35,7 +37,8 @@ namespace olive {
 
 NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   QWidget(parent),
-  code_editor_flag_(false)
+  code_editor_flag_(false),
+  code_issues_flag_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
@@ -56,25 +59,21 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
            this, & NodeParamViewTextEdit::OnTextChangedExternally);
 }
 
+
 void NodeParamViewTextEdit::ShowTextDialog()
 {
   QString text;
 
   if (code_editor_flag_) {
 
-    if (Config::Current()["EditorUseInternal"].toBool()) {
-      CodeEditorDialog d(this->text(), this);
-
-      if (d.exec() == QDialog::Accepted) {
-        text = d.text();
-      }
-    }
-    else {
-      ext_editor_proxy_->launch( this->text());
-    }
+    launchCodeEditor(text);
   }
   else {
     TextDialog d(this->text(), this);
+
+    if (code_issues_flag_) {
+      d.setSyntaxHighlight( new MessageSyntaxHighlighter());
+    }
 
     if (d.exec() == QDialog::Accepted) {
       text= d.text();
@@ -84,6 +83,24 @@ void NodeParamViewTextEdit::ShowTextDialog()
   if (text != QString()) {
     line_edit_->setPlainText( text);
     emit textEdited( text);
+  }
+}
+
+void olive::NodeParamViewTextEdit::launchCodeEditor(QString & text)
+{
+  if (Config::Current()["EditorUseInternal"].toBool()) {
+
+    // internal editor
+    CodeEditorDialog d(this->text(), this);
+
+    if (d.exec() == QDialog::Accepted) {
+      text = d.text();
+    }
+  }
+  else {
+
+    // external editor
+    ext_editor_proxy_->launch( this->text());
   }
 }
 
@@ -98,7 +115,7 @@ void NodeParamViewTextEdit::OnTextChangedExternally(const QString &new_text)
   emit textEdited( new_text);
 }
 
-void NodeParamViewTextEdit::setCodeEditoFlag()
+void NodeParamViewTextEdit::setCodeEditorFlag()
 {
   code_editor_flag_ = true;
 
@@ -106,6 +123,14 @@ void NodeParamViewTextEdit::setCodeEditoFlag()
   // the shader code is not re-parsed on every key pressed by the user.
   // Please use the Text Dialog to edit code.
   line_edit_->setEnabled( false);
+}
+
+void NodeParamViewTextEdit::setCodeIssuesFlag()
+{
+  code_issues_flag_ = true;
+  line_edit_->setReadOnly( true);
+
+  new MessageSyntaxHighlighter( line_edit_->document());
 }
 
 }

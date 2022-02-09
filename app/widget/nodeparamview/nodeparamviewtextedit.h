@@ -42,9 +42,10 @@ public:
     return line_edit_->toPlainText();
   }
 
-  // if this function is called, the text editor is used
-  // for shader code
-  void setCodeEditoFlag();
+  // set flag to edit text with code editor
+  void setCodeEditorFlag();
+  // set flag to view text as code issues
+  void setCodeIssuesFlag();
 
 public slots:
   void setText(const QString &s)
@@ -74,7 +75,11 @@ signals:
 private:
   QPlainTextEdit* line_edit_;
   bool code_editor_flag_;
+  bool code_issues_flag_;
   ExternalEditorProxy * ext_editor_proxy_;
+
+private:
+  void launchCodeEditor(QString & text);
 
 private slots:
   void ShowTextDialog();
@@ -86,5 +91,6 @@ private slots:
 };
 
 }
+
 
 #endif // NODEPARAMVIEWTEXTEDIT_H

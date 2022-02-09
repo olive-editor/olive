@@ -24,5 +24,9 @@ set(OLIVE_SOURCES
   dialog/codeeditor/codeeditordialog.cpp
   dialog/codeeditor/externaleditorproxy.h
   dialog/codeeditor/externaleditorproxy.cpp
+  dialog/codeeditor/searchtextbar.h
+  dialog/codeeditor/searchtextbar.cpp
+  dialog/codeeditor/messagehighlighter.h
+  dialog/codeeditor/messagehighlighter.cpp
   PARENT_SCOPE
 )

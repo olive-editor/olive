@@ -1,10 +1,13 @@
 #include "codeeditordialog.h"
+#include "searchtextbar.h"
 
 #include <QBoxLayout>
 #include <QDialogButtonBox>
 #include <QMenuBar>
 #include <QClipboard>
 #include <QGuiApplication>
+#include <QTextDocumentFragment>
+
 
 namespace olive {
 
@@ -16,6 +19,7 @@ CodeEditorDialog::CodeEditorDialog(const QString &start, QWidget* parent) :
   // Create text edit widget
   text_edit_ = new CodeEditor( this);
   text_edit_->document()->setPlainText(start);
+  text_edit_->gotoLineNumber(1);
   layout->addWidget(text_edit_);
 
   // Create buttons
@@ -40,11 +44,26 @@ CodeEditorDialog::CodeEditorDialog(const QString &start, QWidget* parent) :
   QAction * add_int_input = edit_addSnippet_menu->addAction(tr("integer"));
   QAction * add_boolean_input = edit_addSnippet_menu->addAction(tr("boolean"));
 
-  connect( add_texture_input, & QAction::triggered, this, & CodeEditorDialog::OnActionAddInputTexture);
-  connect( add_color_input, & QAction::triggered, this, & CodeEditorDialog::OnActionAddInputColor);
-  connect( add_float_input, & QAction::triggered, this, & CodeEditorDialog::OnActionAddInputFloat);
-  connect( add_int_input, & QAction::triggered, this, & CodeEditorDialog::OnActionAddInputInt);
-  connect( add_boolean_input, & QAction::triggered, this, & CodeEditorDialog::OnActionAddInputBoolean);
+  connect( add_texture_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputTexture);
+  connect( add_color_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputColor);
+  connect( add_float_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputFloat);
+  connect( add_int_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputInt);
+  connect( add_boolean_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputBoolean);
+
+  search_bar_ = new SearchTextBar( this);
+  search_bar_->hide();
+  layout->addWidget( search_bar_);
+
+  QAction * show_find_dialog = edit_menu->addAction(tr("find/replace"));
+  show_find_dialog->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_F));
+
+  connect( show_find_dialog, &QAction::triggered, this, &CodeEditorDialog::OnFindRequest);
+
+  connect( search_bar_, &SearchTextBar::searchTextForward, text_edit_, &CodeEditor::onSearchForwardRequest);
+  connect( search_bar_, &SearchTextBar::searchTextBackward, text_edit_, &CodeEditor::onSearchBackwardRequest);
+  connect( search_bar_, &SearchTextBar::replaceText, text_edit_, &CodeEditor::onReplaceTextRequest);
+
+  connect( text_edit_, &CodeEditor::textNotFound, search_bar_, &SearchTextBar::onTextNotFound);
 
   layout->setMenuBar( menu_bar);
 }
@@ -104,6 +123,12 @@ void CodeEditorDialog::OnActionAddInputBoolean()
         "//OVE default: false\n"
         "//OVE description: when True, the input is passed to output as is.\n"
         "uniform bool disable;\n");
+}
+
+void CodeEditorDialog::OnFindRequest()
+{
+  QString text_to_find = text_edit_->textCursor().selection().toPlainText();
+  search_bar_->showBar( text_to_find);
 }
 
 

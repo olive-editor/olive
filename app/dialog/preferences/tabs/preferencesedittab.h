@@ -53,6 +53,7 @@ private:
 
   // for external editor
   QLineEdit * ext_command_;
+  QLineEdit * ext_params_;
 };
 
 }

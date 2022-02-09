@@ -17,42 +17,41 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
-#ifndef CODEEDITORDIALOG_H
-#define CODEEDITORDIALOG_H
 
-#include <QDialog>
-#include "dialog/codeeditor/editor.h"
+#ifndef MESSAGEHIGHLIGHTER_H
+#define MESSAGEHIGHLIGHTER_H
+
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
+#include <QRegularExpression>
+
+class QTextDocument;
 
 namespace olive {
 
-class SearchTextBar;
+#include <QSyntaxHighlighter>
+#include <QRegularExpression>
 
-
-/// @brief Wrapper QDialog window for the code editor
-class CodeEditorDialog : public QDialog
+class MessageSyntaxHighlighter : public QSyntaxHighlighter
 {
   Q_OBJECT
 public:
-  CodeEditorDialog(const QString &start, QWidget* parent = nullptr);
 
-  QString text() const
-  {
-    return text_edit_->toPlainText();
-  }
+  MessageSyntaxHighlighter( QTextDocument * parent = nullptr);
+
+  // QSyntaxHighlighter interface
+protected:
+  void highlightBlock(const QString &text) override;
 
 private:
-  CodeEditor* text_edit_;
-  SearchTextBar * search_bar_;
+  QTextCharFormat group_format_;
+  QTextCharFormat line_format_;
 
-private slots:
-  void OnActionAddInputTexture();
-  void OnActionAddInputColor();
-  void OnActionAddInputFloat();
-  void OnActionAddInputInt();
-  void OnActionAddInputBoolean();
-  void OnFindRequest();
+  QRegularExpression group_regexp;
+  QRegularExpression line_regexp;
 };
+
 
 }  // namespace olive
 
-#endif // CODEEDITORDIALOG_H
+#endif // MESSAGEHIGHLIGHTER_H

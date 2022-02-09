@@ -143,9 +143,13 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit();
       widgets_.append(line_edit);
 
-      // plain text editor or code editor
-      if (GetInnerInput().GetProperty(QStringLiteral("is_shader_code")).toBool()) {
-        line_edit->setCodeEditoFlag();
+      // check for special type of text
+      QString text_type = GetInnerInput().GetProperty(QStringLiteral("text_type")).toString();
+      if (text_type == "shader_code") {
+        line_edit->setCodeEditorFlag();
+      }
+      else if (text_type == "shader_issues") {
+        line_edit->setCodeIssuesFlag();
       }
 
       connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);

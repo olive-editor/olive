@@ -24,6 +24,7 @@
 #include <QDialog>
 #include <QFontComboBox>
 #include <QPlainTextEdit>
+#include <QSyntaxHighlighter>
 
 #include "common/define.h"
 #include "widget/slider/floatslider.h"
@@ -39,6 +40,11 @@ public:
   QString text() const
   {
     return text_edit_->toPlainText();
+  }
+
+  void setSyntaxHighlight( QSyntaxHighlighter * highlighter) const
+  {
+    highlighter->setDocument(text_edit_->document());
   }
 
 private:
