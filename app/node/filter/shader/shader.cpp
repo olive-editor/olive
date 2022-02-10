@@ -166,7 +166,10 @@ void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
 {
   const QList<ShaderInputsParser::Error> & errors = parser.ErrorList();
 
-  QString message = QString(tr("There are %1 issues.\n").arg(errors.size()));
+  QString message = QString(tr("None"));
+  if (errors.size() > 0) {
+    message = QString(tr("There are %1 issues.\n").arg(errors.size()));
+  }
 
   for (ShaderInputsParser::Error e : errors ) {
     message.append(QString("\"%1\" line %2: %3\n").

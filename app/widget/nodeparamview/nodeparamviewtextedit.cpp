@@ -118,6 +118,7 @@ void NodeParamViewTextEdit::OnTextChangedExternally(const QString &new_text)
 void NodeParamViewTextEdit::setCodeEditorFlag()
 {
   code_editor_flag_ = true;
+  setProperty("is_exapandable", QVariant::fromValue<bool>(true));
 
   // if the text box is a shader code editor, make it read only so that
   // the shader code is not re-parsed on every key pressed by the user.
@@ -129,6 +130,7 @@ void NodeParamViewTextEdit::setCodeIssuesFlag()
 {
   code_issues_flag_ = true;
   line_edit_->setReadOnly( true);
+  setProperty("is_exapandable", QVariant::fromValue<bool>(true));
 
   new MessageSyntaxHighlighter( line_edit_->document());
 }
