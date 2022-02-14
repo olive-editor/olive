@@ -196,6 +196,10 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
     SetInputName( it->uniform_name, it->human_name);
     SetInputProperty( it->uniform_name, QStringLiteral("min"), it->min);
     SetInputProperty( it->uniform_name, QStringLiteral("max"), it->max);
+
+    if (it->type == NodeValue::kCombo) {
+      SetComboBoxStrings(it->uniform_name, it->values);
+    }
   }
 
   // compare 'new_input_list' and 'user_input_list_' to find deleted inputs.

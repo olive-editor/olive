@@ -27,6 +27,7 @@
 
 #include "render/color.h"
 
+
 namespace olive {
 
 namespace {
@@ -61,6 +62,8 @@ QRegularExpression INPUT_MIN_REGEX("^\\s*//OVE\\s*min:\\s*(?<min>.*)\\s*$");
 QRegularExpression INPUT_MAX_REGEX("^\\s*//OVE\\s*max:\\s*(?<max>.*)\\s*$");
 // default value
 QRegularExpression INPUT_DEFAULT_REGEX("^\\s*//OVE\\s*default:\\s*(?<default>.*)\\s*$");
+// list of values for a selection combo
+QRegularExpression INPUT_VALUES_REGEX("^\\s*//OVE\\s*values:\\s*(?<values>.*)\\s*$");
 // description. So far not used by application
 QRegularExpression INPUT_DESCRIPTION_REGEX("^\\s*//OVE\\s*description:\\s*(?<description>.*)\\s*$");
 
@@ -72,7 +75,8 @@ const QMap<QString, NodeValue::Type> INPUT_TYPE_TABLE{{"TEXTURE", NodeValue::kTe
                                                       {"COLOR", NodeValue::kColor},
                                                       {"FLOAT", NodeValue::kFloat},
                                                       {"INTEGER", NodeValue::kInt},
-                                                      {"BOOLEAN", NodeValue::kBoolean}
+                                                      {"BOOLEAN", NodeValue::kBoolean},
+                                                      {"SELECTION", NodeValue::kCombo}
                                                      };
 
 // table with default minimum and maximum values for a node type.
@@ -82,7 +86,7 @@ const QMap<NodeValue::Type, QVariant> MINIMUM_TABLE{{NodeValue::kFloat, QVariant
                                                    };
 
 const QMap<NodeValue::Type, QVariant> MAXIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<int>::max())},
-                                                    {NodeValue::kInt, QVariant()}
+                                                    {NodeValue::kInt, QVariant( std::numeric_limits<int>::max())}
                                                    };
 
 // features of the input that's currently being parsed
@@ -96,6 +100,7 @@ void clearCurrentInput()
   currentInput.type_string.clear();
   currentInput.type = NodeValue::kNone;
   currentInput.flags = InputFlags(kInputFlagNormal);
+  currentInput.values.clear();
   currentInput.min = QVariant();
   currentInput.max = QVariant();
   currentInput.default_value = QVariant();
@@ -119,6 +124,7 @@ ShaderInputsParser::ShaderInputsParser( const QString & shader_code) :
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_UNIFORM_REGEX, & ShaderInputsParser::parseInputUniform);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_TYPE_REGEX, & ShaderInputsParser::parseInputType);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_FLAG_REGEX, & ShaderInputsParser::parseInputFlags);
+  INPUT_PARAM_PARSE_TABLE.insert( & INPUT_VALUES_REGEX, & ShaderInputsParser::parseInputValueList);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_MIN_REGEX, & ShaderInputsParser::parseInputMin);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_MAX_REGEX, & ShaderInputsParser::parseInputMax);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_DEFAULT_REGEX, & ShaderInputsParser::parseInputDefault);
@@ -302,6 +308,25 @@ ShaderInputsParser::parseInputFlags(const QRegularExpressionMatch & line_match)
 }
 
 ShaderInputsParser::InputParseState
+ShaderInputsParser::parseInputValueList(const QRegularExpressionMatch & line_match)
+{
+  // entries are enclosed in double quotes
+  static const QRegularExpression COMBO_ENTRY_REGEX("\"([^\"]+)\"");
+
+  QStringRef values_line = line_match.capturedRef("values");
+  QRegularExpressionMatchIterator value_match = COMBO_ENTRY_REGEX.globalMatch( values_line);
+
+  while (value_match.hasNext()) {
+    QRegularExpressionMatch value = value_match.next();
+    QString value_str = value.captured(1);
+
+    currentInput.values << value_str;
+  }
+
+  return PARSING;
+}
+
+ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputMin(const QRegularExpressionMatch & match)
 {
   bool ok = false;
@@ -400,6 +425,19 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
 
   case NodeValue::kColor:
     currentInput.default_value = parseColor( default_string);
+    break;
+
+  case NodeValue::kCombo:
+    int_value = default_string.toInt( &ok);
+
+    if (ok)
+    {
+      currentInput.default_value = QVariant::fromValue<int>(int_value);
+    }
+    else
+    {
+      reportError(QObject::tr("Default for SELECTION must be a number from 0 to number of entries minus 1."));
+    }
     break;
 
   default:

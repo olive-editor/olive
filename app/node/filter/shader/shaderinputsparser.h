@@ -51,6 +51,8 @@ public:
 
     NodeValue::Type type;
     InputFlags flags;
+    // list of entries for a selection combo
+    QStringList values;
 
     QVariant min;
     QVariant max;
@@ -111,6 +113,7 @@ private:
   InputParseState parseInputUniform( const QRegularExpressionMatch &);
   InputParseState parseInputType( const QRegularExpressionMatch &);
   InputParseState parseInputFlags( const QRegularExpressionMatch &);
+  InputParseState parseInputValueList( const QRegularExpressionMatch &);
   InputParseState parseInputMin( const QRegularExpressionMatch &);
   InputParseState parseInputMax( const QRegularExpressionMatch &);
   InputParseState parseInputDefault( const QRegularExpressionMatch &);
