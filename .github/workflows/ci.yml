@@ -383,12 +383,12 @@ jobs:
           dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # Copy Qt frameworks and plugins
-          cp -R $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
-          cp -R $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
+          cp -Ra $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
+          cp -Ra $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
 
           # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
           #       but perhaps I'll bring it up with them soon.
-          cp $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
+          cp -a $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
           then
