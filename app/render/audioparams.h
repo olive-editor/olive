@@ -21,6 +21,10 @@
 #ifndef AUDIOPARAMS_H
 #define AUDIOPARAMS_H
 
+extern "C" {
+#include <libavutil/channel_layout.h>
+}
+
 #include <QtMath>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>

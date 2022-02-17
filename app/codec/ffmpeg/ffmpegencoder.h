@@ -22,6 +22,7 @@
 #define FFMPEGENCODER_H
 
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
@@ -69,15 +70,15 @@ private:
   bool WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
 
   bool InitializeStream(enum AVMediaType type, AVStream** stream, AVCodecContext** codec_ctx, const ExportCodec::Codec &codec);
-  bool InitializeCodecContext(AVStream** stream, AVCodecContext** codec_ctx, AVCodec* codec);
-  bool SetupCodecContext(AVStream *stream, AVCodecContext *codec_ctx, AVCodec *codec);
+  bool InitializeCodecContext(AVStream** stream, AVCodecContext** codec_ctx, const AVCodec* codec);
+  bool SetupCodecContext(AVStream *stream, AVCodecContext *codec_ctx, const AVCodec *codec);
 
   void FlushEncoders();
   void FlushCodecCtx(AVCodecContext* codec_ctx, AVStream *stream);
 
   bool InitializeResampleContext(SampleBufferPtr audio);
 
-  static AVCodec *GetEncoder(ExportCodec::Codec c);
+  static const AVCodec *GetEncoder(ExportCodec::Codec c);
 
   AVFormatContext* fmt_ctx_;
 
