@@ -367,10 +367,9 @@ jobs:
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
-        env:
-          BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
+          BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
@@ -399,6 +398,39 @@ jobs:
             mkdir -p "$SYM_DIR"
             mv Olive.sym "$SYM_DIR"
           fi
+
+      - name: Sign application
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          BUNDLE_NAME="Olive.app"
+
+          # Install certificate
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # HACK: Remove unsignable frameworks
+          rm -r $BUNDLE_NAME/Contents/Frameworks/QtUiPlugin.framework
+          rm -r $BUNDLE_NAME/Contents/Frameworks/QtZlib.framework
+
+          # Sign application
+          codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
