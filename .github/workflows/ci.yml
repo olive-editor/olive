@@ -427,7 +427,7 @@ jobs:
 
           # HACK: Remove unsignable frameworks
           rm -r $BUNDLE_NAME/Contents/Frameworks/QtUiPlugin.framework
-          rm -r $BUNDLE_NAME/Contents/Frameworks/QtZlib.framework
+          #rm -r $BUNDLE_NAME/Contents/Frameworks/QtZlib.framework
 
           # Sign application
           codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
