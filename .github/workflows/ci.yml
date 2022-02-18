@@ -399,7 +399,7 @@ jobs:
             mv Olive.sym "$SYM_DIR"
           fi
 
-      - name: Sign application
+      - name: Sign Application
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         env:
