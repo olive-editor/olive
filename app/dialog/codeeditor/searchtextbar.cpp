@@ -76,7 +76,7 @@ SearchTextBar::SearchTextBar(QWidget *parent) :
   replace_label->setBuddy( replace_edit_);
 
   QPushButton * replace_button = new QPushButton(tr("replace"), this);
-  QPushButton * replace_and_find_button = new QPushButton(tr("replace & find"), this);
+  QPushButton * replace_and_find_button = new QPushButton(tr("replace and find"), this);
 
   replace_edit_->setSizePolicy( QSizePolicy::Expanding , QSizePolicy::Preferred);
   main_layout->addWidget( replace_label, 1,0,1,1);
@@ -88,7 +88,7 @@ SearchTextBar::SearchTextBar(QWidget *parent) :
   connect( find_forward_button, & QPushButton::clicked, this, & SearchTextBar::onNextButtonClicked);
   connect( hide_button, & QPushButton::clicked, this, & SearchTextBar::onHideButtonClicked);
   connect( replace_button, & QPushButton::clicked, this, & SearchTextBar::onReplaceButtonCLicked);
-  connect( replace_and_find_button, & QPushButton::clicked, this, & SearchTextBar::onReplaceAndFindButtonCLicked);
+  connect( replace_and_find_button, & QPushButton::clicked, this, & SearchTextBar::onReplaceAndFindButtonClicked);
 
   find_edit_->setTabOrder( find_edit_, replace_edit_);
 
@@ -127,28 +127,37 @@ void SearchTextBar::onTimeoutExpired()
   timer_->stop();
 }
 
-void SearchTextBar::keyReleaseEvent(QKeyEvent * event)
+void SearchTextBar::keyPressEvent(QKeyEvent * event)
 {
-  QWidget::keyReleaseEvent( event);
-
-  // enter or return key search forward; use shift to search backward
+  // enter or return key search forward; use shift to search backward.
+  // Perform replace only if "replace" input has focus
   if ((event->key() == Qt::Key_Enter) ||
       (event->key() == Qt::Key_Return))
   {
-    QTextDocument::FindFlags flags = getCurrentFlags();
+    if (replace_edit_->hasFocus()) {
+      onReplaceAndFindButtonClicked();
+    }
+    else {
 
-    if (event->modifiers() & Qt::ShiftModifier)
-    {
-      emit searchTextBackward( find_edit_->text(), flags);
+      if (event->modifiers() & Qt::ShiftModifier)
+      {
+        onPrevButtonClicked();
+      }
+      else
+      {
+        onNextButtonClicked();
+      }
     }
-    else
-    {
-      emit searchTextForward( find_edit_->text(), flags);
-    }
+
+    event->accept();
   }
   else if (event->key() == Qt::Key_Escape)
   {
     hide();
+    event->accept();
+  }
+  else {
+    QWidget::keyPressEvent( event);
   }
 }
 
@@ -161,13 +170,13 @@ void SearchTextBar::onHideButtonClicked()
 void SearchTextBar::onPrevButtonClicked()
 {
   QTextDocument::FindFlags flags = getCurrentFlags();
-  emit searchTextForward( find_edit_->text(), flags);
+  emit searchTextBackward( find_edit_->text(), flags);
 }
 
 void SearchTextBar::onNextButtonClicked()
 {
   QTextDocument::FindFlags flags = getCurrentFlags();
-  emit searchTextBackward( find_edit_->text(), flags);
+  emit searchTextForward( find_edit_->text(), flags);
 }
 
 void SearchTextBar::onReplaceButtonCLicked()
@@ -176,10 +185,11 @@ void SearchTextBar::onReplaceButtonCLicked()
   emit replaceText( find_edit_->text(), replace_edit_->text(), flags, false);
 }
 
-void SearchTextBar::onReplaceAndFindButtonCLicked()
+void SearchTextBar::onReplaceAndFindButtonClicked()
 {
   QTextDocument::FindFlags flags = getCurrentFlags();
   emit replaceText( find_edit_->text(), replace_edit_->text(), flags, false);
+  emit searchTextForward( find_edit_->text(), flags);
 }
 
 QTextDocument::FindFlags SearchTextBar::getCurrentFlags()

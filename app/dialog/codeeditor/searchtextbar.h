@@ -61,7 +61,7 @@ private:
 
   // QWidget interface
 protected:
-  void keyReleaseEvent(QKeyEvent * event) override;
+  void keyPressEvent(QKeyEvent * event) override;
 
 private slots:
   void onTimeoutExpired();
@@ -69,7 +69,7 @@ private slots:
   void onPrevButtonClicked();
   void onNextButtonClicked();
   void onReplaceButtonCLicked();
-  void onReplaceAndFindButtonCLicked();
+  void onReplaceAndFindButtonClicked();
 
 private:
   QTextDocument::FindFlags getCurrentFlags();

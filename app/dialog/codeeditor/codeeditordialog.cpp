@@ -43,12 +43,14 @@ CodeEditorDialog::CodeEditorDialog(const QString &start, QWidget* parent) :
   QAction * add_float_input = edit_addSnippet_menu->addAction(tr("float"));
   QAction * add_int_input = edit_addSnippet_menu->addAction(tr("integer"));
   QAction * add_boolean_input = edit_addSnippet_menu->addAction(tr("boolean"));
+  QAction * add_selection_input = edit_addSnippet_menu->addAction(tr("selection"));
 
   connect( add_texture_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputTexture);
   connect( add_color_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputColor);
   connect( add_float_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputFloat);
   connect( add_int_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputInt);
   connect( add_boolean_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputBoolean);
+  connect( add_selection_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputSelection);
 
   search_bar_ = new SearchTextBar( this);
   search_bar_->hide();
@@ -121,8 +123,19 @@ void CodeEditorDialog::OnActionAddInputBoolean()
         "//OVE type: BOOLEAN\n"
         "//OVE flag: NOT_CONNECTABLE, NOT_KEYFRAMABLE\n"
         "//OVE default: false\n"
-        "//OVE description: when True, the input is passed to output as is.\n"
-        "uniform bool disable;\n");
+        "//OVE description: \n"
+        "uniform bool my_bool;\n");
+}
+
+void CodeEditorDialog::OnActionAddInputSelection()
+{
+  text_edit_->insertPlainText(
+        "//OVE name: my selection\n"
+        "//OVE type: SELECTION\n"
+        "//OVE values: \"FIRST CHOICE\", \"SECOND CHOICE\"\n"
+        "//OVE default: 0\n"
+        "//OVE description: \n"
+        "uniform int my_selection;\n");
 }
 
 void CodeEditorDialog::OnFindRequest()
