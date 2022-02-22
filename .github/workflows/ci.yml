@@ -285,12 +285,14 @@ jobs:
             os-arch: x86_64
             os: macos-10.15
             cmake-gen: Ninja
+            min-deploy: 10.13
           - build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: arm64
             os: macos-11.0
             cmake-gen: Ninja
+            min-deploy: 11.0
     env:
       DEP_LOCATION: /opt/olive-editor
     name: |
@@ -349,7 +351,7 @@ jobs:
           brew install ninja
           PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-              -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -G "${{ matrix.cmake-gen }}" \
+              -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min-deploy }} -G "${{ matrix.cmake-gen }}" \
               -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}"
 
       - name: Build
@@ -367,10 +369,9 @@ jobs:
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
-        env:
-          BUNDLE_NAME: "Olive.app"
         shell: bash
         run: |
+          BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
@@ -383,12 +384,12 @@ jobs:
           dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # Copy Qt frameworks and plugins
-          cp -R $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
-          cp -R $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
+          cp -Ra $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
+          cp -Ra $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
 
           # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
           #       but perhaps I'll bring it up with them soon.
-          cp $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
+          cp -a $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
           then
@@ -399,6 +400,42 @@ jobs:
             mkdir -p "$SYM_DIR"
             mv Olive.sym "$SYM_DIR"
           fi
+
+      - name: Sign Application
+        working-directory: ${{ runner.workspace }}/build
+        shell: bash
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          BUNDLE_NAME="Olive.app"
+
+          # Install certificate
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # HACK: Remove unsignable frameworks
+          rm -r $BUNDLE_NAME/Contents/Frameworks/QtUiPlugin.framework
+          if [ "${{ matrix.os-arch }}" == "arm64" ]
+          then
+            rm -r $BUNDLE_NAME/Contents/Frameworks/QtZlib.framework
+          fi
+
+          # Sign application
+          codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
 
       - name: Deploy Packages
         working-directory: ${{ runner.workspace }}/build
