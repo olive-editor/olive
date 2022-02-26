@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@
 #ifndef STRINGSLIDER_H
 #define STRINGSLIDER_H
 
-#include "sliderbase.h"
+#include "base/sliderbase.h"
+
+namespace olive {
 
 class StringSlider : public SliderBase
 {
@@ -31,15 +33,24 @@ public:
 
   void SetDragMultiplier(const double& d) = delete;
 
-  QString GetValue();
+  QString GetValue() const;
 
   void SetValue(const QString& v);
 
-signals:
-  void ValueChanged(QString);
+  void SetDefaultValue(const QString& v);
 
-private slots:
-  void ConvertValue(QVariant v);
+signals:
+  void ValueChanged(const QString& str);
+
+protected:
+  virtual QString ValueToString(const QVariant& value) const override;
+
+  virtual QVariant StringToValue(const QString &s, bool *ok) const override;
+
+  virtual void ValueSignalEvent(const QVariant &value) override;
+
 };
+
+}
 
 #endif // STRINGSLIDER_H

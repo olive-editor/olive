@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,43 +21,66 @@
 #ifndef PROJECT_PANEL_H
 #define PROJECT_PANEL_H
 
-#include "project/project.h"
+#include "footagemanagementpanel.h"
+#include "node/project/project.h"
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
+
+namespace olive {
 
 /**
  * @brief A PanelWidget wrapper around a ProjectExplorer and a ProjectToolbar
  */
-class ProjectPanel : public PanelWidget
+class ProjectPanel : public PanelWidget, public FootageManagementPanel
 {
   Q_OBJECT
 public:
   ProjectPanel(QWidget* parent);
 
-  Project* project();
+  Project* project() const;
   void set_project(Project* p);
 
-  QList<Item*> SelectedItems();
+  Folder *get_root() const;
 
-  Folder* GetSelectedFolder();
+  void set_root(Folder* item);
 
-  ProjectViewModel* model();
+  QVector<Node *> SelectedItems() const;
+
+  Folder* GetSelectedFolder() const;
+
+  virtual QVector<ViewerOutput *> GetSelectedFootage() const override;
+
+  ProjectViewModel* model() const;
+
+  virtual void SelectAll() override;
+  virtual void DeselectAll() override;
+
+  virtual void DeleteSelected() override;
 
 public slots:
-  void Edit(Item *item);
+  void Edit(Node *item);
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
+signals:
+  void ProjectNameChanged();
+
+  void SelectionChanged(const QVector<Node *> &selected);
 
 private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
   ProjectExplorer* explorer_;
 
 private slots:
-  void ItemDoubleClickSlot(Item* item);
+  void ItemDoubleClickSlot(Node *item);
 
   void ShowNewMenu();
+
+  void UpdateSubtitle();
+
+  void SaveConnectedProject();
+
 };
+
+}
 
 #endif // PROJECT_PANEL_H

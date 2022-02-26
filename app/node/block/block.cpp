@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,194 +22,140 @@
 
 #include <QDebug>
 
+#include "node/inputdragger.h"
+#include "node/output/track/track.h"
+#include "transition/transition.h"
+#include "widget/slider/rationalslider.h"
+
+namespace olive {
+
+#define super Node
+
+const QString Block::kLengthInput = QStringLiteral("length_in");
+const QString Block::kEnabledInput = QStringLiteral("enabled_in");
+
 Block::Block() :
   previous_(nullptr),
-  next_(nullptr)
+  next_(nullptr),
+  track_(nullptr),
+  index_(-1)
 {
+  AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
+  SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
+  SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
+  IgnoreHashingFrom(kLengthInput);
+
+  AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
+  SetFlags(kDontShowInParamView);
 }
 
-QString Block::Category() const
+QVector<Node::CategoryID> Block::Category() const
 {
-  return tr("Block");
+  return {kCategoryTimeline};
 }
 
-const rational &Block::in() const
+rational Block::length() const
 {
-  return in_point_;
+  return GetStandardValue(kLengthInput).value<rational>();
 }
 
-const rational &Block::out() const
+void Block::set_length_and_media_out(const rational &length)
 {
-  return out_point_;
-}
-
-void Block::set_in(const rational &in)
-{
-  in_point_ = in;
-}
-
-void Block::set_out(const rational &out)
-{
-  out_point_ = out;
-}
-
-const rational& Block::length() const
-{
-  return length_;
-}
-
-void Block::set_length(const rational &length)
-{
-  Q_ASSERT(length > 0);
-
-  if (length == length_) {
+  if (length == this->length()) {
     return;
   }
 
-  LockUserInput();
-
-  length_ = length;
-
-  UnlockUserInput();
-
-  emit LengthChanged(length_);
+  set_length_internal(length);
 }
 
 void Block::set_length_and_media_in(const rational &length)
 {
-  // Calculate media_in adjustment
-  set_media_in(media_in_ + (length_ - length));
-
-  // Set the length
-  set_length(length);
-}
-
-Block *Block::previous()
-{
-  return previous_;
-}
-
-Block *Block::next()
-{
-  return next_;
-}
-
-void Block::set_previous(Block *previous)
-{
-  previous_ = previous;
-}
-
-void Block::set_next(Block *next)
-{
-  next_ = next;
-}
-
-const rational &Block::media_in() const
-{
-  return media_in_;
-}
-
-void Block::set_media_in(const rational &media_in)
-{
-  bool changed = false;
-
-  LockUserInput();
-  if (media_in_ != media_in) {
-    media_in_ = media_in;
-    changed = true;
-  }
-  UnlockUserInput();
-
-  if (changed) {
-    // Signal that this clips contents have changed
-    SendInvalidateCache(in(), out());
-  }
-}
-
-const QString &Block::block_name() const
-{
-  return block_name_;
-}
-
-void Block::set_block_name(const QString &name)
-{
-  block_name_ = name;
-}
-
-rational Block::SequenceToMediaTime(const rational &sequence_time) const
-{
-  // These constants are not considered "values" per se, so we don't modify them
-  if (sequence_time == RATIONAL_MIN || sequence_time == RATIONAL_MAX) {
-    return sequence_time;
-  }
-
-  return sequence_time - in() + media_in();
-}
-
-rational Block::MediaToSequenceTime(const rational &media_time) const
-{
-  // These constants are not considered "values" per se, so we don't modify them
-  if (media_time == RATIONAL_MIN || media_time == RATIONAL_MAX) {
-    return media_time;
-  }
-
-  return media_time - media_in() + in();
-}
-
-void Block::CopyParameters(const Block *source, Block *dest)
-{
-  dest->set_block_name(source->block_name());
-  dest->set_length(source->length());
-  dest->set_media_in(source->media_in());
-}
-
-void Block::Link(Block *a, Block *b)
-{
-  if (a == b || a == nullptr || b == nullptr) {
+  if (length == this->length()) {
     return;
   }
 
-  // Assume both clips are already linked since Link() and Unlink() should be the only entry points to this array
-  if (a->linked_clips_.contains(b)) {
-    return;
-  }
-
-  a->linked_clips_.append(b);
-  b->linked_clips_.append(a);
+  // Set the length without setting media out
+  set_length_internal(length);
 }
 
-void Block::Link(QList<Block *> blocks)
+bool Block::is_enabled() const
 {
-  foreach (Block* a, blocks) {
-    foreach (Block* b, blocks) {
-      Link(a, b);
+  return GetStandardValue(kEnabledInput).toBool();
+}
+
+void Block::set_enabled(bool e)
+{
+  SetStandardValue(kEnabledInput, e);
+
+  emit EnabledChanged();
+}
+
+void Block::InputValueChangedEvent(const QString &input, int element)
+{
+  super::InputValueChangedEvent(input, element);
+
+  if (input == kLengthInput) {
+    emit LengthChanged();
+  } else if (input == kEnabledInput) {
+    emit EnabledChanged();
+  }
+}
+
+bool Block::HashPassthrough(const QString &input, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
+{
+  if (IsInputConnected(input)) {
+    TimeRange t = InputTimeAdjustment(input, -1, globals.time());
+
+    NodeGlobals new_globals = globals;
+    new_globals.set_time(t);
+
+    Node *out = GetConnectedOutput(input);
+    Node::Hash(out, GetValueHintForInput(input), hash, new_globals, video_params);
+
+    return true;
+  }
+
+  return false;
+}
+
+void Block::set_length_internal(const rational &length)
+{
+  SetStandardValue(kLengthInput, QVariant::fromValue(length));
+}
+
+void Block::Retranslate()
+{
+  super::Retranslate();
+
+  SetInputName(kLengthInput, tr("Length"));
+  SetInputName(kEnabledInput, tr("Enabled"));
+}
+
+void Block::Hash(QCryptographicHash &, const NodeGlobals &, const VideoParams &) const
+{
+  // A block does nothing by default, so we hash nothing
+}
+
+void Block::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
+{
+  TimeRange r;
+
+  if (from == kLengthInput) {
+    // We must intercept the signal here
+    r = TimeRange(qMin(length(), last_length_), RATIONAL_MAX);
+
+    if (!NodeInputDragger::IsInputBeingDragged()) {
+      last_length_ = length();
     }
+
+    options.insert(QStringLiteral("lengthevent"), true);
+  } else {
+    r = range;
   }
+
+  super::InvalidateCache(r, from, element, options);
 }
 
-void Block::Unlink(Block *a, Block *b)
-{
-  a->linked_clips_.removeOne(b);
-  b->linked_clips_.removeOne(a);
 }
-
-bool Block::AreLinked(Block *a, Block *b)
-{
-  return a->linked_clips_.contains(b);
-}
-
-const QVector<Block*> &Block::linked_clips()
-{
-  return linked_clips_;
-}
-
-bool Block::HasLinks()
-{
-  return !linked_clips_.isEmpty();
-}
-
-bool Block::IsBlock() const
-{
-  return true;
-}
-

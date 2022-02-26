@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,39 +21,61 @@
 #ifndef NODEEDGEITEM_H
 #define NODEEDGEITEM_H
 
-#include <QGraphicsLineItem>
+#include <QGraphicsPathItem>
+#include <QPalette>
 
-#include "node/edge.h"
+#include "nodeviewcommon.h"
+#include "node/node.h"
+
+namespace olive {
+
+class NodeViewItem;
 
 /**
  * @brief A graphical representation of a NodeEdge to be used in NodeView
  *
  * A fairly simple line widget use to visualize a connection between two node parameters (a NodeEdge).
  */
-class NodeViewEdge : public QGraphicsLineItem
+class NodeViewEdge : public QGraphicsPathItem
 {
 public:
+  NodeViewEdge(Node *output, const NodeInput& input,
+               NodeViewItem* from_item, NodeViewItem* to_item,
+               QGraphicsItem* parent = nullptr);
+
   NodeViewEdge(QGraphicsItem* parent = nullptr);
 
-  /**
-   * @brief Set the edge that this item corresponds to
-   *
-   * This can be changed at any time (but under most circumstances won't be). Calling this will automatically call
-   * Adjust() to move this item into the correct position.
-   */
-  void SetEdge(NodeEdgePtr edge);
-  NodeEdgePtr edge();
+  virtual ~NodeViewEdge() override;
 
-  /**
-   * @brief Moves/updates this line to visually connect between the two corresponding NodeViewItems
-   *
-   * Using the attached edge (see SetEdge()), this function retrieves the NodeViewItems representing the two nodes
-   * that this edge connects. It uses their positions to determine where the line should visually connect and sets
-   * it accordingly.
-   *
-   * This should be set any time the NodeEdge changes (see SetEdge()), and any time the nodes move in the NodeGraph
-   * (see NodeView::ItemsChanged()). This will keep the nodes visually connected at all times.
-   */
+  Node *output() const
+  {
+    return output_;
+  }
+
+  const NodeInput& input() const
+  {
+    return input_;
+  }
+
+  int element() const
+  {
+    return element_;
+  }
+
+  NodeViewItem* from_item() const
+  {
+    return from_item_;
+  }
+
+  NodeViewItem* to_item() const
+  {
+    return to_item_;
+  }
+
+  void set_from_item(NodeViewItem *i);
+
+  void set_to_item(NodeViewItem *i);
+
   void Adjust();
 
   /**
@@ -68,15 +90,59 @@ public:
    */
   void SetConnected(bool c);
 
+  bool IsConnected() const
+  {
+    return connected_;
+  }
+
+  /**
+   * @brief Set highlighted state
+   *
+   * Changes color of edge.
+   */
+  void SetHighlighted(bool e);
+
+  /**
+   * @brief Set points to create curve from
+   */
+  void SetPoints(const QPointF& start, const QPointF& end);
+
+  /**
+   * @brief Set whether edges should be drawn as curved or as straight lines
+   */
+  void SetCurved(bool e);
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
-  NodeEdgePtr edge_;
+  void Init();
+
+  void UpdateCurve();
+
+  Node *output_;
+
+  NodeInput input_;
+
+  int element_;
+
+  NodeViewItem* from_item_;
+
+  NodeViewItem* to_item_;
 
   int edge_width_;
 
   bool connected_;
+
+  bool highlighted_;
+
+  bool curved_;
+
+  QPointF cached_start_;
+  QPointF cached_end_;
+
 };
+
+}
 
 #endif // NODEEDGEITEM_H

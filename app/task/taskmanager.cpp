@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,114 +23,114 @@
 #include <QDebug>
 #include <QThread>
 
-TaskManager olive::task_manager;
+namespace olive {
+
+TaskManager* TaskManager::instance_ = nullptr;
 
 TaskManager::TaskManager()
 {
-  maximum_task_count_ = QThread::idealThreadCount();
 }
 
 TaskManager::~TaskManager()
 {
-  Clear();
-}
+  thread_pool_.clear();
 
-void TaskManager::AddTask(TaskPtr t)
-{  
-  // Connect Task's status signal to the Callback
-  connect(t.get(), SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskCallback(Task::Status)));
-
-  // Add the Task to the queue
-  tasks_.append(t);
-
-  // Emit signal that a Task was added
-  emit TaskAdded(t.get());
-
-  // Scan through queue and start any Tasks that can (including this one)
-  StartNextWaiting();
-}
-
-void TaskManager::Clear()
-{
-  // Delete Tasks from memory
-  for (int i=0;i<tasks_.size();i++) {
-    tasks_.at(i)->Cancel();
+  foreach (Task* t, tasks_) {
+    t->Cancel();
   }
-  tasks_.clear();
-}
 
-void TaskManager::StartNextWaiting()
-{
-  // Count the tasks that are currently active
-  int working_count = 0;
+  thread_pool_.waitForDone();
 
-  for (int i=0;i<tasks_.size();i++) {
-    TaskPtr t = tasks_.at(i);
-
-    if (t->status() == Task::kWorking) {
-
-      // Task is active, add it to the count
-      working_count++;
-
-    } else if (t->status() == Task::kWaiting) {
-
-      // Task is waiting and we have available threads, try to start it
-      if (t->Start()) {
-        // If it started, add it to the working count
-        working_count++;
-      }
-
-    }
-
-    // Check if the count exceeds our maximum threads, if so stop here
-    if (working_count == maximum_task_count_) {
-      break;
-    }
+  foreach (Task* t, tasks_) {
+    t->deleteLater();
   }
 }
 
-void TaskManager::DeleteTask(Task *t)
+void TaskManager::CreateInstance()
 {
-  // Cancel the task
+  instance_ = new TaskManager();
+}
+
+void TaskManager::DestroyInstance()
+{
+  delete instance_;
+  instance_ = nullptr;
+}
+
+TaskManager *TaskManager::instance()
+{
+  return instance_;
+}
+
+int TaskManager::GetTaskCount() const
+{
+  return tasks_.size();
+}
+
+Task *TaskManager::GetFirstTask() const
+{
+  return tasks_.begin().value();
+}
+
+void TaskManager::CancelTaskAndWait(Task* t)
+{
   t->Cancel();
 
-  // Remove instances of Task from queue
-  for (int i=0;i<tasks_.size();i++) {
-    if (tasks_.at(i).get() == t) {
-      emit t->Removed();
-      tasks_.removeAt(i);
-      break;
-    }
+  QFutureWatcher<bool>* w = tasks_.key(t);
+
+  if (w) {
+    w->waitForFinished();
   }
 }
 
-void TaskManager::TaskCallback(Task::Status status)
+void TaskManager::AddTask(Task* t)
 {
-  if (status == Task::kFinished || status == Task::kError) {
-    // The Task has finished, we can start a new one
-    StartNextWaiting();
+  // Create a watcher for signalling
+  QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
+  connect(watcher, &QFutureWatcher<bool>::finished, this, &TaskManager::TaskFinished);
 
-    if (status == Task::kFinished) {
-      // The Task was successful, remove this Task from the queue
-      DeleteTask(static_cast<Task*>(sender()));
-    }
+  // Add the Task to the queue
+  tasks_.insert(watcher, t);
+
+  // Run task concurrently
+  watcher->setFuture(QtConcurrent::run(t, &Task::Start));
+
+  // Emit signal that a Task was added
+  emit TaskAdded(t);
+  emit TaskListChanged();
+}
+
+void TaskManager::CancelTask(Task *t)
+{
+  if (std::find(failed_tasks_.begin(), failed_tasks_.end(), t) != failed_tasks_.end()) {
+    failed_tasks_.remove(t);
+    emit TaskRemoved(t);
+    t->deleteLater();
+  } else {
+    t->Cancel();
   }
 }
 
-TaskManager::AddTaskCommand::AddTaskCommand(TaskPtr t, QUndoCommand *parent) :
-  QUndoCommand(parent),
-  task_(t)
+void TaskManager::TaskFinished()
 {
+  QFutureWatcher<bool>* watcher = static_cast<QFutureWatcher<bool>*>(sender());
+  Task* t = tasks_.value(watcher);
+
+  tasks_.remove(watcher);
+
+  if (watcher->result()) {
+    // Task completed successfully
+    emit TaskRemoved(t);
+    t->deleteLater();
+  } else {
+    // Task failed, keep it so the user can see the error message
+    emit TaskFailed(t);
+    failed_tasks_.push_back(t);
+  }
+
+  watcher->deleteLater();
+
+  emit TaskListChanged();
 }
 
-void TaskManager::AddTaskCommand::redo()
-{
-  olive::task_manager.AddTask(task_);
-}
-
-void TaskManager::AddTaskCommand::undo()
-{
-  olive::task_manager.DeleteTask(task_.get());
-
-  task_->ResetState();
 }

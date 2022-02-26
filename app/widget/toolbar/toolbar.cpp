@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,42 +20,55 @@
 
 #include "toolbar.h"
 
-#include <QPushButton>
-#include <QVariant>
 #include <QButtonGroup>
 #include <QEvent>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QVariant>
 
+#include "node/factory.h"
 #include "ui/icons/icons.h"
+#include "widget/menu/menu.h"
+
+namespace olive {
+
+#define super QWidget
 
 Toolbar::Toolbar(QWidget *parent) :
-  QWidget(parent)
+  super(parent)
 {
   layout_ = new FlowLayout(this);
   layout_->setMargin(0);
 
   // Create standard tool buttons
-  btn_pointer_tool_ = CreateToolButton(olive::tool::kPointer);
-  btn_edit_tool_ = CreateToolButton(olive::tool::kEdit);
-  btn_ripple_tool_ = CreateToolButton(olive::tool::kRipple);
-  btn_rolling_tool_ = CreateToolButton(olive::tool::kRolling);
-  btn_razor_tool_ = CreateToolButton(olive::tool::kRazor);
-  btn_slip_tool_ = CreateToolButton(olive::tool::kSlip);
-  btn_slide_tool_ = CreateToolButton(olive::tool::kSlide);
-  btn_hand_tool_ = CreateToolButton(olive::tool::kHand);
-  btn_zoom_tool_ = CreateToolButton(olive::tool::kZoom);
-  btn_record_ = CreateToolButton(olive::tool::kRecord);
-  btn_transition_tool_ = CreateToolButton(olive::tool::kTransition);
-  btn_add_ = CreateToolButton(olive::tool::kAdd);
+  btn_pointer_tool_ = CreateToolButton(Tool::kPointer);
+  btn_edit_tool_ = CreateToolButton(Tool::kEdit);
+  btn_ripple_tool_ = CreateToolButton(Tool::kRipple);
+  btn_rolling_tool_ = CreateToolButton(Tool::kRolling);
+  btn_razor_tool_ = CreateToolButton(Tool::kRazor);
+  btn_slip_tool_ = CreateToolButton(Tool::kSlip);
+  btn_slide_tool_ = CreateToolButton(Tool::kSlide);
+  btn_hand_tool_ = CreateToolButton(Tool::kHand);
+  btn_zoom_tool_ = CreateToolButton(Tool::kZoom);
+  btn_record_ = CreateToolButton(Tool::kRecord);
+  btn_transition_tool_ = CreateToolButton(Tool::kTransition);
+  btn_add_ = CreateToolButton(Tool::kAdd);
 
   // Create snapping button, which is not actually a tool, it's a toggle option
   btn_snapping_toggle_ = CreateNonToolButton();
-  connect(btn_snapping_toggle_, SIGNAL(clicked(bool)), this, SLOT(SnappingButtonClicked(bool)));
+  connect(btn_snapping_toggle_, &QPushButton::clicked, this, &Toolbar::SnappingButtonClicked);
+
+  // Connect transition button to menu signal
+  connect(btn_transition_tool_, &QPushButton::clicked, this, &Toolbar::TransitionButtonClicked);
+
+  // Connect add button to menu signal
+  connect(btn_add_, &QPushButton::clicked, this, &Toolbar::AddButtonClicked);
 
   Retranslate();
   UpdateIcons();
 }
 
-void Toolbar::SetTool(const olive::tool::Tool& tool)
+void Toolbar::SetTool(const Tool::Item& tool)
 {
   // For each tool, set the "checked" state to whether the button's tool is the current tool
   for (int i=0;i<toolbar_btns_.size();i++) {
@@ -78,7 +91,17 @@ void Toolbar::changeEvent(QEvent *e)
   } else if (e->type() == QEvent::StyleChange) {
     UpdateIcons();
   }
-  QWidget::changeEvent(e);
+  super::changeEvent(e);
+}
+
+void Toolbar::resizeEvent(QResizeEvent *e)
+{
+  super::resizeEvent(e);
+
+  int min_height = toolbar_btns_.size() * toolbar_btns_.first()->height() + (toolbar_btns_.size()-1) * layout_->verticalSpacing();
+  int new_height = e->size().height();
+  int columns_required = min_height / new_height + (min_height % new_height != 0);
+  setMinimumWidth(toolbar_btns_.first()->width() * columns_required + layout_->horizontalSpacing() * (columns_required-1) + 1);
 }
 
 void Toolbar::Retranslate()
@@ -100,22 +123,22 @@ void Toolbar::Retranslate()
 
 void Toolbar::UpdateIcons()
 {
-  btn_pointer_tool_->setIcon(olive::icon::ToolPointer);
-  btn_edit_tool_->setIcon(olive::icon::ToolEdit);
-  btn_ripple_tool_->setIcon(olive::icon::ToolRipple);
-  btn_rolling_tool_->setIcon(olive::icon::ToolRolling);
-  btn_razor_tool_->setIcon(olive::icon::ToolRazor);
-  btn_slip_tool_->setIcon(olive::icon::ToolSlip);
-  btn_slide_tool_->setIcon(olive::icon::ToolSlide);
-  btn_hand_tool_->setIcon(olive::icon::ToolHand);
-  btn_zoom_tool_->setIcon(olive::icon::ZoomIn);
-  btn_record_->setIcon(olive::icon::Record);
-  btn_transition_tool_->setIcon(olive::icon::ToolTransition);
-  btn_add_->setIcon(olive::icon::Add);
-  btn_snapping_toggle_->setIcon(olive::icon::Snapping);
+  btn_pointer_tool_->setIcon(icon::ToolPointer);
+  btn_edit_tool_->setIcon(icon::ToolEdit);
+  btn_ripple_tool_->setIcon(icon::ToolRipple);
+  btn_rolling_tool_->setIcon(icon::ToolRolling);
+  btn_razor_tool_->setIcon(icon::ToolRazor);
+  btn_slip_tool_->setIcon(icon::ToolSlip);
+  btn_slide_tool_->setIcon(icon::ToolSlide);
+  btn_hand_tool_->setIcon(icon::ToolHand);
+  btn_zoom_tool_->setIcon(icon::ZoomIn);
+  btn_record_->setIcon(icon::Record);
+  btn_transition_tool_->setIcon(icon::ToolTransition);
+  btn_add_->setIcon(icon::Add);
+  btn_snapping_toggle_->setIcon(icon::Snapping);
 }
 
-ToolbarButton* Toolbar::CreateToolButton(const olive::tool::Tool& tool)
+ToolbarButton* Toolbar::CreateToolButton(const Tool::Item& tool)
 {
   // Create a ToolbarButton object
   ToolbarButton* b = new ToolbarButton(this, tool);
@@ -135,7 +158,7 @@ ToolbarButton* Toolbar::CreateToolButton(const olive::tool::Tool& tool)
 ToolbarButton *Toolbar::CreateNonToolButton()
 {
   // Create a ToolbarButton object
-  ToolbarButton* b = new ToolbarButton(this, olive::tool::kNone);
+  ToolbarButton* b = new ToolbarButton(this, Tool::kNone);
 
   // Add it to the layout
   layout_->addWidget(b);
@@ -146,7 +169,7 @@ ToolbarButton *Toolbar::CreateNonToolButton()
 void Toolbar::ToolButtonClicked()
 {
   // Get new tool from ToolbarButton object
-  olive::tool::Tool new_tool = static_cast<ToolbarButton*>(sender())->tool();
+  Tool::Item new_tool = static_cast<ToolbarButton*>(sender())->tool();
 
   // Set checked state of all tool buttons
   // NOTE: Not necessary if this is appropriately connected to Core
@@ -159,4 +182,41 @@ void Toolbar::ToolButtonClicked()
 void Toolbar::SnappingButtonClicked(bool b)
 {
   emit SnappingChanged(b);
+}
+
+void Toolbar::AddButtonClicked()
+{
+  Menu m(this);
+
+  for (int i=0;i<Tool::kAddableCount;i++) {
+    QAction* action = m.addAction(Tool::GetAddableObjectName(static_cast<Tool::AddableObject>(i)));
+    action->setData(i);
+  }
+
+  connect(&m, &QMenu::triggered, this, &Toolbar::AddMenuItemTriggered);
+
+  m.exec(QCursor::pos());
+}
+
+void Toolbar::TransitionButtonClicked()
+{
+  Menu* m = NodeFactory::CreateMenu(this, false, Node::kCategoryTransition);
+
+  connect(m, &QMenu::triggered, this, &Toolbar::TransitionMenuItemTriggered);
+
+  m->exec(QCursor::pos());
+
+  delete m;
+}
+
+void Toolbar::AddMenuItemTriggered(QAction* a)
+{
+  emit AddableObjectChanged(static_cast<Tool::AddableObject>(a->data().toInt()));
+}
+
+void Toolbar::TransitionMenuItemTriggered(QAction *a)
+{
+  emit SelectedTransitionChanged(NodeFactory::GetIDFromMenuAction(a));
+}
+
 }

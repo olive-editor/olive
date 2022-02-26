@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,9 @@
 #include <QVariant>
 
 #include "common/timecodefunctions.h"
+#include "node/value.h"
+
+namespace olive {
 
 class Config {
 public:
@@ -41,14 +44,25 @@ public:
 
   QVariant& operator[](const QString&);
 
+  NodeValue::Type GetConfigEntryType(const QString& key) const;
+
 private:
   Config();
 
-  QMap<QString, QVariant> config_map_;
+  struct ConfigEntry {
+    NodeValue::Type type;
+    QVariant data;
+  };
+
+  void SetEntryInternal(const QString& key, NodeValue::Type type, const QVariant& data);
+
+  QMap<QString, ConfigEntry> config_map_;
 
   static Config current_config_;
 
   static QString GetConfigFilePath();
 };
+
+}
 
 #endif // CONFIG_H

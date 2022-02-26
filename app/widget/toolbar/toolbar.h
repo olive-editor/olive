@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
 #include "widget/flowlayout/flowlayout.h"
 #include "widget/toolbar/toolbarbutton.h"
 #include "tool/tool.h"
+
+namespace olive {
 
 /**
  * @brief A widget containing buttons for all of Olive's application-wide tools.
@@ -65,7 +67,7 @@ public slots:
    *
    * Tool to show as selected
    */
-  void SetTool(const olive::tool::Tool &tool);
+  void SetTool(const Tool::Item &tool);
 
   /**
    * @brief Set snapping checked value
@@ -87,6 +89,8 @@ protected:
    */
   virtual void changeEvent(QEvent* e) override;
 
+  virtual void resizeEvent(QResizeEvent *e) override;
+
 signals:
   /**
    * @brief Emitted whenever a tool is selected using this widget
@@ -95,7 +99,7 @@ signals:
    *
    * Tool that was selected
    */
-  void ToolChanged(const olive::tool::Tool& t);
+  void ToolChanged(const Tool::Item& t);
 
   /**
    * @brief Emitted whenever the snapping setting is changed
@@ -105,6 +109,16 @@ signals:
    * New snapping enabled setting
    */
   void SnappingChanged(const bool& b);
+
+  /**
+   * @brief Emitted when the addable object is changed from the add tool menu
+   */
+  void AddableObjectChanged(const Tool::AddableObject& obj);
+
+  /**
+   * @brief Emitted when the selected transition is changed from the transition tool menu
+   */
+  void SelectedTransitionChanged(const QString& id);
 
 private:
   /**
@@ -130,7 +144,7 @@ private:
    *
    * The created ToolbarButton. The button parent is automatically set to `this`.
    */
-  ToolbarButton* CreateToolButton(const olive::tool::Tool& tool);
+  ToolbarButton* CreateToolButton(const Tool::Item& tool);
 
   /**
    * @brief Internal convenience function for creating buttons quickly
@@ -195,6 +209,33 @@ private slots:
    * The new snapping value received from the sender's clicked signal
    */
   void SnappingButtonClicked(bool b);
+
+  /**
+   * @brief Receiver for the add button
+   *
+   * The add button pops up a list for which object to create.
+   */
+  void AddButtonClicked();
+
+  /**
+   * @brief Receiver for the transition button
+   *
+   * The transition button pops up a list for which transition to create.
+   */
+  void TransitionButtonClicked();
+
+  /**
+   * @brief Receiver for the menu created by AddButtonClicked()
+   */
+  void AddMenuItemTriggered(QAction* a);
+
+  /**
+   * @brief Receiver for the menu created by TransitionButtonClicked()
+   */
+  void TransitionMenuItemTriggered(QAction* a);
+
 };
+
+}
 
 #endif // TOOLBAR_H

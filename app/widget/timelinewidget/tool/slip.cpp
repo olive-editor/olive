@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,56 +24,64 @@
 
 #include "common/timecodefunctions.h"
 #include "config/config.h"
+#include "slip.h"
+#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
-TimelineWidget::SlipTool::SlipTool(TimelineWidget *parent) :
+namespace olive {
+
+SlipTool::SlipTool(TimelineWidget *parent) :
   PointerTool(parent)
 {
   SetTrimmingAllowed(false);
   SetTrackMovementAllowed(false);
 }
 
-void TimelineWidget::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
+void SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 {
   // Determine frame movement
   rational time_movement = drag_start_.GetFrame() - mouse_pos.GetFrame();
 
   // Validate slip (enforce all ghosts moving in legal ways)
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (ghost->MediaIn() + time_movement < 0) {
-      time_movement = -ghost->MediaIn();
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    if (ghost->GetMediaIn() + time_movement < 0) {
+      time_movement = -ghost->GetMediaIn();
     }
   }
 
   // Perform slip
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     ghost->SetMediaInAdjustment(time_movement);
   }
 
-  // Show tooltip
-  // Generate tooltip (showing earliest in point of imported clip)
-  int64_t earliest_timestamp = olive::time_to_timestamp(time_movement, parent()->timebase());
-  QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
-                                                      parent()->timebase(),
-                                                      olive::CurrentTimecodeDisplay(),
-                                                      true);
+  // Generate tooltip and force it to to update (otherwise the tooltip won't move as written in the
+  // documentation, and could get in the way of the cursor)
+  rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
+  QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     tooltip_text,
+                     Timecode::time_to_timecode(time_movement,
+                                                tooltip_timebase,
+                                                Core::instance()->GetTimecodeDisplay(),
+                                                true),
                      parent());
 }
 
-void TimelineWidget::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  QUndoCommand* command = new QUndoCommand();
+  MultiUndoCommand* command = new MultiUndoCommand();
 
   // Find earliest point to ripple around
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-    new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn(), command);
+    ClipBlock *cb = dynamic_cast<ClipBlock*>(b);
+    if (cb) {
+      command->add_child(new BlockSetMediaInCommand(cb, ghost->GetAdjustedMediaIn()));
+    }
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+}

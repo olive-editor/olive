@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@
 
 #include "widget/panel/panel.h"
 
+namespace olive {
+
 /**
  * @brief A PanelWidget wrapper around a Toolbar
  */
@@ -32,11 +34,11 @@ class ToolPanel : public PanelWidget
 public:
   ToolPanel(QWidget* parent);
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
-
 private:
-  void Retranslate();
+  virtual void Retranslate() override;
+
 };
+
+}
 
 #endif // TOOL_PANEL_H

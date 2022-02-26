@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,103 +21,54 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "ripple.h"
+#include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/undo/timelineundoripple.h"
 
-TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
+namespace olive {
+
+RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
+  SetGapTrimmingAllowed(true);
 }
 
-void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void RippleTool::InitiateDrag(Block *clicked_item,
+                              Timeline::MovementMode trim_mode)
 {
-  Q_UNUSED(event)
+  InitiateDragInternal(clicked_item, trim_mode, true, true, false);
 
-  // For ripple operations, all ghosts will be moving the same way
-  olive::timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
-
-  QUndoCommand* command = new QUndoCommand();
-
-  // Find earliest point to ripple around
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (b == nullptr) {
-      // This is a gap we are creating
-
-      // Make sure there's actually a gap being created
-      if (ghost->AdjustedLength() > 0) {
-        GapBlock* gap = new GapBlock();
-        gap->set_length(ghost->AdjustedLength());
-
-        Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
-
-        new TrackInsertBlockBetweenBlocksCommand(parent()->GetTrackFromReference(ghost->Track()),
-                                                 gap,
-                                                 block_to_append_gap_to,
-                                                 block_to_append_gap_to->next());
-      }
-    } else {
-      // This was a Block that already existed
-      if (ghost->AdjustedLength() > 0) {
-        if (movement_mode == olive::timeline::kTrimIn) {
-          // We'll need to shift the media in point too
-          new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
-        } else {
-          new BlockResizeCommand(b, ghost->AdjustedLength(), command);
-        }
-      } else {
-        // Assumed the Block was a Gap and it was reduced to zero length, remove it here
-        new TrackRippleRemoveBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, command);
-      }
-    }
-  }
-
-  olive::undo_stack.pushIfHasChildren(command);
-}
-
-rational TimelineWidget::RippleTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
-{
-  // Only validate trimming, and we don't care about "overwriting" since the ripple tool is nondestructive
-  time_movement = ValidateInTrimming(time_movement, ghosts, false);
-  time_movement = ValidateOutTrimming(time_movement, ghosts, false);
-
-  return time_movement;
-}
-
-void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
-                                                olive::timeline::MovementMode trim_mode,
-                                                bool allow_gap_trimming)
-{
-  Q_UNUSED(allow_gap_trimming)
-
-  PointerTool::InitiateGhosts(clicked_item, trim_mode, true);
-
-  if (parent()->ghost_items_.isEmpty()) {
+  if (!parent()->HasGhosts()) {
     return;
   }
 
   // Find the earliest ripple
   rational earliest_ripple = RATIONAL_MAX;
 
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     rational ghost_ripple_point;
 
-    if (trim_mode == olive::timeline::kTrimIn) {
-      ghost_ripple_point = ghost->In();
+    if (trim_mode == Timeline::kTrimIn) {
+      ghost_ripple_point = ghost->GetIn();
     } else {
-      ghost_ripple_point = ghost->Out();
+      ghost_ripple_point = ghost->GetOut();
     }
 
     earliest_ripple = qMin(earliest_ripple, ghost_ripple_point);
   }
 
   // For each track that does NOT have a ghost, we need to make one for Gaps
-  foreach (TrackOutput* track, parent()->timeline_node_->Tracks()) {
+  foreach (Track* track, sequence()->GetTracks()) {
+    if (track->IsLocked()) {
+      continue;
+    }
+
     // Determine if we've already created a ghost on this track
     bool ghost_on_this_track_exists = false;
 
-    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      if (parent()->GetTrackFromReference(ghost->Track()) == track) {
+    foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+      if (parent()->GetTrackFromReference(ghost->GetTrack()) == track) {
         ghost_on_this_track_exists = true;
         break;
       }
@@ -125,26 +76,97 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
 
     // If there's no ghost on this track, create one
     if (!ghost_on_this_track_exists) {
-      // Find the block that starts just before the ripple point, and ends either on or just after it
-      Block* block_before_ripple = track->NearestBlockBefore(earliest_ripple);
+      // Find the block that starts just after or at the ripple point
+      Block* block_after_ripple = track->NearestBlockAfterOrAt(earliest_ripple);
 
       // If block is null, there will be no blocks after to ripple
-      if (block_before_ripple != nullptr) {
+      if (block_after_ripple) {
         TimelineViewGhostItem* ghost;
 
-        TrackReference track_ref(track->track_type(), track->Index());
-
-        if (block_before_ripple->type() == Block::kGap) {
+        if (dynamic_cast<GapBlock*>(block_after_ripple)) {
           // If this Block is already a Gap, ghost it now
-          ghost = AddGhostFromBlock(block_before_ripple, track_ref, trim_mode);
+          ghost = AddGhostFromBlock(block_after_ripple, trim_mode);
         } else {
-          // If there's no gap here, we'll need to create one
-          ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode);
-          ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
-        }
+          // Well we need to ripple SOMETHING, it'll either be the previous block if it's a gap
+          // or we'll have to create a new gap ourselves
+          Block* previous = block_after_ripple->previous();
 
-        ghost->SetInvisible(true);
+          if (dynamic_cast<GapBlock*>(previous)) {
+            // Previous is a gap, that'll make a fine substitute
+            ghost = AddGhostFromBlock(previous, trim_mode);
+          } else {
+            // Previous is not a gap, we'll have to insert one there ourselves
+            ghost = AddGhostFromNull(block_after_ripple->in(), block_after_ripple->in(), track->ToReference(), trim_mode);
+            ghost->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_after_ripple));
+          }
+        }
       }
     }
   }
+}
+
+void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
+{
+  Q_UNUSED(event)
+
+  if (parent()->HasGhosts()) {
+    QVector< QHash<Track*, TrackListRippleToolCommand::RippleInfo> > info_list(Track::kCount);
+
+    foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+      if (!ghost->HasBeenAdjusted()) {
+        continue;
+      }
+
+      Track* track = parent()->GetTrackFromReference(ghost->GetTrack());
+
+      TrackListRippleToolCommand::RippleInfo info;
+      Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+
+      if (b) {
+        info.block = b;
+        info.append_gap = false;
+      } else {
+        info.block = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock));
+        info.append_gap = true;
+      }
+
+      info_list[track->type()].insert(track, info);
+    }
+
+    MultiUndoCommand* command = new MultiUndoCommand();
+
+    rational movement;
+
+    if (drag_movement_mode() == Timeline::kTrimOut) {
+      movement = parent()->GetGhostItems().first()->GetOutAdjustment();
+    } else {
+      movement = parent()->GetGhostItems().first()->GetInAdjustment();
+    }
+
+    for (int i=0;i<info_list.size();i++) {
+      if (!info_list.at(i).isEmpty()) {
+        command->add_child(new TrackListRippleToolCommand(sequence()->track_list(static_cast<Track::Type>(i)),
+                                                          info_list.at(i),
+                                                          movement,
+                                                          drag_movement_mode()));
+      }
+    }
+
+    if (command->child_count() > 0) {
+      TimelineWidgetSelections new_sel = parent()->GetSelections();
+      TimelineViewGhostItem* reference_ghost = parent()->GetGhostItems().first();
+      if (drag_movement_mode() == Timeline::kTrimIn) {
+        new_sel.TrimOut(-reference_ghost->GetInAdjustment());
+      } else {
+        new_sel.TrimOut(reference_ghost->GetOutAdjustment());
+      }
+      command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
+
+      Core::instance()->undo_stack()->push(command);
+    } else {
+      delete command;
+    }
+  }
+}
+
 }

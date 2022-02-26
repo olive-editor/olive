@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,9 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "project/projectviewtype.h"
+#include "common/define.h"
+
+namespace olive {
 
 /**
  * @brief The ProjectToolbar class
@@ -41,8 +43,14 @@ class ProjectToolbar : public QWidget
 public:
   ProjectToolbar(QWidget* parent);
 
+  enum ViewType {
+    TreeView,
+    ListView,
+    IconView
+  };
+
 public slots:
-  void SetView(olive::ProjectViewType type);
+  void SetView(ViewType type);
 
 protected:
   void changeEvent(QEvent *) override;
@@ -52,12 +60,9 @@ signals:
   void OpenClicked();
   void SaveClicked();
 
-  void UndoClicked();
-  void RedoClicked();
-
   void SearchChanged(const QString&);
 
-  void ViewChanged(olive::ProjectViewType type);
+  void ViewChanged(ViewType type);
 
 private:
   void Retranslate();
@@ -66,8 +71,6 @@ private:
   QPushButton* new_button_;
   QPushButton* open_button_;
   QPushButton* save_button_;
-  QPushButton* undo_button_;
-  QPushButton* redo_button_;
 
   QLineEdit* search_field_;
 
@@ -78,5 +81,7 @@ private:
 private slots:
   void ViewButtonClicked();
 };
+
+}
 
 #endif // PROJECTTOOLBAR_H

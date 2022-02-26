@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,8 +24,9 @@
 #include <QObject>
 #include <QList>
 
-#include "panel/viewer/viewer.h"
 #include "widget/panel/panel.h"
+
+namespace olive {
 
 /**
  * @brief The PanelFocusManager class
@@ -45,7 +46,7 @@ class PanelManager : public QObject
 {
   Q_OBJECT
 public:
-  PanelManager(QObject* parent);
+  PanelManager(QObject* parent = nullptr);
 
   /**
    * @brief Destroy all panels
@@ -64,14 +65,12 @@ public:
   /**
    * @brief Return the currently focused widget, or nullptr if nothing is focused
    *
-   * This result == CurrentlyFocused() if HoverFocus is true
+   * This result == CurrentlyFocused() if HoverFocus is true and panel is hovered
    */
-  PanelWidget* CurrentlyFocused() const;
+  PanelWidget* CurrentlyFocused(bool enable_hover = true) const;
 
   /**
    * @brief Return the widget that the mouse is currently hovering over, or nullptr if nothing is hovered over
-   *
-   * This result == CurrentlyFocused() if HoverFocus is true
    */
   PanelWidget* CurrentlyHovered() const;
 
@@ -85,18 +84,43 @@ public:
    */
   T* MostRecentlyFocused();
 
-  template<class T>
-  /**
-   * @brief Create a panel
-   * @param parent
-   * @return
-   */
-  T* CreatePanel(QWidget* parent);
-
   /**
    * @brief Get whether panels are currently prevented from moving
    */
   bool ArePanelsLocked();
+
+  /**
+   * @brief Create PanelManager singleton instance
+   */
+  static void CreateInstance();
+
+  /**
+   * @brief Destroy PanelManager singleton instance
+   *
+   * If no PanelManager was created, this is a no-op.
+   */
+  static void DestroyInstance();
+
+  /**
+   * @brief Access to PanelManager singleton instance
+   */
+  static PanelManager* instance();
+
+  template<class T>
+  /**
+   * @brief Get a list of panels of a certain type
+   */
+  QList<T*> GetPanelsOfType();
+
+  /**
+   * @brief Panel should call this upon construction so it can be kept track of
+   */
+  void RegisterPanel(PanelWidget *panel);
+
+  /**
+   * @brief Panel should call this upon destruction so no invalid pointers will be kept for it
+   */
+  void UnregisterPanel(PanelWidget *panel);
 
 public slots:
   /**
@@ -111,6 +135,12 @@ public slots:
    */
   void SetPanelsLocked(bool locked);
 
+signals:
+  /**
+   * @brief Signal emitted when the currently focused panel changes
+   */
+  void FocusedPanelChanged(PanelWidget* panel);
+
 private:
   /**
    * @brief History array for traversing through (see MostRecentlyFocused())
@@ -121,20 +151,13 @@ private:
    * @brief Internal panel movement is locked value
    */
   bool locked_;
+
+  /**
+   * @brief PanelManager singleton instance
+   */
+  static PanelManager* instance_;
+
 };
-
-template<class T>
-T *PanelManager::CreatePanel(QWidget *parent)
-{
-  T* panel = new T(parent);
-
-  panel->SetMovementLocked(locked_);
-
-  // Add panel to the bottom of the focus history
-  focus_history_.append(panel);
-
-  return panel;
-}
 
 template<class T>
 T* PanelManager::MostRecentlyFocused()
@@ -152,8 +175,24 @@ T* PanelManager::MostRecentlyFocused()
   return nullptr;
 }
 
-namespace olive {
-extern PanelManager* panel_manager;
+template<class T>
+QList<T*> PanelManager::GetPanelsOfType()
+{
+  QList<T*> panels;
+
+  T* cast_test;
+
+  foreach (PanelWidget* panel, focus_history_) {
+    cast_test = dynamic_cast<T*>(panel);
+
+    if (cast_test) {
+      panels.append(cast_test);
+    }
+  }
+
+  return panels;
+}
+
 }
 
 #endif // PANELFOCUSMANAGER_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,16 +22,14 @@
 #define BLOCK_H
 
 #include "node/node.h"
+#include "timeline/timelinecommon.h"
+
+namespace olive {
+
+class TransitionBlock;
 
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
- *
- * This is an abstract function. Since different types of Block will provide their lengths in different ways, it's
- * necessary to subclass and override the length() function for a Block to be usable.
- *
- * When overriding Node::copy(), the derivative class should also call Block::CopyParameters() on the new Block instance
- * which will copy the block's name, length, and media in point. It does not copy any node-specific parameters like any
- * input values or connections as per standard with Node::copy().
  */
 class Block : public Node
 {
@@ -39,78 +37,120 @@ class Block : public Node
 public:
   Block();
 
-  enum Type {
-    kClip,
-    kGap,
-    kTrack
-  };
+  NODE_DEFAULT_DESTRUCTOR(Block)
 
-  virtual Type type() const = 0;
+  virtual QVector<CategoryID> Category() const override;
 
-  virtual QString Category() const override;
+  const rational& in() const
+  {
+    return in_point_;
+  }
 
-  const rational& in() const;
-  const rational& out() const;
-  void set_in(const rational& in);
-  void set_out(const rational& out);
+  const rational& out() const
+  {
+    return out_point_;
+  }
 
-  const rational &length() const;
-  void set_length(const rational &length);
-  void set_length_and_media_in(const rational &length);
+  void set_in(const rational& in)
+  {
+    in_point_ = in;
+  }
 
-  Block* previous();
-  Block* next();
-  void set_previous(Block* previous);
-  void set_next(Block* next);
+  void set_out(const rational& out)
+  {
+    out_point_ = out;
+  }
 
-  const rational& media_in() const;
-  void set_media_in(const rational& media_in);
+  rational length() const;
+  virtual void set_length_and_media_out(const rational &length);
+  virtual void set_length_and_media_in(const rational &length);
 
-  const QString& block_name() const;
-  void set_block_name(const QString& name);
+  TimeRange range() const
+  {
+    return TimeRange(in(), out());
+  }
 
-  static void Link(Block* a, Block* b);
-  static void Link(QList<Block*> blocks);
-  static void Unlink(Block* a, Block* b);
-  static bool AreLinked(Block* a, Block* b);
-  const QVector<Block*>& linked_clips();
-  bool HasLinks();
+  Block* previous() const
+  {
+    return previous_;
+  }
 
-  virtual bool IsBlock() const override;
+  Block* next() const
+  {
+    return next_;
+  }
+
+  void set_previous(Block* previous)
+  {
+    previous_ = previous;
+  }
+
+  void set_next(Block* next)
+  {
+    next_ = next;
+  }
+
+  Track* track() const
+  {
+    return track_;
+  }
+
+  void set_track(Track* track)
+  {
+    track_ = track;
+  }
+
+  bool is_enabled() const;
+  void set_enabled(bool e);
+
+  virtual void Retranslate() override;
+
+  int index() const
+  {
+    return index_;
+  }
+
+  void set_index(int i)
+  {
+    index_ = i;
+  }
+
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
+
+  static const QString kLengthInput;
+  static const QString kEnabledInput;
 
 public slots:
 
 signals:
-  /**
-   * @brief Signal emitted when this Block is refreshed
-   *
-   * Can be used as essentially a "changed" signal for UI widgets to know when to update their views
-   */
-  void Refreshed();
+  void EnabledChanged();
 
-  void LengthChanged(const rational& length);
+  void LengthChanged();
+
+  void PreviewChanged();
 
 protected:
-  rational SequenceToMediaTime(const rational& sequence_time) const;
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  rational MediaToSequenceTime(const rational& media_time) const;
+  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
-  static void CopyParameters(const Block *source, Block* dest);
+  bool HashPassthrough(const QString &input, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   Block* previous_;
   Block* next_;
 
 private:
-  rational length_;
-  rational media_in_;
+  void set_length_internal(const rational &length);
 
   rational in_point_;
   rational out_point_;
+  Track* track_;
+  int index_;
 
-  QString block_name_;
-
-  QVector<Block*> linked_clips_;
+  rational last_length_;
 
 };
+
+}
 
 #endif // BLOCK_H

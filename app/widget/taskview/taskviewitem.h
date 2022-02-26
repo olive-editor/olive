@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,9 +24,13 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QStackedWidget>
 #include <QWidget>
 
+#include "elapsedcounterwidget.h"
 #include "task/task.h"
+
+namespace olive {
 
 /**
  * @brief A widget that visually represents the status of a Task
@@ -41,28 +45,29 @@ class TaskViewItem : public QFrame
 {
   Q_OBJECT
 public:
-  TaskViewItem(QWidget* parent);
+  TaskViewItem(Task *task, QWidget* parent = nullptr);
 
-  /**
-   * @brief Connects a Task to this object
-   *
-   * If a Task has already been connected, this will disconnect this TaskViewItem from the previously connected
-   * Task before connecting to the next one - however there are very few circumstances where this would be necessary
-   * since TaskViewItem is designed to delete itself when a Task is complete.
-   */
-  void SetTask(Task* t);
+  void Failed();
+
+signals:
+  void TaskCancelled(Task* t);
 
 private:
   QLabel* task_name_lbl_;
   QProgressBar* progress_bar_;
   QPushButton* cancel_btn_;
-  QLabel* task_status_lbl_;
+
+  QStackedWidget* status_stack_;
+  ElapsedCounterWidget* elapsed_timer_lbl_;
+  QLabel* task_error_lbl_;
 
   Task* task_;
 
 private slots:
-  void TaskStatusChange(Task::Status status);
+  void UpdateProgress(double d);
 
 };
+
+}
 
 #endif // TASKVIEWITEM_H

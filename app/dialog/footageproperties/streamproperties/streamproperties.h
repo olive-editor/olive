@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,15 +21,24 @@
 #ifndef STREAMPROPERTIES_H
 #define STREAMPROPERTIES_H
 
-#include <QUndoCommand>
 #include <QWidget>
+
+#include "common/define.h"
+#include "undo/undocommand.h"
+
+namespace olive {
 
 class StreamProperties : public QWidget
 {
 public:
   StreamProperties(QWidget* parent = nullptr);
 
-  virtual void Accept(QUndoCommand*){}
+  virtual void Accept(MultiUndoCommand*){}
+
+  virtual bool SanityCheck(){return true;}
+
 };
+
+}
 
 #endif // STREAMPROPERTIES_H

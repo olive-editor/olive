@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,9 +28,11 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QStackedWidget>
-#include <QUndoCommand>
 
-#include "project/item/footage/footage.h"
+#include "node/project/footage/footage.h"
+#include "undo/undocommand.h"
+
+namespace olive {
 
 /**
  * @brief The MediaPropertiesDialog class
@@ -54,33 +56,23 @@ public:
    */
   FootagePropertiesDialog(QWidget *parent, Footage* footage);
 private:
-  class FootageChangeCommand : public QUndoCommand {
+  class StreamEnableChangeCommand : public UndoCommand {
   public:
-    FootageChangeCommand(Footage* footage,
-                         const QString& name,
-                         QUndoCommand *command = nullptr);
+    StreamEnableChangeCommand(Footage *footage,
+                              Track::Type type,
+                              int index_in_type,
+                              bool enabled);
 
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
     virtual void redo() override;
     virtual void undo() override;
 
   private:
-    Footage* footage_;
-
-    QString new_name_;
-    QString old_name_;
-  };
-
-  class StreamEnableChangeCommand : public QUndoCommand {
-  public:
-    StreamEnableChangeCommand(StreamPtr stream,
-                              bool enabled,
-                              QUndoCommand* command = nullptr);
-
-    virtual void redo() override;
-    virtual void undo() override;
-
-  private:
-    StreamPtr stream_;
+    Footage *footage_;
+    Track::Type type_;
+    int index_;
 
     bool old_enabled_;
     bool new_enabled_;
@@ -123,5 +115,7 @@ private slots:
   void accept();
 
 };
+
+}
 
 #endif // MEDIAPROPERTIESDIALOG_H

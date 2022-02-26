@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,19 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+add_subdirectory(base)
+
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/slider/floatslider.h
   widget/slider/floatslider.cpp
   widget/slider/integerslider.h
   widget/slider/integerslider.cpp
-  widget/slider/sliderbase.h
-  widget/slider/sliderbase.cpp
-  widget/slider/sliderlabel.h
-  widget/slider/sliderlabel.cpp
-  widget/slider/sliderlineedit.h
-  widget/slider/sliderlineedit.cpp
+  widget/slider/rationalslider.h
+  widget/slider/rationalslider.cpp
   widget/slider/stringslider.h
   widget/slider/stringslider.cpp
+  widget/slider/timeslider.h
+  widget/slider/timeslider.cpp
   PARENT_SCOPE
 )

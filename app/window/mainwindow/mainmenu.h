@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,10 @@
 #include "dialog/actionsearch/actionsearch.h"
 #include "widget/menu/menu.h"
 
+namespace olive {
+
+class MainWindow;
+
 /**
  * @brief Olive's main menubar attached to its main window.
  *
@@ -36,7 +40,7 @@ class MainMenu : public QMenuBar
 {
   Q_OBJECT
 public:
-  MainMenu(QMainWindow* parent);
+  MainMenu(MainWindow *parent);
 
 protected:
   /**
@@ -52,7 +56,7 @@ private slots:
   /**
    * @brief A slot for the Tool selection items
    *
-   * Assumes a QAction* sender() and its data() is a member of enum olive::tool:Tool. Uses the data() to signal a
+   * Assumes a QAction* sender() and its data() is a member of enum Tool::Item. Uses the data() to signal a
    * Tool change throughout the rest of the application.
    */
   void ToolItemTriggered();
@@ -61,6 +65,12 @@ private slots:
    * @brief Slot triggered just before the File menu shows
    */
   void FileMenuAboutToShow();
+
+  /**
+   * @brief Slot triggered just before the Edit menu shows
+   */
+  void EditMenuAboutToShow();
+  void EditMenuAboutToHide();
 
   /**
    * @brief Slot triggered just before the View menu shows
@@ -73,14 +83,31 @@ private slots:
   void ToolsMenuAboutToShow();
 
   /**
+   * @brief Slot triggered just before the Playback menu shows
+   */
+  void PlaybackMenuAboutToShow();
+
+  /**
+   * @brief Slot triggered just before the Sequence menu shows
+   */
+  void SequenceMenuAboutToShow();
+
+  /**
    * @brief Slot triggered just before the Window menu shows
    */
   void WindowMenuAboutToShow();
 
   /**
-   * @brief Slot triggered just before the Window menu hides
+   * @brief Adds items to open recent menu
    */
-  void WindowMenuAboutToHide();
+  void PopulateOpenRecent();
+
+  void RepopulateOpenRecent();
+
+  /**
+   * @brief Clears open recent items when menu closes
+   */
+  void CloseOpenRecentMenu();
 
   /**
    * @brief Slot for zooming in
@@ -96,6 +123,9 @@ private slots:
    */
   void ZoomOutTriggered();
 
+  void IncreaseTrackHeightTriggered();
+  void DecreaseTrackHeightTriggered();
+
   void GoToStartTriggered();
   void PrevFrameTriggered();
 
@@ -106,16 +136,28 @@ private slots:
    */
   void PlayPauseTriggered();
 
+  void PlayInToOutTriggered();
+
+  void LoopTriggered(bool enabled);
+
   void NextFrameTriggered();
   void GoToEndTriggered();
 
   void SelectAllTriggered();
   void DeselectAllTriggered();
 
+  void InsertTriggered();
+  void OverwriteTriggered();
+
   void RippleToInTriggered();
   void RippleToOutTriggered();
   void EditToInTriggered();
   void EditToOutTriggered();
+
+  void NudgeLeftTriggered();
+  void NudgeRightTriggered();
+  void MoveInToPlayheadTriggered();
+  void MoveOutToPlayheadTriggered();
 
   void ActionSearchTriggered();
 
@@ -125,6 +167,26 @@ private slots:
 
   void GoToPrevCutTriggered();
   void GoToNextCutTriggered();
+
+  void SetMarkerTriggered();
+
+  void FullScreenViewerTriggered();
+
+  void ToggleShowAllTriggered();
+
+  void DeleteInOutTriggered();
+  void RippleDeleteInOutTriggered();
+
+  void GoToInTriggered();
+  void GoToOutTriggered();
+
+  void OpenRecentItemTriggered();
+
+  void SequenceCacheTriggered();
+  void SequenceCacheInOutTriggered();
+  void SequenceCacheClearTriggered();
+
+  void HelpFeedbackTriggered();
 
 private:
   /**
@@ -136,23 +198,37 @@ private:
   Menu* file_new_menu_;
   QAction* file_open_item_;
   Menu* file_open_recent_menu_;
+  QAction* file_open_recent_separator_;
   QAction* file_open_recent_clear_item_;
   QAction* file_save_item_;
   QAction* file_save_as_item_;
+  QAction* file_save_all_item_;
+  QAction* file_revert_item_;
   QAction* file_import_item_;
-  QAction* file_export_item_;
+  Menu* file_export_menu_;
+  QAction* file_export_media_item_;
+  QAction* file_close_project_item_;
+  QAction* file_close_all_projects_item_;
+  QAction* file_close_all_except_item_;
   QAction* file_project_properties_item_;
   QAction* file_exit_item_;
 
   Menu* edit_menu_;
   QAction* edit_undo_item_;
   QAction* edit_redo_item_;
+  QAction* edit_delete2_item_;
   QAction* edit_select_all_item_;
   QAction* edit_deselect_all_item_;
+  QAction* edit_insert_item_;
+  QAction* edit_overwrite_item_;
   QAction* edit_ripple_to_in_item_;
   QAction* edit_ripple_to_out_item_;
   QAction* edit_edit_to_in_item_;
   QAction* edit_edit_to_out_item_;
+  QAction* edit_nudge_left_item_;
+  QAction* edit_nudge_right_item_;
+  QAction* edit_move_in_to_playhead_item_;
+  QAction* edit_move_out_to_playhead_item_;
   QAction* edit_delete_inout_item_;
   QAction* edit_ripple_delete_inout_item_;
   QAction* edit_set_marker_item_;
@@ -163,17 +239,6 @@ private:
   QAction* view_increase_track_height_item_;
   QAction* view_decrease_track_height_item_;
   QAction* view_show_all_item_;
-  QAction* view_rectified_waveforms_item_;
-  QAction* view_timecode_view_frames_item_;
-  QAction* view_timecode_view_dropframe_item_;
-  QAction* view_timecode_view_nondropframe_item_;
-  QAction* view_timecode_view_milliseconds_item_;
-  Menu* view_title_safe_area_menu_;
-  QAction* title_safe_off_item_;
-  QAction* title_safe_default_item_;
-  QAction* title_safe_43_item_;
-  QAction* title_safe_169_item_;
-  QAction* title_safe_custom_item_;
   QAction* view_full_screen_item_;
   QAction* view_full_screen_viewer_item_;
 
@@ -193,6 +258,11 @@ private:
   QAction* playback_shuttleright_item_;
   QAction* playback_loop_item_;
 
+  Menu* sequence_menu_;
+  QAction* sequence_cache_item_;
+  QAction* sequence_cache_in_to_out_item_;
+  QAction* sequence_disk_cache_clear_item_;
+
   Menu* window_menu_;
   QAction* window_menu_separator_;
   QAction* window_maximize_panel_item_;
@@ -211,18 +281,18 @@ private:
   QAction* tools_hand_item_;
   QAction* tools_zoom_item_;
   QAction* tools_transition_item_;
+  QAction* tools_add_item_;
+  QAction* tools_record_item_;
   QAction* tools_snapping_item_;
-  QAction* tools_autocut_silence_item_;
-  QAction* tools_autoscroll_none_item_;
-  QAction* tools_autoscroll_page_item_;
-  QAction* tools_autoscroll_smooth_item_;
   QAction* tools_preferences_item_;
 
   Menu* help_menu_;
   QAction* help_action_search_item_;
-  QAction* help_debug_log_item_;
+  QAction* help_feedback_item_;
   QAction* help_about_item_;
 
 };
+
+}
 
 #endif // MAINMENU_H

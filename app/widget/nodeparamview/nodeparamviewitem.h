@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEWITEM_H
 #define NODEPARAMVIEWITEM_H
 
+#include <QCheckBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -28,56 +29,200 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewarraywidget.h"
+#include "nodeparamviewconnectedlabel.h"
+#include "nodeparamviewkeyframecontrol.h"
+#include "nodeparamviewitembase.h"
 #include "nodeparamviewwidgetbridge.h"
+#include "widget/clickablelabel/clickablelabel.h"
+#include "widget/collapsebutton/collapsebutton.h"
+#include "widget/keyframeview/keyframeview.h"
 
-class NodeParamViewItemTitleBar : public QWidget {
-public:
-  NodeParamViewItemTitleBar(QWidget* parent = nullptr);
+namespace olive {
 
-protected:
-  virtual void paintEvent(QPaintEvent *event) override;
+enum NodeParamViewCheckBoxBehavior {
+  kNoCheckBoxes,
+  kCheckBoxesOn,
+  kCheckBoxesOnNonConnected
 };
 
-class NodeParamViewItem : public QWidget
-{
+class NodeParamViewItemBody : public QWidget {
   Q_OBJECT
 public:
-  NodeParamViewItem(QWidget* parent);
+  NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
-  void AttachNode(Node* n);
+  void SetTimeTarget(Node* target);
 
-  bool CanAddNode(Node *n);
-
-protected:
-  void changeEvent(QEvent *e) override;
-
-private:
-  void SetupUI();
-
-  void AddAdditionalNode(Node* n);
+  void SetTime(const rational& time);
 
   void Retranslate();
 
-  bool expanded_;
+  int GetElementY(NodeInput c) const;
 
-  NodeParamViewItemTitleBar* title_bar_;
+  // Set the timebase of any timebased widgets contained here
+  void SetTimebase(const rational& timebase);
 
-  QLabel* title_bar_lbl_;
+  void SetInputChecked(const NodeInput &input, bool e);
 
-  QVector<QLabel*> param_lbls_;
+signals:
+  void RequestSetTime(const rational& time);
 
-  QPushButton* title_bar_collapse_btn_;
+  void RequestSelectNode(const QVector<Node*>& node);
 
-  QWidget* contents_;
+  void ArrayExpandedChanged(bool e);
 
-  QGridLayout* content_layout_;
+  void InputCheckedChanged(const NodeInput &input, bool e);
 
-  QList<Node*> nodes_;
+private:
+  void CreateWidgets(QGridLayout *layout, Node* node, const QString& input, int element, int row_index);
 
-  QList<NodeParamViewWidgetBridge*> bridges_;
+  void UpdateUIForEdgeConnection(const NodeInput &input);
+
+  void PlaceWidgetsFromBridge(QGridLayout *layout, NodeParamViewWidgetBridge* bridge, int row);
+
+  void InputArraySizeChangedInternal(Node *node, const QString &input, int size);
+
+  struct InputUI {
+    InputUI();
+
+    QLabel* main_label;
+    NodeParamViewWidgetBridge* widget_bridge;
+    NodeParamViewConnectedLabel* connected_label;
+    NodeParamViewKeyframeControl* key_control;
+    QGridLayout* layout;
+    int row;
+    QPushButton *extra_btn;
+    QCheckBox *optional_checkbox;
+
+    NodeParamViewArrayButton* array_insert_btn;
+    NodeParamViewArrayButton* array_remove_btn;
+  };
+
+  QHash<NodeInput, InputUI> input_ui_map_;
+
+  struct ArrayUI {
+    QWidget* widget;
+    int count;
+    NodeParamViewArrayButton* append_btn;
+  };
+
+  Node *node_;
+
+  QHash<NodeInputPair, ArrayUI> array_ui_;
+
+  QHash<NodeInputPair, CollapseButton*> array_collapse_buttons_;
+
+  rational timebase_;
+
+  NodeParamViewCheckBoxBehavior create_checkboxes_;
+
+  QHash<NodeInputPair, NodeInputPair> input_group_lookup_;
+
+  /**
+   * @brief The column to place the keyframe controls in
+   *
+   * Serves as an effective "maximum column" index because the keyframe button is always aligned
+   * to the right edge.
+   */
+  static const int kKeyControlColumn;
+
+  static const int kArrayInsertColumn;
+  static const int kArrayRemoveColumn;
+  static const int kExtraButtonColumn;
+
+  static const int kOptionalCheckBox;
+  static const int kArrayCollapseBtnColumn;
+  static const int kLabelColumn;
+  static const int kWidgetStartColumn;
 
 private slots:
-  void SetExpanded(bool e);
+  void EdgeChanged(Node *output, const NodeInput &input);
+
+  void ArrayCollapseBtnPressed(bool checked);
+
+  void InputArraySizeChanged(const QString &input, int old_sz, int size);
+
+  void ArrayAppendClicked();
+
+  void ArrayInsertClicked();
+
+  void ArrayRemoveClicked();
+
+  void ToggleArrayExpanded();
+
+  void ReplaceWidgets(const NodeInput& input);
+
+  void ShowSpeedDurationDialogForNode();
+
+  void OptionalCheckBoxClicked(bool e);
+
 };
+
+class NodeParamViewItem : public NodeParamViewItemBase
+{
+  Q_OBJECT
+public:
+  NodeParamViewItem(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
+
+  void SetTimeTarget(Node* target)
+  {
+    body_->SetTimeTarget(target);
+  }
+
+  void SetTime(const rational& time)
+  {
+    time_ = time;
+
+    body_->SetTime(time_);
+  }
+
+  void SetTimebase(const rational& timebase)
+  {
+    body_->SetTimebase(timebase);
+  }
+
+  Node* GetNode() const
+  {
+    return node_;
+  }
+
+  int GetElementY(const NodeInput& c) const;
+
+  void SetInputChecked(const NodeInput &input, bool e);
+
+  const KeyframeView::NodeConnections &GetKeyframeConnections() const
+  {
+    return keyframe_connections_;
+  }
+
+  void SetKeyframeConnections(const KeyframeView::NodeConnections &c)
+  {
+    keyframe_connections_ = c;
+  }
+
+signals:
+  void RequestSetTime(const rational& time);
+
+  void RequestSelectNode(const QVector<Node*>& node);
+
+  void ArrayExpandedChanged(bool e);
+
+  void InputCheckedChanged(const NodeInput &input, bool e);
+
+protected slots:
+  virtual void Retranslate() override;
+
+private:
+  NodeParamViewItemBody* body_;
+
+  Node* node_;
+
+  rational time_;
+
+  KeyframeView::NodeConnections keyframe_connections_;
+
+};
+
+}
 
 #endif // NODEPARAMVIEWITEM_H

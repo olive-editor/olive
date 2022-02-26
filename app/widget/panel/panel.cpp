@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,16 +20,34 @@
 
 #include "panel.h"
 
+#include <QCloseEvent>
+#include <QDebug>
+#include <QHBoxLayout>
 #include <QPainter>
 #include <QStyle>
 #include <QStyleOption>
 #include <QVariant>
 
-PanelWidget::PanelWidget(QWidget *parent) :
+#include "panel/panelmanager.h"
+
+namespace olive {
+
+PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
   QDockWidget(parent),
-  border_visible_(false)
+  border_visible_(false),
+  signal_instead_of_close_(false)
 {
+  setObjectName(object_name);
   setFocusPolicy(Qt::ClickFocus);
+
+  connect(this, &PanelWidget::visibilityChanged, this, &PanelWidget::PanelVisibilityChanged);
+
+  PanelManager::instance()->RegisterPanel(this);
+}
+
+PanelWidget::~PanelWidget()
+{
+  PanelManager::instance()->UnregisterPanel(this);
 }
 
 void PanelWidget::SetMovementLocked(bool locked)
@@ -100,4 +118,49 @@ void PanelWidget::UpdateTitle()
   } else {
     setWindowTitle(tr("%1: %2").arg(title_, subtitle_));
   }
+}
+
+void PanelWidget::PanelVisibilityChanged(bool e)
+{
+  if (e) {
+    setFocus();
+  }
+}
+
+void PanelWidget::SetSignalInsteadOfClose(bool e)
+{
+  signal_instead_of_close_ = e;
+}
+
+void PanelWidget::closeEvent(QCloseEvent *event)
+{
+  if (signal_instead_of_close_) {
+    event->ignore();
+    emit CloseRequested();
+  } else {
+    QDockWidget::closeEvent(event);
+  }
+}
+
+void PanelWidget::changeEvent(QEvent *e)
+{
+  if (e->type() == QEvent::LanguageChange) {
+    Retranslate();
+  }
+  QDockWidget::changeEvent(e);
+}
+
+void PanelWidget::Retranslate()
+{
+}
+
+void PanelWidget::SetWidgetWithPadding(QWidget *widget)
+{
+  QWidget* wrapper = new QWidget();
+  QHBoxLayout* layout = new QHBoxLayout(wrapper);
+  layout->setMargin(layout->margin() / 2);
+  layout->addWidget(widget);
+  setWidget(wrapper);
+}
+
 }

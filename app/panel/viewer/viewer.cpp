@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,108 +20,24 @@
 
 #include "viewer.h"
 
-ViewerPanel::ViewerPanel(QWidget *parent) :
-  PanelWidget(parent)
+namespace olive {
+
+ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
+  ViewerPanelBase(object_name, parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ViewerPanel");
-
-  // QObject system handles deleting this
-  viewer_ = new ViewerWidget(this);
-  connect(viewer_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
-
   // Set ViewerWidget as the central widget
-  setWidget(viewer_);
+  ViewerWidget* vw = new ViewerWidget();
+  SetViewerWidget(vw);
 
   // Set strings
   Retranslate();
 }
 
-void ViewerPanel::ZoomIn()
-{
-  viewer_->SetScale(viewer_->scale() * 2);
-}
-
-void ViewerPanel::ZoomOut()
-{
-  viewer_->SetScale(viewer_->scale() * 0.5);
-}
-
-void ViewerPanel::GoToStart()
-{
-  viewer_->GoToStart();
-}
-
-void ViewerPanel::PrevFrame()
-{
-  viewer_->PrevFrame();
-}
-
-void ViewerPanel::PlayPause()
-{
-  viewer_->TogglePlayPause();
-}
-
-void ViewerPanel::NextFrame()
-{
-  viewer_->NextFrame();
-}
-
-void ViewerPanel::GoToEnd()
-{
-  viewer_->GoToEnd();
-}
-
-void ViewerPanel::ShuttleLeft()
-{
-  viewer_->ShuttleLeft();
-}
-
-void ViewerPanel::ShuttleStop()
-{
-  viewer_->ShuttleStop();
-}
-
-void ViewerPanel::ShuttleRight()
-{
-  viewer_->ShuttleRight();
-}
-
-void ViewerPanel::SetTimebase(const rational &timebase)
-{
-  viewer_->SetTimebase(timebase);
-}
-
-void ViewerPanel::ConnectViewerNode(ViewerOutput *node)
-{
-  viewer_->ConnectViewerNode(node);
-}
-
-void ViewerPanel::DisconnectViewerNode()
-{
-  viewer_->DisconnectViewerNode();
-}
-
-rational ViewerPanel::GetTime()
-{
-  return viewer_->GetTime();
-}
-
-void ViewerPanel::SetTime(const int64_t &timestamp)
-{
-  viewer_->SetTime(timestamp);
-}
-
-void ViewerPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void ViewerPanel::Retranslate()
 {
+  ViewerPanelBase::Retranslate();
+
   SetTitle(tr("Viewer"));
-  SetSubtitle(tr("(none)"));
+}
+
 }

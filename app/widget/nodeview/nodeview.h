@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,10 +22,19 @@
 #define NODEVIEW_H
 
 #include <QGraphicsView>
+#include <QTimer>
 
+#include "core.h"
 #include "node/graph.h"
-#include "widget/nodeview/nodeviewedge.h"
-#include "widget/nodeview/nodeviewitem.h"
+#include "node/nodecopypaste.h"
+#include "nodeviewedge.h"
+#include "nodeviewcontext.h"
+#include "nodeviewminimap.h"
+#include "nodeviewscene.h"
+#include "widget/handmovableview/handmovableview.h"
+#include "widget/menu/menu.h"
+
+namespace olive {
 
 /**
  * @brief A widget for viewing and editing node graphs
@@ -33,105 +42,218 @@
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public QGraphicsView
+class NodeView : public HandMovableView, public NodeCopyPasteService
 {
   Q_OBJECT
 public:
-  NodeView(QWidget* parent);
+  NodeView(QWidget* parent = nullptr);
 
   virtual ~NodeView() override;
 
-  /**
-   * @brief Sets the graph to view
-   */
-  void SetGraph(NodeGraph* graph);
+  void SetContexts(const QVector<Node *> &nodes);
+
+  const QVector<Node*> &GetContexts() const
+  {
+    return contexts_;
+  }
+
+  void CloseContextsBelongingToProject(Project *project);
+
+  void ClearGraph();
 
   /**
-   * @brief Retrieve the graphical widget corresponding to a specific Node
-   *
-   * In situations where you know what Node you're working with but need the UI object (e.g. for positioning), this
-   * static function will retrieve the NodeViewItem (Node UI representation) connected to this Node in a certain
-   * QGraphicsScene. This can be called from any other UI object, since it'll have a reference to the QGraphicsScene
-   * through QGraphicsItem::scene().
-   *
-   * If the scene does not contain a widget for this node (usually meaning the node's graph is not the active graph
-   * in this view/scene), this function returns nullptr.
+   * @brief Delete selected nodes from graph (user-friendly/undoable)
    */
-  static NodeViewItem* NodeToUIObject(QGraphicsScene* scene, Node* n);
+  void DeleteSelected();
 
-  /**
-   * @brief Retrieve the graphical widget corresponding to a specific NodeEdge
-   *
-   * Same as NodeToUIObject() but returns a NodeViewEdge corresponding to a NodeEdgePtr instead.
-   */
-  static NodeViewEdge* EdgeToUIObject(QGraphicsScene* scene, NodeEdgePtr n);
+  void SelectAll();
+  void DeselectAll();
 
-  /**
-   * @brief Overloaded NodeToUIObject(QGraphicsScene* scene, Node* n) if you have direct access to a NodeView instance
-   */
-  NodeViewItem* NodeToUIObject(Node* n);
+  void Select(const QVector<Node *> &nodes, bool center_view_on_item);
 
-  /**
-   * @brief Overloaded EdgeToUIObject(QGraphicsScene* scene, NodeEdgePtr n) if you have direct access to a NodeView instance
-   */
-  NodeViewEdge* EdgeToUIObject(NodeEdgePtr n);
+  void CopySelected(bool cut);
+  void Paste();
+
+  void Duplicate();
+
+  void SetColorLabel(int index);
+
+  void ZoomIn();
+
+  void ZoomOut();
+
+  const QVector<Node*> &GetCurrentContexts() const
+  {
+    return contexts_;
+  }
+
+public slots:
+  void SetMiniMapEnabled(bool e)
+  {
+    minimap_->setVisible(e);
+  }
+
+  void ShowAddMenu()
+  {
+    Menu *m = CreateAddMenu(nullptr);
+    m->exec(QCursor::pos());
+    delete m;
+  }
+
+  void CenterOnItemsBoundingRect();
+
+  void CenterOnNode(olive::Node *n);
 
 signals:
-  /**
-   * @brief Signal emitted when the selected nodes have changed
-   */
-  void SelectionChanged(QList<Node*> selected_nodes);
+  void NodesSelected(const QVector<Node*>& nodes);
+
+  void NodesDeselected(const QVector<Node*>& nodes);
+
+  void NodeGroupOpenRequested(NodeGroup *group);
+
+protected:
+  virtual void keyPressEvent(QKeyEvent *event) override;
+
+  virtual void mousePressEvent(QMouseEvent *event) override;
+  virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+
+  virtual void resizeEvent(QResizeEvent *event) override;
+
+  virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
+
+  virtual bool event(QEvent *event) override;
+
+  virtual bool eventFilter(QObject *object, QEvent *event) override;
+
+  virtual void CopyNodesToClipboardCallback(const QVector<Node *> &nodes, ProjectSerializer::SaveData *data, void* userdata) override;
+  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &ldata, void *userdata) override;
+
+  virtual void changeEvent(QEvent *e) override;
 
 private:
-  NodeGraph* graph_;
+  void DetachItemsFromCursor(bool delete_nodes_too = true);
 
-  QGraphicsScene scene_;
+  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+
+  void MoveAttachedNodesToCursor(const QPoint &p);
+
+  void ConnectSelectionChangedSignal();
+  void DisconnectSelectionChangedSignal();
+
+  void ZoomFromKeyboard(double multiplier);
+
+  void ClearCreateEdgeInputIfNecessary();
+
+  QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
+
+  NodeViewItem *GetAssumedItemForSelectedNode(Node *node);
+  Node::Position GetAssumedPositionForSelectedNode(Node *node);
+
+  Menu *CreateAddMenu(Menu *parent);
+
+  void PositionNewEdge(const QPoint &pos);
+
+  void AddContext(Node *n);
+
+  void RemoveContext(Node *n);
+
+  bool IsItemAttachedToCursor(NodeViewItem *item) const;
+
+  void ExpandItem(NodeViewItem *item);
+
+  void CollapseItem(NodeViewItem *item);
+
+  void EndEdgeDrag(bool cancel = false);
+
+  void PostPaste(const QVector<Node*> &new_nodes, const Node::PositionMap &map);
+
+  NodeViewMiniMap *minimap_;
+
+  struct AttachedItem {
+    NodeViewItem* item;
+    Node *node;
+    QPointF original_pos;
+  };
+
+  void SetAttachedItems(const QVector<AttachedItem> &items);
+  QVector<AttachedItem> attached_items_;
+
+  NodeViewEdge* drop_edge_;
+  NodeInput drop_input_;
+
+  NodeViewEdge* create_edge_;
+  NodeViewItem* create_edge_output_item_;
+  NodeViewItem* create_edge_input_item_;
+  NodeInput create_edge_input_;
+  bool create_edge_already_exists_;
+  bool create_edge_from_output_;
+
+  QVector<NodeViewItem*> create_edge_expanded_items_;
+
+  NodeViewScene scene_;
+
+  QVector<Node*> selected_nodes_;
+
+  QVector<Node*> contexts_;
+  QVector<Node*> last_set_filter_nodes_;
+  QMap<Node*, QPointF> context_offsets_;
+
+  QMap<NodeViewItem*, QPointF> dragging_items_;
+
+  double scale_;
+
+  static const double kMinimumScale;
 
 private slots:
   /**
-   * @brief Slot when a Node is added to a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To add a Node to the NodeGraph
-   * use NodeGraph::AddNode().
-   */
-  void AddNode(Node* node);
-
-  /**
-   * @brief Slot when a Node is removed from a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To remove a Node from the NodeGraph
-   * use NodeGraph::RemoveNode().
-   */
-  void RemoveNode(Node* node);
-
-  /**
-   * @brief Slot when an edge is added to a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To add an edge (i.e. connect two node
-   * parameters together), use NodeParam::ConnectEdge().
-   */
-  void AddEdge(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot when an edge is removed from a graph (SetGraph() connects this)
-   *
-   * This should NEVER be called directly, only connected to a NodeGraph. To remove an edge (i.e. disconnect two node
-   * parameters), use NodeParam::DisconnectEdge().
-   */
-  void RemoveEdge(NodeEdgePtr edge);
-
-  /**
-   * @brief Internal function triggered when any change is signalled from the QGraphicsScene
-   *
-   * Current primary function is to inform all NodeViewEdges to re-adjust in case any Nodes have moved
-   */
-  void ItemsChanged();
-
-  /**
    * @brief Receiver for when the scene's selected items change
    */
-  void SceneSelectionChangedSlot();
+  void UpdateSelectionCache();
+
+  /**
+   * @brief Receiver for when the user right clicks (or otherwise requests a context menu)
+   */
+  void ShowContextMenu(const QPoint &pos);
+
+  /**
+   * @brief Receiver for when the user requests a new node from the add menu
+   */
+  void CreateNodeSlot(QAction* action);
+
+  /**
+   * @brief Receiver for setting the direction from the context menu
+   */
+  void ContextMenuSetDirection(QAction* action);
+
+  /**
+   * @brief Opens the selected node in a Viewer
+   */
+  void OpenSelectedNodeInViewer();
+
+  void UpdateSceneBoundingRect();
+
+  void RepositionMiniMap();
+
+  void UpdateViewportOnMiniMap();
+
+  void MoveToScenePoint(const QPointF &pos);
+
+  void NodeRemovedFromGraph();
+
+  void GroupNodes();
+
+  void UngroupNodes();
+
+  void ShowNodeProperties();
+
+  void LabelSelectedNodes();
+
+  void ItemAboutToBeDeleted(NodeViewItem *item);
 
 };
+
+}
 
 #endif // NODEVIEW_H

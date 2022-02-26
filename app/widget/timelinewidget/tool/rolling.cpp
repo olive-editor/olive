@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,77 +21,22 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "rolling.h"
+#include "widget/nodeview/nodeviewundo.h"
 
-TimelineWidget::RollingTool::RollingTool(TimelineWidget* parent) :
+namespace olive {
+
+RollingTool::RollingTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
+  SetGapTrimmingAllowed(true);
 }
 
-void TimelineWidget::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void RollingTool::InitiateDrag(Block *clicked_item,
+                                               Timeline::MovementMode trim_mode)
 {
-  Q_UNUSED(event)
-
-  QUndoCommand* command = new QUndoCommand();
-
-  // Find earliest point to ripple around
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (ghost->mode() == olive::timeline::kTrimIn) {
-      if (b->previous() == nullptr) {
-        // We'll need to insert a gap here, so we'll do a Place command instead
-        GapBlock* gap = new GapBlock();
-        gap->set_length(ghost->Length());
-
-        new TrackReplaceBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, gap, command);
-      }
-
-      new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
-
-      if (b->previous() == nullptr) {
-        const TrackReference& track_ref = ghost->Track();
-
-        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
-                                   track_ref.index(),
-                                   b,
-                                   ghost->GetAdjustedIn(),
-                                   command);
-      }
-    } else if (ghost->mode() == olive::timeline::kTrimOut) {
-      new BlockResizeCommand(b, ghost->AdjustedLength(), command);
-    }
-  }
-
-  olive::undo_stack.pushIfHasChildren(command);
+  InitiateDragInternal(clicked_item, trim_mode, false, true, false);
 }
 
-rational TimelineWidget::RollingTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
-{
-  // Only validate trimming, and we don't care about "overwriting" since the rolling tool is designed to trim at collisions
-  time_movement = ValidateInTrimming(time_movement, ghosts, false);
-  time_movement = ValidateOutTrimming(time_movement, ghosts, false);
-
-  return time_movement;
-}
-
-void TimelineWidget::RollingTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
-                                               olive::timeline::MovementMode trim_mode,
-                                               bool allow_gap_trimming)
-{
-  Q_UNUSED(allow_gap_trimming)
-
-  PointerTool::InitiateGhosts(clicked_item, trim_mode, true);
-
-  // For each ghost, we make an equivalent Ghost on the next/previous block
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* ghost_block = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
-
-    if (ghost->mode() == olive::timeline::kTrimIn && ghost_block->previous() != nullptr) {
-      // Add an extra Ghost for the previous block
-      AddGhostFromBlock(ghost_block->previous(), ghost->Track(), olive::timeline::kTrimOut);
-    } else if (ghost->mode() == olive::timeline::kTrimOut && ghost_block->next() != nullptr) {
-      AddGhostFromBlock(ghost_block->next(), ghost->Track(), olive::timeline::kTrimIn);
-    }
-  }
 }

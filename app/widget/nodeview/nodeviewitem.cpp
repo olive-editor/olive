@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,447 +26,790 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-#include "common/qtversionabstraction.h"
+#include "common/flipmodifiers.h"
+#include "common/qtutils.h"
+#include "config/config.h"
 #include "core.h"
 #include "nodeview.h"
+#include "nodeviewscene.h"
 #include "nodeviewundo.h"
+#include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
-#include "undo/undostack.h"
 #include "window/mainwindow/mainwindow.h"
 
-NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
-  QGraphicsRectItem(parent),
-  node_(nullptr),
-  font_metrics(font),
-  dragging_edge_(nullptr),
-  drag_expanded_item_(nullptr),
-  expanded_(false),
-  standard_click_(false),
-  node_edge_change_command_(nullptr)
-{
-  // Set flags for this widget
-  setFlag(QGraphicsItem::ItemIsMovable);
-  setFlag(QGraphicsItem::ItemIsSelectable);
+namespace olive {
 
+NodeViewItem::NodeViewItem(Node *node, const QString &input, int element, Node *context, QGraphicsItem *parent) :
+  QGraphicsRectItem(parent),
+  node_(node),
+  input_(input),
+  element_(element),
+  context_(context),
+  expanded_(false),
+  highlighted_(false),
+  flow_dir_(NodeViewCommon::kInvalidDirection),
+  arrow_click_(false),
+  label_as_output_(false)
+{
   //
   // We use font metrics to set all the UI measurements for DPI-awareness
   //
 
-  // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
-  int widget_width = QFontMetricsWidth(font_metrics, "HHHHHHHHHHHHHHHH");
-
   // Set border width
-  node_border_width_ = font_metrics.height() / 12;
+  node_border_width_ = DefaultItemBorder();
 
-  // Set default node connector size
-  node_connector_size_ = font_metrics.height() / 3;
+  // Set rect size to default
+  SetRectSize();
 
-  // Set text and icon padding
-  node_text_padding_ = font_metrics.height() / 6;
+  // Create connector
+  input_connector_ = new NodeViewItemConnector(false, this);
+  output_connector_ = new NodeViewItemConnector(true, this);
 
-  // FIXME: Revise icon sizing algorithm (share with NodeParamViewItem)
-  node_icon_padding_ = node_text_padding_ * 3;
+  connect(node_, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
+  connect(node_, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
 
-  // Use the current default font height to size this widget
-  // Set default "collapsed" size
-  title_bar_rect_ = QRectF(0, 0, widget_width, font_metrics.height() + node_text_padding_ * 2);
-  setRect(title_bar_rect_);
+  if (IsOutputItem()) {
+    connect(node_, &Node::InputAdded, this, &NodeViewItem::RepopulateInputs);
+    connect(node_, &Node::InputRemoved, this, &NodeViewItem::RepopulateInputs);
+    RepopulateInputs();
+
+    // Set flags for this widget
+    setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+    setFlag(QGraphicsItem::ItemIsMovable);
+    setFlag(QGraphicsItem::ItemIsSelectable);
+
+    if (context_) {
+      SetNodePosition(context_->GetNodePositionDataInContext(node_));
+    }
+  } else {
+    output_connector_->setVisible(false);
+
+    connect(node_, &Node::InputArraySizeChanged, this, &NodeViewItem::InputArraySizeChanged);
+    connect(node_, &Node::InputArraySizeChanged, this, &NodeViewItem::InputArraySizeChanged);
+  }
+
+  // This should be set during runtime, but just in case here's a default fallback
+  SetFlowDirection(NodeViewCommon::kLeftToRight);
 }
 
-void NodeViewItem::SetNode(Node *n)
+NodeViewItem::~NodeViewItem()
 {
-  node_ = n;
-
-  update();
+  Q_ASSERT(edges_.isEmpty());
 }
 
-Node *NodeViewItem::node()
+Node::Position NodeViewItem::GetNodePositionData() const
 {
-  return node_;
+  return Node::Position(GetNodePosition(), IsExpanded());
 }
 
-bool NodeViewItem::IsExpanded()
+QPointF NodeViewItem::GetNodePosition() const
 {
-  return expanded_;
+  return ScreenToNodePoint(pos(), flow_dir_);
 }
 
-void NodeViewItem::SetExpanded(bool e)
+void NodeViewItem::SetNodePosition(const QPointF &pos)
 {
-  if (expanded_ == e) {
+  cached_node_pos_ = pos;
+
+  UpdateNodePosition();
+}
+
+void NodeViewItem::SetNodePosition(const Node::Position &pos)
+{
+  SetNodePosition(pos.position);
+  SetExpanded(pos.expanded);
+}
+
+QVector<NodeViewEdge *> NodeViewItem::GetAllEdgesRecursively() const
+{
+  QVector<NodeViewEdge *> list = edges_;
+
+  foreach (NodeViewItem *item, children_) {
+    list.append(item->GetAllEdgesRecursively());
+  }
+
+  return list;
+}
+
+int NodeViewItem::DefaultTextPadding()
+{
+  return QFontMetrics(QFont()).height() / 4;
+}
+
+int NodeViewItem::DefaultItemHeight()
+{
+  return QFontMetrics(QFont()).height() + DefaultTextPadding() * 2;
+}
+
+int NodeViewItem::DefaultItemWidth()
+{
+  return QtUtils::QFontMetricsWidth(QFontMetrics(QFont()), "HHHHHHHHHHHHHHHH");;
+}
+
+int NodeViewItem::DefaultItemBorder()
+{
+  return QFontMetrics(QFont()).height() / 12;
+}
+
+QPointF NodeViewItem::NodeToScreenPoint(QPointF p, NodeViewCommon::FlowDirection direction)
+{
+  switch (direction) {
+  case NodeViewCommon::kLeftToRight:
+    // NodeGraphs are always left-to-right internally, no need to translate
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Invert X value
+    p.setX(-p.x());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Swap X/Y
+    p = QPointF(p.y(), p.x());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Swap X/Y and invert Y
+    p = QPointF(p.y(), -p.x());
+    break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
+  }
+
+  // Multiply by item sizes for this direction
+  p.setX(p.x() * DefaultItemHorizontalPadding(direction));
+  p.setY(p.y() * DefaultItemVerticalPadding(direction));
+
+  return p;
+}
+
+QPointF NodeViewItem::ScreenToNodePoint(QPointF p, NodeViewCommon::FlowDirection direction)
+{
+  // Divide by item sizes for this direction
+  p.setX(p.x() / DefaultItemHorizontalPadding(direction));
+  p.setY(p.y() / DefaultItemVerticalPadding(direction));
+
+  switch (direction) {
+  case NodeViewCommon::kLeftToRight:
+    // NodeGraphs are always left-to-right internally, no need to translate
+    break;
+  case NodeViewCommon::kRightToLeft:
+    // Invert X value
+    p.setX(-p.x());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    // Swap X/Y
+    p = QPointF(p.y(), p.x());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    // Swap X/Y and invert Y
+    p = QPointF(-p.y(), p.x());
+    break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
+  }
+
+  return p;
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding(NodeViewCommon::FlowDirection dir)
+{
+  if (NodeViewCommon::GetFlowOrientation(dir) == Qt::Horizontal) {
+    return DefaultItemWidth() * 1.5;
+  } else {
+    return DefaultItemWidth() * 1.25;
+  }
+}
+
+qreal NodeViewItem::DefaultItemVerticalPadding(NodeViewCommon::FlowDirection dir)
+{
+  if (NodeViewCommon::GetFlowOrientation(dir) == Qt::Horizontal) {
+    return DefaultItemHeight() * 1.5;
+  } else {
+    return DefaultItemHeight() * 2.0;
+  }
+}
+
+qreal NodeViewItem::DefaultItemHorizontalPadding() const
+{
+  return DefaultItemHorizontalPadding(flow_dir_);
+}
+
+qreal NodeViewItem::DefaultItemVerticalPadding() const
+{
+  return DefaultItemVerticalPadding(flow_dir_);
+}
+
+void NodeViewItem::AddEdge(NodeViewEdge *edge)
+{
+  edges_.append(edge);
+}
+
+void NodeViewItem::RemoveEdge(NodeViewEdge *edge)
+{
+  edges_.removeOne(edge);
+}
+
+void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
+{
+  if (!CanBeExpanded() || (expanded_ == e)) {
     return;
   }
 
   expanded_ = e;
 
-  QRectF new_rect;
+  if (context_) {
+    context_->SetNodeExpandedInContext(node_, e);
+  }
+
+  if (IsOutputItem()) {
+    // We don't have to check has_connectable_inputs_ here because we did it at the top
+    input_connector_->setVisible(!expanded_);
+  }
 
   if (expanded_) {
-    QRectF full_size_rect = title_bar_rect_;
+    node_->Retranslate();
 
-    // If a node is connected, use its parameter count to set the height
-    if (node_ != nullptr) {
-      full_size_rect.adjust(0, 0, 0, node_text_padding_*2 + font_metrics.height() * node_->parameters().size());
+    if (IsOutputItem()) {
+      // Create items for each input of the node
+      int i = 1;
+      foreach (const QString &input, node_->inputs()) {
+        if (IsInputValid(input)) {
+          NodeViewItem *item = new NodeViewItem(node_, input, -1, context_, this);
+          children_.append(item);
+          i++;
+        }
+      }
+
+      QVector<NodeViewEdge*> edges = edges_;
+      for (auto it=edges.cbegin(); it!=edges.cend(); it++) {
+        if ((*it)->to_item() == this) {
+          (*it)->set_to_item(GetItemForInput((*it)->input()));
+        }
+      }
+    } else {
+      // Create items for each element of the input array
+      int arr_sz = node_->InputArraySize(input_);
+      children_.resize(arr_sz);
+      for (int i=0; i<arr_sz; i++) {
+        NodeViewItem *item = new NodeViewItem(node_, input_, i, context_, this);
+        children_[i] = item;
+      }
+
+      QVector<NodeViewEdge*> edges = edges_;
+      for (auto it=edges.cbegin(); it!=edges.cend(); it++) {
+        if ((*it)->to_item() == this) {
+          (*it)->set_to_item(GetItemForInput((*it)->input()));
+        }
+      }
     }
-
-    // Store content_rect (the rect without the titlebar)
-    content_rect_ = full_size_rect.adjusted(0, title_bar_rect_.height(), 0, 0);
-
-    new_rect = full_size_rect;
   } else {
-    new_rect = title_bar_rect_;
+    foreach (NodeViewItem *child, children_) {
+      QVector<NodeViewEdge*> child_edges = child->edges();
+      foreach (NodeViewEdge *edge, child_edges) {
+        edge->set_to_item(this);
+      }
+      delete child;
+    }
+    children_.clear();
   }
+
+  UpdateChildrenPositions();
+
+  if (flow_dir_ == NodeViewCommon::kTopToBottom) {
+    UpdateOutputConnectorPosition();
+  }
+
+  ReadjustAllEdges();
+
+  UpdateContextRect();
 
   update();
-
-  setRect(new_rect);
 }
 
-QRectF NodeViewItem::GetParameterConnectorRect(int index)
+void NodeViewItem::ToggleExpanded()
 {
-  if (node_ == nullptr) {
-    return QRectF();
-  }
-
-  NodeParam* param = node_->parameters().at(index);
-
-  QRectF connector_rect(rect().x(),
-                        content_rect_.y() + node_text_padding_ + font_metrics.height() / 2 - node_connector_size_ / 2,
-                        node_connector_size_,
-                        node_connector_size_);
-
-  if (index > 0) {
-    connector_rect.translate(0, font_metrics.height() * index);
-  }
-
-  if (param->type() == NodeParam::kOutput) {
-    connector_rect.translate(rect().width() - node_connector_size_, 0);
-  }
-
-  return connector_rect;
-}
-
-QPointF NodeViewItem::GetParameterTextPoint(int index)
-{
-  if (node_ == nullptr) {
-    return QPointF();
-  }
-
-  NodeParam* param = node_->parameters().at(index);
-
-  if (param->type() == NodeParam::kOutput) {
-    return content_rect_.topRight() + QPointF(-(node_connector_size_ + node_text_padding_),
-                                              node_text_padding_ + font_metrics.ascent() + font_metrics.height()*index);
-  } else {
-    return content_rect_.topLeft() + QPointF(node_connector_size_ + node_text_padding_,
-                                             node_text_padding_ + font_metrics.ascent() + font_metrics.height()*index);
-  }
+  SetExpanded(!IsExpanded());
 }
 
 void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-  // HACK for getting the main QWidget palette color (the `widget`'s palette uses the NodeView color instead which we
-  // don't want here)
-  QPalette app_pal = olive::core.main_window()->palette();
+  // Use main window palette since the palette passed in `widget` is the NodeView palette which
+  // has been slightly modified
+  QPalette app_pal = Core::instance()->main_window()->palette();
 
-  // Set up border, which will change color if selected
-  QPen border_pen(css_proxy_.BorderColor(), node_border_width_);
+  // We only draw a single unit's worth
+  QRectF single_unit_rect = rect();
+  single_unit_rect.setHeight(DefaultItemHeight());
 
-  QPen text_pen(app_pal.color(QPalette::Text));
+  if (IsOutputItem()) {
+    // Set output item colors
+    painter->setPen(Qt::black);
+    painter->setBrush(node_->brush(single_unit_rect.top(), single_unit_rect.bottom()));
+  } else {
+    // Set input item colors
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(element_ == -1 ? app_pal.color(QPalette::Window) : app_pal.color(QPalette::Base));
+  }
 
-  QBrush connector_brush(app_pal.color(QPalette::Text));
+  painter->drawRect(single_unit_rect);
 
-  painter->setPen(border_pen);
-
-  if (expanded_ && node_ != nullptr) {
-
-    // Use main widget color for node contents
-    painter->setBrush(app_pal.window());
-
-    // Draw background rect
+  // Draw highlight if applicable
+  if (highlighted_) {
+    QColor highlight_col = app_pal.color(QPalette::Text);
+    highlight_col.setAlpha(64);
+    painter->setBrush(highlight_col);
     painter->drawRect(rect());
+  }
 
-    // Set pen to draw text
-    painter->setPen(text_pen);
+  // Determine what text to draw and whether to draw an arrow
+  QString node_label, node_name;
 
-    // Draw text and a connector rectangle for each parameter
+  if (IsOutputItem()) {
+    if (label_as_output_) {
+      node_name = QCoreApplication::translate("NodeViewItem", "Output");
+    } else {
+      node_label = node_->GetLabel();
+      node_name = node_->ShortName();
+    }
+  } else {
+    if (element_ == -1) {
+      node_name = node_->GetInputName(input_);
+    } else {
+      node_name = QString::number(element_);
+    }
+  }
 
-    // Store the text points which will steadily increase sa we loop
+  // Draw arrow if necessary
+  int arrow_size = CanBeExpanded() ? DrawExpandArrow(painter) : 0;
 
-    // Loop through all the parameters
-    for (int i=0;i<node_->parameters().size();i++) {
-      NodeParam* param = node_->parameters().at(i);
+  if (IsOutputItem()) {
+    // Determine the text color (automatically calculate from node background color)
+    painter->setPen(ColorCoding::GetUISelectorColor(node_->color()));
+  } else {
+    // Just use text item
+    painter->setPen(app_pal.text().color());
+  }
 
-      // Draw connector square
-      painter->fillRect(GetParameterConnectorRect(i), connector_brush);
+  if (node_label.isEmpty()) {
+    // Draw name only
+    DrawNodeTitle(painter, node_name, single_unit_rect, Qt::AlignVCenter, arrow_size);
+  } else {
+    int text_pad = DefaultTextPadding()/2;
+    QRectF safe_label_bounds = single_unit_rect.adjusted(text_pad, text_pad, -text_pad, -text_pad);
+    QFont f;
+    qreal font_sz = f.pointSizeF();
 
-      // Draw text
-      QPointF text_pt = GetParameterTextPoint(i);
+    // Draw label as larger/upper text
+    f.setPointSizeF(font_sz * 0.8);
+    painter->setFont(f);
+    DrawNodeTitle(painter, node_label, safe_label_bounds, Qt::AlignTop, arrow_size);
 
-      if (param->type() == NodeParam::kOutput) {
-        text_pt -= QPointF(QFontMetricsWidth(font_metrics, param->name()), 0);
-      }
+    // Draw node name as smaller/lower text
+    f.setPointSizeF(font_sz * 0.6);
+    painter->setFont(f);
+    DrawNodeTitle(painter, node_name, safe_label_bounds, Qt::AlignBottom, arrow_size);
+  }
 
-      painter->drawText(text_pt, param->name());
+  // Draw final border (output only)
+  if (IsOutputItem()) {
+    QPen border_pen;
+    border_pen.setWidth(node_border_width_);
+
+    if (option->state & QStyle::State_Selected) {
+      border_pen.setColor(app_pal.color(QPalette::Highlight));
+    } else {
+      border_pen.setColor(Qt::black);
     }
 
     painter->setPen(border_pen);
-  }
-
-  // Draw rect
-  painter->setBrush(css_proxy_.TitleBarColor());
-  painter->drawRect(title_bar_rect_);
-
-  // If selected, draw selection outline
-  if (option->state & QStyle::State_Selected) {
-    QPen pen = painter->pen();
-    pen.setColor(app_pal.color(QPalette::Highlight));
-    painter->setPen(pen);
-
-    painter->setBrush(Qt::transparent);
+    painter->setBrush(Qt::NoBrush);
 
     painter->drawRect(rect());
   }
-
-  // Draw text
-  if (node_ != nullptr) {
-    painter->setPen(text_pen);
-
-    // Draw the expand icon
-    expand_hitbox_ = title_bar_rect_.adjusted(node_icon_padding_,
-                                              node_icon_padding_,
-                                              -node_icon_padding_,
-                                              -node_icon_padding_);
-
-    // Make the icon rect a square
-    expand_hitbox_.setWidth(expand_hitbox_.height());
-
-    // Draw the icon
-    if (IsExpanded()) {
-      olive::icon::TriDown.paint(painter, expand_hitbox_.toRect(), Qt::AlignLeft | Qt::AlignVCenter);
-    } else {
-      olive::icon::TriRight.paint(painter, expand_hitbox_.toRect(), Qt::AlignLeft | Qt::AlignVCenter);
-    }
-
-    // Draw the text in a rect (the rect is sized around text already in the constructor)
-    QRectF text_rect = title_bar_rect_.adjusted(node_icon_padding_ + expand_hitbox_.width() + node_text_padding_,
-                                                node_text_padding_,
-                                                -node_text_padding_,
-                                                -node_text_padding_);
-    painter->drawText(text_rect, static_cast<int>(Qt::AlignVCenter | Qt::AlignLeft), node_->Name());
-  }
 }
-
-#include "node/block/block.h"
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-  // We override standard mouse behavior in some cases. In these cases, we don't want the standard "move" and "release"
-  // events to trigger if we haven't already triggered the "press" event. We use this variable to determine whether
-  // base class behavior is valid here.
-  standard_click_ = false;
-
-  // Don't initiate a drag if we clicked the expand hitbox
-  if (expand_hitbox_.contains(event->pos())) {
+  if (last_arrow_rect_.contains(event->pos().toPoint())) {
+    arrow_click_ = true;
+    ToggleExpanded();
     return;
   }
 
-  // See if the mouse click was on a parameter connector
-  if (IsExpanded() // This is only possible if the node is expanded
-      && node_ != nullptr) { // We can only loop through a node's parameters if a valid node is attached
-    for (int i=0;i<node_->parameters().size();i++) {
+  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
 
-      if (GetParameterConnectorRect(i).contains(event->pos())) { // See if the cursor is in the rect
-
-        NodeParam* param = node_->parameters().at(i);
-
-        // Create draggable object
-        dragging_edge_ = new NodeViewEdge();
-
-        // Set up a QUndoCommand to make this action undoable
-        node_edge_change_command_ = new QUndoCommand();
-
-        if (param->type() == NodeParam::kOutput || param->edges().isEmpty()) {
-          // For an output param (or an input param with no connections), we default to creating a new edge
-          drag_source_ = this;
-          drag_src_param_ = param;
-
-          // Set the starting position to the current param's connector
-          dragging_edge_start_ = mapToScene(GetParameterConnectorRect(i).center());
-
-        } else if (param->type() == NodeParam::kInput) {
-          // For an input param, we default to moving an existing edge
-          // (here we use the last one, which will usually also be the first)
-          NodeEdgePtr edge = param->edges().last();
-
-          // The starting position will be the OPPOSING parameter's rectangle
-
-          // Get the opposing parameter
-          drag_src_param_ = edge->output();
-
-          // Get its Node UI object
-          drag_source_ = NodeView::NodeToUIObject(scene(), drag_src_param_->parentNode());
-
-          // Get the opposing parameter's rect center using the line's current coordinates
-          // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
-          //  node is collapsed, therefore it's easier to just retrieve it from line itself)
-          NodeViewEdge* existing_edge_ui = NodeView::EdgeToUIObject(scene(), edge);
-          QLineF existing_edge_line = existing_edge_ui->line();
-          if (existing_edge_ui->contains(existing_edge_line.p1())) {
-            dragging_edge_start_ = existing_edge_line.p1();
-          } else {
-            dragging_edge_start_ = existing_edge_line.p2();
-          }
-
-
-          // Remove old edge
-          NodeEdgeRemoveCommand* remove_command = new NodeEdgeRemoveCommand(edge->output(),
-                                                                            edge->input(),
-                                                                            node_edge_change_command_);
-          remove_command->redo();
-
-        }
-
-        // Add it to the scene
-        scene()->addItem(dragging_edge_);
-
-        // Trigger initial line setting
-        mouseMoveEvent(event);
-
-        return;
-      }
-
-    }
-  }
-
-  // We aren't using any override behaviors, switch back to standard click behavior
-  standard_click_ = true;
   QGraphicsRectItem::mousePressEvent(event);
 }
 
 void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  // Check if an edge drag was initiated
-  if (dragging_edge_ != nullptr) {
-    QPointF end_point = event->scenePos();
-    drag_dest_param_ = nullptr;
-
-    // See if the mouse is currently inside a node
-    NodeViewItem* drop_item = dynamic_cast<NodeViewItem*>(scene()->itemAt(event->scenePos(), sceneTransform()));
-
-    // If we expanded an item below but are no longer dragging over it, re-collapse it
-    if (drag_expanded_item_ != nullptr && drop_item != drag_expanded_item_) {
-      drag_expanded_item_->SetExpanded(false);
-      drag_expanded_item_ = nullptr;
-    }
-
-    if (drop_item != nullptr && drop_item != drag_source_) {
-
-      // If the item we're dragging over is collapsed, expand it
-      if (!drop_item->IsExpanded()) {
-        drag_expanded_item_ = drop_item;
-        drop_item->SetExpanded(true);
-      }
-
-      // See if the mouse is currently inside a connector rect
-      for (int i=0;i<drop_item->node()->parameters().size();i++) {
-
-        // Make a larger "hitbox" rect to make it easier to drag into
-        QRectF param_hitbox = drop_item->GetParameterConnectorRect(i).adjusted(-node_connector_size_,
-                                                                               -node_connector_size_,
-                                                                               node_connector_size_,
-                                                                               node_connector_size_);
-
-        // Get the parameter we're dragging into
-        NodeParam* comp_param = drop_item->node()->parameters().at(i);
-
-        if (param_hitbox.contains(drop_item->mapFromScene(event->scenePos()))) { // See if we're dragging inside the hitbox
-
-          // Prevent circular dependency - check if the Node we'll be outputting to already outputs to this Node
-          Node* outputting_node;
-          Node* receiving_node;
-
-          // Determine which Node will be "submitting output" and which node will be "receiving input"
-          if (drag_src_param_->type() == NodeParam::kInput) {
-            receiving_node = drag_src_param_->parentNode();
-            outputting_node = drop_item->node();
-          } else {
-            receiving_node = drop_item->node();
-            outputting_node = drag_src_param_->parentNode();
-          }
-
-          // Ensure the receiving node doesn't output to the outputting node
-          if (!receiving_node->OutputsTo(outputting_node)) {
-            drag_dest_param_ = comp_param;
-            end_point = drop_item->mapToScene(drop_item->GetParameterConnectorRect(i).center());
-          }
-
-          break;
-        }
-      }
-    }
-
-    dragging_edge_->SetConnected(drag_dest_param_ != nullptr);
-
-    dragging_edge_->setLine(QLineF(dragging_edge_start_, end_point));
-
+  if (arrow_click_) {
     return;
   }
 
-  if (standard_click_) {
-    QGraphicsRectItem::mouseMoveEvent(event);
-  }
+  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+
+  QGraphicsRectItem::mouseMoveEvent(event);
 }
 
 void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-  // Check if an edge drag was initiated
-  if (dragging_edge_ != nullptr) {
-
-    // Remove the drag object
-    scene()->removeItem(dragging_edge_);
-
-    // If we expanded an item in the drag, re-collapse it now
-    if (drag_expanded_item_ != nullptr) {
-      drag_expanded_item_->SetExpanded(false);
-      drag_expanded_item_ = nullptr;
-    }
-
-    if (drag_dest_param_ != nullptr) {
-      // We dragged to somewhere, so we'll make a new connection
-
-      NodeEdgePtr new_edge;
-
-      NodeOutput* output;
-      NodeInput* input;
-
-      // Connecting will automatically add an edge UI object through the signal/slot system
-      if (drag_dest_param_->type() == NodeParam::kOutput) {
-        output = static_cast<NodeOutput*>(drag_dest_param_);
-        input = static_cast<NodeInput*>(drag_src_param_);
-      } else {
-        output = static_cast<NodeOutput*>(drag_src_param_);
-        input = static_cast<NodeInput*>(drag_dest_param_);
-      }
-
-      // Use a command to make Node connecting undoable
-      new NodeEdgeAddCommand(output,
-                             input,
-                             node_edge_change_command_);
-    }
-
-    dragging_edge_ = nullptr;
-
-    olive::undo_stack.pushIfHasChildren(node_edge_change_command_);
-    node_edge_change_command_ = nullptr;
+  if (arrow_click_) {
+    arrow_click_ = false;
     return;
   }
 
-  // Check if we clicked the Expand/Collapse icon
-  if (expand_hitbox_.contains(event->pos())) {
-    SetExpanded(!IsExpanded());
+  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+
+  QGraphicsRectItem::mouseReleaseEvent(event);
+}
+
+QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+  if (change == ItemPositionHasChanged && node_) {
+    ReadjustAllEdges();
+
+    UpdateContextRect();
   }
 
-  if (standard_click_) {
-    QGraphicsRectItem::mouseReleaseEvent(event);
+  return QGraphicsItem::itemChange(change, value);
+}
+
+void NodeViewItem::ReadjustAllEdges()
+{
+  foreach (NodeViewEdge* edge, edges_) {
+    if (NodeViewItem *to_item = edge->to_item()) {
+      static_cast<NodeViewItem*>(to_item->parentItem())->UpdateFlowDirectionOfInputItem(to_item);
+    }
+
+    edge->Adjust();
   }
+  foreach (NodeViewItem *child, children_) {
+    child->ReadjustAllEdges();
+  }
+}
+
+void NodeViewItem::UpdateContextRect()
+{
+  QGraphicsItem *item = parentItem();
+
+  while (item) {
+    if (NodeViewContext *ctx = dynamic_cast<NodeViewContext*>(item)) {
+      ctx->UpdateRect();
+      break;
+    }
+
+    item = item->parentItem();
+  }
+}
+
+void NodeViewItem::DrawNodeTitle(QPainter* painter, QString text, const QRectF& rect, Qt::Alignment vertical_align, int icon_full_size)
+{
+  QFontMetrics fm = painter->fontMetrics();
+
+  // Calculate how much space we have for text
+  int item_width = this->rect().width();
+  int max_text_width = item_width - DefaultTextPadding() * 2 - icon_full_size;
+  int label_width = QtUtils::QFontMetricsWidth(fm, text);
+
+  // Concatenate text if necessary (adds a "..." to the end and removes characters until the
+  // string fits in the bounds)
+  if (label_width > max_text_width) {
+    QString concatenated;
+
+    do {
+      text.chop(1);
+      concatenated = QCoreApplication::translate("NodeViewItem", "%1...").arg(text);
+    } while ((label_width = QtUtils::QFontMetricsWidth(fm, concatenated)) > max_text_width);
+
+    text = concatenated;
+  }
+
+  // Determine X position (favors horizontal centering unless it'll overrun the arrow)
+  QRectF text_rect = rect;
+  Qt::Alignment text_align = Qt::AlignHCenter | vertical_align;
+  int likely_x = item_width / 2 - label_width / 2;
+  if (likely_x < icon_full_size) {
+    text_rect.adjust(icon_full_size, 0, 0, 0);
+    text_align = Qt::AlignLeft | vertical_align;
+  }
+
+  // Draw the text in a rect (the rect is sized around text already in the constructor)
+  painter->drawText(text_rect,
+                    text_align,
+                    text);
+}
+
+int NodeViewItem::DrawExpandArrow(QPainter *painter)
+{
+  // Draw right or down arrow based on expanded state
+  int icon_size = painter->fontMetrics().height()/2;
+  int icon_padding = DefaultItemHeight() / 2 - icon_size / 2;
+  int icon_full_size = icon_size + icon_padding * 2;
+
+  painter->setRenderHint(QPainter::SmoothPixmapTransform);
+
+  const QIcon& expand_icon = IsExpanded() ? icon::TriDown : icon::TriRight;
+  int icon_size_scaled = icon_size * painter->transform().m11();
+
+  last_arrow_rect_ = QRect(this->rect().x() + icon_padding,
+                           this->rect().y() + icon_padding,
+                           icon_size,
+                           icon_size);
+
+  painter->drawPixmap(last_arrow_rect_, expand_icon.pixmap(QSize(icon_size_scaled, icon_size_scaled)));
+
+  return icon_full_size;
+}
+
+void NodeViewItem::SetLabelAsOutput(bool e)
+{
+  label_as_output_ = e;
+  output_connector_->setVisible(!e);
+  update();
+}
+
+QPointF NodeViewItem::GetInputPoint() const
+{
+  return input_connector_->scenePos();
+}
+
+QPointF NodeViewItem::GetOutputPoint() const
+{
+  QPointF p = output_connector_->scenePos();
+  QRectF r = output_connector_->boundingRect();
+
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+  default:
+    p.setX(p.x() + r.width());
+    break;
+  case NodeViewCommon::kRightToLeft:
+    p.setX(p.x() - r.width());
+    break;
+  case NodeViewCommon::kTopToBottom:
+    p.setY(p.y() + r.height());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    p.setY(p.y() - r.height());
+    break;
+  }
+
+  return p;
+}
+
+void NodeViewItem::SetFlowDirection(NodeViewCommon::FlowDirection dir)
+{
+  if (flow_dir_ != dir) {
+    flow_dir_ = dir;
+
+    input_connector_->SetFlowDirection(dir);
+    output_connector_->SetFlowDirection(dir);
+
+    UpdateInputConnectorPosition();
+    UpdateOutputConnectorPosition();
+
+    if (IsOutputItem()) {
+      UpdateNodePosition();
+    }
+
+    ReadjustAllEdges();
+  }
+}
+
+void NodeViewItem::UpdateNodePosition()
+{
+  setPos(NodeToScreenPoint(cached_node_pos_, flow_dir_));
+}
+
+void NodeViewItem::UpdateInputConnectorPosition()
+{
+  QRectF output_rect = input_connector_->boundingRect();
+
+  NodeViewCommon::FlowDirection using_flow_dir = flow_dir_;
+
+  if (IsExpanded() && !NodeViewCommon::IsFlowHorizontal(flow_dir_)) {
+    if (edges_.isEmpty() || edges_.first()->from_item()->x() < this->x()) {
+      using_flow_dir = NodeViewCommon::kLeftToRight;
+    } else {
+      using_flow_dir = NodeViewCommon::kRightToLeft;
+    }
+  }
+
+  // Input connector flow directions change conditionally
+  switch (using_flow_dir) {
+  case NodeViewCommon::kLeftToRight:
+    input_connector_->setPos(rect().left() - output_rect.width(), 0);
+    break;
+  case NodeViewCommon::kRightToLeft:
+    input_connector_->setPos(rect().right() + output_rect.width(), 0);
+    break;
+  case NodeViewCommon::kTopToBottom:
+    input_connector_->setPos(rect().center().x(), rect().top() - output_rect.height());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    input_connector_->setPos(rect().center().x(), rect().bottom() + output_rect.height());
+    break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
+  }
+}
+
+void NodeViewItem::UpdateOutputConnectorPosition()
+{
+  switch (flow_dir_) {
+  case NodeViewCommon::kLeftToRight:
+    output_connector_->setPos(rect().right(), 0);
+    break;
+  case NodeViewCommon::kRightToLeft:
+    output_connector_->setPos(rect().left(), 0);
+    break;
+  case NodeViewCommon::kTopToBottom:
+    output_connector_->setPos(rect().center().x(), rect().bottom());
+    break;
+  case NodeViewCommon::kBottomToTop:
+    output_connector_->setPos(rect().center().x(), rect().top());
+    break;
+  case NodeViewCommon::kInvalidDirection:
+    break;
+  }
+}
+
+bool NodeViewItem::IsInputValid(const QString &input)
+{
+  return node_->IsInputConnectable(input) && !node_->IsInputHidden(input);
+}
+
+void NodeViewItem::SetRectSize(int height_units)
+{
+  // Set rect
+  int widget_width = DefaultItemWidth();
+  int widget_height = DefaultItemHeight();
+
+  setRect(QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height * height_units));
+}
+
+bool NodeViewItem::CanBeExpanded() const
+{
+  if (IsOutputItem()) {
+    return has_connectable_inputs_;
+  } else {
+    return node_->GetInputFlags(input_) & kInputFlagArray && element_ == -1 && !node_->IsInputConnected(input_);
+  }
+}
+
+void NodeViewItem::UpdateChildrenPositions()
+{
+  int y = 1;
+  int h = DefaultItemHeight();
+
+  foreach (NodeViewItem *c, children_) {
+    c->setPos(QPointF(0, y * h));
+
+    y += c->GetLogicalHeightWithChildren();
+  }
+
+  SetRectSize(y);
+
+  if (NodeViewItem *p = dynamic_cast<NodeViewItem*>(parentItem())) {
+    p->UpdateChildrenPositions();
+  }
+}
+
+int NodeViewItem::GetLogicalHeightWithChildren() const
+{
+  int h = 1;
+
+  foreach (NodeViewItem *c, children_) {
+    h += c->GetLogicalHeightWithChildren();
+  }
+
+  return h;
+}
+
+void NodeViewItem::UpdateFlowDirectionOfInputItem(NodeViewItem *child)
+{
+  if (!child->IsOutputItem()) {
+    if (NodeViewCommon::IsFlowVertical(flow_dir_)) {
+      if (!child->edges().isEmpty() && child->edges().first()->from_item()->scenePos().x() > child->scenePos().x()) {
+        child->SetFlowDirection(NodeViewCommon::kRightToLeft);
+      } else {
+        child->SetFlowDirection(NodeViewCommon::kLeftToRight);
+      }
+    } else {
+      child->SetFlowDirection(flow_dir_);
+    }
+  }
+}
+
+void NodeViewItem::RepopulateInputs()
+{
+  if (IsOutputItem()) {
+    has_connectable_inputs_ = false;
+
+    foreach (const QString& input, node_->inputs()) {
+      if (IsInputValid(input)) {
+        has_connectable_inputs_ = true;
+        break;
+      }
+    }
+
+    input_connector_->setVisible(has_connectable_inputs_);
+  }
+
+  if (IsExpanded() && (IsOutputItem() || element_ == -1)) {
+    // Create or remove inputs when necessary
+    // NOTE: This is not the most efficient thing in the world, but it does work
+    SetExpanded(false);
+    SetExpanded(true);
+  }
+}
+
+void NodeViewItem::InputArraySizeChanged(const QString &input)
+{
+  if (input == input_) {
+    RepopulateInputs();
+  }
+}
+
+void NodeViewItem::NodeAppearanceChanged()
+{
+  update();
+}
+
+void NodeViewItem::SetHighlighted(bool e)
+{
+  highlighted_ = e;
+  update();
+}
+
+NodeViewItem *NodeViewItem::GetItemForInput(NodeInput input)
+{
+  if (NodeGroup *group = dynamic_cast<NodeGroup*>(node_)) {
+    if (input.node() != group) {
+      // Translate input to group input
+      QString id = NodeGroup::GetGroupInputIDFromInput(input);
+      input.set_node(group);
+      input.set_input(id);
+    }
+  }
+
+  if (IsExpanded()) {
+    if (input_.isEmpty()) {
+      // Look for the input in our children
+      foreach (NodeViewItem *i, children_) {
+        if (i->input_ == input.input()) {
+          return i->GetItemForInput(input);
+        }
+      }
+    } else {
+      // Look for element in our children
+      if (input.element() >= 0 && input.element() < children_.size()) {
+        return children_.at(input.element())->GetItemForInput(input);
+      }
+    }
+  }
+
+  // Fallback to this object
+  return this;
+}
+
 }

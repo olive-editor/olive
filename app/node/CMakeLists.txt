@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,37 +14,48 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(blend)
+add_subdirectory(audio)
 add_subdirectory(block)
 add_subdirectory(color)
 add_subdirectory(distort)
+add_subdirectory(effect)
+add_subdirectory(filter)
 add_subdirectory(generator)
+add_subdirectory(group)
 add_subdirectory(input)
+add_subdirectory(math)
 add_subdirectory(output)
+add_subdirectory(project)
+add_subdirectory(time)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/dependency.h
-  node/dependency.cpp
-  node/edge.h
-  node/edge.cpp
-  node/graph.h
+  node/factory.cpp
+  node/factory.h
+  node/globals.cpp
+  node/globals.h
   node/graph.cpp
-  node/input.h
-  node/input.cpp
-  node/inputarray.h
-  node/inputarray.cpp
-  node/keyframe.h
+  node/graph.h
+  node/hashtraverser.cpp
+  node/hashtraverser.h
+  node/inputdragger.cpp
+  node/inputdragger.h
+  node/inputimmediate.cpp
+  node/inputimmediate.h
   node/keyframe.cpp
-  node/menu.h
-  node/menu.cpp
-  node/node.h
+  node/keyframe.h
   node/node.cpp
-  node/output.h
-  node/output.cpp
-  node/param.h
+  node/node.h
+  node/nodecopypaste.cpp
+  node/nodecopypaste.h
   node/param.cpp
-  node/value.h
+  node/param.h
+  node/splitvalue.h
+  node/traverser.cpp
+  node/traverser.h
   node/value.cpp
+  node/value.h
+  node/valuedatabase.cpp
+  node/valuedatabase.h
   PARENT_SCOPE
 )

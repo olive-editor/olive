@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,39 +20,24 @@
 
 #include "node.h"
 
+namespace olive {
+
 NodePanel::NodePanel(QWidget *parent) :
-  PanelWidget(parent)
+  PanelWidget(QStringLiteral("NodePanel"), parent)
 {
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("NodePanel");
+  node_widget_ = new NodeWidget();
+  connect(this, &NodePanel::visibilityChanged, node_widget_->view(), &NodeView::CenterOnItemsBoundingRect);
 
-  // Create NodeView widget
-  node_view_ = new NodeView(this);
-
-  // Connect node view signals to this panel
-  connect(node_view_, SIGNAL(SelectionChanged(QList<Node*>)), this, SIGNAL(SelectionChanged(QList<Node*>)));
+  // Connect node view signals to this panel - MAY REMOVE
+  connect(node_widget_->view(), &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
+  connect(node_widget_->view(), &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
+  connect(node_widget_->view(), &NodeView::NodeGroupOpenRequested, this, &NodePanel::NodeGroupOpenRequested);
 
   // Set it as the main widget of this panel
-  setWidget(node_view_);
+  SetWidgetWithPadding(node_widget_);
 
   // Set strings
   Retranslate();
 }
 
-void NodePanel::SetGraph(NodeGraph *graph)
-{
-  node_view_->SetGraph(graph);
-}
-
-void NodePanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
-void NodePanel::Retranslate()
-{
-  SetTitle(tr("Node Editor"));
 }

@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,22 +14,58 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(backend)
+add_subdirectory(job)
+add_subdirectory(ocioconf)
+add_subdirectory(opengl)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/audioparams.h
   render/audioparams.cpp
-  render/colormanager.h
-  render/colormanager.cpp
-  render/colorprocessor.h
+  render/audioparams.h
+  render/audioplaybackcache.cpp
+  render/audioplaybackcache.h
+  render/color.cpp
+  render/color.h
   render/colorprocessor.cpp
-  render/pixelformat.h
-  render/pixelformat.cpp
-  render/pixelservice.h
-  render/pixelservice.cpp
+  render/colorprocessor.h
+  render/colorprocessorcache.h
+  render/diskmanager.cpp
+  render/diskmanager.h
+  render/framehashcache.cpp
+  render/framehashcache.h
+  render/framemanager.cpp
+  render/framemanager.h
+  render/managedcolor.cpp
+  render/managedcolor.h
+  render/playbackcache.cpp
+  render/playbackcache.h
+  render/previewaudiodevice.cpp
+  render/previewaudiodevice.h
+  render/previewautocacher.cpp
+  render/previewautocacher.h
+  render/renderer.cpp
+  render/renderer.h
+  render/rendercache.h
+  render/rendererthreadwrapper.cpp
+  render/rendererthreadwrapper.h
+  render/renderjobtracker.cpp
+  render/renderjobtracker.h
+  render/rendermanager.cpp
+  render/rendermanager.h
   render/rendermodes.h
-  render/videoparams.h
+  render/renderprocessor.cpp
+  render/renderprocessor.h
+  render/shadercode.h
+  render/subtitleparams.cpp
+  render/subtitleparams.h
+  render/texture.cpp
+  render/texture.h
   render/videoparams.cpp
+  render/videoparams.h
+  PARENT_SCOPE
+)
+
+set(OLIVE_RESOURCES
+  ${OLIVE_RESOURCES}
   PARENT_SCOPE
 )

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,100 +20,108 @@
 
 #include "graph.h"
 
+#include <QChildEvent>
+
+namespace olive {
+
+#define super QObject
+
 NodeGraph::NodeGraph()
 {
+}
 
+NodeGraph::~NodeGraph()
+{
+  Clear();
 }
 
 void NodeGraph::Clear()
 {
-  foreach (Node* node, node_children_) {
-    delete node;
-  }
-  node_children_.clear();
-}
-
-void NodeGraph::AddNode(Node *node)
-{
-  if (ContainsNode(node)) {
-    return;
-  }
-
-  node->setParent(this);
-
-  connect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
-  connect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
-
-  node_children_.append(node);
-
-  emit NodeAdded(node);
-}
-
-void NodeGraph::AddNodeWithDependencies(Node *node)
-{
-  // Add node and its connected nodes to graph
-  AddNode(node);
-
-  // Add all of Block's dependencies
-  QList<Node*> node_dependencies = node->GetDependencies();
-  foreach (Node* dep, node_dependencies) {
-    AddNode(dep);
+  // By deleting the last nodes first, we assume that nodes that are most important are deleted last
+  // (e.g. Project's ColorManager or ProjectSettingsNode.
+  while (!node_children_.isEmpty()) {
+    delete node_children_.last();
   }
 }
 
-void NodeGraph::TakeNode(Node *node, QObject* new_parent)
+int NodeGraph::GetNumberOfContextsNodeIsIn(Node *node, bool except_itself) const
 {
-  if (!ContainsNode(node)) {
-    return;
+  int count = 0;
+
+  foreach (Node *ctx, node_children_) {
+    if (ctx->ContextContainsNode(node) && (!except_itself || ctx != node)) {
+      count++;
+    }
   }
 
-  if (!node->CanBeDeleted()) {
-    qWarning() << "Tried to delete a Node that's been flagged as not deletable";
-    return;
-  }
-
-  node->DisconnectAll();
-
-  disconnect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
-  disconnect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
-
-  node->setParent(new_parent);
-
-  node_children_.removeAll(node);
-
-  emit NodeRemoved(node);
+  return count;
 }
 
-QList<Node *> NodeGraph::TakeNodeWithItsDependencies(Node *node, QObject *new_parent)
+void NodeGraph::childEvent(QChildEvent *event)
 {
-  if (!ContainsNode(node)) {
-    return QList<Node*>();
+  super::childEvent(event);
+
+  Node* node = dynamic_cast<Node*>(event->child());
+
+  if (node) {
+    if (event->type() == QEvent::ChildAdded) {
+
+      node_children_.append(node);
+
+      // Connect signals
+      connect(node, &Node::InputConnected, this, &NodeGraph::InputConnected, Qt::DirectConnection);
+      connect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected, Qt::DirectConnection);
+      connect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged, Qt::DirectConnection);
+      connect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged, Qt::DirectConnection);
+
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        connect(group, &NodeGroup::InputPassthroughAdded, this, &NodeGraph::GroupAddedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeGraph::GroupRemovedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::OutputPassthroughChanged, this, &NodeGraph::GroupChangedOutputPassthrough, Qt::DirectConnection);
+      }
+
+      emit NodeAdded(node);
+      emit node->AddedToGraph(this);
+
+      // Emit input connections
+      for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+        if (nodes().contains(it->second)) {
+          emit InputConnected(it->second, it->first);
+        }
+      }
+
+      // Emit output connections
+      for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+        if (nodes().contains(it->second.node())) {
+          emit InputConnected(it->first, it->second);
+        }
+      }
+
+    } else if (event->type() == QEvent::ChildRemoved) {
+
+      node_children_.removeOne(node);
+
+      // Disconnect signals
+      disconnect(node, &Node::InputConnected, this, &NodeGraph::InputConnected);
+      disconnect(node, &Node::InputDisconnected, this, &NodeGraph::InputDisconnected);
+      disconnect(node, &Node::ValueChanged, this, &NodeGraph::ValueChanged);
+      disconnect(node, &Node::InputValueHintChanged, this, &NodeGraph::InputValueHintChanged);
+
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        disconnect(group, &NodeGroup::InputPassthroughAdded, this, &NodeGraph::GroupAddedInputPassthrough);
+        disconnect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeGraph::GroupRemovedInputPassthrough);
+        disconnect(group, &NodeGroup::OutputPassthroughChanged, this, &NodeGraph::GroupChangedOutputPassthrough);
+      }
+
+      emit NodeRemoved(node);
+      emit node->RemovedFromGraph(this);
+
+      // Remove from any contexts
+      foreach (Node *context, node_children_) {
+        context->RemoveNodeFromContext(node);
+      }
+    }
   }
-
-  QList<Node*> deps = node->GetExclusiveDependencies();
-
-  foreach (Node* d, deps) {
-    TakeNode(d, new_parent);
-  }
-
-  return deps;
 }
 
-const QList<Node *> &NodeGraph::nodes()
-{
-  return node_children_;
-}
-
-bool NodeGraph::ContainsNode(Node *n)
-{
-  return (n->parent() == this);
-}
-
-void NodeGraph::Release()
-{
-  QList<Node*> all_nodes = nodes();
-
-  foreach (Node* n, all_nodes) {
-    n->Release();
-  }
 }

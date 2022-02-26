@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,12 @@
 #ifndef CLIPBLOCK_H
 #define CLIPBLOCK_H
 
+#include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
+
+namespace olive {
+
+class ViewerOutput;
 
 /**
  * @brief Node that represents a block of Media
@@ -32,25 +37,123 @@ class ClipBlock : public Block
 public:
   ClipBlock();
 
-  virtual Node* copy() const override;
+  NODE_DEFAULT_DESTRUCTOR(ClipBlock)
 
-  virtual Type type() const override;
+  virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
   virtual QString Description() const override;
 
-  NodeInput* texture_input() const;
+  virtual void set_length_and_media_out(const rational &length) override;
+  virtual void set_length_and_media_in(const rational &length) override;
 
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
+  rational media_in() const;
+  void set_media_in(const rational& media_in);
 
-  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const override;
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+
+  virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
+  virtual void Retranslate() override;
+
+  double speed() const
+  {
+    return GetStandardValue(kSpeedInput).toDouble();
+  }
+
+  bool reverse() const
+  {
+    return GetStandardValue(kReverseInput).toBool();
+  }
+
+  void set_reverse(bool e)
+  {
+    SetStandardValue(kReverseInput, e);
+  }
+
+  bool maintain_audio_pitch() const
+  {
+    return GetStandardValue(kMaintainAudioPitchInput).toBool();
+  }
+
+  void set_maintain_audio_pitch(bool e)
+  {
+    SetStandardValue(kMaintainAudioPitchInput, e);
+  }
+
+  TransitionBlock* in_transition()
+  {
+    return in_transition_;
+  }
+
+  void set_in_transition(TransitionBlock* t)
+  {
+    in_transition_ = t;
+  }
+
+  TransitionBlock* out_transition()
+  {
+    return out_transition_;
+  }
+
+  void set_out_transition(TransitionBlock* t)
+  {
+    out_transition_ = t;
+  }
+
+  const QVector<Block*>& block_links() const
+  {
+    return block_links_;
+  }
+
+  AudioVisualWaveform& waveform()
+  {
+    return waveform_;
+  }
+
+  ViewerOutput *connected_viewer() const
+  {
+    return connected_viewer_;
+  }
+
+  static const QString kBufferIn;
+  static const QString kMediaInInput;
+  static const QString kSpeedInput;
+  static const QString kReverseInput;
+  static const QString kMaintainAudioPitchInput;
+
+protected:
+  virtual void LinkChangeEvent() override;
+
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
+
+  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
-  NodeInput* texture_input_;
+  rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false) const;
+
+  rational MediaToSequenceTime(const rational& media_time) const;
+
+  QVector<Block*> block_links_;
+
+  TransitionBlock* in_transition_;
+  TransitionBlock* out_transition_;
+
+  ViewerOutput *connected_viewer_;
+
+private:
+  AudioVisualWaveform waveform_;
+
+  rational last_media_in_;
+
 
 };
+
+}
 
 #endif // TIMELINEBLOCK_H

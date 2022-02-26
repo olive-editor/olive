@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,20 +15,42 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(audiomonitor)
+add_subdirectory(bezier)
+add_subdirectory(clickablelabel)
+add_subdirectory(collapsebutton)
+add_subdirectory(colorbutton)
+add_subdirectory(colorlabelmenu)
+add_subdirectory(colorwheel)
 add_subdirectory(columnedgridlayout)
+add_subdirectory(curvewidget)
+add_subdirectory(filefield)
 add_subdirectory(flowlayout)
-add_subdirectory(footagecombobox)
+add_subdirectory(focusablelineedit)
+add_subdirectory(handmovableview)
+add_subdirectory(keyframeview)
+add_subdirectory(manageddisplay)
 add_subdirectory(menu)
-add_subdirectory(nodeview)
+add_subdirectory(nodecombobox)
 add_subdirectory(nodeparamview)
+add_subdirectory(nodetableview)
+add_subdirectory(nodetreeview)
+add_subdirectory(nodevaluetree)
+add_subdirectory(nodeview)
 add_subdirectory(panel)
+add_subdirectory(path)
+add_subdirectory(pixelsampler)
 add_subdirectory(playbackcontrols)
 add_subdirectory(projectexplorer)
 add_subdirectory(projecttoolbar)
+add_subdirectory(resizablescrollbar)
+add_subdirectory(scope)
 add_subdirectory(slider)
+add_subdirectory(standardcombos)
 add_subdirectory(taskview)
+add_subdirectory(timebased)
 add_subdirectory(timelinewidget)
 add_subdirectory(timeruler)
+add_subdirectory(timetarget)
 add_subdirectory(toolbar)
 add_subdirectory(viewer)
 

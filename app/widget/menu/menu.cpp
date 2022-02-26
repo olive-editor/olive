@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,78 +22,93 @@
 
 #include "ui/style/style.h"
 
-Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
-  QMenu(bar)
+namespace olive {
+
+Menu::Menu(QMenuBar *bar)
 {
   bar->addMenu(this);
 
-  if (receiver != nullptr) {
-    connect(this, SIGNAL(aboutToShow()), receiver, member);
-  }
+  Init();
 }
 
-Menu::Menu(Menu *menu, const QObject *receiver, const char *member) :
-  QMenu(menu)
+Menu::Menu(Menu *menu)
 {
   menu->addMenu(this);
 
-  if (receiver != nullptr) {
-    connect(this, SIGNAL(aboutToShow()), receiver, member);
-  }
+  Init();
 }
 
 Menu::Menu(QWidget *parent) :
   QMenu(parent)
 {
+  Init();
 }
 
-QAction *Menu::AddItem(const QString &id,
-                       const QObject *receiver,
-                       const char *member,
-                       const QString &key)
+Menu::Menu(const QString &s, QWidget *parent) :
+  QMenu(s, parent)
 {
-  QAction* a = CreateItem(this, id, receiver, member, key);
+  Init();
+}
 
-  addAction(a);
+QAction *Menu::AddActionWithData(const QString &text, const QVariant &d, const QVariant &compare)
+{
+  QAction* a = addAction(text);
+
+  a->setData(d);
+  a->setCheckable(true);
+  a->setChecked(d == compare);
 
   return a;
 }
 
-QAction *Menu::CreateItem(QObject* parent,
-                          const QString &id,
-                          const QObject *receiver,
-                          const char *member,
-                          const QString &key)
+QAction* Menu::InsertAlphabetically(const QString &s)
 {
-  QAction* a = new QAction(parent);
-
-  ConformItem(a,
-              id,
-              receiver,
-              member,
-              key);
-
-  return a;
+  QAction* action = new QAction(s, this);
+  InsertAlphabetically(action);
+  return action;
 }
 
-void Menu::ConformItem(QAction* a, const QString &id, const QObject *receiver, const char *member, const QString &key)
+void Menu::InsertAlphabetically(QAction *entry)
+{
+  QList<QAction*> actions = this->actions();
+
+  foreach (QAction* action, actions) {
+    if (action->text() > entry->text()) {
+      insertAction(action, entry);
+      return;
+    }
+  }
+
+  addAction(entry);
+}
+
+void Menu::InsertAlphabetically(Menu *menu)
+{
+  InsertAlphabetically(menu->menuAction());
+}
+
+void Menu::ConformItem(QAction *a, const QString &id, const QKeySequence &key)
 {
   a->setProperty("id", id);
 
   if (!key.isEmpty()) {
     a->setShortcut(key);
     a->setProperty("keydefault", key);
-  }
 
-  if (receiver != nullptr) {
-    connect(a, SIGNAL(triggered(bool)), receiver, member);
+    // Set to application context so that ViewerWindows still trigger shortcuts
+    a->setShortcutContext(Qt::ApplicationShortcut);
   }
 }
 
-void Menu::SetBooleanAction(QAction *a, bool* boolean)
+void Menu::Init()
 {
-  // FIXME: Connect to some boolean function
-  a->setCheckable(true);
-  a->setChecked(*boolean);
-  a->setProperty("boolptr", reinterpret_cast<quintptr>(boolean));
+  // HACK: Disables embossing on disabled text for a slightly nicer UI
+  QPalette p = palette();
+  p.setColor(QPalette::Disabled, QPalette::Light, QColor(0, 0, 0, 0));
+  setPalette(p);
+
+  // If a native palette is available, it should override the one above
+  StyleManager::UseOSNativeStyling(this);
+}
+
 }

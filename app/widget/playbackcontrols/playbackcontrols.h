@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,10 @@
 #include <QStackedWidget>
 
 #include "common/rational.h"
+#include "dragbutton.h"
+#include "widget/slider/rationalslider.h"
+
+namespace olive {
 
 /**
  * @brief A playback controls widget providing buttons for navigating media
@@ -46,10 +50,12 @@ public:
 
   void SetTimebase(const rational& r);
 
-public slots:
-  void SetTime(const int64_t &r);
+  void SetAudioVideoDragButtonsVisible(bool e);
 
-  void SetEndTime(const int64_t &r);
+public slots:
+  void SetTime(const rational &r);
+
+  void SetEndTime(const rational &r);
 
   void ShowPauseButton();
 
@@ -86,19 +92,29 @@ signals:
    */
   void EndClicked();
 
+  void AudioClicked();
+
+  void VideoClicked();
+
+  void AudioPressed();
+
+  void VideoPressed();
+
+  void TimeChanged(const rational& t);
+
 protected:
   virtual void changeEvent(QEvent *) override;
 
 private:
   void UpdateIcons();
 
-  void SetTimeLabelInternal(QLabel *label, const int64_t &time);
-
   QWidget* lower_left_container_;
   QWidget* lower_right_container_;
 
-  QLabel* cur_tc_lbl_;
+  RationalSlider* cur_tc_lbl_;
   QLabel* end_tc_lbl_;
+
+  rational end_time_;
 
   rational time_base_;
 
@@ -108,12 +124,16 @@ private:
   QPushButton* pause_btn_;
   QPushButton* next_frame_btn_;
   QPushButton* go_to_end_btn_;
+  DragButton* video_drag_btn_;
+  DragButton* audio_drag_btn_;
 
   QStackedWidget* playpause_stack_;
 
 private slots:
-
+  void TimecodeChanged();
 
 };
+
+}
 
 #endif // PLAYBACKCONTROLS_H

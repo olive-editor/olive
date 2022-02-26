@@ -1,13 +1,15 @@
+<!-- NOTE: I'm not a huge fan of these cursors, it may be good to commission some new ones soon -->
+
 <RCC>
     <qresource prefix="/cursors">
-        <file>1_left.svg</file>
-        <file>1_right.svg</file>
-        <file>2.svg</file>
-        <file>3_left.svg</file>
-        <file>3_right.svg</file>
-        <file>4.svg</file>
-        <file>5.svg</file>
-        <file>5b.svg</file>
-        <file>5c.svg</file>
+        <file>trim-left.svg</file>
+        <file>trim-right.svg</file>
+        <file>slip.svg</file>
+        <file>ripple-left.svg</file>
+        <file>ripple-right.svg</file>
+        <file>rolling.svg</file>
+        <file>razor-a.svg</file>
+        <file>razor-b.svg</file>
+        <file>razor-c.svg</file>
     </qresource>
 </RCC>

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,52 +28,61 @@
 #include <QDropEvent>
 
 #include "node/block/clip/clip.h"
-#include "node/output/timeline/timeline.h"
-#include "timelineplayhead.h"
-#include "timelineviewblockitem.h"
 #include "timelineviewmouseevent.h"
-#include "timelineviewenditem.h"
 #include "timelineviewghostitem.h"
-#include "widget/timelinewidget/undo/undo.h"
-#include "undo/undostack.h"
+#include "widget/timebased/timebasedview.h"
+
+namespace olive {
 
 /**
  * @brief A widget for viewing and interacting Sequences
  *
  * This widget primarily exposes users to viewing and modifying Block nodes, usually through a TimelineOutput node.
  */
-class TimelineView : public QGraphicsView, public TimelineScaledObject
+class TimelineView : public TimeBasedView
 {
   Q_OBJECT
 public:
-  TimelineView(const TrackType& type,
-               Qt::Alignment vertical_alignment = Qt::AlignTop,
+  TimelineView(Qt::Alignment vertical_alignment = Qt::AlignTop,
                QWidget* parent = nullptr);
 
-  void SetScale(const double& scale);
+  int GetTrackY(int track_index) const;
+  int GetTrackHeight(int track_index) const;
 
-  void SelectAll();
-
-  void DeselectAll();
-
-  void SetEndTime(const rational& length);
-
-  int GetTrackY(int track_index);
-  int GetTrackHeight(int track_index);
-
-  QPoint GetScrollCoordinates();
+  QPoint GetScrollCoordinates() const;
   void SetScrollCoordinates(const QPoint& pt);
 
-public slots:
-  void SetTimebase(const rational& timebase);
+  void ConnectTrackList(TrackList* list);
 
-  void SetTime(const int64_t time);
+  void SetBeamCursor(const TimelineCoordinate& coord);
+  void SetTransitionOverlay(ClipBlock *out, ClipBlock *in);
+
+  void SetSelectionList(QHash<Track::Reference, TimeRangeList>* s)
+  {
+    selections_ = s;
+  }
+
+  void SetGhostList(QVector<TimelineViewGhostItem*>* ghosts)
+  {
+    ghosts_ = ghosts;
+  }
+
+  int SceneToTrack(double y);
+
+  Block* GetItemAtScenePos(const rational& time, int track_index) const;
+
+  bool GetShowWaveforms() const
+  {
+    return show_waveforms_;
+  }
+
+  void SetShowWaveforms(bool e)
+  {
+    show_waveforms_ = e;
+    viewport()->update();
+  }
 
 signals:
-  void ScaleChanged(double scale);
-
-  void TimeChanged(const int64_t& time);
-
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
   void MouseReleased(TimelineViewMouseEvent* event);
@@ -90,50 +99,67 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
   virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
+  virtual void wheelEvent(QWheelEvent* event) override;
+
   virtual void dragEnterEvent(QDragEnterEvent *event) override;
   virtual void dragMoveEvent(QDragMoveEvent *event) override;
   virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
   virtual void dropEvent(QDropEvent *event) override;
 
-  virtual void resizeEvent(QResizeEvent *event) override;
-
+  virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
   virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
+  virtual void ToolChangedEvent(Tool::Item tool) override;
+
+  virtual void SceneRectUpdateEvent(QRectF& rect) override;
+
 private:
-  TrackType ConnectedTrackType();
-  Stream::Type TrackTypeToStreamType(TrackType track_type);
+  Track::Type ConnectedTrackType();
 
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
 
-  int SceneToTrack(double y);
+  TimelineViewMouseEvent CreateMouseEvent(QMouseEvent* event);
+  TimelineViewMouseEvent CreateMouseEvent(const QPoint &pos, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 
-  void UserSetTime(const int64_t& time);
+  void DrawBlocks(QPainter* painter, bool foreground);
 
-  QGraphicsScene scene_;
+  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height, const rational &in, const rational &out);
+  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height)
+  {
+    DrawBlock(painter, foreground, block, top, height, block->in(), block->out());
+  }
 
-  int64_t playhead_;
+  void DrawZebraStripes(QPainter *painter, const QRectF &r);
 
-  QVector<int> track_heights_;
-
-  TimelineViewEndItem* end_item_;
-
-  TimelinePlayhead playhead_style_;
-
-  rational GetPlayheadTime();
+  int GetHeightOfAllTracks() const;
 
   void UpdatePlayheadRect();
 
-  QRect playhead_rect_;
+  qreal GetTimelineLeftBound() const;
 
-  TrackType type_;
+  qreal GetTimelineRightBound() const;
+
+  QHash<Track::Reference, TimeRangeList>* selections_;
+
+  QVector<TimelineViewGhostItem*>* ghosts_;
+
+  bool show_beam_cursor_;
+
+  TimelineCoordinate cursor_coord_;
+
+  TrackList* connected_track_list_;
+
+  bool show_waveforms_;
+
+  ClipBlock *transition_overlay_out_;
+  ClipBlock *transition_overlay_in_;
 
 private slots:
-  /**
-   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
-   */
-  void UpdateSceneRect();
+  void TrackListChanged();
 
 };
+
+}
 
 #endif // TIMELINEVIEW_H

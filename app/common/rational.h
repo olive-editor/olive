@@ -7,6 +7,10 @@
 #define RATIONAL_H
 #include <iostream>
 
+#ifdef USE_OTIO
+#include <opentime/rationalTime.h>
+#endif
+
 #include <QDebug>
 #include <QMetaType>
 
@@ -14,7 +18,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-using namespace std;
+#include "common/define.h"
+
+namespace olive {
 
 typedef int64_t intType;
 /*
@@ -27,33 +33,34 @@ class rational
 {
 public:
   //constructors
-  rational(const intType &numerator = 0)
-    :numer(numerator), denom(1)
+  rational(const intType &numerator = 0) :
+    numer_(numerator),
+    denom_(1)
   {
-    if(numer == 0)
-      denom = 0;
   }
 
-  rational(const intType &numerator, const intType &denominator)
-    :numer(numerator), denom(denominator)
+  rational(const intType &numerator, const intType &denominator) :
+    numer_(numerator),
+    denom_(denominator)
   {
-    if(denom != intType(0))
-      {
-        if(numer != intType(0))
-          {
-            fixSigns();
-            reduce();
-          }
-        else
-          denom = intType(0);
-      }
-    else
-      numer = intType(0);
+    fix_signs();
+    reduce();
   }
 
   rational(const rational &rhs) = default;
 
-  rational(const AVRational& r);
+  rational(const AVRational& r) :
+    numer_(r.num),
+    denom_(r.den)
+  {
+    fix_signs();
+    reduce();
+  }
+
+  static rational fromDouble(const double& flt, bool *ok = nullptr);
+  static rational fromString(const QString& str, bool* ok = nullptr);
+
+  static const rational NaN;
 
   //Assignment Operators
   const rational& operator=(const rational &rhs);
@@ -77,10 +84,6 @@ public:
   bool operator!=(const rational &rhs) const;
 
   //Unary operators
-  const rational& operator++(); //prefix
-  rational operator++(int);     //postfix
-  const rational& operator--(); //prefix
-  rational operator--(int);     //postfix
   const rational& operator+() const;
   rational operator-() const;
   bool operator!() const;
@@ -90,42 +93,60 @@ public:
 
   AVRational toAVRational() const;
 
+#ifdef USE_OTIO
+  static rational fromRationalTime(const opentime::RationalTime &t)
+  {
+    // Is this the best way to do this?
+    return fromDouble(t.to_seconds());
+  }
+
+  // Convert Olive ratioanls to opentime rationals with the given framerate (defaults to 24)
+  opentime::RationalTime toRationalTime(double framerate = 24) const;
+#endif
+
   // Produce "flipped" version
   rational flipped() const;
+  void flip();
 
-  // Returns whether the rational is null or not
+  // Returns whether the rational is valid but equal to zero or not
+  //
+  // A NaN is always a null, but a null is not always a NaN
   bool isNull() const;
 
-  //Function: print number to cout
-  void print(ostream &out = cout) const;
+  // Returns whether this rational is not a valid number
+  bool isNaN() const;
 
   //IO
-  friend ostream& operator<<(ostream &out, const rational &value);
-  friend istream& operator>>(istream &in, rational &value);
+  friend std::ostream& operator<<(std::ostream &out, const rational &value);
+  friend std::istream& operator>>(std::istream &in, rational &value);
 
   const intType& numerator() const;
   const intType& denominator() const;
 
+  QString toString() const;
+
 private:
   //numerator and denominator
-  intType numer;
-  intType denom;
+  intType numer_;
+  intType denom_;
 
   //Function: ensures denom >= 0
-  void fixSigns();
+  void fix_signs();
   //Function: ensures lowest form
   void reduce();
   //Function: finds greatest common denominator
-  intType gcd(intType &x, intType &y);
+  static intType gcd(const intType &x, const intType &y);
 };
 
-QDebug operator<<(QDebug debug, const rational& r);
+#define RATIONAL_MIN rational(INT64_MIN, 1)
+#define RATIONAL_MAX rational(INT64_MAX, 1)
 
-#define RATIONAL_MIN rational(INT32_MIN, 1)
-#define RATIONAL_MAX rational(INT32_MAX, 1)
+uint qHash(const rational& r, uint seed = 0);
 
-Q_DECLARE_METATYPE(rational)
+}
 
-uint qHash(const rational& r, uint seed);
+QDebug operator<<(QDebug debug, const olive::rational& r);
+
+Q_DECLARE_METATYPE(olive::rational)
 
 #endif // RATIONAL_H

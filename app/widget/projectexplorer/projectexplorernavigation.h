@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,10 @@
 #include <QSlider>
 #include <QWidget>
 
+#include "common/define.h"
+
+namespace olive {
+
 /**
  * @brief A navigation bar widget for ProjectExplorer's Icon and List views
  *
@@ -35,15 +39,15 @@
  * * Double clicking a Folder in those views will enter that folder
  * * This navigation bar offers a "directory up" button for leaving a folder
  *
- * This navbar also provides an icon size slider for those views (between olive::kProjectIconSizeMinimum and
- * olive::kProjectIconSizeMaximum) as well as text that's intended to be set to the current Folder's name (or
+ * This navbar also provides an icon size slider for those views (between kProjectIconSizeMinimum and
+ * kProjectIconSizeMaximum) as well as text that's intended to be set to the current Folder's name (or
  * empty for the root folder).
  *
  * This widget does not actually communicate to Project or ProjectExplorer classes. It is simply UI widgets that are
  * intended to be connected in ways that do. This is the primarily responsibility of ProjectExplorer.
  *
  * By default, the directory up button is disabled (assuming root folder), the text is empty, and the icon size slider
- * is set to olive::kProjectIconSizeDefault.
+ * is set to kProjectIconSizeDefault.
  */
 class ProjectExplorerNavigation : public QWidget
 {
@@ -107,5 +111,7 @@ private:
 
   QSlider* size_slider_;
 };
+
+}
 
 #endif // PROJECTEXPLORERLISTVIEWTOOLBAR_H

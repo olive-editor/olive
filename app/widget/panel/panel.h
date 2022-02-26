@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,10 +24,15 @@
 #include <QDockWidget>
 #include <QEvent>
 
+#include "common/define.h"
+
+namespace olive {
+
 /**
  * @brief A widget that is always dockable within the MainWindow.
  */
-class PanelWidget : public QDockWidget {
+class PanelWidget : public QDockWidget
+{
   Q_OBJECT
 public:
   /**
@@ -38,7 +43,9 @@ public:
    * The PanelWidget's parent, enforced to help with memory handling. Most of the time this will be an instance of
    * MainWindow.
    */
-  PanelWidget(QWidget* parent);
+  PanelWidget(const QString& object_name, QWidget* parent);
+
+  virtual ~PanelWidget() override;
 
   /**
    * @brief Set whether panel movement is locked or not
@@ -51,6 +58,13 @@ public:
    * @param enabled
    */
   void SetBorderVisible(bool enabled);
+
+  /**
+   * @brief If enabled, sends signal CloseRequested() when the user closes instead of closing
+   *
+   * Defaults to FALSE. Use this to override default panel closing functionality.
+   */
+  void SetSignalInsteadOfClose(bool e);
 
   /**
    * @brief Called whenever this panel is focused and user uses "Zoom In" (either in menus or as a keyboard shortcut)
@@ -80,6 +94,8 @@ public:
    */
   virtual void PlayPause(){}
 
+  virtual void PlayInToOut(){}
+
   virtual void NextFrame(){}
 
   virtual void GoToEnd(){}
@@ -106,7 +122,79 @@ public:
 
   virtual void GoToNextCut(){}
 
+  virtual void DeleteSelected(){}
+
+  virtual void RippleDelete(){}
+
+  virtual void IncreaseTrackHeight(){}
+
+  virtual void DecreaseTrackHeight(){}
+
+  virtual void SetIn(){}
+
+  virtual void SetOut(){}
+
+  virtual void ResetIn(){}
+
+  virtual void ResetOut(){}
+
+  virtual void ClearInOut(){}
+
+  virtual void SetMarker(){}
+
+  virtual void ToggleLinks(){}
+
+  virtual void CutSelected(){}
+
+  virtual void CopySelected(){}
+
+  virtual void Paste(){}
+
+  virtual void PasteInsert(){}
+
+  virtual void ToggleShowAll(){}
+
+  virtual void GoToIn(){}
+
+  virtual void GoToOut(){}
+
+  virtual void DeleteInToOut(){}
+
+  virtual void RippleDeleteInToOut(){}
+
+  virtual void ToggleSelectedEnabled(){}
+
+  virtual void Duplicate(){}
+
+  virtual void SetColorLabel(int){}
+
+  virtual void NudgeLeft(){}
+
+  virtual void NudgeRight(){}
+
+  virtual void MoveInToPlayhead(){}
+
+  virtual void MoveOutToPlayhead(){}
+
+signals:
+  void CloseRequested();
+
 protected:
+  /**
+   * @brief paintEvent
+   * @param event
+   */
+  void paintEvent(QPaintEvent *event) override;
+
+  virtual void changeEvent(QEvent* e) override;
+
+  virtual void closeEvent(QCloseEvent* event) override;
+
+  virtual void Retranslate();
+
+  void SetWidgetWithPadding(QWidget* widget);
+
+protected slots:
   /**
    * @brief Set panel's title
    *
@@ -135,11 +223,6 @@ protected:
    */
   void SetSubtitle(const QString& t);
 
-  /**
-   * @brief paintEvent
-   * @param event
-   */
-  void paintEvent(QPaintEvent *event) override;
 private:
   /**
    * @brief Internal function that sets the QDockWidget's window title whenever the title/subtitle change.
@@ -148,20 +231,19 @@ private:
    */
   void UpdateTitle();
 
-  /**
-   * @brief Internal title string
-   */
   QString title_;
 
-  /**
-   * @brief Internal subtitle string
-   */
   QString subtitle_;
 
-  /**
-   * @brief Internal border visibility value
-   */
   bool border_visible_;
+
+  bool signal_instead_of_close_;
+
+private slots:
+  void PanelVisibilityChanged(bool e);
+
 };
+
+}
 
 #endif // PANEL_WIDGET_H

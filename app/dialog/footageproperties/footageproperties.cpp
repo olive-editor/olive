@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,9 +31,12 @@
 #include <QCheckBox>
 #include <QSpinBox>
 
+#include "core.h"
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
-#include "undo/undostack.h"
+#include "widget/nodeview/nodeviewundo.h"
+
+namespace olive {
 
 FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *footage) :
   QDialog(parent),
@@ -41,14 +44,14 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 {
   QGridLayout* layout = new QGridLayout(this);
 
-  setWindowTitle(tr("\"%1\" Properties").arg(footage_->name()));
+  setWindowTitle(tr("\"%1\" Properties").arg(footage_->GetLabelOrName()));
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   int row = 0;
 
   layout->addWidget(new QLabel(tr("Name:")), row, 0);
 
-  footage_name_field_ = new QLineEdit(footage_->name());
+  footage_name_field_ = new QLineEdit(footage_->GetLabel());
   layout->addWidget(footage_name_field_, row, 1);
   row++;
 
@@ -63,182 +66,113 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
   stacked_widget_ = new QStackedWidget();
   layout->addWidget(stacked_widget_, row, 0, 1, 2);
 
-  foreach (StreamPtr stream, footage_->streams()) {
-    QListWidgetItem* item = new QListWidgetItem(stream->description(), track_list);
-    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-    item->setCheckState(stream->enabled() ? Qt::Checked : Qt::Unchecked);
-    track_list->addItem(item);
+  int first_usable_stream = -1;
 
-    switch (stream->type()) {
-    case Stream::kVideo:
-      stacked_widget_->addWidget(new VideoStreamProperties(std::static_pointer_cast<VideoStream>(stream)));
+  for (int i=0; i<footage_->GetTotalStreamCount(); i++) {
+    Track::Reference reference = footage_->GetReferenceFromRealIndex(i);
+
+    QString description;
+    bool is_enabled = false;
+
+    switch (reference.type()) {
+    case Track::kVideo:
+    {
+      stacked_widget_->addWidget(new VideoStreamProperties(footage_, reference.index()));
+
+      VideoParams vp = footage_->GetVideoParams(reference.index());
+      is_enabled = vp.enabled();
+      description = tr("%1x%2 %3 FPS").arg(QString::number(vp.width()), QString::number(vp.height()), QString::number(vp.frame_rate().toDouble()));
       break;
-    case Stream::kAudio:
-      stacked_widget_->addWidget(new AudioStreamProperties(std::static_pointer_cast<AudioStream>(stream)));
+    }
+    case Track::kAudio:
+    {
+      stacked_widget_->addWidget(new AudioStreamProperties(footage_, reference.index()));
+
+      AudioParams ap = footage_->GetAudioParams(reference.index());
+      is_enabled = ap.enabled();
+      description = tr("%1 Hz %2 channels").arg(QString::number(ap.sample_rate()), QString::number(ap.channel_count()));
       break;
+    }
     default:
       stacked_widget_->addWidget(new StreamProperties());
+      description = tr("Unknown");
+      break;
+    }
+
+    QListWidgetItem* item = new QListWidgetItem(description, track_list);
+    item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+    item->setCheckState(is_enabled ? Qt::Checked : Qt::Unchecked);
+    track_list->addItem(item);
+
+    if (first_usable_stream == -1
+        && (reference.type() == Track::kVideo
+            || reference.type() == Track::kAudio)) {
+      first_usable_stream = i;
     }
   }
 
   row++;
 
-  /*if (f->video_tracks.size() > 0) {
-    // frame conforming
-    if (!f->video_tracks.at(0).infinite_length) {
-      layout->addWidget(new QLabel(tr("Conform to Frame Rate:"), this), row, 0);
-      conform_fr = new QDoubleSpinBox(this);
-      conform_fr->setMinimum(0.01);
-      conform_fr->setValue(f->video_tracks.at(0).video_frame_rate * f->speed);
-      layout->addWidget(conform_fr, row, 1);
-    }
-
-    row++;
-
-    // premultiplied alpha mode
-    premultiply_alpha_setting = new QCheckBox(tr("Alpha is Premultiplied"), this);
-    premultiply_alpha_setting->setChecked(f->alpha_is_associated);
-    layout->addWidget(premultiply_alpha_setting, row, 0);
-
-    row++;
-
-    // deinterlacing mode
-    interlacing_box = new QComboBox(this);
-    interlacing_box->addItem(
-          tr("Auto (%1)").arg(
-            Footage::get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing)
-            )
-          );
-    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_PROGRESSIVE));
-    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
-    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
-
-    interlacing_box->setCurrentIndex(
-          (f->video_tracks.at(0).video_auto_interlacing == f->video_tracks.at(0).video_interlacing)
-          ? 0
-          : f->video_tracks.at(0).video_interlacing + 1);
-
-    layout->addWidget(new QLabel(tr("Interlacing:"), this), row, 0);
-    layout->addWidget(interlacing_box, row, 1);
-
-    row++;
-
-    input_color_space = new QComboBox(this);
-
-    OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
-
-    QString footage_colorspace = f->Colorspace();
-
-    for (int i=0;i<config->getNumColorSpaces();i++) {
-      QString colorspace = config->getColorSpaceNameByIndex(i);
-
-      input_color_space->addItem(colorspace);
-
-      if (colorspace == footage_colorspace) {
-        input_color_space->setCurrentIndex(i);
-      }
-    }
-
-    layout->addWidget(new QLabel(tr("Color Space:")), row, 0);
-    layout->addWidget(input_color_space, row, 1);
-
-    row++;
-
-  }
-  */
-
-  connect(track_list, SIGNAL(currentRowChanged(int)), stacked_widget_, SLOT(setCurrentIndex(int)));
-
-  QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+  QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->setCenterButtons(true);
   layout->addWidget(buttons, row, 0, 1, 2);
 
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+  connect(track_list, &QListWidget::currentRowChanged, stacked_widget_, &QStackedWidget::setCurrentIndex);
+
+  // Auto-select first item that actually has properties
+  if (first_usable_stream >= 0) {
+    track_list->setCurrentRow(first_usable_stream);
+  }
+  track_list->setFocus();
 }
 
-void FootagePropertiesDialog::accept() {
-  /*Footage* f = item->to_footage();
+void FootagePropertiesDialog::accept()
+{
+  // Perform sanity check on all pages
+  for (int i=0;i<stacked_widget_->count();i++) {
+    if (!static_cast<StreamProperties*>(stacked_widget_->widget(i))->SanityCheck()) {
+      // Switch to the failed panel in question
+      stacked_widget_->setCurrentIndex(i);
 
-  ComboAction* ca = new ComboAction();
-
-  // set track enable
-  for (int i=0;i<track_list->count();i++) {
-    QListWidgetItem* item = track_list->item(i);
-    const QVariant& data = item->data(Qt::UserRole+1);
-    if (!data.isNull()) {
-      int index = data.toInt();
-      bool found = false;
-      for (int j=0;j<f->video_tracks.size();j++) {
-        if (f->video_tracks.at(j).file_index == index) {
-          f->video_tracks[j].enabled = (item->checkState() == Qt::Checked);
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        for (int j=0;j<f->audio_tracks.size();j++) {
-          if (f->audio_tracks.at(j).file_index == index) {
-            f->audio_tracks[j].enabled = (item->checkState() == Qt::Checked);
-            break;
-          }
-        }
-      }
+      // Do nothing (it's up to the property panel itself to throw the error message)
+      return;
     }
   }
 
-  bool refresh_clips = false;
+  MultiUndoCommand* command = new MultiUndoCommand();
 
-  // set interlacing
-  if (f->video_tracks.size() > 0) {
-    if (interlacing_box->currentIndex() > 0) {
-      ca->append(new SetInt(&f->video_tracks[0].video_interlacing, interlacing_box->currentIndex() - 1));
-    } else {
-      ca->append(new SetInt(&f->video_tracks[0].video_interlacing, f->video_tracks.at(0).video_auto_interlacing));
+  if (footage_->GetLabel() != footage_name_field_->text()) {
+    NodeRenameCommand *nrc = new NodeRenameCommand();
+    nrc->AddNode(footage_, footage_name_field_->text());
+    command->add_child(nrc);
+  }
+
+  for (int i=0; i<footage_->GetTotalStreamCount(); i++) {
+    Track::Reference reference = footage_->GetReferenceFromRealIndex(i);
+    bool new_stream_enabled = (track_list->item(i)->checkState() == Qt::Checked);
+    bool old_stream_enabled = new_stream_enabled;
+
+    switch (reference.type()) {
+    case Track::kVideo:
+      old_stream_enabled = footage_->GetVideoParams(reference.index()).enabled();
+      break;
+    case Track::kAudio:
+      old_stream_enabled = footage_->GetAudioParams(reference.index()).enabled();
+      break;
+    case Track::kSubtitle:
+    case Track::kNone:
+    case Track::kCount:
+      break;
     }
 
-    // set frame rate conform
-    if (!f->video_tracks.at(0).infinite_length) {
-      if (!qFuzzyCompare(conform_fr->value(), f->video_tracks.at(0).video_frame_rate)) {
-        ca->append(new SetDouble(&f->speed, f->speed, conform_fr->value()/f->video_tracks.at(0).video_frame_rate));
-        refresh_clips = true;
-      }
-    }
-
-    // set premultiplied alpha
-    f->alpha_is_associated = premultiply_alpha_setting->isChecked();
-  }
-
-  f->SetColorspace(input_color_space->currentText());
-
-  // set name
-  MediaRename* mr = new MediaRename(item, name_box->text());
-
-  ca->append(mr);
-  ca->appendPost(new CloseAllClipsCommand());
-  ca->appendPost(new UpdateFootageTooltip(item));
-  if (refresh_clips) {
-    ca->appendPost(new RefreshClips(item));
-  }
-  ca->appendPost(new UpdateViewer());
-
-  olive::undo_stack.push(ca);*/
-
-  QUndoCommand* command = new QUndoCommand();
-
-  if (footage_->name() != footage_name_field_->text()) {
-    new FootageChangeCommand(footage_,
-                             footage_name_field_->text(),
-                             command);
-  }
-
-  for (int i=0;i<footage_->streams().size();i++) {
-    bool stream_enabled = (track_list->item(i)->checkState() == Qt::Checked);
-
-    if (footage_->stream(i)->enabled() == stream_enabled) {
-      new StreamEnableChangeCommand(footage_->stream(i),
-                                    stream_enabled,
-                                    command);
+    if (old_stream_enabled != new_stream_enabled) {
+      command->add_child(new StreamEnableChangeCommand(footage_,
+                                                       reference.type(),
+                                                       reference.index(),
+                                                       new_stream_enabled));
     }
   }
 
@@ -246,45 +180,72 @@ void FootagePropertiesDialog::accept() {
     static_cast<StreamProperties*>(stacked_widget_->widget(i))->Accept(command);
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   QDialog::accept();
 }
 
-FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand(Footage *footage, const QString &name, QUndoCommand* command) :
-  QUndoCommand(command),
+FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(Footage *footage, Track::Type type, int index_in_type, bool enabled) :
   footage_(footage),
-  new_name_(name)
-{
-}
-
-void FootagePropertiesDialog::FootageChangeCommand::redo()
-{
-  old_name_ = footage_->name();
-
-  footage_->set_name(new_name_);
-}
-
-void FootagePropertiesDialog::FootageChangeCommand::undo()
-{
-  footage_->set_name(old_name_);
-}
-
-FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(StreamPtr stream, bool enabled, QUndoCommand *command) :
-  QUndoCommand(command),
-  stream_(stream),
+  type_(type),
+  index_(index_in_type),
   new_enabled_(enabled)
 {
 }
 
+Project *FootagePropertiesDialog::StreamEnableChangeCommand::GetRelevantProject() const
+{
+  return footage_->project();
+}
+
 void FootagePropertiesDialog::StreamEnableChangeCommand::redo()
 {
-  old_enabled_ = stream_->enabled();
-
-  stream_->set_enabled(new_enabled_);
+  switch (type_) {
+  case Track::kVideo:
+  {
+    VideoParams vp = footage_->GetVideoParams(index_);
+    old_enabled_ = vp.enabled();
+    vp.set_enabled(new_enabled_);
+    footage_->SetVideoParams(vp, index_);
+    break;
+  }
+  case Track::kAudio:
+  {
+    AudioParams ap = footage_->GetAudioParams(index_);
+    old_enabled_ = ap.enabled();
+    ap.set_enabled(new_enabled_);
+    footage_->SetAudioParams(ap, index_);
+    break;
+  }
+  case Track::kSubtitle:
+  case Track::kNone:
+  case Track::kCount:
+    break;
+  }
 }
 
 void FootagePropertiesDialog::StreamEnableChangeCommand::undo()
 {
-  stream_->set_enabled(old_enabled_);
+  switch (type_) {
+  case Track::kVideo:
+  {
+    VideoParams vp = footage_->GetVideoParams(index_);
+    vp.set_enabled(old_enabled_);
+    footage_->SetVideoParams(vp, index_);
+    break;
+  }
+  case Track::kAudio:
+  {
+    AudioParams ap = footage_->GetAudioParams(index_);
+    ap.set_enabled(old_enabled_);
+    footage_->SetAudioParams(ap, index_);
+    break;
+  }
+  case Track::kSubtitle:
+  case Track::kNone:
+  case Track::kCount:
+    break;
+  }
+}
+
 }

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,37 +23,33 @@
 #include "core.h"
 #include "widget/toolbar/toolbar.h"
 
-ToolPanel::ToolPanel(QWidget *parent) :
-  PanelWidget(parent)
-{
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ToolPanel");
+namespace olive {
 
+ToolPanel::ToolPanel(QWidget *parent) :
+  PanelWidget(QStringLiteral("ToolPanel"), parent)
+{
   Toolbar* t = new Toolbar(this);
 
-  t->SetTool(olive::core.tool());
-  t->SetSnapping(olive::core.snapping());
+  t->SetTool(Core::instance()->tool());
+  t->SetSnapping(Core::instance()->snapping());
 
-  setWidget(t);
+  SetWidgetWithPadding(t);
 
-  connect(t, SIGNAL(ToolChanged(const olive::tool::Tool&)), &olive::core, SLOT(SetTool(const olive::tool::Tool&)));
-  connect(&olive::core, SIGNAL(ToolChanged(const olive::tool::Tool&)), t, SLOT(SetTool(const olive::tool::Tool&)));
+  connect(t, &Toolbar::ToolChanged, Core::instance(), &Core::SetTool);
+  connect(Core::instance(), &Core::ToolChanged, t, &Toolbar::SetTool);
 
-  connect(t, SIGNAL(SnappingChanged(const bool&)), &olive::core, SLOT(SetSnapping(const bool&)));
-  connect(&olive::core, SIGNAL(SnappingChanged(const bool&)), t, SLOT(SetSnapping(const bool&)));
+  connect(t, &Toolbar::SnappingChanged, Core::instance(), &Core::SetSnapping);
+  connect(Core::instance(), &Core::SnappingChanged, t, &Toolbar::SetSnapping);
+
+  connect(t, &Toolbar::AddableObjectChanged, Core::instance(), &Core::SetSelectedAddableObject);
+  connect(t, &Toolbar::SelectedTransitionChanged, Core::instance(), &Core::SetSelectedTransitionObject);
 
   Retranslate();
-}
-
-void ToolPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
 }
 
 void ToolPanel::Retranslate()
 {
   SetTitle(tr("Tools"));
+}
+
 }

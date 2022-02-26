@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@
 
 #include "tool/tool.h"
 
+namespace olive {
+
 /**
  * @brief Simple derived class of QPushButton to contain an Tool ID. Used as the main widget through Toolbar.
  */
@@ -40,21 +42,23 @@ public:
    *
    * @param tool
    *
-   * Tool object. Must be a member of enum olive::tool::Tool, including kNone if this button does not represent a tool.
+   * Tool object. Must be a member of enum Tool::Item, including kNone if this button does not represent a tool.
    */
-  ToolbarButton(QWidget* parent, const olive::tool::Tool& tool);
+  ToolbarButton(QWidget* parent, const Tool::Item& tool);
 
   /**
    * @brief Retrieve tool ID that this button represents
    *
    * Set in the constructor and shouldn't change throughout its lifetime.
    */
-  const olive::tool::Tool& tool();
+  const Tool::Item& tool();
 private:
   /**
    * @brief Internal tool value
    */
-  olive::tool::Tool tool_;
+  Tool::Item tool_;
 };
+
+}
 
 #endif // TOOLBARBUTTON_H

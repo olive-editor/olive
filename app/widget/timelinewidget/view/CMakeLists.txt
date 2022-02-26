@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,19 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timelinewidget/view/timelineplayhead.h
-  widget/timelinewidget/view/timelineplayhead.cpp
-  widget/timelinewidget/view/timelineview.h
   widget/timelinewidget/view/timelineview.cpp
+  widget/timelinewidget/view/timelineview.h
   widget/timelinewidget/view/timelineviewmouseevent.h
-  widget/timelinewidget/view/timelineviewmouseevent.cpp
-  widget/timelinewidget/view/timelineviewrect.h
-  widget/timelinewidget/view/timelineviewrect.cpp
-  widget/timelinewidget/view/timelineviewblockitem.h
-  widget/timelinewidget/view/timelineviewblockitem.cpp
-  widget/timelinewidget/view/timelineviewenditem.h
-  widget/timelinewidget/view/timelineviewenditem.cpp
   widget/timelinewidget/view/timelineviewghostitem.h
-  widget/timelinewidget/view/timelineviewghostitem.cpp
   PARENT_SCOPE
 )

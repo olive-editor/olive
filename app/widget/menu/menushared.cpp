@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,46 +21,94 @@
 #include "menushared.h"
 
 #include "core.h"
+#include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
+#include "window/mainwindow/mainwindow.h"
 
-MenuShared olive::menu_shared;
+namespace olive {
+
+MenuShared* MenuShared::instance_ = nullptr;
 
 MenuShared::MenuShared()
 {
-}
-
-void MenuShared::Initialize()
-{
   // "New" menu shared items
-  new_project_item_ = Menu::CreateItem(this, "newproj", nullptr, nullptr, "Ctrl+N");
-  new_sequence_item_ = Menu::CreateItem(this, "newseq", &olive::core, SLOT(CreateNewSequence()), "Ctrl+Shift+N");
-  new_folder_item_ = Menu::CreateItem(this, "newfolder", &olive::core, SLOT(CreateNewFolder()));
+  new_project_item_ = Menu::CreateItem(this, "newproj", Core::instance(), &Core::CreateNewProject, tr("Ctrl+N"));
+  new_sequence_item_ = Menu::CreateItem(this, "newseq", Core::instance(), &Core::CreateNewSequence, tr("Ctrl+Shift+N"));
+  new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), &Core::CreateNewFolder);
 
   // "Edit" menu shared items
-  edit_cut_item_ = Menu::CreateItem(this, "cut", nullptr, nullptr, "Ctrl+X");
-  edit_copy_item_ = Menu::CreateItem(this, "copy", nullptr, nullptr, "Ctrl+C");
-  edit_paste_item_ = Menu::CreateItem(this, "paste", nullptr, nullptr, "Ctrl+V");
-  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", nullptr, nullptr, "Ctrl+Shift+V");
-  edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", nullptr, nullptr, "Ctrl+D");
-  edit_delete_item_ = Menu::CreateItem(this, "delete", nullptr, nullptr, "Del");
-  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", nullptr, nullptr, "Shift+Del");
-  edit_split_item_ = Menu::CreateItem(this, "split", this, SLOT(SplitAtPlayhead()), "Ctrl+K");
+  edit_cut_item_ = Menu::CreateItem(this, "cut", this, &MenuShared::CutTriggered, tr("Ctrl+X"));
+  edit_copy_item_ = Menu::CreateItem(this, "copy", this, &MenuShared::CopyTriggered, tr("Ctrl+C"));
+  edit_paste_item_ = Menu::CreateItem(this, "paste", this, &MenuShared::PasteTriggered, tr("Ctrl+V"));
+  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", this, &MenuShared::PasteInsertTriggered, tr("Ctrl+Shift+V"));
+  edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", this, &MenuShared::DuplicateTriggered, tr("Ctrl+D"));
+  edit_delete_item_ = Menu::CreateItem(this, "delete", this, &MenuShared::DeleteSelectedTriggered, tr("Del"));
+  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, &MenuShared::RippleDeleteTriggered, tr("Shift+Del"));
+  edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, tr("Ctrl+K"));
+  edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered, tr("Ctrl+R"));
 
   // "In/Out" menu shared items
-  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", nullptr, nullptr, "I");
-  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", nullptr, nullptr, "O");
-  inout_reset_in_item_ = Menu::CreateItem(this, "resetin", nullptr, nullptr);
-  inout_reset_out_item_ = Menu::CreateItem(this, "resetout", nullptr, nullptr);
-  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", nullptr, nullptr, "G");
+  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, tr("I"));
+  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", this, &MenuShared::SetOutTriggered, tr("O"));
+  inout_reset_in_item_ = Menu::CreateItem(this, "resetin", this, &MenuShared::ResetInTriggered);
+  inout_reset_out_item_ = Menu::CreateItem(this, "resetout", this, &MenuShared::ResetOutTriggered);
+  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", this, &MenuShared::ClearInOutTriggered, tr("G"));
 
   // "Clip Edit" menu shared items
-  clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", nullptr, nullptr, "Ctrl+Shift+D");
-  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", nullptr, nullptr, "Ctrl+L");
-  clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", nullptr, nullptr, "Shift+E");
-  clip_nest_item_ = Menu::CreateItem(this, "nest", nullptr, nullptr);
+  clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", this, &MenuShared::DefaultTransitionTriggered, tr("Ctrl+Shift+D"));
+  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", this, &MenuShared::ToggleLinksTriggered, tr("Ctrl+L"));
+  clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", this, &MenuShared::EnableDisableTriggered, tr("Shift+E"));
+  clip_nest_item_ = Menu::CreateItem(this, "nest", this, &MenuShared::NestTriggered);
+
+  // TimeRuler menu shared items
+  frame_view_mode_group_ = new QActionGroup(this);
+
+  view_timecode_view_dropframe_item_ = Menu::CreateItem(this, "modedropframe", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_dropframe_item_->setData(Timecode::kTimecodeDropFrame);
+  view_timecode_view_dropframe_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_dropframe_item_);
+
+  view_timecode_view_nondropframe_item_ = Menu::CreateItem(this, "modenondropframe", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_nondropframe_item_->setData(Timecode::kTimecodeNonDropFrame);
+  view_timecode_view_nondropframe_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_nondropframe_item_);
+
+  view_timecode_view_seconds_item_ = Menu::CreateItem(this, "modeseconds", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_seconds_item_->setData(Timecode::kTimecodeSeconds);
+  view_timecode_view_seconds_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_seconds_item_);
+
+  view_timecode_view_frames_item_ = Menu::CreateItem(this, "modeframes", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_frames_item_->setData(Timecode::kFrames);
+  view_timecode_view_frames_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_frames_item_);
+
+  view_timecode_view_milliseconds_item_ = Menu::CreateItem(this, "milliseconds", this, &MenuShared::TimecodeDisplayTriggered);
+  view_timecode_view_milliseconds_item_->setData(Timecode::kMilliseconds);
+  view_timecode_view_milliseconds_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_milliseconds_item_);
+
+  // Color coding menu items
+  color_coding_menu_ = new ColorLabelMenu();
+  connect(color_coding_menu_, &ColorLabelMenu::ColorSelected, this, &MenuShared::ColorLabelTriggered);
 
   Retranslate();
+}
+
+MenuShared::~MenuShared()
+{
+  delete color_coding_menu_;
+}
+
+void MenuShared::CreateInstance()
+{
+  instance_ = new MenuShared();
+}
+
+void MenuShared::DestroyInstance()
+{
+  delete instance_;
 }
 
 void MenuShared::AddItemsForNewMenu(Menu *m)
@@ -71,16 +119,25 @@ void MenuShared::AddItemsForNewMenu(Menu *m)
   m->addAction(new_folder_item_);
 }
 
-void MenuShared::AddItemsForEditMenu(Menu *m)
+void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
 {
+  m->addAction(Core::instance()->undo_stack()->GetUndoAction());
+  m->addAction(Core::instance()->undo_stack()->GetRedoAction());
+
+  m->addSeparator();
+
   m->addAction(edit_cut_item_);
   m->addAction(edit_copy_item_);
   m->addAction(edit_paste_item_);
   m->addAction(edit_paste_insert_item_);
   m->addAction(edit_duplicate_item_);
   m->addAction(edit_delete_item_);
-  m->addAction(edit_ripple_delete_item_);
-  m->addAction(edit_split_item_);
+
+  if (for_clips) {
+    m->addAction(edit_ripple_delete_item_);
+    m->addAction(edit_split_item_);
+    m->addAction(edit_speedduration_item_);
+  }
 }
 
 void MenuShared::AddItemsForInOutMenu(Menu *m)
@@ -93,6 +150,11 @@ void MenuShared::AddItemsForInOutMenu(Menu *m)
   m->addAction(inout_clear_inout_item_);
 }
 
+void MenuShared::AddColorCodingMenu(Menu *m)
+{
+  m->addMenu(color_coding_menu_);
+}
+
 void MenuShared::AddItemsForClipEditMenu(Menu *m)
 {
   m->addAction(clip_add_default_transition_item_);
@@ -101,12 +163,153 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
   m->addAction(clip_nest_item_);
 }
 
-void MenuShared::SplitAtPlayhead()
+void MenuShared::AddItemsForTimeRulerMenu(Menu *m)
 {
-  TimelinePanel* timeline = olive::panel_manager->MostRecentlyFocused<TimelinePanel>();
+  m->addAction(view_timecode_view_dropframe_item_);
+  m->addAction(view_timecode_view_nondropframe_item_);
+  m->addAction(view_timecode_view_seconds_item_);
+  m->addAction(view_timecode_view_frames_item_);
+  m->addAction(view_timecode_view_milliseconds_item_);
+}
+
+void MenuShared::AboutToShowTimeRulerActions(const rational& timebase)
+{
+  QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
+  Timecode::Display current_timecode_display = Core::instance()->GetTimecodeDisplay();
+
+  // Only show the drop-frame option if the timebase is drop-frame
+  view_timecode_view_dropframe_item_->setVisible(!timebase.isNull() && Timecode::TimebaseIsDropFrame(timebase));
+
+  if (!view_timecode_view_dropframe_item_->isVisible() && current_timecode_display == Timecode::kTimecodeDropFrame) {
+    // If the current setting is drop-frame, correct to non-drop frame
+    current_timecode_display = Timecode::kTimecodeNonDropFrame;
+  }
+
+  foreach (QAction* a, timecode_display_actions) {
+    if (a->data() == current_timecode_display) {
+      a->setChecked(true);
+      break;
+    }
+  }
+}
+
+MenuShared *MenuShared::instance()
+{
+  return instance_;
+}
+
+void MenuShared::SplitAtPlayheadTriggered()
+{
+  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
 
   if (timeline != nullptr) {
     timeline->SplitAtPlayhead();
+  }
+}
+
+void MenuShared::DeleteSelectedTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->DeleteSelected();
+}
+
+void MenuShared::RippleDeleteTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->RippleDelete();
+}
+
+void MenuShared::SetInTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->SetIn();
+}
+
+void MenuShared::SetOutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->SetOut();
+}
+
+void MenuShared::ResetInTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ResetIn();
+}
+
+void MenuShared::ResetOutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ResetOut();
+}
+
+void MenuShared::ClearInOutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ClearInOut();
+}
+
+void MenuShared::ToggleLinksTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ToggleLinks();
+}
+
+void MenuShared::CutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->CutSelected();
+}
+
+void MenuShared::CopyTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->CopySelected();
+}
+
+void MenuShared::PasteTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->Paste();
+}
+
+void MenuShared::PasteInsertTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->PasteInsert();
+}
+
+void MenuShared::DuplicateTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->Duplicate();
+}
+
+void MenuShared::EnableDisableTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ToggleSelectedEnabled();
+}
+
+void MenuShared::NestTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MenuShared::DefaultTransitionTriggered()
+{
+  qDebug() << "FIXME: Stub";
+}
+
+void MenuShared::TimecodeDisplayTriggered()
+{
+  // Assume the sender is a QAction
+  QAction* action = static_cast<QAction*>(sender());
+
+  // Assume its data() is a member of Timecode::Display
+  Timecode::Display display = static_cast<Timecode::Display>(action->data().toInt());
+
+  // Set the current display mode
+  Core::instance()->SetTimecodeDisplay(display);
+}
+
+void MenuShared::ColorLabelTriggered(int color_index)
+{
+  PanelManager::instance()->CurrentlyFocused()->SetColorLabel(color_index);
+}
+
+void MenuShared::SpeedDurationTriggered()
+{
+  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+
+  if (timeline) {
+    timeline->ShowSpeedDurationDialogForSelectedClips();
   }
 }
 
@@ -126,6 +329,7 @@ void MenuShared::Retranslate()
   edit_delete_item_->setText(tr("Delete"));
   edit_ripple_delete_item_->setText(tr("Ripple Delete"));
   edit_split_item_->setText(tr("Split"));
+  edit_speedduration_item_->setText(tr("Speed/Duration"));
 
   // "In/Out" menu shared items
   inout_set_in_item_->setText(tr("Set In Point"));
@@ -139,4 +343,13 @@ void MenuShared::Retranslate()
   clip_link_unlink_item_->setText(tr("Link/Unlink"));
   clip_enable_disable_item_->setText(tr("Enable/Disable"));
   clip_nest_item_->setText(tr("Nest"));
+
+  // TimeRuler menu shared items
+  view_timecode_view_frames_item_->setText(tr("Frames"));
+  view_timecode_view_dropframe_item_->setText(tr("Drop Frame"));
+  view_timecode_view_nondropframe_item_->setText(tr("Non-Drop Frame"));
+  view_timecode_view_milliseconds_item_->setText(tr("Milliseconds"));
+  view_timecode_view_seconds_item_->setText(tr("Seconds"));
+}
+
 }

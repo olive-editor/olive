@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,57 +21,116 @@
 #ifndef TOOL_H
 #define TOOL_H
 
+#include <QCoreApplication>
+#include <QString>
+
+#include "common/define.h"
+
 namespace olive {
-namespace tool {
 
-/**
- * @brief A list of tools that can be used throughout the application
- */
-enum Tool {
-  /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
-  /// a tool somewhere.
-  kNone,
+class Tool {
+public:
+  /**
+   * @brief A list of tools that can be used throughout the application
+   */
+  enum Item {
+    /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
+    /// a tool somewhere similar to nullptr.
+    kNone,
 
-  /// Pointer tool
-  kPointer,
+    /// Pointer tool
+    kPointer,
 
-  /// Edit tool
-  kEdit,
+    /// Edit tool
+    kEdit,
 
-  /// Ripple tool
-  kRipple,
+    /// Ripple tool
+    kRipple,
 
-  /// Rolling tool
-  kRolling,
+    /// Rolling tool
+    kRolling,
 
-  /// Razor tool
-  kRazor,
+    /// Razor tool
+    kRazor,
 
-  /// Slip tool
-  kSlip,
+    /// Slip tool
+    kSlip,
 
-  /// Slide tool
-  kSlide,
+    /// Slide tool
+    kSlide,
 
-  /// Hand tool
-  kHand,
+    /// Hand tool
+    kHand,
 
-  /// Zoom tool
-  kZoom,
+    /// Zoom tool
+    kZoom,
 
-  /// Transition tool
-  kTransition,
+    /// Transition tool
+    kTransition,
 
-  /// Record tool
-  kRecord,
+    /// Record tool
+    kRecord,
 
-  /// Add tool
-  kAdd,
+    /// Add tool
+    kAdd,
 
-  kCount
+    kCount
+  };
+
+  /**
+   * @brief Tools that can be added using the kAdd tool
+   */
+  enum AddableObject {
+    /// An empty clip
+    kAddableEmpty,
+
+    /// A video clip showing a generic video placeholder
+    kAddableBars,
+
+    /// A video clip showing a primitive shape
+    kAddableShape,
+
+    /// A video clip with a solid connected
+    kAddableSolid,
+
+    /// A video clip with a title connected
+    kAddableTitle,
+
+    /// An audio clip with a sine connected to it
+    kAddableTone,
+
+    /// A subtitle clip
+    kAddableSubtitle,
+
+    kAddableCount
+  };
+
+  static QString GetAddableObjectName(const AddableObject& a)
+  {
+    switch (a) {
+    case kAddableEmpty:
+      return QCoreApplication::translate("Tool", "Empty");
+    case kAddableBars:
+      return QCoreApplication::translate("Tool", "Bars");
+    case kAddableShape:
+      return QCoreApplication::translate("Tool", "Shape");
+    case kAddableSolid:
+      return QCoreApplication::translate("Tool", "Solid");
+    case kAddableTitle:
+      return QCoreApplication::translate("Tool", "Title");
+    case kAddableTone:
+      return QCoreApplication::translate("Tool", "Tone");
+    case kAddableSubtitle:
+      return QCoreApplication::translate("Tool", "Subtitle");
+    case kAddableCount:
+      break;
+    }
+
+    return QCoreApplication::translate("Tool", "Unknown");
+  }
+
 };
 
-}
 }
 
 #endif // TOOL_H

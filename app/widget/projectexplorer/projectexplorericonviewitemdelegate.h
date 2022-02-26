@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,6 +23,10 @@
 
 #include <QStyledItemDelegate>
 
+#include "common/define.h"
+
+namespace olive {
+
 /**
  * @brief The delegate that's used to draw items when ProjectExplorer is in Icon view
  */
@@ -33,5 +37,7 @@ public:
   virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
   virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
+
+}
 
 #endif // PROJECTEXPLORERICONVIEWITEMDELEGATE_H

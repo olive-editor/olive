@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,11 @@
 #ifndef MENUSHARED_H
 #define MENUSHARED_H
 
+#include "common/rational.h"
+#include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menu.h"
+
+namespace olive {
 
 /**
  * @brief A static object that provides various "stock" menus for use throughout the application
@@ -30,14 +34,31 @@ class MenuShared : public QObject {
   Q_OBJECT
 public:
   MenuShared();
+  virtual ~MenuShared() override;
 
-  void Initialize();
+  static void CreateInstance();
+  static void DestroyInstance();
+
   void Retranslate();
 
   void AddItemsForNewMenu(Menu* m);
-  void AddItemsForEditMenu(Menu* m);
+  void AddItemsForEditMenu(Menu* m, bool for_clips);
   void AddItemsForInOutMenu(Menu* m);
+  void AddColorCodingMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
+  void AddItemsForTimeRulerMenu(Menu* m);
+
+  void AboutToShowTimeRulerActions(const rational& timebase);
+
+  static MenuShared* instance();
+
+  QAction* edit_delete_item()
+  {
+    return edit_delete_item_;
+  }
+
+public slots:
+  void DeleteSelectedTriggered();
 
 private:
   // "New" menu shared items
@@ -54,6 +75,7 @@ private:
   QAction* edit_delete_item_;
   QAction* edit_ripple_delete_item_;
   QAction* edit_split_item_;
+  QAction* edit_speedduration_item_;
 
   // "In/Out" menu shared items
   QAction* inout_set_in_item_;
@@ -68,13 +90,66 @@ private:
   QAction* clip_enable_disable_item_;
   QAction* clip_nest_item_;
 
+  // TimeRuler menu shared items
+  QActionGroup* frame_view_mode_group_;
+  QAction* view_timecode_view_dropframe_item_;
+  QAction* view_timecode_view_nondropframe_item_;
+  QAction* view_timecode_view_seconds_item_;
+  QAction* view_timecode_view_frames_item_;
+  QAction* view_timecode_view_milliseconds_item_;
+
+  // Color coding menu items
+  ColorLabelMenu* color_coding_menu_;
+
+  static MenuShared* instance_;
+
 private slots:
-  void SplitAtPlayhead();
+  void SplitAtPlayheadTriggered();
+
+  void RippleDeleteTriggered();
+
+  void SetInTriggered();
+
+  void SetOutTriggered();
+
+  void ResetInTriggered();
+
+  void ResetOutTriggered();
+
+  void ClearInOutTriggered();
+
+  void ToggleLinksTriggered();
+
+  void CutTriggered();
+
+  void CopyTriggered();
+
+  void PasteTriggered();
+
+  void PasteInsertTriggered();
+
+  void DuplicateTriggered();
+
+  void EnableDisableTriggered();
+
+  void NestTriggered();
+
+  void DefaultTransitionTriggered();
+
+  /**
+   * @brief A slot for the timecode display menu items
+   *
+   * Assumes a QAction* sender() and its data() is a member of enum Timecode::Display. Uses the data() to signal a
+   * timecode change throughout the rest of the application.
+   */
+  void TimecodeDisplayTriggered();
+
+  void ColorLabelTriggered(int color_index);
+
+  void SpeedDurationTriggered();
 
 };
 
-namespace olive {
-extern MenuShared menu_shared;
 }
 
 #endif // MENUSHARED_H

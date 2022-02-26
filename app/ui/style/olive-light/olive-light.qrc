@@ -1,7 +1,7 @@
 <RCC>
   <qresource prefix="/style/olive-light">
-    <file>palette.ini</file>
     <file>style.css</file>
+    <file>palette.ini</file>
     <file>png/add-button.16.png</file>
     <file>png/add-button.32.png</file>
     <file>png/add-button.64.png</file>
@@ -18,6 +18,22 @@
     <file>png/align-center.32.png</file>
     <file>png/align-center.64.png</file>
     <file>png/align-center.128.png</file>
+    <file>png/align-justify-all.16.png</file>
+    <file>png/align-justify-all.32.png</file>
+    <file>png/align-justify-all.64.png</file>
+    <file>png/align-justify-all.128.png</file>
+    <file>png/align-justify-center.16.png</file>
+    <file>png/align-justify-center.32.png</file>
+    <file>png/align-justify-center.64.png</file>
+    <file>png/align-justify-center.128.png</file>
+    <file>png/align-justify-left.16.png</file>
+    <file>png/align-justify-left.32.png</file>
+    <file>png/align-justify-left.64.png</file>
+    <file>png/align-justify-left.128.png</file>
+    <file>png/align-justify-right.16.png</file>
+    <file>png/align-justify-right.32.png</file>
+    <file>png/align-justify-right.64.png</file>
+    <file>png/align-justify-right.128.png</file>
     <file>png/align-left.16.png</file>
     <file>png/align-left.32.png</file>
     <file>png/align-left.64.png</file>
@@ -46,6 +62,10 @@
     <file>png/clock.32.png</file>
     <file>png/clock.64.png</file>
     <file>png/clock.128.png</file>
+    <file>png/copy.16.png</file>
+    <file>png/copy.32.png</file>
+    <file>png/copy.64.png</file>
+    <file>png/copy.128.png</file>
     <file>png/diamond.16.png</file>
     <file>png/diamond.32.png</file>
     <file>png/diamond.64.png</file>
@@ -58,10 +78,18 @@
     <file>png/error.32.png</file>
     <file>png/error.64.png</file>
     <file>png/error.128.png</file>
+    <file>png/export.16.png</file>
+    <file>png/export.32.png</file>
+    <file>png/export.64.png</file>
+    <file>png/export.128.png</file>
     <file>png/ff.16.png</file>
     <file>png/ff.32.png</file>
     <file>png/ff.64.png</file>
     <file>png/ff.128.png</file>
+    <file>png/filter.16.png</file>
+    <file>png/filter.32.png</file>
+    <file>png/filter.64.png</file>
+    <file>png/filter.128.png</file>
     <file>png/folder.16.png</file>
     <file>png/folder.32.png</file>
     <file>png/folder.64.png</file>
@@ -78,14 +106,10 @@
     <file>png/imagesource.32.png</file>
     <file>png/imagesource.64.png</file>
     <file>png/imagesource.128.png</file>
-    <file>png/italic.16.png</file>
-    <file>png/italic.32.png</file>
-    <file>png/italic.64.png</file>
-    <file>png/italic.128.png</file>
-    <file>png/justify-center.16.png</file>
-    <file>png/justify-center.32.png</file>
-    <file>png/justify-center.64.png</file>
-    <file>png/justify-center.128.png</file>
+    <file>png/import.16.png</file>
+    <file>png/import.32.png</file>
+    <file>png/import.64.png</file>
+    <file>png/import.128.png</file>
     <file>png/listview.16.png</file>
     <file>png/listview.32.png</file>
     <file>png/listview.64.png</file>
@@ -94,6 +118,14 @@
     <file>png/magnet.32.png</file>
     <file>png/magnet.64.png</file>
     <file>png/magnet.128.png</file>
+    <file>png/map.16.png</file>
+    <file>png/map.32.png</file>
+    <file>png/map.64.png</file>
+    <file>png/map.128.png</file>
+    <file>png/minus.16.png</file>
+    <file>png/minus.32.png</file>
+    <file>png/minus.64.png</file>
+    <file>png/minus.128.png</file>
     <file>png/new.16.png</file>
     <file>png/new.32.png</file>
     <file>png/new.64.png</file>
@@ -102,10 +134,30 @@
     <file>png/next.32.png</file>
     <file>png/next.64.png</file>
     <file>png/next.128.png</file>
+    <file>png/nodes_btt.16.png</file>
+    <file>png/nodes_btt.32.png</file>
+    <file>png/nodes_btt.64.png</file>
+    <file>png/nodes_btt.128.png</file>
+    <file>png/nodes_ltr.16.png</file>
+    <file>png/nodes_ltr.32.png</file>
+    <file>png/nodes_ltr.64.png</file>
+    <file>png/nodes_ltr.128.png</file>
+    <file>png/nodes_rtl.16.png</file>
+    <file>png/nodes_rtl.32.png</file>
+    <file>png/nodes_rtl.64.png</file>
+    <file>png/nodes_rtl.128.png</file>
+    <file>png/nodes_ttb.16.png</file>
+    <file>png/nodes_ttb.32.png</file>
+    <file>png/nodes_ttb.64.png</file>
+    <file>png/nodes_ttb.128.png</file>
     <file>png/open.16.png</file>
     <file>png/open.32.png</file>
     <file>png/open.64.png</file>
     <file>png/open.128.png</file>
+    <file>png/paste.16.png</file>
+    <file>png/paste.32.png</file>
+    <file>png/paste.64.png</file>
+    <file>png/paste.128.png</file>
     <file>png/pause.16.png</file>
     <file>png/pause.32.png</file>
     <file>png/pause.64.png</file>
@@ -114,6 +166,10 @@
     <file>png/play.32.png</file>
     <file>png/play.64.png</file>
     <file>png/play.128.png</file>
+    <file>png/plus.16.png</file>
+    <file>png/plus.32.png</file>
+    <file>png/plus.64.png</file>
+    <file>png/plus.128.png</file>
     <file>png/prev.16.png</file>
     <file>png/prev.32.png</file>
     <file>png/prev.64.png</file>
@@ -158,6 +214,22 @@
     <file>png/slip.32.png</file>
     <file>png/slip.64.png</file>
     <file>png/slip.128.png</file>
+    <file>png/smooth_edges.16.png</file>
+    <file>png/smooth_edges.32.png</file>
+    <file>png/smooth_edges.64.png</file>
+    <file>png/smooth_edges.128.png</file>
+    <file>png/text-bold.16.png</file>
+    <file>png/text-bold.32.png</file>
+    <file>png/text-bold.64.png</file>
+    <file>png/text-bold.128.png</file>
+    <file>png/text-italic.16.png</file>
+    <file>png/text-italic.32.png</file>
+    <file>png/text-italic.64.png</file>
+    <file>png/text-italic.128.png</file>
+    <file>png/text-underline.16.png</file>
+    <file>png/text-underline.32.png</file>
+    <file>png/text-underline.64.png</file>
+    <file>png/text-underline.128.png</file>
     <file>png/transition-tool.16.png</file>
     <file>png/transition-tool.32.png</file>
     <file>png/transition-tool.64.png</file>
@@ -182,10 +254,6 @@
     <file>png/tri-up.32.png</file>
     <file>png/tri-up.64.png</file>
     <file>png/tri-up.128.png</file>
-    <file>png/underline.16.png</file>
-    <file>png/underline.32.png</file>
-    <file>png/underline.64.png</file>
-    <file>png/underline.128.png</file>
     <file>png/undo.16.png</file>
     <file>png/undo.32.png</file>
     <file>png/undo.64.png</file>

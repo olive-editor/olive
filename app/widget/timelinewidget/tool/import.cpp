@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,173 +18,131 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#include "import.h"
 
+#include <QCheckBox>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QToolTip>
 
 #include "config/config.h"
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 #include "core.h"
-#include "node/distort/transform/transform.h"
-#include "node/color/opacity/opacity.h"
-#include "node/input/media/audio/audio.h"
-#include "node/input/media/video/video.h"
+#include "dialog/sequence/sequence.h"
+#include "node/audio/volume/volume.h"
+#include "node/distort/transform/transformdistortnode.h"
+#include "node/generator/matrix/matrix.h"
+#include "node/math/math/math.h"
+#include "node/project/sequence/sequence.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/undo/timelineundopointer.h"
+#include "window/mainwindow/mainwindow.h"
+#include "window/mainwindow/mainwindowundo.h"
 
-TrackType TrackTypeFromStreamType(Stream::Type stream_type)
-{
-  switch (stream_type) {
-  case Stream::kVideo:
-  case Stream::kImage:
-    return kTrackTypeVideo;
-  case Stream::kAudio:
-    return kTrackTypeAudio;
-  case Stream::kSubtitle:
-    return kTrackTypeSubtitle;
-  case Stream::kUnknown:
-  case Stream::kData:
-  case Stream::kAttachment:
-    break;
-  }
+namespace olive {
 
-  return kTrackTypeNone;
-}
-
-TimelineWidget::ImportTool::ImportTool(TimelineWidget *parent) :
-  Tool(parent)
+ImportTool::ImportTool(TimelineWidget *parent) :
+  TimelineTool(parent)
 {
   // Calculate width used for importing to give ghosts a slight lead-in so the ghosts aren't right on the cursor
-  import_pre_buffer_ = QFontMetricsWidth(parent->fontMetrics(), "HHHHHHHH");
+  import_pre_buffer_ = QtUtils::QFontMetricsWidth(parent->fontMetrics(), "HHHHHHHH");
 }
 
-void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
+void ImportTool::DragEnter(TimelineViewMouseEvent *event)
 {
   QStringList mime_formats = event->GetMimeData()->formats();
 
   // Listen for MIME data from a ProjectViewModel
-  if (mime_formats.contains("application/x-oliveprojectitemdata")) {
-    // FIXME: Implement audio insertion
+  if (mime_formats.contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
 
     // Data is drag/drop data from a ProjectViewModel
-    QByteArray model_data = event->GetMimeData()->data("application/x-oliveprojectitemdata");
+    QByteArray model_data = event->GetMimeData()->data(QStringLiteral("application/x-oliveprojectitemdata"));
 
     // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);
 
     // Variables to deserialize into
     quintptr item_ptr;
-    int r;
+    QVector<Track::Reference> enabled_streams;
 
     // Set drag start position
     drag_start_ = event->GetCoordinates();
 
-    // Set ghosts to start where the cursor entered
-
-    rational ghost_start = drag_start_.GetFrame() - parent()->SceneToTime(import_pre_buffer_);
-
     snap_points_.clear();
 
     while (!stream.atEnd()) {
-      stream >> r >> item_ptr;
+      stream >> enabled_streams >> item_ptr;
 
       // Get Item object
-      Item* item = reinterpret_cast<Item*>(item_ptr);
+      Node* item = reinterpret_cast<Node*>(item_ptr);
 
       // Check if Item is Footage
-      if (item->type() == Item::kFootage) {
+      ViewerOutput* f = dynamic_cast<ViewerOutput*>(item);
+
+      if (f && f->GetTotalStreamCount()) {
         // If the Item is Footage, we can create a Ghost from it
-        Footage* footage = static_cast<Footage*>(item);
-
-        // Each stream is offset by one track per track "type", we keep track of them in this vector
-        QVector<int> track_offsets(kTrackTypeCount);
-        track_offsets.fill(drag_start_.GetTrack().index());
-
-        rational footage_duration;
-
-        // Loop through all streams in footage
-        foreach (StreamPtr stream, footage->streams()) {
-          TrackType track_type = TrackTypeFromStreamType(stream->type());
-
-          // Check if this stream has a compatible TrackList
-          if (track_type == kTrackTypeNone) {
-            continue;
-          }
-
-          TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
-
-          if (stream->type() == Stream::kImage) {
-            // Stream is essentially length-less - use config's default image length
-            footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
-          } else {
-            // Use duration from file
-            footage_duration = rational(stream->timebase().numerator() * stream->duration(),
-                                        stream->timebase().denominator());
-          }
-
-          ghost->SetIn(ghost_start);
-          ghost->SetOut(ghost_start + footage_duration);
-          ghost->SetTrack(TrackReference(track_type, track_offsets.at(track_type)));
-
-          // Increment track count for this track type
-          track_offsets[track_type]++;
-
-          snap_points_.append(ghost->In());
-          snap_points_.append(ghost->Out());
-
-          ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
-          ghost->SetMode(olive::timeline::kMove);
-
-          parent()->AddGhost(ghost);
-        }
-
-        // Stack each ghost one after the other
-        ghost_start += footage_duration;
+        dragged_footage_.append({f, enabled_streams});
       }
     }
 
-    event->accept();
+    PrepGhosts(drag_start_.GetFrame() - parent()->SceneToTime(import_pre_buffer_),
+               drag_start_.GetTrack().index());
+
+    if (parent()->HasGhosts() || !parent()->GetConnectedNode()) {
+      event->accept();
+    } else {
+      event->ignore();
+    }
   } else {
     // FIXME: Implement dropping from file
     event->ignore();
   }
 }
 
-void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
+void ImportTool::DragMove(TimelineViewMouseEvent *event)
 {
-  if (parent()->HasGhosts()) {
-    rational time_movement = event->GetCoordinates().GetFrame() - drag_start_.GetFrame();
-    int track_movement = event->GetCoordinates().GetTrack().index() - drag_start_.GetTrack().index();
+  if (!dragged_footage_.isEmpty()) {
 
-    // If snapping is enabled, check for snap points
-    if (olive::core.snapping()) {
-      SnapPoint(snap_points_, &time_movement);
+    if (parent()->HasGhosts()) {
+      rational time_movement = event->GetFrame() - drag_start_.GetFrame();
+      int track_movement = event->GetTrack().index() - drag_start_.GetTrack().index();
+
+      time_movement = ValidateTimeMovement(time_movement);
+      track_movement = ValidateTrackMovement(track_movement, parent()->GetGhostItems());
+
+      // If snapping is enabled, check for snap points
+      if (Core::instance()->snapping()) {
+        parent()->SnapPoint(snap_points_, &time_movement);
+
+        time_movement = ValidateTimeMovement(time_movement);
+        track_movement = ValidateTrackMovement(track_movement, parent()->GetGhostItems());
+      }
+
+      rational earliest_ghost = RATIONAL_MAX;
+
+      // Move ghosts to the mouse cursor
+      foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+        ghost->SetInAdjustment(time_movement);
+        ghost->SetOutAdjustment(time_movement);
+        ghost->SetTrackAdjustment(track_movement);
+
+        earliest_ghost = qMin(earliest_ghost, ghost->GetAdjustedIn());
+      }
+
+      // Generate tooltip (showing earliest in point of imported clip)
+      rational tooltip_timebase = parent()->GetTimebaseForTrackType(event->GetTrack().type());
+      QString tooltip_text = Timecode::time_to_timecode(earliest_ghost,
+                                                        tooltip_timebase,
+                                                        Core::instance()->GetTimecodeDisplay());
+
+      // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
+      // of the cursor)
+      QToolTip::hideText();
+      QToolTip::showText(QCursor::pos(),
+                         tooltip_text,
+                         parent());
     }
-
-    time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
-    track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
-
-    rational earliest_ghost = RATIONAL_MAX;
-
-    // Move ghosts to the mouse cursor
-    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      ghost->SetInAdjustment(time_movement);
-      ghost->SetOutAdjustment(time_movement);
-      ghost->SetTrackAdjustment(track_movement);
-
-      TrackReference adjusted_track = ghost->GetAdjustedTrack();
-      ghost->SetYCoords(parent()->GetTrackY(adjusted_track), parent()->GetTrackHeight(adjusted_track));
-
-      earliest_ghost = qMin(earliest_ghost, ghost->GetAdjustedIn());
-    }
-
-    // Generate tooltip (showing earliest in point of imported clip)
-    int64_t earliest_timestamp = olive::time_to_timestamp(earliest_ghost, parent()->timebase());
-    QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
-                                                        parent()->timebase(),
-                                                        olive::CurrentTimecodeDisplay());
-    QToolTip::showText(QCursor::pos(),
-                       tooltip_text,
-                       parent());
 
     event->accept();
   } else {
@@ -192,10 +150,11 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineWidget::ImportTool::DragLeave(QDragLeaveEvent* event)
+void ImportTool::DragLeave(QDragLeaveEvent* event)
 {
-  if (parent()->HasGhosts()) {
+  if (!dragged_footage_.isEmpty()) {
     parent()->ClearGhosts();
+    dragged_footage_.clear();
 
     event->accept();
   } else {
@@ -203,77 +162,302 @@ void TimelineWidget::ImportTool::DragLeave(QDragLeaveEvent* event)
   }
 }
 
-void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
+void ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
-  if (parent()->HasGhosts()) {
-    QUndoCommand* command = new QUndoCommand();
+  if (!dragged_footage_.isEmpty()) {
+    DropGhosts(event->GetModifiers() & Qt::ControlModifier);
 
-    QVector<Block*> block_items(parent()->ghost_items_.size());
+    event->accept();
+  } else {
+    event->ignore();
+  }
+}
 
-    for (int i=0;i<parent()->ghost_items_.size();i++) {
-      TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert)
+{
+  DraggedFootageData refs;
 
-      StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+  foreach (ViewerOutput* f, footage) {
+    refs.append({f, f->GetEnabledStreamsAsReferences()});
+  }
+
+  PlaceAt(refs, start, insert);
+}
+
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert)
+{
+  dragged_footage_ = footage;
+
+  if (dragged_footage_.isEmpty()) {
+    return;
+  }
+
+  PrepGhosts(start, 0);
+  DropGhosts(insert);
+}
+
+void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData &sorted, const rational& dest_tb, const int& track_start)
+{
+  for (auto it=sorted.cbegin(); it!=sorted.cend(); it++) {
+    ViewerOutput* footage = it->first;
+
+    if (footage == sequence() || (sequence() && sequence()->OutputsTo(footage, true))) {
+      // Prevent cyclical dependency
+      continue;
+    }
+
+    // Each stream is offset by one track per track "type", we keep track of them in this vector
+    QVector<int> track_offsets(Track::kCount);
+    track_offsets.fill(track_start);
+
+    rational footage_duration;
+    rational ghost_in;
+
+    TimelineWorkArea* wk = footage->GetTimelinePoints()->workarea();
+    if (wk->enabled()) {
+      footage_duration = wk->length();
+      ghost_in = wk->in();
+    } else {
+      footage_duration = footage->GetLength();
+
+      if (footage_duration.isNull()) {
+        // Fallback to still length if legngth was 0
+        footage_duration = Config::Current()[QStringLiteral("DefaultStillLength")].value<rational>();
+      }
+    }
+
+    // Snap footage duration to timebase
+    rational snap_mvmt = SnapMovementToTimebase(footage_duration, 0, dest_tb);
+    if (!snap_mvmt.isNull()) {
+      footage_duration += snap_mvmt;
+    }
+
+    // Create ghosts
+    foreach (const Track::Reference& ref, it->second) {
+      Track::Type track_type = ref.type();
+
+      TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+
+      ghost->SetIn(ghost_start);
+      ghost->SetOut(ghost_start + footage_duration);
+      ghost->SetMediaIn(ghost_in);
+      ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
+
+      snap_points_.append(ghost->GetIn());
+      snap_points_.append(ghost->GetOut());
+
+      // Increment track count for this track type
+      track_offsets[track_type]++;
+
+      TimelineViewGhostItem::AttachedFootage af = {it->first, ref.ToString()};
+      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
+      ghost->SetMode(Timeline::kMove);
+
+      parent()->AddGhost(ghost);
+    }
+
+    // Stack each ghost one after the other
+    ghost_start += footage_duration;
+
+  }
+}
+
+void ImportTool::PrepGhosts(const rational& frame, const int& track_index)
+{
+  if (parent()->GetConnectedNode()) {
+    FootageToGhosts(frame,
+                    dragged_footage_,
+                    parent()->GetConnectedNode()->GetVideoParams().time_base(),
+                    track_index);
+  }
+}
+
+void ImportTool::DropGhosts(bool insert)
+{
+  MultiUndoCommand* command = new MultiUndoCommand();
+
+  NodeGraph* dst_graph = nullptr;
+  Sequence* sequence = this->sequence();
+  bool open_sequence = false;
+
+  if (sequence) {
+    dst_graph = sequence->parent();
+  } else {
+    // There's no active timeline here, ask the user what to do
+
+    DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(Config::Current()["DropWithoutSequenceBehavior"].toInt());
+
+    if (behavior == kDWSAsk) {
+      QCheckBox* dont_ask_again_box = new QCheckBox(QCoreApplication::translate("ImportTool", "Don't ask me again"));
+
+      QMessageBox mbox(parent());
+
+      mbox.setIcon(QMessageBox::Question);
+      mbox.setWindowTitle(QCoreApplication::translate("ImportTool", "No Active Sequence"));
+      mbox.setText(QCoreApplication::translate("ImportTool", "No sequence is currently open. Would you like to create one?"));
+      mbox.setCheckBox(dont_ask_again_box);
+
+      QPushButton* auto_params_btn = mbox.addButton(QCoreApplication::translate("ImportTool", "Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
+      QPushButton* manual_params_btn = mbox.addButton(QCoreApplication::translate("ImportTool", "Set Parameters Manually"), QMessageBox::NoRole);
+      mbox.addButton(QMessageBox::Cancel);
+
+      mbox.exec();
+
+      if (mbox.clickedButton() == auto_params_btn) {
+        behavior = kDWSAuto;
+      } else if (mbox.clickedButton() == manual_params_btn) {
+        behavior = kDWSManual;
+      } else {
+        behavior = kDWSDisable;
+      }
+
+      if (behavior != kDWSDisable && dont_ask_again_box->isChecked()) {
+        Config::Current()["DropWithoutSequenceBehavior"] = behavior;
+      }
+    }
+
+    if (behavior != kDWSDisable) {
+      Project* active_project = Core::instance()->GetActiveProject();
+
+      if (active_project) {
+        Sequence* new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
+
+        new_sequence->set_default_parameters();
+
+        bool sequence_is_valid = true;
+
+        // Even if the user selected manual, set from footage anyway so the user has a useful
+        // starting point
+        QVector<ViewerOutput*> footage_only;
+
+        for (auto it=dragged_footage_.cbegin(); it!=dragged_footage_.cend(); it++) {
+          if (!footage_only.contains(it->first)) {
+            footage_only.append(it->first);
+          }
+        }
+
+        new_sequence->set_parameters_from_footage(footage_only);
+
+        // If the user selected manual, show them a dialog with parameters
+        if (behavior == kDWSManual) {
+
+          SequenceDialog sd(new_sequence, SequenceDialog::kNew, parent());
+          sd.SetUndoable(false);
+
+          if (sd.exec() != QDialog::Accepted) {
+            sequence_is_valid = false;
+          }
+
+        }
+
+        if (sequence_is_valid) {
+          dst_graph = Core::instance()->GetActiveProject();
+
+          command->add_child(new NodeAddCommand(dst_graph, new_sequence));
+          command->add_child(new FolderAddChild(Core::instance()->GetSelectedFolderInActiveProject(), new_sequence));
+          command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, QPointF(0, 0)));
+          new_sequence->add_default_nodes(command);
+
+          FootageToGhosts(0, dragged_footage_, new_sequence->GetVideoParams().time_base(), 0);
+
+          sequence = new_sequence;
+
+          // Set this as the sequence to open
+          open_sequence = true;
+        } else {
+          // If the sequence is valid, ownership is passed to AddItemCommand.
+          // Otherwise, we're responsible for deleting it.
+          delete new_sequence;
+        }
+      }
+    }
+  }
+
+  if (dst_graph) {
+
+    QVector<Block*> block_items(parent()->GetGhostItems().size());
+
+    // Check if we're inserting (only valid if we're not creating this sequence ourselves)
+    if (insert && !open_sequence) {
+      InsertGapsAtGhostDestination(command);
+    }
+
+    for (int i=0;i<parent()->GetGhostItems().size();i++) {
+      TimelineViewGhostItem* ghost = parent()->GetGhostItems().at(i);
+
+      TimelineViewGhostItem::AttachedFootage footage_stream = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
 
       ClipBlock* clip = new ClipBlock();
-      clip->set_length(ghost->Length());
-      clip->set_block_name(footage_stream->footage()->name());
+      clip->set_media_in(ghost->GetMediaIn());
+      clip->set_length_and_media_out(ghost->GetLength());
+      clip->SetLabel(footage_stream.footage->GetLabel());
+      command->add_child(new NodeAddCommand(dst_graph, clip));
 
-      switch (footage_stream->type()) {
-      case Stream::kVideo:
-      case Stream::kImage:
+      // Position clip in its own context
+      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));
+
+      int dep_pos = kDefaultDistanceFromOutput;
+
+      // Position footage in its context
+      command->add_child(new NodeSetPositionCommand(footage_stream.footage, clip, QPointF(dep_pos, 0)));
+
+      dep_pos++;
+
+      switch (Track::Reference::TypeFromString(footage_stream.output)) {
+      case Track::kVideo:
       {
-        VideoInput* video_input = new VideoInput();
-        video_input->SetFootage(footage_stream);
-        NodeParam::ConnectEdge(video_input->output(), clip->texture_input());
+        TransformDistortNode* transform = new TransformDistortNode();
+        command->add_child(new NodeAddCommand(dst_graph, transform));
 
-        TransformDistort* transform = new TransformDistort();
-        NodeParam::ConnectEdge(transform->output(), video_input->matrix_input());
+        command->add_child(new NodeSetValueHintCommand(transform, TransformDistortNode::kTextureInput, -1, Node::ValueHint({NodeValue::kTexture}, footage_stream.output)));
 
-        //OpacityNode* opacity = new OpacityNode();
-        //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
-        //NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
+        command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
+        command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
+        command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(dep_pos, 0)));
         break;
       }
-      case Stream::kAudio:
+      case Track::kAudio:
       {
-        AudioInput* audio_input = new AudioInput();
-        audio_input->SetFootage(footage_stream);
-        NodeParam::ConnectEdge(audio_input->output(), clip->texture_input());
+        VolumeNode* volume_node = new VolumeNode();
+        command->add_child(new NodeAddCommand(dst_graph, volume_node));
+
+        command->add_child(new NodeSetValueHintCommand(volume_node, VolumeNode::kSamplesInput, -1, Node::ValueHint({NodeValue::kSamples}, footage_stream.output)));
+
+        command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
+        command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
+        command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(dep_pos, 0)));
         break;
       }
       default:
         break;
       }
 
-      if (event->GetModifiers() & Qt::ControlModifier) {
-        //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
-      } else {
-        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(ghost->GetAdjustedTrack().type()),
-                                   ghost->GetAdjustedTrack().index(),
-                                   clip,
-                                   ghost->GetAdjustedIn(),
-                                   command);
-      }
+      command->add_child(new TrackPlaceBlockCommand(sequence->track_list(ghost->GetAdjustedTrack().type()),
+                                                    ghost->GetAdjustedTrack().index(),
+                                                    clip,
+                                                    ghost->GetAdjustedIn()));
 
       block_items.replace(i, clip);
 
       // Link any clips so far that share the same Footage with this one
       for (int j=0;j<i;j++) {
-        StreamPtr footage_compare = parent()->ghost_items_.at(j)->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+        TimelineViewGhostItem::AttachedFootage footage_compare = parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
 
-        if (footage_compare->footage() == footage_stream->footage()) {
+        if (footage_compare.footage == footage_stream.footage) {
           Block::Link(block_items.at(j), clip);
         }
       }
     }
-
-    olive::undo_stack.pushIfHasChildren(command);
-
-    parent()->ClearGhosts();
-
-    event->accept();
-  } else {
-    event->ignore();
   }
+
+  if (open_sequence) {
+    command->add_child(new OpenSequenceCommand(sequence));
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  parent()->ClearGhosts();
+  dragged_footage_.clear();
+}
+
 }

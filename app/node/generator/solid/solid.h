@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,34 +21,34 @@
 #ifndef SOLIDGENERATOR_H
 #define SOLIDGENERATOR_H
 
-#include <QOpenGLTexture>
-
 #include "node/node.h"
 
-/**
- * @brief A node that generates a solid color
- */
+namespace olive {
+
 class SolidGenerator : public Node
 {
   Q_OBJECT
 public:
   SolidGenerator();
 
+  NODE_DEFAULT_DESTRUCTOR(SolidGenerator)
+
   virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
-  virtual QString Category() const override;
+  virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
-
-  virtual QString Code() const override;
 
   virtual void Retranslate() override;
 
-private:
-  NodeInput* color_input_;
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
 
-  QOpenGLTexture* texture_;
+  static const QString kColorInput;
+
 };
+
+}
 
 #endif // SOLIDGENERATOR_H

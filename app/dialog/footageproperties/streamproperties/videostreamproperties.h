@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,23 +23,28 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QUndoCommand>
 
-#include "project/item/footage/videostream.h"
+#include "node/project/footage/footage.h"
 #include "streamproperties.h"
+#include "widget/slider/integerslider.h"
+#include "widget/standardcombos/standardcombos.h"
+
+namespace olive {
 
 class VideoStreamProperties : public StreamProperties
 {
+  Q_OBJECT
 public:
-  VideoStreamProperties(VideoStreamPtr stream);
+  VideoStreamProperties(Footage *footage, int video_index);
 
-  virtual void Accept(QUndoCommand* parent) override;
+  virtual void Accept(MultiUndoCommand *parent) override;
+
+  virtual bool SanityCheck() override;
 
 private:
-  /**
-   * @brief Attached video stream
-   */
-  VideoStreamPtr stream_;
+  Footage *footage_;
+
+  int video_index_;
 
   /**
    * @brief Setting for associated/premultiplied alpha
@@ -51,25 +56,93 @@ private:
    */
   QComboBox* video_color_space_;
 
-  class VideoStreamChangeCommand : public QUndoCommand {
+  /**
+   * @brief Setting for video interlacing
+   */
+  InterlacedComboBox* video_interlace_combo_;
+
+  /**
+   * @brief Sets the start index for image sequences
+   */
+  IntegerSlider* imgseq_start_time_;
+
+  /**
+   * @brief Sets the end index for image sequences
+   */
+  IntegerSlider* imgseq_end_time_;
+
+  /**
+   * @brief Sets the frame rate for image sequences
+   */
+  FrameRateComboBox* imgseq_frame_rate_;
+
+  /**
+   * @brief Sets the pixel aspect ratio of the stream
+   */
+  PixelAspectRatioComboBox* pixel_aspect_combo_;
+
+  class VideoStreamChangeCommand : public UndoCommand {
   public:
-    VideoStreamChangeCommand(VideoStreamPtr stream,
+    VideoStreamChangeCommand(Footage *footage,
+                             int video_index,
                              bool premultiplied,
                              QString colorspace,
-                             QUndoCommand* parent = nullptr);
+                             VideoParams::Interlacing interlacing,
+                             const rational& pixel_ar);
 
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
     virtual void redo() override;
     virtual void undo() override;
 
   private:
-    VideoStreamPtr stream_;
+    Footage *footage_;
+    int video_index_;
 
     bool new_premultiplied_;
     QString new_colorspace_;
+    VideoParams::Interlacing new_interlacing_;
+    rational new_pixel_ar_;
 
     bool old_premultiplied_;
     QString old_colorspace_;
+    VideoParams::Interlacing old_interlacing_;
+    rational old_pixel_ar_;
+
   };
+
+  class ImageSequenceChangeCommand : public UndoCommand {
+  public:
+    ImageSequenceChangeCommand(Footage *footage,
+                               int video_index,
+                               int64_t start_index,
+                               int64_t duration,
+                               const rational& frame_rate);
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override;
+    virtual void undo() override;
+
+  private:
+    Footage *footage_;
+    int video_index_;
+
+    int64_t new_start_index_;
+    int64_t old_start_index_;
+
+    int64_t new_duration_;
+    int64_t old_duration_;
+
+    rational new_frame_rate_;
+    rational old_frame_rate_;
+
+  };
+
 };
+
+}
 
 #endif // VIDEOSTREAMPROPERTIES_H

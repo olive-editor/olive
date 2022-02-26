@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #include "icons.h"
 
+namespace olive {
+
 /// Works in conjunction with `genicons.sh` to generate and utilize icons of specific sizes
 const int ICON_SIZE_COUNT = 4;
 const int ICON_SIZES[] = {
@@ -30,47 +32,53 @@ const int ICON_SIZES[] = {
 };
 
 /// Internal icon library for use throughout Olive without having to regenerate constantly
-QIcon olive::icon::GoToStart;
-QIcon olive::icon::PrevFrame;
-QIcon olive::icon::Play;
-QIcon olive::icon::Pause;
-QIcon olive::icon::NextFrame;
-QIcon olive::icon::GoToEnd;
-QIcon olive::icon::New;
-QIcon olive::icon::Open;
-QIcon olive::icon::Save;
-QIcon olive::icon::Undo;
-QIcon olive::icon::Redo;
-QIcon olive::icon::TreeView;
-QIcon olive::icon::ListView;
-QIcon olive::icon::IconView;
-QIcon olive::icon::ToolPointer;
-QIcon olive::icon::ToolEdit;
-QIcon olive::icon::ToolRipple;
-QIcon olive::icon::ToolRolling;
-QIcon olive::icon::ToolRazor;
-QIcon olive::icon::ToolSlip;
-QIcon olive::icon::ToolSlide;
-QIcon olive::icon::ToolHand;
-QIcon olive::icon::ToolTransition;
-QIcon olive::icon::Folder;
-QIcon olive::icon::Sequence;
-QIcon olive::icon::Video;
-QIcon olive::icon::Audio;
-QIcon olive::icon::Image;
-QIcon olive::icon::TriUp;
-QIcon olive::icon::TriLeft;
-QIcon olive::icon::TriDown;
-QIcon olive::icon::TriRight;
-QIcon olive::icon::Snapping;
-QIcon olive::icon::ZoomIn;
-QIcon olive::icon::ZoomOut;
-QIcon olive::icon::Record;
-QIcon olive::icon::Add;
-QIcon olive::icon::Error;
-QIcon olive::icon::DirUp;
+QIcon icon::GoToStart;
+QIcon icon::PrevFrame;
+QIcon icon::Play;
+QIcon icon::Pause;
+QIcon icon::NextFrame;
+QIcon icon::GoToEnd;
+QIcon icon::New;
+QIcon icon::Open;
+QIcon icon::Save;
+QIcon icon::Undo;
+QIcon icon::Redo;
+QIcon icon::TreeView;
+QIcon icon::ListView;
+QIcon icon::IconView;
+QIcon icon::ToolPointer;
+QIcon icon::ToolEdit;
+QIcon icon::ToolRipple;
+QIcon icon::ToolRolling;
+QIcon icon::ToolRazor;
+QIcon icon::ToolSlip;
+QIcon icon::ToolSlide;
+QIcon icon::ToolHand;
+QIcon icon::ToolTransition;
+QIcon icon::Folder;
+QIcon icon::Sequence;
+QIcon icon::Video;
+QIcon icon::Audio;
+QIcon icon::Image;
+QIcon icon::MiniMap;
+QIcon icon::TriUp;
+QIcon icon::TriLeft;
+QIcon icon::TriDown;
+QIcon icon::TriRight;
+QIcon icon::Snapping;
+QIcon icon::ZoomIn;
+QIcon icon::ZoomOut;
+QIcon icon::Record;
+QIcon icon::Add;
+QIcon icon::Error;
+QIcon icon::DirUp;
+QIcon icon::Clock;
+QIcon icon::Diamond;
+QIcon icon::Plus;
+QIcon icon::Minus;
+QIcon icon::AddEffect;
 
-void olive::icon::LoadAll(const QString& theme)
+void icon::LoadAll(const QString& theme)
 {
   GoToStart = Create(theme, "prev");
   PrevFrame = Create(theme, "rew");
@@ -104,6 +112,8 @@ void olive::icon::LoadAll(const QString& theme)
   Audio = Create(theme, "audiosource");
   Image = Create(theme, "imagesource");
 
+  MiniMap = Create(theme, "map");
+
   TriUp = Create(theme, "tri-up");
   TriLeft = Create(theme, "tri-left");
   TriDown = Create(theme, "tri-down");
@@ -116,16 +126,25 @@ void olive::icon::LoadAll(const QString& theme)
   Add = Create(theme, "add-button");
   Error = Create(theme, "error");
   DirUp = Create(theme, "dirup");
+  Clock = Create(theme, "clock");
+  Diamond = Create(theme, "diamond");
+  Plus = Create(theme, "plus");
+  Minus = Create(theme, "minus");
+  AddEffect = Create(theme, "add-effect");
 }
 
-QIcon olive::icon::Create(const QString& theme, const QString &name)
+QIcon icon::Create(const QString& theme, const QString &name)
 {
   QIcon icon;
 
   for (int i=0;i<ICON_SIZE_COUNT;i++) {
-    icon.addFile(QString("%1/png/%2.%3.png").arg(theme, name, QString::number(ICON_SIZES[i])),
-                 QSize(ICON_SIZES[i], ICON_SIZES[i]));
+    icon.addFile(QStringLiteral("%1/png/%2.%3.png").arg(theme, name, QString::number(ICON_SIZES[i])),
+                 QSize(ICON_SIZES[i], ICON_SIZES[i]), QIcon::Normal);
+    icon.addFile(QStringLiteral("%1/png/%2.%3.disabled.png").arg(theme, name, QString::number(ICON_SIZES[i])),
+                 QSize(ICON_SIZES[i], ICON_SIZES[i]), QIcon::Disabled);
   }
 
   return icon;
+}
+
 }

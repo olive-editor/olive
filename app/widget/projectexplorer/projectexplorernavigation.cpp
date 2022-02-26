@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,8 +23,10 @@
 #include <QEvent>
 #include <QHBoxLayout>
 
+#include "common/define.h"
 #include "ui/icons/icons.h"
-#include "widget/projectexplorer/projectexplorerdefines.h"
+
+namespace olive {
 
 ProjectExplorerNavigation::ProjectExplorerNavigation(QWidget *parent) :
   QWidget(parent)
@@ -88,8 +90,10 @@ void ProjectExplorerNavigation::Retranslate()
 
 void ProjectExplorerNavigation::UpdateIcons()
 {
-  dir_up_btn_->setIcon(olive::icon::DirUp);
-  size_slider_->setMinimum(olive::kProjectIconSizeMinimum);
-  size_slider_->setMaximum(olive::kProjectIconSizeMaximum);
-  size_slider_->setValue(olive::kProjectIconSizeDefault);
+  dir_up_btn_->setIcon(icon::DirUp);
+  size_slider_->setMinimum(kProjectIconSizeMinimum);
+  size_slider_->setMaximum(kProjectIconSizeMaximum);
+  size_slider_->setValue(kProjectIconSizeDefault);
+}
+
 }

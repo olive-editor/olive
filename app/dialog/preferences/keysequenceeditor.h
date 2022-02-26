@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,6 +22,10 @@
 #define KEYSEQUENCEEDITOR_H
 
 #include <QKeySequenceEdit>
+
+#include "common/debug.h"
+
+namespace olive {
 
 /**
  * @brief The KeySequenceEditor class
@@ -90,11 +94,19 @@ public:
    * because a default shortcut does not need to be saved to a file.
    */
   QString export_shortcut();
+
+protected:
+  virtual void keyPressEvent(QKeyEvent *e) override;
+
+  virtual void keyReleaseEvent(QKeyEvent *e) override;
+
 private:
   /**
    * @brief Internal reference to the linked QAction
    */
   QAction* action;
 };
+
+}
 
 #endif // KEYSEQUENCEEDITOR_H

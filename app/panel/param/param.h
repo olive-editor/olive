@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,25 +21,65 @@
 #ifndef PARAM_H
 #define PARAM_H
 
+#include "panel/curve/curve.h"
+#include "panel/timebased/timebased.h"
 #include "widget/nodeparamview/nodeparamview.h"
-#include "widget/panel/panel.h"
 
-class ParamPanel : public PanelWidget
+namespace olive {
+
+class ParamPanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
   ParamPanel(QWidget* parent);
 
+  NodeParamView *GetParamView() const
+  {
+    return static_cast<NodeParamView *>(GetTimeBasedWidget());
+  }
+
+  const QVector<Node*> &GetContexts() const
+  {
+    return GetParamView()->GetContexts();
+  }
+
+  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
+  {
+    GetParamView()->SetCreateCheckBoxes(e);
+  }
+
+  void SetIgnoreNodeFlags(bool e)
+  {
+    GetParamView()->SetIgnoreNodeFlags(e);
+  }
+
+  void CloseContextsBelongingToProject(Project *p)
+  {
+    GetParamView()->CloseContextsBelongingToProject(p);
+  }
+
 public slots:
-  void SetNodes(QList<Node*> nodes);
+  void SelectNodes(const QVector<Node*>& nodes);
+  void DeselectNodes(const QVector<Node*>& nodes);
+
+  virtual void DeleteSelected() override;
+
+  virtual void SelectAll() override;
+
+  virtual void DeselectAll() override;
+
+  void SetContexts(const QVector<Node*> &contexts);
+
+signals:
+  void RequestSelectNode(const QVector<Node*>& target);
+
+  void FocusedNodeChanged(Node* n);
 
 protected:
-  virtual void changeEvent(QEvent* e);
+  virtual void Retranslate() override;
 
-private:
-  void Retranslate();
-
-  NodeParamView* view_;
 };
+
+}
 
 #endif // PARAM_H

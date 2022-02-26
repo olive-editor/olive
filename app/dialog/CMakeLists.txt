@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,10 +16,25 @@
 
 add_subdirectory(about)
 add_subdirectory(actionsearch)
+add_subdirectory(autorecovery)
+add_subdirectory(color)
+add_subdirectory(configbase)
+add_subdirectory(diskcache)
+add_subdirectory(export)
 add_subdirectory(footageproperties)
+add_subdirectory(footagerelink)
+add_subdirectory(keyframeproperties)
+if(OpenTimelineIO_FOUND)
+  add_subdirectory(otioproperties)
+endif()
 add_subdirectory(preferences)
+add_subdirectory(progress)
 add_subdirectory(projectproperties)
+add_subdirectory(rendercancel)
 add_subdirectory(sequence)
+add_subdirectory(speedduration)
+add_subdirectory(task)
+add_subdirectory(text)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

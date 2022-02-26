@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,6 +30,11 @@ template<typename T>
  */
 T lerp(T a, T b, double t) {
   return (a * (1.0 - t)) + (b * t);
+}
+
+template<typename T>
+T lerp(T a, T b, float t) {
+  return (a * (1.0f - t)) + (b * t);
 }
 
 #endif // LERP_H

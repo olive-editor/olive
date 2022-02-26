@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #include "taskview.h"
 
 #include <QPushButton>
+
+namespace olive {
 
 TaskView::TaskView(QWidget* parent) :
   QScrollArea(parent)
@@ -44,9 +46,21 @@ TaskView::TaskView(QWidget* parent) :
 void TaskView::AddTask(Task *t)
 {
   // Create TaskViewItem (UI representation of a Task) and connect it
-  TaskViewItem* item = new TaskViewItem(central_widget_);
+  TaskViewItem* item = new TaskViewItem(t);
+  connect(item, &TaskViewItem::TaskCancelled, this, &TaskView::TaskCancelled);
+  items_.insert(t, item);
+  layout_->insertWidget(layout_->count()-1, item);
+}
 
-  item->SetTask(t);
+void TaskView::TaskFailed(Task *t)
+{
+  items_.value(t)->Failed();
+}
 
-  layout_->insertWidget(0, item);
+void TaskView::RemoveTask(Task *t)
+{
+  items_.value(t)->deleteLater();
+  items_.remove(t);
+}
+
 }

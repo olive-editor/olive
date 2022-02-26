@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2020 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,11 +20,18 @@
 
 #include "audiostreamproperties.h"
 
-AudioStreamProperties::AudioStreamProperties(AudioStreamPtr stream) :
-  stream_(stream)
+namespace olive {
+
+AudioStreamProperties::AudioStreamProperties(Footage *footage, int audio_index) :
+  footage_(footage),
+  audio_index_(audio_index)
 {
 }
 
-void AudioStreamProperties::Accept(QUndoCommand*)
+void AudioStreamProperties::Accept(MultiUndoCommand*)
 {
+  Q_UNUSED(footage_)
+  Q_UNUSED(audio_index_)
+}
+
 }

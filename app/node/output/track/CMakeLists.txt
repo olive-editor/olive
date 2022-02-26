@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/output/track/track.h
   node/output/track/track.cpp
+  node/output/track/track.h
+  node/output/track/tracklist.cpp
+  node/output/track/tracklist.h
   PARENT_SCOPE
 )

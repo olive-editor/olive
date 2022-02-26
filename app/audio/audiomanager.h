@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,35 +22,17 @@
 #define AUDIOMANAGER_H
 
 #include <memory>
-#include <QAudioInput>
-#include <QAudioOutput>
+#include <QtConcurrent/QtConcurrent>
 #include <QThread>
+#include <portaudio.h>
 
-#include "audiohybriddevice.h"
+#include "audiovisualwaveform.h"
+#include "common/define.h"
 #include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
+#include "render/previewaudiodevice.h"
 
-/**
- * @brief A thread for refreshing the total list of devices on the system
- *
- * Refreshing devices causes a noticeable pause in execution. Doing it another thread is intended to avoid this.
- */
-class AudioRefreshDevicesThread : public QThread {
-  Q_OBJECT
-public:
-  AudioRefreshDevicesThread();
-
-  virtual void run() override;
-
-  const QList<QAudioDeviceInfo>& input_devices();
-  const QList<QAudioDeviceInfo>& output_devices();
-
-signals:
-  void ListsReady();
-
-private:
-  QList<QAudioDeviceInfo> input_devices_;
-  QList<QAudioDeviceInfo> output_devices_;
-};
+namespace olive {
 
 /**
  * @brief Audio input and output management class
@@ -67,70 +49,56 @@ public:
 
   static AudioManager* instance();
 
-  void RefreshDevices();
+  void SetOutputNotifyInterval(int n);
 
-  bool IsRefreshing();
+  void PushToOutput(const AudioParams &params, const QByteArray& samples);
 
-  void PushToOutput(const QByteArray& samples);
+  void ClearBufferedOutput();
 
-  /**
-   * @brief Start playing audio from QIODevice
-   *
-   * This takes ownership of the QIODevice and will delete it when StopOutput() is called
-   */
-  void StartOutput(QIODevice* device);
-
-  /**
-   * @brief Stop audio output immediately
-   */
   void StopOutput();
 
-  void SetOutputDevice(const QAudioDeviceInfo& info);
+  PaDeviceIndex GetOutputDevice() const
+  {
+    return output_device_;
+  }
 
-  void SetOutputParams(const AudioRenderingParams& params);
+  PaDeviceIndex GetInputDevice() const
+  {
+    return input_device_;
+  }
 
-  void SetInputDevice(const QAudioDeviceInfo& info);
+  void SetOutputDevice(PaDeviceIndex device);
 
-  const QList<QAudioDeviceInfo>& ListInputDevices();
-  const QList<QAudioDeviceInfo>& ListOutputDevices();
+  void SetInputDevice(PaDeviceIndex device);
+
+  void HardReset();
+
+  static PaDeviceIndex FindConfigDeviceByName(bool is_output_device);
+  static PaDeviceIndex FindDeviceByName(const QString &s, bool is_output_device);
 
 signals:
-  void DeviceListReady();
-
-  void SentSamples(QVector<double> averages);
+  void OutputNotify();
 
 private:
   AudioManager();
 
-  QList<QAudioDeviceInfo> input_devices_;
+  virtual ~AudioManager() override;
 
-  QList<QAudioDeviceInfo> output_devices_;
+  static PaSampleFormat GetPortAudioSampleFormat(AudioParams::Format fmt);
+
+  void CloseOutputStream();
 
   static AudioManager* instance_;
 
-  AudioHybridDevice output_manager_;
+  PaDeviceIndex output_device_;
+  PaStream *output_stream_;
+  AudioParams output_params_;
+  PreviewAudioDevice *output_buffer_;
 
-  std::unique_ptr<QAudioOutput> output_;
-  QAudioDeviceInfo output_device_info_;
-  AudioRenderingParams output_params_;
-
-  std::unique_ptr<QAudioInput> input_;
-  QAudioDeviceInfo input_device_info_;
-  QIODevice* input_file_;
-
-  bool refreshing_devices_;
-
-  AudioRefreshDevicesThread refresh_thread_;
-
-private slots:
-  void RefreshThreadDone();
-
-  void OutputManagerHasSamples();
-
-  void OutputStateChanged(QAudio::State state);
-
-  void OutputNotified();
+  PaDeviceIndex input_device_;
 
 };
+
+}
 
 #endif // AUDIOMANAGER_H

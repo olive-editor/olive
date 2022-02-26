@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,9 +24,11 @@
 #include <QEvent>
 #include <QHBoxLayout>
 
-#include "common/timecodefunctions.h"
+#include "core.h"
 #include "config/config.h"
 #include "ui/icons/icons.h"
+
+namespace olive {
 
 PlaybackControls::PlaybackControls(QWidget *parent) :
   QWidget(parent),
@@ -37,21 +39,31 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_control_layout->setSpacing(0);
   lower_control_layout->setMargin(0);
 
-  QSizePolicy lower_container_size_policy = QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+  QSizePolicy lower_container_size_policy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  lower_container_size_policy.setHorizontalStretch(1);
 
   // In the lower-left, we create a current timecode label wrapped in a QWidget for fixed sizing
   lower_left_container_ = new QWidget();
   lower_left_container_->setVisible(false);
   lower_left_container_->setSizePolicy(lower_container_size_policy);
+
   lower_control_layout->addWidget(lower_left_container_);
 
   QHBoxLayout* lower_left_layout = new QHBoxLayout(lower_left_container_);
   lower_left_layout->setSpacing(0);
   lower_left_layout->setMargin(0);
 
-  cur_tc_lbl_ = new QLabel();
+  cur_tc_lbl_ = new RationalSlider();
+  cur_tc_lbl_->SetDisplayType(RationalSlider::kTime);
+  connect(cur_tc_lbl_, &RationalSlider::ValueChanged, this, &PlaybackControls::TimeChanged);
   lower_left_layout->addWidget(cur_tc_lbl_);
   lower_left_layout->addStretch();
+
+  // This is only here
+  QWidget* blank_widget = new QWidget();
+  //new QHBoxLayout(blank_widget);
+  blank_widget->setSizePolicy(lower_container_size_policy);
+  lower_control_layout->addWidget(blank_widget);
 
   // In the lower-middle, we create playback control buttons
   QWidget* lower_middle_container = new QWidget();
@@ -61,46 +73,66 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   QHBoxLayout* lower_middle_layout = new QHBoxLayout(lower_middle_container);
   lower_middle_layout->setSpacing(0);
   lower_middle_layout->setMargin(0);
-
   lower_middle_layout->addStretch();
+
+  QSizePolicy btn_sz_policy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
   // Go To Start Button
   go_to_start_btn_ = new QPushButton();
+  go_to_start_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(go_to_start_btn_);
-  connect(go_to_start_btn_, SIGNAL(clicked(bool)), this, SIGNAL(BeginClicked()));
+  connect(go_to_start_btn_, &QPushButton::clicked, this, &PlaybackControls::BeginClicked);
 
   // Prev Frame Button
   prev_frame_btn_ = new QPushButton();
+  prev_frame_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(prev_frame_btn_);
-  connect(prev_frame_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PrevFrameClicked()));
+  connect(prev_frame_btn_, &QPushButton::clicked, this, &PlaybackControls::PrevFrameClicked);
 
   // Play/Pause Button
   playpause_stack_ = new QStackedWidget();
+  playpause_stack_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(playpause_stack_);
 
   play_btn_ = new QPushButton();
   playpause_stack_->addWidget(play_btn_);
-  connect(play_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PlayClicked()));
+  connect(play_btn_, &QPushButton::clicked, this, &PlaybackControls::PlayClicked);
 
   pause_btn_ = new QPushButton();
   playpause_stack_->addWidget(pause_btn_);
-  connect(pause_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PauseClicked()));
+  connect(pause_btn_, &QPushButton::clicked, this, &PlaybackControls::PauseClicked);
 
   // Default to showing play button
   playpause_stack_->setCurrentWidget(play_btn_);
-  playpause_stack_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 
   // Next Frame Button
   next_frame_btn_ = new QPushButton();
+  next_frame_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(next_frame_btn_);
-  connect(next_frame_btn_, SIGNAL(clicked(bool)), this, SIGNAL(NextFrameClicked()));
+  connect(next_frame_btn_, &QPushButton::clicked, this, &PlaybackControls::NextFrameClicked);
 
   // Go To End Button
   go_to_end_btn_ = new QPushButton();
+  go_to_end_btn_->setSizePolicy(btn_sz_policy);
   lower_middle_layout->addWidget(go_to_end_btn_);
-  connect(go_to_end_btn_, SIGNAL(clicked(bool)), this, SIGNAL(EndClicked()));
+  connect(go_to_end_btn_, &QPushButton::clicked, this, &PlaybackControls::EndClicked);
 
   lower_middle_layout->addStretch();
+
+  QWidget* av_btn_widget = new QWidget();
+  av_btn_widget->setSizePolicy(lower_container_size_policy);
+  QHBoxLayout* av_btn_layout = new QHBoxLayout(av_btn_widget);
+  av_btn_layout->setSpacing(0);
+  av_btn_layout->setMargin(0);
+  video_drag_btn_ = new DragButton();
+  connect(video_drag_btn_, &QPushButton::clicked, this, &PlaybackControls::VideoClicked);
+  connect(video_drag_btn_, &DragButton::MousePressed, this, &PlaybackControls::VideoPressed);
+  av_btn_layout->addWidget(video_drag_btn_);
+  audio_drag_btn_ = new DragButton();
+  connect(audio_drag_btn_, &QPushButton::clicked, this, &PlaybackControls::AudioClicked);
+  connect(audio_drag_btn_, &DragButton::MousePressed, this, &PlaybackControls::AudioPressed);
+  av_btn_layout->addWidget(audio_drag_btn_);
+  lower_control_layout->addWidget(av_btn_widget);
 
   // The lower-right, we create another timecode label, this time to show the end timecode
   lower_right_container_ = new QWidget();
@@ -117,6 +149,12 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_right_layout->addWidget(end_tc_lbl_);
 
   UpdateIcons();
+
+  SetTimebase(0);
+
+  SetAudioVideoDragButtonsVisible(false);
+
+  connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &PlaybackControls::TimecodeChanged);
 }
 
 void PlaybackControls::SetTimecodeEnabled(bool enabled)
@@ -128,16 +166,36 @@ void PlaybackControls::SetTimecodeEnabled(bool enabled)
 void PlaybackControls::SetTimebase(const rational &r)
 {
   time_base_ = r;
+  cur_tc_lbl_->SetTimebase(r);
+
+  cur_tc_lbl_->setVisible(!r.isNull());
+  end_tc_lbl_->setVisible(!r.isNull());
+
+  setEnabled(!r.isNull());
 }
 
-void PlaybackControls::SetTime(const int64_t &r)
+void PlaybackControls::SetAudioVideoDragButtonsVisible(bool e)
 {
-  SetTimeLabelInternal(cur_tc_lbl_, r);
+  video_drag_btn_->setVisible(e);
+  audio_drag_btn_->setVisible(e);
 }
 
-void PlaybackControls::SetEndTime(const int64_t &r)
+void PlaybackControls::SetTime(const rational &r)
 {
-  SetTimeLabelInternal(end_tc_lbl_, r);
+  cur_tc_lbl_->SetValue(r);
+}
+
+void PlaybackControls::SetEndTime(const rational &r)
+{
+  if (time_base_.isNull()) {
+    return;
+  }
+
+  end_time_ = r;
+
+  end_tc_lbl_->setText(Timecode::time_to_timecode(end_time_,
+                                                  time_base_,
+                                                  Core::instance()->GetTimecodeDisplay()));
 }
 
 void PlaybackControls::ShowPauseButton()
@@ -162,21 +220,20 @@ void PlaybackControls::changeEvent(QEvent *e)
 
 void PlaybackControls::UpdateIcons()
 {
-  go_to_start_btn_->setIcon(olive::icon::GoToStart);
-  prev_frame_btn_->setIcon(olive::icon::PrevFrame);
-  play_btn_->setIcon(olive::icon::Play);
-  pause_btn_->setIcon(olive::icon::Pause);
-  next_frame_btn_->setIcon(olive::icon::NextFrame);
-  go_to_end_btn_->setIcon(olive::icon::GoToEnd);
+  go_to_start_btn_->setIcon(icon::GoToStart);
+  prev_frame_btn_->setIcon(icon::PrevFrame);
+  play_btn_->setIcon(icon::Play);
+  pause_btn_->setIcon(icon::Pause);
+  next_frame_btn_->setIcon(icon::NextFrame);
+  go_to_end_btn_->setIcon(icon::GoToEnd);
+  video_drag_btn_->setIcon(icon::Video);
+  audio_drag_btn_->setIcon(icon::Audio);
 }
 
-void PlaybackControls::SetTimeLabelInternal(QLabel* label, const int64_t& time)
+void PlaybackControls::TimecodeChanged()
 {
-  if (time_base_.isNull()) {
-    return;
-  }
+  // Update end time
+  SetEndTime(end_time_);
+}
 
-  label->setText(olive::timestamp_to_timecode(time,
-                                              time_base_,
-                                              olive::CurrentTimecodeDisplay()));
 }

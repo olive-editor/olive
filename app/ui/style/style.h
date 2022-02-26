@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,29 +24,26 @@
 #include <QSettings>
 #include <QWidget>
 
-class StyleDescriptor {
-public:
-  StyleDescriptor(const QString& name, const QString& path);
+#include "common/define.h"
 
-  const QString& name() const;
-  const QString& path() const;
-
-private:
-  QString name_;
-  QString path_;
-};
+namespace olive {
 
 class StyleManager : public QObject {
 public:
-  StyleManager();
+  static void Init();
 
-  static StyleDescriptor DefaultStyle();
-
-  static void SetStyle(const StyleDescriptor& style);
+  static const QString& GetStyle();
 
   static void SetStyle(const QString& style_path);
 
-  static QList<StyleDescriptor> ListInternal();
+  static void UseOSNativeStyling(QWidget* widget);
+
+  static const char* kDefaultStyle;
+
+  static const QMap<QString, QString>& available_themes()
+  {
+    return available_themes_;
+  }
 
 private:
   static QPalette ParsePalette(const QString& ini_path);
@@ -54,6 +51,15 @@ private:
   static void ParsePaletteGroup(QSettings* ini, QPalette* palette, QPalette::ColorGroup group);
 
   static void ParsePaletteColor(QSettings* ini, QPalette* palette, QPalette::ColorGroup group, const QString& role_name);
+
+  static QString current_style_;
+
+  static QMap<QString, QString> available_themes_;
+
+  static QPalette platform_palette_;
+
 };
+
+}
 
 #endif // STYLEMANAGER_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,27 +21,40 @@
 #ifndef INTEGERSLIDER_H
 #define INTEGERSLIDER_H
 
-#include "sliderbase.h"
+#include "base/numericsliderbase.h"
 
-class IntegerSlider : public SliderBase
+namespace olive {
+
+class IntegerSlider : public NumericSliderBase
 {
   Q_OBJECT
 public:
   IntegerSlider(QWidget* parent = nullptr);
 
-  int GetValue();
+  int64_t GetValue();
 
-  void SetValue(const int& v);
+  void SetValue(const int64_t& v);
 
-  void SetMinimum(const int& d);
+  void SetMinimum(const int64_t& d);
 
-  void SetMaximum(const int& d);
+  void SetMaximum(const int64_t& d);
+
+  void SetDefaultValue(const int64_t& d);
+
+protected:
+  virtual QString ValueToString(const QVariant& v) const override;
+
+  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
+
+  virtual void ValueSignalEvent(const QVariant &value) override;
+
+  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
 
 signals:
-  void ValueChanged(int);
+  void ValueChanged(int64_t);
 
-private slots:
-  void ConvertValue(QVariant v);
 };
+
+}
 
 #endif // INTEGERSLIDER_H

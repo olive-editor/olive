@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,14 +20,18 @@
 
 #include "toolbarbutton.h"
 
-ToolbarButton::ToolbarButton(QWidget *parent, const olive::tool::Tool &tool) :
+namespace olive {
+
+ToolbarButton::ToolbarButton(QWidget *parent, const Tool::Item &tool) :
   QPushButton(parent),
   tool_(tool)
 {
   setCheckable(true);
 }
 
-const olive::tool::Tool &ToolbarButton::tool()
+const Tool::Item &ToolbarButton::tool()
 {
   return tool_;
+}
+
 }

@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,15 +20,13 @@ set(OLIVE_SOURCES
   dialog/preferences/tabs/preferencesgeneraltab.cpp
   dialog/preferences/tabs/preferencesbehaviortab.h
   dialog/preferences/tabs/preferencesbehaviortab.cpp
+  dialog/preferences/tabs/preferencesdisktab.h
+  dialog/preferences/tabs/preferencesdisktab.cpp
   dialog/preferences/tabs/preferencesappearancetab.h
   dialog/preferences/tabs/preferencesappearancetab.cpp
-  dialog/preferences/tabs/preferencesplaybacktab.h
-  dialog/preferences/tabs/preferencesplaybacktab.cpp
   dialog/preferences/tabs/preferencesaudiotab.h
   dialog/preferences/tabs/preferencesaudiotab.cpp
   dialog/preferences/tabs/preferenceskeyboardtab.h
   dialog/preferences/tabs/preferenceskeyboardtab.cpp
-  dialog/preferences/tabs/preferencestab.h
-  dialog/preferences/tabs/preferencestab.cpp
   PARENT_SCOPE
 )

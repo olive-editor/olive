@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,9 @@
 
 #include <QPainter>
 
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
+
+namespace olive {
 
 ProjectExplorerIconViewItemDelegate::ProjectExplorerIconViewItemDelegate(QObject *parent) :
   QStyledItemDelegate (parent)
@@ -64,7 +66,7 @@ void ProjectExplorerIconViewItemDelegate::paint(QPainter *painter, const QStyleO
 
     QString duration_str = index.data(Qt::UserRole).toString();
 
-    int timecode_width = QFontMetricsWidth(fm, duration_str);
+    int timecode_width = QtUtils::QFontMetricsWidth(fm, duration_str);
 
     int max_name_width = option.rect.width();
 
@@ -97,3 +99,4 @@ void ProjectExplorerIconViewItemDelegate::paint(QPainter *painter, const QStyleO
   }
 }
 
+}

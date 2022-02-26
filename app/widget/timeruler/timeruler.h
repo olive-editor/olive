@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,80 +24,51 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "common/rational.h"
-#include "widget/timelinewidget/view/timelineplayhead.h"
+#include "common/timerange.h"
+#include "seekablewidget.h"
+#include "render/playbackcache.h"
 
-class TimeRuler : public QWidget
+namespace olive {
+
+class TimeRuler : public SeekableWidget
 {
   Q_OBJECT
 public:
-  TimeRuler(bool text_visible = true, QWidget* parent = nullptr);
-
-  void SetTextVisible(bool e);
-
-  const double& scale();
-  void SetScale(const double& d);
-
-  void SetTimebase(const rational& r);
+  TimeRuler(bool text_visible = true, bool cache_status_visible = false, QWidget* parent = nullptr);
 
   void SetCenteredText(bool c);
 
-  void SetSnapping(bool snapping);
-
-  const int64_t& GetTime();
-
-public slots:
-  void SetTime(const int64_t &r);
-
-  void SetScroll(int s);
+  void SetPlaybackCache(PlaybackCache* cache);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
 
-  virtual void mousePressEvent(QMouseEvent *event) override;
-  virtual void mouseMoveEvent(QMouseEvent *event) override;
-
-signals:
-  /**
-   * @brief Signal emitted whenever the time changes on this ruler, either by user or programatically
-   */
-  void TimeChanged(int64_t);
+  virtual void TimebaseChangedEvent(const rational& tb) override;
 
 private:
-  void DrawPlayhead(QPainter* p, int x, int y);
+  void UpdateHeight();
 
-  double ScreenToUnitFloat(int screen);
+  int CacheStatusHeight() const;
 
-  int64_t ScreenToUnit(int screen);
-
-  void SeekToScreenPoint(int screen);
-
-  int text_height_;
+  int cache_status_height_;
 
   int minimum_gap_between_lines_;
-
-  int playhead_width_;
-
-  int scroll_;
 
   bool text_visible_;
 
   bool centered_text_;
 
-  double scale_;
-
-  rational timebase_;
-
-  double timebase_dbl_;
-
   double timebase_flipped_dbl_;
 
-  int64_t time_;
+  bool show_cache_status_;
 
-  TimelinePlayhead style_;
+  PlaybackCache* playback_cache_;
 
-  bool snapping_;
+private slots:
+  void ShowContextMenu();
 
 };
+
+}
 
 #endif // TIMERULER_H

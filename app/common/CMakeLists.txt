@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,25 +16,52 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  common/bezier.cpp
+  common/bezier.h
+  common/cancelableobject.h
   common/channellayout.h
   common/clamp.h
-  common/debug.h
+  common/commandlineparser.cpp
+  common/commandlineparser.h
+  common/crashpadinterface.cpp
+  common/crashpadinterface.h
+  common/crashpadutils.h
   common/debug.cpp
-  common/filefunctions.h
+  common/debug.h
+  common/decibel.h
+  common/define.h
+  common/ffmpegutils.cpp
+  common/ffmpegutils.h
   common/filefunctions.cpp
-  common/flipmodifiers.h
+  common/filefunctions.h
   common/flipmodifiers.cpp
+  common/flipmodifiers.h
+  common/functiontimer.h
+  common/jobtime.cpp
+  common/jobtime.h
   common/lerp.h
+  common/memorypool.h
+  common/ocioutils.cpp
+  common/ocioutils.h
+  common/oiioutils.cpp
+  common/oiioutils.h
+  common/otioutils.h
+  common/qtutils.cpp
+  common/qtutils.h
   common/range.h
-  common/rational.h
+  common/ratiodialog.cpp
+  common/ratiodialog.h
   common/rational.cpp
-  common/qtversionabstraction.h
-  common/qtversionabstraction.cpp
-  common/threadedobject.h
+  common/rational.h
   common/threadedobject.cpp
-  common/timecodefunctions.h
+  common/threadedobject.h
+  common/threadsafemap.h
   common/timecodefunctions.cpp
-  common/timerange.h
+  common/timecodefunctions.h
   common/timerange.cpp
+  common/timerange.h
+  common/tohex.h
+  common/xmlutils.cpp
+  common/xmlutils.h
   PARENT_SCOPE
 )

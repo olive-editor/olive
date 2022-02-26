@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
 
 #include "ui/icons/icons.h"
 
+namespace olive {
+
 ProjectToolbar::ProjectToolbar(QWidget *parent) :
   QWidget(parent)
 {
@@ -34,43 +36,35 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   layout->setMargin(0);
 
   new_button_ = new QPushButton();
-  connect(new_button_, SIGNAL(clicked(bool)), this, SIGNAL(NewClicked()));
+  connect(new_button_, &QPushButton::clicked, this, &ProjectToolbar::NewClicked);
   layout->addWidget(new_button_);
 
   open_button_ = new QPushButton();
-  connect(open_button_, SIGNAL(clicked(bool)), this, SIGNAL(OpenClicked()));
+  connect(open_button_, &QPushButton::clicked, this, &ProjectToolbar::OpenClicked);
   layout->addWidget(open_button_);
 
   save_button_ = new QPushButton();
-  connect(save_button_, SIGNAL(clicked(bool)), this, SIGNAL(SaveClicked()));
+  connect(save_button_, &QPushButton::clicked, this, &ProjectToolbar::SaveClicked);
   layout->addWidget(save_button_);
-
-  undo_button_ = new QPushButton();
-  connect(undo_button_, SIGNAL(clicked(bool)), this, SIGNAL(UndoClicked()));
-  layout->addWidget(undo_button_);
-
-  redo_button_ = new QPushButton();
-  connect(redo_button_, SIGNAL(clicked(bool)), this, SIGNAL(RedoClicked()));
-  layout->addWidget(redo_button_);
 
   search_field_ = new QLineEdit();
   search_field_->setClearButtonEnabled(true);
-  connect(search_field_, SIGNAL(textChanged(const QString &)), this, SIGNAL(SearchChanged(const QString&)));
+  connect(search_field_, &QLineEdit::textChanged, this, &ProjectToolbar::SearchChanged);
   layout->addWidget(search_field_);
 
   tree_button_ = new QPushButton();
   tree_button_->setCheckable(true);
-  connect(tree_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
+  connect(tree_button_, &QPushButton::clicked, this, &ProjectToolbar::ViewButtonClicked);
   layout->addWidget(tree_button_);
 
   list_button_ = new QPushButton();
   list_button_->setCheckable(true);
-  connect(list_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
+  connect(list_button_, &QPushButton::clicked, this, &ProjectToolbar::ViewButtonClicked);
   layout->addWidget(list_button_);
 
   icon_button_ = new QPushButton();
   icon_button_->setCheckable(true);
-  connect(icon_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
+  connect(icon_button_, &QPushButton::clicked, this, &ProjectToolbar::ViewButtonClicked);
   layout->addWidget(icon_button_);
 
   // Group Tree/List/Icon view buttons into a button group for easy exclusive-buttons
@@ -84,16 +78,16 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   UpdateIcons();
 }
 
-void ProjectToolbar::SetView(olive::ProjectViewType type)
+void ProjectToolbar::SetView(ViewType type)
 {
   switch (type) {
-  case olive::TreeView:
+  case TreeView:
     tree_button_->setChecked(true);
     break;
-  case olive::IconView:
+  case IconView:
     icon_button_->setChecked(true);
     break;
-  case olive::ListView:
+  case ListView:
     list_button_->setChecked(true);
     break;
   }
@@ -114,39 +108,37 @@ void ProjectToolbar::Retranslate()
   new_button_->setToolTip(tr("New..."));
   open_button_->setToolTip(tr("Open Project"));
   save_button_->setToolTip(tr("Save Project"));
-  undo_button_->setToolTip(tr("Undo"));
-  redo_button_->setToolTip(tr("Redo"));
 
   search_field_->setPlaceholderText(tr("Search media, markers, etc."));
 
-  tree_button_->setToolTip(tr("Switch to Tree View"));
-  list_button_->setToolTip(tr("Switch to List View"));
-  icon_button_->setToolTip(tr("Switch to Icon View"));
+  tree_button_->setToolTip(tr("Tree View"));
+  list_button_->setToolTip(tr("List View"));
+  icon_button_->setToolTip(tr("Icon View"));
 }
 
 void ProjectToolbar::UpdateIcons()
 {
-  new_button_->setIcon(olive::icon::New);
-  open_button_->setIcon(olive::icon::Open);
-  save_button_->setIcon(olive::icon::Save);
-  undo_button_->setIcon(olive::icon::Undo);
-  redo_button_->setIcon(olive::icon::Redo);
-  tree_button_->setIcon(olive::icon::TreeView);
-  list_button_->setIcon(olive::icon::ListView);
-  icon_button_->setIcon(olive::icon::IconView);
+  new_button_->setIcon(icon::New);
+  open_button_->setIcon(icon::Open);
+  save_button_->setIcon(icon::Save);
+  tree_button_->setIcon(icon::TreeView);
+  list_button_->setIcon(icon::ListView);
+  icon_button_->setIcon(icon::IconView);
 }
 
 void ProjectToolbar::ViewButtonClicked()
 {
   // Determine which view button triggered this slot and emit a signal accordingly
   if (sender() == tree_button_) {
-    emit ViewChanged(olive::TreeView);
+    emit ViewChanged(ProjectToolbar::TreeView);
   } else if (sender() == icon_button_) {
-    emit ViewChanged(olive::IconView);
+    emit ViewChanged(ProjectToolbar::IconView);
   } else if (sender() == list_button_) {
-    emit ViewChanged(olive::ListView);
+    emit ViewChanged(ProjectToolbar::ListView);
   } else {
     // Assert that it was one of the above buttons
     abort();
   }
+}
+
 }

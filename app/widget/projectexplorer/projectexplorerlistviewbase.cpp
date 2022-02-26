@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 
 #include <QMouseEvent>
 
+namespace olive {
+
 ProjectExplorerListViewBase::ProjectExplorerListViewBase(QWidget *parent) :
   QListView(parent)
 {
@@ -40,12 +42,16 @@ ProjectExplorerListViewBase::ProjectExplorerListViewBase(QWidget *parent) :
 
 void ProjectExplorerListViewBase::mouseDoubleClickEvent(QMouseEvent *event)
 {
+  // Cache here so if the index becomes invalid after the base call, we still know the truth
+  bool item_at_location = indexAt(event->pos()).isValid();
+
   // Perform default double click functions
   QListView::mouseDoubleClickEvent(event);
 
-  // Get the index at whatever position was double clicked
-  QModelIndex index = indexAt(event->pos());
+  // QAbstractItemView already has a doubleClicked() signal, but we emit another here for double clicking empty space
+  if (!item_at_location) {
+    emit DoubleClickedEmptyArea();
+  }
+}
 
-  // Emit the signal with this index
-  emit DoubleClickedView(index);
 }

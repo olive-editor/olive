@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2021 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "preferenceskeyboardtab.h"
 
 #include <QFileDialog>
@@ -7,10 +27,11 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+namespace olive {
+
 PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
 {
   QVBoxLayout* shortcut_layout = new QVBoxLayout(this);
-  shortcut_layout->setMargin(0);
 
   QLineEdit* key_search_line = new QLineEdit();
   key_search_line->setPlaceholderText(tr("Search for action or shortcut"));
@@ -49,8 +70,10 @@ PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
   setup_kbd_shortcuts(menubar);
 }
 
-void PreferencesKeyboardTab::Accept()
+void PreferencesKeyboardTab::Accept(MultiUndoCommand *command)
 {
+  Q_UNUSED(command)
+
   // Save keyboard shortcuts
   for (int i=0;i<key_shortcut_fields_.size();i++) {
     key_shortcut_fields_.at(i)->set_action_shortcut();
@@ -127,6 +150,9 @@ bool PreferencesKeyboardTab::refine_shortcut_list(const QString &s, QTreeWidgetI
     for (int i=0;i<keyboard_tree_->topLevelItemCount();i++) {
       refine_shortcut_list(s, keyboard_tree_->topLevelItem(i));
     }
+
+    // Return value is `all_children_are_hidden` which doesn't matter at the top level
+    return false;
   } else {
     parent->setExpanded(!s.isEmpty());
 
@@ -135,7 +161,9 @@ bool PreferencesKeyboardTab::refine_shortcut_list(const QString &s, QTreeWidgetI
     for (int i=0;i<parent->childCount();i++) {
       QTreeWidgetItem* item = parent->child(i);
       if (item->childCount() > 0) {
-        all_children_are_hidden = refine_shortcut_list(s, item);
+        if (!refine_shortcut_list(s, item)) {
+          all_children_are_hidden = false;
+        }
       } else {
         item->setHidden(false);
         if (s.isEmpty()) {
@@ -160,7 +188,6 @@ bool PreferencesKeyboardTab::refine_shortcut_list(const QString &s, QTreeWidgetI
 
     return all_children_are_hidden;
   }
-  return true;
 }
 
 void PreferencesKeyboardTab::load_shortcut_file() {
@@ -168,7 +195,7 @@ void PreferencesKeyboardTab::load_shortcut_file() {
   if (!fn.isEmpty()) {
     QFile f(fn);
     if (f.exists() && f.open(QFile::ReadOnly)) {
-      QByteArray ba = f.readAll();
+      QString ba = f.readAll();
       f.close();
       for (int i=0;i<key_shortcut_fields_.size();i++) {
         int index = ba.indexOf(key_shortcut_fields_.at(i)->action_name());
@@ -215,4 +242,6 @@ void PreferencesKeyboardTab::save_shortcut_file() {
       QMessageBox::critical(this, tr("Error saving shortcuts"), tr("Failed to open file for writing"));
     }
   }
+}
+
 }

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,23 +20,48 @@
 
 #include "stringslider.h"
 
+namespace olive {
+
+#define super SliderBase
+
 StringSlider::StringSlider(QWidget* parent) :
-  SliderBase(kString, parent)
+  super(parent)
 {
-  connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
+  SetValue(QString());
+
+  connect(label(), &SliderLabel::LabelReleased, this, &SliderBase::ShowEditor);
 }
 
-QString StringSlider::GetValue()
+QString StringSlider::GetValue() const
 {
-  return Value().toString();
+  return GetValueInternal().toString();
 }
 
 void StringSlider::SetValue(const QString &v)
 {
-  SliderBase::SetValue(v);
+  SetValueInternal(v);
 }
 
-void StringSlider::ConvertValue(QVariant v)
+void StringSlider::SetDefaultValue(const QString &v)
 {
-  emit ValueChanged(v.toString());
+  super::SetDefaultValue(v);
+}
+
+QString StringSlider::ValueToString(const QVariant &v) const
+{
+  QString vstr = v.toString();
+  return (vstr.isEmpty()) ? tr("(none)") : vstr;
+}
+
+QVariant StringSlider::StringToValue(const QString &s, bool *ok) const
+{
+  *ok = true;
+  return s;
+}
+
+void StringSlider::ValueSignalEvent(const QVariant &value)
+{
+  emit ValueChanged(value.toString());
+}
+
 }

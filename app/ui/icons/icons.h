@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,10 @@
 
 #include <QIcon>
 
+#include "common/define.h"
+
 namespace olive {
+
 namespace icon {
 
 // Playback Icons
@@ -62,6 +65,9 @@ extern QIcon Video;
 extern QIcon Audio;
 extern QIcon Image;
 
+// Node Icons
+extern QIcon MiniMap;
+
 // Triangle Arrows
 extern QIcon TriUp;
 extern QIcon TriLeft;
@@ -76,6 +82,11 @@ extern QIcon Record;
 extern QIcon Add;
 extern QIcon Error;
 extern QIcon DirUp;
+extern QIcon Clock;
+extern QIcon Diamond;
+extern QIcon Plus;
+extern QIcon Minus;
+extern QIcon AddEffect;
 
 /**
  * @brief Create an icon object loaded from file
@@ -117,6 +128,7 @@ QIcon Create(const QString &theme, const QString& name);
 void LoadAll(const QString &theme);
 
 }
+
 }
 
 #endif // ICONS_H

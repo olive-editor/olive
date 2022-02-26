@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,12 +20,16 @@
 
 #include "solid.h"
 
-SolidGenerator::SolidGenerator() :
-  texture_(nullptr)
+#include "render/color.h"
+
+namespace olive {
+
+const QString SolidGenerator::kColorInput = QStringLiteral("color_in");
+
+SolidGenerator::SolidGenerator()
 {
-  color_input_ = new NodeInput("color_in");
-  color_input_->set_data_type(NodeParam::kColor);
-  AddInput(color_input_);
+  // Default to a color that isn't black
+  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
 Node *SolidGenerator::copy() const
@@ -40,12 +44,12 @@ QString SolidGenerator::Name() const
 
 QString SolidGenerator::id() const
 {
-  return "org.olivevideoeditor.Olive.solidgenerator";
+  return QStringLiteral("org.olivevideoeditor.Olive.solidgenerator");
 }
 
-QString SolidGenerator::Category() const
+QVector<Node::CategoryID> SolidGenerator::Category() const
 {
-  return tr("Generator");
+  return {kCategoryGenerator};
 }
 
 QString SolidGenerator::Description() const
@@ -53,18 +57,23 @@ QString SolidGenerator::Description() const
   return tr("Generate a solid color.");
 }
 
-QString SolidGenerator::Code() const
-{
-  return "#version 110\n"
-         "\n"
-         "uniform vec4 color_in;\n"
-         "\n"
-         "void main(void) {\n"
-         "  gl_FragColor = color_in;\n"
-         "}\n";
-}
-
 void SolidGenerator::Retranslate()
 {
-  color_input_->set_name(tr("Color"));
+  SetInputName(kColorInput, tr("Color"));
+}
+
+void SolidGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  ShaderJob job;
+  job.InsertValue(value);
+  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+}
+
+ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const
+{
+  Q_UNUSED(shader_id)
+
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
+}
+
 }

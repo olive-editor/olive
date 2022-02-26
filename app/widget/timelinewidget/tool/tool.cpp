@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,154 +20,128 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
-#include <float.h>
+#include "node/block/transition/transition.h"
 
-#include "common/range.h"
+namespace olive {
 
-TimelineWidget::Tool::Tool(TimelineWidget *parent) :
+const int TimelineTool::kDefaultDistanceFromOutput = -4;
+
+TimelineTool::TimelineTool(TimelineWidget *parent) :
   dragging_(false),
   parent_(parent)
 {
 }
 
-TimelineWidget::Tool::~Tool()
+TimelineTool::~TimelineTool()
 {
 }
 
-TimelineWidget *TimelineWidget::Tool::parent()
+TimelineWidget *TimelineTool::parent()
 {
   return parent_;
 }
 
-olive::timeline::MovementMode TimelineWidget::Tool::FlipTrimMode(const olive::timeline::MovementMode &trim_mode)
+Sequence *TimelineTool::sequence()
 {
-  if (trim_mode == olive::timeline::kTrimIn) {
-    return olive::timeline::kTrimOut;
+  return parent_->sequence();
+}
+
+Timeline::MovementMode TimelineTool::FlipTrimMode(const Timeline::MovementMode &trim_mode)
+{
+  if (trim_mode == Timeline::kTrimIn) {
+    return Timeline::kTrimOut;
   }
 
-  if (trim_mode == olive::timeline::kTrimOut) {
-    return olive::timeline::kTrimIn;
+  if (trim_mode == Timeline::kTrimOut) {
+    return Timeline::kTrimIn;
   }
 
   return trim_mode;
 }
 
-TimelineViewBlockItem *TimelineWidget::Tool::GetItemAtScenePos(const TimelineCoordinate& coord)
+rational TimelineTool::SnapMovementToTimebase(const rational &start, rational movement, const rational &timebase)
 {
-  QMapIterator<Block*, TimelineViewBlockItem*> iterator(parent()->block_items_);
+  rational proposed_position = start + movement;
+  rational snapped = Timecode::snap_time_to_timebase(proposed_position, timebase);
 
-  while (iterator.hasNext()) {
-    iterator.next();
-
-    Block* b = iterator.key();
-    TimelineViewBlockItem* item = iterator.value();
-
-    if (b->in() <= coord.GetFrame()
-        && b->out() > coord.GetFrame()
-        && item->Track() == coord.GetTrack()) {
-      return item;
-    }
+  if (proposed_position != snapped) {
+    movement += snapped - proposed_position;
   }
 
-  return nullptr;
+  return movement;
 }
 
-void AttemptSnap(const QList<double>& proposed_pts,
-                 double compare_point,
-                 const QList<rational>& start_times,
-                 rational compare_time,
-                 rational* movement,
-                 double* diff) {
-  const qreal kSnapRange = 10; // FIXME: Hardcoded number
-
-  for (int i=0;i<proposed_pts.size();i++) {
-    // Attempt snapping to clip out point
-    if (InRange(proposed_pts.at(i), compare_point, kSnapRange)) {
-      double this_diff = qAbs(compare_point - proposed_pts.at(i));
-
-      if (this_diff < *diff
-          && start_times.at(i) + *movement >= 0) {
-        *movement = compare_time - start_times.at(i);
-        *diff = this_diff;
-      }
-    }
-  }
-}
-
-rational TimelineWidget::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
+rational TimelineTool::ValidateTimeMovement(rational movement)
 {
-  foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != olive::timeline::kMove) {
+  bool first_ghost = true;
+
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    if (ghost->GetMode() != Timeline::kMove) {
       continue;
     }
 
     // Prevents any ghosts from going below 0:00:00 time
-    if (ghost->In() + movement < 0) {
-      movement = -ghost->In();
+    if (ghost->GetIn() + movement < 0) {
+      movement = -ghost->GetIn();
+    } else if (first_ghost) {
+      // Ensure ghost is snapped to a grid
+      movement = SnapMovementToTimebase(ghost->GetIn(), movement, parent()->GetTimebaseForTrackType(ghost->GetTrack().type()));
+
+      first_ghost = false;
     }
   }
 
   return movement;
 }
 
-int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> ghosts)
+int TimelineTool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*>& ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    // Prevents any ghosts from going to a non-existent negative track
-    if (ghost->Track().index() + movement < 0) {
-      if (ghost->mode() != olive::timeline::kMove) {
-        continue;
-      }
+    if (ghost->GetMode() != Timeline::kMove) {
+      continue;
+    }
 
-      movement = -ghost->Track().index();
+    if (!ghost->GetCanMoveTracks()) {
+
+      return 0;
+
+    } else if (ghost->GetTrack().index() + movement < 0) {
+
+      // Prevents any ghosts from going to a non-existent negative track
+      movement = -ghost->GetTrack().index();
+
     }
   }
 
   return movement;
 }
 
-bool TimelineWidget::Tool::SnapPoint(QList<rational> start_times, rational* movement, int snap_points)
+void TimelineTool::GetGhostData(rational *earliest_point, rational *latest_point)
 {
-  double diff = DBL_MAX;
+  rational ep = RATIONAL_MAX;
+  rational lp = RATIONAL_MIN;
 
-  QList<double> proposed_pts;
-
-  foreach (rational s, start_times) {
-    proposed_pts.append((s + *movement).toDouble() * parent()->scale_);
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    ep = qMin(ep, ghost->GetAdjustedIn());
+    lp = qMax(lp, ghost->GetAdjustedOut());
   }
 
-  if (snap_points & kSnapToPlayhead) {
-
-
-    rational playhead_abs_time = rational(parent()->playhead_ * parent()->timebase().numerator(),
-                                          parent()->timebase().denominator());
-
-    qreal playhead_pos = playhead_abs_time.toDouble() * parent()->scale_;
-
-    AttemptSnap(proposed_pts, playhead_pos, start_times, playhead_abs_time, movement, &diff);
+  if (earliest_point) {
+    *earliest_point = ep;
   }
 
-  if (snap_points & kSnapToClips) {
-    QMapIterator<Block*, TimelineViewBlockItem*> iterator(parent()->block_items_);
-
-    while (iterator.hasNext()) {
-      iterator.next();
-
-      TimelineViewBlockItem* item = iterator.value();
-
-      if (item != nullptr) {
-        qreal rect_left = item->x();
-        qreal rect_right = rect_left + item->rect().width();
-
-        // Attempt snapping to clip in point
-        AttemptSnap(proposed_pts, rect_left, start_times, item->block()->in(), movement, &diff);
-
-        // Attempt snapping to clip out point
-        AttemptSnap(proposed_pts, rect_right, start_times, item->block()->out(), movement, &diff);
-      }
-    }
+  if (latest_point) {
+    *latest_point = lp;
   }
+}
 
+void TimelineTool::InsertGapsAtGhostDestination(olive::MultiUndoCommand *command)
+{
+  rational earliest_point, latest_point;
 
-  return (diff < DBL_MAX);
+  GetGhostData(&earliest_point, &latest_point);
+
+  parent()->InsertGapsAt(earliest_point, latest_point - earliest_point, command);
+}
+
 }

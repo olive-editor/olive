@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,12 +22,11 @@
 
 #include "task/taskmanager.h"
 
-TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
-  PanelWidget(parent)
-{
-  // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("TaskManagerPanel");
+namespace olive {
 
+TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
+  PanelWidget(QStringLiteral("TaskManagerPanel"), parent)
+{
   // Create task view
   view_ = new TaskView(this);
 
@@ -35,21 +34,18 @@ TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   setWidget(view_);
 
   // Connect task view to the task manager
-  connect(&olive::task_manager, SIGNAL(TaskAdded(Task*)), view_, SLOT(AddTask(Task*)));
+  connect(TaskManager::instance(), &TaskManager::TaskAdded, view_, &TaskView::AddTask);
+  connect(TaskManager::instance(), &TaskManager::TaskRemoved, view_, &TaskView::RemoveTask);
+  connect(TaskManager::instance(), &TaskManager::TaskFailed, view_, &TaskView::TaskFailed);
+  connect(view_, &TaskView::TaskCancelled, TaskManager::instance(), &TaskManager::CancelTask);
 
   // Set strings
   Retranslate();
 }
 
-void TaskManagerPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void TaskManagerPanel::Retranslate()
 {
   SetTitle(tr("Task Manager"));
+}
+
 }

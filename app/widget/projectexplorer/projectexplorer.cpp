@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,15 +21,31 @@
 #include "projectexplorer.h"
 
 #include <QDebug>
-#include <QMenu>
+#include <QDesktopServices>
+#include <QDir>
+#include <QMessageBox>
+#include <QProcess>
+#include <QUrl>
 #include <QVBoxLayout>
 
+#include "common/define.h"
+#include "core.h"
 #include "dialog/footageproperties/footageproperties.h"
-#include "projectexplorerdefines.h"
+#include "dialog/sequence/sequence.h"
+#include "projectexplorerundo.h"
+#include "task/precache/precachetask.h"
+#include "task/taskmanager.h"
+#include "widget/menu/menu.h"
+#include "widget/menu/menushared.h"
+#include "window/mainwindow/mainwindow.h"
+#include "window/mainwindow/mainwindowundo.h"
+#include "widget/nodeview/nodeviewundo.h"
+#include "widget/timelinewidget/timelinewidget.h"
+
+namespace olive {
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QWidget(parent),
-  view_type_(olive::TreeView),
   model_(this)
 {
   // Create layout
@@ -39,16 +55,22 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
 
   // Set up navigation bar
   nav_bar_ = new ProjectExplorerNavigation(this);
-  connect(nav_bar_, SIGNAL(SizeChanged(int)), this, SLOT(SizeChangedSlot(int)));
-  connect(nav_bar_, SIGNAL(DirectoryUpClicked()), this, SLOT(DirUpSlot()));
+  connect(nav_bar_, &ProjectExplorerNavigation::SizeChanged, this, &ProjectExplorer::SizeChangedSlot);
+  connect(nav_bar_, &ProjectExplorerNavigation::DirectoryUpClicked, this, &ProjectExplorer::DirUpSlot);
   layout->addWidget(nav_bar_);
 
   // Set up stacked widget
   stacked_widget_ = new QStackedWidget(this);
   layout->addWidget(stacked_widget_);
 
+  // Set up sort filter proxy model
+  sort_model_.setSourceModel(&model_);
+  sort_model_.setSortRole(ProjectViewModel::kInnerTextRole);
+
   // Add tree view to stacked widget
   tree_view_ = new ProjectExplorerTreeView(stacked_widget_);
+  tree_view_->setSortingEnabled(true);
+  tree_view_->sortByColumn(0, Qt::AscendingOrder);
   tree_view_->setContextMenuPolicy(Qt::CustomContextMenu);
   AddView(tree_view_);
 
@@ -63,57 +85,59 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   AddView(icon_view_);
 
   // Set default view to tree view
-  set_view_type(olive::TreeView);
+  set_view_type(ProjectToolbar::TreeView);
 
   // Set default icon size
-  SizeChangedSlot(olive::kProjectIconSizeDefault);
+  SizeChangedSlot(kProjectIconSizeDefault);
 
   // Set rename timer timeout
   rename_timer_.setInterval(500);
-  connect(&rename_timer_, SIGNAL(timeout()), this, SLOT(RenameTimerSlot()));
+  connect(&rename_timer_, &QTimer::timeout, this, &ProjectExplorer::RenameTimerSlot);
 
-  connect(tree_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
-  connect(list_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
-  connect(icon_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
+  connect(tree_view_, &ProjectExplorerTreeView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
+  connect(list_view_, &ProjectExplorerListView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
+  connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
 }
 
-const olive::ProjectViewType &ProjectExplorer::view_type()
+const ProjectToolbar::ViewType &ProjectExplorer::view_type() const
 {
   return view_type_;
 }
 
-void ProjectExplorer::set_view_type(olive::ProjectViewType type)
+void ProjectExplorer::set_view_type(ProjectToolbar::ViewType type)
 {
   view_type_ = type;
 
   // Set widget based on view type
   switch (view_type_) {
-  case olive::TreeView:
+  case ProjectToolbar::TreeView:
     stacked_widget_->setCurrentWidget(tree_view_);
     nav_bar_->setVisible(false);
     break;
-  case olive::ListView:
+  case ProjectToolbar::ListView:
     stacked_widget_->setCurrentWidget(list_view_);
     nav_bar_->setVisible(true);
     break;
-  case olive::IconView:
+  case ProjectToolbar::IconView:
     stacked_widget_->setCurrentWidget(icon_view_);
     nav_bar_->setVisible(true);
     break;
   }
 }
 
-void ProjectExplorer::Edit(Item *item)
+void ProjectExplorer::Edit(Node *item)
 {
-  CurrentView()->edit(model_.CreateIndexFromItem(item));
+  CurrentView()->edit(sort_model_.mapFromSource(model_.CreateIndexFromItem(item)));
 }
 
 void ProjectExplorer::AddView(QAbstractItemView *view)
 {
-  view->setModel(&model_);
+  view->setModel(&sort_model_);
   view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  connect(view, SIGNAL(DoubleClickedView(const QModelIndex&)), this, SLOT(DoubleClickViewSlot(const QModelIndex&)));
-  connect(view, SIGNAL(clicked(const QModelIndex&)), this, SLOT(ItemClickedSlot(const QModelIndex&)));
+  connect(view, &QAbstractItemView::clicked, this, &ProjectExplorer::ItemClickedSlot);
+  connect(view, &QAbstractItemView::doubleClicked, this, &ProjectExplorer::ItemDoubleClickedSlot);
+  connect(view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectExplorer::ViewSelectionChanged);
+  connect(view, SIGNAL(DoubleClickedEmptyArea()), this, SLOT(ViewEmptyAreaDoubleClickedSlot()));
   stacked_widget_->addWidget(view);
 }
 
@@ -128,8 +152,8 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 
   // Set navbar text to folder's name
   if (index.isValid()) {
-    Folder* f = static_cast<Folder*>(index.internalPointer());
-    nav_bar_->set_text(f->name());
+    Folder* f = static_cast<Folder*>(sort_model_.mapToSource(index).internalPointer());
+    nav_bar_->set_text(f->GetLabel());
   } else {
     // Or set it to an empty string if the index is valid (which means we're browsing to the root directory)
     nav_bar_->set_text(QString());
@@ -139,7 +163,90 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
   nav_bar_->set_dir_up_enabled(index.isValid());
 }
 
-QAbstractItemView *ProjectExplorer::CurrentView()
+int ProjectExplorer::ConfirmItemDeletion(Node* item)
+{
+  QMessageBox msgbox(this);
+  msgbox.setWindowTitle(tr("Confirm Item Deletion"));
+  msgbox.setIcon(QMessageBox::Warning);
+
+  QStringList connected_nodes_names;
+  foreach (const Node::OutputConnection& connected, item->output_connections()) {
+    if (!dynamic_cast<Folder*>(connected.second.node())) {
+      connected_nodes_names.append(GetHumanReadableNodeName(connected.second.node()));
+    }
+  }
+
+  msgbox.setText(tr("The item \"%1\" is currently connected to the following nodes:\n\n"
+                    "%2\n\n"
+                    "Are you sure you wish to delete this footage?")
+                 .arg(GetHumanReadableNodeName(item), connected_nodes_names.join('\n')));
+
+  // Set up buttons
+  msgbox.addButton(QMessageBox::Yes);
+  msgbox.addButton(QMessageBox::YesToAll);
+  msgbox.addButton(QMessageBox::No);
+  msgbox.addButton(QMessageBox::Cancel);
+
+  // Run messagebox
+  return msgbox.exec();
+}
+
+bool ProjectExplorer::DeleteItemsInternal(const QVector<Node*>& selected, bool& check_if_item_is_in_use, MultiUndoCommand* command)
+{
+  for (int i=0; i<selected.size(); i++) {
+    // Delete sequences first
+    Node* node = selected.at(i);
+
+    bool can_delete_item = true;
+
+    if (check_if_item_is_in_use) {
+      foreach (const Node::OutputConnection& oc, node->output_connections()) {
+        Folder* folder_test = dynamic_cast<Folder*>(oc.second.node());
+        if (!folder_test) {
+          // This sequence outputs to SOMETHING, confirm the user if they want to delete this
+          int r = ConfirmItemDeletion(node);
+
+          switch (r) {
+          case QMessageBox::No:
+            can_delete_item = false;
+            break;
+          case QMessageBox::Cancel:
+            return false;
+          case QMessageBox::YesToAll:
+            check_if_item_is_in_use = false;
+            break;
+          }
+        }
+      }
+    }
+
+    if (can_delete_item) {
+      Sequence* sequence = dynamic_cast<Sequence*>(node);
+      if (sequence && Core::instance()->main_window()->IsSequenceOpen(sequence)) {
+        command->add_child(new CloseSequenceCommand(sequence));
+      }
+
+      if (node->folder()) {
+        command->add_child(new Folder::RemoveElementCommand(node->folder(), node));
+      }
+
+      command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(node));
+    }
+  }
+
+  return true;
+}
+
+QString ProjectExplorer::GetHumanReadableNodeName(Node *node)
+{
+  if (node->GetLabel().isEmpty()) {
+    return node->Name();
+  } else {
+    return tr("%1 (%2)").arg(node->GetLabel(), node->Name());
+  }
+}
+
+QAbstractItemView *ProjectExplorer::CurrentView() const
 {
   return static_cast<QAbstractItemView*>(stacked_widget_->currentWidget());
 }
@@ -147,14 +254,19 @@ QAbstractItemView *ProjectExplorer::CurrentView()
 void ProjectExplorer::ItemClickedSlot(const QModelIndex &index)
 {
   if (index.isValid()) {
-    if (clicked_index_ == index) {
-      // The item has been clicked more than once, start a timer for renaming
-      rename_timer_.start();
-    } else {
-      // Cache this index for the next click
-      clicked_index_ = index;
+    if (CurrentView()->selectionModel()->selectedRows().size() == 1) {
+      if (clicked_index_ == index) {
+        // The item has been clicked more than once, start a timer for renaming
+        rename_timer_.start();
+      } else {
+        // Cache this index for the next click
+        clicked_index_ = index;
 
-      // If the rename timer had started, stop it now
+        // If the rename timer had started, stop it now
+        rename_timer_.stop();
+      }
+    } else {
+      clicked_index_ = QModelIndex();
       rename_timer_.stop();
     }
   } else {
@@ -163,30 +275,33 @@ void ProjectExplorer::ItemClickedSlot(const QModelIndex &index)
   }
 }
 
-void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
+void ProjectExplorer::ViewEmptyAreaDoubleClickedSlot()
 {
-  if (index.isValid()) {
+  // Ensure no attempts to rename are made
+  clicked_index_ = QModelIndex();
+  rename_timer_.stop();
 
-    // Retrieve source item from index
-    Item* i = static_cast<Item*>(index.internalPointer());
+  emit DoubleClickedItem(nullptr);
+}
 
-    // If the item is a folder, browse to it
-    if (i->CanHaveChildren()
-        && (view_type() == olive::ListView || view_type() == olive::IconView)) {
+void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
+{
+  // Ensure no attempts to rename are made
+  clicked_index_ = QModelIndex();
+  rename_timer_.stop();
 
-      BrowseToFolder(index);
+  // Retrieve source item from index
+  Node* i = static_cast<Node*>(sort_model_.mapToSource(index).internalPointer());
 
-    }
+  // If the item is a folder, browse to it
+  if (dynamic_cast<Folder*>(i) && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
 
-    // Emit a signal
-    emit DoubleClickedItem(i);
-
-  } else {
-
-    // Emit nullptr since no item was actually clicked on
-    emit DoubleClickedItem(nullptr);
+    BrowseToFolder(index);
 
   }
+
+  // Emit a signal
+  emit DoubleClickedItem(i);
 }
 
 void ProjectExplorer::SizeChangedSlot(int s)
@@ -219,44 +334,213 @@ void ProjectExplorer::RenameTimerSlot()
   rename_timer_.stop();
 }
 
-// FIXME: This is down here because of the code in ShowContextMenu() which may be unnecessary allowing this to be removed
-#include "core.h"
-
 void ProjectExplorer::ShowContextMenu()
 {
-  QMenu menu;
+  Menu menu;
+  Menu new_menu;
 
-  // FIXME: Support for multiple items and items other than Footage
-  QList<Item*> selected_items = SelectedItems();
+  context_menu_items_ = SelectedItems();
 
-  if (selected_items.isEmpty()) {
-    // FIXME: These are both duplicates of items from MainMenu, is there any way to re-use the code?
+  if (context_menu_items_.isEmpty()) {
+    // Items to show if no items are selected
+
+    // "New" menu
+    new_menu.setTitle(tr("&New"));
+    MenuShared::instance()->AddItemsForNewMenu(&new_menu);
+    menu.addMenu(&new_menu);
+
+    // "Import" action
     QAction* import_action = menu.addAction(tr("&Import..."));
-    connect(import_action, SIGNAL(triggered(bool)), &olive::core, SLOT(DialogImportShow()));
-
-    menu.addSeparator();
-
-    QAction* project_properties = menu.addAction(tr("&Project Properties..."));
-    connect(project_properties, SIGNAL(triggered(bool)), &olive::core, SLOT(DialogProjectPropertiesShow()));
+    connect(import_action, &QAction::triggered, Core::instance(), &Core::DialogImportShow);
   } else {
-    QAction* properties_action = menu.addAction(tr("P&roperties"));
 
-    if (selected_items.first()->type() == Item::kFootage) {
-      connect(properties_action, SIGNAL(triggered(bool)), this, SLOT(ShowFootagePropertiesDialog()));
+    // Actions to add when only one item is selected
+    if (context_menu_items_.size() == 1) {
+      Node* context_menu_item = context_menu_items_.first();
+
+      if (dynamic_cast<Folder*>(context_menu_item)) {
+
+        QAction* open_in_new_tab = menu.addAction(tr("Open in New Tab"));
+        connect(open_in_new_tab, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewTab);
+
+        QAction* open_in_new_window = menu.addAction(tr("Open in New Window"));
+        connect(open_in_new_window, &QAction::triggered, this, &ProjectExplorer::OpenContextMenuItemInNewWindow);
+
+      } else if (dynamic_cast<Footage*>(context_menu_item)) {
+
+        QString reveal_text;
+
+#if defined(Q_OS_WINDOWS)
+        reveal_text = tr("Reveal in Explorer");
+#elif defined(Q_OS_MAC)
+        reveal_text = tr("Reveal in Finder");
+#else
+        reveal_text = tr("Reveal in File Manager");
+#endif
+
+        QAction* reveal_action = menu.addAction(reveal_text);
+        connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
+
+      }
+
+      menu.addSeparator();
+    }
+
+    bool all_items_are_footage = true;
+    bool all_items_have_video_streams = true;
+    bool all_items_are_footage_or_sequence = true;
+
+    foreach (Node* i, context_menu_items_) {
+      Footage* footage_cast_test = dynamic_cast<Footage*>(i);
+      Sequence* sequence_cast_test = dynamic_cast<Sequence*>(i);
+
+      if (footage_cast_test && !footage_cast_test->HasEnabledVideoStreams()) {
+        all_items_have_video_streams = false;
+      }
+
+      if (!footage_cast_test) {
+        all_items_are_footage = false;
+      }
+
+      if (!footage_cast_test && !sequence_cast_test) {
+        all_items_are_footage_or_sequence = false;
+      }
+    }
+
+    if (all_items_are_footage && all_items_have_video_streams) {
+      Menu* proxy_menu = new Menu(tr("Pre-Cache"), &menu);
+      menu.addMenu(proxy_menu);
+
+      QVector<Sequence*> sequences = project()->root()->ListChildrenOfType<Sequence>();
+
+      if (sequences.isEmpty()) {
+        QAction* a = proxy_menu->addAction(tr("No sequences exist in project"));
+        a->setEnabled(false);
+      } else {
+        foreach (Sequence* i, sequences) {
+          QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->GetLabel()));
+          a->setData(Node::PtrToValue(i));
+        }
+
+        connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
+      }
+    }
+
+    Q_UNUSED(all_items_are_footage_or_sequence)
+
+    if (context_menu_items_.size() == 1) {
+      menu.addSeparator();
+
+      QAction* properties_action = menu.addAction(tr("P&roperties"));
+      connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowItemPropertiesDialog);
     }
   }
 
   menu.exec(QCursor::pos());
 }
 
-void ProjectExplorer::ShowFootagePropertiesDialog()
+void ProjectExplorer::ShowItemPropertiesDialog()
 {
-  // FIXME: Support for multiple items and items other than Footage
-  FootagePropertiesDialog fpd(this, static_cast<Footage*>(SelectedItems().first()));
-  fpd.exec();
+  Node* sel = context_menu_items_.first();
+
+  // FIXME: Support for multiple items
+  if (dynamic_cast<Footage*>(sel)) {
+
+    FootagePropertiesDialog fpd(this, static_cast<Footage*>(sel));
+    fpd.exec();
+
+  } else if (dynamic_cast<Folder*>(sel)) {
+
+    Core::instance()->LabelNodes(context_menu_items_);
+
+  } else if (dynamic_cast<Sequence*>(sel)) {
+
+    SequenceDialog sd(static_cast<Sequence*>(sel), SequenceDialog::kExisting, this);
+    sd.exec();
+
+  }
 }
 
-Project *ProjectExplorer::project()
+void ProjectExplorer::RevealSelectedFootage()
+{
+  Footage* footage = static_cast<Footage*>(context_menu_items_.first());
+
+#if defined(Q_OS_WINDOWS)
+  // Explorer
+  QStringList args;
+  args << "/select," << QDir::toNativeSeparators(footage->filename());
+  QProcess::startDetached("explorer", args);
+#elif defined(Q_OS_MAC)
+  QStringList args;
+  args << "-e";
+  args << "tell application \"Finder\"";
+  args << "-e";
+  args << "activate";
+  args << "-e";
+  args << "select POSIX file \""+footage->filename()+"\"";
+  args << "-e";
+  args << "end tell";
+  QProcess::startDetached("osascript", args);
+#else
+  QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(footage->filename()).dir().absolutePath()));
+#endif
+}
+
+void ProjectExplorer::OpenContextMenuItemInNewTab()
+{
+  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), false);
+}
+
+void ProjectExplorer::OpenContextMenuItemInNewWindow()
+{
+  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), true);
+}
+
+void ProjectExplorer::ContextMenuStartProxy(QAction *a)
+{
+  Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
+
+  // To get here, the `context_menu_items_` must be all kFootage
+  foreach (Node* item, context_menu_items_) {
+    Footage* f = static_cast<Footage*>(item);
+
+    int sz = f->InputArraySize(Footage::kVideoParamsInput);
+
+    for (int j=0; j<sz; j++) {
+      VideoParams vp = f->GetVideoParams(j);
+
+      if (vp.enabled()) {
+        // Start a background task for proxying
+        PreCacheTask* proxy_task = new PreCacheTask(f, j, sequence);
+        TaskManager::instance()->AddTask(proxy_task);
+      }
+    }
+  }
+}
+
+void ProjectExplorer::ViewSelectionChanged()
+{
+  QItemSelectionModel *model = static_cast<QItemSelectionModel *>(sender());
+
+  QModelIndexList selection = model->selectedIndexes();
+
+  QVector<Node *> nodes;
+
+  foreach (const QModelIndex &index, selection) {
+    Node *sel = static_cast<Node*>(sort_model_.mapToSource(index).internalPointer());
+    if (!nodes.contains(sel)) {
+      nodes.append(sel);
+    }
+  }
+
+  if (nodes.isEmpty()) {
+    nodes.append(get_root());
+  }
+
+  emit SelectionChanged(nodes);
+}
+
+Project *ProjectExplorer::project() const
 {
   return model_.project();
 }
@@ -266,18 +550,37 @@ void ProjectExplorer::set_project(Project *p)
   model_.set_project(p);
 }
 
-QList<Item *> ProjectExplorer::SelectedItems()
+Folder *ProjectExplorer::get_root() const
+{
+  QModelIndex root_index = sort_model_.mapToSource(tree_view_->rootIndex());
+
+  if (!root_index.isValid()) {
+    return project()->root();
+  }
+
+  return static_cast<Folder *>(root_index.internalPointer());
+}
+
+void ProjectExplorer::set_root(Folder *item)
+{
+  QModelIndex index = sort_model_.mapFromSource(model_.CreateIndexFromItem(item));
+
+  BrowseToFolder(index);
+  tree_view_->setRootIndex(index);
+}
+
+QVector<Node *> ProjectExplorer::SelectedItems() const
 {
   // Determine which view is active and get its selected indexes
   QModelIndexList index_list = CurrentView()->selectionModel()->selectedRows();
 
   // Convert indexes to item objects
-  QList<Item*> selected_items;
+  QVector<Node*> selected_items;
 
   for (int i=0;i<index_list.size();i++) {
-    const QModelIndex& index = index_list.at(i);
+    QModelIndex index = sort_model_.mapToSource(index_list.at(i));
 
-    Item* item = static_cast<Item*>(index.internalPointer());
+    Node* item = static_cast<Node*>(index.internalPointer());
 
     selected_items.append(item);
   }
@@ -285,7 +588,7 @@ QList<Item *> ProjectExplorer::SelectedItems()
   return selected_items;
 }
 
-Folder *ProjectExplorer::GetSelectedFolder()
+Folder *ProjectExplorer::GetSelectedFolder() const
 {
   if (project() == nullptr) {
     return nullptr;
@@ -294,7 +597,7 @@ Folder *ProjectExplorer::GetSelectedFolder()
   Folder* folder = nullptr;
 
   // Get the selected items from the panel
-  QList<Item*> selected_items = SelectedItems();
+  QVector<Node*> selected_items = SelectedItems();
 
   // Heuristic for finding the selected folder:
   //
@@ -304,13 +607,11 @@ Folder *ProjectExplorer::GetSelectedFolder()
   // - If more than one folder is found, we play it safe and import into the root folder
 
   for (int i=0;i<selected_items.size();i++) {
-    Item* sel_item = selected_items.at(i);
+    Node* sel_item = selected_items.at(i);
 
     // If this item is not a folder, presumably it's parent is
-    if (!sel_item->CanHaveChildren()) {
-      sel_item = sel_item->parent();
-
-      Q_ASSERT(sel_item->CanHaveChildren());
+    if (!dynamic_cast<Folder*>(sel_item)) {
+      sel_item = sel_item->folder();
     }
 
     if (folder == nullptr) {
@@ -335,4 +636,35 @@ Folder *ProjectExplorer::GetSelectedFolder()
 ProjectViewModel *ProjectExplorer::model()
 {
   return &model_;
+}
+
+void ProjectExplorer::SelectAll()
+{
+  CurrentView()->selectAll();
+}
+
+void ProjectExplorer::DeselectAll()
+{
+  CurrentView()->selectionModel()->clearSelection();
+}
+
+void ProjectExplorer::DeleteSelected()
+{
+  QVector<Node*> selected = SelectedItems();
+
+  if (selected.isEmpty()) {
+    return;
+  }
+
+  MultiUndoCommand* command = new MultiUndoCommand();
+
+  bool check_if_item_is_in_use = true;
+
+  if (DeleteItemsInternal(selected, check_if_item_is_in_use, command)) {
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+  } else {
+    delete command;
+  }
+}
+
 }

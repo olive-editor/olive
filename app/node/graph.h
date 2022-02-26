@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,12 +21,16 @@
 #ifndef NODEGRAPH_H
 #define NODEGRAPH_H
 
-#include <QObject>
-
+#include "node/group/group.h"
 #include "node/node.h"
+
+namespace olive {
 
 /**
  * @brief A collection of nodes
+ *
+ * This doesn't technically need to be a derivative of Item, but since both Item and NodeGraph need
+ * to be QObject derivatives, this simplifies Sequence.
  */
 class NodeGraph : public QObject
 {
@@ -38,57 +42,29 @@ public:
   NodeGraph();
 
   /**
+   * @brief NodeGraph Destructor
+   */
+  virtual ~NodeGraph() override;
+
+  /**
    * @brief Destructively destroys all nodes in the graph
    */
   void Clear();
 
   /**
-   * @brief Add a node to this graph
-   *
-   * The node will get added to this graph. It is not automatically connected to anything, any connections will need to
-   * be made manually after the node is added. The graph takes ownership of the Node.
-   */
-  void AddNode(Node* node);
-
-  /**
-   * @brief Adds a node to this graph and all nodes connected to its inputs
-   *
-   * Adds the Node to the graph and runs through its inputs adding all of its dependencies (and all of their
-   * dependencies and so forth). The graph takes ownershi of all Nodes added through this process.
-   */
-  void AddNodeWithDependencies(Node* node);
-
-  /**
-   * @brief Removes a Node from the graph BUT doesn't destroy it. Ownership is passed to `new_parent`.
-   */
-  void TakeNode(Node* node, QObject* new_parent = nullptr);
-
-  /**
-   * @brief Removes a Node from the graph and its dependencies (ONLY if the dependencies are exclusive to this Node).
-   *
-   * Returns a list of all Nodes that were removed in this process (except the Node used as a parameter)
-   *
-   * Only dependencies that are exclusively dependencies of this Node are removed. If a dependency Node is also
-   * used as the dependency of another Node, it is not removed and not returned in the list.
-   *
-   * Ownership of all Nodes is passed to `new_parent`.
-   */
-  QList<Node*> TakeNodeWithItsDependencies(Node* node, QObject* new_parent = nullptr);
-
-  /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
-  const QList<Node*>& nodes();
+  const QVector<Node*>& nodes() const
+  {
+    return node_children_;
+  }
 
-  /**
-   * @brief Returns whether a certain Node is in the graph or not
-   */
-  bool ContainsNode(Node* n);
+  const QVector<Node*>& default_nodes() const
+  {
+    return default_nodes_;
+  }
 
-  /**
-   * @brief Releases all Nodes in this NodeGraph
-   */
-  void Release();
+  int GetNumberOfContextsNodeIsIn(Node *node, bool except_itself = false) const;
 
 signals:
   /**
@@ -101,18 +77,35 @@ signals:
    */
   void NodeRemoved(Node* node);
 
-  /**
-   * @brief Signal emitted when a member node of this graph has been connected to another (creating an "edge")
-   */
-  void EdgeAdded(NodeEdgePtr edge);
+  void InputConnected(Node *output, const NodeInput& input);
 
-  /**
-   * @brief Signal emitted when a member node of this graph has been disconnected from another (removing an "edge")
-   */
-  void EdgeRemoved(NodeEdgePtr edge);
+  void InputDisconnected(Node *output, const NodeInput& input);
+
+  void ValueChanged(const NodeInput& input);
+
+  void InputValueHintChanged(const NodeInput& input);
+
+  void GroupAddedInputPassthrough(NodeGroup *group, const NodeInput &input);
+
+  void GroupRemovedInputPassthrough(NodeGroup *group, const NodeInput &input);
+
+  void GroupChangedOutputPassthrough(NodeGroup *group, Node *output);
+
+protected:
+  void AddDefaultNode(Node* n)
+  {
+    default_nodes_.append(n);
+  }
+
+  virtual void childEvent(QChildEvent* event) override;
 
 private:
-  QList<Node*> node_children_;
+  QVector<Node*> node_children_;
+
+  QVector<Node*> default_nodes_;
+
 };
+
+}
 
 #endif // NODEGRAPH_H

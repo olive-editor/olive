@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,13 @@
 #ifndef VIEWERSIZER_H
 #define VIEWERSIZER_H
 
+#include <QScrollBar>
 #include <QWidget>
+
+#include "common/define.h"
+#include "common/rational.h"
+
+namespace olive {
 
 /**
  * @brief A container widget that enforces the aspect ratio of a child widget
@@ -52,6 +58,26 @@ public:
    */
   void SetChildSize(int width, int height);
 
+  /**
+   * @brief Set pixel aspect ratio
+   */
+  void SetPixelAspectRatio(const rational& pixel_aspect);
+
+  /**
+   * @brief Set the zoom value of the child widget
+   *
+   * The number is an integer percentage (100 = 100%). Set to 0 to auto-fit.
+   */
+  void SetZoom(int percent);
+
+public slots:
+  void HandDragMove(int x, int y);
+
+signals:
+  void RequestScale(const QMatrix4x4& matrix);
+
+  void RequestTranslate(const QMatrix4x4& matrix);
+
 protected:
   /**
    * @brief Listen for resize events to ensure the child widget remains correctly sized
@@ -64,6 +90,8 @@ private:
    */
   void UpdateSize();
 
+  int GetZoomedValue(int value);
+
   /**
    * @brief Reference to widget
    *
@@ -72,10 +100,26 @@ private:
   QWidget* widget_;
 
   /**
-   * @brief Aspect ratio calculated from the size provided by SetChildSize()
+   * @brief Internal resolution values
    */
-  double aspect_ratio_;
+  int width_;
+  int height_;
+
+  rational pixel_aspect_;
+
+  /**
+   * @brief Internal zoom value
+   */
+  int zoom_;
+
+  QScrollBar* horiz_scrollbar_;
+  QScrollBar* vert_scrollbar_;
+
+private slots:
+  void ScrollBarMoved();
 
 };
+
+}
 
 #endif // VIEWERSIZER_H

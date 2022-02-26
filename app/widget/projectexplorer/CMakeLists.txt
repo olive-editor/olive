@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2019 Olive Team
+# Copyright (C) 2021 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/projectexplorer/projectexplorer.h
   widget/projectexplorer/projectexplorer.cpp
-  widget/projectexplorer/projectexplorerdefines.h
   widget/projectexplorer/projectexplorertreeview.h
   widget/projectexplorer/projectexplorertreeview.cpp
   widget/projectexplorer/projectexplorerlistview.h
@@ -33,5 +32,6 @@ set(OLIVE_SOURCES
   widget/projectexplorer/projectexplorericonviewitemdelegate.cpp
   widget/projectexplorer/projectexplorernavigation.h
   widget/projectexplorer/projectexplorernavigation.cpp
+  widget/projectexplorer/projectexplorerundo.h
   PARENT_SCOPE
 )
