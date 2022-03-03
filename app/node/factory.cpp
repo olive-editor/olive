@@ -29,6 +29,7 @@
 #include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
@@ -264,6 +265,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new NoiseGeneratorNode();
   case kTimeOffsetNode:
     return new TimeOffsetNode();
+  case kCornerPinDistort:
+    return new CornerPinDistortNode();
 
   case kInternalNodeCount:
     break;
