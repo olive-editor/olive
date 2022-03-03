@@ -1,3 +1,5 @@
+#version 130
+
 // Input texture
 uniform sampler2D ove_maintex;
 uniform sampler2D tex_in;
