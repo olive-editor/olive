@@ -102,10 +102,10 @@ ShaderCode CornerPinDistortNode::GetShaderCode(const QString &shader_id) const
 
   // HACK: No good, very bad hack
 #ifndef Q_OS_MAC
-  frag.prepend(QStringLiteral("#version 130"));
-  vert.prepend(QStringLiteral("#version 130"));
+  frag.prepend(QStringLiteral("#version 130\n\n"));
+  vert.prepend(QStringLiteral("#version 130\n\n"));
 #else
-  vert.prepend(QStringLiteral("#extension GL_EXT_gpu_shader4 : require"));
+  vert.prepend(QStringLiteral("#extension GL_EXT_gpu_shader4 : require\n\n"));
 #endif
 
   return ShaderCode(frag, vert);
