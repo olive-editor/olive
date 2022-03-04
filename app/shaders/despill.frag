@@ -18,8 +18,8 @@ void main(void) {
             color_average = dot(tex_col.rb, vec2(2.0, 1.0) / 3.0); // (2.0 * tex_col.r + tex_col.b) / 3.0
             tex_col.g = tex_col.g > color_average ? color_average : tex_col.g; 
         } else if (method_in == 2) { // Double average
-            color_average = dot(tex_col.br, vec2(2.0, 1.0) / 3.0); // (2.0 * tex_col.b + tex_col.r) / 3.0
-            tex_col.g = tex_col.g > color_average ? color_average : tex_col.g;
+            color_average = dot(tex_col.rb, vec2(0.5)); // (tex_col.r + tex_col.b) / 2.0
+            tex_col.g = tex_col.g > 2.0 * color_average ? color_average: tex_col.g;
         } else if (method_in == 3) { // Blue Limit
             tex_col.g = tex_col.g > tex_col.b ? tex_col.b : tex_col.g;
         }
@@ -31,8 +31,8 @@ void main(void) {
             color_average = dot(tex_col.rg, vec2(2.0, 1.0) / 3.0); // (2.0 * tex_col.r + tex_col.g) / 3.0
             tex_col.b = tex_col.b > color_average ? color_average : tex_col.b;
         } else if (method_in == 2) { // Double average
-            color_average = dot(tex_col.gr, vec2(2.0, 1.0) / 3.0); // (2.0 * tex_col.g+ tex_col.r) / 3.0
-            tex_col.b = tex_col.b > color_average ? color_average : tex_col.b; 
+            color_average = dot(tex_col.rb, vec2(0.5)); // (tex_col.r + tex_col.b) / 2.0
+            tex_col.g = tex_col.g > 2.0 * color_average ? color_average: tex_col.g;
         } else if (method_in == 3) { // Blue Limit
             tex_col.b = tex_col.b > tex_col.g ? tex_col.g : tex_col.b; 
         }
