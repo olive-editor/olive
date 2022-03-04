@@ -39,7 +39,7 @@ void main(void) {
     }
 
     if (preserve_luminance_input) {
-        vec4 original_col = texture(iChannel0, uv);
+        vec4 original_col = texture2D(tex_in, ove_texcoord);
         vec4 diff = original_col - tex_col;
         float luma = dot(abs(diff.rgb), luma_coeffs);
         tex_col.rgb += vec3(luma);
