@@ -21,27 +21,36 @@
 namespace olive {
 
 const QString DisplayTransformNode::kTextureInput = QStringLiteral("tex_in");
+const QString DisplayTransformNode::kDisplayInput = QStringLiteral("display_in");
+const QString DisplayTransformNode::kViewInput = QStringLiteral("view_in");
 const QString DisplayTransformNode::kDirectionInput = QStringLiteral("dir_in");
 
 DisplayTransformNode::DisplayTransformNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
+  AddInput(kDisplayInput, NodeValue::kCombo, 0);
+
+  AddInput(kViewInput, NodeValue::kCombo, 0);
+
   AddInput(kDirectionInput, NodeValue::kCombo, 0);
 
-  GenerateProcessor(true);
+  Retranslate();
 }
 
-void DisplayTransformNode::GenerateProcessor(bool direction)
+void DisplayTransformNode::GenerateProcessor()
 {
   if (!project()) {
     return;
   }
-  qDebug() << project()->color_manager()->GetReferenceColorSpace() << project()->color_manager()->GetDefaultDisplay();
+  if (view_.isEmpty()) {
+    Retranslate();
+  }
 
-  ColorTransform transform("sRGB OETF");
-  reference_to_display_ = ColorProcessor::Create(project()->color_manager(), project()->color_manager()->GetReferenceColorSpace(),
-                                                 transform);
+  ColorTransform transform(display_, view_, "");
+
+  reference_to_display_ = ColorProcessor::Create(project()->color_manager(),
+                                                   project()->color_manager()->GetReferenceColorSpace(), transform);
 
   // Create shader description
   shader_desc_ = OCIO::GpuShaderDesc::CreateShaderDesc();
@@ -81,17 +90,43 @@ QString DisplayTransformNode::Description() const
 void DisplayTransformNode::Retranslate()
 {
   SetInputName(kTextureInput, tr("Input"));
+  SetInputName(kDisplayInput, tr("Display"));
+  SetInputName(kViewInput, tr("View"));
+
+  if (project()) {
+    SetComboBoxStrings(kDisplayInput, project()->color_manager()->ListAvailableDisplays());
+    display_ = project()->color_manager()->ListAvailableDisplays().at(
+                          GetSplitStandardValue(kDisplayInput).at(0).toString().toInt());
+
+    SetComboBoxStrings(kViewInput, project()->color_manager()->ListAvailableViews(display_));
+    view_ = project()->color_manager()->ListAvailableViews(display_).at(
+                       GetSplitStandardValue(kViewInput).at(0).toString().toInt());
+  }
+
   SetInputName(kDirectionInput, tr("Direction"));
   SetComboBoxStrings(kDirectionInput, {tr("Forward"), tr("Inverse")});
-  GenerateProcessor(true);
 }
 
-void DisplayTransformNode::InputValueChangedEvent(const QString& input, int element)
-{
-    Q_UNUSED(element);
+void DisplayTransformNode::InputValueChangedEvent(const QString &input, int element) {
+  Q_UNUSED(element);
   if (input == kDirectionInput) {
-      GenerateProcessor(true);
+    GenerateProcessor();
   }
+  if (project()) {
+    if (input == kDisplayInput) {
+      display_ = project()->color_manager()->ListAvailableDisplays().at(
+                            GetSplitStandardValue(kDisplayInput).at(0).toString().toInt());
+      // If we change the display the view menu must be updated
+      Retranslate();
+      GenerateProcessor();
+    }
+    if (input == kViewInput) {
+      view_ = project()->color_manager()->ListAvailableViews(display_).at(
+                         GetSplitStandardValue(kViewInput).at(0).toString().toInt());
+      GenerateProcessor();
+    }
+  }
+
 }
 
 ShaderCode DisplayTransformNode::GetShaderCode(const QString &shader_id) const
@@ -110,8 +145,6 @@ void DisplayTransformNode::Value(const NodeValueRow &value, const NodeGlobals &g
   job.SetUseOCIO(true);
   job.SetShaderDesc(shader_desc_);
   job.SetColorProcessor(reference_to_display_);
-  
-  //renderer()->ShaderJobInsertTextures(reference_to_display_, &job, shader_desc_);
 
   // If there's no texture, no need to run an operation
   if (!job.GetValue(kTextureInput).data().isNull()) {

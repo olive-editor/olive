@@ -27,7 +27,7 @@ class DisplayTransformNode : public Node {
 
   NODE_DEFAULT_DESTRUCTOR(DisplayTransformNode)
 
-  void GenerateProcessor(bool direction);
+  void GenerateProcessor();
 
   virtual Node *copy() const override;
 
@@ -46,12 +46,17 @@ class DisplayTransformNode : public Node {
   OCIO::GpuShaderDescRcPtr GetGPUShaderDesc() { return shader_desc_; };
 
   static const QString kTextureInput;
+  static const QString kDisplayInput;
+  static const QString kViewInput;
   static const QString kDirectionInput;
 
   const QString shader_text_;
 
   ColorProcessorPtr reference_to_display_;
   OCIO::GpuShaderDescRcPtr shader_desc_;
+
+  QString display_;
+  QString view_;
 };
 
 } // olive
