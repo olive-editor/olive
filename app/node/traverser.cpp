@@ -292,7 +292,7 @@ SampleBufferPtr NodeTraverser::ProcessAudioFootage(const FootageJob& stream, con
   return SampleBuffer::Create();
 }
 
-TexturePtr NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+TexturePtr NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, ShaderJob &job)
 {
   Q_UNUSED(node)
   Q_UNUSED(range)

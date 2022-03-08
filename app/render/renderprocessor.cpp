@@ -27,6 +27,7 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
+#include "node/color/displaytransform/displaytransform.h"
 #include "node/project/project.h"
 #include "rendermanager.h"
 
@@ -464,7 +465,7 @@ SampleBufferPtr RenderProcessor::ProcessAudioFootage(const FootageJob &stream, c
   return super::ProcessAudioFootage(stream, input_time);
 }
 
-TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, ShaderJob &job)
 {
   Q_UNUSED(range)
 
@@ -475,6 +476,10 @@ TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &ran
   QVariant shader = shader_cache_->value(full_shader_id);
 
   if (shader.isNull()) {
+    if (job.UseOCIO()) {
+      render_ctx_->ShaderJobInsertTextures(job.ColorProcessor(), &job, job.ShaderDesc());
+    }
+
     // Since we have shader code, compile it now
     shader = render_ctx_->CreateNativeShader(node->GetShaderCode(job.GetShaderID()));
 

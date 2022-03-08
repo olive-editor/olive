@@ -24,6 +24,7 @@
 #include <QMatrix4x4>
 
 #include "generatejob.h"
+#include "render/colorprocessor.h"
 #include "render/texture.h"
 
 namespace olive {
@@ -34,6 +35,7 @@ public:
   {
     iterations_ = 1;
     iterative_input_ = nullptr;
+    use_ocio_ = false;
   }
 
   const QString& GetShaderID() const
@@ -87,6 +89,38 @@ public:
     interpolation_.insert(id, interp);
   }
 
+  bool UseOCIO() const
+  {
+    return use_ocio_;
+  }
+
+  void SetUseOCIO(bool use_ocio)
+  {
+    use_ocio_ = use_ocio;
+  }
+
+  ColorProcessorPtr ColorProcessor()
+  {
+    return color_processor_;
+  }
+
+  void SetColorProcessor(ColorProcessorPtr processor)
+  {
+    color_processor_ = processor;
+  }
+
+  OCIO::GpuShaderDescRcPtr ShaderDesc()
+  {
+    return shader_desc_;
+  }
+
+  void SetShaderDesc(OCIO::GpuShaderDescRcPtr shader_desc)
+  {
+    shader_desc_ = shader_desc;
+  }
+
+
+
 private:
   QString shader_id_;
 
@@ -95,6 +129,11 @@ private:
   QString iterative_input_;
 
   QHash<QString, Texture::Interpolation> interpolation_;
+
+  bool use_ocio_;
+
+  ColorProcessorPtr color_processor_;
+  OCIO::GpuShaderDescRcPtr shader_desc_;
 
 };
 

@@ -16,10 +16,11 @@
 #ifndef DISPLAYTRANSFORMNODE_H
 #define DISPLAYTRANSFORMNODE_H
 
-#include "node/color/ociobase/ociobase.h"
+#include "node/node.h"
+#include "render/colorprocessor.h"
 
 namespace olive {
-class DisplayTransformNode : public OCIONodeBase {
+class DisplayTransformNode : public Node {
   Q_OBJECT
  public:
   DisplayTransformNode();
@@ -40,6 +41,9 @@ class DisplayTransformNode : public OCIONodeBase {
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
   virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
+  ColorProcessorPtr GetColorProcessor() { return reference_to_display_; };
+  OCIO::GpuShaderDescRcPtr GetGPUShaderDesc() { return shader_desc_; };
 
   static const QString kTextureInput;
   static const QString kDirectionInput;

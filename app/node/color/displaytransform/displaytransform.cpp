@@ -107,8 +107,11 @@ void DisplayTransformNode::Value(const NodeValueRow &value, const NodeGlobals &g
 {
   ShaderJob job;
   job.InsertValue(value);
+  job.SetUseOCIO(true);
+  job.SetShaderDesc(shader_desc_);
+  job.SetColorProcessor(reference_to_display_);
   
-  renderer()->ShaderJobInsertTextures(reference_to_display_, &job, shader_desc_);
+  //renderer()->ShaderJobInsertTextures(reference_to_display_, &job, shader_desc_);
 
   // If there's no texture, no need to run an operation
   if (!job.GetValue(kTextureInput).data().isNull()) {

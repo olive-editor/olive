@@ -86,7 +86,7 @@ SampleBufferPtr HashTraverser::ProcessAudioFootage(const FootageJob &stream, con
   return buf;
 }
 
-TexturePtr HashTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+TexturePtr HashTraverser::ProcessShader(const Node *node, const TimeRange &range, ShaderJob &job)
 {
   HashGenerateJob(node, &job);
 

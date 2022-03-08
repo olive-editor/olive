@@ -9,5 +9,5 @@ void main() {
 
   col = DisplayTransform(col);
 
-  gl_FragColor - col;
+  gl_FragColor = col;
 }

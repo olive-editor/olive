@@ -16,7 +16,6 @@
 
 add_subdirectory(colormanager)
 add_subdirectory(displaytransform)
-add_subdirectory(ociobase)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
