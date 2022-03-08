@@ -31,6 +31,7 @@
 
 #include "common/filefunctions.h"
 #include "config/config.h"
+#include "render/audioparams.h"
 #include "render/videoparams.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"

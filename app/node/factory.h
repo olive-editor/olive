@@ -65,6 +65,8 @@ public:
     kOpacityEffect,
     kFlipDistort,
     kNoiseGenerator,
+    kTimeOffsetNode,
+    kCornerPinDistort,
     kDisplayTransform,
 
     // Count value

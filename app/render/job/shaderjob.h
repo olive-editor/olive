@@ -22,6 +22,7 @@
 #define SHADERJOB_H
 
 #include <QMatrix4x4>
+#include <QVector>
 
 #include "generatejob.h"
 #include "render/colorprocessor.h"
@@ -119,7 +120,15 @@ public:
     shader_desc_ = shader_desc;
   }
 
+  void SetVertexCoordinates(const QVector<float> &vertex_coords)
+  {
+    vertex_overrides_ = vertex_coords;
+  }
 
+  const QVector<float>& GetVertexCoordinates()
+  {
+    return vertex_overrides_;
+  }
 
 private:
   QString shader_id_;
@@ -133,7 +142,10 @@ private:
   bool use_ocio_;
 
   ColorProcessorPtr color_processor_;
+  
   OCIO::GpuShaderDescRcPtr shader_desc_;
+  
+  QVector<float> vertex_overrides_;
 
 };
 

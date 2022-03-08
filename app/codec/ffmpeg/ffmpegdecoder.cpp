@@ -268,7 +268,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
       AVStream* avstream = fmt_ctx->streams[i];
 
       // Find decoder for this stream, if it exists we can proceed
-      AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
+      const AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
 
       if (decoder
           && (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
@@ -1010,7 +1010,7 @@ bool FFmpegDecoder::Instance::Open(const char *filename, int stream_index)
   avstream_ = fmt_ctx_->streams[stream_index];
 
   // Find decoder
-  AVCodec* codec = avcodec_find_decoder(avstream_->codecpar->codec_id);
+  const AVCodec* codec = avcodec_find_decoder(avstream_->codecpar->codec_id);
 
   // Handle failure to find decoder
   if (codec == nullptr) {

@@ -48,6 +48,7 @@ ExportAdvancedVideoDialog::ExportAdvancedVideoDialog(const QList<QString> &pix_f
     thread_slider_ = new IntegerSlider();
     thread_slider_->SetMinimum(0);
     thread_slider_->SetDefaultValue(0);
+    thread_slider_->InsertLabelSubstitution(0, tr("Auto"));
     performance_layout->addWidget(thread_slider_, row, 1);
 
     row++;

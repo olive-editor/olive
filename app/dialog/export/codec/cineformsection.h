@@ -18,55 +18,28 @@
 
 ***/
 
-#ifndef EXPORTCODEC_H
-#define EXPORTCODEC_H
+#ifndef CINEFORMSECTION_H
+#define CINEFORMSECTION_H
 
-#include <QObject>
-#include <QString>
+#include <QComboBox>
 
-#include "common/define.h"
-#include "render/subtitleparams.h"
+#include "codecsection.h"
 
 namespace olive {
 
-class ExportCodec : public QObject
+class CineformSection : public CodecSection
 {
   Q_OBJECT
 public:
-  enum Codec {
-    // Video codecs
-    kCodecDNxHD,
-    kCodecH264,
-    kCodecH264rgb,
-    kCodecH265,
-    kCodecOpenEXR,
-    kCodecPNG,
-    kCodecProRes,
-    kCodecCineform,
-    kCodecTIFF,
-    kCodecVP9,
+  CineformSection(QWidget *parent = nullptr);
 
-    // Audio codecs
-    kCodecMP2,
-    kCodecMP3,
-    kCodecAAC,
-    kCodecPCM,
-    kCodecOpus,
-    kCodecVorbis,
-    kCodecFLAC,
+  virtual void AddOpts(EncodingParams* params) override;
 
-    // Subtitle codecs
-    kCodecSRT,
-
-    kCodecCount
-  };
-
-  static QString GetCodecName(Codec c);
-
-  static bool IsCodecAStillImage(Codec c);
+private:
+  QComboBox *quality_combobox_;
 
 };
 
 }
 
-#endif // EXPORTCODEC_H
+#endif // CINEFORMSECTION_H

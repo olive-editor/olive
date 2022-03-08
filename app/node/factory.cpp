@@ -30,6 +30,7 @@
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "color/displaytransform/displaytransform.h"
+#include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
@@ -54,6 +55,7 @@
 #include "project/folder/folder.h"
 #include "project/footage/footage.h"
 #include "project/sequence/sequence.h"
+#include "time/timeoffset/timeoffsetnode.h"
 #include "time/timeremap/timeremap.h"
 
 namespace olive {
@@ -262,6 +264,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new FlipDistortNode();
   case kNoiseGenerator:
     return new NoiseGeneratorNode();
+  case kTimeOffsetNode:
+    return new TimeOffsetNode();
+  case kCornerPinDistort:
+    return new CornerPinDistortNode();
   case kDisplayTransform:
     return new DisplayTransformNode();
 

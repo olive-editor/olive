@@ -18,68 +18,45 @@
 
 ***/
 
-#ifndef TEMPOPROCESSOR_H
-#define TEMPOPROCESSOR_H
-
-#ifdef __MINGW32__
-#ifndef __USE_MINGW_ANSI_STDIO
-#define __USE_MINGW_ANSI_STDIO
-#endif
-#endif
-
-#include <inttypes.h>
+#ifndef PLANARPROCESSOR_H
+#define PLANARPROCESSOR_H
 
 extern "C" {
-#include <libavfilter/avfilter.h>
+#include <libswresample/swresample.h>
 }
 
+#include "codec/samplebuffer.h"
 #include "render/audioparams.h"
 
 namespace olive {
 
-class TempoProcessor
+class PlanarProcessor
 {
 public:
-  TempoProcessor();
+  PlanarProcessor();
 
-  ~TempoProcessor();
+  ~PlanarProcessor();
 
-  DISABLE_COPY_MOVE(TempoProcessor)
+  DISABLE_COPY_MOVE(PlanarProcessor)
 
-  bool IsOpen() const;
+  bool Open(const AudioParams &params);
 
-  const double& GetSpeed() const;
-
-  bool Open(const AudioParams& params, const double &speed);
-
-  void Push(const QByteArray &packed);
-
-  void Flush();
-
-  QByteArray Pull();
+  SampleBufferPtr Convert(const QByteArray &packed);
 
   void Close();
 
+  bool IsOpen() const
+  {
+    return swr_ctx_;
+  }
+
 private:
-  static AVFilterContext* CreateTempoFilter(AVFilterGraph *graph, AVFilterContext *link, const double& tempo);
-
-  AVFilterGraph* filter_graph_;
-
-  AVFilterContext* buffersrc_ctx_;
-
-  AVFilterContext* buffersink_ctx_;
+  SwrContext *swr_ctx_;
 
   AudioParams params_;
 
-  int64_t timestamp_;
-
-  double speed_;
-
-  bool open_;
-
-  bool flushed_;
 };
 
 }
 
-#endif // TEMPOPROCESSOR_H
+#endif // PLANARPROCESSOR_H
