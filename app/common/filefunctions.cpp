@@ -139,7 +139,10 @@ void FileFunctions::CopyDirectory(const QString &source, const QString &dest, bo
     } else {
       // Copy file
       if (overwrite && QFile::exists(dest_file_path)) {
-        QFile::remove(dest_file_path);
+        QFile file(dest_file_path);
+        file.setPermissions(file.permissions() | QFileDevice::WriteOwner | QFileDevice::WriteUser |
+                            QFileDevice::WriteGroup | QFileDevice::WriteOther);
+        file.remove();
       }
 
       QFile::copy(info.absoluteFilePath(), dest_file_path);
