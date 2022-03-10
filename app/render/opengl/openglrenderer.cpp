@@ -807,6 +807,10 @@ void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation i
 
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  if (target == GL_TEXTURE_3D) {
+    functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  }
 }
 
 void OpenGLRenderer::ClearDestinationInternal(double r, double g, double b, double a)
