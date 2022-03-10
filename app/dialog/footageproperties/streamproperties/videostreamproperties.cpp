@@ -65,14 +65,24 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
 
   video_color_space_ = new QComboBox();
   OCIO::ConstConfigRcPtr config = footage_->project()->color_manager()->GetConfig();
-  int number_of_colorspaces = config->getNumColorSpaces();
 
-  video_color_space_->addItem(tr("Default (%1)").arg(footage_->project()->color_manager()->GetDefaultInputColorSpace()));
+  OCIO::ColorSpaceMenuHelperRcPtr menu_helper;
+  auto params = OCIO::ColorSpaceMenuParameters::Create(config);
+  params->setAppCategories("Camera");
+  menu_helper = OCIO::ColorSpaceMenuHelper::Create(params);
 
-  for (int i=0;i<number_of_colorspaces;i++) {
-    QString colorspace = config->getColorSpaceNameByIndex(i);
-
-    video_color_space_->addItem(colorspace);
+  if (menu_helper->getNumColorSpaces() > 0) {
+    for (int i = 0; i < menu_helper->getNumColorSpaces(); i++) {
+      QString colorspace = menu_helper->getName(i);
+      video_color_space_->addItem(colorspace);
+      video_color_space_->setItemData(i, menu_helper->getDescription(i), Qt::ToolTipRole);
+    }
+  } else {
+    // Config doesn't use our Camera category so fall back and list all available color spaces
+    for (int i = 0; i < config->getNumColorSpaces(); i++) {
+      QString colorspace = config->getColorSpaceNameByIndex(i);
+      video_color_space_->addItem(colorspace);
+    }
   }
 
   video_color_space_->setCurrentText(vp.colorspace());

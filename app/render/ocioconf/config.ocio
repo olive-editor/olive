@@ -7,7 +7,7 @@
 # Price, Nick Shaw, and Timothy
 # Lottes.
 
-ocio_profile_version: 1
+ocio_profile_version: 2
 
 search_path: "luts:looks"
 strictparsing: true
@@ -46,7 +46,7 @@ displays:
     - !<View> {name: Linear Raw, colorspace: Linear}
     - !<View> {name: Filmic Log Encoding Base, colorspace: AppleP3 Filmic Log Encoding}
 
-active_displays: [sRGB, BT.1886, Apple Display P3, None]
+active_displays: [sRGB, BT.1886, Apple Display P3]
 #active_views: [Filmic Log Encoding Base, sRGB OETF, Non-Colour Data, Linear Raw, No View]
 
 colorspaces:
@@ -86,6 +86,7 @@ colorspaces:
     description: |
       sRGB specification display referred Optical-Electro Transfer Function.
     isdata: false
+    categories: [ Camera ]
     allocation: uniform
     allocationvars: [0.0, 1.0]
     to_reference: !<FileTransform> {src: sRGB_OETF_to_Linear.spi1d, interpolation: linear}
@@ -183,6 +184,7 @@ colorspaces:
     description: |
       Fuji F-Log transfer function
     isdata: false
+    categories: [ Camera ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<FileTransform> {src: F-Log_to_Linear.spi1d, interpolation: linear}
@@ -195,6 +197,7 @@ colorspaces:
     description: |
       Fuji F-Log / F-Gamut
     isdata: false
+    categories: [ Camera ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
@@ -211,6 +214,7 @@ colorspaces:
     description: |
       Panasonic V-Log / V-Gamut
     isdata: false
+    categories: [ Camera ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
@@ -224,8 +228,9 @@ colorspaces:
     equalitygroup: ""
     bitdepth: 32f
     description: |
-      Panasonic V-Log / V-Gamut
+      Arri WIde Gamut at EI 800
     isdata: false
+    categories: [ Camera ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
@@ -239,8 +244,9 @@ colorspaces:
     equalitygroup: ""
     bitdepth: 32f
     description: |
-      Panasonic V-Log / V-Gamut
+      Arri Wide Gamut Space at EI 400
     isdata: false
+    categories: [ Camera ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
