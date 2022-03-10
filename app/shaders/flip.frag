@@ -2,11 +2,12 @@ uniform sampler2D tex_in;
 uniform bool horiz_in;
 uniform bool vert_in;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 void main(void) {
     if (!horiz_in && !vert_in) {
-        gl_FragColor = texture2D(tex_in, ove_texcoord);
+        frag_color = texture2D(tex_in, ove_texcoord);
         return;
     }
 
@@ -15,5 +16,5 @@ void main(void) {
     if (horiz_in) new_coord.x = 1.0 - new_coord.x;
     if (vert_in) new_coord.y = 1.0 - new_coord.y;
 
-    gl_FragColor = texture2D(tex_in, new_coord);
+    frag_color = texture2D(tex_in, new_coord);
 }

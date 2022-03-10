@@ -2,7 +2,8 @@ uniform sampler2D ove_maintex;
 
 uniform vec2 resolution_in;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 float round(float x)
 {
@@ -19,5 +20,5 @@ void main() {
     using_texcoord.y = (round(using_texcoord.y * half_vert) + 0.25) / half_vert;
 
     vec4 color = texture2D(ove_maintex, using_texcoord);
-    gl_FragColor = color;
+    frag_color = color;
 }

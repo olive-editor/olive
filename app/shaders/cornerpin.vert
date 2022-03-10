@@ -8,15 +8,15 @@ uniform vec2 resolution_in;
 
 uniform mat4 ove_mvpmat;
 
-attribute vec4 a_position;
-attribute vec2 a_texcoord;
+in vec4 a_position;
+in vec2 a_texcoord;
 
-varying vec2 ove_texcoord;
+out vec2 ove_texcoord;
 
-varying vec2 q;
-varying vec2 b1;
-varying vec2 b2;
-varying vec2 b3;
+out vec2 q;
+out vec2 b1;
+out vec2 b2;
+out vec2 b3;
 
 void main() {
     // The slider inputs only contain the amount they have changed rather than
@@ -37,7 +37,7 @@ void main() {
         float c1 = b_l.y - m1 * b_l.x;
         float m2 = (b_r.y - t_l.y)/(b_r.x - t_l.x);
         float c2 = t_l.y - m2 * t_l.x;
-    
+
         // Find the intersection by setting the two line equations equal and rearrange.
         float mid_x = (c2 - c1) / (m1 - m2);
         float mid_y = m1 * mid_x + c1;
@@ -70,7 +70,7 @@ void main() {
         } else {
             q = (d2+d0)/d0;
         }
-    
+
         gl_Position[0] *= q;
         gl_Position[1] *= q;
         gl_Position[3] = q;
@@ -93,7 +93,7 @@ void main() {
         b2 = t_l - b_l;
         b3 = b_l - b_r - t_l + t_r;
     }
-    
+
 
     ove_texcoord = a_texcoord;
 }

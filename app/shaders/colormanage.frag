@@ -10,7 +10,8 @@ uniform mat4 ove_cropmatrix;
 #define ALPHA_ASSOC    2
 
 // Main texture coordinate
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 // Program will replace this with OCIO's auto-generated shader code
 %1
@@ -31,7 +32,7 @@ vec4 deassoc(vec4 c) {
 void main() {
   vec2 cropped_coord = (vec4(ove_texcoord-vec2(0.5, 0.5), 0.0, 1.0)*ove_cropmatrix).xy + vec2(0.5, 0.5);
   if (cropped_coord.x < 0.0 || cropped_coord.x >= 1.0 || cropped_coord.y < 0.0 || cropped_coord.y >= 1.0) {
-    gl_FragColor = vec4(0.0);
+    frag_color = vec4(0.0);
     return;
   }
 
@@ -52,5 +53,5 @@ void main() {
     col = assoc(col);
   }
 
-  gl_FragColor = col;
+  frag_color = col;
 }

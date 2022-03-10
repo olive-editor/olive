@@ -2,14 +2,15 @@ uniform sampler2D top_tex_in;
 uniform sampler2D bottom_tex_in;
 uniform vec2 resolution_in;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 void main() {
     float y_pixel = floor(ove_texcoord.y * resolution_in.y);
 
     if (mod(y_pixel, 2.0) == 0.0) {
-      gl_FragColor = texture2D(top_tex_in, ove_texcoord);
+      frag_color = texture2D(top_tex_in, ove_texcoord);
     } else {
-      gl_FragColor = texture2D(bottom_tex_in, ove_texcoord);
+      frag_color = texture2D(bottom_tex_in, ove_texcoord);
     }
 }

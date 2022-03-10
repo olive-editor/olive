@@ -9,7 +9,8 @@ uniform vec2 resolution_in;
 // Standard inputs
 uniform int ove_iteration;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 void main(void) {
     vec4 pixel_here = texture2D(tex_in, ove_texcoord);
@@ -20,7 +21,7 @@ void main(void) {
         || (inner_in && pixel_here.a == 0.0)
         || (!inner_in && pixel_here.a == 1.0)) {
         // No-op, do nothing
-        gl_FragColor = pixel_here;
+        frag_color = pixel_here;
         return;
     }
 
@@ -74,5 +75,5 @@ void main(void) {
         stroke_col = stroke_col * (1.0 - pixel_here.a) + pixel_here;
     }
 
-    gl_FragColor = stroke_col;
+    frag_color = stroke_col;
 }
