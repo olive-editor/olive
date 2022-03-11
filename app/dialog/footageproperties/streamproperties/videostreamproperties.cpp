@@ -83,7 +83,7 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
     }
   }
   if (!vp.colorspace().isEmpty()) {
-    video_color_space_->setCurrentText(vp.colorspace());
+    video_color_space_->setCurrentText(color_manager->GetConfig()->getCanonicalName(vp.colorspace().toStdString().c_str()));
   } else {
     video_color_space_->setCurrentIndex(video_color_space_->findText(color_manager->GetDefaultInputColorSpace()));
   }

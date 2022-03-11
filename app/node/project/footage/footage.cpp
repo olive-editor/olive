@@ -123,6 +123,28 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
           // FIXME: Make this customizable
           vp.set_divider(VideoParams::generate_auto_divider(vp.width(), vp.height()));
 
+          // FIXME: Expand to use metadata from files
+          QString colorspace = ColorManager::GetDefaultConfig()->getColorSpaceFromFilepath(filename().toStdString().c_str());
+          QString default_rule_space = ColorManager::GetDefaultConfig()->getFileRules()->getColorSpace(
+                                              ColorManager::GetDefaultConfig()->getFileRules()->getNumEntries() - 1);
+
+          if (colorspace.compare(default_rule_space) == 0) {
+            // If our file rules haven't worked and the config has a default float and byte type
+            // try and set them based on the buffer type
+            if (ColorManager::GetDefaultConfig()->hasRole("default_byte") &&
+                ColorManager::GetDefaultConfig()->hasRole("default_float")) {
+              if (vp.format() == VideoParams::Format::kFormatUnsigned8 ||
+                  vp.format() == VideoParams::Format::kFormatUnsigned16) {
+                colorspace = "default_byte";
+              } else if (vp.format() == VideoParams::Format::kFormatFloat16 ||
+                         vp.format() == VideoParams::Format::kFormatFloat32) {
+                colorspace = "default_float";
+              }
+            }
+          }
+
+          vp.set_colorspace(colorspace);
+
           AddStream(Track::kVideo, QVariant::fromValue(vp));
         }
 
