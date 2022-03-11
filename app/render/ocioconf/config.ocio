@@ -184,7 +184,7 @@ colorspaces:
 
   - !<ColorSpace>
     name: Fuji F-Log OETF
-    family: Camera Footage
+    family: Input/Fuji
     equalitygroup: ""
     bitdepth: 32f
     description: |
@@ -197,7 +197,7 @@ colorspaces:
 
   - !<ColorSpace>
     name: Fuji F-Log F-Gamut
-    family: ""
+    family: Input/Fuji
     equalitygroup: ""
     bitdepth: 32f
     description: |
@@ -214,7 +214,7 @@ colorspaces:
 
   - !<ColorSpace>
     name: Panasonic V-Log V-Gamut
-    family: Camera Footage
+    family: Input/Panasonic
     equalitygroup: ""
     bitdepth: 32f
     description: |
@@ -230,7 +230,7 @@ colorspaces:
 
   - !<ColorSpace>
     name: Arri Wide Gamut / LogC EI 800
-    family: Camera Footage
+    family: Input/Arri
     equalitygroup: ""
     bitdepth: 32f
     description: |
@@ -246,7 +246,7 @@ colorspaces:
 
   - !<ColorSpace>
     name: Arri Wide Gamut / LogC EI 400
-    family: Camera Footage
+    family: Input/Arri
     equalitygroup: ""
     bitdepth: 32f
     description: |
