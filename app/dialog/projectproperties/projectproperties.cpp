@@ -219,6 +219,7 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
       c = ColorManager::GetDefaultConfig();
     } else {
       c = ColorManager::CreateConfigFromFile(ocio_filename_->text());
+      c->validate();
     }
 
     ocio_filename_->setStyleSheet(QString());

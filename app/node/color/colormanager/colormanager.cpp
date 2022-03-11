@@ -79,13 +79,8 @@ void ColorManager::SetUpDefaultConfig()
 {
   if (!qEnvironmentVariableIsEmpty("OCIO")) {
     // Attempt to set config from "OCIO" environment variable
-    try {
-      OCIO_SET_C_LOCALE_FOR_SCOPE;
-      default_config_ = OCIO::Config::CreateFromEnv();
-
+    if (LoadConfigFromPath(qEnvironmentVariable("OCIO"))) {
       return;
-    } catch (OCIO::Exception& e) {
-      qWarning() << "Failed to load config from OCIO environment variable config:" << e.what();
     }
   }
 
@@ -102,6 +97,29 @@ void ColorManager::SetUpDefaultConfig()
     OCIO_SET_C_LOCALE_FOR_SCOPE;
     default_config_ = CreateConfigFromFile(QDir(dir).filePath(QStringLiteral("config.ocio")));
   }
+}
+
+bool ColorManager::LoadConfigFromPath(QString path)
+{
+  try {
+    OCIO_SET_C_LOCALE_FOR_SCOPE;
+    default_config_ = OCIO::Config::CreateFromFile(path.toStdString().c_str());
+
+    try {
+      default_config_->validate();
+      qInfo() << "Succesfully loaded OCIO config from: " << path;
+      return true;
+    } catch (OCIO::Exception &e) {
+      qWarning() << "Failed to validate config from OCIO environment vairable:" << e.what();
+    }
+
+  } catch (OCIO::Exception &e) {
+    qWarning() << "Failed to load config from OCIO environment variable config:" << e.what();
+  }
+
+  qWarning() << "Falling back on internal config.";
+
+  return false;
 }
 
 void ColorManager::SetConfigFilename(const QString &filename)

@@ -135,6 +135,8 @@ private:
 
   void SetConfig(OCIO::ConstConfigRcPtr config);
 
+  static bool LoadConfigFromPath(QString path);
+
   OCIO::ConstConfigRcPtr config_;
 
   QMutex mutex_;
