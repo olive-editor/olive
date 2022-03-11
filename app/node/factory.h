@@ -67,6 +67,7 @@ public:
     kFlipDistort,
     kNoiseGenerator,
     kTimeOffsetNode,
+    kCornerPinDistort,
 
     // Count value
     kInternalNodeCount

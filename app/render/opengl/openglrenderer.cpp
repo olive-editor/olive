@@ -569,7 +569,13 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   QOpenGLBuffer vert_vbo_;
   vert_vbo_.create();
   vert_vbo_.bind();
-  vert_vbo_.allocate(blit_vertices.constData(), blit_vertices.size() * sizeof(GLfloat));
+  // If the job has vertex coordinate overrides use them instead of the defaults.
+  if (!job.GetVertexCoordinates().isEmpty()) {
+    Q_ASSERT(job.GetVertexCoordinates().size() == 18);
+    vert_vbo_.allocate(job.GetVertexCoordinates().constData(), job.GetVertexCoordinates().size() * sizeof(float));
+  } else {
+    vert_vbo_.allocate(blit_vertices.constData(), blit_vertices.size() * sizeof(GLfloat));
+  }
   vert_vbo_.release();
 
   QOpenGLBuffer frag_vbo_;
@@ -801,6 +807,10 @@ void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation i
 
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  if (target == GL_TEXTURE_3D) {
+    functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  }
 }
 
 void OpenGLRenderer::ClearDestinationInternal(double r, double g, double b, double a)
@@ -886,7 +896,11 @@ GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
       QStringLiteral("#version 120\n\n");
 #endif
 
-  QString complete_code = shader_preamble;
+  QString complete_code;
+
+  if (!code.startsWith(QStringLiteral("#version"))) {
+    complete_code = shader_preamble;
+  }
 
   if (code.isEmpty()) {
     // Use default code

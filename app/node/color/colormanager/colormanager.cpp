@@ -50,7 +50,7 @@ ColorManager::ColorManager() :
 
   // Set config to our built-in default
   SetConfig(GetDefaultConfig());
-  SetDefaultInputColorSpace(QStringLiteral("sRGB OETF"));
+  SetDefaultInputColorSpace(config_->getCanonicalName(OCIO::ROLE_DEFAULT));
 }
 
 OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
