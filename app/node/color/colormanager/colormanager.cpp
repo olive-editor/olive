@@ -269,6 +269,15 @@ void ColorManager::GetDefaultLumaCoefs(double *rgb) const
   config_->getDefaultLumaCoefs(rgb);
 }
 
+OCIO::ColorSpaceMenuHelperRcPtr ColorManager::CreateMenuHelper(OCIO::ConstConfigRcPtr config, QString categories) {
+  OCIO::ColorSpaceMenuHelperRcPtr menu_helper;
+  auto params = OCIO::ColorSpaceMenuParameters::Create(config);
+  params->setAppCategories(categories.toStdString().c_str());
+  menu_helper = OCIO::ColorSpaceMenuHelper::Create(params);
+
+  return menu_helper;
+}
+
 void ColorManager::Retranslate()
 {
   SetInputName(kConfigFilenameIn, tr("Configuration"));

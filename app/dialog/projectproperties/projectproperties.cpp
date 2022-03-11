@@ -225,16 +225,25 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
     ocio_filename_->setStyleSheet(QString());
     ocio_config_is_valid_ = true;
 
-    // List input color spaces
-    QStringList input_cs = ColorManager::ListAvailableColorspaces(c);
+    OCIO::ColorSpaceMenuHelperRcPtr menu_helper = ColorManager::CreateMenuHelper(c, "Input");
 
-    foreach (QString cs, input_cs) {
-      default_input_colorspace_->addItem(cs);
-
-      if (cs == working_project_->color_manager()->GetDefaultInputColorSpace()) {
-        default_input_colorspace_->setCurrentIndex(default_input_colorspace_->count()-1);
+    if (menu_helper->getNumColorSpaces() > 0) {
+      for (int i = 0; i < menu_helper->getNumColorSpaces(); i++) {
+        QString colorspace = menu_helper->getName(i);
+        default_input_colorspace_->addItem(colorspace);
+        default_input_colorspace_->setItemData(i, menu_helper->getDescription(i), Qt::ToolTipRole);
+      }
+    } else {
+      // Config doesn't use our Input category so fall back and list all available color spaces
+      for (int i = 0; i < c->getNumColorSpaces(); i++) {
+        QString colorspace = c->getColorSpaceNameByIndex(i);
+        default_input_colorspace_->addItem(colorspace);
       }
     }
+
+    default_input_colorspace_->setCurrentIndex(default_input_colorspace_->findText(
+                                               working_project_->color_manager()->GetDefaultInputColorSpace()));
+
   } catch (OCIO::Exception& e) {
     ocio_config_is_valid_ = false;
     ocio_filename_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));

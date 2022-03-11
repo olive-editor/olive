@@ -101,6 +101,8 @@ public:
 
   void GetDefaultLumaCoefs(double *rgb) const;
 
+  static OCIO::ColorSpaceMenuHelperRcPtr CreateMenuHelper(OCIO::ConstConfigRcPtr config, QString categories = QString());
+
   class SetLocale
   {
   public:

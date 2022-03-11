@@ -9,6 +9,7 @@
 
 ocio_profile_version: 2
 
+environment: {}
 search_path: "luts:looks"
 strictparsing: true
 luma: [0.2126, 0.7152, 0.0722]
@@ -49,6 +50,10 @@ displays:
 active_displays: [sRGB, BT.1886, Apple Display P3]
 #active_views: [Filmic Log Encoding Base, sRGB OETF, Non-Colour Data, Linear Raw, No View]
 
+file_rules:
+  - !<Rule> {name: OpenEXR, extension: "exr", pattern: "*", colorspace: Linear}
+  - !<Rule> {name: Default, colorspace: default}
+
 colorspaces:
   - !<ColorSpace>
     name: Linear
@@ -58,6 +63,7 @@ colorspaces:
     description: |
       ITU BT.709 primaries based scene referred linear space.
     isdata: false
+    categories: [ Input ]
     allocation: lg2
     allocationvars: [-12.4739311883, 12.5260688117, 0.00392156862]
 
@@ -86,7 +92,7 @@ colorspaces:
     description: |
       sRGB specification display referred Optical-Electro Transfer Function.
     isdata: false
-    categories: [ Camera ]
+    categories: [ Input ]
     allocation: uniform
     allocationvars: [0.0, 1.0]
     to_reference: !<FileTransform> {src: sRGB_OETF_to_Linear.spi1d, interpolation: linear}
@@ -184,7 +190,7 @@ colorspaces:
     description: |
       Fuji F-Log transfer function
     isdata: false
-    categories: [ Camera ]
+    categories: [ Camera, Input ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<FileTransform> {src: F-Log_to_Linear.spi1d, interpolation: linear}
@@ -197,7 +203,7 @@ colorspaces:
     description: |
       Fuji F-Log / F-Gamut
     isdata: false
-    categories: [ Camera ]
+    categories: [ Camera, Input ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
@@ -214,7 +220,7 @@ colorspaces:
     description: |
       Panasonic V-Log / V-Gamut
     isdata: false
-    categories: [ Camera ]
+    categories: [ Camera, Input ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
@@ -230,7 +236,7 @@ colorspaces:
     description: |
       Arri WIde Gamut at EI 800
     isdata: false
-    categories: [ Camera ]
+    categories: [ Camera, Input ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
@@ -246,7 +252,7 @@ colorspaces:
     description: |
       Arri Wide Gamut Space at EI 400
     isdata: false
-    categories: [ Camera ]
+    categories: [ Camera, Input ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>
@@ -262,6 +268,7 @@ colorspaces:
     equalitygroup:
     bitdepth: 32f
     isdata: true
+    categories: [ Input ]
     allocation: uniform
     allocationvars: [0, 1]
 
