@@ -70,8 +70,15 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
     video_color_space_->setPlaceholderText(color_manager->GetConfig()->getCanonicalName(
         vp.colorspace().toStdString().c_str()));
   } else {
+    QString colorspace;
+    if (vp.format() == VideoParams::Format::kFormatUnsigned8 ||
+        vp.format() == VideoParams::Format::kFormatUnsigned16) {
+      colorspace = color_manager->GetDefaultByteInputColorSpace();
+    } else {
+      colorspace = color_manager->GetDefaultFloatInputColorSpace();
+    }
     video_color_space_->setPlaceholderText(color_manager->GetConfig()->getCanonicalName(
-        color_manager->GetDefaultInputColorSpace().toStdString().c_str()));
+        colorspace.toStdString().c_str()));
   }
 
   video_layout->addWidget(video_color_space_, row, 1);

@@ -50,7 +50,8 @@ private:
 
   QLineEdit* ocio_filename_;
 
-  ColorSpaceComboBox* default_input_colorspace_;
+  ColorSpaceComboBox* default_float_input_colorspace_;
+  ColorSpaceComboBox* default_byte_input_colorspace_;
 
   bool ocio_config_is_valid_;
 

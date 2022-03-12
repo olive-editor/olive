@@ -58,8 +58,8 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
       input_combobox_->addItem(s);
     }
 
-    if (!color_manager_->GetDefaultInputColorSpace().isEmpty()) {
-      input_combobox_->setCurrentText(color_manager_->GetDefaultInputColorSpace());
+    if (!color_manager_->GetDefaultFloatInputColorSpace().isEmpty()) {
+      input_combobox_->setCurrentText(color_manager_->GetDefaultFloatInputColorSpace());
     }
 
     connect(input_combobox_, &QComboBox::currentTextChanged, this, &ColorSpaceChooser::ComboBoxChanged);

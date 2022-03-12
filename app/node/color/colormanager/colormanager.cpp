@@ -31,7 +31,8 @@
 namespace olive {
 
 const QString ColorManager::kConfigFilenameIn = QStringLiteral("config");
-const QString ColorManager::kDefaultColorspaceIn = QStringLiteral("default_input");
+const QString ColorManager::kDefaultFloatColorspaceIn = QStringLiteral("default_float_input");
+const QString ColorManager::kDefaultByteColorspaceIn = QStringLiteral("default_byte_input");
 const QString ColorManager::kReferenceSpaceIn = QStringLiteral("reference_space");
 
 OCIO::ConstConfigRcPtr ColorManager::default_config_ = nullptr;
@@ -43,14 +44,27 @@ ColorManager::ColorManager() :
   AddInput(kConfigFilenameIn, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Colorspace input
-  AddInput(kDefaultColorspaceIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kDefaultFloatColorspaceIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kDefaultByteColorspaceIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Default reference space is scene linear
   AddInput(kReferenceSpaceIn, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Set config to our built-in default
   SetConfig(GetDefaultConfig());
-  SetDefaultInputColorSpace(config_->getCanonicalName(OCIO::ROLE_DEFAULT));
+
+  if (config_->hasRole("default_float")) {
+    SetDefaultFloatInputColorSpace(config_->getCanonicalName("default_float"));
+  }
+  else {
+    SetDefaultFloatInputColorSpace(config_->getCanonicalName(OCIO::ROLE_DEFAULT));
+  }
+
+  if (config_->hasRole("default_byte")) {
+    SetDefaultByteInputColorSpace(config_->getCanonicalName("default_byte"));
+  } else {
+    SetDefaultByteInputColorSpace(config_->getCanonicalName(OCIO::ROLE_DEFAULT));
+  }
 }
 
 OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
@@ -181,14 +195,24 @@ QStringList ColorManager::ListAvailableColorspaces() const
   return ListAvailableColorspaces(config_);
 }
 
-QString ColorManager::GetDefaultInputColorSpace() const
+QString ColorManager::GetDefaultFloatInputColorSpace() const
 {
-  return ListAvailableColorspaces().at(GetStandardValue(kDefaultColorspaceIn).toInt());
+  return ListAvailableColorspaces().at(GetStandardValue(kDefaultFloatColorspaceIn).toInt());
 }
 
-void ColorManager::SetDefaultInputColorSpace(const QString &s)
+void ColorManager::SetDefaultFloatInputColorSpace(const QString &s)
 {
-  SetStandardValue(kDefaultColorspaceIn, ListAvailableColorspaces().indexOf(s));
+  SetStandardValue(kDefaultFloatColorspaceIn, ListAvailableColorspaces().indexOf(s));
+}
+
+QString ColorManager::GetDefaultByteInputColorSpace() const
+{
+  return ListAvailableColorspaces().at(GetStandardValue(kDefaultByteColorspaceIn).toInt());
+}
+
+void ColorManager::SetDefaultByteInputColorSpace(const QString &s)
+{
+  SetStandardValue(kDefaultByteColorspaceIn, ListAvailableColorspaces().indexOf(s));
 }
 
 QString ColorManager::GetReferenceColorSpace() const
@@ -207,7 +231,7 @@ QString ColorManager::GetCompliantColorSpace(const QString &s)
   if (ListAvailableColorspaces().contains(s)) {
     return s;
   } else {
-    return GetDefaultInputColorSpace();
+    return config_->getCanonicalName(OCIO::ROLE_DEFAULT);
   }
 }
 
@@ -241,7 +265,7 @@ ColorTransform ColorManager::GetCompliantColorSpace(const ColorTransform &transf
     QString output = transform.output();
 
     if (!ListAvailableColorspaces().contains(output)) {
-      output = GetDefaultInputColorSpace();
+      output = config_->getCanonicalName(OCIO::ROLE_DEFAULT);
     }
 
     return ColorTransform(output);
@@ -281,7 +305,8 @@ OCIO::ColorSpaceMenuHelperRcPtr ColorManager::CreateMenuHelper(OCIO::ConstConfig
 void ColorManager::Retranslate()
 {
   SetInputName(kConfigFilenameIn, tr("Configuration"));
-  SetInputName(kDefaultColorspaceIn, tr("Default Input"));
+  SetInputName(kDefaultFloatColorspaceIn, tr("Default Float Input"));
+  SetInputName(kDefaultByteColorspaceIn, tr("Default Byte Input"));
   SetInputName(kReferenceSpaceIn, tr("Reference Space"));
 
   SetComboBoxStrings(kReferenceSpaceIn, {tr("Scene Linear"), tr("Compositing Log")});
@@ -316,7 +341,7 @@ void ColorManager::SetConfig(OCIO::ConstConfigRcPtr config)
 {
   config_ = config;
 
-  SetComboBoxStrings(kDefaultColorspaceIn, ListAvailableColorspaces());
+  //SetComboBoxStrings(kDefaultColorspaceIn, ListAvailableColorspaces());
 }
 
 }

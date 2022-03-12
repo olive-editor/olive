@@ -87,9 +87,13 @@ public:
 
   QStringList ListAvailableColorspaces() const;
 
-  QString GetDefaultInputColorSpace() const;
+  QString GetDefaultFloatInputColorSpace() const;
 
-  void SetDefaultInputColorSpace(const QString& s);
+  void SetDefaultFloatInputColorSpace(const QString& s);
+
+  QString GetDefaultByteInputColorSpace() const;
+
+  void SetDefaultByteInputColorSpace(const QString& s);
 
   QString GetReferenceColorSpace() const;
 
@@ -121,7 +125,8 @@ public:
   }
 
   static const QString kConfigFilenameIn;
-  static const QString kDefaultColorspaceIn;
+  static const QString kDefaultByteColorspaceIn;
+  static const QString kDefaultFloatColorspaceIn;
   static const QString kReferenceSpaceIn;
 
   virtual void Retranslate() override;
