@@ -341,6 +341,7 @@ void ColorManager::SetConfig(OCIO::ConstConfigRcPtr config)
 {
   config_ = config;
 
+  // FIXME Tom:Do we ever see this on the node properties window?
   //SetComboBoxStrings(kDefaultColorspaceIn, ListAvailableColorspaces());
 }
 
