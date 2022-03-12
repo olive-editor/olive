@@ -72,7 +72,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
 
     color_layout->addWidget(new QLabel(tr("Default Input Color Space:")), row, 0);
 
-    default_input_colorspace_ = new QComboBox();
+    default_input_colorspace_ = new ColorSpaceComboBox(working_project_->color_manager(), "Input");
     color_layout->addWidget(default_input_colorspace_, row, 1, 1, 2);
 
     row++;
@@ -177,8 +177,8 @@ void ProjectPropertiesDialog::accept()
   if (working_project_->color_manager()->GetConfigFilename() != ocio_filename_->text()) {
     working_project_->color_manager()->SetConfigFilename(ocio_filename_->text());
   }
-  if (working_project_->color_manager()->GetDefaultInputColorSpace() != default_input_colorspace_->currentText()) {
-    working_project_->color_manager()->SetDefaultInputColorSpace(default_input_colorspace_->currentText());
+  if (working_project_->color_manager()->GetDefaultInputColorSpace() != default_input_colorspace_->placeholderText()) {
+    working_project_->color_manager()->SetDefaultInputColorSpace(default_input_colorspace_->placeholderText());
   }
 
   super::accept();
@@ -225,24 +225,8 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
     ocio_filename_->setStyleSheet(QString());
     ocio_config_is_valid_ = true;
 
-    OCIO::ColorSpaceMenuHelperRcPtr menu_helper = ColorManager::CreateMenuHelper(c, "Input");
-
-    if (menu_helper->getNumColorSpaces() > 0) {
-      for (int i = 0; i < menu_helper->getNumColorSpaces(); i++) {
-        QString colorspace = menu_helper->getName(i);
-        default_input_colorspace_->addItem(colorspace);
-        default_input_colorspace_->setItemData(i, menu_helper->getDescription(i), Qt::ToolTipRole);
-      }
-    } else {
-      // Config doesn't use our Input category so fall back and list all available color spaces
-      for (int i = 0; i < c->getNumColorSpaces(); i++) {
-        QString colorspace = c->getColorSpaceNameByIndex(i);
-        default_input_colorspace_->addItem(colorspace);
-      }
-    }
-
-    default_input_colorspace_->setCurrentIndex(default_input_colorspace_->findText(
-                                               working_project_->color_manager()->GetDefaultInputColorSpace()));
+    default_input_colorspace_->setPlaceholderText(working_project_->color_manager()->GetConfig()->getCanonicalName(
+                                               working_project_->color_manager()->GetDefaultInputColorSpace().toStdString().c_str()));
 
   } catch (OCIO::Exception& e) {
     ocio_config_is_valid_ = false;

@@ -26,6 +26,7 @@
 
 #include "node/project/footage/footage.h"
 #include "streamproperties.h"
+#include "widget/colorspacecombobox/colorspacecombobox.h"
 #include "widget/slider/integerslider.h"
 #include "widget/standardcombos/standardcombos.h"
 
@@ -54,7 +55,7 @@ private:
   /**
    * @brief Setting for this media's color space
    */
-  QComboBox* video_color_space_;
+  ColorSpaceComboBox* video_color_space_;
 
   /**
    * @brief Setting for video interlacing

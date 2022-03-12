@@ -63,29 +63,15 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
 
   video_layout->addWidget(new QLabel(tr("Color Space:")), row, 0);
 
-  video_color_space_ = new QComboBox();
+  video_color_space_ = new ColorSpaceComboBox(footage_->project()->color_manager(), "Input", true, this);
   ColorManager* color_manager = footage_->project()->color_manager();
-  OCIO::ConstConfigRcPtr config = color_manager->GetConfig();
-
-  OCIO::ColorSpaceMenuHelperRcPtr menu_helper = color_manager->CreateMenuHelper(config, "Input");
-
-  if (menu_helper->getNumColorSpaces() > 0) {
-    for (int i = 0; i < menu_helper->getNumColorSpaces(); i++) {
-      QString colorspace = menu_helper->getName(i);
-      video_color_space_->addItem(colorspace);
-      video_color_space_->setItemData(i, menu_helper->getDescription(i), Qt::ToolTipRole);
-    }
-  } else {
-    // Config doesn't use our Input category so fall back and list all available color spaces
-    for (int i = 0; i < config->getNumColorSpaces(); i++) {
-      QString colorspace = config->getColorSpaceNameByIndex(i);
-      video_color_space_->addItem(colorspace);
-    }
-  }
+  
   if (!vp.colorspace().isEmpty()) {
-    video_color_space_->setCurrentText(color_manager->GetConfig()->getCanonicalName(vp.colorspace().toStdString().c_str()));
+    video_color_space_->setPlaceholderText(color_manager->GetConfig()->getCanonicalName(
+        vp.colorspace().toStdString().c_str()));
   } else {
-    video_color_space_->setCurrentIndex(video_color_space_->findText(color_manager->GetDefaultInputColorSpace()));
+    video_color_space_->setPlaceholderText(color_manager->GetConfig()->getCanonicalName(
+        color_manager->GetDefaultInputColorSpace().toStdString().c_str()));
   }
 
   video_layout->addWidget(video_color_space_, row, 1);
@@ -136,11 +122,7 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
 
 void VideoStreamProperties::Accept(MultiUndoCommand *parent)
 {
-  QString set_colorspace;
-
-  if (video_color_space_->currentIndex() > 0) {
-    set_colorspace = video_color_space_->currentText();
-  }
+  QString set_colorspace = video_color_space_->placeholderText();
 
   VideoParams vp = footage_->GetVideoParams(video_index_);
 
