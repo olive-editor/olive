@@ -70,6 +70,7 @@ void ColorSpaceComboBox::showPopup()
 
   if (a) {
     this->setPlaceholderText(a->data().toString());
+    emit currentTextChanged(a->data().toString());
   }
 }
 
