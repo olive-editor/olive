@@ -68,6 +68,7 @@ public:
     kTimeOffsetNode,
     kCornerPinDistort,
     kDisplayTransform,
+    kOCIOGradingTransform,
 
     // Count value
     kInternalNodeCount

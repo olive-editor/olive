@@ -30,6 +30,7 @@
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "color/displaytransform/displaytransform.h"
+#include "color/ociogradingtransform/ociogradingtransform.h"
 #include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
@@ -270,6 +271,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new CornerPinDistortNode();
   case kDisplayTransform:
     return new DisplayTransformNode();
+  case kOCIOGradingTransform:
+    return new OCIOGradingTransformNode();
 
   case kInternalNodeCount:
     break;

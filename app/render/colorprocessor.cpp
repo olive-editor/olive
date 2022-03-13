@@ -25,6 +25,9 @@
 #include "node/color/colormanager/colormanager.h"
 
 namespace olive {
+ColorProcessor::ColorProcessor()
+{
+}
 
 ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform)
 {

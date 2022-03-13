@@ -42,12 +42,14 @@ public:
   };
 
   ColorProcessor(ColorManager* config, const QString& input, const ColorTransform& dest_space);
+  ColorProcessor();
 
   DISABLE_COPY_MOVE(ColorProcessor)
 
   static ColorProcessorPtr Create(ColorManager* config, const QString& input, const ColorTransform& dest_space);
 
   OCIO::ConstProcessorRcPtr GetProcessor();
+  void SetProsessor(OCIO::ConstProcessorRcPtr processor) { processor_ = processor; };
 
   void ConvertFrame(FramePtr f);
   void ConvertFrame(Frame* f);

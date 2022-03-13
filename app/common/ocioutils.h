@@ -24,6 +24,8 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
 
+#include <QVector4D>
+
 #include "render/videoparams.h"
 
 namespace olive {
@@ -32,6 +34,8 @@ class OCIOUtils
 {
 public:
   static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(VideoParams::Format format);
+
+  static OCIO::GradingRGBM QVec4ToRGBM(QVector4D vector);
 };
 
 }
