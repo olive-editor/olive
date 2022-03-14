@@ -55,6 +55,7 @@
 #include <QTextCharFormat>
 #include <QRegularExpression>
 
+
 class QTextDocument;
 
 namespace olive {
@@ -87,6 +88,44 @@ private:
   QTextCharFormat multiline_comment_format_;
   QTextCharFormat quotation_format_;
   QTextCharFormat number_format_;
+
+private:
+  void highlightKeywords(const QString &text);
+  void highlightMultilineComments(const QString &text);
+  void storeParenthesisInfo(const QString &text);
+};
+
+
+struct ParenthesisInfo
+{
+  char character;
+  int position;
+};
+
+/* utility class to store brakets info */
+class TextBlockData : public QTextBlockUserData
+{
+public:
+  TextBlockData() {
+  }
+
+  const QVector<ParenthesisInfo> & parentheses() {
+    return m_parentheses;
+  }
+
+  void insert(ParenthesisInfo & info) {
+    int i = 0;
+    while (i < m_parentheses.size() &&
+           info.position > m_parentheses.at(i).position)
+    {
+      ++i;
+    }
+
+    m_parentheses.insert(i, info);
+  }
+
+private:
+  QVector<ParenthesisInfo> m_parentheses;
 };
 
 }  // namespace olive

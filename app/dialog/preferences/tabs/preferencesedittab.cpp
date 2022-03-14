@@ -61,15 +61,26 @@ PreferencesEditTab::PreferencesEditTab()
 
   //internal editor
   QGridLayout * internal_editor_layout = new QGridLayout(internal_editor_box);
-  internal_editor_layout->addWidget( new QLabel(tr("Font size")), 1, 1);
+  internal_editor_layout->addWidget( new QLabel(tr("Font size")), 0, 0);
   font_size_ = new QSpinBox();
-  internal_editor_layout->addWidget( font_size_, 1, 2);
-  internal_editor_layout->addWidget( new QLabel(tr("Indent size")), 2, 1);
+  internal_editor_layout->addWidget( font_size_, 0, 1);
+  internal_editor_layout->addWidget( new QLabel(tr("Indent size")), 1, 0);
   indent_size_ = new QSpinBox();
-  internal_editor_layout->addWidget( indent_size_, 2, 2);
+  internal_editor_layout->addWidget( indent_size_, 1, 1);
+  internal_editor_layout->addWidget( new QLabel(tr("Window size (WxH)")), 2, 0);
+  window_width_ = new QSpinBox();
+  window_heigth_ = new QSpinBox();
+  internal_editor_layout->addWidget( window_width_, 2, 1);
+  internal_editor_layout->addWidget( window_heigth_, 2, 2);
+  internal_editor_layout->addItem( new QSpacerItem(1,1, QSizePolicy::Expanding), 0, 3);
   internal_editor_layout->addItem( new QSpacerItem(1,1, QSizePolicy::Expanding), 1, 3);
   internal_editor_layout->addItem( new QSpacerItem(1,1, QSizePolicy::Expanding), 2, 3);
   outer_layout->addWidget(internal_editor_box);
+
+  window_heigth_->setMinimum(10);
+  window_heigth_->setMaximum(4096);
+  window_width_->setMinimum(10);
+  window_width_->setMaximum(4096);
 
   //external editor
   QVBoxLayout * external_editor_layout = new QVBoxLayout(external_editor_box);
@@ -96,6 +107,8 @@ PreferencesEditTab::PreferencesEditTab()
   indent_size_->setValue( Config::Current()["EditorInternalIndentSize"].toInt());
   ext_command_->setText( Config::Current()["EditorExternalCommand"].toString());
   ext_params_->setText( Config::Current()["EditorExternalParams"].toString());
+  window_heigth_->setValue( Config::Current()["EditorInternalWindowHeight"].toInt());
+  window_width_->setValue( Config::Current()["EditorInternalWindowWidth"].toInt());
 }
 
 bool PreferencesEditTab::Validate()
@@ -112,6 +125,8 @@ void PreferencesEditTab::Accept(MultiUndoCommand *command)
   Config::Current()["EditorExternalParams"] = QVariant::fromValue(ext_params_->text());
   Config::Current()["EditorInternalFontSize"] = QVariant::fromValue(font_size_->value());
   Config::Current()["EditorInternalIndentSize"] = QVariant::fromValue(indent_size_->value());
+  Config::Current()["EditorInternalWindowHeight"] = QVariant::fromValue(window_heigth_->value());
+  Config::Current()["EditorInternalWindowWidth"] = QVariant::fromValue(window_width_->value());
 }
 
 }

@@ -50,6 +50,8 @@ private:
   // for internal editor
   QSpinBox * font_size_;
   QSpinBox * indent_size_;
+  QSpinBox * window_width_;
+  QSpinBox * window_heigth_;
 
   // for external editor
   QLineEdit * ext_command_;

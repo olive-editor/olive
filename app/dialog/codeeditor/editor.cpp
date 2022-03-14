@@ -32,6 +32,17 @@
 
 #include "glslhighlighter.h"
 
+namespace {
+// matching bracket for each kind of parenthesis
+const QMap<char, char> BRACKET_PAIR = QMap<char, char>{{'(', ')'}, {'[', ']'}, {'{', '}'},
+                                                       {')', '('}, {']', '['}, {'}', '{'}};
+
+const Qt::GlobalColor BRACKET_MATCH_COLOR = Qt::darkGreen;
+const Qt::GlobalColor BRACKET_NOT_MATCH_COLOR = Qt::darkRed;
+
+// used in parentheses match algorithm.
+const int BRACKET_LAST = -2;
+}
 
 namespace olive {
 
@@ -42,7 +53,7 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
   connect( this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
   connect( this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
-  connect( this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+  connect( this, SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
 
   updateLineNumberAreaWidth(0);
   highlightCurrentLine();
@@ -54,7 +65,6 @@ CodeEditor::CodeEditor(QWidget *parent) :
 
   setContextMenuPolicy( Qt::DefaultContextMenu);
 
-  // These hard coded settings should be customizable in settings dialog
   setMinimumSize( 900, 600);
 
   QFont font("Monospace");
@@ -64,6 +74,12 @@ CodeEditor::CodeEditor(QWidget *parent) :
   int fontSize = Config::Current()["EditorInternalFontSize"].toInt( & valid);
   fontSize = valid ? fontSize : 14;
   font.setPointSize( fontSize);
+  int win_width = Config::Current()["EditorInternalWindowWidth"].toInt( & valid);
+  win_width = valid ? win_width : 800;
+  int win_height = Config::Current()["EditorInternalWindowHeight"].toInt( & valid);
+  win_height = valid ? win_height : 600;
+
+  setMinimumSize( win_width, win_height);
 
   setFont( font);
 
@@ -94,7 +110,7 @@ void CodeEditor::gotoLineNumber(int lineNumber)
   /* block number start from 0 where 'lineNumber' start from 1 */
   QTextCursor cursor(document()->findBlockByLineNumber(lineNumber - 1));
   setTextCursor(cursor);
-  highlightCurrentLine();
+  onCursorPositionChanged();
 }
 
 void CodeEditor::onSearchBackwardRequest(const QString &text, QTextDocument::FindFlags flags)
@@ -197,10 +213,19 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 }
 
 
+void CodeEditor::onCursorPositionChanged()
+{
+  extra_selections_.clear();
+
+  highlightCurrentLine();
+  matchParenthesis();
+
+  setExtraSelections(extra_selections_);
+}
+
+
 void CodeEditor::highlightCurrentLine()
 {
-  QList<QTextEdit::ExtraSelection> extraSelections;
-
   QTextEdit::ExtraSelection selection;
 
   QColor lineColor = QColor(40,40,0);
@@ -209,9 +234,149 @@ void CodeEditor::highlightCurrentLine()
   selection.format.setProperty( QTextFormat::FullWidthSelection, true);
   selection.cursor = textCursor();
   selection.cursor.clearSelection();
-  extraSelections.append(selection);
+  extra_selections_.append(selection);
+}
 
-  setExtraSelections(extraSelections);
+
+void CodeEditor::matchParenthesis()
+{
+  TextBlockData * parenthesis_data = static_cast<TextBlockData *>(textCursor().block().userData());
+
+  if (parenthesis_data) {
+    const QVector<ParenthesisInfo> & infos = parenthesis_data->parentheses();
+
+    int pos = textCursor().block().position();
+    for (int i = 0; i < infos.size(); ++i) {
+      const ParenthesisInfo & info = infos.at(i);
+
+      int cur_pos = textCursor().position() - textCursor().block().position();
+
+      if ((info.position == (cur_pos)) && (QString("([{").contains(info.character))) {
+        if (matchLeftParenthesis( info.character, textCursor().block(), i + 1, 0)) {
+          createParenthesisSelection(pos + info.position, BRACKET_MATCH_COLOR);
+        } else {
+          createParenthesisSelection(pos + info.position, BRACKET_NOT_MATCH_COLOR);
+        }
+      } else if ((info.position == (cur_pos - 1)) && (QString(")]}").contains(info.character))) {
+        if (matchRightParenthesis( info.character, textCursor().block(), i - 1, 0)) {
+          createParenthesisSelection(pos + info.position, BRACKET_MATCH_COLOR);
+        } else {
+          createParenthesisSelection(pos + info.position, BRACKET_NOT_MATCH_COLOR);
+        }
+      }
+    }
+  }
+}
+
+
+// search for a right (closing) bracket that matches a given left (opening) bracket.
+// The search is performed in the 'currentBlock' or recursively in next one.
+// 'numLeftParentheses' is the counter of additional left brackets found in previous calls.
+// Param 'i' (index) is used when the search does not start from the begin of the block: in this case,
+// we don't have to search brackets after the current cursor position.
+//
+bool CodeEditor::matchLeftParenthesis( char left, QTextBlock currentBlock, int i, int numLeftParentheses)
+{
+  TextBlockData * parenthesis_data = static_cast<TextBlockData *>(currentBlock.userData());
+  const QVector<ParenthesisInfo> & infos = parenthesis_data->parentheses();
+
+  bool found_matching = false;
+  int doc_pos = currentBlock.position();
+
+  for (; i < infos.size(); ++i) {
+    const ParenthesisInfo & info = infos.at(i);
+
+    if (info.character == left) {
+      // found another opening bracket
+      ++numLeftParentheses;
+
+    } else if (info.character == BRACKET_PAIR.value(left)) {
+
+      if (numLeftParentheses == 0) {
+        //found matching closing bracket
+        createParenthesisSelection(doc_pos + info.position, BRACKET_MATCH_COLOR);
+        found_matching = true;
+      } else {
+        //found closing bracket, but not the right one
+        --numLeftParentheses;
+      }
+    }
+  }
+
+  if (found_matching == false) {
+    currentBlock = currentBlock.next();
+    if (currentBlock.isValid()) {
+      found_matching = matchLeftParenthesis( left, currentBlock, 0, numLeftParentheses);
+    }
+  }
+
+  return found_matching;
+}
+
+// search for a left (opening) bracket that matches a given right (closing) bracket.
+// The search is performed in the 'currentBlock' or recursively in previous one.
+// 'numRightParentheses' is the counter of additional right brackets found in previous calls.
+// Param 'i' (index) is used when the search does not start from the end of the block: in this case,
+// we don't have to search brackets before the current cursor position. Value "BRACKET_LAST" means
+// to start from last item
+//
+bool CodeEditor::matchRightParenthesis(char right, QTextBlock currentBlock, int i, int numRightParentheses)
+{
+  TextBlockData * parenthesis_data = static_cast<TextBlockData *>(currentBlock.userData());
+  const QVector<ParenthesisInfo> & parentheses = parenthesis_data->parentheses();
+
+  bool found_matching = false;
+  int doc_pos = currentBlock.position();
+
+  if ((i == BRACKET_LAST) && (parentheses.size() > 0)){
+    // start from last item
+    i = parentheses.size() - 1;
+  }
+
+  for (; (i > -1) && (parentheses.size() > 0); --i) {
+    const ParenthesisInfo & info = parentheses.at(i);
+
+    if (info.character == right) {
+      // found another closing bracket
+      ++numRightParentheses;
+
+    } else if (info.character == BRACKET_PAIR.value(right)) {
+
+      if (numRightParentheses == 0) {
+        //found matching opening bracket
+        createParenthesisSelection(doc_pos + info.position, BRACKET_MATCH_COLOR);
+        found_matching = true;
+      } else {
+        // found opening bracket, but not the right one
+        --numRightParentheses;
+      }
+    }
+  }
+
+  if (found_matching == false) {
+    currentBlock = currentBlock.previous();
+    if (currentBlock.isValid()) {
+      found_matching = matchRightParenthesis( right, currentBlock, BRACKET_LAST, numRightParentheses);
+    }
+  }
+
+  return found_matching;
+}
+
+
+void CodeEditor::createParenthesisSelection(int pos, Qt::GlobalColor color)
+{
+  QTextEdit::ExtraSelection selection;
+  QTextCharFormat format = selection.format;
+  format.setBackground(color);
+  selection.format = format;
+
+  QTextCursor cursor = textCursor();
+  cursor.setPosition(pos);
+  cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+  selection.cursor = cursor;
+
+  extra_selections_.append(selection);
 }
 
 

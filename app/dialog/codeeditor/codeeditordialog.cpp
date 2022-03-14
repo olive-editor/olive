@@ -113,7 +113,7 @@ void CodeEditorDialog::OnActionAddInputInt()
         "//OVE max: 10\n"
         "//OVE default: 0\n"
         "//OVE description:\n"
-        "uniform float my_int;\n");
+        "uniform int my_int;\n");
 }
 
 void CodeEditorDialog::OnActionAddInputBoolean()

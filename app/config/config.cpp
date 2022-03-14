@@ -143,6 +143,8 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("EditorExternalParams"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("EditorInternalFontSize"), NodeValue::kInt, 14);
   SetEntryInternal(QStringLiteral("EditorInternalIndentSize"), NodeValue::kInt, 3);
+  SetEntryInternal(QStringLiteral("EditorInternalWindowWidth"), NodeValue::kInt, 800);
+  SetEntryInternal(QStringLiteral("EditorInternalWindowHeight"), NodeValue::kInt, 600);
 }
 
 void Config::Load()

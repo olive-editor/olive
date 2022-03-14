@@ -54,6 +54,10 @@ namespace olive {
 
 namespace  {
 
+// flag to indicate to not store info about matching parentheses.
+// This is true for comments and string literals
+const int IS_NON_PARSABLE = 0x1000;
+
 const QString keywordPatterns[] = {
   QStringLiteral("\\bclass\\b"), QStringLiteral("\\bconst\\b"), QStringLiteral("\\benum\\b"),
   QStringLiteral("\\bbreak\\b"), QStringLiteral("\\bshort\\b"), QStringLiteral("\\bif\\b"),
@@ -61,7 +65,7 @@ const QString keywordPatterns[] = {
   QStringLiteral("\\belse\\b"), QStringLiteral("\\breturn\\b"), QStringLiteral("\\btypedef\\b"),
   QStringLiteral("\\bvolatile\\b"), QStringLiteral("\\bgl_FragColor\\b"), QStringLiteral("\\bswitch\\b"),
   QStringLiteral("\\btrue\\b"), QStringLiteral("\\bfalse\\b"), QStringLiteral("\\bstatic\\b"),
-  QStringLiteral("\\bdefault\\b"), QStringLiteral("\\b#define\\b")
+  QStringLiteral("\\bdefault\\b"), QStringLiteral("#define\\b")
 };
 
 const QString typePatterns[] = {
@@ -118,11 +122,13 @@ GlslHighlighter::GlslHighlighter(QTextDocument *parent)
   highlighting_rules_.append(rule);
 
   single_line_comment_format_.setForeground(QColor(60,180,80));
+  single_line_comment_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
   rule.pattern = QRegularExpression(QStringLiteral("//[^\n]*"));
   rule.format = single_line_comment_format_;
   highlighting_rules_.append(rule);
 
   markup_line_comment_format_.setForeground(QColor(70,120,130));
+  markup_line_comment_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
   for (const QString &pattern : oliveMarkupPatterns) {
     rule.pattern = QRegularExpression(pattern);
     rule.format = markup_line_comment_format_;
@@ -130,8 +136,10 @@ GlslHighlighter::GlslHighlighter(QTextDocument *parent)
   }
 
   multiline_comment_format_.setForeground(QColor(60,180,80));
+  multiline_comment_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
 
   quotation_format_.setForeground(QColor(130,130,80));
+  quotation_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
   rule.pattern = QRegularExpression(QStringLiteral("\".*\""));
   rule.format = quotation_format_;
   highlighting_rules_.append(rule);
@@ -143,6 +151,14 @@ GlslHighlighter::GlslHighlighter(QTextDocument *parent)
 
 void GlslHighlighter::highlightBlock(const QString &text)
 {
+  highlightKeywords(text);
+  highlightMultilineComments(text);
+
+  storeParenthesisInfo(text);
+}
+
+void olive::GlslHighlighter::highlightKeywords(const QString &text)
+{
   for (const HighlightingRule &rule : qAsConst(highlighting_rules_)) {
     QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
     while (matchIterator.hasNext()) {
@@ -150,27 +166,57 @@ void GlslHighlighter::highlightBlock(const QString &text)
       setFormat(match.capturedStart(), match.capturedLength(), rule.format);
     }
   }
+}
+
+
+void olive::GlslHighlighter::highlightMultilineComments(const QString &text)
+{
+  int start_index = 0;
 
   setCurrentBlockState(0);
 
-  int startIndex = 0;
-  if (previousBlockState() != 1)
-    startIndex = text.indexOf(comment_start_expression_);
-
-  while (startIndex >= 0) {
-    QRegularExpressionMatch match = comment_end_expression_.match(text, startIndex);
-    int endIndex = match.capturedStart();
-    int commentLength = 0;
-    if (endIndex == -1) {
-      setCurrentBlockState(1);
-      commentLength = text.length() - startIndex;
-    } else {
-      commentLength = endIndex - startIndex
-          + match.capturedLength();
-    }
-    setFormat(startIndex, commentLength, multiline_comment_format_);
-    startIndex = text.indexOf(comment_start_expression_, startIndex + commentLength);
+  if (previousBlockState() != 1) {
+    start_index = text.indexOf(comment_start_expression_);
   }
+
+  while (start_index >= 0) {
+    QRegularExpressionMatch match = comment_end_expression_.match(text, start_index);
+    int end_index = match.capturedStart();
+    int commentLength = 0;
+    if (end_index == -1) {
+      setCurrentBlockState(1);
+      commentLength = text.length() - start_index;
+    } else {
+      commentLength = end_index - start_index + match.capturedLength();
+    }
+    setFormat(start_index, commentLength, multiline_comment_format_);
+    start_index = text.indexOf(comment_start_expression_, start_index + commentLength);
+  }
+}
+
+
+void olive::GlslHighlighter::storeParenthesisInfo(const QString &text)
+{
+  static const QRegularExpression ParenthesisRegExp("[\\(\\)\\[\\]\\{\\}]{1}");
+
+  /* the ownership of this will be passed to QTextBlock */
+  TextBlockData *data = new TextBlockData;
+
+  QRegularExpressionMatchIterator i = ParenthesisRegExp.globalMatch(text);
+  while (i.hasNext()) {
+    QRegularExpressionMatch match = i.next();
+
+    // store parenthesis info only if not in comments or string literals
+    if (format(match.capturedStart(0)).hasProperty(IS_NON_PARSABLE) == false) {
+
+      ParenthesisInfo info;
+      info.character = match.captured().toLatin1().at(0);
+      info.position = match.capturedStart(0);
+      data->insert( info);
+    }
+  }
+
+  setCurrentBlockUserData(data);
 }
 
 }  // namespace olive

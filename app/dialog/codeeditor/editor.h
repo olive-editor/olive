@@ -23,6 +23,7 @@
 
 #include <QPlainTextEdit>
 #include <QTextDocument>
+#include <QTextBlock>
 
 namespace olive {
 
@@ -57,15 +58,21 @@ protected:
 
 private slots:
   void updateLineNumberAreaWidth(int newBlockCount);
-  void highlightCurrentLine();
+  void onCursorPositionChanged();
+  bool matchLeftParenthesis(char left, QTextBlock currentBlock, int i, int numLeftParentheses);
+  bool matchRightParenthesis( char right, QTextBlock currentBlock, int i, int numRightParentheses);
   void updateLineNumberArea(const QRect &, int);
 
 private:
+  void highlightCurrentLine();
+  void matchParenthesis();
   int countTrailingSpaces( int block_position);
+  void createParenthesisSelection(int pos, Qt::GlobalColor color);
 
 private:
   QWidget * m_lineNumberArea;
   int indent_size_;
+   QList<QTextEdit::ExtraSelection> extra_selections_;
 };
 
 /// @brief helper widget to print line numbers
