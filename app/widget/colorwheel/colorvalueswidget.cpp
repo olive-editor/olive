@@ -79,7 +79,7 @@ ColorValuesWidget::ColorValuesWidget(ColorManager *manager, QWidget *parent) :
     connect(display_tab_, &ColorValuesTab::ColorChanged, this, &ColorValuesWidget::UpdateValuesFromDisplay);
 
     // FIXME: Display -> Ref temporarily disabled due to OCIO crash (see ColorDialog::ColorSpaceChanged for more info)
-    display_tab_->setEnabled(false);
+    //display_tab_->setEnabled(false);
 
     layout->addWidget(tabs);
   }

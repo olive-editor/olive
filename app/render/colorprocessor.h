@@ -41,11 +41,11 @@ public:
     kInverse
   };
 
-  ColorProcessor(ColorManager* config, const QString& input, const ColorTransform& dest_space);
+  ColorProcessor(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction=kNormal);
 
   DISABLE_COPY_MOVE(ColorProcessor)
 
-  static ColorProcessorPtr Create(ColorManager* config, const QString& input, const ColorTransform& dest_space);
+  static ColorProcessorPtr Create(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction=kNormal);
 
   OCIO::ConstProcessorRcPtr GetProcessor();
 
@@ -67,6 +67,8 @@ private:
   OCIO::ConstCPUProcessorRcPtr cpu_processor_;
 
   QString id_;
+
+  Direction dir_;
 
 };
 
