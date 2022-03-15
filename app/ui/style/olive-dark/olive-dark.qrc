@@ -166,10 +166,10 @@
     <file>png/padlock_closed.32.png</file>
     <file>png/padlock_closed.64.png</file>
     <file>png/padlock_closed.128.png</file>
-    <file>png/padlock_closed.16.png</file>
-    <file>png/padlock_closed.32.png</file>
-    <file>png/padlock_closed.64.png</file>
-    <file>png/padlock_closed.128.png</file>
+    <file>png/padlock_opened.16.png</file>
+    <file>png/padlock_opened.32.png</file>
+    <file>png/padlock_opened.64.png</file>
+    <file>png/padlock_opened.128.png</file>
     <file>png/paste.16.png</file>
     <file>png/paste.32.png</file>
     <file>png/paste.64.png</file>
