@@ -82,6 +82,14 @@
     <file>png/export.32.png</file>
     <file>png/export.64.png</file>
     <file>png/export.128.png</file>
+    <file>png/eye_closed.16.png</file>
+    <file>png/eye_closed.32.png</file>
+    <file>png/eye_closed.64.png</file>
+    <file>png/eye_closed.128.png</file>
+    <file>png/eye_opened.16.png</file>
+    <file>png/eye_opened.32.png</file>
+    <file>png/eye_opened.64.png</file>
+    <file>png/eye_opened.128.png</file>
     <file>png/ff.16.png</file>
     <file>png/ff.32.png</file>
     <file>png/ff.64.png</file>
@@ -154,6 +162,14 @@
     <file>png/open.32.png</file>
     <file>png/open.64.png</file>
     <file>png/open.128.png</file>
+    <file>png/padlock_closed.16.png</file>
+    <file>png/padlock_closed.32.png</file>
+    <file>png/padlock_closed.64.png</file>
+    <file>png/padlock_closed.128.png</file>
+    <file>png/padlock_closed.16.png</file>
+    <file>png/padlock_closed.32.png</file>
+    <file>png/padlock_closed.64.png</file>
+    <file>png/padlock_closed.128.png</file>
     <file>png/paste.16.png</file>
     <file>png/paste.32.png</file>
     <file>png/paste.64.png</file>
