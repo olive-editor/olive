@@ -146,8 +146,18 @@ void StyleManager::Init()
 
   qApp->setStyle(QStyleFactory::create("Fusion"));
 
-  available_themes_.insert(QStringLiteral("olive-dark"), QStringLiteral("Olive Dark"));
-  available_themes_.insert(QStringLiteral("olive-light"), QStringLiteral("Olive Light"));
+  available_themes_.insert(QStringLiteral("olive-dark"), QStringLiteral("Dark"));
+  available_themes_.insert(QStringLiteral("olive-dark2"), QStringLiteral("Dark v2"));
+  available_themes_.insert(QStringLiteral("olive-darker"), QStringLiteral("Darker"));
+  available_themes_.insert(QStringLiteral("olive-grey"), QStringLiteral("Grey"));
+  available_themes_.insert(QStringLiteral("olive-light"), QStringLiteral("Light"));
+  available_themes_.insert(QStringLiteral("olive-light2"), QStringLiteral("Light v2"));
+  available_themes_.insert(QStringLiteral("olive-resolve"), QStringLiteral("Resolve"));
+  available_themes_.insert(QStringLiteral("olive-olive"), QStringLiteral("Olive"));
+  available_themes_.insert(QStringLiteral("olive-seasons-spring"), QStringLiteral("Seasons - Spring"));
+  available_themes_.insert(QStringLiteral("olive-seasons-summer"), QStringLiteral("Seasons - Summer"));
+  available_themes_.insert(QStringLiteral("olive-seasons-winter"), QStringLiteral("Seasons - Winter"));
+  available_themes_.insert(QStringLiteral("olive-seasons-fall"), QStringLiteral("Seasons - Fall"));
 
   QString config_style = Config::Current()["Style"].toString();
 
