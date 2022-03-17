@@ -285,6 +285,7 @@ public:
         || type == kVec2
         || type == kVec3
         || type == kVec4
+        || type == kBezier
         || type == kColor
         || type == kRational;
   }
