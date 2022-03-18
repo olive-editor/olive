@@ -26,7 +26,7 @@ docker pull olivevideoeditor/ci-common:2
 docker pull olivevideoeditor/ci-package-otio
 docker pull olivevideoeditor/ci-package-crashpad
 docker pull olivevideoeditor/ci-package-ffmpeg:4.2.4
-docker pull olivevideoeditor/ci-package-ocio:2021-2.0.0
+docker pull olivevideoeditor/ci-package-ocio:2022-2.1.1
 docker pull olivevideoeditor/ci-olive:2021.4
 ```
 
@@ -49,7 +49,7 @@ docker build -t olivevideoeditor/ci-common:2 -f ci-common/Dockerfile .
 docker build -t olivevideoeditor/ci-package-otio -f ci-otio/Dockerfile .
 docker build -t olivevideoeditor/ci-package-crashpad -f ci-crashpad/Dockerfile .
 docker build -t olivevideoeditor/ci-package-ffmpeg:4.2.4 -f ci-ffmpeg/Dockerfile .
-docker build -t olivevideoeditor/ci-package-ocio:2021-2.0.0 -f ci-ocio/Dockerfile .
+docker build -t olivevideoeditor/ci-package-ocio:2022-2.1.1 -f ci-ocio/Dockerfile .
 docker build -t olivevideoeditor/ci-olive:2021.4 -f ci-olive/Dockerfile .
 ```
 
@@ -64,6 +64,6 @@ docker push olivevideoeditor/ci-common:2
 docker push olivevideoeditor/ci-package-otio
 docker push olivevideoeditor/ci-package-crashpad
 docker push olivevideoeditor/ci-package-ffmpeg:4.2.4
-docker push olivevideoeditor/ci-package-ocio:2021-2.0.0
+docker push olivevideoeditor/ci-package-ocio:2022-2.1.1
 docker push olivevideoeditor/ci-olive:2021.4
 ```
