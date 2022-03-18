@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 # Copyright (c) Contributors to the aswf-docker Project. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0 OR GPL-3.0-or-later
 
@@ -9,7 +9,7 @@ ARG OLIVE_ORG=olivevideoeditor
 ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
 ARG DTS_VERSION=9
-ARG CMAKE_VERSION=3.19.3
+ARG CMAKE_VERSION=3.22.3
 
 FROM ${ASWF_PKG_ORG}/ci-package-clang:${CI_COMMON_VERSION} as ci-package-clang
 FROM ${ASWF_PKG_ORG}/ci-package-ninja:${CI_COMMON_VERSION} as ci-package-ninja
