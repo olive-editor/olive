@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 set -ex
