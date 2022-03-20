@@ -283,7 +283,7 @@ bool CodeEditor::matchLeftParenthesis( char left, QTextBlock currentBlock, int i
   bool found_matching = false;
   int doc_pos = currentBlock.position();
 
-  for (; i < infos.size(); ++i) {
+  for (; (i < infos.size())  && ( ! found_matching); ++i) {
     const ParenthesisInfo & info = infos.at(i);
 
     if (info.character == left) {
@@ -297,7 +297,7 @@ bool CodeEditor::matchLeftParenthesis( char left, QTextBlock currentBlock, int i
         createParenthesisSelection(doc_pos + info.position, BRACKET_MATCH_COLOR);
         found_matching = true;
       } else {
-        //found closing bracket, but not the right one
+        //found closing bracket, but not the correct one
         --numLeftParentheses;
       }
     }
@@ -333,7 +333,7 @@ bool CodeEditor::matchRightParenthesis(char right, QTextBlock currentBlock, int 
     i = parentheses.size() - 1;
   }
 
-  for (; (i > -1) && (parentheses.size() > 0); --i) {
+  for (; (i > -1) && (parentheses.size() > 0) && ( ! found_matching); --i) {
     const ParenthesisInfo & info = parentheses.at(i);
 
     if (info.character == right) {
@@ -347,7 +347,7 @@ bool CodeEditor::matchRightParenthesis(char right, QTextBlock currentBlock, int 
         createParenthesisSelection(doc_pos + info.position, BRACKET_MATCH_COLOR);
         found_matching = true;
       } else {
-        // found opening bracket, but not the right one
+        // found opening bracket, but not the correct one
         --numRightParentheses;
       }
     }

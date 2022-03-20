@@ -44,6 +44,7 @@ CodeEditorDialog::CodeEditorDialog(const QString &start, QWidget* parent) :
   QAction * add_int_input = edit_addSnippet_menu->addAction(tr("integer"));
   QAction * add_boolean_input = edit_addSnippet_menu->addAction(tr("boolean"));
   QAction * add_selection_input = edit_addSnippet_menu->addAction(tr("selection"));
+  QAction * add_point_input = edit_addSnippet_menu->addAction(tr("point"));
 
   connect( add_texture_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputTexture);
   connect( add_color_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputColor);
@@ -51,6 +52,7 @@ CodeEditorDialog::CodeEditorDialog(const QString &start, QWidget* parent) :
   connect( add_int_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputInt);
   connect( add_boolean_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputBoolean);
   connect( add_selection_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputSelection);
+  connect( add_point_input, &QAction::triggered, this, &CodeEditorDialog::OnActionAddInputPoint);
 
   search_bar_ = new SearchTextBar( this);
   search_bar_->hide();
@@ -136,6 +138,16 @@ void CodeEditorDialog::OnActionAddInputSelection()
         "//OVE default: 0\n"
         "//OVE description: \n"
         "uniform int my_selection;\n");
+}
+
+void CodeEditorDialog::OnActionAddInputPoint()
+{
+  text_edit_->insertPlainText(
+        "//OVE name: my point\n"
+        "//OVE type: POINT\n"
+        "//OVE default: (0.4, 0.2)\n"
+        "//OVE description: \n"
+        "uniform vec2 my_point;\n");
 }
 
 void CodeEditorDialog::OnFindRequest()

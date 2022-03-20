@@ -22,6 +22,7 @@
 #define ShaderFilterNode_H
 
 #include "node/node.h"
+#include "node/inputdragger.h"
 
 namespace olive {
 
@@ -71,6 +72,21 @@ private:
   // user defined inputs
   QStringList user_input_list_;
 
+  // two draggers for x and y, shared by all vec2 inputs
+  NodeInputDragger dragger_[2];
+  // one handle for every vec2 input
+  QMap<QString, QRectF> handle_table_;
+
+  QString currently_dragged_input_;
+  QVector2D resolution_;
+
+  // Node interface
+public:
+  bool HasGizmos() const override;
+  void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
+  bool GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p) override;
+  void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
+  void GizmoRelease(MultiUndoCommand *command) override;
 };
 
 }

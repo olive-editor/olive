@@ -51,6 +51,7 @@ private slots:
   void OnActionAddInputInt();
   void OnActionAddInputBoolean();
   void OnActionAddInputSelection();
+  void OnActionAddInputPoint();
   void OnFindRequest();
 };
 

@@ -120,9 +120,8 @@ private:
   InputParseState parseInputDescription( const QRegularExpressionMatch &);
   InputParseState stopParse( const QRegularExpressionMatch &);
 
-  QMap< const QRegularExpression *, LineParseFunction> INPUT_PARAM_PARSE_TABLE;
-
   QVariant parseColor( const QStringRef & line);
+  QVariant parsePoint( const QStringRef & line);
   void reportError( const QString & error);
 
 private:
@@ -132,6 +131,7 @@ private:
   int line_number_;
 
   QString shader_name_;
+  QMap< const QRegularExpression *, LineParseFunction> INPUT_PARAM_PARSE_TABLE;
 };
 
 }

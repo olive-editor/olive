@@ -24,6 +24,7 @@
 #include <QRegularExpression>
 #include <QMap>
 #include <limits>
+#include <QVector2D>
 
 #include "render/color.h"
 
@@ -76,13 +77,14 @@ const QMap<QString, NodeValue::Type> INPUT_TYPE_TABLE{{"TEXTURE", NodeValue::kTe
                                                       {"FLOAT", NodeValue::kFloat},
                                                       {"INTEGER", NodeValue::kInt},
                                                       {"BOOLEAN", NodeValue::kBoolean},
-                                                      {"SELECTION", NodeValue::kCombo}
+                                                      {"SELECTION", NodeValue::kCombo},
+                                                      {"POINT", NodeValue::kVec2}
                                                      };
 
 // table with default minimum and maximum values for a node type.
 // This is needed to avoid that 0 is used as minimum and maximum if user does not specify one
-const QMap<NodeValue::Type, QVariant> MINIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<float>::min())},
-                                                    {NodeValue::kInt, QVariant( std::numeric_limits<int>::min())}
+const QMap<NodeValue::Type, QVariant> MINIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<float>::lowest())},
+                                                    {NodeValue::kInt, QVariant( std::numeric_limits<int>::lowest())}
                                                    };
 
 const QMap<NodeValue::Type, QVariant> MAXIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<int>::max())},
@@ -238,7 +240,7 @@ ShaderInputsParser::parseShaderDescription(const QRegularExpressionMatch & /*mat
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseShaderVersion(const QRegularExpressionMatch & /*match*/)
 {
-  // nothing to do. SO far.
+  // nothing to do. So far.
   return PARSING;
 }
 
@@ -440,6 +442,10 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
     }
     break;
 
+  case NodeValue::kVec2:
+    currentInput.default_value = parsePoint( default_string);
+    break;
+
   default:
   case NodeValue::kTexture:
   case NodeValue::kNone:
@@ -501,6 +507,33 @@ QVariant ShaderInputsParser::parseColor(const QStringRef& line)
   }
 
   return color;
+}
+
+QVariant ShaderInputsParser::parsePoint(const QStringRef &line)
+{
+  static const QRegularExpression
+      POINT_REGEX("\\s*\\(\\s*(?<x>[\\d\\.]+)\\s*,\\s*(?<y>[\\d\\.]+)\\s*\\)");
+
+  QVariant point;
+  QRegularExpressionMatch match = POINT_REGEX.match(line);
+
+  if (match.hasMatch()) {
+    float x,y;
+    bool ok_x, ok_y;
+
+    x = match.captured("x").toFloat( & ok_x);
+    y = match.captured("y").toFloat( & ok_y);
+
+    if (ok_x && ok_y) {
+      point = QVariant::fromValue<QVector2D>({x,y});
+    }
+  }
+
+  if (point == QVariant()) {
+    reportError(QObject::tr("Point must be in format '(x,y)' where x and y are float values"));
+  }
+
+  return point;
 }
 
 void ShaderInputsParser::reportError(const QString& error)
