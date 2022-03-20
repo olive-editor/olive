@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 set -ex
 
-git clone --depth 1 https://github.com/PixarAnimationStudios/OpenTimelineIO.git
+git clone --depth 1 --branch "$OTIO_VERSION" https://github.com/PixarAnimationStudios/OpenTimelineIO.git
 cd OpenTimelineIO
-
-#if [ "$OTIO_VERSION" != "latest" ]; then
-#    git checkout "tags/v${OTIO_VERSION}" -b "v${OTIO_VERSION}"
-#fi
 
 #pip install --prefix="${OLIVE_INSTALL_PREFIX}" .
 
