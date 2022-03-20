@@ -10,7 +10,8 @@ uniform int curve_in;
 
 uniform float ove_tprog_all;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 float TransformCurve(float linear) {
     if (curve_in == EXPONENTIAL_CURVE) {
@@ -33,5 +34,5 @@ void main(void) {
         composite += texture2D(in_block_in, ove_texcoord) * TransformCurve(ove_tprog_all);
     }
 
-    gl_FragColor = composite;
+    frag_color = composite;
 }

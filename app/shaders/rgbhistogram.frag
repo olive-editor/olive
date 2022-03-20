@@ -2,7 +2,8 @@ uniform sampler2D ove_maintex;
 uniform vec2 viewport;
 uniform float histogram_scale;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 void main(void) {
     float histogram_width = ceil(histogram_scale * viewport.y);
@@ -27,5 +28,5 @@ void main(void) {
             );
     }
 
-    gl_FragColor = vec4(sum, 1.0);
+    frag_color = vec4(sum, 1.0);
 }
