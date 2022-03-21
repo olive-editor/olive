@@ -4,7 +4,8 @@ uniform vec2 viewport;
 uniform float histogram_scale;
 uniform float histogram_power;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 void main(void) {
     vec3 col = vec3(0.0);
@@ -26,5 +27,5 @@ void main(void) {
     histogram_ratio = pow(sum / total_pixels, vec3(histogram_power));
     col = step(vec3(ove_texcoord.y), histogram_ratio);
 
-    gl_FragColor = vec4(col, 1.0);
+    frag_color = vec4(col, 1.0);
 }

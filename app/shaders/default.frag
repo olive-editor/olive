@@ -2,9 +2,10 @@
 uniform sampler2D ove_maintex;
 
 // Input texture coordinate
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 void main() {
     vec4 color = texture2D(ove_maintex, ove_texcoord);
-    gl_FragColor = color;
+    frag_color = color;
 }
