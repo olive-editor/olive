@@ -63,9 +63,10 @@ const QString keywordPatterns[] = {
   QStringLiteral("\\bbreak\\b"), QStringLiteral("\\bshort\\b"), QStringLiteral("\\bif\\b"),
   QStringLiteral("\\bfor\\b"), QStringLiteral("\\bwhile\\b"), QStringLiteral("\\bstruct\\b"),
   QStringLiteral("\\belse\\b"), QStringLiteral("\\breturn\\b"), QStringLiteral("\\btypedef\\b"),
-  QStringLiteral("\\bvolatile\\b"), QStringLiteral("\\bgl_FragColor\\b"), QStringLiteral("\\bswitch\\b"),
+  QStringLiteral("\\bvolatile\\b"), QStringLiteral("\\bfrag_color\\b"), QStringLiteral("\\bswitch\\b"),
   QStringLiteral("\\btrue\\b"), QStringLiteral("\\bfalse\\b"), QStringLiteral("\\bstatic\\b"),
-  QStringLiteral("\\bdefault\\b"), QStringLiteral("#define\\b")
+  QStringLiteral("\\bdefault\\b"), QStringLiteral("#define\\b"), QStringLiteral("\\bove_texcoord\\b"),
+  QStringLiteral("\\bin\\b"), QStringLiteral("\\bout\\b"), QStringLiteral("\\bresolution_in\\b")
 };
 
 const QString typePatterns[] = {
@@ -73,7 +74,7 @@ const QString typePatterns[] = {
   QStringLiteral("\\bdouble\\b"), QStringLiteral("\\bfloat\\b"), QStringLiteral("\\blong\\b"),
   QStringLiteral("\\bshort\\b"),QStringLiteral("\\bsigned\\b"), QStringLiteral("\\bunsigned\\b"),
   QStringLiteral("\\bunion\\b"), QStringLiteral("\\bvoid\\b"),QStringLiteral("\\bbool\\b"),
-  QStringLiteral("\\buniform\\b"), QStringLiteral("\\bvarying\\b"), QStringLiteral("\\bvec\\b"),
+  QStringLiteral("\\buniform\\b"), QStringLiteral("\\bvec\\b"),
   QStringLiteral("\\bvec2\\b"), QStringLiteral("\\bvec3\\b"), QStringLiteral("\\bvec4\\b"),
   QStringLiteral("\\bint\\b"), QStringLiteral("\\bsampler2D\\b")
 };
