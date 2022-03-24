@@ -45,7 +45,7 @@ void main() {
     }
 
     if (multiplier > 0.0) {
-        vec4 color = texture2D(tex_in, ove_texcoord) * multiplier;
+        vec4 color = texture(tex_in, ove_texcoord) * multiplier;
         frag_color = color;
     } else {
         frag_color = vec4(0.0);

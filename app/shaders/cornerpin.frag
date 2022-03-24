@@ -18,7 +18,7 @@ float Wedge2D(vec2 v, vec2 w) {
 
 void main() {
     if(perspective_in){
-        frag_color = texture2D(tex_in, ove_texcoord);
+        frag_color = texture(tex_in, ove_texcoord);
     } else {
       float A = Wedge2D(b2, b3);
     float B = Wedge2D(b3, q) - Wedge2D(b1, b2);
@@ -44,6 +44,6 @@ void main() {
 
     uv.y = 1.0 - uv.y;
 
-    frag_color = texture2D(tex_in, uv);
+    frag_color = texture(tex_in, uv);
   }
 }

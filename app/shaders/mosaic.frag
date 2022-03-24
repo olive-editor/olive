@@ -24,6 +24,6 @@ void main() {
     y = ove_texcoord.y;
   }
 
-  vec4 color = texture2D(tex_in, vec2(x, y));
+  vec4 color = texture(tex_in, vec2(x, y));
   frag_color = color;
 }

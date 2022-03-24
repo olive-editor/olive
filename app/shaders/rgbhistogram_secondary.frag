@@ -18,7 +18,7 @@ void main(void) {
 
     for (int i = 0; float(i) < histogram_height; i++) {
         ratio = float(i) / float(histogram_height - 1.0);
-        sum += texture2D(
+        sum += texture(
             ove_maintex,
             vec2(ove_texcoord.x, ratio)
         ).rgb;

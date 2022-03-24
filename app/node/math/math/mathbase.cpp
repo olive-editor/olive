@@ -48,7 +48,7 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
     const QString& mat_in = (type_a == NodeValue::kTexture) ? param_b_in : param_a_in;
 
     // No-op frag shader (can we return QString() instead?)
-    operation = QStringLiteral("texture2D(%1, ove_texcoord)").arg(tex_in);
+    operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in);
 
     vert = QStringLiteral("uniform mat4 %1;\n"
                           "\n"
@@ -130,7 +130,7 @@ QString MathNodeBase::GetShaderUniformType(const olive::NodeValue::Type &type)
 QString MathNodeBase::GetShaderVariableCall(const QString &input_id, const NodeValue::Type &type, const QString& coord_op)
 {
   if (type == NodeValue::kTexture) {
-    return QStringLiteral("texture2D(%1, ove_texcoord%2)").arg(input_id, coord_op);
+    return QStringLiteral("texture(%1, ove_texcoord%2)").arg(input_id, coord_op);
   }
 
   return input_id;
