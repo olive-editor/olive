@@ -84,6 +84,10 @@ QIcon icon::Diamond;
 QIcon icon::Plus;
 QIcon icon::Minus;
 QIcon icon::AddEffect;
+QIcon icon::EyeOpened;
+QIcon icon::EyeClosed;
+QIcon icon::LockOpened;
+QIcon icon::LockClosed;
 
 void icon::LoadAll(const QString& theme)
 {
@@ -146,6 +150,11 @@ void icon::LoadAll(const QString& theme)
   Plus = Create(theme, "plus");
   Minus = Create(theme, "minus");
   AddEffect = Create(theme, "add-effect");
+
+  EyeOpened = Create(theme, "eye-opened");
+  EyeClosed = Create(theme, "eye-closed");
+  LockOpened = Create(theme, "lock-opened");
+  LockClosed = Create(theme, "lock-closed");
 }
 
 QIcon icon::Create(const QString& theme, const QString &name)

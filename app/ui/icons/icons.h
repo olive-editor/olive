@@ -96,6 +96,10 @@ extern QIcon Diamond;
 extern QIcon Plus;
 extern QIcon Minus;
 extern QIcon AddEffect;
+extern QIcon EyeOpened;
+extern QIcon EyeClosed;
+extern QIcon LockOpened;
+extern QIcon LockClosed;
 
 /**
  * @brief Create an icon object loaded from file
