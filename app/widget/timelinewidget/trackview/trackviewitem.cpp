@@ -68,7 +68,7 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
   layout->addWidget(solo_button_);*/
 
   lock_button_ = CreateMSLButton(Qt::gray);
-  lock_button_->setCheckable(track->IsLocked());
+  lock_button_->setChecked(track->IsLocked());
   UpdateLockButton(track->IsLocked());
   connect(lock_button_, &QPushButton::toggled, track_, &Track::SetLocked);
   connect(lock_button_, &QPushButton::toggled, this, &TrackViewItem::UpdateLockButton);
