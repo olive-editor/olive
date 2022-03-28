@@ -54,6 +54,8 @@ public:
 
   static QFrame* CreateHorizontalLine();
 
+  static QFrame* CreateVerticalLine();
+
   static int MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString& title, const QString& message, QMessageBox::StandardButtons buttons = QMessageBox::Ok);
 
   static QDateTime GetCreationDate(const QFileInfo &info);

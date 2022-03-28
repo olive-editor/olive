@@ -48,10 +48,15 @@ public:
 
   void SetRequestedFormat(VideoParams::Format f) { requested_format_ = f; }
 
+  const QString &GetColorspace() const { return colorspace_; }
+  void SetColorspace(const QString &s) { colorspace_ = s; }
+
 private:
   AlphaChannelSetting alpha_channel_required_;
 
   VideoParams::Format requested_format_;
+
+  QString colorspace_;
 
 };
 

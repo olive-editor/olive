@@ -83,7 +83,7 @@ public:
    * @brief Transform a point from viewer space to the buffer space.
    * Multiplies by the inverted transform matrix to undo the scaling and translation.
    */
-  QPoint TransformViewerSpaceToBufferSpace(QPoint pos);
+  QPointF TransformViewerSpaceToBufferSpace(const QPointF &pos);
 
   bool IsDeinterlacing() const
   {
@@ -216,6 +216,8 @@ protected:
    */
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+
   virtual void dragEnterEvent(QDragEnterEvent* event) override;
 
   virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
@@ -254,6 +256,8 @@ private:
     rational node_time = GetGizmoTime();
     return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
   }
+
+  NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
@@ -302,10 +306,11 @@ private:
 
   Node* gizmos_;
   NodeValueRow gizmo_db_;
-  rational gizmo_drag_time_;
   VideoParams gizmo_params_;
   QPoint gizmo_start_drag_;
-  bool gizmo_click_;
+  QPoint gizmo_last_drag_;
+  NodeGizmo *current_gizmo_;
+  bool gizmo_drag_started_;
 
   rational time_;
 
@@ -357,6 +362,8 @@ private slots:
   void EmitColorAtCursor(QMouseEvent* e);
 
   void UpdateFromQueue();
+
+  void TextEditChanged();
 
 };
 

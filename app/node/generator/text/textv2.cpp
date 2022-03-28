@@ -18,7 +18,7 @@
 
 ***/
 
-#include "text.h"
+#include "textv2.h"
 
 #include <QAbstractTextDocumentLayout>
 #include <QDateTime>
@@ -37,13 +37,13 @@ enum TextVerticalAlign {
   kVerticalAlignBottom,
 };
 
-const QString TextGenerator::kTextInput = QStringLiteral("text_in");
-const QString TextGenerator::kHtmlInput = QStringLiteral("html_in");
-const QString TextGenerator::kVAlignInput = QStringLiteral("valign_in");
-const QString TextGenerator::kFontInput = QStringLiteral("font_in");
-const QString TextGenerator::kFontSizeInput = QStringLiteral("font_size_in");
+const QString TextGeneratorV2::kTextInput = QStringLiteral("text_in");
+const QString TextGeneratorV2::kHtmlInput = QStringLiteral("html_in");
+const QString TextGeneratorV2::kVAlignInput = QStringLiteral("valign_in");
+const QString TextGeneratorV2::kFontInput = QStringLiteral("font_in");
+const QString TextGeneratorV2::kFontSizeInput = QStringLiteral("font_size_in");
 
-TextGenerator::TextGenerator()
+TextGeneratorV2::TextGeneratorV2()
 {
   AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
 
@@ -59,27 +59,27 @@ TextGenerator::TextGenerator()
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 }
 
-QString TextGenerator::Name() const
+QString TextGeneratorV2::Name() const
 {
-  return tr("Text");
+  return tr("Text (Legacy)");
 }
 
-QString TextGenerator::id() const
+QString TextGeneratorV2::id() const
 {
   return QStringLiteral("org.olivevideoeditor.Olive.text2");
 }
 
-QVector<Node::CategoryID> TextGenerator::Category() const
+QVector<Node::CategoryID> TextGeneratorV2::Category() const
 {
   return {kCategoryGenerator};
 }
 
-QString TextGenerator::Description() const
+QString TextGeneratorV2::Description() const
 {
   return tr("Generate rich text.");
 }
 
-void TextGenerator::Retranslate()
+void TextGeneratorV2::Retranslate()
 {
   super::Retranslate();
 
@@ -91,7 +91,7 @@ void TextGenerator::Retranslate()
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-void TextGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   GenerateJob job;
   job.InsertValue(value);
@@ -103,7 +103,7 @@ void TextGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals,
   }
 }
 
-void TextGenerator::GenerateFrame(FramePtr frame, const GenerateJob& job) const
+void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) const
 {
   // This could probably be more optimized, but for now we use Qt to draw to a QImage.
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto

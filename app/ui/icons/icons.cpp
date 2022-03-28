@@ -65,6 +65,13 @@ QIcon icon::TriUp;
 QIcon icon::TriLeft;
 QIcon icon::TriDown;
 QIcon icon::TriRight;
+QIcon icon::TextBold;
+QIcon icon::TextItalic;
+QIcon icon::TextUnderline;
+QIcon icon::TextAlignLeft;
+QIcon icon::TextAlignRight;
+QIcon icon::TextAlignCenter;
+QIcon icon::TextAlignJustify;
 QIcon icon::Snapping;
 QIcon icon::ZoomIn;
 QIcon icon::ZoomOut;
@@ -118,6 +125,14 @@ void icon::LoadAll(const QString& theme)
   TriLeft = Create(theme, "tri-left");
   TriDown = Create(theme, "tri-down");
   TriRight = Create(theme, "tri-right");
+
+  TextBold = Create(theme, "text-bold");
+  TextItalic = Create(theme, "text-italic");
+  TextUnderline = Create(theme, "text-underline");
+  TextAlignLeft = Create(theme, "align-left");
+  TextAlignRight = Create(theme, "align-right");
+  TextAlignCenter = Create(theme, "align-center");
+  TextAlignJustify = Create(theme, "align-justify-all");
 
   Snapping = Create(theme, "magnet");
   ZoomIn = Create(theme, "zoomin");

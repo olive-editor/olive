@@ -35,6 +35,7 @@
 #include "common/rational.h"
 #include "common/timerange.h"
 #include "common/xmlutils.h"
+#include "node/gizmo/draggable.h"
 #include "node/globals.h"
 #include "node/keyframe.h"
 #include "node/inputimmediate.h"
@@ -840,13 +841,17 @@ public:
    */
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const;
 
-  virtual bool HasGizmos() const;
+  bool HasGizmos() const
+  {
+    return !gizmos_.isEmpty();
+  }
 
-  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter* p);
+  const QVector<NodeGizmo*> &GetGizmos() const
+  {
+    return gizmos_;
+  }
 
-  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF& p);
-  virtual void GizmoMove(const QPointF& p, const rational &time, const Qt::KeyboardModifiers &modifiers);
-  virtual void GizmoRelease(MultiUndoCommand *command);
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals){}
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
@@ -942,6 +947,8 @@ public:
 
   InputFlags GetInputFlags(const QString& input) const;
 
+  static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+
 protected:
   virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
@@ -1008,12 +1015,6 @@ protected:
     kGizmoScaleCount,
   };
 
-  static QRectF CreateGizmoHandleRect(const QPointF& pt, int radius);
-
-  static double GetGizmoHandleRadius(const QTransform& transform);
-
-  static void DrawAndExpandGizmoHandles(QPainter* p, int handle_radius, QRectF* rects, int count);
-
   virtual void LinkChangeEvent(){}
 
   virtual void InputValueChangedEvent(const QString& input, int element);
@@ -1037,6 +1038,34 @@ protected:
   {
     flags_ = f;
   }
+
+  template<typename T>
+  T *AddDraggableGizmo(const QVector<NodeKeyframeTrackReference> &inputs = QVector<NodeKeyframeTrackReference>(), DraggableGizmo::DragValueBehavior behavior = DraggableGizmo::kDeltaFromStart)
+  {
+    T *gizmo = new T(this);
+    gizmo->SetDragValueBehavior(behavior);
+    foreach (const NodeKeyframeTrackReference &input, inputs) {
+      gizmo->AddInput(input);
+    }
+    connect(gizmo, &DraggableGizmo::HandleStart, this, &Node::GizmoDragStart);
+    connect(gizmo, &DraggableGizmo::HandleMovement, this, &Node::GizmoDragMove);
+    return gizmo;
+  }
+
+  template<typename T>
+  T *AddDraggableGizmo(const QStringList &inputs, DraggableGizmo::DragValueBehavior behavior = DraggableGizmo::kDeltaFromStart)
+  {
+    QVector<NodeKeyframeTrackReference> refs(inputs.size());
+    for (int i=0; i<refs.size(); i++) {
+      refs[i] = NodeInput(this, inputs[i]);
+    }
+    return AddDraggableGizmo<T>(refs, behavior);
+  }
+
+protected slots:
+  virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::rational &time){}
+
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers){}
 
 signals:
   /**
@@ -1314,6 +1343,8 @@ private:
   QUuid uuid_;
 
   uint64_t flags_;
+
+  QVector<NodeGizmo*> gizmos_;
 
 private slots:
   /**

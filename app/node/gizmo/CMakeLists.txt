@@ -16,25 +16,21 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/viewer/audiowaveformview.cpp
-  widget/viewer/audiowaveformview.h
-  widget/viewer/footageviewer.cpp
-  widget/viewer/footageviewer.h
-  widget/viewer/viewer.cpp
-  widget/viewer/viewer.h
-  widget/viewer/viewerdisplay.cpp
-  widget/viewer/viewerdisplay.h
-  widget/viewer/viewerplaybacktimer.cpp
-  widget/viewer/viewerplaybacktimer.h
-  widget/viewer/viewerpreventsleep.cpp
-  widget/viewer/viewerpreventsleep.h
-  widget/viewer/viewerqueue.h
-  widget/viewer/viewersafemargininfo.h
-  widget/viewer/viewersizer.cpp
-  widget/viewer/viewersizer.h
-  widget/viewer/viewertexteditor.cpp
-  widget/viewer/viewertexteditor.h
-  widget/viewer/viewerwindow.cpp
-  widget/viewer/viewerwindow.h
+  node/gizmo/draggable.cpp
+  node/gizmo/draggable.h
+  node/gizmo/gizmo.cpp
+  node/gizmo/gizmo.h
+  node/gizmo/line.cpp
+  node/gizmo/line.h
+  node/gizmo/path.cpp
+  node/gizmo/path.h
+  node/gizmo/point.cpp
+  node/gizmo/point.h
+  node/gizmo/polygon.cpp
+  node/gizmo/polygon.h
+  node/gizmo/screen.cpp
+  node/gizmo/screen.h
+  node/gizmo/text.cpp
+  node/gizmo/text.h
   PARENT_SCOPE
 )

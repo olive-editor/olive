@@ -18,29 +18,21 @@
 
 ***/
 
-#ifndef POLYGONGENERATOR_H
-#define POLYGONGENERATOR_H
+#ifndef TEXTGENERATORV2_H
+#define TEXTGENERATORV2_H
 
-#include <QPainterPath>
-
-#include "common/bezier.h"
-#include "node/gizmo/line.h"
-#include "node/gizmo/path.h"
-#include "node/gizmo/point.h"
-#include "node/node.h"
-#include "node/inputdragger.h"
+#include "node/generator/shape/shapenodebase.h"
 
 namespace olive {
 
-class PolygonGenerator : public Node
+class TextGeneratorV2 : public ShapeNodeBase
 {
   Q_OBJECT
 public:
-  PolygonGenerator();
+  TextGeneratorV2();
 
-  NODE_DEFAULT_DESTRUCTOR(PolygonGenerator)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_DESTRUCTOR(TextGeneratorV2)
+  NODE_COPY_FUNCTION(TextGeneratorV2)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -53,29 +45,14 @@ public:
 
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
-
-  static const QString kPointsInput;
-  static const QString kColorInput;
-
-protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
-
-private:
-  static void AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after);
-
-  static QPainterPath GeneratePath(const QVector<NodeValue> &points);
-
-  template<typename T>
-  void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);
-
-  PathGizmo *poly_gizmo_;
-  QVector<PointGizmo*> gizmo_position_handles_;
-  QVector<PointGizmo*> gizmo_bezier_handles_;
-  QVector<LineGizmo*> gizmo_bezier_lines_;
+  static const QString kTextInput;
+  static const QString kHtmlInput;
+  static const QString kVAlignInput;
+  static const QString kFontInput;
+  static const QString kFontSizeInput;
 
 };
 
 }
 
-#endif // POLYGONGENERATOR_H
+#endif // TEXTGENERATORV2_H

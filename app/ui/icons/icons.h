@@ -74,6 +74,15 @@ extern QIcon TriLeft;
 extern QIcon TriDown;
 extern QIcon TriRight;
 
+// Text
+extern QIcon TextBold;
+extern QIcon TextItalic;
+extern QIcon TextUnderline;
+extern QIcon TextAlignLeft;
+extern QIcon TextAlignRight;
+extern QIcon TextAlignCenter;
+extern QIcon TextAlignJustify;
+
 // Miscellaneous Icons
 extern QIcon Snapping;
 extern QIcon ZoomIn;
