@@ -40,6 +40,7 @@ const int NodeParamViewItemBody::kOptionalCheckBox = 0;
 const int NodeParamViewItemBody::kArrayCollapseBtnColumn = 1;
 const int NodeParamViewItemBody::kLabelColumn = 2;
 const int NodeParamViewItemBody::kWidgetStartColumn = 3;
+const int NodeParamViewItemBody::kMaxWidgetColumn = kKeyControlColumn;
 
 #define super NodeParamViewItemBase
 
@@ -277,7 +278,6 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
 
     layout->addWidget(w, row, i+kWidgetStartColumn, 1, column_span);
   }
-
   // In case this input is a group, resolve that actual input to use for connected labels
   NodeInput resolved = NodeGroup::ResolveInput(input_ref);
 
@@ -410,7 +410,17 @@ void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodePara
   for (int i=0; i<bridge->widgets().size(); i++) {
     QWidget* w = bridge->widgets().at(i);
 
-    layout->addWidget(w, row, i+kWidgetStartColumn);
+    int col = i+kWidgetStartColumn;
+
+    int colspan;
+    if (i == bridge->widgets().size()-1) {
+      // Span this widget among remaining columns
+      colspan = kMaxWidgetColumn - col;
+    } else {
+      colspan = 1;
+    }
+
+    layout->addWidget(w, row, col, 1, colspan);
   }
 }
 

@@ -18,21 +18,22 @@
 
 ***/
 
-#ifndef TEXTGENERATORLEGACY_H
-#define TEXTGENERATORLEGACY_H
+#ifndef TEXTGENERATORV3_H
+#define TEXTGENERATORV3_H
 
-#include "node/node.h"
+#include "node/generator/shape/shapenodebase.h"
+#include "node/gizmo/text.h"
 
 namespace olive {
 
-class TextGeneratorLegacy : public Node
+class TextGeneratorV3 : public ShapeNodeBase
 {
   Q_OBJECT
 public:
-  TextGeneratorLegacy();
+  TextGeneratorV3();
 
-  NODE_DEFAULT_DESTRUCTOR(TextGeneratorLegacy)
-  NODE_COPY_FUNCTION(TextGeneratorLegacy)
+  NODE_DEFAULT_DESTRUCTOR(TextGeneratorV3)
+  NODE_COPY_FUNCTION(TextGeneratorV3)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -45,15 +46,15 @@ public:
 
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+
   static const QString kTextInput;
-  static const QString kHtmlInput;
-  static const QString kColorInput;
-  static const QString kVAlignInput;
-  static const QString kFontInput;
-  static const QString kFontSizeInput;
+
+private:
+  TextGizmo *text_gizmo_;
 
 };
 
 }
 
-#endif // TEXTGENERATORLEGACY_H
+#endif // TEXTGENERATORV3_H

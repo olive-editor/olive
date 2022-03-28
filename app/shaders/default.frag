@@ -6,6 +6,6 @@ in vec2 ove_texcoord;
 out vec4 frag_color;
 
 void main() {
-    vec4 color = texture2D(ove_maintex, ove_texcoord);
+    vec4 color = texture(ove_maintex, ove_texcoord);
     frag_color = color;
 }

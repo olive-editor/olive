@@ -36,7 +36,7 @@ void main() {
     return;
   }
 
-  vec4 col = texture2D(ove_maintex, cropped_coord);
+  vec4 col = texture(ove_maintex, cropped_coord);
 
   // If alpha is associated, de-associate now
   if (ove_maintex_alpha == ALPHA_ASSOC) {

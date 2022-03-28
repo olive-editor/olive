@@ -18,7 +18,7 @@
 
 ***/
 
-#include "textlegacy.h"
+#include "textv1.h"
 
 #include <QAbstractTextDocumentLayout>
 #include <QTextDocument>
@@ -31,14 +31,14 @@ enum TextVerticalAlign {
   kVerticalAlignBottom,
 };
 
-const QString TextGeneratorLegacy::kTextInput = QStringLiteral("text_in");
-const QString TextGeneratorLegacy::kHtmlInput = QStringLiteral("html_in");
-const QString TextGeneratorLegacy::kColorInput = QStringLiteral("color_in");
-const QString TextGeneratorLegacy::kVAlignInput = QStringLiteral("valign_in");
-const QString TextGeneratorLegacy::kFontInput = QStringLiteral("font_in");
-const QString TextGeneratorLegacy::kFontSizeInput = QStringLiteral("font_size_in");
+const QString TextGeneratorV1::kTextInput = QStringLiteral("text_in");
+const QString TextGeneratorV1::kHtmlInput = QStringLiteral("html_in");
+const QString TextGeneratorV1::kColorInput = QStringLiteral("color_in");
+const QString TextGeneratorV1::kVAlignInput = QStringLiteral("valign_in");
+const QString TextGeneratorV1::kFontInput = QStringLiteral("font_in");
+const QString TextGeneratorV1::kFontSizeInput = QStringLiteral("font_size_in");
 
-TextGeneratorLegacy::TextGeneratorLegacy()
+TextGeneratorV1::TextGeneratorV1()
 {
   AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
 
@@ -53,27 +53,27 @@ TextGeneratorLegacy::TextGeneratorLegacy()
   AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
 }
 
-QString TextGeneratorLegacy::Name() const
+QString TextGeneratorV1::Name() const
 {
   return tr("Text (Legacy)");
 }
 
-QString TextGeneratorLegacy::id() const
+QString TextGeneratorV1::id() const
 {
   return QStringLiteral("org.olivevideoeditor.Olive.textgenerator");
 }
 
-QVector<Node::CategoryID> TextGeneratorLegacy::Category() const
+QVector<Node::CategoryID> TextGeneratorV1::Category() const
 {
   return {kCategoryGenerator};
 }
 
-QString TextGeneratorLegacy::Description() const
+QString TextGeneratorV1::Description() const
 {
   return tr("Generate rich text.");
 }
 
-void TextGeneratorLegacy::Retranslate()
+void TextGeneratorV1::Retranslate()
 {
   SetInputName(kTextInput, tr("Text"));
   SetInputName(kHtmlInput, tr("Enable HTML"));
@@ -84,7 +84,7 @@ void TextGeneratorLegacy::Retranslate()
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-void TextGeneratorLegacy::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TextGeneratorV1::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   GenerateJob job;
   job.InsertValue(value);
@@ -95,7 +95,7 @@ void TextGeneratorLegacy::Value(const NodeValueRow &value, const NodeGlobals &gl
   }
 }
 
-void TextGeneratorLegacy::GenerateFrame(FramePtr frame, const GenerateJob& job) const
+void TextGeneratorV1::GenerateFrame(FramePtr frame, const GenerateJob& job) const
 {
   // This could probably be more optimized, but for now we use Qt to draw to a QImage.
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto

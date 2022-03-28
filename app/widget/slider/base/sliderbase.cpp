@@ -57,6 +57,7 @@ SliderBase::SliderBase(QWidget *parent) :
 void SliderBase::SetAlignment(Qt::Alignment alignment)
 {
   label_->setAlignment(alignment);
+  editor_->setAlignment(alignment);
 }
 
 bool SliderBase::IsTristate() const

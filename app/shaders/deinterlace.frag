@@ -19,6 +19,6 @@ void main() {
     float half_vert = round(resolution_in.y / 2.0);
     using_texcoord.y = (round(using_texcoord.y * half_vert) + 0.25) / half_vert;
 
-    vec4 color = texture2D(ove_maintex, using_texcoord);
+    vec4 color = texture(ove_maintex, using_texcoord);
     frag_color = color;
 }

@@ -9,8 +9,8 @@ void main() {
     float y_pixel = floor(ove_texcoord.y * resolution_in.y);
 
     if (mod(y_pixel, 2.0) == 0.0) {
-      frag_color = texture2D(top_tex_in, ove_texcoord);
+      frag_color = texture(top_tex_in, ove_texcoord);
     } else {
-      frag_color = texture2D(bottom_tex_in, ove_texcoord);
+      frag_color = texture(bottom_tex_in, ove_texcoord);
     }
 }

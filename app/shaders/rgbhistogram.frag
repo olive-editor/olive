@@ -14,7 +14,7 @@ void main(void) {
 
     for (int i = 0; float(i) < histogram_width; i++) {
         ratio = float(i) / float(histogram_width - 1.0);
-        cur_col = texture2D(
+        cur_col = texture(
             ove_maintex,
             vec2(ove_texcoord.y, ratio)
         ).rgb;

@@ -64,7 +64,7 @@ void main(void) {
     int mode = determine_mode();
 
     if (mode == MODE_NONE) {
-        frag_color = texture2D(tex_in, ove_texcoord);
+        frag_color = texture(tex_in, ove_texcoord);
         return;
     }
 
@@ -116,7 +116,7 @@ void main(void) {
                 && pixel_coord.x < 1.0
                 && pixel_coord.y >= 0.0
                 && pixel_coord.y < 1.0)) {
-            composite += texture2D(tex_in, pixel_coord) * weight;
+            composite += texture(tex_in, pixel_coord) * weight;
         }
     }
 

@@ -18,7 +18,7 @@ void main(void) {
 
     for (int i = 0; float(i) < waveform_height; i++) {
         ratio = float(i) / float(waveform_height - 1.0);
-        cur_col.rgb = texture2D(
+        cur_col.rgb = texture(
             ove_maintex,
             vec2(ove_texcoord.x, ratio)
         ).rgb;
