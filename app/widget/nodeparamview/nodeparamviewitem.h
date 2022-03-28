@@ -134,6 +134,7 @@ private:
   static const int kArrayCollapseBtnColumn;
   static const int kLabelColumn;
   static const int kWidgetStartColumn;
+  static const int kMaxWidgetColumn;
 
 private slots:
   void EdgeChanged(Node *output, const NodeInput &input);
