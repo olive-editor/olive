@@ -5,7 +5,8 @@ uniform vec3 luma_coeffs;
 
 uniform float waveform_scale;
 
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 void main(void) {
     float waveform_height = ceil(waveform_scale * viewport.y);
@@ -17,7 +18,7 @@ void main(void) {
 
     for (int i = 0; float(i) < waveform_height; i++) {
         ratio = float(i) / float(waveform_height - 1.0);
-        cur_col.rgb = texture2D(
+        cur_col.rgb = texture(
             ove_maintex,
             vec2(ove_texcoord.x, ratio)
         ).rgb;
@@ -33,5 +34,5 @@ void main(void) {
     }
 
     col.rgb += vec3(col.w);
-    gl_FragColor = vec4(col.rgb, 1.0);
+    frag_color = vec4(col.rgb, 1.0);
 }

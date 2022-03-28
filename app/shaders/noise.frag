@@ -1,13 +1,13 @@
 uniform float time_in;
-varying vec2 ove_texcoord;
 
 uniform float strength_in;
 uniform bool color_in;
 //uniform bool blend;
 
-// precision lowp    float;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
-float PHI = 1.61803398874989484820459 * 00000.1; // Golden Ratio   
+float PHI = 1.61803398874989484820459 * 00000.1; // Golden Ratio
 float PI  = 3.14159265358979323846264 *  00000.1; // PI
 float SQ2 = 1.41421356237309504880169 * 10000.0; // Square Root of Two
 
@@ -23,16 +23,16 @@ bool isNan( float val )
 
 float gold_noise(vec2 coordinate, float seed){
     float value = fract(tan(distance(coordinate*(seed+PHI), vec2(PHI, PI)))*SQ2)*(strength_in*0.01);
-	return isNan(value) ? 0.0 : value;
+  return isNan(value) ? 0.0 : value;
 }
 
 void main(void) {
-	vec3 noise;
-	if (color_in) {
-		noise = vec3(gold_noise(ove_texcoord, time_in + 42069.0), gold_noise(ove_texcoord, time_in + 69220.0), gold_noise(ove_texcoord, time_in + 1337.0));
-	} else {
-		noise = vec3(gold_noise(ove_texcoord, time_in + 69420.0));
-	}
+  vec3 noise;
+  if (color_in) {
+    noise = vec3(gold_noise(ove_texcoord, time_in + 42069.0), gold_noise(ove_texcoord, time_in + 69220.0), gold_noise(ove_texcoord, time_in + 1337.0));
+  } else {
+    noise = vec3(gold_noise(ove_texcoord, time_in + 69420.0));
+  }
 
-    gl_FragColor = vec4(noise, 1.0);
+    frag_color = vec4(noise, 1.0);
 }

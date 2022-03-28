@@ -16,7 +16,7 @@ luma: [0.2126, 0.7152, 0.0722]
 description: A filmlike dynamic range encoding set for Blender
 
 roles:
-  default: Linear
+  default: sRGB OETF
   reference: Linear
   scene_linear: Linear
   data: Non-Colour Data

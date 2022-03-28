@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Largely based on https://trac.ffmpeg.org/wiki/CompilationGuide/Centos
@@ -213,7 +213,7 @@ wait
 
 ### Set up xvid
 {
-    curl -fLsS -o xvidcore.tar.gz "http://downloads.xvid.org/downloads/xvidcore-${XVID_VERSION}.tar.gz"
+    curl -fLsS -o xvidcore.tar.gz "https://downloads.xvid.com/downloads/xvidcore-${XVID_VERSION}.tar.gz"
     tar xf xvidcore.tar.gz
     rm -f xvidcore.tar.gz
     cd xvidcore/build/generic

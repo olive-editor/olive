@@ -97,18 +97,9 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
 ShaderCode CornerPinDistortNode::GetShaderCode(const QString &shader_id) const
 {
   Q_UNUSED(shader_id)
-  QString frag = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag"));
-  QString vert = FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert"));
 
-  // HACK: No good, very bad hack
-#ifndef Q_OS_MAC
-  frag.prepend(QStringLiteral("#version 130\n\n"));
-  vert.prepend(QStringLiteral("#version 130\n\n"));
-#else
-  vert.prepend(QStringLiteral("#extension GL_EXT_gpu_shader4 : require\n\n"));
-#endif
-
-  return ShaderCode(frag, vert);
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),
+                    FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
 }
 
 QPointF CornerPinDistortNode::ValueToPixel(int value, const NodeValueRow& row, const QVector2D &resolution) const

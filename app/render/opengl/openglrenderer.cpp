@@ -807,6 +807,10 @@ void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation i
 
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  if (target == GL_TEXTURE_3D) {
+    functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  }
 }
 
 void OpenGLRenderer::ClearDestinationInternal(double r, double g, double b, double a)
@@ -883,14 +887,9 @@ GLuint OpenGLRenderer::GetCachedTexture(int width, int height, int depth, VideoP
 GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
 {
   static const QString shader_preamble =
-#ifndef Q_OS_MAC
-      // Use appropriate GL ES 2.0 shader header
-      QStringLiteral("#version 100\n\n"
+      // Use appropriate GL 3.2 shader header
+      QStringLiteral("#version 150\n\n"
                      "precision highp float;\n\n");
-#else
-      // Use desktop GL equivalent header because apparently macOS doesn't support the ES header
-      QStringLiteral("#version 120\n\n");
-#endif
 
   QString complete_code;
 
