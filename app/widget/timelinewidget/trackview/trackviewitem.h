@@ -39,7 +39,7 @@ public:
                 QWidget* parent = nullptr);
 
 private:
-  QPushButton* CreateMSLButton(const QString &text, const QColor &checked_color) const;
+  QPushButton* CreateMSLButton(const QColor &checked_color) const;
 
   QStackedWidget* stack_;
 
@@ -66,6 +66,10 @@ private slots:
   void DeleteTrack();
 
   void DeleteAllEmptyTracks();
+
+  void UpdateMuteButton(bool e);
+
+  void UpdateLockButton(bool e);
 
 };
 
