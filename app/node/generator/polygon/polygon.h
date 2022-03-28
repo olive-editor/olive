@@ -69,6 +69,9 @@ private:
   template<typename T>
   void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);
 
+  template<typename T>
+  NodeGizmo *CreateAppropriateGizmo();
+
   PathGizmo *poly_gizmo_;
   QVector<PointGizmo*> gizmo_position_handles_;
   QVector<PointGizmo*> gizmo_bezier_handles_;

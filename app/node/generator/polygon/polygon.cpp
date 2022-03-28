@@ -153,6 +153,18 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
 }
 
 template<typename T>
+NodeGizmo *PolygonGenerator::CreateAppropriateGizmo()
+{
+  return new T(this);
+}
+
+template<>
+NodeGizmo *PolygonGenerator::CreateAppropriateGizmo<PointGizmo>()
+{
+  return AddDraggableGizmo<PointGizmo>();
+}
+
+template<typename T>
 void PolygonGenerator::ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz)
 {
   int old_sz = vec.size();
@@ -168,11 +180,7 @@ void PolygonGenerator::ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz)
 
     if (old_sz < new_sz) {
       for (int i=old_sz; i<new_sz; i++) {
-        if constexpr(std::is_same_v<T, PointGizmo>) {
-          vec[i] = AddDraggableGizmo<T>();
-        } else {
-          vec[i] = new T(this);
-        }
+        vec[i] = static_cast<T*>(CreateAppropriateGizmo<T>());
       }
     }
   }
