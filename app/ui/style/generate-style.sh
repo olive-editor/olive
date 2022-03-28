@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Olive - Non-Linear Video Editor
 # Copyright (C) 2021 Olive Team
@@ -32,22 +32,38 @@ OUTPUT_SIZES=( 16 32 64 128 )
 if [ $# -lt 1 ]
 then
   echo "Generates sized PNG icons from SVG files"
-  echo "Usage: $0 icon-pack-name"
+  echo "Usage: $0 [options] <icon-pack-name>"
   echo
   echo "Example: $0 olive-dark"
   echo
+  echo "Options:"
+  echo "  -l    Skip existing files (only create files that don't exist)"
   exit 1
 fi
 
-PACKNAME=$1
-SVGDIR=$1/svg
-PNGDIR=$1/png
+SKIP_EXISTING=0
+
+for var in "$@"
+do
+  if [ "$var" == "-l" ]
+  then
+    SKIP_EXISTING=1
+  fi
+done
+
+PACKNAME="${@: -1}"
+SVGDIR=$PACKNAME/svg
+PNGDIR=$PACKNAME/png
 
 mkdir -p $PNGDIR
 
 OutputPng() {
-  inkscape --export-filename $2.png --export-width $s --export-height $s $1
-  convert $2.png -alpha set -background none -channel A -evaluate multiply 0.25 +channel $2.disabled.png
+  if [ $SKIP_EXISTING -eq 0 ] || [ ! -f "$2.png" ]; then
+    inkscape --export-filename $2.png --export-width $s --export-height $s $1
+  fi
+  if [ $SKIP_EXISTING -eq 0 ] || [ ! -f "$2.disabled.png" ]; then
+    convert $2.png -alpha set -background none -channel A -evaluate multiply 0.25 +channel $2.disabled.png
+  fi
 }
 
 for f in $SVGDIR/*.svg
