@@ -144,7 +144,7 @@ void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTe
 
   QString style = f.fontStyleName().toString();
   QStringList styles = fd.styles(family);
-  if (style.isEmpty() || !styles.contains(style)) {
+  if (!styles.isEmpty() && (style.isEmpty() || !styles.contains(style))) {
     // There seems to be no better way to find the "regular" style outside of this heuristic.
     // Feel free to add more if a font isn't working right.
     style = QStringLiteral("Regular");
