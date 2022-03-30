@@ -134,6 +134,8 @@ public:
 
   void ConnectToolBar(ViewerTextEditorToolBar *toolbar);
 
+  void SetListenToFocusEvents(bool e) { listen_to_focus_events_ = e; }
+
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
@@ -151,6 +153,8 @@ private:
   QTextDocument *transparent_clone_;
 
   bool block_update_toolbar_signal_;
+
+  bool listen_to_focus_events_;
 
 private slots:
   void FocusChanged(QWidget *old, QWidget *now);

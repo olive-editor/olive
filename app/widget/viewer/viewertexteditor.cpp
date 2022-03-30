@@ -37,7 +37,8 @@ namespace olive {
 ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   super(parent),
   transparent_clone_(nullptr),
-  block_update_toolbar_signal_(false)
+  block_update_toolbar_signal_(false),
+  listen_to_focus_events_(false)
 {
   // Ensure default text color is white
   QPalette p = palette();
@@ -175,6 +176,10 @@ void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTe
 
 void ViewerTextEditor::FocusChanged(QWidget *old, QWidget *now)
 {
+  if (!listen_to_focus_events_) {
+    return;
+  }
+
   QWidget *test = now;
 
   if (!test) {
