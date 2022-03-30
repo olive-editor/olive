@@ -41,7 +41,6 @@ ColorLabelMenuItem::ColorLabelMenuItem(QWidget* parent) :
   layout->addWidget(box_);
 
   label_ = new QLabel();
-  StyleManager::UseOSNativeStyling(label_);
   layout->addWidget(label_);
 }
 

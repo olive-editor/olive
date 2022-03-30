@@ -42,8 +42,6 @@ namespace olive {
 MainMenu::MainMenu(MainWindow *parent) :
   QMenuBar(parent)
 {
-  StyleManager::UseOSNativeStyling(this);
-
   //
   // FILE MENU
   //
