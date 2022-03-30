@@ -36,7 +36,8 @@ namespace olive {
 
 ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   super(parent),
-  transparent_clone_(nullptr)
+  transparent_clone_(nullptr),
+  block_update_toolbar_signal_(false)
 {
   // Ensure default text color is white
   QPalette p = palette();
@@ -198,8 +199,10 @@ void ViewerTextEditor::FocusChanged(QWidget *old, QWidget *now)
 
 void ViewerTextEditor::FormatChanged(const QTextCharFormat &f)
 {
-  foreach (ViewerTextEditorToolBar *toolbar, toolbars_) {
-    UpdateToolBar(toolbar, f, textCursor().blockFormat(), this->alignment());
+  if (!block_update_toolbar_signal_) {
+    foreach (ViewerTextEditorToolBar *toolbar, toolbars_) {
+      UpdateToolBar(toolbar, f, textCursor().blockFormat(), this->alignment());
+    }
   }
 }
 
@@ -210,42 +213,51 @@ void ViewerTextEditor::SetFamily(const QString &s)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
   f.setFontFamilies({s});
 #endif
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetStyle(const QString &s)
 {
   QTextCharFormat f;
   f.setFontStyleName(s);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetFontStrikethrough(bool e)
 {
   QTextCharFormat f;
   f.setFontStrikeOut(e);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetSmallCaps(bool e)
 {
   QTextCharFormat f;
   f.setFontCapitalization(e ? QFont::SmallCaps : QFont::MixedCase);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetFontStretch(int i)
 {
   QTextCharFormat f;
   f.setFontStretch(i);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetFontKerning(qreal i)
 {
   QTextCharFormat f;
   f.setFontLetterSpacing(i);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
+}
+
+void ViewerTextEditor::MergeCharFormat(const QTextCharFormat &fmt)
+{
+  // mergeCurrentCharFormat throws a currentCharFormatChanged signal that updates the toolbar,
+  // this can be undesirable if the user is currently typing a font
+  block_update_toolbar_signal_ = true;
+  mergeCurrentCharFormat(fmt);
+  block_update_toolbar_signal_ = false;
 }
 
 void ViewerTextEditor::SetLineHeight(qreal i)

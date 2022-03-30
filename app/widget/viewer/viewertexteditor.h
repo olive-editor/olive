@@ -142,11 +142,15 @@ protected:
 private:
   static void UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment);
 
+  void MergeCharFormat(const QTextCharFormat &fmt);
+
   QVector<ViewerTextEditorToolBar *> toolbars_;
 
   QImage dpi_force_;
 
   QTextDocument *transparent_clone_;
+
+  bool block_update_toolbar_signal_;
 
 private slots:
   void FocusChanged(QWidget *old, QWidget *now);
