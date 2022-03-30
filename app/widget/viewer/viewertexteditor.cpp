@@ -213,11 +213,16 @@ void ViewerTextEditor::FormatChanged(const QTextCharFormat &f)
 
 void ViewerTextEditor::SetFamily(const QString &s)
 {
+  ViewerTextEditorToolBar *toolbar = static_cast<ViewerTextEditorToolBar *>(sender());
+
   QTextCharFormat f;
   f.setFontFamily(s);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
   f.setFontFamilies({s});
 #endif
+
+  ApplyStyle(&f, s, toolbar->GetFontStyleName());
+
   MergeCharFormat(f);
 }
 
@@ -227,12 +232,7 @@ void ViewerTextEditor::SetStyle(const QString &s)
 
   QTextCharFormat f;
 
-  // NOTE: Windows appears to require setting weight and italic manually instead of just the style name
-  QFontDatabase fd;
-  f.setFontWeight(fd.weight(toolbar->GetFontFamily(), s));
-  f.setFontItalic(fd.italic(toolbar->GetFontFamily(), s));
-
-  f.setFontStyleName(s);
+  ApplyStyle(&f, toolbar->GetFontFamily(), s);
 
   MergeCharFormat(f);
 }
@@ -272,6 +272,17 @@ void ViewerTextEditor::MergeCharFormat(const QTextCharFormat &fmt)
   block_update_toolbar_signal_ = true;
   mergeCurrentCharFormat(fmt);
   block_update_toolbar_signal_ = false;
+}
+
+void ViewerTextEditor::ApplyStyle(QTextCharFormat *format, const QString &family, const QString &style)
+{
+  // NOTE: Windows appears to require setting weight and italic manually, while macOS and Linux are
+  //       perfectly fine with just the style name
+  QFontDatabase fd;
+  format->setFontWeight(fd.weight(family, style));
+  format->setFontItalic(fd.italic(family, style));
+
+  format->setFontStyleName(style);
 }
 
 void ViewerTextEditor::SetLineHeight(qreal i)
@@ -322,8 +333,7 @@ ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
   int advanced_slider_width = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("9999.9%"));
 
   font_combo_ = new QFontComboBox();
-  connect(font_combo_, &QFontComboBox::currentTextChanged, this, &ViewerTextEditorToolBar::FamilyChanged);
-  connect(font_combo_, &QFontComboBox::currentTextChanged, this, &ViewerTextEditorToolBar::UpdateFontStyleList);
+  connect(font_combo_, &QFontComboBox::currentTextChanged, this, &ViewerTextEditorToolBar::UpdateFontStyleListAndEmitFamilyChanged);
   basic_layout->addWidget(font_combo_);
 
   font_sz_slider_ = new FloatSlider();
@@ -481,6 +491,13 @@ void ViewerTextEditorToolBar::UpdateFontStyleList(const QString &family)
   }
   style_combo_->setCurrentText(temp);
   style_combo_->blockSignals(false);
+}
+
+void ViewerTextEditorToolBar::UpdateFontStyleListAndEmitFamilyChanged(const QString &family)
+{
+  // Ensures correct ordering of commands
+  UpdateFontStyleList(family);
+  emit FamilyChanged(family);
 }
 
 void ViewerTextEditorToolBar::mousePressEvent(QMouseEvent *event)

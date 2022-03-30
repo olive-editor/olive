@@ -43,6 +43,11 @@ public:
     return font_combo_->currentText();
   }
 
+  QString GetFontStyleName() const
+  {
+    return style_combo_->currentText();
+  }
+
 public slots:
   void SetFontFamily(QString s)
   {
@@ -124,6 +129,8 @@ private:
 private slots:
   void UpdateFontStyleList(const QString &family);
 
+  void UpdateFontStyleListAndEmitFamilyChanged(const QString &family);
+
 };
 
 class ViewerTextEditor : public QTextEdit
@@ -145,6 +152,8 @@ private:
   static void UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment);
 
   void MergeCharFormat(const QTextCharFormat &fmt);
+
+  void ApplyStyle(QTextCharFormat *format, const QString &family, const QString &style);
 
   QVector<ViewerTextEditorToolBar *> toolbars_;
 
