@@ -218,8 +218,17 @@ void ViewerTextEditor::SetFamily(const QString &s)
 
 void ViewerTextEditor::SetStyle(const QString &s)
 {
+  ViewerTextEditorToolBar *toolbar = static_cast<ViewerTextEditorToolBar *>(sender());
+
   QTextCharFormat f;
+
+  // NOTE: Windows appears to require setting weight and italic manually instead of just the style name
+  QFontDatabase fd;
+  f.setFontWeight(fd.weight(toolbar->GetFontFamily(), s));
+  f.setFontItalic(fd.italic(toolbar->GetFontFamily(), s));
+
   f.setFontStyleName(s);
+
   MergeCharFormat(f);
 }
 
