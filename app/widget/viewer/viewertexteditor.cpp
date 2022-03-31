@@ -321,7 +321,7 @@ void ViewerTextEditor::DocumentChanged()
 }
 
 ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
-  QWidget(parent),
+  QWidget(parent, Qt::Tool | Qt::FramelessWindowHint),
   painted_(false)
 {
   QVBoxLayout *outer_layout = new QVBoxLayout(this);
@@ -449,6 +449,8 @@ ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
   advanced_layout->addStretch();
 
   setAutoFillBackground(true);
+
+  resize(sizeHint());
 }
 
 void ViewerTextEditorToolBar::SetAlignment(Qt::Alignment a)
