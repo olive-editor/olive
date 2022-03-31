@@ -2877,7 +2877,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="122"/>
         <source>M</source>
-        <translation>T</translation>
+        <translation>M</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="128"/>
