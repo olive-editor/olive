@@ -18,21 +18,21 @@
 
 ***/
 
-#ifndef TEXTGENERATOR_H
-#define TEXTGENERATOR_H
+#ifndef TEXTGENERATORV1_H
+#define TEXTGENERATORV1_H
 
-#include "node/generator/shape/shapenodebase.h"
+#include "node/node.h"
 
 namespace olive {
 
-class TextGenerator : public ShapeNodeBase
+class TextGeneratorV1 : public Node
 {
   Q_OBJECT
 public:
-  TextGenerator();
+  TextGeneratorV1();
 
-  NODE_DEFAULT_DESTRUCTOR(TextGenerator)
-  NODE_COPY_FUNCTION(TextGenerator)
+  NODE_DEFAULT_DESTRUCTOR(TextGeneratorV1)
+  NODE_COPY_FUNCTION(TextGeneratorV1)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -47,6 +47,7 @@ public:
 
   static const QString kTextInput;
   static const QString kHtmlInput;
+  static const QString kColorInput;
   static const QString kVAlignInput;
   static const QString kFontInput;
   static const QString kFontSizeInput;
@@ -55,4 +56,4 @@ public:
 
 }
 
-#endif // TEXTGENERATOR_H
+#endif // TEXTGENERATORV1_H

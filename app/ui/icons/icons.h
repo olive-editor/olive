@@ -74,6 +74,15 @@ extern QIcon TriLeft;
 extern QIcon TriDown;
 extern QIcon TriRight;
 
+// Text
+extern QIcon TextBold;
+extern QIcon TextItalic;
+extern QIcon TextUnderline;
+extern QIcon TextAlignLeft;
+extern QIcon TextAlignRight;
+extern QIcon TextAlignCenter;
+extern QIcon TextAlignJustify;
+
 // Miscellaneous Icons
 extern QIcon Snapping;
 extern QIcon ZoomIn;
@@ -87,6 +96,10 @@ extern QIcon Diamond;
 extern QIcon Plus;
 extern QIcon Minus;
 extern QIcon AddEffect;
+extern QIcon EyeOpened;
+extern QIcon EyeClosed;
+extern QIcon LockOpened;
+extern QIcon LockClosed;
 
 /**
  * @brief Create an icon object loaded from file

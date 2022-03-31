@@ -198,40 +198,7 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
 {
-  if (GetInnerInput().IsKeyframing()) {
-    rational node_time = GetCurrentTimeAsNodeTime();
-
-    NodeKeyframe* existing_key = GetInnerInput().GetKeyframeAtTimeOnTrack(node_time, track);
-
-    if (existing_key) {
-      command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
-    } else {
-      // No existing key, create a new one
-      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(GetInnerInput().node()->GetInputDataType(GetInnerInput().input()));
-      for (int i=0; i<nb_tracks; i++) {
-        QVariant track_value;
-
-        if (i == track) {
-          track_value = value;
-        } else if (!insert_on_all_tracks_if_no_key) {
-          continue;
-        } else {
-          track_value = GetInnerInput().node()->GetSplitValueAtTimeOnTrack(GetInnerInput().input(), node_time, i, GetInnerInput().element());
-        }
-
-        NodeKeyframe* new_key = new NodeKeyframe(node_time,
-                                                 track_value,
-                                                 GetInnerInput().node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(GetInnerInput(), i), node_time),
-                                                 i,
-                                                 GetInnerInput().element(),
-                                                 GetInnerInput().input());
-
-        command->add_child(new NodeParamInsertKeyframeCommand(GetInnerInput().node(), new_key));
-      }
-    }
-  } else {
-    command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(GetInnerInput(), track), value));
-  }
+  Node::SetValueAtTime(GetInnerInput(), GetCurrentTimeAsNodeTime(), value, track, command, insert_on_all_tracks_if_no_key);
 }
 
 void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, int slider_track, const QVariant &value)

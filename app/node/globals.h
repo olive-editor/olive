@@ -30,6 +30,8 @@ namespace olive {
 class NodeGlobals
 {
 public:
+  NodeGlobals(){}
+
   NodeGlobals(const QVector2D &resolution, const rational &pixel_aspect, const TimeRange &time) :
     resolution_(resolution),
     pixel_aspect_(pixel_aspect),

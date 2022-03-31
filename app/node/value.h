@@ -25,6 +25,8 @@
 #include <QVariant>
 #include <QVector>
 
+#include "undo/undocommand.h"
+
 namespace olive {
 
 class Node;

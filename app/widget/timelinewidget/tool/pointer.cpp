@@ -557,6 +557,10 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                                                    ghost->GetAdjustedLength(),
                                                    ghost->GetMode());
 
+        if (event->GetModifiers() & Qt::ControlModifier) {
+
+        }
+
         c->SetTrimIsARollEdit(ghost->GetData(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
 
         command->add_child(c);
