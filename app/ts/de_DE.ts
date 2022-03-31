@@ -67,25 +67,6 @@
     </message>
 </context>
 <context>
-    <name>Footage</name>
-    <message>
-        <source>%1 FPS</source>
-        <translation type="vanished">%1 FPS</translation>
-    </message>
-    <message>
-        <source>%1 Hz</source>
-        <translation type="vanished">%1 Hz</translation>
-    </message>
-    <message>
-        <source>Filename: %1</source>
-        <translation type="vanished">Dateiname: %1</translation>
-    </message>
-    <message>
-        <source>This footage is not valid for use</source>
-        <translation type="vanished">Dieses Material ist nicht verwendbar</translation>
-    </message>
-</context>
-<context>
     <name>ImportTool</name>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="291"/>
@@ -111,17 +92,6 @@
         <location filename="../widget/timelinewidget/tool/import.cpp" line="301"/>
         <source>Set Parameters Manually</source>
         <translation>Parameter manuell einstellen</translation>
-    </message>
-</context>
-<context>
-    <name>NodeCopyPasteWidget</name>
-    <message>
-        <source>Error pasting nodes</source>
-        <translation type="vanished">Fehler beim Einfügen von Nodes</translation>
-    </message>
-    <message>
-        <source>Failed to paste nodes: %1</source>
-        <translation type="vanished">Folgende Nodes konnten nicht eingefügt werden: %1</translation>
     </message>
 </context>
 <context>
@@ -515,18 +485,6 @@ Aktuelle Treiber-Daten: %1 %2 %3</translation>
         <source>Don&apos;t show this message again</source>
         <translation>Diesen Hinweis nicht erneut anzeigen</translation>
     </message>
-    <message>
-        <source>&lt;html&gt;Olive wouldn&apos;t be possible without the support of gracious donations from &lt;a href=&apos;https://www.patreon.com/olivevideoeditor&apos;&gt;Patreon&lt;/a&gt;&lt;/html&gt;:</source>
-        <translation type="vanished">&lt;html&gt;Dieses Projekt wäre nicht möglich ohne die großzügigen Spender auf &lt;a href=&apos;https://www.patreon.com/olivevideoeditor&apos;&gt;Patreon&lt;/a&gt;&lt;/html&gt;:</translation>
-    </message>
-    <message>
-        <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="vanished">Olive ist ein nicht-linearer Videoeditor. Das Programm ist Freie Software und wird von der GNU GPL-Lizenz geschützt.</translation>
-    </message>
-    <message>
-        <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation type="vanished">Der Quellcode von Olive steht auf der Webseite des Projekts zur Verfügung.</translation>
-    </message>
 </context>
 <context>
     <name>olive::ActionSearch</name>
@@ -534,17 +492,6 @@ Aktuelle Treiber-Daten: %1 %2 %3</translation>
         <location filename="../dialog/actionsearch/actionsearch.cpp" line="58"/>
         <source>Search for action...</source>
         <translation>Aktion suchen...</translation>
-    </message>
-</context>
-<context>
-    <name>olive::AudioManager</name>
-    <message>
-        <source>Qt</source>
-        <translation type="vanished">Qt</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Unbekannt</translation>
     </message>
 </context>
 <context>
@@ -583,12 +530,12 @@ Aktuelle Treiber-Daten: %1 %2 %3</translation>
     <message>
         <location filename="../widget/bezier/bezierwidget.cpp" line="54"/>
         <source>In:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anfangspunkt:</translation>
     </message>
     <message>
         <location filename="../widget/bezier/bezierwidget.cpp" line="66"/>
         <source>Out:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Endpunkt:</translation>
     </message>
 </context>
 <context>
@@ -599,21 +546,9 @@ Aktuelle Treiber-Daten: %1 %2 %3</translation>
         <translation>Länge</translation>
     </message>
     <message>
-        <source>Media In</source>
-        <translation type="vanished">Medien-Eingang</translation>
-    </message>
-    <message>
         <location filename="../node/block/block.cpp" line="133"/>
         <source>Enabled</source>
         <translation>Aktiviert</translation>
-    </message>
-    <message>
-        <source>Speed</source>
-        <translation type="vanished">Geschwindigkeit</translation>
-    </message>
-    <message>
-        <source>Reverse</source>
-        <translation type="vanished">Rückwärts</translation>
     </message>
 </context>
 <context>
@@ -1152,10 +1087,6 @@ Aktuelle Treiber-Daten: %1 %2 %3</translation>
         <translation>Dieser Build wurde ohne OpenTimeLineIO-Unterstützung erstellt, deshalb können keine OpenTimelineIO-Dateien geöffnet werden.</translation>
     </message>
     <message>
-        <source>Save Project</source>
-        <translation type="vanished">Projekt speichern</translation>
-    </message>
-    <message>
         <location filename="../core.cpp" line="832"/>
         <location filename="../core.cpp" line="840"/>
         <source>Error</source>
@@ -1412,14 +1343,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <location filename="../crashhandler/crashhandler.cpp" line="193"/>
         <source>You must write a description to submit this crash report.</source>
         <translation>Eine Beschreibung ist erforderlich, um den Absturzbericht versenden zu können.</translation>
-    </message>
-    <message>
-        <source>No Crash Summary</source>
-        <translation type="vanished">Absturzbeschreibung fehlt</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to send an error report with no crash summary?</source>
-        <translation type="vanished">Soll der Fehlerbericht wirklich ohne Beschreibung der Umstände des Absturzes gesendet werden?</translation>
     </message>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="262"/>
@@ -1952,10 +1875,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <translation>Video, Audio und Untertitel sind deaktiviert. Deshalb kann nichts exportiert werden.</translation>
     </message>
     <message>
-        <source>Both video and audio are disabled. There&apos;s nothing to export.</source>
-        <translation type="vanished">Sowohl Video- als auch Audio-Export sind deaktiviert. Es gibt nichts, was exportiert werden könnte.</translation>
-    </message>
-    <message>
         <location filename="../dialog/export/export.cpp" line="300"/>
         <location filename="../dialog/export/export.cpp" line="326"/>
         <location filename="../dialog/export/export.cpp" line="336"/>
@@ -2115,10 +2034,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <translation>Die Datei konnte nicht geöffnet werden: %1</translation>
     </message>
     <message>
-        <source>Failed to open file</source>
-        <translation type="vanished">Die Datei konnte nicht geöffnet werden</translation>
-    </message>
-    <message>
         <location filename="../task/export/export.cpp" line="150"/>
         <source>Failed to overwrite &quot;%1&quot;. Export has been saved as &quot;%2&quot; instead.</source>
         <translation>&quot;%1&quot; konnte nicht überschrieben werden. Das Ergebnis wurde stattdessen als &quot;%2&quot; gespeichert.</translation>
@@ -2126,10 +2041,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
 </context>
 <context>
     <name>olive::ExportVideoTab</name>
-    <message>
-        <source>Basic</source>
-        <translation type="vanished">Allgemeines</translation>
-    </message>
     <message>
         <location filename="../dialog/export/exportvideotab.cpp" line="77"/>
         <source>General</source>
@@ -2277,18 +2188,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <translation>Für 0x%1 konnte kein Codec gefunden werden</translation>
     </message>
     <message>
-        <source>Cannot initialize a stream that is not a video or audio type</source>
-        <translation type="vanished">Ein Stream, der weder für Audio noch für Video ist, kann nicht initialisiert werden</translation>
-    </message>
-    <message>
-        <source>Unknown internal codec</source>
-        <translation type="vanished">Unbekannter interner Codec</translation>
-    </message>
-    <message>
-        <source>Failed to find codec for %1</source>
-        <translation type="vanished">Der Codec für %1 konnte nicht gefunden werden</translation>
-    </message>
-    <message>
         <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="580"/>
         <source>Retrieved unexpected codec type %1 for codec %2</source>
         <translation>Für Codec %2 ist der unerwartete Codec-Typ %1 angekommen</translation>
@@ -2410,14 +2309,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <source>%1 FPS</source>
-        <translation type="vanished">%1 FPS</translation>
-    </message>
-    <message>
-        <source>%1 Hz</source>
-        <translation type="vanished">%1 Hz</translation>
-    </message>
-    <message>
         <location filename="../node/project/footage/footage.cpp" line="270"/>
         <source>%1: Image - %2x%3</source>
         <translation>%1: Bild - %2x%3</translation>
@@ -2426,10 +2317,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <location filename="../node/project/footage/footage.cpp" line="274"/>
         <source>%1: Video - %2x%3</source>
         <translation>%1: Video - %2x%3</translation>
-    </message>
-    <message>
-        <source>%1: Audio - %2 Channel(s), %3Hz</source>
-        <translation type="vanished">%1: Audio - %2 Kanäle, %3Hz</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.cpp" line="71"/>
@@ -2480,11 +2367,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <translation>Ungültig</translation>
     </message>
     <message>
-        <source>Data</source>
-        <translatorcomment>?</translatorcomment>
-        <translation type="vanished">Daten</translation>
-    </message>
-    <message>
         <location filename="../node/project/footage/footage.cpp" line="376"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
@@ -2493,14 +2375,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <location filename="../node/project/footage/footage.cpp" line="459"/>
         <source>Filename: %1</source>
         <translation>Dateiname: %1</translation>
-    </message>
-    <message>
-        <source>This footage is not valid for use</source>
-        <translation type="vanished">Dieses Material ist nicht verwendbar</translation>
-    </message>
-    <message>
-        <source>Footage</source>
-        <translation type="vanished">Material</translation>
     </message>
     <message>
         <location filename="../node/project/footage/footage.h" line="67"/>
@@ -2800,13 +2674,6 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     </message>
 </context>
 <context>
-    <name>olive::Item</name>
-    <message>
-        <source>Folder</source>
-        <translation type="vanished">Ordner</translation>
-    </message>
-</context>
-<context>
     <name>olive::KeyframePropertiesDialog</name>
     <message>
         <location filename="../dialog/keyframeproperties/keyframeproperties.cpp" line="38"/>
@@ -2860,25 +2727,6 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
         <location filename="../widget/keyframeview/keyframeview.cpp" line="513"/>
         <source>P&amp;roperties</source>
         <translation>&amp;Eigenschaften</translation>
-    </message>
-</context>
-<context>
-    <name>olive::KeyframeViewBase</name>
-    <message>
-        <source>Linear</source>
-        <translation type="vanished">Linear</translation>
-    </message>
-    <message>
-        <source>Bezier</source>
-        <translation type="vanished">Bezier</translation>
-    </message>
-    <message>
-        <source>Hold</source>
-        <translation type="vanished">Konstant</translation>
-    </message>
-    <message>
-        <source>P&amp;roperties</source>
-        <translation type="vanished">&amp;Eigenschaften</translation>
     </message>
 </context>
 <context>
@@ -3672,10 +3520,6 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
             <numerusform>%n Hintergrund-Aufgaben werden ausgeführt</numerusform>
         </translation>
     </message>
-    <message>
-        <source>Running %1 background task(s)</source>
-        <translation type="vanished">%1 Aufträge laufen im Hintergrund</translation>
-    </message>
 </context>
 <context>
     <name>olive::MainWindow</name>
@@ -4249,10 +4093,6 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 </context>
 <context>
     <name>olive::NodeParamViewArrayWidget</name>
-    <message>
-        <source>%1 element(s)</source>
-        <translation type="vanished">%1 Element(e)</translation>
-    </message>
     <message numerus="yes">
         <location filename="../widget/nodeparamview/nodeparamviewarraywidget.cpp" line="56"/>
         <source>%n element(s)</source>
@@ -4294,13 +4134,6 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     </message>
 </context>
 <context>
-    <name>olive::NodeParamViewItem</name>
-    <message>
-        <source>%1 (%2)</source>
-        <translation type="vanished">%1 (%2)</translation>
-    </message>
-</context>
-<context>
     <name>olive::NodeParamViewItemBase</name>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewitembase.cpp" line="67"/>
@@ -4310,14 +4143,6 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
 </context>
 <context>
     <name>olive::NodeParamViewItemBody</name>
-    <message numerus="yes">
-        <source>%n:</source>
-        <translatorcomment>??? Sg/Pl-Übersetzungen wären in anderen Fällen schön (z. B. Kanal/Kanäle), aber hier macht es irgendwie keinen Sinn</translatorcomment>
-        <translation type="vanished">
-            <numerusform>%n:</numerusform>
-            <numerusform>%n:</numerusform>
-        </translation>
-    </message>
     <message>
         <location filename="../widget/nodeparamview/nodeparamviewitem.cpp" line="280"/>
         <location filename="../widget/nodeparamview/nodeparamviewitem.cpp" line="283"/>
@@ -4460,10 +4285,6 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
         <translation>Label</translation>
     </message>
     <message>
-        <source>Auto-Position</source>
-        <translation type="vanished">Automatische Positionierung</translation>
-    </message>
-    <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="699"/>
         <source>Open in Viewer</source>
         <translation>In der Vorschau öffnen</translation>
@@ -4473,19 +4294,6 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
         <source>Smooth Edges</source>
         <translatorcomment>was genau bedeutet &apos;smooth&apos; in diesem Kontext?</translatorcomment>
         <translation>Glatte Ränder</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Filter</translation>
-    </message>
-    <message>
-        <source>Show All</source>
-        <translation type="vanished">Alles Anzeigen</translation>
-    </message>
-    <message>
-        <source>Show Selected Blocks Only</source>
-        <translatorcomment>Blöcke? really?</translatorcomment>
-        <translation type="vanished">Nur ausgewählte Blöcke anzeigen</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="574"/>
@@ -4674,14 +4482,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
         <source>Parameter Editor</source>
         <translation>Parameter-Editor</translation>
     </message>
-    <message>
-        <source>(none)</source>
-        <translation type="vanished">(leer)</translation>
-    </message>
-    <message>
-        <source>(multiple)</source>
-        <translation type="vanished">(mehrere)</translation>
-    </message>
 </context>
 <context>
     <name>olive::PathWidget</name>
@@ -4785,22 +4585,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
 <context>
     <name>olive::PreferencesAudioTab</name>
     <message>
-        <source>Output Device:</source>
-        <translation type="vanished">Ausgabegerät:</translation>
-    </message>
-    <message>
-        <source>Input Device:</source>
-        <translation type="vanished">Eingangsgerät:</translation>
-    </message>
-    <message>
-        <source>Sample Rate:</source>
-        <translation type="vanished">Abtastrate:</translation>
-    </message>
-    <message>
-        <source>Audio Recording:</source>
-        <translation type="vanished">Audioaufnahme:</translation>
-    </message>
-    <message>
         <location filename="../dialog/preferences/tabs/preferencesaudiotab.cpp" line="43"/>
         <source>Backend:</source>
         <translatorcomment>Don&apos;t know how to translate this properly</translatorcomment>
@@ -4842,14 +4626,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
         <source>Refresh Devices</source>
         <translation>Liste der Geräte aktualisieren</translation>
     </message>
-    <message>
-        <source>Please wait...</source>
-        <translation type="vanished">Bitte warten...</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Standard</translation>
-    </message>
 </context>
 <context>
     <name>olive::PreferencesBehaviorTab</name>
@@ -4872,14 +4648,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="42"/>
         <source>Panels will be considered focused when the mouse cursor is over them without having to click them.</source>
         <translation>Ein Panel wird schon dann fokussiert, wenn der Mauszeiger sich darüber befindet, sodass es nicht extra angeclickt werden muss.</translation>
-    </message>
-    <message>
-        <source>Scroll wheel zooms by default instead of scrolling</source>
-        <translation type="vanished">Mausrad zoomt statt zu scrollen</translation>
-    </message>
-    <message>
-        <source>Holding CTRL while using Olive toggles this setting</source>
-        <translation type="vanished">STRG gedrückt halten. um während der Benutzung den Modus zu wechseln</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="44"/>
@@ -5076,10 +4844,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
         <translation>%1 Sekunden</translation>
     </message>
     <message>
-        <source>%1 second(s)</source>
-        <translation type="vanished">%1 Sekunde(n)</translation>
-    </message>
-    <message>
         <location filename="../dialog/preferences/tabs/preferencesdisktab.cpp" line="77"/>
         <source>Cache Behind:</source>
         <translatorcomment>oder nur &apos;Behalten:&apos;</translatorcomment>
@@ -5151,15 +4915,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
         <translation>%1 Sekunden</translation>
     </message>
     <message>
-        <source>Default Sequence Parameters:</source>
-        <translation type="vanished">Standard-Einstellungen für Sequenzen:</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translatorcomment>Could also use &quot;Bearbeiten&quot; to be consistent with the menu</translatorcomment>
-        <translation type="vanished">Bearbeitung</translation>
-    </message>
-    <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="113"/>
         <source>Auto-Recovery</source>
         <translation>Automatisches Wiederherstellen</translation>
@@ -5183,10 +4938,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="148"/>
         <source>Browse Auto-Recoveries</source>
         <translation>Automatische Sicherungen durchsuchen</translation>
-    </message>
-    <message>
-        <source>%1 second(s)</source>
-        <translation type="vanished">%1 Sekunde(n)</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="186"/>
@@ -5289,10 +5040,6 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
 <context>
     <name>olive::Project</name>
     <message>
-        <source>Footage Viewer</source>
-        <translation type="vanished">Quellvorschau</translation>
-    </message>
-    <message>
         <location filename="../node/project/project.cpp" line="45"/>
         <source>Root</source>
         <translation>Ursprung</translation>
@@ -5385,22 +5132,6 @@ Soll dieses Material wirklich entfernt werden?</translation>
         <source>P&amp;roperties</source>
         <translation>&amp;Eigenschaften</translation>
     </message>
-    <message>
-        <source>Confirm Footage Deletion</source>
-        <translation type="vanished">Material löschen bestätigen</translation>
-    </message>
-    <message>
-        <source>The footage &quot;%1&quot; is currently connected to the following nodes:
-
-%2
-
-Are you sure you wish to delete this footage?</source>
-        <translation type="vanished">Das Quellmaterial &quot;%1&quot; ist derzeit mit folgenden Nodes verbunden:
-
-%2
-
-Soll es wirklich gelöscht werden?</translation>
-    </message>
 </context>
 <context>
     <name>olive::ProjectExplorerNavigation</name>
@@ -5425,11 +5156,6 @@ Soll es wirklich gelöscht werden?</translation>
 </context>
 <context>
     <name>olive::ProjectImportTask</name>
-    <message>
-        <source>Importing %1 file(s)</source>
-        <translatorcomment>in cases such as this, it should be possible to distinguish between singular and plural in the translation</translatorcomment>
-        <translation type="vanished">%1 Dateien werden importiert</translation>
-    </message>
     <message numerus="yes">
         <location filename="../task/project/import/import.cpp" line="44"/>
         <source>Importing %n file(s)</source>
@@ -5449,14 +5175,6 @@ Soll es wirklich gelöscht werden?</translation>
 </context>
 <context>
     <name>olive::ProjectLoadTask</name>
-    <message>
-        <source>Failed to parse project version.</source>
-        <translation type="vanished">Die Projekt-Version konnte nicht ausgelesen werden.</translation>
-    </message>
-    <message>
-        <source>This project is newer than this version of Olive and cannot be opened.</source>
-        <translation type="vanished">Dieses Projekt wurde mit einer neueren Version von Olive erstellt und kann deshalb nicht geöffnet werden.</translation>
-    </message>
     <message>
         <location filename="../task/project/load/load.cpp" line="46"/>
         <source>This project is from a version of Olive that is no longer supported in this version.</source>
@@ -5481,10 +5199,6 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../task/project/load/load.cpp" line="63"/>
         <source>Unknown error.</source>
         <translation>Unbekannter Fehler.</translation>
-    </message>
-    <message>
-        <source>Failed to find project version.</source>
-        <translation type="vanished">Die Projekt-Version wurde nicht gefunden.</translation>
     </message>
     <message>
         <location filename="../task/project/load/load.cpp" line="55"/>
@@ -5613,20 +5327,12 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../task/project/save/save.cpp" line="69"/>
         <source>Unknown error.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to write XML data</source>
-        <translation type="vanished">Fehler beim Schreiben der XML-Daten</translation>
+        <translation type="unfinished">Unbekannter Fehler.</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="60"/>
         <source>Failed to overwrite &quot;%1&quot;. Project has been saved as &quot;%2&quot; instead.</source>
         <translation>&quot;%1&quot; konnte nicht überschrieben werden. Das Projekt wurde stattdessen als &quot;%2&quot; gespeichert.</translation>
-    </message>
-    <message>
-        <source>Failed to open temporary file &quot;%1&quot; for writing.</source>
-        <translation type="vanished">Die temporäre Datei &quot;%1&quot; konnte nicht mit Schreibzugriff geöffnet werden.</translation>
     </message>
 </context>
 <context>
@@ -5775,81 +5481,6 @@ Soll es wirklich gelöscht werden?</translation>
     </message>
 </context>
 <context>
-    <name>olive::RichTextDialog</name>
-    <message>
-        <source>B</source>
-        <translation type="vanished">F</translation>
-    </message>
-    <message>
-        <source>Bold</source>
-        <translation type="vanished">Fett</translation>
-    </message>
-    <message>
-        <source>I</source>
-        <translation type="vanished">K</translation>
-    </message>
-    <message>
-        <source>Italic</source>
-        <translation type="vanished">Kursiv</translation>
-    </message>
-    <message>
-        <source>U</source>
-        <translation type="vanished">U</translation>
-    </message>
-    <message>
-        <source>Underline</source>
-        <translation type="vanished">Unterstrichen</translation>
-    </message>
-    <message>
-        <source>S</source>
-        <translation type="vanished">D</translation>
-    </message>
-    <message>
-        <source>Strikethrough</source>
-        <translation type="vanished">Durchgestrichen</translation>
-    </message>
-    <message>
-        <source>Font Family</source>
-        <translation type="vanished">Schriftart</translation>
-    </message>
-    <message>
-        <source>Font Size</source>
-        <translation type="vanished">Schritgröße</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="vanished">L</translation>
-    </message>
-    <message>
-        <source>Left Align</source>
-        <translation type="vanished">Links ausrichten</translation>
-    </message>
-    <message>
-        <source>C</source>
-        <translation type="vanished">M</translation>
-    </message>
-    <message>
-        <source>Center Align</source>
-        <translation type="vanished">Mittig ausrichten</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="vanished">R</translation>
-    </message>
-    <message>
-        <source>Right Align</source>
-        <translation type="vanished">Rechts ausrichten</translation>
-    </message>
-    <message>
-        <source>J</source>
-        <translation type="vanished">B</translation>
-    </message>
-    <message>
-        <source>Justify Align</source>
-        <translation type="vanished">Bündig ausrichten (Blocksatz)</translation>
-    </message>
-</context>
-<context>
     <name>olive::SaveOTIOTask</name>
     <message>
         <location filename="../task/project/saveotio/saveotio.cpp" line="42"/>
@@ -5884,34 +5515,9 @@ Soll es wirklich gelöscht werden?</translation>
         <source>Scopes</source>
         <translation type="unfinished">Bereiche</translation>
     </message>
-    <message>
-        <source>Scope</source>
-        <translatorcomment>What does that mean in this context? I couldn&apos;t find it in the program, but I guess it&apos;s some kind of monitoring tool?</translatorcomment>
-        <translation type="vanished">Scope</translation>
-    </message>
 </context>
 <context>
     <name>olive::Sequence</name>
-    <message>
-        <source>%1 FPS</source>
-        <translation type="vanished">%1 FPS</translation>
-    </message>
-    <message>
-        <source>Video Parameters</source>
-        <translation type="vanished">Video-Parameter</translation>
-    </message>
-    <message>
-        <source>Audio Parameters</source>
-        <translation type="vanished">Audio-Parameter</translation>
-    </message>
-    <message>
-        <source>Texture</source>
-        <translation type="vanished">Textur</translation>
-    </message>
-    <message>
-        <source>Samples</source>
-        <translation type="vanished">Samples</translation>
-    </message>
     <message>
         <location filename="../node/project/sequence/sequence.cpp" line="102"/>
         <source>Video Tracks</source>
@@ -6150,7 +5756,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/generator/shape/shapenode.cpp" line="36"/>
         <source>Shape</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../node/generator/shape/shapenode.cpp" line="51"/>
@@ -6240,7 +5846,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="41"/>
         <source>Speed/Duration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Geschwindigkeit/Dauer</translation>
     </message>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="53"/>
@@ -6379,51 +5985,6 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../widget/taskview/taskviewitem.cpp" line="86"/>
         <source>Error: %1</source>
         <translation>Fehler: %1</translation>
-    </message>
-</context>
-<context>
-    <name>olive::TextGenerator</name>
-    <message>
-        <source>Sample Text</source>
-        <translation type="vanished">Beispieltext</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation type="vanished">Text</translation>
-    </message>
-    <message>
-        <source>Generate rich text.</source>
-        <translatorcomment>oder Richt Text</translatorcomment>
-        <translation type="vanished">Formatierten Text erzeugen.</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation type="vanished">Schriftart</translation>
-    </message>
-    <message>
-        <source>Font Size</source>
-        <translation type="vanished">Schriftgröße</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="vanished">Farbe</translation>
-    </message>
-    <message>
-        <source>Vertical Align</source>
-        <translatorcomment>i. S. v. vertikal zentrieren?</translatorcomment>
-        <translation type="vanished">Vertikal ausrichten</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation type="vanished">Oben</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation type="vanished">Mitte</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation type="vanished">Unten</translation>
     </message>
 </context>
 <context>
@@ -6598,11 +6159,6 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../node/input/time/timeinput.cpp" line="53"/>
         <source>Generates the time (in seconds) at this frame.</source>
         <translation>Erzeugt die Zeit (in Sekunden) an diesem Einzelbild.</translation>
-    </message>
-    <message>
-        <source>Generates the time (in seconds) at this frame</source>
-        <translatorcomment>I don&apos;t know about the meaning because I cannot test it due to permanent crashes</translatorcomment>
-        <translation type="vanished">Erzeugt die Zeit (in Sekunden) an diesem Einzelbild</translation>
     </message>
 </context>
 <context>
@@ -6783,30 +6339,14 @@ Duration: %3</source>
         <translation>Ton deaktiviert</translation>
     </message>
     <message>
-        <source>Video %1</source>
-        <translation type="vanished">Video %1</translation>
-    </message>
-    <message>
-        <source>Audio %1</source>
-        <translation type="vanished">Audio %1</translation>
-    </message>
-    <message>
-        <source>Subtitle %1</source>
-        <translation type="vanished">Untertitel %1</translation>
-    </message>
-    <message>
-        <source>Track %1</source>
-        <translation type="vanished">Spur %1</translation>
-    </message>
-    <message>
         <location filename="../node/output/track/track.h" line="204"/>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">V</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.h" line="206"/>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">A</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.h" line="208"/>
@@ -6816,16 +6356,6 @@ Duration: %3</source>
 </context>
 <context>
     <name>olive::TrackViewItem</name>
-    <message>
-        <source>M</source>
-        <translatorcomment>= Ton [deaktivieren]</translatorcomment>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translatorcomment>= Sperren</translatorcomment>
-        <translation type="vanished">S</translation>
-    </message>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="135"/>
         <source>&amp;Delete</source>
@@ -7056,100 +6586,6 @@ Do you wish to continue?</source>
     </message>
 </context>
 <context>
-    <name>olive::VideoParamEdit</name>
-    <message>
-        <source>Enabled:</source>
-        <translation type="vanished">Aktiviert:</translation>
-    </message>
-    <message>
-        <source>Width:</source>
-        <translation type="vanished">Breite:</translation>
-    </message>
-    <message>
-        <source>Height:</source>
-        <translation type="vanished">Höhe:</translation>
-    </message>
-    <message>
-        <source>Depth:</source>
-        <translation type="vanished">Tiefe:</translation>
-    </message>
-    <message>
-        <source>Format:</source>
-        <translation type="vanished">Format:</translation>
-    </message>
-    <message>
-        <source>Frame Rate:</source>
-        <translation type="vanished">Bildfrequenz:</translation>
-    </message>
-    <message>
-        <source>Pixel Aspect Ratio:</source>
-        <translation type="vanished">Seitenverhältnis:</translation>
-    </message>
-    <message>
-        <source>Interlacing:</source>
-        <translatorcomment>alternativ `Zeilensprungverfahren`</translatorcomment>
-        <translation type="vanished">Interlacing:</translation>
-    </message>
-    <message>
-        <source>Channel Count:</source>
-        <translation type="vanished">Anzahl der Kanäle:</translation>
-    </message>
-    <message>
-        <source>RGB</source>
-        <translation type="vanished">RGB</translation>
-    </message>
-    <message>
-        <source>RGBA</source>
-        <translation type="vanished">RGBA</translation>
-    </message>
-    <message>
-        <source>Divider:</source>
-        <translatorcomment>oder Teiler?</translatorcomment>
-        <translation type="vanished">Trenner:</translation>
-    </message>
-    <message>
-        <source>Stream Index:</source>
-        <translation type="vanished">Stream-Index:</translation>
-    </message>
-    <message>
-        <source>Video Type:</source>
-        <translation type="vanished">Videotyp:</translation>
-    </message>
-    <message>
-        <source>Video</source>
-        <translation type="vanished">Video</translation>
-    </message>
-    <message>
-        <source>Still</source>
-        <translatorcomment>stehend/unbewegt/statisch</translatorcomment>
-        <translation type="vanished">Standbild</translation>
-    </message>
-    <message>
-        <source>Image Sequence</source>
-        <translation type="vanished">Bildsequenz</translation>
-    </message>
-    <message>
-        <source>Start Time</source>
-        <translation type="vanished">Startzeitpunkt</translation>
-    </message>
-    <message>
-        <source>End Time</source>
-        <translation type="vanished">Endzeitpunkt</translation>
-    </message>
-    <message>
-        <source>Premultiplied Alpha</source>
-        <translation type="vanished">Vormultiplizierter Alpha-Wert</translation>
-    </message>
-    <message>
-        <source>Colorspace</source>
-        <translation type="vanished">Farbraum</translation>
-    </message>
-    <message>
-        <source>Default (%1)</source>
-        <translation type="vanished">Standard (%1)</translation>
-    </message>
-</context>
-<context>
     <name>olive::VideoStreamProperties</name>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="45"/>
@@ -7375,22 +6811,9 @@ Do you wish to continue?</source>
         <translation>Zeilenentflechtung</translation>
     </message>
     <message>
-        <source>Scopes</source>
-        <translation type="vanished">Bereiche</translation>
-    </message>
-    <message>
         <location filename="../widget/viewer/viewer.cpp" line="1044"/>
         <source>Cache</source>
         <translation>Puffer</translation>
-    </message>
-    <message>
-        <source>Auto-Cache</source>
-        <translation type="vanished">Automatisches Vorladen</translation>
-    </message>
-    <message>
-        <source>Pause Auto-Cache During Playback</source>
-        <translatorcomment>/dem Abspielen</translatorcomment>
-        <translation type="vanished">Automatisches Puffern während der Wiedergabe pausieren</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="1048"/>
