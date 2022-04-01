@@ -1151,7 +1151,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../core.cpp" line="1213"/>
         <source>The following projects had unsaved changes when Olive forcefully quit. Would you like to load them?</source>
-        <translation>In den folgenden Projekten gab es nicht gespeicherte Änderungen, als Olive plötzlich beendet wurde. Sollen sie wiederhergestellt werden?</translation>
+        <translation>In den folgenden Projekten gab es nicht gespeicherte Änderungen, als Olive plötzlich beendet wurde. Sollen diese wiederhergestellt werden?</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1224"/>
@@ -1211,7 +1211,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../core.cpp" line="1488"/>
         <source>The project &apos;%1&apos; has unsaved changes. Would you like to save them?</source>
-        <translation>Das Projekt &apos;%1&apos; hat nicht gespeicherte Änderungen. Sollen sie gespeichert werden?</translation>
+        <translation>Das Projekt &apos;%1&apos; hat nicht gespeicherte Änderungen. Sollen diese gespeichert werden?</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1491"/>
@@ -6408,7 +6408,7 @@ Willst du das wirklich tun?</translation>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="75"/>
         <source>Interpolation</source>
-        <translation>Interpolation</translation>
+        <translation>Interpolierung</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="77"/>
