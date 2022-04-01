@@ -1259,7 +1259,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../node/distort/cornerpin/cornerpindistortnode.cpp" line="56"/>
         <source>Perspective</source>
-        <translation>Perspektive</translation>
+        <translation>Perspektivisch</translation>
     </message>
     <message>
         <location filename="../node/distort/cornerpin/cornerpindistortnode.cpp" line="57"/>
@@ -1284,7 +1284,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../node/distort/cornerpin/cornerpindistortnode.h" line="47"/>
         <source>Corner Pin</source>
-        <translation type="unfinished"></translation>
+        <translation>Ecken verschieben</translation>
     </message>
     <message>
         <location filename="../node/distort/cornerpin/cornerpindistortnode.h" line="62"/>
@@ -1576,7 +1576,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../render/diskmanager.cpp" line="185"/>
         <source>Failed to open disk cache at &quot;%1&quot;. Try a different folder.</source>
-        <translation>Der Festplatte-Puffer konnte am Ort &quot;%1&quot; nicht geöffnet werden. Versuche einen anderen Ordner.</translation>
+        <translation>Der Puffer konnte am Ort &quot;%1&quot; nicht geöffnet werden. Versuche einen anderen Ordner.</translation>
     </message>
 </context>
 <context>
@@ -2529,7 +2529,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <location filename="../dialog/export/codec/h264section.cpp" line="195"/>
         <source>Two-Pass</source>
         <translatorcomment>Not sure how to translate this</translatorcomment>
-        <translation type="unfinished">Two-Pass</translation>
+        <translation>Two-Pass</translation>
     </message>
 </context>
 <context>
@@ -2542,7 +2542,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../dialog/export/codec/h264section.cpp" line="231"/>
         <source>Two-Pass</source>
-        <translation type="unfinished">Two-Pass</translation>
+        <translation>Two-Pass</translation>
     </message>
 </context>
 <context>
@@ -3274,7 +3274,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="727"/>
         <source>Decrease Track Height</source>
-        <translation>Spurgröße verringern</translation>
+        <translation>Spurhöhe verringern</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="728"/>
@@ -3660,7 +3660,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="79"/>
         <source>Generate an orthographic matrix using position, rotation, and scale.</source>
-        <translation>Anhand von Position, Rotation und Skalierung eine orthographische Matrix erstellen.</translation>
+        <translation>Anhand von Position, Drehung und Skalierung eine orthographische Matrix erstellen.</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="84"/>
@@ -3670,7 +3670,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="85"/>
         <source>Rotation</source>
-        <translation>Rotation</translation>
+        <translation>Drehung</translation>
     </message>
     <message>
         <location filename="../node/generator/matrix/matrix.cpp" line="86"/>
@@ -3884,7 +3884,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/menu/menushared.cpp" line="355"/>
         <source>Frames</source>
-        <translation>Anzahl der Einzelbilder</translation>
+        <translation>Einzelbilder</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="356"/>
@@ -5289,22 +5289,22 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="144"/>
         <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenColorIO-Konfiguration konnte nicht gesetzt werden: %1</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="193"/>
         <source>Invalid path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Pfad</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="194"/>
         <source>The custom cache path is invalid. Please check it and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der individuelle Puffer-Pfad ist ungültig. Bitte überprüfen und nochmal versuchen.</translation>
     </message>
     <message>
         <location filename="../dialog/projectproperties/projectproperties.cpp" line="205"/>
         <source>Browse for OpenColorIO configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach OpenColorIO-Konfiguration suchen</translation>
     </message>
 </context>
 <context>
@@ -5317,17 +5317,17 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../task/project/save/save.cpp" line="54"/>
         <source>Failed to write XML data.</source>
-        <translation type="unfinished"></translation>
+        <translation>XML-Daten konnten nicht geschrieben werden.</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="57"/>
         <source>Failed to open file &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; kann nicht zum Schreiben geöffnet werden.</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="69"/>
         <source>Unknown error.</source>
-        <translation type="unfinished">Unbekannter Fehler.</translation>
+        <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
         <location filename="../task/project/save/save.cpp" line="60"/>
@@ -5413,7 +5413,7 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../widget/projecttoolbar/projecttoolbar.cpp" line="112"/>
         <source>Search media, markers, etc.</source>
-        <translation>Nach Medien, Markern u. Ä. suchen</translation>
+        <translation>Suche nach Medien, Markern u. Ä.</translation>
     </message>
 </context>
 <context>
@@ -5436,12 +5436,12 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../node/project/projectviewmodel.cpp" line="202"/>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Verändert am</translation>
     </message>
     <message>
         <location filename="../node/project/projectviewmodel.cpp" line="204"/>
         <source>Created</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt am</translation>
     </message>
     <message>
         <location filename="../node/project/projectviewmodel.cpp" line="356"/>
@@ -5513,7 +5513,7 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../panel/scope/scope.cpp" line="129"/>
         <source>Scopes</source>
-        <translation type="unfinished">Bereiche</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5554,7 +5554,7 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="73"/>
         <source>Set As Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Standard festlegen</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="82"/>
@@ -5579,12 +5579,12 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="147"/>
         <source>Confirm Set As Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard-Festlegung bestätigen</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequence.cpp" line="148"/>
         <source>Are you sure you want to set the current parameters as defaults?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sollen die aktuellen Einstellungen wirklich als Standard festgelegt werden?</translation>
     </message>
 </context>
 <context>
@@ -5597,27 +5597,27 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="23"/>
         <source>Width:</source>
-        <translation type="unfinished">Breite:</translation>
+        <translation>Breite:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="28"/>
         <source>Height:</source>
-        <translation type="unfinished">Höhe:</translation>
+        <translation>Höhe:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="33"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Bildfrequenz:</translation>
+        <translation>Bildfrequenz:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="37"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished">Seitenverhältnis:</translation>
+        <translation>Seitenverhältnis:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="41"/>
         <source>Interlacing:</source>
-        <translation type="unfinished">Interlacing:</translation>
+        <translation>Interlacing:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="50"/>
@@ -5652,7 +5652,7 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="77"/>
         <source>Auto-Cache:</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisches Puffern:</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogparametertab.cpp" line="101"/>
@@ -5670,7 +5670,7 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="54"/>
         <source>Preset</source>
-        <translation>Voreinstellung</translation>
+        <translation>Voreinstellungen</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/sequencedialogpresettab.cpp" line="62"/>
@@ -5756,27 +5756,27 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../node/generator/shape/shapenode.cpp" line="36"/>
         <source>Shape</source>
-        <translation type="unfinished">Form</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location filename="../node/generator/shape/shapenode.cpp" line="51"/>
         <source>Generate a 2D primitive shape.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle eine einfache 2D-Form.</translation>
     </message>
     <message>
         <location filename="../node/generator/shape/shapenode.cpp" line="58"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../node/generator/shape/shapenode.cpp" line="61"/>
         <source>Rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechteck</translation>
     </message>
     <message>
         <location filename="../node/generator/shape/shapenode.cpp" line="61"/>
         <source>Ellipse</source>
-        <translation type="unfinished"></translation>
+        <translation>Ellipse</translation>
     </message>
 </context>
 <context>
@@ -5784,17 +5784,17 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../node/generator/shape/shapenodebase.cpp" line="67"/>
         <source>Position</source>
-        <translation type="unfinished">Position</translation>
+        <translation>Position</translation>
     </message>
     <message>
         <location filename="../node/generator/shape/shapenodebase.cpp" line="68"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <location filename="../node/generator/shape/shapenodebase.cpp" line="71"/>
         <source>Color</source>
-        <translation type="unfinished">Farbe</translation>
+        <translation>Farbe</translation>
     </message>
 </context>
 <context>
@@ -5846,32 +5846,32 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="41"/>
         <source>Speed/Duration</source>
-        <translation type="unfinished">Geschwindigkeit/Dauer</translation>
+        <translation>Geschwindigkeit/Dauer</translation>
     </message>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="53"/>
         <source>Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschwindigkeit:</translation>
     </message>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="62"/>
         <source>Duration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dauer:</translation>
     </message>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="72"/>
         <source>Link Speed and Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschwindigkeit und Dauer verknüpfen</translation>
     </message>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="77"/>
         <source>Reverse</source>
-        <translation type="unfinished">Rückwärts</translation>
+        <translation>Rückwärts</translation>
     </message>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="80"/>
         <source>Maintain Audio Pitch</source>
-        <translation type="unfinished"></translation>
+        <translation>Tonhöhe beibehalten</translation>
     </message>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="83"/>
@@ -5881,7 +5881,7 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../dialog/speedduration/speeddurationdialog.cpp" line="151"/>
         <source>Rippling is a stub and will not do anything. Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Rippeln ist unfertig und wird nichts tun. Willst du weitermachen?</translation>
     </message>
 </context>
 <context>
@@ -5936,17 +5936,17 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../node/block/subtitle/subtitle.cpp" line="41"/>
         <source>Subtitle</source>
-        <translation type="unfinished">Untertitel</translation>
+        <translation>Untertitel</translation>
     </message>
     <message>
         <location filename="../node/block/subtitle/subtitle.cpp" line="51"/>
         <source>A time-based node representing a single subtitle element for a certain period of time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine auf Zeit basierende Node, die ein einzelnes Untertitel-Element für einen bestimmten Zeitraum darstellt.</translation>
     </message>
     <message>
         <location filename="../node/block/subtitle/subtitle.cpp" line="58"/>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
 </context>
 <context>
@@ -5992,62 +5992,62 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="43"/>
         <source>Sample Text</source>
-        <translation type="unfinished">Beispieltext</translation>
+        <translation>Beispieltext</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="58"/>
         <source>Text (Legacy)</source>
-        <translation type="unfinished"></translation>
+        <translation>Text (Veraltet)</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="73"/>
         <source>Generate rich text.</source>
-        <translation type="unfinished">Formatierten Text erzeugen.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="78"/>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="79"/>
         <source>Enable HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>HTML aktivieren</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="80"/>
         <source>Font</source>
-        <translation type="unfinished">Schriftart</translation>
+        <translation>Schriftart</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="81"/>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Schriftgröße</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="82"/>
         <source>Color</source>
-        <translation type="unfinished">Farbe</translation>
+        <translation>Farbe</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="83"/>
         <source>Vertical Align</source>
-        <translation type="unfinished">Vertikal ausrichten</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="84"/>
         <source>Top</source>
-        <translation type="unfinished">Oben</translation>
+        <translation>Oben</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="84"/>
         <source>Center</source>
-        <translation type="unfinished">Mitte</translation>
+        <translation>Mitte</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv1.cpp" line="84"/>
         <source>Bottom</source>
-        <translation type="unfinished">Unten</translation>
+        <translation>Unten</translation>
     </message>
 </context>
 <context>
@@ -6055,57 +6055,57 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="48"/>
         <source>Sample Text</source>
-        <translation type="unfinished">Beispieltext</translation>
+        <translation>Beispieltext</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="64"/>
         <source>Text (Legacy)</source>
-        <translation type="unfinished"></translation>
+        <translation>Text (Veraltet)</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="79"/>
         <source>Generate rich text.</source>
-        <translation type="unfinished">Formatierten Text erzeugen.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="86"/>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="87"/>
         <source>Enable HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>HTML aktivieren</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="88"/>
         <source>Font</source>
-        <translation type="unfinished">Schriftart</translation>
+        <translation>Schriftart</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="89"/>
         <source>Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Schriftgröße</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="90"/>
         <source>Vertical Align</source>
-        <translation type="unfinished">Vertikal ausrichten</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="91"/>
         <source>Top</source>
-        <translation type="unfinished">Oben</translation>
+        <translation>Oben</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="91"/>
         <source>Center</source>
-        <translation type="unfinished">Mitte</translation>
+        <translation>Mitte</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv2.cpp" line="91"/>
         <source>Bottom</source>
-        <translation type="unfinished">Unten</translation>
+        <translation>Unten</translation>
     </message>
 </context>
 <context>
@@ -6113,18 +6113,18 @@ Soll dieses Material wirklich entfernt werden?</translation>
     <message>
         <location filename="../node/generator/text/textv3.cpp" line="46"/>
         <source>Sample Text</source>
-        <translation type="unfinished">Beispieltext</translation>
+        <translation>Beispieltext</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv3.cpp" line="56"/>
         <location filename="../node/generator/text/textv3.cpp" line="78"/>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <location filename="../node/generator/text/textv3.cpp" line="71"/>
         <source>Generate rich text.</source>
-        <translation type="unfinished">Formatierten Text erzeugen.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6202,7 +6202,9 @@ Soll dieses Material wirklich entfernt werden?</translation>
         <source>In: %1
 Out: %2
 Duration: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfang: %1
+Ende: %2
+Dauer: %3</translation>
     </message>
 </context>
 <context>
@@ -6306,17 +6308,17 @@ Duration: %3</source>
     <message>
         <location filename="../node/output/track/track.cpp" line="77"/>
         <source>Video Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-Spur %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="79"/>
         <source>Audio Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio-Spur %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="81"/>
         <source>Subtitle Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untertitel-Spur %1</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.cpp" line="84"/>
@@ -6341,17 +6343,17 @@ Duration: %3</source>
     <message>
         <location filename="../node/output/track/track.h" line="204"/>
         <source>V</source>
-        <translation type="unfinished">V</translation>
+        <translation>V</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.h" line="206"/>
         <source>A</source>
-        <translation type="unfinished">A</translation>
+        <translation>A</translation>
     </message>
     <message>
         <location filename="../node/output/track/track.h" line="208"/>
         <source>S</source>
-        <translation type="unfinished">D</translation>
+        <translation>S</translation>
     </message>
 </context>
 <context>
