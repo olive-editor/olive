@@ -22,6 +22,7 @@
 #define ShaderFilterNode_H
 
 #include "node/node.h"
+#include "node/gizmo/point.h"
 #include "node/inputdragger.h"
 
 namespace olive {
@@ -51,6 +52,8 @@ public:
 
   virtual void Retranslate() override;
 
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
   void InputValueChangedEvent(const QString &input, int element) override;
@@ -64,29 +67,22 @@ private:
   void onShaderCodeChanged();
   void reportErrorList( const ShaderInputsParser & parser);
   void updateInputList( const ShaderInputsParser & parser);
+  void updateGizmoList();
   void checkDeletedInputs( const QStringList & new_inputs);
+
+
+protected slots:
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
 
   QString shader_code_;
   // user defined inputs
   QStringList user_input_list_;
+  // input of type vec2 to gizmo map
+  QMap<QString, PointGizmo *> handle_table_;
 
-  // two draggers for x and y, shared by all vec2 inputs
-  NodeInputDragger dragger_[2];
-  // one handle for every vec2 input
-  QMap<QString, QRectF> handle_table_;
-
-  QString currently_dragged_input_;
   QVector2D resolution_;
-
-  // Node interface
-public:
-  bool HasGizmos() const override;
-  void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
-  bool GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p) override;
-  void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  void GizmoRelease(MultiUndoCommand *command) override;
 };
 
 }

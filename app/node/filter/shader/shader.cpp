@@ -109,11 +109,19 @@ void olive::ShaderFilterNode::onShaderCodeChanged()
   }
   user_input_list_.clear();
 
-  // ... and create new inputs
+  // remove all gizmos
+  QMap<QString, PointGizmo *>::iterator i;
+  for (i = handle_table_.begin(); i != handle_table_.end(); ++i) {
+      RemoveGizmo(i.value());
+  }
+  handle_table_.clear();
+
+  // ... and create new inputs and gizmos
   parseShaderCode();
 
   qDebug() << "parsed shader code for " << GetLabel() << " @ " << (uint64_t)this;
 }
+
 
 QString ShaderFilterNode::Description() const
 {
@@ -122,7 +130,7 @@ QString ShaderFilterNode::Description() const
 
 void ShaderFilterNode::Retranslate()
 {
-  // Retranslate the only fixed inputs.
+  // Retranslate only fixed inputs.
   // Other inputs are read from the shader code
   SetInputName( kShaderCode, tr("Shader code"));
   SetInputName( kOutputMessages, tr("Issues"));
@@ -157,6 +165,7 @@ void ShaderFilterNode::parseShaderCode()
 
   reportErrorList( parser);
   updateInputList( parser);
+  updateGizmoList();
 
   // update name, if defined in script; otherwise use a default.
   QString label = (parser.ShaderName().isEmpty()) ? "unnamed" : parser.ShaderName();
@@ -217,6 +226,24 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
   emit InputListChanged();
 }
 
+// this function assumes that 'updateInputList' has been called already.
+void ShaderFilterNode::updateGizmoList()
+{
+  for (QString aInput : user_input_list_)
+  {
+    if (HasInputWithID(aInput)) {
+      if ( GetInputDataType(aInput) == NodeValue::kVec2) {
+        PointGizmo * g = AddDraggableGizmo<PointGizmo>();
+        g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 0));
+        g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 1));
+        g->SetDragValueBehavior(PointGizmo::kAbsolute);
+
+        handle_table_.insert( aInput, g);
+      }
+    }
+  }
+}
+
 void ShaderFilterNode::checkDeletedInputs(const QStringList & new_inputs)
 {
   // search old inputs that are not present in new inputs
@@ -227,76 +254,34 @@ void ShaderFilterNode::checkDeletedInputs(const QStringList & new_inputs)
   }
 }
 
-}  // namespace olive
-
-
-
-bool olive::ShaderFilterNode::HasGizmos() const
+void ShaderFilterNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers & /*modifiers*/)
 {
-  return (handle_table_.size() > 0);
+  DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
+
+  Q_ASSERT( resolution_.x() != 0.);
+  Q_ASSERT( resolution_.y() != 0.);
+
+  gizmo->GetDraggers()[0].Drag( x/resolution_.x());
+  gizmo->GetDraggers()[1].Drag( y/resolution_.y());
 }
 
-void olive::ShaderFilterNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals & globals, QPainter *p)
+void ShaderFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals & globals)
 {
-  p->setPen(QPen(Qt::white, 0));
-  QFont font;
-  font.setPixelSize(40);
-  p->setFont( font);
-  QVector2D resolution =  globals.resolution();
-
-  handle_table_.clear();
+  resolution_  = globals.resolution();
 
   for (QString aInput : user_input_list_)
   {
     if (HasInputWithID(aInput)) {
       if (row[aInput].type() == NodeValue::kVec2) {
+        QVector2D pos_vec = row[aInput].data().value<QVector2D>() * resolution_;
+        QPointF pos( pos_vec.x(), pos_vec.y());
 
-        QVector2D pos = row[aInput].data().value<QVector2D>() * resolution;
-        QRectF handleRect = CreateGizmoHandleRect(QPointF(pos.x(), pos.y()), 10);
-        p->fillRect( handleRect, Qt::white);
-        handle_table_[aInput] = handleRect;
-
-        p->drawText( pos.x()+15, pos.y()+15, GetInputName(aInput));
+        handle_table_[aInput]->SetPoint( pos);
       }
     }
   }
 }
 
-bool olive::ShaderFilterNode::GizmoPress(const NodeValueRow & /*row*/, const NodeGlobals & globals, const QPointF &p)
-{
-  resolution_ = globals.resolution();
 
-  for (const QString & point : handle_table_.keys()) {
-    if (handle_table_[point].contains(p)) {
-      currently_dragged_input_ = point;
-      return true;
-    }
-  }
+}  // namespace olive
 
-  return false;
-}
-
-void olive::ShaderFilterNode::GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers & /*modifiers*/)
-{
-  if ( ! dragger_[0].IsStarted())
-  {
-    dragger_[0].Start(NodeKeyframeTrackReference(NodeInput(this, currently_dragged_input_), 0), time);
-    dragger_[1].Start(NodeKeyframeTrackReference(NodeInput(this, currently_dragged_input_), 1), time);
-  }
-
-  if (resolution_.x() > 0.0) {
-    dragger_[0].Drag(p.x()/resolution_.x());
-  }
-
-  if (resolution_.y() > 0.0) {
-    dragger_[1].Drag(p.y()/resolution_.y());
-  }
-}
-
-void olive::ShaderFilterNode::GizmoRelease(MultiUndoCommand *command)
-{
-  dragger_[0].End( command);
-  dragger_[1].End( command);
-
-  currently_dragged_input_.clear();
-}

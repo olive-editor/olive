@@ -1062,6 +1062,10 @@ protected:
     return AddDraggableGizmo<T>(refs, behavior);
   }
 
+  void RemoveGizmo( NodeGizmo* gizmo) {
+    gizmos_.removeAll( gizmo);
+  }
+
 protected slots:
   virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::rational &time){}
 
