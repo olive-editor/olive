@@ -63,7 +63,7 @@
     <message>
         <location filename="../config/config.cpp" line="229"/>
         <source>Failed to save application settings. The application may lack write permissions for this location.</source>
-        <translation>Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf dieses Verzeichnis.</translation>
+        <translation>Fehler beim Speichern der Programm-Einstellungen. Möglicherweise hat die Anwendung keinen Schreibzugriff auf den Speicherort.</translation>
     </message>
 </context>
 <context>
@@ -86,7 +86,7 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="300"/>
         <source>Automatically Detect Parameters From Footage</source>
-        <translation>Parameter des Quellmaterials automatisch übernehmen</translation>
+        <translation>Parameter des Quellmaterials automatisch erkennen</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="301"/>
@@ -182,6 +182,7 @@
     <message>
         <location filename="../node/value.cpp" line="350"/>
         <source>Bezier</source>
+        <translatorcomment>Source text should be Bézier (with acute)</translatorcomment>
         <translation>Bezier</translation>
     </message>
     <message>
@@ -4673,50 +4674,50 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="54"/>
         <source>Auto-Seek to Imported Clips</source>
-        <translation>Automatisch zu neu importierten Clips springen</translation>
+        <translation>Automatisch zu neu importierten Medien springen</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="57"/>
         <source>Edit Tool Also Seeks</source>
-        <translation>Bearbeitungs-Werkzeug spielt beim Verschieben auch ab</translation>
+        <translation>Wiedergabe mit Bearbeitungs-Werkzeug</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="60"/>
         <source>Edit Tool Selects Links</source>
         <translatorcomment>?</translatorcomment>
-        <translation>Bearbeitungs-Werkzeug wählt Verlinkungen aus</translation>
+        <translation>Verlinkungen auswählen mit Bearbeitungs-Werkzeug</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="63"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation>Dateien auf die Zeitleiste ziehen erlauben</translation>
+        <translation>Ziehen von Dateien auf die Zeitleiste erlauben</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="66"/>
         <source>Invert Timeline Scroll Axes</source>
         <translatorcomment>?</translatorcomment>
-        <translation>Steuerung der Bildlauf-Achsen der Zeitleiste umkehren</translation>
+        <translation>Bildlauf von Achsen der Zeitleiste umkehren</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="68"/>
         <source>Hold ALT on any UI element to switch scrolling axes</source>
         <translatorcomment>?</translatorcomment>
-        <translation>ALT gedrückt halten, um die Steuerung der Bildlauf-Achsen bei irgendeinem UI-Element umzukehren</translation>
+        <translation>Halte ALT gedrückt, um den Bildlauf eines beliebigen UI-Elements umzukehren</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="70"/>
         <source>Seek Also Selects</source>
-        <translation>Beim Durchsuchen auch auswählen</translation>
+        <translation>Beim Durchsuchen einer Sequenz auch auswählen</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="73"/>
         <source>Seek to the End of Pastes</source>
-        <translation>Zum Ende von eingefügten Clips springen</translation>
+        <translation>Zum Ende von eingefügten Medien springen</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="76"/>
         <source>Selecting Also Seeks</source>
-        <translation>Beim Auswählen auch durchsuchen</translation>
+        <translation>Beim Auswählen auch Sequenz durchsuchen</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="80"/>
@@ -4726,12 +4727,12 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="81"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation>Nach Name fragen, wenn Marker gesetzt wird</translation>
+        <translation>Beim Setzen von Markern nach einem Namen fragen</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="84"/>
         <source>Automatically rewind at the end of a sequence</source>
-        <translation>Automatisch wieder von Vorne beginnen, wenn ein Clip zu Ende ist</translation>
+        <translation>Automatisch wieder von Vorne beginnen, wenn eine Sequenz zu Ende ist</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="88"/>
@@ -4741,8 +4742,7 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="89"/>
         <source>Drop Files on Media to Replace</source>
-        <translatorcomment>kling noch eher suboptimal...</translatorcomment>
-        <translation>Dateien über bestehende Medien ziehen ersetzt</translation>
+        <translation type="unfinished">Medien durch Darüberziehen von Dateien ersetzen</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="93"/>
@@ -4752,23 +4752,23 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="94"/>
         <source>Add Default Effects to New Clips</source>
-        <translation>Standard-Effekte automatisch zu neuen Clips hinzufügen</translation>
+        <translation>Standard-Effekte auf neue Medien anwenden</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="97"/>
         <source>Auto-Scale By Default</source>
-        <translatorcomment>(Standardmäßig)</translatorcomment>
-        <translation>Automatische Skalierung</translation>
+        <translation>Standardmäßig automatisch skalieren</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="100"/>
         <source>Splitting Clips Copies Dependencies</source>
-        <translation>Trennen von Clips dupliziert die verbundenen Nodes</translation>
+        <translation>Vorgelagerte Nodes duplizieren, wenn ein Medium getrennt wird</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesbehaviortab.cpp" line="102"/>
         <source>Multiple clips can share the same nodes. Disable this to automatically share node dependencies among clips when copying or splitting them.</source>
-        <translation>Mehrere Clips können sich die selben Nodes teilen. Wenn diese Option deaktiviert werden beim Kopieren von Nodes die neuen Verbindungen automatisch zu den bestehenden Nodes gelegt.</translation>
+        <translatorcomment>(i. e. use references instead of copies)</translatorcomment>
+        <translation>Mehrere Medien können sich die selben Nodes teilen. Deaktiviere diese Option, damit kopierte oder geschnittene Medien ihre Quellen automatisch von den selben übergeordneten Nodes beziehen.</translation>
     </message>
 </context>
 <context>
@@ -4885,7 +4885,7 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="86"/>
         <source>None</source>
-        <translation>deaktiviert</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="87"/>
@@ -4905,8 +4905,7 @@ Dies entspricht einer Multiplikation des Videos mit Zahlen zwischen 0,0 und 1,0.
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="102"/>
         <source>Default Still Image Length:</source>
-        <translatorcomment>/Standbilderzz</translatorcomment>
-        <translation>Standardmäßige Dauer für Fotos:</translation>
+        <translation>Standard-Dauer für Bilder:</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferencesgeneraltab.cpp" line="107"/>
