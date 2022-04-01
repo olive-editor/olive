@@ -38,19 +38,6 @@ QString StyleManager::current_style_;
 QMap<QString, QString> StyleManager::available_themes_;
 QPalette StyleManager::platform_palette_;
 
-void StyleManager::UseOSNativeStyling(QWidget *widget)
-{
-#if defined(Q_OS_WINDOWS)
-  QStyle* s = QStyleFactory::create(QStringLiteral("windowsvista"));
-  widget->setStyle(s);
-  widget->setPalette(platform_palette_);
-#elif defined(Q_OS_MAC)
-  QStyle* s = QStyleFactory::create(QStringLiteral("macintosh"));
-  widget->setStyle(s);
-  widget->setPalette(platform_palette_);
-#endif
-}
-
 QPalette StyleManager::ParsePalette(const QString& ini_path)
 {
   QSettings ini(ini_path, QSettings::IniFormat);

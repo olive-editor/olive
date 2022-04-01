@@ -36,7 +36,9 @@ namespace olive {
 
 ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   super(parent),
-  transparent_clone_(nullptr)
+  transparent_clone_(nullptr),
+  block_update_toolbar_signal_(false),
+  listen_to_focus_events_(false)
 {
   // Ensure default text color is white
   QPalette p = palette();
@@ -174,6 +176,10 @@ void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTe
 
 void ViewerTextEditor::FocusChanged(QWidget *old, QWidget *now)
 {
+  if (!listen_to_focus_events_) {
+    return;
+  }
+
   QWidget *test = now;
 
   if (!test) {
@@ -198,54 +204,85 @@ void ViewerTextEditor::FocusChanged(QWidget *old, QWidget *now)
 
 void ViewerTextEditor::FormatChanged(const QTextCharFormat &f)
 {
-  foreach (ViewerTextEditorToolBar *toolbar, toolbars_) {
-    UpdateToolBar(toolbar, f, textCursor().blockFormat(), this->alignment());
+  if (!block_update_toolbar_signal_) {
+    foreach (ViewerTextEditorToolBar *toolbar, toolbars_) {
+      UpdateToolBar(toolbar, f, textCursor().blockFormat(), this->alignment());
+    }
   }
 }
 
 void ViewerTextEditor::SetFamily(const QString &s)
 {
+  ViewerTextEditorToolBar *toolbar = static_cast<ViewerTextEditorToolBar *>(sender());
+
   QTextCharFormat f;
   f.setFontFamily(s);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
   f.setFontFamilies({s});
 #endif
-  mergeCurrentCharFormat(f);
+
+  ApplyStyle(&f, s, toolbar->GetFontStyleName());
+
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetStyle(const QString &s)
 {
+  ViewerTextEditorToolBar *toolbar = static_cast<ViewerTextEditorToolBar *>(sender());
+
   QTextCharFormat f;
-  f.setFontStyleName(s);
-  mergeCurrentCharFormat(f);
+
+  ApplyStyle(&f, toolbar->GetFontFamily(), s);
+
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetFontStrikethrough(bool e)
 {
   QTextCharFormat f;
   f.setFontStrikeOut(e);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetSmallCaps(bool e)
 {
   QTextCharFormat f;
   f.setFontCapitalization(e ? QFont::SmallCaps : QFont::MixedCase);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetFontStretch(int i)
 {
   QTextCharFormat f;
   f.setFontStretch(i);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
 }
 
 void ViewerTextEditor::SetFontKerning(qreal i)
 {
   QTextCharFormat f;
   f.setFontLetterSpacing(i);
-  mergeCurrentCharFormat(f);
+  MergeCharFormat(f);
+}
+
+void ViewerTextEditor::MergeCharFormat(const QTextCharFormat &fmt)
+{
+  // mergeCurrentCharFormat throws a currentCharFormatChanged signal that updates the toolbar,
+  // this can be undesirable if the user is currently typing a font
+  block_update_toolbar_signal_ = true;
+  mergeCurrentCharFormat(fmt);
+  block_update_toolbar_signal_ = false;
+}
+
+void ViewerTextEditor::ApplyStyle(QTextCharFormat *format, const QString &family, const QString &style)
+{
+  // NOTE: Windows appears to require setting weight and italic manually, while macOS and Linux are
+  //       perfectly fine with just the style name
+  QFontDatabase fd;
+  format->setFontWeight(fd.weight(family, style));
+  format->setFontItalic(fd.italic(family, style));
+
+  format->setFontStyleName(style);
 }
 
 void ViewerTextEditor::SetLineHeight(qreal i)
@@ -284,7 +321,7 @@ void ViewerTextEditor::DocumentChanged()
 }
 
 ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
-  QWidget(parent),
+  QWidget(parent, Qt::Tool | Qt::FramelessWindowHint),
   painted_(false)
 {
   QVBoxLayout *outer_layout = new QVBoxLayout(this);
@@ -296,8 +333,7 @@ ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
   int advanced_slider_width = QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("9999.9%"));
 
   font_combo_ = new QFontComboBox();
-  connect(font_combo_, &QFontComboBox::currentTextChanged, this, &ViewerTextEditorToolBar::FamilyChanged);
-  connect(font_combo_, &QFontComboBox::currentTextChanged, this, &ViewerTextEditorToolBar::UpdateFontStyleList);
+  connect(font_combo_, &QFontComboBox::currentTextChanged, this, &ViewerTextEditorToolBar::UpdateFontStyleListAndEmitFamilyChanged);
   basic_layout->addWidget(font_combo_);
 
   font_sz_slider_ = new FloatSlider();
@@ -413,6 +449,8 @@ ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
   advanced_layout->addStretch();
 
   setAutoFillBackground(true);
+
+  resize(sizeHint());
 }
 
 void ViewerTextEditorToolBar::SetAlignment(Qt::Alignment a)
@@ -455,6 +493,13 @@ void ViewerTextEditorToolBar::UpdateFontStyleList(const QString &family)
   }
   style_combo_->setCurrentText(temp);
   style_combo_->blockSignals(false);
+}
+
+void ViewerTextEditorToolBar::UpdateFontStyleListAndEmitFamilyChanged(const QString &family)
+{
+  // Ensures correct ordering of commands
+  UpdateFontStyleList(family);
+  emit FamilyChanged(family);
 }
 
 void ViewerTextEditorToolBar::mousePressEvent(QMouseEvent *event)

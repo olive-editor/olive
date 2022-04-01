@@ -43,6 +43,11 @@ public:
     return font_combo_->currentText();
   }
 
+  QString GetFontStyleName() const
+  {
+    return style_combo_->currentText();
+  }
+
 public slots:
   void SetFontFamily(QString s)
   {
@@ -124,6 +129,8 @@ private:
 private slots:
   void UpdateFontStyleList(const QString &family);
 
+  void UpdateFontStyleListAndEmitFamilyChanged(const QString &family);
+
 };
 
 class ViewerTextEditor : public QTextEdit
@@ -134,6 +141,8 @@ public:
 
   void ConnectToolBar(ViewerTextEditorToolBar *toolbar);
 
+  void SetListenToFocusEvents(bool e) { listen_to_focus_events_ = e; }
+
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
@@ -142,11 +151,19 @@ protected:
 private:
   static void UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment);
 
+  void MergeCharFormat(const QTextCharFormat &fmt);
+
+  void ApplyStyle(QTextCharFormat *format, const QString &family, const QString &style);
+
   QVector<ViewerTextEditorToolBar *> toolbars_;
 
   QImage dpi_force_;
 
   QTextDocument *transparent_clone_;
+
+  bool block_update_toolbar_signal_;
+
+  bool listen_to_focus_events_;
 
 private slots:
   void FocusChanged(QWidget *old, QWidget *now);

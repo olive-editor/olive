@@ -344,8 +344,6 @@ void ViewerDisplayWidget::mouseDoubleClickEvent(QMouseEvent *event)
           text_edit->setGeometry(transformed_geom.toRect());
 
           ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(this);
-          toolbar->setWindowFlags(Qt::FramelessWindowHint | Qt::Window | Qt::WindowStaysOnTopHint);
-          toolbar->resize(toolbar->sizeHint());
 
           QPoint pos = mapToGlobal(QPoint(transformed_geom.x(), transformed_geom.y() - toolbar->height()));
           for (QScreen *screen : qApp->screens()) {
@@ -376,6 +374,12 @@ void ViewerDisplayWidget::mouseDoubleClickEvent(QMouseEvent *event)
 
             // Start text cursor where the user clicked
             text_edit->setTextCursor(text_edit->cursorForPosition(text_edit_pos));
+
+            // HACK: On macOS, for some reason the QDockWidget receives focus before the
+            //       ViewerTextEditor, causing the editor to close prematurely. However this only
+            //       happens the first time the editor receives focus and not subsequent times, so
+            //       if we get it to only listen after the first one, this solves the problem.
+            text_edit->SetListenToFocusEvents(true);
           });
           break;
         }
