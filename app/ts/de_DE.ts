@@ -3093,7 +3093,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="330"/>
         <source>Close All Except Current Project</source>
-        <translation>Alles außer das aktuelle Projekt schließen</translation>
+        <translation>Alle schließen außer das aktuelle Projekt</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="432"/>
@@ -3148,7 +3148,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="697"/>
         <source>&amp;Media...</source>
-        <translation>als &amp;Video...</translation>
+        <translation>&amp;Medien...</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="698"/>
@@ -3269,7 +3269,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="726"/>
         <source>Increase Track Height</source>
-        <translation>Spurgröße erhöhen</translation>
+        <translation>Spurhöhe vergrößern</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="727"/>
@@ -3299,7 +3299,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="736"/>
         <source>Go to Start</source>
-        <translation>Zum Anfang gehen</translation>
+        <translation>Zum Anfang springen</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="737"/>
@@ -3466,7 +3466,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="775"/>
         <source>Add Tool</source>
-        <translation>Hinzufügen-Werkzeug</translation>
+        <translation>Hinzufüge-Werkzeug</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="776"/>
