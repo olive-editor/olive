@@ -3173,7 +3173,7 @@ Wenn eine angestrebte Bitrate oder Dateigröße verwendet wird, kann durch langs
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="705"/>
         <source>Delete (alt)</source>
-        <translation>Löschen (alt)</translation>
+        <translation>Entfernen (alt)</translation>
     </message>
     <message>
         <location filename="../window/mainwindow/mainmenu.cpp" line="706"/>
@@ -6361,23 +6361,23 @@ Dauer: %3</translation>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="135"/>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Entfernen</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="140"/>
         <source>Delete All &amp;Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle &amp;leeren entfernen</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="165"/>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="167"/>
         <source>Delete All Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle leeren entfernen</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="165"/>
         <source>No tracks are currently empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Derzeit sind keine leeren Spuren vorhanden</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/trackview/trackviewitem.cpp" line="168"/>
@@ -6386,7 +6386,11 @@ Dauer: %3</translation>
 %1
 
 Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Vorgang würde die folgenden Spuren entfernen:
+
+%1
+
+Willst du das wirklich tun?</translation>
     </message>
 </context>
 <context>
@@ -6557,7 +6561,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="78"/>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
 </context>
 <context>
@@ -6597,27 +6601,27 @@ Do you wish to continue?</source>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="55"/>
         <source>Interlacing:</source>
-        <translation type="unfinished">Interlacing:</translation>
+        <translation>Interlacing:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="64"/>
         <source>Color Space:</source>
-        <translation type="unfinished">Farbraum:</translation>
+        <translation>Farbraum:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="70"/>
         <source>Default (%1)</source>
-        <translation type="unfinished">Standard (%1)</translation>
+        <translation>Standard (%1)</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="85"/>
         <source>Premultiplied Alpha</source>
-        <translation type="unfinished">Vormultiplizierter Alpha-Wert</translation>
+        <translation>Vormultiplizierter Alphakanal</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="93"/>
         <source>Image Sequence</source>
-        <translation type="unfinished">Bildsequenz</translation>
+        <translation>Bildsequenz</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="98"/>
@@ -6632,7 +6636,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="116"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished">Bildfrequenz:</translation>
+        <translation>Bildfrequenz:</translation>
     </message>
     <message>
         <location filename="../dialog/footageproperties/streamproperties/videostreamproperties.cpp" line="169"/>
@@ -6712,12 +6716,12 @@ Do you wish to continue?</source>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="301"/>
         <source>Auto-Cache Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video automatisch puffern</translation>
     </message>
     <message>
         <location filename="../node/output/viewer/viewer.cpp" line="305"/>
         <source>Auto-Cache Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio automatisch puffern</translation>
     </message>
 </context>
 <context>
@@ -6733,7 +6737,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../widget/viewer/viewertexteditor.cpp" line="362"/>
         <source>S</source>
-        <translation type="unfinished">D</translation>
+        <translation>S</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewertexteditor.cpp" line="412"/>
@@ -6745,7 +6749,7 @@ Do you wish to continue?</source>
         <location filename="../widget/viewer/viewertexteditor.cpp" line="429"/>
         <location filename="../widget/viewer/viewertexteditor.cpp" line="440"/>
         <source>%1%</source>
-        <translation type="unfinished">%1%</translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewertexteditor.cpp" line="422"/>
