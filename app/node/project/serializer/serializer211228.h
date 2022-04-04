@@ -64,6 +64,7 @@ private:
     QList<BlockLink> block_links;
     QVector<GroupLink> group_input_links;
     QHash<NodeGroup*, quintptr> group_output_links;
+    QHash<Node*, QUuid> node_uuids;
 
   };
 

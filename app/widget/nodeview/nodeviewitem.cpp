@@ -464,10 +464,16 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-  if (change == ItemPositionHasChanged && node_) {
-    ReadjustAllEdges();
+  if (node_) {
+    if (change == ItemPositionHasChanged) {
+      ReadjustAllEdges();
 
-    UpdateContextRect();
+      UpdateContextRect();
+    } else if (change == ItemSelectedHasChanged) {
+      if (value.toBool()) {
+        qDebug() << "Selected node:" << node_;
+      }
+    }
   }
 
   return QGraphicsItem::itemChange(change, value);
@@ -786,7 +792,7 @@ NodeViewItem *NodeViewItem::GetItemForInput(NodeInput input)
   if (NodeGroup *group = dynamic_cast<NodeGroup*>(node_)) {
     if (input.node() != group) {
       // Translate input to group input
-      QString id = NodeGroup::GetGroupInputIDFromInput(input);
+      QString id = group->GetIDOfPassthrough(input);
       input.set_node(group);
       input.set_input(id);
     }

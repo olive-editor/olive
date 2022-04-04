@@ -149,7 +149,7 @@ private:
   QPointF GetEstimatedPositionForContext(NodeViewItem *item, Node *context) const;
 
   NodeViewItem *GetAssumedItemForSelectedNode(Node *node);
-  Node::Position GetAssumedPositionForSelectedNode(Node *node);
+  bool GetAssumedPositionForSelectedNode(Node *node, Node::Position *pos);
 
   Menu *CreateAddMenu(Menu *parent);
 

@@ -27,7 +27,6 @@
 #include <QObject>
 #include <QPainter>
 #include <QPointF>
-#include <QUuid>
 #include <QXmlStreamWriter>
 
 #include "codec/frame.h"
@@ -120,9 +119,6 @@ public:
   NodeGraph* parent() const;
 
   Project* project() const;
-
-  const QUuid &GetUUID() const {return uuid_;}
-  void SetUUID(const QUuid &uuid) {uuid_ = uuid;}
 
   const uint64_t &GetFlags() const
   {
@@ -1339,8 +1335,6 @@ private:
   QMap<InputElementPair, ValueHint> value_hints_;
 
   PositionMap context_positions_;
-
-  QUuid uuid_;
 
   uint64_t flags_;
 

@@ -213,20 +213,67 @@ void NodeView::Paste()
 void NodeView::Duplicate()
 {
   if (!selected_nodes_.isEmpty()) {
-    Node::PositionMap map;
+    QVector<Node*> selected = selected_nodes_;
     QVector<Node*> new_nodes;
-    new_nodes.resize(selected_nodes_.size());
+    Node::PositionMap map;
 
-    for (int i=0; i<new_nodes.size(); i++) {
-      Node *og = selected_nodes_.at(i);
-      Node *copy = og->copy();
-      Node::CopyInputs(og, copy, false);
-      map.insert(copy, GetAssumedPositionForSelectedNode(og));
-      new_nodes[i] = copy;
+    new_nodes.resize(selected.size());
+
+    // Create copies of each selected node, checking for groups and adding children if necessary
+    for (int i=0; i<selected.size(); i++) {
+      new_nodes[i] = selected.at(i)->copy();
+
+      if (NodeGroup *g = dynamic_cast<NodeGroup*>(selected.at(i))) {
+        for (auto it=g->GetContextPositions().cbegin(); it!=g->GetContextPositions().cend(); it++) {
+          if (!selected.contains(it.key())) {
+            // This should automatically recurse if this is a group inside a group
+            selected.append(it.key());
+          }
+        }
+        new_nodes.resize(selected.size());
+      }
     }
 
-    Node::CopyDependencyGraph(selected_nodes_, new_nodes, nullptr);
+    // Get positions in contexts, add input passthroughs, and copy input values/keyframes
+    for (int i=0; i<new_nodes.size(); i++) {
+      Node *og = selected.at(i);
+      Node *copy = new_nodes.at(i);
 
+      Node::Position pos;
+      if (GetAssumedPositionForSelectedNode(og, &pos)) {
+        map.insert(copy, pos);
+      }
+
+      for (auto it=og->GetContextPositions().cbegin(); it!=og->GetContextPositions().cend(); it++) {
+        Node *child_og = it.key();
+        int child_index = selected.indexOf(child_og);
+
+        if (child_index != -1) {
+          Node *child_copy = new_nodes.at(child_index);
+
+          copy->SetNodePositionInContext(child_copy, it.value());
+        }
+      }
+
+      if (NodeGroup *src_group = dynamic_cast<NodeGroup*>(og)) {
+        NodeGroup *dst_group = static_cast<NodeGroup*>(copy);
+
+        for (auto it=src_group->GetInputPassthroughs().cbegin(); it!=src_group->GetInputPassthroughs().cend(); it++) {
+          NodeInput input = it->second;
+          input.set_node(new_nodes.at(selected.indexOf(input.node())));
+          dst_group->AddInputPassthrough(input);
+        }
+
+        dst_group->SetOutputPassthrough(new_nodes.at(selected.indexOf(src_group->GetOutputPassthrough())));
+      }
+
+      Node::CopyInputs(selected.at(i), new_nodes.at(i), false);
+    }
+
+    // Copy connections
+    Node::CopyDependencyGraph(selected, new_nodes, nullptr);
+
+    // Set root level context positions and attach to
     PostPaste(new_nodes, map);
   }
 }
@@ -1020,12 +1067,13 @@ NodeViewItem *NodeView::GetAssumedItemForSelectedNode(Node *node)
   return nullptr;
 }
 
-Node::Position NodeView::GetAssumedPositionForSelectedNode(Node *node)
+bool NodeView::GetAssumedPositionForSelectedNode(Node *node, Node::Position *pos)
 {
   if (NodeViewItem *item = GetAssumedItemForSelectedNode(node)) {
-    return item->GetNodePositionData();
+    *pos = item->GetNodePositionData();
+    return true;
   } else {
-    return Node::Position();
+    return false;
   }
 }
 
@@ -1353,7 +1401,7 @@ void NodeView::EndEdgeDrag(bool cancel)
         }
 
         while (NodeGroup *input_group = dynamic_cast<NodeGroup*>(creating_input.node())) {
-          creating_input = input_group->GetInputPassthroughs().value(creating_input.input());
+          creating_input = input_group->GetInputFromID(creating_input.input());
         }
 
         if (creating_input.IsConnected()) {

@@ -303,7 +303,7 @@ void ProjectSerializer211228::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
     } else if (reader->name() == QStringLiteral("label")) {
       node->SetLabel(reader->readElementText());
     } else if (reader->name() == QStringLiteral("uuid")) {
-      node->SetUUID(QUuid::fromString(reader->readElementText()));
+      xml_node_data.node_uuids.insert(node, QUuid::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("color")) {
       node->SetOverrideColor(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("links")) {
@@ -377,7 +377,6 @@ void ProjectSerializer211228::SaveNode(Node *node, QXmlStreamWriter *writer) con
 {
   writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(node)));
 
-  writer->writeTextElement(QStringLiteral("uuid"), node->GetUUID().toString());
   writer->writeTextElement(QStringLiteral("label"), node->GetLabel());
   writer->writeTextElement(QStringLiteral("color"), QString::number(node->GetOverrideColor()));
 
@@ -844,11 +843,11 @@ void ProjectSerializer211228::SaveNodeCustom(QXmlStreamWriter *writer, Node *nod
   } else if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
     writer->writeStartElement(QStringLiteral("inputpassthroughs"));
 
-    foreach (const NodeInput &ip, group->GetInputPassthroughs()) {
+    foreach (const NodeGroup::InputPassthrough &ip, group->GetInputPassthroughs()) {
       writer->writeStartElement(QStringLiteral("inputpassthrough"));
-      writer->writeTextElement(QStringLiteral("node"), QString::number(reinterpret_cast<quintptr>(ip.node())));
-      writer->writeTextElement(QStringLiteral("input"), ip.input());
-      writer->writeTextElement(QStringLiteral("element"), QString::number(ip.element()));
+      writer->writeTextElement(QStringLiteral("node"), QString::number(reinterpret_cast<quintptr>(ip.second.node())));
+      writer->writeTextElement(QStringLiteral("input"), ip.second.input());
+      writer->writeTextElement(QStringLiteral("element"), QString::number(ip.second.element()));
       writer->writeEndElement(); // input
     }
 

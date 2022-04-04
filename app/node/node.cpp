@@ -50,7 +50,6 @@ Node::Node() :
   cache_result_(false),
   flags_(kNone)
 {
-  uuid_ = QUuid::createUuid();
 }
 
 Node::~Node()
@@ -991,11 +990,43 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
   // Add to map
   created.insert(node, copy);
 
-  // Copy values to the clone
-  CopyInputs(node, copy, false);
-
   // Add it to the same graph
   command->add_child(new NodeAddCommand(node->parent(), copy));
+
+  // Copy context children
+  const PositionMap &map = node->GetContextPositions();
+  for (auto it=map.cbegin(); it!=map.cend(); it++) {
+    // Add either the copy (if it exists) or the original node to the context
+    Node *child;
+
+    if (it.key()->IsItem()) {
+      child = it.key();
+    } else {
+      child = created.value(it.key());
+      if (!child) {
+        child = CopyNodeAndDependencyGraphMinusItemsInternal(created, it.key(), command);
+      }
+    }
+
+    command->add_child(new NodeSetPositionCommand(child, copy, it.value()));
+  }
+
+  // If this is a group, copy input and output passthroughs
+  if (NodeGroup *src_group = dynamic_cast<NodeGroup*>(node)) {
+    NodeGroup *dst_group = static_cast<NodeGroup*>(copy);
+
+    for (auto it=src_group->GetInputPassthroughs().cbegin(); it!=src_group->GetInputPassthroughs().cend(); it++) {
+      // This node should have been created by the context loop above
+      NodeInput input = it->second;
+      input.set_node(created.value(input.node()));
+      command->add_child(new NodeGroupAddInputPassthrough(dst_group, input));
+    }
+
+    command->add_child(new NodeGroupSetOutputPassthrough(dst_group, created.value(src_group->GetOutputPassthrough())));
+  }
+
+  // Copy values to the clone
+  command->add_child(new NodeCopyInputsCommand(node, copy, false));
 
   // Go through input connections and copy if non-item and connect if item
   for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
@@ -1009,21 +1040,15 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
     } else {
       // Non-item, we want to clone this too
       connected_copy = created.value(connected, nullptr);
-
       if (!connected_copy) {
         connected_copy = CopyNodeAndDependencyGraphMinusItemsInternal(created, connected, command);
       }
     }
 
-    NodeInput copied_input(copy, input.input(), input.element());
+    NodeInput copied_input = input;
+    copied_input.set_node(copy);
     command->add_child(new NodeEdgeAddCommand(connected_copy, copied_input));
     command->add_child(new NodeSetValueHintCommand(copied_input, node->GetValueHintForInput(input.input(), input.element())));
-  }
-
-  const PositionMap &map = node->GetContextPositions();
-  for (auto it=map.cbegin(); it!=map.cend(); it++) {
-    // Add either the copy (if it exists) or the original node to the context
-    command->add_child(new NodeSetPositionCommand(created.value(it.key(), it.key()), copy, it.value()));
   }
 
   return copy;
@@ -1045,8 +1070,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
   } else {
     copy = node->copy();
 
-    command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()),
-                                          copy));
+    command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()), copy));
 
     command->add_child(new NodeCopyInputsCommand(node, copy, true));
 
@@ -1302,6 +1326,11 @@ void Node::CopyInputs(const Node *source, Node *destination, bool include_connec
   Q_ASSERT(source->id() == destination->id());
 
   foreach (const QString& input, source->inputs()) {
+    // NOTE: This assert is to ensure that inputs in the source also exist in the destination, which
+    //       they should. If they don't and you hit this assert, check if you're handling group
+    //       passthroughs correctly.
+    Q_ASSERT(destination->HasInputWithID(input));
+
     CopyInput(source, destination, input, include_connections, true);
   }
 
