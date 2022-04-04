@@ -261,7 +261,7 @@ void NodeView::Duplicate()
         for (auto it=src_group->GetInputPassthroughs().cbegin(); it!=src_group->GetInputPassthroughs().cend(); it++) {
           NodeInput input = it->second;
           input.set_node(new_nodes.at(selected.indexOf(input.node())));
-          dst_group->AddInputPassthrough(input);
+          dst_group->AddInputPassthrough(input, InputFlags(), it->first);
         }
 
         dst_group->SetOutputPassthrough(new_nodes.at(selected.indexOf(src_group->GetOutputPassthrough())));

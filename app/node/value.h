@@ -206,7 +206,12 @@ public:
      * take place. This value will usually be taken from a table and a kSamples value will be
      * pushed to take its place.
      */
-    kGenerateJob
+    kGenerateJob,
+
+    /**
+     * End of list
+     */
+    kDataTypeCount
   };
 
   static const QVector<Type> kNumber;
@@ -260,6 +265,9 @@ public:
   }
 
   static QString GetPrettyDataTypeName(Type type);
+
+  static QString GetDataTypeName(Type type);
+  static NodeValue::Type GetDataTypeFromName(const QString &n);
 
   static QString ValueToString(Type data_type, const QVariant& value, bool value_is_a_key_track);
 

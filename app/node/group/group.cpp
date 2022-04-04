@@ -58,7 +58,7 @@ void NodeGroup::Retranslate()
   }
 }
 
-QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags &flags)
+QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags &flags, const QString &force_id)
 {
   Q_ASSERT(ContextContainsNode(input.node()));
 
@@ -70,11 +70,26 @@ QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags 
   }
 
   // Add input
-  QString id = input.input();
-  int i = 2;
-  while (HasInputWithID(id)) {
-    id = QStringLiteral("%1_%2").arg(input.name(), QString::number(i));
-    i++;
+  QString id;
+  if (force_id.isEmpty()) {
+    id = input.input();
+    int i = 2;
+    while (HasInputWithID(id)) {
+      id = QStringLiteral("%1_%2").arg(input.name(), QString::number(i));
+      i++;
+    }
+  } else {
+    id = force_id;
+
+    bool already_exists = false;
+    for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
+      if (it->first == id) {
+        already_exists = true;
+        break;
+      }
+    }
+
+    Q_ASSERT(!already_exists);
   }
 
   AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags() | flags);
@@ -153,7 +168,7 @@ bool NodeGroup::GetInner(NodeInput *input)
 void NodeGroupAddInputPassthrough::redo()
 {
   if (!group_->ContainsInputPassthrough(input_)) {
-    group_->AddInputPassthrough(input_);
+    group_->AddInputPassthrough(input_, InputFlags(), force_id_);
     actually_added_ = true;
   } else {
     actually_added_ = false;

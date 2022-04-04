@@ -554,6 +554,37 @@ QVariant Node::GetSplitDefaultValueOnTrack(const QString &input, int track) cons
   }
 }
 
+void Node::SetDefaultValue(const QString &input, const QVariant &val)
+{
+  NodeValue::Type type = GetInputDataType(input);
+
+  SetSplitDefaultValue(input, NodeValue::split_normal_value_into_track_values(type, val));
+}
+
+void Node::SetSplitDefaultValue(const QString &input, const SplitValue &val)
+{
+  Input* i = GetInternalInputData(input);
+
+  if (i) {
+    i->default_value = val;
+  } else {
+    ReportInvalidInput("set default value of", input);
+  }
+}
+
+void Node::SetSplitDefaultValueOnTrack(const QString &input, const QVariant &val, int track)
+{
+  Input* i = GetInternalInputData(input);
+
+  if (i) {
+    if (track < i->default_value.size()) {
+      i->default_value[track] = val;
+    }
+  } else {
+    ReportInvalidInput("set default value on track of", input);
+  }
+}
+
 const QVector<NodeKeyframeTrack> &Node::GetKeyframeTracks(const QString &input, int element) const
 {
   return GetImmediate(input, element)->keyframe_tracks();
@@ -1019,7 +1050,7 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
       // This node should have been created by the context loop above
       NodeInput input = it->second;
       input.set_node(created.value(input.node()));
-      command->add_child(new NodeGroupAddInputPassthrough(dst_group, input));
+      command->add_child(new NodeGroupAddInputPassthrough(dst_group, input, it->first));
     }
 
     command->add_child(new NodeGroupSetOutputPassthrough(dst_group, created.value(src_group->GetOutputPassthrough())));

@@ -27,5 +27,7 @@ set(OLIVE_SOURCES
   node/project/serializer/serializer210907.h
   node/project/serializer/serializer211228.cpp
   node/project/serializer/serializer211228.h
+  node/project/serializer/serializer220403.cpp
+  node/project/serializer/serializer220403.h
   PARENT_SCOPE
 )

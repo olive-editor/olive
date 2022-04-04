@@ -30,6 +30,7 @@
 #include "serializer210528.h"
 #include "serializer210907.h"
 #include "serializer211228.h"
+#include "serializer220403.h"
 
 namespace olive {
 
@@ -45,6 +46,7 @@ void ProjectSerializer::Initialize()
   instances_.append(new ProjectSerializer210528);
   instances_.append(new ProjectSerializer210907);
   instances_.append(new ProjectSerializer211228);
+  instances_.append(new ProjectSerializer220403);
 }
 
 void ProjectSerializer::Destroy()

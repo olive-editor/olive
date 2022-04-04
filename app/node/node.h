@@ -321,6 +321,8 @@ public:
 
   virtual QString GetInputName(const QString& id) const;
 
+  void SetInputName(const QString& id, const QString& name);
+
   bool IsInputHidden(const QString& input) const;
   bool IsInputConnectable(const QString& input) const;
   bool IsInputKeyframable(const QString& input) const;
@@ -403,6 +405,10 @@ public:
   QVariant GetDefaultValue(const QString& input) const;
   SplitValue GetSplitDefaultValue(const QString& input) const;
   QVariant GetSplitDefaultValueOnTrack(const QString& input, int track) const;
+
+  void SetDefaultValue(const QString& input, const QVariant &val);
+  void SetSplitDefaultValue(const QString& input, const SplitValue &val);
+  void SetSplitDefaultValueOnTrack(const QString& input, const QVariant &val, int track);
 
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const QString& input, int element) const;
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const NodeInput& input) const
@@ -973,8 +979,6 @@ protected:
   }
 
   void RemoveInput(const QString& id);
-
-  void SetInputName(const QString& id, const QString& name);
 
   void SetComboBoxStrings(const QString& id, const QStringList& strings)
   {

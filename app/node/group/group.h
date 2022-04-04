@@ -41,7 +41,7 @@ public:
 
   virtual void Retranslate() override;
 
-  QString AddInputPassthrough(const NodeInput &input, const InputFlags &flags = InputFlags());
+  QString AddInputPassthrough(const NodeInput &input, const InputFlags &flags = InputFlags(), const QString &force_id = QString());
 
   void RemoveInputPassthrough(const NodeInput &input);
 
@@ -103,7 +103,7 @@ private:
 class NodeGroupAddInputPassthrough : public UndoCommand
 {
 public:
-  NodeGroupAddInputPassthrough(NodeGroup *group, const NodeInput &input) :
+  NodeGroupAddInputPassthrough(NodeGroup *group, const NodeInput &input, const QString &force_id = QString()) :
     group_(group),
     input_(input),
     actually_added_(false)
@@ -123,6 +123,8 @@ private:
   NodeGroup *group_;
 
   NodeInput input_;
+
+  QString force_id_;
 
   bool actually_added_;
 
