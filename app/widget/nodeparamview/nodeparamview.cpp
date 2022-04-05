@@ -37,9 +37,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   super(true, false, parent),
   last_scroll_val_(0),
   focused_node_(nullptr),
-  create_checkboxes_(kNoCheckBoxes),
   time_target_(nullptr),
-  ignore_flags_(false)
+  group_mode_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -174,7 +173,7 @@ void NodeParamView::CloseContextsBelongingToProject(Project *p)
     }
   }
 
-  SetContexts(new_contexts);
+  SetContexts(new_contexts, group_mode_);
 }
 
 /*void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
@@ -236,15 +235,7 @@ void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
   }
 }*/
 
-void NodeParamView::SetInputChecked(const NodeInput &input, bool e)
-{
-  input_checked_.insert(input, e);
-  foreach (NodeParamViewContext *ctx, context_items_) {
-    ctx->SetInputChecked(input, e);
-  }
-}
-
-void NodeParamView::SetContexts(const QVector<Node *> &contexts)
+void NodeParamView::SetContexts(const QVector<Node *> &contexts, bool group_mode)
 {
   //TIME_THIS_FUNCTION;
 
@@ -258,6 +249,9 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
   }
 
   contexts_ = contexts;
+  group_mode_ = group_mode;
+
+  Q_ASSERT((contexts_.size() == 1 && dynamic_cast<NodeGroup*>(contexts_.first())) || !group_mode_ || contexts_.isEmpty());
 
   foreach (Node *ctx, contexts_) {
     // Queued so that if any further work is done in connecting this node to the context, it'll be
@@ -283,6 +277,17 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
     for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
       AddNode(it.key(), item);
     }
+  }
+
+  if (group_mode_) {
+    // Check inputs that have been passed through
+    NodeGroup *group = static_cast<NodeGroup*>(contexts_.first());
+    for (auto it=group->GetInputPassthroughs().cbegin(); it!=group->GetInputPassthroughs().cend(); it++) {
+      GroupInputPassthroughAdded(group, it->second);
+    }
+
+    connect(group, &NodeGroup::InputPassthroughAdded, this, &NodeParamView::GroupInputPassthroughAdded);
+    connect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeParamView::GroupInputPassthroughRemoved);
   }
 
   foreach (NodeParamViewContext *ctx, context_items_) {
@@ -386,24 +391,16 @@ void NodeParamView::QueueKeyframePositionUpdate()
 
 void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
 {
-  if ((n->GetFlags() & Node::kDontShowInParamView) && !ignore_flags_) {
+  if ((n->GetFlags() & Node::kDontShowInParamView) && !group_mode_) {
     return;
   }
 
-  NodeParamViewItem* item = new NodeParamViewItem(n, create_checkboxes_, context);
+  NodeParamViewItem* item = new NodeParamViewItem(n, group_mode_ ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context);
 
   connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
-  connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::SetInputChecked);
-
-  if (create_checkboxes_) {
-    for (auto it=input_checked_.cbegin(); it!=input_checked_.cend(); it++) {
-      if (it.key().node() == n) {
-        item->SetInputChecked(it.key(), it.value());
-      }
-    }
-  }
+  connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
 
   item->SetTimeTarget(GetTimeTarget());
   item->SetTimebase(timebase());
@@ -614,6 +611,37 @@ void NodeParamView::NodeAddedToContext(Node *n)
   AddNode(n, item);
 
   SortItemsInContext(item);
+}
+
+void NodeParamView::InputCheckBoxChanged(const NodeInput &input, bool e)
+{
+  NodeGroup *group = static_cast<NodeGroup*>(contexts_.first());
+
+  if (e) {
+    group->AddInputPassthrough(input);
+  } else {
+    group->RemoveInputPassthrough(input);
+  }
+}
+
+void NodeParamView::GroupInputPassthroughAdded(NodeGroup *group, const NodeInput &input)
+{
+  foreach (NodeParamViewContext *pvctx, context_items_) {
+    NodeParamViewItem *item = pvctx->GetItems().value(input.node());
+    if (item) {
+      item->SetInputChecked(input, true);
+    }
+  }
+}
+
+void NodeParamView::GroupInputPassthroughRemoved(NodeGroup *group, const NodeInput &input)
+{
+  foreach (NodeParamViewContext *pvctx, context_items_) {
+    NodeParamViewItem *item = pvctx->GetItems().value(input.node());
+    if (item) {
+      item->SetInputChecked(input, false);
+    }
+  }
 }
 
 }

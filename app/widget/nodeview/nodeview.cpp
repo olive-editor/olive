@@ -23,6 +23,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QScrollBar>
 #include <QToolTip>
 
@@ -32,6 +33,7 @@
 #include "node/factory.h"
 #include "node/group/group.h"
 #include "node/traverser.h"
+#include "ui/icons/icons.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedview.h"
 
@@ -47,6 +49,7 @@ NodeView::NodeView(QWidget *parent) :
   create_edge_(nullptr),
   create_edge_output_item_(nullptr),
   create_edge_input_item_(nullptr),
+  overlay_view_(nullptr),
   scale_(1.0)
 {
   setScene(&scene_);
@@ -83,6 +86,10 @@ NodeView::~NodeView()
 
 void NodeView::SetContexts(const QVector<Node*> &nodes)
 {
+  if (overlay_view_) {
+    CloseOverlay();
+  }
+
   // Remove contexts that are no longer in the list
   foreach (Node *n, contexts_) {
     if (!nodes.contains(n)) {
@@ -349,6 +356,8 @@ void NodeView::keyPressEvent(QKeyEvent *event)
       DetachItemsFromCursor();
       break;
     }
+
+    emit EscPressed();
 
     /* fall through */
   default:
@@ -657,6 +666,10 @@ void NodeView::resizeEvent(QResizeEvent *event)
   super::resizeEvent(event);
 
   RepositionMiniMap();
+
+  if (overlay_view_) {
+    ResizeOverlay();
+  }
 }
 
 void NodeView::UpdateSelectionCache()
@@ -1284,7 +1297,37 @@ void NodeView::ShowNodeProperties()
   Node *first_node = selected_nodes_.first();
 
   if (NodeGroup *group = dynamic_cast<NodeGroup*>(first_node)) {
-    emit NodeGroupOpenRequested(group);
+    if (!overlay_view_) {
+      overlay_view_ = new NodeView(this);
+      overlay_view_->show();
+
+      QPushButton *overlay_close_btn = new QPushButton(overlay_view_);
+      overlay_close_btn->setIcon(icon::Error);
+      int offset = overlay_close_btn->sizeHint().width()/2;
+      overlay_close_btn->move(offset, offset);
+      overlay_close_btn->show();
+
+      connect(overlay_view_, &NodeView::NodesSelected, this, &NodeView::NodesSelected);
+      connect(overlay_view_, &NodeView::NodesDeselected, this, &NodeView::NodesDeselected);
+      connect(overlay_view_, &NodeView::NodeGroupOpened, this, &NodeView::NodeGroupOpened);
+      connect(overlay_view_, &NodeView::NodeGroupClosed, this, &NodeView::NodeGroupClosed);
+      connect(overlay_view_, &NodeView::EscPressed, this, &NodeView::CloseOverlay);
+      connect(overlay_close_btn, &QPushButton::clicked, this, &NodeView::CloseOverlay);
+
+      const QColor &bgcol = overlay_view_->palette().base().color();
+      overlay_view_->setStyleSheet(QStringLiteral("QGraphicsView { background: rgba(%1, %2, %3, 0.8); }").arg(QString::number(bgcol.red()), QString::number(bgcol.green()), QString::number(bgcol.blue())));
+
+      overlay_close_btn->setStyleSheet(QStringLiteral("background: transparent; border: none;"));
+    }
+    overlay_view_->SetContexts({group});
+    ResizeOverlay();
+    QMetaObject::invokeMethod(overlay_view_, &NodeView::CenterOnItemsBoundingRect, Qt::QueuedConnection);
+    overlay_view_->setFocus();
+
+    emit NodesDeselected(selected_nodes_);
+    overlay_view_->SelectAll();
+
+    emit NodeGroupOpened(group);
   } else {
     LabelSelectedNodes();
   }
@@ -1318,6 +1361,17 @@ void NodeView::ItemAboutToBeDeleted(NodeViewItem *item)
       EndEdgeDrag(true);
     }
   }
+}
+
+void NodeView::CloseOverlay()
+{
+  if (overlay_view_->overlay_view_) {
+    overlay_view_->CloseOverlay();
+  }
+
+  overlay_view_->deleteLater();
+  overlay_view_ = nullptr;
+  emit NodeGroupClosed();
 }
 
 void NodeView::AddContext(Node *n)
@@ -1475,6 +1529,11 @@ void NodeView::PostPaste(const QVector<Node *> &new_nodes, const Node::PositionM
   }
 
   SetAttachedItems(new_attached);
+}
+
+void NodeView::ResizeOverlay()
+{
+  overlay_view_->resize(this->size());
 }
 
 void NodeView::SetAttachedItems(const QVector<AttachedItem> &items)

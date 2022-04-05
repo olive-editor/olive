@@ -54,7 +54,16 @@ public:
 
   const QVector<Node*> &GetContexts() const
   {
-    return contexts_;
+    if (overlay_view_) {
+      return overlay_view_->GetContexts();
+    } else {
+      return contexts_;
+    }
+  }
+
+  bool IsGroupOverlay() const
+  {
+    return overlay_view_;
   }
 
   void CloseContextsBelongingToProject(Project *project);
@@ -109,7 +118,10 @@ signals:
 
   void NodesDeselected(const QVector<Node*>& nodes);
 
-  void NodeGroupOpenRequested(NodeGroup *group);
+  void NodeGroupOpened(NodeGroup *group);
+  void NodeGroupClosed();
+
+  void EscPressed();
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
@@ -169,6 +181,8 @@ private:
 
   void PostPaste(const QVector<Node*> &new_nodes, const Node::PositionMap &map);
 
+  void ResizeOverlay();
+
   NodeViewMiniMap *minimap_;
 
   struct AttachedItem {
@@ -201,6 +215,8 @@ private:
   QMap<Node*, QPointF> context_offsets_;
 
   QMap<NodeViewItem*, QPointF> dragging_items_;
+
+  NodeView* overlay_view_;
 
   double scale_;
 
@@ -251,6 +267,8 @@ private slots:
   void LabelSelectedNodes();
 
   void ItemAboutToBeDeleted(NodeViewItem *item);
+
+  void CloseOverlay();
 
 };
 
