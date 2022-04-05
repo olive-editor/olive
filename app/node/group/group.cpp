@@ -58,7 +58,7 @@ void NodeGroup::Retranslate()
   }
 }
 
-QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags &flags, const QString &force_id)
+QString NodeGroup::AddInputPassthrough(const NodeInput &input, const QString &force_id)
 {
   Q_ASSERT(ContextContainsNode(input.node()));
 
@@ -92,7 +92,7 @@ QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags 
     Q_ASSERT(!already_exists);
   }
 
-  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags() | flags);
+  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags());
 
   input_passthroughs_.append({id, input});
 
@@ -168,7 +168,7 @@ bool NodeGroup::GetInner(NodeInput *input)
 void NodeGroupAddInputPassthrough::redo()
 {
   if (!group_->ContainsInputPassthrough(input_)) {
-    group_->AddInputPassthrough(input_, InputFlags(), force_id_);
+    group_->AddInputPassthrough(input_, force_id_);
     actually_added_ = true;
   } else {
     actually_added_ = false;

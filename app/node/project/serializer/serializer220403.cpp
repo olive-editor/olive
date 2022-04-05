@@ -756,7 +756,9 @@ void ProjectSerializer220403::PostConnect(const XMLNodeData &xml_node_data) cons
     if (Node *input_node = xml_node_data.node_ptrs.value(l.input_node)) {
       NodeInput resolved(input_node, l.input_id, l.input_element);
 
-      l.group->AddInputPassthrough(resolved, l.custom_flags, l.passthrough_id);
+      l.group->AddInputPassthrough(resolved, l.passthrough_id);
+
+      l.group->SetInputFlags(l.passthrough_id, resolved.GetFlags() | l.custom_flags);
 
       if (!l.custom_name.isEmpty()) {
         l.group->SetInputName(l.passthrough_id, l.custom_name);

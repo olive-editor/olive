@@ -173,7 +173,7 @@ void NodeParamView::CloseContextsBelongingToProject(Project *p)
     }
   }
 
-  SetContexts(new_contexts, group_mode_);
+  SetContexts(new_contexts, new_contexts.isEmpty() ? false : group_mode_);
 }
 
 /*void NodeParamView::SelectNodes(const QVector<Node *> &nodes)

@@ -916,6 +916,17 @@ InputFlags Node::GetInputFlags(const QString &input) const
   }
 }
 
+void Node::SetInputFlags(const QString &input, const InputFlags &f)
+{
+  Input* i = GetInternalInputData(input);
+
+  if (i) {
+    i->flags = f;
+  } else {
+    ReportInvalidInput("set flags of", input);
+  }
+}
+
 void Node::Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   // Do nothing

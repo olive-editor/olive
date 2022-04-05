@@ -268,7 +268,7 @@ void NodeView::Duplicate()
         for (auto it=src_group->GetInputPassthroughs().cbegin(); it!=src_group->GetInputPassthroughs().cend(); it++) {
           NodeInput input = it->second;
           input.set_node(new_nodes.at(selected.indexOf(input.node())));
-          dst_group->AddInputPassthrough(input, InputFlags(), it->first);
+          dst_group->AddInputPassthrough(input, it->first);
         }
 
         dst_group->SetOutputPassthrough(new_nodes.at(selected.indexOf(src_group->GetOutputPassthrough())));
@@ -1235,6 +1235,7 @@ void NodeView::GroupNodes()
 
     if (!output_passthrough) {
       // Default to the first node we find that doesn't output to a node inside the group
+      output_passthrough = nodes_to_group.first();
       foreach (Node *potential_in, nodes_to_group) {
         if (potential_in != n && !n->OutputsTo(potential_in, false)) {
           output_passthrough = n;
@@ -1443,8 +1444,8 @@ void NodeView::EndEdgeDrag(bool cancel)
     create_edge_input_item_->SetHighlighted(false);
   }
 
+  NodeInput &creating_input = create_edge_input_;
   if (create_edge_output_item_ && create_edge_input_item_ && !cancel) {
-    NodeInput &creating_input = create_edge_input_;
     if (creating_input.IsValid()) {
       // Make connection
       if (!reconnected_to_itself) {
@@ -1460,23 +1461,38 @@ void NodeView::EndEdgeDrag(bool cancel)
 
         if (creating_input.IsConnected()) {
           Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
-          command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
+
+          Node *already_connected_output = creating_input.GetConnectedOutput();
+          NodeViewContext *ctx = GetContextItemFromNodeItem(create_edge_input_item_);
+          if (ctx && !ctx->GetItemFromMap(already_connected_output)) {
+            if (QMessageBox::warning(this, QString(), tr("Input \"%1\" is currently connected to node \"%2\", which is not visible in this context. "
+                                                         "By connecting this, that connection will be removed. Do you wish to continue?").arg(creating_input.name(), already_connected_output->GetLabelAndName()),
+                                     QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+              cancel = true;
+            }
+          }
+
+          if (!cancel) {
+            command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
+          }
         }
 
-        command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
+        if (!cancel) {
+          command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
 
-        // If the output is not in the input's context, add it now. We check the item rather than
-        // the node itself, because sometimes a node may not be in the context but another node
-        // representing it will be (e.g. groups)
-        if (!scene_.context_map().value(create_edge_input_item_->GetContext())->GetItemFromMap(creating_output)) {
-          command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
+          // If the output is not in the input's context, add it now. We check the item rather than
+          // the node itself, because sometimes a node may not be in the context but another node
+          // representing it will be (e.g. groups)
+          if (!scene_.context_map().value(create_edge_input_item_->GetContext())->GetItemFromMap(creating_output)) {
+            command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
+          }
         }
       }
 
-      creating_input.Reset();
     }
   }
 
+  creating_input.Reset();
   create_edge_output_item_ = nullptr;
   create_edge_input_item_ = nullptr;
 
@@ -1534,6 +1550,17 @@ void NodeView::PostPaste(const QVector<Node *> &new_nodes, const Node::PositionM
 void NodeView::ResizeOverlay()
 {
   overlay_view_->resize(this->size());
+}
+
+NodeViewContext *NodeView::GetContextItemFromNodeItem(NodeViewItem *item)
+{
+  QGraphicsItem *i = item;
+  while ((i = i->parentItem())) {
+    if (NodeViewContext *nvc = dynamic_cast<NodeViewContext*>(i)) {
+      return nvc;
+    }
+  }
+  return nullptr;
 }
 
 void NodeView::SetAttachedItems(const QVector<AttachedItem> &items)

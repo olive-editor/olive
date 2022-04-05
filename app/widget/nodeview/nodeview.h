@@ -185,6 +185,8 @@ private:
 
   NodeViewMiniMap *minimap_;
 
+  NodeViewContext *GetContextItemFromNodeItem(NodeViewItem *item);
+
   struct AttachedItem {
     NodeViewItem* item;
     Node *node;
