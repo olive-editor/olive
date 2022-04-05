@@ -58,23 +58,43 @@ void NodeGroup::Retranslate()
   }
 }
 
-QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags &flags)
+QString NodeGroup::AddInputPassthrough(const NodeInput &input, const QString &force_id)
 {
   Q_ASSERT(ContextContainsNode(input.node()));
 
   for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
-    if (it.value() == input) {
+    if (it->second == input) {
       // Already passing this input through
-      return it.key();
+      return it->first;
     }
   }
 
   // Add input
-  QString id = GetGroupInputIDFromInput(input);
+  QString id;
+  if (force_id.isEmpty()) {
+    id = input.input();
+    int i = 2;
+    while (HasInputWithID(id)) {
+      id = QStringLiteral("%1_%2").arg(input.name(), QString::number(i));
+      i++;
+    }
+  } else {
+    id = force_id;
 
-  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags() | flags);
+    bool already_exists = false;
+    for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
+      if (it->first == id) {
+        already_exists = true;
+        break;
+      }
+    }
 
-  input_passthroughs_.insert(id, input);
+    Q_ASSERT(!already_exists);
+  }
+
+  AddInput(id, input.GetDataType(), input.GetDefaultValue(), input.GetFlags());
+
+  input_passthroughs_.append({id, input});
 
   emit InputPassthroughAdded(this, input);
 
@@ -83,11 +103,11 @@ QString NodeGroup::AddInputPassthrough(const NodeInput &input, const InputFlags 
 
 void NodeGroup::RemoveInputPassthrough(const NodeInput &input)
 {
-  for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
-    if (it.value() == input) {
-      RemoveInput(it.key());
+  for (auto it=input_passthroughs_.begin(); it!=input_passthroughs_.end(); it++) {
+    if (it->second == input) {
+      RemoveInput(it->first);
+      emit InputPassthroughRemoved(this, it->second);
       input_passthroughs_.erase(it);
-      emit InputPassthroughRemoved(this, it.value());
       break;
     }
   }
@@ -102,23 +122,10 @@ void NodeGroup::SetOutputPassthrough(Node *node)
   emit OutputPassthroughChanged(this, output_passthrough_);
 }
 
-QString NodeGroup::GetGroupInputIDFromInput(const NodeInput &input)
-{
-  QCryptographicHash hash(QCryptographicHash::Sha1);
-
-  hash.addData(input.node()->GetUUID().toByteArray());
-
-  hash.addData(input.input().toUtf8());
-
-  hash.addData((const char*) &input.element(), sizeof(input.element()));
-
-  return QString::fromLatin1(hash.result().toHex());
-}
-
 bool NodeGroup::ContainsInputPassthrough(const NodeInput &input) const
 {
   for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
-    if (it.value() == input) {
+    if (it->second == input) {
       return true;
     }
   }
@@ -135,7 +142,7 @@ QString NodeGroup::GetInputName(const QString &id) const
   }
 
   // Call GetInputName of passed through node, which may be another group
-  NodeInput pass = input_passthroughs_.value(id);
+  NodeInput pass = GetInputFromID(id);
   return pass.node()->GetInputName(pass.input());
 }
 
@@ -149,7 +156,7 @@ NodeInput NodeGroup::ResolveInput(NodeInput input)
 bool NodeGroup::GetInner(NodeInput *input)
 {
   if (NodeGroup *g = dynamic_cast<NodeGroup*>(input->node())) {
-    const NodeInput &passthrough = g->GetInputPassthroughs().value(input->input());
+    const NodeInput &passthrough = g->GetInputFromID(input->input());
     input->set_node(passthrough.node());
     input->set_input(passthrough.input());
     return true;
@@ -161,7 +168,7 @@ bool NodeGroup::GetInner(NodeInput *input)
 void NodeGroupAddInputPassthrough::redo()
 {
   if (!group_->ContainsInputPassthrough(input_)) {
-    group_->AddInputPassthrough(input_);
+    group_->AddInputPassthrough(input_, force_id_);
     actually_added_ = true;
   } else {
     actually_added_ = false;

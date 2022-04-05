@@ -43,16 +43,6 @@ public:
     return GetParamView()->GetContexts();
   }
 
-  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
-  {
-    GetParamView()->SetCreateCheckBoxes(e);
-  }
-
-  void SetIgnoreNodeFlags(bool e)
-  {
-    GetParamView()->SetIgnoreNodeFlags(e);
-  }
-
   void CloseContextsBelongingToProject(Project *p)
   {
     GetParamView()->CloseContextsBelongingToProject(p);
@@ -68,7 +58,7 @@ public slots:
 
   virtual void DeselectAll() override;
 
-  void SetContexts(const QVector<Node*> &contexts);
+  void SetContexts(const QVector<Node*> &contexts, bool group_mode);
 
 signals:
   void RequestSelectNode(const QVector<Node*>& target);

@@ -5,7 +5,7 @@
 
 namespace olive {
 
-class OpacityEffect : public NodeGroup
+class OpacityEffect : public Node
 {
 public:
   OpacityEffect();
@@ -21,7 +21,7 @@ public:
 
   virtual QString id() const override
   {
-    return QStringLiteral("org.olivevideoeditor.Olive.opacityeffect");
+    return QStringLiteral("org.olivevideoeditor.Olive.opacity");
   }
 
   virtual QVector<CategoryID> Category() const override
@@ -36,9 +36,11 @@ public:
 
   virtual void Retranslate() override;
 
-private:
-  QString tex_in_pass_;
-  QString value_in_pass_;
+  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
+  static const QString kTextureInput;
+  static const QString kValueInput;
 
 };
 

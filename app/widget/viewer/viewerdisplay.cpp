@@ -344,8 +344,6 @@ void ViewerDisplayWidget::mouseDoubleClickEvent(QMouseEvent *event)
           text_edit->setGeometry(transformed_geom.toRect());
 
           ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(this);
-          toolbar->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-          toolbar->resize(toolbar->sizeHint());
 
           QPoint pos = mapToGlobal(QPoint(transformed_geom.x(), transformed_geom.y() - toolbar->height()));
           for (QScreen *screen : qApp->screens()) {

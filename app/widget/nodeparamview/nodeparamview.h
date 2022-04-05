@@ -45,16 +45,6 @@ public:
 
   virtual ~NodeParamView() override;
 
-  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
-  {
-    create_checkboxes_ = e;
-  }
-
-  bool IsInputChecked(const NodeInput &input) const
-  {
-    return input_checked_.value(input);
-  }
-
   void CloseContextsBelongingToProject(Project *p);
 
   Node* GetTimeTarget() const;
@@ -71,11 +61,6 @@ public:
     keyframe_view_->DeselectAll();
   }
 
-  void SetIgnoreNodeFlags(bool e)
-  {
-    ignore_flags_ = e;
-  }
-
   void SelectNodes(const QVector<Node*> &nodes);
   void DeselectNodes(const QVector<Node*> &nodes);
 
@@ -85,9 +70,7 @@ public:
   }
 
 public slots:
-  void SetInputChecked(const NodeInput &input, bool e);
-
-  void SetContexts(const QVector<Node*> &contexts);
+  void SetContexts(const QVector<Node*> &contexts, bool group_mode);
 
   void UpdateElementY();
 
@@ -136,15 +119,11 @@ private:
 
   NodeParamViewItem* focused_node_;
 
-  NodeParamViewCheckBoxBehavior create_checkboxes_;
-
   Node *time_target_;
 
-  QHash<NodeInput, bool> input_checked_;
-
-  bool ignore_flags_;
-
   QVector<Node*> contexts_;
+
+  bool group_mode_;
 
 private slots:
   void UpdateGlobalScrollBar();
@@ -156,6 +135,12 @@ private slots:
   void KeyframeViewDragged(int x, int y);
 
   void NodeAddedToContext(Node *n);
+
+  void InputCheckBoxChanged(const NodeInput &input, bool e);
+
+  void GroupInputPassthroughAdded(olive::NodeGroup *group, const olive::NodeInput &input);
+
+  void GroupInputPassthroughRemoved(olive::NodeGroup *group, const olive::NodeInput &input);
 
 };
 
