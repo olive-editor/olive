@@ -253,7 +253,7 @@
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="192"/>
         <source>A preset with this name already exists. Would you like to replace it?</source>
-        <translation>Es gibt eine schon bestehende Voreinstellung mit diesem Namen. Soll sie ersetzt werden?</translation>
+        <translation>Es gibt schon eine Voreinstellung mit diesem Namen. Soll sie ersetzt werden?</translation>
     </message>
 </context>
 <context>
@@ -3829,7 +3829,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/menu/menushared.cpp" line="338"/>
         <source>Split</source>
-        <translation>Teilen</translation>
+        <translation>Schneiden</translation>
     </message>
     <message>
         <location filename="../widget/menu/menushared.cpp" line="339"/>
