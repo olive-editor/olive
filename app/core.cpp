@@ -921,7 +921,7 @@ void Core::SaveAutorecovery()
     foreach (Project* p, open_projects_) {
       if (!p->has_autorecovery_been_saved()) {
         QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
-        if (project_autorecovery_dir.mkpath(QStringLiteral("."))) {
+        if (FileFunctions::DirectoryIsValid(project_autorecovery_dir)) {
           QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));
 
           SaveProjectInternal(p, this_autorecovery_path);

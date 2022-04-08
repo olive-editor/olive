@@ -96,7 +96,7 @@ bool PreferencesDiskTab::Validate()
     }
 
     // Check validity of the new path
-    if (!FileFunctions::DirectoryIsValid(disk_cache_location_->text(), true)) {
+    if (!FileFunctions::DirectoryIsValid(disk_cache_location_->text())) {
       QMessageBox::critical(this,
                             tr("Disk Cache"),
                             tr("Failed to set disk cache location. Access was denied."));

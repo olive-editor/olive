@@ -313,7 +313,7 @@ void ExportDialog::StartExport()
 
   // If the directory does not exist, try to create it
   QDir dest_dir(file_info.path());
-  if (!dest_dir.exists() && !dest_dir.mkpath(QStringLiteral("."))) {
+  if (!FileFunctions::DirectoryIsValid(dest_dir)) {
     QtUtils::MessageBox(this, QMessageBox::Critical, tr("Failed to create output directory"),
                         tr("The intended output directory doesn't exist and Olive couldn't create it. "
                                          "Please choose a different filename."));
