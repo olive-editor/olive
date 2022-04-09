@@ -93,7 +93,7 @@ private:
 
   void QueueKeyframePositionUpdate();
 
-  void AddNode(Node* n, NodeParamViewContext *context);
+  void AddNode(Node* n, Node *ctx, NodeParamViewContext *context);
 
   void SortItemsInContext(NodeParamViewContext *context);
 
@@ -135,6 +135,8 @@ private slots:
   void KeyframeViewDragged(int x, int y);
 
   void NodeAddedToContext(Node *n);
+
+  void NodeRemovedFromContext(Node *n);
 
   void InputCheckBoxChanged(const NodeInput &input, bool e);
 

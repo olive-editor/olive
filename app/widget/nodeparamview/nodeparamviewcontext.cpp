@@ -51,8 +51,16 @@ void NodeParamViewContext::AddNode(NodeParamViewItem *item)
   dock_area_->AddItem(item);
 }
 
-void NodeParamViewContext::RemoveNode(Node *node)
+void NodeParamViewContext::RemoveNode(Node *node, Node *ctx)
 {
+  for (auto it=items_.begin(); it!=items_.end(); ) {
+    if (it.value()->GetContext() == ctx) {
+      delete it.value();
+      it = items_.erase(it);
+    } else {
+      it++;
+    }
+  }
 }
 
 void NodeParamViewContext::Clear()

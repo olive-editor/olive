@@ -50,7 +50,7 @@ public:
 
   void AddNode(NodeParamViewItem *item);
 
-  void RemoveNode(Node *node);
+  void RemoveNode(Node *node, Node *ctx);
 
   void Clear();
 

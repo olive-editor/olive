@@ -246,6 +246,7 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts, bool group_mode
 
   foreach (Node *ctx, contexts_) {
     disconnect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext);
+    disconnect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext);
   }
 
   contexts_ = contexts;
@@ -257,6 +258,7 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts, bool group_mode
     // Queued so that if any further work is done in connecting this node to the context, it'll be
     // done before our sorting function is called
     connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
+    connect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext, Qt::QueuedConnection);
   }
 
   if (keyframe_view_) {
@@ -275,7 +277,7 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts, bool group_mode
     item->setVisible(true);
 
     for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
-      AddNode(it.key(), item);
+      AddNode(it.key(), ctx, item);
     }
   }
 
@@ -389,7 +391,7 @@ void NodeParamView::QueueKeyframePositionUpdate()
   QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
 }
 
-void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
+void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 {
   if ((n->GetFlags() & Node::kDontShowInParamView) && !group_mode_) {
     return;
@@ -402,6 +404,7 @@ void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
 
+  item->SetContext(ctx);
   item->SetTimeTarget(GetTimeTarget());
   item->SetTimebase(timebase());
   item->SetTime(GetTime());
@@ -608,9 +611,17 @@ void NodeParamView::NodeAddedToContext(Node *n)
   Node *ctx = static_cast<Node*>(sender());
   NodeParamViewContext *item = GetContextItemFromContext(ctx);
 
-  AddNode(n, item);
+  AddNode(n, ctx, item);
 
   SortItemsInContext(item);
+}
+
+void NodeParamView::NodeRemovedFromContext(Node *n)
+{
+  Node *ctx = static_cast<Node*>(sender());
+  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+
+  item->RemoveNode(n, ctx);
 }
 
 void NodeParamView::InputCheckBoxChanged(const NodeInput &input, bool e)
