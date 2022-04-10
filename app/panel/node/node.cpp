@@ -31,7 +31,8 @@ NodePanel::NodePanel(QWidget *parent) :
   // Connect node view signals to this panel - MAY REMOVE
   connect(node_widget_->view(), &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
   connect(node_widget_->view(), &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);
-  connect(node_widget_->view(), &NodeView::NodeGroupOpenRequested, this, &NodePanel::NodeGroupOpenRequested);
+  connect(node_widget_->view(), &NodeView::NodeGroupOpened, this, &NodePanel::NodeGroupOpened);
+  connect(node_widget_->view(), &NodeView::NodeGroupClosed, this, &NodePanel::NodeGroupClosed);
 
   // Set it as the main widget of this panel
   SetWidgetWithPadding(node_widget_);

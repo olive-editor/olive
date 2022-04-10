@@ -184,6 +184,16 @@ public:
     body_->SetTimebase(timebase);
   }
 
+  Node *GetContext() const
+  {
+    return ctx_;
+  }
+
+  void SetContext(Node *ctx)
+  {
+    ctx_ = ctx;
+  }
+
   Node* GetNode() const
   {
     return node_;
@@ -227,6 +237,8 @@ private:
   NodeParamViewItemBody* body_;
 
   Node* node_;
+
+  Node *ctx_;
 
   rational time_;
 

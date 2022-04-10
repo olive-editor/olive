@@ -92,6 +92,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kGenerateJob:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
+    case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
     {
@@ -255,6 +256,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
   {
@@ -431,6 +433,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
   {

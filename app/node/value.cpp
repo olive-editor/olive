@@ -141,6 +141,7 @@ QByteArray NodeValue::ValueToBytes(NodeValue::Type type, const QVariant &value)
   case kShaderJob:
   case kSampleJob:
   case kGenerateJob:
+  case kDataTypeCount:
     break;
   }
 
@@ -357,10 +358,76 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
   case kShaderJob:
   case kSampleJob:
   case kGenerateJob:
+  case kDataTypeCount:
     break;
   }
 
   return QCoreApplication::translate("NodeValue",  "Unknown");
+}
+
+QString NodeValue::GetDataTypeName(Type type)
+{
+  switch (type) {
+  case kNone:
+    return QStringLiteral("none");
+  case kInt:
+    return QStringLiteral("int");
+  case kCombo:
+    return QStringLiteral("combo");
+  case kFloat:
+    return QStringLiteral("float");
+  case kRational:
+    return QStringLiteral("rational");
+  case kBoolean:
+    return QStringLiteral("bool");
+  case kColor:
+    return QStringLiteral("color");
+  case kMatrix:
+    return QStringLiteral("matrix");
+  case kText:
+    return QStringLiteral("text");
+  case kFont:
+    return QStringLiteral("font");
+  case kFile:
+    return QStringLiteral("file");
+  case kTexture:
+    return QStringLiteral("texture");
+  case kSamples:
+    return QStringLiteral("samples");
+  case kVec2:
+    return QStringLiteral("vec2");
+  case kVec3:
+    return QStringLiteral("vec3");
+  case kVec4:
+    return QStringLiteral("vec4");
+  case kBezier:
+    return QStringLiteral("bezier");
+  case kVideoParams:
+    return QStringLiteral("vparam");
+  case kAudioParams:
+    return QStringLiteral("aparam");
+  case kFootageJob:
+  case kShaderJob:
+  case kSampleJob:
+  case kGenerateJob:
+  case kDataTypeCount:
+    break;
+  }
+
+  return QString();
+}
+
+NodeValue::Type NodeValue::GetDataTypeFromName(const QString &n)
+{
+  // Slow but easy to maintain
+  for (int i=0; i<kDataTypeCount; i++) {
+    Type t = static_cast<Type>(i);
+    if (GetDataTypeName(t) == n) {
+      return t;
+    }
+  }
+
+  return NodeValue::kNone;
 }
 
 NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, const QString &tag) const

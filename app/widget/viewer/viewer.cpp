@@ -256,6 +256,8 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 
   // Queue an UpdateStack so that when it runs, the viewer node will be fully disconnected
   QMetaObject::invokeMethod(this, &ViewerWidget::UpdateStack, Qt::QueuedConnection);
+
+  SetGizmos(nullptr);
 }
 
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)

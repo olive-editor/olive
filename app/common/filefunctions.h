@@ -21,6 +21,7 @@
 #ifndef FILEFUNCTIONS_H
 #define FILEFUNCTIONS_H
 
+#include <QDir>
 #include <QString>
 
 #include "common/define.h"
@@ -52,7 +53,7 @@ public:
 
   static void CopyDirectory(const QString& source, const QString& dest, bool overwrite = false);
 
-  static bool DirectoryIsValid(const QString& dir, bool try_to_create);
+  static bool DirectoryIsValid(const QDir& dir, bool try_to_create_if_not_exists = true);
 
   /**
    * @brief Ensures a given filename has a certain extension

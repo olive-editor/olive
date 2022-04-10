@@ -47,8 +47,7 @@ const int NodeParamViewItemBody::kMaxWidgetColumn = kKeyControlColumn;
 NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
   node_(node),
-  create_checkboxes_(create_checkboxes),
-  keyframe_view_(nullptr)
+  ctx_(nullptr)
 {
   node_->Retranslate();
 

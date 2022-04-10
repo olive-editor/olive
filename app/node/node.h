@@ -27,7 +27,6 @@
 #include <QObject>
 #include <QPainter>
 #include <QPointF>
-#include <QUuid>
 #include <QXmlStreamWriter>
 
 #include "codec/frame.h"
@@ -120,9 +119,6 @@ public:
   NodeGraph* parent() const;
 
   Project* project() const;
-
-  const QUuid &GetUUID() const {return uuid_;}
-  void SetUUID(const QUuid &uuid) {uuid_ = uuid;}
 
   const uint64_t &GetFlags() const
   {
@@ -325,6 +321,8 @@ public:
 
   virtual QString GetInputName(const QString& id) const;
 
+  void SetInputName(const QString& id, const QString& name);
+
   bool IsInputHidden(const QString& input) const;
   bool IsInputConnectable(const QString& input) const;
   bool IsInputKeyframable(const QString& input) const;
@@ -407,6 +405,10 @@ public:
   QVariant GetDefaultValue(const QString& input) const;
   SplitValue GetSplitDefaultValue(const QString& input) const;
   QVariant GetSplitDefaultValueOnTrack(const QString& input, int track) const;
+
+  void SetDefaultValue(const QString& input, const QVariant &val);
+  void SetSplitDefaultValue(const QString& input, const SplitValue &val);
+  void SetSplitDefaultValueOnTrack(const QString& input, const QVariant &val, int track);
 
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const QString& input, int element) const;
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const NodeInput& input) const
@@ -946,6 +948,7 @@ public:
   };
 
   InputFlags GetInputFlags(const QString& input) const;
+  void SetInputFlags(const QString &input, const InputFlags &f);
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
@@ -977,8 +980,6 @@ protected:
   }
 
   void RemoveInput(const QString& id);
-
-  void SetInputName(const QString& id, const QString& name);
 
   void SetComboBoxStrings(const QString& id, const QStringList& strings)
   {
@@ -1347,8 +1348,6 @@ private:
   QMap<InputElementPair, ValueHint> value_hints_;
 
   PositionMap context_positions_;
-
-  QUuid uuid_;
 
   uint64_t flags_;
 
