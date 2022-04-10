@@ -43,14 +43,18 @@ public:
     return contexts_;
   }
 
-  const QMap<Node*, NodeParamViewItem*> &GetItems() const
+  const QVector<NodeParamViewItem*> &GetItems() const
   {
     return items_;
   }
 
+  NodeParamViewItem *GetItem(Node *node, Node *ctx);
+
   void AddNode(NodeParamViewItem *item);
 
   void RemoveNode(Node *node, Node *ctx);
+
+  void RemoveNodesWithContext(Node *ctx);
 
   void Clear();
 
@@ -81,7 +85,7 @@ private:
 
   QVector<Node*> contexts_;
 
-  QMap<Node*, NodeParamViewItem*> items_;
+  QVector<NodeParamViewItem*> items_;
 
 private slots:
   void AddEffectButtonClicked();

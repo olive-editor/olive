@@ -61,9 +61,9 @@ void ParamPanel::DeselectAll()
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectAll();
 }
 
-void ParamPanel::SetContexts(const QVector<Node *> &contexts, bool group_mode)
+void ParamPanel::SetContexts(const QVector<Node *> &contexts)
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetContexts(contexts, group_mode);
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetContexts(contexts);
 }
 
 void ParamPanel::Retranslate()

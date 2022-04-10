@@ -70,7 +70,7 @@ public:
   }
 
 public slots:
-  void SetContexts(const QVector<Node*> &contexts, bool group_mode);
+  void SetContexts(const QVector<Node*> &contexts);
 
   void UpdateElementY();
 
@@ -93,11 +93,22 @@ private:
 
   void QueueKeyframePositionUpdate();
 
+  void AddContext(Node *context);
+
+  void RemoveContext(Node *context);
+
   void AddNode(Node* n, Node *ctx, NodeParamViewContext *context);
+
+  void RemoveNode(Node *n, Node *ctx);
 
   void SortItemsInContext(NodeParamViewContext *context);
 
   NodeParamViewContext *GetContextItemFromContext(Node *context);
+
+  bool IsGroupMode() const
+  {
+    return contexts_.size() == 1 && dynamic_cast<NodeGroup*>(contexts_.first());
+  }
 
   KeyframeView* keyframe_view_;
 
@@ -122,8 +133,9 @@ private:
   Node *time_target_;
 
   QVector<Node*> contexts_;
+  QVector<Node*> current_contexts_;
 
-  bool group_mode_;
+  QTimer *ctx_update_timer_;
 
 private slots:
   void UpdateGlobalScrollBar();
@@ -143,6 +155,8 @@ private slots:
   void GroupInputPassthroughAdded(olive::NodeGroup *group, const olive::NodeInput &input);
 
   void GroupInputPassthroughRemoved(olive::NodeGroup *group, const olive::NodeInput &input);
+
+  void UpdateContexts();
 
 };
 

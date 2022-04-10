@@ -459,7 +459,7 @@ void MainWindow::StatusBarDoubleClicked()
 void MainWindow::NodePanelGroupOpenedOrClosed()
 {
   NodePanel *p = static_cast<NodePanel*>(sender());
-  param_panel_->SetContexts(p->GetContexts(), p->IsGroupOverlay());
+  param_panel_->SetContexts(p->GetContexts());
 }
 
 void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
@@ -728,7 +728,7 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
   }
 
   node_panel_->SetContexts(context);
-  param_panel_->SetContexts(context, false);
+  param_panel_->SetContexts(context);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
@@ -743,7 +743,7 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     const QVector<Node*> &new_ctxs = node_panel->GetContexts();
 
     if (new_ctxs != param_panel_->GetContexts()) {
-      param_panel_->SetContexts(new_ctxs, node_panel->IsGroupOverlay());
+      param_panel_->SetContexts(new_ctxs);
     }
   } else if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
     // Signal timeline focus

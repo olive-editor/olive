@@ -58,7 +58,7 @@ public slots:
 
   virtual void DeselectAll() override;
 
-  void SetContexts(const QVector<Node*> &contexts, bool group_mode);
+  void SetContexts(const QVector<Node*> &contexts);
 
 signals:
   void RequestSelectNode(const QVector<Node*>& target);
