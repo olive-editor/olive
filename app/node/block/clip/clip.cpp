@@ -95,7 +95,8 @@ void ClipBlock::set_length_and_media_out(const rational &length)
 
   if (reverse()) {
     // Calculate media_in adjustment
-    set_media_in(SequenceToMediaTime(length - this->length(), true));
+    rational proposed_media_in = SequenceToMediaTime(this->length() - length, true);
+    set_media_in(proposed_media_in);
   }
 
   super::set_length_and_media_out(length);
@@ -109,7 +110,14 @@ void ClipBlock::set_length_and_media_in(const rational &length)
 
   if (!reverse()) {
     // Calculate media_in adjustment
-    set_media_in(SequenceToMediaTime(this->length() - length));
+    rational proposed_media_in = SequenceToMediaTime(this->length() - length);
+
+    waveform_.TrimIn(proposed_media_in - media_in());
+
+    set_media_in(proposed_media_in);
+  } else {
+    // Trim waveform out point
+    waveform_.TrimIn(this->length() - length);
   }
 
   super::set_length_and_media_in(length);
@@ -219,19 +227,6 @@ void ClipBlock::LinkChangeEvent()
     if (b) {
       block_links_.append(b);
     }
-  }
-}
-
-void ClipBlock::InputValueChangedEvent(const QString &input, int element)
-{
-  super::InputValueChangedEvent(input, element);
-
-  if (input == kMediaInInput) {
-    // Shift waveform in the inverse that the media in moved
-    rational diff = media_in() - last_media_in_;
-    waveform_.TrimIn(diff);
-
-    last_media_in_ = media_in();
   }
 }
 

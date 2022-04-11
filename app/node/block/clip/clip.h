@@ -130,8 +130,6 @@ public:
 protected:
   virtual void LinkChangeEvent() override;
 
-  virtual void InputValueChangedEvent(const QString &input, int element) override;
-
   virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
