@@ -405,13 +405,13 @@ void NodeParamView::RemoveContext(Node *ctx)
   disconnect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext);
   disconnect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext);
 
-  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+  foreach (NodeParamViewContext *item, context_items_) {
+    item->RemoveContext(ctx);
+    item->RemoveNodesWithContext(ctx);
 
-  item->RemoveContext(ctx);
-  item->RemoveNodesWithContext(ctx);
-
-  if (item->GetContexts().isEmpty()) {
-    item->setVisible(false);
+    if (item->GetContexts().isEmpty()) {
+      item->setVisible(false);
+    }
   }
 }
 
@@ -454,25 +454,28 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 
 void NodeParamView::RemoveNode(Node *n, Node *ctx)
 {
-  NodeParamViewContext *ctx_item = GetContextItemFromContext(ctx);
-  NodeParamViewItem *item = ctx_item->GetItem(n, ctx);
+  foreach (NodeParamViewContext *ctx_item, context_items_) {
+    NodeParamViewItem *item = ctx_item->GetItem(n, ctx);
 
-  if (focused_node_ == item) {
-    focused_node_ = nullptr;
-    emit FocusedNodeChanged(nullptr);
-  }
+    if (item) {
+      if (focused_node_ == item) {
+        focused_node_ = nullptr;
+        emit FocusedNodeChanged(nullptr);
+      }
 
-  if (keyframe_view_) {
-    for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
-      for (auto jt=it->begin(); jt!=it->end(); jt++) {
-        for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
-          keyframe_view_->RemoveKeyframesOfTrack(*kt);
+      if (keyframe_view_) {
+        for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
+          for (auto jt=it->begin(); jt!=it->end(); jt++) {
+            for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
+              keyframe_view_->RemoveKeyframesOfTrack(*kt);
+            }
+          }
         }
       }
     }
-  }
 
-  ctx_item->RemoveNode(n, ctx);
+    ctx_item->RemoveNode(n, ctx);
+  }
 }
 
 int GetDistanceBetweenNodes(Node *start, Node *end)
