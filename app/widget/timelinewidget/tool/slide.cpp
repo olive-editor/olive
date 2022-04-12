@@ -34,9 +34,9 @@ SlideTool::SlideTool(TimelineWidget* parent) :
   SetGapTrimmingAllowed(true);
 }
 
-void SlideTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_mode)
+void SlideTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers)
 {
-  InitiateDragInternal(clicked_item, trim_mode, false, true, true);
+  InitiateDragInternal(clicked_item, trim_mode, modifiers, false, true, true);
 }
 
 }

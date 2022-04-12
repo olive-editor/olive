@@ -31,8 +31,7 @@ public:
   RollingTool(TimelineWidget* parent);
 
 protected:
-  virtual void InitiateDrag(Block* clicked_item,
-                            Timeline::MovementMode trim_mode) override;
+  virtual void InitiateDrag(Block* clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers) override;
 };
 
 }
