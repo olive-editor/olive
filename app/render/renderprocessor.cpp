@@ -312,9 +312,11 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
                   packed = tp.Pull();
                   tp.Close();
 
-                  PlanarProcessor planar;
-                  planar.Open(samples_from_this_block->audio_params());
-                  samples_from_this_block = planar.Convert(packed);
+                  if (!packed.isEmpty()) {
+                    PlanarProcessor planar;
+                    planar.Open(samples_from_this_block->audio_params());
+                    samples_from_this_block = planar.Convert(packed);
+                  }
                 }
               } else {
                 // Multiply time
