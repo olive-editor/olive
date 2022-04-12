@@ -47,7 +47,7 @@ NodeParamViewContext::NodeParamViewContext(QWidget *parent) :
 
 NodeParamViewItem *NodeParamViewContext::GetItem(Node *node, Node *ctx)
 {
-  for (auto it=items_.begin(); it!=items_.end(); ) {
+  for (auto it=items_.begin(); it!=items_.end(); it++) {
     NodeParamViewItem *item = *it;
 
     if (item->GetNode() == node && item->GetContext() == ctx) {
@@ -70,6 +70,7 @@ void NodeParamViewContext::RemoveNode(Node *node, Node *ctx)
     NodeParamViewItem *item = *it;
 
     if (item->GetNode() == node && item->GetContext() == ctx) {
+      emit AboutToDeleteItem(item);
       delete item;
       it = items_.erase(it);
     } else {
@@ -84,20 +85,13 @@ void NodeParamViewContext::RemoveNodesWithContext(Node *ctx)
     NodeParamViewItem *item = *it;
 
     if (item->GetContext() == ctx) {
+      emit AboutToDeleteItem(item);
       delete item;
       it = items_.erase(it);
     } else {
       it++;
     }
   }
-}
-
-void NodeParamViewContext::Clear()
-{
-  qDeleteAll(items_);
-  items_.clear();
-
-  contexts_.clear();
 }
 
 void NodeParamViewContext::SetInputChecked(const NodeInput &input, bool e)

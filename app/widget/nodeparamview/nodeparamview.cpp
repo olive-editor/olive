@@ -74,6 +74,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   for (int i=0; i<context_items_.size(); i++) {
     NodeParamViewContext *c = new NodeParamViewContext;
     c->setVisible(false);
+    connect(c, &NodeParamViewContext::AboutToDeleteItem, this, &NodeParamView::ItemAboutToBeRemoved, Qt::DirectConnection);
 
     NodeParamViewItemTitleBar *title_bar = static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget());
 
@@ -154,11 +155,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
           &QApplication::focusChanged,
           this,
           &NodeParamView::FocusChanged);
-
-  ctx_update_timer_ = new QTimer(this);
-  ctx_update_timer_->setInterval(1);
-  ctx_update_timer_->setSingleShot(true);
-  connect(ctx_update_timer_, &QTimer::timeout, this, &NodeParamView::UpdateContexts);
 }
 
 NodeParamView::~NodeParamView()
@@ -285,12 +281,19 @@ void NodeParamView::UpdateContexts()
   }
 }
 
+void NodeParamView::ItemAboutToBeRemoved(NodeParamViewItem *item)
+{
+  if (focused_node_ == item) {
+    focused_node_ = nullptr;
+    emit FocusedNodeChanged(nullptr);
+  }
+}
+
 void NodeParamView::SetContexts(const QVector<Node *> &contexts)
 {
   // Setting contexts is expensive, so we queue it here to prevent multiple calls in a short timespan
   contexts_ = contexts;
-  ctx_update_timer_->stop();
-  ctx_update_timer_->start();
+  UpdateContexts();
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
@@ -405,13 +408,13 @@ void NodeParamView::RemoveContext(Node *ctx)
   disconnect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext);
   disconnect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext);
 
-  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+  foreach (NodeParamViewContext *item, context_items_) {
+    item->RemoveContext(ctx);
+    item->RemoveNodesWithContext(ctx);
 
-  item->RemoveContext(ctx);
-  item->RemoveNodesWithContext(ctx);
-
-  if (item->GetContexts().isEmpty()) {
-    item->setVisible(false);
+    if (item->GetContexts().isEmpty()) {
+      item->setVisible(false);
+    }
   }
 }
 
@@ -457,25 +460,23 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 
 void NodeParamView::RemoveNode(Node *n, Node *ctx)
 {
-  NodeParamViewContext *ctx_item = GetContextItemFromContext(ctx);
-  NodeParamViewItem *item = ctx_item->GetItem(n, ctx);
+  foreach (NodeParamViewContext *ctx_item, context_items_) {
+    NodeParamViewItem *item = ctx_item->GetItem(n, ctx);
 
-  if (focused_node_ == item) {
-    focused_node_ = nullptr;
-    emit FocusedNodeChanged(nullptr);
-  }
-
-  if (keyframe_view_) {
-    for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
-      for (auto jt=it->begin(); jt!=it->end(); jt++) {
-        for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
-          keyframe_view_->RemoveKeyframesOfTrack(*kt);
+    if (item) {
+      if (keyframe_view_) {
+        for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
+          for (auto jt=it->begin(); jt!=it->end(); jt++) {
+            for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
+              keyframe_view_->RemoveKeyframesOfTrack(*kt);
+            }
+          }
         }
       }
     }
-  }
 
-  ctx_item->RemoveNode(n, ctx);
+    ctx_item->RemoveNode(n, ctx);
+  }
 }
 
 int GetDistanceBetweenNodes(Node *start, Node *end)

@@ -41,6 +41,7 @@
 #include "tool/rolling.h"
 #include "tool/slide.h"
 #include "tool/slip.h"
+#include "tool/trackselect.h"
 #include "tool/transition.h"
 #include "tool/zoom.h"
 #include "tool/tool.h"
@@ -100,6 +101,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.fill(nullptr);
 
   tools_.replace(olive::Tool::kPointer, new PointerTool(this));
+  tools_.replace(olive::Tool::kTrackSelect, new TrackSelectTool(this));
   tools_.replace(olive::Tool::kEdit, new EditTool(this));
   tools_.replace(olive::Tool::kRipple, new RippleTool(this));
   tools_.replace(olive::Tool::kRolling, new RollingTool(this));
@@ -183,6 +185,14 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineWidget::ToolChanged);
   connect(Core::instance(), &Core::AddableObjectChanged, this, &TimelineWidget::AddableObjectChanged);
+
+  signal_block_change_timer_ = new QTimer(this);
+  signal_block_change_timer_->setInterval(1);
+  signal_block_change_timer_->setSingleShot(true);
+  connect(signal_block_change_timer_, &QTimer::timeout, this, [this]{
+    signal_block_change_timer_->stop();
+    emit BlockSelectionChanged(selected_blocks_);
+  });
 }
 
 TimelineWidget::~TimelineWidget()
@@ -1161,7 +1171,8 @@ void TimelineWidget::SetScrollZoomsByDefaultOnAllViews(bool e)
 
 void TimelineWidget::SignalBlockSelectionChange()
 {
-  emit BlockSelectionChanged(selected_blocks_);
+  signal_block_change_timer_->stop();
+  signal_block_change_timer_->start();
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
@@ -1334,7 +1345,7 @@ void TimelineWidget::SignalSelectedBlocks(QVector<Block *> input, bool filter)
 
   selected_blocks_.append(input);
 
-  emit SignalBlockSelectionChange();
+  SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_blocks)
@@ -1347,7 +1358,7 @@ void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_b
     selected_blocks_.removeOne(b);
   }
 
-  emit SignalBlockSelectionChange();
+  SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedAllBlocks()

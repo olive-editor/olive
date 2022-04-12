@@ -95,7 +95,8 @@ void ClipBlock::set_length_and_media_out(const rational &length)
 
   if (reverse()) {
     // Calculate media_in adjustment
-    set_media_in(SequenceToMediaTime(length - this->length(), true));
+    rational proposed_media_in = SequenceToMediaTime(this->length() - length, true);
+    set_media_in(proposed_media_in);
   }
 
   super::set_length_and_media_out(length);
@@ -109,7 +110,14 @@ void ClipBlock::set_length_and_media_in(const rational &length)
 
   if (!reverse()) {
     // Calculate media_in adjustment
-    set_media_in(SequenceToMediaTime(this->length() - length));
+    rational proposed_media_in = SequenceToMediaTime(this->length() - length, false, true);
+
+    waveform_.TrimIn(proposed_media_in - media_in());
+
+    set_media_in(proposed_media_in);
+  } else {
+    // Trim waveform out point
+    waveform_.TrimIn(this->length() - length);
   }
 
   super::set_length_and_media_in(length);
@@ -125,7 +133,7 @@ void ClipBlock::set_media_in(const rational &media_in)
   SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
 }
 
-rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool ignore_reverse) const
+rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool ignore_reverse, bool ignore_speed) const
 {
   // These constants are not considered "values" per se, so we don't modify them
   if (sequence_time == RATIONAL_MIN || sequence_time == RATIONAL_MAX) {
@@ -134,17 +142,19 @@ rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool igno
 
   rational media_time = sequence_time;
 
-  double speed_value = speed();
-  if (qIsNull(speed_value)) {
-    // Effectively holds the frame at the in point
-    media_time = 0;
-  } else if (!qFuzzyCompare(speed_value, 1.0)) {
-    // Multiply time
-    media_time = rational::fromDouble(media_time.toDouble() * speed_value);
-  }
-
   if (reverse() && !ignore_reverse) {
     media_time = length() - media_time;
+  }
+
+  if (!ignore_speed) {
+    double speed_value = speed();
+    if (qIsNull(speed_value)) {
+      // Effectively holds the frame at the in point
+      media_time = 0;
+    } else if (!qFuzzyCompare(speed_value, 1.0)) {
+      // Multiply time
+      media_time = rational::fromDouble(media_time.toDouble() * speed_value);
+    }
   }
 
   media_time += media_in();
@@ -161,10 +171,6 @@ rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
 
   rational sequence_time = media_time - media_in();
 
-  if (reverse()) {
-    sequence_time = length() - sequence_time;
-  }
-
   double speed_value = speed();
   if (qIsNull(speed_value)) {
     // I don't know what to return here yet...
@@ -172,6 +178,10 @@ rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
   } else if (!qFuzzyCompare(speed_value, 1.0)) {
     // Divide time
     sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
+  }
+
+  if (reverse()) {
+    sequence_time = length() - sequence_time;
   }
 
   return sequence_time;
@@ -219,19 +229,6 @@ void ClipBlock::LinkChangeEvent()
     if (b) {
       block_links_.append(b);
     }
-  }
-}
-
-void ClipBlock::InputValueChangedEvent(const QString &input, int element)
-{
-  super::InputValueChangedEvent(input, element);
-
-  if (input == kMediaInInput) {
-    // Shift waveform in the inverse that the media in moved
-    rational diff = media_in() - last_media_in_;
-    waveform_.TrimIn(diff);
-
-    last_media_in_ = media_in();
   }
 }
 

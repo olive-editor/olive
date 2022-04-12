@@ -135,8 +135,6 @@ private:
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;
 
-  QTimer *ctx_update_timer_;
-
 private slots:
   void UpdateGlobalScrollBar();
 
@@ -157,6 +155,8 @@ private slots:
   void GroupInputPassthroughRemoved(olive::NodeGroup *group, const olive::NodeInput &input);
 
   void UpdateContexts();
+
+  void ItemAboutToBeRemoved(NodeParamViewItem *item);
 
 };
 

@@ -42,6 +42,7 @@ Toolbar::Toolbar(QWidget *parent) :
 
   // Create standard tool buttons
   btn_pointer_tool_ = CreateToolButton(Tool::kPointer);
+  btn_trackselect_tool_ = CreateToolButton(Tool::kTrackSelect);
   btn_edit_tool_ = CreateToolButton(Tool::kEdit);
   btn_ripple_tool_ = CreateToolButton(Tool::kRipple);
   btn_rolling_tool_ = CreateToolButton(Tool::kRolling);
@@ -107,6 +108,7 @@ void Toolbar::resizeEvent(QResizeEvent *e)
 void Toolbar::Retranslate()
 {
   btn_pointer_tool_->setToolTip(tr("Pointer Tool"));
+  btn_trackselect_tool_->setToolTip(tr("Track Select Tool"));
   btn_edit_tool_->setToolTip(tr("Edit Tool"));
   btn_ripple_tool_->setToolTip(tr("Ripple Tool"));
   btn_rolling_tool_->setToolTip(tr("Rolling Tool"));
@@ -124,6 +126,7 @@ void Toolbar::Retranslate()
 void Toolbar::UpdateIcons()
 {
   btn_pointer_tool_->setIcon(icon::ToolPointer);
+  btn_trackselect_tool_->setIcon(icon::TriRight); // FIXME: Procure real icon
   btn_edit_tool_->setIcon(icon::ToolEdit);
   btn_ripple_tool_->setIcon(icon::ToolRipple);
   btn_rolling_tool_->setIcon(icon::ToolRolling);

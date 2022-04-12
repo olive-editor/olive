@@ -18,25 +18,25 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#ifndef TRACKSELECTTOOL_H
+#define TRACKSELECTTOOL_H
 
-#include "node/block/gap/gap.h"
-#include "slide.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "pointer.h"
 
 namespace olive {
 
-SlideTool::SlideTool(TimelineWidget* parent) :
-  PointerTool(parent)
+class TrackSelectTool : public PointerTool
 {
-  SetTrimmingAllowed(false);
-  SetTrackMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
+public:
+  TrackSelectTool(TimelineWidget *parent);
+
+  virtual void MousePress(TimelineViewMouseEvent *event) override;
+
+private:
+  void SelectBlocksOnTrack(Track *track, TimelineViewMouseEvent *event, QVector<Block *> *blocks, bool forward);
+
+};
+
 }
 
-void SlideTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers)
-{
-  InitiateDragInternal(clicked_item, trim_mode, modifiers, false, true, true);
-}
-
-}
+#endif // TRACKSELECTTOOL_H

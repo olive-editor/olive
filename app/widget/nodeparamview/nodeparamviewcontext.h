@@ -56,8 +56,6 @@ public:
 
   void RemoveNodesWithContext(Node *ctx);
 
-  void Clear();
-
   void SetInputChecked(const NodeInput &input, bool e);
 
   void SetTimebase(const rational &timebase);
@@ -65,6 +63,9 @@ public:
   void SetTimeTarget(Node *n);
 
   void SetTime(const rational &time);
+
+signals:
+  void AboutToDeleteItem(NodeParamViewItem *item);
 
 public slots:
   void AddContext(Node *node)
