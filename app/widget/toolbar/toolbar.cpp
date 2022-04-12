@@ -126,7 +126,7 @@ void Toolbar::Retranslate()
 void Toolbar::UpdateIcons()
 {
   btn_pointer_tool_->setIcon(icon::ToolPointer);
-  btn_trackselect _tool_->setIcon(icon::TriRight); // FIXME: Procure real icon
+  btn_trackselect_tool_->setIcon(icon::TriRight); // FIXME: Procure real icon
   btn_edit_tool_->setIcon(icon::ToolEdit);
   btn_ripple_tool_->setIcon(icon::ToolRipple);
   btn_rolling_tool_->setIcon(icon::ToolRolling);
