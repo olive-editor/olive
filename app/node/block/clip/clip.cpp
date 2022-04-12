@@ -142,6 +142,10 @@ rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool igno
 
   rational media_time = sequence_time;
 
+  if (reverse() && !ignore_reverse) {
+    media_time = length() - media_time;
+  }
+
   if (!ignore_speed) {
     double speed_value = speed();
     if (qIsNull(speed_value)) {
@@ -151,10 +155,6 @@ rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool igno
       // Multiply time
       media_time = rational::fromDouble(media_time.toDouble() * speed_value);
     }
-  }
-
-  if (reverse() && !ignore_reverse) {
-    media_time = length() - media_time;
   }
 
   media_time += media_in();
@@ -171,10 +171,6 @@ rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
 
   rational sequence_time = media_time - media_in();
 
-  if (reverse()) {
-    sequence_time = length() - sequence_time;
-  }
-
   double speed_value = speed();
   if (qIsNull(speed_value)) {
     // I don't know what to return here yet...
@@ -182,6 +178,10 @@ rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
   } else if (!qFuzzyCompare(speed_value, 1.0)) {
     // Divide time
     sequence_time = rational::fromDouble(sequence_time.toDouble() / speed_value);
+  }
+
+  if (reverse()) {
+    sequence_time = length() - sequence_time;
   }
 
   return sequence_time;
