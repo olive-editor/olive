@@ -41,6 +41,7 @@
 #include "tool/rolling.h"
 #include "tool/slide.h"
 #include "tool/slip.h"
+#include "tool/trackselect.h"
 #include "tool/transition.h"
 #include "tool/zoom.h"
 #include "tool/tool.h"
@@ -100,6 +101,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.fill(nullptr);
 
   tools_.replace(olive::Tool::kPointer, new PointerTool(this));
+  tools_.replace(olive::Tool::kTrackSelect, new TrackSelectTool(this));
   tools_.replace(olive::Tool::kEdit, new EditTool(this));
   tools_.replace(olive::Tool::kRipple, new RippleTool(this));
   tools_.replace(olive::Tool::kRolling, new RollingTool(this));

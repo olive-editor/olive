@@ -44,6 +44,7 @@ PointerTool::PointerTool(TimelineWidget *parent) :
   trimming_allowed_(true),
   track_movement_allowed_(true),
   gap_trimming_allowed_(false),
+  can_rubberband_select_(false),
   rubberband_selecting_(false)
 {
 }
@@ -715,8 +716,7 @@ Timeline::MovementMode PointerTool::IsCursorInTrimHandle(Block *block, qreal cur
   }
 }
 
-void PointerTool::InitiateDrag(Block *clicked_item,
-                               Timeline::MovementMode trim_mode)
+void PointerTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_mode)
 {
   InitiateDragInternal(clicked_item, trim_mode, false, false, false);
 }

@@ -173,6 +173,7 @@ private:
   QList<ToolbarButton*> toolbar_btns_;
 
   ToolbarButton* btn_pointer_tool_;
+  ToolbarButton* btn_trackselect_tool_;
   ToolbarButton* btn_edit_tool_;
   ToolbarButton* btn_ripple_tool_;
   ToolbarButton* btn_rolling_tool_;
