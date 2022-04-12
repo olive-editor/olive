@@ -74,6 +74,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   for (int i=0; i<context_items_.size(); i++) {
     NodeParamViewContext *c = new NodeParamViewContext;
     c->setVisible(false);
+    connect(c, &NodeParamViewContext::AboutToDeleteItem, this, &NodeParamView::ItemAboutToBeRemoved, Qt::DirectConnection);
 
     NodeParamViewItemTitleBar *title_bar = static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget());
 
@@ -285,6 +286,14 @@ void NodeParamView::UpdateContexts()
   }
 }
 
+void NodeParamView::ItemAboutToBeRemoved(NodeParamViewItem *item)
+{
+  if (focused_node_ == item) {
+    focused_node_ = nullptr;
+    emit FocusedNodeChanged(nullptr);
+  }
+}
+
 void NodeParamView::SetContexts(const QVector<Node *> &contexts)
 {
   // Setting contexts is expensive, so we queue it here to prevent multiple calls in a short timespan
@@ -458,11 +467,6 @@ void NodeParamView::RemoveNode(Node *n, Node *ctx)
     NodeParamViewItem *item = ctx_item->GetItem(n, ctx);
 
     if (item) {
-      if (focused_node_ == item) {
-        focused_node_ = nullptr;
-        emit FocusedNodeChanged(nullptr);
-      }
-
       if (keyframe_view_) {
         for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
           for (auto jt=it->begin(); jt!=it->end(); jt++) {

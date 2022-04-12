@@ -158,6 +158,8 @@ private slots:
 
   void UpdateContexts();
 
+  void ItemAboutToBeRemoved(NodeParamViewItem *item);
+
 };
 
 }
