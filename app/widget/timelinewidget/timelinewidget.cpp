@@ -185,6 +185,14 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineWidget::ToolChanged);
   connect(Core::instance(), &Core::AddableObjectChanged, this, &TimelineWidget::AddableObjectChanged);
+
+  signal_block_change_timer_ = new QTimer(this);
+  signal_block_change_timer_->setInterval(1);
+  signal_block_change_timer_->setSingleShot(true);
+  connect(signal_block_change_timer_, &QTimer::timeout, this, [this]{
+    signal_block_change_timer_->stop();
+    emit BlockSelectionChanged(selected_blocks_);
+  });
 }
 
 TimelineWidget::~TimelineWidget()
@@ -1163,7 +1171,8 @@ void TimelineWidget::SetScrollZoomsByDefaultOnAllViews(bool e)
 
 void TimelineWidget::SignalBlockSelectionChange()
 {
-  emit BlockSelectionChanged(selected_blocks_);
+  signal_block_change_timer_->stop();
+  signal_block_change_timer_->start();
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
@@ -1336,7 +1345,7 @@ void TimelineWidget::SignalSelectedBlocks(QVector<Block *> input, bool filter)
 
   selected_blocks_.append(input);
 
-  emit SignalBlockSelectionChange();
+  SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_blocks)
@@ -1349,7 +1358,7 @@ void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_b
     selected_blocks_.removeOne(b);
   }
 
-  emit SignalBlockSelectionChange();
+  SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedAllBlocks()

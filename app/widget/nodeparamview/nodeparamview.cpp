@@ -155,11 +155,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
           &QApplication::focusChanged,
           this,
           &NodeParamView::FocusChanged);
-
-  ctx_update_timer_ = new QTimer(this);
-  ctx_update_timer_->setInterval(1);
-  ctx_update_timer_->setSingleShot(true);
-  connect(ctx_update_timer_, &QTimer::timeout, this, &NodeParamView::UpdateContexts);
 }
 
 NodeParamView::~NodeParamView()
@@ -298,8 +293,7 @@ void NodeParamView::SetContexts(const QVector<Node *> &contexts)
 {
   // Setting contexts is expensive, so we queue it here to prevent multiple calls in a short timespan
   contexts_ = contexts;
-  ctx_update_timer_->stop();
-  ctx_update_timer_->start();
+  UpdateContexts();
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
