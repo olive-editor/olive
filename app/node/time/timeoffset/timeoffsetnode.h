@@ -45,7 +45,7 @@ public:
 
   virtual QVector<CategoryID> Category() const override
   {
-    return {kCategoryGeneral};
+    return {kCategoryTime};
   }
 
   virtual QString Description() const override

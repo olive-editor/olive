@@ -50,7 +50,7 @@ public:
 
   virtual QVector<CategoryID> Category() const override
   {
-    return {kCategoryInput};
+    return {kCategoryGenerator};
   }
 
   virtual QString Description() const override

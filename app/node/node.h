@@ -78,20 +78,17 @@ public:
   enum CategoryID {
     kCategoryUnknown = -1,
 
-    kCategoryInput,
     kCategoryOutput,
     kCategoryGenerator,
     kCategoryMath,
+    kCategoryKeying,
     kCategoryFilter,
     kCategoryColor,
-    kCategoryGeneral,
+    kCategoryTime,
     kCategoryTimeline,
-    kCategoryChannels,
     kCategoryTransition,
     kCategoryDistort,
     kCategoryProject,
-    kCategoryVideoEffect,
-    kCategoryAudioEffect,
 
     kCategoryCount
   };

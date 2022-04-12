@@ -43,7 +43,7 @@ QString NodeGroup::id() const
 
 QVector<Node::CategoryID> NodeGroup::Category() const
 {
-  return {kCategoryGeneral};
+  return {kCategoryUnknown};
 }
 
 QString NodeGroup::Description() const

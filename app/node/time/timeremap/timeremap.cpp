@@ -56,7 +56,7 @@ QString TimeRemapNode::id() const
 
 QVector<Node::CategoryID> TimeRemapNode::Category() const
 {
-  return {kCategoryGeneral};
+  return {kCategoryTime};
 }
 
 QString TimeRemapNode::Description() const
