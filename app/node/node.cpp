@@ -1668,16 +1668,14 @@ void Node::DisconnectAll()
 QString Node::GetCategoryName(const CategoryID &c)
 {
   switch (c) {
-  case kCategoryInput:
-    return tr("Input");
   case kCategoryOutput:
     return tr("Output");
-  case kCategoryGeneral:
-    return tr("General");
   case kCategoryDistort:
     return tr("Distort");
   case kCategoryMath:
     return tr("Math");
+  case kCategoryKeying:
+    return tr("Keying");
   case kCategoryColor:
     return tr("Color");
   case kCategoryFilter:
@@ -1686,16 +1684,12 @@ QString Node::GetCategoryName(const CategoryID &c)
     return tr("Timeline");
   case kCategoryGenerator:
     return tr("Generator");
-  case kCategoryChannels:
-    return tr("Channel");
   case kCategoryTransition:
     return tr("Transition");
   case kCategoryProject:
     return tr("Project");
-  case kCategoryVideoEffect:
-    return tr("Video Effect");
-  case kCategoryAudioEffect:
-    return tr("Audio Effect");
+  case kCategoryTime:
+    return tr("Time");
   case kCategoryUnknown:
   case kCategoryCount:
     break;

@@ -26,7 +26,7 @@ public:
 
   virtual QVector<CategoryID> Category() const override
   {
-    return {kCategoryFilter, kCategoryVideoEffect};
+    return {kCategoryFilter};
   }
 
   virtual QString Description() const override

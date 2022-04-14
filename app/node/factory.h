@@ -63,6 +63,8 @@ public:
     kTimeRemapNode,
     kSubtitleBlock,
     kShapeGenerator,
+    kColorDifferenceKeyKeying,
+    kDespillKeying,
     kGroupNode,
     kOpacityEffect,
     kFlipDistort,

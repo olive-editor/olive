@@ -53,6 +53,8 @@
 #include "math/math/math.h"
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
+#include "keying/colordifferencekey/colordifferencekey.h"
+#include "keying/despill/despill.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
@@ -265,6 +267,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new SubtitleBlock();
   case kShapeGenerator:
     return new ShapeNode();
+  case kColorDifferenceKeyKeying:
+    return new ColorDifferenceKeyNode();
+  case kDespillKeying:
+    return new DespillNode();
   case kGroupNode:
     return new NodeGroup();
   case kOpacityEffect:
