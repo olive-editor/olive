@@ -1,9 +1,9 @@
 uniform float waveform_scale;
 
-attribute vec4 a_position;
-attribute vec2 a_texcoord;
+in vec4 a_position;
+in vec2 a_texcoord;
 
-varying vec2 ove_texcoord;
+out vec2 ove_texcoord;
 
 mat4 scale_mat4(vec3 scale) {
     return mat4(

@@ -139,7 +139,10 @@ void FileFunctions::CopyDirectory(const QString &source, const QString &dest, bo
     } else {
       // Copy file
       if (overwrite && QFile::exists(dest_file_path)) {
-        QFile::remove(dest_file_path);
+        QFile file(dest_file_path);
+        file.setPermissions(file.permissions() | QFileDevice::WriteOwner | QFileDevice::WriteUser |
+                            QFileDevice::WriteGroup | QFileDevice::WriteOther);
+        file.remove();
       }
 
       QFile::copy(info.absoluteFilePath(), dest_file_path);
@@ -147,27 +150,10 @@ void FileFunctions::CopyDirectory(const QString &source, const QString &dest, bo
   }
 }
 
-bool FileFunctions::DirectoryIsValid(const QString &dir, bool try_to_create)
+bool FileFunctions::DirectoryIsValid(const QDir &d, bool try_to_create_if_not_exists)
 {
-  // Empty string is invalid
-  if (dir.isEmpty()) {
-    return false;
-  }
-
-  QDir d(dir);
-
-  // If directory already exists, this is valid
-  if (d.exists()) {
-    return true;
-  }
-
-  // If we can create and creation is successful, this is valid
-  if (try_to_create && d.mkpath(".")) {
-    return true;
-  }
-
-  // Otherwise, invalid
-  return false;
+  // Return whether the directory exists, or whether it could be created if it doesn't
+  return d.exists() || d.mkpath(QStringLiteral("."));
 }
 
 QString FileFunctions::EnsureFilenameExtension(QString fn, const QString &extension)

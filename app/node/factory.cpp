@@ -41,8 +41,9 @@
 #include "generator/polygon/polygon.h"
 #include "generator/shape/shapenode.h"
 #include "generator/solid/solid.h"
-#include "generator/text/text.h"
-#include "generator/text/textlegacy.h"
+#include "generator/text/textv1.h"
+#include "generator/text/textv2.h"
+#include "generator/text/textv3.h"
 #include "filter/blur/blur.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
@@ -51,6 +52,8 @@
 #include "math/math/math.h"
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
+#include "keying/colordifferencekey/colordifferencekey.h"
+#include "keying/despill/despill.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
@@ -74,7 +77,8 @@ void NodeFactory::Initialize()
     library_.append(created_node);
   }
 
-  hidden_.append(kTextGeneratorLegacy);
+  hidden_.append(kTextGeneratorV1);
+  hidden_.append(kTextGeneratorV2);
   hidden_.append(kGroupNode);
 }
 
@@ -231,10 +235,12 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MergeNode();
   case kStrokeFilter:
     return new StrokeFilterNode();
-  case kTextGeneratorLegacy:
-    return new TextGeneratorLegacy();
-  case kTextGenerator:
-    return new TextGenerator();
+  case kTextGeneratorV1:
+    return new TextGeneratorV1();
+  case kTextGeneratorV2:
+    return new TextGeneratorV2();
+  case kTextGeneratorV3:
+    return new TextGeneratorV3();
   case kCrossDissolveTransition:
     return new CrossDissolveTransition();
   case kDipToColorTransition:
@@ -257,6 +263,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new SubtitleBlock();
   case kShapeGenerator:
     return new ShapeNode();
+  case kColorDifferenceKeyKeying:
+    return new ColorDifferenceKeyNode();
+  case kDespillKeying:
+    return new DespillNode();
   case kGroupNode:
     return new NodeGroup();
   case kOpacityEffect:

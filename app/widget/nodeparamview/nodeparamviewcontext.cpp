@@ -45,28 +45,61 @@ NodeParamViewContext::NodeParamViewContext(QWidget *parent) :
   connect(title_bar(), &NodeParamViewItemTitleBar::AddEffectButtonClicked, this, &NodeParamViewContext::AddEffectButtonClicked);
 }
 
+NodeParamViewItem *NodeParamViewContext::GetItem(Node *node, Node *ctx)
+{
+  for (auto it=items_.begin(); it!=items_.end(); it++) {
+    NodeParamViewItem *item = *it;
+
+    if (item->GetNode() == node && item->GetContext() == ctx) {
+      return item;
+    }
+  }
+
+  return nullptr;
+}
+
 void NodeParamViewContext::AddNode(NodeParamViewItem *item)
 {
-  items_.insert(item->GetNode(), item);
+  items_.append(item);
   dock_area_->AddItem(item);
 }
 
-void NodeParamViewContext::RemoveNode(Node *node)
+void NodeParamViewContext::RemoveNode(Node *node, Node *ctx)
 {
+  for (auto it=items_.begin(); it!=items_.end(); ) {
+    NodeParamViewItem *item = *it;
+
+    if (item->GetNode() == node && item->GetContext() == ctx) {
+      emit AboutToDeleteItem(item);
+      delete item;
+      it = items_.erase(it);
+    } else {
+      it++;
+    }
+  }
 }
 
-void NodeParamViewContext::Clear()
+void NodeParamViewContext::RemoveNodesWithContext(Node *ctx)
 {
-  qDeleteAll(items_);
-  items_.clear();
+  for (auto it=items_.begin(); it!=items_.end(); ) {
+    NodeParamViewItem *item = *it;
 
-  contexts_.clear();
+    if (item->GetContext() == ctx) {
+      emit AboutToDeleteItem(item);
+      delete item;
+      it = items_.erase(it);
+    } else {
+      it++;
+    }
+  }
 }
 
 void NodeParamViewContext::SetInputChecked(const NodeInput &input, bool e)
 {
-  if (NodeParamViewItem *item = items_.value(input.node())) {
-    item->SetInputChecked(input, e);
+  foreach (NodeParamViewItem *item, items_) {
+    if (item->GetNode() == input.node()) {
+      item->SetInputChecked(input, e);
+    }
   }
 }
 

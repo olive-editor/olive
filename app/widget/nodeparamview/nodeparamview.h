@@ -45,16 +45,6 @@ public:
 
   virtual ~NodeParamView() override;
 
-  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
-  {
-    create_checkboxes_ = e;
-  }
-
-  bool IsInputChecked(const NodeInput &input) const
-  {
-    return input_checked_.value(input);
-  }
-
   void CloseContextsBelongingToProject(Project *p);
 
   Node* GetTimeTarget() const;
@@ -71,11 +61,6 @@ public:
     keyframe_view_->DeselectAll();
   }
 
-  void SetIgnoreNodeFlags(bool e)
-  {
-    ignore_flags_ = e;
-  }
-
   void SelectNodes(const QVector<Node*> &nodes);
   void DeselectNodes(const QVector<Node*> &nodes);
 
@@ -85,8 +70,6 @@ public:
   }
 
 public slots:
-  void SetInputChecked(const NodeInput &input, bool e);
-
   void SetContexts(const QVector<Node*> &contexts);
 
   void UpdateElementY();
@@ -110,11 +93,22 @@ private:
 
   void QueueKeyframePositionUpdate();
 
-  void AddNode(Node* n, NodeParamViewContext *context);
+  void AddContext(Node *context);
+
+  void RemoveContext(Node *context);
+
+  void AddNode(Node* n, Node *ctx, NodeParamViewContext *context);
+
+  void RemoveNode(Node *n, Node *ctx);
 
   void SortItemsInContext(NodeParamViewContext *context);
 
   NodeParamViewContext *GetContextItemFromContext(Node *context);
+
+  bool IsGroupMode() const
+  {
+    return contexts_.size() == 1 && dynamic_cast<NodeGroup*>(contexts_.first());
+  }
 
   KeyframeView* keyframe_view_;
 
@@ -136,15 +130,10 @@ private:
 
   NodeParamViewItem* focused_node_;
 
-  NodeParamViewCheckBoxBehavior create_checkboxes_;
-
   Node *time_target_;
 
-  QHash<NodeInput, bool> input_checked_;
-
-  bool ignore_flags_;
-
   QVector<Node*> contexts_;
+  QVector<Node*> current_contexts_;
 
 private slots:
   void UpdateGlobalScrollBar();
@@ -156,6 +145,18 @@ private slots:
   void KeyframeViewDragged(int x, int y);
 
   void NodeAddedToContext(Node *n);
+
+  void NodeRemovedFromContext(Node *n);
+
+  void InputCheckBoxChanged(const NodeInput &input, bool e);
+
+  void GroupInputPassthroughAdded(olive::NodeGroup *group, const olive::NodeInput &input);
+
+  void GroupInputPassthroughRemoved(olive::NodeGroup *group, const olive::NodeInput &input);
+
+  void UpdateContexts();
+
+  void ItemAboutToBeRemoved(NodeParamViewItem *item);
 
 };
 

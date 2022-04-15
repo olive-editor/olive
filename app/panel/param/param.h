@@ -43,16 +43,6 @@ public:
     return GetParamView()->GetContexts();
   }
 
-  void SetCreateCheckBoxes(NodeParamViewCheckBoxBehavior e)
-  {
-    GetParamView()->SetCreateCheckBoxes(e);
-  }
-
-  void SetIgnoreNodeFlags(bool e)
-  {
-    GetParamView()->SetIgnoreNodeFlags(e);
-  }
-
   void CloseContextsBelongingToProject(Project *p)
   {
     GetParamView()->CloseContextsBelongingToProject(p);

@@ -65,6 +65,13 @@ QIcon icon::TriUp;
 QIcon icon::TriLeft;
 QIcon icon::TriDown;
 QIcon icon::TriRight;
+QIcon icon::TextBold;
+QIcon icon::TextItalic;
+QIcon icon::TextUnderline;
+QIcon icon::TextAlignLeft;
+QIcon icon::TextAlignRight;
+QIcon icon::TextAlignCenter;
+QIcon icon::TextAlignJustify;
 QIcon icon::Snapping;
 QIcon icon::ZoomIn;
 QIcon icon::ZoomOut;
@@ -77,6 +84,10 @@ QIcon icon::Diamond;
 QIcon icon::Plus;
 QIcon icon::Minus;
 QIcon icon::AddEffect;
+QIcon icon::EyeOpened;
+QIcon icon::EyeClosed;
+QIcon icon::LockOpened;
+QIcon icon::LockClosed;
 
 void icon::LoadAll(const QString& theme)
 {
@@ -119,6 +130,14 @@ void icon::LoadAll(const QString& theme)
   TriDown = Create(theme, "tri-down");
   TriRight = Create(theme, "tri-right");
 
+  TextBold = Create(theme, "text-bold");
+  TextItalic = Create(theme, "text-italic");
+  TextUnderline = Create(theme, "text-underline");
+  TextAlignLeft = Create(theme, "align-left");
+  TextAlignRight = Create(theme, "align-right");
+  TextAlignCenter = Create(theme, "align-center");
+  TextAlignJustify = Create(theme, "align-justify-all");
+
   Snapping = Create(theme, "magnet");
   ZoomIn = Create(theme, "zoomin");
   ZoomOut = Create(theme, "zoomout");
@@ -131,6 +150,11 @@ void icon::LoadAll(const QString& theme)
   Plus = Create(theme, "plus");
   Minus = Create(theme, "minus");
   AddEffect = Create(theme, "add-effect");
+
+  EyeOpened = Create(theme, "eye-opened");
+  EyeClosed = Create(theme, "eye-closed");
+  LockOpened = Create(theme, "lock-opened");
+  LockClosed = Create(theme, "lock-closed");
 }
 
 QIcon icon::Create(const QString& theme, const QString &name)

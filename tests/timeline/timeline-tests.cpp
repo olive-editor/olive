@@ -33,6 +33,7 @@
 namespace olive {
 
 #define TIMELINE_TEST_START \
+  ColorManager::SetUpDefaultConfig(); \
   Project project; \
   Sequence sequence; \
   sequence.setParent(&project)

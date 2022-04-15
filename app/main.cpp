@@ -190,9 +190,8 @@ int main(int argc, char *argv[])
   //
   // https://bugreports.qt.io/browse/QTBUG-46140
   QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-  format.setVersion(2, 0);
+  format.setVersion(3, 2);
   format.setProfile(QSurfaceFormat::CoreProfile);
-  format.setOption(QSurfaceFormat::DeprecatedFunctions);
 
   format.setDepthBufferSize(24);
   QSurfaceFormat::setDefaultFormat(format);

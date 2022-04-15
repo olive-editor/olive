@@ -312,9 +312,11 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
                   packed = tp.Pull();
                   tp.Close();
 
-                  PlanarProcessor planar;
-                  planar.Open(samples_from_this_block->audio_params());
-                  samples_from_this_block = planar.Convert(packed);
+                  if (!packed.isEmpty()) {
+                    PlanarProcessor planar;
+                    planar.Open(samples_from_this_block->audio_params());
+                    samples_from_this_block = planar.Convert(packed);
+                  }
                 }
               } else {
                 // Multiply time
@@ -581,6 +583,15 @@ TexturePtr RenderProcessor::ProcessFrameGeneration(const Node *node, const Gener
   TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(),
                                                   frame->data(),
                                                   frame->linesize_pixels());
+
+  if (!job.GetColorspace().isEmpty()) {
+    // Convert to reference space
+    TexturePtr dest = render_ctx_->CreateTexture(GetCacheVideoParams());
+    ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+    ColorProcessorPtr cp = ColorProcessor::Create(color_manager, job.GetColorspace(), color_manager->GetReferenceColorSpace());
+    render_ctx_->BlitColorManaged(cp, texture, Renderer::kAlphaAssociated, dest.get());
+    texture = dest;
+  }
 
   return texture;
 }

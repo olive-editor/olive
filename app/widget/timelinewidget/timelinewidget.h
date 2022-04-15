@@ -322,6 +322,8 @@ private:
 
   MultiUndoCommand *subtitle_show_command_;
 
+  QTimer *signal_block_change_timer_;
+
   class SetSplitterSizesCommand : public UndoCommand
   {
   public:

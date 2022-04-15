@@ -7,7 +7,7 @@
 # Price, Nick Shaw, and Timothy
 # Lottes.
 
-ocio_profile_version: 1
+ocio_profile_version: 2
 
 search_path: "luts:looks"
 strictparsing: true
@@ -16,7 +16,7 @@ luma: [0.2126, 0.7152, 0.0722]
 description: A filmlike dynamic range encoding set for Blender
 
 roles:
-  default: Linear
+  default: sRGB OETF
   reference: Linear
   scene_linear: Linear
   data: Non-Colour Data
@@ -28,6 +28,7 @@ roles:
   color_picking: sRGB OETF
   texture_paint: sRGB OETF
   matte_paint: Filmic Log Encoding
+  cie_xyz_d65_interchange: CIE-XYZ D65
 
 displays:
   sRGB:
@@ -49,6 +50,8 @@ displays:
 active_displays: [sRGB, BT.1886, Apple Display P3, None]
 #active_views: [Filmic Log Encoding Base, sRGB OETF, Non-Colour Data, Linear Raw, No View]
 
+inactive_colorspaces: [CIE-XYZ D65]
+
 colorspaces:
   - !<ColorSpace>
     name: Linear
@@ -60,6 +63,20 @@ colorspaces:
     isdata: false
     allocation: lg2
     allocationvars: [-12.4739311883, 12.5260688117, 0.00392156862]
+
+  - !<ColorSpace>
+    name: CIE-XYZ D65
+    family: display
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Linear CIE XYZ space with D65 white point
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.4739311883, 12.5260688117, 0.00392156862]
+    to_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [0.4124,  0.3576,  0.1805, 0, 0.2126,  0.7152,  0.0722, 0, 0.0193,  0.1192,  0.9505, 0, 0, 0, 0, 1], direction: inverse}
 
   - !<ColorSpace>
     name: Filmic Log Encoding
@@ -247,6 +264,22 @@ colorspaces:
       children:
         - !<FileTransform> {src: V3_LogC_400_to_linear.spi1d, interpolation: linear}
         - !<MatrixTransform> {matrix: [1.617523, -0.537287, -0.080237, 0, -0.070573, 1.334613, -0.26404, 0, -0.021102, -0.226954, 1.248056, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Blackmagic Film Wide Gamut (Gen 5)
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Blackmagic Film Wide Gamut (Gen 5)
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: Blackmagic_FilmWideGamut_Gen5_to_linear.spi1d, interpolation: linear}
+        - !<MatrixTransform> {matrix: [0.606530, 0.220408, 0.123479, 0, 0.267989, 0.832731, -0.100720, 0, -0.029442, -0.086611, 1.204861, 0, 0, 0, 0, 1]}
+        - !<ColorSpaceTransform> {src: CIE-XYZ D65, dst: reference}
 
   - !<ColorSpace>
     name: Non-Colour Data
