@@ -18,26 +18,43 @@
 
 ***/
 
-#ifndef OCIOUTILS_H
-#define OCIOUTILS_H
+#ifndef OCIOBASENODE_H
+#define OCIOBASENODE_H
 
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE;
-
-#include <QVector4D>
-
-#include "render/videoparams.h"
+#include "node/node.h"
+#include "render/job/colortransformjob.h"
 
 namespace olive {
 
-class OCIOUtils
+class OCIOBaseNode : public Node
 {
+  Q_OBJECT
 public:
-  static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(VideoParams::Format format);
+  OCIOBaseNode();
 
-  static OCIO::GradingRGBM QVec4ToRGBM(const QVector4D &vector);
+  virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
+  static const QString kTextureInput;
+
+protected slots:
+  virtual void ConfigChanged() = 0;
+
+protected:
+  ColorManager *manager() const { return manager_; }
+
+  ColorProcessorPtr processor() const { return processor_; }
+  void set_processor(ColorProcessorPtr p) { processor_ = p; }
+
+private:
+  ColorManager *manager_;
+
+  ColorProcessorPtr processor_;
+
+private slots:
+  void ParentChanged(olive::NodeGraph *graph);
+
 };
 
 }
 
-#endif // OCIOUTILS_H
+#endif // OCIOBASENODE_H

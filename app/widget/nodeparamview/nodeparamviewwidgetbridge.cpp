@@ -90,6 +90,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kShaderJob:
     case NodeValue::kSampleJob:
     case NodeValue::kGenerateJob:
+    case NodeValue::kColorTransformJob:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
     case NodeValue::kDataTypeCount:
@@ -244,6 +245,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kColorTransformJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kDataTypeCount:
@@ -421,6 +423,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kShaderJob:
   case NodeValue::kSampleJob:
   case NodeValue::kGenerateJob:
+  case NodeValue::kColorTransformJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kDataTypeCount:

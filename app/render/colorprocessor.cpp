@@ -25,11 +25,8 @@
 #include "node/color/colormanager/colormanager.h"
 
 namespace olive {
-ColorProcessor::ColorProcessor()
-{
-}
 
-ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform)
+ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform, Direction direction)
 {
   QMutexLocker locker(config->mutex());
 
@@ -44,6 +41,7 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
     display_transform->setSrc(input.toUtf8());
     display_transform->setDisplay(output.toUtf8());
     display_transform->setView(view.toUtf8());
+    display_transform->setDirection(direction == kNormal ? OCIO::TRANSFORM_DIR_FORWARD : OCIO::TRANSFORM_DIR_INVERSE);
 
     OCIO_SET_C_LOCALE_FOR_SCOPE;
 
@@ -73,7 +71,11 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
 
     OCIO_SET_C_LOCALE_FOR_SCOPE;
     try {
-      processor_ = config->GetConfig()->getProcessor(input.toUtf8(), output.toUtf8());
+      if (direction == kNormal) {
+        processor_ = config->GetConfig()->getProcessor(input.toUtf8(), output.toUtf8());
+      } else {
+        processor_ = config->GetConfig()->getProcessor(output.toUtf8(), input.toUtf8());
+      }
     } catch (OCIO::Exception &e) {
       qWarning() << "ColorProcessor exception:" << e.what();
     }
@@ -81,7 +83,12 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
   }
 
   cpu_processor_ = processor_->getDefaultCPUProcessor();
-  id_ = GenerateID(config, input, transform);
+}
+
+ColorProcessor::ColorProcessor(OCIO::ConstProcessorRcPtr processor)
+{
+  processor_ = processor;
+  cpu_processor_ = processor_->getDefaultCPUProcessor();
 }
 
 void ColorProcessor::ConvertFrame(Frame *f)
@@ -115,18 +122,14 @@ Color ColorProcessor::ConvertColor(const Color& in)
   return Color(c[0], c[1], c[2], c[3]);
 }
 
-QString ColorProcessor::GenerateID(ColorManager *config, const QString &input, const ColorTransform &transform)
+ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString& input, const ColorTransform &transform, Direction direction)
 {
-  return QStringLiteral("%1:%2:%3:%4:%5").arg(config->GetConfigFilename(),
-                                              input,
-                                              transform.display(),
-                                              transform.view(),
-                                              transform.look());
+  return std::make_shared<ColorProcessor>(config, input, transform, direction);
 }
 
-ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString& input, const ColorTransform &transform)
+ColorProcessorPtr ColorProcessor::Create(OCIO::ConstProcessorRcPtr processor)
 {
-  return std::make_shared<ColorProcessor>(config, input, transform);
+  return std::make_shared<ColorProcessor>(processor);
 }
 
 OCIO::ConstProcessorRcPtr ColorProcessor::GetProcessor()

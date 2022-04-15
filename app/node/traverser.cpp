@@ -292,7 +292,7 @@ SampleBufferPtr NodeTraverser::ProcessAudioFootage(const FootageJob& stream, con
   return SampleBuffer::Create();
 }
 
-TexturePtr NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, ShaderJob &job)
+TexturePtr NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
 {
   Q_UNUSED(node)
   Q_UNUSED(range)
@@ -302,6 +302,13 @@ TexturePtr NodeTraverser::ProcessShader(const Node *node, const TimeRange &range
   VideoParams tex_params = video_params_;
   tex_params.set_channel_count(GetChannelCountFromJob(job));
   return CreateDummyTexture(tex_params);
+}
+
+TexturePtr NodeTraverser::ProcessColorTransform(const Node *node, const ColorTransformJob &job)
+{
+  Q_UNUSED(node)
+
+  return CreateDummyTexture(job.GetInputTexture()->params());
 }
 
 SampleBufferPtr NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
@@ -366,6 +373,7 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
   QList<NodeValue> shader_jobs_to_run;
   QList<NodeValue> sample_jobs_to_run;
   QList<NodeValue> generate_jobs_to_run;
+  QList<NodeValue> color_transform_jobs_to_run;
 
   for (int i=0; i<output_params.Count(); i++) {
     const NodeValue& v = output_params.at(i);
@@ -379,6 +387,8 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
       take_this_value_list = &sample_jobs_to_run;
     } else if (v.type() == NodeValue::kGenerateJob) {
       take_this_value_list = &generate_jobs_to_run;
+    } else if (v.type() == NodeValue::kColorTransformJob) {
+      take_this_value_list = &color_transform_jobs_to_run;
     }
 
     if (take_this_value_list) {
@@ -408,6 +418,11 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
     // Run shaders
     foreach (const NodeValue& v, shader_jobs_to_run) {
       output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessShader(node, range, v.data().value<ShaderJob>())), node, v.array(), v.tag());
+    }
+
+    // Run color transforms
+    foreach (const NodeValue& v, color_transform_jobs_to_run) {
+      output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessColorTransform(node, v.data().value<ColorTransformJob>())), node, v.array(), v.tag());
     }
 
     // Run generate jobs

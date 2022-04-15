@@ -44,7 +44,7 @@ OCIO::BitDepth OCIOUtils::GetOCIOBitDepthFromPixelFormat(VideoParams::Format for
   return OCIO::BIT_DEPTH_UNKNOWN;
 }
 
-OCIO::GradingRGBM OCIOUtils::QVec4ToRGBM(QVector4D vector)
+OCIO::GradingRGBM OCIOUtils::QVec4ToRGBM(const QVector4D &vector)
 {
     OCIO::GradingRGBM rgbm;
 

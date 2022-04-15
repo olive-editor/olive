@@ -18,26 +18,37 @@
 
 ***/
 
-#ifndef OCIOUTILS_H
-#define OCIOUTILS_H
+#ifndef COLORTRANSFORMJOB_H
+#define COLORTRANSFORMJOB_H
 
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE;
-
-#include <QVector4D>
-
-#include "render/videoparams.h"
+#include "render/colorprocessor.h"
+#include "render/texture.h"
 
 namespace olive {
 
-class OCIOUtils
-{
+class ColorTransformJob {
 public:
-  static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(VideoParams::Format format);
+  ColorTransformJob()
+  {
+    processor_ = nullptr;
+    input_texture_ = nullptr;
+  }
 
-  static OCIO::GradingRGBM QVec4ToRGBM(const QVector4D &vector);
+  TexturePtr GetInputTexture() const { return input_texture_; }
+  void SetInputTexture(TexturePtr tex) { input_texture_ = tex; }
+
+  ColorProcessorPtr GetColorProcessor() const { return processor_; }
+  void SetColorProcessor(ColorProcessorPtr p) { processor_ = p; }
+
+private:
+  ColorProcessorPtr processor_;
+
+  TexturePtr input_texture_;
+
 };
 
 }
 
-#endif // OCIOUTILS_H
+Q_DECLARE_METATYPE(olive::ColorTransformJob)
+
+#endif // COLORTRANSFORMJOB_H

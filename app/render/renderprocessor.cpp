@@ -496,7 +496,7 @@ SampleBufferPtr RenderProcessor::ProcessAudioFootage(const FootageJob &stream, c
   return super::ProcessAudioFootage(stream, input_time);
 }
 
-TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, ShaderJob &job)
+TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
 {
   Q_UNUSED(range)
 
@@ -507,9 +507,10 @@ TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &ran
   QVariant shader = shader_cache_->value(full_shader_id);
 
   if (shader.isNull()) {
-    if (job.UseOCIO()) {
-      render_ctx_->ShaderJobInsertTextures(job.ColorProcessor(), &job, job.ShaderDesc());
-    }
+    // FIXME: Reimplement as color job
+    //if (job.UseOCIO()) {
+    //  render_ctx_->ShaderJobInsertTextures(job.ColorProcessor(), &job, job.ShaderDesc());
+    //}
 
     // Since we have shader code, compile it now
     shader = render_ctx_->CreateNativeShader(node->GetShaderCode(job.GetShaderID()));
@@ -563,6 +564,16 @@ SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRang
   }
 
   return output_buffer;
+}
+
+TexturePtr RenderProcessor::ProcessColorTransform(const Node *node, const ColorTransformJob &job)
+{
+  TexturePtr src = job.GetInputTexture();
+  TexturePtr dest = render_ctx_->CreateTexture(src->params());
+
+  render_ctx_->BlitColorManaged(job.GetColorProcessor(), src, Renderer::kAlphaAssociated, dest.get());
+
+  return dest;
 }
 
 TexturePtr RenderProcessor::ProcessFrameGeneration(const Node *node, const GenerateJob &job)

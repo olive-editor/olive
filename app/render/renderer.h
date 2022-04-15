@@ -63,8 +63,6 @@ public:
     Blit(shader, job, nullptr, params, clear_destination);
   }
 
-  void ShaderJobInsertTextures(ColorProcessorPtr color_processor, ShaderJob* job, OCIO::GpuShaderDescRcPtr shader_desc);
-
   enum AlphaAssociated {
     kAlphaNone,
     kAlphaUnassociated,
@@ -129,12 +127,6 @@ private:
   };
 
   bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx);
-
-  bool GetCustomColorContext(ColorProcessorPtr color_processor, ColorContext* ctx,
-                             OCIO::GpuShaderDescRcPtr shader_desc);
-
-  bool SetupColorContextTextures(ColorContext& color_ctx, OCIO::ConstGpuShaderDescRcPtr shader_desc,
-                                 ColorProcessorPtr color_processor);
 
   void BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
                                 AlphaAssociated source_alpha_association,

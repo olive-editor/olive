@@ -124,6 +124,9 @@ public:
 
   virtual void Retranslate() override;
 
+signals:
+  void ConfigChanged();
+
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 

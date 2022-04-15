@@ -209,6 +209,15 @@ public:
     kGenerateJob,
 
     /**
+     * Job type
+     *
+     * An internal type used to indicate to the renderer that an accelerated color transform job
+     * needs to take place. This value will usually be taken from a table and a kTexture value will
+     * be pushed to take its place.
+     */
+    kColorTransformJob,
+
+    /**
      * End of list
      */
     kDataTypeCount

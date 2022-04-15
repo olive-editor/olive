@@ -86,7 +86,7 @@ SampleBufferPtr HashTraverser::ProcessAudioFootage(const FootageJob &stream, con
   return buf;
 }
 
-TexturePtr HashTraverser::ProcessShader(const Node *node, const TimeRange &range, ShaderJob &job)
+TexturePtr HashTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
 {
   HashGenerateJob(node, &job);
 
@@ -100,6 +100,14 @@ TexturePtr HashTraverser::ProcessShader(const Node *node, const TimeRange &range
   }
 
   TexturePtr texture = super::ProcessShader(node, range, job);
+  texture_ids_.insert(texture.get(), hash_.result());
+  return texture;
+}
+
+TexturePtr HashTraverser::ProcessColorTransform(const Node *node, const ColorTransformJob &job)
+{
+  Hash(job.GetColorProcessor()->id());
+  TexturePtr texture = super::ProcessColorTransform(node, job);
   texture_ids_.insert(texture.get(), hash_.result());
   return texture;
 }
