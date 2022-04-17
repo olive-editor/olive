@@ -139,7 +139,7 @@ rational SeekableWidget::ScreenToTime(int x) const
 
 void SeekableWidget::SeekToScreenPoint(int screen)
 {
-  if (timebase().isNull()) {
+  if (timebase().isNull() || screen < 0) {
     return;
   }
 
