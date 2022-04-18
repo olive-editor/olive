@@ -32,6 +32,26 @@
 
 namespace olive {
 
+namespace  {
+const QString TEMPLATE(
+    "//OVE shader_name: \n"
+    "//OVE shader_description: \n\n"
+    "//OVE name: input\n"
+    "//OVE type: TEXTURE\n"
+    "//OVE flag: NOT_KEYFRAMABLE\n"
+    "//OVE description:\n"
+    "uniform sampler2D texture_in;\n\n"
+    "//OVE end\n\n\n"
+    "// pixel coordinates in range [0..1]x[0..1]\n"
+    "in vec2 ove_texcoord;\n"
+    "// output color\n"
+    "out vec4 frag_color;\n\n"
+    "void main(void) {\n"
+    "   vec4 textureColor = texture2D(texture_in, ove_texcoord);\n"
+    "   frag_color= textureColor;\n"
+    "}\n");
+}
+
 const QString ShaderFilterNode::kShaderCode = QStringLiteral("source");
 const QString ShaderFilterNode::kOutputMessages = QStringLiteral("issues");
 
@@ -40,7 +60,8 @@ ShaderFilterNode::ShaderFilterNode()
 {
   // Full code of the shader. Inputs to be exposed are defined within the shader code
   // with mark-up comments.
-  AddInput(kShaderCode, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kShaderCode, NodeValue::kText, QVariant::fromValue<QString>(TEMPLATE),
+           InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Output messages of shader parser
   AddInput(kOutputMessages, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));

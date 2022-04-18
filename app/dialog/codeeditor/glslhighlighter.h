@@ -88,6 +88,7 @@ private:
   QTextCharFormat multiline_comment_format_;
   QTextCharFormat quotation_format_;
   QTextCharFormat number_format_;
+  QTextCharFormat function_format_;
 
 private:
   void highlightKeywords(const QString &text);

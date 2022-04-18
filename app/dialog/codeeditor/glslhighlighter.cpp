@@ -64,9 +64,10 @@ const QString keywordPatterns[] = {
   QStringLiteral("\\bfor\\b"), QStringLiteral("\\bwhile\\b"), QStringLiteral("\\bstruct\\b"),
   QStringLiteral("\\belse\\b"), QStringLiteral("\\breturn\\b"), QStringLiteral("\\btypedef\\b"),
   QStringLiteral("\\bvolatile\\b"), QStringLiteral("\\bfrag_color\\b"), QStringLiteral("\\bswitch\\b"),
-  QStringLiteral("\\btrue\\b"), QStringLiteral("\\bfalse\\b"), QStringLiteral("\\bstatic\\b"),
-  QStringLiteral("\\bdefault\\b"), QStringLiteral("#define\\b"), QStringLiteral("\\bove_texcoord\\b"),
-  QStringLiteral("\\bin\\b"), QStringLiteral("\\bout\\b"), QStringLiteral("\\bresolution_in\\b")
+  QStringLiteral("\\bcase\\b"), QStringLiteral("\\btrue\\b"), QStringLiteral("\\bfalse\\b"),
+  QStringLiteral("\\bstatic\\b"), QStringLiteral("\\bdefault\\b"), QStringLiteral("#define\\b"),
+  QStringLiteral("\\bove_texcoord\\b"), QStringLiteral("\\bin\\b"), QStringLiteral("\\bout\\b"),
+  QStringLiteral("\\bresolution_in\\b")
 };
 
 const QString typePatterns[] = {
@@ -77,6 +78,17 @@ const QString typePatterns[] = {
   QStringLiteral("\\buniform\\b"), QStringLiteral("\\bvec\\b"),
   QStringLiteral("\\bvec2\\b"), QStringLiteral("\\bvec3\\b"), QStringLiteral("\\bvec4\\b"),
   QStringLiteral("\\bint\\b"), QStringLiteral("\\bsampler2D\\b")
+};
+
+// a small set of built-in functions
+const QString functionPatterns[] = {
+  QStringLiteral("\\bmain\\b"), QStringLiteral("\\btexture2D\\b"), QStringLiteral("\\bfract\\b"),
+  QStringLiteral("\\babs\\b"), QStringLiteral("\\bdot\\b"), QStringLiteral("\\bmix\\b"),
+  QStringLiteral("\\bceil\\b"), QStringLiteral("\\bfloor\\b"), QStringLiteral("\\bclamp\\b"),
+  QStringLiteral("\\bsin\\b"), QStringLiteral("\\bcos\\b"), QStringLiteral("\\btan\\b"),
+  QStringLiteral("\\bexp(2)?\\b"), QStringLiteral("\\blog(2)?\\b"), QStringLiteral("\\b\\b"),
+  QStringLiteral("\\bmin\\b"), QStringLiteral("\\bmax\\b"), QStringLiteral("\\bpow\\b"),
+  QStringLiteral("\\bsqrt\\b")
 };
 
 const QString oliveMarkupPatterns[] = {
@@ -99,6 +111,12 @@ GlslHighlighter::GlslHighlighter(QTextDocument *parent)
   keyword_format_.setForeground(QColor(110,80,110));
   keyword_format_.setFontWeight(QFont::Bold);
 
+  quotation_format_.setForeground(QColor(130,130,80));
+  quotation_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
+  rule.pattern = QRegularExpression(QStringLiteral("\".*\""));
+  rule.format = quotation_format_;
+  highlighting_rules_.append(rule);
+
   for (const QString &pattern : keywordPatterns) {
     rule.pattern = QRegularExpression(pattern);
     rule.format = keyword_format_;
@@ -113,6 +131,14 @@ GlslHighlighter::GlslHighlighter(QTextDocument *parent)
     highlighting_rules_.append(rule);
   }
 
+  function_format_.setForeground(QColor(120,110,30));
+
+  for (const QString &pattern : functionPatterns) {
+    rule.pattern = QRegularExpression(pattern);
+    rule.format = function_format_;
+    highlighting_rules_.append(rule);
+  }
+
   number_format_.setForeground(QColor(120,110,60));
   rule.format = type_format_;
   // decimal or float
@@ -121,6 +147,9 @@ GlslHighlighter::GlslHighlighter(QTextDocument *parent)
   // hex
   rule.pattern = QRegularExpression("\\b0[xX][0-9A-Fa-f]+\\b");
   highlighting_rules_.append(rule);
+
+  comment_start_expression_ = QRegularExpression(QStringLiteral("/\\*"));
+  comment_end_expression_ = QRegularExpression(QStringLiteral("\\*/"));
 
   single_line_comment_format_.setForeground(QColor(60,180,80));
   single_line_comment_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
@@ -138,15 +167,6 @@ GlslHighlighter::GlslHighlighter(QTextDocument *parent)
 
   multiline_comment_format_.setForeground(QColor(60,180,80));
   multiline_comment_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
-
-  quotation_format_.setForeground(QColor(130,130,80));
-  quotation_format_.setProperty( IS_NON_PARSABLE, QVariant::fromValue<bool>(true));
-  rule.pattern = QRegularExpression(QStringLiteral("\".*\""));
-  rule.format = quotation_format_;
-  highlighting_rules_.append(rule);
-
-  comment_start_expression_ = QRegularExpression(QStringLiteral("/\\*"));
-  comment_end_expression_ = QRegularExpression(QStringLiteral("\\*/"));
 }
 
 
