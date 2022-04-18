@@ -76,6 +76,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   timecode_label_->SetAlignment(Qt::AlignCenter);
   timecode_label_->SetDisplayType(RationalSlider::kTime);
   timecode_label_->setVisible(false);
+  timecode_label_->SetMinimum(0);
   connect(timecode_label_, &RationalSlider::ValueChanged, this, &TimelineWidget::SetTimeAndSignal);
   ruler_and_time_layout->addWidget(timecode_label_);
 
