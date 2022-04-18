@@ -72,7 +72,7 @@ void rational::fix_signs()
 
 void rational::reduce()
 {
-  if (!isNull()) {
+  if (!isNull() && denom_ != 1) {
     // Euclidean often fails if numbers are negative, we abs it and re-neg it later if necessary
     bool neg = numer_ < 0;
 
