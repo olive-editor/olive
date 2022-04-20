@@ -1011,6 +1011,7 @@ void NodeView::CopyNodesToClipboardCallback(const QVector<Node*> &nodes, Project
       properties[n][QStringLiteral("x")] = QString::number(pos.position.x());
       properties[n][QStringLiteral("y")] = QString::number(pos.position.y());
       properties[n][QStringLiteral("expanded")] = QString::number(pos.expanded);
+      properties[n][QStringLiteral("type")] = QString("TypeNodeView");
     }
   }
 
@@ -1020,6 +1021,13 @@ void NodeView::CopyNodesToClipboardCallback(const QVector<Node*> &nodes, Project
 void NodeView::PasteNodesToClipboardCallback(const QVector<Node *> &nodes, const ProjectSerializer::LoadData &ldata, void *userdata)
 {
   Node::PositionMap map;
+
+  // Ensure that the data that wants to be pasted is supported here
+  for (const auto &n : ldata.properties) {
+    if (n.value(QStringLiteral("type")) != QStringLiteral("TypeNodeView")) {
+      return;
+    }
+  }
 
   for (auto it=ldata.properties.cbegin(); it!=ldata.properties.cend(); it++) {
     Node::Position pos;

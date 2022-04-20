@@ -325,6 +325,7 @@ void TimelineWidget::CopyNodesToClipboardCallback(const QVector<Node *> &nodes, 
   foreach (Block* block, selected) {
     properties[block][QStringLiteral("in")] = (block->in() - earliest_in).toString();
     properties[block][QStringLiteral("track")] = block->track()->ToReference().ToString();
+    properties[block][QStringLiteral("type")] = QString("TypeTimelineWidget");
   }
 
   sdata->SetProperties(properties);
@@ -333,6 +334,13 @@ void TimelineWidget::CopyNodesToClipboardCallback(const QVector<Node *> &nodes, 
 void TimelineWidget::PasteNodesToClipboardCallback(const QVector<Node *> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata)
 {
   bool insert = *(bool*)userdata;
+
+  // Ensure that the data that wants to be pasted is supported here
+  for (const auto &n : load_data.properties) {
+    if (n.value(QStringLiteral("type")) != QStringLiteral("TypeTimelineWidget")) {
+      return;
+    }
+  }
 
   MultiUndoCommand *command = new MultiUndoCommand();
 
