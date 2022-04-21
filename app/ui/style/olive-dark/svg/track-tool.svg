@@ -73,8 +73,8 @@
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1"
-     bordercolor="#212121"
-     pagecolor="#ffffff"
+     bordercolor="#ffffff"
+     pagecolor="#000000"
      id="base"
      fill="#729fcf"
      inkscape:window-maximized="0"
@@ -92,13 +92,13 @@
      inkscape:lockguides="true"
      guidecolor="#ff0000"
      guideopacity="0.30196078"
-     inkscape:deskcolor="#d1d1d1">
+     inkscape:deskcolor="#000000">
     <inkscape:grid
        type="xygrid"
        id="grid_pixels"
-       color="#000000"
+       color="#ffffff"
        opacity="0.05098039"
-       empcolor="#000000"
+       empcolor="#ffffff"
        empopacity="0.10196078"
        dotted="false"
        empspacing="8"
@@ -178,7 +178,7 @@
      id="layer1"
      transform="translate(0,16)">
     <rect
-       style="fill:#212121;fill-opacity:0.86274511;stroke-width:10;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#000000"
+       style="fill:#ffffff;fill-opacity:0.86274511;stroke-width:10;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#ffffff"
        id="rect28570"
        width="46"
        height="16"
@@ -187,7 +187,7 @@
        ry="3"
        rx="3" />
     <rect
-       style="fill:#212121;fill-opacity:0.86274511;stroke-width:10;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#000000"
+       style="fill:#ffffff;fill-opacity:0.86274511;stroke-width:10;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#ffffff"
        id="rect28644"
        width="46"
        height="16"
@@ -196,7 +196,7 @@
        ry="3"
        rx="3" />
     <rect
-       style="fill:#212121;fill-opacity:0.86274511;stroke-width:10;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#000000"
+       style="fill:#ffffff;fill-opacity:0.86274511;stroke-width:10;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#ffffff"
        id="rect28646"
        width="30"
        height="16"
