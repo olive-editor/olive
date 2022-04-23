@@ -88,7 +88,8 @@ const QString functionPatterns[] = {
   QStringLiteral("\\bsin\\b"), QStringLiteral("\\bcos\\b"), QStringLiteral("\\btan\\b"),
   QStringLiteral("\\bexp(2)?\\b"), QStringLiteral("\\blog(2)?\\b"), QStringLiteral("\\b\\b"),
   QStringLiteral("\\bmin\\b"), QStringLiteral("\\bmax\\b"), QStringLiteral("\\bpow\\b"),
-  QStringLiteral("\\bsqrt\\b")
+  QStringLiteral("\\bsqrt\\b"), QStringLiteral("\\bstep\\b"), QStringLiteral("\\bsmoothstep\\b"),
+  QStringLiteral("\\bdistance\\b")
 };
 
 const QString oliveMarkupPatterns[] = {

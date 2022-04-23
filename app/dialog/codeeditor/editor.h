@@ -68,6 +68,7 @@ private:
   void matchParenthesis();
   int countTrailingSpaces( int block_position);
   void createParenthesisSelection(int pos, Qt::GlobalColor color);
+  bool findNext(const QString &text, QTextDocument::FindFlags flags);
 
 private:
   QWidget * m_lineNumberArea;
