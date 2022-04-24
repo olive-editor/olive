@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(chromakey)
-add_subdirectory(colordifferencekey)
-add_subdirectory(despill)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/keying/chromakey/chromakey.h
+  node/keying/chromakey/chromakey.cpp
   PARENT_SCOPE
 )

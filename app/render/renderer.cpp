@@ -57,6 +57,11 @@ void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr so
   BlitColorManagedInternal(color_processor, source, source_alpha_association, destination, destination->params(), clear_destination, matrix, crop_matrix);
 }
 
+void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, Texture* destination, QString shader_path, bool clear_destination, const QMatrix4x4& matrix, const QMatrix4x4 &crop_matrix)
+{
+  BlitColorManagedInternal(color_processor, source, source_alpha_association, destination, destination->params(), clear_destination, matrix, crop_matrix, shader_path);
+}
+
 void Renderer::BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, VideoParams params, bool clear_destination, const QMatrix4x4& matrix, const QMatrix4x4 &crop_matrix)
 {
   BlitColorManagedInternal(color_processor, source, source_alpha_association, nullptr, params, clear_destination, matrix, crop_matrix);
@@ -103,7 +108,7 @@ TexturePtr Renderer::CreateTextureFromNativeHandle(const QVariant &v, const Vide
   return std::make_shared<Texture>(this, v, params, type);
 }
 
-bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::ColorContext *ctx)
+bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::ColorContext *ctx, QString shader_path)
 {
   QMutexLocker locker(&color_cache_mutex_);
 
@@ -123,11 +128,16 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
     // Generate shader
     color_processor->GetProcessor()->getDefaultGPUProcessor()->extractGpuShaderInfo(shader_desc);
 
-    // Generate shader code using OCIO stub and our auto-generated name
-    QString shader_frag = FileFunctions::ReadFileAsString(QStringLiteral(":shaders/colormanage.frag")).arg(
-          shader_desc->getShaderText(),
-          ocio_func_name
-    );
+    QString shader_frag;
+    if (shader_path.isEmpty()) {
+      // Generate shader code using OCIO stub and our auto-generated name
+      shader_frag = FileFunctions::ReadFileAsString(QStringLiteral(":shaders/colormanage.frag"))
+                        .arg(shader_desc->getShaderText(), ocio_func_name);
+    } else {
+      // FIXME: Currently only supports a single function
+      shader_frag = FileFunctions::ReadFileAsString(shader_path)
+                        .arg(shader_desc->getShaderText(), ocio_func_name);
+    }
 
     // Try to compile shader
     color_ctx.compiled_shader = CreateNativeShader(ShaderCode(shader_frag,
@@ -208,10 +218,10 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
 void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
                                         AlphaAssociated source_alpha_association, Texture *destination,
                                         VideoParams params, bool clear_destination, const QMatrix4x4& matrix,
-                                        const QMatrix4x4& crop_matrix)
+                                        const QMatrix4x4& crop_matrix, const QString shader_path)
 {
   ColorContext color_ctx;
-  if (!GetColorContext(color_processor, &color_ctx)) {
+  if (!GetColorContext(color_processor, &color_ctx, shader_path)) {
     return;
   }
 

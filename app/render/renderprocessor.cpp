@@ -571,7 +571,7 @@ TexturePtr RenderProcessor::ProcessColorTransform(const Node *node, const ColorT
   TexturePtr src = job.GetInputTexture();
   TexturePtr dest = render_ctx_->CreateTexture(src->params());
 
-  render_ctx_->BlitColorManaged(job.GetColorProcessor(), src, Renderer::kAlphaAssociated, dest.get());
+  render_ctx_->BlitColorManaged(job.GetColorProcessor(), src, Renderer::kAlphaAssociated, dest.get(), job.GetShaderPath());
 
   return dest;
 }

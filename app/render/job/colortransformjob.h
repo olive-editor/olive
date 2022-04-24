@@ -21,6 +21,8 @@
 #ifndef COLORTRANSFORMJOB_H
 #define COLORTRANSFORMJOB_H
 
+#include <QString>
+
 #include "render/colorprocessor.h"
 #include "render/texture.h"
 
@@ -40,10 +42,15 @@ public:
   ColorProcessorPtr GetColorProcessor() const { return processor_; }
   void SetColorProcessor(ColorProcessorPtr p) { processor_ = p; }
 
+  QString GetShaderPath() const { return shader_path_; }
+  void SetShaderPath(const QString shader_path) { shader_path_ = shader_path; }
+
 private:
   ColorProcessorPtr processor_;
 
   TexturePtr input_texture_;
+
+  QString shader_path_;
 
 };
 

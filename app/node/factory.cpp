@@ -54,6 +54,7 @@
 #include "math/trigonometry/trigonometry.h"
 #include "keying/colordifferencekey/colordifferencekey.h"
 #include "keying/despill/despill.h"
+#include "keying/chromakey/chromakey.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
@@ -283,6 +284,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new DisplayTransformNode();
   case kOCIOGradingTransform:
     return new OCIOGradingTransformNode();
+  case kChromaKey:
+    return new ChromaKeyNode();
 
   case kInternalNodeCount:
     break;

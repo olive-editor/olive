@@ -72,6 +72,7 @@ public:
     kCornerPinDistort,
     kDisplayTransform,
     kOCIOGradingTransform,
+    kChromaKey,
 
     // Count value
     kInternalNodeCount

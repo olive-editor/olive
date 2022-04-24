@@ -70,6 +70,7 @@ public:
   };
 
   void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, Texture* destination, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
+  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, Texture* destination, QString shader_path, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
   void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, VideoParams params, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
 
   TexturePtr InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params);
@@ -126,12 +127,12 @@ private:
 
   };
 
-  bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx);
+  bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx, const QString shader_path);
 
   void BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
                                 AlphaAssociated source_alpha_association,
                                 Texture* destination, VideoParams params, bool clear_destination,
-                                const QMatrix4x4 &matrix, const QMatrix4x4 &crop_matrix);
+                                const QMatrix4x4 &matrix, const QMatrix4x4 &crop_matrix, const QString shader_path = QString());
 
   QHash<QString, ColorContext> color_cache_;
 
