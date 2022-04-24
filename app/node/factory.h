@@ -71,7 +71,7 @@ public:
     kTimeOffsetNode,
     kCornerPinDistort,
     kDisplayTransform,
-    kOCIOGradingTransform,
+    kOCIOGradingTransformLinear,
     kChromaKey,
 
     // Count value

@@ -226,8 +226,12 @@ void Renderer::BlitColorManagedInternal(ColorProcessorPtr color_processor, Textu
   }
 
   ShaderJob job;
-
-  job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(source)));
+  if (shader_path.isEmpty()) {
+    job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(source)));
+  } else {
+    // If we are using a custom shader in a node use "tex_in" for consistency
+    job.InsertValue(QStringLiteral("tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(source)));
+  }
   job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
   job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix.inverted()));
   job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, source_alpha_association));

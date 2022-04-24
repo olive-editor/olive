@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/color/ociogradingtransform/ociogradingtransform.cpp
-  node/color/ociogradingtransform/ociogradingtransform.h
+  node/color/ociogradingtransformlinear/ociogradingtransformlinear.cpp
+  node/color/ociogradingtransformlinear/ociogradingtransformlinear.h
   PARENT_SCOPE
 )

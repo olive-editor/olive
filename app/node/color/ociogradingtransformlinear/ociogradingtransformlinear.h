@@ -18,22 +18,22 @@
 
 ***/
 
-#ifndef OCIOGRADINGTRANSFORMNODE_H
-#define OCIOGRADINGTRANSFORMNODE_H
+#ifndef OCIOGRADINGTRANSFORMLINEARNODE_H
+#define OCIOGRADINGTRANSFORMLINEARNODE_H
 
 #include "node/color/ociobase/ociobase.h"
 #include "render/colorprocessor.h"
 
 namespace olive {
 
-class OCIOGradingTransformNode : public OCIOBaseNode
+class OCIOGradingTransformLinearNode : public OCIOBaseNode
 {
   Q_OBJECT
  public:
-  OCIOGradingTransformNode();
+  OCIOGradingTransformLinearNode();
 
-  NODE_DEFAULT_DESTRUCTOR(OCIOGradingTransformNode)
-  NODE_COPY_FUNCTION(OCIOGradingTransformNode)
+  NODE_DEFAULT_DESTRUCTOR(OCIOGradingTransformLinearNode)
+  NODE_COPY_FUNCTION(OCIOGradingTransformLinearNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -42,19 +42,13 @@ class OCIOGradingTransformNode : public OCIOBaseNode
 
   virtual void Retranslate() override;
   virtual void InputValueChangedEvent(const QString &input, int element) override;
+  void GenerateProcessor();
 
-  static const QString kTypeInput;
-  static const QString kBrightnessInput;
   static const QString kContrastInput;
-  static const QString kGammaInput;
   static const QString kOffsetInput;
   static const QString kExposureInput;
-  static const QString kLiftInput;
-  static const QString kGainInput;
   static const QString kSaturationInput;
   static const QString kPivotInput;
-  static const QString kPivotBlackInput;
-  static const QString kPivotWhiteInput;
   static const QString kClampBlackInput;
   static const QString kClampWhiteInput;
 

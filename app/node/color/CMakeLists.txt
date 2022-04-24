@@ -17,7 +17,7 @@
 add_subdirectory(colormanager)
 add_subdirectory(displaytransform)
 add_subdirectory(ociobase)
-add_subdirectory(ociogradingtransform)
+add_subdirectory(ociogradingtransformlinear)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

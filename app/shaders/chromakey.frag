@@ -1,8 +1,12 @@
+// Main texture input
 uniform sampler2D tex_in;
+
+
+// Main texture coordinate
 in vec2 ove_texcoord;
 out vec4 frag_color;
 
-// OCIO shader code
+// Program will replace this with OCIO's auto-generated shader code
 %1
 
 // Assume D65 white point
@@ -19,16 +23,24 @@ float func(float t) {
   }
 }
 
-void main() {
-  vec4 col = texture2D(tex_in, ove_texcoord);
-  vec4 new_col;
-
-  new_col = %2(col);
-
+vec4 CIExyz_to_Lab(vec4 CIE) {
   vec4 lab;
-  lab.r = 116.0 * func(col.g / Yn) - 16.0;
-  lab.g = 500.0 * (func(col.r / Xn) -  func(col.g / Yn));
-  lab.b = 200.0 * (func(col.g / Yn) -  func(col.b / Zn));
-  lab.w = 1.0;
-  frag_color = col;
+  lab.r = 116.0 * func(CIE.g / Yn) - 16.0;
+  lab.g = 500.0 * (func(CIE.r / Xn) -  func(CIE.g / Yn));
+  lab.b = 200.0 * (func(CIE.g / Yn) -  func(CIE.b / Zn));
+  lab.w = CIE.w;
+
+  return lab;
+}
+
+
+void main() {
+
+  vec4 col = texture(tex_in, ove_texcoord);
+
+  // Perform color conversion
+  vec4 cie_xyz = %2(col);
+  vec4 lab = CIExyz_to_Lab(cie_xyz);
+
+  frag_color = vec4(lab.r);
 }
