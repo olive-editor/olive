@@ -41,6 +41,7 @@
 #include "tool/rolling.h"
 #include "tool/slide.h"
 #include "tool/slip.h"
+#include "tool/trackselect.h"
 #include "tool/transition.h"
 #include "tool/zoom.h"
 #include "tool/tool.h"
@@ -59,6 +60,7 @@ namespace olive {
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   super(true, true, parent),
+  NodeCopyPasteService(QStringLiteral("timeline")),
   rubberband_(QRubberBand::Rectangle, this),
   active_tool_(nullptr),
   use_audio_time_units_(false),
@@ -75,6 +77,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   timecode_label_->SetAlignment(Qt::AlignCenter);
   timecode_label_->SetDisplayType(RationalSlider::kTime);
   timecode_label_->setVisible(false);
+  timecode_label_->SetMinimum(0);
   connect(timecode_label_, &RationalSlider::ValueChanged, this, &TimelineWidget::SetTimeAndSignal);
   ruler_and_time_layout->addWidget(timecode_label_);
 
@@ -100,6 +103,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.fill(nullptr);
 
   tools_.replace(olive::Tool::kPointer, new PointerTool(this));
+  tools_.replace(olive::Tool::kTrackSelect, new TrackSelectTool(this));
   tools_.replace(olive::Tool::kEdit, new EditTool(this));
   tools_.replace(olive::Tool::kRipple, new RippleTool(this));
   tools_.replace(olive::Tool::kRolling, new RollingTool(this));
@@ -183,6 +187,14 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineWidget::ToolChanged);
   connect(Core::instance(), &Core::AddableObjectChanged, this, &TimelineWidget::AddableObjectChanged);
+
+  signal_block_change_timer_ = new QTimer(this);
+  signal_block_change_timer_->setInterval(1);
+  signal_block_change_timer_->setSingleShot(true);
+  connect(signal_block_change_timer_, &QTimer::timeout, this, [this]{
+    signal_block_change_timer_->stop();
+    emit BlockSelectionChanged(selected_blocks_);
+  });
 }
 
 TimelineWidget::~TimelineWidget()
@@ -462,7 +474,8 @@ void TimelineWidget::SplitAtPlayhead()
 void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                            bool remove_from_graph,
                                            MultiUndoCommand *command,
-                                           bool handle_transitions)
+                                           bool handle_transitions,
+                                           bool handle_invalidations)
 {
   foreach (Block* b, blocks) {
     if (dynamic_cast<GapBlock*>(b)) {
@@ -473,7 +486,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
     Track* original_track = b->track();
 
-    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b, handle_transitions));
+    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b, handle_transitions, handle_invalidations));
 
     if (remove_from_graph) {
       command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(b));
@@ -495,8 +508,6 @@ void TimelineWidget::DeleteSelected(bool ripple)
     return;
   }
 
-  MultiUndoCommand* command = new MultiUndoCommand();
-
   QVector<Block*> clips_to_delete;
   QVector<TransitionBlock*> transitions_to_delete;
 
@@ -508,16 +519,23 @@ void TimelineWidget::DeleteSelected(bool ripple)
     }
   }
 
+  MultiUndoCommand* command = new MultiUndoCommand();
+
+  // Remove all selections
+  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections()));
+
   // For transitions, remove them but extend their attached blocks to fill their place
   foreach (TransitionBlock* transition, transitions_to_delete) {
-    command->add_child(new TransitionRemoveCommand(transition, true));
+    TransitionRemoveCommand *trc = new TransitionRemoveCommand(transition, true);
+
+    // Perform the transition removal now so that replacing blocks with gaps below won't get confused
+    trc->redo_now();
+
+    command->add_child(trc);
   }
 
   // Replace clips with gaps (effectively deleting them)
-  ReplaceBlocksWithGaps(clips_to_delete, true, command);
-
-  // Remove all selections
-  command->add_child(new SetSelectionsCommand(this, TimelineWidgetSelections(), GetSelections(), false));
+  ReplaceBlocksWithGaps(clips_to_delete, true, command, false, !ripple);
 
   // Insert ripple command now that it's all cleaned up gaps
   TimelineRippleDeleteGapsAtRegionsCommand *ripple_command = nullptr;
@@ -1155,7 +1173,8 @@ void TimelineWidget::SetScrollZoomsByDefaultOnAllViews(bool e)
 
 void TimelineWidget::SignalBlockSelectionChange()
 {
-  emit BlockSelectionChanged(selected_blocks_);
+  signal_block_change_timer_->stop();
+  signal_block_change_timer_->start();
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
@@ -1202,7 +1221,7 @@ void TimelineWidget::NudgeInternal(rational amount)
     // Nudge selections
     TimelineWidgetSelections new_sel = GetSelections();
     new_sel.ShiftTime(amount);
-    command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections(), true));
+    command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections()));
 
     Core::instance()->undo_stack()->push(command);
   }
@@ -1254,7 +1273,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
         it.value().shift(track_adj);
       }
     }
-    command->add_child(new SetSelectionsCommand(this, new_sel, GetSelections(), true));
+    command->add_child(new SetSelectionsCommand(this, new_sel, GetSelections()));
 
     Core::instance()->undo_stack()->push(command);
   }
@@ -1328,7 +1347,7 @@ void TimelineWidget::SignalSelectedBlocks(QVector<Block *> input, bool filter)
 
   selected_blocks_.append(input);
 
-  emit SignalBlockSelectionChange();
+  SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_blocks)
@@ -1341,7 +1360,7 @@ void TimelineWidget::SignalDeselectedBlocks(const QVector<Block *> &deselected_b
     selected_blocks_.removeOne(b);
   }
 
-  emit SignalBlockSelectionChange();
+  SignalBlockSelectionChange();
 }
 
 void TimelineWidget::SignalDeselectedAllBlocks()

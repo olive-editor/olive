@@ -178,8 +178,6 @@ void ProjectSerializer210907::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
       xml_node_data.node_ptrs.insert(reader->readElementText().toULongLong(), node);
     } else if (reader->name() == QStringLiteral("label")) {
       node->SetLabel(reader->readElementText());
-    } else if (reader->name() == QStringLiteral("uuid")) {
-      node->SetUUID(QUuid::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("color")) {
       node->SetOverrideColor(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("links")) {

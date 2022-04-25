@@ -71,6 +71,21 @@ public:
     return GetStandardValue(kReverseInput).toBool();
   }
 
+  void set_reverse(bool e)
+  {
+    SetStandardValue(kReverseInput, e);
+  }
+
+  bool maintain_audio_pitch() const
+  {
+    return GetStandardValue(kMaintainAudioPitchInput).toBool();
+  }
+
+  void set_maintain_audio_pitch(bool e)
+  {
+    SetStandardValue(kMaintainAudioPitchInput, e);
+  }
+
   TransitionBlock* in_transition()
   {
     return in_transition_;
@@ -110,16 +125,15 @@ public:
   static const QString kMediaInInput;
   static const QString kSpeedInput;
   static const QString kReverseInput;
+  static const QString kMaintainAudioPitchInput;
 
 protected:
   virtual void LinkChangeEvent() override;
 
-  virtual void InputValueChangedEvent(const QString &input, int element) override;
-
   virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
-  rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false) const;
+  rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false, bool ignore_speed = false) const;
 
   rational MediaToSequenceTime(const rational& media_time) const;
 

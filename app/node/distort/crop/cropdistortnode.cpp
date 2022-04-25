@@ -20,7 +20,7 @@
 
 #include "cropdistortnode.h"
 
-#include "common/lerp.h"
+#include "common/util.h"
 #include "core.h"
 #include "widget/slider/floatslider.h"
 
@@ -44,6 +44,18 @@ CropDistortNode::CropDistortNode()
 
   AddInput(kFeatherInput, NodeValue::kFloat, 0.0);
   SetInputProperty(kFeatherInput, QStringLiteral("min"), 0.0);
+
+  // Initiate gizmos
+  poly_gizmo_ = AddDraggableGizmo<PolygonGizmo>({kLeftInput, kTopInput, kRightInput, kBottomInput});
+
+  point_gizmo_[kGizmoScaleTopLeft] = AddDraggableGizmo<PointGizmo>({kLeftInput, kTopInput});
+  point_gizmo_[kGizmoScaleTopCenter] = AddDraggableGizmo<PointGizmo>({kTopInput});
+  point_gizmo_[kGizmoScaleTopRight] = AddDraggableGizmo<PointGizmo>({kRightInput, kTopInput});
+  point_gizmo_[kGizmoScaleBottomLeft] = AddDraggableGizmo<PointGizmo>({kLeftInput, kBottomInput});
+  point_gizmo_[kGizmoScaleBottomCenter] = AddDraggableGizmo<PointGizmo>({kBottomInput});
+  point_gizmo_[kGizmoScaleBottomRight] = AddDraggableGizmo<PointGizmo>({kRightInput, kBottomInput});
+  point_gizmo_[kGizmoScaleCenterLeft] = AddDraggableGizmo<PointGizmo>({kLeftInput});
+  point_gizmo_[kGizmoScaleCenterRight] = AddDraggableGizmo<PointGizmo>({kRightInput});
 }
 
 void CropDistortNode::Retranslate()
@@ -81,166 +93,50 @@ ShaderCode CropDistortNode::GetShaderCode(const QString &shader_id) const
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
 }
 
-void CropDistortNode::DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p)
+void CropDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
   const QVector2D &resolution = globals.resolution();
-
-  const double handle_radius = GetGizmoHandleRadius(p->transform());
-
-  p->setPen(QPen(Qt::white, 0));
 
   double left_pt = resolution.x() * row[kLeftInput].data().toDouble();
   double top_pt = resolution.y() * row[kTopInput].data().toDouble();
   double right_pt = resolution.x() * (1.0 - row[kRightInput].data().toDouble());
   double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].data().toDouble());
-  double center_x_pt = lerp(left_pt, right_pt, 0.5);
-  double center_y_pt = lerp(top_pt, bottom_pt, 0.5);
+  double center_x_pt = mid(left_pt, right_pt);
+  double center_y_pt = mid(top_pt, bottom_pt);
 
-  gizmo_whole_rect_ = QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt);
-  p->drawRect(gizmo_whole_rect_);
+  point_gizmo_[kGizmoScaleTopLeft]->SetPoint(QPointF(left_pt, top_pt));
+  point_gizmo_[kGizmoScaleTopCenter]->SetPoint(QPointF(center_x_pt, top_pt));
+  point_gizmo_[kGizmoScaleTopRight]->SetPoint(QPointF(right_pt, top_pt));
+  point_gizmo_[kGizmoScaleBottomLeft]->SetPoint(QPointF(left_pt, bottom_pt));
+  point_gizmo_[kGizmoScaleBottomCenter]->SetPoint(QPointF(center_x_pt, bottom_pt));
+  point_gizmo_[kGizmoScaleBottomRight]->SetPoint(QPointF(right_pt, bottom_pt));
+  point_gizmo_[kGizmoScaleCenterLeft]->SetPoint(QPointF(left_pt, center_y_pt));
+  point_gizmo_[kGizmoScaleCenterRight]->SetPoint(QPointF(right_pt, center_y_pt));
 
-  gizmo_resize_handle_[kGizmoScaleTopLeft] = CreateGizmoHandleRect(QPointF(left_pt, top_pt), handle_radius);
-  gizmo_resize_handle_[kGizmoScaleTopCenter] = CreateGizmoHandleRect(QPointF(center_x_pt, top_pt), handle_radius);
-  gizmo_resize_handle_[kGizmoScaleTopRight] = CreateGizmoHandleRect(QPointF(right_pt, top_pt), handle_radius);
-  gizmo_resize_handle_[kGizmoScaleBottomLeft] = CreateGizmoHandleRect(QPointF(left_pt, bottom_pt), handle_radius);
-  gizmo_resize_handle_[kGizmoScaleBottomCenter] = CreateGizmoHandleRect(QPointF(center_x_pt, bottom_pt), handle_radius);
-  gizmo_resize_handle_[kGizmoScaleBottomRight] = CreateGizmoHandleRect(QPointF(right_pt, bottom_pt), handle_radius);
-  gizmo_resize_handle_[kGizmoScaleCenterLeft] = CreateGizmoHandleRect(QPointF(left_pt, center_y_pt), handle_radius);
-  gizmo_resize_handle_[kGizmoScaleCenterRight] = CreateGizmoHandleRect(QPointF(right_pt, center_y_pt), handle_radius);
-
-  p->setPen(Qt::NoPen);
-  p->setBrush(Qt::white);
-  DrawAndExpandGizmoHandles(p, handle_radius, gizmo_resize_handle_, kGizmoScaleCount);
+  poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
 }
 
-bool CropDistortNode::GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p)
+void CropDistortNode::GizmoDragMove(double x_diff, double y_diff, const Qt::KeyboardModifiers &modifiers)
 {
-  bool found_handle = false;
+  DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
-  bool gizmo_active[kGizmoScaleCount] = {false};
+  QVector2D res = gizmo->GetGlobals().resolution();
+  x_diff /= res.x();
+  y_diff /= res.y();
 
-  for (int i=0; i<kGizmoScaleCount; i++) {
-    gizmo_active[i] = gizmo_resize_handle_[i].contains(p);
-
-    if (gizmo_active[i]) {
-      found_handle = true;
-      break;
+  for (int j=0; j<gizmo->GetDraggers().size(); j++) {
+    NodeInputDragger& i = gizmo->GetDraggers()[j];
+    double s = i.GetStartValue().toDouble();
+    if (i.GetInput().input().input() == kLeftInput) {
+      i.Drag(s + x_diff);
+    } else if (i.GetInput().input().input() == kTopInput) {
+      i.Drag(s + y_diff);
+    } else if (i.GetInput().input().input() == kRightInput) {
+      i.Drag(s - x_diff);
+    } else if (i.GetInput().input().input() == kBottomInput) {
+      i.Drag(s - y_diff);
     }
   }
-
-  bool in_rect = found_handle ? false : gizmo_whole_rect_.contains(p);
-
-  gizmo_drag_ = kGizmoNone;
-
-  // Drag handle
-  if (gizmo_active[kGizmoScaleTopLeft]
-      || gizmo_active[kGizmoScaleCenterLeft]
-      || gizmo_active[kGizmoScaleBottomLeft]
-      || in_rect) {
-    gizmo_drag_ |= kGizmoLeft;
-
-    gizmo_start_.append(row[kLeftInput].data());
-  }
-
-  if (gizmo_active[kGizmoScaleTopLeft]
-      || gizmo_active[kGizmoScaleTopCenter]
-      || gizmo_active[kGizmoScaleTopRight]
-      || in_rect) {
-    gizmo_drag_ |= kGizmoTop;
-
-    gizmo_start_.append(row[kTopInput].data());
-  }
-
-  if (gizmo_active[kGizmoScaleTopRight]
-      || gizmo_active[kGizmoScaleCenterRight]
-      || gizmo_active[kGizmoScaleBottomRight]
-      || in_rect) {
-    gizmo_drag_ |= kGizmoRight;
-
-    gizmo_start_.append(row[kRightInput].data());
-  }
-
-  if (gizmo_active[kGizmoScaleBottomLeft]
-      || gizmo_active[kGizmoScaleBottomCenter]
-      || gizmo_active[kGizmoScaleBottomRight]
-      || in_rect) {
-    gizmo_drag_ |= kGizmoBottom;
-
-    gizmo_start_.append(row[kBottomInput].data());
-  }
-
-  if (gizmo_drag_ > kGizmoNone) {
-    gizmo_res_ = globals.resolution();
-    gizmo_drag_start_ = p;
-
-    return true;
-  }
-
-  return false;
-}
-
-void CropDistortNode::GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers)
-{
-  if (gizmo_dragger_.isEmpty()) {
-    gizmo_dragger_.resize(gizmo_start_.size());
-
-    int counter = 0;
-
-    if (gizmo_drag_ & kGizmoLeft) {
-      gizmo_dragger_[counter].Start(NodeInput(this, kLeftInput), time);
-      counter++;
-    }
-
-    if (gizmo_drag_ & kGizmoTop) {
-      gizmo_dragger_[counter].Start(NodeInput(this, kTopInput), time);
-      counter++;
-    }
-
-    if (gizmo_drag_ & kGizmoRight) {
-      gizmo_dragger_[counter].Start(NodeInput(this, kRightInput), time);
-      counter++;
-    }
-
-    if (gizmo_drag_ & kGizmoBottom) {
-      gizmo_dragger_[counter].Start(NodeInput(this, kBottomInput), time);
-      counter++;
-    }
-  }
-
-  int counter = 0;
-
-  double x_diff = (p.x() - gizmo_drag_start_.x()) / gizmo_res_.x();
-  double y_diff = (p.y() - gizmo_drag_start_.y()) / gizmo_res_.y();
-
-  if (gizmo_drag_ & kGizmoLeft) {
-    gizmo_dragger_[counter].Drag(gizmo_start_[counter].toDouble() + x_diff);
-    counter++;
-  }
-
-  if (gizmo_drag_ & kGizmoTop) {
-    gizmo_dragger_[counter].Drag(gizmo_start_[counter].toDouble() + y_diff);
-    counter++;
-  }
-
-  if (gizmo_drag_ & kGizmoRight) {
-    gizmo_dragger_[counter].Drag(gizmo_start_[counter].toDouble() - x_diff);
-    counter++;
-  }
-
-  if (gizmo_drag_ & kGizmoBottom) {
-    gizmo_dragger_[counter].Drag(gizmo_start_[counter].toDouble() - y_diff);
-    counter++;
-  }
-}
-
-void CropDistortNode::GizmoRelease(MultiUndoCommand *command)
-{
-  for (NodeInputDragger& i : gizmo_dragger_) {
-    i.End(command);
-  }
-  gizmo_dragger_.clear();
-
-  gizmo_start_.clear();
 }
 
 void CropDistortNode::CreateCropSideInput(const QString &id)

@@ -33,6 +33,7 @@
 #include "nodeparamviewtextedit.h"
 #include "nodeparamviewundo.h"
 #include "undo/undostack.h"
+#include "widget/bezier/bezierwidget.h"
 #include "widget/colorbutton/colorbutton.h"
 #include "widget/filefield/filefield.h"
 #include "widget/slider/floatslider.h"
@@ -91,6 +92,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kGenerateJob:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
+    case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
     {
@@ -158,6 +160,19 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
+    case NodeValue::kBezier:
+    {
+      BezierWidget *bezier = new BezierWidget();
+      widgets_.append(bezier);
+
+      connect(bezier->x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->y_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp1_x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp1_y_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp2_x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(bezier->cp2_y_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      break;
+    }
     }
 
     // Check all properties
@@ -184,46 +199,11 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
 {
-  if (GetInnerInput().IsKeyframing()) {
-    rational node_time = GetCurrentTimeAsNodeTime();
-
-    NodeKeyframe* existing_key = GetInnerInput().GetKeyframeAtTimeOnTrack(node_time, track);
-
-    if (existing_key) {
-      command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
-    } else {
-      // No existing key, create a new one
-      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(GetInnerInput().node()->GetInputDataType(GetInnerInput().input()));
-      for (int i=0; i<nb_tracks; i++) {
-        QVariant track_value;
-
-        if (i == track) {
-          track_value = value;
-        } else if (!insert_on_all_tracks_if_no_key) {
-          continue;
-        } else {
-          track_value = GetInnerInput().node()->GetSplitValueAtTimeOnTrack(GetInnerInput().input(), node_time, i, GetInnerInput().element());
-        }
-
-        NodeKeyframe* new_key = new NodeKeyframe(node_time,
-                                                 track_value,
-                                                 GetInnerInput().node()->GetBestKeyframeTypeForTimeOnTrack(NodeKeyframeTrackReference(GetInnerInput(), i), node_time),
-                                                 i,
-                                                 GetInnerInput().element(),
-                                                 GetInnerInput().input());
-
-        command->add_child(new NodeParamInsertKeyframeCommand(GetInnerInput().node(), new_key));
-      }
-    }
-  } else {
-    command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(GetInnerInput(), track), value));
-  }
+  Node::SetValueAtTime(GetInnerInput(), GetCurrentTimeAsNodeTime(), value, track, command, insert_on_all_tracks_if_no_key);
 }
 
-void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, const QVariant &value)
+void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, int slider_track, const QVariant &value)
 {
-  int slider_track = widgets_.indexOf(slider);
-
   if (slider->IsDragging()) {
 
     // While we're dragging, we block the input's normal signalling and create our own
@@ -266,6 +246,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
   {
@@ -371,9 +352,36 @@ void NodeParamViewWidgetBridge::WidgetCallback()
       if (cb->itemData(i, Qt::AccessibleDescriptionRole).toString() == QStringLiteral("separator")) {
         index--;
       }
+
     }
 
     SetInputValue(index, 0);
+    break;
+  }
+  case NodeValue::kBezier:
+  {
+    // Widget is a FloatSlider (child of BezierWidget)
+    BezierWidget *bw = static_cast<BezierWidget*>(widgets_.first());
+    FloatSlider *fs = static_cast<FloatSlider*>(sender());
+
+    int index = -1;
+    if (fs == bw->x_slider()) {
+      index = 0;
+    } else if (fs == bw->y_slider()) {
+      index = 1;
+    } else if (fs == bw->cp1_x_slider()) {
+      index = 2;
+    } else if (fs == bw->cp1_y_slider()) {
+      index = 3;
+    } else if (fs == bw->cp2_x_slider()) {
+      index = 4;
+    } else if (fs == bw->cp2_y_slider()) {
+      index = 5;
+    }
+
+    if (index != -1) {
+      ProcessSlider(fs, index, fs->GetValue());
+    }
     break;
   }
   }
@@ -415,6 +423,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
   {
@@ -507,6 +516,12 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
       }
     }
     cb->blockSignals(false);
+    break;
+  }
+  case NodeValue::kBezier:
+  {
+    BezierWidget* bw = static_cast<BezierWidget*>(widgets_.first());
+    bw->SetValue(GetInnerInput().GetValueAtTime(node_time).value<Bezier>());
     break;
   }
   }

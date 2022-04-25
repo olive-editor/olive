@@ -268,7 +268,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
       AVStream* avstream = fmt_ctx->streams[i];
 
       // Find decoder for this stream, if it exists we can proceed
-      AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
+      const AVCodec* decoder = avcodec_find_decoder(avstream->codecpar->codec_id);
 
       if (decoder
           && (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
@@ -323,7 +323,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
                     int64_t new_dur;
 
                     do {
-                      new_dur = frame->pts;
+                      new_dur = frame->best_effort_timestamp;
                     } while (instance.GetFrame(pkt, frame) >= 0);
 
                     avstream->duration = new_dur;
@@ -388,7 +388,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
               int64_t new_dur;
 
               do {
-                new_dur = frame->pts;
+                new_dur = frame->best_effort_timestamp;
               } while (instance.GetFrame(pkt, frame) >= 0);
 
               avstream->duration = new_dur;
@@ -540,7 +540,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, cons
         break;
       }
 
-      SignalProcessingProgress(frame->pts, duration);
+      SignalProcessingProgress(frame->best_effort_timestamp, duration);
     }
 
     wave_out.close();
@@ -733,7 +733,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
     if (still_seeking) {
       // Handle a failure to seek (occurs on some media)
       // We'll only be here if the frame cache was emptied earlier
-      if (!cache_at_zero_ && (ret == AVERROR_EOF || working_frame->pts > target_ts)) {
+      if (!cache_at_zero_ && (ret == AVERROR_EOF || working_frame->best_effort_timestamp > target_ts)) {
 
         seek_ts = qMax(min_seek, seek_ts - second_ts_);
         instance_.Seek(seek_ts);
@@ -784,7 +784,7 @@ FFmpegFramePool::ElementPtr FFmpegDecoder::RetrieveFrame(const rational& time, c
       av_image_copy(&destination_data, &destination_linesize, const_cast<const uint8_t**>(working_frame->data), working_frame->linesize, static_cast<AVPixelFormat>(working_frame->format), working_frame->width, working_frame->height);
 
       // Set timestamp so this frame can be identified later
-      cached->set_timestamp(working_frame->pts);
+      cached->set_timestamp(working_frame->best_effort_timestamp);
 
       // Store frame before just in case
       FFmpegFramePool::ElementPtr previous;
@@ -1010,7 +1010,7 @@ bool FFmpegDecoder::Instance::Open(const char *filename, int stream_index)
   avstream_ = fmt_ctx_->streams[stream_index];
 
   // Find decoder
-  AVCodec* codec = avcodec_find_decoder(avstream_->codecpar->codec_id);
+  const AVCodec* codec = avcodec_find_decoder(avstream_->codecpar->codec_id);
 
   // Handle failure to find decoder
   if (codec == nullptr) {

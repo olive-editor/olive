@@ -123,6 +123,15 @@ QVariant NodeInput::GetProperty(const QString &key) const
   }
 }
 
+QHash<QString, QVariant> NodeInput::GetProperties() const
+{
+  if (IsValid()) {
+    return node_->GetInputProperties(input_);
+  } else {
+    return QHash<QString, QVariant>();
+  }
+}
+
 QVariant NodeInput::GetValueAtTime(const rational &time) const
 {
   if (IsValid()) {

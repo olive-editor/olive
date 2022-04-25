@@ -14,10 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+add_subdirectory(olive-dark)
+add_subdirectory(olive-light)
+
 set(OLIVE_RESOURCES
   ${OLIVE_RESOURCES}
-  ui/style/olive-light/olive-light.qrc
-  ui/style/olive-dark/olive-dark.qrc
   PARENT_SCOPE
 )
 

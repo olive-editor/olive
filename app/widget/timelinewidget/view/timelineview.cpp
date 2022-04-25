@@ -347,6 +347,9 @@ void TimelineView::ToolChangedEvent(Tool::Item tool)
   case Tool::kZoom:
     setCursor(Qt::CrossCursor);
     break;
+  case Tool::kTrackSelect:
+    setCursor(Qt::SizeHorCursor); // FIXME: Not the ideal cursor
+    break;
   default:
     unsetCursor();
   }

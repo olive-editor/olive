@@ -173,7 +173,7 @@ QWidget *ExportVideoTab::SetupCodecSection()
 
   row++;
 
-  codec_stack_ = new QStackedWidget();
+  codec_stack_ = new CodecStack();
   codec_layout->addWidget(codec_stack_, row, 0, 1, 2);
 
   image_section_ = new ImageSection();
@@ -184,6 +184,9 @@ QWidget *ExportVideoTab::SetupCodecSection()
 
   h265_section_ = new H265Section();
   codec_stack_->addWidget(h265_section_);
+
+  cineform_section_ = new CineformSection();
+  codec_stack_->addWidget(cineform_section_);
 
   row++;
 
@@ -240,6 +243,9 @@ void ExportVideoTab::VideoCodecChanged()
     case ExportCodec::kCodecH265:
       SetCodecSection(h265_section_);
       break;
+    case ExportCodec::kCodecCineform:
+      SetCodecSection(cineform_section_);
+      break;
     default:
       SetCodecSection(ExportCodec::IsCodecAStillImage(codec) ? image_section_ : nullptr);
   }
@@ -251,7 +257,6 @@ void ExportVideoTab::VideoCodecChanged()
   } else {
     pix_fmt_.clear();
   }
-  qDebug() << "Set default pix fmt" << pix_fmt_;
 }
 
 void ExportVideoTab::SetTime(const rational &time)

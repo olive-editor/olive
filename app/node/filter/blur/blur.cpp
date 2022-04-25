@@ -42,7 +42,7 @@ BlurFilterNode::BlurFilterNode()
 
   AddInput(kVertInput, NodeValue::kBoolean, true);
 
-  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, false);
+  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
 }
 
 Node *BlurFilterNode::copy() const

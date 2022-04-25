@@ -20,7 +20,7 @@
 
 #include "audiomanager.h"
 
-#ifdef Q_OS_LINUX
+#ifdef PA_HAS_JACK
 #include <pa_jack.h>
 #endif
 
@@ -202,13 +202,13 @@ PaDeviceIndex AudioManager::FindDeviceByName(const QString &s, bool is_output_de
 AudioManager::AudioManager() :
   output_stream_(nullptr)
 {
-  Pa_Initialize();
-
-#ifdef Q_OS_LINUX
+#ifdef PA_HAS_JACK
   // PortAudio doesn't do a strcpy, so we need a const char that's readily accessible (i.e. not
   // a QString converted to UTF-8)
   PaJack_SetClientName("Olive");
 #endif
+
+  Pa_Initialize();
 
   // Get device from config
   PaDeviceIndex output_device = FindConfigDeviceByName(true);

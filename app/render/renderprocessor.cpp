@@ -25,6 +25,9 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "audio/packedprocessor.h"
+#include "audio/planarprocessor.h"
+#include "audio/tempoprocessor.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
 #include "node/project/project.h"
@@ -288,8 +291,37 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
               // Just silence, don't think there's any other practical application of 0 speed audio
               samples_from_this_block->silence();
             } else if (!qFuzzyCompare(speed_value, 1.0)) {
-              // Multiply time
-              samples_from_this_block->speed(speed_value);
+              if (clip_cast->maintain_audio_pitch()) {
+                PackedProcessor packer;
+                packer.Open(samples_from_this_block->audio_params());
+
+                QByteArray packed = packer.Convert(samples_from_this_block);
+
+                if (!packed.isEmpty()) {
+                  TempoProcessor tp;
+                  tp.Open(samples_from_this_block->audio_params(), speed_value);
+
+                  // FIXME: This is not the best way to do this, the TempoProcessor works best
+                  //        when it's given a continuous stream of audio, which is challenging
+                  //        in our current "modular" audio system. This should still work reasonably
+                  //        well on export (assuming audio is all generated at once on export), but
+                  //        users may hear clicks and pops in the audio during preview due to this
+                  //        approach.
+                  tp.Push(packed);
+                  tp.Flush();
+                  packed = tp.Pull();
+                  tp.Close();
+
+                  if (!packed.isEmpty()) {
+                    PlanarProcessor planar;
+                    planar.Open(samples_from_this_block->audio_params());
+                    samples_from_this_block = planar.Convert(packed);
+                  }
+                }
+              } else {
+                // Multiply time
+                samples_from_this_block->speed(speed_value);
+              }
             }
 
             if (reversed) {
@@ -547,6 +579,15 @@ TexturePtr RenderProcessor::ProcessFrameGeneration(const Node *node, const Gener
   TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(),
                                                   frame->data(),
                                                   frame->linesize_pixels());
+
+  if (!job.GetColorspace().isEmpty()) {
+    // Convert to reference space
+    TexturePtr dest = render_ctx_->CreateTexture(GetCacheVideoParams());
+    ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+    ColorProcessorPtr cp = ColorProcessor::Create(color_manager, job.GetColorspace(), color_manager->GetReferenceColorSpace());
+    render_ctx_->BlitColorManaged(cp, texture, Renderer::kAlphaAssociated, dest.get());
+    texture = dest;
+  }
 
   return texture;
 }

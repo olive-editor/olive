@@ -134,6 +134,7 @@ private:
   static const int kArrayCollapseBtnColumn;
   static const int kLabelColumn;
   static const int kWidgetStartColumn;
+  static const int kMaxWidgetColumn;
 
 private slots:
   void EdgeChanged(Node *output, const NodeInput &input);
@@ -181,6 +182,16 @@ public:
     body_->SetTimebase(timebase);
   }
 
+  Node *GetContext() const
+  {
+    return ctx_;
+  }
+
+  void SetContext(Node *ctx)
+  {
+    ctx_ = ctx;
+  }
+
   Node* GetNode() const
   {
     return node_;
@@ -216,6 +227,8 @@ private:
   NodeParamViewItemBody* body_;
 
   Node* node_;
+
+  Node *ctx_;
 
   rational time_;
 

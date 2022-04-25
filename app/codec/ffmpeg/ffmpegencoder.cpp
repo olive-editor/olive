@@ -50,7 +50,7 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
 {
   QStringList pix_fmts;
 
-  AVCodec* codec_info = GetEncoder(c);
+  const AVCodec* codec_info = GetEncoder(c);
 
   if (codec_info) {
     for (int i=0; codec_info->pix_fmts[i]!=-1; i++) {
@@ -570,7 +570,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   }
 
   // Find encoder
-  AVCodec* encoder = GetEncoder(codec);
+  const AVCodec* encoder = GetEncoder(codec);
   if (!encoder) {
     SetError(tr("Failed to find codec for 0x%1").arg(codec, 16));
     return false;
@@ -669,7 +669,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   return true;
 }
 
-bool FFmpegEncoder::InitializeCodecContext(AVStream **stream, AVCodecContext **codec_ctx, AVCodec* codec)
+bool FFmpegEncoder::InitializeCodecContext(AVStream **stream, AVCodecContext **codec_ctx, const AVCodec* codec)
 {
   *stream = avformat_new_stream(fmt_ctx_, nullptr);
   if (!(*stream)) {
@@ -687,7 +687,7 @@ bool FFmpegEncoder::InitializeCodecContext(AVStream **stream, AVCodecContext **c
   return true;
 }
 
-bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ctx, AVCodec* codec)
+bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ctx, const AVCodec* codec)
 {
   int error_code;
 
@@ -833,7 +833,7 @@ bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
   return true;
 }
 
-AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c)
+const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c)
 {
   switch (c) {
   case ExportCodec::kCodecH264:
@@ -844,6 +844,8 @@ AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c)
     return avcodec_find_encoder(AV_CODEC_ID_DNXHD);
   case ExportCodec::kCodecProRes:
     return avcodec_find_encoder(AV_CODEC_ID_PRORES);
+    case ExportCodec::kCodecCineform:
+    return avcodec_find_encoder(AV_CODEC_ID_CFHD);
   case ExportCodec::kCodecH265:
     return avcodec_find_encoder(AV_CODEC_ID_HEVC);
   case ExportCodec::kCodecVP9:

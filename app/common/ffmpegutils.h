@@ -22,6 +22,7 @@
 #define FFMPEGABSTRACTION_H
 
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 }
 

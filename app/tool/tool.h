@@ -74,6 +74,9 @@ public:
     /// Add tool
     kAdd,
 
+    /// Track select tool
+    kTrackSelect,
+
     kCount
   };
 

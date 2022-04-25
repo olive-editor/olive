@@ -488,26 +488,36 @@ void TimelineRippleDeleteGapsAtRegionsCommand::prepare()
       }
 
       max_gaps = qMax(max_gaps, gaps_on_track.size());
+    } else {
+      qWarning() << "Failed to find corresponding gap to region";
     }
   }
 
+  // For each gap on each track, find a corresponding gap on every other track (which may include
+  // a requested gap) to ripple in order to keep everything synchronized
+  QHash<GapBlock*, rational> gap_lengths;
   for (int gap_index=0; gap_index<max_gaps; gap_index++) {
     rational earliest_point = RATIONAL_MAX;
     rational ripple_length = RATIONAL_MAX;
+    rational latest_point = RATIONAL_MIN;
 
     foreach (const QVector<RemovalRequest> &gaps_on_track, requested_gaps) {
       if (gap_index < gaps_on_track.size()) {
         const RemovalRequest &gap = gaps_on_track.at(gap_index);
         earliest_point = qMin(earliest_point, gap.range.in());
         ripple_length = qMin(ripple_length, gap.range.length());
+        latest_point = qMax(latest_point, gap.range.out());
       }
     }
 
     // Determine which gaps will be involved in this operation
     QVector<GapBlock*> gaps;
 
+    bool all_tracks_unlocked = true;
+
     foreach (Track* track, timeline_->GetTracks()) {
       if (track->IsLocked()) {
+        all_tracks_unlocked = false;
         continue;
       }
 
@@ -548,7 +558,12 @@ void TimelineRippleDeleteGapsAtRegionsCommand::prepare()
 
       if (gap) {
         gaps.append(gap);
-        ripple_length = qMin(ripple_length, gap->length());
+
+        if (!gap_lengths.contains(gap)) {
+          gap_lengths.insert(gap, gap->length());
+        }
+
+        ripple_length = qMin(ripple_length, gap_lengths.value(gap));
       }
 
       if (ripple_length == 0) {
@@ -558,11 +573,24 @@ void TimelineRippleDeleteGapsAtRegionsCommand::prepare()
 
     if (ripple_length > 0) {
       foreach (GapBlock *gap, gaps) {
-        if (gap->length() == ripple_length) {
+        if (all_tracks_unlocked) {
+          commands_.append(new NodeBeginOperationCommand(gap->track()));
+        }
+
+        if (gap_lengths.value(gap) == ripple_length) {
           commands_.append(new TrackRippleRemoveBlockCommand(gap->track(), gap));
         } else {
-          commands_.append(new BlockResizeCommand(gap, gap->length() - ripple_length));
+          gap_lengths[gap] -= ripple_length;
+          commands_.append(new BlockResizeCommand(gap, gap_lengths.value(gap)));
         }
+
+        if (all_tracks_unlocked) {
+          commands_.append(new NodeEndOperationCommand(gap->track()));
+        }
+      }
+
+      if (all_tracks_unlocked) {
+        commands_.append(new TimelineShiftCacheCommand(timeline_, latest_point, latest_point - ripple_length));
       }
     }
   }
@@ -580,6 +608,16 @@ void TimelineRippleDeleteGapsAtRegionsCommand::undo()
   for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
     (*it)->undo_now();
   }
+}
+
+void TimelineShiftCacheCommand::redo()
+{
+  timeline_->ShiftCache(from_, to_);
+}
+
+void TimelineShiftCacheCommand::undo()
+{
+  timeline_->ShiftCache(to_, from_);
 }
 
 }

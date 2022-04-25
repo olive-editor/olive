@@ -54,7 +54,7 @@ QString PanNode::id() const
 
 QVector<Node::CategoryID> PanNode::Category() const
 {
-  return {kCategoryChannels};
+  return {kCategoryFilter};
 }
 
 QString PanNode::Description() const

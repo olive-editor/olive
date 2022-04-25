@@ -22,6 +22,7 @@
 #define BEZIER_H
 
 #include <QPointF>
+#include <QObject>
 
 #include "common/define.h"
 
@@ -30,6 +31,39 @@ namespace olive {
 class Bezier
 {
 public:
+  Bezier();
+  Bezier(double x, double y);
+  Bezier(double x, double y, double cp1_x, double cp1_y, double cp2_x, double cp2_y);
+
+  const double &x() const {return x_; }
+  const double &y() const {return y_; }
+  const double &cp1_x() const { return cp1_x_; }
+  const double &cp1_y() const { return cp1_y_; }
+  const double &cp2_x() const { return cp2_x_; }
+  const double &cp2_y() const { return cp2_y_; }
+
+  QPointF ToPointF() const
+  {
+    return QPointF(x_, y_);
+  }
+
+  QPointF ControlPoint1ToPointF() const
+  {
+    return QPointF(cp1_x_, cp1_y_);
+  }
+
+  QPointF ControlPoint2ToPointF() const
+  {
+    return QPointF(cp2_x_, cp2_y_);
+  }
+
+  void set_x(const double &x) { x_ = x; }
+  void set_y(const double &y) { y_ = y; }
+  void set_cp1_x(const double &cp1_x) { cp1_x_ = cp1_x; }
+  void set_cp1_y(const double &cp1_y) { cp1_y_ = cp1_y; }
+  void set_cp2_x(const double &cp2_x) { cp2_x_ = cp2_x; }
+  void set_cp2_y(const double &cp2_y) { cp2_y_ = cp2_y; }
+
   static double QuadraticXtoT(double x, double a, double b, double c);
 
   static double QuadraticTtoY(double a, double b, double c, double t);
@@ -51,8 +85,19 @@ public:
 private:
   static double CalculateTFromX(bool cubic, double x, double a, double b, double c, double d);
 
+  double x_;
+  double y_;
+
+  double cp1_x_;
+  double cp1_y_;
+
+  double cp2_x_;
+  double cp2_y_;
+
 };
 
 }
+
+Q_DECLARE_METATYPE(olive::Bezier)
 
 #endif // BEZIER_H

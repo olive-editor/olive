@@ -1,5 +1,7 @@
 uniform vec4 color_in;
 
+out vec4 frag_color;
+
 void main(void) {
-    gl_FragColor = color_in;
+    frag_color = color_in;
 }

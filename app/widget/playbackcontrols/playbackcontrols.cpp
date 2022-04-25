@@ -55,6 +55,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   cur_tc_lbl_ = new RationalSlider();
   cur_tc_lbl_->SetDisplayType(RationalSlider::kTime);
+  cur_tc_lbl_->SetMinimum(0);
   connect(cur_tc_lbl_, &RationalSlider::ValueChanged, this, &PlaybackControls::TimeChanged);
   lower_left_layout->addWidget(cur_tc_lbl_);
   lower_left_layout->addStretch();

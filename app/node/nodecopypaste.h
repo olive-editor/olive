@@ -34,7 +34,9 @@ namespace olive {
 class NodeCopyPasteService
 {
 public:
-  NodeCopyPasteService() = default;
+  NodeCopyPasteService(const QString &type) :
+    type_(type)
+  {}
 
 protected:
   void CopyNodesToClipboard(QVector<Node *> nodes, void* userdata = nullptr);
@@ -44,6 +46,9 @@ protected:
   virtual void CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *data, void *userdata){}
 
   virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata){}
+
+private:
+  QString type_;
 
 };
 

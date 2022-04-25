@@ -22,11 +22,13 @@
 
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QtMath>
 
 #include "core.h"
+#include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 #include "widget/timelinewidget/undo/timelineundogeneral.h"
 
@@ -55,15 +57,21 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
   connect(line_edit_, &FocusableLineEdit::Cancelled, this, &TrackViewItem::LineEditCancelled);
   stack_->addWidget(line_edit_);
 
-  mute_button_ = CreateMSLButton(tr("M"), Qt::red);
+  mute_button_ = CreateMSLButton(Qt::red);
+  mute_button_->setChecked(track->IsMuted());
+  UpdateMuteButton(track->IsMuted());
   connect(mute_button_, &QPushButton::toggled, track_, &Track::SetMuted);
+  connect(mute_button_, &QPushButton::toggled, this, &TrackViewItem::UpdateMuteButton);
   layout->addWidget(mute_button_);
 
   /*solo_button_ = CreateMSLButton(tr("S"), Qt::yellow);
   layout->addWidget(solo_button_);*/
 
-  lock_button_ = CreateMSLButton(tr("L"), Qt::gray);
+  lock_button_ = CreateMSLButton(Qt::gray);
+  lock_button_->setChecked(track->IsLocked());
+  UpdateLockButton(track->IsLocked());
   connect(lock_button_, &QPushButton::toggled, track_, &Track::SetLocked);
+  connect(lock_button_, &QPushButton::toggled, this, &TrackViewItem::UpdateLockButton);
   layout->addWidget(lock_button_);
 
   setMinimumHeight(mute_button_->height());
@@ -73,9 +81,9 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
   connect(this, &QWidget::customContextMenuRequested, this, &TrackViewItem::ShowContextMenu);
 }
 
-QPushButton *TrackViewItem::CreateMSLButton(const QString& text, const QColor& checked_color) const
+QPushButton *TrackViewItem::CreateMSLButton(const QColor& checked_color) const
 {
-  QPushButton* button = new QPushButton(text);
+  QPushButton* button = new QPushButton();
   button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
   button->setCheckable(true);
   button->setStyleSheet(QStringLiteral("QPushButton::checked { background: %1; }").arg(checked_color.name()));
@@ -127,12 +135,55 @@ void TrackViewItem::ShowContextMenu(const QPoint &p)
   QAction *delete_action = m.addAction(tr("&Delete"));
   connect(delete_action, &QAction::triggered, this, &TrackViewItem::DeleteTrack, Qt::QueuedConnection);
 
+  m.addSeparator();
+
+  QAction *delete_unused_action = m.addAction(tr("Delete All &Empty"));
+  connect(delete_unused_action, &QAction::triggered, this, &TrackViewItem::DeleteAllEmptyTracks, Qt::QueuedConnection);
+
   m.exec(mapToGlobal(p));
 }
 
 void TrackViewItem::DeleteTrack()
 {
   Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_));
+}
+
+void TrackViewItem::DeleteAllEmptyTracks()
+{
+  Sequence *sequence = track_->sequence();
+  QVector<Track*> tracks_to_remove;
+  QStringList track_names_to_remove;
+
+  foreach (Track *t, sequence->GetTracks()) {
+    if (t->Blocks().isEmpty()) {
+      tracks_to_remove.append(t);
+      track_names_to_remove.append(t->GetLabelOrName());
+    }
+  }
+
+  if (tracks_to_remove.isEmpty()) {
+    QMessageBox::information(this, tr("Delete All Empty"), tr("No tracks are currently empty"));
+  } else {
+    if (QMessageBox::question(this, tr("Delete All Empty"),
+                              tr("This will delete the following tracks:\n\n%1\n\nDo you wish to continue?").arg(track_names_to_remove.join('\n')),
+                              QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
+      MultiUndoCommand *command = new MultiUndoCommand();
+      foreach (Track *track, tracks_to_remove) {
+        command->add_child(new TimelineRemoveTrackCommand(track));
+      }
+      Core::instance()->undo_stack()->push(command);
+    }
+  }
+}
+
+void TrackViewItem::UpdateMuteButton(bool e)
+{
+  mute_button_->setIcon(e ? icon::EyeClosed : icon::EyeOpened);
+}
+
+void TrackViewItem::UpdateLockButton(bool e)
+{
+  lock_button_->setIcon(e ? icon::LockClosed : icon::LockOpened);
 }
 
 }

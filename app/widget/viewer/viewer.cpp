@@ -256,6 +256,8 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 
   // Queue an UpdateStack so that when it runs, the viewer node will be fully disconnected
   QMetaObject::invokeMethod(this, &ViewerWidget::UpdateStack, Qt::QueuedConnection);
+
+  SetGizmos(nullptr);
 }
 
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
@@ -466,11 +468,8 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
 
         // If the tempo must be adjusted, adjust now
         if (tempo_processor_.IsOpen()) {
-          tempo_processor_.Push(pack.data(), pack.size());
-          int actual = tempo_processor_.Pull(pack.data(), pack.size());
-          if (actual != pack.size()) {
-            pack.resize(actual);
-          }
+          tempo_processor_.Push(pack);
+          pack = tempo_processor_.Pull();
         }
 
         // TempoProcessor may have emptied the array

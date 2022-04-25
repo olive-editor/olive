@@ -490,7 +490,9 @@ void TrackReplaceBlockWithGapCommand::redo()
 
     track_->EndOperation();
 
-    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
+    if (handle_invalidations_) {
+      track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
+    }
 
   } else {
     // Block is at the end of the track, simply remove it
@@ -547,7 +549,9 @@ void TrackReplaceBlockWithGapCommand::undo()
 
     track_->EndOperation();
 
-    track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
+    if (handle_invalidations_) {
+      track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
+    }
   } else {
 
     // Our gap and existing gap were both null, our block must have been at the end and thus
@@ -591,13 +595,18 @@ void TrackReplaceBlockWithGapCommand::CreateRemoveTransitionCommandIfNecessary(b
   }
 }
 
-void TimelineRemoveTrackCommand::redo()
+void TimelineRemoveTrackCommand::prepare()
 {
   list_ = track_->sequence()->track_list(track_->type());
 
   index_ = list_->GetArrayIndexFromCacheIndex(track_->Index());
 
-  Node::DisconnectEdge(track_, list_->track_input(index_));
+  remove_command_ = new NodeRemoveWithExclusiveDependenciesAndDisconnect(track_);
+}
+
+void TimelineRemoveTrackCommand::redo()
+{
+  remove_command_->redo_now();
 
   list_->parent()->InputArrayRemove(list_->track_input(), index_);
 }
@@ -606,7 +615,7 @@ void TimelineRemoveTrackCommand::undo()
 {
   list_->parent()->InputArrayInsert(list_->track_input(), index_);
 
-  Node::ConnectEdge(track_, list_->track_input(index_));
+  remove_command_->undo_now();
 }
 
 }

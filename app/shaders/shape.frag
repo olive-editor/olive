@@ -1,5 +1,6 @@
 // Input texture coordinate
-varying vec2 ove_texcoord;
+in vec2 ove_texcoord;
+out vec4 frag_color;
 
 // Match with ShapeNode::Type
 #define SHAPE_RECTANGLE 0
@@ -37,5 +38,5 @@ void main() {
     col = color_in * (1.0-t);
   }
 
-  gl_FragColor = col;
+  frag_color = col;
 }

@@ -22,6 +22,7 @@
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QMessageBox>
 
 #include "core.h"
@@ -39,57 +40,81 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
 {
   setWindowTitle(tr("Speed/Duration"));
 
-  QGridLayout *layout = new QGridLayout(this);
+  QVBoxLayout *layout = new QVBoxLayout(this);
 
-  int row = 0;
+  {
+    QGroupBox *speed_group = new QGroupBox();
+    layout->addWidget(speed_group);
 
-  layout->addWidget(new QLabel(tr("Speed:")), row, 0);
+    QGridLayout *speed_layout = new QGridLayout(speed_group);
 
-  speed_slider_ = new FloatSlider();
-  speed_slider_->SetDisplayType(FloatSlider::kPercentage);
-  connect(speed_slider_, &FloatSlider::ValueChanged, this, &SpeedDurationDialog::SpeedChanged);
-  layout->addWidget(speed_slider_, row, 1);
+    int row = 0;
 
-  row++;
+    speed_layout->addWidget(new QLabel(tr("Speed:")), row, 0);
 
-  layout->addWidget(new QLabel(tr("Duration:")), row, 0);
+    speed_slider_ = new FloatSlider();
+    speed_slider_->SetDisplayType(FloatSlider::kPercentage);
+    connect(speed_slider_, &FloatSlider::ValueChanged, this, &SpeedDurationDialog::SpeedChanged);
+    speed_layout->addWidget(speed_slider_, row, 1);
 
-  dur_slider_ = new RationalSlider();
-  dur_slider_->SetTimebase(timebase);
-  dur_slider_->SetDisplayType(RationalSlider::kTime);
-  connect(dur_slider_, &RationalSlider::ValueChanged, this, &SpeedDurationDialog::DurationChanged);
-  layout->addWidget(dur_slider_, row, 1);
+    row++;
 
-  row++;
+    speed_layout->addWidget(new QLabel(tr("Duration:")), row, 0);
 
-  link_box_ = new QCheckBox(tr("Link Speed and Duration"));
-  link_box_->setChecked(true);
-  layout->addWidget(link_box_, row, 0, 1, 2);
+    dur_slider_ = new RationalSlider();
+    dur_slider_->SetTimebase(timebase);
+    dur_slider_->SetDisplayType(RationalSlider::kTime);
+    connect(dur_slider_, &RationalSlider::ValueChanged, this, &SpeedDurationDialog::DurationChanged);
+    speed_layout->addWidget(dur_slider_, row, 1);
 
-  row++;
+    row++;
+
+    link_box_ = new QCheckBox(tr("Link Speed and Duration"));
+    link_box_->setChecked(true);
+    speed_layout->addWidget(link_box_, row, 0, 1, 2);
+  }
+
+  reverse_box_ = new QCheckBox(tr("Reverse"));
+  layout->addWidget(reverse_box_);
+
+  maintain_audio_pitch_box_ = new QCheckBox(tr("Maintain Audio Pitch"));
+  layout->addWidget(maintain_audio_pitch_box_);
 
   ripple_box_ = new QCheckBox(tr("Ripple Trailing Clips"));
-  layout->addWidget(ripple_box_, row, 0, 1, 2);
-
-  row++;
+  layout->addWidget(ripple_box_);
 
   QDialogButtonBox *btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   btns->setCenterButtons(true);
   connect(btns, &QDialogButtonBox::accepted, this, &SpeedDurationDialog::accept);
   connect(btns, &QDialogButtonBox::rejected, this, &SpeedDurationDialog::reject);
-  layout->addWidget(btns, row, 0, 1, 2);
+  layout->addWidget(btns);
 
   // Determine which speed value to use
   start_speed_ = clips.first()->speed();
   start_duration_ = clips.first()->length();
+  start_reverse_ = clips.first()->reverse();
+  start_maintain_audio_pitch_ = clips.first()->maintain_audio_pitch();
   for (int i=1; i<clips.size(); i++) {
-    if (!qIsNaN(start_speed_) && !qFuzzyCompare(start_speed_, clips.at(i)->speed())) {
+    ClipBlock *c = clips.at(i);
+
+    if (!qIsNaN(start_speed_) && !qFuzzyCompare(start_speed_, c->speed())) {
       // Speed differs per clip
       start_speed_ = qSNaN();
     }
 
-    if (start_duration_ != -1 && clips.at(i)->length() != start_duration_) {
+    if (start_duration_ != -1 && c->length() != start_duration_) {
       start_duration_ = -1;
+    }
+
+    // Yes, in theory a bool should only ever be 0 or 1 anyway, but MSVC complained and it is
+    // *possible* that a bool could be something else, so this code is safer
+    int clip_reverse = c->reverse() ? 1 : 0;
+    int clip_maintain_pitch = c->maintain_audio_pitch() ? 1 : 0;
+    if (start_reverse_ != -1 && clip_reverse != start_reverse_) {
+      start_reverse_ = -1;
+    }
+    if (start_maintain_audio_pitch_ != -1 && clip_maintain_pitch != start_maintain_audio_pitch_) {
+      start_maintain_audio_pitch_ = -1;
     }
   }
 
@@ -104,6 +129,18 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
   } else {
     dur_slider_->SetValue(start_duration_);
   }
+
+  if (start_reverse_ == -1) {
+    reverse_box_->setTristate();
+  } else {
+    reverse_box_->setChecked(start_reverse_);
+  }
+
+  if (start_maintain_audio_pitch_ == -1) {
+    maintain_audio_pitch_box_->setTristate();
+  } else {
+    maintain_audio_pitch_box_->setChecked(start_maintain_audio_pitch_);
+  }
 }
 
 void SpeedDurationDialog::accept()
@@ -117,21 +154,6 @@ void SpeedDurationDialog::accept()
   }
 
   MultiUndoCommand *command = new MultiUndoCommand();
-
-  // Set speed values
-  if (speed_slider_->IsTristate()) {
-    if (link_box_->isChecked() && !dur_slider_->IsTristate()) {
-      // Automatically determine speed from duration
-      foreach (ClipBlock *c, clips_) {
-        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kSpeedInput)), GetSpeedAdjustment(c->speed(), c->length(), dur_slider_->GetValue())));
-      }
-    }
-  } else {
-    // Set speeds to value of slider
-    foreach (ClipBlock *c, clips_) {
-      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kSpeedInput)), speed_slider_->GetValue()));
-    }
-  }
 
   // Set duration values
   foreach (ClipBlock *c, clips_) {
@@ -158,6 +180,35 @@ void SpeedDurationDialog::accept()
       if (proposed_length != c->length()) {
         command->add_child(new BlockTrimCommand(c->track(), c, proposed_length, Timeline::kTrimOut));
       }
+    }
+  }
+
+  // Set speed values
+  if (speed_slider_->IsTristate()) {
+    if (link_box_->isChecked() && !dur_slider_->IsTristate()) {
+      // Automatically determine speed from duration
+      foreach (ClipBlock *c, clips_) {
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kSpeedInput)), GetSpeedAdjustment(c->speed(), c->length(), dur_slider_->GetValue())));
+      }
+    }
+  } else {
+    // Set speeds to value of slider
+    foreach (ClipBlock *c, clips_) {
+      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kSpeedInput)), speed_slider_->GetValue()));
+    }
+  }
+
+  // Set reverse values
+  if (!reverse_box_->isTristate()) {
+    foreach (ClipBlock *c, clips_) {
+      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kReverseInput)), reverse_box_->isChecked()));
+    }
+  }
+
+  // Set reverse values
+  if (!maintain_audio_pitch_box_->isTristate()) {
+    foreach (ClipBlock *c, clips_) {
+      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kMaintainAudioPitchInput)), maintain_audio_pitch_box_->isChecked()));
     }
   }
 

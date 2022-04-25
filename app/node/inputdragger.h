@@ -46,6 +46,21 @@ public:
     return input_being_dragged;
   }
 
+  const QVariant &GetStartValue() const
+  {
+    return start_value_;
+  }
+
+  const NodeKeyframeTrackReference &GetInput() const
+  {
+    return input_;
+  }
+
+  const rational &GetTime() const
+  {
+    return time_;
+  }
+
 private:
   NodeKeyframeTrackReference input_;
 
