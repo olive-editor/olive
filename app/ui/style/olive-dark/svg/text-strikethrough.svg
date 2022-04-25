@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   sodipodi:docname="text-strikethrough.svg"
+   inkscape:version="1.2-alpha1 (f32a55a0, 2022-04-04)"
+   sodipodi:version="0.32"
+   id="svg2"
+   height="64"
+   width="64"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.1"
+   viewBox="0 0 64 64"
+   inkscape:export-filename="./text-underline.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs14">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect2948"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,3,0,1 @ F,0,0,1,0,3,0,1 @ F,0,0,1,0,3,0,1 @ F,0,0,1,0,3,0,1"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="3"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect2942"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,3,0,1 @ F,0,0,1,0,3,0,1 @ F,0,0,1,0,3,0,1 @ F,0,0,1,0,3,0,1"
+       unit="px"
+       method="auto"
+       mode="F"
+       radius="3"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+  </defs>
+  <sodipodi:namedview
+     stroke="#3465a4"
+     inkscape:window-y="23"
+     inkscape:window-x="47"
+     inkscape:window-height="927"
+     inkscape:window-width="1633"
+     inkscape:showpageshadow="true"
+     inkscape:document-units="px"
+     inkscape:grid-bbox="true"
+     showgrid="true"
+     inkscape:current-layer="layer1"
+     inkscape:cy="34.760584"
+     inkscape:cx="22.213865"
+     inkscape:zoom="9.723657"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1"
+     bordercolor="#ffffff"
+     pagecolor="#000000"
+     id="base"
+     fill="#729fcf"
+     inkscape:window-maximized="0"
+     borderlayer="true"
+     inkscape:snap-global="true"
+     inkscape:snap-bbox="true"
+     inkscape:snap-bbox-midpoints="false"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-nodes="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:document-rotation="0"
+     inkscape:pagecheckerboard="0"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:lockguides="true"
+     guidecolor="#ff0000"
+     guideopacity="0.30196078"
+     inkscape:deskcolor="#000000">
+    <inkscape:grid
+       type="xygrid"
+       id="grid_pixels"
+       color="#ffffff"
+       opacity="0.05098039"
+       empcolor="#ffffff"
+       empopacity="0.10196078"
+       dotted="false"
+       empspacing="8"
+       spacingx="1"
+       spacingy="1"
+       visible="true"
+       snapvisiblegridlinesonly="true"
+       enabled="true" />
+    <sodipodi:guide
+       position="2,64"
+       orientation="1,0"
+       id="guide6912"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="62,64"
+       orientation="1,0"
+       id="guide6914"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="0,62"
+       orientation="0,-1"
+       id="guide6916"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="0,2"
+       orientation="0,-1"
+       id="guide6918"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="32,32"
+       orientation="0,-1"
+       id="guide6920"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="32,32"
+       orientation="1,0"
+       id="guide6922"
+       inkscape:locked="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata4">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Martin Ruskov</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Reproduction" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Distribution" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/Notice" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/Attribution" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://web.resource.org/cc/ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Design"
+     id="layer1"
+     transform="translate(0,16)">
+    <path
+       id="rect2939"
+       style="fill:#ffffff;fill-opacity:0.86;stroke-width:1.333;stroke-linejoin:round;stroke-dashoffset:8;stop-color:#ffffff"
+       d="M 33.242188 -14 C 27.220096 -14 22.497675 -12.591113 19.072266 -9.7734375 C 15.646856 -6.9557617 13.933594 -3.0334771 13.933594 1.9941406 C 13.933594 4.4250767 14.32027 6.4962794 15.09375 8.2089844 C 15.922478 9.9216893 17.026989 11.41483 18.408203 12.685547 C 18.530833 12.793461 18.666419 12.894263 18.792969 13 L 5 13 A 3 3 0 0 0 2 16 A 3 3 0 0 0 5 19 L 31.078125 19 C 32.228629 19.436442 33.34761 19.872152 34.402344 20.308594 C 36.0598 20.971576 37.524205 21.773665 38.794922 22.712891 C 40.065638 23.596867 41.061066 24.674596 41.779297 25.945312 C 42.552777 27.160781 42.939453 28.651968 42.939453 30.419922 C 42.939453 36.165771 38.739576 39.039063 30.341797 39.039062 C 26.584896 39.039063 23.409182 38.596867 20.8125 37.712891 C 18.215818 36.828914 16.282435 36.026825 15.011719 35.308594 L 12.607422 41.939453 C 13.215156 42.270944 14.044028 42.684404 15.09375 43.181641 C 16.198721 43.623629 17.496571 44.065824 18.988281 44.507812 C 20.479992 44.894552 22.166471 45.22571 24.044922 45.501953 C 25.978621 45.833444 28.076606 46 30.341797 46 C 37.026871 46 42.19344 44.646632 45.839844 41.939453 C 49.541496 39.232274 51.392578 35.365508 51.392578 30.337891 C 51.392578 27.630712 50.977166 25.337435 50.148438 23.458984 C 49.417545 21.753569 48.391114 20.275678 47.101562 19 L 59 19 A 3 3 0 0 0 62 16 A 3 3 0 0 0 59 13 L 36.935547 13 C 36.107901 12.646618 35.2858 12.292835 34.402344 11.939453 C 32.63439 11.276471 31.005383 10.614154 29.513672 9.9511719 C 28.07721 9.2881893 26.806143 8.5684015 25.701172 7.7949219 C 24.596201 6.9661937 23.740547 6.028238 23.132812 4.9785156 C 22.525078 3.9287933 22.220703 2.6289905 22.220703 1.0820312 C 22.220703 -0.2991824 22.496343 -1.4859949 23.048828 -2.4804688 C 23.656562 -3.5301911 24.458651 -4.3858456 25.453125 -5.0488281 C 26.447599 -5.7118107 27.607629 -6.2095243 28.933594 -6.5410156 C 30.259559 -6.8725069 31.695228 -7.0390625 33.242188 -7.0390625 C 36.280858 -7.0390625 38.934028 -6.6791686 41.199219 -5.9609375 C 43.519658 -5.2979549 45.259702 -4.606903 46.419922 -3.8886719 L 48.988281 -10.435547 C 47.662316 -11.319524 45.564331 -12.121613 42.691406 -12.839844 C 39.87373 -13.613323 36.722846 -14 33.242188 -14 z " />
+  </g>
+</svg>
