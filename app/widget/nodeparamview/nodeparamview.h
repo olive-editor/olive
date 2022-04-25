@@ -99,8 +99,6 @@ private:
 
   void AddNode(Node* n, Node *ctx, NodeParamViewContext *context);
 
-  void RemoveNode(Node *n, Node *ctx);
-
   void SortItemsInContext(NodeParamViewContext *context);
 
   NodeParamViewContext *GetContextItemFromContext(Node *context);
