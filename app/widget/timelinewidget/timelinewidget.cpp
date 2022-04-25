@@ -60,6 +60,7 @@ namespace olive {
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   super(true, true, parent),
+  NodeCopyPasteService(QStringLiteral("timeline")),
   rubberband_(QRubberBand::Rectangle, this),
   active_tool_(nullptr),
   use_audio_time_units_(false),
