@@ -99,9 +99,14 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
 
       if (output_color_transform) {
         // Yes color transform, blit color managed
-        render_ctx_->BlitColorManaged(output_color_transform, texture,
-                                      Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
-                                      blit_tex.get(), true, matrix);
+        ColorTransformJob job;
+
+        job.SetColorProcessor(output_color_transform);
+        job.SetInputTexture(texture);
+        job.SetInputAlphaAssociation(Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? kAlphaAssociated : kAlphaNone);
+        job.SetTransformMatrix(matrix);
+
+        render_ctx_->BlitColorManaged(job, blit_tex.get());
       } else {
         // No color transform, just blit
         ShaderJob job;
@@ -452,19 +457,21 @@ TexturePtr RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const 
                                                              using_colorspace,
                                                              color_manager->GetReferenceColorSpace());
 
-        Renderer::AlphaAssociated alpha_assoc;
+        ColorTransformJob job;
+
+        job.SetColorProcessor(processor);
+        job.SetInputTexture(unmanaged_texture);
+
         if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
             || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
-          alpha_assoc = Renderer::kAlphaNone;
+          job.SetInputAlphaAssociation(kAlphaNone);
         } else if (stream_data.premultiplied_alpha()) {
-          alpha_assoc = Renderer::kAlphaAssociated;
+          job.SetInputAlphaAssociation(kAlphaAssociated);
         } else {
-          alpha_assoc = Renderer::kAlphaUnassociated;
+          job.SetInputAlphaAssociation(kAlphaUnassociated);
         }
 
-        render_ctx_->BlitColorManaged(processor, unmanaged_texture,
-                                      alpha_assoc,
-                                      value.get());
+        render_ctx_->BlitColorManaged(job, value.get());
 
         return value;
       }
@@ -571,7 +578,7 @@ TexturePtr RenderProcessor::ProcessColorTransform(const Node *node, const ColorT
   TexturePtr src = job.GetInputTexture();
   TexturePtr dest = render_ctx_->CreateTexture(src->params());
 
-  render_ctx_->BlitColorManaged(job.GetColorProcessor(), src, Renderer::kAlphaAssociated, dest.get(), job.GetShaderPath());
+  render_ctx_->BlitColorManaged(job, dest.get());
 
   return dest;
 }
@@ -600,7 +607,13 @@ TexturePtr RenderProcessor::ProcessFrameGeneration(const Node *node, const Gener
     TexturePtr dest = render_ctx_->CreateTexture(GetCacheVideoParams());
     ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
     ColorProcessorPtr cp = ColorProcessor::Create(color_manager, job.GetColorspace(), color_manager->GetReferenceColorSpace());
-    render_ctx_->BlitColorManaged(cp, texture, Renderer::kAlphaAssociated, dest.get());
+    ColorTransformJob ctj;
+
+    ctj.SetColorProcessor(cp);
+    ctj.SetInputTexture(texture);
+    ctj.SetInputAlphaAssociation(kAlphaAssociated);
+
+    render_ctx_->BlitColorManaged(ctj, dest.get());
     texture = dest;
   }
 

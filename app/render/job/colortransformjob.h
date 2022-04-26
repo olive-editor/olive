@@ -21,19 +21,28 @@
 #ifndef COLORTRANSFORMJOB_H
 #define COLORTRANSFORMJOB_H
 
+#include <QMatrix4x4>
 #include <QString>
 
+#include "render/job/acceleratedjob.h"
+#include "render/alphaassoc.h"
 #include "render/colorprocessor.h"
 #include "render/texture.h"
 
 namespace olive {
 
-class ColorTransformJob {
+class Node;
+
+class ColorTransformJob : public AcceleratedJob
+{
 public:
   ColorTransformJob()
   {
     processor_ = nullptr;
     input_texture_ = nullptr;
+    custom_shader_src_ = nullptr;
+    input_alpha_association_ = kAlphaNone;
+    clear_destination_ = true;
   }
 
   TexturePtr GetInputTexture() const { return input_texture_; }
@@ -42,15 +51,41 @@ public:
   ColorProcessorPtr GetColorProcessor() const { return processor_; }
   void SetColorProcessor(ColorProcessorPtr p) { processor_ = p; }
 
-  QString GetShaderPath() const { return shader_path_; }
-  void SetShaderPath(const QString shader_path) { shader_path_ = shader_path; }
+  const AlphaAssociated &GetInputAlphaAssociation() const { return input_alpha_association_; }
+  void SetInputAlphaAssociation(const AlphaAssociated &e) { input_alpha_association_ = e; }
+
+  const Node *CustomShaderSource() const { return custom_shader_src_; }
+  const QString &CustomShaderID() const { return custom_shader_id_; }
+  void SetNeedsCustomShader(const Node *node, const QString &id = QString())
+  {
+    custom_shader_src_ = node;
+    custom_shader_id_ = id;
+  }
+
+  bool IsClearDestinationEnabled() const { return clear_destination_; }
+  void SetClearDestinationEnabled(bool e) { clear_destination_ = e; }
+
+  const QMatrix4x4 &GetTransformMatrix() const { return matrix_; }
+  void SetTransformMatrix(const QMatrix4x4 &m) { matrix_ = m; }
+
+  const QMatrix4x4 &GetCropMatrix() const { return crop_matrix_; }
+  void SetCropMatrix(const QMatrix4x4 &m) { crop_matrix_ = m; }
 
 private:
   ColorProcessorPtr processor_;
 
   TexturePtr input_texture_;
 
-  QString shader_path_;
+  const Node *custom_shader_src_;
+  QString custom_shader_id_;
+
+  AlphaAssociated input_alpha_association_;
+
+  bool clear_destination_;
+
+  QMatrix4x4 matrix_;
+
+  QMatrix4x4 crop_matrix_;
 
 };
 

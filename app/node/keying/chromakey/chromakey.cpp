@@ -65,11 +65,16 @@ void ChromaKeyNode::InputValueChangedEvent(const QString &input, int element)
   GenerateProcessor();
 }
 
+ShaderCode ChromaKeyNode::GetShaderCode(const QString &) const
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/chromakey.frag")));
+}
+
 void ChromaKeyNode::GenerateProcessor()
 {
   if (manager()){
     ColorTransform transform("cie_xyz_d65_interchange");
-    set_processor(ColorProcessor::Create(manager(), manager()->GetReferenceColorSpace(), transform)); 
+    set_processor(ColorProcessor::Create(manager(), manager()->GetReferenceColorSpace(), transform));
   }
 }
 
@@ -78,9 +83,10 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
   if (!value[kTextureInput].data().isNull() && processor()) {
     ColorTransformJob job;
 
+    job.InsertValue(value);
     job.SetColorProcessor(processor());
     job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
-    job.SetShaderPath(QStringLiteral(":/shaders/chromakey.frag"));
+    job.SetNeedsCustomShader(this);
 
     table->Push(NodeValue::kColorTransformJob, QVariant::fromValue(job), this);
   }

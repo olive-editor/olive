@@ -74,7 +74,13 @@ void ScopeBase::OnPaint()
     if (!managed_tex_ || !managed_tex_up_to_date_
         || managed_tex_->params() != texture_->params()) {
       managed_tex_ = renderer()->CreateTexture(texture_->params());
-      renderer()->BlitColorManaged(color_service(), texture_, Renderer::kAlphaNone, managed_tex_.get());
+
+      ColorTransformJob job;
+      job.SetColorProcessor(color_service());
+      job.SetInputTexture(texture_);
+      job.SetInputAlphaAssociation(kAlphaNone);
+
+      renderer()->BlitColorManaged(job, managed_tex_.get());
     }
 
     DrawScope(managed_tex_, pipeline_);
