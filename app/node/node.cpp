@@ -48,7 +48,9 @@ Node::Node() :
   folder_(nullptr),
   operation_stack_(0),
   cache_result_(false),
-  flags_(kNone)
+  flags_(kNone),
+  effect_element_(-1),
+  bypass_(false)
 {
 }
 

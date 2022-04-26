@@ -46,6 +46,9 @@ StrokeFilterNode::StrokeFilterNode()
   SetInputProperty(kOpacityInput, QStringLiteral("max"), 1.0f);
 
   AddInput(kInnerInput, NodeValue::kBoolean, false);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node *StrokeFilterNode::copy() const

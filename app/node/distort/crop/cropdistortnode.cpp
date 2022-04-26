@@ -56,6 +56,9 @@ CropDistortNode::CropDistortNode()
   point_gizmo_[kGizmoScaleBottomRight] = AddDraggableGizmo<PointGizmo>({kRightInput, kBottomInput});
   point_gizmo_[kGizmoScaleCenterLeft] = AddDraggableGizmo<PointGizmo>({kLeftInput});
   point_gizmo_[kGizmoScaleCenterRight] = AddDraggableGizmo<PointGizmo>({kRightInput});
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void CropDistortNode::Retranslate()

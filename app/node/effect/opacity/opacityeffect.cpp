@@ -24,6 +24,9 @@ OpacityEffect::OpacityEffect()
   SetInputProperty(kValueInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kValueInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kValueInput, QStringLiteral("max"), 1.0);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void OpacityEffect::Retranslate()

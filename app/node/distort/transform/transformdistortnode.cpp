@@ -64,6 +64,9 @@ TransformDistortNode::TransformDistortNode()
     point_gizmo_[i]->AddInput(NodeKeyframeTrackReference(NodeInput(this, kScaleInput), 1));
     point_gizmo_[i]->SetDragValueBehavior(PointGizmo::kAbsolute);
   }
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void TransformDistortNode::Retranslate()

@@ -33,6 +33,9 @@ FlipDistortNode::FlipDistortNode()
   AddInput(kHorizontalInput, NodeValue::kBoolean, false);
 
   AddInput(kVerticalInput, NodeValue::kBoolean, false);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node* FlipDistortNode::copy() const

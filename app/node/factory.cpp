@@ -86,7 +86,7 @@ void NodeFactory::Destroy()
   library_.clear();
 }
 
-Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::CategoryID restrict_to)
+Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::CategoryID restrict_to, uint64_t restrict_flags)
 {
   Menu* menu = new Menu(parent);
   menu->setToolTipsVisible(true);
@@ -96,6 +96,10 @@ Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::Cate
 
     if (restrict_to != Node::kCategoryUnknown && !n->Category().contains(restrict_to)) {
       // Skip this node
+      continue;
+    }
+
+    if (restrict_flags && !(n->GetFlags() & restrict_flags)) {
       continue;
     }
 

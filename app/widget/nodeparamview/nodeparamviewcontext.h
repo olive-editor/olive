@@ -91,6 +91,8 @@ private:
 private slots:
   void AddEffectButtonClicked();
 
+  void AddEffectMenuItemTriggered(QAction *a);
+
 };
 
 }

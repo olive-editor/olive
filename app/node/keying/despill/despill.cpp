@@ -33,6 +33,9 @@ DespillNode::DespillNode()
   AddInput(kMethodInput, NodeValue::kCombo, 0);
 
   AddInput(kPreserveLuminanceInput, NodeValue::kBoolean, false);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node* DespillNode::copy() const

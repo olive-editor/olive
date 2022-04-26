@@ -43,6 +43,9 @@ BlurFilterNode::BlurFilterNode()
   AddInput(kVertInput, NodeValue::kBoolean, true);
 
   AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node *BlurFilterNode::copy() const

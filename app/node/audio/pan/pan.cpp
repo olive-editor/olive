@@ -35,6 +35,9 @@ PanNode::PanNode()
   SetInputProperty(kPanningInput, QStringLiteral("min"), -1.0);
   SetInputProperty(kPanningInput, QStringLiteral("max"), 1.0);
   SetInputProperty(kPanningInput, QStringLiteral("view"), FloatSlider::kPercentage);
+
+  SetFlags(kAudioEffect);
+  SetEffectInput(kSamplesInput);
 }
 
 Node *PanNode::copy() const
