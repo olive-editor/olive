@@ -86,53 +86,36 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
 {
   // Determine project version
   uint version = 0;
+  Result res = kUnknownVersion;
 
-  while (!version && XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("olive") || reader->name() == type) {
-      while(!version && XMLReadNextStartElement(reader)) {
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("olive")
+        || reader->name() == QStringLiteral("project")) { // 0.1 projects only
+
+      while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("version")) {
           version = reader->readElementText().toUInt();
+        } else if (reader->name() == QStringLiteral("url")) {
+          project->SetSavedURL(reader->readElementText());
+
+          // HACK for 0.1 projects
+          if (version == 190219) {
+            res = LoadWithSerializerVersion(version, project, reader);
+          }
+        } else if (reader->name() == type) {
+          // Found our data
+          res = LoadWithSerializerVersion(version, project, reader);
         } else {
           reader->skipCurrentElement();
         }
       }
+
     } else {
       reader->skipCurrentElement();
     }
   }
 
-  // Failed to find version in file
-  if (version == 0) {
-    return kUnknownVersion;
-  }
-
-  // We should now have the version, if we have a serializer for it, use it to load the project
-  ProjectSerializer *serializer = nullptr;
-
-  foreach (ProjectSerializer *s, instances_) {
-    if (version == s->Version()) {
-      serializer = s;
-      break;
-    } else if (version < s->Version()) {
-      // Assuming the instance list is in order, if the project version is less than any version
-      // we find, we must not support it anymore
-      return kProjectTooOld;
-    }
-  }
-
-  if (serializer) {
-    LoadData ld = serializer->Load(project, reader, nullptr);
-    Result r(kSuccess);
-    if (reader->hasError()) {
-      r = Result(kXmlError);
-      r.SetDetails(reader->errorString());
-    }
-    r.SetLoadData(ld);
-    return r;
-  } else {
-    // Reached the end of the list with no serializer, assume too new
-    return kProjectTooNew;
-  }
+  return res;
 }
 
 ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type)
@@ -207,6 +190,42 @@ ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, cons
 bool ProjectSerializer::IsCancelled() const
 {
   return false;
+}
+
+ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader)
+{
+  // Failed to find version in file
+  if (version == 0) {
+    return kUnknownVersion;
+  }
+
+  // We should now have the version, if we have a serializer for it, use it to load the project
+  ProjectSerializer *serializer = nullptr;
+
+  foreach (ProjectSerializer *s, instances_) {
+    if (version == s->Version()) {
+      serializer = s;
+      break;
+    } else if (version < s->Version()) {
+      // Assuming the instance list is in order, if the project version is less than any version
+      // we find, we must not support it anymore
+      return kProjectTooOld;
+    }
+  }
+
+  if (serializer) {
+    LoadData ld = serializer->Load(project, reader, nullptr);
+    Result r(kSuccess);
+    if (reader->hasError()) {
+      r = Result(kXmlError);
+      r.SetDetails(reader->errorString());
+    }
+    r.SetLoadData(ld);
+    return r;
+  } else {
+    // Reached the end of the list with no serializer, assume too new
+    return kProjectTooNew;
+  }
 }
 
 }

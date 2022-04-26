@@ -153,6 +153,8 @@ protected:
   bool IsCancelled() const;
 
 private:
+  static Result LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader);
+
   static QVector<ProjectSerializer*> instances_;
 
 };
