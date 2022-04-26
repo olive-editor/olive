@@ -28,6 +28,7 @@
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -369,8 +370,28 @@ Node *NodeParamView::GetTimeTarget() const
 
 void NodeParamView::DeleteSelected()
 {
-  if (keyframe_view_) {
+  if (keyframe_view_ && keyframe_view_->hasFocus()) {
     keyframe_view_->DeleteSelected();
+  } else if (focused_node_) {
+    MultiUndoCommand *c = new MultiUndoCommand();
+    Node *n = focused_node_->GetNode();
+
+    // Create command to delete node from context and/or graph
+    NodeViewDeleteCommand *dc = new NodeViewDeleteCommand();
+    dc->AddNode(n, focused_node_->GetContext());
+    c->add_child(dc);
+
+    // Copy any outputs that were connected
+    if (n->GetEffectInput().IsValid()) {
+      if (Node *out = n->GetEffectInput().GetConnectedOutput()) {
+        for (auto it=n->output_connections().cbegin(); it!=n->output_connections().cend(); it++) {
+          c->add_child(new NodeEdgeAddCommand(out, it->second));
+        }
+      }
+    }
+
+
+    Core::instance()->undo_stack()->push(c);
   }
 }
 
