@@ -33,6 +33,8 @@ const QString CornerPinDistortNode::kBottomRightInput = QStringLiteral("bottom_r
 const QString CornerPinDistortNode::kBottomLeftInput = QStringLiteral("bottom_left_in");
 const QString CornerPinDistortNode::kPerspectiveInput = QStringLiteral("perspective_in");
 
+#define super Node
+
 CornerPinDistortNode::CornerPinDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -55,6 +57,8 @@ CornerPinDistortNode::CornerPinDistortNode()
 
 void CornerPinDistortNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Texture"));
   SetInputName(kPerspectiveInput, tr("Perspective"));
   SetInputName(kTopLeftInput, tr("Top Left"));

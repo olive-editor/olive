@@ -27,6 +27,8 @@ namespace olive {
 const QString PanNode::kSamplesInput = QStringLiteral("samples_in");
 const QString PanNode::kPanningInput = QStringLiteral("panning_in");
 
+#define super Node
+
 PanNode::PanNode()
 {
   AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
@@ -118,6 +120,8 @@ void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr i
 
 void PanNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kSamplesInput, tr("Samples"));
   SetInputName(kPanningInput, tr("Pan"));
 }

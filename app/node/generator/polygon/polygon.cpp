@@ -30,6 +30,8 @@ namespace olive {
 const QString PolygonGenerator::kPointsInput = QStringLiteral("points_in");
 const QString PolygonGenerator::kColorInput = QStringLiteral("color_in");
 
+#define super Node
+
 PolygonGenerator::PolygonGenerator()
 {
   AddInput(kPointsInput, NodeValue::kBezier, QVector2D(0, 0), InputFlags(kInputFlagArray));
@@ -86,6 +88,8 @@ QString PolygonGenerator::Description() const
 
 void PolygonGenerator::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kPointsInput, tr("Points"));
   SetInputName(kColorInput, tr("Color"));
 }

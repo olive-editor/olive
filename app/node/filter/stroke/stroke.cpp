@@ -31,6 +31,8 @@ const QString StrokeFilterNode::kRadiusInput = QStringLiteral("radius_in");
 const QString StrokeFilterNode::kOpacityInput = QStringLiteral("opacity_in");
 const QString StrokeFilterNode::kInnerInput = QStringLiteral("inner_in");
 
+#define super Node
+
 StrokeFilterNode::StrokeFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -78,6 +80,8 @@ QString StrokeFilterNode::Description() const
 
 void StrokeFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kColorInput, tr("Color"));
   SetInputName(kRadiusInput, tr("Radius"));

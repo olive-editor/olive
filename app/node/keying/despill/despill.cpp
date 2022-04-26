@@ -24,6 +24,8 @@ const QString DespillNode::kColorInput = QStringLiteral("color_in");
 const QString DespillNode::kMethodInput = QStringLiteral("method_in");
 const QString DespillNode::kPreserveLuminanceInput = QStringLiteral("preserve_luminance_input");
 
+#define super Node
+
 DespillNode::DespillNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -65,11 +67,12 @@ QString DespillNode::Description() const
 
 void DespillNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
 
   SetInputName(kColorInput, tr("Key Color"));
   SetComboBoxStrings(kColorInput, {tr("Green"), tr("Blue")});
-
 
   SetInputName(kMethodInput, tr("Method"));
   SetComboBoxStrings(kMethodInput, {tr("Average"), tr("Double Red Average"), tr("Double Average"), tr("Limit")});

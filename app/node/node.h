@@ -896,9 +896,6 @@ public:
     cache_result_ = e;
   }
 
-  bool IsBypassed() const { return bypass_; }
-  void SetBypassed(bool e) { bypass_ = e; }
-
   class ArrayRemoveCommand : public UndoCommand
   {
   public:
@@ -958,6 +955,8 @@ public:
   void SetInputFlags(const QString &input, const InputFlags &f);
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+
+  static const QString kEnabledInput;
 
 protected:
   virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
@@ -1360,8 +1359,6 @@ private:
 
   QString effect_input_;
   int effect_element_;
-
-  bool bypass_;
 
 private slots:
   /**

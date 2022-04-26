@@ -33,6 +33,8 @@ const QString CropDistortNode::kRightInput = QStringLiteral("right_in");
 const QString CropDistortNode::kBottomInput = QStringLiteral("bottom_in");
 const QString CropDistortNode::kFeatherInput = QStringLiteral("feather_in");
 
+#define super Node
+
 CropDistortNode::CropDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -63,6 +65,8 @@ CropDistortNode::CropDistortNode()
 
 void CropDistortNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Texture"));
   SetInputName(kLeftInput, tr("Left"));
   SetInputName(kTopInput, tr("Top"));
