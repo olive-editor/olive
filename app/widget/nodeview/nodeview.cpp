@@ -45,6 +45,7 @@ const double NodeView::kMinimumScale = 0.1;
 
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
+  NodeCopyPasteService(QStringLiteral("nodes")),
   drop_edge_(nullptr),
   create_edge_(nullptr),
   create_edge_output_item_(nullptr),

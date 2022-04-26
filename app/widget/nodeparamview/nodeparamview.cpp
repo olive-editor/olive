@@ -283,6 +283,16 @@ void NodeParamView::UpdateContexts()
 
 void NodeParamView::ItemAboutToBeRemoved(NodeParamViewItem *item)
 {
+  if (keyframe_view_) {
+    for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
+      for (auto jt=it->begin(); jt!=it->end(); jt++) {
+        for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
+          keyframe_view_->RemoveKeyframesOfTrack(*kt);
+        }
+      }
+    }
+  }
+
   if (focused_node_ == item) {
     focused_node_ = nullptr;
     emit FocusedNodeChanged(nullptr);
@@ -455,27 +465,6 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 
     // needed to update keyframe connections dynamically
     item->SetKeyframeView( keyframe_view_);
-  }
-}
-
-void NodeParamView::RemoveNode(Node *n, Node *ctx)
-{
-  foreach (NodeParamViewContext *ctx_item, context_items_) {
-    NodeParamViewItem *item = ctx_item->GetItem(n, ctx);
-
-    if (item) {
-      if (keyframe_view_) {
-        for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
-          for (auto jt=it->begin(); jt!=it->end(); jt++) {
-            for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
-              keyframe_view_->RemoveKeyframesOfTrack(*kt);
-            }
-          }
-        }
-      }
-    }
-
-    ctx_item->RemoveNode(n, ctx);
   }
 }
 
@@ -678,7 +667,9 @@ void NodeParamView::NodeRemovedFromContext(Node *n)
 {
   Node *ctx = static_cast<Node*>(sender());
 
-  RemoveNode(n, ctx);
+  foreach (NodeParamViewContext *ctx_item, context_items_) {
+    ctx_item->RemoveNode(n, ctx);
+  }
 
   if (keyframe_view_) {
     QueueKeyframePositionUpdate();

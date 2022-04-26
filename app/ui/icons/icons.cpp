@@ -55,6 +55,7 @@ QIcon icon::ToolSlip;
 QIcon icon::ToolSlide;
 QIcon icon::ToolHand;
 QIcon icon::ToolTransition;
+QIcon icon::ToolTrackSelect;
 QIcon icon::Folder;
 QIcon icon::Sequence;
 QIcon icon::Video;
@@ -68,6 +69,8 @@ QIcon icon::TriRight;
 QIcon icon::TextBold;
 QIcon icon::TextItalic;
 QIcon icon::TextUnderline;
+QIcon icon::TextStrikethrough;
+QIcon icon::TextSmallCaps;
 QIcon icon::TextAlignLeft;
 QIcon icon::TextAlignRight;
 QIcon icon::TextAlignCenter;
@@ -116,6 +119,7 @@ void icon::LoadAll(const QString& theme)
   ToolSlide = Create(theme, "slide");
   ToolHand = Create(theme, "hand");
   ToolTransition = Create(theme, "transition-tool");
+  ToolTrackSelect = Create(theme, "track-tool");
 
   Folder = Create(theme, "folder");
   Sequence = Create(theme, "sequence");
@@ -133,6 +137,8 @@ void icon::LoadAll(const QString& theme)
   TextBold = Create(theme, "text-bold");
   TextItalic = Create(theme, "text-italic");
   TextUnderline = Create(theme, "text-underline");
+  TextStrikethrough = Create(theme, "text-strikethrough");
+  TextSmallCaps = Create(theme, "text-small-caps");
   TextAlignLeft = Create(theme, "align-left");
   TextAlignRight = Create(theme, "align-right");
   TextAlignCenter = Create(theme, "align-center");

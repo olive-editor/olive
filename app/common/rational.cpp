@@ -186,6 +186,8 @@ const rational& rational::operator=(const rational &rhs)
 
 const rational& rational::operator+=(const rational &rhs)
 {
+  Q_ASSERT(*this != RATIONAL_MIN && *this != RATIONAL_MAX && rhs != RATIONAL_MIN && rhs != RATIONAL_MAX);
+
   if (!isNaN()) {
     if (rhs.isNaN()) {
       // Set to NaN
@@ -209,6 +211,8 @@ const rational& rational::operator+=(const rational &rhs)
 
 const rational& rational::operator-=(const rational &rhs)
 {
+  Q_ASSERT(*this != RATIONAL_MIN && *this != RATIONAL_MAX && rhs != RATIONAL_MIN && rhs != RATIONAL_MAX);
+
   if (!isNaN()) {
     if (rhs.isNaN()) {
       // Set to NaN
@@ -232,6 +236,8 @@ const rational& rational::operator-=(const rational &rhs)
 
 const rational& rational::operator/=(const rational &rhs)
 {
+  Q_ASSERT(*this != RATIONAL_MIN && *this != RATIONAL_MAX && rhs != RATIONAL_MIN && rhs != RATIONAL_MAX);
+
   if (!isNaN()) {
     if (rhs.isNaN()) {
       // Set to NaN
@@ -250,6 +256,8 @@ const rational& rational::operator/=(const rational &rhs)
 
 const rational& rational::operator*=(const rational &rhs)
 {
+  Q_ASSERT(*this != RATIONAL_MIN && *this != RATIONAL_MAX && rhs != RATIONAL_MIN && rhs != RATIONAL_MAX);
+
   if (!isNaN()) {
     if (rhs.isNaN()) {
       denom_ = 0;

@@ -55,14 +55,14 @@ void ProjectSerializer::Destroy()
   instances_.clear();
 }
 
-ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QString &filename)
+ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QString &filename, const QString &type)
 {
   QFile project_file(filename);
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
 
-    Result inner_result = Load(project, &reader);
+    Result inner_result = Load(project, &reader, type);
 
     project_file.close();
 
@@ -82,13 +82,13 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QStrin
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamReader *reader)
+ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamReader *reader, const QString &type)
 {
   // Determine project version
   uint version = 0;
 
   while (!version && XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("olive") || reader->name() == QStringLiteral("project")) {
+    if (reader->name() == QStringLiteral("olive") || reader->name() == type) {
       while(!version && XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("version")) {
           version = reader->readElementText().toUInt();
@@ -135,7 +135,7 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data)
+ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type)
 {
   QString temp_save = FileFunctions::GetSafeTemporaryFilename(data.GetFilename());
 
@@ -144,7 +144,7 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data)
   if (project_file.open(QFile::WriteOnly | QFile::Text)) {
     QXmlStreamWriter writer(&project_file);
 
-    Result inner_result = Save(&writer, data);
+    Result inner_result = Save(&writer, data, type);
 
     project_file.close();
 
@@ -167,7 +167,7 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data)
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, const SaveData &data)
+ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, const SaveData &data, const QString &type)
 {
   writer->setAutoFormatting(true);
 
@@ -187,11 +187,11 @@ ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, cons
     writer->writeTextElement("url", data.GetFilename());
   }
 
-  writer->writeStartElement(QStringLiteral("project"));
+  writer->writeStartElement(type);
 
   serializer->Save(writer, data, nullptr);
 
-  writer->writeEndElement(); // project
+  writer->writeEndElement(); // [type]
 
   writer->writeEndElement(); // olive
 
