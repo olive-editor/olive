@@ -39,7 +39,7 @@ void main() {
   vec4 col = texture(tex_in, ove_texcoord);
 
   // Perform color conversion
-  vec4 cie_xyz = %2(col);
+  vec4 cie_xyz = SceneLinearToCIEXYZ_d65(col);
   vec4 lab = CIExyz_to_Lab(cie_xyz);
 
   frag_color = vec4(lab.r);

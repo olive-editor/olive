@@ -106,10 +106,15 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
     return true;
   } else {
     // Create shader description
-    const char* ocio_func_name = "OCIODisplay";
+    QString ocio_func_name;
+    if (color_job.FunctionName().isEmpty()) {
+      ocio_func_name = "OCIODisplay";
+    } else {
+      ocio_func_name = color_job.FunctionName();
+    }
     auto shader_desc = OCIO::GpuShaderDesc::CreateShaderDesc();
     shader_desc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_ES_3_0);
-    shader_desc->setFunctionName(ocio_func_name);
+    shader_desc->setFunctionName(ocio_func_name.toStdString().c_str());
     shader_desc->setResourcePrefix("ocio_");
 
     // Generate shader
@@ -124,7 +129,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
       code = FileFunctions::ReadFileAsString(QStringLiteral(":shaders/colormanage.frag"));
     }
 
-    code.set_frag_code(code.frag_code().arg(shader_desc->getShaderText(), ocio_func_name));
+    code.set_frag_code(code.frag_code().arg(shader_desc->getShaderText()));
 
     // Try to compile shader
     color_ctx.compiled_shader = CreateNativeShader(code);

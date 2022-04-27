@@ -87,6 +87,7 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
     job.SetColorProcessor(processor());
     job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
     job.SetNeedsCustomShader(this);
+    job.SetFunctionName(QString("SceneLinearToCIEXYZ_d65"));
 
     table->Push(NodeValue::kColorTransformJob, QVariant::fromValue(job), this);
   }

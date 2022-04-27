@@ -71,6 +71,9 @@ public:
   const QMatrix4x4 &GetCropMatrix() const { return crop_matrix_; }
   void SetCropMatrix(const QMatrix4x4 &m) { crop_matrix_ = m; }
 
+  const QString &FunctionName() const { return function_name_; }
+  void SetFunctionName(const QString &function_name = QString()) { function_name_ = function_name; };
+
 private:
   ColorProcessorPtr processor_;
 
@@ -86,6 +89,8 @@ private:
   QMatrix4x4 matrix_;
 
   QMatrix4x4 crop_matrix_;
+
+  QString function_name_;
 
 };
 
