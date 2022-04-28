@@ -451,8 +451,10 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     }
   }
 
-  // Default QGraphicsView functionality (selecting, dragging, etc.)
-  super::mousePressEvent(event);
+  if (attached_items_.isEmpty()) {
+    // Default QGraphicsView functionality (selecting, dragging, etc.)
+    super::mousePressEvent(event);
+  }
 
   // For any selected item, store its position in case the user is dragging it somewhere else
   auto selected_items = scene_.GetSelectedItems();
@@ -473,7 +475,9 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
     return;
   }
 
-  super::mouseMoveEvent(event);
+  if (attached_items_.isEmpty()) {
+    super::mouseMoveEvent(event);
+  }
 
   // See if there are any items attached
   if (!attached_items_.isEmpty()) {
@@ -560,6 +564,8 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   Node *select_context = nullptr;
   QVector<Node*> select_nodes;
 
+  bool had_attached_items = !attached_items_.isEmpty();
+
   if (!attached_items_.isEmpty()) {
     select_context = nullptr;
 
@@ -643,7 +649,9 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-  super::mouseReleaseEvent(event);
+  if (!had_attached_items) {
+    super::mouseReleaseEvent(event);
+  }
 
   if (select_context) {
     scene_.context_map().value(select_context)->Select(select_nodes);
