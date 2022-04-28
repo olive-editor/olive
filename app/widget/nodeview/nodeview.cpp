@@ -500,26 +500,26 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (new_drop_edge) {
           drop_input_.Reset();
 
-          NodeValue::Type drop_edge_data_type = NodeValue::kNone;
+          NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
 
-          // Run the Node and determine what type is being used
-          NodeTraverser traverser;
-          NodeValue drop_edge_value = traverser.GenerateRow(new_drop_edge->output(), TimeRange(0, 0))[new_drop_edge->input().input()];
-          drop_edge_data_type = drop_edge_value.type();
+          // Determine best input to connect to our new node
+          if (attached_node->GetEffectInput().IsValid()) {
+            // If node specifies an effect input, use that immediately
+            drop_input_ = attached_node->GetEffectInput();
+          } else {
+            // Otherwise, we may have to iterate to find a valid one
+            for (const QString& input : attached_node->inputs()) {
+              NodeInput i(attached_node, input);
 
-          // Iterate through the inputs of our dragging node and see if our node has any acceptable
-          // inputs to connect to for this type
-          for (const QString& input : attached_node->inputs()) {
-            NodeInput i(attached_node, input);
-
-            if (attached_node->IsInputConnectable(input)) {
-              if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
-                // Found exactly the type we're looking for, set and break this loop
-                drop_input_ = i;
-                break;
-              } else if (!drop_input_.IsValid()) {
-                // Default to first connectable input
-                drop_input_ = i;
+              if (attached_node->IsInputConnectable(input)) {
+                if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
+                  // Found exactly the type we're looking for, set and break this loop
+                  drop_input_ = i;
+                  break;
+                } else if (!drop_input_.IsValid()) {
+                  // Default to first connectable input
+                  drop_input_ = i;
+                }
               }
             }
           }
