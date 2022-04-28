@@ -53,6 +53,8 @@ QString NodeGroup::Description() const
 
 void NodeGroup::Retranslate()
 {
+  super::Retranslate();
+
   for (auto it=GetContextPositions().cbegin(); it!=GetContextPositions().cend(); it++) {
     it.key()->Retranslate();
   }

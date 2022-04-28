@@ -42,14 +42,18 @@ namespace olive {
 
 #define super QObject
 
+const QString Node::kEnabledInput = QStringLiteral("enabled_in");
+
 Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
   operation_stack_(0),
   cache_result_(false),
-  flags_(kNone)
+  flags_(kNone),
+  effect_element_(-1)
 {
+  AddInput(kEnabledInput, NodeValue::kBoolean, true);
 }
 
 Node::~Node()
@@ -103,6 +107,7 @@ QString Node::Description() const
 
 void Node::Retranslate()
 {
+  SetInputName(kEnabledInput, tr("Enabled"));
 }
 
 QIcon Node::icon() const

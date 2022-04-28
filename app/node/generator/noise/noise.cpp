@@ -25,6 +25,8 @@ namespace olive {
 const QString NoiseGeneratorNode::kColorInput = QStringLiteral("color_in");
 const QString NoiseGeneratorNode::kStrengthInput = QStringLiteral("strength_in");
 
+#define super Node
+
 NoiseGeneratorNode::NoiseGeneratorNode()
 {
   AddInput(kStrengthInput, NodeValue::kFloat, 20);
@@ -59,6 +61,8 @@ QString NoiseGeneratorNode::Description() const
 
 void NoiseGeneratorNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kStrengthInput, tr("Strength"));
   SetInputName(kColorInput, tr("Color"));
 }

@@ -29,133 +29,125 @@ ProjectSerializer210528::LoadData ProjectSerializer210528::Load(Project *project
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("url")) {
-      project->SetSavedURL(reader->readElementText());
-    } else if (reader->name() == QStringLiteral("project")) {
+    if (reader->name() == QStringLiteral("layout")) {
+
+      // Since the main window's functions have to occur in the GUI thread (and we're likely
+      // loading in a secondary thread), we load all necessary data into a separate struct so we
+      // can continue loading and queue it with the main window so it can handle the data
+      // appropriately in its own thread.
+
+      project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data.node_ptrs));
+
+    } else if (reader->name() == QStringLiteral("uuid")) {
+
+      project->SetUuid(QUuid::fromString(reader->readElementText()));
+
+    } else if (reader->name() == QStringLiteral("nodes")) {
+
       while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("layout")) {
+        if (reader->name() == QStringLiteral("node")) {
+          bool is_root = false;
+          bool is_cm = false;
+          bool is_settings = false;
+          QString id;
 
-          // Since the main window's functions have to occur in the GUI thread (and we're likely
-          // loading in a secondary thread), we load all necessary data into a separate struct so we
-          // can continue loading and queue it with the main window so it can handle the data
-          // appropriately in its own thread.
-
-          project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data.node_ptrs));
-
-        } else if (reader->name() == QStringLiteral("uuid")) {
-
-          project->SetUuid(QUuid::fromString(reader->readElementText()));
-
-        } else if (reader->name() == QStringLiteral("nodes")) {
-
-          while (XMLReadNextStartElement(reader)) {
-            if (reader->name() == QStringLiteral("node")) {
-              bool is_root = false;
-              bool is_cm = false;
-              bool is_settings = false;
-              QString id;
-
-              {
-                XMLAttributeLoop(reader, attr) {
-                  if (attr.name() == QStringLiteral("id")) {
-                    id = attr.value().toString();
-                  } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
-                    is_root = true;
-                  } else if (attr.name() == QStringLiteral("cm") && attr.value() == QStringLiteral("1")) {
-                    is_cm = true;
-                  } else if (attr.name() == QStringLiteral("settings") && attr.value() == QStringLiteral("1")) {
-                    is_settings = true;
-                  }
-                }
+          {
+            XMLAttributeLoop(reader, attr) {
+              if (attr.name() == QStringLiteral("id")) {
+                id = attr.value().toString();
+              } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
+                is_root = true;
+              } else if (attr.name() == QStringLiteral("cm") && attr.value() == QStringLiteral("1")) {
+                is_cm = true;
+              } else if (attr.name() == QStringLiteral("settings") && attr.value() == QStringLiteral("1")) {
+                is_settings = true;
               }
-
-              if (id.isEmpty()) {
-                qWarning() << "Failed to load node with empty ID";
-                reader->skipCurrentElement();
-              } else {
-                Node* node;
-
-                if (is_root) {
-                  node = project->root();
-                } else if (is_cm) {
-                  node = project->color_manager();
-                } else if (is_settings) {
-                  node = project->settings();
-                } else {
-                  node = NodeFactory::CreateFromID(id);
-                }
-
-                if (!node) {
-                  qWarning() << "Failed to find node with ID" << id;
-                  reader->skipCurrentElement();
-                } else {
-                  LoadNode(node, xml_node_data, reader);
-                  node->setParent(project);
-                }
-              }
-            } else {
-              reader->skipCurrentElement();
             }
           }
 
-        } else if (reader->name() == QStringLiteral("positions")) {
+          if (id.isEmpty()) {
+            qWarning() << "Failed to load node with empty ID";
+            reader->skipCurrentElement();
+          } else {
+            Node* node;
 
-          while (XMLReadNextStartElement(reader)) {
+            if (is_root) {
+              node = project->root();
+            } else if (is_cm) {
+              node = project->color_manager();
+            } else if (is_settings) {
+              node = project->settings();
+            } else {
+              node = NodeFactory::CreateFromID(id);
+            }
 
-            if (reader->name() == QStringLiteral("context")) {
+            if (!node) {
+              qWarning() << "Failed to find node with ID" << id;
+              reader->skipCurrentElement();
+            } else {
+              LoadNode(node, xml_node_data, reader);
+              node->setParent(project);
+            }
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
 
-              quintptr context_ptr = 0;
-              XMLAttributeLoop(reader, attr) {
-                if (attr.name() == QStringLiteral("ptr")) {
-                  context_ptr = attr.value().toULongLong();
-                  break;
-                }
-              }
+    } else if (reader->name() == QStringLiteral("positions")) {
 
-              Node *context = xml_node_data.node_ptrs.value(context_ptr);
+      while (XMLReadNextStartElement(reader)) {
 
-              if (!context) {
-                qWarning() << "Failed to find pointer for context";
-                reader->skipCurrentElement();
-              } else {
-                while (XMLReadNextStartElement(reader)) {
-                  if (reader->name() == QStringLiteral("node")) {
-                    quintptr node_ptr;
-                    Node::Position node_pos;
+        if (reader->name() == QStringLiteral("context")) {
 
-                    if (LoadPosition(reader, &node_ptr, &node_pos)) {
-                      Node *node = xml_node_data.node_ptrs.value(node_ptr);
+          quintptr context_ptr = 0;
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("ptr")) {
+              context_ptr = attr.value().toULongLong();
+              break;
+            }
+          }
 
-                      if (node) {
-                        context->SetNodePositionInContext(node, node_pos);
-                      } else {
-                        qWarning() << "Failed to find pointer for node position";
-                        reader->skipCurrentElement();
-                      }
-                    }
+          Node *context = xml_node_data.node_ptrs.value(context_ptr);
+
+          if (!context) {
+            qWarning() << "Failed to find pointer for context";
+            reader->skipCurrentElement();
+          } else {
+            while (XMLReadNextStartElement(reader)) {
+              if (reader->name() == QStringLiteral("node")) {
+                quintptr node_ptr;
+                Node::Position node_pos;
+
+                if (LoadPosition(reader, &node_ptr, &node_pos)) {
+                  Node *node = xml_node_data.node_ptrs.value(node_ptr);
+
+                  if (node) {
+                    context->SetNodePositionInContext(node, node_pos);
                   } else {
+                    qWarning() << "Failed to find pointer for node position";
                     reader->skipCurrentElement();
                   }
                 }
+              } else {
+                reader->skipCurrentElement();
               }
-
-            } else {
-
-              reader->skipCurrentElement();
-
             }
-
           }
 
         } else {
 
-          // Skip this
           reader->skipCurrentElement();
 
         }
+
       }
+
     } else {
+
+      // Skip this
       reader->skipCurrentElement();
+
     }
   }
 

@@ -32,7 +32,6 @@ namespace olive {
 #define super Node
 
 const QString Block::kLengthInput = QStringLiteral("length_in");
-const QString Block::kEnabledInput = QStringLiteral("enabled_in");
 
 Block::Block() :
   previous_(nullptr),
@@ -45,8 +44,6 @@ Block::Block() :
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
   IgnoreHashingFrom(kLengthInput);
-
-  AddInput(kEnabledInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   SetFlags(kDontShowInParamView);
 }

@@ -26,6 +26,8 @@ namespace olive {
 
 const QString SolidGenerator::kColorInput = QStringLiteral("color_in");
 
+#define super Node
+
 SolidGenerator::SolidGenerator()
 {
   // Default to a color that isn't black
@@ -59,6 +61,8 @@ QString SolidGenerator::Description() const
 
 void SolidGenerator::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kColorInput, tr("Color"));
 }
 

@@ -34,6 +34,8 @@ const QString ColorManager::kConfigFilenameIn = QStringLiteral("config");
 const QString ColorManager::kDefaultColorspaceIn = QStringLiteral("default_input");
 const QString ColorManager::kReferenceSpaceIn = QStringLiteral("reference_space");
 
+#define super Node
+
 OCIO::ConstConfigRcPtr ColorManager::default_config_ = nullptr;
 
 ColorManager::ColorManager() :
@@ -253,6 +255,8 @@ void ColorManager::GetDefaultLumaCoefs(double *rgb) const
 
 void ColorManager::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kConfigFilenameIn, tr("Configuration"));
   SetInputName(kDefaultColorspaceIn, tr("Default Input"));
   SetInputName(kReferenceSpaceIn, tr("Reference Space"));

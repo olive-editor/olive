@@ -33,6 +33,8 @@ const QString MatrixGenerator::kScaleInput = QStringLiteral("scale_in");
 const QString MatrixGenerator::kUniformScaleInput = QStringLiteral("uniform_scale_in");
 const QString MatrixGenerator::kAnchorInput = QStringLiteral("anchor_in");
 
+#define super Node
+
 MatrixGenerator::MatrixGenerator()
 {
   AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
@@ -81,6 +83,8 @@ QString MatrixGenerator::Description() const
 
 void MatrixGenerator::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kPositionInput, tr("Position"));
   SetInputName(kRotationInput, tr("Rotation"));
   SetInputName(kScaleInput, tr("Scale"));

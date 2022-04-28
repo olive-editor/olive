@@ -95,7 +95,9 @@ public:
 
   enum Flag {
     kNone = 0,
-    kDontShowInParamView = 0x1
+    kDontShowInParamView = 0x1,
+    kVideoEffect = 0x2,
+    kAudioEffect = 0x4
   };
 
   Node();
@@ -539,6 +541,11 @@ public:
 
   int InputArraySize(const QString& id) const;
 
+  NodeInput GetEffectInput()
+  {
+    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_, effect_element_);
+  }
+
   class ValueHint {
   public:
     explicit ValueHint(const QVector<NodeValue::Type> &types = QVector<NodeValue::Type>(), int index = -1, const QString &tag = QString()) :
@@ -949,6 +956,8 @@ public:
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
+  static const QString kEnabledInput;
+
 protected:
   virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
@@ -1026,6 +1035,12 @@ protected:
   virtual void OutputDisconnectedEvent(const NodeInput& input);
 
   virtual void childEvent(QChildEvent *event) override;
+
+  void SetEffectInput(const QString &input, int element = -1)
+  {
+    effect_input_ = input;
+    effect_element_ = element;
+  }
 
   void SetToolTip(const QString& s)
   {
@@ -1349,6 +1364,9 @@ private:
   uint64_t flags_;
 
   QVector<NodeGizmo*> gizmos_;
+
+  QString effect_input_;
+  int effect_element_;
 
 private slots:
   /**

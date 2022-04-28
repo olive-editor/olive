@@ -57,6 +57,8 @@ ClipBlock::ClipBlock() :
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
   SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
+
+  SetEffectInput(kBufferIn);
 }
 
 Node *ClipBlock::copy() const

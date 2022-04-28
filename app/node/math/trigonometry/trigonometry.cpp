@@ -25,6 +25,8 @@ namespace olive {
 const QString TrigonometryNode::kMethodIn = QStringLiteral("method_in");
 const QString TrigonometryNode::kXIn = QStringLiteral("x_in");
 
+#define super Node
+
 TrigonometryNode::TrigonometryNode()
 {
   AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
@@ -59,6 +61,8 @@ QString TrigonometryNode::Description() const
 
 void TrigonometryNode::Retranslate()
 {
+  super::Retranslate();
+
   QStringList strings = {tr("Sine"),
                          tr("Cosine"),
                          tr("Tangent"),
