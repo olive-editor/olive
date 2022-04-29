@@ -451,8 +451,10 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     }
   }
 
-  // Default QGraphicsView functionality (selecting, dragging, etc.)
-  super::mousePressEvent(event);
+  if (attached_items_.isEmpty()) {
+    // Default QGraphicsView functionality (selecting, dragging, etc.)
+    super::mousePressEvent(event);
+  }
 
   // For any selected item, store its position in case the user is dragging it somewhere else
   auto selected_items = scene_.GetSelectedItems();
@@ -473,7 +475,9 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
     return;
   }
 
-  super::mouseMoveEvent(event);
+  if (attached_items_.isEmpty()) {
+    super::mouseMoveEvent(event);
+  }
 
   // See if there are any items attached
   if (!attached_items_.isEmpty()) {
@@ -500,26 +504,26 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (new_drop_edge) {
           drop_input_.Reset();
 
-          NodeValue::Type drop_edge_data_type = NodeValue::kNone;
+          NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
 
-          // Run the Node and determine what type is being used
-          NodeTraverser traverser;
-          NodeValue drop_edge_value = traverser.GenerateRow(new_drop_edge->output(), TimeRange(0, 0))[new_drop_edge->input().input()];
-          drop_edge_data_type = drop_edge_value.type();
+          // Determine best input to connect to our new node
+          if (attached_node->GetEffectInput().IsValid()) {
+            // If node specifies an effect input, use that immediately
+            drop_input_ = attached_node->GetEffectInput();
+          } else {
+            // Otherwise, we may have to iterate to find a valid one
+            for (const QString& input : attached_node->inputs()) {
+              NodeInput i(attached_node, input);
 
-          // Iterate through the inputs of our dragging node and see if our node has any acceptable
-          // inputs to connect to for this type
-          for (const QString& input : attached_node->inputs()) {
-            NodeInput i(attached_node, input);
-
-            if (attached_node->IsInputConnectable(input)) {
-              if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
-                // Found exactly the type we're looking for, set and break this loop
-                drop_input_ = i;
-                break;
-              } else if (!drop_input_.IsValid()) {
-                // Default to first connectable input
-                drop_input_ = i;
+              if (attached_node->IsInputConnectable(input)) {
+                if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
+                  // Found exactly the type we're looking for, set and break this loop
+                  drop_input_ = i;
+                  break;
+                } else if (!drop_input_.IsValid()) {
+                  // Default to first connectable input
+                  drop_input_ = i;
+                }
               }
             }
           }
@@ -559,6 +563,8 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
   Node *select_context = nullptr;
   QVector<Node*> select_nodes;
+
+  bool had_attached_items = !attached_items_.isEmpty();
 
   if (!attached_items_.isEmpty()) {
     select_context = nullptr;
@@ -643,7 +649,9 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-  super::mouseReleaseEvent(event);
+  if (!had_attached_items) {
+    super::mouseReleaseEvent(event);
+  }
 
   if (select_context) {
     scene_.context_map().value(select_context)->Select(select_nodes);
