@@ -43,6 +43,9 @@ public:
     return snapped_;
   }
 
+  const rational &GetTime() const { return playhead_; }
+
+  SnapService *GetSnapService() const { return snap_service_; }
   void SetSnapService(SnapService* service);
 
   const double& GetYScale() const;
@@ -84,11 +87,6 @@ protected:
   virtual void VerticalScaleChangedEvent(double scale);
 
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
-
-  const rational &GetPlayheadTime() const
-  {
-    return playhead_;
-  }
 
   bool PlayheadPress(QMouseEvent* event);
   bool PlayheadMove(QMouseEvent* event);

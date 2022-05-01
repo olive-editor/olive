@@ -77,7 +77,7 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
 
   if (points_
       && !timebase().isNull()
-      && (points_->workarea()->enabled() || !points_->markers()->list().isEmpty())) {
+      && (points_->workarea()->enabled() || !points_->markers()->list().empty())) {
     QStyleOptionSlider opt;
     initStyleOption(&opt);
 
@@ -110,7 +110,7 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
                  workarea_color);
     }
 
-    if (!points_->markers()->list().isEmpty()) {
+    if (!points_->markers()->list().empty()) {
       foreach (TimelineMarker* marker, points_->markers()->list()) {
         QColor marker_color = ColorCoding::GetColor(marker->color()).toQColor();
         int64_t in = qRound64(ratio * TimeToScene(marker->time().in()));

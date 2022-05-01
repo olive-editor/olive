@@ -398,15 +398,6 @@ void TimelineWidget::DeselectAll()
   SignalDeselectedAllBlocks();
 }
 
-bool TimelineWidget::MarkersActive()
-{
-  if (ruler()->GetActiveTimelineMarkers().size() > 0) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 void TimelineWidget::RippleToIn()
 {
   RippleTo(Timeline::kTrimIn);
@@ -505,10 +496,11 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
 void TimelineWidget::DeleteSelected(bool ripple)
 {
-  if (MarkersActive()) {
+  if (ruler()->hasFocus()) {
     ruler()->DeleteSelected();
     return;
   }
+
   QVector<Block*> selected_list = GetSelectedBlocks();
   QVector<Block*> blocks_to_delete;
 
@@ -641,11 +633,10 @@ void TimelineWidget::CopySelected(bool cut)
     return;
   }
 
-  if (MarkersActive()) {
+  if (ruler()->hasFocus()) {
     ruler()->CopySelected(cut);
     return;
   }
-    
 
   QVector<Block*> selected = GetSelectedBlocks();
 

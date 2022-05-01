@@ -41,7 +41,7 @@ public:
   void SetPlaybackCache(PlaybackCache* cache);
 
 protected:
-  virtual void paintEvent(QPaintEvent* e) override;
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
   virtual void TimebaseChangedEvent(const rational& tb) override;
 

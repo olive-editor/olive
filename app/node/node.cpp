@@ -80,18 +80,9 @@ NodeGraph *Node::parent() const
   return static_cast<NodeGraph*>(QObject::parent());
 }
 
-Project* Node::project() const
+Project *Node::project() const
 {
-  QObject *t = this->parent();
-
-  while (t) {
-    if (Project *p = dynamic_cast<Project*>(t)) {
-      return p;
-    }
-    t = t->parent();
-  }
-
-  return nullptr;
+  return Project::GetProjectFromObject(this);
 }
 
 QString Node::ShortName() const

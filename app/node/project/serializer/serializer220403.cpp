@@ -20,6 +20,7 @@
 
 #include "serializer220403.h"
 
+#include "config/config.h"
 #include "node/factory.h"
 
 namespace olive {
@@ -1001,7 +1002,7 @@ void ProjectSerializer220403::LoadMarkerList(QXmlStreamReader *reader, TimelineM
         }
       }
 
-      markers->AddMarker(TimeRange(in, out), name);
+      new TimelineMarker(Config::Current()[QStringLiteral("MarkerColor")].toInt(), TimeRange(in, out), name, markers);
     }
 
     reader->skipCurrentElement();

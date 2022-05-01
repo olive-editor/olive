@@ -26,6 +26,7 @@
 #include <QXmlStreamWriter>
 
 #include "common/timerange.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 
@@ -33,25 +34,16 @@ class TimelineMarker : public QObject
 {
   Q_OBJECT
 public:
-  TimelineMarker(const TimeRange& time = TimeRange(), const QString& name = QString(), QObject* parent = nullptr);
+  TimelineMarker(int color, const TimeRange& time, const QString& name = QString(), QObject* parent = nullptr);
 
-  const TimeRange &time() const;
+  const TimeRange &time() const { return time_; }
   void set_time(const TimeRange& time);
 
-  const QString& name() const;
+  const QString& name() const { return name_; }
   void set_name(const QString& name);
 
-  int color();
+  int color() const { return color_; }
   void set_color(int c);
-
-  bool active();
-  void set_active(bool active);
-
-  void Load(QXmlStreamReader* reader);
-
-public slots:
-  void set_name_undo(QString name);
-  void set_time_undo(TimeRange time);
 
 signals:
   void TimeChanged(const TimeRange& time);
@@ -60,8 +52,6 @@ signals:
 
   void ColorChanged(int c);
 
-  void ActiveChanged(bool active);
-
 private:
   TimeRange time_;
 
@@ -69,31 +59,121 @@ private:
 
   int color_;
 
-  bool active_;
-
 };
 
 class TimelineMarkerList : public QObject
 {
   Q_OBJECT
 public:
-  TimelineMarkerList() = default;
+  TimelineMarkerList(QObject *parent = nullptr) :
+    QObject(parent)
+  {
+  }
 
-  virtual ~TimelineMarkerList() override;
-
-  TimelineMarker* AddMarker(const TimeRange& time = TimeRange(), const QString& name = QString(), int color = -1);
-
-  void RemoveMarker(TimelineMarker* marker);
-
-  const QList<TimelineMarker *> &list() const;
+  const std::vector<TimelineMarker *> &list() const;
 
 signals:
   void MarkerAdded(TimelineMarker* marker);
 
   void MarkerRemoved(TimelineMarker* marker);
 
+protected:
+  virtual void childEvent(QChildEvent *e) override;
+
 private:
-  QList<TimelineMarker*> markers_;
+  std::vector<TimelineMarker*> markers_;
+
+};
+
+class MarkerAddCommand : public UndoCommand {
+public:
+  MarkerAddCommand(TimelineMarkerList* marker_list, const TimeRange& range, const QString& name, int color);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TimelineMarkerList* marker_list_;
+  TimeRange range_;
+  QString name_;
+  int color_;
+
+  TimelineMarker* added_marker_;
+  QObject memory_manager_;
+
+};
+
+class MarkerRemoveCommand : public UndoCommand {
+public:
+  MarkerRemoveCommand(TimelineMarker* marker);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TimelineMarker* marker_;
+  QObject* marker_list_;
+  TimeRange range_;
+  QString name_;
+  int color_;
+
+  QObject memory_manager_;
+
+};
+
+class MarkerChangeColorCommand : public UndoCommand {
+public:
+  MarkerChangeColorCommand(TimelineMarker* marker, int new_color);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TimelineMarker* marker_;
+  int old_color_;
+  int new_color_;
+
+};
+
+class MarkerChangeNameCommand : public UndoCommand {
+public:
+  MarkerChangeNameCommand(TimelineMarker* marker, QString name);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TimelineMarker* marker_;
+  QString old_name_;
+  QString new_name_;
+};
+
+class MarkerChangeTimeCommand : public UndoCommand {
+public:
+  MarkerChangeTimeCommand(TimelineMarker* marker, TimeRange time);
+
+  virtual Project* GetRelevantProject() const override;
+
+protected:
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TimelineMarker* marker_;
+  TimeRange old_time_;
+  TimeRange new_time_;
 
 };
 

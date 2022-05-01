@@ -22,34 +22,28 @@
 #define SEEKABLEWIDGET_H
 
 #include <QHBoxLayout>
+#include <QScrollBar>
 
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
 #include "widget/snapservice/snapservice.h"
-#include "widget/timebased/timescaledobject.h"
-#include "widget/marker/marker.h"
-#include "widget/marker/markercopypaste.h"
+#include "widget/timebased/timebasedviewselectionmanager.h"
+//#include "widget/marker/markercopypaste.h"
 
 namespace olive {
 
-class SeekableWidget : public TimelineScaledWidget, public MarkerCopyPasteService
+class SeekableWidget : public TimeBasedView//, public MarkerCopyPasteService
 {
   Q_OBJECT
 public:
   SeekableWidget(QWidget *parent = nullptr);
 
-  const rational& GetTime() const
+  int GetScroll() const
   {
-    return time_;
+    return horizontalScrollBar()->value();
   }
 
-  const int& GetScroll() const;
-
   void ConnectTimelinePoints(TimelinePoints* points);
-
-  void SetSnapService(SnapService* service);
-
-  SnapService* GetSnapService() { return snap_service_; };
 
   bool IsDraggingPlayhead() const
   {
@@ -62,35 +56,28 @@ public:
 
   void PasteMarkers(bool insert, rational insert_time);
 
-  QVector<TimelineMarker*> GetActiveTimelineMarkers();
-
   void DeselectAllMarkers();
 
-  void SeekToScreenPoint(int screen);
-
-  int TimeToScreen(const rational& time) const;
-  rational ScreenToTime(int x) const;
+  void SeekToScenePoint(qreal scene);
 
 public slots:
-  void SetTime(const rational &r);
-
-  void SetScroll(int s);
-
-  void addMarker(TimelineMarker* marker);
-
-  void removeMarker(TimelineMarker* marker);
-
-  void updateMarkerPositions();
+  void SetScroll(int i)
+  {
+    horizontalScrollBar()->setValue(i);
+  }
 
   void SetMarkerColor(int c);
 
-protected:
+  /*void SetMarkerTime();
 
+  void SetMarkerName();*/
+
+protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
-  virtual void ScaleChangedEvent(const double&) override;
+  virtual void focusOutEvent(QFocusEvent *event) override;
 
   void DrawTimelinePoints(QPainter *p, int marker_bottom = 0);
 
@@ -106,30 +93,16 @@ protected:
     return playhead_width_;
   }
 
-signals:
-  /**
-   * @brief Signal emitted whenever the time changes on this ruler, either by user or programmatically
-   */
-  void TimeChanged(const rational &time);
-
 private:
-  rational time_;
-
   TimelinePoints* timeline_points_;
-
-  int scroll_;
 
   int text_height_;
 
   int playhead_width_;
 
-  SnapService* snap_service_;
-
   bool dragging_;
 
-  QMap<TimelineMarker*, Marker*> marker_map_;
-
-  QMap<TimelineMarker*, Marker*> active_markers_map_;
+  TimeBasedViewSelectionManager<TimelineMarker> selection_manager_;
 
 };
 

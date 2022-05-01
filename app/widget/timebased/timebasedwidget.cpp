@@ -27,7 +27,6 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/project/sequence/sequence.h"
-#include "widget/marker/markerundo.h"
 #include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
@@ -40,7 +39,7 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   auto_set_timebase_(true)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
-  connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
+  ConnectTimelineView(ruler_, true);
 
   scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
@@ -593,14 +592,25 @@ void TimeBasedWidget::SetMarker()
   QString marker_name;
 
   if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
-    marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
+    marker_name = QInputDialog::getText(this, tr("Add Marker"), tr("Name:"), QLineEdit::Normal, QString(), &ok);
   } else {
     ok = true;
   }
 
   if (ok) {
-    Core::instance()->undo_stack()->push(new MarkerAddCommand(GetConnectedNode()->project(),
-                                                              GetConnectedNode()->GetTimelinePoints()->markers(), TimeRange(GetTime(), GetTime()), marker_name));
+    int color;
+
+    TimelineMarkerList *markers = GetConnectedNode()->GetTimelinePoints()->markers();
+
+    if (!markers->list().empty()) {
+      // Use last invoked color if applicable
+      color = markers->list().back()->color();
+    } else {
+      // Fallback to default color in preferences
+      color = Config::Current()[QStringLiteral("MarkerColor")].toInt();
+    }
+
+    Core::instance()->undo_stack()->push(new MarkerAddCommand(markers, TimeRange(GetTime(), GetTime()), marker_name, color));
   }
 }
 

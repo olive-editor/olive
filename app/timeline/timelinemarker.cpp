@@ -23,21 +23,15 @@
 #include "common/xmlutils.h"
 #include "config/config.h"
 #include "core.h"
-#include "widget/marker/markerundo.h"
 
 namespace olive {
 
-TimelineMarker::TimelineMarker(const TimeRange &time, const QString &name, QObject *parent) :
+TimelineMarker::TimelineMarker(int color, const TimeRange &time, const QString &name, QObject *parent) :
   QObject(parent),
   time_(time),
-  name_(name)
+  name_(name),
+  color_(color)
 {
-  color_ = Config::Current()[QStringLiteral("MarkerColor")].toInt();
-}
-
-const TimeRange &TimelineMarker::time() const
-{
-  return time_;
 }
 
 void TimelineMarker::set_time(const TimeRange &time)
@@ -46,33 +40,10 @@ void TimelineMarker::set_time(const TimeRange &time)
   emit TimeChanged(time_);
 }
 
-void TimelineMarker::set_time_undo(TimeRange time) {
-  UndoCommand *command = new MarkerChangeTimeCommand(Core::instance()->GetActiveProject(), this, time);
-
-  Core::instance()->undo_stack()->push(command);
-}
-
-const QString &TimelineMarker::name() const
-{
-  return name_;
-}
-
 void TimelineMarker::set_name(const QString &name)
 {
   name_ = name;
   emit NameChanged(name_);
-}
-
-void TimelineMarker::set_name_undo(QString name)
-{
-  UndoCommand *command = new MarkerChangeNameCommand(Core::instance()->GetActiveProject(), this, name);
-
-  Core::instance()->undo_stack()->push(command);
-}
-
-int TimelineMarker::color()
-{
-  return color_;
 }
 
 void TimelineMarker::set_color(int c)
@@ -82,51 +53,133 @@ void TimelineMarker::set_color(int c)
   emit ColorChanged(color_);
 }
 
-bool TimelineMarker::active()
+const std::vector<TimelineMarker*> &TimelineMarkerList::list() const
 {
-  return active_;
+  return markers_;
 }
 
-void TimelineMarker::set_active(bool active)
+void TimelineMarkerList::childEvent(QChildEvent *e)
 {
-    active_ = active;
+  QObject::childEvent(e);
 
-    emit ActiveChanged(active_);
-}
-  
-TimelineMarkerList::~TimelineMarkerList()
-{
-  qDeleteAll(markers_);
-}
-
-TimelineMarker* TimelineMarkerList::AddMarker(const TimeRange &time, const QString &name, int color)
-{
-  TimelineMarker* m = new TimelineMarker(time, name);
-  if (color >= 0) {
-    m->set_color(color);
-  }
-  markers_.append(m);
-  emit MarkerAdded(m);
-  return m;
-}
-
-void TimelineMarkerList::RemoveMarker(TimelineMarker *marker)
-{
-  for (int i=0;i<markers_.size();i++) {
-    TimelineMarker* m = markers_.at(i);
-
-    if (m == marker) {
-      markers_.removeAt(i);
-      emit MarkerRemoved(m);
-      delete m;
-      break;
+  if (TimelineMarker *marker = dynamic_cast<TimelineMarker *>(e->child())) {
+    if (e->type() == QChildEvent::ChildAdded) {
+      markers_.push_back(marker);
+    } else if (e->type() == QChildEvent::ChildRemoved) {
+      auto it = std::find(markers_.begin(), markers_.end(), marker);
+      if (it != markers_.end()) {
+        markers_.erase(it);
+      }
     }
   }
 }
 
-const QList<TimelineMarker*> &TimelineMarkerList::list() const
+MarkerAddCommand::MarkerAddCommand(TimelineMarkerList *marker_list, const TimeRange &range, const QString &name, int color) :
+  marker_list_(marker_list)
 {
-  return markers_;
+  added_marker_ = new TimelineMarker(color, range, name, &memory_manager_);
+}
+
+Project* MarkerAddCommand::GetRelevantProject() const
+{
+  return Project::GetProjectFromObject(marker_list_);
+}
+
+void MarkerAddCommand::redo()
+{
+  added_marker_->setParent(marker_list_);
+}
+
+void MarkerAddCommand::undo()
+{
+  added_marker_->setParent(&memory_manager_);
+}
+
+MarkerRemoveCommand::MarkerRemoveCommand(TimelineMarker *marker) :
+  marker_(marker)
+{
+}
+
+Project* MarkerRemoveCommand::GetRelevantProject() const
+{
+  return Project::GetProjectFromObject(marker_list_);
+}
+
+void MarkerRemoveCommand::redo()
+{
+  marker_list_ = marker_->parent();
+  marker_->setParent(&memory_manager_);
+}
+
+void MarkerRemoveCommand::undo()
+{
+  marker_->setParent(marker_list_);
+}
+
+MarkerChangeColorCommand::MarkerChangeColorCommand(TimelineMarker *marker, int new_color) :
+  marker_(marker),
+  new_color_(new_color)
+{
+}
+
+Project* MarkerChangeColorCommand::GetRelevantProject() const
+{
+  return Project::GetProjectFromObject(marker_);
+}
+
+void MarkerChangeColorCommand::redo()
+{
+  old_color_ = marker_->color();
+  marker_->set_color(new_color_);
+}
+
+void MarkerChangeColorCommand::undo()
+{
+  marker_->set_color(old_color_);
+}
+
+MarkerChangeNameCommand::MarkerChangeNameCommand(TimelineMarker *marker, QString new_name) :
+  marker_(marker),
+  new_name_(new_name)
+{
+}
+
+Project* MarkerChangeNameCommand::GetRelevantProject() const
+{
+  return Project::GetProjectFromObject(marker_);
+}
+
+void MarkerChangeNameCommand::redo()
+{
+  old_name_ = marker_->name();
+  marker_->set_name(new_name_);
+}
+
+void MarkerChangeNameCommand::undo()
+{
+  marker_->set_name(old_name_);
+}
+
+MarkerChangeTimeCommand::MarkerChangeTimeCommand(TimelineMarker* marker, TimeRange time) :
+  marker_(marker),
+  new_time_(time)
+{
+}
+
+Project* MarkerChangeTimeCommand::GetRelevantProject() const
+{
+  return Project::GetProjectFromObject(marker_);
+}
+
+void MarkerChangeTimeCommand::redo()
+{
+  old_time_ = marker_->time();
+  marker_->set_time(new_time_);
+}
+
+void MarkerChangeTimeCommand::undo()
+{
+  marker_->set_time(old_time_);
 }
 
 }

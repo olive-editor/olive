@@ -59,8 +59,6 @@ public:
 
   void DeselectAll();
 
-  bool MarkersActive();
-
   void RippleToIn();
 
   void RippleToOut();

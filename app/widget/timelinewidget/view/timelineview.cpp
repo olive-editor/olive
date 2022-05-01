@@ -530,19 +530,19 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
         }
 
         // Draw markers
-        if (clip->connected_viewer() && !clip->connected_viewer()->GetLength().isNull()) {
+        qDebug() << "MARKERS ON CLIP STUB";
+        /*if (clip->connected_viewer() && !clip->connected_viewer()->GetLength().isNull()) {
           if (clip->connected_viewer()->GetTimelinePoints()->markers()->list().size() > 0) {
-            QList<TimelineMarker *> marker_list = clip->connected_viewer()->GetTimelinePoints()->markers()->list();
-            
+            std::vector<TimelineMarker *> marker_list = clip->connected_viewer()->GetTimelinePoints()->markers()->list();
+
             int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
             clip_marker_positions_.clear();
 
             // Only draw markers if the block UI is large enough to draw all the markers
-            if (marker_list.length() * marker_width < block_right - block_left) {
+            if (marker_list.size() * marker_width < block_right - block_left) {
 
-              QListIterator<TimelineMarker*> iterator(marker_list);
-              while(iterator.hasNext()) {
-                TimelineMarker *marker = iterator.next();
+              for (auto it=marker_list.cbegin(); it!=marker_list.cend(); it++) {
+                TimelineMarker *marker = *it;
                 // Make sure marker is within In/Out points of the clip
                 if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
                   // Only draw names that we have room for
@@ -561,7 +561,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
               }
             }
           }
-        }
+        }*/
       }
 
       // For transitions, show lines representing a transition

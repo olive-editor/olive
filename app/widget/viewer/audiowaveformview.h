@@ -39,7 +39,7 @@ public:
   void SetViewer(AudioPlaybackCache *playback);
 
 protected:
-  virtual void paintEvent(QPaintEvent* event) override;
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
 private:
   QThreadPool pool_;

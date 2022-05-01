@@ -97,6 +97,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
+  ConnectTimelineView(waveform_view_, true);
   PassWheelEventsToScrollBar(waveform_view_);
   stack_->addWidget(waveform_view_);
 
@@ -125,7 +126,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetScale(48.0);
 
   // Ensures that seeking on the waveform view updates the time as expected
-  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
   connect(waveform_view_, &AudioWaveformView::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   connect(&playback_backup_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
