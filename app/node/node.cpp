@@ -2002,6 +2002,50 @@ void Node::SetValueAtTime(const NodeInput &input, const rational &time, const QV
   }
 }
 
+void FindPathInternal(std::list<Node *> &vec, Node *to, int &path_index)
+{
+  Node *from = vec.back();
+
+  for (auto it=from->input_connections().cbegin(); it!=from->input_connections().cend(); it++) {
+    vec.push_back(it->second);
+    if (it->second == to) {
+      // Found a path, determine if it's the one we want
+      if (path_index == 0) {
+        // It is!
+        break;
+      } else {
+        path_index--;
+      }
+    }
+
+    // Recurse to see if we can find it here
+    FindPathInternal(vec, to, path_index);
+    if (vec.back() == to) {
+      // Found through recursion
+      break;
+    } else {
+      // Must not be available through this path
+      vec.pop_back();
+    }
+  }
+}
+
+std::list<Node *> Node::FindPath(Node *from, Node *to, int path_index)
+{
+  std::list<Node *> v;
+
+  v.push_back(from);
+
+  FindPathInternal(v, to, path_index);
+
+  if (v.size() == 1) {
+    // Failed to find path, return empty list
+    v.pop_back();
+  }
+
+  return v;
+}
+
 Project *Node::ArrayInsertCommand::GetRelevantProject() const
 {
   return node_->project();

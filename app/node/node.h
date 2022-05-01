@@ -956,6 +956,8 @@ public:
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
+  static std::list<Node*> FindPath(Node *from, Node *to, int path_index = 0);
+
   static const QString kEnabledInput;
 
 protected:
