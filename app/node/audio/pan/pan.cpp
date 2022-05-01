@@ -27,6 +27,8 @@ namespace olive {
 const QString PanNode::kSamplesInput = QStringLiteral("samples_in");
 const QString PanNode::kPanningInput = QStringLiteral("panning_in");
 
+#define super Node
+
 PanNode::PanNode()
 {
   AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
@@ -35,6 +37,9 @@ PanNode::PanNode()
   SetInputProperty(kPanningInput, QStringLiteral("min"), -1.0);
   SetInputProperty(kPanningInput, QStringLiteral("max"), 1.0);
   SetInputProperty(kPanningInput, QStringLiteral("view"), FloatSlider::kPercentage);
+
+  SetFlags(kAudioEffect);
+  SetEffectInput(kSamplesInput);
 }
 
 Node *PanNode::copy() const
@@ -54,7 +59,7 @@ QString PanNode::id() const
 
 QVector<Node::CategoryID> PanNode::Category() const
 {
-  return {kCategoryChannels};
+  return {kCategoryFilter};
 }
 
 QString PanNode::Description() const
@@ -115,6 +120,8 @@ void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr i
 
 void PanNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kSamplesInput, tr("Samples"));
   SetInputName(kPanningInput, tr("Pan"));
 }

@@ -490,7 +490,9 @@ void TrackReplaceBlockWithGapCommand::redo()
 
     track_->EndOperation();
 
-    track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
+    if (handle_invalidations_) {
+      track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
+    }
 
   } else {
     // Block is at the end of the track, simply remove it
@@ -547,7 +549,9 @@ void TrackReplaceBlockWithGapCommand::undo()
 
     track_->EndOperation();
 
-    track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
+    if (handle_invalidations_) {
+      track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
+    }
   } else {
 
     // Our gap and existing gap were both null, our block must have been at the end and thus

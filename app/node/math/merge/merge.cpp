@@ -27,6 +27,8 @@ namespace olive {
 const QString MergeNode::kBaseIn = QStringLiteral("base_in");
 const QString MergeNode::kBlendIn = QStringLiteral("blend_in");
 
+#define super Node
+
 MergeNode::MergeNode()
 {
   AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -63,6 +65,8 @@ QString MergeNode::Description() const
 
 void MergeNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kBaseIn, tr("Base"));
 
   SetInputName(kBlendIn, tr("Blend"));

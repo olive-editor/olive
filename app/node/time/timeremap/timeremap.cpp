@@ -56,7 +56,7 @@ QString TimeRemapNode::id() const
 
 QVector<Node::CategoryID> TimeRemapNode::Category() const
 {
-  return {kCategoryGeneral};
+  return {kCategoryTime};
 }
 
 QString TimeRemapNode::Description() const
@@ -87,6 +87,8 @@ TimeRange TimeRemapNode::OutputTimeAdjustment(const QString &input, int element,
 
 void TimeRemapNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTimeInput, QStringLiteral("Time"));
   SetInputName(kInputInput, QStringLiteral("Input"));
 }

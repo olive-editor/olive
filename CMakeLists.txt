@@ -74,7 +74,7 @@ find_package(OpenGL REQUIRED)
 list(APPEND OLIVE_LIBRARIES OpenGL::GL)
 
 # Link OpenColorIO
-find_package(OpenColorIO 2.0.0 REQUIRED)
+find_package(OpenColorIO 2.1.1 REQUIRED)
 list(APPEND OLIVE_LIBRARIES ${OCIO_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OCIO_INCLUDE_DIRS})
 

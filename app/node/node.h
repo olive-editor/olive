@@ -27,7 +27,6 @@
 #include <QObject>
 #include <QPainter>
 #include <QPointF>
-#include <QUuid>
 #include <QXmlStreamWriter>
 
 #include "codec/frame.h"
@@ -35,6 +34,7 @@
 #include "common/rational.h"
 #include "common/timerange.h"
 #include "common/xmlutils.h"
+#include "node/gizmo/draggable.h"
 #include "node/globals.h"
 #include "node/keyframe.h"
 #include "node/inputimmediate.h"
@@ -78,27 +78,26 @@ public:
   enum CategoryID {
     kCategoryUnknown = -1,
 
-    kCategoryInput,
     kCategoryOutput,
     kCategoryGenerator,
     kCategoryMath,
+    kCategoryKeying,
     kCategoryFilter,
     kCategoryColor,
-    kCategoryGeneral,
+    kCategoryTime,
     kCategoryTimeline,
-    kCategoryChannels,
     kCategoryTransition,
     kCategoryDistort,
     kCategoryProject,
-    kCategoryVideoEffect,
-    kCategoryAudioEffect,
 
     kCategoryCount
   };
 
   enum Flag {
     kNone = 0,
-    kDontShowInParamView = 0x1
+    kDontShowInParamView = 0x1,
+    kVideoEffect = 0x2,
+    kAudioEffect = 0x4
   };
 
   Node();
@@ -119,9 +118,6 @@ public:
   NodeGraph* parent() const;
 
   Project* project() const;
-
-  const QUuid &GetUUID() const {return uuid_;}
-  void SetUUID(const QUuid &uuid) {uuid_ = uuid;}
 
   const uint64_t &GetFlags() const
   {
@@ -324,6 +320,8 @@ public:
 
   virtual QString GetInputName(const QString& id) const;
 
+  void SetInputName(const QString& id, const QString& name);
+
   bool IsInputHidden(const QString& input) const;
   bool IsInputConnectable(const QString& input) const;
   bool IsInputKeyframable(const QString& input) const;
@@ -406,6 +404,10 @@ public:
   QVariant GetDefaultValue(const QString& input) const;
   SplitValue GetSplitDefaultValue(const QString& input) const;
   QVariant GetSplitDefaultValueOnTrack(const QString& input, int track) const;
+
+  void SetDefaultValue(const QString& input, const QVariant &val);
+  void SetSplitDefaultValue(const QString& input, const SplitValue &val);
+  void SetSplitDefaultValueOnTrack(const QString& input, const QVariant &val, int track);
 
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const QString& input, int element) const;
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const NodeInput& input) const
@@ -538,6 +540,11 @@ public:
   }
 
   int InputArraySize(const QString& id) const;
+
+  NodeInput GetEffectInput()
+  {
+    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_, effect_element_);
+  }
 
   class ValueHint {
   public:
@@ -840,13 +847,17 @@ public:
    */
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const;
 
-  virtual bool HasGizmos() const;
+  bool HasGizmos() const
+  {
+    return !gizmos_.isEmpty();
+  }
 
-  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter* p);
+  const QVector<NodeGizmo*> &GetGizmos() const
+  {
+    return gizmos_;
+  }
 
-  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF& p);
-  virtual void GizmoMove(const QPointF& p, const rational &time, const Qt::KeyboardModifiers &modifiers);
-  virtual void GizmoRelease(MultiUndoCommand *command);
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals){}
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
@@ -941,6 +952,13 @@ public:
   };
 
   InputFlags GetInputFlags(const QString& input) const;
+  void SetInputFlags(const QString &input, const InputFlags &f);
+
+  static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+
+  static std::list<Node*> FindPath(Node *from, Node *to, int path_index = 0);
+
+  static const QString kEnabledInput;
 
 protected:
   virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
@@ -970,8 +988,6 @@ protected:
   }
 
   void RemoveInput(const QString& id);
-
-  void SetInputName(const QString& id, const QString& name);
 
   void SetComboBoxStrings(const QString& id, const QStringList& strings)
   {
@@ -1008,12 +1024,6 @@ protected:
     kGizmoScaleCount,
   };
 
-  static QRectF CreateGizmoHandleRect(const QPointF& pt, int radius);
-
-  static double GetGizmoHandleRadius(const QTransform& transform);
-
-  static void DrawAndExpandGizmoHandles(QPainter* p, int handle_radius, QRectF* rects, int count);
-
   virtual void LinkChangeEvent(){}
 
   virtual void InputValueChangedEvent(const QString& input, int element);
@@ -1028,6 +1038,12 @@ protected:
 
   virtual void childEvent(QChildEvent *event) override;
 
+  void SetEffectInput(const QString &input, int element = -1)
+  {
+    effect_input_ = input;
+    effect_element_ = element;
+  }
+
   void SetToolTip(const QString& s)
   {
     tooltip_ = s;
@@ -1037,6 +1053,34 @@ protected:
   {
     flags_ = f;
   }
+
+  template<typename T>
+  T *AddDraggableGizmo(const QVector<NodeKeyframeTrackReference> &inputs = QVector<NodeKeyframeTrackReference>(), DraggableGizmo::DragValueBehavior behavior = DraggableGizmo::kDeltaFromStart)
+  {
+    T *gizmo = new T(this);
+    gizmo->SetDragValueBehavior(behavior);
+    foreach (const NodeKeyframeTrackReference &input, inputs) {
+      gizmo->AddInput(input);
+    }
+    connect(gizmo, &DraggableGizmo::HandleStart, this, &Node::GizmoDragStart);
+    connect(gizmo, &DraggableGizmo::HandleMovement, this, &Node::GizmoDragMove);
+    return gizmo;
+  }
+
+  template<typename T>
+  T *AddDraggableGizmo(const QStringList &inputs, DraggableGizmo::DragValueBehavior behavior = DraggableGizmo::kDeltaFromStart)
+  {
+    QVector<NodeKeyframeTrackReference> refs(inputs.size());
+    for (int i=0; i<refs.size(); i++) {
+      refs[i] = NodeInput(this, inputs[i]);
+    }
+    return AddDraggableGizmo<T>(refs, behavior);
+  }
+
+protected slots:
+  virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::rational &time){}
+
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers){}
 
 signals:
   /**
@@ -1311,9 +1355,12 @@ private:
 
   PositionMap context_positions_;
 
-  QUuid uuid_;
-
   uint64_t flags_;
+
+  QVector<NodeGizmo*> gizmos_;
+
+  QString effect_input_;
+  int effect_element_;
 
 private slots:
   /**

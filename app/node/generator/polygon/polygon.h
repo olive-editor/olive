@@ -24,6 +24,9 @@
 #include <QPainterPath>
 
 #include "common/bezier.h"
+#include "node/gizmo/line.h"
+#include "node/gizmo/path.h"
+#include "node/gizmo/point.h"
 #include "node/node.h"
 #include "node/inputdragger.h"
 
@@ -50,30 +53,29 @@ public:
 
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
-  virtual bool HasGizmos() const override;
-  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter *p) override;
-
-  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
-  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  virtual void GizmoRelease(MultiUndoCommand *command) override;
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
   static const QString kPointsInput;
   static const QString kColorInput;
+
+protected slots:
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
   static void AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after);
 
   static QPainterPath GeneratePath(const QVector<NodeValue> &points);
 
-  QPainterPath gizmo_polygon_path_;
-  QVector<QRectF> gizmo_position_handles_;
-  QVector<QRectF> gizmo_bezier_handles_;
+  template<typename T>
+  void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);
 
-  QVector<NodeKeyframeTrackReference> gizmo_x_active_;
-  QVector<NodeKeyframeTrackReference> gizmo_y_active_;
-  QVector<NodeInputDragger> gizmo_x_draggers_;
-  QVector<NodeInputDragger> gizmo_y_draggers_;
-  QPointF gizmo_drag_start_;
+  template<typename T>
+  NodeGizmo *CreateAppropriateGizmo();
+
+  PathGizmo *poly_gizmo_;
+  QVector<PointGizmo*> gizmo_position_handles_;
+  QVector<PointGizmo*> gizmo_bezier_handles_;
+  QVector<LineGizmo*> gizmo_bezier_lines_;
 
 };
 

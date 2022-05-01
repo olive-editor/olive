@@ -116,7 +116,7 @@ bool Renderer::GetColorContext(ColorProcessorPtr color_processor, Renderer::Colo
     // Create shader description
     const char* ocio_func_name = "OCIODisplay";
     auto shader_desc = OCIO::GpuShaderDesc::CreateShaderDesc();
-    shader_desc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_3);
+    shader_desc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_ES_3_0);
     shader_desc->setFunctionName(ocio_func_name);
     shader_desc->setResourcePrefix("ocio_");
 

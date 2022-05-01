@@ -48,14 +48,14 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
     const QString& mat_in = (type_a == NodeValue::kTexture) ? param_b_in : param_a_in;
 
     // No-op frag shader (can we return QString() instead?)
-    operation = QStringLiteral("texture2D(%1, ove_texcoord)").arg(tex_in);
+    operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in);
 
     vert = QStringLiteral("uniform mat4 %1;\n"
                           "\n"
-                          "attribute vec4 a_position;\n"
-                          "attribute vec2 a_texcoord;\n"
+                          "in vec4 a_position;\n"
+                          "in vec2 a_texcoord;\n"
                           "\n"
-                          "varying vec2 ove_texcoord;\n"
+                          "out vec2 ove_texcoord;\n"
                           "\n"
                           "void main() {\n"
                           "    gl_Position = %1 * a_position;\n"
@@ -97,12 +97,13 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
   frag = QStringLiteral("uniform %1 %3;\n"
                         "uniform %2 %4;\n"
                         "\n"
-                        "varying vec2 ove_texcoord;\n"
+                        "in vec2 ove_texcoord;\n"
+                        "out vec4 frag_color;\n"
                         "\n"
                         "void main(void) {\n"
                         "    vec4 c = %5;\n"
                         "    c.a = clamp(c.a, 0.0, 1.0);\n" // Ensure alpha is between 0.0 and 1.0
-                        "    gl_FragColor = c;\n"
+                        "    frag_color = c;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
                                    param_a_in,
@@ -129,7 +130,7 @@ QString MathNodeBase::GetShaderUniformType(const olive::NodeValue::Type &type)
 QString MathNodeBase::GetShaderVariableCall(const QString &input_id, const NodeValue::Type &type, const QString& coord_op)
 {
   if (type == NodeValue::kTexture) {
-    return QStringLiteral("texture2D(%1, ove_texcoord%2)").arg(input_id, coord_op);
+    return QStringLiteral("texture(%1, ove_texcoord%2)").arg(input_id, coord_op);
   }
 
   return input_id;

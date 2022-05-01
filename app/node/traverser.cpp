@@ -246,20 +246,33 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint
 
   // Generate row for node
   NodeValueDatabase database = GenerateDatabase(n, range);
-  NodeValueRow row = GenerateRow(&database, n, range);
 
-  //qDebug() << "FIXME: Implement pre-process of row";
+  // Check for bypass
+  bool is_enabled;
+  if (!database[Node::kEnabledInput].Has(NodeValue::kBoolean)) {
+    // Fallback if we couldn't find a bool value
+    is_enabled = true;
+  } else {
+    is_enabled = database[Node::kEnabledInput].Get(NodeValue::kBoolean).toBool();
+  }
 
-  // Generate output table
-  NodeValueTable table = database.Merge();
+  if (is_enabled) {
+    NodeValueRow row = GenerateRow(&database, n, range);
+    //qDebug() << "FIXME: Implement pre-process of row";
 
-  // By this point, the node should have all the inputs it needs to render correctly
-  n->Value(row, GenerateGlobals(video_params_, range), &table);
+    // Generate output table
+    NodeValueTable table = database.Merge();
 
-  // Post-process table
-  PostProcessTable(n, hint, range, table);
+    // By this point, the node should have all the inputs it needs to render correctly
+    n->Value(row, GenerateGlobals(video_params_, range), &table);
 
-  return table;
+    // Post-process table
+    PostProcessTable(n, hint, range, table);
+
+    return table;
+  } else {
+    return database.Merge();
+  }
 }
 
 NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)

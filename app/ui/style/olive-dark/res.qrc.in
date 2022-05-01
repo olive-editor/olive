@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/style/olive-dark">
+    @QRC_BODY@
+  </qresource>
+</RCC>

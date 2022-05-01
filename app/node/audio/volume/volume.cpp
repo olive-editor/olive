@@ -27,6 +27,8 @@ namespace olive {
 const QString VolumeNode::kSamplesInput = QStringLiteral("samples_in");
 const QString VolumeNode::kVolumeInput = QStringLiteral("volume_in");
 
+#define super MathNodeBase
+
 VolumeNode::VolumeNode()
 {
   AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
@@ -34,6 +36,9 @@ VolumeNode::VolumeNode()
   AddInput(kVolumeInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kVolumeInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kVolumeInput, QStringLiteral("view"), FloatSlider::kDecibel);
+
+  SetFlags(kAudioEffect);
+  SetEffectInput(kSamplesInput);
 }
 
 Node *VolumeNode::copy() const
@@ -80,6 +85,8 @@ void VolumeNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPt
 
 void VolumeNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kSamplesInput, tr("Samples"));
   SetInputName(kVolumeInput, tr("Volume"));
 }

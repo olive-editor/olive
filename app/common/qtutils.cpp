@@ -38,6 +38,13 @@ QFrame *QtUtils::CreateHorizontalLine()
   return horizontal_line;
 }
 
+QFrame *QtUtils::CreateVerticalLine()
+{
+  QFrame *l = CreateHorizontalLine();
+  l->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  return l;
+}
+
 int QtUtils::MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString &title, const QString &message, QMessageBox::StandardButtons buttons)
 {
   QMessageBox b(parent);

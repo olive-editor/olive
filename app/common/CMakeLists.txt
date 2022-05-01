@@ -37,6 +37,8 @@ set(OLIVE_SOURCES
   common/flipmodifiers.cpp
   common/flipmodifiers.h
   common/functiontimer.h
+  common/html.cpp
+  common/html.h
   common/jobtime.cpp
   common/jobtime.h
   common/lerp.h
@@ -61,6 +63,7 @@ set(OLIVE_SOURCES
   common/timerange.cpp
   common/timerange.h
   common/tohex.h
+  common/util.h
   common/xmlutils.cpp
   common/xmlutils.h
   PARENT_SCOPE

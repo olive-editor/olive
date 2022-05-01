@@ -48,8 +48,9 @@ public:
     kSolidGenerator,
     kMerge,
     kStrokeFilter,
-    kTextGeneratorLegacy,
-    kTextGenerator,
+    kTextGeneratorV1,
+    kTextGeneratorV2,
+    kTextGeneratorV3,
     kCrossDissolveTransition,
     kDipToColorTransition,
     kMosaicFilter,
@@ -61,10 +62,14 @@ public:
     kTimeRemapNode,
     kSubtitleBlock,
     kShapeGenerator,
+    kColorDifferenceKeyKeying,
+    kDespillKeying,
     kGroupNode,
     kOpacityEffect,
     kFlipDistort,
     kNoiseGenerator,
+    kTimeOffsetNode,
+    kCornerPinDistort,
 
     // Count value
     kInternalNodeCount
@@ -76,7 +81,7 @@ public:
 
   static void Destroy();
 
-  static Menu* CreateMenu(QWidget *parent, bool create_none_item = false, Node::CategoryID restrict_to = Node::kCategoryUnknown);
+  static Menu* CreateMenu(QWidget *parent, bool create_none_item = false, Node::CategoryID restrict_to = Node::kCategoryUnknown, uint64_t restrict_flags = 0);
 
   static Node* CreateFromMenuAction(QAction* action);
 

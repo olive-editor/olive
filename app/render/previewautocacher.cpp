@@ -378,9 +378,6 @@ void PreviewAutoCacher::AddNode(Node *node)
   // Add to project
   copy->setParent(&copied_project_);
 
-  // Copy UUID
-  copy->SetUUID(node->GetUUID());
-
   // Insert into map
   InsertIntoCopyMap(node, copy);
 
@@ -420,6 +417,11 @@ void PreviewAutoCacher::RemoveEdge(Node *output, const NodeInput &input)
 
 void PreviewAutoCacher::CopyValue(const NodeInput &input)
 {
+  if (dynamic_cast<NodeGroup*>(input.node())) {
+    // Group nodes are just dummy nodes, no need to copy them
+    return;
+  }
+
   // Copy all values to our graph
   Node* our_input = copy_map_.value(input.node());
   Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
@@ -427,6 +429,11 @@ void PreviewAutoCacher::CopyValue(const NodeInput &input)
 
 void PreviewAutoCacher::CopyValueHint(const NodeInput &input)
 {
+  if (dynamic_cast<NodeGroup*>(input.node())) {
+    // Group nodes are just dummy nodes, no need to copy them
+    return;
+  }
+
   // Copy value hint to our graph
   Node* our_input = copy_map_.value(input.node());
   Node::ValueHint hint = input.node()->GetValueHintForInput(input.input(), input.element());

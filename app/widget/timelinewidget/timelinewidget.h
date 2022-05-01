@@ -124,7 +124,7 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
-  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command, bool handle_transitions = true);
+  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command, bool handle_transitions = true, bool handle_invalidations = true);
 
   /**
    * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -237,7 +237,7 @@ public:
 
   class SetSelectionsCommand : public UndoCommand {
   public:
-    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, bool process_block_changes) :
+    SetSelectionsCommand(TimelineWidget* timeline, const TimelineWidgetSelections& now, const TimelineWidgetSelections& old, bool process_block_changes = true) :
       timeline_(timeline),
       old_(old),
       now_(now),
@@ -328,6 +328,8 @@ private:
   QSplitter* view_splitter_;
 
   MultiUndoCommand *subtitle_show_command_;
+
+  QTimer *signal_block_change_timer_;
 
   class SetSplitterSizesCommand : public UndoCommand
   {

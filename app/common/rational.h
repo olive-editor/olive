@@ -1,7 +1,7 @@
 //Copyright 2015 Adam Quintero
 //This program is distributed under the terms of the GNU General Public License.
 
-// Adapted by MattKC for the Olive Video Editor (2019)
+// Adapted by MattKC for the Olive Video Editor (2019-2022)
 
 #ifndef RATIONAL_H
 #define RATIONAL_H

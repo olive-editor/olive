@@ -137,6 +137,13 @@ void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
     m->addAction(edit_ripple_delete_item_);
     m->addAction(edit_split_item_);
     m->addAction(edit_speedduration_item_);
+
+    m->addSeparator();
+
+    m->addAction(clip_add_default_transition_item_);
+    m->addAction(clip_link_unlink_item_);
+    m->addAction(clip_enable_disable_item_);
+    m->addAction(clip_nest_item_);
   }
 }
 

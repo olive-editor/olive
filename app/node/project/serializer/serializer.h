@@ -137,11 +137,11 @@ public:
 
   static void Destroy();
 
-  static Result Load(Project *project, const QString &filename);
-  static Result Load(Project *project, QXmlStreamReader *read_device);
+  static Result Load(Project *project, const QString &filename, const QString &type);
+  static Result Load(Project *project, QXmlStreamReader *read_device, const QString &type);
 
-  static Result Save(const SaveData &data);
-  static Result Save(QXmlStreamWriter *write_device, const SaveData &data);
+  static Result Save(const SaveData &data, const QString &type);
+  static Result Save(QXmlStreamWriter *write_device, const SaveData &data, const QString &type);
 
 protected:
   virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const = 0;
@@ -153,6 +153,8 @@ protected:
   bool IsCancelled() const;
 
 private:
+  static Result LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader);
+
   static QVector<ProjectSerializer*> instances_;
 
 };

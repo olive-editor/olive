@@ -30,6 +30,7 @@
 #include "serializer210528.h"
 #include "serializer210907.h"
 #include "serializer211228.h"
+#include "serializer220403.h"
 
 namespace olive {
 
@@ -45,6 +46,7 @@ void ProjectSerializer::Initialize()
   instances_.append(new ProjectSerializer210528);
   instances_.append(new ProjectSerializer210907);
   instances_.append(new ProjectSerializer211228);
+  instances_.append(new ProjectSerializer220403);
 }
 
 void ProjectSerializer::Destroy()
@@ -53,14 +55,14 @@ void ProjectSerializer::Destroy()
   instances_.clear();
 }
 
-ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QString &filename)
+ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QString &filename, const QString &type)
 {
   QFile project_file(filename);
 
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
 
-    Result inner_result = Load(project, &reader);
+    Result inner_result = Load(project, &reader, type);
 
     project_file.close();
 
@@ -80,25 +82,118 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QStrin
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamReader *reader)
+ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamReader *reader, const QString &type)
 {
   // Determine project version
   uint version = 0;
+  Result res = kUnknownVersion;
 
-  while (!version && XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("olive") || reader->name() == QStringLiteral("project")) {
-      while(!version && XMLReadNextStartElement(reader)) {
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("olive")
+        || reader->name() == QStringLiteral("project")) { // 0.1 projects only
+
+      while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("version")) {
           version = reader->readElementText().toUInt();
+        } else if (reader->name() == QStringLiteral("url")) {
+          project->SetSavedURL(reader->readElementText());
+
+          // HACK for 0.1 projects
+          if (version == 190219) {
+            res = LoadWithSerializerVersion(version, project, reader);
+          }
+        } else if (reader->name() == type) {
+          // Found our data
+          res = LoadWithSerializerVersion(version, project, reader);
         } else {
           reader->skipCurrentElement();
         }
       }
+
     } else {
       reader->skipCurrentElement();
     }
   }
 
+  return res;
+}
+
+ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type)
+{
+  QString temp_save = FileFunctions::GetSafeTemporaryFilename(data.GetFilename());
+
+  QFile project_file(temp_save);
+
+  if (project_file.open(QFile::WriteOnly | QFile::Text)) {
+    QXmlStreamWriter writer(&project_file);
+
+    Result inner_result = Save(&writer, data, type);
+
+    project_file.close();
+
+    if (inner_result != kSuccess) {
+      return inner_result;
+    }
+
+    // Save was successful, we can now rewrite the original file
+    if (FileFunctions::RenameFileAllowOverwrite(temp_save, data.GetFilename())) {
+      return kSuccess;
+    } else {
+      Result r(kOverwriteError);
+      r.SetDetails(temp_save);
+      return r;
+    }
+  } else {
+    Result r(kFileError);
+    r.SetDetails(temp_save);
+    return r;
+  }
+}
+
+ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, const SaveData &data, const QString &type)
+{
+  writer->setAutoFormatting(true);
+
+  writer->writeStartDocument();
+
+  writer->writeStartElement("olive");
+
+  // By default, save as last serializer which, assuming the instances are ordered correctly,
+  // will be the newest file format. But we may allow saving as older versions later on.
+  ProjectSerializer *serializer = instances_.last();
+
+  // Version is stored in YYMMDD from whenever the project format was last changed
+  // Allows easy integer math for checking project versions.
+  writer->writeTextElement(QStringLiteral("version"), QString::number(serializer->Version()));
+
+  if (!data.GetFilename().isEmpty()) {
+    writer->writeTextElement("url", data.GetFilename());
+  }
+
+  writer->writeStartElement(type);
+
+  serializer->Save(writer, data, nullptr);
+
+  writer->writeEndElement(); // [type]
+
+  writer->writeEndElement(); // olive
+
+  writer->writeEndDocument();
+
+  if (writer->hasError()) {
+    return kXmlError;
+  }
+
+  return kSuccess;
+}
+
+bool ProjectSerializer::IsCancelled() const
+{
+  return false;
+}
+
+ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader)
+{
   // Failed to find version in file
   if (version == 0) {
     return kUnknownVersion;
@@ -131,80 +226,6 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
     // Reached the end of the list with no serializer, assume too new
     return kProjectTooNew;
   }
-}
-
-ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data)
-{
-  QString temp_save = FileFunctions::GetSafeTemporaryFilename(data.GetFilename());
-
-  QFile project_file(temp_save);
-
-  if (project_file.open(QFile::WriteOnly | QFile::Text)) {
-    QXmlStreamWriter writer(&project_file);
-
-    Result inner_result = Save(&writer, data);
-
-    project_file.close();
-
-    if (inner_result != kSuccess) {
-      return inner_result;
-    }
-
-    // Save was successful, we can now rewrite the original file
-    if (FileFunctions::RenameFileAllowOverwrite(temp_save, data.GetFilename())) {
-      return kSuccess;
-    } else {
-      Result r(kOverwriteError);
-      r.SetDetails(temp_save);
-      return r;
-    }
-  } else {
-    Result r(kFileError);
-    r.SetDetails(temp_save);
-    return r;
-  }
-}
-
-ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, const SaveData &data)
-{
-  writer->setAutoFormatting(true);
-
-  writer->writeStartDocument();
-
-  writer->writeStartElement("olive");
-
-  // By default, save as last serializer which, assuming the instances are ordered correctly,
-  // will be the newest file format. But we may allow saving as older versions later on.
-  ProjectSerializer *serializer = instances_.last();
-
-  // Version is stored in YYMMDD from whenever the project format was last changed
-  // Allows easy integer math for checking project versions.
-  writer->writeTextElement(QStringLiteral("version"), QString::number(serializer->Version()));
-
-  if (!data.GetFilename().isEmpty()) {
-    writer->writeTextElement("url", data.GetFilename());
-  }
-
-  writer->writeStartElement(QStringLiteral("project"));
-
-  serializer->Save(writer, data, nullptr);
-
-  writer->writeEndElement(); // project
-
-  writer->writeEndElement(); // olive
-
-  writer->writeEndDocument();
-
-  if (writer->hasError()) {
-    return kXmlError;
-  }
-
-  return kSuccess;
-}
-
-bool ProjectSerializer::IsCancelled() const
-{
-  return false;
 }
 
 }

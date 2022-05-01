@@ -41,7 +41,7 @@ public:
 
   virtual void Retranslate() override;
 
-  QString AddInputPassthrough(const NodeInput &input, const InputFlags &flags = InputFlags());
+  QString AddInputPassthrough(const NodeInput &input, const QString &force_id = QString());
 
   void RemoveInputPassthrough(const NodeInput &input);
 
@@ -52,9 +52,9 @@ public:
 
   void SetOutputPassthrough(Node *node);
 
-  static QString GetGroupInputIDFromInput(const NodeInput &input);
-
-  const QHash<QString, NodeInput> &GetInputPassthroughs() const
+  using InputPassthrough = QPair<QString, NodeInput>;
+  using InputPassthroughs = QVector<InputPassthrough>;
+  const InputPassthroughs &GetInputPassthroughs() const
   {
     return input_passthroughs_;
   }
@@ -66,15 +66,35 @@ public:
   static NodeInput ResolveInput(NodeInput input);
   static bool GetInner(NodeInput *input);
 
+  QString GetIDOfPassthrough(const NodeInput &input) const
+  {
+    for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
+      if (it->second == input) {
+        return it->first;
+      }
+    }
+    return QString();
+  }
+
+  NodeInput GetInputFromID(const QString &id) const
+  {
+    for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
+      if (it->first == id) {
+        return it->second;
+      }
+    }
+    return NodeInput();
+  }
+
 signals:
-  void InputPassthroughAdded(NodeGroup *group, const NodeInput &input);
+  void InputPassthroughAdded(olive::NodeGroup *group, const olive::NodeInput &input);
 
-  void InputPassthroughRemoved(NodeGroup *group, const NodeInput &input);
+  void InputPassthroughRemoved(olive::NodeGroup *group, const olive::NodeInput &input);
 
-  void OutputPassthroughChanged(NodeGroup *group, Node *output);
+  void OutputPassthroughChanged(olive::NodeGroup *group, olive::Node *output);
 
 private:
-  QHash<QString, NodeInput> input_passthroughs_;
+  InputPassthroughs input_passthroughs_;
 
   Node *output_passthrough_;
 
@@ -83,7 +103,7 @@ private:
 class NodeGroupAddInputPassthrough : public UndoCommand
 {
 public:
-  NodeGroupAddInputPassthrough(NodeGroup *group, const NodeInput &input) :
+  NodeGroupAddInputPassthrough(NodeGroup *group, const NodeInput &input, const QString &force_id = QString()) :
     group_(group),
     input_(input),
     actually_added_(false)
@@ -103,6 +123,8 @@ private:
   NodeGroup *group_;
 
   NodeInput input_;
+
+  QString force_id_;
 
   bool actually_added_;
 

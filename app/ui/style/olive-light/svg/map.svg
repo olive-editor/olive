@@ -142,12 +142,12 @@
      id="layer1"
      transform="translate(0,16)">
     <path
-       style="font-variation-settings:normal;vector-effect:none;fill:none;fill-opacity:1;stroke:#212121;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.86;stop-color:#000000"
+       style="font-variation-settings:normal;vector-effect:none;fill:none;fill-opacity:1;stroke:#212121;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.86;stop-color:#212121"
        d="M 5,37 V -5 h 54 v 42 z"
        sodipodi:nodetypes="ccccc"
        id="path4087" />
     <path
-       style="color:#000000;fill:#212121;fill-opacity:0.48;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"
+       style="color:#212121;fill:#212121;fill-opacity:0.48;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"
        d="m 32,13 c -1.656786,1.66e-4 -2.999834,1.343214 -3,3 v 11 c 1.66e-4,1.656786 1.343214,2.999834 3,3 h 17 c 1.656786,-1.66e-4 2.999834,-1.343214 3,-3 V 16 c -1.66e-4,-1.656786 -1.343214,-2.999834 -3,-3 z"
        id="path1776"
        sodipodi:nodetypes="ccccccccc" />

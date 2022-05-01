@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   sodipodi:docname="beam.svg"
-   inkscape:version="0.91+devel+osxmenu r12922"
+   sodipodi:docname="box.svg"
+   inkscape:version="1.2-dev (217ad3d, 2021-07-13)"
    sodipodi:version="0.32"
    id="svg2"
    height="64"
@@ -18,9 +9,16 @@
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.1"
    viewBox="0 0 64 64"
-   inkscape:export-filename="/Users/pablo/olive_pablo/icons/beam.png"
+   inkscape:export-filename="./box.png"
    inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs14" />
   <sodipodi:namedview
@@ -34,9 +32,9 @@
      inkscape:grid-bbox="true"
      showgrid="true"
      inkscape:current-layer="layer1"
-     inkscape:cy="30.06602"
-     inkscape:cx="14.888185"
-     inkscape:zoom="9.6633796"
+     inkscape:cy="32"
+     inkscape:cx="31.957503"
+     inkscape:zoom="11.765625"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1"
@@ -51,32 +49,58 @@
      inkscape:snap-bbox-midpoints="false"
      inkscape:bbox-nodes="true"
      inkscape:snap-nodes="true"
-     inkscape:snap-smooth-nodes="true">
+     inkscape:snap-smooth-nodes="true"
+     inkscape:document-rotation="0"
+     inkscape:pagecheckerboard="0"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:lockguides="true"
+     guidecolor="#ff0000"
+     guideopacity="0.30196078">
     <inkscape:grid
        type="xygrid"
-       id="grid0001"
+       id="grid_pixels"
        color="#ffffff"
-       opacity="0.15686275"
+       opacity="0.05098039"
        empcolor="#ffffff"
-       empopacity="0.31372549"
+       empopacity="0.10196078"
        dotted="false"
        empspacing="8"
        spacingx="1"
        spacingy="1"
        visible="true"
-       snapvisiblegridlinesonly="true" />
-    <inkscape:grid
-       type="xygrid"
-       id="grid0002"
-       spacingx="32"
-       spacingy="32"
-       empspacing="2"
-       empcolor="#ffffff"
-       empopacity="0.47058824"
-       color="#ffffff"
-       opacity="0.31372549"
-       visible="true"
+       snapvisiblegridlinesonly="true"
        enabled="true" />
+    <sodipodi:guide
+       position="2,64"
+       orientation="1,0"
+       id="guide6912"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="62,64"
+       orientation="1,0"
+       id="guide6914"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="0,62"
+       orientation="0,-1"
+       id="guide6916"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="0,2"
+       orientation="0,-1"
+       id="guide6918"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="32,32"
+       orientation="0,-1"
+       id="guide6920"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="32,32"
+       orientation="1,0"
+       id="guide6922"
+       inkscape:locked="true" />
   </sodipodi:namedview>
   <metadata
      id="metadata4">
@@ -94,7 +118,6 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -115,7 +138,7 @@
   </metadata>
   <g
      inkscape:groupmode="layer"
-     inkscape:label="Layer 1"
+     inkscape:label="Design"
      id="layer1"
      transform="translate(0,16)">
     <path

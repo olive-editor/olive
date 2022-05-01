@@ -44,6 +44,7 @@ const rational &TimeRange::out() const
 
 const rational &TimeRange::length() const
 {
+  Q_ASSERT(!length_.isNaN());
   return length_;
 }
 
@@ -173,7 +174,11 @@ void TimeRange::normalize()
   }
 
   // Calculate length
-  length_ = out_ - in_;
+  if (out_ == RATIONAL_MIN || out_ == RATIONAL_MAX || in_ == RATIONAL_MIN || in_ == RATIONAL_MAX) {
+    length_ = rational::NaN;
+  } else {
+    length_ = out_ - in_;
+  }
 }
 
 void TimeRangeList::insert(const TimeRangeList &list_to_add)

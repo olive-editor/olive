@@ -57,6 +57,7 @@ SliderBase::SliderBase(QWidget *parent) :
 void SliderBase::SetAlignment(Qt::Alignment alignment)
 {
   label_->setAlignment(alignment);
+  editor_->setAlignment(alignment);
 }
 
 bool SliderBase::IsTristate() const
@@ -104,7 +105,17 @@ void SliderBase::changeEvent(QEvent *e)
 
 void SliderBase::UpdateLabel()
 {
-  label_->setText(tristate_ ? tr("---") : GetFormattedValueToString());
+  QString s;
+
+  if (tristate_) {
+    s = tr("---");
+  } else if (label_substitutions_.contains(GetValueInternal())) {
+    s = label_substitutions_.value(GetValueInternal());
+  } else {
+    s = GetFormattedValueToString();
+  }
+
+  label_->setText(s);
 }
 
 QVariant SliderBase::AdjustValue(const QVariant &value) const

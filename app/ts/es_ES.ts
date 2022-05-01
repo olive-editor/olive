@@ -4883,7 +4883,7 @@ y salida.</translation>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="928"/>
         <source>On</source>
-        <translation>Avtivado</translation>
+        <translation>Activado</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="933"/>

@@ -45,7 +45,7 @@ QString TimeInput::id() const
 
 QVector<Node::CategoryID> TimeInput::Category() const
 {
-  return {kCategoryInput};
+  return {kCategoryTime};
 }
 
 QString TimeInput::Description() const

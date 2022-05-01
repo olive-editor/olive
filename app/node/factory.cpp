@@ -29,6 +29,7 @@
 #include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
 #include "distort/transform/transformdistortnode.h"
@@ -38,8 +39,9 @@
 #include "generator/polygon/polygon.h"
 #include "generator/shape/shapenode.h"
 #include "generator/solid/solid.h"
-#include "generator/text/text.h"
-#include "generator/text/textlegacy.h"
+#include "generator/text/textv1.h"
+#include "generator/text/textv2.h"
+#include "generator/text/textv3.h"
 #include "filter/blur/blur.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
@@ -48,11 +50,14 @@
 #include "math/math/math.h"
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
+#include "keying/colordifferencekey/colordifferencekey.h"
+#include "keying/despill/despill.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
 #include "project/footage/footage.h"
 #include "project/sequence/sequence.h"
+#include "time/timeoffset/timeoffsetnode.h"
 #include "time/timeremap/timeremap.h"
 
 namespace olive {
@@ -70,7 +75,8 @@ void NodeFactory::Initialize()
     library_.append(created_node);
   }
 
-  hidden_.append(kTextGeneratorLegacy);
+  hidden_.append(kTextGeneratorV1);
+  hidden_.append(kTextGeneratorV2);
   hidden_.append(kGroupNode);
 }
 
@@ -80,7 +86,7 @@ void NodeFactory::Destroy()
   library_.clear();
 }
 
-Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::CategoryID restrict_to)
+Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::CategoryID restrict_to, uint64_t restrict_flags)
 {
   Menu* menu = new Menu(parent);
   menu->setToolTipsVisible(true);
@@ -90,6 +96,10 @@ Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::Cate
 
     if (restrict_to != Node::kCategoryUnknown && !n->Category().contains(restrict_to)) {
       // Skip this node
+      continue;
+    }
+
+    if (restrict_flags && !(n->GetFlags() & restrict_flags)) {
       continue;
     }
 
@@ -227,10 +237,12 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MergeNode();
   case kStrokeFilter:
     return new StrokeFilterNode();
-  case kTextGeneratorLegacy:
-    return new TextGeneratorLegacy();
-  case kTextGenerator:
-    return new TextGenerator();
+  case kTextGeneratorV1:
+    return new TextGeneratorV1();
+  case kTextGeneratorV2:
+    return new TextGeneratorV2();
+  case kTextGeneratorV3:
+    return new TextGeneratorV3();
   case kCrossDissolveTransition:
     return new CrossDissolveTransition();
   case kDipToColorTransition:
@@ -253,6 +265,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new SubtitleBlock();
   case kShapeGenerator:
     return new ShapeNode();
+  case kColorDifferenceKeyKeying:
+    return new ColorDifferenceKeyNode();
+  case kDespillKeying:
+    return new DespillNode();
   case kGroupNode:
     return new NodeGroup();
   case kOpacityEffect:
@@ -261,6 +277,10 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new FlipDistortNode();
   case kNoiseGenerator:
     return new NoiseGeneratorNode();
+  case kTimeOffsetNode:
+    return new TimeOffsetNode();
+  case kCornerPinDistort:
+    return new CornerPinDistortNode();
 
   case kInternalNodeCount:
     break;

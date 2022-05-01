@@ -37,7 +37,7 @@ bool ProjectLoadTask::Run()
 
   project_->set_filename(GetFilename());
 
-  ProjectSerializer::Result result = ProjectSerializer::Load(project_, GetFilename());
+  ProjectSerializer::Result result = ProjectSerializer::Load(project_, GetFilename(), QStringLiteral("project"));
 
   switch (result.code()) {
   case ProjectSerializer::kSuccess:

@@ -51,7 +51,7 @@ void NodeCopyPasteService::CopyNodesToClipboard(QVector<Node *> nodes, void *use
 
   CopyNodesToClipboardCallback(nodes, &data, userdata);
 
-  ProjectSerializer::Save(&writer, data);
+  ProjectSerializer::Save(&writer, data, type_);
 
   Core::CopyStringToClipboard(copy_str);
 }
@@ -66,7 +66,7 @@ void NodeCopyPasteService::PasteNodesFromClipboard(void *userdata)
   QXmlStreamReader reader(clipboard);
 
   Project temp;
-  ProjectSerializer::Result res = ProjectSerializer::Load(&temp, &reader);
+  ProjectSerializer::Result res = ProjectSerializer::Load(&temp, &reader, type_);
 
   if (res.code() != ProjectSerializer::kSuccess) {
     return;

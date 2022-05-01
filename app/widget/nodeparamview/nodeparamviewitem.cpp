@@ -40,12 +40,14 @@ const int NodeParamViewItemBody::kOptionalCheckBox = 0;
 const int NodeParamViewItemBody::kArrayCollapseBtnColumn = 1;
 const int NodeParamViewItemBody::kLabelColumn = 2;
 const int NodeParamViewItemBody::kWidgetStartColumn = 3;
+const int NodeParamViewItemBody::kMaxWidgetColumn = kKeyControlColumn;
 
 #define super NodeParamViewItemBase
 
 NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
-  node_(node)
+  node_(node),
+  ctx_(nullptr)
 {
   node_->Retranslate();
 
@@ -60,6 +62,11 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
 
   setBackgroundRole(QPalette::Window);
+
+  // Connect title bar enabled checkbox
+  //title_bar()->SetEnabledCheckBoxVisible(true);
+  //title_bar()->SetEnabledCheckBoxChecked(node_->IsEnabled());
+  //connect(title_bar(), &NodeParamViewItemTitleBar::EnabledCheckBoxClicked, node_, &Node::SetEnabled);
 
   Retranslate();
 }
@@ -216,13 +223,6 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   // Place widgets into layout
   PlaceWidgetsFromBridge(layout, ui_objects.widget_bridge, row);
 
-  // Add widgets for this parameter to the layout
-  for (int i=0; i<ui_objects.widget_bridge->widgets().size(); i++) {
-    QWidget* w = ui_objects.widget_bridge->widgets().at(i);
-
-    layout->addWidget(w, row, i+kWidgetStartColumn);
-  }
-
   // In case this input is a group, resolve that actual input to use for connected labels
   NodeInput resolved = NodeGroup::ResolveInput(input_ref);
 
@@ -355,7 +355,17 @@ void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodePara
   for (int i=0; i<bridge->widgets().size(); i++) {
     QWidget* w = bridge->widgets().at(i);
 
-    layout->addWidget(w, row, i+kWidgetStartColumn);
+    int col = i+kWidgetStartColumn;
+
+    int colspan;
+    if (i == bridge->widgets().size()-1) {
+      // Span this widget among remaining columns
+      colspan = kMaxWidgetColumn - col;
+    } else {
+      colspan = 1;
+    }
+
+    layout->addWidget(w, row, col, 1, colspan);
   }
 }
 

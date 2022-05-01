@@ -26,6 +26,8 @@ const QString MosaicFilterNode::kTextureInput = QStringLiteral("tex_in");
 const QString MosaicFilterNode::kHorizInput = QStringLiteral("horiz_in");
 const QString MosaicFilterNode::kVertInput = QStringLiteral("vert_in");
 
+#define super Node
+
 MosaicFilterNode::MosaicFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -35,10 +37,15 @@ MosaicFilterNode::MosaicFilterNode()
 
   AddInput(kVertInput, NodeValue::kFloat, 18.0);
   SetInputProperty(kVertInput, QStringLiteral("min"), 1.0);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void MosaicFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Texture"));
   SetInputName(kHorizInput, tr("Horizontal"));
   SetInputName(kVertInput, tr("Vertical"));

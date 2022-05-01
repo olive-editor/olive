@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Olive - Non-Linear Video Editor
 # Copyright (C) 2021 Olive Team
@@ -31,45 +31,38 @@ OUTPUT_SIZES=( 16 32 64 128 )
 
 if [ $# -lt 1 ]
 then
-  echo "Usage: $0 icon-pack-name [options]"
+  echo "Generates sized PNG icons from SVG files"
+  echo "Usage: $0 [options] <icon-pack-name>"
   echo
   echo "Example: $0 olive-dark"
   echo
   echo "Options:"
-  echo "    -n    Only generate QRC file"
-  echo
+  echo "  -l    Skip existing files (only create files that don't exist)"
   exit 1
 fi
 
-PACKNAME=$1
-SVGDIR=$1/svg
-PNGDIR=$1/png
-QRCFILE=$1/$1.qrc
+SKIP_EXISTING=0
+
+for var in "$@"
+do
+  if [ "$var" == "-l" ]
+  then
+    SKIP_EXISTING=1
+  fi
+done
+
+PACKNAME="${@: -1}"
+SVGDIR=$PACKNAME/svg
+PNGDIR=$PACKNAME/png
 
 mkdir -p $PNGDIR
 
-ONLYQRC=0
-
-if [ "$2" == "-n" ]
-then
-  ONLYQRC=1
-fi
-
-truncate -s 0 $QRCFILE
-
-echo "<RCC>" >> $QRCFILE
-echo "  <qresource prefix=\"/style/$PACKNAME\">" >> $QRCFILE
-echo "    <file>style.css</file>" >> $QRCFILE
-echo "    <file>palette.ini</file>" >> $QRCFILE
-
 OutputPng() {
-  echo Creating $2...
-
-  echo "    <file>png/$(basename $2)</file>" >> $QRCFILE
-
-  if [ $ONLYQRC -eq 0 ]
-  then
-    inkscape -z -e $(pwd)/$2 -w $s -h $s $1
+  if [ $SKIP_EXISTING -eq 0 ] || [ ! -f "$2.png" ]; then
+    inkscape --export-filename $2.png --export-width $s --export-height $s $1
+  fi
+  if [ $SKIP_EXISTING -eq 0 ] || [ ! -f "$2.disabled.png" ]; then
+    convert $2.png -alpha set -background none -channel A -evaluate multiply 0.25 +channel $2.disabled.png
   fi
 }
 
@@ -79,9 +72,6 @@ do
 
   for s in "${OUTPUT_SIZES[@]}"
   do
-    OutputPng $f $PNGDIR/$FNBASE.$s.png
+    OutputPng $f $PNGDIR/$FNBASE.$s
   done
 done
-
-echo "  </qresource>" >> $QRCFILE
-echo "</RCC>" >> $QRCFILE

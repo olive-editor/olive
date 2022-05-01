@@ -106,9 +106,6 @@ void Menu::Init()
   QPalette p = palette();
   p.setColor(QPalette::Disabled, QPalette::Light, QColor(0, 0, 0, 0));
   setPalette(p);
-
-  // If a native palette is available, it should override the one above
-  StyleManager::UseOSNativeStyling(this);
 }
 
 }

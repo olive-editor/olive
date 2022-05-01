@@ -27,6 +27,8 @@ const QString MathNode::kParamAIn = QStringLiteral("param_a_in");
 const QString MathNode::kParamBIn = QStringLiteral("param_b_in");
 const QString MathNode::kParamCIn = QStringLiteral("param_c_in");
 
+#define super MathNodeBase
+
 MathNode::MathNode()
 {
   AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
@@ -67,7 +69,7 @@ QString MathNode::Description() const
 
 void MathNode::Retranslate()
 {
-  Node::Retranslate();
+  super::Retranslate();
 
   SetInputName(kMethodIn, tr("Method"));
   SetInputName(kParamAIn, tr("Value"));

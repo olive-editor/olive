@@ -29,6 +29,8 @@ const QString BlurFilterNode::kHorizInput = QStringLiteral("horiz_in");
 const QString BlurFilterNode::kVertInput = QStringLiteral("vert_in");
 const QString BlurFilterNode::kRepeatEdgePixelsInput = QStringLiteral("repeat_edge_pixels_in");
 
+#define super Node
+
 BlurFilterNode::BlurFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -42,7 +44,10 @@ BlurFilterNode::BlurFilterNode()
 
   AddInput(kVertInput, NodeValue::kBoolean, true);
 
-  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, false);
+  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node *BlurFilterNode::copy() const
@@ -72,6 +77,8 @@ QString BlurFilterNode::Description() const
 
 void BlurFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kMethodInput, tr("Method"));
   SetComboBoxStrings(kMethodInput, { tr("Box"), tr("Gaussian") });
