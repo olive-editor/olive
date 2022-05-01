@@ -85,11 +85,11 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
   row++;
   {
     QGroupBox* marker_group = new QGroupBox();
-    marker_group->setTitle(tr("Default Marker Color"));
+    marker_group->setTitle(tr("Miscellaneous"));
 
     QGridLayout* marker_layout = new QGridLayout(marker_group);
 
-    marker_layout->addWidget(new QLabel("Marker"), 0, 0);
+    marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
 
     marker_btn_ = new ColorCodingComboBox();
     marker_btn_->SetColor(Config::Current()[QStringLiteral("MarkerColor")].toInt());
