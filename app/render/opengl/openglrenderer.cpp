@@ -20,6 +20,7 @@
 
 #include "openglrenderer.h"
 
+#include <iostream>
 #include <QDateTime>
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
