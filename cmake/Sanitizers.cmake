@@ -1,5 +1,5 @@
 function(enable_sanitizers project_name)
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(SANITIZERS "")
 
     option(ENABLE_SANITIZER_ADDRESS "Enable address sanitizer" OFF)
@@ -27,7 +27,7 @@ function(enable_sanitizers project_name)
     endif()
 
     option(ENABLE_SANITIZER_MEMORY "Enable memory sanitizer" OFF)
-    if(ENABLE_SANITIZER_MEMORY AND CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
+    if(ENABLE_SANITIZER_MEMORY AND CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
       message(WARNING "Memory sanitizer requires all the code (including libc++) to be MSan-instrumented otherwise it reports false positives")
       if("address" IN_LIST SANITIZERS
          OR "thread" IN_LIST SANITIZERS
@@ -42,9 +42,16 @@ function(enable_sanitizers project_name)
   endif()
 
   if(LIST_OF_SANITIZERS)
+    set(SANITIZE_PREFIX "")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+      set(SANITIZE_PREFIX "/fsanitize")
+    else()
+      set(SANITIZE_PREFIX "-fsanitize")
+    endif()
+
     if(NOT "${LIST_OF_SANITIZERS}" STREQUAL "")
-      target_compile_options(${project_name} INTERFACE -fsanitize=${LIST_OF_SANITIZERS})
-      target_link_options(${project_name} INTERFACE -fsanitize=${LIST_OF_SANITIZERS})
+      target_compile_options(${project_name} INTERFACE ${SANITIZE_PREFIX}=${LIST_OF_SANITIZERS})
+      target_link_options(${project_name} INTERFACE ${SANITIZE_PREFIX}=${LIST_OF_SANITIZERS})
     endif()
   endif()
 
