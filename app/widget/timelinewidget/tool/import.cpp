@@ -173,7 +173,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, int track_offset)
 {
   DraggedFootageData refs;
 
@@ -181,10 +181,10 @@ void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational 
     refs.append({f, f->GetEnabledStreamsAsReferences()});
   }
 
-  PlaceAt(refs, start, insert);
+  PlaceAt(refs, start, insert, track_offset);
 }
 
-void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, int track_offset)
 {
   dragged_footage_ = footage;
 
@@ -192,7 +192,7 @@ void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &star
     return;
   }
 
-  PrepGhosts(start, 0);
+  PrepGhosts(start, track_offset);
   DropGhosts(insert);
 }
 

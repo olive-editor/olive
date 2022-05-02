@@ -32,6 +32,7 @@
 #include "dialog/speedduration/speeddurationdialog.h"
 #include "node/block/transition/transition.h"
 #include "node/project/serializer/serializer.h"
+#include "task/project/import/import.h"
 #include "tool/add.h"
 #include "tool/beam.h"
 #include "tool/edit.h"
@@ -785,6 +786,35 @@ void TimelineWidget::ShowSpeedDurationDialogForSelectedClips()
   if (!clips.isEmpty()) {
     SpeedDurationDialog sdd(clips, timebase(), this);
     sdd.exec();
+  }
+}
+
+void TimelineWidget::RecordingCallback(const QString &filename, const TimeRange &time, const Track::Reference &track)
+{
+  ProjectImportTask task(GetConnectedNode()->project()->root(), {filename});
+  task.Start();
+
+  MultiUndoCommand *import_command = task.GetCommand();
+  Core::instance()->undo_stack()->pushIfHasChildren(import_command);
+
+  if (task.GetImportedFootage().empty()) {
+    qCritical() << "Failed to import recorded audio file" << filename;
+  } else {
+    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, track.index());
+  }
+}
+
+void TimelineWidget::EnableRecordingOverlay(const TimelineCoordinate &coord)
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->EnableRecordingOverlay(coord);
+  }
+}
+
+void TimelineWidget::DisableRecordingOverlay()
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->DisableRecordingOverlay();
   }
 }
 

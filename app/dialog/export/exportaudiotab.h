@@ -37,8 +37,6 @@ class ExportAudioTab : public QWidget
 public:
   ExportAudioTab(QWidget* parent = nullptr);
 
-  int SetFormat(ExportFormat::Format format);
-
   QComboBox* codec_combobox() const
   {
     return codec_combobox_;
@@ -58,6 +56,9 @@ public:
   {
     return bit_rate_slider_;
   }
+
+public slots:
+  int SetFormat(ExportFormat::Format format);
 
 private:
   QComboBox* codec_combobox_;

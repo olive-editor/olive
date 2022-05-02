@@ -18,27 +18,46 @@
 
 ***/
 
-#ifndef SEQUENCEVIEWERPANEL_H
-#define SEQUENCEVIEWERPANEL_H
+#ifndef EXPORTFORMATCOMBOBOX_H
+#define EXPORTFORMATCOMBOBOX_H
 
-#include "panel/viewer/viewer.h"
+#include <QComboBox>
+
+#include "codec/exportformat.h"
 
 namespace olive {
 
-class SequenceViewerPanel : public ViewerPanel
+class ExportFormatComboBox : public QComboBox
 {
   Q_OBJECT
 public:
-  SequenceViewerPanel(QWidget* parent);
+  enum Mode {
+    kShowAllFormats,
+    kShowAudioOnly,
+    kShowVideoOnly
+  };
+
+  ExportFormatComboBox(Mode mode, QWidget *parent = nullptr);
+  ExportFormatComboBox(QWidget *parent = nullptr) :
+    ExportFormatComboBox(kShowAllFormats, parent)
+  {}
+
+  ExportFormat::Format GetFormat() const
+  {
+    return static_cast<ExportFormat::Format>(currentData().toInt());
+  }
+
+signals:
+  void FormatChanged(ExportFormat::Format fmt);
 
 public slots:
-  void StartCapture(const TimeRange &time, const Track::Reference &track);
+  void SetFormat(ExportFormat::Format fmt);
 
-protected:
-  virtual void Retranslate() override;
+private slots:
+  void HandleIndexChange(int index);
 
 };
 
 }
 
-#endif // SEQUENCEVIEWERPANEL_H
+#endif // EXPORTFORMATCOMBOBOX_H

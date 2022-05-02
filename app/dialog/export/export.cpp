@@ -118,7 +118,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   row++;
 
   preferences_layout->addWidget(new QLabel(tr("Format:")), row, 0);
-  format_combobox_ = new QComboBox();
+  format_combobox_ = new ExportFormatComboBox();
   preferences_layout->addWidget(format_combobox_, row, 1, 1, 3);
 
   row++;
@@ -193,33 +193,11 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   // Set default filename
   SetDefaultFilename();
 
-  // Populate combobox formats
-  for (int i=0; i<ExportFormat::kFormatCount; i++) {
-    QString format_name = ExportFormat::GetName(static_cast<ExportFormat::Format>(i));
-
-    bool inserted = false;
-
-    for (int j=0; j<format_combobox_->count(); j++) {
-      if (format_combobox_->itemText(j) > format_name) {
-        format_combobox_->insertItem(j, format_name, i);
-        inserted = true;
-        break;
-      }
-    }
-
-    if (!inserted) {
-      format_combobox_->addItem(format_name, i);
-    }
-  }
-
   // Set defaults
   previously_selected_format_ = ExportFormat::kFormatMPEG4;
-  SetCurrentFormat(ExportFormat::kFormatMPEG4);
-  connect(format_combobox_,
-          static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-          this,
-          &ExportDialog::FormatChanged);
-  FormatChanged(format_combobox_->currentIndex());
+  format_combobox_->SetFormat(ExportFormat::kFormatMPEG4);
+  connect(format_combobox_, &ExportFormatComboBox::FormatChanged, this, &ExportDialog::FormatChanged);
+  FormatChanged(format_combobox_->GetFormat());
 
   VideoParams vp = viewer_node_->GetVideoParams();
   AudioParams ap = viewer_node_->GetAudioParams();
@@ -273,11 +251,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 }
 
-ExportFormat::Format ExportDialog::GetSelectedFormat() const
-{
-  return static_cast<ExportFormat::Format>(format_combobox_->currentData().toInt());
-}
-
 rational ExportDialog::GetSelectedTimebase() const
 {
   return video_tab_->GetSelectedFrameRate().flipped();
@@ -293,7 +266,7 @@ void ExportDialog::StartExport()
 
   // Validate if the entered filename contains the correct extension (the extension is necessary
   // for both FFmpeg and OIIO to determine the output format)
-  QString necessary_ext = QStringLiteral(".%1").arg(ExportFormat::GetExtension(GetSelectedFormat()));
+  QString necessary_ext = QStringLiteral(".%1").arg(ExportFormat::GetExtension(format_combobox_->GetFormat()));
   QString proposed_filename = filename_edit_->text().trimmed();
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
@@ -428,7 +401,7 @@ void ExportDialog::AddPreferencesTab(QWidget *inner_widget, const QString &title
 
 void ExportDialog::BrowseFilename()
 {
-  ExportFormat::Format f = GetSelectedFormat();
+  ExportFormat::Format f = format_combobox_->GetFormat();
 
   QString browsed_fn = QFileDialog::getSaveFileName(this,
                                                     "",
@@ -444,11 +417,10 @@ void ExportDialog::BrowseFilename()
   }
 }
 
-void ExportDialog::FormatChanged(int index)
+void ExportDialog::FormatChanged(ExportFormat::Format current_format)
 {
   QString current_filename = filename_edit_->text().trimmed();
   QString previously_selected_ext = ExportFormat::GetExtension(previously_selected_format_);
-  ExportFormat::Format current_format = static_cast<ExportFormat::Format>(format_combobox_->itemData(index).toInt());
   QString currently_selected_ext = ExportFormat::GetExtension(current_format);
 
   // If the previous extension was added, remove it
@@ -546,7 +518,7 @@ ExportParams ExportDialog::GenerateParams() const
                                   AudioParams::kInternalFormat);
 
   ExportParams params;
-  params.set_encoder(Encoder::GetTypeFromFormat(GetSelectedFormat()));
+  params.set_encoder(Encoder::GetTypeFromFormat(format_combobox_->GetFormat()));
   params.SetFilename(filename_edit_->text().trimmed());
   params.SetExportLength(viewer_node_->GetLength());
 
@@ -592,16 +564,6 @@ ExportParams ExportDialog::GenerateParams() const
   }
 
   return params;
-}
-
-void ExportDialog::SetCurrentFormat(ExportFormat::Format format)
-{
-  for (int i=0; i<format_combobox_->count(); i++) {
-    if (format_combobox_->itemData(i).toInt() == format) {
-      format_combobox_->setCurrentIndex(i);
-      break;
-    }
-  }
 }
 
 rational ExportDialog::GetExportLength() const

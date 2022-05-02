@@ -236,11 +236,6 @@ fail:
 
 bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
 {
-  if (!InitializeResampleContext(audio)) {
-    qCritical() << "Failed to initialize resample context";
-    return false;
-  }
-
   bool result = true;
 
   // Create input buffer
@@ -257,6 +252,25 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
       memcpy(input_data[i], audio->data(i), input_sample_count * audio->audio_params().bytes_per_sample_per_channel());
     }
   }
+
+  result = WriteAudioData(audio->audio_params(), true, const_cast<const uint8_t**>(input_data), input_sample_count);
+
+  if (input_data) {
+    av_freep(&input_data[0]);
+    av_freep(&input_data);
+  }
+
+  return result;
+}
+
+bool FFmpegEncoder::WriteAudioData(const AudioParams &audio_params, bool planar, const uint8_t **input_data, int input_sample_count)
+{
+  if (!InitializeResampleContext(audio_params, planar)) {
+    qCritical() << "Failed to initialize resample context";
+    return false;
+  }
+
+  bool result = true;
 
   // Create output buffer
   int output_sample_count = input_sample_count ? swr_get_out_samples(audio_resample_ctx_, input_sample_count) : 102400;
@@ -306,11 +320,6 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
   if (output_data) {
     av_freep(&output_data[0]);
     av_freep(&output_data);
-  }
-
-  if (input_data) {
-    av_freep(&input_data[0]);
-    av_freep(&input_data);
   }
 
   return result;
@@ -774,7 +783,7 @@ void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
   av_packet_free(&pkt);
 }
 
-bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
+bool FFmpegEncoder::InitializeResampleContext(const AudioParams &audio, bool planar)
 {
   if (audio_resample_ctx_) {
     return true;
@@ -785,9 +794,9 @@ bool FFmpegEncoder::InitializeResampleContext(SampleBufferPtr audio)
                                            static_cast<int64_t>(audio_codec_ctx_->channel_layout),
                                            audio_codec_ctx_->sample_fmt,
                                            audio_codec_ctx_->sample_rate,
-                                           static_cast<int64_t>(audio->audio_params().channel_layout()),
-                                           FFmpegUtils::GetFFmpegSampleFormat(audio->audio_params().format(), true),
-                                           audio->audio_params().sample_rate(),
+                                           static_cast<int64_t>(audio.channel_layout()),
+                                           FFmpegUtils::GetFFmpegSampleFormat(audio.format(), planar),
+                                           audio.sample_rate(),
                                            0,
                                            nullptr);
   if (!audio_resample_ctx_) {

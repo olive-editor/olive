@@ -348,6 +348,16 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
                       track_y + GetTrackHeight(track_index));
   }
 
+  // Draw recording overlay
+  if (recording_overlay_ && recording_coord_.GetTrack().type() == connected_track_list_->type()) {
+    painter->setPen(QPen(Qt::red, 2));
+    painter->setBrush(QColor(255, 128, 128));
+
+    int x = TimeToScene(recording_coord_.GetFrame());
+    painter->drawRect(x, GetTrackY(recording_coord_.GetTrack().index()),
+                      TimeToScene(GetTime()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
+  }
+
   // Draw standard TimelineViewBase things (such as playhead)
   super::drawForeground(painter, rect);
 }
@@ -364,6 +374,7 @@ void TimelineView::ToolChangedEvent(Tool::Item tool)
   case Tool::kAdd:
   case Tool::kTransition:
   case Tool::kZoom:
+  case Tool::kRecord  :
     setCursor(Qt::CrossCursor);
     break;
   case Tool::kTrackSelect:
@@ -743,6 +754,19 @@ void TimelineView::SetTransitionOverlay(ClipBlock *out, ClipBlock *in)
 
     viewport()->update();
   }
+}
+
+void TimelineView::EnableRecordingOverlay(const TimelineCoordinate &coord)
+{
+  recording_overlay_ = true;
+  recording_coord_ = coord;
+  viewport()->update();
+}
+
+void TimelineView::DisableRecordingOverlay()
+{
+  recording_overlay_ = false;
+  viewport()->update();
 }
 
 int TimelineView::SceneToTrack(double y)

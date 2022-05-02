@@ -99,6 +99,12 @@ public:
 
   void ShowSpeedDurationDialogForSelectedClips();
 
+  void RecordingCallback(const QString &filename, const TimeRange &time, const Track::Reference &track);
+
+  void EnableRecordingOverlay(const TimelineCoordinate &coord);
+
+  void DisableRecordingOverlay();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -260,6 +266,8 @@ public:
 
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
+
+  void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;

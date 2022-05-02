@@ -245,14 +245,14 @@ UndoStack *Core::undo_stack()
   return &undo_stack_;
 }
 
-void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder* parent)
+void Core::ImportFiles(const QStringList &urls, Folder* parent)
 {
   if (urls.isEmpty()) {
     QMessageBox::critical(main_window_, tr("Import error"), tr("Nothing to import"));
     return;
   }
 
-  ProjectImportTask* pim = new ProjectImportTask(model, parent, urls);
+  ProjectImportTask* pim = new ProjectImportTask(parent, urls);
 
   if (!pim->GetFileCount()) {
     // No files to import
@@ -364,7 +364,7 @@ void Core::DialogImportShow()
     // Get the selected folder in this panel
     Folder* folder = active_project_panel->GetSelectedFolder();
 
-    ImportFiles(files, active_project_panel->model(), folder);
+    ImportFiles(files, folder);
   }
 }
 

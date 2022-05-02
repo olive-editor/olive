@@ -65,7 +65,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
   prequeuing_video_(false),
-  prequeuing_audio_(0)
+  prequeuing_audio_(0),
+  record_armed_(false),
+  recording_(false)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -156,6 +158,10 @@ void ViewerWidget::TimeChangedEvent(const rational &time)
 {
   if (!time_changed_from_timer_) {
     PauseInternal();
+  }
+
+  if (record_armed_) {
+    DisarmRecording();
   }
 
   controls_->SetTime(time);
@@ -377,6 +383,17 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
+void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, const Track::Reference &track)
+{
+  SetTimeAndSignal(time.in());
+  ArmForRecording();
+
+  recording_filename_ = QStringLiteral("/home/matt/Desktop/ass.mp3");
+  recording_callback_ = source;
+  recording_range_ = time;
+  recording_track_ = track;
+}
+
 FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QByteArray& hash, const rational& time)
 {
   FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, hash);
@@ -426,6 +443,18 @@ void ViewerWidget::DecrementPrequeuedAudio()
   if (!prequeuing_audio_) {
     FinishPlayPreprocess();
   }
+}
+
+void ViewerWidget::ArmForRecording()
+{
+  controls_->StartPlayBlink();
+  record_armed_ = true;
+}
+
+void ViewerWidget::DisarmRecording()
+{
+  controls_->StopPlayBlink();
+  record_armed_ = false;
 }
 
 void ViewerWidget::QueueNextAudioBuffer()
@@ -595,13 +624,20 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     viewer->auto_cacher_.SetAudioPaused(true);
   }
 
+  // Disarm recording if armed
+  if (record_armed_) {
+    DisarmRecording();
+  }
+
   // If the playhead is beyond the end, restart at 0
-  rational last_frame = GetConnectedNode()->GetLength() - timebase();
-  if (!in_to_out_only && GetTime() >= last_frame) {
-    if (speed > 0) {
-      SetTimeAndSignal(0);
-    } else {
-      SetTimeAndSignal(last_frame);
+  if (!recording_) {
+    rational last_frame = GetConnectedNode()->GetLength() - timebase();
+    if (!in_to_out_only && GetTime() >= last_frame) {
+      if (speed > 0) {
+        SetTimeAndSignal(0);
+      } else {
+        SetTimeAndSignal(last_frame);
+      }
     }
   }
 
@@ -657,6 +693,15 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
 void ViewerWidget::PauseInternal()
 {
+  if (recording_) {
+    AudioManager::instance()->StopRecording();
+    recording_ = false;
+    controls_->SetPauseButtonRecordingState(false);
+
+    recording_callback_->DisableRecordingOverlay();
+    recording_callback_->RecordingCallback(recording_filename_, recording_range_, recording_track_);
+  }
+
   if (IsPlaying()) {
     playback_speed_ = 0;
     controls_->ShowPlayButton();
@@ -1121,6 +1166,17 @@ void ViewerWidget::Play(bool in_to_out_only)
     } else {
       in_to_out_only = false;
     }
+  } else if (record_armed_) {
+    if (AudioManager::instance()->StartRecording(recording_filename_, GetConnectedNode()->GetAudioParams())) {
+      recording_ = true;
+      controls_->SetPauseButtonRecordingState(true);
+      recording_callback_->EnableRecordingOverlay(TimelineCoordinate(recording_range_.in(), recording_track_));
+    } else {
+      QMessageBox::critical(this, tr("Audio Recording"), tr("Failed to start audio recording"));
+      return;
+    }
+
+    DisarmRecording();
   }
 
   PlayInternal(1, in_to_out_only);
@@ -1205,7 +1261,13 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   rational min_time, max_time;
 
-  if (play_in_to_out_only_ && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+  if (recording_ && recording_range_.out() != recording_range_.in()) {
+
+    // Limit recording range if applicable
+    min_time = recording_range_.in();
+    max_time = recording_range_.out();
+
+  } else if (play_in_to_out_only_ && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
 
     // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
     min_time = GetConnectedNode()->GetTimelinePoints()->workarea()->in();
@@ -1229,8 +1291,9 @@ void ViewerWidget::PlaybackTimerUpdate()
   bool end_of_line = false;
   bool play_after_pause = false;
 
-  if ((playback_speed_ < 0 && current_time <= min_time)
-      || (playback_speed_ > 0 && current_time >= max_time)) {
+  if ((!recording_ || recording_range_.out() != recording_range_.in())
+      && ((playback_speed_ < 0 && current_time <= min_time)
+          || (playback_speed_ > 0 && current_time >= max_time))) {
 
     // Determine which timestamp we tripped
     rational tripped_time;
@@ -1245,7 +1308,7 @@ void ViewerWidget::PlaybackTimerUpdate()
     // or restart playback
     end_of_line = true;
 
-    if (Config::Current()[QStringLiteral("Loop")].toBool()) {
+    if (Config::Current()[QStringLiteral("Loop")].toBool() && !recording_) {
 
       // If we're looping, jump to the other side of the workarea and continue
       time_to_set = (tripped_time == min_time) ? max_time : min_time;

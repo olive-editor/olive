@@ -26,6 +26,7 @@
 
 #include <QApplication>
 
+#include "audio/packedprocessor.h"
 #include "config/config.h"
 
 namespace olive {
@@ -68,6 +69,19 @@ int OutputCallback(const void *input, void *output, unsigned long frameCount, co
   return paContinue;
 }
 
+int InputCallback(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
+{
+  FFmpegEncoder *f = static_cast<FFmpegEncoder*>(userData);
+
+  SampleBufferPtr s = SampleBuffer::Create();
+  s->set_sample_count(frameCount);
+  s->set_audio_params(f->params().audio_params());
+
+  f->WriteAudioData(f->params().audio_params(), false, reinterpret_cast<const uint8_t**>(&input), frameCount);
+
+  return paContinue;
+}
+
 void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &samples)
 {
   if (output_device_ == paNoDevice) {
@@ -79,13 +93,7 @@ void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &sam
 
     CloseOutputStream();
 
-    PaStreamParameters p;
-
-    p.channelCount = output_params_.channel_count();
-    p.device = output_device_;
-    p.hostApiSpecificStreamInfo = nullptr;
-    p.sampleFormat = GetPortAudioSampleFormat(output_params_.format());
-    p.suggestedLatency = Pa_GetDeviceInfo(output_device_)->defaultLowOutputLatency;
+    PaStreamParameters p = GetPortAudioParams(params, output_device_);
 
     Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_);
 
@@ -176,6 +184,52 @@ void AudioManager::HardReset()
   Pa_Initialize();
 }
 
+bool AudioManager::StartRecording(const QString &filename, const AudioParams &params)
+{
+  if (input_device_ == paNoDevice) {
+    return false;
+  }
+
+  EncodingParams encode_param;
+  encode_param.EnableAudio(params, ExportCodec::kCodecMP3);
+  encode_param.SetFilename(filename);
+
+  input_encoder_ = new FFmpegEncoder(encode_param);
+  if (!input_encoder_->Open()) {
+    qCritical() << "Failed to open encoder for recording";
+    return false;
+  }
+
+  PaStreamParameters p = GetPortAudioParams(params, input_device_);
+
+  if (Pa_OpenStream(&input_stream_, &p, nullptr, params.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_) == paNoError) {
+    if (Pa_StartStream(input_stream_) == paNoError) {
+      return true;
+    }
+  }
+
+  StopRecording();
+  return false;
+}
+
+void AudioManager::StopRecording()
+{
+  if (input_stream_) {
+    if (Pa_IsStreamActive(input_stream_)) {
+      Pa_StopStream(input_stream_);
+    }
+    Pa_CloseStream(input_stream_);
+
+    input_stream_ = nullptr;
+  }
+
+  if (input_encoder_) {
+    input_encoder_->Close();
+    delete input_encoder_;
+    input_encoder_ = nullptr;
+  }
+}
+
 PaDeviceIndex AudioManager::FindConfigDeviceByName(bool is_output_device)
 {
   QString entry = is_output_device ? QStringLiteral("AudioOutput") : QStringLiteral("AudioInput");
@@ -199,8 +253,23 @@ PaDeviceIndex AudioManager::FindDeviceByName(const QString &s, bool is_output_de
   return is_output_device ? Pa_GetDefaultOutputDevice() : Pa_GetDefaultInputDevice();
 }
 
+PaStreamParameters AudioManager::GetPortAudioParams(const AudioParams &params, PaDeviceIndex device)
+{
+  PaStreamParameters p;
+
+  p.channelCount = params.channel_count();
+  p.device = device;
+  p.hostApiSpecificStreamInfo = nullptr;
+  p.sampleFormat = GetPortAudioSampleFormat(params.format());
+  p.suggestedLatency = Pa_GetDeviceInfo(device)->defaultLowOutputLatency;
+
+  return p;
+}
+
 AudioManager::AudioManager() :
-  output_stream_(nullptr)
+  output_stream_(nullptr),
+  input_stream_(nullptr),
+  input_encoder_(nullptr)
 {
 #ifdef PA_HAS_JACK
   // PortAudio doesn't do a strcpy, so we need a const char that's readily accessible (i.e. not

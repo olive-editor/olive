@@ -56,6 +56,8 @@ public:
 
   void SetBeamCursor(const TimelineCoordinate& coord);
   void SetTransitionOverlay(ClipBlock *out, ClipBlock *in);
+  void EnableRecordingOverlay(const TimelineCoordinate &coord);
+  void DisableRecordingOverlay();
 
   void SetSelectionList(QHash<Track::Reference, TimeRangeList>* s)
   {
@@ -156,6 +158,9 @@ private:
   ClipBlock *transition_overlay_in_;
 
   QMap<TimelineMarker*, QRectF> clip_marker_rects_;
+
+  bool recording_overlay_;
+  TimelineCoordinate recording_coord_;
 
 private slots:
   void TrackListChanged();
