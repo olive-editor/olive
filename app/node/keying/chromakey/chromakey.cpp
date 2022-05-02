@@ -22,8 +22,14 @@ namespace olive {
 
 #define super OCIOBaseNode
 
+const QString ChromaKeyNode::kColorInput = QStringLiteral("color_key");
+const QString ChromaKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
+
 ChromaKeyNode::ChromaKeyNode()
 {
+  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0.0f, 1.0f, 0.0f, 1.0f)));
+
+  AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 }
 
 QString ChromaKeyNode::Name() const
@@ -52,11 +58,11 @@ void ChromaKeyNode::Retranslate()
   SetInputName(kTextureInput, tr("Input"));
   //SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
   //SetInputName(kCoreMatteInput, tr("Core Matte"));
-  //SetInputName(kColorInput, tr("Key Color"));
+  SetInputName(kColorInput, tr("Key Color"));
   //SetComboBoxStrings(kColorInput, {tr("Green"), tr("Blue")});
   //SetInputName(kShadowsInput, tr("Shadows"));
   //SetInputName(kHighlightsInput, tr("Highlights"));
-  //SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
+  SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
 }
 
 void ChromaKeyNode::InputValueChangedEvent(const QString &input, int element)
@@ -84,10 +90,11 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
     ColorTransformJob job;
 
     job.InsertValue(value);
+    job.SetInputAlphaAssociation(AlphaAssociated::kAlphaAssociated);
     job.SetColorProcessor(processor());
     job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
     job.SetNeedsCustomShader(this);
-    job.SetFunctionName(QString("SceneLinearToCIEXYZ_d65"));
+    job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
 
     table->Push(NodeValue::kColorTransformJob, QVariant::fromValue(job), this);
   }

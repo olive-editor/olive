@@ -107,14 +107,14 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
   } else {
     // Create shader description
     QString ocio_func_name;
-    if (color_job.FunctionName().isEmpty()) {
+    if (color_job.GetFunctionName().isEmpty()) {
       ocio_func_name = "OCIODisplay";
     } else {
-      ocio_func_name = color_job.FunctionName();
+      ocio_func_name = color_job.GetFunctionName();
     }
     auto shader_desc = OCIO::GpuShaderDesc::CreateShaderDesc();
     shader_desc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_ES_3_0);
-    shader_desc->setFunctionName(ocio_func_name.toStdString().c_str());
+    shader_desc->setFunctionName(ocio_func_name.toUtf8());
     shader_desc->setResourcePrefix("ocio_");
 
     // Generate shader
@@ -219,6 +219,10 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
   job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
   job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, color_job.GetInputAlphaAssociation()));
   job.InsertValue(color_job.GetValues());
+
+  //if (color_job.GetInputAlphaAssociation() == AlphaAssociated::kAlphaAssociated) {
+    job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+  //}
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
     job.InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));

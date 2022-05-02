@@ -42,6 +42,9 @@ class ChromaKeyNode : public OCIOBaseNode {
 
   virtual void ConfigChanged() override {};
 
+  static const QString kColorInput;
+  static const QString kMaskOnlyInput;
+
 private:
   void GenerateProcessor();
 

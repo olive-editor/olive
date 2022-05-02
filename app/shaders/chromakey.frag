@@ -1,5 +1,7 @@
 // Main texture input
 uniform sampler2D tex_in;
+uniform vec4 color_key;
+uniform bool mask_only_in;
 
 
 // Main texture coordinate
@@ -33,6 +35,14 @@ vec4 CIExyz_to_Lab(vec4 CIE) {
   return lab;
 }
 
+float colorclose(vec4 col, vec4 key, float tola,float tolb) { 
+	/*decides if a color is close to the specified hue*/ 
+	float temp = sqrt(((key.g-col.g)*(key.g-col.g))+((key.b-col.b)*(key.b-col.b)));
+	if (temp < tola) {return (0.0);} 
+	if (temp < tolb) {return ((temp-tola)/(tolb-tola));} 
+	return (1.0); 
+}
+
 
 void main() {
 
@@ -42,5 +52,17 @@ void main() {
   vec4 cie_xyz = SceneLinearToCIEXYZ_d65(col);
   vec4 lab = CIExyz_to_Lab(cie_xyz);
 
-  frag_color = vec4(lab.r);
+  vec4 cie_xyz_key = SceneLinearToCIEXYZ_d65(color_key);
+  vec4 lab_key = CIExyz_to_Lab(cie_xyz_key);
+
+  float mask = colorclose(lab, lab_key, 5.0, 25.0);
+
+  col.rgb *= mask;
+  col.w = mask;
+
+  if (!mask_only_in) {
+        frag_color = col;
+    } else {
+        frag_color = vec4(vec3(mask), 1.0);
+    }
 }
