@@ -190,9 +190,6 @@ protected:
 private:
   TimelineMarker* marker_;
   QObject* marker_list_;
-  TimeRange range_;
-  QString name_;
-  int color_;
 
   QObject memory_manager_;
 
