@@ -117,6 +117,8 @@ MarkerPropertiesDialog::MarkerPropertiesDialog(const std::vector<TimelineMarker 
   connect(buttons, &QDialogButtonBox::accepted, this, &MarkerPropertiesDialog::accept);
   connect(buttons, &QDialogButtonBox::rejected, this, &MarkerPropertiesDialog::reject);
   layout->addWidget(buttons, row, 0, 1, 2);
+
+  setWindowTitle(tr("Edit Markers"));
 }
 
 void MarkerPropertiesDialog::accept()
