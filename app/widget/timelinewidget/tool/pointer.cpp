@@ -35,6 +35,7 @@
 #include "pointer.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/undo/timelineundopointer.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -793,14 +794,14 @@ void PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::Movem
   // Prepare snap points (optimizes snapping for later)
   switch (mode) {
   case Timeline::kMove:
-    snap_points_.append(ghost->GetIn());
-    snap_points_.append(ghost->GetOut());
+    snap_points_.push_back(ghost->GetIn());
+    snap_points_.push_back(ghost->GetOut());
     break;
   case Timeline::kTrimIn:
-    snap_points_.append(ghost->GetIn());
+    snap_points_.push_back(ghost->GetIn());
     break;
   case Timeline::kTrimOut:
-    snap_points_.append(ghost->GetOut());
+    snap_points_.push_back(ghost->GetOut());
     break;
   default:
     break;

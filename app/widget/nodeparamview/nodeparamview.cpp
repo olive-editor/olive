@@ -29,6 +29,7 @@
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -117,6 +118,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // Create keyframe view
     keyframe_view_ = new KeyframeView();
     keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    keyframe_view_->SetSnapService(this);
     ConnectTimelineView(keyframe_view_);
     keyframe_area_layout->addWidget(keyframe_view_);
 

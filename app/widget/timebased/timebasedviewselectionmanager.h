@@ -29,6 +29,7 @@
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
 #include "timebasedview.h"
+#include "timebasedwidget.h"
 
 namespace olive {
 
@@ -38,8 +39,14 @@ class TimeBasedViewSelectionManager
 public:
   TimeBasedViewSelectionManager(TimeBasedView *view) :
     view_(view),
-    rubberband_(nullptr)
+    rubberband_(nullptr),
+    snap_mask_(TimeBasedWidget::kSnapAll)
   {}
+
+  void SetSnapMask(TimeBasedWidget::SnapMask e)
+  {
+    snap_mask_ = e;
+  }
 
   void ClearDrawnObjects()
   {
@@ -156,18 +163,39 @@ public:
     initial_drag_item_ = initial_item;
 
     dragging_.resize(selected_.size());
+    snap_points_.resize(selected_.size()*2);
     for (size_t i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
       dragging_[i] = obj->time();
+
+      snap_points_[i] = obj->time();
+      snap_points_[i+selected_.size()] = obj->time_range().out();
     }
 
     drag_mouse_start_ = view_->mapToScene(event->pos());
   }
 
+  void SnapPoints(rational *movement)
+  {
+    if (Core::instance()->snapping() && view_->GetSnapService()) {
+      view_->GetSnapService()->SnapPoint(snap_points_, movement, snap_mask_);
+    }
+  }
+
+  void Unsnap()
+  {
+    if (view_->GetSnapService()) {
+      view_->GetSnapService()->HideSnaps();
+    }
+  }
+
   void DragMove(QMouseEvent *event, const QString &tip_format = QString())
   {
     rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
+
+    // Snap points
+    SnapPoints(&time_diff);
 
     // Validate movement
     for (size_t i=0; i<selected_.size(); i++) {
@@ -186,11 +214,13 @@ public:
         loop = false;
         while (sel->has_sibling_at_time(proposed_time)) {
           proposed_time += adj;
+          Unsnap();
         }
 
         if (proposed_time < 0) {
           // Prevent any object from going below zero
           proposed_time = 0;
+          Unsnap();
 
           // Setting our proposed time to zero may (re)introduce a conflict that we just avoided
           // with the sibling check above, so we request it to happen again. To avoid a negative
@@ -230,6 +260,7 @@ public:
     }
 
     dragging_.clear();
+    Unsnap();
   }
 
   void RubberBandStart(QMouseEvent *event)
@@ -325,6 +356,7 @@ private:
   std::vector<T*> selected_;
 
   std::vector<rational> dragging_;
+  std::vector<rational> snap_points_;
 
   T *initial_drag_item_;
 
@@ -335,6 +367,8 @@ private:
   QRubberBand *rubberband_;
   QPoint rubberband_start_;
   std::vector<T*> rubberband_preselected_;
+
+  TimeBasedWidget::SnapMask snap_mask_;
 
 };
 

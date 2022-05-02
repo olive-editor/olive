@@ -22,13 +22,15 @@
 #define TIMELINEVIEWBASE_H
 
 #include <QGraphicsView>
+#include <vector>
 
 #include "core.h"
 #include "timescaledobject.h"
 #include "widget/handmovableview/handmovableview.h"
-#include "widget/snapservice/snapservice.h"
 
 namespace olive {
+
+class TimeBasedWidget;
 
 class TimeBasedView : public HandMovableView, public TimeScaledObject
 {
@@ -36,7 +38,7 @@ class TimeBasedView : public HandMovableView, public TimeScaledObject
 public:
   TimeBasedView(QWidget* parent = nullptr);
 
-  void EnableSnap(const QVector<rational> &points);
+  void EnableSnap(const std::vector<rational> &points);
   void DisableSnap();
   bool IsSnapped() const
   {
@@ -45,8 +47,8 @@ public:
 
   const rational &GetTime() const { return playhead_; }
 
-  SnapService *GetSnapService() const { return snap_service_; }
-  void SetSnapService(SnapService* service);
+  TimeBasedWidget *GetSnapService() const { return snap_service_; }
+  void SetSnapService(TimeBasedWidget* service) { snap_service_ = service; }
 
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
@@ -117,11 +119,11 @@ private:
   QGraphicsScene scene_;
 
   bool snapped_;
-  QVector<rational> snap_time_;
+  std::vector<rational> snap_time_;
 
   rational end_time_;
 
-  SnapService* snap_service_;
+  TimeBasedWidget* snap_service_;
 
   bool y_axis_enabled_;
 

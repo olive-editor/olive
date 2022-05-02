@@ -88,6 +88,16 @@ protected:
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
+  virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetKeyframeTracks() : nullptr;
+  }
+
+  virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetSelectedKeyframes() : nullptr;
+  }
+
 private:
   void UpdateItemTime(const rational &time);
 

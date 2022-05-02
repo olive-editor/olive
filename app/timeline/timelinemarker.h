@@ -38,10 +38,17 @@ public:
   TimelineMarker(QObject* parent = nullptr);
   TimelineMarker(int color, const TimeRange& time, const QString& name = QString(), QObject* parent = nullptr);
 
+  /**
+   * @brief Dummy function for TimeBasedViewSelectionManager compatibility
+   *
+   * FIXME: Once we upgrade to C++17, we won't need this because we'll be able to check types in
+   * TimeBasedViewSelectionManager's template functions
+   */
   const rational &time() const { return time_.in(); }
+  void set_time(const rational& time);
+
   const TimeRange &time_range() const { return time_; }
   void set_time(const TimeRange& time);
-  void set_time(const rational& time);
 
   bool has_sibling_at_time(const rational &t) const;
 

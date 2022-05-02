@@ -27,7 +27,6 @@
 #include "common/rational.h"
 #include "timeline/timelinepoints.h"
 #include "widget/menu/menu.h"
-#include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timebasedviewselectionmanager.h"
 
 namespace olive {
@@ -43,6 +42,7 @@ public:
     return horizontalScrollBar()->value();
   }
 
+  TimelinePoints* GetTimelinePoints() const { return timeline_points_; }
   void ConnectTimelinePoints(TimelinePoints* points);
 
   bool IsDraggingPlayhead() const
@@ -80,8 +80,6 @@ protected:
   virtual void focusOutEvent(QFocusEvent *event) override;
 
   void DrawTimelinePoints(QPainter *p, int marker_bottom = 0);
-
-  TimelinePoints* timeline_points() const;
 
   void DrawPlayhead(QPainter* p, int x, int y);
 

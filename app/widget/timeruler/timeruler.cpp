@@ -105,7 +105,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
 
   // Draw timeline points if connected
   int marker_height = TimelineMarker::GetMarkerHeight(p->fontMetrics());
-  if (timeline_points()) {
+  if (GetTimelinePoints()) {
     DrawTimelinePoints(p, marker_height);
   }
 

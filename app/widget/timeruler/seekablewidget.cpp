@@ -53,6 +53,8 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
 
   setContextMenuPolicy(Qt::CustomContextMenu);
   setFocusPolicy(Qt::ClickFocus);
+
+  selection_manager_.SetSnapMask(TimeBasedWidget::kSnapAll & ~TimeBasedWidget::kSnapToMarkers);
 }
 
 void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
@@ -212,11 +214,6 @@ void SeekableWidget::focusOutEvent(QFocusEvent *event)
   }
 }
 
-TimelinePoints *SeekableWidget::timeline_points() const
-{
-  return timeline_points_;
-}
-
 void SeekableWidget::DeselectAllMarkers()
 {
   selection_manager_.ClearSelection();
@@ -262,7 +259,7 @@ void SeekableWidget::SeekToScenePoint(qreal scene)
 
     GetSnapService()->SnapPoint({playhead_time},
                                 &movement,
-                                SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+                                TimeBasedWidget::kSnapAll & ~TimeBasedWidget::kSnapToPlayhead);
 
     playhead_time += movement;
   }
@@ -290,7 +287,7 @@ void SeekableWidget::SelectionManagerDeselectEvent(void *obj)
 
 void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
 {
-  if (!timeline_points()) {
+  if (!GetTimelinePoints()) {
     return;
   }
 
@@ -300,22 +297,22 @@ void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
   selection_manager_.ClearDrawnObjects();
 
   // Draw in/out workarea
-  if (timeline_points()->workarea()->enabled()) {
-    int workarea_left = qMax(qreal(lim_left), TimeToScene(timeline_points()->workarea()->in()));
+  if (GetTimelinePoints()->workarea()->enabled()) {
+    int workarea_left = qMax(qreal(lim_left), TimeToScene(GetTimelinePoints()->workarea()->in()));
     int workarea_right;
 
-    if (timeline_points()->workarea()->out() == TimelineWorkArea::kResetOut) {
+    if (GetTimelinePoints()->workarea()->out() == TimelineWorkArea::kResetOut) {
       workarea_right = lim_right;
     } else {
-      workarea_right = qMin(qreal(lim_right), TimeToScene(timeline_points()->workarea()->out()));
+      workarea_right = qMin(qreal(lim_right), TimeToScene(GetTimelinePoints()->workarea()->out()));
     }
 
     p->fillRect(workarea_left, 0, workarea_right - workarea_left, height(), palette().highlight());
   }
 
   // Draw markers
-  if (marker_bottom > 0 && !timeline_points()->markers()->empty()) {
-    for (auto it=timeline_points()->markers()->cbegin(); it!=timeline_points()->markers()->cend(); it++) {
+  if (marker_bottom > 0 && !GetTimelinePoints()->markers()->empty()) {
+    for (auto it=GetTimelinePoints()->markers()->cbegin(); it!=GetTimelinePoints()->markers()->cend(); it++) {
       TimelineMarker* marker = *it;
 
       int marker_right = TimeToScene(marker->time_range().out());

@@ -43,6 +43,7 @@
 #include "viewerpreventsleep.h"
 #include "widget/menu/menu.h"
 #include "window/mainwindow/mainwindow.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 

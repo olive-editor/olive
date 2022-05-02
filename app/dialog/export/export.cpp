@@ -38,6 +38,7 @@
 #include "node/project/sequence/sequence.h"
 #include "task/taskmanager.h"
 #include "ui/icons/icons.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 

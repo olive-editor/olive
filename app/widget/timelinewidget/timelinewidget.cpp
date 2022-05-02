@@ -54,6 +54,7 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -82,7 +83,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   ruler_and_time_layout->addWidget(timecode_label_);
 
   ruler_and_time_layout->addWidget(ruler());
-  ruler()->SetSnapService(this);
 
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
@@ -1515,13 +1515,6 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-void TimelineWidget::ShowSnap(const QVector<rational> &times)
-{
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->EnableSnap(times);
-  }
-}
-
 void TimelineWidget::UpdateViewports(const Track::Type &type)
 {
   if (type == Track::kNone) {
@@ -1571,13 +1564,6 @@ QVector<Block *> TimelineWidget::GetBlocksInGlobalRect(const QPoint &p1, const Q
   }
 
   return blocks_in_rect;
-}
-
-void TimelineWidget::HideSnaps()
-{
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->DisableSnap();
-  }
 }
 
 QByteArray TimelineWidget::SaveSplitterState() const
@@ -1732,109 +1718,6 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool proce
 Block *TimelineWidget::GetItemAtScenePos(const TimelineCoordinate& coord)
 {
   return views_.at(coord.GetTrack().type())->view()->GetItemAtScenePos(coord.GetFrame(), coord.GetTrack().index());
-}
-
-struct SnapData {
-  rational time;
-  rational movement;
-};
-
-QVector<SnapData> AttemptSnap(const QVector<double>& screen_pt,
-                              double compare_pt,
-                              const QVector<rational>& start_times,
-                              const rational& compare_time) {
-  const qreal kSnapRange = 10; // FIXME: Hardcoded number
-
-  QVector<SnapData> snap_data;
-
-  for (int i=0;i<screen_pt.size();i++) {
-    // Attempt snapping to clip out point
-    if (InRange(screen_pt.at(i), compare_pt, kSnapRange)) {
-      snap_data.append({compare_time, compare_time - start_times.at(i)});
-    }
-  }
-
-  return snap_data;
-}
-
-bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement, int snap_points)
-{
-  if (!GetConnectedNode()) {
-    return false;
-  }
-
-  QVector<double> screen_pt;
-
-  foreach (const rational& s, start_times) {
-    screen_pt.append(TimeToScene(s + *movement));
-  }
-
-  QVector<SnapData> potential_snaps;
-
-  if (snap_points & kSnapToPlayhead) {
-    rational playhead_abs_time = GetTime();
-    qreal playhead_pos = TimeToScene(playhead_abs_time);
-    potential_snaps.append(AttemptSnap(screen_pt, playhead_pos, start_times, playhead_abs_time));
-  }
-
-  if (snap_points & kSnapToClips) {
-    foreach (Block* b, added_blocks_) {
-      qreal rect_left = TimeToScene(b->in());
-      qreal rect_right = TimeToScene(b->out());
-
-      // Attempt snapping to clip in point
-      potential_snaps.append(AttemptSnap(screen_pt, rect_left, start_times, b->in()));
-
-      // Attempt snapping to clip out point
-      potential_snaps.append(AttemptSnap(screen_pt, rect_right, start_times, b->out()));
-    }
-  }
-
-  if ((snap_points & kSnapToMarkers)) {
-    for (auto it=GetConnectedNode()->GetTimelinePoints()->markers()->cbegin(); it!=GetConnectedNode()->GetTimelinePoints()->markers()->cend(); it++) {
-      TimelineMarker* m = *it;
-
-      qreal marker_pos = TimeToScene(m->time_range().in());
-      potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time_range().in()));
-
-      if (m->time_range().in() != m->time_range().out()) {
-        marker_pos = TimeToScene(m->time_range().out());
-        potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time_range().out()));
-      }
-    }
-  }
-
-  if (potential_snaps.isEmpty()) {
-    HideSnaps();
-    return false;
-  }
-
-  int closest_snap = 0;
-  rational closest_diff = qAbs(potential_snaps.at(0).movement - *movement);
-
-  // Determine which snap point was the closest
-  for (int i=1; i<potential_snaps.size(); i++) {
-    rational this_diff = qAbs(potential_snaps.at(i).movement - *movement);
-
-    if (this_diff < closest_diff) {
-      closest_snap = i;
-      closest_diff = this_diff;
-    }
-  }
-
-  *movement = potential_snaps.at(closest_snap).movement;
-
-  // Find all points at this movement
-  QVector<rational> snap_times;
-  foreach (const SnapData& d, potential_snaps) {
-    if (d.movement == *movement) {
-      snap_times.append(d.time);
-    }
-  }
-
-  ShowSnap(snap_times);
-
-  return true;
 }
 
 void TimelineWidget::SetSplitterSizesCommand::redo()

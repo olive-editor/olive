@@ -31,7 +31,6 @@
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
 #include "widget/slider/rationalslider.h"
-#include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timebasedwidget.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
 #include "widget/timelinewidget/tool/import.h"
@@ -44,7 +43,7 @@ namespace olive {
  *
  * Encapsulates TimelineViews, TimeRulers, and scrollbars for a complete widget to manipulate Timelines
  */
-class TimelineWidget : public TimeBasedWidget, public SnapService
+class TimelineWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
@@ -112,10 +111,6 @@ public:
   {
     return selected_blocks_;
   }
-
-  virtual bool SnapPoint(QVector<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
-
-  virtual void HideSnaps() override;
 
   QByteArray SaveSplitterState() const;
 
@@ -276,14 +271,14 @@ protected:
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
   virtual void DisconnectNodeEvent(ViewerOutput* n) override;
 
+  virtual const QVector<Block*> *GetSnapBlocks() const override { return &added_blocks_; }
+
 private:
   QVector<Timeline::EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
 
   void RippleTo(Timeline::MovementMode mode);
 
   void EditTo(Timeline::MovementMode mode);
-
-  void ShowSnap(const QVector<rational>& times);
 
   void UpdateViewports(const Track::Type& type = Track::kNone);
 

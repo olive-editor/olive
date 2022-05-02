@@ -63,6 +63,11 @@ public:
     return selection_manager_.GetSelectedObjects();
   }
 
+  const QVector<KeyframeViewInputConnection*> &GetKeyframeTracks() const
+  {
+    return tracks_;
+  }
+
   virtual void SelectionManagerSelectEvent(void *obj) override;
   virtual void SelectionManagerDeselectEvent(void *obj) override;
 

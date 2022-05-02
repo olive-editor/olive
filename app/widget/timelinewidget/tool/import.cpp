@@ -243,8 +243,8 @@ void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData 
       ghost->SetMediaIn(ghost_in);
       ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
 
-      snap_points_.append(ghost->GetIn());
-      snap_points_.append(ghost->GetOut());
+      snap_points_.push_back(ghost->GetIn());
+      snap_points_.push_back(ghost->GetOut());
 
       // Increment track count for this track type
       track_offsets[track_type]++;
