@@ -1,5 +1,22 @@
-//Copyright 2015 Adam Quintero
-//This program is distributed under the terms of the GNU General Public License.
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2021 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
 
 #include "rational.h"
 
@@ -16,7 +33,7 @@ rational rational::fromDouble(const double &flt, bool* ok)
   }
 
   // Use FFmpeg function for the time being
-  AVRational r = av_d2q(flt, 65535);
+  AVRational r = av_d2q(flt, INT_MAX);
 
   if (r.den == 0) {
     // If den == 0, we were unable to convert to a rational
@@ -39,9 +56,9 @@ rational rational::fromString(const QString &str, bool* ok)
 
   switch (elements.size()) {
   case 1:
-    return rational(elements.first().toLongLong(ok));
+    return rational(elements.first().toInt(ok));
   case 2:
-    return rational(elements.at(0).toLongLong(ok), elements.at(1).toLongLong(ok));
+    return rational(elements.at(0).toInt(ok), elements.at(1).toInt(ok));
   default:
     // Returns NaN with ok set to false
     if (ok) {
@@ -51,63 +68,12 @@ rational rational::fromString(const QString &str, bool* ok)
   }
 }
 
-//Function: ensures denom >= 0
-
-void rational::fix_signs()
-{
-  // Normalize so that denominator is always positive and only numerator is positive
-  if (denom_ < 0) {
-    denom_ = -denom_;
-    numer_ = -numer_;
-  } else if (denom_ == intType(0)) {
-    // Normalize to 0/0 (aka NaN) if denominator is zero
-    numer_ = intType(0);
-  } else if (numer_ == intType(0)) {
-    // Normalize to 0/1 if numerator is zero
-    denom_ = intType(1);
-  }
-}
-
-//Function: ensures lowest form
-
-void rational::reduce()
-{
-  if (!isNull() && denom_ != 1) {
-    // Euclidean often fails if numbers are negative, we abs it and re-neg it later if necessary
-    bool neg = numer_ < 0;
-
-    numer_ = qAbs(numer_);
-
-    intType d = gcd(numer_, denom_);
-
-    if (d > 1) {
-      numer_ /= d;
-      denom_ /= d;
-    }
-
-    if (neg) {
-      numer_ = -numer_;
-    }
-  }
-}
-
-//Function: finds greatest common denominator
-
-intType rational::gcd(const intType &x, const intType &y)
-{
-  if (y == 0) {
-    return x;
-  } else {
-    return gcd(y, x % y);
-  }
-}
-
 //Function: convert to double
 
 double rational::toDouble() const
 {
-  if (denom_ != 0) {
-    return static_cast<double>(numer_) / static_cast<double>(denom_);
+  if (r_.den != 0) {
+    return av_q2d(r_);
   } else {
     return qSNaN();
   }
@@ -115,12 +81,7 @@ double rational::toDouble() const
 
 AVRational rational::toAVRational() const
 {
-  AVRational r;
-
-  r.num = static_cast<int>(numer_);
-  r.den = static_cast<int>(denom_);
-
-  return r;
+  return r_;
 }
 
 #ifdef USE_OTIO
@@ -143,44 +104,41 @@ rational rational::flipped() const
 void rational::flip()
 {
   if (!isNull()) {
-    std::swap(denom_, numer_);
+    std::swap(r_.den, r_.num);
+    FixSigns();
   }
-}
-
-bool rational::isNull() const
-{
-  return numerator() == 0;
-}
-
-bool rational::isNaN() const
-{
-  return denominator() == 0;
-}
-
-const intType &rational::numerator() const
-{
-  return numer_;
-}
-
-const intType &rational::denominator() const
-{
-  return denom_;
 }
 
 QString rational::toString() const
 {
-  return QStringLiteral("%1/%2").arg(QString::number(numer_), QString::number(denom_));
+  return QStringLiteral("%1/%2").arg(QString::number(r_.num), QString::number(r_.den));
+}
+
+void rational::FixSigns()
+{
+  if (r_.den < 0) {
+    // Normalize so that denominator is always positive
+    r_.den = -r_.den;
+    r_.num = -r_.num;
+  } else if (r_.den == 0) {
+    // Normalize to 0/0 (aka NaN) if denominator is zero
+    r_.num = 0;
+  } else if (r_.num == 0) {
+    // Normalize to 0/1 if numerator is zero
+    r_.den = 1;
+  }
+}
+
+void rational::Reduce()
+{
+  av_reduce(&r_.num, &r_.den, r_.num, r_.den, INT_MAX);
 }
 
 //Assignment Operators
 
 const rational& rational::operator=(const rational &rhs)
 {
-  if (this != &rhs) {
-    numer_ = rhs.numer_;
-    denom_ = rhs.denom_;
-  }
-
+  r_ = rhs.r_;
   return *this;
 }
 
@@ -190,19 +148,10 @@ const rational& rational::operator+=(const rational &rhs)
 
   if (!isNaN()) {
     if (rhs.isNaN()) {
-      // Set to NaN
-      denom_ = 0;
-      fix_signs();
-    } else if (!rhs.isNull()) {
-      if (isNull()) {
-        numer_ = rhs.numer_;
-        denom_ = rhs.denom_;
-      } else {
-        numer_ = (numer_ * rhs.denom_) + (rhs.numer_ * denom_);
-        denom_ = denom_ * rhs.denom_;
-        fix_signs();
-        reduce();
-      }
+      *this = NaN;
+    } else {
+      r_ = av_add_q(r_, rhs.r_);
+      FixSigns();
     }
   }
 
@@ -215,39 +164,10 @@ const rational& rational::operator-=(const rational &rhs)
 
   if (!isNaN()) {
     if (rhs.isNaN()) {
-      // Set to NaN
-      denom_ = 0;
-      fix_signs();
-    } else if (!rhs.isNull()) {
-      if (isNull()) {
-        numer_ = -rhs.numer_;
-        denom_ = rhs.denom_;
-      } else {
-        numer_ = (numer_ * rhs.denom_) - (rhs.numer_ * denom_);
-        denom_ = denom_ * rhs.denom_;
-        fix_signs();
-        reduce();
-      }
-    }
-  }
-
-  return *this;
-}
-
-const rational& rational::operator/=(const rational &rhs)
-{
-  Q_ASSERT(*this != RATIONAL_MIN && *this != RATIONAL_MAX && rhs != RATIONAL_MIN && rhs != RATIONAL_MAX);
-
-  if (!isNaN()) {
-    if (rhs.isNaN()) {
-      // Set to NaN
-      denom_ = 0;
-      fix_signs();
+      *this = NaN;
     } else {
-      numer_ = numer_ * rhs.denom_;
-      denom_ = denom_ * rhs.numer_;
-      fix_signs();
-      reduce();
+      r_ = av_sub_q(r_, rhs.r_);
+      FixSigns();
     }
   }
 
@@ -260,13 +180,26 @@ const rational& rational::operator*=(const rational &rhs)
 
   if (!isNaN()) {
     if (rhs.isNaN()) {
-      denom_ = 0;
-      fix_signs();
+      *this = NaN;
     } else {
-      numer_ = numer_ * rhs.numer_;
-      denom_ = denom_ * rhs.denom_;
-      fix_signs();
-      reduce();
+      r_ = av_mul_q(r_, rhs.r_);
+      FixSigns();
+    }
+  }
+
+  return *this;
+}
+
+const rational& rational::operator/=(const rational &rhs)
+{
+  Q_ASSERT(*this != RATIONAL_MIN && *this != RATIONAL_MAX && rhs != RATIONAL_MIN && rhs != RATIONAL_MAX);
+
+  if (!isNaN()) {
+    if (rhs.isNaN()) {
+      *this = NaN;
+    } else {
+      r_ = av_div_q(r_, rhs.r_);
+      FixSigns();
     }
   }
 
@@ -307,141 +240,34 @@ rational rational::operator*(const rational &rhs) const
 
 bool rational::operator<(const rational &rhs) const
 {
-  if (isNaN() || rhs.isNaN()) {
-    return false;
-  }
-
-  if (isNull() && rhs.isNull()) {
-    return false;
-  }
-
-  if (rhs == RATIONAL_MAX
-      || *this == RATIONAL_MIN) {
-    // We will always either be LESS THAN (true) or EQUAL (false)
-    return (*this != rhs);
-  }
-
-  if (*this == RATIONAL_MAX
-      || rhs == RATIONAL_MIN) {
-    // We will always be GREATER THAN (false) or EQUAL (false)
-    return false;
-  }
-
-  if (!isNull() && rhs.isNull()) {
-    return (numer_ * denom_ < intType(0));
-  }
-
-  if (isNull() && !rhs.isNull()) {
-    return !(rhs.numer_ * rhs.denom_ < intType(0));
-  }
-
-  return ((numer_ * rhs.denom_) < (denom_ * rhs.numer_));
+  return av_cmp_q(r_, rhs.r_) == -1;
 }
 
 bool rational::operator<=(const rational &rhs) const
 {
-  if (isNaN() || rhs.isNaN()) {
-    return false;
-  }
-
-  if (isNull() && rhs.isNull()) {
-    return true;
-  }
-
-  if (rhs == RATIONAL_MAX
-      || *this == RATIONAL_MIN) {
-    // We will always either be LESS THAN (true) or EQUAL (true)
-    return true;
-  }
-
-  if (*this == RATIONAL_MAX
-      || rhs == RATIONAL_MIN) {
-    // We will always be GREATER THAN (false) or EQUAL (true)
-    return rhs == *this;
-  }
-
-  if (!isNull() && rhs.isNull()) {
-    return (numer_ * denom_ < intType(0));
-  }
-
-  if (isNull() && !rhs.isNull()) {
-    return !(rhs.numer_ * rhs.denom_ < intType(0));
-  }
-
-  return ((numer_ * rhs.denom_) <= (denom_ * rhs.numer_));
+  int cmp = av_cmp_q(r_, rhs.r_);
+  return cmp == 0 || cmp == -1;
 }
 
 bool rational::operator>(const rational &rhs) const
 {
-  return rhs < *this;
+  return av_cmp_q(r_, rhs.r_) == 1;
 }
 
 bool rational::operator>=(const rational &rhs) const
 {
-  return rhs <= *this;
+  int cmp = av_cmp_q(r_, rhs.r_);
+  return cmp == 0 || cmp == 1;
 }
 
 bool rational::operator==(const rational &rhs) const
 {
-  if (isNaN() || rhs.isNaN()) {
-    return false;
-  }
-
-  return (numer_ == rhs.numer_ && denom_ == rhs.denom_);
+  return av_cmp_q(r_, rhs.r_) == 0;
 }
 
 bool rational::operator!=(const rational &rhs) const
 {
   return !(*this == rhs);
-}
-
-const rational& rational::operator+() const
-{
-  return *this;
-}
-
-rational rational::operator-() const
-{
-  return rational(numer_, -denom_);
-}
-
-bool rational::operator!() const
-{
-  return !numer_;
-}
-
-//IO
-
-std::ostream& operator<<(std::ostream &out, const rational &value)
-{
-  out << value.numer_;
-
-  if (value.denom_ != 1) {
-    out << '/' << value.denom_;
-    return out;
-  }
-
-  return out;
-}
-
-std::istream& operator>>(std::istream &in, rational &value)
-{
-  in >> value.numer_;
-  value.denom_ = 1;
-
-  char ch;
-  in.get(ch);
-
-  if(!in.eof()) {
-    if(ch == '/') {
-      in >> value.denom_;
-      value.fix_signs();
-      value.reduce();
-    } else {
-      in.putback(ch);
-    }
-  }
-  return in;
 }
 
 uint qHash(const rational &r, uint seed)
