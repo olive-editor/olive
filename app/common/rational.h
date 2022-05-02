@@ -25,6 +25,7 @@ extern "C" {
 #include <libavutil/rational.h>
 }
 
+#include <iostream>
 #include <QDebug>
 #include <QMetaType>
 
@@ -126,6 +127,13 @@ public:
   const int& denominator() const { return r_.den; }
 
   QString toString() const;
+
+  friend std::ostream& operator<<(std::ostream &out, const rational &value)
+  {
+    out << value.r_.num << '/' << value.r_.den;
+
+    return out;
+  }
 
 private:
   void FixSigns();
