@@ -24,7 +24,7 @@
 #include <QMatrix4x4>
 #include <QString>
 
-#include "render/job/acceleratedjob.h"
+#include "render/job/generatejob.h"
 #include "render/alphaassoc.h"
 #include "render/colorprocessor.h"
 #include "render/texture.h"
@@ -33,7 +33,7 @@ namespace olive {
 
 class Node;
 
-class ColorTransformJob : public AcceleratedJob
+class ColorTransformJob : public GenerateJob
 {
 public:
   ColorTransformJob()

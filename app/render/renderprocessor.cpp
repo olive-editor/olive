@@ -576,7 +576,11 @@ SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRang
 TexturePtr RenderProcessor::ProcessColorTransform(const Node *node, const ColorTransformJob &job)
 {
   TexturePtr src = job.GetInputTexture();
-  TexturePtr dest = render_ctx_->CreateTexture(src->params());
+
+  VideoParams src_params = src->params();
+  src_params.set_channel_count(GetChannelCountFromJob(job));
+
+  TexturePtr dest = render_ctx_->CreateTexture(src_params);
 
   render_ctx_->BlitColorManaged(job, dest.get());
 
