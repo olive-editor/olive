@@ -89,7 +89,7 @@ opentime::RationalTime rational::toRationalTime(double framerate) const
 {
   // Is this the best way of doing this?
   // Olive can store rationals as 0/0 which causes errors in OTIO
-  opentime::RationalTime time = opentime::RationalTime(numer_, denom_ == 0 ? 1 : denom_);
+  opentime::RationalTime time = opentime::RationalTime(r_.num, r_.den == 0 ? 1 : r_.den);
   return time.rescaled_to(framerate);
 }
 #endif
