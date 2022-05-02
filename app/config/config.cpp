@@ -27,6 +27,7 @@
 #include <QStandardPaths>
 #include <QXmlStreamWriter>
 
+#include "codec/exportformat.h"
 #include "common/autoscroll.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
@@ -119,6 +120,8 @@ void Config::SetDefaults()
 
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());
+
+  SetEntryInternal(QStringLiteral("AudioRecordingFormat"), NodeValue::kInt, ExportFormat::kFormatWAV);
 
   SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(0)));
   SetEntryInternal(QStringLiteral("DiskCacheAhead"), NodeValue::kRational, QVariant::fromValue(rational(60)));
