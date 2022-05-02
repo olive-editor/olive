@@ -93,6 +93,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   view_ = new CurveView();
   ConnectTimelineView(view_);
+  view_->SetSnapService(this);
   ruler_view_layout->addWidget(view_);
 
   layout->addLayout(ruler_view_layout);
