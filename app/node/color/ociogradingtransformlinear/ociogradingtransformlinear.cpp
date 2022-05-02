@@ -20,6 +20,8 @@
 
 #include "ociogradingtransformlinear.h"
 
+#include <iostream>
+
 #include "common/ocioutils.h"
 #include "node/project/project.h"
 #include "render/colorprocessor.h"
