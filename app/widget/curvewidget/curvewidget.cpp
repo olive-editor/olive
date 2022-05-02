@@ -251,16 +251,16 @@ void CurveWidget::ConnectInputInternal(Node *node, const QString &input, int ele
 
 void CurveWidget::SelectionChanged()
 {
-  const QVector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
+  const std::vector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
 
   SetKeyframeButtonChecked(false);
-  SetKeyframeButtonEnabled(!selected.isEmpty());
+  SetKeyframeButtonEnabled(!selected.empty());
 
-  if (!selected.isEmpty()) {
+  if (!selected.empty()) {
     bool all_same_type = true;
-    NodeKeyframe::Type type = selected.first()->type();
+    NodeKeyframe::Type type = selected.front()->type();
 
-    for (int i=1;i<selected.size();i++) {
+    for (size_t i=1;i<selected.size();i++) {
       NodeKeyframe* prev_item = selected.at(i-1);
       NodeKeyframe* this_item = selected.at(i);
 
@@ -287,8 +287,8 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
   }
 
   // Get selected items and do nothing if there are none
-  const QVector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
-  if (selected.isEmpty()) {
+  const std::vector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
+  if (selected.empty()) {
     return;
   }
 

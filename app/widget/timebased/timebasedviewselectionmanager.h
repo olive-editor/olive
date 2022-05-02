@@ -48,7 +48,7 @@ public:
 
   void DeclareDrawnObject(T *object, const QRectF &pos)
   {
-    drawn_objects_.append({object, pos});
+    drawn_objects_.push_back({object, pos});
   }
 
   bool Select(T *key)
@@ -56,7 +56,7 @@ public:
     Q_ASSERT(key);
 
     if (!IsSelected(key)) {
-      selected_.append(key);
+      selected_.push_back(key);
       return true;
     }
 
@@ -67,7 +67,13 @@ public:
   {
     Q_ASSERT(key);
 
-    return selected_.removeOne(key);
+    auto it = std::find(selected_.cbegin(), selected_.cend(), key);
+    if (it == selected_.cend()) {
+      return false;
+    } else {
+      selected_.erase(it);
+      return true;
+    }
   }
 
   void ClearSelection()
@@ -77,10 +83,10 @@ public:
 
   bool IsSelected(T *key) const
   {
-    return selected_.contains(key);
+    return std::find(selected_.cbegin(), selected_.cend(), key) != selected_.cend();
   }
 
-  const QVector<T*> &GetSelectedObjects() const
+  const std::vector<T*> &GetSelectedObjects() const
   {
     return selected_;
   }
@@ -142,7 +148,7 @@ public:
 
   bool IsDragging() const
   {
-    return !dragging_.isEmpty();
+    return !dragging_.empty();
   }
 
   void DragStart(T *initial_item, QMouseEvent *event)
@@ -150,7 +156,7 @@ public:
     initial_drag_item_ = initial_item;
 
     dragging_.resize(selected_.size());
-    for (int i=0; i<selected_.size(); i++) {
+    for (size_t i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
       dragging_[i] = obj->time();
@@ -164,7 +170,7 @@ public:
     rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
 
     // Validate movement
-    for (int i=0; i<selected_.size(); i++) {
+    for (size_t i=0; i<selected_.size(); i++) {
       rational proposed_time = dragging_.at(i) + time_diff;
       T *sel = selected_.at(i);
 
@@ -199,7 +205,7 @@ public:
     }
 
     // Apply movement
-    for (int i=0; i<selected_.size(); i++) {
+    for (size_t i=0; i<selected_.size(); i++) {
       selected_.at(i)->set_time(dragging_.at(i) + time_diff);
     }
 
@@ -219,7 +225,7 @@ public:
   {
     QToolTip::hideText();
 
-    for (int i=0; i<selected_.size(); i++) {
+    for (size_t i=0; i<selected_.size(); i++) {
       command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i)));
     }
 
@@ -314,11 +320,11 @@ private:
   TimeBasedView *view_;
 
   using DrawnObject = QPair<T*, QRectF>;
-  QVector<DrawnObject> drawn_objects_;
+  std::vector<DrawnObject> drawn_objects_;
 
-  QVector<T*> selected_;
+  std::vector<T*> selected_;
 
-  QVector<rational> dragging_;
+  std::vector<rational> dragging_;
 
   T *initial_drag_item_;
 
@@ -328,7 +334,7 @@ private:
 
   QRubberBand *rubberband_;
   QPoint rubberband_start_;
-  QVector<T*> rubberband_preselected_;
+  std::vector<T*> rubberband_preselected_;
 
 };
 

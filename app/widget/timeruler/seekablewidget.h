@@ -25,7 +25,6 @@
 #include <QScrollBar>
 
 #include "common/rational.h"
-#include "node/nodecopypaste.h"
 #include "timeline/timelinepoints.h"
 #include "widget/menu/menu.h"
 #include "widget/snapservice/snapservice.h"
@@ -33,7 +32,7 @@
 
 namespace olive {
 
-class SeekableWidget : public TimeBasedView, public NodeCopyPasteService
+class SeekableWidget : public TimeBasedView
 {
   Q_OBJECT
 public:
@@ -53,9 +52,9 @@ public:
 
   void DeleteSelected();
 
-  void CopySelected(bool cut);
+  bool CopySelected(bool cut);
 
-  void PasteMarkers(bool insert, rational insert_time);
+  bool PasteMarkers(bool insert, rational insert_time);
 
   void DeselectAllMarkers();
 

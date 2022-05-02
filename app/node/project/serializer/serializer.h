@@ -50,7 +50,8 @@ public:
     kUnknownVersion,
     kFileError,
     kXmlError,
-    kOverwriteError
+    kOverwriteError,
+    kNoData
   };
 
   using SerializedProperties = QHash<Node*, QMap<QString, QString> >;
@@ -61,6 +62,8 @@ public:
     LoadData() = default;
 
     SerializedProperties properties;
+
+    std::vector<TimelineMarker*> markers;
 
   };
 
@@ -84,6 +87,10 @@ public:
 
     void SetLoadData(const LoadData &p) { load_data_ = p; }
 
+    const QVector<Node*> &GetLoadedNodes() const { return loaded_nodes_; }
+
+    void SetLoadedNodes(const QVector<Node*> &n) { loaded_nodes_ = n; }
+
   private:
     ResultCode code_;
 
@@ -91,17 +98,17 @@ public:
 
     LoadData load_data_;
 
+    QVector<Node*> loaded_nodes_;
+
   };
 
   class SaveData
   {
   public:
-    SaveData(Project *project, const QString &filename, const QVector<Node*> &only = QVector<Node*>(), const SerializedProperties &p = SerializedProperties())
+    SaveData(Project *project, const QString &filename = QString())
     {
       project_ = project;
       filename_ = filename;
-      only_serialize_nodes_ = only;
-      properties_ = p;
     }
 
     Project *GetProject() const
@@ -115,11 +122,13 @@ public:
     }
 
     const QVector<Node*> &GetOnlySerializeNodes() const { return only_serialize_nodes_; }
-
     void SetOnlySerializeNodes(const QVector<Node*> &only) { only_serialize_nodes_ = only; }
+    void SetOnlySerializeNodesAndResolveGroups(QVector<Node*> only);
+
+    const std::vector<TimelineMarker*> &GetOnlySerializeMarkers() const { return only_serialize_markers_; }
+    void SetOnlySerializeMarkers(const std::vector<TimelineMarker*> &only) { only_serialize_markers_ = only; }
 
     const SerializedProperties &GetProperties() const { return properties_; }
-
     void SetProperties(const SerializedProperties &p) { properties_ = p; }
 
   private:
@@ -131,6 +140,8 @@ public:
 
     SerializedProperties properties_;
 
+    std::vector<TimelineMarker*> only_serialize_markers_;
+
   };
 
   static void Initialize();
@@ -139,9 +150,11 @@ public:
 
   static Result Load(Project *project, const QString &filename, const QString &type);
   static Result Load(Project *project, QXmlStreamReader *read_device, const QString &type);
+  static Result Paste(const QString &type);
 
   static Result Save(const SaveData &data, const QString &type);
   static Result Save(QXmlStreamWriter *write_device, const SaveData &data, const QString &type);
+  static Result Copy(const SaveData &data, const QString &type);
 
 protected:
   virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const = 0;

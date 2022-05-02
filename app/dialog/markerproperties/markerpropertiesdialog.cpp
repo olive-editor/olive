@@ -32,7 +32,7 @@ namespace olive {
 
 #define super QDialog
 
-MarkerPropertiesDialog::MarkerPropertiesDialog(const QVector<TimelineMarker *> &markers, const rational &timebase, QWidget *parent) :
+MarkerPropertiesDialog::MarkerPropertiesDialog(const std::vector<TimelineMarker *> &markers, const rational &timebase, QWidget *parent) :
   super(parent),
   markers_(markers)
 {
@@ -60,10 +60,10 @@ MarkerPropertiesDialog::MarkerPropertiesDialog(const QVector<TimelineMarker *> &
   }
 
   if (markers.size() == 1) {
-    in_slider_->SetValue(markers.first()->time_range().in());
+    in_slider_->SetValue(markers.front()->time_range().in());
     in_slider_->SetDisplayType(RationalSlider::kTime);
     in_slider_->SetTimebase(timebase);
-    out_slider_->SetValue(markers.first()->time_range().out());
+    out_slider_->SetValue(markers.front()->time_range().out());
     out_slider_->SetDisplayType(RationalSlider::kTime);
     out_slider_->SetTimebase(timebase);
   } else {
@@ -83,8 +83,8 @@ MarkerPropertiesDialog::MarkerPropertiesDialog(const QVector<TimelineMarker *> &
   color_menu_ = new ColorCodingComboBox();
   layout->addWidget(color_menu_, row, 1);
 
-  color_menu_->SetColor(markers.first()->color());
-  for (int i=1; i<markers.size(); i++) {
+  color_menu_->SetColor(markers.front()->color());
+  for (size_t i=1; i<markers.size(); i++) {
     if (markers.at(i)->color() != color_menu_->GetSelectedColor()) {
       color_menu_->SetColor(-1);
       break;
@@ -102,8 +102,8 @@ MarkerPropertiesDialog::MarkerPropertiesDialog(const QVector<TimelineMarker *> &
   layout->addWidget(label_edit_, row, 1);
 
   // Determine what the startup label text should be
-  label_edit_->setText(markers.first()->name());
-  for (int i=1; i<markers.size(); i++) {
+  label_edit_->setText(markers.front()->name());
+  for (size_t i=1; i<markers.size(); i++) {
     if (markers.at(i)->name() != label_edit_->text()) {
       label_edit_->clear();
       label_edit_->setPlaceholderText(tr("(multiple)"));
@@ -141,7 +141,7 @@ void MarkerPropertiesDialog::accept()
   }
 
   if (markers_.size() == 1) {
-    command->add_child(new MarkerChangeTimeCommand(markers_.first(), TimeRange(in_slider_->GetValue(), out_slider_->GetValue())));
+    command->add_child(new MarkerChangeTimeCommand(markers_.front(), TimeRange(in_slider_->GetValue(), out_slider_->GetValue())));
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

@@ -100,6 +100,10 @@ private:
 
   void SaveTimelinePoints(QXmlStreamWriter *writer, TimelinePoints *points) const;
 
+  void LoadMarker(QXmlStreamReader *reader, TimelineMarker *marker) const;
+
+  void SaveMarker(QXmlStreamWriter *writer, TimelineMarker *marker) const;
+
   void LoadWorkArea(QXmlStreamReader *reader, TimelineWorkArea *workarea) const;
 
   void SaveWorkArea(QXmlStreamWriter *writer, TimelineWorkArea *workarea) const;

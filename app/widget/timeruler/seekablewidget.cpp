@@ -28,6 +28,7 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
+#include "node/project/serializer/serializer.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedwidget.h"
@@ -38,7 +39,6 @@ namespace olive {
 
 SeekableWidget::SeekableWidget(QWidget* parent) :
   super(parent),
-  NodeCopyPasteService(QStringLiteral("markers")),
   timeline_points_(nullptr),
   dragging_(false),
   ignore_next_focus_out_(false),
@@ -91,21 +91,68 @@ void SeekableWidget::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
-void SeekableWidget::CopySelected(bool cut)
+bool SeekableWidget::CopySelected(bool cut)
 {
-  qDebug() << "COPY IS STUB";
-  //CopyMarkersToClipboard(selection_manager_.GetSelectedObjects());
+  if (!selection_manager_.GetSelectedObjects().empty()) {
+    ProjectSerializer::SaveData sdata(Project::GetProjectFromObject(timeline_points_));
+    sdata.SetOnlySerializeMarkers(selection_manager_.GetSelectedObjects());
 
-  if (cut) {
-    DeleteSelected();
+    ProjectSerializer::Copy(sdata, QStringLiteral("markers"));
+
+    if (cut) {
+      DeleteSelected();
+    }
+
+    return true;
+  } else {
+    return false;
   }
 }
 
-void SeekableWidget::PasteMarkers(bool insert, rational insert_time)
+bool SeekableWidget::PasteMarkers(bool insert, rational insert_time)
 {
-  //MultiUndoCommand *command = new MultiUndoCommand();
-  //PasteMarkersFromClipboard(timeline_points()->markers(), command, insert_time);
-  qDebug() << "PASTE IS STUB";
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("markers"));
+  if (res == ProjectSerializer::kSuccess) {
+    const std::vector<TimelineMarker*> &markers = res.GetLoadData().markers;
+    if (!markers.empty()) {
+      MultiUndoCommand *command = new MultiUndoCommand();
+
+      // Normalize markers to start at playhead
+      rational min = RATIONAL_MAX;
+      for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
+        min = qMin(min, (*it)->time());
+      }
+      min -= GetTime();
+
+      // Avoid duplicates
+      bool loop;
+      do {
+        loop = false;
+        for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
+          rational proposed_time = (*it)->time() - min;
+
+          if (timeline_points_->markers()->GetMarkerAtTime(proposed_time)) {
+            min -= timebase();
+            loop = true;
+            break;
+          }
+        }
+      } while (loop);
+
+      for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
+        TimelineMarker *m = *it;
+
+        m->set_time(m->time() - min);
+
+        command->add_child(new MarkerAddCommand(timeline_points_->markers(), m));
+      }
+
+      Core::instance()->undo_stack()->push(command);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void SeekableWidget::mousePressEvent(QMouseEvent *event)
@@ -148,7 +195,7 @@ void SeekableWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
   super::mouseDoubleClickEvent(event);
 
-  if (selection_manager_.GetObjectAtPoint(event->pos()) && !selection_manager_.GetSelectedObjects().isEmpty()) {
+  if (selection_manager_.GetObjectAtPoint(event->pos()) && !selection_manager_.GetSelectedObjects().empty()) {
     ShowMarkerProperties();
   }
 }
@@ -315,7 +362,7 @@ void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
 
 bool SeekableWidget::ShowContextMenu(const QPoint &p)
 {
-  if (selection_manager_.GetObjectAtPoint(p) && !selection_manager_.GetSelectedObjects().isEmpty()) {
+  if (selection_manager_.GetObjectAtPoint(p) && !selection_manager_.GetSelectedObjects().empty()) {
     // Show marker-specific menu
     Menu m;
 

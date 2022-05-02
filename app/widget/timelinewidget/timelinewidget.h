@@ -27,7 +27,6 @@
 
 #include "core.h"
 #include "node/block/transition/transition.h"
-#include "node/nodecopypaste.h"
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
@@ -45,7 +44,7 @@ namespace olive {
  *
  * Encapsulates TimelineViews, TimeRulers, and scrollbars for a complete widget to manipulate Timelines
  */
-class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteService, public SnapService
+class TimelineWidget : public TimeBasedWidget, public SnapService
 {
   Q_OBJECT
 public:
@@ -276,9 +275,6 @@ protected:
 
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
   virtual void DisconnectNodeEvent(ViewerOutput* n) override;
-
-  virtual void CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *data, void *userdata) override;
-  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata) override;
 
 private:
   QVector<Timeline::EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);

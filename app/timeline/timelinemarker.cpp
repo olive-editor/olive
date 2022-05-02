@@ -28,6 +28,12 @@
 
 namespace olive {
 
+TimelineMarker::TimelineMarker(QObject *parent) :
+  color_(Config::Current()[QStringLiteral("MarkerColor")].toInt())
+{
+  setParent(parent);
+}
+
 TimelineMarker::TimelineMarker(int color, const TimeRange &time, const QString &name, QObject *parent) :
   time_(time),
   name_(name),

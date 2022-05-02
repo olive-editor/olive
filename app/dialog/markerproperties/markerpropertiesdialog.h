@@ -55,13 +55,13 @@ class MarkerPropertiesDialog : public QDialog
 {
   Q_OBJECT
 public:
-  MarkerPropertiesDialog(const QVector<TimelineMarker*> &markers, const rational &timebase, QWidget *parent = nullptr);
+  MarkerPropertiesDialog(const std::vector<TimelineMarker*> &markers, const rational &timebase, QWidget *parent = nullptr);
 
 public slots:
   virtual void accept() override;
 
 private:
-  QVector<TimelineMarker*> markers_;
+  std::vector<TimelineMarker*> markers_;
 
   LineEditWithFocusSignal *label_edit_;
 

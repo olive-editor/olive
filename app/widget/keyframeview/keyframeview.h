@@ -58,7 +58,7 @@ public:
 
   void Clear();
 
-  const QVector<NodeKeyframe*> &GetSelectedKeyframes() const
+  const std::vector<NodeKeyframe*> &GetSelectedKeyframes() const
   {
     return selection_manager_.GetSelectedObjects();
   }
