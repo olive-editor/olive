@@ -252,7 +252,7 @@ void SeekableWidget::SeekToScenePoint(qreal scene)
     return;
   }
 
-  rational playhead_time = SceneToTime(scene);
+  rational playhead_time = qMax(rational(0), SceneToTime(scene));
 
   if (Core::instance()->snapping() && GetSnapService()) {
     rational movement;
