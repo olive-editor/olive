@@ -16,7 +16,7 @@ rational rational::fromDouble(const double &flt, bool* ok)
   }
 
   // Use FFmpeg function for the time being
-  AVRational r = av_d2q(flt, INT_MAX);
+  AVRational r = av_d2q(flt, 65535);
 
   if (r.den == 0) {
     // If den == 0, we were unable to convert to a rational

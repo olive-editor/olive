@@ -1798,13 +1798,15 @@ bool TimelineWidget::SnapPoint(QVector<rational> start_times, rational* movement
   }
 
   if ((snap_points & kSnapToMarkers)) {
-    foreach (TimelineMarker* m, GetConnectedNode()->GetTimelinePoints()->markers()->list()) {
-      qreal marker_pos = TimeToScene(m->time().in());
-      potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time().in()));
+    for (auto it=GetConnectedNode()->GetTimelinePoints()->markers()->cbegin(); it!=GetConnectedNode()->GetTimelinePoints()->markers()->cend(); it++) {
+      TimelineMarker* m = *it;
 
-      if (m->time().in() != m->time().out()) {
-        marker_pos = TimeToScene(m->time().out());
-        potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time().out()));
+      qreal marker_pos = TimeToScene(m->time_range().in());
+      potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time_range().in()));
+
+      if (m->time_range().in() != m->time_range().out()) {
+        marker_pos = TimeToScene(m->time_range().out());
+        potential_snaps.append(AttemptSnap(screen_pt, marker_pos, start_times, m->time_range().out()));
       }
     }
   }

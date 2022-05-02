@@ -26,6 +26,7 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
+#include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/sequence/sequence.h"
 #include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
@@ -588,29 +589,36 @@ void TimeBasedWidget::SetMarker()
     return;
   }
 
-  bool ok;
-  QString marker_name;
+  TimelineMarkerList *markers = GetConnectedNode()->GetTimelinePoints()->markers();
 
-  if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
-    marker_name = QInputDialog::getText(this, tr("Add Marker"), tr("Name:"), QLineEdit::Normal, QString(), &ok);
+  if (TimelineMarker *existing = markers->GetMarkerAtTime(GetTime())) {
+    // We already have a marker here, so pop open the edit dialog
+    MarkerPropertiesDialog mpd({existing}, timebase(), this);
+    mpd.exec();
   } else {
-    ok = true;
-  }
-
-  if (ok) {
+    // Create a new marker and place it here
     int color;
-
-    TimelineMarkerList *markers = GetConnectedNode()->GetTimelinePoints()->markers();
-
-    if (!markers->list().empty()) {
-      // Use last invoked color if applicable
-      color = markers->list().back()->color();
+    if (TimelineMarker *closest = markers->GetClosestMarkerToTime(GetTime())) {
+      // Copy color of closest marker to this time
+      color = closest->color();
     } else {
       // Fallback to default color in preferences
       color = Config::Current()[QStringLiteral("MarkerColor")].toInt();
     }
 
-    Core::instance()->undo_stack()->push(new MarkerAddCommand(markers, TimeRange(GetTime(), GetTime()), marker_name, color));
+    TimelineMarker *marker = new TimelineMarker(color, TimeRange(GetTime(), GetTime()));
+
+    if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
+      MarkerPropertiesDialog mpd({marker}, timebase(), this);
+      if (mpd.exec() != QDialog::Accepted) {
+        delete marker;
+        marker = nullptr;
+      }
+    }
+
+    if (marker) {
+      Core::instance()->undo_stack()->push(new MarkerAddCommand(markers, marker));
+    }
   }
 }
 

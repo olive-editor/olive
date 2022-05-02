@@ -45,6 +45,9 @@ protected:
 
   virtual void TimebaseChangedEvent(const rational& tb) override;
 
+protected slots:
+  virtual bool ShowContextMenu(const QPoint &p) override;
+
 private:
   void UpdateHeight();
 
@@ -63,9 +66,6 @@ private:
   bool show_cache_status_;
 
   PlaybackCache* playback_cache_;
-
-private slots:
-  void ShowContextMenu();
 
 };
 

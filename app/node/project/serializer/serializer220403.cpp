@@ -991,6 +991,7 @@ void ProjectSerializer220403::LoadMarkerList(QXmlStreamReader *reader, TimelineM
     if (reader->name() == QStringLiteral("marker")) {
       QString name;
       rational in, out;
+      int color = Config::Current()[QStringLiteral("MarkerColor")].toInt();
 
       XMLAttributeLoop(reader, attr) {
         if (attr.name() == QStringLiteral("name")) {
@@ -999,10 +1000,12 @@ void ProjectSerializer220403::LoadMarkerList(QXmlStreamReader *reader, TimelineM
           in = rational::fromString(attr.value().toString());
         } else if (attr.name() == QStringLiteral("out")) {
           out = rational::fromString(attr.value().toString());
+        } else if (attr.name() == QStringLiteral("color")) {
+          color = attr.value().toInt();
         }
       }
 
-      new TimelineMarker(Config::Current()[QStringLiteral("MarkerColor")].toInt(), TimeRange(in, out), name, markers);
+      new TimelineMarker(color, TimeRange(in, out), name, markers);
     }
 
     reader->skipCurrentElement();
@@ -1011,13 +1014,16 @@ void ProjectSerializer220403::LoadMarkerList(QXmlStreamReader *reader, TimelineM
 
 void ProjectSerializer220403::SaveMarkerList(QXmlStreamWriter *writer, TimelineMarkerList *markers) const
 {
-  foreach (TimelineMarker* marker, markers->list()) {
+  for (auto it=markers->cbegin(); it!=markers->cend(); it++) {
+    TimelineMarker* marker = *it;
+
     writer->writeStartElement(QStringLiteral("marker"));
 
     writer->writeAttribute(QStringLiteral("name"), marker->name());
 
-    writer->writeAttribute(QStringLiteral("in"), marker->time().in().toString());
-    writer->writeAttribute(QStringLiteral("out"), marker->time().out().toString());
+    writer->writeAttribute(QStringLiteral("in"), marker->time_range().in().toString());
+    writer->writeAttribute(QStringLiteral("out"), marker->time_range().out().toString());
+    writer->writeAttribute(QStringLiteral("color"), QString::number(marker->color()));
 
     writer->writeEndElement(); // marker
   }

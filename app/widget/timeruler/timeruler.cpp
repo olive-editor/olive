@@ -32,8 +32,10 @@
 
 namespace olive {
 
+#define super SeekableWidget
+
 TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* parent) :
-  SeekableWidget(parent),
+  super(parent),
   text_visible_(text_visible),
   centered_text_(true),
   show_cache_status_(cache_status_visible),
@@ -102,18 +104,9 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   }
 
   // Draw timeline points if connected
+  int marker_height = TimelineMarker::GetMarkerHeight(p->fontMetrics());
   if (timeline_points()) {
-    int marker_bottom = height() - text_height();
-
-    if (show_cache_status_) {
-      marker_bottom -= cache_status_height_;
-    }
-
-    if (text_visible_) {
-      marker_bottom -= cache_status_height_;
-    }
-
-    DrawTimelinePoints(p, marker_bottom);
+    DrawTimelinePoints(p, marker_height);
   }
 
   double width_of_frame = timebase_dbl() * GetScale();
@@ -222,11 +215,11 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
           int timecode_left;
 
           if (centered_text_) {
-            text_rect = QRect(i - kAverageTextWidth/2, 0, kAverageTextWidth, fm.height());
+            text_rect = QRect(i - kAverageTextWidth/2, marker_height, kAverageTextWidth, fm.height());
             text_align = Qt::AlignCenter;
             timecode_left = i - timecode_width/2;
           } else {
-            text_rect = QRect(i, 0, kAverageTextWidth, fm.height());
+            text_rect = QRect(i, marker_height, kAverageTextWidth, fm.height());
             text_align = Qt::AlignLeft | Qt::AlignVCenter;
             timecode_left = i;
 
@@ -265,13 +258,15 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   if (show_cache_status_ && playback_cache_) {
     // FIXME: Hardcoded to get video length, if we ever need audio length, this will have to change
     rational len = playback_cache_->viewer_parent()->GetVideoLength();
+    int lim_left = GetScroll();
+    int lim_right = lim_left + width();
 
-    int cache_screen_length = qMin(TimeToScene(len), qreal(width()));
+    int cache_screen_length = TimeToScene(len);
 
     if (cache_screen_length > 0) {
       int cache_y = height() - cache_status_height_;
 
-      p->fillRect(0, cache_y, cache_screen_length , cache_status_height_, Qt::green);
+      p->fillRect(0, cache_y, cache_screen_length, cache_status_height_, Qt::green);
 
       foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges(len)) {
         int range_left = TimeToScene(range.in());
@@ -284,11 +279,11 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
           continue;
         }
 
-        int adjusted_left = qMax(0, range_left);
+        int adjusted_left = qMax(lim_left, range_left);
 
         p->fillRect(adjusted_left,
                     cache_y,
-                    qMin(width(), range_right) - adjusted_left,
+                    qMin(lim_right, range_right) - adjusted_left,
                     cache_status_height_,
                     Qt::red);
       }
@@ -304,6 +299,8 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
 
 void TimeRuler::TimebaseChangedEvent(const rational &tb)
 {
+  super::TimebaseChangedEvent(tb);
+
   timebase_flipped_dbl_ = tb.flipped().toDouble();
 
   update();
@@ -314,14 +311,20 @@ int TimeRuler::CacheStatusHeight() const
   return fontMetrics().height() / 4;
 }
 
-void TimeRuler::ShowContextMenu()
+bool TimeRuler::ShowContextMenu(const QPoint &p)
 {
-  Menu m(this);
+  if (super::ShowContextMenu(p)) {
+    return true;
+  } else {
+    Menu m(this);
 
-  MenuShared::instance()->AddItemsForTimeRulerMenu(&m);
-  MenuShared::instance()->AboutToShowTimeRulerActions(timebase());
+    MenuShared::instance()->AddItemsForTimeRulerMenu(&m);
+    MenuShared::instance()->AboutToShowTimeRulerActions(timebase());
 
-  m.exec(QCursor::pos());
+    m.exec(mapToGlobal(p));
+
+    return true;
+  }
 }
 
 void TimeRuler::UpdateHeight()
@@ -339,7 +342,7 @@ void TimeRuler::UpdateHeight()
   }
 
   // Add marker height
-  height += text_height();
+  height += TimelineMarker::GetMarkerHeight(fontMetrics());
 
   setFixedHeight(height);
 }

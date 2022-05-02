@@ -167,6 +167,8 @@ public:
     next_ = keyframe;
   }
 
+  bool has_sibling_at_time(const rational &t) const;
+
 signals:
   /**
    * @brief Signal emitted when this keyframe's time is changed

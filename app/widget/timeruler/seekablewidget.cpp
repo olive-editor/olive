@@ -20,12 +20,16 @@
 
 #include "seekablewidget.h"
 
+#include <QInputDialog>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QtMath>
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "dialog/markerproperties/markerpropertiesdialog.h"
+#include "widget/colorlabelmenu/colorlabelmenu.h"
+#include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
@@ -34,8 +38,10 @@ namespace olive {
 
 SeekableWidget::SeekableWidget(QWidget* parent) :
   super(parent),
+  NodeCopyPasteService(QStringLiteral("markers")),
   timeline_points_(nullptr),
   dragging_(false),
+  ignore_next_focus_out_(false),
   selection_manager_(this)
 {
   QFontMetrics fm = fontMetrics();
@@ -54,19 +60,21 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
   if (timeline_points_) {
     selection_manager_.ClearSelection();
 
-    disconnect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
-    disconnect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
-    disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
-    disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+    disconnect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    disconnect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    disconnect(timeline_points_->markers(), &TimelineMarkerList::MarkerModified, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
   }
 
   timeline_points_ = points;
 
   if (timeline_points_) {
-    connect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
-    connect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
-    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
-    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (SeekableWidget::*)()>(&SeekableWidget::update));
+    connect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    connect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerAdded, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerRemoved, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
+    connect(timeline_points_->markers(), &TimelineMarkerList::MarkerModified, viewport(), static_cast<void (QWidget::*)()>(&QWidget::update));
   }
 
   viewport()->update();
@@ -102,7 +110,9 @@ void SeekableWidget::PasteMarkers(bool insert, rational insert_time)
 
 void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
-  if (event->button() == Qt::LeftButton) {
+  if (TimelineMarker *initial = selection_manager_.MousePress(event)) {
+    selection_manager_.DragStart(initial, event);
+  } else if (!selection_manager_.GetObjectAtPoint(event->pos()) && event->button() == Qt::LeftButton) {
     SeekToScenePoint(mapToScene(event->pos()).x());
     dragging_ = true;
 
@@ -112,14 +122,20 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
 
 void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 {
-  if (event->buttons() & Qt::LeftButton) {
+  if (selection_manager_.IsDragging()) {
+    selection_manager_.DragMove(event);
+  } else if (dragging_) {
     SeekToScenePoint(mapToScene(event->pos()).x());
   }
 }
 
 void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-  Q_UNUSED(event)
+  if (selection_manager_.IsDragging()) {
+    MultiUndoCommand *command = new MultiUndoCommand();
+    selection_manager_.DragStop(command);
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+  }
 
   if (GetSnapService()) {
     GetSnapService()->HideSnaps();
@@ -128,12 +144,25 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
   dragging_ = false;
 }
 
+void SeekableWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+  super::mouseDoubleClickEvent(event);
+
+  if (selection_manager_.GetObjectAtPoint(event->pos()) && !selection_manager_.GetSelectedObjects().isEmpty()) {
+    ShowMarkerProperties();
+  }
+}
+
 void SeekableWidget::focusOutEvent(QFocusEvent *event)
 {
   super::focusOutEvent(event);
 
-  // Deselect everything when we lose focus
-  DeselectAllMarkers();
+  if (ignore_next_focus_out_) {
+    ignore_next_focus_out_ = false;
+  } else {
+    // Deselect everything when we lose focus
+    DeselectAllMarkers();
+  }
 }
 
 TimelinePoints *SeekableWidget::timeline_points() const
@@ -159,6 +188,20 @@ void SeekableWidget::SetMarkerColor(int c)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void SeekableWidget::ShowMarkerProperties()
+{
+  MarkerPropertiesDialog mpd(selection_manager_.GetSelectedObjects(), timebase(), this);
+  ignore_next_focus_out_ = true;
+  mpd.exec();
+}
+
+void SeekableWidget::TimebaseChangedEvent(const rational &t)
+{
+  super::TimebaseChangedEvent(t);
+
+  selection_manager_.SetTimebase(t);
+}
+
 void SeekableWidget::SeekToScenePoint(qreal scene)
 {
   if (timebase().isNull()) {
@@ -171,8 +214,8 @@ void SeekableWidget::SeekToScenePoint(qreal scene)
     rational movement;
 
     GetSnapService()->SnapPoint({playhead_time},
-                                 &movement,
-                                 SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+                                &movement,
+                                SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
 
     playhead_time += movement;
   }
@@ -184,56 +227,62 @@ void SeekableWidget::SeekToScenePoint(qreal scene)
   }
 }
 
+void SeekableWidget::SelectionManagerSelectEvent(void *obj)
+{
+  super::SelectionManagerSelectEvent(obj);
+
+  viewport()->update();
+}
+
+void SeekableWidget::SelectionManagerDeselectEvent(void *obj)
+{
+  super::SelectionManagerDeselectEvent(obj);
+
+  viewport()->update();
+}
+
 void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
 {
   if (!timeline_points()) {
     return;
   }
 
+  int lim_left = GetScroll();
+  int lim_right = lim_left + width();
+
+  selection_manager_.ClearDrawnObjects();
+
   // Draw in/out workarea
   if (timeline_points()->workarea()->enabled()) {
-    int workarea_left = qMax(0.0, TimeToScene(timeline_points()->workarea()->in()));
+    int workarea_left = qMax(qreal(lim_left), TimeToScene(timeline_points()->workarea()->in()));
     int workarea_right;
 
     if (timeline_points()->workarea()->out() == TimelineWorkArea::kResetOut) {
-      workarea_right = width();
+      workarea_right = lim_right;
     } else {
-      workarea_right = qMin(qreal(width()), TimeToScene(timeline_points()->workarea()->out()));
+      workarea_right = qMin(qreal(lim_right), TimeToScene(timeline_points()->workarea()->out()));
     }
 
     p->fillRect(workarea_left, 0, workarea_right - workarea_left, height(), palette().highlight());
   }
 
   // Draw markers
-  if (marker_bottom > 0 && !timeline_points()->markers()->list().empty()) {
+  if (marker_bottom > 0 && !timeline_points()->markers()->empty()) {
+    for (auto it=timeline_points()->markers()->cbegin(); it!=timeline_points()->markers()->cend(); it++) {
+      TimelineMarker* marker = *it;
 
-    int marker_top = marker_bottom - text_height_;
-
-    // FIXME: Hardcoded marker colors
-    p->setPen(Qt::black);
-    p->setBrush(Qt::green);
-
-    foreach (TimelineMarker* marker, timeline_points()->markers()->list()) {
-      int marker_left = TimeToScene(marker->time().in());
-      int marker_right = TimeToScene(marker->time().out());
-
-      if (marker_left >= width() || marker_right < 0)  {
+      int marker_right = TimeToScene(marker->time_range().out());
+      if (marker_right < lim_left) {
         continue;
       }
 
-      if (marker->time().length() != 0) {
-        // Marker range
-        int rect_left = qMax(0, marker_left);
-        int rect_right = qMin(width(), marker_right);
-
-        QRect marker_rect(rect_left, marker_top, rect_right - rect_left, marker_bottom - marker_top);
-
-        p->drawRect(marker_rect);
-
-        if (!marker->name().isEmpty()) {
-          p->drawText(marker_rect, marker->name());
-        }
+      int marker_left = TimeToScene(marker->time_range().in());
+      if (marker_left >= lim_right)  {
+        break;
       }
+
+      QRect marker_rect = marker->Draw(p, QPoint(marker_left, marker_bottom), GetScale(), selection_manager_.IsSelected(marker));
+      selection_manager_.DeclareDrawnObject(marker, marker_rect);
     }
   }
 }
@@ -262,6 +311,33 @@ void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
   p->drawPolygon(points, 6);
 
   p->setRenderHint(QPainter::Antialiasing, false);
+}
+
+bool SeekableWidget::ShowContextMenu(const QPoint &p)
+{
+  if (selection_manager_.GetObjectAtPoint(p) && !selection_manager_.GetSelectedObjects().isEmpty()) {
+    // Show marker-specific menu
+    Menu m;
+
+    ColorLabelMenu color_coding_menu;
+    connect(&color_coding_menu, &ColorLabelMenu::ColorSelected, this, &SeekableWidget::SetMarkerColor);
+    m.addMenu(&color_coding_menu);
+
+    m.addSeparator();
+
+    MenuShared::instance()->AddItemsForEditMenu(&m, false);
+
+    m.addSeparator();
+
+    QAction *properties_action = m.addAction(tr("Properties"));
+    connect(properties_action, &QAction::triggered, this, &SeekableWidget::ShowMarkerProperties);
+
+    ignore_next_focus_out_ = true;
+    m.exec(mapToGlobal(p));
+    return true;
+  } else {
+    return false;
+  }
 }
 
 }

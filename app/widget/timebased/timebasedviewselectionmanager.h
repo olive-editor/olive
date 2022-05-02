@@ -153,36 +153,54 @@ public:
     for (int i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
-      dragging_[i] = {obj->time(), view_->TimeToScene(obj->time())};
+      dragging_[i] = obj->time();
     }
 
     drag_mouse_start_ = view_->mapToScene(event->pos());
   }
 
-  void DragMove(QMouseEvent *event, const QString &tip_format)
+  void DragMove(QMouseEvent *event, const QString &tip_format = QString())
   {
-    QPointF diff = view_->mapToScene(event->pos()) - drag_mouse_start_;
+    rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
 
+    // Validate movement
     for (int i=0; i<selected_.size(); i++) {
-      rational proposed_time = view_->SceneToTimeNoGrid(dragging_.at(i).x + diff.x());
+      rational proposed_time = dragging_.at(i) + time_diff;
       T *sel = selected_.at(i);
 
       // Magic number: use interval of 1ms to avoid collisions
       rational adj(1, 1000);
-      if (dragging_.at(i).time < proposed_time) {
+      if (dragging_.at(i) < proposed_time) {
+        // Negate adjustment value if origin is less than proposed time
         adj = -adj;
       }
 
-      while (true) {
-        NodeKeyframe *key_at_time = sel->parent()->GetKeyframeAtTimeOnTrack(sel->input(), proposed_time, sel->track(), sel->element());
-        if (!key_at_time || key_at_time == sel) {
-          break;
+      bool loop;
+      do {
+        loop = false;
+        while (sel->has_sibling_at_time(proposed_time)) {
+          proposed_time += adj;
         }
 
-        proposed_time += adj;
-      }
+        if (proposed_time < 0) {
+          // Prevent any object from going below zero
+          proposed_time = 0;
 
-      sel->set_time(proposed_time);
+          // Setting our proposed time to zero may (re)introduce a conflict that we just avoided
+          // with the sibling check above, so we request it to happen again. To avoid a negative
+          // adj bringing us back below zero, we force adj to positive so it'll only nudge higher
+          adj = qAbs(adj);
+
+          loop = true;
+        }
+      } while (loop);
+
+      time_diff = proposed_time - dragging_.at(i);
+    }
+
+    // Apply movement
+    for (int i=0; i<selected_.size(); i++) {
+      selected_.at(i)->set_time(dragging_.at(i) + time_diff);
     }
 
     // Show information about this keyframe
@@ -202,7 +220,7 @@ public:
     QToolTip::hideText();
 
     for (int i=0; i<selected_.size(); i++) {
-      command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i).time));
+      command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i)));
     }
 
     dragging_.clear();
@@ -271,7 +289,7 @@ private:
 
     virtual Project* GetRelevantProject() const override
     {
-      return key_->parent()->project();
+      return Project::GetProjectFromObject(key_);
     }
 
   protected:
@@ -300,13 +318,7 @@ private:
 
   QVector<T*> selected_;
 
-  struct DragObject
-  {
-    rational time;
-    double x;
-  };
-
-  QVector<DragObject> dragging_;
+  QVector<rational> dragging_;
 
   T *initial_drag_item_;
 

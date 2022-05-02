@@ -25,14 +25,15 @@
 #include <QScrollBar>
 
 #include "common/rational.h"
+#include "node/nodecopypaste.h"
 #include "timeline/timelinepoints.h"
+#include "widget/menu/menu.h"
 #include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timebasedviewselectionmanager.h"
-//#include "widget/marker/markercopypaste.h"
 
 namespace olive {
 
-class SeekableWidget : public TimeBasedView//, public MarkerCopyPasteService
+class SeekableWidget : public TimeBasedView, public NodeCopyPasteService
 {
   Q_OBJECT
 public:
@@ -60,22 +61,22 @@ public:
 
   void SeekToScenePoint(qreal scene);
 
+  virtual void SelectionManagerSelectEvent(void *obj) override;
+  virtual void SelectionManagerDeselectEvent(void *obj) override;
+
 public slots:
   void SetScroll(int i)
   {
     horizontalScrollBar()->setValue(i);
   }
 
-  void SetMarkerColor(int c);
-
-  /*void SetMarkerTime();
-
-  void SetMarkerName();*/
+  virtual void TimebaseChangedEvent(const rational &) override;
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
   virtual void focusOutEvent(QFocusEvent *event) override;
 
@@ -93,6 +94,9 @@ protected:
     return playhead_width_;
   }
 
+protected slots:
+  virtual bool ShowContextMenu(const QPoint &p);
+
 private:
   TimelinePoints* timeline_points_;
 
@@ -102,7 +106,14 @@ private:
 
   bool dragging_;
 
+  bool ignore_next_focus_out_;
+
   TimeBasedViewSelectionManager<TimelineMarker> selection_manager_;
+
+private slots:
+  void SetMarkerColor(int c);
+
+  void ShowMarkerProperties();
 
 };
 

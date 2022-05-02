@@ -67,7 +67,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
     if (rect.contains(mapToScene(event->pos()))) {
       TimelinePanel *timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
       if (timeline) {
-        timeline->timeline_widget()->SetTime(clip_marker_positions_.key(rect)->time().in());
+        timeline->timeline_widget()->SetTime(clip_marker_positions_.key(rect)->time_range().in());
       }
     }
   }
@@ -510,58 +510,43 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
                                             SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
         }
 
-        // Draw zebra stripes
-        if (clip->connected_viewer() && !clip->connected_viewer()->GetLength().isNull()) {
-          if (clip->media_in() < 0) {
-            // Draw stripes for sections of clip < 0
-            qreal zebra_right = TimeToScene(-clip->media_in());
-            if (zebra_right > GetTimelineLeftBound()) {
-              DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right, block_height));
+        // Draw zebra stripes and markers
+        if (clip->connected_viewer()) {
+          if (!clip->connected_viewer()->GetLength().isNull()) {
+            if (clip->media_in() < 0) {
+              // Draw stripes for sections of clip < 0
+              qreal zebra_right = TimeToScene(-clip->media_in());
+              if (zebra_right > GetTimelineLeftBound()) {
+                DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right, block_height));
+              }
             }
-          }
 
-          if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
-            // Draw stripes for sections for clip > clip length
-            qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
-            if (zebra_left < GetTimelineRightBound()) {
-              DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
-            }
-          }
-        }
-
-        // Draw markers
-        qDebug() << "MARKERS ON CLIP STUB";
-        /*if (clip->connected_viewer() && !clip->connected_viewer()->GetLength().isNull()) {
-          if (clip->connected_viewer()->GetTimelinePoints()->markers()->list().size() > 0) {
-            std::vector<TimelineMarker *> marker_list = clip->connected_viewer()->GetTimelinePoints()->markers()->list();
-
-            int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
-            clip_marker_positions_.clear();
-
-            // Only draw markers if the block UI is large enough to draw all the markers
-            if (marker_list.size() * marker_width < block_right - block_left) {
-
-              for (auto it=marker_list.cbegin(); it!=marker_list.cend(); it++) {
-                TimelineMarker *marker = *it;
-                // Make sure marker is within In/Out points of the clip
-                if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
-                  // Only draw names that we have room for
-                  bool draw_name = true;
-                  if (!marker->name().isEmpty()) {
-                    int length = fm.horizontalAdvance(marker->name());
-                    if (iterator.hasNext()) {
-                      if (TimeToScene(iterator.peekNext()->time().in()) - TimeToScene(marker->time().out()) < (double)length) {
-                        draw_name = false;
-                      }
-                    }
-                  }
-                  DrawClipMarker(painter, TimeToScene(clip->in() - clip->media_in() + marker->time().in()),
-                                 block_top + block_height, marker, draw_name);
-                }
+            if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
+              // Draw stripes for sections for clip > clip length
+              qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
+              if (zebra_left < GetTimelineRightBound()) {
+                DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
               }
             }
           }
-        }*/
+
+          TimelineMarkerList *marker_list = clip->connected_viewer()->GetTimelinePoints()->markers();
+          if (!marker_list->empty()) {
+
+            clip_marker_positions_.clear();
+
+            for (auto it=marker_list->cbegin(); it!=marker_list->cend(); it++) {
+              TimelineMarker *marker = *it;
+              // Make sure marker is within In/Out points of the clip
+              if (marker->time_range().in() >= clip->media_in() && marker->time_range().out() <= clip->media_in() + clip->length()) {
+                QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time_range().in()), block_top + block_height);
+                painter->setClipRect(r);
+                marker->Draw(painter, marker_pt, GetScale(), false);
+                painter->setClipping(false);
+              }
+            }
+          }
+        }
       }
 
       // For transitions, show lines representing a transition
@@ -629,46 +614,6 @@ void TimelineView::DrawZebraStripes(QPainter *painter, const QRectF &r)
   painter->setClipRect(r);
   painter->drawLines(lines);
   painter->setClipping(false);
-}
-
-void TimelineView::DrawClipMarker(QPainter* painter, double marker_x, qreal marker_y, TimelineMarker* marker, bool draw_name)
-{
-  QFontMetrics fm = fontMetrics();
-
-  int marker_height = fm.height();
-  int marker_width = QtUtils::QFontMetricsWidth(fm, "H");
-
-  int y = marker_y - 1;
-
-  int half_width = marker_width / 2;
-
-  int x = marker_x + half_width;
-
-  painter->setPen(Qt::black);
-
-  painter->setBrush(ColorCoding::GetColor(marker->color()).toQColor());
-
-  painter->setRenderHint(QPainter::Antialiasing);
-
-  int half_marker_height = marker_height / 3;
-
-  QPoint points[] = {
-      QPoint(x, y),
-      QPoint(x - half_width, y - half_marker_height),
-      QPoint(x - half_width, y - marker_height),
-      QPoint(x + 1 + half_width, y - marker_height),
-      QPoint(x + 1 + half_width, y - half_marker_height),
-      QPoint(x + 1, y),
-  };
-
-  painter->drawPolygon(points, 6);
-
-  if (!marker->name().isEmpty() && draw_name) {
-    painter->drawText(x + marker_width, y - half_marker_height, marker->name());
-  }
-
-  QPointF scenePos = QPoint(x - half_width, y);
-  clip_marker_positions_.insert(marker, (QRectF(scenePos, QSize(marker_width, -marker_height))));
 }
 
 int TimelineView::GetHeightOfAllTracks() const

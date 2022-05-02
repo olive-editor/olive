@@ -68,6 +68,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   }
 
   SetFlags(kDontShowInParamView);
+
+  timeline_points_ = new TimelinePoints(this);
 }
 
 Node *ViewerOutput::copy() const
