@@ -168,9 +168,6 @@ protected:
 
 private:
   TimelineMarkerList* marker_list_;
-  TimeRange range_;
-  QString name_;
-  int color_;
 
   TimelineMarker* added_marker_;
   QObject memory_manager_;
