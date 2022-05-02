@@ -63,11 +63,17 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
   // If we click on marker, jump to that point in the timeline
-  foreach (QRectF rect, clip_marker_positions_.values()) {
-    if (rect.contains(mapToScene(event->pos()))) {
-      TimelinePanel *timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
-      if (timeline) {
-        timeline->timeline_widget()->SetTime(clip_marker_positions_.key(rect)->time_range().in());
+  QPointF scene_pos = mapToScene(event->pos());
+  for (auto it=clip_marker_rects_.cbegin(); it!=clip_marker_rects_.cend(); it++) {
+    if (it.value().contains(scene_pos)) {
+      QObject *p = this->parent();
+      while (p) {
+        if (TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(p)) {
+          timeline->SetTime(it.key()->time());
+          break;
+        }
+
+        p = p->parent();
       }
     }
   }
@@ -533,7 +539,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
           TimelineMarkerList *marker_list = clip->connected_viewer()->GetTimelinePoints()->markers();
           if (!marker_list->empty()) {
 
-            clip_marker_positions_.clear();
+            clip_marker_rects_.clear();
 
             for (auto it=marker_list->cbegin(); it!=marker_list->cend(); it++) {
               TimelineMarker *marker = *it;
@@ -541,7 +547,8 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
               if (marker->time_range().in() >= clip->media_in() && marker->time_range().out() <= clip->media_in() + clip->length()) {
                 QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time_range().in()), block_top + block_height);
                 painter->setClipRect(r);
-                marker->Draw(painter, marker_pt, GetScale(), false);
+                QRect marker_rect = marker->Draw(painter, marker_pt, GetScale(), false);
+                clip_marker_rects_.insert(marker, marker_rect);
                 painter->setClipping(false);
               }
             }

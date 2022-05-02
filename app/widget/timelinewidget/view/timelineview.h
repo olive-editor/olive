@@ -155,7 +155,7 @@ private:
   ClipBlock *transition_overlay_out_;
   ClipBlock *transition_overlay_in_;
 
-  QMap<TimelineMarker*, QRectF> clip_marker_positions_;
+  QMap<TimelineMarker*, QRectF> clip_marker_rects_;
 
 private slots:
   void TrackListChanged();
