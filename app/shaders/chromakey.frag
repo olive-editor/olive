@@ -2,6 +2,8 @@
 uniform sampler2D tex_in;
 uniform vec4 color_key;
 uniform bool mask_only_in;
+uniform float upper_tolerence_in;
+uniform float lower_tolerence_in;
 
 
 // Main texture coordinate
@@ -55,7 +57,7 @@ void main() {
   vec4 cie_xyz_key = SceneLinearToCIEXYZ_d65(color_key);
   vec4 lab_key = CIExyz_to_Lab(cie_xyz_key);
 
-  float mask = colorclose(lab, lab_key, 5.0, 25.0);
+  float mask = colorclose(lab, lab_key, lower_tolerence_in, upper_tolerence_in);
 
   col.rgb *= mask;
   col.w = mask;

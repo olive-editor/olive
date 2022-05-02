@@ -24,10 +24,18 @@ namespace olive {
 
 const QString ChromaKeyNode::kColorInput = QStringLiteral("color_key");
 const QString ChromaKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
+const QString ChromaKeyNode::kUpperToleranceInput = QStringLiteral("upper_tolerence_in");
+const QString ChromaKeyNode::kLowerToleranceInput = QStringLiteral("lower_tolerence_in");
 
 ChromaKeyNode::ChromaKeyNode()
 {
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0.0f, 1.0f, 0.0f, 1.0f)));
+
+  AddInput(kUpperToleranceInput, NodeValue::kFloat, 25.0);
+  SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), 0.0);
+
+  AddInput(kLowerToleranceInput, NodeValue::kFloat, 5.0);
+  SetInputProperty(kLowerToleranceInput, QStringLiteral("min"), 0.0);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 }
@@ -62,6 +70,8 @@ void ChromaKeyNode::Retranslate()
   //SetComboBoxStrings(kColorInput, {tr("Green"), tr("Blue")});
   //SetInputName(kShadowsInput, tr("Shadows"));
   //SetInputName(kHighlightsInput, tr("Highlights"));
+  SetInputName(kUpperToleranceInput, tr("Upper Tolerance"));
+  SetInputName(kLowerToleranceInput, tr("Lower Tolerance"));
   SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
 }
 
