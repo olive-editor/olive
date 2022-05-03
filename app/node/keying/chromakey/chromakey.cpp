@@ -38,6 +38,8 @@ ChromaKeyNode::ChromaKeyNode()
   SetInputProperty(kLowerToleranceInput, QStringLiteral("min"), 0.0);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
+
+  SetEffectInput(kTextureInput);
 }
 
 QString ChromaKeyNode::Name() const
