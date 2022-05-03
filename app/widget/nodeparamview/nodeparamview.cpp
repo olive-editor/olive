@@ -40,7 +40,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   last_scroll_val_(0),
   focused_node_(nullptr),
   time_target_(nullptr),
-  show_all_nodes_(true)
+  show_all_nodes_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
