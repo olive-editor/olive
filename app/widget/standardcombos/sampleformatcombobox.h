@@ -41,7 +41,7 @@ public:
 
   void SetAvailableFormats(const std::vector<AudioParams::Format> &formats)
   {
-    AudioParams::Format tmp;
+    AudioParams::Format tmp = AudioParams::kFormatInvalid;
 
     if (attempt_to_restore_format_) {
       tmp = GetSampleFormat();
