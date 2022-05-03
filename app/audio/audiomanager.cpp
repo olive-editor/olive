@@ -73,11 +73,10 @@ int InputCallback(const void *input, void *output, unsigned long frameCount, con
 {
   FFmpegEncoder *f = static_cast<FFmpegEncoder*>(userData);
 
-  SampleBufferPtr s = SampleBuffer::Create();
-  s->set_sample_count(frameCount);
-  s->set_audio_params(f->params().audio_params());
+  AudioParams our_params = f->params().audio_params();
+  our_params.set_format(AudioParams::GetPackedEquivalent(f->params().audio_params().format()));
 
-  f->WriteAudioData(f->params().audio_params(), reinterpret_cast<const uint8_t**>(&input), frameCount);
+  f->WriteAudioData(our_params, reinterpret_cast<const uint8_t**>(&input), frameCount);
 
   return paContinue;
 }
