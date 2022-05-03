@@ -381,7 +381,6 @@ void NodeTraverser::PreProcessRow(const Node *node, const TimeRange &range, Node
 
       if (v.canConvert<ShaderJob>()) {
 
-        qDebug() << "Running shader for" << val.source();
         val.set_data(QVariant::fromValue(ProcessShader(val.source(), range, v.value<ShaderJob>())));
 
       } else if (v.canConvert<GenerateJob>()) {
