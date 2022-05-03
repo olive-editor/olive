@@ -52,7 +52,7 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
     row.insert(it.key(), value);
   }
 
-  PreProcessRow(node, range, row);
+  PreProcessRow(range, row);
 
   return row;
 }
@@ -353,7 +353,7 @@ QVector2D NodeTraverser::GenerateResolution() const
   return QVector2D(video_params_.square_pixel_width(), video_params_.height());
 }
 
-void NodeTraverser::PreProcessRow(const Node *node, const TimeRange &range, NodeValueRow &row)
+void NodeTraverser::PreProcessRow(const TimeRange &range, NodeValueRow &row)
 {
   QByteArray cached_node_hash;
 
@@ -381,11 +381,15 @@ void NodeTraverser::PreProcessRow(const Node *node, const TimeRange &range, Node
 
       if (v.canConvert<ShaderJob>()) {
 
-        val.set_data(QVariant::fromValue(ProcessShader(val.source(), range, v.value<ShaderJob>())));
+        ShaderJob job = v.value<ShaderJob>();
+        PreProcessRow(range, job.GetValues());
+        val.set_data(QVariant::fromValue(ProcessShader(val.source(), range, job)));
 
       } else if (v.canConvert<GenerateJob>()) {
 
-        val.set_data(QVariant::fromValue(ProcessFrameGeneration(val.source(), v.value<GenerateJob>())));
+        GenerateJob job = v.value<GenerateJob>();
+        PreProcessRow(range, job.GetValues());
+        val.set_data(QVariant::fromValue(ProcessFrameGeneration(val.source(), job)));
 
       } else if (v.canConvert<FootageJob>()) {
 
@@ -406,7 +410,7 @@ void NodeTraverser::PreProcessRow(const Node *node, const TimeRange &range, Node
 
       } else if (v.canConvert<SampleJob>()) {
 
-        val.set_data(QVariant::fromValue(ProcessSamples(node, range, v.value<SampleJob>())));
+        val.set_data(QVariant::fromValue(ProcessSamples(val.source(), range, v.value<SampleJob>())));
 
       }
 

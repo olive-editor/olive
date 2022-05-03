@@ -24,6 +24,7 @@
 #include "node/gizmo/point.h"
 #include "node/gizmo/polygon.h"
 #include "node/inputdragger.h"
+#include "node/math/merge/merge.h"
 #include "node/node.h"
 
 namespace olive {
@@ -40,9 +41,12 @@ public:
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
-  static QString kPositionInput;
-  static QString kSizeInput;
-  static QString kColorInput;
+  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+
+  static const QString kBaseInput;
+  static const QString kPositionInput;
+  static const QString kSizeInput;
+  static const QString kColorInput;
 
 protected:
   PolygonGizmo *poly_gizmo() const
