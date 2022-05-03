@@ -109,7 +109,7 @@ protected:
   }
 
 private:
-  void PostProcessTable(const Node *node, const Node::ValueHint &hint, const TimeRange &range, NodeValueTable &output_params);
+  void PreProcessRow(const Node *node, const TimeRange &range, NodeValueRow &row);
 
   TexturePtr CreateDummyTexture(const VideoParams &p);
 

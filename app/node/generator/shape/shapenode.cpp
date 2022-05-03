@@ -76,7 +76,7 @@ void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
   job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 }
 
 }

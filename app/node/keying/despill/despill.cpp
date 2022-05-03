@@ -97,7 +97,7 @@ void DespillNode::Value(const NodeValueRow &value, const NodeGlobals &globals, N
 
   // If there's no texture, no need to run an operation
   if (!job.GetValue(kTextureInput).data().isNull()) {
-    table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 

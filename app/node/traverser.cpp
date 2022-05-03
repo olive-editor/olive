@@ -52,6 +52,8 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
     row.insert(it.key(), value);
   }
 
+  PreProcessRow(node, range, row);
+
   return row;
 }
 
@@ -258,16 +260,12 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint
 
   if (is_enabled) {
     NodeValueRow row = GenerateRow(&database, n, range);
-    //qDebug() << "FIXME: Implement pre-process of row";
 
     // Generate output table
     NodeValueTable table = database.Merge();
 
     // By this point, the node should have all the inputs it needs to render correctly
     n->Value(row, GenerateGlobals(video_params_, range), &table);
-
-    // Post-process table
-    PostProcessTable(n, hint, range, table);
 
     return table;
   } else {
@@ -355,9 +353,8 @@ QVector2D NodeTraverser::GenerateResolution() const
   return QVector2D(video_params_.square_pixel_width(), video_params_.height());
 }
 
-void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hint, const TimeRange &range, NodeValueTable &output_params)
+void NodeTraverser::PreProcessRow(const Node *node, const TimeRange &range, NodeValueRow &row)
 {
-  bool got_cached_frame = false;
   QByteArray cached_node_hash;
 
   // Convert footage to image/sample buffers
@@ -374,80 +371,53 @@ void NodeTraverser::PostProcessTable(const Node *node, const Node::ValueHint &hi
     }
   }*/
 
-  // Strip out any jobs or footage
-  QList<NodeValue> footage_jobs_to_run;
-  QList<NodeValue> shader_jobs_to_run;
-  QList<NodeValue> sample_jobs_to_run;
-  QList<NodeValue> generate_jobs_to_run;
+  // Resolve any jobs
+  for (auto it=row.begin(); it!=row.end(); it++) {
+    // Jobs will almost always be submitted with one of these types
+    NodeValue &val = it.value();
 
-  for (int i=0; i<output_params.Count(); i++) {
-    const NodeValue& v = output_params.at(i);
-    QList<NodeValue>* take_this_value_list = nullptr;
+    if (val.type() == NodeValue::kTexture || val.type() == NodeValue::kSamples) {
+      const QVariant &v = val.data();
 
-    if (v.type() == NodeValue::kFootageJob) {
-      take_this_value_list = &footage_jobs_to_run;
-    } else if (v.type() == NodeValue::kShaderJob) {
-      take_this_value_list = &shader_jobs_to_run;
-    } else if (v.type() == NodeValue::kSampleJob) {
-      take_this_value_list = &sample_jobs_to_run;
-    } else if (v.type() == NodeValue::kGenerateJob) {
-      take_this_value_list = &generate_jobs_to_run;
-    }
+      if (v.canConvert<ShaderJob>()) {
 
-    if (take_this_value_list) {
-      take_this_value_list->append(output_params.TakeAt(i));
-      i--;
-    }
-  }
+        qDebug() << "Running shader for" << val.source();
+        val.set_data(QVariant::fromValue(ProcessShader(val.source(), range, v.value<ShaderJob>())));
 
-  if (!got_cached_frame) {
-    // Retrieve video frames
-    foreach (const NodeValue& v, footage_jobs_to_run) {
-      // Assume this is a VideoStream, we did a type check earlier in the function
-      FootageJob job = v.data().value<FootageJob>();
+      } else if (v.canConvert<GenerateJob>()) {
 
-      if (job.type() == Track::kVideo) {
-        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
+        val.set_data(QVariant::fromValue(ProcessFrameGeneration(val.source(), v.value<GenerateJob>())));
 
-        if (footage_time.isNaN()) {
-          // Push dummy texture
-          output_params.Push(NodeValue::kTexture, QVariant::fromValue(CreateDummyTexture(job.video_params())), node, v.array(), v.tag());
-        } else {
-          output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessVideoFootage(job, footage_time)), node, v.array(), v.tag());
+      } else if (v.canConvert<FootageJob>()) {
+
+        FootageJob job = v.value<FootageJob>();
+
+        if (job.type() == Track::kVideo) {
+          rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
+
+          if (footage_time.isNaN()) {
+            // Push dummy texture
+            val.set_data(QVariant::fromValue(CreateDummyTexture(job.video_params())));
+          } else {
+            val.set_data(QVariant::fromValue(ProcessVideoFootage(job, footage_time)));
+          }
+        } else if (job.type() == Track::kAudio) {
+          val.set_data(QVariant::fromValue(ProcessAudioFootage(job, range)));
         }
+
+      } else if (v.canConvert<SampleJob>()) {
+
+        val.set_data(QVariant::fromValue(ProcessSamples(node, range, v.value<SampleJob>())));
+
       }
-    }
 
-    // Run shaders
-    foreach (const NodeValue& v, shader_jobs_to_run) {
-      output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessShader(node, range, v.data().value<ShaderJob>())), node, v.array(), v.tag());
-    }
-
-    // Run generate jobs
-    foreach (const NodeValue& v, generate_jobs_to_run) {
-      output_params.Push(NodeValue::kTexture, QVariant::fromValue(ProcessFrameGeneration(node, v.data().value<GenerateJob>())), node, v.array(), v.tag());
     }
   }
 
-  // Retrieve audio samples
-  foreach (const NodeValue& v, footage_jobs_to_run) {
-    // Assume this is an AudioStream, we did a type check earlier in the function
-    FootageJob job = v.data().value<FootageJob>();
-
-    if (job.type() == Track::kAudio) {
-      output_params.Push(NodeValue::kSamples, QVariant::fromValue(ProcessAudioFootage(job, range)), node, v.array(), v.tag());
-    }
-  }
-
-  // Run any accelerated shader jobs
-  foreach (const NodeValue& v, sample_jobs_to_run) {
-    output_params.Push(NodeValue::kSamples, QVariant::fromValue(ProcessSamples(node, range, v.data().value<SampleJob>())), node, v.array(), v.tag());
-  }
-
-  if (CanCacheFrames() && node->GetCacheTextures() && !got_cached_frame) {
+  /*if (CanCacheFrames() && node->GetCacheTextures() && !got_cached_frame) {
     // Save cached texture
     SaveCachedTexture(cached_node_hash, output_params.Get(NodeValue::kTexture).value<TexturePtr>());
-  }
+  }*/
 }
 
 TexturePtr NodeTraverser::CreateDummyTexture(const VideoParams &p)

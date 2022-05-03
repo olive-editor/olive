@@ -87,7 +87,7 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
         || !qIsNull(job.GetValue(kRightInput).data().toDouble())
         || !qIsNull(job.GetValue(kTopInput).data().toDouble())
         || !qIsNull(job.GetValue(kBottomInput).data().toDouble())) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
     }

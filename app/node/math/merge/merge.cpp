@@ -101,7 +101,7 @@ void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOff);
       }
 
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     }
   }
 }

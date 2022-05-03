@@ -87,10 +87,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kTexture:
     case NodeValue::kMatrix:
     case NodeValue::kSamples:
-    case NodeValue::kFootageJob:
-    case NodeValue::kShaderJob:
-    case NodeValue::kSampleJob:
-    case NodeValue::kGenerateJob:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
     case NodeValue::kDataTypeCount:
@@ -241,10 +237,6 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
   case NodeValue::kSamples:
-  case NodeValue::kFootageJob:
-  case NodeValue::kShaderJob:
-  case NodeValue::kSampleJob:
-  case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kDataTypeCount:
@@ -422,10 +414,6 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
   case NodeValue::kSamples:
-  case NodeValue::kFootageJob:
-  case NodeValue::kShaderJob:
-  case NodeValue::kSampleJob:
-  case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kDataTypeCount:

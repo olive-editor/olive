@@ -80,7 +80,7 @@ void NoiseGeneratorNode::Value(const NodeValueRow &value, const NodeGlobals &glo
   job.InsertValue(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
 
 
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 
 }
 }

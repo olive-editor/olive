@@ -382,7 +382,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       output->Push(texture_val);
     } else {
       // Push shader job
-      output->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      output->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     }
     break;
   }
@@ -413,10 +413,10 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
         output->Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
       } else {
-        output->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
+        output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }
     } else {
-      output->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
+      output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
     }
     break;
   }

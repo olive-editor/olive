@@ -341,6 +341,8 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
       Track::Reference ref = GetReferenceFromRealIndex(i);
       FootageJob job(decoder_, filename(), ref.type(), GetLength(), loop_mode);
 
+      NodeValue::Type type;
+
       if (ref.type() == Track::kVideo) {
         VideoParams vp = GetVideoParams(ref.index());
 
@@ -348,13 +350,17 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         vp.set_colorspace(GetColorspaceToUse(vp));
 
         job.set_video_params(vp);
+
+        type = NodeValue::kTexture;
       } else {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
+
+        type = NodeValue::kSamples;
       }
 
-      table->Push(NodeValue::kFootageJob, QVariant::fromValue(job), this, false, ref.ToString());
+      table->Push(type, QVariant::fromValue(job), this, false, ref.ToString());
     }
   }
 }

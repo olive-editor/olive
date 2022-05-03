@@ -39,7 +39,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   super(true, false, parent),
   last_scroll_val_(0),
   focused_node_(nullptr),
-  time_target_(nullptr)
+  time_target_(nullptr),
+  show_all_nodes_(true)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -453,7 +454,7 @@ void NodeParamView::RemoveContext(Node *ctx)
 
 void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 {
-  if ((n->GetFlags() & Node::kDontShowInParamView) && !IsGroupMode()) {
+  if ((n->GetFlags() & Node::kDontShowInParamView) && !IsGroupMode() && !show_all_nodes_) {
     return;
   }
 

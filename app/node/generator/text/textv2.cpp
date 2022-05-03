@@ -99,7 +99,7 @@ void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &global
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 

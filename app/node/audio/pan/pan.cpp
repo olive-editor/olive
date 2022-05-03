@@ -95,11 +95,7 @@ void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
       }
     }
 
-    if (push_job) {
-      table->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
-    } else {
-      table->Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
-    }
+    table->Push(NodeValue::kSamples, push_job ? QVariant::fromValue(job) : QVariant::fromValue(job.samples()), this);
   }
 }
 

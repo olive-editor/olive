@@ -66,7 +66,7 @@ void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
     if (texture
         && job.GetValue(kHorizInput).data().toInt() != texture->width()
         && job.GetValue(kVertInput).data().toInt() != texture->height()) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       table->Push(job.GetValue(kTextureInput));
     }

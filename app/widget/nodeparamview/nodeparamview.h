@@ -143,6 +143,8 @@ private:
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;
 
+  bool show_all_nodes_;
+
 private slots:
   void UpdateGlobalScrollBar();
 
