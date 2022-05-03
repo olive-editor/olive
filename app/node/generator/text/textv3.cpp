@@ -89,7 +89,7 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
   job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 
