@@ -26,6 +26,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "node/node.h"
 #include "node/project/sequence/sequence.h"
@@ -394,6 +395,10 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
     T* fs = new T();
     fs->SliderBase::SetDefaultValue(GetInnerInput().GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
+
+    // HACK: Force some spacing between sliders
+    fs->setContentsMargins(0, 0, QtUtils::QFontMetricsWidth(fs->fontMetrics(), QStringLiteral("        ")), 0);
+
     widgets_.append(fs);
     connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }
