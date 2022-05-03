@@ -195,6 +195,8 @@ private slots:
 
   void ShowWelcomeDialog();
 
+  void RevealViewerInProject(ViewerOutput *r);
+
 };
 
 }

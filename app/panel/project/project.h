@@ -52,6 +52,11 @@ public:
 
   ProjectViewModel* model() const;
 
+  bool SelectItem(Node *n)
+  {
+    return explorer_->SelectItem(n);
+  }
+
   virtual void SelectAll() override;
   virtual void DeselectAll() override;
 

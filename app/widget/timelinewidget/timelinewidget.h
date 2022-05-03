@@ -269,6 +269,8 @@ signals:
 
   void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
 
+  void RevealViewerInProject(ViewerOutput *r);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -409,6 +411,8 @@ private slots:
   void SetScrollZoomsByDefaultOnAllViews(bool e);
 
   void SignalBlockSelectionChange();
+
+  void RevealInProject();
 
 };
 
