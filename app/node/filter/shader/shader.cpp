@@ -32,6 +32,8 @@
 
 namespace olive {
 
+#define super Node
+
 namespace  {
 const QString TEMPLATE(
     "//OVE shader_name: \n"
@@ -151,6 +153,8 @@ QString ShaderFilterNode::Description() const
 
 void ShaderFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   // Retranslate only fixed inputs.
   // Other inputs are read from the shader code
   SetInputName( kShaderCode, tr("Shader code"));
