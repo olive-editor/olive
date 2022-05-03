@@ -1183,7 +1183,14 @@ void ViewerWidget::Play(bool in_to_out_only)
                                                 ExportFormat::GetExtension(static_cast<ExportFormat::Format>(Config::Current()[QStringLiteral("AudioRecordingFormat")].toInt())))
                                               );
 
-    if (AudioManager::instance()->StartRecording(recording_filename_, GetConnectedNode()->GetAudioParams())) {
+    AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(), OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong(), static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioRecordingSampleFormat").toInt()));
+
+    EncodingParams encode_param;
+    encode_param.EnableAudio(ap, static_cast<ExportCodec::Codec>(OLIVE_CONFIG("AudioRecordingCodec").toInt()));
+    encode_param.SetFilename(recording_filename_);
+    encode_param.set_audio_bit_rate(OLIVE_CONFIG("AudioRecordingBitRate").toInt() * 1000);
+
+    if (AudioManager::instance()->StartRecording(encode_param)) {
       recording_ = true;
       controls_->SetPauseButtonRecordingState(true);
       recording_callback_->EnableRecordingOverlay(TimelineCoordinate(recording_range_.in(), recording_track_));

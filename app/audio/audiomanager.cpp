@@ -184,25 +184,21 @@ void AudioManager::HardReset()
   Pa_Initialize();
 }
 
-bool AudioManager::StartRecording(const QString &filename, const AudioParams &params)
+bool AudioManager::StartRecording(const EncodingParams &params)
 {
   if (input_device_ == paNoDevice) {
     return false;
   }
 
-  EncodingParams encode_param;
-  encode_param.EnableAudio(params, ExportCodec::kCodecMP3);
-  encode_param.SetFilename(filename);
-
-  input_encoder_ = new FFmpegEncoder(encode_param);
+  input_encoder_ = new FFmpegEncoder(params);
   if (!input_encoder_->Open()) {
     qCritical() << "Failed to open encoder for recording";
     return false;
   }
 
-  PaStreamParameters p = GetPortAudioParams(params, input_device_);
+  PaStreamParameters p = GetPortAudioParams(params.audio_params(), input_device_);
 
-  if (Pa_OpenStream(&input_stream_, &p, nullptr, params.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_) == paNoError) {
+  if (Pa_OpenStream(&input_stream_, &p, nullptr, params.audio_params().sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_) == paNoError) {
     if (Pa_StartStream(input_stream_) == paNoError) {
       return true;
     }

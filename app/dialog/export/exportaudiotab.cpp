@@ -59,7 +59,9 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   row++;
 
   layout->addWidget(new QLabel(tr("Format:")), row, 0);
-  layout->addWidget(new QComboBox(), row, 1);
+
+  sample_format_combobox_ = new SampleFormatComboBox();
+  layout->addWidget(sample_format_combobox_, row, 1);
 
   row++;
 
@@ -68,7 +70,7 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   bit_rate_slider_ = new IntegerSlider();
   bit_rate_slider_->SetMinimum(32);
   bit_rate_slider_->SetMaximum(320);
-  bit_rate_slider_->SetValue(256);
+  bit_rate_slider_->SetValue(320);
   bit_rate_slider_->SetFormat(tr("%1 kbps"));
   layout->addWidget(bit_rate_slider_, row, 1);
 
@@ -79,9 +81,9 @@ int ExportAudioTab::SetFormat(ExportFormat::Format format)
 {
   QList<ExportCodec::Codec> acodecs = ExportFormat::GetAudioCodecs(format);
   setEnabled(!acodecs.isEmpty());
-  codec_combobox()->clear();
+  codec_combobox_->clear();
   foreach (ExportCodec::Codec acodec, acodecs) {
-    codec_combobox()->addItem(ExportCodec::GetCodecName(acodec), acodec);
+    codec_combobox_->addItem(ExportCodec::GetCodecName(acodec), acodec);
   }
   return acodecs.size();
 }

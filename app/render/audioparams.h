@@ -200,6 +200,8 @@ public:
    */
   static QString ChannelLayoutToString(const uint64_t &layout);
 
+  static QString FormatToString(const Format &f);
+
 private:
   void set_default_footage_parameters()
   {

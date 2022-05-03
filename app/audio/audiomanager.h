@@ -74,7 +74,7 @@ public:
 
   void HardReset();
 
-  bool StartRecording(const QString &filename, const AudioParams &params);
+  bool StartRecording(const EncodingParams &params);
 
   void StopRecording();
 

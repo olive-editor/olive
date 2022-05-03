@@ -80,7 +80,7 @@ private:
 
   bool InitializeResampleContext(const AudioParams &audio, bool planar);
 
-  static const AVCodec *GetEncoder(ExportCodec::Codec c);
+  static const AVCodec *GetEncoder(ExportCodec::Codec c, AudioParams::Format aformat);
 
   AVFormatContext* fmt_ctx_;
 

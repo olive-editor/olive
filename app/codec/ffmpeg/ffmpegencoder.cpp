@@ -50,7 +50,7 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
 {
   QStringList pix_fmts;
 
-  const AVCodec* codec_info = GetEncoder(c);
+  const AVCodec* codec_info = GetEncoder(c, AudioParams::kFormatInvalid);
 
   if (codec_info) {
     for (int i=0; codec_info->pix_fmts[i]!=-1; i++) {
@@ -579,7 +579,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   }
 
   // Find encoder
-  const AVCodec* encoder = GetEncoder(codec);
+  const AVCodec* encoder = GetEncoder(codec, params().audio_params().format());
   if (!encoder) {
     SetError(tr("Failed to find codec for 0x%1").arg(codec, 16));
     return false;
@@ -653,7 +653,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_ctx->sample_rate = params().audio_params().sample_rate();
     codec_ctx->channel_layout = params().audio_params().channel_layout();
     codec_ctx->channels = av_get_channel_layout_nb_channels(codec_ctx->channel_layout);
-    codec_ctx->sample_fmt = encoder->sample_fmts[0];
+    codec_ctx->sample_fmt = FFmpegUtils::GetFFmpegSampleFormat(params().audio_params().format());
     codec_ctx->time_base = {1, codec_ctx->sample_rate};
 
     if (params().audio_bit_rate() > 0) {
@@ -842,7 +842,7 @@ bool FFmpegEncoder::InitializeResampleContext(const AudioParams &audio, bool pla
   return true;
 }
 
-const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c)
+const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c, AudioParams::Format aformat)
 {
   switch (c) {
   case ExportCodec::kCodecH264:
@@ -872,7 +872,24 @@ const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c)
   case ExportCodec::kCodecAAC:
     return avcodec_find_encoder(AV_CODEC_ID_AAC);
   case ExportCodec::kCodecPCM:
-    return avcodec_find_encoder(AV_CODEC_ID_PCM_S16LE);
+    switch (aformat) {
+    case AudioParams::kFormatInvalid:
+    case AudioParams::kFormatCount:
+      break;
+    case AudioParams::kFormatUnsigned8:
+      return avcodec_find_encoder(AV_CODEC_ID_PCM_U8);
+    case AudioParams::kFormatSigned16:
+      return avcodec_find_encoder(AV_CODEC_ID_PCM_S16LE);
+    case AudioParams::kFormatSigned32:
+      return avcodec_find_encoder(AV_CODEC_ID_PCM_S32LE);
+    case AudioParams::kFormatSigned64:
+      return avcodec_find_encoder(AV_CODEC_ID_PCM_S64LE);
+    case AudioParams::kFormatFloat32:
+      return avcodec_find_encoder(AV_CODEC_ID_PCM_F32LE);
+    case AudioParams::kFormatFloat64:
+      return avcodec_find_encoder(AV_CODEC_ID_PCM_F64LE);
+    }
+    break;
   case ExportCodec::kCodecFLAC:
     return avcodec_find_encoder(AV_CODEC_ID_FLAC);
   case ExportCodec::kCodecOpus:

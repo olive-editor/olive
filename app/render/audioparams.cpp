@@ -244,4 +244,34 @@ QString AudioParams::ChannelLayoutToString(const uint64_t &layout)
   }
 }
 
+QString AudioParams::FormatToString(const Format &f)
+{
+  switch (f) {
+  case kFormatUnsigned8:
+    return QCoreApplication::translate("AudioParams", "Unsigned 8-bit");
+    break;
+  case kFormatSigned16:
+    return QCoreApplication::translate("AudioParams", "Signed 16-bit");
+    break;
+  case kFormatSigned32:
+    return QCoreApplication::translate("AudioParams", "Signed 32-bit");
+    break;
+  case kFormatSigned64:
+    return QCoreApplication::translate("AudioParams", "Signed 64-bit");
+    break;
+  case kFormatFloat32:
+    return QCoreApplication::translate("AudioParams", "Float 32-bit");
+    break;
+  case kFormatFloat64:
+    return QCoreApplication::translate("AudioParams", "Float 64-bit");
+    break;
+
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return QCoreApplication::translate("AudioParams", "Unknown (0x%1)").arg(f, 1, 16);
+}
+
 }

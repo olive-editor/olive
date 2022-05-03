@@ -21,7 +21,7 @@ void RecordTool::MousePress(TimelineViewMouseEvent *event)
     return;
   }
 
-  if (t->type() != Track::kAudio) {
+  if (t && t->type() != Track::kAudio) {
     // We only support audio tracks here
     return;
   }
