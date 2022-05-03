@@ -20,6 +20,10 @@
 
 #include "videoparams.h"
 
+extern "C" {
+#include <libavutil/avutil.h>
+}
+
 #include <QtMath>
 
 #include "core.h"

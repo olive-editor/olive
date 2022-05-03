@@ -405,7 +405,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     }
 
     // Trigger an import
-    Core::instance()->ImportFiles(urls, this, static_cast<Folder*>(drop_item));
+    Core::instance()->ImportFiles(urls, static_cast<Folder*>(drop_item));
 
     return true;
   }

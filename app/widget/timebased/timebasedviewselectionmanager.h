@@ -29,6 +29,7 @@
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
 #include "timebasedview.h"
+#include "timebasedwidget.h"
 
 namespace olive {
 
@@ -38,8 +39,14 @@ class TimeBasedViewSelectionManager
 public:
   TimeBasedViewSelectionManager(TimeBasedView *view) :
     view_(view),
-    rubberband_(nullptr)
+    rubberband_(nullptr),
+    snap_mask_(TimeBasedWidget::kSnapAll)
   {}
+
+  void SetSnapMask(TimeBasedWidget::SnapMask e)
+  {
+    snap_mask_ = e;
+  }
 
   void ClearDrawnObjects()
   {
@@ -48,7 +55,7 @@ public:
 
   void DeclareDrawnObject(T *object, const QRectF &pos)
   {
-    drawn_objects_.append({object, pos});
+    drawn_objects_.push_back({object, pos});
   }
 
   bool Select(T *key)
@@ -56,7 +63,7 @@ public:
     Q_ASSERT(key);
 
     if (!IsSelected(key)) {
-      selected_.append(key);
+      selected_.push_back(key);
       return true;
     }
 
@@ -67,7 +74,13 @@ public:
   {
     Q_ASSERT(key);
 
-    return selected_.removeOne(key);
+    auto it = std::find(selected_.cbegin(), selected_.cend(), key);
+    if (it == selected_.cend()) {
+      return false;
+    } else {
+      selected_.erase(it);
+      return true;
+    }
   }
 
   void ClearSelection()
@@ -77,10 +90,10 @@ public:
 
   bool IsSelected(T *key) const
   {
-    return selected_.contains(key);
+    return std::find(selected_.cbegin(), selected_.cend(), key) != selected_.cend();
   }
 
-  const QVector<T*> &GetSelectedObjects() const
+  const std::vector<T*> &GetSelectedObjects() const
   {
     return selected_;
   }
@@ -142,7 +155,7 @@ public:
 
   bool IsDragging() const
   {
-    return !dragging_.isEmpty();
+    return !dragging_.empty();
   }
 
   void DragStart(T *initial_item, QMouseEvent *event)
@@ -150,39 +163,80 @@ public:
     initial_drag_item_ = initial_item;
 
     dragging_.resize(selected_.size());
-    for (int i=0; i<selected_.size(); i++) {
+    snap_points_.resize(selected_.size()*2);
+    for (size_t i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
-      dragging_[i] = {obj->time(), view_->TimeToScene(obj->time())};
+      dragging_[i] = obj->time();
+
+      snap_points_[i] = obj->time();
+      snap_points_[i+selected_.size()] = obj->time_range().out();
     }
 
     drag_mouse_start_ = view_->mapToScene(event->pos());
   }
 
-  void DragMove(QMouseEvent *event, const QString &tip_format)
+  void SnapPoints(rational *movement)
   {
-    QPointF diff = view_->mapToScene(event->pos()) - drag_mouse_start_;
+    if (Core::instance()->snapping() && view_->GetSnapService()) {
+      view_->GetSnapService()->SnapPoint(snap_points_, movement, snap_mask_);
+    }
+  }
 
-    for (int i=0; i<selected_.size(); i++) {
-      rational proposed_time = view_->SceneToTimeNoGrid(dragging_.at(i).x + diff.x());
+  void Unsnap()
+  {
+    if (view_->GetSnapService()) {
+      view_->GetSnapService()->HideSnaps();
+    }
+  }
+
+  void DragMove(QMouseEvent *event, const QString &tip_format = QString())
+  {
+    rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
+
+    // Snap points
+    SnapPoints(&time_diff);
+
+    // Validate movement
+    for (size_t i=0; i<selected_.size(); i++) {
+      rational proposed_time = dragging_.at(i) + time_diff;
       T *sel = selected_.at(i);
 
       // Magic number: use interval of 1ms to avoid collisions
       rational adj(1, 1000);
-      if (dragging_.at(i).time < proposed_time) {
+      if (dragging_.at(i) < proposed_time) {
+        // Negate adjustment value if origin is less than proposed time
         adj = -adj;
       }
 
-      while (true) {
-        NodeKeyframe *key_at_time = sel->parent()->GetKeyframeAtTimeOnTrack(sel->input(), proposed_time, sel->track(), sel->element());
-        if (!key_at_time || key_at_time == sel) {
-          break;
+      bool loop;
+      do {
+        loop = false;
+        while (sel->has_sibling_at_time(proposed_time)) {
+          proposed_time += adj;
+          Unsnap();
         }
 
-        proposed_time += adj;
-      }
+        if (proposed_time < 0) {
+          // Prevent any object from going below zero
+          proposed_time = 0;
+          Unsnap();
 
-      sel->set_time(proposed_time);
+          // Setting our proposed time to zero may (re)introduce a conflict that we just avoided
+          // with the sibling check above, so we request it to happen again. To avoid a negative
+          // adj bringing us back below zero, we force adj to positive so it'll only nudge higher
+          adj = qAbs(adj);
+
+          loop = true;
+        }
+      } while (loop);
+
+      time_diff = proposed_time - dragging_.at(i);
+    }
+
+    // Apply movement
+    for (size_t i=0; i<selected_.size(); i++) {
+      selected_.at(i)->set_time(dragging_.at(i) + time_diff);
     }
 
     // Show information about this keyframe
@@ -201,11 +255,12 @@ public:
   {
     QToolTip::hideText();
 
-    for (int i=0; i<selected_.size(); i++) {
-      command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i).time));
+    for (size_t i=0; i<selected_.size(); i++) {
+      command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i)));
     }
 
     dragging_.clear();
+    Unsnap();
   }
 
   void RubberBandStart(QMouseEvent *event)
@@ -271,7 +326,7 @@ private:
 
     virtual Project* GetRelevantProject() const override
     {
-      return key_->parent()->project();
+      return Project::GetProjectFromObject(key_);
     }
 
   protected:
@@ -296,17 +351,12 @@ private:
   TimeBasedView *view_;
 
   using DrawnObject = QPair<T*, QRectF>;
-  QVector<DrawnObject> drawn_objects_;
+  std::vector<DrawnObject> drawn_objects_;
 
-  QVector<T*> selected_;
+  std::vector<T*> selected_;
 
-  struct DragObject
-  {
-    rational time;
-    double x;
-  };
-
-  QVector<DragObject> dragging_;
+  std::vector<rational> dragging_;
+  std::vector<rational> snap_points_;
 
   T *initial_drag_item_;
 
@@ -316,7 +366,9 @@ private:
 
   QRubberBand *rubberband_;
   QPoint rubberband_start_;
-  QVector<T*> rubberband_preselected_;
+  std::vector<T*> rubberband_preselected_;
+
+  TimeBasedWidget::SnapMask snap_mask_;
 
 };
 

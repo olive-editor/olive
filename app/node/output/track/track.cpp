@@ -277,7 +277,7 @@ void Track::InputValueChangedEvent(const QString &input, int element)
 
 void Track::Retranslate()
 {
-  Node::Retranslate();
+  super::Retranslate();
 
   SetInputName(kBlockInput, tr("Blocks"));
   SetInputName(kMutedInput, tr("Muted"));

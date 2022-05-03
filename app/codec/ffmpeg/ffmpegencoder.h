@@ -47,6 +47,8 @@ public:
 
   virtual bool WriteAudio(olive::SampleBufferPtr audio) override;
 
+  bool WriteAudioData(const AudioParams &audio_params, bool planar, const uint8_t **data, int input_sample_count);
+
   virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
 
   virtual void Close() override;
@@ -76,7 +78,7 @@ private:
   void FlushEncoders();
   void FlushCodecCtx(AVCodecContext* codec_ctx, AVStream *stream);
 
-  bool InitializeResampleContext(SampleBufferPtr audio);
+  bool InitializeResampleContext(const AudioParams &audio, bool planar);
 
   static const AVCodec *GetEncoder(ExportCodec::Codec c);
 

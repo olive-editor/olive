@@ -26,6 +26,8 @@
 
 #include "audio/audiomanager.h"
 #include "config/config.h"
+#include "dialog/export/exportaudiotab.h"
+#include "dialog/export/exportformatcombobox.h"
 
 namespace olive {
 
@@ -87,12 +89,24 @@ PreferencesAudioTab::PreferencesAudioTab()
 
       row++;
 
-      input_layout->addWidget(new QLabel(tr("Recording Mode:"), this), row, 0);
+      QGroupBox *recording_group = new QGroupBox(tr("Recording"));
+      input_layout->addWidget(recording_group, row, 0, 1, 2);
 
-      recording_combobox_ = new QComboBox();
-      recording_combobox_->addItem(tr("Mono"));
-      recording_combobox_->addItem(tr("Stereo"));
-      input_layout->addWidget(recording_combobox_, row, 1);
+      QVBoxLayout *recording_layout = new QVBoxLayout(recording_group);
+
+      QHBoxLayout *fmt_layout = new QHBoxLayout();
+      recording_layout->addLayout(fmt_layout);
+
+      fmt_layout->addWidget(new QLabel(tr("Format:")));
+
+      ExportFormatComboBox *fmt_combo = new ExportFormatComboBox(ExportFormatComboBox::kShowAudioOnly);
+      fmt_combo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+      fmt_layout->addWidget(fmt_combo);
+
+      ExportAudioTab *audio_recording_options = new ExportAudioTab();
+      recording_layout->addWidget(audio_recording_options);
+
+      connect(fmt_combo, &ExportFormatComboBox::FormatChanged, audio_recording_options, &ExportAudioTab::SetFormat);
     }
 
     QHBoxLayout* refresh_layout = new QHBoxLayout();

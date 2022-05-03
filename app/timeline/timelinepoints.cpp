@@ -24,24 +24,31 @@
 
 namespace olive {
 
+TimelinePoints::TimelinePoints(QObject *parent) :
+  QObject(parent)
+{
+  markers_ = new TimelineMarkerList(this);
+  workarea_ = new TimelineWorkArea(this);
+}
+
 TimelineMarkerList *TimelinePoints::markers()
 {
-  return &markers_;
+  return markers_;
 }
 
 const TimelineMarkerList *TimelinePoints::markers() const
 {
-  return &markers_;
+  return markers_;
 }
 
 const TimelineWorkArea *TimelinePoints::workarea() const
 {
-  return &workarea_;
+  return workarea_;
 }
 
 TimelineWorkArea *TimelinePoints::workarea()
 {
-  return &workarea_;
+  return workarea_;
 }
 
 }

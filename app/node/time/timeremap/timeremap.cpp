@@ -87,6 +87,8 @@ TimeRange TimeRemapNode::OutputTimeAdjustment(const QString &input, int element,
 
 void TimeRemapNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTimeInput, QStringLiteral("Time"));
   SetInputName(kInputInput, QStringLiteral("Input"));
 }

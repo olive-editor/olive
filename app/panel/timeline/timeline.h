@@ -112,6 +112,8 @@ protected:
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
+  void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
+
 };
 
 }

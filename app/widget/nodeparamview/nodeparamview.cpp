@@ -28,6 +28,8 @@
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
+#include "widget/nodeview/nodeviewundo.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -116,6 +118,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // Create keyframe view
     keyframe_view_ = new KeyframeView();
     keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    keyframe_view_->SetSnapService(this);
     ConnectTimelineView(keyframe_view_);
     keyframe_area_layout->addWidget(keyframe_view_);
 
@@ -283,6 +286,16 @@ void NodeParamView::UpdateContexts()
 
 void NodeParamView::ItemAboutToBeRemoved(NodeParamViewItem *item)
 {
+  if (keyframe_view_) {
+    for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
+      for (auto jt=it->begin(); jt!=it->end(); jt++) {
+        for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
+          keyframe_view_->RemoveKeyframesOfTrack(*kt);
+        }
+      }
+    }
+  }
+
   if (focused_node_ == item) {
     focused_node_ = nullptr;
     emit FocusedNodeChanged(nullptr);
@@ -359,8 +372,28 @@ Node *NodeParamView::GetTimeTarget() const
 
 void NodeParamView::DeleteSelected()
 {
-  if (keyframe_view_) {
+  if (keyframe_view_ && keyframe_view_->hasFocus()) {
     keyframe_view_->DeleteSelected();
+  } else if (focused_node_) {
+    MultiUndoCommand *c = new MultiUndoCommand();
+    Node *n = focused_node_->GetNode();
+
+    // Create command to delete node from context and/or graph
+    NodeViewDeleteCommand *dc = new NodeViewDeleteCommand();
+    dc->AddNode(n, focused_node_->GetContext());
+    c->add_child(dc);
+
+    // Copy any outputs that were connected
+    if (n->GetEffectInput().IsValid()) {
+      if (Node *out = n->GetEffectInput().GetConnectedOutput()) {
+        for (auto it=n->output_connections().cbegin(); it!=n->output_connections().cend(); it++) {
+          c->add_child(new NodeEdgeAddCommand(out, it->second));
+        }
+      }
+    }
+
+
+    Core::instance()->undo_stack()->push(c);
   }
 }
 
@@ -452,27 +485,6 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
     connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
 
     item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
-  }
-}
-
-void NodeParamView::RemoveNode(Node *n, Node *ctx)
-{
-  foreach (NodeParamViewContext *ctx_item, context_items_) {
-    NodeParamViewItem *item = ctx_item->GetItem(n, ctx);
-
-    if (item) {
-      if (keyframe_view_) {
-        for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
-          for (auto jt=it->begin(); jt!=it->end(); jt++) {
-            for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
-              keyframe_view_->RemoveKeyframesOfTrack(*kt);
-            }
-          }
-        }
-      }
-    }
-
-    ctx_item->RemoveNode(n, ctx);
   }
 }
 
@@ -675,7 +687,9 @@ void NodeParamView::NodeRemovedFromContext(Node *n)
 {
   Node *ctx = static_cast<Node*>(sender());
 
-  RemoveNode(n, ctx);
+  foreach (NodeParamViewContext *ctx_item, context_items_) {
+    ctx_item->RemoveNode(n, ctx);
+  }
 
   if (keyframe_view_) {
     QueueKeyframePositionUpdate();

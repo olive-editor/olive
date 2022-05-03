@@ -73,7 +73,7 @@ void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 
   parent()->AddGhost(ghost_);
 
-  snap_points_.append(transition_start_point);
+  snap_points_.push_back(transition_start_point);
 
   // Set the drag start point
   drag_start_point_ = event->GetFrame();

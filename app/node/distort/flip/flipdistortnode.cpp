@@ -26,6 +26,8 @@ const QString FlipDistortNode::kTextureInput = QStringLiteral("tex_in");
 const QString FlipDistortNode::kHorizontalInput = QStringLiteral("horiz_in");
 const QString FlipDistortNode::kVerticalInput = QStringLiteral("vert_in");
 
+#define super Node
+
 FlipDistortNode::FlipDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -33,6 +35,9 @@ FlipDistortNode::FlipDistortNode()
   AddInput(kHorizontalInput, NodeValue::kBoolean, false);
 
   AddInput(kVerticalInput, NodeValue::kBoolean, false);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node* FlipDistortNode::copy() const
@@ -62,6 +67,8 @@ QString FlipDistortNode::Description() const
 
 void FlipDistortNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kHorizontalInput, tr("Horizontal"));
   SetInputName(kVerticalInput, tr("Vertical"));

@@ -63,6 +63,11 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
 
   setBackgroundRole(QPalette::Window);
 
+  // Connect title bar enabled checkbox
+  //title_bar()->SetEnabledCheckBoxVisible(true);
+  //title_bar()->SetEnabledCheckBoxChecked(node_->IsEnabled());
+  //connect(title_bar(), &NodeParamViewItemTitleBar::EnabledCheckBoxClicked, node_, &Node::SetEnabled);
+
   Retranslate();
 }
 

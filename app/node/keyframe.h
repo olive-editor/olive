@@ -26,6 +26,7 @@
 #include <QVariant>
 
 #include "common/rational.h"
+#include "common/timerange.h"
 #include "node/param.h"
 
 namespace olive {
@@ -85,6 +86,14 @@ public:
    */
   const rational& time() const;
   void set_time(const rational& time);
+
+  /**
+   * @brief Dummy function for TimeBasedViewSelectionManager compatibility
+   *
+   * FIXME: Once we upgrade to C++17, we won't need this because we'll be able to check types in
+   * TimeBasedViewSelectionManager's template functions
+   */
+  TimeRange time_range() const { return TimeRange(time_, time_); }
 
   /**
    * @brief The value of this keyframe (i.e. the value to use at this keyframe's time)
@@ -166,6 +175,8 @@ public:
   {
     next_ = keyframe;
   }
+
+  bool has_sibling_at_time(const rational &t) const;
 
 signals:
   /**

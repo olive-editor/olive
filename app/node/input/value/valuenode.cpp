@@ -48,6 +48,8 @@ ValueNode::ValueNode()
 
 void ValueNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTypeInput, QStringLiteral("Type"));
   SetInputName(kValueInput, QStringLiteral("Value"));
 

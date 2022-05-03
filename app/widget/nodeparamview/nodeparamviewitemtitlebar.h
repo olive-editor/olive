@@ -21,6 +21,7 @@
 #ifndef NODEPARAMVIEWITEMTITLEBAR_H
 #define NODEPARAMVIEWITEMTITLEBAR_H
 
+#include <QCheckBox>
 #include <QLabel>
 #include <QWidget>
 
@@ -59,12 +60,24 @@ public slots:
     add_fx_btn_->setVisible(e);
   }
 
+  void SetEnabledCheckBoxVisible(bool e)
+  {
+    enabled_checkbox_->setVisible(e);
+  }
+
+  void SetEnabledCheckBoxChecked(bool e)
+  {
+    enabled_checkbox_->setChecked(e);
+  }
+
 signals:
   void ExpandedStateChanged(bool e);
 
   void PinToggled(bool e);
 
   void AddEffectButtonClicked();
+
+  void EnabledCheckBoxClicked(bool e);
 
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
@@ -81,6 +94,8 @@ private:
   QPushButton *pin_btn_;
 
   QPushButton *add_fx_btn_;
+
+  QCheckBox *enabled_checkbox_;
 
 };
 

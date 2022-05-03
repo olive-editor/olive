@@ -173,7 +173,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, int track_offset)
 {
   DraggedFootageData refs;
 
@@ -181,10 +181,10 @@ void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational 
     refs.append({f, f->GetEnabledStreamsAsReferences()});
   }
 
-  PlaceAt(refs, start, insert);
+  PlaceAt(refs, start, insert, track_offset);
 }
 
-void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, int track_offset)
 {
   dragged_footage_ = footage;
 
@@ -192,7 +192,7 @@ void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &star
     return;
   }
 
-  PrepGhosts(start, 0);
+  PrepGhosts(start, track_offset);
   DropGhosts(insert);
 }
 
@@ -243,8 +243,8 @@ void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData 
       ghost->SetMediaIn(ghost_in);
       ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
 
-      snap_points_.append(ghost->GetIn());
-      snap_points_.append(ghost->GetOut());
+      snap_points_.push_back(ghost->GetIn());
+      snap_points_.push_back(ghost->GetOut());
 
       // Increment track count for this track type
       track_offsets[track_type]++;

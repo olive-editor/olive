@@ -23,10 +23,13 @@
 #include <QInputDialog>
 
 #include "common/autoscroll.h"
+#include "common/range.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
+#include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/sequence/sequence.h"
+#include "widget/timeruler/timeruler.h"
 #include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
@@ -39,7 +42,8 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   auto_set_timebase_(true)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
-  connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
+  ConnectTimelineView(ruler_, true);
+  ruler()->SetSnapService(this);
 
   scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
@@ -588,18 +592,36 @@ void TimeBasedWidget::SetMarker()
     return;
   }
 
-  bool ok;
-  QString marker_name;
+  TimelineMarkerList *markers = GetConnectedNode()->GetTimelinePoints()->markers();
 
-  if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
-    marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
+  if (TimelineMarker *existing = markers->GetMarkerAtTime(GetTime())) {
+    // We already have a marker here, so pop open the edit dialog
+    MarkerPropertiesDialog mpd({existing}, timebase(), this);
+    mpd.exec();
   } else {
-    ok = true;
-  }
+    // Create a new marker and place it here
+    int color;
+    if (TimelineMarker *closest = markers->GetClosestMarkerToTime(GetTime())) {
+      // Copy color of closest marker to this time
+      color = closest->color();
+    } else {
+      // Fallback to default color in preferences
+      color = Config::Current()[QStringLiteral("MarkerColor")].toInt();
+    }
 
-  if (ok) {
-    Core::instance()->undo_stack()->push(new MarkerAddCommand(GetConnectedNode()->project(),
-                                                              GetConnectedNode()->GetTimelinePoints()->markers(), TimeRange(GetTime(), GetTime()), marker_name));
+    TimelineMarker *marker = new TimelineMarker(color, TimeRange(GetTime(), GetTime()));
+
+    if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
+      MarkerPropertiesDialog mpd({marker}, timebase(), this);
+      if (mpd.exec() != QDialog::Accepted) {
+        delete marker;
+        marker = nullptr;
+      }
+    }
+
+    if (marker) {
+      Core::instance()->undo_stack()->push(new MarkerAddCommand(markers, marker));
+    }
   }
 }
 
@@ -658,27 +680,11 @@ void TimeBasedWidget::GoToOut()
   }
 }
 
-TimeBasedWidget::MarkerAddCommand::MarkerAddCommand(Project *project, TimelineMarkerList *marker_list, const TimeRange &range, const QString &name) :
-  project_(project),
-  marker_list_(marker_list),
-  range_(range),
-  name_(name)
+void TimeBasedWidget::DeleteSelected()
 {
-}
-
-Project *TimeBasedWidget::MarkerAddCommand::GetRelevantProject() const
-{
-  return project_;
-}
-
-void TimeBasedWidget::MarkerAddCommand::redo()
-{
-  added_marker_ = marker_list_->AddMarker(range_, name_);
-}
-
-void TimeBasedWidget::MarkerAddCommand::undo()
-{
-  marker_list_->RemoveMarker(added_marker_);
+  if (ruler_->underMouse()) {
+    ruler_->DeleteSelected();
+  }
 }
 
 bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
@@ -688,6 +694,157 @@ bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
   }
 
   return false;
+}
+
+struct SnapData {
+  rational time;
+  rational movement;
+};
+
+void AttemptSnap(std::vector<SnapData> &snap_data,
+                 const std::vector<double>& screen_pt,
+                 double compare_pt,
+                 const std::vector<rational>& start_times,
+                 const rational& compare_time)
+{
+  const qreal kSnapRange = 10; // FIXME: Hardcoded number
+
+  for (size_t i=0;i<screen_pt.size();i++) {
+    // Attempt snapping to clip out point
+    if (InRange(screen_pt.at(i), compare_pt, kSnapRange)) {
+      snap_data.push_back({compare_time, compare_time - start_times.at(i)});
+    }
+  }
+}
+
+bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, rational *movement, SnapMask snap_points)
+{
+  std::vector<double> screen_pt(start_times.size());
+
+  for (size_t i=0; i<start_times.size(); i++) {
+    screen_pt[i] = TimeToScene(start_times.at(i) + *movement);
+  }
+
+  std::vector<SnapData> potential_snaps;
+
+  if (snap_points & kSnapToPlayhead) {
+    rational playhead_abs_time = GetTime();
+    qreal playhead_pos = TimeToScene(playhead_abs_time);
+    AttemptSnap(potential_snaps, screen_pt, playhead_pos, start_times, playhead_abs_time);
+  }
+
+  if ((snap_points & kSnapToClips) && GetSnapBlocks()) {
+    for (auto it=GetSnapBlocks()->cbegin(); it!=GetSnapBlocks()->cend(); it++) {
+      Block *b = *it;
+
+      qreal rect_left = TimeToScene(b->in());
+      qreal rect_right = TimeToScene(b->out());
+
+      // Attempt snapping to clip in point
+      AttemptSnap(potential_snaps, screen_pt, rect_left, start_times, b->in());
+
+      // Attempt snapping to clip out point
+      AttemptSnap(potential_snaps, screen_pt, rect_right, start_times, b->out());
+
+      if (snap_points & kSnapToMarkers) {
+        // Snap to clip markers too
+        if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+          if (clip->connected_viewer()) {
+            TimelineMarkerList *markers = clip->connected_viewer()->GetTimelinePoints()->markers();
+            for (auto jt=markers->cbegin(); jt!=markers->cend(); jt++) {
+              TimelineMarker *marker = *jt;
+
+              TimeRange marker_range = marker->time_range() + clip->in() - clip->media_in();
+
+              qreal marker_in_screen = TimeToScene(marker_range.in());
+              qreal marker_out_screen = TimeToScene(marker_range.out());
+
+              AttemptSnap(potential_snaps, screen_pt, marker_in_screen, start_times, marker_range.in());
+              AttemptSnap(potential_snaps, screen_pt, marker_out_screen, start_times, marker_range.out());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if ((snap_points & kSnapToMarkers) && ruler()->GetTimelinePoints()) {
+    for (auto it=ruler()->GetTimelinePoints()->markers()->cbegin(); it!=ruler()->GetTimelinePoints()->markers()->cend(); it++) {
+      TimelineMarker* m = *it;
+
+      qreal marker_pos = TimeToScene(m->time_range().in());
+      AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time_range().in());
+
+      if (m->time_range().in() != m->time_range().out()) {
+        marker_pos = TimeToScene(m->time_range().out());
+        AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time_range().out());
+      }
+    }
+  }
+
+  if ((snap_points & kSnapToKeyframes) && GetSnapKeyframes()) {
+    for (auto it=GetSnapKeyframes()->cbegin(); it!=GetSnapKeyframes()->cend(); it++) {
+      const QVector<NodeKeyframe*> &keys = (*it)->GetKeyframes();
+      for (auto jt=keys.cbegin(); jt!=keys.cend(); jt++) {
+        NodeKeyframe *key = *jt;
+
+        auto ignore = GetSnapIgnoreKeyframes();
+        if (ignore && std::find(ignore->cbegin(), ignore->cend(), key) != ignore->cend()) {
+          continue;
+        }
+
+        qreal key_scene_pt = TimeToScene(key->time());
+
+        AttemptSnap(potential_snaps, screen_pt, key_scene_pt, start_times, key->time());
+      }
+    }
+  }
+
+  if (potential_snaps.empty()) {
+    HideSnaps();
+    return false;
+  }
+
+  int closest_snap = 0;
+  rational closest_diff = qAbs(potential_snaps.at(0).movement - *movement);
+
+  // Determine which snap point was the closest
+  for (size_t i=1; i<potential_snaps.size(); i++) {
+    rational this_diff = qAbs(potential_snaps.at(i).movement - *movement);
+
+    if (this_diff < closest_diff) {
+      closest_snap = i;
+      closest_diff = this_diff;
+    }
+  }
+
+  *movement = potential_snaps.at(closest_snap).movement;
+
+  // Find all points at this movement
+  std::vector<rational> snap_times;
+  foreach (const SnapData& d, potential_snaps) {
+    if (d.movement == *movement) {
+      snap_times.push_back(d.time);
+    }
+  }
+
+  ShowSnaps(snap_times);
+
+  return true;
+}
+
+void TimeBasedWidget::ShowSnaps(const std::vector<rational> &times)
+{
+  foreach (TimeBasedView* view, timeline_views_) {
+    view->EnableSnap(times);
+  }
+}
+
+void TimeBasedWidget::HideSnaps()
+{
+  foreach (TimeBasedView* view, timeline_views_) {
+    view->DisableSnap();
+  }
 }
 
 }

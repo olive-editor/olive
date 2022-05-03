@@ -118,7 +118,6 @@ public:
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
   static const QString kLengthInput;
-  static const QString kEnabledInput;
 
 public slots:
 

@@ -32,6 +32,7 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
 #include "node/group/group.h"
+#include "node/project/serializer/serializer.h"
 #include "node/traverser.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menushared.h"
@@ -203,7 +204,31 @@ void NodeView::CopySelected(bool cut)
     return;
   }
 
-  CopyNodesToClipboard(selected_nodes_);
+  QString copy_str;
+  QXmlStreamWriter writer(&copy_str);
+
+  ProjectSerializer::SaveData sdata(selected_nodes_.first()->project());
+  sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes_);
+
+  ProjectSerializer::SerializedProperties properties;
+
+  for (Node *n : selected_nodes_) {
+    NodeViewItem *item = GetAssumedItemForSelectedNode(n);
+
+    if (item) {
+      Node::Position pos = item->GetNodePositionData();
+
+      properties[n][QStringLiteral("x")] = QString::number(pos.position.x());
+      properties[n][QStringLiteral("y")] = QString::number(pos.position.y());
+      properties[n][QStringLiteral("expanded")] = QString::number(pos.expanded);
+    }
+  }
+
+  sdata.SetProperties(properties);
+
+  ProjectSerializer::Save(&writer, sdata, QStringLiteral("nodes"));
+
+  Core::CopyStringToClipboard(copy_str);
 
   if (cut) {
     DeleteSelected();
@@ -212,9 +237,31 @@ void NodeView::CopySelected(bool cut)
 
 void NodeView::Paste()
 {
-  if (!contexts_.isEmpty()) {
-    PasteNodesFromClipboard();
+  if (contexts_.isEmpty()) {
+    return;
   }
+
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
+  if (res.GetLoadedNodes().isEmpty()) {
+    return;
+  }
+
+  Node::PositionMap map;
+
+  for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
+    Node::Position pos;
+
+    const QMap<QString, QString> &node_props = it.value();
+    pos.position.setX(node_props.value(QStringLiteral("x")).toDouble());
+    pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
+    pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
+
+    qDebug() << it.key() << pos.position;
+
+    map.insert(it.key(), pos);
+  }
+
+  PostPaste(res.GetLoadedNodes(), map);
 }
 
 void NodeView::Duplicate()
@@ -450,8 +497,10 @@ void NodeView::mousePressEvent(QMouseEvent *event)
     }
   }
 
-  // Default QGraphicsView functionality (selecting, dragging, etc.)
-  super::mousePressEvent(event);
+  if (attached_items_.isEmpty()) {
+    // Default QGraphicsView functionality (selecting, dragging, etc.)
+    super::mousePressEvent(event);
+  }
 
   // For any selected item, store its position in case the user is dragging it somewhere else
   auto selected_items = scene_.GetSelectedItems();
@@ -472,7 +521,9 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
     return;
   }
 
-  super::mouseMoveEvent(event);
+  if (attached_items_.isEmpty()) {
+    super::mouseMoveEvent(event);
+  }
 
   // See if there are any items attached
   if (!attached_items_.isEmpty()) {
@@ -499,26 +550,26 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         if (new_drop_edge) {
           drop_input_.Reset();
 
-          NodeValue::Type drop_edge_data_type = NodeValue::kNone;
+          NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
 
-          // Run the Node and determine what type is being used
-          NodeTraverser traverser;
-          NodeValue drop_edge_value = traverser.GenerateRow(new_drop_edge->output(), TimeRange(0, 0))[new_drop_edge->input().input()];
-          drop_edge_data_type = drop_edge_value.type();
+          // Determine best input to connect to our new node
+          if (attached_node->GetEffectInput().IsValid()) {
+            // If node specifies an effect input, use that immediately
+            drop_input_ = attached_node->GetEffectInput();
+          } else {
+            // Otherwise, we may have to iterate to find a valid one
+            for (const QString& input : attached_node->inputs()) {
+              NodeInput i(attached_node, input);
 
-          // Iterate through the inputs of our dragging node and see if our node has any acceptable
-          // inputs to connect to for this type
-          for (const QString& input : attached_node->inputs()) {
-            NodeInput i(attached_node, input);
-
-            if (attached_node->IsInputConnectable(input)) {
-              if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
-                // Found exactly the type we're looking for, set and break this loop
-                drop_input_ = i;
-                break;
-              } else if (!drop_input_.IsValid()) {
-                // Default to first connectable input
-                drop_input_ = i;
+              if (attached_node->IsInputConnectable(input)) {
+                if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
+                  // Found exactly the type we're looking for, set and break this loop
+                  drop_input_ = i;
+                  break;
+                } else if (!drop_input_.IsValid()) {
+                  // Default to first connectable input
+                  drop_input_ = i;
+                }
               }
             }
           }
@@ -558,6 +609,8 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
   Node *select_context = nullptr;
   QVector<Node*> select_nodes;
+
+  bool had_attached_items = !attached_items_.isEmpty();
 
   if (!attached_items_.isEmpty()) {
     select_context = nullptr;
@@ -642,7 +695,9 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-  super::mouseReleaseEvent(event);
+  if (!had_attached_items) {
+    super::mouseReleaseEvent(event);
+  }
 
   if (select_context) {
     scene_.context_map().value(select_context)->Select(select_nodes);
@@ -996,43 +1051,6 @@ bool NodeView::event(QEvent *event)
 bool NodeView::eventFilter(QObject *object, QEvent *event)
 {
   return super::eventFilter(object, event);
-}
-
-void NodeView::CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *sdata, void *userdata)
-{
-  ProjectSerializer::SerializedProperties properties;
-
-  for (Node *n : nodes) {
-    NodeViewItem *item = GetAssumedItemForSelectedNode(n);
-
-    if (item) {
-      Node::Position pos = item->GetNodePositionData();
-
-      properties[n][QStringLiteral("x")] = QString::number(pos.position.x());
-      properties[n][QStringLiteral("y")] = QString::number(pos.position.y());
-      properties[n][QStringLiteral("expanded")] = QString::number(pos.expanded);
-    }
-  }
-
-  sdata->SetProperties(properties);
-}
-
-void NodeView::PasteNodesToClipboardCallback(const QVector<Node *> &nodes, const ProjectSerializer::LoadData &ldata, void *userdata)
-{
-  Node::PositionMap map;
-
-  for (auto it=ldata.properties.cbegin(); it!=ldata.properties.cend(); it++) {
-    Node::Position pos;
-
-    const QMap<QString, QString> &node_props = it.value();
-    pos.position.setX(node_props.value(QStringLiteral("x")).toDouble());
-    pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
-    pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
-
-    map.insert(it.key(), pos);
-  }
-
-  PostPaste(nodes, map);
 }
 
 void NodeView::changeEvent(QEvent *e)
@@ -1539,7 +1557,7 @@ void NodeView::PostPaste(const QVector<Node *> &new_nodes, const Node::PositionM
       AttachedItem &ai = new_attached[i];
 
       if (ai.item) {
-        ai.original_pos = first_item->pos() - ai.item->pos();
+        ai.original_pos = ai.item->pos() - first_item->pos();
       }
     }
   }

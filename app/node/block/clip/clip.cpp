@@ -57,6 +57,8 @@ ClipBlock::ClipBlock() :
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
   SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
+
+  SetEffectInput(kBufferIn);
 }
 
 Node *ClipBlock::copy() const
@@ -206,10 +208,22 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
 
     // Find connected viewer node
     auto viewers = FindInputNodesConnectedToInput<ViewerOutput>(NodeInput(this, kBufferIn));
-    if (viewers.isEmpty()) {
-      connected_viewer_ = nullptr;
-    } else {
-      connected_viewer_ = viewers.first();
+    ViewerOutput *new_connected_viewer = viewers.isEmpty() ? nullptr : viewers.first();
+
+    if (new_connected_viewer != connected_viewer_) {
+      if (connected_viewer_) {
+        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
+      }
+
+      connected_viewer_ = new_connected_viewer;
+
+      if (connected_viewer_) {
+        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
+      }
     }
 
     super::InvalidateCache(adj, from, element, options);

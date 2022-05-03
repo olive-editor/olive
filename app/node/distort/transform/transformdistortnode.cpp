@@ -32,7 +32,7 @@ const QString TransformDistortNode::kTextureInput = QStringLiteral("tex_in");
 const QString TransformDistortNode::kAutoscaleInput = QStringLiteral("autoscale_in");
 const QString TransformDistortNode::kInterpolationInput = QStringLiteral("interpolation_in");
 
-#define super Node
+#define super MatrixGenerator
 
 TransformDistortNode::TransformDistortNode()
 {
@@ -64,11 +64,14 @@ TransformDistortNode::TransformDistortNode()
     point_gizmo_[i]->AddInput(NodeKeyframeTrackReference(NodeInput(this, kScaleInput), 1));
     point_gizmo_[i]->SetDragValueBehavior(PointGizmo::kAbsolute);
   }
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void TransformDistortNode::Retranslate()
 {
-  MatrixGenerator::Retranslate();
+  super::Retranslate();
 
   SetInputName(kAutoscaleInput, tr("Auto-Scale"));
   SetInputName(kTextureInput, tr("Texture"));
@@ -150,7 +153,7 @@ void TransformDistortNode::Hash(QCryptographicHash &hash, const NodeGlobals &glo
     }
   }
 
-  Node::Hash(out, GetValueHintForInput(kTextureInput), hash, globals, video_params);
+  super::Hash(out, GetValueHintForInput(kTextureInput), hash, globals, video_params);
 }
 
 void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, double y, const rational &time)

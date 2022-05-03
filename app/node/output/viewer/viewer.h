@@ -137,7 +137,7 @@ public:
 
   TimelinePoints* GetTimelinePoints()
   {
-    return &timeline_points_;
+    return timeline_points_;
   }
 
   QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
@@ -252,7 +252,7 @@ private:
 
   AudioParams cached_audio_params_;
 
-  TimelinePoints timeline_points_;
+  TimelinePoints *timeline_points_;
 
   bool video_cache_enabled_;
   bool audio_cache_enabled_;

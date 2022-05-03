@@ -519,7 +519,7 @@ void ViewerDisplayWidget::OnPaint()
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateWorldTransform());
 
-    p.setPen(Qt::lightGray);
+    p.setPen(QPen(Qt::lightGray, 0));
     p.setBrush(Qt::NoBrush);
 
     int x = 0, y = 0, w = width(), h = height();

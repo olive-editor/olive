@@ -98,6 +98,8 @@ public:
 
   virtual void GoToOut() override;
 
+  virtual void DeleteSelected() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

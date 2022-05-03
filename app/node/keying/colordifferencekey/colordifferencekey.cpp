@@ -25,7 +25,10 @@ const QString ColorDifferenceKeyNode::kShadowsInput = QStringLiteral("shadows_in
 const QString ColorDifferenceKeyNode::kHighlightsInput = QStringLiteral("highlights_in");
 const QString ColorDifferenceKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
 
-ColorDifferenceKeyNode::ColorDifferenceKeyNode() {
+#define super Node
+
+ColorDifferenceKeyNode::ColorDifferenceKeyNode()
+{
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -41,6 +44,9 @@ ColorDifferenceKeyNode::ColorDifferenceKeyNode() {
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node *ColorDifferenceKeyNode::copy() const
@@ -70,6 +76,8 @@ QString ColorDifferenceKeyNode::Description() const
 
 void ColorDifferenceKeyNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
   SetInputName(kCoreMatteInput, tr("Core Matte"));

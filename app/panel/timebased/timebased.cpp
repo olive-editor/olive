@@ -211,4 +211,9 @@ void TimeBasedPanel::GoToOut()
   GetTimeBasedWidget()->GoToOut();
 }
 
+void TimeBasedPanel::DeleteSelected()
+{
+  GetTimeBasedWidget()->DeleteSelected();
+}
+
 }

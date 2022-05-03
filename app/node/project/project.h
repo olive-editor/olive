@@ -109,6 +109,14 @@ public:
     saved_url_ = url;
   }
 
+  /**
+   * @brief Find project parent from object
+   *
+   * If an object is expected to be a child of a project, this function will traverse its parent
+   * tree until it finds it.
+   */
+  static Project *GetProjectFromObject(const QObject *o);
+
 signals:
   void NameChanged();
 

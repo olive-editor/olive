@@ -82,6 +82,22 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
     appearance_layout->addWidget(color_group, row, 0, 1, 2);
   }
 
+  row++;
+  {
+    QGroupBox* marker_group = new QGroupBox();
+    marker_group->setTitle(tr("Miscellaneous"));
+
+    QGridLayout* marker_layout = new QGridLayout(marker_group);
+
+    marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
+
+    marker_btn_ = new ColorCodingComboBox();
+    marker_btn_->SetColor(Config::Current()[QStringLiteral("MarkerColor")].toInt());
+    marker_layout->addWidget(marker_btn_, 0, 1);
+
+    appearance_layout->addWidget(marker_group, row, 0, 1, 2);
+  }
+
   layout->addStretch();
 }
 
@@ -99,6 +115,8 @@ void PreferencesAppearanceTab::Accept(MultiUndoCommand *command)
   for (int i=0; i<color_btns_.size(); i++) {
     Config::Current()[QStringLiteral("CatColor%1").arg(i)] = color_btns_.at(i)->GetSelectedColor();
   }
+
+  Config::Current()[QStringLiteral("MarkerColor")] = marker_btn_->GetSelectedColor();
 }
 
 }
