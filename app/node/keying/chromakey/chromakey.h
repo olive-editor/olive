@@ -46,6 +46,10 @@ class ChromaKeyNode : public OCIOBaseNode {
   static const QString kMaskOnlyInput;
   static const QString kUpperToleranceInput;
   static const QString kLowerToleranceInput;
+  static const QString kGarbageMatteInput;
+  static const QString kCoreMatteInput;
+  static const QString kShadowsInput;
+  static const QString kHighlightsInput;
 
 private:
   void GenerateProcessor();

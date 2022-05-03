@@ -26,6 +26,10 @@ const QString ChromaKeyNode::kColorInput = QStringLiteral("color_key");
 const QString ChromaKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
 const QString ChromaKeyNode::kUpperToleranceInput = QStringLiteral("upper_tolerence_in");
 const QString ChromaKeyNode::kLowerToleranceInput = QStringLiteral("lower_tolerence_in");
+const QString ChromaKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
+const QString ChromaKeyNode::kCoreMatteInput = QStringLiteral("core_in");
+const QString ChromaKeyNode::kShadowsInput = QStringLiteral("shadows_in");
+const QString ChromaKeyNode::kHighlightsInput = QStringLiteral("highlights_in");
 
 ChromaKeyNode::ChromaKeyNode()
 {
@@ -36,6 +40,16 @@ ChromaKeyNode::ChromaKeyNode()
 
   AddInput(kLowerToleranceInput, NodeValue::kFloat, 5.0);
   SetInputProperty(kLowerToleranceInput, QStringLiteral("min"), 0.0);
+
+  AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kCoreMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kHighlightsInput, NodeValue::kFloat, 100.0f);
+  SetInputProperty(kHighlightsInput, QStringLiteral("min"), 0.0);
+
+  AddInput(kShadowsInput, NodeValue::kFloat, 100.0f);
+  SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 
@@ -66,12 +80,11 @@ void ChromaKeyNode::Retranslate()
 {
   super::Retranslate();
   SetInputName(kTextureInput, tr("Input"));
-  //SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
-  //SetInputName(kCoreMatteInput, tr("Core Matte"));
+  SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
+  SetInputName(kCoreMatteInput, tr("Core Matte"));
   SetInputName(kColorInput, tr("Key Color"));
-  //SetComboBoxStrings(kColorInput, {tr("Green"), tr("Blue")});
-  //SetInputName(kShadowsInput, tr("Shadows"));
-  //SetInputName(kHighlightsInput, tr("Highlights"));
+  SetInputName(kShadowsInput, tr("Shadows"));
+  SetInputName(kHighlightsInput, tr("Highlights"));
   SetInputName(kUpperToleranceInput, tr("Upper Tolerance"));
   SetInputName(kLowerToleranceInput, tr("Lower Tolerance"));
   SetInputName(kMaskOnlyInput, tr("Show Mask Only"));

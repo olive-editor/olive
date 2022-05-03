@@ -5,6 +5,14 @@ uniform bool mask_only_in;
 uniform float upper_tolerence_in;
 uniform float lower_tolerence_in;
 
+uniform sampler2D garbage_in;
+uniform sampler2D core_in;
+uniform bool garbage_in_enabled;
+uniform bool core_in_enabled;
+
+uniform float highlights_in;
+uniform float shadows_in;
+
 
 // Main texture coordinate
 in vec2 ove_texcoord;
@@ -38,11 +46,11 @@ vec4 CIExyz_to_Lab(vec4 CIE) {
 }
 
 float colorclose(vec4 col, vec4 key, float tola,float tolb) { 
-	/*decides if a color is close to the specified hue*/ 
-	float temp = sqrt(((key.g-col.g)*(key.g-col.g))+((key.b-col.b)*(key.b-col.b)));
-	if (temp < tola) {return (0.0);} 
-	if (temp < tolb) {return ((temp-tola)/(tolb-tola));} 
-	return (1.0); 
+  /*decides if a color is close to the specified hue*/ 
+  float temp = sqrt(((key.g-col.g)*(key.g-col.g))+((key.b-col.b)*(key.b-col.b)));
+  if (temp < tola) {return (0.0);} 
+  if (temp < tolb) {return ((temp-tola)/(tolb-tola));} 
+  return (1.0); 
 }
 
 
@@ -50,8 +58,13 @@ void main() {
 
   vec4 col = texture(tex_in, ove_texcoord);
 
+  vec4 unassoc = col;
+  if (unassoc.a > 0) {
+    unassoc.rgb /= unassoc.a;
+  }
+
   // Perform color conversion
-  vec4 cie_xyz = SceneLinearToCIEXYZ_d65(col);
+  vec4 cie_xyz = SceneLinearToCIEXYZ_d65(unassoc);
   vec4 lab = CIExyz_to_Lab(cie_xyz);
 
   vec4 cie_xyz_key = SceneLinearToCIEXYZ_d65(color_key);
@@ -59,12 +72,34 @@ void main() {
 
   float mask = colorclose(lab, lab_key, lower_tolerence_in, upper_tolerence_in);
 
+  mask = clamp(mask, 0.0, 1.0);
+
+  if (garbage_in_enabled) {
+    // Force anything we want to remove to be 0.0
+    vec4 garbage = texture(garbage_in, ove_texcoord);
+    // Assumes garbage is achromatic
+    mask -= garbage.r;
+    mask = clamp(mask, 0.0, 1.0);
+  }
+
+  if (core_in_enabled) {
+    // Force anything we want to keep to be 1.0
+    vec3 core = texture(core_in, ove_texcoord).rgb;
+    // Assumes core is achromatic
+    mask += core.r;
+    mask = clamp(mask, 0.0, 1.0);
+  }
+
+  // Crush blacks and push whites
+  mask = shadows_in * 0.01 * (highlights_in * 0.01 * mask - 1.0) + 1.0;
+  mask = clamp(mask, 0.0, 1.0);
+
   col.rgb *= mask;
   col.w = mask;
 
   if (!mask_only_in) {
-        frag_color = col;
-    } else {
-        frag_color = vec4(vec3(mask), 1.0);
-    }
+    frag_color = col;
+  } else {
+    frag_color = vec4(vec3(mask), 1.0);
+  }
 }
