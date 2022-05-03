@@ -35,30 +35,54 @@ namespace olive {
 
 class AudioParams {
 public:
+  // Only append to this list (never insert) because indexes are used in serialized files
   enum Format {
     /// Invalid
     kFormatInvalid = -1,
 
     /// 8-bit unsigned integer
-    kFormatUnsigned8,
+    kFormatUnsigned8Planar,
 
     /// 16-bit signed integer
-    kFormatSigned16,
+    kFormatSigned16Planar,
 
     /// 32-bit signed integer
-    kFormatSigned32,
+    kFormatSigned32Planar,
 
     /// 64-bit signed integer
-    kFormatSigned64,
+    kFormatSigned64Planar,
 
     /// 32-bit float
-    kFormatFloat32,
+    kFormatFloat32Planar,
 
     /// 64-bit float
-    kFormatFloat64,
+    kFormatFloat64Planar,
+
+    /// 8-bit unsigned integer
+    kFormatUnsigned8Packed,
+
+    /// 16-bit signed integer
+    kFormatSigned16Packed,
+
+    /// 32-bit signed integer
+    kFormatSigned32Packed,
+
+    /// 64-bit signed integer
+    kFormatSigned64Packed,
+
+    /// 32-bit float
+    kFormatFloat32Packed,
+
+    /// 64-bit float
+    kFormatFloat64Packed,
 
     /// Total format count
-    kFormatCount
+    kFormatCount,
+
+    kPlanarStart = kFormatUnsigned8Planar,
+    kPackedStart = kFormatUnsigned8Packed,
+    kPlanarEnd = kPackedStart,
+    kPackedEnd = kFormatCount
   };
 
   static const Format kInternalFormat;
@@ -201,6 +225,9 @@ public:
   static QString ChannelLayoutToString(const uint64_t &layout);
 
   static QString FormatToString(const Format &f);
+
+  static AudioParams::Format GetPackedEquivalent(AudioParams::Format fmt);
+  static AudioParams::Format GetPlanarEquivalent(AudioParams::Format fmt);
 
 private:
   void set_default_footage_parameters()

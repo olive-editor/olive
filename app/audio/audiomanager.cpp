@@ -77,7 +77,7 @@ int InputCallback(const void *input, void *output, unsigned long frameCount, con
   s->set_sample_count(frameCount);
   s->set_audio_params(f->params().audio_params());
 
-  f->WriteAudioData(f->params().audio_params(), false, reinterpret_cast<const uint8_t**>(&input), frameCount);
+  f->WriteAudioData(f->params().audio_params(), reinterpret_cast<const uint8_t**>(&input), frameCount);
 
   return paContinue;
 }
@@ -115,16 +115,22 @@ void AudioManager::ClearBufferedOutput()
 PaSampleFormat AudioManager::GetPortAudioSampleFormat(AudioParams::Format fmt)
 {
   switch (fmt) {
-  case AudioParams::kFormatUnsigned8:
+  case AudioParams::kFormatUnsigned8Packed:
+  case AudioParams::kFormatUnsigned8Planar:
     return paUInt8;
-  case AudioParams::kFormatSigned16:
+  case AudioParams::kFormatSigned16Packed:
+  case AudioParams::kFormatSigned16Planar:
     return paInt16;
-  case AudioParams::kFormatSigned32:
+  case AudioParams::kFormatSigned32Packed:
+  case AudioParams::kFormatSigned32Planar:
     return paInt32;
-  case AudioParams::kFormatFloat32:
+  case AudioParams::kFormatFloat32Packed:
+  case AudioParams::kFormatFloat32Planar:
     return paFloat32;
-  case AudioParams::kFormatSigned64:
-  case AudioParams::kFormatFloat64:
+  case AudioParams::kFormatSigned64Packed:
+  case AudioParams::kFormatSigned64Planar:
+  case AudioParams::kFormatFloat64Packed:
+  case AudioParams::kFormatFloat64Planar:
   case AudioParams::kFormatInvalid:
   case AudioParams::kFormatCount:
     break;

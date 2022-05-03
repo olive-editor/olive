@@ -76,11 +76,19 @@ public slots:
   int SetFormat(ExportFormat::Format format);
 
 private:
+  ExportFormat::Format fmt_;
   QComboBox* codec_combobox_;
   SampleRateComboBox* sample_rate_combobox_;
   ChannelLayoutComboBox* channel_layout_combobox_;
   SampleFormatComboBox *sample_format_combobox_;
   IntegerSlider* bit_rate_slider_;
+
+  static const int kDefaultBitRate;
+
+private slots:
+  void UpdateSampleFormats();
+
+  void UpdateBitRateEnabled();
 
 };
 

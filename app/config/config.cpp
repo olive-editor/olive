@@ -125,7 +125,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AudioRecordingCodec"), NodeValue::kInt, ExportCodec::kCodecPCM);
   SetEntryInternal(QStringLiteral("AudioRecordingSampleRate"), NodeValue::kInt, 48000);
   SetEntryInternal(QStringLiteral("AudioRecordingChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
-  SetEntryInternal(QStringLiteral("AudioRecordingSampleFormat"), NodeValue::kInt, AudioParams::kFormatSigned16);
+  SetEntryInternal(QStringLiteral("AudioRecordingSampleFormat"), NodeValue::kInt, AudioParams::kFormatSigned16Packed);
   SetEntryInternal(QStringLiteral("AudioRecordingBitRate"), NodeValue::kInt, 320);
 
   SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(0)));

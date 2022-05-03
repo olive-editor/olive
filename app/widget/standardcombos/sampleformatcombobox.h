@@ -32,13 +32,28 @@ class SampleFormatComboBox : public QComboBox
   Q_OBJECT
 public:
   SampleFormatComboBox(QWidget* parent = nullptr) :
-    QComboBox(parent)
+    QComboBox(parent),
+    attempt_to_restore_format_(true)
   {
-    // Set up preview formats
-    for (int i=0;i<AudioParams::kFormatCount;i++) {
-      AudioParams::Format smp_fmt = static_cast<AudioParams::Format>(i);
+  }
 
-      this->addItem(AudioParams::FormatToString(smp_fmt), smp_fmt);
+  void SetAttemptToRestoreFormat(bool e) { attempt_to_restore_format_ = e; }
+
+  void SetAvailableFormats(const std::vector<AudioParams::Format> &formats)
+  {
+    AudioParams::Format tmp;
+
+    if (attempt_to_restore_format_) {
+      tmp = GetSampleFormat();
+    }
+
+    clear();
+    foreach (const AudioParams::Format &of, formats) {
+      AddFormatItem(of);
+    }
+
+    if (attempt_to_restore_format_) {
+      SetSampleFormat(tmp);
     }
   }
 
@@ -56,6 +71,14 @@ public:
       }
     }
   }
+
+private:
+  void AddFormatItem(AudioParams::Format f)
+  {
+    this->addItem(AudioParams::FormatToString(f), f);
+  }
+
+  bool attempt_to_restore_format_;
 
 };
 

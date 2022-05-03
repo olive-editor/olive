@@ -103,6 +103,7 @@ PreferencesAudioTab::PreferencesAudioTab()
       fmt_layout->addWidget(record_format_combo_);
 
       record_options_ = new ExportAudioTab();
+      record_options_->SetFormat(record_format_combo_->GetFormat());
       record_options_->SetCodec(static_cast<ExportCodec::Codec>(OLIVE_CONFIG("AudioRecordingCodec").toInt()));
       record_options_->sample_rate_combobox()->SetSampleRate(OLIVE_CONFIG("AudioRecordingSampleRate").toInt());
       record_options_->channel_layout_combobox()->SetChannelLayout(OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong());
@@ -111,8 +112,6 @@ PreferencesAudioTab::PreferencesAudioTab()
       recording_layout->addWidget(record_options_);
 
       connect(record_format_combo_, &ExportFormatComboBox::FormatChanged, record_options_, &ExportAudioTab::SetFormat);
-
-      record_options_->SetFormat(record_format_combo_->GetFormat());
     }
 
     QHBoxLayout* refresh_layout = new QHBoxLayout();

@@ -194,8 +194,8 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   SetDefaultFilename();
 
   // Set defaults
-  previously_selected_format_ = ExportFormat::kFormatMPEG4;
-  format_combobox_->SetFormat(ExportFormat::kFormatMPEG4);
+  previously_selected_format_ = ExportFormat::kFormatMPEG4Video;
+  format_combobox_->SetFormat(ExportFormat::kFormatMPEG4Video);
   connect(format_combobox_, &ExportFormatComboBox::FormatChanged, this, &ExportDialog::FormatChanged);
   FormatChanged(format_combobox_->GetFormat());
 
@@ -211,7 +211,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(Config::Current()[QStringLiteral("OnlinePixelFormat")].toInt()));
   video_tab_->interlaced_combobox()->SetInterlaceMode(vp.interlacing());
   audio_tab_->sample_rate_combobox()->SetSampleRate(ap.sample_rate());
-  audio_tab_->sample_format_combobox()->SetSampleFormat(ap.format());
+  audio_tab_->sample_format_combobox()->SetAttemptToRestoreFormat(false);
   audio_tab_->channel_layout_combobox()->SetChannelLayout(ap.channel_layout());
 
   video_aspect_ratio_ = static_cast<double>(vp.width()) / static_cast<double>(vp.height());
@@ -514,7 +514,7 @@ ExportParams ExportDialog::GenerateParams() const
                                   video_tab_->interlaced_combobox()->GetInterlaceMode(),
                                   1);
 
-  AudioParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
+  AudioParams audio_render_params(audio_tab_->sample_rate_combobox()->GetSampleRate(),
                                   audio_tab_->channel_layout_combobox()->GetChannelLayout(),
                                   audio_tab_->sample_format_combobox()->GetSampleFormat());
 

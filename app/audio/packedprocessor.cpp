@@ -42,10 +42,10 @@ bool PackedProcessor::Open(const AudioParams &params)
 
   swr_ctx_ = swr_alloc_set_opts(nullptr,
                                 params.channel_layout(),
-                                FFmpegUtils::GetFFmpegSampleFormat(params.format(), false),
+                                FFmpegUtils::GetFFmpegSampleFormat(AudioParams::GetPackedEquivalent(params.format())),
                                 params.sample_rate(),
                                 params.channel_layout(),
-                                FFmpegUtils::GetFFmpegSampleFormat(params.format(), true),
+                                FFmpegUtils::GetFFmpegSampleFormat(params.format()),
                                 params.sample_rate(),
                                 0,
                                 nullptr);

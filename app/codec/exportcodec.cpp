@@ -103,4 +103,33 @@ bool ExportCodec::IsCodecAStillImage(ExportCodec::Codec c)
   return false;
 }
 
+bool ExportCodec::IsCodecLossless(Codec c)
+{
+  switch (c) {
+  case kCodecPCM:
+  case kCodecFLAC:
+    return true;
+  case kCodecDNxHD:
+  case kCodecH264:
+  case kCodecH264rgb:
+  case kCodecH265:
+  case kCodecProRes:
+  case kCodecCineform:
+  case kCodecMP2:
+  case kCodecMP3:
+  case kCodecAAC:
+  case kCodecVorbis:
+  case kCodecOpus:
+  case kCodecVP9:
+  case kCodecSRT:
+  case kCodecOpenEXR:
+  case kCodecPNG:
+  case kCodecTIFF:
+  case kCodecCount:
+    break;
+  }
+
+  return false;
+}
+
 }
