@@ -179,7 +179,7 @@ void ColorValuesWidget::ColorPickedBtnToggled(bool e)
 
     // Restore original color (or use overridden color from eventFilter)
     SetReferenceColor(picker_end_color_);
-    emit ColorChanged(picker_end_color_);
+    emit ColorChanged(input_tab_->GetColor());
   }
 }
 
