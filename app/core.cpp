@@ -533,6 +533,49 @@ void Core::ImportTaskComplete(Task* task)
 
   MultiUndoCommand *command = import_task->GetCommand();
 
+  foreach (Footage *f, import_task->GetImportedFootage()) {
+    // Look for multi-layer images
+    if (f->GetAudioStreamCount() == 0 && f->GetVideoStreamCount() > 1) {
+      bool all_stills = true;
+
+      for (int i=0; i<f->GetVideoStreamCount(); i++) {
+        const VideoParams &vs = f->GetVideoParams(i);
+        if (!(vs.video_type() == VideoParams::kVideoTypeStill && vs.enabled() == (i == 0))) {
+          all_stills = false;
+        }
+      }
+
+      if (all_stills) {
+        QMessageBox d(main_window());
+
+        d.setIcon(QMessageBox::Question);
+        d.setWindowTitle(tr("Multi-Layer Image"));
+        d.setText(tr("The file '%1' has multiple layers. Would you like these layers to be "
+                     "separated across multiple tracks or merged into a single image?").arg(f->filename()));
+
+        auto multi_btn = d.addButton(tr("Multiple Layers"), QMessageBox::YesRole);
+        auto single_btn = d.addButton(tr("Single Layer"), QMessageBox::NoRole);
+        auto cancel_btn = d.addButton(QMessageBox::Cancel);
+
+        d.exec();
+
+        if (d.clickedButton() == multi_btn) {
+          for (int i=0; i<f->GetVideoStreamCount(); i++) {
+            VideoParams vs = f->GetVideoParams(i);
+            vs.set_enabled(!vs.enabled());
+            f->SetVideoParams(vs, i);
+          }
+        } else if (d.clickedButton() == single_btn) {
+          // Do nothing, footage will already be set up this way
+        } else if (d.clickedButton() == cancel_btn) {
+          // Cancel import
+          delete command;
+          return;
+        }
+      }
+    }
+  }
+
   if (import_task->HasInvalidFiles()) {
     ProjectImportErrorDialog d(import_task->GetInvalidFiles(), main_window_);
     d.exec();

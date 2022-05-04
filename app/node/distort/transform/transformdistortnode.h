@@ -82,6 +82,7 @@ public:
   static QMatrix4x4 AdjustMatrixByResolutions(const QMatrix4x4& mat,
                                               const QVector2D& sequence_res,
                                               const QVector2D& texture_res,
+                                              const QVector2D& offset,
                                               AutoScaleType autoscale_type = kAutoScaleNone);
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;

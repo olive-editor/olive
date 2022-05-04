@@ -475,7 +475,9 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
     QVector<VideoParams> video_streams = f->GetEnabledVideoStreams();
     QVector<AudioParams> audio_streams = f->GetEnabledAudioStreams();
 
-    foreach (const VideoParams& s, video_streams) {
+    for (int i=0; i<video_streams.size(); i++) {
+      const VideoParams& s = video_streams.at(i);
+
       bool found_video_params = false;
       rational using_timebase;
 
@@ -483,6 +485,11 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
         // If this is a still image, we'll use it's resolution but won't set
         // `found_video_params` in case something with a frame rate comes along which we'll
         // prioritize
+        if (i > 0) {
+          // Ignore still images past stream 0
+          continue;
+        }
+
         using_timebase = GetVideoParams().time_base();
       } else {
         using_timebase = s.frame_rate_as_time_base();
