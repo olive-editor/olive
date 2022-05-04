@@ -520,7 +520,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kAudioParams:
     case NodeValue::kBezier:
     case NodeValue::kNone:
-    case NodeValue::kColorTransformJob:
     case NodeValue::kDataTypeCount:
       break;
     }

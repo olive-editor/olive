@@ -121,7 +121,7 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
     job.SetNeedsCustomShader(this);
     job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
 
-    table->Push(NodeValue::kColorTransformJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 

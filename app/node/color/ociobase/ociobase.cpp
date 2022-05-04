@@ -58,7 +58,7 @@ void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals, 
     job.SetColorProcessor(processor_);
     job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
 
-    table->Push(NodeValue::kColorTransformJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 
