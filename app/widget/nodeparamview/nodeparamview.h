@@ -61,8 +61,8 @@ public:
     keyframe_view_->DeselectAll();
   }
 
-  void SelectNodes(const QVector<Node*> &nodes);
-  void DeselectNodes(const QVector<Node*> &nodes);
+  void SetSelectedNodes(const QVector<NodeParamViewItem *> &nodes, bool handle_focused_node = true, bool emit_signal = true);
+  void SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bool emit_signal = true);
 
   const QVector<Node*> &GetContexts() const
   {
@@ -75,9 +75,9 @@ public slots:
   void UpdateElementY();
 
 signals:
-  void RequestSelectNode(const QVector<Node*>& target);
-
   void FocusedNodeChanged(Node* n);
+
+  void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -118,6 +118,8 @@ private:
     return contexts_.size() == 1 && dynamic_cast<NodeGroup*>(contexts_.first());
   }
 
+  void ToggleSelect(NodeParamViewItem *item);
+
   KeyframeView* keyframe_view_;
 
   QVector<NodeParamViewContext*> context_items_;
@@ -137,6 +139,7 @@ private:
   QVector<Node*> active_nodes_;
 
   NodeParamViewItem* focused_node_;
+  QVector<NodeParamViewItem*> selected_nodes_;
 
   Node *time_target_;
 
@@ -150,7 +153,7 @@ private slots:
 
   void PinNode(bool pin);
 
-  void FocusChanged(QWidget *old, QWidget *now);
+  //void FocusChanged(QWidget *old, QWidget *now);
 
   void KeyframeViewDragged(int x, int y);
 
@@ -167,6 +170,10 @@ private slots:
   void UpdateContexts();
 
   void ItemAboutToBeRemoved(NodeParamViewItem *item);
+
+  void ItemClicked();
+
+  void SelectNodeFromConnectedLink(Node *node);
 
 };
 

@@ -135,7 +135,7 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
 void NodeParamViewConnectedLabel::ConnectionClicked()
 {
   if (connected_node_) {
-    emit RequestSelectNode({connected_node_});
+    emit RequestSelectNode(connected_node_);
   }
 }
 

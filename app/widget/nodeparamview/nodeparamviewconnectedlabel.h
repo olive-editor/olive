@@ -35,7 +35,7 @@ public:
   void SetTime(const rational &time);
 
 signals:
-  void RequestSelectNode(const QVector<Node*>& node);
+  void RequestSelectNode(Node *n);
 
 private slots:
   void InputConnected(Node *output, const NodeInput &input);

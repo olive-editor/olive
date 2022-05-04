@@ -104,6 +104,11 @@ public:
     kAudioEffect = 0x4
   };
 
+  struct ContextPair {
+    Node *node;
+    Node *context;
+  };
+
   Node();
 
   virtual ~Node() override;

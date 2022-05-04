@@ -51,7 +51,8 @@ NodeView::NodeView(QWidget *parent) :
   create_edge_output_item_(nullptr),
   create_edge_input_item_(nullptr),
   overlay_view_(nullptr),
-  scale_(1.0)
+  scale_(1.0),
+  dont_emit_selection_signals_(false)
 {
   setScene(&scene_);
   SetDefaultDragMode(RubberBandDrag);
@@ -171,9 +172,11 @@ void NodeView::DeselectAll()
   // Just emit all the nodes that are currently selected as no longer selected
   emit NodesDeselected(selected_nodes_);
   selected_nodes_.clear();
+  emit NodeSelectionChanged(selected_nodes_);
+  emit NodeSelectionChangedWithContexts(QVector<Node::ContextPair>());
 }
 
-void NodeView::Select(const QVector<Node *> &nodes, bool center_view_on_item)
+void NodeView::Select(const QVector<Node::ContextPair> &nodes, bool center_view_on_item)
 {
   // Optimization: rather than respond to every single item being selected, ignore the signal and
   //               then handle them all at the end.
@@ -184,18 +187,27 @@ void NodeView::Select(const QVector<Node *> &nodes, bool center_view_on_item)
 
   scene_.DeselectAll();
 
-  foreach (NodeViewContext *context, scene_.context_map()) {
-    context->Select(nodes);
+  foreach (const Node::ContextPair &p, nodes) {
+    NodeViewContext *ctx = scene_.context_map().value(p.context);
+    if (ctx) {
+      NodeViewItem *item = ctx->GetItemFromMap(p.node);
+      if (item) {
+        item->setSelected(true);
+      }
+    }
   }
 
   // Center on something
   if (center_view_on_item && !nodes.isEmpty()) {
-    QMetaObject::invokeMethod(this, "CenterOnNode", Qt::QueuedConnection, OLIVE_NS_ARG(Node*, nodes.first()));
+    QMetaObject::invokeMethod(this, "CenterOnNode", Qt::QueuedConnection, OLIVE_NS_ARG(Node*, nodes.first().node));
   }
 
   ConnectSelectionChangedSignal();
 
+  // Don't signal when this function was likely triggered from another widget's signal anyway
+  dont_emit_selection_signals_ = true;
   UpdateSelectionCache();
+  dont_emit_selection_signals_ = false;
 }
 
 void NodeView::CopySelected(bool cut)
@@ -734,13 +746,18 @@ void NodeView::UpdateSelectionCache()
   QVector<Node*> selected;
   QVector<Node*> deselected;
 
+  QVector<Node::ContextPair> sel_with_ctx(current_selection.size());
+
   // Determine which nodes are newly selected
-  foreach (NodeViewItem* i, current_selection) {
+  for (int j=0; j<current_selection.size(); j++) {
+    NodeViewItem *i = current_selection.at(j);
     Node *n = i->GetNode();
     if (!selected_nodes_.contains(n)) {
       selected.append(n);
       selected_nodes_.append(n);
     }
+
+    sel_with_ctx[j] = {n, i->GetContext()};
   }
 
   // Determine which nodes are newly deselected
@@ -772,6 +789,11 @@ void NodeView::UpdateSelectionCache()
 
   if (!selected.isEmpty()) {
     emit NodesSelected(selected);
+  }
+
+  if (!dont_emit_selection_signals_) {
+    emit NodeSelectionChanged(selected_nodes_);
+    emit NodeSelectionChangedWithContexts(sel_with_ctx);
   }
 }
 
@@ -1344,6 +1366,8 @@ void NodeView::ShowNodeProperties()
     overlay_view_->setFocus();
 
     emit NodesDeselected(selected_nodes_);
+    emit NodeSelectionChanged(QVector<Node*>());
+    emit NodeSelectionChangedWithContexts(QVector<Node::ContextPair>());
     overlay_view_->SelectAll();
 
     emit NodeGroupOpened(group);

@@ -199,13 +199,12 @@ NodeViewDeleteCommand::NodeViewDeleteCommand()
 
 void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
 {
-  foreach (const NodePair &pair, nodes_) {
-    if (pair.first == node && pair.second == context) {
-      return;
-    }
+  if (ContainsNode(node, context)) {
+    return;
   }
 
-  nodes_.append(NodePair({node, context}));
+  Node::ContextPair p = {node, context};
+  nodes_.append(p);
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
     if (context->ContextContainsNode(it->second)) {
@@ -231,10 +230,21 @@ void NodeViewDeleteCommand::AddEdge(Node *output, const NodeInput &input)
   edges_.append({output, input});
 }
 
+bool NodeViewDeleteCommand::ContainsNode(Node *node, Node *context)
+{
+  foreach (const Node::ContextPair &pair, nodes_) {
+    if (pair.node == node && pair.context == context) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 Project *NodeViewDeleteCommand::GetRelevantProject() const
 {
   if (!nodes_.isEmpty()) {
-    return nodes_.first().first->project();
+    return nodes_.first().node->project();
   }
 
   if (!edges_.isEmpty()) {
@@ -250,11 +260,11 @@ void NodeViewDeleteCommand::redo()
     Node::DisconnectEdge(edge.first, edge.second);
   }
 
-  foreach (const NodePair &pair, nodes_) {
+  foreach (const Node::ContextPair &pair, nodes_) {
     RemovedNode rn;
 
-    rn.node = pair.first;
-    rn.context = pair.second;
+    rn.node = pair.node;
+    rn.context = pair.context;
     rn.pos = rn.context->GetNodePositionInContext(rn.node);
 
     rn.context->RemoveNodeFromContext(rn.node);

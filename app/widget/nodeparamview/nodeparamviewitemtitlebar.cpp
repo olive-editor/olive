@@ -85,6 +85,13 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
   }
 }
 
+void NodeParamViewItemTitleBar::mousePressEvent(QMouseEvent *event)
+{
+  QWidget::mousePressEvent(event);
+
+  emit Clicked();
+}
+
 void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 {
   QWidget::mouseDoubleClickEvent(event);
