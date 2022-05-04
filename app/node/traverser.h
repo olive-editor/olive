@@ -107,7 +107,11 @@ protected:
 
   SampleBufferPtr CreateSampleBuffer(const AudioParams &params, const rational &length)
   {
-    return CreateSampleBuffer(params, params.time_to_samples(length));
+    if (params.is_valid()) {
+      return CreateSampleBuffer(params, params.time_to_samples(length));
+    } else {
+      return SampleBuffer::Create();
+    }
   }
 
   virtual bool CanCacheFrames()
