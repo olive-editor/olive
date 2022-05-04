@@ -104,8 +104,12 @@ ShaderCode ChromaKeyNode::GetShaderCode(const QString &) const
 void ChromaKeyNode::GenerateProcessor()
 {
   if (manager()){
-    ColorTransform transform("cie_xyz_d65_interchange");
-    set_processor(ColorProcessor::Create(manager(), manager()->GetReferenceColorSpace(), transform));
+    try {
+      ColorTransform transform("cie_xyz_d65_interchange");
+      set_processor(ColorProcessor::Create(manager(), manager()->GetReferenceColorSpace(), transform));
+    } catch (const OCIO::Exception &e) {
+      std::cerr << std::endl << e.what() << std::endl;
+    }
   }
 }
 
