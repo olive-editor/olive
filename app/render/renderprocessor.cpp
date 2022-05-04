@@ -554,25 +554,19 @@ void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node 
 
   node->GenerateFrame(frame, job);
 
-  if (job.GetColorspace().isEmpty()) {
-    // Just upload frame data straight to frame
-    destination->Upload(frame->data(), frame->linesize_pixels());
-  } else {
-    // Convert to reference space
-
-    // Upload to middle texture
-    TexturePtr mid = render_ctx_->CreateTexture(GetCacheVideoParams());
-    mid->Upload(frame->data(), frame->linesize_pixels());
-
-    ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
-    ColorProcessorPtr cp = ColorProcessor::Create(color_manager, job.GetColorspace(), color_manager->GetReferenceColorSpace());
-    render_ctx_->BlitColorManaged(cp, mid, Renderer::kAlphaAssociated, destination.get());
-  }
+  destination->Upload(frame->data(), frame->linesize_pixels());
 }
 
 bool RenderProcessor::CanCacheFrames()
 {
   return ticket_->property("type").value<RenderManager::TicketType>() == RenderManager::kTypeVideo;
+}
+
+void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs)
+{
+  ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+  ColorProcessorPtr cp = ColorProcessor::Create(color_manager, input_cs, color_manager->GetReferenceColorSpace());
+  render_ctx_->BlitColorManaged(cp, source, Renderer::kAlphaAssociated, destination.get());
 }
 
 }

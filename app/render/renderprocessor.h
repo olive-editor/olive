@@ -66,6 +66,8 @@ protected:
     return SampleBuffer::CreateAllocated(params, sample_count);
   }
 
+  virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs) override;
+
 private:
   RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
 

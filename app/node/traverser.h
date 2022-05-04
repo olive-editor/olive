@@ -92,6 +92,8 @@ protected:
 
   virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job){}
 
+  virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs){}
+
   virtual TexturePtr CreateTexture(const VideoParams &p)
   {
     return CreateDummyTexture(p);
