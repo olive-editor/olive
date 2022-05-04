@@ -72,11 +72,6 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   timeline_points_ = new TimelinePoints(this);
 }
 
-Node *ViewerOutput::copy() const
-{
-  return new ViewerOutput();
-}
-
 QString ViewerOutput::Name() const
 {
   return tr("Viewer");

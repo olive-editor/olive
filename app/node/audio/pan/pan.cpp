@@ -42,11 +42,6 @@ PanNode::PanNode()
   SetEffectInput(kSamplesInput);
 }
 
-Node *PanNode::copy() const
-{
-  return new PanNode();
-}
-
 QString PanNode::Name() const
 {
   return tr("Pan");

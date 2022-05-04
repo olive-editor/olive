@@ -24,7 +24,7 @@ class ColorDifferenceKeyNode : public Node {
  public:
   ColorDifferenceKeyNode();
 
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(ColorDifferenceKeyNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

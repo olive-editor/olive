@@ -31,8 +31,6 @@ class GeneratorWithMerge : public Node
 public:
   GeneratorWithMerge();
 
-  NODE_DEFAULT_DESTRUCTOR(GeneratorWithMerge)
-
   virtual void Retranslate() override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;

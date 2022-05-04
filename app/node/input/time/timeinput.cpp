@@ -28,11 +28,6 @@ TimeInput::TimeInput()
 {
 }
 
-Node *TimeInput::copy() const
-{
-  return new TimeInput();
-}
-
 QString TimeInput::Name() const
 {
   return tr("Time");

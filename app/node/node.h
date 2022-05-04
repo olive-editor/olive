@@ -48,6 +48,10 @@
 
 namespace olive {
 
+#define NODE_DEFAULT_FUNCTIONS(x) \
+  NODE_DEFAULT_DESTRUCTOR(x) \
+  NODE_COPY_FUNCTION(x)
+
 #define NODE_DEFAULT_DESTRUCTOR(x) \
   virtual ~x() override {DisconnectAll();}
 

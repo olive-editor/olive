@@ -50,11 +50,6 @@ BlurFilterNode::BlurFilterNode()
   SetEffectInput(kTextureInput);
 }
 
-Node *BlurFilterNode::copy() const
-{
-  return new BlurFilterNode();
-}
-
 QString BlurFilterNode::Name() const
 {
   return tr("Blur");

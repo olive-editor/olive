@@ -42,11 +42,6 @@ MathNode::MathNode()
   SetInputProperty(kParamBIn, QStringLiteral("autotrim"), true);
 }
 
-Node *MathNode::copy() const
-{
-  return new MathNode();
-}
-
 QString MathNode::Name() const
 {
   return tr("Math");

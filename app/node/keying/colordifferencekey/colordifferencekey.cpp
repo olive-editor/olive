@@ -49,11 +49,6 @@ ColorDifferenceKeyNode::ColorDifferenceKeyNode()
   SetEffectInput(kTextureInput);
 }
 
-Node *ColorDifferenceKeyNode::copy() const
-{
-  return new ColorDifferenceKeyNode();
-}
-
 QString ColorDifferenceKeyNode::Name() const
 {
   return tr("Color Difference Key");

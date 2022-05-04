@@ -31,9 +31,7 @@ class DipToColorTransition : public TransitionBlock
 public:
   DipToColorTransition();
 
-  NODE_DEFAULT_DESTRUCTOR(DipToColorTransition)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(DipToColorTransition)
 
   virtual QString Name() const override;
   virtual QString id() const override;

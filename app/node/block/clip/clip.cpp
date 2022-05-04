@@ -61,11 +61,6 @@ ClipBlock::ClipBlock() :
   SetEffectInput(kBufferIn);
 }
 
-Node *ClipBlock::copy() const
-{
-  return new ClipBlock();
-}
-
 QString ClipBlock::Name() const
 {
   if (track()) {

@@ -34,12 +34,7 @@ class TransformDistortNode : public MatrixGenerator
 public:
   TransformDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TransformDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new TransformDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(TransformDistortNode)
 
   virtual QString Name() const override
   {

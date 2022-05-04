@@ -38,11 +38,6 @@ MergeNode::MergeNode()
   SetFlags(kDontShowInParamView);
 }
 
-Node *MergeNode::copy() const
-{
-  return new MergeNode();
-}
-
 QString MergeNode::Name() const
 {
   return tr("Merge");

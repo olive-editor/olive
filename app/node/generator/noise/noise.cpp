@@ -44,11 +44,6 @@ NoiseGeneratorNode::NoiseGeneratorNode()
   SetFlags(kVideoEffect);
 }
 
-Node* NoiseGeneratorNode::copy() const
-{
-  return new NoiseGeneratorNode();
-}
-
 QString NoiseGeneratorNode::Name() const
 {
   return tr("Noise");

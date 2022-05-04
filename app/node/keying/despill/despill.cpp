@@ -40,11 +40,6 @@ DespillNode::DespillNode()
   SetEffectInput(kTextureInput);
 }
 
-Node* DespillNode::copy() const
-{
-  return new DespillNode();
-}
-
 QString DespillNode::Name() const
 {
   return tr("Despill");

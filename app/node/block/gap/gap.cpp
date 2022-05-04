@@ -26,11 +26,6 @@ GapBlock::GapBlock()
 {
 }
 
-Node *GapBlock::copy() const
-{
-  return new GapBlock();
-}
-
 QString GapBlock::Name() const
 {
   return tr("Gap");

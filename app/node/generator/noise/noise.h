@@ -30,9 +30,7 @@ class NoiseGeneratorNode : public Node {
  public:
   NoiseGeneratorNode();
 
-  NODE_DEFAULT_DESTRUCTOR(NoiseGeneratorNode)
-
-  virtual Node *copy() const override;
+  NODE_DEFAULT_FUNCTIONS(NoiseGeneratorNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

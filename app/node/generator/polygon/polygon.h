@@ -39,9 +39,7 @@ class PolygonGenerator : public GeneratorWithMerge
 public:
   PolygonGenerator();
 
-  NODE_DEFAULT_DESTRUCTOR(PolygonGenerator)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(PolygonGenerator)
 
   virtual QString Name() const override;
   virtual QString id() const override;

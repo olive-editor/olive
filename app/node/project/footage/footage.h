@@ -55,12 +55,7 @@ public:
    */
   Footage(const QString& filename = QString());
 
-  NODE_DEFAULT_DESTRUCTOR(Footage)
-
-  virtual Node* copy() const override
-  {
-    return new Footage();
-  }
+  NODE_DEFAULT_FUNCTIONS(Footage)
 
   virtual QString Name() const override
   {

@@ -27,13 +27,11 @@ namespace olive {
 
 class TimeInput : public Node
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
   TimeInput();
 
-  NODE_DEFAULT_DESTRUCTOR(TimeInput)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(TimeInput)
 
   virtual QString Name() const override;
   virtual QString id() const override;

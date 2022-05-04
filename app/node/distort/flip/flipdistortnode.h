@@ -31,9 +31,7 @@ class FlipDistortNode : public Node
 public:
   FlipDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(FlipDistortNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(FlipDistortNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

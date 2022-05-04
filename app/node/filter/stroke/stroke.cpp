@@ -53,11 +53,6 @@ StrokeFilterNode::StrokeFilterNode()
   SetEffectInput(kTextureInput);
 }
 
-Node *StrokeFilterNode::copy() const
-{
-  return new StrokeFilterNode();
-}
-
 QString StrokeFilterNode::Name() const
 {
   return tr("Stroke");

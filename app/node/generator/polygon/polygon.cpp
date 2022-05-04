@@ -61,11 +61,6 @@ PolygonGenerator::PolygonGenerator()
   poly_gizmo_ = new PathGizmo(this);
 }
 
-Node *PolygonGenerator::copy() const
-{
-  return new PolygonGenerator();
-}
-
 QString PolygonGenerator::Name() const
 {
   return tr("Polygon");

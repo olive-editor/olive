@@ -39,11 +39,6 @@ TimeRemapNode::TimeRemapNode()
   AddInput(kInputInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
 }
 
-Node *TimeRemapNode::copy() const
-{
-  return new TimeRemapNode();
-}
-
 QString TimeRemapNode::Name() const
 {
   return tr("Time Remap");
