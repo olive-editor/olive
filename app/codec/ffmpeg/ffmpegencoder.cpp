@@ -69,7 +69,7 @@ std::vector<AudioParams::Format> FFmpegEncoder::GetSampleFormatsForCodec(ExportC
   if (c == ExportCodec::kCodecPCM) {
     // FFmpeg lists these as separate codecs so we need custom functionality here
     // We list signed 16 first because ExportDialog will always use the first element by default
-    // (beacuse first element is the "default" in FFmpeg)
+    // (because first element is the "default" in FFmpeg)
     f = {
       AudioParams::kFormatSigned16Packed,
       AudioParams::kFormatUnsigned8Packed,
