@@ -109,7 +109,7 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoPar
   return RetrieveVideoInternal(timecode, divider, cancelled);
 }
 
-Decoder::RetrieveAudioData Decoder::RetrieveAudio(const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
+Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBufferPtr dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
 {
   QMutexLocker locker(&mutex_);
 
@@ -117,24 +117,27 @@ Decoder::RetrieveAudioData Decoder::RetrieveAudio(const TimeRange &range, const 
 
   if (!stream_.IsValid()) {
     qCritical() << "Can't retrieve audio on a closed decoder";
-    return {kInvalid, nullptr, nullptr};
+    return kInvalid;
   }
 
   if (!SupportsAudio()) {
     qCritical() << "Decoder doesn't support audio";
-    return {kInvalid, nullptr, nullptr};
+    return kInvalid;
   }
 
   // Get conform state from ConformManager
   ConformManager::Conform conform = ConformManager::instance()->GetConformState(id(), cache_path, stream_, params, (mode == RenderMode::kOnline));
   if (conform.state == ConformManager::kConformGenerating) {
-    return {kWaitingForConform, nullptr, conform.task};
+    // If we need the task, it's available in `conform.task`
+    return kWaitingForConform;
   }
 
   // See if we got the conform
-  SampleBufferPtr out_buffer = RetrieveAudioFromConform(conform.filenames, range, loop_mode, params);
-
-  return {kOK, out_buffer, nullptr};
+  if (RetrieveAudioFromConform(dest, conform.filenames, range, loop_mode, params)) {
+    return kOK;
+  } else {
+    return kUnknownError;
+  }
 }
 
 qint64 Decoder::GetLastAccessedTime()
@@ -269,12 +272,10 @@ bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const Audi
   return false;
 }
 
-SampleBufferPtr Decoder::RetrieveAudioFromConform(const QVector<QString> &conform_filenames, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
+bool Decoder::RetrieveAudioFromConform(SampleBufferPtr sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
 {
   PlanarFileDevice input;
   if (input.open(conform_filenames, QFile::ReadOnly)) {
-    SampleBufferPtr sample_buffer = SampleBuffer::CreateAllocated(input_params, range.length());
-
     qint64 read_index = input_params.time_to_bytes(range.in()) / input_params.channel_count();
     qint64 write_index = 0;
 
@@ -313,10 +314,10 @@ SampleBufferPtr Decoder::RetrieveAudioFromConform(const QVector<QString> &confor
 
     input.close();
 
-    return sample_buffer;
+    return true;
   }
 
-  return nullptr;
+  return false;
 }
 
 void Decoder::UpdateLastAccessed()

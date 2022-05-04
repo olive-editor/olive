@@ -54,6 +54,10 @@ public:
 
   const int &sample_count() const;
   void set_sample_count(const int &sample_count);
+  void set_sample_count(const rational &length)
+  {
+    set_sample_count(audio_params_.time_to_samples(length));
+  }
 
   float* data(int channel)
   {

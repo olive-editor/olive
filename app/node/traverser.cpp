@@ -287,67 +287,6 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   return table;
 }
 
-TexturePtr NodeTraverser::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
-{
-  Q_UNUSED(input_time)
-
-  // Create dummy texture with footage params
-  return CreateDummyTexture(stream.video_params());
-}
-
-SampleBufferPtr NodeTraverser::ProcessAudioFootage(const FootageJob& stream, const TimeRange &input_time)
-{
-  Q_UNUSED(stream)
-  Q_UNUSED(input_time)
-
-  return SampleBuffer::Create();
-}
-
-TexturePtr NodeTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
-{
-  Q_UNUSED(node)
-  Q_UNUSED(range)
-  Q_UNUSED(job)
-
-  // Create dummy texture with sequence params
-  VideoParams tex_params = video_params_;
-  tex_params.set_channel_count(GetChannelCountFromJob(job));
-  return CreateDummyTexture(tex_params);
-}
-
-SampleBufferPtr NodeTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
-{
-  Q_UNUSED(node)
-  Q_UNUSED(range)
-  Q_UNUSED(job)
-
-  return SampleBuffer::Create();
-}
-
-TexturePtr NodeTraverser::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
-{
-  Q_UNUSED(node)
-  Q_UNUSED(job)
-
-  // Create dummy texture with sequence params
-  VideoParams tex_params = video_params_;
-  tex_params.set_channel_count(GetChannelCountFromJob(job));
-  return CreateDummyTexture(tex_params);
-}
-
-void NodeTraverser::SaveCachedTexture(const QByteArray &hash, TexturePtr texture)
-{
-  Q_UNUSED(hash)
-  Q_UNUSED(texture)
-}
-
-TexturePtr NodeTraverser::GetCachedTexture(const QByteArray& hash)
-{
-  Q_UNUSED(hash)
-
-  return nullptr;
-}
-
 QVector2D NodeTraverser::GenerateResolution() const
 {
   return QVector2D(video_params_.square_pixel_width(), video_params_.height());
@@ -356,20 +295,6 @@ QVector2D NodeTraverser::GenerateResolution() const
 void NodeTraverser::PreProcessRow(const TimeRange &range, NodeValueRow &row)
 {
   QByteArray cached_node_hash;
-
-  // Convert footage to image/sample buffers
-  /*if (CanCacheFrames() && node->GetCacheTextures()) {
-    // This node is set to cache the result, see if we can retrieved a previously cached version
-    cached_node_hash = RenderManager::Hash(node, hint, GetCacheVideoParams(), range.in());
-
-    TexturePtr cached_frame = GetCachedTexture(cached_node_hash);
-    if (cached_frame) {
-      output_params.Push(NodeValue::kTexture, QVariant::fromValue(cached_frame), node);
-
-      // No more to do here
-      got_cached_frame = true;
-    }
-  }*/
 
   // Resolve any jobs
   for (auto it=row.begin(); it!=row.end(); it++) {
@@ -382,45 +307,74 @@ void NodeTraverser::PreProcessRow(const TimeRange &range, NodeValueRow &row)
       if (v.canConvert<ShaderJob>()) {
 
         ShaderJob job = v.value<ShaderJob>();
-        PreProcessRow(range, job.GetValues());
-        val.set_data(QVariant::fromValue(ProcessShader(val.source(), range, job)));
+
+        VideoParams tex_params = GetCacheVideoParams();
+        tex_params.set_channel_count(GetChannelCountFromJob(job));
+
+        TexturePtr tex = CreateTexture(tex_params);
+
+        ProcessShader(tex, val.source(), range, job);
+
+        val.set_data(QVariant::fromValue(tex));
 
       } else if (v.canConvert<GenerateJob>()) {
 
         GenerateJob job = v.value<GenerateJob>();
-        PreProcessRow(range, job.GetValues());
-        val.set_data(QVariant::fromValue(ProcessFrameGeneration(val.source(), job)));
+
+        VideoParams tex_params = GetCacheVideoParams();
+        tex_params.set_channel_count(GetChannelCountFromJob(job));
+        if (job.GetRequestedFormat() != VideoParams::kFormatInvalid) {
+          tex_params.set_format(job.GetRequestedFormat());
+        }
+
+        TexturePtr tex = CreateTexture(tex_params);
+
+        ProcessFrameGeneration(tex, val.source(), job);
+
+        val.set_data(QVariant::fromValue(tex));
 
       } else if (v.canConvert<FootageJob>()) {
 
         FootageJob job = v.value<FootageJob>();
 
         if (job.type() == Track::kVideo) {
+
           rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
+
+          TexturePtr tex;
 
           if (footage_time.isNaN()) {
             // Push dummy texture
-            val.set_data(QVariant::fromValue(CreateDummyTexture(job.video_params())));
+            tex = CreateDummyTexture(job.video_params());
           } else {
-            val.set_data(QVariant::fromValue(ProcessVideoFootage(job, footage_time)));
+            VideoParams managed_params = job.video_params();
+            managed_params.set_format(GetCacheVideoParams().format());
+
+            tex = CreateTexture(job.video_params());
+            ProcessVideoFootage(tex, job, footage_time);
           }
+
+          val.set_data(QVariant::fromValue(tex));
+
         } else if (job.type() == Track::kAudio) {
-          val.set_data(QVariant::fromValue(ProcessAudioFootage(job, range)));
+
+          SampleBufferPtr buffer = CreateSampleBuffer(GetCacheAudioParams(), range.length());
+          ProcessAudioFootage(buffer, job, range);
+          val.set_data(QVariant::fromValue(buffer));
+
         }
 
       } else if (v.canConvert<SampleJob>()) {
 
-        val.set_data(QVariant::fromValue(ProcessSamples(val.source(), range, v.value<SampleJob>())));
+        SampleJob job = v.value<SampleJob>();
+        SampleBufferPtr output_buffer = CreateSampleBuffer(job.samples()->audio_params(), job.samples()->sample_count());
+        ProcessSamples(output_buffer, val.source(), range, job);
+        val.set_data(QVariant::fromValue(output_buffer));
 
       }
 
     }
   }
-
-  /*if (CanCacheFrames() && node->GetCacheTextures() && !got_cached_frame) {
-    // Save cached texture
-    SaveCachedTexture(cached_node_hash, output_params.Get(NodeValue::kTexture).value<TexturePtr>());
-  }*/
 }
 
 TexturePtr NodeTraverser::CreateDummyTexture(const VideoParams &p)
