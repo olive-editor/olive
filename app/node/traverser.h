@@ -130,6 +130,8 @@ protected:
     cancel_ = cancel;
   }
 
+  void ResolveJobs(NodeValue &value, const TimeRange &range);
+
 private:
   void PreProcessRow(const TimeRange &range, NodeValueRow &row);
 

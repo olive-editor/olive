@@ -50,12 +50,18 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 {
   ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
 
+  TimeRange range = TimeRange(time, time + frame_length);
+
   NodeValueTable table;
   if (Node *texture_output = viewer->GetConnectedTextureOutput()) {
-    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), TimeRange(time, time + frame_length));
+    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), range);
   }
 
-  return table.Get(NodeValue::kTexture).value<TexturePtr>();
+  NodeValue tex_val = table.GetWithMeta(NodeValue::kTexture);
+
+  ResolveJobs(tex_val, range);
+
+  return tex_val.data().value<TexturePtr>();
 }
 
 FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time)
