@@ -76,7 +76,6 @@ void TextGeneratorV3::Retranslate()
   super::Retranslate();
 
   SetInputName(kTextInput, tr("Text"));
-  SetInputName(kBaseInput, tr("Base"));
 }
 
 void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const

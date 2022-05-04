@@ -69,6 +69,7 @@ void ShapeNodeBase::Retranslate()
 {
   super::Retranslate();
 
+  SetInputName(kBaseInput, tr("Base"));
   SetInputName(kPositionInput, tr("Position"));
   SetInputName(kSizeInput, tr("Size"));
 
