@@ -44,23 +44,29 @@ public:
 protected:
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
 
-  virtual TexturePtr ProcessVideoFootage(const FootageJob &stream, const rational &input_time) override;
+  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time) override;
 
-  virtual SampleBufferPtr ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time) override;
+  virtual void ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time) override;
 
-  virtual TexturePtr ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job) override;
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
-  virtual SampleBufferPtr ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job) override;
+  virtual void ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
 
-  virtual TexturePtr ProcessColorTransform(const Node *node, const ColorTransformJob& job) override;
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job) override;
 
-  virtual TexturePtr ProcessFrameGeneration(const Node *node, const GenerateJob& job) override;
+  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job) override;
 
   virtual bool CanCacheFrames() override;
 
-  virtual TexturePtr GetCachedTexture(const QByteArray &hash) override;
+  virtual TexturePtr CreateTexture(const VideoParams &p) override
+  {
+    return render_ctx_->CreateTexture(p);
+  }
 
-  virtual void SaveCachedTexture(const QByteArray& hash, TexturePtr texture) override;
+  virtual SampleBufferPtr CreateSampleBuffer(const AudioParams &params, int sample_count) override
+  {
+    return SampleBuffer::CreateAllocated(params, sample_count);
+  }
 
 private:
   RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);

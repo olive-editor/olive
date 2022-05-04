@@ -63,9 +63,11 @@ void ShapeNode::Retranslate()
 
 ShaderCode ShapeNode::GetShaderCode(const QString &shader_id) const
 {
-  Q_UNUSED(shader_id)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
+  if (shader_id == QStringLiteral("shape")) {
+    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
+  } else {
+    return super::GetShaderCode(shader_id);
+  }
 }
 
 void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
@@ -75,8 +77,22 @@ void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
   job.InsertValue(value);
   job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+  job.SetShaderID(QStringLiteral("shape"));
 
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  if (!value[kBaseInput].data().isNull()) {
+    // Push as merge node
+    ShaderJob merge;
+
+    merge.SetShaderID(QStringLiteral("mrg"));
+    merge.InsertValue(MergeNode::kBaseIn, value[kBaseInput]);
+    merge.InsertValue(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, QVariant::fromValue(job), this));
+    merge.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+
+    table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);
+  } else {
+    // Just push generate job
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  }
 }
 
 }

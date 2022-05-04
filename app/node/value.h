@@ -173,51 +173,6 @@ public:
     kAudioParams,
 
     /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that a footage job needs to
-     * run. This value will usually be taken from a table and a kTexture or kSamples value will be
-     * pushed to take its place.
-     */
-    kFootageJob,
-
-    /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that an accelerated shader job needs to
-     * run. This value will usually be taken from a table and a kTexture value will be pushed to
-     * take its place.
-     */
-    kShaderJob,
-
-    /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that an accelerated sample job needs to
-     * take place. This value will usually be taken from a table and a kSamples value will be
-     * pushed to take its place.
-     */
-    kSampleJob,
-
-    /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that an accelerated sample job needs to
-     * take place. This value will usually be taken from a table and a kSamples value will be
-     * pushed to take its place.
-     */
-    kGenerateJob,
-
-    /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that an accelerated color transform job
-     * needs to take place. This value will usually be taken from a table and a kTexture value will
-     * be pushed to take its place.
-     */
-    kColorTransformJob,
-
-    /**
      * End of list
      */
     kDataTypeCount
@@ -251,6 +206,11 @@ public:
   const QVariant& data() const
   {
     return data_;
+  }
+
+  void set_data(const QVariant& data)
+  {
+    data_ = data;
   }
 
   const QString& tag() const

@@ -95,7 +95,7 @@ void TextGeneratorV1::Value(const NodeValueRow &value, const NodeGlobals &global
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 

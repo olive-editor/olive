@@ -50,12 +50,18 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 {
   ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
 
+  TimeRange range = TimeRange(time, time + frame_length);
+
   NodeValueTable table;
   if (Node *texture_output = viewer->GetConnectedTextureOutput()) {
-    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), TimeRange(time, time + frame_length));
+    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), range);
   }
 
-  return table.Get(NodeValue::kTexture).value<TexturePtr>();
+  NodeValue tex_val = table.GetWithMeta(NodeValue::kTexture);
+
+  ResolveJobs(tex_val, range);
+
+  return tex_val.data().value<TexturePtr>();
 }
 
 FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time)
@@ -133,10 +139,12 @@ void RenderProcessor::Run()
 
   SetCancelPointer(&ticket_->IsCancelled());
 
+  SetCacheVideoParams(ticket_->property("vparam").value<VideoParams>());
+  SetCacheAudioParams(ticket_->property("aparam").value<AudioParams>());
+
   switch (type) {
   case RenderManager::kTypeVideo:
   {
-    SetCacheVideoParams(ticket_->property("vparam").value<VideoParams>());
     rational time = ticket_->property("time").value<rational>();
 
     rational frame_length = GetCacheVideoParams().frame_rate_as_time_base();
@@ -261,7 +269,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 {
   if (track->type() == Track::kAudio) {
 
-    const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
+    const AudioParams& audio_params = GetCacheAudioParams();
 
     QVector<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
@@ -375,11 +383,11 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
   }
 }
 
-TexturePtr RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
+void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time)
 {
   if (ticket_->property("type").value<RenderManager::TicketType>() != RenderManager::kTypeVideo) {
     // Video cannot contribute to audio, so we do nothing here
-    return super::ProcessVideoFootage(stream, input_time);
+    return;
   }
 
   // Check the still frame cache. On large frames such as high resolution still images, uploading
@@ -447,12 +455,6 @@ TexturePtr RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const 
 
         // We convert to our rendering pixel format, since that will always be float-based which
         // is necessary for correct color conversion
-        VideoParams managed_params = frame->video_params();
-        managed_params.set_format(render_params.format());
-        managed_params.set_pixel_aspect_ratio(stream_data.pixel_aspect_ratio());
-        managed_params.set_interlacing(stream_data.interlacing());
-        TexturePtr value = render_ctx_->CreateTexture(managed_params);
-
         ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
                                                              using_colorspace,
                                                              color_manager->GetReferenceColorSpace());
@@ -471,39 +473,32 @@ TexturePtr RenderProcessor::ProcessVideoFootage(const FootageJob &stream, const 
           job.SetInputAlphaAssociation(kAlphaUnassociated);
         }
 
-        render_ctx_->BlitColorManaged(job, value.get());
-
-        return value;
+        render_ctx_->BlitColorManaged(job, destination.get());
       }
     }
   }
-
-  return super::ProcessVideoFootage(stream, input_time);
 }
 
-SampleBufferPtr RenderProcessor::ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time)
+void RenderProcessor::ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time)
 {
   DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index()));
 
   if (decoder) {
-    const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
+    const AudioParams& audio_params = GetCacheAudioParams();
 
-    Decoder::RetrieveAudioData status = decoder->RetrieveAudio(input_time, audio_params,
-                                                               stream.cache_path(),
-                                                               stream.loop_mode(),
-                                                               static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
+    Decoder::RetrieveAudioStatus status = decoder->RetrieveAudio(destination,
+                                                                 input_time, audio_params,
+                                                                 stream.cache_path(),
+                                                                 stream.loop_mode(),
+                                                                 static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
-    if (status.status == Decoder::kOK && status.samples) {
-      return status.samples;
-    } else if (status.status == Decoder::kWaitingForConform) {
+    if (status == Decoder::kWaitingForConform) {
       ticket_->setProperty("incomplete", true);
     }
   }
-
-  return super::ProcessAudioFootage(stream, input_time);
 }
 
-TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob &job)
 {
   Q_UNUSED(range)
 
@@ -524,7 +519,7 @@ TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &ran
 
     if (shader.isNull()) {
       // Couldn't find or build the shader required
-      return super::ProcessShader(node, range, job);
+      return;
     }
   }
 
@@ -532,24 +527,19 @@ TexturePtr RenderProcessor::ProcessShader(const Node *node, const TimeRange &ran
 
   tex_params.set_channel_count(GetChannelCountFromJob(job));
 
-  TexturePtr destination = render_ctx_->CreateTexture(tex_params);
-
   // Run shader
   render_ctx_->BlitToTexture(shader, job, destination.get());
-
-  return destination;
 }
 
-SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
+void RenderProcessor::ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job)
 {
   if (!job.samples() || !job.samples()->is_allocated()) {
-    return super::ProcessSamples(node, range, job);
+    return;
   }
 
-  SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(job.samples()->audio_params(), job.samples()->sample_count());
   NodeValueRow value_db;
 
-  const AudioParams& audio_params = ticket_->property("aparam").value<AudioParams>();
+  const AudioParams& audio_params = GetCacheAudioParams();
 
   for (int i=0;i<job.samples()->sample_count();i++) {
     // Calculate the exact rational time at this sample
@@ -566,105 +556,51 @@ SampleBufferPtr RenderProcessor::ProcessSamples(const Node *node, const TimeRang
 
     node->ProcessSamples(value_db,
                          job.samples(),
-                         output_buffer,
+                         destination,
                          i);
   }
-
-  return output_buffer;
 }
 
-TexturePtr RenderProcessor::ProcessColorTransform(const Node *node, const ColorTransformJob &job)
+void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob &job)
 {
-  TexturePtr src = job.GetInputTexture();
-
-  VideoParams src_params = src->params();
-  src_params.set_channel_count(GetChannelCountFromJob(job));
-
-  TexturePtr dest = render_ctx_->CreateTexture(src_params);
-
-  render_ctx_->BlitColorManaged(job, dest.get());
-
-  return dest;
+  render_ctx_->BlitColorManaged(job, destination.get());
 }
 
-TexturePtr RenderProcessor::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
+void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob &job)
 {
   FramePtr frame = Frame::Create();
 
-  VideoParams frame_params = GetCacheVideoParams();
-  frame_params.set_channel_count(GetChannelCountFromJob(job));
-  if (job.GetRequestedFormat() != VideoParams::kFormatInvalid) {
-    frame_params.set_format(job.GetRequestedFormat());
-  }
-
-  frame->set_video_params(frame_params);
+  frame->set_video_params(destination->params());
   frame->allocate();
 
   node->GenerateFrame(frame, job);
 
-  TexturePtr texture = render_ctx_->CreateTexture(frame->video_params(),
-                                                  frame->data(),
-                                                  frame->linesize_pixels());
-
-  if (!job.GetColorspace().isEmpty()) {
+  if (job.GetColorspace().isEmpty()) {
+    // Just upload frame data straight to frame
+    destination->Upload(frame->data(), frame->linesize_pixels());
+  } else {
     // Convert to reference space
-    TexturePtr dest = render_ctx_->CreateTexture(GetCacheVideoParams());
+
+    // Upload to middle texture
+    TexturePtr mid = render_ctx_->CreateTexture(GetCacheVideoParams());
+    mid->Upload(frame->data(), frame->linesize_pixels());
+
     ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
     ColorProcessorPtr cp = ColorProcessor::Create(color_manager, job.GetColorspace(), color_manager->GetReferenceColorSpace());
+
     ColorTransformJob ctj;
 
     ctj.SetColorProcessor(cp);
-    ctj.SetInputTexture(texture);
+    ctj.SetInputTexture(mid);
     ctj.SetInputAlphaAssociation(kAlphaAssociated);
 
-    render_ctx_->BlitColorManaged(ctj, dest.get());
-    texture = dest;
+    render_ctx_->BlitColorManaged(ctj, destination.get());
   }
-
-  return texture;
 }
 
 bool RenderProcessor::CanCacheFrames()
 {
   return ticket_->property("type").value<RenderManager::TicketType>() == RenderManager::kTypeVideo;
-}
-
-TexturePtr RenderProcessor::GetCachedTexture(const QByteArray& hash)
-{
-  QString cache_dir = ticket_->property("cache").toString();
-  if (cache_dir.isEmpty()) {
-    return nullptr;
-  }
-
-  FramePtr f = FrameHashCache::LoadCacheFrame(cache_dir, hash);
-
-  if (f) {
-    TexturePtr texture = render_ctx_->CreateTexture(f->video_params(), f->data(), f->linesize_pixels());
-    return texture;
-  }
-
-  return nullptr;
-}
-
-void RenderProcessor::SaveCachedTexture(const QByteArray &hash, TexturePtr tex_var)
-{
-  // FIXME: Temporarily disabled because I don't know how to ensure that the frame saved here is
-  //        not the main frame. If it is, it'll be saved twice which will waste a lot of cycles.
-  //        At least disabled, the frame will still save, and if nothing else alters the hash, it
-  //        will pick up automatically from GetCachedTexture.
-  /*if (!tex_var.isNull()) {
-    QString cache_dir = ticket_->property("cache").toString();
-
-    if (!cache_dir.isEmpty()) {
-      TexturePtr texture = tex_var.value<TexturePtr>();
-      FramePtr frame = Frame::Create();
-      frame->set_video_params(texture->params());
-      frame->allocate();
-      render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
-      FrameHashCache::SaveCacheFrame(cache_dir, hash, frame);
-      qDebug() << "Saved mid-render frame to cache";
-    }
-  }*/
 }
 
 }

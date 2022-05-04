@@ -33,12 +33,16 @@ ExportFormatComboBox::ExportFormatComboBox(Mode mode, QWidget *parent) :
     case kShowAllFormats:
       break;
     case kShowAudioOnly:
-      if (!ExportFormat::GetVideoCodecs(f).isEmpty()) {
+      if (!ExportFormat::GetVideoCodecs(f).isEmpty()
+          || !ExportFormat::GetSubtitleCodecs(f).isEmpty()
+          || ExportFormat::GetAudioCodecs(f).isEmpty()) {
         continue;
       }
       break;
     case kShowVideoOnly:
-      if (!ExportFormat::GetAudioCodecs(f).isEmpty()) {
+      if (ExportFormat::GetVideoCodecs(f).isEmpty()
+          || !ExportFormat::GetSubtitleCodecs(f).isEmpty()
+          || !ExportFormat::GetAudioCodecs(f).isEmpty()) {
         continue;
       }
       break;

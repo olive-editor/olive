@@ -41,13 +41,15 @@ public:
 
   virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const override;
 
+  virtual std::vector<AudioParams::Format> GetSampleFormatsForCodec(ExportCodec::Codec c) const override;
+
   virtual bool Open() override;
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
 
   virtual bool WriteAudio(olive::SampleBufferPtr audio) override;
 
-  bool WriteAudioData(const AudioParams &audio_params, bool planar, const uint8_t **data, int input_sample_count);
+  bool WriteAudioData(const AudioParams &audio_params, const uint8_t **data, int input_sample_count);
 
   virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
 
@@ -78,9 +80,9 @@ private:
   void FlushEncoders();
   void FlushCodecCtx(AVCodecContext* codec_ctx, AVStream *stream);
 
-  bool InitializeResampleContext(const AudioParams &audio, bool planar);
+  bool InitializeResampleContext(const AudioParams &audio);
 
-  static const AVCodec *GetEncoder(ExportCodec::Codec c);
+  static const AVCodec *GetEncoder(ExportCodec::Codec c, AudioParams::Format aformat);
 
   AVFormatContext* fmt_ctx_;
 

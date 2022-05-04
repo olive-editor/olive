@@ -388,7 +388,6 @@ void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, c
   SetTimeAndSignal(time.in());
   ArmForRecording();
 
-  recording_filename_ = QStringLiteral("/home/matt/Desktop/ass.mp3");
   recording_callback_ = source;
   recording_range_ = time;
   recording_track_ = track;
@@ -1167,7 +1166,31 @@ void ViewerWidget::Play(bool in_to_out_only)
       in_to_out_only = false;
     }
   } else if (record_armed_) {
-    if (AudioManager::instance()->StartRecording(recording_filename_, GetConnectedNode()->GetAudioParams())) {
+    DisarmRecording();
+
+    if (GetConnectedNode()->project()->filename().isEmpty()) {
+      QMessageBox::critical(this, tr("Audio Recording"), tr("Project must be saved before you can record audio."));
+      return;
+    }
+
+    QDir audio_path(QFileInfo(GetConnectedNode()->project()->filename()).dir().filePath(tr("audio")));
+    if (!audio_path.exists()) {
+      audio_path.mkpath(QStringLiteral("."));
+    }
+
+    recording_filename_ = audio_path.filePath(QStringLiteral("%1.%2").arg(
+                                                QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss"),
+                                                ExportFormat::GetExtension(static_cast<ExportFormat::Format>(Config::Current()[QStringLiteral("AudioRecordingFormat")].toInt())))
+                                              );
+
+    AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(), OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong(), static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioRecordingSampleFormat").toInt()));
+
+    EncodingParams encode_param;
+    encode_param.EnableAudio(ap, static_cast<ExportCodec::Codec>(OLIVE_CONFIG("AudioRecordingCodec").toInt()));
+    encode_param.SetFilename(recording_filename_);
+    encode_param.set_audio_bit_rate(OLIVE_CONFIG("AudioRecordingBitRate").toInt() * 1000);
+
+    if (AudioManager::instance()->StartRecording(encode_param)) {
       recording_ = true;
       controls_->SetPauseButtonRecordingState(true);
       recording_callback_->EnableRecordingOverlay(TimelineCoordinate(recording_range_.in(), recording_track_));
@@ -1175,8 +1198,6 @@ void ViewerWidget::Play(bool in_to_out_only)
       QMessageBox::critical(this, tr("Audio Recording"), tr("Failed to start audio recording"));
       return;
     }
-
-    DisarmRecording();
   }
 
   PlayInternal(1, in_to_out_only);

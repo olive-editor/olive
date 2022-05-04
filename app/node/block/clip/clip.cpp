@@ -56,7 +56,7 @@ ClipBlock::ClipBlock() :
   AddInput(kMaintainAudioPitchInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
+  //SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
 
   SetEffectInput(kBufferIn);
 }

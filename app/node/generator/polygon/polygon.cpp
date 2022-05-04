@@ -102,7 +102,7 @@ void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globa
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 }
 
 void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const

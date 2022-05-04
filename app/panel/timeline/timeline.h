@@ -114,6 +114,8 @@ signals:
 
   void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
 
+  void RevealViewerInProject(ViewerOutput *r);
+
 };
 
 }

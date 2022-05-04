@@ -73,11 +73,10 @@ int InputCallback(const void *input, void *output, unsigned long frameCount, con
 {
   FFmpegEncoder *f = static_cast<FFmpegEncoder*>(userData);
 
-  SampleBufferPtr s = SampleBuffer::Create();
-  s->set_sample_count(frameCount);
-  s->set_audio_params(f->params().audio_params());
+  AudioParams our_params = f->params().audio_params();
+  our_params.set_format(AudioParams::GetPackedEquivalent(f->params().audio_params().format()));
 
-  f->WriteAudioData(f->params().audio_params(), false, reinterpret_cast<const uint8_t**>(&input), frameCount);
+  f->WriteAudioData(our_params, reinterpret_cast<const uint8_t**>(&input), frameCount);
 
   return paContinue;
 }
@@ -115,16 +114,22 @@ void AudioManager::ClearBufferedOutput()
 PaSampleFormat AudioManager::GetPortAudioSampleFormat(AudioParams::Format fmt)
 {
   switch (fmt) {
-  case AudioParams::kFormatUnsigned8:
+  case AudioParams::kFormatUnsigned8Packed:
+  case AudioParams::kFormatUnsigned8Planar:
     return paUInt8;
-  case AudioParams::kFormatSigned16:
+  case AudioParams::kFormatSigned16Packed:
+  case AudioParams::kFormatSigned16Planar:
     return paInt16;
-  case AudioParams::kFormatSigned32:
+  case AudioParams::kFormatSigned32Packed:
+  case AudioParams::kFormatSigned32Planar:
     return paInt32;
-  case AudioParams::kFormatFloat32:
+  case AudioParams::kFormatFloat32Packed:
+  case AudioParams::kFormatFloat32Planar:
     return paFloat32;
-  case AudioParams::kFormatSigned64:
-  case AudioParams::kFormatFloat64:
+  case AudioParams::kFormatSigned64Packed:
+  case AudioParams::kFormatSigned64Planar:
+  case AudioParams::kFormatFloat64Packed:
+  case AudioParams::kFormatFloat64Planar:
   case AudioParams::kFormatInvalid:
   case AudioParams::kFormatCount:
     break;
@@ -184,25 +189,21 @@ void AudioManager::HardReset()
   Pa_Initialize();
 }
 
-bool AudioManager::StartRecording(const QString &filename, const AudioParams &params)
+bool AudioManager::StartRecording(const EncodingParams &params)
 {
   if (input_device_ == paNoDevice) {
     return false;
   }
 
-  EncodingParams encode_param;
-  encode_param.EnableAudio(params, ExportCodec::kCodecMP3);
-  encode_param.SetFilename(filename);
-
-  input_encoder_ = new FFmpegEncoder(encode_param);
+  input_encoder_ = new FFmpegEncoder(params);
   if (!input_encoder_->Open()) {
     qCritical() << "Failed to open encoder for recording";
     return false;
   }
 
-  PaStreamParameters p = GetPortAudioParams(params, input_device_);
+  PaStreamParameters p = GetPortAudioParams(params.audio_params(), input_device_);
 
-  if (Pa_OpenStream(&input_stream_, &p, nullptr, params.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_) == paNoError) {
+  if (Pa_OpenStream(&input_stream_, &p, nullptr, params.audio_params().sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_) == paNoError) {
     if (Pa_StartStream(input_stream_) == paNoError) {
       return true;
     }

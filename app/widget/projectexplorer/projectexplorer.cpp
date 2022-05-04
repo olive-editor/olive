@@ -97,6 +97,8 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   connect(tree_view_, &ProjectExplorerTreeView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(list_view_, &ProjectExplorerListView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
+
+  UpdateNavBarText();
 }
 
 const ProjectToolbar::ViewType &ProjectExplorer::view_type() const
@@ -151,13 +153,7 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
   list_view_->setRootIndex(index);
 
   // Set navbar text to folder's name
-  if (index.isValid()) {
-    Folder* f = static_cast<Folder*>(sort_model_.mapToSource(index).internalPointer());
-    nav_bar_->set_text(f->GetLabel());
-  } else {
-    // Or set it to an empty string if the index is valid (which means we're browsing to the root directory)
-    nav_bar_->set_text(QString());
-  }
+  UpdateNavBarText();
 
   // Set directory up enabled button based on whether we're in root or not
   nav_bar_->set_dir_up_enabled(index.isValid());
@@ -244,6 +240,21 @@ QString ProjectExplorer::GetHumanReadableNodeName(Node *node)
   } else {
     return tr("%1 (%2)").arg(node->GetLabel(), node->Name());
   }
+}
+
+void ProjectExplorer::UpdateNavBarText()
+{
+  QString absolute;
+
+  Folder* f = static_cast<Folder*>(sort_model_.mapToSource(list_view_->rootIndex()).internalPointer());
+  while (f && f != project()->root()) {
+    absolute.prepend(QStringLiteral("%1 / ").arg(f->GetLabel()));
+    f = f->folder();
+  }
+
+  absolute.prepend(QStringLiteral("/ "));
+
+  nav_bar_->set_text(absolute);
 }
 
 QAbstractItemView *ProjectExplorer::CurrentView() const
@@ -665,6 +676,34 @@ void ProjectExplorer::DeleteSelected()
   } else {
     delete command;
   }
+}
+
+bool ProjectExplorer::SelectItem(Node *n)
+{
+  DeselectAll();
+
+  QModelIndex index = model_.CreateIndexFromItem(n);
+
+  if (index.isValid()) {
+    index = sort_model_.mapFromSource(index);
+
+    QModelIndex parent = index.parent();
+    if (view_type() == ProjectToolbar::TreeView) {
+      // Expand all folders until this index is visible
+      while (parent.isValid()) {
+        tree_view_->expand(parent);
+        parent = parent.parent();
+      }
+    } else {
+      BrowseToFolder(parent);
+    }
+
+    CurrentView()->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+
+    return true;
+  }
+
+  return false;
 }
 
 }

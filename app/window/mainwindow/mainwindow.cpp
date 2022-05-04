@@ -479,6 +479,15 @@ void MainWindow::ShowWelcomeDialog()
   }
 }
 
+void MainWindow::RevealViewerInProject(ViewerOutput *r)
+{
+  foreach (ProjectPanel *p, project_panels_) {
+    if (p->project() == r->project() && p->SelectItem(r)) {
+      break;
+    }
+  }
+}
+
 #ifdef Q_OS_LINUX
 void MainWindow::ShowNouveauWarning()
 {
@@ -557,6 +566,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
+  connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);

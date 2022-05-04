@@ -107,7 +107,7 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
       //        end up with gaps in the screen that will require an alpha channel.
       job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 
       pushed_job = true;
     }

@@ -1071,6 +1071,14 @@ void TimelineWidget::ShowContextMenu()
 
     menu.addSeparator();
 
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(selected.first())) {
+      if (clip->connected_viewer()) {
+        QAction *reveal_in_project = menu.addAction(tr("Reveal in Project"));
+        reveal_in_project->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
+        connect(reveal_in_project, &QAction::triggered, this, &TimelineWidget::RevealInProject);
+      }
+    }
+
     QAction* properties_action = menu.addAction(tr("Properties"));
     connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialogForSelectedClips);
   }
@@ -1213,6 +1221,15 @@ void TimelineWidget::SignalBlockSelectionChange()
 {
   signal_block_change_timer_->stop();
   signal_block_change_timer_->start();
+}
+
+void TimelineWidget::RevealInProject()
+{
+  QAction *a = static_cast<QAction*>(sender());
+
+  ViewerOutput *item_to_reveal = reinterpret_cast<ViewerOutput*>(a->data().value<quintptr>());
+
+  emit RevealViewerInProject(item_to_reveal);
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)

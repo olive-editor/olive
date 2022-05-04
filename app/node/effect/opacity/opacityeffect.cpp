@@ -53,7 +53,7 @@ void OpacityEffect::Value(const NodeValueRow &value, const NodeGlobals &globals,
   if (!job.GetValue(kTextureInput).data().isNull()) {
     if (!qFuzzyCompare(job.GetValue(kValueInput).data().toDouble(), 1.0)) {
       job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       // 1.0 float is a no-op, so just push the texture
       table->Push(job.GetValue(kTextureInput));

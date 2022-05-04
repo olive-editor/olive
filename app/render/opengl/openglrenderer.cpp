@@ -518,10 +518,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kFile:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
-    case NodeValue::kShaderJob:
-    case NodeValue::kSampleJob:
-    case NodeValue::kGenerateJob:
-    case NodeValue::kFootageJob:
     case NodeValue::kBezier:
     case NodeValue::kNone:
     case NodeValue::kColorTransformJob:

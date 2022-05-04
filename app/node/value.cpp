@@ -135,13 +135,8 @@ QByteArray NodeValue::ValueToBytes(NodeValue::Type type, const QVariant &value)
 
   // These types have no persistent input
   case kNone:
-  case kFootageJob:
   case kTexture:
   case kSamples:
-  case kShaderJob:
-  case kSampleJob:
-  case kGenerateJob:
-  case kColorTransformJob:
   case kDataTypeCount:
     break;
   }
@@ -355,11 +350,6 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
   case kAudioParams:
     return QCoreApplication::translate("NodeValue", "Audio Parameters");
 
-  case kFootageJob:
-  case kShaderJob:
-  case kSampleJob:
-  case kGenerateJob:
-  case kColorTransformJob:
   case kDataTypeCount:
     break;
   }
@@ -408,11 +398,6 @@ QString NodeValue::GetDataTypeName(Type type)
     return QStringLiteral("vparam");
   case kAudioParams:
     return QStringLiteral("aparam");
-  case kFootageJob:
-  case kShaderJob:
-  case kSampleJob:
-  case kGenerateJob:
-  case kColorTransformJob:
   case kDataTypeCount:
     break;
   }

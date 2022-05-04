@@ -202,7 +202,7 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
 
     ShaderJobEvent(value, job);
 
-    job_type = NodeValue::kShaderJob;
+    job_type = NodeValue::kTexture;
     push_job = QVariant::fromValue(job);
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
