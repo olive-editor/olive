@@ -292,7 +292,7 @@ void TimeBasedWidget::SetTime(const rational &time)
     QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
   } else {
     // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
-    switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+    switch (static_cast<AutoScroll::Method>(OLIVE_CONFIG("Autoscroll").toInt())) {
     case AutoScroll::kNone:
       // Do nothing
       break;
@@ -606,12 +606,12 @@ void TimeBasedWidget::SetMarker()
       color = closest->color();
     } else {
       // Fallback to default color in preferences
-      color = Config::Current()[QStringLiteral("MarkerColor")].toInt();
+      color = OLIVE_CONFIG("MarkerColor").toInt();
     }
 
     TimelineMarker *marker = new TimelineMarker(color, TimeRange(GetTime(), GetTime()));
 
-    if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
+    if (OLIVE_CONFIG("SetNameWithMarker").toBool()) {
       MarkerPropertiesDialog mpd({marker}, timebase(), this);
       if (mpd.exec() != QDialog::Accepted) {
         delete marker;

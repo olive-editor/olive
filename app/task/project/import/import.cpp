@@ -203,7 +203,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
         // User has confirmed it is a still image, let's set it accordingly.
         video_stream.set_video_type(VideoParams::kVideoTypeImageSequence);
 
-        rational default_timebase = Config::Current()[QStringLiteral("DefaultSequenceFrameRate")].value<rational>();
+        rational default_timebase = OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>();
         video_stream.set_time_base(default_timebase);
         video_stream.set_frame_rate(default_timebase.flipped());
 

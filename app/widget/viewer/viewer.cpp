@@ -741,7 +741,7 @@ void ViewerWidget::PauseInternal()
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  if (!IsPlaying() && GetConnectedNode() && Config::Current()[QStringLiteral("AudioScrubbing")].toBool()) {
+  if (!IsPlaying() && GetConnectedNode() && OLIVE_CONFIG("AudioScrubbing").toBool()) {
     // Get audio src device from renderer
     const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
@@ -1129,9 +1129,9 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   {
     QAction *stop_playback_on_last_frame = menu.addAction(tr("Stop Playback On Last Frame"));
     stop_playback_on_last_frame->setCheckable(true);
-    stop_playback_on_last_frame->setChecked(Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")].toBool());
+    stop_playback_on_last_frame->setChecked(OLIVE_CONFIG("StopPlaybackOnLastFrame").toBool());
     connect(stop_playback_on_last_frame, &QAction::triggered, this, [](bool e){
-      Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")] = e;
+      OLIVE_CONFIG("StopPlaybackOnLastFrame") = e;
     });
 
     menu.addSeparator();
@@ -1180,7 +1180,7 @@ void ViewerWidget::Play(bool in_to_out_only)
 
     recording_filename_ = audio_path.filePath(QStringLiteral("%1.%2").arg(
                                                 QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss"),
-                                                ExportFormat::GetExtension(static_cast<ExportFormat::Format>(Config::Current()[QStringLiteral("AudioRecordingFormat")].toInt())))
+                                                ExportFormat::GetExtension(static_cast<ExportFormat::Format>(OLIVE_CONFIG("AudioRecordingFormat").toInt())))
                                               );
 
     AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(), OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong(), static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioRecordingSampleFormat").toInt()));
@@ -1304,7 +1304,7 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   // If we're stopping playback on the last frame rather than after it, subtract our max time
   // by one timebase unit
-  if (Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")].toBool()) {
+  if (OLIVE_CONFIG("StopPlaybackOnLastFrame").toBool()) {
     max_time = qMax(min_time, max_time - timebase());
   }
 
@@ -1329,7 +1329,7 @@ void ViewerWidget::PlaybackTimerUpdate()
     // or restart playback
     end_of_line = true;
 
-    if (Config::Current()[QStringLiteral("Loop")].toBool() && !recording_) {
+    if (OLIVE_CONFIG("Loop").toBool() && !recording_) {
 
       // If we're looping, jump to the other side of the workarea and continue
       time_to_set = (tripped_time == min_time) ? max_time : min_time;

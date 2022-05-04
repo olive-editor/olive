@@ -106,7 +106,7 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
       if (output_color_transform) {
         // Yes color transform, blit color managed
         render_ctx_->BlitColorManaged(output_color_transform, texture,
-                                      Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
+                                      OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
                                       blit_tex.get(), true, matrix);
       } else {
         // No color transform, just blit

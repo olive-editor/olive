@@ -235,7 +235,7 @@ PaDeviceIndex AudioManager::FindConfigDeviceByName(bool is_output_device)
 {
   QString entry = is_output_device ? QStringLiteral("AudioOutput") : QStringLiteral("AudioInput");
 
-  return FindDeviceByName(Config::Current()[entry].toString(), is_output_device);
+  return FindDeviceByName(OLIVE_CONFIG_STR(entry).toString(), is_output_device);
 }
 
 PaDeviceIndex AudioManager::FindDeviceByName(const QString &s, bool is_output_device)
