@@ -35,9 +35,7 @@
 #include "window/mainwindow/mainwindow.h"
 
 namespace olive {
-
 RenderManager* RenderManager::instance_ = nullptr;
-const int RenderManager::kDecoderMaximumInactivity = 10000;
 
 RenderManager::RenderManager(QObject *parent) :
   ThreadPool(0, parent), backend_(kOpenGL)
