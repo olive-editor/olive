@@ -33,8 +33,6 @@ class TransitionBlock : public Block
 public:
   TransitionBlock();
 
-  NODE_DEFAULT_DESTRUCTOR(TransitionBlock)
-
   virtual void Retranslate() override;
 
   rational in_offset() const;

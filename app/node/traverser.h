@@ -95,6 +95,8 @@ protected:
 
   virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job){}
 
+  virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs){}
+
   virtual TexturePtr CreateTexture(const VideoParams &p)
   {
     return CreateDummyTexture(p);
@@ -108,7 +110,11 @@ protected:
 
   SampleBufferPtr CreateSampleBuffer(const AudioParams &params, const rational &length)
   {
-    return CreateSampleBuffer(params, params.time_to_samples(length));
+    if (params.is_valid()) {
+      return CreateSampleBuffer(params, params.time_to_samples(length));
+    } else {
+      return SampleBuffer::Create();
+    }
   }
 
   virtual bool CanCacheFrames()

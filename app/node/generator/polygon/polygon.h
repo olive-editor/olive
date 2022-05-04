@@ -24,6 +24,7 @@
 #include <QPainterPath>
 
 #include "common/bezier.h"
+#include "node/generator/shape/generatorwithmerge.h"
 #include "node/gizmo/line.h"
 #include "node/gizmo/path.h"
 #include "node/gizmo/point.h"
@@ -32,15 +33,13 @@
 
 namespace olive {
 
-class PolygonGenerator : public Node
+class PolygonGenerator : public GeneratorWithMerge
 {
   Q_OBJECT
 public:
   PolygonGenerator();
 
-  NODE_DEFAULT_DESTRUCTOR(PolygonGenerator)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(PolygonGenerator)
 
   virtual QString Name() const override;
   virtual QString id() const override;

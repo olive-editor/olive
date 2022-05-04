@@ -31,9 +31,7 @@ class VolumeNode : public MathNodeBase
 public:
   VolumeNode();
 
-  NODE_DEFAULT_DESTRUCTOR(VolumeNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(VolumeNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

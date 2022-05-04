@@ -66,11 +66,6 @@ const Track::Type& Track::type() const
   return track_type_;
 }
 
-Node *Track::copy() const
-{
-  return new Track();
-}
-
 QString Track::Name() const
 {
   if (track_type_ == Track::kVideo) {

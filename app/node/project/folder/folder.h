@@ -37,12 +37,7 @@ class Folder : public Node
 public:
   Folder();
 
-  NODE_DEFAULT_DESTRUCTOR(Folder)
-
-  virtual Node* copy() const override
-  {
-    return new Folder();
-  }
+  NODE_DEFAULT_FUNCTIONS(Folder)
 
   virtual QString Name() const override
   {

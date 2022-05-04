@@ -31,9 +31,7 @@ class CrossDissolveTransition : public TransitionBlock
 public:
   CrossDissolveTransition();
 
-  NODE_DEFAULT_DESTRUCTOR(CrossDissolveTransition)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(CrossDissolveTransition)
 
   virtual QString Name() const override;
   virtual QString id() const override;

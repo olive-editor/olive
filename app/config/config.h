@@ -31,6 +31,7 @@
 namespace olive {
 
 #define OLIVE_CONFIG(x) Config::Current()[QStringLiteral(x)]
+#define OLIVE_CONFIG_STR(x) Config::Current()[x]
 
 class Config {
 public:

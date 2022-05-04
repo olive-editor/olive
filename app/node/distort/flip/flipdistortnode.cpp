@@ -40,11 +40,6 @@ FlipDistortNode::FlipDistortNode()
   SetEffectInput(kTextureInput);
 }
 
-Node* FlipDistortNode::copy() const
-{
-  return new FlipDistortNode();
-}
-
 QString FlipDistortNode::Name() const
 {
   return tr("Flip");

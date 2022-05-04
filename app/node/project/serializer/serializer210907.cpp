@@ -597,7 +597,7 @@ void ProjectSerializer210907::LoadMarkerList(QXmlStreamReader *reader, TimelineM
         }
       }
 
-      new TimelineMarker(Config::Current()[QStringLiteral("MarkerColor")].toInt(), TimeRange(in, out), name, markers);
+      new TimelineMarker(OLIVE_CONFIG("MarkerColor").toInt(), TimeRange(in, out), name, markers);
     }
 
     reader->skipCurrentElement();

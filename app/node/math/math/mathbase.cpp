@@ -363,6 +363,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
       QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.data().value<QMatrix4x4>(),
                                                                                    sequence_res,
+                                                                                   texture->params().offset(),
                                                                                    texture_res);
 
       if (operation != kOpMultiply || adjusted_matrix.isIdentity()) {

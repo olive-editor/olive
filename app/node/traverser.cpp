@@ -307,6 +307,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       TexturePtr tex = CreateTexture(tex_params);
 
+      PreProcessRow(range, job.GetValues());
       ProcessShader(tex, val.source(), range, job);
 
       val.set_data(QVariant::fromValue(tex));
@@ -317,13 +318,25 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       VideoParams tex_params = GetCacheVideoParams();
       tex_params.set_channel_count(GetChannelCountFromJob(job));
+
+      VideoParams upload_params = tex_params;
       if (job.GetRequestedFormat() != VideoParams::kFormatInvalid) {
-        tex_params.set_format(job.GetRequestedFormat());
+        upload_params.set_format(job.GetRequestedFormat());
       }
 
-      TexturePtr tex = CreateTexture(tex_params);
+      TexturePtr tex = CreateTexture(upload_params);
 
+      PreProcessRow(range, job.GetValues());
       ProcessFrameGeneration(tex, val.source(), job);
+
+      if (!job.GetColorspace().isEmpty()) {
+        // Convert to reference space
+        TexturePtr dest = CreateTexture(tex_params);
+
+        ConvertToReferenceSpace(dest, tex, job.GetColorspace());
+
+        tex = dest;
+      }
 
       val.set_data(QVariant::fromValue(tex));
 

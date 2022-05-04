@@ -38,6 +38,8 @@ class ColorManager : public Node
 public:
   ColorManager();
 
+  NODE_DEFAULT_FUNCTIONS(ColorManager)
+
   virtual QString Name() const override
   {
     return tr("Color Manager");
@@ -56,11 +58,6 @@ public:
   virtual QString Description() const override
   {
     return tr("Color management configuration for project.");
-  }
-
-  virtual Node* copy() const override
-  {
-    return new ColorManager();
   }
 
   OCIO::ConstConfigRcPtr GetConfig() const;

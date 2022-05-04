@@ -259,6 +259,8 @@ void VideoParams::set_defaults_for_footage()
   start_time_ = 0;
   duration_ = 0;
   premultiplied_alpha_ = false;
+  x_ = 0;
+  y_ = 0;
 }
 
 void VideoParams::calculate_square_pixel_width()
@@ -327,6 +329,8 @@ QByteArray VideoParams::toBytes() const
   hasher.addData(reinterpret_cast<const char*>(&interlacing_), sizeof(interlacing_));
   hasher.addData(reinterpret_cast<const char*>(&divider_), sizeof(divider_));
   hasher.addData(reinterpret_cast<const char*>(&enabled_), sizeof(enabled_));
+  hasher.addData(reinterpret_cast<const char*>(&x_), sizeof(x_));
+  hasher.addData(reinterpret_cast<const char*>(&y_), sizeof(y_));
   hasher.addData(reinterpret_cast<const char*>(&stream_index_), sizeof(stream_index_));
   hasher.addData(reinterpret_cast<const char*>(&video_type_), sizeof(video_type_));
   hasher.addData(reinterpret_cast<const char*>(&frame_rate_), sizeof(frame_rate_));
@@ -370,6 +374,10 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_divider(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("enabled")) {
       set_enabled(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("x")) {
+      set_x(reader->readElementText().toFloat());
+    } else if (reader->name() == QStringLiteral("y")) {
+      set_y(reader->readElementText().toFloat());
     } else if (reader->name() == QStringLiteral("streamindex")) {
       set_stream_index(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("videotype")) {
@@ -402,6 +410,8 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
   writer->writeTextElement(QStringLiteral("divider"), QString::number(divider_));
   writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
+  writer->writeTextElement(QStringLiteral("x"), QString::number(x_));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(y_));
   writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index_));
   writer->writeTextElement(QStringLiteral("videotype"), QString::number(video_type_));
   writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());

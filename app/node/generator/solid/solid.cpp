@@ -34,11 +34,6 @@ SolidGenerator::SolidGenerator()
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
-Node *SolidGenerator::copy() const
-{
-  return new SolidGenerator();
-}
-
 QString SolidGenerator::Name() const
 {
   return tr("Solid");

@@ -35,12 +35,7 @@ class CornerPinDistortNode : public Node
 public:
   CornerPinDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(CornerPinDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new CornerPinDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(CornerPinDistortNode)
 
   virtual QString Name() const override
   {

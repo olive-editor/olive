@@ -30,8 +30,7 @@ class TimeOffsetNode : public Node
 public:
   TimeOffsetNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TimeOffsetNode)
-  NODE_COPY_FUNCTION(TimeOffsetNode)
+  NODE_DEFAULT_FUNCTIONS(TimeOffsetNode)
 
   virtual QString Name() const override
   {

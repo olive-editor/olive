@@ -53,7 +53,7 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
   renderer()->Blit(pipeline, job, VideoParams(width(), height(),
-                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                              static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
                                               VideoParams::kInternalChannelCount));
 }
 

@@ -31,9 +31,7 @@ class SubtitleBlock : public ClipBlock
 public:
   SubtitleBlock();
 
-  NODE_DEFAULT_DESTRUCTOR(SubtitleBlock)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(SubtitleBlock)
 
   virtual QString Name() const override;
   virtual QString id() const override;

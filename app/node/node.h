@@ -48,6 +48,10 @@
 
 namespace olive {
 
+#define NODE_DEFAULT_FUNCTIONS(x) \
+  NODE_DEFAULT_DESTRUCTOR(x) \
+  NODE_COPY_FUNCTION(x)
+
 #define NODE_DEFAULT_DESTRUCTOR(x) \
   virtual ~x() override {DisconnectAll();}
 
@@ -98,6 +102,11 @@ public:
     kDontShowInParamView = 0x1,
     kVideoEffect = 0x2,
     kAudioEffect = 0x4
+  };
+
+  struct ContextPair {
+    Node *node;
+    Node *context;
   };
 
   Node();

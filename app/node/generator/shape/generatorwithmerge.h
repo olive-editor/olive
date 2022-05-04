@@ -18,41 +18,30 @@
 
 ***/
 
-#ifndef PANNODE_H
-#define PANNODE_H
+#ifndef GENERATORWITHMERGE_H
+#define GENERATORWITHMERGE_H
 
 #include "node/node.h"
 
 namespace olive {
 
-class PanNode : public Node
+class GeneratorWithMerge : public Node
 {
   Q_OBJECT
 public:
-  PanNode();
-
-  NODE_DEFAULT_FUNCTIONS(PanNode)
-
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
-
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
-
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
+  GeneratorWithMerge();
 
   virtual void Retranslate() override;
 
-  static const QString kSamplesInput;
-  static const QString kPanningInput;
+  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
 
-private:
-  NodeInput* samples_input_;
-  NodeInput* panning_input_;
+  static const QString kBaseInput;
+
+protected:
+  void PushMergableJob(const NodeValueRow &value, const QVariant &job, NodeValueTable *table) const;
 
 };
 
 }
 
-#endif // PANNODE_H
+#endif // GENERATORWITHMERGE_H

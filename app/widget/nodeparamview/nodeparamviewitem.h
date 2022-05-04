@@ -67,7 +67,7 @@ public:
 signals:
   void RequestSetTime(const rational& time);
 
-  void RequestSelectNode(const QVector<Node*>& node);
+  void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
 
@@ -214,7 +214,7 @@ public:
 signals:
   void RequestSetTime(const rational& time);
 
-  void RequestSelectNode(const QVector<Node*>& node);
+  void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
 

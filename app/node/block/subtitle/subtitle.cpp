@@ -31,11 +31,6 @@ SubtitleBlock::SubtitleBlock()
   AddInput(kTextIn, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 }
 
-Node *SubtitleBlock::copy() const
-{
-  return new SubtitleBlock();
-}
-
 QString SubtitleBlock::Name() const
 {
   return tr("Subtitle");

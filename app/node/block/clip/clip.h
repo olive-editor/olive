@@ -37,9 +37,7 @@ class ClipBlock : public Block
 public:
   ClipBlock();
 
-  NODE_DEFAULT_DESTRUCTOR(ClipBlock)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(ClipBlock)
 
   virtual QString Name() const override;
   virtual QString id() const override;

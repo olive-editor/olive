@@ -109,7 +109,7 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
 
         job.SetColorProcessor(output_color_transform);
         job.SetInputTexture(texture);
-        job.SetInputAlphaAssociation(Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? kAlphaAssociated : kAlphaNone);
+        job.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
         job.SetTransformMatrix(matrix);
 
         render_ctx_->BlitColorManaged(job, blit_tex.get());
@@ -523,10 +523,6 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
     }
   }
 
-  VideoParams tex_params = GetCacheVideoParams();
-
-  tex_params.set_channel_count(GetChannelCountFromJob(job));
-
   // Run shader
   render_ctx_->BlitToTexture(shader, job, destination.get());
 }
@@ -575,32 +571,26 @@ void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node 
 
   node->GenerateFrame(frame, job);
 
-  if (job.GetColorspace().isEmpty()) {
-    // Just upload frame data straight to frame
-    destination->Upload(frame->data(), frame->linesize_pixels());
-  } else {
-    // Convert to reference space
-
-    // Upload to middle texture
-    TexturePtr mid = render_ctx_->CreateTexture(GetCacheVideoParams());
-    mid->Upload(frame->data(), frame->linesize_pixels());
-
-    ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
-    ColorProcessorPtr cp = ColorProcessor::Create(color_manager, job.GetColorspace(), color_manager->GetReferenceColorSpace());
-
-    ColorTransformJob ctj;
-
-    ctj.SetColorProcessor(cp);
-    ctj.SetInputTexture(mid);
-    ctj.SetInputAlphaAssociation(kAlphaAssociated);
-
-    render_ctx_->BlitColorManaged(ctj, destination.get());
-  }
+  destination->Upload(frame->data(), frame->linesize_pixels());
 }
 
 bool RenderProcessor::CanCacheFrames()
 {
   return ticket_->property("type").value<RenderManager::TicketType>() == RenderManager::kTypeVideo;
+}
+
+void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs)
+{
+  ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+  ColorProcessorPtr cp = ColorProcessor::Create(color_manager, input_cs, color_manager->GetReferenceColorSpace());
+
+  ColorTransformJob ctj;
+
+  ctj.SetColorProcessor(cp);
+  ctj.SetInputTexture(source);
+  ctj.SetInputAlphaAssociation(kAlphaAssociated);
+
+  render_ctx_->BlitColorManaged(ctj, destination.get());
 }
 
 }

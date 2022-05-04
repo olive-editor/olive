@@ -148,7 +148,7 @@ Color Node::color() const
   if (override_color_ >= 0) {
     c = override_color_;
   } else {
-    c = Config::Current()[QStringLiteral("CatColor%1").arg(this->Category().first())].toInt();
+    c = OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(this->Category().first())).toInt();
   }
 
   return ColorCoding::GetColor(c);
@@ -171,7 +171,7 @@ QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
 
 QBrush Node::brush(qreal top, qreal bottom) const
 {
-  if (Config::Current()[QStringLiteral("UseGradients")].toBool()) {
+  if (OLIVE_CONFIG("UseGradients").toBool()) {
     return gradient_color(top, bottom);
   } else {
     return color().toQColor();
@@ -1103,7 +1103,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 {
   Node* copy;
 
-  if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+  if (OLIVE_CONFIG("SplitClipsCopyNodes").toBool()) {
     copy = Node::CopyNodeAndDependencyGraphMinusItems(node, command);
   } else {
     copy = node->copy();

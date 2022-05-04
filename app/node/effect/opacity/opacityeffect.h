@@ -10,9 +10,7 @@ class OpacityEffect : public Node
 public:
   OpacityEffect();
 
-  NODE_DEFAULT_DESTRUCTOR(OpacityEffect)
-
-  NODE_COPY_FUNCTION(OpacityEffect)
+  NODE_DEFAULT_FUNCTIONS(OpacityEffect)
 
   virtual QString Name() const override
   {

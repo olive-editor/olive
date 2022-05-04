@@ -21,29 +21,24 @@
 #ifndef SHAPENODEBASE_H
 #define SHAPENODEBASE_H
 
+#include "generatorwithmerge.h"
 #include "node/gizmo/point.h"
 #include "node/gizmo/polygon.h"
 #include "node/inputdragger.h"
-#include "node/math/merge/merge.h"
 #include "node/node.h"
 
 namespace olive {
 
-class ShapeNodeBase : public Node
+class ShapeNodeBase : public GeneratorWithMerge
 {
   Q_OBJECT
 public:
   ShapeNodeBase(bool create_color_input = true);
 
-  NODE_DEFAULT_DESTRUCTOR(ShapeNodeBase)
-
   virtual void Retranslate() override;
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
-
-  static const QString kBaseInput;
   static const QString kPositionInput;
   static const QString kSizeInput;
   static const QString kColorInput;

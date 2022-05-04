@@ -52,7 +52,7 @@ private:
 
   static bool FileTypeIsSupported(const QString& fn);
 
-  bool OpenImageHandler(const QString& fn);
+  bool OpenImageHandler(const QString& fn, int subimage);
 
   void CloseImageHandle();
 

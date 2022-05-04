@@ -428,7 +428,7 @@ void ViewerDisplayWidget::OnPaint()
     // Draw texture through color transform
     int device_width = width() * devicePixelRatioF();
     int device_height = height() * devicePixelRatioF();
-    VideoParams::Format device_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+    VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
     VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 
     if (push_mode_ == kPushBlank) {
@@ -488,7 +488,7 @@ void ViewerDisplayWidget::OnPaint()
       ColorTransformJob ctj;
       ctj.SetColorProcessor(color_service());
       ctj.SetInputTexture(texture_to_draw);
-      ctj.SetInputAlphaAssociation(Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? kAlphaAssociated : kAlphaNone);
+      ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
       ctj.SetClearDestinationEnabled(false);
       ctj.SetTransformMatrix(combined_matrix_flipped_);
       ctj.SetCropMatrix(crop_matrix_);

@@ -533,6 +533,49 @@ void Core::ImportTaskComplete(Task* task)
 
   MultiUndoCommand *command = import_task->GetCommand();
 
+  foreach (Footage *f, import_task->GetImportedFootage()) {
+    // Look for multi-layer images
+    if (f->GetAudioStreamCount() == 0 && f->GetVideoStreamCount() > 1) {
+      bool all_stills = true;
+
+      for (int i=0; i<f->GetVideoStreamCount(); i++) {
+        const VideoParams &vs = f->GetVideoParams(i);
+        if (!(vs.video_type() == VideoParams::kVideoTypeStill && vs.enabled() == (i == 0))) {
+          all_stills = false;
+        }
+      }
+
+      if (all_stills) {
+        QMessageBox d(main_window());
+
+        d.setIcon(QMessageBox::Question);
+        d.setWindowTitle(tr("Multi-Layer Image"));
+        d.setText(tr("The file '%1' has multiple layers. Would you like these layers to be "
+                     "separated across multiple tracks or merged into a single image?").arg(f->filename()));
+
+        auto multi_btn = d.addButton(tr("Multiple Layers"), QMessageBox::YesRole);
+        auto single_btn = d.addButton(tr("Single Layer"), QMessageBox::NoRole);
+        auto cancel_btn = d.addButton(QMessageBox::Cancel);
+
+        d.exec();
+
+        if (d.clickedButton() == multi_btn) {
+          for (int i=0; i<f->GetVideoStreamCount(); i++) {
+            VideoParams vs = f->GetVideoParams(i);
+            vs.set_enabled(!vs.enabled());
+            f->SetVideoParams(vs, i);
+          }
+        } else if (d.clickedButton() == single_btn) {
+          // Do nothing, footage will already be set up this way
+        } else if (d.clickedButton() == cancel_btn) {
+          // Cancel import
+          delete command;
+          return;
+        }
+      }
+    }
+  }
+
   if (import_task->HasInvalidFiles()) {
     ProjectImportErrorDialog d(import_task->GetInvalidFiles(), main_window_);
     d.exec();
@@ -751,7 +794,7 @@ void Core::StartGUI(bool full_screen)
   connect(this, &Core::ProjectClosed, main_window_, &MainWindow::ProjectClose);
 
   // Start autorecovery timer using the config value as its interval
-  SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
+  SetAutorecoveryInterval(OLIVE_CONFIG("AutorecoveryInterval").toInt());
   connect(&autorecovery_timer_, &QTimer::timeout, this, &Core::SaveAutorecovery);
   autorecovery_timer_.start();
 
@@ -917,7 +960,7 @@ bool Core::RevertProjectInternal(Project *p, bool by_opening_existing)
 
 void Core::SaveAutorecovery()
 {
-  if (Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool()) {
+  if (OLIVE_CONFIG("AutorecoveryEnabled").toBool()) {
     foreach (Project* p, open_projects_) {
       if (!p->has_autorecovery_been_saved()) {
         QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
@@ -943,7 +986,7 @@ void Core::SaveAutorecovery()
             realname_file.close();
           }
 
-          int64_t max_recoveries_per_file = Config::Current()[QStringLiteral("AutorecoveryMaximum")].toLongLong();
+          int64_t max_recoveries_per_file = OLIVE_CONFIG("AutorecoveryMaximum").toLongLong();
 
           // Since we write an extra file, increment total allowed files by 1
           max_recoveries_per_file++;
@@ -1032,12 +1075,12 @@ Folder *Core::GetSelectedFolderInActiveProject() const
 
 Timecode::Display Core::GetTimecodeDisplay() const
 {
-  return static_cast<Timecode::Display>(Config::Current()["TimecodeDisplay"].toInt());
+  return static_cast<Timecode::Display>(OLIVE_CONFIG("TimecodeDisplay").toInt());
 }
 
 void Core::SetTimecodeDisplay(Timecode::Display d)
 {
-  Config::Current()["TimecodeDisplay"] = d;
+  OLIVE_CONFIG("TimecodeDisplay") = d;
 
   emit TimecodeDisplayChanged(d);
 }
@@ -1159,7 +1202,7 @@ void Core::SetStartupLocale()
     }
   }
 
-  QString use_locale = Config::Current()[QStringLiteral("Language")].toString();
+  QString use_locale = OLIVE_CONFIG("Language").toString();
 
   if (use_locale.isEmpty()) {
     // No configured locale, auto-detect the system's locale
@@ -1380,12 +1423,12 @@ QString GetRenderModePreferencePrefix(RenderMode::Mode mode, const QString &pref
 
 QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference)
 {
-  return Config::Current()[GetRenderModePreferencePrefix(mode, preference)];
+  return OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference));
 }
 
 void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
 {
-  Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
+  OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference)) = value;
 }
 
 bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)

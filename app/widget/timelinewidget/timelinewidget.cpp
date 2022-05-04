@@ -1079,6 +1079,9 @@ void TimelineWidget::ShowContextMenu()
       }
     }
 
+    QAction* rename_action = menu.addAction(tr("Rename"));
+    connect(rename_action, &QAction::triggered, this, &TimelineWidget::RenameSelectedBlocks);
+
     QAction* properties_action = menu.addAction(tr("Properties"));
     connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialogForSelectedClips);
   }
@@ -1230,6 +1233,19 @@ void TimelineWidget::RevealInProject()
   ViewerOutput *item_to_reveal = reinterpret_cast<ViewerOutput*>(a->data().value<quintptr>());
 
   emit RevealViewerInProject(item_to_reveal);
+}
+
+void TimelineWidget::RenameSelectedBlocks()
+{
+  MultiUndoCommand *command = new MultiUndoCommand();
+  QVector<Node*> nodes(selected_blocks_.size());
+
+  for (int i=0; i<nodes.size(); i++) {
+    nodes[i] = selected_blocks_[i];
+  }
+
+  Core::instance()->LabelNodes(nodes);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)

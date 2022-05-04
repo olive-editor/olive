@@ -31,12 +31,7 @@ class MosaicFilterNode : public Node
 public:
   MosaicFilterNode();
 
-  NODE_DEFAULT_DESTRUCTOR(MosaicFilterNode)
-
-  virtual Node* copy() const override
-  {
-    return new MosaicFilterNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(MosaicFilterNode)
 
   virtual QString Name() const override
   {

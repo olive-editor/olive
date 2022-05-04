@@ -196,7 +196,7 @@ DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :
 {
   SetPath(path);
 
-  save_timer_.setInterval(Config::Current()[QStringLiteral("DiskCacheSaveInterval")].toInt());
+  save_timer_.setInterval(OLIVE_CONFIG("DiskCacheSaveInterval").toInt());
   connect(&save_timer_, &QTimer::timeout, this, &DiskCacheFolder::SaveDiskCacheIndex);
   save_timer_.start();
 }

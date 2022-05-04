@@ -79,9 +79,12 @@ signals:
 
   void EnabledCheckBoxClicked(bool e);
 
+  void Clicked();
+
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
 
+  virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 private:
