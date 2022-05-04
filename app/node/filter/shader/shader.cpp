@@ -178,7 +178,7 @@ void ShaderFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
 
   // If there's no shader code, no need to run an operation
   if (shader_code_ != QString()) {
-    table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 
