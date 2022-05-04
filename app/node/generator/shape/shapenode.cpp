@@ -79,20 +79,7 @@ void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.SetShaderID(QStringLiteral("shape"));
 
-  if (!value[kBaseInput].data().isNull()) {
-    // Push as merge node
-    ShaderJob merge;
-
-    merge.SetShaderID(QStringLiteral("mrg"));
-    merge.InsertValue(MergeNode::kBaseIn, value[kBaseInput]);
-    merge.InsertValue(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, QVariant::fromValue(job), this));
-    merge.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-
-    table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);
-  } else {
-    // Just push generate job
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
-  }
+  PushMergableJob(value, QVariant::fromValue(job), table);
 }
 
 }

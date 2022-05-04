@@ -2,7 +2,9 @@ uniform float time_in;
 
 uniform float strength_in;
 uniform bool color_in;
-//uniform bool blend;
+
+uniform sampler2D base_in;
+uniform bool base_in_enabled;
 
 in vec2 ove_texcoord;
 out vec4 frag_color;
@@ -22,7 +24,7 @@ bool isNan( float val )
 }
 
 float gold_noise(vec2 coordinate, float seed){
-    float value = fract(tan(distance(coordinate*(seed+PHI), vec2(PHI, PI)))*SQ2)*(strength_in*0.01);
+  float value = fract(tan(distance(coordinate*(seed+PHI), vec2(PHI, PI)))*SQ2)*(strength_in);
   return isNan(value) ? 0.0 : value;
 }
 
@@ -34,5 +36,11 @@ void main(void) {
     noise = vec3(gold_noise(ove_texcoord, time_in + 69420.0));
   }
 
+  if (base_in_enabled) {
+    vec4 base = texture(base_in, ove_texcoord);
+    base.rgb += noise;
+    frag_color = base;
+  } else {
     frag_color = vec4(noise, 1.0);
+  }
 }

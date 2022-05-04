@@ -28,16 +28,14 @@
 
 namespace olive {
 
-#define super Node
+#define super GeneratorWithMerge
 
-const QString ShapeNodeBase::kBaseInput = QStringLiteral("base_in");
 const QString ShapeNodeBase::kPositionInput = QStringLiteral("pos_in");
 const QString ShapeNodeBase::kSizeInput = QStringLiteral("size_in");
 const QString ShapeNodeBase::kColorInput = QStringLiteral("color_in");
 
 ShapeNodeBase::ShapeNodeBase(bool create_color_input)
 {
-  AddInput(kBaseInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
   AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
   AddInput(kSizeInput, NodeValue::kVec2, QVector2D(100, 100));
   SetInputProperty(kSizeInput, QStringLiteral("min"), QVector2D(0, 0));
@@ -60,16 +58,12 @@ ShapeNodeBase::ShapeNodeBase(bool create_color_input)
   for (int i=0; i<kGizmoScaleCount; i++) {
     point_gizmo_[i] = AddDraggableGizmo<PointGizmo>(pos_n_sz, PointGizmo::kAbsolute);
   }
-
-  SetEffectInput(kBaseInput);
-  SetFlags(kVideoEffect);
 }
 
 void ShapeNodeBase::Retranslate()
 {
   super::Retranslate();
 
-  SetInputName(kBaseInput, tr("Base"));
   SetInputName(kPositionInput, tr("Position"));
   SetInputName(kSizeInput, tr("Size"));
 
@@ -106,15 +100,6 @@ void ShapeNodeBase::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlob
   point_gizmo_[kGizmoScaleCenterRight]->SetPoint(QPointF(right_pt, center_y_pt));
 
   poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
-}
-
-ShaderCode ShapeNodeBase::GetShaderCode(const QString &shader_id) const
-{
-  if (shader_id == QStringLiteral("mrg")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
-  }
-
-  return ShaderCode();
 }
 
 void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

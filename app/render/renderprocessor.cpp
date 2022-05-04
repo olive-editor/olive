@@ -511,10 +511,6 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
     }
   }
 
-  VideoParams tex_params = GetCacheVideoParams();
-
-  tex_params.set_channel_count(GetChannelCountFromJob(job));
-
   // Run shader
   render_ctx_->BlitToTexture(shader, job, destination.get());
 }

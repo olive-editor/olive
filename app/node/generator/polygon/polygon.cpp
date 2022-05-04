@@ -30,7 +30,7 @@ namespace olive {
 const QString PolygonGenerator::kPointsInput = QStringLiteral("points_in");
 const QString PolygonGenerator::kColorInput = QStringLiteral("color_in");
 
-#define super Node
+#define super GeneratorWithMerge
 
 PolygonGenerator::PolygonGenerator()
 {
@@ -102,7 +102,7 @@ void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globa
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  PushMergableJob(value, QVariant::fromValue(job), table);
 }
 
 void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const

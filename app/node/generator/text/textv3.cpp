@@ -89,20 +89,7 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
   job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    if (!value[kBaseInput].data().isNull()) {
-      // Push as merge node
-      ShaderJob merge;
-
-      merge.SetShaderID(QStringLiteral("mrg"));
-      merge.InsertValue(MergeNode::kBaseIn, value[kBaseInput]);
-      merge.InsertValue(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, QVariant::fromValue(job), this));
-      merge.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-
-      table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);
-    } else {
-      // Just push generate job
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
-    }
+    PushMergableJob(value, QVariant::fromValue(job), table);
   } else if (!value[kBaseInput].data().isNull()) {
     table->Push(value[kBaseInput]);
   }

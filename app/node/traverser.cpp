@@ -306,6 +306,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       TexturePtr tex = CreateTexture(tex_params);
 
+      PreProcessRow(range, job.GetValues());
       ProcessShader(tex, val.source(), range, job);
 
       val.set_data(QVariant::fromValue(tex));
@@ -322,6 +323,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       TexturePtr tex = CreateTexture(tex_params);
 
+      PreProcessRow(range, job.GetValues());
       ProcessFrameGeneration(tex, val.source(), job);
 
       val.set_data(QVariant::fromValue(tex));

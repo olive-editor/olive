@@ -18,38 +18,32 @@
 
 ***/
 
-#ifndef NOISEGENERATORNODE_H
-#define NOISEGENERATORNODE_H
+#ifndef GENERATORWITHMERGE_H
+#define GENERATORWITHMERGE_H
 
 #include "node/node.h"
 
 namespace olive {
 
-class NoiseGeneratorNode : public Node {
+class GeneratorWithMerge : public Node
+{
   Q_OBJECT
- public:
-  NoiseGeneratorNode();
+public:
+  GeneratorWithMerge();
 
-  NODE_DEFAULT_DESTRUCTOR(NoiseGeneratorNode)
-
-  virtual Node *copy() const override;
-
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+  NODE_DEFAULT_DESTRUCTOR(GeneratorWithMerge)
 
   virtual void Retranslate() override;
 
   virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
-  virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  static const QString kBaseIn;
-  static const QString kColorInput;
-  static const QString kStrengthInput;
+  static const QString kBaseInput;
+
+protected:
+  void PushMergableJob(const NodeValueRow &value, const QVariant &job, NodeValueTable *table) const;
 
 };
 
-}  // namespace olive
+}
 
-#endif  // NOISEGENERATORNODE_H
+#endif // GENERATORWITHMERGE_H
