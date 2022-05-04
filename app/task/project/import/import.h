@@ -34,7 +34,7 @@ class ProjectImportTask : public Task
 {
   Q_OBJECT
 public:
-  ProjectImportTask(ProjectViewModel* model, Folder* folder, const QStringList& filenames);
+  ProjectImportTask(Folder* folder, const QStringList& filenames);
 
   const int& GetFileCount() const;
 
@@ -52,6 +52,8 @@ public:
   {
     return !invalid_files_.isEmpty();
   }
+
+  const QVector<Footage*> &GetImportedFootage() const { return imported_footage_; }
 
 protected:
   virtual bool Run() override;
@@ -71,8 +73,6 @@ private:
 
   MultiUndoCommand* command_;
 
-  ProjectViewModel* model_;
-
   Folder* folder_;
 
   QFileInfoList filenames_;
@@ -82,6 +82,8 @@ private:
   QStringList invalid_files_;
 
   QList<QString> image_sequence_ignore_files_;
+
+  QVector<Footage*> imported_footage_;
 
 };
 

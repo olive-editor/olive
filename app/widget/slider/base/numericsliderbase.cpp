@@ -139,7 +139,7 @@ bool NumericSliderBase::IsDragging() const
 
 bool NumericSliderBase::UsingLadders() const
 {
-  return ladder_element_count_ > 0 && Config::Current()[QStringLiteral("UseSliderLadders")].toBool();
+  return ladder_element_count_ > 0 && OLIVE_CONFIG("UseSliderLadders").toBool();
 }
 
 QVariant NumericSliderBase::AdjustValue(const QVariant &value) const

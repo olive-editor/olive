@@ -20,6 +20,7 @@
 
 #include "serializer220403.h"
 
+#include "config/config.h"
 #include "node/factory.h"
 
 namespace olive {
@@ -29,6 +30,8 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
   QMap<quintptr, QMap<QString, QString> > properties;
   QMap<quintptr, QMap<quintptr, Node::Position> > positions;
   XMLNodeData xml_node_data;
+
+  LoadData load_data;
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("layout")) {
@@ -91,6 +94,18 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
               node->setParent(project);
             }
           }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+    } else if (reader->name() == QStringLiteral("markers")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("marker")) {
+          TimelineMarker *marker = new TimelineMarker();
+          LoadMarker(reader, marker);
+          load_data.markers.push_back(marker);
         } else {
           reader->skipCurrentElement();
         }
@@ -193,8 +208,6 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
   // Make connections
   PostConnect(xml_node_data);
 
-  LoadData load_data;
-
   // Resolve serialized properties (if any)
   for (auto it=properties.cbegin(); it!=properties.cend(); it++) {
     Node *node = xml_node_data.node_ptrs.value(it.key());
@@ -210,74 +223,94 @@ void ProjectSerializer220403::Save(QXmlStreamWriter *writer, const SaveData &dat
 {
   Project *project = data.GetProject();
 
-  writer->writeTextElement(QStringLiteral("uuid"), data.GetProject()->GetUuid().toString());
+  if (!data.GetOnlySerializeMarkers().empty()) {
 
-  writer->writeStartElement(QStringLiteral("nodes"));
+    writer->writeStartElement(QStringLiteral("markers"));
 
-  const QVector<Node*> &using_node_list = (data.GetOnlySerializeNodes().isEmpty()) ? project->nodes() : data.GetOnlySerializeNodes();
+    for (auto it=data.GetOnlySerializeMarkers().cbegin(); it!=data.GetOnlySerializeMarkers().cend(); it++) {
+      TimelineMarker *marker = *it;
 
-  foreach (Node* node, using_node_list) {
-    writer->writeStartElement(QStringLiteral("node"));
+      writer->writeStartElement(QStringLiteral("marker"));
 
-    if (node == project->root()) {
-      writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
-    } else if (node == project->color_manager()) {
-      writer->writeAttribute(QStringLiteral("cm"), QStringLiteral("1"));
-    } else if (node == project->settings()) {
-      writer->writeAttribute(QStringLiteral("settings"), QStringLiteral("1"));
+      SaveMarker(writer, marker);
+
+      writer->writeEndElement(); // marker
     }
 
-    writer->writeAttribute(QStringLiteral("id"), node->id());
+    writer->writeEndElement(); // markers
 
-    SaveNode(node, writer);
+  } else {
 
-    writer->writeEndElement(); // node
-  }
+    writer->writeTextElement(QStringLiteral("uuid"), data.GetProject()->GetUuid().toString());
 
-  writer->writeEndElement(); // nodes
+    writer->writeStartElement(QStringLiteral("nodes"));
 
-  writer->writeStartElement(QStringLiteral("positions"));
+    const QVector<Node*> &using_node_list = (data.GetOnlySerializeNodes().isEmpty()) ? project->nodes() : data.GetOnlySerializeNodes();
 
-  foreach (Node* context, using_node_list) {
-    const Node::PositionMap &map = context->GetContextPositions();
+    foreach (Node* node, using_node_list) {
+      writer->writeStartElement(QStringLiteral("node"));
 
-    if (!map.isEmpty()) {
-      writer->writeStartElement(QStringLiteral("context"));
-
-      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(context)));
-
-      for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
-        if (data.GetOnlySerializeNodes().isEmpty() || data.GetOnlySerializeNodes().contains(jt.key())) {
-          writer->writeStartElement(QStringLiteral("node"));
-          SavePosition(writer, jt.key(), jt.value());
-          writer->writeEndElement(); // node
-        }
+      if (node == project->root()) {
+        writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
+      } else if (node == project->color_manager()) {
+        writer->writeAttribute(QStringLiteral("cm"), QStringLiteral("1"));
+      } else if (node == project->settings()) {
+        writer->writeAttribute(QStringLiteral("settings"), QStringLiteral("1"));
       }
 
-      writer->writeEndElement(); // context
-    }
-  }
+      writer->writeAttribute(QStringLiteral("id"), node->id());
 
-  writer->writeEndElement(); // positions
+      SaveNode(node, writer);
 
-  writer->writeStartElement(QStringLiteral("properties"));
-
-  for (auto it=data.GetProperties().cbegin(); it!=data.GetProperties().cend(); it++) {
-    writer->writeStartElement(QStringLiteral("node"));
-
-    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(it.key())));
-
-    for (auto jt=it.value().cbegin(); jt!=it.value().cend(); jt++) {
-      writer->writeTextElement(jt.key(), jt.value());
+      writer->writeEndElement(); // node
     }
 
-    writer->writeEndElement(); // node
+    writer->writeEndElement(); // nodes
+
+    writer->writeStartElement(QStringLiteral("positions"));
+
+    foreach (Node* context, using_node_list) {
+      const Node::PositionMap &map = context->GetContextPositions();
+
+      if (!map.isEmpty()) {
+        writer->writeStartElement(QStringLiteral("context"));
+
+        writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(context)));
+
+        for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
+          if (data.GetOnlySerializeNodes().isEmpty() || data.GetOnlySerializeNodes().contains(jt.key())) {
+            writer->writeStartElement(QStringLiteral("node"));
+            SavePosition(writer, jt.key(), jt.value());
+            writer->writeEndElement(); // node
+          }
+        }
+
+        writer->writeEndElement(); // context
+      }
+    }
+
+    writer->writeEndElement(); // positions
+
+    writer->writeStartElement(QStringLiteral("properties"));
+
+    for (auto it=data.GetProperties().cbegin(); it!=data.GetProperties().cend(); it++) {
+      writer->writeStartElement(QStringLiteral("node"));
+
+      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(it.key())));
+
+      for (auto jt=it.value().cbegin(); jt!=it.value().cend(); jt++) {
+        writer->writeTextElement(jt.key(), jt.value());
+      }
+
+      writer->writeEndElement(); // node
+    }
+
+    writer->writeEndElement(); // properties
+
+    // Save main window project layout
+    project->GetLayoutInfo().toXml(writer);
+
   }
-
-  writer->writeEndElement(); // properties
-
-  // Save main window project layout
-  project->GetLayoutInfo().toXml(writer);
 }
 
 void ProjectSerializer220403::LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const
@@ -953,6 +986,36 @@ void ProjectSerializer220403::SaveTimelinePoints(QXmlStreamWriter *writer, Timel
   writer->writeEndElement(); // markers
 }
 
+void ProjectSerializer220403::LoadMarker(QXmlStreamReader *reader, TimelineMarker *marker) const
+{
+  rational in, out;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("name")) {
+      marker->set_name(attr.value().toString());
+    } else if (attr.name() == QStringLiteral("in")) {
+      in = rational::fromString(attr.value().toString());
+    } else if (attr.name() == QStringLiteral("out")) {
+      out = rational::fromString(attr.value().toString());
+    } else if (attr.name() == QStringLiteral("color")) {
+      marker->set_color(attr.value().toInt());
+    }
+  }
+
+  marker->set_time(TimeRange(in, out));
+
+  // This element has no inner text, so just skip it
+  reader->skipCurrentElement();
+}
+
+void ProjectSerializer220403::SaveMarker(QXmlStreamWriter *writer, TimelineMarker *marker) const
+{
+  writer->writeAttribute(QStringLiteral("name"), marker->name());
+  writer->writeAttribute(QStringLiteral("in"), marker->time_range().in().toString());
+  writer->writeAttribute(QStringLiteral("out"), marker->time_range().out().toString());
+  writer->writeAttribute(QStringLiteral("color"), QString::number(marker->color()));
+}
+
 void ProjectSerializer220403::LoadWorkArea(QXmlStreamReader *reader, TimelineWorkArea *workarea) const
 {
   rational range_in = workarea->in();
@@ -988,35 +1051,22 @@ void ProjectSerializer220403::LoadMarkerList(QXmlStreamReader *reader, TimelineM
 {
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("marker")) {
-      QString name;
-      rational in, out;
-
-      XMLAttributeLoop(reader, attr) {
-        if (attr.name() == QStringLiteral("name")) {
-          name = attr.value().toString();
-        } else if (attr.name() == QStringLiteral("in")) {
-          in = rational::fromString(attr.value().toString());
-        } else if (attr.name() == QStringLiteral("out")) {
-          out = rational::fromString(attr.value().toString());
-        }
-      }
-
-      markers->AddMarker(TimeRange(in, out), name);
+      TimelineMarker *marker = new TimelineMarker(markers);
+      LoadMarker(reader, marker);
+    } else {
+      reader->skipCurrentElement();
     }
-
-    reader->skipCurrentElement();
   }
 }
 
 void ProjectSerializer220403::SaveMarkerList(QXmlStreamWriter *writer, TimelineMarkerList *markers) const
 {
-  foreach (TimelineMarker* marker, markers->list()) {
+  for (auto it=markers->cbegin(); it!=markers->cend(); it++) {
+    TimelineMarker* marker = *it;
+
     writer->writeStartElement(QStringLiteral("marker"));
 
-    writer->writeAttribute(QStringLiteral("name"), marker->name());
-
-    writer->writeAttribute(QStringLiteral("in"), marker->time().in().toString());
-    writer->writeAttribute(QStringLiteral("out"), marker->time().out().toString());
+    SaveMarker(writer, marker);
 
     writer->writeEndElement(); // marker
   }

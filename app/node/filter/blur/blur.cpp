@@ -35,7 +35,7 @@ BlurFilterNode::BlurFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  AddInput(kMethodInput, NodeValue::kCombo, 0);
+  AddInput(kMethodInput, NodeValue::kCombo, 1); // Default to gaussian
 
   AddInput(kRadiusInput, NodeValue::kFloat, 10.0);
   SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
@@ -48,11 +48,6 @@ BlurFilterNode::BlurFilterNode()
 
   SetFlags(kVideoEffect);
   SetEffectInput(kTextureInput);
-}
-
-Node *BlurFilterNode::copy() const
-{
-  return new BlurFilterNode();
 }
 
 QString BlurFilterNode::Name() const
@@ -118,7 +113,7 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 
     } else {
       // If we're not performing the blur job, just push the texture

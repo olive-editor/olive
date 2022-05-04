@@ -31,9 +31,7 @@ class StrokeFilterNode : public Node
 public:
   StrokeFilterNode();
 
-  NODE_DEFAULT_DESTRUCTOR(StrokeFilterNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(StrokeFilterNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

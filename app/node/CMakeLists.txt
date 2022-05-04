@@ -48,8 +48,6 @@ set(OLIVE_SOURCES
   node/keyframe.h
   node/node.cpp
   node/node.h
-  node/nodecopypaste.cpp
-  node/nodecopypaste.h
   node/param.cpp
   node/param.h
   node/splitvalue.h

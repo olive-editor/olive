@@ -25,12 +25,14 @@
 
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
+#include "widget/keyframeview/keyframeviewinputconnection.h"
 #include "widget/resizablescrollbar/resizabletimelinescrollbar.h"
 #include "widget/timebased/timescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"
-#include "widget/timeruler/timeruler.h"
 
 namespace olive {
+
+class TimeRuler;
 
 class TimeBasedWidget : public TimelineScaledWidget
 {
@@ -53,6 +55,22 @@ public:
   TimeRuler* ruler() const;
 
   virtual bool eventFilter(QObject* object, QEvent* event) override;
+
+  using SnapMask = uint32_t;
+  enum SnapPoints {
+    kSnapToClips = 0x1,
+    kSnapToPlayhead = 0x2,
+    kSnapToMarkers = 0x4,
+    kSnapToKeyframes = 0x8,
+    kSnapAll = UINT32_MAX
+  };
+
+  /**
+   * @brief Snaps point `start_point` that is moving by `movement` to currently existing clips
+   */
+  bool SnapPoint(const std::vector<rational> &start_times, rational *movement, SnapMask snap_points = kSnapAll);
+  void ShowSnaps(const std::vector<rational> &times);
+  void HideSnaps();
 
 public slots:
   void SetTime(const rational &time);
@@ -91,6 +109,8 @@ public slots:
 
   void GoToOut();
 
+  void DeleteSelected();
+
 protected slots:
   void SetTimeAndSignal(const rational& t);
 
@@ -117,6 +137,10 @@ protected:
 
   void PassWheelEventsToScrollBar(QObject* object);
 
+  virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
+  virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const { return nullptr; }
+  virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const { return nullptr; }
+
 protected slots:
   /**
    * @brief Slot to center the horizontal scroll bar on the playhead's current position
@@ -139,26 +163,7 @@ signals:
   void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 private:
-  class MarkerAddCommand : public UndoCommand
-  {
-  public:
-    MarkerAddCommand(Project* project, TimelineMarkerList* marker_list, const TimeRange& range, const QString& name);
 
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override;
-    virtual void undo() override;
-
-  private:
-    Project* project_;
-    TimelineMarkerList* marker_list_;
-    TimeRange range_;
-    QString name_;
-
-    TimelineMarker* added_marker_;
-
-  };
 
   /**
    * @brief Set either in or out point to the current playhead

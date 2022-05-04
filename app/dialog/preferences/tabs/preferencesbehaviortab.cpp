@@ -110,10 +110,8 @@ void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)
 {
   Q_UNUSED(command)
 
-  QMap<QTreeWidgetItem*, QString>::const_iterator iterator;
-
-  for (iterator=config_map_.begin();iterator!=config_map_.end();iterator++) {
-    Config::Current()[iterator.value()] = (iterator.key()->checkState(0) == Qt::Checked);
+  for (auto iterator=config_map_.begin();iterator!=config_map_.end();iterator++) {
+    OLIVE_CONFIG_STR(iterator.value()) = (iterator.key()->checkState(0) == Qt::Checked);
   }
 }
 
@@ -121,7 +119,7 @@ QTreeWidgetItem* PreferencesBehaviorTab::AddItem(const QString &text, const QStr
 {
   QTreeWidgetItem* item = new QTreeWidgetItem({text});
   item->setToolTip(0, tooltip);
-  item->setCheckState(0, Config::Current()[config_key].toBool() ? Qt::Checked : Qt::Unchecked);
+  item->setCheckState(0, OLIVE_CONFIG_STR(config_key).toBool() ? Qt::Checked : Qt::Unchecked);
 
   config_map_.insert(item, config_key);
 

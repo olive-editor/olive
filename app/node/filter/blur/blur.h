@@ -31,9 +31,7 @@ class BlurFilterNode : public Node
 public:
   BlurFilterNode();
 
-  NODE_DEFAULT_DESTRUCTOR(BlurFilterNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(BlurFilterNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

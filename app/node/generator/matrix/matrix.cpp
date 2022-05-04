@@ -51,11 +51,6 @@ MatrixGenerator::MatrixGenerator()
   AddInput(kAnchorInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
 }
 
-Node *MatrixGenerator::copy() const
-{
-  return new MatrixGenerator();
-}
-
 QString MatrixGenerator::Name() const
 {
   return tr("Orthographic Matrix");

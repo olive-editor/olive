@@ -118,6 +118,36 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
   return res;
 }
 
+ProjectSerializer::Result ProjectSerializer::Paste(const QString &type)
+{
+  QString clipboard = Core::PasteStringFromClipboard();
+  if (clipboard.isEmpty()) {
+    return kNoData;
+  }
+
+  QXmlStreamReader reader(clipboard);
+
+  Project temp;
+  ProjectSerializer::Result res = ProjectSerializer::Load(&temp, &reader, type);
+
+  if (res.code() != ProjectSerializer::kSuccess) {
+    return res;
+  }
+
+  QVector<Node*> pasted_nodes;
+  foreach (Node *n, temp.nodes()) {
+    if (!temp.default_nodes().contains(n)) {
+      // Move nodes out of Project
+      n->setParent(nullptr);
+      pasted_nodes.append(n);
+    }
+  }
+
+  res.SetLoadedNodes(pasted_nodes);
+
+  return res;
+}
+
 ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type)
 {
   QString temp_save = FileFunctions::GetSafeTemporaryFilename(data.GetFilename());
@@ -187,6 +217,20 @@ ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, cons
   return kSuccess;
 }
 
+ProjectSerializer::Result ProjectSerializer::Copy(const SaveData &data, const QString &type)
+{
+  QString copy_str;
+  QXmlStreamWriter writer(&copy_str);
+
+  ProjectSerializer::Result res = ProjectSerializer::Save(&writer, data, type);
+
+  if (res == kSuccess) {
+    Core::CopyStringToClipboard(copy_str);
+  }
+
+  return res;
+}
+
 bool ProjectSerializer::IsCancelled() const
 {
   return false;
@@ -226,6 +270,23 @@ ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint vers
     // Reached the end of the list with no serializer, assume too new
     return kProjectTooNew;
   }
+}
+
+void ProjectSerializer::SaveData::SetOnlySerializeNodesAndResolveGroups(QVector<Node *> nodes)
+{
+  // For any groups, add children
+  for (int i=0; i<nodes.size(); i++) {
+    // If this is a group, add the child nodes too
+    if (NodeGroup *g = dynamic_cast<NodeGroup*>(nodes.at(i))) {
+      for (auto it=g->GetContextPositions().cbegin(); it!=g->GetContextPositions().cend(); it++) {
+        if (!nodes.contains(it.key())) {
+          nodes.append(it.key());
+        }
+      }
+    }
+  }
+
+  SetOnlySerializeNodes(nodes);
 }
 
 }

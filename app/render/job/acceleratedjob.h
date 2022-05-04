@@ -56,10 +56,8 @@ public:
 #endif
   }
 
-  const NodeValueRow &GetValues() const
-  {
-    return value_map_;
-  }
+  const NodeValueRow &GetValues() const { return value_map_; }
+  NodeValueRow &GetValues() { return value_map_; }
 
 private:
   NodeValueRow value_map_;

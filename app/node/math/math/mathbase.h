@@ -30,8 +30,6 @@ class MathNodeBase : public Node
 public:
   MathNodeBase() = default;
 
-  NODE_DEFAULT_DESTRUCTOR(MathNodeBase)
-
   enum Operation {
     kOpAdd,
     kOpSubtract,

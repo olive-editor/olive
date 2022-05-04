@@ -26,7 +26,6 @@
 
 #include "core.h"
 #include "node/graph.h"
-#include "node/nodecopypaste.h"
 #include "nodeviewedge.h"
 #include "nodeviewcontext.h"
 #include "nodeviewminimap.h"
@@ -42,7 +41,7 @@ namespace olive {
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public HandMovableView, public NodeCopyPasteService
+class NodeView : public HandMovableView
 {
   Q_OBJECT
 public:
@@ -138,9 +137,6 @@ protected:
   virtual bool event(QEvent *event) override;
 
   virtual bool eventFilter(QObject *object, QEvent *event) override;
-
-  virtual void CopyNodesToClipboardCallback(const QVector<Node *> &nodes, ProjectSerializer::SaveData *data, void* userdata) override;
-  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &ldata, void *userdata) override;
 
   virtual void changeEvent(QEvent *e) override;
 

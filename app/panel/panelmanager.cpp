@@ -49,7 +49,7 @@ PanelWidget *PanelManager::CurrentlyFocused(bool enable_hover) const
 {
   // If hover focus is enabled, find the currently hovered panel and return it (if no panel is hovered, resort to
   // default behavior)
-  if (enable_hover && Config::Current()[QStringLiteral("HoverFocus")].toBool()) {
+  if (enable_hover && OLIVE_CONFIG("HoverFocus").toBool()) {
     PanelWidget* hovered = CurrentlyHovered();
 
     if (hovered != nullptr) {

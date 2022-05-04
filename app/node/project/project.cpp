@@ -169,6 +169,20 @@ void Project::RegenerateUuid()
   uuid_ = QUuid::createUuid();
 }
 
+Project *Project::GetProjectFromObject(const QObject *o)
+{
+  QObject *t = o->parent();
+
+  while (t) {
+    if (Project *p = dynamic_cast<Project*>(t)) {
+      return p;
+    }
+    t = t->parent();
+  }
+
+  return nullptr;
+}
+
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
 {
   Q_UNUSED(input)

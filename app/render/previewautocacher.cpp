@@ -48,7 +48,7 @@ PreviewAutoCacher::PreviewAutoCacher() :
   SetPlayhead(0);
 
   // Wait a certain amount of time before requeuing when we receive an invalidate signal
-  delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
+  delayed_requeue_timer_.setInterval(OLIVE_CONFIG("AutoCacheDelay").toInt());
   delayed_requeue_timer_.setSingleShot(true);
   connect(&delayed_requeue_timer_, &QTimer::timeout, this, &PreviewAutoCacher::RequeueFrames);
 
@@ -502,8 +502,8 @@ void PreviewAutoCacher::StartCachingAudioRange(const TimeRange &range)
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
 {
-  cache_range_ = TimeRange(playhead - Config::Current()[QStringLiteral("DiskCacheBehind")].value<rational>(),
-      playhead + Config::Current()[QStringLiteral("DiskCacheAhead")].value<rational>());
+  cache_range_ = TimeRange(playhead - OLIVE_CONFIG("DiskCacheBehind").value<rational>(),
+      playhead + OLIVE_CONFIG("DiskCacheAhead").value<rational>());
 
   RequeueFrames();
 }

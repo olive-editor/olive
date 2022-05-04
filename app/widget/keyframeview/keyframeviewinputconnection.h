@@ -50,7 +50,7 @@ public:
 
   void SetYBehavior(YBehavior e);
 
-  const QVector<NodeKeyframe*> GetKeyframes() const
+  const QVector<NodeKeyframe*> &GetKeyframes() const
   {
     return input_.input().node()->GetKeyframeTracks(input_.input()).at(input_.track());
   }

@@ -45,12 +45,10 @@ public:
 
   Track();
 
-  NODE_DEFAULT_DESTRUCTOR(Track)
+  NODE_DEFAULT_FUNCTIONS(Track)
 
   const Track::Type& type() const;
   void set_type(const Track::Type& track_type);
-
-  virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;

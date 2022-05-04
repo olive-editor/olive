@@ -80,18 +80,9 @@ NodeGraph *Node::parent() const
   return static_cast<NodeGraph*>(QObject::parent());
 }
 
-Project* Node::project() const
+Project *Node::project() const
 {
-  QObject *t = this->parent();
-
-  while (t) {
-    if (Project *p = dynamic_cast<Project*>(t)) {
-      return p;
-    }
-    t = t->parent();
-  }
-
-  return nullptr;
+  return Project::GetProjectFromObject(this);
 }
 
 QString Node::ShortName() const
@@ -157,7 +148,7 @@ Color Node::color() const
   if (override_color_ >= 0) {
     c = override_color_;
   } else {
-    c = Config::Current()[QStringLiteral("CatColor%1").arg(this->Category().first())].toInt();
+    c = OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(this->Category().first())).toInt();
   }
 
   return ColorCoding::GetColor(c);
@@ -180,7 +171,7 @@ QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
 
 QBrush Node::brush(qreal top, qreal bottom) const
 {
-  if (Config::Current()[QStringLiteral("UseGradients")].toBool()) {
+  if (OLIVE_CONFIG("UseGradients").toBool()) {
     return gradient_color(top, bottom);
   } else {
     return color().toQColor();
@@ -1112,7 +1103,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 {
   Node* copy;
 
-  if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+  if (OLIVE_CONFIG("SplitClipsCopyNodes").toBool()) {
     copy = Node::CopyNodeAndDependencyGraphMinusItems(node, command);
   } else {
     copy = node->copy();
@@ -2000,6 +1991,50 @@ void Node::SetValueAtTime(const NodeInput &input, const rational &time, const QV
   } else {
     command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input, track), value));
   }
+}
+
+void FindPathInternal(std::list<Node *> &vec, Node *to, int &path_index)
+{
+  Node *from = vec.back();
+
+  for (auto it=from->input_connections().cbegin(); it!=from->input_connections().cend(); it++) {
+    vec.push_back(it->second);
+    if (it->second == to) {
+      // Found a path, determine if it's the one we want
+      if (path_index == 0) {
+        // It is!
+        break;
+      } else {
+        path_index--;
+      }
+    }
+
+    // Recurse to see if we can find it here
+    FindPathInternal(vec, to, path_index);
+    if (vec.back() == to) {
+      // Found through recursion
+      break;
+    } else {
+      // Must not be available through this path
+      vec.pop_back();
+    }
+  }
+}
+
+std::list<Node *> Node::FindPath(Node *from, Node *to, int path_index)
+{
+  std::list<Node *> v;
+
+  v.push_back(from);
+
+  FindPathInternal(v, to, path_index);
+
+  if (v.size() == 1) {
+    // Failed to find path, return empty list
+    v.pop_back();
+  }
+
+  return v;
 }
 
 Project *Node::ArrayInsertCommand::GetRelevantProject() const

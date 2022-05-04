@@ -26,6 +26,7 @@
 #include <QTimer>
 
 #include "common/timecodefunctions.h"
+#include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
 
@@ -63,7 +64,7 @@ void TimeBasedView::TimebaseChangedEvent(const rational &)
   viewport()->update();
 }
 
-void TimeBasedView::EnableSnap(const QVector<rational> &points)
+void TimeBasedView::EnableSnap(const std::vector<rational> &points)
 {
   snapped_ = true;
   snap_time_ = points;
@@ -76,11 +77,6 @@ void TimeBasedView::DisableSnap()
   snapped_ = false;
 
   viewport()->update();
-}
-
-void TimeBasedView::SetSnapService(SnapService *service)
-{
-  snap_service_ = service;
 }
 
 const double &TimeBasedView::GetYScale() const
@@ -211,7 +207,7 @@ bool TimeBasedView::PlayheadMove(QMouseEvent *event)
   if (Core::instance()->snapping() && snap_service_) {
     rational movement;
 
-    snap_service_->SnapPoint({mouse_time}, &movement, SnapService::kSnapAll & ~SnapService::kSnapToPlayhead);
+    snap_service_->SnapPoint({mouse_time}, &movement, TimeBasedWidget::kSnapAll & ~TimeBasedWidget::kSnapToPlayhead);
 
     mouse_time += movement;
   }

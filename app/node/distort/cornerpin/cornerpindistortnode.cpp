@@ -101,7 +101,7 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
         && job.GetValue(kTopRightInput).data().value<QVector2D>().isNull() &&
         job.GetValue(kBottomRightInput).data().value<QVector2D>().isNull() &&
         job.GetValue(kBottomLeftInput).data().value<QVector2D>().isNull())) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
     }

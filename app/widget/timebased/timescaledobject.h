@@ -24,6 +24,7 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "node/block/block.h"
 
 namespace olive {
 

@@ -49,11 +49,6 @@ ColorDifferenceKeyNode::ColorDifferenceKeyNode()
   SetEffectInput(kTextureInput);
 }
 
-Node *ColorDifferenceKeyNode::copy() const
-{
-  return new ColorDifferenceKeyNode();
-}
-
 QString ColorDifferenceKeyNode::Name() const
 {
   return tr("Color Difference Key");
@@ -102,7 +97,7 @@ void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals 
 
   // If there's no texture, no need to run an operation
   if (!job.GetValue(kTextureInput).data().isNull()) {
-    table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 

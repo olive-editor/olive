@@ -428,7 +428,7 @@ void ViewerDisplayWidget::OnPaint()
     // Draw texture through color transform
     int device_width = width() * devicePixelRatioF();
     int device_height = height() * devicePixelRatioF();
-    VideoParams::Format device_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+    VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
     VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 
     if (push_mode_ == kPushBlank) {
@@ -486,7 +486,7 @@ void ViewerDisplayWidget::OnPaint()
       }
 
       renderer()->BlitColorManaged(color_service(), texture_to_draw,
-                                   Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
+                                   OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
                                    device_params, false,
                                    combined_matrix_flipped_, crop_matrix_);
     }
@@ -514,7 +514,7 @@ void ViewerDisplayWidget::OnPaint()
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateWorldTransform());
 
-    p.setPen(Qt::lightGray);
+    p.setPen(QPen(Qt::lightGray, 0));
     p.setBrush(Qt::NoBrush);
 
     int x = 0, y = 0, w = width(), h = height();

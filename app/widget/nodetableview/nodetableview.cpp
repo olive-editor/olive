@@ -139,10 +139,6 @@ void NodeTableView::SetTime(const rational &time)
         switch (value.type()) {
         case NodeValue::kVideoParams:
         case NodeValue::kAudioParams:
-        case NodeValue::kFootageJob:
-        case NodeValue::kShaderJob:
-        case NodeValue::kSampleJob:
-        case NodeValue::kGenerateJob:
           // These types have no string representation
           break;
         case NodeValue::kTexture:

@@ -66,6 +66,7 @@ bool ProjectSaveTask::Run()
   case ProjectSerializer::kProjectTooNew:
   case ProjectSerializer::kProjectTooOld:
   case ProjectSerializer::kUnknownVersion:
+  case ProjectSerializer::kNoData:
     SetError(tr("Unknown error."));
     break;
   }

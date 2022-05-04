@@ -189,13 +189,8 @@ public:
   enum RetrieveAudioStatus {
     kInvalid = -1,
     kOK,
-    kWaitingForConform
-  };
-
-  struct RetrieveAudioData {
-    RetrieveAudioStatus status;
-    SampleBufferPtr samples;
-    Task *task;
+    kWaitingForConform,
+    kUnknownError
   };
 
   /**
@@ -206,7 +201,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  RetrieveAudioData RetrieveAudio(const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode);
+  RetrieveAudioStatus RetrieveAudio(SampleBufferPtr dest, const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode);
 
   /**
    * @brief Determine the last time this decoder instance was used in any way
@@ -312,7 +307,7 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  SampleBufferPtr RetrieveAudioFromConform(const QVector<QString> &conform_filenames, const TimeRange &range, Footage::LoopMode loop_mode, const AudioParams &params);
+  bool RetrieveAudioFromConform(SampleBufferPtr sample_buffer, const QVector<QString> &conform_filenames, const TimeRange &range, Footage::LoopMode loop_mode, const AudioParams &params);
 
   CodecStream stream_;
 

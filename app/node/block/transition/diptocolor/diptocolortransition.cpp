@@ -29,11 +29,6 @@ DipToColorTransition::DipToColorTransition()
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0, 0, 0)));
 }
 
-Node *DipToColorTransition::copy() const
-{
-  return new DipToColorTransition();
-}
-
 QString DipToColorTransition::Name() const
 {
   return tr("Dip To Color");

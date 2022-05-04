@@ -473,9 +473,18 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 
 void MainWindow::ShowWelcomeDialog()
 {
-  if (Config::Current()[QStringLiteral("ShowWelcomeDialog")].toBool()) {
+  if (OLIVE_CONFIG("ShowWelcomeDialog").toBool()) {
     AboutDialog ad(true, this);
     ad.exec();
+  }
+}
+
+void MainWindow::RevealViewerInProject(ViewerOutput *r)
+{
+  foreach (ProjectPanel *p, project_panels_) {
+    if (p->project() == r->project() && p->SelectItem(r)) {
+      break;
+    }
   }
 }
 
@@ -555,7 +564,9 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
+  connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
+  connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);

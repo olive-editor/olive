@@ -42,23 +42,29 @@ AudioParams::Format FFmpegUtils::GetNativeSampleFormat(const AVSampleFormat &smp
 {
   switch (smp_fmt) {
   case AV_SAMPLE_FMT_U8:
-    return AudioParams::kFormatUnsigned8;
+    return AudioParams::kFormatUnsigned8Packed;
   case AV_SAMPLE_FMT_S16:
-    return AudioParams::kFormatSigned16;
+    return AudioParams::kFormatSigned16Packed;
   case AV_SAMPLE_FMT_S32:
-    return AudioParams::kFormatSigned32;
+    return AudioParams::kFormatSigned32Packed;
   case AV_SAMPLE_FMT_S64:
-    return AudioParams::kFormatSigned64;
+    return AudioParams::kFormatSigned64Packed;
   case AV_SAMPLE_FMT_FLT:
-    return AudioParams::kFormatFloat32;
+    return AudioParams::kFormatFloat32Packed;
   case AV_SAMPLE_FMT_DBL:
-    return AudioParams::kFormatFloat64;
+    return AudioParams::kFormatFloat64Packed;
   case AV_SAMPLE_FMT_U8P :
+    return AudioParams::kFormatUnsigned8Planar;
   case AV_SAMPLE_FMT_S16P:
+    return AudioParams::kFormatSigned16Planar;
   case AV_SAMPLE_FMT_S32P:
+    return AudioParams::kFormatSigned32Planar;
   case AV_SAMPLE_FMT_S64P:
+    return AudioParams::kFormatSigned64Planar;
   case AV_SAMPLE_FMT_FLTP:
+    return AudioParams::kFormatFloat32Planar;
   case AV_SAMPLE_FMT_DBLP:
+    return AudioParams::kFormatFloat64Planar;
   case AV_SAMPLE_FMT_NONE:
   case AV_SAMPLE_FMT_NB:
     break;
@@ -67,21 +73,33 @@ AudioParams::Format FFmpegUtils::GetNativeSampleFormat(const AVSampleFormat &smp
   return AudioParams::kFormatInvalid;
 }
 
-AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt, bool planar)
+AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt)
 {
   switch (smp_fmt) {
-  case AudioParams::kFormatUnsigned8:
-    return planar ? AV_SAMPLE_FMT_U8P : AV_SAMPLE_FMT_U8;
-  case AudioParams::kFormatSigned16:
-    return planar ? AV_SAMPLE_FMT_S16P : AV_SAMPLE_FMT_S16;
-  case AudioParams::kFormatSigned32:
-    return planar ? AV_SAMPLE_FMT_S32P : AV_SAMPLE_FMT_S32;
-  case AudioParams::kFormatSigned64:
-    return planar ? AV_SAMPLE_FMT_S64P : AV_SAMPLE_FMT_S64;
-  case AudioParams::kFormatFloat32:
-    return planar ? AV_SAMPLE_FMT_FLTP : AV_SAMPLE_FMT_FLT;
-  case AudioParams::kFormatFloat64:
-    return planar ? AV_SAMPLE_FMT_DBLP : AV_SAMPLE_FMT_DBL;
+  case AudioParams::kFormatUnsigned8Packed:
+    return AV_SAMPLE_FMT_U8;
+  case AudioParams::kFormatSigned16Packed:
+    return AV_SAMPLE_FMT_S16;
+  case AudioParams::kFormatSigned32Packed:
+    return AV_SAMPLE_FMT_S32;
+  case AudioParams::kFormatSigned64Packed:
+    return AV_SAMPLE_FMT_S64;
+  case AudioParams::kFormatFloat32Packed:
+    return AV_SAMPLE_FMT_FLT;
+  case AudioParams::kFormatFloat64Packed:
+    return AV_SAMPLE_FMT_DBL;
+  case AudioParams::kFormatUnsigned8Planar:
+    return AV_SAMPLE_FMT_U8P;
+  case AudioParams::kFormatSigned16Planar:
+    return AV_SAMPLE_FMT_S16P;
+  case AudioParams::kFormatSigned32Planar:
+    return AV_SAMPLE_FMT_S32P;
+  case AudioParams::kFormatSigned64Planar:
+    return AV_SAMPLE_FMT_S64P;
+  case AudioParams::kFormatFloat32Planar:
+    return AV_SAMPLE_FMT_FLTP;
+  case AudioParams::kFormatFloat64Planar:
+    return AV_SAMPLE_FMT_DBLP;
   case AudioParams::kFormatInvalid:
   case AudioParams::kFormatCount:
     break;

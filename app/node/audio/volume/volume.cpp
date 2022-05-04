@@ -41,11 +41,6 @@ VolumeNode::VolumeNode()
   SetEffectInput(kSamplesInput);
 }
 
-Node *VolumeNode::copy() const
-{
-  return new VolumeNode();
-}
-
 QString VolumeNode::Name() const
 {
   return tr("Volume");

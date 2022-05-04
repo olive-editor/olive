@@ -65,6 +65,16 @@ public:
     video_params_ = params;
   }
 
+  const AudioParams& GetCacheAudioParams() const
+  {
+    return audio_params_;
+  }
+
+  void SetCacheAudioParams(const AudioParams& params)
+  {
+    audio_params_ = params;
+  }
+
   static int GetChannelCountFromJob(const GenerateJob& job);
 
 protected:
@@ -72,19 +82,33 @@ protected:
 
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 
-  virtual TexturePtr ProcessVideoFootage(const FootageJob &stream, const rational &input_time);
+  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time){}
 
-  virtual SampleBufferPtr ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time);
+  virtual void ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time){}
 
-  virtual TexturePtr ProcessShader(const Node *node, const TimeRange &range, const ShaderJob& job);
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job){}
 
-  virtual SampleBufferPtr ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job);
+  virtual void ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job){}
 
-  virtual TexturePtr ProcessFrameGeneration(const Node *node, const GenerateJob& job);
+  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job){}
 
-  virtual TexturePtr GetCachedTexture(const QByteArray& hash);
+  virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs){}
 
-  virtual void SaveCachedTexture(const QByteArray& hash, TexturePtr texture);
+  virtual TexturePtr CreateTexture(const VideoParams &p)
+  {
+    return CreateDummyTexture(p);
+  }
+
+  virtual SampleBufferPtr CreateSampleBuffer(const AudioParams &params, int sample_count)
+  {
+    // Return dummy by default
+    return SampleBuffer::Create();
+  }
+
+  SampleBufferPtr CreateSampleBuffer(const AudioParams &params, const rational &length)
+  {
+    return CreateSampleBuffer(params, params.time_to_samples(length));
+  }
 
   virtual bool CanCacheFrames()
   {
@@ -108,12 +132,16 @@ protected:
     cancel_ = cancel;
   }
 
+  void ResolveJobs(NodeValue &value, const TimeRange &range);
+
 private:
-  void PostProcessTable(const Node *node, const Node::ValueHint &hint, const TimeRange &range, NodeValueTable &output_params);
+  void PreProcessRow(const TimeRange &range, NodeValueRow &row);
 
   TexturePtr CreateDummyTexture(const VideoParams &p);
 
   VideoParams video_params_;
+
+  AudioParams audio_params_;
 
   const QAtomicInt *cancel_;
 

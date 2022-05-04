@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/snapservice/snapservice.cpp
-  widget/snapservice/snapservice.h
+  dialog/markerproperties/markerpropertiesdialog.h
+  dialog/markerproperties/markerpropertiesdialog.cpp
   PARENT_SCOPE
 )

@@ -43,6 +43,7 @@
 #include "viewerpreventsleep.h"
 #include "widget/menu/menu.h"
 #include "window/mainwindow/mainwindow.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -64,7 +65,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   color_menu_enabled_(true),
   time_changed_from_timer_(false),
   prequeuing_video_(false),
-  prequeuing_audio_(0)
+  prequeuing_audio_(0),
+  record_armed_(false),
+  recording_(false)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -97,6 +100,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
+  ConnectTimelineView(waveform_view_, true);
   PassWheelEventsToScrollBar(waveform_view_);
   stack_->addWidget(waveform_view_);
 
@@ -125,7 +129,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetScale(48.0);
 
   // Ensures that seeking on the waveform view updates the time as expected
-  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
   connect(waveform_view_, &AudioWaveformView::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
 
   connect(&playback_backup_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
@@ -155,6 +158,10 @@ void ViewerWidget::TimeChangedEvent(const rational &time)
 {
   if (!time_changed_from_timer_) {
     PauseInternal();
+  }
+
+  if (record_armed_) {
+    DisarmRecording();
   }
 
   controls_->SetTime(time);
@@ -376,6 +383,16 @@ void ViewerWidget::SetGizmos(Node *node)
   display_widget_->SetGizmos(node);
 }
 
+void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, const Track::Reference &track)
+{
+  SetTimeAndSignal(time.in());
+  ArmForRecording();
+
+  recording_callback_ = source;
+  recording_range_ = time;
+  recording_track_ = track;
+}
+
 FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QByteArray& hash, const rational& time)
 {
   FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, hash);
@@ -425,6 +442,18 @@ void ViewerWidget::DecrementPrequeuedAudio()
   if (!prequeuing_audio_) {
     FinishPlayPreprocess();
   }
+}
+
+void ViewerWidget::ArmForRecording()
+{
+  controls_->StartPlayBlink();
+  record_armed_ = true;
+}
+
+void ViewerWidget::DisarmRecording()
+{
+  controls_->StopPlayBlink();
+  record_armed_ = false;
 }
 
 void ViewerWidget::QueueNextAudioBuffer()
@@ -594,13 +623,20 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     viewer->auto_cacher_.SetAudioPaused(true);
   }
 
+  // Disarm recording if armed
+  if (record_armed_) {
+    DisarmRecording();
+  }
+
   // If the playhead is beyond the end, restart at 0
-  rational last_frame = GetConnectedNode()->GetLength() - timebase();
-  if (!in_to_out_only && GetTime() >= last_frame) {
-    if (speed > 0) {
-      SetTimeAndSignal(0);
-    } else {
-      SetTimeAndSignal(last_frame);
+  if (!recording_) {
+    rational last_frame = GetConnectedNode()->GetLength() - timebase();
+    if (!in_to_out_only && GetTime() >= last_frame) {
+      if (speed > 0) {
+        SetTimeAndSignal(0);
+      } else {
+        SetTimeAndSignal(last_frame);
+      }
     }
   }
 
@@ -656,6 +692,15 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
 void ViewerWidget::PauseInternal()
 {
+  if (recording_) {
+    AudioManager::instance()->StopRecording();
+    recording_ = false;
+    controls_->SetPauseButtonRecordingState(false);
+
+    recording_callback_->DisableRecordingOverlay();
+    recording_callback_->RecordingCallback(recording_filename_, recording_range_, recording_track_);
+  }
+
   if (IsPlaying()) {
     playback_speed_ = 0;
     controls_->ShowPlayButton();
@@ -696,7 +741,7 @@ void ViewerWidget::PauseInternal()
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  if (!IsPlaying() && GetConnectedNode() && Config::Current()[QStringLiteral("AudioScrubbing")].toBool()) {
+  if (!IsPlaying() && GetConnectedNode() && OLIVE_CONFIG("AudioScrubbing").toBool()) {
     // Get audio src device from renderer
     const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
@@ -1084,9 +1129,9 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   {
     QAction *stop_playback_on_last_frame = menu.addAction(tr("Stop Playback On Last Frame"));
     stop_playback_on_last_frame->setCheckable(true);
-    stop_playback_on_last_frame->setChecked(Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")].toBool());
+    stop_playback_on_last_frame->setChecked(OLIVE_CONFIG("StopPlaybackOnLastFrame").toBool());
     connect(stop_playback_on_last_frame, &QAction::triggered, this, [](bool e){
-      Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")] = e;
+      OLIVE_CONFIG("StopPlaybackOnLastFrame") = e;
     });
 
     menu.addSeparator();
@@ -1119,6 +1164,39 @@ void ViewerWidget::Play(bool in_to_out_only)
       SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
     } else {
       in_to_out_only = false;
+    }
+  } else if (record_armed_) {
+    DisarmRecording();
+
+    if (GetConnectedNode()->project()->filename().isEmpty()) {
+      QMessageBox::critical(this, tr("Audio Recording"), tr("Project must be saved before you can record audio."));
+      return;
+    }
+
+    QDir audio_path(QFileInfo(GetConnectedNode()->project()->filename()).dir().filePath(tr("audio")));
+    if (!audio_path.exists()) {
+      audio_path.mkpath(QStringLiteral("."));
+    }
+
+    recording_filename_ = audio_path.filePath(QStringLiteral("%1.%2").arg(
+                                                QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss"),
+                                                ExportFormat::GetExtension(static_cast<ExportFormat::Format>(OLIVE_CONFIG("AudioRecordingFormat").toInt())))
+                                              );
+
+    AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(), OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong(), static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioRecordingSampleFormat").toInt()));
+
+    EncodingParams encode_param;
+    encode_param.EnableAudio(ap, static_cast<ExportCodec::Codec>(OLIVE_CONFIG("AudioRecordingCodec").toInt()));
+    encode_param.SetFilename(recording_filename_);
+    encode_param.set_audio_bit_rate(OLIVE_CONFIG("AudioRecordingBitRate").toInt() * 1000);
+
+    if (AudioManager::instance()->StartRecording(encode_param)) {
+      recording_ = true;
+      controls_->SetPauseButtonRecordingState(true);
+      recording_callback_->EnableRecordingOverlay(TimelineCoordinate(recording_range_.in(), recording_track_));
+    } else {
+      QMessageBox::critical(this, tr("Audio Recording"), tr("Failed to start audio recording"));
+      return;
     }
   }
 
@@ -1204,7 +1282,13 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   rational min_time, max_time;
 
-  if (play_in_to_out_only_ && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+  if (recording_ && recording_range_.out() != recording_range_.in()) {
+
+    // Limit recording range if applicable
+    min_time = recording_range_.in();
+    max_time = recording_range_.out();
+
+  } else if (play_in_to_out_only_ && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
 
     // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
     min_time = GetConnectedNode()->GetTimelinePoints()->workarea()->in();
@@ -1220,7 +1304,7 @@ void ViewerWidget::PlaybackTimerUpdate()
 
   // If we're stopping playback on the last frame rather than after it, subtract our max time
   // by one timebase unit
-  if (Config::Current()[QStringLiteral("StopPlaybackOnLastFrame")].toBool()) {
+  if (OLIVE_CONFIG("StopPlaybackOnLastFrame").toBool()) {
     max_time = qMax(min_time, max_time - timebase());
   }
 
@@ -1228,8 +1312,9 @@ void ViewerWidget::PlaybackTimerUpdate()
   bool end_of_line = false;
   bool play_after_pause = false;
 
-  if ((playback_speed_ < 0 && current_time <= min_time)
-      || (playback_speed_ > 0 && current_time >= max_time)) {
+  if ((!recording_ || recording_range_.out() != recording_range_.in())
+      && ((playback_speed_ < 0 && current_time <= min_time)
+          || (playback_speed_ > 0 && current_time >= max_time))) {
 
     // Determine which timestamp we tripped
     rational tripped_time;
@@ -1244,7 +1329,7 @@ void ViewerWidget::PlaybackTimerUpdate()
     // or restart playback
     end_of_line = true;
 
-    if (Config::Current()[QStringLiteral("Loop")].toBool()) {
+    if (OLIVE_CONFIG("Loop").toBool() && !recording_) {
 
       // If we're looping, jump to the other side of the workarea and continue
       time_to_set = (tripped_time == min_time) ? max_time : min_time;

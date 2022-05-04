@@ -107,7 +107,7 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
       //        end up with gaps in the screen that will require an alpha channel.
       job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 
       pushed_job = true;
     }
@@ -318,13 +318,16 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
   }
 }
 
-QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat, const QVector2D &sequence_res, const QVector2D &texture_res, AutoScaleType autoscale_type)
+QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat, const QVector2D &sequence_res, const QVector2D &texture_res, const QVector2D &offset, AutoScaleType autoscale_type)
 {
   // First, create an identity matrix
   QMatrix4x4 adjusted_matrix;
 
   // Scale it to a square based on the sequence's resolution
   adjusted_matrix.scale(2.0 / sequence_res.x(), 2.0 / sequence_res.y(), 1.0);
+
+  // Apply offset if applicable
+  adjusted_matrix.translate(offset);
 
   // Adjust by the matrix we generated earlier
   adjusted_matrix *= mat;
@@ -378,6 +381,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   // GizmoTraverser just returns the sizes of the textures and no other data
   VideoParams tex_params = tex->params();
   QVector2D tex_sz(tex_params.square_pixel_width(), tex_params.height());
+  QVector2D tex_offset = tex_params.offset();
 
   // Retrieve autoscale value
   AutoScaleType autoscale = static_cast<AutoScaleType>(row[kAutoscaleInput].data().toInt());
@@ -388,6 +392,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, false, false, false),
                                                 sequence_res,
                                                 tex_sz,
+                                                tex_offset,
                                                 autoscale);
 
   // Create rect and transform it
@@ -407,6 +412,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, true, false, false),
                                              sequence_res,
                                              tex_sz,
+                                             tex_offset,
                                              autoscale);
   anchor_gizmo_->SetPoint(anchor_matrix.toTransform().map(QPointF(0, 0)) + sequence_half_res_pt);
 
@@ -422,7 +428,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
 
   // Use offsets to make the appearance of values that start in the top left, even though we
   // really anchor around the center
-  SetInputProperty(kPositionInput, QStringLiteral("offset"), sequence_half_res);
+  SetInputProperty(kPositionInput, QStringLiteral("offset"), sequence_half_res + tex_offset);
   SetInputProperty(kAnchorInput, QStringLiteral("offset"), tex_sz * 0.5);
 }
 
@@ -440,6 +446,7 @@ QMatrix4x4 TransformDistortNode::GenerateAutoScaledMatrix(const QMatrix4x4& gene
   return AdjustMatrixByResolutions(generated_matrix,
                                    sequence_res,
                                    texture_res,
+                                   texture_params.offset(),
                                    autoscale);
 }
 

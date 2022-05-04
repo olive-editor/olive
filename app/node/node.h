@@ -48,6 +48,10 @@
 
 namespace olive {
 
+#define NODE_DEFAULT_FUNCTIONS(x) \
+  NODE_DEFAULT_DESTRUCTOR(x) \
+  NODE_COPY_FUNCTION(x)
+
 #define NODE_DEFAULT_DESTRUCTOR(x) \
   virtual ~x() override {DisconnectAll();}
 
@@ -955,6 +959,8 @@ public:
   void SetInputFlags(const QString &input, const InputFlags &f);
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+
+  static std::list<Node*> FindPath(Node *from, Node *to, int path_index = 0);
 
   static const QString kEnabledInput;
 

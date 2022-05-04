@@ -29,6 +29,7 @@
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -38,7 +39,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   super(true, false, parent),
   last_scroll_val_(0),
   focused_node_(nullptr),
-  time_target_(nullptr)
+  time_target_(nullptr),
+  show_all_nodes_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -117,6 +119,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // Create keyframe view
     keyframe_view_ = new KeyframeView();
     keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    keyframe_view_->SetSnapService(this);
     ConnectTimelineView(keyframe_view_);
     keyframe_area_layout->addWidget(keyframe_view_);
 
@@ -451,7 +454,7 @@ void NodeParamView::RemoveContext(Node *ctx)
 
 void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 {
-  if ((n->GetFlags() & Node::kDontShowInParamView) && !IsGroupMode()) {
+  if ((n->GetFlags() & Node::kDontShowInParamView) && !IsGroupMode() && !show_all_nodes_) {
     return;
   }
 

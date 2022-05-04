@@ -25,6 +25,8 @@
 #include <QPushButton>
 
 #include "dialog/configbase/configdialogbase.h"
+#include "dialog/export/exportaudiotab.h"
+#include "dialog/export/exportformatcombobox.h"
 
 namespace olive {
 
@@ -58,6 +60,10 @@ private:
    * @brief Button that triggers a refresh of the available audio devices
    */
   QPushButton* refresh_devices_btn_;
+
+  ExportFormatComboBox *record_format_combo_;
+
+  ExportAudioTab *record_options_;
 
 private slots:
   void RefreshBackends();

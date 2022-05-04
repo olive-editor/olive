@@ -37,8 +37,6 @@ class Block : public Node
 public:
   Block();
 
-  NODE_DEFAULT_DESTRUCTOR(Block)
-
   virtual QVector<CategoryID> Category() const override;
 
   const rational& in() const

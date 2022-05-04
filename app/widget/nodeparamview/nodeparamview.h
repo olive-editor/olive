@@ -88,6 +88,16 @@ protected:
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
+  virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetKeyframeTracks() : nullptr;
+  }
+
+  virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetSelectedKeyframes() : nullptr;
+  }
+
 private:
   void UpdateItemTime(const rational &time);
 
@@ -132,6 +142,8 @@ private:
 
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;
+
+  bool show_all_nodes_;
 
 private slots:
   void UpdateGlobalScrollBar();

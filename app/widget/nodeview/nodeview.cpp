@@ -32,6 +32,7 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
 #include "node/group/group.h"
+#include "node/project/serializer/serializer.h"
 #include "node/traverser.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menushared.h"
@@ -45,7 +46,6 @@ const double NodeView::kMinimumScale = 0.1;
 
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
-  NodeCopyPasteService(QStringLiteral("nodes")),
   drop_edge_(nullptr),
   create_edge_(nullptr),
   create_edge_output_item_(nullptr),
@@ -204,7 +204,31 @@ void NodeView::CopySelected(bool cut)
     return;
   }
 
-  CopyNodesToClipboard(selected_nodes_);
+  QString copy_str;
+  QXmlStreamWriter writer(&copy_str);
+
+  ProjectSerializer::SaveData sdata(selected_nodes_.first()->project());
+  sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes_);
+
+  ProjectSerializer::SerializedProperties properties;
+
+  for (Node *n : selected_nodes_) {
+    NodeViewItem *item = GetAssumedItemForSelectedNode(n);
+
+    if (item) {
+      Node::Position pos = item->GetNodePositionData();
+
+      properties[n][QStringLiteral("x")] = QString::number(pos.position.x());
+      properties[n][QStringLiteral("y")] = QString::number(pos.position.y());
+      properties[n][QStringLiteral("expanded")] = QString::number(pos.expanded);
+    }
+  }
+
+  sdata.SetProperties(properties);
+
+  ProjectSerializer::Save(&writer, sdata, QStringLiteral("nodes"));
+
+  Core::CopyStringToClipboard(copy_str);
 
   if (cut) {
     DeleteSelected();
@@ -213,9 +237,31 @@ void NodeView::CopySelected(bool cut)
 
 void NodeView::Paste()
 {
-  if (!contexts_.isEmpty()) {
-    PasteNodesFromClipboard();
+  if (contexts_.isEmpty()) {
+    return;
   }
+
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
+  if (res.GetLoadedNodes().isEmpty()) {
+    return;
+  }
+
+  Node::PositionMap map;
+
+  for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
+    Node::Position pos;
+
+    const QMap<QString, QString> &node_props = it.value();
+    pos.position.setX(node_props.value(QStringLiteral("x")).toDouble());
+    pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
+    pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
+
+    qDebug() << it.key() << pos.position;
+
+    map.insert(it.key(), pos);
+  }
+
+  PostPaste(res.GetLoadedNodes(), map);
 }
 
 void NodeView::Duplicate()
@@ -1007,43 +1053,6 @@ bool NodeView::eventFilter(QObject *object, QEvent *event)
   return super::eventFilter(object, event);
 }
 
-void NodeView::CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *sdata, void *userdata)
-{
-  ProjectSerializer::SerializedProperties properties;
-
-  for (Node *n : nodes) {
-    NodeViewItem *item = GetAssumedItemForSelectedNode(n);
-
-    if (item) {
-      Node::Position pos = item->GetNodePositionData();
-
-      properties[n][QStringLiteral("x")] = QString::number(pos.position.x());
-      properties[n][QStringLiteral("y")] = QString::number(pos.position.y());
-      properties[n][QStringLiteral("expanded")] = QString::number(pos.expanded);
-    }
-  }
-
-  sdata->SetProperties(properties);
-}
-
-void NodeView::PasteNodesToClipboardCallback(const QVector<Node *> &nodes, const ProjectSerializer::LoadData &ldata, void *userdata)
-{
-  Node::PositionMap map;
-
-  for (auto it=ldata.properties.cbegin(); it!=ldata.properties.cend(); it++) {
-    Node::Position pos;
-
-    const QMap<QString, QString> &node_props = it.value();
-    pos.position.setX(node_props.value(QStringLiteral("x")).toDouble());
-    pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
-    pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
-
-    map.insert(it.key(), pos);
-  }
-
-  PostPaste(nodes, map);
-}
-
 void NodeView::changeEvent(QEvent *e)
 {
   // Add translation code
@@ -1548,7 +1557,7 @@ void NodeView::PostPaste(const QVector<Node *> &new_nodes, const Node::PositionM
       AttachedItem &ai = new_attached[i];
 
       if (ai.item) {
-        ai.original_pos = first_item->pos() - ai.item->pos();
+        ai.original_pos = ai.item->pos() - first_item->pos();
       }
     }
   }

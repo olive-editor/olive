@@ -182,7 +182,7 @@ public:
    *
    * @param urls
    */
-  void ImportFiles(const QStringList& urls, ProjectViewModel *model, Folder *parent);
+  void ImportFiles(const QStringList& urls, Folder *parent);
 
   /**
    * @brief Get the currently active tool

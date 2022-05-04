@@ -30,9 +30,8 @@
 
 namespace olive {
 
-ProjectImportTask::ProjectImportTask(ProjectViewModel *model, Folder *folder, const QStringList &filenames) :
+ProjectImportTask::ProjectImportTask(Folder *folder, const QStringList &filenames) :
   command_(nullptr),
-  model_(model),
   folder_(folder)
 {
   foreach (const QString& f, filenames) {
@@ -117,6 +116,9 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
         // Create undoable command that adds the items to the model
         AddItemToFolder(folder, footage, parent_command);
+
+        // Add to vector
+        imported_footage_.push_back(footage);
       } else {
         // Add to list so we can tell the user about it later
         invalid_files_.append(file_info.absoluteFilePath());
@@ -201,7 +203,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
         // User has confirmed it is a still image, let's set it accordingly.
         video_stream.set_video_type(VideoParams::kVideoTypeImageSequence);
 
-        rational default_timebase = Config::Current()[QStringLiteral("DefaultSequenceFrameRate")].value<rational>();
+        rational default_timebase = OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>();
         video_stream.set_time_base(default_timebase);
         video_stream.set_frame_rate(default_timebase.flipped());
 
@@ -220,7 +222,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
 void ProjectImportTask::AddItemToFolder(Folder *folder, Node *item, MultiUndoCommand *command)
 {
   // Create undoable command that adds the items to the model
-  Project* project = model_->project();
+  Project* project = folder->project();
 
   NodeAddCommand* nac = new NodeAddCommand(project, item);
   nac->PushToThread(project->thread());

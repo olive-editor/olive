@@ -47,6 +47,8 @@ private:
 
   QVector<ColorCodingComboBox*> color_btns_;
 
+  ColorCodingComboBox* marker_btn_;
+
 };
 
 }
