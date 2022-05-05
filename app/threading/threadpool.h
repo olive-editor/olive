@@ -59,6 +59,7 @@ private:
   std::mutex task_mutex_;
   std::condition_variable cond_;
   std::atomic_bool end_threadp_{false};
+
 };
 
 }  // namespace olive

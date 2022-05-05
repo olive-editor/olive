@@ -35,10 +35,12 @@
 #include "window/mainwindow/mainwindow.h"
 
 namespace olive {
+
 RenderManager* RenderManager::instance_ = nullptr;
 
 RenderManager::RenderManager(QObject *parent) :
-  ThreadPool(0, parent), backend_(kOpenGL)
+  ThreadPool(0, parent),
+  backend_(kOpenGL)
 {
   Renderer* graphics_renderer = nullptr;
 

@@ -34,7 +34,8 @@ ThreadPool::ThreadPool(unsigned threads, QObject *parent)
   }
 }
 
-void ThreadPool::AddTicket(RenderTicketPtr ticket, RenderTicketPriority priority) {
+void ThreadPool::AddTicket(RenderTicketPtr ticket, RenderTicketPriority priority)
+{
   std::lock_guard<std::mutex> lock(task_mutex_);
 
   if (priority == RenderTicketPriority::kHigh) {
@@ -59,7 +60,8 @@ bool ThreadPool::RemoveTicket(RenderTicketPtr ticket)
   return true;
 }
 
-void ThreadPool::thread_exec() {
+void ThreadPool::thread_exec()
+{
   while (true) {
     TaskType task;
 
