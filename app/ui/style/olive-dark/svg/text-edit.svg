@@ -264,12 +264,12 @@
      transform="translate(0,16)">
     <path
        id="path5"
-       style="color:#ffffff;fill:#989898;fill-opacity:0.862745;stroke-width:8;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers"
+       style="color:#ffffff;fill:#ffffff;fill-opacity:0.86274511;stroke-width:8;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers"
        d="M 41,-5 11,25 C 9.6823712,26.317629 8.6656745,27.905781 8.0214844,29.654297 L 3.7421875,41.273438 c -0.6856883,1.861154 1.123221,3.670063 2.984375,2.984374 L 18.345703,39.978516 C 20.094219,39.334326 21.682371,38.317629 23,37 L 53,7 Z m 0,6 6,6 -28,28 c -0.781013,0.780846 -2.218987,0.780846 -3,0 l -3,-3 c -0.780846,-0.781013 -0.780846,-2.218987 0,-3 z"
        sodipodi:nodetypes="csccccsccccccccc" />
     <path
        id="path1"
-       style="opacity:1;fill:#989898;fill-opacity:0.862745;stroke-width:1.51181;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#ffffff"
+       style="opacity:1;fill:#ffffff;fill-opacity:0.86274511;stroke-width:1.51181;stroke-linecap:round;stroke-dashoffset:8;paint-order:stroke fill markers;stop-color:#ffffff"
        d="m 57,-11 2,2 c 3,3 3,7 0,9.99999999 L 56,4 44,-8 l 3,-3 c 3,-3 7,-3 10,0 z"
        sodipodi:nodetypes="cccccsc" />
   </g>
