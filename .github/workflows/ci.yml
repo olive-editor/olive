@@ -78,7 +78,7 @@ jobs:
       - name: Build
         working-directory: build
         run: |
-          cmake --build .
+          cmake --build . --parallel 4
 
       - name: Test
         working-directory: build
@@ -210,7 +210,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         run: |
-          cmake --build .
+          cmake --build . --parallel 4
 
       - name: Test
         working-directory: ${{ runner.workspace }}/build
@@ -358,7 +358,7 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         run: |
-          cmake --build .
+          cmake --build . --parallel 4
 
       - name: Test
         working-directory: ${{ runner.workspace }}/build
