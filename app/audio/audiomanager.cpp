@@ -80,10 +80,11 @@ int InputCallback(const void *input, void *output, unsigned long frameCount, con
   return paContinue;
 }
 
-void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &samples)
+bool AudioManager::PushToOutput(const AudioParams &params, const QByteArray &samples, QString *error)
 {
   if (output_device_ == paNoDevice) {
-    return;
+    if (error) *error = tr("No output device is set");
+    return false;
   }
 
   if (output_params_ != params || output_stream_ == nullptr) {
@@ -93,7 +94,13 @@ void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &sam
 
     PaStreamParameters p = GetPortAudioParams(params, output_device_);
 
-    Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_);
+    PaError r = Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_);
+    if (r != paNoError) {
+      // Unhandled error
+      //qCritical() << "Failed to open output stream:" << Pa_GetErrorText(r);
+      if (error) *error = Pa_GetErrorText(r);
+      return false;
+    }
 
     output_buffer_->set_bytes_per_frame(output_params_.samples_to_bytes(1));
   }
@@ -103,6 +110,8 @@ void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &sam
   if (!Pa_IsStreamActive(output_stream_)) {
     Pa_StartStream(output_stream_);
   }
+
+  return true;
 }
 
 void AudioManager::ClearBufferedOutput()

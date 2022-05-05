@@ -211,7 +211,6 @@ private:
 
   void DisarmRecording();
 
-  void UpdateAudioProcessor();
   void CloseAudioProcessor();
 
   QStackedWidget* stack_;
@@ -318,6 +317,8 @@ private slots:
   void ReceivedAudioBufferForScrubbing();
 
   void ForceRequeueFromCurrentTime();
+
+  void UpdateAudioProcessor();
 
 };
 

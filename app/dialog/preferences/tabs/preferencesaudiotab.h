@@ -61,6 +61,10 @@ private:
    */
   QPushButton* refresh_devices_btn_;
 
+  SampleRateComboBox *output_rate_combo_;
+  ChannelLayoutComboBox *output_ch_layout_combo_;
+  SampleFormatComboBox *output_fmt_combo_;
+
   ExportFormatComboBox *record_format_combo_;
 
   ExportAudioTab *record_options_;

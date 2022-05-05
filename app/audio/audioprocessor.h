@@ -51,6 +51,9 @@ public:
 
   void Flush();
 
+  const AudioParams &from() const { return from_; }
+  const AudioParams &to() const { return to_; }
+
 private:
   static AVFilterContext* CreateTempoFilter(AVFilterGraph *graph, AVFilterContext *link, const double& tempo);
 

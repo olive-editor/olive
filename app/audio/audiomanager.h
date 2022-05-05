@@ -27,6 +27,7 @@
 #include <portaudio.h>
 
 #include "audiovisualwaveform.h"
+#include "audio/audioprocessor.h"
 #include "common/define.h"
 #include "codec/ffmpeg/ffmpegencoder.h"
 #include "render/audioparams.h"
@@ -52,7 +53,7 @@ public:
 
   void SetOutputNotifyInterval(int n);
 
-  void PushToOutput(const AudioParams &params, const QByteArray& samples);
+  bool PushToOutput(const AudioParams &params, const QByteArray& samples, QString *error = nullptr);
 
   void ClearBufferedOutput();
 
@@ -85,6 +86,8 @@ public:
 
 signals:
   void OutputNotify();
+
+  void OutputParamsChanged();
 
 private:
   AudioManager();
