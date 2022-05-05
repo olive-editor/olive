@@ -25,9 +25,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
-#include "audio/packedprocessor.h"
-#include "audio/planarprocessor.h"
-#include "audio/tempoprocessor.h"
+#include "audio/audioprocessor.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
 #include "node/project/project.h"
@@ -198,7 +196,11 @@ void RenderProcessor::Run()
       table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput),time);
     }
 
-    QVariant sample_variant = table.Get(NodeValue::kSamples);
+    NodeValue sample_val = table.GetWithMeta(NodeValue::kSamples);
+
+    ResolveJobs(sample_val, time);
+
+    QVariant sample_variant = sample_val.data();
     SampleBufferPtr samples = sample_variant.value<SampleBufferPtr>();
     if (samples && ticket_->property("enablewaveforms").toBool()) {
       AudioVisualWaveform vis;
@@ -305,14 +307,10 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
               samples_from_this_block->silence();
             } else if (!qFuzzyCompare(speed_value, 1.0)) {
               if (clip_cast->maintain_audio_pitch()) {
-                PackedProcessor packer;
-                packer.Open(samples_from_this_block->audio_params());
+                AudioProcessor processor;
 
-                QByteArray packed = packer.Convert(samples_from_this_block);
-
-                if (!packed.isEmpty()) {
-                  TempoProcessor tp;
-                  tp.Open(samples_from_this_block->audio_params(), speed_value);
+                if (processor.Open(samples_from_this_block->audio_params(), samples_from_this_block->audio_params(), speed_value)) {
+                  AudioProcessor::Buffer out;
 
                   // FIXME: This is not the best way to do this, the TempoProcessor works best
                   //        when it's given a continuous stream of audio, which is challenging
@@ -320,15 +318,31 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
                   //        well on export (assuming audio is all generated at once on export), but
                   //        users may hear clicks and pops in the audio during preview due to this
                   //        approach.
-                  tp.Push(packed);
-                  tp.Flush();
-                  packed = tp.Pull();
-                  tp.Close();
+                  int r = processor.Convert(samples_from_this_block->to_raw_ptrs(), samples_from_this_block->sample_count(), nullptr);
 
-                  if (!packed.isEmpty()) {
-                    PlanarProcessor planar;
-                    planar.Open(samples_from_this_block->audio_params());
-                    samples_from_this_block = planar.Convert(packed);
+                  if (r < 0) {
+                    qCritical() << "Failed to change tempo of audio:" << r;
+                  } else {
+                    processor.Flush();
+
+                    processor.Convert(nullptr, 0, &out);
+
+                    if (!out.empty()) {
+                      int nb_samples = out.front().size() * samples_from_this_block->audio_params().bytes_per_sample_per_channel();
+
+                      if (nb_samples) {
+                        SampleBufferPtr new_samples = SampleBuffer::Create();
+                        new_samples->set_audio_params(samples_from_this_block->audio_params());
+                        new_samples->set_sample_count(nb_samples);
+                        new_samples->allocate();
+
+                        for (int i=0; i<out.size(); i++) {
+                          memcpy(new_samples->data(i), out[i].data(), out[i].size());
+                        }
+
+                        samples_from_this_block = new_samples;
+                      }
+                    }
                   }
                 }
               } else {

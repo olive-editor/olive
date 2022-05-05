@@ -141,6 +141,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   connect(Core::instance(), &Core::ColorPickerEnabled, this, &ViewerWidget::SetSignalCursorColorEnabled);
   connect(this, &ViewerWidget::CursorColor, Core::instance(), &Core::ColorPickerColorEmitted);
+  connect(AudioManager::instance(), &AudioManager::OutputParamsChanged, this, &ViewerWidget::UpdateAudioProcessor);
 }
 
 ViewerWidget::~ViewerWidget()
@@ -210,8 +211,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   last_length_ = 0;
   LengthChangedSlot(n->GetLength());
 
-  AudioParams ap = n->GetAudioParams();
-  packed_processor_.Open(ap);
+  UpdateAudioProcessor();
 
   ColorManager* color_manager = n->project()->color_manager();
 
@@ -245,7 +245,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
-  packed_processor_.Close();
+  CloseAudioProcessor();
 
   SetDisplayImage(QVariant());
 
@@ -456,13 +456,33 @@ void ViewerWidget::DisarmRecording()
   record_armed_ = false;
 }
 
+void ViewerWidget::UpdateAudioProcessor()
+{
+  if (GetConnectedNode()) {
+    audio_processor_.Close();
+
+    AudioParams ap = GetConnectedNode()->GetAudioParams();
+    AudioParams packed(OLIVE_CONFIG("AudioOutputSampleRate").toInt(),
+                       OLIVE_CONFIG("AudioOutputChannelLayout").toULongLong(),
+                       static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioOutputSampleFormat").toInt()));
+
+    audio_processor_.Open(ap, packed, (playback_speed_ == 0) ? 1 : std::abs(playback_speed_));
+  }
+}
+
+void ViewerWidget::CloseAudioProcessor()
+{
+  audio_processor_.Close();
+}
+
 void ViewerWidget::QueueNextAudioBuffer()
 {
   rational queue_end = audio_playback_queue_time_ + (kAudioPlaybackInterval * playback_speed_);
 
   // Clamp queue end by zero and the audio length
   queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
-  if (queue_end <= audio_playback_queue_time_) {
+  if ((playback_speed_ > 0 && queue_end <= audio_playback_queue_time_)
+      || (playback_speed_ < 0 && queue_end >= audio_playback_queue_time_)) {
     // This will queue nothing, so stop the loop here
     if (prequeuing_audio_) {
       DecrementPrequeuedAudio();
@@ -493,23 +513,23 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
         }
 
         // Convert to packed data for audio output
-        QByteArray pack = packed_processor_.Convert(samples);
-
-        // If the tempo must be adjusted, adjust now
-        if (tempo_processor_.IsOpen()) {
-          tempo_processor_.Push(pack);
-          pack = tempo_processor_.Pull();
-        }
+        AudioProcessor::Buffer buf;
+        int r = audio_processor_.Convert(samples->to_raw_ptrs(), samples->sample_count(), &buf);
 
         // TempoProcessor may have emptied the array
-        if (!pack.isEmpty()) {
-          if (prequeuing_audio_) {
-            // Add to prequeued audio buffer
-            prequeued_audio_.append(pack);
-          } else {
-            // Push directly to audio manager
-            AudioManager::instance()->PushToOutput(GetConnectedNode()->GetAudioParams(), pack);
+        if (r >= 0) {
+          if (!buf.empty()) {
+            const QByteArray &pack = buf.at(0);
+            if (prequeuing_audio_) {
+              // Add to prequeued audio buffer
+              prequeued_audio_.append(pack);
+            } else {
+              // Push directly to audio manager
+              AudioManager::instance()->PushToOutput(audio_processor_.to(), pack);
+            }
           }
+        } else {
+          qCritical() << "Failed to process audio for playback:" << r;
         }
       }
     }
@@ -540,10 +560,22 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
           samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
         }*/
 
-        QByteArray packed = packed_processor_.Convert(samples);
-        AudioManager::instance()->ClearBufferedOutput();
-        AudioManager::instance()->PushToOutput(samples->audio_params(), packed);
-        AudioMonitor::PushBytesOnAll(packed);
+        AudioProcessor::Buffer buf;
+        int r = audio_processor_.Convert(samples->to_raw_ptrs(), samples->sample_count(), &buf);
+
+        if (r >= 0) {
+          if (!buf.empty()) {
+            QString error;
+            const QByteArray &packed = buf.at(0);
+            AudioManager::instance()->ClearBufferedOutput();
+            if (!AudioManager::instance()->PushToOutput(audio_processor_.to(), packed, &error)) {
+              Core::instance()->ShowStatusBarMessage(tr("Audio scrubbing failed: %1").arg(error));
+            }
+            AudioMonitor::PushBytesOnAll(packed);
+          }
+        } else {
+          qCritical() << "Failed to process audio for scrubbing:" << r;
+        }
       }
     }
   }
@@ -675,9 +707,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     AudioManager::instance()->SetOutputNotifyInterval(ap.time_to_bytes(kAudioPlaybackInterval));
     connect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
 
-    if (std::abs(playback_speed_) > 1) {
-      tempo_processor_.Open(GetConnectedNode()->GetAudioParams(), std::abs(playback_speed_));
-    }
+    UpdateAudioProcessor();
 
     static const int prequeue_count = 2;
     prequeuing_audio_ = prequeue_count; // Queue two buffers ahead of time
@@ -721,9 +751,7 @@ void ViewerWidget::PauseInternal()
     disconnect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
     qDeleteAll(audio_playback_queue_);
     audio_playback_queue_.clear();
-    if (tempo_processor_.IsOpen()) {
-      tempo_processor_.Close();
-    }
+    UpdateAudioProcessor();
 
     foreach (ViewerWidget* viewer, instances_) {
       viewer->auto_cacher_.SetAudioPaused(false);
@@ -852,7 +880,11 @@ void ViewerWidget::FinishPlayPreprocess()
 
   // Start audio waveform playback
   if (!prequeued_audio_.isEmpty()) {
-    AudioManager::instance()->PushToOutput(GetConnectedNode()->GetAudioParams(), prequeued_audio_);
+    QString error;
+    if (!AudioManager::instance()->PushToOutput(audio_processor_.to(), prequeued_audio_, &error)) {
+      QMessageBox::critical(this, tr("Audio Error"), tr("Failed to start audio: %1\n\n"
+                                                        "Please check your audio preferences and try again.").arg(error));
+    }
     prequeued_audio_.clear();
 
     AudioMonitor::StartWaveformOnAll(&GetConnectedNode()->audio_playback_cache()->visual(),
@@ -1190,12 +1222,13 @@ void ViewerWidget::Play(bool in_to_out_only)
     encode_param.SetFilename(recording_filename_);
     encode_param.set_audio_bit_rate(OLIVE_CONFIG("AudioRecordingBitRate").toInt() * 1000);
 
-    if (AudioManager::instance()->StartRecording(encode_param)) {
+    QString error;
+    if (AudioManager::instance()->StartRecording(encode_param, &error)) {
       recording_ = true;
       controls_->SetPauseButtonRecordingState(true);
       recording_callback_->EnableRecordingOverlay(TimelineCoordinate(recording_range_.in(), recording_track_));
     } else {
-      QMessageBox::critical(this, tr("Audio Recording"), tr("Failed to start audio recording"));
+      QMessageBox::critical(this, tr("Audio Recording"), tr("Failed to start audio recording: %1").arg(error));
       return;
     }
   }
@@ -1433,11 +1466,7 @@ void ViewerWidget::UpdateRendererVideoParameters()
 
 void ViewerWidget::UpdateRendererAudioParameters()
 {
-  packed_processor_.Close();
-
-  AudioParams ap = GetConnectedNode()->GetAudioParams();
-
-  packed_processor_.Open(ap);
+  UpdateAudioProcessor();
 }
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)
