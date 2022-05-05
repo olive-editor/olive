@@ -191,7 +191,11 @@ void RenderProcessor::Run()
       table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput),time);
     }
 
-    QVariant sample_variant = table.Get(NodeValue::kSamples);
+    NodeValue sample_val = table.GetWithMeta(NodeValue::kSamples);
+
+    ResolveJobs(sample_val, time);
+
+    QVariant sample_variant = sample_val.data();
     SampleBufferPtr samples = sample_variant.value<SampleBufferPtr>();
     if (samples && ticket_->property("enablewaveforms").toBool()) {
       AudioVisualWaveform vis;
