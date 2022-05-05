@@ -476,7 +476,8 @@ void ViewerWidget::QueueNextAudioBuffer()
 
   // Clamp queue end by zero and the audio length
   queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
-  if (queue_end <= audio_playback_queue_time_) {
+  if ((playback_speed_ > 0 && queue_end <= audio_playback_queue_time_)
+      || (playback_speed_ < 0 && queue_end >= audio_playback_queue_time_)) {
     // This will queue nothing, so stop the loop here
     if (prequeuing_audio_) {
       DecrementPrequeuedAudio();
