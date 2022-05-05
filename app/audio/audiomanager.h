@@ -74,7 +74,7 @@ public:
 
   void HardReset();
 
-  bool StartRecording(const EncodingParams &params);
+  bool StartRecording(const EncodingParams &params, QString *error_str = nullptr);
 
   void StopRecording();
 

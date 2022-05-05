@@ -1190,12 +1190,13 @@ void ViewerWidget::Play(bool in_to_out_only)
     encode_param.SetFilename(recording_filename_);
     encode_param.set_audio_bit_rate(OLIVE_CONFIG("AudioRecordingBitRate").toInt() * 1000);
 
-    if (AudioManager::instance()->StartRecording(encode_param)) {
+    QString error;
+    if (AudioManager::instance()->StartRecording(encode_param, &error)) {
       recording_ = true;
       controls_->SetPauseButtonRecordingState(true);
       recording_callback_->EnableRecordingOverlay(TimelineCoordinate(recording_range_.in(), recording_track_));
     } else {
-      QMessageBox::critical(this, tr("Audio Recording"), tr("Failed to start audio recording"));
+      QMessageBox::critical(this, tr("Audio Recording"), tr("Failed to start audio recording: %1").arg(error));
       return;
     }
   }

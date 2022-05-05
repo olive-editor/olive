@@ -189,7 +189,7 @@ void AudioManager::HardReset()
   Pa_Initialize();
 }
 
-bool AudioManager::StartRecording(const EncodingParams &params)
+bool AudioManager::StartRecording(const EncodingParams &params, QString *error_str)
 {
   if (input_device_ == paNoDevice) {
     return false;
@@ -203,10 +203,17 @@ bool AudioManager::StartRecording(const EncodingParams &params)
 
   PaStreamParameters p = GetPortAudioParams(params.audio_params(), input_device_);
 
-  if (Pa_OpenStream(&input_stream_, &p, nullptr, params.audio_params().sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_) == paNoError) {
-    if (Pa_StartStream(input_stream_) == paNoError) {
+  PaError r = Pa_OpenStream(&input_stream_, &p, nullptr, params.audio_params().sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_);
+  if (r == paNoError) {
+    //const PaStreamInfo* info = Pa_GetStreamInfo(input_stream_);
+    r = Pa_StartStream(input_stream_);
+    if (r == paNoError) {
       return true;
     }
+  }
+
+  if (error_str) {
+    *error_str = Pa_GetErrorText(r);
   }
 
   StopRecording();
