@@ -31,9 +31,7 @@ class TimeRemapNode : public Node
 public:
   TimeRemapNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TimeRemapNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(TimeRemapNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

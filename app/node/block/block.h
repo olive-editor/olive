@@ -37,8 +37,6 @@ class Block : public Node
 public:
   Block();
 
-  NODE_DEFAULT_DESTRUCTOR(Block)
-
   virtual QVector<CategoryID> Category() const override;
 
   const rational& in() const
@@ -118,7 +116,6 @@ public:
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
   static const QString kLengthInput;
-  static const QString kEnabledInput;
 
 public slots:
 

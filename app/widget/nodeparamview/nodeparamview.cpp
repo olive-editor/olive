@@ -28,6 +28,8 @@
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
+#include "widget/nodeview/nodeviewundo.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -38,7 +40,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   last_scroll_val_(0),
   focused_node_(nullptr),
   time_target_(nullptr),
-  group_mode_(false)
+  show_all_nodes_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -75,6 +77,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   for (int i=0; i<context_items_.size(); i++) {
     NodeParamViewContext *c = new NodeParamViewContext;
     c->setVisible(false);
+    connect(c, &NodeParamViewContext::AboutToDeleteItem, this, &NodeParamView::ItemAboutToBeRemoved, Qt::DirectConnection);
 
     NodeParamViewItemTitleBar *title_bar = static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget());
 
@@ -116,6 +119,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // Create keyframe view
     keyframe_view_ = new KeyframeView();
     keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    keyframe_view_->SetSnapService(this);
     ConnectTimelineView(keyframe_view_);
     keyframe_area_layout->addWidget(keyframe_view_);
 
@@ -151,10 +155,11 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   SetScale(120);
 
   // Pickup on widget focus changes
-  connect(qApp,
+  // DISABLED - we now just handle this with item/titlebar clicking (see ToggleSelect)
+  /*connect(qApp,
           &QApplication::focusChanged,
           this,
-          &NodeParamView::FocusChanged);
+          &NodeParamView::FocusChanged);*/
 }
 
 NodeParamView::~NodeParamView()
@@ -173,7 +178,7 @@ void NodeParamView::CloseContextsBelongingToProject(Project *p)
     }
   }
 
-  SetContexts(new_contexts, new_contexts.isEmpty() ? false : group_mode_);
+  SetContexts(new_contexts);
 }
 
 /*void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
@@ -235,68 +240,88 @@ void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
   }
 }*/
 
-void NodeParamView::SetContexts(const QVector<Node *> &contexts, bool group_mode)
+void NodeParamView::UpdateContexts()
 {
   //TIME_THIS_FUNCTION;
 
-  foreach (NodeParamViewContext *ctx, context_items_) {
-    ctx->Clear();
-    ctx->setVisible(false);
+  bool changes_made = false;
+
+  foreach (Node *ctx, current_contexts_) {
+    if (!contexts_.contains(ctx)) {
+      // Context is being removed
+      RemoveContext(ctx);
+      changes_made = true;
+    }
   }
 
   foreach (Node *ctx, contexts_) {
-    disconnect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext);
+    if (!current_contexts_.contains(ctx)) {
+      // Context is being added
+      AddContext(ctx);
+      changes_made = true;
+    }
   }
 
+  if (changes_made) {
+    current_contexts_ = contexts_;
+
+    if (IsGroupMode()) {
+      // Check inputs that have been passed through
+      NodeGroup *group = static_cast<NodeGroup*>(contexts_.first());
+      for (auto it=group->GetInputPassthroughs().cbegin(); it!=group->GetInputPassthroughs().cend(); it++) {
+        GroupInputPassthroughAdded(group, it->second);
+      }
+
+      connect(group, &NodeGroup::InputPassthroughAdded, this, &NodeParamView::GroupInputPassthroughAdded);
+      connect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeParamView::GroupInputPassthroughRemoved);
+    }
+
+    foreach (NodeParamViewContext *ctx, context_items_) {
+      SortItemsInContext(ctx);
+    }
+
+    if (keyframe_view_) {
+      QueueKeyframePositionUpdate();
+    }
+  }
+}
+
+void NodeParamView::ItemAboutToBeRemoved(NodeParamViewItem *item)
+{
+  if (keyframe_view_) {
+    for (auto it=item->GetKeyframeConnections().begin(); it!=item->GetKeyframeConnections().end(); it++) {
+      for (auto jt=it->begin(); jt!=it->end(); jt++) {
+        for (auto kt=jt->begin(); kt!=jt->end(); kt++) {
+          keyframe_view_->RemoveKeyframesOfTrack(*kt);
+        }
+      }
+    }
+  }
+
+  QVector<NodeParamViewItem *> copy = selected_nodes_;
+  if (copy.removeOne(item)) {
+    SetSelectedNodes(copy);
+  }
+}
+
+void NodeParamView::ItemClicked()
+{
+  ToggleSelect(static_cast<NodeParamViewItem*>(sender()));
+}
+
+void NodeParamView::SelectNodeFromConnectedLink(Node *node)
+{
+  NodeParamViewItem *item = static_cast<NodeParamViewItem *>(sender());
+
+  Node::ContextPair p = {node, item->GetContext()};
+  SetSelectedNodes({p});
+}
+
+void NodeParamView::SetContexts(const QVector<Node *> &contexts)
+{
+  // Setting contexts is expensive, so we queue it here to prevent multiple calls in a short timespan
   contexts_ = contexts;
-  group_mode_ = group_mode;
-
-  Q_ASSERT((contexts_.size() == 1 && dynamic_cast<NodeGroup*>(contexts_.first())) || !group_mode_ || contexts_.isEmpty());
-
-  foreach (Node *ctx, contexts_) {
-    // Queued so that if any further work is done in connecting this node to the context, it'll be
-    // done before our sorting function is called
-    connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
-  }
-
-  if (keyframe_view_) {
-    keyframe_view_->Clear();
-  }
-
-  if (focused_node_) {
-    focused_node_ = nullptr;
-    emit FocusedNodeChanged(nullptr);
-  }
-
-  foreach (Node *ctx, contexts) {
-    NodeParamViewContext *item = GetContextItemFromContext(ctx);
-
-    item->AddContext(ctx);
-    item->setVisible(true);
-
-    for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
-      AddNode(it.key(), item);
-    }
-  }
-
-  if (group_mode_) {
-    // Check inputs that have been passed through
-    NodeGroup *group = static_cast<NodeGroup*>(contexts_.first());
-    for (auto it=group->GetInputPassthroughs().cbegin(); it!=group->GetInputPassthroughs().cend(); it++) {
-      GroupInputPassthroughAdded(group, it->second);
-    }
-
-    connect(group, &NodeGroup::InputPassthroughAdded, this, &NodeParamView::GroupInputPassthroughAdded);
-    connect(group, &NodeGroup::InputPassthroughRemoved, this, &NodeParamView::GroupInputPassthroughRemoved);
-  }
-
-  foreach (NodeParamViewContext *ctx, context_items_) {
-    SortItemsInContext(ctx);
-  }
-
-  if (keyframe_view_) {
-    QueueKeyframePositionUpdate();
-  }
+  UpdateContexts();
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
@@ -360,21 +385,138 @@ Node *NodeParamView::GetTimeTarget() const
   return time_target_;
 }
 
-void NodeParamView::DeleteSelected()
+void ReconnectOutputsIfNotDeletingNode(MultiUndoCommand *c, NodeViewDeleteCommand *dc, Node *output, Node *deleting, Node *context)
 {
-  if (keyframe_view_) {
-    keyframe_view_->DeleteSelected();
+  for (auto it=deleting->output_connections().cbegin(); it!=deleting->output_connections().cend(); it++) {
+    const NodeInput &proposed_reconnect = it->second;
+
+    if (dc->ContainsNode(proposed_reconnect.node(), context)) {
+      // Uh-oh we're deleting this node too, instead connect to its outputs
+      ReconnectOutputsIfNotDeletingNode(c, dc, output, proposed_reconnect.node(), context);
+    } else {
+      c->add_child(new NodeEdgeAddCommand(output, it->second));
+    }
   }
 }
 
-void NodeParamView::SelectNodes(const QVector<Node *> &nodes)
+void NodeParamView::DeleteSelected()
 {
-  // Do nothing, this is a placeholder if we ever need this to do anything in the future
+  if (keyframe_view_ && keyframe_view_->hasFocus()) {
+    keyframe_view_->DeleteSelected();
+  } else if (!selected_nodes_.isEmpty()) {
+    MultiUndoCommand *c = new MultiUndoCommand();
+
+    // Create command to delete node from context and/or graph
+    NodeViewDeleteCommand *dc = new NodeViewDeleteCommand();
+    c->add_child(dc);
+
+    // Add all nodes
+    foreach (NodeParamViewItem *item, selected_nodes_) {
+      Node *n = item->GetNode();
+      dc->AddNode(n, item->GetContext());
+    }
+
+    // Make reconnections where possible
+    foreach (NodeParamViewItem *item, selected_nodes_) {
+      Node *n = item->GetNode();
+
+      Node *node_being_deleted = n;
+      Node *connected_to_effect_input = n;
+
+      while (true) {
+        if (node_being_deleted->GetEffectInput().IsValid()) {
+          if ((connected_to_effect_input = node_being_deleted->GetEffectInput().GetConnectedOutput())) {
+            if (dc->ContainsNode(connected_to_effect_input, item->GetContext())) {
+              // Node's getting deleted, recurse
+              node_being_deleted = connected_to_effect_input;
+              continue;
+            }
+          }
+        }
+
+        break;
+      }
+
+      if (connected_to_effect_input) {
+        ReconnectOutputsIfNotDeletingNode(c, dc, connected_to_effect_input, n, item->GetContext());
+      }
+    }
+
+    Core::instance()->undo_stack()->push(c);
+  }
 }
 
-void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
+void NodeParamView::SetSelectedNodes(const QVector<NodeParamViewItem *> &nodes, bool handle_focused_node, bool emit_signal)
 {
-  // Do nothing, this is a placeholder if we ever need this to do anything in the future
+  if (handle_focused_node) {
+    handle_focused_node = !focused_node_ || selected_nodes_.contains(focused_node_);
+  }
+
+  foreach (NodeParamViewItem *n, selected_nodes_) {
+    n->SetHighlighted(false);
+  }
+
+  selected_nodes_ = nodes;
+
+  QVector<Node::ContextPair> p;
+  if (emit_signal) {
+    p.resize(selected_nodes_.size());
+  }
+
+  for (int i=0; i<selected_nodes_.size(); i++) {
+    NodeParamViewItem *n = selected_nodes_.at(i);
+    n->SetHighlighted(true);
+
+    if (emit_signal) {
+      p[i] = {n->GetNode(), n->GetContext()};
+    }
+  }
+
+  if (handle_focused_node) {
+    focused_node_ = nullptr;
+
+    foreach (NodeParamViewItem *n, selected_nodes_) {
+      if (n->GetNode()->HasGizmos()) {
+        focused_node_ = n;
+        break;
+      }
+    }
+
+    Node *n = focused_node_ ? focused_node_->GetNode() : nullptr;
+    emit FocusedNodeChanged(n);
+  }
+
+  if (emit_signal) {
+    emit SelectedNodesChanged(p);
+  }
+}
+
+void NodeParamView::SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bool emit_signal)
+{
+  QVector<NodeParamViewItem*> items;
+
+  foreach (const Node::ContextPair &n, nodes) {
+    for (auto it=context_items_.cbegin(); it!=context_items_.cend(); it++) {
+      NodeParamViewContext *ctx = *it;
+
+      NodeParamViewItem *item = ctx->GetItem(n.node, n.context);
+
+      if (item) {
+        items.append(item);
+      }
+    }
+  }
+
+  SetSelectedNodes(items, true, emit_signal);
+
+  if (!selected_nodes_.empty()) {
+    NodeParamViewItem *scrolled_to = selected_nodes_.front();
+    param_scroll_area_->ensureWidgetVisible(scrolled_to, 0, 0);
+
+    QPoint viewport_pos = scrolled_to->mapTo(param_scroll_area_, scrolled_to->geometry().topLeft());
+
+    param_scroll_area_->verticalScrollBar()->setValue(viewport_pos.y());
+  }
 }
 
 void NodeParamView::UpdateItemTime(const rational &time)
@@ -389,19 +531,53 @@ void NodeParamView::QueueKeyframePositionUpdate()
   QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
 }
 
-void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
+void NodeParamView::AddContext(Node *ctx)
 {
-  if ((n->GetFlags() & Node::kDontShowInParamView) && !group_mode_) {
+  // Queued so that if any further work is done in connecting this node to the context, it'll be
+  // done before our sorting function is called
+  connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
+  connect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext, Qt::QueuedConnection);
+
+  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+
+  item->AddContext(ctx);
+  item->setVisible(true);
+
+  for (auto it=ctx->GetContextPositions().cbegin(); it!=ctx->GetContextPositions().cend(); it++) {
+    AddNode(it.key(), ctx, item);
+  }
+}
+
+void NodeParamView::RemoveContext(Node *ctx)
+{
+  disconnect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext);
+  disconnect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext);
+
+  foreach (NodeParamViewContext *item, context_items_) {
+    item->RemoveContext(ctx);
+    item->RemoveNodesWithContext(ctx);
+
+    if (item->GetContexts().isEmpty()) {
+      item->setVisible(false);
+    }
+  }
+}
+
+void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
+{
+  if ((n->GetFlags() & Node::kDontShowInParamView) && !IsGroupMode() && !show_all_nodes_) {
     return;
   }
 
-  NodeParamViewItem* item = new NodeParamViewItem(n, group_mode_ ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context);
+  NodeParamViewItem* item = new NodeParamViewItem(n, IsGroupMode() ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context);
 
   connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
-  connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::RequestSelectNode);
+  connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::SelectNodeFromConnectedLink);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
+  connect(item, &NodeParamViewItem::Clicked, this, &NodeParamView::ItemClicked);
 
+  item->SetContext(ctx);
   item->SetTimeTarget(GetTimeTarget());
   item->SetTimebase(timebase());
   item->SetTime(GetTime());
@@ -410,9 +586,7 @@ void NodeParamView::AddNode(Node *n, NodeParamViewContext *context)
 
   if (!focused_node_ && n->HasGizmos()) {
     // We'll focus this node now
-    item->SetHighlighted(true);
-    focused_node_ = item;
-    emit FocusedNodeChanged(n);
+    SetSelectedNodes({item});
   }
 
   if (keyframe_view_) {
@@ -446,9 +620,11 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
   QVector<QPair<NodeParamViewItem*, int> > distances;
 
   for (auto it=context_item->GetItems().cbegin(); it!=context_item->GetItems().cend(); it++) {
+    NodeParamViewItem *item = *it;
+
     int distance = -1;
     foreach (Node *ctx, context_item->GetContexts()) {
-      distance = qMax(distance, GetDistanceBetweenNodes(ctx, it.key()));
+      distance = qMax(distance, GetDistanceBetweenNodes(ctx, item->GetNode()));
     }
 
     if (distance == -1) {
@@ -456,7 +632,7 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
     }
 
     bool inserted = false;
-    QPair<NodeParamViewItem*, int> dist(it.value(), distance);
+    QPair<NodeParamViewItem*, int> dist(item, distance);
 
     for (int i=0; i<distances.size(); i++) {
       if (distances.at(i).second < distance) {
@@ -495,6 +671,36 @@ NodeParamViewContext *NodeParamView::GetContextItemFromContext(Node *ctx)
   return context_items_.at(ctx_type);
 }
 
+void NodeParamView::ToggleSelect(NodeParamViewItem *item)
+{
+  QVector<NodeParamViewItem*> new_sel;
+
+  if (qApp->keyboardModifiers() & Qt::ShiftModifier) {
+    new_sel = selected_nodes_;
+  }
+
+  if (selected_nodes_.contains(item)) {
+    // De-select this node
+    if (qApp->keyboardModifiers() & Qt::ShiftModifier) {
+      new_sel.removeOne(item);
+      SetSelectedNodes(new_sel, true);
+    }
+  } else {
+    new_sel.append(item);
+    SetSelectedNodes(new_sel, false);
+
+    if (item->GetNode()->HasGizmos() || !new_sel.contains(focused_node_)) {
+      if (item->GetNode()->HasGizmos()) {
+        focused_node_ = item;
+      } else {
+        focused_node_ = nullptr;
+      }
+
+      emit FocusedNodeChanged(focused_node_ ? focused_node_->GetNode() : nullptr);
+    }
+  }
+}
+
 void NodeParamView::UpdateGlobalScrollBar()
 {
   if (keyframe_view_) {
@@ -518,7 +724,7 @@ void NodeParamView::PinNode(bool pin)
   }
 }
 
-void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
+/*void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
 {
   Q_UNUSED(old)
 
@@ -526,63 +732,53 @@ void NodeParamView::FocusChanged(QWidget* old, QWidget* now)
 
   while (parent) {
     if (NodeParamViewItem* item = dynamic_cast<NodeParamViewItem*>(parent)) {
-      if (item != focused_node_) {
-        // Found a NodeParamViewItem that isn't already focused, see if it belongs to us
-        bool ours = false;
+      // Found a NodeParamViewItem that isn't already focused, see if it belongs to us
+      bool ours = false;
 
-        do {
-          parent = parent->parent();
+      do {
+        parent = parent->parent();
 
-          if (parent == this) {
-            ours = true;
-            break;
-          }
-        } while (parent);
-
-        if (ours) {
-          // This item is ours,
-          if (focused_node_) {
-            // De-focus current node
-            focused_node_->SetHighlighted(false);
-          }
-
-          focused_node_ = item;
-
-          item->SetHighlighted(true);
-
-          emit FocusedNodeChanged(item->GetNode());
+        if (parent == this) {
+          ours = true;
+          break;
         }
+      } while (parent);
+
+      if (ours) {
+        //ToggleSelect(item);
+        Q_UNUSED(item)
       }
       break;
     }
 
     parent = parent->parent();
   }
-}
+}*/
 
 void NodeParamView::KeyframeViewDragged(int x, int y)
 {
   Q_UNUSED(y)
 
-  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
-                            Q_ARG(int, x));
+  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection, Q_ARG(int, x));
 }
 
 void NodeParamView::UpdateElementY()
 {
   foreach (NodeParamViewContext *ctx, context_items_) {
     for (auto it=ctx->GetItems().cbegin(); it!=ctx->GetItems().cend(); it++) {
-      const KeyframeView::NodeConnections &connections = it.value()->GetKeyframeConnections();
+      NodeParamViewItem *item = *it;
+      Node *node = item->GetNode();
+      const KeyframeView::NodeConnections &connections = item->GetKeyframeConnections();
 
       if (!connections.isEmpty()) {
-        foreach (const QString& input, it.key()->inputs()) {
-          if (!(it.key()->GetInputFlags(input) & kInputFlagHidden)) {
-            int arr_sz = NodeGroup::ResolveInput(NodeInput(it.key(), input)).GetArraySize();
+        foreach (const QString& input, node->inputs()) {
+          if (!(node->GetInputFlags(input) & kInputFlagHidden)) {
+            int arr_sz = NodeGroup::ResolveInput(NodeInput(node, input)).GetArraySize();
 
             for (int i=-1; i<arr_sz; i++) {
-              NodeInput ic = {it.key(), input, i};
+              NodeInput ic = {node, input, i};
 
-              int y = it.value()->GetElementY(ic);
+              int y = item->GetElementY(ic);
 
               // For some reason Qt's mapToGlobal doesn't seem to handle this, so we offset here
               y += vertical_scrollbar_->value();
@@ -608,9 +804,26 @@ void NodeParamView::NodeAddedToContext(Node *n)
   Node *ctx = static_cast<Node*>(sender());
   NodeParamViewContext *item = GetContextItemFromContext(ctx);
 
-  AddNode(n, item);
+  AddNode(n, ctx, item);
 
   SortItemsInContext(item);
+
+  if (keyframe_view_) {
+    QueueKeyframePositionUpdate();
+  }
+}
+
+void NodeParamView::NodeRemovedFromContext(Node *n)
+{
+  Node *ctx = static_cast<Node*>(sender());
+
+  foreach (NodeParamViewContext *ctx_item, context_items_) {
+    ctx_item->RemoveNode(n, ctx);
+  }
+
+  if (keyframe_view_) {
+    QueueKeyframePositionUpdate();
+  }
 }
 
 void NodeParamView::InputCheckBoxChanged(const NodeInput &input, bool e)
@@ -627,20 +840,14 @@ void NodeParamView::InputCheckBoxChanged(const NodeInput &input, bool e)
 void NodeParamView::GroupInputPassthroughAdded(NodeGroup *group, const NodeInput &input)
 {
   foreach (NodeParamViewContext *pvctx, context_items_) {
-    NodeParamViewItem *item = pvctx->GetItems().value(input.node());
-    if (item) {
-      item->SetInputChecked(input, true);
-    }
+    pvctx->SetInputChecked(input, true);
   }
 }
 
 void NodeParamView::GroupInputPassthroughRemoved(NodeGroup *group, const NodeInput &input)
 {
   foreach (NodeParamViewContext *pvctx, context_items_) {
-    NodeParamViewItem *item = pvctx->GetItems().value(input.node());
-    if (item) {
-      item->SetInputChecked(input, false);
-    }
+    pvctx->SetInputChecked(input, false);
   }
 }
 

@@ -26,6 +26,7 @@
 
 #include "common/define.h"
 #include "exportcodec.h"
+#include "render/audioparams.h"
 
 namespace olive {
 
@@ -33,10 +34,11 @@ class ExportFormat : public QObject
 {
   Q_OBJECT
 public:
+  // Only append to this list (never insert) because indexes are used in serialized files
   enum Format {
     kFormatDNxHD,
     kFormatMatroska,
-    kFormatMPEG4,
+    kFormatMPEG4Video,
     kFormatOpenEXR,
     kFormatQuickTime,
     kFormatPNG,
@@ -48,6 +50,7 @@ public:
     kFormatOgg,
     kFormatWebM,
     kFormatSRT,
+    kFormatMPEG4Audio,
 
     kFormatCount
   };
@@ -59,6 +62,7 @@ public:
   static QList<ExportCodec::Codec> GetSubtitleCodecs(ExportFormat::Format f);
 
   static QStringList GetPixelFormatsForCodec(Format f, ExportCodec::Codec c);
+  static std::vector<AudioParams::Format> GetSampleFormatsForCodec(Format f, ExportCodec::Codec c);
 
 };
 

@@ -66,11 +66,6 @@ const Track::Type& Track::type() const
   return track_type_;
 }
 
-Node *Track::copy() const
-{
-  return new Track();
-}
-
 QString Track::Name() const
 {
   if (track_type_ == Track::kVideo) {
@@ -277,7 +272,7 @@ void Track::InputValueChangedEvent(const QString &input, int element)
 
 void Track::Retranslate()
 {
-  Node::Retranslate();
+  super::Retranslate();
 
   SetInputName(kBlockInput, tr("Blocks"));
   SetInputName(kMutedInput, tr("Muted"));

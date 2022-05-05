@@ -24,6 +24,8 @@ set(OLIVE_SOURCES
   dialog/export/exportadvancedvideodialog.h
   dialog/export/exportaudiotab.cpp
   dialog/export/exportaudiotab.h
+  dialog/export/exportformatcombobox.cpp
+  dialog/export/exportformatcombobox.h
   dialog/export/exportsubtitlestab.cpp
   dialog/export/exportsubtitlestab.h
   dialog/export/exportvideotab.cpp

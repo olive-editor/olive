@@ -24,12 +24,6 @@ namespace olive {
 
 CrossDissolveTransition::CrossDissolveTransition()
 {
-
-}
-
-Node *CrossDissolveTransition::copy() const
-{
-  return new CrossDissolveTransition();
 }
 
 QString CrossDissolveTransition::Name() const

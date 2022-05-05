@@ -28,6 +28,7 @@
 
 #include "audiovisualwaveform.h"
 #include "common/define.h"
+#include "codec/ffmpeg/ffmpegencoder.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/previewaudiodevice.h"
@@ -73,8 +74,14 @@ public:
 
   void HardReset();
 
+  bool StartRecording(const EncodingParams &params);
+
+  void StopRecording();
+
   static PaDeviceIndex FindConfigDeviceByName(bool is_output_device);
   static PaDeviceIndex FindDeviceByName(const QString &s, bool is_output_device);
+
+  static PaStreamParameters GetPortAudioParams(const AudioParams &p, PaDeviceIndex device);
 
 signals:
   void OutputNotify();
@@ -96,6 +103,8 @@ private:
   PreviewAudioDevice *output_buffer_;
 
   PaDeviceIndex input_device_;
+  PaStream *input_stream_;
+  FFmpegEncoder *input_encoder_;
 
 };
 

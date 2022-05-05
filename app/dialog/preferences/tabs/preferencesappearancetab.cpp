@@ -74,12 +74,28 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
       color_layout->addWidget(new QLabel(cat_name), i, 0);
 
       ColorCodingComboBox* ccc = new ColorCodingComboBox();
-      ccc->SetColor(Config::Current()[QStringLiteral("CatColor%1").arg(i)].toInt());
+      ccc->SetColor(OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(i)).toInt());
       color_layout->addWidget(ccc, i, 1);
       color_btns_.append(ccc);
     }
 
     appearance_layout->addWidget(color_group, row, 0, 1, 2);
+  }
+
+  row++;
+  {
+    QGroupBox* marker_group = new QGroupBox();
+    marker_group->setTitle(tr("Miscellaneous"));
+
+    QGridLayout* marker_layout = new QGridLayout(marker_group);
+
+    marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
+
+    marker_btn_ = new ColorCodingComboBox();
+    marker_btn_->SetColor(OLIVE_CONFIG("MarkerColor").toInt());
+    marker_layout->addWidget(marker_btn_, 0, 1);
+
+    appearance_layout->addWidget(marker_group, row, 0, 1, 2);
   }
 
   layout->addStretch();
@@ -93,12 +109,14 @@ void PreferencesAppearanceTab::Accept(MultiUndoCommand *command)
 
   if (style_path != StyleManager::GetStyle()) {
     StyleManager::SetStyle(style_path);
-    Config::Current()[QStringLiteral("Style")] = style_path;
+    OLIVE_CONFIG("Style") = style_path;
   }
 
   for (int i=0; i<color_btns_.size(); i++) {
-    Config::Current()[QStringLiteral("CatColor%1").arg(i)] = color_btns_.at(i)->GetSelectedColor();
+    OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(i)) = color_btns_.at(i)->GetSelectedColor();
   }
+
+  OLIVE_CONFIG("MarkerColor") = marker_btn_->GetSelectedColor();
 }
 
 }

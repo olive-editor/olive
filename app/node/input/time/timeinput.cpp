@@ -28,11 +28,6 @@ TimeInput::TimeInput()
 {
 }
 
-Node *TimeInput::copy() const
-{
-  return new TimeInput();
-}
-
 QString TimeInput::Name() const
 {
   return tr("Time");
@@ -45,7 +40,7 @@ QString TimeInput::id() const
 
 QVector<Node::CategoryID> TimeInput::Category() const
 {
-  return {kCategoryInput};
+  return {kCategoryTime};
 }
 
 QString TimeInput::Description() const

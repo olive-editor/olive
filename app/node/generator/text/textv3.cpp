@@ -89,7 +89,9 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
   job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+    PushMergableJob(value, QVariant::fromValue(job), table);
+  } else if (!value[kBaseInput].data().isNull()) {
+    table->Push(value[kBaseInput]);
   }
 }
 

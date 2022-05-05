@@ -79,7 +79,7 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
     ghost_->SetTrack(track);
     parent()->AddGhost(ghost_);
 
-    snap_points_.append(drag_start_point_);
+    snap_points_.push_back(drag_start_point_);
   }
 }
 

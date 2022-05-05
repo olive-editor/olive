@@ -21,6 +21,7 @@ set(OLIVE_SOURCES
   widget/standardcombos/interlacedcombobox.h
   widget/standardcombos/pixelaspectratiocombobox.h
   widget/standardcombos/pixelformatcombobox.h
+  widget/standardcombos/sampleformatcombobox.h
   widget/standardcombos/sampleratecombobox.h
   widget/standardcombos/standardcombos.h
   widget/standardcombos/videodividercombobox.h

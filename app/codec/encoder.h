@@ -155,6 +155,7 @@ public:
   static Encoder *CreateFromFormat(ExportFormat::Format f, const EncodingParams &params);
 
   virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const;
+  virtual std::vector<AudioParams::Format> GetSampleFormatsForCodec(ExportCodec::Codec c) const;
 
   const EncodingParams& params() const;
 

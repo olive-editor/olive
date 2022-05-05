@@ -372,6 +372,8 @@ public:
 
   void AddEdge(Node *output, const NodeInput &input);
 
+  bool ContainsNode(Node *node, Node *context);
+
   virtual Project * GetRelevantProject() const override;
 
 protected:
@@ -380,9 +382,7 @@ protected:
   virtual void undo() override;
 
 private:
-  using NodePair = QPair<Node *, Node*>;
-
-  QVector<NodePair> nodes_;
+  QVector<Node::ContextPair> nodes_;
 
   QVector<Node::OutputConnection> edges_;
 

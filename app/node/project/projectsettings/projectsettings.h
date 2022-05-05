@@ -31,7 +31,7 @@ class ProjectSettingsNode : public Node
 public:
   ProjectSettingsNode();
 
-  NODE_DEFAULT_DESTRUCTOR(ProjectSettingsNode)
+  NODE_DEFAULT_FUNCTIONS(ProjectSettingsNode)
 
   virtual QString Name() const override
   {
@@ -51,11 +51,6 @@ public:
   virtual QString Description() const override
   {
     return tr("Settings used throughout the project.");
-  }
-
-  virtual Node* copy() const override
-  {
-    return new ProjectSettingsNode();
   }
 
   enum CacheSetting {

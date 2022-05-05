@@ -92,15 +92,12 @@ MainWindow::MainWindow(QWidget *parent) :
   scope_panel_ = new ScopePanel(this);
 
   // Make node-related connections
-  connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
-  connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
+  connect(node_panel_, &NodePanel::NodeSelectionChangedWithContexts, param_panel_, &ParamPanel::SetSelectedNodes);
   connect(node_panel_, &NodePanel::NodeGroupOpened, this, &MainWindow::NodePanelGroupOpenedOrClosed);
   connect(node_panel_, &NodePanel::NodeGroupClosed, this, &MainWindow::NodePanelGroupOpenedOrClosed);
-  connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
-    node_panel_->Select(target, true);
-  });
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
+  connect(param_panel_, &ParamPanel::SelectedNodesChanged, node_panel_, &NodePanel::Select);
 
   // Connect time signals together
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
@@ -459,7 +456,7 @@ void MainWindow::StatusBarDoubleClicked()
 void MainWindow::NodePanelGroupOpenedOrClosed()
 {
   NodePanel *p = static_cast<NodePanel*>(sender());
-  param_panel_->SetContexts(p->GetContexts(), p->IsGroupOverlay());
+  param_panel_->SetContexts(p->GetContexts());
 }
 
 void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
@@ -473,9 +470,18 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 
 void MainWindow::ShowWelcomeDialog()
 {
-  if (Config::Current()[QStringLiteral("ShowWelcomeDialog")].toBool()) {
+  if (OLIVE_CONFIG("ShowWelcomeDialog").toBool()) {
     AboutDialog ad(true, this);
     ad.exec();
+  }
+}
+
+void MainWindow::RevealViewerInProject(ViewerOutput *r)
+{
+  foreach (ProjectPanel *p, project_panels_) {
+    if (p->project() == r->project() && p->SelectItem(r)) {
+      break;
+    }
   }
 }
 
@@ -555,7 +561,9 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
+  connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
+  connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
@@ -728,7 +736,7 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
   }
 
   node_panel_->SetContexts(context);
-  param_panel_->SetContexts(context, false);
+  param_panel_->SetContexts(context);
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
@@ -743,7 +751,7 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
     const QVector<Node*> &new_ctxs = node_panel->GetContexts();
 
     if (new_ctxs != param_panel_->GetContexts()) {
-      param_panel_->SetContexts(new_ctxs, node_panel->IsGroupOverlay());
+      param_panel_->SetContexts(new_ctxs);
     }
   } else if (TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel)) {
     // Signal timeline focus

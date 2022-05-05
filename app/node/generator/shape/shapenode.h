@@ -36,8 +36,7 @@ public:
     kEllipse
   };
 
-  NODE_DEFAULT_DESTRUCTOR(ShapeNode)
-  NODE_COPY_FUNCTION(ShapeNode)
+  NODE_DEFAULT_FUNCTIONS(ShapeNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

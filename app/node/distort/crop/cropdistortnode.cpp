@@ -33,6 +33,8 @@ const QString CropDistortNode::kRightInput = QStringLiteral("right_in");
 const QString CropDistortNode::kBottomInput = QStringLiteral("bottom_in");
 const QString CropDistortNode::kFeatherInput = QStringLiteral("feather_in");
 
+#define super Node
+
 CropDistortNode::CropDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -56,10 +58,15 @@ CropDistortNode::CropDistortNode()
   point_gizmo_[kGizmoScaleBottomRight] = AddDraggableGizmo<PointGizmo>({kRightInput, kBottomInput});
   point_gizmo_[kGizmoScaleCenterLeft] = AddDraggableGizmo<PointGizmo>({kLeftInput});
   point_gizmo_[kGizmoScaleCenterRight] = AddDraggableGizmo<PointGizmo>({kRightInput});
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void CropDistortNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Texture"));
   SetInputName(kLeftInput, tr("Left"));
   SetInputName(kTopInput, tr("Top"));
@@ -80,7 +87,7 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
         || !qIsNull(job.GetValue(kRightInput).data().toDouble())
         || !qIsNull(job.GetValue(kTopInput).data().toDouble())
         || !qIsNull(job.GetValue(kBottomInput).data().toDouble())) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
     }

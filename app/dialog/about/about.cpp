@@ -132,7 +132,7 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
 void AboutDialog::accept()
 {
   if (dont_show_again_checkbox_ && dont_show_again_checkbox_->isChecked()) {
-    Config::Current()[QStringLiteral("ShowWelcomeDialog")] = false;
+    OLIVE_CONFIG("ShowWelcomeDialog") = false;
   }
 
   QDialog::accept();

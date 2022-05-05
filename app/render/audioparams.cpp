@@ -52,7 +52,7 @@ const QVector<uint64_t> AudioParams::kSupportedChannelLayouts = {
   AV_CH_LAYOUT_7POINT1
 };
 
-const AudioParams::Format AudioParams::kInternalFormat = AudioParams::kFormatFloat32;
+const AudioParams::Format AudioParams::kInternalFormat = AudioParams::kFormatFloat32Planar;
 
 bool AudioParams::operator==(const AudioParams &other) const
 {
@@ -144,15 +144,21 @@ int AudioParams::channel_count() const
 int AudioParams::bytes_per_sample_per_channel() const
 {
   switch (format_) {
-  case kFormatUnsigned8:
+  case kFormatUnsigned8Packed:
+  case kFormatUnsigned8Planar:
     return 1;
-  case kFormatSigned16:
+  case kFormatSigned16Packed:
+  case kFormatSigned16Planar:
     return 2;
-  case kFormatSigned32:
-  case kFormatFloat32:
+  case kFormatSigned32Packed:
+  case kFormatSigned32Planar:
+  case kFormatFloat32Packed:
+  case kFormatFloat32Planar:
     return 4;
-  case kFormatSigned64:
-  case kFormatFloat64:
+  case kFormatSigned64Packed:
+  case kFormatSigned64Planar:
+  case kFormatFloat64Packed:
+  case kFormatFloat64Planar:
     return 8;
   case kFormatInvalid:
   case kFormatCount:
@@ -242,6 +248,112 @@ QString AudioParams::ChannelLayoutToString(const uint64_t &layout)
   default:
     return QCoreApplication::translate("AudioParams", "Unknown (0x%1)").arg(layout, 1, 16);
   }
+}
+
+QString AudioParams::FormatToString(const Format &f)
+{
+  switch (f) {
+  case kFormatUnsigned8Packed:
+    return QCoreApplication::translate("AudioParams", "Unsigned 8-bit (Packed)");
+  case kFormatSigned16Packed:
+    return QCoreApplication::translate("AudioParams", "Signed 16-bit (Packed)");
+  case kFormatSigned32Packed:
+    return QCoreApplication::translate("AudioParams", "Signed 32-bit (Packed)");
+  case kFormatSigned64Packed:
+    return QCoreApplication::translate("AudioParams", "Signed 64-bit (Packed)");
+  case kFormatFloat32Packed:
+    return QCoreApplication::translate("AudioParams", "Float 32-bit (Packed)");
+  case kFormatFloat64Packed:
+    return QCoreApplication::translate("AudioParams", "Float 64-bit (Packed)");
+  case kFormatUnsigned8Planar:
+    return QCoreApplication::translate("AudioParams", "Unsigned 8-bit (Planar)");
+  case kFormatSigned16Planar:
+    return QCoreApplication::translate("AudioParams", "Signed 16-bit (Planar)");
+  case kFormatSigned32Planar:
+    return QCoreApplication::translate("AudioParams", "Signed 32-bit (Planar)");
+  case kFormatSigned64Planar:
+    return QCoreApplication::translate("AudioParams", "Signed 64-bit (Planar)");
+  case kFormatFloat32Planar:
+    return QCoreApplication::translate("AudioParams", "Float 32-bit (Planar)");
+  case kFormatFloat64Planar:
+    return QCoreApplication::translate("AudioParams", "Float 64-bit (Planar)");
+
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return QCoreApplication::translate("AudioParams", "Unknown (0x%1)").arg(f, 1, 16);
+}
+
+AudioParams::Format AudioParams::GetPackedEquivalent(Format fmt)
+{
+  switch (fmt) {
+
+  // For packed input, just return input
+  case kFormatUnsigned8Packed:
+  case kFormatSigned16Packed:
+  case kFormatSigned32Packed:
+  case kFormatSigned64Packed:
+  case kFormatFloat32Packed:
+  case kFormatFloat64Packed:
+    return fmt;
+
+  // Convert to packed
+  case kFormatUnsigned8Planar:
+    return kFormatUnsigned8Packed;
+  case kFormatSigned16Planar:
+    return kFormatSigned16Packed;
+  case kFormatSigned32Planar:
+    return kFormatSigned32Packed;
+  case kFormatSigned64Planar:
+    return kFormatSigned64Packed;
+  case kFormatFloat32Planar:
+    return kFormatFloat32Packed;
+  case kFormatFloat64Planar:
+    return kFormatFloat64Packed;
+
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return kFormatInvalid;
+}
+
+AudioParams::Format AudioParams::GetPlanarEquivalent(Format fmt)
+{
+  switch (fmt) {
+
+  // Convert to planar
+  case kFormatUnsigned8Packed:
+    return kFormatUnsigned8Planar;
+  case kFormatSigned16Packed:
+    return kFormatSigned16Planar;
+  case kFormatSigned32Packed:
+    return kFormatSigned32Planar;
+  case kFormatSigned64Packed:
+    return kFormatSigned64Planar;
+  case kFormatFloat32Packed:
+    return kFormatFloat32Planar;
+  case kFormatFloat64Packed:
+    return kFormatFloat64Planar;
+
+  // For planar input, just return input
+  case kFormatUnsigned8Planar:
+  case kFormatSigned16Planar:
+  case kFormatSigned32Planar:
+  case kFormatSigned64Planar:
+  case kFormatFloat32Planar:
+  case kFormatFloat64Planar:
+    return fmt;
+
+  case kFormatInvalid:
+  case kFormatCount:
+    break;
+  }
+
+  return kFormatInvalid;
 }
 
 }

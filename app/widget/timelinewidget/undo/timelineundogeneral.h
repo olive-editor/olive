@@ -107,7 +107,7 @@ private:
 class TimelineAddTrackCommand : public UndoCommand {
 public:
   TimelineAddTrackCommand(TrackList *timeline) :
-    TimelineAddTrackCommand(timeline, Config::Current()[QStringLiteral("AutoMergeTracks")].toBool())
+    TimelineAddTrackCommand(timeline, OLIVE_CONFIG("AutoMergeTracks").toBool())
   {
   }
 

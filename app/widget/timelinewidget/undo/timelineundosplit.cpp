@@ -38,13 +38,14 @@ void BlockSplitCommand::redo()
   if (!reconnect_tree_command_) {
     reconnect_tree_command_ = new MultiUndoCommand();
     new_block_ = static_cast<Block*>(Node::CopyNodeInGraph(block_, reconnect_tree_command_));
-    if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(new_block_)) {
-      ClipBlock *old_clip = static_cast<ClipBlock*>(block_);
-      new_clip->waveform() = old_clip->waveform();
-    }
   }
 
   reconnect_tree_command_->redo_now();
+
+  if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(new_block_)) {
+    ClipBlock *old_clip = static_cast<ClipBlock*>(block_);
+    new_clip->waveform() = old_clip->waveform();
+  }
 
   // Determine our new lengths
   rational new_length = point_ - block_->in();

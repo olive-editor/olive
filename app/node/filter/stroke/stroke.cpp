@@ -31,6 +31,8 @@ const QString StrokeFilterNode::kRadiusInput = QStringLiteral("radius_in");
 const QString StrokeFilterNode::kOpacityInput = QStringLiteral("opacity_in");
 const QString StrokeFilterNode::kInnerInput = QStringLiteral("inner_in");
 
+#define super Node
+
 StrokeFilterNode::StrokeFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -46,11 +48,9 @@ StrokeFilterNode::StrokeFilterNode()
   SetInputProperty(kOpacityInput, QStringLiteral("max"), 1.0f);
 
   AddInput(kInnerInput, NodeValue::kBoolean, false);
-}
 
-Node *StrokeFilterNode::copy() const
-{
-  return new StrokeFilterNode();
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 QString StrokeFilterNode::Name() const
@@ -75,6 +75,8 @@ QString StrokeFilterNode::Description() const
 
 void StrokeFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kColorInput, tr("Color"));
   SetInputName(kRadiusInput, tr("Radius"));
@@ -92,7 +94,7 @@ void StrokeFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
   if (!job.GetValue(kTextureInput).data().isNull()) {
     if (job.GetValue(kRadiusInput).data().toDouble() > 0.0
         && job.GetValue(kOpacityInput).data().toDouble() > 0.0) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       table->Push(job.GetValue(kTextureInput));
     }

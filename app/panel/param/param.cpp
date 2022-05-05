@@ -28,22 +28,12 @@ ParamPanel::ParamPanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("ParamPanel"), parent)
 {
   NodeParamView* view = new NodeParamView();
-  connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
   connect(view, &NodeParamView::FocusedNodeChanged, this, &ParamPanel::FocusedNodeChanged);
+  connect(view, &NodeParamView::SelectedNodesChanged, this, &ParamPanel::SelectedNodesChanged);
   connect(this, &ParamPanel::visibilityChanged, view, &NodeParamView::UpdateElementY);
   SetTimeBasedWidget(view);
 
   Retranslate();
-}
-
-void ParamPanel::SelectNodes(const QVector<Node *> &nodes)
-{
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
-}
-
-void ParamPanel::DeselectNodes(const QVector<Node *> &nodes)
-{
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
 }
 
 void ParamPanel::DeleteSelected()
@@ -61,9 +51,9 @@ void ParamPanel::DeselectAll()
   static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectAll();
 }
 
-void ParamPanel::SetContexts(const QVector<Node *> &contexts, bool group_mode)
+void ParamPanel::SetContexts(const QVector<Node *> &contexts)
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetContexts(contexts, group_mode);
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetContexts(contexts);
 }
 
 void ParamPanel::Retranslate()

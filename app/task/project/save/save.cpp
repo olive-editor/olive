@@ -42,7 +42,7 @@ bool ProjectSaveTask::Run()
 
   ProjectSerializer::SaveData data(project_, using_filename);
 
-  ProjectSerializer::Result result = ProjectSerializer::Save(data);
+  ProjectSerializer::Result result = ProjectSerializer::Save(data, QStringLiteral("project"));
 
   bool success = false;
 
@@ -66,6 +66,7 @@ bool ProjectSaveTask::Run()
   case ProjectSerializer::kProjectTooNew:
   case ProjectSerializer::kProjectTooOld:
   case ProjectSerializer::kUnknownVersion:
+  case ProjectSerializer::kNoData:
     SetError(tr("Unknown error."));
     break;
   }

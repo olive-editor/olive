@@ -56,6 +56,11 @@ NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
   pin_btn_->setVisible(false);
   layout->addWidget(pin_btn_);
   connect(pin_btn_, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::PinToggled);
+
+  enabled_checkbox_ = new QCheckBox();
+  enabled_checkbox_->setVisible(false);
+  layout->addWidget(enabled_checkbox_);
+  connect(enabled_checkbox_, &QCheckBox::clicked, this, &NodeParamViewItemTitleBar::EnabledCheckBoxClicked);
 }
 
 void NodeParamViewItemTitleBar::SetExpanded(bool e)
@@ -78,6 +83,13 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
     p.setPen(palette().text().color());
     p.drawLine(0, bottom, width(), bottom);
   }
+}
+
+void NodeParamViewItemTitleBar::mousePressEvent(QMouseEvent *event)
+{
+  QWidget::mousePressEvent(event);
+
+  emit Clicked();
 }
 
 void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)

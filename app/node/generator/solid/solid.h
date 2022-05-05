@@ -31,9 +31,7 @@ class SolidGenerator : public Node
 public:
   SolidGenerator();
 
-  NODE_DEFAULT_DESTRUCTOR(SolidGenerator)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(SolidGenerator)
 
   virtual QString Name() const override;
   virtual QString id() const override;

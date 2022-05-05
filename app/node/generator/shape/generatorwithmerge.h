@@ -18,35 +18,30 @@
 
 ***/
 
-#ifndef NODECOPYPASTEWIDGET_H
-#define NODECOPYPASTEWIDGET_H
-
-#include <QWidget>
-#include <QUndoCommand>
+#ifndef GENERATORWITHMERGE_H
+#define GENERATORWITHMERGE_H
 
 #include "node/node.h"
-#include "node/project/project.h"
-#include "node/project/sequence/sequence.h"
-#include "node/project/serializer/serializer.h"
 
 namespace olive {
 
-class NodeCopyPasteService
+class GeneratorWithMerge : public Node
 {
+  Q_OBJECT
 public:
-  NodeCopyPasteService() = default;
+  GeneratorWithMerge();
+
+  virtual void Retranslate() override;
+
+  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+
+  static const QString kBaseInput;
 
 protected:
-  void CopyNodesToClipboard(QVector<Node *> nodes, void* userdata = nullptr);
-
-  void PasteNodesFromClipboard(void* userdata = nullptr);
-
-  virtual void CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *data, void *userdata){}
-
-  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata){}
+  void PushMergableJob(const NodeValueRow &value, const QVariant &job, NodeValueTable *table) const;
 
 };
 
 }
 
-#endif // NODECOPYPASTEWIDGET_H
+#endif // GENERATORWITHMERGE_H

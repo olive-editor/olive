@@ -46,7 +46,8 @@ const int NodeParamViewItemBody::kMaxWidgetColumn = kKeyControlColumn;
 
 NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
-  node_(node)
+  node_(node),
+  ctx_(nullptr)
 {
   node_->Retranslate();
 
@@ -61,6 +62,11 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
 
   setBackgroundRole(QPalette::Window);
+
+  // Connect title bar enabled checkbox
+  //title_bar()->SetEnabledCheckBoxVisible(true);
+  //title_bar()->SetEnabledCheckBoxChecked(node_->IsEnabled());
+  //connect(title_bar(), &NodeParamViewItemTitleBar::EnabledCheckBoxClicked, node_, &Node::SetEnabled);
 
   Retranslate();
 }

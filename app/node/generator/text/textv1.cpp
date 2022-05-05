@@ -38,6 +38,8 @@ const QString TextGeneratorV1::kVAlignInput = QStringLiteral("valign_in");
 const QString TextGeneratorV1::kFontInput = QStringLiteral("font_in");
 const QString TextGeneratorV1::kFontSizeInput = QStringLiteral("font_size_in");
 
+#define super Node
+
 TextGeneratorV1::TextGeneratorV1()
 {
   AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
@@ -75,6 +77,8 @@ QString TextGeneratorV1::Description() const
 
 void TextGeneratorV1::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextInput, tr("Text"));
   SetInputName(kHtmlInput, tr("Enable HTML"));
   SetInputName(kFontInput, tr("Font"));
@@ -91,7 +95,7 @@ void TextGeneratorV1::Value(const NodeValueRow &value, const NodeGlobals &global
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 

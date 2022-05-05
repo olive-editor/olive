@@ -455,7 +455,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, cons
   // Create resampling context
   SwrContext* resampler = swr_alloc_set_opts(nullptr,
                                              params.channel_layout(),
-                                             FFmpegUtils::GetFFmpegSampleFormat(params.format(), true),
+                                             FFmpegUtils::GetFFmpegSampleFormat(params.format()),
                                              params.sample_rate(),
                                              channel_layout,
                                              static_cast<AVSampleFormat>(instance_.avstream()->codecpar->format),

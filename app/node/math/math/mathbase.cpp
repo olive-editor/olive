@@ -363,6 +363,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
       QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.data().value<QMatrix4x4>(),
                                                                                    sequence_res,
+                                                                                   texture->params().offset(),
                                                                                    texture_res);
 
       if (operation != kOpMultiply || adjusted_matrix.isIdentity()) {
@@ -382,7 +383,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       output->Push(texture_val);
     } else {
       // Push shader job
-      output->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      output->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     }
     break;
   }
@@ -413,10 +414,10 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
         output->Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
       } else {
-        output->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
+        output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }
     } else {
-      output->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
+      output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
     }
     break;
   }

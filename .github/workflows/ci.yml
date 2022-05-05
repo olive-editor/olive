@@ -404,6 +404,7 @@ jobs:
       - name: Sign Application
         working-directory: ${{ runner.workspace }}/build
         shell: bash
+        if: github.event_name == 'push'
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}

@@ -57,6 +57,7 @@ extern QIcon ToolSlip;
 extern QIcon ToolSlide;
 extern QIcon ToolHand;
 extern QIcon ToolTransition;
+extern QIcon ToolTrackSelect;
 
 // Project Icons
 extern QIcon Folder;
@@ -78,6 +79,8 @@ extern QIcon TriRight;
 extern QIcon TextBold;
 extern QIcon TextItalic;
 extern QIcon TextUnderline;
+extern QIcon TextStrikethrough;
+extern QIcon TextSmallCaps;
 extern QIcon TextAlignLeft;
 extern QIcon TextAlignRight;
 extern QIcon TextAlignCenter;

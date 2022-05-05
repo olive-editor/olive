@@ -34,12 +34,7 @@ class TransformDistortNode : public MatrixGenerator
 public:
   TransformDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TransformDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new TransformDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(TransformDistortNode)
 
   virtual QString Name() const override
   {
@@ -82,6 +77,7 @@ public:
   static QMatrix4x4 AdjustMatrixByResolutions(const QMatrix4x4& mat,
                                               const QVector2D& sequence_res,
                                               const QVector2D& texture_res,
+                                              const QVector2D& offset,
                                               AutoScaleType autoscale_type = kAutoScaleNone);
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;

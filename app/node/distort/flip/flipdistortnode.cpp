@@ -26,6 +26,8 @@ const QString FlipDistortNode::kTextureInput = QStringLiteral("tex_in");
 const QString FlipDistortNode::kHorizontalInput = QStringLiteral("horiz_in");
 const QString FlipDistortNode::kVerticalInput = QStringLiteral("vert_in");
 
+#define super Node
+
 FlipDistortNode::FlipDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -33,11 +35,9 @@ FlipDistortNode::FlipDistortNode()
   AddInput(kHorizontalInput, NodeValue::kBoolean, false);
 
   AddInput(kVerticalInput, NodeValue::kBoolean, false);
-}
 
-Node* FlipDistortNode::copy() const
-{
-  return new FlipDistortNode();
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 QString FlipDistortNode::Name() const
@@ -62,6 +62,8 @@ QString FlipDistortNode::Description() const
 
 void FlipDistortNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kHorizontalInput, tr("Horizontal"));
   SetInputName(kVerticalInput, tr("Vertical"));
@@ -83,7 +85,7 @@ void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
   if (!job.GetValue(kTextureInput).data().isNull()) {
     // Only run shader if at least one of flip or flop are selected
     if (job.GetValue(kHorizontalInput).data().toBool() || job.GetValue(kVerticalInput).data().toBool()) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
     // If we're not flipping or flopping just push the texture
     table->Push(job.GetValue(kTextureInput));

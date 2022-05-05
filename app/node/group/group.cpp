@@ -43,7 +43,7 @@ QString NodeGroup::id() const
 
 QVector<Node::CategoryID> NodeGroup::Category() const
 {
-  return {kCategoryGeneral};
+  return {kCategoryUnknown};
 }
 
 QString NodeGroup::Description() const
@@ -53,6 +53,8 @@ QString NodeGroup::Description() const
 
 void NodeGroup::Retranslate()
 {
+  super::Retranslate();
+
   for (auto it=GetContextPositions().cbegin(); it!=GetContextPositions().cend(); it++) {
     it.key()->Retranslate();
   }

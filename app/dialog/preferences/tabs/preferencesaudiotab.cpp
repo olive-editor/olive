@@ -87,12 +87,31 @@ PreferencesAudioTab::PreferencesAudioTab()
 
       row++;
 
-      input_layout->addWidget(new QLabel(tr("Recording Mode:"), this), row, 0);
+      QGroupBox *recording_group = new QGroupBox(tr("Recording"));
+      input_layout->addWidget(recording_group, row, 0, 1, 2);
 
-      recording_combobox_ = new QComboBox();
-      recording_combobox_->addItem(tr("Mono"));
-      recording_combobox_->addItem(tr("Stereo"));
-      input_layout->addWidget(recording_combobox_, row, 1);
+      QVBoxLayout *recording_layout = new QVBoxLayout(recording_group);
+
+      QHBoxLayout *fmt_layout = new QHBoxLayout();
+      recording_layout->addLayout(fmt_layout);
+
+      fmt_layout->addWidget(new QLabel(tr("Format:")));
+
+      record_format_combo_ = new ExportFormatComboBox(ExportFormatComboBox::kShowAudioOnly);
+      record_format_combo_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+      record_format_combo_->SetFormat(static_cast<ExportFormat::Format>(OLIVE_CONFIG("AudioRecordingFormat").toInt()));
+      fmt_layout->addWidget(record_format_combo_);
+
+      record_options_ = new ExportAudioTab();
+      record_options_->SetFormat(record_format_combo_->GetFormat());
+      record_options_->SetCodec(static_cast<ExportCodec::Codec>(OLIVE_CONFIG("AudioRecordingCodec").toInt()));
+      record_options_->sample_rate_combobox()->SetSampleRate(OLIVE_CONFIG("AudioRecordingSampleRate").toInt());
+      record_options_->channel_layout_combobox()->SetChannelLayout(OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong());
+      record_options_->bit_rate_slider()->SetValue(OLIVE_CONFIG("AudioRecordingBitRate").toInt());
+      record_options_->sample_format_combobox()->SetSampleFormat(static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioRecordingSampleFormat").toInt()));
+      recording_layout->addWidget(record_options_);
+
+      connect(record_format_combo_, &ExportFormatComboBox::FormatChanged, record_options_, &ExportAudioTab::SetFormat);
     }
 
     QHBoxLayout* refresh_layout = new QHBoxLayout();
@@ -120,12 +139,19 @@ void PreferencesAudioTab::Accept(MultiUndoCommand *command)
   PaDeviceIndex input_device = audio_input_devices_->currentData().value<PaDeviceIndex>();
 
   // Get device names, which seem to be the closest thing we have to a "unique identifier" for them
-  Config::Current()[QStringLiteral("AudioOutput")] = audio_output_devices_->currentText();
-  Config::Current()[QStringLiteral("AudioInput")] = audio_input_devices_->currentText();
+  OLIVE_CONFIG("AudioOutput") = audio_output_devices_->currentText();
+  OLIVE_CONFIG("AudioInput") = audio_input_devices_->currentText();
 
   // Set devices to be used from now on
   AudioManager::instance()->SetOutputDevice(output_device);
   AudioManager::instance()->SetInputDevice(input_device);
+
+  OLIVE_CONFIG("AudioRecordingFormat") = record_format_combo_->GetFormat();
+  OLIVE_CONFIG("AudioRecordingCodec") = record_options_->GetCodec();
+  OLIVE_CONFIG("AudioRecordingSampleRate") = record_options_->sample_rate_combobox()->GetSampleRate();
+  OLIVE_CONFIG("AudioRecordingChannelLayout") = QVariant::fromValue(record_options_->channel_layout_combobox()->GetChannelLayout());
+  OLIVE_CONFIG("AudioRecordingBitRate") = QVariant::fromValue(record_options_->bit_rate_slider()->GetValue());
+  OLIVE_CONFIG("AudioRecordingSampleFormat") = record_options_->sample_format_combobox()->GetSampleFormat();
 }
 
 void PreferencesAudioTab::RefreshBackends()

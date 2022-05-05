@@ -61,8 +61,8 @@ public:
     keyframe_view_->DeselectAll();
   }
 
-  void SelectNodes(const QVector<Node*> &nodes);
-  void DeselectNodes(const QVector<Node*> &nodes);
+  void SetSelectedNodes(const QVector<NodeParamViewItem *> &nodes, bool handle_focused_node = true, bool emit_signal = true);
+  void SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bool emit_signal = true);
 
   const QVector<Node*> &GetContexts() const
   {
@@ -70,14 +70,14 @@ public:
   }
 
 public slots:
-  void SetContexts(const QVector<Node*> &contexts, bool group_mode);
+  void SetContexts(const QVector<Node*> &contexts);
 
   void UpdateElementY();
 
 signals:
-  void RequestSelectNode(const QVector<Node*>& target);
-
   void FocusedNodeChanged(Node* n);
+
+  void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -88,16 +88,37 @@ protected:
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
+  virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetKeyframeTracks() : nullptr;
+  }
+
+  virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetSelectedKeyframes() : nullptr;
+  }
+
 private:
   void UpdateItemTime(const rational &time);
 
   void QueueKeyframePositionUpdate();
 
-  void AddNode(Node* n, NodeParamViewContext *context);
+  void AddContext(Node *context);
+
+  void RemoveContext(Node *context);
+
+  void AddNode(Node* n, Node *ctx, NodeParamViewContext *context);
 
   void SortItemsInContext(NodeParamViewContext *context);
 
   NodeParamViewContext *GetContextItemFromContext(Node *context);
+
+  bool IsGroupMode() const
+  {
+    return contexts_.size() == 1 && dynamic_cast<NodeGroup*>(contexts_.first());
+  }
+
+  void ToggleSelect(NodeParamViewItem *item);
 
   KeyframeView* keyframe_view_;
 
@@ -118,29 +139,41 @@ private:
   QVector<Node*> active_nodes_;
 
   NodeParamViewItem* focused_node_;
+  QVector<NodeParamViewItem*> selected_nodes_;
 
   Node *time_target_;
 
   QVector<Node*> contexts_;
+  QVector<Node*> current_contexts_;
 
-  bool group_mode_;
+  bool show_all_nodes_;
 
 private slots:
   void UpdateGlobalScrollBar();
 
   void PinNode(bool pin);
 
-  void FocusChanged(QWidget *old, QWidget *now);
+  //void FocusChanged(QWidget *old, QWidget *now);
 
   void KeyframeViewDragged(int x, int y);
 
   void NodeAddedToContext(Node *n);
+
+  void NodeRemovedFromContext(Node *n);
 
   void InputCheckBoxChanged(const NodeInput &input, bool e);
 
   void GroupInputPassthroughAdded(olive::NodeGroup *group, const olive::NodeInput &input);
 
   void GroupInputPassthroughRemoved(olive::NodeGroup *group, const olive::NodeInput &input);
+
+  void UpdateContexts();
+
+  void ItemAboutToBeRemoved(NodeParamViewItem *item);
+
+  void ItemClicked();
+
+  void SelectNodeFromConnectedLink(Node *node);
 
 };
 

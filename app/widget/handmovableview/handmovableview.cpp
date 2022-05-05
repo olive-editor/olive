@@ -32,7 +32,7 @@ namespace olive {
 HandMovableView::HandMovableView(QWidget* parent) :
   super(parent),
   dragging_hand_(false),
-  scroll_zooms_by_default_(Config::Current()[QStringLiteral("ScrollZooms")].toBool())
+  scroll_zooms_by_default_(OLIVE_CONFIG("ScrollZooms").toBool())
 {
   connect(Core::instance(), &Core::ToolChanged, this, &HandMovableView::ApplicationToolChanged);
 }

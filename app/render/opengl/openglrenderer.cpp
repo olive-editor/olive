@@ -20,6 +20,7 @@
 
 #include "openglrenderer.h"
 
+#include <iostream>
 #include <QDateTime>
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
@@ -517,10 +518,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kFile:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
-    case NodeValue::kShaderJob:
-    case NodeValue::kSampleJob:
-    case NodeValue::kGenerateJob:
-    case NodeValue::kFootageJob:
     case NodeValue::kBezier:
     case NodeValue::kNone:
     case NodeValue::kDataTypeCount:
@@ -540,13 +537,15 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glBindTexture(target, tex_id);
 
-    PrepareInputTexture(target, t.interpolation);
+    if (tex_id) {
+      PrepareInputTexture(target, t.interpolation);
 
-    if (texture && texture->channel_count() == 1 && destination_params.channel_count() != 1) {
-      // Interpret this texture as a grayscale texture
-      functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
-      functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-      functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+      if (texture->channel_count() == 1 && destination_params.channel_count() != 1) {
+        // Interpret this texture as a grayscale texture
+        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+      }
     }
   }
 

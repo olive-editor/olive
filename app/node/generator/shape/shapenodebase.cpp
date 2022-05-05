@@ -28,11 +28,11 @@
 
 namespace olive {
 
-#define super Node
+#define super GeneratorWithMerge
 
-QString ShapeNodeBase::kPositionInput = QStringLiteral("pos_in");
-QString ShapeNodeBase::kSizeInput = QStringLiteral("size_in");
-QString ShapeNodeBase::kColorInput = QStringLiteral("color_in");
+const QString ShapeNodeBase::kPositionInput = QStringLiteral("pos_in");
+const QString ShapeNodeBase::kSizeInput = QStringLiteral("size_in");
+const QString ShapeNodeBase::kColorInput = QStringLiteral("color_in");
 
 ShapeNodeBase::ShapeNodeBase(bool create_color_input)
 {

@@ -24,6 +24,7 @@ add_subdirectory(generator)
 add_subdirectory(gizmo)
 add_subdirectory(group)
 add_subdirectory(input)
+add_subdirectory(keying)
 add_subdirectory(math)
 add_subdirectory(output)
 add_subdirectory(project)
@@ -47,8 +48,6 @@ set(OLIVE_SOURCES
   node/keyframe.h
   node/node.cpp
   node/node.h
-  node/nodecopypaste.cpp
-  node/nodecopypaste.h
   node/param.cpp
   node/param.h
   node/splitvalue.h

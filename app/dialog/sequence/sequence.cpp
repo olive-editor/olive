@@ -148,14 +148,14 @@ void SequenceDialog::SetAsDefaultClicked()
                           tr("Are you sure you want to set the current parameters as defaults?"),
                           QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     // Maybe replace with Preset system
-    Config::Current()[QStringLiteral("DefaultSequenceWidth")] = parameter_tab_->GetSelectedVideoWidth();
-    Config::Current()[QStringLiteral("DefaultSequenceHeight")] = parameter_tab_->GetSelectedVideoHeight();
-    Config::Current()[QStringLiteral("DefaultSequencePixelAspect")] = QVariant::fromValue(parameter_tab_->GetSelectedVideoPixelAspect());
-    Config::Current()[QStringLiteral("DefaultSequenceFrameRate")] = QVariant::fromValue(parameter_tab_->GetSelectedVideoFrameRate().flipped());
-    Config::Current()[QStringLiteral("DefaultSequenceInterlacing")] = parameter_tab_->GetSelectedVideoInterlacingMode();
-    Config::Current()[QStringLiteral("DefaultSequenceAudioFrequency")] = parameter_tab_->GetSelectedAudioSampleRate();
-    Config::Current()[QStringLiteral("DefaultSequenceAudioLayout")] = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
-    Config::Current()[QStringLiteral("DefaultSequenceAutoCache")] = QVariant::fromValue(parameter_tab_->GetSelectedPreviewAutoCache());
+    OLIVE_CONFIG("DefaultSequenceWidth") = parameter_tab_->GetSelectedVideoWidth();
+    OLIVE_CONFIG("DefaultSequenceHeight") = parameter_tab_->GetSelectedVideoHeight();
+    OLIVE_CONFIG("DefaultSequencePixelAspect") = QVariant::fromValue(parameter_tab_->GetSelectedVideoPixelAspect());
+    OLIVE_CONFIG("DefaultSequenceFrameRate") = QVariant::fromValue(parameter_tab_->GetSelectedVideoFrameRate().flipped());
+    OLIVE_CONFIG("DefaultSequenceInterlacing") = parameter_tab_->GetSelectedVideoInterlacingMode();
+    OLIVE_CONFIG("DefaultSequenceAudioFrequency") = parameter_tab_->GetSelectedAudioSampleRate();
+    OLIVE_CONFIG("DefaultSequenceAudioLayout") = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
+    OLIVE_CONFIG("DefaultSequenceAutoCache") = QVariant::fromValue(parameter_tab_->GetSelectedPreviewAutoCache());
   }
 }
 

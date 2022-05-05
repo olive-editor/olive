@@ -46,9 +46,7 @@ class ViewerOutput : public Node
 public:
   ViewerOutput(bool create_buffer_inputs = true, bool create_default_streams = true);
 
-  NODE_DEFAULT_DESTRUCTOR(ViewerOutput)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(ViewerOutput)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -137,7 +135,7 @@ public:
 
   TimelinePoints* GetTimelinePoints()
   {
-    return &timeline_points_;
+    return timeline_points_;
   }
 
   QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
@@ -252,7 +250,7 @@ private:
 
   AudioParams cached_audio_params_;
 
-  TimelinePoints timeline_points_;
+  TimelinePoints *timeline_points_;
 
   bool video_cache_enabled_;
   bool audio_cache_enabled_;

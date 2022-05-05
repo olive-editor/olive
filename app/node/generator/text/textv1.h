@@ -31,8 +31,7 @@ class TextGeneratorV1 : public Node
 public:
   TextGeneratorV1();
 
-  NODE_DEFAULT_DESTRUCTOR(TextGeneratorV1)
-  NODE_COPY_FUNCTION(TextGeneratorV1)
+  NODE_DEFAULT_FUNCTIONS(TextGeneratorV1)
 
   virtual QString Name() const override;
   virtual QString id() const override;

@@ -37,7 +37,7 @@ bool ProjectLoadTask::Run()
 
   project_->set_filename(GetFilename());
 
-  ProjectSerializer::Result result = ProjectSerializer::Load(project_, GetFilename());
+  ProjectSerializer::Result result = ProjectSerializer::Load(project_, GetFilename(), QStringLiteral("project"));
 
   switch (result.code()) {
   case ProjectSerializer::kSuccess:
@@ -56,6 +56,9 @@ bool ProjectLoadTask::Run()
     break;
   case ProjectSerializer::kXmlError:
     SetError(tr("Failed to read XML document. File may be corrupt. Error was: %1").arg(result.GetDetails()));
+    break;
+  case ProjectSerializer::kNoData:
+    SetError(tr("Failed to find any data to parse."));
     break;
 
     // Errors that should never be thrown by a load

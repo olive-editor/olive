@@ -359,7 +359,7 @@ ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
   strikethrough_btn_ = new QPushButton();
   connect(strikethrough_btn_, &QPushButton::clicked, this, &ViewerTextEditorToolBar::StrikethroughChanged);
   strikethrough_btn_->setCheckable(true);
-  strikethrough_btn_->setText(tr("S")); // FIXME: Source icon
+  strikethrough_btn_->setIcon(icon::TextStrikethrough);
   basic_layout->addWidget(strikethrough_btn_);
 
   basic_layout->addWidget(QtUtils::CreateVerticalLine());
@@ -441,7 +441,8 @@ ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
   connect(line_height_slider_, &FloatSlider::ValueChanged, this, &ViewerTextEditorToolBar::LineHeightChanged);
   advanced_layout->addWidget(line_height_slider_);
 
-  small_caps_btn_ = new QPushButton(tr("Small Caps")); // FIXME: Procure icon
+  small_caps_btn_ = new QPushButton();
+  small_caps_btn_->setIcon(icon::TextSmallCaps);
   small_caps_btn_->setCheckable(true);
   connect(small_caps_btn_, &QPushButton::clicked, this, &ViewerTextEditorToolBar::SmallCapsChanged);
   advanced_layout->addWidget(small_caps_btn_);

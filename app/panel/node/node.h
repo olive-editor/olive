@@ -105,16 +105,18 @@ public:
   }
 
 public slots:
-  void Select(const QVector<Node*>& nodes, bool center_view_on_item)
+  void Select(const QVector<Node::ContextPair> &p)
   {
-    node_widget_->view()->Select(nodes, center_view_on_item);
-    this->raise();
+    node_widget_->view()->Select(p, true);
   }
 
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
   void NodesDeselected(const QVector<Node*>& nodes);
+
+  void NodeSelectionChanged(const QVector<Node*>& nodes);
+  void NodeSelectionChangedWithContexts(const QVector<Node::ContextPair>& nodes);
 
   void NodeGroupOpened(NodeGroup *group);
 

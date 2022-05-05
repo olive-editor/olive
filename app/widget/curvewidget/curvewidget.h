@@ -67,6 +67,16 @@ protected:
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
+  virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const override
+  {
+    return &view_->GetKeyframeTracks();
+  }
+
+  virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
+  {
+    return &view_->GetSelectedKeyframes();
+  }
+
 private:
   void SetKeyframeButtonEnabled(bool enable);
 

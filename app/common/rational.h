@@ -1,60 +1,67 @@
-//Copyright 2015 Adam Quintero
-//This program is distributed under the terms of the GNU General Public License.
+/***
 
-// Adapted by MattKC for the Olive Video Editor (2019)
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2021 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
 
 #ifndef RATIONAL_H
 #define RATIONAL_H
+
+extern "C" {
+#include <libavutil/rational.h>
+}
+
 #include <iostream>
+#include <QDebug>
+#include <QMetaType>
 
 #ifdef USE_OTIO
 #include <opentime/rationalTime.h>
 #endif
 
-#include <QDebug>
-#include <QMetaType>
-
-extern "C" {
-#include <libavformat/avformat.h>
-}
-
 #include "common/define.h"
 
 namespace olive {
 
-typedef int64_t intType;
-/*
- * Zero Handling
- * 0/0        = 0
- * 0/non-zero = 0
- * non-zero/0 = 0
-*/
 class rational
 {
 public:
-  //constructors
-  rational(const intType &numerator = 0) :
-    numer_(numerator),
-    denom_(1)
+  rational(const int &numerator = 0)
   {
+    r_.num = numerator;
+    r_.den = 1;
   }
 
-  rational(const intType &numerator, const intType &denominator) :
-    numer_(numerator),
-    denom_(denominator)
+  rational(const int &numerator, const int &denominator)
   {
-    fix_signs();
-    reduce();
+    r_.num = numerator;
+    r_.den = denominator;
+
+    FixSigns();
+    Reduce();
   }
 
   rational(const rational &rhs) = default;
 
-  rational(const AVRational& r) :
-    numer_(r.num),
-    denom_(r.den)
+  rational(const AVRational& r)
   {
-    fix_signs();
-    reduce();
+    r_ = r;
+
+    FixSigns();
   }
 
   static rational fromDouble(const double& flt, bool *ok = nullptr);
@@ -84,9 +91,9 @@ public:
   bool operator!=(const rational &rhs) const;
 
   //Unary operators
-  const rational& operator+() const;
-  rational operator-() const;
-  bool operator!() const;
+  const rational& operator+() const { return *this; }
+  rational operator-() const { return rational(r_.num, -r_.den); }
+  bool operator!() const { return !r_.num; }
 
   //Function: convert to double
   double toDouble() const;
@@ -100,7 +107,7 @@ public:
     return fromDouble(t.to_seconds());
   }
 
-  // Convert Olive ratioanls to opentime rationals with the given framerate (defaults to 24)
+  // Convert Olive rationals to opentime rationals with the given framerate (defaults to 24)
   opentime::RationalTime toRationalTime(double framerate = 24) const;
 #endif
 
@@ -111,35 +118,33 @@ public:
   // Returns whether the rational is valid but equal to zero or not
   //
   // A NaN is always a null, but a null is not always a NaN
-  bool isNull() const;
+  bool isNull() const { return r_.num == 0; }
 
-  // Returns whether this rational is not a valid number
-  bool isNaN() const;
+  // Returns whether this rational is not a valid number (denominator == 0)
+  bool isNaN() const { return r_.den == 0; }
 
-  //IO
-  friend std::ostream& operator<<(std::ostream &out, const rational &value);
-  friend std::istream& operator>>(std::istream &in, rational &value);
-
-  const intType& numerator() const;
-  const intType& denominator() const;
+  const int& numerator() const { return r_.num; }
+  const int& denominator() const { return r_.den; }
 
   QString toString() const;
 
-private:
-  //numerator and denominator
-  intType numer_;
-  intType denom_;
+  friend std::ostream& operator<<(std::ostream &out, const rational &value)
+  {
+    out << value.r_.num << '/' << value.r_.den;
 
-  //Function: ensures denom >= 0
-  void fix_signs();
-  //Function: ensures lowest form
-  void reduce();
-  //Function: finds greatest common denominator
-  static intType gcd(const intType &x, const intType &y);
+    return out;
+  }
+
+private:
+  void FixSigns();
+  void Reduce();
+
+  AVRational r_;
+
 };
 
-#define RATIONAL_MIN rational(INT64_MIN, 1)
-#define RATIONAL_MAX rational(INT64_MAX, 1)
+#define RATIONAL_MIN rational(INT_MIN)
+#define RATIONAL_MAX rational(INT_MAX)
 
 uint qHash(const rational& r, uint seed = 0);
 

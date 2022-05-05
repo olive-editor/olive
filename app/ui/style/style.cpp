@@ -136,7 +136,7 @@ void StyleManager::Init()
   available_themes_.insert(QStringLiteral("olive-dark"), QStringLiteral("Olive Dark"));
   available_themes_.insert(QStringLiteral("olive-light"), QStringLiteral("Olive Light"));
 
-  QString config_style = Config::Current()["Style"].toString();
+  QString config_style = OLIVE_CONFIG("Style").toString();
 
   if (config_style.isEmpty() || !available_themes_.contains(config_style)) {
     SetStyle(kDefaultStyle);

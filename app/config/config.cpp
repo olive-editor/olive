@@ -27,6 +27,7 @@
 #include <QStandardPaths>
 #include <QXmlStreamWriter>
 
+#include "codec/exportformat.h"
 #include "common/autoscroll.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
@@ -120,6 +121,13 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());
 
+  SetEntryInternal(QStringLiteral("AudioRecordingFormat"), NodeValue::kInt, ExportFormat::kFormatWAV);
+  SetEntryInternal(QStringLiteral("AudioRecordingCodec"), NodeValue::kInt, ExportCodec::kCodecPCM);
+  SetEntryInternal(QStringLiteral("AudioRecordingSampleRate"), NodeValue::kInt, 48000);
+  SetEntryInternal(QStringLiteral("AudioRecordingChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
+  SetEntryInternal(QStringLiteral("AudioRecordingSampleFormat"), NodeValue::kInt, AudioParams::kFormatSigned16Packed);
+  SetEntryInternal(QStringLiteral("AudioRecordingBitRate"), NodeValue::kInt, 320);
+
   SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(0)));
   SetEntryInternal(QStringLiteral("DiskCacheAhead"), NodeValue::kRational, QVariant::fromValue(rational(60)));
 
@@ -135,6 +143,8 @@ void Config::SetDefaults()
   // Online/offline settings
   SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat32);
   SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat16);
+
+  SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kLime);
 }
 
 void Config::Load()

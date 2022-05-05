@@ -36,12 +36,7 @@ class Sequence : public ViewerOutput
 public:
   Sequence();
 
-  NODE_DEFAULT_DESTRUCTOR(Sequence)
-
-  virtual Node* copy() const override
-  {
-    return new Sequence();
-  }
+  NODE_DEFAULT_FUNCTIONS(Sequence)
 
   virtual QString Name() const override
   {
