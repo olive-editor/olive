@@ -210,8 +210,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   last_length_ = 0;
   LengthChangedSlot(n->GetLength());
 
-  AudioParams ap = n->GetAudioParams();
-  packed_processor_.Open(ap);
+  UpdateAudioProcessor();
 
   ColorManager* color_manager = n->project()->color_manager();
 
@@ -245,7 +244,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
-  packed_processor_.Close();
+  CloseAudioProcessor();
 
   SetDisplayImage(QVariant());
 
@@ -456,6 +455,21 @@ void ViewerWidget::DisarmRecording()
   record_armed_ = false;
 }
 
+void ViewerWidget::UpdateAudioProcessor()
+{
+  audio_processor_.Close();
+
+  AudioParams ap = GetConnectedNode()->GetAudioParams();
+  AudioParams packed = ap;
+  packed.set_format(AudioParams::GetPackedEquivalent(ap.format()));
+  audio_processor_.Open(ap, packed, (playback_speed_ == 0) ? 1 : std::abs(playback_speed_));
+}
+
+void ViewerWidget::CloseAudioProcessor()
+{
+  audio_processor_.Close();
+}
+
 void ViewerWidget::QueueNextAudioBuffer()
 {
   rational queue_end = audio_playback_queue_time_ + (kAudioPlaybackInterval * playback_speed_);
@@ -493,23 +507,23 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
         }
 
         // Convert to packed data for audio output
-        QByteArray pack = packed_processor_.Convert(samples);
-
-        // If the tempo must be adjusted, adjust now
-        if (tempo_processor_.IsOpen()) {
-          tempo_processor_.Push(pack);
-          pack = tempo_processor_.Pull();
-        }
+        AudioProcessor::Buffer buf;
+        int r = audio_processor_.Convert(samples->to_raw_ptrs(), samples->sample_count(), &buf);
 
         // TempoProcessor may have emptied the array
-        if (!pack.isEmpty()) {
-          if (prequeuing_audio_) {
-            // Add to prequeued audio buffer
-            prequeued_audio_.append(pack);
-          } else {
-            // Push directly to audio manager
-            AudioManager::instance()->PushToOutput(GetConnectedNode()->GetAudioParams(), pack);
+        if (r >= 0) {
+          if (!buf.empty()) {
+            const QByteArray &pack = buf.at(0);
+            if (prequeuing_audio_) {
+              // Add to prequeued audio buffer
+              prequeued_audio_.append(pack);
+            } else {
+              // Push directly to audio manager
+              AudioManager::instance()->PushToOutput(GetConnectedNode()->GetAudioParams(), pack);
+            }
           }
+        } else {
+          qCritical() << "Failed to process audio for playback:" << r;
         }
       }
     }
@@ -540,10 +554,19 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
           samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
         }*/
 
-        QByteArray packed = packed_processor_.Convert(samples);
-        AudioManager::instance()->ClearBufferedOutput();
-        AudioManager::instance()->PushToOutput(samples->audio_params(), packed);
-        AudioMonitor::PushBytesOnAll(packed);
+        AudioProcessor::Buffer buf;
+        int r = audio_processor_.Convert(samples->to_raw_ptrs(), samples->sample_count(), &buf);
+
+        if (r >= 0) {
+          if (!buf.empty()) {
+            const QByteArray &packed = buf.at(0);
+            AudioManager::instance()->ClearBufferedOutput();
+            AudioManager::instance()->PushToOutput(samples->audio_params(), packed);
+            AudioMonitor::PushBytesOnAll(packed);
+          }
+        } else {
+          qCritical() << "Failed to process audio for scrubbing:" << r;
+        }
       }
     }
   }
@@ -675,9 +698,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     AudioManager::instance()->SetOutputNotifyInterval(ap.time_to_bytes(kAudioPlaybackInterval));
     connect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
 
-    if (std::abs(playback_speed_) > 1) {
-      tempo_processor_.Open(GetConnectedNode()->GetAudioParams(), std::abs(playback_speed_));
-    }
+    UpdateAudioProcessor();
 
     static const int prequeue_count = 2;
     prequeuing_audio_ = prequeue_count; // Queue two buffers ahead of time
@@ -721,9 +742,7 @@ void ViewerWidget::PauseInternal()
     disconnect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
     qDeleteAll(audio_playback_queue_);
     audio_playback_queue_.clear();
-    if (tempo_processor_.IsOpen()) {
-      tempo_processor_.Close();
-    }
+    UpdateAudioProcessor();
 
     foreach (ViewerWidget* viewer, instances_) {
       viewer->auto_cacher_.SetAudioPaused(false);
@@ -1434,11 +1453,7 @@ void ViewerWidget::UpdateRendererVideoParameters()
 
 void ViewerWidget::UpdateRendererAudioParameters()
 {
-  packed_processor_.Close();
-
-  AudioParams ap = GetConnectedNode()->GetAudioParams();
-
-  packed_processor_.Open(ap);
+  UpdateAudioProcessor();
 }
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)

@@ -104,6 +104,7 @@ private:
 
   PaDeviceIndex input_device_;
   PaStream *input_stream_;
+
   FFmpegEncoder *input_encoder_;
 
 };

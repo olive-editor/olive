@@ -18,14 +18,8 @@
 
 ***/
 
-#ifndef TEMPOPROCESSOR_H
-#define TEMPOPROCESSOR_H
-
-#ifdef __MINGW32__
-#ifndef __USE_MINGW_ANSI_STDIO
-#define __USE_MINGW_ANSI_STDIO
-#endif
-#endif
+#ifndef AUDIOPROCESSOR_H
+#define AUDIOPROCESSOR_H
 
 #include <inttypes.h>
 
@@ -37,28 +31,25 @@ extern "C" {
 
 namespace olive {
 
-class TempoProcessor
+class AudioProcessor
 {
 public:
-  TempoProcessor();
+  AudioProcessor();
 
-  ~TempoProcessor();
+  ~AudioProcessor();
 
-  DISABLE_COPY_MOVE(TempoProcessor)
+  DISABLE_COPY_MOVE(AudioProcessor)
 
-  bool IsOpen() const;
-
-  const double& GetSpeed() const;
-
-  bool Open(const AudioParams& params, const double &speed);
-
-  void Push(const QByteArray &packed);
-
-  void Flush();
-
-  QByteArray Pull();
+  bool Open(const AudioParams &from, const AudioParams &to, double tempo = 1.0);
 
   void Close();
+
+  bool IsOpen() const { return filter_graph_; }
+
+  using Buffer = QVector<QByteArray>;
+  int Convert(float **in, int nb_in_samples, AudioProcessor::Buffer *output);
+
+  void Flush();
 
 private:
   static AVFilterContext* CreateTempoFilter(AVFilterGraph *graph, AVFilterContext *link, const double& tempo);
@@ -69,17 +60,18 @@ private:
 
   AVFilterContext* buffersink_ctx_;
 
-  AudioParams params_;
+  AudioParams from_;
+  AVSampleFormat from_fmt_;
 
-  int64_t timestamp_;
+  AudioParams to_;
+  AVSampleFormat to_fmt_;
 
-  double speed_;
+  AVFrame *in_frame_;
 
-  bool open_;
+  AVFrame *out_frame_;
 
-  bool flushed_;
 };
 
 }
 
-#endif // TEMPOPROCESSOR_H
+#endif // AUDIOPROCESSOR_H

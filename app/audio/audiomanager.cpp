@@ -26,7 +26,6 @@
 
 #include <QApplication>
 
-#include "audio/packedprocessor.h"
 #include "config/config.h"
 
 namespace olive {
