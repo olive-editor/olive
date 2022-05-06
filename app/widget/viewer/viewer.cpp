@@ -704,10 +704,10 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   AudioParams ap = GetConnectedNode()->GetAudioParams();
   if (ap.is_valid()) {
-    AudioManager::instance()->SetOutputNotifyInterval(ap.time_to_bytes(kAudioPlaybackInterval));
-    connect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
-
     UpdateAudioProcessor();
+
+    AudioManager::instance()->SetOutputNotifyInterval(audio_processor_.to().time_to_bytes(kAudioPlaybackInterval));
+    connect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
 
     static const int prequeue_count = 2;
     prequeuing_audio_ = prequeue_count; // Queue two buffers ahead of time
