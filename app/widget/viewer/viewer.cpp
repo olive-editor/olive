@@ -571,7 +571,7 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
             if (!AudioManager::instance()->PushToOutput(audio_processor_.to(), packed, &error)) {
               Core::instance()->ShowStatusBarMessage(tr("Audio scrubbing failed: %1").arg(error));
             }
-            AudioMonitor::PushBytesOnAll(packed);
+            AudioMonitor::PushSampleBufferOnAll(samples);
           }
         } else {
           qCritical() << "Failed to process audio for scrubbing:" << r;
