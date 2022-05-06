@@ -33,6 +33,8 @@ OCIOBaseNode::OCIOBaseNode() :
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
+  SetEffectInput(kTextureInput);
+
   connect(this, &Node::AddedToGraph, this, &OCIOBaseNode::ParentChanged);
 }
 
