@@ -77,7 +77,7 @@ QVector<Node::CategoryID> OCIOGradingTransformLinearNode::Category() const
 
 QString OCIOGradingTransformLinearNode::Description() const
 {
-  return tr("Simple linearcolor grading using OCIO");
+  return tr("Simple linear color grading using OpenColorIO.");
 }
 
 void OCIOGradingTransformLinearNode::Retranslate()

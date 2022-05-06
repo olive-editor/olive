@@ -56,7 +56,7 @@ QVector<Node::CategoryID> DisplayTransformNode::Category() const
 
 QString DisplayTransformNode::Description() const
 {
-  return tr("Converts an image to/from display space");
+  return tr("Converts an image to or from a display color space.");
 }
 
 void DisplayTransformNode::Retranslate()
