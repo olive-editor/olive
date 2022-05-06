@@ -55,6 +55,9 @@ class OCIOGradingTransformLinearNode : public OCIOBaseNode
 protected slots:
   virtual void ConfigChanged() override;
 
+private:
+  void SetVec4InputColors(const QString &input);
+
 };
 
 } // olive

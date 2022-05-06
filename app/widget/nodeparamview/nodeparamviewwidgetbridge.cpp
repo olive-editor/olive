@@ -654,6 +654,23 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       }
 
       UpdateWidgetValues();
+    } else if (key.startsWith(QStringLiteral("color"))) {
+      QColor c(value.toString());
+
+      int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
+
+      if (key.size() == 5) {
+        // Set for all tracks
+        for (int i=0; i<tracks; i++) {
+          static_cast<SliderBase*>(widgets_.at(i))->SetColor(c);
+        }
+      } else {
+        bool ok;
+        int element = key.mid(5).toInt(&ok);
+        if (ok && element >= 0 && element < tracks) {
+          static_cast<SliderBase*>(widgets_.at(element))->SetColor(c);
+        }
+      }
     }
   }
 

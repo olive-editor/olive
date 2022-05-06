@@ -42,10 +42,13 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
 {
   AddInput(kContrastInput, NodeValue::kVec4, QVector4D{1.0, 1.0, 1.0, 1.0});
   SetInputProperty(kContrastInput, QStringLiteral("min"), QVector4D{0.001f, 0.001f, 0.001f, 0.001f});
+  SetVec4InputColors(kContrastInput);
 
   AddInput(kOffsetInput, NodeValue::kVec4, QVector4D{0.0, 0.0, 0.0, 0.0});
+  SetVec4InputColors(kOffsetInput);
 
   AddInput(kExposureInput, NodeValue::kVec4, QVector4D{0.0, 0.0, 0.0, 0.0});
+  SetVec4InputColors(kExposureInput);
 
   AddInput(kSaturationInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kSaturationInput, QStringLiteral("min"), 0.0);
@@ -122,6 +125,14 @@ void OCIOGradingTransformLinearNode::GenerateProcessor()
 void OCIOGradingTransformLinearNode::ConfigChanged()
 {
   GenerateProcessor();
+}
+
+void OCIOGradingTransformLinearNode::SetVec4InputColors(const QString &input)
+{
+  SetInputProperty(input, QStringLiteral("color0"), QColor(255, 0, 0).name());
+  SetInputProperty(input, QStringLiteral("color1"), QColor(0, 255, 0).name());
+  SetInputProperty(input, QStringLiteral("color2"), QColor(0, 0, 255).name());
+  SetInputProperty(input, QStringLiteral("color3"), QColor(192, 192, 192).name());
 }
 
 }
