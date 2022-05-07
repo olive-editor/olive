@@ -33,7 +33,9 @@ const QString OCIOGradingTransformLinearNode::kOffsetInput = QStringLiteral("off
 const QString OCIOGradingTransformLinearNode::kExposureInput = QStringLiteral("exposure_in");
 const QString OCIOGradingTransformLinearNode::kSaturationInput = QStringLiteral("saturation_in");
 const QString OCIOGradingTransformLinearNode::kPivotInput = QStringLiteral("pivot_in");
+const QString OCIOGradingTransformLinearNode::kClampBlackDisableInput = QStringLiteral("clamp_black_disable");
 const QString OCIOGradingTransformLinearNode::kClampBlackInput = QStringLiteral("clamp_black_in");
+const QString OCIOGradingTransformLinearNode::kClampWhiteDisableInput = QStringLiteral("clamp_white_disable");
 const QString OCIOGradingTransformLinearNode::kClampWhiteInput = QStringLiteral("clamp_white_in");
 
 #define super OCIOBaseNode
@@ -53,11 +55,17 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
   AddInput(kSaturationInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kSaturationInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kPivotInput, NodeValue::kFloat, 0.203919098);
+  AddInput(kPivotInput, NodeValue::kFloat, 0.18);
+
+  AddInput(kClampBlackDisableInput, NodeValue::kBoolean, true);
 
   AddInput(kClampBlackInput, NodeValue::kFloat, 0.0);
+  SetInputProperty(kClampBlackInput, QStringLiteral("disable"), GetStandardValue(kClampBlackDisableInput).toBool());
 
-  AddInput(kClampWhiteInput, NodeValue::kFloat, 200.0);
+  AddInput(kClampWhiteDisableInput, NodeValue::kBoolean, true);
+
+  AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
+  SetInputProperty(kClampWhiteInput, QStringLiteral("disable"), GetStandardValue(kClampWhiteDisableInput).toBool());
 }
 
 QString OCIOGradingTransformLinearNode::Name() const
@@ -90,35 +98,54 @@ void OCIOGradingTransformLinearNode::Retranslate()
   SetInputName(kExposureInput, tr("Exposure"));
   SetInputName(kSaturationInput, tr("Saturation"));
   SetInputName(kPivotInput, tr("Pivot"));
+  SetInputName(kClampBlackDisableInput, tr("Disable Black Clamp"));
   SetInputName(kClampBlackInput, tr("Black Clamp"));
+  SetInputName(kClampWhiteDisableInput, tr("Disable White Clamp"));
   SetInputName(kClampWhiteInput, tr("White Clamp"));
 }
 
 void OCIOGradingTransformLinearNode::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element);
+  if (input == kClampWhiteDisableInput) {
+    SetInputProperty(kClampWhiteInput, QStringLiteral("disable"), GetStandardValue(kClampWhiteDisableInput).toBool());
+  }
+  if (input == kClampBlackDisableInput) {
+    SetInputProperty(kClampBlackInput, QStringLiteral("disable"), GetStandardValue(kClampBlackDisableInput).toBool());
+  }
+
   GenerateProcessor();
 }
 
 void OCIOGradingTransformLinearNode::GenerateProcessor()
 {
-  OCIO::GradingPrimaryTransformRcPtr gp = OCIO::GradingPrimaryTransform::Create(OCIO::GRADING_LIN);
-  gp->setDirection(OCIO::TransformDirection::TRANSFORM_DIR_FORWARD);
+  if (manager()) {
+    OCIO::GradingPrimaryTransformRcPtr gp = OCIO::GradingPrimaryTransform::Create(OCIO::GRADING_LIN);
+    gp->setDirection(OCIO::TransformDirection::TRANSFORM_DIR_FORWARD);
 
-  OCIO::GradingPrimary gpdata{OCIO::GRADING_LIN};
-  gpdata.m_contrast = OCIOUtils::QVec4ToRGBM(GetStandardValue(kContrastInput).value<QVector4D>());
-  gpdata.m_exposure = OCIOUtils::QVec4ToRGBM(GetStandardValue(kExposureInput).value<QVector4D>());
-  gpdata.m_offset = OCIOUtils::QVec4ToRGBM(GetStandardValue(kOffsetInput).value<QVector4D>());
-  gpdata.m_saturation = GetStandardValue(kSaturationInput).value<double>();
-  gpdata.m_pivot = GetStandardValue(kPivotInput).value<double>();
-  gpdata.m_clampBlack = GetStandardValue(kClampBlackInput).value<double>();
-  gpdata.m_clampWhite = GetStandardValue(kClampWhiteInput).value<double>();
-  try {
-    gp->setValue(gpdata);
+    OCIO::GradingPrimary gpdata{OCIO::GRADING_LIN};
+    gpdata.m_contrast = OCIOUtils::QVec4ToRGBM(GetStandardValue(kContrastInput).value<QVector4D>());
+    gpdata.m_exposure = OCIOUtils::QVec4ToRGBM(GetStandardValue(kExposureInput).value<QVector4D>());
+    gpdata.m_offset = OCIOUtils::QVec4ToRGBM(GetStandardValue(kOffsetInput).value<QVector4D>());
+    gpdata.m_saturation = GetStandardValue(kSaturationInput).value<double>();
+    gpdata.m_pivot = GetStandardValue(kPivotInput).value<double>();
+    if (GetStandardValue(kClampBlackDisableInput).toBool()) {
+      gpdata.NoClampBlack();
+    } else {
+      gpdata.m_clampBlack = GetStandardValue(kClampBlackInput).value<double>();
+    }
+    if (GetStandardValue(kClampWhiteDisableInput).toBool()) {
+      gpdata.NoClampWhite();
+    } else {
+      gpdata.m_clampWhite = GetStandardValue(kClampWhiteInput).value<double>();
+    }
+    try {
+      gp->setValue(gpdata);
 
-    set_processor(ColorProcessor::Create(manager()->GetConfig()->getProcessor(gp)));
-  } catch (const OCIO::Exception &e) {
-    std::cerr << std::endl << e.what() << std::endl;
+      set_processor(ColorProcessor::Create(manager()->GetConfig()->getProcessor(gp)));
+    } catch (const OCIO::Exception &e) {
+      std::cerr << std::endl << e.what() << std::endl;
+    }
   }
 }
 
