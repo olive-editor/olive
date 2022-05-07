@@ -36,6 +36,8 @@ OCIOBaseNode::OCIOBaseNode() :
   SetEffectInput(kTextureInput);
 
   connect(this, &Node::AddedToGraph, this, &OCIOBaseNode::ParentChanged);
+
+  SetFlags(kVideoEffect);
 }
 
 void OCIOBaseNode::ParentChanged(NodeGraph *graph)
