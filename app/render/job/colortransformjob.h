@@ -45,6 +45,17 @@ public:
     clear_destination_ = true;
   }
 
+  QString id() const
+  {
+    if (id_.isEmpty()) {
+      return processor_->id();
+    } else {
+      return id_;
+    }
+  }
+
+  void SetOverrideID(const QString &id) { id_ = id; }
+
   TexturePtr GetInputTexture() const { return input_texture_; }
   void SetInputTexture(TexturePtr tex) { input_texture_ = tex; }
 
@@ -76,6 +87,7 @@ public:
 
 private:
   ColorProcessorPtr processor_;
+  QString id_;
 
   TexturePtr input_texture_;
 

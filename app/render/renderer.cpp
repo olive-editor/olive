@@ -99,7 +99,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
 
   ColorContext& color_ctx = *ctx;
 
-  QString proc_id = color_job.GetColorProcessor()->id();
+  QString proc_id = color_job.id();
 
   if (color_cache_.contains(proc_id)) {
     color_ctx = color_cache_.value(proc_id);
