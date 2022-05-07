@@ -37,9 +37,9 @@ void OpacityEffect::Retranslate()
   SetInputName(kValueInput, tr("Opacity"));
 }
 
-ShaderCode OpacityEffect::GetShaderCode(const QString &shader_id) const
+ShaderCode OpacityEffect::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity.frag"));
 }
 

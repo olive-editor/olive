@@ -40,7 +40,7 @@ public:
 
   //virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
 protected:
   virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const override;

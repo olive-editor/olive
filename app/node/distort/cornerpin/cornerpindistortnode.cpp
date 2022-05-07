@@ -108,9 +108,9 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   }
 }
 
-ShaderCode CornerPinDistortNode::GetShaderCode(const QString &shader_id) const
+ShaderCode CornerPinDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),
                     FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));

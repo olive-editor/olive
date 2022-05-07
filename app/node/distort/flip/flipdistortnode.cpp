@@ -69,9 +69,9 @@ void FlipDistortNode::Retranslate()
   SetInputName(kVerticalInput, tr("Vertical"));
 }
 
-ShaderCode FlipDistortNode::GetShaderCode(const QString& shader_id) const
+ShaderCode FlipDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 

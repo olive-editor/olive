@@ -40,7 +40,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   static const QString kTextureInput;
