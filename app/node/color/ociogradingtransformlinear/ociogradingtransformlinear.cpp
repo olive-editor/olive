@@ -68,7 +68,7 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
   SetInputProperty(kClampBlackInput, QStringLiteral("disable"), GetStandardValue(kClampBlackDisableInput).toBool());
   SetInputProperty(kClampBlackInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampBlackDisableInput, NodeValue::kBoolean, false);
+  AddInput(kClampWhiteDisableInput, NodeValue::kBoolean, false);
 
   AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kClampWhiteInput, QStringLiteral("disable"), GetStandardValue(kClampWhiteDisableInput).toBool());
