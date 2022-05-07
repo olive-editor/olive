@@ -35,13 +35,13 @@ ChromaKeyNode::ChromaKeyNode()
 {
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0.0f, 1.0f, 0.0f, 1.0f)));
 
-  AddInput(kUpperToleranceInput, NodeValue::kFloat, 25.0);
-  SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), 0.0);
-  SetInputProperty(kUpperToleranceInput, QStringLiteral("base"), 0.1);
-
   AddInput(kLowerToleranceInput, NodeValue::kFloat, 5.0);
   SetInputProperty(kLowerToleranceInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kLowerToleranceInput, QStringLiteral("base"), 0.1);
+
+  AddInput(kUpperToleranceInput, NodeValue::kFloat, 25.0);
+  SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), GetStandardValue(kLowerToleranceInput).toDouble());
+  SetInputProperty(kUpperToleranceInput, QStringLiteral("base"), 0.1);
 
   AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
@@ -95,6 +95,10 @@ void ChromaKeyNode::Retranslate()
 void ChromaKeyNode::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element);
+  if (input == kLowerToleranceInput) {
+    SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), GetStandardValue(kLowerToleranceInput).toDouble());
+  }
+
   GenerateProcessor();
 }
 
