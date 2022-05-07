@@ -77,7 +77,7 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
 
 QString OCIOGradingTransformLinearNode::Name() const
 {
-  return tr("OCIO Linear Grading Transform");
+  return tr("OCIO Color Grading (Linear)");
 }
 
 QString OCIOGradingTransformLinearNode::id() const
@@ -103,6 +103,7 @@ void OCIOGradingTransformLinearNode::Retranslate()
   SetInputName(kContrastInput, tr("Contrast"));
   SetInputName(kOffsetInput, tr("Offset"));
   SetInputName(kExposureInput, tr("Exposure"));
+  SetInputProperty(kExposureInput, QStringLiteral("tooltip"), tr("Exposure increments in stops."));
   SetInputName(kSaturationInput, tr("Saturation"));
   SetInputName(kPivotInput, tr("Pivot"));
   SetInputName(kClampBlackEnableInput, tr("Enable Black Clamp"));

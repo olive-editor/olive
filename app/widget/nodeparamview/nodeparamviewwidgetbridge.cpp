@@ -571,6 +571,12 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
 
   }
 
+  if (key == QStringLiteral("tooltip")) {
+    for (int i = 0; i < widgets_.size(); i++) {
+      widgets_.at(i)->setToolTip(value.toString());
+    }
+  }
+
   // Parameters for integers, floats, and vectors
   if (NodeValue::type_is_numeric(data_type) || NodeValue::type_is_vector(data_type)) {
     if (key == QStringLiteral("min")) {
