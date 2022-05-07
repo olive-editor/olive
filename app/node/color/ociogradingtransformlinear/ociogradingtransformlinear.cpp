@@ -43,7 +43,7 @@ const QString OCIOGradingTransformLinearNode::kClampWhiteInput = QStringLiteral(
 OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
 {
   AddInput(kContrastInput, NodeValue::kVec4, QVector4D{1.0, 1.0, 1.0, 1.0});
-  SetInputProperty(kContrastInput, QStringLiteral("min"), QVector4D{0.001f, 0.001f, 0.001f, 0.001f});
+  SetInputProperty(kContrastInput, QStringLiteral("min"), QVector4D{0.01f, 0.01f, 0.01f, 0.01f});
   SetInputProperty(kContrastInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kContrastInput);
 
