@@ -49,9 +49,9 @@ class OCIOGradingTransformLinearNode : public OCIOBaseNode
   static const QString kExposureInput;
   static const QString kSaturationInput;
   static const QString kPivotInput;
-  static const QString kClampBlackDisableInput;
+  static const QString kClampBlackEnableInput;
   static const QString kClampBlackInput;
-  static const QString kClampWhiteDisableInput;
+  static const QString kClampWhiteEnableInput;
   static const QString kClampWhiteInput;
 
 protected slots:

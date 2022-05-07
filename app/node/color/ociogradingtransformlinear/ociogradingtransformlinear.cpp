@@ -33,9 +33,9 @@ const QString OCIOGradingTransformLinearNode::kOffsetInput = QStringLiteral("off
 const QString OCIOGradingTransformLinearNode::kExposureInput = QStringLiteral("exposure_in");
 const QString OCIOGradingTransformLinearNode::kSaturationInput = QStringLiteral("saturation_in");
 const QString OCIOGradingTransformLinearNode::kPivotInput = QStringLiteral("pivot_in");
-const QString OCIOGradingTransformLinearNode::kClampBlackDisableInput = QStringLiteral("clamp_black_disable");
+const QString OCIOGradingTransformLinearNode::kClampBlackEnableInput = QStringLiteral("clamp_black_enable_in");
 const QString OCIOGradingTransformLinearNode::kClampBlackInput = QStringLiteral("clamp_black_in");
-const QString OCIOGradingTransformLinearNode::kClampWhiteDisableInput = QStringLiteral("clamp_white_disable");
+const QString OCIOGradingTransformLinearNode::kClampWhiteEnableInput = QStringLiteral("clamp_white_enable_in");
 const QString OCIOGradingTransformLinearNode::kClampWhiteInput = QStringLiteral("clamp_white_in");
 
 #define super OCIOBaseNode
@@ -62,16 +62,16 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
   AddInput(kPivotInput, NodeValue::kFloat, 0.18); // Default listed in OCIO::GradingPrimary
   SetInputProperty(kPivotInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampBlackDisableInput, NodeValue::kBoolean, false);
+  AddInput(kClampBlackEnableInput, NodeValue::kBoolean, false);
 
   AddInput(kClampBlackInput, NodeValue::kFloat, 0.0);
-  SetInputProperty(kClampBlackInput, QStringLiteral("disable"), GetStandardValue(kClampBlackDisableInput).toBool());
+  SetInputProperty(kClampBlackInput, QStringLiteral("enabled"), GetStandardValue(kClampBlackEnableInput).toBool());
   SetInputProperty(kClampBlackInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampWhiteDisableInput, NodeValue::kBoolean, false);
+  AddInput(kClampWhiteEnableInput, NodeValue::kBoolean, false);
 
   AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
-  SetInputProperty(kClampWhiteInput, QStringLiteral("disable"), GetStandardValue(kClampWhiteDisableInput).toBool());
+  SetInputProperty(kClampWhiteInput, QStringLiteral("enabled"), GetStandardValue(kClampWhiteEnableInput).toBool());
   SetInputProperty(kClampWhiteInput, QStringLiteral("base"), 0.01);
 }
 
@@ -105,20 +105,20 @@ void OCIOGradingTransformLinearNode::Retranslate()
   SetInputName(kExposureInput, tr("Exposure"));
   SetInputName(kSaturationInput, tr("Saturation"));
   SetInputName(kPivotInput, tr("Pivot"));
-  SetInputName(kClampBlackDisableInput, tr("Disable Black Clamp"));
+  SetInputName(kClampBlackEnableInput, tr("Enable Black Clamp"));
   SetInputName(kClampBlackInput, tr("Black Clamp"));
-  SetInputName(kClampWhiteDisableInput, tr("Disable White Clamp"));
+  SetInputName(kClampWhiteEnableInput, tr("Enable White Clamp"));
   SetInputName(kClampWhiteInput, tr("White Clamp"));
 }
 
 void OCIOGradingTransformLinearNode::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element);
-  if (input == kClampWhiteDisableInput) {
-    SetInputProperty(kClampWhiteInput, QStringLiteral("disable"), GetStandardValue(kClampWhiteDisableInput).toBool());
+  if (input == kClampWhiteEnableInput) {
+    SetInputProperty(kClampWhiteInput, QStringLiteral("enabled"), GetStandardValue(kClampWhiteEnableInput).toBool());
   }
-  if (input == kClampBlackDisableInput) {
-    SetInputProperty(kClampBlackInput, QStringLiteral("disable"), GetStandardValue(kClampBlackDisableInput).toBool());
+  if (input == kClampBlackEnableInput) {
+    SetInputProperty(kClampBlackInput, QStringLiteral("enabled"), GetStandardValue(kClampBlackEnableInput).toBool());
   }
 
   GenerateProcessor();
@@ -136,12 +136,12 @@ void OCIOGradingTransformLinearNode::GenerateProcessor()
     gpdata.m_offset = OCIOUtils::QVec4ToRGBM(GetStandardValue(kOffsetInput).value<QVector4D>());
     gpdata.m_saturation = GetStandardValue(kSaturationInput).value<double>();
     gpdata.m_pivot = GetStandardValue(kPivotInput).value<double>();
-    if (GetStandardValue(kClampBlackDisableInput).toBool()) {
+    if (!GetStandardValue(kClampBlackEnableInput).toBool()) {
       gpdata.NoClampBlack();
     } else {
       gpdata.m_clampBlack = GetStandardValue(kClampBlackInput).value<double>();
     }
-    if (GetStandardValue(kClampWhiteDisableInput).toBool()) {
+    if (!GetStandardValue(kClampWhiteEnableInput).toBool()) {
       gpdata.NoClampWhite();
     } else {
       gpdata.m_clampWhite = GetStandardValue(kClampWhiteInput).value<double>();
