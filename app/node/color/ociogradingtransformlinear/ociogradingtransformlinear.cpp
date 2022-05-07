@@ -62,13 +62,13 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
   AddInput(kPivotInput, NodeValue::kFloat, 0.18); // Default listed in OCIO::GradingPrimary
   SetInputProperty(kPivotInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampBlackEnableInput, NodeValue::kBoolean, false);
+  AddInput(kClampBlackDisableInput, NodeValue::kBoolean, false);
 
   AddInput(kClampBlackInput, NodeValue::kFloat, 0.0);
   SetInputProperty(kClampBlackInput, QStringLiteral("disable"), GetStandardValue(kClampBlackDisableInput).toBool());
   SetInputProperty(kClampBlackInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampWhiteEnableInput, NodeValue::kBoolean, false);
+  AddInput(kClampBlackDisableInput, NodeValue::kBoolean, false);
 
   AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kClampWhiteInput, QStringLiteral("disable"), GetStandardValue(kClampWhiteDisableInput).toBool());
