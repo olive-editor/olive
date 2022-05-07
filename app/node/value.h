@@ -203,6 +203,12 @@ public:
     return type_;
   }
 
+  template <typename T>
+  T value() const
+  {
+    return data_.value<T>();
+  }
+
   const QVariant& data() const
   {
     return data_;

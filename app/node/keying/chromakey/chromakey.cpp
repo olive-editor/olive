@@ -37,9 +37,11 @@ ChromaKeyNode::ChromaKeyNode()
 
   AddInput(kUpperToleranceInput, NodeValue::kFloat, 25.0);
   SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kUpperToleranceInput, QStringLiteral("base"), 0.1);
 
   AddInput(kLowerToleranceInput, NodeValue::kFloat, 5.0);
   SetInputProperty(kLowerToleranceInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kLowerToleranceInput, QStringLiteral("base"), 0.1);
 
   AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
@@ -47,9 +49,11 @@ ChromaKeyNode::ChromaKeyNode()
 
   AddInput(kHighlightsInput, NodeValue::kFloat, 100.0f);
   SetInputProperty(kHighlightsInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kHighlightsInput, QStringLiteral("base"), 0.1);
 
   AddInput(kShadowsInput, NodeValue::kFloat, 100.0f);
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kShadowsInput, QStringLiteral("base"), 0.1);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 }
@@ -122,7 +126,6 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
     job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
     job.SetNeedsCustomShader(this);
     job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
-    job.SetOverrideID(id());
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
