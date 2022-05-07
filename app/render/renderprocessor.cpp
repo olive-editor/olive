@@ -523,11 +523,6 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
   QVariant shader = shader_cache_->value(full_shader_id);
 
   if (shader.isNull()) {
-    // FIXME: Reimplement as color job
-    //if (job.UseOCIO()) {
-    //  render_ctx_->ShaderJobInsertTextures(job.ColorProcessor(), &job, job.ShaderDesc());
-    //}
-
     // Since we have shader code, compile it now
     shader = render_ctx_->CreateNativeShader(node->GetShaderCode(job.GetShaderID()));
 
