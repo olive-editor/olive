@@ -680,6 +680,13 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
         }
       }
 
+    } else if (key == QStringLiteral("base")) {
+
+      double d = value.toDouble();
+      for (int i=0; i<widgets_.size(); i++) {
+        static_cast<NumericSliderBase*>(widgets_.at(i))->SetDragMultiplier(d);
+      }
+
     }
   }
 

@@ -44,28 +44,35 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
 {
   AddInput(kContrastInput, NodeValue::kVec4, QVector4D{1.0, 1.0, 1.0, 1.0});
   SetInputProperty(kContrastInput, QStringLiteral("min"), QVector4D{0.001f, 0.001f, 0.001f, 0.001f});
+  SetInputProperty(kContrastInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kContrastInput);
 
   AddInput(kOffsetInput, NodeValue::kVec4, QVector4D{0.0, 0.0, 0.0, 0.0});
+  SetInputProperty(kOffsetInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kOffsetInput);
 
   AddInput(kExposureInput, NodeValue::kVec4, QVector4D{0.0, 0.0, 0.0, 0.0});
+  SetInputProperty(kExposureInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kExposureInput);
 
   AddInput(kSaturationInput, NodeValue::kFloat, 1.0);
+  SetInputProperty(kSaturationInput, QStringLiteral("base"), 0.01);
   SetInputProperty(kSaturationInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kPivotInput, NodeValue::kFloat, 0.18);
+  AddInput(kPivotInput, NodeValue::kFloat, 0.18); // Default listed in OCIO::GradingPrimary
+  SetInputProperty(kPivotInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampBlackDisableInput, NodeValue::kBoolean, true);
+  AddInput(kClampBlackEnableInput, NodeValue::kBoolean, false);
 
   AddInput(kClampBlackInput, NodeValue::kFloat, 0.0);
   SetInputProperty(kClampBlackInput, QStringLiteral("disable"), GetStandardValue(kClampBlackDisableInput).toBool());
+  SetInputProperty(kClampBlackInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampWhiteDisableInput, NodeValue::kBoolean, true);
+  AddInput(kClampWhiteEnableInput, NodeValue::kBoolean, false);
 
   AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kClampWhiteInput, QStringLiteral("disable"), GetStandardValue(kClampWhiteDisableInput).toBool());
+  SetInputProperty(kClampWhiteInput, QStringLiteral("base"), 0.01);
 }
 
 QString OCIOGradingTransformLinearNode::Name() const
