@@ -123,13 +123,12 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
     ShaderCode code;
     if (const Node *shader_src = color_job.CustomShaderSource()) {
       // Use shader code from associated node
-      code = shader_src->GetShaderCode(color_job.CustomShaderID());
+      code = shader_src->GetShaderCode({color_job.CustomShaderID(), shader_desc->getShaderText()});
     } else {
       // Generate shader code using OCIO stub and our auto-generated name
       code = FileFunctions::ReadFileAsString(QStringLiteral(":shaders/colormanage.frag"));
+      code.set_frag_code(code.frag_code().arg(shader_desc->getShaderText()));
     }
-
-    code.set_frag_code(code.frag_code().arg(shader_desc->getShaderText()));
 
     // Try to compile shader
     color_ctx.compiled_shader = CreateNativeShader(code);

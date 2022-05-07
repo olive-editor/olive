@@ -672,6 +672,12 @@ public:
       id = shader_id;
     }
 
+    ShaderRequest(const QString &shader_id, const QString &shader_stub)
+    {
+      id = shader_id;
+      stub = shader_stub;
+    }
+
     QString id;
     QString stub;
   };
