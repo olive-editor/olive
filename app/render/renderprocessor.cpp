@@ -402,18 +402,9 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
   // Check the still frame cache. On large frames such as high resolution still images, uploading
   // and color managing them for every frame is a waste of time, so we implement a small cache here
   // to optimize such a situation
-  const VideoParams& render_params = GetCacheVideoParams();
   VideoParams stream_data = stream.video_params();
 
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
-
-  // See if we can make this divider larger (i.e. if the fooage is smaller)
-  int footage_divider = render_params.divider();
-  while (footage_divider > 1
-         && VideoParams::GetScaledDimension(stream_data.width(), footage_divider-1) < render_params.effective_width()
-         && VideoParams::GetScaledDimension(stream_data.height(), footage_divider-1) < render_params.effective_height()) {
-    footage_divider--;
-  }
 
   QString using_colorspace = stream_data.colorspace();
 
@@ -449,7 +440,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
   if (decoder) {
     Decoder::RetrieveVideoParams p;
-    p.divider = footage_divider;
+    p.divider = stream.video_params().divider();
     p.src_interlacing = stream_data.interlacing();
     p.dst_interlacing = GetCacheVideoParams().interlacing();
 
