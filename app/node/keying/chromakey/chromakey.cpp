@@ -52,8 +52,6 @@ ChromaKeyNode::ChromaKeyNode()
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
-
-  SetEffectInput(kTextureInput);
 }
 
 QString ChromaKeyNode::Name() const
@@ -127,6 +125,11 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
+}
+
+void ChromaKeyNode::ConfigChanged()
+{
+  GenerateProcessor();
 }
 
 } // namespace olive
