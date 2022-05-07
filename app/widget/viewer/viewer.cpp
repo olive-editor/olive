@@ -98,6 +98,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::HandDragMoved, sizer_, &ViewerSizer::HandDragMove);
   sizer_->SetWidget(display_widget_);
 
+  // Make the display widget the first tabbable widget. While the viewer display cannot actually
+  // be interacted with by tabbing, it prevents the actual first tabbable widget (the playhead
+  // slider in `controls_`) from getting auto-focused any time the panel is maximized (with `)
+  display_widget_->setFocusPolicy(Qt::TabFocus);
+
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
   ConnectTimelineView(waveform_view_, true);
@@ -571,7 +576,7 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
             if (!AudioManager::instance()->PushToOutput(audio_processor_.to(), packed, &error)) {
               Core::instance()->ShowStatusBarMessage(tr("Audio scrubbing failed: %1").arg(error));
             }
-            AudioMonitor::PushBytesOnAll(packed);
+            AudioMonitor::PushSampleBufferOnAll(samples);
           }
         } else {
           qCritical() << "Failed to process audio for scrubbing:" << r;
@@ -704,10 +709,10 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
   AudioParams ap = GetConnectedNode()->GetAudioParams();
   if (ap.is_valid()) {
-    AudioManager::instance()->SetOutputNotifyInterval(ap.time_to_bytes(kAudioPlaybackInterval));
-    connect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
-
     UpdateAudioProcessor();
+
+    AudioManager::instance()->SetOutputNotifyInterval(audio_processor_.to().time_to_bytes(kAudioPlaybackInterval));
+    connect(AudioManager::instance(), &AudioManager::OutputNotify, this, &ViewerWidget::QueueNextAudioBuffer);
 
     static const int prequeue_count = 2;
     prequeuing_audio_ = prequeue_count; // Queue two buffers ahead of time

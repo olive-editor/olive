@@ -94,9 +94,9 @@ void ChromaKeyNode::InputValueChangedEvent(const QString &input, int element)
   GenerateProcessor();
 }
 
-ShaderCode ChromaKeyNode::GetShaderCode(const QString &) const
+ShaderCode ChromaKeyNode::GetShaderCode(const ShaderRequest &request) const
 {
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/chromakey.frag")));
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/chromakey.frag")).arg(request.stub));
 }
 
 void ChromaKeyNode::GenerateProcessor()
@@ -122,6 +122,7 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
     job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
     job.SetNeedsCustomShader(this);
     job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
+    job.SetOverrideID(id());
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }

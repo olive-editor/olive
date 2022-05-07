@@ -73,9 +73,9 @@ void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
   }
 }
 
-ShaderCode MosaicFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode MosaicFilterNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/mosaic.frag"));
 }

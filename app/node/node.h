@@ -665,10 +665,27 @@ public:
    */
   QVector<Node *> GetImmediateDependencies() const;
 
+  struct ShaderRequest
+  {
+    ShaderRequest(const QString &shader_id)
+    {
+      id = shader_id;
+    }
+
+    ShaderRequest(const QString &shader_id, const QString &shader_stub)
+    {
+      id = shader_id;
+      stub = shader_stub;
+    }
+
+    QString id;
+    QString stub;
+  };
+
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const;
 
   /**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.

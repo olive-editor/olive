@@ -75,8 +75,8 @@ void DespillNode::Retranslate()
   SetInputName(kPreserveLuminanceInput, tr("Preserve Luminance"));
 }
 
-ShaderCode DespillNode::GetShaderCode(const QString& shader_id) const {
-  Q_UNUSED(shader_id)
+ShaderCode DespillNode::GetShaderCode(const ShaderRequest &request) const {
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/despill.frag"));
 }
 
