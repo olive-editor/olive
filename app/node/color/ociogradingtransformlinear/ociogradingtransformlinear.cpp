@@ -25,18 +25,19 @@
 #include "common/ocioutils.h"
 #include "node/project/project.h"
 #include "render/colorprocessor.h"
+#include "widget/slider/floatslider.h"
 
 namespace olive {
 
-const QString OCIOGradingTransformLinearNode::kContrastInput = QStringLiteral("contrast_in");
-const QString OCIOGradingTransformLinearNode::kOffsetInput = QStringLiteral("offset_in");
-const QString OCIOGradingTransformLinearNode::kExposureInput = QStringLiteral("exposure_in");
-const QString OCIOGradingTransformLinearNode::kSaturationInput = QStringLiteral("saturation_in");
-const QString OCIOGradingTransformLinearNode::kPivotInput = QStringLiteral("pivot_in");
+const QString OCIOGradingTransformLinearNode::kContrastInput = QStringLiteral("ocio_grading_primary_contrast");
+const QString OCIOGradingTransformLinearNode::kOffsetInput = QStringLiteral("ocio_grading_primary_offset");
+const QString OCIOGradingTransformLinearNode::kExposureInput = QStringLiteral("ocio_grading_primary_exposure");
+const QString OCIOGradingTransformLinearNode::kSaturationInput = QStringLiteral("ocio_grading_primary_saturation");
+const QString OCIOGradingTransformLinearNode::kPivotInput = QStringLiteral("ocio_grading_primary_pivot");
 const QString OCIOGradingTransformLinearNode::kClampBlackEnableInput = QStringLiteral("clamp_black_enable_in");
-const QString OCIOGradingTransformLinearNode::kClampBlackInput = QStringLiteral("clamp_black_in");
+const QString OCIOGradingTransformLinearNode::kClampBlackInput = QStringLiteral("ocio_grading_primary_clampBlack");
 const QString OCIOGradingTransformLinearNode::kClampWhiteEnableInput = QStringLiteral("clamp_white_enable_in");
-const QString OCIOGradingTransformLinearNode::kClampWhiteInput = QStringLiteral("clamp_white_in");
+const QString OCIOGradingTransformLinearNode::kClampWhiteInput = QStringLiteral("ocio_grading_primary_clampWhite");
 
 #define super OCIOBaseNode
 
@@ -56,7 +57,7 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
   SetVec4InputColors(kExposureInput);
 
   AddInput(kSaturationInput, NodeValue::kFloat, 1.0);
-  SetInputProperty(kSaturationInput, QStringLiteral("base"), 0.01);
+  SetInputProperty(kSaturationInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kSaturationInput, QStringLiteral("min"), 0.0);
 
   AddInput(kPivotInput, NodeValue::kFloat, 0.18); // Default listed in OCIO::GradingPrimary
@@ -129,31 +130,50 @@ void OCIOGradingTransformLinearNode::GenerateProcessor()
 {
   if (manager()) {
     OCIO::GradingPrimaryTransformRcPtr gp = OCIO::GradingPrimaryTransform::Create(OCIO::GRADING_LIN);
+    gp->makeDynamic();
     gp->setDirection(OCIO::TransformDirection::TRANSFORM_DIR_FORWARD);
 
-    OCIO::GradingPrimary gpdata{OCIO::GRADING_LIN};
-    gpdata.m_contrast = OCIOUtils::QVec4ToRGBM(GetStandardValue(kContrastInput).value<QVector4D>());
-    gpdata.m_exposure = OCIOUtils::QVec4ToRGBM(GetStandardValue(kExposureInput).value<QVector4D>());
-    gpdata.m_offset = OCIOUtils::QVec4ToRGBM(GetStandardValue(kOffsetInput).value<QVector4D>());
-    gpdata.m_saturation = GetStandardValue(kSaturationInput).value<double>();
-    gpdata.m_pivot = GetStandardValue(kPivotInput).value<double>();
-    if (!GetStandardValue(kClampBlackEnableInput).toBool()) {
-      gpdata.NoClampBlack();
-    } else {
-      gpdata.m_clampBlack = GetStandardValue(kClampBlackInput).value<double>();
-    }
-    if (!GetStandardValue(kClampWhiteEnableInput).toBool()) {
-      gpdata.NoClampWhite();
-    } else {
-      gpdata.m_clampWhite = GetStandardValue(kClampWhiteInput).value<double>();
-    }
     try {
-      gp->setValue(gpdata);
-
       set_processor(ColorProcessor::Create(manager()->GetConfig()->getProcessor(gp)));
     } catch (const OCIO::Exception &e) {
       std::cerr << std::endl << e.what() << std::endl;
     }
+  }
+}
+
+void OCIOGradingTransformLinearNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  if (!value[kTextureInput].data().isNull() && processor()) {
+    ColorTransformJob job;
+
+    job.SetColorProcessor(processor());
+    job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
+
+    job.InsertValue(value);
+
+    // Oddly, OCIO uses RGBMs when setting the GradingPrimary on the CPU, but uses vec3s on the GPU.
+    // Even more oddly, the conversion from RGBM to vec3 does not appear to have a public API.
+    // Therefore, this code has been duplicated from OCIO here:
+    // https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/3abbe5b20521169580fcfe3692aca81859859953/src/OpenColorIO/ops/gradingprimary/GradingPrimary.cpp#L157
+    QVector4D offset = value[kOffsetInput].value<QVector4D>();
+    offset[0] = offset[3] + offset[0];
+    offset[1] = offset[3] + offset[1];
+    offset[2] = offset[3] + offset[2];
+    job.InsertValue(kOffsetInput, NodeValue(NodeValue::kVec3, offset.toVector3D()));
+
+    QVector4D exposure = value[kExposureInput].value<QVector4D>();
+    exposure[0] = std::pow(2.0f, static_cast<float>(exposure[3] + exposure[0]));
+    exposure[1] = std::pow(2.0f, static_cast<float>(exposure[3] + exposure[1]));
+    exposure[2] = std::pow(2.0f, static_cast<float>(exposure[3] + exposure[2]));
+    job.InsertValue(kExposureInput, NodeValue(NodeValue::kVec3, exposure.toVector3D()));
+
+    QVector4D contrast = value[kContrastInput].value<QVector4D>();
+    contrast[0] = static_cast<float>(contrast[3] * contrast[0]);
+    contrast[1] = static_cast<float>(contrast[3] * contrast[1]);
+    contrast[2] = static_cast<float>(contrast[3] * contrast[2]);
+    job.InsertValue(kContrastInput, NodeValue(NodeValue::kVec3, contrast.toVector3D()));
+
+    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 
