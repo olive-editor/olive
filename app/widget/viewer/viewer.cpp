@@ -98,6 +98,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::HandDragMoved, sizer_, &ViewerSizer::HandDragMove);
   sizer_->SetWidget(display_widget_);
 
+  // Make the display widget the first tabbable widget. While the viewer display cannot actually
+  // be interacted with by tabbing, it prevents the actual first tabbable widget (the playhead
+  // slider in `controls_`) from getting auto-focused any time the panel is maximized (with `)
+  display_widget_->setFocusPolicy(Qt::TabFocus);
+
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
   ConnectTimelineView(waveform_view_, true);
