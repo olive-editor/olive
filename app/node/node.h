@@ -552,7 +552,12 @@ public:
 
   NodeInput GetEffectInput()
   {
-    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_, effect_element_);
+    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_);
+  }
+
+  const QString &GetEffectInputID() const
+  {
+    return effect_input_;
   }
 
   class ValueHint {
@@ -1047,10 +1052,9 @@ protected:
 
   virtual void childEvent(QChildEvent *event) override;
 
-  void SetEffectInput(const QString &input, int element = -1)
+  void SetEffectInput(const QString &input)
   {
     effect_input_ = input;
-    effect_element_ = element;
   }
 
   void SetToolTip(const QString& s)
@@ -1369,7 +1373,6 @@ private:
   QVector<NodeGizmo*> gizmos_;
 
   QString effect_input_;
-  int effect_element_;
 
 private slots:
   /**

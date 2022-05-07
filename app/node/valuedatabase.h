@@ -41,6 +41,11 @@ public:
     tables_.insert(key, value);
   }
 
+  NodeValueTable Take(const QString &key)
+  {
+    return tables_.take(key);
+  }
+
   NodeValueTable Merge() const;
 
   using Tables = QHash<QString, NodeValueTable>;

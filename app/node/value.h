@@ -340,6 +340,11 @@ public:
     values_.append(value);
   }
 
+  void Push(const NodeValueTable& value)
+  {
+    values_.append(value.values_);
+  }
+
   void Push(NodeValue::Type type, const QVariant& data, const Node *from, bool array = false, const QString& tag = QString())
   {
     Push(NodeValue(type, data, from, array, tag));

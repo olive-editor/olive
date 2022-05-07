@@ -269,7 +269,15 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint
 
     return table;
   } else {
-    return database.Merge();
+    // If this node has an effect input, ensure that is pushed last
+    NodeValueTable primary;
+    if (!n->GetEffectInputID().isEmpty()) {
+      primary = database.Take(n->GetEffectInputID());
+    }
+
+    NodeValueTable m = database.Merge();
+    m.Push(primary);
+    return m;
   }
 }
 
