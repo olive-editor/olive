@@ -553,17 +553,24 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
     }
   }
 
-  // Parameters for vectors only
-  if (NodeValue::type_is_vector(data_type)) {
-    if (key == QStringLiteral("disablex")) {
-      static_cast<FloatSlider*>(widgets_.at(0))->setEnabled(!value.toBool());
-    } else if (key == QStringLiteral("disabley")) {
-      static_cast<FloatSlider*>(widgets_.at(1))->setEnabled(!value.toBool());
-    } else if (widgets_.size() > 2 && key == QStringLiteral("disablez")) {
-      static_cast<FloatSlider*>(widgets_.at(2))->setEnabled(!value.toBool());
-    } else if (widgets_.size() > 3 && key == QStringLiteral("disablew")) {
-      static_cast<FloatSlider*>(widgets_.at(3))->setEnabled(!value.toBool());
+  if (key.startsWith(QStringLiteral("disable"))) {
+
+    bool dis = value.toBool();
+
+    if (key.size() == 7) {
+      for (int i=0; i<widgets_.size(); i++) {
+        widgets_.at(i)->setEnabled(!dis);
+      }
+    } else {
+      bool ok;
+      int element = key.mid(7).toInt(&ok);
+      int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
+
+      if (ok && element >= 0 && element < tracks) {
+        widgets_.at(element)->setEnabled(!dis);
+      }
     }
+
   }
 
   // Parameters for integers, floats, and vectors
@@ -645,6 +652,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
         break;
       }
     } else if (key == QStringLiteral("offset")) {
+
       int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
 
       QVector<QVariant> offsets = NodeValue::split_normal_value_into_track_values(data_type, value);
@@ -654,7 +662,9 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       }
 
       UpdateWidgetValues();
+
     } else if (key.startsWith(QStringLiteral("color"))) {
+
       QColor c(value.toString());
 
       int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
@@ -671,6 +681,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
           static_cast<SliderBase*>(widgets_.at(element))->SetColor(c);
         }
       }
+
     }
   }
 
