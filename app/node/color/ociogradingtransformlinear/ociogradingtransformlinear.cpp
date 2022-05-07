@@ -43,6 +43,7 @@ const QString OCIOGradingTransformLinearNode::kClampWhiteInput = QStringLiteral(
 OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
 {
   AddInput(kContrastInput, NodeValue::kVec4, QVector4D{1.0, 1.0, 1.0, 1.0});
+  // Minimum based on OCIO::GradingPrimary::validate
   SetInputProperty(kContrastInput, QStringLiteral("min"), QVector4D{0.01f, 0.01f, 0.01f, 0.01f});
   SetInputProperty(kContrastInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kContrastInput);
@@ -73,6 +74,7 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
   AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kClampWhiteInput, QStringLiteral("enabled"), GetStandardValue(kClampWhiteEnableInput).toBool());
   SetInputProperty(kClampWhiteInput, QStringLiteral("base"), 0.01);
+  SetInputProperty(kClampWhiteInput, QStringLiteral("min"), GetStandardValue(kClampBlackInput).toDouble() + 0.000001);
 }
 
 QString OCIOGradingTransformLinearNode::Name() const
@@ -120,6 +122,10 @@ void OCIOGradingTransformLinearNode::InputValueChangedEvent(const QString &input
   }
   if (input == kClampBlackEnableInput) {
     SetInputProperty(kClampBlackInput, QStringLiteral("enabled"), GetStandardValue(kClampBlackEnableInput).toBool());
+  }
+  if (input == kClampBlackInput) {
+    // Ensure the white clamp is always greater than the black clamp as per OCIO::GradingPrimary::validate
+    SetInputProperty(kClampWhiteInput, QStringLiteral("min"), GetStandardValue(kClampBlackInput).toDouble() + 0.000001);
   }
 
   GenerateProcessor();
