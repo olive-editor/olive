@@ -73,7 +73,7 @@ void NoiseGeneratorNode::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderCode NoiseGeneratorNode::GetShaderCode(const QString& shader_id) const
+ShaderCode NoiseGeneratorNode::GetShaderCode(const ShaderRequest &request) const
 {
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/noise.frag"));
 }

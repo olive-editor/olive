@@ -49,9 +49,9 @@ QString DipToColorTransition::Description() const
   return tr("Transition between clips by dipping to a color.");
 }
 
-ShaderCode DipToColorTransition::GetShaderCode(const QString &shader_id) const
+ShaderCode DipToColorTransition::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
 }

@@ -61,12 +61,12 @@ void ShapeNode::Retranslate()
   SetComboBoxStrings(kTypeInput, {tr("Rectangle"), tr("Ellipse")});
 }
 
-ShaderCode ShapeNode::GetShaderCode(const QString &shader_id) const
+ShaderCode ShapeNode::GetShaderCode(const ShaderRequest &request) const
 {
-  if (shader_id == QStringLiteral("shape")) {
+  if (request.id == QStringLiteral("shape")) {
     return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
   } else {
-    return super::GetShaderCode(shader_id);
+    return super::GetShaderCode(request);
   }
 }
 

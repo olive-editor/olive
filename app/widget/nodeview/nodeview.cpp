@@ -571,6 +571,11 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
           } else {
             // Otherwise, we may have to iterate to find a valid one
             for (const QString& input : attached_node->inputs()) {
+              if (input == Node::kEnabledInput) {
+                // Ignore enabled input
+                continue;
+              }
+
               NodeInput i(attached_node, input);
 
               if (attached_node->IsInputConnectable(input)) {

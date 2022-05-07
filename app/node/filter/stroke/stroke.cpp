@@ -101,9 +101,9 @@ void StrokeFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
   }
 }
 
-ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode StrokeFilterNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"));
 }

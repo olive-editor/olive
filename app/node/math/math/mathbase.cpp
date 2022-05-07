@@ -416,8 +416,6 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       } else {
         output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }
-    } else {
-      output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
     }
     break;
   }

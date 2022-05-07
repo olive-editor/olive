@@ -119,9 +119,9 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   }
 }
 
-ShaderCode TransformDistortNode::GetShaderCode(const QString &shader_id) const
+ShaderCode TransformDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id);
+  Q_UNUSED(request);
 
   // Returns default frag and vert shader
   return ShaderCode();
