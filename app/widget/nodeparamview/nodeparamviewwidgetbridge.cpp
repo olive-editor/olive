@@ -547,27 +547,25 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
   NodeValue::Type data_type = GetDataType();
 
   // Parameters for all types
-  if (key == QStringLiteral("enabled")) {
-    foreach (QWidget* w, widgets_) {
-      w->setEnabled(value.toBool());
+  bool key_is_disable = key.startsWith(QStringLiteral("disable"));
+  if (key_is_disable || key.startsWith(QStringLiteral("enabled"))) {
+
+    bool e = value.toBool();
+    if (key_is_disable) {
+      e = !e;
     }
-  }
 
-  if (key.startsWith(QStringLiteral("disable"))) {
-
-    bool dis = value.toBool();
-
-    if (key.size() == 7) {
+    if (key.size() == 7) { // just the word "disable" or "enabled"
       for (int i=0; i<widgets_.size(); i++) {
-        widgets_.at(i)->setEnabled(!dis);
+        widgets_.at(i)->setEnabled(e);
       }
-    } else {
+    } else { // set specific track/widget
       bool ok;
-      int element = key.mid(7).toInt(&ok);
+      int element = key.midRef(7).toInt(&ok);
       int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
 
       if (ok && element >= 0 && element < tracks) {
-        widgets_.at(element)->setEnabled(!dis);
+        widgets_.at(element)->setEnabled(e);
       }
     }
 
@@ -676,7 +674,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
         }
       } else {
         bool ok;
-        int element = key.mid(5).toInt(&ok);
+        int element = key.midRef(5).toInt(&ok);
         if (ok && element >= 0 && element < tracks) {
           static_cast<SliderBase*>(widgets_.at(element))->SetColor(c);
         }
