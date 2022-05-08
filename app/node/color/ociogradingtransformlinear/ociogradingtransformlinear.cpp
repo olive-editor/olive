@@ -75,7 +75,11 @@ OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
   AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
   SetInputProperty(kClampWhiteInput, QStringLiteral("enabled"), GetStandardValue(kClampWhiteEnableInput).toBool());
   SetInputProperty(kClampWhiteInput, QStringLiteral("base"), 0.01);
-  SetInputProperty(kClampWhiteInput, QStringLiteral("min"), GetStandardValue(kClampBlackInput).toDouble() + 0.000001);
+
+  // FIXME: Temporarily disabled. This will break if "clamp black" is keyframed or connected to
+  //        something and there's currently no solution to remedy that. If there is in the future,
+  //        we can look into re-enabling this.
+  //SetInputProperty(kClampWhiteInput, QStringLiteral("min"), GetStandardValue(kClampBlackInput).toDouble() + 0.000001);
 }
 
 QString OCIOGradingTransformLinearNode::Name() const
@@ -118,15 +122,17 @@ void OCIOGradingTransformLinearNode::Retranslate()
 void OCIOGradingTransformLinearNode::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element);
+
   if (input == kClampWhiteEnableInput) {
     SetInputProperty(kClampWhiteInput, QStringLiteral("enabled"), GetStandardValue(kClampWhiteEnableInput).toBool());
-  }
-  if (input == kClampBlackEnableInput) {
+  } else if (input == kClampBlackEnableInput) {
     SetInputProperty(kClampBlackInput, QStringLiteral("enabled"), GetStandardValue(kClampBlackEnableInput).toBool());
-  }
-  if (input == kClampBlackInput) {
+  } else if (input == kClampBlackInput) {
     // Ensure the white clamp is always greater than the black clamp as per OCIO::GradingPrimary::validate
-    SetInputProperty(kClampWhiteInput, QStringLiteral("min"), GetStandardValue(kClampBlackInput).toDouble() + 0.000001);
+    // FIXME: Temporarily disabled. This will break if "clamp black" is keyframed or connected to
+    //        something and there's currently no solution to remedy that. If there is in the future,
+    //        we can look into re-enabling this.
+    //SetInputProperty(kClampWhiteInput, QStringLiteral("min"), GetStandardValue(kClampBlackInput).toDouble() + 0.000001);
   }
 
   GenerateProcessor();
