@@ -40,8 +40,12 @@ ChromaKeyNode::ChromaKeyNode()
   SetInputProperty(kLowerToleranceInput, QStringLiteral("base"), 0.1);
 
   AddInput(kUpperToleranceInput, NodeValue::kFloat, 25.0);
-  SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), GetStandardValue(kLowerToleranceInput).toDouble());
   SetInputProperty(kUpperToleranceInput, QStringLiteral("base"), 0.1);
+
+  // FIXME: Temporarily disabled. This will break if "lower tolerance" is keyframed or connected to
+  //        something and there's currently no solution to remedy that. If there is in the future,
+  //        we can look into re-enabling this.
+  //SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), GetStandardValue(kLowerToleranceInput).toDouble());
 
   AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
@@ -96,7 +100,10 @@ void ChromaKeyNode::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element);
   if (input == kLowerToleranceInput) {
-    SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), GetStandardValue(kLowerToleranceInput).toDouble());
+    // FIXME: Temporarily disabled. This will break if "lower tolerance" is keyframed or connected to
+    //        something and there's currently no solution to remedy that. If there is in the future,
+    //        we can look into re-enabling this.
+    //SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), GetStandardValue(kLowerToleranceInput).toDouble());
   }
 
   GenerateProcessor();
