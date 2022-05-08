@@ -165,9 +165,11 @@ bool RenderTask::Render(ColorManager* manager,
           Block *this_block = this_track->Blocks().at(block_indexes.at(tracks_to_push.at(i)));
 
           if (const SubtitleBlock *sub = dynamic_cast<const SubtitleBlock*>(this_block)) {
-            if (!EncodeSubtitle(sub)) {
-              result = false;
-              break;
+            if (sub->is_enabled()) {
+              if (!EncodeSubtitle(sub)) {
+                result = false;
+                break;
+              }
             }
           }
 
