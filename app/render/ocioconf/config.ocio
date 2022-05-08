@@ -279,12 +279,13 @@ colorspaces:
 
   - !<ColorSpace>
     name: Blackmagic Film Wide Gamut (Gen 5)
-    family: Camera Footage
+    family: Input/BlackMagic
     equalitygroup: ""
     bitdepth: 32f
     description: |
       Blackmagic Film Wide Gamut (Gen 5)
     isdata: false
+    categories: [ Camera, Input ]
     allocation: uniform
     allocationvars: [0, 1]
     to_reference: !<GroupTransform>

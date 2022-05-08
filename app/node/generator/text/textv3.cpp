@@ -86,7 +86,7 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
   job.SetRequestedFormat(VideoParams::kFormatUnsigned8);
 
   // FIXME: Provide user override for this
-  job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
+  job.SetColorspace(project()->color_manager()->GetDefaultFloatInputColorSpace());
 
   if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
     PushMergableJob(value, QVariant::fromValue(job), table);
