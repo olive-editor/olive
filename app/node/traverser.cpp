@@ -349,6 +349,23 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
         TexturePtr tex;
 
+        // Adjust footage job's divider
+        VideoParams render_params = GetCacheVideoParams();
+        VideoParams job_params = job.video_params();
+
+        // HACK/FIXME: Override old cached probe data that contains an invalid divider. Might be
+        //             good in the future to version the probe data so we can automatically
+        //             ignore older stuff.
+        job_params.set_divider(render_params.divider());
+
+        // See if we can make this divider larger (i.e. if the footage is smaller)
+        while (job_params.divider() > 1
+               && VideoParams::GetScaledDimension(job_params.width(), job_params.divider()-1) < render_params.effective_width()
+               && VideoParams::GetScaledDimension(job_params.height(), job_params.divider()-1) < render_params.effective_height()) {
+          job_params.set_divider(job_params.divider() - 1);
+        }
+        job.set_video_params(job_params);
+
         if (footage_time.isNaN()) {
           // Push dummy texture
           tex = CreateDummyTexture(job.video_params());

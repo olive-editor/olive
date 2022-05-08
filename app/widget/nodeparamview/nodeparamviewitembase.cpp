@@ -40,6 +40,7 @@ NodeParamViewItemBase::NodeParamViewItemBase(QWidget *parent) :
   // Connect title bar to this
   connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this, &NodeParamViewItemBase::SetExpanded);
   connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this, &NodeParamViewItemBase::PinToggled);
+  connect(title_bar_, &NodeParamViewItemTitleBar::Clicked, this, &NodeParamViewItemBase::Clicked);
 
   // Use dummy QWidget to retain width when not expanded (QDockWidget seems to ignore the titlebar
   // size hints and will shrink as small as possible if the body is hidden)
@@ -113,6 +114,13 @@ void NodeParamViewItemBase::moveEvent(QMoveEvent *event)
   super::moveEvent(event);
 
   emit Moved();
+}
+
+void NodeParamViewItemBase::mousePressEvent(QMouseEvent *e)
+{
+  super::mousePressEvent(e);
+
+  emit Clicked();
 }
 
 }

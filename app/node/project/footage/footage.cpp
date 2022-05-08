@@ -118,12 +118,7 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
         decoder_ = footage_info.decoder();
 
         for (int i=0; i<footage_info.GetVideoStreams().size(); i++) {
-          VideoParams vp = footage_info.GetVideoStreams().at(i);
-
-          // FIXME: Make this customizable
-          vp.set_divider(VideoParams::generate_auto_divider(vp.width(), vp.height()));
-
-          AddStream(Track::kVideo, QVariant::fromValue(vp));
+          AddStream(Track::kVideo, QVariant::fromValue(footage_info.GetVideoStreams().at(i)));
         }
 
         for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {

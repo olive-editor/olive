@@ -83,9 +83,9 @@ void ColorDifferenceKeyNode::Retranslate()
   SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
 }
 
-ShaderCode ColorDifferenceKeyNode::GetShaderCode(const QString &shader_id) const
+ShaderCode ColorDifferenceKeyNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/colordifferencekey.frag"));
 }
 

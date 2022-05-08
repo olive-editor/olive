@@ -285,7 +285,7 @@ bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
     }
   }
 
-  result = WriteAudioData(audio->audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
+  result = WriteAudioData(audio ? audio->audio_params() : params().audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
 
   if (input_data) {
     av_freep(&input_data[0]);

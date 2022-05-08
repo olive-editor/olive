@@ -104,6 +104,11 @@ public:
     kAudioEffect = 0x4
   };
 
+  struct ContextPair {
+    Node *node;
+    Node *context;
+  };
+
   Node();
 
   virtual ~Node() override;
@@ -655,10 +660,21 @@ public:
    */
   QVector<Node *> GetImmediateDependencies() const;
 
+  struct ShaderRequest
+  {
+    ShaderRequest(const QString &shader_id)
+    {
+      id = shader_id;
+    }
+
+    QString id;
+    QString stub;
+  };
+
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const;
 
   /**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.

@@ -67,9 +67,9 @@ void MergeNode::Retranslate()
   SetInputName(kBlendIn, tr("Blend"));
 }
 
-ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
+ShaderCode MergeNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }

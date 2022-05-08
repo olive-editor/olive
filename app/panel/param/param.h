@@ -49,8 +49,10 @@ public:
   }
 
 public slots:
-  void SelectNodes(const QVector<Node*>& nodes);
-  void DeselectNodes(const QVector<Node*>& nodes);
+  void SetSelectedNodes(const QVector<Node::ContextPair> &nodes)
+  {
+    GetParamView()->SetSelectedNodes(nodes, false);
+  }
 
   virtual void DeleteSelected() override;
 
@@ -61,9 +63,9 @@ public slots:
   void SetContexts(const QVector<Node*> &contexts);
 
 signals:
-  void RequestSelectNode(const QVector<Node*>& target);
-
   void FocusedNodeChanged(Node* n);
+
+  void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
 
 protected:
   virtual void Retranslate() override;

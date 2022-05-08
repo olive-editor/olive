@@ -94,9 +94,9 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
   }
 }
 
-ShaderCode CropDistortNode::GetShaderCode(const QString &shader_id) const
+ShaderCode CropDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
 }
 

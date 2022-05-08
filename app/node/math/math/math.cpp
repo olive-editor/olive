@@ -80,9 +80,9 @@ void MathNode::Retranslate()
   SetComboBoxStrings(kMethodIn, operations);
 }
 
-ShaderCode MathNode::GetShaderCode(const QString &shader_id) const
+ShaderCode MathNode::GetShaderCode(const ShaderRequest &request) const
 {
-  return GetShaderCodeInternal(shader_id, kParamAIn, kParamBIn);
+  return GetShaderCodeInternal(request.id, kParamAIn, kParamBIn);
 }
 
 void MathNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const

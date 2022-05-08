@@ -68,9 +68,9 @@ void SolidGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals
   table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 }
 
-ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const
+ShaderCode SolidGenerator::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
 }

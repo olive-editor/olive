@@ -1520,10 +1520,8 @@ QVector<Node *> Node::GetImmediateDependencies() const
   return GetDependenciesInternal(false, false);
 }
 
-ShaderCode Node::GetShaderCode(const QString &shader_id) const
+ShaderCode Node::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
-
   return ShaderCode(QString(), QString());
 }
 

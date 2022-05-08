@@ -69,6 +69,40 @@ PreferencesAudioTab::PreferencesAudioTab()
 
       audio_output_devices_ = new QComboBox();
       output_layout->addWidget(audio_output_devices_, row, 1);
+
+      row++;
+
+      {
+        int output_row = 0;
+
+        QGroupBox *output_param_group = new QGroupBox(tr("Advanced"));
+        output_layout->addWidget(output_param_group, row, 0, 1, 2);
+
+        QGridLayout *output_param_layout = new QGridLayout(output_param_group);
+
+        output_param_layout->addWidget(new QLabel(tr("Sample Rate:")), output_row, 0);
+
+        output_rate_combo_ = new SampleRateComboBox();
+        output_rate_combo_->SetSampleRate(OLIVE_CONFIG("AudioOutputSampleRate").toInt());
+        output_param_layout->addWidget(output_rate_combo_, output_row, 1);
+
+        output_row++;
+
+        output_param_layout->addWidget(new QLabel(tr("Channel Layout:")), output_row, 0);
+
+        output_ch_layout_combo_ = new ChannelLayoutComboBox();
+        output_ch_layout_combo_->SetChannelLayout(OLIVE_CONFIG("AudioOutputChannelLayout").toULongLong());
+        output_param_layout->addWidget(output_ch_layout_combo_, output_row, 1);
+
+        output_row++;
+
+        output_param_layout->addWidget(new QLabel(tr("Sample Format:")), output_row, 0);
+
+        output_fmt_combo_ = new SampleFormatComboBox();
+        output_fmt_combo_->SetPackedFormats();
+        output_fmt_combo_->SetSampleFormat(static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioOutputSampleFormat").toInt()));
+        output_param_layout->addWidget(output_fmt_combo_, output_row, 1);
+      }
     }
 
     row = 0;
@@ -146,12 +180,18 @@ void PreferencesAudioTab::Accept(MultiUndoCommand *command)
   AudioManager::instance()->SetOutputDevice(output_device);
   AudioManager::instance()->SetInputDevice(input_device);
 
+  OLIVE_CONFIG("AudioOutputSampleRate") = output_rate_combo_->GetSampleRate();
+  OLIVE_CONFIG("AudioOutputChannelLayout") = QVariant::fromValue(output_ch_layout_combo_->GetChannelLayout());
+  OLIVE_CONFIG("AudioOutputSampleFormat") = output_fmt_combo_->GetSampleFormat();
+
   OLIVE_CONFIG("AudioRecordingFormat") = record_format_combo_->GetFormat();
   OLIVE_CONFIG("AudioRecordingCodec") = record_options_->GetCodec();
   OLIVE_CONFIG("AudioRecordingSampleRate") = record_options_->sample_rate_combobox()->GetSampleRate();
   OLIVE_CONFIG("AudioRecordingChannelLayout") = QVariant::fromValue(record_options_->channel_layout_combobox()->GetChannelLayout());
   OLIVE_CONFIG("AudioRecordingBitRate") = QVariant::fromValue(record_options_->bit_rate_slider()->GetValue());
   OLIVE_CONFIG("AudioRecordingSampleFormat") = record_options_->sample_format_combobox()->GetSampleFormat();
+
+  emit AudioManager::instance()->OutputParamsChanged();
 }
 
 void PreferencesAudioTab::RefreshBackends()

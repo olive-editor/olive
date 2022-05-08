@@ -42,9 +42,9 @@ void GeneratorWithMerge::Retranslate()
   SetInputName(kBaseInput, tr("Base"));
 }
 
-ShaderCode GeneratorWithMerge::GetShaderCode(const QString &shader_id) const
+ShaderCode GeneratorWithMerge::GetShaderCode(const ShaderRequest &request) const
 {
-  if (shader_id == QStringLiteral("mrg")) {
+  if (request.id == QStringLiteral("mrg")) {
     return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
   }
 
