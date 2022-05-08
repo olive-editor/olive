@@ -485,10 +485,15 @@ void ViewerDisplayWidget::OnPaint()
         texture_to_draw = deinterlace_texture_;
       }
 
-      renderer()->BlitColorManaged(color_service(), texture_to_draw,
-                                   OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
-                                   device_params, false,
-                                   combined_matrix_flipped_, crop_matrix_);
+      ColorTransformJob ctj;
+      ctj.SetColorProcessor(color_service());
+      ctj.SetInputTexture(texture_to_draw);
+      ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
+      ctj.SetClearDestinationEnabled(false);
+      ctj.SetTransformMatrix(combined_matrix_flipped_);
+      ctj.SetCropMatrix(crop_matrix_);
+
+      renderer()->BlitColorManaged(ctj, device_params);
     }
   }
 

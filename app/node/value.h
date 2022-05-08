@@ -203,6 +203,12 @@ public:
     return type_;
   }
 
+  template <typename T>
+  T value() const
+  {
+    return data_.value<T>();
+  }
+
   const QVariant& data() const
   {
     return data_;
@@ -338,6 +344,11 @@ public:
   void Push(const NodeValue& value)
   {
     values_.append(value);
+  }
+
+  void Push(const NodeValueTable& value)
+  {
+    values_.append(value.values_);
   }
 
   void Push(NodeValue::Type type, const QVariant& data, const Node *from, bool array = false, const QString& tag = QString())

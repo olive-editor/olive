@@ -27,6 +27,7 @@
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
 #include "render/job/footagejob.h"
+#include "render/job/colortransformjob.h"
 #include "value.h"
 
 namespace olive {
@@ -87,6 +88,8 @@ protected:
   virtual void ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time){}
 
   virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job){}
+
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job){}
 
   virtual void ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job){}
 

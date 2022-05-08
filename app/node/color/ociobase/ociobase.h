@@ -18,34 +18,43 @@
 
 ***/
 
-#ifndef SHADERCODE_H
-#define SHADERCODE_H
+#ifndef OCIOBASENODE_H
+#define OCIOBASENODE_H
 
-#include "common/filefunctions.h"
+#include "node/node.h"
+#include "render/job/colortransformjob.h"
 
 namespace olive {
 
-class ShaderCode {
+class OCIOBaseNode : public Node
+{
+  Q_OBJECT
 public:
-  ShaderCode(const QString& frag_code = QString(), const QString& vert_code = QString()) :
-    frag_code_(frag_code),
-    vert_code_(vert_code)
-  {
-  }
+  OCIOBaseNode();
 
-  const QString& frag_code() const { return frag_code_; }
-  void set_frag_code(const QString &f) { frag_code_ = f; }
+  virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  const QString& vert_code() const { return vert_code_; }
-  void set_vert_code(const QString &v) { vert_code_ = v; }
+  static const QString kTextureInput;
+
+protected slots:
+  virtual void ConfigChanged() = 0;
+
+protected:
+  ColorManager *manager() const { return manager_; }
+
+  ColorProcessorPtr processor() const { return processor_; }
+  void set_processor(ColorProcessorPtr p) { processor_ = p; }
 
 private:
-  QString frag_code_;
+  ColorManager *manager_;
 
-  QString vert_code_;
+  ColorProcessorPtr processor_;
+
+private slots:
+  void ParentChanged(olive::NodeGraph *graph);
 
 };
 
 }
 
-#endif // SHADERCODE_H
+#endif // OCIOBASENODE_H

@@ -98,6 +98,12 @@ void HashTraverser::ProcessShader(TexturePtr destination, const Node *node, cons
   texture_ids_.insert(destination.get(), hash_.result());
 }
 
+void HashTraverser::ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob &job)
+{
+  Hash(job.GetColorProcessor()->id());
+  texture_ids_.insert(destination.get(), hash_.result());
+}
+
 void HashTraverser::ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job)
 {
   texture_ids_.insert(destination.get(), hash_.result());

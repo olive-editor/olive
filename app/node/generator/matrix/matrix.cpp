@@ -183,7 +183,7 @@ void MatrixGenerator::InputValueChangedEvent(const QString &input, int element)
   Q_UNUSED(element)
 
   if (input == kUniformScaleInput) {
-    SetInputProperty(kScaleInput, QStringLiteral("disabley"), GetStandardValue(kUniformScaleInput).toBool());
+    SetInputProperty(kScaleInput, QStringLiteral("disable1"), GetStandardValue(kUniformScaleInput).toBool());
   }
 }
 

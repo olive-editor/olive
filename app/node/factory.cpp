@@ -29,6 +29,8 @@
 #include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "color/displaytransform/displaytransform.h"
+#include "color/ociogradingtransformlinear/ociogradingtransformlinear.h"
 #include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
@@ -52,6 +54,7 @@
 #include "math/trigonometry/trigonometry.h"
 #include "keying/colordifferencekey/colordifferencekey.h"
 #include "keying/despill/despill.h"
+#include "keying/chromakey/chromakey.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
@@ -281,6 +284,12 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new TimeOffsetNode();
   case kCornerPinDistort:
     return new CornerPinDistortNode();
+  case kDisplayTransform:
+    return new DisplayTransformNode();
+  case kOCIOGradingTransformLinear:
+    return new OCIOGradingTransformLinearNode();
+  case kChromaKey:
+    return new ChromaKeyNode();
 
   case kInternalNodeCount:
     break;

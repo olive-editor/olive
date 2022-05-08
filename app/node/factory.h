@@ -70,6 +70,9 @@ public:
     kNoiseGenerator,
     kTimeOffsetNode,
     kCornerPinDistort,
+    kDisplayTransform,
+    kOCIOGradingTransformLinear,
+    kChromaKey,
 
     // Count value
     kInternalNodeCount
