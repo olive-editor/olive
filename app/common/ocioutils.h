@@ -35,7 +35,6 @@ class OCIOUtils
 public:
   static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(VideoParams::Format format);
 
-  static OCIO::GradingRGBM QVec4ToRGBM(const QVector4D &vector);
 };
 
 }
