@@ -42,7 +42,7 @@ void ColorSpaceComboBox::showPopup()
 
   QMap<QString, QMenu*> submenu_map;
 
-  for (int i = 0; i < menu_helper->getNumColorSpaces(); i++) {
+  for (size_t i = 0; i < menu_helper->getNumColorSpaces(); i++) {
     QString colorspace = menu_helper->getName(i);
     QString family = menu_helper->getFamily(i);
 
