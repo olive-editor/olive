@@ -917,6 +917,7 @@ void Node::SetInputFlags(const QString &input, const InputFlags &f)
 
   if (i) {
     i->flags = f;
+    emit InputFlagsChanged(input, i->flags);
   } else {
     ReportInvalidInput("set flags of", input);
   }

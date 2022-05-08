@@ -179,6 +179,8 @@ public:
 
   void SetTimebase(const rational& timebase)
   {
+    timebase_ = timebase;
+
     body_->SetTimebase(timebase);
   }
 
@@ -228,11 +230,17 @@ private:
 
   Node* node_;
 
+  NodeParamViewCheckBoxBehavior create_checkboxes_;
+
   Node *ctx_;
 
   rational time_;
+  rational timebase_;
 
   KeyframeView::NodeConnections keyframe_connections_;
+
+private slots:
+  void RecreateBody();
 
 };
 

@@ -529,7 +529,9 @@ void ViewerDisplayWidget::OnPaint()
 
     gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, range));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
-      gizmo->Draw(&p);
+      if (gizmo->IsVisible()) {
+        gizmo->Draw(&p);
+      }
     }
   }
 
@@ -748,21 +750,23 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
 {
   for (auto it=gizmos_->GetGizmos().crbegin(); it!=gizmos_->GetGizmos().crend(); it++) {
     NodeGizmo *gizmo = *it;
-    if (PointGizmo *point = dynamic_cast<PointGizmo*>(gizmo)) {
-      if (point->GetClickingRect(GenerateGizmoTransform()).contains(p)) {
-        return point;
+    if (gizmo->IsVisible()) {
+      if (PointGizmo *point = dynamic_cast<PointGizmo*>(gizmo)) {
+        if (point->GetClickingRect(GenerateGizmoTransform()).contains(p)) {
+          return point;
+        }
+      } else if (PolygonGizmo *poly = dynamic_cast<PolygonGizmo*>(gizmo)) {
+        if (poly->GetPolygon().containsPoint(p, Qt::OddEvenFill)) {
+          return poly;
+        }
+      } else if (PathGizmo *path = dynamic_cast<PathGizmo*>(gizmo)) {
+        if (path->GetPath().contains(p)) {
+          return path;
+        }
+      } else if (ScreenGizmo *screen = dynamic_cast<ScreenGizmo*>(gizmo)) {
+        // NOTE: Perhaps this should limit to the actual visible screen space? We'll see.
+        return screen;
       }
-    } else if (PolygonGizmo *poly = dynamic_cast<PolygonGizmo*>(gizmo)) {
-      if (poly->GetPolygon().containsPoint(p, Qt::OddEvenFill)) {
-        return poly;
-      }
-    } else if (PathGizmo *path = dynamic_cast<PathGizmo*>(gizmo)) {
-      if (path->GetPath().contains(p)) {
-        return path;
-      }
-    } else if (ScreenGizmo *screen = dynamic_cast<ScreenGizmo*>(gizmo)) {
-      // NOTE: Perhaps this should limit to the actual visible screen space? We'll see.
-      return screen;
     }
   }
 

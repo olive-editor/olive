@@ -1168,6 +1168,8 @@ signals:
 
   void NodeRemovedFromContext(Node *node);
 
+  void InputFlagsChanged(const QString &input, const InputFlags &flags);
+
 private:
   class ArrayInsertCommand : public UndoCommand
   {
