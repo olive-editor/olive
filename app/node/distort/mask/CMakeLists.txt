@@ -14,13 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(cornerpin)
-add_subdirectory(crop)
-add_subdirectory(flip)
-add_subdirectory(mask)
-add_subdirectory(transform)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/distort/mask/mask.cpp
+  node/distort/mask/mask.h
   PARENT_SCOPE
 )

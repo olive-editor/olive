@@ -34,6 +34,7 @@
 #include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
+#include "distort/mask/mask.h"
 #include "distort/transform/transformdistortnode.h"
 #include "effect/opacity/opacityeffect.h"
 #include "generator/matrix/matrix.h"
@@ -290,6 +291,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new OCIOGradingTransformLinearNode();
   case kChromaKey:
     return new ChromaKeyNode();
+  case kMaskDistort:
+    return new MaskDistortNode();
 
   case kInternalNodeCount:
     break;

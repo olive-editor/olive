@@ -73,6 +73,7 @@ public:
     kDisplayTransform,
     kOCIOGradingTransformLinear,
     kChromaKey,
+    kMaskDistort,
 
     // Count value
     kInternalNodeCount
