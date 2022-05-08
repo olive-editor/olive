@@ -426,7 +426,7 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
   int start = qMax(rect.x(), -top_left.x());
   int end = qMin(rect.right(), -top_left.x() + viewport.width());
 
-  bool rectified = Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool();
+  bool rectified = OLIVE_CONFIG("RectifiedWaveforms").toBool();
 
   for (int i=start;i<end;i++) {
     sample_index = next_sample_index;

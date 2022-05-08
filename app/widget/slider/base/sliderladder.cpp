@@ -48,7 +48,7 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString 
   setFrameShape(QFrame::Box);
   setLineWidth(1);
 
-  if (!Config::Current()[QStringLiteral("UseSliderLadders")].toBool()) {
+  if (!OLIVE_CONFIG("UseSliderLadders").toBool()) {
     nb_outer_values = 0;
   }
 

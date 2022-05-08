@@ -1,13 +1,14 @@
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Build image (default):
-#  docker build -t olivevideoeditor/ci-package-otio -f ci-otio/Dockerfile .
+#  docker build -t olivevideoeditor/ci-package-otio:0.14.1 -f ci-otio/Dockerfile .
 
 ARG OLIVE_ORG=olivevideoeditor
 ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
-ARG VFXPLATFORM_VERSION=2021
+ARG VFXPLATFORM_VERSION=2022
+ARG OTIO_VERSION=v0.14.1
 
 # We are currently not interested in the Python implementation and bindings
 #FROM ${ASWF_PKG_ORG}/ci-package-python:${VFXPLATFORM_VERSION} as ci-package-python
@@ -18,7 +19,8 @@ FROM ${OLIVE_ORG}/ci-common:${CI_COMMON_VERSION} as ci-otio
 
 ARG OLIVE_ORG
 ARG VFXPLATFORM_VERSION
-ARG PYTHON_VERSION=3.7
+ARG OTIO_VERSION
+ARG PYTHON_VERSION=3.9
 
 LABEL maintainer="olivevideoeditor@gmail.com"
 LABEL com.vfxplatform.version=$VFXPLATFORM_VERSION
@@ -33,21 +35,16 @@ LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
 ENV OLIVE_ORG=${OLIVE_ORG} \
     CI_COMMON_VERSION=${CI_COMMON_VERSION} \
     VFXPLATFORM_VERSION=${VFXPLATFORM_VERSION} \
+    OTIO_VERSION=${OTIO_VERSION} \
     OLIVE_INSTALL_PREFIX=/usr/local
 #   PYTHONPATH=/usr/local/lib/python${PYTHON_VERSION}/site-packages:/usr/local/lib/python \
 
-COPY scripts/base/install_cmake.sh \
-     scripts/build_otio.sh \
+COPY scripts/build_otio.sh \
      /tmp/
 
 #COPY --from=ci-package-python /. /usr/local/
 #COPY --from=ci-package-qt /. /usr/local/
 #COPY --from=ci-package-pyside /. /usr/local/
-
-RUN export DOWNLOADS_DIR=/tmp/downloads && \
-    mkdir /tmp/downloads && \
-    /tmp/install_cmake.sh && \
-    rm -rf /tmp/downloads
 
 RUN /tmp/before_build.sh && \
     /tmp/build_otio.sh && \

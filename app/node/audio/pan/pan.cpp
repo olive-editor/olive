@@ -27,6 +27,8 @@ namespace olive {
 const QString PanNode::kSamplesInput = QStringLiteral("samples_in");
 const QString PanNode::kPanningInput = QStringLiteral("panning_in");
 
+#define super Node
+
 PanNode::PanNode()
 {
   AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
@@ -35,11 +37,9 @@ PanNode::PanNode()
   SetInputProperty(kPanningInput, QStringLiteral("min"), -1.0);
   SetInputProperty(kPanningInput, QStringLiteral("max"), 1.0);
   SetInputProperty(kPanningInput, QStringLiteral("view"), FloatSlider::kPercentage);
-}
 
-Node *PanNode::copy() const
-{
-  return new PanNode();
+  SetFlags(kAudioEffect);
+  SetEffectInput(kSamplesInput);
 }
 
 QString PanNode::Name() const
@@ -54,7 +54,7 @@ QString PanNode::id() const
 
 QVector<Node::CategoryID> PanNode::Category() const
 {
-  return {kCategoryChannels};
+  return {kCategoryFilter};
 }
 
 QString PanNode::Description() const
@@ -90,11 +90,7 @@ void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
       }
     }
 
-    if (push_job) {
-      table->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
-    } else {
-      table->Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
-    }
+    table->Push(NodeValue::kSamples, push_job ? QVariant::fromValue(job) : QVariant::fromValue(job.samples()), this);
   }
 }
 
@@ -115,6 +111,8 @@ void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr i
 
 void PanNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kSamplesInput, tr("Samples"));
   SetInputName(kPanningInput, tr("Pan"));
 }

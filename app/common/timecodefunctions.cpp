@@ -287,7 +287,11 @@ int64_t Timecode::time_to_timestamp(const rational &time, const rational &timeba
 
 int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase, Rounding floor)
 {
-  double d = time * timebase.flipped().toDouble();
+  const double d = time * timebase.flipped().toDouble();
+
+  if (std::isnan(d)) {
+    return 0;
+  }
 
   switch (floor) {
   case kRound:

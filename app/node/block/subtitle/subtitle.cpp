@@ -29,11 +29,9 @@ const QString SubtitleBlock::kTextIn = QStringLiteral("text_in");
 SubtitleBlock::SubtitleBlock()
 {
   AddInput(kTextIn, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
-}
 
-Node *SubtitleBlock::copy() const
-{
-  return new SubtitleBlock();
+  // Undo block flag that hides in param view
+  SetFlags(GetFlags() & ~kDontShowInParamView);
 }
 
 QString SubtitleBlock::Name() const

@@ -35,6 +35,8 @@ const QString ColorManager::kDefaultFloatColorspaceIn = QStringLiteral("default_
 const QString ColorManager::kDefaultByteColorspaceIn = QStringLiteral("default_byte_input");
 const QString ColorManager::kReferenceSpaceIn = QStringLiteral("reference_space");
 
+#define super Node
+
 OCIO::ConstConfigRcPtr ColorManager::default_config_ = nullptr;
 
 ColorManager::ColorManager() :
@@ -304,6 +306,8 @@ OCIO::ColorSpaceMenuHelperRcPtr ColorManager::CreateMenuHelper(OCIO::ConstConfig
 
 void ColorManager::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kConfigFilenameIn, tr("Configuration"));
   SetInputName(kDefaultFloatColorspaceIn, tr("Default Float Input"));
   SetInputName(kDefaultByteColorspaceIn, tr("Default Byte Input"));

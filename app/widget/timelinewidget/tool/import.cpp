@@ -173,7 +173,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, int track_offset)
 {
   DraggedFootageData refs;
 
@@ -181,10 +181,10 @@ void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational 
     refs.append({f, f->GetEnabledStreamsAsReferences()});
   }
 
-  PlaceAt(refs, start, insert);
+  PlaceAt(refs, start, insert, track_offset);
 }
 
-void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert)
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, int track_offset)
 {
   dragged_footage_ = footage;
 
@@ -192,7 +192,7 @@ void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &star
     return;
   }
 
-  PrepGhosts(start, 0);
+  PrepGhosts(start, track_offset);
   DropGhosts(insert);
 }
 
@@ -222,7 +222,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData 
 
       if (footage_duration.isNull()) {
         // Fallback to still length if legngth was 0
-        footage_duration = Config::Current()[QStringLiteral("DefaultStillLength")].value<rational>();
+        footage_duration = OLIVE_CONFIG("DefaultStillLength").value<rational>();
       }
     }
 
@@ -243,8 +243,8 @@ void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData 
       ghost->SetMediaIn(ghost_in);
       ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
 
-      snap_points_.append(ghost->GetIn());
-      snap_points_.append(ghost->GetOut());
+      snap_points_.push_back(ghost->GetIn());
+      snap_points_.push_back(ghost->GetOut());
 
       // Increment track count for this track type
       track_offsets[track_type]++;
@@ -285,7 +285,7 @@ void ImportTool::DropGhosts(bool insert)
   } else {
     // There's no active timeline here, ask the user what to do
 
-    DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(Config::Current()["DropWithoutSequenceBehavior"].toInt());
+    DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(OLIVE_CONFIG("DropWithoutSequenceBehavior").toInt());
 
     if (behavior == kDWSAsk) {
       QCheckBox* dont_ask_again_box = new QCheckBox(QCoreApplication::translate("ImportTool", "Don't ask me again"));
@@ -312,7 +312,7 @@ void ImportTool::DropGhosts(bool insert)
       }
 
       if (behavior != kDWSDisable && dont_ask_again_box->isChecked()) {
-        Config::Current()["DropWithoutSequenceBehavior"] = behavior;
+        OLIVE_CONFIG("DropWithoutSequenceBehavior") = behavior;
       }
     }
 

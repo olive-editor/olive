@@ -24,12 +24,6 @@ namespace olive {
 
 CrossDissolveTransition::CrossDissolveTransition()
 {
-
-}
-
-Node *CrossDissolveTransition::copy() const
-{
-  return new CrossDissolveTransition();
 }
 
 QString CrossDissolveTransition::Name() const
@@ -52,9 +46,9 @@ QString CrossDissolveTransition::Description() const
   return tr("Smoothly transition between two clips.");
 }
 
-ShaderCode CrossDissolveTransition::GetShaderCode(const QString &shader_id) const
+ShaderCode CrossDissolveTransition::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
 }

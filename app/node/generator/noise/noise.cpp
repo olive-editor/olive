@@ -20,21 +20,28 @@
 
 #include "noise.h"
 
+#include "widget/slider/floatslider.h"
+
 namespace olive {
 
+const QString NoiseGeneratorNode::kBaseIn = QStringLiteral("base_in");
 const QString NoiseGeneratorNode::kColorInput = QStringLiteral("color_in");
 const QString NoiseGeneratorNode::kStrengthInput = QStringLiteral("strength_in");
 
+#define super Node
+
 NoiseGeneratorNode::NoiseGeneratorNode()
 {
-  AddInput(kStrengthInput, NodeValue::kFloat, 20);
+  AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kStrengthInput, NodeValue::kFloat, 0.2);
+  SetInputProperty(kStrengthInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  SetInputProperty(kStrengthInput, QStringLiteral("min"), 0);
 
   AddInput(kColorInput, NodeValue::kBoolean, false);
-}
 
-Node* NoiseGeneratorNode::copy() const
-{
-  return new NoiseGeneratorNode();
+  SetEffectInput(kBaseIn);
+  SetFlags(kVideoEffect);
 }
 
 QString NoiseGeneratorNode::Name() const
@@ -59,12 +66,15 @@ QString NoiseGeneratorNode::Description() const
 
 void NoiseGeneratorNode::Retranslate()
 {
+  super::Retranslate();
+
+  SetInputName(kBaseIn, tr("Base"));
   SetInputName(kStrengthInput, tr("Strength"));
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderCode NoiseGeneratorNode::GetShaderCode(const QString& shader_id) const {
-  Q_UNUSED(shader_id)
+ShaderCode NoiseGeneratorNode::GetShaderCode(const ShaderRequest &request) const
+{
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/noise.frag"));
 }
 
@@ -75,8 +85,6 @@ void NoiseGeneratorNode::Value(const NodeValueRow &value, const NodeGlobals &glo
   job.InsertValue(value);
   job.InsertValue(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
 
-
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
-
+  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 }
 }

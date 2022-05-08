@@ -85,6 +85,8 @@ public:
 
   void DeleteSelected();
 
+  bool SelectItem(Node *n);
+
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
 
@@ -137,6 +139,8 @@ private:
   bool DeleteItemsInternal(const QVector<Node *> &selected, bool &check_if_item_is_in_use, MultiUndoCommand *command);
 
   static QString GetHumanReadableNodeName(Node* node);
+
+  void UpdateNavBarText();
 
   /**
    * @brief Get the currently active QAbstractItemView

@@ -176,7 +176,7 @@ void ColorValuesWidget::ColorPickedBtnToggled(bool e)
 
     // Restore original color (or use overridden color from eventFilter)
     SetReferenceColor(picker_end_color_);
-    emit ColorChanged(picker_end_color_);
+    emit ColorChanged(input_tab_->GetColor());
   }
 }
 
@@ -230,7 +230,7 @@ ColorValuesTab::ColorValuesTab(bool with_legacy_option, QWidget *parent) :
 
   if (with_legacy_option) {
     legacy_box_ = new QCheckBox(tr("Use legacy (8-bit) values"));
-    legacy_box_->setChecked(Config::Current()[QStringLiteral("UseLegacyColorInInputTab")].toBool());
+    legacy_box_->setChecked(OLIVE_CONFIG("UseLegacyColorInInputTab").toBool());
     connect(legacy_box_, &QCheckBox::clicked, this, &ColorValuesTab::LegacyChanged);
     layout->addWidget(legacy_box_, row, 0, 1, 2);
     row++;
@@ -353,7 +353,7 @@ void ColorValuesTab::SliderChanged()
 
 void ColorValuesTab::LegacyChanged(bool legacy)
 {
-  Config::Current()[QStringLiteral("UseLegacyColorInInputTab")] = legacy;
+  OLIVE_CONFIG("UseLegacyColorInInputTab") = legacy;
 
   double legacy_multiplier = legacy ? kLegacyMultiplier : 1.0/kLegacyMultiplier;
   int decimal_places = legacy ? 0 : 5;

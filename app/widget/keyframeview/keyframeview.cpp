@@ -462,11 +462,11 @@ void KeyframeView::ShowContextMenu()
   QAction* bezier_key_action = nullptr;
   QAction* hold_key_action = nullptr;
 
-  if (!GetSelectedKeyframes().isEmpty()) {
+  if (!GetSelectedKeyframes().empty()) {
     bool all_keys_are_same_type = true;
-    NodeKeyframe::Type type = GetSelectedKeyframes().first()->type();
+    NodeKeyframe::Type type = GetSelectedKeyframes().front()->type();
 
-    for (int i=1;i<GetSelectedKeyframes().size();i++) {
+    for (size_t i=1;i<GetSelectedKeyframes().size();i++) {
       NodeKeyframe* key_item = GetSelectedKeyframes().at(i);
       NodeKeyframe* prev_item = GetSelectedKeyframes().at(i-1);
 
@@ -507,7 +507,7 @@ void KeyframeView::ShowContextMenu()
 
   ContextMenuEvent(m);
 
-  if (!GetSelectedKeyframes().isEmpty()) {
+  if (!GetSelectedKeyframes().empty()) {
     m.addSeparator();
 
     QAction* properties_action = m.addAction(tr("P&roperties"));
@@ -542,7 +542,7 @@ void KeyframeView::ShowContextMenu()
 
 void KeyframeView::ShowKeyframePropertiesDialog()
 {
-  if (!GetSelectedKeyframes().isEmpty()) {
+  if (!GetSelectedKeyframes().empty()) {
     KeyframePropertiesDialog kd(GetSelectedKeyframes(), timebase(), this);
     kd.exec();
   }

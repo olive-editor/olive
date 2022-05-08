@@ -35,6 +35,7 @@
 #include "pointer.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/undo/timelineundopointer.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -44,6 +45,7 @@ PointerTool::PointerTool(TimelineWidget *parent) :
   trimming_allowed_(true),
   track_movement_allowed_(true),
   gap_trimming_allowed_(false),
+  can_rubberband_select_(false),
   rubberband_selecting_(false)
 {
 }
@@ -135,6 +137,9 @@ void PointerTool::MousePress(TimelineViewMouseEvent *event)
   if (can_rubberband_select_) {
     drag_global_start_ = QCursor::pos();
   }
+
+  // If we click anywhere other than a marker, deselect all markers
+  parent()->ruler()->DeselectAllMarkers();
 }
 
 void PointerTool::MouseMove(TimelineViewMouseEvent *event)
@@ -170,7 +175,7 @@ void PointerTool::MouseMove(TimelineViewMouseEvent *event)
 
       // If we're performing an action, we can initiate ghosts
       if (drag_movement_mode_ != Timeline::kNone) {
-        InitiateDrag(clicked_item_, drag_movement_mode_);
+        InitiateDrag(clicked_item_, drag_movement_mode_, event->GetModifiers());
       }
 
       // Set dragging to true here so no matter what, the drag isn't re-initiated until it's completed
@@ -243,6 +248,7 @@ void SetGhostToSlideMode(TimelineViewGhostItem* g)
 
 void PointerTool::InitiateDragInternal(Block *clicked_item,
                                        Timeline::MovementMode trim_mode,
+                                       Qt::KeyboardModifiers modifiers,
                                        bool dont_roll_trims,
                                        bool allow_nongap_rolling,
                                        bool slide_instead_of_moving)
@@ -406,30 +412,41 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
         }
 
         Timeline::MovementMode flipped_mode = FlipTrimMode(trim_mode);
-        TimelineViewGhostItem* adjacent_ghost;
+        QVector<TimelineViewGhostItem*> adjacent_ghosts;
 
         if (adjacent) {
-          adjacent_ghost = AddGhostFromBlock(adjacent, flipped_mode);
+          adjacent_ghosts.append(AddGhostFromBlock(adjacent, flipped_mode));
+
+          // Select adjacent's links if applicable
+          // FIXME: The check for `clips.size() == 1` may not be necessary, but I don't know yet.
+          //        I'm only including it to prevent any potentially unintended behavior.
+          if (clips.size() == 1 && !(modifiers & Qt::AltModifier)) {
+            if (ClipBlock *adjacent_clip = dynamic_cast<ClipBlock*>(adjacent)) {
+              foreach (Block *adjacent_link, adjacent_clip->block_links()) {
+                adjacent_ghosts.append(AddGhostFromBlock(adjacent_link, flipped_mode));
+              }
+            }
+          }
         } else if (trim_mode == Timeline::kTrimIn || block->next()) {
           rational null_ghost_pos = (trim_mode == Timeline::kTrimIn) ? block->in() : block->out();
 
-          adjacent_ghost = AddGhostFromNull(null_ghost_pos, null_ghost_pos, clip_item->track()->ToReference(), flipped_mode);
-        } else {
-          adjacent_ghost = nullptr;
+          adjacent_ghosts.append(AddGhostFromNull(null_ghost_pos, null_ghost_pos, clip_item->track()->ToReference(), flipped_mode));
         }
 
         // If we have an adjacent block (for any reason), this is a roll edit and the adjacent is
         // expected to fill the remaining space (no gap needs to be created)
         ghost->SetData(TimelineViewGhostItem::kTrimIsARollEdit, static_cast<bool>(adjacent));
 
-        if (adjacent_ghost) {
-          if (treat_trim_as_slide) {
-            // We're sliding a transition rather than a pure trim/roll
-            SetGhostToSlideMode(adjacent_ghost);
-          } else if (dynamic_cast<GapBlock*>(block)) {
-            ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
-          } else {
-            adjacent_ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
+        foreach (TimelineViewGhostItem *adjacent_ghost, adjacent_ghosts) {
+          if (adjacent_ghost) {
+            if (treat_trim_as_slide) {
+              // We're sliding a transition rather than a pure trim/roll
+              SetGhostToSlideMode(adjacent_ghost);
+            } else if (dynamic_cast<GapBlock*>(block)) {
+              ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
+            } else {
+              adjacent_ghost->SetData(TimelineViewGhostItem::kTrimShouldBeIgnored, true);
+            }
           }
         }
       }
@@ -556,6 +573,10 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                                                    p.block,
                                                    ghost->GetAdjustedLength(),
                                                    ghost->GetMode());
+
+        if (event->GetModifiers() & Qt::ControlModifier) {
+
+        }
 
         c->SetTrimIsARollEdit(ghost->GetData(TimelineViewGhostItem::kTrimIsARollEdit).toBool());
 
@@ -711,10 +732,9 @@ Timeline::MovementMode PointerTool::IsCursorInTrimHandle(Block *block, qreal cur
   }
 }
 
-void PointerTool::InitiateDrag(Block *clicked_item,
-                               Timeline::MovementMode trim_mode)
+void PointerTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers)
 {
-  InitiateDragInternal(clicked_item, trim_mode, false, false, false);
+  InitiateDragInternal(clicked_item, trim_mode, modifiers, false, false, false);
 }
 
 //#define HIDE_GAP_GHOSTS
@@ -774,14 +794,14 @@ void PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::Movem
   // Prepare snap points (optimizes snapping for later)
   switch (mode) {
   case Timeline::kMove:
-    snap_points_.append(ghost->GetIn());
-    snap_points_.append(ghost->GetOut());
+    snap_points_.push_back(ghost->GetIn());
+    snap_points_.push_back(ghost->GetOut());
     break;
   case Timeline::kTrimIn:
-    snap_points_.append(ghost->GetIn());
+    snap_points_.push_back(ghost->GetIn());
     break;
   case Timeline::kTrimOut:
-    snap_points_.append(ghost->GetOut());
+    snap_points_.push_back(ghost->GetOut());
     break;
   default:
     break;

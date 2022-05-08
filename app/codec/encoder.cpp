@@ -320,7 +320,8 @@ Encoder::Type Encoder::GetTypeFromFormat(ExportFormat::Format f)
   case ExportFormat::kFormatDNxHD:
   case ExportFormat::kFormatMatroska:
   case ExportFormat::kFormatQuickTime:
-  case ExportFormat::kFormatMPEG4:
+  case ExportFormat::kFormatMPEG4Video:
+  case ExportFormat::kFormatMPEG4Audio:
   case ExportFormat::kFormatWAV:
   case ExportFormat::kFormatAIFF:
   case ExportFormat::kFormatMP3:
@@ -348,6 +349,11 @@ Encoder *Encoder::CreateFromFormat(ExportFormat::Format f, const EncodingParams 
 QStringList Encoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
 {
   return QStringList();
+}
+
+std::vector<AudioParams::Format> Encoder::GetSampleFormatsForCodec(ExportCodec::Codec c) const
+{
+  return std::vector<AudioParams::Format>();
 }
 
 }

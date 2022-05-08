@@ -41,6 +41,8 @@ TimeOffsetNode::TimeOffsetNode()
 
 void TimeOffsetNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTimeInput, QStringLiteral("Time"));
   SetInputName(kInputInput, QStringLiteral("Input"));
 }

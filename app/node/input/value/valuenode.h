@@ -31,12 +31,7 @@ class ValueNode : public Node
 public:
   ValueNode();
 
-  NODE_DEFAULT_DESTRUCTOR(ValueNode)
-
-  virtual Node* copy() const override
-  {
-    return new ValueNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(ValueNode)
 
   virtual QString Name() const override
   {
@@ -50,7 +45,7 @@ public:
 
   virtual QVector<CategoryID> Category() const override
   {
-    return {kCategoryInput};
+    return {kCategoryGenerator};
   }
 
   virtual QString Description() const override

@@ -58,7 +58,7 @@ QByteArray HashTraverser::GetHash(const Node *node, const Node::ValueHint &hint,
   return hash_.result();
 }
 
-TexturePtr HashTraverser::ProcessVideoFootage(const FootageJob &stream, const rational &input_time)
+void HashTraverser::ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time)
 {
   Hash(FileFunctions::GetUniqueFileIdentifier(stream.filename()));
   Hash(stream.loop_mode());
@@ -69,24 +69,20 @@ TexturePtr HashTraverser::ProcessVideoFootage(const FootageJob &stream, const ra
   Hash(stream.video_params().video_type() == VideoParams::kVideoTypeStill ? 0 : input_time);
   Hash(stream.video_params().video_type());
 
-  TexturePtr texture = super::ProcessVideoFootage(stream, input_time);
-  texture_ids_.insert(texture.get(), hash_.result());
-  return texture;
+  texture_ids_.insert(destination.get(), hash_.result());
 }
 
-SampleBufferPtr HashTraverser::ProcessAudioFootage(const FootageJob &stream, const TimeRange &input_time)
+void HashTraverser::ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time)
 {
   Hash(FileFunctions::GetUniqueFileIdentifier(stream.filename()));
   Hash(stream.loop_mode());
   Hash(stream.audio_params().stream_index());
   Hash(input_time);
 
-  SampleBufferPtr buf = super::ProcessAudioFootage(stream, input_time);
-  texture_ids_.insert(buf.get(), hash_.result());
-  return buf;
+  texture_ids_.insert(destination.get(), hash_.result());
 }
 
-TexturePtr HashTraverser::ProcessShader(const Node *node, const TimeRange &range, const ShaderJob &job)
+void HashTraverser::ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob &job)
 {
   HashGenerateJob(node, &job);
 
@@ -99,25 +95,19 @@ TexturePtr HashTraverser::ProcessShader(const Node *node, const TimeRange &range
     Hash(it.value());
   }
 
-  TexturePtr texture = super::ProcessShader(node, range, job);
-  texture_ids_.insert(texture.get(), hash_.result());
-  return texture;
+  texture_ids_.insert(destination.get(), hash_.result());
 }
 
-SampleBufferPtr HashTraverser::ProcessSamples(const Node *node, const TimeRange &range, const SampleJob &job)
+void HashTraverser::ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job)
 {
-  SampleBufferPtr buf = super::ProcessSamples(node, range, job);
-  texture_ids_.insert(buf.get(), hash_.result());
-  return buf;
+  texture_ids_.insert(destination.get(), hash_.result());
 }
 
-TexturePtr HashTraverser::ProcessFrameGeneration(const Node *node, const GenerateJob &job)
+void HashTraverser::ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob &job)
 {
   HashGenerateJob(node, &job);
 
-  TexturePtr texture = super::ProcessFrameGeneration(node, job);
-  texture_ids_.insert(texture.get(), hash_.result());
-  return texture;
+  texture_ids_.insert(destination.get(), hash_.result());
 }
 
 void HashTraverser::HashGenerateJob(const Node *node, const GenerateJob *job)

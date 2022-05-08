@@ -20,6 +20,7 @@
 
 #include "openglrenderer.h"
 
+#include <iostream>
 #include <QDateTime>
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
@@ -517,12 +518,9 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kFile:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
-    case NodeValue::kShaderJob:
-    case NodeValue::kSampleJob:
-    case NodeValue::kGenerateJob:
-    case NodeValue::kFootageJob:
     case NodeValue::kBezier:
     case NodeValue::kNone:
+    case NodeValue::kDataTypeCount:
       break;
     }
   }
@@ -539,13 +537,15 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glBindTexture(target, tex_id);
 
-    PrepareInputTexture(target, t.interpolation);
+    if (tex_id) {
+      PrepareInputTexture(target, t.interpolation);
 
-    if (texture && texture->channel_count() == 1 && destination_params.channel_count() != 1) {
-      // Interpret this texture as a grayscale texture
-      functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
-      functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-      functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+      if (texture->channel_count() == 1 && destination_params.channel_count() != 1) {
+        // Interpret this texture as a grayscale texture
+        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+      }
     }
   }
 
@@ -807,6 +807,10 @@ void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation i
 
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  if (target == GL_TEXTURE_3D) {
+    functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  }
 }
 
 void OpenGLRenderer::ClearDestinationInternal(double r, double g, double b, double a)
@@ -883,14 +887,9 @@ GLuint OpenGLRenderer::GetCachedTexture(int width, int height, int depth, VideoP
 GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
 {
   static const QString shader_preamble =
-#ifndef Q_OS_MAC
-      // Use appropriate GL ES 2.0 shader header
-      QStringLiteral("#version 100\n\n"
+      // Use appropriate GL 3.2 shader header
+      QStringLiteral("#version 150\n\n"
                      "precision highp float;\n\n");
-#else
-      // Use desktop GL equivalent header because apparently macOS doesn't support the ES header
-      QStringLiteral("#version 120\n\n");
-#endif
 
   QString complete_code;
 

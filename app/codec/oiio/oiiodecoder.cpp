@@ -72,22 +72,44 @@ FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt*
     return desc;
   }
 
-  VideoParams video_params;
+  bool stream_enabled = true;
 
-  video_params.set_stream_index(0);
-  video_params.set_width(in->spec().width);
-  video_params.set_height(in->spec().height);
-  video_params.set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
-  video_params.set_channel_count(in->spec().nchannels);
-  video_params.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
-  video_params.set_video_type(VideoParams::kVideoTypeStill);
+  for (int i=0; in->seek_subimage(i, 0); i++) {
+    VideoParams video_params;
 
-  // OIIO automatically premultiplies alpha
-  // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this
-  //        likely reduces the fidelity?
-  video_params.set_premultiplied_alpha(true);
+    OIIO::ImageSpec spec = in->spec();
 
-  desc.AddVideoStream(video_params);
+    video_params.set_stream_index(i);
+    video_params.set_width(spec.width);
+    video_params.set_height(spec.height);
+    video_params.set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(spec.format.basetype)));
+    video_params.set_channel_count(spec.nchannels);
+    video_params.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(spec));
+    video_params.set_video_type(VideoParams::kVideoTypeStill);
+
+    if (i > 1) {
+      // This is a multilayer image and this image might have an offset
+      OIIO::ImageSpec root_spec = in->spec(0);
+
+      float norm_x = spec.x + float(spec.width)*0.5f - float(root_spec.width)*0.5f;
+      float norm_y = spec.y + float(spec.height)*0.5f - float(root_spec.height)*0.5f;
+
+      video_params.set_x(norm_x);
+      video_params.set_y(norm_y);
+    }
+
+    // By default, only enable the first subimage (presumably the combined image). Later we will
+    // ask the user if they want to enable the layers instead.
+    video_params.set_enabled(stream_enabled);
+    stream_enabled = false;
+
+    // OIIO automatically premultiplies alpha
+    // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this
+    //        likely reduces the fidelity?
+    video_params.set_premultiplied_alpha(true);
+
+    desc.AddVideoStream(video_params);
+  }
 
   // If we're here, we have a successful image open
   in->close();
@@ -98,7 +120,7 @@ FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt*
 bool OIIODecoder::OpenInternal()
 {
   // If we can open the filename provided, assume everything is working
-  return OpenImageHandler(stream().filename());
+  return OpenImageHandler(stream().filename(), stream().stream());
 }
 
 FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
@@ -108,13 +130,15 @@ FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const Retr
 
   FramePtr frame = Frame::Create();
 
-  frame->set_video_params(VideoParams(buffer_->spec().width,
-                                      buffer_->spec().height,
-                                      pix_fmt_,
-                                      channel_count_,
-                                      OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
-                                      VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
-                                      divider.divider));
+  VideoParams vp(buffer_->spec().width,
+                 buffer_->spec().height,
+                 pix_fmt_,
+                 channel_count_,
+                 OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
+                 VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
+                 divider.divider);
+
+  frame->set_video_params(vp);
   frame->allocate();
 
   if (divider.divider == 1) {
@@ -167,11 +191,15 @@ bool OIIODecoder::FileTypeIsSupported(const QString& fn)
   return true;
 }
 
-bool OIIODecoder::OpenImageHandler(const QString &fn)
+bool OIIODecoder::OpenImageHandler(const QString &fn, int subimage)
 {
   image_ = OIIO::ImageInput::open(fn.toStdString());
 
   if (!image_) {
+    return false;
+  }
+
+  if (!image_->seek_subimage(subimage, 0)) {
     return false;
   }
 

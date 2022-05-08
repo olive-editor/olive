@@ -29,11 +29,13 @@ const QString BlurFilterNode::kHorizInput = QStringLiteral("horiz_in");
 const QString BlurFilterNode::kVertInput = QStringLiteral("vert_in");
 const QString BlurFilterNode::kRepeatEdgePixelsInput = QStringLiteral("repeat_edge_pixels_in");
 
+#define super Node
+
 BlurFilterNode::BlurFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  AddInput(kMethodInput, NodeValue::kCombo, 0);
+  AddInput(kMethodInput, NodeValue::kCombo, 1); // Default to gaussian
 
   AddInput(kRadiusInput, NodeValue::kFloat, 10.0);
   SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
@@ -42,12 +44,10 @@ BlurFilterNode::BlurFilterNode()
 
   AddInput(kVertInput, NodeValue::kBoolean, true);
 
-  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, false);
-}
+  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
 
-Node *BlurFilterNode::copy() const
-{
-  return new BlurFilterNode();
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 QString BlurFilterNode::Name() const
@@ -72,6 +72,8 @@ QString BlurFilterNode::Description() const
 
 void BlurFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kMethodInput, tr("Method"));
   SetComboBoxStrings(kMethodInput, { tr("Box"), tr("Gaussian") });
@@ -81,9 +83,9 @@ void BlurFilterNode::Retranslate()
   SetInputName(kRepeatEdgePixelsInput, tr("Repeat Edge Pixels"));
 }
 
-ShaderCode BlurFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode BlurFilterNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
@@ -111,7 +113,7 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 
     } else {
       // If we're not performing the blur job, just push the texture

@@ -32,7 +32,10 @@
 #include "common/qtutils.h"
 #include "common/timecodefunctions.h"
 #include "node/project/footage/footage.h"
+#include "panel/panelmanager.h"
+#include "panel/timeline/timeline.h"
 #include "ui/colorcoding.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -59,6 +62,22 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
+  // If we click on marker, jump to that point in the timeline
+  QPointF scene_pos = mapToScene(event->pos());
+  for (auto it=clip_marker_rects_.cbegin(); it!=clip_marker_rects_.cend(); it++) {
+    if (it.value().contains(scene_pos)) {
+      QObject *p = this->parent();
+      while (p) {
+        if (TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(p)) {
+          timeline->SetTime(it.key()->time());
+          break;
+        }
+
+        p = p->parent();
+      }
+    }
+  }
+
   TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   if (HandPress(event)
@@ -139,7 +158,7 @@ void TimelineView::wheelEvent(QWheelEvent *event)
 
     QPoint angle_delta = event->angleDelta();
 
-    if (Config::Current()[QStringLiteral("InvertTimelineScrollAxes")].toBool() // Check if config is set to invert timeline axes
+    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool() // Check if config is set to invert timeline axes
         && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
@@ -165,7 +184,7 @@ void TimelineView::wheelEvent(QWheelEvent *event)
 
     Qt::Orientation orientation = event->orientation();
 
-    if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool()) {
       orientation = (orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
     }
 
@@ -288,7 +307,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
         Block *attached = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-        if (attached && Config::Current()[QStringLiteral("ShowClipWhileDragging")].toBool()) {
+        if (attached && OLIVE_CONFIG("ShowClipWhileDragging").toBool()) {
           int adj_track = ghost->GetAdjustedTrack().index();
           qreal track_top = GetTrackY(adj_track);
           qreal track_height = GetTrackHeight(adj_track);
@@ -329,6 +348,16 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
                       track_y + GetTrackHeight(track_index));
   }
 
+  // Draw recording overlay
+  if (recording_overlay_ && recording_coord_.GetTrack().type() == connected_track_list_->type()) {
+    painter->setPen(QPen(Qt::red, 2));
+    painter->setBrush(QColor(255, 128, 128));
+
+    int x = TimeToScene(recording_coord_.GetFrame());
+    painter->drawRect(x, GetTrackY(recording_coord_.GetTrack().index()),
+                      TimeToScene(GetTime()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
+  }
+
   // Draw standard TimelineViewBase things (such as playhead)
   super::drawForeground(painter, rect);
 }
@@ -345,7 +374,11 @@ void TimelineView::ToolChangedEvent(Tool::Item tool)
   case Tool::kAdd:
   case Tool::kTransition:
   case Tool::kZoom:
+  case Tool::kRecord  :
     setCursor(Qt::CrossCursor);
+    break;
+  case Tool::kTrackSelect:
+    setCursor(Qt::SizeHorCursor); // FIXME: Not the ideal cursor
     break;
   default:
     unsetCursor();
@@ -494,21 +527,41 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
                                             SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
         }
 
-        // Draw zebra stripes
-        if (clip->connected_viewer() && !clip->connected_viewer()->GetLength().isNull()) {
-          if (clip->media_in() < 0) {
-            // Draw stripes for sections of clip < 0
-            qreal zebra_right = TimeToScene(-clip->media_in());
-            if (zebra_right > GetTimelineLeftBound()) {
-              DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right, block_height));
+        // Draw zebra stripes and markers
+        if (clip->connected_viewer()) {
+          if (!clip->connected_viewer()->GetLength().isNull()) {
+            if (clip->media_in() < 0) {
+              // Draw stripes for sections of clip < 0
+              qreal zebra_right = TimeToScene(-clip->media_in());
+              if (zebra_right > GetTimelineLeftBound()) {
+                DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right, block_height));
+              }
+            }
+
+            if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
+              // Draw stripes for sections for clip > clip length
+              qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
+              if (zebra_left < GetTimelineRightBound()) {
+                DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+              }
             }
           }
 
-          if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
-            // Draw stripes for sections for clip > clip length
-            qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
-            if (zebra_left < GetTimelineRightBound()) {
-              DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+          TimelineMarkerList *marker_list = clip->connected_viewer()->GetTimelinePoints()->markers();
+          if (!marker_list->empty()) {
+
+            clip_marker_rects_.clear();
+
+            for (auto it=marker_list->cbegin(); it!=marker_list->cend(); it++) {
+              TimelineMarker *marker = *it;
+              // Make sure marker is within In/Out points of the clip
+              if (marker->time_range().in() >= clip->media_in() && marker->time_range().out() <= clip->media_in() + clip->length()) {
+                QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time_range().in()), block_top + block_height);
+                painter->setClipRect(r);
+                QRect marker_rect = marker->Draw(painter, marker_pt, GetScale(), false);
+                clip_marker_rects_.insert(marker, marker_rect);
+                painter->setClipping(false);
+              }
             }
           }
         }
@@ -701,6 +754,19 @@ void TimelineView::SetTransitionOverlay(ClipBlock *out, ClipBlock *in)
 
     viewport()->update();
   }
+}
+
+void TimelineView::EnableRecordingOverlay(const TimelineCoordinate &coord)
+{
+  recording_overlay_ = true;
+  recording_coord_ = coord;
+  viewport()->update();
+}
+
+void TimelineView::DisableRecordingOverlay()
+{
+  recording_overlay_ = false;
+  viewport()->update();
 }
 
 int TimelineView::SceneToTrack(double y)

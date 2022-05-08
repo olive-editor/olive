@@ -31,6 +31,9 @@ class SequenceViewerPanel : public ViewerPanel
 public:
   SequenceViewerPanel(QWidget* parent);
 
+public slots:
+  void StartCapture(const TimeRange &time, const Track::Reference &track);
+
 protected:
   virtual void Retranslate() override;
 

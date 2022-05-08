@@ -22,6 +22,9 @@
 #define TRANSFORMDISTORTNODE_H
 
 #include "node/generator/matrix/matrix.h"
+#include "node/gizmo/point.h"
+#include "node/gizmo/polygon.h"
+#include "node/gizmo/screen.h"
 
 namespace olive {
 
@@ -31,12 +34,7 @@ class TransformDistortNode : public MatrixGenerator
 public:
   TransformDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TransformDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new TransformDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(TransformDistortNode)
 
   virtual QString Name() const override
   {
@@ -67,18 +65,7 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
-
-  virtual bool HasGizmos() const override
-  {
-    return true;
-  }
-
-  virtual void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
-
-  virtual bool GizmoPress(const NodeValueRow &row, const NodeGlobals &globals, const QPointF &p) override;
-  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  virtual void GizmoRelease(MultiUndoCommand *command) override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   enum AutoScaleType {
     kAutoScaleNone,
@@ -90,7 +77,10 @@ public:
   static QMatrix4x4 AdjustMatrixByResolutions(const QMatrix4x4& mat,
                                               const QVector2D& sequence_res,
                                               const QVector2D& texture_res,
+                                              const QVector2D& offset,
                                               AutoScaleType autoscale_type = kAutoScaleNone);
+
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
   static const QString kTextureInput;
   static const QString kAutoscaleInput;
@@ -99,18 +89,36 @@ public:
 protected:
   virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
+protected slots:
+  virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::rational &time) override;
+
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+
 private:
   static QPointF CreateScalePoint(double x, double y, const QPointF& half_res, const QMatrix4x4& mat);
 
   QMatrix4x4 GenerateAutoScaledMatrix(const QMatrix4x4 &generated_matrix, const NodeValueRow &db, const NodeGlobals &globals, const VideoParams &texture_params) const;
 
+  bool IsAScaleGizmo(NodeGizmo *g) const;
+
   // Gizmo variables
-  QString gizmo_drag_;
-  QVector<QVariant> gizmo_start_;
-  QVector<NodeInputDragger> gizmo_dragger_;
-  QPointF gizmo_drag_pos_;
   double gizmo_start_angle_;
+  QTransform gizmo_inverted_transform_;
+  QPointF gizmo_anchor_pt_;
   bool gizmo_scale_uniform_;
+  double gizmo_last_angle_;
+  double gizmo_last_alt_angle_;
+  int gizmo_rotate_wrap_;
+
+  enum RotationDirection {
+    kDirectionNone,
+    kDirectionPositive, // Clockwise
+    kDirectionNegative // Counter-clockwise
+  };
+
+  static RotationDirection GetDirectionFromAngles(double last, double current);
+  RotationDirection gizmo_rotate_last_dir_;
+  RotationDirection gizmo_rotate_last_alt_dir_;
 
   enum GizmoScaleType {
     kGizmoScaleXOnly,
@@ -119,13 +127,13 @@ private:
   };
 
   GizmoScaleType gizmo_scale_axes_;
-  QMatrix4x4 gizmo_matrix_;
   QVector2D gizmo_scale_anchor_;
 
   // Gizmo on screen object storage
-  QPolygonF gizmo_rect_;
-  QRectF gizmo_anchor_pt_;
-  QRectF gizmo_resize_handle_[kGizmoScaleCount];
+  PointGizmo *point_gizmo_[kGizmoScaleCount];
+  PointGizmo *anchor_gizmo_;
+  PolygonGizmo *poly_gizmo_;
+  ScreenGizmo *rotation_gizmo_;
 
 };
 

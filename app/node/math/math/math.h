@@ -31,9 +31,7 @@ class MathNode : public MathNodeBase
 public:
   MathNode();
 
-  NODE_DEFAULT_DESTRUCTOR(MathNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(MathNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -42,7 +40,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   Operation GetOperation() const
   {

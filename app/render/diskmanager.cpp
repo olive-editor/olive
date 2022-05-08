@@ -44,7 +44,7 @@ DiskManager::DiskManager()
     QString default_dir = default_disk_cache_file.readAll();
 
     if (!default_dir.isEmpty()) {
-      if (FileFunctions::DirectoryIsValid(default_dir, true)) {
+      if (FileFunctions::DirectoryIsValid(default_dir)) {
         GetOpenFolder(default_dir);
       } else {
         QMessageBox::warning(nullptr,
@@ -180,7 +180,7 @@ void DiskManager::ShowDiskCacheSettingsDialog(DiskCacheFolder *folder, QWidget *
 
 void DiskManager::ShowDiskCacheSettingsDialog(const QString &path, QWidget *parent)
 {
-  if (!FileFunctions::DirectoryIsValid(path, true)) {
+  if (!FileFunctions::DirectoryIsValid(path)) {
     QMessageBox::critical(parent, tr("Disk Cache Error"),
                           tr("Failed to open disk cache at \"%1\". Try a different folder.").arg(path));
     return;
@@ -196,7 +196,7 @@ DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :
 {
   SetPath(path);
 
-  save_timer_.setInterval(Config::Current()[QStringLiteral("DiskCacheSaveInterval")].toInt());
+  save_timer_.setInterval(OLIVE_CONFIG("DiskCacheSaveInterval").toInt());
   connect(&save_timer_, &QTimer::timeout, this, &DiskCacheFolder::SaveDiskCacheIndex);
   save_timer_.start();
 }
@@ -274,7 +274,7 @@ void DiskCacheFolder::SetPath(const QString &path)
 
   // Attempt to load existing index file from path
   QDir path_dir(path_);
-  path_dir.mkpath(QStringLiteral("."));
+  FileFunctions::DirectoryIsValid(path_dir);
 
   index_path_ = path_dir.filePath(QStringLiteral("index"));
 

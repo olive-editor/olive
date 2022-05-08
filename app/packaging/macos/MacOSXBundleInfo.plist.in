@@ -28,5 +28,7 @@
   <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
   <key>NSPrincipalClass</key>
   <string>NSApplication</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>This app requires microphone access to record audio tracks.</string>
 </dict>
 </plist>

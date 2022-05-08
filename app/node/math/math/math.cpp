@@ -27,6 +27,8 @@ const QString MathNode::kParamAIn = QStringLiteral("param_a_in");
 const QString MathNode::kParamBIn = QStringLiteral("param_b_in");
 const QString MathNode::kParamCIn = QStringLiteral("param_c_in");
 
+#define super MathNodeBase
+
 MathNode::MathNode()
 {
   AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
@@ -38,11 +40,6 @@ MathNode::MathNode()
   AddInput(kParamBIn, NodeValue::kFloat, 0.0);
   SetInputProperty(kParamBIn, QStringLiteral("decimalplaces"), 8);
   SetInputProperty(kParamBIn, QStringLiteral("autotrim"), true);
-}
-
-Node *MathNode::copy() const
-{
-  return new MathNode();
 }
 
 QString MathNode::Name() const
@@ -67,7 +64,7 @@ QString MathNode::Description() const
 
 void MathNode::Retranslate()
 {
-  Node::Retranslate();
+  super::Retranslate();
 
   SetInputName(kMethodIn, tr("Method"));
   SetInputName(kParamAIn, tr("Value"));
@@ -83,9 +80,9 @@ void MathNode::Retranslate()
   SetComboBoxStrings(kMethodIn, operations);
 }
 
-ShaderCode MathNode::GetShaderCode(const QString &shader_id) const
+ShaderCode MathNode::GetShaderCode(const ShaderRequest &request) const
 {
-  return GetShaderCodeInternal(shader_id, kParamAIn, kParamBIn);
+  return GetShaderCodeInternal(request.id, kParamAIn, kParamBIn);
 }
 
 void MathNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const

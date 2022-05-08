@@ -21,6 +21,8 @@
 #include "viewerdisplay.h"
 
 #include <OpenImageIO/imagebuf.h>
+#include <QAbstractTextDocumentLayout>
+#include <QApplication>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QMouseEvent>
@@ -28,12 +30,23 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 #include <QPainter>
+#include <QPushButton>
+#include <QScreen>
+#include <QTextEdit>
 
 #include "common/define.h"
 #include "common/functiontimer.h"
+#include "common/html.h"
 #include "config/config.h"
 #include "core.h"
+#include "node/gizmo/path.h"
+#include "node/gizmo/point.h"
+#include "node/gizmo/polygon.h"
+#include "node/gizmo/screen.h"
+#include "node/gizmo/text.h"
 #include "node/traverser.h"
+#include "viewertexteditor.h"
+#include "window/mainwindow/mainwindow.h"
 
 namespace olive {
 
@@ -44,7 +57,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   deinterlace_texture_(nullptr),
   signal_cursor_color_(false),
   gizmos_(nullptr),
-  gizmo_click_(false),
+  current_gizmo_(nullptr),
+  gizmo_drag_started_(false),
   hand_dragging_(false),
   deinterlace_(false),
   show_fps_(false),
@@ -175,7 +189,7 @@ void ViewerDisplayWidget::SetTime(const rational &time)
   }
 }
 
-QPoint ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(QPoint pos)
+QPointF ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(const QPointF &pos)
 {
   /*
   * Inversion will only fail if the viewer has been scaled by 0 in any direction
@@ -204,12 +218,12 @@ void ViewerDisplayWidget::IncrementSkippedFrames()
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton && gizmos_
-      && gizmos_->GizmoPress(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()), TransformViewerSpaceToBufferSpace(event->pos()))) {
+      && (current_gizmo_ = TryGizmoPress(gizmo_db_, TransformViewerSpaceToBufferSpace(event->pos())))) {
 
     // Handle gizmo click
-    gizmo_click_ = true;
-    gizmo_drag_time_ = GetGizmoTime();
     gizmo_start_drag_ = event->pos();
+    gizmo_last_drag_ = gizmo_start_drag_;
+    current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
 
   } else if (IsHandDrag(event)) {
 
@@ -242,14 +256,38 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 
     hand_last_drag_pos_ = event->pos();
 
-  } else if (gizmo_click_) {
+  } else if (current_gizmo_) {
 
     // Signal movement
-    gizmos_->GizmoMove(TransformViewerSpaceToBufferSpace(event->pos()),
-                       gizmo_drag_time_,
-                       event->modifiers());
-    gizmo_start_drag_ = event->pos();
-    update();
+    if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
+      if (!gizmo_drag_started_) {
+        QPointF start = TransformViewerSpaceToBufferSpace(gizmo_start_drag_);
+
+        rational gizmo_time = GetGizmoTime();
+        NodeTraverser t;
+        t.SetCacheVideoParams(gizmo_params_);
+        NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
+
+        draggable->DragStart(row, start.x(), start.y(), gizmo_time);
+        gizmo_drag_started_ = true;
+      }
+
+      QPointF v = TransformViewerSpaceToBufferSpace(event->pos());
+      switch (draggable->GetDragValueBehavior()) {
+      case DraggableGizmo::kAbsolute:
+        // Above value is correct
+        break;
+      case DraggableGizmo::kDeltaFromPrevious:
+        v -= TransformViewerSpaceToBufferSpace(gizmo_last_drag_);
+        gizmo_last_drag_ = event->pos();
+        break;
+      case DraggableGizmo::kDeltaFromStart:
+        v -= TransformViewerSpaceToBufferSpace(gizmo_start_drag_);
+        break;
+      }
+
+      draggable->DragMove(v.x(), v.y(), event->modifiers());
+    }
 
   } else {
 
@@ -268,13 +306,18 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
     hand_dragging_ = false;
     UpdateCursor();
 
-  } else if (gizmo_click_) {
+  } else if (current_gizmo_) {
 
     // Handle gizmo
-    MultiUndoCommand *command = new MultiUndoCommand();
-    gizmos_->GizmoRelease(command);
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
-    gizmo_click_ = false;
+    if (gizmo_drag_started_) {
+      MultiUndoCommand *command = new MultiUndoCommand();
+      if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
+        draggable->DragEnd(command);
+      }
+      Core::instance()->undo_stack()->pushIfHasChildren(command);
+      gizmo_drag_started_ = false;
+    }
+    current_gizmo_ = nullptr;
 
   } else {
 
@@ -282,6 +325,69 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
     super::mouseReleaseEvent(event);
 
   }
+}
+
+void ViewerDisplayWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+  if (event->button() == Qt::LeftButton && gizmos_) {
+    QPointF ptr = TransformViewerSpaceToBufferSpace(event->pos());
+    foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
+      if (TextGizmo *text = dynamic_cast<TextGizmo*>(g)) {
+        if (text->GetRect().contains(ptr)) {
+          QTransform gizmo_transform = GenerateGizmoTransform();
+
+          ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), this);
+          Html::HtmlToDoc(text_edit->document(), text->GetHtml());
+          text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
+
+          QRectF transformed_geom = gizmo_transform.map(text->GetRect()).boundingRect();
+          text_edit->setGeometry(transformed_geom.toRect());
+
+          ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(this);
+
+          QPoint pos = mapToGlobal(QPoint(transformed_geom.x(), transformed_geom.y() - toolbar->height()));
+          for (QScreen *screen : qApp->screens()) {
+            if (screen->geometry().contains(pos)) {
+              if (pos.x() + toolbar->width() > screen->geometry().right()) {
+                pos.setX(screen->geometry().right() - toolbar->width());
+              }
+              break;
+            }
+          }
+          toolbar->move(pos);
+          toolbar->show();
+
+          text_edit->show();
+
+          connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
+
+          text_edit->ConnectToolBar(toolbar);
+
+          QPoint text_edit_pos = text_edit->mapFrom(this, event->pos());
+
+          // Ensure text edit is actually focused rather than the toolbar
+          connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [this, text_edit, text_edit_pos]{
+            // Grab focus back from the toolbar
+            this->raise();
+            this->activateWindow();
+            text_edit->setFocus();
+
+            // Start text cursor where the user clicked
+            text_edit->setTextCursor(text_edit->cursorForPosition(text_edit_pos));
+
+            // HACK: On macOS, for some reason the QDockWidget receives focus before the
+            //       ViewerTextEditor, causing the editor to close prematurely. However this only
+            //       happens the first time the editor receives focus and not subsequent times, so
+            //       if we get it to only listen after the first one, this solves the problem.
+            text_edit->SetListenToFocusEvents(true);
+          });
+          break;
+        }
+      }
+    }
+  }
+
+  super::mouseDoubleClickEvent(event);
 }
 
 void ViewerDisplayWidget::dragEnterEvent(QDragEnterEvent *event)
@@ -322,7 +428,7 @@ void ViewerDisplayWidget::OnPaint()
     // Draw texture through color transform
     int device_width = width() * devicePixelRatioF();
     int device_height = height() * devicePixelRatioF();
-    VideoParams::Format device_format = static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt());
+    VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
     VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 
     if (push_mode_ == kPushBlank) {
@@ -380,7 +486,7 @@ void ViewerDisplayWidget::OnPaint()
       }
 
       renderer()->BlitColorManaged(color_service(), texture_to_draw,
-                                   Config::Current()[QStringLiteral("ReassocLinToNonLin")].toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
+                                   OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? Renderer::kAlphaAssociated : Renderer::kAlphaNone,
                                    device_params, false,
                                    combined_matrix_flipped_, crop_matrix_);
     }
@@ -396,7 +502,11 @@ void ViewerDisplayWidget::OnPaint()
 
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateGizmoTransform());
-    gizmos_->DrawGizmos(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, range), &p);
+
+    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, range));
+    foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
+      gizmo->Draw(&p);
+    }
   }
 
   // Draw action/title safe areas
@@ -404,7 +514,7 @@ void ViewerDisplayWidget::OnPaint()
     QPainter p(inner_widget());
     p.setWorldTransform(GenerateWorldTransform());
 
-    p.setPen(Qt::lightGray);
+    p.setPen(QPen(Qt::lightGray, 0));
     p.setBrush(Qt::NoBrush);
 
     int x = 0, y = 0, w = width(), h = height();
@@ -563,6 +673,31 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform()
   return gizmo_transform;
 }
 
+NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPointF &p)
+{
+  for (auto it=gizmos_->GetGizmos().crbegin(); it!=gizmos_->GetGizmos().crend(); it++) {
+    NodeGizmo *gizmo = *it;
+    if (PointGizmo *point = dynamic_cast<PointGizmo*>(gizmo)) {
+      if (point->GetClickingRect(GenerateGizmoTransform()).contains(p)) {
+        return point;
+      }
+    } else if (PolygonGizmo *poly = dynamic_cast<PolygonGizmo*>(gizmo)) {
+      if (poly->GetPolygon().containsPoint(p, Qt::OddEvenFill)) {
+        return poly;
+      }
+    } else if (PathGizmo *path = dynamic_cast<PathGizmo*>(gizmo)) {
+      if (path->GetPath().contains(p)) {
+        return path;
+      }
+    } else if (ScreenGizmo *screen = dynamic_cast<ScreenGizmo*>(gizmo)) {
+      // NOTE: Perhaps this should limit to the actual visible screen space? We'll see.
+      return screen;
+    }
+  }
+
+  return nullptr;
+}
+
 void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
 {
   // Do this no matter what, emits signal to any pixel samplers
@@ -655,6 +790,16 @@ void ViewerDisplayWidget::UpdateFromQueue()
   }
 
   update();
+}
+
+void ViewerDisplayWidget::TextEditChanged()
+{
+  ViewerTextEditor *editor = static_cast<ViewerTextEditor *>(sender());
+
+  TextGizmo *gizmo = reinterpret_cast<TextGizmo*>(editor->property("gizmo").value<quintptr>());
+
+  QString html = Html::DocToHtml(editor->document());
+  gizmo->UpdateInputHtml(html, GetGizmoTime());
 }
 
 }

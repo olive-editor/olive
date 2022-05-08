@@ -272,6 +272,7 @@ private:
   Menu* tools_menu_;
   QActionGroup* tools_group_;
   QAction* tools_pointer_item_;
+  QAction* tools_trackselect_item_;
   QAction* tools_edit_item_;
   QAction* tools_ripple_item_;
   QAction* tools_rolling_item_;

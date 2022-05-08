@@ -394,8 +394,8 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, char *data, const V
 
   // Ensure directory is created
   QDir cache_dir = QFileInfo(filename).dir();
-  if (!cache_dir.exists()) {
-    cache_dir.mkpath(".");
+  if (!FileFunctions::DirectoryIsValid(cache_dir)) {
+    return false;
   }
 
   // Floating point types are stored in EXR

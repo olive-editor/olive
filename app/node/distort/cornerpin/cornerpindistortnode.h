@@ -23,6 +23,8 @@
 
 #include <QVector2D>
 
+#include "node/gizmo/point.h"
+#include "node/gizmo/polygon.h"
 #include "node/inputdragger.h"
 #include "node/node.h"
 
@@ -33,12 +35,7 @@ class CornerPinDistortNode : public Node
 public:
   CornerPinDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(CornerPinDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new CornerPinDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(CornerPinDistortNode)
 
   virtual QString Name() const override
   {
@@ -64,18 +61,9 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
-  virtual bool HasGizmos() const override
-  {
-    return true;
-  }
-
-  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter *p) override;
-
-  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
-  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  virtual void GizmoRelease(MultiUndoCommand *command) override;
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
   /**
    * @brief Convenience function - converts the 2D slider values from being
@@ -90,16 +78,14 @@ public:
   static const QString kBottomRightInput;
   static const QString kBottomLeftInput;
 
+protected slots:
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+
 private:
   // Gizmo variables
   static const int kGizmoCornerCount = 4;
-  QRectF gizmo_resize_handle_[kGizmoCornerCount];
-  QRectF gizmo_whole_rect_;
-
-  int gizmo_drag_;
-  QVector<NodeInputDragger> gizmo_dragger_;
-  QPointF gizmo_drag_start_;
-  QVector2D gizmo_res_;
+  PointGizmo *gizmo_resize_handle_[kGizmoCornerCount];
+  PolygonGizmo *gizmo_whole_rect_;
 
 };
 

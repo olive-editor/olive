@@ -21,6 +21,7 @@
 #ifndef VIDEOPARAMS_H
 #define VIDEOPARAMS_H
 
+#include <QVector2D>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -273,6 +274,12 @@ public:
     enabled_ = e;
   }
 
+  float x() const { return x_; }
+  void set_x(float x) { x_ = x; }
+  float y() const { return y_; }
+  void set_y(float y) { y_ = y; }
+  QVector2D offset() const { return QVector2D(x_, y_); }
+
   int stream_index() const
   {
     return stream_index_;
@@ -387,6 +394,8 @@ private:
   int64_t duration_;
   bool premultiplied_alpha_;
   QString colorspace_;
+  float x_;
+  float y_;
 
 };
 

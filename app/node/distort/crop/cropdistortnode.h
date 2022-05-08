@@ -23,6 +23,8 @@
 
 #include <QVector2D>
 
+#include "node/gizmo/point.h"
+#include "node/gizmo/polygon.h"
 #include "node/inputdragger.h"
 #include "node/node.h"
 
@@ -34,12 +36,7 @@ class CropDistortNode : public Node
 public:
   CropDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(CropDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new CropDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(CropDistortNode)
 
   virtual QString Name() const override
   {
@@ -65,18 +62,9 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
-  virtual bool HasGizmos() const override
-  {
-    return true;
-  }
-
-  virtual void DrawGizmos(const NodeValueRow& row, const NodeGlobals &globals, QPainter *p) override;
-
-  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
-  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  virtual void GizmoRelease(MultiUndoCommand *command) override;
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
   static const QString kTextureInput;
   static const QString kLeftInput;
@@ -85,27 +73,15 @@ public:
   static const QString kBottomInput;
   static const QString kFeatherInput;
 
+protected slots:
+  virtual void GizmoDragMove(double delta_x, double delta_y, const Qt::KeyboardModifiers &modifiers) override;
+
 private:
   void CreateCropSideInput(const QString& id);
 
   // Gizmo variables
-  QRectF gizmo_resize_handle_[kGizmoScaleCount];
-  QRectF gizmo_whole_rect_;
-
-  enum GizmoDragDirection {
-    kGizmoNone = 0x0,
-    kGizmoLeft = 0x1,
-    kGizmoTop = 0x2,
-    kGizmoRight = 0x4,
-    kGizmoBottom = 0x8,
-    kGizmoRectangle = 0xFF
-  };
-
-  int gizmo_drag_;
-  QVector<NodeInputDragger> gizmo_dragger_;
-  QVector<QVariant> gizmo_start_;
-  QPointF gizmo_drag_start_;
-  QVector2D gizmo_res_;
+  PointGizmo *point_gizmo_[kGizmoScaleCount];
+  PolygonGizmo *poly_gizmo_;
 
 };
 

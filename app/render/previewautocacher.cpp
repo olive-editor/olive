@@ -48,7 +48,7 @@ PreviewAutoCacher::PreviewAutoCacher() :
   SetPlayhead(0);
 
   // Wait a certain amount of time before requeuing when we receive an invalidate signal
-  delayed_requeue_timer_.setInterval(Config::Current()[QStringLiteral("AutoCacheDelay")].toInt());
+  delayed_requeue_timer_.setInterval(OLIVE_CONFIG("AutoCacheDelay").toInt());
   delayed_requeue_timer_.setSingleShot(true);
   connect(&delayed_requeue_timer_, &QTimer::timeout, this, &PreviewAutoCacher::RequeueFrames);
 
@@ -378,9 +378,6 @@ void PreviewAutoCacher::AddNode(Node *node)
   // Add to project
   copy->setParent(&copied_project_);
 
-  // Copy UUID
-  copy->SetUUID(node->GetUUID());
-
   // Insert into map
   InsertIntoCopyMap(node, copy);
 
@@ -420,6 +417,11 @@ void PreviewAutoCacher::RemoveEdge(Node *output, const NodeInput &input)
 
 void PreviewAutoCacher::CopyValue(const NodeInput &input)
 {
+  if (dynamic_cast<NodeGroup*>(input.node())) {
+    // Group nodes are just dummy nodes, no need to copy them
+    return;
+  }
+
   // Copy all values to our graph
   Node* our_input = copy_map_.value(input.node());
   Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
@@ -427,6 +429,11 @@ void PreviewAutoCacher::CopyValue(const NodeInput &input)
 
 void PreviewAutoCacher::CopyValueHint(const NodeInput &input)
 {
+  if (dynamic_cast<NodeGroup*>(input.node())) {
+    // Group nodes are just dummy nodes, no need to copy them
+    return;
+  }
+
   // Copy value hint to our graph
   Node* our_input = copy_map_.value(input.node());
   Node::ValueHint hint = input.node()->GetValueHintForInput(input.input(), input.element());
@@ -495,8 +502,8 @@ void PreviewAutoCacher::StartCachingAudioRange(const TimeRange &range)
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
 {
-  cache_range_ = TimeRange(playhead - Config::Current()[QStringLiteral("DiskCacheBehind")].value<rational>(),
-      playhead + Config::Current()[QStringLiteral("DiskCacheAhead")].value<rational>());
+  cache_range_ = TimeRange(playhead - OLIVE_CONFIG("DiskCacheBehind").value<rational>(),
+      playhead + OLIVE_CONFIG("DiskCacheAhead").value<rational>());
 
   RequeueFrames();
 }

@@ -195,4 +195,10 @@ NodeKeyframe::BezierType NodeKeyframe::get_opposing_bezier_type(NodeKeyframe::Be
   }
 }
 
+bool NodeKeyframe::has_sibling_at_time(const rational &t) const
+{
+  NodeKeyframe *k = parent()->GetKeyframeAtTimeOnTrack(input(), t, track(), element());
+  return k && k != this;
+}
+
 }

@@ -185,7 +185,7 @@ private slots:
 
   void StatusBarDoubleClicked();
 
-  void NodeGroupRequested(NodeGroup *group);
+  void NodePanelGroupOpenedOrClosed();
 
 #ifdef Q_OS_LINUX
   void ShowNouveauWarning();
@@ -194,6 +194,8 @@ private slots:
   void TimelinePanelSelectionChanged(const QVector<Block*> &blocks);
 
   void ShowWelcomeDialog();
+
+  void RevealViewerInProject(ViewerOutput *r);
 
 };
 

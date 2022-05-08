@@ -58,9 +58,14 @@ public:
 
   void Clear();
 
-  const QVector<NodeKeyframe*> &GetSelectedKeyframes() const
+  const std::vector<NodeKeyframe*> &GetSelectedKeyframes() const
   {
     return selection_manager_.GetSelectedObjects();
+  }
+
+  const QVector<KeyframeViewInputConnection*> &GetKeyframeTracks() const
+  {
+    return tracks_;
   }
 
   virtual void SelectionManagerSelectEvent(void *obj) override;

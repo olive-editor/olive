@@ -196,7 +196,7 @@ void ProjectPropertiesDialog::accept()
 
 bool ProjectPropertiesDialog::VerifyPathAndWarnIfBad(const QString &path)
 {
-  if (!FileFunctions::DirectoryIsValid(path, true)) {
+  if (!FileFunctions::DirectoryIsValid(path)) {
     QMessageBox mb(this);
     mb.setWindowModality(Qt::WindowModal);
     mb.setIcon(QMessageBox::Critical);

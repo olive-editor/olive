@@ -21,51 +21,52 @@
 #ifndef SHAPENODEBASE_H
 #define SHAPENODEBASE_H
 
+#include "generatorwithmerge.h"
+#include "node/gizmo/point.h"
+#include "node/gizmo/polygon.h"
 #include "node/inputdragger.h"
 #include "node/node.h"
 
 namespace olive {
 
-class ShapeNodeBase : public Node
+class ShapeNodeBase : public GeneratorWithMerge
 {
   Q_OBJECT
 public:
-  ShapeNodeBase();
-
-  NODE_DEFAULT_DESTRUCTOR(ShapeNodeBase)
+  ShapeNodeBase(bool create_color_input = true);
 
   virtual void Retranslate() override;
 
-  static QString kPositionInput;
-  static QString kSizeInput;
-  static QString kColorInput;
+  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
-  virtual bool HasGizmos() const override
+  static const QString kPositionInput;
+  static const QString kSizeInput;
+  static const QString kColorInput;
+
+protected:
+  PolygonGizmo *poly_gizmo() const
   {
-    return true;
+    return poly_gizmo_;
   }
 
-  virtual void DrawGizmos(const NodeValueRow &row, const NodeGlobals &globals, QPainter *p) override;
-
-  virtual bool GizmoPress(const NodeValueRow& row, const NodeGlobals &globals, const QPointF &p) override;
-  virtual void GizmoMove(const QPointF &p, const rational &time, const Qt::KeyboardModifiers &modifiers) override;
-  virtual void GizmoRelease(MultiUndoCommand *command) override;
+protected slots:
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
-  static QVector2D GenerateGizmoAnchor(const QVector2D &pos, const QVector2D &size, int drag, QVector2D *pt);
+  QVector2D GenerateGizmoAnchor(const QVector2D &pos, const QVector2D &size, NodeGizmo *gizmo, QVector2D *pt = nullptr) const;
+
+  bool IsGizmoTop(NodeGizmo *g) const;
+  bool IsGizmoBottom(NodeGizmo *g) const;
+  bool IsGizmoLeft(NodeGizmo *g) const;
+  bool IsGizmoRight(NodeGizmo *g) const;
+  bool IsGizmoHorizontalCenter(NodeGizmo *g) const;
+  bool IsGizmoVerticalCenter(NodeGizmo *g) const;
+  bool IsGizmoCorner(NodeGizmo *g) const;
 
   // Gizmo variables
   static const int kGizmoWholeRect = kGizmoScaleCount;
-  QRectF gizmo_resize_handle_[kGizmoScaleCount];
-  QRectF gizmo_whole_rect_;
-
-  int gizmo_drag_;
-  QVector<NodeInputDragger> gizmo_dragger_;
-  QVector2D gizmo_pos_start_;
-  QVector2D gizmo_sz_start_;
-  QPointF gizmo_drag_start_;
-  float gizmo_aspect_ratio_;
-  QVector2D gizmo_half_res_;
+  PointGizmo *point_gizmo_[kGizmoScaleCount];
+  PolygonGizmo *poly_gizmo_;
 
 };
 

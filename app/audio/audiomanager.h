@@ -27,7 +27,9 @@
 #include <portaudio.h>
 
 #include "audiovisualwaveform.h"
+#include "audio/audioprocessor.h"
 #include "common/define.h"
+#include "codec/ffmpeg/ffmpegencoder.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/previewaudiodevice.h"
@@ -51,7 +53,7 @@ public:
 
   void SetOutputNotifyInterval(int n);
 
-  void PushToOutput(const AudioParams &params, const QByteArray& samples);
+  bool PushToOutput(const AudioParams &params, const QByteArray& samples, QString *error = nullptr);
 
   void ClearBufferedOutput();
 
@@ -73,11 +75,19 @@ public:
 
   void HardReset();
 
+  bool StartRecording(const EncodingParams &params, QString *error_str = nullptr);
+
+  void StopRecording();
+
   static PaDeviceIndex FindConfigDeviceByName(bool is_output_device);
   static PaDeviceIndex FindDeviceByName(const QString &s, bool is_output_device);
 
+  static PaStreamParameters GetPortAudioParams(const AudioParams &p, PaDeviceIndex device);
+
 signals:
   void OutputNotify();
+
+  void OutputParamsChanged();
 
 private:
   AudioManager();
@@ -96,6 +106,9 @@ private:
   PreviewAudioDevice *output_buffer_;
 
   PaDeviceIndex input_device_;
+  PaStream *input_stream_;
+
+  FFmpegEncoder *input_encoder_;
 
 };
 

@@ -36,8 +36,6 @@ public:
 
   static void SetStyle(const QString& style_path);
 
-  static void UseOSNativeStyling(QWidget* widget);
-
   static const char* kDefaultStyle;
 
   static const QMap<QString, QString>& available_themes()

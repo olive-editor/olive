@@ -68,11 +68,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   }
 
   SetFlags(kDontShowInParamView);
-}
 
-Node *ViewerOutput::copy() const
-{
-  return new ViewerOutput();
+  timeline_points_ = new TimelinePoints(this);
 }
 
 QString ViewerOutput::Name() const
@@ -186,26 +183,26 @@ AudioParams ViewerOutput::GetFirstEnabledAudioStream() const
 
 void ViewerOutput::set_default_parameters()
 {
-  int width = Config::Current()["DefaultSequenceWidth"].toInt();
-  int height = Config::Current()["DefaultSequenceHeight"].toInt();
+  int width = OLIVE_CONFIG("DefaultSequenceWidth").toInt();
+  int height = OLIVE_CONFIG("DefaultSequenceHeight").toInt();
 
   SetVideoParams(VideoParams(
                    width,
                    height,
-                   Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
-                 static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                   OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>(),
+                 static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
       VideoParams::kInternalChannelCount,
-      Config::Current()["DefaultSequencePixelAspect"].value<rational>(),
-      Config::Current()["DefaultSequenceInterlacing"].value<VideoParams::Interlacing>(),
+      OLIVE_CONFIG("DefaultSequencePixelAspect").value<rational>(),
+      OLIVE_CONFIG("DefaultSequenceInterlacing").value<VideoParams::Interlacing>(),
       VideoParams::generate_auto_divider(width, height)
       ));
   SetAudioParams(AudioParams(
-                   Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
-                 Config::Current()["DefaultSequenceAudioLayout"].toULongLong(),
+                   OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
+                 OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
       AudioParams::kInternalFormat
       ));
 
-  SetVideoAutoCacheEnabled(Config::Current()["DefaultSequenceAutoCache"].toBool());
+  SetVideoAutoCacheEnabled(OLIVE_CONFIG("DefaultSequenceAutoCache").toBool());
 }
 
 void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
@@ -473,7 +470,9 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
     QVector<VideoParams> video_streams = f->GetEnabledVideoStreams();
     QVector<AudioParams> audio_streams = f->GetEnabledAudioStreams();
 
-    foreach (const VideoParams& s, video_streams) {
+    for (int i=0; i<video_streams.size(); i++) {
+      const VideoParams& s = video_streams.at(i);
+
       bool found_video_params = false;
       rational using_timebase;
 
@@ -481,6 +480,11 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
         // If this is a still image, we'll use it's resolution but won't set
         // `found_video_params` in case something with a frame rate comes along which we'll
         // prioritize
+        if (i > 0) {
+          // Ignore still images past stream 0
+          continue;
+        }
+
         using_timebase = GetVideoParams().time_base();
       } else {
         using_timebase = s.frame_rate_as_time_base();
@@ -490,7 +494,7 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
       SetVideoParams(VideoParams(s.width(),
                                    s.height(),
                                    using_timebase,
-                                   static_cast<VideoParams::Format>(Config::Current()[QStringLiteral("OfflinePixelFormat")].toInt()),
+                                   static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
                        VideoParams::kInternalChannelCount,
                        s.pixel_aspect_ratio(),
                        s.interlacing(),

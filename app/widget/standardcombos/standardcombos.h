@@ -26,6 +26,7 @@
 #include "interlacedcombobox.h"
 #include "pixelaspectratiocombobox.h"
 #include "pixelformatcombobox.h"
+#include "sampleformatcombobox.h"
 #include "sampleratecombobox.h"
 #include "videodividercombobox.h"
 

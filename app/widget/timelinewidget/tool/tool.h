@@ -78,7 +78,7 @@ protected:
 
   void InsertGapsAtGhostDestination(MultiUndoCommand* command);
 
-  QVector<rational> snap_points_;
+  std::vector<rational> snap_points_;
 
   bool dragging_;
 

@@ -32,6 +32,8 @@ set(OLIVE_SOURCES
   widget/viewer/viewersafemargininfo.h
   widget/viewer/viewersizer.cpp
   widget/viewer/viewersizer.h
+  widget/viewer/viewertexteditor.cpp
+  widget/viewer/viewertexteditor.h
   widget/viewer/viewerwindow.cpp
   widget/viewer/viewerwindow.h
   PARENT_SCOPE

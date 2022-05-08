@@ -266,8 +266,13 @@ bool RenderTask::Render(ColorManager* manager,
   if (IsCancelled() || !result) {
     // Cancel every watcher we created
     foreach (RenderTicketWatcher* watcher, running_watchers_) {
+      watcher->Cancel();
       disconnect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone);
       RenderManager::instance()->RemoveTicket(watcher->GetTicket());
+    }
+
+    foreach (RenderTicketWatcher* watcher, running_watchers_) {
+      watcher->WaitForFinished();
     }
   }
 

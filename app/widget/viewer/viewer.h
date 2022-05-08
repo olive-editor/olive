@@ -28,8 +28,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "audio/packedprocessor.h"
-#include "audio/tempoprocessor.h"
+#include "audio/audioprocessor.h"
 #include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
@@ -41,6 +40,7 @@
 #include "viewerwindow.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timebased/timebasedwidget.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -86,6 +86,8 @@ public:
   }
 
   void SetGizmos(Node* node);
+
+  void StartCapture(TimelineWidget *source, const TimeRange &time, const Track::Reference &track);
 
 public slots:
   void Play(bool in_to_out_only);
@@ -205,6 +207,12 @@ private:
 
   void DecrementPrequeuedAudio();
 
+  void ArmForRecording();
+
+  void DisarmRecording();
+
+  void CloseAudioProcessor();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -248,12 +256,18 @@ private:
 
   std::list<RenderTicketWatcher*> audio_playback_queue_;
   rational audio_playback_queue_time_;
-  PackedProcessor packed_processor_;
-  TempoProcessor tempo_processor_;
+  AudioProcessor audio_processor_;
   QByteArray prequeued_audio_;
   static const rational kAudioPlaybackInterval;
 
   static QVector<ViewerWidget*> instances_;
+
+  bool record_armed_;
+  bool recording_;
+  TimelineWidget *recording_callback_;
+  TimeRange recording_range_;
+  Track::Reference recording_track_;
+  QString recording_filename_;
 
 private slots:
   void PlaybackTimerUpdate();
@@ -303,6 +317,8 @@ private slots:
   void ReceivedAudioBufferForScrubbing();
 
   void ForceRequeueFromCurrentTime();
+
+  void UpdateAudioProcessor();
 
 };
 

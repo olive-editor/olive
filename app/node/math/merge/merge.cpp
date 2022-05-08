@@ -27,6 +27,8 @@ namespace olive {
 const QString MergeNode::kBaseIn = QStringLiteral("base_in");
 const QString MergeNode::kBlendIn = QStringLiteral("blend_in");
 
+#define super Node
+
 MergeNode::MergeNode()
 {
   AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -34,11 +36,6 @@ MergeNode::MergeNode()
   AddInput(kBlendIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
   SetFlags(kDontShowInParamView);
-}
-
-Node *MergeNode::copy() const
-{
-  return new MergeNode();
 }
 
 QString MergeNode::Name() const
@@ -63,14 +60,16 @@ QString MergeNode::Description() const
 
 void MergeNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kBaseIn, tr("Base"));
 
   SetInputName(kBlendIn, tr("Blend"));
 }
 
-ShaderCode MergeNode::GetShaderCode(const QString &shader_id) const
+ShaderCode MergeNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
@@ -97,7 +96,7 @@ void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOff);
       }
 
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     }
   }
 }

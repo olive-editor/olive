@@ -24,7 +24,7 @@
 #include "node/factory.h"
 #include "node/generator/shape/shapenode.h"
 #include "node/generator/solid/solid.h"
-#include "node/generator/text/text.h"
+#include "node/generator/text/textv3.h"
 #include "widget/timelinewidget/timelinewidget.h"
 #include "widget/timelinewidget/undo/timelineundopointer.h"
 
@@ -79,7 +79,7 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
     ghost_->SetTrack(track);
     parent()->AddGhost(ghost_);
 
-    snap_points_.append(drag_start_point_);
+    snap_points_.push_back(drag_start_point_);
   }
 }
 
@@ -138,7 +138,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         break;
       case olive::Tool::kAddableTitle:
       {
-        node_to_add = new TextGenerator();
+        node_to_add = new TextGeneratorV3();
         break;
       }
       case olive::Tool::kAddableBars:

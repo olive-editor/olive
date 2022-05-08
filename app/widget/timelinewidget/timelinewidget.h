@@ -27,12 +27,10 @@
 
 #include "core.h"
 #include "node/block/transition/transition.h"
-#include "node/nodecopypaste.h"
 #include "node/output/viewer/viewer.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
 #include "widget/slider/rationalslider.h"
-#include "widget/snapservice/snapservice.h"
 #include "widget/timebased/timebasedwidget.h"
 #include "widget/timelinewidget/timelinewidgetselections.h"
 #include "widget/timelinewidget/tool/import.h"
@@ -45,7 +43,7 @@ namespace olive {
  *
  * Encapsulates TimelineViews, TimeRulers, and scrollbars for a complete widget to manipulate Timelines
  */
-class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteService, public SnapService
+class TimelineWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
@@ -101,6 +99,12 @@ public:
 
   void ShowSpeedDurationDialogForSelectedClips();
 
+  void RecordingCallback(const QString &filename, const TimeRange &time, const Track::Reference &track);
+
+  void EnableRecordingOverlay(const TimelineCoordinate &coord);
+
+  void DisableRecordingOverlay();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -113,10 +117,6 @@ public:
   {
     return selected_blocks_;
   }
-
-  virtual bool SnapPoint(QVector<rational> start_times, rational *movement, int snap_points = kSnapAll) override;
-
-  virtual void HideSnaps() override;
 
   QByteArray SaveSplitterState() const;
 
@@ -216,6 +216,11 @@ public:
    */
   void SignalDeselectedAllBlocks();
 
+  void Refresh()
+  {
+    UpdateViewports();
+  }
+
   MultiUndoCommand *TakeSubtitleSectionCommand()
   {
     // Copy pointer
@@ -262,6 +267,10 @@ public:
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
+  void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
+
+  void RevealViewerInProject(ViewerOutput *r);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -272,8 +281,7 @@ protected:
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
   virtual void DisconnectNodeEvent(ViewerOutput* n) override;
 
-  virtual void CopyNodesToClipboardCallback(const QVector<Node*> &nodes, ProjectSerializer::SaveData *data, void *userdata) override;
-  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &load_data, void *userdata) override;
+  virtual const QVector<Block*> *GetSnapBlocks() const override { return &added_blocks_; }
 
 private:
   QVector<Timeline::EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
@@ -281,8 +289,6 @@ private:
   void RippleTo(Timeline::MovementMode mode);
 
   void EditTo(Timeline::MovementMode mode);
-
-  void ShowSnap(const QVector<rational>& times);
 
   void UpdateViewports(const Track::Type& type = Track::kNone);
 
@@ -321,6 +327,8 @@ private:
   QSplitter* view_splitter_;
 
   MultiUndoCommand *subtitle_show_command_;
+
+  QTimer *signal_block_change_timer_;
 
   class SetSplitterSizesCommand : public UndoCommand
   {
@@ -403,6 +411,10 @@ private slots:
   void SetScrollZoomsByDefaultOnAllViews(bool e);
 
   void SignalBlockSelectionChange();
+
+  void RevealInProject();
+
+  void RenameSelectedBlocks();
 
 };
 

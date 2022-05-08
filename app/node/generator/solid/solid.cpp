@@ -26,15 +26,12 @@ namespace olive {
 
 const QString SolidGenerator::kColorInput = QStringLiteral("color_in");
 
+#define super Node
+
 SolidGenerator::SolidGenerator()
 {
   // Default to a color that isn't black
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 0.0f, 0.0f, 1.0f)));
-}
-
-Node *SolidGenerator::copy() const
-{
-  return new SolidGenerator();
 }
 
 QString SolidGenerator::Name() const
@@ -59,6 +56,8 @@ QString SolidGenerator::Description() const
 
 void SolidGenerator::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kColorInput, tr("Color"));
 }
 
@@ -66,12 +65,12 @@ void SolidGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals
 {
   ShaderJob job;
   job.InsertValue(value);
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 }
 
-ShaderCode SolidGenerator::GetShaderCode(const QString &shader_id) const
+ShaderCode SolidGenerator::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
 }

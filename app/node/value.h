@@ -25,6 +25,8 @@
 #include <QVariant>
 #include <QVector>
 
+#include "undo/undocommand.h"
+
 namespace olive {
 
 class Node;
@@ -171,40 +173,9 @@ public:
     kAudioParams,
 
     /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that a footage job needs to
-     * run. This value will usually be taken from a table and a kTexture or kSamples value will be
-     * pushed to take its place.
+     * End of list
      */
-    kFootageJob,
-
-    /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that an accelerated shader job needs to
-     * run. This value will usually be taken from a table and a kTexture value will be pushed to
-     * take its place.
-     */
-    kShaderJob,
-
-    /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that an accelerated sample job needs to
-     * take place. This value will usually be taken from a table and a kSamples value will be
-     * pushed to take its place.
-     */
-    kSampleJob,
-
-    /**
-     * Job type
-     *
-     * An internal type used to indicate to the renderer that an accelerated sample job needs to
-     * take place. This value will usually be taken from a table and a kSamples value will be
-     * pushed to take its place.
-     */
-    kGenerateJob
+    kDataTypeCount
   };
 
   static const QVector<Type> kNumber;
@@ -237,6 +208,11 @@ public:
     return data_;
   }
 
+  void set_data(const QVariant& data)
+  {
+    data_ = data;
+  }
+
   const QString& tag() const
   {
     return tag_;
@@ -258,6 +234,9 @@ public:
   }
 
   static QString GetPrettyDataTypeName(Type type);
+
+  static QString GetDataTypeName(Type type);
+  static NodeValue::Type GetDataTypeFromName(const QString &n);
 
   static QString ValueToString(Type data_type, const QVariant& value, bool value_is_a_key_track);
 
@@ -285,6 +264,7 @@ public:
         || type == kVec2
         || type == kVec3
         || type == kVec4
+        || type == kBezier
         || type == kColor
         || type == kRational;
   }

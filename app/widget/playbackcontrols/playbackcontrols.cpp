@@ -55,6 +55,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   cur_tc_lbl_ = new RationalSlider();
   cur_tc_lbl_->SetDisplayType(RationalSlider::kTime);
+  cur_tc_lbl_->SetMinimum(0);
   connect(cur_tc_lbl_, &RationalSlider::ValueChanged, this, &PlaybackControls::TimeChanged);
   lower_left_layout->addWidget(cur_tc_lbl_);
   lower_left_layout->addStretch();
@@ -155,6 +156,10 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   SetAudioVideoDragButtonsVisible(false);
 
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &PlaybackControls::TimecodeChanged);
+
+  play_blink_timer_ = new QTimer(this);
+  play_blink_timer_->setInterval(500);
+  connect(play_blink_timer_, &QTimer::timeout, this, &PlaybackControls::PlayBlink);
 }
 
 void PlaybackControls::SetTimecodeEnabled(bool enabled)
@@ -230,10 +235,20 @@ void PlaybackControls::UpdateIcons()
   audio_drag_btn_->setIcon(icon::Audio);
 }
 
+void PlaybackControls::SetButtonRecordingState(QPushButton *btn, bool on)
+{
+  btn->setStyleSheet(on ? QStringLiteral("background: red;") : QString());
+}
+
 void PlaybackControls::TimecodeChanged()
 {
   // Update end time
   SetEndTime(end_time_);
+}
+
+void PlaybackControls::PlayBlink()
+{
+  SetButtonRecordingState(play_btn_, play_btn_->styleSheet().isEmpty());
 }
 
 }

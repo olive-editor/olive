@@ -34,10 +34,9 @@ RippleTool::RippleTool(TimelineWidget* parent) :
   SetGapTrimmingAllowed(true);
 }
 
-void RippleTool::InitiateDrag(Block *clicked_item,
-                              Timeline::MovementMode trim_mode)
+void RippleTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers)
 {
-  InitiateDragInternal(clicked_item, trim_mode, true, true, false);
+  InitiateDragInternal(clicked_item, trim_mode, modifiers, true, true, false);
 
   if (!parent()->HasGhosts()) {
     return;

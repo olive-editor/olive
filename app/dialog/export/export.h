@@ -29,6 +29,7 @@
 
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
+#include "dialog/export/exportformatcombobox.h"
 #include "exportaudiotab.h"
 #include "exportsubtitlestab.h"
 #include "exportvideotab.h"
@@ -43,8 +44,6 @@ class ExportDialog : public QDialog
 public:
   ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
 
-  ExportFormat::Format GetSelectedFormat() const;
-
   rational GetSelectedTimebase() const;
 
 protected:
@@ -57,8 +56,6 @@ private:
   void SetDefaultFilename();
 
   ExportParams GenerateParams() const;
-
-  void SetCurrentFormat(ExportFormat::Format format);
 
   ViewerOutput* viewer_node_;
 
@@ -82,7 +79,7 @@ private:
 
   ViewerWidget* preview_viewer_;
   QLineEdit* filename_edit_;
-  QComboBox* format_combobox_;
+  ExportFormatComboBox* format_combobox_;
 
   ExportVideoTab* video_tab_;
   ExportAudioTab* audio_tab_;
@@ -98,7 +95,7 @@ private:
 private slots:
   void BrowseFilename();
 
-  void FormatChanged(int index);
+  void FormatChanged(ExportFormat::Format current_format);
 
   void ResolutionChanged();
 

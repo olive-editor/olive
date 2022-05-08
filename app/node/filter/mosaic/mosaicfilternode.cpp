@@ -26,6 +26,8 @@ const QString MosaicFilterNode::kTextureInput = QStringLiteral("tex_in");
 const QString MosaicFilterNode::kHorizInput = QStringLiteral("horiz_in");
 const QString MosaicFilterNode::kVertInput = QStringLiteral("vert_in");
 
+#define super Node
+
 MosaicFilterNode::MosaicFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -35,10 +37,15 @@ MosaicFilterNode::MosaicFilterNode()
 
   AddInput(kVertInput, NodeValue::kFloat, 18.0);
   SetInputProperty(kVertInput, QStringLiteral("min"), 1.0);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void MosaicFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Texture"));
   SetInputName(kHorizInput, tr("Horizontal"));
   SetInputName(kVertInput, tr("Vertical"));
@@ -59,16 +66,16 @@ void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
     if (texture
         && job.GetValue(kHorizInput).data().toInt() != texture->width()
         && job.GetValue(kVertInput).data().toInt() != texture->height()) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       table->Push(job.GetValue(kTextureInput));
     }
   }
 }
 
-ShaderCode MosaicFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode MosaicFilterNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/mosaic.frag"));
 }
