@@ -73,6 +73,7 @@ public:
     kDisplayTransform,
     kOCIOGradingTransformLinear,
     kChromaKey,
+    kRGBToBW,
 
     // Count value
     kInternalNodeCount
