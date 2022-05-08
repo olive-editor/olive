@@ -26,6 +26,7 @@
 
 #include "node/color/colormanager/colormanager.h"
 #include "node/node.h"
+#include "node/output/track/tracklist.h"
 #include "render/color.h"
 #include "tool/tool.h"
 #include "viewerplaybacktimer.h"
@@ -72,6 +73,7 @@ public:
   void SetGizmos(Node* node);
   void SetVideoParams(const VideoParams &params);
   void SetTime(const rational& time);
+  void SetSubtitleTracks(Sequence *list);
 
   void SetShowWidgetBackground(bool e)
   {
@@ -96,6 +98,9 @@ public:
   {
     return show_fps_;
   }
+
+  bool GetShowSubtitles() const { return show_subtitles_; }
+  void SetShowSubtitles(bool e) { show_subtitles_ = e; update(); }
 
   void IncrementSkippedFrames();
 
@@ -239,7 +244,7 @@ private:
   QPointF GetTexturePosition(const QSize& size);
   QPointF GetTexturePosition(const double& x, const double& y);
 
-  static void DrawTextWithCrudeShadow(QPainter* painter, const QRect& rect, const QString& text);
+  static void DrawTextWithCrudeShadow(QPainter* painter, const QRect& rect, const QString& text, const QTextOption &opt = QTextOption());
 
   rational GetGizmoTime();
 
@@ -312,6 +317,9 @@ private:
   NodeGizmo *current_gizmo_;
   bool gizmo_drag_started_;
 
+  bool show_subtitles_;
+  Sequence *subtitle_tracks_;
+
   rational time_;
 
   /**
@@ -364,6 +372,8 @@ private slots:
   void UpdateFromQueue();
 
   void TextEditChanged();
+
+  void SubtitlesChanged(const TimeRange &r);
 
 };
 

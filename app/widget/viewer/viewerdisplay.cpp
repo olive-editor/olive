@@ -37,8 +37,10 @@
 #include "common/define.h"
 #include "common/functiontimer.h"
 #include "common/html.h"
+#include "common/qtutils.h"
 #include "config/config.h"
 #include "core.h"
+#include "node/block/subtitle/subtitle.h"
 #include "node/gizmo/path.h"
 #include "node/gizmo/point.h"
 #include "node/gizmo/polygon.h"
@@ -59,6 +61,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   gizmos_(nullptr),
   current_gizmo_(nullptr),
   gizmo_drag_started_(false),
+  show_subtitles_(true),
+  subtitle_tracks_(nullptr),
   hand_dragging_(false),
   deinterlace_(false),
   show_fps_(false),
@@ -187,6 +191,21 @@ void ViewerDisplayWidget::SetTime(const rational &time)
   if (gizmos_) {
     update();
   }
+}
+
+void ViewerDisplayWidget::SetSubtitleTracks(Sequence *list)
+{
+  if (subtitle_tracks_) {
+    disconnect(subtitle_tracks_, &Sequence::SubtitlesChanged, this, &ViewerDisplayWidget::SubtitlesChanged);
+  }
+
+  subtitle_tracks_ = list;
+
+  if (subtitle_tracks_) {
+    connect(subtitle_tracks_, &Sequence::SubtitlesChanged, this, &ViewerDisplayWidget::SubtitlesChanged);
+  }
+
+  update();
 }
 
 QPointF ViewerDisplayWidget::TransformViewerSpaceToBufferSpace(const QPointF &pos)
@@ -582,6 +601,53 @@ void ViewerDisplayWidget::OnPaint()
       }
     }
   }
+
+  // Extraordinarily basic subtitle renderer. Hoping to swap this out with libass at some point.
+  if (show_subtitles_ && subtitle_tracks_) {
+    const QVector<Track*> &subtitle_tracklist = subtitle_tracks_->track_list(Track::kSubtitle)->GetTracks();
+
+    if (!subtitle_tracklist.empty()) {
+      QPainter p(inner_widget());
+
+      QTransform transform = GenerateWorldTransform();
+      QRect bounding_box = transform.mapRect(rect());
+
+      bounding_box.adjust(bounding_box.width()/10, bounding_box.height()/10, -bounding_box.width()/10, -bounding_box.height()/10);
+
+      QFont f = p.font();
+      int font_sz = bounding_box.height() / 18;
+      f.setStyleHint(QFont::SansSerif);
+      f.setFamily(f.defaultFamily());
+      f.setPointSize(font_sz);
+      f.setWeight(QFont::Bold);
+      p.setFont(f);
+      p.setPen(Qt::white);
+
+      QPainterPath path;
+
+      int text_line = 1;
+
+      for (int j=subtitle_tracklist.size()-1; j>=0; j--) {
+        Track *sub_track = subtitle_tracklist.at(j);
+        if (!sub_track->IsMuted()) {
+          if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->BlockAtTime(time_))) {
+            // Split into lines
+            QStringList list = QtUtils::WordWrapString(sub->GetText(), p.fontMetrics(), bounding_box.width());
+
+            for (int i=list.size()-1; i>=0; i--) {
+              int w = QtUtils::QFontMetricsWidth(p.fontMetrics(), list.at(i));
+              path.addText(bounding_box.x() + bounding_box.width()/2 - w/2, bounding_box.y() + bounding_box.height() - p.fontMetrics().height() * text_line + p.fontMetrics().ascent(), p.font(), list.at(i));
+              text_line++;
+            }
+          }
+        }
+      }
+
+      p.setPen(QPen(Qt::black, font_sz / 16));
+      p.setBrush(Qt::white);
+      p.drawPath(path);
+    }
+  }
 }
 
 void ViewerDisplayWidget::OnDestroy()
@@ -618,12 +684,12 @@ QPointF ViewerDisplayWidget::GetTexturePosition(const double &x, const double &y
                  y / gizmo_params_.height());
 }
 
-void ViewerDisplayWidget::DrawTextWithCrudeShadow(QPainter *painter, const QRect &rect, const QString &text)
+void ViewerDisplayWidget::DrawTextWithCrudeShadow(QPainter *painter, const QRect &rect, const QString &text, const QTextOption &opt)
 {
   painter->setPen(Qt::black);
-  painter->drawText(rect.adjusted(1, 1, 0, 0), text);
+  painter->drawText(rect.adjusted(1, 1, 0, 0), text, opt);
   painter->setPen(Qt::white);
-  painter->drawText(rect, text);
+  painter->drawText(rect, text, opt);
 }
 
 rational ViewerDisplayWidget::GetGizmoTime()
@@ -805,6 +871,13 @@ void ViewerDisplayWidget::TextEditChanged()
 
   QString html = Html::DocToHtml(editor->document());
   gizmo->UpdateInputHtml(html, GetGizmoTime());
+}
+
+void ViewerDisplayWidget::SubtitlesChanged(const TimeRange &r)
+{
+  if (time_ >= r.in() && time_ < r.out()) {
+    update();
+  }
 }
 
 }

@@ -84,6 +84,8 @@ public:
 
   virtual void Retranslate() override;
 
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
+
   static const QString kTrackInputFormat;
 
   virtual bool IsItem() const override
@@ -101,6 +103,8 @@ protected:
 signals:
   void TrackAdded(Track* track);
   void TrackRemoved(Track* track);
+
+  void SubtitlesChanged(const TimeRange &range);
 
 private:
   QVector<TrackList*> track_lists_;
