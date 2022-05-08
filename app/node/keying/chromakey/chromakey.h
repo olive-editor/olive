@@ -25,8 +25,7 @@ class ChromaKeyNode : public OCIOBaseNode {
  public:
   ChromaKeyNode();
 
-  NODE_DEFAULT_DESTRUCTOR(ChromaKeyNode)
-  NODE_COPY_FUNCTION(ChromaKeyNode)
+  NODE_DEFAULT_FUNCTIONS(ChromaKeyNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

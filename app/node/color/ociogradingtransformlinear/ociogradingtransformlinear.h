@@ -32,8 +32,7 @@ class OCIOGradingTransformLinearNode : public OCIOBaseNode
  public:
   OCIOGradingTransformLinearNode();
 
-  NODE_DEFAULT_DESTRUCTOR(OCIOGradingTransformLinearNode)
-  NODE_COPY_FUNCTION(OCIOGradingTransformLinearNode)
+  NODE_DEFAULT_FUNCTIONS(OCIOGradingTransformLinearNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;

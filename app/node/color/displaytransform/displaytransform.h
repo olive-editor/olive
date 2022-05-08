@@ -32,8 +32,7 @@ class DisplayTransformNode : public OCIOBaseNode
  public:
   DisplayTransformNode();
 
-  NODE_DEFAULT_DESTRUCTOR(DisplayTransformNode)
-  NODE_COPY_FUNCTION(DisplayTransformNode)
+  NODE_DEFAULT_FUNCTIONS(DisplayTransformNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;
