@@ -123,6 +123,10 @@ bool ColorManager::LoadConfigFromPath(QString path)
 
     try {
       default_config_->validate();
+      if (!default_config_->hasRole("cie_xyz_d65_interchange")) {
+        qWarning() << "Failed to validate config from OCIO environment vairable: Missing required role cie_xyz_d65_interchange";
+        return false;
+      }
       qInfo() << "Succesfully loaded OCIO config from: " << path;
       return true;
     } catch (OCIO::Exception &e) {
