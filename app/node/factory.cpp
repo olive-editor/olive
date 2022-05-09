@@ -69,8 +69,8 @@
 #include "config/config.h"
 
 namespace olive {
+
 QList<Node*> NodeFactory::library_;
-QVector<int> NodeFactory::hidden_;
 
 void NodeFactory::Initialize()
 {
@@ -82,10 +82,6 @@ void NodeFactory::Initialize()
 
     library_.append(created_node);
   }
-
-  hidden_.append(kTextGeneratorV1);
-  hidden_.append(kTextGeneratorV2);
-  hidden_.append(kGroupNode);
 }
 
 void NodeFactory::Destroy()
@@ -111,8 +107,7 @@ Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::Cate
       continue;
     }
 
-    if (hidden_.contains(i)) {
-      // Skip this node
+    if (n->GetFlags() & Node::kDontShowInCreateMenu) {
       continue;
     }
 
