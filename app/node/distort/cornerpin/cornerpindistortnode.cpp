@@ -94,16 +94,16 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   job.SetVertexCoordinates(adjusted_vertices);
 
   // If no texture do nothing
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (job.GetValue(kTextureInput).toTexture()) {
     // In the special case that all sliders are in their default position just
     // push the texture.
-    if (!(job.GetValue(kTopLeftInput).data().value<QVector2D>().isNull()
-        && job.GetValue(kTopRightInput).data().value<QVector2D>().isNull() &&
-        job.GetValue(kBottomRightInput).data().value<QVector2D>().isNull() &&
-        job.GetValue(kBottomLeftInput).data().value<QVector2D>().isNull())) {
+    if (!(job.GetValue(kTopLeftInput).toVec2().isNull()
+        && job.GetValue(kTopRightInput).toVec2().isNull() &&
+        job.GetValue(kBottomRightInput).toVec2().isNull() &&
+        job.GetValue(kBottomLeftInput).toVec2().isNull())) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
-      table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
+      table->Push(job.GetValue(kTextureInput));
     }
   }
 }
@@ -119,25 +119,24 @@ ShaderCode CornerPinDistortNode::GetShaderCode(const ShaderRequest &request) con
 QPointF CornerPinDistortNode::ValueToPixel(int value, const NodeValueRow& row, const QVector2D &resolution) const
 {
   Q_ASSERT(value >= 0 && value <= 3);
+
+  QVector2D v;
+
   switch (value) {
-    case 0: // Top left
-      return QPointF(row[kTopLeftInput].data().value<QVector2D>().x(),
-                     row[kTopLeftInput].data().value<QVector2D>().y());
-      break;
-    case 1: // Top right
-      return QPointF(resolution.x() + row[kTopRightInput].data().value<QVector2D>().x(),
-                     row[kTopRightInput].data().value<QVector2D>().y());
-      break;
-    case 2: // Bottom right
-      return QPointF(resolution.x() + row[kBottomRightInput].data().value<QVector2D>().x(),
-                     resolution.y() + row[kBottomRightInput].data().value<QVector2D>().y());
-      break;
-    case 3: //Bottom left
-      return QPointF(row[kBottomLeftInput].data().value<QVector2D>().x(),
-                     row[kBottomLeftInput].data().value<QVector2D>().y() + resolution.y());
-      break;
-    default: // We should never get here
-      return QPointF();
+  case 0: // Top left
+    v = row[kTopLeftInput].toVec2();
+    return QPointF(v.x(), v.y());
+  case 1: // Top right
+    v = row[kTopRightInput].toVec2();
+    return QPointF(resolution.x() + v.x(), v.y());
+  case 2: // Bottom right
+    v = row[kBottomRightInput].toVec2();
+    return QPointF(resolution.x() + v.x(), resolution.y() + v.y());
+  case 3: //Bottom left
+    v = row[kBottomLeftInput].toVec2();
+    return QPointF(v.x(), v.y() + resolution.y());
+  default: // We should never get here
+    return QPointF();
   }
 }
 

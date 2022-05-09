@@ -79,8 +79,8 @@ void ShapeNodeBase::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlob
   QVector2D center_pt = globals.resolution() * 0.5;
   SetInputProperty(kPositionInput, QStringLiteral("offset"), center_pt);
 
-  QVector2D pos = row[kPositionInput].data().value<QVector2D>();
-  QVector2D sz = row[kSizeInput].data().value<QVector2D>();
+  QVector2D pos = row[kPositionInput].toVec2();
+  QVector2D sz = row[kSizeInput].toVec2();
   QVector2D half_sz = sz * 0.5;
 
   double left_pt = pos.x() + center_pt.x() - half_sz.x();

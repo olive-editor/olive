@@ -124,22 +124,22 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
   job.InsertValue(value);
   job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
-  Method method = static_cast<Method>(job.GetValue(kMethodInput).data().toInt());
+  Method method = static_cast<Method>(job.GetValue(kMethodInput).toInt());
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (job.GetValue(kTextureInput).toTexture()) {
 
     bool can_push_job = true;
 
     // Check if radius is > 0
-    if (job.GetValue(kRadiusInput).data().toDouble() > 0.0) {
+    if (job.GetValue(kRadiusInput).toDouble() > 0.0) {
       // Method-specific considerations
       switch (method) {
       case kBox:
       case kGaussian:
       {
-        bool horiz = job.GetValue(kHorizInput).data().toBool();
-        bool vert = job.GetValue(kVertInput).data().toBool();
+        bool horiz = job.GetValue(kHorizInput).toBool();
+        bool vert = job.GetValue(kVertInput).toBool();
 
         if (!horiz && !vert) {
           // Disable job if horiz and vert are unchecked
@@ -160,7 +160,7 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
 
     if (can_push_job) {
       // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.GetValue(kRepeatEdgePixelsInput).data().toBool()) {
+      if (!job.GetValue(kRepeatEdgePixelsInput).toBool()) {
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
@@ -175,12 +175,12 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
 
 void BlurFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  if (row[kMethodInput].data().toInt() == kRadial) {
+  if (row[kMethodInput].toInt() == kRadial) {
     const QVector2D &sequence_res = globals.resolution();
     QVector2D sequence_half_res = sequence_res * 0.5;
 
     radial_center_gizmo_->SetVisible(true);
-    radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + row[kRadialCenterInput].value<QVector2D>().toPointF());
+    radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + row[kRadialCenterInput].toVec2().toPointF());
 
     SetInputProperty(kRadialCenterInput, QStringLiteral("offset"), sequence_half_res);
   } else{

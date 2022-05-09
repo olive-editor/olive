@@ -35,12 +35,12 @@ public:
 
   SampleJob(const NodeValue& value)
   {
-    samples_ = value.data().value<SampleBufferPtr>();
+    samples_ = value.toSamples();
   }
 
   SampleJob(const QString& from, const NodeValueRow& row)
   {
-    samples_ = row[from].data().value<SampleBufferPtr>();
+    samples_ = row[from].toSamples();
   }
 
   SampleBufferPtr samples() const

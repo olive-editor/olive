@@ -418,7 +418,7 @@ NodeValue::Type NodeValue::GetDataTypeFromName(const QString &n)
   return NodeValue::kNone;
 }
 
-NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, const QString &tag) const
+NodeValue NodeValueTable::Get(const QVector<NodeValue::Type> &type, const QString &tag) const
 {
   int value_index = GetValueIndex(type, tag);
 
@@ -429,7 +429,7 @@ NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, cons
   return NodeValue();
 }
 
-NodeValue NodeValueTable::TakeWithMeta(const QVector<NodeValue::Type> &type, const QString &tag)
+NodeValue NodeValueTable::Take(const QVector<NodeValue::Type> &type, const QString &tag)
 {
   int value_index = GetValueIndex(type, tag);
 

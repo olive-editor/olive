@@ -98,7 +98,7 @@ void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals 
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (job.GetValue(kTextureInput).toTexture()) {
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }

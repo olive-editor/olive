@@ -144,10 +144,10 @@ void HashTraverser::HashNodeValue(const NodeValue &value)
   if (value_type == NodeValue::kSamples || value_type == NodeValue::kTexture) {
     QByteArray id_for_buffer;
     if (value_type == NodeValue::kTexture) {
-      TexturePtr texture = value.data().value<TexturePtr>();
+      TexturePtr texture = value.toTexture();
       id_for_buffer = texture_ids_.value(texture.get());
     } else {
-      SampleBufferPtr samples = value.data().value<SampleBufferPtr>();
+      SampleBufferPtr samples = value.toSamples();
       id_for_buffer = texture_ids_.value(samples.get());
     }
 

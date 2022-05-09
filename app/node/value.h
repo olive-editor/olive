@@ -21,10 +21,16 @@
 #ifndef NODEVALUE_H
 #define NODEVALUE_H
 
+#include <QMatrix4x4>
 #include <QString>
 #include <QVariant>
 #include <QVector>
 
+#include "codec/samplebuffer.h"
+#include "common/bezier.h"
+#include "node/splitvalue.h"
+#include "render/color.h"
+#include "render/texture.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -209,14 +215,16 @@ public:
     return data_.value<T>();
   }
 
-  const QVariant& data() const
+  template <typename T>
+  void set_value(const T &v)
   {
-    return data_;
+    data_ = QVariant::fromValue(v);
   }
 
-  void set_data(const QVariant& data)
+  template <typename T>
+  bool canConvert() const
   {
-    data_ = data;
+    return data_.canConvert<T>();
   }
 
   const QString& tag() const
@@ -245,6 +253,10 @@ public:
   static NodeValue::Type GetDataTypeFromName(const QString &n);
 
   static QString ValueToString(Type data_type, const QVariant& value, bool value_is_a_key_track);
+  static QString ValueToString(const NodeValue &v, bool value_is_a_key_track)
+  {
+    return ValueToString(v.type_, v.data_, value_is_a_key_track);
+  }
 
   static QVariant StringToValue(Type data_type, const QString &string, bool value_is_a_key_track);
 
@@ -254,12 +266,17 @@ public:
   static QByteArray ValueToBytes(Type type, const QVariant& value);
   static QByteArray ValueToBytes(const NodeValue &value)
   {
-    return ValueToBytes(value.type(), value.data());
+    return ValueToBytes(value.type(), value.data_);
   }
 
   static QVector<QVariant> split_normal_value_into_track_values(Type type, const QVariant &value);
 
   static QVariant combine_track_values_into_normal_value(Type type, const QVector<QVariant>& split);
+
+  SplitValue to_split_value() const
+  {
+    return split_normal_value_into_track_values(type_, data_);
+  }
 
   /**
    * @brief Returns whether a data type can be interpolated or not
@@ -289,6 +306,22 @@ public:
 
   static void ValidateVectorString(QStringList* list, int count);
 
+  TexturePtr toTexture() const { return value<TexturePtr>(); }
+  SampleBufferPtr toSamples() const { return value<SampleBufferPtr>(); }
+  bool toBool() const { return value<bool>(); }
+  double toDouble() const { return value<double>(); }
+  int64_t toInt() const { return value<int64_t>(); }
+  rational toRational() const { return value<rational>(); }
+  QString toString() const { return value<QString>(); }
+  Color toColor() const { return value<Color>(); }
+  QMatrix4x4 toMatrix() const { return value<QMatrix4x4>(); }
+  VideoParams toVideoParams() const { return value<VideoParams>(); }
+  AudioParams toAudioParams() const { return value<AudioParams>(); }
+  QVector2D toVec2() const { return value<QVector2D>(); }
+  QVector3D toVec3() const { return value<QVector3D>(); }
+  QVector4D toVec4() const { return value<QVector4D>(); }
+  Bezier toBezier() const { return value<Bezier>(); }
+
 private:
   Type type_;
   QVariant data_;
@@ -303,43 +336,21 @@ class NodeValueTable
 public:
   NodeValueTable() = default;
 
-  QVariant Get(NodeValue::Type type, const QString& tag = QString()) const
+  NodeValue Get(NodeValue::Type type, const QString& tag = QString()) const
   {
     QVector<NodeValue::Type> types = {type};
     return Get(types, tag);
   }
 
-  QVariant Get(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const
-  {
-    return GetWithMeta(type, tag).data();
-  }
+  NodeValue Get(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const;
 
-  NodeValue GetWithMeta(NodeValue::Type type, const QString& tag = QString()) const
-  {
-    QVector<NodeValue::Type> types = {type};
-    return GetWithMeta(types, tag);
-  }
-
-  NodeValue GetWithMeta(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const;
-
-  QVariant Take(NodeValue::Type type, const QString& tag = QString())
+  NodeValue Take(NodeValue::Type type, const QString& tag = QString())
   {
     QVector<NodeValue::Type> types = {type};
     return Take(types, tag);
   }
 
-  QVariant Take(const QVector<NodeValue::Type>& type, const QString& tag = QString())
-  {
-    return TakeWithMeta(type, tag).data();
-  }
-
-  NodeValue TakeWithMeta(NodeValue::Type type, const QString& tag = QString())
-  {
-    QVector<NodeValue::Type> types = {type};
-    return TakeWithMeta(types, tag);
-  }
-
-  NodeValue TakeWithMeta(const QVector<NodeValue::Type>& type, const QString& tag = QString());
+  NodeValue Take(const QVector<NodeValue::Type>& type, const QString& tag = QString());
 
   void Push(const NodeValue& value)
   {

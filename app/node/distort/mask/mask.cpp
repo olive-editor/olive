@@ -47,7 +47,7 @@ void MaskDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
 {
   GenerateJob job = GetGenerateJob(value);
 
-  if (!value[kBaseInput].data().isNull()) {
+  if (value[kBaseInput].toTexture()) {
     // Push as merge node
     ShaderJob merge;
 

@@ -50,8 +50,8 @@ void OpacityEffect::Value(const NodeValueRow &value, const NodeGlobals &globals,
   job.InsertValue(value);
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    if (!qFuzzyCompare(job.GetValue(kValueInput).data().toDouble(), 1.0)) {
+  if (job.GetValue(kTextureInput).toTexture()) {
+    if (!qFuzzyCompare(job.GetValue(kValueInput).toDouble(), 1.0)) {
       job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {

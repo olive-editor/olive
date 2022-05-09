@@ -88,9 +88,9 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
   // FIXME: Provide user override for this
   job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
-  if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
+  if (!job.GetValue(kTextInput).toString().isEmpty()) {
     PushMergableJob(value, QVariant::fromValue(job), table);
-  } else if (!value[kBaseInput].data().isNull()) {
+  } else if (value[kBaseInput].toTexture()) {
     table->Push(value[kBaseInput]);
   }
 }
@@ -108,17 +108,17 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   QTextDocument text_doc;
   text_doc.documentLayout()->setPaintDevice(&img);
 
-  QString html = job.GetValue(kTextInput).data().toString();
+  QString html = job.GetValue(kTextInput).toString();
   Html::HtmlToDoc(&text_doc, html);
 
-  QVector2D size = job.GetValue(kSizeInput).data().value<QVector2D>();
+  QVector2D size = job.GetValue(kSizeInput).toVec2();
   text_doc.setTextWidth(size.x());
 
   // Draw rich text onto image
   QPainter p(&img);
   p.scale(1.0 / frame->video_params().divider(), 1.0 / frame->video_params().divider());
 
-  QVector2D pos = job.GetValue(kPositionInput).data().value<QVector2D>();
+  QVector2D pos = job.GetValue(kPositionInput).toVec2();
   p.translate(pos.x() - size.x()/2, pos.y() - size.y()/2);
   p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
   p.setClipRect(0, 0, size.x(), size.y());
@@ -136,7 +136,7 @@ void TextGeneratorV3::UpdateGizmoPositions(const NodeValueRow &row, const NodeGl
 
   QRectF rect = poly_gizmo()->GetPolygon().boundingRect();
   text_gizmo_->SetRect(rect);
-  text_gizmo_->SetHtml(row[kTextInput].data().toString());
+  text_gizmo_->SetHtml(row[kTextInput].toString());
 }
 
 }

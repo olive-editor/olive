@@ -76,7 +76,7 @@ void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
     if (job.samples()->audio_params().channel_count() == 2) {
       // If the input is static, we can just do it now which will be faster
       if (IsInputStatic(kPanningInput)) {
-        float pan_volume = job.GetValue(kPanningInput).data().toFloat();
+        float pan_volume = job.GetValue(kPanningInput).toDouble();
         if (!qIsNull(pan_volume)) {
           if (pan_volume > 0) {
             job.samples()->transform_volume_for_channel(0, 1.0f - pan_volume);
@@ -96,7 +96,7 @@ void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
 
 void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
-  float pan_val = values[kPanningInput].data().toFloat();
+  float pan_val = values[kPanningInput].toDouble();
 
   for (int i=0;i<input->audio_params().channel_count();i++) {
     output->data(i)[index] = input->data(i)[index];

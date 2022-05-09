@@ -82,9 +82,9 @@ void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
   job.InsertValue(value);
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (job.GetValue(kTextureInput).toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (job.GetValue(kHorizontalInput).data().toBool() || job.GetValue(kVerticalInput).data().toBool()) {
+    if (job.GetValue(kHorizontalInput).toBool() || job.GetValue(kVerticalInput).toBool()) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
     // If we're not flipping or flopping just push the texture

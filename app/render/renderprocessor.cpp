@@ -55,11 +55,11 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
     table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), range);
   }
 
-  NodeValue tex_val = table.GetWithMeta(NodeValue::kTexture);
+  NodeValue tex_val = table.Get(NodeValue::kTexture);
 
   ResolveJobs(tex_val, range);
 
-  return tex_val.data().value<TexturePtr>();
+  return tex_val.toTexture();
 }
 
 FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time)
@@ -196,12 +196,11 @@ void RenderProcessor::Run()
       table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput),time);
     }
 
-    NodeValue sample_val = table.GetWithMeta(NodeValue::kSamples);
+    NodeValue sample_val = table.Get(NodeValue::kSamples);
 
     ResolveJobs(sample_val, time);
 
-    QVariant sample_variant = sample_val.data();
-    SampleBufferPtr samples = sample_variant.value<SampleBufferPtr>();
+    SampleBufferPtr samples = sample_val.toSamples();
     if (samples && ticket_->property("enablewaveforms").toBool()) {
       AudioVisualWaveform vis;
       vis.set_channel_count(samples->audio_params().channel_count());
@@ -212,7 +211,7 @@ void RenderProcessor::Run()
     if (ticket_->IsCancelled()) {
       ticket_->Finish();
     } else {
-      ticket_->Finish(sample_variant);
+      ticket_->Finish(QVariant::fromValue(samples));
     }
     break;
   }
@@ -293,7 +292,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
         // Destination buffer
         NodeValueTable table = GenerateTable(b, track->GetValueHintForInput(Track::kBlockInput, track->GetArrayIndexFromBlock(b)),Track::TransformRangeForBlock(b, range_for_block));
-        SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).value<SampleBufferPtr>();
+        SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).toSamples();
         ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
 
         if (samples_from_this_block) {

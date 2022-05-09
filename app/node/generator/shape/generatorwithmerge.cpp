@@ -53,7 +53,7 @@ ShaderCode GeneratorWithMerge::GetShaderCode(const ShaderRequest &request) const
 
 void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, const QVariant &job, NodeValueTable *table) const
 {
-  if (!value[kBaseInput].data().isNull()) {
+  if (value[kBaseInput].toTexture()) {
     // Push as merge node
     ShaderJob merge;
 

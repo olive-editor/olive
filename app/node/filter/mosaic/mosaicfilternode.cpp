@@ -60,12 +60,12 @@ void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
   // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
   job.SetInterpolation(kTextureInput, Texture::kLinear);
 
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    TexturePtr texture = job.GetValue(kTextureInput).data().value<TexturePtr>();
+  if (job.GetValue(kTextureInput).toTexture()) {
+    TexturePtr texture = job.GetValue(kTextureInput).toTexture();
 
     if (texture
-        && job.GetValue(kHorizInput).data().toInt() != texture->width()
-        && job.GetValue(kVertInput).data().toInt() != texture->height()) {
+        && job.GetValue(kHorizInput).toInt() != texture->width()
+        && job.GetValue(kVertInput).toInt() != texture->height()) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       table->Push(job.GetValue(kTextureInput));

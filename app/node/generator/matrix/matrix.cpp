@@ -103,47 +103,47 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool take,
   if (!ignore_anchor) {
     if (take) {
       // Take and store
-      anchor = value[kAnchorInput].data().value<QVector2D>();
+      anchor = value[kAnchorInput].toVec2();
     } else {
       // Get and store
-      anchor = value[kAnchorInput].data().value<QVector2D>();
+      anchor = value[kAnchorInput].toVec2();
     }
   } else if (take) {
     // Just take
-    value[kAnchorInput].data().value<QVector2D>();
+    value[kAnchorInput].toVec2();
   }
 
   if (!ignore_scale) {
     if (take) {
-      scale = value[kScaleInput].data().value<QVector2D>();
+      scale = value[kScaleInput].toVec2();
     } else {
-      scale = value[kScaleInput].data().value<QVector2D>();
+      scale = value[kScaleInput].toVec2();
     }
   } else if (take) {
-    value[kScaleInput].data().value<QVector2D>();
+    value[kScaleInput].toVec2();
   }
 
   if (!ignore_position) {
     if (take) {
-      position = value[kPositionInput].data().value<QVector2D>();
+      position = value[kPositionInput].toVec2();
     } else {
-      position = value[kPositionInput].data().value<QVector2D>();
+      position = value[kPositionInput].toVec2();
     }
   } else if (take) {
-    value[kPositionInput].data().value<QVector2D>();
+    value[kPositionInput].toVec2();
   }
 
   if (take) {
     return GenerateMatrix(position,
-                          value[kRotationInput].data().toFloat(),
+                          value[kRotationInput].toDouble(),
                           scale,
-                          value[kUniformScaleInput].data().toBool(),
+                          value[kUniformScaleInput].toBool(),
                           anchor);
   } else {
     return GenerateMatrix(position,
-                          value[kRotationInput].data().toFloat(),
+                          value[kRotationInput].toDouble(),
                           scale,
-                          value[kUniformScaleInput].data().toBool(),
+                          value[kUniformScaleInput].toBool(),
                           anchor);
 
   }

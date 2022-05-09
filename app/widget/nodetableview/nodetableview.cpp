@@ -151,7 +151,7 @@ void NodeTableView::SetTime(const rational &time)
         }
         default:
         {
-          QVector<QVariant> split_values = NodeValue::split_normal_value_into_track_values(node->GetInputDataType(l.key()), value.data());
+          QVector<QVariant> split_values = value.to_split_value();
           for (int k=0;k<split_values.size();k++) {
             sub_item->setText(2 + k, NodeValue::ValueToString(value.type(), split_values.at(k), true));
           }

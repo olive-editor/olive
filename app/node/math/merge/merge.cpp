@@ -79,8 +79,8 @@ void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
   ShaderJob job;
   job.InsertValue(value);
 
-  TexturePtr base_tex = job.GetValue(kBaseIn).data().value<TexturePtr>();
-  TexturePtr blend_tex = job.GetValue(kBlendIn).data().value<TexturePtr>();
+  TexturePtr base_tex = job.GetValue(kBaseIn).toTexture();
+  TexturePtr blend_tex = job.GetValue(kBlendIn).toTexture();
 
   if (base_tex || blend_tex) {
     if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
@@ -108,8 +108,8 @@ void MergeNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const
 
   NodeValueDatabase db = traverser.GenerateDatabase(this, globals.time());
 
-  TexturePtr base_tex = db[kBaseIn].Get(NodeValue::kTexture).value<TexturePtr>();
-  TexturePtr blend_tex = db[kBlendIn].Get(NodeValue::kTexture).value<TexturePtr>();
+  TexturePtr base_tex = db[kBaseIn].Get(NodeValue::kTexture).toTexture();
+  TexturePtr blend_tex = db[kBlendIn].Get(NodeValue::kTexture).toTexture();
 
   if (base_tex || blend_tex) {
     bool passthrough_base = !blend_tex;

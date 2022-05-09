@@ -56,11 +56,11 @@ void OCIOBaseNode::ParentChanged(NodeGraph *graph)
 
 void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  if (!value[kTextureInput].data().isNull() && processor_) {
+  if (value[kTextureInput].toTexture() && processor_) {
     ColorTransformJob job;
 
     job.SetColorProcessor(processor_);
-    job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
+    job.SetInputTexture(value[kTextureInput].toTexture());
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }

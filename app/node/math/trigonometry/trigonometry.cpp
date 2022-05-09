@@ -79,7 +79,7 @@ void TrigonometryNode::Retranslate()
 
 void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  double x = value[kXIn].data().toFloat();
+  double x = value[kXIn].toDouble();
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:

@@ -206,8 +206,8 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
     push_job = QVariant::fromValue(job);
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
-    SampleBufferPtr from_samples = out_buffer.data().value<SampleBufferPtr>();
-    SampleBufferPtr to_samples = in_buffer.data().value<SampleBufferPtr>();
+    SampleBufferPtr from_samples = out_buffer.toSamples();
+    SampleBufferPtr to_samples = in_buffer.toSamples();
 
     if (from_samples || to_samples) {
       double time_in = globals.time().in().toDouble();

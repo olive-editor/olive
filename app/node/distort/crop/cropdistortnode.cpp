@@ -82,14 +82,14 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
   job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    if (!qIsNull(job.GetValue(kLeftInput).data().toDouble())
-        || !qIsNull(job.GetValue(kRightInput).data().toDouble())
-        || !qIsNull(job.GetValue(kTopInput).data().toDouble())
-        || !qIsNull(job.GetValue(kBottomInput).data().toDouble())) {
+  if (job.GetValue(kTextureInput).toTexture()) {
+    if (!qIsNull(job.GetValue(kLeftInput).toDouble())
+        || !qIsNull(job.GetValue(kRightInput).toDouble())
+        || !qIsNull(job.GetValue(kTopInput).toDouble())
+        || !qIsNull(job.GetValue(kBottomInput).toDouble())) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
-      table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
+      table->Push(job.GetValue(kTextureInput));
     }
   }
 }
@@ -104,10 +104,10 @@ void CropDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGl
 {
   const QVector2D &resolution = globals.resolution();
 
-  double left_pt = resolution.x() * row[kLeftInput].data().toDouble();
-  double top_pt = resolution.y() * row[kTopInput].data().toDouble();
-  double right_pt = resolution.x() * (1.0 - row[kRightInput].data().toDouble());
-  double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].data().toDouble());
+  double left_pt = resolution.x() * row[kLeftInput].toDouble();
+  double top_pt = resolution.y() * row[kTopInput].toDouble();
+  double right_pt = resolution.x() * (1.0 - row[kRightInput].toDouble());
+  double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].toDouble());
   double center_x_pt = mid(left_pt, right_pt);
   double center_y_pt = mid(top_pt, bottom_pt);
 
