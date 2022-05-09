@@ -195,13 +195,14 @@ public:
   {
   }
 
-  NodeValue(Type type, const QVariant& data, const Node* from = nullptr, bool array = false, const QString& tag = QString()) :
+  template <typename T>
+  NodeValue(Type type, const T& data, const Node* from = nullptr, bool array = false, const QString& tag = QString()) :
     type_(type),
-    data_(data),
     from_(from),
     tag_(tag),
     array_(array)
   {
+    set_value(data);
   }
 
   Type type() const
@@ -362,7 +363,8 @@ public:
     values_.append(value.values_);
   }
 
-  void Push(NodeValue::Type type, const QVariant& data, const Node *from, bool array = false, const QString& tag = QString())
+  template <typename T>
+  void Push(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
   {
     Push(NodeValue(type, data, from, array, tag));
   }
@@ -372,7 +374,8 @@ public:
     values_.prepend(value);
   }
 
-  void Prepend(NodeValue::Type type, const QVariant& data, const Node *from, bool array = false, const QString& tag = QString())
+  template <typename T>
+  void Prepend(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
   {
     Prepend(NodeValue(type, data, from, array, tag));
   }

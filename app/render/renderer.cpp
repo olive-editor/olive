@@ -216,7 +216,7 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
   job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(color_job.GetInputTexture())));
   job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, color_job.GetTransformMatrix()));
   job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
-  job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, color_job.GetInputAlphaAssociation()));
+  job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, int(color_job.GetInputAlphaAssociation())));
   job.InsertValue(color_job.GetValues());
   job.SetAlphaChannelRequired(color_job.GetAlphaChannelRequired());
 
