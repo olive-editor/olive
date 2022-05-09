@@ -30,7 +30,6 @@ class SampleJob : public AcceleratedJob {
 public:
   SampleJob()
   {
-    samples_ = nullptr;
   }
 
   SampleJob(const NodeValue& value)
@@ -43,18 +42,18 @@ public:
     samples_ = row[from].toSamples();
   }
 
-  SampleBufferPtr samples() const
+  const SampleBuffer &samples() const
   {
     return samples_;
   }
 
   bool HasSamples() const
   {
-    return samples_ && samples_->is_allocated();
+    return samples_.is_allocated();
   }
 
 private:
-  SampleBufferPtr samples_;
+  SampleBuffer samples_;
 
 };
 

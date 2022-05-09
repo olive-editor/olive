@@ -307,7 +307,7 @@ public:
   static void ValidateVectorString(QStringList* list, int count);
 
   TexturePtr toTexture() const { return value<TexturePtr>(); }
-  SampleBufferPtr toSamples() const { return value<SampleBufferPtr>(); }
+  SampleBuffer toSamples() const { return value<SampleBuffer>(); }
   bool toBool() const { return value<bool>(); }
   double toDouble() const { return value<double>(); }
   int64_t toInt() const { return value<int64_t>(); }

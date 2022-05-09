@@ -47,7 +47,7 @@ public:
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
 
-  virtual bool WriteAudio(olive::SampleBufferPtr audio) override;
+  virtual bool WriteAudio(const olive::SampleBuffer &audio) override;
 
   bool WriteAudioData(const AudioParams &audio_params, const uint8_t **data, int input_sample_count);
 

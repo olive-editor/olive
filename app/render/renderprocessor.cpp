@@ -200,11 +200,11 @@ void RenderProcessor::Run()
 
     ResolveJobs(sample_val, time);
 
-    SampleBufferPtr samples = sample_val.toSamples();
-    if (samples && ticket_->property("enablewaveforms").toBool()) {
+    SampleBuffer samples = sample_val.toSamples();
+    if (samples.is_allocated() && ticket_->property("enablewaveforms").toBool()) {
       AudioVisualWaveform vis;
-      vis.set_channel_count(samples->audio_params().channel_count());
-      vis.OverwriteSamples(samples, samples->audio_params().sample_rate());
+      vis.set_channel_count(samples.audio_params().channel_count());
+      vis.OverwriteSamples(samples, samples.audio_params().sample_rate());
       ticket_->setProperty("waveform", QVariant::fromValue(vis));
     }
 
@@ -275,9 +275,8 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
     QVector<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
     // All these blocks will need to output to a buffer so we create one here
-    SampleBufferPtr block_range_buffer = SampleBuffer::CreateAllocated(audio_params,
-                                                                       audio_params.time_to_samples(range.length()));
-    block_range_buffer->silence();
+    SampleBuffer block_range_buffer(audio_params, range.length());
+    block_range_buffer.silence();
 
     NodeValueTable merged_table;
 
@@ -292,10 +291,10 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
         // Destination buffer
         NodeValueTable table = GenerateTable(b, track->GetValueHintForInput(Track::kBlockInput, track->GetArrayIndexFromBlock(b)),Track::TransformRangeForBlock(b, range_for_block));
-        SampleBufferPtr samples_from_this_block = table.Take(NodeValue::kSamples).toSamples();
+        SampleBuffer samples_from_this_block = table.Take(NodeValue::kSamples).toSamples();
         ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
 
-        if (samples_from_this_block) {
+        if (samples_from_this_block.is_allocated()) {
           // If this is a clip, we might have extra speed/reverse information
           if (clip_cast) {
             double speed_value = clip_cast->speed();
@@ -303,12 +302,12 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
             if (qIsNull(speed_value)) {
               // Just silence, don't think there's any other practical application of 0 speed audio
-              samples_from_this_block->silence();
+              samples_from_this_block.silence();
             } else if (!qFuzzyCompare(speed_value, 1.0)) {
               if (clip_cast->maintain_audio_pitch()) {
                 AudioProcessor processor;
 
-                if (processor.Open(samples_from_this_block->audio_params(), samples_from_this_block->audio_params(), speed_value)) {
+                if (processor.Open(samples_from_this_block.audio_params(), samples_from_this_block.audio_params(), speed_value)) {
                   AudioProcessor::Buffer out;
 
                   // FIXME: This is not the best way to do this, the TempoProcessor works best
@@ -317,7 +316,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
                   //        well on export (assuming audio is all generated at once on export), but
                   //        users may hear clicks and pops in the audio during preview due to this
                   //        approach.
-                  int r = processor.Convert(samples_from_this_block->to_raw_ptrs(), samples_from_this_block->sample_count(), nullptr);
+                  int r = processor.Convert(samples_from_this_block.to_raw_ptrs().data(), samples_from_this_block.sample_count(), nullptr);
 
                   if (r < 0) {
                     qCritical() << "Failed to change tempo of audio:" << r;
@@ -327,16 +326,13 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
                     processor.Convert(nullptr, 0, &out);
 
                     if (!out.empty()) {
-                      int nb_samples = out.front().size() * samples_from_this_block->audio_params().bytes_per_sample_per_channel();
+                      int nb_samples = out.front().size() * samples_from_this_block.audio_params().bytes_per_sample_per_channel();
 
                       if (nb_samples) {
-                        SampleBufferPtr new_samples = SampleBuffer::Create();
-                        new_samples->set_audio_params(samples_from_this_block->audio_params());
-                        new_samples->set_sample_count(nb_samples);
-                        new_samples->allocate();
+                        SampleBuffer new_samples(samples_from_this_block.audio_params(), nb_samples);
 
                         for (int i=0; i<out.size(); i++) {
-                          memcpy(new_samples->data(i), out[i].data(), out[i].size());
+                          memcpy(new_samples.data(i), out[i].data(), out[i].size());
                         }
 
                         samples_from_this_block = new_samples;
@@ -346,20 +342,20 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
                 }
               } else {
                 // Multiply time
-                samples_from_this_block->speed(speed_value);
+                samples_from_this_block.speed(speed_value);
               }
             }
 
             if (reversed) {
-              samples_from_this_block->reverse();
+              samples_from_this_block.reverse();
             }
           }
 
-          int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count());
+          int copy_length = qMin(max_dest_sz, samples_from_this_block.sample_count());
 
           // Copy samples into destination buffer
-          for (int i=0; i<samples_from_this_block->audio_params().channel_count(); i++) {
-            block_range_buffer->set(i, samples_from_this_block->data(i), destination_offset, copy_length);
+          for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
+            block_range_buffer.set(i, samples_from_this_block.data(i), destination_offset, copy_length);
           }
 
           NodeValueTable::Merge({merged_table, table});
@@ -372,7 +368,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
           waveform_info.block = clip_cast;
           waveform_info.range = range_for_block - b->in();
 
-          if (!(waveform_info.silence = !samples_from_this_block.get())) {
+          if (!(waveform_info.silence = !samples_from_this_block.is_allocated())) {
             // Generate a visual waveform from the samples acquired from this block
             AudioVisualWaveform visual_waveform;
             visual_waveform.set_channel_count(audio_params.channel_count());
@@ -483,7 +479,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
   }
 }
 
-void RenderProcessor::ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time)
+void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time)
 {
   DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index()));
 
@@ -526,9 +522,9 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
   render_ctx_->BlitToTexture(shader, job, destination.get());
 }
 
-void RenderProcessor::ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job)
+void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job)
 {
-  if (!job.samples() || !job.samples()->is_allocated()) {
+  if (!job.samples().is_allocated()) {
     return;
   }
 
@@ -536,7 +532,7 @@ void RenderProcessor::ProcessSamples(SampleBufferPtr destination, const Node *no
 
   const AudioParams& audio_params = GetCacheAudioParams();
 
-  for (int i=0;i<job.samples()->sample_count();i++) {
+  for (int i=0;i<job.samples().sample_count();i++) {
     // Calculate the exact rational time at this sample
     double sample_to_second = static_cast<double>(i) / static_cast<double>(audio_params.sample_rate());
 

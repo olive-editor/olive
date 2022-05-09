@@ -108,7 +108,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();
   qRegisterMetaType<FramePtr>();
-  qRegisterMetaType<SampleBufferPtr>();
+  qRegisterMetaType<SampleBuffer>();
   qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();

@@ -400,7 +400,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       } else if (job.type() == Track::kAudio) {
 
-        SampleBufferPtr buffer = CreateSampleBuffer(GetCacheAudioParams(), range.length());
+        SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), range.length());
         ProcessAudioFootage(buffer, job, range);
         val.set_value(buffer);
 
@@ -409,7 +409,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
     } else if (val.canConvert<SampleJob>()) {
 
       SampleJob job = val.value<SampleJob>();
-      SampleBufferPtr output_buffer = CreateSampleBuffer(job.samples()->audio_params(), job.samples()->sample_count());
+      SampleBuffer output_buffer = CreateSampleBuffer(job.samples().audio_params(), job.samples().sample_count());
       ProcessSamples(output_buffer, val.source(), range, job);
       val.set_value(QVariant::fromValue(output_buffer));
 

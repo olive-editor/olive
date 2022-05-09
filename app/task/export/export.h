@@ -40,7 +40,7 @@ protected:
 
   virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) override;
 
-  virtual bool AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+  virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) override;
 
   virtual bool EncodeSubtitle(const SubtitleBlock *sub) override;
 
@@ -50,11 +50,11 @@ protected:
   }
 
 private:
-  bool WriteAudioLoop(const TimeRange &time, SampleBufferPtr samples);
+  bool WriteAudioLoop(const TimeRange &time, const SampleBuffer &samples);
 
   QHash<rational, FramePtr> time_map_;
 
-  QHash<TimeRange, SampleBufferPtr> audio_map_;
+  QHash<TimeRange, SampleBuffer> audio_map_;
 
   ColorManager* color_manager_;
 

@@ -207,7 +207,7 @@ void PreviewAutoCacher::AudioRendered()
         // WritePCM is tolerant to its buffer being null, it will just write silence instead
         viewer_node_->audio_playback_cache()->WritePCM(range,
                                                        valid_ranges,
-                                                       watcher->Get().value<SampleBufferPtr>());
+                                                       watcher->Get().value<SampleBuffer>());
       }
 
       viewer_node_->audio_playback_cache()->WriteWaveform(range, valid_ranges, &waveform);

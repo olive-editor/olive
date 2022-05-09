@@ -195,7 +195,7 @@ bool RenderTask::Render(ColorManager* manager,
 
         TimeRange range = watcher->property("range").value<TimeRange>();
 
-        if (!AudioDownloaded(range, watcher->Get().value<SampleBufferPtr>())) {
+        if (!AudioDownloaded(range, watcher->Get().value<SampleBuffer>())) {
           result = false;
         }
 

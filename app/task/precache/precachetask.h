@@ -40,7 +40,7 @@ protected:
 
   virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) override;
 
-  virtual bool AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+  virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) override;
 
 private:
   Project* project_;

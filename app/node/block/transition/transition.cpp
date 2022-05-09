@@ -206,25 +206,22 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
     push_job = QVariant::fromValue(job);
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
-    SampleBufferPtr from_samples = out_buffer.toSamples();
-    SampleBufferPtr to_samples = in_buffer.toSamples();
+    SampleBuffer from_samples = out_buffer.toSamples();
+    SampleBuffer to_samples = in_buffer.toSamples();
 
-    if (from_samples || to_samples) {
+    if (from_samples.is_allocated() || to_samples.is_allocated()) {
       double time_in = globals.time().in().toDouble();
       double time_out = globals.time().out().toDouble();
 
-      const AudioParams& params = (from_samples) ? from_samples->audio_params() : to_samples->audio_params();
+      const AudioParams& params = (from_samples.is_allocated()) ? from_samples.audio_params() : to_samples.audio_params();
 
-      SampleBufferPtr out_samples;
+      SampleBuffer out_samples;
 
       if (params.is_valid()) {
         int nb_samples = params.time_to_samples(time_out - time_in);
 
-        out_samples = SampleBuffer::CreateAllocated(params, nb_samples);
+        out_samples = SampleBuffer(params, nb_samples);
         SampleJobEvent(from_samples, to_samples, out_samples, time_in);
-      } else {
-        // Create dummy sample buffer
-        out_samples = SampleBuffer::Create();
       }
 
       job_type = NodeValue::kSamples;
@@ -249,20 +246,6 @@ void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &fro
   }
 
   super::InvalidateCache(r, from, element, options);
-}
-
-void TransitionBlock::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
-{
-  Q_UNUSED(value)
-  Q_UNUSED(job)
-}
-
-void TransitionBlock::SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const
-{
-  Q_UNUSED(from_samples)
-  Q_UNUSED(to_samples)
-  Q_UNUSED(out_samples)
-  Q_UNUSED(time_in)
 }
 
 double TransitionBlock::TransformCurve(double linear) const

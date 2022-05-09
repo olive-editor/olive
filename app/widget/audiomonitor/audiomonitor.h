@@ -59,7 +59,7 @@ public:
     }
   }
 
-  static void PushSampleBufferOnAll(SampleBufferPtr d)
+  static void PushSampleBufferOnAll(const SampleBuffer &d)
   {
     foreach (AudioMonitor *m, instances_) {
       m->PushSampleBuffer(d);
@@ -71,7 +71,7 @@ public slots:
 
   void Stop();
 
-  void PushSampleBuffer(SampleBufferPtr samples);
+  void PushSampleBuffer(const SampleBuffer &samples);
 
   void StartWaveform(const AudioVisualWaveform *waveform, const rational& start, int playback_speed);
 

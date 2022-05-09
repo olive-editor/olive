@@ -75,7 +75,7 @@ void AudioMonitor::Stop()
   // loop will stop itself since file_ and waveform_ are null.
 }
 
-void AudioMonitor::PushSampleBuffer(SampleBufferPtr d)
+void AudioMonitor::PushSampleBuffer(const SampleBuffer &d)
 {
   if (!params_.channel_count()) {
     return;
@@ -83,7 +83,7 @@ void AudioMonitor::PushSampleBuffer(SampleBufferPtr d)
 
   QVector<double> v(params_.channel_count(), 0);
 
-  AudioVisualWaveform::Sample summed = AudioVisualWaveform::SumSamples(d, 0, d->sample_count());
+  AudioVisualWaveform::Sample summed = AudioVisualWaveform::SumSamples(d, 0, d.sample_count());
 
   AudioVisualWaveformSampleToInternalValues(summed, v);
 

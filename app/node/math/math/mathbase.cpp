@@ -298,18 +298,18 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
   case kPairSampleSample:
   {
-    SampleBufferPtr samples_a = val_a.toSamples();
-    SampleBufferPtr samples_b = val_b.toSamples();
+    SampleBuffer samples_a = val_a.toSamples();
+    SampleBuffer samples_b = val_b.toSamples();
 
-    int max_samples = qMax(samples_a->sample_count(), samples_b->sample_count());
-    int min_samples = qMin(samples_a->sample_count(), samples_b->sample_count());
+    int max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
+    int min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
-    SampleBufferPtr mixed_samples = SampleBuffer::CreateAllocated(samples_a->audio_params(), max_samples);
+    SampleBuffer mixed_samples = SampleBuffer(samples_a.audio_params(), max_samples);
 
-    for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
+    for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
       // Mix samples that are in both buffers
       for (int j=0;j<min_samples;j++) {
-        mixed_samples->data(i)[j] = PerformAll<float, float>(operation, samples_a->data(i)[j], samples_b->data(i)[j]);
+        mixed_samples.data(i)[j] = PerformAll<float, float>(operation, samples_a.data(i)[j], samples_b.data(i)[j]);
       }
     }
 
@@ -317,11 +317,11 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       // Fill in remainder space with 0s
       int remainder = max_samples - min_samples;
 
-      SampleBufferPtr larger_buffer = (max_samples == samples_a->sample_count()) ? samples_a : samples_b;
+      const SampleBuffer &larger_buffer = (max_samples == samples_a.sample_count()) ? samples_a : samples_b;
 
-      for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
-        memcpy(&mixed_samples->data(i)[min_samples],
-               &larger_buffer->data(i)[min_samples],
+      for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
+        memcpy(&mixed_samples.data(i)[min_samples],
+               &larger_buffer.data(i)[min_samples],
                remainder * sizeof(float));
       }
     }
@@ -396,24 +396,25 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
     float number = RetrieveNumber(number_val);
 
-    SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
-    job.InsertValue(number_param, NodeValue(NodeValue::kFloat, number, this));
+    SampleBuffer buffer = val_a.type() == NodeValue::kSamples ? val_a.toSamples() : val_b.toSamples();
 
-    if (job.HasSamples()) {
+    if (buffer.is_allocated()) {
       if (IsInputStatic(number_param)) {
         if (!NumberIsNoOp(operation, number)) {
-          for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
+          for (int i=0;i<buffer.audio_params().channel_count();i++) {
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
             // Use SSE instructions for optimization
-            PerformAllOnFloatBufferSSE(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
+            PerformAllOnFloatBufferSSE(operation, buffer.data(i), number, 0, buffer.sample_count());
 #else
-            PerformAllOnFloatBuffer(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
+            PerformAllOnFloatBuffer(operation, buffer.data(i), number, 0, buffer.sample_count());
 #endif
           }
         }
 
-        output->Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
+        output->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
       } else {
+        SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
+        job.InsertValue(number_param, NodeValue(NodeValue::kFloat, number, this));
         output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }
     }
@@ -426,7 +427,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
   }
 }
 
-void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBase::Operation operation, const QString &param_a_in, const QString &param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBase::Operation operation, const QString &param_a_in, const QString &param_b_in, const olive::SampleBuffer &input, olive::SampleBuffer &output, int index) const
 {
   // This function is only used for sample+number pairing
   NodeValue number_val = values[param_a_in];
@@ -441,8 +442,8 @@ void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBa
 
   float number_flt = RetrieveNumber(number_val);
 
-  for (int i=0;i<output->audio_params().channel_count();i++) {
-    output->data(i)[index] = PerformAll<float, float>(operation, input->data(i)[index], number_flt);
+  for (int i=0;i<output.audio_params().channel_count();i++) {
+    output.data(i)[index] = PerformAll<float, float>(operation, input.data(i)[index], number_flt);
   }
 }
 

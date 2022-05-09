@@ -1525,7 +1525,7 @@ ShaderCode Node::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(QString(), QString());
 }
 
-void Node::ProcessSamples(const NodeValueRow &, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(const NodeValueRow &, const SampleBuffer &, SampleBuffer &, int) const
 {
 }
 

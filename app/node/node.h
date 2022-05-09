@@ -691,7 +691,7 @@ public:
   /**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.
    */
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const;
 
   /**
    * @brief If Value() pushes a GenerateJob, override this function for the image to create
