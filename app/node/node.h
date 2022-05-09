@@ -101,7 +101,8 @@ public:
     kNone = 0,
     kDontShowInParamView = 0x1,
     kVideoEffect = 0x2,
-    kAudioEffect = 0x4
+    kAudioEffect = 0x4,
+    kDontShowInCreateMenu = 0x8
   };
 
   struct ContextPair {

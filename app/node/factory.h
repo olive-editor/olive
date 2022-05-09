@@ -100,8 +100,6 @@ public:
 private:
   static QList<Node*> library_;
 
-  static QVector<int> hidden_;
-
 };
 
 }
