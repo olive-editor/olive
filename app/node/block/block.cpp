@@ -45,6 +45,8 @@ Block::Block() :
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
   IgnoreHashingFrom(kLengthInput);
 
+  SetInputFlags(kEnabledInput, InputFlags(GetInputFlags(kEnabledInput) | kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
   SetFlags(kDontShowInParamView);
 }
 

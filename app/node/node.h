@@ -552,7 +552,12 @@ public:
 
   NodeInput GetEffectInput()
   {
-    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_, effect_element_);
+    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_);
+  }
+
+  const QString &GetEffectInputID() const
+  {
+    return effect_input_;
   }
 
   class ValueHint {
@@ -665,6 +670,12 @@ public:
     ShaderRequest(const QString &shader_id)
     {
       id = shader_id;
+    }
+
+    ShaderRequest(const QString &shader_id, const QString &shader_stub)
+    {
+      id = shader_id;
+      stub = shader_stub;
     }
 
     QString id;
@@ -1058,10 +1069,9 @@ protected:
 
   virtual void childEvent(QChildEvent *event) override;
 
-  void SetEffectInput(const QString &input, int element = -1)
+  void SetEffectInput(const QString &input)
   {
     effect_input_ = input;
-    effect_element_ = element;
   }
 
   void SetToolTip(const QString& s)
@@ -1161,6 +1171,8 @@ signals:
   void NodePositionInContextChanged(Node *node, const QPointF &pos);
 
   void NodeRemovedFromContext(Node *node);
+
+  void InputFlagsChanged(const QString &input, const InputFlags &flags);
 
   // emitted after one or more inputs have been added or removed.
   // Only applicable for nodes that change input list dynamically.
@@ -1388,7 +1400,6 @@ private:
   QVector<NodeGizmo*> gizmos_;
 
   QString effect_input_;
-  int effect_element_;
 
 private slots:
   /**

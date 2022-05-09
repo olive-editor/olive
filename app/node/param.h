@@ -65,6 +65,19 @@ public:
     return *this;
   }
 
+  InputFlags operator|(const InputFlag &f) const
+  {
+    InputFlags i = *this;
+    i |= f;
+    return i;
+  }
+
+  InputFlags &operator|=(const InputFlag &f)
+  {
+    f_ |= f;
+    return *this;
+  }
+
   InputFlags operator&(const InputFlags &f) const
   {
     InputFlags i = *this;

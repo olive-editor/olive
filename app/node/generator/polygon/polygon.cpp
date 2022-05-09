@@ -89,13 +89,20 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+GenerateJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
 {
   GenerateJob job;
 
   job.InsertValue(value);
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+
+  return job;
+}
+
+void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  GenerateJob job = GetGenerateJob(value);
 
   PushMergableJob(value, QVariant::fromValue(job), table);
 }

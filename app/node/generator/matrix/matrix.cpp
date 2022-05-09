@@ -44,7 +44,7 @@ MatrixGenerator::MatrixGenerator()
   AddInput(kScaleInput, NodeValue::kVec2, QVector2D(1.0f, 1.0f));
   SetInputProperty(kScaleInput, QStringLiteral("min"), QVector2D(0, 0));
   SetInputProperty(kScaleInput, QStringLiteral("view"), FloatSlider::kPercentage);
-  SetInputProperty(kScaleInput, QStringLiteral("disabley"), true);
+  SetInputProperty(kScaleInput, QStringLiteral("disable1"), true);
 
   AddInput(kUniformScaleInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
@@ -183,7 +183,7 @@ void MatrixGenerator::InputValueChangedEvent(const QString &input, int element)
   Q_UNUSED(element)
 
   if (input == kUniformScaleInput) {
-    SetInputProperty(kScaleInput, QStringLiteral("disabley"), GetStandardValue(kUniformScaleInput).toBool());
+    SetInputProperty(kScaleInput, QStringLiteral("disable1"), GetStandardValue(kUniformScaleInput).toBool());
   }
 }
 

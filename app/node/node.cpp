@@ -50,8 +50,7 @@ Node::Node() :
   folder_(nullptr),
   operation_stack_(0),
   cache_result_(false),
-  flags_(kNone),
-  effect_element_(-1)
+  flags_(kNone)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
 }
@@ -918,6 +917,7 @@ void Node::SetInputFlags(const QString &input, const InputFlags &f)
 
   if (i) {
     i->flags = f;
+    emit InputFlagsChanged(input, i->flags);
   } else {
     ReportInvalidInput("set flags of", input);
   }

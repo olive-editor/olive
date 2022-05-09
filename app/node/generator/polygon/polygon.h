@@ -57,6 +57,9 @@ public:
   static const QString kPointsInput;
   static const QString kColorInput;
 
+protected:
+  GenerateJob GetGenerateJob(const NodeValueRow &value) const;
+
 protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 

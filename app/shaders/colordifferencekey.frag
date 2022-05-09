@@ -51,7 +51,7 @@ void main(void) {
     }
 
     // Crush blacks and push whites
-    mask = highlights_in * 0.01 * (shadows_in * 0.01 * mask - 1.0) + 1.0;
+    mask = highlights_in * (shadows_in * mask - 1.0) + 1.0;
     mask = clamp(mask, 0.0, 1.0);
 
     // Invert mask

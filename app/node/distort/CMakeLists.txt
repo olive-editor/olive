@@ -17,6 +17,7 @@
 add_subdirectory(cornerpin)
 add_subdirectory(crop)
 add_subdirectory(flip)
+add_subdirectory(mask)
 add_subdirectory(transform)
 
 set(OLIVE_SOURCES

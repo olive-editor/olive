@@ -39,6 +39,8 @@ protected:
 
   virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job) override;
+
   virtual void ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
 
   virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job) override;

@@ -69,7 +69,7 @@ void NumericSliderBase::LadderDragged(int value, double multiplier)
 {
   dragged_ = true;
 
-  dragged_diff_ += value * drag_multiplier_ * multiplier;
+  dragged_diff_ += value * multiplier;
 
   // Store current value to try and prevent any unnecessary signalling if the value doesn't change
   QVariant pre_set_value = GetValueInternal();

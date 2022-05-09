@@ -44,7 +44,7 @@ void main() {
   }
 
   // Perform color conversion
-  col = %2(col);
+  col = OCIODisplay(col);
 
   // Associate or re-associate here
   if (ove_maintex_alpha == ALPHA_ASSOC) {

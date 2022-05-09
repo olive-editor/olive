@@ -275,6 +275,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   auto_cacher_.SetViewerNode(n);
+  display_widget_->SetSubtitleTracks(dynamic_cast<Sequence*>(n));
 }
 
 void ViewerWidget::ScaleChangedEvent(const double &s)
@@ -1187,6 +1188,13 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     show_fps_action->setCheckable(true);
     show_fps_action->setChecked(display_widget_->GetShowFPS());
     connect(show_fps_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetShowFPS);
+  }
+
+  if (context_menu_widget_ == display_widget_) {
+    QAction* show_subtitles_action = menu.addAction(tr("Show Subtitles"));
+    show_subtitles_action->setCheckable(true);
+    show_subtitles_action->setChecked(display_widget_->GetShowSubtitles());
+    connect(show_subtitles_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetShowSubtitles);
   }
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));

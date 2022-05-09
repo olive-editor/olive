@@ -25,6 +25,7 @@
 #include <QVector>
 
 #include "generatejob.h"
+#include "render/colorprocessor.h"
 #include "render/texture.h"
 
 namespace olive {

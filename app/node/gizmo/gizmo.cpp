@@ -22,7 +22,8 @@
 
 namespace olive {
 
-NodeGizmo::NodeGizmo(QObject *parent)
+NodeGizmo::NodeGizmo(QObject *parent) :
+  visible_(true)
 {
   setParent(parent);
 }

@@ -41,11 +41,6 @@ public:
     return tr("Transform");
   }
 
-  virtual QString ShortName() const override
-  {
-    return Node::ShortName();
-  }
-
   virtual QString id() const override
   {
     return QStringLiteral("org.olivevideoeditor.Olive.transform");

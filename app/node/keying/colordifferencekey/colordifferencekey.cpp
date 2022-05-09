@@ -37,11 +37,13 @@ ColorDifferenceKeyNode::ColorDifferenceKeyNode()
 
   AddInput(kColorInput, NodeValue::kCombo, 0);
 
-  AddInput(kHighlightsInput, NodeValue::kFloat, 100.0f);
+  AddInput(kHighlightsInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kHighlightsInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kHighlightsInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kShadowsInput, NodeValue::kFloat, 100.0f);
+  AddInput(kShadowsInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kShadowsInput, QStringLiteral("base"), 0.01);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 

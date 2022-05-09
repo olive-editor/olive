@@ -29,6 +29,7 @@
 #include "common/timerange.h"
 #include "node/node.h"
 #include "render/colorprocessor.h"
+#include "render/job/colortransformjob.h"
 #include "render/videoparams.h"
 #include "texture.h"
 
@@ -63,14 +64,15 @@ public:
     Blit(shader, job, nullptr, params, clear_destination);
   }
 
-  enum AlphaAssociated {
-    kAlphaNone,
-    kAlphaUnassociated,
-    kAlphaAssociated
-  };
-
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, Texture* destination, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
-  void BlitColorManaged(ColorProcessorPtr color_processor, TexturePtr source, AlphaAssociated source_alpha_association, VideoParams params, bool clear_destination = true, const QMatrix4x4& matrix = QMatrix4x4(), const QMatrix4x4 &crop_matrix = QMatrix4x4());
+  void BlitColorManaged(const ColorTransformJob &color_job, Texture* destination, const VideoParams &params);
+  void BlitColorManaged(const ColorTransformJob &job, Texture* destination)
+  {
+    BlitColorManaged(job, destination, destination->params());
+  }
+  void BlitColorManaged(const ColorTransformJob &job, const VideoParams &params)
+  {
+    BlitColorManaged(job, nullptr, params);
+  }
 
   TexturePtr InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params);
 
@@ -126,12 +128,7 @@ private:
 
   };
 
-  bool GetColorContext(ColorProcessorPtr color_processor, ColorContext* ctx);
-
-  void BlitColorManagedInternal(ColorProcessorPtr color_processor, TexturePtr source,
-                                AlphaAssociated source_alpha_association,
-                                Texture* destination, VideoParams params, bool clear_destination,
-                                const QMatrix4x4 &matrix, const QMatrix4x4 &crop_matrix);
+  bool GetColorContext(const ColorTransformJob &color_job, ColorContext* ctx);
 
   QHash<QString, ColorContext> color_cache_;
 
