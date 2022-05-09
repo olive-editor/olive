@@ -1311,7 +1311,7 @@ void NodeView::UngroupNodes()
     return;
   }
 
-  NodeGroup *group;
+  NodeGroup *group = nullptr;
   foreach (NodeViewItem *i, items) {
     if ((group = dynamic_cast<NodeGroup*>(i->GetNode()))) {
       group_item = i;
