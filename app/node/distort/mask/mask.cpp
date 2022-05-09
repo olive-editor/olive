@@ -20,20 +20,32 @@
 
 #include "mask.h"
 
+#include "node/filter/blur/blur.h"
+
 namespace olive {
 
 #define super PolygonGenerator
+
+const QString MaskDistortNode::kFeatherInput = QStringLiteral("feather_in");
 
 MaskDistortNode::MaskDistortNode()
 {
   // Mask should always be (1.0, 1.0, 1.0) for multiply to work correctly
   SetInputFlags(kColorInput, InputFlags(GetInputFlags(kColorInput) | kInputFlagHidden));
+
+  AddInput(kFeatherInput, NodeValue::kFloat, 0.0);
+  SetInputProperty(kFeatherInput, QStringLiteral("min"), 0.0);
 }
 
 ShaderCode MaskDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(request)
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/multiply.frag")));
+  if (request.id == QStringLiteral("mrg")) {
+    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/multiply.frag")));
+  } else if (request.id == QStringLiteral("feather")) {
+    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/blur.frag")));
+  } else {
+    return ShaderCode();
+  }
 }
 
 void MaskDistortNode::Retranslate()
@@ -41,6 +53,7 @@ void MaskDistortNode::Retranslate()
   super::Retranslate();
 
   SetInputName(kBaseInput, tr("Texture"));
+  SetInputName(kFeatherInput, tr("Feather"));
 }
 
 void MaskDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
@@ -53,7 +66,26 @@ void MaskDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
 
     merge.SetShaderID(QStringLiteral("mrg"));
     merge.InsertValue(QStringLiteral("tex_a"), value[kBaseInput]);
-    merge.InsertValue(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, QVariant::fromValue(job), this));
+
+    if (value[kFeatherInput].toDouble() > 0.0) {
+      // Nest a blur shader in there too
+      ShaderJob feather;
+
+      feather.SetShaderID(QStringLiteral("feather"));
+      feather.InsertValue(BlurFilterNode::kTextureInput, NodeValue(NodeValue::kTexture, job, this));
+      feather.InsertValue(BlurFilterNode::kMethodInput, NodeValue(NodeValue::kInt, int(BlurFilterNode::kGaussian), this));
+      feather.InsertValue(BlurFilterNode::kHorizInput, NodeValue(NodeValue::kBoolean, true, this));
+      feather.InsertValue(BlurFilterNode::kVertInput, NodeValue(NodeValue::kBoolean, true, this));
+      feather.InsertValue(BlurFilterNode::kRepeatEdgePixelsInput, NodeValue(NodeValue::kBoolean, true, this));
+      feather.InsertValue(BlurFilterNode::kRadiusInput, NodeValue(NodeValue::kFloat, value[kFeatherInput].toDouble(), this));
+      feather.SetIterations(2, BlurFilterNode::kTextureInput);
+      feather.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+      feather.SetAlphaChannelRequired(ShaderJob::kAlphaForceOn);
+
+      merge.InsertValue(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, feather, this));
+    } else {
+      merge.InsertValue(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, job, this));
+    }
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);
   }
