@@ -34,10 +34,6 @@
 
 namespace olive {
 
-const QVector<NodeValue::Type> NodeValue::kNumber = {kFloat, kInt, kRational};
-const QVector<NodeValue::Type> NodeValue::kBuffer = {kTexture, kSamples};
-const QVector<NodeValue::Type> NodeValue::kVector = {kVec2, kVec3, kVec4};
-
 QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool value_is_a_key_track)
 {
   if (!value_is_a_key_track && data_type == kVec2) {

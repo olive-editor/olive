@@ -184,10 +184,6 @@ public:
     kDataTypeCount
   };
 
-  static const QVector<Type> kNumber;
-  static const QVector<Type> kBuffer;
-  static const QVector<Type> kVector;
-
   NodeValue() :
     type_(kNone),
     from_(nullptr),
@@ -295,12 +291,22 @@ public:
 
   static bool type_is_numeric(NodeValue::Type type)
   {
-    return kNumber.contains(type);
+    return type == kFloat
+        || type == kInt
+        || type == kRational;
   }
 
   static bool type_is_vector(NodeValue::Type type)
   {
-    return kVector.contains(type);
+    return type == kVec2
+        || type == kVec3
+        || type == kVec4;
+  }
+
+  static bool type_is_buffer(NodeValue::Type type)
+  {
+    return type == kTexture
+        || type == kSamples;
   }
 
   static int get_number_of_keyframe_tracks(Type type);
