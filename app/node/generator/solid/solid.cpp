@@ -64,7 +64,7 @@ void SolidGenerator::Retranslate()
 void SolidGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
-  job.InsertValue(value);
+  job.Insert(value);
   table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 }
 

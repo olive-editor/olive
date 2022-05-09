@@ -58,7 +58,7 @@ ShaderCode DipToColorTransition::GetShaderCode(const ShaderRequest &request) con
 
 void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
 {
-  job.InsertValue(kColorInput, value);
+  job.Insert(kColorInput, value);
 }
 
 }

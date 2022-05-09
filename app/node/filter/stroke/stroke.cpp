@@ -88,15 +88,15 @@ void StrokeFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
 {
   ShaderJob job;
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
-  if (job.GetValue(kTextureInput).toTexture()) {
-    if (job.GetValue(kRadiusInput).toDouble() > 0.0
-        && job.GetValue(kOpacityInput).toDouble() > 0.0) {
+  if (job.Get(kTextureInput).toTexture()) {
+    if (job.Get(kRadiusInput).toDouble() > 0.0
+        && job.Get(kOpacityInput).toDouble() > 0.0) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(job.Get(kTextureInput));
     }
   }
 }

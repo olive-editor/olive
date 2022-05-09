@@ -162,15 +162,15 @@ double TransitionBlock::GetInternalTransitionTime(const double &time) const
 void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &time) const
 {
   // Provides total transition progress from 0.0 (start) - 1.0 (end)
-  job->InsertValue(QStringLiteral("ove_tprog_all"),
+  job->Insert(QStringLiteral("ove_tprog_all"),
                    NodeValue(NodeValue::kFloat, GetTotalProgress(time), this));
 
   // Provides progress of out section from 1.0 (start) - 0.0 (end)
-  job->InsertValue(QStringLiteral("ove_tprog_out"),
+  job->Insert(QStringLiteral("ove_tprog_out"),
                    NodeValue(NodeValue::kFloat, GetOutProgress(time), this));
 
   // Provides progress of in section from 0.0 (start) - 1.0 (end)
-  job->InsertValue(QStringLiteral("ove_tprog_in"),
+  job->Insert(QStringLiteral("ove_tprog_in"),
                    NodeValue(NodeValue::kFloat, GetInProgress(time), this));
 }
 
@@ -188,14 +188,14 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
     ShaderJob job;
 
     if (out_buffer.type() != NodeValue::kNone) {
-      job.InsertValue(kOutBlockInput, out_buffer);
+      job.Insert(kOutBlockInput, out_buffer);
     }
 
     if (in_buffer.type() != NodeValue::kNone) {
-      job.InsertValue(kInBlockInput, in_buffer);
+      job.Insert(kInBlockInput, in_buffer);
     }
 
-    job.InsertValue(kCurveInput, value);
+    job.Insert(kCurveInput, value);
 
     double time = globals.time().in().toDouble();
     InsertTransitionTimes(&job, time);

@@ -114,8 +114,8 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
       } else {
         // No color transform, just blit
         ShaderJob job;
-        job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
-        job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
+        job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
+        job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
 
         render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
       }

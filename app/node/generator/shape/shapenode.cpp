@@ -74,8 +74,8 @@ void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
 {
   ShaderJob job;
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.SetShaderID(QStringLiteral("shape"));
 

@@ -65,26 +65,26 @@ void MaskDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
     ShaderJob merge;
 
     merge.SetShaderID(QStringLiteral("mrg"));
-    merge.InsertValue(QStringLiteral("tex_a"), value[kBaseInput]);
+    merge.Insert(QStringLiteral("tex_a"), value[kBaseInput]);
 
     if (value[kFeatherInput].toDouble() > 0.0) {
       // Nest a blur shader in there too
       ShaderJob feather;
 
       feather.SetShaderID(QStringLiteral("feather"));
-      feather.InsertValue(BlurFilterNode::kTextureInput, NodeValue(NodeValue::kTexture, job, this));
-      feather.InsertValue(BlurFilterNode::kMethodInput, NodeValue(NodeValue::kInt, int(BlurFilterNode::kGaussian), this));
-      feather.InsertValue(BlurFilterNode::kHorizInput, NodeValue(NodeValue::kBoolean, true, this));
-      feather.InsertValue(BlurFilterNode::kVertInput, NodeValue(NodeValue::kBoolean, true, this));
-      feather.InsertValue(BlurFilterNode::kRepeatEdgePixelsInput, NodeValue(NodeValue::kBoolean, true, this));
-      feather.InsertValue(BlurFilterNode::kRadiusInput, NodeValue(NodeValue::kFloat, value[kFeatherInput].toDouble(), this));
+      feather.Insert(BlurFilterNode::kTextureInput, NodeValue(NodeValue::kTexture, job, this));
+      feather.Insert(BlurFilterNode::kMethodInput, NodeValue(NodeValue::kInt, int(BlurFilterNode::kGaussian), this));
+      feather.Insert(BlurFilterNode::kHorizInput, NodeValue(NodeValue::kBoolean, true, this));
+      feather.Insert(BlurFilterNode::kVertInput, NodeValue(NodeValue::kBoolean, true, this));
+      feather.Insert(BlurFilterNode::kRepeatEdgePixelsInput, NodeValue(NodeValue::kBoolean, true, this));
+      feather.Insert(BlurFilterNode::kRadiusInput, NodeValue(NodeValue::kFloat, value[kFeatherInput].toDouble(), this));
       feather.SetIterations(2, BlurFilterNode::kTextureInput);
-      feather.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+      feather.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
       feather.SetAlphaChannelRequired(ShaderJob::kAlphaForceOn);
 
-      merge.InsertValue(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, feather, this));
+      merge.Insert(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, feather, this));
     } else {
-      merge.InsertValue(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, job, this));
+      merge.Insert(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, job, this));
     }
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);

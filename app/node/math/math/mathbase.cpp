@@ -341,8 +341,8 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
                                                       QString::number(val_a.type()),
                                                       QString::number(val_b.type())));
 
-    job.InsertValue(param_a_in, val_a);
-    job.InsertValue(param_b_in, val_b);
+    job.Insert(param_a_in, val_a);
+    job.Insert(param_b_in, val_b);
 
     bool operation_is_noop = false;
 
@@ -370,7 +370,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
         operation_is_noop = true;
       } else {
         // Replace with adjusted matrix
-        job.InsertValue(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
+        job.Insert(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
                         NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
 
         // It's likely an alpha channel will result from this operation
@@ -414,7 +414,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
         output->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
       } else {
         SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
-        job.InsertValue(number_param, NodeValue(NodeValue::kFloat, number, this));
+        job.Insert(number_param, NodeValue(NodeValue::kFloat, number, this));
         output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }
     }

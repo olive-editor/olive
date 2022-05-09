@@ -96,11 +96,11 @@ void TextGeneratorV2::Retranslate()
 void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   GenerateJob job;
-  job.InsertValue(value);
+  job.Insert(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
 
-  if (!job.GetValue(kTextInput).toString().isEmpty()) {
+  if (!job.Get(kTextInput).toString().isEmpty()) {
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
@@ -124,19 +124,19 @@ void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
 
   // Set default font
   QFont default_font;
-  default_font.setFamily(job.GetValue(kFontInput).toString());
-  default_font.setPointSizeF(job.GetValue(kFontSizeInput).toDouble());
+  default_font.setFamily(job.Get(kFontInput).toString());
+  default_font.setPointSizeF(job.Get(kFontSizeInput).toDouble());
   text_doc.setDefaultFont(default_font);
 
-  QString html = job.GetValue(kTextInput).toString();
-  if (job.GetValue(kHtmlInput).toBool()) {
+  QString html = job.Get(kTextInput).toString();
+  if (job.Get(kHtmlInput).toBool()) {
     html.replace('\n', QStringLiteral("<br>"));
     text_doc.setHtml(html);
   } else {
     text_doc.setPlainText(html);
   }
 
-  QVector2D size = job.GetValue(kSizeInput).toVec2();
+  QVector2D size = job.Get(kSizeInput).toVec2();
   text_doc.setTextWidth(size.x());
 
   // Draw rich text onto image
@@ -144,12 +144,12 @@ void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   p.scale(1.0 / frame->video_params().divider(), 1.0 / frame->video_params().divider());
 
 
-  QVector2D pos = job.GetValue(kPositionInput).toVec2();
+  QVector2D pos = job.Get(kPositionInput).toVec2();
   p.translate(pos.x() - size.x()/2, pos.y() - size.y()/2);
   p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
   p.setClipRect(0, 0, size.x(), size.y());
 
-  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(kVAlignInput).toInt());
+  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.Get(kVAlignInput).toInt());
   int doc_height = text_doc.size().height();
 
   switch (valign) {
@@ -171,7 +171,7 @@ void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   text_doc.documentLayout()->draw(&p, ctx);
 
   // Transplant alpha channel to frame
-  Color rgba = job.GetValue(kColorInput).toColor();
+  Color rgba = job.Get(kColorInput).toColor();
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   __m128 sse_color = _mm_loadu_ps(rgba.data());
 #endif

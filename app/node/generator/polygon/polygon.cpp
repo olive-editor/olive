@@ -93,7 +93,7 @@ GenerateJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
 {
   GenerateJob job;
 
-  job.InsertValue(value);
+  job.Insert(value);
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
@@ -116,7 +116,7 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
   img.fill(Qt::transparent);
 
-  QVector<NodeValue> points = job.GetValue(kPointsInput).value< QVector<NodeValue> >();
+  QVector<NodeValue> points = job.Get(kPointsInput).value< QVector<NodeValue> >();
 
   QPainterPath path = GeneratePath(points);
 
@@ -130,7 +130,7 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   p.drawPath(path);
 
   // Transplant alpha channel to frame
-  Color rgba = job.GetValue(kColorInput).toColor();
+  Color rgba = job.Get(kColorInput).toColor();
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   __m128 sse_color = _mm_loadu_ps(rgba.data());
 #endif

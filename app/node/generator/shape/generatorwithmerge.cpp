@@ -58,8 +58,8 @@ void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, const QVaria
     ShaderJob merge;
 
     merge.SetShaderID(QStringLiteral("mrg"));
-    merge.InsertValue(MergeNode::kBaseIn, value[kBaseInput]);
-    merge.InsertValue(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
+    merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
+    merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);
   } else {

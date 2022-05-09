@@ -78,18 +78,18 @@ void CropDistortNode::Retranslate()
 void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  if (job.GetValue(kTextureInput).toTexture()) {
-    if (!qIsNull(job.GetValue(kLeftInput).toDouble())
-        || !qIsNull(job.GetValue(kRightInput).toDouble())
-        || !qIsNull(job.GetValue(kTopInput).toDouble())
-        || !qIsNull(job.GetValue(kBottomInput).toDouble())) {
+  if (job.Get(kTextureInput).toTexture()) {
+    if (!qIsNull(job.Get(kLeftInput).toDouble())
+        || !qIsNull(job.Get(kRightInput).toDouble())
+        || !qIsNull(job.Get(kTopInput).toDouble())
+        || !qIsNull(job.Get(kBottomInput).toDouble())) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(job.Get(kTextureInput));
     }
   }
 }

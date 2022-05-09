@@ -70,9 +70,9 @@ void CornerPinDistortNode::Retranslate()
 void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
-  job.InsertValue(value);
+  job.Insert(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
   // Convert slider values to their pixel values and then convert to clip space (-1.0 ... 1.0) for overriding the
   // vertex coordinates.
@@ -94,16 +94,16 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   job.SetVertexCoordinates(adjusted_vertices);
 
   // If no texture do nothing
-  if (job.GetValue(kTextureInput).toTexture()) {
+  if (job.Get(kTextureInput).toTexture()) {
     // In the special case that all sliders are in their default position just
     // push the texture.
-    if (!(job.GetValue(kTopLeftInput).toVec2().isNull()
-        && job.GetValue(kTopRightInput).toVec2().isNull() &&
-        job.GetValue(kBottomRightInput).toVec2().isNull() &&
-        job.GetValue(kBottomLeftInput).toVec2().isNull())) {
+    if (!(job.Get(kTopLeftInput).toVec2().isNull()
+        && job.Get(kTopRightInput).toVec2().isNull() &&
+        job.Get(kBottomRightInput).toVec2().isNull() &&
+        job.Get(kBottomLeftInput).toVec2().isNull())) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(job.Get(kTextureInput));
     }
   }
 }

@@ -121,25 +121,25 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
 {
   ShaderJob job;
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
-  Method method = static_cast<Method>(job.GetValue(kMethodInput).toInt());
+  Method method = static_cast<Method>(job.Get(kMethodInput).toInt());
 
   // If there's no texture, no need to run an operation
-  if (job.GetValue(kTextureInput).toTexture()) {
+  if (job.Get(kTextureInput).toTexture()) {
 
     bool can_push_job = true;
 
     // Check if radius is > 0
-    if (job.GetValue(kRadiusInput).toDouble() > 0.0) {
+    if (job.Get(kRadiusInput).toDouble() > 0.0) {
       // Method-specific considerations
       switch (method) {
       case kBox:
       case kGaussian:
       {
-        bool horiz = job.GetValue(kHorizInput).toBool();
-        bool vert = job.GetValue(kVertInput).toBool();
+        bool horiz = job.Get(kHorizInput).toBool();
+        bool vert = job.Get(kVertInput).toBool();
 
         if (!horiz && !vert) {
           // Disable job if horiz and vert are unchecked
@@ -160,14 +160,14 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
 
     if (can_push_job) {
       // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.GetValue(kRepeatEdgePixelsInput).toBool()) {
+      if (!job.Get(kRepeatEdgePixelsInput).toBool()) {
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       // If we're not performing the blur job, just push the texture
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(job.Get(kTextureInput));
     }
 
   }

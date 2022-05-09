@@ -552,7 +552,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   // Ensure matrix is set, at least to identity
   GLint mvpmat_location = functions_->glGetUniformLocation(shader, "ove_mvpmat");
   if (mvpmat_location > -1) {
-    functions_->glUniformMatrix4fv(mvpmat_location, 1, false, job.GetValue(QStringLiteral("ove_mvpmat")).toMatrix().constData());
+    functions_->glUniformMatrix4fv(mvpmat_location, 1, false, job.Get(QStringLiteral("ove_mvpmat")).toMatrix().constData());
   }
 
   // Set the viewport to the "physical" resolution of the destination

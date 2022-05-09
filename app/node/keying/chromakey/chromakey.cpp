@@ -131,7 +131,7 @@ void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
   if (value[kTextureInput].toTexture() && processor()) {
     ColorTransformJob job;
 
-    job.InsertValue(value);
+    job.Insert(value);
     job.SetAlphaChannelRequired(ColorTransformJob::kAlphaForceOn);
     job.SetColorProcessor(processor());
     job.SetInputTexture(value[kTextureInput].toTexture());
