@@ -221,39 +221,39 @@ void PreviewAutoCacher::AudioRendered()
           // Wait for conform
           audio_needing_conform_.insert(range);
         }
-      }
+      } else{
+        // Retrieve visual waveforms
+        QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
+        foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
+          // Find original track
+          ClipBlock* block = nullptr;
 
-      // Retrieve visual waveforms
-      QVector<RenderProcessor::RenderedWaveform> waveform_list = watcher->GetTicket()->property("waveforms").value< QVector<RenderProcessor::RenderedWaveform> >();
-      foreach (const RenderProcessor::RenderedWaveform& waveform_info, waveform_list) {
-        // Find original track
-        ClipBlock* block = nullptr;
-
-        for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
-          if (it.value() == waveform_info.block) {
-            block = static_cast<ClipBlock*>(it.key());
-            break;
-          }
-        }
-
-        if (block && !valid_ranges.isEmpty()) {
-          // Generate visual waveform in this background thread
-          block->waveform().set_channel_count(viewer_node_->GetAudioParams().channel_count());
-
-          // Determine which of the waveform ranges we got intersects with the valid ranges
-          TimeRangeList intersections = valid_ranges.Intersects(waveform_info.range + block->in());
-          foreach (TimeRange r, intersections) {
-            // For each range, adjust it relative to the block and write it
-            r -= block->in();
-
-            if (waveform_info.silence) {
-              block->waveform().OverwriteSilence(r.in(), r.length());
-            } else {
-              block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
+          for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
+            if (it.value() == waveform_info.block) {
+              block = static_cast<ClipBlock*>(it.key());
+              break;
             }
           }
 
-          emit block->PreviewChanged();
+          if (block && !valid_ranges.isEmpty()) {
+            // Generate visual waveform in this background thread
+            block->waveform().set_channel_count(viewer_node_->GetAudioParams().channel_count());
+
+            // Determine which of the waveform ranges we got intersects with the valid ranges
+            TimeRangeList intersections = valid_ranges.Intersects(waveform_info.range + block->in());
+            foreach (TimeRange r, intersections) {
+              // For each range, adjust it relative to the block and write it
+              r -= block->in();
+
+              if (waveform_info.silence) {
+                block->waveform().OverwriteSilence(r.in(), r.length());
+              } else {
+                block->waveform().OverwriteSums(waveform_info.waveform, r.in(), r.in() - waveform_info.range.in(), r.length());
+              }
+            }
+
+            emit block->PreviewChanged();
+          }
         }
       }
     }
