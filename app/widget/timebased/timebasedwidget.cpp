@@ -782,6 +782,14 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
     }
   }
 
+  if ((snap_points & kSnapToWorkarea) && ruler()->GetTimelinePoints()) {
+    const rational &workarea_in = ruler()->GetTimelinePoints()->workarea()->in();
+    const rational &workarea_out = ruler()->GetTimelinePoints()->workarea()->out();
+
+    AttemptSnap(potential_snaps, screen_pt, TimeToScene(workarea_in), start_times, workarea_in);
+    AttemptSnap(potential_snaps, screen_pt, TimeToScene(workarea_out), start_times, workarea_out);
+  }
+
   if ((snap_points & kSnapToKeyframes) && GetSnapKeyframes()) {
     for (auto it=GetSnapKeyframes()->cbegin(); it!=GetSnapKeyframes()->cend(); it++) {
       const QVector<NodeKeyframe*> &keys = (*it)->GetKeyframes();

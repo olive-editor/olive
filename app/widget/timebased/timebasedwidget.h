@@ -62,6 +62,7 @@ public:
     kSnapToPlayhead = 0x2,
     kSnapToMarkers = 0x4,
     kSnapToKeyframes = 0x8,
+    kSnapToWorkarea = 0x10,
     kSnapAll = UINT32_MAX
   };
 
