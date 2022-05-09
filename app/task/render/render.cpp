@@ -87,7 +87,7 @@ bool RenderTask::Render(ColorManager* manager,
     rational r;
     for (int i=0; iterator.GetNext(&r); i++) {
       if (IsCancelled()) {
-        return true;
+        break;
       }
 
       times[i] = r;
@@ -97,7 +97,7 @@ bool RenderTask::Render(ColorManager* manager,
     // Filter out duplicates
     for (int i=0; i<hashes.size(); i++) {
       if (IsCancelled()) {
-        return true;
+        break;
       }
 
       const QByteArray& hash = hashes.at(i);
