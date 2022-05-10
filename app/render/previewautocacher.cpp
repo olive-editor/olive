@@ -412,18 +412,18 @@ void PreviewAutoCacher::StartCachingRange(const TimeRange &range, TimeRangeList 
 {
   range_list->insert(range);
   tracker->insert(range, graph_changed_time_);
-
-  TryRender();
 }
 
 void PreviewAutoCacher::StartCachingVideoRange(const TimeRange &range)
 {
   StartCachingRange(range, &invalidated_video_, &video_job_tracker_);
+  RequeueFrames();
 }
 
 void PreviewAutoCacher::StartCachingAudioRange(const TimeRange &range)
 {
   StartCachingRange(range, &invalidated_audio_, &audio_job_tracker_);
+  TryRender();
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
