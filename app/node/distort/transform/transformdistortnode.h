@@ -41,6 +41,12 @@ public:
     return tr("Transform");
   }
 
+  virtual QString ShortName() const override
+  {
+    // Override MatrixGenerator's short name "Ortho"
+    return Name();
+  }
+
   virtual QString id() const override
   {
     return QStringLiteral("org.olivevideoeditor.Olive.transform");
