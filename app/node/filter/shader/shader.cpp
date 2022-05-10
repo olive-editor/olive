@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 namespace olive {
 
 #define super Node
+
 
 namespace  {
 const QString TEMPLATE(
@@ -123,23 +124,8 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
 
 void olive::ShaderFilterNode::onShaderCodeChanged()
 {
-  // pre-remove all inputs ...
-  for (QString oldInput : user_input_list_)
-  {
-    if (HasInputWithID(oldInput)) {
-      RemoveInput(oldInput);
-    }
-  }
-  user_input_list_.clear();
 
-  // remove all gizmos
-  QMap<QString, PointGizmo *>::iterator i;
-  for (i = handle_table_.begin(); i != handle_table_.end(); ++i) {
-      RemoveGizmo(i.value());
-  }
-  handle_table_.clear();
-
-  // ... and create new inputs and gizmos
+  // create new inputs and gizmos
   parseShaderCode();
 
   qDebug() << "parsed shader code for " << GetLabel() << " @ " << (uint64_t)this;
@@ -161,19 +147,19 @@ void ShaderFilterNode::Retranslate()
   SetInputName( kOutputMessages, tr("Issues"));
 }
 
-ShaderCode ShaderFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode ShaderFilterNode::GetShaderCode(const Node::ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
-
+  Q_UNUSED(request);
   return ShaderCode(shader_code_);
 }
+
 
 void ShaderFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   // If there's no shader code, no need to run an operation
@@ -223,11 +209,25 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
 
   for( it = input_list.begin(); it != input_list.end(); ++it) {
 
+    new_input_list.append( it->uniform_name);
+
     if (HasInputWithID(it->uniform_name) == false) {
+      // this is a new input
       AddInput( it->uniform_name, it->type, it->default_value, it->flags );
-      new_input_list.append( it->uniform_name);
+
+    }
+    else {
+      // input already present. Check if some feature has changed
+      if (GetInputDataType( it->uniform_name) != it->type) {
+        SetInputDataType( it->uniform_name, it->type);
+      }
+
+      if (GetInputFlags( it->uniform_name) != it->flags) {
+        SetInputFlags( it->uniform_name, it->flags);
+      }
     }
 
+    // set other features even if not changed
     SetInputName( it->uniform_name, it->human_name);
     if (it->min.isValid()) {
       SetInputProperty( it->uniform_name, QStringLiteral("min"), it->min);
@@ -252,12 +252,14 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
 }
 
 // this function assumes that 'updateInputList' has been called already.
+// Add a point gizmo for each 'kVec2' that does not already have one
 void ShaderFilterNode::updateGizmoList()
 {
   for (QString aInput : user_input_list_)
   {
     if (HasInputWithID(aInput)) {
-      if ( GetInputDataType(aInput) == NodeValue::kVec2) {
+      if ( (GetInputDataType(aInput) == NodeValue::kVec2) &&
+           (handle_table_.contains(aInput) == false) ){
         PointGizmo * g = AddDraggableGizmo<PointGizmo>();
         g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 0));
         g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 1));
@@ -274,7 +276,13 @@ void ShaderFilterNode::checkDeletedInputs(const QStringList & new_inputs)
   // search old inputs that are not present in new inputs
   for( const QString & input : user_input_list_) {
     if (new_inputs.contains(input) == false) {
-      InputRemoved( input);
+      RemoveInput( input);
+
+      // remove gizmo, if any
+      if (handle_table_.contains(input)) {
+        RemoveGizmo( handle_table_[input]);
+        handle_table_.remove( input);
+      }
     }
   }
 }
@@ -298,7 +306,7 @@ void ShaderFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
   {
     if (HasInputWithID(aInput)) {
       if (row[aInput].type() == NodeValue::kVec2) {
-        QVector2D pos_vec = row[aInput].data().value<QVector2D>() * resolution_;
+        QVector2D pos_vec = row[aInput].value<QVector2D>() * resolution_;
         QPointF pos( pos_vec.x(), pos_vec.y());
 
         handle_table_[aInput]->SetPoint( pos);

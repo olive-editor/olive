@@ -118,8 +118,6 @@ private:
 
   QHash<NodeInputPair, NodeInputPair> input_group_lookup_;
 
-  QGridLayout *root_layout_;
-
   /**
    * @brief The column to place the keyframe controls in
    *
@@ -228,11 +226,14 @@ signals:
 
   void InputCheckedChanged(const NodeInput &input, bool e);
 
+  void InputsChanged( void);
+
 protected slots:
   virtual void Retranslate() override;
 
 private slots:
   void OnInputListChanged();
+  void OnInputAdded(const QString &id);
   void OnInputRemoved(const QString &id);
 
 private:
@@ -247,7 +248,6 @@ private:
   rational time_;
   rational timebase_;
 
-  NodeParamViewCheckBoxBehavior create_checkboxes_;
   KeyframeView::NodeConnections keyframe_connections_;
   KeyframeView * keyframe_view_;
 

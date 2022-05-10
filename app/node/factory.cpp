@@ -21,8 +21,6 @@
 #include "factory.h"
 
 #include <QCoreApplication>
-#include <QRegularExpression>
-#include <QFileInfo>
 
 #include "audio/pan/pan.h"
 #include "audio/volume/volume.h"
@@ -66,7 +64,6 @@
 #include "project/sequence/sequence.h"
 #include "time/timeoffset/timeoffsetnode.h"
 #include "time/timeremap/timeremap.h"
-#include "config/config.h"
 
 namespace olive {
 

@@ -594,10 +594,9 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
     connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
+    connect(item, &NodeParamViewItem::InputsChanged, this, &NodeParamView::UpdateElementY);
 
     item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
-
-    // needed to update keyframe connections dynamically
     item->SetKeyframeView( keyframe_view_);
   }
 }

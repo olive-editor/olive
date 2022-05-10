@@ -60,6 +60,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
 
   // for dynamically changed inputs
   connect(node_, &Node::InputListChanged, this, &NodeParamViewItem::OnInputListChanged);
+  connect(node_, &Node::InputAdded, this, &NodeParamViewItem::OnInputAdded);
   connect(node_, &Node::InputRemoved, this, &NodeParamViewItem::OnInputRemoved);
 
   // FIXME: Implemented to pick up when an input is set to hidden or not - DEFINITELY not a fast
@@ -126,9 +127,13 @@ void NodeParamViewItem::OnInputListChanged()
   SetBody(body_);
   body_->Retranslate();
 
-  Q_ASSERT( keyframe_view_ != nullptr);
+  emit InputsChanged();
+}
 
-  keyframe_connections_ = keyframe_view_->AddKeyframesOfNode(node_);
+void NodeParamViewItem::OnInputAdded(const QString &id)
+{
+  KeyframeView::InputConnections input_conn = keyframe_view_->AddKeyframesOfInput( node_, id);
+  keyframe_connections_.insert( id, input_conn);
 }
 
 void NodeParamViewItem::OnInputRemoved( const QString & id)
@@ -168,9 +173,10 @@ void NodeParamViewItem::SetInputChecked(const NodeInput &input, bool e)
 NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   QWidget(parent),
   node_(node),
-  create_checkboxes_(create_checkboxes),
-  root_layout_(new QGridLayout(this))
+  create_checkboxes_(create_checkboxes)
 {
+  QGridLayout* root_layout = new QGridLayout(this);
+
   int insert_row = 0;
 
   QVector<Node*> connected_signals;
@@ -191,7 +197,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
     input_group_lookup_.insert({resolved.node(), resolved.input()}, {n, input});
 
     if (!(n->GetInputFlags(input) & kInputFlagHidden)) {
-      CreateWidgets(root_layout_, n, input, -1, insert_row);
+      CreateWidgets(root_layout, n, input, -1, insert_row);
 
       insert_row++;
 
@@ -202,7 +208,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
         QGridLayout* array_layout = new QGridLayout(array_widget);
         array_layout->setContentsMargins(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("    ")), 0, 0, 0);
 
-        root_layout_->addWidget(array_widget, insert_row, 1, 1, 10);
+        root_layout->addWidget(array_widget, insert_row, 1, 1, 10);
 
         // Start with zero elements for efficiency. We will make the widgets for them if the user
         // requests the array UI to be expanded
