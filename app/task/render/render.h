@@ -112,14 +112,6 @@ protected:
     return total_number_of_frames_;
   }
 
-  /**
-   * @brief Only valid after Render() is called
-   */
-  int64_t GetTotalNumberOfUniqueFrames() const
-  {
-    return total_number_of_unique_frames_;
-  }
-
 private:
   void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
 
@@ -142,7 +134,6 @@ private:
   bool native_progress_signalling_;
 
   int64_t total_number_of_frames_;
-  int64_t total_number_of_unique_frames_;
 
 private slots:
   void TicketDone(RenderTicketWatcher *watcher);

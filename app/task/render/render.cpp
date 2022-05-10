@@ -75,6 +75,8 @@ bool RenderTask::Render(ColorManager* manager,
 
   // Look up hashes
   TimeRangeListFrameIterator iterator(video_range, video_params().frame_rate_as_time_base());
+  total_number_of_frames_ = iterator.size();
+  total_length += total_number_of_frames_;
 
   // Start a render of a limited amount, and then render one frame for each frame that gets
   // finished. This prevents rendered frames from stacking up in memory indefinitely while the
