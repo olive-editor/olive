@@ -144,7 +144,7 @@ private:
 
   QTimer decoder_clear_timer_;
 
-  static const int kDecoderMaximumInactivity;
+  static constexpr auto kDecoderMaximumInactivity = 10000;
 
 private slots:
   void ClearOldDecoders();

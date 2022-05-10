@@ -22,140 +22,73 @@
 
 namespace olive {
 
-ThreadPool::ThreadPool(QThread::Priority priority, int threads, QObject *parent) :
+ThreadPool::ThreadPool(unsigned threads, QObject *parent) :
   QObject(parent)
 {
-  all_threads_.resize(threads ? threads : QThread::idealThreadCount());
+  if (threads == 0) {
+    threads = std::thread::hardware_concurrency();
+  }
 
-  // Create threads
-  for (int i=0; i<all_threads_.size(); i++) {
-    ThreadPoolThread* t  = new ThreadPoolThread(this);
+  for (unsigned i = 0; i < threads; i += 1) {
+    worker_threads_.emplace_back(std::bind(&ThreadPool::thread_exec, this));
+  }
+}
 
-    // Add to vector of all threads
-    all_threads_[i] = t;
+void ThreadPool::AddTicket(RenderTicketPtr ticket, RenderTicketPriority priority)
+{
+  std::lock_guard<std::mutex> lock(task_mutex_);
 
-    // Append to list of available threads
-    available_threads_.push_back(t);
+  if (priority == RenderTicketPriority::kHigh) {
+    tasks_.emplace_front(std::move(ticket));
+  } else {
+    tasks_.emplace_back(std::move(ticket));
+  }
 
-    // Connect done signal
-    connect(t, &ThreadPoolThread::Done, this, &ThreadPool::ThreadDone);
+  cond_.notify_one();
+}
 
-    // Start the thread at the given priority
-    t->start(priority);
+bool ThreadPool::RemoveTicket(RenderTicketPtr ticket)
+{
+  std::lock_guard<std::mutex> lock(task_mutex_);
+
+  const auto it = std::find(tasks_.begin(), tasks_.end(), ticket);
+  if (it == tasks_.end()) {
+    return false;
+  }
+
+  tasks_.erase(it);
+  return true;
+}
+
+void ThreadPool::thread_exec()
+{
+  while (true) {
+    TaskType task;
+
+    {
+      std::unique_lock<std::mutex> lock(task_mutex_);
+      cond_.wait(lock, [this]{ return this->end_threadp_ || !this->tasks_.empty(); });
+
+      if (this->end_threadp_ && this->tasks_.empty()) {
+        break;
+      }
+
+      task = std::move(tasks_.front());
+      tasks_.pop_front();
+    }
+
+    RunTicket(task);
   }
 }
 
 ThreadPool::~ThreadPool()
 {
-  foreach (ThreadPoolThread* thread, all_threads_) {
-    thread->Cancel();
-    thread->wait();
-    delete thread;
+  end_threadp_ = true;
+  cond_.notify_all();
+
+  for (auto &e : worker_threads_) {
+    e.join();
   }
-}
-
-bool ThreadPool::RemoveTicket(RenderTicketPtr ticket)
-{
-  auto it = std::find(ticket_queue_.begin(), ticket_queue_.end(), ticket);
-  if (it == ticket_queue_.end()) {
-    return false;
-  }
-
-  ticket_queue_.erase(it);
-  return true;
-}
-
-void ThreadPool::AddTicket(RenderTicketPtr ticket, bool prioritize)
-{
-  if (prioritize) {
-    ticket_queue_.push_front(ticket);
-  } else {
-    ticket_queue_.push_back(ticket);
-  }
-
-  RunNext();
-}
-
-void ThreadPool::RunNext()
-{
-  while (!ticket_queue_.empty() && !available_threads_.empty()) {
-    // Run function
-    RenderTicketPtr ticket = ticket_queue_.front();
-    ticket_queue_.pop_front();
-
-    ticket->Start();
-
-    if (ticket->IsCancelled()) {
-      // Finish without doing any more
-      ticket->Finish();
-    } else {
-      ThreadPoolThread* thread = available_threads_.front();
-      available_threads_.pop_front();
-
-      // Move ticket to other thread so event processing can occur there
-      ticket->moveToThread(thread);
-
-      // Run the ticket in the thread, which actually just calls our virtual function RunTicket
-      thread->RunTicket(ticket);
-    }
-  }
-}
-
-void ThreadPool::ThreadDone()
-{
-  ThreadPoolThread* thread = static_cast<ThreadPoolThread*>(sender());
-
-  available_threads_.push_back(thread);
-
-  RunNext();
-}
-
-ThreadPoolThread::ThreadPoolThread(ThreadPool *parent)
-{
-  pool_ = parent;
-
-  // Ensures mutex is definitely locked by the time the thread is running
-  mutex_.lock();
-}
-
-ThreadPoolThread::~ThreadPoolThread()
-{
-  mutex_.unlock();
-}
-
-void ThreadPoolThread::RunTicket(RenderTicketPtr ticket)
-{
-  mutex_.lock();
-  ticket_ = ticket;
-  wait_cond_.wakeAll();
-  mutex_.unlock();
-}
-
-void ThreadPoolThread::run()
-{
-  while (true) {
-    wait_cond_.wait(&mutex_);
-
-    if (ticket_) {
-      pool_->RunTicket(ticket_);
-
-      // Move back to calling thread (hacky?)
-      ticket_->moveToThread(this->thread());
-
-      ticket_ = nullptr;
-    }
-
-    if (IsCancelled()) {
-      break;
-    } else {
-      emit Done();
-    }
-  }
-}
-
-void ThreadPoolThread::CancelEvent()
-{
-  wait_cond_.wakeAll();
 }
 
 }
