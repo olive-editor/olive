@@ -43,7 +43,6 @@ Block::Block() :
   SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
-  IgnoreHashingFrom(kLengthInput);
 
   SetInputFlags(kEnabledInput, InputFlags(GetInputFlags(kEnabledInput) | kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
@@ -102,23 +101,6 @@ void Block::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-bool Block::HashPassthrough(const QString &input, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  if (IsInputConnected(input)) {
-    TimeRange t = InputTimeAdjustment(input, -1, globals.time());
-
-    NodeGlobals new_globals = globals;
-    new_globals.set_time(t);
-
-    Node *out = GetConnectedOutput(input);
-    Node::Hash(out, GetValueHintForInput(input), hash, new_globals, video_params);
-
-    return true;
-  }
-
-  return false;
-}
-
 void Block::set_length_internal(const rational &length)
 {
   SetStandardValue(kLengthInput, QVariant::fromValue(length));
@@ -130,11 +112,6 @@ void Block::Retranslate()
 
   SetInputName(kLengthInput, tr("Length"));
   SetInputName(kEnabledInput, tr("Enabled"));
-}
-
-void Block::Hash(QCryptographicHash &, const NodeGlobals &, const VideoParams &) const
-{
-  // A block does nothing by default, so we hash nothing
 }
 
 void Block::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)

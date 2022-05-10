@@ -47,7 +47,6 @@ TransitionBlock::TransitionBlock() :
   AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
-  IgnoreHashingFrom(kCenterInput);
 }
 
 void TransitionBlock::Retranslate()
@@ -135,23 +134,6 @@ double TransitionBlock::GetInProgress(const double &time) const
   }
 
   return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
-}
-
-void TransitionBlock::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  if (HashPassthrough(kInBlockInput, hash, globals, video_params)
-      || HashPassthrough(kOutBlockInput, hash, globals, video_params)) {
-    HashAddNodeSignature(hash);
-
-    double time_dbl = globals.time().in().toDouble();
-    double all_prog = GetTotalProgress(time_dbl);
-    double in_prog = GetInProgress(time_dbl);
-    double out_prog = GetOutProgress(time_dbl);
-
-    hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(all_prog));
-    hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(in_prog));
-    hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(out_prog));
-  }
 }
 
 double TransitionBlock::GetInternalTransitionTime(const double &time) const

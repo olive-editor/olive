@@ -43,15 +43,12 @@ ClipBlock::ClipBlock() :
   AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kMediaInInput, QStringLiteral("viewlock"), true);
-  IgnoreHashingFrom(kMediaInInput);
 
   AddInput(kSpeedInput, NodeValue::kFloat, 1.0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kSpeedInput, QStringLiteral("min"), 0.0);
-  IgnoreHashingFrom(kSpeedInput);
 
   AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
-  IgnoreHashingFrom(kReverseInput);
 
   AddInput(kMaintainAudioPitchInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
@@ -285,11 +282,6 @@ void ClipBlock::Retranslate()
   SetInputName(kSpeedInput, tr("Speed"));
   SetInputName(kReverseInput, tr("Reverse"));
   SetInputName(kMaintainAudioPitchInput, tr("Maintain Audio Pitch"));
-}
-
-void ClipBlock::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  HashPassthrough(kBufferIn, hash, globals, video_params);
 }
 
 }

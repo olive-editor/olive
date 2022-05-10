@@ -53,11 +53,9 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
     AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
 
     AddInput(kVideoAutoCacheInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-    IgnoreHashingFrom(kVideoAutoCacheInput);
     IgnoreInvalidationsFrom(kVideoAutoCacheInput);
 
     AddInput(kAudioAutoCacheInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-    IgnoreHashingFrom(kAudioAutoCacheInput);
     IgnoreInvalidationsFrom(kAudioAutoCacheInput);
   }
 

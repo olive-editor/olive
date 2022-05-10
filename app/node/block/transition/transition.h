@@ -87,8 +87,6 @@ protected:
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
-  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
 private:
   enum CurveType {
     kLinear,

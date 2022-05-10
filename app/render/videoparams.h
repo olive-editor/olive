@@ -262,8 +262,6 @@ public:
 
   static int GetScaledDimension(int dim, int divider);
 
-  QByteArray toBytes() const;
-
   bool enabled() const
   {
     return enabled_;

@@ -49,7 +49,6 @@ Footage::Footage(const QString &filename) :
   SetViewerVideoCacheEnabled(false);
 
   PrependInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
-  IgnoreHashingFrom(kLoopModeInput);
 
   PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
@@ -277,44 +276,6 @@ QString Footage::DescribeAudioStream(const AudioParams &params)
   return tr("%1: Audio - %n Channel(s), %2Hz", nullptr, params.channel_count())
     .arg(QString::number(params.stream_index()),
          QString::number(params.sample_rate()));
-}
-
-void Footage::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  super::Hash(hash, globals, video_params);
-
-  // Footage last modified date
-  hash.addData(QString::number(timestamp()).toUtf8());
-
-  for (int i=0; i<GetVideoStreamCount(); i++) {
-    VideoParams params = GetVideoParams(i);
-
-    // Current color config and space
-    hash.addData(project()->color_manager()->GetConfigFilename().toUtf8());
-    hash.addData(GetColorspaceToUse(params).toUtf8());
-
-    // Alpha associated setting
-    hash.addData(QString::number(params.premultiplied_alpha()).toUtf8());
-
-    // Pixel aspect ratio
-    hash.addData(reinterpret_cast<const char*>(&params.pixel_aspect_ratio()), sizeof(params.pixel_aspect_ratio()));
-
-    // Footage timestamp
-    if (params.video_type() != VideoParams::kVideoTypeStill) {
-      rational adjusted_time = AdjustTimeByLoopMode(globals.time().in(), loop_mode(), GetLength(), params.video_type(), params.frame_rate_as_time_base());
-
-      if (!adjusted_time.isNaN()) {
-        int64_t video_ts = Timecode::time_to_timestamp(adjusted_time, params.time_base());
-
-        // Add timestamp in units of the video stream's timebase
-        hash.addData(reinterpret_cast<const char*>(&video_ts), sizeof(video_ts));
-      }
-
-      // Add start time - used for both image sequences and video streams
-      auto start_time = params.start_time();
-      hash.addData(reinterpret_cast<const char*>(&start_time), sizeof(start_time));
-    }
-  }
 }
 
 void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const

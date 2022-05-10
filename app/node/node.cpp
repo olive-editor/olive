@@ -864,12 +864,6 @@ int Node::InputArraySize(const QString &id) const
   }
 }
 
-void Node::Hash(const Node *node, const ValueHint &hint, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params)
-{
-  hint.Hash(hash);
-  node->Hash(hash, globals, video_params);
-}
-
 void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int element)
 {
   value_hints_.insert({input, element}, hint);
@@ -1184,12 +1178,6 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
-void Node::HashAddNodeSignature(QCryptographicHash &hash) const
-{
-  // Add node ID
-  hash.addData(id().toUtf8());
-}
-
 void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
 {
   if (id.isEmpty()) {
@@ -1305,11 +1293,6 @@ void Node::IgnoreInvalidationsFrom(const QString& input_id)
   ignore_connections_.append(input_id);
 }
 
-void Node::IgnoreHashingFrom(const QString &input_id)
-{
-  ignore_when_hashing_.append(input_id);
-}
-
 const QString &Node::GetLabel() const
 {
   return label_;
@@ -1339,24 +1322,6 @@ QString Node::GetLabelOrName() const
     return Name();
   }
   return GetLabel();
-}
-
-void Node::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  // Add this Node's ID and output being used
-  HashAddNodeSignature(hash);
-
-  foreach (const QString& input, inputs()) {
-    // For each input, try to hash its value
-    if (ignore_when_hashing_.contains(input)) {
-      continue;
-    }
-
-    int arr_sz = InputArraySize(input);
-    for (int i=-1; i<arr_sz; i++) {
-      HashInputElement(hash, input, i, globals, video_params);
-    }
-  }
 }
 
 void Node::CopyInputs(const Node *source, Node *destination, bool include_connections)
@@ -1483,26 +1448,6 @@ QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only
   GetDependenciesRecursively(list, this, traverse, exclusive_only);
 
   return list;
-}
-
-void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const NodeGlobals &globals, const VideoParams& video_params) const
-{
-  // Get time adjustment
-  // For a single frame, we only care about one of the times
-  TimeRange input_time = InputTimeAdjustment(input, element, globals.time());
-
-  if (IsInputConnected(input, element)) {
-    // Traverse down this edge
-    Node *output = GetConnectedOutput(input, element);
-
-    NodeGlobals new_globals = globals;
-    new_globals.set_time(input_time);
-    Node::Hash(output, GetValueHintForInput(input, element), hash, new_globals, video_params);
-  } else {
-    // Grab the value at this time
-    QVariant value = GetValueAtTime(input, input_time.in(), element);
-    hash.addData(NodeValue::ValueToBytes(GetInputDataType(input), value));
-  }
 }
 
 QVector<Node *> Node::GetDependencies() const
@@ -2106,16 +2051,6 @@ void NodeRemovePositionFromAllContextsCommand::undo()
   }
 
   contexts_.clear();
-}
-
-void Node::ValueHint::Hash(QCryptographicHash &hash) const
-{
-  // Add value hint
-  if (!types().isEmpty()) {
-    hash.addData(reinterpret_cast<const char*>(types().constData()), sizeof(NodeValue::Type) * types().size());
-  }
-  hash.addData(reinterpret_cast<const char*>(&index()), sizeof(index()));
-  hash.addData(tag().toUtf8());
 }
 
 void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()

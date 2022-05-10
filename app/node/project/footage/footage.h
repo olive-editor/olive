@@ -195,8 +195,6 @@ protected:
 
   virtual rational VerifyLengthInternal(Track::Type type) const override;
 
-  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
 private:
   QString GetColorspaceToUse(const VideoParams& params) const;
 
