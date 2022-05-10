@@ -487,7 +487,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   TimelineRippleDeleteGapsAtRegionsCommand *ripple_command = nullptr;
   rational new_playhead = RATIONAL_MAX;
   if (ripple) {
-    QVector<QPair<Track*, TimeRange> > range_list;
+    TimelineRippleDeleteGapsAtRegionsCommand::RangeList range_list;
 
     foreach (Block* b, blocks_to_delete) {
       range_list.append({b->track(), b->range()});
