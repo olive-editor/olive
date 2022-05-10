@@ -219,9 +219,10 @@ void RenderProcessor::Run()
   {
     QString cache = ticket_->property("cache").toString();
     FramePtr frame = ticket_->property("frame").value<FramePtr>();
-    QByteArray hash = ticket_->property("hash").toByteArray();
+    int64_t time = ticket_->property("time").value<int64_t>();
+    QUuid uuid = ticket_->property("uuid").value<QUuid>();
 
-    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, hash, frame));
+    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, uuid, time, frame));
     break;
   }
   default:

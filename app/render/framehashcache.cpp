@@ -62,6 +62,11 @@ void FrameHashCache::ValidateTimestamp(const int64_t &ts)
   Validate(frame_range);
 }
 
+void FrameHashCache::ValidateTime(const rational &time)
+{
+  Validate(TimeRange(time, time + timebase_));
+}
+
 bool FrameHashCache::SaveCacheFrame(const int64_t &time, FramePtr frame) const
 {
   return SaveCacheFrame(GetCacheDirectory(), uuid_, time, frame);
@@ -188,27 +193,6 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
   }
 
   return frame;
-}
-
-struct HashTimePair {
-  rational time;
-  QByteArray hash;
-};
-
-void FrameHashCache::ShiftEvent(const rational &from, const rational &to)
-{
-}
-
-void FrameHashCache::InvalidateEvent(const TimeRange &range)
-{
-  TimeRangeListFrameIterator iterator({range}, timebase_);
-
-  rational t;
-  while (iterator.GetNext(&t)) {
-    int64_t ts = ToTimestamp(t, Timecode::kCeil);
-
-    QFile::remove(CachePathName(ts));
-  }
 }
 
 rational FrameHashCache::ToTime(const int64_t &ts) const

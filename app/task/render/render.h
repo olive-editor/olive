@@ -49,7 +49,7 @@ protected:
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
               ColorProcessorPtr force_color_output = nullptr);
 
-  virtual bool DownloadFrame(QThread* thread, FramePtr frame);
+  virtual bool DownloadFrame(QThread* thread, FramePtr frame, const rational &time);
 
   virtual bool FrameDownloaded(FramePtr frame, const rational &time) = 0;
 

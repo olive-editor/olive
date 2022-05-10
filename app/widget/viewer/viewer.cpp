@@ -399,9 +399,9 @@ void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, c
   recording_track_ = track;
 }
 
-FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QByteArray& hash, const rational& time)
+FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time)
 {
-  FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, hash);
+  FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, cache_id, time);
 
   if (frame) {
     frame->set_timestamp(time);
@@ -412,10 +412,10 @@ FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QByteA
   return frame;
 }
 
-void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QByteArray& hash, const rational& time)
+void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QUuid &cache_id, const int64_t& time)
 {
   ticket->Start();
-  ticket->Finish(QVariant::fromValue(DecodeCachedImage(cache_path, hash, time)));
+  ticket->Finish(QVariant::fromValue(DecodeCachedImage(cache_path, cache_id, time)));
 }
 
 bool ViewerWidget::ShouldForceWaveform() const
@@ -813,11 +813,7 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
 QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 {
   if (FrameExistsAtTime(time)) {
-    QByteArray hash = GetConnectedNode()->video_frame_cache()->GetHash(time);
-
-    if (!hash.isEmpty()) {
-      return GetConnectedNode()->video_frame_cache()->CachePathName(hash);
-    }
+    return GetConnectedNode()->video_frame_cache()->CachePathName(time);
   }
 
   return QString();
@@ -860,18 +856,16 @@ void ViewerWidget::RequestNextFrameForQueue(bool prioritize, bool increment)
 
 RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool prioritize)
 {
-  QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
+  QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(t);
 
-  QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash);
-
-  if (cached_hash.isEmpty() || !QFileInfo::exists(cache_fn)) {
+  if (!QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
     return auto_cacher_.GetSingleFrame(t, prioritize);
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
     ticket->setProperty("time", QVariant::fromValue(t));
-    QtConcurrent::run(ViewerWidget::DecodeCachedImage, ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), cached_hash, t);
+    QtConcurrent::run(ViewerWidget::DecodeCachedImage, ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), GetConnectedNode()->video_frame_cache()->GetUuid(), Timecode::time_to_timestamp(t, timebase(), Timecode::kFloor));
     return ticket;
   }
 }

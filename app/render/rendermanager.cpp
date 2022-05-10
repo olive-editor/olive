@@ -187,13 +187,15 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   return ticket;
 }
 
-RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, bool prioritize)
+RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const rational &time, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
   ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("frame", QVariant::fromValue(frame));
+  ticket->setProperty("time", QVariant::fromValue(Timecode::time_to_timestamp(time, cache->GetTimebase(), Timecode::kFloor)));
+  ticket->setProperty("uuid", QVariant::fromValue(cache->GetUuid()));
   ticket->setProperty("type", kTypeVideoDownload);
 
   if (ticket->thread() != this->thread()) {

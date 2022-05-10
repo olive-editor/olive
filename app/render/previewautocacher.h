@@ -100,7 +100,7 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
+  RenderTicketWatcher *RenderFrame(const rational &time, bool prioritize, bool texture_only);
   RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, bool prioritize);
 
   /**
@@ -173,8 +173,8 @@ private:
   RenderTicketPtr single_frame_render_;
 
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
-  QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
-  QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
+  QMap<RenderTicketWatcher*, rational> video_tasks_;
+  QMap<RenderTicketWatcher*, rational> video_download_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
   JobTime graph_changed_time_;
@@ -190,7 +190,6 @@ private:
   RenderJobTracker audio_job_tracker_;
 
   TimeRangeListFrameIterator queued_frame_iterator_;
-  TimeRangeListFrameIterator hash_iterator_;
   TimeRangeList audio_iterator_;
 
   static const bool kRealTimeWaveformsEnabled;

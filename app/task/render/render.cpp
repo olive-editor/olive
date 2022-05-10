@@ -165,7 +165,7 @@ bool RenderTask::Render(ColorManager* manager,
 
       } else if (ticket_type == RenderManager::kTypeVideo && TwoStepFrameRendering()) {
 
-        if (!DownloadFrame(&watcher_thread, watcher->Get().value<FramePtr>())) {
+        if (!DownloadFrame(&watcher_thread, watcher->Get().value<FramePtr>(), watcher->property("time").value<rational>())) {
           result = false;
         }
 
@@ -237,14 +237,14 @@ bool RenderTask::Render(ColorManager* manager,
   return result;
 }
 
-bool RenderTask::DownloadFrame(QThread *thread, FramePtr frame)
+bool RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const rational &time)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   PrepareWatcher(watcher, thread);
 
   IncrementRunningTickets();
 
-  watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(), frame));
+  watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(), frame, time));
 
   // NOTE: Doesn't reflect the actual return result of SaveFrameToCache
   return true;

@@ -67,19 +67,11 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
 
-  // See if we have a hash, we may or may not retrieve one depending on the state of the video
-  // frame cache
-  QByteArray hash;
-  if (viewer_node_->GetVideoAutoCacheEnabled()) {
-    hash = viewer_node_->video_frame_cache()->GetHash(t);
-  }
-
   // Create a new single frame render ticket
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
   sfr->setProperty("prioritize", prioritize);
-  sfr->setProperty("hash", hash);
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -204,24 +196,26 @@ void PreviewAutoCacher::VideoRendered()
 
   // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
   // viewer switch, so we'll completely ignore this watcher
-  if (video_tasks_.remove(watcher)) {
+  auto it = video_tasks_.find(watcher);
+
+  if (it != video_tasks_.end()) {
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
     if (watcher->HasResult()) {
-      qDebug() << "FIXME: oops no frame downloading";
-
-      /*
       // Download frame in another thread
-      FramePtr frame = watcher->Get().value<FramePtr>();
-      RenderTicketWatcher* w = new RenderTicketWatcher();
-      w->setProperty("job", QVariant::fromValue(last_update_time_));
-      w->setProperty("frame", QVariant::fromValue(frame));
-      video_download_tasks_.insert(w, hash);
-      connect(w, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoDownloaded);
-      w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
-                                                               frame,
-                                                               true));
-      */
+      if (FramePtr frame = watcher->Get().value<FramePtr>()) {
+        RenderTicketWatcher* w = new RenderTicketWatcher();
+        w->setProperty("job", QVariant::fromValue(last_update_time_));
+        w->setProperty("frame", QVariant::fromValue(frame));
+        video_download_tasks_.insert(w, it.value());
+        connect(w, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoDownloaded);
+        w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
+                                                                 frame,
+                                                                 it.value(),
+                                                                 true));
+      }
     }
+
+    video_tasks_.erase(it);
 
     // Continue rendering
     TryRender();
@@ -249,11 +243,11 @@ void PreviewAutoCacher::VideoDownloaded()
   // viewer switch, so we'll completely ignore this watcher
   if (video_download_tasks_.contains(watcher)) {
     // Remove from task list
-    QByteArray hash = video_download_tasks_.take(watcher);
+    rational time = video_download_tasks_.take(watcher);
 
     // Assume that `true` is a completely successful frame save
     if (watcher->Get().toBool()) {
-      viewer_node_->video_frame_cache()->ValidateFramesWithHash(hash);
+      viewer_node_->video_frame_cache()->ValidateTime(time);
     } else {
       qCritical() << "Failed to download video frame";
     }
@@ -535,11 +529,11 @@ void PreviewAutoCacher::TryRender()
   // Check for newly invalidated video and hash it
   if (!invalidated_video_.isEmpty()) {
     if (!copied_viewer_node_->GetConnectedTextureOutput()) {
-      hash_iterator_.reset();
-    } else if (hash_iterator_.HasNext()) {
-      hash_iterator_.insert(invalidated_video_);
+      queued_frame_iterator_.reset();
+    } else if (queued_frame_iterator_.HasNext()) {
+      queued_frame_iterator_.insert(invalidated_video_);
     } else {
-      hash_iterator_ = TimeRangeListFrameIterator(invalidated_video_, viewer_node_->GetVideoParams().frame_rate_as_time_base());
+      queued_frame_iterator_ = TimeRangeListFrameIterator(invalidated_video_, viewer_node_->GetVideoParams().frame_rate_as_time_base());
     }
     invalidated_video_.clear();
   }
@@ -552,15 +546,14 @@ void PreviewAutoCacher::TryRender()
 
   if (single_frame_render_) {
     // Check if already caching this
-    QByteArray hash = single_frame_render_->property("hash").toByteArray();
+    rational time = single_frame_render_->property("time").value<rational>();
     RenderTicketWatcher* watcher;
-    if (!hash.isEmpty() && (watcher = video_tasks_.key(hash))) {
+    if ((watcher = video_tasks_.key(time))) {
       video_immediate_passthroughs_[watcher].append(single_frame_render_);
-    } else if (!hash.isEmpty() && (watcher = video_download_tasks_.key(hash))) {
+    } else if ((watcher = video_download_tasks_.key(time))) {
       single_frame_render_->Finish(watcher->property("frame"));
     } else {
-      watcher = RenderFrame(hash,
-                            single_frame_render_->property("time").value<rational>(),
+      watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
                             single_frame_render_->property("prioritize").toBool(),
                             !viewer_node_->GetVideoAutoCacheEnabled());
 
@@ -576,14 +569,12 @@ void PreviewAutoCacher::TryRender()
   // Handle video tasks
   rational t;
   while (video_tasks_.size() < max_tasks && queued_frame_iterator_.GetNext(&t)) {
-    const QByteArray& hash = viewer_node_->video_frame_cache()->GetHash(t);
-
-    RenderTicketWatcher* render_task = video_tasks_.key(hash);
+    RenderTicketWatcher* render_task = video_tasks_.key(t);
 
     // We want this hash, if we're not already rendering, start render now
-    if (!render_task && !video_download_tasks_.key(hash)) {
+    if (!render_task && !video_download_tasks_.key(t)) {
       // Don't render any hash more than once
-      RenderFrame(hash, t, false, false);
+      RenderFrame(t, false, false);
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -609,13 +600,12 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, const rational& time, bool prioritize, bool texture_only)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const rational& time, bool prioritize, bool texture_only)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  watcher->setProperty("hash", hash);
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
-  video_tasks_.insert(watcher, hash);
+  video_tasks_.insert(watcher, time);
   watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
                                                             copied_color_manager_,
                                                             time,
@@ -751,7 +741,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     // Clear iterators
     queued_frame_iterator_.reset();
     audio_iterator_.clear();
-    hash_iterator_.reset();
 
     // Clear any invalidated ranges
     invalidated_video_.clear();

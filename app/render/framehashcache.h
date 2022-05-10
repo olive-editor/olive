@@ -39,16 +39,25 @@ class FrameHashCache : public PlaybackCache
 public:
   FrameHashCache(QObject* parent = nullptr);
 
+  const QUuid &GetUuid() const { return uuid_; }
+  void SetUuid(const QUuid &u) { uuid_ = u; }
+
   const rational &GetTimebase() const { return timebase_; }
 
   void SetTimebase(const rational& tb);
 
   void ValidateTimestamp(const int64_t &ts);
+  void ValidateTime(const rational &time);
 
   /**
    * @brief Return the path of the cached image at this time
    */
   QString CachePathName(const int64_t &time) const;
+  QString CachePathName(const rational &time) const
+  {
+    return CachePathName(ToTimestamp(time, Timecode::kFloor));
+  }
+
   static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const int64_t &time);
 
   static bool SaveCacheFrame(const QString& filename, FramePtr frame);
@@ -57,11 +66,6 @@ public:
   static FramePtr LoadCacheFrame(const QString& cache_path, const QUuid &uuid, const int64_t &time);
   FramePtr LoadCacheFrame(const int64_t &time) const;
   static FramePtr LoadCacheFrame(const QString& fn);
-
-protected:
-  virtual void ShiftEvent(const rational& from, const rational& to) override;
-
-  virtual void InvalidateEvent(const TimeRange& range) override;
 
 private:
   rational ToTime(const int64_t &ts) const;

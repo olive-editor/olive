@@ -80,17 +80,17 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
   }
 
   if (playback_cache_) {
-    disconnect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    disconnect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    disconnect(playback_cache_, &PlaybackCache::Shifted, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    disconnect(playback_cache_, &PlaybackCache::Invalidated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+    disconnect(playback_cache_, &PlaybackCache::Validated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+    disconnect(playback_cache_, &PlaybackCache::Shifted, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
   }
 
   playback_cache_ = cache;
 
   if (playback_cache_) {
-    connect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    connect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    connect(playback_cache_, &PlaybackCache::Shifted, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    connect(playback_cache_, &PlaybackCache::Invalidated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+    connect(playback_cache_, &PlaybackCache::Validated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+    connect(playback_cache_, &PlaybackCache::Shifted, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
   }
 
   update();
