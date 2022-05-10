@@ -222,7 +222,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
 void ProjectImportTask::AddItemToFolder(Folder *folder, Node *item, MultiUndoCommand *command)
 {
   // Create undoable command that adds the items to the model
-  Project* project = folder->project();
+  Project* project = folder_->project();
 
   NodeAddCommand* nac = new NodeAddCommand(project, item);
   nac->PushToThread(project->thread());
