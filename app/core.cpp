@@ -1412,25 +1412,6 @@ int Core::CountFilesInFileList(const QFileInfoList &filenames)
   return file_count;
 }
 
-QString GetRenderModePreferencePrefix(RenderMode::Mode mode, const QString &preference) {
-  QString key;
-
-  key.append((mode == RenderMode::kOffline) ? QStringLiteral("Offline") : QStringLiteral("Online"));
-  key.append(preference);
-
-  return key;
-}
-
-QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference)
-{
-  return OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference));
-}
-
-void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
-{
-  OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference)) = value;
-}
-
 bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
 {
   if (nodes.isEmpty()) {
