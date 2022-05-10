@@ -34,21 +34,11 @@ class TransformDistortNode : public MatrixGenerator
 public:
   TransformDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TransformDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new TransformDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(TransformDistortNode)
 
   virtual QString Name() const override
   {
     return tr("Transform");
-  }
-
-  virtual QString ShortName() const override
-  {
-    return Node::ShortName();
   }
 
   virtual QString id() const override
@@ -70,7 +60,7 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   enum AutoScaleType {
     kAutoScaleNone,

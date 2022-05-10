@@ -57,6 +57,24 @@ public:
     }
   }
 
+  void SetPackedFormats()
+  {
+    AudioParams::Format tmp = AudioParams::kFormatInvalid;
+
+    if (attempt_to_restore_format_) {
+      tmp = GetSampleFormat();
+    }
+
+    clear();
+    for (int i=AudioParams::kPackedStart; i<AudioParams::kPackedEnd; i++) {
+      AddFormatItem(static_cast<AudioParams::Format>(i));
+    }
+
+    if (attempt_to_restore_format_) {
+      SetSampleFormat(tmp);
+    }
+  }
+
   AudioParams::Format GetSampleFormat() const
   {
     return static_cast<AudioParams::Format>(this->currentData().toInt());

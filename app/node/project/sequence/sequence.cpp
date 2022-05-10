@@ -118,6 +118,15 @@ void Sequence::Retranslate()
   }
 }
 
+void Sequence::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
+{
+  if (from == kTrackInputFormat.arg(Track::kSubtitle)) {
+    emit SubtitlesChanged(range);
+  }
+
+  super::InvalidateCache(range, from, element, options);
+}
+
 rational Sequence::VerifyLengthInternal(Track::Type type) const
 {
   if (!track_lists_.isEmpty()) {

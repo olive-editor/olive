@@ -414,6 +414,8 @@ private slots:
 
   void RevealInProject();
 
+  void RenameSelectedBlocks();
+
 };
 
 }

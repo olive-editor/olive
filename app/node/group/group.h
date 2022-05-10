@@ -31,8 +31,7 @@ class NodeGroup : public Node
 public:
   NodeGroup();
 
-  NODE_DEFAULT_DESTRUCTOR(NodeGroup)
-  NODE_COPY_FUNCTION(NodeGroup)
+  NODE_DEFAULT_FUNCTIONS(NodeGroup)
 
   virtual QString Name() const override;
   virtual QString id() const override;

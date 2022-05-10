@@ -29,9 +29,12 @@
 #include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "color/displaytransform/displaytransform.h"
+#include "color/ociogradingtransformlinear/ociogradingtransformlinear.h"
 #include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
+#include "distort/mask/mask.h"
 #include "distort/transform/transformdistortnode.h"
 #include "effect/opacity/opacityeffect.h"
 #include "generator/matrix/matrix.h"
@@ -52,6 +55,7 @@
 #include "math/trigonometry/trigonometry.h"
 #include "keying/colordifferencekey/colordifferencekey.h"
 #include "keying/despill/despill.h"
+#include "keying/chromakey/chromakey.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
@@ -61,8 +65,8 @@
 #include "time/timeremap/timeremap.h"
 
 namespace olive {
+
 QList<Node*> NodeFactory::library_;
-QVector<int> NodeFactory::hidden_;
 
 void NodeFactory::Initialize()
 {
@@ -74,10 +78,6 @@ void NodeFactory::Initialize()
 
     library_.append(created_node);
   }
-
-  hidden_.append(kTextGeneratorV1);
-  hidden_.append(kTextGeneratorV2);
-  hidden_.append(kGroupNode);
 }
 
 void NodeFactory::Destroy()
@@ -103,8 +103,7 @@ Menu *NodeFactory::CreateMenu(QWidget* parent, bool create_none_item, Node::Cate
       continue;
     }
 
-    if (hidden_.contains(i)) {
-      // Skip this node
+    if (n->GetFlags() & Node::kDontShowInCreateMenu) {
       continue;
     }
 
@@ -281,6 +280,14 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new TimeOffsetNode();
   case kCornerPinDistort:
     return new CornerPinDistortNode();
+  case kDisplayTransform:
+    return new DisplayTransformNode();
+  case kOCIOGradingTransformLinear:
+    return new OCIOGradingTransformLinearNode();
+  case kChromaKey:
+    return new ChromaKeyNode();
+  case kMaskDistort:
+    return new MaskDistortNode();
 
   case kInternalNodeCount:
     break;

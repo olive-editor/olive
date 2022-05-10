@@ -42,11 +42,6 @@ MathNode::MathNode()
   SetInputProperty(kParamBIn, QStringLiteral("autotrim"), true);
 }
 
-Node *MathNode::copy() const
-{
-  return new MathNode();
-}
-
 QString MathNode::Name() const
 {
   return tr("Math");
@@ -85,9 +80,9 @@ void MathNode::Retranslate()
   SetComboBoxStrings(kMethodIn, operations);
 }
 
-ShaderCode MathNode::GetShaderCode(const QString &shader_id) const
+ShaderCode MathNode::GetShaderCode(const ShaderRequest &request) const
 {
-  return GetShaderCodeInternal(shader_id, kParamAIn, kParamBIn);
+  return GetShaderCodeInternal(request.id, kParamAIn, kParamBIn);
 }
 
 void MathNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
@@ -114,7 +109,7 @@ void MathNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Node
                        table);
 }
 
-void MathNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void MathNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
 {
   return ProcessSamplesInternal(values, GetOperation(), kParamAIn, kParamBIn, input, output, index);
 }

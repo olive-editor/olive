@@ -381,7 +381,7 @@ void MainMenu::ToolsMenuAboutToShow()
 
 void MainMenu::PlaybackMenuAboutToShow()
 {
-  playback_loop_item_->setChecked(Config::Current()["Loop"].toBool());
+  playback_loop_item_->setChecked(OLIVE_CONFIG("Loop").toBool());
 }
 
 void MainMenu::SequenceMenuAboutToShow()
@@ -506,7 +506,7 @@ void MainMenu::PlayInToOutTriggered()
 
 void MainMenu::LoopTriggered(bool enabled)
 {
-  Config::Current()["Loop"] = enabled;
+  OLIVE_CONFIG("Loop") = enabled;
 }
 
 void MainMenu::NextFrameTriggered()

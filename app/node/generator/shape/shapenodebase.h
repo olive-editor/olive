@@ -35,8 +35,6 @@ class ShapeNodeBase : public GeneratorWithMerge
 public:
   ShapeNodeBase(bool create_color_input = true);
 
-  NODE_DEFAULT_DESTRUCTOR(ShapeNodeBase)
-
   virtual void Retranslate() override;
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;

@@ -62,6 +62,8 @@ public:
 
   static QString GetFormattedDateTime(const QDateTime &dt);
 
+  static QStringList WordWrapString(const QString &s, const QFontMetrics &fm, int bounding_width);
+
 };
 
 }

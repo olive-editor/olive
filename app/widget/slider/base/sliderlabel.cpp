@@ -27,7 +27,8 @@
 namespace olive {
 
 SliderLabel::SliderLabel(QWidget *parent) :
-  QLabel(parent)
+  QLabel(parent),
+  override_color_enabled_(false)
 {
   QPalette p = palette();
 
@@ -50,6 +51,26 @@ SliderLabel::SliderLabel(QWidget *parent) :
 
   // Add custom context menu
   setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void SliderLabel::SetColor(const QColor &c)
+{
+  // Prevent infinite loop in changeEvent when we set the stylesheet
+  override_color_enabled_ = false;
+  override_color_ = c;
+
+  // Different colors will look different depending on the theme (light/dark mode). We abstract
+  // that away here so that other classes can simply choose a color and we will handle making it
+  // more legible based on the background
+  QColor adjusted;
+  if (palette().window().color().lightness() < 128) {
+    adjusted = override_color_.lighter(150);
+  } else {
+    adjusted = override_color_.darker(150);
+  }
+
+  setStyleSheet(QStringLiteral("color: %1").arg(adjusted.name()));
+  override_color_enabled_ = true;
 }
 
 void SliderLabel::mousePressEvent(QMouseEvent *e)
@@ -78,6 +99,15 @@ void SliderLabel::focusInEvent(QFocusEvent *event)
 
   if (event->reason() == Qt::TabFocusReason) {
     emit focused();
+  }
+}
+
+void SliderLabel::changeEvent(QEvent *event)
+{
+  QWidget::changeEvent(event);
+
+  if (override_color_enabled_ && event->type() == QEvent::StyleChange) {
+    SetColor(override_color_);
   }
 }
 

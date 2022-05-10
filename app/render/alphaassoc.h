@@ -18,43 +18,17 @@
 
 ***/
 
-#ifndef PACKEDPROCESSOR_H
-#define PACKEDPROCESSOR_H
-
-extern "C" {
-#include <libswresample/swresample.h>
-}
-
-#include "codec/samplebuffer.h"
-#include "render/audioparams.h"
+#ifndef ALPHAASSOC_H
+#define ALPHAASSOC_H
 
 namespace olive {
 
-class PackedProcessor
-{
-public:
-  PackedProcessor();
-
-  ~PackedProcessor();
-
-  DISABLE_COPY_MOVE(PackedProcessor)
-
-  bool Open(const AudioParams &params);
-
-  QByteArray Convert(SampleBufferPtr planar);
-
-  void Close();
-
-  bool IsOpen() const
-  {
-    return swr_ctx_;
-  }
-
-private:
-  SwrContext *swr_ctx_;
-
+enum AlphaAssociated {
+  kAlphaNone,
+  kAlphaUnassociated,
+  kAlphaAssociated
 };
 
 }
 
-#endif // PACKEDPROCESSOR_H
+#endif // ALPHAASSOC_H

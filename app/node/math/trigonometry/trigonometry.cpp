@@ -34,11 +34,6 @@ TrigonometryNode::TrigonometryNode()
   AddInput(kXIn, NodeValue::kFloat, 0.0);
 }
 
-olive::Node *olive::TrigonometryNode::copy() const
-{
-  return new TrigonometryNode();
-}
-
 QString TrigonometryNode::Name() const
 {
   return tr("Trigonometry");
@@ -84,7 +79,7 @@ void TrigonometryNode::Retranslate()
 
 void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  double x = value[kXIn].data().toFloat();
+  double x = value[kXIn].toDouble();
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:

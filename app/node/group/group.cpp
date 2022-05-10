@@ -29,6 +29,7 @@ namespace olive {
 NodeGroup::NodeGroup() :
   output_passthrough_(nullptr)
 {
+  SetFlags(kDontShowInCreateMenu);
 }
 
 QString NodeGroup::Name() const

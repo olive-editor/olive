@@ -97,7 +97,7 @@ bool PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const
   return true;
 }
 
-bool PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+bool PreCacheTask::AudioDownloaded(const TimeRange &range, const SampleBuffer &samples)
 {
   // Pre-cache doesn't cache any audio
 

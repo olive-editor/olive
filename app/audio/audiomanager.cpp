@@ -26,7 +26,6 @@
 
 #include <QApplication>
 
-#include "audio/packedprocessor.h"
 #include "config/config.h"
 
 namespace olive {
@@ -81,10 +80,11 @@ int InputCallback(const void *input, void *output, unsigned long frameCount, con
   return paContinue;
 }
 
-void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &samples)
+bool AudioManager::PushToOutput(const AudioParams &params, const QByteArray &samples, QString *error)
 {
   if (output_device_ == paNoDevice) {
-    return;
+    if (error) *error = tr("No output device is set");
+    return false;
   }
 
   if (output_params_ != params || output_stream_ == nullptr) {
@@ -94,7 +94,13 @@ void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &sam
 
     PaStreamParameters p = GetPortAudioParams(params, output_device_);
 
-    Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_);
+    PaError r = Pa_OpenStream(&output_stream_, nullptr, &p, output_params_.sample_rate(), paFramesPerBufferUnspecified, paNoFlag, OutputCallback, output_buffer_);
+    if (r != paNoError) {
+      // Unhandled error
+      //qCritical() << "Failed to open output stream:" << Pa_GetErrorText(r);
+      if (error) *error = Pa_GetErrorText(r);
+      return false;
+    }
 
     output_buffer_->set_bytes_per_frame(output_params_.samples_to_bytes(1));
   }
@@ -104,6 +110,8 @@ void AudioManager::PushToOutput(const AudioParams &params, const QByteArray &sam
   if (!Pa_IsStreamActive(output_stream_)) {
     Pa_StartStream(output_stream_);
   }
+
+  return true;
 }
 
 void AudioManager::ClearBufferedOutput()
@@ -189,7 +197,7 @@ void AudioManager::HardReset()
   Pa_Initialize();
 }
 
-bool AudioManager::StartRecording(const EncodingParams &params)
+bool AudioManager::StartRecording(const EncodingParams &params, QString *error_str)
 {
   if (input_device_ == paNoDevice) {
     return false;
@@ -203,10 +211,17 @@ bool AudioManager::StartRecording(const EncodingParams &params)
 
   PaStreamParameters p = GetPortAudioParams(params.audio_params(), input_device_);
 
-  if (Pa_OpenStream(&input_stream_, &p, nullptr, params.audio_params().sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_) == paNoError) {
-    if (Pa_StartStream(input_stream_) == paNoError) {
+  PaError r = Pa_OpenStream(&input_stream_, &p, nullptr, params.audio_params().sample_rate(), paFramesPerBufferUnspecified, paNoFlag, InputCallback, input_encoder_);
+  if (r == paNoError) {
+    //const PaStreamInfo* info = Pa_GetStreamInfo(input_stream_);
+    r = Pa_StartStream(input_stream_);
+    if (r == paNoError) {
       return true;
     }
+  }
+
+  if (error_str) {
+    *error_str = Pa_GetErrorText(r);
   }
 
   StopRecording();
@@ -235,7 +250,7 @@ PaDeviceIndex AudioManager::FindConfigDeviceByName(bool is_output_device)
 {
   QString entry = is_output_device ? QStringLiteral("AudioOutput") : QStringLiteral("AudioInput");
 
-  return FindDeviceByName(Config::Current()[entry].toString(), is_output_device);
+  return FindDeviceByName(OLIVE_CONFIG_STR(entry).toString(), is_output_device);
 }
 
 PaDeviceIndex AudioManager::FindDeviceByName(const QString &s, bool is_output_device)

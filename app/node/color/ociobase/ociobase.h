@@ -18,45 +18,43 @@
 
 ***/
 
-#ifndef PLANARPROCESSOR_H
-#define PLANARPROCESSOR_H
+#ifndef OCIOBASENODE_H
+#define OCIOBASENODE_H
 
-extern "C" {
-#include <libswresample/swresample.h>
-}
-
-#include "codec/samplebuffer.h"
-#include "render/audioparams.h"
+#include "node/node.h"
+#include "render/job/colortransformjob.h"
 
 namespace olive {
 
-class PlanarProcessor
+class OCIOBaseNode : public Node
 {
+  Q_OBJECT
 public:
-  PlanarProcessor();
+  OCIOBaseNode();
 
-  ~PlanarProcessor();
+  virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  DISABLE_COPY_MOVE(PlanarProcessor)
+  static const QString kTextureInput;
 
-  bool Open(const AudioParams &params);
+protected slots:
+  virtual void ConfigChanged() = 0;
 
-  SampleBufferPtr Convert(const QByteArray &packed);
+protected:
+  ColorManager *manager() const { return manager_; }
 
-  void Close();
-
-  bool IsOpen() const
-  {
-    return swr_ctx_;
-  }
+  ColorProcessorPtr processor() const { return processor_; }
+  void set_processor(ColorProcessorPtr p) { processor_ = p; }
 
 private:
-  SwrContext *swr_ctx_;
+  ColorManager *manager_;
 
-  AudioParams params_;
+  ColorProcessorPtr processor_;
+
+private slots:
+  void ParentChanged(olive::NodeGraph *graph);
 
 };
 
 }
 
-#endif // PLANARPROCESSOR_H
+#endif // OCIOBASENODE_H

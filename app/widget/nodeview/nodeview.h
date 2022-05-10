@@ -77,7 +77,7 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(const QVector<Node *> &nodes, bool center_view_on_item);
+  void Select(const QVector<Node::ContextPair> &nodes, bool center_view_on_item);
 
   void CopySelected(bool cut);
   void Paste();
@@ -116,6 +116,9 @@ signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
   void NodesDeselected(const QVector<Node*>& nodes);
+
+  void NodeSelectionChanged(const QVector<Node*>& nodes);
+  void NodeSelectionChangedWithContexts(const QVector<Node::ContextPair>& nodes);
 
   void NodeGroupOpened(NodeGroup *group);
   void NodeGroupClosed();
@@ -217,6 +220,8 @@ private:
   NodeView* overlay_view_;
 
   double scale_;
+
+  bool dont_emit_selection_signals_;
 
   static const double kMinimumScale;
 

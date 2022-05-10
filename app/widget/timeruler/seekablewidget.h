@@ -60,6 +60,11 @@ public:
 
   void SeekToScenePoint(qreal scene);
 
+  const std::vector<TimelineMarker*> &GetSelectedMarkers() const
+  {
+    return selection_manager_.GetSelectedObjects();
+  }
+
   virtual void SelectionManagerSelectEvent(void *obj) override;
   virtual void SelectionManagerDeselectEvent(void *obj) override;
 
@@ -95,6 +100,18 @@ protected slots:
   virtual bool ShowContextMenu(const QPoint &p);
 
 private:
+  enum ResizeMode {
+    kResizeNone,
+    kResizeIn,
+    kResizeOut
+  };
+
+  bool FindResizeHandle(QMouseEvent *event);
+
+  void DragResizeHandle(const QPointF &scene_pos);
+
+  void CommitResizeHandle();
+
   TimelinePoints* timeline_points_;
 
   int text_height_;
@@ -106,6 +123,15 @@ private:
   bool ignore_next_focus_out_;
 
   TimeBasedViewSelectionManager<TimelineMarker> selection_manager_;
+
+  QObject *resize_item_;
+  ResizeMode resize_mode_;
+  TimeRange resize_item_range_;
+  QPointF resize_start_;
+  uint32_t resize_snap_mask_;
+
+  int marker_top_;
+  int marker_bottom_;
 
 private slots:
   void SetMarkerColor(int c);

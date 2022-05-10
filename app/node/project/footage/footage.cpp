@@ -118,12 +118,7 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
         decoder_ = footage_info.decoder();
 
         for (int i=0; i<footage_info.GetVideoStreams().size(); i++) {
-          VideoParams vp = footage_info.GetVideoStreams().at(i);
-
-          // FIXME: Make this customizable
-          vp.set_divider(VideoParams::generate_auto_divider(vp.width(), vp.height()));
-
-          AddStream(Track::kVideo, QVariant::fromValue(vp));
+          AddStream(Track::kVideo, QVariant::fromValue(footage_info.GetVideoStreams().at(i)));
         }
 
         for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {
@@ -327,9 +322,9 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
   Q_UNUSED(globals)
 
   // Pop filename from table
-  QString file = value[kFilenameInput].data().toString();
+  QString file = value[kFilenameInput].toString();
 
-  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].data().toInt());
+  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].toInt());
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo(file).exists()) {

@@ -31,12 +31,7 @@ class MosaicFilterNode : public Node
 public:
   MosaicFilterNode();
 
-  NODE_DEFAULT_DESTRUCTOR(MosaicFilterNode)
-
-  virtual Node* copy() const override
-  {
-    return new MosaicFilterNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(MosaicFilterNode)
 
   virtual QString Name() const override
   {
@@ -61,7 +56,7 @@ public:
   virtual void Retranslate() override;
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   static const QString kTextureInput;
   static const QString kHorizInput;

@@ -71,7 +71,7 @@ NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input
 
   if (value.array()) {
     // Resolve each element of array
-    QVector<NodeValueTable> tables = value.data().value<QVector<NodeValueTable> >();
+    QVector<NodeValueTable> tables = value.value<QVector<NodeValueTable> >();
     QVector<NodeValue> output(tables.size());
 
     for (int i=0; i<tables.size(); i++) {
@@ -153,8 +153,7 @@ int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
   // Find maximum channel count
   for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
     if (it.value().type() == NodeValue::kTexture) {
-      TexturePtr tex = it.value().data().value<TexturePtr>();
-      if (tex) {
+      if (TexturePtr tex = it.value().toTexture()) {
         max_channel_count = qMax(max_channel_count, tex->channel_count());
       }
     }
@@ -269,7 +268,15 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint
 
     return table;
   } else {
-    return database.Merge();
+    // If this node has an effect input, ensure that is pushed last
+    NodeValueTable primary;
+    if (!n->GetEffectInputID().isEmpty()) {
+      primary = database.Take(n->GetEffectInputID());
+    }
+
+    NodeValueTable m = database.Merge();
+    m.Push(primary);
+    return m;
   }
 }
 
@@ -287,6 +294,7 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   return table;
 }
 
+
 QVector2D NodeTraverser::GenerateResolution() const
 {
   return QVector2D(video_params_.square_pixel_width(), video_params_.height());
@@ -295,11 +303,9 @@ QVector2D NodeTraverser::GenerateResolution() const
 void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 {
   if (val.type() == NodeValue::kTexture || val.type() == NodeValue::kSamples) {
-    const QVariant &v = val.data();
+    if (val.canConvert<ShaderJob>()) {
 
-    if (v.canConvert<ShaderJob>()) {
-
-      ShaderJob job = v.value<ShaderJob>();
+      ShaderJob job = val.value<ShaderJob>();
 
       VideoParams tex_params = GetCacheVideoParams();
       tex_params.set_channel_count(GetChannelCountFromJob(job));
@@ -309,11 +315,11 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
       PreProcessRow(range, job.GetValues());
       ProcessShader(tex, val.source(), range, job);
 
-      val.set_data(QVariant::fromValue(tex));
+      val.set_value(tex);
 
-    } else if (v.canConvert<GenerateJob>()) {
+    } else if (val.canConvert<GenerateJob>()) {
 
-      GenerateJob job = v.value<GenerateJob>();
+      GenerateJob job = val.value<GenerateJob>();
 
       VideoParams tex_params = GetCacheVideoParams();
       tex_params.set_channel_count(GetChannelCountFromJob(job));
@@ -337,17 +343,47 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
         tex = dest;
       }
 
-      val.set_data(QVariant::fromValue(tex));
+      val.set_value(tex);
 
-    } else if (v.canConvert<FootageJob>()) {
+    } else if (val.canConvert<ColorTransformJob>()) {
 
-      FootageJob job = v.value<FootageJob>();
+      ColorTransformJob job = val.value<ColorTransformJob>();
+
+      VideoParams src_params = job.GetInputTexture()->params();
+      src_params.set_channel_count(GetChannelCountFromJob(job));
+
+      TexturePtr dest = CreateTexture(src_params);
+
+      ProcessColorTransform(dest, val.source(), job);
+
+      val.set_value(dest);
+
+    } else if (val.canConvert<FootageJob>()) {
+
+      FootageJob job = val.value<FootageJob>();
 
       if (job.type() == Track::kVideo) {
 
         rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
 
         TexturePtr tex;
+
+        // Adjust footage job's divider
+        VideoParams render_params = GetCacheVideoParams();
+        VideoParams job_params = job.video_params();
+
+        // HACK/FIXME: Override old cached probe data that contains an invalid divider. Might be
+        //             good in the future to version the probe data so we can automatically
+        //             ignore older stuff.
+        job_params.set_divider(render_params.divider());
+
+        // See if we can make this divider larger (i.e. if the footage is smaller)
+        while (job_params.divider() > 1
+               && VideoParams::GetScaledDimension(job_params.width(), job_params.divider()-1) < render_params.effective_width()
+               && VideoParams::GetScaledDimension(job_params.height(), job_params.divider()-1) < render_params.effective_height()) {
+          job_params.set_divider(job_params.divider() - 1);
+        }
+        job.set_video_params(job_params);
 
         if (footage_time.isNaN()) {
           // Push dummy texture
@@ -360,22 +396,22 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
           ProcessVideoFootage(tex, job, footage_time);
         }
 
-        val.set_data(QVariant::fromValue(tex));
+        val.set_value(tex);
 
       } else if (job.type() == Track::kAudio) {
 
-        SampleBufferPtr buffer = CreateSampleBuffer(GetCacheAudioParams(), range.length());
+        SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), range.length());
         ProcessAudioFootage(buffer, job, range);
-        val.set_data(QVariant::fromValue(buffer));
+        val.set_value(buffer);
 
       }
 
-    } else if (v.canConvert<SampleJob>()) {
+    } else if (val.canConvert<SampleJob>()) {
 
-      SampleJob job = v.value<SampleJob>();
-      SampleBufferPtr output_buffer = CreateSampleBuffer(job.samples()->audio_params(), job.samples()->sample_count());
+      SampleJob job = val.value<SampleJob>();
+      SampleBuffer output_buffer = CreateSampleBuffer(job.samples().audio_params(), job.samples().sample_count());
       ProcessSamples(output_buffer, val.source(), range, job);
-      val.set_data(QVariant::fromValue(output_buffer));
+      val.set_value(QVariant::fromValue(output_buffer));
 
     }
 

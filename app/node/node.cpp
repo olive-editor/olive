@@ -50,8 +50,7 @@ Node::Node() :
   folder_(nullptr),
   operation_stack_(0),
   cache_result_(false),
-  flags_(kNone),
-  effect_element_(-1)
+  flags_(kNone)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
 }
@@ -148,7 +147,7 @@ Color Node::color() const
   if (override_color_ >= 0) {
     c = override_color_;
   } else {
-    c = Config::Current()[QStringLiteral("CatColor%1").arg(this->Category().first())].toInt();
+    c = OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(this->Category().first())).toInt();
   }
 
   return ColorCoding::GetColor(c);
@@ -171,7 +170,7 @@ QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
 
 QBrush Node::brush(qreal top, qreal bottom) const
 {
-  if (Config::Current()[QStringLiteral("UseGradients")].toBool()) {
+  if (OLIVE_CONFIG("UseGradients").toBool()) {
     return gradient_color(top, bottom);
   } else {
     return color().toQColor();
@@ -918,6 +917,7 @@ void Node::SetInputFlags(const QString &input, const InputFlags &f)
 
   if (i) {
     i->flags = f;
+    emit InputFlagsChanged(input, i->flags);
   } else {
     ReportInvalidInput("set flags of", input);
   }
@@ -1103,7 +1103,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 {
   Node* copy;
 
-  if (Config::Current()[QStringLiteral("SplitClipsCopyNodes")].toBool()) {
+  if (OLIVE_CONFIG("SplitClipsCopyNodes").toBool()) {
     copy = Node::CopyNodeAndDependencyGraphMinusItems(node, command);
   } else {
     copy = node->copy();
@@ -1520,14 +1520,12 @@ QVector<Node *> Node::GetImmediateDependencies() const
   return GetDependenciesInternal(false, false);
 }
 
-ShaderCode Node::GetShaderCode(const QString &shader_id) const
+ShaderCode Node::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
-
   return ShaderCode(QString(), QString());
 }
 
-void Node::ProcessSamples(const NodeValueRow &, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(const NodeValueRow &, const SampleBuffer &, SampleBuffer &, int) const
 {
 }
 

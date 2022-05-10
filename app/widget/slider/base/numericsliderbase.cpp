@@ -69,7 +69,7 @@ void NumericSliderBase::LadderDragged(int value, double multiplier)
 {
   dragged_ = true;
 
-  dragged_diff_ += value * drag_multiplier_ * multiplier;
+  dragged_diff_ += value * multiplier;
 
   // Store current value to try and prevent any unnecessary signalling if the value doesn't change
   QVariant pre_set_value = GetValueInternal();
@@ -139,7 +139,7 @@ bool NumericSliderBase::IsDragging() const
 
 bool NumericSliderBase::UsingLadders() const
 {
-  return ladder_element_count_ > 0 && Config::Current()[QStringLiteral("UseSliderLadders")].toBool();
+  return ladder_element_count_ > 0 && OLIVE_CONFIG("UseSliderLadders").toBool();
 }
 
 QVariant NumericSliderBase::AdjustValue(const QVariant &value) const

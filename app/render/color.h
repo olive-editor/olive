@@ -30,11 +30,13 @@
 namespace olive {
 
 /**
- * @brief High precision 32-bit float based RGBA color value
+ * @brief High precision 32-bit DataType based RGBA color value
  */
 class Color
 {
 public:
+  using DataType = float;
+
   Color()
   {
     for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
@@ -42,7 +44,7 @@ public:
     }
   }
 
-  Color(const float& r, const float& g, const float& b, const float& a = 1.0f)
+  Color(const DataType& r, const DataType& g, const DataType& b, const DataType& a = 1.0f)
   {
     data_[0] = r;
     data_[1] = g;
@@ -59,30 +61,30 @@ public:
    *
    * Hue expects a value between 0.0 and 360.0. Saturation and Value expect a value between 0.0 and 1.0.
    */
-  static Color fromHsv(const float& h, const float& s, const float &v);
+  static Color fromHsv(const DataType& h, const DataType& s, const DataType &v);
 
-  const float& red() const {return data_[0];}
-  const float& green() const {return data_[1];}
-  const float& blue() const {return data_[2];}
-  const float& alpha() const {return data_[3];}
+  const DataType& red() const {return data_[0];}
+  const DataType& green() const {return data_[1];}
+  const DataType& blue() const {return data_[2];}
+  const DataType& alpha() const {return data_[3];}
 
-  void toHsv(float* hue, float* sat, float* val) const;
-  float hsv_hue() const;
-  float hsv_saturation() const;
-  float value() const;
+  void toHsv(DataType* hue, DataType* sat, DataType* val) const;
+  DataType hsv_hue() const;
+  DataType hsv_saturation() const;
+  DataType value() const;
 
-  void toHsl(float* hue, float* sat, float* lightness) const;
-  float hsl_hue() const;
-  float hsl_saturation() const;
-  float lightness() const;
+  void toHsl(DataType* hue, DataType* sat, DataType* lightness) const;
+  DataType hsl_hue() const;
+  DataType hsl_saturation() const;
+  DataType lightness() const;
 
-  void set_red(const float& red) {data_[0] = red;}
-  void set_green(const float& green) {data_[1] = green;}
-  void set_blue(const float& blue) {data_[2] = blue;}
-  void set_alpha(const float& alpha) {data_[3] = alpha;}
+  void set_red(const DataType& red) {data_[0] = red;}
+  void set_green(const DataType& green) {data_[1] = green;}
+  void set_blue(const DataType& blue) {data_[2] = blue;}
+  void set_alpha(const DataType& alpha) {data_[3] = alpha;}
 
-  float* data() {return data_;}
-  const float* data() const {return data_;}
+  DataType* data() {return data_;}
+  const DataType* data() const {return data_;}
 
   void toData(char* data, const VideoParams::Format& format, int ch_layout) const;
 
@@ -92,22 +94,61 @@ public:
 
   // Suuuuper rough luminance value mostly used for UI (determining whether to overlay with black
   // or white text)
-  float GetRoughLuminance() const;
+  DataType GetRoughLuminance() const;
 
   // Assignment math operators
-  const Color& operator+=(const Color& rhs);
-  const Color& operator-=(const Color& rhs);
-  const Color& operator*=(const float& rhs);
-  const Color& operator/=(const float& rhs);
+  Color& operator+=(const Color& rhs);
+  Color& operator-=(const Color& rhs);
+  Color& operator+=(const DataType& rhs);
+  Color& operator-=(const DataType& rhs);
+  Color& operator*=(const DataType& rhs);
+  Color& operator/=(const DataType& rhs);
 
   // Binary math operators
-  Color operator+(const Color& rhs) const;
-  Color operator-(const Color& rhs) const;
-  Color operator*(const float& rhs) const;
-  Color operator/(const float& rhs) const;
+  Color operator+(const Color& rhs) const
+  {
+    Color c(*this);
+    c += rhs;
+    return c;
+  }
+
+  Color operator-(const Color& rhs) const
+  {
+    Color c(*this);
+    c -= rhs;
+    return c;
+  }
+
+  Color operator+(const DataType& rhs) const
+  {
+    Color c(*this);
+    c += rhs;
+    return c;
+  }
+
+  Color operator-(const DataType& rhs) const
+  {
+    Color c(*this);
+    c -= rhs;
+    return c;
+  }
+
+  Color operator*(const DataType& rhs) const
+  {
+    Color c(*this);
+    c *= rhs;
+    return c;
+  }
+
+  Color operator/(const DataType& rhs) const
+  {
+    Color c(*this);
+    c /= rhs;
+    return c;
+  }
 
 private:
-  float data_[VideoParams::kRGBAChannelCount];
+  DataType data_[VideoParams::kRGBAChannelCount];
 
 };
 

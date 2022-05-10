@@ -46,20 +46,21 @@ const int NodeParamViewItemBody::kMaxWidgetColumn = kKeyControlColumn;
 
 NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   super(parent),
+  body_(nullptr),
   node_(node),
+  create_checkboxes_(create_checkboxes),
   ctx_(nullptr)
 {
   node_->Retranslate();
 
   // Create and add contents widget
-  body_ = new NodeParamViewItemBody(node_, create_checkboxes);
-  connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
-  connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
-  connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
-  connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
-  SetBody(body_);
+  RecreateBody();
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
+
+  // FIXME: Implemented to pick up when an input is set to hidden or not - DEFINITELY not a fast
+  //        way of doing this, but "fine" for now.
+  connect(node_, &Node::InputFlagsChanged, this, &NodeParamViewItem::RecreateBody);
 
   setBackgroundRole(QPalette::Window);
 
@@ -78,6 +79,23 @@ void NodeParamViewItem::Retranslate()
   title_bar()->SetText(GetTitleBarTextFromNode(node_));
 
   body_->Retranslate();
+}
+
+void NodeParamViewItem::RecreateBody()
+{
+  QWidget *old_body = body_;
+
+  body_ = new NodeParamViewItemBody(node_, create_checkboxes_);
+  connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
+  connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
+  connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
+  connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
+  body_->Retranslate();
+  body_->SetTime(time_);
+  body_->SetTimebase(timebase_);
+  SetBody(body_);
+
+  old_body->deleteLater();
 }
 
 int NodeParamViewItem::GetElementY(const NodeInput &c) const

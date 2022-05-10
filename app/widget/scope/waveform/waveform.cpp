@@ -54,26 +54,26 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   ShaderJob job;
 
   // Set viewport size
-  job.InsertValue(QStringLiteral("viewport"),
+  job.Insert(QStringLiteral("viewport"),
                   NodeValue(NodeValue::kVec2, QVector2D(width(), height())));
 
   // Set luma coefficients
   double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
   color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-  job.InsertValue(QStringLiteral("luma_coeffs"),
+  job.Insert(QStringLiteral("luma_coeffs"),
                   NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
 
 
   // Scale of the waveform relative to the viewport surface.
-  job.InsertValue(QStringLiteral("waveform_scale"),
+  job.Insert(QStringLiteral("waveform_scale"),
                   NodeValue(NodeValue::kFloat, waveform_scale));
 
   // Insert source texture
-  job.InsertValue(QStringLiteral("ove_maintex"),
+  job.Insert(QStringLiteral("ove_maintex"),
                   NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
   renderer()->Blit(pipeline, job, VideoParams(width(), height(),
-                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                              static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
                                               VideoParams::kInternalChannelCount));
 
   float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);

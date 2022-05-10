@@ -29,11 +29,16 @@ const QString SubtitleBlock::kTextIn = QStringLiteral("text_in");
 SubtitleBlock::SubtitleBlock()
 {
   AddInput(kTextIn, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
-}
 
-Node *SubtitleBlock::copy() const
-{
-  return new SubtitleBlock();
+  SetInputFlags(kBufferIn, InputFlags(GetInputFlags(kBufferIn) | kInputFlagHidden));
+  SetInputFlags(kLengthInput, InputFlags(GetInputFlags(kLengthInput) | kInputFlagHidden));
+  SetInputFlags(kMediaInInput, InputFlags(GetInputFlags(kMediaInInput) | kInputFlagHidden));
+  SetInputFlags(kSpeedInput, InputFlags(GetInputFlags(kSpeedInput) | kInputFlagHidden));
+  SetInputFlags(kReverseInput, InputFlags(GetInputFlags(kReverseInput) | kInputFlagHidden));
+  SetInputFlags(kMaintainAudioPitchInput, InputFlags(GetInputFlags(kMaintainAudioPitchInput) | kInputFlagHidden));
+
+  // Undo block flag that hides in param view
+  SetFlags(GetFlags() & ~kDontShowInParamView);
 }
 
 QString SubtitleBlock::Name() const

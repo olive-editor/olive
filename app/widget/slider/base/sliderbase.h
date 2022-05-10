@@ -55,6 +55,11 @@ public:
     UpdateLabel();
   }
 
+  void SetColor(const QColor &c)
+  {
+    label_->SetColor(c);
+  }
+
 public slots:
   void ShowEditor();
 

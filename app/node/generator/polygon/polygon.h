@@ -39,9 +39,7 @@ class PolygonGenerator : public GeneratorWithMerge
 public:
   PolygonGenerator();
 
-  NODE_DEFAULT_DESTRUCTOR(PolygonGenerator)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(PolygonGenerator)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -58,6 +56,9 @@ public:
 
   static const QString kPointsInput;
   static const QString kColorInput;
+
+protected:
+  GenerateJob GetGenerateJob(const NodeValueRow &value) const;
 
 protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;

@@ -38,8 +38,8 @@ public:
 
   int GetValue() const;
 
-  static const int kDefaultH264CRF = 23;
-  static const int kDefaultH265CRF = 28;
+  static const int kDefaultH264CRF = 18;
+  static const int kDefaultH265CRF = 23;
 
 private:
   static const int kMinimumCRF = 0;

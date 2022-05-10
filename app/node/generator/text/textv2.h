@@ -31,8 +31,7 @@ class TextGeneratorV2 : public ShapeNodeBase
 public:
   TextGeneratorV2();
 
-  NODE_DEFAULT_DESTRUCTOR(TextGeneratorV2)
-  NODE_COPY_FUNCTION(TextGeneratorV2)
+  NODE_DEFAULT_FUNCTIONS(TextGeneratorV2)
 
   virtual QString Name() const override;
   virtual QString id() const override;

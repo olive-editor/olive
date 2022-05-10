@@ -44,11 +44,6 @@ NoiseGeneratorNode::NoiseGeneratorNode()
   SetFlags(kVideoEffect);
 }
 
-Node* NoiseGeneratorNode::copy() const
-{
-  return new NoiseGeneratorNode();
-}
-
 QString NoiseGeneratorNode::Name() const
 {
   return tr("Noise");
@@ -78,7 +73,7 @@ void NoiseGeneratorNode::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderCode NoiseGeneratorNode::GetShaderCode(const QString& shader_id) const
+ShaderCode NoiseGeneratorNode::GetShaderCode(const ShaderRequest &request) const
 {
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/noise.frag"));
 }
@@ -87,8 +82,8 @@ void NoiseGeneratorNode::Value(const NodeValueRow &value, const NodeGlobals &glo
 {
   ShaderJob job;
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
 
   table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
 }

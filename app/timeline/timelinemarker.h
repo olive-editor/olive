@@ -227,7 +227,10 @@ private:
 
 class MarkerChangeTimeCommand : public UndoCommand {
 public:
-  MarkerChangeTimeCommand(TimelineMarker* marker, TimeRange time);
+  MarkerChangeTimeCommand(TimelineMarker* marker, const TimeRange &time, const TimeRange &old_time);
+  MarkerChangeTimeCommand(TimelineMarker* marker, const TimeRange &time) :
+    MarkerChangeTimeCommand(marker, time, marker->time_range())
+  {}
 
   virtual Project* GetRelevantProject() const override;
 

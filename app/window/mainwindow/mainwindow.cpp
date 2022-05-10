@@ -92,15 +92,12 @@ MainWindow::MainWindow(QWidget *parent) :
   scope_panel_ = new ScopePanel(this);
 
   // Make node-related connections
-  connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
-  connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
+  connect(node_panel_, &NodePanel::NodeSelectionChangedWithContexts, param_panel_, &ParamPanel::SetSelectedNodes);
   connect(node_panel_, &NodePanel::NodeGroupOpened, this, &MainWindow::NodePanelGroupOpenedOrClosed);
   connect(node_panel_, &NodePanel::NodeGroupClosed, this, &MainWindow::NodePanelGroupOpenedOrClosed);
-  connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
-    node_panel_->Select(target, true);
-  });
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
+  connect(param_panel_, &ParamPanel::SelectedNodesChanged, node_panel_, &NodePanel::Select);
 
   // Connect time signals together
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
@@ -473,7 +470,7 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 
 void MainWindow::ShowWelcomeDialog()
 {
-  if (Config::Current()[QStringLiteral("ShowWelcomeDialog")].toBool()) {
+  if (OLIVE_CONFIG("ShowWelcomeDialog").toBool()) {
     AboutDialog ad(true, this);
     ad.exec();
   }

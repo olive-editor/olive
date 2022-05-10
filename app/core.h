@@ -247,9 +247,6 @@ public:
    */
   static int CountFilesInFileList(const QFileInfoList &filenames);
 
-  static QVariant GetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference);
-  static void SetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference, const QVariant& value);
-
   /**
    * @brief Show a dialog to the user to rename a set of nodes
    */

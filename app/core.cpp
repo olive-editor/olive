@@ -108,7 +108,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();
   qRegisterMetaType<FramePtr>();
-  qRegisterMetaType<SampleBufferPtr>();
+  qRegisterMetaType<SampleBuffer>();
   qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
@@ -794,7 +794,7 @@ void Core::StartGUI(bool full_screen)
   connect(this, &Core::ProjectClosed, main_window_, &MainWindow::ProjectClose);
 
   // Start autorecovery timer using the config value as its interval
-  SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
+  SetAutorecoveryInterval(OLIVE_CONFIG("AutorecoveryInterval").toInt());
   connect(&autorecovery_timer_, &QTimer::timeout, this, &Core::SaveAutorecovery);
   autorecovery_timer_.start();
 
@@ -960,7 +960,7 @@ bool Core::RevertProjectInternal(Project *p, bool by_opening_existing)
 
 void Core::SaveAutorecovery()
 {
-  if (Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool()) {
+  if (OLIVE_CONFIG("AutorecoveryEnabled").toBool()) {
     foreach (Project* p, open_projects_) {
       if (!p->has_autorecovery_been_saved()) {
         QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
@@ -986,7 +986,7 @@ void Core::SaveAutorecovery()
             realname_file.close();
           }
 
-          int64_t max_recoveries_per_file = Config::Current()[QStringLiteral("AutorecoveryMaximum")].toLongLong();
+          int64_t max_recoveries_per_file = OLIVE_CONFIG("AutorecoveryMaximum").toLongLong();
 
           // Since we write an extra file, increment total allowed files by 1
           max_recoveries_per_file++;
@@ -1075,12 +1075,12 @@ Folder *Core::GetSelectedFolderInActiveProject() const
 
 Timecode::Display Core::GetTimecodeDisplay() const
 {
-  return static_cast<Timecode::Display>(Config::Current()["TimecodeDisplay"].toInt());
+  return static_cast<Timecode::Display>(OLIVE_CONFIG("TimecodeDisplay").toInt());
 }
 
 void Core::SetTimecodeDisplay(Timecode::Display d)
 {
-  Config::Current()["TimecodeDisplay"] = d;
+  OLIVE_CONFIG("TimecodeDisplay") = d;
 
   emit TimecodeDisplayChanged(d);
 }
@@ -1202,7 +1202,7 @@ void Core::SetStartupLocale()
     }
   }
 
-  QString use_locale = Config::Current()[QStringLiteral("Language")].toString();
+  QString use_locale = OLIVE_CONFIG("Language").toString();
 
   if (use_locale.isEmpty()) {
     // No configured locale, auto-detect the system's locale
@@ -1410,25 +1410,6 @@ int Core::CountFilesInFileList(const QFileInfoList &filenames)
   }
 
   return file_count;
-}
-
-QString GetRenderModePreferencePrefix(RenderMode::Mode mode, const QString &preference) {
-  QString key;
-
-  key.append((mode == RenderMode::kOffline) ? QStringLiteral("Offline") : QStringLiteral("Online"));
-  key.append(preference);
-
-  return key;
-}
-
-QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference)
-{
-  return Config::Current()[GetRenderModePreferencePrefix(mode, preference)];
-}
-
-void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
-{
-  Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
 }
 
 bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)

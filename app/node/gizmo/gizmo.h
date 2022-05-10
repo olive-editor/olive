@@ -39,10 +39,15 @@ public:
   const NodeGlobals &GetGlobals() const { return globals_; }
   void SetGlobals(const NodeGlobals &globals) { globals_ = globals; }
 
+  bool IsVisible() const { return visible_; }
+  void SetVisible(bool e) { visible_ = e; }
+
 signals:
 
 private:
   NodeGlobals globals_;
+
+  bool visible_;
 
 };
 

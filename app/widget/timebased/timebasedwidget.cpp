@@ -292,7 +292,7 @@ void TimeBasedWidget::SetTime(const rational &time)
     QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
   } else {
     // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
-    switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+    switch (static_cast<AutoScroll::Method>(OLIVE_CONFIG("Autoscroll").toInt())) {
     case AutoScroll::kNone:
       // Do nothing
       break;
@@ -486,7 +486,7 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   }
 
   // Set workarea
-  command->add_child(new WorkareaSetRangeCommand(viewer_node_->project(), points, TimeRange(in_point, out_point)));
+  command->add_child(new WorkareaSetRangeCommand(points->workarea(), TimeRange(in_point, out_point)));
 
   Core::instance()->undo_stack()->push(command);
 }
@@ -511,7 +511,7 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
     r.set_out(TimelineWorkArea::kResetOut);
   }
 
-  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(viewer_node_->project(), points, r));
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points->workarea(), r));
 }
 
 void TimeBasedWidget::PageScrollInternal(QScrollBar *bar, int maximum, int screen_position, bool whole_page_scroll)
@@ -606,12 +606,12 @@ void TimeBasedWidget::SetMarker()
       color = closest->color();
     } else {
       // Fallback to default color in preferences
-      color = Config::Current()[QStringLiteral("MarkerColor")].toInt();
+      color = OLIVE_CONFIG("MarkerColor").toInt();
     }
 
     TimelineMarker *marker = new TimelineMarker(color, TimeRange(GetTime(), GetTime()));
 
-    if (Config::Current()[QStringLiteral("SetNameWithMarker")].toBool()) {
+    if (OLIVE_CONFIG("SetNameWithMarker").toBool()) {
       MarkerPropertiesDialog mpd({marker}, timebase(), this);
       if (mpd.exec() != QDialog::Accepted) {
         delete marker;
@@ -772,6 +772,11 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
     for (auto it=ruler()->GetTimelinePoints()->markers()->cbegin(); it!=ruler()->GetTimelinePoints()->markers()->cend(); it++) {
       TimelineMarker* m = *it;
 
+      // Ignore selected markers
+      if (std::find(ruler()->GetSelectedMarkers().cbegin(), ruler()->GetSelectedMarkers().cend(), m) != ruler()->GetSelectedMarkers().cend()) {
+        continue;
+      }
+
       qreal marker_pos = TimeToScene(m->time_range().in());
       AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time_range().in());
 
@@ -780,6 +785,14 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
         AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time_range().out());
       }
     }
+  }
+
+  if ((snap_points & kSnapToWorkarea) && ruler()->GetTimelinePoints()) {
+    const rational &workarea_in = ruler()->GetTimelinePoints()->workarea()->in();
+    const rational &workarea_out = ruler()->GetTimelinePoints()->workarea()->out();
+
+    AttemptSnap(potential_snaps, screen_pt, TimeToScene(workarea_in), start_times, workarea_in);
+    AttemptSnap(potential_snaps, screen_pt, TimeToScene(workarea_out), start_times, workarea_out);
   }
 
   if ((snap_points & kSnapToKeyframes) && GetSnapKeyframes()) {

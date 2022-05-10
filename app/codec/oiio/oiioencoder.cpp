@@ -62,7 +62,7 @@ bool OIIOEncoder::WriteFrame(FramePtr frame, rational time)
   return true;
 }
 
-bool OIIOEncoder::WriteAudio(SampleBufferPtr audio)
+bool OIIOEncoder::WriteAudio(const SampleBuffer &audio)
 {
   // Do nothing
   return false;

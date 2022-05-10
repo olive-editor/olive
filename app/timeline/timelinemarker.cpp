@@ -29,7 +29,7 @@
 namespace olive {
 
 TimelineMarker::TimelineMarker(QObject *parent) :
-  color_(Config::Current()[QStringLiteral("MarkerColor")].toInt())
+  color_(OLIVE_CONFIG("MarkerColor").toInt())
 {
   setParent(parent);
 }
@@ -204,9 +204,7 @@ void TimelineMarkerList::HandleMarkerTimeChange()
 
   auto it = std::find(markers_.begin(), markers_.end(), m);
 
-  if ((it+1 != markers_.end() && (*(it+1))->time() < m->time())
-      || (it != markers_.begin() && (*(it-1))->time() > m->time())) {
-    // Re-sort into list
+  if (it != markers_.end()) {
     markers_.erase(it);
     InsertIntoList(m);
   }
@@ -304,8 +302,9 @@ void MarkerChangeNameCommand::undo()
   marker_->set_name(old_name_);
 }
 
-MarkerChangeTimeCommand::MarkerChangeTimeCommand(TimelineMarker* marker, TimeRange time) :
+MarkerChangeTimeCommand::MarkerChangeTimeCommand(TimelineMarker* marker, const TimeRange &time, const TimeRange &old_time) :
   marker_(marker),
+  old_time_(old_time),
   new_time_(time)
 {
 }

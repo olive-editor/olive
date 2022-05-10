@@ -28,8 +28,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "audio/packedprocessor.h"
-#include "audio/tempoprocessor.h"
+#include "audio/audioprocessor.h"
 #include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
@@ -212,6 +211,8 @@ private:
 
   void DisarmRecording();
 
+  void CloseAudioProcessor();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
@@ -255,8 +256,7 @@ private:
 
   std::list<RenderTicketWatcher*> audio_playback_queue_;
   rational audio_playback_queue_time_;
-  PackedProcessor packed_processor_;
-  TempoProcessor tempo_processor_;
+  AudioProcessor audio_processor_;
   QByteArray prequeued_audio_;
   static const rational kAudioPlaybackInterval;
 
@@ -317,6 +317,8 @@ private slots:
   void ReceivedAudioBufferForScrubbing();
 
   void ForceRequeueFromCurrentTime();
+
+  void UpdateAudioProcessor();
 
 };
 

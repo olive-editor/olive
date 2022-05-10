@@ -61,11 +61,6 @@ ClipBlock::ClipBlock() :
   SetEffectInput(kBufferIn);
 }
 
-Node *ClipBlock::copy() const
-{
-  return new ClipBlock();
-}
-
 QString ClipBlock::Name() const
 {
   if (track()) {
@@ -289,6 +284,7 @@ void ClipBlock::Retranslate()
   SetInputName(kMediaInInput, tr("Media In"));
   SetInputName(kSpeedInput, tr("Speed"));
   SetInputName(kReverseInput, tr("Reverse"));
+  SetInputName(kMaintainAudioPitchInput, tr("Maintain Audio Pitch"));
 }
 
 void ClipBlock::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const

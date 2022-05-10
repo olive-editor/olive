@@ -158,7 +158,7 @@ void TimelineView::wheelEvent(QWheelEvent *event)
 
     QPoint angle_delta = event->angleDelta();
 
-    if (Config::Current()[QStringLiteral("InvertTimelineScrollAxes")].toBool() // Check if config is set to invert timeline axes
+    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool() // Check if config is set to invert timeline axes
         && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
       angle_delta = QPoint(angle_delta.y(), angle_delta.x());
     }
@@ -184,7 +184,7 @@ void TimelineView::wheelEvent(QWheelEvent *event)
 
     Qt::Orientation orientation = event->orientation();
 
-    if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool()) {
       orientation = (orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
     }
 
@@ -307,7 +307,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
         Block *attached = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
-        if (attached && Config::Current()[QStringLiteral("ShowClipWhileDragging")].toBool()) {
+        if (attached && OLIVE_CONFIG("ShowClipWhileDragging").toBool()) {
           int adj_track = ghost->GetAdjustedTrack().index();
           qreal track_top = GetTrackY(adj_track);
           qreal track_height = GetTrackHeight(adj_track);

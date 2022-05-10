@@ -31,9 +31,7 @@ class PanNode : public Node
 public:
   PanNode();
 
-  NODE_DEFAULT_DESTRUCTOR(PanNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(PanNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -42,7 +40,7 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
+  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const override;
 
   virtual void Retranslate() override;
 

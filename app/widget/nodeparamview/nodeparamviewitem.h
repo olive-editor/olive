@@ -67,7 +67,7 @@ public:
 signals:
   void RequestSetTime(const rational& time);
 
-  void RequestSelectNode(const QVector<Node*>& node);
+  void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
 
@@ -179,6 +179,8 @@ public:
 
   void SetTimebase(const rational& timebase)
   {
+    timebase_ = timebase;
+
     body_->SetTimebase(timebase);
   }
 
@@ -214,7 +216,7 @@ public:
 signals:
   void RequestSetTime(const rational& time);
 
-  void RequestSelectNode(const QVector<Node*>& node);
+  void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
 
@@ -228,11 +230,17 @@ private:
 
   Node* node_;
 
+  NodeParamViewCheckBoxBehavior create_checkboxes_;
+
   Node *ctx_;
 
   rational time_;
+  rational timebase_;
 
   KeyframeView::NodeConnections keyframe_connections_;
+
+private slots:
+  void RecreateBody();
 
 };
 

@@ -44,16 +44,11 @@ MatrixGenerator::MatrixGenerator()
   AddInput(kScaleInput, NodeValue::kVec2, QVector2D(1.0f, 1.0f));
   SetInputProperty(kScaleInput, QStringLiteral("min"), QVector2D(0, 0));
   SetInputProperty(kScaleInput, QStringLiteral("view"), FloatSlider::kPercentage);
-  SetInputProperty(kScaleInput, QStringLiteral("disabley"), true);
+  SetInputProperty(kScaleInput, QStringLiteral("disable1"), true);
 
   AddInput(kUniformScaleInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   AddInput(kAnchorInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
-}
-
-Node *MatrixGenerator::copy() const
-{
-  return new MatrixGenerator();
 }
 
 QString MatrixGenerator::Name() const
@@ -108,47 +103,47 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool take,
   if (!ignore_anchor) {
     if (take) {
       // Take and store
-      anchor = value[kAnchorInput].data().value<QVector2D>();
+      anchor = value[kAnchorInput].toVec2();
     } else {
       // Get and store
-      anchor = value[kAnchorInput].data().value<QVector2D>();
+      anchor = value[kAnchorInput].toVec2();
     }
   } else if (take) {
     // Just take
-    value[kAnchorInput].data().value<QVector2D>();
+    value[kAnchorInput].toVec2();
   }
 
   if (!ignore_scale) {
     if (take) {
-      scale = value[kScaleInput].data().value<QVector2D>();
+      scale = value[kScaleInput].toVec2();
     } else {
-      scale = value[kScaleInput].data().value<QVector2D>();
+      scale = value[kScaleInput].toVec2();
     }
   } else if (take) {
-    value[kScaleInput].data().value<QVector2D>();
+    value[kScaleInput].toVec2();
   }
 
   if (!ignore_position) {
     if (take) {
-      position = value[kPositionInput].data().value<QVector2D>();
+      position = value[kPositionInput].toVec2();
     } else {
-      position = value[kPositionInput].data().value<QVector2D>();
+      position = value[kPositionInput].toVec2();
     }
   } else if (take) {
-    value[kPositionInput].data().value<QVector2D>();
+    value[kPositionInput].toVec2();
   }
 
   if (take) {
     return GenerateMatrix(position,
-                          value[kRotationInput].data().toFloat(),
+                          value[kRotationInput].toDouble(),
                           scale,
-                          value[kUniformScaleInput].data().toBool(),
+                          value[kUniformScaleInput].toBool(),
                           anchor);
   } else {
     return GenerateMatrix(position,
-                          value[kRotationInput].data().toFloat(),
+                          value[kRotationInput].toDouble(),
                           scale,
-                          value[kUniformScaleInput].data().toBool(),
+                          value[kUniformScaleInput].toBool(),
                           anchor);
 
   }
@@ -188,7 +183,7 @@ void MatrixGenerator::InputValueChangedEvent(const QString &input, int element)
   Q_UNUSED(element)
 
   if (input == kUniformScaleInput) {
-    SetInputProperty(kScaleInput, QStringLiteral("disabley"), GetStandardValue(kUniformScaleInput).toBool());
+    SetInputProperty(kScaleInput, QStringLiteral("disable1"), GetStandardValue(kUniformScaleInput).toBool());
   }
 }
 

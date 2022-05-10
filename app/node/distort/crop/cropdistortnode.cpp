@@ -78,25 +78,25 @@ void CropDistortNode::Retranslate()
 void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    if (!qIsNull(job.GetValue(kLeftInput).data().toDouble())
-        || !qIsNull(job.GetValue(kRightInput).data().toDouble())
-        || !qIsNull(job.GetValue(kTopInput).data().toDouble())
-        || !qIsNull(job.GetValue(kBottomInput).data().toDouble())) {
+  if (job.Get(kTextureInput).toTexture()) {
+    if (!qIsNull(job.Get(kLeftInput).toDouble())
+        || !qIsNull(job.Get(kRightInput).toDouble())
+        || !qIsNull(job.Get(kTopInput).toDouble())
+        || !qIsNull(job.Get(kBottomInput).toDouble())) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
-      table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
+      table->Push(job.Get(kTextureInput));
     }
   }
 }
 
-ShaderCode CropDistortNode::GetShaderCode(const QString &shader_id) const
+ShaderCode CropDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
 }
 
@@ -104,10 +104,10 @@ void CropDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGl
 {
   const QVector2D &resolution = globals.resolution();
 
-  double left_pt = resolution.x() * row[kLeftInput].data().toDouble();
-  double top_pt = resolution.y() * row[kTopInput].data().toDouble();
-  double right_pt = resolution.x() * (1.0 - row[kRightInput].data().toDouble());
-  double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].data().toDouble());
+  double left_pt = resolution.x() * row[kLeftInput].toDouble();
+  double top_pt = resolution.y() * row[kTopInput].toDouble();
+  double right_pt = resolution.x() * (1.0 - row[kRightInput].toDouble());
+  double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].toDouble());
   double center_x_pt = mid(left_pt, right_pt);
   double center_y_pt = mid(top_pt, bottom_pt);
 

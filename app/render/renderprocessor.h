@@ -46,11 +46,13 @@ protected:
 
   virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time) override;
 
-  virtual void ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time) override;
+  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time) override;
 
   virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job) override;
 
-  virtual void ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
+  virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
+
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job) override;
 
   virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job) override;
 
@@ -61,9 +63,9 @@ protected:
     return render_ctx_->CreateTexture(p);
   }
 
-  virtual SampleBufferPtr CreateSampleBuffer(const AudioParams &params, int sample_count) override
+  virtual SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count) override
   {
-    return SampleBuffer::CreateAllocated(params, sample_count);
+    return SampleBuffer(params, sample_count);
   }
 
   virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs) override;

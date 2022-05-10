@@ -42,9 +42,9 @@ void GeneratorWithMerge::Retranslate()
   SetInputName(kBaseInput, tr("Base"));
 }
 
-ShaderCode GeneratorWithMerge::GetShaderCode(const QString &shader_id) const
+ShaderCode GeneratorWithMerge::GetShaderCode(const ShaderRequest &request) const
 {
-  if (shader_id == QStringLiteral("mrg")) {
+  if (request.id == QStringLiteral("mrg")) {
     return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
   }
 
@@ -53,13 +53,13 @@ ShaderCode GeneratorWithMerge::GetShaderCode(const QString &shader_id) const
 
 void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, const QVariant &job, NodeValueTable *table) const
 {
-  if (!value[kBaseInput].data().isNull()) {
+  if (value[kBaseInput].toTexture()) {
     // Push as merge node
     ShaderJob merge;
 
     merge.SetShaderID(QStringLiteral("mrg"));
-    merge.InsertValue(MergeNode::kBaseIn, value[kBaseInput]);
-    merge.InsertValue(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
+    merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
+    merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);
   } else {

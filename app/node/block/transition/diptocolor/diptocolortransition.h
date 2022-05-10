@@ -31,16 +31,14 @@ class DipToColorTransition : public TransitionBlock
 public:
   DipToColorTransition();
 
-  NODE_DEFAULT_DESTRUCTOR(DipToColorTransition)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(DipToColorTransition)
 
   virtual QString Name() const override;
   virtual QString id() const override;
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   static const QString kColorInput;
 

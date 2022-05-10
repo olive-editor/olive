@@ -53,7 +53,7 @@ void NodeValueTree::SetNode(const NodeInput &input, const rational &time)
 
     setItemWidget(item, 0, radio);
     item->setText(1, NodeValue::GetPrettyDataTypeName(value.type()));
-    item->setText(2, NodeValue::ValueToString(value.type(), value.data(), false));
+    item->setText(2, NodeValue::ValueToString(value, false));
     item->setText(3, value.source()->GetLabelAndName());
   }
 }

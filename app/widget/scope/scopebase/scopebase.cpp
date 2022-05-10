@@ -50,10 +50,10 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   ShaderJob job;
 
-  job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
+  job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
   renderer()->Blit(pipeline, job, VideoParams(width(), height(),
-                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
+                                              static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
                                               VideoParams::kInternalChannelCount));
 }
 
@@ -74,7 +74,13 @@ void ScopeBase::OnPaint()
     if (!managed_tex_ || !managed_tex_up_to_date_
         || managed_tex_->params() != texture_->params()) {
       managed_tex_ = renderer()->CreateTexture(texture_->params());
-      renderer()->BlitColorManaged(color_service(), texture_, Renderer::kAlphaNone, managed_tex_.get());
+
+      ColorTransformJob job;
+      job.SetColorProcessor(color_service());
+      job.SetInputTexture(texture_);
+      job.SetInputAlphaAssociation(kAlphaNone);
+
+      renderer()->BlitColorManaged(job, managed_tex_.get());
     }
 
     DrawScope(managed_tex_, pipeline_);

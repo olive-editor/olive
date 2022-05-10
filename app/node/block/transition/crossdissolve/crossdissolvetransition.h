@@ -31,9 +31,7 @@ class CrossDissolveTransition : public TransitionBlock
 public:
   CrossDissolveTransition();
 
-  NODE_DEFAULT_DESTRUCTOR(CrossDissolveTransition)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(CrossDissolveTransition)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -42,12 +40,12 @@ public:
 
   //virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
 protected:
   virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const override;
 
-  virtual void SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const override;
+  virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const override;
 
 };
 

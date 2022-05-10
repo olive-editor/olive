@@ -186,6 +186,26 @@ public:
     duration_ = duration;
   }
 
+  static bool FormatIsPacked(Format f)
+  {
+    return f >= kPackedStart && f < kPackedEnd;
+  }
+
+  bool FormatIsPacked() const
+  {
+    return FormatIsPacked(format_);
+  }
+
+  static bool FormatIsPlanar(Format f)
+  {
+    return f >= kPlanarStart && f < kPlanarEnd;
+  }
+
+  bool FormatIsPlanar() const
+  {
+    return FormatIsPlanar(format_);
+  }
+
   qint64 time_to_bytes(const double& time) const;
   qint64 time_to_bytes(const rational& time) const;
   qint64 time_to_bytes_per_channel(const double& time) const;

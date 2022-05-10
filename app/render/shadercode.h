@@ -33,15 +33,11 @@ public:
   {
   }
 
-  const QString& frag_code() const
-  {
-    return frag_code_;
-  }
+  const QString& frag_code() const { return frag_code_; }
+  void set_frag_code(const QString &f) { frag_code_ = f; }
 
-  const QString& vert_code() const
-  {
-    return vert_code_;
-  }
+  const QString& vert_code() const { return vert_code_; }
+  void set_vert_code(const QString &v) { vert_code_ = v; }
 
 private:
   QString frag_code_;
