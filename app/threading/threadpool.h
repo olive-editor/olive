@@ -40,10 +40,7 @@ public:
   using TaskType = RenderTicketPtr;
   ThreadPool(unsigned threads, QObject *parent);
 
-  ThreadPool(const ThreadPool &) = delete;
-  ThreadPool(ThreadPool &&) = delete;
-  ThreadPool & operator=(const ThreadPool&) = delete;
-  ThreadPool & operator=(ThreadPool &&) = delete;
+  DISABLE_COPY_MOVE(ThreadPool)
 
   virtual void RunTicket(RenderTicketPtr ticket) const = 0;
   void AddTicket(RenderTicketPtr ticket, RenderTicketPriority priority = RenderTicketPriority::kNormal);

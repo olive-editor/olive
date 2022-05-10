@@ -22,8 +22,8 @@
 
 namespace olive {
 
-ThreadPool::ThreadPool(unsigned threads, QObject *parent)
-  : QObject(parent)
+ThreadPool::ThreadPool(unsigned threads, QObject *parent) :
+  QObject(parent)
 {
   if (threads == 0) {
     threads = std::thread::hardware_concurrency();
