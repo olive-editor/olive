@@ -141,6 +141,7 @@ protected:
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
   virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const { return nullptr; }
   virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const { return nullptr; }
+  virtual const std::vector<TimelineMarker*> *GetSnapIgnoreMarkers() const { return nullptr; }
 
 protected slots:
   /**
@@ -164,8 +165,6 @@ signals:
   void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 private:
-
-
   /**
    * @brief Set either in or out point to the current playhead
    *
