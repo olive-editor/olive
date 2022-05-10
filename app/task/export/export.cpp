@@ -156,19 +156,15 @@ bool ExportTask::Run()
   return success;
 }
 
-bool ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVector<rational> &times)
+bool ExportTask::FrameDownloaded(FramePtr f, const rational &time)
 {
-  Q_UNUSED(hash)
+  rational actual_time = time;
 
-  foreach (const rational& t, times) {
-    rational actual_time = t;
-
-    if (params_.has_custom_range()) {
-      actual_time -= params_.custom_range().in();
-    }
-
-    time_map_.insert(actual_time, f);
+  if (params_.has_custom_range()) {
+    actual_time -= params_.custom_range().in();
   }
+
+  time_map_.insert(actual_time, f);
 
   while (!IsCancelled()) {
     rational real_time = Timecode::timestamp_to_time(frame_time_,

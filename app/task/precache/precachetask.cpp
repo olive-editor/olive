@@ -85,14 +85,13 @@ bool PreCacheTask::Run()
   return true;
 }
 
-bool PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const QVector<rational> &times)
+bool PreCacheTask::FrameDownloaded(FramePtr frame, const rational &time)
 {
   // Do nothing. Pre-cache essentially just creates more frames in the cache, it doesn't need to do
   // anything else.
 
   Q_UNUSED(frame)
-  Q_UNUSED(hash)
-  Q_UNUSED(times)
+  Q_UNUSED(time)
 
   return true;
 }

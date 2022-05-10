@@ -93,40 +93,6 @@ RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, bool priorit
   return RenderAudio(range, false, prioritize);
 }
 
-QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times)
-{
-  QVector<HashData> hash_data(times.size());
-
-  QVector<QByteArray> existing_hashes;
-
-  for (int i=0; i<times.size(); i++) {
-    const rational &time = times.at(i);
-
-    // See if hash already exists in disk cache
-    QByteArray hash = RenderManager::Hash(viewer->GetConnectedTextureOutput(),
-                                          viewer->GetConnectedTextureValueHint(),
-                                          viewer->GetVideoParams(),
-                                          time);
-
-    // Check memory list since disk checking is slow
-    bool hash_exists = existing_hashes.contains(hash);
-
-    if (!hash_exists) {
-      // FIXME: Using CachePathName here is NOT thread safe and should be replaced
-      hash_exists = QFileInfo::exists(cache->CachePathName(hash));
-
-      if (hash_exists) {
-        existing_hashes.push_back(hash);
-      }
-    }
-
-    // Set hash in FrameHashCache's thread rather than in ours to prevent race conditions
-    hash_data[i] = {time, hash, hash_exists};
-  }
-
-  return hash_data;
-}
-
 void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
 {
   // Stop any current render tasks because a) they might be out of date now anyway, and b) we
@@ -149,39 +115,6 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
   if (viewer_node_->GetAudioAutoCacheEnabled() || kRealTimeWaveformsEnabled) {
     StartCachingAudioRange(range);
   }
-}
-
-void PreviewAutoCacher::HashesProcessed()
-{
-  // Receive watcher
-  QFutureWatcher< QVector<HashData> >* watcher = static_cast<QFutureWatcher<QVector<HashData> >*>(sender());
-
-  // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
-  // viewer switch, so we'll completely ignore this watcher
-  if (hash_tasks_.contains(watcher)) {
-    // Remove task from hash task list
-    hash_tasks_.removeOne(watcher);
-
-    // Set all hashes we received that are still current
-    JobTime job_time = watcher->property("job").value<JobTime>();
-    auto hashes = watcher->result();
-    foreach (auto hash, hashes) {
-      if (video_job_tracker_.isCurrent(hash.time, job_time)) {
-        viewer_node_->video_frame_cache()->SetHash(hash.time, hash.hash, hash.exists);
-      }
-    }
-
-    // RequeueFrames won't run if hash tasks isn't empty, so if it is, trigger it now
-    if (hash_tasks_.isEmpty()) {
-      delayed_requeue_timer_.stop();
-      delayed_requeue_timer_.start();
-    }
-
-    // Continue rendering
-    TryRender();
-  }
-
-  delete watcher;
 }
 
 void PreviewAutoCacher::AudioRendered()
@@ -271,24 +204,23 @@ void PreviewAutoCacher::VideoRendered()
 
   // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
   // viewer switch, so we'll completely ignore this watcher
-  if (video_tasks_.contains(watcher)) {
+  if (video_tasks_.remove(watcher)) {
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
-    QByteArray hash = video_tasks_.take(watcher);
-
     if (watcher->HasResult()) {
+      qDebug() << "FIXME: oops no frame downloading";
+
+      /*
       // Download frame in another thread
-      if (!hash.isEmpty()) {
-        FramePtr frame = watcher->Get().value<FramePtr>();
-        RenderTicketWatcher* w = new RenderTicketWatcher();
-        w->setProperty("job", QVariant::fromValue(last_update_time_));
-        w->setProperty("frame", QVariant::fromValue(frame));
-        video_download_tasks_.insert(w, hash);
-        connect(w, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoDownloaded);
-        w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
-                                                                 frame,
-                                                                 hash,
-                                                                 true));
-      }
+      FramePtr frame = watcher->Get().value<FramePtr>();
+      RenderTicketWatcher* w = new RenderTicketWatcher();
+      w->setProperty("job", QVariant::fromValue(last_update_time_));
+      w->setProperty("frame", QVariant::fromValue(frame));
+      video_download_tasks_.insert(w, hash);
+      connect(w, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoDownloaded);
+      w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
+                                                               frame,
+                                                               true));
+      */
     }
 
     // Continue rendering
@@ -508,13 +440,6 @@ void PreviewAutoCacher::SetPlayhead(const rational &playhead)
   RequeueFrames();
 }
 
-void PreviewAutoCacher::WaitForHashesToFinish()
-{
-  for (auto it=hash_tasks_.cbegin(); it!=hash_tasks_.cend(); it++) {
-    (*it)->waitForFinished();
-  }
-}
-
 void PreviewAutoCacher::WaitForVideoDownloadsToFinish()
 {
   for (auto it=video_download_tasks_.cbegin(); it!=video_download_tasks_.cend(); it++) {
@@ -598,8 +523,7 @@ void PreviewAutoCacher::TryRender()
     // Check if we have jobs running in other threads that shouldn't be interrupted right now
     // NOTE: We don't check for downloads because, while they run in another thread, they don't
     //       require any access to the graph and therefore don't risk race conditions.
-    if (!hash_tasks_.isEmpty()
-        || !audio_tasks_.isEmpty()
+    if (!audio_tasks_.isEmpty()
         || !video_tasks_.isEmpty()) {
       return;
     }
@@ -648,32 +572,6 @@ void PreviewAutoCacher::TryRender()
 
   // Ensure we are running tasks if we have any
   const int max_tasks = RenderManager::GetNumberOfIdealConcurrentJobs();
-
-  // Handle hash tasks
-  while (hash_tasks_.size() < max_tasks && hash_iterator_.HasNext()) {
-    // Magic number: dunno what the best number for this is yet
-    static const int kMaxFrames = 1000;
-
-    QVector<rational> times(kMaxFrames);
-    for (int i=0; i<kMaxFrames; i++) {
-      rational r;
-      if (hash_iterator_.GetNext(&r)) {
-        times[i] = r;
-      } else {
-        times.resize(i);
-        break;
-      }
-    }
-
-    QFutureWatcher< QVector<HashData> >* watcher = new QFutureWatcher< QVector<HashData> >();
-    watcher->setProperty("job", QVariant::fromValue(last_update_time_));
-    hash_tasks_.append(watcher);
-    connect(watcher, &QFutureWatcher< QVector<HashData> >::finished, this, &PreviewAutoCacher::HashesProcessed);
-    watcher->setFuture(QtConcurrent::run(PreviewAutoCacher::GenerateHashes,
-                                         copied_viewer_node_,
-                                         viewer_node_->video_frame_cache(),
-                                         times));
-  }
 
   // Handle video tasks
   rational t;
@@ -747,7 +645,6 @@ void PreviewAutoCacher::RequeueFrames()
   if (viewer_node_
       && (viewer_node_->GetVideoAutoCacheEnabled() || use_custom_range_)
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges(viewer_node_->GetVideoLength())
-      && hash_tasks_.isEmpty()
       && !IsRenderingCustomRange()) {
     TimeRange using_range = use_custom_range_ ? custom_autocache_range_ : cache_range_;
 
@@ -833,15 +730,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // Stop requeue timer if it's running
     delayed_requeue_timer_.stop();
-
-    // Handle hashes
-    if (!hash_tasks_.isEmpty()) {
-      // Wait for hashes to finish
-      WaitForHashesToFinish();
-
-      // Clear the hash list to indicate we're not interested in the results of any of these
-      hash_tasks_.clear();
-    }
 
     // Handle video rendering tasks
     if (!video_tasks_.isEmpty()) {

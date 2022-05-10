@@ -26,7 +26,6 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "node/hashtraverser.h"
 #include "render/opengl/openglrenderer.h"
 #include "render/rendererthreadwrapper.h"
 #include "renderprocessor.h"
@@ -97,19 +96,6 @@ void RenderManager::ClearOldDecoders()
     } else {
       it++;
     }
-  }
-}
-
-QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time)
-{
-  Q_ASSERT(n);
-
-  if (n) {
-    HashTraverser hasher;
-    return hasher.GetHash(n, output, params, TimeRange(time, time + params.frame_rate_as_time_base()));
-  } else {
-    qCritical() << "Hash called with null node";
-    return QByteArray();
   }
 }
 
@@ -201,14 +187,13 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   return ticket;
 }
 
-RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const QByteArray &hash, bool prioritize)
+RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, bool prioritize)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
   ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("frame", QVariant::fromValue(frame));
-  ticket->setProperty("hash", hash);
   ticket->setProperty("type", kTypeVideoDownload);
 
   if (ticket->thread() != this->thread()) {

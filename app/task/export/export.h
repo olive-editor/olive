@@ -38,7 +38,7 @@ public:
 protected:
   virtual bool Run() override;
 
-  virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) override;
+  virtual bool FrameDownloaded(FramePtr frame, const rational &time) override;
 
   virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) override;
 

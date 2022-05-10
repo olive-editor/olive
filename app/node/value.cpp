@@ -92,54 +92,6 @@ QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool val
   }
 }
 
-template<typename T>
-QByteArray ValueToBytesInternal(const QVariant &v)
-{
-  QByteArray bytes;
-
-  int size_of_type = sizeof(T);
-
-  bytes.resize(size_of_type);
-  T raw_val = v.value<T>();
-  memcpy(bytes.data(), &raw_val, static_cast<size_t>(size_of_type));
-
-  return bytes;
-}
-
-QByteArray NodeValue::ValueToBytes(NodeValue::Type type, const QVariant &value)
-{
-  switch (type) {
-  case kInt: return ValueToBytesInternal<int64_t>(value);
-  case kFloat: return ValueToBytesInternal<double>(value);
-  case kColor: return ValueToBytesInternal<Color>(value);
-  case kText: return value.toString().toUtf8();
-  case kBoolean: return ValueToBytesInternal<bool>(value);
-  case kFont: return value.toString().toUtf8();
-  case kFile: return value.toString().toUtf8();
-  case kMatrix: return ValueToBytesInternal<QMatrix4x4>(value);
-  case kRational: return ValueToBytesInternal<rational>(value);
-  case kVec2: return ValueToBytesInternal<QVector2D>(value);
-  case kVec3: return ValueToBytesInternal<QVector3D>(value);
-  case kVec4: return ValueToBytesInternal<QVector4D>(value);
-  case kCombo: return ValueToBytesInternal<int>(value);
-  case kBezier: return ValueToBytesInternal<Bezier>(value);
-
-  case kVideoParams:
-    return value.value<VideoParams>().toBytes();
-  case kAudioParams:
-    return value.value<AudioParams>().toBytes();
-
-  // These types have no persistent input
-  case kNone:
-  case kTexture:
-  case kSamples:
-  case kDataTypeCount:
-    break;
-  }
-
-  return QByteArray();
-}
-
 QVector<QVariant> NodeValue::split_normal_value_into_track_values(Type type, const QVariant &value)
 {
   QVector<QVariant> vals(get_number_of_keyframe_tracks(type));

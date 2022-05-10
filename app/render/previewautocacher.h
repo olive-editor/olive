@@ -72,16 +72,6 @@ public:
    */
   void SetPlayhead(const rational& playhead);
 
-  /**
-   * @brief If any hashes are currently running, wait for them to finish
-   *
-   * Once this function returns, it can be guaranteed that all hash tasks have been finished.
-   * They will NOT have been removed from the hash task list yet until they run HashesProcessed.
-   * If you don't want the continued processing in HashesProcessed to run, remove the task manually
-   * from the list after calling this function. It will still call HashesProcessed, but will be
-   * largely ignored (that function will simply free it).
-   */
-  void WaitForHashesToFinish();
   void WaitForVideoDownloadsToFinish();
 
   /**
@@ -142,14 +132,6 @@ private:
   void StartCachingVideoRange(const TimeRange &range);
   void StartCachingAudioRange(const TimeRange &range);
 
-  struct HashData {
-    rational time;
-    QByteArray hash;
-    bool exists;
-  };
-
-  static QVector<HashData> GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times);
-
   class QueuedJob {
   public:
     enum Type {
@@ -190,7 +172,6 @@ private:
 
   RenderTicketPtr single_frame_render_;
 
-  QList<QFutureWatcher< QVector<HashData> >*> hash_tasks_;
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
   QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
@@ -224,11 +205,6 @@ private slots:
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
   void AudioInvalidated(const olive::TimeRange &range);
-
-  /**
-   * @brief Handler for when we have applied all the hashes to the FrameHashCache
-   */
-  void HashesProcessed();
 
   /**
    * @brief Handler for when the RenderManager has returned rendered audio

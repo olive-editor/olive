@@ -257,15 +257,6 @@ public:
 
   static QVariant StringToValue(Type data_type, const QString &string, bool value_is_a_key_track);
 
-  /**
-   * @brief Convert a value from a NodeParam into bytes
-   */
-  static QByteArray ValueToBytes(Type type, const QVariant& value);
-  static QByteArray ValueToBytes(const NodeValue &value)
-  {
-    return ValueToBytes(value.type(), value.data_);
-  }
-
   static QVector<QVariant> split_normal_value_into_track_values(Type type, const QVariant &value);
 
   static QVariant combine_track_values_into_normal_value(Type type, const QVector<QVariant>& split);

@@ -64,11 +64,6 @@ public:
   }
 
   /**
-   * @brief Generate a unique identifier for a certain node at a cconst Node *n, const Node::ValueHint &outputertain time
-   */
-  static QByteArray Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time);
-
-  /**
    * @brief Asynchronously generate a frame at a given time
    *
    * The ticket from this function will return a FramePtr - the rendered frame in reference color
@@ -103,7 +98,7 @@ public:
   RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
   RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
 
-  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, bool prioritize = false);
+  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, bool prioritize = false);
 
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 
