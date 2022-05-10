@@ -96,13 +96,7 @@ void PlaybackCache::ShiftEvent(const rational &, const rational &)
 
 Project *PlaybackCache::GetProject() const
 {
-  // NOTE: A lot of assumptions in this behavior
-  ViewerOutput* viewer = static_cast<ViewerOutput*>(parent());
-  if (!viewer) {
-    return nullptr;
-  }
-
-  return viewer->project();
+  return Project::GetProjectFromObject(this);
 }
 
 TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting)
