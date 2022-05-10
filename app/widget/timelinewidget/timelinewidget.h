@@ -79,9 +79,11 @@ public:
 
   void ToggleLinksOnSelected();
 
-  void CopySelected(bool cut);
+  virtual bool CopySelected(bool cut) override;
 
-  void Paste(bool insert);
+  virtual bool Paste() override;
+
+  void PasteInsert();
 
   void DeleteInToOut(bool ripple);
 
@@ -293,6 +295,8 @@ private:
   void UpdateViewports(const Track::Type& type = Track::kNone);
 
   QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
+
+  bool PasteInternal(bool insert);
 
   QPoint drag_origin_;
 

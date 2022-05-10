@@ -41,6 +41,11 @@ NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, Type typ
   setParent(parent);
 }
 
+NodeKeyframe::NodeKeyframe()
+{
+  type_ = NodeKeyframe::kLinear;
+}
+
 NodeKeyframe::~NodeKeyframe()
 {
   setParent(nullptr);

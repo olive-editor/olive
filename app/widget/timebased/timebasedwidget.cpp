@@ -860,4 +860,22 @@ void TimeBasedWidget::HideSnaps()
   }
 }
 
+bool TimeBasedWidget::CopySelected(bool cut)
+{
+  if (ruler()->hasFocus() && ruler()->CopySelected(cut)) {
+    return true;
+  }
+
+  return false;
+}
+
+bool TimeBasedWidget::Paste()
+{
+  if (ruler()->hasFocus() && ruler()->PasteMarkers()) {
+    return true;
+  }
+
+  return false;
+}
+
 }

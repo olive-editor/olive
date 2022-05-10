@@ -64,10 +64,16 @@ public:
   void SetSelectedNodes(const QVector<NodeParamViewItem *> &nodes, bool handle_focused_node = true, bool emit_signal = true);
   void SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bool emit_signal = true);
 
+  Node *GetNodeWithID(const QString &id);
+
   const QVector<Node*> &GetContexts() const
   {
     return contexts_;
   }
+
+  virtual bool CopySelected(bool cut) override;
+
+  virtual bool Paste() override;
 
 public slots:
   void SetContexts(const QVector<Node*> &contexts);

@@ -102,7 +102,7 @@ void SeekableWidget::DeleteSelected()
 bool SeekableWidget::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata(Project::GetProjectFromObject(timeline_points_));
+    ProjectSerializer::SaveData sdata;
     sdata.SetOnlySerializeMarkers(selection_manager_.GetSelectedObjects());
 
     ProjectSerializer::Copy(sdata, QStringLiteral("markers"));
@@ -117,7 +117,7 @@ bool SeekableWidget::CopySelected(bool cut)
   }
 }
 
-bool SeekableWidget::PasteMarkers(bool insert, rational insert_time)
+bool SeekableWidget::PasteMarkers()
 {
   ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("markers"));
   if (res == ProjectSerializer::kSuccess) {
@@ -128,29 +128,18 @@ bool SeekableWidget::PasteMarkers(bool insert, rational insert_time)
       // Normalize markers to start at playhead
       rational min = RATIONAL_MAX;
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
-        min = qMin(min, (*it)->time());
+        min = std::min(min, (*it)->time());
       }
       min -= GetTime();
-
-      // Avoid duplicates
-      bool loop;
-      do {
-        loop = false;
-        for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
-          rational proposed_time = (*it)->time() - min;
-
-          if (timeline_points_->markers()->GetMarkerAtTime(proposed_time)) {
-            min -= timebase();
-            loop = true;
-            break;
-          }
-        }
-      } while (loop);
 
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
         TimelineMarker *m = *it;
 
         m->set_time(m->time() - min);
+
+        if (TimelineMarker *existing = timeline_points_->markers()->GetMarkerAtTime(m->time())) {
+          command->add_child(new MarkerRemoveCommand(existing));
+        }
 
         command->add_child(new MarkerAddCommand(timeline_points_->markers(), m));
       }

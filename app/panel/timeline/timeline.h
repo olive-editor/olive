@@ -68,12 +68,6 @@ public:
 
   virtual void ToggleLinks() override;
 
-  virtual void CutSelected() override;
-
-  virtual void CopySelected() override;
-
-  virtual void Paste() override;
-
   virtual void PasteInsert() override;
 
   virtual void DeleteInToOut() override;

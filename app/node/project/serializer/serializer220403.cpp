@@ -99,6 +99,102 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
         }
       }
 
+    } else if (reader->name() == QStringLiteral("keyframes")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          QString node_id;
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("id")) {
+              node_id = attr.value().toString();
+              break;
+            }
+          }
+
+          Node *n = nullptr;
+          if (!node_id.isEmpty()) {
+            n = NodeFactory::CreateFromID(node_id);
+          }
+
+          if (!n) {
+            reader->skipCurrentElement();
+          } else {
+            while (XMLReadNextStartElement(reader)) {
+              if (reader->name() == QStringLiteral("input")) {
+                QString input_id;
+                XMLAttributeLoop(reader, attr) {
+                  if (attr.name() == QStringLiteral("id")) {
+                    input_id = attr.value().toString();
+                    break;
+                  }
+                }
+
+                if (input_id.isEmpty()) {
+                  reader->skipCurrentElement();
+                } else {
+                  while (XMLReadNextStartElement(reader)) {
+                    if (reader->name() == QStringLiteral("element")) {
+                      QString element_id;
+                      XMLAttributeLoop(reader, attr) {
+                        if (attr.name() == QStringLiteral("id")) {
+                          element_id = attr.value().toString();
+                          break;
+                        }
+                      }
+
+                      if (element_id.isEmpty()) {
+                        reader->skipCurrentElement();
+                      } else {
+                        while (XMLReadNextStartElement(reader)) {
+                          if (reader->name() == QStringLiteral("track")) {
+                            QString track_id;
+                            XMLAttributeLoop(reader, attr) {
+                              if (attr.name() == QStringLiteral("id")) {
+                                track_id = attr.value().toString();
+                                break;
+                              }
+                            }
+
+                            if (track_id.isEmpty()) {
+                              reader->skipCurrentElement();
+                            } else {
+                              while (XMLReadNextStartElement(reader)) {
+                                if (reader->name() == QStringLiteral("key")) {
+                                  NodeKeyframe *key = new NodeKeyframe();
+                                  key->set_input(input_id);
+                                  key->set_element(element_id.toInt());
+                                  key->set_track(track_id.toInt());
+
+                                  LoadKeyframe(reader, key, n->GetInputDataType(input_id));
+
+                                  load_data.keyframes[node_id].append(key);
+                                } else {
+                                  reader->skipCurrentElement();
+                                }
+                              }
+                            }
+                          } else {
+                            reader->skipCurrentElement();
+                          }
+                        }
+                      }
+                    } else {
+                      reader->skipCurrentElement();
+                    }
+                  }
+                }
+              } else {
+                reader->skipCurrentElement();
+              }
+            }
+          }
+
+          delete n;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
     } else if (reader->name() == QStringLiteral("markers")) {
 
       while (XMLReadNextStartElement(reader)) {
@@ -221,8 +317,6 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
 
 void ProjectSerializer220403::Save(QXmlStreamWriter *writer, const SaveData &data, void *reserved) const
 {
-  Project *project = data.GetProject();
-
   if (!data.GetOnlySerializeMarkers().empty()) {
 
     writer->writeStartElement(QStringLiteral("markers"));
@@ -239,9 +333,63 @@ void ProjectSerializer220403::Save(QXmlStreamWriter *writer, const SaveData &dat
 
     writer->writeEndElement(); // markers
 
-  } else {
+  } else if (!data.GetOnlySerializeKeyframes().empty()) {
 
-    writer->writeTextElement(QStringLiteral("uuid"), data.GetProject()->GetUuid().toString());
+    writer->writeStartElement(QStringLiteral("keyframes"));
+
+    // Organize keyframes into node+input
+    QHash<QString, QHash<QString, QMap<int, QMap<int, QVector<NodeKeyframe*> > > > > organized;
+
+    for (auto it=data.GetOnlySerializeKeyframes().cbegin(); it!=data.GetOnlySerializeKeyframes().cend(); it++) {
+      NodeKeyframe *key = *it;
+      organized[key->parent()->id()][key->input()][key->element()][key->track()].append(key);
+    }
+
+    for (auto it=organized.cbegin(); it!=organized.cend(); it++) {
+      writer->writeStartElement(QStringLiteral("node"));
+
+      writer->writeAttribute(QStringLiteral("id"), it.key());
+
+      for (auto jt=it.value().cbegin(); jt!=it.value().cend(); jt++) {
+        writer->writeStartElement(QStringLiteral("input"));
+
+        writer->writeAttribute(QStringLiteral("id"), jt.key());
+
+        for (auto kt=jt.value().cbegin(); kt!=jt.value().cend(); kt++) {
+          writer->writeStartElement(QStringLiteral("element"));
+
+          writer->writeAttribute(QStringLiteral("id"), QString::number(kt.key()));
+
+          for (auto lt=kt.value().cbegin(); lt!=kt.value().cend(); lt++) {
+            const QVector<NodeKeyframe *> &keys = lt.value();
+
+            writer->writeStartElement(QStringLiteral("track"));
+
+            writer->writeAttribute(QStringLiteral("id"), QString::number(lt.key()));
+
+            for (NodeKeyframe *key : keys) {
+              writer->writeStartElement(QStringLiteral("key"));
+              SaveKeyframe(writer, key, key->parent()->GetInputDataType(key->input()));
+              writer->writeEndElement(); // key
+            }
+
+            writer->writeEndElement(); // track
+          }
+
+          writer->writeEndElement(); // element
+        }
+
+        writer->writeEndElement(); // input
+      }
+
+      writer->writeEndElement(); // node;
+    }
+
+    writer->writeEndElement(); // keyframes
+
+  } else if (Project *project = data.GetProject()) {
+
+    writer->writeTextElement(QStringLiteral("uuid"), project->GetUuid().toString());
 
     writer->writeStartElement(QStringLiteral("nodes"));
 
@@ -309,6 +457,10 @@ void ProjectSerializer220403::Save(QXmlStreamWriter *writer, const SaveData &dat
 
     // Save main window project layout
     project->GetLayoutInfo().toXml(writer);
+
+  } else {
+
+    qCritical() << "Cannot save nodes without project object";
 
   }
 }
@@ -601,40 +753,13 @@ void ProjectSerializer220403::LoadImmediate(QXmlStreamReader *reader, Node *node
             }
 
             if (reader->name() == QStringLiteral("key")) {
-              QString key_input;
-              rational key_time;
-              NodeKeyframe::Type key_type = NodeKeyframe::kLinear;
-              QVariant key_value;
-              QPointF key_in_handle;
-              QPointF key_out_handle;
+              NodeKeyframe* key = new NodeKeyframe();
+              key->set_input(input);
+              key->set_element(element);
+              key->set_track(track);
 
-              XMLAttributeLoop(reader, attr) {
-                if (IsCancelled()) {
-                  return;
-                }
-
-                if (attr.name() == QStringLiteral("input")) {
-                  key_input = attr.value().toString();
-                } else if (attr.name() == QStringLiteral("time")) {
-                  key_time = rational::fromString(attr.value().toString());
-                } else if (attr.name() == QStringLiteral("type")) {
-                  key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
-                } else if (attr.name() == QStringLiteral("inhandlex")) {
-                  key_in_handle.setX(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("inhandley")) {
-                  key_in_handle.setY(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("outhandlex")) {
-                  key_out_handle.setX(attr.value().toDouble());
-                } else if (attr.name() == QStringLiteral("outhandley")) {
-                  key_out_handle.setY(attr.value().toDouble());
-                }
-              }
-
-              key_value = NodeValue::StringToValue(data_type, reader->readElementText(), true);
-
-              NodeKeyframe* key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, node);
-              key->set_bezier_control_in(key_in_handle);
-              key->set_bezier_control_out(key_out_handle);
+              LoadKeyframe(reader, key, data_type);
+              key->setParent(node);
             } else {
               reader->skipCurrentElement();
             }
@@ -695,15 +820,7 @@ void ProjectSerializer220403::SaveImmediate(QXmlStreamWriter *writer, Node *node
     for (NodeKeyframe* key : track) {
       writer->writeStartElement(QStringLiteral("key"));
 
-      writer->writeAttribute(QStringLiteral("input"), key->input());
-      writer->writeAttribute(QStringLiteral("time"), key->time().toString());
-      writer->writeAttribute(QStringLiteral("type"), QString::number(key->type()));
-      writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(key->bezier_control_in().x()));
-      writer->writeAttribute(QStringLiteral("inhandley"), QString::number(key->bezier_control_in().y()));
-      writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(key->bezier_control_out().x()));
-      writer->writeAttribute(QStringLiteral("outhandley"), QString::number(key->bezier_control_out().y()));
-
-      writer->writeCharacters(NodeValue::ValueToString(data_type, key->value(), true));
+      SaveKeyframe(writer, key, data_type);
 
       writer->writeEndElement(); // key
     }
@@ -720,6 +837,53 @@ void ProjectSerializer220403::SaveImmediate(QXmlStreamWriter *writer, Node *node
     writer->writeTextElement(QStringLiteral("csview"), node->GetInputProperty(input, QStringLiteral("col_view")).toString());
     writer->writeTextElement(QStringLiteral("cslook"), node->GetInputProperty(input, QStringLiteral("col_look")).toString());
   }
+}
+
+void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, NodeValue::Type data_type) const
+{
+  QString key_input;
+  QPointF key_in_handle;
+  QPointF key_out_handle;
+
+  XMLAttributeLoop(reader, attr) {
+    if (IsCancelled()) {
+      return;
+    }
+
+    if (attr.name() == QStringLiteral("input")) {
+      key_input = attr.value().toString();
+    } else if (attr.name() == QStringLiteral("time")) {
+      key->set_time(rational::fromString(attr.value().toString()));
+    } else if (attr.name() == QStringLiteral("type")) {
+      key->set_type(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
+    } else if (attr.name() == QStringLiteral("inhandlex")) {
+      key_in_handle.setX(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("inhandley")) {
+      key_in_handle.setY(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("outhandlex")) {
+      key_out_handle.setX(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("outhandley")) {
+      key_out_handle.setY(attr.value().toDouble());
+    }
+  }
+
+  key->set_value(NodeValue::StringToValue(data_type, reader->readElementText(), true));
+
+  key->set_bezier_control_in(key_in_handle);
+  key->set_bezier_control_out(key_out_handle);
+}
+
+void ProjectSerializer220403::SaveKeyframe(QXmlStreamWriter *writer, NodeKeyframe *key, NodeValue::Type data_type) const
+{
+  writer->writeAttribute(QStringLiteral("input"), key->input());
+  writer->writeAttribute(QStringLiteral("time"), key->time().toString());
+  writer->writeAttribute(QStringLiteral("type"), QString::number(key->type()));
+  writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(key->bezier_control_in().x()));
+  writer->writeAttribute(QStringLiteral("inhandley"), QString::number(key->bezier_control_in().y()));
+  writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(key->bezier_control_out().x()));
+  writer->writeAttribute(QStringLiteral("outhandley"), QString::number(key->bezier_control_out().y()));
+
+  writer->writeCharacters(NodeValue::ValueToString(data_type, key->value(), true));
 }
 
 bool ProjectSerializer220403::LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos) const

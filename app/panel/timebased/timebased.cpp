@@ -216,4 +216,19 @@ void TimeBasedPanel::DeleteSelected()
   GetTimeBasedWidget()->DeleteSelected();
 }
 
+void TimeBasedPanel::CutSelected()
+{
+  GetTimeBasedWidget()->CopySelected(true);
+}
+
+void TimeBasedPanel::CopySelected()
+{
+  GetTimeBasedWidget()->CopySelected(false);
+}
+
+void TimeBasedPanel::Paste()
+{
+  GetTimeBasedWidget()->Paste();
+}
+
 }

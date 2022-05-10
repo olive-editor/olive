@@ -21,6 +21,8 @@
 #ifndef KEYFRAMEVIEWBASE_H
 #define KEYFRAMEVIEWBASE_H
 
+#include <functional>
+
 #include "keyframeviewinputconnection.h"
 #include "node/keyframe.h"
 #include "widget/menu/menu.h"
@@ -76,6 +78,10 @@ public:
     max_scroll_ = i;
     UpdateSceneRect();
   }
+
+  bool CopySelected(bool cut);
+
+  bool Paste(std::function<Node *(const QString &)> find_node_function);
 
 signals:
   void Dragged(int current_x, int current_y);

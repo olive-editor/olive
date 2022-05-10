@@ -568,18 +568,14 @@ void TimelineWidget::ToggleLinksOnSelected()
   Core::instance()->undo_stack()->push(new NodeLinkManyCommand(blocks, link));
 }
 
-void TimelineWidget::CopySelected(bool cut)
+bool TimelineWidget::CopySelected(bool cut)
 {
-  if (!GetConnectedNode()) {
-    return;
+  if (super::CopySelected(cut)) {
+    return true;
   }
 
-  if (ruler()->hasFocus() && ruler()->CopySelected(cut)) {
-    return;
-  }
-
-  if (selected_blocks_.isEmpty()) {
-    return;
+  if (!GetConnectedNode() || selected_blocks_.isEmpty()) {
+    return false;
   }
 
   QVector<Node*> selected_nodes;
@@ -619,58 +615,24 @@ void TimelineWidget::CopySelected(bool cut)
   if (cut) {
     DeleteSelected();
   }
+
+  return true;
 }
 
-void TimelineWidget::Paste(bool insert)
+bool TimelineWidget::Paste()
 {
-  if (!GetConnectedNode()) {
-    return;
+  if (super::Paste()) {
+    return true;
+  }  if (!GetConnectedNode()) {
+    return false;
   }
 
-  if (ruler()->hasFocus() && ruler()->PasteMarkers(insert, GetTime())) {
-    return;
-  }
+  return PasteInternal(false);
+}
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("timeline"));
-  if (res.GetLoadedNodes().isEmpty()) {
-    return;
-  }
-
-  MultiUndoCommand *command = new MultiUndoCommand();
-
-  foreach (Node *n, res.GetLoadedNodes()) {
-    command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
-  }
-
-  rational paste_start = GetTime();
-
-  if (insert) {
-    rational paste_end = GetTime();
-
-    for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
-      rational length = static_cast<Block*>(it.key())->length();
-      rational in = rational::fromString(it.value()[QStringLiteral("in")]);
-
-      paste_end = qMax(paste_end, paste_start + in + length);
-    }
-
-    if (paste_end != paste_start) {
-      InsertGapsAt(paste_start, paste_end - paste_start, command);
-    }
-  }
-
-  for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
-    Block *block = static_cast<Block*>(it.key());
-    rational in = rational::fromString(it.value()[QStringLiteral("in")]);
-    Track::Reference track = Track::Reference::FromString(it.value()[QStringLiteral("track")]);
-
-    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
-                                                  track.index(),
-                                                  block,
-                                                  paste_start + in));
-  }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+void TimelineWidget::PasteInsert()
+{
+  PasteInternal(true);
 }
 
 void TimelineWidget::DeleteInToOut(bool ripple)
@@ -1627,6 +1589,56 @@ QVector<Block *> TimelineWidget::GetBlocksInGlobalRect(const QPoint &p1, const Q
   }
 
   return blocks_in_rect;
+}
+
+bool TimelineWidget::PasteInternal(bool insert)
+{
+  if (!GetConnectedNode()) {
+    return false;
+  }
+
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("timeline"));
+  if (res.GetLoadedNodes().isEmpty()) {
+    return false;
+  }
+
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  foreach (Node *n, res.GetLoadedNodes()) {
+    command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
+  }
+
+  rational paste_start = GetTime();
+
+  if (insert) {
+    rational paste_end = GetTime();
+
+    for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
+      rational length = static_cast<Block*>(it.key())->length();
+      rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+
+      paste_end = qMax(paste_end, paste_start + in + length);
+    }
+
+    if (paste_end != paste_start) {
+      InsertGapsAt(paste_start, paste_end - paste_start, command);
+    }
+  }
+
+  for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
+    Block *block = static_cast<Block*>(it.key());
+    rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+    Track::Reference track = Track::Reference::FromString(it.value()[QStringLiteral("track")]);
+
+    command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
+                                                  track.index(),
+                                                  block,
+                                                  paste_start + in));
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  return true;
 }
 
 QByteArray TimelineWidget::SaveSplitterState() const

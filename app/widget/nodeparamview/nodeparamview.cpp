@@ -28,6 +28,8 @@
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
+#include "node/project/serializer/serializer.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -519,6 +521,84 @@ void NodeParamView::SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bo
   }
 }
 
+Node *NodeParamView::GetNodeWithID(const QString &id)
+{
+  for (NodeParamViewItem *item : selected_nodes_) {
+    if (item->GetNode()->id() == id) {
+      return item->GetNode();
+    }
+  }
+
+  for (NodeParamViewContext *ctx : context_items_) {
+    for (NodeParamViewItem *item : ctx->GetItems()) {
+      if (item->GetNode()->id() == id) {
+        return item->GetNode();
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+bool NodeParamView::CopySelected(bool cut)
+{
+  if (super::CopySelected(cut)) {
+    return true;
+  }
+
+  if (keyframe_view_ && keyframe_view_->hasFocus()) {
+    if (keyframe_view_->CopySelected(cut)) {
+      return true;
+    }
+  }
+
+  if (contexts_.empty()) {
+    return false;
+  }
+
+  ProjectSerializer::SaveData sdata(contexts_.first()->project());
+  ProjectSerializer::SerializedProperties properties;
+  QVector<Node*> nodes;
+
+  for (NodeParamViewItem *item : selected_nodes_) {
+    Node *n = item->GetNode();
+
+    if (!nodes.contains(n)) {
+      nodes.append(n);
+
+      Node::Position pos = item->GetContext()->GetNodePositionDataInContext(n);
+
+      properties[n][QStringLiteral("x")] = QString::number(pos.position.x());
+      properties[n][QStringLiteral("y")] = QString::number(pos.position.y());
+      properties[n][QStringLiteral("expanded")] = QString::number(pos.expanded);
+    }
+  }
+
+  sdata.SetOnlySerializeNodesAndResolveGroups(nodes);
+  sdata.SetProperties(properties);
+
+  ProjectSerializer::Copy(sdata, QStringLiteral("nodes"));
+
+  if (cut) {
+    DeleteSelected();
+  }
+
+  return false;
+}
+
+bool NodeParamView::Paste()
+{
+  if (keyframe_view_) {
+    if (keyframe_view_->Paste(std::bind(&NodeParamView::GetNodeWithID, this, std::placeholders::_1))) {
+      return true;
+    }
+  }
+
+  // FIXME: Pasting nodes
+
+  return false;
+}
+
 void NodeParamView::UpdateItemTime(const rational &time)
 {
   foreach (NodeParamViewContext* item, context_items_) {
@@ -764,14 +844,14 @@ void NodeParamView::KeyframeViewDragged(int x, int y)
 
 void NodeParamView::UpdateElementY()
 {
-  foreach (NodeParamViewContext *ctx, context_items_) {
+  for (NodeParamViewContext *ctx : context_items_) {
     for (auto it=ctx->GetItems().cbegin(); it!=ctx->GetItems().cend(); it++) {
       NodeParamViewItem *item = *it;
       Node *node = item->GetNode();
       const KeyframeView::NodeConnections &connections = item->GetKeyframeConnections();
 
       if (!connections.isEmpty()) {
-        foreach (const QString& input, node->inputs()) {
+        for (const QString& input : node->inputs()) {
           if (!(node->GetInputFlags(input) & kInputFlagHidden)) {
             int arr_sz = NodeGroup::ResolveInput(NodeInput(node, input)).GetArraySize();
 
@@ -787,7 +867,7 @@ void NodeParamView::UpdateElementY()
               int use_index = i + 1;
               if (use_index < input_con.size()) {
                 const KeyframeView::ElementConnections &ele_con = input_con.at(ic.element()+1);
-                foreach (KeyframeViewInputConnection *track, ele_con) {
+                for (KeyframeViewInputConnection *track : ele_con) {
                   track->SetKeyframeY(y);
                 }
               }

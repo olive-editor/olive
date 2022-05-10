@@ -60,6 +60,11 @@ public:
     return brush_;
   }
 
+  const NodeKeyframeTrackReference &GetReference() const
+  {
+    return input_;
+  }
+
   void SetBrush(const QBrush &brush);
 
 signals:

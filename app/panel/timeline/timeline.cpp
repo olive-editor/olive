@@ -108,24 +108,9 @@ void TimelinePanel::ToggleLinks()
   timeline_widget()->ToggleLinksOnSelected();
 }
 
-void TimelinePanel::CutSelected()
-{
-  timeline_widget()->CopySelected(true);
-}
-
-void TimelinePanel::CopySelected()
-{
-  timeline_widget()->CopySelected(false);
-}
-
-void TimelinePanel::Paste()
-{
-  timeline_widget()->Paste(false);
-}
-
 void TimelinePanel::PasteInsert()
 {
-  timeline_widget()->Paste(true);
+  timeline_widget()->PasteInsert();
 }
 
 void TimelinePanel::DeleteInToOut()

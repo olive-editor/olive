@@ -64,6 +64,7 @@ public:
    * @brief NodeKeyframe Constructor
    */
   NodeKeyframe(const rational& time, const QVariant& value, Type type, int track, int element, const QString& input, QObject* parent = nullptr);
+  NodeKeyframe();
 
   virtual ~NodeKeyframe() override;
 
@@ -71,10 +72,9 @@ public:
   NodeKeyframe* copy(QObject* parent = nullptr) const;
 
   Node* parent() const;
-  const QString& input() const
-  {
-    return input_;
-  }
+
+  const QString& input() const { return input_; }
+  void set_input(const QString& input) { input_ = input; }
 
   NodeKeyframeTrackReference key_track_ref() const
   {
@@ -141,15 +141,11 @@ public:
    * For the majority of keyfreames, this will be 0, but for some types, such as kVec2, this will be 0 for X keyframes
    * and 1 for Y keyframes, etc.
    */
-  int track() const
-  {
-    return track_;
-  }
+  int track() const { return track_; }
+  void set_track(int t) { track_ = t; }
 
-  int element() const
-  {
-    return element_;
-  }
+  int element() const { return element_; }
+  void set_element(int e) { element_ = e; }
 
   /**
    * @brief Convenience function for getting the opposite handle type (e.g. kInHandle <-> kOutHandle)
