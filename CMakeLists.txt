@@ -30,6 +30,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+# Sanitizers
+add_library(olive-sanitizers INTERFACE)
+include(cmake/Sanitizers.cmake)
+enable_sanitizers(olive-sanitizers)
+list(APPEND OLIVE_LIBRARIES olive-sanitizers)
+
 # Set compiler options
 if(MSVC)
   set(OLIVE_COMPILE_OPTIONS
