@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,10 +37,9 @@
 namespace olive {
 
 RenderManager* RenderManager::instance_ = nullptr;
-const int RenderManager::kDecoderMaximumInactivity = 10000;
 
 RenderManager::RenderManager(QObject *parent) :
-  ThreadPool(QThread::IdlePriority, 0, parent),
+  ThreadPool(0, parent),
   backend_(kOpenGL)
 {
   Renderer* graphics_renderer = nullptr;
@@ -160,14 +159,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
     ticket->setProperty("cache", cache->GetCacheDirectory());
   }
 
-  if (ticket->thread() != this->thread()) {
-    ticket->moveToThread(this->thread());
-  }
-
-  // Queue appending the ticket and running the next job on our thread to make this function thread-safe
-  QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
-                            OLIVE_NS_ARG(RenderTicketPtr, ticket),
-                            Q_ARG(bool, prioritize));
+  AddTicket(ticket);
 
   return ticket;
 }
@@ -189,14 +181,7 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
 
-  if (ticket->thread() != this->thread()) {
-    ticket->moveToThread(this->thread());
-  }
-
-  // Queue appending the ticket and running the next job on our thread to make this function thread-safe
-  QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
-                            OLIVE_NS_ARG(RenderTicketPtr, ticket),
-                            Q_ARG(bool, prioritize));
+  AddTicket(ticket);
 
   return ticket;
 }
@@ -211,20 +196,21 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
   ticket->setProperty("hash", hash);
   ticket->setProperty("type", kTypeVideoDownload);
 
-  if (ticket->thread() != this->thread()) {
-    ticket->moveToThread(this->thread());
-  }
-
-  // Queue appending the ticket and running the next job on our thread to make this function thread-safe
-  QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
-                            OLIVE_NS_ARG(RenderTicketPtr, ticket),
-                            Q_ARG(bool, prioritize));
+  AddTicket(ticket);
 
   return ticket;
 }
 
 void RenderManager::RunTicket(RenderTicketPtr ticket) const
 {
+  // Setup the ticket for ::Process
+  ticket->Start();
+
+  if (ticket->IsCancelled()) {
+    ticket->Finish();
+    return;
+  }
+
   RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_, default_shader_);
 }
 

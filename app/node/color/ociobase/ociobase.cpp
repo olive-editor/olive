@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -56,11 +56,11 @@ void OCIOBaseNode::ParentChanged(NodeGraph *graph)
 
 void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  if (!value[kTextureInput].data().isNull() && processor_) {
+  if (value[kTextureInput].toTexture() && processor_) {
     ColorTransformJob job;
 
     job.SetColorProcessor(processor_);
-    job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
+    job.SetInputTexture(value[kTextureInput].toTexture());
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }

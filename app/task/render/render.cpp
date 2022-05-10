@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ bool RenderTask::Render(ColorManager* manager,
     rational r;
     for (int i=0; iterator.GetNext(&r); i++) {
       if (IsCancelled()) {
-        return true;
+        break;
       }
 
       times[i] = r;
@@ -97,7 +97,7 @@ bool RenderTask::Render(ColorManager* manager,
     // Filter out duplicates
     for (int i=0; i<hashes.size(); i++) {
       if (IsCancelled()) {
-        return true;
+        break;
       }
 
       const QByteArray& hash = hashes.at(i);
@@ -195,7 +195,7 @@ bool RenderTask::Render(ColorManager* manager,
 
         TimeRange range = watcher->property("range").value<TimeRange>();
 
-        if (!AudioDownloaded(range, watcher->Get().value<SampleBufferPtr>())) {
+        if (!AudioDownloaded(range, watcher->Get().value<SampleBuffer>())) {
           result = false;
         }
 

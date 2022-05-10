@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -53,13 +53,13 @@ ShaderCode GeneratorWithMerge::GetShaderCode(const ShaderRequest &request) const
 
 void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, const QVariant &job, NodeValueTable *table) const
 {
-  if (!value[kBaseInput].data().isNull()) {
+  if (value[kBaseInput].toTexture()) {
     // Push as merge node
     ShaderJob merge;
 
     merge.SetShaderID(QStringLiteral("mrg"));
-    merge.InsertValue(MergeNode::kBaseIn, value[kBaseInput]);
-    merge.InsertValue(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
+    merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
+    merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
 
     table->Push(NodeValue::kTexture, QVariant::fromValue(merge), this);
   } else {

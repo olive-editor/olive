@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -121,25 +121,25 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
 {
   ShaderJob job;
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
-  Method method = static_cast<Method>(job.GetValue(kMethodInput).data().toInt());
+  Method method = static_cast<Method>(job.Get(kMethodInput).toInt());
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (job.Get(kTextureInput).toTexture()) {
 
     bool can_push_job = true;
 
     // Check if radius is > 0
-    if (job.GetValue(kRadiusInput).data().toDouble() > 0.0) {
+    if (job.Get(kRadiusInput).toDouble() > 0.0) {
       // Method-specific considerations
       switch (method) {
       case kBox:
       case kGaussian:
       {
-        bool horiz = job.GetValue(kHorizInput).data().toBool();
-        bool vert = job.GetValue(kVertInput).data().toBool();
+        bool horiz = job.Get(kHorizInput).toBool();
+        bool vert = job.Get(kVertInput).toBool();
 
         if (!horiz && !vert) {
           // Disable job if horiz and vert are unchecked
@@ -160,14 +160,14 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
 
     if (can_push_job) {
       // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.GetValue(kRepeatEdgePixelsInput).data().toBool()) {
+      if (!job.Get(kRepeatEdgePixelsInput).toBool()) {
         job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
 
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       // If we're not performing the blur job, just push the texture
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(job.Get(kTextureInput));
     }
 
   }
@@ -175,12 +175,12 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
 
 void BlurFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  if (row[kMethodInput].data().toInt() == kRadial) {
+  if (row[kMethodInput].toInt() == kRadial) {
     const QVector2D &sequence_res = globals.resolution();
     QVector2D sequence_half_res = sequence_res * 0.5;
 
     radial_center_gizmo_->SetVisible(true);
-    radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + row[kRadialCenterInput].value<QVector2D>().toPointF());
+    radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + row[kRadialCenterInput].toVec2().toPointF());
 
     SetInputProperty(kRadialCenterInput, QStringLiteral("offset"), sequence_half_res);
   } else{

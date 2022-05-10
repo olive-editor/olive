@@ -94,11 +94,11 @@ ShaderCode ColorDifferenceKeyNode::GetShaderCode(const ShaderRequest &request) c
 void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
-  job.InsertValue(value);
+  job.Insert(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (job.Get(kTextureInput).toTexture()) {
     table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }

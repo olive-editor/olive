@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+
+# Sanitizers
+add_library(olive-sanitizers INTERFACE)
+include(cmake/Sanitizers.cmake)
+enable_sanitizers(olive-sanitizers)
+list(APPEND OLIVE_LIBRARIES olive-sanitizers)
 
 # Set compiler options
 if(MSVC)

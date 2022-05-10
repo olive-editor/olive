@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,12 +27,12 @@
 
 namespace olive {
 
-Color Color::fromHsv(const float &h, const float &s, const float &v)
+Color Color::fromHsv(const DataType &h, const DataType &s, const DataType &v)
 {
-  float C = s * v;
-  float X = C * (1.0 - abs(fmod(h / 60.0, 2.0) - 1.0));
-  float m = v - C;
-  float Rs, Gs, Bs;
+  DataType C = s * v;
+  DataType X = C * (1.0 - abs(fmod(h / 60.0, 2.0) - 1.0));
+  DataType m = v - C;
+  DataType Rs, Gs, Bs;
 
   if(h >= 0.0 && h < 60.0) {
     Rs = C;
@@ -81,11 +81,11 @@ Color::Color(const QColor &c)
   set_alpha(c.alphaF());
 }
 
-void Color::toHsv(float *hue, float *sat, float *val) const
+void Color::toHsv(DataType *hue, DataType *sat, DataType *val) const
 {
-  float fCMax = qMax(qMax(red(), green()), blue());
-  float fCMin = qMin(qMin(red(), green()), blue());
-  float fDelta = fCMax - fCMin;
+  DataType fCMax = qMax(qMax(red(), green()), blue());
+  DataType fCMin = qMin(qMin(red(), green()), blue());
+  DataType fDelta = fCMax - fCMin;
 
   if(fDelta > 0) {
     if(fCMax == red()) {
@@ -114,31 +114,31 @@ void Color::toHsv(float *hue, float *sat, float *val) const
   }
 }
 
-float Color::hsv_hue() const
+Color::DataType Color::hsv_hue() const
 {
-  float h, s, v;
+  DataType h, s, v;
   toHsv(&h, &s, &v);
   return h;
 }
 
-float Color::hsv_saturation() const
+Color::DataType Color::hsv_saturation() const
 {
-  float h, s, v;
+  DataType h, s, v;
   toHsv(&h, &s, &v);
   return s;
 }
 
-float Color::value() const
+Color::DataType Color::value() const
 {
-  float h, s, v;
+  DataType h, s, v;
   toHsv(&h, &s, &v);
   return v;
 }
 
-void Color::toHsl(float *hue, float *sat, float *lightness) const
+void Color::toHsl(DataType *hue, DataType *sat, DataType *lightness) const
 {
-  float fCMin = qMin(red(), qMin(green(), blue()));
-  float fCMax = qMax(red(), qMax(green(), blue()));
+  DataType fCMin = qMin(red(), qMin(green(), blue()));
+  DataType fCMax = qMax(red(), qMax(green(), blue()));
 
   *lightness = 0.5 * (fCMin + fCMax);
 
@@ -176,23 +176,23 @@ void Color::toHsl(float *hue, float *sat, float *lightness) const
   }
 }
 
-float Color::hsl_hue() const
+Color::DataType Color::hsl_hue() const
 {
-  float h, s, l;
+  DataType h, s, l;
   toHsl(&h, &s, &l);
   return h;
 }
 
-float Color::hsl_saturation() const
+Color::DataType Color::hsl_saturation() const
 {
-  float h, s, l;
+  DataType h, s, l;
   toHsl(&h, &s, &l);
   return s;
 }
 
-float Color::lightness() const
+Color::DataType Color::lightness() const
 {
-  float h, s, l;
+  DataType h, s, l;
   toHsl(&h, &s, &l);
   return l;
 }
@@ -232,12 +232,12 @@ QColor Color::toQColor() const
   return c;
 }
 
-float Color::GetRoughLuminance() const
+Color::DataType Color::GetRoughLuminance() const
 {
   return (2*red()+blue()+3*green())/6.0;
 }
 
-const Color &Color::operator+=(const Color &rhs)
+Color &Color::operator+=(const Color &rhs)
 {
   for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] += rhs.data_[i];
@@ -246,7 +246,7 @@ const Color &Color::operator+=(const Color &rhs)
   return *this;
 }
 
-const Color &Color::operator-=(const Color &rhs)
+Color &Color::operator-=(const Color &rhs)
 {
   for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] -= rhs.data_[i];
@@ -255,7 +255,25 @@ const Color &Color::operator-=(const Color &rhs)
   return *this;
 }
 
-const Color &Color::operator*=(const float &rhs)
+Color &Color::operator+=(const DataType &rhs)
+{
+  for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
+    data_[i] += rhs;
+  }
+
+  return *this;
+}
+
+Color &Color::operator-=(const DataType &rhs)
+{
+  for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
+    data_[i] -= rhs;
+  }
+
+  return *this;
+}
+
+Color &Color::operator*=(const DataType &rhs)
 {
   for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] *= rhs;
@@ -264,41 +282,13 @@ const Color &Color::operator*=(const float &rhs)
   return *this;
 }
 
-const Color &Color::operator/=(const float &rhs)
+Color &Color::operator/=(const DataType &rhs)
 {
   for (int i=0;i<VideoParams::kRGBAChannelCount;i++) {
     data_[i] /= rhs;
   }
 
   return *this;
-}
-
-Color Color::operator+(const Color &rhs) const
-{
-  Color c(*this);
-  c += rhs;
-  return c;
-}
-
-Color Color::operator-(const Color &rhs) const
-{
-  Color c(*this);
-  c -= rhs;
-  return c;
-}
-
-Color Color::operator*(const float &rhs) const
-{
-  Color c(*this);
-  c *= rhs;
-  return c;
-}
-
-Color Color::operator/(const float &rhs) const
-{
-  Color c(*this);
-  c /= rhs;
-  return c;
 }
 
 }

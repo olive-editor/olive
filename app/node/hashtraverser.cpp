@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -72,14 +72,8 @@ void HashTraverser::ProcessVideoFootage(TexturePtr destination, const FootageJob
   texture_ids_.insert(destination.get(), hash_.result());
 }
 
-void HashTraverser::ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time)
+void HashTraverser::ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time)
 {
-  Hash(FileFunctions::GetUniqueFileIdentifier(stream.filename()));
-  Hash(stream.loop_mode());
-  Hash(stream.audio_params().stream_index());
-  Hash(input_time);
-
-  texture_ids_.insert(destination.get(), hash_.result());
 }
 
 void HashTraverser::ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob &job)
@@ -104,9 +98,8 @@ void HashTraverser::ProcessColorTransform(TexturePtr destination, const Node *no
   texture_ids_.insert(destination.get(), hash_.result());
 }
 
-void HashTraverser::ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job)
+void HashTraverser::ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job)
 {
-  texture_ids_.insert(destination.get(), hash_.result());
 }
 
 void HashTraverser::ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob &job)
@@ -144,11 +137,8 @@ void HashTraverser::HashNodeValue(const NodeValue &value)
   if (value_type == NodeValue::kSamples || value_type == NodeValue::kTexture) {
     QByteArray id_for_buffer;
     if (value_type == NodeValue::kTexture) {
-      TexturePtr texture = value.data().value<TexturePtr>();
+      TexturePtr texture = value.toTexture();
       id_for_buffer = texture_ids_.value(texture.get());
-    } else {
-      SampleBufferPtr samples = value.data().value<SampleBufferPtr>();
-      id_for_buffer = texture_ids_.value(samples.get());
     }
 
     if (!id_for_buffer.isEmpty()) {

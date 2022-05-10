@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -515,7 +515,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, cons
 
       // Resample audio to our destination parameters
       nb_samples = swr_convert(resampler,
-                               reinterpret_cast<uint8_t**>(data.to_raw_ptrs()),
+                               reinterpret_cast<uint8_t**>(data.to_raw_ptrs().data()),
                                nb_samples,
                                const_cast<const uint8_t**>(frame->data),
                                frame->nb_samples);
@@ -526,7 +526,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, cons
         nb_bytes_per_channel = params.samples_to_bytes(nb_samples) / nb_channels;
 
         // Write to files
-        wave_out.write(const_cast<const char**>(reinterpret_cast<char**>(data.to_raw_ptrs())), nb_bytes_per_channel);
+        wave_out.write(const_cast<const char**>(reinterpret_cast<char**>(data.to_raw_ptrs().data())), nb_bytes_per_channel);
       }
 
       // Free buffer

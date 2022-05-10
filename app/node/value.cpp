@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,10 +33,6 @@
 #include "render/color.h"
 
 namespace olive {
-
-const QVector<NodeValue::Type> NodeValue::kNumber = {kFloat, kInt, kRational};
-const QVector<NodeValue::Type> NodeValue::kBuffer = {kTexture, kSamples};
-const QVector<NodeValue::Type> NodeValue::kVector = {kVec2, kVec3, kVec4};
 
 QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool value_is_a_key_track)
 {
@@ -418,7 +414,7 @@ NodeValue::Type NodeValue::GetDataTypeFromName(const QString &n)
   return NodeValue::kNone;
 }
 
-NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, const QString &tag) const
+NodeValue NodeValueTable::Get(const QVector<NodeValue::Type> &type, const QString &tag) const
 {
   int value_index = GetValueIndex(type, tag);
 
@@ -429,7 +425,7 @@ NodeValue NodeValueTable::GetWithMeta(const QVector<NodeValue::Type> &type, cons
   return NodeValue();
 }
 
-NodeValue NodeValueTable::TakeWithMeta(const QVector<NodeValue::Type> &type, const QString &tag)
+NodeValue NodeValueTable::Take(const QVector<NodeValue::Type> &type, const QString &tag)
 {
   int value_index = GetValueIndex(type, tag);
 

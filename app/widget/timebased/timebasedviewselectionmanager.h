@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -195,7 +195,25 @@ public:
     rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
 
     // Snap points
+    rational presnap_time_diff = time_diff;
     SnapPoints(&time_diff);
+
+    // Validate snapping
+    if (Core::instance()->snapping() && view_->GetSnapService()) {
+      for (size_t i=0; i<selected_.size(); i++) {
+        rational proposed_time = dragging_.at(i) + time_diff;
+        T *sel = selected_.at(i);
+
+        if (sel->has_sibling_at_time(proposed_time)) {
+          // Unsnap
+          time_diff = presnap_time_diff;
+          if (view_->GetSnapService()) {
+            view_->GetSnapService()->HideSnaps();
+          }
+          break;
+        }
+      }
+    }
 
     // Validate movement
     for (size_t i=0; i<selected_.size(); i++) {

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -511,16 +511,16 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
     audio_playback_queue_.pop_front();
 
     if (watcher->HasResult()) {
-      SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>();
-      if (samples) {
+      SampleBuffer samples = watcher->Get().value<SampleBuffer>();
+      if (samples.is_allocated()) {
         // If the samples must be reversed, reverse them now
         if (playback_speed_ < 0) {
-          samples->reverse();
+          samples.reverse();
         }
 
         // Convert to packed data for audio output
         AudioProcessor::Buffer buf;
-        int r = audio_processor_.Convert(samples->to_raw_ptrs(), samples->sample_count(), &buf);
+        int r = audio_processor_.Convert(samples.to_raw_ptrs().data(), samples.sample_count(), &buf);
 
         // TempoProcessor may have emptied the array
         if (r >= 0) {
@@ -556,8 +556,9 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
   RenderTicketWatcher *watcher = static_cast<RenderTicketWatcher *>(sender());
 
   if (watcher->HasResult()) {
-    if (SampleBufferPtr samples = watcher->Get().value<SampleBufferPtr>()) {
-      if (samples->audio_params().channel_count() > 0) {
+    SampleBuffer samples = watcher->Get().value<SampleBuffer>();
+    if (samples.is_allocated()) {
+      if (samples.audio_params().channel_count() > 0) {
         /* Fade code
         const int kFadeSz = qMin(200, samples->sample_count()/4);
         for (int i=0; i<kFadeSz; i++) {
@@ -567,7 +568,7 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
         }*/
 
         AudioProcessor::Buffer buf;
-        int r = audio_processor_.Convert(samples->to_raw_ptrs(), samples->sample_count(), &buf);
+        int r = audio_processor_.Convert(samples.to_raw_ptrs().data(), samples.sample_count(), &buf);
 
         if (r >= 0) {
           if (!buf.empty()) {

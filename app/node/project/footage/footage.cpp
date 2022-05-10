@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -322,9 +322,9 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
   Q_UNUSED(globals)
 
   // Pop filename from table
-  QString file = value[kFilenameInput].data().toString();
+  QString file = value[kFilenameInput].toString();
 
-  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].data().toInt());
+  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].toInt());
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo(file).exists()) {

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -61,9 +61,9 @@ TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const V
   color_cache_mutex_.unlock();
 
   ShaderJob job;
-  job.InsertValue(QStringLiteral("top_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(top)));
-  job.InsertValue(QStringLiteral("bottom_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(bottom)));
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(params.effective_width(), params.effective_height())));
+  job.Insert(QStringLiteral("top_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(top)));
+  job.Insert(QStringLiteral("bottom_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(bottom)));
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(params.effective_width(), params.effective_height())));
 
   TexturePtr output = CreateTexture(params);
 
@@ -213,19 +213,19 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
   }
 
   ShaderJob job;
-  job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(color_job.GetInputTexture())));
-  job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, color_job.GetTransformMatrix()));
-  job.InsertValue(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
-  job.InsertValue(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, color_job.GetInputAlphaAssociation()));
-  job.InsertValue(color_job.GetValues());
+  job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(color_job.GetInputTexture())));
+  job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, color_job.GetTransformMatrix()));
+  job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
+  job.Insert(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, int(color_job.GetInputAlphaAssociation())));
+  job.Insert(color_job.GetValues());
   job.SetAlphaChannelRequired(color_job.GetAlphaChannelRequired());
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
-    job.InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
+    job.Insert(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
     job.SetInterpolation(l.name, l.interpolation);
   }
   foreach (const ColorContext::LUT& l, color_ctx.lut1d_textures) {
-    job.InsertValue(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
+    job.Insert(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
     job.SetInterpolation(l.name, l.interpolation);
   }
 

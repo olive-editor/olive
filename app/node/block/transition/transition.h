@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -73,9 +73,9 @@ public:
   static const QString kCenterInput;
 
 protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const;
+  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const {}
 
-  virtual void SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const;
+  virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const {}
 
   double TransformCurve(double linear) const;
 

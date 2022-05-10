@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,75 +21,44 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
 
-#include <QThread>
-
-#include "common/cancelableobject.h"
 #include "threading/threadticket.h"
+
+#include <vector>
+#include <thread>
+#include <deque>
+#include <mutex>
+#include <condition_variable>
 
 namespace olive {
 
-class ThreadPoolThread;
+enum class RenderTicketPriority { kHigh = 0, kNormal };
 
 class ThreadPool : public QObject
 {
   Q_OBJECT
 public:
-  ThreadPool(QThread::Priority priority = QThread::InheritPriority, int threads = 0, QObject* parent = nullptr);
+  using TaskType = RenderTicketPtr;
+  ThreadPool(unsigned threads, QObject *parent);
+
+  DISABLE_COPY_MOVE(ThreadPool)
+
+  virtual void RunTicket(RenderTicketPtr ticket) const = 0;
+  void AddTicket(RenderTicketPtr ticket, RenderTicketPriority priority = RenderTicketPriority::kNormal);
+  bool RemoveTicket(RenderTicketPtr ticket);
 
   virtual ~ThreadPool() override;
 
-  RenderTicketPtr Queue();
-
-  virtual void RunTicket(RenderTicketPtr ticket) const = 0;
-
-  bool RemoveTicket(RenderTicketPtr ticket);
-
-public slots:
-  void AddTicket(olive::RenderTicketPtr ticket, bool prioritize = false);
-
 private:
-  void RunNext();
+  void thread_exec();
 
-  QVector<ThreadPoolThread*> all_threads_;
-
-  std::list<ThreadPoolThread*> available_threads_;
-
-  std::list<RenderTicketPtr> ticket_queue_;
-
-private slots:
-  void ThreadDone();
+  std::vector<std::thread> worker_threads_;
+  std::deque<TaskType> tasks_;
+  std::mutex task_mutex_;
+  std::condition_variable cond_;
+  std::atomic_bool end_threadp_{false};
 
 };
 
-class ThreadPoolThread : public QThread, public CancelableObject
-{
-  Q_OBJECT
-public:
-  ThreadPoolThread(ThreadPool* parent);
+}  // namespace olive
 
-  virtual ~ThreadPoolThread() override;
-
-  void RunTicket(RenderTicketPtr ticket);
-
-protected:
-  virtual void run() override;
-
-  virtual void CancelEvent() override;
-
-signals:
-  void Done();
-
-private:
-  ThreadPool* pool_;
-
-  RenderTicketPtr ticket_;
-
-  QMutex mutex_;
-
-  QWaitCondition wait_cond_;
-
-};
-
-}
-
-#endif // THREADPOOL_H
+#endif  // THREADPOOL_H

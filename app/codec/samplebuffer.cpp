@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #include "samplebuffer.h"
 
+#include "common/cpuoptimize.h"
+
 namespace olive {
 
 SampleBuffer::SampleBuffer() :
@@ -27,25 +29,18 @@ SampleBuffer::SampleBuffer() :
 {
 }
 
-SampleBufferPtr SampleBuffer::Create()
+SampleBuffer::SampleBuffer(const AudioParams &audio_params, const rational &length) :
+  audio_params_(audio_params)
 {
-  return std::make_shared<SampleBuffer>();
+  sample_count_per_channel_ = audio_params_.time_to_samples(length);
+  allocate();
 }
 
-SampleBufferPtr SampleBuffer::CreateAllocated(const AudioParams &audio_params, const rational &length)
+SampleBuffer::SampleBuffer(const AudioParams &audio_params, int samples_per_channel) :
+  audio_params_(audio_params),
+  sample_count_per_channel_(samples_per_channel)
 {
-  return CreateAllocated(audio_params, audio_params.time_to_samples(length));
-}
-
-SampleBufferPtr SampleBuffer::CreateAllocated(const AudioParams &audio_params, int samples_per_channel)
-{
-  SampleBufferPtr buffer = Create();
-
-  buffer->set_audio_params(audio_params);
-  buffer->set_sample_count(samples_per_channel);
-  buffer->allocate();
-
-  return buffer;
+  allocate();
 }
 
 const AudioParams &SampleBuffer::audio_params() const
@@ -104,14 +99,11 @@ void SampleBuffer::allocate()
   for (int i=0; i<audio_params_.channel_count(); i++) {
     data_[i].resize(sample_count_per_channel_);
   }
-
-  update_raw();
 }
 
 void SampleBuffer::destroy()
 {
   data_.clear();
-  raw_ptrs_.clear();
 }
 
 void SampleBuffer::reverse()
@@ -157,29 +149,40 @@ void SampleBuffer::speed(double speed)
   }
 
   data_ = output_data;
-  update_raw();
 }
 
 void SampleBuffer::transform_volume(float f)
 {
   for (int i=0;i<audio_params().channel_count();i++) {
-    for (int j=0;j<sample_count_per_channel_;j++) {
-      data_[i][j] *= f;
-    }
+    transform_volume_for_channel(i, f);
   }
 }
 
 void SampleBuffer::transform_volume_for_channel(int channel, float volume)
 {
-  for (int i=0;i<sample_count_per_channel_;i++) {
-    data_[channel][i] *= volume;
+  float *cdat = data_[channel].data();
+  int unopt_start = 0;
+
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+  __m128 mult = _mm_load1_ps(&volume);
+  unopt_start = (sample_count_per_channel_ / 4) * 4;
+  for (int j=0; j<unopt_start; j+=4) {
+    float *here = cdat + j;
+    __m128 samples = _mm_loadu_ps(here);
+    __m128 multiplied = _mm_mul_ps(samples, mult);
+    _mm_storeu_ps(here, multiplied);
+  }
+#endif
+
+  for (int j=unopt_start; j<sample_count_per_channel_; j++) {
+    cdat[j] *= volume;
   }
 }
 
 void SampleBuffer::transform_volume_for_sample(int sample_index, float volume)
 {
   for (int i=0;i<audio_params().channel_count();i++) {
-    data_[i][sample_index] *= volume;
+    transform_volume_for_sample_on_channel(sample_index, i, volume);
   }
 }
 
@@ -218,14 +221,6 @@ void SampleBuffer::set(int channel, const float *data, int sample_offset, int sa
   }
 
   memcpy(&data_[channel].data()[sample_offset], data, sizeof(float) * sample_length);
-}
-
-void SampleBuffer::update_raw()
-{
-  raw_ptrs_.resize(data_.size());
-  for (int i=0; i<raw_ptrs_.size(); i++) {
-    raw_ptrs_[i] = data_[i].data();
-  }
 }
 
 }

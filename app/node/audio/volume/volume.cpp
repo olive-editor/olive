@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -63,17 +63,30 @@ QString VolumeNode::Description() const
 
 void VolumeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  return ValueInternal(kOpMultiply,
-                       kPairSampleNumber,
-                       kSamplesInput,
-                       value[kSamplesInput],
-                       kVolumeInput,
-                       value[kVolumeInput],
-                       globals,
-                       table);
+  Q_UNUSED(globals)
+
+  // Create a sample job
+  SampleBuffer buffer = value[kSamplesInput].toSamples();
+
+  if (buffer.is_allocated()) {
+    // If the input is static, we can just do it now which will be faster
+    if (IsInputStatic(kVolumeInput)) {
+      auto volume = value[kVolumeInput].toDouble();
+
+      if (!qFuzzyCompare(volume, 1.0)) {
+        buffer.transform_volume(volume);
+      }
+
+      table->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
+    } else {
+      // Requires job
+      SampleJob job(kSamplesInput, value);
+      table->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
+    }
+  }
 }
 
-void VolumeNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void VolumeNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
 {
   return ProcessSamplesInternal(values, kOpMultiply, kSamplesInput, kVolumeInput, input, output, index);
 }

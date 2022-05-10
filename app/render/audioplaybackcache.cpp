@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   emit ParametersChanged();
 }
 
-void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, SampleBufferPtr samples)
+void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, const SampleBuffer &samples)
 {
   // Ensure if we have enough segments to write this data, creating more if not
   qint64 length_diff = params_.time_to_bytes_per_channel(range.out()) - playlist_.GetLength();
@@ -72,7 +72,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
   TimeRangeList ranges_we_validated;
 
   // Calculate buffer size per channel
-  qint64 buffer_size_per_channel = samples ? samples->sample_count() * params_.bytes_per_sample_per_channel() : 0;
+  qint64 buffer_size_per_channel = samples.sample_count() * params_.bytes_per_sample_per_channel();
 
   // Write each valid range to the segments
   foreach (const TimeRange& r, valid_ranges) {
@@ -114,7 +114,7 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
             if (possible_write_length > 0) {
               // Assume `samples` is valid if we're here, or else `buffer_size_per_channel` and
               // therefore `possible_write_length` will be 0.
-              seg_file.write(reinterpret_cast<const char*>(samples->data(i)) + src_offset, possible_write_length);
+              seg_file.write(reinterpret_cast<const char*>(samples.data(i)) + src_offset, possible_write_length);
             }
 
             if (possible_write_length < total_write_length) {
@@ -167,7 +167,7 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 {
   // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
   // it an empty sample buffer
-  WritePCM(range, {range}, nullptr);
+  WritePCM(range, {range}, SampleBuffer());
 }
 
 void AudioPlaybackCache::ShiftEvent(const rational &from_in_time, const rational &to_in_time)
