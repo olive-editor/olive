@@ -66,7 +66,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   rubberband_(QRubberBand::Rectangle, this),
   active_tool_(nullptr),
   use_audio_time_units_(false),
-  subtitle_show_command_(nullptr)
+  subtitle_show_command_(nullptr),
+  subtitle_tentative_track_(nullptr)
 {
   QVBoxLayout* vert_layout = new QVBoxLayout(this);
   vert_layout->setSpacing(0);
@@ -91,13 +92,13 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   vert_layout->addWidget(view_splitter_);
 
   // Video view
-  views_.append(new TimelineAndTrackView(Qt::AlignBottom));
+  views_.append(AddTimelineAndTrackView(Qt::AlignBottom));
 
   // Audio view
-  views_.append(new TimelineAndTrackView(Qt::AlignTop));
+  views_.append(AddTimelineAndTrackView(Qt::AlignTop));
 
   // Subtitle view
-  views_.append(new TimelineAndTrackView(Qt::AlignTop));
+  views_.append(AddTimelineAndTrackView(Qt::AlignTop));
 
   // Create tools
   tools_.resize(olive::Tool::kCount);
@@ -780,6 +781,44 @@ void TimelineWidget::DisableRecordingOverlay()
   }
 }
 
+void TimelineWidget::AddTentativeSubtitleTrack()
+{
+  if (!subtitle_show_command_) {
+    // Determine if we need to do anything
+    QList<int> sz = view_splitter_->sizes();
+    bool should_adjust_splitter = (sz[Track::kSubtitle] == 0);
+    bool should_add_sub_track = (sequence() && sequence()->track_list(Track::kSubtitle)->GetTrackCount() == 0);
+
+    if (should_adjust_splitter || should_add_sub_track) {
+      // Create command
+      subtitle_show_command_ = new MultiUndoCommand();
+
+      if (should_adjust_splitter) {
+        sz[Track::kSubtitle] = height() / Track::kCount;
+        subtitle_show_command_->add_child(new SetSplitterSizesCommand(view_splitter_, sz));
+      }
+
+      if (should_add_sub_track) {
+        TimelineAddTrackCommand *track_add_cmd = new TimelineAddTrackCommand(sequence()->track_list(Track::kSubtitle));
+        subtitle_tentative_track_ = track_add_cmd->track();
+        subtitle_show_command_->add_child(track_add_cmd);
+      }
+
+      subtitle_show_command_->redo_now();
+    }
+  }
+}
+
+void TimelineWidget::ClearTentativeSubtitleTrack()
+{
+  if (subtitle_show_command_) {
+    subtitle_show_command_->undo_now();
+    delete subtitle_show_command_;
+    subtitle_show_command_ = nullptr;
+    subtitle_tentative_track_ = nullptr;
+  }
+}
+
 void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, MultiUndoCommand *command)
 {
   for (int i=0;i<Track::kCount;i++) {
@@ -1116,32 +1155,9 @@ void TimelineWidget::AddableObjectChanged()
 {
   // Special cast for subtitle adding - ensure section is visible
   if (Core::instance()->tool() == Tool::kAdd && Core::instance()->GetSelectedAddableObject() == Tool::kAddableSubtitle) {
-    if (!subtitle_show_command_) {
-      // Determine if we need to do anything
-      QList<int> sz = view_splitter_->sizes();
-      bool should_adjust_splitter = (sz[Track::kSubtitle] == 0);
-      bool should_add_sub_track = (sequence() && sequence()->track_list(Track::kSubtitle)->GetTrackCount() == 0);
-
-      if (should_adjust_splitter || should_add_sub_track) {
-        // Create command
-        subtitle_show_command_ = new MultiUndoCommand();
-
-        if (should_adjust_splitter) {
-          sz[Track::kSubtitle] = height() / Track::kCount;
-          subtitle_show_command_->add_child(new SetSplitterSizesCommand(view_splitter_, sz));
-        }
-
-        if (should_add_sub_track) {
-          subtitle_show_command_->add_child(new TimelineAddTrackCommand(sequence()->track_list(Track::kSubtitle)));
-        }
-
-        subtitle_show_command_->redo_now();
-      }
-    }
-  } else if (subtitle_show_command_) {
-    subtitle_show_command_->undo_now();
-    delete subtitle_show_command_;
-    subtitle_show_command_ = nullptr;
+    AddTentativeSubtitleTrack();
+  } else {
+    ClearTentativeSubtitleTrack();
   }
 }
 
@@ -1208,6 +1224,16 @@ void TimelineWidget::RenameSelectedBlocks()
 
   Core::instance()->LabelNodes(nodes);
   Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
+void TimelineWidget::TrackAboutToBeDeleted(Track *track)
+{
+  if (track == subtitle_tentative_track_) {
+    // User is deleting the tentative subtitle track. Technically they shouldn't do this, but they
+    // might if they misinterpret it as permanent. If so, we handle it cleanly by pushing our
+    // command as if the action really were permanent.
+    Core::instance()->undo_stack()->push(TakeSubtitleSectionCommand());
+  }
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
@@ -1639,6 +1665,13 @@ bool TimelineWidget::PasteInternal(bool insert)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   return true;
+}
+
+TimelineAndTrackView *TimelineWidget::AddTimelineAndTrackView(Qt::Alignment alignment)
+{
+  TimelineAndTrackView *v = new TimelineAndTrackView(alignment);
+  connect(v->track_view(), &TrackView::AboutToDeleteTrack, this, &TimelineWidget::TrackAboutToBeDeleted);
+  return v;
 }
 
 QByteArray TimelineWidget::SaveSplitterState() const

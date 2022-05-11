@@ -40,6 +40,9 @@ public:
   void ConnectTrackList(TrackList* list);
   void DisconnectTrackList();
 
+signals:
+  void AboutToDeleteTrack(Track *track);
+
 protected:
   virtual void resizeEvent(QResizeEvent *e) override;
 

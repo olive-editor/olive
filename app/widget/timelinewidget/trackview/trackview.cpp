@@ -121,9 +121,13 @@ void TrackView::TrackHeightChanged(int index, int height)
 
 void TrackView::InsertTrack(Track *track)
 {
+  TrackViewItem *tvi = new TrackViewItem(track);
+
+  connect(tvi, &TrackViewItem::AboutToDeleteTrack, this, &TrackView::AboutToDeleteTrack);
+
   splitter_->Insert(track->Index(),
                     track->GetTrackHeightInPixels(),
-                    new TrackViewItem(track));
+                    tvi);
 }
 
 void TrackView::RemoveTrack(Track *track)

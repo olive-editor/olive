@@ -145,6 +145,7 @@ void TrackViewItem::ShowContextMenu(const QPoint &p)
 
 void TrackViewItem::DeleteTrack()
 {
+  emit AboutToDeleteTrack(track_);
   Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_));
 }
 

@@ -107,6 +107,10 @@ public:
 
   void DisableRecordingOverlay();
 
+  void AddTentativeSubtitleTrack();
+
+  void ClearTentativeSubtitleTrack();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -230,6 +234,7 @@ public:
 
     // Set to null
     subtitle_show_command_ = nullptr;
+    subtitle_tentative_track_ = nullptr;
 
     // Return command
     return c;
@@ -298,6 +303,8 @@ private:
 
   bool PasteInternal(bool insert);
 
+  TimelineAndTrackView *AddTimelineAndTrackView(Qt::Alignment alignment);
+
   QPoint drag_origin_;
 
   QRubberBand rubberband_;
@@ -331,6 +338,7 @@ private:
   QSplitter* view_splitter_;
 
   MultiUndoCommand *subtitle_show_command_;
+  Track *subtitle_tentative_track_;
 
   QTimer *signal_block_change_timer_;
 
@@ -419,6 +427,8 @@ private slots:
   void RevealInProject();
 
   void RenameSelectedBlocks();
+
+  void TrackAboutToBeDeleted(Track *track);
 
 };
 
