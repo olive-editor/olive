@@ -97,7 +97,10 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString 
 SliderLadder::~SliderLadder()
 {
   if (UsingLadders()) {
-
+    if (wrap_count_ != 0) {
+      // If wrapped, restore cursor to ladder
+      QCursor::setPos(pos() + rect().center());
+    }
   } else {
 #if defined(Q_OS_MAC)
     CGAssociateMouseAndMouseCursorPosition(true);
