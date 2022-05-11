@@ -524,15 +524,20 @@ void NodeParamView::SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bo
 
 Node *NodeParamView::GetNodeWithID(const QString &id)
 {
+  return GetNodeWithIDAndIgnoreList(id, QVector<Node*>());
+}
+
+Node *NodeParamView::GetNodeWithIDAndIgnoreList(const QString &id, const QVector<Node *> &ignore)
+{
   for (NodeParamViewItem *item : selected_nodes_) {
-    if (item->GetNode()->id() == id) {
+    if (item->GetNode()->id() == id && !ignore.contains(item->GetNode())) {
       return item->GetNode();
     }
   }
 
   for (NodeParamViewContext *ctx : context_items_) {
     for (NodeParamViewItem *item : ctx->GetItems()) {
-      if (item->GetNode()->id() == id) {
+      if (item->GetNode()->id() == id && !ignore.contains(item->GetNode())) {
         return item->GetNode();
       }
     }
@@ -601,12 +606,12 @@ bool NodeParamView::Paste()
   }
 
   // Determine if any nodes of this type are already in the editor
+  QVector<Node*> ignore_nodes;
   QMap<Node*, Node*> existing_nodes;
   for (Node *n : res.GetLoadedNodes()) {
-    if (Node *existing = GetNodeWithID(n->id())) {
-      if (!existing_nodes.contains(existing)) {
-        existing_nodes.insert(existing, n);
-      }
+    if (Node *existing = GetNodeWithIDAndIgnoreList(n->id(), ignore_nodes)) {
+      existing_nodes.insert(existing, n);
+      ignore_nodes.append(existing);
     }
   }
 

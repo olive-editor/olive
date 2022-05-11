@@ -65,6 +65,7 @@ public:
   void SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bool emit_signal = true);
 
   Node *GetNodeWithID(const QString &id);
+  Node *GetNodeWithIDAndIgnoreList(const QString &id, const QVector<Node*> &ignore);
 
   const QVector<Node*> &GetContexts() const
   {
