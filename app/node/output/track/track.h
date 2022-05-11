@@ -222,6 +222,9 @@ public:
           } else if (s.at(0) == 'a') {
             // Audio stream
             return Track::kAudio;
+          } else if (s.at(0) == 's') {
+            // Subtitle stream
+            return Track::kSubtitle;
           }
         }
       }
