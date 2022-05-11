@@ -112,18 +112,6 @@ Project *NodeAddCommand::GetRelevantProject() const
   return dynamic_cast<Project*>(graph_);
 }
 
-NodeCopyInputsCommand::NodeCopyInputsCommand(const Node *src, Node *dest, bool include_connections) :
-  src_(src),
-  dest_(dest),
-  include_connections_(include_connections)
-{
-}
-
-void NodeCopyInputsCommand::redo()
-{
-  Node::CopyInputs(src_, dest_, include_connections_);
-}
-
 void NodeRemoveAndDisconnectCommand::prepare()
 {
   command_ = new MultiUndoCommand();

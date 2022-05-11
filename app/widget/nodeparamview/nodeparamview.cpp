@@ -21,6 +21,7 @@
 #include "nodeparamview.h"
 
 #include <QApplication>
+#include <QMessageBox>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
@@ -594,9 +595,82 @@ bool NodeParamView::Paste()
     }
   }
 
-  // FIXME: Pasting nodes
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
+  if (res.GetLoadedNodes().isEmpty()) {
+    return false;
+  }
 
-  return false;
+  // Determine if any nodes of this type are already in the editor
+  QMap<Node*, Node*> existing_nodes;
+  for (Node *n : res.GetLoadedNodes()) {
+    if (Node *existing = GetNodeWithID(n->id())) {
+      if (!existing_nodes.contains(existing)) {
+        existing_nodes.insert(existing, n);
+      }
+    }
+  }
+
+  QVector<Node*> nodes_to_paste_as_new = res.GetLoadedNodes();
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  if (!existing_nodes.empty()) {
+    QMessageBox b(this);
+    b.setWindowTitle(tr("Paste Nodes"));
+
+    QStringList node_names;
+    for (auto it=existing_nodes.cbegin(); it!=existing_nodes.cend(); it++) {
+      node_names.append(it.key()->GetLabelAndName());
+    }
+
+    b.setText(tr("The following node types already exist in this context:\n\n"
+                 "%1\n\n"
+                 "Do you wish to paste values onto the existing nodes or paste new nodes?").arg(node_names.join('\n')));
+
+    auto as_vals = b.addButton(tr("Paste As Values"), QMessageBox::YesRole);
+    auto as_nodes = b.addButton(tr("Paste As Nodes"), QMessageBox::NoRole);
+    auto cancel_btn = b.addButton(QMessageBox::Cancel);
+
+    Q_UNUSED(as_nodes)
+
+    b.exec();
+
+    if (b.clickedButton() == cancel_btn) {
+
+      // Delete pasted nodes and clear array so no later code runs
+      qDeleteAll(nodes_to_paste_as_new);
+      nodes_to_paste_as_new.clear();
+
+    } else if (b.clickedButton() == as_vals) {
+
+      // Filter out existing nodes
+      for (auto it=existing_nodes.cbegin(); it!=existing_nodes.cend(); it++) {
+        Node::CopyInputs(it.value(), it.key(), false, command);
+        nodes_to_paste_as_new.removeOne(it.value());
+      }
+
+    }
+  }
+
+  if (!nodes_to_paste_as_new.isEmpty()) {
+    Node::PositionMap map;
+
+    for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
+      if (nodes_to_paste_as_new.contains(it.key())) {
+        Node::Position pos;
+
+        const QMap<QString, QString> &node_props = it.value();
+        pos.position.setX(node_props.value(QStringLiteral("x")).toDouble());
+        pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
+        pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
+
+        map.insert(it.key(), pos);
+      }
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  return true;
 }
 
 void NodeParamView::UpdateItemTime(const rational &time)

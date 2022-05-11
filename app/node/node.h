@@ -834,14 +834,14 @@ public:
    *
    * Nodes must be of the same types (i.e. have the same ID)
    */
-  static void CopyInputs(const Node *source, Node* destination, bool include_connections = true);
+  static void CopyInputs(const Node *source, Node* destination, bool include_connections = true, MultiUndoCommand *command = nullptr);
 
-  static void CopyInput(const Node *src, Node* dst, const QString& input, bool include_connections, bool traverse_arrays);
+  static void CopyInput(const Node *src, Node* dst, const QString& input, bool include_connections, bool traverse_arrays, MultiUndoCommand *command);
 
-  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int src_element, int dst_element);
-  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int element)
+  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int src_element, int dst_element, MultiUndoCommand *command = nullptr);
+  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int element, MultiUndoCommand *command = nullptr)
   {
-    return CopyValuesOfElement(src, dst, input, element, element);
+    return CopyValuesOfElement(src, dst, input, element, element, command);
   }
 
   /**
@@ -1263,6 +1263,31 @@ private:
     QHash<QString, QVariant> properties;
     QString human_name;
     int array_size;
+  };
+
+  class ImmediateRemoveAllKeyframesCommand : public UndoCommand
+  {
+  public:
+    ImmediateRemoveAllKeyframesCommand(NodeInputImmediate *immediate) :
+      immediate_(immediate)
+    {}
+
+    virtual Project* GetRelevantProject() const override { return nullptr; }
+
+  protected:
+    virtual void prepare() override;
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    NodeInputImmediate *immediate_;
+
+    QObject memory_manager_;
+
+    QVector<NodeKeyframe*> keys_;
+
   };
 
   NodeInputImmediate* CreateImmediate(const QString& input);
