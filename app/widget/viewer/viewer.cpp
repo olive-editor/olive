@@ -1514,14 +1514,14 @@ void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
 
 void ViewerWidget::DragEntered(QDragEnterEvent* event)
 {
-  if (event->mimeData()->formats().contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
+  if (event->mimeData()->formats().contains(Project::kItemMimeType)) {
     event->accept();
   }
 }
 
 void ViewerWidget::Dropped(QDropEvent *event)
 {
-  QByteArray mimedata = event->mimeData()->data(QStringLiteral("application/x-oliveprojectitemdata"));
+  QByteArray mimedata = event->mimeData()->data(Project::kItemMimeType);
   QDataStream stream(&mimedata, QIODevice::ReadOnly);
 
   // Variables to deserialize into

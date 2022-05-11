@@ -117,6 +117,8 @@ public:
    */
   static Project *GetProjectFromObject(const QObject *o);
 
+  static const QString kItemMimeType;
+
 signals:
   void NameChanged();
 

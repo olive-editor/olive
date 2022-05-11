@@ -55,10 +55,10 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
   QStringList mime_formats = event->GetMimeData()->formats();
 
   // Listen for MIME data from a ProjectViewModel
-  if (mime_formats.contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
+  if (mime_formats.contains(Project::kItemMimeType)) {
 
     // Data is drag/drop data from a ProjectViewModel
-    QByteArray model_data = event->GetMimeData()->data(QStringLiteral("application/x-oliveprojectitemdata"));
+    QByteArray model_data = event->GetMimeData()->data(Project::kItemMimeType);
 
     // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);

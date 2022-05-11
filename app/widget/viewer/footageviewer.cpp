@@ -87,7 +87,7 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   if (!streams.isEmpty()) {
     data_stream << streams << reinterpret_cast<quintptr>(GetConnectedNode());
 
-    mimedata->setData(QStringLiteral("application/x-oliveprojectitemdata"), encoded_data);
+    mimedata->setData(Project::kItemMimeType, encoded_data);
     drag->setMimeData(mimedata);
 
     drag->exec();
