@@ -69,7 +69,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
       QObject *p = this->parent();
       while (p) {
         if (TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(p)) {
-          timeline->SetTime(it.key()->time());
+          timeline->SetTime(it.key()->time().in());
           break;
         }
 
@@ -555,8 +555,8 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             for (auto it=marker_list->cbegin(); it!=marker_list->cend(); it++) {
               TimelineMarker *marker = *it;
               // Make sure marker is within In/Out points of the clip
-              if (marker->time_range().in() >= clip->media_in() && marker->time_range().out() <= clip->media_in() + clip->length()) {
-                QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time_range().in()), block_top + block_height);
+              if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
+                QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time().in()), block_top + block_height);
                 painter->setClipRect(r);
                 QRect marker_rect = marker->Draw(painter, marker_pt, GetScale(), false);
                 clip_marker_rects_.insert(marker, marker_rect);

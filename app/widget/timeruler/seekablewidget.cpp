@@ -128,16 +128,16 @@ bool SeekableWidget::PasteMarkers()
       // Normalize markers to start at playhead
       rational min = RATIONAL_MAX;
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
-        min = std::min(min, (*it)->time());
+        min = std::min(min, (*it)->time().in());
       }
       min -= GetTime();
 
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
         TimelineMarker *m = *it;
 
-        m->set_time(m->time() - min);
+        m->set_time(m->time().in() - min);
 
-        if (TimelineMarker *existing = timeline_points_->markers()->GetMarkerAtTime(m->time())) {
+        if (TimelineMarker *existing = timeline_points_->markers()->GetMarkerAtTime(m->time().in())) {
           command->add_child(new MarkerRemoveCommand(existing));
         }
 
@@ -333,12 +333,12 @@ void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
     for (auto it=GetTimelinePoints()->markers()->cbegin(); it!=GetTimelinePoints()->markers()->cend(); it++) {
       TimelineMarker* marker = *it;
 
-      int marker_right = TimeToScene(marker->time_range().out());
+      int marker_right = TimeToScene(marker->time().out());
       if (marker_right < lim_left) {
         continue;
       }
 
-      int marker_left = TimeToScene(marker->time_range().in());
+      int marker_left = TimeToScene(marker->time().in());
       if (marker_left >= lim_right)  {
         break;
       }
@@ -430,16 +430,16 @@ bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
     // Check for markers
     for (auto it=timeline_points_->markers()->cbegin(); it!=timeline_points_->markers()->cend(); it++) {
       TimelineMarker *m = *it;
-      if (m->time_range().in() != m->time_range().out()) {
-        if (m->time_range().in() >= min && m->time_range().in() < max) {
+      if (m->time().in() != m->time().out()) {
+        if (m->time().in() >= min && m->time().in() < max) {
           resize_mode_ = kResizeIn;
-        } else if (m->time_range().out() >= min && m->time_range().out() < max) {
+        } else if (m->time().out() >= min && m->time().out() < max) {
           resize_mode_ = kResizeOut;
         }
 
         if (resize_mode_ != kResizeNone) {
           resize_item_ = m;
-          resize_item_range_ = m->time_range();
+          resize_item_range_ = m->time();
           resize_snap_mask_ = TimeBasedWidget::kSnapAll;
           break;
         }
@@ -508,7 +508,7 @@ void SeekableWidget::CommitResizeHandle()
   MultiUndoCommand *command = new MultiUndoCommand();
 
   if (TimelineMarker *marker = dynamic_cast<TimelineMarker*>(resize_item_)) {
-    command->add_child(new MarkerChangeTimeCommand(marker, marker->time_range(), resize_item_range_));
+    command->add_child(new MarkerChangeTimeCommand(marker, marker->time(), resize_item_range_));
   } else if (TimelineWorkArea *workarea = dynamic_cast<TimelineWorkArea*>(resize_item_)) {
     command->add_child(new WorkareaSetRangeCommand(workarea, workarea->range(), resize_item_range_));
   }

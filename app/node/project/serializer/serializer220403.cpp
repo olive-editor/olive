@@ -1175,8 +1175,8 @@ void ProjectSerializer220403::LoadMarker(QXmlStreamReader *reader, TimelineMarke
 void ProjectSerializer220403::SaveMarker(QXmlStreamWriter *writer, TimelineMarker *marker) const
 {
   writer->writeAttribute(QStringLiteral("name"), marker->name());
-  writer->writeAttribute(QStringLiteral("in"), marker->time_range().in().toString());
-  writer->writeAttribute(QStringLiteral("out"), marker->time_range().out().toString());
+  writer->writeAttribute(QStringLiteral("in"), marker->time().in().toString());
+  writer->writeAttribute(QStringLiteral("out"), marker->time().out().toString());
   writer->writeAttribute(QStringLiteral("color"), QString::number(marker->color()));
 }
 
