@@ -53,13 +53,15 @@ KeyframeView::KeyframeView(QWidget *parent) :
 
 void KeyframeView::DeleteSelected()
 {
-  MultiUndoCommand* command = new MultiUndoCommand();
+  if (!selection_manager_.IsDragging()) {
+    MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (NodeKeyframe *key, GetSelectedKeyframes()) {
-    command->add_child(new NodeParamRemoveKeyframeCommand(key));
+    foreach (NodeKeyframe *key, GetSelectedKeyframes()) {
+      command->add_child(new NodeParamRemoveKeyframeCommand(key));
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 KeyframeView::NodeConnections KeyframeView::AddKeyframesOfNode(Node *n)

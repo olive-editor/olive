@@ -90,13 +90,15 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
 
 void SeekableWidget::DeleteSelected()
 {
-  MultiUndoCommand* command = new MultiUndoCommand();
+  if (!selection_manager_.IsDragging()) {
+    MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (TimelineMarker *marker, selection_manager_.GetSelectedObjects()) {
-    command->add_child(new MarkerRemoveCommand(marker));
+    foreach (TimelineMarker *marker, selection_manager_.GetSelectedObjects()) {
+      command->add_child(new MarkerRemoveCommand(marker));
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 bool SeekableWidget::CopySelected(bool cut)
