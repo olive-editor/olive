@@ -376,16 +376,17 @@ jobs:
 
           if [ "${{ matrix.os-arch }}" == "x86_64" ]
           then
-            DYLIBBUNDLER_EXTRA_ARGS="-x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler"
+            DYLIBBUNDLER_EXTRA_ARGS="-x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler -x $BUNDLE_NAME/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork"
           fi
 
           mv app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
-          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # Copy Qt frameworks and plugins
           cp -Ra $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
           cp -Ra $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
+
+          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
           #       but perhaps I'll bring it up with them soon.
