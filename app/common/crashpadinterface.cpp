@@ -32,7 +32,7 @@
 #include "crashpadutils.h"
 #include "filefunctions.h"
 
-#ifdef BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <Windows.h>
 #endif
 
