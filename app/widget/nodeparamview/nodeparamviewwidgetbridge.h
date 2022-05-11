@@ -57,6 +57,8 @@ signals:
 
   void WidgetsRecreated(const NodeInput& input);
 
+  void RequestEditTextInViewer();
+
 private:
   void CreateWidgets();
 

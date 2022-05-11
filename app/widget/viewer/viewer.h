@@ -119,6 +119,11 @@ public slots:
 
   void UpdateTextureFromNode();
 
+  void RequestStartEditingText()
+  {
+    display_widget_->RequestStartEditingText();
+  }
+
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()

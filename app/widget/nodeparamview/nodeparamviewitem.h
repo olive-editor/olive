@@ -73,6 +73,8 @@ signals:
 
   void InputCheckedChanged(const NodeInput &input, bool e);
 
+  void RequestEditTextInViewer();
+
 private:
   void CreateWidgets(QGridLayout *layout, Node* node, const QString& input, int element, int row_index);
 
@@ -221,6 +223,8 @@ signals:
   void ArrayExpandedChanged(bool e);
 
   void InputCheckedChanged(const NodeInput &input, bool e);
+
+  void RequestEditTextInViewer();
 
 protected slots:
   virtual void Retranslate() override;

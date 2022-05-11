@@ -320,6 +320,15 @@ void NodeParamView::SelectNodeFromConnectedLink(Node *node)
   SetSelectedNodes({p});
 }
 
+void NodeParamView::RequestEditTextInViewer()
+{
+  NodeParamViewItem *item = static_cast<NodeParamViewItem *>(sender());
+
+  focused_node_ = item;
+  emit FocusedNodeChanged(item->GetNode());
+  emit RequestViewerToStartEditingText();
+}
+
 void NodeParamView::SetContexts(const QVector<Node *> &contexts)
 {
   // Setting contexts is expensive, so we queue it here to prevent multiple calls in a short timespan
@@ -735,6 +744,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
   connect(item, &NodeParamViewItem::Clicked, this, &NodeParamView::ItemClicked);
+  connect(item, &NodeParamViewItem::RequestEditTextInViewer, this, &NodeParamView::RequestEditTextInViewer);
 
   item->SetContext(ctx);
   item->SetTimeTarget(GetTimeTarget());

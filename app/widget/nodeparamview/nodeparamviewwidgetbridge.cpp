@@ -141,6 +141,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit();
       widgets_.append(line_edit);
       connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(line_edit, &NodeParamViewTextEdit::RequestEditInViewer, this, &NodeParamViewWidgetBridge::RequestEditTextInViewer);
       break;
     }
     case NodeValue::kBoolean:
@@ -779,6 +780,15 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       ff->SetPlaceholder(value.toString());
     } else if (key == QStringLiteral("directory")) {
       ff->SetDirectoryMode(value.toBool());
+    }
+  }
+
+  // Parameters for text
+  if (data_type == NodeValue::kText) {
+    NodeParamViewTextEdit *tex = static_cast<NodeParamViewTextEdit *>(widgets_.first());
+
+    if (key == QStringLiteral("vieweronly")) {
+      tex->SetEditInViewerOnlyMode(value.toBool());
     }
   }
 }

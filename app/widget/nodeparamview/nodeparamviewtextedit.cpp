@@ -21,7 +21,6 @@
 #include "nodeparamviewtextedit.h"
 
 #include <QHBoxLayout>
-#include <QPushButton>
 
 #include "dialog/text/text.h"
 #include "ui/icons/icons.h"
@@ -39,11 +38,24 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   connect(line_edit_, &QPlainTextEdit::textChanged, this, &NodeParamViewTextEdit::InnerWidgetTextChanged);
   layout->addWidget(line_edit_);
 
-  QPushButton* edit_btn = new QPushButton();
-  edit_btn->setIcon(icon::ToolEdit);
-  edit_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
-  layout->addWidget(edit_btn);
-  connect(edit_btn, &QPushButton::clicked, this, &NodeParamViewTextEdit::ShowTextDialog);
+  edit_btn_ = new QPushButton();
+  edit_btn_->setIcon(icon::ToolEdit);
+  edit_btn_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  layout->addWidget(edit_btn_);
+  connect(edit_btn_, &QPushButton::clicked, this, &NodeParamViewTextEdit::ShowTextDialog);
+
+  edit_in_viewer_btn_ = new QPushButton(tr("Edit In Viewer"));
+  layout->addWidget(edit_in_viewer_btn_);
+  connect(edit_in_viewer_btn_, &QPushButton::clicked, this, &NodeParamViewTextEdit::RequestEditInViewer);
+
+  SetEditInViewerOnlyMode(false);
+}
+
+void NodeParamViewTextEdit::SetEditInViewerOnlyMode(bool on)
+{
+  line_edit_->setVisible(!on);
+  edit_btn_->setVisible(!on);
+  edit_in_viewer_btn_->setVisible(on);
 }
 
 void NodeParamViewTextEdit::ShowTextDialog()

@@ -22,6 +22,7 @@
 #define NODEPARAMVIEWTEXTEDIT_H
 
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QWidget>
 
 #include "common/define.h"
@@ -38,6 +39,8 @@ public:
   {
     return line_edit_->toPlainText();
   }
+
+  void SetEditInViewerOnlyMode(bool on);
 
 public slots:
   void setText(const QString &s)
@@ -64,8 +67,14 @@ public slots:
 signals:
   void textEdited(const QString &);
 
+  void RequestEditInViewer();
+
 private:
   QPlainTextEdit* line_edit_;
+
+  QPushButton* edit_btn_;
+
+  QPushButton *edit_in_viewer_btn_;
 
 private slots:
   void ShowTextDialog();

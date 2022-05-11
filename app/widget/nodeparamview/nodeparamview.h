@@ -86,6 +86,8 @@ signals:
 
   void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
 
+  void RequestViewerToStartEditingText();
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -181,6 +183,8 @@ private slots:
   void ItemClicked();
 
   void SelectNodeFromConnectedLink(Node *node);
+
+  void RequestEditTextInViewer();
 
 };
 
