@@ -29,6 +29,7 @@
 #include "common/bezier.h"
 #include "common/tohex.h"
 #include "render/audioparams.h"
+#include "render/subtitleparams.h"
 #include "render/videoparams.h"
 #include "render/color.h"
 
@@ -130,6 +131,7 @@ QByteArray NodeValue::ValueToBytes(NodeValue::Type type, const QVariant &value)
     return value.value<AudioParams>().toBytes();
 
   // These types have no persistent input
+  case kSubtitleParams:
   case kNone:
   case kTexture:
   case kSamples:
@@ -345,6 +347,8 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
     return QCoreApplication::translate("NodeValue", "Video Parameters");
   case kAudioParams:
     return QCoreApplication::translate("NodeValue", "Audio Parameters");
+  case kSubtitleParams:
+    return QCoreApplication::translate("NodeValue", "Subtitle Parameters");
 
   case kDataTypeCount:
     break;
@@ -394,6 +398,8 @@ QString NodeValue::GetDataTypeName(Type type)
     return QStringLiteral("vparam");
   case kAudioParams:
     return QStringLiteral("aparam");
+  case kSubtitleParams:
+    return QStringLiteral("sparam");
   case kDataTypeCount:
     break;
   }

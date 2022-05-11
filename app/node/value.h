@@ -179,6 +179,13 @@ public:
     kAudioParams,
 
     /**
+     * Subtitle Parameters type
+     *
+     * Resolves to `SubtitleParams`
+     */
+    kSubtitleParams,
+
+    /**
      * End of list
      */
     kDataTypeCount

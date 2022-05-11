@@ -54,6 +54,8 @@ private:
 
   void DropGhosts(bool insert);
 
+  TimelineViewGhostItem* CreateGhost(const TimeRange &range, const rational &media_in, const Track::Reference &track);
+
   DraggedFootageData dragged_footage_;
 
   int import_pre_buffer_;

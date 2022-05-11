@@ -43,7 +43,11 @@ SubtitleBlock::SubtitleBlock()
 
 QString SubtitleBlock::Name() const
 {
-  return tr("Subtitle");
+  if (GetText().isEmpty()) {
+    return tr("Subtitle");
+  } else {
+    return GetText();
+  }
 }
 
 QString SubtitleBlock::id() const

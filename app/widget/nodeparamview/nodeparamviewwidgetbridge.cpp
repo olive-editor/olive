@@ -89,6 +89,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kSamples:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
+    case NodeValue::kSubtitleParams:
     case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
@@ -240,6 +241,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kSamples:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kSubtitleParams:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -417,6 +419,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kSamples:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kSubtitleParams:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:

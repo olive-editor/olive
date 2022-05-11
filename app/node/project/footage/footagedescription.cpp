@@ -67,6 +67,10 @@ bool FootageDescription::Load(const QString &filename)
                 AudioParams ap;
                 ap.Load(&reader);
                 AddAudioStream(ap);
+              } else if (reader.name() == QStringLiteral("subtitle")) {
+                SubtitleParams sp;
+                sp.Load(&reader);
+                AddSubtitleStream(sp);
               } else {
                 reader.skipCurrentElement();
               }
@@ -121,6 +125,12 @@ bool FootageDescription::Save(const QString &filename) const
   foreach (const AudioParams& ap, audio_streams_) {
     writer.writeStartElement(QStringLiteral("audio"));
     ap.Save(&writer);
+    writer.writeEndElement(); // audio
+  }
+
+  foreach (const SubtitleParams& sp, subtitle_streams_) {
+    writer.writeStartElement(QStringLiteral("subtitle"));
+    sp.Save(&writer);
     writer.writeEndElement(); // audio
   }
 

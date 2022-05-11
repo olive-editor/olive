@@ -173,6 +173,7 @@ public:
 
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
+  static QString DescribeSubtitleStream(const SubtitleParams& params);
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
