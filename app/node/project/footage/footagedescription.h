@@ -112,6 +112,8 @@ public:
   }
 
 private:
+  static constexpr unsigned kFootageMetaVersion = 1;
+
   QString decoder_;
 
   QVector<VideoParams> video_streams_;

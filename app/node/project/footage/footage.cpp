@@ -90,12 +90,8 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
 
       FootageDescription footage_info;
 
-      if (QFileInfo::exists(meta_cache_file)) {
-
-        // Load meta cache file
-        footage_info.Load(meta_cache_file);
-
-      } else {
+      // Try to load footage info from cache
+      if (!QFileInfo::exists(meta_cache_file) || !footage_info.Load(meta_cache_file)) {
 
         // Probe and create cache
         QVector<DecoderPtr> decoder_list = Decoder::ReceiveListOfAllDecoders();

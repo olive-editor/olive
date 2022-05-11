@@ -40,6 +40,20 @@ bool FootageDescription::Load(const QString &filename)
 
     while (XMLReadNextStartElement(&reader)) {
       if (reader.name() == QStringLiteral("streamcache")) {
+        // Default to first version of metadata (which wasn't versioned at all)
+        unsigned version = 1;
+
+        XMLAttributeLoop((&reader), attr) {
+          if (attr.name() == QStringLiteral("version")) {
+            version = attr.value().toUInt();
+          }
+        }
+
+        if (version != kFootageMetaVersion) {
+          // If this is a different version, discard so we can probe new data
+          return false;
+        }
+
         while (XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("decoder")) {
             decoder_ = reader.readElementText();
@@ -68,7 +82,11 @@ bool FootageDescription::Load(const QString &filename)
 
     file.close();
 
-    return true;
+    if (reader.hasError()) {
+      qWarning() << "Failed to load footage description for" << filename << reader.errorString();
+    } else {
+      return true;
+    }
   }
 
   return false;
@@ -87,6 +105,8 @@ bool FootageDescription::Save(const QString &filename) const
   writer.writeStartDocument();
 
   writer.writeStartElement(QStringLiteral("streamcache"));
+
+  writer.writeAttribute(QStringLiteral("version"), QString::number(kFootageMetaVersion));
 
   writer.writeTextElement(QStringLiteral("decoder"), decoder_);
 
