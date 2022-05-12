@@ -347,8 +347,11 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
 
   } else if (add_band_) {
 
-    QRectF r = GenerateGizmoTransform().inverted().mapRect(add_band_->geometry());
-    emit CreateAddableAt(r);
+    const QRect &band_rect = add_band_->geometry();
+    if (band_rect.width() > 1 && band_rect.height() > 1) {
+      QRectF r = GenerateGizmoTransform().inverted().mapRect(add_band_->geometry());
+      emit CreateAddableAt(r);
+    }
 
     add_band_->deleteLater();
     add_band_ = nullptr;
