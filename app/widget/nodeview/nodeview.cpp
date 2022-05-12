@@ -585,6 +585,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   }
 
   if (select_context) {
+    DeselectAll();
     scene_.context_map().value(select_context)->Select(select_nodes);
   }
 }
@@ -632,10 +633,11 @@ void NodeView::dragEnterEvent(QDragEnterEvent *event)
 
         new_item = new NodeViewItem(f, nullptr);
         new_item->SetFlowDirection(scene_.GetFlowDirection());
+        new_item->SetNodePosition(QPointF(0, y));
         y++;
         scene_.addItem(new_item);
 
-        new_attached.append({new_item, f, QPointF(0, y)});
+        new_attached.append({new_item, f, new_item->pos()});
       }
     }
 
@@ -671,6 +673,7 @@ void NodeView::dropEvent(QDropEvent *event)
     QVector<Node*> select_nodes = ProcessDroppingAttachedNodes(command, drop_ctx, event->pos());
     Core::instance()->undo_stack()->pushIfHasChildren(command);
 
+    DeselectAll();
     scene_.context_map().value(drop_ctx)->Select(select_nodes);
 
     event->accept();
@@ -965,6 +968,7 @@ void NodeView::DetachItemsFromCursor(bool delete_nodes_too)
     delete ai.item;
 
     if (delete_nodes_too) {
+      qDebug() << "deleting" << ai.node;
       delete ai.node;
     }
   }
@@ -1072,27 +1076,32 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
 {
   QVector<Node*> select_nodes;
 
+  // Make a copy
+  QVector<AttachedItem> attached = attached_items_;
+
+  for (int i=0; i<attached.size(); i++) {
+    const AttachedItem &ai = attached.at(i);
+
+    if (select_context->OutputsTo(ai.node, true)) {
+      attached.removeAt(i);
+    } else if (select_context->ContextContainsNode(ai.node)) {
+      select_nodes.append(ai.node);
+      attached.removeAt(i);
+    }
+  }
+
   {
     MultiUndoCommand *add_command = new MultiUndoCommand();
 
-    foreach (const AttachedItem &ai, attached_items_) {
-      if (select_context->OutputsTo(ai.node, true)) {
-        continue;
-      }
-
-      if (ai.item) {
-        select_nodes.append(ai.node);
-      }
-
-      if (select_context->ContextContainsNode(ai.node)) {
-        continue;
-      }
-
+    foreach (const AttachedItem &ai, attached) {
       // Add node to the same graph that the context is in
-      add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
+      if (ai.node->parent() != select_context->parent()) {
+        add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
+      }
 
       // Add node to the context
       if (ai.item) {
+        select_nodes.append(ai.node);
         add_command->add_child(new NodeSetPositionCommand(ai.node, select_context, scene_.context_map().value(select_context)->MapScenePosToNodePosInContext(ai.item->pos())));
       }
     }
@@ -1108,11 +1117,11 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
   {
     // Dropped attached item onto an edge, connect it between them
     MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
-    if (attached_items_.size() == 1) {
+    if (attached.size() == 1) {
       Node* dropping_node = nullptr;
 
-      foreach (const AttachedItem &ai, attached_items_) {
-        if (ai.item && !select_context->ContextContainsNode(ai.node) && !select_context->OutputsTo(ai.node, true)) {
+      foreach (const AttachedItem &ai, attached) {
+        if (ai.item && !select_context->OutputsTo(ai.node, true)) {
           dropping_node = ai.node;
           break;
         }
