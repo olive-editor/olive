@@ -25,6 +25,7 @@
 #include "node/generator/shape/shapenode.h"
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/textv3.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/timelinewidget.h"
 #include "widget/timelinewidget/undo/timelineundopointer.h"
 
@@ -94,8 +95,6 @@ void AddTool::MouseMove(TimelineViewMouseEvent *event)
 
 void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  const Track::Reference& track = ghost_->GetTrack();
-
   if (ghost_) {
     if (!ghost_->GetAdjustedLength().isNull()) {
       MultiUndoCommand* command = new MultiUndoCommand();
@@ -104,62 +103,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(subtitle_section_command);
       }
 
-      ClipBlock* clip;
-      if (Core::instance()->GetSelectedAddableObject() == olive::Tool::kAddableSubtitle) {
-        clip = new SubtitleBlock();
-      } else {
-        clip = new ClipBlock();
-      }
-      clip->set_length_and_media_out(ghost_->GetAdjustedLength());
-      clip->SetLabel(olive::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
-
-      NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
-
-      command->add_child(new NodeAddCommand(graph, clip));
-      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));
-      command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),
-                                                    track.index(),
-                                                    clip,
-                                                    ghost_->GetAdjustedIn()));
-
-      Node *node_to_add = nullptr;
-
-      switch (Core::instance()->GetSelectedAddableObject()) {
-      case olive::Tool::kAddableEmpty:
-        // Empty, nothing to be done
-        break;
-      case olive::Tool::kAddableSolid:
-      {
-        node_to_add = new SolidGenerator();
-        break;
-      }
-      case olive::Tool::kAddableShape:
-        node_to_add = new ShapeNode();
-        break;
-      case olive::Tool::kAddableTitle:
-      {
-        node_to_add = new TextGeneratorV3();
-        break;
-      }
-      case olive::Tool::kAddableBars:
-      case olive::Tool::kAddableTone:
-        // Not implemented yet
-        qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
-        break;
-      case olive::Tool::kAddableSubtitle:
-        // The block itself is the node we want
-        break;
-      case olive::Tool::kAddableCount:
-        // Invalid value, do nothing
-        break;
-      }
-
-      if (node_to_add) {
-        QPointF extra_node_offset(kDefaultDistanceFromOutput, 0);
-        command->add_child(new NodeAddCommand(graph, node_to_add));
-        command->add_child(new NodeEdgeAddCommand(node_to_add, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(node_to_add, clip, extra_node_offset));
-      }
+      CreateAddableClip(command, parent()->sequence(), ghost_->GetTrack(), ghost_->GetAdjustedIn(), ghost_->GetAdjustedLength());
 
       Core::instance()->undo_stack()->push(command);
     }
@@ -168,6 +112,80 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
     snap_points_.clear();
     ghost_ = nullptr;
   }
+}
+
+Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, const Track::Reference &track, const rational &in, const rational &length, const QRectF &rect)
+{
+  ClipBlock* clip;
+  if (Core::instance()->GetSelectedAddableObject() == olive::Tool::kAddableSubtitle) {
+    clip = new SubtitleBlock();
+  } else {
+    clip = new ClipBlock();
+  }
+  clip->set_length_and_media_out(length);
+  clip->SetLabel(olive::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
+
+  NodeGraph* graph = sequence->parent();
+
+  command->add_child(new NodeAddCommand(graph, clip));
+  command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));
+  command->add_child(new TrackPlaceBlockCommand(sequence->track_list(track.type()),
+                                                track.index(),
+                                                clip,
+                                                in));
+
+  Node *node_to_add = nullptr;
+
+  switch (Core::instance()->GetSelectedAddableObject()) {
+  case olive::Tool::kAddableEmpty:
+    // Empty, nothing to be done
+    break;
+  case olive::Tool::kAddableSolid:
+  {
+    node_to_add = new SolidGenerator();
+    break;
+  }
+  case olive::Tool::kAddableShape:
+    node_to_add = new ShapeNode();
+    break;
+  case olive::Tool::kAddableTitle:
+  {
+    node_to_add = new TextGeneratorV3();
+    break;
+  }
+  case olive::Tool::kAddableBars:
+  case olive::Tool::kAddableTone:
+    // Not implemented yet
+    qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
+    break;
+  case olive::Tool::kAddableSubtitle:
+    // The block itself is the node we want
+    break;
+  case olive::Tool::kAddableCount:
+    // Invalid value, do nothing
+    break;
+  }
+
+  if (node_to_add) {
+    QPointF extra_node_offset(kDefaultDistanceFromOutput, 0);
+    command->add_child(new NodeAddCommand(graph, node_to_add));
+    command->add_child(new NodeEdgeAddCommand(node_to_add, NodeInput(clip, ClipBlock::kBufferIn)));
+    command->add_child(new NodeSetPositionCommand(node_to_add, clip, extra_node_offset));
+
+    if (!rect.isNull()) {
+      if (ShapeNodeBase *snb = dynamic_cast<ShapeNodeBase*>(node_to_add)) {
+        NodeInput pos(snb, ShapeNodeBase::kPositionInput);
+        NodeInput sz(snb, ShapeNodeBase::kSizeInput);
+
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 0), rect.width()));
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 1), rect.height()));
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 0), rect.x()));
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 1), rect.y()));
+      }
+    }
+  }
+
+  return node_to_add;
 }
 
 void AddTool::MouseMoveInternal(const rational &cursor_frame, bool outwards)

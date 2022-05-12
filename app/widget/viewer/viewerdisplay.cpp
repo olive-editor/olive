@@ -67,9 +67,10 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   show_fps_(false),
   frames_skipped_(0),
   show_widget_background_(false),
-  push_mode_(kPushNull)
+  push_mode_(kPushNull),
+  add_band_(nullptr)
 {
-  connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::UpdateCursor);
+  connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
 
   connect(this, &ViewerDisplayWidget::InnerWidgetMouseMove, this, &ViewerDisplayWidget::EmitColorAtCursor);
 
@@ -105,6 +106,8 @@ void ViewerDisplayWidget::UpdateCursor()
 {
   if (Core::instance()->tool() == Tool::kHand) {
     setCursor(Qt::OpenHandCursor);
+  } else if (Core::instance()->tool() == Tool::kAdd) {
+    setCursor(Qt::CrossCursor);
   } else {
     unsetCursor();
   }
@@ -134,6 +137,11 @@ void ViewerDisplayWidget::SetBlank()
   push_mode_ = kPushBlank;
 
   update();
+}
+
+void ViewerDisplayWidget::ToolChanged()
+{
+  UpdateCursor();
 }
 
 void ViewerDisplayWidget::SetDeinterlacing(bool e)
@@ -235,7 +243,16 @@ void ViewerDisplayWidget::IncrementSkippedFrames()
 
 void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 {
-  if (event->button() == Qt::LeftButton && gizmos_
+  if (event->button() == Qt::LeftButton && Core::instance()->tool() == Tool::kAdd
+      && (Core::instance()->GetSelectedAddableObject() == Tool::kAddableShape || Core::instance()->GetSelectedAddableObject() == Tool::kAddableTitle)) {
+
+    add_band_start_ = event->pos();
+
+    add_band_ = new QRubberBand(QRubberBand::Rectangle, this);
+    add_band_->setGeometry(QRect(add_band_start_, add_band_start_));
+    add_band_->show();
+
+  } else if (event->button() == Qt::LeftButton && gizmos_
       && (current_gizmo_ = TryGizmoPress(gizmo_db_, TransformViewerSpaceToBufferSpace(event->pos())))) {
 
     // Handle gizmo click
@@ -273,6 +290,10 @@ void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
                        event->y() - hand_last_drag_pos_.y());
 
     hand_last_drag_pos_ = event->pos();
+
+  } else if (add_band_) {
+
+    add_band_->setGeometry(QRect(event->pos(), add_band_start_).normalized());
 
   } else if (current_gizmo_) {
 
@@ -323,6 +344,14 @@ void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
     emit HandDragEnded();
     hand_dragging_ = false;
     UpdateCursor();
+
+  } else if (add_band_) {
+
+    QRectF r = GenerateGizmoTransform().inverted().mapRect(add_band_->geometry());
+    emit CreateAddableAt(r);
+
+    add_band_->deleteLater();
+    add_band_ = nullptr;
 
   } else if (current_gizmo_) {
 

@@ -37,12 +37,14 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
+#include "node/block/gap/gap.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "task/taskmanager.h"
 #include "viewerpreventsleep.h"
 #include "widget/menu/menu.h"
 #include "window/mainwindow/mainwindow.h"
+#include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
 
 namespace olive {
@@ -93,6 +95,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::Dropped, this, &ViewerWidget::Dropped);
   connect(display_widget_, &ViewerDisplayWidget::TextureChanged, this, &ViewerWidget::TextureChanged);
   connect(display_widget_, &ViewerDisplayWidget::QueueStarved, this, &ViewerWidget::ForceRequeueFromCurrentTime);
+  connect(display_widget_, &ViewerDisplayWidget::CreateAddableAt, this, &ViewerWidget::CreateAddableAt);
   connect(sizer_, &ViewerSizer::RequestScale, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
   connect(sizer_, &ViewerSizer::RequestTranslate, display_widget_, &ViewerDisplayWidget::SetMatrixTranslate);
   connect(display_widget_, &ViewerDisplayWidget::HandDragMoved, sizer_, &ViewerSizer::HandDragMove);
@@ -385,6 +388,7 @@ void ViewerWidget::CacheSequenceInOut()
 
 void ViewerWidget::SetGizmos(Node *node)
 {
+  qDebug() << "setting gizmos to" << node;
   display_widget_->SetTimeTarget(GetConnectedNode());
   display_widget_->SetGizmos(node);
 }
@@ -473,6 +477,47 @@ void ViewerWidget::UpdateAudioProcessor()
                        static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioOutputSampleFormat").toInt()));
 
     audio_processor_.Open(ap, packed, (playback_speed_ == 0) ? 1 : std::abs(playback_speed_));
+  }
+}
+
+void ViewerWidget::CreateAddableAt(QRectF f)
+{
+  if (Sequence *s = dynamic_cast<Sequence*>(GetConnectedNode())) {
+    Track::Type type = Track::kVideo;
+    int track_index = -1;
+    TrackList *list = s->track_list(type);
+    const rational &in = GetTime();
+    rational length = OLIVE_CONFIG("DefaultStillLength").value<rational>();
+    rational out = in + length;
+
+    // Find a free track where we won't overwrite anything
+    while (true) {
+      track_index++;
+
+      if (track_index >= list->GetTrackCount()) {
+        // Just create a new track
+        break;
+      }
+
+      Track *track = list->GetTrackAt(track_index);
+      if (track->IsLocked()) {
+        continue;
+      }
+
+      Block *b = track->NearestBlockBeforeOrAt(in);
+      if (!b || (dynamic_cast<GapBlock*>(b) && b->out() >= out)) {
+        break;
+      }
+    }
+
+    // Normalize around center of sequence
+    f.translate(-s->GetVideoParams().width()*0.5, -s->GetVideoParams().height()*0.5);
+    f.translate(f.width()*0.5, f.height()*0.5);
+
+    MultiUndoCommand *command = new MultiUndoCommand();
+    Node *clip = AddTool::CreateAddableClip(command, s, Track::Reference(type, track_index), in, length, f);
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    SetGizmos(clip);
   }
 }
 

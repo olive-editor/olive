@@ -325,6 +325,8 @@ private slots:
 
   void UpdateAudioProcessor();
 
+  void CreateAddableAt(QRectF f);
+
 };
 
 }
