@@ -51,7 +51,9 @@ private:
   ColorProcessorPtr processor_;
 
 private slots:
-  void ParentChanged(olive::NodeGraph *graph);
+  void AddedToGraph(NodeGraph *graph);
+
+  void RemovedFromGraph();
 
 };
 
