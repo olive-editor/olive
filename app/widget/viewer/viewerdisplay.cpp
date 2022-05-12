@@ -45,7 +45,6 @@
 #include "node/gizmo/point.h"
 #include "node/gizmo/polygon.h"
 #include "node/gizmo/screen.h"
-#include "node/gizmo/text.h"
 #include "node/traverser.h"
 #include "viewertexteditor.h"
 #include "window/mainwindow/mainwindow.h"
@@ -353,53 +352,7 @@ void ViewerDisplayWidget::mouseDoubleClickEvent(QMouseEvent *event)
     foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
       if (TextGizmo *text = dynamic_cast<TextGizmo*>(g)) {
         if (text->GetRect().contains(ptr)) {
-          QTransform gizmo_transform = GenerateGizmoTransform();
-
-          ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), this);
-          Html::HtmlToDoc(text_edit->document(), text->GetHtml());
-          text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
-
-          QRectF transformed_geom = gizmo_transform.map(text->GetRect()).boundingRect();
-          text_edit->setGeometry(transformed_geom.toRect());
-
-          ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(this);
-
-          QPoint pos = mapToGlobal(QPoint(transformed_geom.x(), transformed_geom.y() - toolbar->height()));
-          for (QScreen *screen : qApp->screens()) {
-            if (screen->geometry().contains(pos)) {
-              if (pos.x() + toolbar->width() > screen->geometry().right()) {
-                pos.setX(screen->geometry().right() - toolbar->width());
-              }
-              break;
-            }
-          }
-          toolbar->move(pos);
-          toolbar->show();
-
-          text_edit->show();
-
-          connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
-
-          text_edit->ConnectToolBar(toolbar);
-
-          QPoint text_edit_pos = text_edit->mapFrom(this, event->pos());
-
-          // Ensure text edit is actually focused rather than the toolbar
-          connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [this, text_edit, text_edit_pos]{
-            // Grab focus back from the toolbar
-            this->raise();
-            this->activateWindow();
-            text_edit->setFocus();
-
-            // Start text cursor where the user clicked
-            text_edit->setTextCursor(text_edit->cursorForPosition(text_edit_pos));
-
-            // HACK: On macOS, for some reason the QDockWidget receives focus before the
-            //       ViewerTextEditor, causing the editor to close prematurely. However this only
-            //       happens the first time the editor receives focus and not subsequent times, so
-            //       if we get it to only listen after the first one, this solves the problem.
-            text_edit->SetListenToFocusEvents(true);
-          });
+          OpenTextGizmo(text, event);
           break;
         }
       }
@@ -773,6 +726,62 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
   return nullptr;
 }
 
+void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
+{
+  QTransform gizmo_transform = GenerateGizmoTransform();
+
+  ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), this);
+  Html::HtmlToDoc(text_edit->document(), text->GetHtml());
+  text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
+
+  QRectF transformed_geom = gizmo_transform.map(text->GetRect()).boundingRect();
+  text_edit->setGeometry(transformed_geom.toRect());
+
+  ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(this);
+
+  QPoint pos = mapToGlobal(QPoint(transformed_geom.x(), transformed_geom.y() - toolbar->height()));
+  for (QScreen *screen : qApp->screens()) {
+    if (screen->geometry().contains(pos)) {
+      if (pos.x() + toolbar->width() > screen->geometry().right()) {
+        pos.setX(screen->geometry().right() - toolbar->width());
+      }
+      break;
+    }
+  }
+  toolbar->move(pos);
+  toolbar->show();
+
+  text_edit->show();
+
+  connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
+
+  text_edit->ConnectToolBar(toolbar);
+
+  QPoint text_edit_pos;
+  if (event) {
+    text_edit_pos = text_edit->mapFrom(this, event->pos());
+  }
+
+  // Ensure text edit is actually focused rather than the toolbar
+  connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [this, text_edit, text_edit_pos]{
+    // Grab focus back from the toolbar
+    this->raise();
+    this->activateWindow();
+    text_edit->setFocus();
+
+    // Start text cursor where the user clicked
+    if (!text_edit_pos.isNull()) {
+      text_edit->setTextCursor(text_edit->cursorForPosition(text_edit_pos));
+    }
+
+    // HACK: On macOS, for some reason the QDockWidget receives focus before the
+    //       ViewerTextEditor, causing the editor to close prematurely. However this only
+    //       happens the first time the editor receives focus and not subsequent times, so
+    //       if we get it to only listen after the first one, this solves the problem.
+    text_edit->SetListenToFocusEvents(true);
+  });
+}
+
 void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
 {
   // Do this no matter what, emits signal to any pixel samplers
@@ -796,6 +805,18 @@ void ViewerDisplayWidget::SetShowFPS(bool e)
   show_fps_ = e;
 
   update();
+}
+
+void ViewerDisplayWidget::RequestStartEditingText()
+{
+  if (gizmos_) {
+    foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
+      if (TextGizmo *text = dynamic_cast<TextGizmo*>(gizmo)) {
+        OpenTextGizmo(text);
+        break;
+      }
+    }
+  }
 }
 
 void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase)

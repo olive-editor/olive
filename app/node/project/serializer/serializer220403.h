@@ -86,6 +86,10 @@ private:
 
   void SaveImmediate(QXmlStreamWriter *writer, Node *node, const QString &input, int element) const;
 
+  void LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, NodeValue::Type data_type) const;
+
+  void SaveKeyframe(QXmlStreamWriter *writer, NodeKeyframe *key, NodeValue::Type data_type) const;
+
   bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos) const;
 
   void SavePosition(QXmlStreamWriter *writer, Node *node, const Node::Position &pos) const;

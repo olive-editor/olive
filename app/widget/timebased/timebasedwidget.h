@@ -73,6 +73,10 @@ public:
   void ShowSnaps(const std::vector<rational> &times);
   void HideSnaps();
 
+  virtual bool CopySelected(bool cut);
+
+  virtual bool Paste();
+
 public slots:
   void SetTime(const rational &time);
 

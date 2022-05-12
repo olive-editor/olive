@@ -67,6 +67,8 @@ signals:
 
   void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
 
+  void RequestViewerToStartEditingText();
+
 protected:
   virtual void Retranslate() override;
 

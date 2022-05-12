@@ -32,6 +32,8 @@
 
 namespace olive {
 
+const QString Project::kItemMimeType = QStringLiteral("application/x-oliveprojectitemdata");
+
 Project::Project() :
   is_modified_(false),
   autorecovery_saved_(true)

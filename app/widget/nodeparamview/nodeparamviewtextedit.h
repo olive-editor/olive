@@ -22,6 +22,7 @@
 #define NODEPARAMVIEWTEXTEDIT_H
 
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QWidget>
 
 #include "common/define.h"
@@ -46,6 +47,8 @@ public:
   void setCodeEditorFlag();
   // set flag to view text as code issues
   void setCodeIssuesFlag();
+
+  void SetEditInViewerOnlyMode(bool on);
 
 public slots:
   void setText(const QString &s)
@@ -72,6 +75,8 @@ public slots:
 signals:
   void textEdited(const QString &);
 
+  void RequestEditInViewer();
+
 private:
   QPlainTextEdit* line_edit_;
   bool code_editor_flag_;
@@ -80,6 +85,10 @@ private:
 
 private:
   void launchCodeEditor(QString & text);
+
+  QPushButton* edit_btn_;
+
+  QPushButton *edit_in_viewer_btn_;
 
 private slots:
   void ShowTextDialog();

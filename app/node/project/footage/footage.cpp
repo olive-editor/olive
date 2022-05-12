@@ -90,12 +90,8 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
 
       FootageDescription footage_info;
 
-      if (QFileInfo::exists(meta_cache_file)) {
-
-        // Load meta cache file
-        footage_info.Load(meta_cache_file);
-
-      } else {
+      // Try to load footage info from cache
+      if (!QFileInfo::exists(meta_cache_file) || !footage_info.Load(meta_cache_file)) {
 
         // Probe and create cache
         QVector<DecoderPtr> decoder_list = Decoder::ReceiveListOfAllDecoders();
@@ -125,6 +121,10 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
           AddStream(Track::kAudio, QVariant::fromValue(footage_info.GetAudioStreams().at(i)));
         }
 
+        for (int i=0; i<footage_info.GetSubtitleStreams().size(); i++) {
+          AddStream(Track::kSubtitle, QVariant::fromValue(footage_info.GetSubtitleStreams().at(i)));
+        }
+
         SetValid();
       }
 
@@ -150,6 +150,12 @@ rational Footage::VerifyLengthInternal(Track::Type type) const
     if (first_stream.is_valid()) {
       return Timecode::timestamp_to_time(first_stream.duration(), first_stream.time_base());
     }
+  } else if (type == Track::kSubtitle) {
+    SubtitleParams first_stream = GetFirstEnabledSubtitleStream();
+
+    if (first_stream.is_valid()) {
+      return first_stream.duration();
+    }
   }
 
   return 0;
@@ -169,6 +175,7 @@ void Footage::Clear()
   // Clear all dynamically created inputs
   InputArrayResize(kVideoParamsInput, 0);
   InputArrayResize(kAudioParamsInput, 0);
+  InputArrayResize(kSubtitleParamsInput, 0);
 
   // Clear decoder link
   decoder_.clear();
@@ -209,13 +216,19 @@ void Footage::set_timestamp(const qint64 &t)
 
 int Footage::GetStreamIndex(Track::Type type, int index) const
 {
-  if (type == Track::kVideo) {
+  switch (type) {
+  case Track::kVideo:
     return GetVideoParams(index).stream_index();
-  } else if (type == Track::kAudio) {
+  case Track::kAudio:
     return GetAudioParams(index).stream_index();
-  } else {
-    return -1;
+  case Track::kSubtitle:
+    return GetSubtitleParams(index).stream_index();
+  case Track::kNone:
+  case Track::kCount:
+    break;
   }
+
+  return -1;
 }
 
 Track::Reference Footage::GetReferenceFromRealIndex(int real_index) const
@@ -230,6 +243,12 @@ Track::Reference Footage::GetReferenceFromRealIndex(int real_index) const
   for (int i=0; i<GetAudioStreamCount(); i++) {
     if (GetAudioParams(i).stream_index() == real_index) {
       return Track::Reference(Track::kAudio, i);
+    }
+  }
+
+  for (int i=0; i<GetSubtitleStreamCount(); i++) {
+    if (GetSubtitleParams(i).stream_index() == real_index) {
+      return Track::Reference(Track::kSubtitle, i);
     }
   }
 
@@ -253,6 +272,8 @@ QIcon Footage::icon() const
       return icon::Audio;
     } else if (s.is_valid() && s.video_type() == VideoParams::kVideoTypeStill) {
       return icon::Image;
+    } else if (HasEnabledSubtitleStreams()) {
+      return icon::TextSmallCaps; // FIXME: Procure icon
     }
   }
 
@@ -277,6 +298,12 @@ QString Footage::DescribeAudioStream(const AudioParams &params)
   return tr("%1: Audio - %n Channel(s), %2Hz", nullptr, params.channel_count())
     .arg(QString::number(params.stream_index()),
          QString::number(params.sample_rate()));
+}
+
+QString Footage::DescribeSubtitleStream(const SubtitleParams &params)
+{
+  return tr("%1: Subtitle")
+    .arg(QString::number(params.stream_index()));
 }
 
 void Footage::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
@@ -476,6 +503,16 @@ void Footage::UpdateTooltip()
       if (p.enabled()) {
         tip.append("\n");
         tip.append(DescribeAudioStream(p));
+      }
+    }
+
+    int sp_sz = GetSubtitleStreamCount();
+    for (int i=0; i<sp_sz; i++) {
+      SubtitleParams p = GetSubtitleParams(i);
+
+      if (p.enabled()) {
+        tip.append("\n");
+        tip.append(DescribeSubtitleStream(p));
       }
     }
 

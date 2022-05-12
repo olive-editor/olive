@@ -1064,7 +1064,7 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
   }
 
   // Copy values to the clone
-  command->add_child(new NodeCopyInputsCommand(node, copy, false));
+  CopyInputs(node, copy, false, command);
 
   // Go through input connections and copy if non-item and connect if item
   for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
@@ -1110,7 +1110,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
     command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()), copy));
 
-    command->add_child(new NodeCopyInputsCommand(node, copy, true));
+    CopyInputs(node, copy, true, command);
 
     const PositionMap &map = node->GetContextPositions();
     for (auto it=map.cbegin(); it!=map.cend(); it++) {
@@ -1359,7 +1359,7 @@ void Node::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const Vide
   }
 }
 
-void Node::CopyInputs(const Node *source, Node *destination, bool include_connections)
+void Node::CopyInputs(const Node *source, Node *destination, bool include_connections, MultiUndoCommand *command)
 {
   Q_ASSERT(source->id() == destination->id());
 
@@ -1369,76 +1369,119 @@ void Node::CopyInputs(const Node *source, Node *destination, bool include_connec
     //       passthroughs correctly.
     Q_ASSERT(destination->HasInputWithID(input));
 
-    CopyInput(source, destination, input, include_connections, true);
+    CopyInput(source, destination, input, include_connections, true, command);
   }
 
-  destination->SetLabel(source->GetLabel());
-  destination->SetOverrideColor(source->GetOverrideColor());
+  if (command) {
+    command->add_child(new NodeRenameCommand(destination, source->GetLabel()));
+  } else {
+    destination->SetLabel(source->GetLabel());
+  }
+
+  if (command) {
+    command->add_child(new NodeOverrideColorCommand(destination, source->GetOverrideColor()));
+  } else {
+    destination->SetOverrideColor(source->GetOverrideColor());
+  }
 }
 
-void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
+void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays, MultiUndoCommand *command)
 {
   Q_ASSERT(src->id() == dst->id());
 
-  CopyValuesOfElement(src, dst, input, -1);
+  CopyValuesOfElement(src, dst, input, -1, command);
 
   // Copy array size
   if (src->InputIsArray(input) && traverse_arrays) {
     int src_array_sz = src->InputArraySize(input);
 
     for (int i=0; i<src_array_sz; i++) {
-      CopyValuesOfElement(src, dst, input, i);
+      CopyValuesOfElement(src, dst, input, i, command);
     }
   }
 
   // Copy connections
   if (include_connections) {
-    if (traverse_arrays) {
-      // Copy all connections
-      for (auto it=src->input_connections().cbegin(); it!=src->input_connections().cend(); it++) {
-        ConnectEdge(it->second, NodeInput(dst, input, it->first.element()));
+    // Copy all connections
+    for (auto it=src->input_connections().cbegin(); it!=src->input_connections().cend(); it++) {
+      if (!traverse_arrays && it->first.element() != -1) {
+        continue;
       }
-    } else {
-      // Just copy the primary connection (at -1)
-      if (src->IsInputConnected(input)) {
-        ConnectEdge(src->GetConnectedOutput(input), NodeInput(dst, input));
+
+      auto conn_output = it->second;
+      NodeInput conn_input(dst, input, it->first.element());
+
+      if (command) {
+        command->add_child(new NodeEdgeAddCommand(conn_output, conn_input));
+      } else {
+        ConnectEdge(conn_output, conn_input);
       }
     }
   }
 }
 
-void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input, int src_element, int dst_element)
+void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input, int src_element, int dst_element, MultiUndoCommand *command)
 {
   if (dst_element >= dst->GetInternalInputArraySize(input)) {
     qDebug() << "Ignored destination element that was out of array bounds";
     return;
   }
 
+  NodeInput dst_input(dst, input, dst_element);
+
   // Copy standard value
-  dst->SetSplitStandardValue(input, src->GetSplitStandardValue(input, src_element), dst_element);
+  SplitValue standard = src->GetSplitStandardValue(input, src_element);
+  if (command) {
+    command->add_child(new NodeParamSetSplitStandardValueCommand(dst_input, standard));
+  } else {
+    dst->SetSplitStandardValue(input, standard, dst_element);
+  }
 
   // Copy keyframes
   if (NodeInputImmediate *immediate = dst->GetImmediate(input, dst_element)) {
-    immediate->delete_all_keyframes();
+    if (command) {
+      command->add_child(new ImmediateRemoveAllKeyframesCommand(immediate));
+    } else {
+      immediate->delete_all_keyframes();
+    }
   }
+
   foreach (const NodeKeyframeTrack& track, src->GetImmediate(input, src_element)->keyframe_tracks()) {
     foreach (NodeKeyframe* key, track) {
-      key->copy(dst_element, dst);
+      NodeKeyframe *copy = key->copy(dst_element, command ? nullptr : dst);
+      if (command) {
+        command->add_child(new NodeParamInsertKeyframeCommand(dst, copy));
+      }
     }
   }
 
   // Copy keyframing state
   if (src->IsInputKeyframable(input)) {
-    dst->SetInputIsKeyframing(input, src->IsInputKeyframing(input, src_element), dst_element);
+    bool is_keying = src->IsInputKeyframing(input, src_element);
+    if (command) {
+      command->add_child(new NodeParamSetKeyframingCommand(dst_input, is_keying));
+    } else {
+      dst->SetInputIsKeyframing(input, is_keying, dst_element);
+    }
   }
 
   // If this is the root of an array, copy the array size
   if (src_element == -1 && dst_element == -1) {
-    dst->ArrayResizeInternal(input, src->InputArraySize(input));
+    int array_sz = src->InputArraySize(input);
+    if (command) {
+      command->add_child(new Node::ArrayResizeCommand(dst, input, array_sz));
+    } else {
+      dst->ArrayResizeInternal(input, array_sz);
+    }
   }
 
   // Copy value hint
-  dst->SetValueHintForInput(input, src->GetValueHintForInput(input, src_element), dst_element);
+  Node::ValueHint vh = src->GetValueHintForInput(input, src_element);
+  if (command) {
+    command->add_child(new NodeSetValueHintCommand(dst_input, vh));
+  } else {
+    dst->SetValueHintForInput(input, vh, dst_element);
+  }
 }
 
 bool Node::CanBeDeleted() const
@@ -2148,6 +2191,27 @@ void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *no
     if (context_->ContextContainsNode(output)) {
       move_recursively(output, diff);
     }
+  }
+}
+
+void Node::ImmediateRemoveAllKeyframesCommand::prepare()
+{
+  for (const NodeKeyframeTrack& track : immediate_->keyframe_tracks()) {
+    keys_.append(track);
+  }
+}
+
+void Node::ImmediateRemoveAllKeyframesCommand::redo()
+{
+  for (auto it=keys_.cbegin(); it!=keys_.cend(); it++) {
+    (*it)->setParent(&memory_manager_);
+  }
+}
+
+void Node::ImmediateRemoveAllKeyframesCommand::undo()
+{
+  for (auto it=keys_.crbegin(); it!=keys_.crend(); it++) {
+    (*it)->setParent(&memory_manager_);
   }
 }
 

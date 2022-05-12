@@ -55,6 +55,12 @@ public:
     view_->DeselectAll();
   }
 
+  Node *GetSelectedNodeWithID(const QString &id);
+
+  virtual bool CopySelected(bool cut) override;
+
+  virtual bool Paste() override;
+
 public slots:
   void SetNodes(const QVector<Node *> &nodes);
 

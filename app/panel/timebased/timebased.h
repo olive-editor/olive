@@ -100,6 +100,12 @@ public:
 
   virtual void DeleteSelected() override;
 
+  virtual void CutSelected() override;
+
+  virtual void CopySelected() override;
+
+  virtual void Paste() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

@@ -41,6 +41,8 @@ public:
     update();
   }
 
+  bool IsHighlighted() const { return highlighted_; }
+
   bool IsExpanded() const;
 
   static QString GetTitleBarTextFromNode(Node *n);

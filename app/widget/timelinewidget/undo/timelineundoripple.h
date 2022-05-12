@@ -207,7 +207,9 @@ private:
 class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand
 {
 public:
-  TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const QVector<QPair<Track*, TimeRange> >& regions) :
+  using RangeList = QVector<QPair<Track*, TimeRange> >;
+
+  TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const RangeList& regions) :
     timeline_(vo),
     regions_(regions)
   {
@@ -237,7 +239,7 @@ protected:
 
 private:
   Sequence* timeline_;
-  QVector<QPair<Track*, TimeRange> > regions_;
+  RangeList regions_;
 
   QVector<UndoCommand*> commands_;
 

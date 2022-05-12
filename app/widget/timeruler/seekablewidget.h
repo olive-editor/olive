@@ -54,7 +54,7 @@ public:
 
   bool CopySelected(bool cut);
 
-  bool PasteMarkers(bool insert, rational insert_time);
+  bool PasteMarkers();
 
   void DeselectAllMarkers();
 

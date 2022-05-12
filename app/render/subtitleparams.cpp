@@ -22,6 +22,8 @@
 
 #include <QCoreApplication>
 
+#include "common/xmlutils.h"
+
 namespace olive {
 
 QString SubtitleParams::GenerateASSHeader()
@@ -104,6 +106,58 @@ QString SubtitleParams::GenerateASSHeader()
   ass_code.append(QStringLiteral("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n"));
 
   return ass_code;
+}
+
+void SubtitleParams::Load(QXmlStreamReader *reader)
+{
+  this->clear();
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("streamindex")) {
+      set_stream_index(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("enabled")) {
+      set_enabled(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("subtitles")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("subtitle")) {
+          rational in, out;
+          QString text;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("in")) {
+              in = rational::fromString(attr.value().toString());
+            } else if (attr.name() == QStringLiteral("out")) {
+              out = rational::fromString(attr.value().toString());
+            }
+          }
+
+          text = reader->readElementText();
+
+          this->push_back(Subtitle(TimeRange(in, out), text));
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void SubtitleParams::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index_));
+  writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
+
+  writer->writeStartElement(QStringLiteral("subtitles"));
+  for (auto it=this->cbegin(); it!=this->cend(); it++) {
+    writer->writeStartElement(QStringLiteral("subtitle"));
+    writer->writeAttribute(QStringLiteral("in"), it->time().in().toString());
+    writer->writeAttribute(QStringLiteral("out"), it->time().out().toString());
+    writer->writeCharacters(it->text());
+    writer->writeEndElement(); // subtitle
+  }
+  writer->writeEndElement(); // subtitles
 }
 
 }

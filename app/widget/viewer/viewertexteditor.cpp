@@ -64,6 +64,8 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   connect(qApp, &QApplication::focusChanged, this, &ViewerTextEditor::FocusChanged);
   connect(this, &QTextEdit::currentCharFormatChanged, this, &ViewerTextEditor::FormatChanged);
   connect(document(), &QTextDocument::contentsChanged, this, &ViewerTextEditor::DocumentChanged, Qt::QueuedConnection);
+
+  setAcceptRichText(false);
 }
 
 void ViewerTextEditor::ConnectToolBar(ViewerTextEditorToolBar *toolbar)

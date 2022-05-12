@@ -25,6 +25,7 @@
 #include <QMatrix4x4>
 
 #include "node/color/colormanager/colormanager.h"
+#include "node/gizmo/text.h"
 #include "node/node.h"
 #include "node/output/track/tracklist.h"
 #include "render/color.h"
@@ -169,6 +170,8 @@ public slots:
 
   void SetShowFPS(bool e);
 
+  void RequestStartEditingText();
+
 signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
@@ -263,6 +266,8 @@ private:
   }
 
   NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
+
+  void OpenTextGizmo(TextGizmo *text, QMouseEvent *event = nullptr);
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().

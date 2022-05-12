@@ -193,28 +193,6 @@ private:
 
 };
 
-class NodeCopyInputsCommand : public UndoCommand {
-public:
-  NodeCopyInputsCommand(const Node* src,
-                        Node* dest,
-                        bool include_connections);
-
-  virtual Project* GetRelevantProject() const override {return nullptr;}
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override {}
-
-private:
-  const Node* src_;
-
-  Node* dest_;
-
-  bool include_connections_;
-
-};
-
 class NodeLinkCommand : public UndoCommand {
 public:
   NodeLinkCommand(Node* a, Node* b, bool link) :
@@ -324,6 +302,10 @@ class NodeRenameCommand : public UndoCommand
 {
 public:
   NodeRenameCommand() = default;
+  NodeRenameCommand(Node* node, const QString& new_name)
+  {
+    AddNode(node, new_name);
+  }
 
   void AddNode(Node* node, const QString& new_name);
 

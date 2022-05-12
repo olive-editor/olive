@@ -41,6 +41,11 @@ public:
 
   void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
 
+  const QHash<NodeKeyframeTrackReference, KeyframeViewInputConnection*> &GetConnections() const
+  {
+    return track_connections_;
+  }
+
 public slots:
   void ZoomToFit();
 

@@ -30,6 +30,7 @@
 #include "core.h"
 #include "dialog/sequence/sequence.h"
 #include "node/audio/volume/volume.h"
+#include "node/block/subtitle/subtitle.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
@@ -54,10 +55,10 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
   QStringList mime_formats = event->GetMimeData()->formats();
 
   // Listen for MIME data from a ProjectViewModel
-  if (mime_formats.contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
+  if (mime_formats.contains(Project::kItemMimeType)) {
 
     // Data is drag/drop data from a ProjectViewModel
-    QByteArray model_data = event->GetMimeData()->data(QStringLiteral("application/x-oliveprojectitemdata"));
+    QByteArray model_data = event->GetMimeData()->data(Project::kItemMimeType);
 
     // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);
@@ -154,6 +155,7 @@ void ImportTool::DragLeave(QDragLeaveEvent* event)
 {
   if (!dragged_footage_.isEmpty()) {
     parent()->ClearGhosts();
+    parent()->ClearTentativeSubtitleTrack();
     dragged_footage_.clear();
 
     event->accept();
@@ -235,25 +237,27 @@ void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData 
     // Create ghosts
     foreach (const Track::Reference& ref, it->second) {
       Track::Type track_type = ref.type();
+      Track::Reference dest_track(track_type, track_offsets.at(track_type));
 
-      TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+      if (track_type == Track::kVideo || track_type == Track::kAudio) {
+        auto ghost = CreateGhost(TimeRange(ghost_start, ghost_start + footage_duration), ghost_in, dest_track);
 
-      ghost->SetIn(ghost_start);
-      ghost->SetOut(ghost_start + footage_duration);
-      ghost->SetMediaIn(ghost_in);
-      ghost->SetTrack(Track::Reference(track_type, track_offsets.at(track_type)));
+        // Increment track count for this track type
+        track_offsets[track_type]++;
 
-      snap_points_.push_back(ghost->GetIn());
-      snap_points_.push_back(ghost->GetOut());
+        TimelineViewGhostItem::AttachedFootage af = {it->first, ref.ToString()};
+        ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
+      } else if (track_type == Track::kSubtitle) {
+        SubtitleParams sp = footage->GetSubtitleParams(ref.index());
 
-      // Increment track count for this track type
-      track_offsets[track_type]++;
+        for (const Subtitle &sub : sp) {
+          auto ghost = CreateGhost(sub.time() + ghost_start, 0, dest_track);
 
-      TimelineViewGhostItem::AttachedFootage af = {it->first, ref.ToString()};
-      ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(af));
-      ghost->SetMode(Timeline::kMove);
+          ghost->SetData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(sub));
+        }
 
-      parent()->AddGhost(ghost);
+        parent()->AddTentativeSubtitleTrack();
+      }
     }
 
     // Stack each ghost one after the other
@@ -275,6 +279,10 @@ void ImportTool::PrepGhosts(const rational& frame, const int& track_index)
 void ImportTool::DropGhosts(bool insert)
 {
   MultiUndoCommand* command = new MultiUndoCommand();
+
+  if (MultiUndoCommand *c = parent()->TakeSubtitleSectionCommand()) {
+    command->add_child(c);
+  }
 
   NodeGraph* dst_graph = nullptr;
   Sequence* sequence = this->sequence();
@@ -384,69 +392,83 @@ void ImportTool::DropGhosts(bool insert)
 
     for (int i=0;i<parent()->GetGhostItems().size();i++) {
       TimelineViewGhostItem* ghost = parent()->GetGhostItems().at(i);
+      Block* block = nullptr;
 
-      TimelineViewGhostItem::AttachedFootage footage_stream = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
+      Track::Type track_type = ghost->GetAdjustedTrack().type();
+      if (track_type == Track::kVideo || track_type == Track::kAudio) {
+        TimelineViewGhostItem::AttachedFootage footage_stream = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
 
-      ClipBlock* clip = new ClipBlock();
-      clip->set_media_in(ghost->GetMediaIn());
-      clip->set_length_and_media_out(ghost->GetLength());
-      clip->SetLabel(footage_stream.footage->GetLabel());
-      command->add_child(new NodeAddCommand(dst_graph, clip));
+        ClipBlock* clip = new ClipBlock();
+        block = clip;
+        clip->set_media_in(ghost->GetMediaIn());
+        clip->SetLabel(footage_stream.footage->GetLabel());
+        command->add_child(new NodeAddCommand(dst_graph, clip));
 
-      // Position clip in its own context
-      command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));
+        // Position clip in its own context
+        command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));
 
-      int dep_pos = kDefaultDistanceFromOutput;
+        int dep_pos = kDefaultDistanceFromOutput;
 
-      // Position footage in its context
-      command->add_child(new NodeSetPositionCommand(footage_stream.footage, clip, QPointF(dep_pos, 0)));
+        // Position footage in its context
+        command->add_child(new NodeSetPositionCommand(footage_stream.footage, clip, QPointF(dep_pos, 0)));
 
-      dep_pos++;
+        dep_pos++;
 
-      switch (Track::Reference::TypeFromString(footage_stream.output)) {
-      case Track::kVideo:
-      {
-        TransformDistortNode* transform = new TransformDistortNode();
-        command->add_child(new NodeAddCommand(dst_graph, transform));
+        switch (Track::Reference::TypeFromString(footage_stream.output)) {
+        case Track::kVideo:
+        {
+          TransformDistortNode* transform = new TransformDistortNode();
+          command->add_child(new NodeAddCommand(dst_graph, transform));
 
-        command->add_child(new NodeSetValueHintCommand(transform, TransformDistortNode::kTextureInput, -1, Node::ValueHint({NodeValue::kTexture}, footage_stream.output)));
+          command->add_child(new NodeSetValueHintCommand(transform, TransformDistortNode::kTextureInput, -1, Node::ValueHint({NodeValue::kTexture}, footage_stream.output)));
 
-        command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
-        command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(dep_pos, 0)));
-        break;
+          command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
+          command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
+          command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(dep_pos, 0)));
+          break;
+        }
+        case Track::kAudio:
+        {
+          VolumeNode* volume_node = new VolumeNode();
+          command->add_child(new NodeAddCommand(dst_graph, volume_node));
+
+          command->add_child(new NodeSetValueHintCommand(volume_node, VolumeNode::kSamplesInput, -1, Node::ValueHint({NodeValue::kSamples}, footage_stream.output)));
+
+          command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
+          command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
+          command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(dep_pos, 0)));
+          break;
+        }
+        default:
+          break;
+        }
+
+        // Link any clips so far that share the same Footage with this one
+        for (int j=0;j<i;j++) {
+          TimelineViewGhostItem::AttachedFootage footage_compare = parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
+
+          if (footage_compare.footage == footage_stream.footage) {
+            Block::Link(block_items.at(j), clip);
+          }
+        }
+      } else if (track_type == Track::kSubtitle) {
+        Subtitle src = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<Subtitle>();
+        SubtitleBlock *sub = new SubtitleBlock();
+        sub->SetText(src.text());
+        block = sub;
+
+        command->add_child(new NodeAddCommand(dst_graph, sub));
+        command->add_child(new NodeSetPositionCommand(sub, sub, QPointF(0, 0)));
       }
-      case Track::kAudio:
-      {
-        VolumeNode* volume_node = new VolumeNode();
-        command->add_child(new NodeAddCommand(dst_graph, volume_node));
 
-        command->add_child(new NodeSetValueHintCommand(volume_node, VolumeNode::kSamplesInput, -1, Node::ValueHint({NodeValue::kSamples}, footage_stream.output)));
-
-        command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
-        command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
-        command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(dep_pos, 0)));
-        break;
-      }
-      default:
-        break;
-      }
+      block->set_length_and_media_out(ghost->GetLength());
 
       command->add_child(new TrackPlaceBlockCommand(sequence->track_list(ghost->GetAdjustedTrack().type()),
                                                     ghost->GetAdjustedTrack().index(),
-                                                    clip,
+                                                    block,
                                                     ghost->GetAdjustedIn()));
 
-      block_items.replace(i, clip);
-
-      // Link any clips so far that share the same Footage with this one
-      for (int j=0;j<i;j++) {
-        TimelineViewGhostItem::AttachedFootage footage_compare = parent()->GetGhostItems().at(j)->GetData(TimelineViewGhostItem::kAttachedFootage).value<TimelineViewGhostItem::AttachedFootage>();
-
-        if (footage_compare.footage == footage_stream.footage) {
-          Block::Link(block_items.at(j), clip);
-        }
-      }
+      block_items.replace(i, block);
     }
   }
 
@@ -458,6 +480,26 @@ void ImportTool::DropGhosts(bool insert)
 
   parent()->ClearGhosts();
   dragged_footage_.clear();
+}
+
+TimelineViewGhostItem* ImportTool::CreateGhost(const TimeRange &range, const rational &media_in, const Track::Reference &track)
+{
+  TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+
+  ghost->SetIn(range.in());
+  ghost->SetOut(range.out());
+  ghost->SetMediaIn(media_in);
+  ghost->SetTrack(track);
+
+  snap_points_.push_back(ghost->GetIn());
+  snap_points_.push_back(ghost->GetOut());
+
+
+  ghost->SetMode(Timeline::kMove);
+
+  parent()->AddGhost(ghost);
+
+  return ghost;
 }
 
 }

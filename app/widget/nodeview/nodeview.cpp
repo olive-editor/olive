@@ -22,6 +22,7 @@
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QScrollBar>
@@ -539,78 +540,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
   // See if there are any items attached
   if (!attached_items_.isEmpty()) {
-    // Move those items to the cursor
-    MoveAttachedNodesToCursor(event->pos());
-
-    // See if the user clicked on an edge (only when dropping single nodes)
-    if (attached_items_.size() == 1) {
-      Node* attached_node = attached_items_.first().item->GetNode();
-
-      QRect edge_detect_rect(event->pos(), event->pos());
-
-      int edge_detect_radius = fontMetrics().height();
-      edge_detect_rect.adjust(-edge_detect_radius, -edge_detect_radius, edge_detect_radius, edge_detect_radius);
-
-      QList<QGraphicsItem*> items = this->items(edge_detect_rect);
-
-      NodeViewEdge* new_drop_edge = nullptr;
-
-      // See if there is an edge here
-      for (QGraphicsItem* item : qAsConst(items)) {
-        new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
-
-        if (new_drop_edge) {
-          drop_input_.Reset();
-
-          NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
-
-          // Determine best input to connect to our new node
-          if (attached_node->GetEffectInput().IsValid()) {
-            // If node specifies an effect input, use that immediately
-            drop_input_ = attached_node->GetEffectInput();
-          } else {
-            // Otherwise, we may have to iterate to find a valid one
-            for (const QString& input : attached_node->inputs()) {
-              if (input == Node::kEnabledInput) {
-                // Ignore enabled input
-                continue;
-              }
-
-              NodeInput i(attached_node, input);
-
-              if (attached_node->IsInputConnectable(input)) {
-                if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
-                  // Found exactly the type we're looking for, set and break this loop
-                  drop_input_ = i;
-                  break;
-                } else if (!drop_input_.IsValid()) {
-                  // Default to first connectable input
-                  drop_input_ = i;
-                }
-              }
-            }
-          }
-
-          if (drop_input_.IsValid()) {
-            break;
-          } else {
-            new_drop_edge = nullptr;
-          }
-        }
-      }
-
-      if (drop_edge_ != new_drop_edge) {
-        if (drop_edge_) {
-          drop_edge_->SetHighlighted(false);
-        }
-
-        drop_edge_ = new_drop_edge;
-
-        if (drop_edge_) {
-          drop_edge_->SetHighlighted(true);
-        }
-      }
-    }
+    ProcessMovingAttachedNodes(event->pos());
   }
 }
 
@@ -630,72 +560,10 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   bool had_attached_items = !attached_items_.isEmpty();
 
   if (!attached_items_.isEmpty()) {
-    select_context = nullptr;
-
-    QList<QGraphicsItem*> items_at_cursor = this->items(event->pos());
-    foreach (QGraphicsItem *i, items_at_cursor) {
-      if (NodeViewContext *context_item = dynamic_cast<NodeViewContext*>(i)) {
-        select_context = context_item->GetContext();
-        break;
-      }
-    }
+    select_context = GetContextAtMousePos(event->pos());
 
     if (select_context) {
-      {
-        MultiUndoCommand *add_command = new MultiUndoCommand();
-
-        foreach (const AttachedItem &ai, attached_items_) {
-          // Add node to the same graph that the context is in
-          add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
-
-          // Add node to the context
-          if (ai.item) {
-            add_command->add_child(new NodeSetPositionCommand(ai.node, select_context, scene_.context_map().value(select_context)->MapScenePosToNodePosInContext(ai.item->pos())));
-            select_nodes.append(ai.node);
-          }
-        }
-
-        if (add_command->child_count()) {
-          add_command->redo_now();
-          command->add_child(add_command);
-        } else {
-          delete add_command;
-        }
-      }
-
-      {
-        // Dropped attached item onto an edge, connect it between them
-        MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
-        if (attached_items_.size() == 1) {
-          Node* dropping_node = nullptr;
-
-          foreach (const AttachedItem &ai, attached_items_) {
-            if (ai.item) {
-              dropping_node = ai.node;
-              break;
-            }
-          }
-
-          if (dropping_node && drop_edge_) {
-            // Remove old edge
-            drop_edge_command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
-
-            // Place new edges
-            drop_edge_command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
-            drop_edge_command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
-          }
-
-          drop_edge_ = nullptr;
-        }
-        if (drop_edge_command->child_count()) {
-          drop_edge_command->redo_now();
-          command->add_child(drop_edge_command);
-        } else {
-          delete drop_edge_command;
-        }
-      }
-
-      DetachItemsFromCursor(false);
+      select_nodes = ProcessDroppingAttachedNodes(command, select_context, event->pos());
     } else {
       QToolTip::showText(QCursor::pos(), tr("Nodes must be placed inside a context."));
     }
@@ -717,6 +585,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   }
 
   if (select_context) {
+    DeselectAll();
     scene_.context_map().value(select_context)->Select(select_nodes);
   }
 }
@@ -730,6 +599,98 @@ void NodeView::mouseDoubleClickEvent(QMouseEvent *event)
     if (item_at_cursor) {
       item_at_cursor->ToggleExpanded();
     }
+  }
+}
+
+void NodeView::dragEnterEvent(QDragEnterEvent *event)
+{
+  if (contexts_.empty()) {
+    event->ignore();
+    return;
+  }
+
+  QStringList mime_fmts = event->mimeData()->formats();
+
+  if (mime_fmts.contains(Project::kItemMimeType)) {
+    QByteArray model_data = event->mimeData()->data(Project::kItemMimeType);
+    QDataStream stream(&model_data, QIODevice::ReadOnly);
+
+    // Variables to deserialize into
+    quintptr item_ptr;
+    QVector<Track::Reference> enabled_streams;
+    QVector<AttachedItem> new_attached;
+
+    int y = 0;
+
+    while (!stream.atEnd()) {
+      stream >> enabled_streams >> item_ptr;
+
+      // Get Item object
+      Node* item = reinterpret_cast<Node*>(item_ptr);
+
+      if (ViewerOutput* f = dynamic_cast<ViewerOutput*>(item)) {
+        NodeViewItem *new_item;
+
+        new_item = new NodeViewItem(f, nullptr);
+        new_item->SetFlowDirection(scene_.GetFlowDirection());
+        new_item->SetNodePosition(QPointF(0, y));
+        y++;
+        scene_.addItem(new_item);
+
+        new_attached.append({new_item, f, new_item->pos()});
+      }
+    }
+
+    if (new_attached.empty()) {
+      event->ignore();
+    } else {
+      SetAttachedItems(new_attached);
+
+      event->accept();
+    }
+  }
+}
+
+void NodeView::dragMoveEvent(QDragMoveEvent *event)
+{
+  if (attached_items_.empty()) {
+    event->ignore();
+  } else {
+    ProcessMovingAttachedNodes(event->pos());
+
+    if (GetContextAtMousePos(event->pos())) {
+      event->accept();
+    } else {
+      event->ignore();
+    }
+  }
+}
+
+void NodeView::dropEvent(QDropEvent *event)
+{
+  if (Node *drop_ctx = GetContextAtMousePos(event->pos())) {
+    MultiUndoCommand *command = new MultiUndoCommand();
+    QVector<Node*> select_nodes = ProcessDroppingAttachedNodes(command, drop_ctx, event->pos());
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+    DeselectAll();
+    scene_.context_map().value(drop_ctx)->Select(select_nodes);
+
+    event->accept();
+  } else {
+    DetachItemsFromCursor(false);
+    event->ignore();
+  }
+}
+
+void NodeView::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  if (attached_items_.empty()) {
+    event->ignore();
+  } else {
+    DetachItemsFromCursor(false);
+
+    event->accept();
   }
 }
 
@@ -1007,6 +968,7 @@ void NodeView::DetachItemsFromCursor(bool delete_nodes_too)
     delete ai.item;
 
     if (delete_nodes_too) {
+      qDebug() << "deleting" << ai.node;
       delete ai.node;
     }
   }
@@ -1028,6 +990,177 @@ void NodeView::MoveAttachedNodesToCursor(const QPoint& p)
       i.item->setPos(item_pos + i.original_pos);
     }
   }
+}
+
+void NodeView::ProcessMovingAttachedNodes(const QPoint &pos)
+{
+  // Move those items to the cursor
+  MoveAttachedNodesToCursor(pos);
+
+  // See if the user clicked on an edge (only when dropping single nodes)
+  if (attached_items_.size() == 1) {
+    Node* attached_node = attached_items_.first().item->GetNode();
+
+    QRect edge_detect_rect(pos, pos);
+
+    int edge_detect_radius = fontMetrics().height();
+    edge_detect_rect.adjust(-edge_detect_radius, -edge_detect_radius, edge_detect_radius, edge_detect_radius);
+
+    QList<QGraphicsItem*> items = this->items(edge_detect_rect);
+
+    NodeViewEdge* new_drop_edge = nullptr;
+
+    // See if there is an edge here
+    for (QGraphicsItem* item : qAsConst(items)) {
+      new_drop_edge = dynamic_cast<NodeViewEdge*>(item);
+
+      if (new_drop_edge) {
+        drop_input_.Reset();
+
+        NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
+
+        // Determine best input to connect to our new node
+        if (attached_node->GetEffectInput().IsValid()) {
+          // If node specifies an effect input, use that immediately
+          drop_input_ = attached_node->GetEffectInput();
+        } else {
+          // Otherwise, we may have to iterate to find a valid one
+          for (const QString& input : attached_node->inputs()) {
+            if (input == Node::kEnabledInput) {
+              // Ignore enabled input
+              continue;
+            }
+
+            NodeInput i(attached_node, input);
+
+            if (attached_node->IsInputConnectable(input)) {
+              if (attached_node->GetInputDataType(input) == drop_edge_data_type) {
+                // Found exactly the type we're looking for, set and break this loop
+                drop_input_ = i;
+                break;
+              } else if (!drop_input_.IsValid()) {
+                // Default to first connectable input
+                drop_input_ = i;
+              }
+            }
+          }
+        }
+
+        if (new_drop_edge->input().node()->OutputsTo(attached_node, true)) {
+          drop_input_.Reset();
+        }
+
+        if (drop_input_.IsValid()) {
+          break;
+        } else {
+          new_drop_edge = nullptr;
+        }
+      }
+    }
+
+    if (drop_edge_ != new_drop_edge) {
+      if (drop_edge_) {
+        drop_edge_->SetHighlighted(false);
+      }
+
+      drop_edge_ = new_drop_edge;
+
+      if (drop_edge_) {
+        drop_edge_->SetHighlighted(true);
+      }
+    }
+  }
+}
+
+QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command, Node *select_context, const QPoint &pos)
+{
+  QVector<Node*> select_nodes;
+
+  // Make a copy
+  QVector<AttachedItem> attached = attached_items_;
+
+  for (int i=0; i<attached.size(); i++) {
+    const AttachedItem &ai = attached.at(i);
+
+    if (select_context->OutputsTo(ai.node, true)) {
+      attached.removeAt(i);
+    } else if (select_context->ContextContainsNode(ai.node)) {
+      select_nodes.append(ai.node);
+      attached.removeAt(i);
+    }
+  }
+
+  {
+    MultiUndoCommand *add_command = new MultiUndoCommand();
+
+    foreach (const AttachedItem &ai, attached) {
+      // Add node to the same graph that the context is in
+      if (ai.node->parent() != select_context->parent()) {
+        add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
+      }
+
+      // Add node to the context
+      if (ai.item) {
+        select_nodes.append(ai.node);
+        add_command->add_child(new NodeSetPositionCommand(ai.node, select_context, scene_.context_map().value(select_context)->MapScenePosToNodePosInContext(ai.item->pos())));
+      }
+    }
+
+    if (add_command->child_count()) {
+      add_command->redo_now();
+      command->add_child(add_command);
+    } else {
+      delete add_command;
+    }
+  }
+
+  {
+    // Dropped attached item onto an edge, connect it between them
+    MultiUndoCommand *drop_edge_command = new MultiUndoCommand();
+    if (attached.size() == 1) {
+      Node* dropping_node = nullptr;
+
+      foreach (const AttachedItem &ai, attached) {
+        if (ai.item && !select_context->OutputsTo(ai.node, true)) {
+          dropping_node = ai.node;
+          break;
+        }
+      }
+
+      if (dropping_node && drop_edge_) {
+        // Remove old edge
+        drop_edge_command->add_child(new NodeEdgeRemoveCommand(drop_edge_->output(), drop_edge_->input()));
+
+        // Place new edges
+        drop_edge_command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
+        drop_edge_command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
+      }
+
+      drop_edge_ = nullptr;
+    }
+    if (drop_edge_command->child_count()) {
+      drop_edge_command->redo_now();
+      command->add_child(drop_edge_command);
+    } else {
+      delete drop_edge_command;
+    }
+  }
+
+  DetachItemsFromCursor(false);
+
+  return select_nodes;
+}
+
+Node *NodeView::GetContextAtMousePos(const QPoint &p)
+{
+  QList<QGraphicsItem*> items_at_cursor = this->items(p);
+  foreach (QGraphicsItem *i, items_at_cursor) {
+    if (NodeViewContext *context_item = dynamic_cast<NodeViewContext*>(i)) {
+      return context_item->GetContext();
+    }
+  }
+
+  return nullptr;
 }
 
 void NodeView::ConnectSelectionChangedSignal()

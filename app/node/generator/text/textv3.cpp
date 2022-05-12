@@ -44,6 +44,7 @@ TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false)
 {
   AddInput(kTextInput, NodeValue::kText, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
+  SetInputProperty(kTextInput, QStringLiteral("vieweronly"), true);
 
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 

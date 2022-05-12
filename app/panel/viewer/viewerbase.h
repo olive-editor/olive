@@ -69,6 +69,11 @@ public slots:
 
   void CacheSequenceInOut();
 
+  void RequestStartEditingText()
+  {
+    static_cast<ViewerWidget*>(GetTimeBasedWidget())->RequestStartEditingText();
+  }
+
 signals:
   /**
    * @brief Signal emitted when a new frame is loaded

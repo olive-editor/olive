@@ -30,6 +30,7 @@ ParamPanel::ParamPanel(QWidget* parent) :
   NodeParamView* view = new NodeParamView();
   connect(view, &NodeParamView::FocusedNodeChanged, this, &ParamPanel::FocusedNodeChanged);
   connect(view, &NodeParamView::SelectedNodesChanged, this, &ParamPanel::SelectedNodesChanged);
+  connect(view, &NodeParamView::RequestViewerToStartEditingText, this, &ParamPanel::RequestViewerToStartEditingText);
   connect(this, &ParamPanel::visibilityChanged, view, &NodeParamView::UpdateElementY);
   SetTimeBasedWidget(view);
 

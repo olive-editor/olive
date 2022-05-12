@@ -89,6 +89,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kSamples:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
+    case NodeValue::kSubtitleParams:
     case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
@@ -151,6 +152,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       }
 
       connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(line_edit, &NodeParamViewTextEdit::RequestEditInViewer, this, &NodeParamViewWidgetBridge::RequestEditTextInViewer);
       break;
     }
     case NodeValue::kBoolean:
@@ -249,6 +251,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kSamples:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kSubtitleParams:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -426,6 +429,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kSamples:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kSubtitleParams:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -789,6 +793,15 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       ff->SetPlaceholder(value.toString());
     } else if (key == QStringLiteral("directory")) {
       ff->SetDirectoryMode(value.toBool());
+    }
+  }
+
+  // Parameters for text
+  if (data_type == NodeValue::kText) {
+    NodeParamViewTextEdit *tex = static_cast<NodeParamViewTextEdit *>(widgets_.first());
+
+    if (key == QStringLiteral("vieweronly")) {
+      tex->SetEditInViewerOnlyMode(value.toBool());
     }
   }
 }

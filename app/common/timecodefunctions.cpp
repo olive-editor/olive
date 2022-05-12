@@ -20,6 +20,10 @@
 
 #include "timecodefunctions.h"
 
+extern "C" {
+#include <libavutil/mathematics.h>
+}
+
 #include <QtMath>
 
 #include "config/config.h"
@@ -254,7 +258,14 @@ rational Timecode::snap_time_to_timebase(const rational &time, const rational &t
 
 rational Timecode::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
 {
-  return rational(timestamp) * timebase;
+  int64_t num = int64_t(timebase.numerator()) * timestamp;
+  int64_t den = timebase.denominator();
+
+  int num_r, den_r;
+
+  av_reduce(&num_r, &den_r, num, den, INT_MAX);
+
+  return rational(num_r, den_r);
 }
 
 QString Timecode::time_to_timecode(const rational &time, const rational &timebase, const Timecode::Display &display, bool show_plus_if_positive)
@@ -310,7 +321,7 @@ int64_t Timecode::rescale_timestamp(const int64_t &ts, const rational &source, c
     return ts;
   }
 
-  return qRound64(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
+  return av_rescale_q(ts, source.toAVRational(), dest.toAVRational());
 }
 
 int64_t Timecode::rescale_timestamp_ceil(const int64_t &ts, const rational &source, const rational &dest)
@@ -319,7 +330,7 @@ int64_t Timecode::rescale_timestamp_ceil(const int64_t &ts, const rational &sour
     return ts;
   }
 
-  return qCeil(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
+  return av_rescale_q_rnd(ts, source.toAVRational(), dest.toAVRational(), AV_ROUND_UP);
 }
 
 }

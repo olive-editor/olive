@@ -28,6 +28,7 @@
 #include "dialog/keyframeproperties/keyframeproperties.h"
 #include "keyframeviewundo.h"
 #include "node/node.h"
+#include "node/project/serializer/serializer.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
@@ -52,13 +53,15 @@ KeyframeView::KeyframeView(QWidget *parent) :
 
 void KeyframeView::DeleteSelected()
 {
-  MultiUndoCommand* command = new MultiUndoCommand();
+  if (!selection_manager_.IsDragging()) {
+    MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (NodeKeyframe *key, GetSelectedKeyframes()) {
-    command->add_child(new NodeParamRemoveKeyframeCommand(key));
+    foreach (NodeKeyframe *key, GetSelectedKeyframes()) {
+      command->add_child(new NodeParamRemoveKeyframeCommand(key));
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 KeyframeView::NodeConnections KeyframeView::AddKeyframesOfNode(Node *n)
@@ -179,6 +182,68 @@ void KeyframeView::SelectionManagerDeselectEvent(void *obj)
   }
 
   emit SelectionChanged();
+}
+
+bool KeyframeView::CopySelected(bool cut)
+{
+  if (!selection_manager_.GetSelectedObjects().empty()) {
+    ProjectSerializer::SaveData sdata;
+    sdata.SetOnlySerializeKeyframes(selection_manager_.GetSelectedObjects());
+
+    ProjectSerializer::Copy(sdata, QStringLiteral("keyframes"));
+
+    if (cut) {
+      DeleteSelected();
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_function)
+{
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
+  if (res == ProjectSerializer::kSuccess) {
+    const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
+
+    MultiUndoCommand *command = new MultiUndoCommand();
+
+    rational min = RATIONAL_MAX;
+    for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
+      for (NodeKeyframe *key : it.value()) {
+        min = std::min(min, key->time());
+      }
+    }
+    min -= GetTime();
+
+    for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
+      const QString &paste_id = it.key();
+
+      // Find a node with this ID
+      Node *node_with_id = find_node_function(paste_id);
+
+      if (node_with_id) {
+        for (NodeKeyframe *key : it.value()) {
+          key->set_time(key->time() - min);
+
+          if (NodeKeyframe *existing = node_with_id->GetKeyframeAtTimeOnTrack(key->input(), key->time(), key->track(), key->element())) {
+            command->add_child(new NodeParamRemoveKeyframeCommand(existing));
+          }
+
+          command->add_child(new NodeParamInsertKeyframeCommand(node_with_id, key));
+        }
+      } else {
+        qDeleteAll(it.value());
+      }
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    return true;
+  }
+
+  return false;
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event)

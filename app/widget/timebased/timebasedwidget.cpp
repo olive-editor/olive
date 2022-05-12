@@ -346,10 +346,10 @@ void TimeBasedWidget::GoToPrevCut()
 
   rational closest_cut = 0;
 
-  foreach (Track* track, sequence->GetTracks()) {
+  for (Track* track : sequence->GetTracks()) {
     rational this_track_closest_cut = 0;
 
-    foreach (Block* block, track->Blocks()) {
+    for (Block* block : track->Blocks()) {
       if (block->out() < GetTime()) {
         this_track_closest_cut = block->out();
       } else {
@@ -754,7 +754,7 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
             for (auto jt=markers->cbegin(); jt!=markers->cend(); jt++) {
               TimelineMarker *marker = *jt;
 
-              TimeRange marker_range = marker->time_range() + clip->in() - clip->media_in();
+              TimeRange marker_range = marker->time() + clip->in() - clip->media_in();
 
               qreal marker_in_screen = TimeToScene(marker_range.in());
               qreal marker_out_screen = TimeToScene(marker_range.out());
@@ -777,12 +777,12 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
         continue;
       }
 
-      qreal marker_pos = TimeToScene(m->time_range().in());
-      AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time_range().in());
+      qreal marker_pos = TimeToScene(m->time().in());
+      AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time().in());
 
-      if (m->time_range().in() != m->time_range().out()) {
-        marker_pos = TimeToScene(m->time_range().out());
-        AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time_range().out());
+      if (m->time().in() != m->time().out()) {
+        marker_pos = TimeToScene(m->time().out());
+        AttemptSnap(potential_snaps, screen_pt, marker_pos, start_times, m->time().out());
       }
     }
   }
@@ -858,6 +858,24 @@ void TimeBasedWidget::HideSnaps()
   foreach (TimeBasedView* view, timeline_views_) {
     view->DisableSnap();
   }
+}
+
+bool TimeBasedWidget::CopySelected(bool cut)
+{
+  if (ruler()->hasFocus() && ruler()->CopySelected(cut)) {
+    return true;
+  }
+
+  return false;
+}
+
+bool TimeBasedWidget::Paste()
+{
+  if (ruler()->hasFocus() && ruler()->PasteMarkers()) {
+    return true;
+  }
+
+  return false;
 }
 
 }

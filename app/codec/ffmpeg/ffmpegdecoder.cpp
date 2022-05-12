@@ -46,6 +46,7 @@ extern "C" {
 #include "common/timecodefunctions.h"
 #include "render/framehashcache.h"
 #include "render/diskmanager.h"
+#include "render/subtitleparams.h"
 
 namespace olive {
 
@@ -415,7 +416,51 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
 
         } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE) {
 
-          qDebug() << "Subtitle probing: Stub";
+          // Limit to SRT for now...
+          if (avstream->codecpar->codec_id == AV_CODEC_ID_SUBRIP) {
+            SubtitleParams sub;
+
+            AVPacket* pkt = av_packet_alloc();
+            {
+              Instance instance;
+              instance.Open(filename_c, avstream->index);
+
+              //qDebug() << instance.GetSubtitleHeader();
+
+              AVSubtitle avsub;
+              while (instance.GetSubtitle(pkt, &avsub) >= 0) {
+                for (unsigned int j=0; j<avsub.num_rects; j++) {
+                  QString ass = avsub.rects[j]->ass;
+
+                  int comma = 0;
+                  for (int k=0; k<ass.size(); k++) {
+                    if (ass.at(k) == ',') {
+                      comma++;
+                    }
+
+                    // HARDCODED: I think FFmpeg always puts the text of SRTs in the 8th section
+                    if (comma == 8) {
+                      ass = ass.mid(k+1);
+                      break;
+                    }
+                  }
+
+                  ass.replace(QStringLiteral("\\n"), QStringLiteral("\n"), Qt::CaseInsensitive);
+
+                  TimeRange time(Timecode::timestamp_to_time(pkt->pts, avstream->time_base),
+                                 Timecode::timestamp_to_time(pkt->pts + pkt->duration, avstream->time_base));
+
+                  sub.push_back(Subtitle(time, ass));
+                }
+                avsubtitle_free(&avsub);
+              }
+
+              instance.Close();
+            }
+            av_packet_free(&pkt);
+
+            desc.AddSubtitleStream(sub);
+          }
 
         }
 
@@ -1114,6 +1159,32 @@ int FFmpegDecoder::Instance::GetFrame(AVPacket *pkt, AVFrame *frame)
       if (ret < 0) {
         break;
       }
+    }
+  }
+
+  return ret;
+}
+
+const char *FFmpegDecoder::Instance::GetSubtitleHeader() const
+{
+  return reinterpret_cast<const char*>(codec_ctx_->subtitle_header);
+}
+
+int FFmpegDecoder::Instance::GetSubtitle(AVPacket *pkt, AVSubtitle *sub)
+{
+  int ret;
+
+  do {
+    av_packet_unref(pkt);
+
+    ret = av_read_frame(fmt_ctx_, pkt);
+  } while (pkt->stream_index != avstream_->index && ret >= 0);
+
+  if (ret >= 0) {
+    int got_sub;
+    ret = avcodec_decode_subtitle2(codec_ctx_, sub, &got_sub, pkt);
+    if (!got_sub) {
+      ret = -1;
     }
   }
 

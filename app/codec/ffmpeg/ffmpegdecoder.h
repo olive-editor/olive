@@ -91,6 +91,10 @@ private:
      */
     int GetFrame(AVPacket* pkt, AVFrame* frame);
 
+    const char *GetSubtitleHeader() const;
+
+    int GetSubtitle(AVPacket* pkt, AVSubtitle* sub);
+
     void Seek(int64_t timestamp);
 
     AVFormatContext* fmt_ctx() const

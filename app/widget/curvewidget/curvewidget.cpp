@@ -129,6 +129,36 @@ void CurveWidget::DeleteSelected()
   view_->DeleteSelected();
 }
 
+Node *CurveWidget::GetSelectedNodeWithID(const QString &id)
+{
+  for (auto it=view_->GetConnections().cbegin(); it!=view_->GetConnections().cend(); it++) {
+    Node *n = it.key().input().node();
+    if (n->id() == id) {
+      return n;
+    }
+  }
+
+  return nullptr;
+}
+
+bool CurveWidget::CopySelected(bool cut)
+{
+  if (super::CopySelected(cut)) {
+    return true;
+  }
+
+  return view_->CopySelected(cut);
+}
+
+bool CurveWidget::Paste()
+{
+  if (super::Paste()) {
+    return true;
+  }
+
+  return view_->Paste(std::bind(&CurveWidget::GetSelectedNodeWithID, this, std::placeholders::_1));
+}
+
 void CurveWidget::SetNodes(const QVector<Node *> &nodes)
 {
   tree_view_->SetNodes(nodes);

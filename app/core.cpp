@@ -185,9 +185,7 @@ void Core::Start()
     QTimer *crash_timer = new QTimer(this);
     crash_timer->setInterval(interval);
     connect(crash_timer, &QTimer::timeout, this, []{
-      // Try to read invalid memory to crash the application
-      int *invalid_ptr = nullptr;
-      qDebug() << *invalid_ptr;
+      abort();
     });
     crash_timer->start();
   }

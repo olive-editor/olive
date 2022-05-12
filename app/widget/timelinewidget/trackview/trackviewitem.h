@@ -38,6 +38,9 @@ public:
   TrackViewItem(Track* track,
                 QWidget* parent = nullptr);
 
+signals:
+  void AboutToDeleteTrack(Track *track);
+
 private:
   QPushButton* CreateMSLButton(const QColor &checked_color) const;
 

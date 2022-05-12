@@ -95,6 +95,7 @@ void NodeParamViewItem::RecreateBody()
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
   connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
+  connect(body_, &NodeParamViewItemBody::RequestEditTextInViewer, this, &NodeParamViewItem::RequestEditTextInViewer);
   body_->Retranslate();
   body_->SetTime(time_);
   body_->SetTimebase(timebase_);
@@ -294,6 +295,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   ui_objects.widget_bridge = new NodeParamViewWidgetBridge(NodeInput(node, input, element), this);
   connect(ui_objects.widget_bridge, &NodeParamViewWidgetBridge::WidgetsRecreated, this, &NodeParamViewItemBody::ReplaceWidgets);
   connect(ui_objects.widget_bridge, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked, this, &NodeParamViewItemBody::ToggleArrayExpanded);
+  connect(ui_objects.widget_bridge, &NodeParamViewWidgetBridge::RequestEditTextInViewer, this, &NodeParamViewItemBody::RequestEditTextInViewer);
 
   // Place widgets into layout
   PlaceWidgetsFromBridge(layout, ui_objects.widget_bridge, row);
