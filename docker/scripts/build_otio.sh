@@ -13,6 +13,7 @@ mkdir build
 cd build
 cmake .. -G "Ninja" \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_CXX_STANDARD="${CXX_STANDARD}" \
   -DCMAKE_INSTALL_PREFIX="${OLIVE_INSTALL_PREFIX}" \
   -DOTIO_PYTHON_INSTALL=OFF
 cmake --build .
