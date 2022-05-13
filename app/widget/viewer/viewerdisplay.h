@@ -21,8 +21,9 @@
 #ifndef VIEWERGLWIDGET_H
 #define VIEWERGLWIDGET_H
 
-#include <QOpenGLWidget>
 #include <QMatrix4x4>
+#include <QOpenGLWidget>
+#include <QRubberBand>
 
 #include "node/color/colormanager/colormanager.h"
 #include "node/gizmo/text.h"
@@ -163,6 +164,8 @@ public slots:
    */
   void UpdateCursor();
 
+  void ToolChanged();
+
   /**
    * @brief Enables/disables a basic deinterlace on the viewer
    */
@@ -207,6 +210,8 @@ signals:
   void TextureChanged(TexturePtr texture);
 
   void QueueStarved();
+
+  void CreateAddableAt(const QRectF &rect);
 
 protected:
   /**
@@ -371,6 +376,9 @@ private:
 
   rational playback_timebase_;
 
+  QRubberBand *add_band_;
+  QPoint add_band_start_;
+
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);
 
@@ -379,6 +387,7 @@ private slots:
   void TextEditChanged();
 
   void SubtitlesChanged(const TimeRange &r);
+
 
 };
 

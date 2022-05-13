@@ -189,7 +189,11 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
     }
   } else if (timeline_points_) {
     // Look for resize points
-    setCursor(FindResizeHandle(event) ? Qt::SizeHorCursor : Qt::ArrowCursor);
+    if (FindResizeHandle(event)) {
+      setCursor(Qt::SizeHorCursor);
+    } else {
+      unsetCursor();
+    }
   }
 }
 

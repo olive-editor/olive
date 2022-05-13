@@ -40,7 +40,7 @@ const int NodeParamViewItemBody::kOptionalCheckBox = 0;
 const int NodeParamViewItemBody::kArrayCollapseBtnColumn = 1;
 const int NodeParamViewItemBody::kLabelColumn = 2;
 const int NodeParamViewItemBody::kWidgetStartColumn = 3;
-const int NodeParamViewItemBody::kMaxWidgetColumn = kKeyControlColumn;
+const int NodeParamViewItemBody::kMaxWidgetColumn = kArrayRemoveColumn;
 
 #define super NodeParamViewItemBase
 

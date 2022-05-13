@@ -34,6 +34,8 @@ public:
   virtual void MouseMove(TimelineViewMouseEvent *event) override;
   virtual void MouseRelease(TimelineViewMouseEvent *event) override;
 
+  static Node *CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, const Track::Reference &track, const rational &in, const rational &length, const QRectF &rect = QRectF());
+
 protected:
   void MouseMoveInternal(const rational& cursor_frame, bool outwards);
 

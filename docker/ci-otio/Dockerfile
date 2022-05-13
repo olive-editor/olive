@@ -9,6 +9,7 @@ ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
 ARG VFXPLATFORM_VERSION=2022
 ARG OTIO_VERSION=v0.14.1
+ARG CXX_STANDARD=17
 
 # We are currently not interested in the Python implementation and bindings
 #FROM ${ASWF_PKG_ORG}/ci-package-python:${VFXPLATFORM_VERSION} as ci-package-python
@@ -20,6 +21,7 @@ FROM ${OLIVE_ORG}/ci-common:${CI_COMMON_VERSION} as ci-otio
 ARG OLIVE_ORG
 ARG VFXPLATFORM_VERSION
 ARG OTIO_VERSION
+ARG CXX_STANDARD
 ARG PYTHON_VERSION=3.9
 
 LABEL maintainer="olivevideoeditor@gmail.com"
@@ -36,6 +38,7 @@ ENV OLIVE_ORG=${OLIVE_ORG} \
     CI_COMMON_VERSION=${CI_COMMON_VERSION} \
     VFXPLATFORM_VERSION=${VFXPLATFORM_VERSION} \
     OTIO_VERSION=${OTIO_VERSION} \
+    CXX_STANDARD=${CXX_STANDARD} \
     OLIVE_INSTALL_PREFIX=/usr/local
 #   PYTHONPATH=/usr/local/lib/python${PYTHON_VERSION}/site-packages:/usr/local/lib/python \
 

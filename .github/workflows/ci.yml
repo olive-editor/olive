@@ -50,7 +50,7 @@ jobs:
        ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-latest
     container:
-      image: olivevideoeditor/ci-olive:2022.1
+      image: olivevideoeditor/ci-olive:2022.2
 
     steps:
       - name: Checkout Source Code

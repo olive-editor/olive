@@ -109,7 +109,11 @@ void NodeViewMiniMap::mouseMoveEvent(QMouseEvent *event)
       EmitMoveSignal(event);
     }
   } else {
-    setCursor(MouseInsideResizeTriangle(event) ? Qt::SizeFDiagCursor : Qt::ArrowCursor);
+    if (MouseInsideResizeTriangle(event)) {
+      setCursor(Qt::SizeFDiagCursor);
+    } else {
+      unsetCursor();
+    }
   }
 }
 
