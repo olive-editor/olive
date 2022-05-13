@@ -21,6 +21,7 @@
 #ifndef TIMELINEVIEWMOUSEEVENT_H
 #define TIMELINEVIEWMOUSEEVENT_H
 
+#include <QEvent>
 #include <QMimeData>
 #include <QPointF>
 #include <QPoint>

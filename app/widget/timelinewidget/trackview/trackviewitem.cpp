@@ -76,9 +76,31 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
 
   setMinimumHeight(mute_button_->height());
   setContextMenuPolicy(Qt::CustomContextMenu);
+  setAcceptDrops(true);
 
   connect(track, &Track::MutedChanged, mute_button_, &QPushButton::setChecked);
   connect(this, &QWidget::customContextMenuRequested, this, &TrackViewItem::ShowContextMenu);
+}
+
+void TrackViewItem::dragEnterEvent(QDragEnterEvent *event)
+{
+  TimelineViewMouseEvent e(0, 1, 1, track_->ToReference(), Qt::NoButton, event->keyboardModifiers());
+  e.SetMimeData(event->mimeData());
+  e.SetEvent(event);
+  emit DragEntered(&e);
+}
+
+void TrackViewItem::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  emit DragLeft(event);
+}
+
+void TrackViewItem::dropEvent(QDropEvent *event)
+{
+  TimelineViewMouseEvent e(0, 1, 1, track_->ToReference(), Qt::NoButton, event->keyboardModifiers());
+  e.SetMimeData(event->mimeData());
+  e.SetEvent(event);
+  emit DragDropped(&e);
 }
 
 QPushButton *TrackViewItem::CreateMSLButton(const QColor& checked_color) const

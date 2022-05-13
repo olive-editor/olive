@@ -157,6 +157,11 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, &TimelineView::DragLeft, this, &TimelineWidget::ViewDragLeft);
     connect(view, &TimelineView::DragDropped, this, &TimelineWidget::ViewDragDropped);
 
+    TrackView *tv = tview->track_view();
+    connect(tv, &TrackView::DragEntered, this, &TimelineWidget::ViewDragEntered);
+    connect(tv, &TrackView::DragLeft, this, &TimelineWidget::ViewDragLeft);
+    connect(tv, &TrackView::DragDropped, this, &TimelineWidget::ViewDragDropped);
+
     connect(tview->splitter(), &QSplitter::splitterMoved, this, &TimelineWidget::UpdateHorizontalSplitters);
 
     // Connect each view's scroll to each other
