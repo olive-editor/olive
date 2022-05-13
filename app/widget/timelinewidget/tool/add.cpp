@@ -50,22 +50,22 @@ void AddTool::MousePress(TimelineViewMouseEvent *event)
   Track::Type add_type = Track::kNone;
 
   switch (Core::instance()->GetSelectedAddableObject()) {
-  case olive::Tool::kAddableBars:
-  case olive::Tool::kAddableSolid:
-  case olive::Tool::kAddableTitle:
-  case olive::Tool::kAddableShape:
+  case Tool::kAddableBars:
+  case Tool::kAddableSolid:
+  case Tool::kAddableTitle:
+  case Tool::kAddableShape:
     add_type = Track::kVideo;
     break;
-  case olive::Tool::kAddableTone:
+  case Tool::kAddableTone:
     add_type = Track::kAudio;
     break;
-  case olive::Tool::kAddableSubtitle:
+  case Tool::kAddableSubtitle:
     add_type = Track::kSubtitle;
     break;
-  case olive::Tool::kAddableEmpty:
+  case Tool::kAddableEmpty:
     // Leave as "none", which means this block can be placed on any track
     break;
-  case olive::Tool::kAddableCount:
+  case Tool::kAddableCount:
     // Return so we do nothing
     return;
   }
@@ -103,7 +103,15 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(subtitle_section_command);
       }
 
-      CreateAddableClip(command, parent()->sequence(), ghost_->GetTrack(), ghost_->GetAdjustedIn(), ghost_->GetAdjustedLength());
+      Sequence *s = parent()->sequence();
+
+      // If we want to set a manual rect for something, we can do so here
+      //
+      //VideoParams svp = s->GetVideoParams();
+      //QRectF r(0, 0, svp.width(), svp.height());
+      //r.adjust(svp.width()/10, svp.height()/10, -svp.width()/10, -svp.height()/10);
+
+      CreateAddableClip(command, s, ghost_->GetTrack(), ghost_->GetAdjustedIn(), ghost_->GetAdjustedLength());
 
       Core::instance()->undo_stack()->push(command);
     }
@@ -137,31 +145,27 @@ Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, 
   Node *node_to_add = nullptr;
 
   switch (Core::instance()->GetSelectedAddableObject()) {
-  case olive::Tool::kAddableEmpty:
+  case Tool::kAddableEmpty:
     // Empty, nothing to be done
     break;
-  case olive::Tool::kAddableSolid:
-  {
+  case Tool::kAddableSolid:
     node_to_add = new SolidGenerator();
     break;
-  }
-  case olive::Tool::kAddableShape:
+  case Tool::kAddableShape:
     node_to_add = new ShapeNode();
     break;
-  case olive::Tool::kAddableTitle:
-  {
+  case Tool::kAddableTitle:
     node_to_add = new TextGeneratorV3();
     break;
-  }
-  case olive::Tool::kAddableBars:
-  case olive::Tool::kAddableTone:
+  case Tool::kAddableBars:
+  case Tool::kAddableTone:
     // Not implemented yet
     qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
     break;
-  case olive::Tool::kAddableSubtitle:
+  case Tool::kAddableSubtitle:
     // The block itself is the node we want
     break;
-  case olive::Tool::kAddableCount:
+  case Tool::kAddableCount:
     // Invalid value, do nothing
     break;
   }
@@ -173,14 +177,8 @@ Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, 
     command->add_child(new NodeSetPositionCommand(node_to_add, clip, extra_node_offset));
 
     if (!rect.isNull()) {
-      if (ShapeNodeBase *snb = dynamic_cast<ShapeNodeBase*>(node_to_add)) {
-        NodeInput pos(snb, ShapeNodeBase::kPositionInput);
-        NodeInput sz(snb, ShapeNodeBase::kSizeInput);
-
-        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 0), rect.width()));
-        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 1), rect.height()));
-        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 0), rect.x()));
-        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 1), rect.y()));
+      if (ShapeNodeBase *shape = dynamic_cast<ShapeNodeBase*>(node_to_add)) {
+        shape->SetRect(rect, sequence->GetVideoParams(), command);
       }
     }
   }
