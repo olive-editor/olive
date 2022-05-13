@@ -389,7 +389,6 @@ void ViewerWidget::CacheSequenceInOut()
 
 void ViewerWidget::SetGizmos(Node *node)
 {
-  qDebug() << "setting gizmos to" << node;
   display_widget_->SetTimeTarget(GetConnectedNode());
   display_widget_->SetGizmos(node);
 }
