@@ -45,6 +45,7 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   connect(edit_btn_, &QPushButton::clicked, this, &NodeParamViewTextEdit::ShowTextDialog);
 
   edit_in_viewer_btn_ = new QPushButton(tr("Edit In Viewer"));
+  edit_in_viewer_btn_->setIcon(icon::Pencil);
   layout->addWidget(edit_in_viewer_btn_);
   connect(edit_in_viewer_btn_, &QPushButton::clicked, this, &NodeParamViewTextEdit::RequestEditInViewer);
 

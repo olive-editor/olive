@@ -91,6 +91,7 @@ QIcon icon::EyeOpened;
 QIcon icon::EyeClosed;
 QIcon icon::LockOpened;
 QIcon icon::LockClosed;
+QIcon icon::Pencil;
 
 void icon::LoadAll(const QString& theme)
 {
@@ -161,6 +162,8 @@ void icon::LoadAll(const QString& theme)
   EyeClosed = Create(theme, "eye-closed");
   LockOpened = Create(theme, "lock-opened");
   LockClosed = Create(theme, "lock-closed");
+
+  Pencil = Create(theme, "text-edit");
 }
 
 QIcon icon::Create(const QString& theme, const QString &name)

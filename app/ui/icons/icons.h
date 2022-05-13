@@ -103,6 +103,7 @@ extern QIcon EyeOpened;
 extern QIcon EyeClosed;
 extern QIcon LockOpened;
 extern QIcon LockClosed;
+extern QIcon Pencil;
 
 /**
  * @brief Create an icon object loaded from file
