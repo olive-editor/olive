@@ -47,7 +47,8 @@ public:
     button_(button),
     modifiers_(modifiers),
     source_event_(nullptr),
-    mime_data_(nullptr)
+    mime_data_(nullptr),
+    bypass_import_buffer_(false)
   {
   }
 
@@ -117,6 +118,9 @@ public:
       source_event_->ignore();
   }
 
+  bool GetBypassImportBuffer() const { return bypass_import_buffer_; }
+  void SetBypassImportBuffer(bool e) { bypass_import_buffer_ = e; }
+
 private:
   qreal scene_x_;
   double scale_x_;
@@ -131,6 +135,8 @@ private:
   QEvent* source_event_;
 
   const QMimeData* mime_data_;
+
+  bool bypass_import_buffer_;
 
 };
 

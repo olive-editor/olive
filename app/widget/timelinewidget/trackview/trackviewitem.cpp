@@ -87,6 +87,7 @@ void TrackViewItem::dragEnterEvent(QDragEnterEvent *event)
   TimelineViewMouseEvent e(0, 1, 1, track_->ToReference(), Qt::NoButton, event->keyboardModifiers());
   e.SetMimeData(event->mimeData());
   e.SetEvent(event);
+  e.SetBypassImportBuffer(true);
   emit DragEntered(&e);
 }
 

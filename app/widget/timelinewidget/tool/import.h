@@ -60,6 +60,8 @@ private:
 
   int import_pre_buffer_;
 
+  rational ghost_offset_;
+
 };
 
 }
