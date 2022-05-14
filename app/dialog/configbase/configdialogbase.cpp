@@ -73,11 +73,9 @@ void ConfigDialogBase::accept()
     tab->Accept(command);
   }
 
-  if (command->child_count() == 0) {
-    delete command;
-  } else {
-    Core::instance()->undo_stack()->push(command);
-  }
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  AcceptEvent();
 
   QDialog::accept();
 }

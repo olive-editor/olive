@@ -44,6 +44,8 @@ private slots:
 protected:
   void AddTab(ConfigDialogBaseTab* tab, const QString& title);
 
+  virtual void AcceptEvent(){}
+
 private:
   QListWidget* list_widget_;
 

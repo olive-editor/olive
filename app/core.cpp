@@ -368,7 +368,7 @@ void Core::DialogImportShow()
 
 void Core::DialogPreferencesShow()
 {
-  PreferencesDialog pd(main_window_, main_window_->menuBar());
+  PreferencesDialog pd(main_window_);
   pd.exec();
 }
 
