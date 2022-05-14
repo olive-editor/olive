@@ -39,6 +39,8 @@ public:
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
+  void SetRect(QRectF rect, const VideoParams &sequence_res, MultiUndoCommand *command);
+
   static const QString kPositionInput;
   static const QString kSizeInput;
   static const QString kColorInput;

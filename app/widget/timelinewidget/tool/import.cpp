@@ -87,8 +87,14 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
       }
     }
 
-    PrepGhosts(drag_start_.GetFrame() - parent()->SceneToTime(import_pre_buffer_),
-               drag_start_.GetTrack().index());
+    // Create a reasonable amount of space to inset the cursor by when importing
+    ghost_offset_ = drag_start_.GetFrame();
+
+    if (!event->GetBypassImportBuffer()) {
+      ghost_offset_ -= parent()->SceneToTime(import_pre_buffer_);
+    }
+
+    PrepGhosts(ghost_offset_, drag_start_.GetTrack().index());
 
     if (parent()->HasGhosts() || !parent()->GetConnectedNode()) {
       event->accept();
@@ -107,6 +113,12 @@ void ImportTool::DragMove(TimelineViewMouseEvent *event)
 
     if (parent()->HasGhosts()) {
       rational time_movement = event->GetFrame() - drag_start_.GetFrame();
+
+      // Keep ghost offset no lower than 0
+      if (ghost_offset_ + time_movement < 0) {
+        time_movement = -ghost_offset_;
+      }
+
       int track_movement = event->GetTrack().index() - drag_start_.GetTrack().index();
 
       time_movement = ValidateTimeMovement(time_movement);

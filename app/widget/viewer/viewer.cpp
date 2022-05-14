@@ -38,6 +38,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/block/gap/gap.h"
+#include "node/generator/shape/shapenodebase.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
 #include "task/taskmanager.h"
@@ -388,7 +389,6 @@ void ViewerWidget::CacheSequenceInOut()
 
 void ViewerWidget::SetGizmos(Node *node)
 {
-  qDebug() << "setting gizmos to" << node;
   display_widget_->SetTimeTarget(GetConnectedNode());
   display_widget_->SetGizmos(node);
 }
@@ -480,7 +480,7 @@ void ViewerWidget::UpdateAudioProcessor()
   }
 }
 
-void ViewerWidget::CreateAddableAt(QRectF f)
+void ViewerWidget::CreateAddableAt(const QRectF &f)
 {
   if (Sequence *s = dynamic_cast<Sequence*>(GetConnectedNode())) {
     Track::Type type = Track::kVideo;
@@ -510,12 +510,13 @@ void ViewerWidget::CreateAddableAt(QRectF f)
       }
     }
 
-    // Normalize around center of sequence
-    f.translate(-s->GetVideoParams().width()*0.5, -s->GetVideoParams().height()*0.5);
-    f.translate(f.width()*0.5, f.height()*0.5);
-
     MultiUndoCommand *command = new MultiUndoCommand();
-    Node *clip = AddTool::CreateAddableClip(command, s, Track::Reference(type, track_index), in, length, f);
+    Node *clip = AddTool::CreateAddableClip(command, s, Track::Reference(type, track_index), in, length);
+
+    if (ShapeNodeBase *shape = dynamic_cast<ShapeNodeBase*>(clip)) {
+      shape->SetRect(f, s->GetVideoParams(), command);
+    }
+
     Core::instance()->undo_stack()->pushIfHasChildren(command);
     SetGizmos(clip);
   }
