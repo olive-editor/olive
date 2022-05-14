@@ -95,6 +95,8 @@ private:
 
     int GetSubtitle(AVPacket* pkt, AVSubtitle* sub);
 
+    int GetPacket(AVPacket *pkt);
+
     void Seek(int64_t timestamp);
 
     AVFormatContext* fmt_ctx() const
