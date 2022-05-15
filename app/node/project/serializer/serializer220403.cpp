@@ -700,6 +700,14 @@ void ProjectSerializer220403::LoadImmediate(QXmlStreamReader *reader, Node *node
 
   NodeValue::Type data_type = node->GetInputDataType(input);
 
+  // HACK: SubtitleParams contain the actual subtitle data, so loading/replacing it will overwrite
+  //       the valid subtitles. We hack around it by simply skipping loading subtitles, we'll see
+  //       if this ends up being an issue in the future.
+  if (data_type == NodeValue::kSubtitleParams) {
+    reader->skipCurrentElement();
+    return;
+  }
+
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("standard")) {
       // Load standard value
