@@ -29,6 +29,7 @@
 #include "node/gizmo/text.h"
 #include "node/node.h"
 #include "node/output/track/tracklist.h"
+#include "node/traverser.h"
 #include "render/color.h"
 #include "tool/tool.h"
 #include "viewerplaybacktimer.h"
@@ -262,7 +263,9 @@ private:
 
   QTransform GenerateWorldTransform();
 
-  QTransform GenerateGizmoTransform();
+  QTransform GenerateDisplayTransform();
+
+  QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
 
   TimeRange GenerateGizmoTime()
   {
@@ -326,6 +329,8 @@ private:
   QPoint gizmo_last_drag_;
   NodeGizmo *current_gizmo_;
   bool gizmo_drag_started_;
+  QTransform gizmo_last_draw_transform_;
+  QTransform gizmo_last_draw_transform_inverted_;
 
   bool show_subtitles_;
   Sequence *subtitle_tracks_;

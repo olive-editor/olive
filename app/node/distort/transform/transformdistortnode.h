@@ -82,6 +82,7 @@ public:
                                               AutoScaleType autoscale_type = kAutoScaleNone);
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const override;
 
   static const QString kTextureInput;
   static const QString kAutoscaleInput;

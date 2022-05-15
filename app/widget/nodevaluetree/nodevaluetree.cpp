@@ -31,9 +31,8 @@ void NodeValueTree::SetNode(const NodeInput &input, const rational &time)
   NodeTraverser traverser;
 
   Node *connected_node = input.GetConnectedOutput();
-  Node::ValueHint value_hint = input.node()->GetValueHintForInput(input.input(), input.element());
 
-  NodeValueTable table = traverser.GenerateTable(connected_node, value_hint, TimeRange(time, time));
+  NodeValueTable table = traverser.GenerateTable(connected_node, TimeRange(time, time));
 
   int index = traverser.GenerateRowValueElementIndex(input.node(), input.input(), input.element(), &table);
 

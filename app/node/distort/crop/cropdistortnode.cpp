@@ -79,10 +79,12 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
 {
   ShaderJob job;
   job.Insert(value);
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+  job.SetWillChangeImageSize(false);
 
-  if (job.Get(kTextureInput).toTexture()) {
+  if (TexturePtr texture = job.Get(kTextureInput).toTexture()) {
+    job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture->params().width(), texture->params().height()), this));
+
     if (!qIsNull(job.Get(kLeftInput).toDouble())
         || !qIsNull(job.Get(kRightInput).toDouble())
         || !qIsNull(job.Get(kTopInput).toDouble())

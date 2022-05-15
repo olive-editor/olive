@@ -52,7 +52,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 
   NodeValueTable table;
   if (Node *texture_output = viewer->GetConnectedTextureOutput()) {
-    table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kTextureInput), range);
+    table = GenerateTable(texture_output, range);
   }
 
   NodeValue tex_val = table.Get(NodeValue::kTexture);
@@ -193,7 +193,7 @@ void RenderProcessor::Run()
 
     NodeValueTable table;
     if (Node *texture_output = viewer->GetConnectedSampleOutput()) {
-      table = GenerateTable(texture_output, viewer->GetValueHintForInput(ViewerOutput::kSamplesInput),time);
+      table = GenerateTable(texture_output, time);
     }
 
     NodeValue sample_val = table.Get(NodeValue::kSamples);
@@ -290,7 +290,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
         int max_dest_sz = audio_params.time_to_samples(range_for_block.length());
 
         // Destination buffer
-        NodeValueTable table = GenerateTable(b, track->GetValueHintForInput(Track::kBlockInput, track->GetArrayIndexFromBlock(b)),Track::TransformRangeForBlock(b, range_for_block));
+        NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
         SampleBuffer samples_from_this_block = table.Take(NodeValue::kSamples).toSamples();
         ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
 
