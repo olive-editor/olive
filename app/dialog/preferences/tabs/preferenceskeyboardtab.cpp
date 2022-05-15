@@ -27,9 +27,12 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include "window/mainwindow/mainwindow.h"
+
 namespace olive {
 
-PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
+PreferencesKeyboardTab::PreferencesKeyboardTab(MainWindow *main_window) :
+  main_window_(main_window)
 {
   QVBoxLayout* shortcut_layout = new QVBoxLayout(this);
 
@@ -67,7 +70,7 @@ PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
 
   shortcut_layout->addLayout(reset_shortcut_layout);
 
-  setup_kbd_shortcuts(menubar);
+  setup_kbd_shortcuts(main_window_->menuBar());
 }
 
 void PreferencesKeyboardTab::Accept(MultiUndoCommand *command)
@@ -78,6 +81,8 @@ void PreferencesKeyboardTab::Accept(MultiUndoCommand *command)
   for (int i=0;i<key_shortcut_fields_.size();i++) {
     key_shortcut_fields_.at(i)->set_action_shortcut();
   }
+
+  main_window_->SaveLayout();
 }
 
 void PreferencesKeyboardTab::setup_kbd_shortcuts(QMenuBar* menubar) {

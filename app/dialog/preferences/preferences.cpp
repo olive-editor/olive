@@ -33,11 +33,13 @@
 #include "tabs/preferencesaudiotab.h"
 #include "tabs/preferenceskeyboardtab.h"
 #include "tabs/preferencesedittab.h"
+#include "window/mainwindow/mainwindow.h"
+
 
 namespace olive {
 
-PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
-  ConfigDialogBase(parent)
+PreferencesDialog::PreferencesDialog(MainWindow *main_window) :
+  ConfigDialogBase(main_window)
 {
   setWindowTitle(tr("Preferences"));
 
@@ -46,8 +48,13 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   AddTab(new PreferencesBehaviorTab(), tr("Behavior"));
   AddTab(new PreferencesDiskTab(), tr("Disk"));
   AddTab(new PreferencesAudioTab(), tr("Audio"));
-  AddTab(new PreferencesKeyboardTab(main_menu_bar), tr("Keyboard"));
   AddTab(new PreferencesEditTab(), tr("Text Editor"));
+  AddTab(new PreferencesKeyboardTab(main_window), tr("Keyboard"));
+}
+
+void PreferencesDialog::AcceptEvent()
+{
+  Config::Save();
 }
 
 }

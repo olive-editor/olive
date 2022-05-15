@@ -29,11 +29,13 @@
 
 namespace olive {
 
+class MainWindow;
+
 class PreferencesKeyboardTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
-  PreferencesKeyboardTab(QMenuBar* menubar);
+  PreferencesKeyboardTab(MainWindow* main_window);
 
   virtual void Accept(MultiUndoCommand* command) override;
 
@@ -132,6 +134,9 @@ private:
    * key_shortcut_actions and key_shortcut_fields)
    */
   QVector<KeySequenceEditor*> key_shortcut_fields_;
+
+  MainWindow *main_window_;
+
 };
 
 }

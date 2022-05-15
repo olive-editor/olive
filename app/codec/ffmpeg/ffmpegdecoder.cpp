@@ -425,34 +425,13 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
               Instance instance;
               instance.Open(filename_c, avstream->index);
 
-              //qDebug() << instance.GetSubtitleHeader();
+              while (instance.GetPacket(pkt) >= 0) {
+                TimeRange time(Timecode::timestamp_to_time(pkt->pts, avstream->time_base),
+                               Timecode::timestamp_to_time(pkt->pts + pkt->duration, avstream->time_base));
 
-              AVSubtitle avsub;
-              while (instance.GetSubtitle(pkt, &avsub) >= 0) {
-                for (unsigned int j=0; j<avsub.num_rects; j++) {
-                  QString ass = avsub.rects[j]->ass;
+                QString text = QString::fromUtf8((const char *) pkt->data, pkt->size);
 
-                  int comma = 0;
-                  for (int k=0; k<ass.size(); k++) {
-                    if (ass.at(k) == ',') {
-                      comma++;
-                    }
-
-                    // HARDCODED: I think FFmpeg always puts the text of SRTs in the 8th section
-                    if (comma == 8) {
-                      ass = ass.mid(k+1);
-                      break;
-                    }
-                  }
-
-                  ass.replace(QStringLiteral("\\n"), QStringLiteral("\n"), Qt::CaseInsensitive);
-
-                  TimeRange time(Timecode::timestamp_to_time(pkt->pts, avstream->time_base),
-                                 Timecode::timestamp_to_time(pkt->pts + pkt->duration, avstream->time_base));
-
-                  sub.push_back(Subtitle(time, ass));
-                }
-                avsubtitle_free(&avsub);
+                sub.push_back(Subtitle(time, text));
               }
 
               instance.Close();
@@ -1132,13 +1111,7 @@ int FFmpegDecoder::Instance::GetFrame(AVPacket *pkt, AVFrame *frame)
   while ((ret = avcodec_receive_frame(codec_ctx_, frame)) == AVERROR(EAGAIN) && !eof) {
 
     // Find next packet in the correct stream index
-    do {
-      // Free buffer in packet if there is one
-      av_packet_unref(pkt);
-
-      // Read packet from file
-      ret = av_read_frame(fmt_ctx_, pkt);
-    } while (pkt->stream_index != avstream_->index && ret >= 0);
+    ret = GetPacket(pkt);
 
     if (ret == AVERROR_EOF) {
       // Don't break so that receive gets called again, but don't try to read again
@@ -1172,13 +1145,7 @@ const char *FFmpegDecoder::Instance::GetSubtitleHeader() const
 
 int FFmpegDecoder::Instance::GetSubtitle(AVPacket *pkt, AVSubtitle *sub)
 {
-  int ret;
-
-  do {
-    av_packet_unref(pkt);
-
-    ret = av_read_frame(fmt_ctx_, pkt);
-  } while (pkt->stream_index != avstream_->index && ret >= 0);
+  int ret = GetPacket(pkt);
 
   if (ret >= 0) {
     int got_sub;
@@ -1187,6 +1154,19 @@ int FFmpegDecoder::Instance::GetSubtitle(AVPacket *pkt, AVSubtitle *sub)
       ret = -1;
     }
   }
+
+  return ret;
+}
+
+int FFmpegDecoder::Instance::GetPacket(AVPacket *pkt)
+{
+  int ret;
+
+  do {
+    av_packet_unref(pkt);
+
+    ret = av_read_frame(fmt_ctx_, pkt);
+  } while (pkt->stream_index != avstream_->index && ret >= 0);
 
   return ret;
 }
