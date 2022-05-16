@@ -260,8 +260,23 @@ NodeTraverser::NodeTraverser() :
 {
 }
 
+class GTTTime
+{
+public:
+  GTTTime(const Node *n) { t = QDateTime::currentMSecsSinceEpoch(); node = n; }
+
+  ~GTTTime() { qDebug() << "GT for" << node << "took" << (QDateTime::currentMSecsSinceEpoch() - t); }
+
+  qint64 t;
+  const Node *node;
+
+};
+
 NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range)
 {
+  // NOTE: Times how long a node takes to process, useful for profiling.
+  //GTTTime gtt(n);Q_UNUSED(gtt);
+
   const Track* track = dynamic_cast<const Track*>(n);
   if (track) {
     // If the range is not wholly contained in this Block, we'll need to do some extra processing
@@ -297,7 +312,6 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
         if (!transform_ignore_.contains(n)) {
           QTransform t = n->GizmoTransformation(row, globals);
           if (!t.isIdentity()) {
-            qDebug() << "transforming" << n;
             (*transform_) *= t;
           }
 

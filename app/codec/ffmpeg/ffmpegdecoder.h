@@ -37,7 +37,6 @@ extern "C" {
 #include <QWaitCondition>
 
 #include "codec/decoder.h"
-#include "ffmpegframepool.h"
 
 namespace olive {
 
@@ -139,13 +138,15 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
-  FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
+  FramePtr GetFrameFromCache(const rational &t) const;
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  FramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
 
   void RemoveFirstFrame();
+
+  VideoParams GetVideoParams() const;
 
   RetrieveVideoParams filter_params_;
   AVFilterGraph* filter_graph_;
@@ -155,11 +156,12 @@ private:
   VideoParams::Format native_pix_fmt_;
   int native_channel_count_;
 
-  FFmpegFramePool pool_;
+  AVFrame *working_frame_;
+  AVPacket *working_packet_;
 
   int64_t second_ts_;
 
-  QList<FFmpegFramePool::ElementPtr> cached_frames_;
+  std::list<FramePtr> cached_frames_;
 
   bool is_working_;
   QMutex is_working_mutex_;

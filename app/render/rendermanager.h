@@ -142,13 +142,6 @@ private:
 
   QVariant default_shader_;
 
-  QTimer decoder_clear_timer_;
-
-  static constexpr auto kDecoderMaximumInactivity = 10000;
-
-private slots:
-  void ClearOldDecoders();
-
 };
 
 }
