@@ -384,6 +384,10 @@ void ImportTool::DropGhosts(bool insert)
 
           FootageToGhosts(0, dragged_footage_, new_sequence->GetVideoParams().time_base(), 0);
 
+          if (MultiUndoCommand *c = parent()->TakeSubtitleSectionCommand()) {
+            command->add_child(c);
+          }
+
           sequence = new_sequence;
 
           // Set this as the sequence to open
