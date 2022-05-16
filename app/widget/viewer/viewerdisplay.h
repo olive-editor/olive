@@ -212,6 +212,8 @@ signals:
 
   void QueueStarved();
 
+  void QueueNoLongerStarved();
+
   void CreateAddableAt(const QRectF &rect);
 
 protected:
@@ -383,6 +385,8 @@ private:
 
   QRubberBand *add_band_;
   QPoint add_band_start_;
+
+  bool queue_starved_;
 
 private slots:
   void EmitColorAtCursor(QMouseEvent* e);

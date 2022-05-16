@@ -274,6 +274,8 @@ private:
   Track::Reference recording_track_;
   QString recording_filename_;
 
+  qint64 queue_starved_start_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -320,6 +322,9 @@ private slots:
   void ReceivedAudioBufferForPlayback();
 
   void ReceivedAudioBufferForScrubbing();
+
+  void QueueStarved();
+  void QueueNoLongerStarved();
 
   void ForceRequeueFromCurrentTime();
 

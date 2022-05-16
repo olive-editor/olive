@@ -95,7 +95,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(display_widget_, &ViewerDisplayWidget::DragEntered, this, &ViewerWidget::DragEntered);
   connect(display_widget_, &ViewerDisplayWidget::Dropped, this, &ViewerWidget::Dropped);
   connect(display_widget_, &ViewerDisplayWidget::TextureChanged, this, &ViewerWidget::TextureChanged);
-  connect(display_widget_, &ViewerDisplayWidget::QueueStarved, this, &ViewerWidget::ForceRequeueFromCurrentTime);
+  connect(display_widget_, &ViewerDisplayWidget::QueueStarved, this, &ViewerWidget::QueueStarved);
+  connect(display_widget_, &ViewerDisplayWidget::QueueNoLongerStarved, this, &ViewerWidget::QueueNoLongerStarved);
   connect(display_widget_, &ViewerDisplayWidget::CreateAddableAt, this, &ViewerWidget::CreateAddableAt);
   connect(sizer_, &ViewerSizer::RequestScale, display_widget_, &ViewerDisplayWidget::SetMatrixZoom);
   connect(sizer_, &ViewerSizer::RequestTranslate, display_widget_, &ViewerDisplayWidget::SetMatrixTranslate);
@@ -636,6 +637,24 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
   delete watcher;
 }
 
+void ViewerWidget::QueueStarved()
+{
+  static const int kMaximumWaitTime = 250;
+  qint64 now = QDateTime::currentMSecsSinceEpoch();
+
+  if (!queue_starved_start_) {
+    queue_starved_start_ = now;
+  } else if (now > queue_starved_start_ + kMaximumWaitTime) {
+    ForceRequeueFromCurrentTime();
+    queue_starved_start_ = 0;
+  }
+}
+
+void ViewerWidget::QueueNoLongerStarved()
+{
+  queue_starved_start_ = 0;
+}
+
 void ViewerWidget::ForceRequeueFromCurrentTime()
 {
   ClearVideoAutoCacherQueue();
@@ -731,6 +750,8 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   playback_queue_next_frame_ = GetTimestamp();
 
   controls_->ShowPauseButton();
+
+  queue_starved_start_ = 0;
 
   // Attempt to fill playback queue
   if (display_widget_->isVisible() || !windows_.isEmpty()) {

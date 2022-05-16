@@ -67,7 +67,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   frames_skipped_(0),
   show_widget_background_(false),
   push_mode_(kPushNull),
-  add_band_(nullptr)
+  add_band_(nullptr),
+  queue_starved_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
 
@@ -894,6 +895,7 @@ void ViewerDisplayWidget::Pause()
   disconnect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
 
   queue_.clear();
+  queue_starved_ = false;
 }
 
 void ViewerDisplayWidget::UpdateFromQueue()
@@ -905,6 +907,7 @@ void ViewerDisplayWidget::UpdateFromQueue()
   bool popped = false;
 
   if (queue_.empty()) {
+    queue_starved_ = true;
     emit QueueStarved();
   } else {
     while (!queue_.empty()) {
@@ -914,6 +917,11 @@ void ViewerDisplayWidget::UpdateFromQueue()
 
         // Frame was in queue, no need to decode anything
         SetImage(pf.frame);
+
+        if (queue_starved_) {
+          queue_starved_ = false;
+          emit QueueNoLongerStarved();
+        }
         return;
 
       } else if (pf.timestamp > time) {
@@ -936,6 +944,7 @@ void ViewerDisplayWidget::UpdateFromQueue()
         }
 
         if (queue_.empty()) {
+          queue_starved_ = true;
           emit QueueStarved();
           break;
         }
