@@ -43,7 +43,7 @@ PointGizmo::PointGizmo(QObject *parent) :
 
 void PointGizmo::Draw(QPainter *p) const
 {
-  QRectF rect = GetDrawingRect(GetStandardRadius() / p->transform().m11());
+  QRectF rect = GetDrawingRect(p->transform(), GetStandardRadius());
 
   if (shape_ != kAnchorPoint) {
     p->setPen(Qt::NoPen);
@@ -72,7 +72,7 @@ void PointGizmo::Draw(QPainter *p) const
 
 QRectF PointGizmo::GetClickingRect(const QTransform &t) const
 {
-  return GetDrawingRect(GetStandardRadius() / t.m11() * 1.5);
+  return GetDrawingRect(t, GetStandardRadius());
 }
 
 double PointGizmo::GetStandardRadius()
@@ -80,20 +80,29 @@ double PointGizmo::GetStandardRadius()
   return QFontMetrics(qApp->font()).height() * 0.25;
 }
 
-QRectF PointGizmo::GetDrawingRect(double radius) const
+QRectF PointGizmo::GetDrawingRect(const QTransform &transform, double radius) const
 {
+  QRectF r(0,0, radius, radius);
+
+  r = transform.inverted().mapRect(r);
+
+  double width = r.width();
+  double height = r.height();
+
   if (shape_ == kAnchorPoint) {
-    radius *= 2;
+    width *= 2;
+    height *= 2;
   }
 
   if (smaller_) {
-    radius *= 0.5;
+    width *= 0.5;
+    height *= 0.5;
   }
 
-  return QRectF(point_.x() - radius,
-                point_.y() - radius,
-                2*radius,
-                2*radius);
+  return QRectF(point_.x() - width,
+                point_.y() - height,
+                2*width,
+                2*height);
 }
 
 }

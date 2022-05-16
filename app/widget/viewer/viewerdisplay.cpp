@@ -253,7 +253,7 @@ void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
 
   } else if (event->button() == Qt::LeftButton && gizmos_
       && (gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted(),
-          current_gizmo_ = TryGizmoPress(gizmo_db_, event->pos() * gizmo_last_draw_transform_inverted_))) {
+          current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
 
     // Handle gizmo click
     gizmo_start_drag_ = event->pos();
@@ -736,8 +736,6 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform(NodeTraverser &gt, const 
 {
   QTransform t = GenerateDisplayTransform();
   if (GetTimeTarget()) {
-    t.translate(gizmo_params_.width()*0.5, gizmo_params_.height()*0.5);
-
     Node *target = GetTimeTarget();
     if (ViewerOutput *v = dynamic_cast<ViewerOutput *>(target)) {
       if (Node *n = v->GetConnectedTextureOutput()) {
@@ -748,8 +746,12 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform(NodeTraverser &gt, const 
     QTransform nt;
     gt.Transform(&nt, gizmos_, target, range);
 
+    t.translate(gizmo_params_.width()*0.5, gizmo_params_.height()*0.5);
+    t.scale(gizmo_params_.width(), gizmo_params_.height());
+
     t = nt * t;
 
+    t.scale(1.0 / gizmo_params_.width(), 1.0 / gizmo_params_.height());
     t.translate(-gizmo_params_.width()*0.5, -gizmo_params_.height()*0.5);
   }
 
@@ -762,7 +764,7 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
     NodeGizmo *gizmo = *it;
     if (gizmo->IsVisible()) {
       if (PointGizmo *point = dynamic_cast<PointGizmo*>(gizmo)) {
-        if (point->GetClickingRect(GenerateDisplayTransform()).contains(p)) {
+        if (point->GetClickingRect(gizmo_last_draw_transform_).contains(p)) {
           return point;
         }
       } else if (PolygonGizmo *poly = dynamic_cast<PolygonGizmo*>(gizmo)) {
