@@ -37,7 +37,7 @@ class NodeTraverser
 public:
   NodeTraverser();
 
-  NodeValueTable GenerateTable(const Node *n, const TimeRange &range);
+  NodeValueTable GenerateTable(const Node *n, const TimeRange &range, const Node *next_node = nullptr);
 
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
@@ -157,8 +157,8 @@ private:
   const QAtomicInt *cancel_;
 
   const Node *transform_start_;
+  const Node *transform_now_;
   QTransform *transform_;
-  QVector<const Node*> transform_ignore_;
 
 };
 

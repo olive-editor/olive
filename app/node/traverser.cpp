@@ -145,6 +145,7 @@ void NodeTraverser::Transform(QTransform *transform, const Node *start, const No
 {
   transform_ = transform;
   transform_start_ = start;
+  transform_now_ = nullptr;
 
   GenerateTable(end, range);
 
@@ -211,7 +212,9 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
 
     // Value will equal something from the connected node, follow it
-    return GenerateTable(node->GetConnectedOutput(input), adjusted_range);
+    Node *output = node->GetConnectedOutput(input);
+    NodeValueTable table = GenerateTable(output, adjusted_range, node);
+    return table;
 
   } else {
 
@@ -229,7 +232,8 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
         TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
 
         if (node->IsInputConnected(input, i)) {
-          sub_tbl = GenerateTable(node->GetConnectedOutput(input, i), adjusted_range);
+          Node *output = node->GetConnectedOutput(input, i);
+          sub_tbl = GenerateTable(output, adjusted_range, node);
         } else {
           QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
           sub_tbl.Push(node->GetInputDataType(input), input_value, node);
@@ -272,7 +276,7 @@ public:
 
 };
 
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range)
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range, const Node *next_node)
 {
   // NOTE: Times how long a node takes to process, useful for profiling.
   //GTTTime gtt(n);Q_UNUSED(gtt);
@@ -307,18 +311,19 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
     NodeGlobals globals = GenerateGlobals(video_params_, range);
     n->Value(row, globals, &table);
 
+    // `transform_now_` is the next node in the path that needs to be traversed. It only ever goes
+    // "down" the graph so that any traversing going back up doesn't unnecessarily transform
+    // from unrelated nodes or the same node twice
     if (transform_) {
-      if (!transform_start_) {
-        if (!transform_ignore_.contains(n)) {
+      if (transform_now_ == n || transform_start_ == n) {
+        if (transform_now_ == n) {
           QTransform t = n->GizmoTransformation(row, globals);
           if (!t.isIdentity()) {
             (*transform_) *= t;
           }
-
-          transform_ignore_.append(n);
         }
-      } else if (transform_start_ == n) {
-        transform_start_ = nullptr;
+
+        transform_now_ = next_node;
       }
     }
 
@@ -344,7 +349,7 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   NodeValueTable table;
 
   if (active_block) {
-    table = GenerateTable(active_block, Track::TransformRangeForBlock(active_block, range));
+    table = GenerateTable(active_block, Track::TransformRangeForBlock(active_block, range), track);
   }
 
   return table;
