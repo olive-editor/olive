@@ -97,6 +97,11 @@ void ImportTool::DragEnter(TimelineViewMouseEvent *event)
     PrepGhosts(ghost_offset_, drag_start_.GetTrack().index());
 
     if (parent()->HasGhosts() || !parent()->GetConnectedNode()) {
+      // We only clear the tentative track if the mimedata is about to be destroyed (i.e. the drag
+      // is cancelled). If we do this in DragLeave, it leads to undesirable behavior if the cursor
+      // is going between views (subtitle track rapidly appearing and disappearing)
+      QObject::connect(event->GetMimeData(), &QObject::destroyed, parent(), &TimelineWidget::ClearTentativeSubtitleTrack);
+
       event->accept();
     } else {
       event->ignore();
@@ -167,7 +172,6 @@ void ImportTool::DragLeave(QDragLeaveEvent* event)
 {
   if (!dragged_footage_.isEmpty()) {
     parent()->ClearGhosts();
-    parent()->ClearTentativeSubtitleTrack();
     dragged_footage_.clear();
 
     event->accept();
