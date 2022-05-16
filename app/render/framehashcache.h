@@ -66,6 +66,7 @@ public:
   static bool SaveCacheFrame(const QString& filename, FramePtr frame);
   bool SaveCacheFrame(const int64_t &time, FramePtr frame) const;
   static bool SaveCacheFrame(const QString& cache_path, const QUuid &uuid, const int64_t &time, FramePtr frame);
+  static bool SaveCacheFrame(const QString& cache_path, const QUuid &uuid, const rational &time, const rational &tb, FramePtr frame);
   static FramePtr LoadCacheFrame(const QString& cache_path, const QUuid &uuid, const int64_t &time);
   FramePtr LoadCacheFrame(const int64_t &time) const;
   static FramePtr LoadCacheFrame(const QString& fn);
@@ -78,19 +79,15 @@ private:
    * @brief Return the path of the cached image at this time
    */
   QString CachePathName(const int64_t &time) const;
-  QString CachePathName(const rational &time) const
-  {
-    return CachePathName(ToTimestamp(time, Timecode::kRound));
-  }
+  QString CachePathName(const rational &time) const;
 
   static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const int64_t &time);
+  static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const rational &time, const rational &tb);
 
   rational timebase_;
 
   QUuid uuid_;
 
-  static QMutex currently_saving_frames_mutex_;
-  static QMap<QString, FramePtr> currently_saving_frames_;
   static const QString kCacheFormatExtension;
 
 private slots:

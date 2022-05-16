@@ -219,10 +219,11 @@ void RenderProcessor::Run()
   {
     QString cache = ticket_->property("cache").toString();
     FramePtr frame = ticket_->property("frame").value<FramePtr>();
-    int64_t time = ticket_->property("time").value<int64_t>();
+    rational time = ticket_->property("time").value<rational>();
+    rational timebase = ticket_->property("timebase").value<rational>();
     QUuid uuid = ticket_->property("uuid").value<QUuid>();
 
-    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, uuid, time, frame));
+    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, uuid, time, timebase, frame));
     break;
   }
   default:

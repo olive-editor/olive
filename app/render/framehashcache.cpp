@@ -36,8 +36,6 @@
 
 namespace olive {
 
-QMutex FrameHashCache::currently_saving_frames_mutex_;
-QMap<QString, FramePtr> FrameHashCache::currently_saving_frames_;
 const QString FrameHashCache::kCacheFormatExtension = QStringLiteral(".exr");
 
 #define super PlaybackCache
@@ -81,23 +79,30 @@ bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QUuid &uuid
 
   QString fn = CachePathName(cache_path, uuid, time);
 
-  QMutexLocker locker(&currently_saving_frames_mutex_);
-  currently_saving_frames_.insert(fn, frame);
-  locker.unlock();
-
   bool ret = SaveCacheFrame(fn, frame);
-
-  locker.relock();
-  currently_saving_frames_.remove(fn);
-  locker.unlock();
 
   // Register frame with the disk manager
   if (ret) {
-    QMetaObject::invokeMethod(DiskManager::instance(),
-                              "CreatedFile",
-                              Qt::QueuedConnection,
-                              Q_ARG(QString, cache_path),
-                              Q_ARG(QString, fn));
+    DiskManager::instance()->CreatedFile(cache_path, fn);
+  }
+
+  return ret;
+}
+
+bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QUuid &uuid, const rational &time, const rational &tb, FramePtr frame)
+{
+  if (cache_path.isEmpty()) {
+    qWarning() << "Failed to save cache frame with empty path";
+    return false;
+  }
+
+  QString fn = CachePathName(cache_path, uuid, time, tb);
+
+  bool ret = SaveCacheFrame(fn, frame);
+
+  // Register frame with the disk manager
+  if (ret) {
+    DiskManager::instance()->CreatedFile(cache_path, fn);
   }
 
   return ret;
@@ -109,12 +114,6 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QUuid &
   // while we're saving. This should *occasionally* optimize and also prevent scenarios where
   // we try to load a frame that's half way through being saved.
   QString filename = CachePathName(cache_path, uuid, time);
-
-  QMutexLocker locker(&currently_saving_frames_mutex_);
-  if (currently_saving_frames_.contains(filename)) {
-    return currently_saving_frames_.value(filename);
-  }
-  locker.unlock();
 
   if (cache_path.isEmpty()) {
     qWarning() << "Failed to load cache frame with empty path";
@@ -187,7 +186,7 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
       frame = nullptr;
 
       // Assume this frame is corrupt in some way and delete it
-      QMetaObject::invokeMethod(DiskManager::instance(), "DeleteSpecificFile", Qt::QueuedConnection, Q_ARG(QString, fn));
+      DiskManager::instance()->DeleteSpecificFile(fn);
     }
 
   }
@@ -233,18 +232,24 @@ QString FrameHashCache::CachePathName(const int64_t &time) const
   return CachePathName(GetCacheDirectory(), uuid_, time);
 }
 
+QString FrameHashCache::CachePathName(const rational &time) const
+{
+  return CachePathName(GetCacheDirectory(), uuid_, time, timebase_);
+}
+
 QString FrameHashCache::CachePathName(const QString &cache_path, const QUuid &cache_id, const int64_t &time)
 {
   QString filename = QDir(QDir(cache_path).filePath(cache_id.toString())).filePath(QString::number(time));
 
   // Register that in some way this hash has been accessed
-  QMetaObject::invokeMethod(DiskManager::instance(),
-                            "Accessed",
-                            Qt::QueuedConnection,
-                            Q_ARG(QString, cache_path),
-                            Q_ARG(QString, filename));
+  DiskManager::instance()->Accessed(cache_path, filename);
 
   return filename;
+}
+
+QString FrameHashCache::CachePathName(const QString &cache_path, const QUuid &cache_id, const rational &time, const rational &tb)
+{
+  return CachePathName(cache_path, cache_id, Timecode::time_to_timestamp(time, tb, Timecode::kRound));
 }
 
 bool FrameHashCache::SaveCacheFrame(const QString &filename, const FramePtr frame)

@@ -157,7 +157,8 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
 
   ticket->setProperty("cache", cache->GetCacheDirectory());
   ticket->setProperty("frame", QVariant::fromValue(frame));
-  ticket->setProperty("time", QVariant::fromValue(Timecode::time_to_timestamp(time, cache->GetTimebase(), Timecode::kFloor)));
+  ticket->setProperty("time", QVariant::fromValue(time));
+  ticket->setProperty("timebase", QVariant::fromValue(cache->GetTimebase()));
   ticket->setProperty("uuid", QVariant::fromValue(cache->GetUuid()));
   ticket->setProperty("type", kTypeVideoDownload);
 
