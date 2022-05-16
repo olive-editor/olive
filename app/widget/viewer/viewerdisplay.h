@@ -360,6 +360,8 @@ private:
 
   QVariant load_frame_;
 
+  int playback_speed_;
+
   enum PushMode {
     /// New frame to push to internal texture
     kPushFrame,
