@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -97,7 +97,10 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString 
 SliderLadder::~SliderLadder()
 {
   if (UsingLadders()) {
-
+    if (wrap_count_ != 0) {
+      // If wrapped, restore cursor to ladder
+      QCursor::setPos(pos() + rect().center());
+    }
   } else {
 #if defined(Q_OS_MAC)
     CGAssociateMouseAndMouseCursorPosition(true);

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -287,7 +287,7 @@ void ExpandMinMaxChannel(const float *a, int start, int length, float &min_val, 
   __m128 min = _mm_loadu_ps(a + start);
 
   // loop over 'a' and compare current elements with min and max 4 by 4.
-  // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
+  // we need to make sure we don't read out of boundaries should 'a' length be not mod. 4
   for(int i = 4; i < length-4; i+=4) {
     __m128 cur = _mm_loadu_ps(a + start + i);
     max = _mm_max_ps(max, cur);

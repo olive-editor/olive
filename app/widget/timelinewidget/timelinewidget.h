@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -79,9 +79,11 @@ public:
 
   void ToggleLinksOnSelected();
 
-  void CopySelected(bool cut);
+  virtual bool CopySelected(bool cut) override;
 
-  void Paste(bool insert);
+  virtual bool Paste() override;
+
+  void PasteInsert();
 
   void DeleteInToOut(bool ripple);
 
@@ -104,6 +106,8 @@ public:
   void EnableRecordingOverlay(const TimelineCoordinate &coord);
 
   void DisableRecordingOverlay();
+
+  void AddTentativeSubtitleTrack();
 
   /**
    * @brief Timelines should always be connected to sequences
@@ -228,6 +232,7 @@ public:
 
     // Set to null
     subtitle_show_command_ = nullptr;
+    subtitle_tentative_track_ = nullptr;
 
     // Return command
     return c;
@@ -264,6 +269,9 @@ public:
 
   };
 
+public slots:
+  void ClearTentativeSubtitleTrack();
+
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
@@ -293,6 +301,10 @@ private:
   void UpdateViewports(const Track::Type& type = Track::kNone);
 
   QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
+
+  bool PasteInternal(bool insert);
+
+  TimelineAndTrackView *AddTimelineAndTrackView(Qt::Alignment alignment);
 
   QPoint drag_origin_;
 
@@ -327,6 +339,7 @@ private:
   QSplitter* view_splitter_;
 
   MultiUndoCommand *subtitle_show_command_;
+  Track *subtitle_tentative_track_;
 
   QTimer *signal_block_change_timer_;
 
@@ -415,6 +428,8 @@ private slots:
   void RevealInProject();
 
   void RenameSelectedBlocks();
+
+  void TrackAboutToBeDeleted(Track *track);
 
 };
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ class NodeTraverser
 public:
   NodeTraverser();
 
-  NodeValueTable GenerateTable(const Node *n, const Node::ValueHint &hint, const TimeRange &range);
+  NodeValueTable GenerateTable(const Node *n, const TimeRange &range, const Node *next_node = nullptr);
 
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
@@ -49,6 +49,8 @@ public:
   NodeValue GenerateRowValueElement(const Node::ValueHint &hint, NodeValue::Type preferred_type, NodeValueTable *table);
   int GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table);
   int GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table);
+
+  void Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range);
 
   static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
   static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)
@@ -77,6 +79,8 @@ public:
   }
 
   static int GetChannelCountFromJob(const GenerateJob& job);
+
+  static TexturePtr GetMainTextureFromJob(const GenerateJob& job);
 
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
@@ -151,6 +155,10 @@ private:
   AudioParams audio_params_;
 
   const QAtomicInt *cancel_;
+
+  const Node *transform_start_;
+  const Node *transform_now_;
+  QTransform *transform_;
 
 };
 

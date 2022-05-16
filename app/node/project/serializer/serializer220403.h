@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -85,6 +85,10 @@ private:
   void LoadImmediate(QXmlStreamReader *reader, Node *node, const QString& input, int element, XMLNodeData& xml_node_data) const;
 
   void SaveImmediate(QXmlStreamWriter *writer, Node *node, const QString &input, int element) const;
+
+  void LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, NodeValue::Type data_type) const;
+
+  void SaveKeyframe(QXmlStreamWriter *writer, NodeKeyframe *key, NodeValue::Type data_type) const;
 
   bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos) const;
 

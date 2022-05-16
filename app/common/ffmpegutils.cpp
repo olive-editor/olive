@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@ namespace olive {
 AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
 {
   AVPixelFormat possible_pix_fmts[] = {
-    AV_PIX_FMT_RGB24,
+    // RGBA formats only because GPUs always upconvert to RGBA, so if it's RGB, that adds extra
+    // conversion overhead
     AV_PIX_FMT_RGBA,
-    AV_PIX_FMT_RGB48,
     AV_PIX_FMT_RGBA64,
     AV_PIX_FMT_NONE
   };

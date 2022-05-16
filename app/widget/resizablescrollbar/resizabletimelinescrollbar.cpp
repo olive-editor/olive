@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -117,8 +117,8 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
         TimelineMarker* marker = *it;
 
         QColor marker_color = ColorCoding::GetColor(marker->color()).toQColor();
-        int64_t in = qRound64(ratio * TimeToScene(marker->time_range().in()));
-        int64_t out = qRound64(ratio * TimeToScene(marker->time_range().out()));
+        int64_t in = qRound64(ratio * TimeToScene(marker->time().in()));
+        int64_t out = qRound64(ratio * TimeToScene(marker->time().out()));
         int64_t length = qMax(int64_t(1), out-in);
 
         p.fillRect(gr.x() + in,

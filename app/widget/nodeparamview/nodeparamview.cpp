@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "nodeparamview.h"
 
 #include <QApplication>
+#include <QMessageBox>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
@@ -28,6 +29,8 @@
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
+#include "node/project/serializer/serializer.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -317,6 +320,15 @@ void NodeParamView::SelectNodeFromConnectedLink(Node *node)
   SetSelectedNodes({p});
 }
 
+void NodeParamView::RequestEditTextInViewer()
+{
+  NodeParamViewItem *item = static_cast<NodeParamViewItem *>(sender());
+
+  focused_node_ = item;
+  emit FocusedNodeChanged(item->GetNode());
+  emit RequestViewerToStartEditingText();
+}
+
 void NodeParamView::SetContexts(const QVector<Node *> &contexts)
 {
   // Setting contexts is expensive, so we queue it here to prevent multiple calls in a short timespan
@@ -519,6 +531,162 @@ void NodeParamView::SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bo
   }
 }
 
+Node *NodeParamView::GetNodeWithID(const QString &id)
+{
+  return GetNodeWithIDAndIgnoreList(id, QVector<Node*>());
+}
+
+Node *NodeParamView::GetNodeWithIDAndIgnoreList(const QString &id, const QVector<Node *> &ignore)
+{
+  for (NodeParamViewItem *item : selected_nodes_) {
+    if (item->GetNode()->id() == id && !ignore.contains(item->GetNode())) {
+      return item->GetNode();
+    }
+  }
+
+  for (NodeParamViewContext *ctx : context_items_) {
+    for (NodeParamViewItem *item : ctx->GetItems()) {
+      if (item->GetNode()->id() == id && !ignore.contains(item->GetNode())) {
+        return item->GetNode();
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+bool NodeParamView::CopySelected(bool cut)
+{
+  if (super::CopySelected(cut)) {
+    return true;
+  }
+
+  if (keyframe_view_ && keyframe_view_->hasFocus()) {
+    if (keyframe_view_->CopySelected(cut)) {
+      return true;
+    }
+  }
+
+  if (contexts_.empty()) {
+    return false;
+  }
+
+  ProjectSerializer::SaveData sdata(contexts_.first()->project());
+  ProjectSerializer::SerializedProperties properties;
+  QVector<Node*> nodes;
+
+  for (NodeParamViewItem *item : selected_nodes_) {
+    Node *n = item->GetNode();
+
+    if (!nodes.contains(n)) {
+      nodes.append(n);
+
+      Node::Position pos = item->GetContext()->GetNodePositionDataInContext(n);
+
+      properties[n][QStringLiteral("x")] = QString::number(pos.position.x());
+      properties[n][QStringLiteral("y")] = QString::number(pos.position.y());
+      properties[n][QStringLiteral("expanded")] = QString::number(pos.expanded);
+    }
+  }
+
+  sdata.SetOnlySerializeNodesAndResolveGroups(nodes);
+  sdata.SetProperties(properties);
+
+  ProjectSerializer::Copy(sdata, QStringLiteral("nodes"));
+
+  if (cut) {
+    DeleteSelected();
+  }
+
+  return false;
+}
+
+bool NodeParamView::Paste()
+{
+  if (keyframe_view_) {
+    if (keyframe_view_->Paste(std::bind(&NodeParamView::GetNodeWithID, this, std::placeholders::_1))) {
+      return true;
+    }
+  }
+
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
+  if (res.GetLoadedNodes().isEmpty()) {
+    return false;
+  }
+
+  // Determine if any nodes of this type are already in the editor
+  QVector<Node*> ignore_nodes;
+  QMap<Node*, Node*> existing_nodes;
+  for (Node *n : res.GetLoadedNodes()) {
+    if (Node *existing = GetNodeWithIDAndIgnoreList(n->id(), ignore_nodes)) {
+      existing_nodes.insert(existing, n);
+      ignore_nodes.append(existing);
+    }
+  }
+
+  QVector<Node*> nodes_to_paste_as_new = res.GetLoadedNodes();
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  if (!existing_nodes.empty()) {
+    QMessageBox b(this);
+    b.setWindowTitle(tr("Paste Nodes"));
+
+    QStringList node_names;
+    for (auto it=existing_nodes.cbegin(); it!=existing_nodes.cend(); it++) {
+      node_names.append(it.key()->GetLabelAndName());
+    }
+
+    b.setText(tr("The following node types already exist in this context:\n\n"
+                 "%1\n\n"
+                 "Do you wish to paste values onto the existing nodes or paste new nodes?").arg(node_names.join('\n')));
+
+    auto as_vals = b.addButton(tr("Paste As Values"), QMessageBox::YesRole);
+    auto as_nodes = b.addButton(tr("Paste As Nodes"), QMessageBox::NoRole);
+    auto cancel_btn = b.addButton(QMessageBox::Cancel);
+
+    Q_UNUSED(as_nodes)
+
+    b.exec();
+
+    if (b.clickedButton() == cancel_btn) {
+
+      // Delete pasted nodes and clear array so no later code runs
+      qDeleteAll(nodes_to_paste_as_new);
+      nodes_to_paste_as_new.clear();
+
+    } else if (b.clickedButton() == as_vals) {
+
+      // Filter out existing nodes
+      for (auto it=existing_nodes.cbegin(); it!=existing_nodes.cend(); it++) {
+        Node::CopyInputs(it.value(), it.key(), false, command);
+        nodes_to_paste_as_new.removeOne(it.value());
+      }
+
+    }
+  }
+
+  if (!nodes_to_paste_as_new.isEmpty()) {
+    Node::PositionMap map;
+
+    for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
+      if (nodes_to_paste_as_new.contains(it.key())) {
+        Node::Position pos;
+
+        const QMap<QString, QString> &node_props = it.value();
+        pos.position.setX(node_props.value(QStringLiteral("x")).toDouble());
+        pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
+        pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
+
+        map.insert(it.key(), pos);
+      }
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  return true;
+}
+
 void NodeParamView::UpdateItemTime(const rational &time)
 {
   foreach (NodeParamViewContext* item, context_items_) {
@@ -576,6 +744,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
   connect(item, &NodeParamViewItem::Clicked, this, &NodeParamView::ItemClicked);
+  connect(item, &NodeParamViewItem::RequestEditTextInViewer, this, &NodeParamView::RequestEditTextInViewer);
 
   item->SetContext(ctx);
   item->SetTimeTarget(GetTimeTarget());
@@ -764,14 +933,14 @@ void NodeParamView::KeyframeViewDragged(int x, int y)
 
 void NodeParamView::UpdateElementY()
 {
-  foreach (NodeParamViewContext *ctx, context_items_) {
+  for (NodeParamViewContext *ctx : context_items_) {
     for (auto it=ctx->GetItems().cbegin(); it!=ctx->GetItems().cend(); it++) {
       NodeParamViewItem *item = *it;
       Node *node = item->GetNode();
       const KeyframeView::NodeConnections &connections = item->GetKeyframeConnections();
 
       if (!connections.isEmpty()) {
-        foreach (const QString& input, node->inputs()) {
+        for (const QString& input : node->inputs()) {
           if (!(node->GetInputFlags(input) & kInputFlagHidden)) {
             int arr_sz = NodeGroup::ResolveInput(NodeInput(node, input)).GetArraySize();
 
@@ -787,7 +956,7 @@ void NodeParamView::UpdateElementY()
               int use_index = i + 1;
               if (use_index < input_con.size()) {
                 const KeyframeView::ElementConnections &ele_con = input_con.at(ic.element()+1);
-                foreach (KeyframeViewInputConnection *track, ele_con) {
+                for (KeyframeViewInputConnection *track : ele_con) {
                   track->SetKeyframeY(y);
                 }
               }

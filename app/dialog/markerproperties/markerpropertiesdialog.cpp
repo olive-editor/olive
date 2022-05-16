@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -60,10 +60,10 @@ MarkerPropertiesDialog::MarkerPropertiesDialog(const std::vector<TimelineMarker 
   }
 
   if (markers.size() == 1) {
-    in_slider_->SetValue(markers.front()->time_range().in());
+    in_slider_->SetValue(markers.front()->time().in());
     in_slider_->SetDisplayType(RationalSlider::kTime);
     in_slider_->SetTimebase(timebase);
-    out_slider_->SetValue(markers.front()->time_range().out());
+    out_slider_->SetValue(markers.front()->time().out());
     out_slider_->SetDisplayType(RationalSlider::kTime);
     out_slider_->SetTimebase(timebase);
   } else {

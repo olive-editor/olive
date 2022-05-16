@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -199,9 +199,17 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   return nullptr;
 }
 
-int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
+int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time, VideoParams::Interlacing interlacing)
 {
-  return Timecode::time_to_timestamp(time, timebase) + start_time;
+  int64_t t = Timecode::time_to_timestamp(time, timebase);
+  t += start_time;
+  return t;
+}
+
+rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time, VideoParams::Interlacing interlacing)
+{
+  time -= start_time;
+  return Timecode::timestamp_to_time(time, timebase);
 }
 
 void Decoder::SignalProcessingProgress(int64_t ts, int64_t duration)

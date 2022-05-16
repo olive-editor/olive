@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false)
 {
   AddInput(kTextInput, NodeValue::kText, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
+  SetInputProperty(kTextInput, QStringLiteral("vieweronly"), true);
 
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 

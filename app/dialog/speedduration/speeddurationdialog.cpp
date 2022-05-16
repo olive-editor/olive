@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -145,17 +145,11 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
 
 void SpeedDurationDialog::accept()
 {
-  // We haven't implemented rippling yet, so warn the user
-  if (ripple_box_->isChecked()) {
-    // FIXME: Stub
-    if (QMessageBox::information(this, QString(), tr("Rippling is a stub and will not do anything. Do you wish to continue?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
-      return;
-    }
-  }
-
   MultiUndoCommand *command = new MultiUndoCommand();
 
   // Set duration values
+  TimelineRippleDeleteGapsAtRegionsCommand::RangeList ripple_ranges;
+
   foreach (ClipBlock *c, clips_) {
     rational proposed_length = c->length();
 
@@ -179,8 +173,13 @@ void SpeedDurationDialog::accept()
 
       if (proposed_length != c->length()) {
         command->add_child(new BlockTrimCommand(c->track(), c, proposed_length, Timeline::kTrimOut));
+        ripple_ranges.append({c->track(), TimeRange(c->in() + proposed_length, c->out())});
       }
     }
+  }
+
+  if (ripple_box_->isChecked()) {
+    command->add_child(new TimelineRippleDeleteGapsAtRegionsCommand(clips_.first()->track()->sequence(), ripple_ranges));
   }
 
   // Set speed values

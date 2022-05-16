@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -422,8 +422,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   GL_PREAMBLE;
 
   // If this node is iterative, we'll pick up which input here
-  QString iterative_name;
-  GLuint iterative_input = 0;
+  QMap<QString, GLuint> texture_index_map;
   QVector<TextureToBind> textures_to_bind;
 
   GLuint shader = s.value<GLuint>();
@@ -495,11 +494,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       // Set value to bound texture
       functions_->glUniform1i(variable_location, textures_to_bind.size());
 
-      // If this texture binding is the iterative input, set it here
-      if (it.key() == job.GetIterativeInput()) {
-        iterative_input = textures_to_bind.size();
-        iterative_name = it.key();
-      }
+      texture_index_map.insert(it.key(), textures_to_bind.size());
 
       textures_to_bind.append({texture, job.GetInterpolation(it.key())});
 
@@ -518,6 +513,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     case NodeValue::kFile:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
+    case NodeValue::kSubtitleParams:
     case NodeValue::kBezier:
     case NodeValue::kNone:
     case NodeValue::kDataTypeCount:
@@ -654,11 +650,12 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     if (iteration > 0) {
       // If this is not the first iteration, replace the iterative texture with the one we
       // last drew
-      functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
+      const QString &iterative_input = job.GetIterativeInput();
+      functions_->glActiveTexture(GL_TEXTURE0 + texture_index_map.value(iterative_input));
       functions_->glBindTexture(GL_TEXTURE_2D, input_tex->id().value<GLuint>());
 
       // At this time, we only support iterating 2D textures
-      PrepareInputTexture(GL_TEXTURE_2D, job.GetInterpolation(iterative_name));
+      PrepareInputTexture(GL_TEXTURE_2D, job.GetInterpolation(iterative_input));
     }
 
     // Swap so that the next iteration, the texture we draw now will be the input texture next

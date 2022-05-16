@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -90,63 +90,33 @@ void MatrixGenerator::Retranslate()
 void MatrixGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   // Push matrix output
-  QMatrix4x4 mat = GenerateMatrix(value, true, false, false, false);
+  QMatrix4x4 mat = GenerateMatrix(value, false, false, false);
   table->Push(NodeValue::kMatrix, mat, this);
 }
 
-QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale) const
 {
   QVector2D anchor;
   QVector2D position;
   QVector2D scale;
 
   if (!ignore_anchor) {
-    if (take) {
-      // Take and store
-      anchor = value[kAnchorInput].toVec2();
-    } else {
-      // Get and store
-      anchor = value[kAnchorInput].toVec2();
-    }
-  } else if (take) {
-    // Just take
-    value[kAnchorInput].toVec2();
+    anchor = value[kAnchorInput].toVec2();
   }
 
   if (!ignore_scale) {
-    if (take) {
-      scale = value[kScaleInput].toVec2();
-    } else {
-      scale = value[kScaleInput].toVec2();
-    }
-  } else if (take) {
-    value[kScaleInput].toVec2();
+    scale = value[kScaleInput].toVec2();
   }
 
   if (!ignore_position) {
-    if (take) {
-      position = value[kPositionInput].toVec2();
-    } else {
-      position = value[kPositionInput].toVec2();
-    }
-  } else if (take) {
-    value[kPositionInput].toVec2();
+    position = value[kPositionInput].toVec2();
   }
 
-  if (take) {
-    return GenerateMatrix(position,
-                          value[kRotationInput].toDouble(),
-                          scale,
-                          value[kUniformScaleInput].toBool(),
-                          anchor);
-  } else {
-    return GenerateMatrix(position,
-                          value[kRotationInput].toDouble(),
-                          scale,
-                          value[kUniformScaleInput].toBool(),
-                          anchor);
-
-  }
+  return GenerateMatrix(position,
+                        value[kRotationInput].toDouble(),
+                        scale,
+                        value[kUniformScaleInput].toBool(),
+                        anchor);
 }
 
 QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,

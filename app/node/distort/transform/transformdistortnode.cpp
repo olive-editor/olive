@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ void TransformDistortNode::Retranslate()
 void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   // Generate matrix
-  QMatrix4x4 generated_matrix = GenerateMatrix(value, true, false, false, false);
+  QMatrix4x4 generated_matrix = GenerateMatrix(value, false, false, false);
 
   // Pop texture
   NodeValue texture_meta = value[kTextureInput];
@@ -133,7 +133,7 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
 
   if (gizmo == anchor_gizmo_) {
 
-    gizmo_inverted_transform_ = GenerateMatrix(row, false, true, true, false).toTransform().inverted();
+    gizmo_inverted_transform_ = GenerateMatrix(row, true, true, false).toTransform().inverted();
 
   } else if (IsAScaleGizmo(gizmo)) {
 
@@ -175,7 +175,7 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
     }
 
     // Store current matrix
-    gizmo_inverted_transform_ = GenerateMatrix(row, false, true, true, true).toTransform().inverted();
+    gizmo_inverted_transform_ = GenerateMatrix(row, true, true, true).toTransform().inverted();
 
   } else if (gizmo == rotation_gizmo_) {
 
@@ -360,7 +360,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   // Fold values into a matrix for the rectangle
   QMatrix4x4 rectangle_matrix;
   rectangle_matrix.scale(sequence_half_res);
-  rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, false, false, false),
+  rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, false, false),
                                                 sequence_res,
                                                 tex_sz,
                                                 tex_offset,
@@ -380,7 +380,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   // Draw anchor point
   QMatrix4x4 anchor_matrix;
   anchor_matrix.scale(sequence_half_res);
-  anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, true, false, false),
+  anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, true, false, false),
                                              sequence_res,
                                              tex_sz,
                                              tex_offset,
@@ -401,6 +401,15 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   // really anchor around the center
   SetInputProperty(kPositionInput, QStringLiteral("offset"), sequence_half_res + tex_offset);
   SetInputProperty(kAnchorInput, QStringLiteral("offset"), tex_sz * 0.5);
+}
+
+QTransform TransformDistortNode::GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const
+{
+  if (TexturePtr texture = row[kTextureInput].toTexture()) {
+    auto m = GenerateMatrix(row, false, false, false);
+    return GenerateAutoScaledMatrix(m, row, globals, texture->params()).toTransform();
+  }
+  return super::GizmoTransformation(row, globals);
 }
 
 QPointF TransformDistortNode::CreateScalePoint(double x, double y, const QPointF &half_res, const QMatrix4x4 &mat)

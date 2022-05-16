@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #include "common/util.h"
 #include "core.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 
 namespace olive {
 
@@ -100,6 +101,21 @@ void ShapeNodeBase::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlob
   point_gizmo_[kGizmoScaleCenterRight]->SetPoint(QPointF(right_pt, center_y_pt));
 
   poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
+}
+
+void ShapeNodeBase::SetRect(QRectF rect, const VideoParams &sequence_res, MultiUndoCommand *command)
+{
+  // Normalize around center of sequence
+  rect.translate(-sequence_res.width()*0.5, -sequence_res.height()*0.5);
+  rect.translate(rect.width()*0.5, rect.height()*0.5);
+
+  NodeInput pos(this, ShapeNodeBase::kPositionInput);
+  NodeInput sz(this, ShapeNodeBase::kSizeInput);
+
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 0), rect.width()));
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 1), rect.height()));
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 0), rect.x()));
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 1), rect.y()));
 }
 
 void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

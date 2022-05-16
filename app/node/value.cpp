@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "common/bezier.h"
 #include "common/tohex.h"
 #include "render/audioparams.h"
+#include "render/subtitleparams.h"
 #include "render/videoparams.h"
 #include "render/color.h"
 
@@ -297,6 +298,8 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
     return QCoreApplication::translate("NodeValue", "Video Parameters");
   case kAudioParams:
     return QCoreApplication::translate("NodeValue", "Audio Parameters");
+  case kSubtitleParams:
+    return QCoreApplication::translate("NodeValue", "Subtitle Parameters");
 
   case kDataTypeCount:
     break;
@@ -346,6 +349,8 @@ QString NodeValue::GetDataTypeName(Type type)
     return QStringLiteral("vparam");
   case kAudioParams:
     return QStringLiteral("aparam");
+  case kSubtitleParams:
+    return QStringLiteral("sparam");
   case kDataTypeCount:
     break;
   }

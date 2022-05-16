@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,22 +35,26 @@ OCIOBaseNode::OCIOBaseNode() :
 
   SetEffectInput(kTextureInput);
 
-  connect(this, &Node::AddedToGraph, this, &OCIOBaseNode::ParentChanged);
+  connect(this, &Node::AddedToGraph, this, &OCIOBaseNode::AddedToGraph);
+  connect(this, &Node::RemovedFromGraph, this, &OCIOBaseNode::RemovedFromGraph);
 
   SetFlags(kVideoEffect);
 }
 
-void OCIOBaseNode::ParentChanged(NodeGraph *graph)
+void OCIOBaseNode::AddedToGraph(NodeGraph *graph)
 {
-  if (manager_) {
-    disconnect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
-    manager_ = nullptr;
-  }
-
   if (Project *p = dynamic_cast<Project*>(graph)) {
     manager_ = p->color_manager();
     connect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
     ConfigChanged();
+  }
+}
+
+void OCIOBaseNode::RemovedFromGraph()
+{
+  if (manager_) {
+    disconnect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
+    manager_ = nullptr;
   }
 }
 

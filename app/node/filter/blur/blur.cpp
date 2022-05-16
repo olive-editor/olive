@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -119,15 +119,15 @@ ShaderCode BlurFilterNode::GetShaderCode(const ShaderRequest &request) const
 
 void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-
-  Method method = static_cast<Method>(job.Get(kMethodInput).toInt());
-
   // If there's no texture, no need to run an operation
-  if (job.Get(kTextureInput).toTexture()) {
+  if (value[kTextureInput].toTexture()) {
+
+    ShaderJob job;
+
+    job.Insert(value);
+    job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+
+    Method method = static_cast<Method>(job.Get(kMethodInput).toInt());
 
     bool can_push_job = true;
 

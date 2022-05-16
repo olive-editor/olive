@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -141,6 +141,17 @@ int NodeTraverser::GenerateRowValueElementIndex(const Node *node, const QString 
   return GenerateRowValueElementIndex(node->GetValueHintForInput(input, element), node->GetInputDataType(input), table);
 }
 
+void NodeTraverser::Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range)
+{
+  transform_ = transform;
+  transform_start_ = start;
+  transform_now_ = nullptr;
+
+  GenerateTable(end, range);
+
+  transform_ = nullptr;
+}
+
 NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const TimeRange &time)
 {
   return NodeGlobals(QVector2D(params.width(), params.height()), params.pixel_aspect_ratio(), time);
@@ -179,6 +190,20 @@ int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
   return VideoParams::kRGBAChannelCount;
 }
 
+TexturePtr NodeTraverser::GetMainTextureFromJob(const GenerateJob &job)
+{
+  // FIXME: Should probably take Node::GetEffectInput into account here
+  for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
+    if (it.value().type() == NodeValue::kTexture) {
+      if (TexturePtr t = it.value().toTexture()) {
+        return t;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
 {
   // If input is connected, retrieve value directly
@@ -187,7 +212,9 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
 
     // Value will equal something from the connected node, follow it
-    return GenerateTable(node->GetConnectedOutput(input), node->GetValueHintForInput(input), adjusted_range);
+    Node *output = node->GetConnectedOutput(input);
+    NodeValueTable table = GenerateTable(output, adjusted_range, node);
+    return table;
 
   } else {
 
@@ -205,7 +232,8 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
         TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
 
         if (node->IsInputConnected(input, i)) {
-          sub_tbl = GenerateTable(node->GetConnectedOutput(input, i), node->GetValueHintForInput(input, i), adjusted_range);
+          Node *output = node->GetConnectedOutput(input, i);
+          sub_tbl = GenerateTable(output, adjusted_range, node);
         } else {
           QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
           sub_tbl.Push(node->GetInputDataType(input), input_value, node);
@@ -231,12 +259,28 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 }
 
 NodeTraverser::NodeTraverser() :
-  cancel_(nullptr)
+  cancel_(nullptr),
+  transform_(nullptr)
 {
 }
 
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint &hint, const TimeRange& range)
+class GTTTime
 {
+public:
+  GTTTime(const Node *n) { t = QDateTime::currentMSecsSinceEpoch(); node = n; }
+
+  ~GTTTime() { qDebug() << "GT for" << node << "took" << (QDateTime::currentMSecsSinceEpoch() - t); }
+
+  qint64 t;
+  const Node *node;
+
+};
+
+NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range, const Node *next_node)
+{
+  // NOTE: Times how long a node takes to process, useful for profiling.
+  //GTTTime gtt(n);Q_UNUSED(gtt);
+
   const Track* track = dynamic_cast<const Track*>(n);
   if (track) {
     // If the range is not wholly contained in this Block, we'll need to do some extra processing
@@ -264,7 +308,24 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const Node::ValueHint
     NodeValueTable table = database.Merge();
 
     // By this point, the node should have all the inputs it needs to render correctly
-    n->Value(row, GenerateGlobals(video_params_, range), &table);
+    NodeGlobals globals = GenerateGlobals(video_params_, range);
+    n->Value(row, globals, &table);
+
+    // `transform_now_` is the next node in the path that needs to be traversed. It only ever goes
+    // "down" the graph so that any traversing going back up doesn't unnecessarily transform
+    // from unrelated nodes or the same node twice
+    if (transform_) {
+      if (transform_now_ == n || transform_start_ == n) {
+        if (transform_now_ == n) {
+          QTransform t = n->GizmoTransformation(row, globals);
+          if (!t.isIdentity()) {
+            (*transform_) *= t;
+          }
+        }
+
+        transform_now_ = next_node;
+      }
+    }
 
     return table;
   } else {
@@ -288,7 +349,7 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   NodeValueTable table;
 
   if (active_block) {
-    table = GenerateTable(active_block, track->GetValueHintForInput(Track::kBlockInput, track->GetArrayIndexFromBlock(active_block)), Track::TransformRangeForBlock(active_block, range));
+    table = GenerateTable(active_block, Track::TransformRangeForBlock(active_block, range), track);
   }
 
   return table;
@@ -307,12 +368,21 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       ShaderJob job = val.value<ShaderJob>();
 
+      PreProcessRow(range, job.GetValues());
+
       VideoParams tex_params = GetCacheVideoParams();
       tex_params.set_channel_count(GetChannelCountFromJob(job));
 
+      if (!job.GetWillChangeImageSize()) {
+        if (TexturePtr texture = GetMainTextureFromJob(job)) {
+          tex_params.set_width(texture->params().width());
+          tex_params.set_height(texture->params().height());
+          tex_params.set_divider(texture->params().divider());
+        }
+      }
+
       TexturePtr tex = CreateTexture(tex_params);
 
-      PreProcessRow(range, job.GetValues());
       ProcessShader(tex, val.source(), range, job);
 
       val.set_value(tex);

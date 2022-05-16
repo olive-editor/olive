@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -185,9 +185,7 @@ void Core::Start()
     QTimer *crash_timer = new QTimer(this);
     crash_timer->setInterval(interval);
     connect(crash_timer, &QTimer::timeout, this, []{
-      // Try to read invalid memory to crash the application
-      int *invalid_ptr = nullptr;
-      qDebug() << *invalid_ptr;
+      abort();
     });
     crash_timer->start();
   }
@@ -370,7 +368,7 @@ void Core::DialogImportShow()
 
 void Core::DialogPreferencesShow()
 {
-  PreferencesDialog pd(main_window_, main_window_->menuBar());
+  PreferencesDialog pd(main_window_);
   pd.exec();
 }
 
@@ -1410,25 +1408,6 @@ int Core::CountFilesInFileList(const QFileInfoList &filenames)
   }
 
   return file_count;
-}
-
-QString GetRenderModePreferencePrefix(RenderMode::Mode mode, const QString &preference) {
-  QString key;
-
-  key.append((mode == RenderMode::kOffline) ? QStringLiteral("Offline") : QStringLiteral("Online"));
-  key.append(preference);
-
-  return key;
-}
-
-QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference)
-{
-  return OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference));
-}
-
-void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
-{
-  OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference)) = value;
 }
 
 bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)

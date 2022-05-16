@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -119,6 +119,11 @@ public slots:
 
   void UpdateTextureFromNode();
 
+  void RequestStartEditingText()
+  {
+    display_widget_->RequestStartEditingText();
+  }
+
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
@@ -185,9 +190,9 @@ private:
 
   void SetDisplayImage(QVariant frame);
 
-  void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
+  void RequestNextFrameForQueue(RenderTicketPriority priority = RenderTicketPriority::kNormal, bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, bool prioritize);
+  RenderTicketPtr GetFrame(const rational& t, RenderTicketPriority priority);
 
   void FinishPlayPreprocess();
 
@@ -269,6 +274,8 @@ private:
   Track::Reference recording_track_;
   QString recording_filename_;
 
+  qint64 queue_starved_start_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -316,9 +323,14 @@ private slots:
 
   void ReceivedAudioBufferForScrubbing();
 
+  void QueueStarved();
+  void QueueNoLongerStarved();
+
   void ForceRequeueFromCurrentTime();
 
   void UpdateAudioProcessor();
+
+  void CreateAddableAt(const QRectF &f);
 
 };
 

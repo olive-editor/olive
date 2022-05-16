@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -69,36 +69,30 @@ public:
    * The ticket from this function will return a FramePtr - the rendered frame in reference color
    * space.
    *
-   * Setting `prioritize` to TRUE puts this ticket at the top of the queue. Leaving it as FALSE
-   * appends it to the bottom.
-   *
    * This function is thread-safe.
    */
   RenderTicketPtr RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
+                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, bool texture_only = false);
   RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                               ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, bool prioritize = false, bool texture_only = false);
+                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, bool texture_only = false);
 
   /**
    * @brief Asynchronously generate a chunk of audio
    *
    * The ticket from this function will return a SampleBufferPtr - the rendered audio.
    *
-   * Setting `prioritize` to TRUE puts this ticket at the top of the queue. Leaving it as FALSE
-   * appends it to the bottom.
-   *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
-  RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize = false);
+  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
+  RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
 
-  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const rational &time, bool prioritize = false);
+  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const rational &time, RenderTicketPriority priority = RenderTicketPriority::kNormal);
 
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 
@@ -136,13 +130,6 @@ private:
   ShaderCache* shader_cache_;
 
   QVariant default_shader_;
-
-  QTimer decoder_clear_timer_;
-
-  static const int kDecoderMaximumInactivity;
-
-private slots:
-  void ClearOldDecoders();
 
 };
 

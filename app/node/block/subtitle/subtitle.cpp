@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,11 @@ SubtitleBlock::SubtitleBlock()
 
 QString SubtitleBlock::Name() const
 {
-  return tr("Subtitle");
+  if (GetText().isEmpty()) {
+    return tr("Subtitle");
+  } else {
+    return GetText();
+  }
 }
 
 QString SubtitleBlock::id() const

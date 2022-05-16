@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -81,6 +81,7 @@ void VolumeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, No
     } else {
       // Requires job
       SampleJob job(kSamplesInput, value);
+      job.Insert(kVolumeInput, value);
       table->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
     }
   }
