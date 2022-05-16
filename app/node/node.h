@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -101,7 +101,8 @@ public:
     kNone = 0,
     kDontShowInParamView = 0x1,
     kVideoEffect = 0x2,
-    kAudioEffect = 0x4
+    kAudioEffect = 0x4,
+    kDontShowInCreateMenu = 0x8
   };
 
   struct ContextPair {
@@ -552,7 +553,12 @@ public:
 
   NodeInput GetEffectInput()
   {
-    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_, effect_element_);
+    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_);
+  }
+
+  const QString &GetEffectInputID() const
+  {
+    return effect_input_;
   }
 
   class ValueHint {
@@ -660,15 +666,32 @@ public:
    */
   QVector<Node *> GetImmediateDependencies() const;
 
+  struct ShaderRequest
+  {
+    ShaderRequest(const QString &shader_id)
+    {
+      id = shader_id;
+    }
+
+    ShaderRequest(const QString &shader_id, const QString &shader_stub)
+    {
+      id = shader_id;
+      stub = shader_stub;
+    }
+
+    QString id;
+    QString stub;
+  };
+
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const;
 
   /**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.
    */
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const;
 
   /**
    * @brief If Value() pushes a GenerateJob, override this function for the image to create
@@ -811,14 +834,14 @@ public:
    *
    * Nodes must be of the same types (i.e. have the same ID)
    */
-  static void CopyInputs(const Node *source, Node* destination, bool include_connections = true);
+  static void CopyInputs(const Node *source, Node* destination, bool include_connections = true, MultiUndoCommand *command = nullptr);
 
-  static void CopyInput(const Node *src, Node* dst, const QString& input, bool include_connections, bool traverse_arrays);
+  static void CopyInput(const Node *src, Node* dst, const QString& input, bool include_connections, bool traverse_arrays, MultiUndoCommand *command);
 
-  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int src_element, int dst_element);
-  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int element)
+  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int src_element, int dst_element, MultiUndoCommand *command = nullptr);
+  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int element, MultiUndoCommand *command = nullptr)
   {
-    return CopyValuesOfElement(src, dst, input, element, element);
+    return CopyValuesOfElement(src, dst, input, element, element, command);
   }
 
   /**
@@ -865,6 +888,8 @@ public:
   {
     return gizmos_;
   }
+
+  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const { return QTransform(); }
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals){}
 
@@ -1047,10 +1072,9 @@ protected:
 
   virtual void childEvent(QChildEvent *event) override;
 
-  void SetEffectInput(const QString &input, int element = -1)
+  void SetEffectInput(const QString &input)
   {
     effect_input_ = input;
-    effect_element_ = element;
   }
 
   void SetToolTip(const QString& s)
@@ -1147,6 +1171,8 @@ signals:
 
   void NodeRemovedFromContext(Node *node);
 
+  void InputFlagsChanged(const QString &input, const InputFlags &flags);
+
 private:
   class ArrayInsertCommand : public UndoCommand
   {
@@ -1239,6 +1265,31 @@ private:
     QHash<QString, QVariant> properties;
     QString human_name;
     int array_size;
+  };
+
+  class ImmediateRemoveAllKeyframesCommand : public UndoCommand
+  {
+  public:
+    ImmediateRemoveAllKeyframesCommand(NodeInputImmediate *immediate) :
+      immediate_(immediate)
+    {}
+
+    virtual Project* GetRelevantProject() const override { return nullptr; }
+
+  protected:
+    virtual void prepare() override;
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    NodeInputImmediate *immediate_;
+
+    QObject memory_manager_;
+
+    QVector<NodeKeyframe*> keys_;
+
   };
 
   NodeInputImmediate* CreateImmediate(const QString& input);
@@ -1369,7 +1420,6 @@ private:
   QVector<NodeGizmo*> gizmos_;
 
   QString effect_input_;
-  int effect_element_;
 
 private slots:
   /**

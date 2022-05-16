@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ std::vector<AudioParams::Format> FFmpegEncoder::GetSampleFormatsForCodec(ExportC
   if (c == ExportCodec::kCodecPCM) {
     // FFmpeg lists these as separate codecs so we need custom functionality here
     // We list signed 16 first because ExportDialog will always use the first element by default
-    // (beacuse first element is the "default" in FFmpeg)
+    // (because first element is the "default" in FFmpeg)
     f = {
       AudioParams::kFormatSigned16Packed,
       AudioParams::kFormatUnsigned8Packed,
@@ -266,26 +266,26 @@ fail:
   return success;
 }
 
-bool FFmpegEncoder::WriteAudio(SampleBufferPtr audio)
+bool FFmpegEncoder::WriteAudio(const SampleBuffer &audio)
 {
   bool result = true;
 
   // Create input buffer
   int input_sample_count = 0;
   uint8_t** input_data = nullptr;
-  if (audio) {
-    input_sample_count = audio->sample_count();
+  if (audio.is_allocated()) {
+    input_sample_count = audio.sample_count();
     int input_linesize;
 
-    av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio->audio_params().channel_count(),
-                                       input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio->audio_params().format()), 0);
+    av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio.audio_params().channel_count(),
+                                       input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio.audio_params().format()), 0);
 
-    for (int i=0; i<audio->audio_params().channel_count(); i++) {
-      memcpy(input_data[i], audio->data(i), input_sample_count * audio->audio_params().bytes_per_sample_per_channel());
+    for (int i=0; i<audio.audio_params().channel_count(); i++) {
+      memcpy(input_data[i], audio.data(i), input_sample_count * audio.audio_params().bytes_per_sample_per_channel());
     }
   }
 
-  result = WriteAudioData(audio->audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
+  result = WriteAudioData(audio.audio_params().is_valid() ? audio.audio_params() : params().audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
 
   if (input_data) {
     av_freep(&input_data[0]);
@@ -376,46 +376,15 @@ QString GetAssTime(const rational &time)
 
 bool FFmpegEncoder::WriteSubtitle(const SubtitleBlock *sub_block)
 {
-  AVSubtitle subtitle;
-  memset(&subtitle, 0, sizeof(subtitle));
-
-  AVSubtitleRect rect;
-  memset(&rect, 0, sizeof(rect));
-
-  QString ass_line = QStringLiteral("Dialogue: 0,%1,%2,Default,,0,0,0,,%3").arg(
-        GetAssTime(sub_block->in()),
-        GetAssTime(sub_block->out()),
-        sub_block->GetText()
-      );
-
   QByteArray utf8_sub = sub_block->GetText().toUtf8();
-  QByteArray utf8_ass = ass_line.toUtf8();
-
-  rect.type = SUBTITLE_ASS;
-  rect.text = utf8_sub.data();
-  rect.ass = utf8_ass.data();
-
-  AVSubtitleRect *rect_array = &rect;
-  subtitle.num_rects = 1;
-  subtitle.rects = &rect_array;
-
-  subtitle.pts = Timecode::time_to_timestamp(sub_block->in(), subtitle_codec_ctx_->time_base, Timecode::kFloor);
-  subtitle.end_display_time = qRound64(sub_block->length().toDouble() * 1000);
-
-  QVector<uint8_t> out_buf(1024 * 1024);
-
-  int sub_sz = avcodec_encode_subtitle(subtitle_codec_ctx_, out_buf.data(), out_buf.size(), &subtitle);
-  if (sub_sz < 0) {
-    return false;
-  }
 
   AVPacket *pkt = av_packet_alloc();
 
   pkt->stream_index = subtitle_stream_->index;
-  pkt->data = out_buf.data();
-  pkt->size = sub_sz;
-  pkt->pts = subtitle.pts;
-  pkt->duration = av_rescale_q(subtitle.end_display_time, {1, 1000}, subtitle_codec_ctx_->time_base);
+  pkt->data = (uint8_t *) utf8_sub.data();
+  pkt->size = utf8_sub.size();
+  pkt->pts = Timecode::time_to_timestamp(sub_block->in(), subtitle_codec_ctx_->time_base, Timecode::kFloor);
+  pkt->duration = av_rescale_q(qRound64(sub_block->length().toDouble() * 1000), {1, 1000}, subtitle_codec_ctx_->time_base);
   pkt->dts = pkt->pts;
   av_packet_rescale_ts(pkt, subtitle_codec_ctx_->time_base, subtitle_stream_->time_base);
 
@@ -775,7 +744,7 @@ void FFmpegEncoder::FlushEncoders()
   }
 
   if (audio_codec_ctx_) {
-    WriteAudio(nullptr);
+    WriteAudio(SampleBuffer());
 
     FlushCodecCtx(audio_codec_ctx_, audio_stream_);
   }

@@ -6,6 +6,12 @@ uniform bool vert_in;
 uniform bool repeat_edge_pixels_in;
 uniform vec2 resolution_in;
 
+// Directional
+uniform float directional_degrees_in;
+
+// Radial
+uniform vec2 radial_center_in;
+
 uniform int ove_iteration;
 
 in vec2 ove_texcoord;
@@ -17,6 +23,8 @@ out vec4 frag_color;
 // Methods
 #define METHOD_BOX_BLUR 0
 #define METHOD_GAUSSIAN_BLUR 1
+#define METHOD_DIRECTIONAL_BLUR 2
+#define METHOD_RADIAL_BLUR 3
 
 // Mode
 #define MODE_NONE 0
@@ -60,6 +68,19 @@ int determine_mode() {
     }
 }
 
+vec4 add_to_composite(vec4 composite, vec2 pixel_coord, float weight)
+{
+  if (repeat_edge_pixels_in
+      || (pixel_coord.x >= 0.0
+          && pixel_coord.x < 1.0
+          && pixel_coord.y >= 0.0
+          && pixel_coord.y < 1.0)) {
+      composite += texture(tex_in, pixel_coord) * weight;
+  }
+
+  return composite;
+}
+
 void main(void) {
     int mode = determine_mode();
 
@@ -75,7 +96,13 @@ void main(void) {
 
     float divider, sigma;
 
-    if (method_in == METHOD_BOX_BLUR) {
+    if (method_in == METHOD_DIRECTIONAL_BLUR || method_in == METHOD_RADIAL_BLUR) {
+      // Despite similar math, these are lighter methods perceptually, so we double the radius to
+      // better match box/gaussian
+      real_radius *= 2.0;
+    }
+
+    if (method_in == METHOD_BOX_BLUR || method_in == METHOD_DIRECTIONAL_BLUR) {
 
         // Calculate the weight of each pixel based on the radius
         divider = 1.0 / real_radius;
@@ -95,28 +122,53 @@ void main(void) {
 
     }
 
-    for (float i = -real_radius + 0.5; i <= real_radius; i += 2.0) {
-        float weight;
+    if (method_in == METHOD_BOX_BLUR || method_in == METHOD_GAUSSIAN_BLUR) {
+        for (float i = -real_radius + 0.5; i <= real_radius; i += 2.0) {
+            float weight;
 
-        if (method_in == METHOD_BOX_BLUR) {
-            weight = divider;
-        } else if (method_in == METHOD_GAUSSIAN_BLUR) {
-            weight = gaussian2(i, 0.0, sigma) / divider;
+            if (method_in == METHOD_BOX_BLUR) {
+                weight = divider;
+            } else if (method_in == METHOD_GAUSSIAN_BLUR) {
+                weight = gaussian2(i, 0.0, sigma) / divider;
+            }
+
+            vec2 pixel_coord = ove_texcoord;
+            if (mode == MODE_HORIZONTAL) {
+                pixel_coord.x += i / resolution_in.x;
+            } else if (mode == MODE_VERTICAL) {
+                pixel_coord.y += i / resolution_in.y;
+            }
+
+            composite = add_to_composite(composite, pixel_coord, weight);
+        }
+    } else if (method_in == METHOD_DIRECTIONAL_BLUR || method_in == METHOD_RADIAL_BLUR) {
+        float angle;
+
+        if (method_in == METHOD_DIRECTIONAL_BLUR) {
+          // Convert directional degrees to radians
+          angle = (directional_degrees_in*M_PI)/180.0;
+        } else {
+          // Calculate angle from distance of center to current coordinate
+          vec2 distance = (ove_texcoord - 0.5) * (resolution_in) - radial_center_in;
+          angle = atan(distance.y/distance.x);
+
+          float multiplier = length(distance) / resolution_in.y * 2.0;
+
+          real_radius = ceil(radius_in * multiplier);
+          divider = 1.0 / real_radius;
         }
 
-        vec2 pixel_coord = ove_texcoord;
-        if (mode == MODE_HORIZONTAL) {
-            pixel_coord.x += i / resolution_in.x;
-        } else if (mode == MODE_VERTICAL) {
-            pixel_coord.y += i / resolution_in.y;
-        }
+        // Get angles
+        float sin_angle = sin(angle);
+        float cos_angle = cos(angle);
 
-        if (repeat_edge_pixels_in
-            || (pixel_coord.x >= 0.0
-                && pixel_coord.x < 1.0
-                && pixel_coord.y >= 0.0
-                && pixel_coord.y < 1.0)) {
-            composite += texture(tex_in, pixel_coord) * weight;
+        for (float i = -real_radius + 0.5; i <= real_radius; i += 2.0) {
+          vec2 pixel_coord = ove_texcoord;
+
+          pixel_coord.y += sin_angle * i / resolution_in.y;
+          pixel_coord.x += cos_angle * i / resolution_in.x;
+
+          composite = add_to_composite(composite, pixel_coord, divider);
         }
     }
 

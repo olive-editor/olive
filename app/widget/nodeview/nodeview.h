@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -133,6 +133,11 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
+  virtual void dragEnterEvent(QDragEnterEvent *event) override;
+  virtual void dragMoveEvent(QDragMoveEvent *event) override;
+  virtual void dropEvent(QDropEvent *event) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
+
   virtual void resizeEvent(QResizeEvent *event) override;
 
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
@@ -149,6 +154,9 @@ private:
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
   void MoveAttachedNodesToCursor(const QPoint &p);
+  void ProcessMovingAttachedNodes(const QPoint &pos);
+  QVector<Node*> ProcessDroppingAttachedNodes(MultiUndoCommand *command, Node *select_context, const QPoint &pos);
+  Node *GetContextAtMousePos(const QPoint &p);
 
   void ConnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();

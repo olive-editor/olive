@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ bool RenderTask::Render(ColorManager* manager,
     rational r;
     for (int i=0; iterator.GetNext(&r); i++) {
       if (IsCancelled()) {
-        return true;
+        break;
       }
 
       times[i] = r;
@@ -97,7 +97,7 @@ bool RenderTask::Render(ColorManager* manager,
     // Filter out duplicates
     for (int i=0; i<hashes.size(); i++) {
       if (IsCancelled()) {
-        return true;
+        break;
       }
 
       const QByteArray& hash = hashes.at(i);
@@ -165,9 +165,11 @@ bool RenderTask::Render(ColorManager* manager,
           Block *this_block = this_track->Blocks().at(block_indexes.at(tracks_to_push.at(i)));
 
           if (const SubtitleBlock *sub = dynamic_cast<const SubtitleBlock*>(this_block)) {
-            if (!EncodeSubtitle(sub)) {
-              result = false;
-              break;
+            if (sub->is_enabled()) {
+              if (!EncodeSubtitle(sub)) {
+                result = false;
+                break;
+              }
             }
           }
 
@@ -193,7 +195,7 @@ bool RenderTask::Render(ColorManager* manager,
 
         TimeRange range = watcher->property("range").value<TimeRange>();
 
-        if (!AudioDownloaded(range, watcher->Get().value<SampleBufferPtr>())) {
+        if (!AudioDownloaded(range, watcher->Get().value<SampleBuffer>())) {
           result = false;
         }
 
@@ -266,8 +268,13 @@ bool RenderTask::Render(ColorManager* manager,
   if (IsCancelled() || !result) {
     // Cancel every watcher we created
     foreach (RenderTicketWatcher* watcher, running_watchers_) {
+      watcher->Cancel();
       disconnect(watcher, &RenderTicketWatcher::Finished, this, &RenderTask::TicketDone);
       RenderManager::instance()->RemoveTicket(watcher->GetTicket());
+    }
+
+    foreach (RenderTicketWatcher* watcher, running_watchers_) {
+      watcher->WaitForFinished();
     }
   }
 

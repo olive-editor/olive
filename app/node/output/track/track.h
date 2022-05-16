@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -222,6 +222,9 @@ public:
           } else if (s.at(0) == 'a') {
             // Audio stream
             return Track::kAudio;
+          } else if (s.at(0) == 's') {
+            // Subtitle stream
+            return Track::kSubtitle;
           }
         }
       }

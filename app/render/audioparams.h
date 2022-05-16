@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -184,6 +184,26 @@ public:
   void set_duration(int64_t duration)
   {
     duration_ = duration;
+  }
+
+  static bool FormatIsPacked(Format f)
+  {
+    return f >= kPackedStart && f < kPackedEnd;
+  }
+
+  bool FormatIsPacked() const
+  {
+    return FormatIsPacked(format_);
+  }
+
+  static bool FormatIsPlanar(Format f)
+  {
+    return f >= kPlanarStart && f < kPlanarEnd;
+  }
+
+  bool FormatIsPlanar() const
+  {
+    return FormatIsPlanar(format_);
   }
 
   qint64 time_to_bytes(const double& time) const;

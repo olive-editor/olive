@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "crashpadutils.h"
 #include "filefunctions.h"
 
-#ifdef OS_WIN
+#if BUILDFLAG(IS_WIN)
 #include <Windows.h>
 #endif
 

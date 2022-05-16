@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -65,34 +65,36 @@ private:
 
 class WorkareaSetRangeCommand : public UndoCommand {
 public:
-  WorkareaSetRangeCommand(Project *project, TimelinePoints* points, const TimeRange& range) :
-    project_(project),
-    points_(points),
-    old_range_(points_->workarea()->range()),
+  WorkareaSetRangeCommand(TimelineWorkArea *workarea, const TimeRange& range, const TimeRange &old_range) :
+    workarea_(workarea),
+    old_range_(old_range),
     new_range_(range)
+  {
+  }
+
+  WorkareaSetRangeCommand(TimelineWorkArea *workarea, const TimeRange& range) :
+    WorkareaSetRangeCommand(workarea, range, workarea->range())
   {
   }
 
   virtual Project* GetRelevantProject() const override
   {
-    return project_;
+    return Project::GetProjectFromObject(workarea_);
   }
 
 protected:
   virtual void redo() override
   {
-    points_->workarea()->set_range(new_range_);
+    workarea_->set_range(new_range_);
   }
 
   virtual void undo() override
   {
-    points_->workarea()->set_range(old_range_);
+    workarea_->set_range(old_range_);
   }
 
 private:
-  Project* project_;
-
-  TimelinePoints* points_;
+  TimelineWorkArea *workarea_;
 
   TimeRange old_range_;
 

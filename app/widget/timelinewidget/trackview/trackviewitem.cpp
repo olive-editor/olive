@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -76,9 +76,32 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
 
   setMinimumHeight(mute_button_->height());
   setContextMenuPolicy(Qt::CustomContextMenu);
+  setAcceptDrops(true);
 
   connect(track, &Track::MutedChanged, mute_button_, &QPushButton::setChecked);
   connect(this, &QWidget::customContextMenuRequested, this, &TrackViewItem::ShowContextMenu);
+}
+
+void TrackViewItem::dragEnterEvent(QDragEnterEvent *event)
+{
+  TimelineViewMouseEvent e(0, 1, 1, track_->ToReference(), Qt::NoButton, event->keyboardModifiers());
+  e.SetMimeData(event->mimeData());
+  e.SetEvent(event);
+  e.SetBypassImportBuffer(true);
+  emit DragEntered(&e);
+}
+
+void TrackViewItem::dragLeaveEvent(QDragLeaveEvent *event)
+{
+  emit DragLeft(event);
+}
+
+void TrackViewItem::dropEvent(QDropEvent *event)
+{
+  TimelineViewMouseEvent e(0, 1, 1, track_->ToReference(), Qt::NoButton, event->keyboardModifiers());
+  e.SetMimeData(event->mimeData());
+  e.SetEvent(event);
+  emit DragDropped(&e);
 }
 
 QPushButton *TrackViewItem::CreateMSLButton(const QColor& checked_color) const
@@ -145,6 +168,7 @@ void TrackViewItem::ShowContextMenu(const QPoint &p)
 
 void TrackViewItem::DeleteTrack()
 {
+  emit AboutToDeleteTrack(track_);
   Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_));
 }
 

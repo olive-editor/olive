@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -73,11 +73,9 @@ void ConfigDialogBase::accept()
     tab->Accept(command);
   }
 
-  if (command->child_count() == 0) {
-    delete command;
-  } else {
-    Core::instance()->undo_stack()->push(command);
-  }
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  AcceptEvent();
 
   QDialog::accept();
 }

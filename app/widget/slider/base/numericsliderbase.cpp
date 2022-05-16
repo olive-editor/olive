@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ void NumericSliderBase::LadderDragged(int value, double multiplier)
 {
   dragged_ = true;
 
-  dragged_diff_ += value * drag_multiplier_ * multiplier;
+  dragged_diff_ += value * multiplier;
 
   // Store current value to try and prevent any unnecessary signalling if the value doesn't change
   QVariant pre_set_value = GetValueInternal();

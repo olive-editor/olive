@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
 #include "render/job/footagejob.h"
+#include "render/job/colortransformjob.h"
 #include "value.h"
 
 namespace olive {
@@ -36,7 +37,7 @@ class NodeTraverser
 public:
   NodeTraverser();
 
-  NodeValueTable GenerateTable(const Node *n, const Node::ValueHint &hint, const TimeRange &range);
+  NodeValueTable GenerateTable(const Node *n, const TimeRange &range, const Node *next_node = nullptr);
 
   NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
@@ -48,6 +49,8 @@ public:
   NodeValue GenerateRowValueElement(const Node::ValueHint &hint, NodeValue::Type preferred_type, NodeValueTable *table);
   int GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table);
   int GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table);
+
+  void Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range);
 
   static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
   static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)
@@ -77,6 +80,8 @@ public:
 
   static int GetChannelCountFromJob(const GenerateJob& job);
 
+  static TexturePtr GetMainTextureFromJob(const GenerateJob& job);
+
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
@@ -84,11 +89,13 @@ protected:
 
   virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time){}
 
-  virtual void ProcessAudioFootage(SampleBufferPtr destination, const FootageJob &stream, const TimeRange &input_time){}
+  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time){}
 
   virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job){}
 
-  virtual void ProcessSamples(SampleBufferPtr destination, const Node *node, const TimeRange &range, const SampleJob &job){}
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job){}
+
+  virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job){}
 
   virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job){}
 
@@ -99,18 +106,18 @@ protected:
     return CreateDummyTexture(p);
   }
 
-  virtual SampleBufferPtr CreateSampleBuffer(const AudioParams &params, int sample_count)
+  virtual SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count)
   {
     // Return dummy by default
-    return SampleBuffer::Create();
+    return SampleBuffer();
   }
 
-  SampleBufferPtr CreateSampleBuffer(const AudioParams &params, const rational &length)
+  SampleBuffer CreateSampleBuffer(const AudioParams &params, const rational &length)
   {
     if (params.is_valid()) {
       return CreateSampleBuffer(params, params.time_to_samples(length));
     } else {
-      return SampleBuffer::Create();
+      return SampleBuffer();
     }
   }
 
@@ -148,6 +155,10 @@ private:
   AudioParams audio_params_;
 
   const QAtomicInt *cancel_;
+
+  const Node *transform_start_;
+  const Node *transform_now_;
+  QTransform *transform_;
 
 };
 

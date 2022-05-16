@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -60,6 +60,10 @@ private:
    * @brief Button that triggers a refresh of the available audio devices
    */
   QPushButton* refresh_devices_btn_;
+
+  SampleRateComboBox *output_rate_combo_;
+  ChannelLayoutComboBox *output_ch_layout_combo_;
+  SampleFormatComboBox *output_fmt_combo_;
 
   ExportFormatComboBox *record_format_combo_;
 

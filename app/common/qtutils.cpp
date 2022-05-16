@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -77,6 +77,42 @@ QDateTime QtUtils::GetCreationDate(const QFileInfo &info)
 QString QtUtils::GetFormattedDateTime(const QDateTime &dt)
 {
   return dt.toString(Qt::TextDate);
+}
+
+QStringList QtUtils::WordWrapString(const QString &s, const QFontMetrics &fm, int bounding_width)
+{
+  QStringList list;
+
+  QStringList lines = s.split('\n');
+
+  // Iterate every line
+  for (int i=0; i<lines.size(); i++) {
+    QString this_line = lines.at(i);
+
+    while (this_line.size() > 1 && QFontMetricsWidth(fm, this_line) >= bounding_width) {
+      for (int j=this_line.size()-1; j>=0; j--) {
+        if (this_line.at(j).isSpace()) {
+          QString chopped = this_line.left(j);
+          if (QFontMetricsWidth(fm, chopped) < bounding_width) {
+            list.append(chopped);
+
+            int k = j+1;
+            while (k < this_line.size() && this_line.at(k).isSpace()) {
+              k++;
+            }
+            this_line.remove(0, k);
+            break;
+          }
+        }
+      }
+    }
+
+    if (!this_line.isEmpty()) {
+      list.append(this_line);
+    }
+  }
+
+  return list;
 }
 
 }

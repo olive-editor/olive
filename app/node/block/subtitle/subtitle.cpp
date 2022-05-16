@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,11 +29,25 @@ const QString SubtitleBlock::kTextIn = QStringLiteral("text_in");
 SubtitleBlock::SubtitleBlock()
 {
   AddInput(kTextIn, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
+  SetInputFlags(kBufferIn, InputFlags(GetInputFlags(kBufferIn) | kInputFlagHidden));
+  SetInputFlags(kLengthInput, InputFlags(GetInputFlags(kLengthInput) | kInputFlagHidden));
+  SetInputFlags(kMediaInInput, InputFlags(GetInputFlags(kMediaInInput) | kInputFlagHidden));
+  SetInputFlags(kSpeedInput, InputFlags(GetInputFlags(kSpeedInput) | kInputFlagHidden));
+  SetInputFlags(kReverseInput, InputFlags(GetInputFlags(kReverseInput) | kInputFlagHidden));
+  SetInputFlags(kMaintainAudioPitchInput, InputFlags(GetInputFlags(kMaintainAudioPitchInput) | kInputFlagHidden));
+
+  // Undo block flag that hides in param view
+  SetFlags(GetFlags() & ~kDontShowInParamView);
 }
 
 QString SubtitleBlock::Name() const
 {
-  return tr("Subtitle");
+  if (GetText().isEmpty()) {
+    return tr("Subtitle");
+  } else {
+    return GetText();
+  }
 }
 
 QString SubtitleBlock::id() const

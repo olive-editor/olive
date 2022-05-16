@@ -50,7 +50,7 @@ jobs:
        ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-latest
     container:
-      image: olivevideoeditor/ci-olive:2022.1
+      image: olivevideoeditor/ci-olive:2022.2
 
     steps:
       - name: Checkout Source Code
@@ -332,7 +332,6 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-${{ matrix.os-arch }}.tar.gz
           sudo tar xzf crashpad-mac-${{ matrix.os-arch }}.tar.gz -C /
-        if: matrix.os-arch == 'x86_64' # TEMPORARY: Crashpad isn't compiling on ARM64 yet for some reason
 
       - name: Generate Patreon List
         env:
@@ -374,32 +373,26 @@ jobs:
           BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
-          if [ "${{ matrix.os-arch }}" == "x86_64" ]
-          then
-            DYLIBBUNDLER_EXTRA_ARGS="-x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler"
-          fi
-
           mv app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
-          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # Copy Qt frameworks and plugins
           cp -Ra $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
           cp -Ra $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
 
+          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" \
+            -x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler -x $BUNDLE_NAME/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+
           # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
           #       but perhaps I'll bring it up with them soon.
           cp -a $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
 
-          if [ "${{ matrix.os-arch }}" == "x86_64" ]
-          then
-            # Crashpad symbols
-            $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
-            SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
-            SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
-            mkdir -p "$SYM_DIR"
-            mv Olive.sym "$SYM_DIR"
-          fi
+          # Crashpad symbols
+          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
+          SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
+          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
+          mkdir -p "$SYM_DIR"
+          mv Olive.sym "$SYM_DIR"
 
       - name: Sign Application
         working-directory: ${{ runner.workspace }}/build

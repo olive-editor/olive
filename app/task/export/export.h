@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ protected:
 
   virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) override;
 
-  virtual bool AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) override;
+  virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) override;
 
   virtual bool EncodeSubtitle(const SubtitleBlock *sub) override;
 
@@ -50,11 +50,11 @@ protected:
   }
 
 private:
-  bool WriteAudioLoop(const TimeRange &time, SampleBufferPtr samples);
+  bool WriteAudioLoop(const TimeRange &time, const SampleBuffer &samples);
 
   QHash<rational, FramePtr> time_map_;
 
-  QHash<TimeRange, SampleBufferPtr> audio_map_;
+  QHash<TimeRange, SampleBuffer> audio_map_;
 
   ColorManager* color_manager_;
 

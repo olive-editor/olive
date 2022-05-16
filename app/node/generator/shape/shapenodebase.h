@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ public:
   virtual void Retranslate() override;
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+
+  void SetRect(QRectF rect, const VideoParams &sequence_res, MultiUndoCommand *command);
 
   static const QString kPositionInput;
   static const QString kSizeInput;

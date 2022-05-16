@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,12 +33,16 @@ class SliderLabel : public QLabel
 public:
   SliderLabel(QWidget* parent);
 
+  void SetColor(const QColor &c);
+
 protected:
   virtual void mousePressEvent(QMouseEvent *e) override;
 
   virtual void mouseReleaseEvent(QMouseEvent *e) override;
 
   virtual void focusInEvent(QFocusEvent *event) override;
+
+  virtual void changeEvent(QEvent *event) override;
 
 signals:
   void LabelPressed();
@@ -50,6 +54,10 @@ signals:
   void RequestReset();
 
   void ChangeSliderType();
+
+private:
+  bool override_color_enabled_;
+  QColor override_color_;
 
 };
 

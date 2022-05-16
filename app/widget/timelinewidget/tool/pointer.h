@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,6 +41,8 @@ protected:
 
   virtual void InitiateDrag(Block* clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers);
 
+  TimelineViewGhostItem *GetExistingGhostFromBlock(Block *block);
+
   TimelineViewGhostItem* AddGhostFromBlock(Block *block, Timeline::MovementMode mode, bool check_if_exists = false);
 
   TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const Track::Reference& track, Timeline::MovementMode mode);
@@ -71,6 +73,8 @@ protected:
 
   const Timeline::MovementMode& drag_movement_mode() const { return drag_movement_mode_; }
   void set_drag_movement_mode(const Timeline::MovementMode &d) { drag_movement_mode_ = d; }
+
+  static bool CanTransitionMove(TransitionBlock *transit, const QVector<Block*> &clips);
 
   void SetMovementAllowed(bool e)
   {

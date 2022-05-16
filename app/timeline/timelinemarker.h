@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,17 +38,9 @@ public:
   TimelineMarker(QObject* parent = nullptr);
   TimelineMarker(int color, const TimeRange& time, const QString& name = QString(), QObject* parent = nullptr);
 
-  /**
-   * @brief Dummy function for TimeBasedViewSelectionManager compatibility
-   *
-   * FIXME: Once we upgrade to C++17, we won't need this because we'll be able to check types in
-   * TimeBasedViewSelectionManager's template functions
-   */
-  const rational &time() const { return time_.in(); }
-  void set_time(const rational& time);
-
-  const TimeRange &time_range() const { return time_; }
+  const TimeRange &time() const { return time_; }
   void set_time(const TimeRange& time);
+  void set_time(const rational& time);
 
   bool has_sibling_at_time(const rational &t) const;
 
@@ -99,7 +91,7 @@ public:
   {
     for (auto it=markers_.cbegin(); it!=markers_.cend(); it++) {
       TimelineMarker *m = *it;
-      if (m->time() == t) {
+      if (m->time().in() == t) {
         return m;
       }
     }
@@ -114,10 +106,10 @@ public:
     for (auto it=markers_.cbegin(); it!=markers_.cend(); it++) {
       TimelineMarker *m = *it;
 
-      rational this_diff = qAbs(m->time() - t);
+      rational this_diff = qAbs(m->time().in() - t);
 
       if (closest) {
-        rational stored_diff = qAbs(closest->time() - t);
+        rational stored_diff = qAbs(closest->time().in() - t);
 
         if (this_diff > stored_diff) {
           // Since the list is organized by time, if the diff increases, assume we are only going
@@ -227,7 +219,10 @@ private:
 
 class MarkerChangeTimeCommand : public UndoCommand {
 public:
-  MarkerChangeTimeCommand(TimelineMarker* marker, TimeRange time);
+  MarkerChangeTimeCommand(TimelineMarker* marker, const TimeRange &time, const TimeRange &old_time);
+  MarkerChangeTimeCommand(TimelineMarker* marker, const TimeRange &time) :
+    MarkerChangeTimeCommand(marker, time, marker->time())
+  {}
 
   virtual Project* GetRelevantProject() const override;
 

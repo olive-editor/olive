@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ namespace olive {
 
 const QString ViewerOutput::kVideoParamsInput = QStringLiteral("video_param_in");
 const QString ViewerOutput::kAudioParamsInput = QStringLiteral("audio_param_in");
+const QString ViewerOutput::kSubtitleParamsInput = QStringLiteral("subtitle_param_in");
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 const QString ViewerOutput::kVideoAutoCacheInput = QStringLiteral("video_autocache_in");
@@ -47,6 +48,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
   AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
+
+  AddInput(kSubtitleParamsInput, NodeValue::kSubtitleParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
   if (create_buffer_inputs) {
     AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -100,6 +103,7 @@ QString ViewerOutput::duration() const
   // Get first enabled streams
   VideoParams video = GetFirstEnabledVideoStream();
   AudioParams audio = GetFirstEnabledAudioStream();
+  SubtitleParams sub = GetFirstEnabledSubtitleStream();
 
   if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
     // Prioritize video
@@ -113,6 +117,8 @@ QString ViewerOutput::duration() const
     }
 
     using_timebase = audio.sample_rate_as_time_base();
+  } else if (sub.is_valid()) {
+    using_timebase = OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>();
   }
 
   if (using_timebase.isNull()) {
@@ -151,6 +157,11 @@ bool ViewerOutput::HasEnabledAudioStreams() const
   return GetFirstEnabledAudioStream().is_valid();
 }
 
+bool ViewerOutput::HasEnabledSubtitleStreams() const
+{
+  return GetFirstEnabledSubtitleStream().is_valid();
+}
+
 VideoParams ViewerOutput::GetFirstEnabledVideoStream() const
 {
   int sz = GetVideoStreamCount();
@@ -179,6 +190,21 @@ AudioParams ViewerOutput::GetFirstEnabledAudioStream() const
   }
 
   return AudioParams();
+}
+
+SubtitleParams ViewerOutput::GetFirstEnabledSubtitleStream() const
+{
+  int sz = GetSubtitleStreamCount();
+
+  for (int i=0; i<sz; i++) {
+    SubtitleParams sp = GetSubtitleParams(i);
+
+    if (sp.enabled()) {
+      return sp;
+    }
+  }
+
+  return SubtitleParams();
 }
 
 void ViewerOutput::set_default_parameters()
@@ -276,6 +302,16 @@ QVector<Track::Reference> ViewerOutput::GetEnabledStreamsAsReferences() const
     }
   }
 
+  {
+    int sp_sz = GetSubtitleStreamCount();
+
+    for (int i=0; i<sp_sz; i++) {
+      if (GetSubtitleParams(i).enabled()) {
+        refs.append(Track::Reference(Track::kSubtitle, i));
+      }
+    }
+  }
+
   return refs;
 }
 
@@ -285,6 +321,7 @@ void ViewerOutput::Retranslate()
 
   SetInputName(kVideoParamsInput, tr("Video Parameters"));
   SetInputName(kAudioParamsInput, tr("Audio Parameters"));
+  SetInputName(kSubtitleParamsInput, tr("Subtitle Parameters"));
 
   if (HasInputWithID(kTextureInput)) {
     SetInputName(kTextureInput, tr("Texture"));
@@ -344,7 +381,7 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
   switch (type) {
   case Track::kVideo:
     if (IsInputConnected(kTextureInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), GetValueHintForInput(kTextureInput), TimeRange(0, 0));
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
       rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
       if (!r.isNaN()) {
         return r;
@@ -353,7 +390,7 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
     break;
   case Track::kAudio:
     if (IsInputConnected(kSamplesInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), GetValueHintForInput(kSamplesInput), TimeRange(0, 0));
+      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
       rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();;
       if (!r.isNaN()) {
         return r;
@@ -520,6 +557,8 @@ int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
     id = kVideoParamsInput;
   } else if (type == Track::kAudio) {
     id = kAudioParamsInput;
+  } else if (type == Track::kSubtitle) {
+    id = kSubtitleParamsInput;
   } else {
     return -1;
   }

@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(colormanager)
+add_subdirectory(displaytransform)
+add_subdirectory(ociobase)
+add_subdirectory(ociogradingtransformlinear)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

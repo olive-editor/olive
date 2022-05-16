@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ void TransformDistortNode::Retranslate()
 void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   // Generate matrix
-  QMatrix4x4 generated_matrix = GenerateMatrix(value, true, false, false, false);
+  QMatrix4x4 generated_matrix = GenerateMatrix(value, false, false, false);
 
   // Pop texture
   NodeValue texture_meta = value[kTextureInput];
@@ -92,16 +92,16 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   bool pushed_job = false;
 
   // If we have a texture, generate a matrix and make it happen
-  if (TexturePtr texture = texture_meta.data().value<TexturePtr>()) {
+  if (TexturePtr texture = texture_meta.toTexture()) {
     // Adjust our matrix by the resolutions involved
     QMatrix4x4 real_matrix = GenerateAutoScaledMatrix(generated_matrix, value, globals, texture->params());
 
     if (!real_matrix.isIdentity()) {
       // The matrix will transform things
       ShaderJob job;
-      job.InsertValue(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture), this));
-      job.InsertValue(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, real_matrix, this));
-      job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(value[kInterpolationInput].data().toInt()));
+      job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture), this));
+      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, real_matrix, this));
+      job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(value[kInterpolationInput].toInt()));
 
       // FIXME: This should be optimized, we can use matrix math to determine if this operation will
       //        end up with gaps in the screen that will require an alpha channel.
@@ -119,9 +119,9 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   }
 }
 
-ShaderCode TransformDistortNode::GetShaderCode(const QString &shader_id) const
+ShaderCode TransformDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id);
+  Q_UNUSED(request);
 
   // Returns default frag and vert shader
   return ShaderCode();
@@ -140,10 +140,10 @@ void TransformDistortNode::Hash(QCryptographicHash &hash, const NodeGlobals &glo
   traverser.SetCacheVideoParams(video_params);
 
   NodeValueRow db = traverser.GenerateRow(this, globals.time());
-  TexturePtr tex = db[kTextureInput].data().value<TexturePtr>();
+  TexturePtr tex = db[kTextureInput].toTexture();
   if (tex) {
     VideoParams tex_params = tex->params();
-    QMatrix4x4 matrix = GenerateMatrix(db, true, false, false, false);
+    QMatrix4x4 matrix = GenerateMatrix(db, false, false, false);
     matrix = GenerateAutoScaledMatrix(matrix, db, globals, tex_params);
 
     if (!matrix.isIdentity()) {
@@ -162,18 +162,18 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
 
   if (gizmo == anchor_gizmo_) {
 
-    gizmo_inverted_transform_ = GenerateMatrix(row, false, true, true, false).toTransform().inverted();
+    gizmo_inverted_transform_ = GenerateMatrix(row, true, true, false).toTransform().inverted();
 
   } else if (IsAScaleGizmo(gizmo)) {
 
     // Dragging scale handle
-    TexturePtr tex = row[kTextureInput].data().value<TexturePtr>();
+    TexturePtr tex = row[kTextureInput].toTexture();
     if (!tex) {
       return;
     }
 
-    gizmo_scale_uniform_ = row[kUniformScaleInput].data().toBool();
-    gizmo_anchor_pt_ = (row[kAnchorInput].data().value<QVector2D>() + gizmo->GetGlobals().resolution()/2).toPointF();
+    gizmo_scale_uniform_ = row[kUniformScaleInput].toBool();
+    gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().resolution()/2).toPointF();
 
     if (gizmo == point_gizmo_[kGizmoScaleTopLeft] || gizmo == point_gizmo_[kGizmoScaleTopRight]
         || gizmo == point_gizmo_[kGizmoScaleBottomLeft] || gizmo == point_gizmo_[kGizmoScaleBottomRight]) {
@@ -187,7 +187,7 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
     // Store texture size
     VideoParams texture_params = tex->params();
     QVector2D texture_sz(texture_params.square_pixel_width(), texture_params.height());
-    gizmo_scale_anchor_ = row[kAnchorInput].data().value<QVector2D>() + texture_sz/2;
+    gizmo_scale_anchor_ = row[kAnchorInput].toVec2() + texture_sz/2;
 
     if (gizmo == point_gizmo_[kGizmoScaleTopRight]
         || gizmo == point_gizmo_[kGizmoScaleBottomRight]
@@ -204,11 +204,11 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
     }
 
     // Store current matrix
-    gizmo_inverted_transform_ = GenerateMatrix(row, false, true, true, true).toTransform().inverted();
+    gizmo_inverted_transform_ = GenerateMatrix(row, true, true, true).toTransform().inverted();
 
   } else if (gizmo == rotation_gizmo_) {
 
-    gizmo_anchor_pt_ = (row[kAnchorInput].data().value<QVector2D>() + gizmo->GetGlobals().resolution()/2).toPointF();
+    gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().resolution()/2).toPointF();
     gizmo_start_angle_ = qAtan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
     gizmo_last_angle_ = gizmo_start_angle_;
     gizmo_last_alt_angle_ = qAtan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
@@ -368,7 +368,7 @@ QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat
 
 void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  TexturePtr tex = row[kTextureInput].data().value<TexturePtr>();
+  TexturePtr tex = row[kTextureInput].toTexture();
   if (!tex) {
     return;
   }
@@ -384,12 +384,12 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   QVector2D tex_offset = tex_params.offset();
 
   // Retrieve autoscale value
-  AutoScaleType autoscale = static_cast<AutoScaleType>(row[kAutoscaleInput].data().toInt());
+  AutoScaleType autoscale = static_cast<AutoScaleType>(row[kAutoscaleInput].toInt());
 
   // Fold values into a matrix for the rectangle
   QMatrix4x4 rectangle_matrix;
   rectangle_matrix.scale(sequence_half_res);
-  rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, false, false, false),
+  rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, false, false),
                                                 sequence_res,
                                                 tex_sz,
                                                 tex_offset,
@@ -409,7 +409,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   // Draw anchor point
   QMatrix4x4 anchor_matrix;
   anchor_matrix.scale(sequence_half_res);
-  anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, true, false, false),
+  anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, true, false, false),
                                              sequence_res,
                                              tex_sz,
                                              tex_offset,
@@ -432,6 +432,15 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   SetInputProperty(kAnchorInput, QStringLiteral("offset"), tex_sz * 0.5);
 }
 
+QTransform TransformDistortNode::GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const
+{
+  if (TexturePtr texture = row[kTextureInput].toTexture()) {
+    auto m = GenerateMatrix(row, false, false, false);
+    return GenerateAutoScaledMatrix(m, row, globals, texture->params()).toTransform();
+  }
+  return super::GizmoTransformation(row, globals);
+}
+
 QPointF TransformDistortNode::CreateScalePoint(double x, double y, const QPointF &half_res, const QMatrix4x4 &mat)
 {
   return mat.map(QPointF(x, y)) + half_res;
@@ -441,7 +450,7 @@ QMatrix4x4 TransformDistortNode::GenerateAutoScaledMatrix(const QMatrix4x4& gene
 {
   const QVector2D &sequence_res = globals.resolution();
   QVector2D texture_res(texture_params.square_pixel_width(), texture_params.height());
-  AutoScaleType autoscale = static_cast<AutoScaleType>(value[kAutoscaleInput].data().toInt());
+  AutoScaleType autoscale = static_cast<AutoScaleType>(value[kAutoscaleInput].toInt());
 
   return AdjustMatrixByResolutions(generated_matrix,
                                    sequence_res,

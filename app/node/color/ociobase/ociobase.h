@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,46 +18,45 @@
 
 ***/
 
-#ifndef FFMPEGFRAMEPOOL_H
-#define FFMPEGFRAMEPOOL_H
+#ifndef OCIOBASENODE_H
+#define OCIOBASENODE_H
 
-#include "common/memorypool.h"
-#include "render/videoparams.h"
+#include "node/node.h"
+#include "render/job/colortransformjob.h"
 
 namespace olive {
 
-class FFmpegFramePool : public MemoryPool
+class OCIOBaseNode : public Node
 {
   Q_OBJECT
 public:
-  FFmpegFramePool(int element_count);
+  OCIOBaseNode();
 
-  void SetParameters(int width, int height, VideoParams::Format format, int channel_count);
+  virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  const int& width() const
-  {
-    return width_;
-  }
+  static const QString kTextureInput;
 
-  const int& height() const
-  {
-    return height_;
-  }
+protected slots:
+  virtual void ConfigChanged() = 0;
 
 protected:
-  virtual size_t GetElementSize() override;
+  ColorManager *manager() const { return manager_; }
+
+  ColorProcessorPtr processor() const { return processor_; }
+  void set_processor(ColorProcessorPtr p) { processor_ = p; }
 
 private:
-  int width_;
+  ColorManager *manager_;
 
-  int height_;
+  ColorProcessorPtr processor_;
 
-  VideoParams::Format format_;
+private slots:
+  void AddedToGraph(NodeGraph *graph);
 
-  int channel_count_;
+  void RemovedFromGraph();
 
 };
 
 }
 
-#endif // FFMPEGFRAMEPOOL_H
+#endif // OCIOBASENODE_H

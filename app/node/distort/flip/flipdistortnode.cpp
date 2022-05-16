@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -69,9 +69,9 @@ void FlipDistortNode::Retranslate()
   SetInputName(kVerticalInput, tr("Vertical"));
 }
 
-ShaderCode FlipDistortNode::GetShaderCode(const QString& shader_id) const
+ShaderCode FlipDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 
@@ -79,16 +79,16 @@ void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
 {
   ShaderJob job;
 
-  job.InsertValue(value);
+  job.Insert(value);
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (job.Get(kTextureInput).toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (job.GetValue(kHorizontalInput).data().toBool() || job.GetValue(kVerticalInput).data().toBool()) {
+    if (job.Get(kHorizontalInput).toBool() || job.Get(kVerticalInput).toBool()) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
     // If we're not flipping or flopping just push the texture
-    table->Push(job.GetValue(kTextureInput));
+    table->Push(job.Get(kTextureInput));
     }
   }
 

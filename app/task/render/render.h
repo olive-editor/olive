@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ protected:
 
   virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) = 0;
 
-  virtual bool AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
+  virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) = 0;
 
   virtual bool EncodeSubtitle(const SubtitleBlock *subtitle);
 

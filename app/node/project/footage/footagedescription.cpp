@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,6 +40,20 @@ bool FootageDescription::Load(const QString &filename)
 
     while (XMLReadNextStartElement(&reader)) {
       if (reader.name() == QStringLiteral("streamcache")) {
+        // Default to first version of metadata (which wasn't versioned at all)
+        unsigned version = 1;
+
+        XMLAttributeLoop((&reader), attr) {
+          if (attr.name() == QStringLiteral("version")) {
+            version = attr.value().toUInt();
+          }
+        }
+
+        if (version != kFootageMetaVersion) {
+          // If this is a different version, discard so we can probe new data
+          return false;
+        }
+
         while (XMLReadNextStartElement(&reader)) {
           if (reader.name() == QStringLiteral("decoder")) {
             decoder_ = reader.readElementText();
@@ -53,6 +67,10 @@ bool FootageDescription::Load(const QString &filename)
                 AudioParams ap;
                 ap.Load(&reader);
                 AddAudioStream(ap);
+              } else if (reader.name() == QStringLiteral("subtitle")) {
+                SubtitleParams sp;
+                sp.Load(&reader);
+                AddSubtitleStream(sp);
               } else {
                 reader.skipCurrentElement();
               }
@@ -68,7 +86,11 @@ bool FootageDescription::Load(const QString &filename)
 
     file.close();
 
-    return true;
+    if (reader.hasError()) {
+      qWarning() << "Failed to load footage description for" << filename << reader.errorString();
+    } else {
+      return true;
+    }
   }
 
   return false;
@@ -88,6 +110,8 @@ bool FootageDescription::Save(const QString &filename) const
 
   writer.writeStartElement(QStringLiteral("streamcache"));
 
+  writer.writeAttribute(QStringLiteral("version"), QString::number(kFootageMetaVersion));
+
   writer.writeTextElement(QStringLiteral("decoder"), decoder_);
 
   writer.writeStartElement(QStringLiteral("streams"));
@@ -101,6 +125,12 @@ bool FootageDescription::Save(const QString &filename) const
   foreach (const AudioParams& ap, audio_streams_) {
     writer.writeStartElement(QStringLiteral("audio"));
     ap.Save(&writer);
+    writer.writeEndElement(); // audio
+  }
+
+  foreach (const SubtitleParams& sp, subtitle_streams_) {
+    writer.writeStartElement(QStringLiteral("subtitle"));
+    sp.Save(&writer);
     writer.writeEndElement(); // audio
   }
 

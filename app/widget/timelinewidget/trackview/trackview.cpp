@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -121,9 +121,16 @@ void TrackView::TrackHeightChanged(int index, int height)
 
 void TrackView::InsertTrack(Track *track)
 {
+  TrackViewItem *tvi = new TrackViewItem(track);
+
+  connect(tvi, &TrackViewItem::AboutToDeleteTrack, this, &TrackView::AboutToDeleteTrack);
+  connect(tvi, &TrackViewItem::DragEntered, this, &TrackView::DragEntered);
+  connect(tvi, &TrackViewItem::DragLeft, this, &TrackView::DragLeft);
+  connect(tvi, &TrackViewItem::DragDropped, this, &TrackView::DragDropped);
+
   splitter_->Insert(track->Index(),
                     track->GetTrackHeightInPixels(),
-                    new TrackViewItem(track));
+                    tvi);
 }
 
 void TrackView::RemoveTrack(Track *track)

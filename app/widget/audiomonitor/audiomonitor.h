@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ public:
 
   bool IsPlaying() const
   {
-    return file_ || waveform_;
+    return waveform_;
   }
 
   static void StartWaveformOnAll(const AudioVisualWaveform *waveform, const rational& start, int playback_speed)
@@ -59,10 +59,10 @@ public:
     }
   }
 
-  static void PushBytesOnAll(const QByteArray &d)
+  static void PushSampleBufferOnAll(const SampleBuffer &d)
   {
     foreach (AudioMonitor *m, instances_) {
-      m->PushBytes(d);
+      m->PushSampleBuffer(d);
     }
   }
 
@@ -71,7 +71,7 @@ public slots:
 
   void Stop();
 
-  void PushBytes(const QByteArray& d);
+  void PushSampleBuffer(const SampleBuffer &samples);
 
   void StartWaveform(const AudioVisualWaveform *waveform, const rational& start, int playback_speed);
 
@@ -83,9 +83,9 @@ protected:
 private:
   void SetUpdateLoop(bool e);
 
-  void UpdateValuesFromFile(QVector<double> &v, qint64 delta_time);
-
   void UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_time);
+
+  void AudioVisualWaveformSampleToInternalValues(const AudioVisualWaveform::Sample &in, QVector<double> &out);
 
   void PushValue(const QVector<double>& v);
 
@@ -95,7 +95,6 @@ private:
 
   AudioParams params_;
 
-  QIODevice* file_;
   qint64 last_time_;
 
   const AudioVisualWaveform* waveform_;

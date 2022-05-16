@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -64,10 +64,17 @@ public:
   void SetSelectedNodes(const QVector<NodeParamViewItem *> &nodes, bool handle_focused_node = true, bool emit_signal = true);
   void SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bool emit_signal = true);
 
+  Node *GetNodeWithID(const QString &id);
+  Node *GetNodeWithIDAndIgnoreList(const QString &id, const QVector<Node*> &ignore);
+
   const QVector<Node*> &GetContexts() const
   {
     return contexts_;
   }
+
+  virtual bool CopySelected(bool cut) override;
+
+  virtual bool Paste() override;
 
 public slots:
   void SetContexts(const QVector<Node*> &contexts);
@@ -78,6 +85,8 @@ signals:
   void FocusedNodeChanged(Node* n);
 
   void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
+
+  void RequestViewerToStartEditingText();
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -174,6 +183,8 @@ private slots:
   void ItemClicked();
 
   void SelectNodeFromConnectedLink(Node *node);
+
+  void RequestEditTextInViewer();
 
 };
 

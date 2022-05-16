@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@ bool PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const
   return true;
 }
 
-bool PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+bool PreCacheTask::AudioDownloaded(const TimeRange &range, const SampleBuffer &samples)
 {
   // Pre-cache doesn't cache any audio
 

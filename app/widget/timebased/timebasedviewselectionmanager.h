@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -163,14 +163,24 @@ public:
     initial_drag_item_ = initial_item;
 
     dragging_.resize(selected_.size());
-    snap_points_.resize(selected_.size()*2);
+
+    if constexpr (std::is_same_v<T, TimelineMarker>) {
+      snap_points_.resize(selected_.size()*2);
+    } else {
+      snap_points_.resize(selected_.size());
+    }
+
     for (size_t i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
-      dragging_[i] = obj->time();
-
-      snap_points_[i] = obj->time();
-      snap_points_[i+selected_.size()] = obj->time_range().out();
+      if constexpr (std::is_same_v<T, TimelineMarker>) {
+        dragging_[i] = obj->time().in();
+        snap_points_[i] = obj->time().in();
+        snap_points_[i+selected_.size()] = obj->time().out();
+      } else {
+        dragging_[i] = obj->time();
+        snap_points_[i] = obj->time();
+      }
     }
 
     drag_mouse_start_ = view_->mapToScene(event->pos());
@@ -195,7 +205,25 @@ public:
     rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
 
     // Snap points
+    rational presnap_time_diff = time_diff;
     SnapPoints(&time_diff);
+
+    // Validate snapping
+    if (Core::instance()->snapping() && view_->GetSnapService()) {
+      for (size_t i=0; i<selected_.size(); i++) {
+        rational proposed_time = dragging_.at(i) + time_diff;
+        T *sel = selected_.at(i);
+
+        if (sel->has_sibling_at_time(proposed_time)) {
+          // Unsnap
+          time_diff = presnap_time_diff;
+          if (view_->GetSnapService()) {
+            view_->GetSnapService()->HideSnaps();
+          }
+          break;
+        }
+      }
+    }
 
     // Validate movement
     for (size_t i=0; i<selected_.size(); i++) {
@@ -240,7 +268,15 @@ public:
     }
 
     // Show information about this keyframe
-    QString tip = Timecode::time_to_timecode(initial_drag_item_->time(), timebase_,
+    rational display_time;
+
+    if constexpr (std::is_same_v<T, TimelineMarker>) {
+      display_time = initial_drag_item_->time().in();
+    } else {
+      display_time = initial_drag_item_->time();
+    }
+
+    QString tip = Timecode::time_to_timecode(display_time, timebase_,
                                              Core::instance()->GetTimecodeDisplay(), false);
 
     if (!tip_format.isEmpty()) {
@@ -256,7 +292,13 @@ public:
     QToolTip::hideText();
 
     for (size_t i=0; i<selected_.size(); i++) {
-      command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i)));
+      rational current;
+      if constexpr (std::is_same_v<T, TimelineMarker>) {
+        current = selected_.at(i)->time().in();
+      } else {
+        current = selected_.at(i)->time();
+      }
+      command->add_child(new SetTimeCommand(selected_.at(i), current, dragging_.at(i)));
     }
 
     dragging_.clear();

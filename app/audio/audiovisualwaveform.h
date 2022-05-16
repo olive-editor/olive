@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ public:
    *
    * Starting at `start`, writes samples over anything in the buffer, expanding it if necessary.
    */
-  void OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational& start = 0);
+  void OverwriteSamples(const SampleBuffer &samples, int sample_rate, const rational& start = 0);
 
   /**
    * @brief Replaces sums at a certain range in this visual waveform
@@ -98,7 +98,7 @@ public:
 
   Sample GetSummaryFromTime(const rational& start, const rational& length) const;
 
-  static Sample SumSamples(SampleBufferPtr samples, int start_index, int length);
+  static Sample SumSamples(const SampleBuffer &samples, int start_index, int length);
 
   static Sample ReSumSamples(const SamplePerChannel *samples, int nb_samples, int nb_channels);
 
@@ -111,7 +111,7 @@ public:
   static const rational kMaximumSampleRate;
 
 private:
-  void OverwriteSamplesFromBuffer(SampleBufferPtr samples, int sample_rate, const rational& start, double target_rate, Sample &data, int &start_index, int &samples_length);
+  void OverwriteSamplesFromBuffer(const SampleBuffer &samples, int sample_rate, const rational& start, double target_rate, Sample &data, int &start_index, int &samples_length);
 
   void OverwriteSamplesFromMipmap(const Sample& input, double input_sample_rate, int &input_start, int &input_length, const rational& start, double output_rate, Sample &output_data);
 

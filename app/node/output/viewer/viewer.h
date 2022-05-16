@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
-#include "render/videoparams.h"
+#include "render/subtitleparams.h"
 #include "render/videoparams.h"
 #include "timeline/timelinepoints.h"
 
@@ -88,6 +88,17 @@ public:
     }
   }
 
+  SubtitleParams GetSubtitleParams(int index = 0) const
+  {
+    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+    // but it does suppress a warning message that we don't need
+    if (index < InputArraySize(kSubtitleParamsInput)) {
+      return GetStandardValue(kSubtitleParamsInput, index).value<SubtitleParams>();
+    } else {
+      return SubtitleParams();
+    }
+  }
+
   void SetVideoParams(const VideoParams &video, int index = 0)
   {
     SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
@@ -96,6 +107,11 @@ public:
   void SetAudioParams(const AudioParams &audio, int index = 0)
   {
     SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio), index);
+  }
+
+  void SetSubtitleParams(const SubtitleParams &subs, int index = 0)
+  {
+    SetStandardValue(kSubtitleParamsInput, QVariant::fromValue(subs), index);
   }
 
   int GetVideoStreamCount() const
@@ -108,16 +124,23 @@ public:
     return InputArraySize(kAudioParamsInput);
   }
 
+  int GetSubtitleStreamCount() const
+  {
+    return InputArraySize(kSubtitleParamsInput);
+  }
+
   int GetTotalStreamCount() const
   {
-    return GetVideoStreamCount() + GetAudioStreamCount();
+    return GetVideoStreamCount() + GetAudioStreamCount() + GetSubtitleStreamCount();
   }
 
   bool HasEnabledVideoStreams() const;
   bool HasEnabledAudioStreams() const;
+  bool HasEnabledSubtitleStreams() const;
 
   VideoParams GetFirstEnabledVideoStream() const;
   AudioParams GetFirstEnabledAudioStream() const;
+  SubtitleParams GetFirstEnabledSubtitleStream() const;
 
   const rational &GetLength() const { return last_length_; }
   const rational &GetVideoLength() const { return video_length_; }
@@ -191,6 +214,7 @@ public:
 
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
+  static const QString kSubtitleParamsInput;
 
   static const QString kTextureInput;
   static const QString kSamplesInput;

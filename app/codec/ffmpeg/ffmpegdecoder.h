@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ extern "C" {
 #include <QWaitCondition>
 
 #include "codec/decoder.h"
-#include "ffmpegframepool.h"
 
 namespace olive {
 
@@ -91,6 +90,12 @@ private:
      */
     int GetFrame(AVPacket* pkt, AVFrame* frame);
 
+    const char *GetSubtitleHeader() const;
+
+    int GetSubtitle(AVPacket* pkt, AVSubtitle* sub);
+
+    int GetPacket(AVPacket *pkt);
+
     void Seek(int64_t timestamp);
 
     AVFormatContext* fmt_ctx() const
@@ -133,13 +138,15 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
-  FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
+  FramePtr GetFrameFromCache(const rational &t) const;
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  FramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
 
   void RemoveFirstFrame();
+
+  VideoParams GetVideoParams() const;
 
   RetrieveVideoParams filter_params_;
   AVFilterGraph* filter_graph_;
@@ -149,11 +156,12 @@ private:
   VideoParams::Format native_pix_fmt_;
   int native_channel_count_;
 
-  FFmpegFramePool pool_;
+  AVFrame *working_frame_;
+  AVPacket *working_packet_;
 
   int64_t second_ts_;
 
-  QList<FFmpegFramePool::ElementPtr> cached_frames_;
+  std::list<FramePtr> cached_frames_;
 
   bool is_working_;
   QMutex is_working_mutex_;

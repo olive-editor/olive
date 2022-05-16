@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -91,6 +91,7 @@ QIcon icon::EyeOpened;
 QIcon icon::EyeClosed;
 QIcon icon::LockOpened;
 QIcon icon::LockClosed;
+QIcon icon::Pencil;
 
 void icon::LoadAll(const QString& theme)
 {
@@ -161,6 +162,8 @@ void icon::LoadAll(const QString& theme)
   EyeClosed = Create(theme, "eye-closed");
   LockOpened = Create(theme, "lock-opened");
   LockClosed = Create(theme, "lock-closed");
+
+  Pencil = Create(theme, "text-edit");
 }
 
 QIcon icon::Create(const QString& theme, const QString &name)

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,9 +27,6 @@
 
 namespace olive {
 
-class SampleBuffer;
-using SampleBufferPtr = std::shared_ptr<SampleBuffer>;
-
 /**
  * @brief A buffer of audio samples
  *
@@ -42,12 +39,8 @@ class SampleBuffer
 {
 public:
   SampleBuffer();
-
-  static SampleBufferPtr Create();
-  static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, const rational& length);
-  static SampleBufferPtr CreateAllocated(const AudioParams& audio_params, int samples_per_channel);
-
-  DISABLE_COPY_MOVE(SampleBuffer)
+  SampleBuffer(const AudioParams& audio_params, const rational& length);
+  SampleBuffer(const AudioParams& audio_params, int samples_per_channel);
 
   const AudioParams& audio_params() const;
   void set_audio_params(const AudioParams& params);
@@ -69,9 +62,13 @@ public:
     return data_.at(channel).constData();
   }
 
-  float **to_raw_ptrs()
+  QVector<float *> to_raw_ptrs()
   {
-    return raw_ptrs_.data();
+    QVector<float *> r(data_.size());
+    for (int i=0; i<r.size(); i++) {
+      r[i] = data_[i].data();
+    }
+    return r;
   }
 
   bool is_allocated() const;
@@ -96,19 +93,16 @@ public:
   }
 
 private:
-  void update_raw();
-
   AudioParams audio_params_;
 
   int sample_count_per_channel_;
 
   QVector< QVector<float> > data_;
-  QVector<float*> raw_ptrs_;
 
 };
 
 }
 
-Q_DECLARE_METATYPE(olive::SampleBufferPtr)
+Q_DECLARE_METATYPE(olive::SampleBuffer)
 
 #endif // SAMPLEBUFFER_H

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,10 +21,16 @@
 #ifndef NODEVALUE_H
 #define NODEVALUE_H
 
+#include <QMatrix4x4>
 #include <QString>
 #include <QVariant>
 #include <QVector>
 
+#include "codec/samplebuffer.h"
+#include "common/bezier.h"
+#include "node/splitvalue.h"
+#include "render/color.h"
+#include "render/texture.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -173,14 +179,17 @@ public:
     kAudioParams,
 
     /**
+     * Subtitle Parameters type
+     *
+     * Resolves to `SubtitleParams`
+     */
+    kSubtitleParams,
+
+    /**
      * End of list
      */
     kDataTypeCount
   };
-
-  static const QVector<Type> kNumber;
-  static const QVector<Type> kBuffer;
-  static const QVector<Type> kVector;
 
   NodeValue() :
     type_(kNone),
@@ -189,13 +198,14 @@ public:
   {
   }
 
-  NodeValue(Type type, const QVariant& data, const Node* from = nullptr, bool array = false, const QString& tag = QString()) :
+  template <typename T>
+  NodeValue(Type type, const T& data, const Node* from = nullptr, bool array = false, const QString& tag = QString()) :
     type_(type),
-    data_(data),
     from_(from),
     tag_(tag),
     array_(array)
   {
+    set_value(data);
   }
 
   Type type() const
@@ -203,14 +213,22 @@ public:
     return type_;
   }
 
-  const QVariant& data() const
+  template <typename T>
+  T value() const
   {
-    return data_;
+    return data_.value<T>();
   }
 
-  void set_data(const QVariant& data)
+  template <typename T>
+  void set_value(const T &v)
   {
-    data_ = data;
+    data_ = QVariant::fromValue(v);
+  }
+
+  template <typename T>
+  bool canConvert() const
+  {
+    return data_.canConvert<T>();
   }
 
   const QString& tag() const
@@ -239,6 +257,10 @@ public:
   static NodeValue::Type GetDataTypeFromName(const QString &n);
 
   static QString ValueToString(Type data_type, const QVariant& value, bool value_is_a_key_track);
+  static QString ValueToString(const NodeValue &v, bool value_is_a_key_track)
+  {
+    return ValueToString(v.type_, v.data_, value_is_a_key_track);
+  }
 
   static QVariant StringToValue(Type data_type, const QString &string, bool value_is_a_key_track);
 
@@ -248,12 +270,17 @@ public:
   static QByteArray ValueToBytes(Type type, const QVariant& value);
   static QByteArray ValueToBytes(const NodeValue &value)
   {
-    return ValueToBytes(value.type(), value.data());
+    return ValueToBytes(value.type(), value.data_);
   }
 
   static QVector<QVariant> split_normal_value_into_track_values(Type type, const QVariant &value);
 
   static QVariant combine_track_values_into_normal_value(Type type, const QVector<QVariant>& split);
+
+  SplitValue to_split_value() const
+  {
+    return split_normal_value_into_track_values(type_, data_);
+  }
 
   /**
    * @brief Returns whether a data type can be interpolated or not
@@ -271,17 +298,43 @@ public:
 
   static bool type_is_numeric(NodeValue::Type type)
   {
-    return kNumber.contains(type);
+    return type == kFloat
+        || type == kInt
+        || type == kRational;
   }
 
   static bool type_is_vector(NodeValue::Type type)
   {
-    return kVector.contains(type);
+    return type == kVec2
+        || type == kVec3
+        || type == kVec4;
+  }
+
+  static bool type_is_buffer(NodeValue::Type type)
+  {
+    return type == kTexture
+        || type == kSamples;
   }
 
   static int get_number_of_keyframe_tracks(Type type);
 
   static void ValidateVectorString(QStringList* list, int count);
+
+  TexturePtr toTexture() const { return value<TexturePtr>(); }
+  SampleBuffer toSamples() const { return value<SampleBuffer>(); }
+  bool toBool() const { return value<bool>(); }
+  double toDouble() const { return value<double>(); }
+  int64_t toInt() const { return value<int64_t>(); }
+  rational toRational() const { return value<rational>(); }
+  QString toString() const { return value<QString>(); }
+  Color toColor() const { return value<Color>(); }
+  QMatrix4x4 toMatrix() const { return value<QMatrix4x4>(); }
+  VideoParams toVideoParams() const { return value<VideoParams>(); }
+  AudioParams toAudioParams() const { return value<AudioParams>(); }
+  QVector2D toVec2() const { return value<QVector2D>(); }
+  QVector3D toVec3() const { return value<QVector3D>(); }
+  QVector4D toVec4() const { return value<QVector4D>(); }
+  Bezier toBezier() const { return value<Bezier>(); }
 
 private:
   Type type_;
@@ -297,50 +350,34 @@ class NodeValueTable
 public:
   NodeValueTable() = default;
 
-  QVariant Get(NodeValue::Type type, const QString& tag = QString()) const
+  NodeValue Get(NodeValue::Type type, const QString& tag = QString()) const
   {
     QVector<NodeValue::Type> types = {type};
     return Get(types, tag);
   }
 
-  QVariant Get(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const
-  {
-    return GetWithMeta(type, tag).data();
-  }
+  NodeValue Get(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const;
 
-  NodeValue GetWithMeta(NodeValue::Type type, const QString& tag = QString()) const
-  {
-    QVector<NodeValue::Type> types = {type};
-    return GetWithMeta(types, tag);
-  }
-
-  NodeValue GetWithMeta(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const;
-
-  QVariant Take(NodeValue::Type type, const QString& tag = QString())
+  NodeValue Take(NodeValue::Type type, const QString& tag = QString())
   {
     QVector<NodeValue::Type> types = {type};
     return Take(types, tag);
   }
 
-  QVariant Take(const QVector<NodeValue::Type>& type, const QString& tag = QString())
-  {
-    return TakeWithMeta(type, tag).data();
-  }
-
-  NodeValue TakeWithMeta(NodeValue::Type type, const QString& tag = QString())
-  {
-    QVector<NodeValue::Type> types = {type};
-    return TakeWithMeta(types, tag);
-  }
-
-  NodeValue TakeWithMeta(const QVector<NodeValue::Type>& type, const QString& tag = QString());
+  NodeValue Take(const QVector<NodeValue::Type>& type, const QString& tag = QString());
 
   void Push(const NodeValue& value)
   {
     values_.append(value);
   }
 
-  void Push(NodeValue::Type type, const QVariant& data, const Node *from, bool array = false, const QString& tag = QString())
+  void Push(const NodeValueTable& value)
+  {
+    values_.append(value.values_);
+  }
+
+  template <typename T>
+  void Push(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
   {
     Push(NodeValue(type, data, from, array, tag));
   }
@@ -350,7 +387,8 @@ public:
     values_.prepend(value);
   }
 
-  void Prepend(NodeValue::Type type, const QVariant& data, const Node *from, bool array = false, const QString& tag = QString())
+  template <typename T>
+  void Prepend(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
   {
     Prepend(NodeValue(type, data, from, array, tag));
   }

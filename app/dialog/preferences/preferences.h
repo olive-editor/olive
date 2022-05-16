@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,25 +32,22 @@
 
 namespace olive {
 
+class MainWindow;
+
 /**
  * @brief The PreferencesDialog class
  *
- * A dialog for the global application settings. Mostly an interface for Config. Can be loaded from any part of the
- * application.
+ * A dialog for the global application settings. Mostly an interface for Config.
  */
 class PreferencesDialog : public ConfigDialogBase
 {
   Q_OBJECT
 
 public:
-  /**
-   * @brief PreferencesDialog Constructor
-   *
-   * @param parent
-   *
-   * QWidget parent. Usually MainWindow.
-   */
-  PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar);
+  PreferencesDialog(MainWindow *main_window);
+
+protected:
+  virtual void AcceptEvent() override;
 
 };
 

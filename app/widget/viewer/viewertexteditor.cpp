@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -64,6 +64,8 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   connect(qApp, &QApplication::focusChanged, this, &ViewerTextEditor::FocusChanged);
   connect(this, &QTextEdit::currentCharFormatChanged, this, &ViewerTextEditor::FormatChanged);
   connect(document(), &QTextDocument::contentsChanged, this, &ViewerTextEditor::DocumentChanged, Qt::QueuedConnection);
+
+  setAcceptRichText(false);
 }
 
 void ViewerTextEditor::ConnectToolBar(ViewerTextEditorToolBar *toolbar)

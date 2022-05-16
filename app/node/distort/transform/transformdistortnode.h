@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,8 @@ public:
 
   virtual QString ShortName() const override
   {
-    return Node::ShortName();
+    // Override MatrixGenerator's short name "Ortho"
+    return Name();
   }
 
   virtual QString id() const override
@@ -65,7 +66,7 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   enum AutoScaleType {
     kAutoScaleNone,
@@ -81,6 +82,7 @@ public:
                                               AutoScaleType autoscale_type = kAutoScaleNone);
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const override;
 
   static const QString kTextureInput;
   static const QString kAutoscaleInput;

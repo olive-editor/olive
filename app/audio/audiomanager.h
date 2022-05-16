@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <portaudio.h>
 
 #include "audiovisualwaveform.h"
+#include "audio/audioprocessor.h"
 #include "common/define.h"
 #include "codec/ffmpeg/ffmpegencoder.h"
 #include "render/audioparams.h"
@@ -52,7 +53,7 @@ public:
 
   void SetOutputNotifyInterval(int n);
 
-  void PushToOutput(const AudioParams &params, const QByteArray& samples);
+  bool PushToOutput(const AudioParams &params, const QByteArray& samples, QString *error = nullptr);
 
   void ClearBufferedOutput();
 
@@ -74,7 +75,7 @@ public:
 
   void HardReset();
 
-  bool StartRecording(const EncodingParams &params);
+  bool StartRecording(const EncodingParams &params, QString *error_str = nullptr);
 
   void StopRecording();
 
@@ -85,6 +86,8 @@ public:
 
 signals:
   void OutputNotify();
+
+  void OutputParamsChanged();
 
 private:
   AudioManager();
@@ -104,6 +107,7 @@ private:
 
   PaDeviceIndex input_device_;
   PaStream *input_stream_;
+
   FFmpegEncoder *input_encoder_;
 
 };

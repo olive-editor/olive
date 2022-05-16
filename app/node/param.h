@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -62,6 +62,19 @@ public:
   InputFlags &operator|=(const InputFlags &f)
   {
     f_ |= f.f_;
+    return *this;
+  }
+
+  InputFlags operator|(const InputFlag &f) const
+  {
+    InputFlags i = *this;
+    i |= f;
+    return i;
+  }
+
+  InputFlags &operator|=(const InputFlag &f)
+  {
+    f_ |= f;
     return *this;
   }
 

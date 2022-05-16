@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,12 +26,14 @@
 #include <QtMath>
 
 #include "common/qtutils.h"
+#include "common/range.h"
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/serializer/serializer.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedwidget.h"
+#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -42,7 +44,10 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   timeline_points_(nullptr),
   dragging_(false),
   ignore_next_focus_out_(false),
-  selection_manager_(this)
+  selection_manager_(this),
+  resize_item_(nullptr),
+  marker_top_(0),
+  marker_bottom_(0)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -53,8 +58,9 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
 
   setContextMenuPolicy(Qt::CustomContextMenu);
   setFocusPolicy(Qt::ClickFocus);
+  setMouseTracking(true);
 
-  selection_manager_.SetSnapMask(TimeBasedWidget::kSnapAll & ~TimeBasedWidget::kSnapToMarkers);
+  selection_manager_.SetSnapMask(TimeBasedWidget::kSnapAll);
 }
 
 void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
@@ -84,19 +90,21 @@ void SeekableWidget::ConnectTimelinePoints(TimelinePoints *points)
 
 void SeekableWidget::DeleteSelected()
 {
-  MultiUndoCommand* command = new MultiUndoCommand();
+  if (!selection_manager_.IsDragging()) {
+    MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (TimelineMarker *marker, selection_manager_.GetSelectedObjects()) {
-    command->add_child(new MarkerRemoveCommand(marker));
+    foreach (TimelineMarker *marker, selection_manager_.GetSelectedObjects()) {
+      command->add_child(new MarkerRemoveCommand(marker));
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 bool SeekableWidget::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata(Project::GetProjectFromObject(timeline_points_));
+    ProjectSerializer::SaveData sdata;
     sdata.SetOnlySerializeMarkers(selection_manager_.GetSelectedObjects());
 
     ProjectSerializer::Copy(sdata, QStringLiteral("markers"));
@@ -111,7 +119,7 @@ bool SeekableWidget::CopySelected(bool cut)
   }
 }
 
-bool SeekableWidget::PasteMarkers(bool insert, rational insert_time)
+bool SeekableWidget::PasteMarkers()
 {
   ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("markers"));
   if (res == ProjectSerializer::kSuccess) {
@@ -122,29 +130,18 @@ bool SeekableWidget::PasteMarkers(bool insert, rational insert_time)
       // Normalize markers to start at playhead
       rational min = RATIONAL_MAX;
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
-        min = qMin(min, (*it)->time());
+        min = std::min(min, (*it)->time().in());
       }
       min -= GetTime();
-
-      // Avoid duplicates
-      bool loop;
-      do {
-        loop = false;
-        for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
-          rational proposed_time = (*it)->time() - min;
-
-          if (timeline_points_->markers()->GetMarkerAtTime(proposed_time)) {
-            min -= timebase();
-            loop = true;
-            break;
-          }
-        }
-      } while (loop);
 
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
         TimelineMarker *m = *it;
 
-        m->set_time(m->time() - min);
+        m->set_time(m->time().in() - min);
+
+        if (TimelineMarker *existing = timeline_points_->markers()->GetMarkerAtTime(m->time().in())) {
+          command->add_child(new MarkerRemoveCommand(existing));
+        }
 
         command->add_child(new MarkerAddCommand(timeline_points_->markers(), m));
       }
@@ -159,7 +156,17 @@ bool SeekableWidget::PasteMarkers(bool insert, rational insert_time)
 
 void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
-  if (TimelineMarker *initial = selection_manager_.MousePress(event)) {
+  if (resize_item_) {
+    // Handle selection, even though we won't be using it for dragging
+    if (!(event->modifiers() & Qt::ShiftModifier)) {
+      selection_manager_.ClearSelection();
+    }
+    if (TimelineMarker *m = dynamic_cast<TimelineMarker*>(resize_item_)) {
+      selection_manager_.Select(m);
+    }
+    dragging_ = true;
+    resize_start_ = mapToScene(event->pos());
+  } else if (TimelineMarker *initial = selection_manager_.MousePress(event)) {
     selection_manager_.DragStart(initial, event);
   } else if (!selection_manager_.GetObjectAtPoint(event->pos()) && event->button() == Qt::LeftButton) {
     SeekToScenePoint(mapToScene(event->pos()).x());
@@ -174,7 +181,19 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
   if (selection_manager_.IsDragging()) {
     selection_manager_.DragMove(event);
   } else if (dragging_) {
-    SeekToScenePoint(mapToScene(event->pos()).x());
+    QPointF scene = mapToScene(event->pos());
+    if (resize_item_) {
+      DragResizeHandle(scene);
+    } else {
+      SeekToScenePoint(scene.x());
+    }
+  } else if (timeline_points_) {
+    // Look for resize points
+    if (FindResizeHandle(event)) {
+      setCursor(Qt::SizeHorCursor);
+    } else {
+      unsetCursor();
+    }
   }
 }
 
@@ -188,6 +207,11 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
 
   if (GetSnapService()) {
     GetSnapService()->HideSnaps();
+  }
+
+  if (resize_item_) {
+    CommitResizeHandle();
+    resize_item_ = nullptr;
   }
 
   dragging_ = false;
@@ -315,20 +339,23 @@ void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
     for (auto it=GetTimelinePoints()->markers()->cbegin(); it!=GetTimelinePoints()->markers()->cend(); it++) {
       TimelineMarker* marker = *it;
 
-      int marker_right = TimeToScene(marker->time_range().out());
+      int marker_right = TimeToScene(marker->time().out());
       if (marker_right < lim_left) {
         continue;
       }
 
-      int marker_left = TimeToScene(marker->time_range().in());
+      int marker_left = TimeToScene(marker->time().in());
       if (marker_left >= lim_right)  {
         break;
       }
 
       QRect marker_rect = marker->Draw(p, QPoint(marker_left, marker_bottom), GetScale(), selection_manager_.IsSelected(marker));
+      marker_top_ = marker_rect.top();
       selection_manager_.DeclareDrawnObject(marker, marker_rect);
     }
   }
+
+  marker_bottom_ = marker_bottom;
 }
 
 void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
@@ -382,6 +409,117 @@ bool SeekableWidget::ShowContextMenu(const QPoint &p)
   } else {
     return false;
   }
+}
+
+bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
+{
+  resize_item_ = nullptr;
+  resize_mode_ = kResizeNone;
+
+  QPointF scene = mapToScene(event->pos());
+  const int border = 10;
+  rational min = SceneToTimeNoGrid(scene.x() - border);
+  rational max = SceneToTimeNoGrid(scene.x() + border);
+
+  // Test for workarea
+  if (timeline_points_->workarea()->in() >= min && timeline_points_->workarea()->in() < max) {
+    resize_mode_ = kResizeIn;
+  } else if (timeline_points_->workarea()->out() >= min && timeline_points_->workarea()->out() < max) {
+    resize_mode_ = kResizeOut;
+  }
+
+  if (resize_mode_ != kResizeNone) {
+    resize_item_ = timeline_points_->workarea();
+    resize_item_range_ = timeline_points_->workarea()->range();
+    resize_snap_mask_ = TimeBasedWidget::kSnapAll & ~TimeBasedWidget::kSnapToWorkarea;
+  } else if (event->pos().y() >= marker_top_ && event->pos().y() < marker_bottom_) {
+    // Check for markers
+    for (auto it=timeline_points_->markers()->cbegin(); it!=timeline_points_->markers()->cend(); it++) {
+      TimelineMarker *m = *it;
+      if (m->time().in() != m->time().out()) {
+        if (m->time().in() >= min && m->time().in() < max) {
+          resize_mode_ = kResizeIn;
+        } else if (m->time().out() >= min && m->time().out() < max) {
+          resize_mode_ = kResizeOut;
+        }
+
+        if (resize_mode_ != kResizeNone) {
+          resize_item_ = m;
+          resize_item_range_ = m->time();
+          resize_snap_mask_ = TimeBasedWidget::kSnapAll;
+          break;
+        }
+      }
+    }
+  }
+
+  return resize_item_;
+}
+
+void SeekableWidget::DragResizeHandle(const QPointF &scene)
+{
+  qreal diff = scene.x() - resize_start_.x();
+
+  rational proposed_time;
+
+  if (resize_mode_ == kResizeIn) {
+    proposed_time = qMax(rational(0), qMin(resize_item_range_.out(), resize_item_range_.in() + SceneToTimeNoGrid(diff)));
+  } else {
+    proposed_time = qMax(resize_item_range_.in(), resize_item_range_.out() + SceneToTimeNoGrid(diff));
+  }
+
+  rational presnap_time = proposed_time;
+
+  if (Core::instance()->snapping() && GetSnapService()) {
+    rational movement;
+
+    GetSnapService()->SnapPoint({proposed_time}, &movement, resize_snap_mask_);
+
+    proposed_time += movement;
+  }
+
+  TimeRange new_range = resize_item_range_;
+  if (resize_mode_ == kResizeIn) {
+    // Markers should not have the same time as anything else
+    // NOTE: This code is largely duplicated from TimeBasedViewSelectionManager::DragMove. Not ideal,
+    //       but I'm not sure if there's a good way to re-use that code
+    if (TimelineMarker *marker = dynamic_cast<TimelineMarker*>(resize_item_)) {
+      if (marker->has_sibling_at_time(proposed_time)) {
+        proposed_time = presnap_time;
+
+        if (GetSnapService()) {
+          GetSnapService()->HideSnaps();
+        }
+      }
+
+      while (marker->has_sibling_at_time(proposed_time)) {
+        proposed_time += rational(1, 1000);
+      }
+    }
+
+    new_range.set_in(proposed_time);
+  } else {
+    new_range.set_out(proposed_time);
+  }
+
+  if (TimelineMarker *marker = dynamic_cast<TimelineMarker*>(resize_item_)) {
+    marker->set_time(new_range);
+  } else if (TimelineWorkArea *workarea = dynamic_cast<TimelineWorkArea*>(resize_item_)) {
+    workarea->set_range(new_range);
+  }
+}
+
+void SeekableWidget::CommitResizeHandle()
+{
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  if (TimelineMarker *marker = dynamic_cast<TimelineMarker*>(resize_item_)) {
+    command->add_child(new MarkerChangeTimeCommand(marker, marker->time(), resize_item_range_));
+  } else if (TimelineWorkArea *workarea = dynamic_cast<TimelineWorkArea*>(resize_item_)) {
+    command->add_child(new WorkareaSetRangeCommand(workarea, workarea->range(), resize_item_range_));
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 }

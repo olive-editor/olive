@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ public:
   };
 
   using SerializedProperties = QHash<Node*, QMap<QString, QString> >;
+  using SerializedKeyframes = QHash<QString, QVector<NodeKeyframe*> >;
 
   class LoadData
   {
@@ -64,6 +65,8 @@ public:
     SerializedProperties properties;
 
     std::vector<TimelineMarker*> markers;
+
+    SerializedKeyframes keyframes;
 
   };
 
@@ -105,7 +108,7 @@ public:
   class SaveData
   {
   public:
-    SaveData(Project *project, const QString &filename = QString())
+    SaveData(Project *project = nullptr, const QString &filename = QString())
     {
       project_ = project;
       filename_ = filename;
@@ -128,6 +131,9 @@ public:
     const std::vector<TimelineMarker*> &GetOnlySerializeMarkers() const { return only_serialize_markers_; }
     void SetOnlySerializeMarkers(const std::vector<TimelineMarker*> &only) { only_serialize_markers_ = only; }
 
+    const std::vector<NodeKeyframe*> &GetOnlySerializeKeyframes() const { return only_serialize_keyframes_; }
+    void SetOnlySerializeKeyframes(const std::vector<NodeKeyframe*> &only) { only_serialize_keyframes_ = only; }
+
     const SerializedProperties &GetProperties() const { return properties_; }
     void SetProperties(const SerializedProperties &p) { properties_ = p; }
 
@@ -141,6 +147,8 @@ public:
     SerializedProperties properties_;
 
     std::vector<TimelineMarker*> only_serialize_markers_;
+
+    std::vector<NodeKeyframe*> only_serialize_keyframes_;
 
   };
 

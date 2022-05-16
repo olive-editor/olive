@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "node/project/project.h"
 #include "render/audioparams.h"
 #include "render/renderjobtracker.h"
+#include "threading/threadpool.h"
 #include "threading/threadticketwatcher.h"
 
 namespace olive {
@@ -49,9 +50,9 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t, bool prioritize);
+  RenderTicketPtr GetSingleFrame(const rational& t, RenderTicketPriority prioritize);
 
-  RenderTicketPtr GetRangeOfAudio(TimeRange range, bool prioritize);
+  RenderTicketPtr GetRangeOfAudio(TimeRange range, RenderTicketPriority prioritize);
 
   /**
    * @brief Set the viewer node to auto-cache
@@ -110,8 +111,8 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
-  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, bool prioritize);
+  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, RenderTicketPriority priority, bool texture_only);
+  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority);
 
   /**
    * @brief Process all changes to internal NodeGraph copy

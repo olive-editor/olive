@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -284,6 +284,7 @@ void ClipBlock::Retranslate()
   SetInputName(kMediaInInput, tr("Media In"));
   SetInputName(kSpeedInput, tr("Speed"));
   SetInputName(kReverseInput, tr("Reverse"));
+  SetInputName(kMaintainAudioPitchInput, tr("Maintain Audio Pitch"));
 }
 
 void ClipBlock::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const

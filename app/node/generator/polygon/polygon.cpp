@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -89,13 +89,20 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+GenerateJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
 {
   GenerateJob job;
 
-  job.InsertValue(value);
+  job.Insert(value);
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+
+  return job;
+}
+
+void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  GenerateJob job = GetGenerateJob(value);
 
   PushMergableJob(value, QVariant::fromValue(job), table);
 }
@@ -109,7 +116,7 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
   img.fill(Qt::transparent);
 
-  QVector<NodeValue> points = job.GetValue(kPointsInput).data().value< QVector<NodeValue> >();
+  QVector<NodeValue> points = job.Get(kPointsInput).value< QVector<NodeValue> >();
 
   QPainterPath path = GeneratePath(points);
 
@@ -123,7 +130,7 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   p.drawPath(path);
 
   // Transplant alpha channel to frame
-  Color rgba = job.GetValue(kColorInput).data().value<Color>();
+  Color rgba = job.Get(kColorInput).toColor();
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   __m128 sse_color = _mm_loadu_ps(rgba.data());
 #endif
@@ -189,7 +196,7 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
 {
   QPointF half_res(globals.resolution_by_par().x()/2, globals.resolution_by_par().y()/2);
 
-  QVector<NodeValue> points = row[kPointsInput].data().value< QVector<NodeValue> >();
+  QVector<NodeValue> points = row[kPointsInput].value< QVector<NodeValue> >();
 
   int current_pos_sz = gizmo_position_handles_.size();
 
@@ -216,7 +223,7 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
 
   if (!points.isEmpty()) {
     for (int i=0; i<points.size(); i++) {
-      const Bezier &pt = points.at(i).data().value<Bezier>();
+      const Bezier &pt = points.at(i).toBezier();
 
       QPointF main = pt.ToPointF() + half_res;
       QPointF cp1 = main + pt.ControlPoint1ToPointF();
@@ -260,14 +267,14 @@ QPainterPath PolygonGenerator::GeneratePath(const QVector<NodeValue> &points)
   QPainterPath path;
 
   if (!points.isEmpty()) {
-    const Bezier &first_pt = points.first().data().value<Bezier>();
+    const Bezier &first_pt = points.first().toBezier();
     path.moveTo(first_pt.ToPointF());
 
     for (int i=1; i<points.size(); i++) {
-      AddPointToPath(&path, points.at(i-1).data().value<Bezier>(), points.at(i).data().value<Bezier>());
+      AddPointToPath(&path, points.at(i-1).toBezier(), points.at(i).toBezier());
     }
 
-    AddPointToPath(&path, points.last().data().value<Bezier>(), first_pt);
+    AddPointToPath(&path, points.last().toBezier(), first_pt);
   }
 
   return path;

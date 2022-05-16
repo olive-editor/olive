@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -49,16 +49,16 @@ QString DipToColorTransition::Description() const
   return tr("Transition between clips by dipping to a color.");
 }
 
-ShaderCode DipToColorTransition::GetShaderCode(const QString &shader_id) const
+ShaderCode DipToColorTransition::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
 }
 
 void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
 {
-  job.InsertValue(kColorInput, value);
+  job.Insert(kColorInput, value);
 }
 
 }

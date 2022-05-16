@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,31 +30,30 @@ class SampleJob : public AcceleratedJob {
 public:
   SampleJob()
   {
-    samples_ = nullptr;
   }
 
   SampleJob(const NodeValue& value)
   {
-    samples_ = value.data().value<SampleBufferPtr>();
+    samples_ = value.toSamples();
   }
 
   SampleJob(const QString& from, const NodeValueRow& row)
   {
-    samples_ = row[from].data().value<SampleBufferPtr>();
+    samples_ = row[from].toSamples();
   }
 
-  SampleBufferPtr samples() const
+  const SampleBuffer &samples() const
   {
     return samples_;
   }
 
   bool HasSamples() const
   {
-    return samples_ && samples_->is_allocated();
+    return samples_.is_allocated();
   }
 
 private:
-  SampleBufferPtr samples_;
+  SampleBuffer samples_;
 
 };
 

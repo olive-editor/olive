@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,6 +44,8 @@ Block::Block() :
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
   IgnoreHashingFrom(kLengthInput);
+
+  SetInputFlags(kEnabledInput, InputFlags(GetInputFlags(kEnabledInput) | kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   SetFlags(kDontShowInParamView);
 }

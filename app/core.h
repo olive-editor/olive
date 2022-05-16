@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -246,9 +246,6 @@ public:
    * @brief Recursively count files in a file/directory list
    */
   static int CountFilesInFileList(const QFileInfoList &filenames);
-
-  static QVariant GetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference);
-  static void SetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference, const QVariant& value);
 
   /**
    * @brief Show a dialog to the user to rename a set of nodes

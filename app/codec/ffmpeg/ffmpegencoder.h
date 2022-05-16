@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ public:
 
   virtual bool WriteFrame(olive::FramePtr frame, olive::rational time) override;
 
-  virtual bool WriteAudio(olive::SampleBufferPtr audio) override;
+  virtual bool WriteAudio(const olive::SampleBuffer &audio) override;
 
   bool WriteAudioData(const AudioParams &audio_params, const uint8_t **data, int input_sample_count);
 
