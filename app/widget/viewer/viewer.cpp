@@ -546,7 +546,7 @@ void ViewerWidget::QueueNextAudioBuffer()
   RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
   connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForPlayback);
   audio_playback_queue_.push_back(watcher);
-  watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(audio_playback_queue_time_, queue_end), true));
+  watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(audio_playback_queue_time_, queue_end), RenderTicketPriority::kHigh));
 
   audio_playback_queue_time_ = queue_end;
 }
@@ -694,7 +694,7 @@ void ViewerWidget::UpdateTextureFromNode()
       ClearVideoAutoCacherQueue();
     }
 
-    watcher->SetTicket(GetFrame(time, true));
+    watcher->SetTicket(GetFrame(time, RenderTicketPriority::kHigh));
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
@@ -769,7 +769,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 
       for (int i=0; i<prequeue_length_; i++) {
         playback_queue_next_frame_ -= playback_speed_;
-        RequestNextFrameForQueue(true, false);
+        RequestNextFrameForQueue(RenderTicketPriority::kHigh, false);
       }
 
       playback_queue_next_frame_ = temp;
@@ -853,7 +853,7 @@ void ViewerWidget::PushScrubbedAudio()
 
       RenderTicketWatcher *watcher = new RenderTicketWatcher();
       connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForScrubbing);
-      watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(GetTime(), GetTime() + interval), true));
+      watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(GetTime(), GetTime() + interval), RenderTicketPriority::kHigh));
     }
   }
 }
@@ -907,7 +907,7 @@ void ViewerWidget::SetDisplayImage(QVariant frame)
   }
 }
 
-void ViewerWidget::RequestNextFrameForQueue(bool prioritize, bool increment)
+void ViewerWidget::RequestNextFrameForQueue(RenderTicketPriority priority, bool increment)
 {
   rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
                                                    timebase());
@@ -921,11 +921,11 @@ void ViewerWidget::RequestNextFrameForQueue(bool prioritize, bool increment)
     watcher->setProperty("time", QVariant::fromValue(next_time));
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
     queue_watchers_.append(watcher);
-    watcher->SetTicket(GetFrame(next_time, prioritize));
+    watcher->SetTicket(GetFrame(next_time, priority));
   }
 }
 
-RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool prioritize)
+RenderTicketPtr ViewerWidget::GetFrame(const rational &t, RenderTicketPriority priority)
 {
   QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
 
@@ -933,7 +933,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t, bool prioritize)
 
   if (cached_hash.isEmpty() || !QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
-    return auto_cacher_.GetSingleFrame(t, prioritize);
+    return auto_cacher_.GetSingleFrame(t, priority);
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();

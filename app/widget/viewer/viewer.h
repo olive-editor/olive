@@ -190,9 +190,9 @@ private:
 
   void SetDisplayImage(QVariant frame);
 
-  void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
+  void RequestNextFrameForQueue(RenderTicketPriority priority = RenderTicketPriority::kNormal, bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, bool prioritize);
+  RenderTicketPtr GetFrame(const rational& t, RenderTicketPriority priority);
 
   void FinishPlayPreprocess();
 
