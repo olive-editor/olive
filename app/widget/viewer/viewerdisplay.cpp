@@ -66,6 +66,7 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   show_fps_(false),
   frames_skipped_(0),
   show_widget_background_(false),
+  playback_speed_(0),
   push_mode_(kPushNull),
   add_band_(nullptr),
   queue_starved_(false)
@@ -882,6 +883,7 @@ void ViewerDisplayWidget::RequestStartEditingText()
 void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase)
 {
   playback_timebase_ = timebase;
+  playback_speed_ = playback_speed;
 
   timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
 
@@ -924,7 +926,7 @@ void ViewerDisplayWidget::UpdateFromQueue()
         }
         return;
 
-      } else if (pf.timestamp > time) {
+      } else if ((pf.timestamp > time) == (playback_speed_ > 0)) {
 
         // The next frame in the queue is too new, so just do a regular update. Either the
         // frame we want will arrive in time, or we'll just have to skip it.
