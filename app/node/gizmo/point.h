@@ -57,7 +57,7 @@ public:
 private:
   static double GetStandardRadius();
 
-  QRectF GetDrawingRect(double radius) const;
+  QRectF GetDrawingRect(const QTransform &transform, double radius) const;
 
   Shape shape_;
 

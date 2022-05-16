@@ -889,6 +889,8 @@ public:
     return gizmos_;
   }
 
+  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const { return QTransform(); }
+
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals){}
 
   const QString& GetLabel() const;

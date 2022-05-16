@@ -75,6 +75,7 @@ public:
     kOCIOGradingTransformLinear,
     kChromaKey,
     kMaskDistort,
+    kDropShadowFilter,
 
     // Count value
     kInternalNodeCount

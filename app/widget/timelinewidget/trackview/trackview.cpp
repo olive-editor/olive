@@ -124,9 +124,6 @@ void TrackView::InsertTrack(Track *track)
   TrackViewItem *tvi = new TrackViewItem(track);
 
   connect(tvi, &TrackViewItem::AboutToDeleteTrack, this, &TrackView::AboutToDeleteTrack);
-  connect(tvi, &TrackViewItem::DragEntered, this, &TrackView::DragEntered);
-  connect(tvi, &TrackViewItem::DragLeft, this, &TrackView::DragLeft);
-  connect(tvi, &TrackViewItem::DragDropped, this, &TrackView::DragDropped);
 
   splitter_->Insert(track->Index(),
                     track->GetTrackHeightInPixels(),

@@ -75,7 +75,6 @@ public:
       ghost->can_have_zero_length_ = false;
     } else if (dynamic_cast<TransitionBlock*>(block)) {
       ghost->can_have_zero_length_ = false;
-      ghost->SetCanMoveTracks(false);
     }
 
     return ghost;

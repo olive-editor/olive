@@ -295,7 +295,8 @@ protected:
     return stream_;
   }
 
-  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
+  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time, VideoParams::Interlacing interlacing);
+  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time, VideoParams::Interlacing interlacing);
 
 signals:
   /**

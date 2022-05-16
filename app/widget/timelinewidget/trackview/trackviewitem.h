@@ -42,15 +42,6 @@ public:
 signals:
   void AboutToDeleteTrack(Track *track);
 
-  void DragEntered(TimelineViewMouseEvent* event);
-  void DragLeft(QDragLeaveEvent* event);
-  void DragDropped(TimelineViewMouseEvent* event);
-
-protected:
-  virtual void dragEnterEvent(QDragEnterEvent *event) override;
-  virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
-  virtual void dropEvent(QDropEvent *event) override;
-
 private:
   QPushButton* CreateMSLButton(const QColor &checked_color) const;
 

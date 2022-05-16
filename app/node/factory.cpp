@@ -37,6 +37,11 @@
 #include "distort/mask/mask.h"
 #include "distort/transform/transformdistortnode.h"
 #include "effect/opacity/opacityeffect.h"
+#include "filter/blur/blur.h"
+#include "filter/shader/shader.h"
+#include "filter/dropshadow/dropshadowfilter.h"
+#include "filter/mosaic/mosaicfilternode.h"
+#include "filter/stroke/stroke.h"
 #include "generator/matrix/matrix.h"
 #include "generator/noise/noise.h"
 #include "generator/polygon/polygon.h"
@@ -45,18 +50,14 @@
 #include "generator/text/textv1.h"
 #include "generator/text/textv2.h"
 #include "generator/text/textv3.h"
-#include "filter/blur/blur.h"
-#include "filter/shader/shader.h"
-#include "filter/mosaic/mosaicfilternode.h"
-#include "filter/stroke/stroke.h"
 #include "input/time/timeinput.h"
 #include "input/value/valuenode.h"
+#include "keying/chromakey/chromakey.h"
+#include "keying/colordifferencekey/colordifferencekey.h"
+#include "keying/despill/despill.h"
 #include "math/math/math.h"
 #include "math/merge/merge.h"
 #include "math/trigonometry/trigonometry.h"
-#include "keying/colordifferencekey/colordifferencekey.h"
-#include "keying/despill/despill.h"
-#include "keying/chromakey/chromakey.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "project/folder/folder.h"
@@ -291,6 +292,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new ChromaKeyNode();
   case kMaskDistort:
     return new MaskDistortNode();
+  case kDropShadowFilter:
+    return new DropShadowFilter();
 
   case kInternalNodeCount:
     break;

@@ -190,9 +190,9 @@ private:
 
   void SetDisplayImage(QVariant frame);
 
-  void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
+  void RequestNextFrameForQueue(RenderTicketPriority priority = RenderTicketPriority::kNormal, bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, bool prioritize);
+  RenderTicketPtr GetFrame(const rational& t, RenderTicketPriority priority);
 
   void FinishPlayPreprocess();
 
@@ -274,6 +274,8 @@ private:
   Track::Reference recording_track_;
   QString recording_filename_;
 
+  qint64 queue_starved_start_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -320,6 +322,9 @@ private slots:
   void ReceivedAudioBufferForPlayback();
 
   void ReceivedAudioBufferForScrubbing();
+
+  void QueueStarved();
+  void QueueNoLongerStarved();
 
   void ForceRequeueFromCurrentTime();
 

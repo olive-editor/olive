@@ -273,7 +273,7 @@ QIcon Footage::icon() const
     } else if (s.is_valid() && s.video_type() == VideoParams::kVideoTypeStill) {
       return icon::Image;
     } else if (HasEnabledSubtitleStreams()) {
-      return icon::TextSmallCaps; // FIXME: Procure icon
+      return icon::Subtitles;
     }
   }
 

@@ -56,10 +56,6 @@ RenderManager::RenderManager(QObject *parent) :
     decoder_cache_ = new DecoderCache();
     shader_cache_ = new ShaderCache();
     default_shader_ = context_->CreateNativeShader(ShaderCode(QString(), QString()));
-
-    decoder_clear_timer_.setInterval(kDecoderMaximumInactivity);
-    connect(&decoder_clear_timer_, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
-    decoder_clear_timer_.start();
   } else {
     qCritical() << "Tried to initialize unknown graphics backend";
     context_ = nullptr;
@@ -81,24 +77,6 @@ RenderManager::~RenderManager()
   }
 }
 
-void RenderManager::ClearOldDecoders()
-{
-  QMutexLocker locker(decoder_cache_->mutex());
-
-  qint64 min_age = QDateTime::currentMSecsSinceEpoch() - kDecoderMaximumInactivity;
-
-  for (auto it=decoder_cache_->begin(); it!=decoder_cache_->end(); ) {
-    DecoderPair decoder = it.value();
-
-    if (decoder.decoder->GetLastAccessedTime() < min_age) {
-      decoder.decoder->Close();
-      it = decoder_cache_->erase(it);
-    } else {
-      it++;
-    }
-  }
-}
-
 QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time)
 {
   Q_ASSERT(n);
@@ -114,7 +92,7 @@ QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, con
 
 RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, bool prioritize, bool texture_only)
+                                           FrameHashCache* cache, RenderTicketPriority priority, bool texture_only)
 {
   return RenderFrame(viewer,
                      color_manager,
@@ -127,7 +105,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                      VideoParams::kFormatInvalid,
                      nullptr,
                      cache,
-                     prioritize,
+                     priority,
                      texture_only);
 }
 
@@ -137,7 +115,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                                            ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, bool prioritize, bool texture_only)
+                                           FrameHashCache* cache, RenderTicketPriority priority, bool texture_only)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -159,17 +137,17 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
     ticket->setProperty("cache", cache->GetCacheDirectory());
   }
 
-  AddTicket(ticket);
+  AddTicket(ticket, priority);
 
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
 {
-  return RenderAudio(viewer, r, viewer->GetAudioParams(), mode, generate_waveforms, prioritize);
+  return RenderAudio(viewer, r, viewer->GetAudioParams(), mode, generate_waveforms, priority);
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
+RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -181,12 +159,12 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
 
-  AddTicket(ticket);
+  AddTicket(ticket, priority);
 
   return ticket;
 }
 
-RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const QByteArray &hash, bool prioritize)
+RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const QByteArray &hash, RenderTicketPriority priority)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -196,7 +174,7 @@ RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr 
   ticket->setProperty("hash", hash);
   ticket->setProperty("type", kTypeVideoDownload);
 
-  AddTicket(ticket);
+  AddTicket(ticket, priority);
 
   return ticket;
 }

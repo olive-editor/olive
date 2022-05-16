@@ -109,8 +109,6 @@ public:
 
   void AddTentativeSubtitleTrack();
 
-  void ClearTentativeSubtitleTrack();
-
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -270,6 +268,9 @@ public:
     bool process_block_changes_;
 
   };
+
+public slots:
+  void ClearTentativeSubtitleTrack();
 
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);

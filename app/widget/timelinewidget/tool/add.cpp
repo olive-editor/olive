@@ -105,13 +105,14 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       Sequence *s = parent()->sequence();
 
-      // If we want to set a manual rect for something, we can do so here
-      //
-      //VideoParams svp = s->GetVideoParams();
-      //QRectF r(0, 0, svp.width(), svp.height());
-      //r.adjust(svp.width()/10, svp.height()/10, -svp.width()/10, -svp.height()/10);
+      QRectF r;
+      if (Core::instance()->GetSelectedAddableObject() == Tool::kAddableTitle) {
+        VideoParams svp = s->GetVideoParams();
+        r = QRectF(0, 0, svp.width(), svp.height());
+        r.adjust(svp.width()/10, svp.height()/10, -svp.width()/10, -svp.height()/10);
+      }
 
-      CreateAddableClip(command, s, ghost_->GetTrack(), ghost_->GetAdjustedIn(), ghost_->GetAdjustedLength());
+      CreateAddableClip(command, s, ghost_->GetTrack(), ghost_->GetAdjustedIn(), ghost_->GetAdjustedLength(), r);
 
       Core::instance()->undo_stack()->push(command);
     }
@@ -125,7 +126,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, const Track::Reference &track, const rational &in, const rational &length, const QRectF &rect)
 {
   ClipBlock* clip;
-  if (Core::instance()->GetSelectedAddableObject() == olive::Tool::kAddableSubtitle) {
+  if (Core::instance()->GetSelectedAddableObject() == Tool::kAddableSubtitle) {
     clip = new SubtitleBlock();
   } else {
     clip = new ClipBlock();

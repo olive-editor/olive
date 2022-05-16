@@ -62,7 +62,7 @@ PreviewAutoCacher::~PreviewAutoCacher()
   SetViewerNode(nullptr);
 }
 
-RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool prioritize)
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, RenderTicketPriority priority)
 {
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
@@ -78,7 +78,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
-  sfr->setProperty("prioritize", prioritize);
+  sfr->setProperty("priority", int(priority));
   sfr->setProperty("hash", hash);
 
   // Queue it and try to render
@@ -88,9 +88,9 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool priori
   return sfr;
 }
 
-RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, bool prioritize)
+RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, RenderTicketPriority priority)
 {
-  return RenderAudio(range, false, prioritize);
+  return RenderAudio(range, false, priority);
 }
 
 QVector<PreviewAutoCacher::HashData> PreviewAutoCacher::GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times)
@@ -287,7 +287,7 @@ void PreviewAutoCacher::VideoRendered()
         w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
                                                                  frame,
                                                                  hash,
-                                                                 true));
+                                                                 RenderTicketPriority::kHigh));
       }
     }
 
@@ -637,7 +637,7 @@ void PreviewAutoCacher::TryRender()
     } else {
       watcher = RenderFrame(hash,
                             single_frame_render_->property("time").value<rational>(),
-                            single_frame_render_->property("prioritize").toBool(),
+                            RenderTicketPriority(single_frame_render_->property("priority").toInt()),
                             !viewer_node_->GetVideoAutoCacheEnabled());
 
       video_immediate_passthroughs_[watcher].append(single_frame_render_);
@@ -685,7 +685,7 @@ void PreviewAutoCacher::TryRender()
     // We want this hash, if we're not already rendering, start render now
     if (!render_task && !video_download_tasks_.key(hash)) {
       // Don't render any hash more than once
-      RenderFrame(hash, t, false, false);
+      RenderFrame(hash, t, RenderTicketPriority::kNormal, false);
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -705,13 +705,13 @@ void PreviewAutoCacher::TryRender()
     r.set_out(qMin(r.out(), r.in() + AudioVisualWaveform::kMinimumSampleRate.flipped()));
 
     // Start job
-    RenderAudio(r, true, false);
+    RenderAudio(r, true, RenderTicketPriority::kNormal);
 
     audio_iterator_.remove(r);
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, const rational& time, bool prioritize, bool texture_only)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, const rational& time, RenderTicketPriority priority, bool texture_only)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("hash", hash);
@@ -723,19 +723,19 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const QByteArray &hash, cons
                                                             time,
                                                             RenderMode::kOffline,
                                                             viewer_node_->video_frame_cache(),
-                                                            prioritize,
+                                                            priority,
                                                             texture_only));
   return watcher;
 }
 
-RenderTicketPtr PreviewAutoCacher::RenderAudio(const TimeRange &r, bool generate_waveforms, bool prioritize)
+RenderTicketPtr PreviewAutoCacher::RenderAudio(const TimeRange &r, bool generate_waveforms, RenderTicketPriority priority)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
   audio_tasks_.insert(watcher, r);
 
-  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, generate_waveforms, prioritize);
+  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, generate_waveforms, priority);
   watcher->SetTicket(ticket);
   return ticket;
 }
