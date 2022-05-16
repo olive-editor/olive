@@ -49,16 +49,19 @@ public:
   void ValidateTimestamp(const int64_t &ts);
   void ValidateTime(const rational &time);
 
-  /**
-   * @brief Return the path of the cached image at this time
-   */
-  QString CachePathName(const int64_t &time) const;
-  QString CachePathName(const rational &time) const
+  bool IsFrameCached(const rational &time) const
   {
-    return CachePathName(ToTimestamp(time, Timecode::kFloor));
+    return GetValidatedRanges().contains(time);
   }
 
-  static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const int64_t &time);
+  QString GetValidCacheFilename(const rational &time) const
+  {
+    if (IsFrameCached(time)) {
+      return CachePathName(time);
+    } else {
+      return QString();
+    }
+  }
 
   static bool SaveCacheFrame(const QString& filename, FramePtr frame);
   bool SaveCacheFrame(const int64_t &time, FramePtr frame) const;
@@ -70,6 +73,17 @@ public:
 private:
   rational ToTime(const int64_t &ts) const;
   int64_t ToTimestamp(const rational &ts, Timecode::Rounding rounding = Timecode::kRound) const;
+
+  /**
+   * @brief Return the path of the cached image at this time
+   */
+  QString CachePathName(const int64_t &time) const;
+  QString CachePathName(const rational &time) const
+  {
+    return CachePathName(ToTimestamp(time, Timecode::kRound));
+  }
+
+  static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const int64_t &time);
 
   rational timebase_;
 

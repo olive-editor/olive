@@ -128,10 +128,16 @@ protected:
 
   QVector2D GenerateResolution() const;
 
-  bool IsCancelled() const
+  bool IsCancelled()
   {
-    return cancel_ && *cancel_;
+    bool c = cancel_ && *cancel_;
+    if (c) {
+      heard_cancel_ = true;
+    }
+    return c;
   }
+
+  bool HeardCancel() const { return heard_cancel_; }
 
   const QAtomicInt *GetCancelPointer() const
   {
@@ -155,6 +161,7 @@ private:
   AudioParams audio_params_;
 
   const QAtomicInt *cancel_;
+  bool heard_cancel_;
 
   const Node *transform_start_;
   const Node *transform_now_;

@@ -420,7 +420,14 @@ FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QUuid 
 void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QUuid &cache_id, const int64_t& time)
 {
   ticket->Start();
-  ticket->Finish(QVariant::fromValue(DecodeCachedImage(cache_path, cache_id, time)));
+
+  FramePtr f = DecodeCachedImage(cache_path, cache_id, time);
+
+  if (f) {
+    ticket->Finish(QVariant::fromValue(f));
+  } else {
+    ticket->Finish();
+  }
 }
 
 bool ViewerWidget::ShouldForceWaveform() const
@@ -606,14 +613,6 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
     SampleBuffer samples = watcher->Get().value<SampleBuffer>();
     if (samples.is_allocated()) {
       if (samples.audio_params().channel_count() > 0) {
-        /* Fade code
-        const int kFadeSz = qMin(200, samples->sample_count()/4);
-        for (int i=0; i<kFadeSz; i++) {
-          float amt = float(i)/float(kFadeSz);
-          samples->transform_volume_for_sample(i, amt);
-          samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
-        }*/
-
         AudioProcessor::Buffer buf;
         int r = audio_processor_.Convert(samples.to_raw_ptrs().data(), samples.sample_count(), &buf);
 
@@ -880,7 +879,7 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
 QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 {
   if (FrameExistsAtTime(time)) {
-    return GetConnectedNode()->video_frame_cache()->CachePathName(time);
+    return GetConnectedNode()->video_frame_cache()->GetValidCacheFilename(time);
   }
 
   return QString();
@@ -923,7 +922,7 @@ void ViewerWidget::RequestNextFrameForQueue(RenderTicketPriority priority, bool 
 
 RenderTicketPtr ViewerWidget::GetFrame(const rational &t, RenderTicketPriority priority)
 {
-  QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(t);
+  QString cache_fn = GetConnectedNode()->video_frame_cache()->GetValidCacheFilename(t);
 
   if (!QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
@@ -1062,17 +1061,7 @@ void ViewerWidget::RendererGeneratedFrame()
         }
       }
 
-      // If the frame we received is not the most recent frame we're waiting for (i.e. if nonqueue_watchers_
-      // is not empty), we discard the frame - because otherwise if frames are taking a while (i.e.
-      // uncached frames) it can be a little disconcerting to the user for a bunch of frames to
-      // slowly go by - UNLESS the time it took to make this frame was fairly short (under 100ms here),
-      // in which case, we DO show it because it can be disconcerting in the other direction to see
-      // a scrub just jump to the final frame without seeing the frames in between. It's just a
-      // little nicer to get to see that in that situation, so we handle both.
-      qint64 frame_start_time = ticket->property("start").value<qint64>();
-      if (nonqueue_watchers_.isEmpty() || (QDateTime::currentMSecsSinceEpoch() - frame_start_time < 100)) {
-        SetDisplayImage(ticket->Get());
-      }
+      SetDisplayImage(ticket->Get());
     }
   }
 

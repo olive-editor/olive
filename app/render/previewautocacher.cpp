@@ -429,7 +429,7 @@ void PreviewAutoCacher::StartCachingAudioRange(const TimeRange &range)
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
 {
   cache_range_ = TimeRange(playhead - OLIVE_CONFIG("DiskCacheBehind").value<rational>(),
-      playhead + OLIVE_CONFIG("DiskCacheAhead").value<rational>());
+                           playhead + OLIVE_CONFIG("DiskCacheAhead").value<rational>());
 
   RequeueFrames();
 }
@@ -546,19 +546,10 @@ void PreviewAutoCacher::TryRender()
 
   if (single_frame_render_) {
     // Check if already caching this
-    rational time = single_frame_render_->property("time").value<rational>();
-    RenderTicketWatcher* watcher;
-    if ((watcher = video_tasks_.key(time))) {
-      video_immediate_passthroughs_[watcher].append(single_frame_render_);
-    } else if ((watcher = video_download_tasks_.key(time))) {
-      single_frame_render_->Finish(watcher->property("frame"));
-    } else {
-      watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
-                            RenderTicketPriority(single_frame_render_->property("priority").toInt()),
-                            !viewer_node_->GetVideoAutoCacheEnabled());
-
-      video_immediate_passthroughs_[watcher].append(single_frame_render_);
-    }
+    RenderTicketWatcher *watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
+                                               RenderTicketPriority(single_frame_render_->property("priority").toInt()),
+                                               !viewer_node_->GetVideoAutoCacheEnabled());
+    video_immediate_passthroughs_[watcher].append(single_frame_render_);
 
     single_frame_render_ = nullptr;
   }

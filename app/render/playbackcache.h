@@ -59,6 +59,8 @@ public:
 
   void Invalidate(const TimeRange& r, bool signal = true);
 
+  const TimeRangeList &GetValidatedRanges() const { return validated_; }
+
 public slots:
   void InvalidateAll();
 

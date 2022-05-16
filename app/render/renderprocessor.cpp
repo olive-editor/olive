@@ -164,7 +164,7 @@ void RenderProcessor::Run()
       texture = render_ctx_->InterlaceTexture(top, bottom, GetCacheVideoParams());
     }
 
-    if (ticket_->IsCancelled()) {
+    if (HeardCancel()) {
       // Finish cancelled ticket with nothing since we can't guarantee the frame we generated
       // is actually "complete
       ticket_->Finish();
@@ -208,7 +208,7 @@ void RenderProcessor::Run()
       ticket_->setProperty("waveform", QVariant::fromValue(vis));
     }
 
-    if (ticket_->IsCancelled()) {
+    if (HeardCancel()) {
       ticket_->Finish();
     } else {
       ticket_->Finish(QVariant::fromValue(samples));
