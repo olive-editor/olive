@@ -300,15 +300,6 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   // Place widgets into layout
   PlaceWidgetsFromBridge(layout, ui_objects.widget_bridge, row);
 
-  // Add widgets for this parameter to the layout
-  for (int i=0; i<ui_objects.widget_bridge->widgets().size(); i++) {
-    QWidget* w = ui_objects.widget_bridge->widgets().at(i);
-
-    // some (non-keyframeable) widgets can use all space to the right
-    int column_span = (w->property("is_exapandable").toBool()) ? -1 : 1;
-
-    layout->addWidget(w, row, i+kWidgetStartColumn, 1, column_span);
-  }
   // In case this input is a group, resolve that actual input to use for connected labels
   NodeInput resolved = NodeGroup::ResolveInput(input_ref);
 

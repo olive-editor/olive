@@ -45,6 +45,7 @@ private:
   QMap<QTreeWidgetItem*, QString> config_map_;
 
   QTreeWidget* behavior_tree_;
+
 };
 
 }

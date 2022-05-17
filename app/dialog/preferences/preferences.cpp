@@ -35,7 +35,6 @@
 #include "tabs/preferencesedittab.h"
 #include "window/mainwindow/mainwindow.h"
 
-
 namespace olive {
 
 PreferencesDialog::PreferencesDialog(MainWindow *main_window) :

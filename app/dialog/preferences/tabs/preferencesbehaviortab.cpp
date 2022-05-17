@@ -23,8 +23,6 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 
-#include <QGroupBox>
-
 #include "config/config.h"
 
 namespace olive {

@@ -257,6 +257,7 @@ private:
 
 private slots:
   void RecreateBody();
+
 };
 
 }
