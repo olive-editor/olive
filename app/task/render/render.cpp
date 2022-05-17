@@ -67,7 +67,7 @@ bool RenderTask::Render(ColorManager* manager,
       watcher->setProperty("range", QVariant::fromValue(this_range));
       PrepareWatcher(watcher, &watcher_thread);
       IncrementRunningTickets();
-      watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_, this_range, audio_params_, mode, false));
+      watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_->GetConnectedSampleOutput(), this_range, audio_params_, mode, false));
 
       r = end;
     }
@@ -281,7 +281,7 @@ void RenderTask::StartTicket(QThread* watcher_thread, ColorManager* manager,
   watcher->setProperty("time", QVariant::fromValue(time));
   PrepareWatcher(watcher, watcher_thread);
   IncrementRunningTickets();
-  watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_, manager, time,
+  watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_->GetConnectedTextureOutput(), manager, time,
                                                             mode, video_params_, audio_params_,
                                                             force_size, force_matrix,
                                                             force_format, force_color_output,
