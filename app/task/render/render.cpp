@@ -241,12 +241,12 @@ bool RenderTask::Render(ColorManager* manager,
 
 bool RenderTask::DownloadFrame(QThread *thread, FramePtr frame, const rational &time)
 {
-  RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  PrepareWatcher(watcher, thread);
+  //RenderTicketWatcher* watcher = new RenderTicketWatcher();
+  //PrepareWatcher(watcher, thread);
 
-  IncrementRunningTickets();
+  //IncrementRunningTickets();
 
-  watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(), frame, time));
+  //watcher->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_->video_frame_cache(), frame, time));
 
   // NOTE: Doesn't reflect the actual return result of SaveFrameToCache
   return true;

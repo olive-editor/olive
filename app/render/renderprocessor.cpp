@@ -182,6 +182,14 @@ void RenderProcessor::Run()
       // Convert to CPU frame
       FramePtr frame = GenerateFrame(texture, time);
 
+      QString cache = ticket_->property("cache").toString();
+      if (!cache.isEmpty()) {
+        rational timebase = ticket_->property("cachetimebase").value<rational>();
+        QUuid uuid = ticket_->property("cacheuuid").value<QUuid>();
+        bool cache_result = FrameHashCache::SaveCacheFrame(cache, uuid, time, timebase, frame);
+        ticket_->setProperty("cached", cache_result);
+      }
+
       ticket_->Finish(QVariant::fromValue(frame));
     }
     break;
@@ -213,17 +221,6 @@ void RenderProcessor::Run()
     } else {
       ticket_->Finish(QVariant::fromValue(samples));
     }
-    break;
-  }
-  case RenderManager::kTypeVideoDownload:
-  {
-    QString cache = ticket_->property("cache").toString();
-    FramePtr frame = ticket_->property("frame").value<FramePtr>();
-    rational time = ticket_->property("time").value<rational>();
-    rational timebase = ticket_->property("timebase").value<rational>();
-    QUuid uuid = ticket_->property("uuid").value<QUuid>();
-
-    ticket_->Finish(FrameHashCache::SaveCacheFrame(cache, uuid, time, timebase, frame));
     break;
   }
   default:

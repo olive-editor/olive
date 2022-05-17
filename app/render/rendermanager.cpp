@@ -121,6 +121,8 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
 
   if (cache) {
     ticket->setProperty("cache", cache->GetCacheDirectory());
+    ticket->setProperty("cachetimebase", QVariant::fromValue(cache->GetTimebase()));
+    ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
   }
 
   AddTicket(ticket, priority);
@@ -144,23 +146,6 @@ RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange
   ticket->setProperty("mode", mode);
   ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
-
-  AddTicket(ticket, priority);
-
-  return ticket;
-}
-
-RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const rational &time, RenderTicketPriority priority)
-{
-  // Create ticket
-  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
-
-  ticket->setProperty("cache", cache->GetCacheDirectory());
-  ticket->setProperty("frame", QVariant::fromValue(frame));
-  ticket->setProperty("time", QVariant::fromValue(time));
-  ticket->setProperty("timebase", QVariant::fromValue(cache->GetTimebase()));
-  ticket->setProperty("uuid", QVariant::fromValue(cache->GetUuid()));
-  ticket->setProperty("type", kTypeVideoDownload);
 
   AddTicket(ticket, priority);
 

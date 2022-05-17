@@ -73,8 +73,6 @@ public:
    */
   void SetPlayhead(const rational& playhead);
 
-  void WaitForVideoDownloadsToFinish();
-
   /**
    * @brief Call cancel on all currently running video tasks
    *
@@ -175,7 +173,6 @@ private:
 
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, rational> video_tasks_;
-  QMap<RenderTicketWatcher*, rational> video_download_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
   JobTime graph_changed_time_;
@@ -215,11 +212,6 @@ private slots:
    * @brief Handler for when the RenderManager has returned rendered video frames
    */
   void VideoRendered();
-
-  /**
-   * @brief Handler for when we've saved a video frame to the cache
-   */
-  void VideoDownloaded();
 
   void NodeAdded(Node* node);
 

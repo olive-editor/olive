@@ -92,14 +92,11 @@ public:
   RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
   RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
 
-  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const rational &time, RenderTicketPriority priority = RenderTicketPriority::kNormal);
-
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 
   enum TicketType {
     kTypeVideo,
-    kTypeAudio,
-    kTypeVideoDownload
+    kTypeAudio
   };
 
   Backend backend() const

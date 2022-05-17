@@ -202,16 +202,8 @@ void PreviewAutoCacher::VideoRendered()
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
     if (watcher->HasResult()) {
       // Download frame in another thread
-      if (FramePtr frame = watcher->Get().value<FramePtr>()) {
-        RenderTicketWatcher* w = new RenderTicketWatcher();
-        w->setProperty("job", QVariant::fromValue(last_update_time_));
-        w->setProperty("frame", QVariant::fromValue(frame));
-        video_download_tasks_.insert(w, it.value());
-        connect(w, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoDownloaded);
-        w->SetTicket(RenderManager::instance()->SaveFrameToCache(viewer_node_->video_frame_cache(),
-                                                                 frame,
-                                                                 it.value(),
-                                                                 RenderTicketPriority::kHigh));
+      if (watcher->GetTicket()->property("cached").toBool()) {
+        viewer_node_->video_frame_cache()->ValidateTime(it.value());
       }
     }
 
@@ -230,30 +222,6 @@ void PreviewAutoCacher::VideoRendered()
     } else {
       t->Finish();
     }
-  }
-
-  delete watcher;
-}
-
-void PreviewAutoCacher::VideoDownloaded()
-{
-  RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
-
-  // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
-  // viewer switch, so we'll completely ignore this watcher
-  if (video_download_tasks_.contains(watcher)) {
-    // Remove from task list
-    rational time = video_download_tasks_.take(watcher);
-
-    // Assume that `true` is a completely successful frame save
-    if (watcher->Get().toBool()) {
-      viewer_node_->video_frame_cache()->ValidateTime(time);
-    } else {
-      qCritical() << "Failed to download video frame";
-    }
-
-    // No need to call TryRender here because it would not have been held up by a download task
-    // nor does the completion of this ticket automatically trigger another ticket
   }
 
   delete watcher;
@@ -434,13 +402,6 @@ void PreviewAutoCacher::SetPlayhead(const rational &playhead)
   RequeueFrames();
 }
 
-void PreviewAutoCacher::WaitForVideoDownloadsToFinish()
-{
-  for (auto it=video_download_tasks_.cbegin(); it!=video_download_tasks_.cend(); it++) {
-    it.key()->WaitForFinished();
-  }
-}
-
 template<typename T>
 void CancelTasks(const T &task_list, bool and_wait)
 {
@@ -563,7 +524,7 @@ void PreviewAutoCacher::TryRender()
     RenderTicketWatcher* render_task = video_tasks_.key(t);
 
     // We want this hash, if we're not already rendering, start render now
-    if (!render_task && !video_download_tasks_.key(t)) {
+    if (!render_task) {
       // Don't render any hash more than once
       RenderFrame(t, RenderTicketPriority::kNormal, false);
     }
@@ -722,11 +683,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     if (!audio_tasks_.isEmpty()) {
       // Cancel any audio tasks and wait for them to finish
       CancelAudioTasks(true);
-    }
-
-    // Handle video download tasks
-    if (!video_download_tasks_.isEmpty()) {
-      WaitForVideoDownloadsToFinish();
     }
 
     // Clear iterators
