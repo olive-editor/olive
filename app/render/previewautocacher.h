@@ -32,6 +32,7 @@
 #include "node/project/project.h"
 #include "render/audioparams.h"
 #include "render/renderjobtracker.h"
+#include "render/rendermanager.h"
 #include "threading/threadpool.h"
 #include "threading/threadticketwatcher.h"
 
@@ -99,7 +100,7 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(const rational &time, RenderTicketPriority priority, bool texture_only);
+  RenderTicketWatcher *RenderFrame(const rational &time, RenderTicketPriority priority, bool cache);
   RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority);
 
   /**

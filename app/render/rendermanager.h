@@ -63,6 +63,11 @@ public:
     return instance_;
   }
 
+  enum ReturnType {
+    kTexture,
+    kFrame
+  };
+
   /**
    * @brief Asynchronously generate a frame at a given time
    *
@@ -73,14 +78,14 @@ public:
    */
   RenderTicketPtr RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, bool texture_only = false);
+                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
   RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                               ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, bool texture_only = false);
+                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
 
   /**
    * @brief Asynchronously generate a chunk of audio

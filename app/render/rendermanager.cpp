@@ -78,7 +78,7 @@ RenderManager::~RenderManager()
 
 RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, RenderTicketPriority priority, bool texture_only)
+                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
 {
   return RenderFrame(viewer,
                      color_manager,
@@ -92,7 +92,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                      nullptr,
                      cache,
                      priority,
-                     texture_only);
+                     return_type);
 }
 
 RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
@@ -101,7 +101,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                                            ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, RenderTicketPriority priority, bool texture_only)
+                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -117,7 +117,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
   ticket->setProperty("vparam", QVariant::fromValue(video_params));
   ticket->setProperty("aparam", QVariant::fromValue(audio_params));
-  ticket->setProperty("textureonly", texture_only);
+  ticket->setProperty("return", return_type);
 
   if (cache) {
     ticket->setProperty("cache", cache->GetCacheDirectory());

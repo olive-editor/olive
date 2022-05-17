@@ -168,29 +168,38 @@ void RenderProcessor::Run()
       // Finish cancelled ticket with nothing since we can't guarantee the frame we generated
       // is actually "complete
       ticket_->Finish();
-    } else if (ticket_->property("textureonly").toBool()) {
-      // Return GPU texture
-      if (!texture) {
-        texture = render_ctx_->CreateTexture(GetCacheVideoParams());
-        render_ctx_->ClearDestination(texture.get());
-      }
-
-      render_ctx_->Flush();
-
-      ticket_->Finish(QVariant::fromValue(texture));
     } else {
-      // Convert to CPU frame
-      FramePtr frame = GenerateFrame(texture, time);
+      RenderManager::ReturnType return_type = RenderManager::ReturnType(ticket_->property("return").toInt());
 
+      FramePtr frame;
       QString cache = ticket_->property("cache").toString();
-      if (!cache.isEmpty()) {
-        rational timebase = ticket_->property("cachetimebase").value<rational>();
-        QUuid uuid = ticket_->property("cacheuuid").value<QUuid>();
-        bool cache_result = FrameHashCache::SaveCacheFrame(cache, uuid, time, timebase, frame);
-        ticket_->setProperty("cached", cache_result);
+
+      if (return_type == RenderManager::kFrame || !cache.isEmpty()) {
+        // Convert to CPU frame
+        frame = GenerateFrame(texture, time);
+
+        // Save to cache if requested
+        if (!cache.isEmpty()) {
+          rational timebase = ticket_->property("cachetimebase").value<rational>();
+          QUuid uuid = ticket_->property("cacheuuid").value<QUuid>();
+          bool cache_result = FrameHashCache::SaveCacheFrame(cache, uuid, time, timebase, frame);
+          ticket_->setProperty("cached", cache_result);
+        }
       }
 
-      ticket_->Finish(QVariant::fromValue(frame));
+      if (return_type == RenderManager::kTexture) {
+        // Return GPU texture
+        if (!texture) {
+          texture = render_ctx_->CreateTexture(GetCacheVideoParams());
+          render_ctx_->ClearDestination(texture.get());
+        }
+
+        render_ctx_->Flush();
+
+        ticket_->Finish(QVariant::fromValue(texture));
+      } else {
+        ticket_->Finish(QVariant::fromValue(frame));
+      }
     }
     break;
   }

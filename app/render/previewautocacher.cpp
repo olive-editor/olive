@@ -26,7 +26,6 @@
 #include "codec/conformmanager.h"
 #include "node/inputdragger.h"
 #include "node/project/project.h"
-#include "render/rendermanager.h"
 #include "render/renderprocessor.h"
 #include "task/customcache/customcachetask.h"
 #include "task/taskmanager.h"
@@ -509,7 +508,7 @@ void PreviewAutoCacher::TryRender()
     // Check if already caching this
     RenderTicketWatcher *watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
                                                RenderTicketPriority(single_frame_render_->property("priority").toInt()),
-                                               !viewer_node_->GetVideoAutoCacheEnabled());
+                                               false);
     video_immediate_passthroughs_[watcher].append(single_frame_render_);
 
     single_frame_render_ = nullptr;
@@ -526,7 +525,7 @@ void PreviewAutoCacher::TryRender()
     // We want this hash, if we're not already rendering, start render now
     if (!render_task) {
       // Don't render any hash more than once
-      RenderFrame(t, RenderTicketPriority::kNormal, false);
+      RenderFrame(t, RenderTicketPriority::kNormal, true);
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -552,7 +551,7 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const rational& time, RenderTicketPriority priority, bool texture_only)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const rational& time, RenderTicketPriority priority, bool cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
@@ -562,9 +561,9 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const rational& time, Render
                                                             copied_color_manager_,
                                                             time,
                                                             RenderMode::kOffline,
-                                                            viewer_node_->video_frame_cache(),
+                                                            cache ? viewer_node_->video_frame_cache() : nullptr,
                                                             priority,
-                                                            texture_only));
+                                                            RenderManager::kTexture));
   return watcher;
 }
 
