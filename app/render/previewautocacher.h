@@ -100,8 +100,17 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(const rational &time, RenderTicketPriority priority, bool cache);
-  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority);
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, RenderTicketPriority priority, FrameHashCache *cache);
+  RenderTicketWatcher *RenderFrame(const rational &time, RenderTicketPriority priority, FrameHashCache *cache)
+  {
+    return RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(), time, priority, cache);
+  }
+
+  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority);
+  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority)
+  {
+    return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, generate_waveforms, priority);
+  }
 
   /**
    * @brief Process all changes to internal NodeGraph copy

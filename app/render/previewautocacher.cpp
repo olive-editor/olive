@@ -508,7 +508,7 @@ void PreviewAutoCacher::TryRender()
     // Check if already caching this
     RenderTicketWatcher *watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
                                                RenderTicketPriority(single_frame_render_->property("priority").toInt()),
-                                               false);
+                                               nullptr);
     video_immediate_passthroughs_[watcher].append(single_frame_render_);
 
     single_frame_render_ = nullptr;
@@ -525,7 +525,7 @@ void PreviewAutoCacher::TryRender()
     // We want this hash, if we're not already rendering, start render now
     if (!render_task) {
       // Don't render any hash more than once
-      RenderFrame(t, RenderTicketPriority::kNormal, true);
+      RenderFrame(t, RenderTicketPriority::kNormal, copied_viewer_node_->video_frame_cache());
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -551,32 +551,32 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const rational& time, RenderTicketPriority priority, bool cache)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, RenderTicketPriority priority, FrameHashCache *cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
   video_tasks_.insert(watcher, time);
-  watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(),
+  watcher->SetTicket(RenderManager::instance()->RenderFrame(node,
                                                             copied_viewer_node_->GetVideoParams(),
                                                             copied_viewer_node_->GetAudioParams(),
                                                             copied_color_manager_,
                                                             time,
                                                             RenderMode::kOffline,
-                                                            cache ? viewer_node_->video_frame_cache() : nullptr,
+                                                            cache,
                                                             priority,
                                                             RenderManager::kTexture));
   return watcher;
 }
 
-RenderTicketPtr PreviewAutoCacher::RenderAudio(const TimeRange &r, bool generate_waveforms, RenderTicketPriority priority)
+RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, bool generate_waveforms, RenderTicketPriority priority)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
   audio_tasks_.insert(watcher, r);
 
-  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), r, copied_viewer_node_->GetAudioParams(), RenderMode::kOffline, generate_waveforms, priority);
+  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(node, r, copied_viewer_node_->GetAudioParams(), RenderMode::kOffline, generate_waveforms, priority);
   watcher->SetTicket(ticket);
   return ticket;
 }
