@@ -31,17 +31,13 @@ const QString ViewerOutput::kAudioParamsInput = QStringLiteral("audio_param_in")
 const QString ViewerOutput::kSubtitleParamsInput = QStringLiteral("subtitle_param_in");
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
-const QString ViewerOutput::kVideoAutoCacheInput = QStringLiteral("video_autocache_in");
-const QString ViewerOutput::kAudioAutoCacheInput = QStringLiteral("audio_autocache_in");
 
 #define super Node
 
 ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_streams) :
   last_length_(0),
   video_length_(0),
-  audio_length_(0),
-  video_cache_enabled_(true),
-  audio_cache_enabled_(true)
+  audio_length_(0)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
@@ -52,12 +48,6 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   if (create_buffer_inputs) {
     AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
     AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
-
-    AddInput(kVideoAutoCacheInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-    IgnoreInvalidationsFrom(kVideoAutoCacheInput);
-
-    AddInput(kAudioAutoCacheInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
-    IgnoreInvalidationsFrom(kAudioAutoCacheInput);
   }
 
   if (create_default_streams) {
@@ -224,26 +214,12 @@ void ViewerOutput::set_default_parameters()
       AudioParams::kInternalFormat
       ));
 
-  SetVideoAutoCacheEnabled(OLIVE_CONFIG("DefaultSequenceAutoCache").toBool());
+  video_frame_cache()->SetEnabled(OLIVE_CONFIG("DefaultSequenceAutoCache").toBool());
 }
 
 void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
-
-  if ((video_cache_enabled_ && (from == kTextureInput || from == kVideoParamsInput))
-      || (audio_cache_enabled_ && (from == kSamplesInput || from == kAudioParamsInput))) {
-    TimeRange invalidated_range(qMax(rational(0), range.in()),
-                                qMin(GetLength(), range.out()));
-
-    if (invalidated_range.in() != invalidated_range.out()) {
-      if (from == kTextureInput || from == kVideoParamsInput) {
-        video_frame_cache()->Invalidate(invalidated_range);
-      } else {
-        audio_playback_cache()->Invalidate(invalidated_range);
-      }
-    }
-  }
 
   VerifyLength();
 
@@ -301,14 +277,6 @@ void ViewerOutput::Retranslate()
 
   if (HasInputWithID(kSamplesInput)) {
     SetInputName(kSamplesInput, tr("Samples"));
-  }
-
-  if (HasInputWithID(kVideoAutoCacheInput)) {
-    SetInputName(kVideoAutoCacheInput, tr("Auto-Cache Video"));
-  }
-
-  if (HasInputWithID(kAudioAutoCacheInput)) {
-    SetInputName(kAudioAutoCacheInput, tr("Auto-Cache Audio"));
   }
 }
 
@@ -400,11 +368,7 @@ Node::ValueHint ViewerOutput::GetConnectedSampleValueHint()
 
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 {
-  if (input == kVideoAutoCacheInput) {
-    emit VideoAutoCacheChanged(GetVideoAutoCacheEnabled());
-  } else if (input == kAudioAutoCacheInput) {
-    emit AudioAutoCacheChanged(GetAudioAutoCacheEnabled());
-  } else if (element == 0) {
+  if (element == 0) {
     if (input == kVideoParamsInput) {
 
       VideoParams new_video_params = GetVideoParams();
@@ -427,9 +391,10 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       if (frame_rate_changed) {
-        if (video_cache_enabled_) {
+        // FIXME: Will need to find a better way to update this soon
+        //if (video_frame_cache()->IsEnabled()) {
           video_frame_cache()->SetTimebase(new_video_params.frame_rate_as_time_base());
-        }
+        //}
         emit FrameRateChanged(new_video_params.frame_rate());
       }
 
@@ -449,9 +414,10 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 
       emit AudioParamsChanged();
 
-      if (audio_cache_enabled_) {
+      // FIXME: Will need to find a better way to update this soon
+      //if (audio_playback_cache()->IsEnabled()) {
         audio_playback_cache()->SetParameters(GetAudioParams());
-      }
+      //}
 
       cached_audio_params_ = new_audio_params;
 

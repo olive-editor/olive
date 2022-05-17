@@ -163,50 +163,12 @@ public:
 
   virtual ValueHint GetConnectedSampleValueHint();
 
-  void SetViewerVideoCacheEnabled(bool e) { video_cache_enabled_ = e; }
-  void SetViewerAudioCacheEnabled(bool e) { audio_cache_enabled_ = e; }
-
-  bool GetVideoAutoCacheEnabled() const
-  {
-    if (HasInputWithID(kVideoAutoCacheInput)) {
-      return GetStandardValue(kVideoAutoCacheInput).toBool();
-    } else {
-      return false;
-    }
-  }
-
-  void SetVideoAutoCacheEnabled(bool e)
-  {
-    if (HasInputWithID(kVideoAutoCacheInput)) {
-      return SetStandardValue(kVideoAutoCacheInput, e);
-    }
-  }
-
-  bool GetAudioAutoCacheEnabled() const
-  {
-    if (HasInputWithID(kAudioAutoCacheInput)) {
-      return GetStandardValue(kAudioAutoCacheInput).toBool();
-    } else {
-      return false;
-    }
-  }
-
-  void SetAudioAutoCacheEnabled(bool e)
-  {
-    if (HasInputWithID(kAudioAutoCacheInput)) {
-      return SetStandardValue(kAudioAutoCacheInput, e);
-    }
-  }
-
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;
 
   static const QString kTextureInput;
   static const QString kSamplesInput;
-
-  static const QString kVideoAutoCacheInput;
-  static const QString kAudioAutoCacheInput;
 
 signals:
   void FrameRateChanged(const rational&);
@@ -218,9 +180,6 @@ signals:
   void PixelAspectChanged(const rational& pixel_aspect);
 
   void InterlacingChanged(VideoParams::Interlacing mode);
-
-  void VideoAutoCacheChanged(bool e);
-  void AudioAutoCacheChanged(bool e);
 
   void VideoParamsChanged();
   void AudioParamsChanged();
@@ -253,9 +212,6 @@ private:
   AudioParams cached_audio_params_;
 
   TimelinePoints *timeline_points_;
-
-  bool video_cache_enabled_;
-  bool audio_cache_enabled_;
 
 };
 

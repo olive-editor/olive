@@ -91,7 +91,7 @@ void PreviewAutoCacher::VideoInvalidated(const TimeRange &range)
   CancelVideoTasks();
 
   // If auto-cache is enabled and a slider is not being dragged, queue up to hash these frames
-  if (viewer_node_->GetVideoAutoCacheEnabled() && !NodeInputDragger::IsInputBeingDragged()) {
+  if (viewer_node_->video_frame_cache()->IsEnabled() && !NodeInputDragger::IsInputBeingDragged()) {
     StartCachingVideoRange(range);
   }
 }
@@ -103,7 +103,7 @@ void PreviewAutoCacher::AudioInvalidated(const TimeRange &range)
   //  ClearAudioQueue();
 
   // If we're auto-caching audio or require realtime waveforms, we'll have to render this
-  if (viewer_node_->GetAudioAutoCacheEnabled() || kRealTimeWaveformsEnabled) {
+  if (viewer_node_->audio_playback_cache()->IsEnabled() || kRealTimeWaveformsEnabled) {
     StartCachingAudioRange(range);
   }
 }
@@ -127,7 +127,7 @@ void PreviewAutoCacher::AudioRendered()
 
       AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
 
-      if (viewer_node_->GetAudioAutoCacheEnabled()) {
+      if (viewer_node_->audio_playback_cache()->IsEnabled()) {
         // WritePCM is tolerant to its buffer being null, it will just write silence instead
         viewer_node_->audio_playback_cache()->WritePCM(range,
                                                        valid_ranges,
@@ -202,7 +202,9 @@ void PreviewAutoCacher::VideoRendered()
     if (watcher->HasResult()) {
       // Download frame in another thread
       if (watcher->GetTicket()->property("cached").toBool()) {
-        viewer_node_->video_frame_cache()->ValidateTime(it.value());
+        if (FrameHashCache *cache = Node::ValueToPtr<FrameHashCache>(watcher->property("cache"))) {
+          cache->ValidateTime(it.value());
+        }
       }
     }
 
@@ -283,6 +285,9 @@ void PreviewAutoCacher::RemoveNode(Node *node)
   // Find our copy and remove it
   Node* copy = copy_map_.take(node);
 
+  // Disconnect from node's caches
+  DisconnectFromNodeCache(node);
+
   // Remove from created list
   created_nodes_.removeOne(copy);
 
@@ -340,6 +345,61 @@ void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
 
   // Copy parameters
   Node::CopyInputs(node, copy, false);
+
+  // Connect to node's cache
+  ConnectToNodeCache(node);
+}
+
+void PreviewAutoCacher::ConnectToNodeCache(Node *node)
+{
+  // TEMP: Retain existing behavior until more work is done
+  if (node == viewer_node_) {
+    connect(node->video_frame_cache(),
+            &PlaybackCache::EnabledChanged,
+            this,
+            &PreviewAutoCacher::VideoAutoCacheEnableChanged);
+
+    connect(node->audio_playback_cache(),
+            &PlaybackCache::EnabledChanged,
+            this,
+            &PreviewAutoCacher::AudioAutoCacheEnableChanged);
+
+    connect(node->video_frame_cache(),
+            &PlaybackCache::Invalidated,
+            this,
+            &PreviewAutoCacher::VideoInvalidated);
+
+    connect(node->audio_playback_cache(),
+            &PlaybackCache::Invalidated,
+            this,
+            &PreviewAutoCacher::AudioInvalidated);
+  }
+}
+
+void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
+{
+  // TEMP: Retain existing behavior until more work is done
+  if (node == viewer_node_) {
+    disconnect(node->video_frame_cache(),
+               &PlaybackCache::EnabledChanged,
+               this,
+               &PreviewAutoCacher::VideoAutoCacheEnableChanged);
+
+    disconnect(node->audio_playback_cache(),
+               &PlaybackCache::EnabledChanged,
+               this,
+               &PreviewAutoCacher::AudioAutoCacheEnableChanged);
+
+    disconnect(node->video_frame_cache(),
+               &PlaybackCache::Invalidated,
+               this,
+               &PreviewAutoCacher::VideoInvalidated);
+
+    disconnect(node->audio_playback_cache(),
+               &PlaybackCache::Invalidated,
+               this,
+               &PreviewAutoCacher::AudioInvalidated);
+  }
 }
 
 void PreviewAutoCacher::UpdateGraphChangeValue()
@@ -525,7 +585,7 @@ void PreviewAutoCacher::TryRender()
     // We want this hash, if we're not already rendering, start render now
     if (!render_task) {
       // Don't render any hash more than once
-      RenderFrame(t, RenderTicketPriority::kNormal, copied_viewer_node_->video_frame_cache());
+      RenderFrame(t, RenderTicketPriority::kNormal, viewer_node_->video_frame_cache());
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -555,6 +615,7 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+  watcher->setProperty("cache", Node::PtrToValue(cache));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
   video_tasks_.insert(watcher, time);
   watcher->SetTicket(RenderManager::instance()->RenderFrame(node,
@@ -586,7 +647,7 @@ void PreviewAutoCacher::RequeueFrames()
   delayed_requeue_timer_.stop();
 
   if (viewer_node_
-      && (viewer_node_->GetVideoAutoCacheEnabled() || use_custom_range_)
+      && (viewer_node_->video_frame_cache()->IsEnabled() || use_custom_range_)
       && viewer_node_->video_frame_cache()->HasInvalidatedRanges(viewer_node_->GetVideoLength())
       && !IsRenderingCustomRange()) {
     TimeRange using_range = use_custom_range_ ? custom_autocache_range_ : cache_range_;
@@ -703,6 +764,11 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     // Not interested in audio conforming anymore
     audio_needing_conform_.clear();
 
+    // Disconnect from all node cache's
+    for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
+      DisconnectFromNodeCache(it.key());
+    }
+
     // Delete all of our copied nodes
     qDeleteAll(created_nodes_);
     created_nodes_.clear();
@@ -721,27 +787,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     disconnect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
     disconnect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
     disconnect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
-
-    // Disconnect signal (will be a no-op if the signal was never connected)
-    disconnect(viewer_node_,
-               &ViewerOutput::VideoAutoCacheChanged,
-               this,
-               &PreviewAutoCacher::VideoAutoCacheEnableChanged);
-
-    disconnect(viewer_node_,
-               &ViewerOutput::AudioAutoCacheChanged,
-               this,
-               &PreviewAutoCacher::AudioAutoCacheEnableChanged);
-
-    disconnect(viewer_node_->video_frame_cache(),
-               &PlaybackCache::Invalidated,
-               this,
-               &PreviewAutoCacher::VideoInvalidated);
-
-    disconnect(viewer_node_->audio_playback_cache(),
-               &PlaybackCache::Invalidated,
-               this,
-               &PreviewAutoCacher::AudioInvalidated);
   }
 
   viewer_node_ = viewer_node;
@@ -760,8 +805,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // Find copied viewer node
     copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
-    copied_viewer_node_->SetViewerVideoCacheEnabled(false);
-    copied_viewer_node_->SetViewerAudioCacheEnabled(false);
     copied_color_manager_ = static_cast<ColorManager*>(copy_map_.value(viewer_node_->project()->color_manager()));
 
     // Add all connections
@@ -782,26 +825,6 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     connect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved, Qt::DirectConnection);
     connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged, Qt::DirectConnection);
     connect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged, Qt::DirectConnection);
-
-    connect(viewer_node_,
-            &ViewerOutput::VideoAutoCacheChanged,
-            this,
-            &PreviewAutoCacher::VideoAutoCacheEnableChanged);
-
-    connect(viewer_node_,
-            &ViewerOutput::AudioAutoCacheChanged,
-            this,
-            &PreviewAutoCacher::AudioAutoCacheEnableChanged);
-
-    connect(viewer_node_->video_frame_cache(),
-            &PlaybackCache::Invalidated,
-            this,
-            &PreviewAutoCacher::VideoInvalidated);
-
-    connect(viewer_node_->audio_playback_cache(),
-            &PlaybackCache::Invalidated,
-            this,
-            &PreviewAutoCacher::AudioInvalidated);
 
     // Copy invalidated ranges and start rendering if necessary
     VideoInvalidatedList(viewer_node_->video_frame_cache()->GetInvalidatedRanges(viewer_node_->GetVideoLength()));

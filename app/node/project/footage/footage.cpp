@@ -46,7 +46,6 @@ Footage::Footage(const QString &filename) :
   cancelled_(nullptr)
 {
   SetCacheTextures(true);
-  SetViewerVideoCacheEnabled(false);
 
   PrependInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 

@@ -685,7 +685,7 @@ void ViewerWidget::UpdateTextureFromNode()
     nonqueue_watchers_.append(watcher);
 
     // Clear queue because we want this frame more than any others
-    if (!GetConnectedNode()->GetVideoAutoCacheEnabled() && !auto_cacher_.IsRenderingCustomRange()) {
+    if (!GetConnectedNode()->video_frame_cache()->IsEnabled() && !auto_cacher_.IsRenderingCustomRange()) {
       ClearVideoAutoCacherQueue();
     }
 

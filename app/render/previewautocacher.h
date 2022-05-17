@@ -129,6 +129,9 @@ private:
 
   void InsertIntoCopyMap(Node* node, Node* copy);
 
+  void ConnectToNodeCache(Node *node);
+  void DisconnectFromNodeCache(Node *node);
+
   void UpdateGraphChangeValue();
   void UpdateLastSyncedValue();
 

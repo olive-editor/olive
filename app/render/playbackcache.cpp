@@ -72,7 +72,8 @@ Project *PlaybackCache::GetProject() const
 }
 
 PlaybackCache::PlaybackCache(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  enabled_(false)
 {
   uuid_ = QUuid::createUuid();
 }

@@ -42,6 +42,15 @@ public:
   const QUuid &GetUuid() const { return uuid_; }
   void SetUuid(const QUuid &u) { uuid_ = u; }
 
+  bool IsEnabled() const { return enabled_; }
+  void SetEnabled(bool e)
+  {
+    if (enabled_ != e) {
+      enabled_ = e;
+      emit EnabledChanged(e);
+    }
+  }
+
   TimeRangeList GetInvalidatedRanges(TimeRange intersecting);
   TimeRangeList GetInvalidatedRanges(const rational &length)
   {
@@ -70,6 +79,8 @@ signals:
 
   void Validated(const olive::TimeRange& r);
 
+  void EnabledChanged(bool e);
+
 protected:
   void Validate(const TimeRange& r, bool signal = true);
 
@@ -81,6 +92,8 @@ private:
   TimeRangeList validated_;
 
   QUuid uuid_;
+
+  bool enabled_;
 
 };
 
