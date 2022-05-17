@@ -60,8 +60,6 @@ QVector<ViewerWidget*> ViewerWidget::instances_;
 //       changing values. 1/4 second seems to be a good middleground.
 const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 4);
 
-const int kMaxPreQueueSize = 8;
-
 ViewerWidget::ViewerWidget(QWidget *parent) :
   super(false, true, parent),
   playback_speed_(0),
@@ -988,7 +986,10 @@ int ViewerWidget::DeterminePlaybackQueueSize()
 
   int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
 
-  return qMin(kMaxPreQueueSize, remaining_frames);
+  // Generate maximum queue
+  int max_frames = qCeil(kAudioPlaybackInterval.toDouble() / timebase().toDouble());
+
+  return qMin(max_frames, remaining_frames);
 }
 
 void ViewerWidget::UpdateStack()
