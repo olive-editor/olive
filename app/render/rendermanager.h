@@ -76,10 +76,10 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
+  RenderTicketPtr RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+  RenderTicketPtr RenderFrame(Node *node, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
@@ -94,8 +94,7 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
-  RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
+  RenderTicketPtr RenderAudio(Node *viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
 
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 

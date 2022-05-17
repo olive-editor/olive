@@ -39,6 +39,8 @@
 #include "node/inputimmediate.h"
 #include "node/param.h"
 #include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
+#include "render/framehashcache.h"
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
 #include "render/job/shaderjob.h"
@@ -217,6 +219,16 @@ public:
   bool HasParamWithID(const QString& id) const
   {
     return HasInputWithID(id);
+  }
+
+  FrameHashCache* video_frame_cache() const
+  {
+    return video_cache_;
+  }
+
+  AudioPlaybackCache* audio_playback_cache() const
+  {
+    return audio_cache_;
   }
 
   struct Position
@@ -799,19 +811,6 @@ public:
   }
 
   /**
-   * @brief Limits cache invalidation temporarily
-   *
-   * If you intend to do a number of operations in quick succession, you can optimize it by running
-   * this function with EndOperation().
-   */
-  virtual void BeginOperation();
-
-  /**
-   * @brief Stops limiting cache invalidation and flushes changes
-   */
-  virtual void EndOperation();
-
-  /**
    * @brief Adjusts time that should be sent to nodes connected to certain inputs.
    *
    * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be
@@ -1029,11 +1028,6 @@ protected:
    * In some scenarios, it may be preferable to handle this signal separately in order to
    */
   void IgnoreInvalidationsFrom(const QString &input_id);
-
-  int GetOperationStack() const
-  {
-    return operation_stack_;
-  }
 
   enum GizmoScaleHandles {
     kGizmoScaleTopLeft,
@@ -1392,8 +1386,6 @@ private:
 
   Folder* folder_;
 
-  int operation_stack_;
-
   bool cache_result_;
 
   QMap<InputElementPair, ValueHint> value_hints_;
@@ -1405,6 +1397,10 @@ private:
   QVector<NodeGizmo*> gizmos_;
 
   QString effect_input_;
+
+  FrameHashCache *video_cache_;
+
+  AudioPlaybackCache *audio_cache_;
 
 private slots:
   /**

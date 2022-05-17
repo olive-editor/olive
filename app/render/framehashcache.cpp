@@ -67,7 +67,7 @@ void FrameHashCache::ValidateTime(const rational &time)
 
 bool FrameHashCache::SaveCacheFrame(const int64_t &time, FramePtr frame) const
 {
-  return SaveCacheFrame(GetCacheDirectory(), uuid_, time, frame);
+  return SaveCacheFrame(GetCacheDirectory(), GetUuid(), time, frame);
 }
 
 bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QUuid &uuid, const int64_t &time, FramePtr frame)
@@ -125,7 +125,7 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &cache_path, const QUuid &
 
 FramePtr FrameHashCache::LoadCacheFrame(const int64_t &hash) const
 {
-  return LoadCacheFrame(GetCacheDirectory(), uuid_, hash);
+  return LoadCacheFrame(GetCacheDirectory(), GetUuid(), hash);
 }
 
 FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
@@ -212,7 +212,7 @@ void FrameHashCache::HashDeleted(const QString& path, const QString &filename)
   }
 
   QFileInfo info(filename);
-  if (uuid_.toString() != info.dir().dirName()) {
+  if (GetUuid().toString() != info.dir().dirName()) {
     return;
   }
 
@@ -229,12 +229,12 @@ void FrameHashCache::ProjectInvalidated(Project *p)
 
 QString FrameHashCache::CachePathName(const int64_t &time) const
 {
-  return CachePathName(GetCacheDirectory(), uuid_, time);
+  return CachePathName(GetCacheDirectory(), GetUuid(), time);
 }
 
 QString FrameHashCache::CachePathName(const rational &time) const
 {
-  return CachePathName(GetCacheDirectory(), uuid_, time, timebase_);
+  return CachePathName(GetCacheDirectory(), GetUuid(), time, timebase_);
 }
 
 QString FrameHashCache::CachePathName(const QString &cache_path, const QUuid &cache_id, const int64_t &time)

@@ -46,13 +46,12 @@ RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, D
 
 TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational &frame_length)
 {
-  ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
 
   TimeRange range = TimeRange(time, time + frame_length);
 
   NodeValueTable table;
-  if (Node *texture_output = viewer->GetConnectedTextureOutput()) {
-    table = GenerateTable(texture_output, range);
+  if (Node* node = Node::ValueToPtr<Node>(ticket_->property("node"))) {
+    table = GenerateTable(node, range);
   }
 
   NodeValue tex_val = table.Get(NodeValue::kTexture);
@@ -205,12 +204,11 @@ void RenderProcessor::Run()
   }
   case RenderManager::kTypeAudio:
   {
-    ViewerOutput* viewer = Node::ValueToPtr<ViewerOutput>(ticket_->property("viewer"));
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
     NodeValueTable table;
-    if (Node *texture_output = viewer->GetConnectedSampleOutput()) {
-      table = GenerateTable(texture_output, time);
+    if (Node* node = Node::ValueToPtr<Node>(ticket_->property("node"))) {
+      table = GenerateTable(node, time);
     }
 
     NodeValue sample_val = table.Get(NodeValue::kSamples);

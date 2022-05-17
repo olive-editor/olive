@@ -76,16 +76,16 @@ RenderManager::~RenderManager()
   }
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
+RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param,
+                                           ColorManager* color_manager, const rational& time, RenderMode::Mode mode,
                                            FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
 {
-  return RenderFrame(viewer,
+  return RenderFrame(node,
                      color_manager,
                      time,
                      mode,
-                     viewer->GetVideoParams(),
-                     viewer->GetAudioParams(),
+                     vparam,
+                     param,
                      QSize(0, 0),
                      QMatrix4x4(),
                      VideoParams::kFormatInvalid,
@@ -95,7 +95,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
                      return_type);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
+RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
@@ -106,7 +106,7 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("viewer", Node::PtrToValue(viewer));
+  ticket->setProperty("node", Node::PtrToValue(node));
   ticket->setProperty("time", QVariant::fromValue(time));
   ticket->setProperty("size", force_size);
   ticket->setProperty("matrix", force_matrix);
@@ -130,17 +130,12 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
-{
-  return RenderAudio(viewer, r, viewer->GetAudioParams(), mode, generate_waveforms, priority);
-}
-
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
+RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("viewer", Node::PtrToValue(viewer));
+  ticket->setProperty("node", Node::PtrToValue(node));
   ticket->setProperty("time", QVariant::fromValue(r));
   ticket->setProperty("type", kTypeAudio);
   ticket->setProperty("mode", mode);

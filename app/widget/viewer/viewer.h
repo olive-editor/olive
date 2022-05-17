@@ -291,8 +291,6 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void ViewerShiftedRange(const olive::rational& from, const olive::rational& to);
-
   void UpdateStack();
 
   void ContextMenuSetFullScreen(QAction* action);

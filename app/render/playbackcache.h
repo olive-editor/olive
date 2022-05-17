@@ -21,14 +21,15 @@
 #ifndef PLAYBACKCACHE_H
 #define PLAYBACKCACHE_H
 
-#include <QMutex>
 #include <QObject>
+#include <QUuid>
 
 #include "common/jobtime.h"
 #include "common/timerange.h"
 
 namespace olive {
 
+class Node;
 class Project;
 class ViewerOutput;
 
@@ -36,10 +37,10 @@ class PlaybackCache : public QObject
 {
   Q_OBJECT
 public:
-  PlaybackCache(QObject* parent = nullptr) :
-    QObject(parent)
-  {
-  }
+  PlaybackCache(QObject* parent = nullptr);
+
+  const QUuid &GetUuid() const { return uuid_; }
+  void SetUuid(const QUuid &u) { uuid_ = u; }
 
   TimeRangeList GetInvalidatedRanges(TimeRange intersecting);
   TimeRangeList GetInvalidatedRanges(const rational &length)
@@ -55,35 +56,31 @@ public:
 
   QString GetCacheDirectory() const;
 
-  ViewerOutput *viewer_parent() const;
-
   void Invalidate(const TimeRange& r, bool signal = true);
 
   const TimeRangeList &GetValidatedRanges() const { return validated_; }
 
+  Node *parent() const;
+
 public slots:
   void InvalidateAll();
-
-  void Shift(rational from, rational to);
 
 signals:
   void Invalidated(const olive::TimeRange& r);
 
   void Validated(const olive::TimeRange& r);
 
-  void Shifted(const olive::rational& from, const olive::rational& to);
-
 protected:
   void Validate(const TimeRange& r, bool signal = true);
 
   virtual void InvalidateEvent(const TimeRange& range);
 
-  virtual void ShiftEvent(const rational& from, const rational& to);
-
   Project* GetProject() const;
 
 private:
   TimeRangeList validated_;
+
+  QUuid uuid_;
 
 };
 

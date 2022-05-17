@@ -48,11 +48,13 @@ Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
-  operation_stack_(0),
   cache_result_(false),
   flags_(kNone)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
+
+  video_cache_ = new FrameHashCache(this);
+  audio_cache_ = new AudioPlaybackCache(this);
 }
 
 Node::~Node()
@@ -933,18 +935,6 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   SendInvalidateCache(range, options);
 }
 
-void Node::BeginOperation()
-{
-  // Increase operation stack
-  operation_stack_++;
-}
-
-void Node::EndOperation()
-{
-  // Decrease operation stack
-  operation_stack_--;
-}
-
 TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
@@ -1118,13 +1108,11 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
 void Node::SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options)
 {
-  if (GetOperationStack() == 0) {
-    for (const OutputConnection& conn : output_connections_) {
-      // Send clear cache signal to the Node
-      const NodeInput& in = conn.second;
+  for (const OutputConnection& conn : output_connections_) {
+    // Send clear cache signal to the Node
+    const NodeInput& in = conn.second;
 
-      in.node()->InvalidateCache(range, in.input(), in.element(), options);
-    }
+    in.node()->InvalidateCache(range, in.input(), in.element(), options);
   }
 }
 

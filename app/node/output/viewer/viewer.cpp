@@ -40,8 +40,6 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   last_length_(0),
   video_length_(0),
   audio_length_(0),
-  video_frame_cache_(this),
-  audio_playback_cache_(this),
   video_cache_enabled_(true),
   audio_cache_enabled_(true)
 {
@@ -229,30 +227,6 @@ void ViewerOutput::set_default_parameters()
   SetVideoAutoCacheEnabled(OLIVE_CONFIG("DefaultSequenceAutoCache").toBool());
 }
 
-void ViewerOutput::ShiftVideoCache(const rational &from, const rational &to)
-{
-  if (video_cache_enabled_) {
-    video_frame_cache_.Shift(from, to);
-  }
-
-  ShiftVideoEvent(from, to);
-}
-
-void ViewerOutput::ShiftAudioCache(const rational &from, const rational &to)
-{
-  if (audio_cache_enabled_) {
-    audio_playback_cache_.Shift(from, to);
-  }
-
-  ShiftAudioEvent(from, to);
-}
-
-void ViewerOutput::ShiftCache(const rational &from, const rational &to)
-{
-  ShiftVideoCache(from, to);
-  ShiftAudioCache(from, to);
-}
-
 void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
@@ -264,9 +238,9 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 
     if (invalidated_range.in() != invalidated_range.out()) {
       if (from == kTextureInput || from == kVideoParamsInput) {
-        video_frame_cache_.Invalidate(invalidated_range);
+        video_frame_cache()->Invalidate(invalidated_range);
       } else {
-        audio_playback_cache_.Invalidate(invalidated_range);
+        audio_playback_cache()->Invalidate(invalidated_range);
       }
     }
   }
@@ -454,7 +428,7 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 
       if (frame_rate_changed) {
         if (video_cache_enabled_) {
-          video_frame_cache_.SetTimebase(new_video_params.frame_rate_as_time_base());
+          video_frame_cache()->SetTimebase(new_video_params.frame_rate_as_time_base());
         }
         emit FrameRateChanged(new_video_params.frame_rate());
       }
@@ -476,7 +450,7 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       emit AudioParamsChanged();
 
       if (audio_cache_enabled_) {
-        audio_playback_cache_.SetParameters(GetAudioParams());
+        audio_playback_cache()->SetParameters(GetAudioParams());
       }
 
       cached_audio_params_ = new_audio_params;
@@ -485,18 +459,6 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
   }
 
   super::InputValueChangedEvent(input, element);
-}
-
-void ViewerOutput::ShiftVideoEvent(const rational &from, const rational &to)
-{
-  Q_UNUSED(from)
-  Q_UNUSED(to)
-}
-
-void ViewerOutput::ShiftAudioEvent(const rational &from, const rational &to)
-{
-  Q_UNUSED(from)
-  Q_UNUSED(to)
 }
 
 void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> footage)

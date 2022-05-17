@@ -82,7 +82,6 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
   if (playback_cache_) {
     disconnect(playback_cache_, &PlaybackCache::Invalidated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
     disconnect(playback_cache_, &PlaybackCache::Validated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
-    disconnect(playback_cache_, &PlaybackCache::Shifted, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
   }
 
   playback_cache_ = cache;
@@ -90,7 +89,6 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
   if (playback_cache_) {
     connect(playback_cache_, &PlaybackCache::Invalidated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
     connect(playback_cache_, &PlaybackCache::Validated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
-    connect(playback_cache_, &PlaybackCache::Shifted, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
   }
 
   update();
@@ -257,35 +255,37 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   // If cache status is enabled
   if (show_cache_status_ && playback_cache_) {
     // FIXME: Hardcoded to get video length, if we ever need audio length, this will have to change
-    rational len = playback_cache_->viewer_parent()->GetVideoLength();
-    int lim_left = GetScroll();
-    int lim_right = lim_left + width();
+    if (ViewerOutput *viewer = dynamic_cast<ViewerOutput*>(playback_cache_->parent())) {
+      rational len = viewer->GetVideoLength();
+      int lim_left = GetScroll();
+      int lim_right = lim_left + width();
 
-    int cache_screen_length = TimeToScene(len);
+      int cache_screen_length = TimeToScene(len);
 
-    if (cache_screen_length > 0) {
-      int cache_y = height() - cache_status_height_;
+      if (cache_screen_length > 0) {
+        int cache_y = height() - cache_status_height_;
 
-      p->fillRect(0, cache_y, cache_screen_length, cache_status_height_, Qt::green);
+        p->fillRect(0, cache_y, cache_screen_length, cache_status_height_, Qt::green);
 
-      foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges(len)) {
-        int range_left = TimeToScene(range.in());
-        if (range_left >= width()) {
-          continue;
+        foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges(len)) {
+          int range_left = TimeToScene(range.in());
+          if (range_left >= width()) {
+            continue;
+          }
+
+          int range_right = TimeToScene(range.out());
+          if (range_right < 0) {
+            continue;
+          }
+
+          int adjusted_left = qMax(lim_left, range_left);
+
+          p->fillRect(adjusted_left,
+                      cache_y,
+                      qMin(lim_right, range_right) - adjusted_left,
+                      cache_status_height_,
+                      Qt::red);
         }
-
-        int range_right = TimeToScene(range.out());
-        if (range_right < 0) {
-          continue;
-        }
-
-        int adjusted_left = qMax(lim_left, range_left);
-
-        p->fillRect(adjusted_left,
-                    cache_y,
-                    qMin(lim_right, range_right) - adjusted_left,
-                    cache_status_height_,
-                    Qt::red);
       }
     }
   }

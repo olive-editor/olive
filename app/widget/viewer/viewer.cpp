@@ -205,7 +205,6 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
-  connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   VideoParams vp = n->GetVideoParams();
@@ -250,7 +249,6 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
-  disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   CloseAudioProcessor();
@@ -1553,13 +1551,6 @@ void ViewerWidget::ManualSwitchToWaveform(bool e)
     stack_->setCurrentWidget(waveform_view_);
   } else {
     stack_->setCurrentWidget(sizer_);
-  }
-}
-
-void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
-{
-  if (GetTime() >= qMin(from, to)) {
-    QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }
 

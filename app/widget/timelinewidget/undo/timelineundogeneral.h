@@ -233,14 +233,13 @@ private:
 
 class TrackReplaceBlockWithGapCommand : public UndoCommand {
 public:
-  TrackReplaceBlockWithGapCommand(Track* track, Block* block, bool handle_transitions = true, bool handle_invalidations = true) :
+  TrackReplaceBlockWithGapCommand(Track* track, Block* block, bool handle_transitions = true) :
     track_(track),
     block_(block),
     existing_gap_(nullptr),
     existing_merged_gap_(nullptr),
     our_gap_(nullptr),
-    handle_transitions_(handle_transitions),
-    handle_invalidations_(handle_invalidations)
+    handle_transitions_(handle_transitions)
   {
   }
 
@@ -266,7 +265,6 @@ private:
   GapBlock* our_gap_;
 
   bool handle_transitions_;
-  bool handle_invalidations_;
 
   QObject memory_manager_;
 
@@ -344,8 +342,6 @@ private:
 
   QVector<Track*> working_tracks_;
 
-  bool all_tracks_unlocked_;
-
   QVector<Block*> gaps_to_extend_;
 
   struct AddGap {
@@ -359,62 +355,6 @@ private:
   BlockSplitPreservingLinksCommand* split_command_;
 
   QObject memory_manager_;
-
-};
-
-class NodeBeginOperationCommand : public UndoCommand
-{
-public:
-  NodeBeginOperationCommand(Node *node) :
-    node_(node)
-  {}
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override
-  {
-    node_->BeginOperation();
-  }
-
-  virtual void undo() override
-  {
-    node_->EndOperation();
-  }
-
-private:
-  Node *node_;
-
-};
-
-class NodeEndOperationCommand : public UndoCommand
-{
-public:
-  NodeEndOperationCommand(Node *node) :
-    node_(node)
-  {}
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override
-  {
-    node_->EndOperation();
-  }
-
-  virtual void undo() override
-  {
-    node_->BeginOperation();
-  }
-
-private:
-  Node *node_;
 
 };
 

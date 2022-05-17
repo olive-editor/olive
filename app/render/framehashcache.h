@@ -21,9 +21,6 @@
 #ifndef VIDEORENDERFRAMECACHE_H
 #define VIDEORENDERFRAMECACHE_H
 
-#include <QMutex>
-#include <QUuid>
-
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
 #include "common/timerange.h"
@@ -38,9 +35,6 @@ class FrameHashCache : public PlaybackCache
   Q_OBJECT
 public:
   FrameHashCache(QObject* parent = nullptr);
-
-  const QUuid &GetUuid() const { return uuid_; }
-  void SetUuid(const QUuid &u) { uuid_ = u; }
 
   const rational &GetTimebase() const { return timebase_; }
 
@@ -85,8 +79,6 @@ private:
   static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const rational &time, const rational &tb);
 
   rational timebase_;
-
-  QUuid uuid_;
 
   static const QString kCacheFormatExtension;
 

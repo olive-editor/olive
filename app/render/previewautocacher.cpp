@@ -557,7 +557,9 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(const rational& time, Render
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
   video_tasks_.insert(watcher, time);
-  watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_,
+  watcher->SetTicket(RenderManager::instance()->RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(),
+                                                            copied_viewer_node_->GetVideoParams(),
+                                                            copied_viewer_node_->GetAudioParams(),
                                                             copied_color_manager_,
                                                             time,
                                                             RenderMode::kOffline,
@@ -574,7 +576,7 @@ RenderTicketPtr PreviewAutoCacher::RenderAudio(const TimeRange &r, bool generate
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
   audio_tasks_.insert(watcher, r);
 
-  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(copied_viewer_node_, r, RenderMode::kOffline, generate_waveforms, priority);
+  RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), r, copied_viewer_node_->GetAudioParams(), RenderMode::kOffline, generate_waveforms, priority);
   watcher->SetTicket(ticket);
   return ticket;
 }
