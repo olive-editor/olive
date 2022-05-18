@@ -83,7 +83,7 @@ bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QUuid &uuid
 
   // Register frame with the disk manager
   if (ret) {
-    DiskManager::instance()->CreatedFile(cache_path, fn);
+    QMetaObject::invokeMethod(DiskManager::instance(), "CreatedFile", Q_ARG(QString, cache_path), Q_ARG(QString, fn));
   }
 
   return ret;
@@ -102,7 +102,7 @@ bool FrameHashCache::SaveCacheFrame(const QString &cache_path, const QUuid &uuid
 
   // Register frame with the disk manager
   if (ret) {
-    DiskManager::instance()->CreatedFile(cache_path, fn);
+    QMetaObject::invokeMethod(DiskManager::instance(), "CreatedFile", Q_ARG(QString, cache_path), Q_ARG(QString, fn));
   }
 
   return ret;
@@ -186,7 +186,7 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
       frame = nullptr;
 
       // Assume this frame is corrupt in some way and delete it
-      DiskManager::instance()->DeleteSpecificFile(fn);
+      QMetaObject::invokeMethod(DiskManager::instance(), "DeleteSpecificFile", Q_ARG(QString, fn));
     }
 
   }
@@ -242,7 +242,9 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QUuid &ca
   QString filename = QDir(QDir(cache_path).filePath(cache_id.toString())).filePath(QString::number(time));
 
   // Register that in some way this hash has been accessed
-  DiskManager::instance()->Accessed(cache_path, filename);
+  if (DiskManager::instance()) {
+    QMetaObject::invokeMethod(DiskManager::instance(), "Accessed", Q_ARG(QString, cache_path), Q_ARG(QString, filename));
+  }
 
   return filename;
 }

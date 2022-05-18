@@ -214,10 +214,10 @@ bool DiskCacheFolder::ClearCache()
 
   while (i != disk_data_.end()) {
     // We return a false result if any of the files fail to delete, but still try to delete as many as we can
-    const QString &filename = i.key();
+    QString filename = i.key();
 
     if (QFile::remove(filename) || !QFileInfo::exists(filename)) {
-      emit DeletedFrame(path_, i.key());
+      emit DeletedFrame(path_, filename);
       i = disk_data_.erase(i);
     } else {
       qWarning() << "Failed to delete" << filename;
@@ -308,11 +308,15 @@ void DiskCacheFolder::SetPath(const QString &path)
 bool DiskCacheFolder::DeleteFileInternal(QMap<QString, HashTime>::iterator hash_to_delete)
 {
   // Cache HashTime object
-  const QString &filename = hash_to_delete.key();
+  QString filename = hash_to_delete.key();
   HashTime ht = hash_to_delete.value();
 
   // Remove from disk
-  if (QFile::remove(filename)) {
+  QFile f(filename);
+
+  if (!f.exists()) {
+    return true;
+  } else if (f.remove()) {
     // Remove from internal map
     disk_data_.erase(hash_to_delete);
 
@@ -342,11 +346,12 @@ bool DiskCacheFolder::DeleteLeastRecent()
 {
   auto hash_to_delete = disk_data_.begin();
 
-  for (auto it=disk_data_.begin()+1; it!=disk_data_.end(); it++) {
-    if (it->access_time < hash_to_delete->access_time) {
-      hash_to_delete = it;
+  if (disk_data_.begin() != disk_data_.end()) {
+    for (auto it=disk_data_.begin()+1; it!=disk_data_.end(); it++) {
+      if (it->access_time < hash_to_delete->access_time) {
+        hash_to_delete = it;
+      }
     }
-  }
 
   return DeleteFileInternal(hash_to_delete);
 }
