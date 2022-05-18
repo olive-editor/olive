@@ -353,7 +353,16 @@ bool DiskCacheFolder::DeleteLeastRecent()
       }
     }
 
-  return DeleteFileInternal(hash_to_delete);
+    bool e = DeleteFileInternal(hash_to_delete);
+
+    if (e) {
+      Core::instance()->WarnCacheFull();
+    }
+
+    return e;
+  } else {
+    return false;
+  }
 }
 
 void DiskCacheFolder::CloseCacheFolder()
