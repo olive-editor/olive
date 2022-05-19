@@ -141,6 +141,7 @@ private:
   FramePtr GetFrameFromCache(const rational &t) const;
 
   void ClearFrameCache();
+  void ResetScaler();
 
   FramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
 

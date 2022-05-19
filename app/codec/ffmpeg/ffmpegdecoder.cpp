@@ -173,6 +173,7 @@ void FFmpegDecoder::CloseInternal()
   }
 
   ClearFrameCache();
+  FreeScaler();
 
   instance_.Close();
 }
@@ -677,11 +678,13 @@ void FFmpegDecoder::ClearFrameCache()
     cached_frames_.clear();
     cache_at_eof_ = false;
     cache_at_zero_ = false;
-
-    // Filter graph may rely on "continuous" video frames, so we free the scaler here
-    FreeScaler();
-    InitScaler(filter_params_);
   }
+}
+
+void FFmpegDecoder::ResetScaler()
+{
+  FreeScaler();
+  InitScaler(filter_params_);
 }
 
 FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *cancelled)
@@ -697,6 +700,9 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
     if (cached_frames_.empty()
         || (time < cached_frames_.front()->timestamp() || time > cached_frames_.back()->timestamp() + 2)) {
       ClearFrameCache();
+
+      // Filter graph may rely on "continuous" video frames, so we free the scaler here
+      ResetScaler();
 
       instance_.Seek(seek_ts);
       if (seek_ts == min_seek) {
@@ -827,6 +833,7 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
 
   // We need to (re)create the filter, delete current if necessary
   ClearFrameCache();
+  FreeScaler();
 
   // Set our params to this
   filter_params_ = params;
