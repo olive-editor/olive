@@ -224,6 +224,13 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
   VerifyLength();
 
   super::InvalidateCache(range, from, element, options);
+
+  // TEMP: Just to restore the intended functionality for now. This will be removed later.
+  if (from == kTextureInput) {
+    video_frame_cache()->Invalidate(range);
+  } else if (from == kSamplesInput) {
+    audio_playback_cache()->Invalidate(range);
+  }
 }
 
 QVector<Track::Reference> ViewerOutput::GetEnabledStreamsAsReferences() const
