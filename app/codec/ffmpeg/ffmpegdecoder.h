@@ -40,6 +40,12 @@ extern "C" {
 
 namespace olive {
 
+using AVFramePtr = std::shared_ptr<AVFrame>;
+inline AVFramePtr CreateAVFramePtr(AVFrame *f)
+{
+  return std::shared_ptr<AVFrame>(f, [](AVFrame *g){ av_frame_free(&g); });
+}
+
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
  */
@@ -116,8 +122,6 @@ private:
 
   };
 
-  int GetFilteredFrame(AVPacket *packet, AVFrame *frame);
-
   /**
    * @brief Handle an FFmpeg error code
    *
@@ -138,12 +142,11 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
-  FramePtr GetFrameFromCache(const rational &t) const;
+  AVFramePtr GetFrameFromCache(const int64_t &t) const;
 
   void ClearFrameCache();
-  void ResetScaler();
 
-  FramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  AVFramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
 
   void RemoveFirstFrame();
 
@@ -162,7 +165,7 @@ private:
 
   int64_t second_ts_;
 
-  std::list<FramePtr> cached_frames_;
+  std::list<AVFramePtr> cached_frames_;
 
   bool is_working_;
   QMutex is_working_mutex_;

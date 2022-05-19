@@ -153,11 +153,36 @@ bool FFmpegDecoder::OpenInternal()
 
 FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
-  if (!InitScaler(params)) {
-    return nullptr;
+  FramePtr ret = nullptr;
+
+  if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
+    if (InitScaler(params)) {
+      qint64 t = QDateTime::currentMSecsSinceEpoch();
+
+      int r;
+      r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
+      if (r < 0) {
+        return nullptr;
+      }
+      r = av_buffersink_get_frame(buffersink_ctx_, f.get());
+      if (r < 0) {
+        return nullptr;
+      }
+
+      ret = Frame::Create();
+      ret->set_video_params(GetVideoParams());
+      ret->allocate();
+
+      uint8_t *destination_data = reinterpret_cast<uint8_t*>(ret->data());
+      int destination_linesize = ret->linesize_bytes();
+      av_image_copy(&destination_data, &destination_linesize, const_cast<const uint8_t**>(f->data), f->linesize, AVPixelFormat(f->format), f->width, f->height);
+
+      //sws_scale(sws_ctx_, f->data, f->linesize, 0, f->height, &destination_data, &destination_linesize);
+      qDebug() << "Converting from" << instance_.avstream()->codecpar->format << "to" << ideal_pix_fmt_ << "took" << (QDateTime::currentMSecsSinceEpoch() - t);
+    }
   }
 
-  return RetrieveFrame(timecode, cancelled);
+  return ret;
 }
 
 void FFmpegDecoder::CloseInternal()
@@ -176,51 +201,6 @@ void FFmpegDecoder::CloseInternal()
   FreeScaler();
 
   instance_.Close();
-}
-
-int FFmpegDecoder::GetFilteredFrame(AVPacket* packet, AVFrame* output_frame)
-{
-  // Ensure scaler is correct for these parameters
-  int ret;
-
-  // Try to pull frame from buffersink
-  while ((ret = av_buffersink_get_frame(buffersink_ctx_, output_frame)) == AVERROR(EAGAIN)) {
-    // If no frame is ready in the buffersink, pull from codec
-    ret = instance_.GetFrame(packet, output_frame);
-
-    if (ret >= 0) {
-      // Override this frame's interlacing parameters from user
-      switch (filter_params_.src_interlacing) {
-      case VideoParams::kInterlaceNone:
-        output_frame->interlaced_frame = 0;
-        break;
-      case VideoParams::kInterlacedTopFirst:
-        output_frame->interlaced_frame = 1;
-        output_frame->top_field_first = 1;
-        break;
-      case VideoParams::kInterlacedBottomFirst:
-        output_frame->interlaced_frame = 1;
-        output_frame->top_field_first = 0;
-        break;
-      }
-
-      // If succeeded in pulling from codec, send to buffer source
-      ret = av_buffersrc_add_frame_flags(buffersrc_ctx_, output_frame, AV_BUFFERSRC_FLAG_KEEP_REF);
-
-      av_frame_unref(output_frame);
-
-      if (ret < 0) {
-        // If failed to send to buffer source, return break and error code
-        qCritical() << "Failed to feed filter graph:" << FFmpegError(ret);
-        break;
-      }
-    } else {
-      // If failed to read from decoder, return break and error code
-      break;
-    }
-  }
-
-  return ret;
 }
 
 QString FFmpegDecoder::id() const
@@ -681,13 +661,7 @@ void FFmpegDecoder::ClearFrameCache()
   }
 }
 
-void FFmpegDecoder::ResetScaler()
-{
-  FreeScaler();
-  InitScaler(filter_params_);
-}
-
-FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *cancelled)
+AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *cancelled)
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time, filter_params_.src_interlacing);
 
@@ -698,11 +672,11 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
   if (time != kAnyTimecode) {
     // If the frame wasn't in the frame cache, see if this frame cache is too old to use
     if (cached_frames_.empty()
-        || (time < cached_frames_.front()->timestamp() || time > cached_frames_.back()->timestamp() + 2)) {
+        || (target_ts < cached_frames_.front()->pts || target_ts > cached_frames_.back()->pts + 2*second_ts_)) {
       ClearFrameCache();
 
       // Filter graph may rely on "continuous" video frames, so we free the scaler here
-      ResetScaler();
+      //ResetScaler();
 
       instance_.Seek(seek_ts);
       if (seek_ts == min_seek) {
@@ -712,7 +686,7 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
       still_seeking = true;
     } else {
       // Search cache for frame
-      FramePtr cached_frame = GetFrameFromCache(time);
+      AVFramePtr cached_frame = GetFrameFromCache(target_ts);
       if (cached_frame) {
         return cached_frame;
       }
@@ -720,7 +694,8 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
   }
 
   int ret;
-  FramePtr return_frame = nullptr;
+  AVFramePtr return_frame = nullptr;
+  AVFramePtr filtered = nullptr;
 
   while (true) {
     // Break out of loop if we've cancelled
@@ -728,9 +703,12 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
       break;
     }
 
+    if (!filtered) {
+      filtered = CreateAVFramePtr(av_frame_alloc());
+    }
+
     // Pull from the decoder
-    av_frame_unref(working_frame_);
-    ret = GetFilteredFrame(working_packet_, working_frame_);
+    ret = instance_.GetFrame(working_packet_, filtered.get());
 
     // Handle any errors that aren't EOF (EOF is handled later on)
     if (ret < 0 && ret != AVERROR_EOF) {
@@ -741,7 +719,7 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
     if (still_seeking) {
       // Handle a failure to seek (occurs on some media)
       // We'll only be here if the frame cache was emptied earlier
-      if (!cache_at_zero_ && (ret == AVERROR_EOF || working_frame_->best_effort_timestamp > target_ts)) {
+      if (!cache_at_zero_ && (ret == AVERROR_EOF || filtered->best_effort_timestamp > target_ts)) {
 
         seek_ts = qMax(min_seek, seek_ts - second_ts_);
         instance_.Seek(seek_ts);
@@ -756,7 +734,6 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
 
       }
     }
-
 
     if (ret == AVERROR_EOF) {
 
@@ -778,21 +755,8 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
         RemoveFirstFrame();
       }
 
-      FramePtr cached = Frame::Create();
-      cached->set_video_params(GetVideoParams());
-      cached->allocate();
-
-      // Store in queue, converting to native format
-      uint8_t* destination_data = reinterpret_cast<uint8_t*>(cached->data());
-      int destination_linesize = cached->linesize_bytes();
-
-      av_image_copy(&destination_data, &destination_linesize, const_cast<const uint8_t**>(working_frame_->data), working_frame_->linesize, static_cast<AVPixelFormat>(working_frame_->format), working_frame_->width, working_frame_->height);
-
-      // Set timestamp so this frame can be identified later
-      cached->set_timestamp(GetTimestampInTimeUnits(working_frame_->best_effort_timestamp, instance_.avstream()->time_base, instance_.avstream()->start_time, filter_params_.src_interlacing));
-
       // Store frame before just in case
-      FramePtr previous;
+      AVFramePtr previous;
       if (cached_frames_.empty()) {
         previous = nullptr;
       } else {
@@ -800,15 +764,15 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
       }
 
       // Append this frame and signal to other threads that a new frame has arrived
-      cached_frames_.push_back(cached);
+      cached_frames_.push_back(filtered);
 
       // If this is a valid frame, see if this or the frame before it are the one we need
-      if (cached->timestamp() == time || time == kAnyTimecode) {
-        return_frame = cached;
+      if (filtered->pts == target_ts || time == kAnyTimecode) {
+        return_frame = filtered;
         break;
-      } else if (cached->timestamp() > time) {
+      } else if (filtered->pts > target_ts) {
         if (!previous && cache_at_zero_) {
-          return_frame = cached;
+          return_frame = filtered;
           break;
         } else {
           return_frame = previous;
@@ -816,9 +780,10 @@ FramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *ca
         }
       }
     }
+
+    filtered = nullptr;
   }
 
-  av_frame_unref(working_frame_);
   av_packet_unref(working_packet_);
 
   return return_frame;
@@ -938,15 +903,15 @@ void FFmpegDecoder::FreeScaler()
   }
 }
 
-FramePtr FFmpegDecoder::GetFrameFromCache(const rational &t) const
+AVFramePtr FFmpegDecoder::GetFrameFromCache(const int64_t &t) const
 {
-  if (t < cached_frames_.front()->timestamp()) {
+  if (t < cached_frames_.front()->pts) {
 
     if (cache_at_zero_) {
       return cached_frames_.front();
     }
 
-  } else if (t > cached_frames_.back()->timestamp()) {
+  } else if (t > cached_frames_.back()->pts) {
 
     if (cache_at_eof_) {
       return cached_frames_.back();
@@ -956,13 +921,13 @@ FramePtr FFmpegDecoder::GetFrameFromCache(const rational &t) const
 
     // We already have this frame in the cache, find it
     for (auto it=cached_frames_.cbegin(); it!=cached_frames_.cend(); it++) {
-      FramePtr this_frame = *it;
+      AVFramePtr this_frame = *it;
 
       auto next = it;
       next++;
 
-      if (this_frame->timestamp() == t // Test for an exact match
-          || (next != cached_frames_.cend() && (*next)->timestamp() > t)) { // Or for this frame to be the "closest"
+      if (this_frame->pts == t // Test for an exact match
+          || (next != cached_frames_.cend() && (*next)->pts > t)) { // Or for this frame to be the "closest"
 
         return this_frame;
 
