@@ -151,38 +151,30 @@ bool FFmpegDecoder::OpenInternal()
   return output_frame;
 }*/
 
-FramePtr FFmpegDecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
+bool FFmpegDecoder::RetrieveVideoInternal(TexturePtr destination, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
-  FramePtr ret = nullptr;
-
   if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
     if (InitScaler(params)) {
-      qint64 t = QDateTime::currentMSecsSinceEpoch();
-
       int r;
       r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
       if (r < 0) {
-        return nullptr;
+        return false;
       }
-      r = av_buffersink_get_frame(buffersink_ctx_, f.get());
+      r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
       if (r < 0) {
-        return nullptr;
+        return false;
       }
 
-      ret = Frame::Create();
-      ret->set_video_params(GetVideoParams());
-      ret->allocate();
+      VideoParams vp = GetParamsForTexture(params);
 
-      uint8_t *destination_data = reinterpret_cast<uint8_t*>(ret->data());
-      int destination_linesize = ret->linesize_bytes();
-      av_image_copy(&destination_data, &destination_linesize, const_cast<const uint8_t**>(f->data), f->linesize, AVPixelFormat(f->format), f->width, f->height);
+      destination->Upload(working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
 
-      //sws_scale(sws_ctx_, f->data, f->linesize, 0, f->height, &destination_data, &destination_linesize);
-      qDebug() << "Converting from" << instance_.avstream()->codecpar->format << "to" << ideal_pix_fmt_ << "took" << (QDateTime::currentMSecsSinceEpoch() - t);
+      av_frame_unref(working_frame_);
+      return true;
     }
   }
 
-  return ret;
+  return false;
 }
 
 void FFmpegDecoder::CloseInternal()
@@ -944,7 +936,7 @@ void FFmpegDecoder::RemoveFirstFrame()
   cache_at_zero_ = false;
 }
 
-VideoParams FFmpegDecoder::GetVideoParams() const
+VideoParams FFmpegDecoder::GetParamsForTexture(const Decoder::RetrieveVideoParams &p) const
 {
   return VideoParams(instance_.avstream()->codecpar->width,
                      instance_.avstream()->codecpar->height,
@@ -952,7 +944,7 @@ VideoParams FFmpegDecoder::GetVideoParams() const
                      native_channel_count_,
                      av_guess_sample_aspect_ratio(instance_.fmt_ctx(), instance_.avstream(), nullptr),
                      VideoParams::kInterlaceNone,
-                     filter_params_.divider);
+                     p.divider);
 }
 
 FFmpegDecoder::Instance::Instance() :

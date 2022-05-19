@@ -46,7 +46,6 @@ RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, D
 
 TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational &frame_length)
 {
-
   TimeRange range = TimeRange(time, time + frame_length);
 
   NodeValueTable table;
@@ -451,35 +450,37 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     p.dst_interlacing = GetCacheVideoParams().interlacing();
 
     if (!IsCancelled()) {
-      FramePtr frame = decoder->RetrieveVideo((stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
 
-      if (frame) {
-        // Return a texture from the derived class
-        TexturePtr unmanaged_texture = render_ctx_->CreateTexture(frame->video_params(),
-                                                                  frame->data(),
-                                                                  frame->linesize_pixels());
+      VideoParams tex_params = decoder->GetParamsForTexture(p);
 
-        // We convert to our rendering pixel format, since that will always be float-based which
-        // is necessary for correct color conversion
-        ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
-                                                             using_colorspace,
-                                                             color_manager->GetReferenceColorSpace());
+      if (tex_params.is_valid()) {
+        TexturePtr unmanaged_texture = render_ctx_->CreateTexture(tex_params);
 
-        ColorTransformJob job;
+        bool frame = decoder->RetrieveVideo(unmanaged_texture, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
 
-        job.SetColorProcessor(processor);
-        job.SetInputTexture(unmanaged_texture);
+        if (frame) {
+          // We convert to our rendering pixel format, since that will always be float-based which
+          // is necessary for correct color conversion
+          ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
+                                                               using_colorspace,
+                                                               color_manager->GetReferenceColorSpace());
 
-        if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
-            || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
-          job.SetInputAlphaAssociation(kAlphaNone);
-        } else if (stream_data.premultiplied_alpha()) {
-          job.SetInputAlphaAssociation(kAlphaAssociated);
-        } else {
-          job.SetInputAlphaAssociation(kAlphaUnassociated);
+          ColorTransformJob job;
+
+          job.SetColorProcessor(processor);
+          job.SetInputTexture(unmanaged_texture);
+
+          if (stream_data.channel_count() != VideoParams::kRGBAChannelCount
+              || stream_data.colorspace() == color_manager->GetReferenceColorSpace()) {
+            job.SetInputAlphaAssociation(kAlphaNone);
+          } else if (stream_data.premultiplied_alpha()) {
+            job.SetInputAlphaAssociation(kAlphaAssociated);
+          } else {
+            job.SetInputAlphaAssociation(kAlphaUnassociated);
+          }
+
+          render_ctx_->BlitColorManaged(job, destination.get());
         }
-
-        render_ctx_->BlitColorManaged(job, destination.get());
       }
     }
   }
