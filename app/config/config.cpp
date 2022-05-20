@@ -140,7 +140,6 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequencePixelAspect"), NodeValue::kRational, QVariant::fromValue(rational(1)));
   SetEntryInternal(QStringLiteral("DefaultSequenceFrameRate"), NodeValue::kRational, QVariant::fromValue(rational(1001, 30000)));
   SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeValue::kInt, VideoParams::kInterlaceNone);
-  SetEntryInternal(QStringLiteral("DefaultSequenceAutoCache"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeValue::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeValue::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
 

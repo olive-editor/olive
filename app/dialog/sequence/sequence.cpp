@@ -155,7 +155,6 @@ void SequenceDialog::SetAsDefaultClicked()
     OLIVE_CONFIG("DefaultSequenceInterlacing") = parameter_tab_->GetSelectedVideoInterlacingMode();
     OLIVE_CONFIG("DefaultSequenceAudioFrequency") = parameter_tab_->GetSelectedAudioSampleRate();
     OLIVE_CONFIG("DefaultSequenceAudioLayout") = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
-    OLIVE_CONFIG("DefaultSequenceAutoCache") = QVariant::fromValue(parameter_tab_->GetSelectedPreviewAutoCache());
   }
 }
 

@@ -213,8 +213,6 @@ void ViewerOutput::set_default_parameters()
                  OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
       AudioParams::kInternalFormat
       ));
-
-  video_frame_cache()->SetEnabled(OLIVE_CONFIG("DefaultSequenceAutoCache").toBool());
 }
 
 void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
