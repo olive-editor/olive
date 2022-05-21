@@ -260,6 +260,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 
 NodeTraverser::NodeTraverser() :
   cancel_(nullptr),
+  heard_cancel_(false),
   transform_(nullptr)
 {
 }

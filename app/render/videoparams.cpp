@@ -315,33 +315,6 @@ int VideoParams::GetScaledDimension(int dim, int divider)
   return dim / divider;
 }
 
-QByteArray VideoParams::toBytes() const
-{
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-  hasher.addData(reinterpret_cast<const char*>(&width_), sizeof(width_));
-  hasher.addData(reinterpret_cast<const char*>(&height_), sizeof(height_));
-  hasher.addData(reinterpret_cast<const char*>(&depth_), sizeof(depth_));
-  hasher.addData(reinterpret_cast<const char*>(&time_base_), sizeof(time_base_));
-  hasher.addData(reinterpret_cast<const char*>(&format_), sizeof(format_));
-  hasher.addData(reinterpret_cast<const char*>(&channel_count_), sizeof(channel_count_));
-  hasher.addData(reinterpret_cast<const char*>(&pixel_aspect_ratio_), sizeof(pixel_aspect_ratio_));
-  hasher.addData(reinterpret_cast<const char*>(&interlacing_), sizeof(interlacing_));
-  hasher.addData(reinterpret_cast<const char*>(&divider_), sizeof(divider_));
-  hasher.addData(reinterpret_cast<const char*>(&enabled_), sizeof(enabled_));
-  hasher.addData(reinterpret_cast<const char*>(&x_), sizeof(x_));
-  hasher.addData(reinterpret_cast<const char*>(&y_), sizeof(y_));
-  hasher.addData(reinterpret_cast<const char*>(&stream_index_), sizeof(stream_index_));
-  hasher.addData(reinterpret_cast<const char*>(&video_type_), sizeof(video_type_));
-  hasher.addData(reinterpret_cast<const char*>(&frame_rate_), sizeof(frame_rate_));
-  hasher.addData(reinterpret_cast<const char*>(&start_time_), sizeof(start_time_));
-  hasher.addData(reinterpret_cast<const char*>(&duration_), sizeof(duration_));
-  hasher.addData(reinterpret_cast<const char*>(&premultiplied_alpha_), sizeof(premultiplied_alpha_));
-  hasher.addData(colorspace_.toUtf8());
-
-  return hasher.result();
-}
-
 int64_t VideoParams::get_time_in_timebase_units(const rational &time) const
 {
   if (time_base_.isNull()) {

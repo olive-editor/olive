@@ -208,9 +208,6 @@ public:
 signals:
   void ParametersChanged();
 
-protected:
-  virtual void ShiftEvent(const rational& from, const rational& to) override;
-
 private:
   static const qint64 kDefaultSegmentSizePerChannel;
 

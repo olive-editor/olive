@@ -53,7 +53,6 @@ void BlockSplitCommand::redo()
 
   // Begin an operation
   Track* track = block_->track();
-  track->BeginOperation();
 
   // Set lengths
   block_->set_length_and_media_out(new_length);
@@ -76,15 +75,11 @@ void BlockSplitCommand::redo()
       }
     }
   }
-
-  track->EndOperation();
 }
 
 void BlockSplitCommand::undo()
 {
   Track* track = block_->track();
-
-  track->BeginOperation();
 
   if (moved_transition_.IsValid()) {
     Node::DisconnectEdge(new_block(), moved_transition_);
@@ -96,8 +91,6 @@ void BlockSplitCommand::undo()
 
   // If we ran a reconnect command, disconnect now
   reconnect_tree_command_->undo_now();
-
-  track->EndOperation();
 }
 
 //

@@ -117,48 +117,48 @@ FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt*
   return desc;
 }
 
+VideoParams OIIODecoder::GetParamsForTexture(const RetrieveVideoParams &p) const
+{
+  return VideoParams(buffer_->spec().width,
+                 buffer_->spec().height,
+                 pix_fmt_,
+                 channel_count_,
+                 OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
+                 VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
+                 p.divider);
+}
+
 bool OIIODecoder::OpenInternal()
 {
   // If we can open the filename provided, assume everything is working
   return OpenImageHandler(stream().filename(), stream().stream());
 }
 
-FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+bool OIIODecoder::RetrieveVideoInternal(TexturePtr destination, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(cancelled)
 
-  FramePtr frame = Frame::Create();
+  VideoParams vp = GetParamsForTexture(params);
 
-  VideoParams vp(buffer_->spec().width,
-                 buffer_->spec().height,
-                 pix_fmt_,
-                 channel_count_,
-                 OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
-                 VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
-                 divider.divider);
+  if (params.divider == 1) {
 
-  frame->set_video_params(vp);
-  frame->allocate();
-
-  if (divider.divider == 1) {
-
-    OIIOUtils::BufferToFrame(buffer_, frame.get());
+    destination->Upload(buffer_->localpixels(), buffer_->scanline_stride() / vp.GetBytesPerPixel());
 
   } else {
 
     // Will need to resize the image
-    OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format));
+    OIIO::ImageBuf dst(OIIO::ImageSpec(vp.effective_width(), vp.effective_height(), buffer_->spec().nchannels, buffer_->spec().format));
 
     if (!OIIO::ImageBufAlgo::resample(dst, *buffer_)) {
       qWarning() << "OIIO resize failed";
     }
 
-    OIIOUtils::BufferToFrame(&dst, frame.get());
+    destination->Upload(dst.localpixels(), dst.scanline_stride() / vp.GetBytesPerPixel());
 
   }
 
-  return frame;
+  return true;
 }
 
 void OIIODecoder::CloseInternal()

@@ -184,7 +184,12 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  FramePtr RetrieveVideo(const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled = nullptr);
+  bool RetrieveVideo(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled = nullptr);
+
+  virtual VideoParams GetParamsForTexture(const Decoder::RetrieveVideoParams &p) const
+  {
+    return VideoParams();
+  }
 
   enum RetrieveAudioStatus {
     kInvalid = -1,
@@ -279,7 +284,7 @@ protected:
    * Sub-classes must override this function IF they support video. Function is already mutexed
    * so sub-classes don't need to worry about thread safety.
    */
-  virtual FramePtr RetrieveVideoInternal(const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled);
+  virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled);
 
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled);
 

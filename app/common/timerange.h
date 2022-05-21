@@ -115,6 +115,17 @@ public:
 
   bool contains(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
+  bool contains(const rational &r) const
+  {
+    for (const TimeRange &range : array_) {
+      if (range.Contains(r)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   bool isEmpty() const
   {
     return array_.isEmpty();

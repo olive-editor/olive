@@ -406,10 +406,6 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
 
 void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
-  if (GetOperationStack() != 0) {
-    return;
-  }
-
   TimeRange limited;
 
   const Block* b;
@@ -465,12 +461,8 @@ void Track::InsertBlockAfter(Block *block, Block *before)
 
 void Track::PrependBlock(Block *block)
 {
-  BeginOperation();
-
   InputArrayPrepend(kBlockInput);
   Node::ConnectEdge(block, NodeInput(this, kBlockInput, 0));
-
-  EndOperation();
 
   // Everything has shifted at this point
   Node::InvalidateCache(TimeRange(0, track_length()), kBlockInput);
@@ -478,25 +470,17 @@ void Track::PrependBlock(Block *block)
 
 void Track::InsertBlockAtIndex(Block *block, int index)
 {
-  BeginOperation();
-
   int insert_index = GetArrayIndexFromCacheIndex(index);
   InputArrayInsert(kBlockInput, insert_index);
   Node::ConnectEdge(block, NodeInput(this, kBlockInput, insert_index));
-
-  EndOperation();
 
   Node::InvalidateCache(TimeRange(block->in(), track_length()), kBlockInput);
 }
 
 void Track::AppendBlock(Block *block)
 {
-  BeginOperation();
-
   InputArrayAppend(kBlockInput);
   Node::ConnectEdge(block, NodeInput(this, kBlockInput, InputArraySize(kBlockInput) - 1));
-
-  EndOperation();
 
   // Invalidate area that block was added to
   Node::InvalidateCache(TimeRange(block->in(), block->out()), kBlockInput);
@@ -504,29 +488,21 @@ void Track::AppendBlock(Block *block)
 
 void Track::RippleRemoveBlock(Block *block)
 {
-  BeginOperation();
-
   rational remove_in = block->in();
   rational remove_out = block->out();
 
   InputArrayRemove(kBlockInput, GetArrayIndexFromBlock(block));
-
-  EndOperation();
 
   Node::InvalidateCache(TimeRange(remove_in, qMax(track_length(), remove_out)), kBlockInput);
 }
 
 void Track::ReplaceBlock(Block *old, Block *replace)
 {
-  BeginOperation();
-
   int index_of_old_block = GetArrayIndexFromBlock(old);
 
   DisconnectEdge(old, NodeInput(this, kBlockInput, index_of_old_block));
 
   ConnectEdge(replace, NodeInput(this, kBlockInput, index_of_old_block));
-
-  EndOperation();
 
   if (old->length() == replace->length()) {
     Node::InvalidateCache(TimeRange(replace->in(), replace->out()), kBlockInput);
@@ -552,18 +528,6 @@ bool Track::IsMuted() const
 bool Track::IsLocked() const
 {
   return locked_;
-}
-
-void Track::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  Block* b = BlockAtTime(globals.time().in());
-
-  // Defer to block at this time, don't add any of our own information to the hash
-  if (b) {
-    NodeGlobals new_globals = globals;
-    new_globals.set_time(TransformRangeForBlock(b, globals.time()));
-    Node::Hash(b, GetValueHintForInput(kBlockInput, GetArrayIndexFromBlock(b)), hash, new_globals, video_params);
-  }
 }
 
 void Track::SetMuted(bool e)

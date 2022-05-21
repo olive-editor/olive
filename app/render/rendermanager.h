@@ -63,10 +63,10 @@ public:
     return instance_;
   }
 
-  /**
-   * @brief Generate a unique identifier for a certain node at a cconst Node *n, const Node::ValueHint &outputertain time
-   */
-  static QByteArray Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time);
+  enum ReturnType {
+    kTexture,
+    kFrame
+  };
 
   /**
    * @brief Asynchronously generate a frame at a given time
@@ -76,16 +76,16 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
+  RenderTicketPtr RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, bool texture_only = false);
-  RenderTicketPtr RenderFrame(ViewerOutput* viewer, ColorManager* color_manager,
+                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
+  RenderTicketPtr RenderFrame(Node *node, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                               ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, bool texture_only = false);
+                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -94,17 +94,13 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(ViewerOutput* viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
-  RenderTicketPtr RenderAudio(ViewerOutput *viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
-
-  RenderTicketPtr SaveFrameToCache(FrameHashCache* cache, FramePtr frame, const QByteArray& hash, RenderTicketPriority priority = RenderTicketPriority::kNormal);
+  RenderTicketPtr RenderAudio(Node *viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
 
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 
   enum TicketType {
     kTypeVideo,
-    kTypeAudio,
-    kTypeVideoDownload
+    kTypeAudio
   };
 
   Backend backend() const

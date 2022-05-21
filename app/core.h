@@ -441,6 +441,8 @@ public slots:
 
   void RequestPixelSamplingInViewers(bool e);
 
+  void WarnCacheFull();
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -620,6 +622,8 @@ private:
    * @brief How many widgets currently need pixel sampling access
    */
   int pixel_sampling_users_;
+
+  bool shown_cache_full_warning_;
 
 private slots:
   void SaveAutorecovery();

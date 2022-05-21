@@ -22,7 +22,6 @@
 #define NODE_H
 
 #include <map>
-#include <QCryptographicHash>
 #include <QMutex>
 #include <QObject>
 #include <QPainter>
@@ -40,6 +39,8 @@
 #include "node/inputimmediate.h"
 #include "node/param.h"
 #include "render/audioparams.h"
+#include "render/audioplaybackcache.h"
+#include "render/framehashcache.h"
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
 #include "render/job/shaderjob.h"
@@ -218,6 +219,16 @@ public:
   bool HasParamWithID(const QString& id) const
   {
     return HasInputWithID(id);
+  }
+
+  FrameHashCache* video_frame_cache() const
+  {
+    return video_cache_;
+  }
+
+  AudioPlaybackCache* audio_playback_cache() const
+  {
+    return audio_cache_;
   }
 
   struct Position
@@ -588,8 +599,6 @@ public:
     {
     }
 
-    void Hash(QCryptographicHash &hash) const;
-
     const QVector<NodeValue::Type> &types() const { return type_; }
     const int &index() const { return index_; }
     const QString& tag() const { return tag_; }
@@ -604,8 +613,6 @@ public:
     QString tag_;
 
   };
-
-  static void Hash(const Node *node, const ValueHint &hint, QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params);
 
   const QMap<InputElementPair, ValueHint> &GetValueHints() const
   {
@@ -804,19 +811,6 @@ public:
   }
 
   /**
-   * @brief Limits cache invalidation temporarily
-   *
-   * If you intend to do a number of operations in quick succession, you can optimize it by running
-   * this function with EndOperation().
-   */
-  virtual void BeginOperation();
-
-  /**
-   * @brief Stops limiting cache invalidation and flushes changes
-   */
-  virtual void EndOperation();
-
-  /**
    * @brief Adjusts time that should be sent to nodes connected to certain inputs.
    *
    * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be
@@ -995,10 +989,6 @@ public:
   static const QString kEnabledInput;
 
 protected:
-  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const;
-
-  void HashAddNodeSignature(QCryptographicHash &hash) const;
-
   void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
 
   void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
@@ -1038,13 +1028,6 @@ protected:
    * In some scenarios, it may be preferable to handle this signal separately in order to
    */
   void IgnoreInvalidationsFrom(const QString &input_id);
-
-  void IgnoreHashingFrom(const QString& input_id);
-
-  int GetOperationStack() const
-  {
-    return operation_stack_;
-  }
 
   enum GizmoScaleHandles {
     kGizmoScaleTopLeft,
@@ -1356,8 +1339,6 @@ private:
 
   QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  void HashInputElement(QCryptographicHash& hash, const QString &input, int element, const NodeGlobals &globals, const VideoParams &video_params) const;
-
   void ParameterValueChanged(const QString &input, int element, const olive::TimeRange &range);
   void ParameterValueChanged(const NodeInput& input, const olive::TimeRange &range)
   {
@@ -1377,8 +1358,6 @@ private:
   void ClearElement(const QString &input, int index);
 
   QVector<QString> ignore_connections_;
-
-  QVector<QString> ignore_when_hashing_;
 
   /**
    * @brief Internal variable for whether this Node can be deleted or not
@@ -1415,8 +1394,6 @@ private:
 
   Folder* folder_;
 
-  int operation_stack_;
-
   bool cache_result_;
 
   QMap<InputElementPair, ValueHint> value_hints_;
@@ -1428,6 +1405,10 @@ private:
   QVector<NodeGizmo*> gizmos_;
 
   QString effect_input_;
+
+  FrameHashCache *video_cache_;
+
+  AudioPlaybackCache *audio_cache_;
 
 private slots:
   /**

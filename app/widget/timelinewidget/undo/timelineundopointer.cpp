@@ -36,9 +36,6 @@ void BlockTrimCommand::redo()
     return;
   }
 
-  // Begin an operation since we'll be doing a lot
-  track_->BeginOperation();
-
   // Determine how much time to invalidate
   TimeRange invalidate_range;
 
@@ -82,14 +79,10 @@ void BlockTrimCommand::redo()
     }
   }
 
-  track_->EndOperation();
-
   if (dynamic_cast<TransitionBlock*>(block_)) {
     // Whole transition needs to be invalidated
     invalidate_range = block_->range();
   }
-
-  track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
 }
 
 void BlockTrimCommand::undo()
@@ -97,8 +90,6 @@ void BlockTrimCommand::undo()
   if (doing_nothing_) {
     return;
   }
-
-  track_->BeginOperation();
 
   // Will be POSITIVE if trimming shorter and NEGATIVE if trimming longer
   if (needs_adjacent_) {
@@ -146,10 +137,6 @@ void BlockTrimCommand::undo()
     // Whole transition needs to be invalidated
     invalidate_range = block_->range();
   }
-
-  track_->EndOperation();
-
-  track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
 }
 
 void BlockTrimCommand::prepare()
@@ -200,8 +187,6 @@ void TrackSlideCommand::redo()
   // Make sure all movement blocks' old positions are invalidated
   TimeRange invalidate_range(blocks_.first()->in(), blocks_.last()->out());
 
-  track_->BeginOperation();
-
   // We will always have an in adjacent if there was a valid slide
   if (we_created_in_adjacent_) {
     // We created in adjacent, so all we have to do is insert it
@@ -246,13 +231,9 @@ void TrackSlideCommand::redo()
     }
   }
 
-  track_->EndOperation();
-
   // Make sure all movement blocks' new positions are invalidated
   invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
                              qMax(invalidate_range.out(), blocks_.last()->out()));
-
-  track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
 }
 
 
@@ -260,8 +241,6 @@ void TrackSlideCommand::undo()
 {
   // Make sure all movement blocks' old positions are invalidated
   TimeRange invalidate_range(blocks_.first()->in(), blocks_.last()->out());
-
-  track_->BeginOperation();
 
   if (we_created_in_adjacent_) {
     // We created this, so we can remove it now
@@ -287,13 +266,9 @@ void TrackSlideCommand::undo()
     }
   }
 
-  track_->EndOperation();
-
   // Make sure all movement blocks' new positions are invalidated
   invalidate_range.set_range(qMin(invalidate_range.in(), blocks_.first()->in()),
                              qMax(invalidate_range.out(), blocks_.last()->out()));
-
-  track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
 }
 
 void TrackSlideCommand::prepare()
@@ -328,8 +303,6 @@ TrackPlaceBlockCommand::~TrackPlaceBlockCommand()
 
 void TrackPlaceBlockCommand::redo()
 {
-  TimeRangeList ranges_to_invalidate;
-
   // Determine if we need to add tracks
   if (track_index_ >= timeline_->GetTracks().size()) {
     if (add_track_commands_.isEmpty()) {
@@ -348,8 +321,6 @@ void TrackPlaceBlockCommand::redo()
 
   Track* track = timeline_->GetTrackAt(track_index_);
 
-  track->BeginOperation();
-
   bool append = (in_ >= track->track_length());
 
   // Check if the placement location is past the end of the timeline
@@ -362,7 +333,6 @@ void TrackPlaceBlockCommand::redo()
       }
       gap_->setParent(track->parent());
       track->AppendBlock(gap_);
-      ranges_to_invalidate.insert(gap_->range());
     }
 
     track->AppendBlock(insert_);
@@ -376,14 +346,6 @@ void TrackPlaceBlockCommand::redo()
     ripple_remove_command_->redo_now();
     track->InsertBlockAfter(insert_, ripple_remove_command_->GetInsertionIndex());
   }
-
-  track->EndOperation();
-
-  ranges_to_invalidate.insert(insert_->range());
-
-  foreach (const TimeRange &r, ranges_to_invalidate) {
-    track->Node::InvalidateCache(r, Track::kBlockInput);
-  }
 }
 
 void TrackPlaceBlockCommand::undo()
@@ -393,7 +355,6 @@ void TrackPlaceBlockCommand::undo()
   TimeRange insert_range(insert_->in(), insert_->out());
 
   // Firstly, remove our insert
-  t->BeginOperation();
   t->RippleRemoveBlock(insert_);
 
   if (ripple_remove_command_) {
@@ -403,9 +364,6 @@ void TrackPlaceBlockCommand::undo()
     t->RippleRemoveBlock(gap_);
     gap_->setParent(&memory_manager_);
   }
-  t->EndOperation();
-
-  t->Node::InvalidateCache(insert_range, Track::kBlockInput);
 
   // Remove tracks if we added them
   for (int i=add_track_commands_.size()-1; i>=0; i--) {

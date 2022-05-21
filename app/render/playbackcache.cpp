@@ -43,38 +43,14 @@ void PlaybackCache::Invalidate(const TimeRange &r, bool signal)
   }
 }
 
+Node *PlaybackCache::parent() const
+{
+  return dynamic_cast<Node*>(QObject::parent());
+}
+
 void PlaybackCache::InvalidateAll()
 {
   Invalidate(TimeRange(0, RATIONAL_MAX));
-}
-
-void PlaybackCache::Shift(rational from, rational to)
-{
-  if (from == to) {
-    return;
-  }
-
-  // An region between `from` and `to` will be inserted or spliced out
-  TimeRangeList ranges_to_shift = validated_.Intersects(TimeRange(from, RATIONAL_MAX));
-
-  // Remove all ranges starting at to
-  validated_.remove(TimeRange(qMin(from, to), RATIONAL_MAX));
-
-  // Restore ranges shifted
-  rational diff = to - from;
-  foreach (const TimeRange& r, ranges_to_shift) {
-    validated_.insert(r + diff);
-  }
-
-  // Tell derivatives that a shift has occurred
-  ShiftEvent(from, to);
-
-  // Emit signals
-  emit Shifted(from, to);
-
-  if (diff > 0) {
-    //emit Invalidated(TimeRange(from, to));
-  }
 }
 
 void PlaybackCache::Validate(const TimeRange &r, bool signal)
@@ -90,19 +66,16 @@ void PlaybackCache::InvalidateEvent(const TimeRange &)
 {
 }
 
-void PlaybackCache::ShiftEvent(const rational &, const rational &)
-{
-}
-
 Project *PlaybackCache::GetProject() const
 {
-  // NOTE: A lot of assumptions in this behavior
-  ViewerOutput* viewer = static_cast<ViewerOutput*>(parent());
-  if (!viewer) {
-    return nullptr;
-  }
+  return Project::GetProjectFromObject(this);
+}
 
-  return viewer->project();
+PlaybackCache::PlaybackCache(QObject *parent) :
+  QObject(parent),
+  enabled_(false)
+{
+  uuid_ = QUuid::createUuid();
 }
 
 TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting)
@@ -137,11 +110,6 @@ QString PlaybackCache::GetCacheDirectory() const
   } else {
     return DiskManager::instance()->GetDefaultCachePath();
   }
-}
-
-ViewerOutput *PlaybackCache::viewer_parent() const
-{
-  return dynamic_cast<ViewerOutput*>(parent());
 }
 
 }
