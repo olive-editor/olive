@@ -89,7 +89,7 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   interlacing_combo_->SetInterlaceMode(vp.interlacing());
   preview_resolution_field_->SetDivider(vp.divider());
   preview_format_field_->SetPixelFormat(vp.format());
-  preview_autocache_field_->setChecked(sequence->GetVideoAutoCacheEnabled());
+  preview_autocache_field_->setChecked(sequence->video_frame_cache()->IsEnabled());
   audio_sample_rate_field_->SetSampleRate(ap.sample_rate());
   audio_channels_field_->SetChannelLayout(ap.channel_layout());
 

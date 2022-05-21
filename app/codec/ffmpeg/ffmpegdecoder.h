@@ -40,6 +40,12 @@ extern "C" {
 
 namespace olive {
 
+using AVFramePtr = std::shared_ptr<AVFrame>;
+inline AVFramePtr CreateAVFramePtr(AVFrame *f)
+{
+  return std::shared_ptr<AVFrame>(f, [](AVFrame *g){ av_frame_free(&g); });
+}
+
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
  */
@@ -60,9 +66,11 @@ public:
 
   virtual FootageDescription Probe(const QString &filename, const QAtomicInt *cancelled) const override;
 
+  virtual VideoParams GetParamsForTexture(const Decoder::RetrieveVideoParams &p) const override;
+
 protected:
   virtual bool OpenInternal() override;
-  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
+  virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled) override;
   virtual void CloseInternal() override;
 
@@ -116,8 +124,6 @@ private:
 
   };
 
-  int GetFilteredFrame(AVPacket *packet, AVFrame *frame);
-
   /**
    * @brief Handle an FFmpeg error code
    *
@@ -138,15 +144,13 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
-  FramePtr GetFrameFromCache(const rational &t) const;
+  AVFramePtr GetFrameFromCache(const int64_t &t) const;
 
   void ClearFrameCache();
 
-  FramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  AVFramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
 
   void RemoveFirstFrame();
-
-  VideoParams GetVideoParams() const;
 
   RetrieveVideoParams filter_params_;
   AVFilterGraph* filter_graph_;
@@ -161,7 +165,7 @@ private:
 
   int64_t second_ts_;
 
-  std::list<FramePtr> cached_frames_;
+  std::list<AVFramePtr> cached_frames_;
 
   bool is_working_;
   QMutex is_working_mutex_;

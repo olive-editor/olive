@@ -87,7 +87,8 @@ Core::Core(const CoreParams& params) :
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
   core_params_(params),
-  pixel_sampling_users_(0)
+  pixel_sampling_users_(0),
+  shown_cache_full_warning_(false)
 {
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
@@ -1294,6 +1295,22 @@ void Core::RequestPixelSamplingInViewers(bool e)
       // Signal to end pixel sampling
       emit ColorPickerEnabled(false);
     }
+  }
+}
+
+void Core::WarnCacheFull()
+{
+  if (!shown_cache_full_warning_ && main_window_) {
+    shown_cache_full_warning_ = true;
+
+    QMessageBox::warning(main_window_, tr("Disk Cache Full"),
+                         tr("The disk cache is currently full and Olive is having to delete old "
+                            "frames to keep it within the limits set in the Disk preferences. This "
+                            "will result in SIGNIFICANTLY reduced cache performance.\n\n"
+                            "To remedy this, please do one of the following:\n\n"
+                            "1. Manually clear the disk cache in Disk preferences.\n"
+                            "2. Increase the maximum disk cache size in Disk preferences.\n"
+                            "3. Reduce usage of the disk cache (e.g. disable auto-cache or only cache specific sections of your sequence)."));
   }
 }
 
