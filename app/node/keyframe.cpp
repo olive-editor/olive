@@ -44,6 +44,8 @@ NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, Type typ
 NodeKeyframe::NodeKeyframe()
 {
   type_ = NodeKeyframe::kLinear;
+  previous_ = nullptr;
+  next_ = nullptr;
 }
 
 NodeKeyframe::~NodeKeyframe()

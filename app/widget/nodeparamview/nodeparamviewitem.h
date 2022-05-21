@@ -170,6 +170,7 @@ public:
   void SetTimeTarget(Node* target)
   {
     body_->SetTimeTarget(target);
+    time_target_ = target;
   }
 
   void SetTime(const rational& time)
@@ -248,6 +249,7 @@ private:
   NodeParamViewCheckBoxBehavior create_checkboxes_;
 
   Node *ctx_;
+  Node * time_target_;
 
   rational time_;
   rational timebase_;

@@ -107,26 +107,10 @@ void NodeParamViewItem::RecreateBody()
 
 void NodeParamViewItem::OnInputListChanged()
 {
-  // delete old widgets and create new ones, based on current inputs
+  RecreateBody();
 
-  disconnect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
-  disconnect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
-  disconnect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
-  disconnect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
-
-  // TODO: Before creating a new 'NodeParamViewItemBody', we should delete the old one.
-  // However this causes a segmentation fault. Does QT handle this? Is this a memory leak?
-
-  // delete body_;
-  body_ = new NodeParamViewItemBody(node_, create_checkboxes_);
-
-  connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
-  connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
-  connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
-  connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
-
-  SetBody(body_);
-  body_->Retranslate();
+  // allow to add keyframes immediately, without changing context
+  body_->SetTimeTarget(time_target_);
 
   emit InputsChanged();
 }
@@ -440,6 +424,12 @@ void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodePara
       colspan = kMaxWidgetColumn - col;
     } else {
       colspan = 1;
+    }
+
+    // some non-keyframeable widgets can use all space to the right
+    if (w->property("is_exapandable").toBool())
+    {
+      colspan = -1;
     }
 
     layout->addWidget(w, row, col, 1, colspan);
