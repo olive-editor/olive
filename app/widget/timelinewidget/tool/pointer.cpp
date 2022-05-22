@@ -568,6 +568,7 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
       break;
     case Timeline::kTrimIn:
       ghost->SetInAdjustment(time_movement);
+      ghost->SetMediaInAdjustment(time_movement);
       break;
     case Timeline::kTrimOut:
       ghost->SetOutAdjustment(time_movement);

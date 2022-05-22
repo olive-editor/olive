@@ -315,9 +315,9 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
           qreal old_opacity = painter->opacity();
           painter->setOpacity(0.5);
 
-          rational in = ghost->GetAdjustedIn(), out = ghost->GetAdjustedOut();
-          DrawBlock(painter, false, attached, track_top, track_height, in, out);
-          DrawBlock(painter, true, attached, track_top, track_height, in, out);
+          rational in = ghost->GetAdjustedIn(), out = ghost->GetAdjustedOut(), media_in = ghost->GetAdjustedMediaIn();
+          DrawBlock(painter, false, attached, track_top, track_height, in, out, media_in);
+          DrawBlock(painter, true, attached, track_top, track_height, in, out, media_in);
 
           painter->setOpacity(old_opacity);
         }
@@ -465,7 +465,7 @@ void TimelineView::DrawBlocks(QPainter *painter, bool foreground)
   }
 }
 
-void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, qreal block_top, qreal block_height, const rational &in, const rational &out)
+void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, qreal block_top, qreal block_height, const rational &in, const rational &out, const rational &media_in)
 {
   if (dynamic_cast<ClipBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
 
@@ -524,7 +524,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
           QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
           painter->setPen(shadow_color);
           AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), clip->waveform(),
-                                            SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
+                                            SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in);
         }
 
         // Draw zebra stripes and markers

@@ -126,10 +126,11 @@ private:
 
   void DrawBlocks(QPainter* painter, bool foreground);
 
-  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height, const rational &in, const rational &out);
+  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height, const rational &in, const rational &out, const rational &media_in);
   void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height)
   {
-    DrawBlock(painter, foreground, block, top, height, block->in(), block->out());
+    ClipBlock *cb = dynamic_cast<ClipBlock*>(block);
+    DrawBlock(painter, foreground, block, top, height, block->in(), block->out(), cb ? cb->media_in() : 0);
   }
 
   void DrawZebraStripes(QPainter *painter, const QRectF &r);
