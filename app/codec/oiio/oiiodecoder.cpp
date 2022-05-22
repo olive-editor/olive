@@ -117,15 +117,15 @@ FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt*
   return desc;
 }
 
-VideoParams OIIODecoder::GetParamsForTexture(const RetrieveVideoParams &p) const
+VideoParams OIIODecoder::GetParamsForTexture(const RetrieveVideoParams &p)
 {
   return VideoParams(buffer_->spec().width,
-                 buffer_->spec().height,
-                 pix_fmt_,
-                 channel_count_,
-                 OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
-                 VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
-                 p.divider);
+                     buffer_->spec().height,
+                     pix_fmt_,
+                     channel_count_,
+                     OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
+                     VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
+                     p.divider);
 }
 
 bool OIIODecoder::OpenInternal()
