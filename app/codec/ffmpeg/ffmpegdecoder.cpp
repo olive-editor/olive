@@ -950,9 +950,11 @@ void FFmpegDecoder::RemoveFirstFrame()
 VideoParams FFmpegDecoder::GetParamsForTexture(const Decoder::RetrieveVideoParams &p)
 {
   if (native_pix_fmt_ == VideoParams::kFormatInvalid) {
-    instance_.GetFrame(working_packet_, working_frame_);
-    InitScaler(working_frame_, p);
-    av_frame_unref(working_frame_);
+    if (instance_.IsOpen()) {
+      instance_.GetFrame(working_packet_, working_frame_);
+      InitScaler(working_frame_, p);
+      av_frame_unref(working_frame_);
+    }
   }
 
   return VideoParams(instance_.avstream()->codecpar->width,

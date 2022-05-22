@@ -87,6 +87,11 @@ private:
 
     bool Open(const char* filename, int stream_index);
 
+    bool IsOpen() const
+    {
+      return fmt_ctx_;
+    }
+
     void Close();
 
     /**
