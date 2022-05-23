@@ -147,6 +147,16 @@ public:
     return timeline_points_;
   }
 
+  virtual TimeRange GetVideoCacheRange() const override
+  {
+    return TimeRange(0, GetVideoLength());
+  }
+
+  virtual TimeRange GetAudioCacheRange() const override
+  {
+    return TimeRange(0, GetAudioLength());
+  }
+
   QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
 
   QVector<VideoParams> GetEnabledVideoStreams() const;

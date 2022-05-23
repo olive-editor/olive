@@ -47,6 +47,7 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   ghosts_(nullptr),
   show_beam_cursor_(false),
   connected_track_list_(nullptr),
+  show_thumbnails_(true),
   show_waveforms_(true),
   transition_overlay_out_(nullptr),
   transition_overlay_in_(nullptr)
@@ -519,12 +520,32 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
       painter->drawRect(r);
 
       if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+        QRect preview_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
+
+        // Draw clip thumbnails
+        if (clip->GetTrackType() == Track::kVideo && show_thumbnails_ && preview_rect.height() > r.height()/3) {
+          const int kTempThumbWidth = 120;
+          const int kTempThumbHeight = 68;
+
+          QRect thumb_rect;
+          painter->setClipRect(preview_rect);
+          for (int i=preview_rect.left(); i<preview_rect.right(); i+=thumb_rect.width()+1) {
+            double scale = double(preview_rect.height())/double(kTempThumbHeight);
+            thumb_rect = QRect(i, preview_rect.top(), kTempThumbWidth * scale, preview_rect.height());
+
+            painter->fillRect(thumb_rect, Qt::red);
+          }
+          painter->setClipping(false);
+        }
+
         // Draw waveform
-        if (show_waveforms_) {
-          QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
-          painter->setPen(shadow_color);
-          AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), clip->waveform(),
-                                            SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in);
+        if (clip->GetTrackType() == Track::kAudio && show_waveforms_) {
+          if (const AudioVisualWaveform *wave = clip->waveform()) {
+            rational waveform_start = SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in;
+            painter->setPen(shadow_color);
+
+            AudioVisualWaveform::DrawWaveform(painter, preview_rect, this->GetScale(), *wave, waveform_start);
+          }
         }
 
         // Draw zebra stripes and markers

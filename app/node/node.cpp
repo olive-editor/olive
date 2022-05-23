@@ -933,11 +933,13 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   Q_UNUSED(element)
 
   if (range.in() != range.out()) {
-    if (video_cache_->IsEnabled()) {
-      video_frame_cache()->Invalidate(range);
+    TimeRange vr = range.Intersected(GetVideoCacheRange());
+    if (vr.length() != 0) {
+      video_frame_cache()->Invalidate(vr);
     }
-    if (audio_cache_->IsEnabled()) {
-      audio_playback_cache()->Invalidate(range);
+    TimeRange ar = range.Intersected(GetAudioCacheRange());
+    if (ar.length() != 0) {
+      audio_playback_cache()->Invalidate(ar);
     }
   }
 

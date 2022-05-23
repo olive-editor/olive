@@ -231,6 +231,9 @@ public:
     return audio_cache_;
   }
 
+  virtual TimeRange GetVideoCacheRange() const { return TimeRange(); }
+  virtual TimeRange GetAudioCacheRange() const { return TimeRange(); }
+
   struct Position
   {
     Position(const QPointF &p = QPointF(0, 0), bool e = false)

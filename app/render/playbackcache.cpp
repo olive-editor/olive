@@ -27,7 +27,7 @@
 
 namespace olive {
 
-void PlaybackCache::Invalidate(const TimeRange &r, bool signal)
+void PlaybackCache::Invalidate(const TimeRange &r)
 {
   if (r.in() == r.out()) {
     qWarning() << "Tried to invalidate zero-length range";
@@ -38,8 +38,10 @@ void PlaybackCache::Invalidate(const TimeRange &r, bool signal)
 
   InvalidateEvent(r);
 
-  if (signal) {
-    emit Invalidated(r);
+  emit Invalidated(r);
+
+  if (automatic_) {
+    emit Request(r, false);
   }
 }
 
@@ -73,9 +75,18 @@ Project *PlaybackCache::GetProject() const
 
 PlaybackCache::PlaybackCache(QObject *parent) :
   QObject(parent),
-  enabled_(false)
+  automatic_(false)
 {
   uuid_ = QUuid::createUuid();
+}
+
+void PlaybackCache::SetIsAutomatic(bool e)
+{
+  if (automatic_ != e) {
+    automatic_ = e;
+
+    emit AutomaticChanged(automatic_);
+  }
 }
 
 TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting)

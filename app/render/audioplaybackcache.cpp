@@ -161,6 +161,10 @@ void AudioPlaybackCache::WriteWaveform(const TimeRange &range, const TimeRangeLi
       visual_.OverwriteSilence(r.in(), r.length());
     }
   }
+
+  if (!valid_ranges.isEmpty()) {
+    emit WaveformUpdated();
+  }
 }
 
 void AudioPlaybackCache::WriteSilence(const TimeRange &range)
@@ -168,6 +172,11 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
   // WritePCM will automatically fill non-existent bytes with silence, so we just have to send
   // it an empty sample buffer
   WritePCM(range, {range}, SampleBuffer());
+}
+
+void AudioPlaybackCache::TrimIn(const rational &in)
+{
+  visual_.TrimIn(in);
 }
 
 AudioPlaybackCache::Segment AudioPlaybackCache::CloneSegment(const AudioPlaybackCache::Segment &s) const

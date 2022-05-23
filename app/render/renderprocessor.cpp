@@ -365,26 +365,6 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
           NodeValueTable::Merge({merged_table, table});
         }
-
-        // Create block waveforms if requested
-        if (ticket_->property("enablewaveforms").toBool() && clip_cast) {
-          // Format information for use in the main thread
-          RenderedWaveform waveform_info;
-          waveform_info.block = clip_cast;
-          waveform_info.range = range_for_block - b->in();
-
-          if (!(waveform_info.silence = !samples_from_this_block.is_allocated())) {
-            // Generate a visual waveform from the samples acquired from this block
-            AudioVisualWaveform visual_waveform;
-            visual_waveform.set_channel_count(audio_params.channel_count());
-            visual_waveform.OverwriteSamples(samples_from_this_block, audio_params.sample_rate());
-            waveform_info.waveform = visual_waveform;
-          }
-
-          QVector<RenderedWaveform> waveform_list = ticket_->property("waveforms").value< QVector<RenderedWaveform> >();
-          waveform_list.append(waveform_info);
-          ticket_->setProperty("waveforms", QVariant::fromValue(waveform_list));
-        }
       }
     }
 

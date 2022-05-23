@@ -153,6 +153,7 @@ private:
 
   TrackList* connected_track_list_;
 
+  bool show_thumbnails_;
   bool show_waveforms_;
 
   ClipBlock *transition_overlay_out_;

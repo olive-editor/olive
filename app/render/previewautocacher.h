@@ -47,7 +47,7 @@ class PreviewAutoCacher : public QObject
 {
   Q_OBJECT
 public:
-  PreviewAutoCacher();
+  PreviewAutoCacher(QObject *parent = nullptr);
 
   virtual ~PreviewAutoCacher() override;
 
@@ -85,12 +85,9 @@ public:
   void CancelVideoTasks(bool and_wait_for_them_to_finish = false);
   void CancelAudioTasks(bool and_wait_for_them_to_finish = false);
 
-  bool IsRenderingCustomRange() const
-  {
-    return queued_frame_iterator_.IsCustomRange() && queued_frame_iterator_.HasNext();
-  }
+  bool IsRenderingCustomRange() const;
 
-  void SetAudioPaused(bool e);
+  void SetRendersPaused(bool e);
 
 signals:
   void StopCacheProxyTasks();
@@ -137,12 +134,18 @@ private:
 
   void CancelQueuedSingleFrameRender();
 
-  void VideoInvalidatedList(const TimeRangeList &list);
-  void AudioInvalidatedList(const TimeRangeList &list);
+  void VideoInvalidatedList(Node *node, const TimeRangeList &list);
+  void AudioInvalidatedList(Node *node, const TimeRangeList &list);
 
   void StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker);
-  void StartCachingVideoRange(const TimeRange &range);
-  void StartCachingAudioRange(const TimeRange &range);
+  void StartCachingVideoRange(Node *node, const TimeRange &range);
+  void StartCachingAudioRange(Node *node, const TimeRange &range);
+
+  void VideoInvalidatedFromNode(Node *node, const olive::TimeRange &range);
+  void AudioInvalidatedFromNode(Node *node, const olive::TimeRange &range);
+
+  void VideoAutoCacheEnableChangedFromNode(Node *node, bool e);
+  void AudioAutoCacheEnableChangedFromNode(Node *node, bool e);
 
   class QueuedJob {
   public:
@@ -177,15 +180,9 @@ private:
   bool use_custom_range_;
   TimeRange custom_autocache_range_;
 
-  TimeRangeList invalidated_video_;
-  TimeRangeList invalidated_audio_;
-
-  bool pause_audio_;
+  bool pause_renders_;
 
   RenderTicketPtr single_frame_render_;
-
-  QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
-  QMap<RenderTicketWatcher*, rational> video_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
   JobTime graph_changed_time_;
@@ -193,28 +190,37 @@ private:
 
   QTimer delayed_requeue_timer_;
 
-  TimeRangeList audio_needing_conform_;
-
   JobTime last_conform_task_;
 
-  RenderJobTracker video_job_tracker_;
-  RenderJobTracker audio_job_tracker_;
+  QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
+  QMap<RenderTicketWatcher*, rational> video_tasks_;
 
-  TimeRangeListFrameIterator queued_frame_iterator_;
-  TimeRangeList audio_iterator_;
+  struct VideoCacheData {
+    TimeRangeList invalidated;
+    RenderJobTracker job_tracker;
+    TimeRangeListFrameIterator iterator;
+  };
 
-  static const bool kRealTimeWaveformsEnabled;
+  struct AudioCacheData {
+    TimeRangeList invalidated;
+    TimeRangeList needing_conform;
+    RenderJobTracker job_tracker;
+    TimeRangeList iterator;
+  };
+
+  QHash<Node*, VideoCacheData> video_cache_data_;
+  QHash<Node*, AudioCacheData> audio_cache_data_;
 
 private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidated(const olive::TimeRange &range);
+  void VideoInvalidatedFromCache(const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
-  void AudioInvalidated(const olive::TimeRange &range);
+  void AudioInvalidatedFromCache(const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the RenderManager has returned rendered audio
@@ -241,7 +247,7 @@ private slots:
   /**
    * @brief Generic function called whenever the frames to render need to be (re)queued
    */
-  void RequeueFrames();
+  //void RequeueFrames();
 
   void ConformFinished();
 

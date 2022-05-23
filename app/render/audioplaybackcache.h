@@ -72,6 +72,8 @@ public:
 
   void WriteSilence(const TimeRange &range);
 
+  void TrimIn(const rational &in);
+
   class Segment
   {
   public:
@@ -200,13 +202,13 @@ public:
    */
   PlaybackDevice* CreatePlaybackDevice(QObject *parent = nullptr) const;
 
-  const AudioVisualWaveform &visual() const
-  {
-    return visual_;
-  }
+  const AudioVisualWaveform &visual() const { return visual_; }
+  void set_visual(const AudioVisualWaveform &v) { visual_ = v; }
 
 signals:
   void ParametersChanged();
+
+  void WaveformUpdated();
 
 private:
   static const qint64 kDefaultSegmentSizePerChannel;

@@ -105,13 +105,7 @@ void ClipBlock::set_length_and_media_in(const rational &length)
   if (!reverse()) {
     // Calculate media_in adjustment
     rational proposed_media_in = SequenceToMediaTime(this->length() - length, false, true);
-
-    waveform_.TrimIn(proposed_media_in - media_in());
-
     set_media_in(proposed_media_in);
-  } else {
-    // Trim waveform out point
-    waveform_.TrimIn(this->length() - length);
   }
 
   super::set_length_and_media_in(length);
@@ -187,6 +181,19 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
 
   // If signal is from texture input, transform all times from media time to sequence time
   if (from == kBufferIn) {
+    Track::Type type = GetTrackType();
+
+    if (type == Track::kVideo || type == Track::kAudio) {
+      if (Node *connected = GetConnectedOutput(from, element)) {
+        TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, length()));
+        if (type == Track::kVideo) {
+          emit connected->video_frame_cache()->Request(range.Intersected(max_range), true);
+        } else if (type == Track::kAudio) {
+          emit connected->audio_playback_cache()->Request(range.Intersected(max_range), true);
+        }
+      }
+    }
+
     // Adjust range from media time to sequence time
     TimeRange adj;
     double speed_value = speed();
@@ -235,6 +242,24 @@ void ClipBlock::LinkChangeEvent()
     if (b) {
       block_links_.append(b);
     }
+  }
+}
+
+void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *output)
+{
+  super::InputConnectedEvent(input, element, output);
+
+  if (input == kBufferIn) {
+    connect(output->audio_playback_cache(), &AudioPlaybackCache::WaveformUpdated, this, &Block::PreviewChanged);
+  }
+}
+
+void ClipBlock::InputDisconnectedEvent(const QString &input, int element, Node *output)
+{
+  super::InputDisconnectedEvent(input, element, output);
+
+  if (input == kBufferIn) {
+    disconnect(output->audio_playback_cache(), &AudioPlaybackCache::WaveformUpdated, this, &Block::PreviewChanged);
   }
 }
 

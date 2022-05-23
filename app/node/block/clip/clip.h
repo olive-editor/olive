@@ -23,6 +23,7 @@
 
 #include "audio/audiovisualwaveform.h"
 #include "node/block/block.h"
+#include "node/output/track/track.h"
 
 namespace olive {
 
@@ -45,6 +46,15 @@ public:
 
   virtual void set_length_and_media_out(const rational &length) override;
   virtual void set_length_and_media_in(const rational &length) override;
+
+  Track::Type GetTrackType() const
+  {
+    if (track()) {
+      return track()->type();
+    } else {
+      return Track::kNone;
+    }
+  }
 
   rational media_in() const;
   void set_media_in(const rational& media_in);
@@ -109,14 +119,34 @@ public:
     return block_links_;
   }
 
-  AudioVisualWaveform& waveform()
+  const AudioVisualWaveform *waveform()
   {
-    return waveform_;
+    if (Node *n = GetConnectedOutput(kBufferIn)) {
+      return &n->audio_playback_cache()->visual();
+    } else {
+      return nullptr;
+    }
+  }
+
+  void set_waveform(const AudioVisualWaveform *w)
+  {
+    qDebug() << "WAVEFORM COPY STUB";
+    //audio_playback_cache()->set_visual(w);
   }
 
   ViewerOutput *connected_viewer() const
   {
     return connected_viewer_;
+  }
+
+  virtual TimeRange GetVideoCacheRange() const override
+  {
+    return TimeRange(0, length());
+  }
+
+  virtual TimeRange GetAudioCacheRange() const override
+  {
+    return TimeRange(0, length());
   }
 
   static const QString kBufferIn;
@@ -127,6 +157,10 @@ public:
 
 protected:
   virtual void LinkChangeEvent() override;
+
+  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
+
+  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
 
 private:
   rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false, bool ignore_speed = false) const;
@@ -141,10 +175,7 @@ private:
   ViewerOutput *connected_viewer_;
 
 private:
-  AudioVisualWaveform waveform_;
-
   rational last_media_in_;
-
 
 };
 
