@@ -48,11 +48,13 @@ Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
-  operation_stack_(0),
   cache_result_(false),
   flags_(kNone)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
+
+  video_cache_ = new FrameHashCache(this);
+  audio_cache_ = new AudioPlaybackCache(this);
 }
 
 Node::~Node()
@@ -864,12 +866,6 @@ int Node::InputArraySize(const QString &id) const
   }
 }
 
-void Node::Hash(const Node *node, const ValueHint &hint, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params)
-{
-  hint.Hash(hash);
-  node->Hash(hash, globals, video_params);
-}
-
 void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int element)
 {
   value_hints_.insert({input, element}, hint);
@@ -936,19 +932,16 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   Q_UNUSED(from)
   Q_UNUSED(element)
 
+  if (range.in() != range.out()) {
+    if (video_cache_->IsEnabled()) {
+      video_frame_cache()->Invalidate(range);
+    }
+    if (audio_cache_->IsEnabled()) {
+      audio_playback_cache()->Invalidate(range);
+    }
+  }
+
   SendInvalidateCache(range, options);
-}
-
-void Node::BeginOperation()
-{
-  // Increase operation stack
-  operation_stack_++;
-}
-
-void Node::EndOperation()
-{
-  // Decrease operation stack
-  operation_stack_--;
 }
 
 TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
@@ -1124,13 +1117,11 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
 void Node::SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options)
 {
-  if (GetOperationStack() == 0) {
-    for (const OutputConnection& conn : output_connections_) {
-      // Send clear cache signal to the Node
-      const NodeInput& in = conn.second;
+  for (const OutputConnection& conn : output_connections_) {
+    // Send clear cache signal to the Node
+    const NodeInput& in = conn.second;
 
-      in.node()->InvalidateCache(range, in.input(), in.element(), options);
-    }
+    in.node()->InvalidateCache(range, in.input(), in.element(), options);
   }
 }
 
@@ -1182,12 +1173,6 @@ bool Node::Unlink(Node *a, Node *b)
 bool Node::AreLinked(Node *a, Node *b)
 {
   return a->links_.contains(b);
-}
-
-void Node::HashAddNodeSignature(QCryptographicHash &hash) const
-{
-  // Add node ID
-  hash.addData(id().toUtf8());
 }
 
 void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
@@ -1305,11 +1290,6 @@ void Node::IgnoreInvalidationsFrom(const QString& input_id)
   ignore_connections_.append(input_id);
 }
 
-void Node::IgnoreHashingFrom(const QString &input_id)
-{
-  ignore_when_hashing_.append(input_id);
-}
-
 const QString &Node::GetLabel() const
 {
   return label_;
@@ -1339,24 +1319,6 @@ QString Node::GetLabelOrName() const
     return Name();
   }
   return GetLabel();
-}
-
-void Node::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  // Add this Node's ID and output being used
-  HashAddNodeSignature(hash);
-
-  foreach (const QString& input, inputs()) {
-    // For each input, try to hash its value
-    if (ignore_when_hashing_.contains(input)) {
-      continue;
-    }
-
-    int arr_sz = InputArraySize(input);
-    for (int i=-1; i<arr_sz; i++) {
-      HashInputElement(hash, input, i, globals, video_params);
-    }
-  }
 }
 
 void Node::CopyInputs(const Node *source, Node *destination, bool include_connections, MultiUndoCommand *command)
@@ -1526,26 +1488,6 @@ QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only
   GetDependenciesRecursively(list, this, traverse, exclusive_only);
 
   return list;
-}
-
-void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const NodeGlobals &globals, const VideoParams& video_params) const
-{
-  // Get time adjustment
-  // For a single frame, we only care about one of the times
-  TimeRange input_time = InputTimeAdjustment(input, element, globals.time());
-
-  if (IsInputConnected(input, element)) {
-    // Traverse down this edge
-    Node *output = GetConnectedOutput(input, element);
-
-    NodeGlobals new_globals = globals;
-    new_globals.set_time(input_time);
-    Node::Hash(output, GetValueHintForInput(input, element), hash, new_globals, video_params);
-  } else {
-    // Grab the value at this time
-    QVariant value = GetValueAtTime(input, input_time.in(), element);
-    hash.addData(NodeValue::ValueToBytes(GetInputDataType(input), value));
-  }
 }
 
 QVector<Node *> Node::GetDependencies() const
@@ -2149,16 +2091,6 @@ void NodeRemovePositionFromAllContextsCommand::undo()
   }
 
   contexts_.clear();
-}
-
-void Node::ValueHint::Hash(QCryptographicHash &hash) const
-{
-  // Add value hint
-  if (!types().isEmpty()) {
-    hash.addData(reinterpret_cast<const char*>(types().constData()), sizeof(NodeValue::Type) * types().size());
-  }
-  hash.addData(reinterpret_cast<const char*>(&index()), sizeof(index()));
-  hash.addData(tag().toUtf8());
 }
 
 void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()

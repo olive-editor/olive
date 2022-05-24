@@ -222,8 +222,6 @@ public:
   int bits_per_sample() const;
   bool is_valid() const;
 
-  QByteArray toBytes() const;
-
   void Load(QXmlStreamReader* reader);
 
   void Save(QXmlStreamWriter* writer) const;

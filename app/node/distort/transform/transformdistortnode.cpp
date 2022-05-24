@@ -127,35 +127,6 @@ ShaderCode TransformDistortNode::GetShaderCode(const ShaderRequest &request) con
   return ShaderCode();
 }
 
-void TransformDistortNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  // If not connected to output, this will produce nothing
-  Node *out = GetConnectedOutput(kTextureInput);
-  if (!out) {
-    return;
-  }
-
-  // Use a traverser to determine if the matrix is identity
-  NodeTraverser traverser;
-  traverser.SetCacheVideoParams(video_params);
-
-  NodeValueRow db = traverser.GenerateRow(this, globals.time());
-  TexturePtr tex = db[kTextureInput].toTexture();
-  if (tex) {
-    VideoParams tex_params = tex->params();
-    QMatrix4x4 matrix = GenerateMatrix(db, false, false, false);
-    matrix = GenerateAutoScaledMatrix(matrix, db, globals, tex_params);
-
-    if (!matrix.isIdentity()) {
-      // Add fingerprint
-      HashAddNodeSignature(hash);
-      hash.addData(reinterpret_cast<const char*>(&matrix), sizeof(matrix));
-    }
-  }
-
-  super::Hash(out, GetValueHintForInput(kTextureInput), hash, globals, video_params);
-}
-
 void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, double y, const rational &time)
 {
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());

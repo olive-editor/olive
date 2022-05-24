@@ -109,8 +109,6 @@ public:
 
   void AddTentativeSubtitleTrack();
 
-  void ClearTentativeSubtitleTrack();
-
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -128,7 +126,7 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
-  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command, bool handle_transitions = true, bool handle_invalidations = true);
+  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command, bool handle_transitions = true);
 
   /**
    * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -270,6 +268,9 @@ public:
     bool process_block_changes_;
 
   };
+
+public slots:
+  void ClearTentativeSubtitleTrack();
 
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);

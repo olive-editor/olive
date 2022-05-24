@@ -60,8 +60,6 @@ QVector<ViewerWidget*> ViewerWidget::instances_;
 //       changing values. 1/4 second seems to be a good middleground.
 const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 4);
 
-const int kMaxPreQueueSize = 8;
-
 ViewerWidget::ViewerWidget(QWidget *parent) :
   super(false, true, parent),
   playback_speed_(0),
@@ -207,7 +205,6 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
-  connect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   VideoParams vp = n->GetVideoParams();
@@ -252,7 +249,6 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
-  disconnect(n->video_frame_cache(), &FrameHashCache::Shifted, this, &ViewerWidget::ViewerShiftedRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
 
   CloseAudioProcessor();
@@ -404,9 +400,9 @@ void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, c
   recording_track_ = track;
 }
 
-FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QByteArray& hash, const rational& time)
+FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time)
 {
-  FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, hash);
+  FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, cache_id, time);
 
   if (frame) {
     frame->set_timestamp(time);
@@ -417,10 +413,17 @@ FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QByteA
   return frame;
 }
 
-void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QByteArray& hash, const rational& time)
+void ViewerWidget::DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QUuid &cache_id, const int64_t& time)
 {
   ticket->Start();
-  ticket->Finish(QVariant::fromValue(DecodeCachedImage(cache_path, hash, time)));
+
+  FramePtr f = DecodeCachedImage(cache_path, cache_id, time);
+
+  if (f) {
+    ticket->Finish(QVariant::fromValue(f));
+  } else {
+    ticket->Finish();
+  }
 }
 
 bool ViewerWidget::ShouldForceWaveform() const
@@ -606,14 +609,6 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
     SampleBuffer samples = watcher->Get().value<SampleBuffer>();
     if (samples.is_allocated()) {
       if (samples.audio_params().channel_count() > 0) {
-        /* Fade code
-        const int kFadeSz = qMin(200, samples->sample_count()/4);
-        for (int i=0; i<kFadeSz; i++) {
-          float amt = float(i)/float(kFadeSz);
-          samples->transform_volume_for_sample(i, amt);
-          samples->transform_volume_for_sample(samples->sample_count() - i - 1, amt);
-        }*/
-
         AudioProcessor::Buffer buf;
         int r = audio_processor_.Convert(samples.to_raw_ptrs().data(), samples.sample_count(), &buf);
 
@@ -690,7 +685,7 @@ void ViewerWidget::UpdateTextureFromNode()
     nonqueue_watchers_.append(watcher);
 
     // Clear queue because we want this frame more than any others
-    if (!GetConnectedNode()->GetVideoAutoCacheEnabled() && !auto_cacher_.IsRenderingCustomRange()) {
+    if (!GetConnectedNode()->video_frame_cache()->IsEnabled() && !auto_cacher_.IsRenderingCustomRange()) {
       ClearVideoAutoCacherQueue();
     }
 
@@ -880,11 +875,7 @@ void ViewerWidget::SetColorTransform(const ColorTransform &transform, ViewerDisp
 QString ViewerWidget::GetCachedFilenameFromTime(const rational &time)
 {
   if (FrameExistsAtTime(time)) {
-    QByteArray hash = GetConnectedNode()->video_frame_cache()->GetHash(time);
-
-    if (!hash.isEmpty()) {
-      return GetConnectedNode()->video_frame_cache()->CachePathName(hash);
-    }
+    return GetConnectedNode()->video_frame_cache()->GetValidCacheFilename(time);
   }
 
   return QString();
@@ -927,18 +918,16 @@ void ViewerWidget::RequestNextFrameForQueue(RenderTicketPriority priority, bool 
 
 RenderTicketPtr ViewerWidget::GetFrame(const rational &t, RenderTicketPriority priority)
 {
-  QByteArray cached_hash = GetConnectedNode()->video_frame_cache()->GetHash(t);
+  QString cache_fn = GetConnectedNode()->video_frame_cache()->GetValidCacheFilename(t);
 
-  QString cache_fn = GetConnectedNode()->video_frame_cache()->CachePathName(cached_hash);
-
-  if (cached_hash.isEmpty() || !QFileInfo::exists(cache_fn)) {
+  if (!QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
     return auto_cacher_.GetSingleFrame(t, priority);
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
     ticket->setProperty("time", QVariant::fromValue(t));
-    QtConcurrent::run(ViewerWidget::DecodeCachedImage, ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), cached_hash, t);
+    QtConcurrent::run(ViewerWidget::DecodeCachedImage, ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), GetConnectedNode()->video_frame_cache()->GetUuid(), Timecode::time_to_timestamp(t, timebase(), Timecode::kFloor));
     return ticket;
   }
 }
@@ -995,7 +984,10 @@ int ViewerWidget::DeterminePlaybackQueueSize()
 
   int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
 
-  return qMin(kMaxPreQueueSize, remaining_frames);
+  // Generate maximum queue
+  int max_frames = qCeil(kAudioPlaybackInterval.toDouble() / timebase().toDouble());
+
+  return qMin(max_frames, remaining_frames);
 }
 
 void ViewerWidget::UpdateStack()
@@ -1068,17 +1060,7 @@ void ViewerWidget::RendererGeneratedFrame()
         }
       }
 
-      // If the frame we received is not the most recent frame we're waiting for (i.e. if nonqueue_watchers_
-      // is not empty), we discard the frame - because otherwise if frames are taking a while (i.e.
-      // uncached frames) it can be a little disconcerting to the user for a bunch of frames to
-      // slowly go by - UNLESS the time it took to make this frame was fairly short (under 100ms here),
-      // in which case, we DO show it because it can be disconcerting in the other direction to see
-      // a scrub just jump to the final frame without seeing the frames in between. It's just a
-      // little nicer to get to see that in that situation, so we handle both.
-      qint64 frame_start_time = ticket->property("start").value<qint64>();
-      if (nonqueue_watchers_.isEmpty() || (QDateTime::currentMSecsSinceEpoch() - frame_start_time < 100)) {
-        SetDisplayImage(ticket->Get());
-      }
+      SetDisplayImage(ticket->Get());
     }
   }
 
@@ -1569,13 +1551,6 @@ void ViewerWidget::ManualSwitchToWaveform(bool e)
     stack_->setCurrentWidget(waveform_view_);
   } else {
     stack_->setCurrentWidget(sizer_);
-  }
-}
-
-void ViewerWidget::ViewerShiftedRange(const rational &from, const rational &to)
-{
-  if (GetTime() >= qMin(from, to)) {
-    QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }
 

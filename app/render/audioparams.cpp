@@ -25,7 +25,6 @@ extern "C" {
 }
 
 #include <QCoreApplication>
-#include <QCryptographicHash>
 
 #include "common/xmlutils.h"
 
@@ -179,18 +178,6 @@ bool AudioParams::is_valid() const
           && channel_layout() > 0
           && format_ > kFormatInvalid
           && format_ < kFormatCount);
-}
-
-QByteArray AudioParams::toBytes() const
-{
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-  hasher.addData(reinterpret_cast<const char*>(&sample_rate_), sizeof(sample_rate_));
-  hasher.addData(reinterpret_cast<const char*>(&channel_layout_), sizeof(channel_layout_));
-  hasher.addData(reinterpret_cast<const char*>(&format_), sizeof(format_));
-  hasher.addData(reinterpret_cast<const char*>(&timebase_), sizeof(timebase_));
-
-  return hasher.result();
 }
 
 void AudioParams::Load(QXmlStreamReader *reader)

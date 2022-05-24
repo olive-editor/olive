@@ -226,7 +226,10 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
 
       if (node_with_id) {
         for (NodeKeyframe *key : it.value()) {
-          key->set_time(key->time() - min);
+          // Adjust sequence time to node's time
+          rational t = key->time() - min;
+          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, true);
+          key->set_time(t);
 
           if (NodeKeyframe *existing = node_with_id->GetKeyframeAtTimeOnTrack(key->input(), key->time(), key->track(), key->element())) {
             command->add_child(new NodeParamRemoveKeyframeCommand(existing));

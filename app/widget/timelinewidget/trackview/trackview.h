@@ -43,10 +43,6 @@ public:
 signals:
   void AboutToDeleteTrack(Track *track);
 
-  void DragEntered(TimelineViewMouseEvent* event);
-  void DragLeft(QDragLeaveEvent* event);
-  void DragDropped(TimelineViewMouseEvent* event);
-
 protected:
   virtual void resizeEvent(QResizeEvent *e) override;
 

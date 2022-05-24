@@ -26,7 +26,6 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "node/hashtraverser.h"
 #include "render/opengl/openglrenderer.h"
 #include "render/rendererthreadwrapper.h"
 #include "renderprocessor.h"
@@ -77,50 +76,37 @@ RenderManager::~RenderManager()
   }
 }
 
-QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time)
+RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param,
+                                           ColorManager* color_manager, const rational& time, RenderMode::Mode mode,
+                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
 {
-  Q_ASSERT(n);
-
-  if (n) {
-    HashTraverser hasher;
-    return hasher.GetHash(n, output, params, TimeRange(time, time + params.frame_rate_as_time_base()));
-  } else {
-    qCritical() << "Hash called with null node";
-    return QByteArray();
-  }
-}
-
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, RenderTicketPriority priority, bool texture_only)
-{
-  return RenderFrame(viewer,
+  return RenderFrame(node,
                      color_manager,
                      time,
                      mode,
-                     viewer->GetVideoParams(),
-                     viewer->GetAudioParams(),
+                     vparam,
+                     param,
                      QSize(0, 0),
                      QMatrix4x4(),
                      VideoParams::kFormatInvalid,
                      nullptr,
                      cache,
                      priority,
-                     texture_only);
+                     return_type);
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
+RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manager,
                                            const rational& time, RenderMode::Mode mode,
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                                            ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, RenderTicketPriority priority, bool texture_only)
+                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("viewer", Node::PtrToValue(viewer));
+  ticket->setProperty("node", Node::PtrToValue(node));
   ticket->setProperty("time", QVariant::fromValue(time));
   ticket->setProperty("size", force_size);
   ticket->setProperty("matrix", force_matrix);
@@ -131,10 +117,12 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
   ticket->setProperty("vparam", QVariant::fromValue(video_params));
   ticket->setProperty("aparam", QVariant::fromValue(audio_params));
-  ticket->setProperty("textureonly", texture_only);
+  ticket->setProperty("return", return_type);
 
   if (cache) {
     ticket->setProperty("cache", cache->GetCacheDirectory());
+    ticket->setProperty("cachetimebase", QVariant::fromValue(cache->GetTimebase()));
+    ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
   }
 
   AddTicket(ticket, priority);
@@ -142,37 +130,17 @@ RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* c
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
-{
-  return RenderAudio(viewer, r, viewer->GetAudioParams(), mode, generate_waveforms, priority);
-}
-
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
+RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("viewer", Node::PtrToValue(viewer));
+  ticket->setProperty("node", Node::PtrToValue(node));
   ticket->setProperty("time", QVariant::fromValue(r));
   ticket->setProperty("type", kTypeAudio);
   ticket->setProperty("mode", mode);
   ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
-
-  AddTicket(ticket, priority);
-
-  return ticket;
-}
-
-RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const QByteArray &hash, RenderTicketPriority priority)
-{
-  // Create ticket
-  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
-
-  ticket->setProperty("cache", cache->GetCacheDirectory());
-  ticket->setProperty("frame", QVariant::fromValue(frame));
-  ticket->setProperty("hash", hash);
-  ticket->setProperty("type", kTypeVideoDownload);
 
   AddTicket(ticket, priority);
 

@@ -260,6 +260,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 
 NodeTraverser::NodeTraverser() :
   cancel_(nullptr),
+  heard_cancel_(false),
   transform_(nullptr)
 {
 }
@@ -462,7 +463,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
           VideoParams managed_params = job.video_params();
           managed_params.set_format(GetCacheVideoParams().format());
 
-          tex = CreateTexture(job.video_params());
+          tex = CreateTexture(managed_params);
           ProcessVideoFootage(tex, job, footage_time);
         }
 

@@ -49,9 +49,9 @@ protected:
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
               ColorProcessorPtr force_color_output = nullptr);
 
-  virtual bool DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
+  virtual bool DownloadFrame(QThread* thread, FramePtr frame, const rational &time);
 
-  virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) = 0;
+  virtual bool FrameDownloaded(FramePtr frame, const rational &time) = 0;
 
   virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) = 0;
 
@@ -112,20 +112,12 @@ protected:
     return total_number_of_frames_;
   }
 
-  /**
-   * @brief Only valid after Render() is called
-   */
-  int64_t GetTotalNumberOfUniqueFrames() const
-  {
-    return total_number_of_unique_frames_;
-  }
-
 private:
   void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
 
   void IncrementRunningTickets();
 
-  void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
+  void StartTicket(QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
 
   ViewerOutput* viewer_;
 
@@ -142,7 +134,6 @@ private:
   bool native_progress_signalling_;
 
   int64_t total_number_of_frames_;
-  int64_t total_number_of_unique_frames_;
 
 private slots:
   void TicketDone(RenderTicketWatcher *watcher);

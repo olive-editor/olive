@@ -42,9 +42,11 @@ public:
 
   virtual FootageDescription Probe(const QString& filename, const QAtomicInt* cancelled) const override;
 
+  virtual VideoParams GetParamsForTexture(const Decoder::RetrieveVideoParams &p) override;
+
 protected:
   virtual bool OpenInternal() override;
-  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled) override;
+  virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
   virtual void CloseInternal() override;
 
 private:

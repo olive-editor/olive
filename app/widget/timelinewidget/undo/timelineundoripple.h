@@ -119,6 +119,8 @@ public:
   }
 
 protected:
+  virtual void prepare() override;
+
   virtual void redo() override;
 
   virtual void undo() override;
@@ -129,8 +131,6 @@ private:
   QList<Track*> working_tracks_;
 
   TimeRange range_;
-
-  bool all_tracks_unlocked_;
 
   QVector<TrackRippleRemoveAreaCommand*> commands_;
 
@@ -200,8 +200,6 @@ private:
 
   QObject memory_manager_;
 
-  bool all_tracks_unlocked_;
-
 };
 
 class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand
@@ -247,34 +245,6 @@ private:
     GapBlock *gap;
     TimeRange range;
   };
-
-};
-
-class TimelineShiftCacheCommand : public UndoCommand
-{
-public:
-  TimelineShiftCacheCommand(Sequence* timeline, const rational &from, const rational &to) :
-    timeline_(timeline),
-    from_(from),
-    to_(to)
-  {}
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return timeline_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Sequence* timeline_;
-
-  rational from_;
-
-  rational to_;
 
 };
 

@@ -101,37 +101,4 @@ void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
   }
 }
 
-void MergeNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  NodeTraverser traverser;
-  traverser.SetCacheVideoParams(video_params);
-
-  NodeValueDatabase db = traverser.GenerateDatabase(this, globals.time());
-
-  TexturePtr base_tex = db[kBaseIn].Get(NodeValue::kTexture).toTexture();
-  TexturePtr blend_tex = db[kBlendIn].Get(NodeValue::kTexture).toTexture();
-
-  if (base_tex || blend_tex) {
-    bool passthrough_base = !blend_tex;
-    bool passthrough_blend = !base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount);
-
-    if (!passthrough_base && !passthrough_blend) {
-      // This merge will actually do something so we add a fingerprint
-      HashAddNodeSignature(hash);
-    }
-
-    if (!passthrough_base) {
-      Node *blend_output = GetConnectedOutput(kBlendIn);
-      Node::Hash(blend_output, GetValueHintForInput(kBlendIn), hash, globals, video_params);
-    }
-
-    if (!passthrough_blend) {
-      Node *base_output = GetConnectedOutput(kBaseIn);
-      Node::Hash(base_output, GetValueHintForInput(kBaseIn), hash, globals, video_params);
-    }
-
-    Q_ASSERT(!passthrough_base || !passthrough_blend);
-  }
-}
-
 }

@@ -198,9 +198,9 @@ private:
 
   int DeterminePlaybackQueueSize();
 
-  static FramePtr DecodeCachedImage(const QString &cache_path, const QByteArray &hash, const rational& time);
+  static FramePtr DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time);
 
-  static void DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QByteArray &hash, const rational& time);
+  static void DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QUuid &cache_id, const int64_t &time);
 
   bool ShouldForceWaveform() const;
 
@@ -290,8 +290,6 @@ private slots:
   void ShowContextMenu(const QPoint& pos);
 
   void SetZoomFromMenu(QAction* action);
-
-  void ViewerShiftedRange(const olive::rational& from, const olive::rational& to);
 
   void UpdateStack();
 

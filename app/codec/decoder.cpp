@@ -86,7 +86,7 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+bool Decoder::RetrieveVideo(TexturePtr destination, const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
 {
   QMutexLocker locker(&mutex_);
 
@@ -94,19 +94,19 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoPar
 
   if (!stream_.IsValid()) {
     qCritical() << "Can't retrieve video on a closed decoder";
-    return nullptr;
+    return false;
   }
 
   if (!SupportsVideo()) {
     qCritical() << "Decoder doesn't support video";
-    return nullptr;
+    return false;
   }
 
   if (cancelled && *cancelled) {
-    return nullptr;
+    return false;
   }
 
-  return RetrieveVideoInternal(timecode, divider, cancelled);
+  return RetrieveVideoInternal(destination, timecode, divider, cancelled);
 }
 
 Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
@@ -264,12 +264,12 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   return number_only.toLongLong();
 }
 
-FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+bool Decoder::RetrieveVideoInternal(TexturePtr destination, const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(divider)
   Q_UNUSED(cancelled)
-  return nullptr;
+  return false;
 }
 
 bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, const QAtomicInt* cancelled)

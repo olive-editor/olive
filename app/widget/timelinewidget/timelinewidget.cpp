@@ -157,11 +157,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, &TimelineView::DragLeft, this, &TimelineWidget::ViewDragLeft);
     connect(view, &TimelineView::DragDropped, this, &TimelineWidget::ViewDragDropped);
 
-    TrackView *tv = tview->track_view();
-    connect(tv, &TrackView::DragEntered, this, &TimelineWidget::ViewDragEntered);
-    connect(tv, &TrackView::DragLeft, this, &TimelineWidget::ViewDragLeft);
-    connect(tv, &TrackView::DragDropped, this, &TimelineWidget::ViewDragDropped);
-
     connect(tview->splitter(), &QSplitter::splitterMoved, this, &TimelineWidget::UpdateHorizontalSplitters);
 
     // Connect each view's scroll to each other
@@ -421,8 +416,7 @@ void TimelineWidget::SplitAtPlayhead()
 void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
                                            bool remove_from_graph,
                                            MultiUndoCommand *command,
-                                           bool handle_transitions,
-                                           bool handle_invalidations)
+                                           bool handle_transitions)
 {
   foreach (Block* b, blocks) {
     if (dynamic_cast<GapBlock*>(b)) {
@@ -433,7 +427,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
     Track* original_track = b->track();
 
-    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b, handle_transitions, handle_invalidations));
+    command->add_child(new TrackReplaceBlockWithGapCommand(original_track, b, handle_transitions));
 
     if (remove_from_graph) {
       command->add_child(new NodeRemoveWithExclusiveDependenciesAndDisconnect(b));
@@ -487,7 +481,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   }
 
   // Replace clips with gaps (effectively deleting them)
-  ReplaceBlocksWithGaps(clips_to_delete, true, command, false, !ripple);
+  ReplaceBlocksWithGaps(clips_to_delete, true, command, false);
 
   // Insert ripple command now that it's all cleaned up gaps
   TimelineRippleDeleteGapsAtRegionsCommand *ripple_command = nullptr;

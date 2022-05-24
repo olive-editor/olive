@@ -454,8 +454,6 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
   virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
 
   virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
