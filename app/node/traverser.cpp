@@ -463,7 +463,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
           VideoParams managed_params = job.video_params();
           managed_params.set_format(GetCacheVideoParams().format());
 
-          tex = CreateTexture(job.video_params());
+          tex = CreateTexture(managed_params);
           ProcessVideoFootage(tex, job, footage_time);
         }
 
