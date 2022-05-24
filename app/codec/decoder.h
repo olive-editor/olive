@@ -186,11 +186,6 @@ public:
    */
   bool RetrieveVideo(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled = nullptr);
 
-  virtual VideoParams GetParamsForTexture(const Decoder::RetrieveVideoParams &p)
-  {
-    return VideoParams();
-  }
-
   enum RetrieveAudioStatus {
     kInvalid = -1,
     kOK,
