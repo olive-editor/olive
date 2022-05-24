@@ -50,6 +50,16 @@ Node *PlaybackCache::parent() const
   return dynamic_cast<Node*>(QObject::parent());
 }
 
+QDir PlaybackCache::GetThisCacheDirectory() const
+{
+  return GetThisCacheDirectory(GetCacheDirectory(), GetUuid());
+}
+
+QDir PlaybackCache::GetThisCacheDirectory(const QString &cache_path, const QUuid &cache_id)
+{
+  return QDir(cache_path).filePath(cache_id.toString());
+}
+
 void PlaybackCache::InvalidateAll()
 {
   Invalidate(TimeRange(0, RATIONAL_MAX));

@@ -118,12 +118,11 @@ void PreviewAutoCacher::AudioRendered()
 
       SampleBuffer buf = watcher->Get().value<SampleBuffer>();
       node->audio_playback_cache()->SetParameters(buf.audio_params());
-      /*if (node->audio_playback_cache()->IsEnabled()) {
-        // WritePCM is tolerant to its buffer being null, it will just write silence instead
-        node->audio_playback_cache()->WritePCM(range,
-                                                       valid_ranges,
-                                                       watcher->Get().value<SampleBuffer>());
-      }*/
+
+      // WritePCM is tolerant to its buffer being null, it will just write silence instead
+      node->audio_playback_cache()->WritePCM(range,
+                                             valid_ranges,
+                                             watcher->Get().value<SampleBuffer>());
 
       // Detect if this audio was incomplete because it was waiting on a conform to finish
       if (watcher->GetTicket()->property("incomplete").toBool()) {

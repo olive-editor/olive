@@ -21,6 +21,7 @@
 #ifndef PLAYBACKCACHE_H
 #define PLAYBACKCACHE_H
 
+#include <QDir>
 #include <QObject>
 #include <QUuid>
 
@@ -64,6 +65,9 @@ public:
   const TimeRangeList &GetValidatedRanges() const { return validated_; }
 
   Node *parent() const;
+
+  QDir GetThisCacheDirectory() const;
+  static QDir GetThisCacheDirectory(const QString &cache_path, const QUuid &cache_id);
 
 public slots:
   void InvalidateAll();

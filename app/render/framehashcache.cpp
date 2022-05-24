@@ -239,7 +239,7 @@ QString FrameHashCache::CachePathName(const rational &time) const
 
 QString FrameHashCache::CachePathName(const QString &cache_path, const QUuid &cache_id, const int64_t &time)
 {
-  QString filename = QDir(QDir(cache_path).filePath(cache_id.toString())).filePath(QString::number(time));
+  QString filename = GetThisCacheDirectory(cache_path, cache_id).filePath(QString::number(time));
 
   // Register that in some way this hash has been accessed
   if (DiskManager::instance()) {

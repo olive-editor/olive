@@ -213,6 +213,7 @@ public:
   qint64 time_to_samples(const double& time) const;
   qint64 time_to_samples(const rational& time) const;
   qint64 samples_to_bytes(const qint64& samples) const;
+  qint64 samples_to_bytes_per_channel(const qint64& samples) const;
   rational samples_to_time(const qint64& samples) const;
   qint64 bytes_to_samples(const qint64 &bytes) const;
   rational bytes_to_time(const qint64 &bytes) const;
