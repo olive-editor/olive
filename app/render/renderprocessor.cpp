@@ -431,7 +431,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
     if (!IsCancelled()) {
 
-      VideoParams tex_params = decoder->GetParamsForTexture(p);
+      VideoParams tex_params = stream.video_params();
 
       if (tex_params.is_valid()) {
         TexturePtr unmanaged_texture = render_ctx_->CreateTexture(tex_params);

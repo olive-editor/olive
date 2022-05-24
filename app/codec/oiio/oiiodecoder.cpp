@@ -117,17 +117,6 @@ FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt*
   return desc;
 }
 
-VideoParams OIIODecoder::GetParamsForTexture(const RetrieveVideoParams &p)
-{
-  return VideoParams(buffer_->spec().width,
-                     buffer_->spec().height,
-                     pix_fmt_,
-                     channel_count_,
-                     OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
-                     VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
-                     p.divider);
-}
-
 bool OIIODecoder::OpenInternal()
 {
   // If we can open the filename provided, assume everything is working
@@ -139,7 +128,13 @@ bool OIIODecoder::RetrieveVideoInternal(TexturePtr destination, const rational &
   Q_UNUSED(timecode)
   Q_UNUSED(cancelled)
 
-  VideoParams vp = GetParamsForTexture(params);
+  VideoParams vp(buffer_->spec().width,
+                 buffer_->spec().height,
+                 pix_fmt_,
+                 channel_count_,
+                 OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
+                 VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
+                 params.divider);
 
   if (params.divider == 1) {
 

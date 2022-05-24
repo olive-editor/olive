@@ -152,7 +152,13 @@ bool FFmpegDecoder::RetrieveVideoInternal(TexturePtr destination, const rational
         return false;
       }
 
-      VideoParams vp = GetParamsForTexture(params);
+      VideoParams vp(instance_.avstream()->codecpar->width,
+                     instance_.avstream()->codecpar->height,
+                     native_pix_fmt_,
+                     native_channel_count_,
+                     av_guess_sample_aspect_ratio(instance_.fmt_ctx(), instance_.avstream(), nullptr),
+                     VideoParams::kInterlaceNone,
+                     params.divider);
 
       destination->Upload(working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
 
@@ -945,25 +951,6 @@ void FFmpegDecoder::RemoveFirstFrame()
 {
   cached_frames_.pop_front();
   cache_at_zero_ = false;
-}
-
-VideoParams FFmpegDecoder::GetParamsForTexture(const Decoder::RetrieveVideoParams &p)
-{
-  if (native_pix_fmt_ == VideoParams::kFormatInvalid) {
-    if (instance_.IsOpen()) {
-      instance_.GetFrame(working_packet_, working_frame_);
-      InitScaler(working_frame_, p);
-      av_frame_unref(working_frame_);
-    }
-  }
-
-  return VideoParams(instance_.avstream()->codecpar->width,
-                     instance_.avstream()->codecpar->height,
-                     native_pix_fmt_,
-                     native_channel_count_,
-                     av_guess_sample_aspect_ratio(instance_.fmt_ctx(), instance_.avstream(), nullptr),
-                     VideoParams::kInterlaceNone,
-                     p.divider);
 }
 
 FFmpegDecoder::Instance::Instance() :
