@@ -446,8 +446,6 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
   if (decoder) {
     Decoder::RetrieveVideoParams p;
     p.divider = stream.video_params().divider();
-    p.src_interlacing = stream_data.interlacing();
-    p.dst_interlacing = GetCacheVideoParams().interlacing();
 
     if (!IsCancelled()) {
 
