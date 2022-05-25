@@ -56,11 +56,13 @@ private:
 
   void CloseImageHandle();
 
+  static VideoParams GetVideoParamsFromImageSpec(const OIIO::ImageSpec &spec);
+
   VideoParams::Format pix_fmt_;
+  OIIO::TypeDesc::BASETYPE oiio_pix_fmt_;
 
-  int channel_count_;
-
-  OIIO::ImageBuf* buffer_;
+  Frame buffer_;
+  RetrieveVideoParams last_params_;
 
   static QStringList supported_formats_;
 

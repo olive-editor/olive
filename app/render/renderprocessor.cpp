@@ -424,23 +424,25 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
   DecoderPtr decoder = nullptr;
 
-  if (stream_data.video_type() == VideoParams::kVideoTypeVideo) {
+  switch (stream_data.video_type()) {
+  case VideoParams::kVideoTypeVideo:
+  case VideoParams::kVideoTypeStill:
     decoder = ResolveDecoderFromInput(decoder_id, default_codec_stream);
-  } else {
+    break;
+  case VideoParams::kVideoTypeImageSequence:
+  {
     // Since image sequences involve multiple files, we don't engage the decoder cache
     decoder = Decoder::CreateFromID(decoder_id);
 
     QString frame_filename;
 
-    if (stream_data.video_type() == VideoParams::kVideoTypeImageSequence) {
-      int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
-      frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
-    } else {
-      frame_filename = stream.filename();
-    }
+    int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
+    frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
 
     // Decoder will close automatically since it's a stream_ptr
     decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index()));
+    break;
+  }
   }
 
   if (decoder) {
