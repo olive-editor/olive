@@ -415,6 +415,8 @@ private slots:
 
   void SetViewWaveformsEnabled(bool e);
 
+  void SetViewThumbnailsEnabled(bool e);
+
   void FrameRateChanged();
 
   void SampleRateChanged();

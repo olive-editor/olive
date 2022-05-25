@@ -148,6 +148,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   setAcceptDrops(true);
 
   auto_cacher_ = new PreviewAutoCacher(this);
+  connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, auto_cacher_, &PreviewAutoCacher::SetDisplayColorProcessor);
 
   connect(Core::instance(), &Core::ColorPickerEnabled, this, &ViewerWidget::SetSignalCursorColorEnabled);
   connect(this, &ViewerWidget::CursorColor, Core::instance(), &Core::ColorPickerColorEmitted);
@@ -686,11 +687,6 @@ void ViewerWidget::UpdateTextureFromNode()
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
     nonqueue_watchers_.append(watcher);
 
-    // Clear queue because we want this frame more than any others
-    if (!GetConnectedNode()->video_frame_cache()->IsAutomatic() && !auto_cacher_->IsRenderingCustomRange()) {
-      ClearVideoAutoCacherQueue();
-    }
-
     watcher->SetTicket(GetFrame(time, RenderTicketPriority::kHigh));
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
@@ -718,8 +714,8 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   foreach (ViewerWidget* viewer, instances_) {
     if (viewer != this) {
       viewer->PauseInternal();
-      viewer->auto_cacher_->SetRendersPaused(true);
     }
+    viewer->auto_cacher_->SetRendersPaused(true);
   }
 
   // Disarm recording if armed

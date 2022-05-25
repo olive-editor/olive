@@ -65,6 +65,9 @@ public:
   FramePtr LoadCacheFrame(const int64_t &time) const;
   static FramePtr LoadCacheFrame(const QString& fn);
 
+signals:
+  void ThumbnailsUpdated();
+
 private:
   rational ToTime(const int64_t &ts) const;
   int64_t ToTimestamp(const rational &ts, Timecode::Rounding rounding = Timecode::kRound) const;
@@ -79,8 +82,6 @@ private:
   static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const rational &time, const rational &tb);
 
   rational timebase_;
-
-  static const QString kCacheFormatExtension;
 
 private slots:
   void HashDeleted(const QString &path, const QString &filename);

@@ -41,7 +41,7 @@ void PlaybackCache::Invalidate(const TimeRange &r)
   emit Invalidated(r);
 
   if (automatic_) {
-    emit Request(r, false);
+    emit Request(r, kCacheOnly);
   }
 }
 

@@ -524,18 +524,27 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
 
         // Draw clip thumbnails
         if (clip->GetTrackType() == Track::kVideo && show_thumbnails_ && preview_rect.height() > r.height()/3) {
-          const int kTempThumbWidth = 120;
-          const int kTempThumbHeight = 68;
+          if (const FrameHashCache *thumbs = clip->thumbnails()) {
+            QRect thumb_rect;
+            painter->setClipRect(preview_rect);
+            painter->setRenderHint(QPainter::SmoothPixmapTransform);
+            for (int i=preview_rect.left(); i<preview_rect.right(); i+=thumb_rect.width()+1) {
+              rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in;
+              QString thumbnail = thumbs->GetValidCacheFilename(time_here);
 
-          QRect thumb_rect;
-          painter->setClipRect(preview_rect);
-          for (int i=preview_rect.left(); i<preview_rect.right(); i+=thumb_rect.width()+1) {
-            double scale = double(preview_rect.height())/double(kTempThumbHeight);
-            thumb_rect = QRect(i, preview_rect.top(), kTempThumbWidth * scale, preview_rect.height());
-
-            painter->fillRect(thumb_rect, Qt::red);
+              if (thumbnail.isEmpty()) {
+                break;
+              } else {
+                QImage img;
+                if (img.load(thumbnail, "jpg")) {
+                  double scale = double(preview_rect.height())/double(img.height());
+                  thumb_rect = QRect(i, preview_rect.top(), img.width() * scale, preview_rect.height());
+                  painter->drawImage(thumb_rect, img);
+                }
+              }
+            }
+            painter->setClipping(false);
           }
-          painter->setClipping(false);
         }
 
         // Draw waveform

@@ -84,6 +84,17 @@ public:
     viewport()->update();
   }
 
+  bool GetShowThumbnails() const
+  {
+    return show_thumbnails_;
+  }
+
+  void SetShowThumbnails(bool e)
+  {
+    show_thumbnails_ = e;
+    viewport()->update();
+  }
+
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);

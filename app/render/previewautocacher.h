@@ -89,6 +89,12 @@ public:
 
   void SetRendersPaused(bool e);
 
+public slots:
+  void SetDisplayColorProcessor(ColorProcessorPtr processor)
+  {
+    display_color_processor_ = processor;
+  }
+
 signals:
   void StopCacheProxyTasks();
 
@@ -97,17 +103,9 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, RenderTicketPriority priority, FrameHashCache *cache);
-  RenderTicketWatcher *RenderFrame(const rational &time, RenderTicketPriority priority, FrameHashCache *cache)
-  {
-    return RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(), time, priority, cache);
-  }
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache::RequestType type, RenderTicketPriority priority, FrameHashCache *cache);
 
-  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority);
-  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority)
-  {
-    return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, generate_waveforms, priority);
-  }
+  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache::RequestType type, RenderTicketPriority priority);
 
   /**
    * @brief Process all changes to internal NodeGraph copy
@@ -138,11 +136,11 @@ private:
   void AudioInvalidatedList(Node *node, const TimeRangeList &list);
 
   void StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker);
-  void StartCachingVideoRange(Node *node, const TimeRange &range);
-  void StartCachingAudioRange(Node *node, const TimeRange &range);
+  void StartCachingVideoRange(Node *node, const TimeRange &range, PlaybackCache::RequestType type);
+  void StartCachingAudioRange(Node *node, const TimeRange &range, PlaybackCache::RequestType type);
 
-  void VideoInvalidatedFromNode(Node *node, const olive::TimeRange &range);
-  void AudioInvalidatedFromNode(Node *node, const olive::TimeRange &range);
+  void VideoInvalidatedFromNode(Node *node, const olive::TimeRange &range, PlaybackCache::RequestType type);
+  void AudioInvalidatedFromNode(Node *node, const olive::TimeRange &range, PlaybackCache::RequestType type);
 
   void VideoAutoCacheEnableChangedFromNode(Node *node, bool e);
   void AudioAutoCacheEnableChangedFromNode(Node *node, bool e);
@@ -195,32 +193,46 @@ private:
   QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
   QMap<RenderTicketWatcher*, rational> video_tasks_;
 
-  struct VideoCacheData {
-    TimeRangeList invalidated;
-    RenderJobTracker job_tracker;
+  struct VideoJob {
+    Node *node;
+    TimeRange range;
     TimeRangeListFrameIterator iterator;
+    PlaybackCache::RequestType type;
+  };
+
+  struct VideoCacheData {
+    RenderJobTracker job_tracker;
+  };
+
+  struct AudioJob {
+    Node *node;
+    TimeRange range;
+    PlaybackCache::RequestType type;
   };
 
   struct AudioCacheData {
-    TimeRangeList invalidated;
     TimeRangeList needing_conform;
     RenderJobTracker job_tracker;
-    TimeRangeList iterator;
   };
+
+  std::list<VideoJob> pending_video_jobs_;
+  std::list<AudioJob> pending_audio_jobs_;
 
   QHash<Node*, VideoCacheData> video_cache_data_;
   QHash<Node*, AudioCacheData> audio_cache_data_;
+
+  ColorProcessorPtr display_color_processor_;
 
 private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidatedFromCache(const olive::TimeRange &range);
+  void VideoInvalidatedFromCache(const olive::TimeRange &range, olive::PlaybackCache::RequestType type);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
-  void AudioInvalidatedFromCache(const olive::TimeRange &range);
+  void AudioInvalidatedFromCache(const olive::TimeRange &range, olive::PlaybackCache::RequestType type);
 
   /**
    * @brief Handler for when the RenderManager has returned rendered audio

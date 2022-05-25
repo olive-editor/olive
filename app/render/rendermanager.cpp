@@ -76,73 +76,45 @@ RenderManager::~RenderManager()
   }
 }
 
-RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param,
-                                           ColorManager* color_manager, const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
-{
-  return RenderFrame(node,
-                     color_manager,
-                     time,
-                     mode,
-                     vparam,
-                     param,
-                     QSize(0, 0),
-                     QMatrix4x4(),
-                     VideoParams::kFormatInvalid,
-                     nullptr,
-                     cache,
-                     priority,
-                     return_type);
-}
-
-RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
-                                           const VideoParams &video_params, const AudioParams &audio_params,
-                                           const QSize& force_size,
-                                           const QMatrix4x4& force_matrix, VideoParams::Format force_format,
-                                           ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
+RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(node));
-  ticket->setProperty("time", QVariant::fromValue(time));
-  ticket->setProperty("size", force_size);
-  ticket->setProperty("matrix", force_matrix);
-  ticket->setProperty("format", force_format);
-  ticket->setProperty("mode", mode);
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.time));
+  ticket->setProperty("size", params.force_size);
+  ticket->setProperty("matrix", params.force_matrix);
+  ticket->setProperty("format", params.force_format);
+  ticket->setProperty("usecache", params.use_cache);
   ticket->setProperty("type", kTypeVideo);
-  ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
-  ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
-  ticket->setProperty("vparam", QVariant::fromValue(video_params));
-  ticket->setProperty("aparam", QVariant::fromValue(audio_params));
-  ticket->setProperty("return", return_type);
+  ticket->setProperty("colormanager", Node::PtrToValue(params.color_manager));
+  ticket->setProperty("coloroutput", QVariant::fromValue(params.force_color_output));
+  Q_ASSERT(params.video_params.is_valid());
+  ticket->setProperty("vparam", QVariant::fromValue(params.video_params));
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
+  ticket->setProperty("return", params.return_type);
+  ticket->setProperty("cache", params.cache_dir);
+  ticket->setProperty("cachetimebase", QVariant::fromValue(params.cache_timebase));
+  ticket->setProperty("cacheid", QVariant::fromValue(params.cache_id));
 
-  if (cache) {
-    ticket->setProperty("cache", cache->GetCacheDirectory());
-    ticket->setProperty("cachetimebase", QVariant::fromValue(cache->GetTimebase()));
-    ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
-  }
-
-  AddTicket(ticket, priority);
+  AddTicket(ticket, params.priority);
 
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
+RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(node));
-  ticket->setProperty("time", QVariant::fromValue(r));
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.range));
   ticket->setProperty("type", kTypeAudio);
-  ticket->setProperty("mode", mode);
-  ticket->setProperty("enablewaveforms", generate_waveforms);
-  ticket->setProperty("aparam", QVariant::fromValue(params));
+  ticket->setProperty("enablewaveforms", params.generate_waveforms);
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
 
-  AddTicket(ticket, priority);
+  AddTicket(ticket, params.priority);
 
   return ticket;
 }

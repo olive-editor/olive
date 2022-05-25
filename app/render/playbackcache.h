@@ -69,6 +69,11 @@ public:
   QDir GetThisCacheDirectory() const;
   static QDir GetThisCacheDirectory(const QString &cache_path, const QUuid &cache_id);
 
+  enum RequestType {
+    kCacheOnly,
+    kPreviewsOnly
+  };
+
 public slots:
   void InvalidateAll();
 
@@ -77,7 +82,7 @@ signals:
 
   void Validated(const olive::TimeRange& r);
 
-  void Request(const olive::TimeRange& r, bool previews_only);
+  void Request(const olive::TimeRange& r, olive::PlaybackCache::RequestType type);
 
   void AutomaticChanged(bool e);
 

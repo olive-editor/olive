@@ -1093,6 +1093,11 @@ void TimelineWidget::ShowContextMenu()
     toggle_audio_units->setChecked(use_audio_time_units_);
     connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
 
+    QAction* show_thumbnails = menu.addAction(tr("Show Thumbnails"));
+    show_thumbnails->setCheckable(true);
+    show_thumbnails->setChecked(views_.first()->view()->GetShowThumbnails());
+    connect(show_thumbnails, &QAction::triggered, this, &TimelineWidget::SetViewThumbnailsEnabled);
+
     QAction* show_waveforms = menu.addAction(tr("Show Waveforms"));
     show_waveforms->setCheckable(true);
     show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
@@ -1164,6 +1169,13 @@ void TimelineWidget::SetViewWaveformsEnabled(bool e)
 {
   foreach (TimelineAndTrackView* tview, views_) {
     tview->view()->SetShowWaveforms(e);
+  }
+}
+
+void TimelineWidget::SetViewThumbnailsEnabled(bool e)
+{
+  foreach (TimelineAndTrackView* tview, views_) {
+    tview->view()->SetShowThumbnails(e);
   }
 }
 

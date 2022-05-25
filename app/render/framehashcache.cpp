@@ -32,11 +32,10 @@
 
 #include "codec/frame.h"
 #include "common/filefunctions.h"
+#include "common/oiioutils.h"
 #include "render/diskmanager.h"
 
 namespace olive {
-
-const QString FrameHashCache::kCacheFormatExtension = QStringLiteral(".exr");
 
 #define super PlaybackCache
 
@@ -256,63 +255,132 @@ QString FrameHashCache::CachePathName(const QString &cache_path, const QUuid &ca
 
 bool FrameHashCache::SaveCacheFrame(const QString &filename, const FramePtr frame)
 {
-  if (!VideoParams::FormatIsFloat(frame->format())) {
-    return false;
-  }
-
   // Ensure directory is created
   QDir cache_dir = QFileInfo(filename).dir();
   if (!FileFunctions::DirectoryIsValid(cache_dir)) {
     return false;
   }
 
-  // Floating point types are stored in EXR
-  Imf::PixelType pix_type;
+  if (VideoParams::FormatIsFloat(frame->format())) {
+    // Floating point types are stored in EXR
+    Imf::PixelType pix_type;
 
-  if (frame->format() == VideoParams::kFormatFloat16) {
-    pix_type = Imf::HALF;
-  } else {
-    pix_type = Imf::FLOAT;
-  }
-
-  Imf::Header header(frame->width(), frame->height());
-  header.channels().insert("R", Imf::Channel(pix_type));
-  header.channels().insert("G", Imf::Channel(pix_type));
-  header.channels().insert("B", Imf::Channel(pix_type));
-  if (frame->channel_count() == VideoParams::kRGBAChannelCount) {
-    header.channels().insert("A", Imf::Channel(pix_type));
-  }
-
-  header.compression() = Imf::DWAA_COMPRESSION;
-  header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
-  header.pixelAspectRatio() = frame->video_params().pixel_aspect_ratio().toDouble();
-
-  header.insert("oliveDivider", Imf::IntAttribute(frame->video_params().divider()));
-
-  try {
-    Imf::OutputFile out(filename.toUtf8(), header, 0);
-
-    int bpc = VideoParams::GetBytesPerChannel(frame->format());
-
-    size_t xs = frame->channel_count() * bpc;
-    size_t ys = frame->linesize_bytes();
-
-    Imf::FrameBuffer framebuffer;
-    framebuffer.insert("R", Imf::Slice(pix_type, frame->data(), xs, ys));
-    framebuffer.insert("G", Imf::Slice(pix_type, frame->data() + bpc, xs, ys));
-    framebuffer.insert("B", Imf::Slice(pix_type, frame->data() + 2*bpc, xs, ys));
-    if (frame->channel_count() == VideoParams::kRGBAChannelCount) {
-      framebuffer.insert("A", Imf::Slice(pix_type, frame->data() + 3*bpc, xs, ys));
+    if (frame->format() == VideoParams::kFormatFloat16) {
+      pix_type = Imf::HALF;
+    } else {
+      pix_type = Imf::FLOAT;
     }
-    out.setFrameBuffer(framebuffer);
 
-    out.writePixels(frame->height());
+    Imf::Header header(frame->width(), frame->height());
+    header.channels().insert("R", Imf::Channel(pix_type));
+    header.channels().insert("G", Imf::Channel(pix_type));
+    header.channels().insert("B", Imf::Channel(pix_type));
+    if (frame->channel_count() == VideoParams::kRGBAChannelCount) {
+      header.channels().insert("A", Imf::Channel(pix_type));
+    }
 
-    return true;
-  } catch (const std::exception &e) {
-    qCritical() << "Failed to write cache frame:" << e.what();
+    header.compression() = Imf::DWAA_COMPRESSION;
+    header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
+    header.pixelAspectRatio() = frame->video_params().pixel_aspect_ratio().toDouble();
 
-    return false;
+    header.insert("oliveDivider", Imf::IntAttribute(frame->video_params().divider()));
+
+    try {
+      Imf::OutputFile out(filename.toUtf8(), header, 0);
+
+      int bpc = VideoParams::GetBytesPerChannel(frame->format());
+
+      size_t xs = frame->channel_count() * bpc;
+      size_t ys = frame->linesize_bytes();
+
+      Imf::FrameBuffer framebuffer;
+      framebuffer.insert("R", Imf::Slice(pix_type, frame->data(), xs, ys));
+      framebuffer.insert("G", Imf::Slice(pix_type, frame->data() + bpc, xs, ys));
+      framebuffer.insert("B", Imf::Slice(pix_type, frame->data() + 2*bpc, xs, ys));
+      if (frame->channel_count() == VideoParams::kRGBAChannelCount) {
+        framebuffer.insert("A", Imf::Slice(pix_type, frame->data() + 3*bpc, xs, ys));
+      }
+      out.setFrameBuffer(framebuffer);
+
+      out.writePixels(frame->height());
+
+      return true;
+    } catch (const std::exception &e) {
+      qCritical() << "Failed to write cache frame:" << e.what();
+
+      return false;
+    }
+  } else {
+    QImage::Format fmt = QImage::Format_Invalid;
+
+    switch (frame->format()) {
+    case VideoParams::kFormatUnsigned8:
+      if (frame->channel_count() == VideoParams::kRGBAChannelCount){
+        fmt = QImage::Format_RGBA8888_Premultiplied;
+      } else if (frame->channel_count() == VideoParams::kRGBChannelCount){
+        fmt = QImage::Format_RGB888;
+      }
+      break;
+    case VideoParams::kFormatUnsigned16:
+      if (frame->channel_count() == VideoParams::kRGBAChannelCount){
+        fmt = QImage::Format_RGBA64_Premultiplied;
+      }
+      break;
+    case VideoParams::kFormatFloat16:
+    case VideoParams::kFormatFloat32:
+    case VideoParams::kFormatCount:
+    case VideoParams::kFormatInvalid:
+      break;
+    }
+
+    if (fmt == QImage::Format_Invalid) {
+      return false;
+    }
+
+    QImage img(reinterpret_cast<const uchar*>(frame->data()), frame->width(), frame->height(), frame->linesize_bytes(), fmt);
+
+    return img.save(filename, "jpg");
+
+
+    /*
+    qDebug() << "hello?" << filename;
+
+    // Integer types are stored in JPG
+    QString tmp = filename;
+    tmp.append(QStringLiteral(".jpg"));
+
+    std::string tmp_std = tmp.toStdString();
+    auto out = OIIO::ImageOutput::create(tmp_std);
+    if (!out) {
+      qDebug() << "fail create";
+      return false;
+    }
+
+    auto fmt = OIIOUtils::GetOIIOBaseTypeFromFormat(frame->format());
+    qDebug() << "writing" << fmt;
+    if (!out->open(tmp_std, OIIO::ImageSpec(frame->width(), frame->height(), frame->channel_count(), fmt))) {
+      qDebug() << "fail open";
+      return false;
+    }
+
+    bool ret = out->write_image(fmt, frame->data(), OIIO::AutoStride, frame->linesize_bytes());
+    out->close();
+
+    if (ret) {
+      QFile f(filename);
+      if (f.exists()) {
+        f.remove();
+      }
+      ret = QFile::rename(tmp, filename);
+      if (!ret) {
+        qDebug() << "fail rename from" << tmp << "to" << filename;
+      }
+    } else {
+      qDebug() << "fail write";
+    }
+
+    return ret;
+    */
   }
 }
 

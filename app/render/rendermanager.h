@@ -68,6 +68,49 @@ public:
     kFrame
   };
 
+  struct RenderVideoParams {
+    RenderVideoParams(Node *n, const VideoParams &vparam, const AudioParams &aparam, const rational &t,
+                ColorManager *colorman)
+    {
+      node = n;
+      video_params = vparam;
+      audio_params = aparam;
+      time = t;
+      color_manager = colorman;
+      use_cache = false;
+      priority = RenderTicketPriority::kNormal;
+      return_type = kFrame;
+      force_format = VideoParams::kFormatInvalid;
+      force_color_output = nullptr;
+      force_size = QSize(0, 0);
+    }
+
+    void AddCache(FrameHashCache *cache)
+    {
+      cache_dir = cache->GetCacheDirectory();
+      cache_timebase = cache->GetTimebase();
+      cache_id = cache->GetUuid().toString();
+    }
+
+    Node *node;
+    VideoParams video_params;
+    AudioParams audio_params;
+    rational time;
+    ColorManager *color_manager;
+    bool use_cache;
+    RenderTicketPriority priority;
+    ReturnType return_type;
+
+    QString cache_dir;
+    rational cache_timebase;
+    QString cache_id;
+
+    QSize force_size;
+    QMatrix4x4 force_matrix;
+    VideoParams::Format force_format;
+    ColorProcessorPtr force_color_output;
+  };
+
   /**
    * @brief Asynchronously generate a frame at a given time
    *
@@ -76,16 +119,24 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param, ColorManager* color_manager,
-                              const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
-  RenderTicketPtr RenderFrame(Node *node, ColorManager* color_manager,
-                              const rational& time, RenderMode::Mode mode,
-                              const VideoParams& video_params, const AudioParams& audio_params,
-                              const QSize& force_size,
-                              const QMatrix4x4& force_matrix, VideoParams::Format force_format,
-                              ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
+  RenderTicketPtr RenderFrame(const RenderVideoParams &params);
+
+  struct RenderAudioParams {
+    RenderAudioParams(Node *n, const TimeRange &time, const AudioParams &aparam)
+    {
+      node = n;
+      range = time;
+      audio_params = aparam;
+      generate_waveforms = false;
+      priority = RenderTicketPriority::kNormal;
+    }
+
+    Node *node;
+    TimeRange range;
+    AudioParams audio_params;
+    bool generate_waveforms;
+    RenderTicketPriority priority;
+  };
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -94,7 +145,7 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(Node *viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
+  RenderTicketPtr RenderAudio(const RenderAudioParams &params);
 
   virtual void RunTicket(RenderTicketPtr ticket) const override;
 

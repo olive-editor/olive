@@ -91,32 +91,32 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
     ColorProcessorPtr output_color_transform = ticket_->property("coloroutput").value<ColorProcessorPtr>();
     const VideoParams& tex_params = texture->params();
 
+    if (output_color_transform) {
+      TexturePtr transform_tex = render_ctx_->CreateTexture(tex_params);
+      ColorTransformJob job;
+
+      job.SetColorProcessor(output_color_transform);
+      job.SetInputTexture(texture);
+      job.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
+
+      render_ctx_->BlitColorManaged(job, transform_tex.get());
+
+      texture = transform_tex;
+    }
+
     if (tex_params.effective_width() != frame_params.effective_width()
         || tex_params.effective_height() != frame_params.effective_height()
-        || tex_params.format() != frame_params.format()
-        || output_color_transform) {
+        || tex_params.format() != frame_params.format()) {
       TexturePtr blit_tex = render_ctx_->CreateTexture(frame_params);
 
       QMatrix4x4 matrix = ticket_->property("matrix").value<QMatrix4x4>();
 
-      if (output_color_transform) {
-        // Yes color transform, blit color managed
-        ColorTransformJob job;
+      // No color transform, just blit
+      ShaderJob job;
+      job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
+      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
 
-        job.SetColorProcessor(output_color_transform);
-        job.SetInputTexture(texture);
-        job.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
-        job.SetTransformMatrix(matrix);
-
-        render_ctx_->BlitColorManaged(job, blit_tex.get());
-      } else {
-        // No color transform, just blit
-        ShaderJob job;
-        job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
-        job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
-
-        render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
-      }
+      render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
 
       // Replace texture that we're going to download in the next step
       texture = blit_tex;
@@ -179,8 +179,8 @@ void RenderProcessor::Run()
         // Save to cache if requested
         if (!cache.isEmpty()) {
           rational timebase = ticket_->property("cachetimebase").value<rational>();
-          QUuid uuid = ticket_->property("cacheuuid").value<QUuid>();
-          bool cache_result = FrameHashCache::SaveCacheFrame(cache, uuid, time, timebase, frame);
+          QString id = ticket_->property("cacheid").toString();
+          bool cache_result = FrameHashCache::SaveCacheFrame(cache, id, time, timebase, frame);
           ticket_->setProperty("cached", cache_result);
         }
       }
@@ -438,7 +438,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
         bool frame = decoder->RetrieveVideo(unmanaged_texture, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
 
-        if (frame) {
+        if (!IsCancelled() && frame) {
           // We convert to our rendering pixel format, since that will always be float-based which
           // is necessary for correct color conversion
           ColorProcessorPtr processor = ColorProcessor::Create(color_manager,

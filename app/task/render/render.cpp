@@ -58,19 +58,15 @@ bool RenderTask::Render(ColorManager* manager,
     // 50%, which makes the progress bar look weird to the uninitiated
     //total_length += r.length().toDouble();
 
-    rational r = range.in();
-    while (r != range.out()) {
-      rational end = qMin(range.out(), r+1);
-      TimeRange this_range(r, end);
+    RenderManager::RenderAudioParams rap(viewer_->GetConnectedSampleOutput(),
+                                         range,
+                                         audio_params_);
 
-      RenderTicketWatcher* watcher = new RenderTicketWatcher();
-      watcher->setProperty("range", QVariant::fromValue(this_range));
-      PrepareWatcher(watcher, &watcher_thread);
-      IncrementRunningTickets();
-      watcher->SetTicket(RenderManager::instance()->RenderAudio(viewer_->GetConnectedSampleOutput(), this_range, audio_params_, mode, false));
-
-      r = end;
-    }
+    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    watcher->setProperty("range", QVariant::fromValue(range));
+    PrepareWatcher(watcher, &watcher_thread);
+    IncrementRunningTickets();
+    watcher->SetTicket(RenderManager::instance()->RenderAudio(rap));
   }
 
   // Look up hashes
@@ -277,15 +273,23 @@ void RenderTask::StartTicket(QThread* watcher_thread, ColorManager* manager,
                              const QSize &force_size, const QMatrix4x4 &force_matrix,
                              VideoParams::Format force_format, ColorProcessorPtr force_color_output)
 {
+  RenderManager::RenderVideoParams rvp(viewer_->GetConnectedTextureOutput(), video_params_, audio_params_,
+                                       time, manager);
+
+  rvp.force_size = force_size;
+  rvp.force_matrix = force_matrix;
+  rvp.force_format = force_format;
+  rvp.force_color_output = force_color_output;
+
+  if (cache) {
+    rvp.AddCache(cache);
+  }
+
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("time", QVariant::fromValue(time));
   PrepareWatcher(watcher, watcher_thread);
   IncrementRunningTickets();
-  watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_->GetConnectedTextureOutput(), manager, time,
-                                                            mode, video_params_, audio_params_,
-                                                            force_size, force_matrix,
-                                                            force_format, force_color_output,
-                                                            cache));
+  watcher->SetTicket(RenderManager::instance()->RenderFrame(rvp));
 }
 
 void RenderTask::TicketDone(RenderTicketWatcher* watcher)

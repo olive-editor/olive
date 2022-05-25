@@ -389,10 +389,6 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       if (frame_rate_changed) {
-        // FIXME: Will need to find a better way to update this soon
-        //if (video_frame_cache()->IsEnabled()) {
-          video_frame_cache()->SetTimebase(new_video_params.frame_rate_as_time_base());
-        //}
         emit FrameRateChanged(new_video_params.frame_rate());
       }
 
@@ -411,11 +407,6 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       emit AudioParamsChanged();
-
-      // FIXME: Will need to find a better way to update this soon
-      //if (audio_playback_cache()->IsEnabled()) {
-        audio_playback_cache()->SetParameters(GetAudioParams());
-      //}
 
       cached_audio_params_ = new_audio_params;
 

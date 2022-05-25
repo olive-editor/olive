@@ -235,6 +235,8 @@ public:
 
   static QString GetFormatName(Format format);
 
+  static int GetDividerForTargetResolution(int src_width, int src_height, int dst_width, int dst_height);
+
   static const int kInternalChannelCount;
 
   static const rational kPixelAspectSquare;
