@@ -26,6 +26,7 @@ extern "C" {
 #include <libavfilter/buffersrc.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
 #include <libavutil/pixdesc.h>
 }
 
@@ -54,6 +55,8 @@ FFmpegDecoder::FFmpegDecoder() :
   filter_graph_(nullptr),
   buffersrc_ctx_(nullptr),
   buffersink_ctx_(nullptr),
+  input_fmt_(AV_PIX_FMT_NONE),
+  native_pix_fmt_(VideoParams::kFormatInvalid),
   working_frame_(nullptr),
   working_packet_(nullptr),
   is_working_(false),
@@ -69,22 +72,6 @@ bool FFmpegDecoder::OpenInternal()
 
     // Store one second in the source's timebase
     second_ts_ = qRound64(av_q2d(av_inv_q(s->time_base)));
-
-    if (s->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-      // Get an Olive compatible AVPixelFormat
-      ideal_pix_fmt_ = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(s->codecpar->format));
-
-      // Determine which Olive native pixel format we retrieved
-      // Note that FFmpeg doesn't support float formats
-      native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt_);
-      native_channel_count_ = GetNativeChannelCount(ideal_pix_fmt_);
-
-      if (native_pix_fmt_ == VideoParams::kFormatInvalid
-          || native_channel_count_ == 0) {
-        qCritical() << "Failed to find valid native pixel format for" << ideal_pix_fmt_;
-        return false;
-      }
-    }
 
     working_frame_ = av_frame_alloc();
     working_packet_ = av_packet_alloc();
@@ -154,7 +141,7 @@ bool FFmpegDecoder::OpenInternal()
 bool FFmpegDecoder::RetrieveVideoInternal(TexturePtr destination, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
   if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
-    if (InitScaler(params)) {
+    if (InitScaler(f.get(), params)) {
       int r;
       r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
       if (r < 0) {
@@ -165,7 +152,13 @@ bool FFmpegDecoder::RetrieveVideoInternal(TexturePtr destination, const rational
         return false;
       }
 
-      VideoParams vp = GetParamsForTexture(params);
+      VideoParams vp(instance_.avstream()->codecpar->width,
+                     instance_.avstream()->codecpar->height,
+                     native_pix_fmt_,
+                     native_channel_count_,
+                     av_guess_sample_aspect_ratio(instance_.fmt_ctx(), instance_.avstream(), nullptr),
+                     VideoParams::kInterlaceNone,
+                     params.divider);
 
       destination->Upload(working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
 
@@ -193,6 +186,9 @@ void FFmpegDecoder::CloseInternal()
   FreeScaler();
 
   instance_.Close();
+
+  input_fmt_ = AV_PIX_FMT_NONE;
+  native_pix_fmt_ = VideoParams::kFormatInvalid;
 }
 
 QString FFmpegDecoder::id() const
@@ -239,6 +235,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
 
         if (avstream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 
+          AVPixelFormat compatible_pix_fmt = AV_PIX_FMT_NONE;
+
           bool image_is_still = false;
           rational pixel_aspect_ratio;
           rational frame_rate;
@@ -271,6 +269,9 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
                 frame_rate = av_guess_frame_rate(instance.fmt_ctx(),
                                                  instance.avstream(),
                                                  frame);
+
+                compatible_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format));
+                qDebug() << "GOT IT FROM FRAME" << compatible_pix_fmt;
               }
 
               // Read second frame
@@ -308,8 +309,6 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
             av_frame_free(&frame);
             av_packet_free(&pkt);
           }
-
-          AVPixelFormat compatible_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format));
 
           VideoParams stream;
           stream.set_stream_index(i);
@@ -655,7 +654,7 @@ void FFmpegDecoder::ClearFrameCache()
 
 AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *cancelled)
 {
-  int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time, filter_params_.src_interlacing);
+  int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
 
   const int64_t min_seek = -instance_.avstream()->start_time;
   int64_t seek_ts = target_ts;
@@ -781,9 +780,9 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *
   return return_frame;
 }
 
-bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
+bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params)
 {
-  if (params == filter_params_ && filter_graph_) {
+  if (params == filter_params_ && filter_graph_ && input_fmt_ == input->format) {
     // We have an appropriate filter for these parameters, just return true
     return true;
   }
@@ -794,6 +793,24 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
 
   // Set our params to this
   filter_params_ = params;
+  input_fmt_ = static_cast<AVPixelFormat>(input->format);
+  if (input_fmt_ == AV_PIX_FMT_NONE) {
+    return false;
+  }
+
+  // Get an Olive compatible AVPixelFormat
+  AVPixelFormat ideal_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(input_fmt_));
+
+  // Determine which Olive native pixel format we retrieved
+  // Note that FFmpeg doesn't support float formats
+  native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt);
+  native_channel_count_ = GetNativeChannelCount(ideal_pix_fmt);
+
+  if (native_pix_fmt_ == VideoParams::kFormatInvalid
+      || native_channel_count_ == 0) {
+    qCritical() << "Failed to find valid native pixel format for" << ideal_pix_fmt;
+    return false;
+  }
 
   // Allocate filter graph
   filter_graph_ = avfilter_graph_alloc();
@@ -813,7 +830,7 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
   snprintf(filter_args, kFilterArgSz, "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
            src_width,
            src_height,
-           s->codecpar->format,
+           input->format,
            s->time_base.num,
            s->time_base.den,
            s->codecpar->sample_aspect_ratio.num,
@@ -826,19 +843,6 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
   // Link filters as necessary
   AVFilterContext *last_filter = buffersrc_ctx_;
 
-  // Add interlacing filter if necessary
-  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone) {
-    // Footage is interlaced, our renderer works in progressive so we'll need to de-interlace
-    AVFilterContext* interlace_filter;
-
-    snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
-             GetInterlacingModeInFFmpeg(filter_params_.src_interlacing));
-    avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("yadif"), "yadif", filter_args, nullptr, filter_graph_);
-
-    avfilter_link(last_filter, 0, interlace_filter, 0);
-    last_filter = interlace_filter;
-  }
-
   // Add scale filter if necessary
   int dst_width, dst_height;
   if (filter_params_.divider > 1) {
@@ -847,10 +851,9 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
     dst_width = VideoParams::GetScaledDimension(src_width, filter_params_.divider);
     dst_height = VideoParams::GetScaledDimension(src_height, filter_params_.divider);
 
-    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=%d",
+    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=-1",
              dst_width,
-             dst_height,
-             params.dst_interlacing != VideoParams::kInterlaceNone);
+             dst_height);
 
     avfilter_graph_create_filter(&scale_filter, avfilter_get_by_name("scale"), "scale", filter_args, nullptr, filter_graph_);
 
@@ -862,10 +865,10 @@ bool FFmpegDecoder::InitScaler(const RetrieveVideoParams& params)
   }
 
   // Add format filter if necessary
-  if (ideal_pix_fmt_ != s->codecpar->format) {
+  if (ideal_pix_fmt != input->format) {
     AVFilterContext* format_filter;
 
-    snprintf(filter_args, kFilterArgSz, "pix_fmts=%u", ideal_pix_fmt_);
+    snprintf(filter_args, kFilterArgSz, "pix_fmts=%u", ideal_pix_fmt);
 
     avfilter_graph_create_filter(&format_filter, avfilter_get_by_name("format"), "format", filter_args, nullptr, filter_graph_);
 
@@ -934,17 +937,6 @@ void FFmpegDecoder::RemoveFirstFrame()
 {
   cached_frames_.pop_front();
   cache_at_zero_ = false;
-}
-
-VideoParams FFmpegDecoder::GetParamsForTexture(const Decoder::RetrieveVideoParams &p) const
-{
-  return VideoParams(instance_.avstream()->codecpar->width,
-                     instance_.avstream()->codecpar->height,
-                     native_pix_fmt_,
-                     native_channel_count_,
-                     av_guess_sample_aspect_ratio(instance_.fmt_ctx(), instance_.avstream(), nullptr),
-                     VideoParams::kInterlaceNone,
-                     p.divider);
 }
 
 FFmpegDecoder::Instance::Instance() :

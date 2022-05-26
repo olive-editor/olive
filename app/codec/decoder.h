@@ -150,13 +150,9 @@ public:
     RetrieveVideoParams()
     {
       divider = 1;
-      src_interlacing = VideoParams::kInterlaceNone;
-      dst_interlacing = VideoParams::kInterlaceNone;
     }
 
     int divider;
-    VideoParams::Interlacing src_interlacing;
-    VideoParams::Interlacing dst_interlacing;
 
     void reset()
     {
@@ -165,7 +161,7 @@ public:
 
     bool operator==(const RetrieveVideoParams& rhs) const
     {
-      return divider == rhs.divider && src_interlacing == rhs.src_interlacing && dst_interlacing == rhs.dst_interlacing;
+      return divider == rhs.divider;
     }
 
     bool operator!=(const RetrieveVideoParams& rhs) const
@@ -185,11 +181,6 @@ public:
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
   bool RetrieveVideo(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled = nullptr);
-
-  virtual VideoParams GetParamsForTexture(const Decoder::RetrieveVideoParams &p) const
-  {
-    return VideoParams();
-  }
 
   enum RetrieveAudioStatus {
     kInvalid = -1,
@@ -300,8 +291,8 @@ protected:
     return stream_;
   }
 
-  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time, VideoParams::Interlacing interlacing);
-  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time, VideoParams::Interlacing interlacing);
+  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
+  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time);
 
 signals:
   /**

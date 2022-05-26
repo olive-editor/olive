@@ -152,6 +152,9 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
     int copy_len = their_arr.size() - their_start_index;
     if (!length.isNull()) {
       copy_len = qMin(copy_len, time_to_samples(length, rate_dbl));
+      if (copy_len == 0) {
+        continue;
+      }
     }
 
     // Determine end index of our array

@@ -227,9 +227,11 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 
   // TEMP: Just to restore the intended functionality for now. This will be removed later.
   if (from == kTextureInput) {
-    video_frame_cache()->Invalidate(range);
+    TimeRange r = range.Intersected(TimeRange(0, GetVideoLength()));
+    if (r.length() != 0) video_frame_cache()->Invalidate(r);
   } else if (from == kSamplesInput) {
-    audio_playback_cache()->Invalidate(range);
+    TimeRange r = range.Intersected(TimeRange(0, GetAudioLength()));
+    if (r.length() != 0) audio_playback_cache()->Invalidate(r);
   }
 }
 

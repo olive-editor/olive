@@ -66,8 +66,6 @@ public:
 
   virtual FootageDescription Probe(const QString &filename, const QAtomicInt *cancelled) const override;
 
-  virtual VideoParams GetParamsForTexture(const Decoder::RetrieveVideoParams &p) const override;
-
 protected:
   virtual bool OpenInternal() override;
   virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
@@ -86,6 +84,11 @@ private:
     }
 
     bool Open(const char* filename, int stream_index);
+
+    bool IsOpen() const
+    {
+      return fmt_ctx_;
+    }
 
     void Close();
 
@@ -134,7 +137,7 @@ private:
    */
   static QString FFmpegError(int error_code);
 
-  bool InitScaler(const RetrieveVideoParams &params);
+  bool InitScaler(AVFrame *input, const RetrieveVideoParams &params);
   void FreeScaler();
 
   static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
@@ -156,7 +159,7 @@ private:
   AVFilterGraph* filter_graph_;
   AVFilterContext* buffersrc_ctx_;
   AVFilterContext* buffersink_ctx_;
-  AVPixelFormat ideal_pix_fmt_;
+  AVPixelFormat input_fmt_;
   VideoParams::Format native_pix_fmt_;
   int native_channel_count_;
 

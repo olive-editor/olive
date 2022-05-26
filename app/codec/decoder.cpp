@@ -199,14 +199,14 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   return nullptr;
 }
 
-int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time, VideoParams::Interlacing interlacing)
+int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
 {
   int64_t t = Timecode::time_to_timestamp(time, timebase);
   t += start_time;
   return t;
 }
 
-rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time, VideoParams::Interlacing interlacing)
+rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time)
 {
   time -= start_time;
   return Timecode::timestamp_to_time(time, timebase);

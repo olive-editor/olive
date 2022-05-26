@@ -88,7 +88,7 @@ void NodeParamViewItem::Retranslate()
 
 void NodeParamViewItem::RecreateBody()
 {
-  QWidget *old_body = body_;
+  delete body_;
 
   body_ = new NodeParamViewItemBody(node_, create_checkboxes_);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
@@ -100,8 +100,6 @@ void NodeParamViewItem::RecreateBody()
   body_->SetTime(time_);
   body_->SetTimebase(timebase_);
   SetBody(body_);
-
-  old_body->deleteLater();
 }
 
 

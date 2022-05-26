@@ -424,34 +424,34 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
   DecoderPtr decoder = nullptr;
 
-  if (stream_data.video_type() == VideoParams::kVideoTypeVideo) {
+  switch (stream_data.video_type()) {
+  case VideoParams::kVideoTypeVideo:
+  case VideoParams::kVideoTypeStill:
     decoder = ResolveDecoderFromInput(decoder_id, default_codec_stream);
-  } else {
+    break;
+  case VideoParams::kVideoTypeImageSequence:
+  {
     // Since image sequences involve multiple files, we don't engage the decoder cache
     decoder = Decoder::CreateFromID(decoder_id);
 
     QString frame_filename;
 
-    if (stream_data.video_type() == VideoParams::kVideoTypeImageSequence) {
-      int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
-      frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
-    } else {
-      frame_filename = stream.filename();
-    }
+    int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
+    frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
 
     // Decoder will close automatically since it's a stream_ptr
     decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index()));
+    break;
+  }
   }
 
   if (decoder) {
     Decoder::RetrieveVideoParams p;
     p.divider = stream.video_params().divider();
-    p.src_interlacing = stream_data.interlacing();
-    p.dst_interlacing = GetCacheVideoParams().interlacing();
 
     if (!IsCancelled()) {
 
-      VideoParams tex_params = decoder->GetParamsForTexture(p);
+      VideoParams tex_params = stream.video_params();
 
       if (tex_params.is_valid()) {
         TexturePtr unmanaged_texture = render_ctx_->CreateTexture(tex_params);
