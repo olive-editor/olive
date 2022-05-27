@@ -121,11 +121,6 @@ protected:
     }
   }
 
-  virtual bool CanCacheFrames()
-  {
-    return false;
-  }
-
   QVector2D GenerateResolution() const;
 
   bool IsCancelled()

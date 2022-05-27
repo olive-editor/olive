@@ -556,11 +556,6 @@ void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node 
   destination->Upload(frame->data(), frame->linesize_pixels());
 }
 
-bool RenderProcessor::CanCacheFrames()
-{
-  return ticket_->property("type").value<RenderManager::TicketType>() == RenderManager::kTypeVideo;
-}
-
 void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs)
 {
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
