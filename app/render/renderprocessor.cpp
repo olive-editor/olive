@@ -215,11 +215,15 @@ void RenderProcessor::Run()
     ResolveJobs(sample_val, time);
 
     SampleBuffer samples = sample_val.toSamples();
-    if (samples.is_allocated() && ticket_->property("enablewaveforms").toBool()) {
-      AudioVisualWaveform vis;
-      vis.set_channel_count(samples.audio_params().channel_count());
-      vis.OverwriteSamples(samples, samples.audio_params().sample_rate());
-      ticket_->setProperty("waveform", QVariant::fromValue(vis));
+    if (samples.is_allocated()) {
+      samples.clamp();
+
+      if (ticket_->property("enablewaveforms").toBool()) {
+        AudioVisualWaveform vis;
+        vis.set_channel_count(samples.audio_params().channel_count());
+        vis.OverwriteSamples(samples, samples.audio_params().sample_rate());
+        ticket_->setProperty("waveform", QVariant::fromValue(vis));
+      }
     }
 
     if (HeardCancel()) {
