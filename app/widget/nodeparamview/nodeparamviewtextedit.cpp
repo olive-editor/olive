@@ -57,7 +57,7 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   connect(edit_in_viewer_btn_, &QPushButton::clicked, this, &NodeParamViewTextEdit::RequestEditInViewer);
 
   SetEditInViewerOnlyMode(false);
-    
+
   ext_editor_proxy_ = new ExternalEditorProxy( this);
   connect( ext_editor_proxy_, & ExternalEditorProxy::textChanged,
            this, & NodeParamViewTextEdit::OnTextChangedExternally);
@@ -92,7 +92,7 @@ void NodeParamViewTextEdit::ShowTextDialog()
   }
 
   if (text != QString()) {
-    line_edit_->setPlainText( text);
+    setText(text);
     emit textEdited( text);
   }
 }
@@ -134,7 +134,7 @@ void NodeParamViewTextEdit::setCodeEditorFlag()
   // if the text box is a shader code editor, make it read only so that
   // the shader code is not re-parsed on every key pressed by the user.
   // Please use the Text Dialog to edit code.
-  line_edit_->setEnabled( false);
+  line_edit_->setReadOnly( true);
 }
 
 void NodeParamViewTextEdit::setCodeIssuesFlag()
