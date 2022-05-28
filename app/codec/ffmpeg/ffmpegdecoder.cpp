@@ -271,7 +271,6 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
                                                  frame);
 
                 compatible_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format));
-                qDebug() << "GOT IT FROM FRAME" << compatible_pix_fmt;
               }
 
               // Read second frame

@@ -185,6 +185,8 @@ public:
 
   static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
+  virtual void LoadFinishedEvent() override;
+
   virtual qint64 creation_time() const override;
   virtual qint64 mod_time() const override;
 
@@ -214,6 +216,10 @@ private:
    * basic information about the Footage in the tooltip (based on the results of a previous probe).
    */
   void UpdateTooltip();
+
+  void Reprobe();
+
+  VideoParams MergeVideoStream(const VideoParams &base, const VideoParams &over);
 
   /**
    * @brief Internal timestamp object

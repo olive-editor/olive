@@ -240,6 +240,8 @@ void ProjectSerializer210907::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
       reader->skipCurrentElement();
     }
   }
+
+  node->LoadFinishedEvent();
 }
 
 void ProjectSerializer210907::LoadInput(Node *node, QXmlStreamReader *reader, XMLNodeData &xml_node_data) const
