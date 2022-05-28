@@ -187,7 +187,7 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
       if (Node *connected = GetConnectedOutput(from, element)) {
         TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, length()));
         if (type == Track::kVideo) {
-          emit connected->video_frame_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+          emit connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
         } else if (type == Track::kAudio) {
           emit connected->audio_playback_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
         }
@@ -250,7 +250,7 @@ void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *out
   super::InputConnectedEvent(input, element, output);
 
   if (input == kBufferIn) {
-    connect(output->video_frame_cache(), &FrameHashCache::ThumbnailsUpdated, this, &Block::PreviewChanged);
+    connect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
     connect(output->audio_playback_cache(), &AudioPlaybackCache::WaveformUpdated, this, &Block::PreviewChanged);
   }
 }
@@ -260,7 +260,7 @@ void ClipBlock::InputDisconnectedEvent(const QString &input, int element, Node *
   super::InputDisconnectedEvent(input, element, output);
 
   if (input == kBufferIn) {
-    disconnect(output->video_frame_cache(), &FrameHashCache::ThumbnailsUpdated, this, &Block::PreviewChanged);
+    disconnect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
     disconnect(output->audio_playback_cache(), &AudioPlaybackCache::WaveformUpdated, this, &Block::PreviewChanged);
   }
 }

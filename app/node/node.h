@@ -226,6 +226,11 @@ public:
     return video_cache_;
   }
 
+  FrameHashCache* thumbnail_cache() const
+  {
+    return thumbnail_cache_;
+  }
+
   AudioPlaybackCache* audio_playback_cache() const
   {
     return audio_cache_;
@@ -1402,6 +1407,7 @@ private:
   QString effect_input_;
 
   FrameHashCache *video_cache_;
+  FrameHashCache *thumbnail_cache_;
 
   AudioPlaybackCache *audio_cache_;
 

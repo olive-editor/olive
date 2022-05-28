@@ -227,7 +227,8 @@ private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidatedFromCache(const olive::TimeRange &range, olive::PlaybackCache::RequestType type);
+  void VideoInvalidatedFromCache(const olive::TimeRange &range);
+  void ThumbnailsInvalidatedFromCache(const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range

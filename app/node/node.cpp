@@ -54,6 +54,7 @@ Node::Node() :
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
 
   video_cache_ = new FrameHashCache(this);
+  thumbnail_cache_ = new FrameHashCache(this);
   audio_cache_ = new AudioPlaybackCache(this);
 }
 
@@ -936,6 +937,7 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
     TimeRange vr = range.Intersected(GetVideoCacheRange());
     if (vr.length() != 0) {
       video_frame_cache()->Invalidate(vr);
+      thumbnail_cache()->Invalidate(vr);
     }
     TimeRange ar = range.Intersected(GetAudioCacheRange());
     if (ar.length() != 0) {

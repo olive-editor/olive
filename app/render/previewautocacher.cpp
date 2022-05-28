@@ -83,11 +83,18 @@ RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, RenderTicket
   return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, PlaybackCache::kCacheOnly, priority);
 }
 
-void PreviewAutoCacher::VideoInvalidatedFromCache(const TimeRange &range, PlaybackCache::RequestType type)
+void PreviewAutoCacher::VideoInvalidatedFromCache(const TimeRange &range)
 {
   FrameHashCache *cache = static_cast<FrameHashCache*>(sender());
 
-  VideoInvalidatedFromNode(cache->parent(), range, type);
+  VideoInvalidatedFromNode(cache->parent(), range, PlaybackCache::kCacheOnly);
+}
+
+void PreviewAutoCacher::ThumbnailsInvalidatedFromCache(const TimeRange &range)
+{
+  FrameHashCache *cache = static_cast<FrameHashCache*>(sender());
+
+  VideoInvalidatedFromNode(cache->parent(), range, PlaybackCache::kPreviewsOnly);
 }
 
 void PreviewAutoCacher::AudioInvalidatedFromCache(const TimeRange &range, PlaybackCache::RequestType type)
@@ -162,17 +169,9 @@ void PreviewAutoCacher::VideoRendered()
   if (it != video_tasks_.end()) {
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
     if (watcher->HasResult()) {
-      PlaybackCache::RequestType type = PlaybackCache::RequestType(watcher->property("type").toInt());
-
-      if (type == PlaybackCache::kCacheOnly) {
-        if (watcher->GetTicket()->property("cached").toBool()) {
-          if (FrameHashCache *cache = Node::ValueToPtr<FrameHashCache>(watcher->property("cache"))) {
-            cache->ValidateTime(it.value());
-          }
-        }
-      } else {
+      if (watcher->GetTicket()->property("cached").toBool()) {
         if (FrameHashCache *cache = Node::ValueToPtr<FrameHashCache>(watcher->property("cache"))) {
-          emit cache->ThumbnailsUpdated();
+          cache->ValidateTime(it.value());
         }
       }
     }
@@ -336,6 +335,11 @@ void PreviewAutoCacher::ConnectToNodeCache(Node *node)
           this,
           &PreviewAutoCacher::VideoInvalidatedFromCache);
 
+  connect(node->thumbnail_cache(),
+          &PlaybackCache::Request,
+          this,
+          &PreviewAutoCacher::ThumbnailsInvalidatedFromCache);
+
   connect(node->audio_playback_cache(),
           &PlaybackCache::Request,
           this,
@@ -367,6 +371,11 @@ void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
              &PlaybackCache::Request,
              this,
              &PreviewAutoCacher::VideoInvalidatedFromCache);
+
+  disconnect(node->thumbnail_cache(),
+             &PlaybackCache::Request,
+             this,
+             &PreviewAutoCacher::ThumbnailsInvalidatedFromCache);
 
   disconnect(node->audio_playback_cache(),
              &PlaybackCache::Request,
@@ -606,7 +615,15 @@ void PreviewAutoCacher::TryRender()
           // We want this hash, if we're not already rendering, start render now
           if (!render_task) {
             // Don't render any hash more than once
-            RenderFrame(copy, t, d.type, RenderTicketPriority::kNormal, d.node->video_frame_cache());
+            FrameHashCache *using_cache;
+
+            if (d.type == PlaybackCache::kCacheOnly) {
+              using_cache = d.node->video_frame_cache();
+            } else {
+              using_cache = d.node->thumbnail_cache();
+            }
+
+            RenderFrame(copy, t, d.type, RenderTicketPriority::kNormal, using_cache);
           }
 
           emit SignalCacheProxyTaskProgress(double(d.iterator.frame_index()) / double(d.iterator.size()));
@@ -658,14 +675,17 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
                                        copied_color_manager_);
 
   if (cache) {
-    cache->SetTimebase(viewer_node_->GetVideoParams().frame_rate_as_time_base());
-    rvp.AddCache(cache);
-
     if (type == PlaybackCache::kPreviewsOnly) {
       rvp.video_params.set_divider(VideoParams::GetDividerForTargetResolution(rvp.video_params.width(), rvp.video_params.height(), 160, 120));
       rvp.force_color_output = display_color_processor_;
       rvp.force_format = VideoParams::kFormatUnsigned8;
+
+      cache->SetTimebase(rational(1, 10));
+    } else {
+      cache->SetTimebase(viewer_node_->GetVideoParams().frame_rate_as_time_base());
     }
+
+    rvp.AddCache(cache);
   }
 
   rvp.priority = priority;

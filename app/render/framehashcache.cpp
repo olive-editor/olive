@@ -340,47 +340,6 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, const FramePtr fram
     QImage img(reinterpret_cast<const uchar*>(frame->data()), frame->width(), frame->height(), frame->linesize_bytes(), fmt);
 
     return img.save(filename, "jpg");
-
-
-    /*
-    qDebug() << "hello?" << filename;
-
-    // Integer types are stored in JPG
-    QString tmp = filename;
-    tmp.append(QStringLiteral(".jpg"));
-
-    std::string tmp_std = tmp.toStdString();
-    auto out = OIIO::ImageOutput::create(tmp_std);
-    if (!out) {
-      qDebug() << "fail create";
-      return false;
-    }
-
-    auto fmt = OIIOUtils::GetOIIOBaseTypeFromFormat(frame->format());
-    qDebug() << "writing" << fmt;
-    if (!out->open(tmp_std, OIIO::ImageSpec(frame->width(), frame->height(), frame->channel_count(), fmt))) {
-      qDebug() << "fail open";
-      return false;
-    }
-
-    bool ret = out->write_image(fmt, frame->data(), OIIO::AutoStride, frame->linesize_bytes());
-    out->close();
-
-    if (ret) {
-      QFile f(filename);
-      if (f.exists()) {
-        f.remove();
-      }
-      ret = QFile::rename(tmp, filename);
-      if (!ret) {
-        qDebug() << "fail rename from" << tmp << "to" << filename;
-      }
-    } else {
-      qDebug() << "fail write";
-    }
-
-    return ret;
-    */
   }
 }
 

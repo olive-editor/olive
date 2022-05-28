@@ -529,11 +529,20 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             painter->setClipRect(preview_rect);
             painter->setRenderHint(QPainter::SmoothPixmapTransform);
             for (int i=preview_rect.left(); i<preview_rect.right(); i+=thumb_rect.width()+1) {
-              rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in;
+              rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
               QString thumbnail = thumbs->GetValidCacheFilename(time_here);
 
               if (thumbnail.isEmpty()) {
-                break;
+                // Jump ahead to next frame, ensuring that frame width > 0 for optimization
+                if (thumb_rect.width() == 0 && clip->track() && clip->track()->sequence()) {
+                  Sequence *s = clip->track()->sequence();
+                  int width = s->GetVideoParams().width();
+                  int height = s->GetVideoParams().height();
+                  if (height > 0) { // Prevent divide by zero/invalid params
+                    double scale = double(preview_rect.height())/double(height);
+                    thumb_rect.setWidth(width * scale);
+                  }
+                }
               } else {
                 QImage img;
                 if (img.load(thumbnail, "jpg")) {

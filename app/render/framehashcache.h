@@ -65,9 +65,6 @@ public:
   FramePtr LoadCacheFrame(const int64_t &time) const;
   static FramePtr LoadCacheFrame(const QString& fn);
 
-signals:
-  void ThumbnailsUpdated();
-
 private:
   rational ToTime(const int64_t &ts) const;
   int64_t ToTimestamp(const rational &ts, Timecode::Rounding rounding = Timecode::kRound) const;

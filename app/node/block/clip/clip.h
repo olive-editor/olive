@@ -122,7 +122,7 @@ public:
   const FrameHashCache *thumbnails()
   {
     if (Node *n = GetConnectedOutput(kBufferIn)) {
-      return n->video_frame_cache();
+      return n->thumbnail_cache();
     } else {
       return nullptr;
     }
