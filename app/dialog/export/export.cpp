@@ -526,7 +526,7 @@ ExportParams ExportDialog::GenerateParams() const
   if (ExportCodec::IsCodecAStillImage(video_tab_->GetSelectedCodec()) && !video_tab_->IsImageSequenceSet()) {
     // Exporting as image without exporting image sequence, only export one frame
     rational export_time = video_tab_->GetStillImageTime();
-    params.set_custom_range(TimeRange(export_time, export_time));
+    params.set_custom_range(TimeRange(export_time, export_time + GetSelectedTimebase()));
   } else if (range_combobox_->currentIndex() == kRangeInToOut) {
     // Assume if this combobox is enabled, workarea is enabled - a check that we make in this dialog's constructor
     params.set_custom_range(viewer_node_->GetTimelinePoints()->workarea()->range());

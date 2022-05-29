@@ -545,7 +545,7 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  ViewerOutput *GetSequenceToExport();
+  bool GetSequenceToExport(ViewerOutput **viewer, rational *time);
 
   static QString GetAutoRecoveryIndexFilename();
 

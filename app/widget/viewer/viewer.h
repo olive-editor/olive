@@ -89,6 +89,11 @@ public:
 
   void StartCapture(TimelineWidget *source, const TimeRange &time, const Track::Reference &track);
 
+  void SetAudioScrubbingEnabled(bool e)
+  {
+    enable_audio_scrubbing_ = e;
+  }
+
 public slots:
   void Play(bool in_to_out_only);
 
@@ -275,6 +280,8 @@ private:
   QString recording_filename_;
 
   qint64 queue_starved_start_;
+
+  bool enable_audio_scrubbing_;
 
 private slots:
   void PlaybackTimerUpdate();
