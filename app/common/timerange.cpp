@@ -368,7 +368,7 @@ void TimeRangeListFrameIterator::UpdateIndexIfNecessary()
     range_index_++;
 
     if (range_index_ < list_.size()) {
-      current_ = Timecode::snap_time_to_timebase(list_.at(range_index_).in(), timebase_, Timecode::kRound);
+      current_ = Timecode::snap_time_to_timebase(list_.at(range_index_).in(), timebase_, Timecode::kCeil);
     }
   }
 }
