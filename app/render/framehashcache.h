@@ -65,6 +65,10 @@ public:
   FramePtr LoadCacheFrame(const int64_t &time) const;
   static FramePtr LoadCacheFrame(const QString& fn);
 
+protected:
+  virtual void LoadStateEvent(QDataStream &stream) override;
+  virtual void SaveStateEvent(QDataStream &stream) override;
+
 private:
   rational ToTime(const int64_t &ts) const;
   int64_t ToTimestamp(const rational &ts, Timecode::Rounding rounding = Timecode::kRound) const;

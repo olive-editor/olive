@@ -74,6 +74,9 @@ public:
     kPreviewsOnly
   };
 
+  void LoadState();
+  void SaveState();
+
 public slots:
   void InvalidateAll();
 
@@ -90,6 +93,10 @@ protected:
   void Validate(const TimeRange& r, bool signal = true);
 
   virtual void InvalidateEvent(const TimeRange& range);
+
+  virtual void LoadStateEvent(QDataStream &stream){}
+
+  virtual void SaveStateEvent(QDataStream &stream){}
 
   Project* GetProject() const;
 

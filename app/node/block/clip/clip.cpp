@@ -311,4 +311,23 @@ void ClipBlock::Retranslate()
   SetInputName(kMaintainAudioPitchInput, tr("Maintain Audio Pitch"));
 }
 
+void ClipBlock::ConnectedToPreviewEvent()
+{
+  Track::Type type = GetTrackType();
+
+  if (type == Track::kVideo || type == Track::kAudio) {
+    if (Node *connected = GetConnectedOutput(kBufferIn)) {
+      TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+      if (type == Track::kVideo) {
+        TimeRangeList invalid = connected->thumbnail_cache()->GetInvalidatedRanges(max_range);
+        for (const TimeRange &r : invalid) {
+          emit connected->thumbnail_cache()->Request(r, PlaybackCache::kPreviewsOnly);
+        }
+      } else if (type == Track::kAudio) {
+        //emit connected->audio_playback_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+      }
+    }
+  }
+}
+
 }

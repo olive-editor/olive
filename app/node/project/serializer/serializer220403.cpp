@@ -544,6 +544,18 @@ void ProjectSerializer220403::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
           reader->skipCurrentElement();
         }
       }
+    } else if (reader->name() == QStringLiteral("caches")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("audio")) {
+          node->audio_playback_cache()->SetUuid(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("video")) {
+          node->video_frame_cache()->SetUuid(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("thumb")) {
+          node->thumbnail_cache()->SetUuid(reader->readElementText());
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
     } else {
       reader->skipCurrentElement();
     }
@@ -598,6 +610,14 @@ void ProjectSerializer220403::SaveNode(Node *node, QXmlStreamWriter *writer) con
     writer->writeEndElement(); // hint
   }
   writer->writeEndElement();
+
+  writer->writeStartElement(QStringLiteral("caches"));
+
+  writer->writeTextElement(QStringLiteral("audio"), node->audio_playback_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("video"), node->video_frame_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("thumb"), node->thumbnail_cache()->GetUuid().toString());
+
+  writer->writeEndElement(); // caches
 
   writer->writeStartElement(QStringLiteral("custom"));
 

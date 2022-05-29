@@ -193,6 +193,32 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
   return frame;
 }
 
+void FrameHashCache::LoadStateEvent(QDataStream &stream)
+{
+  uint32_t version;
+  int num, den;
+
+  stream >> version;
+
+  switch (version) {
+  case 1:
+    stream >> num;
+    stream >> den;
+    timebase_ = rational(num, den);
+    break;
+  }
+}
+
+void FrameHashCache::SaveStateEvent(QDataStream &stream)
+{
+  uint32_t version = 1;
+
+  stream << version;
+
+  stream << timebase_.numerator();
+  stream << timebase_.denominator();
+}
+
 rational FrameHashCache::ToTime(const int64_t &ts) const
 {
   return Timecode::timestamp_to_time(ts, timebase_);

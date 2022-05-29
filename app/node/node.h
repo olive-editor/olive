@@ -991,6 +991,7 @@ public:
   void SetInputFlags(const QString &input, const InputFlags &f);
 
   virtual void LoadFinishedEvent(){}
+  virtual void ConnectedToPreviewEvent(){}
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 

@@ -158,6 +158,8 @@ public:
     return TimeRange(0, length());
   }
 
+  virtual void ConnectedToPreviewEvent() override;
+
   static const QString kBufferIn;
   static const QString kMediaInInput;
   static const QString kSpeedInput;

@@ -60,6 +60,77 @@ QDir PlaybackCache::GetThisCacheDirectory(const QString &cache_path, const QUuid
   return QDir(cache_path).filePath(cache_id.toString());
 }
 
+void PlaybackCache::LoadState()
+{
+  QDir cache_dir = GetThisCacheDirectory();
+  QFile f(cache_dir.filePath(QStringLiteral("state")));
+  if (f.open(QFile::ReadOnly)) {
+    QDataStream s(&f);
+
+    uint32_t version;
+    s >> version;
+
+    LoadStateEvent(s);
+
+    int count;
+    s >> count;
+
+    switch (version) {
+    case 1:
+      validated_.clear();
+
+      for (int i=0; i<count; i++) {
+        int in_num, in_den, out_num, out_den;
+
+        s >> in_num;
+        s >> in_den;
+        s >> out_num;
+        s >> out_den;
+
+        validated_.insert(TimeRange(rational(in_num, in_den), rational(out_num, out_den)));
+      }
+      break;
+    }
+
+    f.close();
+
+    f.close();
+  }
+}
+
+void PlaybackCache::SaveState()
+{
+  QDir cache_dir = GetThisCacheDirectory();
+  QFile f(cache_dir.filePath(QStringLiteral("state")));
+  if (validated_.isEmpty()) {
+    if (f.exists()) {
+      f.remove();
+    }
+  } else {
+    if (FileFunctions::DirectoryIsValid(cache_dir)) {
+      if (f.open(QFile::WriteOnly)) {
+        QDataStream s(&f);
+
+        uint32_t version = 1;
+        s << version;
+
+        SaveStateEvent(s);
+
+        s << validated_.size();
+
+        for (const TimeRange &r : validated_) {
+          s << r.in().numerator();
+          s << r.in().denominator();
+          s << r.out().numerator();
+          s << r.out().denominator();
+        }
+
+        f.close();
+      }
+    }
+  }
+}
+
 void PlaybackCache::InvalidateAll()
 {
   Invalidate(TimeRange(0, RATIONAL_MAX));

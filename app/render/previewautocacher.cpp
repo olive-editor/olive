@@ -345,6 +345,10 @@ void PreviewAutoCacher::ConnectToNodeCache(Node *node)
           this,
           &PreviewAutoCacher::AudioInvalidatedFromCache);
 
+  node->video_frame_cache()->LoadState();
+  node->audio_playback_cache()->LoadState();
+  node->thumbnail_cache()->LoadState();
+
   // Copy invalidated ranges and start rendering if necessary
   if (node->video_frame_cache()->IsAutomatic()) {
     VideoAutoCacheEnableChangedFromNode(node, true);
@@ -381,6 +385,10 @@ void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
              &PlaybackCache::Request,
              this,
              &PreviewAutoCacher::AudioInvalidatedFromCache);
+
+  node->video_frame_cache()->SaveState();
+  node->audio_playback_cache()->SaveState();
+  node->thumbnail_cache()->SaveState();
 
   if (node->video_frame_cache()->IsAutomatic()) {
     VideoAutoCacheEnableChangedFromNode(node, false);
@@ -840,6 +848,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     }
     for (int i=copied_project_.nodes().size(); i<graph->nodes().size(); i++) {
       AddNode(graph->nodes().at(i));
+    }
+    for (int i=0; i<graph->nodes().size(); i++) {
+      graph->nodes().at(i)->ConnectedToPreviewEvent();
     }
 
     // Find copied viewer node

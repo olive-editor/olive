@@ -837,7 +837,7 @@ void ViewerWidget::PushScrubbedAudio()
 {
   if (!IsPlaying() && GetConnectedNode() && OLIVE_CONFIG("AudioScrubbing").toBool() && enable_audio_scrubbing_) {
     // Get audio src device from renderer
-    const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
+    const AudioParams& params = GetConnectedNode()->GetAudioParams();
 
     if (params.is_valid()) {
       // NOTE: Hardcoded scrubbing interval (20ms)
