@@ -990,6 +990,8 @@ public:
   InputFlags GetInputFlags(const QString& input) const;
   void SetInputFlags(const QString &input, const InputFlags &f);
 
+  virtual void LoadFinishedEvent(){}
+
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
   static std::list<Node*> FindPath(Node *from, Node *to, int path_index = 0);

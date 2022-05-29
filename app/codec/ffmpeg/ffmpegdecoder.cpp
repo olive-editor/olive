@@ -271,7 +271,6 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicIn
                                                  frame);
 
                 compatible_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream->codecpar->format));
-                qDebug() << "GOT IT FROM FRAME" << compatible_pix_fmt;
               }
 
               // Read second frame
@@ -654,7 +653,7 @@ void FFmpegDecoder::ClearFrameCache()
 
 AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *cancelled)
 {
-  int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time, filter_params_.src_interlacing);
+  int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
 
   const int64_t min_seek = -instance_.avstream()->start_time;
   int64_t seek_ts = target_ts;
@@ -843,19 +842,6 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
   // Link filters as necessary
   AVFilterContext *last_filter = buffersrc_ctx_;
 
-  // Add interlacing filter if necessary
-  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone) {
-    // Footage is interlaced, our renderer works in progressive so we'll need to de-interlace
-    AVFilterContext* interlace_filter;
-
-    snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
-             GetInterlacingModeInFFmpeg(filter_params_.src_interlacing));
-    avfilter_graph_create_filter(&interlace_filter, avfilter_get_by_name("yadif"), "yadif", filter_args, nullptr, filter_graph_);
-
-    avfilter_link(last_filter, 0, interlace_filter, 0);
-    last_filter = interlace_filter;
-  }
-
   // Add scale filter if necessary
   int dst_width, dst_height;
   if (filter_params_.divider > 1) {
@@ -864,10 +850,9 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
     dst_width = VideoParams::GetScaledDimension(src_width, filter_params_.divider);
     dst_height = VideoParams::GetScaledDimension(src_height, filter_params_.divider);
 
-    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=%d",
+    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=-1",
              dst_width,
-             dst_height,
-             params.dst_interlacing != VideoParams::kInterlaceNone);
+             dst_height);
 
     avfilter_graph_create_filter(&scale_filter, avfilter_get_by_name("scale"), "scale", filter_args, nullptr, filter_graph_);
 

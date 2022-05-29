@@ -68,7 +68,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   prequeuing_video_(false),
   prequeuing_audio_(0),
   record_armed_(false),
-  recording_(false)
+  recording_(false),
+  enable_audio_scrubbing_(true)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -834,7 +835,7 @@ void ViewerWidget::PauseInternal()
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  if (!IsPlaying() && GetConnectedNode() && OLIVE_CONFIG("AudioScrubbing").toBool()) {
+  if (!IsPlaying() && GetConnectedNode() && OLIVE_CONFIG("AudioScrubbing").toBool() && enable_audio_scrubbing_) {
     // Get audio src device from renderer
     const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 

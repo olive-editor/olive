@@ -106,6 +106,29 @@ void SequenceDialog::accept()
     return;
   }
 
+  if (!VideoParams::FormatIsFloat(parameter_tab_->GetSelectedPreviewFormat())
+      && !OLIVE_CONFIG("PreviewNonFloatDontAskAgain").toBool()) {
+    QMessageBox b(this);
+    QCheckBox *dont_show_again_ = new QCheckBox(tr("Don't ask me again"));
+
+    b.setIcon(QMessageBox::Warning);
+    b.setWindowTitle(tr("Low Quality Preview"));
+    b.setText(tr("The preview resolution has been set to a non-float format. This may cause banding and clipping artifacts in the preview.\n\n"
+                 "Do you wish to continue?"));
+    b.setCheckBox(dont_show_again_);
+
+    b.addButton(QMessageBox::Yes);
+    b.addButton(QMessageBox::No);
+
+    if (b.exec() == QMessageBox::No) {
+      return;
+    }
+
+    if (dont_show_again_->isChecked()) {
+      OLIVE_CONFIG("PreviewNonFloatDontAskAgain") = true;
+    }
+  }
+
   // Generate video and audio parameter structs from data
   VideoParams video_params = VideoParams(parameter_tab_->GetSelectedVideoWidth(),
                                          parameter_tab_->GetSelectedVideoHeight(),

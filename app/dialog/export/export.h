@@ -46,6 +46,14 @@ public:
 
   rational GetSelectedTimebase() const;
 
+  void SetTime(const rational &time)
+  {
+    preview_viewer_->SetAudioScrubbingEnabled(false);
+    preview_viewer_->SetTime(time);
+    video_tab_->SetTime(time);
+    preview_viewer_->SetAudioScrubbingEnabled(true);
+  }
+
 protected:
   virtual void closeEvent(QCloseEvent *e) override;
 

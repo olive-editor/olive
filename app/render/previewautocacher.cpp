@@ -783,12 +783,14 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     if (!video_tasks_.isEmpty()) {
       // Cancel any video tasks and wait for them to finish
       CancelVideoTasks(true);
+      video_tasks_.clear();
     }
 
     // Handle audio rendering tasks
     if (!audio_tasks_.isEmpty()) {
       // Cancel any audio tasks and wait for them to finish
       CancelAudioTasks(true);
+      audio_tasks_.clear();
     }
 
     // Clear any single frame render that might be queued
