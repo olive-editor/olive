@@ -54,7 +54,7 @@ Node::Node() :
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
 
   video_cache_ = new FrameHashCache(this);
-  thumbnail_cache_ = new FrameHashCache(this);
+  thumbnail_cache_ = new ThumbnailCache(this);
   audio_cache_ = new AudioPlaybackCache(this);
   waveform_cache_ = new AudioWaveformCache(this);
 }

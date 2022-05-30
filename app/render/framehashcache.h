@@ -91,6 +91,16 @@ private slots:
 
 };
 
+class ThumbnailCache : public FrameHashCache
+{
+  Q_OBJECT
+public:
+  ThumbnailCache(QObject* parent = nullptr) :
+    FrameHashCache(parent)
+  {
+  }
+};
+
 }
 
 #endif // VIDEORENDERFRAMECACHE_H

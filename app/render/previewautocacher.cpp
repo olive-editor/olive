@@ -80,28 +80,44 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, RenderTicke
 
 RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, RenderTicketPriority priority)
 {
-  return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, PlaybackCache::kCacheOnly, priority, nullptr);
+  return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, priority, nullptr);
 }
 
 void PreviewAutoCacher::VideoInvalidatedFromCache(const TimeRange &range)
 {
-  FrameHashCache *cache = static_cast<FrameHashCache*>(sender());
+  PlaybackCache *cache = static_cast<PlaybackCache*>(sender());
 
-  VideoInvalidatedFromNode(cache->parent(), range, PlaybackCache::kCacheOnly);
+  VideoInvalidatedFromNode(cache, range);
 }
 
-void PreviewAutoCacher::ThumbnailsInvalidatedFromCache(const TimeRange &range)
+void PreviewAutoCacher::AudioInvalidatedFromCache(const TimeRange &range)
 {
-  FrameHashCache *cache = static_cast<FrameHashCache*>(sender());
+  PlaybackCache *cache = static_cast<PlaybackCache*>(sender());
 
-  VideoInvalidatedFromNode(cache->parent(), range, PlaybackCache::kPreviewsOnly);
+  AudioInvalidatedFromNode(cache, range);
 }
 
-void PreviewAutoCacher::AudioInvalidatedFromCache(const TimeRange &range, PlaybackCache::RequestType type)
+void PreviewAutoCacher::CancelForCache()
 {
-  AudioPlaybackCache *cache = static_cast<AudioPlaybackCache*>(sender());
+  PlaybackCache *cache = static_cast<PlaybackCache*>(sender());
 
-  AudioInvalidatedFromNode(cache->parent(), range, type);
+  if (dynamic_cast<FrameHashCache*>(cache) || dynamic_cast<ThumbnailCache*>(cache)) {
+    for (auto it=pending_video_jobs_.begin(); it!=pending_video_jobs_.end(); ) {
+      if ((*it).cache == cache) {
+        it = pending_video_jobs_.erase(it);
+      } else {
+        it++;
+      }
+    }
+  } else if (dynamic_cast<AudioPlaybackCache*>(cache) || dynamic_cast<AudioWaveformCache*>(cache)) {
+    for (auto it=pending_audio_jobs_.begin(); it!=pending_audio_jobs_.end(); ) {
+      if ((*it).cache == cache) {
+        it = pending_audio_jobs_.erase(it);
+      } else {
+        it++;
+      }
+    }
+  }
 }
 
 void PreviewAutoCacher::AudioRendered()
@@ -111,46 +127,45 @@ void PreviewAutoCacher::AudioRendered()
 
   // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
   // viewer switch, so we'll completely ignore this watcher
-  if (audio_tasks_.contains(watcher)) {
+  if (running_audio_tasks_.removeOne(watcher)) {
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
-    TimeRange range = audio_tasks_.take(watcher);
+    TimeRange range = watcher->property("time").value<TimeRange>();
     Node *node = copy_map_.key(Node::ValueToPtr<Node>(watcher->property("node")));
 
     if (watcher->HasResult() && node) {
-      AudioCacheData &d = audio_cache_data_[node];
+      if (PlaybackCache *cache = Node::ValueToPtr<PlaybackCache>(watcher->property("cache"))) {
+        AudioCacheData &d = audio_cache_data_[cache];
 
-      JobTime watcher_job_time = watcher->property("job").value<JobTime>();
+        JobTime watcher_job_time = watcher->property("job").value<JobTime>();
 
-      TimeRangeList valid_ranges = d.job_tracker.getCurrentSubRanges(range, watcher_job_time);
+        TimeRangeList valid_ranges = d.job_tracker.getCurrentSubRanges(range, watcher_job_time);
 
-      AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
+        AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
 
-      SampleBuffer buf = watcher->Get().value<SampleBuffer>();
-      node->audio_playback_cache()->SetParameters(buf.audio_params());
-      node->waveform_cache()->SetParameters(buf.audio_params());
+        SampleBuffer buf = watcher->Get().value<SampleBuffer>();
+        node->audio_playback_cache()->SetParameters(buf.audio_params());
+        node->waveform_cache()->SetParameters(buf.audio_params());
 
-      PlaybackCache::RequestType type = PlaybackCache::RequestType(watcher->property("type").toInt());
+        bool incomplete = watcher->GetTicket()->property("incomplete").toBool();
 
-      if (type == PlaybackCache::kCacheOnly) {
-        // WritePCM is tolerant to its buffer being null, it will just write silence instead
-        if (AudioPlaybackCache *cache = Node::ValueToPtr<AudioPlaybackCache>(watcher->property("cache"))) {
-          cache->WritePCM(range,
-                          valid_ranges,
-                          watcher->Get().value<SampleBuffer>());
+        if (AudioPlaybackCache *pcm = dynamic_cast<AudioPlaybackCache*>(cache)) {
+          // WritePCM is tolerant to its buffer being null, it will just write silence instead
+          pcm->WritePCM(range,
+                        valid_ranges,
+                        watcher->Get().value<SampleBuffer>());
+        } else if (AudioWaveformCache *wave = dynamic_cast<AudioWaveformCache*>(cache)) {
+          if (!incomplete) {
+            wave->WriteWaveform(range, valid_ranges, &waveform);
+          }
         }
-      } else {
-        // Detect if this audio was incomplete because it was waiting on a conform to finish
-        if (watcher->GetTicket()->property("incomplete").toBool()) {
+
+        if (incomplete) {
           if (last_conform_task_ > watcher_job_time) {
             // Requeue now
-            node->audio_playback_cache()->Invalidate(range);
+            cache->Invalidate(range);
           } else {
             // Wait for conform
-            d.needing_conform.insert(range);
-          }
-        } else {
-          if (AudioWaveformCache *cache = Node::ValueToPtr<AudioWaveformCache>(watcher->property("cache"))) {
-            cache->WriteWaveform(range, valid_ranges, &waveform);
+            d.needs_conform.insert(range);
           }
         }
       }
@@ -169,19 +184,15 @@ void PreviewAutoCacher::VideoRendered()
 
   // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
   // viewer switch, so we'll completely ignore this watcher
-  auto it = video_tasks_.find(watcher);
-
-  if (it != video_tasks_.end()) {
+  if (running_video_tasks_.removeOne(watcher)) {
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
     if (watcher->HasResult()) {
       if (watcher->GetTicket()->property("cached").toBool()) {
         if (FrameHashCache *cache = Node::ValueToPtr<FrameHashCache>(watcher->property("cache"))) {
-          cache->ValidateTime(it.value());
+          cache->ValidateTime(watcher->property("time").value<rational>());
         }
       }
     }
-
-    video_tasks_.erase(it);
 
     // Continue rendering
     TryRender();
@@ -333,7 +344,7 @@ void PreviewAutoCacher::ConnectToNodeCache(Node *node)
   connect(node->thumbnail_cache(),
           &PlaybackCache::Request,
           this,
-          &PreviewAutoCacher::ThumbnailsInvalidatedFromCache);
+          &PreviewAutoCacher::VideoInvalidatedFromCache);
 
   connect(node->audio_playback_cache(),
           &PlaybackCache::Request,
@@ -344,6 +355,16 @@ void PreviewAutoCacher::ConnectToNodeCache(Node *node)
           &PlaybackCache::Request,
           this,
           &PreviewAutoCacher::AudioInvalidatedFromCache);
+
+  connect(node->video_frame_cache(),
+          &PlaybackCache::CancelAll,
+          this,
+          &PreviewAutoCacher::CancelForCache);
+
+  connect(node->audio_playback_cache(),
+          &PlaybackCache::CancelAll,
+          this,
+          &PreviewAutoCacher::CancelForCache);
 
   node->video_frame_cache()->LoadState();
   node->audio_playback_cache()->LoadState();
@@ -360,7 +381,7 @@ void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
   disconnect(node->thumbnail_cache(),
              &PlaybackCache::Request,
              this,
-             &PreviewAutoCacher::ThumbnailsInvalidatedFromCache);
+             &PreviewAutoCacher::VideoInvalidatedFromCache);
 
   disconnect(node->audio_playback_cache(),
              &PlaybackCache::Request,
@@ -371,6 +392,16 @@ void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
              &PlaybackCache::Request,
              this,
              &PreviewAutoCacher::AudioInvalidatedFromCache);
+
+  disconnect(node->video_frame_cache(),
+             &PlaybackCache::CancelAll,
+             this,
+             &PreviewAutoCacher::CancelForCache);
+
+  disconnect(node->audio_playback_cache(),
+             &PlaybackCache::CancelAll,
+             this,
+             &PreviewAutoCacher::CancelForCache);
 
   node->video_frame_cache()->SaveState();
   node->audio_playback_cache()->SaveState();
@@ -396,41 +427,29 @@ void PreviewAutoCacher::CancelQueuedSingleFrameRender()
   }
 }
 
-void PreviewAutoCacher::VideoInvalidatedList(Node *node, const TimeRangeList &list)
-{
-  foreach (const TimeRange &range, list) {
-    VideoInvalidatedFromNode(node, range, PlaybackCache::kCacheOnly);
-  }
-}
-
-void PreviewAutoCacher::AudioInvalidatedList(Node *node, const TimeRangeList &list)
-{
-  foreach (const TimeRange &range, list) {
-    AudioInvalidatedFromNode(node, range, PlaybackCache::kCacheOnly);
-  }
-}
-
 void PreviewAutoCacher::StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker)
 {
   range_list->insert(range);
   tracker->insert(range, graph_changed_time_);
 }
 
-void PreviewAutoCacher::StartCachingVideoRange(Node *node, const TimeRange &range, PlaybackCache::RequestType type)
+void PreviewAutoCacher::StartCachingVideoRange(PlaybackCache *cache, const TimeRange &range)
 {
-  pending_video_jobs_.push_back({node, range, TimeRangeListFrameIterator({range}, viewer_node_->GetVideoParams().frame_rate_as_time_base()), type});
-  video_cache_data_[node].job_tracker.insert(range, graph_changed_time_);
+  Node *node = cache->parent();
+  pending_video_jobs_.push_back({node, cache, range, TimeRangeListFrameIterator({range}, viewer_node_->GetVideoParams().frame_rate_as_time_base())});
+  video_cache_data_[cache].job_tracker.insert(range, graph_changed_time_);
   TryRender();
 }
 
-void PreviewAutoCacher::StartCachingAudioRange(Node *node, const TimeRange &range, PlaybackCache::RequestType type)
+void PreviewAutoCacher::StartCachingAudioRange(PlaybackCache *cache, const TimeRange &range)
 {
-  pending_audio_jobs_.push_back({node, range, type});
-  audio_cache_data_[node].job_tracker.insert(range, graph_changed_time_);
+  Node *node = cache->parent();
+  pending_audio_jobs_.push_back({node, cache, range});
+  audio_cache_data_[cache].job_tracker.insert(range, graph_changed_time_);
   TryRender();
 }
 
-void PreviewAutoCacher::VideoInvalidatedFromNode(Node *node, const TimeRange &range, PlaybackCache::RequestType type)
+void PreviewAutoCacher::VideoInvalidatedFromNode(PlaybackCache *cache, const TimeRange &range)
 {
   // Stop any current render tasks because a) they might be out of date now anyway, and b) we
   // want to dedicate all our rendering power to realtime feedback for the user
@@ -438,18 +457,18 @@ void PreviewAutoCacher::VideoInvalidatedFromNode(Node *node, const TimeRange &ra
 
   // If auto-cache is enabled and a slider is not being dragged, queue up to hash these frames
   if (!NodeInputDragger::IsInputBeingDragged()) {
-    StartCachingVideoRange(node, range, type);
+    StartCachingVideoRange(cache, range);
   }
 }
 
-void PreviewAutoCacher::AudioInvalidatedFromNode(Node *node, const TimeRange &range, PlaybackCache::RequestType type)
+void PreviewAutoCacher::AudioInvalidatedFromNode(PlaybackCache *cache, const TimeRange &range)
 {
   // We don't stop rendering audio because currently there's no system of requeuing audio if it's
   // cancelled, so some areas may end up unrendered forever
   //  ClearAudioQueue();
 
   // If we're auto-caching audio or require realtime waveforms, we'll have to render this
-  StartCachingAudioRange(node, range, type);
+  StartCachingAudioRange(cache, range);
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -465,25 +484,25 @@ void CancelTasks(const T &task_list, bool and_wait)
 {
   for (auto it=task_list.cbegin(); it!=task_list.cend(); it++) {
     // Signal that the ticket should not be finished
-    it.key()->Cancel();
+    (*it)->Cancel();
   }
 
   if (and_wait) {
     // Wait for each ticket to finish
     for (auto it=task_list.cbegin(); it!=task_list.cend(); it++) {
-      it.key()->WaitForFinished();
+      (*it)->WaitForFinished();
     }
   }
 }
 
 void PreviewAutoCacher::CancelVideoTasks(bool and_wait_for_them_to_finish)
 {
-  CancelTasks(video_tasks_, and_wait_for_them_to_finish);
+  CancelTasks(running_video_tasks_, and_wait_for_them_to_finish);
 }
 
 void PreviewAutoCacher::CancelAudioTasks(bool and_wait_for_them_to_finish)
 {
-  CancelTasks(audio_tasks_, and_wait_for_them_to_finish);
+  CancelTasks(running_audio_tasks_, and_wait_for_them_to_finish);
 }
 
 bool PreviewAutoCacher::IsRenderingCustomRange() const
@@ -545,8 +564,8 @@ void PreviewAutoCacher::TryRender()
     // Check if we have jobs running in other threads that shouldn't be interrupted right now
     // NOTE: We don't check for downloads because, while they run in another thread, they don't
     //       require any access to the graph and therefore don't risk race conditions.
-    if (!audio_tasks_.isEmpty()
-        || !video_tasks_.isEmpty()) {
+    if (!running_audio_tasks_.isEmpty()
+        || !running_video_tasks_.isEmpty()) {
       return;
     }
 
@@ -558,7 +577,6 @@ void PreviewAutoCacher::TryRender()
     // Check if already caching this
     RenderTicketWatcher *watcher = RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(),
                                                single_frame_render_->property("time").value<rational>(),
-                                               PlaybackCache::kCacheOnly,
                                                RenderTicketPriority(single_frame_render_->property("priority").toInt()),
                                                nullptr);
     video_immediate_passthroughs_[watcher].append(single_frame_render_);
@@ -577,22 +595,8 @@ void PreviewAutoCacher::TryRender()
       if (Node *copy = copy_map_.value(d.node)) {
         // Queue next frames
         rational t;
-        while (video_tasks_.size() < max_tasks && d.iterator.GetNext(&t)) {
-          RenderTicketWatcher* render_task = video_tasks_.key(t);
-
-          // We want this hash, if we're not already rendering, start render now
-          if (!render_task) {
-            // Don't render any hash more than once
-            FrameHashCache *using_cache;
-
-            if (d.type == PlaybackCache::kCacheOnly) {
-              using_cache = d.node->video_frame_cache();
-            } else {
-              using_cache = d.node->thumbnail_cache();
-            }
-
-            RenderFrame(copy, t, d.type, RenderTicketPriority::kNormal, using_cache);
-          }
+        while (running_video_tasks_.size() < max_tasks && d.iterator.GetNext(&t)) {
+          RenderFrame(copy, t, RenderTicketPriority::kNormal, d.cache);
 
           emit SignalCacheProxyTaskProgress(double(d.iterator.frame_index()) / double(d.iterator.size()));
 
@@ -617,13 +621,7 @@ void PreviewAutoCacher::TryRender()
 
       // Start job
       if (Node *copy = copy_map_.value(d.node)) {
-        PlaybackCache *cache;
-        if (d.type == PlaybackCache::kPreviewsOnly) {
-          cache = d.node->waveform_cache();
-        } else {
-          cache = d.node->audio_playback_cache();
-        }
-        RenderAudio(copy, d.range, d.type, RenderTicketPriority::kNormal, cache);
+        RenderAudio(copy, d.range, RenderTicketPriority::kNormal, d.cache);
       } else {
         qCritical() << "Failed to find node copy for audio job";
       }
@@ -633,14 +631,14 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, PlaybackCache::RequestType type, RenderTicketPriority priority, FrameHashCache *cache)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, RenderTicketPriority priority, PlaybackCache *cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   watcher->setProperty("cache", Node::PtrToValue(cache));
-  watcher->setProperty("type", type);
+  watcher->setProperty("time", QVariant::fromValue(time));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
-  video_tasks_.insert(watcher, time);
+  running_video_tasks_.append(watcher);
 
   RenderManager::RenderVideoParams rvp(node,
                                        copied_viewer_node_->GetVideoParams(),
@@ -648,18 +646,18 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
                                        time,
                                        copied_color_manager_);
 
-  if (cache) {
-    if (type == PlaybackCache::kPreviewsOnly) {
+  if (FrameHashCache *frame_cache = dynamic_cast<FrameHashCache *>(cache)) {
+    if (ThumbnailCache *wave_cache = dynamic_cast<ThumbnailCache *>(cache)) {
       rvp.video_params.set_divider(VideoParams::GetDividerForTargetResolution(rvp.video_params.width(), rvp.video_params.height(), 160, 120));
       rvp.force_color_output = display_color_processor_;
       rvp.force_format = VideoParams::kFormatUnsigned8;
 
-      cache->SetTimebase(rational(1, 10));
+      wave_cache->SetTimebase(rational(1, 10));
     } else {
-      cache->SetTimebase(viewer_node_->GetVideoParams().frame_rate_as_time_base());
+      frame_cache->SetTimebase(viewer_node_->GetVideoParams().frame_rate_as_time_base());
     }
 
-    rvp.AddCache(cache);
+    rvp.AddCache(frame_cache);
   }
 
   rvp.priority = priority;
@@ -671,21 +669,21 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
   return watcher;
 }
 
-RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, PlaybackCache::RequestType type, RenderTicketPriority priority, PlaybackCache *cache)
+RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, RenderTicketPriority priority, PlaybackCache *cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   watcher->setProperty("node", Node::PtrToValue(node));
-  watcher->setProperty("type", type);
   watcher->setProperty("cache", Node::PtrToValue(cache));
+  watcher->setProperty("time", QVariant::fromValue(r));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
-  audio_tasks_.insert(watcher, r);
+  running_audio_tasks_.append(watcher);
 
   RenderManager::RenderAudioParams rap(node,
                                        r,
                                        copied_viewer_node_->GetAudioParams());
 
-  rap.generate_waveforms = (type == PlaybackCache::kPreviewsOnly);
+  rap.generate_waveforms = dynamic_cast<AudioWaveformCache*>(cache);
   rap.priority = priority;
   rap.clamp = false;
 
@@ -700,15 +698,10 @@ void PreviewAutoCacher::ConformFinished()
   last_conform_task_.Acquire();
 
   for (auto it=audio_cache_data_.begin(); it!=audio_cache_data_.end(); it++) {
-    AudioCacheData &d = it.value();
-
-    if (!d.needing_conform.isEmpty()) {
-      // This list should be empty if there was a viewer switch
-      foreach (const TimeRange &range, d.needing_conform) {
-        it.key()->audio_playback_cache()->Invalidate(range);
-      }
-      d.needing_conform.clear();
+    foreach (const TimeRange &range, it.value().needs_conform) {
+      it.key()->Request(range);
     }
+    it.value().needs_conform.clear();
   }
 }
 
@@ -725,7 +718,7 @@ void PreviewAutoCacher::ForceCacheRange(const TimeRange &range)
   custom_autocache_range_ = range;
 
   // Re-hash these frames and start rendering
-  StartCachingVideoRange(viewer_node_, range, PlaybackCache::kCacheOnly);
+  StartCachingVideoRange(viewer_node_->video_frame_cache(), range);
 }
 
 void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
@@ -742,17 +735,17 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     delayed_requeue_timer_.stop();
 
     // Handle video rendering tasks
-    if (!video_tasks_.isEmpty()) {
+    if (!running_video_tasks_.isEmpty()) {
       // Cancel any video tasks and wait for them to finish
       CancelVideoTasks(true);
-      video_tasks_.clear();
+      running_video_tasks_.clear();
     }
 
     // Handle audio rendering tasks
-    if (!audio_tasks_.isEmpty()) {
+    if (!running_audio_tasks_.isEmpty()) {
       // Cancel any audio tasks and wait for them to finish
       CancelAudioTasks(true);
-      audio_tasks_.clear();
+      running_audio_tasks_.clear();
     }
 
     // Clear any single frame render that might be queued

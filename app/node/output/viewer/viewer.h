@@ -184,6 +184,9 @@ public:
 
   virtual void ConnectedToPreviewEvent() override;
 
+  bool IsVideoAutoCacheEnabled() const { qDebug() << "sequence ac is a stub"; return false; }
+  void SetVideoAutoCacheEnabled(bool e) { qDebug() << "sequence ac is a stub"; }
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;

@@ -159,7 +159,7 @@ void SequenceDialog::accept()
     sequence_->SetVideoParams(video_params);
     sequence_->SetAudioParams(audio_params);
     sequence_->SetLabel(name_field_->text());
-    sequence_->video_frame_cache()->SetIsAutomatic(parameter_tab_->GetSelectedPreviewAutoCache());
+    sequence_->SetVideoAutoCacheEnabled(parameter_tab_->GetSelectedPreviewAutoCache());
   }
 
   QDialog::accept();
@@ -193,7 +193,7 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
   old_video_params_(s->GetVideoParams()),
   old_audio_params_(s->GetAudioParams()),
   old_name_(s->GetLabel()),
-  old_autocache_(s->video_frame_cache()->IsAutomatic())
+  old_autocache_(s->IsVideoAutoCacheEnabled())
 {
 }
 
@@ -211,7 +211,7 @@ void SequenceDialog::SequenceParamCommand::redo()
     sequence_->SetAudioParams(new_audio_params_);
   }
   sequence_->SetLabel(new_name_);
-  sequence_->video_frame_cache()->SetIsAutomatic(new_autocache_);
+  sequence_->SetVideoAutoCacheEnabled(new_autocache_);
 }
 
 void SequenceDialog::SequenceParamCommand::undo()
@@ -223,7 +223,7 @@ void SequenceDialog::SequenceParamCommand::undo()
     sequence_->SetAudioParams(old_audio_params_);
   }
   sequence_->SetLabel(old_name_);
-  sequence_->video_frame_cache()->SetIsAutomatic(old_autocache_);
+  sequence_->SetVideoAutoCacheEnabled(old_autocache_);
 }
 
 }

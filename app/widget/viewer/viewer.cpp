@@ -449,11 +449,6 @@ void ViewerWidget::UpdateAutoCacher()
   auto_cacher_->SetPlayhead(GetTime());
 }
 
-void ViewerWidget::ClearVideoAutoCacherQueue()
-{
-  auto_cacher_->CancelVideoTasks();
-}
-
 void ViewerWidget::DecrementPrequeuedAudio()
 {
   prequeuing_audio_--;
@@ -656,7 +651,7 @@ void ViewerWidget::QueueNoLongerStarved()
 
 void ViewerWidget::ForceRequeueFromCurrentTime()
 {
-  ClearVideoAutoCacherQueue();
+  //ClearVideoAutoCacherQueue();
   int queue = DeterminePlaybackQueueSize();
   playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
   for (int i=queue_watchers_.size(); i<queue; i++) {

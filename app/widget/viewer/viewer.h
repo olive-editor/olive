@@ -213,8 +213,6 @@ private:
 
   void UpdateAutoCacher();
 
-  void ClearVideoAutoCacherQueue();
-
   void DecrementPrequeuedAudio();
 
   void ArmForRecording();

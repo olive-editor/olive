@@ -39,10 +39,6 @@ void PlaybackCache::Invalidate(const TimeRange &r)
   InvalidateEvent(r);
 
   emit Invalidated(r);
-
-  if (automatic_) {
-    emit Request(r, kCacheOnly);
-  }
 }
 
 Node *PlaybackCache::parent() const
@@ -155,19 +151,9 @@ Project *PlaybackCache::GetProject() const
 }
 
 PlaybackCache::PlaybackCache(QObject *parent) :
-  QObject(parent),
-  automatic_(false)
+  QObject(parent)
 {
   uuid_ = QUuid::createUuid();
-}
-
-void PlaybackCache::SetIsAutomatic(bool e)
-{
-  if (automatic_ != e) {
-    automatic_ = e;
-
-    emit AutomaticChanged(automatic_);
-  }
 }
 
 TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting)

@@ -178,12 +178,16 @@ protected:
 
   virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
 
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
+
 private:
   rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false, bool ignore_speed = false) const;
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
-  void RequestInvalidatedFromConnected();
+  void RequestInvalidatedFromConnected(const TimeRange &range = TimeRange());
+
+  void RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range);
 
   QVector<Block*> block_links_;
 

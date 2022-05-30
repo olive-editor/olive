@@ -43,9 +43,6 @@ public:
   const QUuid &GetUuid() const { return uuid_; }
   void SetUuid(const QUuid &u) { uuid_ = u; }
 
-  bool IsAutomatic() const { return automatic_; }
-  void SetIsAutomatic(bool e);
-
   TimeRangeList GetInvalidatedRanges(TimeRange intersecting);
   TimeRangeList GetInvalidatedRanges(const rational &length)
   {
@@ -69,11 +66,6 @@ public:
   QDir GetThisCacheDirectory() const;
   static QDir GetThisCacheDirectory(const QString &cache_path, const QUuid &cache_id);
 
-  enum RequestType {
-    kCacheOnly,
-    kPreviewsOnly
-  };
-
   void LoadState();
   void SaveState();
 
@@ -85,9 +77,9 @@ signals:
 
   void Validated(const olive::TimeRange& r);
 
-  void Request(const olive::TimeRange& r, olive::PlaybackCache::RequestType type);
+  void Request(const olive::TimeRange& r);
 
-  void AutomaticChanged(bool e);
+  void CancelAll();
 
 protected:
   void Validate(const TimeRange& r, bool signal = true);
@@ -104,8 +96,6 @@ private:
   TimeRangeList validated_;
 
   QUuid uuid_;
-
-  bool automatic_;
 
 };
 
