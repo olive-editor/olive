@@ -860,8 +860,12 @@ const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c, AudioParams::Form
     return avcodec_find_encoder(AV_CODEC_ID_HEVC);
   case ExportCodec::kCodecVP9:
     return avcodec_find_encoder(AV_CODEC_ID_VP9);
-  case ExportCodec::kCodecAV1:
-    return avcodec_find_encoder_by_name("libsvtav1");
+  case ExportCodec::kCodecAV1: {
+    const AVCodec *encoder = avcodec_find_encoder_by_name("libsvtav1");
+    if(!encoder)
+      encoder = avcodec_find_encoder(AV_CODEC_ID_AV1);
+    return encoder;
+  }
   case ExportCodec::kCodecOpenEXR:
     return avcodec_find_encoder(AV_CODEC_ID_EXR);
   case ExportCodec::kCodecPNG:
