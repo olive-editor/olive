@@ -47,6 +47,7 @@ extern "C" {
 #include "common/timecodefunctions.h"
 #include "render/framehashcache.h"
 #include "render/diskmanager.h"
+#include "render/renderer.h"
 #include "render/subtitleparams.h"
 
 namespace olive {
@@ -138,18 +139,18 @@ bool FFmpegDecoder::OpenInternal()
   return output_frame;
 }*/
 
-bool FFmpegDecoder::RetrieveVideoInternal(TexturePtr destination, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
+TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
   if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
     if (InitScaler(f.get(), params)) {
       int r;
       r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
       if (r < 0) {
-        return false;
+        return nullptr;
       }
       r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
       if (r < 0) {
-        return false;
+        return nullptr;
       }
 
       VideoParams vp(instance_.avstream()->codecpar->width,
@@ -160,14 +161,15 @@ bool FFmpegDecoder::RetrieveVideoInternal(TexturePtr destination, const rational
                      VideoParams::kInterlaceNone,
                      params.divider);
 
-      destination->Upload(working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
+      TexturePtr tex = renderer->CreateTexture(vp, working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
 
       av_frame_unref(working_frame_);
-      return true;
+
+      return tex;
     }
   }
 
-  return false;
+  return nullptr;
 }
 
 void FFmpegDecoder::CloseInternal()
@@ -798,7 +800,7 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
   }
 
   // Get an Olive compatible AVPixelFormat
-  AVPixelFormat ideal_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(input_fmt_));
+  AVPixelFormat ideal_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(input_fmt_), params.maximum_format);
 
   // Determine which Olive native pixel format we retrieved
   // Note that FFmpeg doesn't support float formats

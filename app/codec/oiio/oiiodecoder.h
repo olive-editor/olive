@@ -44,7 +44,7 @@ public:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
+  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
   virtual void CloseInternal() override;
 
 private:
