@@ -433,6 +433,8 @@ private slots:
 
   void TrackAboutToBeDeleted(Track *track);
 
+  void SetSelectedClipsAutocaching(bool e);
+
 };
 
 }

@@ -34,12 +34,12 @@ const QString ClipBlock::kMediaInInput = QStringLiteral("media_in_in");
 const QString ClipBlock::kSpeedInput = QStringLiteral("speed_in");
 const QString ClipBlock::kReverseInput = QStringLiteral("reverse_in");
 const QString ClipBlock::kMaintainAudioPitchInput = QStringLiteral("maintain_audio_pitch_in");
+const QString ClipBlock::kAutoCacheInput = QStringLiteral("autocache_in");
 
 ClipBlock::ClipBlock() :
   in_transition_(nullptr),
   out_transition_(nullptr),
-  connected_viewer_(nullptr),
-  autocache_(false)
+  connected_viewer_(nullptr)
 {
   AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
@@ -52,6 +52,8 @@ ClipBlock::ClipBlock() :
   AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   AddInput(kMaintainAudioPitchInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
+  AddInput(kAutoCacheInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
   //SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
@@ -122,6 +124,17 @@ void ClipBlock::set_media_in(const rational &media_in)
   SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
 }
 
+void ClipBlock::SetAutocache(bool e)
+{
+  SetStandardValue(kAutoCacheInput, e);
+
+  if (e) {
+    RequestInvalidatedFromConnected();
+  } else {
+    qDebug() << "FIXME: signal that frames for this clip should be unqueued";
+  }
+}
+
 rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool ignore_reverse, bool ignore_speed) const
 {
   // These constants are not considered "values" per se, so we don't modify them
@@ -176,30 +189,56 @@ rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
   return sequence_time;
 }
 
+void ClipBlock::RequestInvalidatedFromConnected()
+{
+  Track::Type type = GetTrackType();
+
+  if (type == Track::kVideo || type == Track::kAudio) {
+    if (Node *connected = GetConnectedOutput(kBufferIn)) {
+      TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+      if (type == Track::kVideo) {
+        // Handle thumbnails
+        {
+          TimeRangeList invalid = connected->thumbnail_cache()->GetInvalidatedRanges(max_range);
+          for (const TimeRange &r : invalid) {
+            emit connected->thumbnail_cache()->Request(r, PlaybackCache::kPreviewsOnly);
+          }
+        }
+
+        // Handle video cache
+        if (IsAutocaching()) {
+          TimeRangeList invalid = connected->video_frame_cache()->GetInvalidatedRanges(max_range);
+          for (const TimeRange &r : invalid) {
+            emit connected->video_frame_cache()->Request(r, PlaybackCache::kPreviewsOnly);
+          }
+        }
+      } else if (type == Track::kAudio) {
+        {
+          TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
+          for (const TimeRange &r : invalid) {
+            emit connected->waveform_cache()->Request(r, PlaybackCache::kPreviewsOnly);
+          }
+        }
+
+        if (IsAutocaching()) {
+          TimeRangeList invalid = connected->audio_playback_cache()->GetInvalidatedRanges(max_range);
+          for (const TimeRange &r : invalid) {
+            emit connected->audio_playback_cache()->Request(r, PlaybackCache::kPreviewsOnly);
+          }
+        }
+      }
+    }
+  }
+}
+
 void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
 
   // If signal is from texture input, transform all times from media time to sequence time
   if (from == kBufferIn) {
-    Track::Type type = GetTrackType();
-
-    if (type == Track::kVideo || type == Track::kAudio) {
-      if (Node *connected = GetConnectedOutput(from, element)) {
-        TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, length()));
-        if (type == Track::kVideo) {
-          emit connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
-          if (autocache_) {
-            emit connected->video_frame_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
-          }
-        } else if (type == Track::kAudio) {
-          emit connected->waveform_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
-          if (autocache_) {
-            emit connected->audio_playback_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
-          }
-        }
-      }
-    }
+    // Render caches where necessary
+    RequestInvalidatedFromConnected();
 
     // Adjust range from media time to sequence time
     TimeRange adj;
@@ -320,24 +359,7 @@ void ClipBlock::Retranslate()
 
 void ClipBlock::ConnectedToPreviewEvent()
 {
-  Track::Type type = GetTrackType();
-
-  if (type == Track::kVideo || type == Track::kAudio) {
-    if (Node *connected = GetConnectedOutput(kBufferIn)) {
-      TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
-      if (type == Track::kVideo) {
-        TimeRangeList invalid = connected->thumbnail_cache()->GetInvalidatedRanges(max_range);
-        for (const TimeRange &r : invalid) {
-          emit connected->thumbnail_cache()->Request(r, PlaybackCache::kPreviewsOnly);
-        }
-      } else if (type == Track::kAudio) {
-        TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
-        for (const TimeRange &r : invalid) {
-          emit connected->waveform_cache()->Request(r, PlaybackCache::kPreviewsOnly);
-        }
-      }
-    }
-  }
+  RequestInvalidatedFromConnected();
 }
 
 }

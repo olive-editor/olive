@@ -59,6 +59,9 @@ public:
   rational media_in() const;
   void set_media_in(const rational& media_in);
 
+  bool IsAutocaching() const { return GetStandardValue(kAutoCacheInput).toBool(); }
+  void SetAutocache(bool e);
+
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
@@ -166,6 +169,8 @@ public:
   static const QString kReverseInput;
   static const QString kMaintainAudioPitchInput;
 
+  static const QString kAutoCacheInput;
+
 protected:
   virtual void LinkChangeEvent() override;
 
@@ -178,14 +183,14 @@ private:
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
+  void RequestInvalidatedFromConnected();
+
   QVector<Block*> block_links_;
 
   TransitionBlock* in_transition_;
   TransitionBlock* out_transition_;
 
   ViewerOutput *connected_viewer_;
-
-  bool autocache_;
 
 private:
   rational last_media_in_;

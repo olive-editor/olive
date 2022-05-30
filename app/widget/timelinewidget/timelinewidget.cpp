@@ -54,6 +54,7 @@
 #include "undo/timelineundoworkarea.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -1072,6 +1073,11 @@ void TimelineWidget::ShowContextMenu()
     menu.addSeparator();
 
     if (ClipBlock *clip = dynamic_cast<ClipBlock*>(selected.first())) {
+      QAction *autocache_action = menu.addAction(tr("Auto-Cache"));
+      autocache_action->setCheckable(true);
+      autocache_action->setChecked(clip->IsAutocaching());
+      connect(autocache_action, &QAction::triggered, this, &TimelineWidget::SetSelectedClipsAutocaching);
+
       if (clip->connected_viewer()) {
         QAction *reveal_in_project = menu.addAction(tr("Reveal in Project"));
         reveal_in_project->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
@@ -1245,6 +1251,19 @@ void TimelineWidget::TrackAboutToBeDeleted(Track *track)
     // command as if the action really were permanent.
     Core::instance()->undo_stack()->push(TakeSubtitleSectionCommand());
   }
+}
+
+void TimelineWidget::SetSelectedClipsAutocaching(bool e)
+{
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  for (Block *b : selected_blocks_) {
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(clip, ClipBlock::kAutoCacheInput)), e));
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
