@@ -52,6 +52,8 @@ extern "C" {
 
 namespace olive {
 
+QVariant Yuv2RgbShader;
+
 FFmpegDecoder::FFmpegDecoder() :
   filter_graph_(nullptr),
   buffersrc_ctx_(nullptr),
@@ -143,16 +145,6 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
 {
   if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
     if (InitScaler(f.get(), params)) {
-      int r;
-      r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
-      if (r < 0) {
-        return nullptr;
-      }
-      r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
-      if (r < 0) {
-        return nullptr;
-      }
-
       VideoParams vp(instance_.avstream()->codecpar->width,
                      instance_.avstream()->codecpar->height,
                      native_pix_fmt_,
@@ -161,9 +153,105 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
                      VideoParams::kInterlaceNone,
                      params.divider);
 
-      TexturePtr tex = renderer->CreateTexture(vp, working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
+      QElapsedTimer t;
+      t.start();
 
-      av_frame_unref(working_frame_);
+      TexturePtr tex = nullptr;
+      const bool hwscale = true;
+
+      // Attempt to use GLSL shader for faster YUV to RGB conversion
+      if (hwscale) {
+        AVPixelFormat src_fmt = AVPixelFormat(f.get()->format);
+        if (src_fmt == AV_PIX_FMT_YUV420P
+            || src_fmt == AV_PIX_FMT_YUV422P
+            || src_fmt == AV_PIX_FMT_YUV444P
+            || src_fmt == AV_PIX_FMT_YUV420P10LE
+            || src_fmt == AV_PIX_FMT_YUV422P10LE
+            || src_fmt == AV_PIX_FMT_YUV444P10LE
+            || src_fmt == AV_PIX_FMT_YUV420P12LE
+            || src_fmt == AV_PIX_FMT_YUV422P12LE
+            || src_fmt == AV_PIX_FMT_YUV444P12LE) {
+          if (Yuv2RgbShader.isNull()) {
+            // Compile shader
+            Yuv2RgbShader = renderer->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/yuv2rgb.frag"))));
+          }
+
+          if (!Yuv2RgbShader.isNull()) {
+            int px_size;
+            int bits_per_pixel;
+            switch (src_fmt) {
+            case AV_PIX_FMT_YUV420P:
+            case AV_PIX_FMT_YUV422P:
+            case AV_PIX_FMT_YUV444P:
+            default:
+              px_size = 1;
+              bits_per_pixel = 8;
+              break;
+            case AV_PIX_FMT_YUV420P10LE:
+            case AV_PIX_FMT_YUV422P10LE:
+            case AV_PIX_FMT_YUV444P10LE:
+              px_size = 2;
+              bits_per_pixel = 10;
+              break;
+            case AV_PIX_FMT_YUV420P12LE:
+            case AV_PIX_FMT_YUV422P12LE:
+            case AV_PIX_FMT_YUV444P12LE:
+              px_size = 2;
+              bits_per_pixel = 12;
+              break;
+            }
+
+            VideoParams plane_params = vp;
+            plane_params.set_channel_count(1);
+            plane_params.set_divider(1);
+            TexturePtr y_plane = renderer->CreateTexture(plane_params, f->data[0], f->linesize[0] / px_size);
+
+            if (src_fmt == AV_PIX_FMT_YUV420P
+                || src_fmt == AV_PIX_FMT_YUV422P
+                || src_fmt == AV_PIX_FMT_YUV420P10LE
+                || src_fmt == AV_PIX_FMT_YUV422P10LE
+                || src_fmt == AV_PIX_FMT_YUV420P12LE
+                || src_fmt == AV_PIX_FMT_YUV422P12LE) {
+              plane_params.set_width(plane_params.width()/2);
+            }
+
+            if (src_fmt == AV_PIX_FMT_YUV420P
+                || src_fmt == AV_PIX_FMT_YUV420P10LE
+                || src_fmt == AV_PIX_FMT_YUV420P12LE) {
+              plane_params.set_height(plane_params.height()/2);
+            }
+
+            TexturePtr u_plane = renderer->CreateTexture(plane_params, f->data[1], f->linesize[1] / px_size);
+            TexturePtr v_plane = renderer->CreateTexture(plane_params, f->data[2], f->linesize[2] / px_size);
+
+            ShaderJob job;
+            job.Insert(QStringLiteral("y_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(y_plane)));
+            job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
+            job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
+            job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
+
+            tex = renderer->CreateTexture(vp);
+            renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
+          }
+        }
+      }
+
+      if (!tex) {
+        // Fallback to software pixel format conversion
+        int r;
+        r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
+        if (r < 0) {
+          return nullptr;
+        }
+        r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
+        if (r < 0) {
+          return nullptr;
+        }
+
+        tex = renderer->CreateTexture(vp, working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
+
+        av_frame_unref(working_frame_);
+      }
 
       return tex;
     }
