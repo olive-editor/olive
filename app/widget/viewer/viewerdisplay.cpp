@@ -35,7 +35,6 @@
 #include <QTextEdit>
 
 #include "common/define.h"
-#include "common/functiontimer.h"
 #include "common/html.h"
 #include "common/qtutils.h"
 #include "config/config.h"

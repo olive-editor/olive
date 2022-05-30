@@ -25,7 +25,6 @@
 #include <QTextDocument>
 
 #include "common/cpuoptimize.h"
-#include "common/functiontimer.h"
 
 namespace olive {
 

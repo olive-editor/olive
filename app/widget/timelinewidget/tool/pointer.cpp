@@ -24,7 +24,6 @@
 #include <QToolTip>
 
 #include "common/clamp.h"
-#include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"

@@ -43,7 +43,6 @@ extern "C" {
 #include "common/define.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
-#include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "render/framehashcache.h"
 #include "render/diskmanager.h"

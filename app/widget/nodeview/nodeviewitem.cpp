@@ -26,7 +26,6 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-#include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "core.h"
@@ -434,7 +433,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     return;
   }
 
-  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+  event->setModifiers(QtUtils::FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mousePressEvent(event);
 }
@@ -445,7 +444,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     return;
   }
 
-  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+  event->setModifiers(QtUtils::FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mouseMoveEvent(event);
 }
@@ -457,7 +456,7 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     return;
   }
 
-  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+  event->setModifiers(QtUtils::FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mouseReleaseEvent(event);
 }

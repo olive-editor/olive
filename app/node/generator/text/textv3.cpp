@@ -24,7 +24,6 @@
 #include <QDateTime>
 #include <QTextDocument>
 
-#include "common/functiontimer.h"
 #include "common/html.h"
 #include "node/project/project.h"
 

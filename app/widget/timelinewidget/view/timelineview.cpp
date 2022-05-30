@@ -28,7 +28,6 @@
 #include <QPen>
 
 #include "config/config.h"
-#include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/timecodefunctions.h"
 #include "node/project/footage/footage.h"
