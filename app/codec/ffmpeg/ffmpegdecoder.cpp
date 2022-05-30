@@ -59,7 +59,8 @@ FFmpegDecoder::FFmpegDecoder() :
   buffersrc_ctx_(nullptr),
   buffersink_ctx_(nullptr),
   input_fmt_(AV_PIX_FMT_NONE),
-  native_pix_fmt_(VideoParams::kFormatInvalid),
+  native_internal_pix_fmt_(VideoParams::kFormatInvalid),
+  native_output_pix_fmt_(VideoParams::kFormatInvalid),
   working_frame_(nullptr),
   working_packet_(nullptr),
   is_working_(false),
@@ -147,14 +148,11 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
     if (InitScaler(f.get(), params)) {
       VideoParams vp(instance_.avstream()->codecpar->width,
                      instance_.avstream()->codecpar->height,
-                     native_pix_fmt_,
+                     native_output_pix_fmt_,
                      native_channel_count_,
                      av_guess_sample_aspect_ratio(instance_.fmt_ctx(), instance_.avstream(), nullptr),
                      VideoParams::kInterlaceNone,
                      params.divider);
-
-      QElapsedTimer t;
-      t.start();
 
       TexturePtr tex = nullptr;
       const bool hwscale = true;
@@ -204,6 +202,7 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
             VideoParams plane_params = vp;
             plane_params.set_channel_count(1);
             plane_params.set_divider(1);
+            plane_params.set_format(native_internal_pix_fmt_);
             TexturePtr y_plane = renderer->CreateTexture(plane_params, f->data[0], f->linesize[0] / px_size);
 
             if (src_fmt == AV_PIX_FMT_YUV420P
@@ -278,7 +277,8 @@ void FFmpegDecoder::CloseInternal()
   instance_.Close();
 
   input_fmt_ = AV_PIX_FMT_NONE;
-  native_pix_fmt_ = VideoParams::kFormatInvalid;
+  native_internal_pix_fmt_ = VideoParams::kFormatInvalid;
+  native_output_pix_fmt_ = VideoParams::kFormatInvalid;
 }
 
 QString FFmpegDecoder::id() const
@@ -892,10 +892,14 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
 
   // Determine which Olive native pixel format we retrieved
   // Note that FFmpeg doesn't support float formats
-  native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt);
+  native_output_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt);
   native_channel_count_ = GetNativeChannelCount(ideal_pix_fmt);
 
-  if (native_pix_fmt_ == VideoParams::kFormatInvalid
+  AVPixelFormat ideal_internal_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(input_fmt_));
+  native_internal_pix_fmt_ = GetNativePixelFormat(ideal_internal_pix_fmt);
+
+  if (native_output_pix_fmt_ == VideoParams::kFormatInvalid
+      || native_internal_pix_fmt_ == VideoParams::kFormatInvalid
       || native_channel_count_ == 0) {
     qCritical() << "Failed to find valid native pixel format for" << ideal_pix_fmt;
     return false;
