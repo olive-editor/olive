@@ -40,6 +40,7 @@
 #include "node/param.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
+#include "render/audiowaveformcache.h"
 #include "render/framehashcache.h"
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
@@ -234,6 +235,11 @@ public:
   AudioPlaybackCache* audio_playback_cache() const
   {
     return audio_cache_;
+  }
+
+  AudioWaveformCache* waveform_cache() const
+  {
+    return waveform_cache_;
   }
 
   virtual TimeRange GetVideoCacheRange() const { return TimeRange(); }
@@ -1413,6 +1419,7 @@ private:
   FrameHashCache *thumbnail_cache_;
 
   AudioPlaybackCache *audio_cache_;
+  AudioWaveformCache *waveform_cache_;
 
 private slots:
   /**

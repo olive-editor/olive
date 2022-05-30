@@ -68,17 +68,7 @@ public:
 
   void WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, const SampleBuffer &samples);
 
-  void WriteWaveform(const TimeRange &range, const TimeRangeList &valid_ranges, const AudioVisualWaveform *waveform);
-
   void WriteSilence(const TimeRange &range);
-
-  const AudioVisualWaveform &visual() const { return visual_; }
-  void set_visual(const AudioVisualWaveform &v) { visual_ = v; }
-
-signals:
-  void ParametersChanged();
-
-  void WaveformUpdated();
 
 private:
   bool WritePartOfSampleBuffer(const SampleBuffer &samples, const rational &write_start, const rational &buffer_start, const rational &length);
@@ -88,8 +78,6 @@ private:
   static const qint64 kDefaultSegmentSizePerChannel;
 
   AudioParams params_;
-
-  AudioVisualWaveform visual_;
 
 };
 

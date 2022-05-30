@@ -130,6 +130,15 @@ public:
     return GetVideoStreamCount() + GetAudioStreamCount() + GetSubtitleStreamCount();
   }
 
+  const AudioWaveformCache *GetConnectedWaveform()
+  {
+    if (Node *n = GetConnectedSampleOutput()) {
+      return n->waveform_cache();
+    } else {
+      return nullptr;
+    }
+  }
+
   bool HasEnabledVideoStreams() const;
   bool HasEnabledAudioStreams() const;
   bool HasEnabledSubtitleStreams() const;
@@ -173,6 +182,8 @@ public:
 
   virtual ValueHint GetConnectedSampleValueHint();
 
+  virtual void ConnectedToPreviewEvent() override;
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;
@@ -197,6 +208,8 @@ signals:
   void TextureInputChanged();
 
   void SampleRateChanged(int sr);
+
+  void ConnectedWaveformChanged();
 
 public slots:
   void VerifyLength();
@@ -223,6 +236,9 @@ private:
   AudioParams cached_audio_params_;
 
   TimelinePoints *timeline_points_;
+
+  bool autocache_input_video_;
+  bool autocache_input_audio_;
 
 };
 

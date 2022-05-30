@@ -232,7 +232,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
 
   UpdateStack();
 
-  waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
+  waveform_view_->SetViewer(GetConnectedNode());
   waveform_view_->ConnectTimelinePoints(GetConnectedNode()->GetTimelinePoints());
 
   UpdateRendererVideoParameters();
@@ -947,7 +947,7 @@ void ViewerWidget::FinishPlayPreprocess()
     }
     prequeued_audio_.clear();
 
-    AudioMonitor::StartWaveformOnAll(&GetConnectedNode()->audio_playback_cache()->visual(),
+    AudioMonitor::StartWaveformOnAll(GetConnectedNode()->GetConnectedWaveform(),
                                      GetTime(), playback_speed_);
   }
 

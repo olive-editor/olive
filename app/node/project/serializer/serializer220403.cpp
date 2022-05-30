@@ -552,6 +552,8 @@ void ProjectSerializer220403::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
           node->video_frame_cache()->SetUuid(reader->readElementText());
         } else if (reader->name() == QStringLiteral("thumb")) {
           node->thumbnail_cache()->SetUuid(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("waveform")) {
+          node->waveform_cache()->SetUuid(reader->readElementText());
         } else {
           reader->skipCurrentElement();
         }
@@ -616,6 +618,7 @@ void ProjectSerializer220403::SaveNode(Node *node, QXmlStreamWriter *writer) con
   writer->writeTextElement(QStringLiteral("audio"), node->audio_playback_cache()->GetUuid().toString());
   writer->writeTextElement(QStringLiteral("video"), node->video_frame_cache()->GetUuid().toString());
   writer->writeTextElement(QStringLiteral("thumb"), node->thumbnail_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("waveform"), node->waveform_cache()->GetUuid().toString());
 
   writer->writeEndElement(); // caches
 

@@ -44,7 +44,10 @@ void BlockSplitCommand::redo()
 
   if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(new_block_)) {
     ClipBlock *old_clip = static_cast<ClipBlock*>(block_);
-    new_clip->set_waveform(old_clip->waveform());
+    qDebug() << "FIXME: Copy waveform stub";
+    Q_UNUSED(old_clip)
+    Q_UNUSED(new_clip)
+    //new_clip->set_waveform(old_clip->waveform());
   }
 
   // Determine our new lengths

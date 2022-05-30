@@ -48,9 +48,6 @@ void AudioPlaybackCache::SetParameters(const AudioParams &params)
   }
 
   params_ = params;
-  visual_.set_channel_count(params_.channel_count());
-
-  emit ParametersChanged();
 }
 
 void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, const SampleBuffer &samples)
@@ -59,23 +56,6 @@ void AudioPlaybackCache::WritePCM(const TimeRange &range, const TimeRangeList &v
     if (WritePartOfSampleBuffer(samples, r.in(), r.in() - range.in(), r.length())) {
       Validate(r);
     }
-  }
-}
-
-void AudioPlaybackCache::WriteWaveform(const TimeRange &range, const TimeRangeList &valid_ranges, const AudioVisualWaveform *waveform)
-{
-  // Write each valid range to the segments
-  foreach (const TimeRange& r, valid_ranges) {
-    // Write visual
-    if (waveform) {
-      visual_.OverwriteSums(*waveform, r.in(), r.in() - range.in(), r.length());
-    } else {
-      visual_.OverwriteSilence(r.in(), r.length());
-    }
-  }
-
-  if (!valid_ranges.isEmpty()) {
-    emit WaveformUpdated();
   }
 }
 

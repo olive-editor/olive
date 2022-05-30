@@ -216,7 +216,9 @@ void RenderProcessor::Run()
 
     SampleBuffer samples = sample_val.toSamples();
     if (samples.is_allocated()) {
-      samples.clamp();
+      if (ticket_->property("clamp").toBool()) {
+        samples.clamp();
+      }
 
       if (ticket_->property("enablewaveforms").toBool()) {
         AudioVisualWaveform vis;

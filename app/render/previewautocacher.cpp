@@ -80,7 +80,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, RenderTicke
 
 RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, RenderTicketPriority priority)
 {
-  return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, PlaybackCache::kCacheOnly, priority);
+  return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, PlaybackCache::kCacheOnly, priority, nullptr);
 }
 
 void PreviewAutoCacher::VideoInvalidatedFromCache(const TimeRange &range)
@@ -127,14 +127,17 @@ void PreviewAutoCacher::AudioRendered()
 
       SampleBuffer buf = watcher->Get().value<SampleBuffer>();
       node->audio_playback_cache()->SetParameters(buf.audio_params());
+      node->waveform_cache()->SetParameters(buf.audio_params());
 
       PlaybackCache::RequestType type = PlaybackCache::RequestType(watcher->property("type").toInt());
 
       if (type == PlaybackCache::kCacheOnly) {
         // WritePCM is tolerant to its buffer being null, it will just write silence instead
-        node->audio_playback_cache()->WritePCM(range,
-                                               valid_ranges,
-                                               watcher->Get().value<SampleBuffer>());
+        if (AudioPlaybackCache *cache = Node::ValueToPtr<AudioPlaybackCache>(watcher->property("cache"))) {
+          cache->WritePCM(range,
+                          valid_ranges,
+                          watcher->Get().value<SampleBuffer>());
+        }
       } else {
         // Detect if this audio was incomplete because it was waiting on a conform to finish
         if (watcher->GetTicket()->property("incomplete").toBool()) {
@@ -146,7 +149,9 @@ void PreviewAutoCacher::AudioRendered()
             d.needing_conform.insert(range);
           }
         } else {
-          node->audio_playback_cache()->WriteWaveform(range, valid_ranges, &waveform);
+          if (AudioWaveformCache *cache = Node::ValueToPtr<AudioWaveformCache>(watcher->property("cache"))) {
+            cache->WriteWaveform(range, valid_ranges, &waveform);
+          }
         }
       }
     }
@@ -321,16 +326,6 @@ void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
 void PreviewAutoCacher::ConnectToNodeCache(Node *node)
 {
   connect(node->video_frame_cache(),
-          &PlaybackCache::AutomaticChanged,
-          this,
-          &PreviewAutoCacher::VideoAutoCacheEnableChanged);
-
-  connect(node->audio_playback_cache(),
-          &PlaybackCache::AutomaticChanged,
-          this,
-          &PreviewAutoCacher::AudioAutoCacheEnableChanged);
-
-  connect(node->video_frame_cache(),
           &PlaybackCache::Request,
           this,
           &PreviewAutoCacher::VideoInvalidatedFromCache);
@@ -345,32 +340,18 @@ void PreviewAutoCacher::ConnectToNodeCache(Node *node)
           this,
           &PreviewAutoCacher::AudioInvalidatedFromCache);
 
+  connect(node->waveform_cache(),
+          &PlaybackCache::Request,
+          this,
+          &PreviewAutoCacher::AudioInvalidatedFromCache);
+
   node->video_frame_cache()->LoadState();
   node->audio_playback_cache()->LoadState();
   node->thumbnail_cache()->LoadState();
-
-  // Copy invalidated ranges and start rendering if necessary
-  if (node->video_frame_cache()->IsAutomatic()) {
-    VideoAutoCacheEnableChangedFromNode(node, true);
-  }
-
-  if (node->audio_playback_cache()->IsAutomatic()) {
-    AudioAutoCacheEnableChangedFromNode(node, true);
-  }
 }
 
 void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
 {
-  disconnect(node->video_frame_cache(),
-             &PlaybackCache::AutomaticChanged,
-             this,
-             &PreviewAutoCacher::VideoAutoCacheEnableChanged);
-
-  disconnect(node->audio_playback_cache(),
-             &PlaybackCache::AutomaticChanged,
-             this,
-             &PreviewAutoCacher::AudioAutoCacheEnableChanged);
-
   disconnect(node->video_frame_cache(),
              &PlaybackCache::Request,
              this,
@@ -386,17 +367,14 @@ void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
              this,
              &PreviewAutoCacher::AudioInvalidatedFromCache);
 
+  disconnect(node->waveform_cache(),
+             &PlaybackCache::Request,
+             this,
+             &PreviewAutoCacher::AudioInvalidatedFromCache);
+
   node->video_frame_cache()->SaveState();
   node->audio_playback_cache()->SaveState();
   node->thumbnail_cache()->SaveState();
-
-  if (node->video_frame_cache()->IsAutomatic()) {
-    VideoAutoCacheEnableChangedFromNode(node, false);
-  }
-
-  if (node->audio_playback_cache()->IsAutomatic()) {
-    AudioAutoCacheEnableChangedFromNode(node, false);
-  }
 }
 
 void PreviewAutoCacher::UpdateGraphChangeValue()
@@ -472,24 +450,6 @@ void PreviewAutoCacher::AudioInvalidatedFromNode(Node *node, const TimeRange &ra
 
   // If we're auto-caching audio or require realtime waveforms, we'll have to render this
   StartCachingAudioRange(node, range, type);
-}
-
-void PreviewAutoCacher::VideoAutoCacheEnableChangedFromNode(Node *node, bool e)
-{
-  if (e) {
-    VideoInvalidatedList(node, node->video_frame_cache()->GetInvalidatedRanges(node->GetVideoCacheRange()));
-  } else {
-    CancelVideoTasks(node);
-  }
-}
-
-void PreviewAutoCacher::AudioAutoCacheEnableChangedFromNode(Node *node, bool e)
-{
-  if (e) {
-    AudioInvalidatedList(node, node->audio_playback_cache()->GetInvalidatedRanges(node->GetAudioCacheRange()));
-  } else {
-    CancelAudioTasks(node);
-  }
 }
 
 void PreviewAutoCacher::SetPlayhead(const rational &playhead)
@@ -657,7 +617,13 @@ void PreviewAutoCacher::TryRender()
 
       // Start job
       if (Node *copy = copy_map_.value(d.node)) {
-        RenderAudio(copy, d.range, d.type, RenderTicketPriority::kNormal);
+        PlaybackCache *cache;
+        if (d.type == PlaybackCache::kPreviewsOnly) {
+          cache = d.node->waveform_cache();
+        } else {
+          cache = d.node->audio_playback_cache();
+        }
+        RenderAudio(copy, d.range, d.type, RenderTicketPriority::kNormal, cache);
       } else {
         qCritical() << "Failed to find node copy for audio job";
       }
@@ -705,12 +671,13 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
   return watcher;
 }
 
-RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, PlaybackCache::RequestType type, RenderTicketPriority priority)
+RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, PlaybackCache::RequestType type, RenderTicketPriority priority, PlaybackCache *cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   watcher->setProperty("node", Node::PtrToValue(node));
   watcher->setProperty("type", type);
+  watcher->setProperty("cache", Node::PtrToValue(cache));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
   audio_tasks_.insert(watcher, r);
 
@@ -720,6 +687,7 @@ RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, P
 
   rap.generate_waveforms = (type == PlaybackCache::kPreviewsOnly);
   rap.priority = priority;
+  rap.clamp = false;
 
   RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(rap);
   watcher->SetTicket(ticket);
@@ -742,20 +710,6 @@ void PreviewAutoCacher::ConformFinished()
       d.needing_conform.clear();
     }
   }
-}
-
-void PreviewAutoCacher::VideoAutoCacheEnableChanged(bool e)
-{
-  FrameHashCache *cache = static_cast<FrameHashCache*>(sender());
-
-  VideoAutoCacheEnableChangedFromNode(cache->parent(), e);
-}
-
-void PreviewAutoCacher::AudioAutoCacheEnableChanged(bool e)
-{
-  AudioPlaybackCache *cache = static_cast<AudioPlaybackCache*>(sender());
-
-  AudioAutoCacheEnableChangedFromNode(cache->parent(), e);
 }
 
 void PreviewAutoCacher::CacheProxyTaskCancelled()

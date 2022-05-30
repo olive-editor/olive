@@ -193,38 +193,12 @@ void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational
   }
 }
 
-void AudioVisualWaveform::Shift(const rational &from, const rational &to)
-{
-  for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
-    rational rate = it->first;
-    double rate_dbl = rate.toDouble();
-    Sample& data = it->second;
-
-    int from_index = time_to_samples(from, rate_dbl);
-    int to_index = time_to_samples(to, rate_dbl);
-
-    if (from_index == to_index) {
-      continue;
-    }
-
-    if (from_index >= data.size()) {
-      continue;
-    }
-
-    if (from_index > to_index) {
-      // Shifting backwards <-
-      data.remove(to_index, from_index - to_index);
-    } else {
-      // Shifting forwards ->
-      data.insert(from_index, to_index - from_index, {0, 0});
-    }
-  }
-
-  length_ = qMax(rational(0), length_ + (to-from));
-}
-
 void AudioVisualWaveform::TrimIn(const rational &length)
 {
+  if (length == 0) {
+    return;
+  }
+
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
     rational rate = it->first;
     double rate_dbl = rate.toDouble();
@@ -253,6 +227,40 @@ AudioVisualWaveform AudioVisualWaveform::Mid(const rational &offset) const
   mid.TrimIn(offset);
 
   return mid;
+}
+
+AudioVisualWaveform AudioVisualWaveform::Mid(const rational &offset, const rational &length) const
+{
+  AudioVisualWaveform mid  = *this;
+
+  mid.TrimRange(offset, length);
+
+  return mid;
+}
+
+void AudioVisualWaveform::Resize(const rational &length)
+{
+  if (length_ == length) {
+    return;
+  }
+
+  for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
+    rational rate = it->first;
+    double rate_dbl = rate.toDouble();
+    Sample& data = it->second;
+
+    int chop_length = time_to_samples(length, rate_dbl);
+
+    data.resize(chop_length);
+  }
+
+  length_ = length;
+}
+
+void AudioVisualWaveform::TrimRange(const rational &in, const rational &length)
+{
+  TrimIn(in);
+  Resize(length);
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const rational &start, const rational &length) const

@@ -56,6 +56,7 @@ Node::Node() :
   video_cache_ = new FrameHashCache(this);
   thumbnail_cache_ = new FrameHashCache(this);
   audio_cache_ = new AudioPlaybackCache(this);
+  waveform_cache_ = new AudioWaveformCache(this);
 }
 
 Node::~Node()

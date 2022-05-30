@@ -128,10 +128,10 @@ public:
     }
   }
 
-  const AudioVisualWaveform *waveform()
+  const AudioWaveformCache *waveform()
   {
     if (Node *n = GetConnectedOutput(kBufferIn)) {
-      return &n->audio_playback_cache()->visual();
+      return n->waveform_cache();
     } else {
       return nullptr;
     }
@@ -184,6 +184,8 @@ private:
   TransitionBlock* out_transition_;
 
   ViewerOutput *connected_viewer_;
+
+  bool autocache_;
 
 private:
   rational last_media_in_;

@@ -90,11 +90,14 @@ public:
 
   void OverwriteSilence(const rational &start, const rational &length);
 
-  void Shift(const rational& from, const rational& to);
-
   void TrimIn(const rational &length);
 
   AudioVisualWaveform Mid(const rational &offset) const;
+  AudioVisualWaveform Mid(const rational &offset, const rational &length) const;
+
+  void Resize(const rational &length);
+
+  void TrimRange(const rational &in, const rational &length);
 
   Sample GetSummaryFromTime(const rational& start, const rational& length) const;
 

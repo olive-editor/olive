@@ -63,6 +63,8 @@ Footage::Footage(const QString &filename) :
   check_timer->setInterval(5000);
   connect(check_timer, &QTimer::timeout, this, &Footage::CheckFootage);
   check_timer->start();
+
+  connect(this->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
 }
 
 void Footage::Retranslate()

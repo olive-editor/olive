@@ -105,7 +105,7 @@ private:
 
   RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache::RequestType type, RenderTicketPriority priority, FrameHashCache *cache);
 
-  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache::RequestType type, RenderTicketPriority priority);
+  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache::RequestType type, RenderTicketPriority priority, PlaybackCache *cache);
 
   /**
    * @brief Process all changes to internal NodeGraph copy
@@ -141,9 +141,6 @@ private:
 
   void VideoInvalidatedFromNode(Node *node, const olive::TimeRange &range, PlaybackCache::RequestType type);
   void AudioInvalidatedFromNode(Node *node, const olive::TimeRange &range, PlaybackCache::RequestType type);
-
-  void VideoAutoCacheEnableChangedFromNode(Node *node, bool e);
-  void AudioAutoCacheEnableChangedFromNode(Node *node, bool e);
 
   class QueuedJob {
   public:
@@ -263,10 +260,6 @@ private slots:
   //void RequeueFrames();
 
   void ConformFinished();
-
-  void VideoAutoCacheEnableChanged(bool e);
-
-  void AudioAutoCacheEnableChanged(bool e);
 
   void CacheProxyTaskCancelled();
 

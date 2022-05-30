@@ -37,7 +37,9 @@ const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_streams) :
   last_length_(0),
   video_length_(0),
-  audio_length_(0)
+  audio_length_(0),
+  autocache_input_video_(false),
+  autocache_input_audio_(false)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
@@ -219,6 +221,22 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
 {
   Q_UNUSED(element)
 
+  if (Node *connected = GetConnectedOutput(from, element)) {
+    if (from == kTextureInput) {
+      //emit connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+      if (autocache_input_video_) {
+        TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetVideoLength()));
+        emit connected->video_frame_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+      }
+    } else if (from == kSamplesInput) {
+      TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetAudioLength()));
+      emit connected->waveform_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+      if (autocache_input_audio_) {
+        emit connected->audio_playback_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+      }
+    }
+  }
+
   VerifyLength();
 
   super::InvalidateCache(range, from, element, options);
@@ -298,6 +316,8 @@ void ViewerOutput::InputConnectedEvent(const QString &input, int element, Node *
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
+  } else if (input == kSamplesInput) {
+    connect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputConnectedEvent(input, element, output);
@@ -307,6 +327,8 @@ void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, Nod
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
+  } else if (input == kSamplesInput) {
+    disconnect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputDisconnectedEvent(input, element, output);
@@ -362,6 +384,17 @@ Node *ViewerOutput::GetConnectedSampleOutput()
 Node::ValueHint ViewerOutput::GetConnectedSampleValueHint()
 {
   return GetValueHintForInput(kSamplesInput);
+}
+
+void ViewerOutput::ConnectedToPreviewEvent()
+{
+  if (Node *connected = GetConnectedOutput(kSamplesInput)) {
+    TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()));
+    TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
+    for (const TimeRange &r : invalid) {
+      emit connected->waveform_cache()->Request(r, PlaybackCache::kPreviewsOnly);
+    }
+  }
 }
 
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)

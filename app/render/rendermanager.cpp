@@ -112,6 +112,7 @@ RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
   ticket->setProperty("time", QVariant::fromValue(params.range));
   ticket->setProperty("type", kTypeAudio);
   ticket->setProperty("enablewaveforms", params.generate_waveforms);
+  ticket->setProperty("clamp", params.clamp);
   ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
 
   AddTicket(ticket, params.priority);

@@ -129,6 +129,7 @@ public:
       audio_params = aparam;
       generate_waveforms = false;
       priority = RenderTicketPriority::kNormal;
+      clamp = true;
     }
 
     Node *node;
@@ -136,6 +137,7 @@ public:
     AudioParams audio_params;
     bool generate_waveforms;
     RenderTicketPriority priority;
+    bool clamp;
   };
 
   /**

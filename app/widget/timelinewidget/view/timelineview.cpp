@@ -558,11 +558,11 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
 
         // Draw waveform
         if (clip->GetTrackType() == Track::kAudio && show_waveforms_) {
-          if (const AudioVisualWaveform *wave = clip->waveform()) {
+          if (const AudioWaveformCache *wave = clip->waveform()) {
             rational waveform_start = SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in;
             painter->setPen(shadow_color);
 
-            AudioVisualWaveform::DrawWaveform(painter, preview_rect, this->GetScale(), *wave, waveform_start);
+            wave->Draw(painter, preview_rect, this->GetScale(), waveform_start);
           }
         }
 

@@ -38,7 +38,8 @@ const QString ClipBlock::kMaintainAudioPitchInput = QStringLiteral("maintain_aud
 ClipBlock::ClipBlock() :
   in_transition_(nullptr),
   out_transition_(nullptr),
-  connected_viewer_(nullptr)
+  connected_viewer_(nullptr),
+  autocache_(false)
 {
   AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
   SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
@@ -188,8 +189,14 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
         TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, length()));
         if (type == Track::kVideo) {
           emit connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+          if (autocache_) {
+            emit connected->video_frame_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+          }
         } else if (type == Track::kAudio) {
-          emit connected->audio_playback_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+          emit connected->waveform_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+          if (autocache_) {
+            emit connected->audio_playback_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+          }
         }
       }
     }
@@ -251,7 +258,7 @@ void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *out
 
   if (input == kBufferIn) {
     connect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
-    connect(output->audio_playback_cache(), &AudioPlaybackCache::WaveformUpdated, this, &Block::PreviewChanged);
+    connect(output->waveform_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
   }
 }
 
@@ -261,7 +268,7 @@ void ClipBlock::InputDisconnectedEvent(const QString &input, int element, Node *
 
   if (input == kBufferIn) {
     disconnect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
-    disconnect(output->audio_playback_cache(), &AudioPlaybackCache::WaveformUpdated, this, &Block::PreviewChanged);
+    disconnect(output->waveform_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
   }
 }
 
@@ -324,7 +331,10 @@ void ClipBlock::ConnectedToPreviewEvent()
           emit connected->thumbnail_cache()->Request(r, PlaybackCache::kPreviewsOnly);
         }
       } else if (type == Track::kAudio) {
-        //emit connected->audio_playback_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+        TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
+        for (const TimeRange &r : invalid) {
+          emit connected->waveform_cache()->Request(r, PlaybackCache::kPreviewsOnly);
+        }
       }
     }
   }

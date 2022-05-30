@@ -699,7 +699,8 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
         // Place the copy instead of the original block
         block = static_cast<Block*>(Node::CopyNodeInGraph(block, command));
         if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(block)) {
-          new_clip->set_waveform(static_cast<ClipBlock*>(p.block)->waveform());
+          qDebug() << "FIXME: Copy clip stub"; Q_UNUSED(new_clip)
+          //new_clip->set_waveform(static_cast<ClipBlock*>(p.block)->waveform());
         }
       }
 
