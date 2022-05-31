@@ -52,12 +52,15 @@ extern "C" {
 
 namespace olive {
 
+QVariant Yuv2RgbShader;
+
 FFmpegDecoder::FFmpegDecoder() :
   filter_graph_(nullptr),
   buffersrc_ctx_(nullptr),
   buffersink_ctx_(nullptr),
   input_fmt_(AV_PIX_FMT_NONE),
-  native_pix_fmt_(VideoParams::kFormatInvalid),
+  native_internal_pix_fmt_(VideoParams::kFormatInvalid),
+  native_output_pix_fmt_(VideoParams::kFormatInvalid),
   working_frame_(nullptr),
   working_packet_(nullptr),
   is_working_(false),
@@ -142,28 +145,116 @@ bool FFmpegDecoder::OpenInternal()
 TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
   if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
-    if (InitScaler(f.get(), params)) {
-      int r;
-      r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
-      if (r < 0) {
-        return nullptr;
-      }
-      r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
-      if (r < 0) {
-        return nullptr;
-      }
+    if (cancelled && *cancelled) {
+      return nullptr;
+    }
 
+    if (InitScaler(f.get(), params)) {
       VideoParams vp(instance_.avstream()->codecpar->width,
                      instance_.avstream()->codecpar->height,
-                     native_pix_fmt_,
+                     native_output_pix_fmt_,
                      native_channel_count_,
                      av_guess_sample_aspect_ratio(instance_.fmt_ctx(), instance_.avstream(), nullptr),
                      VideoParams::kInterlaceNone,
                      params.divider);
 
-      TexturePtr tex = renderer->CreateTexture(vp, working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
+      TexturePtr tex = nullptr;
+      const bool hwscale = true;
 
-      av_frame_unref(working_frame_);
+      // Attempt to use GLSL shader for faster YUV to RGB conversion
+      if (hwscale) {
+        AVPixelFormat src_fmt = AVPixelFormat(f.get()->format);
+        if (src_fmt == AV_PIX_FMT_YUV420P
+            || src_fmt == AV_PIX_FMT_YUV422P
+            || src_fmt == AV_PIX_FMT_YUV444P
+            || src_fmt == AV_PIX_FMT_YUV420P10LE
+            || src_fmt == AV_PIX_FMT_YUV422P10LE
+            || src_fmt == AV_PIX_FMT_YUV444P10LE
+            || src_fmt == AV_PIX_FMT_YUV420P12LE
+            || src_fmt == AV_PIX_FMT_YUV422P12LE
+            || src_fmt == AV_PIX_FMT_YUV444P12LE) {
+          if (Yuv2RgbShader.isNull()) {
+            // Compile shader
+            Yuv2RgbShader = renderer->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/yuv2rgb.frag"))));
+          }
+
+          if (!Yuv2RgbShader.isNull()) {
+            int px_size;
+            int bits_per_pixel;
+            switch (src_fmt) {
+            case AV_PIX_FMT_YUV420P:
+            case AV_PIX_FMT_YUV422P:
+            case AV_PIX_FMT_YUV444P:
+            default:
+              px_size = 1;
+              bits_per_pixel = 8;
+              break;
+            case AV_PIX_FMT_YUV420P10LE:
+            case AV_PIX_FMT_YUV422P10LE:
+            case AV_PIX_FMT_YUV444P10LE:
+              px_size = 2;
+              bits_per_pixel = 10;
+              break;
+            case AV_PIX_FMT_YUV420P12LE:
+            case AV_PIX_FMT_YUV422P12LE:
+            case AV_PIX_FMT_YUV444P12LE:
+              px_size = 2;
+              bits_per_pixel = 12;
+              break;
+            }
+
+            VideoParams plane_params = vp;
+            plane_params.set_channel_count(1);
+            plane_params.set_divider(1);
+            plane_params.set_format(native_internal_pix_fmt_);
+            TexturePtr y_plane = renderer->CreateTexture(plane_params, f->data[0], f->linesize[0] / px_size);
+
+            if (src_fmt == AV_PIX_FMT_YUV420P
+                || src_fmt == AV_PIX_FMT_YUV422P
+                || src_fmt == AV_PIX_FMT_YUV420P10LE
+                || src_fmt == AV_PIX_FMT_YUV422P10LE
+                || src_fmt == AV_PIX_FMT_YUV420P12LE
+                || src_fmt == AV_PIX_FMT_YUV422P12LE) {
+              plane_params.set_width(plane_params.width()/2);
+            }
+
+            if (src_fmt == AV_PIX_FMT_YUV420P
+                || src_fmt == AV_PIX_FMT_YUV420P10LE
+                || src_fmt == AV_PIX_FMT_YUV420P12LE) {
+              plane_params.set_height(plane_params.height()/2);
+            }
+
+            TexturePtr u_plane = renderer->CreateTexture(plane_params, f->data[1], f->linesize[1] / px_size);
+            TexturePtr v_plane = renderer->CreateTexture(plane_params, f->data[2], f->linesize[2] / px_size);
+
+            ShaderJob job;
+            job.Insert(QStringLiteral("y_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(y_plane)));
+            job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
+            job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
+            job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
+
+            tex = renderer->CreateTexture(vp);
+            renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
+          }
+        }
+      }
+
+      if (!tex) {
+        // Fallback to software pixel format conversion
+        int r;
+        r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
+        if (r < 0) {
+          return nullptr;
+        }
+        r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
+        if (r < 0) {
+          return nullptr;
+        }
+
+        tex = renderer->CreateTexture(vp, working_frame_->data[0], working_frame_->linesize[0] / vp.GetBytesPerPixel());
+
+        av_frame_unref(working_frame_);
+      }
 
       return tex;
     }
@@ -190,7 +281,8 @@ void FFmpegDecoder::CloseInternal()
   instance_.Close();
 
   input_fmt_ = AV_PIX_FMT_NONE;
-  native_pix_fmt_ = VideoParams::kFormatInvalid;
+  native_internal_pix_fmt_ = VideoParams::kFormatInvalid;
+  native_output_pix_fmt_ = VideoParams::kFormatInvalid;
 }
 
 QString FFmpegDecoder::id() const
@@ -702,6 +794,10 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *
     // Pull from the decoder
     ret = instance_.GetFrame(working_packet_, filtered.get());
 
+    if (cancelled && *cancelled) {
+      break;
+    }
+
     // Handle any errors that aren't EOF (EOF is handled later on)
     if (ret < 0 && ret != AVERROR_EOF) {
       qCritical() << "Failed to retrieve frame:" << ret;
@@ -804,10 +900,14 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
 
   // Determine which Olive native pixel format we retrieved
   // Note that FFmpeg doesn't support float formats
-  native_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt);
+  native_output_pix_fmt_ = GetNativePixelFormat(ideal_pix_fmt);
   native_channel_count_ = GetNativeChannelCount(ideal_pix_fmt);
 
-  if (native_pix_fmt_ == VideoParams::kFormatInvalid
+  AVPixelFormat ideal_internal_pix_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(input_fmt_));
+  native_internal_pix_fmt_ = GetNativePixelFormat(ideal_internal_pix_fmt);
+
+  if (native_output_pix_fmt_ == VideoParams::kFormatInvalid
+      || native_internal_pix_fmt_ == VideoParams::kFormatInvalid
       || native_channel_count_ == 0) {
     qCritical() << "Failed to find valid native pixel format for" << ideal_pix_fmt;
     return false;
