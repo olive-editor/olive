@@ -434,17 +434,15 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
   if (decoder) {
     Decoder::RetrieveVideoParams p;
     p.divider = stream.video_params().divider();
+    p.maximum_format = destination->format();
 
     if (!IsCancelled()) {
-
       VideoParams tex_params = stream.video_params();
 
       if (tex_params.is_valid()) {
-        TexturePtr unmanaged_texture = render_ctx_->CreateTexture(tex_params);
+        TexturePtr unmanaged_texture = decoder->RetrieveVideo(render_ctx_, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
 
-        bool frame = decoder->RetrieveVideo(unmanaged_texture, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
-
-        if (!IsCancelled() && frame) {
+        if (!IsCancelled() && unmanaged_texture) {
           // We convert to our rendering pixel format, since that will always be float-based which
           // is necessary for correct color conversion
           ColorProcessorPtr processor = ColorProcessor::Create(color_manager,
