@@ -665,8 +665,7 @@ void ViewerWidget::ForceRequeueFromCurrentTime()
   // Allow half a second for requeue to complete
   static const rational kRequeueWaitTime(1);
 
-  qDebug() << "FIXME: Should be able to clear our frames";
-  //ClearVideoAutoCacherQueue();
+  auto_cacher_->ClearSingleFrameRenders();
   queue_watchers_.clear();
   int queue = DeterminePlaybackQueueSize();
   playback_queue_next_frame_ = GetTimestamp() + playback_speed_ * Timecode::time_to_timestamp(kRequeueWaitTime, timebase(), Timecode::kFloor);;
@@ -822,6 +821,7 @@ void ViewerWidget::PauseInternal()
 
     qDeleteAll(queue_watchers_);
     queue_watchers_.clear();
+    auto_cacher_->ClearSingleFrameRenders();
 
     playback_backup_timer_.stop();
 

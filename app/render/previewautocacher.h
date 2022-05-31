@@ -55,6 +55,8 @@ public:
 
   RenderTicketPtr GetRangeOfAudio(TimeRange range, RenderTicketPriority prioritize);
 
+  void ClearSingleFrameRenders();
+
   /**
    * @brief Set the viewer node to auto-cache
    */

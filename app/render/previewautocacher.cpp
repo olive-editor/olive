@@ -83,6 +83,18 @@ RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, RenderTicket
   return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, priority, nullptr);
 }
 
+void PreviewAutoCacher::ClearSingleFrameRenders()
+{
+  QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > copy = video_immediate_passthroughs_;
+  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
+    it.key()->Cancel();
+    if (!it.key()->IsRunning()) {
+      RenderManager::instance()->RemoveTicket(it.key()->GetTicket());
+      emit it.key()->GetTicket()->Finished();
+    }
+  }
+}
+
 void PreviewAutoCacher::VideoInvalidatedFromCache(const TimeRange &range)
 {
   PlaybackCache *cache = static_cast<PlaybackCache*>(sender());
