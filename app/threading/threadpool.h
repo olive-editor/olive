@@ -49,13 +49,20 @@ public:
   virtual ~ThreadPool() override;
 
 private:
-  void thread_exec();
+  void thread_exec(std::deque<TaskType> *queue, std::mutex *mutex, std::condition_variable *cond);
 
   std::vector<std::thread> worker_threads_;
   std::deque<TaskType> tasks_;
   std::mutex task_mutex_;
   std::condition_variable cond_;
+
+  std::thread high_thread_;
+  std::deque<TaskType> high_tasks_;
+  std::mutex high_mutex_;
+  std::condition_variable high_cond_;
+
   std::atomic_bool end_threadp_{false};
+  std::atomic_int available_count_;
 
 };
 

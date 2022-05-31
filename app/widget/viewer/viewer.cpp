@@ -1492,10 +1492,11 @@ void ViewerWidget::PlaybackTimerUpdate()
   }
 
   if (IsPlaying()) {
-    int count = 0;
-    for (int i=display_widget_->queue()->size(); i<DeterminePlaybackQueueSize(); i++) {
-      RequestNextFrameForQueue();
-      count++;
+    while (queue_watchers_.size() < DeterminePlaybackQueueSize()) {
+      if (!RequestNextFrameForQueue()) {
+        // Prevent infinite loop
+        break;
+      }
     }
   }
 
