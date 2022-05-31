@@ -145,6 +145,10 @@ bool FFmpegDecoder::OpenInternal()
 TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
   if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
+    if (cancelled && *cancelled) {
+      return nullptr;
+    }
+
     if (InitScaler(f.get(), params)) {
       VideoParams vp(instance_.avstream()->codecpar->width,
                      instance_.avstream()->codecpar->height,
@@ -789,6 +793,10 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *
 
     // Pull from the decoder
     ret = instance_.GetFrame(working_packet_, filtered.get());
+
+    if (cancelled && *cancelled) {
+      break;
+    }
 
     // Handle any errors that aren't EOF (EOF is handled later on)
     if (ret < 0 && ret != AVERROR_EOF) {
