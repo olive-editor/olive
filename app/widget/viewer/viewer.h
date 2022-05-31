@@ -195,7 +195,7 @@ private:
 
   void SetDisplayImage(QVariant frame);
 
-  void RequestNextFrameForQueue(RenderTicketPriority priority = RenderTicketPriority::kNormal, bool increment = true);
+  RenderTicketWatcher *RequestNextFrameForQueue(RenderTicketPriority priority = RenderTicketPriority::kNormal, bool increment = true);
 
   RenderTicketPtr GetFrame(const rational& t, RenderTicketPriority priority);
 
@@ -278,6 +278,7 @@ private:
   QString recording_filename_;
 
   qint64 queue_starved_start_;
+  RenderTicketWatcher *first_requeue_watcher_;
 
   bool enable_audio_scrubbing_;
 

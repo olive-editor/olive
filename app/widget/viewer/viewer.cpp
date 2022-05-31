@@ -60,6 +60,8 @@ QVector<ViewerWidget*> ViewerWidget::instances_;
 //       changing values. 1/4 second seems to be a good middleground.
 const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 4);
 
+const rational kVideoPlaybackInterval = rational(1, 2);
+
 ViewerWidget::ViewerWidget(QWidget *parent) :
   super(false, true, parent),
   playback_speed_(0),
@@ -69,6 +71,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   prequeuing_audio_(0),
   record_armed_(false),
   recording_(false),
+  first_requeue_watcher_(nullptr),
   enable_audio_scrubbing_(true)
 {
   // Set up main layout
@@ -633,12 +636,20 @@ void ViewerWidget::ReceivedAudioBufferForScrubbing()
 
 void ViewerWidget::QueueStarved()
 {
-  static const int kMaximumWaitTime = 250;
+  static const int kMaximumWaitTimeMs = 250;
+  static const rational kMaximumWaitTime(kMaximumWaitTimeMs, 1000);
   qint64 now = QDateTime::currentMSecsSinceEpoch();
 
   if (!queue_starved_start_) {
     queue_starved_start_ = now;
-  } else if (now > queue_starved_start_ + kMaximumWaitTime) {
+  } else if (now > queue_starved_start_ + kMaximumWaitTimeMs) {
+    if (first_requeue_watcher_) {
+      if (GetTime() + kMaximumWaitTime < first_requeue_watcher_->property("time").value<rational>()) {
+        // We still have time
+        return;
+      }
+    }
+
     ForceRequeueFromCurrentTime();
     queue_starved_start_ = 0;
   }
@@ -651,11 +662,20 @@ void ViewerWidget::QueueNoLongerStarved()
 
 void ViewerWidget::ForceRequeueFromCurrentTime()
 {
+  // Allow half a second for requeue to complete
+  static const rational kRequeueWaitTime(1);
+
+  qDebug() << "FIXME: Should be able to clear our frames";
   //ClearVideoAutoCacherQueue();
+  queue_watchers_.clear();
   int queue = DeterminePlaybackQueueSize();
-  playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
-  for (int i=queue_watchers_.size(); i<queue; i++) {
-    RequestNextFrameForQueue();
+  playback_queue_next_frame_ = GetTimestamp() + playback_speed_ * Timecode::time_to_timestamp(kRequeueWaitTime, timebase(), Timecode::kFloor);;
+  first_requeue_watcher_ = nullptr;
+  for (int i=0; i<queue; i++) {
+    RenderTicketWatcher *watcher = RequestNextFrameForQueue();
+    if (!first_requeue_watcher_) {
+      first_requeue_watcher_ = watcher;
+    }
   }
 }
 
@@ -890,8 +910,10 @@ void ViewerWidget::SetDisplayImage(QVariant frame)
   }
 }
 
-void ViewerWidget::RequestNextFrameForQueue(RenderTicketPriority priority, bool increment)
+RenderTicketWatcher *ViewerWidget::RequestNextFrameForQueue(RenderTicketPriority priority, bool increment)
 {
+  RenderTicketWatcher *watcher = nullptr;
+
   rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
                                                    timebase());
 
@@ -900,12 +922,14 @@ void ViewerWidget::RequestNextFrameForQueue(RenderTicketPriority priority, bool 
       playback_queue_next_frame_ += playback_speed_;
     }
 
-    RenderTicketWatcher* watcher = new RenderTicketWatcher();
+    watcher = new RenderTicketWatcher();
     watcher->setProperty("time", QVariant::fromValue(next_time));
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
     queue_watchers_.append(watcher);
     watcher->SetTicket(GetFrame(next_time, priority));
   }
+
+  return watcher;
 }
 
 RenderTicketPtr ViewerWidget::GetFrame(const rational &t, RenderTicketPriority priority)
@@ -977,7 +1001,7 @@ int ViewerWidget::DeterminePlaybackQueueSize()
   int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
 
   // Generate maximum queue
-  int max_frames = qCeil(kAudioPlaybackInterval.toDouble() / timebase().toDouble());
+  int max_frames = qCeil(kVideoPlaybackInterval.toDouble() / timebase().toDouble());
 
   return qMin(max_frames, remaining_frames);
 }
@@ -1084,6 +1108,10 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         }
       }
     }
+  }
+
+  if (first_requeue_watcher_ == watcher) {
+    first_requeue_watcher_ = nullptr;
   }
 
   delete watcher;
