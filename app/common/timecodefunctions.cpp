@@ -304,14 +304,24 @@ int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase
     return 0;
   }
 
+  const double eps = 0.000000000001;
+
   switch (floor) {
   case kRound:
   default:
     return qRound64(d);
   case kFloor:
-    return qFloor(d);
+    if (d > qCeil(d)-eps) {
+      return qCeil(d);
+    } else {
+      return qFloor(d);
+    }
   case kCeil:
-    return qCeil(d);
+    if (d < qFloor(d)+eps) {
+      return qFloor(d);
+    } else {
+      return qCeil(d);
+    }
   }
 }
 

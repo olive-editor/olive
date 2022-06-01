@@ -486,6 +486,11 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
 
 int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
 {
+  return SetStream(type, value, -1);
+}
+
+int ViewerOutput::SetStream(Track::Type type, const QVariant &value, int index_in)
+{
   QString id;
 
   if (type == Track::kVideo) {
@@ -499,8 +504,11 @@ int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
   }
 
   // Add another video/audio param to the array for this stream
-  int index = InputArraySize(id);
-  InputArrayAppend(id);
+  int index = (index_in == -1) ? InputArraySize(id) : index_in;
+
+  if (index >= InputArraySize(id)) {
+    InputArrayResize(id, index+1);
+  }
 
   SetStandardValue(id, value, index);
 

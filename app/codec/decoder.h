@@ -150,9 +150,11 @@ public:
     RetrieveVideoParams()
     {
       divider = 1;
+      maximum_format = VideoParams::kFormatInvalid;
     }
 
     int divider;
+    VideoParams::Format maximum_format;
 
     void reset()
     {
@@ -161,7 +163,7 @@ public:
 
     bool operator==(const RetrieveVideoParams& rhs) const
     {
-      return divider == rhs.divider;
+      return divider == rhs.divider && maximum_format == rhs.maximum_format;
     }
 
     bool operator!=(const RetrieveVideoParams& rhs) const
@@ -180,7 +182,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  bool RetrieveVideo(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled = nullptr);
+  TexturePtr RetrieveVideo(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled = nullptr);
 
   enum RetrieveAudioStatus {
     kInvalid = -1,
@@ -275,7 +277,7 @@ protected:
    * Sub-classes must override this function IF they support video. Function is already mutexed
    * so sub-classes don't need to worry about thread safety.
    */
-  virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& divider, const QAtomicInt *cancelled);
+  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled);
 
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled);
 

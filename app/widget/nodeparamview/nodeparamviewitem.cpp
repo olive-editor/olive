@@ -88,7 +88,10 @@ void NodeParamViewItem::Retranslate()
 
 void NodeParamViewItem::RecreateBody()
 {
-  delete body_;
+  if (body_) {
+    body_->setParent(nullptr);
+    body_->deleteLater();
+  }
 
   body_ = new NodeParamViewItemBody(node_, create_checkboxes_);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);

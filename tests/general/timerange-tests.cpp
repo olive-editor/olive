@@ -105,4 +105,24 @@ OLIVE_ADD_TEST(TimeRangeListFrameIteratorSize)
   OLIVE_TEST_END;
 }
 
+OLIVE_ADD_TEST(TimeRangeListFrameIteratorSize2)
+{
+  const rational timebase(1001, 30000);
+
+  TimeRangeList ranges;
+
+  ranges.insert(TimeRange(rational(247247, 30000), rational(31031, 3750))); // 1
+
+  TimeRange tr(rational(247247, 30000), rational(31031, 3750));
+
+  TimeRangeListFrameIterator iterator(ranges, timebase);
+
+  QVector<rational> vec = iterator.ToVector();
+
+  OLIVE_ASSERT_EQUAL(vec.size(), 1);
+  OLIVE_ASSERT_EQUAL(iterator.size(), vec.size());
+
+  OLIVE_TEST_END;
+}
+
 }

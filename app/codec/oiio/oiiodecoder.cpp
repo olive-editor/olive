@@ -29,6 +29,7 @@
 #include "common/oiioutils.h"
 #include "config/config.h"
 #include "core.h"
+#include "render/renderer.h"
 
 namespace olive {
 
@@ -115,7 +116,7 @@ bool OIIODecoder::OpenInternal()
   return OpenImageHandler(stream().filename(), stream().stream());
 }
 
-bool OIIODecoder::RetrieveVideoInternal(TexturePtr destination, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
+TexturePtr OIIODecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(cancelled)
@@ -152,9 +153,7 @@ bool OIIODecoder::RetrieveVideoInternal(TexturePtr destination, const rational &
     }
   }
 
-  destination->Upload(buffer_.data(), buffer_.linesize_pixels());
-
-  return true;
+  return renderer->CreateTexture(vp, buffer_.data(), buffer_.linesize_pixels());
 }
 
 void OIIODecoder::CloseInternal()

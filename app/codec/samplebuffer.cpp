@@ -191,6 +191,13 @@ void SampleBuffer::transform_volume_for_sample_on_channel(int sample_index, int 
   data_[channel][sample_index] *= volume;
 }
 
+void SampleBuffer::clamp()
+{
+  for (int i=0; i<channel_count(); i++) {
+    clamp_channel(i);
+  }
+}
+
 void SampleBuffer::silence()
 {
   silence(0, sample_count_per_channel_);
@@ -221,6 +228,36 @@ void SampleBuffer::set(int channel, const float *data, int sample_offset, int sa
   }
 
   memcpy(&data_[channel].data()[sample_offset], data, sizeof(float) * sample_length);
+}
+
+void SampleBuffer::clamp_channel(int channel)
+{
+  const float min = -1.0f;
+  const float max = 1.0f;
+
+  float *cdat = data_[channel].data();
+  int unopt_start = 0;
+
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+  __m128 min_sse = _mm_load1_ps(&min);
+  __m128 max_sse = _mm_load1_ps(&max);
+
+  unopt_start = (sample_count_per_channel_ / 4) * 4;
+  for (int j=0; j<unopt_start; j+=4) {
+    float *here = cdat + j;
+    __m128 samples = _mm_loadu_ps(here);
+
+    samples = _mm_max_ps(samples, min_sse);
+    samples = _mm_min_ps(samples, max_sse);
+
+    _mm_storeu_ps(here, samples);
+  }
+#endif
+
+  for (int sample=unopt_start; sample<sample_count(); sample++) {
+    float &s = data(channel)[sample];
+    s = std::clamp(s, min, max);
+  }
 }
 
 }

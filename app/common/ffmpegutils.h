@@ -36,7 +36,7 @@ public:
   /**
    * @brief Returns an AVPixelFormat that can be used to convert a frame to a data type Olive supports with minimal data loss
    */
-  static AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
+  static AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt, VideoParams::Format maximum = VideoParams::kFormatInvalid);
 
   /**
    * @brief Returns a native pixel format that can be used to convert from a native frame to an AVFrame with minimal data loss

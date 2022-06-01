@@ -43,6 +43,8 @@ const QString Footage::kLoopModeInput = QStringLiteral("loop_in");
 
 Footage::Footage(const QString &filename) :
   ViewerOutput(false, false),
+  timestamp_(0),
+  valid_(false),
   cancelled_(nullptr)
 {
   SetCacheTextures(true);
@@ -53,7 +55,9 @@ Footage::Footage(const QString &filename) :
 
   Clear();
 
-  set_filename(filename);
+  if (!filename.isEmpty()) {
+    set_filename(filename);
+  }
 
   QTimer *check_timer = new QTimer(this);
   check_timer->setInterval(5000);
@@ -76,59 +80,7 @@ void Footage::InputValueChangedEvent(const QString &input, int element)
     // Reset internal stream cache
     Clear();
 
-    // Determine if file still exists
-    QFileInfo info(filename());
-
-    if (info.exists()) {
-      // Grab timestamp
-      set_timestamp(info.lastModified().toMSecsSinceEpoch());
-
-      // Determine if we've already cached the metadata of this file
-      QString meta_cache_file = QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath(FileFunctions::GetUniqueFileIdentifier(filename()));
-
-      FootageDescription footage_info;
-
-      // Try to load footage info from cache
-      if (!QFileInfo::exists(meta_cache_file) || !footage_info.Load(meta_cache_file)) {
-
-        // Probe and create cache
-        QVector<DecoderPtr> decoder_list = Decoder::ReceiveListOfAllDecoders();
-
-        foreach (DecoderPtr decoder, decoder_list) {
-          footage_info = decoder->Probe(filename(), cancelled_);
-
-          if (footage_info.IsValid()) {
-            break;
-          }
-        }
-
-        if (!footage_info.Save(meta_cache_file)) {
-          qWarning() << "Failed to save stream cache, footage will have to be re-probed";
-        }
-
-      }
-
-      if (footage_info.IsValid()) {
-        decoder_ = footage_info.decoder();
-
-        for (int i=0; i<footage_info.GetVideoStreams().size(); i++) {
-          AddStream(Track::kVideo, QVariant::fromValue(footage_info.GetVideoStreams().at(i)));
-        }
-
-        for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {
-          AddStream(Track::kAudio, QVariant::fromValue(footage_info.GetAudioStreams().at(i)));
-        }
-
-        for (int i=0; i<footage_info.GetSubtitleStreams().size(); i++) {
-          AddStream(Track::kSubtitle, QVariant::fromValue(footage_info.GetSubtitleStreams().at(i)));
-        }
-
-        SetValid();
-      }
-
-    } else {
-      set_timestamp(0);
-    }
+    Reprobe();
   } else {
     super::InputValueChangedEvent(input, element);
   }
@@ -419,6 +371,13 @@ rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mod
   return time;
 }
 
+void Footage::LoadFinishedEvent()
+{
+  if (!filename().isEmpty()) {
+    Reprobe();
+  }
+}
+
 qint64 Footage::creation_time() const
 {
   QFileInfo info(filename());
@@ -482,6 +441,98 @@ void Footage::UpdateTooltip()
   }
 }
 
+void Footage::Reprobe()
+{
+  // Determine if file still exists
+  QString filename = this->filename();
+
+  // In case of failure to load file, set timestamp to a value that will always be invalid so we
+  // continuously reprobe
+  set_timestamp(0);
+
+  if (!filename.isEmpty()) {
+    QFileInfo info(filename);
+
+    if (info.exists()) {
+      // Grab timestamp
+      set_timestamp(info.lastModified().toMSecsSinceEpoch());
+
+      // Determine if we've already cached the metadata of this file
+      QString meta_cache_file = QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath(FileFunctions::GetUniqueFileIdentifier(filename));
+
+      FootageDescription footage_info;
+
+      // Try to load footage info from cache
+      if (!QFileInfo::exists(meta_cache_file) || !footage_info.Load(meta_cache_file)) {
+
+        // Probe and create cache
+        QVector<DecoderPtr> decoder_list = Decoder::ReceiveListOfAllDecoders();
+
+        foreach (DecoderPtr decoder, decoder_list) {
+          footage_info = decoder->Probe(filename, cancelled_);
+
+          if (footage_info.IsValid()) {
+            break;
+          }
+        }
+
+        if (!footage_info.Save(meta_cache_file)) {
+          qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+        }
+
+      }
+
+      if (footage_info.IsValid()) {
+        decoder_ = footage_info.decoder();
+
+        InputArrayResize(kVideoParamsInput, footage_info.GetVideoStreams().size());
+        for (int i=0; i<footage_info.GetVideoStreams().size(); i++) {
+          VideoParams video_stream = footage_info.GetVideoStreams().at(i);
+
+          if (i < InputArraySize(kVideoParamsInput)) {
+            VideoParams existing = this->GetVideoParams(i);
+            if (existing.is_valid()) {
+              video_stream = MergeVideoStream(video_stream, existing);
+            }
+          }
+
+          SetStream(Track::kVideo, QVariant::fromValue(video_stream), i);
+        }
+
+        InputArrayResize(kAudioParamsInput, footage_info.GetAudioStreams().size());
+        for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {
+          SetStream(Track::kAudio, QVariant::fromValue(footage_info.GetAudioStreams().at(i)), i);
+        }
+
+        InputArrayResize(kSubtitleParamsInput, footage_info.GetSubtitleStreams().size());
+        for (int i=0; i<footage_info.GetSubtitleStreams().size(); i++) {
+          SetStream(Track::kSubtitle, QVariant::fromValue(footage_info.GetSubtitleStreams().at(i)), i);
+        }
+
+        SetValid();
+      }
+
+    }
+  }
+}
+
+VideoParams Footage::MergeVideoStream(const VideoParams &base, const VideoParams &over)
+{
+  VideoParams merged = base;
+
+  merged.set_pixel_aspect_ratio(over.pixel_aspect_ratio());
+  merged.set_interlacing(over.interlacing());
+  merged.set_colorspace(over.colorspace());
+  merged.set_premultiplied_alpha(over.premultiplied_alpha());
+  if (merged.video_type() == VideoParams::kVideoTypeImageSequence && over.video_type() == VideoParams::kVideoTypeImageSequence) {
+    merged.set_start_time(over.start_time());
+    merged.set_duration(over.duration());
+    merged.set_frame_rate(over.frame_rate());
+  }
+
+  return merged;
+}
+
 void Footage::CheckFootage()
 {
   // Don't check files if not the active window
@@ -495,7 +546,7 @@ void Footage::CheckFootage()
 
       if (current_file_timestamp != timestamp()) {
         // File has changed!
-        set_timestamp(current_file_timestamp);
+        Reprobe();
         InvalidateAll(kFilenameInput);
       }
     }

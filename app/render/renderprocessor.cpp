@@ -215,11 +215,15 @@ void RenderProcessor::Run()
     ResolveJobs(sample_val, time);
 
     SampleBuffer samples = sample_val.toSamples();
-    if (samples.is_allocated() && ticket_->property("enablewaveforms").toBool()) {
-      AudioVisualWaveform vis;
-      vis.set_channel_count(samples.audio_params().channel_count());
-      vis.OverwriteSamples(samples, samples.audio_params().sample_rate());
-      ticket_->setProperty("waveform", QVariant::fromValue(vis));
+    if (samples.is_allocated()) {
+      samples.clamp();
+
+      if (ticket_->property("enablewaveforms").toBool()) {
+        AudioVisualWaveform vis;
+        vis.set_channel_count(samples.audio_params().channel_count());
+        vis.OverwriteSamples(samples, samples.audio_params().sample_rate());
+        ticket_->setProperty("waveform", QVariant::fromValue(vis));
+      }
     }
 
     if (HeardCancel()) {
@@ -448,17 +452,15 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
   if (decoder) {
     Decoder::RetrieveVideoParams p;
     p.divider = stream.video_params().divider();
+    p.maximum_format = destination->format();
 
     if (!IsCancelled()) {
-
       VideoParams tex_params = stream.video_params();
 
       if (tex_params.is_valid()) {
-        TexturePtr unmanaged_texture = render_ctx_->CreateTexture(tex_params);
+        TexturePtr unmanaged_texture = decoder->RetrieveVideo(render_ctx_, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
 
-        bool frame = decoder->RetrieveVideo(unmanaged_texture, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
-
-        if (frame) {
+        if (unmanaged_texture) {
           // We convert to our rendering pixel format, since that will always be float-based which
           // is necessary for correct color conversion
           ColorProcessorPtr processor = ColorProcessor::Create(color_manager,

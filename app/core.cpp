@@ -390,10 +390,12 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerOutput* viewer = GetSequenceToExport();
+  ViewerOutput* viewer;
+  rational time;
 
-  if (viewer) {
+  if (GetSequenceToExport(&viewer, &time)) {
     ExportDialog* ed = new ExportDialog(viewer, main_window_);
+    ed->SetTime(time);
     connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
     ed->open();
   }
@@ -857,7 +859,7 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
   psm->deleteLater();
 }
 
-ViewerOutput* Core::GetSequenceToExport()
+bool Core::GetSequenceToExport(ViewerOutput **viewer, rational *time)
 {
   // First try the most recently focused time based window
   TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
@@ -875,7 +877,9 @@ ViewerOutput* Core::GetSequenceToExport()
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      return time_panel->GetConnectedViewer();
+      *viewer = time_panel->GetConnectedViewer();
+      *time = time_panel->GetTime();
+      return true;
     }
   } else {
     QMessageBox::critical(main_window_,
@@ -884,7 +888,7 @@ ViewerOutput* Core::GetSequenceToExport()
                           QMessageBox::Ok);
   }
 
-  return nullptr;
+  return false;
 }
 
 QString Core::GetAutoRecoveryIndexFilename()
