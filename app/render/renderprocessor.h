@@ -32,7 +32,7 @@ namespace olive {
 class RenderProcessor : public NodeTraverser
 {
 public:
-  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
+  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   struct RenderedWaveform {
     const ClipBlock* block;
@@ -69,7 +69,7 @@ protected:
   virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs) override;
 
 private:
-  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
+  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   TexturePtr GenerateTexture(const rational& time, const rational& frame_length);
 
@@ -86,8 +86,6 @@ private:
   DecoderCache* decoder_cache_;
 
   ShaderCache* shader_cache_;
-
-  QVariant default_shader_;
 
 };
 

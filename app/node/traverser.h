@@ -146,6 +146,11 @@ protected:
 
   void ResolveJobs(NodeValue &value, const TimeRange &range);
 
+  Block *GetCurrentBlock() const
+  {
+    return block_stack_.empty() ? nullptr : block_stack_.back();
+  }
+
 private:
   void PreProcessRow(const TimeRange &range, NodeValueRow &row);
 
@@ -161,6 +166,8 @@ private:
   const Node *transform_start_;
   const Node *transform_now_;
   QTransform *transform_;
+
+  std::list<Block*> block_stack_;
 
 };
 

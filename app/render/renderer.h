@@ -76,6 +76,8 @@ public:
 
   TexturePtr InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params);
 
+  QVariant GetDefaultShader();
+
   void Destroy();
 
   virtual void PostDestroy() = 0;
@@ -133,6 +135,8 @@ private:
   QHash<QString, ColorContext> color_cache_;
 
   QMutex color_cache_mutex_;
+
+  QVariant default_shader_;
 
   QVariant interlace_texture_;
 

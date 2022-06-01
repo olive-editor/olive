@@ -702,7 +702,10 @@ void ViewerWidget::UpdateTextureFromNode()
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
     nonqueue_watchers_.append(watcher);
 
-    watcher->SetTicket(GetFrame(time, RenderTicketPriority::kHigh));
+    // Clear queue because we want this frame more than any others
+    auto_cacher_->ClearSingleFrameRenders();
+
+    watcher->SetTicket(GetFrame(time, RenderTicketPriority::kNormal));
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
@@ -753,7 +756,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
-  playback_queue_next_frame_ = GetTimestamp();
+  playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
 
   controls_->ShowPauseButton();
 
@@ -767,18 +770,10 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       prequeuing_video_ = true;
       prequeue_count_ = 0;
 
-      // We "prioritize" the frames, which means they're pushed to the top of the render queue,
-      // we queue in reverse so that they're still queued in order
-
-      playback_queue_next_frame_ += playback_speed_ * prequeue_length_;
-      int64_t temp = playback_queue_next_frame_;
-
       for (int i=0; i<prequeue_length_; i++) {
-        playback_queue_next_frame_ -= playback_speed_;
-        RequestNextFrameForQueue(RenderTicketPriority::kHigh, false);
+        RequestNextFrameForQueue(RenderTicketPriority::kNormal, false);
+        playback_queue_next_frame_ += playback_speed_;
       }
-
-      playback_queue_next_frame_ = temp;
     }
   }
 
@@ -1484,10 +1479,11 @@ void ViewerWidget::PlaybackTimerUpdate()
   }
 
   if (IsPlaying()) {
-    int count = 0;
-    for (int i=display_widget_->queue()->size(); i<DeterminePlaybackQueueSize(); i++) {
-      RequestNextFrameForQueue();
-      count++;
+    while (queue_watchers_.size() < DeterminePlaybackQueueSize()) {
+      if (!RequestNextFrameForQueue()) {
+        // Prevent infinite loop
+        break;
+      }
     }
   }
 

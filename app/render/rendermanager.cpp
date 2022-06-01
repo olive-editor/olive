@@ -54,7 +54,6 @@ RenderManager::RenderManager(QObject *parent) :
 
     decoder_cache_ = new DecoderCache();
     shader_cache_ = new ShaderCache();
-    default_shader_ = context_->CreateNativeShader(ShaderCode(QString(), QString()));
   } else {
     qCritical() << "Tried to initialize unknown graphics backend";
     context_ = nullptr;
@@ -65,8 +64,6 @@ RenderManager::RenderManager(QObject *parent) :
 RenderManager::~RenderManager()
 {
   if (context_) {
-    context_->DestroyNativeShader(default_shader_);
-
     delete shader_cache_;
     delete decoder_cache_;
 
@@ -130,7 +127,7 @@ void RenderManager::RunTicket(RenderTicketPtr ticket) const
     return;
   }
 
-  RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_, default_shader_);
+  RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
 }
 
 }
