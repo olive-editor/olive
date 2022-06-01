@@ -68,7 +68,7 @@ public:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
+  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled) override;
   virtual void CloseInternal() override;
 
@@ -160,7 +160,8 @@ private:
   AVFilterContext* buffersrc_ctx_;
   AVFilterContext* buffersink_ctx_;
   AVPixelFormat input_fmt_;
-  VideoParams::Format native_pix_fmt_;
+  VideoParams::Format native_internal_pix_fmt_;
+  VideoParams::Format native_output_pix_fmt_;
   int native_channel_count_;
 
   AVFrame *working_frame_;

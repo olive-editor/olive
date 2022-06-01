@@ -71,6 +71,8 @@ public:
     return r;
   }
 
+  int channel_count() const { return data_.size(); }
+
   bool is_allocated() const;
   void allocate();
   void destroy();
@@ -81,6 +83,8 @@ public:
   void transform_volume_for_channel(int channel, float volume);
   void transform_volume_for_sample(int sample_index, float volume);
   void transform_volume_for_sample_on_channel(int sample_index, int channel, float volume);
+
+  void clamp();
 
   void silence();
   void silence(int start_sample, int end_sample);
@@ -93,6 +97,8 @@ public:
   }
 
 private:
+  void clamp_channel(int channel);
+
   AudioParams audio_params_;
 
   int sample_count_per_channel_;

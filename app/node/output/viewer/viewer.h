@@ -201,6 +201,7 @@ protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
   int AddStream(Track::Type type, const QVariant &value);
+  int SetStream(Track::Type type, const QVariant &value, int index);
 
 private:
   rational last_length_;

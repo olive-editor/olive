@@ -22,17 +22,20 @@
 
 namespace olive {
 
-AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
+AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, VideoParams::Format maximum)
 {
-  AVPixelFormat possible_pix_fmts[] = {
-    // RGBA formats only because GPUs always upconvert to RGBA, so if it's RGB, that adds extra
-    // conversion overhead
-    AV_PIX_FMT_RGBA,
-    AV_PIX_FMT_RGBA64,
-    AV_PIX_FMT_NONE
-  };
+  std::vector<AVPixelFormat> possible_pix_fmts(3);
 
-  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
+  possible_pix_fmts[0] = AV_PIX_FMT_RGBA;
+
+  if (maximum == VideoParams::kFormatUnsigned8) {
+    possible_pix_fmts[1] = AV_PIX_FMT_NONE;
+  } else {
+    possible_pix_fmts[1] = AV_PIX_FMT_RGBA64;
+    possible_pix_fmts[2] = AV_PIX_FMT_NONE;
+  }
+
+  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts.data(),
                                            pix_fmt,
                                            1,
                                            nullptr);

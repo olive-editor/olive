@@ -548,6 +548,8 @@ void ProjectSerializer220403::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
       reader->skipCurrentElement();
     }
   }
+
+  node->LoadFinishedEvent();
 }
 
 void ProjectSerializer220403::SaveNode(Node *node, QXmlStreamWriter *writer) const
