@@ -130,8 +130,6 @@ private:
 
   ShaderCache* shader_cache_;
 
-  QVariant default_shader_;
-
 };
 
 }

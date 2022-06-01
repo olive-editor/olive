@@ -35,12 +35,11 @@ namespace olive {
 
 #define super NodeTraverser
 
-RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache* decoder_cache, ShaderCache *shader_cache, QVariant default_shader) :
+RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache* decoder_cache, ShaderCache *shader_cache) :
   ticket_(ticket),
   render_ctx_(render_ctx),
   decoder_cache_(decoder_cache),
-  shader_cache_(shader_cache),
-  default_shader_(default_shader)
+  shader_cache_(shader_cache)
 {
 }
 
@@ -115,7 +114,7 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
         job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
         job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
 
-        render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
+        render_ctx_->BlitToTexture(render_ctx_->GetDefaultShader(), job, blit_tex.get());
       }
 
       // Replace texture that we're going to download in the next step
@@ -269,9 +268,9 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
   return decoder.decoder;
 }
 
-void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache, QVariant default_shader)
+void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache)
 {
-  RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache, default_shader);
+  RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache);
   p.Run();
 }
 

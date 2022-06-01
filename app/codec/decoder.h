@@ -34,6 +34,7 @@ extern "C" {
 #include "codec/frame.h"
 #include "codec/samplebuffer.h"
 #include "common/rational.h"
+#include "node/block/block.h"
 #include "node/project/footage/footage.h"
 #include "node/project/footage/footagedescription.h"
 #include "task/task.h"
@@ -85,13 +86,15 @@ public:
   {
   public:
     CodecStream() :
-      stream_(-1)
+      stream_(-1),
+      block_(nullptr)
     {
     }
 
-    CodecStream(const QString& filename, int stream) :
+    CodecStream(const QString& filename, int stream, Block *block) :
       filename_(filename),
-      stream_(stream)
+      stream_(stream),
+      block_(block)
     {
     }
 
@@ -125,10 +128,17 @@ public:
       return stream_;
     }
 
+    Block *block() const
+    {
+      return block_;
+    }
+
   private:
     QString filename_;
 
     int stream_;
+
+    Block *block_;
 
   };
 
