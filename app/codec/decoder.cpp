@@ -335,7 +335,7 @@ void Decoder::UpdateLastAccessed()
 
 uint qHash(Decoder::CodecStream stream, uint seed)
 {
-  return qHash(stream.filename(), seed) ^ qHash(stream.stream(), seed);
+  return qHash(stream.filename(), seed) ^ qHash(stream.stream(), seed) ^ qHash(stream.block(), seed);
 }
 
 }

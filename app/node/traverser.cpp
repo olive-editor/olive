@@ -350,7 +350,9 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   NodeValueTable table;
 
   if (active_block) {
+    block_stack_.push_back(active_block);
     table = GenerateTable(active_block, Track::TransformRangeForBlock(active_block, range), track);
+    block_stack_.pop_back();
   }
 
   return table;

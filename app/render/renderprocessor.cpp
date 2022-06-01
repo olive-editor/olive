@@ -255,10 +255,10 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
     // No decoder
     decoder.decoder = Decoder::CreateFromID(decoder_id);
     decoder.last_modified = file_last_modified;
+    decoder_cache_->insert(stream, decoder);
+    locker.unlock();
 
-    if (decoder.decoder->Open(stream)) {
-      decoder_cache_->insert(stream, decoder);
-    } else {
+    if (!decoder.decoder->Open(stream)) {
       qWarning() << "Failed to open decoder for" << stream.filename()
                  << "::" << stream.stream();
       return nullptr;
@@ -421,7 +421,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     qWarning() << "HAVEN'T GOTTEN DEFAULT INPUT COLORSPACE";
   }
 
-  Decoder::CodecStream default_codec_stream(stream.filename(), stream_data.stream_index());
+  Decoder::CodecStream default_codec_stream(stream.filename(), stream_data.stream_index(), GetCurrentBlock());
 
   QString decoder_id = stream.decoder();
 
@@ -443,7 +443,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
 
     // Decoder will close automatically since it's a stream_ptr
-    decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index()));
+    decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index(), GetCurrentBlock()));
     break;
   }
   }
@@ -489,7 +489,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
 void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time)
 {
-  DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index()));
+  DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index(), nullptr));
 
   if (decoder) {
     const AudioParams& audio_params = GetCacheAudioParams();
