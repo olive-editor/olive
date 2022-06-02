@@ -85,6 +85,7 @@ void Renderer::Destroy()
 {
   if (!default_shader_.isNull()) {
     DestroyNativeShader(default_shader_);
+    default_shader_.clear();
   }
 
   color_cache_.clear();
