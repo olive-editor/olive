@@ -122,6 +122,15 @@ public:
     return block_links_;
   }
 
+  const FrameHashCache *connected_video_cache() const
+  {
+    if (Node *n = GetConnectedOutput(kBufferIn)) {
+      return n->video_frame_cache();
+    } else {
+      return nullptr;
+    }
+  }
+
   const FrameHashCache *thumbnails()
   {
     if (Node *n = GetConnectedOutput(kBufferIn)) {

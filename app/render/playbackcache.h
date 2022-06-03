@@ -23,6 +23,7 @@
 
 #include <QDir>
 #include <QObject>
+#include <QPainter>
 #include <QUuid>
 
 #include "common/jobtime.h"
@@ -43,14 +44,14 @@ public:
   const QUuid &GetUuid() const { return uuid_; }
   void SetUuid(const QUuid &u) { uuid_ = u; }
 
-  TimeRangeList GetInvalidatedRanges(TimeRange intersecting);
-  TimeRangeList GetInvalidatedRanges(const rational &length)
+  TimeRangeList GetInvalidatedRanges(TimeRange intersecting) const;
+  TimeRangeList GetInvalidatedRanges(const rational &length) const
   {
     return GetInvalidatedRanges(TimeRange(0, length));
   }
 
-  bool HasInvalidatedRanges(const TimeRange &intersecting);
-  bool HasInvalidatedRanges(const rational &length)
+  bool HasInvalidatedRanges(const TimeRange &intersecting) const;
+  bool HasInvalidatedRanges(const rational &length) const
   {
     return HasInvalidatedRanges(TimeRange(0, length));
   }
@@ -59,6 +60,7 @@ public:
 
   void Invalidate(const TimeRange& r);
 
+  bool HasValidatedRanges() const { return !validated_.isEmpty(); }
   const TimeRangeList &GetValidatedRanges() const { return validated_; }
 
   Node *parent() const;
@@ -68,6 +70,13 @@ public:
 
   void LoadState();
   void SaveState();
+
+  void Draw(QPainter *painter, const rational &start, double scale, const QRect &rect) const;
+
+  static int GetCacheIndicatorHeight()
+  {
+    return QFontMetrics(QFont()).height()/4;
+  }
 
 public slots:
   void InvalidateAll();

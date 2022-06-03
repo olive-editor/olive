@@ -292,6 +292,8 @@ void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *out
   if (input == kBufferIn) {
     connect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
     connect(output->waveform_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
+    connect(output->video_frame_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
+    connect(output->audio_playback_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
   }
 }
 
@@ -302,6 +304,8 @@ void ClipBlock::InputDisconnectedEvent(const QString &input, int element, Node *
   if (input == kBufferIn) {
     disconnect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
     disconnect(output->waveform_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
+    disconnect(output->video_frame_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
+    disconnect(output->audio_playback_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
   }
 }
 

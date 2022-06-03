@@ -603,6 +603,13 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             }
           }
         }
+
+        if (const FrameHashCache *cache = clip->connected_video_cache()) {
+          if (cache->HasValidatedRanges()) {
+            QRect cache_rect = r.adjusted(0, r.height() - PlaybackCache::GetCacheIndicatorHeight(), 0, 0).toRect();
+            cache->Draw(painter, clip->media_in(), GetScale(), cache_rect);
+          }
+        }
       }
 
       // For transitions, show lines representing a transition

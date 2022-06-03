@@ -127,6 +127,32 @@ void PlaybackCache::SaveState()
   }
 }
 
+void PlaybackCache::Draw(QPainter *p, const rational &start, double scale, const QRect &rect) const
+{
+  p->fillRect(rect, Qt::red);
+
+  foreach (const TimeRange& range, GetValidatedRanges()) {
+    int range_left = rect.left() + (range.in() - start).toDouble() * scale;
+    if (range_left >= rect.right()) {
+      continue;
+    }
+
+    int range_right = rect.left() + (range.out() - start).toDouble() * scale;
+    if (range_right < rect.left()) {
+      continue;
+    }
+
+    int adjusted_left = std::max(range_left, rect.left());
+    int adjusted_right = std::min(range_right, rect.right());
+
+    p->fillRect(adjusted_left,
+                rect.top(),
+                adjusted_right - adjusted_left,
+                rect.height(),
+                Qt::green);
+  }
+}
+
 void PlaybackCache::InvalidateAll()
 {
   Invalidate(TimeRange(0, RATIONAL_MAX));
@@ -156,7 +182,7 @@ PlaybackCache::PlaybackCache(QObject *parent) :
   uuid_ = QUuid::createUuid();
 }
 
-TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting)
+TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting) const
 {
   TimeRangeList invalidated;
 
@@ -174,7 +200,7 @@ TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting)
   return invalidated;
 }
 
-bool PlaybackCache::HasInvalidatedRanges(const TimeRange &intersecting)
+bool PlaybackCache::HasInvalidatedRanges(const TimeRange &intersecting) const
 {
   return !validated_.contains(intersecting);
 }
