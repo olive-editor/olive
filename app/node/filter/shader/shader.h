@@ -64,7 +64,7 @@ public:
 
 private:
   void parseShaderCode();
-  void onShaderCodeChanged();
+  void checkShaderSyntax();
   void reportErrorList( const ShaderInputsParser & parser);
   void updateInputList( const ShaderInputsParser & parser);
   void updateGizmoList();
@@ -76,7 +76,10 @@ protected slots:
 
 private:
 
+  // source GLSL code
   QString shader_code_;
+  // error in metadata or shader
+  QString output_messages_;
   // user defined inputs
   QStringList user_input_list_;
   // input of type vec2 to gizmo map

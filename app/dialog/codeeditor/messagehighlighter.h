@@ -46,9 +46,11 @@ protected:
 private:
   QTextCharFormat group_format_;
   QTextCharFormat line_format_;
+  QTextCharFormat shader_format_;
 
   QRegularExpression group_regexp;
   QRegularExpression line_regexp;
+  QRegularExpression shader_msg_regexp;
 };
 
 

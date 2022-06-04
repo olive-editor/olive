@@ -67,7 +67,7 @@ const QString keywordPatterns[] = {
   QStringLiteral("\\bcase\\b"), QStringLiteral("\\btrue\\b"), QStringLiteral("\\bfalse\\b"),
   QStringLiteral("\\bstatic\\b"), QStringLiteral("\\bdefault\\b"), QStringLiteral("#define\\b"),
   QStringLiteral("\\bove_texcoord\\b"), QStringLiteral("\\bin\\b"), QStringLiteral("\\bout\\b"),
-  QStringLiteral("\\bresolution_in\\b")
+  QStringLiteral("\\bresolution_in\\b"), QStringLiteral("#version\\b")
 };
 
 const QString typePatterns[] = {

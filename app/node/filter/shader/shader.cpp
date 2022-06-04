@@ -27,6 +27,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QLayout>
+#include <QOpenGLShader>
 
 #include "shaderinputsparser.h"
 
@@ -100,10 +101,10 @@ QVector<Node::CategoryID> ShaderFilterNode::Category() const
   return {kCategoryFilter};
 }
 
+
 void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element)
-
 
   if (input == kShaderCode) {
     // for some reason, this function is called more than once for each input
@@ -113,22 +114,20 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
     if (shader_code_ != new_code) {
 
       shader_code_ = new_code;
+      output_messages_.clear();
 
       // the code of the shader has changed.
       // Remove all inputs and re-parse the code
       // to fix shader name and input parameters.
-      onShaderCodeChanged();
+      parseShaderCode();
+
+      // check for syntax
+      checkShaderSyntax();
+
+      SetStandardValue( kOutputMessages, output_messages_.isEmpty() ? tr("None") : output_messages_);
+      qDebug() << "parsed shader code for " << GetLabel() << " @ " << (uint64_t)this;
     }
   }
-}
-
-void olive::ShaderFilterNode::onShaderCodeChanged()
-{
-
-  // create new inputs and gizmos
-  parseShaderCode();
-
-  qDebug() << "parsed shader code for " << GetLabel() << " @ " << (uint64_t)this;
 }
 
 
@@ -168,6 +167,27 @@ void ShaderFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globa
   }
 }
 
+
+void olive::ShaderFilterNode::checkShaderSyntax()
+{
+  QOpenGLShader shader(QOpenGLShader::Fragment);
+  bool ok;
+
+  if (shader_code_.startsWith("#version")) {
+
+    ok=shader.compileSourceCode( shader_code_);
+  } else {
+
+    ok=shader.compileSourceCode( "#version 150\n" + shader_code_);
+  }
+
+  if (ok == false)
+  {
+    output_messages_ += QString("Compilation errors:\n") + shader.log();
+  }
+}
+
+
 void ShaderFilterNode::parseShaderCode()
 {
   ShaderInputsParser parser(shader_code_);
@@ -187,9 +207,9 @@ void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
 {
   const QList<ShaderInputsParser::Error> & errors = parser.ErrorList();
 
-  QString message = QString(tr("None"));
+  QString message;
   if (errors.size() > 0) {
-    message = QString(tr("There are %1 issues.\n").arg(errors.size()));
+    message = QString(tr("There are %1 metadata issues.\n").arg(errors.size()));
   }
 
   for (ShaderInputsParser::Error e : errors ) {
@@ -197,7 +217,7 @@ void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
                    arg( parser.ShaderName()).arg(e.line).arg(e.issue));
   }
 
-  SetStandardValue( kOutputMessages, QVariant::fromValue<QString>(message));
+  output_messages_ += message;
 }
 
 void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)

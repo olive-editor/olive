@@ -31,8 +31,11 @@ MessageSyntaxHighlighter::MessageSyntaxHighlighter(QTextDocument *parent) :
   line_format_.setForeground(QColor(128,128,128));
   line_format_.setFontItalic(true);
 
-  group_regexp = QRegularExpression(QStringLiteral("\".*\""));
+  shader_format_.setForeground(QColor(100,16,16));
+
+  group_regexp = QRegularExpression(QStringLiteral("\"[^\"]*\""));
   line_regexp = QRegularExpression(QStringLiteral("line\\s\\d+:"));
+  shader_msg_regexp = QRegularExpression(QStringLiteral("\\d\\(\\d+\\)\\s:\\serror\\sC\\d+:"));
 }
 
 void MessageSyntaxHighlighter::highlightBlock(const QString &text)
@@ -46,10 +49,17 @@ void MessageSyntaxHighlighter::highlightBlock(const QString &text)
 
   matchIterator = line_regexp.globalMatch(text);
 
-    while (matchIterator.hasNext()) {
-      QRegularExpressionMatch match = matchIterator.next();
-      setFormat(match.capturedStart(), match.capturedLength(), line_format_);
-    }
+  while (matchIterator.hasNext()) {
+    QRegularExpressionMatch match = matchIterator.next();
+    setFormat(match.capturedStart(), match.capturedLength(), line_format_);
+  }
+
+  matchIterator = shader_msg_regexp.globalMatch(text);
+
+  while (matchIterator.hasNext()) {
+    QRegularExpressionMatch match = matchIterator.next();
+    setFormat(match.capturedStart(), match.capturedLength(), shader_format_);
+  }
 }
 
 
