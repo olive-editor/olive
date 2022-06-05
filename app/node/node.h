@@ -353,6 +353,8 @@ public:
 
   static void DisconnectEdge(Node *output, const NodeInput& input);
 
+  void CopyCacheUuidsFrom(Node *n);
+
   virtual QString GetInputName(const QString& id) const;
 
   void SetInputName(const QString& id, const QString& name);

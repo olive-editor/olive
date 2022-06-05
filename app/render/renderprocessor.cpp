@@ -530,9 +530,10 @@ void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node
 
     // Update all non-sample and non-footage inputs
     for (auto j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
-      NodeValueTable value = ProcessInput(node, j.key(), TimeRange(this_sample_time, this_sample_time));
+      TimeRange r = TimeRange(this_sample_time, this_sample_time);
+      NodeValueTable value = ProcessInput(node, j.key(), r);
 
-      value_db.insert(j.key(), GenerateRowValue(node, j.key(), &value));
+      value_db.insert(j.key(), GenerateRowValue(node, j.key(), &value, r));
     }
 
     node->ProcessSamples(value_db,
@@ -557,6 +558,20 @@ void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node 
   node->GenerateFrame(frame, job);
 
   destination->Upload(frame->data(), frame->linesize_pixels());
+}
+
+TexturePtr RenderProcessor::ProcessVideoCacheJob(const CacheJob &val)
+{
+  FramePtr frame = FrameHashCache::LoadCacheFrame(val.GetFilename());
+  if (frame) {
+    TexturePtr tex = CreateTexture(frame->video_params());
+    if (tex) {
+      tex->Upload(frame->data(), frame->linesize_pixels());
+      return tex;
+    }
+  }
+
+  return nullptr;
 }
 
 void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs)

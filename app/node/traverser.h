@@ -26,8 +26,9 @@
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
-#include "render/job/footagejob.h"
+#include "render/job/cachejob.h"
 #include "render/job/colortransformjob.h"
+#include "render/job/footagejob.h"
 #include "value.h"
 
 namespace olive {
@@ -44,9 +45,8 @@ public:
   NodeValueRow GenerateRow(NodeValueDatabase *database, const Node *node, const TimeRange &range);
   NodeValueRow GenerateRow(const Node *node, const TimeRange &range);
 
-  NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table);
-  NodeValue GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table);
-  NodeValue GenerateRowValueElement(const Node::ValueHint &hint, NodeValue::Type preferred_type, NodeValueTable *table);
+  NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table, const TimeRange &time);
+  NodeValue GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table, const TimeRange &time);
   int GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table);
   int GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table);
 
@@ -100,6 +100,8 @@ protected:
   virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job){}
 
   virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs){}
+
+  virtual TexturePtr ProcessVideoCacheJob(const CacheJob &val);
 
   virtual TexturePtr CreateTexture(const VideoParams &p)
   {

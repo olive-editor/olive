@@ -269,6 +269,9 @@ void PreviewAutoCacher::AddNode(Node *node)
   // Add to project
   copy->setParent(&copied_project_);
 
+  // Copy cache UUIDs
+  copy->CopyCacheUuidsFrom(node);
+
   // Insert into map
   InsertIntoCopyMap(node, copy);
 

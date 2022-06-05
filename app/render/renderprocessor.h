@@ -56,6 +56,8 @@ protected:
 
   virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job) override;
 
+  virtual TexturePtr ProcessVideoCacheJob(const CacheJob &val) override;
+
   virtual TexturePtr CreateTexture(const VideoParams &p) override
   {
     return render_ctx_->CreateTexture(p);

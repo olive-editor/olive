@@ -48,7 +48,7 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
   NodeValueRow row;
   for (auto it=database->begin(); it!=database->end(); it++) {
     // Get hint for which value should be pulled
-    NodeValue value = GenerateRowValue(node, it.key(), &it.value());
+    NodeValue value = GenerateRowValue(node, it.key(), &it.value(), range);
     row.insert(it.key(), value);
   }
 
@@ -65,9 +65,9 @@ NodeValueRow NodeTraverser::GenerateRow(const Node *node, const TimeRange &range
   return GenerateRow(&database, node, range);
 }
 
-NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table)
+NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table, const TimeRange &time)
 {
-  NodeValue value = GenerateRowValueElement(node, input, -1, table);
+  NodeValue value = GenerateRowValueElement(node, input, -1, table, time);
 
   if (value.array()) {
     // Resolve each element of array
@@ -75,7 +75,7 @@ NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input
     QVector<NodeValue> output(tables.size());
 
     for (int i=0; i<tables.size(); i++) {
-      output[i] = GenerateRowValueElement(node, input, i, &tables[i]);
+      output[i] = GenerateRowValueElement(node, input, i, &tables[i], time);
     }
 
     value = NodeValue(value.type(), QVariant::fromValue(output), value.source(), value.array(), value.tag());
@@ -84,14 +84,9 @@ NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input
   return value;
 }
 
-NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table)
+NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table, const TimeRange &time)
 {
-  return GenerateRowValueElement(node->GetValueHintForInput(input, element), node->GetInputDataType(input), table);
-}
-
-NodeValue NodeTraverser::GenerateRowValueElement(const Node::ValueHint &hint, NodeValue::Type preferred_type, NodeValueTable *table)
-{
-  int value_index = GenerateRowValueElementIndex(hint, preferred_type, table);
+  int value_index = GenerateRowValueElementIndex(node->GetValueHintForInput(input, element), node->GetInputDataType(input), table);
 
   if (value_index == -1) {
     // If value was -1, try getting the last value
@@ -103,7 +98,17 @@ NodeValue NodeTraverser::GenerateRowValueElement(const Node::ValueHint &hint, No
     return NodeValue();
   }
 
-  return table->TakeAt(value_index);
+  NodeValue value = table->TakeAt(value_index);
+
+  if (value.type() == NodeValue::kTexture) {
+    QString cache = node->video_frame_cache()->GetValidCacheFilename(time.in());
+    if (!cache.isEmpty()) {
+      qDebug() << "pushing cache job";
+      value.set_value(CacheJob(cache, value.data()));
+    }
+  }
+
+  return value;
 }
 
 int NodeTraverser::GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table)
@@ -358,6 +363,10 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   return table;
 }
 
+TexturePtr NodeTraverser::ProcessVideoCacheJob(const CacheJob &val)
+{
+  return nullptr;
+}
 
 QVector2D NodeTraverser::GenerateResolution() const
 {
@@ -367,6 +376,16 @@ QVector2D NodeTraverser::GenerateResolution() const
 void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 {
   if (val.type() == NodeValue::kTexture || val.type() == NodeValue::kSamples) {
+    if (val.canConvert<CacheJob>()) {
+      CacheJob job = val.value<CacheJob>();
+      TexturePtr tex = ProcessVideoCacheJob(job);
+      if (tex) {
+        val.set_value(tex);
+      } else {
+        val.set_value(job.GetFallback());
+      }
+    }
+
     if (val.canConvert<ShaderJob>()) {
 
       ShaderJob job = val.value<ShaderJob>();

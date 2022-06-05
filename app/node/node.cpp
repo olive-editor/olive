@@ -234,6 +234,14 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   }
 }
 
+void Node::CopyCacheUuidsFrom(Node *n)
+{
+  video_cache_->SetUuid(n->video_cache_->GetUuid());
+  audio_cache_->SetUuid(n->audio_cache_->GetUuid());
+  thumbnail_cache_->SetUuid(n->thumbnail_cache_->GetUuid());
+  waveform_cache_->SetUuid(n->waveform_cache_->GetUuid());
+}
+
 QString Node::GetInputName(const QString &id) const
 {
   const Input* i = GetInternalInputData(id);
@@ -943,6 +951,7 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
     TimeRange ar = range.Intersected(GetAudioCacheRange());
     if (ar.length() != 0) {
       audio_playback_cache()->Invalidate(ar);
+      waveform_cache()->Invalidate(ar);
     }
   }
 

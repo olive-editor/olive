@@ -225,6 +225,8 @@ public:
     data_ = QVariant::fromValue(v);
   }
 
+  const QVariant &data() const { return data_; }
+
   template <typename T>
   bool canConvert() const
   {
