@@ -79,6 +79,9 @@ public:
     return QFontMetrics(QFont()).height()/4;
   }
 
+  bool IsSavingEnabled() const { return saving_enabled_; }
+  void SetSavingEnabled(bool e) { saving_enabled_ = e; }
+
   QMutex *mutex() { return &mutex_; }
 
 public slots:
@@ -108,6 +111,8 @@ private:
   TimeRangeList validated_;
 
   QUuid uuid_;
+
+  bool saving_enabled_;
 
   QMutex mutex_;
 

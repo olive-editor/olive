@@ -192,37 +192,37 @@ void ClipBlock::RequestInvalidatedFromConnected(const TimeRange &range)
       TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
       if (type == Track::kVideo) {
         // Handle thumbnails
-        RequestInvalidatedForCache(connected->thumbnail_cache(), max_range, range);
+        RequestInvalidatedForCache(connected->thumbnail_cache(), max_range, range, true);
 
         // Handle video cache
-        if (IsAutocaching()) {
-          RequestInvalidatedForCache(connected->video_frame_cache(), max_range, range);
-        }
+        RequestInvalidatedForCache(connected->video_frame_cache(), max_range, range, IsAutocaching());
       } else if (type == Track::kAudio) {
         // Handle waveforms
-        RequestInvalidatedForCache(connected->waveform_cache(), max_range, range);
+        RequestInvalidatedForCache(connected->waveform_cache(), max_range, range, true);
 
         // Handle audio cache
-        if (IsAutocaching()) {
-          RequestInvalidatedForCache(connected->audio_playback_cache(), max_range, range);
-        }
+        RequestInvalidatedForCache(connected->audio_playback_cache(), max_range, range, IsAutocaching());
       }
     }
   }
 }
 
-void ClipBlock::RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range)
+void ClipBlock::RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool request)
 {
   if ((range.in() == RATIONAL_MIN && range.out() == RATIONAL_MAX) || !range.length().isNull()) {
     // Request only this range
     TimeRange r = range.Intersected(max_range);
     cache->Invalidate(r);
-    emit cache->Request(r);
+    if (request) {
+      emit cache->Request(r);
+    }
   } else {
     // Request all ranges currently marked as invalid
-    TimeRangeList invalid = cache->GetInvalidatedRanges(max_range);
-    for (const TimeRange &r : invalid) {
-      emit cache->Request(r);
+    if (request) {
+      TimeRangeList invalid = cache->GetInvalidatedRanges(max_range);
+      for (const TimeRange &r : invalid) {
+        emit cache->Request(r);
+      }
     }
   }
 }

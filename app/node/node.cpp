@@ -57,6 +57,8 @@ Node::Node() :
   thumbnail_cache_ = new ThumbnailCache(this);
   audio_cache_ = new AudioPlaybackCache(this);
   waveform_cache_ = new AudioWaveformCache(this);
+
+  waveform_cache_->SetSavingEnabled(false);
 }
 
 Node::~Node()

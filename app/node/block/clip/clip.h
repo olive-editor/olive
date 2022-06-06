@@ -196,7 +196,7 @@ private:
 
   void RequestInvalidatedFromConnected(const TimeRange &range = TimeRange());
 
-  void RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range);
+  void RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool request);
 
   QVector<Block*> block_links_;
 

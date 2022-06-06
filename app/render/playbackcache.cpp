@@ -40,7 +40,9 @@ void PlaybackCache::Invalidate(const TimeRange &r)
 
   emit Invalidated(r);
 
-  SaveState();
+  if (saving_enabled_) {
+    SaveState();
+  }
 }
 
 Node *PlaybackCache::parent() const
@@ -166,7 +168,9 @@ void PlaybackCache::Validate(const TimeRange &r, bool signal)
     emit Validated(r);
   }
 
-  SaveState();
+  if (saving_enabled_) {
+    SaveState();
+  }
 }
 
 void PlaybackCache::InvalidateEvent(const TimeRange &)
@@ -179,7 +183,8 @@ Project *PlaybackCache::GetProject() const
 }
 
 PlaybackCache::PlaybackCache(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  saving_enabled_(true)
 {
   uuid_ = QUuid::createUuid();
 }
