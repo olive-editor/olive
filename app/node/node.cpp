@@ -48,8 +48,8 @@ Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
-  cache_result_(false),
-  flags_(kNone)
+  flags_(kNone),
+  caches_enabled_(true)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
 
@@ -942,16 +942,18 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   Q_UNUSED(from)
   Q_UNUSED(element)
 
-  if (range.in() != range.out()) {
-    TimeRange vr = range.Intersected(GetVideoCacheRange());
-    if (vr.length() != 0) {
-      video_frame_cache()->Invalidate(vr);
-      thumbnail_cache()->Invalidate(vr);
-    }
-    TimeRange ar = range.Intersected(GetAudioCacheRange());
-    if (ar.length() != 0) {
-      audio_playback_cache()->Invalidate(ar);
-      waveform_cache()->Invalidate(ar);
+  if (AreCachesEnabled()) {
+    if (range.in() != range.out()) {
+      TimeRange vr = range.Intersected(GetVideoCacheRange());
+      if (vr.length() != 0) {
+        video_frame_cache()->Invalidate(vr);
+        thumbnail_cache()->Invalidate(vr);
+      }
+      TimeRange ar = range.Intersected(GetAudioCacheRange());
+      if (ar.length() != 0) {
+        audio_playback_cache()->Invalidate(ar);
+        waveform_cache()->Invalidate(ar);
+      }
     }
   }
 

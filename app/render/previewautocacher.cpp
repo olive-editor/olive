@@ -269,6 +269,9 @@ void PreviewAutoCacher::AddNode(Node *node)
   // Add to project
   copy->setParent(&copied_project_);
 
+  // Disable caches for copy
+  copy->SetCachesEnabled(false);
+
   // Copy cache UUIDs
   copy->CopyCacheUuidsFrom(node);
 
@@ -380,10 +383,6 @@ void PreviewAutoCacher::ConnectToNodeCache(Node *node)
           &PlaybackCache::CancelAll,
           this,
           &PreviewAutoCacher::CancelForCache);
-
-  node->video_frame_cache()->LoadState();
-  node->audio_playback_cache()->LoadState();
-  node->thumbnail_cache()->LoadState();
 }
 
 void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
@@ -417,10 +416,6 @@ void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
              &PlaybackCache::CancelAll,
              this,
              &PreviewAutoCacher::CancelForCache);
-
-  node->video_frame_cache()->SaveState();
-  node->audio_playback_cache()->SaveState();
-  node->thumbnail_cache()->SaveState();
 }
 
 void PreviewAutoCacher::UpdateGraphChangeValue()

@@ -22,6 +22,7 @@
 #define PLAYBACKCACHE_H
 
 #include <QDir>
+#include <QMutex>
 #include <QObject>
 #include <QPainter>
 #include <QUuid>
@@ -42,7 +43,7 @@ public:
   PlaybackCache(QObject* parent = nullptr);
 
   const QUuid &GetUuid() const { return uuid_; }
-  void SetUuid(const QUuid &u) { uuid_ = u; }
+  void SetUuid(const QUuid &u);
 
   TimeRangeList GetInvalidatedRanges(TimeRange intersecting) const;
   TimeRangeList GetInvalidatedRanges(const rational &length) const
@@ -78,6 +79,8 @@ public:
     return QFontMetrics(QFont()).height()/4;
   }
 
+  QMutex *mutex() { return &mutex_; }
+
 public slots:
   void InvalidateAll();
 
@@ -105,6 +108,8 @@ private:
   TimeRangeList validated_;
 
   QUuid uuid_;
+
+  QMutex mutex_;
 
 };
 

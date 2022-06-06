@@ -215,7 +215,9 @@ void ClipBlock::RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange
 {
   if ((range.in() == RATIONAL_MIN && range.out() == RATIONAL_MAX) || !range.length().isNull()) {
     // Request only this range
-    emit cache->Request(range.Intersected(max_range));
+    TimeRange r = range.Intersected(max_range);
+    cache->Invalidate(r);
+    emit cache->Request(r);
   } else {
     // Request all ranges currently marked as invalid
     TimeRangeList invalid = cache->GetInvalidatedRanges(max_range);
@@ -232,7 +234,9 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
   // If signal is from texture input, transform all times from media time to sequence time
   if (from == kBufferIn) {
     // Render caches where necessary
-    RequestInvalidatedFromConnected(range);
+    if (AreCachesEnabled()) {
+      RequestInvalidatedFromConnected(range);
+    }
 
     // Adjust range from media time to sequence time
     TimeRange adj;

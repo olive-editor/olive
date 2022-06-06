@@ -355,6 +355,9 @@ public:
 
   void CopyCacheUuidsFrom(Node *n);
 
+  bool AreCachesEnabled() const { return caches_enabled_; }
+  void SetCachesEnabled(bool e) { caches_enabled_ = e; }
+
   virtual QString GetInputName(const QString& id) const;
 
   void SetInputName(const QString& id, const QString& name);
@@ -930,16 +933,6 @@ public:
     folder_ = folder;
   }
 
-  bool GetCacheTextures() const
-  {
-    return cache_result_;
-  }
-
-  void SetCacheTextures(bool e)
-  {
-    cache_result_ = e;
-  }
-
   class ArrayRemoveCommand : public UndoCommand
   {
   public:
@@ -1405,8 +1398,6 @@ private:
 
   Folder* folder_;
 
-  bool cache_result_;
-
   QMap<InputElementPair, ValueHint> value_hints_;
 
   PositionMap context_positions_;
@@ -1422,6 +1413,8 @@ private:
 
   AudioPlaybackCache *audio_cache_;
   AudioWaveformCache *waveform_cache_;
+
+  bool caches_enabled_;
 
 private slots:
   /**

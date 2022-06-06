@@ -101,9 +101,12 @@ NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString
   NodeValue value = table->TakeAt(value_index);
 
   if (value.type() == NodeValue::kTexture) {
+    QMutexLocker locker(node->video_frame_cache()->mutex());
+
+    node->video_frame_cache()->LoadState();
+
     QString cache = node->video_frame_cache()->GetValidCacheFilename(time.in());
     if (!cache.isEmpty()) {
-      qDebug() << "pushing cache job";
       value.set_value(CacheJob(cache, value.data()));
     }
   }

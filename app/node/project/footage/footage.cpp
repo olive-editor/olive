@@ -47,8 +47,6 @@ Footage::Footage(const QString &filename) :
   valid_(false),
   cancelled_(nullptr)
 {
-  SetCacheTextures(true);
-
   PrependInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));

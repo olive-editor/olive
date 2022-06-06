@@ -177,15 +177,46 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
       }
 
       file.setFrameBuffer(framebuffer);
+
       file.readPixels(dw.min.y, dw.max.y);
     } catch (const std::exception &e) {
-      qCritical() << "Failed to read cache frame:" << e.what();
+      // Not an EXR, maybe it's a JPEG?
+      QImage img;
 
-      // Clear frame to signal that nothing was loaded
-      frame = nullptr;
+      if (img.load(fn, "jpg")) {
 
-      // Assume this frame is corrupt in some way and delete it
-      QMetaObject::invokeMethod(DiskManager::instance(), "DeleteSpecificFile", Q_ARG(QString, fn));
+        // FIXME: Hardcoded
+        const int div = 1;
+        const VideoParams::Format image_format = VideoParams::kFormatUnsigned8;
+        const int channel_count = 4;
+        const rational par(1, 1);
+
+        frame = Frame::Create();
+        frame->set_video_params(VideoParams(img.width() * div,
+                                            img.height() * div,
+                                            image_format,
+                                            channel_count,
+                                            par,
+                                            VideoParams::kInterlaceNone,
+                                            div));
+
+        frame->allocate();
+
+        for (int i=0; i<img.height(); i++) {
+          memcpy(frame->data() + frame->linesize_bytes() * i,
+                 img.bits() + img.bytesPerLine() * i,
+                 frame->width() * frame->video_params().GetBytesPerPixel());
+        }
+
+      } else {
+        qCritical() << "Failed to read cache frame:" << e.what();
+
+        // Clear frame to signal that nothing was loaded
+        frame = nullptr;
+
+        // Assume this frame is corrupt in some way and delete it
+        QMetaObject::invokeMethod(DiskManager::instance(), "DeleteSpecificFile", Q_ARG(QString, fn));
+      }
     }
 
   }

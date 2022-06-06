@@ -39,6 +39,8 @@ void PlaybackCache::Invalidate(const TimeRange &r)
   InvalidateEvent(r);
 
   emit Invalidated(r);
+
+  SaveState();
 }
 
 Node *PlaybackCache::parent() const
@@ -87,8 +89,6 @@ void PlaybackCache::LoadState()
       }
       break;
     }
-
-    f.close();
 
     f.close();
   }
@@ -165,6 +165,8 @@ void PlaybackCache::Validate(const TimeRange &r, bool signal)
   if (signal) {
     emit Validated(r);
   }
+
+  SaveState();
 }
 
 void PlaybackCache::InvalidateEvent(const TimeRange &)
@@ -180,6 +182,13 @@ PlaybackCache::PlaybackCache(QObject *parent) :
   QObject(parent)
 {
   uuid_ = QUuid::createUuid();
+}
+
+void PlaybackCache::SetUuid(const QUuid &u)
+{
+  uuid_ = u;
+
+  LoadState();
 }
 
 TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting) const

@@ -252,7 +252,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   }
 
   // If cache status is enabled
-  if (show_cache_status_ && playback_cache_) {
+  if (show_cache_status_ && playback_cache_ && playback_cache_->HasValidatedRanges()) {
     // FIXME: Hardcoded to get video length, if we ever need audio length, this will have to change
     int h = PlaybackCache::GetCacheIndicatorHeight();
     QRect cache_rect(0, height() - h, width(), h);
