@@ -26,6 +26,7 @@
 #include "codec/conformmanager.h"
 #include "node/inputdragger.h"
 #include "node/project/project.h"
+#include "render/diskmanager.h"
 #include "render/renderprocessor.h"
 #include "task/customcache/customcachetask.h"
 #include "task/taskmanager.h"
@@ -201,13 +202,25 @@ void PreviewAutoCacher::VideoRendered()
     if (watcher->HasResult()) {
       if (watcher->GetTicket()->property("cached").toBool()) {
         if (FrameHashCache *cache = Node::ValueToPtr<FrameHashCache>(watcher->property("cache"))) {
-          cache->ValidateTime(watcher->property("time").value<rational>());
+          rational time = watcher->property("time").value<rational>();
+          JobTime job = watcher->property("job").value<JobTime>();
+
+          if (video_cache_data_.value(cache).job_tracker.isCurrent(time, job)) {
+            cache->ValidateTime(time);
+          }
         }
       }
     }
 
     // Continue rendering
     TryRender();
+  }
+
+  const QStringList bad_cache_names = watcher->GetTicket()->property("badcache").toStringList();
+  if (!bad_cache_names.empty()) {
+    for (const QString &fn : bad_cache_names) {
+      DiskManager::instance()->DeleteSpecificFile(fn);
+    }
   }
 
   // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be

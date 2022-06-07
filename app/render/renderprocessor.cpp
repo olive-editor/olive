@@ -573,6 +573,10 @@ TexturePtr RenderProcessor::ProcessVideoCacheJob(const CacheJob &val)
       tex->Upload(frame->data(), frame->linesize_pixels());
       return tex;
     }
+  } else {
+    QStringList s = ticket_->property("badcache").toStringList();
+    s.append(val.GetFilename());
+    ticket_->setProperty("badcache", s);
   }
 
   return nullptr;
