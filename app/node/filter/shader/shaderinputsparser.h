@@ -51,6 +51,8 @@ public:
 
     NodeValue::Type type;
     InputFlags flags;
+    // when true, this input becomes the output when node is disabled
+    bool is_effect_input;
     // list of entries for a selection combo
     QStringList values;
 
@@ -123,6 +125,7 @@ private:
   QVariant parseColor( const QStringRef & line);
   QVariant parsePoint( const QStringRef & line);
   void reportError( const QString & error);
+  void setAsMainInput();
 
 private:
   const QString & shader_code_;

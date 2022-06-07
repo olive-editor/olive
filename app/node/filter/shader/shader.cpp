@@ -259,6 +259,10 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
     if (it->type == NodeValue::kCombo) {
       SetComboBoxStrings(it->uniform_name, it->values);
     }
+
+    if (it->is_effect_input) {
+      SetEffectInput( it->uniform_name);
+    }
   }
 
   // compare 'new_input_list' and 'user_input_list_' to find deleted inputs.

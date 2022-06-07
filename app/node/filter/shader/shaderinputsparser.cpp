@@ -106,6 +106,7 @@ void clearCurrentInput()
   currentInput.min = QVariant();
   currentInput.max = QVariant();
   currentInput.default_value = QVariant();
+  currentInput.is_effect_input = false;
 }
 
 }  // namespace
@@ -282,16 +283,17 @@ ShaderInputsParser::parseInputType(const QRegularExpressionMatch & match)
   return PARSING;
 }
 
+
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputFlags(const QRegularExpressionMatch & line_match)
 {
   // more flags can be present in one line
-  static const QRegularExpression FLAG_REGEX("(ARRAY|NOT_CONNECTABLE|NOT_KEYFRAMABLE|HIDDEN)");
+  static const QRegularExpression FLAG_REGEX("(ARRAY|NOT_CONNECTABLE|NOT_KEYFRAMABLE|HIDDEN|MAIN_INPUT)");
 
   static const QMap<QString, InputFlag> FLAG_TABLE{{"ARRAY", kInputFlagArray},
                                                    {"NOT_CONNECTABLE", kInputFlagNotConnectable},
                                                    {"NOT_KEYFRAMABLE", kInputFlagNotKeyframable},
-                                                   {"HIDDEN", kInputFlagHidden},
+                                                   {"HIDDEN", kInputFlagHidden}
                                                   };
 
 
@@ -303,11 +305,29 @@ ShaderInputsParser::parseInputFlags(const QRegularExpressionMatch & line_match)
     QString flag_str = flag.captured(1);
 
     currentInput.flags |= InputFlags(FLAG_TABLE.value( flag_str, kInputFlagNormal));
-  }
 
+    if (flag_str == "MAIN_INPUT") {
+      // This is not a regular flag for node input. This is the texture passed
+      // to output when "Enable" input is not checked.
+      setAsMainInput();
+    }
+  }
 
   return PARSING;
 }
+
+
+void olive::ShaderInputsParser::setAsMainInput()
+{
+  if (currentInput.type == NodeValue::kTexture) {
+    currentInput.is_effect_input = true;
+  }
+  else {
+    reportError(QObject::tr("Flag MAIN_INPUT is applicable for type TEXTURE only; not for %1.").
+                arg(currentInput.type_string));
+  }
+}
+
 
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputValueList(const QRegularExpressionMatch & line_match)
