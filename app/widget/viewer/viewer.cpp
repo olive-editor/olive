@@ -530,6 +530,14 @@ void ViewerWidget::CreateAddableAt(const QRectF &f)
   }
 }
 
+void ViewerWidget::HandleFirstRequeueDestroy()
+{
+  // Extra protection to ensure we don't reference a destroyed object
+  if (first_requeue_watcher_ == sender()) {
+    first_requeue_watcher_ = nullptr;
+  }
+}
+
 void ViewerWidget::CloseAudioProcessor()
 {
   audio_processor_.Close();
@@ -676,6 +684,7 @@ void ViewerWidget::ForceRequeueFromCurrentTime()
     RenderTicketWatcher *watcher = RequestNextFrameForQueue();
     if (!first_requeue_watcher_) {
       first_requeue_watcher_ = watcher;
+      connect(first_requeue_watcher_, &RenderTicketWatcher::destroyed, this, &ViewerWidget::HandleFirstRequeueDestroy);
     }
   }
 }
