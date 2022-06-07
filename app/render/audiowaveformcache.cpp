@@ -98,4 +98,15 @@ rational AudioWaveformCache::length() const
   return len;
 }
 
+void AudioWaveformCache::SetPassthrough(PlaybackCache *cache)
+{
+  AudioWaveformCache *c = static_cast<AudioWaveformCache*>(cache);
+  waveforms_ = c->waveforms_;
+  for (const TimeRange &r : c->GetValidatedRanges()) {
+    Validate(r);
+  }
+  SetParameters(c->GetParameters());
+  SetSavingEnabled(c->IsSavingEnabled());
+}
+
 }

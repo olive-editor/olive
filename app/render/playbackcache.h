@@ -82,7 +82,21 @@ public:
   bool IsSavingEnabled() const { return saving_enabled_; }
   void SetSavingEnabled(bool e) { saving_enabled_ = e; }
 
+  virtual void SetPassthrough(PlaybackCache *cache);
+
   QMutex *mutex() { return &mutex_; }
+
+  class Passthrough : public TimeRange
+  {
+  public:
+    Passthrough(const TimeRange &r) :
+      TimeRange(r)
+    {}
+
+    QUuid cache;
+  };
+
+  const QVector<Passthrough> &GetPassthroughs() const { return passthroughs_; }
 
 public slots:
   void InvalidateAll();
@@ -115,6 +129,8 @@ private:
   bool saving_enabled_;
 
   QMutex mutex_;
+
+  QVector<Passthrough> passthroughs_;
 
 };
 

@@ -43,6 +43,8 @@ public:
 
   rational length() const;
 
+  virtual void SetPassthrough(PlaybackCache *cache) override;
+
 private:
   class TimeRangeWithWaveform : public TimeRange
   {

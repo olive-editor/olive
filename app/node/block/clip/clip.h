@@ -122,7 +122,7 @@ public:
     return block_links_;
   }
 
-  const FrameHashCache *connected_video_cache() const
+  FrameHashCache *connected_video_cache() const
   {
     if (Node *n = GetConnectedOutput(kBufferIn)) {
       return n->video_frame_cache();
@@ -131,7 +131,16 @@ public:
     }
   }
 
-  const FrameHashCache *thumbnails()
+  AudioPlaybackCache *connected_audio_cache() const
+  {
+    if (Node *n = GetConnectedOutput(kBufferIn)) {
+      return n->audio_playback_cache();
+    } else {
+      return nullptr;
+    }
+  }
+
+  FrameHashCache *thumbnails()
   {
     if (Node *n = GetConnectedOutput(kBufferIn)) {
       return n->thumbnail_cache();
@@ -140,7 +149,7 @@ public:
     }
   }
 
-  const AudioWaveformCache *waveform()
+  AudioWaveformCache *waveform()
   {
     if (Node *n = GetConnectedOutput(kBufferIn)) {
       return n->waveform_cache();
@@ -149,11 +158,7 @@ public:
     }
   }
 
-  void set_waveform(const AudioVisualWaveform *w)
-  {
-    qDebug() << "WAVEFORM COPY STUB";
-    //audio_playback_cache()->set_visual(w);
-  }
+  void AddCachePassthroughFrom(ClipBlock *other);
 
   ViewerOutput *connected_viewer() const
   {
@@ -194,9 +199,11 @@ private:
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
-  void RequestInvalidatedFromConnected(const TimeRange &range = TimeRange());
+  void RequestRangeFromConnected(const TimeRange &range);
+  void RequestInvalidatedFromConnected();
 
-  void RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool request);
+  void RequestRangeForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool invalidate, bool request);
+  void RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range);
 
   QVector<Block*> block_links_;
 

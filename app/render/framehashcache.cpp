@@ -64,6 +64,21 @@ void FrameHashCache::ValidateTime(const rational &time)
   Validate(TimeRange(time, time + timebase_));
 }
 
+QString FrameHashCache::GetValidCacheFilename(const rational &time) const
+{
+  if (IsFrameCached(time)) {
+    return CachePathName(time);
+  } else if (!GetPassthroughs().empty()) {
+    for (const Passthrough &p : GetPassthroughs()) {
+      if (p.Contains(time)) {
+        return CachePathName(GetCacheDirectory(), p.cache, time, timebase_);
+      }
+    }
+  }
+
+  return QString();
+}
+
 bool FrameHashCache::SaveCacheFrame(const int64_t &time, FramePtr frame) const
 {
   return SaveCacheFrame(GetCacheDirectory(), GetUuid(), time, frame);
@@ -222,6 +237,12 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
   }
 
   return frame;
+}
+
+void FrameHashCache::SetPassthrough(PlaybackCache *cache)
+{
+  super::SetPassthrough(cache);
+  SetTimebase(static_cast<FrameHashCache*>(cache)->GetTimebase());
 }
 
 void FrameHashCache::LoadStateEvent(QDataStream &stream)

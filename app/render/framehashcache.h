@@ -48,14 +48,7 @@ public:
     return GetValidatedRanges().contains(time);
   }
 
-  QString GetValidCacheFilename(const rational &time) const
-  {
-    if (IsFrameCached(time)) {
-      return CachePathName(time);
-    } else {
-      return QString();
-    }
-  }
+  QString GetValidCacheFilename(const rational &time) const;
 
   static bool SaveCacheFrame(const QString& filename, FramePtr frame);
   bool SaveCacheFrame(const int64_t &time, FramePtr frame) const;
@@ -64,6 +57,8 @@ public:
   static FramePtr LoadCacheFrame(const QString& cache_path, const QUuid &uuid, const int64_t &time);
   FramePtr LoadCacheFrame(const int64_t &time) const;
   static FramePtr LoadCacheFrame(const QString& fn);
+
+  virtual void SetPassthrough(PlaybackCache *cache) override;
 
 protected:
   virtual void LoadStateEvent(QDataStream &stream) override;

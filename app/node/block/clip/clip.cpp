@@ -183,7 +183,7 @@ rational ClipBlock::MediaToSequenceTime(const rational &media_time) const
   return sequence_time;
 }
 
-void ClipBlock::RequestInvalidatedFromConnected(const TimeRange &range)
+void ClipBlock::RequestRangeFromConnected(const TimeRange &range)
 {
   Track::Type type = GetTrackType();
 
@@ -192,38 +192,72 @@ void ClipBlock::RequestInvalidatedFromConnected(const TimeRange &range)
       TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
       if (type == Track::kVideo) {
         // Handle thumbnails
-        RequestInvalidatedForCache(connected->thumbnail_cache(), max_range, range, true);
+        RequestRangeForCache(connected->thumbnail_cache(), max_range, range, true, true);
 
         // Handle video cache
-        RequestInvalidatedForCache(connected->video_frame_cache(), max_range, range, IsAutocaching());
+        RequestRangeForCache(connected->video_frame_cache(), max_range, range, true, IsAutocaching());
       } else if (type == Track::kAudio) {
         // Handle waveforms
-        RequestInvalidatedForCache(connected->waveform_cache(), max_range, range, true);
+        RequestRangeForCache(connected->waveform_cache(), max_range, range, true, true);
 
         // Handle audio cache
-        RequestInvalidatedForCache(connected->audio_playback_cache(), max_range, range, IsAutocaching());
+        RequestRangeForCache(connected->audio_playback_cache(), max_range, range, true, IsAutocaching());
       }
     }
   }
 }
 
-void ClipBlock::RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool request)
+void ClipBlock::RequestInvalidatedFromConnected()
 {
-  if ((range.in() == RATIONAL_MIN && range.out() == RATIONAL_MAX) || !range.length().isNull()) {
-    // Request only this range
-    TimeRange r = range.Intersected(max_range);
-    cache->Invalidate(r);
-    if (request) {
-      emit cache->Request(r);
-    }
-  } else {
-    // Request all ranges currently marked as invalid
-    if (request) {
-      TimeRangeList invalid = cache->GetInvalidatedRanges(max_range);
-      for (const TimeRange &r : invalid) {
-        emit cache->Request(r);
+  Track::Type type = GetTrackType();
+
+  if (type == Track::kVideo || type == Track::kAudio) {
+    if (Node *connected = GetConnectedOutput(kBufferIn)) {
+      TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+      if (type == Track::kVideo) {
+        // Handle thumbnails
+        RequestInvalidatedForCache(connected->thumbnail_cache(), max_range);
+
+        // Handle video cache
+        if (IsAutocaching()) {
+          RequestInvalidatedForCache(connected->video_frame_cache(), max_range);
+        }
+      } else if (type == Track::kAudio) {
+        // Handle waveforms
+        RequestInvalidatedForCache(connected->waveform_cache(), max_range);
+
+        // Handle audio cache
+        if (IsAutocaching()) {
+          RequestInvalidatedForCache(connected->audio_playback_cache(), max_range);
+        }
       }
     }
+  }
+}
+
+void ClipBlock::RequestRangeForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool invalidate, bool request)
+{
+  TimeRange r = range.Intersected(max_range);
+
+  if (invalidate) {
+    cache->Invalidate(r);
+  }
+
+  if (request) {
+    emit cache->Request(r);
+  }
+}
+
+void ClipBlock::RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range)
+{
+  TimeRangeList invalid = cache->GetInvalidatedRanges(max_range);
+
+  for (const PlaybackCache::Passthrough &p : cache->GetPassthroughs()) {
+    invalid.remove(p);
+  }
+
+  for (const TimeRange &r : invalid) {
+    RequestRangeForCache(cache, max_range, r, false, true);
   }
 }
 
@@ -235,7 +269,7 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
   if (from == kBufferIn) {
     // Render caches where necessary
     if (AreCachesEnabled()) {
-      RequestInvalidatedFromConnected(range);
+      RequestRangeFromConnected(range);
     }
 
     // Adjust range from media time to sequence time
@@ -378,6 +412,33 @@ void ClipBlock::Retranslate()
   SetInputName(kSpeedInput, tr("Speed"));
   SetInputName(kReverseInput, tr("Reverse"));
   SetInputName(kMaintainAudioPitchInput, tr("Maintain Audio Pitch"));
+}
+
+void ClipBlock::AddCachePassthroughFrom(ClipBlock *other)
+{
+  if (auto tc = this->video_frame_cache()) {
+    if (auto oc = other->video_frame_cache()) {
+      tc->SetPassthrough(oc);
+    }
+  }
+
+  if (auto tc = this->audio_playback_cache()) {
+    if (auto oc = other->audio_playback_cache()) {
+      tc->SetPassthrough(oc);
+    }
+  }
+
+  if (auto tc = this->thumbnails()) {
+    if (auto oc = other->thumbnails()) {
+      tc->SetPassthrough(oc);
+    }
+  }
+
+  if (auto tc = this->waveform()) {
+    if (auto oc = other->waveform()) {
+      tc->SetPassthrough(oc);
+    }
+  }
 }
 
 void ClipBlock::ConnectedToPreviewEvent()

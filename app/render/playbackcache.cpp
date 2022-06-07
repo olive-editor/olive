@@ -36,6 +36,10 @@ void PlaybackCache::Invalidate(const TimeRange &r)
 
   validated_.remove(r);
 
+  if (!passthroughs_.empty()) {
+    TimeRangeList::util_remove(&passthroughs_, r);
+  }
+
   InvalidateEvent(r);
 
   emit Invalidated(r);
@@ -72,14 +76,14 @@ void PlaybackCache::LoadState()
 
     LoadStateEvent(s);
 
-    int count;
-    s >> count;
-
     switch (version) {
     case 1:
-      validated_.clear();
+    {
+      int valid_count, pass_count;
 
-      for (int i=0; i<count; i++) {
+      validated_.clear();
+      s >> valid_count;
+      for (int i=0; i<valid_count; i++) {
         int in_num, in_den, out_num, out_den;
 
         s >> in_num;
@@ -89,7 +93,26 @@ void PlaybackCache::LoadState()
 
         validated_.insert(TimeRange(rational(in_num, in_den), rational(out_num, out_den)));
       }
+
+      passthroughs_.clear();
+      s >> pass_count;
+      for (int i=0; i<pass_count; i++) {
+        QUuid id;
+        int in_num, in_den, out_num, out_den;
+
+        s >> in_num;
+        s >> in_den;
+        s >> out_num;
+        s >> out_den;
+        s >> id;
+
+        Passthrough p = TimeRange(rational(in_num, in_den), rational(out_num, out_den));
+        p.cache = id;
+        passthroughs_.append(p);
+      }
+
       break;
+    }
     }
 
     f.close();
@@ -100,7 +123,7 @@ void PlaybackCache::SaveState()
 {
   QDir cache_dir = GetThisCacheDirectory();
   QFile f(cache_dir.filePath(QStringLiteral("state")));
-  if (validated_.isEmpty()) {
+  if (validated_.isEmpty() && passthroughs_.isEmpty()) {
     if (f.exists()) {
       f.remove();
     }
@@ -121,6 +144,16 @@ void PlaybackCache::SaveState()
           s << r.in().denominator();
           s << r.out().numerator();
           s << r.out().denominator();
+        }
+
+        s << passthroughs_.size();
+
+        for (const Passthrough &p : passthroughs_) {
+          s << p.in().numerator();
+          s << p.in().denominator();
+          s << p.out().numerator();
+          s << p.out().denominator();
+          s << p.cache;
         }
 
         f.close();
@@ -152,6 +185,21 @@ void PlaybackCache::Draw(QPainter *p, const rational &start, double scale, const
                 adjusted_right - adjusted_left,
                 rect.height(),
                 Qt::green);
+  }
+}
+
+void PlaybackCache::SetPassthrough(PlaybackCache *cache)
+{
+  for (const TimeRange &r : cache->GetValidatedRanges()) {
+    Passthrough p = r;
+    p.cache = cache->GetUuid();
+    passthroughs_.push_back(p);
+  }
+
+  passthroughs_.append(cache->GetPassthroughs());
+
+  if (saving_enabled_) {
+    SaveState();
   }
 }
 
@@ -208,6 +256,10 @@ TimeRangeList PlaybackCache::GetInvalidatedRanges(TimeRange intersecting) const
   invalidated.insert(intersecting);
 
   foreach (const TimeRange &range, validated_) {
+    invalidated.remove(range);
+  }
+
+  foreach (const TimeRange &range, passthroughs_) {
     invalidated.remove(range);
   }
 
