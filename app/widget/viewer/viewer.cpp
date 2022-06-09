@@ -786,8 +786,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       prequeue_count_ = 0;
 
       for (int i=0; i<prequeue_length_; i++) {
-        RequestNextFrameForQueue(RenderTicketPriority::kNormal, false);
-        playback_queue_next_frame_ += playback_speed_;
+        RequestNextFrameForQueue();
       }
     }
   }
@@ -1109,11 +1108,16 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         foreach (ViewerDisplayWidget *dw, playback_devices_) {
           dw->queue()->AppendTimewise({ts, frame}, playback_speed_);
         }
-        prequeue_count_++;
 
-        if (prequeuing_video_ && prequeue_count_ == prequeue_length_) {
-          prequeuing_video_ = false;
-          FinishPlayPreprocess();
+        if (prequeuing_video_) {
+          prequeue_count_++;
+
+          if (prequeue_count_ == prequeue_length_) {
+            prequeuing_video_ = false;
+            FinishPlayPreprocess();
+          } else {
+            RequestNextFrameForQueue();
+          }
         }
       }
     }
