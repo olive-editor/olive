@@ -35,12 +35,11 @@ namespace olive {
 
 #define super NodeTraverser
 
-RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache* decoder_cache, ShaderCache *shader_cache, QVariant default_shader) :
+RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache* decoder_cache, ShaderCache *shader_cache) :
   ticket_(ticket),
   render_ctx_(render_ctx),
   decoder_cache_(decoder_cache),
-  shader_cache_(shader_cache),
-  default_shader_(default_shader)
+  shader_cache_(shader_cache)
 {
 }
 
@@ -115,7 +114,7 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
         job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
         job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
 
-        render_ctx_->BlitToTexture(default_shader_, job, blit_tex.get());
+        render_ctx_->BlitToTexture(render_ctx_->GetDefaultShader(), job, blit_tex.get());
       }
 
       // Replace texture that we're going to download in the next step
@@ -256,10 +255,10 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
     // No decoder
     decoder.decoder = Decoder::CreateFromID(decoder_id);
     decoder.last_modified = file_last_modified;
+    decoder_cache_->insert(stream, decoder);
+    locker.unlock();
 
-    if (decoder.decoder->Open(stream)) {
-      decoder_cache_->insert(stream, decoder);
-    } else {
+    if (!decoder.decoder->Open(stream)) {
       qWarning() << "Failed to open decoder for" << stream.filename()
                  << "::" << stream.stream();
       return nullptr;
@@ -269,9 +268,9 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
   return decoder.decoder;
 }
 
-void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache, QVariant default_shader)
+void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache)
 {
-  RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache, default_shader);
+  RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache);
   p.Run();
 }
 
@@ -422,7 +421,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     qWarning() << "HAVEN'T GOTTEN DEFAULT INPUT COLORSPACE";
   }
 
-  Decoder::CodecStream default_codec_stream(stream.filename(), stream_data.stream_index());
+  Decoder::CodecStream default_codec_stream(stream.filename(), stream_data.stream_index(), GetCurrentBlock());
 
   QString decoder_id = stream.decoder();
 
@@ -444,7 +443,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
 
     // Decoder will close automatically since it's a stream_ptr
-    decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index()));
+    decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index(), GetCurrentBlock()));
     break;
   }
   }
@@ -490,7 +489,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
 void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time)
 {
-  DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index()));
+  DecoderPtr decoder = ResolveDecoderFromInput(stream.decoder(), Decoder::CodecStream(stream.filename(), stream.audio_params().stream_index(), nullptr));
 
   if (decoder) {
     const AudioParams& audio_params = GetCacheAudioParams();

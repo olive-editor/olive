@@ -155,6 +155,8 @@ private:
 
   void RemoveFirstFrame();
 
+  static int MaximumQueueSize();
+
   RetrieveVideoParams filter_params_;
   AVFilterGraph* filter_graph_;
   AVFilterContext* buffersrc_ctx_;
@@ -170,9 +172,6 @@ private:
   int64_t second_ts_;
 
   std::list<AVFramePtr> cached_frames_;
-
-  bool is_working_;
-  QMutex is_working_mutex_;
 
   bool cache_at_zero_;
   bool cache_at_eof_;

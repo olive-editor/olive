@@ -865,7 +865,7 @@ void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyfram
     } else if (attr.name() == QStringLiteral("time")) {
       key->set_time(rational::fromString(attr.value().toString()));
     } else if (attr.name() == QStringLiteral("type")) {
-      key->set_type(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
+      key->set_type_no_bezier_adj(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
     } else if (attr.name() == QStringLiteral("inhandlex")) {
       key_in_handle.setX(attr.value().toDouble());
     } else if (attr.name() == QStringLiteral("inhandley")) {

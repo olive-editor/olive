@@ -72,8 +72,22 @@ TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const V
   return output;
 }
 
+QVariant Renderer::GetDefaultShader()
+{
+  if (default_shader_.isNull()) {
+    default_shader_ = CreateNativeShader(ShaderCode(QString(), QString()));
+  }
+
+  return default_shader_;
+}
+
 void Renderer::Destroy()
 {
+  if (!default_shader_.isNull()) {
+    DestroyNativeShader(default_shader_);
+    default_shader_.clear();
+  }
+
   color_cache_.clear();
 
   if (!interlace_texture_.isNull()) {
