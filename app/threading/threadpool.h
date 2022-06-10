@@ -62,7 +62,6 @@ private:
   std::condition_variable high_cond_;
 
   std::atomic_bool end_threadp_{false};
-  std::atomic_int available_count_;
 
 };
 
