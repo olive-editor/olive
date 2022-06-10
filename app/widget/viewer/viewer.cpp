@@ -530,6 +530,14 @@ void ViewerWidget::CreateAddableAt(const QRectF &f)
   }
 }
 
+void ViewerWidget::HandleFirstRequeueDestroy()
+{
+  // Extra protection to ensure we don't reference a destroyed object
+  if (first_requeue_watcher_ == sender()) {
+    first_requeue_watcher_ = nullptr;
+  }
+}
+
 void ViewerWidget::CloseAudioProcessor()
 {
   audio_processor_.Close();
@@ -676,6 +684,7 @@ void ViewerWidget::ForceRequeueFromCurrentTime()
     RenderTicketWatcher *watcher = RequestNextFrameForQueue();
     if (!first_requeue_watcher_) {
       first_requeue_watcher_ = watcher;
+      connect(first_requeue_watcher_, &RenderTicketWatcher::destroyed, this, &ViewerWidget::HandleFirstRequeueDestroy);
     }
   }
 }
@@ -709,7 +718,7 @@ void ViewerWidget::UpdateTextureFromNode()
       ClearVideoAutoCacherQueue();
     }
 
-    watcher->SetTicket(GetFrame(time, RenderTicketPriority::kHigh));
+    watcher->SetTicket(GetFrame(time, RenderTicketPriority::kNormal));
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
@@ -762,7 +771,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   playback_speed_ = speed;
   play_in_to_out_only_ = in_to_out_only;
 
-  playback_queue_next_frame_ = GetTimestamp();
+  playback_queue_next_frame_ = GetTimestamp() + playback_speed_;
 
   controls_->ShowPauseButton();
 
@@ -776,18 +785,9 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       prequeuing_video_ = true;
       prequeue_count_ = 0;
 
-      // We "prioritize" the frames, which means they're pushed to the top of the render queue,
-      // we queue in reverse so that they're still queued in order
-
-      playback_queue_next_frame_ += playback_speed_ * prequeue_length_;
-      int64_t temp = playback_queue_next_frame_;
-
       for (int i=0; i<prequeue_length_; i++) {
-        playback_queue_next_frame_ -= playback_speed_;
-        RequestNextFrameForQueue(RenderTicketPriority::kHigh, false);
+        RequestNextFrameForQueue();
       }
-
-      playback_queue_next_frame_ = temp;
     }
   }
 
@@ -1108,11 +1108,16 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         foreach (ViewerDisplayWidget *dw, playback_devices_) {
           dw->queue()->AppendTimewise({ts, frame}, playback_speed_);
         }
-        prequeue_count_++;
 
-        if (prequeuing_video_ && prequeue_count_ == prequeue_length_) {
-          prequeuing_video_ = false;
-          FinishPlayPreprocess();
+        if (prequeuing_video_) {
+          prequeue_count_++;
+
+          if (prequeue_count_ == prequeue_length_) {
+            prequeuing_video_ = false;
+            FinishPlayPreprocess();
+          } else {
+            RequestNextFrameForQueue();
+          }
         }
       }
     }

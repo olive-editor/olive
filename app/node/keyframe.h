@@ -98,6 +98,7 @@ public:
    */
   const Type& type() const;
   void set_type(const Type& type);
+  void set_type_no_bezier_adj(const Type& type);
 
   /**
    * @brief For bezier interpolation, the control point leading into this keyframe

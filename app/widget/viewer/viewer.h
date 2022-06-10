@@ -338,6 +338,8 @@ private slots:
 
   void CreateAddableAt(const QRectF &f);
 
+  void HandleFirstRequeueDestroy();
+
 };
 
 }
