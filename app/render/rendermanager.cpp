@@ -172,7 +172,6 @@ void RenderManager::ClearOldDecoders()
     DecoderPair decoder = it.value();
 
     if (decoder.decoder->GetLastAccessedTime() < min_age) {
-      qDebug() << "Cleared old decoder";
       decoder.decoder->Close();
       it = decoder_cache_->erase(it);
     } else {
