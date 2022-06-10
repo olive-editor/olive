@@ -64,6 +64,8 @@ public:
 
   void SetTime(const rational &time);
 
+  void SetEffectType(Track::Type type);
+
 signals:
   void AboutToDeleteItem(NodeParamViewItem *item);
 
@@ -87,6 +89,8 @@ private:
   QVector<Node*> contexts_;
 
   QVector<NodeParamViewItem*> items_;
+
+  Track::Type type_;
 
 private slots:
   void AddEffectButtonClicked();
