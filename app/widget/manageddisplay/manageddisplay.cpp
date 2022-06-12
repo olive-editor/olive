@@ -61,11 +61,14 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
 
     // Create OpenGL renderer
     attached_renderer_ = new OpenGLRenderer(this);
+
+    // Create widget wrapper for OpenGL window
+    wrapper_ = QWidget::createWindowContainer(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_));
+    layout->addWidget(wrapper_);
   } else {
     inner_widget_ = nullptr;
+    wrapper_ = nullptr;
   }
-
-  layout->addWidget(inner_widget_);
 }
 
 ManagedDisplayWidget::~ManagedDisplayWidget()
@@ -250,6 +253,22 @@ void ManagedDisplayWidget::doneCurrent()
 {
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_)->doneCurrent();
+  }
+}
+
+QPaintDevice *ManagedDisplayWidget::paint_device() const
+{
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    return static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_);
+  } else {
+    return nullptr;
+  }
+}
+
+void ManagedDisplayWidget::SetInnerMouseTracking(bool e)
+{
+  if (wrapper_) {
+    wrapper_->setMouseTracking(e);
   }
 }
 

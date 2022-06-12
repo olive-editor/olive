@@ -22,7 +22,6 @@
 #define VIEWERGLWIDGET_H
 
 #include <QMatrix4x4>
-#include <QOpenGLWidget>
 #include <QRubberBand>
 
 #include "node/color/colormanager/colormanager.h"

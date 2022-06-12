@@ -117,7 +117,7 @@ void ViewerDisplayWidget::UpdateCursor()
 void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 {
   signal_cursor_color_ = e;
-  inner_widget()->setMouseTracking(e);
+  SetInnerMouseTracking(e);
 }
 
 void ViewerDisplayWidget::SetImage(const QVariant &buffer)
@@ -511,7 +511,7 @@ void ViewerDisplayWidget::OnPaint()
     TimeRange range = GenerateGizmoTime();
     gizmo_db_ = gt.GenerateRow(gizmos_, range);
 
-    QPainter p(inner_widget());
+    QPainter p(paint_device());
     gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, range);
     p.setWorldTransform(gizmo_last_draw_transform_);
 
@@ -525,7 +525,7 @@ void ViewerDisplayWidget::OnPaint()
 
   // Draw action/title safe areas
   if (safe_margin_.is_enabled()) {
-    QPainter p(inner_widget());
+    QPainter p(paint_device());
     p.setWorldTransform(GenerateWorldTransform());
 
     p.setPen(QPen(Qt::lightGray, 0));
@@ -575,7 +575,7 @@ void ViewerDisplayWidget::OnPaint()
     }
 
     if (frame_rate_average_count_ >= frame_rate_averages_.size()) {
-      QPainter p(inner_widget());
+      QPainter p(paint_device());
 
       double average = 0.0;
       for (int i=0; i<frame_rate_averages_.size(); i++) {
@@ -583,10 +583,10 @@ void ViewerDisplayWidget::OnPaint()
       }
       average /= double(frame_rate_averages_.size());
 
-      DrawTextWithCrudeShadow(&p, inner_widget()->rect(), tr("%1 FPS").arg(QString::number(average, 'f', 1)));
+      DrawTextWithCrudeShadow(&p, GetInnerRect(), tr("%1 FPS").arg(QString::number(average, 'f', 1)));
 
       if (frames_skipped_ > 0) {
-        DrawTextWithCrudeShadow(&p, inner_widget()->rect().adjusted(0, p.fontMetrics().height(), 0, 0),
+        DrawTextWithCrudeShadow(&p, GetInnerRect().adjusted(0, p.fontMetrics().height(), 0, 0),
                                 tr("%1 frames skipped").arg(frames_skipped_));
       }
     }
@@ -597,7 +597,7 @@ void ViewerDisplayWidget::OnPaint()
     const QVector<Track*> &subtitle_tracklist = subtitle_tracks_->track_list(Track::kSubtitle)->GetTracks();
 
     if (!subtitle_tracklist.empty()) {
-      QPainter p(inner_widget());
+      QPainter p(paint_device());
 
       QTransform transform = GenerateWorldTransform();
       QRect bounding_box = transform.mapRect(rect());

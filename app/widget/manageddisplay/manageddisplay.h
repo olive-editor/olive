@@ -23,7 +23,7 @@
 
 #include <QMouseEvent>
 #include <QOpenGLContext>
-#include <QOpenGLWidget>
+#include <QOpenGLWindow>
 
 #include "node/color/colormanager/colormanager.h"
 #include "render/renderer.h"
@@ -31,14 +31,11 @@
 
 namespace olive {
 
-class ManagedDisplayWidgetOpenGL : public QOpenGLWidget
+class ManagedDisplayWidgetOpenGL : public QOpenGLWindow
 {
   Q_OBJECT
 public:
-  ManagedDisplayWidgetOpenGL(QWidget* parent = nullptr) :
-    QOpenGLWidget(parent)
-  {
-  }
+  ManagedDisplayWidgetOpenGL() = default;
 
 signals:
   void OnInit();
@@ -67,7 +64,7 @@ protected:
   {
     emit OnMouseMove(e);
 
-    QOpenGLWidget::mouseMoveEvent(e);
+    QOpenGLWindow::mouseMoveEvent(e);
   }
 
 private slots:
@@ -188,9 +185,24 @@ protected:
 
   void doneCurrent();
 
-  QWidget* inner_widget() const
+  QWindow* inner_widget() const
   {
     return inner_widget_;
+  }
+
+  /**
+   * @brief Get inner widget as paint device for QPainter
+   *
+   * NOTE: This will be incompatible with QVulkanWindow so functions using it
+   *       will need to be replaced soon.
+   */
+  QPaintDevice *paint_device() const;
+
+  void SetInnerMouseTracking(bool e);
+
+  QRect GetInnerRect() const
+  {
+    return wrapper_ ? wrapper_->rect() : QRect();
   }
 
 protected slots:
@@ -223,7 +235,8 @@ private:
   /**
    * @brief Main drawing surface abstraction
    */
-  QWidget* inner_widget_;
+  QWindow* inner_widget_;
+  QWidget *wrapper_;
 
   /**
    * @brief Renderer abstraction

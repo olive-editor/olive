@@ -25,9 +25,9 @@ namespace olive {
 AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
   PanelWidget(QStringLiteral("AudioMonitor"), parent)
 {
-  audio_monitor_ = new AudioMonitor(this);
+  audio_monitor_ = new AudioMonitor();
 
-  setWidget(audio_monitor_);
+  setWidget(QWidget::createWindowContainer(audio_monitor_));
 
   Retranslate();
 }
