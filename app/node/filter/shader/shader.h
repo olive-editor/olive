@@ -84,6 +84,10 @@ private:
   QStringList user_input_list_;
   // input of type vec2 to gizmo map
   QMap<QString, PointGizmo *> handle_table_;
+  // shape for points in 'handle_table_'
+  QMap<QString, PointGizmo::Shape> handle_shape_table_;
+  // color for points in 'handle_table_'
+  QMap<QString, QColor> handle_color_table_;
 
   QVector2D resolution_;
 };

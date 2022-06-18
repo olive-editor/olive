@@ -27,6 +27,7 @@
 
 #include "node/value.h"
 #include "node/param.h"
+#include "node/gizmo/point.h"
 
 namespace olive {
 
@@ -55,6 +56,10 @@ public:
     bool is_effect_input;
     // list of entries for a selection combo
     QStringList values;
+    // only applicable for type kVec2. How the point is drawn
+    PointGizmo::Shape pointShape;
+    // color used to draw a point gizmo
+    QColor gizmoColor;
 
     QVariant min;
     QVariant max;
@@ -116,6 +121,8 @@ private:
   InputParseState parseInputType( const QRegularExpressionMatch &);
   InputParseState parseInputFlags( const QRegularExpressionMatch &);
   InputParseState parseInputValueList( const QRegularExpressionMatch &);
+  InputParseState parseInputPointShape( const QRegularExpressionMatch &);
+  InputParseState parseInputGizmoColor( const QRegularExpressionMatch &);
   InputParseState parseInputMin( const QRegularExpressionMatch &);
   InputParseState parseInputMax( const QRegularExpressionMatch &);
   InputParseState parseInputDefault( const QRegularExpressionMatch &);

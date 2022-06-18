@@ -37,12 +37,14 @@ namespace olive {
 
 
 namespace  {
+// a default shader that replicates to output a texture input.
+// The input is flagged as MAIN_INPUT to comply with "Video Nodes" menu button
 const QString TEMPLATE(
     "//OVE shader_name: \n"
     "//OVE shader_description: \n\n"
     "//OVE name: input\n"
     "//OVE type: TEXTURE\n"
-    "//OVE flag: NOT_KEYFRAMABLE\n"
+    "//OVE flag: NOT_KEYFRAMABLE, MAIN_INPUT\n"
     "//OVE description:\n"
     "uniform sampler2D texture_in;\n\n"
     "//OVE end\n\n\n"
@@ -74,6 +76,8 @@ ShaderFilterNode::ShaderFilterNode()
   SetInputProperty( kShaderCode, QStringLiteral("text_type"), QString("shader_code"));
   // mark this text input as output messages
   SetInputProperty( kOutputMessages, QStringLiteral("text_type"), QString("shader_issues"));
+
+  SetFlags(kVideoEffect);
 }
 
 Node *ShaderFilterNode::copy() const
@@ -263,6 +267,11 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
     if (it->is_effect_input) {
       SetEffectInput( it->uniform_name);
     }
+
+    if (it->type == NodeValue::kVec2) {
+      handle_shape_table_.insert( it->uniform_name, it->pointShape);
+      handle_color_table_.insert( it->uniform_name, it->gizmoColor);
+    }
   }
 
   // compare 'new_input_list' and 'user_input_list_' to find deleted inputs.
@@ -282,14 +291,21 @@ void ShaderFilterNode::updateGizmoList()
   for (QString aInput : user_input_list_)
   {
     if (HasInputWithID(aInput)) {
-      if ( (GetInputDataType(aInput) == NodeValue::kVec2) &&
-           (handle_table_.contains(aInput) == false) ){
-        PointGizmo * g = AddDraggableGizmo<PointGizmo>();
-        g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 0));
-        g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 1));
-        g->SetDragValueBehavior(PointGizmo::kAbsolute);
+      if (GetInputDataType(aInput) == NodeValue::kVec2) {
 
-        handle_table_.insert( aInput, g);
+        // is point new?
+        if (handle_table_.contains(aInput) == false) {
+          PointGizmo * g = AddDraggableGizmo<PointGizmo>();
+          g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 0));
+          g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 1));
+          g->SetDragValueBehavior(PointGizmo::kAbsolute);
+
+          handle_table_.insert( aInput, g);
+        }
+
+        PointGizmo * g = handle_table_[aInput];
+        g->SetShape( handle_shape_table_.value( aInput, PointGizmo::kSquare));
+        g->setProperty("color", QVariant::fromValue<QColor>(handle_color_table_.value(aInput, Qt::white)));
       }
     }
   }
@@ -306,6 +322,8 @@ void ShaderFilterNode::checkDeletedInputs(const QStringList & new_inputs)
       if (handle_table_.contains(input)) {
         RemoveGizmo( handle_table_[input]);
         handle_table_.remove( input);
+        handle_shape_table_.remove( input);
+        handle_color_table_.remove( input);
       }
     }
   }

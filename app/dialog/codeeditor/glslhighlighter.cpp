@@ -97,12 +97,12 @@ const QString oliveMarkupPatterns[] = {
   QStringLiteral("//OVE\\s+shader_version:[^\n]*"), QStringLiteral("//OVE\\s+name:[^\n]*"),
   QStringLiteral("//OVE\\s+type:[^\n]*"), QStringLiteral("//OVE\\s+flag:[^\n]*"),
   QStringLiteral("//OVE\\s+values:[^\n]*"), QStringLiteral("//OVE\\s+description:[^\n]*"),
-  QStringLiteral("//OVE\\s+default:[^\n]*"), QStringLiteral("//OVE\\s+min:[^\n]*"),
-  QStringLiteral("//OVE\\s+max:[^\n]*"),
-  QStringLiteral("//OVE\\s+end\\b[^\n]*")
+  QStringLiteral("//OVE\\s+default:[^\n]*"), QStringLiteral("//OVE shape: [^\n]*"),
+  QStringLiteral("//OVE color: [^\n]*"), QStringLiteral("//OVE\\s+min:[^\n]*"),
+  QStringLiteral("//OVE\\s+max:[^\n]*"), QStringLiteral("//OVE\\s+end\\b[^\n]*")
 };
 
-}
+} // namespace
 
 GlslHighlighter::GlslHighlighter(QTextDocument *parent)
   : QSyntaxHighlighter(parent)

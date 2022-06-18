@@ -145,6 +145,7 @@ void CodeEditorDialog::OnActionAddInputPoint()
   text_edit_->insertPlainText(
         "//OVE name: my point\n"
         "//OVE type: POINT\n"
+        "//OVE shape: SQUARE\n"
         "//OVE default: (0.4, 0.2)\n"
         "//OVE description: \n"
         "uniform vec2 my_point;\n");

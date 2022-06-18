@@ -65,6 +65,10 @@ QRegularExpression INPUT_MAX_REGEX("^\\s*//OVE\\s*max:\\s*(?<max>.*)\\s*$");
 QRegularExpression INPUT_DEFAULT_REGEX("^\\s*//OVE\\s*default:\\s*(?<default>.*)\\s*$");
 // list of values for a selection combo
 QRegularExpression INPUT_VALUES_REGEX("^\\s*//OVE\\s*values:\\s*(?<values>.*)\\s*$");
+// shape used to draw a point
+QRegularExpression INPUT_SHAPE_REGEX("^\\s*//OVE\\s*shape:\\s*(?<shape>.*)\\s*$");
+// color used to draw gizmo
+QRegularExpression INPUT_COLOR_REGEX("^\\s*//OVE\\s*color:\\s*(?<color>.*)\\s*$");
 // description. So far not used by application
 QRegularExpression INPUT_DESCRIPTION_REGEX("^\\s*//OVE\\s*description:\\s*(?<description>.*)\\s*$");
 
@@ -103,6 +107,8 @@ void clearCurrentInput()
   currentInput.type = NodeValue::kNone;
   currentInput.flags = InputFlags(kInputFlagNormal);
   currentInput.values.clear();
+  currentInput.pointShape = PointGizmo::kSquare;
+  currentInput.gizmoColor = Qt::white;
   currentInput.min = QVariant();
   currentInput.max = QVariant();
   currentInput.default_value = QVariant();
@@ -128,6 +134,8 @@ ShaderInputsParser::ShaderInputsParser( const QString & shader_code) :
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_TYPE_REGEX, & ShaderInputsParser::parseInputType);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_FLAG_REGEX, & ShaderInputsParser::parseInputFlags);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_VALUES_REGEX, & ShaderInputsParser::parseInputValueList);
+  INPUT_PARAM_PARSE_TABLE.insert( & INPUT_SHAPE_REGEX, & ShaderInputsParser::parseInputPointShape);
+  INPUT_PARAM_PARSE_TABLE.insert( & INPUT_COLOR_REGEX, & ShaderInputsParser::parseInputGizmoColor);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_MIN_REGEX, & ShaderInputsParser::parseInputMin);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_MAX_REGEX, & ShaderInputsParser::parseInputMax);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_DEFAULT_REGEX, & ShaderInputsParser::parseInputDefault);
@@ -343,6 +351,48 @@ ShaderInputsParser::parseInputValueList(const QRegularExpressionMatch & line_mat
     QString value_str = value.captured(1);
 
     currentInput.values << value_str;
+  }
+
+  return PARSING;
+}
+
+ShaderInputsParser::InputParseState ShaderInputsParser::parseInputPointShape(const QRegularExpressionMatch & line_match)
+{
+  // lookup table for point shape
+  static const QMap< QString, PointGizmo::Shape> INPUT_POINT_SHAPE_TABLE{
+    {"SQUARE", PointGizmo::kSquare},
+    {"CIRCLE", PointGizmo::kCircle},
+    {"ANCHOR", PointGizmo::kAnchorPoint}
+  };
+
+  if (line_match.hasMatch()) {
+    QString shape_str = line_match.captured("shape");
+
+    if (INPUT_POINT_SHAPE_TABLE.contains(shape_str)) {
+      currentInput.pointShape = INPUT_POINT_SHAPE_TABLE[shape_str];
+    }
+    else {
+      currentInput.pointShape = PointGizmo::kSquare;
+      reportError(QObject::tr("'%1' is not a valid point shape.").
+                  arg(shape_str));
+    }
+  }
+
+  return PARSING;
+}
+
+ShaderInputsParser::InputParseState ShaderInputsParser::parseInputGizmoColor(const QRegularExpressionMatch & line_match)
+{
+  if (currentInput.type == NodeValue::kVec2) {
+    QStringRef color_string = line_match.capturedRef("color").trimmed();
+    Color ove_color = parseColor( color_string).value<Color>();
+    currentInput.gizmoColor = QColor( int(ove_color.red()*255.0),
+                                      int(ove_color.green()*255.0),
+                                      int(ove_color.blue()*255.0), 255);
+  }
+  else {
+    reportError( QObject::tr("Attribute 'color' can be used for type POINT, not for %1").
+                 arg(currentInput.type_string));
   }
 
   return PARSING;
