@@ -20,16 +20,33 @@
 
 #include "audiomonitor.h"
 
+#include "panel/panelmanager.h"
+
 namespace olive {
 
+#define super PanelWidget
+
 AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("AudioMonitor"), parent)
+  super(QStringLiteral("AudioMonitor"), parent)
 {
   audio_monitor_ = new AudioMonitor();
+
+  audio_monitor_->installEventFilter(this);
 
   setWidget(QWidget::createWindowContainer(audio_monitor_));
 
   Retranslate();
+}
+
+bool AudioMonitorPanel::eventFilter(QObject *o, QEvent *e)
+{
+  if (o == audio_monitor_ && e->type() == QEvent::FocusIn) {
+    // HACK: QWindow focus isn't accounted for in QApplication::focusChanged, so we handle it
+    //       manually here.
+    PanelManager::instance()->FocusChanged(nullptr, this);
+  }
+
+  return super::eventFilter(o, e);
 }
 
 void AudioMonitorPanel::Retranslate()

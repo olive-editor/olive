@@ -45,6 +45,8 @@ public:
     audio_monitor_->SetParams(params);
   }
 
+  virtual bool eventFilter(QObject *o, QEvent *e) override;
+
 private:
   virtual void Retranslate() override;
 

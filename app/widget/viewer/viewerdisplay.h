@@ -130,6 +130,8 @@ public:
     return &timer_;
   }
 
+  virtual bool eventFilter(QObject *o, QEvent *e) override;
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
@@ -215,30 +217,6 @@ signals:
 
   void CreateAddableAt(const QRectF &rect);
 
-protected:
-  /**
-   * @brief Override the mouse press event for the DragStarted() signal and gizmos
-   */
-  virtual void mousePressEvent(QMouseEvent* event) override;
-
-  /**
-   * @brief Override mouse move to signal for the pixel sampler and gizmos
-   */
-  virtual void mouseMoveEvent(QMouseEvent* event) override;
-
-  /**
-   * @brief Override mouse release event for gizmos
-   */
-  virtual void mouseReleaseEvent(QMouseEvent* event) override;
-
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-
-  virtual void dragEnterEvent(QDragEnterEvent* event) override;
-
-  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
-
-  virtual void dropEvent(QDropEvent* event) override;
-
 protected slots:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
@@ -277,6 +255,13 @@ private:
   NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
 
   void OpenTextGizmo(TextGizmo *text, QMouseEvent *event = nullptr);
+
+  bool OnMousePress(QMouseEvent *e);
+  bool OnMouseMove(QMouseEvent *e);
+  bool OnMouseRelease(QMouseEvent *e);
+  bool OnMouseDoubleClick(QMouseEvent *e);
+
+  void EmitColorAtCursor(QMouseEvent* e);
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
@@ -390,8 +375,6 @@ private:
   bool queue_starved_;
 
 private slots:
-  void EmitColorAtCursor(QMouseEvent* e);
-
   void UpdateFromQueue();
 
   void TextEditChanged();

@@ -38,13 +38,10 @@ public:
   ManagedDisplayWidgetOpenGL() = default;
 
 signals:
+  // Render signals
   void OnInit();
-
   void OnPaint();
-
   void OnDestroy();
-
-  void OnMouseMove(QMouseEvent* e);
 
 protected:
   virtual void initializeGL() override
@@ -58,13 +55,6 @@ protected:
   virtual void paintGL() override
   {
     emit OnPaint();
-  }
-
-  virtual void mouseMoveEvent(QMouseEvent* e) override
-  {
-    emit OnMouseMove(e);
-
-    QOpenGLWindow::mouseMoveEvent(e);
   }
 
 private slots:
@@ -132,6 +122,8 @@ public:
    */
   void update();
 
+  virtual bool eventFilter(QObject *o, QEvent *e) override;
+
 public slots:
   /**
    * @brief Replaces the color transform with a new one
@@ -155,8 +147,6 @@ signals:
   void ColorManagerChanged(ColorManager* color_manager);
 
   void frameSwapped();
-
-  void InnerWidgetMouseMove(QMouseEvent* event);
 
 protected:
   /**
