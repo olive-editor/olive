@@ -503,10 +503,14 @@ void ViewerDisplayWidget::OnPaint()
 
 void ViewerDisplayWidget::OnDestroy()
 {
-  renderer()->DestroyNativeShader(deinterlace_shader_);
-  deinterlace_shader_.clear();
-  renderer()->DestroyNativeShader(blank_shader_);
-  blank_shader_.clear();
+  if (!deinterlace_shader_.isNull()) {
+    renderer()->DestroyNativeShader(deinterlace_shader_);
+    deinterlace_shader_.clear();
+  }
+  if (!blank_shader_.isNull()) {
+    renderer()->DestroyNativeShader(blank_shader_);
+    blank_shader_.clear();
+  }
 
   super::OnDestroy();
 
