@@ -29,7 +29,6 @@ ThreadPool::ThreadPool(unsigned threads, QObject *parent) :
     threads = std::thread::hardware_concurrency();
   }
 
-  available_count_ = threads;
   for (unsigned i = 0; i < threads; i += 1) {
     worker_threads_.emplace_back(std::bind(&ThreadPool::thread_exec, this, &tasks_, &task_mutex_, &cond_));
   }

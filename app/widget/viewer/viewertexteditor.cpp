@@ -134,7 +134,9 @@ void ViewerTextEditor::paintEvent(QPaintEvent *e)
     ctx.selections.append(selection);
   }
 
-  transparent_clone_->documentLayout()->draw(&p, ctx);
+  if (transparent_clone_) {
+    transparent_clone_->documentLayout()->draw(&p, ctx);
+  }
 }
 
 void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment)
