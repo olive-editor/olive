@@ -130,6 +130,11 @@ private:
 
   ShaderCache* shader_cache_;
 
+  static constexpr auto kDecoderMaximumInactivity = 10000;
+
+private slots:
+  void ClearOldDecoders();
+
 };
 
 }

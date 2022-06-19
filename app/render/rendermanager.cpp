@@ -59,6 +59,11 @@ RenderManager::RenderManager(QObject *parent) :
     context_ = nullptr;
     decoder_cache_ = nullptr;
   }
+
+  QTimer *decoder_clear_timer = new QTimer(this);
+  decoder_clear_timer->setInterval(kDecoderMaximumInactivity);
+  connect(decoder_clear_timer, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
+  decoder_clear_timer->start();
 }
 
 RenderManager::~RenderManager()
@@ -155,6 +160,24 @@ void RenderManager::RunTicket(RenderTicketPtr ticket) const
   }
 
   RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
+}
+
+void RenderManager::ClearOldDecoders()
+{
+  QMutexLocker locker(decoder_cache_->mutex());
+
+  qint64 min_age = QDateTime::currentMSecsSinceEpoch() - kDecoderMaximumInactivity;
+
+  for (auto it=decoder_cache_->begin(); it!=decoder_cache_->end(); ) {
+    DecoderPair decoder = it.value();
+
+    if (decoder.decoder->GetLastAccessedTime() < min_age) {
+      decoder.decoder->Close();
+      it = decoder_cache_->erase(it);
+    } else {
+      it++;
+    }
+  }
 }
 
 }

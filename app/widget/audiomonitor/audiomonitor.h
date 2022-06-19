@@ -22,7 +22,7 @@
 #define AUDIOMONITORWIDGET_H
 
 #include <QFile>
-#include <QOpenGLWidget>
+#include <QOpenGLWindow>
 #include <QTimer>
 
 #include "audio/audiovisualwaveform.h"
@@ -32,11 +32,11 @@
 
 namespace olive {
 
-class AudioMonitor : public QOpenGLWidget
+class AudioMonitor : public QOpenGLWindow
 {
   Q_OBJECT
 public:
-  AudioMonitor(QWidget* parent = nullptr);
+  AudioMonitor();
 
   virtual ~AudioMonitor() override;
 
