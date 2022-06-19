@@ -248,10 +248,15 @@ bool ViewerDisplayWidget::eventFilter(QObject *o, QEvent *e)
 
   switch (e->type()) {
   case QEvent::MouseButtonPress:
-    if (OnMousePress(static_cast<QMouseEvent*>(e))) {
-      return true;
+  {
+    QMouseEvent *mouse = static_cast<QMouseEvent*>(e);
+    if (!(mouse->flags() & Qt::MouseEventCreatedDoubleClick)) {
+      if (OnMousePress(mouse)) {
+        return true;
+      }
     }
     break;
+  }
   case QEvent::MouseMove:
     EmitColorAtCursor(static_cast<QMouseEvent*>(e));
     if (OnMouseMove(static_cast<QMouseEvent*>(e))) {
@@ -656,61 +661,94 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
   QTransform gizmo_transform = GenerateDisplayTransform();
 
-  ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), this);
+  // Create popup container for text and toolbar
+  auto popup = new QWidget(this);
+  popup->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
+  popup->setAttribute(Qt::WA_DeleteOnClose);
+  popup->setAttribute(Qt::WA_TranslucentBackground);
 
-  text_edit->setWindowFlags(text_edit->windowFlags() | Qt::Tool | Qt::FramelessWindowHint);
-  text_edit->setAttribute(Qt::WA_NoSystemBackground);
-  text_edit->setAttribute(Qt::WA_TranslucentBackground);
-
+  // Create text editor
+  ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), popup);
   Html::HtmlToDoc(text_edit->document(), text->GetHtml());
   text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
+  connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
 
-  QRect transformed_geom = gizmo_transform.map(text->GetRect()).boundingRect().toRect();
+  // Get on screen text rect (this will be the text editor's global geometry)
+  QRect global_text_area = gizmo_transform.map(text->GetRect()).boundingRect().toRect();
+  global_text_area = QRect(mapToGlobal(global_text_area.topLeft()), mapToGlobal(global_text_area.bottomRight()));
 
-  text_edit->setGeometry(QRect(mapToGlobal(transformed_geom.topLeft()), mapToGlobal(transformed_geom.bottomRight())));
+  QRect global_popup_area = global_text_area;
 
-  ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(this);
+  // Create toolbar
+  ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(popup);
+  text_edit->ConnectToolBar(toolbar);
 
-  QPoint pos = mapToGlobal(QPoint(transformed_geom.x(), transformed_geom.y() - toolbar->height()));
+  // Work out which corner of the text editor to anchor the toolbar to based on screen limitations
+  bool top = true;
+  bool left = true;
   for (QScreen *screen : qApp->screens()) {
-    if (screen->geometry().contains(pos)) {
-      if (pos.x() + toolbar->width() > screen->geometry().right()) {
-        pos.setX(screen->geometry().right() - toolbar->width());
+    // Look for screen that contains text area
+    if (screen->geometry().contains(global_text_area)) {
+      if (global_text_area.left() + toolbar->width() > screen->geometry().right()) {
+        left = false;
+      }
+      if (global_text_area.top() - toolbar->height() < screen->geometry().top()) {
+        top = false;
       }
       break;
     }
   }
-  toolbar->move(pos);
-  toolbar->show();
 
-  text_edit->show();
 
-  connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
+  QPoint toolbar_pos;
 
-  text_edit->ConnectToolBar(toolbar);
+  if (top) {
+    global_popup_area.adjust(0, -toolbar->height(), 0, 0);
+    toolbar_pos.setY(0);
+  } else {
+    global_popup_area.adjust(0, 0, 0, toolbar->height());
+    toolbar_pos.setY(global_text_area.height());
+  }
 
-  QPoint text_edit_pos;
+  if (toolbar->width() > global_popup_area.width()) {
+    int diff = toolbar->width() - global_popup_area.width();
+    if (left) {
+      global_popup_area.adjust(0, 0, diff, 0);
+    } else {
+      global_popup_area.adjust(-diff, 0, 0, 0);
+    }
+    toolbar_pos.setX(0);
+  } else {
+    if (left) {
+      toolbar_pos.setX(0);
+    } else {
+      toolbar_pos.setX(global_popup_area.width() - toolbar->width());
+    }
+  }
+
+  toolbar->move(toolbar_pos);
+
+  popup->setGeometry(global_popup_area);
+
+  text_edit->setGeometry(QRect(text_edit->mapFromGlobal(global_text_area.topLeft()), text_edit->mapFromGlobal(global_text_area.bottomRight())));
+
+  popup->show();
+
+  // Store click pos from event so we can use it later to set the initial text cursor position
+  QPoint click_pos;
   if (event) {
-    text_edit_pos = text_edit->mapFrom(this, event->pos());
+    click_pos = event->globalPos();
   }
 
   // Ensure text edit is actually focused rather than the toolbar
-  connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [this, text_edit, text_edit_pos]{
+  connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [text_edit, click_pos]{
     // Grab focus back from the toolbar
-    this->raise();
-    this->activateWindow();
     text_edit->setFocus();
 
     // Start text cursor where the user clicked
-    if (!text_edit_pos.isNull()) {
-      text_edit->setTextCursor(text_edit->cursorForPosition(text_edit_pos));
+    if (!click_pos.isNull()) {
+      text_edit->setTextCursor(text_edit->cursorForPosition(text_edit->mapFromGlobal(click_pos)));
     }
-
-    // HACK: On macOS, for some reason the QDockWidget receives focus before the
-    //       ViewerTextEditor, causing the editor to close prematurely. However this only
-    //       happens the first time the editor receives focus and not subsequent times, so
-    //       if we get it to only listen after the first one, this solves the problem.
-    text_edit->SetListenToFocusEvents(true);
   });
 }
 

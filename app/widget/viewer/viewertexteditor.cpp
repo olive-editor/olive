@@ -61,7 +61,6 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   dpi_force_.setDotsPerMeterY(dpm);
   document()->documentLayout()->setPaintDevice(&dpi_force_);
 
-  connect(qApp, &QApplication::focusChanged, this, &ViewerTextEditor::FocusChanged);
   connect(this, &QTextEdit::currentCharFormatChanged, this, &ViewerTextEditor::FormatChanged);
   connect(document(), &QTextDocument::contentsChanged, this, &ViewerTextEditor::DocumentChanged, Qt::QueuedConnection);
 
@@ -70,8 +69,6 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
 
 void ViewerTextEditor::ConnectToolBar(ViewerTextEditorToolBar *toolbar)
 {
-  connect(this, &ViewerTextEditor::destroyed, toolbar, &ViewerTextEditorToolBar::deleteLater);
-
   connect(toolbar, &ViewerTextEditorToolBar::FamilyChanged, this, &ViewerTextEditor::SetFamily);
   connect(toolbar, &ViewerTextEditorToolBar::SizeChanged, this, &ViewerTextEditor::setFontPointSize);
   connect(toolbar, &ViewerTextEditorToolBar::StyleChanged, this, &ViewerTextEditor::SetStyle);
@@ -92,15 +89,6 @@ void ViewerTextEditor::ConnectToolBar(ViewerTextEditorToolBar *toolbar)
   UpdateToolBar(toolbar, this->currentCharFormat(), this->textCursor().blockFormat(), this->alignment());
 
   toolbars_.append(toolbar);
-}
-
-void ViewerTextEditor::keyPressEvent(QKeyEvent *event)
-{
-  super::keyPressEvent(event);
-
-  if (event->key() == Qt::Key_Escape) {
-    deleteLater();
-  }
 }
 
 void ViewerTextEditor::paintEvent(QPaintEvent *e)
@@ -176,34 +164,6 @@ void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTe
   toolbar->SetStretch(f.fontStretch() == 0 ? 100 : f.fontStretch());
   toolbar->SetKerning(f.fontLetterSpacing() == 0.0 ? 100 : f.fontLetterSpacing());
   toolbar->SetLineHeight(b.lineHeight() == 0.0 ? 100 : b.lineHeight());
-}
-
-void ViewerTextEditor::FocusChanged(QWidget *old, QWidget *now)
-{
-  if (!listen_to_focus_events_) {
-    return;
-  }
-
-  QWidget *test = now;
-
-  if (!test) {
-    // Ignore null focuses because that could be one of the toolbar widgets simply losing focus
-    // and that would be undesirable to close the text editor from
-    return;
-  }
-
-  while (test) {
-    if (test == this
-        || dynamic_cast<ViewerTextEditorToolBar*>(test)
-        || dynamic_cast<SliderLadder*>(test)) {
-      return;
-    }
-
-    test = test->parentWidget();
-  }
-
-  // If we didn't return in the loop, the user must have focused on something else
-  deleteLater();
 }
 
 void ViewerTextEditor::FormatChanged(const QTextCharFormat &f)
@@ -325,8 +285,9 @@ void ViewerTextEditor::DocumentChanged()
 }
 
 ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
-  QWidget(parent, Qt::Tool | Qt::FramelessWindowHint),
-  painted_(false)
+  QWidget(parent),
+  painted_(false),
+  drag_enabled_(false)
 {
   QVBoxLayout *outer_layout = new QVBoxLayout(this);
   outer_layout->setSpacing(0);
@@ -511,7 +472,7 @@ void ViewerTextEditorToolBar::mousePressEvent(QMouseEvent *event)
 {
   QWidget::mousePressEvent(event);
 
-  if (event->button() == Qt::LeftButton) {
+  if (event->button() == Qt::LeftButton && drag_enabled_) {
     drag_anchor_ = event->pos();
   }
 }
@@ -520,7 +481,7 @@ void ViewerTextEditorToolBar::mouseMoveEvent(QMouseEvent *event)
 {
   QWidget::mouseMoveEvent(event);
 
-  if (event->buttons() & Qt::LeftButton) {
+  if ((event->buttons() & Qt::LeftButton) && drag_enabled_) {
     this->move(mapToParent(QPoint(event->pos() - drag_anchor_)));
   }
 }
