@@ -331,7 +331,9 @@ void SeekableWidget::DrawTimelinePoints(QPainter* p, int marker_bottom)
       workarea_right = qMin(qreal(lim_right), TimeToScene(GetTimelinePoints()->workarea()->out()));
     }
 
-    p->fillRect(workarea_left, 0, workarea_right - workarea_left, height(), palette().highlight());
+    QColor translucent_highlight = palette().highlight().color();
+    translucent_highlight.setAlpha(96);
+    p->fillRect(workarea_left, 0, workarea_right - workarea_left, height(), translucent_highlight);
   }
 
   // Draw markers
