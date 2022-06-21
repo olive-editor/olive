@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
 #include <QUrl>
@@ -37,6 +38,7 @@
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -392,6 +394,9 @@ void ProjectExplorer::ShowContextMenu()
         QAction* reveal_action = menu.addAction(reveal_text);
         connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
 
+        QAction *replace_action = menu.addAction(tr("Replace Footage"));
+        connect(replace_action, &QAction::triggered, this, &ProjectExplorer::ReplaceSelectedFootage);
+
       }
 
       menu.addSeparator();
@@ -495,6 +500,17 @@ void ProjectExplorer::RevealSelectedFootage()
 #else
   QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(footage->filename()).dir().absolutePath()));
 #endif
+}
+
+void ProjectExplorer::ReplaceSelectedFootage()
+{
+  Footage* footage = static_cast<Footage*>(context_menu_items_.first());
+
+  QString file = QFileDialog::getOpenFileName(this, tr("Replace Footage"));
+  if (!file.isEmpty()) {
+    auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(footage, Footage::kFilenameInput)), file);
+    Core::instance()->undo_stack()->push(c);
+  }
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewTab()
