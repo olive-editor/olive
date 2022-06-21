@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QScreen>
 
 #ifdef Q_OS_LINUX
 #include <QOffscreenSurface>
@@ -43,7 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
   //   window beforehand works around that issue and we just set it to whatever size is available.
   // * On Linux, it seems the window starts off at a vastly different size and then maximizes
   //   which throws off the proportions and makes the resulting layout wonky.
-  resize(qApp->desktop()->availableGeometry(this).size());
+  if (!qApp->screens().empty()) {
+    resize(qApp->screens().at(0)->availableSize());
+  }
 
 #ifdef Q_OS_WINDOWS
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
