@@ -364,8 +364,11 @@ void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
 {
   int half_width = playhead_width_ / 2;
 
-  if (x + half_width < 0 || x - half_width > width()) {
-    return;
+  {
+    int test = x - this->GetScroll();
+    if (test + half_width < 0 || test - half_width > width()) {
+      return;
+    }
   }
 
   p->setRenderHint(QPainter::Antialiasing);
