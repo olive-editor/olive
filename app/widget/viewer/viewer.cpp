@@ -72,19 +72,17 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   record_armed_(false),
   recording_(false),
   first_requeue_watcher_(nullptr),
-  enable_audio_scrubbing_(true)
+  enable_audio_scrubbing_(true),
+  waveform_mode_(kWFAutomatic)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
 
-  // Set up stacked widget to allow switching away from the viewer widget
-  stack_ = new QStackedWidget();
-  layout->addWidget(stack_);
-
   // Create main OpenGL-based view and sizer
   sizer_ = new ViewerSizer();
-  stack_->addWidget(sizer_);
+  sizer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  layout->addWidget(sizer_);
 
   display_widget_ = new ViewerDisplayWidget();
   display_widget_->setAcceptDrops(true);
@@ -114,7 +112,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   waveform_view_ = new AudioWaveformView();
   ConnectTimelineView(waveform_view_, true);
   PassWheelEventsToScrollBar(waveform_view_);
-  stack_->addWidget(waveform_view_);
+  layout->addWidget(waveform_view_);
 
   // Create time ruler
   layout->addWidget(ruler());
@@ -209,7 +207,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
-  connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
+  connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateWaveformViewFromMode);
 
   VideoParams vp = n->GetVideoParams();
 
@@ -230,7 +228,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
     dw->ConnectColorManager(color_manager);
   }
 
-  UpdateStack();
+  UpdateWaveformViewFromMode();
 
   waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
   waveform_view_->ConnectTimelinePoints(GetConnectedNode()->GetTimelinePoints());
@@ -253,7 +251,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
-  disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateStack);
+  disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateWaveformViewFromMode);
 
   CloseAudioProcessor();
 
@@ -272,7 +270,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   waveform_view_->ConnectTimelinePoints(nullptr);
 
   // Queue an UpdateStack so that when it runs, the viewer node will be fully disconnected
-  QMetaObject::invokeMethod(this, &ViewerWidget::UpdateStack, Qt::QueuedConnection);
+  QMetaObject::invokeMethod(this, &ViewerWidget::UpdateWaveformViewFromMode, Qt::QueuedConnection);
 
   SetGizmos(nullptr);
 }
@@ -541,6 +539,22 @@ void ViewerWidget::HandleFirstRequeueDestroy()
 void ViewerWidget::CloseAudioProcessor()
 {
   audio_processor_.Close();
+}
+
+void ViewerWidget::SetWaveformMode(WaveformMode wf)
+{
+  waveform_mode_ = wf;
+  UpdateWaveformViewFromMode();
+}
+
+void ViewerWidget::UpdateWaveformViewFromMode()
+{
+  bool prefer_waveform = ShouldForceWaveform();
+
+  sizer_->setVisible(waveform_mode_ == kWFViewerAndWaveform || waveform_mode_ == kWFViewerOnly || (waveform_mode_ == kWFAutomatic && !prefer_waveform));
+  waveform_view_->setVisible(waveform_mode_ == kWFViewerAndWaveform || waveform_mode_ == kWFWaveformOnly || (waveform_mode_ == kWFAutomatic && prefer_waveform));
+
+  waveform_view_->setSizePolicy(QSizePolicy::Expanding, waveform_mode_ == kWFViewerAndWaveform ? QSizePolicy::Maximum : QSizePolicy::Expanding);
 }
 
 void ViewerWidget::QueueNextAudioBuffer()
@@ -1014,28 +1028,6 @@ int ViewerWidget::DeterminePlaybackQueueSize()
   return qMin(max_frames, remaining_frames);
 }
 
-void ViewerWidget::UpdateStack()
-{
-  rational new_tb;
-
-  if (ShouldForceWaveform()) {
-    // If we have a node AND video is disconnected AND audio is connected, show waveform view
-    stack_->setCurrentWidget(waveform_view_);
-    //new_tb = GetConnectedNode()->audio_params().time_base();
-  } else {
-    // Otherwise show regular display
-    stack_->setCurrentWidget(sizer_);
-
-    /*if (GetConnectedNode()) {
-      new_tb = GetConnectedNode()->video_params().time_base();
-    }*/
-  }
-
-  /*if (new_tb != timebase()) {
-    SetTimebase(new_tb);
-  }*/
-}
-
 void ViewerWidget::ContextMenuSetFullScreen(QAction *action)
 {
   SetFullScreen(QGuiApplication::screens().at(action->data().toInt()));
@@ -1259,11 +1251,26 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
 
   {
-    QAction* show_waveform_action = menu.addAction(tr("Show Audio Waveform"));
-    show_waveform_action->setCheckable(true);
-    show_waveform_action->setChecked(stack_->currentWidget() == waveform_view_);
-    show_waveform_action->setEnabled(!ShouldForceWaveform());
-    connect(show_waveform_action, &QAction::triggered, this, &ViewerWidget::ManualSwitchToWaveform);
+    auto waveform_menu = new Menu(tr("Audio Waveform"), &menu);
+    menu.addMenu(waveform_menu);
+
+    auto auto_showhide = waveform_menu->addAction(tr("Automatically Show/Hide"));
+    auto show_waveform = waveform_menu->addAction(tr("Show Waveform Only"));
+    auto show_both = waveform_menu->addAction(tr("Show Both Viewer And Waveform"));
+
+    auto_showhide->setCheckable(true);
+    show_waveform->setCheckable(true);
+    show_both->setCheckable(true);
+
+    auto_showhide->setData(kWFAutomatic);
+    show_waveform->setData(kWFWaveformOnly);
+    show_both->setData(kWFViewerAndWaveform);
+
+    auto_showhide->setChecked(waveform_mode_ == kWFAutomatic);
+    show_waveform->setChecked(waveform_mode_ == kWFWaveformOnly);
+    show_both->setChecked(waveform_mode_ == kWFViewerAndWaveform);
+
+    connect(waveform_menu, &Menu::triggered, this, &ViewerWidget::UpdateWaveformModeFromMenu);
   }
 
   {
@@ -1579,13 +1586,9 @@ void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
   }
 }
 
-void ViewerWidget::ManualSwitchToWaveform(bool e)
+void ViewerWidget::UpdateWaveformModeFromMenu(QAction *a)
 {
-  if (e) {
-    stack_->setCurrentWidget(waveform_view_);
-  } else {
-    stack_->setCurrentWidget(sizer_);
-  }
+  SetWaveformMode(static_cast<WaveformMode>(a->data().toInt()));
 }
 
 void ViewerWidget::DragEntered(QDragEnterEvent* event)
