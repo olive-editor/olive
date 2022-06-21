@@ -153,7 +153,7 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
     b.setIcon(QMessageBox::Critical);
     b.setWindowModality(Qt::WindowModal);
     b.setWindowTitle(tr("Upload Failed"));
-    b.setText(tr("Failed to send error report (%1). Please try again later.").arg(QString::number(reply.error())));
+    b.setText(tr("Failed to send error report (%1). Please try again later.").arg(QString::number(reply->error())));
     b.addButton(QMessageBox::Ok);
     b.exec();
 
