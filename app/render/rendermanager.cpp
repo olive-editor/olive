@@ -38,8 +38,9 @@ namespace olive {
 RenderManager* RenderManager::instance_ = nullptr;
 
 RenderManager::RenderManager(QObject *parent) :
-  ThreadPool(0, parent),
-  backend_(kOpenGL)
+  ThreadPool(1, parent),
+  backend_(kOpenGL),
+  aggressive_gc_(0)
 {
   Renderer* graphics_renderer = nullptr;
 
@@ -60,10 +61,10 @@ RenderManager::RenderManager(QObject *parent) :
     decoder_cache_ = nullptr;
   }
 
-  QTimer *decoder_clear_timer = new QTimer(this);
-  decoder_clear_timer->setInterval(kDecoderMaximumInactivity);
-  connect(decoder_clear_timer, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
-  decoder_clear_timer->start();
+  decoder_clear_timer_ = new QTimer(this);
+  decoder_clear_timer_->setInterval(kDecoderMaximumInactivity);
+  connect(decoder_clear_timer_, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
+  decoder_clear_timer_->start();
 }
 
 RenderManager::~RenderManager()
@@ -160,6 +161,17 @@ void RenderManager::RunTicket(RenderTicketPtr ticket) const
   }
 
   RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
+}
+
+void RenderManager::SetAggressiveGarbageCollection(bool enabled)
+{
+  aggressive_gc_ += enabled ? 1 : -1;
+
+  if (aggressive_gc_ > 0) {
+    decoder_clear_timer_->setInterval(kDecoderMaximumInactivityAggressive);
+  } else {
+    decoder_clear_timer_->setInterval(kDecoderMaximumInactivity);
+  }
 }
 
 void RenderManager::ClearOldDecoders()

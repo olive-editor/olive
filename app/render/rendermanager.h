@@ -113,6 +113,9 @@ public:
     return QThread::idealThreadCount();
   }
 
+public slots:
+  void SetAggressiveGarbageCollection(bool enabled);
+
 signals:
 
 private:
@@ -130,7 +133,12 @@ private:
 
   ShaderCache* shader_cache_;
 
-  static constexpr auto kDecoderMaximumInactivity = 10000;
+  static constexpr auto kDecoderMaximumInactivityAggressive = 1000;
+  static constexpr auto kDecoderMaximumInactivity = 5000;
+
+  int aggressive_gc_;
+
+  QTimer *decoder_clear_timer_;
 
 private slots:
   void ClearOldDecoders();

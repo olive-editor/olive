@@ -44,6 +44,8 @@ bool RenderTask::Render(ColorManager* manager,
                         const QMatrix4x4 &force_matrix, VideoParams::Format force_format,
                         ColorProcessorPtr force_color_output)
 {
+  QMetaObject::invokeMethod(RenderManager::instance(), "SetAggressiveGarbageCollection", Q_ARG(bool, true));
+
   // Run watchers in another thread so they can accept signals even while this thread is blocked
   QThread watcher_thread;
   watcher_thread.start();
@@ -235,6 +237,8 @@ bool RenderTask::Render(ColorManager* manager,
 
   watcher_thread.quit();
   watcher_thread.wait();
+
+  QMetaObject::invokeMethod(RenderManager::instance(), "SetAggressiveGarbageCollection", Q_ARG(bool, false));
 
   return result;
 }

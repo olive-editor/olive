@@ -765,6 +765,8 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     viewer->auto_cacher_.SetAudioPaused(true);
   }
 
+  RenderManager::instance()->SetAggressiveGarbageCollection(true);
+
   // Disarm recording if armed
   if (record_armed_) {
     DisarmRecording();
@@ -861,6 +863,8 @@ void ViewerWidget::PauseInternal()
     }
 
     UpdateTextureFromNode();
+
+    RenderManager::instance()->SetAggressiveGarbageCollection(false);
   }
 
   prequeuing_video_ = false;
@@ -1108,7 +1112,9 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
             prequeuing_video_ = false;
             FinishPlayPreprocess();
           } else {
-            RequestNextFrameForQueue();
+            // This call was mostly necessary to keep the threads busy between prequeue and playback.
+            // If we only have a single render thread, it's no longer necessary.
+            //RequestNextFrameForQueue();
           }
         }
       }
