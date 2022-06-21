@@ -574,8 +574,8 @@ void PreviewAutoCacher::TryRender()
     single_frame_render_ = nullptr;
   }
 
-  // Ensure we are running tasks if we have any
-  const int max_tasks = RenderManager::GetNumberOfIdealConcurrentJobs();
+  // Completely arbitrary number. I don't know what's optimal for this yet.
+  const int max_tasks = 4;
 
   // Handle video tasks
   rational t;

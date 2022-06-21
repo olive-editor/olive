@@ -108,11 +108,6 @@ public:
     return backend_;
   }
 
-  static int GetNumberOfIdealConcurrentJobs()
-  {
-    return QThread::idealThreadCount();
-  }
-
 public slots:
   void SetAggressiveGarbageCollection(bool enabled);
 
