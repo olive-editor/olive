@@ -35,15 +35,7 @@ public:
     QComboBox(parent)
   {
     foreach (int d, VideoParams::kSupportedDividers) {
-      QString name;
-
-      if (d == 1) {
-        name = tr("Full");
-      } else {
-        name = tr("1/%1").arg(d);
-      }
-
-      this->addItem(name, d);
+      this->addItem(VideoParams::GetNameForDivider(d), d);
     }
   }
 

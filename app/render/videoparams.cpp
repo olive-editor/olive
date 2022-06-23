@@ -200,6 +200,15 @@ int VideoParams::GetBytesPerPixel(VideoParams::Format format, int channels)
   return GetBytesPerChannel(format) * channels;
 }
 
+QString VideoParams::GetNameForDivider(int div)
+{
+  if (div == 1) {
+    return QCoreApplication::translate("VideoParams", "Full");
+  } else {
+    return QCoreApplication::translate("VideoParams", "1/%1").arg(div);
+  }
+}
+
 bool VideoParams::FormatIsFloat(VideoParams::Format format)
 {
   switch (format) {

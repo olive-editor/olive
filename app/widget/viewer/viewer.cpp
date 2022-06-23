@@ -45,6 +45,7 @@
 #include "viewerpreventsleep.h"
 #include "widget/menu/menu.h"
 #include "window/mainwindow/mainwindow.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -205,6 +206,7 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
+  connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   connect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   connect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   connect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateWaveformViewFromMode);
@@ -249,6 +251,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::InterlacingChanged, this, &ViewerWidget::InterlacingChangedSlot);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererVideoParameters);
+  disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateTextureFromNode);
   disconnect(n, &ViewerOutput::AudioParamsChanged, this, &ViewerWidget::UpdateRendererAudioParameters);
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateWaveformViewFromMode);
@@ -1037,6 +1040,17 @@ void ViewerWidget::ContextMenuSetFullScreen(QAction *action)
   SetFullScreen(QGuiApplication::screens().at(action->data().toInt()));
 }
 
+void ViewerWidget::ContextMenuSetPlaybackRes(QAction *action)
+{
+  int div = action->data().toInt();
+
+  auto vp = GetConnectedNode()->GetVideoParams();
+  vp.set_divider(div);
+
+  auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(GetConnectedNode(), ViewerOutput::kVideoParamsInput, 0)), QVariant::fromValue(vp));
+  Core::instance()->undo_stack()->push(c);
+}
+
 void ViewerWidget::ContextMenuDisableSafeMargins()
 {
   context_menu_widget_->SetSafeMargins(ViewerSafeMarginInfo(false));
@@ -1195,6 +1209,18 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     }
 
     {
+      // Playback Resolution Menu
+      Menu *playback_res_menu = new Menu(tr("Playback Resolution"), &menu);
+      menu.addMenu(playback_res_menu);
+
+      for (int d : VideoParams::kSupportedDividers) {
+        playback_res_menu->AddActionWithData(VideoParams::GetNameForDivider(d), d, GetConnectedNode()->GetVideoParams().divider());
+      }
+
+      connect(playback_res_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetPlaybackRes);
+    }
+
+    {
       // Deinterlace Option
       if (GetConnectedNode()->GetVideoParams().interlacing() != VideoParams::kInterlaceNone) {
         QAction* deinterlace_action = menu.addAction(tr("Deinterlace"));
@@ -1260,21 +1286,9 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     auto waveform_menu = new Menu(tr("Audio Waveform"), &menu);
     menu.addMenu(waveform_menu);
 
-    auto auto_showhide = waveform_menu->addAction(tr("Automatically Show/Hide"));
-    auto show_waveform = waveform_menu->addAction(tr("Show Waveform Only"));
-    auto show_both = waveform_menu->addAction(tr("Show Both Viewer And Waveform"));
-
-    auto_showhide->setCheckable(true);
-    show_waveform->setCheckable(true);
-    show_both->setCheckable(true);
-
-    auto_showhide->setData(kWFAutomatic);
-    show_waveform->setData(kWFWaveformOnly);
-    show_both->setData(kWFViewerAndWaveform);
-
-    auto_showhide->setChecked(waveform_mode_ == kWFAutomatic);
-    show_waveform->setChecked(waveform_mode_ == kWFWaveformOnly);
-    show_both->setChecked(waveform_mode_ == kWFViewerAndWaveform);
+    waveform_menu->AddActionWithData(tr("Automatically Show/Hide"), kWFAutomatic, waveform_mode_);
+    waveform_menu->AddActionWithData(tr("Show Waveform Only"), kWFWaveformOnly, waveform_mode_);
+    waveform_menu->AddActionWithData(tr("Show Both Viewer And Waveform"), kWFViewerAndWaveform, waveform_mode_);
 
     connect(waveform_menu, &Menu::triggered, this, &ViewerWidget::UpdateWaveformModeFromMenu);
   }
