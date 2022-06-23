@@ -331,7 +331,7 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
   case Track::kVideo:
     if (IsInputConnected(kTextureInput)) {
       NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
-      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();
+      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).toRational();
       if (!r.isNaN()) {
         return r;
       }
@@ -340,7 +340,7 @@ rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
   case Track::kAudio:
     if (IsInputConnected(kSamplesInput)) {
       NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
-      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).value<rational>();;
+      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).toRational();
       if (!r.isNaN()) {
         return r;
       }
