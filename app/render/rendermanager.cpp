@@ -38,27 +38,25 @@ namespace olive {
 RenderManager* RenderManager::instance_ = nullptr;
 
 RenderManager::RenderManager(QObject *parent) :
-  ThreadPool(1, parent),
   backend_(kOpenGL),
   aggressive_gc_(0)
 {
-  Renderer* graphics_renderer = nullptr;
-
   if (backend_ == kOpenGL) {
-    graphics_renderer = new OpenGLRenderer();
-  }
-
-  if (graphics_renderer) {
-    context_ = new RendererThreadWrapper(graphics_renderer, this);
-    context_->Init();
-    context_->PostInit();
-
+    context_ = new OpenGLRenderer();
     decoder_cache_ = new DecoderCache();
     shader_cache_ = new ShaderCache();
   } else {
     qCritical() << "Tried to initialize unknown graphics backend";
     context_ = nullptr;
     decoder_cache_ = nullptr;
+  }
+
+  if (context_) {
+    video_thread_ = new RenderThread(context_, decoder_cache_, shader_cache_, this);
+    audio_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
+
+    video_thread_->start(QThread::IdlePriority);
+    audio_thread_->start(QThread::IdlePriority);
   }
 
   decoder_clear_timer_ = new QTimer(this);
@@ -73,9 +71,14 @@ RenderManager::~RenderManager()
     delete shader_cache_;
     delete decoder_cache_;
 
-    context_->Destroy();
+    video_thread_->quit();
+    video_thread_->wait();
+
     context_->PostDestroy();
     delete context_;
+
+    audio_thread_->quit();
+    audio_thread_->wait();
   }
 }
 
@@ -128,7 +131,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
     ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
   }
 
-  AddTicket(ticket, priority);
+  video_thread_->AddTicket(ticket);
 
   return ticket;
 }
@@ -145,22 +148,20 @@ RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const
   ticket->setProperty("enablewaveforms", generate_waveforms);
   ticket->setProperty("aparam", QVariant::fromValue(params));
 
-  AddTicket(ticket, priority);
+  audio_thread_->AddTicket(ticket);
 
   return ticket;
 }
 
-void RenderManager::RunTicket(RenderTicketPtr ticket) const
+bool RenderManager::RemoveTicket(RenderTicketPtr ticket)
 {
-  // Setup the ticket for ::Process
-  ticket->Start();
-
-  if (ticket->IsCancelled()) {
-    ticket->Finish();
-    return;
+  if (video_thread_->RemoveTicket(ticket)) {
+    return true;
+  } else if (audio_thread_->RemoveTicket(ticket)) {
+    return true;
+  } else {
+    return false;
   }
-
-  RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
 }
 
 void RenderManager::SetAggressiveGarbageCollection(bool enabled)
@@ -189,6 +190,88 @@ void RenderManager::ClearOldDecoders()
     } else {
       it++;
     }
+  }
+}
+
+RenderThread::RenderThread(Renderer *renderer, DecoderCache *decoder_cache, ShaderCache *shader_cache, QObject *parent) :
+  QThread(parent),
+  cancelled_(false),
+  context_(renderer),
+  decoder_cache_(decoder_cache),
+  shader_cache_(shader_cache)
+{
+  if (context_) {
+    context_->Init();
+    context_->moveToThread(this);
+  }
+}
+
+void RenderThread::AddTicket(RenderTicketPtr ticket)
+{
+  QMutexLocker locker(&mutex_);
+  queue_.push_back(ticket);
+  wait_.wakeOne();
+}
+
+bool RenderThread::RemoveTicket(RenderTicketPtr ticket)
+{
+  QMutexLocker locker(&mutex_);
+
+  auto it = std::find(queue_.begin(), queue_.end(), ticket);
+  if (it == queue_.end()) {
+    return false;
+  }
+
+  queue_.erase(it);
+  return true;
+}
+
+void RenderThread::quit()
+{
+  QMutexLocker locker(&mutex_);
+  cancelled_ = true;
+  wait_.wakeOne();
+}
+
+void RenderThread::run()
+{
+  if (context_) {
+    context_->PostInit();
+  }
+
+  QMutexLocker locker(&mutex_);
+
+  while (!cancelled_) {
+    if (queue_.empty()) {
+      wait_.wait(&mutex_);
+    }
+
+    if (cancelled_) {
+      break;
+    }
+
+    if (!queue_.empty()) {
+      RenderTicketPtr ticket = queue_.front();
+      queue_.pop_front();
+
+      locker.unlock();
+
+      // Setup the ticket for ::Process
+      ticket->Start();
+
+      if (ticket->IsCancelled()) {
+        ticket->Finish();
+      } else {
+        RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
+      }
+
+      locker.relock();
+    }
+  }
+
+  if (context_) {
+    context_->Destroy();
+    context_->moveToThread(this->thread());
   }
 }
 

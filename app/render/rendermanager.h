@@ -35,7 +35,39 @@
 
 namespace olive {
 
-class RenderManager : public ThreadPool
+class RenderThread : public QThread
+{
+  Q_OBJECT
+public:
+  RenderThread(Renderer *renderer, DecoderCache *decoder_cache, ShaderCache *shader_cache, QObject *parent = nullptr);
+
+  void AddTicket(RenderTicketPtr ticket);
+
+  bool RemoveTicket(RenderTicketPtr ticket);
+
+  void quit();
+
+protected:
+  virtual void run() override;
+
+private:
+  QMutex mutex_;
+
+  QWaitCondition wait_;
+
+  std::list<RenderTicketPtr> queue_;
+
+  bool cancelled_;
+
+  Renderer *context_;
+
+  DecoderCache *decoder_cache_;
+
+  ShaderCache *shader_cache_;
+
+};
+
+class RenderManager : public QObject
 {
   Q_OBJECT
 public:
@@ -96,7 +128,7 @@ public:
    */
   RenderTicketPtr RenderAudio(Node *viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
 
-  virtual void RunTicket(RenderTicketPtr ticket) const override;
+  bool RemoveTicket(RenderTicketPtr ticket);
 
   enum TicketType {
     kTypeVideo,
@@ -134,6 +166,9 @@ private:
   int aggressive_gc_;
 
   QTimer *decoder_clear_timer_;
+
+  RenderThread *video_thread_;
+  RenderThread *audio_thread_;
 
 private slots:
   void ClearOldDecoders();
