@@ -25,7 +25,7 @@
 #include "node/traverser.h"
 #include "render/renderer.h"
 #include "rendercache.h"
-#include "threading/threadticket.h"
+#include "renderticket.h"
 
 namespace olive {
 

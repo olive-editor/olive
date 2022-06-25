@@ -33,8 +33,6 @@
 #include "render/audioparams.h"
 #include "render/renderjobtracker.h"
 #include "render/rendermanager.h"
-#include "threading/threadpool.h"
-#include "threading/threadticketwatcher.h"
 
 namespace olive {
 
@@ -51,9 +49,9 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t, RenderTicketPriority prioritize);
+  RenderTicketPtr GetSingleFrame(const rational& t);
 
-  RenderTicketPtr GetRangeOfAudio(TimeRange range, RenderTicketPriority prioritize);
+  RenderTicketPtr GetRangeOfAudio(TimeRange range);
 
   /**
    * @brief Set the viewer node to auto-cache
@@ -100,16 +98,16 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, RenderTicketPriority priority, FrameHashCache *cache);
-  RenderTicketWatcher *RenderFrame(const rational &time, RenderTicketPriority priority, FrameHashCache *cache)
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, FrameHashCache *cache);
+  RenderTicketWatcher *RenderFrame(const rational &time, FrameHashCache *cache)
   {
-    return RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(), time, priority, cache);
+    return RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(), time, cache);
   }
 
-  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority);
-  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority)
+  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, bool generate_waveforms);
+  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms)
   {
-    return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, generate_waveforms, priority);
+    return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, generate_waveforms);
   }
 
   /**

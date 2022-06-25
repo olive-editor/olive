@@ -34,7 +34,6 @@
 #include "node/output/viewer/viewer.h"
 #include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"
-#include "threading/threadticketwatcher.h"
 #include "viewerdisplay.h"
 #include "viewersizer.h"
 #include "viewerwindow.h"
@@ -202,9 +201,9 @@ private:
 
   void SetDisplayImage(QVariant frame);
 
-  RenderTicketWatcher *RequestNextFrameForQueue(RenderTicketPriority priority = RenderTicketPriority::kNormal, bool increment = true);
+  RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, RenderTicketPriority priority);
+  RenderTicketPtr GetFrame(const rational& t);
 
   void FinishPlayPreprocess();
 

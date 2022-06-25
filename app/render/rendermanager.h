@@ -30,8 +30,8 @@
 #include "node/output/viewer/viewer.h"
 #include "node/traverser.h"
 #include "render/renderer.h"
+#include "render/renderticket.h"
 #include "rendercache.h"
-#include "threading/threadpool.h"
 
 namespace olive {
 
@@ -110,14 +110,14 @@ public:
    */
   RenderTicketPtr RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
+                              FrameHashCache* cache = nullptr, ReturnType return_type = kFrame);
   RenderTicketPtr RenderFrame(Node *node, ColorManager* color_manager,
                               const rational& time, RenderMode::Mode mode,
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                               ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
+                              FrameHashCache* cache = nullptr, ReturnType return_type = kFrame);
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -126,7 +126,7 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(Node *viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
+  RenderTicketPtr RenderAudio(Node *viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms);
 
   bool RemoveTicket(RenderTicketPtr ticket);
 

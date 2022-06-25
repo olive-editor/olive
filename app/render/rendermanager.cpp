@@ -27,7 +27,6 @@
 #include "config/config.h"
 #include "core.h"
 #include "render/opengl/openglrenderer.h"
-#include "render/rendererthreadwrapper.h"
 #include "renderprocessor.h"
 #include "task/conform/conform.h"
 #include "task/taskmanager.h"
@@ -84,7 +83,7 @@ RenderManager::~RenderManager()
 
 RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param,
                                            ColorManager* color_manager, const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
+                                           FrameHashCache* cache, ReturnType return_type)
 {
   return RenderFrame(node,
                      color_manager,
@@ -97,7 +96,6 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam
                      VideoParams::kFormatInvalid,
                      nullptr,
                      cache,
-                     priority,
                      return_type);
 }
 
@@ -107,7 +105,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
                                            ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
+                                           FrameHashCache* cache, ReturnType return_type)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -136,7 +134,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
+RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
