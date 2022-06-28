@@ -104,6 +104,10 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("ReassocLinToNonLin"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("PreviewNonFloatDontAskAgain"), NodeValue::kBoolean, false);
 
+  SetEntryInternal(QStringLiteral("DefaultVideoTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
+  SetEntryInternal(QStringLiteral("DefaultAudioTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
+  SetEntryInternal(QStringLiteral("DefaultTransitionLength"), NodeValue::kRational, QVariant::fromValue(rational(1)));
+
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
   SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, ColorCoding::kRed);

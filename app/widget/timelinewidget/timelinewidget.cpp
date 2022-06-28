@@ -568,6 +568,22 @@ void TimelineWidget::ToggleLinksOnSelected()
   Core::instance()->undo_stack()->push(new NodeLinkManyCommand(blocks, link));
 }
 
+void TimelineWidget::AddDefaultTransitionsToSelected()
+{
+  QVector<ClipBlock*> blocks;
+
+  foreach (Block* item, GetSelectedBlocks()) {
+    // Only clips can be linked
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(item)) {
+      blocks.append(clip);
+    }
+  }
+
+  if (!blocks.isEmpty()) {
+    Core::instance()->undo_stack()->push(new TimelineAddDefaultTransitionCommand(blocks, timebase()));
+  }
+}
+
 bool TimelineWidget::CopySelected(bool cut)
 {
   if (super::CopySelected(cut)) {

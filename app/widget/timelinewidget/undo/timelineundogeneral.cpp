@@ -22,9 +22,11 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
+#include "node/factory.h"
 #include "node/math/math/math.h"
 #include "node/math/merge/merge.h"
 #include "timelineundocommon.h"
+#include "widget/timelinewidget/undo/timelineundotrack.h"
 
 namespace olive {
 
@@ -287,8 +289,8 @@ void TrackListInsertGaps::prepare()
   QVector<Block*> blocks_to_append_gap_to;
   QVector<Track*> tracks_to_append_gap_to;
 
-  foreach (Track* track, working_tracks_) {
-    foreach (Block* b, track->Blocks()) {
+  for (Track* track : qAsConst(working_tracks_)) {
+    for (Block* b : track->Blocks()) {
       if (dynamic_cast<GapBlock*>(b) && b->in() <= point_ && b->out() >= point_) {
         // Found a gap at the location
         gaps_to_extend_.append(b);
@@ -540,6 +542,132 @@ void TimelineRemoveTrackCommand::undo()
   list_->parent()->InputArrayInsert(list_->track_input(), index_);
 
   remove_command_->undo_now();
+}
+
+void TimelineAddDefaultTransitionCommand::prepare()
+{
+  for (auto it=clips_.cbegin(); it!=clips_.cend(); it++) {
+    ClipBlock *c = *it;
+
+    // Handle in transition
+    if (clips_.contains(static_cast<ClipBlock*>(c->previous()))) {
+      // Do nothing, assume this will be handled by a dual transition from that clip
+    } else if (dynamic_cast<GapBlock*>(c->previous()) || !c->previous()) {
+      // Create in transition
+      AddTransition(c, kIn);
+    }
+
+    // Handle out transition
+    if (clips_.contains(static_cast<ClipBlock*>(c->next()))) {
+      AddTransition(c, kOutDual);
+    } else if (dynamic_cast<GapBlock*>(c->next()) || !c->next()) {
+      // Create out transition
+      AddTransition(c, kOut);
+    }
+  }
+}
+
+void TimelineAddDefaultTransitionCommand::AddTransition(ClipBlock *c, CreateTransitionMode mode)
+{
+  if (Track *t = c->track()) {
+    Node *p = nullptr;
+    if (t->type() == Track::kVideo) {
+      p = NodeFactory::CreateFromID(OLIVE_CONFIG("DefaultVideoTransition").toString());
+    } else if (t->type() == Track::kAudio) {
+      p = NodeFactory::CreateFromID(OLIVE_CONFIG("DefaultAudioTransition").toString());
+    }
+
+    rational transition_length = OLIVE_CONFIG("DefaultTransitionLength").value<rational>();
+
+    // Resize original clip
+    switch (mode) {
+    case kIn:
+      ValidateTransitionLength(c, transition_length);
+
+      if (transition_length > 0) {
+        AdjustClipLength(c, transition_length, false);
+      }
+      break;
+    case kOut:
+      ValidateTransitionLength(c, transition_length);
+
+      if (transition_length > 0) {
+        AdjustClipLength(c, transition_length, true);
+      }
+      break;
+    case kOutDual:
+    {
+      rational half_length = transition_length / 2;
+
+      ValidateTransitionLength(static_cast<ClipBlock*>(c->next()), half_length);
+      ValidateTransitionLength(c, half_length);
+
+      transition_length = half_length * 2;
+
+      if (transition_length > 0) {
+        AdjustClipLength(static_cast<ClipBlock*>(c->next()), half_length, false);
+        AdjustClipLength(c, half_length, true);
+      }
+      break;
+    }
+    }
+
+    if (transition_length > 0) {
+      if (TransitionBlock *transition = dynamic_cast<TransitionBlock*>(p)) {
+        transition->set_length_and_media_out(transition_length);
+
+        // Add transition
+        commands_.append(new NodeAddCommand(c->parent(), transition));
+
+        // Insert block
+        Block *insert_after;
+        switch (mode) {
+        case kIn:
+          insert_after = c->previous();
+          break;
+        case kOut:
+        case kOutDual:
+          insert_after = c;
+          break;
+        }
+        commands_.append(new TrackInsertBlockAfterCommand(c->track(), transition, insert_after));
+
+        // Connect
+        switch (mode) {
+        case kIn:
+          commands_.append(new NodeEdgeAddCommand(c, NodeInput(transition, TransitionBlock::kInBlockInput)));
+          break;
+        case kOutDual:
+          commands_.append(new NodeEdgeAddCommand(c->next(), NodeInput(transition, TransitionBlock::kInBlockInput)));
+          /* fall through */
+        case kOut:
+          commands_.append(new NodeEdgeAddCommand(c, NodeInput(transition, TransitionBlock::kOutBlockInput)));
+          break;
+        }
+      }
+    }
+  }
+}
+
+void TimelineAddDefaultTransitionCommand::AdjustClipLength(ClipBlock *c, const rational &transition_length, bool out)
+{
+  rational cur_len = lengths_.value(c, c->length());
+  rational new_len = cur_len - transition_length;
+  if (out) {
+    commands_.append(new BlockResizeCommand(c, new_len));
+  } else {
+    commands_.append(new BlockResizeWithMediaInCommand(c, new_len));
+  }
+  lengths_.insert(c, new_len);
+}
+
+void TimelineAddDefaultTransitionCommand::ValidateTransitionLength(ClipBlock *c, rational &transition_length)
+{
+  rational cur_len = lengths_.value(c, c->length());
+  rational half_cur_len = cur_len/2;
+  if (transition_length >= half_cur_len) {
+    transition_length = half_cur_len - timebase_;
+  }
 }
 
 }

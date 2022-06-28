@@ -86,6 +86,11 @@ public:
 
   virtual void MoveOutToPlayhead() override;
 
+  void AddDefaultTransitionsToSelected()
+  {
+    timeline_widget()->AddDefaultTransitionsToSelected();
+  }
+
   void ShowSpeedDurationDialogForSelectedClips()
   {
     timeline_widget()->ShowSpeedDurationDialogForSelectedClips();

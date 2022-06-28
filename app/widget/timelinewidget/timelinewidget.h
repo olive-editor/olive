@@ -79,6 +79,8 @@ public:
 
   void ToggleLinksOnSelected();
 
+  void AddDefaultTransitionsToSelected();
+
   virtual bool CopySelected(bool cut) override;
 
   virtual bool Paste() override;
