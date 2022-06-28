@@ -620,16 +620,7 @@ void TimelineAddDefaultTransitionCommand::AddTransition(ClipBlock *c, CreateTran
         commands_.append(new NodeAddCommand(c->parent(), transition));
 
         // Insert block
-        Block *insert_after;
-        switch (mode) {
-        case kIn:
-          insert_after = c->previous();
-          break;
-        case kOut:
-        case kOutDual:
-          insert_after = c;
-          break;
-        }
+        Block *insert_after = (mode == kIn) ? c->previous() : c;
         commands_.append(new TrackInsertBlockAfterCommand(c->track(), transition, insert_after));
 
         // Connect
