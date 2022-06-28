@@ -58,7 +58,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
 
   SetFlags(kDontShowInParamView);
 
-  timeline_points_ = new TimelinePoints(this);
+  workarea_ = new TimelineWorkArea(this);
+  markers_ = new TimelineMarkerList(this);
 }
 
 QString ViewerOutput::Name() const

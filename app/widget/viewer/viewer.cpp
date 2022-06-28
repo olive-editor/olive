@@ -233,7 +233,6 @@ void ViewerWidget::ConnectNodeEvent(ViewerOutput *n)
   UpdateWaveformViewFromMode();
 
   waveform_view_->SetViewer(GetConnectedNode()->audio_playback_cache());
-  waveform_view_->ConnectTimelinePoints(GetConnectedNode()->GetTimelinePoints());
 
   UpdateRendererVideoParameters();
   UpdateRendererAudioParameters();
@@ -270,7 +269,6 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   }
 
   waveform_view_->SetViewer(nullptr);
-  waveform_view_->ConnectTimelinePoints(nullptr);
 
   // Queue an UpdateStack so that when it runs, the viewer node will be fully disconnected
   QMetaObject::invokeMethod(this, &ViewerWidget::UpdateWaveformViewFromMode, Qt::QueuedConnection);
@@ -282,6 +280,16 @@ void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   auto_cacher_.SetViewerNode(n);
   display_widget_->SetSubtitleTracks(dynamic_cast<Sequence*>(n));
+}
+
+void ViewerWidget::ConnectedWorkAreaChangeEvent(TimelineWorkArea *workarea)
+{
+  waveform_view_->SetWorkArea(workarea);
+}
+
+void ViewerWidget::ConnectedMarkersChangeEvent(TimelineMarkerList *markers)
+{
+  waveform_view_->SetMarkers(markers);
 }
 
 void ViewerWidget::ScaleChangedEvent(const double &s)
@@ -379,8 +387,8 @@ void ViewerWidget::CacheEntireSequence()
 
 void ViewerWidget::CacheSequenceInOut()
 {
-  if (GetConnectedNode() && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
-    auto_cacher_.ForceCacheRange(GetConnectedNode()->GetTimelinePoints()->workarea()->range());
+  if (GetConnectedNode() && GetConnectedNode()->GetWorkArea()->enabled()) {
+    auto_cacher_.ForceCacheRange(GetConnectedNode()->GetWorkArea()->range());
   } else {
     QMessageBox::warning(this,
                          tr("Error"),
@@ -1314,9 +1322,9 @@ void ViewerWidget::Play(bool in_to_out_only)
 {
   if (in_to_out_only) {
     if (GetConnectedNode()
-        && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+        && GetConnectedNode()->GetWorkArea()->enabled()) {
       // Jump to in point
-      SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
+      SetTimeAndSignal(GetConnectedNode()->GetWorkArea()->in());
     } else {
       in_to_out_only = false;
     }
@@ -1444,11 +1452,11 @@ void ViewerWidget::PlaybackTimerUpdate()
     min_time = recording_range_.in();
     max_time = recording_range_.out();
 
-  } else if (play_in_to_out_only_ && GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+  } else if (play_in_to_out_only_ && GetConnectedNode()->GetWorkArea()->enabled()) {
 
     // If "play in to out" is enabled or we're looping AND we have a workarea, only play the workarea
-    min_time = GetConnectedNode()->GetTimelinePoints()->workarea()->in();
-    max_time = GetConnectedNode()->GetTimelinePoints()->workarea()->out();
+    min_time = GetConnectedNode()->GetWorkArea()->in();
+    max_time = GetConnectedNode()->GetWorkArea()->out();
 
   } else {
 

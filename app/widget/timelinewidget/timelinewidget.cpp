@@ -638,7 +638,7 @@ void TimelineWidget::PasteInsert()
 void TimelineWidget::DeleteInToOut(bool ripple)
 {
   if (!GetConnectedNode()
-      || !GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+      || !GetConnectedNode()->GetWorkArea()->enabled()) {
     return;
   }
 
@@ -648,8 +648,8 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
     command->add_child(new TimelineRippleRemoveAreaCommand(
                          sequence(),
-                         GetConnectedNode()->GetTimelinePoints()->workarea()->in(),
-                         GetConnectedNode()->GetTimelinePoints()->workarea()->out()));
+                         GetConnectedNode()->GetWorkArea()->in(),
+                         GetConnectedNode()->GetWorkArea()->out()));
 
   } else {
     QVector<Track*> unlocked_tracks = sequence()->GetUnlockedTracks();
@@ -657,7 +657,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
     foreach (Track* track, unlocked_tracks) {
       GapBlock* gap = new GapBlock();
 
-      gap->set_length_and_media_out(GetConnectedNode()->GetTimelinePoints()->workarea()->length());
+      gap->set_length_and_media_out(GetConnectedNode()->GetWorkArea()->length());
 
       command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
                                             gap));
@@ -665,17 +665,17 @@ void TimelineWidget::DeleteInToOut(bool ripple)
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),
                                                     track->Index(),
                                                     gap,
-                                                    GetConnectedNode()->GetTimelinePoints()->workarea()->in()));
+                                                    GetConnectedNode()->GetWorkArea()->in()));
     }
   }
 
   // Clear workarea after this
   command->add_child(new WorkareaSetEnabledCommand(GetConnectedNode()->project(),
-                                                   GetConnectedNode()->GetTimelinePoints(),
+                                                   GetConnectedNode()->GetWorkArea(),
                                                    false));
 
   if (ripple) {
-    SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
+    SetTimeAndSignal(GetConnectedNode()->GetWorkArea()->in());
   }
 
   Core::instance()->undo_stack()->push(command);

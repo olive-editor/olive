@@ -29,7 +29,6 @@
 #include "node/output/viewer/viewer.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
-#include "timeline/timelinepoints.h"
 
 namespace olive {
 

@@ -204,17 +204,17 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
 
     if (new_connected_viewer != connected_viewer_) {
       if (connected_viewer_) {
-        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
-        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
-        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
       }
 
       connected_viewer_ = new_connected_viewer;
 
       if (connected_viewer_) {
-        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
-        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
-        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
       }
     }
 

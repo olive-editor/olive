@@ -23,7 +23,6 @@
 
 #include "node/output/track/tracklist.h"
 #include "node/output/viewer/viewer.h"
-#include "timeline/timelinepoints.h"
 
 namespace olive {
 

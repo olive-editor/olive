@@ -82,7 +82,8 @@ void AudioWaveformView::drawForeground(QPainter *p, const QRectF &rect)
   }
 
   // Draw in/out points
-  DrawTimelinePoints(p);
+  DrawWorkArea(p);
+  DrawMarkers(p);
 
   // Draw waveform
   p->setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color

@@ -39,7 +39,9 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   viewer_node_(nullptr),
   auto_max_scrollbar_(false),
   toggle_show_all_(false),
-  auto_set_timebase_(true)
+  auto_set_timebase_(true),
+  workarea_(nullptr),
+  markers_(nullptr)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   ConnectTimelineView(ruler_, true);
@@ -98,8 +100,8 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     SetTimebase(rational());
 
     // Disconnect ruler and scrollbar from timeline points
-    ruler()->ConnectTimelinePoints(nullptr);
-    scrollbar_->ConnectTimelinePoints(nullptr);
+    ConnectWorkArea(nullptr);
+    ConnectMarkers(nullptr);
   }
 
   // Call derivatives
@@ -111,8 +113,8 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     connect(viewer_node_, &ViewerOutput::RemovedFromGraph, this, &TimeBasedWidget::ConnectedNodeRemovedFromGraph);
 
     // Connect ruler and scrollbar to timeline points
-    ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
-    scrollbar_->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
+    ConnectWorkArea(viewer_node_->GetWorkArea());
+    ConnectMarkers(viewer_node_->GetMarkers());
 
     // If we're setting the timebase, set it automatically based on the video and audio parameters
     if (auto_set_timebase_) {
@@ -128,6 +130,20 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   UpdateMaximumScroll();
 
   emit ConnectedNodeChanged(old, node);
+}
+
+void TimeBasedWidget::ConnectWorkArea(TimelineWorkArea *workarea)
+{
+  workarea_ = workarea;
+  ruler()->SetWorkArea(workarea);
+  scrollbar_->ConnectWorkArea(workarea);
+}
+
+void TimeBasedWidget::ConnectMarkers(TimelineMarkerList *markers)
+{
+  markers_ = markers;
+  ruler()->SetMarkers(markers);
+  scrollbar_->ConnectMarkers(markers);
 }
 
 void TimeBasedWidget::UpdateMaximumScroll()
@@ -374,14 +390,14 @@ void TimeBasedWidget::GoToNextCut()
 
   rational closest_cut = RATIONAL_MAX;
 
-  foreach (Track* track, sequence->GetTracks()) {
+  for (Track* track : sequence->GetTracks()) {
     rational this_track_closest_cut = track->track_length();
 
     if (this_track_closest_cut <= GetTime()) {
       this_track_closest_cut = RATIONAL_MAX;
     }
 
-    foreach (Block* block, track->Blocks()) {
+    for (Block* block : track->Blocks()) {
       if (block->in() > GetTime()) {
         this_track_closest_cut = block->in();
         break;
@@ -457,10 +473,10 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   }
 
   MultiUndoCommand* command = new MultiUndoCommand();
-  TimelinePoints* points = viewer_node_->GetTimelinePoints();
+  TimelineWorkArea* points = viewer_node_->GetWorkArea();
 
   // Enable workarea if it isn't already enabled
-  if (!points->workarea()->enabled()) {
+  if (!points->enabled()) {
     command->add_child(new WorkareaSetEnabledCommand(viewer_node_->project(), points, true));
   }
 
@@ -470,23 +486,23 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   if (m == Timeline::kTrimIn) {
     in_point = time;
 
-    if (!points->workarea()->enabled() || points->workarea()->out() < in_point) {
+    if (!points->enabled() || points->out() < in_point) {
       out_point = TimelineWorkArea::kResetOut;
     } else {
-      out_point = points->workarea()->out();
+      out_point = points->out();
     }
   } else {
     out_point = time;
 
-    if (!points->workarea()->enabled() || points->workarea()->in() > out_point) {
+    if (!points->enabled() || points->in() > out_point) {
       in_point = TimelineWorkArea::kResetIn;
     } else {
-      in_point = points->workarea()->in();
+      in_point = points->in();
     }
   }
 
   // Set workarea
-  command->add_child(new WorkareaSetRangeCommand(points->workarea(), TimeRange(in_point, out_point)));
+  command->add_child(new WorkareaSetRangeCommand(points, TimeRange(in_point, out_point)));
 
   Core::instance()->undo_stack()->push(command);
 }
@@ -497,13 +513,13 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
     return;
   }
 
-  TimelinePoints* points = GetConnectedNode()->GetTimelinePoints();
+  TimelineWorkArea* points = GetConnectedNode()->GetWorkArea();
 
-  if (!GetConnectedNode() || !points->workarea()->enabled()) {
+  if (!points->enabled()) {
     return;
   }
 
-  TimeRange r = points->workarea()->range();
+  TimeRange r = points->range();
 
   if (m == Timeline::kTrimIn) {
     r.set_in(TimelineWorkArea::kResetIn);
@@ -511,7 +527,7 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
     r.set_out(TimelineWorkArea::kResetOut);
   }
 
-  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points->workarea(), r));
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points, r));
 }
 
 void TimeBasedWidget::PageScrollInternal(QScrollBar *bar, int maximum, int screen_position, bool whole_page_scroll)
@@ -582,8 +598,7 @@ void TimeBasedWidget::ClearInOutPoints()
     return;
   }
 
-
-  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(GetConnectedNode()->project(), GetConnectedNode()->GetTimelinePoints(), false));
+  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(GetConnectedNode()->project(), GetConnectedNode()->GetWorkArea(), false));
 }
 
 void TimeBasedWidget::SetMarker()
@@ -592,7 +607,7 @@ void TimeBasedWidget::SetMarker()
     return;
   }
 
-  TimelineMarkerList *markers = GetConnectedNode()->GetTimelinePoints()->markers();
+  TimelineMarkerList *markers = GetConnectedNode()->GetMarkers();
 
   if (TimelineMarker *existing = markers->GetMarkerAtTime(GetTime())) {
     // We already have a marker here, so pop open the edit dialog
@@ -661,8 +676,8 @@ void TimeBasedWidget::ToggleShowAll()
 void TimeBasedWidget::GoToIn()
 {
   if (GetConnectedNode()) {
-    if (GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
-      SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
+    if (GetConnectedNode()->GetWorkArea()->enabled()) {
+      SetTimeAndSignal(GetConnectedNode()->GetWorkArea()->in());
     } else {
       GoToStart();
     }
@@ -672,8 +687,8 @@ void TimeBasedWidget::GoToIn()
 void TimeBasedWidget::GoToOut()
 {
   if (GetConnectedNode()) {
-    if (GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
-      SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->out());
+    if (GetConnectedNode()->GetWorkArea()->enabled()) {
+      SetTimeAndSignal(GetConnectedNode()->GetWorkArea()->out());
     } else {
       GoToEnd();
     }
@@ -750,7 +765,7 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
         // Snap to clip markers too
         if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
           if (clip->connected_viewer()) {
-            TimelineMarkerList *markers = clip->connected_viewer()->GetTimelinePoints()->markers();
+            TimelineMarkerList *markers = clip->connected_viewer()->GetMarkers();
             for (auto jt=markers->cbegin(); jt!=markers->cend(); jt++) {
               TimelineMarker *marker = *jt;
 
@@ -768,8 +783,8 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
     }
   }
 
-  if ((snap_points & kSnapToMarkers) && ruler()->GetTimelinePoints()) {
-    for (auto it=ruler()->GetTimelinePoints()->markers()->cbegin(); it!=ruler()->GetTimelinePoints()->markers()->cend(); it++) {
+  if ((snap_points & kSnapToMarkers) && ruler()->GetMarkers()) {
+    for (auto it=ruler()->GetMarkers()->cbegin(); it!=ruler()->GetMarkers()->cend(); it++) {
       TimelineMarker* m = *it;
 
       // Ignore selected markers
@@ -787,9 +802,9 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
     }
   }
 
-  if ((snap_points & kSnapToWorkarea) && ruler()->GetTimelinePoints()) {
-    const rational &workarea_in = ruler()->GetTimelinePoints()->workarea()->in();
-    const rational &workarea_out = ruler()->GetTimelinePoints()->workarea()->out();
+  if ((snap_points & kSnapToWorkarea) && ruler()->GetWorkArea()) {
+    const rational &workarea_in = ruler()->GetWorkArea()->in();
+    const rational &workarea_out = ruler()->GetWorkArea()->out();
 
     AttemptSnap(potential_snaps, screen_pt, TimeToScene(workarea_in), start_times, workarea_in);
     AttemptSnap(potential_snaps, screen_pt, TimeToScene(workarea_out), start_times, workarea_out);

@@ -547,7 +547,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             }
           }
 
-          TimelineMarkerList *marker_list = clip->connected_viewer()->GetTimelinePoints()->markers();
+          TimelineMarkerList *marker_list = clip->connected_viewer()->GetMarkers();
           if (!marker_list->empty()) {
 
             clip_marker_rects_.clear();

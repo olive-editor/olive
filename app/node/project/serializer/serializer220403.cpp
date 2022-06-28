@@ -989,7 +989,7 @@ void ProjectSerializer220403::LoadNodeCustom(QXmlStreamReader *reader, Node *nod
 
     while (XMLReadNextStartElement(reader)) {
       if (reader->name() == QStringLiteral("points")) {
-        LoadTimelinePoints(reader, viewer->GetTimelinePoints());
+        LoadTimelinePoints(reader, viewer);
       } else if (reader->name() == QStringLiteral("timestamp") && footage) {
         footage->set_timestamp(reader->readElementText().toLongLong());
       } else {
@@ -1084,7 +1084,7 @@ void ProjectSerializer220403::SaveNodeCustom(QXmlStreamWriter *writer, Node *nod
   if (ViewerOutput *viewer = dynamic_cast<ViewerOutput*>(node)) {
     // Write TimelinePoints
     writer->writeStartElement(QStringLiteral("points"));
-    SaveTimelinePoints(writer, viewer->GetTimelinePoints());
+    SaveTimelinePoints(writer, viewer);
     writer->writeEndElement(); // points
 
     if (Footage *footage = dynamic_cast<Footage*>(node)) {
@@ -1136,27 +1136,27 @@ void ProjectSerializer220403::SaveNodeCustom(QXmlStreamWriter *writer, Node *nod
   }
 }
 
-void ProjectSerializer220403::LoadTimelinePoints(QXmlStreamReader *reader, TimelinePoints *points) const
+void ProjectSerializer220403::LoadTimelinePoints(QXmlStreamReader *reader, ViewerOutput *viewer) const
 {
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("markers")) {
-      LoadMarkerList(reader, points->markers());
+      LoadMarkerList(reader, viewer->GetMarkers());
     } else if (reader->name() == QStringLiteral("workarea")) {
-      LoadWorkArea(reader, points->workarea());
+      LoadWorkArea(reader, viewer->GetWorkArea());
     } else {
       reader->skipCurrentElement();
     }
   }
 }
 
-void ProjectSerializer220403::SaveTimelinePoints(QXmlStreamWriter *writer, TimelinePoints *points) const
+void ProjectSerializer220403::SaveTimelinePoints(QXmlStreamWriter *writer, ViewerOutput *viewer) const
 {
   writer->writeStartElement(QStringLiteral("workarea"));
-  SaveWorkArea(writer, points->workarea());
+  SaveWorkArea(writer, viewer->GetWorkArea());
   writer->writeEndElement(); // workarea
 
   writer->writeStartElement(QStringLiteral("markers"));
-  SaveMarkerList(writer, points->markers());
+  SaveMarkerList(writer, viewer->GetMarkers());
   writer->writeEndElement(); // markers
 }
 

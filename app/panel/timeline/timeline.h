@@ -109,6 +109,7 @@ signals:
   void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
 
   void RevealViewerInProject(ViewerOutput *r);
+  void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
 
 };
 

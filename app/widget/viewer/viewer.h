@@ -163,6 +163,8 @@ protected:
   virtual void ConnectNodeEvent(ViewerOutput *) override;
   virtual void DisconnectNodeEvent(ViewerOutput *) override;
   virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
+  virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *) override;
+  virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 

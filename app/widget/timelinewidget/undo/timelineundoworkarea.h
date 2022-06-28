@@ -22,16 +22,15 @@
 #define TIMELINEUNDOWORKAREA_H
 
 #include "node/project/project.h"
-#include "timeline/timelinepoints.h"
 
 namespace olive {
 
 class WorkareaSetEnabledCommand : public UndoCommand {
 public:
-  WorkareaSetEnabledCommand(Project *project, TimelinePoints* points, bool enabled) :
+  WorkareaSetEnabledCommand(Project *project, TimelineWorkArea* points, bool enabled) :
     project_(project),
     points_(points),
-    old_enabled_(points_->workarea()->enabled()),
+    old_enabled_(points_->enabled()),
     new_enabled_(enabled)
   {
   }
@@ -44,18 +43,18 @@ public:
 protected:
   virtual void redo() override
   {
-    points_->workarea()->set_enabled(new_enabled_);
+    points_->set_enabled(new_enabled_);
   }
 
   virtual void undo() override
   {
-    points_->workarea()->set_enabled(old_enabled_);
+    points_->set_enabled(old_enabled_);
   }
 
 private:
   Project* project_;
 
-  TimelinePoints* points_;
+  TimelineWorkArea* points_;
 
   bool old_enabled_;
 

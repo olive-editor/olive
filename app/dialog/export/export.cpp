@@ -107,7 +107,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   range_combobox_ = new QComboBox();
   range_combobox_->addItem(tr("Entire Sequence"));
   range_combobox_->addItem(tr("In to Out"));
-  range_combobox_->setEnabled(viewer_node_->GetTimelinePoints()->workarea()->enabled());
+  range_combobox_->setEnabled(viewer_node_->GetWorkArea()->enabled());
 
   preferences_layout->addWidget(range_combobox_, row, 1, 1, 3);
 
@@ -247,7 +247,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   // Set viewer to view the node
   preview_viewer_->ConnectViewerNode(viewer_node_);
-  preview_viewer_->ruler()->ConnectTimelinePoints(viewer_node_->GetTimelinePoints());
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 }
@@ -529,7 +528,7 @@ ExportParams ExportDialog::GenerateParams() const
     params.set_custom_range(TimeRange(export_time, export_time + GetSelectedTimebase()));
   } else if (range_combobox_->currentIndex() == kRangeInToOut) {
     // Assume if this combobox is enabled, workarea is enabled - a check that we make in this dialog's constructor
-    params.set_custom_range(viewer_node_->GetTimelinePoints()->workarea()->range());
+    params.set_custom_range(viewer_node_->GetWorkArea()->range());
   }
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
@@ -570,7 +569,7 @@ ExportParams ExportDialog::GenerateParams() const
 rational ExportDialog::GetExportLength() const
 {
   if (range_combobox_->currentIndex() == kRangeInToOut) {
-    return viewer_node_->GetTimelinePoints()->workarea()->range().length();
+    return viewer_node_->GetWorkArea()->range().length();
   } else {
     return viewer_node_->GetLength();
   }

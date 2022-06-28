@@ -100,9 +100,9 @@ private:
 
   void SaveNodeCustom(QXmlStreamWriter *writer, Node *node) const;
 
-  void LoadTimelinePoints(QXmlStreamReader *reader, TimelinePoints *points) const;
+  void LoadTimelinePoints(QXmlStreamReader *reader, ViewerOutput *viewer) const;
 
-  void SaveTimelinePoints(QXmlStreamWriter *writer, TimelinePoints *points) const;
+  void SaveTimelinePoints(QXmlStreamWriter *writer, ViewerOutput *viewer) const;
 
   void LoadMarker(QXmlStreamReader *reader, TimelineMarker *marker) const;
 
