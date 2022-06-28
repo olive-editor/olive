@@ -707,12 +707,14 @@ void TimelineView::ConnectTrackList(TrackList *list)
 {
   if (connected_track_list_) {
     disconnect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+    disconnect(connected_track_list_, &TrackList::TrackHeightChanged, this, &TimelineView::TrackListChanged);
   }
 
   connected_track_list_ = list;
 
   if (connected_track_list_) {
     connect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+    connect(connected_track_list_, &TrackList::TrackHeightChanged, this, &TimelineView::TrackListChanged);
   }
 }
 

@@ -81,6 +81,9 @@ void TrackList::TrackConnected(Node *node, int element)
   UpdateTrackIndexesFrom(cache_index);
 
   connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+  connect(track, &Track::TrackHeightChangedInPixels, this, [this](int height){
+    emit TrackHeightChanged(static_cast<Track*>(sender()), height);
+  });
 
   track->set_type(type_);
   track->set_sequence(parent());
