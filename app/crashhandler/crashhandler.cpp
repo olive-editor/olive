@@ -161,6 +161,22 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
   }
 }
 
+void CrashHandlerDialog::HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+  QStringList errors;
+  for (const QSslError &err : errors) {
+    errors.append(err.errorString());
+  }
+
+  QMessageBox b(this);
+  b.setIcon(QMessageBox::Critical);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(tr("SSL Error"));
+  b.setText(tr("Encountered the following SSL errors:\n\n%1").arg(errors.join('\n')));
+  b.addButton(QMessageBox::Ok);
+  b.exec();
+}
+
 void CrashHandlerDialog::AttemptToFindReport()
 {
   // If we found it, use it, otherwise wait a second and try again
@@ -198,6 +214,7 @@ void CrashHandlerDialog::SendErrorReport()
 
   QNetworkAccessManager* manager = new QNetworkAccessManager();
   connect(manager, &QNetworkAccessManager::finished, this, &CrashHandlerDialog::ReplyFinished);
+  connect(manager, &QNetworkAccessManager::sslErrors, this, &CrashHandlerDialog::HandleSslErrors);
 
   QNetworkRequest request;
   request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
