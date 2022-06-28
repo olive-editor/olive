@@ -33,6 +33,7 @@
 #include "dialog/about/about.h"
 #include "mainmenu.h"
 #include "mainstatusbar.h"
+#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -489,6 +490,20 @@ void MainWindow::RevealViewerInProject(ViewerOutput *r)
   }
 }
 
+void MainWindow::RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range)
+{
+  footage_viewer_panel_->ConnectViewerNode(r);
+
+  auto command = new MultiUndoCommand();
+  if (!r->GetWorkArea()->enabled()) {
+    command->add_child(new WorkareaSetEnabledCommand(r->project(), r->GetWorkArea(), true));
+  }
+  command->add_child(new WorkareaSetRangeCommand(r->GetWorkArea(), range));
+  Core::instance()->undo_stack()->push(command);
+
+  footage_viewer_panel_->SetTime(range.in());
+}
+
 #ifdef Q_OS_LINUX
 void MainWindow::ShowNouveauWarning()
 {
@@ -568,6 +583,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
+  connect(panel, &TimelinePanel::RevealViewerInFootageViewer, this, &MainWindow::RevealViewerInFootageViewer);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);

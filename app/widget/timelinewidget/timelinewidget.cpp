@@ -1073,6 +1073,11 @@ void TimelineWidget::ShowContextMenu()
 
     if (ClipBlock *clip = dynamic_cast<ClipBlock*>(selected.first())) {
       if (clip->connected_viewer()) {
+        QAction *reveal_in_footage_viewer = menu.addAction(tr("Reveal in Footage Viewer"));
+        reveal_in_footage_viewer->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
+        reveal_in_footage_viewer->setProperty("range", QVariant::fromValue(clip->media_range()));
+        connect(reveal_in_footage_viewer, &QAction::triggered, this, &TimelineWidget::RevealInFootageViewer);
+
         QAction *reveal_in_project = menu.addAction(tr("Reveal in Project"));
         reveal_in_project->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
         connect(reveal_in_project, &QAction::triggered, this, &TimelineWidget::RevealInProject);
@@ -1201,6 +1206,16 @@ void TimelineWidget::SignalBlockSelectionChange()
 {
   signal_block_change_timer_->stop();
   signal_block_change_timer_->start();
+}
+
+void TimelineWidget::RevealInFootageViewer()
+{
+  QAction *a = static_cast<QAction*>(sender());
+
+  ViewerOutput *item_to_reveal = reinterpret_cast<ViewerOutput*>(a->data().value<quintptr>());
+  TimeRange r = a->property("range").value<TimeRange>();
+
+  emit RevealViewerInFootageViewer(item_to_reveal, r);
 }
 
 void TimelineWidget::RevealInProject()

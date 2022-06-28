@@ -119,6 +119,8 @@ public:
     return connected_viewer_;
   }
 
+  TimeRange media_range() const;
+
   static const QString kBufferIn;
   static const QString kMediaInInput;
   static const QString kSpeedInput;

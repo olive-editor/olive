@@ -284,4 +284,9 @@ void ClipBlock::Retranslate()
   SetInputName(kMaintainAudioPitchInput, tr("Maintain Audio Pitch"));
 }
 
+TimeRange ClipBlock::media_range() const
+{
+  return InputTimeAdjustment(kBufferIn, -1, range());
+}
+
 }

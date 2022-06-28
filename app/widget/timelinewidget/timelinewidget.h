@@ -277,6 +277,7 @@ signals:
 
   void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
 
+  void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
   void RevealViewerInProject(ViewerOutput *r);
 
 protected:
@@ -425,6 +426,7 @@ private slots:
 
   void SignalBlockSelectionChange();
 
+  void RevealInFootageViewer();
   void RevealInProject();
 
   void RenameSelectedBlocks();
