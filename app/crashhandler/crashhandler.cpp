@@ -161,10 +161,10 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
   }
 }
 
-void CrashHandlerDialog::HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+void CrashHandlerDialog::HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &se)
 {
   QStringList errors;
-  for (const QSslError &err : errors) {
+  for (const QSslError &err : se) {
     errors.append(err.errorString());
   }
 
