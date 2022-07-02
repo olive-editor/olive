@@ -58,10 +58,7 @@ protected:
 
   virtual bool CanCacheFrames() override;
 
-  virtual TexturePtr CreateTexture(const VideoParams &p) override
-  {
-    return render_ctx_->CreateTexture(p);
-  }
+  virtual TexturePtr CreateTexture(const VideoParams &p) override;
 
   virtual SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count) override
   {
