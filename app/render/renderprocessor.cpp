@@ -388,6 +388,10 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
 void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time)
 {
+  if (!render_ctx_) {
+    return;
+  }
+
   if (ticket_->property("type").value<RenderManager::TicketType>() != RenderManager::kTypeVideo) {
     // Video cannot contribute to audio, so we do nothing here
     return;
@@ -494,7 +498,9 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
 
 void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob &job)
 {
-  Q_UNUSED(range)
+  if (!render_ctx_) {
+    return;
+  }
 
   QString full_shader_id = QStringLiteral("%1:%2").arg(node->id(), job.GetShaderID());
 
@@ -549,11 +555,19 @@ void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node
 
 void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob &job)
 {
+  if (!render_ctx_) {
+    return;
+  }
+
   render_ctx_->BlitColorManaged(job, destination.get());
 }
 
 void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob &job)
 {
+  if (!render_ctx_) {
+    return;
+  }
+
   FramePtr frame = Frame::Create();
 
   frame->set_video_params(destination->params());
@@ -582,8 +596,21 @@ TexturePtr RenderProcessor::ProcessVideoCacheJob(const CacheJob &val)
   return nullptr;
 }
 
+TexturePtr RenderProcessor::CreateTexture(const VideoParams &p)
+{
+  if (render_ctx_) {
+    return render_ctx_->CreateTexture(p);
+  } else {
+    return super::CreateTexture(p);
+  }
+}
+
 void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs)
 {
+  if (!render_ctx_) {
+    return;
+  }
+
   ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
   ColorProcessorPtr cp = ColorProcessor::Create(color_manager, input_cs, color_manager->GetReferenceColorSpace());
 

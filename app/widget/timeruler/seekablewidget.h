@@ -25,7 +25,6 @@
 #include <QScrollBar>
 
 #include "common/rational.h"
-#include "timeline/timelinepoints.h"
 #include "widget/menu/menu.h"
 #include "widget/timebased/timebasedviewselectionmanager.h"
 
@@ -42,8 +41,11 @@ public:
     return horizontalScrollBar()->value();
   }
 
-  TimelinePoints* GetTimelinePoints() const { return timeline_points_; }
-  void ConnectTimelinePoints(TimelinePoints* points);
+  TimelineMarkerList *GetMarkers() const { return markers_; }
+  TimelineWorkArea *GetWorkArea() const { return workarea_; }
+
+  void SetMarkers(TimelineMarkerList *markers);
+  void SetWorkArea(TimelineWorkArea *workarea);
 
   bool IsDraggingPlayhead() const
   {
@@ -84,7 +86,8 @@ protected:
 
   virtual void focusOutEvent(QFocusEvent *event) override;
 
-  void DrawTimelinePoints(QPainter *p, int marker_bottom = 0);
+  void DrawMarkers(QPainter *p, int marker_bottom = 0);
+  void DrawWorkArea(QPainter *p);
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
@@ -95,6 +98,9 @@ protected:
   inline const int& playhead_width() const {
     return playhead_width_;
   }
+
+  int GetLeftLimit() const;
+  int GetRightLimit() const;
 
 protected slots:
   virtual bool ShowContextMenu(const QPoint &p);
@@ -112,7 +118,8 @@ private:
 
   void CommitResizeHandle();
 
-  TimelinePoints* timeline_points_;
+  TimelineMarkerList* markers_;
+  TimelineWorkArea* workarea_;
 
   int text_height_;
 

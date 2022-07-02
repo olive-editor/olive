@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QScreen>
 
 #ifdef Q_OS_LINUX
 #include <QOffscreenSurface>
@@ -32,6 +33,7 @@
 #include "dialog/about/about.h"
 #include "mainmenu.h"
 #include "mainstatusbar.h"
+#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -43,7 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
   //   window beforehand works around that issue and we just set it to whatever size is available.
   // * On Linux, it seems the window starts off at a vastly different size and then maximizes
   //   which throws off the proportions and makes the resulting layout wonky.
-  resize(qApp->desktop()->availableGeometry(this).size());
+  if (!qApp->screens().empty()) {
+    resize(qApp->screens().at(0)->availableSize());
+  }
 
 #ifdef Q_OS_WINDOWS
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
@@ -486,6 +490,20 @@ void MainWindow::RevealViewerInProject(ViewerOutput *r)
   }
 }
 
+void MainWindow::RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range)
+{
+  footage_viewer_panel_->ConnectViewerNode(r);
+
+  auto command = new MultiUndoCommand();
+  if (!r->GetWorkArea()->enabled()) {
+    command->add_child(new WorkareaSetEnabledCommand(r->project(), r->GetWorkArea(), true));
+  }
+  command->add_child(new WorkareaSetRangeCommand(r->GetWorkArea(), range));
+  Core::instance()->undo_stack()->push(command);
+
+  footage_viewer_panel_->SetTime(range.in());
+}
+
 #ifdef Q_OS_LINUX
 void MainWindow::ShowNouveauWarning()
 {
@@ -565,6 +583,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
+  connect(panel, &TimelinePanel::RevealViewerInFootageViewer, this, &MainWindow::RevealViewerInFootageViewer);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);

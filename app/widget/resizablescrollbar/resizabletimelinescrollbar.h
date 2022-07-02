@@ -22,7 +22,8 @@
 #define RESIZABLETIMELINESCROLLBAR_H
 
 #include "resizablescrollbar.h"
-#include "timeline/timelinepoints.h"
+#include "timeline/timelinemarker.h"
+#include "timeline/timelineworkarea.h"
 #include "widget/timebased/timescaledobject.h"
 
 namespace olive {
@@ -34,7 +35,8 @@ public:
   ResizableTimelineScrollBar(QWidget* parent = nullptr);
   ResizableTimelineScrollBar(Qt::Orientation orientation, QWidget* parent = nullptr);
 
-  void ConnectTimelinePoints(TimelinePoints* points);
+  void ConnectMarkers(TimelineMarkerList *markers);
+  void ConnectWorkArea(TimelineWorkArea *workarea);
 
   void SetScale(double d);
 
@@ -42,7 +44,9 @@ protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
 private:
-  TimelinePoints* points_;
+  TimelineMarkerList* markers_;
+
+  TimelineWorkArea* workarea_;
 
   double scale_;
 

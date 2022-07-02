@@ -585,7 +585,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
             }
           }
 
-          TimelineMarkerList *marker_list = clip->connected_viewer()->GetTimelinePoints()->markers();
+          TimelineMarkerList *marker_list = clip->connected_viewer()->GetMarkers();
           if (!marker_list->empty()) {
 
             clip_marker_rects_.clear();
@@ -752,12 +752,14 @@ void TimelineView::ConnectTrackList(TrackList *list)
 {
   if (connected_track_list_) {
     disconnect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+    disconnect(connected_track_list_, &TrackList::TrackHeightChanged, this, &TimelineView::TrackListChanged);
   }
 
   connected_track_list_ = list;
 
   if (connected_track_list_) {
     connect(connected_track_list_, &TrackList::TrackListChanged, this, &TimelineView::TrackListChanged);
+    connect(connected_track_list_, &TrackList::TrackHeightChanged, this, &TimelineView::TrackListChanged);
   }
 }
 

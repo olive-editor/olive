@@ -126,6 +126,8 @@ private:
 
   bool painted_;
 
+  bool drag_enabled_;
+
 private slots:
   void UpdateFontStyleList(const QString &family);
 
@@ -144,8 +146,6 @@ public:
   void SetListenToFocusEvents(bool e) { listen_to_focus_events_ = e; }
 
 protected:
-  virtual void keyPressEvent(QKeyEvent *event) override;
-
   virtual void paintEvent(QPaintEvent *event) override;
 
 private:
@@ -166,8 +166,6 @@ private:
   bool listen_to_focus_events_;
 
 private slots:
-  void FocusChanged(QWidget *old, QWidget *now);
-
   void FormatChanged(const QTextCharFormat &f);
 
   void SetFamily(const QString &s);

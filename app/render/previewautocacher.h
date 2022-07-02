@@ -33,8 +33,6 @@
 #include "render/audioparams.h"
 #include "render/renderjobtracker.h"
 #include "render/rendermanager.h"
-#include "threading/threadpool.h"
-#include "threading/threadticketwatcher.h"
 
 namespace olive {
 
@@ -51,9 +49,9 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t, RenderTicketPriority prioritize);
+  RenderTicketPtr GetSingleFrame(const rational& t);
 
-  RenderTicketPtr GetRangeOfAudio(TimeRange range, RenderTicketPriority prioritize);
+  RenderTicketPtr GetRangeOfAudio(TimeRange range);
 
   void ClearSingleFrameRenders();
 
@@ -105,9 +103,9 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, RenderTicketPriority priority, PlaybackCache *cache);
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache *cache);
 
-  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, RenderTicketPriority priority, PlaybackCache *cache);
+  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache *cache);
 
   /**
    * @brief Process all changes to internal NodeGraph copy

@@ -120,7 +120,7 @@ void SliderLadder::SetValue(const QString &s)
 
 void SliderLadder::StartListeningToMouseInput()
 {
-  drag_timer_.start();
+  QMetaObject::invokeMethod(&drag_timer_, "start", Qt::QueuedConnection);
 }
 
 void SliderLadder::mouseReleaseEvent(QMouseEvent *event)

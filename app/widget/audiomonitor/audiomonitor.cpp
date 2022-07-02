@@ -20,6 +20,7 @@
 
 #include "audiomonitor.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QPainter>
 
@@ -35,8 +36,7 @@ const int kMaximumSmoothness = 8;
 
 QVector<AudioMonitor*> AudioMonitor::instances_;
 
-AudioMonitor::AudioMonitor(QWidget *parent) :
-  QOpenGLWidget(parent),
+AudioMonitor::AudioMonitor() :
   waveform_(nullptr),
   cached_channels_(0)
 {
@@ -126,7 +126,10 @@ void AudioMonitor::SetUpdateLoop(bool e)
 void AudioMonitor::paintGL()
 {
   QPainter p(this);
-  p.fillRect(rect(), palette().window().color());
+  QPalette palette = qApp->palette();
+  QRect geometry(0, 0, width(), height());
+
+  p.fillRect(geometry, palette.window().color());
 
   if (!params_.channel_count()) {
     return;
@@ -138,12 +141,12 @@ void AudioMonitor::paintGL()
   int font_height = fm.height();
 
   // Create rect where decibel markings will go on the side
-  QRect db_labels_rect = rect();
+  QRect db_labels_rect = geometry;
   db_labels_rect.setWidth(QtUtils::QFontMetricsWidth(p.fontMetrics(), "-00"));
   db_labels_rect.adjust(0, font_height, 0, 0);
 
   // Determine rect where the main meter will go
-  QRect full_meter_rect = rect();
+  QRect full_meter_rect = geometry;
   full_meter_rect.adjust(db_labels_rect.width(), font_height, 0, 0);
 
   // Width of each channel in the meter
@@ -164,7 +167,7 @@ void AudioMonitor::paintGL()
       // Draw decibel markings
       QRect last_db_marking_rect;
 
-      cached_painter.setPen(palette().text().color());
+      cached_painter.setPen(palette.text().color());
 
       for (int i=0;i>=kDecibelMinimum;i-=kDecibelStep) {
         QString db_label;

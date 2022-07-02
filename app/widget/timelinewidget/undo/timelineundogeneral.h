@@ -358,6 +358,61 @@ private:
 
 };
 
+class TimelineAddDefaultTransitionCommand : public UndoCommand
+{
+public:
+  TimelineAddDefaultTransitionCommand(const QVector<ClipBlock*> &clips, const rational &timebase) :
+    clips_(clips),
+    timebase_(timebase)
+  {}
+
+  virtual ~TimelineAddDefaultTransitionCommand() override
+  {
+    qDeleteAll(commands_);
+  }
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return clips_.empty() ? nullptr : clips_.first()->project();
+  }
+
+protected:
+  virtual void prepare() override;
+
+  virtual void redo() override
+  {
+    for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
+      (*it)->redo_now();
+    }
+  }
+
+  virtual void undo() override
+  {
+    for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
+      (*it)->undo_now();
+    }
+  }
+
+private:
+  enum CreateTransitionMode {
+    kIn,
+    kOut,
+    kOutDual
+  };
+
+  void AddTransition(ClipBlock *c, CreateTransitionMode mode);
+  void AdjustClipLength(ClipBlock *c, const rational &transition_length, bool out);
+  void ValidateTransitionLength(ClipBlock *c, rational &transition_length);
+
+
+  QVector<ClipBlock*> clips_;
+  rational timebase_;
+  QVector<UndoCommand*> commands_;
+
+  QHash<ClipBlock*, rational> lengths_;
+
+};
+
 }
 
 #endif // TIMELINEUNDOGENERAL_H

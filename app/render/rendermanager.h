@@ -30,12 +30,44 @@
 #include "node/output/viewer/viewer.h"
 #include "node/traverser.h"
 #include "render/renderer.h"
+#include "render/renderticket.h"
 #include "rendercache.h"
-#include "threading/threadpool.h"
 
 namespace olive {
 
-class RenderManager : public ThreadPool
+class RenderThread : public QThread
+{
+  Q_OBJECT
+public:
+  RenderThread(Renderer *renderer, DecoderCache *decoder_cache, ShaderCache *shader_cache, QObject *parent = nullptr);
+
+  void AddTicket(RenderTicketPtr ticket);
+
+  bool RemoveTicket(RenderTicketPtr ticket);
+
+  void quit();
+
+protected:
+  virtual void run() override;
+
+private:
+  QMutex mutex_;
+
+  QWaitCondition wait_;
+
+  std::list<RenderTicketPtr> queue_;
+
+  bool cancelled_;
+
+  Renderer *context_;
+
+  DecoderCache *decoder_cache_;
+
+  ShaderCache *shader_cache_;
+
+};
+
+class RenderManager : public QObject
 {
   Q_OBJECT
 public:
@@ -78,7 +110,6 @@ public:
       time = t;
       color_manager = colorman;
       use_cache = false;
-      priority = RenderTicketPriority::kNormal;
       return_type = kFrame;
       force_format = VideoParams::kFormatInvalid;
       force_color_output = nullptr;
@@ -98,7 +129,6 @@ public:
     rational time;
     ColorManager *color_manager;
     bool use_cache;
-    RenderTicketPriority priority;
     ReturnType return_type;
 
     QString cache_dir;
@@ -128,7 +158,6 @@ public:
       range = time;
       audio_params = aparam;
       generate_waveforms = false;
-      priority = RenderTicketPriority::kNormal;
       clamp = true;
     }
 
@@ -136,7 +165,6 @@ public:
     TimeRange range;
     AudioParams audio_params;
     bool generate_waveforms;
-    RenderTicketPriority priority;
     bool clamp;
   };
 
@@ -149,7 +177,7 @@ public:
    */
   RenderTicketPtr RenderAudio(const RenderAudioParams &params);
 
-  virtual void RunTicket(RenderTicketPtr ticket) const override;
+  bool RemoveTicket(RenderTicketPtr ticket);
 
   enum TicketType {
     kTypeVideo,
@@ -161,10 +189,8 @@ public:
     return backend_;
   }
 
-  static int GetNumberOfIdealConcurrentJobs()
-  {
-    return QThread::idealThreadCount();
-  }
+public slots:
+  void SetAggressiveGarbageCollection(bool enabled);
 
 signals:
 
@@ -182,6 +208,19 @@ private:
   DecoderCache* decoder_cache_;
 
   ShaderCache* shader_cache_;
+
+  static constexpr auto kDecoderMaximumInactivityAggressive = 1000;
+  static constexpr auto kDecoderMaximumInactivity = 5000;
+
+  int aggressive_gc_;
+
+  QTimer *decoder_clear_timer_;
+
+  RenderThread *video_thread_;
+  RenderThread *audio_thread_;
+
+private slots:
+  void ClearOldDecoders();
 
 };
 

@@ -25,7 +25,7 @@
 #include "node/traverser.h"
 #include "render/renderer.h"
 #include "rendercache.h"
-#include "threading/threadticket.h"
+#include "renderticket.h"
 
 namespace olive {
 
@@ -58,10 +58,7 @@ protected:
 
   virtual TexturePtr ProcessVideoCacheJob(const CacheJob &val) override;
 
-  virtual TexturePtr CreateTexture(const VideoParams &p) override
-  {
-    return render_ctx_->CreateTexture(p);
-  }
+  virtual TexturePtr CreateTexture(const VideoParams &p) override;
 
   virtual SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count) override
   {

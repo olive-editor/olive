@@ -177,6 +177,8 @@ public:
 
   virtual void ConnectedToPreviewEvent() override;
 
+  TimeRange media_range() const;
+
   static const QString kBufferIn;
   static const QString kMediaInInput;
   static const QString kSpeedInput;

@@ -34,7 +34,6 @@
 #include "node/output/viewer/viewer.h"
 #include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"
-#include "threading/threadticketwatcher.h"
 #include "viewerdisplay.h"
 #include "viewersizer.h"
 #include "viewerwindow.h"
@@ -51,6 +50,13 @@ class ViewerWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
+  enum WaveformMode {
+    kWFAutomatic,
+    kWFViewerOnly,
+    kWFWaveformOnly,
+    kWFViewerAndWaveform
+  };
+
   ViewerWidget(QWidget* parent = nullptr);
 
   virtual ~ViewerWidget() override;
@@ -157,6 +163,8 @@ protected:
   virtual void ConnectNodeEvent(ViewerOutput *) override;
   virtual void DisconnectNodeEvent(ViewerOutput *) override;
   virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
+  virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *) override;
+  virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 
@@ -195,9 +203,9 @@ private:
 
   void SetDisplayImage(QVariant frame);
 
-  RenderTicketWatcher *RequestNextFrameForQueue(RenderTicketPriority priority = RenderTicketPriority::kNormal, bool increment = true);
+  RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, RenderTicketPriority priority);
+  RenderTicketPtr GetFrame(const rational& t);
 
   void FinishPlayPreprocess();
 
@@ -221,7 +229,7 @@ private:
 
   void CloseAudioProcessor();
 
-  QStackedWidget* stack_;
+  void SetWaveformMode(WaveformMode wf);
 
   ViewerSizer* sizer_;
 
@@ -282,6 +290,8 @@ private:
 
   bool enable_audio_scrubbing_;
 
+  WaveformMode waveform_mode_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -297,9 +307,11 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void UpdateStack();
+  void UpdateWaveformViewFromMode();
 
   void ContextMenuSetFullScreen(QAction* action);
+
+  void ContextMenuSetPlaybackRes(QAction* action);
 
   void ContextMenuDisableSafeMargins();
 
@@ -315,7 +327,7 @@ private slots:
 
   void ViewerInvalidatedVideoRange(const olive::TimeRange &range);
 
-  void ManualSwitchToWaveform(bool e);
+  void UpdateWaveformModeFromMenu(QAction *a);
 
   void DragEntered(QDragEnterEvent* event);
 
@@ -335,6 +347,8 @@ private slots:
   void UpdateAudioProcessor();
 
   void CreateAddableAt(const QRectF &f);
+
+  void HandleFirstRequeueDestroy();
 
 };
 

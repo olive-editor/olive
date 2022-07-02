@@ -132,6 +132,40 @@ private:
 
 using RenderTicketPtr = std::shared_ptr<RenderTicket>;
 
+class RenderTicketWatcher : public QObject
+{
+  Q_OBJECT
+public:
+  RenderTicketWatcher(QObject* parent = nullptr);
+
+  RenderTicketPtr GetTicket() const
+  {
+    return ticket_;
+  }
+
+  void SetTicket(RenderTicketPtr ticket);
+
+  bool IsRunning();
+
+  void WaitForFinished();
+
+  QVariant Get();
+
+  bool HasResult();
+
+  void Cancel();
+
+signals:
+  void Finished(RenderTicketWatcher* watcher);
+
+private:
+  RenderTicketPtr ticket_;
+
+private slots:
+  void TicketFinished();
+
+};
+
 }
 
 Q_DECLARE_METATYPE(olive::RenderTicketPtr)

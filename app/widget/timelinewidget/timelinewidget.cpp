@@ -569,6 +569,22 @@ void TimelineWidget::ToggleLinksOnSelected()
   Core::instance()->undo_stack()->push(new NodeLinkManyCommand(blocks, link));
 }
 
+void TimelineWidget::AddDefaultTransitionsToSelected()
+{
+  QVector<ClipBlock*> blocks;
+
+  foreach (Block* item, GetSelectedBlocks()) {
+    // Only clips can be linked
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(item)) {
+      blocks.append(clip);
+    }
+  }
+
+  if (!blocks.isEmpty()) {
+    Core::instance()->undo_stack()->push(new TimelineAddDefaultTransitionCommand(blocks, timebase()));
+  }
+}
+
 bool TimelineWidget::CopySelected(bool cut)
 {
   if (super::CopySelected(cut)) {
@@ -639,7 +655,7 @@ void TimelineWidget::PasteInsert()
 void TimelineWidget::DeleteInToOut(bool ripple)
 {
   if (!GetConnectedNode()
-      || !GetConnectedNode()->GetTimelinePoints()->workarea()->enabled()) {
+      || !GetConnectedNode()->GetWorkArea()->enabled()) {
     return;
   }
 
@@ -649,8 +665,8 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
     command->add_child(new TimelineRippleRemoveAreaCommand(
                          sequence(),
-                         GetConnectedNode()->GetTimelinePoints()->workarea()->in(),
-                         GetConnectedNode()->GetTimelinePoints()->workarea()->out()));
+                         GetConnectedNode()->GetWorkArea()->in(),
+                         GetConnectedNode()->GetWorkArea()->out()));
 
   } else {
     QVector<Track*> unlocked_tracks = sequence()->GetUnlockedTracks();
@@ -658,7 +674,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
     foreach (Track* track, unlocked_tracks) {
       GapBlock* gap = new GapBlock();
 
-      gap->set_length_and_media_out(GetConnectedNode()->GetTimelinePoints()->workarea()->length());
+      gap->set_length_and_media_out(GetConnectedNode()->GetWorkArea()->length());
 
       command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
                                             gap));
@@ -666,17 +682,17 @@ void TimelineWidget::DeleteInToOut(bool ripple)
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),
                                                     track->Index(),
                                                     gap,
-                                                    GetConnectedNode()->GetTimelinePoints()->workarea()->in()));
+                                                    GetConnectedNode()->GetWorkArea()->in()));
     }
   }
 
   // Clear workarea after this
   command->add_child(new WorkareaSetEnabledCommand(GetConnectedNode()->project(),
-                                                   GetConnectedNode()->GetTimelinePoints(),
+                                                   GetConnectedNode()->GetWorkArea(),
                                                    false));
 
   if (ripple) {
-    SetTimeAndSignal(GetConnectedNode()->GetTimelinePoints()->workarea()->in());
+    SetTimeAndSignal(GetConnectedNode()->GetWorkArea()->in());
   }
 
   Core::instance()->undo_stack()->push(command);
@@ -1079,6 +1095,11 @@ void TimelineWidget::ShowContextMenu()
       connect(autocache_action, &QAction::triggered, this, &TimelineWidget::SetSelectedClipsAutocaching);
 
       if (clip->connected_viewer()) {
+        QAction *reveal_in_footage_viewer = menu.addAction(tr("Reveal in Footage Viewer"));
+        reveal_in_footage_viewer->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
+        reveal_in_footage_viewer->setProperty("range", QVariant::fromValue(clip->media_range()));
+        connect(reveal_in_footage_viewer, &QAction::triggered, this, &TimelineWidget::RevealInFootageViewer);
+
         QAction *reveal_in_project = menu.addAction(tr("Reveal in Project"));
         reveal_in_project->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
         connect(reveal_in_project, &QAction::triggered, this, &TimelineWidget::RevealInProject);
@@ -1219,6 +1240,16 @@ void TimelineWidget::SignalBlockSelectionChange()
 {
   signal_block_change_timer_->stop();
   signal_block_change_timer_->start();
+}
+
+void TimelineWidget::RevealInFootageViewer()
+{
+  QAction *a = static_cast<QAction*>(sender());
+
+  ViewerOutput *item_to_reveal = reinterpret_cast<ViewerOutput*>(a->data().value<quintptr>());
+  TimeRange r = a->property("range").value<TimeRange>();
+
+  emit RevealViewerInFootageViewer(item_to_reveal, r);
 }
 
 void TimelineWidget::RevealInProject()

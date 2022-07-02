@@ -31,12 +31,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - build-type: RelWithDebInfo
-            cc-compiler: gcc
-            cxx-compiler: g++
-            compiler-name: GCC 9.3.1
-            cmake-gen: Ninja
-            os-name: Linux (CentOS 7)
+          #- build-type: RelWithDebInfo
+          #  cc-compiler: gcc
+          #  cxx-compiler: g++
+          #  compiler-name: GCC 9.3.1
+          #  cmake-gen: Ninja
+          #  os-name: Linux (CentOS 7)
           - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++

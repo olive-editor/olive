@@ -36,6 +36,7 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   connect(tw, &TimelineWidget::BlockSelectionChanged, this, &TimelinePanel::BlockSelectionChanged);
   connect(tw, &TimelineWidget::RequestCaptureStart, this, &TimelinePanel::RequestCaptureStart);
   connect(tw, &TimelineWidget::RevealViewerInProject, this, &TimelinePanel::RevealViewerInProject);
+  connect(tw, &TimelineWidget::RevealViewerInFootageViewer, this, &TimelinePanel::RevealViewerInFootageViewer);
 }
 
 void TimelinePanel::SplitAtPlayhead()

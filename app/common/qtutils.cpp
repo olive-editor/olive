@@ -70,7 +70,11 @@ QDateTime QtUtils::GetCreationDate(const QFileInfo &info)
 #if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
   return info.created();
 #else
-  return info.birthTime();
+  QDateTime t = info.birthTime();
+  if (!t.isValid()) {
+    t = info.metadataChangeTime();
+  }
+  return t;
 #endif
 }
 

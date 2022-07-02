@@ -185,6 +185,8 @@ private slots:
 
   void RevealSelectedFootage();
 
+  void ReplaceSelectedFootage();
+
   void OpenContextMenuItemInNewTab();
 
   void OpenContextMenuItemInNewWindow();

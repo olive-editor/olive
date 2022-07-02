@@ -231,6 +231,8 @@ public:
     return GetBufferSize(width_, height_, format_, channel_count_);
   }
 
+  static QString GetNameForDivider(int div);
+
   static bool FormatIsFloat(Format format);
 
   static QString GetFormatName(Format format);

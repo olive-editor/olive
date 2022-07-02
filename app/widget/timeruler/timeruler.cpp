@@ -102,9 +102,8 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
 
   // Draw timeline points if connected
   int marker_height = TimelineMarker::GetMarkerHeight(p->fontMetrics());
-  if (GetTimelinePoints()) {
-    DrawTimelinePoints(p, marker_height);
-  }
+  DrawMarkers(p, marker_height);
+  DrawWorkArea(p);
 
   double width_of_frame = timebase_dbl() * GetScale();
   double width_of_second = 0;

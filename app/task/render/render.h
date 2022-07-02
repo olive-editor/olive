@@ -27,8 +27,7 @@
 #include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
 #include "task/task.h"
-#include "threading/threadticket.h"
-#include "threading/threadticketwatcher.h"
+#include "render/renderticket.h"
 
 namespace olive {
 

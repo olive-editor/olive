@@ -29,7 +29,8 @@
 #include "render/framehashcache.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
-#include "timeline/timelinepoints.h"
+#include "timeline/timelinemarker.h"
+#include "timeline/timelineworkarea.h"
 
 namespace olive {
 
@@ -151,10 +152,8 @@ public:
   const rational &GetVideoLength() const { return video_length_; }
   const rational &GetAudioLength() const { return audio_length_; }
 
-  TimelinePoints* GetTimelinePoints()
-  {
-    return timeline_points_;
-  }
+  TimelineWorkArea *GetWorkArea() const { return workarea_; }
+  TimelineMarkerList *GetMarkers() const { return markers_; }
 
   virtual TimeRange GetVideoCacheRange() const override
   {
@@ -238,7 +237,8 @@ private:
 
   AudioParams cached_audio_params_;
 
-  TimelinePoints *timeline_points_;
+  TimelineWorkArea *workarea_;
+  TimelineMarkerList *markers_;
 
   bool autocache_input_video_;
   bool autocache_input_audio_;

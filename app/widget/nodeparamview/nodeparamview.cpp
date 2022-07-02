@@ -84,6 +84,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     NodeParamViewItemTitleBar *title_bar = static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget());
 
     if (i == Track::kVideo || i == Track::kAudio) {
+      c->SetEffectType(static_cast<Track::Type>(i));
       title_bar->SetAddEffectButtonVisible(true);
       title_bar->SetText(tr("%1 Nodes").arg(Footage::GetStreamTypeName(static_cast<Track::Type>(i))));
     } else {

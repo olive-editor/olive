@@ -72,8 +72,6 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
 
-  connect(this, &ViewerDisplayWidget::InnerWidgetMouseMove, this, &ViewerDisplayWidget::EmitColorAtCursor);
-
   // Initializes cursor based on tool
   UpdateCursor();
 
@@ -116,7 +114,7 @@ void ViewerDisplayWidget::UpdateCursor()
 void ViewerDisplayWidget::SetSignalCursorColorEnabled(bool e)
 {
   signal_cursor_color_ = e;
-  inner_widget()->setMouseTracking(e);
+  SetInnerMouseTracking(e);
 }
 
 void ViewerDisplayWidget::SetImage(const QVariant &buffer)
@@ -241,185 +239,53 @@ void ViewerDisplayWidget::IncrementSkippedFrames()
   Core::instance()->ShowStatusBarMessage(tr("%n skipped frame(s) detected during playback", nullptr, frames_skipped_), 10000);
 }
 
-void ViewerDisplayWidget::mousePressEvent(QMouseEvent *event)
+bool ViewerDisplayWidget::eventFilter(QObject *o, QEvent *e)
 {
-  if (event->button() == Qt::LeftButton && Core::instance()->tool() == Tool::kAdd
-      && (Core::instance()->GetSelectedAddableObject() == Tool::kAddableShape || Core::instance()->GetSelectedAddableObject() == Tool::kAddableTitle)) {
-
-    add_band_start_ = event->pos();
-
-    add_band_ = new QRubberBand(QRubberBand::Rectangle, this);
-    add_band_->setGeometry(QRect(add_band_start_, add_band_start_));
-    add_band_->show();
-
-  } else if (event->button() == Qt::LeftButton && gizmos_
-      && (gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted(),
-          current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
-
-    // Handle gizmo click
-    gizmo_start_drag_ = event->pos();
-    gizmo_last_drag_ = gizmo_start_drag_;
-    current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
-
-  } else if (IsHandDrag(event)) {
-
-    // Handle hand drag
-    hand_last_drag_pos_ = event->pos();
-    hand_dragging_ = true;
-    emit HandDragStarted();
-    setCursor(Qt::ClosedHandCursor);
-
-  } else {
-
-    if (event->button() == Qt::LeftButton) {
-      // Handle standard drag
-      emit DragStarted();
-    }
-
-    super::mousePressEvent(event);
-
+  if (o != this->inner_widget()) {
+    return super::eventFilter(o, e);
   }
-}
 
-void ViewerDisplayWidget::mouseMoveEvent(QMouseEvent *event)
-{
-  // Handle hand dragging
-  if (hand_dragging_) {
-
-    // Emit movement
-    emit HandDragMoved(event->x() - hand_last_drag_pos_.x(),
-                       event->y() - hand_last_drag_pos_.y());
-
-    hand_last_drag_pos_ = event->pos();
-
-  } else if (add_band_) {
-
-    add_band_->setGeometry(QRect(event->pos(), add_band_start_).normalized());
-
-  } else if (current_gizmo_) {
-
-    // Signal movement
-    if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
-      if (!gizmo_drag_started_) {
-        QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
-
-        rational gizmo_time = GetGizmoTime();
-        NodeTraverser t;
-        t.SetCacheVideoParams(gizmo_params_);
-        NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
-
-        draggable->DragStart(row, start.x(), start.y(), gizmo_time);
-        gizmo_drag_started_ = true;
-      }
-
-      QPointF v = event->pos() * gizmo_last_draw_transform_inverted_;
-      switch (draggable->GetDragValueBehavior()) {
-      case DraggableGizmo::kAbsolute:
-        // Above value is correct
-        break;
-      case DraggableGizmo::kDeltaFromPrevious:
-        v -= gizmo_last_drag_ * gizmo_last_draw_transform_inverted_;
-        gizmo_last_drag_ = event->pos();
-        break;
-      case DraggableGizmo::kDeltaFromStart:
-        v -= gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
-        break;
-      }
-
-      draggable->DragMove(v.x(), v.y(), event->modifiers());
-    }
-
-  } else {
-
-    // Default behavior
-    super::mouseMoveEvent(event);
-
-  }
-}
-
-void ViewerDisplayWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-  if (hand_dragging_) {
-
-    // Handle hand drag
-    emit HandDragEnded();
-    hand_dragging_ = false;
-    UpdateCursor();
-
-  } else if (add_band_) {
-
-    const QRect &band_rect = add_band_->geometry();
-    if (band_rect.width() > 1 && band_rect.height() > 1) {
-      QRectF r = GenerateDisplayTransform().inverted().mapRect(add_band_->geometry());
-      emit CreateAddableAt(r);
-    }
-
-    add_band_->deleteLater();
-    add_band_ = nullptr;
-
-  } else if (current_gizmo_) {
-
-    // Handle gizmo
-    if (gizmo_drag_started_) {
-      MultiUndoCommand *command = new MultiUndoCommand();
-      if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
-        draggable->DragEnd(command);
-      }
-      Core::instance()->undo_stack()->pushIfHasChildren(command);
-      gizmo_drag_started_ = false;
-    }
-    current_gizmo_ = nullptr;
-
-  } else {
-
-    // Default behavior
-    super::mouseReleaseEvent(event);
-
-  }
-}
-
-void ViewerDisplayWidget::mouseDoubleClickEvent(QMouseEvent *event)
-{
-  if (event->button() == Qt::LeftButton && gizmos_) {
-    QPointF ptr = TransformViewerSpaceToBufferSpace(event->pos());
-    foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
-      if (TextGizmo *text = dynamic_cast<TextGizmo*>(g)) {
-        if (text->GetRect().contains(ptr)) {
-          OpenTextGizmo(text, event);
-          break;
-        }
+  switch (e->type()) {
+  case QEvent::MouseButtonPress:
+  {
+    QMouseEvent *mouse = static_cast<QMouseEvent*>(e);
+    if (!(mouse->flags() & Qt::MouseEventCreatedDoubleClick)) {
+      if (OnMousePress(mouse)) {
+        return true;
       }
     }
+    break;
+  }
+  case QEvent::MouseMove:
+    EmitColorAtCursor(static_cast<QMouseEvent*>(e));
+    if (OnMouseMove(static_cast<QMouseEvent*>(e))) {
+      return true;
+    }
+    break;
+  case QEvent::MouseButtonRelease:
+    if (OnMouseRelease(static_cast<QMouseEvent*>(e))) {
+      return true;
+    }
+    break;
+  case QEvent::MouseButtonDblClick:
+    if (OnMouseDoubleClick(static_cast<QMouseEvent*>(e))) {
+      return true;
+    }
+    break;
+  case QEvent::DragEnter:
+    emit DragEntered(static_cast<QDragEnterEvent*>(e));
+    break;
+  case QEvent::DragLeave:
+    emit DragLeft(static_cast<QDragLeaveEvent*>(e));
+    break;
+  case QEvent::Drop:
+    emit Dropped(static_cast<QDropEvent*>(e));
+    break;
+  default:
+    break;
   }
 
-  super::mouseDoubleClickEvent(event);
-}
-
-void ViewerDisplayWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-  emit DragEntered(event);
-
-  if (!event->isAccepted()) {
-    super::dragEnterEvent(event);
-  }
-}
-
-void ViewerDisplayWidget::dragLeaveEvent(QDragLeaveEvent *event)
-{
-  emit DragLeft(event);
-
-  if (!event->isAccepted()) {
-    super::dragLeaveEvent(event);
-  }
-}
-
-void ViewerDisplayWidget::dropEvent(QDropEvent *event)
-{
-  emit Dropped(event);
-
-  if (!event->isAccepted()) {
-    super::dropEvent(event);
-  }
+  return super::eventFilter(o, e);
 }
 
 void ViewerDisplayWidget::OnPaint()
@@ -510,7 +376,7 @@ void ViewerDisplayWidget::OnPaint()
     TimeRange range = GenerateGizmoTime();
     gizmo_db_ = gt.GenerateRow(gizmos_, range);
 
-    QPainter p(inner_widget());
+    QPainter p(paint_device());
     gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, range);
     p.setWorldTransform(gizmo_last_draw_transform_);
 
@@ -524,7 +390,7 @@ void ViewerDisplayWidget::OnPaint()
 
   // Draw action/title safe areas
   if (safe_margin_.is_enabled()) {
-    QPainter p(inner_widget());
+    QPainter p(paint_device());
     p.setWorldTransform(GenerateWorldTransform());
 
     p.setPen(QPen(Qt::lightGray, 0));
@@ -574,7 +440,7 @@ void ViewerDisplayWidget::OnPaint()
     }
 
     if (frame_rate_average_count_ >= frame_rate_averages_.size()) {
-      QPainter p(inner_widget());
+      QPainter p(paint_device());
 
       double average = 0.0;
       for (int i=0; i<frame_rate_averages_.size(); i++) {
@@ -582,10 +448,10 @@ void ViewerDisplayWidget::OnPaint()
       }
       average /= double(frame_rate_averages_.size());
 
-      DrawTextWithCrudeShadow(&p, inner_widget()->rect(), tr("%1 FPS").arg(QString::number(average, 'f', 1)));
+      DrawTextWithCrudeShadow(&p, GetInnerRect(), tr("%1 FPS").arg(QString::number(average, 'f', 1)));
 
       if (frames_skipped_ > 0) {
-        DrawTextWithCrudeShadow(&p, inner_widget()->rect().adjusted(0, p.fontMetrics().height(), 0, 0),
+        DrawTextWithCrudeShadow(&p, GetInnerRect().adjusted(0, p.fontMetrics().height(), 0, 0),
                                 tr("%1 frames skipped").arg(frames_skipped_));
       }
     }
@@ -596,7 +462,7 @@ void ViewerDisplayWidget::OnPaint()
     const QVector<Track*> &subtitle_tracklist = subtitle_tracks_->track_list(Track::kSubtitle)->GetTracks();
 
     if (!subtitle_tracklist.empty()) {
-      QPainter p(inner_widget());
+      QPainter p(paint_device());
 
       QTransform transform = GenerateWorldTransform();
       QRect bounding_box = transform.mapRect(rect());
@@ -641,10 +507,14 @@ void ViewerDisplayWidget::OnPaint()
 
 void ViewerDisplayWidget::OnDestroy()
 {
-  renderer()->DestroyNativeShader(deinterlace_shader_);
-  deinterlace_shader_.clear();
-  renderer()->DestroyNativeShader(blank_shader_);
-  blank_shader_.clear();
+  if (!deinterlace_shader_.isNull()) {
+    renderer()->DestroyNativeShader(deinterlace_shader_);
+    deinterlace_shader_.clear();
+  }
+  if (!blank_shader_.isNull()) {
+    renderer()->DestroyNativeShader(blank_shader_);
+    blank_shader_.clear();
+  }
 
   super::OnDestroy();
 
@@ -790,56 +660,261 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
   QTransform gizmo_transform = GenerateDisplayTransform();
 
-  ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), this);
+  // Create popup container for text and toolbar
+  auto popup = new QWidget(this);
+  popup->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
+  popup->setAttribute(Qt::WA_DeleteOnClose);
+  popup->setAttribute(Qt::WA_TranslucentBackground);
+
+  // Create text editor
+  ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), popup);
   Html::HtmlToDoc(text_edit->document(), text->GetHtml());
   text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
+  connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
 
-  QRectF transformed_geom = gizmo_transform.map(text->GetRect()).boundingRect();
-  text_edit->setGeometry(transformed_geom.toRect());
+  // Get on screen text rect (this will be the text editor's global geometry)
+  QRect global_text_area = gizmo_transform.map(text->GetRect()).boundingRect().toRect();
+  global_text_area = QRect(mapToGlobal(global_text_area.topLeft()), mapToGlobal(global_text_area.bottomRight()));
 
-  ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(this);
+  QRect global_popup_area = global_text_area;
 
-  QPoint pos = mapToGlobal(QPoint(transformed_geom.x(), transformed_geom.y() - toolbar->height()));
+  // Create toolbar
+  ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(popup);
+  text_edit->ConnectToolBar(toolbar);
+
+  // Work out which corner of the text editor to anchor the toolbar to based on screen limitations
+  bool top = true;
+  bool left = true;
   for (QScreen *screen : qApp->screens()) {
-    if (screen->geometry().contains(pos)) {
-      if (pos.x() + toolbar->width() > screen->geometry().right()) {
-        pos.setX(screen->geometry().right() - toolbar->width());
+    // Look for screen that contains text area
+    if (screen->geometry().contains(global_text_area)) {
+      if (global_text_area.left() + toolbar->width() > screen->geometry().right()) {
+        left = false;
+      }
+      if (global_text_area.top() - toolbar->height() < screen->geometry().top()) {
+        top = false;
       }
       break;
     }
   }
-  toolbar->move(pos);
-  toolbar->show();
 
-  text_edit->show();
 
-  connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
+  QPoint toolbar_pos;
 
-  text_edit->ConnectToolBar(toolbar);
+  if (top) {
+    global_popup_area.adjust(0, -toolbar->height(), 0, 0);
+    toolbar_pos.setY(0);
+  } else {
+    global_popup_area.adjust(0, 0, 0, toolbar->height());
+    toolbar_pos.setY(global_text_area.height());
+  }
 
-  QPoint text_edit_pos;
+  if (toolbar->width() > global_popup_area.width()) {
+    int diff = toolbar->width() - global_popup_area.width();
+    if (left) {
+      global_popup_area.adjust(0, 0, diff, 0);
+    } else {
+      global_popup_area.adjust(-diff, 0, 0, 0);
+    }
+    toolbar_pos.setX(0);
+  } else {
+    if (left) {
+      toolbar_pos.setX(0);
+    } else {
+      toolbar_pos.setX(global_popup_area.width() - toolbar->width());
+    }
+  }
+
+  toolbar->move(toolbar_pos);
+
+  popup->setGeometry(global_popup_area);
+
+  text_edit->setGeometry(QRect(text_edit->mapFromGlobal(global_text_area.topLeft()), text_edit->mapFromGlobal(global_text_area.bottomRight())));
+
+  popup->show();
+
+  // Store click pos from event so we can use it later to set the initial text cursor position
+  QPoint click_pos;
   if (event) {
-    text_edit_pos = text_edit->mapFrom(this, event->pos());
+    click_pos = event->globalPos();
   }
 
   // Ensure text edit is actually focused rather than the toolbar
-  connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [this, text_edit, text_edit_pos]{
+  connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [text_edit, click_pos]{
     // Grab focus back from the toolbar
-    this->raise();
-    this->activateWindow();
     text_edit->setFocus();
 
     // Start text cursor where the user clicked
-    if (!text_edit_pos.isNull()) {
-      text_edit->setTextCursor(text_edit->cursorForPosition(text_edit_pos));
+    if (!click_pos.isNull()) {
+      text_edit->setTextCursor(text_edit->cursorForPosition(text_edit->mapFromGlobal(click_pos)));
+    }
+  });
+}
+
+bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
+{
+  if (IsHandDrag(event)) {
+
+    // Handle hand drag
+    hand_last_drag_pos_ = event->pos();
+    hand_dragging_ = true;
+    emit HandDragStarted();
+    setCursor(Qt::ClosedHandCursor);
+
+    return true;
+
+  } else if (event->button() == Qt::LeftButton) {
+
+    if (Core::instance()->tool() == Tool::kAdd
+        && (Core::instance()->GetSelectedAddableObject() == Tool::kAddableShape || Core::instance()->GetSelectedAddableObject() == Tool::kAddableTitle)) {
+
+      add_band_start_ = event->pos();
+
+      add_band_ = new QRubberBand(QRubberBand::Rectangle, this);
+      add_band_->setGeometry(QRect(add_band_start_, add_band_start_));
+      add_band_->show();
+
+    } else if (gizmos_
+               && (gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted(),
+                   current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
+
+      // Handle gizmo click
+      gizmo_start_drag_ = event->pos();
+      gizmo_last_drag_ = gizmo_start_drag_;
+      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
+
+    } else {
+
+      // Handle standard drag
+      emit DragStarted();
+
     }
 
-    // HACK: On macOS, for some reason the QDockWidget receives focus before the
-    //       ViewerTextEditor, causing the editor to close prematurely. However this only
-    //       happens the first time the editor receives focus and not subsequent times, so
-    //       if we get it to only listen after the first one, this solves the problem.
-    text_edit->SetListenToFocusEvents(true);
-  });
+    return true;
+
+  }
+
+  return false;
+}
+
+bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
+{
+  // Handle hand dragging
+  if (hand_dragging_) {
+
+    // Emit movement
+    emit HandDragMoved(event->x() - hand_last_drag_pos_.x(),
+                       event->y() - hand_last_drag_pos_.y());
+
+    hand_last_drag_pos_ = event->pos();
+
+    return true;
+
+  } else if (add_band_) {
+
+    add_band_->setGeometry(QRect(event->pos(), add_band_start_).normalized());
+
+    return true;
+
+  } else if (current_gizmo_) {
+
+    // Signal movement
+    if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
+      if (!gizmo_drag_started_) {
+        QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+
+        rational gizmo_time = GetGizmoTime();
+        NodeTraverser t;
+        t.SetCacheVideoParams(gizmo_params_);
+        NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
+
+        draggable->DragStart(row, start.x(), start.y(), gizmo_time);
+        gizmo_drag_started_ = true;
+      }
+
+      QPointF v = event->pos() * gizmo_last_draw_transform_inverted_;
+      switch (draggable->GetDragValueBehavior()) {
+      case DraggableGizmo::kAbsolute:
+        // Above value is correct
+        break;
+      case DraggableGizmo::kDeltaFromPrevious:
+        v -= gizmo_last_drag_ * gizmo_last_draw_transform_inverted_;
+        gizmo_last_drag_ = event->pos();
+        break;
+      case DraggableGizmo::kDeltaFromStart:
+        v -= gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+        break;
+      }
+
+      draggable->DragMove(v.x(), v.y(), event->modifiers());
+
+      return true;
+    }
+
+  }
+
+  return false;
+}
+
+bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
+{
+  if (hand_dragging_) {
+
+    // Handle hand drag
+    emit HandDragEnded();
+    hand_dragging_ = false;
+    UpdateCursor();
+
+    return true;
+
+  } else if (add_band_) {
+
+    const QRect &band_rect = add_band_->geometry();
+    if (band_rect.width() > 1 && band_rect.height() > 1) {
+      QRectF r = GenerateDisplayTransform().inverted().mapRect(add_band_->geometry());
+      emit CreateAddableAt(r);
+    }
+
+    add_band_->deleteLater();
+    add_band_ = nullptr;
+
+    return true;
+
+  } else if (current_gizmo_) {
+
+    // Handle gizmo
+    if (gizmo_drag_started_) {
+      MultiUndoCommand *command = new MultiUndoCommand();
+      if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
+        draggable->DragEnd(command);
+      }
+      Core::instance()->undo_stack()->pushIfHasChildren(command);
+      gizmo_drag_started_ = false;
+    }
+    current_gizmo_ = nullptr;
+
+    return true;
+
+  }
+
+  return false;
+}
+
+bool ViewerDisplayWidget::OnMouseDoubleClick(QMouseEvent *event)
+{
+  if (event->button() == Qt::LeftButton && gizmos_) {
+    QPointF ptr = TransformViewerSpaceToBufferSpace(event->pos());
+    foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
+      if (TextGizmo *text = dynamic_cast<TextGizmo*>(g)) {
+        if (text->GetRect().contains(ptr)) {
+          OpenTextGizmo(text, event);
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)

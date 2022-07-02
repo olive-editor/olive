@@ -291,7 +291,7 @@ void MenuShared::NestTriggered()
 
 void MenuShared::DefaultTransitionTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->MostRecentlyFocused<TimelinePanel>()->AddDefaultTransitionsToSelected();
 }
 
 void MenuShared::TimecodeDisplayTriggered()

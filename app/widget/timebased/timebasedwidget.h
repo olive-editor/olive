@@ -50,6 +50,11 @@ public:
 
   void ConnectViewerNode(ViewerOutput *node);
 
+  TimelineWorkArea *GetConnectedWorkArea() const { return workarea_; }
+  TimelineMarkerList *GetConnectedMarkers() const { return markers_; }
+  void ConnectWorkArea(TimelineWorkArea *workarea);
+  void ConnectMarkers(TimelineMarkerList *markers);
+
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
   TimeRuler* ruler() const;
@@ -129,6 +134,9 @@ protected:
   virtual void ScaleChangedEvent(const double &) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput*){}
+
+  virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *){}
+  virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *){}
 
   virtual void ConnectNodeEvent(ViewerOutput*){}
 
@@ -216,6 +224,9 @@ private:
   double scrollbar_start_value_;
   double scrollbar_start_scale_;
   bool scrollbar_top_handle_;
+
+  TimelineWorkArea *workarea_;
+  TimelineMarkerList *markers_;
 
 private slots:
   void UpdateMaximumScroll();

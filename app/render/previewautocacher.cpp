@@ -61,7 +61,7 @@ PreviewAutoCacher::~PreviewAutoCacher()
   SetViewerNode(nullptr);
 }
 
-RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, RenderTicketPriority priority)
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
 {
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
@@ -70,7 +70,6 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, RenderTicke
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
-  sfr->setProperty("priority", int(priority));
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -79,9 +78,9 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, RenderTicke
   return sfr;
 }
 
-RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range, RenderTicketPriority priority)
+RenderTicketPtr PreviewAutoCacher::GetRangeOfAudio(TimeRange range)
 {
-  return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, priority, nullptr);
+  return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, nullptr);
 }
 
 void PreviewAutoCacher::ClearSingleFrameRenders()
@@ -600,7 +599,6 @@ void PreviewAutoCacher::TryRender()
     // Check if already caching this
     RenderTicketWatcher *watcher = RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(),
                                                single_frame_render_->property("time").value<rational>(),
-                                               RenderTicketPriority(single_frame_render_->property("priority").toInt()),
                                                nullptr);
     video_immediate_passthroughs_[watcher].append(single_frame_render_);
 
@@ -608,8 +606,8 @@ void PreviewAutoCacher::TryRender()
   }
 
   if (!pause_renders_) {
-    // Ensure we are running tasks if we have any
-    const int max_tasks = RenderManager::GetNumberOfIdealConcurrentJobs();
+    // Completely arbitrary number. I don't know what's optimal for this yet.
+    const int max_tasks = 4;
 
     // Handle video tasks
     while (!pending_video_jobs_.empty()) {
@@ -619,7 +617,7 @@ void PreviewAutoCacher::TryRender()
         // Queue next frames
         rational t;
         while (running_video_tasks_.size() < max_tasks && d.iterator.GetNext(&t)) {
-          RenderFrame(copy, t, RenderTicketPriority::kNormal, d.cache);
+          RenderFrame(copy, t, d.cache);
 
           emit SignalCacheProxyTaskProgress(double(d.iterator.frame_index()) / double(d.iterator.size()));
 
@@ -644,7 +642,7 @@ void PreviewAutoCacher::TryRender()
 
       // Start job
       if (Node *copy = copy_map_.value(d.node)) {
-        RenderAudio(copy, d.range, RenderTicketPriority::kNormal, d.cache);
+        RenderAudio(copy, d.range, d.cache);
       } else {
         qCritical() << "Failed to find node copy for audio job";
       }
@@ -654,13 +652,14 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, RenderTicketPriority priority, PlaybackCache *cache)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, PlaybackCache *cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
   watcher->setProperty("cache", Node::PtrToValue(cache));
   watcher->setProperty("time", QVariant::fromValue(time));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
+
   running_video_tasks_.append(watcher);
 
   RenderManager::RenderVideoParams rvp(node,
@@ -683,7 +682,6 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
     rvp.AddCache(frame_cache);
   }
 
-  rvp.priority = priority;
   rvp.return_type = RenderManager::kTexture;
   rvp.use_cache = true;
 
@@ -692,7 +690,7 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
   return watcher;
 }
 
-RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, RenderTicketPriority priority, PlaybackCache *cache)
+RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, PlaybackCache *cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
@@ -707,7 +705,6 @@ RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, R
                                        copied_viewer_node_->GetAudioParams());
 
   rap.generate_waveforms = dynamic_cast<AudioWaveformCache*>(cache);
-  rap.priority = priority;
   rap.clamp = false;
 
   RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(rap);

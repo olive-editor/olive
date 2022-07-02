@@ -99,7 +99,7 @@ const NodeKeyframe::Type &NodeKeyframe::type() const
 void NodeKeyframe::set_type(const NodeKeyframe::Type &type)
 {
   if (type_ != type) {
-    type_ = type;
+    set_type_no_bezier_adj(type);
 
     if (type_ == kBezier) {
       // Set some sane defaults if this keyframe existed in the track and was just changed
@@ -120,9 +120,13 @@ void NodeKeyframe::set_type(const NodeKeyframe::Type &type)
         }
       }
     }
-
-    emit TypeChanged(type_);
   }
+}
+
+void NodeKeyframe::set_type_no_bezier_adj(const Type &type)
+{
+  type_ = type;
+  emit TypeChanged(type_);
 }
 
 const QPointF &NodeKeyframe::bezier_control_in() const

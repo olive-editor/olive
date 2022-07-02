@@ -38,6 +38,22 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   controls_->SetAudioVideoDragButtonsVisible(true);
   connect(controls_, &PlaybackControls::VideoPressed, this, &FootageViewerWidget::StartVideoDrag);
   connect(controls_, &PlaybackControls::AudioPressed, this, &FootageViewerWidget::StartAudioDrag);
+
+  override_workarea_ = new TimelineWorkArea(this);
+}
+
+void FootageViewerWidget::OverrideWorkArea(const TimeRange &r)
+{
+  override_workarea_->set_enabled(true);
+  override_workarea_->set_range(r);
+  this->ConnectWorkArea(override_workarea_);
+}
+
+void FootageViewerWidget::ResetWorkArea()
+{
+  if (GetConnectedWorkArea() == override_workarea_) {
+    this->ConnectWorkArea(GetConnectedNode() ? GetConnectedNode()->GetWorkArea() : nullptr);
+  }
 }
 
 void FootageViewerWidget::ConnectNodeEvent(ViewerOutput *n)

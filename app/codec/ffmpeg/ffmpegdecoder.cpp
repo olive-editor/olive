@@ -837,7 +837,7 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *
     } else {
 
       // Cut down to thread count - 1 before we acquire a new frame
-      if (cached_frames_.size() == size_t(MaximumQueueSize())) {
+      if (cached_frames_.size() > size_t(MaximumQueueSize())) {
         RemoveFirstFrame();
       }
 
@@ -1040,7 +1040,11 @@ void FFmpegDecoder::RemoveFirstFrame()
 
 int FFmpegDecoder::MaximumQueueSize()
 {
-  return QThread::idealThreadCount();
+  // Fairly arbitrary size. This used to need to be the number of current threads to ensure any
+  // thread that arrived would have its frame available, but if we only have one render thread,
+  // that's no longer a concern. Now, this value could technically be 1, but some memory cache
+  // may be useful for reversing. This value may be tweaked over time.
+  return 2;
 }
 
 FFmpegDecoder::Instance::Instance() :

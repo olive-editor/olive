@@ -522,6 +522,9 @@ bool Core::AddOpenProjectFromTask(Task *task)
       return true;
     } else {
       delete project;
+      if (open_projects_.empty()) {
+        CreateNewProject();
+      }
     }
   }
 
