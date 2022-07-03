@@ -286,7 +286,7 @@ void ClipBlock::Retranslate()
 
 TimeRange ClipBlock::media_range() const
 {
-  return InputTimeAdjustment(kBufferIn, -1, range());
+  return InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
 }
 
 }
