@@ -236,6 +236,11 @@ public:
     return tag_;
   }
 
+  void set_tag(const QString& tag)
+  {
+    tag_ = tag;
+  }
+
   const Node* source() const
   {
     return from_;

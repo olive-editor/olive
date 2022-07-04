@@ -162,6 +162,8 @@ public:
 
   virtual ValueHint GetConnectedSampleValueHint();
 
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;
