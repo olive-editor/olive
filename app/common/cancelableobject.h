@@ -21,35 +21,38 @@
 #ifndef CANCELABLEOBJECT_H
 #define CANCELABLEOBJECT_H
 
-#include <QAtomicInt>
-
 #include "common/define.h"
+#include "render/cancelatom.h"
 
 namespace olive {
 
 class CancelableObject {
 public:
-  CancelableObject() :
-    cancelled_(false)
+  CancelableObject()
   {
   }
 
   void Cancel()
   {
-    cancelled_ = true;
+    cancel_.Cancel();
     CancelEvent();
   }
 
-  const QAtomicInt& IsCancelled() const
+  CancelAtom *GetCancelAtom()
   {
-    return cancelled_;
+    return &cancel_;
+  }
+
+  bool IsCancelled()
+  {
+    return cancel_.IsCancelled();
   }
 
 protected:
   virtual void CancelEvent(){}
 
 private:
-  QAtomicInt cancelled_;
+  CancelAtom cancel_;
 
 };
 

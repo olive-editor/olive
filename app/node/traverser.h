@@ -26,6 +26,7 @@
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
+#include "render/cancelatom.h"
 #include "render/job/footagejob.h"
 #include "render/job/colortransformjob.h"
 #include "value.h"
@@ -130,24 +131,16 @@ protected:
 
   bool IsCancelled()
   {
-    bool c = cancel_ && *cancel_;
-    if (c) {
-      heard_cancel_ = true;
-    }
-    return c;
+    return cancel_ && cancel_->IsCancelled();
   }
 
-  bool HeardCancel() const { return heard_cancel_; }
-
-  const QAtomicInt *GetCancelPointer() const
+  bool HeardCancel() const
   {
-    return cancel_;
+    return cancel_ && cancel_->HeardCancel();
   }
 
-  void SetCancelPointer(const QAtomicInt *cancel)
-  {
-    cancel_ = cancel;
-  }
+  CancelAtom *GetCancelPointer() const { return cancel_; }
+  void SetCancelPointer(CancelAtom *cancel) { cancel_ = cancel; }
 
   void ResolveJobs(NodeValue &value, const TimeRange &range);
 
@@ -165,8 +158,7 @@ private:
 
   AudioParams audio_params_;
 
-  const QAtomicInt *cancel_;
-  bool heard_cancel_;
+  CancelAtom *cancel_;
 
   const Node *transform_start_;
   const Node *transform_now_;

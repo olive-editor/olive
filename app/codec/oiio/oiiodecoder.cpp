@@ -45,7 +45,7 @@ QString OIIODecoder::id() const
   return QStringLiteral("oiio");
 }
 
-FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt* cancelled) const
+FootageDescription OIIODecoder::Probe(const QString &filename, CancelAtom *cancelled) const
 {
   Q_UNUSED(cancelled)
 
@@ -116,7 +116,7 @@ bool OIIODecoder::OpenInternal()
   return OpenImageHandler(stream().filename(), stream().stream());
 }
 
-TexturePtr OIIODecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
+TexturePtr OIIODecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, CancelAtom *cancelled)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(cancelled)

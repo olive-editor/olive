@@ -134,7 +134,7 @@ void RenderProcessor::Run()
   // Depending on the render ticket type, start a job
   RenderManager::TicketType type = ticket_->property("type").value<RenderManager::TicketType>();
 
-  SetCancelPointer(&ticket_->IsCancelled());
+  SetCancelPointer(ticket_->GetCancelAtom());
 
   SetCacheVideoParams(ticket_->property("vparam").value<VideoParams>());
   SetCacheAudioParams(ticket_->property("aparam").value<AudioParams>());

@@ -28,6 +28,7 @@
 #include "footagedescription.h"
 #include "node/output/viewer/viewer.h"
 #include "render/audioparams.h"
+#include "render/cancelatom.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -141,7 +142,7 @@ public:
    */
   void set_timestamp(const qint64 &t);
 
-  void SetCancelPointer(const QAtomicInt* c)
+  void SetCancelPointer(CancelAtom *c)
   {
     cancelled_ = c;
   }
@@ -232,7 +233,7 @@ private:
 
   bool valid_;
 
-  const QAtomicInt* cancelled_;
+  CancelAtom *cancelled_;
 
 private slots:
   void CheckFootage();

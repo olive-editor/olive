@@ -192,7 +192,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  TexturePtr RetrieveVideo(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled = nullptr);
+  TexturePtr RetrieveVideo(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, CancelAtom *cancelled = nullptr);
 
   enum RetrieveAudioStatus {
     kInvalid = -1,
@@ -227,7 +227,7 @@ public:
    *
    * This function is re-entrant.
    */
-  virtual FootageDescription Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  virtual FootageDescription Probe(const QString& filename, CancelAtom *cancelled) const = 0;
 
   /**
    * @brief Closes media/deallocates memory
@@ -239,7 +239,7 @@ public:
   /**
    * @brief Conform audio stream
    */
-  bool ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, const QAtomicInt *cancelled = nullptr);
+  bool ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, CancelAtom *cancelled = nullptr);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -287,9 +287,9 @@ protected:
    * Sub-classes must override this function IF they support video. Function is already mutexed
    * so sub-classes don't need to worry about thread safety.
    */
-  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled);
+  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, CancelAtom *cancelled);
 
-  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled);
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled);
 
   void SignalProcessingProgress(int64_t ts, int64_t duration);
 

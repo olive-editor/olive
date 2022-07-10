@@ -141,10 +141,10 @@ bool FFmpegDecoder::OpenInternal()
   return output_frame;
 }*/
 
-TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, const QAtomicInt *cancelled)
+TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, CancelAtom *cancelled)
 {
   if (AVFramePtr f = RetrieveFrame(timecode, cancelled)) {
-    if (cancelled && *cancelled) {
+    if (cancelled && cancelled->IsCancelled()) {
       return nullptr;
     }
 
@@ -289,7 +289,7 @@ QString FFmpegDecoder::id() const
   return QStringLiteral("ffmpeg");
 }
 
-FootageDescription FFmpegDecoder::Probe(const QString &filename, const QAtomicInt *cancelled) const
+FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *cancelled) const
 {
   // Return value
   FootageDescription desc(id());
@@ -514,7 +514,7 @@ QString FFmpegDecoder::FFmpegError(int error_code)
   return QStringLiteral("%1 %2").arg(QString::number(error_code), err);
 }
 
-bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, const QAtomicInt *cancelled)
+bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, CancelAtom *cancelled)
 {
   // Iterate through each audio frame and extract the PCM data
 
@@ -564,7 +564,7 @@ bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, cons
 
     while (true) {
       // Check if we have a `cancelled` ptr and its value
-      if (cancelled && *cancelled) {
+      if (cancelled && cancelled->IsCancelled()) {
         break;
       }
 
@@ -744,7 +744,7 @@ void FFmpegDecoder::ClearFrameCache()
   }
 }
 
-AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *cancelled)
+AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, CancelAtom *cancelled)
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
 
@@ -782,7 +782,7 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *
 
   while (true) {
     // Break out of loop if we've cancelled
-    if (cancelled && *cancelled) {
+    if (cancelled && cancelled->IsCancelled()) {
       break;
     }
 
@@ -793,7 +793,7 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, const QAtomicInt *
     // Pull from the decoder
     ret = instance_.GetFrame(working_packet_, filtered.get());
 
-    if (cancelled && *cancelled) {
+    if (cancelled && cancelled->IsCancelled()) {
       break;
     }
 

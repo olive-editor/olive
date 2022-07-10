@@ -31,7 +31,6 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-#include <QAtomicInt>
 #include <QTimer>
 #include <QVector>
 #include <QWaitCondition>
@@ -64,12 +63,12 @@ public:
   virtual bool SupportsVideo() override{return true;}
   virtual bool SupportsAudio() override{return true;}
 
-  virtual FootageDescription Probe(const QString &filename, const QAtomicInt *cancelled) const override;
+  virtual FootageDescription Probe(const QString &filename, CancelAtom *cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;
-  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
-  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled) override;
+  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, CancelAtom *cancelled) override;
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
   virtual void CloseInternal() override;
 
 private:
@@ -151,7 +150,7 @@ private:
 
   void ClearFrameCache();
 
-  AVFramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  AVFramePtr RetrieveFrame(const rational &time, CancelAtom *cancelled);
 
   void RemoveFirstFrame();
 

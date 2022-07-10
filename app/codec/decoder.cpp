@@ -86,7 +86,7 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, CancelAtom *cancelled)
 {
   QMutexLocker locker(&mutex_);
 
@@ -102,7 +102,7 @@ TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, 
     return nullptr;
   }
 
-  if (cancelled && *cancelled) {
+  if (cancelled && cancelled->IsCancelled()) {
     return nullptr;
   }
 
@@ -160,7 +160,7 @@ void Decoder::Close()
   }
 }
 
-bool Decoder::ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, const QAtomicInt *cancelled)
+bool Decoder::ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, CancelAtom *cancelled)
 {
   return ConformAudioInternal(output_filenames, params, cancelled);
 }
@@ -264,7 +264,7 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   return number_only.toLongLong();
 }
 
-TexturePtr Decoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+TexturePtr Decoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, CancelAtom *cancelled)
 {
   Q_UNUSED(timecode)
   Q_UNUSED(divider)
@@ -272,7 +272,7 @@ TexturePtr Decoder::RetrieveVideoInternal(Renderer *renderer, const rational &ti
   return nullptr;
 }
 
-bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, const QAtomicInt* cancelled)
+bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, CancelAtom *cancelled)
 {
   Q_UNUSED(filenames)
   Q_UNUSED(cancelled)
