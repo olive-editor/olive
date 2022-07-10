@@ -369,8 +369,9 @@ private:
 
   rational playback_timebase_;
 
-  QRubberBand *add_band_;
+  bool add_band_;
   QPoint add_band_start_;
+  QPoint add_band_end_;
 
   bool queue_starved_;
 

@@ -68,7 +68,7 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   show_widget_background_(false),
   playback_speed_(0),
   push_mode_(kPushNull),
-  add_band_(nullptr),
+  add_band_(false),
   queue_starved_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
@@ -104,11 +104,11 @@ void ViewerDisplayWidget::SetMatrixCrop(const QMatrix4x4 &mat)
 void ViewerDisplayWidget::UpdateCursor()
 {
   if (Core::instance()->tool() == Tool::kHand) {
-    setCursor(Qt::OpenHandCursor);
+    this->inner_widget()->setCursor(Qt::OpenHandCursor);
   } else if (Core::instance()->tool() == Tool::kAdd) {
-    setCursor(Qt::CrossCursor);
+    this->inner_widget()->setCursor(Qt::CrossCursor);
   } else {
-    unsetCursor();
+    this->inner_widget()->unsetCursor();
   }
 }
 
@@ -504,6 +504,15 @@ void ViewerDisplayWidget::OnPaint()
       p.drawPath(path);
     }
   }
+
+  if (add_band_) {
+    QPainter p(paint_device());
+    QColor highlight = palette().highlight().color();
+    p.setPen(highlight);
+    highlight.setAlpha(128);
+    p.setBrush(highlight);
+    p.drawRect(QRect(add_band_start_, add_band_end_).normalized());
+  }
 }
 
 void ViewerDisplayWidget::OnDestroy()
@@ -770,10 +779,8 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
         && (Core::instance()->GetSelectedAddableObject() == Tool::kAddableShape || Core::instance()->GetSelectedAddableObject() == Tool::kAddableTitle)) {
 
       add_band_start_ = event->pos();
-
-      add_band_ = new QRubberBand(QRubberBand::Rectangle, this);
-      add_band_->setGeometry(QRect(add_band_start_, add_band_start_));
-      add_band_->show();
+      add_band_end_ = add_band_start_;
+      add_band_ = true;
 
     } else if (gizmos_
                && (gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted(),
@@ -813,8 +820,8 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
   } else if (add_band_) {
 
-    add_band_->setGeometry(QRect(event->pos(), add_band_start_).normalized());
-
+    add_band_end_ = event->pos();
+    update();
     return true;
 
   } else if (current_gizmo_) {
@@ -870,15 +877,13 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
   } else if (add_band_) {
 
-    const QRect &band_rect = add_band_->geometry();
+    QRect band_rect = QRect(add_band_start_, add_band_end_).normalized();
     if (band_rect.width() > 1 && band_rect.height() > 1) {
-      QRectF r = GenerateDisplayTransform().inverted().mapRect(add_band_->geometry());
+      QRectF r = GenerateDisplayTransform().inverted().mapRect(band_rect);
       emit CreateAddableAt(r);
     }
 
-    add_band_->deleteLater();
-    add_band_ = nullptr;
-
+    add_band_ = false;
     return true;
 
   } else if (current_gizmo_) {
