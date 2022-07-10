@@ -121,6 +121,8 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
       texture = blit_tex;
     }
 
+    render_ctx_->Flush();
+
     render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
   }
 
