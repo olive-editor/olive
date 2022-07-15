@@ -39,12 +39,15 @@ enum TextVerticalAlign {
 };
 
 const QString TextGeneratorV3::kTextInput = QStringLiteral("text_in");
+const QString TextGeneratorV3::kOutputHtmlOnly = QStringLiteral("html_only_in");
 
 TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false)
 {
   AddInput(kTextInput, NodeValue::kText, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
   SetInputProperty(kTextInput, QStringLiteral("vieweronly"), true);
+
+  AddInput(kOutputHtmlOnly, NodeValue::kBoolean, false);
 
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
@@ -77,6 +80,7 @@ void TextGeneratorV3::Retranslate()
   super::Retranslate();
 
   SetInputName(kTextInput, tr("Text"));
+  SetInputName(kOutputHtmlOnly, tr("Output HTML"));
 }
 
 void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
@@ -89,10 +93,16 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
   // FIXME: Provide user override for this
   job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
-  if (!job.Get(kTextInput).toString().isEmpty()) {
-    PushMergableJob(value, QVariant::fromValue(job), table);
-  } else if (value[kBaseInput].toTexture()) {
-    table->Push(value[kBaseInput]);
+  if (job.Get(kOutputHtmlOnly).toBool() == false) {
+
+    if (!job.Get(kTextInput).toString().isEmpty()) {
+      PushMergableJob(value, QVariant::fromValue(job), table);
+    } else if (value[kBaseInput].toTexture()) {
+      table->Push(value[kBaseInput]);
+    }
+  }
+  else {
+    table->Push(job.Get(kTextInput));
   }
 }
 

@@ -157,15 +157,15 @@ endif()
 list(APPEND OLIVE_INCLUDE_DIRS ${PORTAUDIO_INCLUDE_DIRS})
 list(APPEND OLIVE_LIBRARIES ${PORTAUDIO_LIBRARIES})
 
-# Optional: Link OpenTimelineIO
-find_package(OpenTimelineIO)
-if (OpenTimelineIO_FOUND)
-  list(APPEND OLIVE_DEFINITIONS USE_OTIO)
-  list(APPEND OLIVE_INCLUDE_DIRS ${OTIO_INCLUDE_DIRS})
-  list(APPEND OLIVE_LIBRARIES ${OTIO_LIBRARIES})
-else()
-  message("   OpenTimelineIO interchange will be disabled.")
-endif()
+## # Optional: Link OpenTimelineIO
+## find_package(OpenTimelineIO)
+## if (OpenTimelineIO_FOUND)
+##   list(APPEND OLIVE_DEFINITIONS USE_OTIO)
+##   list(APPEND OLIVE_INCLUDE_DIRS ${OTIO_INCLUDE_DIRS})
+##   list(APPEND OLIVE_LIBRARIES ${OTIO_LIBRARIES})
+## else()
+##   message("   OpenTimelineIO interchange will be disabled.")
+## endif()
 
 # Optional: Link Google Crashpad
 find_package(GoogleCrashpad)

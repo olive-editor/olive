@@ -18,21 +18,25 @@
 
 ***/
 
-#ifndef TEXTGENERATORV3_H
-#define TEXTGENERATORV3_H
+#ifndef TEXTANIMATIONRENDERNODE_H
+#define TEXTANIMATIONRENDERNODE_H
 
-#include "node/generator/shape/shapenodebase.h"
-#include "node/gizmo/text.h"
+#include <QPainterPath>
+
+#include "common/bezier.h"
+#include "node/node.h"
+#include "node/gizmo/point.h"
+#include "node/generator/animation/textanimationengine.h"
 
 namespace olive {
 
-class TextGeneratorV3 : public ShapeNodeBase
+class TextAnimationRenderNode : public Node
 {
   Q_OBJECT
 public:
-  TextGeneratorV3();
+  TextAnimationRenderNode();
 
-  NODE_DEFAULT_FUNCTIONS(TextGeneratorV3)
+  NODE_DEFAULT_FUNCTIONS(TextAnimationRenderNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -47,14 +51,22 @@ public:
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
-  static const QString kTextInput;
-  static const QString kOutputHtmlOnly;
+  static const QString kPositionInput;
+  static const QString kRichTextInput;
+  static const QString kAnimatorsInput;
+  static const QString kLineHeightInput;
+
+protected:
+  GenerateJob GetGenerateJob(const NodeValueRow &value) const;
+
+protected slots:
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
-  TextGizmo *text_gizmo_;
-
+   TextAnimationEngine * engine_;
+   PointGizmo * position_handle_;
 };
 
 }
 
-#endif // TEXTGENERATORV3_H
+#endif // TEXTANIMATIONRENDERNODE_H
