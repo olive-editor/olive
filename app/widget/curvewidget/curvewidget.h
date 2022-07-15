@@ -122,8 +122,7 @@ private slots:
   void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
 
   void KeyframeViewDragged(int x, int y);
-
-  void CatchUpYScrollToPoint(int point);
+  void KeyframeViewReleased();
 
 };
 
