@@ -96,11 +96,7 @@ private:
   QVariant CreateNativeTexture2DInternal(int width, int height, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0);
   QVariant CreateNativeTexture2DInternal(const VideoParams &params, const void* data = nullptr, int linesize = 0);
 
-  GLuint GetCachedTexture(int width, int height, int depth, VideoParams::Format format, int channel_count);
-
   GLuint CompileShader(GLenum type, const QString &code);
-
-  QTimer cache_timer_;
 
   QOpenGLContext* context_;
 
@@ -124,20 +120,9 @@ private:
     }
   };
 
-  struct TextureCacheEntry {
-    TextureCacheKey key;
-    GLuint texture;
-    qint64 age;
-  };
-
-  QVector<TextureCacheEntry> texture_cache_;
-
   QMap<GLuint, TextureCacheKey> texture_params_;
 
   static const int kTextureCacheMaxSize;
-
-private slots:
-  void GarbageCollectTextureCache();
 
 };
 

@@ -88,6 +88,8 @@ signals:
 
   void SelectionChanged();
 
+  void Released();
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

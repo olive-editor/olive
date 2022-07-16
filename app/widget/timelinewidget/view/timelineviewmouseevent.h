@@ -34,13 +34,15 @@ namespace olive {
 class TimelineViewMouseEvent
 {
 public:
-  TimelineViewMouseEvent(const qreal& scene_x,
+  TimelineViewMouseEvent(const QPointF& scene_pos,
+                         const QPoint &screen_pos,
                          const double& scale_x,
                          const rational& timebase,
                          const Track::Reference &track,
                          const Qt::MouseButton &button,
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier) :
-    scene_x_(scene_x),
+    scene_pos_(scene_pos),
+    screen_pos_(screen_pos),
     scale_x_(scale_x),
     timebase_(timebase),
     track_(track),
@@ -73,7 +75,7 @@ public:
    */
   rational GetFrame(bool round = false) const
   {
-    return TimeScaledObject::SceneToTime(scene_x_, scale_x_, timebase_, round);
+    return TimeScaledObject::SceneToTime(GetSceneX(), scale_x_, timebase_, round);
   }
 
   const Track::Reference& GetTrack() const
@@ -96,10 +98,13 @@ public:
     source_event_ = event;
   }
 
-  const qreal& GetSceneX() const
+  qreal GetSceneX() const
   {
-    return scene_x_;
+    return scene_pos_.x();
   }
+
+  const QPointF &GetScenePos() const { return scene_pos_; }
+  const QPoint &GetScreenPos() const { return screen_pos_; }
 
   const Qt::MouseButton& GetButton() const
   {
@@ -122,7 +127,8 @@ public:
   void SetBypassImportBuffer(bool e) { bypass_import_buffer_ = e; }
 
 private:
-  qreal scene_x_;
+  QPointF scene_pos_;
+  QPoint screen_pos_;
   double scale_x_;
   rational timebase_;
 

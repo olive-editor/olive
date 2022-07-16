@@ -150,6 +150,14 @@ protected:
 
   void PassWheelEventsToScrollBar(QObject* object);
 
+  void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
+  void SetCatchUpScrollValue(int v);
+  void StopCatchUpScrollTimer(QScrollBar *b);
+  void StopCatchUpScrollTimer()
+  {
+    StopCatchUpScrollTimer(scrollbar_);
+  }
+
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
   virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const { return nullptr; }
   virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const { return nullptr; }
@@ -228,6 +236,14 @@ private:
   TimelineWorkArea *workarea_;
   TimelineMarkerList *markers_;
 
+  QTimer *catchup_scroll_timer_;
+  struct CatchUpScrollData {
+    qint64 last_forced = 0;
+    int maximum;
+    int value;
+  };
+  QMap<QScrollBar*, CatchUpScrollData> catchup_scroll_values_;
+
 private slots:
   void UpdateMaximumScroll();
 
@@ -246,6 +262,8 @@ private slots:
   void CatchUpScrollToPlayhead();
 
   void CatchUpScrollToPoint(int point);
+
+  void CatchUpTimerTimeout();
 
   void AutoUpdateTimebase();
 
