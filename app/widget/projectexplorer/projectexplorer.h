@@ -160,15 +160,9 @@ private:
   QSortFilterProxyModel sort_model_;
   ProjectViewModel model_;
 
-  QModelIndex clicked_index_;
-
-  QTimer rename_timer_;
-
   QVector<Node*> context_menu_items_;
 
 private slots:
-  void ItemClickedSlot(const QModelIndex& index);
-
   void ViewEmptyAreaDoubleClickedSlot();
 
   void ItemDoubleClickedSlot(const QModelIndex& index);
@@ -177,7 +171,7 @@ private slots:
 
   void DirUpSlot();
 
-  void RenameTimerSlot();
+  void RenameSelectedItem();
 
   void ShowContextMenu();
 
