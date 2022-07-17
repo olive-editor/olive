@@ -37,7 +37,8 @@ namespace olive {
 
 const rational Decoder::kAnyTimecode = RATIONAL_MIN;
 
-Decoder::Decoder()
+Decoder::Decoder() :
+  cached_texture_(nullptr)
 {
   UpdateLastAccessed();
 }
@@ -106,7 +107,14 @@ TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, 
     return nullptr;
   }
 
-  return RetrieveVideoInternal(renderer, timecode, divider, cancelled);
+  if (cached_texture_ && cached_time_ == timecode) {
+    return cached_texture_;
+  }
+
+  cached_texture_ = RetrieveVideoInternal(renderer, timecode, divider, cancelled);
+  cached_time_ = timecode;
+
+  return cached_texture_;
 }
 
 Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, LoopMode loop_mode, RenderMode::Mode mode)
@@ -151,6 +159,8 @@ void Decoder::Close()
   QMutexLocker locker(&mutex_);
 
   UpdateLastAccessed();
+
+  cached_texture_ = nullptr;
 
   if (stream_.IsValid()) {
     CloseInternal();

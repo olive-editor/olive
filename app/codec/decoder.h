@@ -329,6 +329,9 @@ private:
 
   qint64 last_accessed_;
 
+  TexturePtr cached_texture_;
+  rational cached_time_;
+
 };
 
 uint qHash(Decoder::CodecStream stream, uint seed = 0);
