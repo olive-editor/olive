@@ -294,7 +294,7 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         type = NodeValue::kSamples;
       }
 
-      table->Push(type, QVariant::fromValue(job), this, false, ref.ToString());
+      table->Push(type, QVariant::fromValue(job), this, ref.ToString());
     }
   }
 }
