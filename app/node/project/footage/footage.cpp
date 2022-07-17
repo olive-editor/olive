@@ -37,7 +37,6 @@
 namespace olive {
 
 const QString Footage::kFilenameInput = QStringLiteral("file_in");
-const QString Footage::kLoopModeInput = QStringLiteral("loop_in");
 
 #define super ViewerOutput
 
@@ -48,8 +47,6 @@ Footage::Footage(const QString &filename) :
   cancelled_(nullptr)
 {
   SetCacheTextures(true);
-
-  PrependInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
@@ -70,8 +67,6 @@ void Footage::Retranslate()
   super::Retranslate();
 
   SetInputName(kFilenameInput, tr("Filename"));
-  SetInputName(kLoopModeInput, tr("Loop Mode"));
-  SetComboBoxStrings(kLoopModeInput, {tr("None"), tr("Loop"), tr("Clamp")});
 }
 
 void Footage::InputValueChangedEvent(const QString &input, int element)
@@ -137,11 +132,6 @@ void Footage::Clear()
 void Footage::SetValid()
 {
   valid_ = true;
-}
-
-Footage::LoopMode Footage::loop_mode() const
-{
-  return static_cast<LoopMode>(GetStandardValue(kLoopModeInput).toInt());
 }
 
 QString Footage::filename() const
@@ -263,17 +253,15 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
   // Pop filename from table
   QString file = value[kFilenameInput].toString();
 
-  LoopMode loop_mode = static_cast<LoopMode>(value[kLoopModeInput].toInt());
-
   // If the file exists and the reference is valid, push a footage job to the renderer
-  if (QFileInfo(file).exists()) {
+  if (QFileInfo::exists(file)) {
     // Push length
-    table->Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, false, QStringLiteral("length"));
+    table->Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, QStringLiteral("length"));
 
     // Push each stream as a footage job
     for (int i=0; i<GetTotalStreamCount(); i++) {
       Track::Reference ref = GetReferenceFromRealIndex(i);
-      FootageJob job(decoder_, filename(), ref.type(), GetLength(), loop_mode);
+      FootageJob job(decoder_, filename(), ref.type(), GetLength());
 
       NodeValue::Type type;
 
@@ -339,7 +327,7 @@ bool TimeIsOutOfBounds(const rational& time, const rational& length)
   return time < 0 || time >= length;
 }
 
-rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mode, const rational &length, VideoParams::Type type, const rational& timebase)
+rational Footage::AdjustTimeByLoopMode(rational time, Decoder::LoopMode loop_mode, const rational &length, VideoParams::Type type, const rational& timebase)
 {
   if (type == VideoParams::kVideoTypeStill) {
     // No looping for still images
@@ -348,15 +336,15 @@ rational Footage::AdjustTimeByLoopMode(rational time, Footage::LoopMode loop_mod
 
   if (TimeIsOutOfBounds(time, length)) {
     switch (loop_mode) {
-    case kLoopModeOff:
+    case Decoder::kLoopModeOff:
       // Return no time to indicate no frame should be shown here
       time = rational::NaN;
       break;
-    case kLoopModeClamp:
+    case Decoder::kLoopModeClamp:
       // Clamp footage time to length
       time = clamp(time, rational(0), length - timebase);
       break;
-    case kLoopModeLoop:
+    case Decoder::kLoopModeLoop:
       // Loop footage time around job length
       do {
         if (time >= length) {

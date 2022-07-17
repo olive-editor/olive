@@ -21,6 +21,7 @@
 #include "traverser.h"
 
 #include "node.h"
+#include "node/block/clip/clip.h"
 #include "render/job/footagejob.h"
 #include "render/rendermanager.h"
 
@@ -30,6 +31,12 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 {
   NodeValueDatabase database;
 
+  // HACK: Pick up loop mode from clips
+  Decoder::LoopMode old_loop_mode = loop_mode_;
+  if (const ClipBlock *clip = dynamic_cast<const ClipBlock*>(node)) {
+    loop_mode_ = clip->loop_mode();
+  }
+
   // We need to insert tables into the database for each input
   foreach (const QString& input, node->inputs()) {
     if (IsCancelled()) {
@@ -38,6 +45,8 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 
     database.Insert(input, ProcessInput(node, input, range));
   }
+
+  loop_mode_ = old_loop_mode;
 
   return database;
 }
@@ -260,7 +269,8 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 
 NodeTraverser::NodeTraverser() :
   cancel_(nullptr),
-  transform_(nullptr)
+  transform_(nullptr),
+  loop_mode_(Decoder::kLoopModeOff)
 {
 }
 
@@ -436,7 +446,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       if (job.type() == Track::kVideo) {
 
-        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
+        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), loop_mode_, job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
 
         TexturePtr tex;
 

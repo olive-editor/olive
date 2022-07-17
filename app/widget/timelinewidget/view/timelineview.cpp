@@ -531,19 +531,46 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
         // Draw zebra stripes and markers
         if (clip->connected_viewer()) {
           if (!clip->connected_viewer()->GetLength().isNull()) {
+            painter->setPen(shadow_color);
+
             if (clip->media_in() < 0) {
-              // Draw stripes for sections of clip < 0
-              qreal zebra_right = TimeToScene(-clip->media_in());
-              if (zebra_right > GetTimelineLeftBound()) {
-                DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right, block_height));
+              qreal zebra_right = TimeToScene(clip->in() - clip->media_in());
+
+              switch (clip->loop_mode()) {
+              case Decoder::kLoopModeOff:
+                // Draw stripes for sections of clip < 0
+                if (zebra_right > GetTimelineLeftBound()) {
+                  DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right - block_left, block_height));
+                }
+                break;
+              case Decoder::kLoopModeLoop:
+                for (qreal i=zebra_right; i>block_left; i-=TimeToScene(clip->connected_viewer()->GetLength())) {
+                  painter->drawLine(i, block_top, i, block_top + block_height);
+                }
+                break;
+              case Decoder::kLoopModeClamp:
+                painter->drawLine(zebra_right, block_top, zebra_right, block_top + block_height);
+                break;
               }
             }
 
             if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
-              // Draw stripes for sections for clip > clip length
               qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
-              if (zebra_left < GetTimelineRightBound()) {
-                DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+              switch (clip->loop_mode()) {
+              case Decoder::kLoopModeOff:
+                // Draw stripes for sections for clip > clip length
+                if (zebra_left < GetTimelineRightBound()) {
+                  DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+                }
+                break;
+              case Decoder::kLoopModeLoop:
+                for (qreal i=zebra_left; i<block_right; i+=TimeToScene(clip->connected_viewer()->GetLength())) {
+                  painter->drawLine(i, block_top, i, block_top + block_height);
+                }
+                break;
+              case Decoder::kLoopModeClamp:
+                painter->drawLine(zebra_left, block_top, zebra_left, block_top + block_height);
+                break;
               }
             }
           }

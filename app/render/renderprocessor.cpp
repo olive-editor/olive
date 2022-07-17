@@ -503,7 +503,7 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
     Decoder::RetrieveAudioStatus status = decoder->RetrieveAudio(destination,
                                                                  input_time, audio_params,
                                                                  stream.cache_path(),
-                                                                 stream.loop_mode(),
+                                                                 loop_mode(),
                                                                  static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
     if (status == Decoder::kWaitingForConform) {

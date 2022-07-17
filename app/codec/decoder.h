@@ -35,7 +35,6 @@ extern "C" {
 #include "codec/samplebuffer.h"
 #include "common/rational.h"
 #include "node/block/block.h"
-#include "node/project/footage/footage.h"
 #include "node/project/footage/footagedescription.h"
 #include "task/task.h"
 
@@ -70,6 +69,12 @@ public:
     kReady,
     kFailedToOpen,
     kIndexUnavailable
+  };
+
+  enum LoopMode {
+    kLoopModeOff,
+    kLoopModeLoop,
+    kLoopModeClamp
   };
 
   Decoder();
@@ -209,7 +214,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  RetrieveAudioStatus RetrieveAudio(SampleBuffer &dest, const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode);
+  RetrieveAudioStatus RetrieveAudio(SampleBuffer &dest, const TimeRange& range, const AudioParams& params, const QString &cache_path, LoopMode loop_mode, RenderMode::Mode mode);
 
   /**
    * @brief Determine the last time this decoder instance was used in any way
@@ -316,7 +321,7 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange &range, Footage::LoopMode loop_mode, const AudioParams &params);
+  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange &range, LoopMode loop_mode, const AudioParams &params);
 
   CodecStream stream_;
 

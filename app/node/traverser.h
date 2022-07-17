@@ -149,6 +149,8 @@ protected:
     return block_stack_.empty() ? nullptr : block_stack_.back();
   }
 
+  Decoder::LoopMode loop_mode() const { return loop_mode_; }
+
 private:
   void PreProcessRow(const TimeRange &range, NodeValueRow &row);
 
@@ -165,6 +167,8 @@ private:
   QTransform *transform_;
 
   std::list<Block*> block_stack_;
+
+  Decoder::LoopMode loop_mode_;
 
 };
 
