@@ -137,16 +137,16 @@ void TextAnimationEngine::CalculateAnimator( const TextAnimation::Descriptor &an
 
     switch( animator.feature) {
     case TextAnimation::PositionVertical:
-      vert_offsets_[index] = anim_value;
+      vert_offsets_[index] += anim_value;
       break;
     case TextAnimation::PositionHorizontal:
-      horiz_offsets_[index] = anim_value;
+      horiz_offsets_[index] += anim_value;
       break;
     case TextAnimation::Rotation:
-      rotations_[index] = anim_value;
+      rotations_[index] += anim_value;
       break;
     case TextAnimation::SpacingFactor:
-      spacings_[index] = anim_value;
+      spacings_[index] += anim_value;
       break;
     default:
     case TextAnimation::None:

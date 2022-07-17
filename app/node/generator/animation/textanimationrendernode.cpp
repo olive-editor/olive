@@ -43,7 +43,7 @@ const QString TextAnimationRenderNode::kLineHeightInput = QStringLiteral("line_h
 TextAnimationRenderNode::TextAnimationRenderNode() :
   position_handle_(nullptr)
 {
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(30, 30));
+  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(200, 200));
   AddInput( kRichTextInput, NodeValue::kText,
             QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")),
             InputFlags(kInputFlagNotKeyframable));
