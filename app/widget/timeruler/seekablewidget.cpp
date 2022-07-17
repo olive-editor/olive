@@ -231,6 +231,7 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
   }
 
   dragging_ = false;
+  emit DragReleased();
 }
 
 void SeekableWidget::mouseDoubleClickEvent(QMouseEvent *event)
