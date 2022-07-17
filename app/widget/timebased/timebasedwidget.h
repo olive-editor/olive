@@ -121,9 +121,6 @@ public slots:
 
   void DeleteSelected();
 
-protected slots:
-  void SetTimeAndSignal(const rational& t);
-
 protected:
   ResizableTimelineScrollBar* scrollbar() const;
 
@@ -153,10 +150,6 @@ protected:
   void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
   void SetCatchUpScrollValue(int v);
   void StopCatchUpScrollTimer(QScrollBar *b);
-  void StopCatchUpScrollTimer()
-  {
-    StopCatchUpScrollTimer(scrollbar_);
-  }
 
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
   virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const { return nullptr; }
@@ -176,6 +169,13 @@ protected slots:
   void SetAutoSetTimebase(bool e);
 
   static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
+
+  void SetTimeAndSignal(const olive::rational& t);
+
+  void StopCatchUpScrollTimer()
+  {
+    StopCatchUpScrollTimer(scrollbar_);
+  }
 
 signals:
   void TimeChanged(const rational&);

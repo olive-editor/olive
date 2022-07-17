@@ -78,6 +78,9 @@ public slots:
 
   virtual void TimebaseChangedEvent(const rational &) override;
 
+signals:
+  void DragReleased();
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

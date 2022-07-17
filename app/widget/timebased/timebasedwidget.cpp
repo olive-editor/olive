@@ -46,6 +46,7 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   ConnectTimelineView(ruler_, true);
   ruler()->SetSnapService(this);
+  connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
 
   scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
@@ -348,7 +349,7 @@ void TimeBasedWidget::SetTime(const rational &time)
 {
   if (UserIsDraggingPlayhead()) {
     // If the user is dragging the playhead, we will simply nudge over and not use autoscroll rules.
-    QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
+    SetCatchUpScrollValue(qRound(TimeToScene(time)) - scrollbar_->value());
   } else {
     // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
     switch (static_cast<AutoScroll::Method>(OLIVE_CONFIG("Autoscroll").toInt())) {
