@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(timeformat)
-add_subdirectory(timeoffset)
-add_subdirectory(timeremap)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/time/timeformat/timeformat.cpp
+  node/time/timeformat/timeformat.h
   PARENT_SCOPE
 )
