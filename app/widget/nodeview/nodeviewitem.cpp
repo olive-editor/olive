@@ -373,7 +373,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     if (element_ == -1) {
       node_name = node_->GetInputName(input_);
     } else {
-      node_name = QString::number(element_);
+      node_name = QString::number(element_ + node_->GetInputProperty(input_, QStringLiteral("arraystart")).toInt());
     }
   }
 

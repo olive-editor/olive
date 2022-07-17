@@ -56,6 +56,7 @@ TextGeneratorV3::TextGeneratorV3() :
   AddInput(kUseArgsInput, NodeValue::kBoolean, true, InputFlags(kInputFlagHidden | kInputFlagStatic));
 
   AddInput(kArgsInput, NodeValue::kText, InputFlags(kInputFlagArray));
+  SetInputProperty(kArgsInput, QStringLiteral("arraystart"), 1);
 
   text_gizmo_ = new TextGizmo(this);
   text_gizmo_->SetInput(NodeInput(this, kTextInput));
