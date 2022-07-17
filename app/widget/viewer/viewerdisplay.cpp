@@ -681,6 +681,9 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   Html::HtmlToDoc(text_edit->document(), text->GetHtml());
   text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
   connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
+  connect(text_edit, &ViewerTextEditor::destroyed, this, &ViewerDisplayWidget::TextEditDestroyed);
+
+  emit text->Activated();
 
   // Get on screen text rect (this will be the text editor's global geometry)
   QRect global_text_area = gizmo_transform.map(text->GetRect()).boundingRect().toRect();
@@ -1046,6 +1049,12 @@ void ViewerDisplayWidget::TextEditChanged()
 
   QString html = Html::DocToHtml(editor->document());
   gizmo->UpdateInputHtml(html, GetGizmoTime());
+}
+
+void ViewerDisplayWidget::TextEditDestroyed()
+{
+  TextGizmo *gizmo = reinterpret_cast<TextGizmo*>(sender()->property("gizmo").value<quintptr>());
+  emit gizmo->Deactivated();
 }
 
 void ViewerDisplayWidget::SubtitlesChanged(const TimeRange &r)

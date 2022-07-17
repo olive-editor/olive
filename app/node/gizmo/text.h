@@ -42,6 +42,10 @@ public:
 
   void UpdateInputHtml(const QString &s, const rational &time);
 
+signals:
+  void Activated();
+  void Deactivated();
+
 private:
   QRectF rect_;
 
