@@ -77,6 +77,7 @@ public:
     kChromaKey,
     kMaskDistort,
     kDropShadowFilter,
+    kTimeFormat,
 
     // Count value
     kInternalNodeCount

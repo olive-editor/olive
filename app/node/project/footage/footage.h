@@ -24,6 +24,7 @@
 #include <QList>
 #include <QDateTime>
 
+#include "codec/decoder.h"
 #include "common/rational.h"
 #include "footagedescription.h"
 #include "node/output/viewer/viewer.h"
@@ -44,12 +45,6 @@ class Footage : public ViewerOutput
 {
   Q_OBJECT
 public:
-  enum LoopMode {
-    kLoopModeOff,
-    kLoopModeLoop,
-    kLoopModeClamp
-  };
-
   /**
    * @brief Footage Constructor
    */
@@ -100,11 +95,6 @@ public:
    * @brief Sets this footage to valid and ready to use
    */
   void SetValid();
-
-  /**
-   * @brief Get currently set loop mode
-   */
-  LoopMode loop_mode() const;
 
   /**
    * @brief Return the current filename of this Footage object
@@ -183,7 +173,7 @@ public:
 
   virtual Node *GetConnectedSampleOutput() override;
 
-  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
+  static rational AdjustTimeByLoopMode(rational time, Decoder::LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
   virtual void LoadFinishedEvent() override;
 
@@ -191,7 +181,6 @@ public:
   virtual qint64 mod_time() const override;
 
   static const QString kFilenameInput;
-  static const QString kLoopModeInput;
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;

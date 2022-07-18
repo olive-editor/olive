@@ -304,7 +304,7 @@ void NodeParamViewItemBody::Retranslate()
 
     if (ic.IsArray() && ic.element() >= 0) {
       // Make the label the array index
-      i.value().main_label->setText(tr("%1:").arg(ic.element()));
+      i.value().main_label->setText(tr("%1:").arg(ic.element() + ic.GetProperty(QStringLiteral("arraystart")).toInt()));
     } else {
       // Set to the input's name
       i.value().main_label->setText(tr("%1:").arg(ic.name()));

@@ -39,7 +39,11 @@ enum TextVerticalAlign {
 };
 
 const QString TextGeneratorV3::kTextInput = QStringLiteral("text_in");
+const QString TextGeneratorV3::kVerticalAlignmentInput = QStringLiteral("valign_in");
+const QString TextGeneratorV3::kUseArgsInput = QStringLiteral("use_args_in");
+const QString TextGeneratorV3::kArgsInput = QStringLiteral("args_in");
 const QString TextGeneratorV3::kOutputHtmlOnly = QStringLiteral("html_only_in");
+
 
 TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false)
@@ -51,8 +55,17 @@ TextGeneratorV3::TextGeneratorV3() :
 
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
+  AddInput(kVerticalAlignmentInput, NodeValue::kCombo);
+
+  AddInput(kUseArgsInput, NodeValue::kBoolean, true, InputFlags(kInputFlagHidden | kInputFlagStatic));
+
+  AddInput(kArgsInput, NodeValue::kText, InputFlags(kInputFlagArray));
+  SetInputProperty(kArgsInput, QStringLiteral("arraystart"), 1);
+
   text_gizmo_ = new TextGizmo(this);
   text_gizmo_->SetInput(NodeInput(this, kTextInput));
+  connect(text_gizmo_, &TextGizmo::Activated, this, &TextGeneratorV3::GizmoActivated);
+  connect(text_gizmo_, &TextGizmo::Deactivated, this, &TextGeneratorV3::GizmoDeactivated);
 }
 
 QString TextGeneratorV3::Name() const
@@ -80,6 +93,9 @@ void TextGeneratorV3::Retranslate()
   super::Retranslate();
 
   SetInputName(kTextInput, tr("Text"));
+  SetInputName(kVerticalAlignmentInput, tr("Vertical Alignment"));
+  SetComboBoxStrings(kVerticalAlignmentInput, {tr("Top"), tr("Middle"), tr("Bottom")});
+  SetInputName(kArgsInput, tr("Arguments"));
   SetInputName(kOutputHtmlOnly, tr("Output HTML"));
 }
 
@@ -89,6 +105,21 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
   job.Insert(value);
   job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.SetRequestedFormat(VideoParams::kFormatUnsigned8);
+
+  if (value[kUseArgsInput].toBool()) {
+    auto args = value[kArgsInput].toArray();
+    if (!args.empty()) {
+      QStringList list;
+      list.reserve(args.size());
+      for (int i=0; i<args.size(); i++) {
+        list.append(args[i].toString());
+      }
+
+      NodeValue v = job.Get(kTextInput);
+      v.set_value(FormatString(v.toString(), list));
+      job.Insert(kTextInput, v);
+    }
+  }
 
   // FIXME: Provide user override for this
   job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
@@ -134,6 +165,18 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
   p.setClipRect(0, 0, size.x(), size.y());
 
+  switch (static_cast<VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
+  case kVAlignTop:
+    // Do nothing
+    break;
+  case kVAlignMiddle:
+    p.translate(0, size.y()/2-text_doc.size().height()/2);
+    break;
+  case kVAlignBottom:
+    p.translate(0, size.y()-text_doc.size().height());
+    break;
+  }
+
   // Ensure default text color is white
   QAbstractTextDocumentLayout::PaintContext ctx;
   ctx.palette.setColor(QPalette::Text, Qt::white);
@@ -148,6 +191,54 @@ void TextGeneratorV3::UpdateGizmoPositions(const NodeValueRow &row, const NodeGl
   QRectF rect = poly_gizmo()->GetPolygon().boundingRect();
   text_gizmo_->SetRect(rect);
   text_gizmo_->SetHtml(row[kTextInput].toString());
+}
+
+QString TextGeneratorV3::FormatString(const QString &input, const QStringList &args)
+{
+  QString output;
+  output.reserve(input.size());
+
+  for (int i=0; i<input.size(); i++) {
+    const QChar &this_char = input.at(i);
+
+    if (i < input.size()-1 && this_char == '%') {
+      const QChar &next_char = input.at(i+1);
+      if (next_char == '%') {
+        // Double percent, append a single percent
+        output.append('%');
+        i++;
+      } else if (next_char.isDigit()) {
+        // Find length of number
+        QString num;
+        i++;
+        while (i < input.size() && input.at(i).isDigit()) {
+          num.append(input.at(i));
+          i++;
+        }
+        i--;
+        int index = num.toInt()-1;
+        if (index >= 0 && index < args.size()) {
+          output.append(args.at(index));
+        }
+      } else {
+        output.append(this_char);
+      }
+    } else {
+      output.append(this_char);
+    }
+  }
+
+  return output;
+}
+
+void TextGeneratorV3::GizmoActivated()
+{
+  SetStandardValue(kUseArgsInput, false);
+}
+
+void TextGeneratorV3::GizmoDeactivated()
+{
+  SetStandardValue(kUseArgsInput, true);
 }
 
 }

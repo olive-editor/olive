@@ -18,43 +18,36 @@
 
 ***/
 
-#ifndef TEXTGIZMO_H
-#define TEXTGIZMO_H
+#ifndef TIMEFORMAT_H
+#define TIMEFORMAT_H
 
-#include "gizmo.h"
-#include "node/param.h"
+#include "node/node.h"
 
 namespace olive {
 
-class TextGizmo : public NodeGizmo
+class TimeFormatNode : public Node
 {
   Q_OBJECT
 public:
-  explicit TextGizmo(QObject *parent = nullptr);
+  TimeFormatNode();
 
-  const QRectF &GetRect() const { return rect_; }
-  void SetRect(const QRectF &r) { rect_ = r; }
+  NODE_DEFAULT_FUNCTIONS(TimeFormatNode)
 
-  const QString &GetHtml() const { return text_; }
-  void SetHtml(const QString &t) { text_ = t; }
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QVector<CategoryID> Category() const override;
+  virtual QString Description() const override;
 
-  void SetInput(const NodeKeyframeTrackReference &input) { input_ = input; }
+  virtual void Retranslate() override;
 
-  void UpdateInputHtml(const QString &s, const rational &time);
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-signals:
-  void Activated();
-  void Deactivated();
-
-private:
-  QRectF rect_;
-
-  QString text_;
-
-  NodeKeyframeTrackReference input_;
+  static const QString kTimeInput;
+  static const QString kFormatInput;
+  static const QString kLocalTimeInput;
 
 };
 
 }
 
-#endif // TEXTGIZMO_H
+#endif // TIMEFORMAT_H

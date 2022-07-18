@@ -379,6 +379,7 @@ private slots:
   void UpdateFromQueue();
 
   void TextEditChanged();
+  void TextEditDestroyed();
 
   void SubtitlesChanged(const TimeRange &r);
 

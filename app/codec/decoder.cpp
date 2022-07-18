@@ -37,7 +37,8 @@ namespace olive {
 
 const rational Decoder::kAnyTimecode = RATIONAL_MIN;
 
-Decoder::Decoder()
+Decoder::Decoder() :
+  cached_texture_(nullptr)
 {
   UpdateLastAccessed();
 }
@@ -106,10 +107,17 @@ TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, 
     return nullptr;
   }
 
-  return RetrieveVideoInternal(renderer, timecode, divider, cancelled);
+  if (cached_texture_ && cached_time_ == timecode) {
+    return cached_texture_;
+  }
+
+  cached_texture_ = RetrieveVideoInternal(renderer, timecode, divider, cancelled);
+  cached_time_ = timecode;
+
+  return cached_texture_;
 }
 
-Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
+Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, LoopMode loop_mode, RenderMode::Mode mode)
 {
   QMutexLocker locker(&mutex_);
 
@@ -151,6 +159,8 @@ void Decoder::Close()
   QMutexLocker locker(&mutex_);
 
   UpdateLastAccessed();
+
+  cached_texture_ = nullptr;
 
   if (stream_.IsValid()) {
     CloseInternal();
@@ -280,7 +290,7 @@ bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const Audi
   return false;
 }
 
-bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
+bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, LoopMode loop_mode, const AudioParams &input_params)
 {
   PlanarFileDevice input;
   if (input.open(conform_filenames, QFile::ReadOnly)) {
@@ -290,7 +300,7 @@ bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVecto
     const qint64 buffer_length_in_bytes = sample_buffer.sample_count() * input_params.bytes_per_sample_per_channel();
 
     while (write_index < buffer_length_in_bytes) {
-      if (loop_mode == Footage::kLoopModeLoop) {
+      if (loop_mode == kLoopModeLoop) {
         while (read_index >= input.size()) {
           read_index -= input.size();
         }

@@ -64,6 +64,7 @@
 #include "project/folder/folder.h"
 #include "project/footage/footage.h"
 #include "project/sequence/sequence.h"
+#include "time/timeformat/timeformat.h"
 #include "time/timeoffset/timeoffsetnode.h"
 #include "time/timeremap/timeremap.h"
 
@@ -297,6 +298,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MaskDistortNode();
   case kDropShadowFilter:
     return new DropShadowFilter();
+  case kTimeFormat:
+    return new TimeFormatNode();
 
   case kInternalNodeCount:
     break;

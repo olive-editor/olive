@@ -208,6 +208,12 @@ public:
     set_value(data);
   }
 
+  template <typename T>
+  NodeValue(Type type, const T& data, const Node* from, const QString& tag) :
+    NodeValue(type, data, from, false, tag)
+  {
+  }
+
   Type type() const
   {
     return type_;
@@ -331,6 +337,7 @@ public:
   QVector3D toVec3() const { return value<QVector3D>(); }
   QVector4D toVec4() const { return value<QVector4D>(); }
   Bezier toBezier() const { return value<Bezier>(); }
+  QVector<NodeValue> toArray() const { return value<QVector<NodeValue> >(); }
 
 private:
   Type type_;
@@ -378,6 +385,12 @@ public:
     Push(NodeValue(type, data, from, array, tag));
   }
 
+  template <typename T>
+  void Push(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
+  {
+    Push(NodeValue(type, data, from, false, tag));
+  }
+
   void Prepend(const NodeValue& value)
   {
     values_.prepend(value);
@@ -387,6 +400,12 @@ public:
   void Prepend(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
   {
     Prepend(NodeValue(type, data, from, array, tag));
+  }
+
+  template <typename T>
+  void Prepend(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
+  {
+    Prepend(NodeValue(type, data, from, false, tag));
   }
 
   const NodeValue& at(int index) const
