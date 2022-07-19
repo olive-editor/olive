@@ -490,7 +490,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
     if (foreground) {
       painter->setBrush(Qt::NoBrush);
 
-      QString using_label = block->GetLabel().isEmpty() ? block->Name() : block->GetLabel();
+      QString using_label = block->GetLabelOrName();
 
       QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
       painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
