@@ -28,4 +28,9 @@ NodeGizmo::NodeGizmo(QObject *parent) :
   setParent(parent);
 }
 
+NodeGizmo::~NodeGizmo()
+{
+  setParent(nullptr);
+}
+
 }
