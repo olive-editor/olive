@@ -490,7 +490,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
     if (foreground) {
       painter->setBrush(Qt::NoBrush);
 
-      QString using_label = block->GetLabel().isEmpty() ? block->Name() : block->GetLabel();
+      QString using_label = block->GetLabelOrName();
 
       QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
       painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
@@ -586,7 +586,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
               if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
                 QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time().in()), block_top + block_height);
                 painter->setClipRect(r);
-                QRect marker_rect = marker->Draw(painter, marker_pt, GetScale(), false);
+                QRect marker_rect = marker->Draw(painter, marker_pt, -1, GetScale(), false);
                 clip_marker_rects_.insert(marker, marker_rect);
                 painter->setClipping(false);
               }

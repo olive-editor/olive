@@ -277,7 +277,17 @@ void SeekableWidget::DrawMarkers(QPainter *p, int marker_bottom)
         break;
       }
 
-      QRect marker_rect = marker->Draw(p, QPoint(marker_left, marker_bottom), GetScale(), selection_manager_.IsSelected(marker));
+      int max_marker_right = lim_right;
+      {
+        // Check if there's a marker next
+        auto next = it;
+        next++;
+        if (next != markers_->cend()) {
+          max_marker_right = std::min(max_marker_right, int(TimeToScene((*next)->time().in())));
+        }
+      }
+
+      QRect marker_rect = marker->Draw(p, QPoint(marker_left, marker_bottom), max_marker_right, GetScale(), selection_manager_.IsSelected(marker));
       marker_top_ = marker_rect.top();
       selection_manager_.DeclareDrawnObject(marker, marker_rect);
     }
