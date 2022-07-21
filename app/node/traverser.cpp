@@ -168,34 +168,6 @@ NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const Time
 
 int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
 {
-  int max_channel_count = 0;
-
-  // Find maximum channel count
-  for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
-    if (it.value().type() == NodeValue::kTexture) {
-      if (TexturePtr tex = it.value().toTexture()) {
-        max_channel_count = qMax(max_channel_count, tex->channel_count());
-      }
-    }
-  }
-  if (max_channel_count == 0) {
-    max_channel_count = VideoParams::kRGBChannelCount;
-  }
-
-  switch (job.GetAlphaChannelRequired()) {
-  case GenerateJob::kAlphaForceOn:
-    return VideoParams::kRGBAChannelCount;
-  case GenerateJob::kAlphaForceOff:
-    if (max_channel_count >= 1 && max_channel_count < VideoParams::kRGBChannelCount) {
-      return max_channel_count;
-    } else {
-      return VideoParams::kRGBChannelCount;
-    }
-  case GenerateJob::kAlphaAuto:
-    return max_channel_count;
-  }
-
-  // Default fallback, should never get here
   return VideoParams::kRGBAChannelCount;
 }
 

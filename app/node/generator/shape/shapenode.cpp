@@ -76,7 +76,6 @@ void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
 
   job.Insert(value);
   job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.SetShaderID(QStringLiteral("shape"));
 
   PushMergableJob(value, QVariant::fromValue(job), table);

@@ -88,8 +88,7 @@ private:
 
   AVStream* video_stream_;
   AVCodecContext* video_codec_ctx_;
-  SwsContext* video_alpha_scale_ctx_;
-  SwsContext* video_noalpha_scale_ctx_;
+  SwsContext* video_scale_ctx_;
   VideoParams::Format video_conversion_fmt_;
 
   AVStream* audio_stream_;

@@ -79,7 +79,6 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
 {
   ShaderJob job;
   job.Insert(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.SetWillChangeImageSize(false);
 
   if (TexturePtr texture = job.Get(kTextureInput).toTexture()) {

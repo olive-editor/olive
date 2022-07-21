@@ -95,7 +95,6 @@ void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals 
 {
   ShaderJob job;
   job.Insert(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   // If there's no texture, no need to run an operation
   if (job.Get(kTextureInput).toTexture()) {
