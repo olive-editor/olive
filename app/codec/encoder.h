@@ -43,62 +43,59 @@ using EncoderPtr = std::shared_ptr<Encoder>;
 
 class EncodingParams {
 public:
+  enum YUVRange
+  {
+    kYUVMPEG16_235,
+    kYUVJPEG0_255,
+
+    kYUVDefault = kYUVMPEG16_235
+  };
+
   EncodingParams();
 
-  void SetFilename(const QString& filename);
+  void SetFilename(const QString& filename) { filename_ = filename; }
 
   void EnableVideo(const VideoParams& video_params, const ExportCodec::Codec& vcodec);
   void EnableAudio(const AudioParams& audio_params, const ExportCodec::Codec &acodec);
   void EnableSubtitles(const ExportCodec::Codec &scodec);
 
-  void set_video_option(const QString& key, const QString& value);
-  void set_video_bit_rate(const int64_t& rate);
-  void set_video_min_bit_rate(const int64_t& rate);
-  void set_video_max_bit_rate(const int64_t& rate);
-  void set_video_buffer_size(const int64_t& sz);
-  void set_video_threads(const int& threads);
-  void set_video_pix_fmt(const QString& s);
-  void set_video_is_image_sequence(bool s)
-  {
-    video_is_image_sequence_ = s;
-  }
+  void set_video_option(const QString& key, const QString& value) { video_opts_.insert(key, value); }
+  void set_video_bit_rate(const int64_t& rate) { video_bit_rate_ = rate; }
+  void set_video_min_bit_rate(const int64_t& rate) { video_min_bit_rate_ = rate; }
+  void set_video_max_bit_rate(const int64_t& rate) { video_max_bit_rate_ = rate; }
+  void set_video_buffer_size(const int64_t& sz) { video_buffer_size_ = sz; }
+  void set_video_threads(const int& threads) { video_threads_ = threads; }
+  void set_video_pix_fmt(const QString& s) { video_pix_fmt_ = s; }
+  void set_video_is_image_sequence(bool s) { video_is_image_sequence_ = s; }
+  void set_video_color_range(YUVRange r) { video_color_range_ = r; }
 
-  const QString& filename() const;
+  const QString& filename() const { return filename_; }
 
-  bool video_enabled() const;
-  const ExportCodec::Codec& video_codec() const;
-  const VideoParams& video_params() const;
-  const QHash<QString, QString>& video_opts() const;
-  const int64_t& video_bit_rate() const;
-  const int64_t& video_min_bit_rate() const;
-  const int64_t& video_max_bit_rate() const;
-  const int64_t& video_buffer_size() const;
-  const int& video_threads() const;
-  const QString& video_pix_fmt() const;
-  bool video_is_image_sequence() const
-  {
-    return video_is_image_sequence_;
-  }
+  bool video_enabled() const { return video_enabled_; }
+  const ExportCodec::Codec& video_codec() const { return video_codec_; }
+  const VideoParams& video_params() const { return video_params_; }
+  const QHash<QString, QString>& video_opts() const { return video_opts_; }
+  const int64_t& video_bit_rate() const { return video_bit_rate_; }
+  const int64_t& video_min_bit_rate() const { return video_min_bit_rate_; }
+  const int64_t& video_max_bit_rate() const { return video_max_bit_rate_; }
+  const int64_t& video_buffer_size() const { return video_buffer_size_; }
+  const int& video_threads() const { return video_threads_; }
+  const QString& video_pix_fmt() const { return video_pix_fmt_; }
+  bool video_is_image_sequence() const { return video_is_image_sequence_; }
+  YUVRange video_color_range() const { return video_color_range_; }
 
-  bool audio_enabled() const;
-  const ExportCodec::Codec &audio_codec() const;
-  const AudioParams& audio_params() const;
+  bool audio_enabled() const { return audio_enabled_; }
+  const ExportCodec::Codec &audio_codec() const { return audio_codec_; }
+  const AudioParams& audio_params() const { return audio_params_; }
+  const int64_t& audio_bit_rate() const { return audio_bit_rate_; }
 
-  const int64_t& audio_bit_rate() const
-  {
-    return audio_bit_rate_;
-  }
+  void set_audio_bit_rate(const int64_t& b) { audio_bit_rate_ = b; }
 
-  void set_audio_bit_rate(const int64_t& b)
-  {
-    audio_bit_rate_ = b;
-  }
+  bool subtitles_enabled() const { return subtitles_enabled_; }
+  ExportCodec::Codec subtitles_codec() const { return subtitles_codec_; }
 
-  bool subtitles_enabled() const;
-  ExportCodec::Codec subtitles_codec() const;
-
-  const rational& GetExportLength() const;
-  void SetExportLength(const rational& GetExportLength);
+  const rational& GetExportLength() const { return export_length_; }
+  void SetExportLength(const rational& export_length) { export_length_ = export_length; }
 
   virtual void Save(QXmlStreamWriter* writer) const;
 
@@ -116,6 +113,7 @@ private:
   int video_threads_;
   QString video_pix_fmt_;
   bool video_is_image_sequence_;
+  YUVRange video_color_range_;
 
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;

@@ -548,6 +548,7 @@ ExportParams ExportDialog::GenerateParams() const
     params.set_color_transform(video_tab_->CurrentOCIOColorSpace());
 
     params.set_video_pix_fmt(video_tab_->pix_fmt());
+    params.set_video_color_range(video_tab_->yuv_range());
 
     params.set_video_is_image_sequence(video_tab_->IsImageSequenceSet());
   }

@@ -219,6 +219,7 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
   encoded_frame->width = frame->width();
   encoded_frame->height = frame->height();
   encoded_frame->format = video_codec_ctx_->pix_fmt;
+  encoded_frame->color_range = video_codec_ctx_->color_range;
 
   // Set interlacing
   if (frame->video_params().interlacing() != VideoParams::kInterlaceNone) {

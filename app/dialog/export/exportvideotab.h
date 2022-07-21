@@ -133,8 +133,14 @@ public:
     return threads_;
   }
 
-  const QString& pix_fmt() const {
+  const QString& pix_fmt() const
+  {
     return pix_fmt_;
+  }
+
+  EncodingParams::YUVRange yuv_range() const
+  {
+    return yuv_range_;
   }
 
 public slots:
@@ -177,6 +183,7 @@ private:
   int threads_;
 
   QString pix_fmt_;
+  EncodingParams::YUVRange yuv_range_;
 
   ExportFormat::Format format_;
 

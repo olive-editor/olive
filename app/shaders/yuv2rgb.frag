@@ -3,6 +3,7 @@ uniform sampler2D u_channel;
 uniform sampler2D v_channel;
 
 uniform int bits_per_pixel;
+uniform bool jpeg_range;
 
 in vec2 ove_texcoord;
 out vec4 frag_color;
@@ -30,6 +31,11 @@ void main() {
   rgba.g = yuv.r - 0.39173 * yuv.g - 0.81290 * yuv.b;
   rgba.b = yuv.r + 2.017 * yuv.g;
   rgba.a = 1.0;
+
+  if (jpeg_range) {
+    rgba.rgb *= 219.0 / 255.0;
+    rgba.rgb += 16.0 / 255.0;
+  }
 
   frag_color = rgba;
 }

@@ -90,15 +90,11 @@ EncodingParams::EncodingParams() :
   video_buffer_size_(0),
   video_threads_(0),
   video_is_image_sequence_(false),
+  video_color_range_(kYUVDefault),
   audio_enabled_(false),
   audio_bit_rate_(0),
   subtitles_enabled_(false)
 {
-}
-
-void EncodingParams::SetFilename(const QString &filename)
-{
-  filename_ = filename;
 }
 
 void EncodingParams::EnableVideo(const VideoParams &video_params, const ExportCodec::Codec &vcodec)
@@ -119,131 +115,6 @@ void EncodingParams::EnableSubtitles(const ExportCodec::Codec &scodec)
 {
   subtitles_enabled_ = true;
   subtitles_codec_ = scodec;
-}
-
-void EncodingParams::set_video_option(const QString &key, const QString &value)
-{
-  video_opts_.insert(key, value);
-}
-
-void EncodingParams::set_video_bit_rate(const int64_t &rate)
-{
-  video_bit_rate_ = rate;
-}
-
-void EncodingParams::set_video_min_bit_rate(const int64_t &rate)
-{
-  video_min_bit_rate_ = rate;
-}
-
-void EncodingParams::set_video_max_bit_rate(const int64_t &rate)
-{
-  video_max_bit_rate_ = rate;
-}
-
-void EncodingParams::set_video_buffer_size(const int64_t &sz)
-{
-  video_buffer_size_ = sz;
-}
-
-void EncodingParams::set_video_threads(const int &threads)
-{
-  video_threads_ = threads;
-}
-
-void EncodingParams::set_video_pix_fmt(const QString &s)
-{
-  video_pix_fmt_ = s;
-}
-
-const QString &EncodingParams::filename() const
-{
-  return filename_;
-}
-
-bool EncodingParams::video_enabled() const
-{
-  return video_enabled_;
-}
-
-const ExportCodec::Codec &EncodingParams::video_codec() const
-{
-  return video_codec_;
-}
-
-const VideoParams &EncodingParams::video_params() const
-{
-  return video_params_;
-}
-
-const QHash<QString, QString> &EncodingParams::video_opts() const
-{
-  return video_opts_;
-}
-
-const int64_t &EncodingParams::video_bit_rate() const
-{
-  return video_bit_rate_;
-}
-
-const int64_t &EncodingParams::video_min_bit_rate() const
-{
-  return video_min_bit_rate_;
-}
-
-const int64_t &EncodingParams::video_max_bit_rate() const
-{
-  return video_max_bit_rate_;
-}
-
-const int64_t &EncodingParams::video_buffer_size() const
-{
-  return video_buffer_size_;
-}
-
-const int &EncodingParams::video_threads() const
-{
-  return video_threads_;
-}
-
-const QString &EncodingParams::video_pix_fmt() const
-{
-  return video_pix_fmt_;
-}
-
-bool EncodingParams::audio_enabled() const
-{
-  return audio_enabled_;
-}
-
-const ExportCodec::Codec &EncodingParams::audio_codec() const
-{
-  return audio_codec_;
-}
-
-const AudioParams &EncodingParams::audio_params() const
-{
-  return audio_params_;
-}
-
-bool EncodingParams::subtitles_enabled() const
-{
-  return subtitles_enabled_;
-}
-
-ExportCodec::Codec EncodingParams::subtitles_codec() const
-{
-  return subtitles_codec_;
-}
-
-const rational &EncodingParams::GetExportLength() const
-{
-  return export_length_;
-}
-
-void EncodingParams::SetExportLength(const rational &export_length)
-{
-  export_length_ = export_length;
 }
 
 void EncodingParams::Save(QXmlStreamWriter *writer) const
