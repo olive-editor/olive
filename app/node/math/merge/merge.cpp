@@ -90,12 +90,6 @@ void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
       // We only have a base texture, no need to alpha over
       table->Push(job.Get(kBaseIn));
     } else {
-      // We have both textures, push the job
-      if (base_tex->channel_count() < VideoParams::kRGBAChannelCount) {
-        // Base has no alpha, therefore this merge operation will not add an alpha channel
-        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOff);
-      }
-
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     }
   }

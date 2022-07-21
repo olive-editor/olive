@@ -53,13 +53,6 @@ ShaderCode CrossDissolveTransition::GetShaderCode(const ShaderRequest &request) 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
 }
 
-void CrossDissolveTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
-{
-  Q_UNUSED(value)
-
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-}
-
 void CrossDissolveTransition::SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const
 {
   for (int i=0; i<out_samples.sample_count(); i++) {

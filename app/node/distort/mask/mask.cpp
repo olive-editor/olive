@@ -80,7 +80,6 @@ void MaskDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
       feather.Insert(BlurFilterNode::kRadiusInput, NodeValue(NodeValue::kFloat, value[kFeatherInput].toDouble(), this));
       feather.SetIterations(2, BlurFilterNode::kTextureInput);
       feather.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-      feather.SetAlphaChannelRequired(ShaderJob::kAlphaForceOn);
 
       merge.Insert(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, feather, this));
     } else {

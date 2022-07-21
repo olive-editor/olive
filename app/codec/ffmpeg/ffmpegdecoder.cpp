@@ -171,7 +171,10 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
             || src_fmt == AV_PIX_FMT_YUV444P10LE
             || src_fmt == AV_PIX_FMT_YUV420P12LE
             || src_fmt == AV_PIX_FMT_YUV422P12LE
-            || src_fmt == AV_PIX_FMT_YUV444P12LE) {
+            || src_fmt == AV_PIX_FMT_YUV444P12LE
+            || src_fmt == AV_PIX_FMT_YUVJ420P
+            || src_fmt == AV_PIX_FMT_YUVJ422P
+            || src_fmt == AV_PIX_FMT_YUVJ444P) {
           if (Yuv2RgbShader.isNull()) {
             // Compile shader
             Yuv2RgbShader = renderer->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/yuv2rgb.frag"))));
@@ -184,6 +187,9 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
             case AV_PIX_FMT_YUV420P:
             case AV_PIX_FMT_YUV422P:
             case AV_PIX_FMT_YUV444P:
+            case AV_PIX_FMT_YUVJ420P:
+            case AV_PIX_FMT_YUVJ422P:
+            case AV_PIX_FMT_YUVJ444P:
             default:
               px_size = 1;
               bits_per_pixel = 8;
@@ -202,6 +208,10 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
               break;
             }
 
+            bool jpeg_range = src_fmt == AV_PIX_FMT_YUVJ420P
+                || src_fmt == AV_PIX_FMT_YUVJ422P
+                || src_fmt == AV_PIX_FMT_YUVJ444P;
+
             VideoParams plane_params = vp;
             plane_params.set_channel_count(1);
             plane_params.set_divider(1);
@@ -210,6 +220,8 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
 
             if (src_fmt == AV_PIX_FMT_YUV420P
                 || src_fmt == AV_PIX_FMT_YUV422P
+                || src_fmt == AV_PIX_FMT_YUVJ420P
+                || src_fmt == AV_PIX_FMT_YUVJ422P
                 || src_fmt == AV_PIX_FMT_YUV420P10LE
                 || src_fmt == AV_PIX_FMT_YUV422P10LE
                 || src_fmt == AV_PIX_FMT_YUV420P12LE
@@ -218,6 +230,7 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
             }
 
             if (src_fmt == AV_PIX_FMT_YUV420P
+                || src_fmt == AV_PIX_FMT_YUVJ420P
                 || src_fmt == AV_PIX_FMT_YUV420P10LE
                 || src_fmt == AV_PIX_FMT_YUV420P12LE) {
               plane_params.set_height(plane_params.height()/2);
@@ -231,6 +244,7 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
             job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
             job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
             job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
+            job.Insert(QStringLiteral("jpeg_range"), NodeValue(NodeValue::kBoolean, jpeg_range));
 
             tex = renderer->CreateTexture(vp);
             renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);

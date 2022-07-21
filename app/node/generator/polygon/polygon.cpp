@@ -95,7 +95,6 @@ GenerateJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
 
   job.Insert(value);
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   return job;
 }

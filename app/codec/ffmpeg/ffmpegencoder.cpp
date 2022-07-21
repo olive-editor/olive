@@ -36,8 +36,7 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
   fmt_ctx_(nullptr),
   video_stream_(nullptr),
   video_codec_ctx_(nullptr),
-  video_alpha_scale_ctx_(nullptr),
-  video_noalpha_scale_ctx_(nullptr),
+  video_scale_ctx_(nullptr),
   audio_stream_(nullptr),
   audio_codec_ctx_(nullptr),
   audio_resample_ctx_(nullptr),
@@ -144,27 +143,32 @@ bool FFmpegEncoder::Open()
 
     // Set up a scaling context - if the native pixel format is not equal to the encoder's, we'll need to convert it
     // before encoding. Even if we don't, this may be useful for converting between linesizes, etc.
-    video_alpha_scale_ctx_ = sws_getContext(params().video_params().width(),
-                                            params().video_params().height(),
-                                            src_alpha_pix_fmt,
-                                            params().video_params().width(),
-                                            params().video_params().height(),
-                                            encoder_pix_fmt,
-                                            0,
-                                            nullptr,
-                                            nullptr,
-                                            nullptr);
+    video_scale_ctx_ = sws_getContext(params().video_params().width(),
+                                      params().video_params().height(),
+                                      src_alpha_pix_fmt,
+                                      params().video_params().width(),
+                                      params().video_params().height(),
+                                      encoder_pix_fmt,
+                                      0,
+                                      nullptr,
+                                      nullptr,
+                                      nullptr);
 
-    video_noalpha_scale_ctx_ = sws_getContext(params().video_params().width(),
-                                              params().video_params().height(),
-                                              src_noalpha_pix_fmt,
-                                              params().video_params().width(),
-                                              params().video_params().height(),
-                                              encoder_pix_fmt,
-                                              0,
-                                              nullptr,
-                                              nullptr,
-                                              nullptr);
+    int *inv_table;
+    int src_range;
+    int *table;
+    int dst_range;
+    int brightness;
+    int contrast;
+    int saturation;
+
+    sws_getColorspaceDetails(video_scale_ctx_, &inv_table, &src_range, &table, &dst_range, &brightness, &contrast, &saturation);
+
+    // Set swscale's dst range based on AVCodecContext's color_range. Here, 1 == JPEG range (0-255)
+    // and 0 == MPEG range (16-235).
+    dst_range = (video_codec_ctx_->color_range == AVCOL_RANGE_JPEG);
+
+    sws_setColorspaceDetails(video_scale_ctx_, inv_table, src_range, table, dst_range, brightness, contrast, saturation);
   }
 
   // Initialize an audio stream if it's enabled
@@ -215,6 +219,7 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
   encoded_frame->width = frame->width();
   encoded_frame->height = frame->height();
   encoded_frame->format = video_codec_ctx_->pix_fmt;
+  encoded_frame->color_range = video_codec_ctx_->color_range;
 
   // Set interlacing
   if (frame->video_params().interlacing() != VideoParams::kInterlaceNone) {
@@ -242,7 +247,7 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
   input_data = frame->const_data();
   input_linesize = frame->linesize_bytes();
 
-  error_code = sws_scale((frame->channel_count() == VideoParams::kRGBAChannelCount) ? video_alpha_scale_ctx_ : video_noalpha_scale_ctx_,
+  error_code = sws_scale(video_scale_ctx_,
                          reinterpret_cast<const uint8_t**>(&input_data),
                          &input_linesize,
                          0,
@@ -484,14 +489,9 @@ void FFmpegEncoder::Close()
     audio_frame_ = nullptr;
   }
 
-  if (video_alpha_scale_ctx_) {
-    sws_freeContext(video_alpha_scale_ctx_);
-    video_alpha_scale_ctx_ = nullptr;
-  }
-
-  if (video_noalpha_scale_ctx_) {
-    sws_freeContext(video_noalpha_scale_ctx_);
-    video_noalpha_scale_ctx_ = nullptr;
+  if (video_scale_ctx_) {
+    sws_freeContext(video_scale_ctx_);
+    video_scale_ctx_ = nullptr;
   }
 
   if (video_codec_ctx_) {
@@ -606,6 +606,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_ctx->time_base = params().video_params().frame_rate_as_time_base().toAVRational();
     codec_ctx->framerate = params().video_params().frame_rate().toAVRational();
     codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
+    codec_ctx->color_range = params().video_color_range() ==  EncodingParams::kYUVJPEG0_255 ? AVCOL_RANGE_JPEG : AVCOL_RANGE_MPEG;
 
     if (params().video_params().interlacing() != VideoParams::kInterlaceNone) {
       // FIXME: I actually don't know what these flags do, the documentation helpfully doesn't

@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QDialog>
 
+#include "codec/encoder.h"
 #include "widget/slider/integerslider.h"
 
 namespace olive {
@@ -35,10 +36,22 @@ public:
     pixel_format_combobox_->setCurrentText(s);
   }
 
+  EncodingParams::YUVRange yuv_range() const
+  {
+    return static_cast<EncodingParams::YUVRange>(yuv_color_range_combobox_->currentIndex());
+  }
+
+  void set_yuv_range(EncodingParams::YUVRange i)
+  {
+    yuv_color_range_combobox_->setCurrentIndex(i);
+  }
+
 private:
   IntegerSlider* thread_slider_;
 
   QComboBox* pixel_format_combobox_;
+
+  QComboBox* yuv_color_range_combobox_;
 
 };
 
