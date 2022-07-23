@@ -21,6 +21,7 @@
 #include "viewer.h"
 
 #include <QDateTime>
+#include <QFontDialog>
 #include <QGuiApplication>
 #include <QInputDialog>
 #include <QLabel>
@@ -32,7 +33,6 @@
 
 #include "audio/audiomanager.h"
 #include "common/clamp.h"
-#include "common/power.h"
 #include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
@@ -41,10 +41,9 @@
 #include "node/generator/shape/shapenodebase.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
-#include "task/taskmanager.h"
 #include "viewerpreventsleep.h"
+#include "widget/audiomonitor/audiomonitor.h"
 #include "widget/menu/menu.h"
-#include "window/mainwindow/mainwindow.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
@@ -544,6 +543,20 @@ void ViewerWidget::HandleFirstRequeueDestroy()
   // Extra protection to ensure we don't reference a destroyed object
   if (first_requeue_watcher_ == sender()) {
     first_requeue_watcher_ = nullptr;
+  }
+}
+
+void ViewerWidget::ShowSubtitleProperties()
+{
+  QFont f(OLIVE_CONFIG("DefaultSubtitleFamily").toString(), OLIVE_CONFIG("DefaultSubtitleSize").toInt(), OLIVE_CONFIG("DefaultSubtitleWeight").toInt());
+  QFontDialog fd(f, this);
+
+  if (fd.exec() == QDialog::Accepted) {
+    f = fd.selectedFont();
+    OLIVE_CONFIG("DefaultSubtitleSize") = f.pointSize();
+    OLIVE_CONFIG("DefaultSubtitleFamily") = f.family();
+    OLIVE_CONFIG("DefaultSubtitleWeight") = f.weight();
+    display_widget_->update();
   }
 }
 
@@ -1309,10 +1322,26 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
 
   if (context_menu_widget_ == display_widget_) {
-    QAction* show_subtitles_action = menu.addAction(tr("Show Subtitles"));
+    auto subtitle_menu = new Menu(tr("Subtitles"), &menu);
+    menu.addMenu(subtitle_menu);
+
+    QAction* show_subtitles_action = subtitle_menu->addAction(tr("Show Subtitles"));
     show_subtitles_action->setCheckable(true);
     show_subtitles_action->setChecked(display_widget_->GetShowSubtitles());
     connect(show_subtitles_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetShowSubtitles);
+
+    subtitle_menu->addSeparator();
+
+    auto subtitle_font_properties = subtitle_menu->addAction(tr("Subtitle Properties"));
+    connect(subtitle_font_properties, &QAction::triggered, this, &ViewerWidget::ShowSubtitleProperties);
+
+    auto subtitle_antialias = subtitle_menu->addAction(tr("Use Anti-aliasing"));
+    subtitle_antialias->setCheckable(true);
+    subtitle_antialias->setChecked(OLIVE_CONFIG("AntialiasSubtitles").toBool());
+    connect(subtitle_antialias, &QAction::triggered, this, [this](bool e){
+      OLIVE_CONFIG("AntialiasSubtitles") = e;
+      display_widget_->update();
+    });
   }
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));

@@ -352,6 +352,8 @@ private slots:
 
   void HandleFirstRequeueDestroy();
 
+  void ShowSubtitleProperties();
+
 };
 
 }
