@@ -34,8 +34,6 @@
 #include <QScreen>
 #include <QTextEdit>
 
-#include "common/define.h"
-#include "common/functiontimer.h"
 #include "common/html.h"
 #include "common/qtutils.h"
 #include "config/config.h"
@@ -46,7 +44,6 @@
 #include "node/gizmo/polygon.h"
 #include "node/gizmo/screen.h"
 #include "viewertexteditor.h"
-#include "window/mainwindow/mainwindow.h"
 
 namespace olive {
 
