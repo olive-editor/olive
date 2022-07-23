@@ -32,7 +32,6 @@
 
 #include "common/digit.h"
 #include "common/qtutils.h"
-#include "core.h"
 #include "dialog/task/task.h"
 #include "node/project/project.h"
 #include "node/project/sequence/sequence.h"
@@ -250,6 +249,12 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
+
+  // We don't check if the codec supports subtitles because we can always export to a sidecar file
+  bool has_subtitle_codecs = SequenceHasSubtitles();
+  connect(subtitles_enabled_, &QCheckBox::toggled, subtitle_tab_, &QWidget::setEnabled);
+  subtitles_enabled_->setChecked(has_subtitle_codecs);
+  subtitles_enabled_->setEnabled(has_subtitle_codecs);
 }
 
 rational ExportDialog::GetSelectedTimebase() const
@@ -445,9 +450,9 @@ void ExportDialog::FormatChanged(ExportFormat::Format current_format)
   audio_enabled_->setChecked(has_audio_codecs);
   audio_enabled_->setEnabled(has_audio_codecs);
 
-  bool has_subtitle_codecs = subtitle_tab_->SetFormat(current_format);
-  subtitles_enabled_->setChecked(has_subtitle_codecs);
-  subtitles_enabled_->setEnabled(has_subtitle_codecs);
+  if (subtitles_enabled_->isEnabled()) {
+    subtitle_tab_->SetFormat(current_format);
+  }
 }
 
 void ExportDialog::ResolutionChanged()
@@ -503,6 +508,20 @@ void ExportDialog::SetDefaultFilename()
   filename_edit_->setText(file_location);
 }
 
+bool ExportDialog::SequenceHasSubtitles() const
+{
+  if (Sequence *s = dynamic_cast<Sequence*>(viewer_node_)) {
+    TrackList *tl = s->track_list(Track::kSubtitle);
+    for (Track *t : tl->GetTracks()) {
+      if (!t->IsMuted() && !t->Blocks().empty()) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 ExportParams ExportDialog::GenerateParams() const
 {
   VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
@@ -519,7 +538,7 @@ ExportParams ExportDialog::GenerateParams() const
                                   audio_tab_->sample_format_combobox()->GetSampleFormat());
 
   ExportParams params;
-  params.set_encoder(Encoder::GetTypeFromFormat(format_combobox_->GetFormat()));
+  params.set_format(format_combobox_->GetFormat());
   params.SetFilename(filename_edit_->text().trimmed());
   params.SetExportLength(viewer_node_->GetLength());
 
@@ -561,8 +580,15 @@ ExportParams ExportDialog::GenerateParams() const
     params.set_audio_bit_rate(audio_tab_->bit_rate_slider()->GetValue() * 1000);
   }
 
-  if (subtitles_enabled_->isChecked()) {
-    params.EnableSubtitles(subtitle_tab_->GetSubtitleCodec());
+  if (subtitles_enabled_->isEnabled()
+      && subtitles_enabled_->isChecked()) {
+    if (!subtitle_tab_->GetSidecarEnabled()) {
+      // Export subtitles embedded in container
+      params.EnableSubtitles(subtitle_tab_->GetSubtitleCodec());
+    } else {
+      // Export subtitles to a sidecar file
+      params.EnableSidecarSubtitles(subtitle_tab_->GetSidecarFormat(), subtitle_tab_->GetSubtitleCodec());
+    }
   }
 
   return params;

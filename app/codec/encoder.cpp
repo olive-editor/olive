@@ -93,7 +93,8 @@ EncodingParams::EncodingParams() :
   video_color_range_(kYUVDefault),
   audio_enabled_(false),
   audio_bit_rate_(0),
-  subtitles_enabled_(false)
+  subtitles_enabled_(false),
+  subtitles_are_sidecar_(false)
 {
 }
 
@@ -115,6 +116,29 @@ void EncodingParams::EnableSubtitles(const ExportCodec::Codec &scodec)
 {
   subtitles_enabled_ = true;
   subtitles_codec_ = scodec;
+}
+
+void EncodingParams::EnableSidecarSubtitles(const ExportFormat::Format &sfmt, const ExportCodec::Codec &scodec)
+{
+  subtitles_enabled_ = true;
+  subtitles_are_sidecar_ = true;
+  subtitle_sidecar_fmt_ = sfmt;
+  subtitles_codec_ = scodec;
+}
+
+void EncodingParams::DisableVideo()
+{
+  video_enabled_ = false;
+}
+
+void EncodingParams::DisableAudio()
+{
+  audio_enabled_ = false;
+}
+
+void EncodingParams::DisableSubtitles()
+{
+  subtitles_enabled_ = false;
 }
 
 void EncodingParams::Save(QXmlStreamWriter *writer) const
@@ -215,6 +239,11 @@ Encoder::Type Encoder::GetTypeFromFormat(ExportFormat::Format f)
 Encoder *Encoder::CreateFromFormat(ExportFormat::Format f, const EncodingParams &params)
 {
   return CreateFromID(GetTypeFromFormat(f), params);
+}
+
+Encoder *Encoder::CreateFromParams(const EncodingParams &params)
+{
+  return CreateFromFormat(params.format(), params);
 }
 
 QStringList Encoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const

@@ -46,6 +46,13 @@ ExportFormatComboBox::ExportFormatComboBox(Mode mode, QWidget *parent) :
         continue;
       }
       break;
+    case kShowSubtitlesOnly:
+      if (!ExportFormat::GetVideoCodecs(f).isEmpty()
+          || ExportFormat::GetSubtitleCodecs(f).isEmpty()
+          || !ExportFormat::GetAudioCodecs(f).isEmpty()) {
+        continue;
+      }
+      break;
     }
 
     QString format_name = ExportFormat::GetName(f);

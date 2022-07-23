@@ -63,6 +63,8 @@ private:
   void LoadPresets();
   void SetDefaultFilename();
 
+  bool SequenceHasSubtitles() const;
+
   ExportParams GenerateParams() const;
 
   ViewerOutput* viewer_node_;

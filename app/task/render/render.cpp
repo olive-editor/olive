@@ -95,8 +95,7 @@ bool RenderTask::Render(ColorManager* manager,
 
   // Subtitle loop, loops over all blocks in sequence on all tracks
   if (!subtitle_range.length().isNull()) {
-    Sequence *sequence = dynamic_cast<Sequence*>(viewer_);
-    if (sequence) {
+    if (Sequence *sequence = dynamic_cast<Sequence*>(viewer_)) {
       TrackList *list = sequence->track_list(Track::kSubtitle);
       QVector<int> block_indexes(list->GetTrackCount(), 0);
 
@@ -106,6 +105,10 @@ bool RenderTask::Render(ColorManager* manager,
 
         for (int i=0; i<block_indexes.size(); i++) {
           Track *this_track = list->GetTrackAt(i);
+          if (this_track->IsMuted()) {
+            continue;
+          }
+
           int &this_block_index = block_indexes[i];
           if (this_block_index >= this_track->Blocks().size()) {
             continue;
