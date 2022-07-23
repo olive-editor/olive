@@ -55,13 +55,18 @@ TextAnimationNode::TextAnimationNode()
                       << tr("Horizontal Position")
                       << tr("Rotation")
                       << tr("Spacing")
+                      << tr("Vertical Stretch")
+                      << tr("Horizontal Stretch")
+                      << tr("Transparency")
                       );
 
-  AddInput( kIndexFromInput, NodeValue::kInt, 0);
-  SetInputProperty( kIndexFromInput, QStringLiteral("min"), 0);
+  // index of first character. Should be int, but float is used to allow key-framing over time
+  AddInput( kIndexFromInput, NodeValue::kFloat, 0.);
+  SetInputProperty( kIndexFromInput, QStringLiteral("min"), 0.);
 
-  AddInput( kIndexToInput, NodeValue::kInt, -1);  // default to -1 to animate the full text
-  SetInputProperty( kIndexToInput, QStringLiteral("min"), -1);
+  // index of last character. Should be int, but float is used to allow key-framing over time
+  AddInput( kIndexToInput, NodeValue::kFloat, -1.);  // default to negative value to animate the full text
+  SetInputProperty( kIndexToInput, QStringLiteral("min"), -1.);
 
   AddInput( kOverlapInInput, NodeValue::kFloat, 1.);
   SetInputProperty( kOverlapInInput, QStringLiteral("min"), 0.);
@@ -93,6 +98,7 @@ TextAnimationNode::TextAnimationNode()
   SetInputProperty( kAlphaInput, QStringLiteral("min"), 0.);
   SetInputProperty( kAlphaInput, QStringLiteral("max"), 1.);
 
+   SetEffectInput(kCompositeInput);
 }
 
 void TextAnimationNode::Retranslate()
@@ -101,8 +107,8 @@ void TextAnimationNode::Retranslate()
 
   SetInputName( kCompositeInput, QStringLiteral("Composite"));
   SetInputName( kFeatureInput, QStringLiteral("Feature"));
-  SetInputName( kIndexFromInput, QStringLiteral("From"));
-  SetInputName( kIndexToInput, QStringLiteral("To"));
+  SetInputName( kIndexFromInput, QStringLiteral("Index from"));
+  SetInputName( kIndexToInput, QStringLiteral("Index to"));
   SetInputName( kOverlapInInput, QStringLiteral("Overlap IN"));
   SetInputName( kOverlapOutInput, QStringLiteral("Overlap OUT"));
   SetInputName( kCurveInput, QStringLiteral("Curve"));
@@ -125,8 +131,8 @@ void TextAnimationNode::Value(const NodeValueRow &value, const NodeGlobals & /*g
   TextAnimation::Descriptor animation;
 
   animation.feature = (TextAnimation::Feature) (job.Get(kFeatureInput).toInt());
-  animation.character_from = job.Get(kIndexFromInput).toInt();
-  animation.character_to = job.Get(kIndexToInput).toInt();;
+  animation.character_from = (int)(job.Get(kIndexFromInput).toDouble());
+  animation.character_to = (int)(job.Get(kIndexToInput).toInt());
   animation.overlap_in = job.Get(kOverlapInInput).toDouble ();
   animation.overlap_out = job.Get(kOverlapOutInput).toDouble ();
   animation.curve = (TextAnimation::Curve) (job.Get(kCurveInput).toInt());

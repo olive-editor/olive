@@ -52,6 +52,21 @@ public:
     return spacings_;
   }
 
+  /// valid after calling \a calculate
+  const QVector<double> & HorizontalStretch() const {
+    return horiz_stretch_;
+  }
+
+  /// valid after calling \a calculate
+  const QVector<double> & VerticalStretch() const {
+    return vert_stretch_;
+  }
+
+  /// valid after calling \a calculate
+  const QVector<int> & Transparency() const {
+    return transparency_;
+  }
+
 private:
   void ResetVectors();
   void CalculateAnimator( const TextAnimation::Descriptor & animator);
@@ -67,6 +82,9 @@ private:
   QVector<double> vert_offsets_;
   QVector<double> rotations_;
   QVector<double> spacings_;
+  QVector<double> horiz_stretch_;
+  QVector<double> vert_stretch_;
+  QVector<int> transparency_;
 
 };
 

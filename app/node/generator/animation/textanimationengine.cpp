@@ -118,12 +118,18 @@ void TextAnimationEngine::ResetVectors()
   vert_offsets_.clear();
   rotations_.clear();
   spacings_.clear();
+  horiz_stretch_.clear();
+  vert_stretch_.clear();
+  transparency_.clear();
 
   // preset all vectors with the length of the full text
   horiz_offsets_.fill( 0.0, text_size_);
   vert_offsets_.fill( 0.0, text_size_);
   rotations_.fill( 0.0, text_size_);
   spacings_.fill( 0.0, text_size_);
+  horiz_stretch_.fill( 0.0, text_size_);
+  vert_stretch_.fill( 0.0, text_size_);
+  transparency_.fill( 0, text_size_);
 }
 
 void TextAnimationEngine::CalculateAnimator( const TextAnimation::Descriptor &animator)
@@ -147,6 +153,17 @@ void TextAnimationEngine::CalculateAnimator( const TextAnimation::Descriptor &an
       break;
     case TextAnimation::SpacingFactor:
       spacings_[index] += anim_value;
+      break;
+    case TextAnimation::StretchVertical:
+      vert_stretch_[index] += anim_value;
+      break;
+    case TextAnimation::StretchHorizontal:
+      horiz_stretch_[index] += anim_value;
+      break;
+    case TextAnimation::Transparency:
+      transparency_[index] += (int)anim_value;
+      transparency_[index] = qMin( transparency_[index], 255);
+      transparency_[index] = qMax( transparency_[index], 0);
       break;
     default:
     case TextAnimation::None:

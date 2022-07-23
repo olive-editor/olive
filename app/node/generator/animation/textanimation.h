@@ -18,20 +18,32 @@ enum Feature{
   // rotation of each character around its bottom left corner
   Rotation,
   // space between letters
-  SpacingFactor
+  SpacingFactor,
+  // vertical stretch of each character
+  StretchVertical,
+  // horizontal stretch of each character
+  StretchHorizontal,
+  // opacity in range 0 - 255
+  Transparency
 };
 
 const QMap< Feature, QString> FEATURE_TABLE = {{None, "NONE"},
                                                {PositionVertical, "POSITION_VER"},
                                                {PositionHorizontal, "POSITION_HOR"},
                                                {Rotation, "ROTATION"},
-                                               {SpacingFactor,  "SPACING"}
+                                               {SpacingFactor,  "SPACING"},
+                                               {StretchVertical, "STRETCH_VER"},
+                                               {StretchHorizontal, "STRETCH_HOR"},
+                                               {Transparency, "TRANSPARENCY"},
                                               };
 const QMap< QString, Feature> FEATURE_TABLE_REV = {{"NONE", None},
                                                    {"POSITION_VER", PositionVertical},
                                                    {"POSITION_HOR", PositionHorizontal},
                                                    {"ROTATION", Rotation},
-                                                   {"SPACING", SpacingFactor}
+                                                   {"SPACING", SpacingFactor},
+                                                   {"STRETCH_VER", StretchVertical},
+                                                   {"STRETCH_HOR", StretchHorizontal},
+                                                   {"TRANSPARENCY", Transparency}
                                                   };
 
 /// shape of animation curve

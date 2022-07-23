@@ -28,6 +28,9 @@
 #include "node/gizmo/point.h"
 #include "node/generator/animation/textanimationengine.h"
 
+class QTextCursor;
+
+
 namespace olive {
 
 class TextAnimationRenderNode : public Node
@@ -49,22 +52,18 @@ public:
 
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
-  static const QString kPositionInput;
   static const QString kRichTextInput;
   static const QString kAnimatorsInput;
-  static const QString kLineHeightInput;
 
 protected:
   GenerateJob GetGenerateJob(const NodeValueRow &value) const;
 
-protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+private:
+  int CalculateLineHeight(QTextCursor& start) const;
 
 private:
    TextAnimationEngine * engine_;
-   PointGizmo * position_handle_;
 };
 
 }

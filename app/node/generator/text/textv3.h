@@ -55,11 +55,9 @@ public:
   };
 
   static const QString kTextInput;
-
   static const QString kVerticalAlignmentInput;
   static const QString kUseArgsInput;
   static const QString kArgsInput;
-  static const QString kOutputHtmlOnly;
 
   static QString FormatString(const QString &input, const QStringList &args);
 

@@ -29,34 +29,26 @@
 #include "common/cpuoptimize.h"
 #include "common/html.h"
 #include "node/generator/animation/textanimationxmlparser.h"
+#include "node/generator/text/textv3.h"
+
 
 namespace olive {
 
-const QString TextAnimationRenderNode::kPositionInput = QStringLiteral("pos_in");
 const QString TextAnimationRenderNode::kRichTextInput = QStringLiteral("rich_text_in");
 const QString TextAnimationRenderNode::kAnimatorsInput = QStringLiteral("animators_in");
-const QString TextAnimationRenderNode::kLineHeightInput = QStringLiteral("line_height_in");
 
+const QString kCurrentTime = QStringLiteral("time_now");
 
 #define super Node
 
-TextAnimationRenderNode::TextAnimationRenderNode() :
-  position_handle_(nullptr)
+TextAnimationRenderNode::TextAnimationRenderNode()
 {
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(200, 200));
   AddInput( kRichTextInput, NodeValue::kText,
             QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")),
             InputFlags(kInputFlagNotKeyframable));
   AddInput( kAnimatorsInput, NodeValue::kText,
             QStringLiteral("<!-- Don't write here. Attach a TextAnimation node -->"),
             InputFlags(kInputFlagNotKeyframable));
-  AddInput( kLineHeightInput, NodeValue::kInt, 50, InputFlags(kInputFlagNotKeyframable));
-
-  position_handle_ = AddDraggableGizmo<PointGizmo>({NodeKeyframeTrackReference(NodeInput(this, kPositionInput), 0),
-                                                    NodeKeyframeTrackReference(NodeInput(this, kPositionInput), 1)});
-
-  position_handle_->SetShape( PointGizmo::kAnchorPoint);
-  position_handle_->SetDragValueBehavior(PointGizmo::kAbsolute);
 
   SetEffectInput(kRichTextInput);
 
@@ -87,10 +79,8 @@ void TextAnimationRenderNode::Retranslate()
 {
   super::Retranslate();
 
-  SetInputName(kPositionInput, tr("Position"));
   SetInputName(kRichTextInput, tr("Text"));
   SetInputName(kAnimatorsInput, tr("Animators"));
-  SetInputName(kLineHeightInput, tr("Line Height"));
 }
 
 GenerateJob TextAnimationRenderNode::GetGenerateJob(const NodeValueRow &value) const
@@ -99,14 +89,15 @@ GenerateJob TextAnimationRenderNode::GetGenerateJob(const NodeValueRow &value) c
 
   job.Insert(value);
   job.SetRequestedFormat(VideoParams::kFormatUnsigned8);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
 
   return job;
 }
 
-void TextAnimationRenderNode::Value(const NodeValueRow &value, const NodeGlobals & /*globals*/, NodeValueTable *table) const
+void TextAnimationRenderNode::Value(const NodeValueRow &value, const NodeGlobals & globals, NodeValueTable *table) const
 {
   GenerateJob job = GetGenerateJob(value);
+  // We store here the current time that will be used in 'GenerateFrame'
+  job.Insert(kCurrentTime, NodeValue(NodeValue::kRational, globals.time().in(), this));
 
   table->Push(NodeValue::kTexture, job, this);
 }
@@ -118,6 +109,9 @@ void TextAnimationRenderNode::GenerateFrame(FramePtr frame, const GenerateJob &j
              frame->linesize_bytes(), QImage::Format_RGBA8888_Premultiplied);
   img.fill(Qt::transparent);
 
+  Node * textConnectedNode = GetConnectedOutput( kRichTextInput);
+  rational time = job.Get(kCurrentTime).toRational();
+
   // 96 DPI in DPM (96 / 2.54 * 100)
   const int dpm = 3780;
   img.setDotsPerMeterX(dpm);
@@ -126,7 +120,11 @@ void TextAnimationRenderNode::GenerateFrame(FramePtr frame, const GenerateJob &j
   QTextDocument text_doc;
   text_doc.setDefaultFont(QFont("Arial", 50));
 
+  // default value if no "Text" node is connected
   QString html = job.Get(kRichTextInput).toString();
+  if (textConnectedNode != nullptr) {
+    html = textConnectedNode->GetValueAtTime( TextGeneratorV3::kTextInput, time).toString();
+  }
   Html::HtmlToDoc(&text_doc, html);
   QTextCursor cursor( &text_doc);
 
@@ -134,18 +132,19 @@ void TextAnimationRenderNode::GenerateFrame(FramePtr frame, const GenerateJob &j
   double par = frame->video_params().pixel_aspect_ratio().toDouble();
   QPointF scale_factor = QPointF(1.0 / frame->video_params().divider() / par, 1.0 / frame->video_params().divider());
 
-
   QPainter p(&img);
   p.scale( scale_factor.x(), scale_factor.y());
 
-  QVector2D pos = job.Get(kPositionInput).toVec2();
+  QVector2D pos(200.,200.);
+  if (textConnectedNode != nullptr) {
+    // Use input "Text" node to define the base position of the text
+    pos = GetConnectedOutput( kRichTextInput)->GetValueAtTime( ShapeNodeBase::kPositionInput, time).value<QVector2D>();
+    QVector2D size = GetConnectedOutput( kRichTextInput)->GetValueAtTime( ShapeNodeBase::kSizeInput, time).value<QVector2D>();
+    p.translate(pos.x() - size.x()/2, pos.y() - size.y()/2);
+    p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
+  }
 
-  p.translate(pos.x(), pos.y());
-
-  p.setBrush(Qt::NoBrush);
-  p.setPen(Qt::white);
-
-  p.setRenderHints( QPainter::Antialiasing |
+  p.setRenderHints( QPainter::TextAntialiasing | QPainter::LosslessImageRendering |
                     QPainter::SmoothPixmapTransform);
 
   int textSize = text_doc.characterCount();
@@ -164,58 +163,69 @@ void TextAnimationRenderNode::GenerateFrame(FramePtr frame, const GenerateJob &j
   engine_->Calulate();
 
   int posx = 0;
-  int line = 0;
-  int line_height = job.Get(kLineHeightInput).toInt();
+  int char_size = 0;
+  int line_Voffset = CalculateLineHeight(cursor);
 
 
   const QVector<double> & horiz_offsets = engine_->HorizontalOffset();
   const QVector<double> & vert_offsets = engine_->VerticalOffset();
   const QVector<double> & rotations = engine_->Rotation();
   const QVector<double> & spacings = engine_->Spacing();
+  const QVector<double> & horiz_stretches = engine_->HorizontalStretch();
+  const QVector<double> & vert_stretches = engine_->VerticalStretch();
+  const QVector<int> & transparencies = engine_->Transparency();
 
   // parse the whole text document and print every character
   for (int i=0; i < textSize; i++) {
       QChar ch = text_doc.characterAt(i);
 
-      p.save();
-      p.setFont( cursor.charFormat().font());
-      p.setPen( cursor.charFormat().foreground().color());
-      p.setBrush( cursor.charFormat().foreground());
-      p.translate( QPointF(posx + horiz_offsets[i],
-                           line*line_height + vert_offsets[i]));
-      p.rotate( rotations[i]);
-      p.drawText( QPointF(0,0), ch);
-      //p.resetTransform();
-      p.restore();
-
-      posx += QFontMetrics( cursor.charFormat().font()).horizontalAdvance(text_doc.characterAt(i)) + (int)(spacings[i]);
-      cursor.movePosition( QTextCursor::Right);
-
       if ((ch == QChar::LineSeparator) ||
           (ch == QChar::ParagraphSeparator) )
       {
-        line++;
         posx = 0;
+        cursor.movePosition( QTextCursor::Right);
+        line_Voffset += CalculateLineHeight(cursor);
+      }
+      else {
+
+        p.save();
+        p.setFont( cursor.charFormat().font());
+        QColor ch_color = cursor.charFormat().foreground().color();
+        // "transparencies" can be assumed to be in range 0 - 255
+        ch_color.setAlpha(255 - transparencies[i]);
+        p.setPen( ch_color);
+        p.translate( QPointF(posx + horiz_offsets[i],
+                             line_Voffset + vert_offsets[i]));
+        p.rotate( rotations[i]);
+        p.scale( 1.+ horiz_stretches[i], 1.+ vert_stretches[i]);
+        p.drawText( QPointF(0,0), ch);
+        p.restore();
+
+        char_size = QFontMetrics( cursor.charFormat().font()).horizontalAdvance(text_doc.characterAt(i));
+        posx += (int)(((double)char_size*(1. + (spacings[i])))*(1. + horiz_stretches[i]));
+        cursor.movePosition( QTextCursor::Right);
       }
   }
 }
 
-
-void TextAnimationRenderNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers & /*modifiers*/)
+int TextAnimationRenderNode::CalculateLineHeight(QTextCursor& start) const
 {
-  DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
+  QTextCursor cur(start);
+  int height = QFontMetrics(cur.charFormat().font()).lineSpacing();
+  cur.movePosition( QTextCursor::Right);
 
-  gizmo->GetDraggers()[0].Drag( x);
-  gizmo->GetDraggers()[1].Drag( y);
+  while (cur.atBlockEnd() ==  false) {
+    int new_height = QFontMetrics(cur.charFormat().font()).lineSpacing();
+
+    if (new_height > height) {
+      height = new_height;
+    }
+
+    cur.movePosition( QTextCursor::Right);
+  }
+
+  return height;
 }
 
-void TextAnimationRenderNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals & /*globals*/)
-{
-  QVector2D position_vec = row[kPositionInput].toVec2();
-  QPointF position_pt =  QPointF(position_vec.x(), position_vec.y());
-
-  // Create handles
-  position_handle_->SetPoint(position_pt);
-}
 
 }  // olive
