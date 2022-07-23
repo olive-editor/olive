@@ -162,6 +162,10 @@ public:
 
   void DragStart(T *initial_item, QMouseEvent *event, TimeTargetObject *target = nullptr)
   {
+    if (event->button() != Qt::LeftButton) {
+      return;
+    }
+
     time_target_ = target;
 
     initial_drag_item_ = initial_item;
