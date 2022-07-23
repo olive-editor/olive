@@ -180,10 +180,14 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
     if (TimelineMarker *m = dynamic_cast<TimelineMarker*>(resize_item_)) {
       selection_manager_.Select(m);
     }
-    dragging_ = true;
-    resize_start_ = mapToScene(event->pos());
+    if (event->button() != Qt::RightButton) {
+      dragging_ = true;
+      resize_start_ = mapToScene(event->pos());
+    }
   } else if (TimelineMarker *initial = selection_manager_.MousePress(event)) {
-    selection_manager_.DragStart(initial, event);
+    if (event->button() != Qt::RightButton) {
+      selection_manager_.DragStart(initial, event);
+    }
   } else if (!selection_manager_.GetObjectAtPoint(event->pos()) && event->button() == Qt::LeftButton) {
     SeekToScenePoint(mapToScene(event->pos()).x());
     dragging_ = true;
