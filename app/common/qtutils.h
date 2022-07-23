@@ -64,6 +64,21 @@ public:
 
   static QStringList WordWrapString(const QString &s, const QFontMetrics &fm, int bounding_width);
 
+  template <typename T>
+  static T *GetParentOfType(const QObject *child)
+  {
+    QObject *t = child->parent();
+
+    while (t) {
+      if (T *p = dynamic_cast<T*>(t)) {
+        return p;
+      }
+      t = t->parent();
+    }
+
+    return nullptr;
+  }
+
 };
 
 }
