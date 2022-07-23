@@ -182,6 +182,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QVBoxLayout* preview_layout = new QVBoxLayout(preview_area);
   preview_layout->addWidget(new QLabel(tr("Preview")));
   preview_viewer_ = new ViewerWidget();
+  preview_viewer_->ruler()->SetMarkerEditingEnabled(false);
   preview_viewer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   connect(preview_viewer_, &ViewerWidget::TimeChanged, video_tab_, &ExportVideoTab::SetTime);
   preview_layout->addWidget(preview_viewer_);
