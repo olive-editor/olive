@@ -89,24 +89,20 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
     QGroupBox* marker_group = new QGroupBox();
     marker_group->setTitle(tr("Miscellaneous"));
 
-    {
-      //Default marker colour
-      QGridLayout* marker_layout = new QGridLayout(marker_group);
 
-      marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
+    //Default marker colour
+    QGridLayout* marker_layout = new QGridLayout(marker_group);
 
-      marker_btn_ = new ColorCodingComboBox();
-      marker_btn_->SetColor(OLIVE_CONFIG("MarkerColor").toInt());
-      marker_layout->addWidget(marker_btn_, 0, 1);
+    marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
 
-      //Allow Transparent Dialogs
-      allow_transparent_cb_=  new QCheckBox("Allow Transparent Dialogs");
-      allow_transparent_cb_->setChecked(OLIVE_CONFIG("AllowTransparentDialogs").toBool());
-      marker_layout->addWidget(allow_transparent_cb_);
+    marker_btn_ = new ColorCodingComboBox();
+    marker_btn_->SetColor(OLIVE_CONFIG("MarkerColor").toInt());
+    marker_layout->addWidget(marker_btn_, 0, 1);
 
-    }
-
-
+    //Allow Transparent Dialogs
+    allow_transparent_cb_=  new QCheckBox("Allow Transparent Dialogs");
+    allow_transparent_cb_->setChecked(OLIVE_CONFIG("AllowTransparentDialogs").toBool());
+    marker_layout->addWidget(allow_transparent_cb_);
 
     appearance_layout->addWidget(marker_group, row, 0, 1, 2);
   }
