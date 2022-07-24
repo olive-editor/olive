@@ -24,6 +24,7 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QCheckBox>
 
 #include "dialog/configbase/configdialogbase.h"
 #include "ui/style/style.h"
@@ -48,6 +49,7 @@ private:
   QVector<ColorCodingComboBox*> color_btns_;
 
   ColorCodingComboBox* marker_btn_;
+  QCheckBox* allow_transparent_cb_;
 
 };
 

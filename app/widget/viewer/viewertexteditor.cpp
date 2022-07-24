@@ -27,6 +27,7 @@
 #include <QScrollBar>
 
 #include "common/qtutils.h"
+#include "config/config.h"
 #include "ui/icons/icons.h"
 #include "widget/colorbutton/colorbutton.h"
 
@@ -280,7 +281,10 @@ void ViewerTextEditor::DocumentChanged()
   cursor.select(QTextCursor::Document);
 
   QTextCharFormat fmt;
-  fmt.setForeground(QColor(0, 0, 0, 0));
+  if (OLIVE_CONFIG("AllowTransparentDialogs").toBool()) {
+      fmt.setForeground(QColor(0, 0, 0, 0));
+
+  }
   cursor.mergeCharFormat(fmt);
 }
 

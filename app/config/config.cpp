@@ -154,6 +154,8 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat16);
 
   SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kLime);
+  SetEntryInternal(QStringLiteral("AllowTransparentDialogs"), NodeValue::kBoolean, true);
+
 }
 
 void Config::Load()
