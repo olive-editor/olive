@@ -28,16 +28,6 @@ ExportParams::ExportParams() :
 {
 }
 
-const Encoder::Type &ExportParams::encoder() const
-{
-  return encoder_id_;
-}
-
-void ExportParams::set_encoder(const Encoder::Type &id)
-{
-  encoder_id_ = id;
-}
-
 bool ExportParams::has_custom_range() const
 {
   return has_custom_range_;
@@ -103,8 +93,6 @@ QMatrix4x4 ExportParams::GenerateMatrix(ExportParams::VideoScalingMethod method,
 void ExportParams::Save(QXmlStreamWriter *writer) const
 {
   writer->writeStartElement(QStringLiteral("export"));
-
-  writer->writeTextElement(QStringLiteral("encoder"), QString::number(encoder_id_));
 
   writer->writeTextElement(QStringLiteral("vscale"), QString::number(video_scaling_method_));
 

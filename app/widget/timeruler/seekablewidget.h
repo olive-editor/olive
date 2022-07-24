@@ -52,6 +52,9 @@ public:
     return dragging_;
   }
 
+  bool IsMarkerEditingEnabled() const { return marker_editing_enabled_; }
+  void SetMarkerEditingEnabled(bool e) { marker_editing_enabled_ = e; }
+
   void DeleteSelected();
 
   bool CopySelected(bool cut);
@@ -142,6 +145,8 @@ private:
 
   int marker_top_;
   int marker_bottom_;
+
+  bool marker_editing_enabled_;
 
 private slots:
   void SetMarkerColor(int c);

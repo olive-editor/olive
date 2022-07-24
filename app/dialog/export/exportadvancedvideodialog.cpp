@@ -35,7 +35,7 @@ ExportAdvancedVideoDialog::ExportAdvancedVideoDialog(const QList<QString> &pix_f
     pixel_layout->addWidget(new QLabel(tr("YUV Color Range:")), row, 0);
 
     yuv_color_range_combobox_ = new QComboBox();
-    yuv_color_range_combobox_->addItems({tr("MPEG (16-235)"), tr("JPEG (0-255)")});
+    yuv_color_range_combobox_->addItems({tr("Limited (16-235)"), tr("Full (0-255)")});
     pixel_layout->addWidget(yuv_color_range_combobox_, row, 1);
   }
 

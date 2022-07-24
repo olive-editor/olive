@@ -62,6 +62,8 @@ public:
 
   virtual void DeleteSelected() override;
 
+  virtual void RenameSelected() override;
+
 public slots:
   void Edit(Node *item);
 

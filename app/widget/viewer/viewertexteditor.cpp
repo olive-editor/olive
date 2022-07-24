@@ -24,12 +24,13 @@
 #include <QColorDialog>
 #include <QKeyEvent>
 #include <QHBoxLayout>
+#include <QPainter>
 #include <QScrollBar>
+#include <QTextBlock>
 
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "ui/icons/icons.h"
-#include "widget/colorbutton/colorbutton.h"
 
 namespace olive {
 
@@ -39,7 +40,8 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   super(parent),
   transparent_clone_(nullptr),
   block_update_toolbar_signal_(false),
-  listen_to_focus_events_(false)
+  listen_to_focus_events_(false),
+  forced_default_(false)
 {
   // Ensure default text color is white
   QPalette p = palette();
@@ -174,6 +176,10 @@ void ViewerTextEditor::FormatChanged(const QTextCharFormat &f)
       UpdateToolBar(toolbar, f, textCursor().blockFormat(), this->alignment());
     }
   }
+
+  if (!(document()->blockCount() == 1 && document()->firstBlock().text().isEmpty())) {
+    default_fmt_ = f;
+  }
 }
 
 void ViewerTextEditor::SetFamily(const QString &s)
@@ -236,6 +242,7 @@ void ViewerTextEditor::MergeCharFormat(const QTextCharFormat &fmt)
   // this can be undesirable if the user is currently typing a font
   block_update_toolbar_signal_ = true;
   mergeCurrentCharFormat(fmt);
+  //default_fmt_ = this->currentCharFormat();
   block_update_toolbar_signal_ = false;
 }
 
@@ -264,6 +271,16 @@ void ViewerTextEditor::LockScrollBarMaximumToZero()
 
 void ViewerTextEditor::DocumentChanged()
 {
+  if (document()->blockCount() == 1 && document()->firstBlock().text().isEmpty()) {
+    if (!forced_default_) {
+      QTextCursor c(document()->firstBlock());
+      c.setBlockCharFormat(default_fmt_);
+      forced_default_ = true;
+    }
+  } else {
+    forced_default_ = false;
+  }
+
   // HACK: We want to show the text cursor and selections without necessarily rendering the text,
   //       because the text is already being rendered underneath the gizmo (and rendering twice will
   //       alter the overall look of the text while editing). This is something that Qt does not

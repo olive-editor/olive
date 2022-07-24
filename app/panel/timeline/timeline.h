@@ -86,6 +86,8 @@ public:
 
   virtual void MoveOutToPlayhead() override;
 
+  virtual void RenameSelected() override;
+
   void AddDefaultTransitionsToSelected()
   {
     timeline_widget()->AddDefaultTransitionsToSelected();

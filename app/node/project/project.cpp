@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include "common/qtutils.h"
 #include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
@@ -173,16 +174,7 @@ void Project::RegenerateUuid()
 
 Project *Project::GetProjectFromObject(const QObject *o)
 {
-  QObject *t = o->parent();
-
-  while (t) {
-    if (Project *p = dynamic_cast<Project*>(t)) {
-      return p;
-    }
-    t = t->parent();
-  }
-
-  return nullptr;
+  return QtUtils::GetParentOfType<Project>(o);
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)

@@ -112,6 +112,8 @@ public slots:
 
   void CenterOnNode(olive::Node *n);
 
+  void LabelSelectedNodes();
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
@@ -274,8 +276,6 @@ private slots:
   void UngroupNodes();
 
   void ShowNodeProperties();
-
-  void LabelSelectedNodes();
 
   void ItemAboutToBeDeleted(NodeViewItem *item);
 

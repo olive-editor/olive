@@ -60,7 +60,9 @@ private:
 
   ExportParams params_;
 
-  Encoder* encoder_;
+  std::shared_ptr<Encoder> encoder_;
+
+  std::shared_ptr<Encoder> subtitle_encoder_;
 
   ColorProcessorPtr color_processor_;
 

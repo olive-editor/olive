@@ -165,6 +165,9 @@ private:
 
   bool listen_to_focus_events_;
 
+  bool forced_default_;
+  QTextCharFormat default_fmt_;
+
 private slots:
   void FormatChanged(const QTextCharFormat &f);
 

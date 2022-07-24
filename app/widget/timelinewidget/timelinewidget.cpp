@@ -1107,9 +1107,6 @@ void TimelineWidget::ShowContextMenu()
       }
     }
 
-    QAction* rename_action = menu.addAction(tr("Rename"));
-    connect(rename_action, &QAction::triggered, this, &TimelineWidget::RenameSelectedBlocks);
-
     menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));

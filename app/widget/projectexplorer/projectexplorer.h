@@ -92,6 +92,8 @@ public slots:
 
   void Edit(Node* item);
 
+  void RenameSelectedItem();
+
 signals:
   /**
    * @brief Emitted when an Item is double clicked
@@ -170,8 +172,6 @@ private slots:
   void SizeChangedSlot(int s);
 
   void DirUpSlot();
-
-  void RenameSelectedItem();
 
   void ShowContextMenu();
 

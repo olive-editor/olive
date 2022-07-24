@@ -865,9 +865,16 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
           continue;
         }
 
-        qreal key_scene_pt = TimeToScene(key->time());
+        rational time = key->time();
+        if (const TimeTargetObject *target = GetKeyframeTimeTarget()) {
+          if (Node *parent = key->parent()) {
+            time = target->GetAdjustedTime(parent, target->GetTimeTarget(), time, false);
+          }
+        }
 
-        AttemptSnap(potential_snaps, screen_pt, key_scene_pt, start_times, key->time());
+        qreal key_scene_pt = TimeToScene(time);
+
+        AttemptSnap(potential_snaps, screen_pt, key_scene_pt, start_times, time);
       }
     }
   }

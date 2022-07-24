@@ -29,6 +29,7 @@
 #include "widget/resizablescrollbar/resizabletimelinescrollbar.h"
 #include "widget/timebased/timescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"
+#include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
@@ -153,6 +154,7 @@ protected:
 
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
   virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const { return nullptr; }
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const { return nullptr; }
   virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const { return nullptr; }
   virtual const std::vector<TimelineMarker*> *GetSnapIgnoreMarkers() const { return nullptr; }
 

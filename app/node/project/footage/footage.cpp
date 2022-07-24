@@ -44,7 +44,8 @@ Footage::Footage(const QString &filename) :
   ViewerOutput(false, false),
   timestamp_(0),
   valid_(false),
-  cancelled_(nullptr)
+  cancelled_(nullptr),
+  total_stream_count_(0)
 {
   SetCacheTextures(true);
 
@@ -124,6 +125,9 @@ void Footage::Clear()
 
   // Clear decoder link
   decoder_.clear();
+
+  // Clear total stream count
+  total_stream_count_ = 0;
 
   // Reset ready state
   valid_ = false;
@@ -497,6 +501,8 @@ void Footage::Reprobe()
           SetStream(Track::kSubtitle, QVariant::fromValue(footage_info.GetSubtitleStreams().at(i)), i);
         }
 
+        total_stream_count_ = footage_info.GetStreamCount();
+
         SetValid();
       }
 
@@ -512,10 +518,12 @@ VideoParams Footage::MergeVideoStream(const VideoParams &base, const VideoParams
   merged.set_interlacing(over.interlacing());
   merged.set_colorspace(over.colorspace());
   merged.set_premultiplied_alpha(over.premultiplied_alpha());
-  if (merged.video_type() == VideoParams::kVideoTypeImageSequence && over.video_type() == VideoParams::kVideoTypeImageSequence) {
+  merged.set_video_type(over.video_type());
+  if (merged.video_type() == VideoParams::kVideoTypeImageSequence) {
     merged.set_start_time(over.start_time());
     merged.set_duration(over.duration());
     merged.set_frame_rate(over.frame_rate());
+    merged.set_time_base(over.time_base());
   }
 
   return merged;

@@ -58,6 +58,14 @@ public:
   void EnableVideo(const VideoParams& video_params, const ExportCodec::Codec& vcodec);
   void EnableAudio(const AudioParams& audio_params, const ExportCodec::Codec &acodec);
   void EnableSubtitles(const ExportCodec::Codec &scodec);
+  void EnableSidecarSubtitles(const ExportFormat::Format &sfmt, const ExportCodec::Codec &scodec);
+
+  void DisableVideo();
+  void DisableAudio();
+  void DisableSubtitles();
+
+  const ExportFormat::Format &format() const { return format_; }
+  void set_format(const ExportFormat::Format &format) { format_ = format; }
 
   void set_video_option(const QString& key, const QString& value) { video_opts_.insert(key, value); }
   void set_video_bit_rate(const int64_t& rate) { video_bit_rate_ = rate; }
@@ -92,6 +100,8 @@ public:
   void set_audio_bit_rate(const int64_t& b) { audio_bit_rate_ = b; }
 
   bool subtitles_enabled() const { return subtitles_enabled_; }
+  bool subtitles_are_sidecar() const { return subtitles_are_sidecar_; }
+  ExportFormat::Format subtitle_sidecar_fmt() const { return subtitle_sidecar_fmt_; }
   ExportCodec::Codec subtitles_codec() const { return subtitles_codec_; }
 
   const rational& GetExportLength() const { return export_length_; }
@@ -101,6 +111,7 @@ public:
 
 private:
   QString filename_;
+  ExportFormat::Format format_;
 
   bool video_enabled_;
   ExportCodec::Codec video_codec_;
@@ -121,6 +132,8 @@ private:
   int64_t audio_bit_rate_;
 
   bool subtitles_enabled_;
+  bool subtitles_are_sidecar_;
+  ExportFormat::Format subtitle_sidecar_fmt_;
   ExportCodec::Codec subtitles_codec_;
 
   rational export_length_;
@@ -151,6 +164,8 @@ public:
   static Type GetTypeFromFormat(ExportFormat::Format f);
 
   static Encoder *CreateFromFormat(ExportFormat::Format f, const EncodingParams &params);
+
+  static Encoder *CreateFromParams(const EncodingParams &params);
 
   virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const;
   virtual std::vector<AudioParams::Format> GetSampleFormatsForCodec(ExportCodec::Codec c) const;

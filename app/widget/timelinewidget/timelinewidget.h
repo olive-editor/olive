@@ -274,6 +274,8 @@ public:
 public slots:
   void ClearTentativeSubtitleTrack();
 
+  void RenameSelectedBlocks();
+
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
@@ -430,8 +432,6 @@ private slots:
 
   void RevealInFootageViewer();
   void RevealInProject();
-
-  void RenameSelectedBlocks();
 
   void TrackAboutToBeDeleted(Track *track);
 
