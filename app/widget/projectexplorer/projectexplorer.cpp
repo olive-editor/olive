@@ -653,9 +653,11 @@ void ProjectExplorer::DeleteSelected()
   }
 }
 
-bool ProjectExplorer::SelectItem(Node *n)
+bool ProjectExplorer::SelectItem(Node *n, bool deselect_all_first)
 {
-  DeselectAll();
+  if (deselect_all_first) {
+    DeselectAll();
+  }
 
   QModelIndex index = model_.CreateIndexFromItem(n);
 
