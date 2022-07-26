@@ -1048,7 +1048,7 @@ int ViewerWidget::DeterminePlaybackQueueSize()
     end_ts = 0;
   }
 
-  int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
+  int remaining_frames = (end_ts - GetTimestamp() - 1) / playback_speed_;
 
   // Generate maximum queue
   int max_frames = qCeil(kVideoPlaybackInterval.toDouble() / timebase().toDouble());
