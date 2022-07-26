@@ -220,6 +220,10 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
   encoded_frame->height = frame->height();
   encoded_frame->format = video_codec_ctx_->pix_fmt;
   encoded_frame->color_range = video_codec_ctx_->color_range;
+  encoded_frame->color_trc = video_codec_ctx_->color_trc;
+  encoded_frame->color_primaries = video_codec_ctx_->color_primaries;
+  encoded_frame->colorspace = video_codec_ctx_->colorspace;
+
 
   // Set interlacing
   if (frame->video_params().interlacing() != VideoParams::kInterlaceNone) {
@@ -646,6 +650,20 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
 
       if (params().video_buffer_size() > 0) {
         codec_ctx->rc_buffer_size = static_cast<int>(params().video_buffer_size());
+      }
+
+      if (params().format() == ExportFormat::Format::kFormatQuickTime) {
+        // nclc tags. See https://ffmpeg.org/doxygen/4.0/pixfmt_8h.html#ad384ee5a840bafd73daef08e6d9cafe7
+        if (params().color_transform().output().contains("sRGB")) {
+          codec_ctx->color_primaries = AVCOL_PRI_BT709;
+          codec_ctx->color_trc = AVCOL_TRC_BT709;
+          codec_ctx->colorspace = AVCOL_SPC_BT709;
+        } else { // Assume Rec.709
+          codec_ctx->color_primaries = AVCOL_PRI_BT709;
+          codec_ctx->color_trc = AVCOL_TRC_BT709;
+          codec_ctx->colorspace = AVCOL_SPC_BT709;
+        }
+        
       }
     }
 
