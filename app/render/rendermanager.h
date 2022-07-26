@@ -97,8 +97,11 @@ public:
 
   enum ReturnType {
     kTexture,
-    kFrame
+    kFrame,
+    kNull
   };
+
+  static const rational kDryRunInterval;
 
   /**
    * @brief Asynchronously generate a frame at a given time
@@ -168,6 +171,7 @@ private:
   QTimer *decoder_clear_timer_;
 
   RenderThread *video_thread_;
+  RenderThread *dry_run_thread_;
   RenderThread *audio_thread_;
 
 private slots:

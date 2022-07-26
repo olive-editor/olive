@@ -35,6 +35,7 @@
 namespace olive {
 
 RenderManager* RenderManager::instance_ = nullptr;
+const rational RenderManager::kDryRunInterval = rational(10);
 
 RenderManager::RenderManager(QObject *parent) :
   backend_(kOpenGL),
@@ -52,9 +53,11 @@ RenderManager::RenderManager(QObject *parent) :
 
   if (context_) {
     video_thread_ = new RenderThread(context_, decoder_cache_, shader_cache_, this);
+    dry_run_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
     audio_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
 
     video_thread_->start(QThread::IdlePriority);
+    dry_run_thread_->start(QThread::IdlePriority);
     audio_thread_->start(QThread::IdlePriority);
   }
 
@@ -72,6 +75,9 @@ RenderManager::~RenderManager()
 
     video_thread_->quit();
     video_thread_->wait();
+
+    dry_run_thread_->quit();
+    dry_run_thread_->wait();
 
     context_->PostDestroy();
     delete context_;
@@ -129,7 +135,11 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
     ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
   }
 
-  video_thread_->AddTicket(ticket);
+  if (return_type == ReturnType::kNull) {
+    dry_run_thread_->AddTicket(ticket);
+  } else {
+    video_thread_->AddTicket(ticket);
+  }
 
   return ticket;
 }
@@ -156,6 +166,8 @@ bool RenderManager::RemoveTicket(RenderTicketPtr ticket)
   if (video_thread_->RemoveTicket(ticket)) {
     return true;
   } else if (audio_thread_->RemoveTicket(ticket)) {
+    return true;
+  } else if (dry_run_thread_->RemoveTicket(ticket)) {
     return true;
   } else {
     return false;

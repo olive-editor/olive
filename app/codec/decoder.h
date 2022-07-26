@@ -87,6 +87,8 @@ public:
   virtual bool SupportsVideo(){return false;}
   virtual bool SupportsAudio(){return false;}
 
+  void IncrementAccessTime(qint64 t);
+
   class CodecStream
   {
   public:
