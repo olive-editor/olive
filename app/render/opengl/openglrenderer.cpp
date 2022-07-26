@@ -78,9 +78,9 @@ private:
 #define PRINT_GL_ERRORS ErrorPrinter __e(__FUNCTION__, functions_)
 
 #define GL_PREAMBLE \
-  QMutexLocker __l(&global_opengl_mutex);
+  //QMutexLocker __l(&global_opengl_mutex);
 
-QMutex global_opengl_mutex;
+//QMutex global_opengl_mutex;
 
 OpenGLRenderer::OpenGLRenderer(QObject* parent) :
   Renderer(parent),
