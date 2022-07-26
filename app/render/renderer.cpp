@@ -42,7 +42,6 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, 
           && it->depth == params.effective_depth()
           && it->format == params.format()
           && it->channel_count == params.channel_count()) {
-        this->Flush();
         v = it->handle;
         texture_cache_.erase(it);
         break;
@@ -53,8 +52,10 @@ TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, 
   if (v.isNull()) {
     v = CreateNativeTexture(params.effective_width(), params.effective_height(), params.effective_depth(),
                             params.format(), params.channel_count(), data, linesize);
-  } else {
+  } else if (data) {
     UploadToTexture(v, params, data, linesize);
+  } else {
+    this->Flush();
   }
 
   return CreateTextureFromNativeHandle(v, params);
