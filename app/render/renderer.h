@@ -91,9 +91,9 @@ public:
 
   virtual void DestroyNativeShader(QVariant shader) = 0;
 
-  virtual void UploadToTexture(olive::Texture* texture, const void* data, int linesize) = 0;
+  virtual void UploadToTexture(const QVariant &handle, const VideoParams &params, const void* data, int linesize) = 0;
 
-  virtual void DownloadFromTexture(olive::Texture* texture, void* data, int linesize) = 0;
+  virtual void DownloadFromTexture(const QVariant &handle, const VideoParams &params, void* data, int linesize) = 0;
 
   virtual void Flush() = 0;
 
@@ -130,6 +130,8 @@ private:
 
   bool GetColorContext(const ColorTransformJob &color_job, ColorContext* ctx);
 
+  void ClearOldTextures();
+
   QHash<QString, ColorContext> color_cache_;
 
   struct CachedTexture
@@ -143,7 +145,8 @@ private:
     qint64 accessed;
   };
 
-  const int MAX_TEXTURE_LIFE = 10000;
+  static const int MAX_TEXTURE_LIFE = 5000;
+  static const bool USE_TEXTURE_CACHE = true;
   std::list<CachedTexture> texture_cache_;
 
   QMutex color_cache_mutex_;
@@ -151,9 +154,6 @@ private:
   QVariant default_shader_;
 
   QVariant interlace_texture_;
-
-private slots:
-  void ClearOldTextures();
 
 };
 

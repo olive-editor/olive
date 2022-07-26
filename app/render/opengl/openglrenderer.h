@@ -55,9 +55,9 @@ public:
 
   virtual void DestroyNativeShader(QVariant shader) override;
 
-  virtual void UploadToTexture(olive::Texture* texture, const void* data, int linesize) override;
+  virtual void UploadToTexture(const QVariant &handle, const VideoParams &params, const void* data, int linesize) override;
 
-  virtual void DownloadFromTexture(olive::Texture* texture, void* data, int linesize) override;
+  virtual void DownloadFromTexture(const QVariant &handle, const VideoParams &params, void* data, int linesize) override;
 
   virtual void Flush() override;
 
@@ -83,7 +83,7 @@ private:
 
   static GLenum GetPixelFormat(int channel_count);
 
-  void AttachTextureAsDestination(olive::Texture* texture);
+  void AttachTextureAsDestination(const QVariant &texture);
 
   void DetachTextureAsDestination();
 

@@ -29,45 +29,52 @@ namespace olive {
 Renderer::Renderer(QObject *parent) :
   QObject(parent)
 {
-  QTimer *texture_garbage_collector = new QTimer(this);
-  texture_garbage_collector->setInterval(MAX_TEXTURE_LIFE);
-  connect(texture_garbage_collector, &QTimer::timeout, this, &Renderer::ClearOldTextures);
-  texture_garbage_collector->start();
 }
 
 TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, int linesize)
 {
   QVariant v;
 
-  /*for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
-    if (it->width == params.effective_width()
-        && it->height == params.effective_height()
-        && it->depth == params.effective_depth()
-        && it->format == params.format()
-        && it->channel_count == params.channel_count()) {
-      this->Flush();
-      v = it->handle;
-      texture_cache_.erase(it);
-      break;
+  if (USE_TEXTURE_CACHE) {
+    for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
+      if (it->width == params.effective_width()
+          && it->height == params.effective_height()
+          && it->depth == params.effective_depth()
+          && it->format == params.format()
+          && it->channel_count == params.channel_count()) {
+        this->Flush();
+        v = it->handle;
+        texture_cache_.erase(it);
+        break;
+      }
     }
-  }*/
+  }
 
-  v = CreateNativeTexture(params.effective_width(), params.effective_height(), params.effective_depth(),
-                          params.format(), params.channel_count(), data, linesize);
+  if (v.isNull()) {
+    v = CreateNativeTexture(params.effective_width(), params.effective_height(), params.effective_depth(),
+                            params.format(), params.channel_count(), data, linesize);
+  } else {
+    UploadToTexture(v, params, data, linesize);
+  }
 
   return CreateTextureFromNativeHandle(v, params);
 }
 
 void Renderer::DestroyTexture(Texture *texture)
 {
-  /*texture_cache_.push_back({texture->params().effective_width(),
-                            texture->params().effective_height(),
-                            texture->params().effective_depth(),
-                            texture->params().format(),
-                            texture->params().channel_count(),
-                            texture->id(),
-                            QDateTime::currentMSecsSinceEpoch()});*/
-  DestroyNativeTexture(texture->id());
+  if (USE_TEXTURE_CACHE) {
+    texture_cache_.push_back({texture->params().effective_width(),
+                              texture->params().effective_height(),
+                              texture->params().effective_depth(),
+                              texture->params().format(),
+                              texture->params().channel_count(),
+                              texture->id(),
+                              QDateTime::currentMSecsSinceEpoch()});
+
+    ClearOldTextures();
+  } else {
+    DestroyNativeTexture(texture->id());
+  }
 }
 
 TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params)

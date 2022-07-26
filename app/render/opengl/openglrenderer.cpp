@@ -177,7 +177,7 @@ void OpenGLRenderer::ClearDestination(Texture *texture, double r, double g, doub
   GL_PREAMBLE;
 
   if (texture) {
-    AttachTextureAsDestination(texture);
+    AttachTextureAsDestination(texture->id());
   }
 
   ClearDestinationInternal(r, g, b, a);
@@ -225,7 +225,7 @@ QVariant OpenGLRenderer::CreateNativeTexture(int width, int height, int depth, V
   return texture;
 }
 
-void OpenGLRenderer::AttachTextureAsDestination(Texture* texture)
+void OpenGLRenderer::AttachTextureAsDestination(const QVariant &texture)
 {
   PRINT_GL_ERRORS;
 
@@ -233,7 +233,7 @@ void OpenGLRenderer::AttachTextureAsDestination(Texture* texture)
   functions_->glFramebufferTexture2D(GL_FRAMEBUFFER,
                                      GL_COLOR_ATTACHMENT0,
                                      GL_TEXTURE_2D,
-                                     texture->id().value<GLuint>(),
+                                     texture.value<GLuint>(),
                                      0);
 }
 
@@ -291,14 +291,13 @@ void OpenGLRenderer::DestroyNativeShader(QVariant shader)
   functions_->glDeleteProgram(program);
 }
 
-void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int linesize)
+void OpenGLRenderer::UploadToTexture(const QVariant &handle, const VideoParams &p, const void *data, int linesize)
 {
   GL_PREAMBLE;
 
-  GLuint t = texture->id().value<GLuint>();
-  const VideoParams& p = texture->params();
+  GLuint t = handle.value<GLuint>();
 
-  bool is_3d = texture->params().is_3d();
+  bool is_3d = p.is_3d();
 
   GLenum tex_type = !is_3d ? GL_TEXTURE_2D : GL_TEXTURE_3D;
   GLenum tex_binding = !is_3d ? GL_TEXTURE_BINDING_2D : GL_TEXTURE_BINDING_3D;
@@ -332,16 +331,14 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int lin
   functions_->glBindTexture(tex_type, current_tex);
 }
 
-void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int linesize)
+void OpenGLRenderer::DownloadFromTexture(const QVariant &id, const VideoParams &p, void *data, int linesize)
 {
   GL_PREAMBLE;
-
-  const VideoParams& p = texture->params();
 
   GLint current_tex;
   functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
 
-  AttachTextureAsDestination(texture);
+  AttachTextureAsDestination(id);
 
   functions_->glPixelStorei(GL_PACK_ROW_LENGTH, linesize);
 
@@ -372,7 +369,7 @@ void OpenGLRenderer::Flush()
 
 Color OpenGLRenderer::GetPixelFromTexture(Texture *texture, const QPointF &pt)
 {
-  AttachTextureAsDestination(texture);
+  AttachTextureAsDestination(texture->id());
 
   QByteArray data(VideoParams::GetBytesPerPixel(texture->format(), texture->channel_count()), Qt::Uninitialized);
 
@@ -610,7 +607,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       // This is the last iteration, draw to the destination
       if (destination) {
         // If we have a destination texture, draw to it
-        AttachTextureAsDestination(destination);
+        AttachTextureAsDestination(destination->id());
       } else if (iteration > 0) {
         // Otherwise, if we were iterating before, detach texture now
         DetachTextureAsDestination();
@@ -622,7 +619,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       }
     } else {
       // Always draw to output_tex, which gets swapped with input_tex every iteration
-      AttachTextureAsDestination(output_tex.get());
+      AttachTextureAsDestination(output_tex->id());
     }
 
     if (iteration > 0) {

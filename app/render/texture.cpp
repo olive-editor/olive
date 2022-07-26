@@ -36,14 +36,14 @@ Texture::~Texture()
 void Texture::Upload(void *data, int linesize)
 {
   if (renderer_) {
-    renderer_->UploadToTexture(this, data, linesize);
+    renderer_->UploadToTexture(this->id(), this->params(), data, linesize);
   }
 }
 
 void Texture::Download(void *data, int linesize)
 {
   if (renderer_) {
-    renderer_->DownloadFromTexture(this, data, linesize);
+    renderer_->DownloadFromTexture(this->id(), this->params(), data, linesize);
   }
 }
 
