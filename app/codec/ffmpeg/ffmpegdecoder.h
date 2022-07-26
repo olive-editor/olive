@@ -165,6 +165,10 @@ private:
   VideoParams::Format native_output_pix_fmt_;
   int native_channel_count_;
 
+  TexturePtr y_tex_;
+  TexturePtr u_tex_;
+  TexturePtr v_tex_;
+
   AVFrame *working_frame_;
   AVPacket *working_packet_;
 

@@ -61,6 +61,9 @@ FFmpegDecoder::FFmpegDecoder() :
   input_fmt_(AV_PIX_FMT_NONE),
   native_internal_pix_fmt_(VideoParams::kFormatInvalid),
   native_output_pix_fmt_(VideoParams::kFormatInvalid),
+  y_tex_(nullptr),
+  u_tex_(nullptr),
+  v_tex_(nullptr),
   working_frame_(nullptr),
   working_packet_(nullptr),
   cache_at_zero_(false),
@@ -216,7 +219,12 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
             plane_params.set_channel_count(1);
             plane_params.set_divider(1);
             plane_params.set_format(native_internal_pix_fmt_);
-            TexturePtr y_plane = renderer->CreateTexture(plane_params, f->data[0], f->linesize[0] / px_size);
+
+            if (!y_tex_) {
+              y_tex_ = renderer->CreateTexture(plane_params, f->data[0], f->linesize[0] / px_size);
+            } else {
+              y_tex_->Upload(f->data[0], f->linesize[0] / px_size);
+            }
 
             if (src_fmt == AV_PIX_FMT_YUV420P
                 || src_fmt == AV_PIX_FMT_YUV422P
@@ -236,13 +244,22 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
               plane_params.set_height(plane_params.height()/2);
             }
 
-            TexturePtr u_plane = renderer->CreateTexture(plane_params, f->data[1], f->linesize[1] / px_size);
-            TexturePtr v_plane = renderer->CreateTexture(plane_params, f->data[2], f->linesize[2] / px_size);
+            if (!u_tex_) {
+              u_tex_ = renderer->CreateTexture(plane_params, f->data[1], f->linesize[1] / px_size);
+            } else {
+              u_tex_->Upload(f->data[1], f->linesize[1] / px_size);
+            }
+
+            if (!v_tex_) {
+              v_tex_ = renderer->CreateTexture(plane_params, f->data[2], f->linesize[2] / px_size);
+            } else {
+              v_tex_->Upload(f->data[2], f->linesize[2] / px_size);
+            }
 
             ShaderJob job;
-            job.Insert(QStringLiteral("y_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(y_plane)));
-            job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
-            job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
+            job.Insert(QStringLiteral("y_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(y_tex_)));
+            job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_tex_)));
+            job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_tex_)));
             job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
             job.Insert(QStringLiteral("jpeg_range"), NodeValue(NodeValue::kBoolean, jpeg_range));
 
@@ -296,6 +313,10 @@ void FFmpegDecoder::CloseInternal()
   input_fmt_ = AV_PIX_FMT_NONE;
   native_internal_pix_fmt_ = VideoParams::kFormatInvalid;
   native_output_pix_fmt_ = VideoParams::kFormatInvalid;
+
+  y_tex_ = nullptr;
+  u_tex_ = nullptr;
+  v_tex_ = nullptr;
 }
 
 QString FFmpegDecoder::id() const

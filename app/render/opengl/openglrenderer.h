@@ -47,17 +47,9 @@ public:
 
   virtual void PostDestroy() override;
 
-public slots:
   virtual void PostInit() override;
 
-  virtual void DestroyInternal() override;
-
   virtual void ClearDestination(olive::Texture *texture = nullptr, double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) override;
-
-  virtual QVariant CreateNativeTexture2D(int width, int height, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
-  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
-
-  virtual void DestroyNativeTexture(QVariant texture) override;
 
   virtual QVariant CreateNativeShader(olive::ShaderCode code) override;
 
@@ -71,12 +63,18 @@ public slots:
 
   virtual Color GetPixelFromTexture(olive::Texture *texture, const QPointF &pt) override;
 
-protected slots:
+protected:
   virtual void Blit(QVariant shader,
                     olive::ShaderJob job,
                     olive::Texture* destination,
                     olive::VideoParams destination_params,
                     bool clear_destination) override;
+
+  virtual QVariant CreateNativeTexture(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
+
+  virtual void DestroyNativeTexture(QVariant texture) override;
+
+  virtual void DestroyInternal() override;
 
 private:
   static GLint GetInternalFormat(VideoParams::Format format, int channel_layout);
@@ -92,9 +90,6 @@ private:
   void PrepareInputTexture(GLenum target, Texture::Interpolation interp);
 
   void ClearDestinationInternal(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0);
-
-  QVariant CreateNativeTexture2DInternal(int width, int height, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0);
-  QVariant CreateNativeTexture2DInternal(const VideoParams &params, const void* data = nullptr, int linesize = 0);
 
   GLuint CompileShader(GLenum type, const QString &code);
 

@@ -29,7 +29,7 @@ const Texture::Interpolation Texture::kDefaultInterpolation = Texture::kMipmappe
 Texture::~Texture()
 {
   if (renderer_) {
-    renderer_->DestroyNativeTexture(id_);
+    renderer_->DestroyTexture(this);
   }
 }
 

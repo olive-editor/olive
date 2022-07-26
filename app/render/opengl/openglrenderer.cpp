@@ -107,7 +107,7 @@ void OpenGLRenderer::Init(QOpenGLContext *existing_ctx)
 
 bool OpenGLRenderer::Init()
 {
-  QMutexLocker locker(&global_opengl_mutex);
+  GL_PREAMBLE;
 
   if (context_) {
     qCritical() << "Can't initialize already initialized OpenGLRenderer";
@@ -187,16 +187,11 @@ void OpenGLRenderer::ClearDestination(Texture *texture, double r, double g, doub
   }
 }
 
-QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
+QVariant OpenGLRenderer::CreateNativeTexture(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
   GL_PREAMBLE;
 
-  return CreateNativeTexture2DInternal(width, height, format, channel_count, data, linesize);
-}
-
-QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
-{
-  GL_PREAMBLE;
+  bool is_3d = depth > 1;
 
   // Generate new texture
   GLuint texture;
@@ -205,18 +200,27 @@ QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth,
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
 
+  GLenum target_current = is_3d ? GL_TEXTURE_BINDING_3D : GL_TEXTURE_BINDING_2D;
+  GLenum target = is_3d ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+
   GLint current_tex;
-  functions_->glGetIntegerv(GL_TEXTURE_BINDING_3D, &current_tex);
+  functions_->glGetIntegerv(target_current, &current_tex);
 
-  functions_->glBindTexture(GL_TEXTURE_3D, texture);
+  functions_->glBindTexture(target, texture);
 
-  context_->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GetInternalFormat(format, channel_count),
-                                           width, height, depth, 0, GetPixelFormat(channel_count),
-                                           GetPixelType(format), data);
+  if (is_3d) {
+    context_->extraFunctions()->glTexImage3D(target, 0, GetInternalFormat(format, channel_count),
+                                             width, height, depth, 0, GetPixelFormat(channel_count),
+                                             GetPixelType(format), data);
+  } else {
+    functions_->glTexImage2D(target, 0, GetInternalFormat(format, channel_count),
+                             width, height, 0, GetPixelFormat(channel_count),
+                             GetPixelType(format), data);
+  }
 
   functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-  functions_->glBindTexture(GL_TEXTURE_3D, current_tex);
+  functions_->glBindTexture(target, current_tex);
 
   return texture;
 }
@@ -294,8 +298,10 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int lin
   GLuint t = texture->id().value<GLuint>();
   const VideoParams& p = texture->params();
 
-  GLenum tex_type = texture->type() == Texture::k2D ? GL_TEXTURE_2D : GL_TEXTURE_3D;
-  GLenum tex_binding = texture->type() == Texture::k2D ? GL_TEXTURE_BINDING_2D : GL_TEXTURE_BINDING_3D;
+  bool is_3d = texture->params().is_3d();
+
+  GLenum tex_type = !is_3d ? GL_TEXTURE_2D : GL_TEXTURE_3D;
+  GLenum tex_binding = !is_3d ? GL_TEXTURE_BINDING_2D : GL_TEXTURE_BINDING_3D;
 
   // Store currently bound texture so it can be restored later
   GLint current_tex;
@@ -308,7 +314,7 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int lin
   {
     PRINT_GL_ERRORS;
 
-    if (texture->type() == Texture::k2D) {
+    if (!is_3d) {
       functions_->glTexSubImage2D(tex_type, 0, 0, 0,
                                   p.effective_width(), p.effective_height(),
                                   GetPixelFormat(p.channel_count()), GetPixelType(p.format()),
@@ -502,7 +508,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
     functions_->glActiveTexture(GL_TEXTURE0 + i);
 
-    GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    GLenum target = (texture && texture->params().is_3d()) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glBindTexture(target, tex_id);
 
     if (tex_id) {
@@ -584,11 +590,11 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   TexturePtr output_tex, input_tex;
   if (real_iteration_count > 1) {
     // Create one texture to bounce off
-    output_tex = CreateTextureFromNativeHandle(CreateNativeTexture2DInternal(destination_params), destination_params);
+    output_tex = CreateTexture(destination_params);
 
     if (real_iteration_count > 2) {
       // Create a second texture bounce off
-      input_tex = CreateTextureFromNativeHandle(CreateNativeTexture2DInternal(destination_params), destination_params);
+      input_tex = CreateTexture(destination_params);
     }
   }
 
@@ -648,7 +654,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   // Release any textures we bound before
   for (int i=textures_to_bind.size()-1; i>=0; i--) {
     TexturePtr texture = textures_to_bind.at(i).texture;
-    GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    GLenum target = (texture && texture->params().is_3d()) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glActiveTexture(GL_TEXTURE0 + i);
     functions_->glBindTexture(target, 0);
   }
@@ -786,38 +792,6 @@ void OpenGLRenderer::ClearDestinationInternal(double r, double g, double b, doub
 {
   functions_->glClearColor(r, g, b, a);
   functions_->glClear(GL_COLOR_BUFFER_BIT);
-}
-
-QVariant OpenGLRenderer::CreateNativeTexture2DInternal(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
-{
-  GLuint texture;
-  functions_->glGenTextures(1, &texture);
-  texture_params_.insert(texture, {width, height, 1, format, channel_count});
-
-  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
-
-  GLint current_tex;
-  functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
-
-  functions_->glBindTexture(GL_TEXTURE_2D, texture);
-
-  {
-    PRINT_GL_ERRORS;
-    functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_count),
-                             width, height, 0, GetPixelFormat(channel_count),
-                             GetPixelType(format), data);
-  }
-
-  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-  functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
-
-  return texture;
-}
-
-QVariant OpenGLRenderer::CreateNativeTexture2DInternal(const VideoParams &params, const void *data, int linesize)
-{
-  return CreateNativeTexture2DInternal(params.effective_width(), params.effective_height(), params.format(), params.channel_count(), data, linesize);
 }
 
 GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
