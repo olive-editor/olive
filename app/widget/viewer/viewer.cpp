@@ -60,7 +60,7 @@ QVector<ViewerWidget*> ViewerWidget::instances_;
 //       changing values. 1/4 second seems to be a good middleground.
 const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 4);
 
-const rational kVideoPlaybackInterval = rational(1, 2);
+const rational kVideoPlaybackInterval = rational(2);
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   super(false, true, parent),
