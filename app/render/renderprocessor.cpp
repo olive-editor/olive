@@ -45,6 +45,9 @@ RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, D
 
 TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational &frame_length)
 {
+  QElapsedTimer t;
+  t.restart();
+
   TimeRange range = TimeRange(time, time + frame_length);
 
   NodeValueTable table;
@@ -55,6 +58,8 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
   NodeValue tex_val = table.Get(NodeValue::kTexture);
 
   ResolveJobs(tex_val, range);
+
+  qDebug() << "Frame took:" << t.elapsed();
 
   return tex_val.toTexture();
 }
@@ -107,6 +112,8 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
         job.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
         job.SetTransformMatrix(matrix);
 
+        qDebug() << "Blitting with" << output_color_transform.get();
+
         render_ctx_->BlitColorManaged(job, blit_tex.get());
       } else {
         // No color transform, just blit
@@ -123,7 +130,7 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
 
     render_ctx_->Flush();
 
-    render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
+    render_ctx_->DownloadFromTexture(texture->id(), texture->params(), frame->data(), frame->linesize_pixels());
   }
 
   return frame;
