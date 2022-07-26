@@ -109,11 +109,6 @@ QVariant Renderer::GetDefaultShader()
 
 void Renderer::Destroy()
 {
-  for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
-    DestroyNativeTexture(it->handle);
-  }
-  texture_cache_.clear();
-
   if (!default_shader_.isNull()) {
     DestroyNativeShader(default_shader_);
     default_shader_.clear();
@@ -125,6 +120,11 @@ void Renderer::Destroy()
     DestroyNativeShader(interlace_texture_);
     interlace_texture_.clear();
   }
+
+  for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
+    DestroyNativeTexture(it->handle);
+  }
+  texture_cache_.clear();
 
   DestroyInternal();
 }
