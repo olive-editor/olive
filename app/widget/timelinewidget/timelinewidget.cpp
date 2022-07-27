@@ -86,6 +86,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   ruler_and_time_layout->addWidget(ruler());
 
+  ruler()->setFocusPolicy(Qt::TabFocus);
+  QWidget::setTabOrder(ruler(), timecode_label_);
+
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
   view_splitter_ = new QSplitter(Qt::Vertical);
