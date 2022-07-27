@@ -175,7 +175,9 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
   TimelineMarker *initial;
 
-  if (resize_item_) {
+  if (HandPress(event)) {
+    return;
+  } else if (resize_item_) {
     // Handle selection, even though we won't be using it for dragging
     if (!(event->modifiers() & Qt::ShiftModifier)) {
       selection_manager_.ClearSelection();
@@ -197,7 +199,9 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
 
 void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 {
-  if (selection_manager_.IsDragging()) {
+  if (HandMove(event)) {
+    return;
+  } else if (selection_manager_.IsDragging()) {
     selection_manager_.DragMove(event);
   } else if (dragging_) {
     QPointF scene = mapToScene(event->pos());
@@ -218,6 +222,10 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 
 void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+  if (HandRelease(event)) {
+    return;
+  }
+
   if (selection_manager_.IsDragging()) {
     MultiUndoCommand *command = new MultiUndoCommand();
     selection_manager_.DragStop(command);
