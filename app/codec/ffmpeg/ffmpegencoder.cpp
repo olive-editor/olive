@@ -224,7 +224,6 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
   encoded_frame->color_primaries = video_codec_ctx_->color_primaries;
   encoded_frame->colorspace = video_codec_ctx_->colorspace;
 
-
   // Set interlacing
   if (frame->video_params().interlacing() != VideoParams::kInterlaceNone) {
     encoded_frame->interlaced_frame = 1;
@@ -652,19 +651,16 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
         codec_ctx->rc_buffer_size = static_cast<int>(params().video_buffer_size());
       }
 
-      if (params().format() == ExportFormat::Format::kFormatQuickTime) {
-        // nclc tags. See https://ffmpeg.org/doxygen/4.0/pixfmt_8h.html#ad384ee5a840bafd73daef08e6d9cafe7
-        // ffprobe -v error -show_format -show_streams "C:\Users\Tom\Documents\srgb correct tags.mov"
-        if (params().color_transform().output().contains("sRGB")) {
-          codec_ctx->color_primaries = AVCOL_PRI_BT709;
-          codec_ctx->color_trc = AVCOL_TRC_IEC61966_2_1;
-          codec_ctx->colorspace = AVCOL_SPC_BT709;
-        } else { // Assume Rec.709
-          codec_ctx->color_primaries = AVCOL_PRI_BT709;
-          codec_ctx->color_trc = AVCOL_TRC_BT709;
-          codec_ctx->colorspace = AVCOL_SPC_BT709;
-        }
-        
+      // nclc tags. See https://ffmpeg.org/doxygen/4.0/pixfmt_8h.html#ad384ee5a840bafd73daef08e6d9cafe7
+      // ffprobe -v error -show_format -show_streams "C:\Users\Tom\Documents\srgb correct tags.mov"
+      if (params().color_transform().output().contains(QStringLiteral("sRGB"), Qt::CaseInsensitive)) {
+        codec_ctx->color_primaries = AVCOL_PRI_BT709;
+        codec_ctx->color_trc = AVCOL_TRC_IEC61966_2_1;
+        codec_ctx->colorspace = AVCOL_SPC_RGB;
+      } else { // Assume Rec.709
+        codec_ctx->color_primaries = AVCOL_PRI_BT709;
+        codec_ctx->color_trc = AVCOL_TRC_BT709;
+        codec_ctx->colorspace = AVCOL_SPC_BT709;
       }
     }
 
