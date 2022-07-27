@@ -513,6 +513,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
     }
 
+    desc.SetStreamCount(fmt_ctx->nb_streams);
+
   }
 
   // Free all memory

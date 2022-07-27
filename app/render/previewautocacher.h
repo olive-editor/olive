@@ -49,7 +49,7 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t);
+  RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
 
   RenderTicketPtr GetRangeOfAudio(TimeRange range);
 
@@ -98,10 +98,10 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, FrameHashCache *cache);
-  RenderTicketWatcher *RenderFrame(const rational &time, FrameHashCache *cache)
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, FrameHashCache *cache, bool dry);
+  RenderTicketWatcher *RenderFrame(const rational &time, FrameHashCache *cache, bool dry)
   {
-    return RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(), time, cache);
+    return RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(), time, cache, dry);
   }
 
   RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, bool generate_waveforms);

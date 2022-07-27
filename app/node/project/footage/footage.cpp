@@ -44,7 +44,8 @@ Footage::Footage(const QString &filename) :
   ViewerOutput(false, false),
   timestamp_(0),
   valid_(false),
-  cancelled_(nullptr)
+  cancelled_(nullptr),
+  total_stream_count_(0)
 {
   SetCacheTextures(true);
 
@@ -124,6 +125,9 @@ void Footage::Clear()
 
   // Clear decoder link
   decoder_.clear();
+
+  // Clear total stream count
+  total_stream_count_ = 0;
 
   // Reset ready state
   valid_ = false;
@@ -496,6 +500,8 @@ void Footage::Reprobe()
         for (int i=0; i<footage_info.GetSubtitleStreams().size(); i++) {
           SetStream(Track::kSubtitle, QVariant::fromValue(footage_info.GetSubtitleStreams().at(i)), i);
         }
+
+        total_stream_count_ = footage_info.GetStreamCount();
 
         SetValid();
       }

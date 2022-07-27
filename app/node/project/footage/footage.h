@@ -180,6 +180,8 @@ public:
   virtual qint64 creation_time() const override;
   virtual qint64 mod_time() const override;
 
+  virtual int GetTotalStreamCount() const override { return total_stream_count_; }
+
   static const QString kFilenameInput;
 
 protected:
@@ -223,6 +225,8 @@ private:
   bool valid_;
 
   CancelAtom *cancelled_;
+
+  int total_stream_count_;
 
 private slots:
   void CheckFootage();

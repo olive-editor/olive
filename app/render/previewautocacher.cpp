@@ -61,7 +61,7 @@ PreviewAutoCacher::~PreviewAutoCacher()
   SetViewerNode(nullptr);
 }
 
-RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool dry)
 {
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
@@ -70,6 +70,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
+  sfr->setProperty("dry", dry);
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -566,7 +567,8 @@ void PreviewAutoCacher::TryRender()
   if (single_frame_render_) {
     // Check if already caching this
     RenderTicketWatcher *watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
-                                               nullptr);
+                                               nullptr,
+                                               single_frame_render_->property("dry").toBool());
     video_immediate_passthroughs_[watcher].append(single_frame_render_);
 
     single_frame_render_ = nullptr;
@@ -583,7 +585,7 @@ void PreviewAutoCacher::TryRender()
     // We want this hash, if we're not already rendering, start render now
     if (!render_task) {
       // Don't render any hash more than once
-      RenderFrame(t, viewer_node_->video_frame_cache());
+      RenderFrame(t, viewer_node_->video_frame_cache(), false);
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -609,7 +611,7 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, FrameHashCache *cache)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, FrameHashCache *cache, bool dry)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
@@ -623,7 +625,8 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
                                                             time,
                                                             RenderMode::kOffline,
                                                             cache,
-                                                            RenderManager::kTexture));
+                                                            dry ? RenderManager::kNull : RenderManager::kTexture));
+
   return watcher;
 }
 

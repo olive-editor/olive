@@ -85,7 +85,7 @@ public:
 
   void DeleteSelected();
 
-  bool SelectItem(Node *n);
+  bool SelectItem(Node *n, bool deselect_all_first = true);
 
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);

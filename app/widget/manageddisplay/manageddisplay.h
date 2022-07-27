@@ -21,9 +21,15 @@
 #ifndef MANAGEDDISPLAYOBJECT_H
 #define MANAGEDDISPLAYOBJECT_H
 
+#define USE_QOPENGLWINDOW
+
 #include <QMouseEvent>
 #include <QOpenGLContext>
+#ifdef USE_QOPENGLWINDOW
 #include <QOpenGLWindow>
+#else
+#include <QOpenGLWidget>
+#endif
 
 #include "node/color/colormanager/colormanager.h"
 #include "render/renderer.h"
@@ -31,7 +37,12 @@
 
 namespace olive {
 
-class ManagedDisplayWidgetOpenGL : public QOpenGLWindow
+class ManagedDisplayWidgetOpenGL
+#ifdef USE_QOPENGLWINDOW
+    : public QOpenGLWindow
+#else
+    : public QOpenGLWidget
+#endif
 {
   Q_OBJECT
 public:
@@ -175,7 +186,12 @@ protected:
 
   void doneCurrent();
 
-  QWindow* inner_widget() const
+#ifdef USE_QOPENGLWINDOW
+  QWindow*
+#else
+  QWidget*
+#endif
+  inner_widget() const
   {
     return inner_widget_;
   }
@@ -225,7 +241,11 @@ private:
   /**
    * @brief Main drawing surface abstraction
    */
+#ifdef USE_QOPENGLWINDOW
   QWindow* inner_widget_;
+#else
+  QWidget* inner_widget_;
+#endif
   QWidget *wrapper_;
 
   /**

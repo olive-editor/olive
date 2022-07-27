@@ -20,36 +20,62 @@
 
 #include "renderer.h"
 
+#include <QDateTime>
+#include <QTimer>
 #include <QVector2D>
-
-#include "common/ocioutils.h"
 
 namespace olive {
 
 Renderer::Renderer(QObject *parent) :
   QObject(parent)
 {
-
-}
-
-TexturePtr Renderer::CreateTexture(const VideoParams &params, Texture::Type type, const void *data, int linesize)
-{
-  QVariant v;
-
-  if (type == Texture::k3D) {
-    v = CreateNativeTexture3D(params.effective_width(), params.effective_height(),
-                              params.effective_depth(), params.format(), params.channel_count(), data, linesize);
-  } else {
-    v = CreateNativeTexture2D(params.effective_width(), params.effective_height(), params.format(),
-                              params.channel_count(), data, linesize);
-  }
-
-  return CreateTextureFromNativeHandle(v, params, type);
 }
 
 TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, int linesize)
 {
-  return CreateTexture(params, Texture::k2D, data, linesize);
+  QVariant v;
+
+  if (USE_TEXTURE_CACHE) {
+    for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
+      if (it->width == params.effective_width()
+          && it->height == params.effective_height()
+          && it->depth == params.effective_depth()
+          && it->format == params.format()
+          && it->channel_count == params.channel_count()) {
+        v = it->handle;
+        texture_cache_.erase(it);
+        break;
+      }
+    }
+  }
+
+  if (v.isNull()) {
+    v = CreateNativeTexture(params.effective_width(), params.effective_height(), params.effective_depth(),
+                            params.format(), params.channel_count(), data, linesize);
+  } else if (data) {
+    UploadToTexture(v, params, data, linesize);
+  } else {
+    this->Flush();
+  }
+
+  return CreateTextureFromNativeHandle(v, params);
+}
+
+void Renderer::DestroyTexture(Texture *texture)
+{
+  if (USE_TEXTURE_CACHE) {
+    texture_cache_.push_back({texture->params().effective_width(),
+                              texture->params().effective_height(),
+                              texture->params().effective_depth(),
+                              texture->params().format(),
+                              texture->params().channel_count(),
+                              texture->id(),
+                              QDateTime::currentMSecsSinceEpoch()});
+
+    ClearOldTextures();
+  } else {
+    DestroyNativeTexture(texture->id());
+  }
 }
 
 TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params)
@@ -95,16 +121,21 @@ void Renderer::Destroy()
     interlace_texture_.clear();
   }
 
+  for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
+    DestroyNativeTexture(it->handle);
+  }
+  texture_cache_.clear();
+
   DestroyInternal();
 }
 
-TexturePtr Renderer::CreateTextureFromNativeHandle(const QVariant &v, const VideoParams &params, Texture::Type type)
+TexturePtr Renderer::CreateTextureFromNativeHandle(const QVariant &v, const VideoParams &params)
 {
   if (v.isNull()) {
     return nullptr;
   }
 
-  return std::make_shared<Texture>(this, v, params, type);
+  return std::make_shared<Texture>(this, v, params);
 }
 
 bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::ColorContext *ctx)
@@ -175,8 +206,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
       }
 
       // Allocate 3D LUT
-      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount),
-                                                          Texture::k3D, values);
+      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount), values);
       color_ctx.lut3d_textures[i].name = sampler_name;
       color_ctx.lut3d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
     }
@@ -206,9 +236,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
       }
 
       // Allocate 1D LUT
-      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, VideoParams::kFormatFloat32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount),
-                                                          Texture::k2D,
-                                                          values);
+      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, VideoParams::kFormatFloat32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount), values);
       color_ctx.lut1d_textures[i].name = sampler_name;
       color_ctx.lut1d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
     }
@@ -216,6 +244,18 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
     color_cache_.insert(proc_id, color_ctx);
 
     return true;
+  }
+}
+
+void Renderer::ClearOldTextures()
+{
+  for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); ) {
+    if (it->accessed < QDateTime::currentMSecsSinceEpoch() - MAX_TEXTURE_LIFE) {
+      DestroyNativeTexture(it->handle);
+      it = texture_cache_.erase(it);
+    } else {
+      it++;
+    }
   }
 }
 
