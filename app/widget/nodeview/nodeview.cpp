@@ -432,7 +432,23 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (HandPress(event)) return;
 
   // Get the item that the user clicked on, if any
-  QGraphicsItem* item = itemAt(event->pos());
+  QGraphicsItem* item = nullptr;
+  {
+    // Prioritize connectors. I tried overriding boundingRect() and contains() on the connector
+    // object, but it ended up not working or causing other issues, so this is my hackier solution
+    const int radius = fontMetrics().height()/2;
+    QRect connector_rect(event->pos().x()-radius, event->pos().y()-radius, radius*2, radius*2);
+    QList<QGraphicsItem*> items = this->items(connector_rect);
+    for (QGraphicsItem *i : items) {
+      if (dynamic_cast<NodeViewItemConnector*>(i)) {
+        item = i;
+        break;
+      }
+    }
+  }
+  if (!item) {
+    item = itemAt(event->pos());
+  }
 
   if (event->button() == Qt::LeftButton) {
     // Sane defaults
