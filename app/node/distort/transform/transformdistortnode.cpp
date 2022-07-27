@@ -404,7 +404,8 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
 QTransform TransformDistortNode::GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const
 {
   if (TexturePtr texture = row[kTextureInput].toTexture()) {
-    auto m = GenerateMatrix(row, false, false, false, row[kParentInput].toMatrix());
+    //auto m = GenerateMatrix(row, false, false, false, row[kParentInput].toMatrix());
+    auto m = GenerateMatrix(row, false, false, false, QMatrix4x4());
     return GenerateAutoScaledMatrix(m, row, globals, texture->params()).toTransform();
   }
   return super::GizmoTransformation(row, globals);
