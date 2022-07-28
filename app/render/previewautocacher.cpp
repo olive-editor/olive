@@ -193,6 +193,17 @@ void PreviewAutoCacher::VideoRendered()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
+  // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be
+  // cleared anyway
+  QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
+  foreach (RenderTicketPtr t, tickets) {
+    if (watcher->HasResult()) {
+      t->Finish(watcher->Get());
+    } else {
+      t->Finish();
+    }
+  }
+
   // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
   // viewer switch, so we'll completely ignore this watcher
   auto it = video_tasks_.find(watcher);
@@ -212,17 +223,6 @@ void PreviewAutoCacher::VideoRendered()
 
     // Continue rendering
     TryRender();
-  }
-
-  // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be
-  // cleared anyway
-  QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
-  foreach (RenderTicketPtr t, tickets) {
-    if (watcher->HasResult()) {
-      t->Finish(watcher->Get());
-    } else {
-      t->Finish();
-    }
   }
 
   delete watcher;
