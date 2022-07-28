@@ -21,7 +21,7 @@
 #ifndef MANAGEDDISPLAYOBJECT_H
 #define MANAGEDDISPLAYOBJECT_H
 
-#define USE_QOPENGLWINDOW
+//#define USE_QOPENGLWINDOW
 
 #include <QMouseEvent>
 #include <QOpenGLContext>
