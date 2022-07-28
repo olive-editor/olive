@@ -119,6 +119,7 @@ public:
                               const VideoParams& video_params, const AudioParams& audio_params,
                               const QSize& force_size,
                               const QMatrix4x4& force_matrix, VideoParams::Format force_format,
+                              int force_channel_count,
                               ColorProcessorPtr force_color_output,
                               FrameHashCache* cache = nullptr, ReturnType return_type = kFrame);
 

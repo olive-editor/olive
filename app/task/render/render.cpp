@@ -42,7 +42,7 @@ bool RenderTask::Render(ColorManager* manager,
                         RenderMode::Mode mode,
                         FrameHashCache* cache, const QSize &force_size,
                         const QMatrix4x4 &force_matrix, VideoParams::Format force_format,
-                        ColorProcessorPtr force_color_output)
+                        int force_channel_count, ColorProcessorPtr force_color_output)
 {
   QMetaObject::invokeMethod(RenderManager::instance(), "SetAggressiveGarbageCollection", Q_ARG(bool, true));
 
@@ -88,7 +88,7 @@ bool RenderTask::Render(ColorManager* manager,
 
   rational next_frame;
   for (int i=0; i<maximum_rendered_frames && iterator.GetNext(&next_frame); i++) {
-    StartTicket(&watcher_thread, manager, next_frame, mode, cache, force_size, force_matrix, force_format, force_color_output);
+    StartTicket(&watcher_thread, manager, next_frame, mode, cache, force_size, force_matrix, force_format, force_channel_count, force_color_output);
   }
 
   bool result = true;
@@ -199,7 +199,7 @@ bool RenderTask::Render(ColorManager* manager,
         }
 
         if (iterator.GetNext(&next_frame)) {
-          StartTicket(&watcher_thread, manager, next_frame, mode, cache, force_size, force_matrix, force_format, force_color_output);
+          StartTicket(&watcher_thread, manager, next_frame, mode, cache, force_size, force_matrix, force_format, force_channel_count, force_color_output);
         }
 
       }
@@ -282,7 +282,8 @@ void RenderTask::IncrementRunningTickets()
 void RenderTask::StartTicket(QThread* watcher_thread, ColorManager* manager,
                              const rational& time, RenderMode::Mode mode, FrameHashCache* cache,
                              const QSize &force_size, const QMatrix4x4 &force_matrix,
-                             VideoParams::Format force_format, ColorProcessorPtr force_color_output)
+                             VideoParams::Format force_format, int force_channel_count,
+                             ColorProcessorPtr force_color_output)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("time", QVariant::fromValue(time));
@@ -291,8 +292,8 @@ void RenderTask::StartTicket(QThread* watcher_thread, ColorManager* manager,
   watcher->SetTicket(RenderManager::instance()->RenderFrame(viewer_->GetConnectedTextureOutput(), manager, time,
                                                             mode, video_params_, audio_params_,
                                                             force_size, force_matrix,
-                                                            force_format, force_color_output,
-                                                            cache));
+                                                            force_format, force_channel_count,
+                                                            force_color_output, cache));
 }
 
 void RenderTask::TicketDone(RenderTicketWatcher* watcher)

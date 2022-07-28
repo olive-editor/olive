@@ -75,7 +75,12 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
     frame_params.set_format(frame_format);
   }
 
-  frame_params.set_channel_count(texture ? texture->channel_count() : VideoParams::kRGBChannelCount);
+  int force_channel_count = ticket_->property("channelcount").toInt();
+  if (force_channel_count != 0) {
+    frame_params.set_channel_count(force_channel_count);
+  } else {
+    frame_params.set_channel_count(texture ? texture->channel_count() : VideoParams::kRGBAChannelCount);
+  }
 
   FramePtr frame = Frame::Create();
   frame->set_timestamp(time);

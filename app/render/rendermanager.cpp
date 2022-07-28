@@ -100,6 +100,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam
                      QSize(0, 0),
                      QMatrix4x4(),
                      VideoParams::kFormatInvalid,
+                     0,
                      nullptr,
                      cache,
                      return_type);
@@ -110,6 +111,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
+                                           int force_channel_count,
                                            ColorProcessorPtr force_color_output,
                                            FrameHashCache* cache, ReturnType return_type)
 {
@@ -121,6 +123,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
   ticket->setProperty("size", force_size);
   ticket->setProperty("matrix", force_matrix);
   ticket->setProperty("format", force_format);
+  ticket->setProperty("channelcount", force_channel_count);
   ticket->setProperty("mode", mode);
   ticket->setProperty("type", kTypeVideo);
   ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
