@@ -149,6 +149,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   setAcceptDrops(true);
 
+  UpdateWaveformViewFromMode();
+
   connect(Core::instance(), &Core::ColorPickerEnabled, this, &ViewerWidget::SetSignalCursorColorEnabled);
   connect(this, &ViewerWidget::CursorColor, Core::instance(), &Core::ColorPickerColorEmitted);
   connect(AudioManager::instance(), &AudioManager::OutputParamsChanged, this, &ViewerWidget::UpdateAudioProcessor);
