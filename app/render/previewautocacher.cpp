@@ -565,13 +565,15 @@ void PreviewAutoCacher::TryRender()
   }
 
   if (single_frame_render_) {
-    // Check if already caching this
-    RenderTicketWatcher *watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
-                                               nullptr,
-                                               single_frame_render_->property("dry").toBool());
-    video_immediate_passthroughs_[watcher].append(single_frame_render_);
-
+    // Make an explicit copy of the render ticket here - it seems that on some systems it can be set
+    // to NULL before we're done with it...
+    RenderTicketPtr t = single_frame_render_;
     single_frame_render_ = nullptr;
+
+    RenderTicketWatcher *watcher = RenderFrame(t->property("time").value<rational>(),
+                                               nullptr,
+                                               t->property("dry").toBool());
+    video_immediate_passthroughs_[watcher].append(t);
   }
 
   // Completely arbitrary number. I don't know what's optimal for this yet.
