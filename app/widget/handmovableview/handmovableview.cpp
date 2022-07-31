@@ -66,6 +66,8 @@ bool HandMovableView::HandPress(QMouseEvent *event)
                             Qt::LeftButton,
                             event->modifiers());
 
+    transformed_pos_ = QPoint(0, 0);
+
     super::mousePressEvent(&transformed);
 
     return true;
@@ -78,11 +80,33 @@ bool HandMovableView::HandMove(QMouseEvent *event)
 {
   if (dragging_hand_) {
     // Transform mouse event to act like the left button is pressed
+    QPoint adjustment(0, 0);
+
     QMouseEvent transformed(event->type(),
-                            event->localPos(),
+                            event->localPos() - transformed_pos_,
                             Qt::LeftButton,
                             Qt::LeftButton,
                             event->modifiers());
+
+    if (event->localPos().x() < 0) {
+      transformed_pos_.setX(transformed_pos_.x() + width());
+      adjustment.setX(width());
+    } else if (event->localPos().x() >= width()) {
+      transformed_pos_.setX(transformed_pos_.x() - width());
+      adjustment.setX(-width());
+    }
+
+    if (event->pos().y() < 0) {
+      transformed_pos_.setY(transformed_pos_.y() + height());
+      adjustment.setY(height());
+    } else if (event->pos().y() >= height()) {
+      transformed_pos_.setY(transformed_pos_.y() - height());
+      adjustment.setY(-height());
+    }
+
+    if (!adjustment.isNull()) {
+      QCursor::setPos(QCursor::pos() + adjustment);
+    }
 
     super::mouseMoveEvent(&transformed);
   }

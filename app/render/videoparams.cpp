@@ -275,7 +275,7 @@ void VideoParams::set_defaults_for_footage()
 void VideoParams::calculate_square_pixel_width()
 {
   if (pixel_aspect_ratio_.denominator() != 0) {
-    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+    par_width_ = qRound(width_ * pixel_aspect_ratio_.toDouble());
   } else {
     par_width_ = width_;
   }

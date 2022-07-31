@@ -261,7 +261,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event)
   if (FirstChanceMousePress(event)) {
     first_chance_mouse_event_ = true;
   } else if (NodeKeyframe *initial_key = selection_manager_.MousePress(event)) {
-    selection_manager_.DragStart(initial_key, event);
+    selection_manager_.DragStart(initial_key, event, this);
     KeyframeDragStart(event);
   } else {
     selection_manager_.RubberBandStart(event);

@@ -122,6 +122,8 @@ public:
 
   virtual void GoToNextCut(){}
 
+  virtual void RenameSelected(){}
+
   virtual void DeleteSelected(){}
 
   virtual void RippleDelete(){}

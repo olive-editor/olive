@@ -779,10 +779,6 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   if (itemAt(pos) && !selected.isEmpty()) {
 
-    // Label node action
-    QAction* label_action = m.addAction(tr("Label"));
-    connect(label_action, &QAction::triggered, this, &NodeView::LabelSelectedNodes);
-
     // Grouping
     if (selected.size() == 1 && dynamic_cast<NodeGroup*>(selected.first()->GetNode())) {
       QAction *ungroup_action = m.addAction(tr("Ungroup"));

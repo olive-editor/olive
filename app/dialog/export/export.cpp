@@ -32,7 +32,6 @@
 
 #include "common/digit.h"
 #include "common/qtutils.h"
-#include "core.h"
 #include "dialog/task/task.h"
 #include "node/project/project.h"
 #include "node/project/sequence/sequence.h"
@@ -182,6 +181,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QVBoxLayout* preview_layout = new QVBoxLayout(preview_area);
   preview_layout->addWidget(new QLabel(tr("Preview")));
   preview_viewer_ = new ViewerWidget();
+  preview_viewer_->ruler()->SetMarkerEditingEnabled(false);
   preview_viewer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   connect(preview_viewer_, &ViewerWidget::TimeChanged, video_tab_, &ExportVideoTab::SetTime);
   preview_layout->addWidget(preview_viewer_);
@@ -249,6 +249,12 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
+
+  // We don't check if the codec supports subtitles because we can always export to a sidecar file
+  bool has_subtitle_codecs = SequenceHasSubtitles();
+  connect(subtitles_enabled_, &QCheckBox::toggled, subtitle_tab_, &QWidget::setEnabled);
+  subtitles_enabled_->setChecked(has_subtitle_codecs);
+  subtitles_enabled_->setEnabled(has_subtitle_codecs);
 }
 
 rational ExportDialog::GetSelectedTimebase() const
@@ -259,7 +265,7 @@ rational ExportDialog::GetSelectedTimebase() const
 void ExportDialog::StartExport()
 {
   if (!video_enabled_->isChecked() && !audio_enabled_->isChecked() && !subtitles_enabled_->isChecked()) {
-    QtUtils::MessageBox(this, QMessageBox::Critical, tr("Invalid parameters"),
+    QtUtils::MsgBox(this, QMessageBox::Critical, tr("Invalid parameters"),
                         tr("Video, audio, and subtitles are disabled. There's nothing to export."));
     return;
   }
@@ -271,7 +277,7 @@ void ExportDialog::StartExport()
 
   // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
   if (!proposed_filename.endsWith(necessary_ext, Qt::CaseInsensitive)) {
-    if (QtUtils::MessageBox(this, QMessageBox::Warning, tr("Invalid filename"),
+    if (QtUtils::MsgBox(this, QMessageBox::Warning, tr("Invalid filename"),
                             tr("The filename must contain the extension \"%1\". Would you like to append it "
                                              "automatically?").arg(necessary_ext),
                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
@@ -288,7 +294,7 @@ void ExportDialog::StartExport()
   // If the directory does not exist, try to create it
   QDir dest_dir(file_info.path());
   if (!FileFunctions::DirectoryIsValid(dest_dir)) {
-    QtUtils::MessageBox(this, QMessageBox::Critical, tr("Failed to create output directory"),
+    QtUtils::MsgBox(this, QMessageBox::Critical, tr("Failed to create output directory"),
                         tr("The intended output directory doesn't exist and Olive couldn't create it. "
                                          "Please choose a different filename."));
     return;
@@ -298,7 +304,7 @@ void ExportDialog::StartExport()
   if (video_tab_->IsImageSequenceSet()) {
     // Ensure filename contains digits
     if (!Encoder::FilenameContainsDigitPlaceholder(proposed_filename)) {
-      QtUtils::MessageBox(this, QMessageBox::Critical, tr("Invalid filename"),
+      QtUtils::MsgBox(this, QMessageBox::Critical, tr("Invalid filename"),
                           tr("Export is set to an image sequence, but the filename does not have a section for digits "
                                              "(formatted as [#####] where the amount of # is the amount of digits)."));
       return;
@@ -308,7 +314,7 @@ void ExportDialog::StartExport()
     int64_t needed_digit_count = GetDigitCount(frame_count);
     int current_digit_count = Encoder::GetImageSequencePlaceholderDigitCount(proposed_filename);
     if (current_digit_count < needed_digit_count) {
-      QtUtils::MessageBox(this, QMessageBox::Critical, tr("Invalid filename"),
+      QtUtils::MsgBox(this, QMessageBox::Critical, tr("Invalid filename"),
                           tr("Filename doesn't contain enough digits for the amount of frames "
                              "this export will need (need %1 for %n frame(s)).", nullptr, frame_count)
                                 .arg(QString::number(needed_digit_count)));
@@ -318,7 +324,7 @@ void ExportDialog::StartExport()
 
   // Validate if the file exists and whether the user wishes to overwrite it
   if (file_info.exists()) {
-    if (QtUtils::MessageBox(this, QMessageBox::Warning, tr("Confirm Overwrite"),
+    if (QtUtils::MsgBox(this, QMessageBox::Warning, tr("Confirm Overwrite"),
                             tr("The file \"%1\" already exists. Do you want to overwrite it?")
                                           .arg(proposed_filename),
                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
@@ -330,7 +336,7 @@ void ExportDialog::StartExport()
   if (video_enabled_->isChecked()
       && (video_tab_->GetSelectedCodec() == ExportCodec::kCodecH264 || video_tab_->GetSelectedCodec() == ExportCodec::kCodecH265)
       && (video_tab_->width_slider()->GetValue()%2 != 0 || video_tab_->height_slider()->GetValue()%2 != 0)) {
-    QtUtils::MessageBox(this, QMessageBox::Critical, tr("Invalid Parameters"),
+    QtUtils::MsgBox(this, QMessageBox::Critical, tr("Invalid Parameters"),
                         tr("Width and height must be multiples of 2."));
     return;
   }
@@ -444,9 +450,9 @@ void ExportDialog::FormatChanged(ExportFormat::Format current_format)
   audio_enabled_->setChecked(has_audio_codecs);
   audio_enabled_->setEnabled(has_audio_codecs);
 
-  bool has_subtitle_codecs = subtitle_tab_->SetFormat(current_format);
-  subtitles_enabled_->setChecked(has_subtitle_codecs);
-  subtitles_enabled_->setEnabled(has_subtitle_codecs);
+  if (subtitles_enabled_->isEnabled()) {
+    subtitle_tab_->SetFormat(current_format);
+  }
 }
 
 void ExportDialog::ResolutionChanged()
@@ -502,6 +508,20 @@ void ExportDialog::SetDefaultFilename()
   filename_edit_->setText(file_location);
 }
 
+bool ExportDialog::SequenceHasSubtitles() const
+{
+  if (Sequence *s = dynamic_cast<Sequence*>(viewer_node_)) {
+    TrackList *tl = s->track_list(Track::kSubtitle);
+    for (Track *t : tl->GetTracks()) {
+      if (!t->IsMuted() && !t->Blocks().empty()) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 ExportParams ExportDialog::GenerateParams() const
 {
   VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
@@ -518,7 +538,7 @@ ExportParams ExportDialog::GenerateParams() const
                                   audio_tab_->sample_format_combobox()->GetSampleFormat());
 
   ExportParams params;
-  params.set_encoder(Encoder::GetTypeFromFormat(format_combobox_->GetFormat()));
+  params.set_format(format_combobox_->GetFormat());
   params.SetFilename(filename_edit_->text().trimmed());
   params.SetExportLength(viewer_node_->GetLength());
 
@@ -560,8 +580,15 @@ ExportParams ExportDialog::GenerateParams() const
     params.set_audio_bit_rate(audio_tab_->bit_rate_slider()->GetValue() * 1000);
   }
 
-  if (subtitles_enabled_->isChecked()) {
-    params.EnableSubtitles(subtitle_tab_->GetSubtitleCodec());
+  if (subtitles_enabled_->isEnabled()
+      && subtitles_enabled_->isChecked()) {
+    if (!subtitle_tab_->GetSidecarEnabled()) {
+      // Export subtitles embedded in container
+      params.EnableSubtitles(subtitle_tab_->GetSubtitleCodec());
+    } else {
+      // Export subtitles to a sidecar file
+      params.EnableSidecarSubtitles(subtitle_tab_->GetSidecarFormat(), subtitle_tab_->GetSubtitleCodec());
+    }
   }
 
   return params;

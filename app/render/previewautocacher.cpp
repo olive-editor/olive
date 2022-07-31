@@ -61,7 +61,7 @@ PreviewAutoCacher::~PreviewAutoCacher()
   SetViewerNode(nullptr);
 }
 
-RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool dry)
 {
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
@@ -70,6 +70,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
+  sfr->setProperty("dry", dry);
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -192,6 +193,17 @@ void PreviewAutoCacher::VideoRendered()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
+  // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be
+  // cleared anyway
+  QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
+  foreach (RenderTicketPtr t, tickets) {
+    if (watcher->HasResult()) {
+      t->Finish(watcher->Get());
+    } else {
+      t->Finish();
+    }
+  }
+
   // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
   // viewer switch, so we'll completely ignore this watcher
   auto it = video_tasks_.find(watcher);
@@ -211,17 +223,6 @@ void PreviewAutoCacher::VideoRendered()
 
     // Continue rendering
     TryRender();
-  }
-
-  // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be
-  // cleared anyway
-  QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
-  foreach (RenderTicketPtr t, tickets) {
-    if (watcher->HasResult()) {
-      t->Finish(watcher->Get());
-    } else {
-      t->Finish();
-    }
   }
 
   delete watcher;
@@ -564,12 +565,15 @@ void PreviewAutoCacher::TryRender()
   }
 
   if (single_frame_render_) {
-    // Check if already caching this
-    RenderTicketWatcher *watcher = RenderFrame(single_frame_render_->property("time").value<rational>(),
-                                               nullptr);
-    video_immediate_passthroughs_[watcher].append(single_frame_render_);
-
+    // Make an explicit copy of the render ticket here - it seems that on some systems it can be set
+    // to NULL before we're done with it...
+    RenderTicketPtr t = single_frame_render_;
     single_frame_render_ = nullptr;
+
+    RenderTicketWatcher *watcher = RenderFrame(t->property("time").value<rational>(),
+                                               nullptr,
+                                               t->property("dry").toBool());
+    video_immediate_passthroughs_[watcher].append(t);
   }
 
   // Completely arbitrary number. I don't know what's optimal for this yet.
@@ -583,7 +587,7 @@ void PreviewAutoCacher::TryRender()
     // We want this hash, if we're not already rendering, start render now
     if (!render_task) {
       // Don't render any hash more than once
-      RenderFrame(t, viewer_node_->video_frame_cache());
+      RenderFrame(t, viewer_node_->video_frame_cache(), false);
     }
 
     emit SignalCacheProxyTaskProgress(double(queued_frame_iterator_.frame_index()) / double(queued_frame_iterator_.size()));
@@ -609,7 +613,7 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, FrameHashCache *cache)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, FrameHashCache *cache, bool dry)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
@@ -623,7 +627,8 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
                                                             time,
                                                             RenderMode::kOffline,
                                                             cache,
-                                                            RenderManager::kTexture));
+                                                            dry ? RenderManager::kNull : RenderManager::kTexture));
+
   return watcher;
 }
 

@@ -107,6 +107,11 @@ protected:
     return keyframe_view_ ? &keyframe_view_->GetSelectedKeyframes() : nullptr;
   }
 
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const override
+  {
+    return keyframe_view_;
+  }
+
 private:
   void UpdateItemTime(const rational &time);
 

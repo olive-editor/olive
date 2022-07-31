@@ -47,7 +47,7 @@ QFrame *QtUtils::CreateVerticalLine()
   return l;
 }
 
-int QtUtils::MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString &title, const QString &message, QMessageBox::StandardButtons buttons)
+int QtUtils::MsgBox(QWidget *parent, QMessageBox::Icon icon, const QString &title, const QString &message, QMessageBox::StandardButtons buttons)
 {
   QMessageBox b(parent);
   b.setIcon(icon);

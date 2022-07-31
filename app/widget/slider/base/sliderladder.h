@@ -95,6 +95,8 @@ private:
 
   QTimer drag_timer_;
 
+  QScreen *screen_;
+
 private slots:
   void TimerUpdate();
 

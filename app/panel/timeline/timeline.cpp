@@ -154,6 +154,11 @@ void TimelinePanel::MoveOutToPlayhead()
   timeline_widget()->MoveOutToPlayhead();
 }
 
+void TimelinePanel::RenameSelected()
+{
+  timeline_widget()->RenameSelectedBlocks();
+}
+
 void TimelinePanel::InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   timeline_widget()->InsertFootageAtPlayhead(footage);

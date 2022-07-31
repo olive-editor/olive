@@ -146,6 +146,11 @@ void ProjectPanel::DeleteSelected()
   explorer_->DeleteSelected();
 }
 
+void ProjectPanel::RenameSelected()
+{
+  explorer_->RenameSelectedItem();
+}
+
 void ProjectPanel::Edit(Node* item)
 {
   explorer_->Edit(item);

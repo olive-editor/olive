@@ -78,6 +78,11 @@ protected:
     return &view_->GetKeyframeTracks();
   }
 
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const override
+  {
+    return view_;
+  }
+
   virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
   {
     return &view_->GetSelectedKeyframes();

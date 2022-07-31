@@ -34,8 +34,6 @@
 #include <QScreen>
 #include <QTextEdit>
 
-#include "common/define.h"
-#include "common/functiontimer.h"
 #include "common/html.h"
 #include "common/qtutils.h"
 #include "config/config.h"
@@ -46,7 +44,6 @@
 #include "node/gizmo/polygon.h"
 #include "node/gizmo/screen.h"
 #include "viewertexteditor.h"
-#include "window/mainwindow/mainwindow.h"
 
 namespace olive {
 
@@ -459,51 +456,7 @@ void ViewerDisplayWidget::OnPaint()
   }
 
   // Extraordinarily basic subtitle renderer. Hoping to swap this out with libass at some point.
-  if (show_subtitles_ && subtitle_tracks_) {
-    const QVector<Track*> &subtitle_tracklist = subtitle_tracks_->track_list(Track::kSubtitle)->GetTracks();
-
-    if (!subtitle_tracklist.empty()) {
-      QPainter p(paint_device());
-
-      QTransform transform = GenerateWorldTransform();
-      QRect bounding_box = transform.mapRect(rect());
-
-      bounding_box.adjust(bounding_box.width()/10, bounding_box.height()/10, -bounding_box.width()/10, -bounding_box.height()/10);
-
-      QFont f = p.font();
-      int font_sz = bounding_box.height() / 18;
-      f.setStyleHint(QFont::SansSerif);
-      f.setFamily(f.defaultFamily());
-      f.setPointSize(font_sz);
-      f.setWeight(QFont::Bold);
-      p.setFont(f);
-      p.setPen(Qt::white);
-
-      QPainterPath path;
-
-      int text_line = 1;
-
-      for (int j=subtitle_tracklist.size()-1; j>=0; j--) {
-        Track *sub_track = subtitle_tracklist.at(j);
-        if (!sub_track->IsMuted()) {
-          if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->BlockAtTime(time_))) {
-            // Split into lines
-            QStringList list = QtUtils::WordWrapString(sub->GetText(), p.fontMetrics(), bounding_box.width());
-
-            for (int i=list.size()-1; i>=0; i--) {
-              int w = QtUtils::QFontMetricsWidth(p.fontMetrics(), list.at(i));
-              path.addText(bounding_box.x() + bounding_box.width()/2 - w/2, bounding_box.y() + bounding_box.height() - p.fontMetrics().height() * text_line + p.fontMetrics().ascent(), p.font(), list.at(i));
-              text_line++;
-            }
-          }
-        }
-      }
-
-      p.setPen(QPen(Qt::black, font_sz / 16));
-      p.setBrush(Qt::white);
-      p.drawPath(path);
-    }
-  }
+  DrawSubtitleTracks();
 
   if (add_band_) {
     QPainter p(paint_device());
@@ -941,6 +894,93 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
     }
 
     emit CursorColor(reference, display);
+  }
+}
+
+void ViewerDisplayWidget::DrawSubtitleTracks()
+{
+  if (!show_subtitles_ || !subtitle_tracks_) {
+    return;
+  }
+
+  const QVector<Track*> &subtitle_tracklist = subtitle_tracks_->track_list(Track::kSubtitle)->GetTracks();
+  if (subtitle_tracklist.empty()) {
+    return;
+  }
+
+  // Scale font size by transform
+  QTransform display_transform = GenerateDisplayTransform();
+  qreal font_sz = OLIVE_CONFIG("DefaultSubtitleSize").toInt();
+  font_sz *= display_transform.m11();
+  if (qIsNaN(font_sz)) {
+    return;
+  }
+
+  QPainterPath path;
+
+  QTransform transform = GenerateWorldTransform();
+  QRect bounding_box = transform.mapRect(rect());
+
+  QFont f;
+  f.setPointSizeF(font_sz);
+
+  QString family = OLIVE_CONFIG("DefaultSubtitleFamily").toString();
+  if (!family.isEmpty()) {
+    f.setFamily(family);
+  }
+
+  f.setWeight(OLIVE_CONFIG("DefaultSubtitleWeight").toInt());
+
+  bounding_box.adjust(bounding_box.width()/10, bounding_box.height()/10, -bounding_box.width()/10, -bounding_box.height()/10);
+
+  QFontMetrics fm(f);
+
+  for (int j=subtitle_tracklist.size()-1; j>=0; j--) {
+    Track *sub_track = subtitle_tracklist.at(j);
+    if (!sub_track->IsMuted()) {
+      if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->BlockAtTime(time_))) {
+        // Split into lines
+        QStringList list = QtUtils::WordWrapString(sub->GetText(), fm, bounding_box.width());
+
+        for (int i=list.size()-1; i>=0; i--) {
+          int w = QtUtils::QFontMetricsWidth(fm, list.at(i));
+          path.addText(bounding_box.width()/2 - w/2, bounding_box.height() - fm.height() * (list.size() - i) + fm.ascent(), f, list.at(i));
+        }
+      }
+    }
+  }
+
+  bool antialias = OLIVE_CONFIG("AntialiasSubtitles").toBool();
+
+  QPixmap *aa_pixmap;
+  QPainter *text_painter;
+  if (antialias) {
+    // QPainter only supports anti-aliasing in software, so to achieve it, we draw to a
+    // software buffer first and then draw that onto the hardware
+    aa_pixmap = new QPixmap(bounding_box.width(), bounding_box.height());
+    aa_pixmap->fill(Qt::transparent);
+    text_painter = new QPainter(aa_pixmap);
+  } else {
+    // Just draw straight to the hardware
+    text_painter = new QPainter(paint_device());
+
+    // Offset path by however much is necessary
+    path.translate(bounding_box.x(), bounding_box.y());
+  }
+
+  text_painter->setPen(QPen(Qt::black, f.pointSizeF() / 16));
+  text_painter->setBrush(Qt::white);
+  text_painter->setRenderHint(QPainter::Antialiasing);
+
+  text_painter->drawPath(path);
+
+  delete text_painter;
+
+  if (antialias) {
+    // We just drew to a software buffer, now draw this image onto the hardware device
+    QPainter p(paint_device());
+    p.drawPixmap(bounding_box.x(), bounding_box.y(), *aa_pixmap);
+    delete aa_pixmap;
   }
 }
 

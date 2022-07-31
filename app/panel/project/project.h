@@ -52,15 +52,17 @@ public:
 
   ProjectViewModel* model() const;
 
-  bool SelectItem(Node *n)
+  bool SelectItem(Node *n, bool deselect_all_first = true)
   {
-    return explorer_->SelectItem(n);
+    return explorer_->SelectItem(n, deselect_all_first);
   }
 
   virtual void SelectAll() override;
   virtual void DeselectAll() override;
 
   virtual void DeleteSelected() override;
+
+  virtual void RenameSelected() override;
 
 public slots:
   void Edit(Node *item);

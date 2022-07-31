@@ -86,6 +86,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   ruler_and_time_layout->addWidget(ruler());
 
+  ruler()->setFocusPolicy(Qt::TabFocus);
+  QWidget::setTabOrder(ruler(), timecode_label_);
+
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
   view_splitter_ = new QSplitter(Qt::Vertical);
@@ -1106,9 +1109,6 @@ void TimelineWidget::ShowContextMenu()
         connect(reveal_in_project, &QAction::triggered, this, &TimelineWidget::RevealInProject);
       }
     }
-
-    QAction* rename_action = menu.addAction(tr("Rename"));
-    connect(rename_action, &QAction::triggered, this, &TimelineWidget::RenameSelectedBlocks);
 
     menu.addSeparator();
 

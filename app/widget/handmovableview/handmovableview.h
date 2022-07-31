@@ -77,6 +77,8 @@ private:
    */
   bool scroll_zooms_by_default_;
 
+  QPointF transformed_pos_;
+
 private slots:
   void ApplicationToolChanged(Tool::Item tool);
 

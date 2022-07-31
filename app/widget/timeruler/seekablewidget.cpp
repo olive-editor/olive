@@ -48,7 +48,8 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   selection_manager_(this),
   resize_item_(nullptr),
   marker_top_(0),
-  marker_bottom_(0)
+  marker_bottom_(0),
+  marker_editing_enabled_(true)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -172,7 +173,11 @@ bool SeekableWidget::PasteMarkers()
 
 void SeekableWidget::mousePressEvent(QMouseEvent *event)
 {
-  if (resize_item_) {
+  TimelineMarker *initial;
+
+  if (HandPress(event)) {
+    return;
+  } else if (resize_item_) {
     // Handle selection, even though we won't be using it for dragging
     if (!(event->modifiers() & Qt::ShiftModifier)) {
       selection_manager_.ClearSelection();
@@ -182,7 +187,7 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
     }
     dragging_ = true;
     resize_start_ = mapToScene(event->pos());
-  } else if (TimelineMarker *initial = selection_manager_.MousePress(event)) {
+  } else if (marker_editing_enabled_ && (initial = selection_manager_.MousePress(event))) {
     selection_manager_.DragStart(initial, event);
   } else if (!selection_manager_.GetObjectAtPoint(event->pos()) && event->button() == Qt::LeftButton) {
     SeekToScenePoint(mapToScene(event->pos()).x());
@@ -194,7 +199,9 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
 
 void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 {
-  if (selection_manager_.IsDragging()) {
+  if (HandMove(event)) {
+    return;
+  } else if (selection_manager_.IsDragging()) {
     selection_manager_.DragMove(event);
   } else if (dragging_) {
     QPointF scene = mapToScene(event->pos());
@@ -215,6 +222,10 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 
 void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+  if (HandRelease(event)) {
+    return;
+  }
+
   if (selection_manager_.IsDragging()) {
     MultiUndoCommand *command = new MultiUndoCommand();
     selection_manager_.DragStop(command);
@@ -430,7 +441,7 @@ int SeekableWidget::GetRightLimit() const
 
 bool SeekableWidget::ShowContextMenu(const QPoint &p)
 {
-  if (selection_manager_.GetObjectAtPoint(p) && !selection_manager_.GetSelectedObjects().empty()) {
+  if (marker_editing_enabled_ && selection_manager_.GetObjectAtPoint(p) && !selection_manager_.GetSelectedObjects().empty()) {
     // Show marker-specific menu
     Menu m;
 
@@ -457,6 +468,10 @@ bool SeekableWidget::ShowContextMenu(const QPoint &p)
 
 bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
 {
+  if (!marker_editing_enabled_) {
+    return false;
+  }
+
   resize_item_ = nullptr;
   resize_mode_ = kResizeNone;
 

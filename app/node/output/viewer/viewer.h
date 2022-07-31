@@ -126,7 +126,7 @@ public:
     return InputArraySize(kSubtitleParamsInput);
   }
 
-  int GetTotalStreamCount() const
+  virtual int GetTotalStreamCount() const
   {
     return GetVideoStreamCount() + GetAudioStreamCount() + GetSubtitleStreamCount();
   }

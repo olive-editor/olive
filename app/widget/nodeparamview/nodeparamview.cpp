@@ -435,7 +435,7 @@ void NodeParamView::DeleteSelected()
       Node *n = item->GetNode();
 
       Node *node_being_deleted = n;
-      Node *connected_to_effect_input = n;
+      Node *connected_to_effect_input = nullptr;
 
       while (true) {
         if (node_being_deleted->GetEffectInput().IsValid()) {

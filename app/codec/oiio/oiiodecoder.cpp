@@ -73,7 +73,8 @@ FootageDescription OIIODecoder::Probe(const QString &filename, CancelAtom *cance
 
   bool stream_enabled = true;
 
-  for (int i=0; in->seek_subimage(i, 0); i++) {
+  int i;
+  for (i=0; in->seek_subimage(i, 0); i++) {
     OIIO::ImageSpec spec = in->spec();
 
     VideoParams video_params = GetVideoParamsFromImageSpec(spec);
@@ -103,6 +104,8 @@ FootageDescription OIIODecoder::Probe(const QString &filename, CancelAtom *cance
 
     desc.AddVideoStream(video_params);
   }
+
+  desc.SetStreamCount(i);
 
   // If we're here, we have a successful image open
   in->close();

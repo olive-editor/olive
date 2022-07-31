@@ -410,6 +410,16 @@ void MainWindow::SetApplicationProgressValue(int value)
 #endif
 }
 
+void MainWindow::SelectFootage(const QVector<Footage *> &e)
+{
+  for (ProjectPanel *p : project_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
+  for (ProjectPanel *p : folder_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
+}
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   // Try to close all projects (this will return false if the user chooses not to close)
@@ -757,6 +767,16 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
 
   node_panel_->SetContexts(context);
   param_panel_->SetContexts(context);
+}
+
+void MainWindow::SelectFootageForProjectPanel(const QVector<Footage *> &e, ProjectPanel *p)
+{
+  p->DeselectAll();
+  for (Footage *f : e) {
+    if (p->get_root()->HasChildRecursive(f)) {
+      p->SelectItem(f, false);
+    }
+  }
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)

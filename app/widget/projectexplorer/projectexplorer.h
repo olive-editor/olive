@@ -85,12 +85,14 @@ public:
 
   void DeleteSelected();
 
-  bool SelectItem(Node *n);
+  bool SelectItem(Node *n, bool deselect_all_first = true);
 
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
 
   void Edit(Node* item);
+
+  void RenameSelectedItem();
 
 signals:
   /**
@@ -170,8 +172,6 @@ private slots:
   void SizeChangedSlot(int s);
 
   void DirUpSlot();
-
-  void RenameSelectedItem();
 
   void ShowContextMenu();
 
