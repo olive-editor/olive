@@ -137,6 +137,9 @@ void TextAnimationEngine::CalculateAnimator( const TextAnimation::Descriptor &an
   int index = animator.character_from;
   last_index_ = CalculateEndIndex( animator);
 
+  // avoid infinite loop if 'stride' is illegal
+  int step = (animator.stride < 0) ? 1 : (1 + animator.stride);
+
   while (index <= last_index_) {
 
     double anim_value = CalculateAnimatorForChar( animator, index);
@@ -170,7 +173,7 @@ void TextAnimationEngine::CalculateAnimator( const TextAnimation::Descriptor &an
       break;
     }
 
-    index++;
+    index += step;
   }
 }
 

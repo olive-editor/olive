@@ -82,6 +82,9 @@ struct Descriptor {
   int character_from;
   // last character to be animated. Use -1 to indicate the end of the text
   int character_to;
+  // When 0 (or negative), the effect is applied to all characetrs.
+  // When 1 or more, 'stride' items are skipped for evry one that is applied.
+  int stride;
   // range [0,1]. The lower this value, the more all characters start
   // their animation together
   double overlap_in;

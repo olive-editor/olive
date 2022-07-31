@@ -50,6 +50,7 @@ TextAnimationRenderNode::TextAnimationRenderNode()
             QStringLiteral("<!-- Don't write here. Attach a TextAnimation node -->"),
             InputFlags(kInputFlagNotKeyframable));
 
+  SetFlags(kVideoEffect);
   SetEffectInput(kRichTextInput);
 
   engine_ = new TextAnimationEngine();

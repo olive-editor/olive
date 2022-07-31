@@ -73,6 +73,8 @@ public:
   static const QString kIndexFromInput;
   // index of last character to be animated
   static const QString kIndexToInput;
+  // number of characters to be skipped for each one that is applied
+  static const QString kStrideInput;
   // range [0-1]. When 0 all characters start the animation at the begin;
   // When 1, each character starts the animation when the previous is over
   static const QString kOverlapInInput;

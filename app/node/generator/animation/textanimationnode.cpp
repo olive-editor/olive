@@ -30,6 +30,7 @@ const QString TextAnimationNode::kCompositeOutput = QStringLiteral("composite_ou
 const QString TextAnimationNode::kFeatureInput = QStringLiteral("feature_in");
 const QString TextAnimationNode::kIndexFromInput = QStringLiteral("from_in");
 const QString TextAnimationNode::kIndexToInput = QStringLiteral("to_in");
+const QString TextAnimationNode::kStrideInput = QStringLiteral("stride_in");
 const QString TextAnimationNode::kOverlapInInput = QStringLiteral("overlap_in_in");
 const QString TextAnimationNode::kOverlapOutInput = QStringLiteral("overlap_out_in");
 const QString TextAnimationNode::kCurveInput = QStringLiteral("curve_in");
@@ -68,6 +69,12 @@ TextAnimationNode::TextAnimationNode()
   AddInput( kIndexToInput, NodeValue::kFloat, -1.);  // default to negative value to animate the full text
   SetInputProperty( kIndexToInput, QStringLiteral("min"), -1.);
 
+  // when 0, effect is applied to all characters. When greater then 0, this number of characters is skipped
+  // for each one for which the effect is applied
+  AddInput( kStrideInput, NodeValue::kFloat, 0.);
+  SetInputProperty( kStrideInput, QStringLiteral("min"), 0.);
+
+
   AddInput( kOverlapInInput, NodeValue::kFloat, 1.);
   SetInputProperty( kOverlapInInput, QStringLiteral("min"), 0.);
   SetInputProperty( kOverlapInInput, QStringLiteral("max"), 1.);
@@ -76,7 +83,7 @@ TextAnimationNode::TextAnimationNode()
   SetInputProperty( kOverlapOutInput, QStringLiteral("min"), 0.);
   SetInputProperty( kOverlapOutInput, QStringLiteral("max"), 1.);
 
-  AddInput( kCurveInput, NodeValue::kCombo, 0);
+  AddInput( kCurveInput, NodeValue::kCombo, 1);
   // keep order defined in TextAnimation::Curve, not the one in QMaps
   SetComboBoxStrings( kCurveInput, QStringList()
                       << tr("Step")
@@ -98,24 +105,25 @@ TextAnimationNode::TextAnimationNode()
   SetInputProperty( kAlphaInput, QStringLiteral("min"), 0.);
   SetInputProperty( kAlphaInput, QStringLiteral("max"), 1.);
 
-   SetEffectInput(kCompositeInput);
+  SetEffectInput(kCompositeInput);
 }
 
 void TextAnimationNode::Retranslate()
 {
   super::Retranslate();
 
-  SetInputName( kCompositeInput, QStringLiteral("Composite"));
-  SetInputName( kFeatureInput, QStringLiteral("Feature"));
-  SetInputName( kIndexFromInput, QStringLiteral("Index from"));
-  SetInputName( kIndexToInput, QStringLiteral("Index to"));
-  SetInputName( kOverlapInInput, QStringLiteral("Overlap IN"));
-  SetInputName( kOverlapOutInput, QStringLiteral("Overlap OUT"));
-  SetInputName( kCurveInput, QStringLiteral("Curve"));
-  SetInputName( kC1Input, QStringLiteral("C1"));
-  SetInputName( kC2Input, QStringLiteral("C2"));
-  SetInputName( kValueInput, QStringLiteral("Value"));
-  SetInputName( kAlphaInput, QStringLiteral("Alpha"));
+  SetInputName( kCompositeInput, tr("Composite"));
+  SetInputName( kFeatureInput, tr("Feature"));
+  SetInputName( kIndexFromInput, tr("Index from"));
+  SetInputName( kIndexToInput, tr("Index to"));
+  SetInputName( kStrideInput, tr("Stride"));
+  SetInputName( kOverlapInInput, tr("Overlap IN"));
+  SetInputName( kOverlapOutInput, tr("Overlap OUT"));
+  SetInputName( kCurveInput, tr("Curve"));
+  SetInputName( kC1Input, tr("C1"));
+  SetInputName( kC2Input, tr("C2"));
+  SetInputName( kValueInput, tr("Value"));
+  SetInputName( kAlphaInput, tr("Alpha"));
 }
 
 
@@ -132,14 +140,15 @@ void TextAnimationNode::Value(const NodeValueRow &value, const NodeGlobals & /*g
 
   animation.feature = (TextAnimation::Feature) (job.Get(kFeatureInput).toInt());
   animation.character_from = (int)(job.Get(kIndexFromInput).toDouble());
-  animation.character_to = (int)(job.Get(kIndexToInput).toInt());
+  animation.character_to = (int)(job.Get(kIndexToInput).toDouble());
+  animation.stride = (int)(job.Get(kStrideInput).toDouble());
   animation.overlap_in = job.Get(kOverlapInInput).toDouble ();
   animation.overlap_out = job.Get(kOverlapOutInput).toDouble ();
   animation.curve = (TextAnimation::Curve) (job.Get(kCurveInput).toInt());
-  animation.c1 = job.Get(kC1Input).toDouble ();;
-  animation.c2 = job.Get(kC2Input).toDouble ();;
-  animation.value = job.Get(kValueInput).toDouble ();;
-  animation.alpha = job.Get(kAlphaInput).toDouble ();;
+  animation.c1 = job.Get(kC1Input).toDouble ();
+  animation.c2 = job.Get(kC2Input).toDouble ();
+  animation.value = job.Get(kValueInput).toDouble ();
+  animation.alpha = job.Get(kAlphaInput).toDouble ();
 
   TextAnimationXmlFormatter formatter;
   formatter.SetAnimationData( & animation);

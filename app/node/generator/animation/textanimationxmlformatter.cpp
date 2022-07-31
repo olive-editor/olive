@@ -19,6 +19,7 @@ QString TextAnimationXmlFormatter::Format() const
 
     writer.writeAttribute( "ch_from", QString("%1").arg(descriptor_->character_from));
     writer.writeAttribute( "ch_to", QString("%1").arg(descriptor_->character_to));
+    writer.writeAttribute( "stride", QString("%1").arg(descriptor_->stride));
     writer.writeAttribute( "overlap_in", QString("%1").arg(descriptor_->overlap_in));
     writer.writeAttribute( "overlap_out", QString("%1").arg(descriptor_->overlap_out));
     writer.writeAttribute( "curve", TextAnimation::CURVE_TABLE.value(descriptor_->curve, ""));
