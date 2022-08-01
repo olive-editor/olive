@@ -73,6 +73,21 @@ bool Folder::ChildExistsWithName(const QString &s) const
   return ChildExistsWithNameInternal(this, s);
 }
 
+bool Folder::HasChildRecursive(Node *child) const
+{
+  for (Node *i : item_children_) {
+    if (i == child) {
+      return true;
+    } else if (Folder *f = dynamic_cast<Folder*>(i)) {
+      if (f->HasChildRecursive(child)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 int Folder::index_of_child_in_array(Node *item) const
 {
   int index_of_item = item_children_.indexOf(item);

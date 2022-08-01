@@ -121,6 +121,8 @@ public:
     calculate_effective_size();
   }
 
+  bool is_3d() const { return depth_ > 1; }
+
   const rational& time_base() const
   {
     return time_base_;

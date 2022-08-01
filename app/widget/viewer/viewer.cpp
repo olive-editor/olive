@@ -149,6 +149,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   setAcceptDrops(true);
 
+  UpdateWaveformViewFromMode();
+
   connect(Core::instance(), &Core::ColorPickerEnabled, this, &ViewerWidget::SetSignalCursorColorEnabled);
   connect(this, &ViewerWidget::CursorColor, Core::instance(), &Core::ColorPickerColorEmitted);
   connect(AudioManager::instance(), &AudioManager::OutputParamsChanged, this, &ViewerWidget::UpdateAudioProcessor);
@@ -560,6 +562,35 @@ void ViewerWidget::ShowSubtitleProperties()
   }
 }
 
+void ViewerWidget::DryRunFinished()
+{
+  RenderTicketWatcher *w = static_cast<RenderTicketWatcher*>(sender());
+
+  if (dry_run_watchers_.contains(w)) {
+    RequestNextDryRun();
+  }
+
+  delete w;
+}
+
+void ViewerWidget::RequestNextDryRun()
+{
+  if (IsPlaying()) {
+    rational next_time = Timecode::timestamp_to_time(dry_run_next_frame_, timebase());
+    if (FrameExistsAtTime(next_time)) {
+      if (next_time > GetTime() + RenderManager::kDryRunInterval) {
+        QTimer::singleShot(timebase().toDouble() / playback_speed_, this, &ViewerWidget::RequestNextDryRun);
+      } else {
+        RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
+        connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::DryRunFinished);
+        watcher->SetTicket(auto_cacher_.GetSingleFrame(next_time, true));
+        dry_run_next_frame_ += playback_speed_;
+        dry_run_watchers_.append(watcher);
+      }
+    }
+  }
+}
+
 void ViewerWidget::CloseAudioProcessor()
 {
   audio_processor_.Close();
@@ -828,6 +859,9 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       for (int i=0; i<prequeue_length_; i++) {
         RequestNextFrameForQueue();
       }
+
+      dry_run_next_frame_ = playback_queue_next_frame_;
+      RequestNextDryRun();
     }
   }
 
@@ -845,6 +879,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       QueueNextAudioBuffer();
     }
   }
+
   // Force screen to stay awake
   PreventSleep(true);
 }
@@ -893,6 +928,7 @@ void ViewerWidget::PauseInternal()
 
   prequeuing_video_ = false;
   prequeuing_audio_ = 0;
+  dry_run_watchers_.clear();
 
   // Reset screen timeout timer
   PreventSleep(false);
@@ -1048,7 +1084,7 @@ int ViewerWidget::DeterminePlaybackQueueSize()
     end_ts = 0;
   }
 
-  int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
+  int remaining_frames = (end_ts - GetTimestamp() - 1) / playback_speed_;
 
   // Generate maximum queue
   int max_frames = qCeil(kVideoPlaybackInterval.toDouble() / timebase().toDouble());

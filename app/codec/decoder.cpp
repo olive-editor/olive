@@ -43,6 +43,12 @@ Decoder::Decoder() :
   UpdateLastAccessed();
 }
 
+void Decoder::IncrementAccessTime(qint64 t)
+{
+  QMutexLocker locker(&mutex_);
+  last_accessed_ += t;
+}
+
 bool Decoder::Open(const CodecStream &stream)
 {
   QMutexLocker locker(&mutex_);

@@ -35,6 +35,7 @@
 namespace olive {
 
 RenderManager* RenderManager::instance_ = nullptr;
+const rational RenderManager::kDryRunInterval = rational(10);
 
 RenderManager::RenderManager(QObject *parent) :
   backend_(kOpenGL),
@@ -52,9 +53,11 @@ RenderManager::RenderManager(QObject *parent) :
 
   if (context_) {
     video_thread_ = new RenderThread(context_, decoder_cache_, shader_cache_, this);
+    dry_run_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
     audio_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
 
     video_thread_->start(QThread::IdlePriority);
+    dry_run_thread_->start(QThread::IdlePriority);
     audio_thread_->start(QThread::IdlePriority);
   }
 
@@ -72,6 +75,9 @@ RenderManager::~RenderManager()
 
     video_thread_->quit();
     video_thread_->wait();
+
+    dry_run_thread_->quit();
+    dry_run_thread_->wait();
 
     context_->PostDestroy();
     delete context_;
@@ -94,6 +100,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam
                      QSize(0, 0),
                      QMatrix4x4(),
                      VideoParams::kFormatInvalid,
+                     0,
                      nullptr,
                      cache,
                      return_type);
@@ -104,6 +111,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
                                            const VideoParams &video_params, const AudioParams &audio_params,
                                            const QSize& force_size,
                                            const QMatrix4x4& force_matrix, VideoParams::Format force_format,
+                                           int force_channel_count,
                                            ColorProcessorPtr force_color_output,
                                            FrameHashCache* cache, ReturnType return_type)
 {
@@ -115,6 +123,7 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
   ticket->setProperty("size", force_size);
   ticket->setProperty("matrix", force_matrix);
   ticket->setProperty("format", force_format);
+  ticket->setProperty("channelcount", force_channel_count);
   ticket->setProperty("mode", mode);
   ticket->setProperty("type", kTypeVideo);
   ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
@@ -129,7 +138,11 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
     ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
   }
 
-  video_thread_->AddTicket(ticket);
+  if (return_type == ReturnType::kNull) {
+    dry_run_thread_->AddTicket(ticket);
+  } else {
+    video_thread_->AddTicket(ticket);
+  }
 
   return ticket;
 }
@@ -156,6 +169,8 @@ bool RenderManager::RemoveTicket(RenderTicketPtr ticket)
   if (video_thread_->RemoveTicket(ticket)) {
     return true;
   } else if (audio_thread_->RemoveTicket(ticket)) {
+    return true;
+  } else if (dry_run_thread_->RemoveTicket(ticket)) {
     return true;
   } else {
     return false;

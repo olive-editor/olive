@@ -263,6 +263,8 @@ private:
 
   void EmitColorAtCursor(QMouseEvent* e);
 
+  void DrawSubtitleTracks();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */

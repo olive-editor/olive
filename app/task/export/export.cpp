@@ -162,7 +162,7 @@ bool ExportTask::Run()
 
   Render(color_manager_, video_range, audio_range, subtitle_range, RenderMode::kOnline, nullptr,
          video_force_size, video_force_matrix, encoder_->GetDesiredPixelFormat(),
-         color_processor_);
+         VideoParams::kRGBAChannelCount, color_processor_);
 
   bool success = true;
 

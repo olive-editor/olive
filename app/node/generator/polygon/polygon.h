@@ -54,11 +54,13 @@ public:
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+
   static const QString kPointsInput;
   static const QString kColorInput;
 
 protected:
-  GenerateJob GetGenerateJob(const NodeValueRow &value) const;
+  ShaderJob GetGenerateJob(const NodeValueRow &value) const;
 
 protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;

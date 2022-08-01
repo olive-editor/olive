@@ -44,7 +44,7 @@ ShaderCode MaskDistortNode::GetShaderCode(const ShaderRequest &request) const
   } else if (request.id == QStringLiteral("feather")) {
     return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/blur.frag")));
   } else {
-    return ShaderCode();
+    return super::GetShaderCode(request);
   }
 }
 
@@ -58,7 +58,7 @@ void MaskDistortNode::Retranslate()
 
 void MaskDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  GenerateJob job = GetGenerateJob(value);
+  ShaderJob job = GetGenerateJob(value);
 
   if (value[kBaseInput].toTexture()) {
     // Push as merge node
