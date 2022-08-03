@@ -20,6 +20,7 @@
 
 #include "viewerdisplay.h"
 
+#include <iostream>
 #include <OpenImageIO/imagebuf.h>
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
@@ -36,6 +37,7 @@
 
 #include "common/html.h"
 #include "common/qtutils.h"
+#include "common/2dclamp.h"
 #include "config/config.h"
 #include "core.h"
 #include "node/block/subtitle/subtitle.h"
@@ -642,56 +644,37 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   QRect global_text_area = gizmo_transform.map(text->GetRect()).boundingRect().toRect();
   global_text_area = QRect(mapToGlobal(global_text_area.topLeft()), mapToGlobal(global_text_area.bottomRight()));
 
-  QRect global_popup_area = global_text_area;
 
   // Create toolbar
   ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(popup);
   text_edit->ConnectToolBar(toolbar);
 
-  // Work out which corner of the text editor to anchor the toolbar to based on screen limitations
-  bool top = true;
-  bool left = true;
+  //get geometry of active screen
+  QRect screen_geometry;
   for (QScreen *screen : qApp->screens()) {
-    // Look for screen that contains text area
-    if (screen->geometry().contains(global_text_area)) {
-      if (global_text_area.left() + toolbar->width() > screen->geometry().right()) {
-        left = false;
-      }
-      if (global_text_area.top() - toolbar->height() < screen->geometry().top()) {
-        top = false;
-      }
+    // Look for screen that contains all of or some of the text area
+    if ((screen->geometry().intersects(global_text_area))) {
+      screen_geometry = screen->geometry();
       break;
     }
   }
 
-
-  QPoint toolbar_pos;
-
-  if (top) {
-    global_popup_area.adjust(0, -toolbar->height(), 0, 0);
-    toolbar_pos.setY(0);
-  } else {
-    global_popup_area.adjust(0, 0, 0, toolbar->height());
-    toolbar_pos.setY(global_text_area.height());
+  //clamp text editor to edges so that it doesn't go outside screen
+  global_text_area = clamptoedges(global_text_area, screen_geometry);
+  if(global_text_area.top() < toolbar->height()) {
+    global_text_area.moveTop(toolbar->height());
   }
+  
+  //init size of entire popup area to ensure it covers both the toolbar and the text editor
+  QRect global_popup_area = global_text_area;
+  global_popup_area.setRight(std::max(global_popup_area.right(), global_popup_area.left() + toolbar->width()));
+  global_popup_area.adjust(0, -toolbar->height(),0,0);
 
-  if (toolbar->width() > global_popup_area.width()) {
-    int diff = toolbar->width() - global_popup_area.width();
-    if (left) {
-      global_popup_area.adjust(0, 0, diff, 0);
-    } else {
-      global_popup_area.adjust(-diff, 0, 0, 0);
-    }
-    toolbar_pos.setX(0);
-  } else {
-    if (left) {
-      toolbar_pos.setX(0);
-    } else {
-      toolbar_pos.setX(global_popup_area.width() - toolbar->width());
-    }
+  //if toolbar goes outside of right screen edge, clamp it to right edge
+  if (global_text_area.left() + toolbar->width() > screen_geometry.right()) {
+    int diff = screen_geometry.right()-  (global_text_area.left() + toolbar->width());
+    global_popup_area.adjust(diff, 0,diff,0);
   }
-
-  toolbar->move(toolbar_pos);
 
   popup->setGeometry(global_popup_area);
 
