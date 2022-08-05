@@ -23,6 +23,7 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 
+
 #include "config/config.h"
 
 namespace olive {
@@ -35,73 +36,86 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
   layout->addWidget(behavior_tree_);
 
   behavior_tree_->setHeaderLabel(tr("Behavior"));
+   
+  {
+    QTreeWidgetItem* general_group = AddParent(tr("General"));
+    AddItem(tr("Enable hover focus"),
+            QStringLiteral("HoverFocus"),
+            tr("Panels will be considered focused when the mouse cursor is over them without having to click them."),
+            general_group);
+    AddItem(tr("Enable slider ladder"),
+            QStringLiteral("UseSliderLadders"),
+            general_group);
+  }
+  {
+    QTreeWidgetItem* visual_group = AddParent(tr("Visual"));
+    AddItem(tr("Enable transparent widgets/dialogs"),
+            QStringLiteral("AllowTransparentDialogs"),
+            tr("Some systems may have issues displaying transparent dialogs, in which case this option should be unchecked."),
+            visual_group);
+  }
+  {
+    QTreeWidgetItem* audio_group = AddParent(tr("Audio"));
+    AddItem(tr("Enable audio scrubbing"),
+            QStringLiteral("AudioScrubbing"),
+            audio_group);
+  }
+  {
+    QTreeWidgetItem* timeline_group = AddParent(tr("Timeline"));
+    AddItem(tr("Auto-Seek to Imported Clips"),
+            QStringLiteral("EnableSeekToImport"),
+            timeline_group);
+    AddItem(tr("Edit Tool Also Seeks"),
+            QStringLiteral("EditToolAlsoSeeks"),
+            timeline_group);
+    AddItem(tr("Edit Tool Selects Links"),
+            QStringLiteral("EditToolSelectsLinks"),
+            timeline_group);
+    AddItem(tr("Enable Drag Files to Timeline"),
+            QStringLiteral("EnableDragFilesToTimeline"),
+            timeline_group);
+    AddItem(tr("Invert Timeline Scroll Axes"),
+            QStringLiteral("InvertTimelineScrollAxes"),
+            tr("Hold ALT on any UI element to switch scrolling axes"),
+            timeline_group);
+    AddItem(tr("Seek Also Selects"),
+            QStringLiteral("SelectAlsoSeeks"),
+            timeline_group);
+    AddItem(tr("Seek to the End of Pastes"),
+            QStringLiteral("PasteSeeks"),
+            timeline_group);
+    AddItem(tr("Selecting Also Seeks"),
+            QStringLiteral("SelectAlsoSeeks"),
+            timeline_group);
+  }
+  {
+    QTreeWidgetItem* playback_group = AddParent(tr("Playback"));
+    AddItem(tr("Ask For Name When Setting Marker"),
+            QStringLiteral("SetNameWithMarker"),
+            playback_group);
+    AddItem(tr("Automatically rewind at the end of a sequence"),
+            QStringLiteral("AutoSeekToBeginning"),
+            playback_group);
 
-  QTreeWidgetItem* general_group = AddParent(tr("General"));
-  AddItem(tr("Enable hover focus"),
-          QStringLiteral("HoverFocus"),
-          tr("Panels will be considered focused when the mouse cursor is over them without having to click them."),
-          general_group);
-  AddItem(tr("Enable slider ladder"),
-          QStringLiteral("UseSliderLadders"),
-          general_group);
-
-  QTreeWidgetItem* audio_group = AddParent(tr("Audio"));
-  AddItem(tr("Enable audio scrubbing"),
-          QStringLiteral("AudioScrubbing"),
-          audio_group);
-
-  QTreeWidgetItem* timeline_group = AddParent(tr("Timeline"));
-  AddItem(tr("Auto-Seek to Imported Clips"),
-          QStringLiteral("EnableSeekToImport"),
-          timeline_group);
-  AddItem(tr("Edit Tool Also Seeks"),
-          QStringLiteral("EditToolAlsoSeeks"),
-          timeline_group);
-  AddItem(tr("Edit Tool Selects Links"),
-          QStringLiteral("EditToolSelectsLinks"),
-          timeline_group);
-  AddItem(tr("Enable Drag Files to Timeline"),
-          QStringLiteral("EnableDragFilesToTimeline"),
-          timeline_group);
-  AddItem(tr("Invert Timeline Scroll Axes"),
-          QStringLiteral("InvertTimelineScrollAxes"),
-          tr("Hold ALT on any UI element to switch scrolling axes"),
-          timeline_group);
-  AddItem(tr("Seek Also Selects"),
-          QStringLiteral("SelectAlsoSeeks"),
-          timeline_group);
-  AddItem(tr("Seek to the End of Pastes"),
-          QStringLiteral("PasteSeeks"),
-          timeline_group);
-  AddItem(tr("Selecting Also Seeks"),
-          QStringLiteral("SelectAlsoSeeks"),
-          timeline_group);
-
-  QTreeWidgetItem* playback_group = AddParent(tr("Playback"));
-  AddItem(tr("Ask For Name When Setting Marker"),
-          QStringLiteral("SetNameWithMarker"),
-          playback_group);
-  AddItem(tr("Automatically rewind at the end of a sequence"),
-          QStringLiteral("AutoSeekToBeginning"),
-          playback_group);
-
-  QTreeWidgetItem* project_group = AddParent(tr("Project"));
-  AddItem(tr("Drop Files on Media to Replace"),
-          QStringLiteral("DropFileOnMediaToReplace"),
-          project_group);
-
-  QTreeWidgetItem* node_group = AddParent(tr("Nodes"));
-  AddItem(tr("Add Default Effects to New Clips"),
-          QStringLiteral("AddDefaultEffectsToClips"),
-          node_group);
-  AddItem(tr("Auto-Scale By Default"),
-          QStringLiteral("AutoscaleByDefault"),
-          node_group);
-  AddItem(tr("Splitting Clips Copies Dependencies"),
-          QStringLiteral("SplitClipsCopyNodes"),
-          tr("Multiple clips can share the same nodes. Disable this to automatically share node "
-             "dependencies among clips when copying or splitting them."),
-          node_group);
+    QTreeWidgetItem* project_group = AddParent(tr("Project"));
+    AddItem(tr("Drop Files on Media to Replace"),
+            QStringLiteral("DropFileOnMediaToReplace"),
+            project_group);
+  }
+  {
+    QTreeWidgetItem* node_group = AddParent(tr("Nodes"));
+    AddItem(tr("Add Default Effects to New Clips"),
+            QStringLiteral("AddDefaultEffectsToClips"),
+            node_group);
+    AddItem(tr("Auto-Scale By Default"),
+            QStringLiteral("AutoscaleByDefault"),
+            node_group);
+    AddItem(tr("Splitting Clips Copies Dependencies"),
+            QStringLiteral("SplitClipsCopyNodes"),
+            tr("Multiple clips can share the same nodes. Disable this to automatically share node "
+               "dependencies among clips when copying or splitting them."),
+            node_group);
+  }
 }
 
 void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)

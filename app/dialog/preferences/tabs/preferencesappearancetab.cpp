@@ -61,6 +61,7 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
 
   appearance_layout->addWidget(style_combobox_, row, 1);
 
+  //Default Node colours
   row++;
 
   {
@@ -82,11 +83,14 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
     appearance_layout->addWidget(color_group, row, 0, 1, 2);
   }
 
+  //Miscellaneous
   row++;
   {
     QGroupBox* marker_group = new QGroupBox();
     marker_group->setTitle(tr("Miscellaneous"));
 
+
+    //Default marker colour
     QGridLayout* marker_layout = new QGridLayout(marker_group);
 
     marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
@@ -94,6 +98,11 @@ PreferencesAppearanceTab::PreferencesAppearanceTab()
     marker_btn_ = new ColorCodingComboBox();
     marker_btn_->SetColor(OLIVE_CONFIG("MarkerColor").toInt());
     marker_layout->addWidget(marker_btn_, 0, 1);
+
+    //Allow Transparent Dialogs
+    allow_transparent_cb_=  new QCheckBox("Allow Transparent Dialogs");
+    allow_transparent_cb_->setChecked(OLIVE_CONFIG("AllowTransparentDialogs").toBool());
+    marker_layout->addWidget(allow_transparent_cb_);
 
     appearance_layout->addWidget(marker_group, row, 0, 1, 2);
   }
@@ -117,6 +126,7 @@ void PreferencesAppearanceTab::Accept(MultiUndoCommand *command)
   }
 
   OLIVE_CONFIG("MarkerColor") = marker_btn_->GetSelectedColor();
+  OLIVE_CONFIG("AllowTransparentDialogs") = allow_transparent_cb_->isChecked();
 }
 
 }

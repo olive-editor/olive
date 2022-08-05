@@ -627,7 +627,8 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   auto popup = new QWidget(this);
   popup->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
   popup->setAttribute(Qt::WA_DeleteOnClose);
-  popup->setAttribute(Qt::WA_TranslucentBackground);
+  if (OLIVE_CONFIG("AllowTransparentDialogs").toBool())
+    popup->setAttribute(Qt::WA_TranslucentBackground);
 
   // Create text editor
   ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), popup);
