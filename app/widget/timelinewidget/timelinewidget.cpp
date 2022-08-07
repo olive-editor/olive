@@ -1515,6 +1515,10 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
 
 void TimelineWidget::RippleTo(Timeline::MovementMode mode)
 {
+  if (!GetConnectedNode()) {
+    return;
+  }
+
   rational playhead_time = GetTime();
 
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
