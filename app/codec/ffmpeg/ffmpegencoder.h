@@ -23,8 +23,8 @@
 
 extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
 #include <libavutil/opt.h>
 }
@@ -88,7 +88,9 @@ private:
 
   AVStream* video_stream_;
   AVCodecContext* video_codec_ctx_;
-  SwsContext* video_scale_ctx_;
+  AVFilterGraph *video_scale_ctx_;
+  AVFilterContext *video_buffersrc_ctx_;
+  AVFilterContext *video_buffersink_ctx_;
   VideoParams::Format video_conversion_fmt_;
 
   AVStream* audio_stream_;

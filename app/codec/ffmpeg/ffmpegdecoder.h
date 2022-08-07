@@ -36,14 +36,9 @@ extern "C" {
 #include <QWaitCondition>
 
 #include "codec/decoder.h"
+#include "common/ffmpegutils.h"
 
 namespace olive {
-
-using AVFramePtr = std::shared_ptr<AVFrame>;
-inline AVFramePtr CreateAVFramePtr(AVFrame *f)
-{
-  return std::shared_ptr<AVFrame>(f, [](AVFrame *g){ av_frame_free(&g); });
-}
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
