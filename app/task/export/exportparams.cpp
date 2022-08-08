@@ -54,16 +54,6 @@ void ExportParams::set_video_scaling_method(const ExportParams::VideoScalingMeth
   video_scaling_method_ = video_scaling_method;
 }
 
-const ColorTransform &ExportParams::color_transform() const
-{
-  return color_transform_;
-}
-
-void ExportParams::set_color_transform(const ColorTransform &color_transform)
-{
-  color_transform_ = color_transform;
-}
-
 QMatrix4x4 ExportParams::GenerateMatrix(ExportParams::VideoScalingMethod method,
                                         int source_width, int source_height,
                                         int dest_width, int dest_height)
@@ -103,7 +93,7 @@ void ExportParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("customrangeout"), custom_range_.out().toString());
 
   // FIXME: Change this when color chains are implemented
-  writer->writeTextElement(QStringLiteral("color"), color_transform_.output());
+  writer->writeTextElement(QStringLiteral("color"), color_transform().output());
 
   EncodingParams::Save(writer);
 

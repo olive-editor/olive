@@ -46,9 +46,6 @@ public:
   const VideoScalingMethod& video_scaling_method() const;
   void set_video_scaling_method(const VideoScalingMethod& video_scaling_method);
 
-  const ColorTransform& color_transform() const;
-  void set_color_transform(const ColorTransform& color_transform);
-
   static QMatrix4x4 GenerateMatrix(ExportParams::VideoScalingMethod method,
                                    int source_width, int source_height,
                                    int dest_width, int dest_height);
@@ -60,8 +57,6 @@ private:
 
   bool has_custom_range_;
   TimeRange custom_range_;
-
-  ColorTransform color_transform_;
 
 };
 

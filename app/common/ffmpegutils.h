@@ -59,6 +59,12 @@ public:
   static AVSampleFormat GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt);
 };
 
+using AVFramePtr = std::shared_ptr<AVFrame>;
+inline AVFramePtr CreateAVFramePtr(AVFrame *f)
+{
+  return std::shared_ptr<AVFrame>(f, [](AVFrame *g){ av_frame_free(&g); });
+}
+
 }
 
 #endif // FFMPEGABSTRACTION_H

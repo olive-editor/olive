@@ -76,6 +76,7 @@ public:
   void set_video_pix_fmt(const QString& s) { video_pix_fmt_ = s; }
   void set_video_is_image_sequence(bool s) { video_is_image_sequence_ = s; }
   void set_video_color_range(YUVRange r) { video_color_range_ = r; }
+  void set_color_transform(const ColorTransform& color_transform) { color_transform_ = color_transform; }
 
   const QString& filename() const { return filename_; }
 
@@ -91,6 +92,7 @@ public:
   const QString& video_pix_fmt() const { return video_pix_fmt_; }
   bool video_is_image_sequence() const { return video_is_image_sequence_; }
   YUVRange video_color_range() const { return video_color_range_; }
+  const ColorTransform& color_transform() const { return color_transform_; }
 
   bool audio_enabled() const { return audio_enabled_; }
   const ExportCodec::Codec &audio_codec() const { return audio_codec_; }
@@ -125,6 +127,7 @@ private:
   QString video_pix_fmt_;
   bool video_is_image_sequence_;
   YUVRange video_color_range_;
+  ColorTransform color_transform_;
 
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;
