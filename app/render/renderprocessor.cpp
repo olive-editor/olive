@@ -481,6 +481,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
         p.time = (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode;
         p.cancelled = GetCancelPointer();
         p.force_range = stream_data.color_range();
+        p.src_interlacing = stream_data.interlacing();
 
         unmanaged_texture = decoder->RetrieveVideo(p);
 

@@ -159,6 +159,7 @@ private:
   VideoParams::Format native_internal_pix_fmt_;
   VideoParams::Format native_output_pix_fmt_;
   int native_channel_count_;
+  rational frame_rate_tb_;
 
   AVFrame *working_frame_;
   AVPacket *working_packet_;

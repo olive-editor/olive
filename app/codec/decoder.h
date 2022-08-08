@@ -170,6 +170,7 @@ public:
     VideoParams::Format maximum_format = VideoParams::kFormatInvalid;
     CancelAtom *cancelled = nullptr;
     VideoParams::ColorRange force_range = VideoParams::kColorRangeDefault;
+    VideoParams::Interlacing src_interlacing = VideoParams::kInterlaceNone;
   };
 
   /**

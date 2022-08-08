@@ -79,6 +79,7 @@ bool FFmpegDecoder::OpenInternal()
     working_frame_ = av_frame_alloc();
     working_packet_ = av_packet_alloc();
 
+    frame_rate_tb_ = rational::NaN;
     return true;
   }
 
@@ -242,6 +243,29 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
             job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kInt, yuv_coeffs[2]));
             job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kInt, yuv_coeffs[3]));
             job.Insert(QStringLiteral("yuv_cbu"), NodeValue(NodeValue::kInt, yuv_coeffs[1]));
+
+            int interlacing = 0;
+            if (p.src_interlacing != VideoParams::kInterlaceNone) {
+              if (frame_rate_tb_.isNull()) {
+                frame_rate_tb_ = av_guess_frame_rate(instance_.fmt_ctx(), instance_.avstream(), f.get());
+
+                // Double frame rate for interlaced fields
+                frame_rate_tb_ *= 2;
+
+                // Flip frame rate so it can be used as a timebase
+                frame_rate_tb_.flip();
+              }
+
+              int64_t req = Timecode::time_to_timestamp(p.time, frame_rate_tb_);
+              int64_t frm = Timecode::rescale_timestamp(f->pts - instance_.avstream()->start_time, instance_.avstream()->time_base, frame_rate_tb_);
+
+              bool first = (req == frm);
+              bool top_first = (p.src_interlacing == VideoParams::kInterlacedTopFirst);
+
+              interlacing = (first == top_first) ? 1 : 2;
+            }
+            job.Insert(QStringLiteral("interlacing"), NodeValue(NodeValue::kInt, interlacing));
+            job.Insert(QStringLiteral("pixel_height"), NodeValue(NodeValue::kInt, f->height));
 
             tex = p.renderer->CreateTexture(vp);
             p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
@@ -896,6 +920,7 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
   if (params.divider == filter_params_.divider
       && params.force_range == filter_params_.force_range
       && params.maximum_format == filter_params_.maximum_format
+      && params.src_interlacing == filter_params_.src_interlacing
       && filter_graph_
       && input_fmt_ == input->format) {
     // We have an appropriate filter for these parameters, just return true
@@ -961,6 +986,20 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
 
   // Link filters as necessary
   AVFilterContext *last_filter = buffersrc_ctx_;
+
+  // Add deinterlace filter if necessary
+  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone) {
+    AVFilterContext* deint_filter;
+
+    snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
+             filter_params_.src_interlacing == VideoParams::kInterlacedTopFirst ? "0" : "1");
+
+    avfilter_graph_create_filter(&deint_filter, avfilter_get_by_name("yadif"), "deint", filter_args, nullptr, filter_graph_);
+
+    avfilter_link(last_filter, 0, deint_filter, 0);
+
+    last_filter = deint_filter;
+  }
 
   // Add scale filter if necessary
   int dst_width, dst_height;
