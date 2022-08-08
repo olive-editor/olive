@@ -43,14 +43,6 @@ using EncoderPtr = std::shared_ptr<Encoder>;
 
 class EncodingParams {
 public:
-  enum YUVRange
-  {
-    kYUVMPEG16_235,
-    kYUVJPEG0_255,
-
-    kYUVDefault = kYUVMPEG16_235
-  };
-
   EncodingParams();
 
   void SetFilename(const QString& filename) { filename_ = filename; }
@@ -75,7 +67,6 @@ public:
   void set_video_threads(const int& threads) { video_threads_ = threads; }
   void set_video_pix_fmt(const QString& s) { video_pix_fmt_ = s; }
   void set_video_is_image_sequence(bool s) { video_is_image_sequence_ = s; }
-  void set_video_color_range(YUVRange r) { video_color_range_ = r; }
   void set_color_transform(const ColorTransform& color_transform) { color_transform_ = color_transform; }
 
   const QString& filename() const { return filename_; }
@@ -91,7 +82,6 @@ public:
   const int& video_threads() const { return video_threads_; }
   const QString& video_pix_fmt() const { return video_pix_fmt_; }
   bool video_is_image_sequence() const { return video_is_image_sequence_; }
-  YUVRange video_color_range() const { return video_color_range_; }
   const ColorTransform& color_transform() const { return color_transform_; }
 
   bool audio_enabled() const { return audio_enabled_; }
@@ -126,7 +116,6 @@ private:
   int video_threads_;
   QString video_pix_fmt_;
   bool video_is_image_sequence_;
-  YUVRange video_color_range_;
   ColorTransform color_transform_;
 
   bool audio_enabled_;

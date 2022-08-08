@@ -66,6 +66,15 @@ public:
    * convenience function to do this conversion for us? Who knows, but here we are.
    */
   static int GetSwsColorspaceFromAVColorSpace(AVColorSpace cs);
+
+  /**
+   * @brief Convert "JPEG"/full-range colorspace to its regular counterpart
+   *
+   * "JPEG "spaces are deprecated in favor of the regular space and setting `color_range`. For the
+   * time being, FFmpeg still uses these JPEG spaces, so for simplicity (since we *are* color_range
+   * aware), we use this function.
+   */
+  static AVPixelFormat ConvertJPEGSpaceToRegularSpace(AVPixelFormat f);
 };
 
 using AVFramePtr = std::shared_ptr<AVFrame>;

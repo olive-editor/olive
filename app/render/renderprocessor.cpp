@@ -475,7 +475,14 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
       VideoParams tex_params = stream.video_params();
 
       if (tex_params.is_valid()) {
-        TexturePtr unmanaged_texture = decoder->RetrieveVideo(render_ctx_, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
+        TexturePtr unmanaged_texture;
+
+        p.renderer = render_ctx_;
+        p.time = (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode;
+        p.cancelled = GetCancelPointer();
+        p.force_range = stream_data.color_range();
+
+        unmanaged_texture = decoder->RetrieveVideo(p);
 
         if (unmanaged_texture) {
           // We convert to our rendering pixel format, since that will always be float-based which

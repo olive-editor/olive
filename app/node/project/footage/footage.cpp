@@ -519,6 +519,7 @@ VideoParams Footage::MergeVideoStream(const VideoParams &base, const VideoParams
   merged.set_colorspace(over.colorspace());
   merged.set_premultiplied_alpha(over.premultiplied_alpha());
   merged.set_video_type(over.video_type());
+  merged.set_color_range(over.color_range());
   if (merged.video_type() == VideoParams::kVideoTypeImageSequence) {
     merged.set_start_time(over.start_time());
     merged.set_duration(over.duration());

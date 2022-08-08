@@ -37,7 +37,7 @@ ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   QWidget(parent),
   color_manager_(color_manager),
   threads_(0),
-  yuv_range_(EncodingParams::kYUVDefault)
+  color_range_(VideoParams::kColorRangeDefault)
 {
   QVBoxLayout* outer_layout = new QVBoxLayout(this);
 
@@ -212,12 +212,12 @@ void ExportVideoTab::OpenAdvancedDialog()
 
   d.set_threads(threads_);
   d.set_pix_fmt(pix_fmt_);
-  d.set_yuv_range(yuv_range_);
+  d.set_yuv_range(color_range_);
 
   if (d.exec() == QDialog::Accepted) {
     threads_ = d.threads();
     pix_fmt_ = d.pix_fmt();
-    yuv_range_ = d.yuv_range();
+    color_range_ = d.yuv_range();
   }
 }
 

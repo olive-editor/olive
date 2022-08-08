@@ -57,6 +57,11 @@ private:
   QComboBox* video_color_space_;
 
   /**
+   * @brief Setting for this streams's color range
+   */
+  QComboBox *color_range_combo_;
+
+  /**
    * @brief Setting for video interlacing
    */
   InterlacedComboBox* video_interlace_combo_;
@@ -88,7 +93,8 @@ private:
                              bool premultiplied,
                              QString colorspace,
                              VideoParams::Interlacing interlacing,
-                             const rational& pixel_ar);
+                             const rational& pixel_ar,
+                             VideoParams::ColorRange range);
 
     virtual Project* GetRelevantProject() const override;
 
@@ -104,11 +110,13 @@ private:
     QString new_colorspace_;
     VideoParams::Interlacing new_interlacing_;
     rational new_pixel_ar_;
+    VideoParams::ColorRange new_range_;
 
     bool old_premultiplied_;
     QString old_colorspace_;
     VideoParams::Interlacing old_interlacing_;
     rational old_pixel_ar_;
+    VideoParams::ColorRange old_range_;
 
   };
 

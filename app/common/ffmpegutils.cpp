@@ -133,6 +133,21 @@ int FFmpegUtils::GetSwsColorspaceFromAVColorSpace(AVColorSpace cs)
   return SWS_CS_DEFAULT;
 }
 
+AVPixelFormat FFmpegUtils::ConvertJPEGSpaceToRegularSpace(AVPixelFormat f)
+{
+  switch (f) {
+  case AV_PIX_FMT_YUVJ420P: return AV_PIX_FMT_YUV420P;
+  case AV_PIX_FMT_YUVJ422P: return AV_PIX_FMT_YUV422P;
+  case AV_PIX_FMT_YUVJ444P: return AV_PIX_FMT_YUV444P;
+  case AV_PIX_FMT_YUVJ440P: return AV_PIX_FMT_YUV440P;
+  case AV_PIX_FMT_YUVJ411P: return AV_PIX_FMT_YUV411P;
+  default:
+    break;
+  }
+
+  return f;
+}
+
 AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const VideoParams::Format &pix_fmt, int channel_layout)
 {
   if (channel_layout == VideoParams::kRGBChannelCount) {

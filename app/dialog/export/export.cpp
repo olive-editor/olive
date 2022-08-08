@@ -557,6 +557,9 @@ ExportParams ExportDialog::GenerateParams() const
 
   if (video_enabled_->isChecked()) {
     ExportCodec::Codec video_codec = video_tab_->GetSelectedCodec();
+
+    video_render_params.set_color_range(video_tab_->color_range());
+
     params.EnableVideo(video_render_params, video_codec);
 
     params.set_video_threads(video_tab_->threads());
@@ -568,7 +571,6 @@ ExportParams ExportDialog::GenerateParams() const
     params.set_color_transform(video_tab_->CurrentOCIOColorSpace());
 
     params.set_video_pix_fmt(video_tab_->pix_fmt());
-    params.set_video_color_range(video_tab_->yuv_range());
 
     params.set_video_is_image_sequence(video_tab_->IsImageSequenceSet());
   }

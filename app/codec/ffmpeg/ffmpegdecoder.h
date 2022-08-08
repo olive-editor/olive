@@ -62,7 +62,7 @@ public:
 
 protected:
   virtual bool OpenInternal() override;
-  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, CancelAtom *cancelled) override;
+  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
   virtual void CloseInternal() override;
 

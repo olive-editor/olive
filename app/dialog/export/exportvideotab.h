@@ -138,9 +138,9 @@ public:
     return pix_fmt_;
   }
 
-  EncodingParams::YUVRange yuv_range() const
+  VideoParams::ColorRange color_range() const
   {
-    return yuv_range_;
+    return color_range_;
   }
 
 public slots:
@@ -183,7 +183,7 @@ private:
   int threads_;
 
   QString pix_fmt_;
-  EncodingParams::YUVRange yuv_range_;
+  VideoParams::ColorRange color_range_;
 
   ExportFormat::Format format_;
 

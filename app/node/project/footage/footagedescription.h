@@ -142,7 +142,7 @@ public:
   }
 
 private:
-  static constexpr unsigned kFootageMetaVersion = 4;
+  static constexpr unsigned kFootageMetaVersion = 5;
 
   QString decoder_;
 

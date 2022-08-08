@@ -57,6 +57,11 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
 
   if (codec_info) {
     for (int i=0; codec_info->pix_fmts[i]!=-1; i++) {
+      if (FFmpegUtils::ConvertJPEGSpaceToRegularSpace(codec_info->pix_fmts[i]) != codec_info->pix_fmts[i]) {
+        // This is a deprecated "JPEG" space, skip it
+        continue;
+      }
+
       const char* pix_fmt_name = av_get_pix_fmt_name(codec_info->pix_fmts[i]);
       pix_fmts.append(pix_fmt_name);
     }
@@ -172,7 +177,7 @@ bool FFmpegEncoder::Open()
       AVFilterContext* range_filter;
 
       snprintf(filter_args, FILTER_ARG_SZ, "in_range=full:out_range=%s",
-               params().video_color_range() == EncodingParams::kYUVJPEG0_255 ? "full" : "limited");
+               params().video_params().color_range() == VideoParams::kColorRangeFull ? "full" : "limited");
 
       avfilter_graph_create_filter(&range_filter, avfilter_get_by_name("scale"), "range", filter_args, nullptr, video_scale_ctx_);
 
@@ -610,7 +615,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     codec_ctx->time_base = params().video_params().frame_rate_as_time_base().toAVRational();
     codec_ctx->framerate = params().video_params().frame_rate().toAVRational();
     codec_ctx->pix_fmt = av_get_pix_fmt(params().video_pix_fmt().toUtf8());
-    codec_ctx->color_range = params().video_color_range() ==  EncodingParams::kYUVJPEG0_255 ? AVCOL_RANGE_JPEG : AVCOL_RANGE_MPEG;
+    codec_ctx->color_range = params().video_params().color_range() == VideoParams::kColorRangeFull ? AVCOL_RANGE_JPEG : AVCOL_RANGE_MPEG;
 
     if (params().video_params().interlacing() != VideoParams::kInterlaceNone) {
       // FIXME: I actually don't know what these flags do, the documentation helpfully doesn't

@@ -90,7 +90,6 @@ EncodingParams::EncodingParams() :
   video_buffer_size_(0),
   video_threads_(0),
   video_is_image_sequence_(false),
-  video_color_range_(kYUVDefault),
   audio_enabled_(false),
   audio_bit_rate_(0),
   subtitles_enabled_(false),
