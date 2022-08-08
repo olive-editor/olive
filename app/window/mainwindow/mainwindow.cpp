@@ -186,7 +186,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
     panel = timeline_panels_.first();
   } else {
     panel = AppendTimelinePanel();
-    enable_focus = false;
+    //enable_focus = false;
   }
 
   panel->ConnectViewerNode(sequence);
