@@ -208,7 +208,7 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
               break;
             }
 
-            bool jpeg_range = src_fmt == AV_PIX_FMT_YUVJ420P
+            bool full_range = src_fmt == AV_PIX_FMT_YUVJ420P
                 || src_fmt == AV_PIX_FMT_YUVJ422P
                 || src_fmt == AV_PIX_FMT_YUVJ444P;
 
@@ -244,7 +244,13 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(Renderer *renderer, const ration
             job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
             job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
             job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
-            job.Insert(QStringLiteral("jpeg_range"), NodeValue(NodeValue::kBoolean, jpeg_range));
+            job.Insert(QStringLiteral("full_range"), NodeValue(NodeValue::kBoolean, full_range));
+
+            const int *yuv_coeffs = sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(f.get()->colorspace));
+            job.Insert(QStringLiteral("yuv_crv"), NodeValue(NodeValue::kInt, yuv_coeffs[0]));
+            job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kInt, yuv_coeffs[2]));
+            job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kInt, yuv_coeffs[3]));
+            job.Insert(QStringLiteral("yuv_cbu"), NodeValue(NodeValue::kInt, yuv_coeffs[1]));
 
             tex = renderer->CreateTexture(vp);
             renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);

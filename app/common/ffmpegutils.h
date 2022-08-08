@@ -24,6 +24,7 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 
 #include "render/audioparams.h"
@@ -57,6 +58,14 @@ public:
    * @brief Returns an FFmpeg sample format type for a given native type
    */
   static AVSampleFormat GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt);
+
+  /**
+   * @brief Returns an SWS_CS_* macro from an AVColorSpace enum member
+   *
+   * Why aren't these the same thing anyway? And for that matter, why doesn't FFmpeg provide a
+   * convenience function to do this conversion for us? Who knows, but here we are.
+   */
+  static int GetSwsColorspaceFromAVColorSpace(AVColorSpace cs);
 };
 
 using AVFramePtr = std::shared_ptr<AVFrame>;
