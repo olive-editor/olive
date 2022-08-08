@@ -340,7 +340,7 @@ void TrackPlaceBlockCommand::redo()
     // Place the Block at this point
     if (!ripple_remove_command_) {
       ripple_remove_command_ = new TrackRippleRemoveAreaCommand(track, TimeRange(in_, in_ + insert_->length()));
-
+      ripple_remove_command_->SetAllowSplittingGaps(true);
     }
 
     ripple_remove_command_->redo_now();

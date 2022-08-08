@@ -67,6 +67,11 @@ public:
     return nullptr;
   }
 
+  void SetAllowSplittingGaps(bool e)
+  {
+    allow_splitting_gaps_ = e;
+  }
+
 protected:
   virtual void prepare() override;
 
@@ -93,6 +98,7 @@ private:
   QVector<RemoveOperation> removals_;
   TrimOperation trim_in_;
   Block* insert_previous_;
+  bool allow_splitting_gaps_;
 
   BlockSplitCommand* splice_split_command_;
   QVector<UndoCommand*> remove_block_commands_;
