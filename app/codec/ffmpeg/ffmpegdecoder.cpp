@@ -163,7 +163,7 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
                      p.divider);
 
       TexturePtr tex = nullptr;
-      const bool hwscale = false;
+      bool hwscale = true;
 
       // Attempt to use GLSL shader for faster YUV to RGB conversion
       if (hwscale) {
