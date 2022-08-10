@@ -29,7 +29,6 @@
 #include "core.h"
 #include "exportadvancedvideodialog.h"
 #include "node/color/colormanager/colormanager.h"
-#include "task/export/exportparams.h"
 
 namespace olive {
 
@@ -70,6 +69,13 @@ bool ExportVideoTab::IsImageSequenceSet() const
   return (img_section && img_section->IsImageSequenceChecked());
 }
 
+void ExportVideoTab::SetImageSequence(bool e) const
+{
+  if (ImageSection* img_section = dynamic_cast<ImageSection*>(codec_stack_->currentWidget())) {
+    img_section->SetImageSequenceChecked(e);
+  }
+}
+
 QWidget* ExportVideoTab::SetupResolutionSection()
 {
   int row = 0;
@@ -107,9 +113,9 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   scaling_method_combobox_ = new QComboBox();
   scaling_method_combobox_->setEnabled(false);
-  scaling_method_combobox_->addItem(tr("Fit"), ExportParams::kFit);
-  scaling_method_combobox_->addItem(tr("Stretch"), ExportParams::kStretch);
-  scaling_method_combobox_->addItem(tr("Crop"), ExportParams::kCrop);
+  scaling_method_combobox_->addItem(tr("Fit"), EncodingParams::kFit);
+  scaling_method_combobox_->addItem(tr("Stretch"), EncodingParams::kStretch);
+  scaling_method_combobox_->addItem(tr("Crop"), EncodingParams::kCrop);
   layout->addWidget(scaling_method_combobox_, row, 1);
 
   // Automatically enable/disable the scaling method depending on maintain aspect ratio

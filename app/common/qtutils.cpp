@@ -145,4 +145,14 @@ QStringList QtUtils::WordWrapString(const QString &s, const QFontMetrics &fm, in
   return list;
 }
 
+void QtUtils::SetComboBoxData(QComboBox *cb, int data)
+{
+  for (int i=0; i<cb->count(); i++) {
+    if (cb->itemData(i).toInt() == data) {
+      cb->setCurrentIndex(i);
+      break;
+    }
+  }
+}
+
 }

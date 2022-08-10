@@ -41,9 +41,21 @@ namespace olive {
 class Encoder;
 using EncoderPtr = std::shared_ptr<Encoder>;
 
-class EncodingParams {
+class EncodingParams
+{
 public:
+  enum VideoScalingMethod {
+    kFit,
+    kStretch,
+    kCrop
+  };
+
   EncodingParams();
+
+  bool IsValid() const
+  {
+    return video_enabled_ || audio_enabled_ || subtitles_enabled_;
+  }
 
   void SetFilename(const QString& filename) { filename_ = filename; }
 
@@ -75,6 +87,8 @@ public:
   const ExportCodec::Codec& video_codec() const { return video_codec_; }
   const VideoParams& video_params() const { return video_params_; }
   const QHash<QString, QString>& video_opts() const { return video_opts_; }
+  QString video_option(const QString &key) const { return video_opts_.value(key); }
+  bool has_video_opt(const QString &key) const { return video_opts_.contains(key); }
   const int64_t& video_bit_rate() const { return video_bit_rate_; }
   const int64_t& video_min_bit_rate() const { return video_min_bit_rate_; }
   const int64_t& video_max_bit_rate() const { return video_max_bit_rate_; }
@@ -99,9 +113,26 @@ public:
   const rational& GetExportLength() const { return export_length_; }
   void SetExportLength(const rational& export_length) { export_length_ = export_length; }
 
-  virtual void Save(QXmlStreamWriter* writer) const;
+  void Save(QXmlStreamWriter* writer) const;
+
+  bool has_custom_range() const { return has_custom_range_; }
+  const TimeRange& custom_range() const { return custom_range_; }
+  void set_custom_range(const TimeRange& custom_range)
+  {
+    has_custom_range_ = true;
+    custom_range_ = custom_range;
+  }
+
+  const VideoScalingMethod& video_scaling_method() const { return video_scaling_method_; }
+  void set_video_scaling_method(const VideoScalingMethod& video_scaling_method) { video_scaling_method_ = video_scaling_method; }
+
+  static QMatrix4x4 GenerateMatrix(VideoScalingMethod method,
+                                   int source_width, int source_height,
+                                   int dest_width, int dest_height);
 
 private:
+  static const int kEncoderParamsVersion = 1;
+
   QString filename_;
   ExportFormat::Format format_;
 
@@ -129,6 +160,10 @@ private:
   ExportCodec::Codec subtitles_codec_;
 
   rational export_length_;
+  VideoScalingMethod video_scaling_method_;
+
+  bool has_custom_range_;
+  TimeRange custom_range_;
 
 };
 

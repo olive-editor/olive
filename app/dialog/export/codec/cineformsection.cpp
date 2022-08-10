@@ -82,4 +82,9 @@ void CineformSection::AddOpts(EncodingParams *params)
   params->set_video_option(QStringLiteral("quality"), QString::number(quality_combobox_->currentIndex()));
 }
 
+void CineformSection::SetOpts(const EncodingParams *p)
+{
+  quality_combobox_->setCurrentIndex(p->video_option(QStringLiteral("quality")).toInt());
+}
+
 }

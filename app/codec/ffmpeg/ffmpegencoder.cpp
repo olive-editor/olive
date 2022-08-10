@@ -638,7 +638,9 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
     // Set custom options
     {
       for (auto i=params().video_opts().begin();i!=params().video_opts().end();i++) {
-        av_opt_set(codec_ctx->priv_data, i.key().toUtf8(), i.value().toUtf8(), AV_OPT_SEARCH_CHILDREN);
+        if (!i.key().startsWith(QStringLiteral("ove_"))) {
+          av_opt_set(codec_ctx->priv_data, i.key().toUtf8(), i.value().toUtf8(), AV_OPT_SEARCH_CHILDREN);
+        }
       }
 
       if (params().video_bit_rate() > 0) {

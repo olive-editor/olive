@@ -41,8 +41,10 @@
 
 namespace olive {
 
+#define super QDialog
+
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
-  QDialog(parent),
+  super(parent),
   viewer_node_(viewer_node)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -255,11 +257,21 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   connect(subtitles_enabled_, &QCheckBox::toggled, subtitle_tab_, &QWidget::setEnabled);
   subtitles_enabled_->setChecked(has_subtitle_codecs);
   subtitles_enabled_->setEnabled(has_subtitle_codecs);
+
+  // If the viewer already has cached params, use them
+  if (viewer_node_->GetLastUsedEncodingParams().IsValid()) {
+    SetParams(viewer_node_->GetLastUsedEncodingParams());
+  }
 }
 
 rational ExportDialog::GetSelectedTimebase() const
 {
   return video_tab_->GetSelectedFrameRate().flipped();
+}
+
+void ExportDialog::SetSelectedTimebase(const rational &r)
+{
+  video_tab_->SetSelectedFrameRate(r.flipped());
 }
 
 void ExportDialog::StartExport()
@@ -390,13 +402,6 @@ void ExportDialog::ImageSequenceCheckBoxChanged(bool e)
   filename_edit_->setText(current_fileinfo.dir().filePath(basename));
 }
 
-void ExportDialog::closeEvent(QCloseEvent *e)
-{
-  preview_viewer_->ConnectViewerNode(nullptr);
-
-  QDialog::closeEvent(e);
-}
-
 void ExportDialog::AddPreferencesTab(QWidget *inner_widget, const QString &title)
 {
   QScrollArea* scroll_area = new QScrollArea();
@@ -522,7 +527,7 @@ bool ExportDialog::SequenceHasSubtitles() const
   return false;
 }
 
-ExportParams ExportDialog::GenerateParams() const
+EncodingParams ExportDialog::GenerateParams() const
 {
   VideoParams video_render_params(static_cast<int>(video_tab_->width_slider()->GetValue()),
                                   static_cast<int>(video_tab_->height_slider()->GetValue()),
@@ -537,7 +542,7 @@ ExportParams ExportDialog::GenerateParams() const
                                   audio_tab_->channel_layout_combobox()->GetChannelLayout(),
                                   audio_tab_->sample_format_combobox()->GetSampleFormat());
 
-  ExportParams params;
+  EncodingParams params;
   params.set_format(format_combobox_->GetFormat());
   params.SetFilename(filename_edit_->text().trimmed());
   params.SetExportLength(viewer_node_->GetLength());
@@ -552,7 +557,7 @@ ExportParams ExportDialog::GenerateParams() const
   }
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
-    params.set_video_scaling_method(static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()));
+    params.set_video_scaling_method(static_cast<EncodingParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()));
   }
 
   if (video_enabled_->isChecked()) {
@@ -596,6 +601,76 @@ ExportParams ExportDialog::GenerateParams() const
   return params;
 }
 
+void ExportDialog::SetParams(const EncodingParams &e)
+{
+  format_combobox_->SetFormat(e.format());
+  filename_edit_->setText(e.filename());
+
+  if (e.has_custom_range() && viewer_node_->GetWorkArea()->enabled()) {
+    range_combobox_->setCurrentIndex(kRangeInToOut);
+  }
+
+  QtUtils::SetComboBoxData(video_tab_->scaling_method_combobox(), e.video_scaling_method());
+
+  video_enabled_->setChecked(e.video_enabled());
+  if (e.video_enabled()) {
+    video_tab_->width_slider()->SetValue(e.video_params().width());
+    video_tab_->height_slider()->SetValue(e.video_params().height());
+    SetSelectedTimebase(e.video_params().time_base());
+    video_tab_->pixel_format_field()->SetPixelFormat(e.video_params().format());
+    video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(e.video_params().pixel_aspect_ratio());
+    video_tab_->interlaced_combobox()->SetInterlaceMode(e.video_params().interlacing());
+
+    video_tab_->SetSelectedCodec(e.video_codec());
+
+    video_tab_->SetColorRange(e.video_params().color_range());
+
+    video_tab_->SetThreads(e.video_threads());
+
+    if (video_tab_->isVisible()) {
+      video_tab_->GetCodecSection()->SetOpts(&e);
+    }
+
+    video_tab_->SetOCIOColorSpace(e.color_transform().output());
+
+    video_tab_->SetPixFmt(e.video_pix_fmt());
+
+    video_tab_->SetImageSequence(e.video_is_image_sequence());
+  }
+
+  audio_enabled_->setChecked(e.audio_enabled());
+  if (e.audio_enabled()) {
+    audio_tab_->sample_rate_combobox()->SetSampleRate(e.audio_params().sample_rate());
+    audio_tab_->channel_layout_combobox()->SetChannelLayout(e.audio_params().channel_layout());
+    audio_tab_->sample_format_combobox()->SetSampleFormat(e.audio_params().format());
+
+    audio_tab_->SetCodec(e.audio_codec());
+
+    audio_tab_->bit_rate_slider()->SetValue(e.audio_bit_rate() / 1000);
+  }
+
+  if (subtitles_enabled_->isEnabled()) {
+    subtitles_enabled_->setChecked(e.subtitles_enabled());
+    subtitle_tab_->SetSidecarEnabled(e.subtitles_are_sidecar());
+    if (e.subtitles_enabled()) {
+      subtitle_tab_->SetSubtitleCodec(e.subtitles_codec());
+      if (e.subtitles_are_sidecar()) {
+        subtitle_tab_->SetSidecarFormat(e.subtitle_sidecar_fmt());
+      }
+    }
+  }
+}
+
+void ExportDialog::done(int r)
+{
+  qDebug() << "done???";
+  preview_viewer_->ConnectViewerNode(nullptr);
+
+  viewer_node_->SetLastUsedEncodingParams(GenerateParams());
+
+  super::done(r);
+}
+
 rational ExportDialog::GetExportLength() const
 {
   if (range_combobox_->currentIndex() == kRangeInToOut) {
@@ -617,8 +692,8 @@ void ExportDialog::UpdateViewerDimensions()
 
   VideoParams vp = viewer_node_->GetVideoParams();
 
-  QMatrix4x4 transform = ExportParams::GenerateMatrix(
-        static_cast<ExportParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+  QMatrix4x4 transform = EncodingParams::GenerateMatrix(
+        static_cast<EncodingParams::VideoScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
         vp.width(),
         vp.height(),
         static_cast<int>(video_tab_->width_slider()->GetValue()),

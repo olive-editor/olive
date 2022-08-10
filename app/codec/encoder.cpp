@@ -93,7 +93,9 @@ EncodingParams::EncodingParams() :
   audio_enabled_(false),
   audio_bit_rate_(0),
   subtitles_enabled_(false),
-  subtitles_are_sidecar_(false)
+  subtitles_are_sidecar_(false),
+  video_scaling_method_(kStretch),
+  has_custom_range_(false)
 {
 }
 
@@ -142,7 +144,14 @@ void EncodingParams::DisableSubtitles()
 
 void EncodingParams::Save(QXmlStreamWriter *writer) const
 {
+  writer->writeTextElement(QStringLiteral("version"), QString::number(kEncoderParamsVersion));
+
   writer->writeTextElement(QStringLiteral("filename"), filename_);
+  writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
+
+  writer->writeTextElement(QStringLiteral("range"), QString::number(has_custom_range_));
+  writer->writeTextElement(QStringLiteral("customrangein"), custom_range_.in().toString());
+  writer->writeTextElement(QStringLiteral("customrangeout"), custom_range_.out().toString());
 
   writer->writeStartElement(QStringLiteral("video"));
 
@@ -156,10 +165,18 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
     writer->writeTextElement(QStringLiteral("timebase"), video_params_.time_base().toString());
     writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params_.divider()));
     writer->writeTextElement(QStringLiteral("bitrate"), QString::number(video_bit_rate_));
-    writer->writeTextElement(QStringLiteral("minbitrate"), QString::number(video_max_bit_rate_));
+    writer->writeTextElement(QStringLiteral("minbitrate"), QString::number(video_min_bit_rate_));
     writer->writeTextElement(QStringLiteral("maxbitrate"), QString::number(video_max_bit_rate_));
     writer->writeTextElement(QStringLiteral("bufsize"), QString::number(video_buffer_size_));
     writer->writeTextElement(QStringLiteral("threads"), QString::number(video_threads_));
+    writer->writeTextElement(QStringLiteral("pixfmt"), video_pix_fmt_);
+    writer->writeTextElement(QStringLiteral("imgseq"), QString::number(video_is_image_sequence_));
+
+    writer->writeStartElement(QStringLiteral("color"));
+      writer->writeTextElement(QStringLiteral("output"), color_transform_.output());
+    writer->writeEndElement(); // colortransform
+
+    writer->writeTextElement(QStringLiteral("vscale"), QString::number(video_scaling_method_));
 
     if (!video_opts_.isEmpty()) {
       writer->writeStartElement(QStringLiteral("opts"));
@@ -190,6 +207,19 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
     writer->writeTextElement(QStringLiteral("channellayout"), QString::number(audio_params_.channel_layout()));
     writer->writeTextElement(QStringLiteral("format"), QString::number(audio_params_.format()));
   }
+
+  writer->writeStartElement(QStringLiteral("subtitles"));
+
+  writer->writeAttribute(QStringLiteral("enabled"), QString::number(subtitles_enabled_));
+
+  if (subtitles_enabled_) {
+    writer->writeTextElement(QStringLiteral("sidecar"), QString::number(subtitles_are_sidecar_));
+    writer->writeTextElement(QStringLiteral("sidecarformat"), QString::number(subtitle_sidecar_fmt_));
+
+    writer->writeTextElement(QStringLiteral("codec"), QString::number(subtitles_codec_));
+  }
+
+  writer->writeEndElement(); // subtitles
 
   writer->writeEndElement(); // audio
 }
@@ -253,6 +283,32 @@ QStringList Encoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
 std::vector<AudioParams::Format> Encoder::GetSampleFormatsForCodec(ExportCodec::Codec c) const
 {
   return std::vector<AudioParams::Format>();
+}
+
+QMatrix4x4 EncodingParams::GenerateMatrix(EncodingParams::VideoScalingMethod method,
+                                          int source_width, int source_height,
+                                          int dest_width, int dest_height)
+{
+  QMatrix4x4 preview_matrix;
+
+  if (method == EncodingParams::kStretch) {
+    return preview_matrix;
+  }
+
+  float export_ar = static_cast<float>(dest_width) / static_cast<float>(dest_height);
+  float source_ar = static_cast<float>(source_width) / static_cast<float>(source_height);
+
+  if (qFuzzyCompare(export_ar, source_ar)) {
+    return preview_matrix;
+  }
+
+  if ((export_ar > source_ar) == (method == EncodingParams::kFit)) {
+    preview_matrix.scale(source_ar / export_ar, 1.0F);
+  } else {
+    preview_matrix.scale(1.0F, export_ar / source_ar);
+  }
+
+  return preview_matrix;
 }
 
 }

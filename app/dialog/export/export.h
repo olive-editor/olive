@@ -45,6 +45,7 @@ public:
   ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
 
   rational GetSelectedTimebase() const;
+  void SetSelectedTimebase(const rational &r);
 
   void SetTime(const rational &time)
   {
@@ -54,8 +55,11 @@ public:
     preview_viewer_->SetAudioScrubbingEnabled(true);
   }
 
-protected:
-  virtual void closeEvent(QCloseEvent *e) override;
+  EncodingParams GenerateParams() const;
+  void SetParams(const EncodingParams &e);
+
+public slots:
+  virtual void done(int r) override;
 
 private:
   void AddPreferencesTab(QWidget *inner_widget, const QString &title);
@@ -64,8 +68,6 @@ private:
   void SetDefaultFilename();
 
   bool SequenceHasSubtitles() const;
-
-  ExportParams GenerateParams() const;
 
   ViewerOutput* viewer_node_;
 

@@ -27,7 +27,7 @@ namespace olive {
 
 ExportTask::ExportTask(ViewerOutput *viewer_node,
                        ColorManager* color_manager,
-                       const ExportParams& params) :
+                       const EncodingParams& params) :
   color_manager_(color_manager),
   params_(params)
 {
@@ -60,7 +60,7 @@ bool ExportTask::Run()
 
   // If we're exporting to a sidecar subtitle file, disable the subtitles in the main encoder
   bool subtitles_enabled = params_.subtitles_enabled();
-  ExportParams sidecar_params = params_;
+  EncodingParams sidecar_params = params_;
   if (subtitles_enabled && params_.subtitles_are_sidecar()) {
     params_.DisableSubtitles();
   }
@@ -126,12 +126,12 @@ bool ExportTask::Run()
         || video_params().height() != params_.video_params().height()) {
       video_force_size = QSize(params_.video_params().width(), params_.video_params().height());
 
-      if (params_.video_scaling_method() != ExportParams::kStretch) {
-        video_force_matrix = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                                          video_params().width(),
-                                                          video_params().height(),
-                                                          params_.video_params().width(),
-                                                          params_.video_params().height());
+      if (params_.video_scaling_method() != EncodingParams::kStretch) {
+        video_force_matrix = EncodingParams::GenerateMatrix(params_.video_scaling_method(),
+                                                            video_params().width(),
+                                                            video_params().height(),
+                                                            params_.video_params().width(),
+                                                            params_.video_params().height());
       }
     } else {
       // Disables forcing size in the renderer
