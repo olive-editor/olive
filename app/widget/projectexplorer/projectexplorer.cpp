@@ -403,7 +403,12 @@ void ProjectExplorer::ShowContextMenu()
 
       auto rename_action = menu.addAction(tr("Rename"));
       connect(rename_action, &QAction::triggered, this, &ProjectExplorer::RenameSelectedItem);
+    }
 
+    auto delete_action = menu.addAction(tr("Delete"));
+    connect(delete_action, &QAction::triggered, this, &ProjectExplorer::DeleteSelected);
+
+    if (context_menu_items_.size() == 1) {
       menu.addSeparator();
 
       QAction* properties_action = menu.addAction(tr("P&roperties"));
