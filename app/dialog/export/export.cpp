@@ -663,7 +663,6 @@ void ExportDialog::SetParams(const EncodingParams &e)
 
 void ExportDialog::done(int r)
 {
-  qDebug() << "done???";
   preview_viewer_->ConnectViewerNode(nullptr);
 
   viewer_node_->SetLastUsedEncodingParams(GenerateParams());
