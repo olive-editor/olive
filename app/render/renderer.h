@@ -155,6 +155,8 @@ private:
 
   QVariant interlace_texture_;
 
+  QMutex texture_cache_lock_;
+
 };
 
 }
