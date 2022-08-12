@@ -69,6 +69,8 @@ private:
 
   bool SequenceHasSubtitles() const;
 
+  void SetDefaults();
+
   ViewerOutput* viewer_node_;
 
   ExportFormat::Format previously_selected_format_;
@@ -81,9 +83,16 @@ private:
     kRangeInToOut
   };
 
+  enum AutoPreset {
+    kPresetDefault = -1,
+    kPresetLastUsed = -2,
+  };
+
   QTabWidget* preferences_tabs_;
 
+  QComboBox* preset_combobox_;
   QComboBox* range_combobox_;
+  std::vector<EncodingParams> presets_;
 
   QCheckBox* video_enabled_;
   QCheckBox* audio_enabled_;
@@ -118,6 +127,10 @@ private slots:
   void ExportFinished();
 
   void ImageSequenceCheckBoxChanged(bool e);
+
+  void SavePreset();
+
+  void PresetComboBoxChanged();
 
 };
 

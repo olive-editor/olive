@@ -33,6 +33,7 @@
 #include "common/digit.h"
 #include "common/qtutils.h"
 #include "dialog/task/task.h"
+#include "exportsavepresetdialog.h"
 #include "node/project/project.h"
 #include "node/project/sequence/sequence.h"
 #include "task/taskmanager.h"
@@ -81,21 +82,21 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QLabel* preset_lbl = new QLabel(tr("Preset:"));
   preset_lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   preferences_layout->addWidget(preset_lbl, row, 0);
-  QComboBox* preset_combobox = new QComboBox();
-  preset_combobox->addItem(tr("Same As Source - High Quality"));
-  preset_combobox->addItem(tr("Same As Source - Medium Quality"));
-  preset_combobox->addItem(tr("Same As Source - Low Quality"));
-  preferences_layout->addWidget(preset_combobox, row, 1);
+  preset_combobox_ = new QComboBox();
+  LoadPresets();
+  connect(preset_combobox_, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ExportDialog::PresetComboBoxChanged);
+  preferences_layout->addWidget(preset_combobox_, row, 1, 1, 2);
 
-  QPushButton* preset_load_btn = new QPushButton();
+  /*QPushButton* preset_load_btn = new QPushButton();
   preset_load_btn->setIcon(icon::Open);
   preset_load_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-  preferences_layout->addWidget(preset_load_btn, row, 2);
+  preferences_layout->addWidget(preset_load_btn, row, 2);*/
 
   QPushButton* preset_save_btn = new QPushButton();
   preset_save_btn->setIcon(icon::Save);
   preset_save_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   preferences_layout->addWidget(preset_save_btn, row, 3);
+  connect(preset_save_btn, &QPushButton::clicked, this, &ExportDialog::SavePreset);
 
   row++;
 
@@ -197,25 +198,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   // Set defaults
   previously_selected_format_ = ExportFormat::kFormatMPEG4Video;
-  format_combobox_->SetFormat(ExportFormat::kFormatMPEG4Video);
   connect(format_combobox_, &ExportFormatComboBox::FormatChanged, this, &ExportDialog::FormatChanged);
-  FormatChanged(format_combobox_->GetFormat());
 
   VideoParams vp = viewer_node_->GetVideoParams();
-  AudioParams ap = viewer_node_->GetAudioParams();
-
-  video_tab_->width_slider()->SetValue(vp.width());
-  video_tab_->width_slider()->SetDefaultValue(vp.width());
-  video_tab_->height_slider()->SetValue(vp.height());
-  video_tab_->height_slider()->SetDefaultValue(vp.height());
-  video_tab_->SetSelectedFrameRate(vp.frame_rate());
-  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(vp.pixel_aspect_ratio());
-  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(OLIVE_CONFIG("OnlinePixelFormat").toInt()));
-  video_tab_->interlaced_combobox()->SetInterlaceMode(vp.interlacing());
-  audio_tab_->sample_rate_combobox()->SetSampleRate(ap.sample_rate());
-  audio_tab_->sample_format_combobox()->SetAttemptToRestoreFormat(false);
-  audio_tab_->channel_layout_combobox()->SetChannelLayout(ap.channel_layout());
-
   video_aspect_ratio_ = static_cast<double>(vp.width()) / static_cast<double>(vp.height());
 
   connect(video_tab_->width_slider(),
@@ -247,21 +232,22 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
           this,
           &ExportDialog::ImageSequenceCheckBoxChanged);
 
-  // Set viewer to view the node
-  preview_viewer_->ConnectViewerNode(viewer_node_);
-  preview_viewer_->SetColorMenuEnabled(false);
-  preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
-
   // We don't check if the codec supports subtitles because we can always export to a sidecar file
-  bool has_subtitle_codecs = SequenceHasSubtitles();
+  bool has_subtitle_tracks = SequenceHasSubtitles();
   connect(subtitles_enabled_, &QCheckBox::toggled, subtitle_tab_, &QWidget::setEnabled);
-  subtitles_enabled_->setChecked(has_subtitle_codecs);
-  subtitles_enabled_->setEnabled(has_subtitle_codecs);
+  subtitles_enabled_->setEnabled(has_subtitle_tracks);
 
   // If the viewer already has cached params, use them
   if (viewer_node_->GetLastUsedEncodingParams().IsValid()) {
     SetParams(viewer_node_->GetLastUsedEncodingParams());
+  } else {
+    SetDefaults();
   }
+
+  // Set viewer to view the node and set its colorspace
+  preview_viewer_->ConnectViewerNode(viewer_node_);
+  preview_viewer_->SetColorMenuEnabled(false);
+  preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
 }
 
 rational ExportDialog::GetSelectedTimebase() const
@@ -402,6 +388,29 @@ void ExportDialog::ImageSequenceCheckBoxChanged(bool e)
   filename_edit_->setText(current_fileinfo.dir().filePath(basename));
 }
 
+void ExportDialog::SavePreset()
+{
+  ExportSavePresetDialog d(GenerateParams(), this);
+  if (d.exec() == QDialog::Accepted) {
+    LoadPresets();
+    preset_combobox_->setCurrentText(d.GetSelectedPresetName());
+  }
+}
+
+void ExportDialog::PresetComboBoxChanged()
+{
+  QComboBox *c = static_cast<QComboBox *>(sender());
+
+  int preset_number = c->currentData().toInt();
+  if (preset_number == kPresetDefault) {
+    SetDefaults();
+  } else if (preset_number == kPresetLastUsed) {
+    SetParams(viewer_node_->GetLastUsedEncodingParams());
+  } else {
+    SetParams(presets_.at(preset_number));
+  }
+}
+
 void ExportDialog::AddPreferencesTab(QWidget *inner_widget, const QString &title)
 {
   QScrollArea* scroll_area = new QScrollArea();
@@ -494,7 +503,32 @@ void ExportDialog::ResolutionChanged()
 
 void ExportDialog::LoadPresets()
 {
+  preset_combobox_->clear();
+  presets_.clear();
 
+  preset_combobox_->addItem(tr("Default"), kPresetDefault);
+
+  if (viewer_node_->GetLastUsedEncodingParams().IsValid()) {
+    preset_combobox_->addItem(tr("Last Used"), kPresetLastUsed);
+  }
+
+  preset_combobox_->insertSeparator(preset_combobox_->count());
+
+  QStringList l = EncodingParams::GetListOfPresets();
+  presets_.reserve(l.size());
+
+  for (const QString &preset : l) {
+    EncodingParams p;
+
+    QFile f(EncodingParams::GetPresetPath().filePath(preset));
+    if (f.open(QFile::ReadOnly)) {
+      if (p.Load(&f)) {
+        preset_combobox_->addItem(preset, int(presets_.size()));
+        presets_.push_back(p);
+      }
+      f.close();
+    }
+  }
 }
 
 void ExportDialog::SetDefaultFilename()
@@ -525,6 +559,28 @@ bool ExportDialog::SequenceHasSubtitles() const
   }
 
   return false;
+}
+
+void ExportDialog::SetDefaults()
+{
+  format_combobox_->SetFormat(ExportFormat::kFormatMPEG4Video);
+  FormatChanged(format_combobox_->GetFormat());
+
+  VideoParams vp = viewer_node_->GetVideoParams();
+  AudioParams ap = viewer_node_->GetAudioParams();
+
+  video_tab_->width_slider()->SetValue(vp.width());
+  video_tab_->width_slider()->SetDefaultValue(vp.width());
+  video_tab_->height_slider()->SetValue(vp.height());
+  video_tab_->height_slider()->SetDefaultValue(vp.height());
+  video_tab_->SetSelectedFrameRate(vp.frame_rate());
+  video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(vp.pixel_aspect_ratio());
+  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(OLIVE_CONFIG("OnlinePixelFormat").toInt()));
+  video_tab_->interlaced_combobox()->SetInterlaceMode(vp.interlacing());
+  audio_tab_->sample_rate_combobox()->SetSampleRate(ap.sample_rate());
+  audio_tab_->sample_format_combobox()->SetAttemptToRestoreFormat(false);
+  audio_tab_->channel_layout_combobox()->SetChannelLayout(ap.channel_layout());
+  subtitles_enabled_->setChecked(SequenceHasSubtitles());
 }
 
 EncodingParams ExportDialog::GenerateParams() const
@@ -604,7 +660,6 @@ EncodingParams ExportDialog::GenerateParams() const
 void ExportDialog::SetParams(const EncodingParams &e)
 {
   format_combobox_->SetFormat(e.format());
-  filename_edit_->setText(e.filename());
 
   if (e.has_custom_range() && viewer_node_->GetWorkArea()->enabled()) {
     range_combobox_->setCurrentIndex(kRangeInToOut);

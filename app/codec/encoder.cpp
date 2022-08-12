@@ -23,6 +23,7 @@
 #include <QFile>
 
 #include "common/timecodefunctions.h"
+#include "common/xmlutils.h"
 #include "ffmpeg/ffmpegencoder.h"
 #include "oiio/oiioencoder.h"
 
@@ -99,6 +100,17 @@ EncodingParams::EncodingParams() :
 {
 }
 
+QDir EncodingParams::GetPresetPath()
+{
+  return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("exportpresets"));
+}
+
+QStringList EncodingParams::GetListOfPresets()
+{
+  QDir d = EncodingParams::GetPresetPath();
+  return d.entryList(QDir::Files);
+}
+
 void EncodingParams::EnableVideo(const VideoParams &video_params, const ExportCodec::Codec &vcodec)
 {
   video_enabled_ = true;
@@ -142,9 +154,49 @@ void EncodingParams::DisableSubtitles()
   subtitles_enabled_ = false;
 }
 
+bool EncodingParams::Load(QXmlStreamReader *reader)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("export")) {
+      int version = 0;
+
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("version")) {
+          version = attr.value().toInt();
+        }
+      }
+
+      switch (version) {
+      case 1:
+        return LoadV1(reader);
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return false;
+}
+
+bool EncodingParams::Load(QIODevice *device)
+{
+  QXmlStreamReader reader(device);
+  return Load(&reader);
+}
+
+void EncodingParams::Save(QIODevice *device) const
+{
+  QXmlStreamWriter writer(device);
+  Save(&writer);
+}
+
 void EncodingParams::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeTextElement(QStringLiteral("version"), QString::number(kEncoderParamsVersion));
+  writer->writeStartDocument();
+
+  writer->writeStartElement(QStringLiteral("export"));
+
+  writer->writeAttribute(QStringLiteral("version"), QString::number(kEncoderParamsVersion));
 
   writer->writeTextElement(QStringLiteral("filename"), filename_);
   writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
@@ -222,6 +274,10 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // subtitles
 
   writer->writeEndElement(); // audio
+
+  writer->writeEndElement(); // export
+
+  writer->writeEndDocument();
 }
 
 Encoder* Encoder::CreateFromID(Type id, const EncodingParams& params)
@@ -309,6 +365,133 @@ QMatrix4x4 EncodingParams::GenerateMatrix(EncodingParams::VideoScalingMethod met
   }
 
   return preview_matrix;
+}
+
+bool EncodingParams::LoadV1(QXmlStreamReader *reader)
+{
+  rational custom_range_in, custom_range_out;
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("filename")) {
+      filename_ = reader->readElementText();
+    } else if (reader->name() == QStringLiteral("format")) {
+      format_ = static_cast<ExportFormat::Format>(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("range")) {
+      has_custom_range_ = reader->readElementText().toInt();
+    } else if (reader->name() == QStringLiteral("customrangein")) {
+      custom_range_in = rational::fromString(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("customrangeout")) {
+      custom_range_out = rational::fromString(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("video")) {
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("enabled")) {
+          video_enabled_ = attr.value().toInt();
+        }
+      }
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("codec")) {
+          video_codec_ = static_cast<ExportCodec::Codec>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("width")) {
+          video_params_.set_width(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("height")) {
+          video_params_.set_height(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("format")) {
+          video_params_.set_format(static_cast<VideoParams::Format>(reader->readElementText().toInt()));
+        } else if (reader->name() == QStringLiteral("timebase")) {
+          video_params_.set_time_base(rational::fromString(reader->readElementText()));
+        } else if (reader->name() == QStringLiteral("divider")) {
+          video_params_.set_divider(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("bitrate")) {
+          video_bit_rate_ = reader->readElementText().toLongLong();
+        } else if (reader->name() == QStringLiteral("minbitrate")) {
+          video_min_bit_rate_ = reader->readElementText().toLongLong();
+        } else if (reader->name() == QStringLiteral("maxbitrate")) {
+          video_max_bit_rate_ = reader->readElementText().toLongLong();
+        } else if (reader->name() == QStringLiteral("bufsize")) {
+          video_buffer_size_ = reader->readElementText().toLongLong();
+        } else if (reader->name() == QStringLiteral("threads")) {
+          video_threads_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("pixfmt")) {
+          video_pix_fmt_ = reader->readElementText();
+        } else if (reader->name() == QStringLiteral("imgseq")) {
+          video_is_image_sequence_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("color")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("output")) {
+              color_transform_ = reader->readElementText();
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+        } else if (reader->name() == QStringLiteral("vscale")) {
+          video_scaling_method_ = static_cast<VideoScalingMethod>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("opts")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("entry")) {
+              QString key, value;
+              while (XMLReadNextStartElement(reader)) {
+                if (reader->name() == QStringLiteral("key")) {
+                  key = reader->readElementText();
+                } else if (reader->name() == QStringLiteral("value")) {
+                  value = reader->readElementText();
+                } else {
+                  reader->skipCurrentElement();
+                }
+              }
+              set_video_option(key, value);
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("audio")) {
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("enabled")) {
+          audio_enabled_ = attr.value().toInt();
+        }
+      }
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("codec")) {
+          audio_codec_ = static_cast<ExportCodec::Codec>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("samplerate")) {
+          audio_params_.set_sample_rate(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("channellayout")) {
+          audio_params_.set_channel_layout(reader->readElementText().toULongLong());
+        } else if (reader->name() == QStringLiteral("format")) {
+          audio_params_.set_format(static_cast<AudioParams::Format>(reader->readElementText().toInt()));
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("subtitles")) {
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("enabled")) {
+          subtitles_enabled_ = attr.value().toInt();
+        }
+      }
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("sidecar")) {
+          subtitles_are_sidecar_ = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("sidecarformat")) {
+          subtitle_sidecar_fmt_ = static_cast<ExportFormat::Format>(reader->readElementText().toInt());
+        } else if (reader->name() == QStringLiteral("codec")) {
+          subtitles_codec_ = static_cast<ExportCodec::Codec>(reader->readElementText().toInt());
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
 }
 
 }

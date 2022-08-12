@@ -52,6 +52,9 @@ public:
 
   EncodingParams();
 
+  static QDir GetPresetPath();
+  static QStringList GetListOfPresets();
+
   bool IsValid() const
   {
     return video_enabled_ || audio_enabled_ || subtitles_enabled_;
@@ -113,6 +116,10 @@ public:
   const rational& GetExportLength() const { return export_length_; }
   void SetExportLength(const rational& export_length) { export_length_ = export_length; }
 
+  bool Load(QIODevice *device);
+  bool Load(QXmlStreamReader *reader);
+
+  void Save(QIODevice *device) const;
   void Save(QXmlStreamWriter* writer) const;
 
   bool has_custom_range() const { return has_custom_range_; }
@@ -132,6 +139,8 @@ public:
 
 private:
   static const int kEncoderParamsVersion = 1;
+
+  bool LoadV1(QXmlStreamReader *reader);
 
   QString filename_;
   ExportFormat::Format format_;
