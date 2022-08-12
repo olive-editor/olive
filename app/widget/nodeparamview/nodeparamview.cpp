@@ -860,12 +860,10 @@ void NodeParamView::ToggleSelect(NodeParamViewItem *item)
     new_sel.append(item);
     SetSelectedNodes(new_sel, false);
 
-    if (item->GetNode()->HasGizmos() || !new_sel.contains(focused_node_)) {
-      if (item->GetNode()->HasGizmos()) {
-        focused_node_ = item;
-      } else {
-        focused_node_ = nullptr;
-      }
+    if (!new_sel.contains(focused_node_)) {
+      // This node gets sent to both the curve editor and viewer, so we focus it even if it has
+      // no gizmos
+      focused_node_ = item;
 
       emit FocusedNodeChanged(focused_node_ ? focused_node_->GetNode() : nullptr);
     }
