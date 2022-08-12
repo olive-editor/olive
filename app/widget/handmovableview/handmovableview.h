@@ -34,19 +34,6 @@ class HandMovableView : public QGraphicsView
 public:
   HandMovableView(QWidget* parent = nullptr);
 
-  bool GetScrollZoomsByDefault() const
-  {
-    return scroll_zooms_by_default_;
-  }
-
-  QAction* AddSetScrollZoomsByDefaultActionToMenu(QMenu* menu, bool autoconnect = true);
-
-public slots:
-  void SetScrollZoomsByDefault(bool e)
-  {
-    scroll_zooms_by_default_ = e;
-  }
-
 protected:
   virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
 
@@ -68,14 +55,6 @@ private:
   DragMode pre_hand_drag_mode_;
 
   DragMode default_drag_mode_;
-
-  /**
-   * @brief Whether scrolling should perform a scroll or a zoom
-   *
-   * If TRUE, scrolling will ZOOM and Ctrl+Scroll with SCROLL.
-   * If FALSE (default), scrolling will SCROLL and Ctrl+Scroll will ZOOM.
-   */
-  bool scroll_zooms_by_default_;
 
   QPointF transformed_pos_;
 

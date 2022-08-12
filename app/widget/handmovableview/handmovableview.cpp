@@ -31,8 +31,7 @@ namespace olive {
 
 HandMovableView::HandMovableView(QWidget* parent) :
   super(parent),
-  dragging_hand_(false),
-  scroll_zooms_by_default_(OLIVE_CONFIG("ScrollZooms").toBool())
+  dragging_hand_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &HandMovableView::ApplicationToolChanged);
 }
@@ -149,7 +148,7 @@ const HandMovableView::DragMode &HandMovableView::GetDefaultDragMode() const
 
 bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event) const
 {
-  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !scroll_zooms_by_default_);
+  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !OLIVE_CONFIG("ScrollZooms").toBool());
 }
 
 void HandMovableView::wheelEvent(QWheelEvent *event)
@@ -177,19 +176,6 @@ void HandMovableView::ZoomIntoCursorPosition(QWheelEvent *event, double multipli
   Q_UNUSED(event)
   Q_UNUSED(multiplier)
   Q_UNUSED(cursor_pos)
-}
-
-QAction *HandMovableView::AddSetScrollZoomsByDefaultActionToMenu(QMenu *m, bool autoconnect)
-{
-  QAction* ctrl_zoom = m->addAction(tr("Scroll Zooms By Default"));
-  ctrl_zoom->setCheckable(true);
-  ctrl_zoom->setChecked(GetScrollZoomsByDefault());
-
-  if (autoconnect) {
-    connect(ctrl_zoom, &QAction::triggered, this, &HandMovableView::SetScrollZoomsByDefault);
-  }
-
-  return ctrl_zoom;
 }
 
 }

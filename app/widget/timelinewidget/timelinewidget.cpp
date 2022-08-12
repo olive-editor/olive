@@ -1128,9 +1128,6 @@ void TimelineWidget::ShowContextMenu()
     show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
     connect(show_waveforms, &QAction::triggered, this, &TimelineWidget::SetViewWaveformsEnabled);
 
-    QAction* scroll_zoom = views_.first()->view()->AddSetScrollZoomsByDefaultActionToMenu(&menu);
-    connect(scroll_zoom, &QAction::triggered, this, &TimelineWidget::SetScrollZoomsByDefaultOnAllViews);
-
     menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));
@@ -1217,13 +1214,6 @@ void TimelineWidget::TrackIndexChanged(int old, int now)
   auto track_selections = selections_.take(old_ref);
   if (!track_selections.isEmpty()) {
     selections_.insert(new_ref, track_selections);
-  }
-}
-
-void TimelineWidget::SetScrollZoomsByDefaultOnAllViews(bool e)
-{
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->SetScrollZoomsByDefault(e);
   }
 }
 

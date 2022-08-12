@@ -426,8 +426,6 @@ private slots:
 
   void TrackIndexChanged(int old, int now);
 
-  void SetScrollZoomsByDefaultOnAllViews(bool e);
-
   void SignalBlockSelectionChange();
 
   void RevealInFootageViewer();

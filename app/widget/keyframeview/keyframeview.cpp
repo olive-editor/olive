@@ -569,10 +569,6 @@ void KeyframeView::ShowContextMenu()
 
   m.addSeparator();
 
-  AddSetScrollZoomsByDefaultActionToMenu(&m);
-
-  m.addSeparator();
-
   ContextMenuEvent(m);
 
   if (!GetSelectedKeyframes().empty()) {
