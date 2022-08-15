@@ -889,6 +889,8 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
       QPointF pixel_pos = GenerateDisplayTransform().inverted().map(e->pos());
       pixel_pos /= texture_->params().divider();
 
+      makeCurrent();
+
       reference = renderer()->GetPixelFromTexture(texture_.get(), pixel_pos);
       display = color_service()->ConvertColor(reference);
     }
