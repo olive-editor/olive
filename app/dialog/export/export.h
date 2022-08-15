@@ -34,6 +34,7 @@
 #include "exportsubtitlestab.h"
 #include "exportvideotab.h"
 #include "task/export/export.h"
+#include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/viewer/viewer.h"
 
 namespace olive {
@@ -57,6 +58,8 @@ public:
 
   EncodingParams GenerateParams() const;
   void SetParams(const EncodingParams &e);
+
+  virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
   virtual void done(int r) override;
@@ -112,6 +115,8 @@ private:
 
   QWidget* preferences_area_;
   QCheckBox *export_bkg_box_;
+
+  NodeParamViewScrollBlocker *scroll_blocker_;
 
 private slots:
   void BrowseFilename();

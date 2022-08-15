@@ -133,7 +133,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   audio_enabled_ = new QCheckBox(tr("Export Audio"));
   av_enabled_layout->addWidget(audio_enabled_);
 
-  subtitles_enabled_ = new QCheckBox(tr("Export Subtitle"));
+  subtitles_enabled_ = new QCheckBox(tr("Export Subtitles"));
   av_enabled_layout->addWidget(subtitles_enabled_);
 
   preferences_layout->addLayout(av_enabled_layout, row, 0, 1, 4);
@@ -141,6 +141,8 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   row++;
 
   preferences_tabs_ = new QTabWidget();
+
+  scroll_blocker_ = new NodeParamViewScrollBlocker(this);
 
   color_manager_ = viewer_node_->project()->color_manager();
   video_tab_ = new ExportVideoTab(color_manager_);
@@ -248,6 +250,15 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetColorTransform(video_tab_->CurrentOCIOColorSpace());
+
+  qApp->installEventFilter(this);
+
+  connect(video_enabled_, &QCheckBox::toggled, video_tab_, &QWidget::setEnabled);
+  video_tab_->setEnabled(video_enabled_->isChecked());
+  connect(audio_enabled_, &QCheckBox::toggled, audio_tab_, &QWidget::setEnabled);
+  audio_tab_->setEnabled(audio_enabled_->isChecked());
+  connect(subtitles_enabled_, &QCheckBox::toggled, subtitle_tab_, &QWidget::setEnabled);
+  subtitle_tab_->setEnabled(subtitles_enabled_->isChecked());
 }
 
 rational ExportDialog::GetSelectedTimebase() const
@@ -714,6 +725,22 @@ void ExportDialog::SetParams(const EncodingParams &e)
       }
     }
   }
+}
+
+bool ExportDialog::eventFilter(QObject *o, QEvent *e)
+{
+  // Any parameters in scrollable areas, ignore wheel events so the user doesn't unwittingly change
+  // them while trying to scroll through the pages
+  if (e->type() == QEvent::Wheel) {
+    while ((o = o->parent())) {
+      if (o == video_tab_ || o == audio_tab_ || o == subtitle_tab_) {
+        e->ignore();
+        return true;
+      }
+    }
+  }
+
+  return super::eventFilter(o, e);
 }
 
 void ExportDialog::done(int r)
