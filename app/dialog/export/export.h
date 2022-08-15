@@ -116,8 +116,6 @@ private:
   QWidget* preferences_area_;
   QCheckBox *export_bkg_box_;
 
-  NodeParamViewScrollBlocker *scroll_blocker_;
-
 private slots:
   void BrowseFilename();
 

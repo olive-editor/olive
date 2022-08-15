@@ -142,8 +142,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   preferences_tabs_ = new QTabWidget();
 
-  scroll_blocker_ = new NodeParamViewScrollBlocker(this);
-
   color_manager_ = viewer_node_->project()->color_manager();
   video_tab_ = new ExportVideoTab(color_manager_);
   AddPreferencesTab(video_tab_, tr("Video"));
