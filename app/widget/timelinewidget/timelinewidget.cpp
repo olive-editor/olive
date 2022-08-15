@@ -54,6 +54,7 @@
 #include "undo/timelineundoworkarea.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/nodeparamview/nodeparamview.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -640,13 +641,23 @@ bool TimelineWidget::CopySelected(bool cut)
 
 bool TimelineWidget::Paste()
 {
+  // TimeRuler gets first chance (markers, etc.)
   if (super::Paste()) {
     return true;
-  }  if (!GetConnectedNode()) {
+  }
+
+  // Ensure we have a connected node
+  if (!GetConnectedNode()) {
     return false;
   }
 
-  return PasteInternal(false);
+  // Attempt regular clip pasting
+  if (PasteInternal(false)) {
+    return true;
+  }
+
+  // Give last chance to NodeParamView
+  return NodeParamView::Paste(this, std::bind(&TimelineWidget::GenerateExistingPasteMap, this, std::placeholders::_1));
 }
 
 void TimelineWidget::PasteInsert()
@@ -1705,6 +1716,24 @@ TimelineAndTrackView *TimelineWidget::AddTimelineAndTrackView(Qt::Alignment alig
   TimelineAndTrackView *v = new TimelineAndTrackView(alignment);
   connect(v->track_view(), &TrackView::AboutToDeleteTrack, this, &TimelineWidget::TrackAboutToBeDeleted);
   return v;
+}
+
+QHash<Node *, Node *> TimelineWidget::GenerateExistingPasteMap(const ProjectSerializer::Result &r)
+{
+  QHash<Node *, Node *> m;
+
+  for (Node *n : r.GetLoadedNodes()) {
+    for (Block *b : qAsConst(this->selected_blocks_)) {
+      for (auto it=b->GetContextPositions().cbegin(); it!=b->GetContextPositions().cend(); it++) {
+        if (it.key()->id() == n->id() && !m.contains(it.key())) {
+          m.insert(it.key(), n);
+          break;
+        }
+      }
+    }
+  }
+
+  return m;
 }
 
 QByteArray TimelineWidget::SaveSplitterState() const

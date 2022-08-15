@@ -28,6 +28,7 @@
 #include "core.h"
 #include "node/block/transition/transition.h"
 #include "node/output/viewer/viewer.h"
+#include "node/project/serializer/serializer.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
 #include "widget/slider/rationalslider.h"
@@ -310,6 +311,8 @@ private:
   bool PasteInternal(bool insert);
 
   TimelineAndTrackView *AddTimelineAndTrackView(Qt::Alignment alignment);
+
+  QHash<Node*, Node*> GenerateExistingPasteMap(const ProjectSerializer::Result &r);
 
   QPoint drag_origin_;
 
