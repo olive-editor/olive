@@ -148,10 +148,10 @@ protected:
 private:
   enum SequenceToMediaTimeFlag
   {
-    kSTMNone,
-    kSTMIgnoreReverse,
-    kSTMIgnoreSpeed,
-    kSTMIgnoreLoop
+    kSTMNone = 0x0,
+    kSTMIgnoreReverse = 0x1,
+    kSTMIgnoreSpeed = 0x2,
+    kSTMIgnoreLoop = 0x4
   };
 
   rational SequenceToMediaTime(const rational& sequence_time, uint64_t flags = kSTMNone) const;
