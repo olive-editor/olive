@@ -1314,6 +1314,9 @@ void TimelineWidget::NudgeInternal(rational amount)
 
     foreach (Block* b, selected_blocks_) {
       command->add_child(new TrackReplaceBlockWithGapCommand(b->track(), b, false));
+    }
+
+    foreach (Block* b, selected_blocks_) {
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(b->track()->type()), b->track()->Index(), b, b->in() + amount));
     }
 
