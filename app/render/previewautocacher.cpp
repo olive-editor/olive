@@ -671,7 +671,8 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
                                        copied_viewer_node_->GetVideoParams(),
                                        copied_viewer_node_->GetAudioParams(),
                                        time,
-                                       copied_color_manager_);
+                                       copied_color_manager_,
+                                       RenderMode::kOffline);
 
   if (FrameHashCache *frame_cache = dynamic_cast<FrameHashCache *>(cache)) {
     if (ThumbnailCache *wave_cache = dynamic_cast<ThumbnailCache *>(cache)) {
@@ -687,7 +688,6 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
     rvp.AddCache(frame_cache);
   }
 
-  rvp.mode = RenderMode::kOffline;
   rvp.return_type = dry ? RenderManager::kNull : RenderManager::kTexture;
 
   // Allow using cached images for this render job
@@ -710,11 +710,11 @@ RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, P
 
   RenderManager::RenderAudioParams rap(node,
                                        r,
-                                       copied_viewer_node_->GetAudioParams());
+                                       copied_viewer_node_->GetAudioParams(),
+                                       RenderMode::kOffline);
 
   rap.generate_waveforms = dynamic_cast<AudioWaveformCache*>(cache);
   rap.clamp = false;
-  rap.mode = RenderMode::kOffline;
 
   RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(rap);
   watcher->SetTicket(ticket);

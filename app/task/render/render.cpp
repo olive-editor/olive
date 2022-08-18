@@ -62,9 +62,8 @@ bool RenderTask::Render(ColorManager* manager,
 
     RenderManager::RenderAudioParams rap(viewer_->GetConnectedSampleOutput(),
                                          range,
-                                         audio_params_);
-
-    rap.mode = RenderMode::kOnline;
+                                         audio_params_,
+                                         RenderMode::kOnline);
 
     RenderTicketWatcher* watcher = new RenderTicketWatcher();
     watcher->setProperty("range", QVariant::fromValue(range));
@@ -284,14 +283,13 @@ void RenderTask::StartTicket(QThread* watcher_thread, ColorManager* manager,
                              ColorProcessorPtr force_color_output)
 {
   RenderManager::RenderVideoParams rvp(viewer_->GetConnectedTextureOutput(), video_params_, audio_params_,
-                                       time, manager);
+                                       time, manager, mode);
 
   rvp.force_size = force_size;
   rvp.force_matrix = force_matrix;
   rvp.force_format = force_format;
   rvp.force_color_output = force_color_output;
   rvp.force_channel_count = force_channel_count;
-  rvp.mode = mode;
 
   if (cache) {
     rvp.AddCache(cache);

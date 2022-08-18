@@ -103,7 +103,7 @@ public:
 
   struct RenderVideoParams {
     RenderVideoParams(Node *n, const VideoParams &vparam, const AudioParams &aparam, const rational &t,
-                ColorManager *colorman)
+                ColorManager *colorman, RenderMode::Mode m)
     {
       node = n;
       video_params = vparam;
@@ -116,7 +116,7 @@ public:
       force_color_output = nullptr;
       force_size = QSize(0, 0);
       force_channel_count = 0;
-      mode = RenderMode::kOffline;
+      mode = m;
     }
 
     void AddCache(FrameHashCache *cache)
@@ -159,14 +159,14 @@ public:
   RenderTicketPtr RenderFrame(const RenderVideoParams &params);
 
   struct RenderAudioParams {
-    RenderAudioParams(Node *n, const TimeRange &time, const AudioParams &aparam)
+    RenderAudioParams(Node *n, const TimeRange &time, const AudioParams &aparam, RenderMode::Mode m)
     {
       node = n;
       range = time;
       audio_params = aparam;
       generate_waveforms = false;
       clamp = true;
-      mode = RenderMode::kOffline;
+      mode = m;
     }
 
     Node *node;
