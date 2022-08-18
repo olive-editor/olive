@@ -486,6 +486,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
     int text_height = fm.height();
     int text_padding = text_height/4; // This ties into the track minimum height being 1.5
     int text_total_height = text_height + text_padding + text_padding;
+    Q_UNUSED(text_total_height)
 
     if (foreground) {
       painter->setBrush(Qt::NoBrush);
@@ -522,7 +523,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
       if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
         // Draw waveform
         if (show_waveforms_) {
-          QRect waveform_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
+          QRect waveform_rect = r.toRect();
           painter->setPen(shadow_color);
           AudioVisualWaveform::DrawWaveform(painter, waveform_rect, this->GetScale(), clip->waveform(),
                                             SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()));
