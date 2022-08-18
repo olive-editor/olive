@@ -21,6 +21,7 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
+#include "codec/encoder.h"
 #include "common/rational.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
@@ -126,7 +127,7 @@ public:
     return InputArraySize(kSubtitleParamsInput);
   }
 
-  int GetTotalStreamCount() const
+  virtual int GetTotalStreamCount() const
   {
     return GetVideoStreamCount() + GetAudioStreamCount() + GetSubtitleStreamCount();
   }
@@ -186,6 +187,11 @@ public:
   bool IsVideoAutoCacheEnabled() const { qDebug() << "sequence ac is a stub"; return false; }
   void SetVideoAutoCacheEnabled(bool e) { qDebug() << "sequence ac is a stub"; }
 
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
+  const EncodingParams &GetLastUsedEncodingParams() const { return last_used_encoding_params_; }
+  void SetLastUsedEncodingParams(const EncodingParams &p) { last_used_encoding_params_ = p; }
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;
@@ -242,6 +248,8 @@ private:
 
   bool autocache_input_video_;
   bool autocache_input_audio_;
+
+  EncodingParams last_used_encoding_params_;
 
 };
 

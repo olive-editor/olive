@@ -170,6 +170,11 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
     }
   }
     break;
+  case Qt::EditRole:
+    if (column_type == kName) {
+      return internal_item->GetLabel();
+    }
+    break;
   case Qt::DecorationRole:
     // If this is the first column, return the Item's icon
     if (column_type == kName) {

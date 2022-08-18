@@ -92,6 +92,8 @@ public:
    */
   void SetApplicationProgressValue(int value);
 
+  void SelectFootage(const QVector<Footage*> &e);
+
 public slots:
   void ProjectOpen(Project *p);
 
@@ -141,6 +143,8 @@ private:
   void UpdateAudioMonitorParams(ViewerOutput* viewer);
 
   void UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel);
+
+  void SelectFootageForProjectPanel(const QVector<Footage*> &e, ProjectPanel *p);
 
   QByteArray premaximized_state_;
 

@@ -159,11 +159,6 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
     }
 
     if (can_push_job) {
-      // If we're not repeating pixels, expect an alpha channel to appear
-      if (!job.Get(kRepeatEdgePixelsInput).toBool()) {
-        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-      }
-
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
       // If we're not performing the blur job, just push the texture

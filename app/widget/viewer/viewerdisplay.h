@@ -263,6 +263,8 @@ private:
 
   void EmitColorAtCursor(QMouseEvent* e);
 
+  void DrawSubtitleTracks();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -369,8 +371,9 @@ private:
 
   rational playback_timebase_;
 
-  QRubberBand *add_band_;
+  bool add_band_;
   QPoint add_band_start_;
+  QPoint add_band_end_;
 
   bool queue_starved_;
 
@@ -378,6 +381,7 @@ private slots:
   void UpdateFromQueue();
 
   void TextEditChanged();
+  void TextEditDestroyed();
 
   void SubtitlesChanged(const TimeRange &r);
 

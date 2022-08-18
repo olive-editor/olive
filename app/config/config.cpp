@@ -108,6 +108,11 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultAudioTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
   SetEntryInternal(QStringLiteral("DefaultTransitionLength"), NodeValue::kRational, QVariant::fromValue(rational(1)));
 
+  SetEntryInternal(QStringLiteral("DefaultSubtitleSize"), NodeValue::kInt, 48);
+  SetEntryInternal(QStringLiteral("DefaultSubtitleFamily"), NodeValue::kText, QString());
+  SetEntryInternal(QStringLiteral("DefaultSubtitleWeight"), NodeValue::kInt, QFont::Bold);
+  SetEntryInternal(QStringLiteral("AntialiasSubtitles"), NodeValue::kBoolean, true);
+
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
   SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, ColorCoding::kRed);
@@ -145,6 +150,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequencePixelAspect"), NodeValue::kRational, QVariant::fromValue(rational(1)));
   SetEntryInternal(QStringLiteral("DefaultSequenceFrameRate"), NodeValue::kRational, QVariant::fromValue(rational(1001, 30000)));
   SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeValue::kInt, VideoParams::kInterlaceNone);
+  SetEntryInternal(QStringLiteral("DefaultSequenceAutoCache2"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeValue::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeValue::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
 

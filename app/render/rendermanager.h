@@ -97,7 +97,8 @@ public:
 
   enum ReturnType {
     kTexture,
-    kFrame
+    kFrame,
+    kNull
   };
 
   struct RenderVideoParams {
@@ -114,6 +115,8 @@ public:
       force_format = VideoParams::kFormatInvalid;
       force_color_output = nullptr;
       force_size = QSize(0, 0);
+      force_channel_count = 0;
+      mode = RenderMode::kOffline;
     }
 
     void AddCache(FrameHashCache *cache)
@@ -130,16 +133,20 @@ public:
     ColorManager *color_manager;
     bool use_cache;
     ReturnType return_type;
+    RenderMode::Mode mode;
 
     QString cache_dir;
     rational cache_timebase;
     QString cache_id;
 
     QSize force_size;
+    int force_channel_count;
     QMatrix4x4 force_matrix;
     VideoParams::Format force_format;
     ColorProcessorPtr force_color_output;
   };
+
+  static const rational kDryRunInterval;
 
   /**
    * @brief Asynchronously generate a frame at a given time
@@ -159,6 +166,7 @@ public:
       audio_params = aparam;
       generate_waveforms = false;
       clamp = true;
+      mode = RenderMode::kOffline;
     }
 
     Node *node;
@@ -166,6 +174,7 @@ public:
     AudioParams audio_params;
     bool generate_waveforms;
     bool clamp;
+    RenderMode::Mode mode;
   };
 
   /**
@@ -217,6 +226,7 @@ private:
   QTimer *decoder_clear_timer_;
 
   RenderThread *video_thread_;
+  RenderThread *dry_run_thread_;
   RenderThread *audio_thread_;
 
 private slots:

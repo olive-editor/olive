@@ -62,7 +62,11 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
     attached_renderer_ = new OpenGLRenderer(this);
 
     // Create widget wrapper for OpenGL window
+#ifdef USE_QOPENGLWINDOW
     wrapper_ = QWidget::createWindowContainer(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_));
+#else
+    wrapper_ = inner_widget_;
+#endif
     layout->addWidget(wrapper_);
   } else {
     inner_widget_ = nullptr;

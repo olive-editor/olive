@@ -21,7 +21,7 @@
 #ifndef EXPORTTASK_H
 #define EXPORTTASK_H
 
-#include "exportparams.h"
+#include "codec/encoder.h"
 #include "node/output/viewer/viewer.h"
 #include "render/colorprocessor.h"
 #include "task/render/render.h"
@@ -33,7 +33,7 @@ class ExportTask : public RenderTask
 {
   Q_OBJECT
 public:
-  ExportTask(ViewerOutput *viewer_node, ColorManager *color_manager, const ExportParams &params);
+  ExportTask(ViewerOutput *viewer_node, ColorManager *color_manager, const EncodingParams &params);
 
 protected:
   virtual bool Run() override;
@@ -58,9 +58,11 @@ private:
 
   ColorManager* color_manager_;
 
-  ExportParams params_;
+  EncodingParams params_;
 
-  Encoder* encoder_;
+  std::shared_ptr<Encoder> encoder_;
+
+  std::shared_ptr<Encoder> subtitle_encoder_;
 
   ColorProcessorPtr color_processor_;
 

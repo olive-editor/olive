@@ -49,7 +49,7 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t);
+  RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
 
   RenderTicketPtr GetRangeOfAudio(TimeRange range);
 
@@ -103,7 +103,7 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache *cache);
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache *cache, bool dry);
 
   RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache *cache);
 

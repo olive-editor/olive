@@ -71,7 +71,6 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
 {
   ShaderJob job;
   job.Insert(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
 
   // Convert slider values to their pixel values and then convert to clip space (-1.0 ... 1.0) for overriding the

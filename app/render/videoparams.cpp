@@ -285,12 +285,13 @@ void VideoParams::set_defaults_for_footage()
   premultiplied_alpha_ = false;
   x_ = 0;
   y_ = 0;
+  color_range_ = kColorRangeDefault;
 }
 
 void VideoParams::calculate_square_pixel_width()
 {
   if (pixel_aspect_ratio_.denominator() != 0) {
-    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+    par_width_ = qRound(width_ * pixel_aspect_ratio_.toDouble());
   } else {
     par_width_ = width_;
   }
@@ -389,6 +390,8 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_premultiplied_alpha(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("colorrange")) {
+      set_color_range(static_cast<ColorRange>(reader->readElementText().toInt()));
     } else {
       reader->skipCurrentElement();
     }
@@ -416,6 +419,7 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
   writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeTextElement(QStringLiteral("colorrange"), QString::number(color_range_));
 }
 
 }

@@ -24,10 +24,12 @@
 #include <QList>
 #include <QDateTime>
 
+#include "codec/decoder.h"
 #include "common/rational.h"
 #include "footagedescription.h"
 #include "node/output/viewer/viewer.h"
 #include "render/audioparams.h"
+#include "render/cancelatom.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -43,12 +45,6 @@ class Footage : public ViewerOutput
 {
   Q_OBJECT
 public:
-  enum LoopMode {
-    kLoopModeOff,
-    kLoopModeLoop,
-    kLoopModeClamp
-  };
-
   /**
    * @brief Footage Constructor
    */
@@ -101,11 +97,6 @@ public:
   void SetValid();
 
   /**
-   * @brief Get currently set loop mode
-   */
-  LoopMode loop_mode() const;
-
-  /**
    * @brief Return the current filename of this Footage object
    */
   QString filename() const;
@@ -141,7 +132,7 @@ public:
    */
   void set_timestamp(const qint64 &t);
 
-  void SetCancelPointer(const QAtomicInt* c)
+  void SetCancelPointer(CancelAtom *c)
   {
     cancelled_ = c;
   }
@@ -182,15 +173,16 @@ public:
 
   virtual Node *GetConnectedSampleOutput() override;
 
-  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
+  static rational AdjustTimeByLoopMode(rational time, Decoder::LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
   virtual void LoadFinishedEvent() override;
 
   virtual qint64 creation_time() const override;
   virtual qint64 mod_time() const override;
 
+  virtual int GetTotalStreamCount() const override { return total_stream_count_; }
+
   static const QString kFilenameInput;
-  static const QString kLoopModeInput;
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
@@ -232,7 +224,9 @@ private:
 
   bool valid_;
 
-  const QAtomicInt* cancelled_;
+  CancelAtom *cancelled_;
+
+  int total_stream_count_;
 
 private slots:
   void CheckFootage();

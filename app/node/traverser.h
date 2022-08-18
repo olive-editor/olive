@@ -27,6 +27,8 @@
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
 #include "render/job/cachejob.h"
+#include "render/cancelatom.h"
+#include "render/job/footagejob.h"
 #include "render/job/colortransformjob.h"
 #include "render/job/footagejob.h"
 #include "value.h"
@@ -127,24 +129,16 @@ protected:
 
   bool IsCancelled()
   {
-    bool c = cancel_ && *cancel_;
-    if (c) {
-      heard_cancel_ = true;
-    }
-    return c;
+    return cancel_ && cancel_->IsCancelled();
   }
 
-  bool HeardCancel() const { return heard_cancel_; }
-
-  const QAtomicInt *GetCancelPointer() const
+  bool HeardCancel() const
   {
-    return cancel_;
+    return cancel_ && cancel_->HeardCancel();
   }
 
-  void SetCancelPointer(const QAtomicInt *cancel)
-  {
-    cancel_ = cancel;
-  }
+  CancelAtom *GetCancelPointer() const { return cancel_; }
+  void SetCancelPointer(CancelAtom *cancel) { cancel_ = cancel; }
 
   void ResolveJobs(NodeValue &value, const TimeRange &range);
 
@@ -152,6 +146,8 @@ protected:
   {
     return block_stack_.empty() ? nullptr : block_stack_.back();
   }
+
+  Decoder::LoopMode loop_mode() const { return loop_mode_; }
 
 private:
   void PreProcessRow(const TimeRange &range, NodeValueRow &row);
@@ -162,14 +158,15 @@ private:
 
   AudioParams audio_params_;
 
-  const QAtomicInt *cancel_;
-  bool heard_cancel_;
+  CancelAtom *cancel_;
 
   const Node *transform_start_;
   const Node *transform_now_;
   QTransform *transform_;
 
   std::list<Block*> block_stack_;
+
+  Decoder::LoopMode loop_mode_;
 
 };
 

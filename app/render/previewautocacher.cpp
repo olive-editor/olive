@@ -61,7 +61,7 @@ PreviewAutoCacher::~PreviewAutoCacher()
   SetViewerNode(nullptr);
 }
 
-RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool dry)
 {
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
@@ -70,6 +70,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t)
   auto sfr = std::make_shared<RenderTicket>();
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
+  sfr->setProperty("dry", dry);
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -194,6 +195,24 @@ void PreviewAutoCacher::VideoRendered()
 {
   RenderTicketWatcher* watcher = static_cast<RenderTicketWatcher*>(sender());
 
+  const QStringList bad_cache_names = watcher->GetTicket()->property("badcache").toStringList();
+  if (!bad_cache_names.empty()) {
+    for (const QString &fn : bad_cache_names) {
+      DiskManager::instance()->DeleteSpecificFile(fn);
+    }
+  }
+
+  // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be
+  // cleared anyway
+  QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
+  foreach (RenderTicketPtr t, tickets) {
+    if (watcher->HasResult()) {
+      t->Finish(watcher->Get());
+    } else {
+      t->Finish();
+    }
+  }
+
   // If the task list doesn't contain this watcher, presumably it was cleared as a result of a
   // viewer switch, so we'll completely ignore this watcher
   if (running_video_tasks_.removeOne(watcher)) {
@@ -213,24 +232,6 @@ void PreviewAutoCacher::VideoRendered()
 
     // Continue rendering
     TryRender();
-  }
-
-  const QStringList bad_cache_names = watcher->GetTicket()->property("badcache").toStringList();
-  if (!bad_cache_names.empty()) {
-    for (const QString &fn : bad_cache_names) {
-      DiskManager::instance()->DeleteSpecificFile(fn);
-    }
-  }
-
-  // Process passthroughs no matter what, if the viewer was switched, the passthrough map would be
-  // cleared anyway
-  QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
-  foreach (RenderTicketPtr t, tickets) {
-    if (watcher->HasResult()) {
-      t->Finish(watcher->Get());
-    } else {
-      t->Finish();
-    }
   }
 
   delete watcher;
@@ -596,13 +597,17 @@ void PreviewAutoCacher::TryRender()
   }
 
   if (single_frame_render_) {
+    // Make an explicit copy of the render ticket here - it seems that on some systems it can be set
+    // to NULL before we're done with it...
+    RenderTicketPtr t = single_frame_render_;
+    single_frame_render_ = nullptr;
+
     // Check if already caching this
     RenderTicketWatcher *watcher = RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(),
-                                               single_frame_render_->property("time").value<rational>(),
-                                               nullptr);
-    video_immediate_passthroughs_[watcher].append(single_frame_render_);
-
-    single_frame_render_ = nullptr;
+                                               t->property("time").value<rational>(),
+                                               nullptr,
+                                               t->property("dry").toBool());
+    video_immediate_passthroughs_[watcher].append(t);
   }
 
   if (!pause_renders_) {
@@ -617,7 +622,7 @@ void PreviewAutoCacher::TryRender()
         // Queue next frames
         rational t;
         while (running_video_tasks_.size() < max_tasks && d.iterator.GetNext(&t)) {
-          RenderFrame(copy, t, d.cache);
+          RenderFrame(copy, t, d.cache, false);
 
           emit SignalCacheProxyTaskProgress(double(d.iterator.frame_index()) / double(d.iterator.size()));
 
@@ -652,7 +657,7 @@ void PreviewAutoCacher::TryRender()
   }
 }
 
-RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, PlaybackCache *cache)
+RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, PlaybackCache *cache, bool dry)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(last_update_time_));
@@ -682,7 +687,10 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
     rvp.AddCache(frame_cache);
   }
 
-  rvp.return_type = RenderManager::kTexture;
+  rvp.mode = RenderMode::kOffline;
+  rvp.return_type = dry ? RenderManager::kNull : RenderManager::kTexture;
+
+  // Allow using cached images for this render job
   rvp.use_cache = true;
 
   watcher->SetTicket(RenderManager::instance()->RenderFrame(rvp));
@@ -706,6 +714,7 @@ RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, P
 
   rap.generate_waveforms = dynamic_cast<AudioWaveformCache*>(cache);
   rap.clamp = false;
+  rap.mode = RenderMode::kOffline;
 
   RenderTicketPtr ticket = RenderManager::instance()->RenderAudio(rap);
   watcher->SetTicket(ticket);

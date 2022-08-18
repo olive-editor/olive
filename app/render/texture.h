@@ -32,11 +32,6 @@ class Renderer;
 class Texture
 {
 public:
-  enum Type {
-    k2D,
-    k3D
-  };
-
   enum Interpolation {
     kNearest,
     kLinear,
@@ -50,19 +45,17 @@ public:
    */
   Texture(const VideoParams& param) :
     renderer_(nullptr),
-    params_(param),
-    type_(k2D)
+    params_(param)
   {
   }
 
   /**
    * @brief Construct a real texture linked to a renderer backend
    */
-  Texture(Renderer* renderer, const QVariant& native, const VideoParams& param, Type type) :
+  Texture(Renderer* renderer, const QVariant& native, const VideoParams& param) :
     renderer_(renderer),
     params_(param),
-    id_(native),
-    type_(type)
+    id_(native)
   {
   }
 
@@ -117,11 +110,6 @@ public:
     return params_.pixel_aspect_ratio();
   }
 
-  Type type() const
-  {
-    return type_;
-  }
-
   Renderer* renderer() const
   {
     return renderer_;
@@ -133,8 +121,6 @@ private:
   VideoParams params_;
 
   QVariant id_;
-
-  Type type_;
 
 };
 

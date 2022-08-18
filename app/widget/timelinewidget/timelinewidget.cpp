@@ -55,6 +55,7 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
+#include "widget/nodeparamview/nodeparamview.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -86,6 +87,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   ruler_and_time_layout->addWidget(timecode_label_);
 
   ruler_and_time_layout->addWidget(ruler());
+
+  ruler()->setFocusPolicy(Qt::TabFocus);
+  QWidget::setTabOrder(ruler(), timecode_label_);
 
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
@@ -638,13 +642,23 @@ bool TimelineWidget::CopySelected(bool cut)
 
 bool TimelineWidget::Paste()
 {
+  // TimeRuler gets first chance (markers, etc.)
   if (super::Paste()) {
     return true;
-  }  if (!GetConnectedNode()) {
+  }
+
+  // Ensure we have a connected node
+  if (!GetConnectedNode()) {
     return false;
   }
 
-  return PasteInternal(false);
+  // Attempt regular clip pasting
+  if (PasteInternal(false)) {
+    return true;
+  }
+
+  // Give last chance to NodeParamView
+  return NodeParamView::Paste(this, std::bind(&TimelineWidget::GenerateExistingPasteMap, this, std::placeholders::_1));
 }
 
 void TimelineWidget::PasteInsert()
@@ -907,8 +921,7 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
 
       UpdateViewports();
 
-      QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
-                                Q_ARG(int, qRound(event->GetSceneX())));
+      SetCatchUpScrollValue(event->GetScreenPos().x());
     } else {
       // Mouse is not down, attempt a hover event
       TimelineTool* hover_tool = GetActiveTool();
@@ -923,6 +936,8 @@ void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 {
+  StopCatchUpScrollTimer();
+
   if (active_tool_) {
     if (GetConnectedNode()) {
       active_tool_->MouseRelease(event);
@@ -957,16 +972,22 @@ void TimelineWidget::ViewDragMoved(TimelineViewMouseEvent *event)
 {
   import_tool_->DragMove(event);
   UpdateViewports();
+
+  SetCatchUpScrollValue(event->GetScreenPos().x());
 }
 
 void TimelineWidget::ViewDragLeft(QDragLeaveEvent *event)
 {
+  StopCatchUpScrollTimer();
+
   import_tool_->DragLeave(event);
   UpdateViewports();
 }
 
 void TimelineWidget::ViewDragDropped(TimelineViewMouseEvent *event)
 {
+  StopCatchUpScrollTimer();
+
   import_tool_->DragDrop(event);
   UpdateViewports();
 }
@@ -1106,8 +1127,7 @@ void TimelineWidget::ShowContextMenu()
       }
     }
 
-    QAction* rename_action = menu.addAction(tr("Rename"));
-    connect(rename_action, &QAction::triggered, this, &TimelineWidget::RenameSelectedBlocks);
+    menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));
     connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialogForSelectedClips);
@@ -1129,9 +1149,6 @@ void TimelineWidget::ShowContextMenu()
     show_waveforms->setCheckable(true);
     show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
     connect(show_waveforms, &QAction::triggered, this, &TimelineWidget::SetViewWaveformsEnabled);
-
-    QAction* scroll_zoom = views_.first()->view()->AddSetScrollZoomsByDefaultActionToMenu(&menu);
-    connect(scroll_zoom, &QAction::triggered, this, &TimelineWidget::SetScrollZoomsByDefaultOnAllViews);
 
     menu.addSeparator();
 
@@ -1226,13 +1243,6 @@ void TimelineWidget::TrackIndexChanged(int old, int now)
   auto track_selections = selections_.take(old_ref);
   if (!track_selections.isEmpty()) {
     selections_.insert(new_ref, track_selections);
-  }
-}
-
-void TimelineWidget::SetScrollZoomsByDefaultOnAllViews(bool e)
-{
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->SetScrollZoomsByDefault(e);
   }
 }
 
@@ -1335,6 +1345,9 @@ void TimelineWidget::NudgeInternal(rational amount)
 
     foreach (Block* b, selected_blocks_) {
       command->add_child(new TrackReplaceBlockWithGapCommand(b->track(), b, false));
+    }
+
+    foreach (Block* b, selected_blocks_) {
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(b->track()->type()), b->track()->Index(), b, b->in() + amount));
     }
 
@@ -1537,6 +1550,10 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
 
 void TimelineWidget::RippleTo(Timeline::MovementMode mode)
 {
+  if (!GetConnectedNode()) {
+    return;
+  }
+
   rational playhead_time = GetTime();
 
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
@@ -1733,6 +1750,24 @@ TimelineAndTrackView *TimelineWidget::AddTimelineAndTrackView(Qt::Alignment alig
   TimelineAndTrackView *v = new TimelineAndTrackView(alignment);
   connect(v->track_view(), &TrackView::AboutToDeleteTrack, this, &TimelineWidget::TrackAboutToBeDeleted);
   return v;
+}
+
+QHash<Node *, Node *> TimelineWidget::GenerateExistingPasteMap(const ProjectSerializer::Result &r)
+{
+  QHash<Node *, Node *> m;
+
+  for (Node *n : r.GetLoadedNodes()) {
+    for (Block *b : qAsConst(this->selected_blocks_)) {
+      for (auto it=b->GetContextPositions().cbegin(); it!=b->GetContextPositions().cend(); it++) {
+        if (it.key()->id() == n->id() && !m.contains(it.key())) {
+          m.insert(it.key(), n);
+          break;
+        }
+      }
+    }
+  }
+
+  return m;
 }
 
 QByteArray TimelineWidget::SaveSplitterState() const

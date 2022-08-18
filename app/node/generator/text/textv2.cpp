@@ -96,7 +96,6 @@ void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &global
 {
   GenerateJob job;
   job.Insert(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
   job.SetRequestedFormat(VideoParams::kFormatFloat32);
 
   if (!job.Get(kTextInput).toString().isEmpty()) {

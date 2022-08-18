@@ -159,6 +159,11 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QS
 
     Result inner_result = Save(&writer, data, type);
 
+    if (writer.hasError()) {
+      Result r(kXmlError);
+      return r;
+    }
+
     project_file.close();
 
     if (inner_result != kSuccess) {
@@ -262,7 +267,7 @@ ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint vers
     Result r(kSuccess);
     if (reader->hasError()) {
       r = Result(kXmlError);
-      r.SetDetails(reader->errorString());
+      r.SetDetails(QCoreApplication::translate("Serializer", "%1 on line %2").arg(reader->errorString(), QString::number(reader->lineNumber())));
     }
     r.SetLoadData(ld);
     return r;

@@ -66,8 +66,10 @@ PanelWidget *PanelManager::CurrentlyFocused(bool enable_hover) const
 
 PanelWidget *PanelManager::CurrentlyHovered() const
 {
+  QPoint global_mouse = QCursor::pos();
+
   foreach (PanelWidget* panel, focus_history_) {
-    if (panel->underMouse()) {
+    if (panel->rect().contains(panel->mapFromGlobal(global_mouse))) {
       return panel;
     }
   }

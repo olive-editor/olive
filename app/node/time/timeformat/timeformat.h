@@ -18,40 +18,36 @@
 
 ***/
 
-#include "threadedobject.h"
+#ifndef TIMEFORMAT_H
+#define TIMEFORMAT_H
+
+#include "node/node.h"
 
 namespace olive {
 
-void ThreadedObject::LockDeletes()
+class TimeFormatNode : public Node
 {
-  threadobj_delete_lock_++;
-}
+  Q_OBJECT
+public:
+  TimeFormatNode();
 
-void ThreadedObject::UnlockDeletes()
-{
-  Q_ASSERT(AreDeletesLocked());
+  NODE_DEFAULT_FUNCTIONS(TimeFormatNode)
 
-  threadobj_delete_lock_--;
-}
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QVector<CategoryID> Category() const override;
+  virtual QString Description() const override;
 
-bool ThreadedObject::AreDeletesLocked()
-{
-  return (threadobj_delete_lock_ > 0);
-}
+  virtual void Retranslate() override;
 
-void ThreadedObject::LockMutex()
-{
-  threadobj_main_lock_.lock();
-}
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-void ThreadedObject::UnlockMutex()
-{
-  threadobj_main_lock_.unlock();
-}
+  static const QString kTimeInput;
+  static const QString kFormatInput;
+  static const QString kLocalTimeInput;
 
-bool ThreadedObject::TryLockMutex(int timeout)
-{
-  return threadobj_main_lock_.tryLock(timeout);
-}
+};
 
 }
+
+#endif // TIMEFORMAT_H

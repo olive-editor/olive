@@ -37,9 +37,16 @@ namespace olive {
 
 const rational Decoder::kAnyTimecode = RATIONAL_MIN;
 
-Decoder::Decoder()
+Decoder::Decoder() :
+  cached_texture_(nullptr)
 {
   UpdateLastAccessed();
+}
+
+void Decoder::IncrementAccessTime(qint64 t)
+{
+  QMutexLocker locker(&mutex_);
+  last_accessed_ += t;
 }
 
 bool Decoder::Open(const CodecStream &stream)
@@ -86,7 +93,7 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+TexturePtr Decoder::RetrieveVideo(const RetrieveVideoParams &p)
 {
   QMutexLocker locker(&mutex_);
 
@@ -102,14 +109,21 @@ TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, 
     return nullptr;
   }
 
-  if (cancelled && *cancelled) {
+  if (p.cancelled && p.cancelled->IsCancelled()) {
     return nullptr;
   }
 
-  return RetrieveVideoInternal(renderer, timecode, divider, cancelled);
+  if (cached_texture_ && cached_time_ == p.time) {
+    return cached_texture_;
+  }
+
+  cached_texture_ = RetrieveVideoInternal(p);
+  cached_time_ = p.time;
+
+  return cached_texture_;
 }
 
-Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
+Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, LoopMode loop_mode, RenderMode::Mode mode)
 {
   QMutexLocker locker(&mutex_);
 
@@ -152,6 +166,8 @@ void Decoder::Close()
 
   UpdateLastAccessed();
 
+  cached_texture_ = nullptr;
+
   if (stream_.IsValid()) {
     CloseInternal();
     stream_.Reset();
@@ -160,7 +176,7 @@ void Decoder::Close()
   }
 }
 
-bool Decoder::ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, const QAtomicInt *cancelled)
+bool Decoder::ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, CancelAtom *cancelled)
 {
   return ConformAudioInternal(output_filenames, params, cancelled);
 }
@@ -264,15 +280,13 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   return number_only.toLongLong();
 }
 
-TexturePtr Decoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+TexturePtr Decoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 {
-  Q_UNUSED(timecode)
-  Q_UNUSED(divider)
-  Q_UNUSED(cancelled)
+  Q_UNUSED(p)
   return nullptr;
 }
 
-bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, const QAtomicInt* cancelled)
+bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, CancelAtom *cancelled)
 {
   Q_UNUSED(filenames)
   Q_UNUSED(cancelled)
@@ -280,7 +294,7 @@ bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const Audi
   return false;
 }
 
-bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
+bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, LoopMode loop_mode, const AudioParams &input_params)
 {
   PlanarFileDevice input;
   if (input.open(conform_filenames, QFile::ReadOnly)) {
@@ -290,7 +304,7 @@ bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVecto
     const qint64 buffer_length_in_bytes = sample_buffer.sample_count() * input_params.bytes_per_sample_per_channel();
 
     while (write_index < buffer_length_in_bytes) {
-      if (loop_mode == Footage::kLoopModeLoop) {
+      if (loop_mode == kLoopModeLoop) {
         while (read_index >= input.size()) {
           read_index -= input.size();
         }

@@ -186,7 +186,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
     panel = timeline_panels_.first();
   } else {
     panel = AppendTimelinePanel();
-    enable_focus = false;
+    //enable_focus = false;
   }
 
   panel->ConnectViewerNode(sequence);
@@ -408,6 +408,16 @@ void MainWindow::SetApplicationProgressValue(int value)
   }
 #elif defined(Q_OS_MAC)
 #endif
+}
+
+void MainWindow::SelectFootage(const QVector<Footage *> &e)
+{
+  for (ProjectPanel *p : project_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
+  for (ProjectPanel *p : folder_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
 }
 
 void MainWindow::closeEvent(QCloseEvent *e)
@@ -757,6 +767,16 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
 
   node_panel_->SetContexts(context);
   param_panel_->SetContexts(context);
+}
+
+void MainWindow::SelectFootageForProjectPanel(const QVector<Footage *> &e, ProjectPanel *p)
+{
+  p->DeselectAll();
+  for (Footage *f : e) {
+    if (p->get_root()->HasChildRecursive(f)) {
+      p->SelectItem(f, false);
+    }
+  }
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)

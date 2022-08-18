@@ -42,7 +42,7 @@ bool ConformTask::Run()
 
   connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
 
-  bool ret = decoder->ConformAudio(output_filenames_, params_, &IsCancelled());
+  bool ret = decoder->ConformAudio(output_filenames_, params_, GetCancelAtom());
 
   decoder->Close();
 

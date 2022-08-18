@@ -28,21 +28,10 @@ namespace olive {
 
 class GenerateJob : public AcceleratedJob {
 public:
-  enum AlphaChannelSetting {
-    kAlphaAuto,
-    kAlphaForceOn,
-    kAlphaForceOff
-  };
-
   GenerateJob()
   {
-    alpha_channel_required_ = kAlphaAuto;
     requested_format_ = VideoParams::kFormatInvalid;
   }
-
-  AlphaChannelSetting GetAlphaChannelRequired() const { return alpha_channel_required_; }
-
-  void SetAlphaChannelRequired(AlphaChannelSetting e) { alpha_channel_required_ = e; }
 
   VideoParams::Format GetRequestedFormat() const { return requested_format_; }
 
@@ -52,8 +41,6 @@ public:
   void SetColorspace(const QString &s) { colorspace_ = s; }
 
 private:
-  AlphaChannelSetting alpha_channel_required_;
-
   VideoParams::Format requested_format_;
 
   QString colorspace_;

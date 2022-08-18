@@ -16,7 +16,7 @@ luma: [0.2126, 0.7152, 0.0722]
 description: A filmlike dynamic range encoding set for Blender
 
 roles:
-  default: sRGB OETF
+  default: Rec.709 OETF
   reference: Linear
   scene_linear: Linear
   data: Non-Colour Data
@@ -280,6 +280,20 @@ colorspaces:
         - !<FileTransform> {src: Blackmagic_FilmWideGamut_Gen5_to_linear.spi1d, interpolation: linear}
         - !<MatrixTransform> {matrix: [0.606530, 0.220408, 0.123479, 0, 0.267989, 0.832731, -0.100720, 0, -0.029442, -0.086611, 1.204861, 0, 0, 0, 0, 1]}
         - !<ColorSpaceTransform> {src: CIE-XYZ D65, dst: reference}
+
+  - !<ColorSpace>
+    name: Rec.709 OETF
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Rec.709 OETF
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: rec709_to_linear.spi1d, interpolation: linear}
 
   - !<ColorSpace>
     name: Non-Colour Data

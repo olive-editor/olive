@@ -84,11 +84,6 @@ private:
   QStackedWidget* stacked_widget_;
 
   /**
-   * @brief ComboBox for interlacing setting
-   */
-  QComboBox* interlacing_box;
-
-  /**
    * @brief Media name text field
    */
   QLineEdit* footage_name_field_;

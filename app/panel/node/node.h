@@ -104,6 +104,11 @@ public:
     node_widget_->view()->ZoomOut();
   }
 
+  virtual void RenameSelected() override
+  {
+    node_widget_->view()->LabelSelectedNodes();
+  }
+
 public slots:
   void Select(const QVector<Node::ContextPair> &p)
   {

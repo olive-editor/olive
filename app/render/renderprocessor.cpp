@@ -75,7 +75,12 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
     frame_params.set_format(frame_format);
   }
 
-  frame_params.set_channel_count(texture ? texture->channel_count() : VideoParams::kRGBChannelCount);
+  int force_channel_count = ticket_->property("channelcount").toInt();
+  if (force_channel_count != 0) {
+    frame_params.set_channel_count(force_channel_count);
+  } else {
+    frame_params.set_channel_count(texture ? texture->channel_count() : VideoParams::kRGBAChannelCount);
+  }
 
   FramePtr frame = Frame::Create();
   frame->set_timestamp(time);
@@ -121,7 +126,9 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
       texture = blit_tex;
     }
 
-    render_ctx_->DownloadFromTexture(texture.get(), frame->data(), frame->linesize_pixels());
+    render_ctx_->Flush();
+
+    render_ctx_->DownloadFromTexture(texture->id(), texture->params(), frame->data(), frame->linesize_pixels());
   }
 
   return frame;
@@ -132,7 +139,7 @@ void RenderProcessor::Run()
   // Depending on the render ticket type, start a job
   RenderManager::TicketType type = ticket_->property("type").value<RenderManager::TicketType>();
 
-  SetCancelPointer(&ticket_->IsCancelled());
+  SetCancelPointer(ticket_->GetCancelAtom());
 
   SetCacheVideoParams(ticket_->property("vparam").value<VideoParams>());
   SetCacheAudioParams(ticket_->property("aparam").value<AudioParams>());
@@ -149,53 +156,56 @@ void RenderProcessor::Run()
 
     TexturePtr texture = GenerateTexture(time, frame_length);
 
-    if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
-      // Get next between frame and interlace it
-      TexturePtr top = texture;
-      TexturePtr bottom = GenerateTexture(time + frame_length, frame_length);
-
-      if (GetCacheVideoParams().interlacing() == VideoParams::kInterlacedBottomFirst) {
-        std::swap(top, bottom);
-      }
-
-      texture = render_ctx_->InterlaceTexture(top, bottom, GetCacheVideoParams());
-    }
-
-    if (HeardCancel()) {
-      // Finish cancelled ticket with nothing since we can't guarantee the frame we generated
-      // is actually "complete
+    if (!render_ctx_) {
       ticket_->Finish();
     } else {
-      RenderManager::ReturnType return_type = RenderManager::ReturnType(ticket_->property("return").toInt());
+      if (GetCacheVideoParams().interlacing() != VideoParams::kInterlaceNone) {
+        // Get next between frame and interlace it
+        TexturePtr top = texture;
+        TexturePtr bottom = GenerateTexture(time + frame_length, frame_length);
 
-      FramePtr frame;
-      QString cache = ticket_->property("cache").toString();
-
-      if (return_type == RenderManager::kFrame || !cache.isEmpty()) {
-        // Convert to CPU frame
-        frame = GenerateFrame(texture, time);
-
-        // Save to cache if requested
-        if (!cache.isEmpty()) {
-          rational timebase = ticket_->property("cachetimebase").value<rational>();
-          QString id = ticket_->property("cacheid").toString();
-          bool cache_result = FrameHashCache::SaveCacheFrame(cache, id, time, timebase, frame);
-          ticket_->setProperty("cached", cache_result);
+        if (GetCacheVideoParams().interlacing() == VideoParams::kInterlacedBottomFirst) {
+          std::swap(top, bottom);
         }
+
+        texture = render_ctx_->InterlaceTexture(top, bottom, GetCacheVideoParams());
       }
 
-      if (return_type == RenderManager::kTexture) {
-        // Return GPU texture
-        if (!texture) {
-          texture = render_ctx_->CreateTexture(GetCacheVideoParams());
-          render_ctx_->ClearDestination(texture.get());
+      if (HeardCancel()) {
+        // Finish cancelled ticket with nothing since we can't guarantee the frame we generated
+        // is actually "complete
+        ticket_->Finish();
+      } else {
+        FramePtr frame;
+        QString cache = ticket_->property("cache").toString();
+        RenderManager::ReturnType return_type = RenderManager::ReturnType(ticket_->property("return").toInt());
+
+        if (return_type == RenderManager::kFrame || !cache.isEmpty()) {
+          // Convert to CPU frame
+          frame = GenerateFrame(texture, time);
+
+          // Save to cache if requested
+          if (!cache.isEmpty()) {
+            rational timebase = ticket_->property("cachetimebase").value<rational>();
+            QUuid uuid = ticket_->property("cacheid").value<QUuid>();
+            bool cache_result = FrameHashCache::SaveCacheFrame(cache, uuid, time, timebase, frame);
+            ticket_->setProperty("cached", cache_result);
+          }
         }
 
-        render_ctx_->Flush();
+        if (return_type == RenderManager::kTexture) {
+          // Return GPU texture
+          if (!texture) {
+            texture = render_ctx_->CreateTexture(GetCacheVideoParams());
+            render_ctx_->ClearDestination(texture.get());
+          }
 
-        ticket_->Finish(QVariant::fromValue(texture));
-      } else {
-        ticket_->Finish(QVariant::fromValue(frame));
+          render_ctx_->Flush();
+
+          ticket_->Finish(QVariant::fromValue(texture));
+        } else {
+          ticket_->Finish(QVariant::fromValue(frame));
+        }
       }
     }
     break;
@@ -268,6 +278,11 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
       qWarning() << "Failed to open decoder for" << stream.filename()
                  << "::" << stream.stream();
       return nullptr;
+    }
+
+    if (!render_ctx_) {
+      // Assume dry run and increment access time
+      decoder.decoder->IncrementAccessTime(RenderManager::kDryRunInterval.toDouble() * 1000);
     }
   }
 
@@ -388,10 +403,6 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
 
 void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time)
 {
-  if (!render_ctx_) {
-    return;
-  }
-
   if (ticket_->property("type").value<RenderManager::TicketType>() != RenderManager::kTypeVideo) {
     // Video cannot contribute to audio, so we do nothing here
     return;
@@ -424,21 +435,23 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     break;
   case VideoParams::kVideoTypeImageSequence:
   {
-    // Since image sequences involve multiple files, we don't engage the decoder cache
-    decoder = Decoder::CreateFromID(decoder_id);
+    if (render_ctx_) {
+      // Since image sequences involve multiple files, we don't engage the decoder cache
+      decoder = Decoder::CreateFromID(decoder_id);
 
-    QString frame_filename;
+      QString frame_filename;
 
-    int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
-    frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
+      int64_t frame_number = stream_data.get_time_in_timebase_units(input_time);
+      frame_filename = Decoder::TransformImageSequenceFileName(stream.filename(), frame_number);
 
-    // Decoder will close automatically since it's a stream_ptr
-    decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index(), GetCurrentBlock()));
+      // Decoder will close automatically since it's a stream_ptr
+      decoder->Open(Decoder::CodecStream(frame_filename, stream_data.stream_index(), GetCurrentBlock()));
+    }
     break;
   }
   }
 
-  if (decoder) {
+  if (decoder && render_ctx_) {
     Decoder::RetrieveVideoParams p;
     p.divider = stream.video_params().divider();
     p.maximum_format = destination->format();
@@ -447,7 +460,15 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
       VideoParams tex_params = stream.video_params();
 
       if (tex_params.is_valid()) {
-        TexturePtr unmanaged_texture = decoder->RetrieveVideo(render_ctx_, (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode, p, GetCancelPointer());
+        TexturePtr unmanaged_texture;
+
+        p.renderer = render_ctx_;
+        p.time = (stream_data.video_type() == VideoParams::kVideoTypeVideo) ? input_time : Decoder::kAnyTimecode;
+        p.cancelled = GetCancelPointer();
+        p.force_range = stream_data.color_range();
+        p.src_interlacing = stream_data.interlacing();
+
+        unmanaged_texture = decoder->RetrieveVideo(p);
 
         if (!IsCancelled() && unmanaged_texture) {
           // We convert to our rendering pixel format, since that will always be float-based which
@@ -487,7 +508,7 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
     Decoder::RetrieveAudioStatus status = decoder->RetrieveAudio(destination,
                                                                  input_time, audio_params,
                                                                  stream.cache_path(),
-                                                                 stream.loop_mode(),
+                                                                 loop_mode(),
                                                                  static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
     if (status == Decoder::kWaitingForConform) {

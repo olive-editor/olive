@@ -43,9 +43,11 @@ bool FootageDescription::Load(const QString &filename)
         // Default to first version of metadata (which wasn't versioned at all)
         unsigned version = 1;
 
-        XMLAttributeLoop((&reader), attr) {
-          if (attr.name() == QStringLiteral("version")) {
-            version = attr.value().toUInt();
+        {
+          XMLAttributeLoop((&reader), attr) {
+            if (attr.name() == QStringLiteral("version")) {
+              version = attr.value().toUInt();
+            }
           }
         }
 
@@ -58,6 +60,14 @@ bool FootageDescription::Load(const QString &filename)
           if (reader.name() == QStringLiteral("decoder")) {
             decoder_ = reader.readElementText();
           } else if (reader.name() == QStringLiteral("streams")) {
+            {
+              XMLAttributeLoop((&reader), attr) {
+                if (attr.name() == QStringLiteral("count")) {
+                  total_stream_count_ = attr.value().toInt();
+                }
+              }
+            }
+
             while (XMLReadNextStartElement(&reader)) {
               if (reader.name() == QStringLiteral("video")) {
                 VideoParams vp;
@@ -115,6 +125,8 @@ bool FootageDescription::Save(const QString &filename) const
   writer.writeTextElement(QStringLiteral("decoder"), decoder_);
 
   writer.writeStartElement(QStringLiteral("streams"));
+
+  writer.writeAttribute(QStringLiteral("count"), QString::number(total_stream_count_));
 
   foreach (const VideoParams& vp, video_streams_) {
     writer.writeStartElement(QStringLiteral("video"));

@@ -47,10 +47,26 @@ public:
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
+  enum VerticalAlignment
+  {
+    kVAlignTop,
+    kVAlignMiddle,
+    kVAlignBottom
+  };
+
   static const QString kTextInput;
+  static const QString kVerticalAlignmentInput;
+  static const QString kUseArgsInput;
+  static const QString kArgsInput;
+
+  static QString FormatString(const QString &input, const QStringList &args);
 
 private:
   TextGizmo *text_gizmo_;
+
+private slots:
+  void GizmoActivated();
+  void GizmoDeactivated();
 
 };
 

@@ -46,12 +46,17 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   ConnectTimelineView(ruler_, true);
   ruler()->SetSnapService(this);
+  connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
 
   scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
   connect(scrollbar_, &ResizableScrollBar::ResizeMoved, this, &TimeBasedWidget::ScrollBarResizeMoved);
 
   PassWheelEventsToScrollBar(ruler_);
+
+  catchup_scroll_timer_ = new QTimer(this);
+  catchup_scroll_timer_->setInterval(250); // Hardcoded 1/4 scroll limit value
+  connect(catchup_scroll_timer_, &QTimer::timeout, this, &TimeBasedWidget::CatchUpTimerTimeout);
 }
 
 void TimeBasedWidget::SetScaleAndCenterOnPlayhead(const double &scale)
@@ -217,6 +222,15 @@ void TimeBasedWidget::CatchUpScrollToPoint(int point)
   PageScrollInternal(point, false);
 }
 
+void TimeBasedWidget::CatchUpTimerTimeout()
+{
+  for (auto it=catchup_scroll_values_.cbegin(); it!=catchup_scroll_values_.cend(); it++) {
+    QScrollBar *sb = it.key();
+    const CatchUpScrollData &d = it.value();
+    PageScrollInternal(sb, d.maximum, sb->value() + d.value, false);
+  }
+}
+
 void TimeBasedWidget::AutoUpdateTimebase()
 {
   rational video_tb = viewer_node_->GetVideoParams().frame_rate_as_time_base();
@@ -301,11 +315,41 @@ void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
   object->installEventFilter(this);
 }
 
+void TimeBasedWidget::SetCatchUpScrollValue(QScrollBar *b, int v, int maximum)
+{
+  CatchUpScrollData &cudata = catchup_scroll_values_[b];
+  cudata.value = v;
+  cudata.maximum = maximum;
+
+  static const qint64 min_cooldown = 100; // Hardcoded 1/10 sec cooldown
+  if (QDateTime::currentMSecsSinceEpoch() - cudata.last_forced >= min_cooldown) {
+    QMetaObject::invokeMethod(this, &TimeBasedWidget::CatchUpTimerTimeout, Qt::QueuedConnection);
+    cudata.last_forced = QDateTime::currentMSecsSinceEpoch();
+  }
+
+  if (!catchup_scroll_timer_->isActive()) {
+    catchup_scroll_timer_->start();
+  }
+}
+
+void TimeBasedWidget::SetCatchUpScrollValue(int v)
+{
+  SetCatchUpScrollValue(scrollbar_, v, ruler()->width());
+}
+
+void TimeBasedWidget::StopCatchUpScrollTimer(QScrollBar *b)
+{
+  catchup_scroll_values_.remove(b);
+  if (catchup_scroll_values_.empty()) {
+    catchup_scroll_timer_->stop();
+  }
+}
+
 void TimeBasedWidget::SetTime(const rational &time)
 {
   if (UserIsDraggingPlayhead()) {
     // If the user is dragging the playhead, we will simply nudge over and not use autoscroll rules.
-    QMetaObject::invokeMethod(this, "CatchUpScrollToPlayhead", Qt::QueuedConnection);
+    SetCatchUpScrollValue(qRound(TimeToScene(time)) - scrollbar_->value());
   } else {
     // Otherwise, assume we jumped to this out of nowhere and must now autoscroll
     switch (static_cast<AutoScroll::Method>(OLIVE_CONFIG("Autoscroll").toInt())) {
@@ -821,9 +865,16 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
           continue;
         }
 
-        qreal key_scene_pt = TimeToScene(key->time());
+        rational time = key->time();
+        if (const TimeTargetObject *target = GetKeyframeTimeTarget()) {
+          if (Node *parent = key->parent()) {
+            time = target->GetAdjustedTime(parent, target->GetTimeTarget(), time, false);
+          }
+        }
 
-        AttemptSnap(potential_snaps, screen_pt, key_scene_pt, start_times, key->time());
+        qreal key_scene_pt = TimeToScene(time);
+
+        AttemptSnap(potential_snaps, screen_pt, key_scene_pt, start_times, time);
       }
     }
   }

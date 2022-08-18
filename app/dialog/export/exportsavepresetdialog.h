@@ -18,33 +18,38 @@
 
 ***/
 
-#ifndef THREADEDOBJECT_H
-#define THREADEDOBJECT_H
+#ifndef EXPORTSAVEPRESETDIALOG_H
+#define EXPORTSAVEPRESETDIALOG_H
 
-#include <QMutex>
+#include <QDialog>
+#include <QLineEdit>
+#include <QListWidget>
 
-#include "common/define.h"
+#include "codec/encoder.h"
 
 namespace olive {
 
-class ThreadedObject
+class ExportSavePresetDialog : public QDialog
 {
+  Q_OBJECT
 public:
+  ExportSavePresetDialog(const EncodingParams &p, QWidget *parent = nullptr);
 
-  void LockMutex();
-  void UnlockMutex();
-  bool TryLockMutex(int timeout = 0);
+  QString GetSelectedPresetName() const
+  {
+    return name_edit_->text();
+  }
 
-  void LockDeletes();
-  void UnlockDeletes();
-  bool AreDeletesLocked();
+public slots:
+  virtual void accept() override;
 
 private:
-  QMutex threadobj_main_lock_;
+  QLineEdit *name_edit_;
 
-  QAtomicInt threadobj_delete_lock_;
+  EncodingParams params_;
+
 };
 
 }
 
-#endif // THREADEDOBJECT_H
+#endif // EXPORTSAVEPRESETDIALOG_H

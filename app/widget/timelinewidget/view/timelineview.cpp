@@ -430,7 +430,8 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Mou
 {
   QPointF scene_pt = mapToScene(pos);
 
-  return TimelineViewMouseEvent(scene_pt.x(),
+  return TimelineViewMouseEvent(scene_pt,
+                                pos,
                                 GetScale(),
                                 timebase(),
                                 Track::Reference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
@@ -485,11 +486,12 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
     int text_height = fm.height();
     int text_padding = text_height/4; // This ties into the track minimum height being 1.5
     int text_total_height = text_height + text_padding + text_padding;
+    Q_UNUSED(text_total_height)
 
     if (foreground) {
       painter->setBrush(Qt::NoBrush);
 
-      QString using_label = block->GetLabel().isEmpty() ? block->Name() : block->GetLabel();
+      QString using_label = block->GetLabelOrName();
 
       QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
       painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
@@ -519,7 +521,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
       painter->drawRect(r);
 
       if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
-        QRect preview_rect = r.adjusted(0, text_total_height, 0, 0).toRect();
+        QRect preview_rect = r.toRect();
 
         // Draw clip thumbnails
         if (clip->GetTrackType() == Track::kVideo && show_thumbnails_ && preview_rect.height() > r.height()/3) {
@@ -570,19 +572,46 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
         // Draw zebra stripes and markers
         if (clip->connected_viewer()) {
           if (!clip->connected_viewer()->GetLength().isNull()) {
+            painter->setPen(shadow_color);
+
             if (clip->media_in() < 0) {
-              // Draw stripes for sections of clip < 0
-              qreal zebra_right = TimeToScene(-clip->media_in());
-              if (zebra_right > GetTimelineLeftBound()) {
-                DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right, block_height));
+              qreal zebra_right = TimeToScene(clip->in() - clip->media_in());
+
+              switch (clip->loop_mode()) {
+              case Decoder::kLoopModeOff:
+                // Draw stripes for sections of clip < 0
+                if (zebra_right > GetTimelineLeftBound()) {
+                  DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right - block_left, block_height));
+                }
+                break;
+              case Decoder::kLoopModeLoop:
+                for (qreal i=zebra_right; i>block_left; i-=TimeToScene(clip->connected_viewer()->GetLength())) {
+                  painter->drawLine(i, block_top, i, block_top + block_height);
+                }
+                break;
+              case Decoder::kLoopModeClamp:
+                painter->drawLine(zebra_right, block_top, zebra_right, block_top + block_height);
+                break;
               }
             }
 
             if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
-              // Draw stripes for sections for clip > clip length
               qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
-              if (zebra_left < GetTimelineRightBound()) {
-                DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+              switch (clip->loop_mode()) {
+              case Decoder::kLoopModeOff:
+                // Draw stripes for sections for clip > clip length
+                if (zebra_left < GetTimelineRightBound()) {
+                  DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+                }
+                break;
+              case Decoder::kLoopModeLoop:
+                for (qreal i=zebra_left; i<block_right; i+=TimeToScene(clip->connected_viewer()->GetLength())) {
+                  painter->drawLine(i, block_top, i, block_top + block_height);
+                }
+                break;
+              case Decoder::kLoopModeClamp:
+                painter->drawLine(zebra_left, block_top, zebra_left, block_top + block_height);
+                break;
               }
             }
           }
@@ -598,7 +627,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
               if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
                 QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time().in()), block_top + block_height);
                 painter->setClipRect(r);
-                QRect marker_rect = marker->Draw(painter, marker_pt, GetScale(), false);
+                QRect marker_rect = marker->Draw(painter, marker_pt, -1, GetScale(), false);
                 clip_marker_rects_.insert(marker, marker_rect);
                 painter->setClipping(false);
               }

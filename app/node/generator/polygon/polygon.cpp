@@ -23,8 +23,6 @@
 #include <QGuiApplication>
 #include <QVector2D>
 
-#include "common/cpuoptimize.h"
-
 namespace olive {
 
 const QString PolygonGenerator::kPointsInput = QStringLiteral("points_in");
@@ -89,20 +87,25 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-GenerateJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
+ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
 {
   GenerateJob job;
 
   job.Insert(value);
-  job.SetRequestedFormat(VideoParams::kFormatFloat32);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+  job.SetRequestedFormat(VideoParams::kFormatUnsigned8);
 
-  return job;
+  // Conversion to RGB
+  ShaderJob rgb;
+  rgb.SetShaderID(QStringLiteral("rgb"));
+  rgb.Insert(QStringLiteral("texture_in"), NodeValue(NodeValue::kTexture, job, this));
+  rgb.Insert(QStringLiteral("color_in"), value[kColorInput]);
+
+  return rgb;
 }
 
 void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  GenerateJob job = GetGenerateJob(value);
+  ShaderJob job = GetGenerateJob(value);
 
   PushMergableJob(value, QVariant::fromValue(job), table);
 }
@@ -113,7 +116,7 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto
   // a single-channel QImage (alpha only) and then transplant that alpha channel to our float buffer
   // with correct float RGB.
-  QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
+  QImage img((uchar *) frame->data(), frame->width(), frame->height(), frame->linesize_bytes(), QImage::Format_RGBA8888_Premultiplied);
   img.fill(Qt::transparent);
 
   QVector<NodeValue> points = job.Get(kPointsInput).value< QVector<NodeValue> >();
@@ -128,34 +131,6 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   p.setPen(Qt::NoPen);
 
   p.drawPath(path);
-
-  // Transplant alpha channel to frame
-  Color rgba = job.Get(kColorInput).toColor();
-#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-  __m128 sse_color = _mm_loadu_ps(rgba.data());
-#endif
-
-  float *frame_dst = reinterpret_cast<float*>(frame->data());
-  for (int y=0; y<frame->height(); y++) {
-    uchar *src_y = img.bits() + img.bytesPerLine() * y;
-    float *dst_y = frame_dst + y*frame->linesize_pixels()*VideoParams::kRGBAChannelCount;
-
-    for (int x=0; x<frame->width(); x++) {
-      float alpha = float(src_y[x]) / 255.0f;
-      float *dst = dst_y + x*VideoParams::kRGBAChannelCount;
-
-#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-      __m128 sse_alpha = _mm_load1_ps(&alpha);
-      __m128 sse_res = _mm_mul_ps(sse_color, sse_alpha);
-
-      _mm_store_ps(dst, sse_res);
-#else
-      for (int i=0; i<VideoParams::kRGBAChannelCount; i++) {
-        dst[i] = rgba.data()[i] * alpha;
-      }
-#endif
-    }
-  }
 }
 
 template<typename T>
@@ -239,6 +214,15 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
   }
 
   poly_gizmo_->SetPath(GeneratePath(points).translated(half_res));
+}
+
+ShaderCode PolygonGenerator::GetShaderCode(const ShaderRequest &request) const
+{
+  if (request.id == QStringLiteral("rgb")) {
+    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgb.frag"));
+  } else {
+    return super::GetShaderCode(request);
+  }
 }
 
 void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

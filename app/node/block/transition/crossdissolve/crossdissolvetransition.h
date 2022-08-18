@@ -43,8 +43,6 @@ public:
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
 protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const override;
-
   virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const override;
 
 };

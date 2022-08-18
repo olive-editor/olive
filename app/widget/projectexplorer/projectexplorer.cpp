@@ -92,10 +92,6 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   // Set default icon size
   SizeChangedSlot(kProjectIconSizeDefault);
 
-  // Set rename timer timeout
-  rename_timer_.setInterval(500);
-  connect(&rename_timer_, &QTimer::timeout, this, &ProjectExplorer::RenameTimerSlot);
-
   connect(tree_view_, &ProjectExplorerTreeView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(list_view_, &ProjectExplorerListView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
@@ -137,8 +133,7 @@ void ProjectExplorer::Edit(Node *item)
 void ProjectExplorer::AddView(QAbstractItemView *view)
 {
   view->setModel(&sort_model_);
-  view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  connect(view, &QAbstractItemView::clicked, this, &ProjectExplorer::ItemClickedSlot);
+  view->setEditTriggers(QAbstractItemView::SelectedClicked);
   connect(view, &QAbstractItemView::doubleClicked, this, &ProjectExplorer::ItemDoubleClickedSlot);
   connect(view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectExplorer::ViewSelectionChanged);
   connect(view, SIGNAL(DoubleClickedEmptyArea()), this, SLOT(ViewEmptyAreaDoubleClickedSlot()));
@@ -147,9 +142,6 @@ void ProjectExplorer::AddView(QAbstractItemView *view)
 
 void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 {
-  // Make sure any rename timers are stopped
-  rename_timer_.stop();
-
   // Set appropriate views to this index
   icon_view_->setRootIndex(index);
   list_view_->setRootIndex(index);
@@ -264,53 +256,19 @@ QAbstractItemView *ProjectExplorer::CurrentView() const
   return static_cast<QAbstractItemView*>(stacked_widget_->currentWidget());
 }
 
-void ProjectExplorer::ItemClickedSlot(const QModelIndex &index)
-{
-  if (index.isValid()) {
-    if (CurrentView()->selectionModel()->selectedRows().size() == 1) {
-      if (clicked_index_ == index) {
-        // The item has been clicked more than once, start a timer for renaming
-        rename_timer_.start();
-      } else {
-        // Cache this index for the next click
-        clicked_index_ = index;
-
-        // If the rename timer had started, stop it now
-        rename_timer_.stop();
-      }
-    } else {
-      clicked_index_ = QModelIndex();
-      rename_timer_.stop();
-    }
-  } else {
-    // Stop the rename timer
-    rename_timer_.stop();
-  }
-}
-
 void ProjectExplorer::ViewEmptyAreaDoubleClickedSlot()
 {
-  // Ensure no attempts to rename are made
-  clicked_index_ = QModelIndex();
-  rename_timer_.stop();
-
   emit DoubleClickedItem(nullptr);
 }
 
 void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
 {
-  // Ensure no attempts to rename are made
-  clicked_index_ = QModelIndex();
-  rename_timer_.stop();
-
   // Retrieve source item from index
   Node* i = static_cast<Node*>(sort_model_.mapToSource(index).internalPointer());
 
   // If the item is a folder, browse to it
   if (dynamic_cast<Folder*>(i) && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
-
     BrowseToFolder(index);
-
   }
 
   // Emit a signal
@@ -335,16 +293,12 @@ void ProjectExplorer::DirUpSlot()
   }
 }
 
-void ProjectExplorer::RenameTimerSlot()
+void ProjectExplorer::RenameSelectedItem()
 {
-  // Start editing this index
-  CurrentView()->edit(clicked_index_);
-
-  // Reset clicked index state
-  clicked_index_ = QModelIndex();
-
-  // Stop rename timer
-  rename_timer_.stop();
+  auto indexes = CurrentView()->selectionModel()->selectedRows();
+  if (!indexes.empty()) {
+    CurrentView()->edit(indexes.first());
+  }
 }
 
 void ProjectExplorer::ShowContextMenu()
@@ -443,6 +397,16 @@ void ProjectExplorer::ShowContextMenu()
     }
 
     Q_UNUSED(all_items_are_footage_or_sequence)
+
+    if (context_menu_items_.size() == 1) {
+      menu.addSeparator();
+
+      auto rename_action = menu.addAction(tr("Rename"));
+      connect(rename_action, &QAction::triggered, this, &ProjectExplorer::RenameSelectedItem);
+    }
+
+    auto delete_action = menu.addAction(tr("Delete"));
+    connect(delete_action, &QAction::triggered, this, &ProjectExplorer::DeleteSelected);
 
     if (context_menu_items_.size() == 1) {
       menu.addSeparator();
@@ -694,9 +658,11 @@ void ProjectExplorer::DeleteSelected()
   }
 }
 
-bool ProjectExplorer::SelectItem(Node *n)
+bool ProjectExplorer::SelectItem(Node *n, bool deselect_all_first)
 {
-  DeselectAll();
+  if (deselect_all_first) {
+    DeselectAll();
+  }
 
   QModelIndex index = model_.CreateIndexFromItem(n);
 

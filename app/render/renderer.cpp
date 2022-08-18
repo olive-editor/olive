@@ -20,36 +20,83 @@
 
 #include "renderer.h"
 
+#include <QDateTime>
+#include <QThread>
+#include <QTimer>
 #include <QVector2D>
-
-#include "common/ocioutils.h"
 
 namespace olive {
 
 Renderer::Renderer(QObject *parent) :
   QObject(parent)
 {
-
-}
-
-TexturePtr Renderer::CreateTexture(const VideoParams &params, Texture::Type type, const void *data, int linesize)
-{
-  QVariant v;
-
-  if (type == Texture::k3D) {
-    v = CreateNativeTexture3D(params.effective_width(), params.effective_height(),
-                              params.effective_depth(), params.format(), params.channel_count(), data, linesize);
-  } else {
-    v = CreateNativeTexture2D(params.effective_width(), params.effective_height(), params.format(),
-                              params.channel_count(), data, linesize);
-  }
-
-  return CreateTextureFromNativeHandle(v, params, type);
 }
 
 TexturePtr Renderer::CreateTexture(const VideoParams &params, const void *data, int linesize)
 {
-  return CreateTexture(params, Texture::k2D, data, linesize);
+  QVariant v;
+
+  if (USE_TEXTURE_CACHE) {
+    QMutexLocker locker(&texture_cache_lock_);
+    for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
+      if (it->width == params.effective_width()
+          && it->height == params.effective_height()
+          && it->depth == params.effective_depth()
+          && it->format == params.format()
+          && it->channel_count == params.channel_count()) {
+        v = it->handle;
+        texture_cache_.erase(it);
+        break;
+      }
+    }
+  }
+
+  if (v.isNull()) {
+    v = CreateNativeTexture(params.effective_width(), params.effective_height(), params.effective_depth(),
+                            params.format(), params.channel_count(), data, linesize);
+  } else if (data) {
+    UploadToTexture(v, params, data, linesize);
+  } else {
+    this->Flush();
+  }
+
+  return CreateTextureFromNativeHandle(v, params);
+}
+
+void Renderer::DestroyTexture(Texture *texture)
+{
+  if (USE_TEXTURE_CACHE) {
+    // HACK: Dirty, dirty hack. OpenGL uses "contexts" to store all of its data, and each context
+    //       can only be used by the thread that created it. However there are also "shared contexts"
+    //       where assets from one context can be used in another. We use shared contexts so that
+    //       textures rendered in the background can be displayed on the screen, travelling from
+    //       a background thread to the main UI thread. However, when that texture is destroyed, it
+    //       comes back here to be placed in the texture cache. But that leads to a race condition
+    //       because it will call the background thread's renderer in the main thread. Since all
+    //       assets are shared, we could technically just get the texture to call "destroy" in the
+    //       viewer's renderer instance, but that would mean all textures would end up stranded
+    //       there unusable by the background renderer, negating the very advantage of the texture
+    //       cache in the first place. Therefore, we simply allow the thread calling to happen, and
+    //       use mutexes to prevent race conditions.
+    //
+    //       Presumably Vulkan would not have this issue because it allows for application-wide
+    //       instances and multithreading.
+    texture_cache_lock_.lock();
+    texture_cache_.push_back({texture->params().effective_width(),
+                              texture->params().effective_height(),
+                              texture->params().effective_depth(),
+                              texture->params().format(),
+                              texture->params().channel_count(),
+                              texture->id(),
+                              QDateTime::currentMSecsSinceEpoch()});
+    texture_cache_lock_.unlock();
+
+    if (QThread::currentThread() == this->thread()) {
+      ClearOldTextures();
+    }
+  } else {
+    DestroyNativeTexture(texture->id());
+  }
 }
 
 TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const VideoParams &params)
@@ -97,16 +144,21 @@ void Renderer::Destroy()
     interlace_texture_.clear();
   }
 
+  for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); it++) {
+    DestroyNativeTexture(it->handle);
+  }
+  texture_cache_.clear();
+
   DestroyInternal();
 }
 
-TexturePtr Renderer::CreateTextureFromNativeHandle(const QVariant &v, const VideoParams &params, Texture::Type type)
+TexturePtr Renderer::CreateTextureFromNativeHandle(const QVariant &v, const VideoParams &params)
 {
   if (v.isNull()) {
     return nullptr;
   }
 
-  return std::make_shared<Texture>(this, v, params, type);
+  return std::make_shared<Texture>(this, v, params);
 }
 
 bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::ColorContext *ctx)
@@ -177,8 +229,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
       }
 
       // Allocate 3D LUT
-      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount),
-                                                          Texture::k3D, values);
+      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount), values);
       color_ctx.lut3d_textures[i].name = sampler_name;
       color_ctx.lut3d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
     }
@@ -208,9 +259,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
       }
 
       // Allocate 1D LUT
-      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, VideoParams::kFormatFloat32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount),
-                                                          Texture::k2D,
-                                                          values);
+      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, VideoParams::kFormatFloat32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount), values);
       color_ctx.lut1d_textures[i].name = sampler_name;
       color_ctx.lut1d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
     }
@@ -218,6 +267,20 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
     color_cache_.insert(proc_id, color_ctx);
 
     return true;
+  }
+}
+
+void Renderer::ClearOldTextures()
+{
+  QMutexLocker locker(&texture_cache_lock_);
+
+  for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); ) {
+    if (it->accessed < QDateTime::currentMSecsSinceEpoch() - MAX_TEXTURE_LIFE) {
+      DestroyNativeTexture(it->handle);
+      it = texture_cache_.erase(it);
+    } else {
+      it++;
+    }
   }
 }
 
@@ -234,7 +297,6 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
   job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
   job.Insert(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, int(color_job.GetInputAlphaAssociation())));
   job.Insert(color_job.GetValues());
-  job.SetAlphaChannelRequired(color_job.GetAlphaChannelRequired());
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
     job.Insert(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));

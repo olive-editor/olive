@@ -45,7 +45,6 @@
 #include "node/gizmo/polygon.h"
 #include "node/gizmo/screen.h"
 #include "viewertexteditor.h"
-#include "window/mainwindow/mainwindow.h"
 
 namespace olive {
 
@@ -67,7 +66,7 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   show_widget_background_(false),
   playback_speed_(0),
   push_mode_(kPushNull),
-  add_band_(nullptr),
+  add_band_(false),
   queue_starved_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
@@ -103,11 +102,11 @@ void ViewerDisplayWidget::SetMatrixCrop(const QMatrix4x4 &mat)
 void ViewerDisplayWidget::UpdateCursor()
 {
   if (Core::instance()->tool() == Tool::kHand) {
-    setCursor(Qt::OpenHandCursor);
+    this->inner_widget()->setCursor(Qt::OpenHandCursor);
   } else if (Core::instance()->tool() == Tool::kAdd) {
-    setCursor(Qt::CrossCursor);
+    this->inner_widget()->setCursor(Qt::CrossCursor);
   } else {
-    unsetCursor();
+    this->inner_widget()->unsetCursor();
   }
 }
 
@@ -458,50 +457,15 @@ void ViewerDisplayWidget::OnPaint()
   }
 
   // Extraordinarily basic subtitle renderer. Hoping to swap this out with libass at some point.
-  if (show_subtitles_ && subtitle_tracks_) {
-    const QVector<Track*> &subtitle_tracklist = subtitle_tracks_->track_list(Track::kSubtitle)->GetTracks();
+  DrawSubtitleTracks();
 
-    if (!subtitle_tracklist.empty()) {
-      QPainter p(paint_device());
-
-      QTransform transform = GenerateWorldTransform();
-      QRect bounding_box = transform.mapRect(rect());
-
-      bounding_box.adjust(bounding_box.width()/10, bounding_box.height()/10, -bounding_box.width()/10, -bounding_box.height()/10);
-
-      QFont f = p.font();
-      int font_sz = bounding_box.height() / 18;
-      f.setStyleHint(QFont::SansSerif);
-      f.setFamily(f.defaultFamily());
-      f.setPointSize(font_sz);
-      f.setWeight(QFont::Bold);
-      p.setFont(f);
-      p.setPen(Qt::white);
-
-      QPainterPath path;
-
-      int text_line = 1;
-
-      for (int j=subtitle_tracklist.size()-1; j>=0; j--) {
-        Track *sub_track = subtitle_tracklist.at(j);
-        if (!sub_track->IsMuted()) {
-          if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->BlockAtTime(time_))) {
-            // Split into lines
-            QStringList list = QtUtils::WordWrapString(sub->GetText(), p.fontMetrics(), bounding_box.width());
-
-            for (int i=list.size()-1; i>=0; i--) {
-              int w = QtUtils::QFontMetricsWidth(p.fontMetrics(), list.at(i));
-              path.addText(bounding_box.x() + bounding_box.width()/2 - w/2, bounding_box.y() + bounding_box.height() - p.fontMetrics().height() * text_line + p.fontMetrics().ascent(), p.font(), list.at(i));
-              text_line++;
-            }
-          }
-        }
-      }
-
-      p.setPen(QPen(Qt::black, font_sz / 16));
-      p.setBrush(Qt::white);
-      p.drawPath(path);
-    }
+  if (add_band_) {
+    QPainter p(paint_device());
+    QColor highlight = palette().highlight().color();
+    p.setPen(highlight);
+    highlight.setAlpha(128);
+    p.setBrush(highlight);
+    p.drawRect(QRect(add_band_start_, add_band_end_).normalized());
   }
 }
 
@@ -671,6 +635,9 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   Html::HtmlToDoc(text_edit->document(), text->GetHtml());
   text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
   connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
+  connect(text_edit, &ViewerTextEditor::destroyed, this, &ViewerDisplayWidget::TextEditDestroyed);
+
+  emit text->Activated();
 
   // Get on screen text rect (this will be the text editor's global geometry)
   QRect global_text_area = gizmo_transform.map(text->GetRect()).boundingRect().toRect();
@@ -769,10 +736,8 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
         && (Core::instance()->GetSelectedAddableObject() == Tool::kAddableShape || Core::instance()->GetSelectedAddableObject() == Tool::kAddableTitle)) {
 
       add_band_start_ = event->pos();
-
-      add_band_ = new QRubberBand(QRubberBand::Rectangle, this);
-      add_band_->setGeometry(QRect(add_band_start_, add_band_start_));
-      add_band_->show();
+      add_band_end_ = add_band_start_;
+      add_band_ = true;
 
     } else if (gizmos_
                && (gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted(),
@@ -812,8 +777,8 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
   } else if (add_band_) {
 
-    add_band_->setGeometry(QRect(event->pos(), add_band_start_).normalized());
-
+    add_band_end_ = event->pos();
+    update();
     return true;
 
   } else if (current_gizmo_) {
@@ -869,15 +834,13 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
   } else if (add_band_) {
 
-    const QRect &band_rect = add_band_->geometry();
+    QRect band_rect = QRect(add_band_start_, add_band_end_).normalized();
     if (band_rect.width() > 1 && band_rect.height() > 1) {
-      QRectF r = GenerateDisplayTransform().inverted().mapRect(add_band_->geometry());
+      QRectF r = GenerateDisplayTransform().inverted().mapRect(band_rect);
       emit CreateAddableAt(r);
     }
 
-    add_band_->deleteLater();
-    add_band_ = nullptr;
-
+    add_band_ = false;
     return true;
 
   } else if (current_gizmo_) {
@@ -927,11 +890,100 @@ void ViewerDisplayWidget::EmitColorAtCursor(QMouseEvent *e)
       QPointF pixel_pos = GenerateDisplayTransform().inverted().map(e->pos());
       pixel_pos /= texture_->params().divider();
 
+      makeCurrent();
+
       reference = renderer()->GetPixelFromTexture(texture_.get(), pixel_pos);
       display = color_service()->ConvertColor(reference);
     }
 
     emit CursorColor(reference, display);
+  }
+}
+
+void ViewerDisplayWidget::DrawSubtitleTracks()
+{
+  if (!show_subtitles_ || !subtitle_tracks_) {
+    return;
+  }
+
+  const QVector<Track*> &subtitle_tracklist = subtitle_tracks_->track_list(Track::kSubtitle)->GetTracks();
+  if (subtitle_tracklist.empty()) {
+    return;
+  }
+
+  // Scale font size by transform
+  QTransform display_transform = GenerateDisplayTransform();
+  qreal font_sz = OLIVE_CONFIG("DefaultSubtitleSize").toInt();
+  font_sz *= display_transform.m11();
+  if (qIsNaN(font_sz)) {
+    return;
+  }
+
+  QPainterPath path;
+
+  QTransform transform = GenerateWorldTransform();
+  QRect bounding_box = transform.mapRect(rect());
+
+  QFont f;
+  f.setPointSizeF(font_sz);
+
+  QString family = OLIVE_CONFIG("DefaultSubtitleFamily").toString();
+  if (!family.isEmpty()) {
+    f.setFamily(family);
+  }
+
+  f.setWeight(OLIVE_CONFIG("DefaultSubtitleWeight").toInt());
+
+  bounding_box.adjust(bounding_box.width()/10, bounding_box.height()/10, -bounding_box.width()/10, -bounding_box.height()/10);
+
+  QFontMetrics fm(f);
+
+  for (int j=subtitle_tracklist.size()-1; j>=0; j--) {
+    Track *sub_track = subtitle_tracklist.at(j);
+    if (!sub_track->IsMuted()) {
+      if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->BlockAtTime(time_))) {
+        // Split into lines
+        QStringList list = QtUtils::WordWrapString(sub->GetText(), fm, bounding_box.width());
+
+        for (int i=list.size()-1; i>=0; i--) {
+          int w = QtUtils::QFontMetricsWidth(fm, list.at(i));
+          path.addText(bounding_box.width()/2 - w/2, bounding_box.height() - fm.height() * (list.size() - i) + fm.ascent(), f, list.at(i));
+        }
+      }
+    }
+  }
+
+  bool antialias = OLIVE_CONFIG("AntialiasSubtitles").toBool();
+
+  QPixmap *aa_pixmap;
+  QPainter *text_painter;
+  if (antialias) {
+    // QPainter only supports anti-aliasing in software, so to achieve it, we draw to a
+    // software buffer first and then draw that onto the hardware
+    aa_pixmap = new QPixmap(bounding_box.width(), bounding_box.height());
+    aa_pixmap->fill(Qt::transparent);
+    text_painter = new QPainter(aa_pixmap);
+  } else {
+    // Just draw straight to the hardware
+    text_painter = new QPainter(paint_device());
+
+    // Offset path by however much is necessary
+    path.translate(bounding_box.x(), bounding_box.y());
+  }
+
+  text_painter->setPen(QPen(Qt::black, f.pointSizeF() / 16));
+  text_painter->setBrush(Qt::white);
+  text_painter->setRenderHint(QPainter::Antialiasing);
+
+  text_painter->drawPath(path);
+
+  delete text_painter;
+
+  if (antialias) {
+    // We just drew to a software buffer, now draw this image onto the hardware device
+    QPainter p(paint_device());
+    p.drawPixmap(bounding_box.x(), bounding_box.y(), *aa_pixmap);
+    delete aa_pixmap;
   }
 }
 
@@ -1040,6 +1092,12 @@ void ViewerDisplayWidget::TextEditChanged()
 
   QString html = Html::DocToHtml(editor->document());
   gizmo->UpdateInputHtml(html, GetGizmoTime());
+}
+
+void ViewerDisplayWidget::TextEditDestroyed()
+{
+  TextGizmo *gizmo = reinterpret_cast<TextGizmo*>(sender()->property("gizmo").value<quintptr>());
+  emit gizmo->Deactivated();
 }
 
 void ViewerDisplayWidget::SubtitlesChanged(const TimeRange &r)

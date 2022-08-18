@@ -398,6 +398,20 @@ void ViewerOutput::ConnectedToPreviewEvent()
   }
 }
 
+void ViewerOutput::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  if (HasInputWithID(kTextureInput)) {
+    NodeValue repush = value[kTextureInput];
+    repush.set_tag(Track::Reference(Track::kVideo, 0).ToString());
+    table->Push(repush);
+  }
+  if (HasInputWithID(kSamplesInput)) {
+    NodeValue repush = value[kSamplesInput];
+    repush.set_tag(Track::Reference(Track::kAudio, 0).ToString());
+    table->Push(value[kSamplesInput]);
+  }
+}
+
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 {
   if (element == 0) {

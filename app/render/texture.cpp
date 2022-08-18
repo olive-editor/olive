@@ -29,21 +29,21 @@ const Texture::Interpolation Texture::kDefaultInterpolation = Texture::kMipmappe
 Texture::~Texture()
 {
   if (renderer_) {
-    renderer_->DestroyNativeTexture(id_);
+    renderer_->DestroyTexture(this);
   }
 }
 
 void Texture::Upload(void *data, int linesize)
 {
   if (renderer_) {
-    renderer_->UploadToTexture(this, data, linesize);
+    renderer_->UploadToTexture(this->id(), this->params(), data, linesize);
   }
 }
 
 void Texture::Download(void *data, int linesize)
 {
   if (renderer_) {
-    renderer_->DownloadFromTexture(this, data, linesize);
+    renderer_->DownloadFromTexture(this->id(), this->params(), data, linesize);
   }
 }
 

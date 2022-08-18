@@ -21,6 +21,7 @@
 #include "viewer.h"
 
 #include <QDateTime>
+#include <QFontDialog>
 #include <QGuiApplication>
 #include <QInputDialog>
 #include <QLabel>
@@ -32,7 +33,6 @@
 
 #include "audio/audiomanager.h"
 #include "common/clamp.h"
-#include "common/power.h"
 #include "common/ratiodialog.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
@@ -41,10 +41,9 @@
 #include "node/generator/shape/shapenodebase.h"
 #include "node/project/project.h"
 #include "render/rendermanager.h"
-#include "task/taskmanager.h"
 #include "viewerpreventsleep.h"
+#include "widget/audiomonitor/audiomonitor.h"
 #include "widget/menu/menu.h"
-#include "window/mainwindow/mainwindow.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
@@ -152,6 +151,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   auto_cacher_ = new PreviewAutoCacher(this);
   connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, auto_cacher_, &PreviewAutoCacher::SetDisplayColorProcessor);
+
+  UpdateWaveformViewFromMode();
 
   connect(Core::instance(), &Core::ColorPickerEnabled, this, &ViewerWidget::SetSignalCursorColorEnabled);
   connect(this, &ViewerWidget::CursorColor, Core::instance(), &Core::ColorPickerColorEmitted);
@@ -545,6 +546,49 @@ void ViewerWidget::HandleFirstRequeueDestroy()
   }
 }
 
+void ViewerWidget::ShowSubtitleProperties()
+{
+  QFont f(OLIVE_CONFIG("DefaultSubtitleFamily").toString(), OLIVE_CONFIG("DefaultSubtitleSize").toInt(), OLIVE_CONFIG("DefaultSubtitleWeight").toInt());
+  QFontDialog fd(f, this);
+
+  if (fd.exec() == QDialog::Accepted) {
+    f = fd.selectedFont();
+    OLIVE_CONFIG("DefaultSubtitleSize") = f.pointSize();
+    OLIVE_CONFIG("DefaultSubtitleFamily") = f.family();
+    OLIVE_CONFIG("DefaultSubtitleWeight") = f.weight();
+    display_widget_->update();
+  }
+}
+
+void ViewerWidget::DryRunFinished()
+{
+  RenderTicketWatcher *w = static_cast<RenderTicketWatcher*>(sender());
+
+  if (dry_run_watchers_.contains(w)) {
+    RequestNextDryRun();
+  }
+
+  delete w;
+}
+
+void ViewerWidget::RequestNextDryRun()
+{
+  if (IsPlaying()) {
+    rational next_time = Timecode::timestamp_to_time(dry_run_next_frame_, timebase());
+    if (FrameExistsAtTime(next_time)) {
+      if (next_time > GetTime() + RenderManager::kDryRunInterval) {
+        QTimer::singleShot(timebase().toDouble() / playback_speed_, this, &ViewerWidget::RequestNextDryRun);
+      } else {
+        RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
+        connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::DryRunFinished);
+        watcher->SetTicket(auto_cacher_->GetSingleFrame(next_time, true));
+        dry_run_next_frame_ += playback_speed_;
+        dry_run_watchers_.append(watcher);
+      }
+    }
+  }
+}
+
 void ViewerWidget::CloseAudioProcessor()
 {
   audio_processor_.Close();
@@ -809,6 +853,9 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       for (int i=0; i<prequeue_length_; i++) {
         RequestNextFrameForQueue();
       }
+
+      dry_run_next_frame_ = playback_queue_next_frame_;
+      RequestNextDryRun();
     }
   }
 
@@ -826,6 +873,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
       QueueNextAudioBuffer();
     }
   }
+
   // Force screen to stay awake
   PreventSleep(true);
 }
@@ -875,6 +923,7 @@ void ViewerWidget::PauseInternal()
 
   prequeuing_video_ = false;
   prequeuing_audio_ = 0;
+  dry_run_watchers_.clear();
 
   // Reset screen timeout timer
   PreventSleep(false);
@@ -1030,7 +1079,7 @@ int ViewerWidget::DeterminePlaybackQueueSize()
     end_ts = 0;
   }
 
-  int remaining_frames = (end_ts - GetTimestamp()) / playback_speed_;
+  int remaining_frames = (end_ts - GetTimestamp() - 1) / playback_speed_;
 
   // Generate maximum queue
   int max_frames = qCeil(kVideoPlaybackInterval.toDouble() / timebase().toDouble());
@@ -1304,10 +1353,26 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
 
   if (context_menu_widget_ == display_widget_) {
-    QAction* show_subtitles_action = menu.addAction(tr("Show Subtitles"));
+    auto subtitle_menu = new Menu(tr("Subtitles"), &menu);
+    menu.addMenu(subtitle_menu);
+
+    QAction* show_subtitles_action = subtitle_menu->addAction(tr("Show Subtitles"));
     show_subtitles_action->setCheckable(true);
     show_subtitles_action->setChecked(display_widget_->GetShowSubtitles());
     connect(show_subtitles_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetShowSubtitles);
+
+    subtitle_menu->addSeparator();
+
+    auto subtitle_font_properties = subtitle_menu->addAction(tr("Subtitle Properties"));
+    connect(subtitle_font_properties, &QAction::triggered, this, &ViewerWidget::ShowSubtitleProperties);
+
+    auto subtitle_antialias = subtitle_menu->addAction(tr("Use Anti-aliasing"));
+    subtitle_antialias->setCheckable(true);
+    subtitle_antialias->setChecked(OLIVE_CONFIG("AntialiasSubtitles").toBool());
+    connect(subtitle_antialias, &QAction::triggered, this, [this](bool e){
+      OLIVE_CONFIG("AntialiasSubtitles") = e;
+      display_widget_->update();
+    });
   }
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));

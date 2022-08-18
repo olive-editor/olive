@@ -254,6 +254,7 @@ private:
   QTimer playback_backup_timer_;
 
   int64_t playback_queue_next_frame_;
+  int64_t dry_run_next_frame_;
   QVector<ViewerDisplayWidget*> playback_devices_;
 
   bool prequeuing_video_;
@@ -291,6 +292,8 @@ private:
   bool enable_audio_scrubbing_;
 
   WaveformMode waveform_mode_;
+
+  QVector<RenderTicketWatcher*> dry_run_watchers_;
 
 private slots:
   void PlaybackTimerUpdate();
@@ -349,6 +352,12 @@ private slots:
   void CreateAddableAt(const QRectF &f);
 
   void HandleFirstRequeueDestroy();
+
+  void ShowSubtitleProperties();
+
+  void DryRunFinished();
+
+  void RequestNextDryRun();
 
 };
 

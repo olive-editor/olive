@@ -382,6 +382,10 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
     } else {
       // Prepare for a standard pointer move by creating ghosts for them and any related blocks
       foreach (Block* block, clips) {
+        if (dynamic_cast<GapBlock*>(block)) {
+          continue;
+        }
+
         // Create ghost for this block
         auto ghost = AddGhostFromBlock(block, trim_mode, true);
         Q_UNUSED(ghost)

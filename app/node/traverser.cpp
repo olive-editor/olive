@@ -21,6 +21,7 @@
 #include "traverser.h"
 
 #include "node.h"
+#include "node/block/clip/clip.h"
 #include "render/job/footagejob.h"
 #include "render/rendermanager.h"
 
@@ -30,6 +31,12 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 {
   NodeValueDatabase database;
 
+  // HACK: Pick up loop mode from clips
+  Decoder::LoopMode old_loop_mode = loop_mode_;
+  if (const ClipBlock *clip = dynamic_cast<const ClipBlock*>(node)) {
+    loop_mode_ = clip->loop_mode();
+  }
+
   // We need to insert tables into the database for each input
   foreach (const QString& input, node->inputs()) {
     if (IsCancelled()) {
@@ -38,6 +45,8 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
 
     database.Insert(input, ProcessInput(node, input, range));
   }
+
+  loop_mode_ = old_loop_mode;
 
   return database;
 }
@@ -167,34 +176,6 @@ NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const Time
 
 int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
 {
-  int max_channel_count = 0;
-
-  // Find maximum channel count
-  for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
-    if (it.value().type() == NodeValue::kTexture) {
-      if (TexturePtr tex = it.value().toTexture()) {
-        max_channel_count = qMax(max_channel_count, tex->channel_count());
-      }
-    }
-  }
-  if (max_channel_count == 0) {
-    max_channel_count = VideoParams::kRGBChannelCount;
-  }
-
-  switch (job.GetAlphaChannelRequired()) {
-  case GenerateJob::kAlphaForceOn:
-    return VideoParams::kRGBAChannelCount;
-  case GenerateJob::kAlphaForceOff:
-    if (max_channel_count >= 1 && max_channel_count < VideoParams::kRGBChannelCount) {
-      return max_channel_count;
-    } else {
-      return VideoParams::kRGBChannelCount;
-    }
-  case GenerateJob::kAlphaAuto:
-    return max_channel_count;
-  }
-
-  // Default fallback, should never get here
   return VideoParams::kRGBAChannelCount;
 }
 
@@ -268,8 +249,8 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 
 NodeTraverser::NodeTraverser() :
   cancel_(nullptr),
-  heard_cancel_(false),
-  transform_(nullptr)
+  transform_(nullptr),
+  loop_mode_(Decoder::kLoopModeOff)
 {
 }
 
@@ -459,7 +440,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       if (job.type() == Track::kVideo) {
 
-        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), job.loop_mode(), job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
+        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), loop_mode_, job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
 
         TexturePtr tex;
 

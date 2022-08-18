@@ -85,12 +85,14 @@ public:
 
   void DeleteSelected();
 
-  bool SelectItem(Node *n);
+  bool SelectItem(Node *n, bool deselect_all_first = true);
 
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
 
   void Edit(Node* item);
+
+  void RenameSelectedItem();
 
 signals:
   /**
@@ -160,15 +162,9 @@ private:
   QSortFilterProxyModel sort_model_;
   ProjectViewModel model_;
 
-  QModelIndex clicked_index_;
-
-  QTimer rename_timer_;
-
   QVector<Node*> context_menu_items_;
 
 private slots:
-  void ItemClickedSlot(const QModelIndex& index);
-
   void ViewEmptyAreaDoubleClickedSlot();
 
   void ItemDoubleClickedSlot(const QModelIndex& index);
@@ -176,8 +172,6 @@ private slots:
   void SizeChangedSlot(int s);
 
   void DirUpSlot();
-
-  void RenameTimerSlot();
 
   void ShowContextMenu();
 
