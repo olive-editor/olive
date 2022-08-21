@@ -43,7 +43,6 @@
 #include "node/gizmo/point.h"
 #include "node/gizmo/polygon.h"
 #include "node/gizmo/screen.h"
-#include "viewertexteditor.h"
 
 namespace olive {
 
@@ -66,7 +65,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   playback_speed_(0),
   push_mode_(kPushNull),
   add_band_(false),
-  queue_starved_(false)
+  queue_starved_(false),
+  text_edit_(nullptr)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
 
@@ -239,48 +239,65 @@ void ViewerDisplayWidget::IncrementSkippedFrames()
 
 bool ViewerDisplayWidget::eventFilter(QObject *o, QEvent *e)
 {
-  if (o != this->inner_widget()) {
-    return super::eventFilter(o, e);
-  }
-
-  switch (e->type()) {
-  case QEvent::MouseButtonPress:
-  {
-    QMouseEvent *mouse = static_cast<QMouseEvent*>(e);
-    if (!(mouse->flags() & Qt::MouseEventCreatedDoubleClick)) {
-      if (OnMousePress(mouse)) {
+  if (o == this->inner_widget()) {
+    switch (e->type()) {
+    case QEvent::MouseButtonPress:
+    {
+      QMouseEvent *mouse = static_cast<QMouseEvent*>(e);
+      if (!(mouse->flags() & Qt::MouseEventCreatedDoubleClick)) {
+        if (OnMousePress(mouse)) {
+          return true;
+        }
+      }
+      break;
+    }
+    case QEvent::MouseMove:
+      EmitColorAtCursor(static_cast<QMouseEvent*>(e));
+      if (OnMouseMove(static_cast<QMouseEvent*>(e))) {
         return true;
       }
+      break;
+    case QEvent::MouseButtonRelease:
+      if (OnMouseRelease(static_cast<QMouseEvent*>(e))) {
+        return true;
+      }
+      break;
+    case QEvent::MouseButtonDblClick:
+      if (OnMouseDoubleClick(static_cast<QMouseEvent*>(e))) {
+        return true;
+      }
+      break;
+    case QEvent::ShortcutOverride:
+    case QEvent::KeyPress:
+      if (OnKeyPress(static_cast<QKeyEvent*>(e))) {
+        return true;
+      }
+      break;
+    case QEvent::KeyRelease:
+      if (OnKeyRelease(static_cast<QKeyEvent*>(e))) {
+        return true;
+      }
+      break;
+    case QEvent::DragEnter:
+      emit DragEntered(static_cast<QDragEnterEvent*>(e));
+      break;
+    case QEvent::DragLeave:
+      emit DragLeft(static_cast<QDragLeaveEvent*>(e));
+      break;
+    case QEvent::Drop:
+      emit Dropped(static_cast<QDropEvent*>(e));
+      break;
+    default:
+      break;
     }
-    break;
-  }
-  case QEvent::MouseMove:
-    EmitColorAtCursor(static_cast<QMouseEvent*>(e));
-    if (OnMouseMove(static_cast<QMouseEvent*>(e))) {
+  } else if (o == text_edit_) {
+    switch (e->type()) {
+    case QEvent::Paint:
+      update();
       return true;
+    default:
+      break;
     }
-    break;
-  case QEvent::MouseButtonRelease:
-    if (OnMouseRelease(static_cast<QMouseEvent*>(e))) {
-      return true;
-    }
-    break;
-  case QEvent::MouseButtonDblClick:
-    if (OnMouseDoubleClick(static_cast<QMouseEvent*>(e))) {
-      return true;
-    }
-    break;
-  case QEvent::DragEnter:
-    emit DragEntered(static_cast<QDragEnterEvent*>(e));
-    break;
-  case QEvent::DragLeave:
-    emit DragLeft(static_cast<QDragLeaveEvent*>(e));
-    break;
-  case QEvent::Drop:
-    emit Dropped(static_cast<QDropEvent*>(e));
-    break;
-  default:
-    break;
   }
 
   return super::eventFilter(o, e);
@@ -383,6 +400,18 @@ void ViewerDisplayWidget::OnPaint()
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
       }
+    }
+
+    if (text_edit_) {
+      QPixmap pm(text_edit_->width(), text_edit_->height());
+      pm.fill(Qt::transparent);
+
+      QPainter pixp(&pm);
+      text_edit_->Paint(&pixp);
+
+      QTransform gizmo_transform = GenerateDisplayTransform();
+      p.setTransform(gizmo_transform);
+      p.drawPixmap(text_edit_pos_, pm);
     }
   }
 
@@ -621,100 +650,63 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
 
 void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
-  QTransform gizmo_transform = GenerateDisplayTransform();
-
-  // Create popup container for text and toolbar
-  auto popup = new QWidget(this);
-  popup->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
-  popup->setAttribute(Qt::WA_DeleteOnClose);
-  popup->setAttribute(Qt::WA_TranslucentBackground);
-
   // Create text editor
-  ViewerTextEditor *text_edit = new ViewerTextEditor(gizmo_transform.m11(), popup);
-  Html::HtmlToDoc(text_edit->document(), text->GetHtml());
-  text_edit->setProperty("gizmo", reinterpret_cast<quintptr>(text));
-  connect(text_edit, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
-  connect(text_edit, &ViewerTextEditor::destroyed, this, &ViewerDisplayWidget::TextEditDestroyed);
+  text_edit_ = new ViewerTextEditor(1.0, this);
 
+  // Set text editor's gizmo property for later use
+  text_edit_->setProperty("gizmo", reinterpret_cast<quintptr>(text));
+
+  // Install ourselves as event filter so we can receive the text editor's paint events
+  text_edit_->installEventFilter(this);
+
+  // Disable focus on text editor
+  text_edit_->setFocusPolicy(Qt::NoFocus);
+
+  // Disable mouse events on text editor
+  text_edit_->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+  // "Show" text editor so that it throws paint events, even though its paint event is disabled
+  text_edit_->show();
+
+  // Convert HTML to Qt document
+  Html::HtmlToDoc(text_edit_->document(), text->GetHtml());
+
+  // Connect text change event to propagate back to node
+  connect(text_edit_, &ViewerTextEditor::textChanged, this, &ViewerDisplayWidget::TextEditChanged);
+
+  // Connect destroyed signal to cleanup after destruction
+  connect(text_edit_, &ViewerTextEditor::destroyed, this, &ViewerDisplayWidget::TextEditDestroyed);
+
+  // Set text editor's size to logical size
+  QRectF text_rect = text->GetRect();
+  text_edit_pos_ = text_rect.topLeft();
+  text_edit_->setGeometry(text_rect.toRect());
+
+  // Emit text gizmo activation signal
   emit text->Activated();
 
-  // Get on screen text rect (this will be the text editor's global geometry)
-  QRect global_text_area = gizmo_transform.map(text->GetRect()).boundingRect().toRect();
-  global_text_area = QRect(mapToGlobal(global_text_area.topLeft()), mapToGlobal(global_text_area.bottomRight()));
-
-  QRect global_popup_area = global_text_area;
-
   // Create toolbar
-  ViewerTextEditorToolBar *toolbar = new ViewerTextEditorToolBar(popup);
-  text_edit->ConnectToolBar(toolbar);
+  text_toolbar_ = new ViewerTextEditorToolBar(text_edit_);
+  text_toolbar_->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+  text_edit_->ConnectToolBar(text_toolbar_);
 
-  // Work out which corner of the text editor to anchor the toolbar to based on screen limitations
-  bool top = true;
-  bool left = true;
-  for (QScreen *screen : qApp->screens()) {
-    // Look for screen that contains text area
-    if (screen->geometry().contains(global_text_area)) {
-      if (global_text_area.left() + toolbar->width() > screen->geometry().right()) {
-        left = false;
-      }
-      if (global_text_area.top() - toolbar->height() < screen->geometry().top()) {
-        top = false;
-      }
-      break;
-    }
-  }
+  QTransform display_untransform = GenerateDisplayTransform().inverted();
+  text_toolbar_->move(mapToGlobal(display_untransform.map(text_edit_pos_).toPoint()));
+  text_toolbar_->show();
 
+  inner_widget()->setFocusPolicy(Qt::StrongFocus);
+  inner_widget()->setFocus();
 
-  QPoint toolbar_pos;
+  connect(qApp, &QApplication::focusChanged, this, &ViewerDisplayWidget::FocusChanged);
 
-  if (top) {
-    global_popup_area.adjust(0, -toolbar->height(), 0, 0);
-    toolbar_pos.setY(0);
-  } else {
-    global_popup_area.adjust(0, 0, 0, toolbar->height());
-    toolbar_pos.setY(global_text_area.height());
-  }
-
-  if (toolbar->width() > global_popup_area.width()) {
-    int diff = toolbar->width() - global_popup_area.width();
-    if (left) {
-      global_popup_area.adjust(0, 0, diff, 0);
-    } else {
-      global_popup_area.adjust(-diff, 0, 0, 0);
-    }
-    toolbar_pos.setX(0);
-  } else {
-    if (left) {
-      toolbar_pos.setX(0);
-    } else {
-      toolbar_pos.setX(global_popup_area.width() - toolbar->width());
-    }
-  }
-
-  toolbar->move(toolbar_pos);
-
-  popup->setGeometry(global_popup_area);
-
-  text_edit->setGeometry(QRect(text_edit->mapFromGlobal(global_text_area.topLeft()), text_edit->mapFromGlobal(global_text_area.bottomRight())));
-
-  popup->show();
-
-  // Store click pos from event so we can use it later to set the initial text cursor position
-  QPoint click_pos;
+  // Start text cursor where the user clicked
   if (event) {
-    click_pos = event->globalPos();
+    QPoint click_pos = display_untransform.map(event->pos()) - text_edit_pos_.toPoint();
+    text_edit_->setTextCursor(text_edit_->cursorForPosition(click_pos));
   }
 
-  // Ensure text edit is actually focused rather than the toolbar
-  connect(toolbar, &ViewerTextEditorToolBar::FirstPaint, this, [text_edit, click_pos]{
-    // Grab focus back from the toolbar
-    text_edit->setFocus();
-
-    // Start text cursor where the user clicked
-    if (!click_pos.isNull()) {
-      text_edit->setTextCursor(text_edit->cursorForPosition(text_edit->mapFromGlobal(click_pos)));
-    }
-  });
+  // Grab focus back from the toolbar
+  inner_widget()->grabKeyboard();
 }
 
 bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
@@ -728,6 +720,10 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
     setCursor(Qt::ClosedHandCursor);
 
     return true;
+
+  } else if (text_edit_) {
+
+    return ForwardMouseEventToTextEdit(event, true);
 
   } else if (event->button() == Qt::LeftButton) {
 
@@ -773,6 +769,10 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
     hand_last_drag_pos_ = event->pos();
 
     return true;
+
+  } else if (text_edit_) {
+
+    return ForwardMouseEventToTextEdit(event);
 
   } else if (add_band_) {
 
@@ -831,6 +831,10 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
     return true;
 
+  } else if (text_edit_) {
+
+    return ForwardMouseEventToTextEdit(e);
+
   } else if (add_band_) {
 
     QRect band_rect = QRect(add_band_start_, add_band_end_).normalized();
@@ -864,7 +868,9 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
 bool ViewerDisplayWidget::OnMouseDoubleClick(QMouseEvent *event)
 {
-  if (event->button() == Qt::LeftButton && gizmos_) {
+  if (text_edit_) {
+    return ForwardMouseEventToTextEdit(event);
+  } else if (event->button() == Qt::LeftButton && gizmos_) {
     QPointF ptr = TransformViewerSpaceToBufferSpace(event->pos());
     foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
       if (TextGizmo *text = dynamic_cast<TextGizmo*>(g)) {
@@ -876,6 +882,27 @@ bool ViewerDisplayWidget::OnMouseDoubleClick(QMouseEvent *event)
     }
   }
 
+  return false;
+}
+
+bool ViewerDisplayWidget::OnKeyPress(QKeyEvent *e)
+{
+  if (text_edit_) {
+    if (e->key() == Qt::Key_Escape) {
+      CloseTextEditor();
+      return true;
+    } else {
+      return ForwardEventToTextEdit(e);
+    }
+  }
+  return false;
+}
+
+bool ViewerDisplayWidget::OnKeyRelease(QKeyEvent *e)
+{
+  if (text_edit_) {
+    return ForwardEventToTextEdit(e);
+  }
   return false;
 }
 
@@ -984,6 +1011,35 @@ void ViewerDisplayWidget::DrawSubtitleTracks()
     p.drawPixmap(bounding_box.x(), bounding_box.y(), *aa_pixmap);
     delete aa_pixmap;
   }
+}
+
+bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside)
+{
+  // Transform screen mouse coords to world mouse coords
+  QTransform t = GenerateDisplayTransform().inverted();
+  QPointF local_pos = t.map(event->localPos()) - text_edit_pos_;
+
+  if (check_if_outside) {
+    if (local_pos.x() < 0 || local_pos.x() >= text_edit_->width() || local_pos.y() < 0 || local_pos.y() >= height()) {
+      CloseTextEditor();
+      return true;
+    }
+  }
+
+  event->setLocalPos(local_pos);
+  return ForwardEventToTextEdit(event);
+}
+
+bool ViewerDisplayWidget::ForwardEventToTextEdit(QEvent *event)
+{
+  qApp->sendEvent(text_edit_->viewport(), event);
+  return event->isAccepted();
+}
+
+void ViewerDisplayWidget::CloseTextEditor()
+{
+  text_edit_->deleteLater();
+  text_edit_ = nullptr;
 }
 
 void ViewerDisplayWidget::SetShowFPS(bool e)
@@ -1097,12 +1153,40 @@ void ViewerDisplayWidget::TextEditDestroyed()
 {
   TextGizmo *gizmo = reinterpret_cast<TextGizmo*>(sender()->property("gizmo").value<quintptr>());
   emit gizmo->Deactivated();
+  text_edit_ = nullptr;
+  text_toolbar_ = nullptr;
+  inner_widget()->releaseKeyboard();
+  inner_widget()->setFocusPolicy(Qt::NoFocus);
+  disconnect(qApp, &QApplication::focusChanged, this, &ViewerDisplayWidget::FocusChanged);
 }
 
 void ViewerDisplayWidget::SubtitlesChanged(const TimeRange &r)
 {
   if (time_ >= r.in() && time_ < r.out()) {
     update();
+  }
+}
+
+void ViewerDisplayWidget::FocusChanged(QWidget *old, QWidget *now)
+{
+  if (!now) {
+    // Ignore this
+    return;
+  }
+
+  bool unfocused = true;
+
+  while (now) {
+    if (now == text_toolbar_ || now == this) {
+      unfocused = false;
+      break;
+    } else {
+      now = now->parentWidget();
+    }
+  }
+
+  if (unfocused) {
+    CloseTextEditor();
   }
 }
 

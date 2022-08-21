@@ -145,6 +145,8 @@ public:
 
   void SetListenToFocusEvents(bool e) { listen_to_focus_events_ = e; }
 
+  void Paint(QPainter *p, const QRect &clip = QRect());
+
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
 

@@ -93,16 +93,13 @@ void ViewerTextEditor::ConnectToolBar(ViewerTextEditorToolBar *toolbar)
   toolbars_.append(toolbar);
 }
 
-void ViewerTextEditor::paintEvent(QPaintEvent *e)
+void ViewerTextEditor::Paint(QPainter *p, const QRect &clip)
 {
-  QPainter p(this->viewport());
-
   QAbstractTextDocumentLayout::PaintContext ctx;
 
-  QRect r = e->rect();
-  if (r.isValid())
-    p.setClipRect(r, Qt::IntersectClip);
-  ctx.clip = r;
+  if (clip.isValid())
+    p->setClipRect(clip, Qt::IntersectClip);
+  ctx.clip = clip;
 
   ctx.cursorPosition = this->textCursor().position();
 
@@ -125,8 +122,16 @@ void ViewerTextEditor::paintEvent(QPaintEvent *e)
   }
 
   if (transparent_clone_) {
-    transparent_clone_->documentLayout()->draw(&p, ctx);
+    transparent_clone_->documentLayout()->draw(p, ctx);
   }
+}
+
+void ViewerTextEditor::paintEvent(QPaintEvent *e)
+{
+  return;
+  QPainter p(viewport());
+
+  Paint(&p, e->rect());
 }
 
 void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment)
