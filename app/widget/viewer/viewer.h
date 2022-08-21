@@ -177,6 +177,11 @@ protected:
     return display_widget_;
   }
 
+  void IgnoreNextScrubEvent()
+  {
+    ignore_scrub_++;
+  }
+
 private:
   int64_t GetTimestamp() const
   {
@@ -281,6 +286,8 @@ private:
 
   static QVector<ViewerWidget*> instances_;
 
+  std::list<RenderTicketWatcher*> audio_scrub_watchers_;
+
   bool record_armed_;
   bool recording_;
   TimelineWidget *recording_callback_;
@@ -296,6 +303,8 @@ private:
   WaveformMode waveform_mode_;
 
   QVector<RenderTicketWatcher*> dry_run_watchers_;
+
+  int ignore_scrub_;
 
 private slots:
   void PlaybackTimerUpdate();
