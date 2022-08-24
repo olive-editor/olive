@@ -43,6 +43,7 @@
 #include "node/gizmo/point.h"
 #include "node/gizmo/polygon.h"
 #include "node/gizmo/screen.h"
+#include "window/mainwindow/mainwindow.h"
 
 namespace olive {
 
@@ -741,6 +742,7 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   text_toolbar_->move(mapToGlobal(text_transform_inverted_.map(text_edit_pos_).toPoint()));
   text_toolbar_->show();
 
+  // Allow widget to take keyboard focus
   inner_widget()->setFocusPolicy(Qt::StrongFocus);
   inner_widget()->setFocus();
 
@@ -753,7 +755,10 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   }
 
   // Grab focus back from the toolbar
-  inner_widget()->grabKeyboard();
+  connect(text_toolbar_, &ViewerTextEditorToolBar::FirstPaint, this, [this]{
+    Core::instance()->main_window()->activateWindow();
+    inner_widget()->setFocus();
+  });
 }
 
 bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
