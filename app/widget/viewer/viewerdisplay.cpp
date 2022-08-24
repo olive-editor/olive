@@ -456,8 +456,6 @@ void ViewerDisplayWidget::OnPaint()
       QPainter pixp(&pm);
       text_edit_->Paint(&pixp);
 
-      QTransform gizmo_transform = GenerateDisplayTransform();
-      p.setTransform(gizmo_transform);
       p.drawPixmap(text_edit_pos_, pm);
     }
   }
@@ -697,8 +695,10 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
 
 void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
+  text_transform_ = GenerateGizmoTransform();
+
   // Create text editor
-  text_edit_ = new ViewerTextEditor(1.0, this);
+  text_edit_ = new ViewerTextEditor(text_transform_.m11(), this);
 
   // Set text editor's gizmo property for later use
   text_edit_->setProperty("gizmo", reinterpret_cast<quintptr>(text));
@@ -737,8 +737,8 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   text_toolbar_->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
   text_edit_->ConnectToolBar(text_toolbar_);
 
-  QTransform display_untransform = GenerateDisplayTransform().inverted();
-  text_toolbar_->move(mapToGlobal(display_untransform.map(text_edit_pos_).toPoint()));
+  text_transform_inverted_ = text_transform_.inverted();
+  text_toolbar_->move(mapToGlobal(text_transform_inverted_.map(text_edit_pos_).toPoint()));
   text_toolbar_->show();
 
   inner_widget()->setFocusPolicy(Qt::StrongFocus);
@@ -748,7 +748,7 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 
   // Start text cursor where the user clicked
   if (event) {
-    QPoint click_pos = display_untransform.map(event->pos()) - text_edit_pos_.toPoint();
+    QPoint click_pos = text_transform_inverted_.map(event->pos()) - text_edit_pos_.toPoint();
     text_edit_->setTextCursor(text_edit_->cursorForPosition(click_pos));
   }
 
@@ -1099,11 +1099,10 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
 bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside)
 {
   // Transform screen mouse coords to world mouse coords
-  QTransform t = GenerateDisplayTransform().inverted();
-  QPointF local_pos = t.map(event->localPos()) - text_edit_pos_;
+  QPointF local_pos = GetVirtualPosForTextEdit(event->localPos());
 
   if (check_if_outside) {
-    if (local_pos.x() < 0 || local_pos.x() >= text_edit_->width() || local_pos.y() < 0 || local_pos.y() >= height()) {
+    if (local_pos.x() < 0 || local_pos.x() >= text_edit_->width() || local_pos.y() < 0 || local_pos.y() >= text_edit_->height()) {
       CloseTextEditor();
       return true;
     }

@@ -246,6 +246,12 @@ private:
   QTransform GenerateDisplayTransform();
 
   QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
+  QTransform GenerateGizmoTransform()
+  {
+    NodeTraverser t;
+    t.SetCacheVideoParams(gizmo_params_);
+    return GenerateGizmoTransform(t, GenerateGizmoTime());
+  }
 
   TimeRange GenerateGizmoTime()
   {
@@ -268,6 +274,11 @@ private:
   void EmitColorAtCursor(QMouseEvent* e);
 
   void DrawSubtitleTracks();
+
+  QPointF GetVirtualPosForTextEdit(const QPointF &p)
+  {
+    return text_transform_inverted_.map(p) - text_edit_pos_;
+  }
 
   template <typename T>
   void ForwardDragEventToTextEdit(T *event);
@@ -392,6 +403,8 @@ private:
   QPointF text_edit_pos_;
   ViewerTextEditor *text_edit_;
   ViewerTextEditorToolBar *text_toolbar_;
+  QTransform text_transform_;
+  QTransform text_transform_inverted_;
 
 private slots:
   void UpdateFromQueue();
