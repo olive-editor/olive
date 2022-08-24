@@ -147,6 +147,11 @@ public:
 
   void Paint(QPainter *p, const QRect &clip = QRect());
 
+  virtual void dragEnterEvent(QDragEnterEvent *e) override { return QTextEdit::dragEnterEvent(e); }
+  virtual void dragMoveEvent(QDragMoveEvent *e) override { return QTextEdit::dragMoveEvent(e); }
+  virtual void dragLeaveEvent(QDragLeaveEvent *e) override { return QTextEdit::dragLeaveEvent(e); }
+  virtual void dropEvent(QDropEvent *e) override { return QTextEdit::dropEvent(e); }
+
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
 

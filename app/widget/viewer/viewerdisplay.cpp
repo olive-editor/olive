@@ -75,6 +75,8 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
 
   const int kFrameRateAverageCount = 8;
   frame_rate_averages_.resize(kFrameRateAverageCount);
+
+  inner_widget()->setAcceptDrops(true);
 }
 
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
@@ -279,14 +281,59 @@ bool ViewerDisplayWidget::eventFilter(QObject *o, QEvent *e)
       }
       break;
     case QEvent::DragEnter:
-      emit DragEntered(static_cast<QDragEnterEvent*>(e));
+    {
+      auto drag_enter = static_cast<QDragEnterEvent*>(e);
+      if (text_edit_) {
+        ForwardDragEventToTextEdit(drag_enter);
+      } else {
+        emit DragEntered(drag_enter);
+      }
+
+      if (drag_enter->isAccepted()) {
+        return true;
+      }
       break;
+    }
+    case QEvent::DragMove:
+    {
+      auto drag_move = static_cast<QDragMoveEvent*>(e);
+      if (text_edit_) {
+        ForwardDragEventToTextEdit(drag_move);
+      }
+
+      if (drag_move->isAccepted()) {
+        return true;
+      }
+      break;
+    }
     case QEvent::DragLeave:
-      emit DragLeft(static_cast<QDragLeaveEvent*>(e));
+    {
+      auto drag_leave = static_cast<QDragLeaveEvent*>(e);
+      if (text_edit_) {
+        ForwardDragEventToTextEdit(drag_leave);
+      } else {
+        emit DragLeft(drag_leave);
+      }
+
+      if (drag_leave->isAccepted()) {
+        return true;
+      }
       break;
+    }
     case QEvent::Drop:
-      emit Dropped(static_cast<QDropEvent*>(e));
+    {
+      auto drop = static_cast<QDropEvent*>(e);
+      if (text_edit_) {
+        ForwardDragEventToTextEdit(drop);
+      } else {
+        emit Dropped(drop);
+      }
+
+      if (drop->isAccepted()) {
+        return true;
+      }
       break;
+    }
     default:
       break;
     }
@@ -1010,6 +1057,42 @@ void ViewerDisplayWidget::DrawSubtitleTracks()
     QPainter p(paint_device());
     p.drawPixmap(bounding_box.x(), bounding_box.y(), *aa_pixmap);
     delete aa_pixmap;
+  }
+}
+
+template <typename T>
+void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
+{
+  // HACK: Absolutely filthy hack. We need to be able to transform the mouse coordinates for our
+  //       proxied QTextEdit, however unlike QMouseEvents, Qt's drag events don't allow modifying
+  //       the position after construction. Unhelpfully, Qt also explicitly forbids users creating
+  //       their own drag events because they "rely on Qt's internal state". So in order to forward
+  //       drag events, we defy this by creating our own events, but DON'T process them through Qt's
+  //       event queue and instead just send them directly to the widget (requiring its protected
+  //       drag events to be made public). That way Qt stays happy, because as far as it's
+  //       concerned it's only interfacing with this widget, and the QTextEdit gets to receive
+  //       transformed events. It's a terrible hack, but seems to work.
+
+  if constexpr (std::is_same_v<T, QDragLeaveEvent>) {
+    text_edit_->dragLeaveEvent(e);
+  } else {
+    T relay(GetVirtualPosForTextEdit(e->posF()).toPoint(),
+            e->possibleActions(),
+            e->mimeData(),
+            e->mouseButtons(),
+            e->keyboardModifiers());
+
+    if (e->type() == QEvent::DragEnter) {
+      text_edit_->dragEnterEvent(static_cast<QDragEnterEvent*>(&relay));
+    } else if (e->type() == QEvent::DragMove) {
+      text_edit_->dragMoveEvent(static_cast<QDragMoveEvent*>(&relay));
+    } else if (e->type() == QEvent::Drop) {
+      text_edit_->dropEvent(&relay);
+    }
+
+    if (relay.isAccepted()) {
+      e->accept();
+    }
   }
 }
 

@@ -269,6 +269,9 @@ private:
 
   void DrawSubtitleTracks();
 
+  template <typename T>
+  void ForwardDragEventToTextEdit(T *event);
+
   bool ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside = false);
   bool ForwardEventToTextEdit(QEvent *event);
 
