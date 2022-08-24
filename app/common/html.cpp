@@ -161,7 +161,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
     WriteCSSProperty(&style, QStringLiteral("line-height"), QStringLiteral("%1%").arg(fmt.lineHeight()));
   }
 
-  //WriteCharFormat(&style, block.charFormat());
+  WriteCharFormat(&style, block.charFormat());
 
   if (!style.isEmpty()) {
     writer->writeAttribute(QStringLiteral("style"), style);
@@ -169,12 +169,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
 
   auto it = block.begin();
 
-  if (it == block.end()) {
-    // FIXME: Might not be necessary with our custom HTML implementation
-    QString s;
-    s.append(QChar::Nbsp);
-    writer->writeCharacters(s);
-  } else {
+  if (it != block.end()) {
     for (; it!=block.end(); it++) {
       WriteFragment(writer, it.fragment());
     }
