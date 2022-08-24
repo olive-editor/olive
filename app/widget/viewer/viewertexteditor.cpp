@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
+#include <QtMath>
 
 #include "common/qtutils.h"
 #include "ui/icons/icons.h"
@@ -49,6 +50,9 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
 
   document()->setDefaultStyleSheet(QStringLiteral("body { color: white; }"));
 
+  // Ensure cursor is visible at this scale
+  setCursorWidth(std::ceil(1.0 / scale));
+
   viewport()->setAutoFillBackground(false);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -58,7 +62,7 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   // Force DPI to the same one that we're using in the actual render
   dpi_force_ = QImage(1, 1, QImage::Format_RGBA8888_Premultiplied);
 
-  const int dpm = 3780 * scale;
+  const int dpm = 3780;
   dpi_force_.setDotsPerMeterX(dpm);
   dpi_force_.setDotsPerMeterY(dpm);
   document()->documentLayout()->setPaintDevice(&dpi_force_);
