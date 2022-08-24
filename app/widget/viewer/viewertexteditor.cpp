@@ -132,10 +132,7 @@ void ViewerTextEditor::Paint(QPainter *p, const QRect &clip)
 
 void ViewerTextEditor::paintEvent(QPaintEvent *e)
 {
-  return;
-  QPainter p(viewport());
-
-  Paint(&p, e->rect());
+  // Disable painting
 }
 
 void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment)
