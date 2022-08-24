@@ -744,7 +744,7 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 
   // Allow widget to take keyboard focus
   inner_widget()->setFocusPolicy(Qt::StrongFocus);
-  inner_widget()->setFocus();
+  inner_widget()->setMouseTracking(true);
 
   connect(qApp, &QApplication::focusChanged, this, &ViewerDisplayWidget::FocusChanged);
 
@@ -823,6 +823,15 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
     return true;
 
   } else if (text_edit_) {
+
+    if (event->buttons() == Qt::NoButton) {
+      QPointF mapped = text_transform_inverted_.map(event->pos()) - text_edit_pos_;
+      if (mapped.x() >= 0 && mapped.y() >= 0 && mapped.x() < text_edit_->width() && mapped.y() < text_edit_->height()) {
+        setCursor(Qt::IBeamCursor);
+      } else {
+        unsetCursor();
+      }
+    }
 
     return ForwardMouseEventToTextEdit(event);
 
@@ -1242,7 +1251,7 @@ void ViewerDisplayWidget::TextEditDestroyed()
   emit gizmo->Deactivated();
   text_edit_ = nullptr;
   text_toolbar_ = nullptr;
-  inner_widget()->releaseKeyboard();
+  inner_widget()->setMouseTracking(false);
   inner_widget()->setFocusPolicy(Qt::NoFocus);
   disconnect(qApp, &QApplication::focusChanged, this, &ViewerDisplayWidget::FocusChanged);
 }
