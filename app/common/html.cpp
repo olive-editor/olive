@@ -142,7 +142,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
   if (!(fmt.alignment() & Qt::AlignLeft)) {
     if (fmt.alignment() & Qt::AlignRight) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("right"));
-    } else if (fmt.alignment() & Qt::AlignCenter) {
+    } else if (fmt.alignment() & Qt::AlignHCenter) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("center"));
     } else if (fmt.alignment() & Qt::AlignJustify) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("justify"));
@@ -369,7 +369,7 @@ QTextBlockFormat Html::ReadBlockFormat(const QXmlStreamAttributes &attributes)
       if (StrEquals(attr.value(), QStringLiteral("right"))) {
         block_fmt.setAlignment(Qt::AlignRight);
       } else if (StrEquals(attr.value(), QStringLiteral("center"))) {
-        block_fmt.setAlignment(Qt::AlignCenter);
+        block_fmt.setAlignment(Qt::AlignHCenter);
       } else if (StrEquals(attr.value(), QStringLiteral("justify"))) {
         block_fmt.setAlignment(Qt::AlignJustify);
       }

@@ -81,6 +81,7 @@ signals:
   void UnderlineChanged(bool e);
   void StrikethroughChanged(bool e);
   void AlignmentChanged(Qt::Alignment alignment);
+  void VerticalAlignmentChanged(Qt::Alignment alignment);
   void ColorChanged(const QColor &c);
   void SmallCapsChanged(bool e);
   void StretchChanged(int i);
@@ -101,6 +102,8 @@ protected:
   virtual void paintEvent(QPaintEvent *event) override;
 
 private:
+  void AddSpacer(QLayout *l);
+
   QPoint drag_anchor_;
 
   QFontComboBox *font_combo_;
@@ -116,6 +119,10 @@ private:
   QPushButton *align_center_btn_;
   QPushButton *align_right_btn_;
   QPushButton *align_justify_btn_;
+
+  QPushButton *align_top_btn_;
+  QPushButton *align_middle_btn_;
+  QPushButton *align_bottom_btn_;
 
   IntegerSlider *stretch_slider_;
   FloatSlider *kerning_slider_;

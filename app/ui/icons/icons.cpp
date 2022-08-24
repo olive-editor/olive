@@ -75,6 +75,9 @@ QIcon icon::TextAlignLeft;
 QIcon icon::TextAlignRight;
 QIcon icon::TextAlignCenter;
 QIcon icon::TextAlignJustify;
+QIcon icon::TextAlignTop;
+QIcon icon::TextAlignBottom;
+QIcon icon::TextAlignMiddle;
 QIcon icon::Snapping;
 QIcon icon::ZoomIn;
 QIcon icon::ZoomOut;
@@ -145,6 +148,9 @@ void icon::LoadAll(const QString& theme)
   TextAlignRight = Create(theme, "align-right");
   TextAlignCenter = Create(theme, "align-center");
   TextAlignJustify = Create(theme, "align-justify-all");
+  TextAlignTop = Create(theme, "align-left");
+  TextAlignBottom = Create(theme, "align-right");
+  TextAlignMiddle = Create(theme, "align-center");
 
   Snapping = Create(theme, "magnet");
   ZoomIn = Create(theme, "zoomin");
