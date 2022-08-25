@@ -698,6 +698,7 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
   active_text_gizmo_ = text;
   text_transform_ = GenerateGizmoTransform();
+  text_transform_inverted_ = text_transform_.inverted();
 
   // Create text editor
   text_edit_ = new ViewerTextEditor(text_transform_.m11(), this);
@@ -736,14 +737,36 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 
   // Create toolbar
   text_toolbar_ = new ViewerTextEditorToolBar(text_edit_);
-  text_toolbar_->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+  text_toolbar_->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
   connect(text_toolbar_, &ViewerTextEditorToolBar::VerticalAlignmentChanged, text, &TextGizmo::SetVerticalAlignment);
   connect(text, &TextGizmo::VerticalAlignmentChanged, text_toolbar_, &ViewerTextEditorToolBar::SetVerticalAlignment);
   text_toolbar_->SetVerticalAlignment(text->GetVerticalAlignment());
   text_edit_->ConnectToolBar(text_toolbar_);
 
-  text_transform_inverted_ = text_transform_.inverted();
-  text_toolbar_->move(mapToGlobal(text_transform_inverted_.map(text_edit_pos_).toPoint()));
+  QPoint toolbar_pos = mapToGlobal(text_transform_.map(text_edit_pos_).toPoint());
+  if (QScreen *screen = qApp->screenAt(toolbar_pos)) {
+    // Determine whether to anchor to the top of the rect of the bottom
+    if (toolbar_pos.y() - text_toolbar_->height() >= screen->geometry().top()) {
+      toolbar_pos.setY(toolbar_pos.y() - text_toolbar_->height());
+    } else {
+      toolbar_pos.setY(toolbar_pos.y() + text_transform_.map(text_rect).boundingRect().height());
+    }
+
+    // Clamp X
+    if (toolbar_pos.x() + text_toolbar_->width() > screen->geometry().right()) {
+      toolbar_pos.setX(screen->geometry().right() - text_toolbar_->width());
+    }
+
+    // Clamp Y
+    if (toolbar_pos.y() + text_toolbar_->height() > screen->geometry().bottom()) {
+      toolbar_pos.setY(screen->geometry().bottom() - text_toolbar_->height());
+    }
+  } else {
+    // Fallback
+    toolbar_pos.setY(toolbar_pos.y() - text_toolbar_->height());
+  }
+
+  text_toolbar_->move(toolbar_pos);
   text_toolbar_->show();
 
   // Allow widget to take keyboard focus

@@ -321,7 +321,7 @@ void ViewerTextEditor::DocumentChanged()
 ViewerTextEditorToolBar::ViewerTextEditorToolBar(QWidget *parent) :
   QWidget(parent),
   painted_(false),
-  drag_enabled_(false)
+  drag_enabled_(true)
 {
   QVBoxLayout *outer_layout = new QVBoxLayout(this);
 
