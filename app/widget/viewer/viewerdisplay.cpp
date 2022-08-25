@@ -796,7 +796,7 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
     hand_last_drag_pos_ = event->pos();
     hand_dragging_ = true;
     emit HandDragStarted();
-    setCursor(Qt::ClosedHandCursor);
+    inner_widget()->setCursor(Qt::ClosedHandCursor);
 
     return true;
 
@@ -854,9 +854,9 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
     if (event->buttons() == Qt::NoButton) {
       QPointF mapped = text_transform_inverted_.map(event->pos()) - text_edit_pos_;
       if (mapped.x() >= 0 && mapped.y() >= 0 && mapped.x() < text_edit_->width() && mapped.y() < text_edit_->height()) {
-        setCursor(Qt::IBeamCursor);
+        inner_widget()->setCursor(Qt::IBeamCursor);
       } else {
-        unsetCursor();
+        inner_widget()->unsetCursor();
       }
     }
 
@@ -1292,6 +1292,7 @@ void ViewerDisplayWidget::TextEditDestroyed()
   text_toolbar_ = nullptr;
   inner_widget()->setMouseTracking(false);
   inner_widget()->setFocusPolicy(Qt::NoFocus);
+  UpdateCursor();
   disconnect(qApp, &QApplication::focusChanged, this, &ViewerDisplayWidget::FocusChanged);
 }
 
