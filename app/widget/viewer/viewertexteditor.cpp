@@ -125,9 +125,6 @@ void ViewerTextEditor::Paint(QPainter *p, Qt::Alignment valign)
     ctx.selections.append(selection);
   }
 
-  if (transparent_clone_) {
-    transparent_clone_->documentLayout()->draw(p, ctx);
-
   switch (valign) {
   case Qt::AlignTop:
     // Do nothing
@@ -138,6 +135,13 @@ void ViewerTextEditor::Paint(QPainter *p, Qt::Alignment valign)
   case Qt::AlignBottom:
     p->translate(0, clip.height()-document()->size().height());
     break;
+  }
+
+  const bool use_transparent_clone = true;
+  if (transparent_clone_ && use_transparent_clone) {
+    transparent_clone_->documentLayout()->draw(p, ctx);
+  } else {
+    document()->documentLayout()->draw(p, ctx);
   }
 }
 
@@ -309,6 +313,7 @@ void ViewerTextEditor::DocumentChanged()
   delete transparent_clone_;
   transparent_clone_ = document()->clone(this);
   transparent_clone_->documentLayout()->setPaintDevice(&dpi_force_);
+  transparent_clone_->documentLayout()->setProperty("cursorWidth", document()->documentLayout()->property("cursorWidth"));
 
   QTextCursor cursor(transparent_clone_);
   cursor.select(QTextCursor::Document);
