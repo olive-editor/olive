@@ -68,6 +68,7 @@ public slots:
   void SetUnderline(bool e) { underline_btn_->setChecked(e); }
   void SetStrikethrough(bool e) { strikethrough_btn_->setChecked(e); }
   void SetAlignment(Qt::Alignment a);
+  void SetVerticalAlignment(Qt::Alignment a);
   void SetColor(const QColor &c);
   void SetSmallCaps(bool e) { small_caps_btn_->setChecked(e); }
   void SetStretch(int i) { stretch_slider_->SetValue(i); }
@@ -152,7 +153,7 @@ public:
 
   void SetListenToFocusEvents(bool e) { listen_to_focus_events_ = e; }
 
-  void Paint(QPainter *p, const QRect &clip = QRect());
+  void Paint(QPainter *p, Qt::Alignment valign);
 
   virtual void dragEnterEvent(QDragEnterEvent *e) override { return QTextEdit::dragEnterEvent(e); }
   virtual void dragMoveEvent(QDragMoveEvent *e) override { return QTextEdit::dragMoveEvent(e); }

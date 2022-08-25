@@ -455,7 +455,7 @@ void ViewerDisplayWidget::OnPaint()
       pm.fill(Qt::transparent);
 
       QPainter pixp(&pm);
-      text_edit_->Paint(&pixp);
+      text_edit_->Paint(&pixp, active_text_gizmo_->GetVerticalAlignment());
 
       p.drawPixmap(text_edit_pos_, pm);
     }
@@ -696,6 +696,7 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
 
 void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
+  active_text_gizmo_ = text;
   text_transform_ = GenerateGizmoTransform();
 
   // Create text editor
@@ -736,6 +737,9 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   // Create toolbar
   text_toolbar_ = new ViewerTextEditorToolBar(text_edit_);
   text_toolbar_->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+  connect(text_toolbar_, &ViewerTextEditorToolBar::VerticalAlignmentChanged, text, &TextGizmo::SetVerticalAlignment);
+  connect(text, &TextGizmo::VerticalAlignmentChanged, text_toolbar_, &ViewerTextEditorToolBar::SetVerticalAlignment);
+  text_toolbar_->SetVerticalAlignment(text->GetVerticalAlignment());
   text_edit_->ConnectToolBar(text_toolbar_);
 
   text_transform_inverted_ = text_transform_.inverted();
@@ -1120,6 +1124,18 @@ bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool c
       CloseTextEditor();
       return true;
     }
+  }
+
+  switch (active_text_gizmo_->GetVerticalAlignment()) {
+  case Qt::AlignTop:
+    // Do nothing
+    break;
+  case Qt::AlignVCenter:
+    local_pos.setY(local_pos.y() - text_edit_->height()/2 + text_edit_->document()->size().height()/2);
+    break;
+  case Qt::AlignBottom:
+    local_pos.setY(local_pos.y() - text_edit_->height() + text_edit_->document()->size().height());
+    break;
   }
 
   event->setLocalPos(local_pos);

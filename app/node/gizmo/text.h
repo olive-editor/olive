@@ -42,9 +42,21 @@ public:
 
   void UpdateInputHtml(const QString &s, const rational &time);
 
+  Qt::Alignment GetVerticalAlignment() const
+  {
+    return valign_;
+  }
+
+  void SetVerticalAlignment(Qt::Alignment va)
+  {
+    valign_ = va;
+    emit VerticalAlignmentChanged(valign_);
+  }
+
 signals:
   void Activated();
   void Deactivated();
+  void VerticalAlignmentChanged(Qt::Alignment va);
 
 private:
   QRectF rect_;
@@ -52,6 +64,8 @@ private:
   QString text_;
 
   NodeKeyframeTrackReference input_;
+
+  Qt::Alignment valign_;
 
 };
 

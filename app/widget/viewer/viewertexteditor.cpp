@@ -97,12 +97,12 @@ void ViewerTextEditor::ConnectToolBar(ViewerTextEditorToolBar *toolbar)
   toolbars_.append(toolbar);
 }
 
-void ViewerTextEditor::Paint(QPainter *p, const QRect &clip)
+void ViewerTextEditor::Paint(QPainter *p, Qt::Alignment valign)
 {
   QAbstractTextDocumentLayout::PaintContext ctx;
 
-  if (clip.isValid())
-    p->setClipRect(clip, Qt::IntersectClip);
+  QRect clip = this->rect();
+  p->setClipRect(clip, Qt::IntersectClip);
   ctx.clip = clip;
 
   ctx.cursorPosition = this->textCursor().position();
@@ -127,6 +127,17 @@ void ViewerTextEditor::Paint(QPainter *p, const QRect &clip)
 
   if (transparent_clone_) {
     transparent_clone_->documentLayout()->draw(p, ctx);
+
+  switch (valign) {
+  case Qt::AlignTop:
+    // Do nothing
+    break;
+  case Qt::AlignVCenter:
+    p->translate(0, clip.height()/2-document()->size().height()/2);
+    break;
+  case Qt::AlignBottom:
+    p->translate(0, clip.height()-document()->size().height());
+    break;
   }
 }
 
@@ -475,6 +486,13 @@ void ViewerTextEditorToolBar::SetAlignment(Qt::Alignment a)
   align_center_btn_->setChecked(a == Qt::AlignHCenter);
   align_right_btn_->setChecked(a == Qt::AlignRight);
   align_justify_btn_->setChecked(a == Qt::AlignJustify);
+}
+
+void ViewerTextEditorToolBar::SetVerticalAlignment(Qt::Alignment a)
+{
+  align_top_btn_->setChecked(a == Qt::AlignTop);
+  align_middle_btn_->setChecked(a == Qt::AlignVCenter);
+  align_bottom_btn_->setChecked(a == Qt::AlignBottom);
 }
 
 void ViewerTextEditorToolBar::SetColor(const QColor &c)

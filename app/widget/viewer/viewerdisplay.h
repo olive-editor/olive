@@ -400,6 +400,7 @@ private:
 
   bool queue_starved_;
 
+  TextGizmo *active_text_gizmo_;
   QPointF text_edit_pos_;
   ViewerTextEditor *text_edit_;
   ViewerTextEditorToolBar *text_toolbar_;
