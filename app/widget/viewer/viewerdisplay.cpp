@@ -1117,7 +1117,7 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
   if constexpr (std::is_same_v<T, QDragLeaveEvent>) {
     text_edit_->dragLeaveEvent(e);
   } else {
-    T relay(GetVirtualPosForTextEdit(e->posF()).toPoint(),
+    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->posF())).toPoint(),
             e->possibleActions(),
             e->mimeData(),
             e->mouseButtons(),
@@ -1149,17 +1149,7 @@ bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool c
     }
   }
 
-  switch (active_text_gizmo_->GetVerticalAlignment()) {
-  case Qt::AlignTop:
-    // Do nothing
-    break;
-  case Qt::AlignVCenter:
-    local_pos.setY(local_pos.y() - text_edit_->height()/2 + text_edit_->document()->size().height()/2);
-    break;
-  case Qt::AlignBottom:
-    local_pos.setY(local_pos.y() - text_edit_->height() + text_edit_->document()->size().height());
-    break;
-  }
+  local_pos = AdjustPosByVAlign(local_pos);
 
   event->setLocalPos(local_pos);
   return ForwardEventToTextEdit(event);
@@ -1169,6 +1159,23 @@ bool ViewerDisplayWidget::ForwardEventToTextEdit(QEvent *event)
 {
   qApp->sendEvent(text_edit_->viewport(), event);
   return event->isAccepted();
+}
+
+QPointF ViewerDisplayWidget::AdjustPosByVAlign(QPointF p)
+{
+  switch (active_text_gizmo_->GetVerticalAlignment()) {
+  case Qt::AlignTop:
+    // Do nothing
+    break;
+  case Qt::AlignVCenter:
+    p.setY(p.y() - text_edit_->height()/2 + text_edit_->document()->size().height()/2);
+    break;
+  case Qt::AlignBottom:
+    p.setY(p.y() - text_edit_->height() + text_edit_->document()->size().height());
+    break;
+  }
+
+  return p;
 }
 
 void ViewerDisplayWidget::CloseTextEditor()

@@ -286,6 +286,8 @@ private:
   bool ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside = false);
   bool ForwardEventToTextEdit(QEvent *event);
 
+  QPointF AdjustPosByVAlign(QPointF p);
+
   void CloseTextEditor();
 
   /**
