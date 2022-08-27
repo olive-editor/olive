@@ -85,6 +85,9 @@ extern QIcon TextAlignLeft;
 extern QIcon TextAlignRight;
 extern QIcon TextAlignCenter;
 extern QIcon TextAlignJustify;
+extern QIcon TextAlignTop;
+extern QIcon TextAlignBottom;
+extern QIcon TextAlignMiddle;
 
 // Miscellaneous Icons
 extern QIcon Snapping;

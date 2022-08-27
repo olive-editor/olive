@@ -93,6 +93,9 @@ signals:
 protected:
   void SetViewerWidget(ViewerWidget *vw);
 
+private slots:
+  void FocusedPanelChanged(PanelWidget *panel);
+
 };
 
 }

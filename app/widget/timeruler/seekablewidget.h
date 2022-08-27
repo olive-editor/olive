@@ -65,6 +65,11 @@ public:
 
   void SeekToScenePoint(qreal scene);
 
+  bool HasItemsSelected() const
+  {
+    return !selection_manager_.GetSelectedObjects().empty();
+  }
+
   const std::vector<TimelineMarker*> &GetSelectedMarkers() const
   {
     return selection_manager_.GetSelectedObjects();

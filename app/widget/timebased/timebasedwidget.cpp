@@ -741,7 +741,7 @@ void TimeBasedWidget::GoToOut()
 
 void TimeBasedWidget::DeleteSelected()
 {
-  if (ruler_->underMouse()) {
+  if (ruler_->HasItemsSelected()) {
     ruler_->DeleteSelected();
   }
 }

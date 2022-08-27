@@ -25,7 +25,9 @@
 #include <QTextDocument>
 
 #include "common/html.h"
+#include "core.h"
 #include "node/project/project.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 
 namespace olive {
 
@@ -43,14 +45,15 @@ const QString TextGeneratorV3::kUseArgsInput = QStringLiteral("use_args_in");
 const QString TextGeneratorV3::kArgsInput = QStringLiteral("args_in");
 
 TextGeneratorV3::TextGeneratorV3() :
-  ShapeNodeBase(false)
+  ShapeNodeBase(false),
+  dont_emit_valign_(false)
 {
   AddInput(kTextInput, NodeValue::kText, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
   SetInputProperty(kTextInput, QStringLiteral("vieweronly"), true);
 
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
-  AddInput(kVerticalAlignmentInput, NodeValue::kCombo);
+  AddInput(kVerticalAlignmentInput, NodeValue::kCombo, InputFlags(kInputFlagHidden | kInputFlagStatic));
 
   AddInput(kUseArgsInput, NodeValue::kBoolean, true, InputFlags(kInputFlagHidden | kInputFlagStatic));
 
@@ -180,6 +183,33 @@ void TextGeneratorV3::UpdateGizmoPositions(const NodeValueRow &row, const NodeGl
   text_gizmo_->SetHtml(row[kTextInput].toString());
 }
 
+Qt::Alignment TextGeneratorV3::GetQtAlignmentFromOurs(VerticalAlignment v)
+{
+  switch (v) {
+  case kVAlignTop:
+    return Qt::AlignTop;
+  case kVAlignMiddle:
+    return Qt::AlignVCenter;
+  case kVAlignBottom:
+    return Qt::AlignBottom;
+  }
+  return Qt::Alignment();
+}
+
+TextGeneratorV3::VerticalAlignment TextGeneratorV3::GetOurAlignmentFromQts(Qt::Alignment v)
+{
+  switch (v) {
+  case Qt::AlignTop:
+    return kVAlignTop;
+  case Qt::AlignVCenter:
+    return kVAlignMiddle;
+  case Qt::AlignBottom:
+    return kVAlignBottom;
+  }
+
+  return kVAlignTop;
+}
+
 QString TextGeneratorV3::FormatString(const QString &input, const QStringList &args)
 {
   QString output;
@@ -218,14 +248,32 @@ QString TextGeneratorV3::FormatString(const QString &input, const QStringList &a
   return output;
 }
 
+void TextGeneratorV3::InputValueChangedEvent(const QString &input, int element)
+{
+  if (input == kVerticalAlignmentInput && !dont_emit_valign_) {
+    text_gizmo_->SetVerticalAlignment(GetQtAlignmentFromOurs(GetVerticalAlignment()));
+  }
+
+  super::InputValueChangedEvent(input, element);
+}
+
 void TextGeneratorV3::GizmoActivated()
 {
   SetStandardValue(kUseArgsInput, false);
+  connect(text_gizmo_, &TextGizmo::VerticalAlignmentChanged, this, &TextGeneratorV3::SetVerticalAlignmentUndoable);
+  dont_emit_valign_ = true;
 }
 
 void TextGeneratorV3::GizmoDeactivated()
 {
   SetStandardValue(kUseArgsInput, true);
+  disconnect(text_gizmo_, &TextGizmo::VerticalAlignmentChanged, this, &TextGeneratorV3::SetVerticalAlignmentUndoable);
+  dont_emit_valign_ = true;
+}
+
+void TextGeneratorV3::SetVerticalAlignmentUndoable(Qt::Alignment a)
+{
+  Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)));
 }
 
 }

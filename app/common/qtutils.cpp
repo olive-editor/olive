@@ -43,7 +43,7 @@ QFrame *QtUtils::CreateHorizontalLine()
 QFrame *QtUtils::CreateVerticalLine()
 {
   QFrame *l = CreateHorizontalLine();
-  l->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  l->setFrameShape(QFrame::VLine);
   return l;
 }
 

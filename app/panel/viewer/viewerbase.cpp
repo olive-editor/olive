@@ -27,6 +27,7 @@ namespace olive {
 ViewerPanelBase::ViewerPanelBase(const QString& object_name, QWidget *parent) :
   TimeBasedPanel(object_name, parent)
 {
+  connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &ViewerPanelBase::FocusedPanelChanged);
 }
 
 void ViewerPanelBase::PlayPause()
@@ -99,6 +100,14 @@ void ViewerPanelBase::SetViewerWidget(ViewerWidget *vw)
   connect(vw, &ViewerWidget::ColorManagerChanged, this, &ViewerPanelBase::ColorManagerChanged);
 
   SetTimeBasedWidget(vw);
+}
+
+void ViewerPanelBase::FocusedPanelChanged(PanelWidget *panel)
+{
+  auto vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());
+  if (vw->IsPlaying() && panel != this) {
+    vw->Pause();
+  }
 }
 
 }
