@@ -126,8 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  // Arbitrary pixel count (from 640x360)
-  const int target_res = 230400;
+  const int target_res = 1920*1080;
 
   qint64 megapixels = width * height;
 
@@ -155,8 +154,8 @@ int VideoParams::generate_auto_divider(qint64 width, qint64 height)
       }
     }
 
-    // "Safe" fallback
-    return 2;
+    // Fallback
+    return 1;
   }
 }
 

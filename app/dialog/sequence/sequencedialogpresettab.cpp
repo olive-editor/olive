@@ -63,9 +63,9 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   preset_tree_->addTopLevelItem(my_presets_folder_);
 
   // Add presets
-  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("4K UHD"), 3840, 2160, 6));
-  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("1080p"), 1920, 1080, 3));
-  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("720p"), 1280, 720, 2));
+  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("4K UHD"), 3840, 2160, 2));
+  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("1080p"), 1920, 1080, 1));
+  preset_tree_->addTopLevelItem(CreateHDPresetFolder(tr("720p"), 1280, 720, 1));
 
   preset_tree_->addTopLevelItem(CreateSDPresetFolder(tr("NTSC"), 720, 480, rational(30000, 1001),
                                                      VideoParams::kPixelAspectNTSCStandard,
