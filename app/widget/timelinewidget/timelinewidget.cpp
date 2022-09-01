@@ -1855,6 +1855,10 @@ void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool proce
     return;
   }
 
+  if (!GetConnectedNode()) {
+    return;
+  }
+
   if (process_block_changes) {
     QVector<Block*> deselected;
     QVector<Block*> selected;
