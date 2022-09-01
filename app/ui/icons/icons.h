@@ -108,6 +108,7 @@ extern QIcon LockOpened;
 extern QIcon LockClosed;
 extern QIcon Pencil;
 extern QIcon Subtitles;
+extern QIcon ColorPicker;
 
 /**
  * @brief Create an icon object loaded from file
