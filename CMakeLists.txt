@@ -100,7 +100,6 @@ set(QT_LIBRARIES
   Gui
   Widgets
   OpenGL
-  Svg
   LinguistTools
   Concurrent
 )
@@ -121,7 +120,6 @@ list(APPEND OLIVE_LIBRARIES
   Qt5::Gui
   Qt5::Widgets
   Qt5::OpenGL
-  Qt5::Svg
   Qt5::Concurrent
 )
 
