@@ -196,6 +196,7 @@ RenderThread::RenderThread(Renderer *renderer, DecoderCache *decoder_cache, Shad
 void RenderThread::AddTicket(RenderTicketPtr ticket)
 {
   QMutexLocker locker(&mutex_);
+  ticket->moveToThread(this);
   queue_.push_back(ticket);
   wait_.wakeOne();
 }
