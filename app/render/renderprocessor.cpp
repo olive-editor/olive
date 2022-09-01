@@ -315,8 +315,8 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
         TimeRange range_for_block(qMax(b->in(), range.in()),
                                   qMin(b->out(), range.out()));
 
-        int destination_offset = audio_params.time_to_samples(range_for_block.in() - range.in());
-        int max_dest_sz = audio_params.time_to_samples(range_for_block.length());
+        qint64 destination_offset = audio_params.time_to_samples(range_for_block.in() - range.in());
+        qint64 max_dest_sz = audio_params.time_to_samples(range_for_block.length());
 
         // Destination buffer
         NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
@@ -380,7 +380,7 @@ NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const Tim
             }
           }
 
-          int copy_length = qMin(max_dest_sz, samples_from_this_block.sample_count());
+          qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count()));
 
           // Copy samples into destination buffer
           for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {

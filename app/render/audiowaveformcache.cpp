@@ -81,7 +81,7 @@ AudioVisualWaveform::Sample AudioWaveformCache::GetSummaryFromTime(const rationa
   AudioVisualWaveform::Sample result;
 
   for (auto it=sample.cbegin(); it!=sample.cend(); it++) {
-    result.append(it.value());
+    result.insert(result.end(), it.value().begin(), it.value().end());
   }
 
   return result;
