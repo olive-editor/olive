@@ -401,6 +401,8 @@ void ImportTool::DropGhosts(bool insert)
     }
   }
 
+  std::list<ClipBlock*> imported_clips;
+
   if (dst_graph) {
 
     QVector<Block*> block_items(parent()->GetGhostItems().size());
@@ -471,6 +473,8 @@ void ImportTool::DropGhosts(bool insert)
             Block::Link(block_items.at(j), clip);
           }
         }
+
+        imported_clips.push_back(clip);
       } else if (track_type == Track::kSubtitle) {
         Subtitle src = ghost->GetData(TimelineViewGhostItem::kAttachedFootage).value<Subtitle>();
         SubtitleBlock *sub = new SubtitleBlock();
@@ -497,6 +501,11 @@ void ImportTool::DropGhosts(bool insert)
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  while (!imported_clips.empty()) {
+    imported_clips.front()->RerequestCaches();
+    imported_clips.pop_front();
+  }
 
   parent()->ClearGhosts();
   dragged_footage_.clear();

@@ -73,6 +73,8 @@ public:
 
   virtual void Retranslate() override;
 
+  void RerequestCaches() { RequestInvalidatedFromConnected(); }
+
   double speed() const
   {
     return GetStandardValue(kSpeedInput).toDouble();
