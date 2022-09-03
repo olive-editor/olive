@@ -26,6 +26,7 @@
 
 #include "config/config.h"
 #include "core.h"
+#include "ui/icons/icons.h"
 
 namespace olive {
 
@@ -51,7 +52,9 @@ ColorValuesWidget::ColorValuesWidget(ColorManager *manager, QWidget *parent) :
     preview_->setFixedHeight(fontMetrics().height() * 3 / 2);
     preview_layout->addWidget(preview_);
 
-    color_picker_btn_ = new QPushButton(tr("Pick"));
+    color_picker_btn_ = new QPushButton();
+    color_picker_btn_->setIcon(icon::ColorPicker);
+    color_picker_btn_->setFixedWidth(color_picker_btn_->sizeHint().height());
     color_picker_btn_->setCheckable(true);
     connect(color_picker_btn_, &QPushButton::toggled, this, &ColorValuesWidget::ColorPickedBtnToggled);
     connect(Core::instance(), &Core::ColorPickerColorEmitted, this, &ColorValuesWidget::SetReferenceColor);

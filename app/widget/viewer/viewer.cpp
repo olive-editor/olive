@@ -86,7 +86,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   layout->addWidget(sizer_);
 
   display_widget_ = new ViewerDisplayWidget();
-  display_widget_->setAcceptDrops(true);
   display_widget_->SetShowWidgetBackground(true);
   playback_devices_.append(display_widget_);
   connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
@@ -147,8 +146,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetAutoMaxScrollBar(true);
 
   instances_.append(this);
-
-  setAcceptDrops(true);
 
   UpdateWaveformViewFromMode();
 

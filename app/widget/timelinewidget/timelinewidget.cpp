@@ -441,7 +441,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
 void TimelineWidget::DeleteSelected(bool ripple)
 {
-  if (ruler()->hasFocus()) {
+  if (ruler()->HasItemsSelected()) {
     ruler()->DeleteSelected();
     return;
   }
@@ -1852,6 +1852,10 @@ void TimelineWidget::RemoveSelection(Block *item)
 void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool process_block_changes)
 {
   if (selections_ == s) {
+    return;
+  }
+
+  if (!GetConnectedNode()) {
     return;
   }
 
