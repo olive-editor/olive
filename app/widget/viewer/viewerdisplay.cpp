@@ -747,7 +747,26 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       gizmo_last_drag_ = gizmo_start_drag_;
       current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
 
+      // use SHIFT to add to selection
+      if ((event->modifiers() & Qt::ShiftModifier) == 0) {
+        // TODO_ extract function
+        for ( NodeGizmo * g: selected_gizmos_) {
+          g->SetSelected( false);
+        }
+        selected_gizmos_.clear();
+      }
+
+      if (selected_gizmos_.contains(current_gizmo_) == false) {
+        selected_gizmos_.append( current_gizmo_);
+        current_gizmo_->SetSelected( true);
+      }
+
+      // immediate visual feedback on selection
+      update();
+
     } else {
+
+      deselectAllGizmos();
 
       // Handle standard drag
       emit DragStarted();
@@ -783,19 +802,28 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
   } else if (current_gizmo_) {
 
     // Signal movement
-    if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
-      if (!gizmo_drag_started_) {
-        QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+    if (!gizmo_drag_started_) {
+      for ( NodeGizmo * a_gizmo: selected_gizmos_) {
+        DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
 
-        rational gizmo_time = GetGizmoTime();
-        NodeTraverser t;
-        t.SetCacheVideoParams(gizmo_params_);
-        NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
+        if (draggable &&
+            ((a_gizmo == current_gizmo_) || (a_gizmo->CanBeDraggedInGroup()))) {
+          QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
 
-        draggable->DragStart(row, start.x(), start.y(), gizmo_time);
-        gizmo_drag_started_ = true;
+          rational gizmo_time = GetGizmoTime();
+          NodeTraverser t;
+          t.SetCacheVideoParams(gizmo_params_);
+          NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
+
+          draggable->DragStart(row, start.x(), start.y(), gizmo_time);
+        }
       }
 
+      gizmo_drag_started_ = true;
+    }
+
+    for ( NodeGizmo * a_gizmo: selected_gizmos_) {
+      DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
       QPointF v = event->pos() * gizmo_last_draw_transform_inverted_;
       switch (draggable->GetDragValueBehavior()) {
       case DraggableGizmo::kAbsolute:
@@ -810,11 +838,12 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
         break;
       }
 
-      draggable->DragMove(v.x(), v.y(), event->modifiers());
-
-      return true;
+      if ((a_gizmo == current_gizmo_) || (a_gizmo->CanBeDraggedInGroup())) {
+        draggable->DragMove(v.x(), v.y(), event->modifiers());
+      }
     }
 
+    return true;
   }
 
   return false;
@@ -847,8 +876,13 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
     // Handle gizmo
     if (gizmo_drag_started_) {
       MultiUndoCommand *command = new MultiUndoCommand();
-      if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
-        draggable->DragEnd(command);
+
+      for( NodeGizmo * a_gizmo: selected_gizmos_) {
+        if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo)) {
+          if (a_gizmo->CanBeDraggedInGroup() || (a_gizmo == current_gizmo_)) {
+            draggable->DragEnd(command);
+          }
+        }
       }
       Core::instance()->undo_stack()->pushIfHasChildren(command);
       gizmo_drag_started_ = false;
@@ -1104,6 +1138,13 @@ void ViewerDisplayWidget::SubtitlesChanged(const TimeRange &r)
   if (time_ >= r.in() && time_ < r.out()) {
     update();
   }
+}
+
+void ViewerDisplayWidget::deselectAllGizmos()
+{
+  std::for_each( selected_gizmos_.begin(), selected_gizmos_.end(),
+                 [](NodeGizmo * g){ g->SetSelected(false);});
+  update();
 }
 
 }

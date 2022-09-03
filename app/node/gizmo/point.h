@@ -50,6 +50,11 @@ public:
   bool GetSmaller() const { return smaller_; }
   void SetSmaller(bool e) { smaller_ = e; }
 
+  // avoid to move control points when multiple points are selected
+  bool CanBeDraggedInGroup() const override {
+    return smaller_ ? false : true;
+  }
+
   virtual void Draw(QPainter *p) const override;
 
   QRectF GetClickingRect(const QTransform &t) const;

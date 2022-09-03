@@ -319,6 +319,7 @@ private:
   bool gizmo_drag_started_;
   QTransform gizmo_last_draw_transform_;
   QTransform gizmo_last_draw_transform_inverted_;
+  QList<NodeGizmo *> selected_gizmos_;
 
   bool show_subtitles_;
   Sequence *subtitle_tracks_;
@@ -385,6 +386,8 @@ private slots:
 
   void SubtitlesChanged(const TimeRange &r);
 
+private:
+  void deselectAllGizmos();
 
 };
 

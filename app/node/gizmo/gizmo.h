@@ -43,12 +43,27 @@ public:
   bool IsVisible() const { return visible_; }
   void SetVisible(bool e) { visible_ = e; }
 
+  void SetSelected( bool s) {
+    selected_ = s;
+  }
+
+  bool IsSelected() const {
+    return selected_;
+  }
+
+  // This function can be overriden for gizmo that are moved in group,
+  // for example the control point of a bezier gizmo
+  virtual bool CanBeDraggedInGroup() const {
+    return true;
+  }
+
 signals:
 
 private:
   NodeGlobals globals_;
 
   bool visible_;
+  bool selected_;
 
 };
 

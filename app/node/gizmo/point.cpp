@@ -46,8 +46,14 @@ void PointGizmo::Draw(QPainter *p) const
   QRectF rect = GetDrawingRect(p->transform(), GetStandardRadius());
 
   if (shape_ != kAnchorPoint) {
+
     p->setPen(Qt::NoPen);
-    p->setBrush(Qt::white);
+    if (IsSelected()) {
+      p->setBrush(Qt::gray);
+    }
+    else {
+      p->setBrush(Qt::white);
+    }
   }
 
   switch (shape_) {
@@ -77,7 +83,7 @@ QRectF PointGizmo::GetClickingRect(const QTransform &t) const
 
 double PointGizmo::GetStandardRadius()
 {
-  return QFontMetrics(qApp->font()).height() * 0.25;
+  return QFontMetrics(qApp->font()).height() * 0.6;  // TODO_ radius bigger
 }
 
 QRectF PointGizmo::GetDrawingRect(const QTransform &transform, double radius) const
