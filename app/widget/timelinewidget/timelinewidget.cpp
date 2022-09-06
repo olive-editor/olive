@@ -1140,14 +1140,20 @@ void TimelineWidget::ShowContextMenu()
     toggle_audio_units->setChecked(use_audio_time_units_);
     connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
 
-    QAction* show_thumbnails = menu.addAction(tr("Show Thumbnails"));
-    show_thumbnails->setCheckable(true);
-    show_thumbnails->setChecked(views_.first()->view()->GetShowThumbnails());
-    connect(show_thumbnails, &QAction::triggered, this, &TimelineWidget::SetViewThumbnailsEnabled);
+    {
+      Menu *thumbnail_menu = new Menu(tr("Show Thumbnails"), &menu);
+      menu.addMenu(thumbnail_menu);
+
+      thumbnail_menu->AddActionWithData(tr("Disabled"), Timeline::kThumbnailOff, OLIVE_CONFIG("TimelineThumbnailMode"));
+      thumbnail_menu->AddActionWithData(tr("Only At In/Out Points"), Timeline::kThumbnailInOut, OLIVE_CONFIG("TimelineThumbnailMode"));
+      thumbnail_menu->AddActionWithData(tr("Enabled"), Timeline::kThumbnailOn, OLIVE_CONFIG("TimelineThumbnailMode"));
+
+      connect(thumbnail_menu, &Menu::triggered, this, &TimelineWidget::SetViewThumbnailsEnabled);
+    }
 
     QAction* show_waveforms = menu.addAction(tr("Show Waveforms"));
     show_waveforms->setCheckable(true);
-    show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
+    show_waveforms->setChecked(OLIVE_CONFIG("TimelineWaveformMode").toInt() == Timeline::kWaveformsEnabled);
     connect(show_waveforms, &QAction::triggered, this, &TimelineWidget::SetViewWaveformsEnabled);
 
     menu.addSeparator();
@@ -1211,16 +1217,14 @@ void TimelineWidget::AddableObjectChanged()
 
 void TimelineWidget::SetViewWaveformsEnabled(bool e)
 {
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->SetShowWaveforms(e);
-  }
+  OLIVE_CONFIG("TimelineWaveformMode") = e ? Timeline::kWaveformsEnabled : Timeline::kWaveformsDisabled;
+  UpdateViewports();
 }
 
-void TimelineWidget::SetViewThumbnailsEnabled(bool e)
+void TimelineWidget::SetViewThumbnailsEnabled(QAction *action)
 {
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->SetShowThumbnails(e);
-  }
+  OLIVE_CONFIG("TimelineThumbnailMode") = action->data();
+  UpdateViewports();
 }
 
 void TimelineWidget::FrameRateChanged()

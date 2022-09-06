@@ -20,6 +20,7 @@
 
 #include "clip.h"
 
+#include "config/config.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/slider/floatslider.h"
@@ -108,12 +109,14 @@ void ClipBlock::set_length_and_media_in(const rational &length)
     return;
   }
 
-  if (!reverse()) {
-    // Calculate media_in adjustment
-    set_media_in(SequenceToMediaTime(this->length() - length, kSTMIgnoreLoop));
-  }
+  rational old_length = this->length();
 
   super::set_length_and_media_in(length);
+
+  if (!reverse()) {
+    // Calculate media_in adjustment
+    set_media_in(SequenceToMediaTime(old_length - length, kSTMIgnoreLoop));
+  }
 }
 
 rational ClipBlock::media_in() const
@@ -124,6 +127,8 @@ rational ClipBlock::media_in() const
 void ClipBlock::set_media_in(const rational &media_in)
 {
   SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
+
+  RequestInvalidatedFromConnected();
 }
 
 void ClipBlock::SetAutocache(bool e)
@@ -208,16 +213,22 @@ void ClipBlock::RequestRangeFromConnected(const TimeRange &range)
 
   if (type == Track::kVideo || type == Track::kAudio) {
     if (Node *connected = GetConnectedOutput(kBufferIn)) {
-      TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+      TimeRange max_range = media_range();
       if (type == Track::kVideo) {
         // Handle thumbnails
-        RequestRangeForCache(connected->thumbnail_cache(), max_range, range, true, true);
+        RequestRangeForCache(connected->thumbnail_cache(), max_range, range, true, false);
+        {
+          TimeRange thumb_range = range;
+          if (GetAdjustedThumbnailRange(&thumb_range)) {
+            emit connected->thumbnail_cache()->Request(thumb_range);
+          }
+        }
 
         // Handle video cache
         RequestRangeForCache(connected->video_frame_cache(), max_range, range, true, IsAutocaching());
       } else if (type == Track::kAudio) {
         // Handle waveforms
-        RequestRangeForCache(connected->waveform_cache(), max_range, range, true, true);
+        RequestRangeForCache(connected->waveform_cache(), max_range, range, true, (OLIVE_CONFIG("TimelineWaveformMode").toInt() == Timeline::kWaveformsEnabled));
 
         // Handle audio cache
         RequestRangeForCache(connected->audio_playback_cache(), max_range, range, true, IsAutocaching());
@@ -232,10 +243,13 @@ void ClipBlock::RequestInvalidatedFromConnected()
 
   if (type == Track::kVideo || type == Track::kAudio) {
     if (Node *connected = GetConnectedOutput(kBufferIn)) {
-      TimeRange max_range = InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+      TimeRange max_range = media_range();
       if (type == Track::kVideo) {
         // Handle thumbnails
-        RequestInvalidatedForCache(connected->thumbnail_cache(), max_range);
+        TimeRange thumb_range = max_range;
+        if (GetAdjustedThumbnailRange(&thumb_range)) {
+          RequestInvalidatedForCache(connected->thumbnail_cache(), thumb_range);
+        }
 
         // Handle video cache
         if (IsAutocaching()) {
@@ -243,7 +257,9 @@ void ClipBlock::RequestInvalidatedFromConnected()
         }
       } else if (type == Track::kAudio) {
         // Handle waveforms
-        RequestInvalidatedForCache(connected->waveform_cache(), max_range);
+        if (OLIVE_CONFIG("TimelineWaveformMode").toInt() == Timeline::kWaveformsEnabled) {
+          RequestInvalidatedForCache(connected->waveform_cache(), max_range);
+        }
 
         // Handle audio cache
         if (IsAutocaching()) {
@@ -278,6 +294,34 @@ void ClipBlock::RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange
   for (const TimeRange &r : invalid) {
     RequestRangeForCache(cache, max_range, r, false, true);
   }
+}
+
+bool ClipBlock::GetAdjustedThumbnailRange(TimeRange *r) const
+{
+  switch (static_cast<Timeline::ThumbnailMode>(OLIVE_CONFIG("TimelineThumbnailMode").toInt())) {
+  case Timeline::kThumbnailOff:
+    // Don't cache any range
+    return false;
+  case Timeline::kThumbnailInOut:
+  {
+    // Only cache in point
+    rational in = this->media_range().in();
+    if (r->Contains(in)) {
+      // Cache only the in point
+      *r = TimeRange(in, in + thumbnail_cache()->GetTimebase());
+      return true;
+    } else {
+      // Cache nothing
+      return false;
+    }
+  }
+  case Timeline::kThumbnailOn:
+    // Cache entire range
+    return true;
+  }
+
+  // Fallback
+  return true;
 }
 
 void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
@@ -379,8 +423,10 @@ void ClipBlock::InputValueChangedEvent(const QString &input, int element)
       if (Node *connected = GetConnectedOutput(kBufferIn)) {
         if (type == Track::kVideo) {
           emit connected->video_frame_cache()->CancelAll();
+          //emit connected->thumbnail_cache()->CancelAll();
         } else if (type == Track::kAudio) {
           emit connected->audio_playback_cache()->CancelAll();
+          //emit connected->waveform_cache()->CancelAll();
         }
       }
     }

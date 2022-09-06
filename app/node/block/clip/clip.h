@@ -232,6 +232,8 @@ private:
   void RequestRangeForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool invalidate, bool request);
   void RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range);
 
+  bool GetAdjustedThumbnailRange(TimeRange *r) const;
+
   QVector<Block*> block_links_;
 
   TransitionBlock* in_transition_;

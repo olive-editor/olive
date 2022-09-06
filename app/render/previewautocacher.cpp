@@ -459,8 +459,16 @@ void PreviewAutoCacher::StartCachingRange(const TimeRange &range, TimeRangeList 
 void PreviewAutoCacher::StartCachingVideoRange(PlaybackCache *cache, const TimeRange &range)
 {
   Node *node = cache->parent();
-  pending_video_jobs_.push_back({node, cache, range, TimeRangeListFrameIterator({range}, viewer_node_->GetVideoParams().frame_rate_as_time_base())});
-  video_cache_data_[cache].job_tracker.insert(range, graph_changed_time_);
+  rational using_tb;
+  if (ThumbnailCache *thumbs = dynamic_cast<ThumbnailCache*>(cache)) {
+    using_tb = thumbs->GetTimebase();
+  } else {
+    using_tb = viewer_node_->GetVideoParams().frame_rate_as_time_base();
+  }
+
+  TimeRangeListFrameIterator iterator({range}, using_tb);
+  pending_video_jobs_.push_back({node, cache, range, iterator});
+  video_cache_data_[cache].job_tracker.insert(TimeRange(iterator.Snap(range.in()), range.out()), graph_changed_time_);
   TryRender();
 }
 
@@ -679,8 +687,6 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
       rvp.video_params.set_divider(VideoParams::GetDividerForTargetResolution(rvp.video_params.width(), rvp.video_params.height(), 160, 120));
       rvp.force_color_output = display_color_processor_;
       rvp.force_format = VideoParams::kFormatUnsigned8;
-
-      wave_cache->SetTimebase(rational(1, 10));
     } else {
       frame_cache->SetTimebase(viewer_node_->GetVideoParams().frame_rate_as_time_base());
     }

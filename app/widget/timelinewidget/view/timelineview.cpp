@@ -46,8 +46,6 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   ghosts_(nullptr),
   show_beam_cursor_(false),
   connected_track_list_(nullptr),
-  show_thumbnails_(true),
-  show_waveforms_(true),
   transition_overlay_out_(nullptr),
   transition_overlay_in_(nullptr)
 {
@@ -486,7 +484,6 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
     int text_height = fm.height();
     int text_padding = text_height/4; // This ties into the track minimum height being 1.5
     int text_total_height = text_height + text_padding + text_padding;
-    Q_UNUSED(text_total_height)
 
     if (foreground) {
       painter->setBrush(Qt::NoBrush);
@@ -524,43 +521,52 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
         QRect preview_rect = r.toRect();
 
         // Draw clip thumbnails
-        if (clip->GetTrackType() == Track::kVideo && show_thumbnails_ && preview_rect.height() > r.height()/3) {
+        if (clip->GetTrackType() == Track::kVideo
+            && OLIVE_CONFIG("TimelineThumbnailMode").toInt() != Timeline::kThumbnailOff
+            && preview_rect.height() > r.height()/3) {
           if (const FrameHashCache *thumbs = clip->thumbnails()) {
+            // Start thumbnails underneath clip name
+            preview_rect.adjust(0, text_total_height, 0, 0);
+
             QRect thumb_rect;
-            painter->setClipRect(preview_rect);
             painter->setRenderHint(QPainter::SmoothPixmapTransform);
+            painter->setClipRect(preview_rect);
 
-            Sequence *s = clip->track()->sequence();
-            int width = s->GetVideoParams().width();
-            int height = s->GetVideoParams().height();
-            int start;
-            if (height > 0) { // Prevent divide by zero/invalid params
-              double scale = double(preview_rect.height())/double(height);
-              thumb_rect.setWidth(width * scale);
-              start = (preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width() + qFloor(block_in);
-            } else {
-              start = preview_rect.left();
-            }
+            if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
 
-            for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
-              rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
-              QString thumbnail = thumbs->GetValidCacheFilename(time_here);
-
-              if (!thumbnail.isEmpty()) {
-                QImage img;
-                if (img.load(thumbnail, "jpg")) {
-                  double scale = double(preview_rect.height())/double(img.height());
-                  thumb_rect = QRect(i, preview_rect.top(), img.width() * scale, preview_rect.height());
-                  painter->drawImage(thumb_rect, img);
-                }
+              Sequence *s = clip->track()->sequence();
+              int width = s->GetVideoParams().width();
+              int height = s->GetVideoParams().height();
+              int start;
+              if (height > 0) { // Prevent divide by zero/invalid params
+                double scale = double(preview_rect.height())/double(height);
+                thumb_rect.setWidth(width * scale);
+                start = (((preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width()) * thumb_rect.width()) + qFloor(block_in);
+              } else {
+                start = preview_rect.left();
               }
+
+              for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
+                rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
+                DrawThumbnail(painter, thumbs, time_here, i, preview_rect, &thumb_rect);
+              }
+
+            } else {
+
+              rational time = clip->media_range().in();
+              time = Timecode::snap_time_to_timebase(time, thumbs->GetTimebase(), Timecode::kFloor);
+              DrawThumbnail(painter, thumbs, time, block_left, preview_rect, &thumb_rect);
+
             }
+
             painter->setClipping(false);
+
           }
         }
 
         // Draw waveform
-        if (clip->GetTrackType() == Track::kAudio && show_waveforms_) {
+        if (clip->GetTrackType() == Track::kAudio
+            && OLIVE_CONFIG("TimelineWaveformMode").toInt() == Timeline::kWaveformsEnabled) {
           if (const AudioWaveformCache *wave = clip->waveform()) {
             rational waveform_start = SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in;
             painter->setPen(shadow_color);
@@ -731,6 +737,20 @@ qreal TimelineView::GetTimelineLeftBound() const
 qreal TimelineView::GetTimelineRightBound() const
 {
   return GetTimelineLeftBound() + viewport()->width();
+}
+
+void TimelineView::DrawThumbnail(QPainter *painter, const FrameHashCache *thumbs, const rational &time, int x, const QRect &preview_rect, QRect *thumb_rect) const
+{
+  QString thumbnail = thumbs->GetValidCacheFilename(time);
+
+  if (!thumbnail.isEmpty()) {
+    QImage img;
+    if (img.load(thumbnail, "jpg")) {
+      double scale = double(preview_rect.height())/double(img.height());
+      *thumb_rect = QRect(x, preview_rect.top(), img.width() * scale, preview_rect.height());
+      painter->drawImage(*thumb_rect, img);
+    }
+  }
 }
 
 int TimelineView::GetTrackY(int track_index) const

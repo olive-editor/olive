@@ -93,6 +93,7 @@ public:
   ThumbnailCache(QObject* parent = nullptr) :
     FrameHashCache(parent)
   {
+    SetTimebase(rational(1, 10));
   }
 };
 

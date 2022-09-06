@@ -423,7 +423,7 @@ private slots:
 
   void SetViewWaveformsEnabled(bool e);
 
-  void SetViewThumbnailsEnabled(bool e);
+  void SetViewThumbnailsEnabled(QAction *action);
 
   void FrameRateChanged();
 

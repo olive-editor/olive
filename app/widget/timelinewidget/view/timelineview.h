@@ -73,28 +73,6 @@ public:
 
   Block* GetItemAtScenePos(const rational& time, int track_index) const;
 
-  bool GetShowWaveforms() const
-  {
-    return show_waveforms_;
-  }
-
-  void SetShowWaveforms(bool e)
-  {
-    show_waveforms_ = e;
-    viewport()->update();
-  }
-
-  bool GetShowThumbnails() const
-  {
-    return show_thumbnails_;
-  }
-
-  void SetShowThumbnails(bool e)
-  {
-    show_thumbnails_ = e;
-    viewport()->update();
-  }
-
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
@@ -154,6 +132,8 @@ private:
 
   qreal GetTimelineRightBound() const;
 
+  void DrawThumbnail(QPainter *painter, const FrameHashCache *thumbs, const rational &time, int x, const QRect &preview_rect, QRect *thumb_rect) const;
+
   QHash<Track::Reference, TimeRangeList>* selections_;
 
   QVector<TimelineViewGhostItem*>* ghosts_;
@@ -163,9 +143,6 @@ private:
   TimelineCoordinate cursor_coord_;
 
   TrackList* connected_track_list_;
-
-  bool show_thumbnails_;
-  bool show_waveforms_;
 
   ClipBlock *transition_overlay_out_;
   ClipBlock *transition_overlay_in_;
