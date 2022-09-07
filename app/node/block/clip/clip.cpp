@@ -218,7 +218,7 @@ void ClipBlock::RequestRangeFromConnected(const TimeRange &range)
         // Handle thumbnails
         RequestRangeForCache(connected->thumbnail_cache(), max_range, range, true, false);
         {
-          TimeRange thumb_range = range;
+          TimeRange thumb_range = range.Intersected(max_range);
           if (GetAdjustedThumbnailRange(&thumb_range)) {
             emit connected->thumbnail_cache()->Request(thumb_range);
           }
