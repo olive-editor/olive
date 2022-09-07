@@ -86,6 +86,13 @@ public:
 
   virtual void MoveOutToPlayhead() override;
 
+  virtual void RenameSelected() override;
+
+  void AddDefaultTransitionsToSelected()
+  {
+    timeline_widget()->AddDefaultTransitionsToSelected();
+  }
+
   void ShowSpeedDurationDialogForSelectedClips()
   {
     timeline_widget()->ShowSpeedDurationDialogForSelectedClips();
@@ -109,6 +116,7 @@ signals:
   void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
 
   void RevealViewerInProject(ViewerOutput *r);
+  void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
 
 };
 

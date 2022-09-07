@@ -85,7 +85,7 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   float waveform_end_dim_x = (width() - 1.0) - waveform_start_dim_x;
 
   // Draw line overlays
-  QPainter p(inner_widget());
+  QPainter p(paint_device());
   QFont font;
   font.setPixelSize(10);
   QFontMetrics font_metrics = QFontMetrics(font);

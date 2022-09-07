@@ -23,18 +23,19 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 
+#include "panel/panelmanager.h"
 #include "render/opengl/openglrenderer.h"
 #include "render/rendermanager.h"
 
 namespace olive {
+
+#define super QWidget
 
 ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
   QWidget(parent),
   color_manager_(nullptr),
   color_service_(nullptr)
 {
-  setContextMenuPolicy(Qt::CustomContextMenu);
-
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
   layout->setMargin(0);
@@ -55,17 +56,22 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
             &ManagedDisplayWidgetOpenGL::frameSwapped,
             this, &ManagedDisplayWidget::frameSwapped, Qt::DirectConnection);
 
-    connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
-            &ManagedDisplayWidgetOpenGL::OnMouseMove,
-            this, &ManagedDisplayWidget::InnerWidgetMouseMove);
+    inner_widget_->installEventFilter(this);
 
     // Create OpenGL renderer
     attached_renderer_ = new OpenGLRenderer(this);
+
+    // Create widget wrapper for OpenGL window
+#ifdef USE_QOPENGLWINDOW
+    wrapper_ = QWidget::createWindowContainer(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_));
+#else
+    wrapper_ = inner_widget_;
+#endif
+    layout->addWidget(wrapper_);
   } else {
     inner_widget_ = nullptr;
+    wrapper_ = nullptr;
   }
-
-  layout->addWidget(inner_widget_);
 }
 
 ManagedDisplayWidget::~ManagedDisplayWidget()
@@ -253,11 +259,63 @@ void ManagedDisplayWidget::doneCurrent()
   }
 }
 
+QPaintDevice *ManagedDisplayWidget::paint_device() const
+{
+  if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
+    return static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_);
+  } else {
+    return nullptr;
+  }
+}
+
+void ManagedDisplayWidget::SetInnerMouseTracking(bool e)
+{
+  if (wrapper_) {
+    wrapper_->setMouseTracking(e);
+  }
+}
+
 void ManagedDisplayWidget::update()
 {
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_)->update();
   }
+}
+
+bool ManagedDisplayWidget::eventFilter(QObject *o, QEvent *e)
+{
+  if (o != inner_widget_) {
+    return super::eventFilter(o, e);
+  }
+
+  switch (e->type()) {
+  case QEvent::FocusIn:
+    // HACK: QWindow focus isn't accounted for in QApplication::focusChanged, so we handle it
+    //       manually here.
+    PanelManager::instance()->FocusChanged(nullptr, this);
+    break;
+  case QEvent::ContextMenu:
+  {
+    QContextMenuEvent *ctx = static_cast<QContextMenuEvent*>(e);
+    emit customContextMenuRequested(ctx->pos());
+    return true;
+  }
+  case QEvent::MouseButtonPress:
+  {
+    // HACK: QWindows don't seem to receive ContextMenu events on right click (only when pressing
+    //       the menu button on the keyboard) so we handle it manually here
+    QMouseEvent *ev = static_cast<QMouseEvent*>(e);
+    if (ev->button() == Qt::RightButton) {
+      emit customContextMenuRequested(ev->pos());
+      return true;
+    }
+    break;
+  }
+  default:
+    break;
+  }
+
+  return super::eventFilter(o, e);
 }
 
 Menu* ManagedDisplayWidget::GetDisplayMenu(QMenu* parent, bool auto_connect)

@@ -231,7 +231,7 @@ void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData 
     rational footage_duration;
     rational ghost_in;
 
-    TimelineWorkArea* wk = footage->GetTimelinePoints()->workarea();
+    TimelineWorkArea* wk = footage->GetWorkArea();
     if (wk->enabled()) {
       footage_duration = wk->length();
       ghost_in = wk->in();

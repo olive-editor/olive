@@ -102,7 +102,7 @@ void SequenceDialog::SetNameIsEditable(bool e)
 void SequenceDialog::accept()
 {
   if (name_field_->isEnabled() && name_field_->text().isEmpty()) {
-    QtUtils::MessageBox(this, QMessageBox::Critical, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
+    QtUtils::MsgBox(this, QMessageBox::Critical, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
     return;
   }
 
@@ -167,7 +167,7 @@ void SequenceDialog::accept()
 
 void SequenceDialog::SetAsDefaultClicked()
 {
-  if (QtUtils::MessageBox(this, QMessageBox::Question, tr("Confirm Set As Default"),
+  if (QtUtils::MsgBox(this, QMessageBox::Question, tr("Confirm Set As Default"),
                           tr("Are you sure you want to set the current parameters as defaults?"),
                           QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     // Maybe replace with Preset system

@@ -84,6 +84,7 @@ public:
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
   virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const override;
 
+  static const QString kParentInput;
   static const QString kTextureInput;
   static const QString kAutoscaleInput;
   static const QString kInterpolationInput;

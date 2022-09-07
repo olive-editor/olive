@@ -31,7 +31,8 @@ namespace olive {
 #define super NodeParamViewItemBase
 
 NodeParamViewContext::NodeParamViewContext(QWidget *parent) :
-  super(parent)
+  super(parent),
+  type_(Track::kNone)
 {
   QWidget *body = new QWidget();
   QHBoxLayout *body_layout = new QHBoxLayout(body);
@@ -126,13 +127,30 @@ void NodeParamViewContext::SetTime(const rational &time)
   }
 }
 
+void NodeParamViewContext::SetEffectType(Track::Type type)
+{
+  type_ = type;
+}
+
 void NodeParamViewContext::Retranslate()
 {
 }
 
 void NodeParamViewContext::AddEffectButtonClicked()
 {
-  Menu *m = NodeFactory::CreateMenu(this, false, Node::kCategoryUnknown, Node::kVideoEffect);
+  Node::Flag flag = Node::kNone;
+
+  if (type_ == Track::kVideo) {
+    flag = Node::kVideoEffect;
+  } else {
+    flag = Node::kAudioEffect;
+  }
+
+  if (flag == Node::kNone) {
+    return;
+  }
+
+  Menu *m = NodeFactory::CreateMenu(this, false, Node::kCategoryUnknown, flag);
   connect(m, &Menu::triggered, this, &NodeParamViewContext::AddEffectMenuItemTriggered);
   m->exec(QCursor::pos());
   delete m;

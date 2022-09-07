@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QScreen>
 
 #ifdef Q_OS_LINUX
 #include <QOffscreenSurface>
@@ -32,6 +33,7 @@
 #include "dialog/about/about.h"
 #include "mainmenu.h"
 #include "mainstatusbar.h"
+#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -43,7 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
   //   window beforehand works around that issue and we just set it to whatever size is available.
   // * On Linux, it seems the window starts off at a vastly different size and then maximizes
   //   which throws off the proportions and makes the resulting layout wonky.
-  resize(qApp->desktop()->availableGeometry(this).size());
+  if (!qApp->screens().empty()) {
+    resize(qApp->screens().at(0)->availableSize());
+  }
 
 #ifdef Q_OS_WINDOWS
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
@@ -182,7 +186,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
     panel = timeline_panels_.first();
   } else {
     panel = AppendTimelinePanel();
-    enable_focus = false;
+    //enable_focus = false;
   }
 
   panel->ConnectViewerNode(sequence);
@@ -310,9 +314,18 @@ void MainWindow::ToggleMaximizedPanel()
       }
     }
   } else {
+    // Preserve currently focused panel
+    auto currently_focused_panel = PanelManager::instance()->CurrentlyFocused(false);
+
     // Assume we are currently maximized, restore the state
+    PanelManager::instance()->SetSuppressChangedSignal(true);
     restoreState(premaximized_state_);
     premaximized_state_.clear();
+
+    currently_focused_panel->raise();
+    currently_focused_panel->setFocus();
+
+    PanelManager::instance()->SetSuppressChangedSignal(false);
   }
 }
 
@@ -406,6 +419,16 @@ void MainWindow::SetApplicationProgressValue(int value)
 #endif
 }
 
+void MainWindow::SelectFootage(const QVector<Footage *> &e)
+{
+  for (ProjectPanel *p : project_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
+  for (ProjectPanel *p : folder_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
+}
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   // Try to close all projects (this will return false if the user chooses not to close)
@@ -484,6 +507,20 @@ void MainWindow::RevealViewerInProject(ViewerOutput *r)
       break;
     }
   }
+}
+
+void MainWindow::RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range)
+{
+  footage_viewer_panel_->ConnectViewerNode(r);
+
+  auto command = new MultiUndoCommand();
+  if (!r->GetWorkArea()->enabled()) {
+    command->add_child(new WorkareaSetEnabledCommand(r->project(), r->GetWorkArea(), true));
+  }
+  command->add_child(new WorkareaSetRangeCommand(r->GetWorkArea(), range));
+  Core::instance()->undo_stack()->push(command);
+
+  footage_viewer_panel_->SetTime(range.in());
 }
 
 #ifdef Q_OS_LINUX
@@ -565,6 +602,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
+  connect(panel, &TimelinePanel::RevealViewerInFootageViewer, this, &MainWindow::RevealViewerInFootageViewer);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
@@ -738,6 +776,16 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
 
   node_panel_->SetContexts(context);
   param_panel_->SetContexts(context);
+}
+
+void MainWindow::SelectFootageForProjectPanel(const QVector<Footage *> &e, ProjectPanel *p)
+{
+  p->DeselectAll();
+  for (Footage *f : e) {
+    if (p->get_root()->HasChildRecursive(f)) {
+      p->SelectItem(f, false);
+    }
+  }
 }
 
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)

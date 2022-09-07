@@ -34,7 +34,8 @@ public:
   enum Mode {
     kShowAllFormats,
     kShowAudioOnly,
-    kShowVideoOnly
+    kShowVideoOnly,
+    kShowSubtitlesOnly
   };
 
   ExportFormatComboBox(Mode mode, QWidget *parent = nullptr);

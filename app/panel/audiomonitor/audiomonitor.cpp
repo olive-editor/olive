@@ -20,12 +20,16 @@
 
 #include "audiomonitor.h"
 
+#include "panel/panelmanager.h"
+
 namespace olive {
 
+#define super PanelWidget
+
 AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("AudioMonitor"), parent)
+  super(QStringLiteral("AudioMonitor"), parent)
 {
-  audio_monitor_ = new AudioMonitor(this);
+  audio_monitor_ = new AudioMonitor();
 
   setWidget(audio_monitor_);
 

@@ -146,6 +146,11 @@ void ProjectPanel::DeleteSelected()
   explorer_->DeleteSelected();
 }
 
+void ProjectPanel::RenameSelected()
+{
+  explorer_->RenameSelectedItem();
+}
+
 void ProjectPanel::Edit(Node* item)
 {
   explorer_->Edit(item);
@@ -169,7 +174,10 @@ void ProjectPanel::ItemDoubleClickSlot(Node *item)
     Core::instance()->DialogImportShow();
   } else if (dynamic_cast<Footage*>(item)) {
     // Open this footage in a FootageViewer
-    PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->ConnectViewerNode(static_cast<Footage*>(item));
+    auto panel = PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>();
+    panel->ConnectViewerNode(static_cast<Footage*>(item));
+    panel->raise();
+    panel->setFocus();
   } else if (dynamic_cast<Sequence*>(item)) {
     // Open this sequence in the Timeline
     Core::instance()->main_window()->OpenSequence(static_cast<Sequence*>(item));

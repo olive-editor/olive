@@ -126,8 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  // Arbitrary pixel count (from 640x360)
-  const int target_res = 230400;
+  const int target_res = 1920*1080;
 
   qint64 megapixels = width * height;
 
@@ -155,8 +154,8 @@ int VideoParams::generate_auto_divider(qint64 width, qint64 height)
       }
     }
 
-    // "Safe" fallback
-    return 2;
+    // Fallback
+    return 1;
   }
 }
 
@@ -198,6 +197,15 @@ int VideoParams::GetBytesPerChannel(VideoParams::Format format)
 int VideoParams::GetBytesPerPixel(VideoParams::Format format, int channels)
 {
   return GetBytesPerChannel(format) * channels;
+}
+
+QString VideoParams::GetNameForDivider(int div)
+{
+  if (div == 1) {
+    return QCoreApplication::translate("VideoParams", "Full");
+  } else {
+    return QCoreApplication::translate("VideoParams", "1/%1").arg(div);
+  }
 }
 
 bool VideoParams::FormatIsFloat(VideoParams::Format format)
@@ -261,12 +269,13 @@ void VideoParams::set_defaults_for_footage()
   premultiplied_alpha_ = false;
   x_ = 0;
   y_ = 0;
+  color_range_ = kColorRangeDefault;
 }
 
 void VideoParams::calculate_square_pixel_width()
 {
   if (pixel_aspect_ratio_.denominator() != 0) {
-    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+    par_width_ = qRound(width_ * pixel_aspect_ratio_.toDouble());
   } else {
     par_width_ = width_;
   }
@@ -365,6 +374,8 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_premultiplied_alpha(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("colorrange")) {
+      set_color_range(static_cast<ColorRange>(reader->readElementText().toInt()));
     } else {
       reader->skipCurrentElement();
     }
@@ -392,6 +403,7 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
   writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeTextElement(QStringLiteral("colorrange"), QString::number(color_range_));
 }
 
 }

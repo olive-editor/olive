@@ -383,6 +383,10 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
     } else {
       // Prepare for a standard pointer move by creating ghosts for them and any related blocks
       foreach (Block* block, clips) {
+        if (dynamic_cast<GapBlock*>(block)) {
+          continue;
+        }
+
         // Create ghost for this block
         auto ghost = AddGhostFromBlock(block, trim_mode, true);
         Q_UNUSED(ghost)
@@ -689,6 +693,8 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       InsertGapsAtGhostDestination(command);
     }
 
+    QMap<Node*, Node*> relinks;
+
     // Now we can re-add each clip
     foreach (const GhostBlockPair& p, blocks_moving) {
       Block* block = p.block;
@@ -696,7 +702,10 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       if (duplicate_clips) {
         // Duplicate rather than move
         // Place the copy instead of the original block
-        block = static_cast<Block*>(Node::CopyNodeInGraph(block, command));
+        Block *new_block = static_cast<Block*>(Node::CopyNodeInGraph(block, command));
+        relinks.insert(block, new_block);
+        block = new_block;
+
         if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(block)) {
           new_clip->waveform() = static_cast<ClipBlock*>(p.block)->waveform();
         }
@@ -707,6 +716,18 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                                                     track_ref.index(),
                                                     block,
                                                     p.ghost->GetAdjustedIn()));
+    }
+
+    if (!relinks.empty()) {
+      for (auto it=relinks.cbegin(); it!=relinks.cend(); it++) {
+        for (auto jt=it.key()->links().cbegin(); jt!=it.key()->links().cend(); jt++) {
+          Node *link = *jt;
+          Node *copy_link = relinks.value(link);
+          if (copy_link) {
+            command->add_child(new NodeLinkCommand(it.value(), copy_link, true));
+          }
+        }
+      }
     }
 
     // Adjust selections

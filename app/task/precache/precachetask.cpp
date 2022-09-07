@@ -65,9 +65,9 @@ bool PreCacheTask::Run()
   // Get list of invalidated ranges
   TimeRange intersection;
 
-  if (footage_->GetTimelinePoints()->workarea()->enabled()) {
+  if (footage_->GetWorkArea()->enabled()) {
     // If we're caching only in-out, limit the range to that
-    intersection = footage_->GetTimelinePoints()->workarea()->range();
+    intersection = footage_->GetWorkArea()->range();
   } else {
     // Otherwise use full length
     intersection = TimeRange(0, footage_->GetVideoLength());

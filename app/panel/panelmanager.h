@@ -122,6 +122,11 @@ public:
    */
   void UnregisterPanel(PanelWidget *panel);
 
+  void SetSuppressChangedSignal(bool e)
+  {
+    suppress_changed_signal_ = e;
+  }
+
 public slots:
   /**
    * @brief Connect this to a QApplication's SIGNAL(focusChanged())
@@ -156,6 +161,8 @@ private:
    * @brief PanelManager singleton instance
    */
   static PanelManager* instance_;
+
+  bool suppress_changed_signal_;
 
 };
 

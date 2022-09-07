@@ -109,20 +109,24 @@ void TimeBasedView::ZoomIntoCursorPosition(QWheelEvent *event, double scale_mult
   }
 
   if (!only_vertical) {
+    double old_scroll = horizontalScrollBar()->value();
+
     double old_scale = GetScale();
     emit ScaleChanged(old_scale * scale_multiplier);
 
     // Use GetScale so that if this value was clamped, we don't erroneously use an unclamped value
-    int new_x_scroll = qRound(double(cursor_pos.x() + horizontalScrollBar()->value()) / old_scale * GetScale() - cursor_pos.x());
+    int new_x_scroll = qRound((cursor_pos.x() + old_scroll) / old_scale * GetScale() - cursor_pos.x());
     horizontalScrollBar()->setValue(new_x_scroll);
   }
 
   if (!only_horizontal) {
+    double old_y_scroll = verticalScrollBar()->value();
+
     double old_y_scale = GetYScale();
     SetYScale(old_y_scale * scale_multiplier);
 
     // Use GetYScale so that if this value was clamped, we don't erroneously use an unclamped value
-    int new_y_scroll = qRound(double(cursor_pos.y() + verticalScrollBar()->value()) / old_y_scale * GetYScale() - cursor_pos.y());
+    int new_y_scroll = qRound((cursor_pos.y() + old_y_scroll) / old_y_scale * GetYScale() - cursor_pos.y());
     verticalScrollBar()->setValue(new_y_scroll);
   }
 }

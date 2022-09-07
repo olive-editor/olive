@@ -22,6 +22,7 @@
 #define CLIPBLOCK_H
 
 #include "audio/audiovisualwaveform.h"
+#include "codec/decoder.h"
 #include "node/block/block.h"
 
 namespace olive {
@@ -119,17 +120,41 @@ public:
     return connected_viewer_;
   }
 
+  TimeRange media_range() const;
+
+  /**
+   * @brief Get currently set loop mode
+   */
+  Decoder::LoopMode loop_mode() const
+  {
+    return static_cast<Decoder::LoopMode>(GetStandardValue(kLoopModeInput).toInt());
+  }
+
+  void set_loop_mode(Decoder::LoopMode l)
+  {
+    SetStandardValue(kLoopModeInput, int(l));
+  }
+
   static const QString kBufferIn;
   static const QString kMediaInInput;
   static const QString kSpeedInput;
   static const QString kReverseInput;
   static const QString kMaintainAudioPitchInput;
+  static const QString kLoopModeInput;
 
 protected:
   virtual void LinkChangeEvent() override;
 
 private:
-  rational SequenceToMediaTime(const rational& sequence_time, bool ignore_reverse = false, bool ignore_speed = false) const;
+  enum SequenceToMediaTimeFlag
+  {
+    kSTMNone = 0x0,
+    kSTMIgnoreReverse = 0x1,
+    kSTMIgnoreSpeed = 0x2,
+    kSTMIgnoreLoop = 0x4
+  };
+
+  rational SequenceToMediaTime(const rational& sequence_time, uint64_t flags = kSTMNone) const;
 
   rational MediaToSequenceTime(const rational& media_time) const;
 

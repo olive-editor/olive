@@ -30,6 +30,7 @@ namespace olive {
 TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(Track* track, const TimeRange& range) :
   track_(track),
   range_(range),
+  allow_splitting_gaps_(false),
   splice_split_command_(nullptr)
 {
   trim_out_.block = nullptr;
@@ -63,8 +64,15 @@ void TrackRippleRemoveAreaCommand::prepare()
 
   // If it's getting trimmed, determine if it's actually getting spliced
   if (first_block_is_out_trimmed && first_block_is_in_trimmed) {
-    // This block is getting spliced, so we'll handle that later
-    splice_split_command_ = new BlockSplitCommand(first_block, range_.in());
+    if (!allow_splitting_gaps_ && dynamic_cast<GapBlock*>(first_block)) {
+      // As a rule, we don't split gaps, so we just treat it as a trim of the range requested
+      trim_out_ = {first_block,
+                   first_block->length(),
+                   first_block->length() - range_.length()};
+    } else {
+      // This block is getting spliced, so we'll handle that later
+      splice_split_command_ = new BlockSplitCommand(first_block, range_.in());
+    }
   } else {
     // It's just getting trimmed or removed, so we'll append that operation
     if (first_block_is_out_trimmed) {

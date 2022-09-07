@@ -29,7 +29,6 @@
 #include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
-#include "node/project/serializer/serializer.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
@@ -85,6 +84,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     NodeParamViewItemTitleBar *title_bar = static_cast<NodeParamViewItemTitleBar*>(c->titleBarWidget());
 
     if (i == Track::kVideo || i == Track::kAudio) {
+      c->SetEffectType(static_cast<Track::Type>(i));
       title_bar->SetAddEffectButtonVisible(true);
       title_bar->SetText(tr("%1 Nodes").arg(Footage::GetStreamTypeName(static_cast<Track::Type>(i))));
     } else {
@@ -131,6 +131,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
     connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
     connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
+    connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
 
     // Connect keyframe view scaling to this
     connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
@@ -433,7 +434,7 @@ void NodeParamView::DeleteSelected()
       Node *n = item->GetNode();
 
       Node *node_being_deleted = n;
-      Node *connected_to_effect_input = n;
+      Node *connected_to_effect_input = nullptr;
 
       while (true) {
         if (node_being_deleted->GetEffectInput().IsValid()) {
@@ -609,26 +610,24 @@ bool NodeParamView::Paste()
     }
   }
 
+  return Paste(this, std::bind(&NodeParamView::GenerateExistingPasteMap, this, std::placeholders::_1));
+}
+
+bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(const ProjectSerializer::Result &)> get_existing_map_function)
+{
   ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
   if (res.GetLoadedNodes().isEmpty()) {
     return false;
   }
 
   // Determine if any nodes of this type are already in the editor
-  QVector<Node*> ignore_nodes;
-  QMap<Node*, Node*> existing_nodes;
-  for (Node *n : res.GetLoadedNodes()) {
-    if (Node *existing = GetNodeWithIDAndIgnoreList(n->id(), ignore_nodes)) {
-      existing_nodes.insert(existing, n);
-      ignore_nodes.append(existing);
-    }
-  }
+  QHash<Node*, Node*> existing_nodes = get_existing_map_function(res);
 
   QVector<Node*> nodes_to_paste_as_new = res.GetLoadedNodes();
   MultiUndoCommand *command = new MultiUndoCommand();
 
   if (!existing_nodes.empty()) {
-    QMessageBox b(this);
+    QMessageBox b(parent);
     b.setWindowTitle(tr("Paste Nodes"));
 
     QStringList node_names;
@@ -858,16 +857,27 @@ void NodeParamView::ToggleSelect(NodeParamViewItem *item)
     new_sel.append(item);
     SetSelectedNodes(new_sel, false);
 
-    if (item->GetNode()->HasGizmos() || !new_sel.contains(focused_node_)) {
-      if (item->GetNode()->HasGizmos()) {
-        focused_node_ = item;
-      } else {
-        focused_node_ = nullptr;
-      }
+    if (!new_sel.contains(focused_node_)) {
+      // This node gets sent to both the curve editor and viewer, so we focus it even if it has
+      // no gizmos
+      focused_node_ = item;
 
       emit FocusedNodeChanged(focused_node_ ? focused_node_->GetNode() : nullptr);
     }
   }
+}
+
+QHash<Node *, Node *> NodeParamView::GenerateExistingPasteMap(const ProjectSerializer::Result &r)
+{
+  QVector<Node*> ignore_nodes;
+  QHash<Node*, Node*> existing_nodes;
+  for (Node *n : r.GetLoadedNodes()) {
+    if (Node *existing = GetNodeWithIDAndIgnoreList(n->id(), ignore_nodes)) {
+      existing_nodes.insert(existing, n);
+      ignore_nodes.append(existing);
+    }
+  }
+  return existing_nodes;
 }
 
 void NodeParamView::UpdateGlobalScrollBar()
@@ -928,7 +938,12 @@ void NodeParamView::KeyframeViewDragged(int x, int y)
 {
   Q_UNUSED(y)
 
-  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection, Q_ARG(int, x));
+  SetCatchUpScrollValue(x);
+}
+
+void NodeParamView::KeyframeViewReleased()
+{
+  StopCatchUpScrollTimer();
 }
 
 void NodeParamView::UpdateElementY()

@@ -372,9 +372,6 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
         // Replace with adjusted matrix
         job.Insert(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
                         NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
-
-        // It's likely an alpha channel will result from this operation
-        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
     }
 

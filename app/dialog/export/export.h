@@ -34,6 +34,7 @@
 #include "exportsubtitlestab.h"
 #include "exportvideotab.h"
 #include "task/export/export.h"
+#include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/viewer/viewer.h"
 
 namespace olive {
@@ -45,6 +46,7 @@ public:
   ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
 
   rational GetSelectedTimebase() const;
+  void SetSelectedTimebase(const rational &r);
 
   void SetTime(const rational &time)
   {
@@ -54,8 +56,13 @@ public:
     preview_viewer_->SetAudioScrubbingEnabled(true);
   }
 
-protected:
-  virtual void closeEvent(QCloseEvent *e) override;
+  EncodingParams GenerateParams() const;
+  void SetParams(const EncodingParams &e);
+
+  virtual bool eventFilter(QObject *o, QEvent *e) override;
+
+public slots:
+  virtual void done(int r) override;
 
 private:
   void AddPreferencesTab(QWidget *inner_widget, const QString &title);
@@ -63,7 +70,9 @@ private:
   void LoadPresets();
   void SetDefaultFilename();
 
-  ExportParams GenerateParams() const;
+  bool SequenceHasSubtitles() const;
+
+  void SetDefaults();
 
   ViewerOutput* viewer_node_;
 
@@ -77,9 +86,16 @@ private:
     kRangeInToOut
   };
 
+  enum AutoPreset {
+    kPresetDefault = -1,
+    kPresetLastUsed = -2,
+  };
+
   QTabWidget* preferences_tabs_;
 
+  QComboBox* preset_combobox_;
   QComboBox* range_combobox_;
+  std::vector<EncodingParams> presets_;
 
   QCheckBox* video_enabled_;
   QCheckBox* audio_enabled_;
@@ -114,6 +130,10 @@ private slots:
   void ExportFinished();
 
   void ImageSequenceCheckBoxChanged(bool e);
+
+  void SavePreset();
+
+  void PresetComboBoxChanged();
 
 };
 

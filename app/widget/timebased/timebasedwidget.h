@@ -29,6 +29,7 @@
 #include "widget/resizablescrollbar/resizabletimelinescrollbar.h"
 #include "widget/timebased/timescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"
+#include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
@@ -49,6 +50,11 @@ public:
   ViewerOutput* GetConnectedNode() const;
 
   void ConnectViewerNode(ViewerOutput *node);
+
+  TimelineWorkArea *GetConnectedWorkArea() const { return workarea_; }
+  TimelineMarkerList *GetConnectedMarkers() const { return markers_; }
+  void ConnectWorkArea(TimelineWorkArea *workarea);
+  void ConnectMarkers(TimelineMarkerList *markers);
 
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
@@ -116,9 +122,6 @@ public slots:
 
   void DeleteSelected();
 
-protected slots:
-  void SetTimeAndSignal(const rational& t);
-
 protected:
   ResizableTimelineScrollBar* scrollbar() const;
 
@@ -129,6 +132,9 @@ protected:
   virtual void ScaleChangedEvent(const double &) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput*){}
+
+  virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *){}
+  virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *){}
 
   virtual void ConnectNodeEvent(ViewerOutput*){}
 
@@ -142,8 +148,13 @@ protected:
 
   void PassWheelEventsToScrollBar(QObject* object);
 
+  void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
+  void SetCatchUpScrollValue(int v);
+  void StopCatchUpScrollTimer(QScrollBar *b);
+
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
   virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const { return nullptr; }
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const { return nullptr; }
   virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const { return nullptr; }
   virtual const std::vector<TimelineMarker*> *GetSnapIgnoreMarkers() const { return nullptr; }
 
@@ -160,6 +171,13 @@ protected slots:
   void SetAutoSetTimebase(bool e);
 
   static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
+
+  void SetTimeAndSignal(const olive::rational& t);
+
+  void StopCatchUpScrollTimer()
+  {
+    StopCatchUpScrollTimer(scrollbar_);
+  }
 
 signals:
   void TimeChanged(const rational&);
@@ -217,6 +235,17 @@ private:
   double scrollbar_start_scale_;
   bool scrollbar_top_handle_;
 
+  TimelineWorkArea *workarea_;
+  TimelineMarkerList *markers_;
+
+  QTimer *catchup_scroll_timer_;
+  struct CatchUpScrollData {
+    qint64 last_forced = 0;
+    int maximum;
+    int value;
+  };
+  QMap<QScrollBar*, CatchUpScrollData> catchup_scroll_values_;
+
 private slots:
   void UpdateMaximumScroll();
 
@@ -235,6 +264,8 @@ private slots:
   void CatchUpScrollToPlayhead();
 
   void CatchUpScrollToPoint(int point);
+
+  void CatchUpTimerTimeout();
 
   void AutoUpdateTimebase();
 

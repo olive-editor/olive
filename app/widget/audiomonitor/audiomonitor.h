@@ -36,7 +36,7 @@ class AudioMonitor : public QOpenGLWidget
 {
   Q_OBJECT
 public:
-  AudioMonitor(QWidget* parent = nullptr);
+  AudioMonitor();
 
   virtual ~AudioMonitor() override;
 

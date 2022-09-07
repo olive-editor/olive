@@ -78,7 +78,7 @@ private:
 
   void LoadNodeCustom(QXmlStreamReader *reader, Node *node, XMLNodeData &xml_node_data) const;
 
-  void LoadTimelinePoints(QXmlStreamReader *reader, TimelinePoints *points) const;
+  void LoadTimelinePoints(QXmlStreamReader *reader, ViewerOutput *points) const;
 
   void LoadWorkArea(QXmlStreamReader *reader, TimelineWorkArea *workarea) const;
 

@@ -35,6 +35,8 @@ public:
 
   virtual void AddOpts(EncodingParams* params) override;
 
+  virtual void SetOpts(const EncodingParams *p) override;
+
 private:
   QComboBox *quality_combobox_;
 

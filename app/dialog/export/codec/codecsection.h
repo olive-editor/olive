@@ -35,6 +35,8 @@ public:
 
   virtual void AddOpts(EncodingParams* params){Q_UNUSED(params)}
 
+  virtual void SetOpts(const EncodingParams *p){Q_UNUSED(p)}
+
 };
 
 }

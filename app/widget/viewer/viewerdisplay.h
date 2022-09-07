@@ -22,7 +22,6 @@
 #define VIEWERGLWIDGET_H
 
 #include <QMatrix4x4>
-#include <QOpenGLWidget>
 #include <QRubberBand>
 
 #include "node/color/colormanager/colormanager.h"
@@ -35,6 +34,7 @@
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
 #include "viewersafemargininfo.h"
+#include "viewertexteditor.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
 
@@ -131,6 +131,8 @@ public:
     return &timer_;
   }
 
+  virtual bool eventFilter(QObject *o, QEvent *e) override;
+
 public slots:
   /**
    * @brief Set the transformation matrix to draw with
@@ -216,30 +218,6 @@ signals:
 
   void CreateAddableAt(const QRectF &rect);
 
-protected:
-  /**
-   * @brief Override the mouse press event for the DragStarted() signal and gizmos
-   */
-  virtual void mousePressEvent(QMouseEvent* event) override;
-
-  /**
-   * @brief Override mouse move to signal for the pixel sampler and gizmos
-   */
-  virtual void mouseMoveEvent(QMouseEvent* event) override;
-
-  /**
-   * @brief Override mouse release event for gizmos
-   */
-  virtual void mouseReleaseEvent(QMouseEvent* event) override;
-
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-
-  virtual void dragEnterEvent(QDragEnterEvent* event) override;
-
-  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
-
-  virtual void dropEvent(QDropEvent* event) override;
-
 protected slots:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
@@ -268,6 +246,12 @@ private:
   QTransform GenerateDisplayTransform();
 
   QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
+  QTransform GenerateGizmoTransform()
+  {
+    NodeTraverser t;
+    t.SetCacheVideoParams(gizmo_params_);
+    return GenerateGizmoTransform(t, GenerateGizmoTime());
+  }
 
   TimeRange GenerateGizmoTime()
   {
@@ -278,6 +262,33 @@ private:
   NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
 
   void OpenTextGizmo(TextGizmo *text, QMouseEvent *event = nullptr);
+
+  bool OnMousePress(QMouseEvent *e);
+  bool OnMouseMove(QMouseEvent *e);
+  bool OnMouseRelease(QMouseEvent *e);
+  bool OnMouseDoubleClick(QMouseEvent *e);
+
+  bool OnKeyPress(QKeyEvent *e);
+  bool OnKeyRelease(QKeyEvent *e);
+
+  void EmitColorAtCursor(QMouseEvent* e);
+
+  void DrawSubtitleTracks();
+
+  QPointF GetVirtualPosForTextEdit(const QPointF &p)
+  {
+    return text_transform_inverted_.map(p) - text_edit_pos_;
+  }
+
+  template <typename T>
+  void ForwardDragEventToTextEdit(T *event);
+
+  bool ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside = false);
+  bool ForwardEventToTextEdit(QEvent *event);
+
+  QPointF AdjustPosByVAlign(QPointF p);
+
+  void CloseTextEditor();
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
@@ -385,19 +396,28 @@ private:
 
   rational playback_timebase_;
 
-  QRubberBand *add_band_;
+  bool add_band_;
   QPoint add_band_start_;
+  QPoint add_band_end_;
 
   bool queue_starved_;
 
-private slots:
-  void EmitColorAtCursor(QMouseEvent* e);
+  TextGizmo *active_text_gizmo_;
+  QPointF text_edit_pos_;
+  ViewerTextEditor *text_edit_;
+  ViewerTextEditorToolBar *text_toolbar_;
+  QTransform text_transform_;
+  QTransform text_transform_inverted_;
 
+private slots:
   void UpdateFromQueue();
 
   void TextEditChanged();
+  void TextEditDestroyed();
 
   void SubtitlesChanged(const TimeRange &r);
+
+  void FocusChanged(QWidget *old, QWidget *now);
 
 
 };

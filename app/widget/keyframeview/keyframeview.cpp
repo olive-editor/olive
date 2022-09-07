@@ -261,7 +261,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event)
   if (FirstChanceMousePress(event)) {
     first_chance_mouse_event_ = true;
   } else if (NodeKeyframe *initial_key = selection_manager_.MousePress(event)) {
-    selection_manager_.DragStart(initial_key, event);
+    selection_manager_.DragStart(initial_key, event, this);
     KeyframeDragStart(event);
   } else {
     selection_manager_.RubberBandStart(event);
@@ -290,8 +290,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
 
   if (event->buttons()) {
     // Signal cursor pos in case we should scroll to catch up to it
-    QPointF scene_pos = mapToScene(event->pos());
-    emit Dragged(scene_pos.x(), scene_pos.y());
+    emit Dragged(event->pos().x(), event->pos().y());
   }
 }
 
@@ -309,6 +308,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     selection_manager_.DragStop(command);
     KeyframeDragRelease(event, command);
     Core::instance()->undo_stack()->push(command);
+    emit Released();
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
@@ -566,10 +566,6 @@ void KeyframeView::ShowContextMenu()
       }
     }
   }
-
-  m.addSeparator();
-
-  AddSetScrollZoomsByDefaultActionToMenu(&m);
 
   m.addSeparator();
 

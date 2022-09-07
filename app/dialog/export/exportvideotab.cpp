@@ -29,14 +29,14 @@
 #include "core.h"
 #include "exportadvancedvideodialog.h"
 #include "node/color/colormanager/colormanager.h"
-#include "task/export/exportparams.h"
 
 namespace olive {
 
 ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
   QWidget(parent),
   color_manager_(color_manager),
-  threads_(0)
+  threads_(0),
+  color_range_(VideoParams::kColorRangeDefault)
 {
   QVBoxLayout* outer_layout = new QVBoxLayout(this);
 
@@ -67,6 +67,13 @@ bool ExportVideoTab::IsImageSequenceSet() const
   ImageSection* img_section = dynamic_cast<ImageSection*>(codec_stack_->currentWidget());
 
   return (img_section && img_section->IsImageSequenceChecked());
+}
+
+void ExportVideoTab::SetImageSequence(bool e) const
+{
+  if (ImageSection* img_section = dynamic_cast<ImageSection*>(codec_stack_->currentWidget())) {
+    img_section->SetImageSequenceChecked(e);
+  }
 }
 
 QWidget* ExportVideoTab::SetupResolutionSection()
@@ -106,9 +113,9 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   scaling_method_combobox_ = new QComboBox();
   scaling_method_combobox_->setEnabled(false);
-  scaling_method_combobox_->addItem(tr("Fit"), ExportParams::kFit);
-  scaling_method_combobox_->addItem(tr("Stretch"), ExportParams::kStretch);
-  scaling_method_combobox_->addItem(tr("Crop"), ExportParams::kCrop);
+  scaling_method_combobox_->addItem(tr("Fit"), EncodingParams::kFit);
+  scaling_method_combobox_->addItem(tr("Stretch"), EncodingParams::kStretch);
+  scaling_method_combobox_->addItem(tr("Crop"), EncodingParams::kCrop);
   layout->addWidget(scaling_method_combobox_, row, 1);
 
   // Automatically enable/disable the scaling method depending on maintain aspect ratio
@@ -214,10 +221,12 @@ void ExportVideoTab::OpenAdvancedDialog()
 
   d.set_threads(threads_);
   d.set_pix_fmt(pix_fmt_);
+  d.set_yuv_range(color_range_);
 
   if (d.exec() == QDialog::Accepted) {
     threads_ = d.threads();
     pix_fmt_ = d.pix_fmt();
+    color_range_ = d.yuv_range();
   }
 }
 

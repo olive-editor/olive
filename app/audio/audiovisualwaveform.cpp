@@ -280,19 +280,19 @@ AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const ration
   return AudioVisualWaveform::Sample(channel_count(), {0, 0});
 }
 
-void ExpandMinMaxChannel(const float *a, int start, int length, float &min_val, float &max_val)
+void ExpandMinMaxChannel(const float *a, size_t length, float &min_val, float &max_val)
 {
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   // SSE optimized
 
   // load the first 4 elements of 'a' into min and max (they are 4 * 32 = 128 bits)
-  __m128 max = _mm_loadu_ps(a + start);
-  __m128 min = _mm_loadu_ps(a + start);
+  __m128 max = _mm_loadu_ps(a);
+  __m128 min = _mm_loadu_ps(a);
 
   // loop over 'a' and compare current elements with min and max 4 by 4.
   // we need to make sure we don't read out of boundaries should 'a' length be not mod. 4
-  for(int i = 4; i < length-4; i+=4) {
-    __m128 cur = _mm_loadu_ps(a + start + i);
+  for(size_t i = 4; i < length-4; i+=4) {
+    __m128 cur = _mm_loadu_ps(a + i);
     max = _mm_max_ps(max, cur);
     min = _mm_min_ps(min, cur);
   }
@@ -316,8 +316,7 @@ void ExpandMinMaxChannel(const float *a, int start, int length, float &min_val, 
   // I bet you don't find annotated low level code very often.
 #else
   // Standard unoptimized function
-  int end = start + length;
-  for (int i=start; i<end; i++) {
+  for (size_t i=0; i<length; i++) {
     min_val = std::min(min_val, a[i]);
     max_val = std::max(max_val, a[i]);
   }
@@ -330,7 +329,7 @@ AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const SampleBuffer &
   AudioVisualWaveform::Sample summed_samples(channels);
 
   for (int channel=0; channel<samples.audio_params().channel_count(); channel++) {
-    ExpandMinMaxChannel(samples.data(channel), start_index, length, summed_samples[channel].min, summed_samples[channel].max);
+    ExpandMinMaxChannel(samples.data(channel) + start_index, length, summed_samples[channel].min, summed_samples[channel].max);
   }
 
   // for reference: this approximation is n x faster (and less accurate) for a n-tracks clip

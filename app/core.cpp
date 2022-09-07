@@ -522,6 +522,9 @@ bool Core::AddOpenProjectFromTask(Task *task)
       return true;
     } else {
       delete project;
+      if (open_projects_.empty()) {
+        CreateNewProject();
+      }
     }
   }
 
@@ -583,6 +586,8 @@ void Core::ImportTaskComplete(Task* task)
   }
 
   undo_stack_.pushIfHasChildren(command);
+
+  main_window_->SelectFootage(import_task->GetImportedFootage());
 }
 
 bool Core::ConfirmImageSequence(const QString& filename)

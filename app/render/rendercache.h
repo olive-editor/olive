@@ -39,15 +39,10 @@ private:
 
 };
 
-struct DecoderPair {
-  DecoderPair()
-  {
-    decoder = nullptr;
-    last_modified = 0;
-  }
-
-  DecoderPtr decoder;
-  qint64 last_modified;
+struct DecoderPair
+{
+  DecoderPtr decoder = nullptr;
+  qint64 last_modified = 0;
 };
 
 using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;

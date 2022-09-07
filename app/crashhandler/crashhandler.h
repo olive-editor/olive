@@ -65,6 +65,8 @@ protected:
 private slots:
   void ReplyFinished(QNetworkReply *reply);
 
+  void HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+
   void AttemptToFindReport();
 
   void ReadProcessHasData();

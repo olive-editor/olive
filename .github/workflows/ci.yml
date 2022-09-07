@@ -24,6 +24,7 @@ on:
 env:
   DOWNLOAD_TOOL: curl -fLOSs --retry 2 --retry-delay 60
   UPLOAD_TOOL: curl -X POST --retry 2 --retry-delay 60
+  CMAKE_ARGS: -DUSE_WERROR=ON -DBUILD_TESTS=ON
 
 jobs:
   linux:
@@ -31,12 +32,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - build-type: RelWithDebInfo
-            cc-compiler: gcc
-            cxx-compiler: g++
-            compiler-name: GCC 9.3.1
-            cmake-gen: Ninja
-            os-name: Linux (CentOS 7)
+          #- build-type: RelWithDebInfo
+          #  cc-compiler: gcc
+          #  cxx-compiler: g++
+          #  compiler-name: GCC 9.3.1
+          #  cmake-gen: Ninja
+          #  os-name: Linux (CentOS 7)
           - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
@@ -73,7 +74,8 @@ jobs:
           cmake .. -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" \
             -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
-            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}"
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" \
+            $CMAKE_ARGS
 
       - name: Build
         working-directory: build
@@ -204,7 +206,8 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            $CMAKE_ARGS
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -356,7 +359,8 @@ jobs:
           PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
               -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min-deploy }} -G "${{ matrix.cmake-gen }}" \
-              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}"
+              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}" \
+              $CMAKE_ARGS
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build

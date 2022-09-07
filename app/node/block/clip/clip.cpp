@@ -34,6 +34,7 @@ const QString ClipBlock::kMediaInInput = QStringLiteral("media_in_in");
 const QString ClipBlock::kSpeedInput = QStringLiteral("speed_in");
 const QString ClipBlock::kReverseInput = QStringLiteral("reverse_in");
 const QString ClipBlock::kMaintainAudioPitchInput = QStringLiteral("maintain_audio_pitch_in");
+const QString ClipBlock::kLoopModeInput = QStringLiteral("loop_in");
 
 ClipBlock::ClipBlock() :
   in_transition_(nullptr),
@@ -56,6 +57,8 @@ ClipBlock::ClipBlock() :
   //SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
 
   SetEffectInput(kBufferIn);
+
+  AddInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 }
 
 QString ClipBlock::Name() const
@@ -89,7 +92,7 @@ void ClipBlock::set_length_and_media_out(const rational &length)
 
   if (reverse()) {
     // Calculate media_in adjustment
-    rational proposed_media_in = SequenceToMediaTime(this->length() - length, true);
+    rational proposed_media_in = SequenceToMediaTime(this->length() - length, kSTMIgnoreReverse | kSTMIgnoreLoop);
     set_media_in(proposed_media_in);
   }
 
@@ -104,11 +107,9 @@ void ClipBlock::set_length_and_media_in(const rational &length)
 
   if (!reverse()) {
     // Calculate media_in adjustment
-    rational proposed_media_in = SequenceToMediaTime(this->length() - length, false, true);
+    waveform_.TrimIn(SequenceToMediaTime(this->length() - length, kSTMIgnoreSpeed | kSTMIgnoreLoop) - media_in());
 
-    waveform_.TrimIn(proposed_media_in - media_in());
-
-    set_media_in(proposed_media_in);
+    set_media_in(SequenceToMediaTime(this->length() - length, kSTMIgnoreLoop));
   } else {
     // Trim waveform out point
     waveform_.TrimIn(this->length() - length);
@@ -127,7 +128,7 @@ void ClipBlock::set_media_in(const rational &media_in)
   SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
 }
 
-rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool ignore_reverse, bool ignore_speed) const
+rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, uint64_t flags) const
 {
   // These constants are not considered "values" per se, so we don't modify them
   if (sequence_time == RATIONAL_MIN || sequence_time == RATIONAL_MAX) {
@@ -136,11 +137,11 @@ rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool igno
 
   rational media_time = sequence_time;
 
-  if (reverse() && !ignore_reverse) {
+  if (reverse() && !(flags & kSTMIgnoreReverse)) {
     media_time = length() - media_time;
   }
 
-  if (!ignore_speed) {
+  if (!(flags & kSTMIgnoreSpeed)) {
     double speed_value = speed();
     if (qIsNull(speed_value)) {
       // Effectively holds the frame at the in point
@@ -152,6 +153,23 @@ rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, bool igno
   }
 
   media_time += media_in();
+
+  /*if (!(flags & kSTMIgnoreLoop)
+      && this->loop_mode() != kLoopModeOff
+      && connected_viewer_
+      && !connected_viewer_->GetLength().isNull()
+      && (media_time < 0 || media_time >= connected_viewer_->GetLength())) {
+    if (loop_mode() == kLoopModeLoop) {
+      while (media_time < 0) {
+        media_time += connected_viewer_->GetLength();
+      }
+      while (media_time >= connected_viewer_->GetLength()) {
+        media_time -= connected_viewer_->GetLength();
+      }
+    } else if (loop_mode() == kLoopModeClamp) {
+      media_time = std::clamp(media_time, rational(0), connected_viewer_->GetLength()-connected_viewer_->GetVideoParams().frame_rate_as_time_base());
+    }
+  }*/
 
   return media_time;
 }
@@ -204,17 +222,17 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
 
     if (new_connected_viewer != connected_viewer_) {
       if (connected_viewer_) {
-        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
-        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
-        disconnect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
+        disconnect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
       }
 
       connected_viewer_ = new_connected_viewer;
 
       if (connected_viewer_) {
-        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
-        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
-        connect(connected_viewer_->GetTimelinePoints()->markers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerAdded, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerRemoved, this, &ClipBlock::PreviewChanged);
+        connect(connected_viewer_->GetMarkers(), &TimelineMarkerList::MarkerModified, this, &ClipBlock::PreviewChanged);
       }
     }
 
@@ -282,6 +300,13 @@ void ClipBlock::Retranslate()
   SetInputName(kSpeedInput, tr("Speed"));
   SetInputName(kReverseInput, tr("Reverse"));
   SetInputName(kMaintainAudioPitchInput, tr("Maintain Audio Pitch"));
+  SetInputName(kLoopModeInput, tr("Loop"));
+  SetComboBoxStrings(kLoopModeInput, {tr("None"), tr("Loop"), tr("Clamp")});
+}
+
+TimeRange ClipBlock::media_range() const
+{
+  return InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
 }
 
 }
