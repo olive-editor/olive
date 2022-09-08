@@ -51,6 +51,14 @@ public:
     return selected_;
   }
 
+  void SetHovered( bool h) {
+    hovered_ = h;
+  }
+
+  bool IsHovered() const {
+    return hovered_;
+  }
+
   // This function can be overriden for gizmo that are moved in group,
   // for example the control point of a bezier gizmo
   virtual bool CanBeDraggedInGroup() const {
@@ -64,7 +72,7 @@ private:
 
   bool visible_;
   bool selected_;
-
+  bool hovered_;
 };
 
 }

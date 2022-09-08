@@ -36,5 +36,7 @@ set(OLIVE_SOURCES
   widget/viewer/viewertexteditor.h
   widget/viewer/viewerwindow.cpp
   widget/viewer/viewerwindow.h
+  widget/viewer/gizmoselection.cpp
+  widget/viewer/gizmoselection.h
   PARENT_SCOPE
 )

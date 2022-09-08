@@ -25,7 +25,8 @@ namespace olive {
 
 NodeGizmo::NodeGizmo(QObject *parent) :
   visible_(true),
-  selected_(false)
+  selected_(false),
+  hovered_(false)
 {
   setParent(parent);
 }
