@@ -105,7 +105,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("ReassocLinToNonLin"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("PreviewNonFloatDontAskAgain"), NodeValue::kBoolean, false);
 
-  SetEntryInternal(QStringLiteral("TimelineThumbnailMode"), NodeValue::kInt, Timeline::kThumbnailOn);
+  SetEntryInternal(QStringLiteral("TimelineThumbnailMode"), NodeValue::kInt, Timeline::kThumbnailInOut);
   SetEntryInternal(QStringLiteral("TimelineWaveformMode"), NodeValue::kInt, Timeline::kWaveformsEnabled);
 
   SetEntryInternal(QStringLiteral("DefaultVideoTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
