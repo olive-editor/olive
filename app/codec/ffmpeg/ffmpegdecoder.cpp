@@ -164,125 +164,117 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
                      p.divider);
 
       TexturePtr tex = nullptr;
-      bool hwscale = true;
 
       // Attempt to use GLSL shader for faster YUV to RGB conversion
-      if (hwscale) {
-        if (src_fmt == AV_PIX_FMT_YUV420P
-            || src_fmt == AV_PIX_FMT_YUV422P
-            || src_fmt == AV_PIX_FMT_YUV444P
-            || src_fmt == AV_PIX_FMT_YUV420P10LE
-            || src_fmt == AV_PIX_FMT_YUV422P10LE
-            || src_fmt == AV_PIX_FMT_YUV444P10LE
-            || src_fmt == AV_PIX_FMT_YUV420P12LE
-            || src_fmt == AV_PIX_FMT_YUV422P12LE
-            || src_fmt == AV_PIX_FMT_YUV444P12LE) {
-          if (Yuv2RgbShader.isNull()) {
-            // Compile shader
-            Yuv2RgbShader = p.renderer->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/yuv2rgb.frag"))));
+      if (IsPixelFormatGLSLCompatible(static_cast<AVPixelFormat>(src_fmt))) {
+        if (Yuv2RgbShader.isNull()) {
+          // Compile shader
+          Yuv2RgbShader = p.renderer->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/yuv2rgb.frag"))));
+        }
+
+        if (!Yuv2RgbShader.isNull()) {
+          int px_size;
+          int bits_per_pixel;
+          switch (src_fmt) {
+          case AV_PIX_FMT_YUV420P:
+          case AV_PIX_FMT_YUV422P:
+          case AV_PIX_FMT_YUV444P:
+          default:
+            px_size = 1;
+            bits_per_pixel = 8;
+            break;
+          case AV_PIX_FMT_YUV420P10LE:
+          case AV_PIX_FMT_YUV422P10LE:
+          case AV_PIX_FMT_YUV444P10LE:
+            px_size = 2;
+            bits_per_pixel = 10;
+            break;
+          case AV_PIX_FMT_YUV420P12LE:
+          case AV_PIX_FMT_YUV422P12LE:
+          case AV_PIX_FMT_YUV444P12LE:
+            px_size = 2;
+            bits_per_pixel = 12;
+            break;
           }
 
-          if (!Yuv2RgbShader.isNull()) {
-            int px_size;
-            int bits_per_pixel;
-            switch (src_fmt) {
-            case AV_PIX_FMT_YUV420P:
-            case AV_PIX_FMT_YUV422P:
-            case AV_PIX_FMT_YUV444P:
-            default:
-              px_size = 1;
-              bits_per_pixel = 8;
-              break;
-            case AV_PIX_FMT_YUV420P10LE:
-            case AV_PIX_FMT_YUV422P10LE:
-            case AV_PIX_FMT_YUV444P10LE:
-              px_size = 2;
-              bits_per_pixel = 10;
-              break;
-            case AV_PIX_FMT_YUV420P12LE:
-            case AV_PIX_FMT_YUV422P12LE:
-            case AV_PIX_FMT_YUV444P12LE:
-              px_size = 2;
-              bits_per_pixel = 12;
-              break;
-            }
+          AVFrame *hw_in = f.get();
 
-            VideoParams plane_params = vp;
-            plane_params.set_channel_count(1);
+          VideoParams plane_params = vp;
+          plane_params.set_channel_count(1);
+          plane_params.set_format(native_internal_pix_fmt_);
+
+          if (p.divider != 1) {
+            ApplyScaler(f.get());
+            hw_in = working_frame_;
+          } else {
+            // Fallback: shouldn't ever really get here, but just in case
             plane_params.set_divider(1);
-            plane_params.set_format(native_internal_pix_fmt_);
-            TexturePtr y_plane = p.renderer->CreateTexture(plane_params, f->data[0], f->linesize[0] / px_size);
-
-            if (src_fmt == AV_PIX_FMT_YUV420P
-                || src_fmt == AV_PIX_FMT_YUV422P
-                || src_fmt == AV_PIX_FMT_YUV420P10LE
-                || src_fmt == AV_PIX_FMT_YUV422P10LE
-                || src_fmt == AV_PIX_FMT_YUV420P12LE
-                || src_fmt == AV_PIX_FMT_YUV422P12LE) {
-              plane_params.set_width(plane_params.width()/2);
-            }
-
-            if (src_fmt == AV_PIX_FMT_YUV420P
-                || src_fmt == AV_PIX_FMT_YUV420P10LE
-                || src_fmt == AV_PIX_FMT_YUV420P12LE) {
-              plane_params.set_height(plane_params.height()/2);
-            }
-
-            TexturePtr u_plane = p.renderer->CreateTexture(plane_params, f->data[1], f->linesize[1] / px_size);
-            TexturePtr v_plane = p.renderer->CreateTexture(plane_params, f->data[2], f->linesize[2] / px_size);
-
-            ShaderJob job;
-            job.Insert(QStringLiteral("y_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(y_plane)));
-            job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
-            job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
-            job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
-            job.Insert(QStringLiteral("full_range"), NodeValue(NodeValue::kBoolean, f->color_range == AVCOL_RANGE_JPEG));
-
-            const int *yuv_coeffs = sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(f.get()->colorspace));
-            job.Insert(QStringLiteral("yuv_crv"), NodeValue(NodeValue::kInt, yuv_coeffs[0]));
-            job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kInt, yuv_coeffs[2]));
-            job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kInt, yuv_coeffs[3]));
-            job.Insert(QStringLiteral("yuv_cbu"), NodeValue(NodeValue::kInt, yuv_coeffs[1]));
-
-            int interlacing = 0;
-            if (p.src_interlacing != VideoParams::kInterlaceNone) {
-              if (frame_rate_tb_.isNull()) {
-                frame_rate_tb_ = av_guess_frame_rate(instance_.fmt_ctx(), instance_.avstream(), f.get());
-
-                // Double frame rate for interlaced fields
-                frame_rate_tb_ *= 2;
-
-                // Flip frame rate so it can be used as a timebase
-                frame_rate_tb_.flip();
-              }
-
-              int64_t req = Timecode::time_to_timestamp(p.time, frame_rate_tb_);
-              int64_t frm = Timecode::rescale_timestamp(f->pts - instance_.avstream()->start_time, instance_.avstream()->time_base, frame_rate_tb_);
-
-              bool first = (req == frm);
-              bool top_first = (p.src_interlacing == VideoParams::kInterlacedTopFirst);
-
-              interlacing = (first == top_first) ? 1 : 2;
-            }
-            job.Insert(QStringLiteral("interlacing"), NodeValue(NodeValue::kInt, interlacing));
-            job.Insert(QStringLiteral("pixel_height"), NodeValue(NodeValue::kInt, f->height));
-
-            tex = p.renderer->CreateTexture(vp);
-            p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
           }
+
+          TexturePtr y_plane = p.renderer->CreateTexture(plane_params, hw_in->data[0], hw_in->linesize[0] / px_size);
+
+          if (src_fmt == AV_PIX_FMT_YUV420P
+              || src_fmt == AV_PIX_FMT_YUV422P
+              || src_fmt == AV_PIX_FMT_YUV420P10LE
+              || src_fmt == AV_PIX_FMT_YUV422P10LE
+              || src_fmt == AV_PIX_FMT_YUV420P12LE
+              || src_fmt == AV_PIX_FMT_YUV422P12LE) {
+            plane_params.set_width(plane_params.width()/2);
+          }
+
+          if (src_fmt == AV_PIX_FMT_YUV420P
+              || src_fmt == AV_PIX_FMT_YUV420P10LE
+              || src_fmt == AV_PIX_FMT_YUV420P12LE) {
+            plane_params.set_height(plane_params.height()/2);
+          }
+
+          TexturePtr u_plane = p.renderer->CreateTexture(plane_params, hw_in->data[1], hw_in->linesize[1] / px_size);
+          TexturePtr v_plane = p.renderer->CreateTexture(plane_params, hw_in->data[2], hw_in->linesize[2] / px_size);
+
+          ShaderJob job;
+          job.Insert(QStringLiteral("y_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(y_plane)));
+          job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
+          job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
+          job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
+          job.Insert(QStringLiteral("full_range"), NodeValue(NodeValue::kBoolean, f->color_range == AVCOL_RANGE_JPEG));
+
+          const int *yuv_coeffs = sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(f.get()->colorspace));
+          job.Insert(QStringLiteral("yuv_crv"), NodeValue(NodeValue::kInt, yuv_coeffs[0]));
+          job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kInt, yuv_coeffs[2]));
+          job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kInt, yuv_coeffs[3]));
+          job.Insert(QStringLiteral("yuv_cbu"), NodeValue(NodeValue::kInt, yuv_coeffs[1]));
+
+          int interlacing = 0;
+          if (p.src_interlacing != VideoParams::kInterlaceNone) {
+            if (frame_rate_tb_.isNull()) {
+              frame_rate_tb_ = av_guess_frame_rate(instance_.fmt_ctx(), instance_.avstream(), f.get());
+
+              // Double frame rate for interlaced fields
+              frame_rate_tb_ *= 2;
+
+              // Flip frame rate so it can be used as a timebase
+              frame_rate_tb_.flip();
+            }
+
+            int64_t req = Timecode::time_to_timestamp(p.time, frame_rate_tb_);
+            int64_t frm = Timecode::rescale_timestamp(f->pts - instance_.avstream()->start_time, instance_.avstream()->time_base, frame_rate_tb_);
+
+            bool first = (req == frm);
+            bool top_first = (p.src_interlacing == VideoParams::kInterlacedTopFirst);
+
+            interlacing = (first == top_first) ? 1 : 2;
+          }
+          job.Insert(QStringLiteral("interlacing"), NodeValue(NodeValue::kInt, interlacing));
+          job.Insert(QStringLiteral("pixel_height"), NodeValue(NodeValue::kInt, f->height));
+
+          tex = p.renderer->CreateTexture(vp);
+          p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
         }
       }
 
       if (!tex) {
         // Fallback to software pixel format conversion
-        int r;
-
-        r = av_buffersrc_add_frame_flags(buffersrc_ctx_, f.get(), AV_BUFFERSRC_FLAG_KEEP_REF);
-        if (r < 0) {
-          return nullptr;
-        }
-        r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
-        if (r < 0) {
+        if (!ApplyScaler(f.get())) {
           return nullptr;
         }
 
@@ -717,6 +709,19 @@ const char *FFmpegDecoder::GetInterlacingModeInFFmpeg(VideoParams::Interlacing i
   }
 }
 
+bool FFmpegDecoder::IsPixelFormatGLSLCompatible(AVPixelFormat f)
+{
+  return f == AV_PIX_FMT_YUV420P
+      || f == AV_PIX_FMT_YUV422P
+      || f == AV_PIX_FMT_YUV444P
+      || f == AV_PIX_FMT_YUV420P10LE
+      || f == AV_PIX_FMT_YUV422P10LE
+      || f == AV_PIX_FMT_YUV444P10LE
+      || f == AV_PIX_FMT_YUV420P12LE
+      || f == AV_PIX_FMT_YUV422P12LE
+      || f == AV_PIX_FMT_YUV444P12LE;
+}
+
 /* OLD UNUSED CODE: Keeping this around in case the code proves useful
 
 void FFmpegDecoder::CacheFrameToDisk(AVFrame *f)
@@ -1023,7 +1028,7 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
   }
 
   // Add format filter if necessary
-  if (ideal_pix_fmt != input->format) {
+  if (ideal_pix_fmt != input->format && !IsPixelFormatGLSLCompatible(static_cast<AVPixelFormat>(input->format))) {
     AVFilterContext* format_filter;
 
     snprintf(filter_args, kFilterArgSz, "pix_fmts=%u", ideal_pix_fmt);
@@ -1095,6 +1100,22 @@ void FFmpegDecoder::RemoveFirstFrame()
 {
   cached_frames_.pop_front();
   cache_at_zero_ = false;
+}
+
+bool FFmpegDecoder::ApplyScaler(AVFrame *in)
+{
+  int r;
+
+  r = av_buffersrc_add_frame_flags(buffersrc_ctx_, in, AV_BUFFERSRC_FLAG_KEEP_REF);
+  if (r < 0) {
+    return false;
+  }
+  r = av_buffersink_get_frame(buffersink_ctx_, working_frame_);
+  if (r < 0) {
+    return false;
+  }
+
+  return true;
 }
 
 int FFmpegDecoder::MaximumQueueSize()
