@@ -52,13 +52,10 @@ RenderManager::RenderManager(QObject *parent) :
   }
 
   if (context_) {
-    video_thread_ = new RenderThread(context_, decoder_cache_, shader_cache_, this);
-    dry_run_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
-    audio_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
-
-    video_thread_->start(QThread::IdlePriority);
-    dry_run_thread_->start(QThread::IdlePriority);
-    audio_thread_->start(QThread::IdlePriority);
+    video_thread_ = CreateThread(context_);
+    dry_run_thread_ = CreateThread();
+    audio_thread_ = CreateThread();
+    waveform_thread_ = CreateThread();
   }
 
   decoder_clear_timer_ = new QTimer(this);
@@ -73,18 +70,22 @@ RenderManager::~RenderManager()
     delete shader_cache_;
     delete decoder_cache_;
 
-    video_thread_->quit();
-    video_thread_->wait();
-
-    dry_run_thread_->quit();
-    dry_run_thread_->wait();
+    for (RenderThread *rt : render_threads_) {
+      rt->quit();
+      rt->wait();
+    }
 
     context_->PostDestroy();
     delete context_;
-
-    audio_thread_->quit();
-    audio_thread_->wait();
   }
+}
+
+RenderThread *RenderManager::CreateThread(Renderer *renderer)
+{
+  auto t = new RenderThread(renderer, decoder_cache_, shader_cache_, this);
+  render_threads_.push_back(t);
+  t->start(QThread::IdlePriority);
+  return t;
 }
 
 RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
@@ -133,22 +134,24 @@ RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
   ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
   ticket->setProperty("mode", params.mode);
 
-  audio_thread_->AddTicket(ticket);
+  if (params.generate_waveforms) {
+    waveform_thread_->AddTicket(ticket);
+  } else {
+    audio_thread_->AddTicket(ticket);
+  }
 
   return ticket;
 }
 
 bool RenderManager::RemoveTicket(RenderTicketPtr ticket)
 {
-  if (video_thread_->RemoveTicket(ticket)) {
-    return true;
-  } else if (audio_thread_->RemoveTicket(ticket)) {
-    return true;
-  } else if (dry_run_thread_->RemoveTicket(ticket)) {
-    return true;
-  } else {
-    return false;
+  for (RenderThread *rt : render_threads_) {
+    if (rt->RemoveTicket(ticket)) {
+      return true;
+    }
   }
+
+  return false;
 }
 
 void RenderManager::SetAggressiveGarbageCollection(bool enabled)

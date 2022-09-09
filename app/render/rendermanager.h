@@ -208,6 +208,8 @@ private:
 
   virtual ~RenderManager() override;
 
+  RenderThread *CreateThread(Renderer *renderer = nullptr);
+
   static RenderManager* instance_;
 
   Renderer* context_;
@@ -228,6 +230,9 @@ private:
   RenderThread *video_thread_;
   RenderThread *dry_run_thread_;
   RenderThread *audio_thread_;
+  RenderThread *waveform_thread_;
+
+  std::list<RenderThread *> render_threads_;
 
 private slots:
   void ClearOldDecoders();
