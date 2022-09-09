@@ -423,10 +423,8 @@ void ClipBlock::InputValueChangedEvent(const QString &input, int element)
       if (Node *connected = GetConnectedOutput(kBufferIn)) {
         if (type == Track::kVideo) {
           emit connected->video_frame_cache()->CancelAll();
-          //emit connected->thumbnail_cache()->CancelAll();
         } else if (type == Track::kAudio) {
           emit connected->audio_playback_cache()->CancelAll();
-          //emit connected->waveform_cache()->CancelAll();
         }
       }
     }
