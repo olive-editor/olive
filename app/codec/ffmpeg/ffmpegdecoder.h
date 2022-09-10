@@ -142,6 +142,8 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
+  static bool IsPixelFormatGLSLCompatible(AVPixelFormat f);
+
   AVFramePtr GetFrameFromCache(const int64_t &t) const;
 
   void ClearFrameCache();
@@ -149,6 +151,8 @@ private:
   AVFramePtr RetrieveFrame(const rational &time, CancelAtom *cancelled);
 
   void RemoveFirstFrame();
+
+  bool ApplyScaler(AVFrame *in);
 
   static int MaximumQueueSize();
 

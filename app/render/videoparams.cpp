@@ -126,7 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  const int target_res = 1920*1080;
+  const int target_res = 1280*720;
 
   qint64 megapixels = width * height;
 
