@@ -73,7 +73,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   recording_(false),
   first_requeue_watcher_(nullptr),
   enable_audio_scrubbing_(true),
-  waveform_mode_(kWFAutomatic)
+  waveform_mode_(kWFAutomatic),
+  ignore_scrub_(0)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -85,7 +86,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   layout->addWidget(sizer_);
 
   display_widget_ = new ViewerDisplayWidget();
-  display_widget_->setAcceptDrops(true);
   display_widget_->SetShowWidgetBackground(true);
   playback_devices_.append(display_widget_);
   connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
@@ -146,8 +146,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetAutoMaxScrollBar(true);
 
   instances_.append(this);
-
-  setAcceptDrops(true);
 
   UpdateWaveformViewFromMode();
 
@@ -257,6 +255,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateWaveformViewFromMode);
 
   CloseAudioProcessor();
+  audio_scrub_watchers_.clear();
 
   SetDisplayImage(QVariant());
 
@@ -487,7 +486,7 @@ void ViewerWidget::DisarmRecording()
 void ViewerWidget::UpdateAudioProcessor()
 {
   if (GetConnectedNode()) {
-    audio_processor_.Close();
+    CloseAudioProcessor();
 
     AudioParams ap = GetConnectedNode()->GetAudioParams();
     AudioParams packed(OLIVE_CONFIG("AudioOutputSampleRate").toInt(),
@@ -681,30 +680,33 @@ void ViewerWidget::ReceivedAudioBufferForPlayback()
 
 void ViewerWidget::ReceivedAudioBufferForScrubbing()
 {
-  // NOTE: Might be good to organize a queue for this in the event that audio takes a long time to
-  //       keep the scrubbed chunks ordered, similar to the playback_queue_ or audio_playback_queue_
-
   RenderTicketWatcher *watcher = static_cast<RenderTicketWatcher *>(sender());
 
-  if (watcher->HasResult()) {
-    SampleBuffer samples = watcher->Get().value<SampleBuffer>();
-    if (samples.is_allocated()) {
-      if (samples.audio_params().channel_count() > 0) {
-        AudioProcessor::Buffer buf;
-        int r = audio_processor_.Convert(samples.to_raw_ptrs().data(), samples.sample_count(), &buf);
+  while (!audio_scrub_watchers_.empty() && audio_scrub_watchers_.front() != watcher) {
+    audio_scrub_watchers_.pop_front();
+  }
 
-        if (r >= 0) {
-          if (!buf.empty()) {
-            QString error;
-            const QByteArray &packed = buf.at(0);
-            AudioManager::instance()->ClearBufferedOutput();
-            if (!AudioManager::instance()->PushToOutput(audio_processor_.to(), packed, &error)) {
-              Core::instance()->ShowStatusBarMessage(tr("Audio scrubbing failed: %1").arg(error));
+  if (!audio_scrub_watchers_.empty()) {
+    if (watcher->HasResult()) {
+      SampleBuffer samples = watcher->Get().value<SampleBuffer>();
+      if (samples.is_allocated()) {
+        if (samples.audio_params().channel_count() > 0) {
+          AudioProcessor::Buffer buf;
+          int r = audio_processor_.Convert(samples.to_raw_ptrs().data(), samples.sample_count(), &buf);
+
+          if (r >= 0) {
+            if (!buf.empty()) {
+              QString error;
+              const QByteArray &packed = buf.at(0);
+              AudioManager::instance()->ClearBufferedOutput();
+              if (!AudioManager::instance()->PushToOutput(audio_processor_.to(), packed, &error)) {
+                Core::instance()->ShowStatusBarMessage(tr("Audio scrubbing failed: %1").arg(error));
+              }
+              AudioMonitor::PushSampleBufferOnAll(samples);
             }
-            AudioMonitor::PushSampleBufferOnAll(samples);
+          } else {
+            qCritical() << "Failed to process audio for scrubbing:" << r;
           }
-        } else {
-          qCritical() << "Failed to process audio for scrubbing:" << r;
         }
       }
     }
@@ -937,16 +939,23 @@ void ViewerWidget::PauseInternal()
 void ViewerWidget::PushScrubbedAudio()
 {
   if (!IsPlaying() && GetConnectedNode() && OLIVE_CONFIG("AudioScrubbing").toBool() && enable_audio_scrubbing_) {
-    // Get audio src device from renderer
-    const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
+    if (ignore_scrub_ > 0) {
+      ignore_scrub_--;
+    }
 
-    if (params.is_valid()) {
-      // NOTE: Hardcoded scrubbing interval (20ms)
-      rational interval = rational(20, 1000);
+    if (ignore_scrub_ == 0) {
+      // Get audio src device from renderer
+      const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
 
-      RenderTicketWatcher *watcher = new RenderTicketWatcher();
-      connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForScrubbing);
-      watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(GetTime(), GetTime() + interval)));
+      if (params.is_valid()) {
+        // NOTE: Hardcoded scrubbing interval (20ms)
+        rational interval = rational(20, 1000);
+
+        RenderTicketWatcher *watcher = new RenderTicketWatcher();
+        connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForScrubbing);
+        audio_scrub_watchers_.push_back(watcher);
+        watcher->SetTicket(auto_cacher_.GetRangeOfAudio(TimeRange(GetTime(), GetTime() + interval)));
+      }
     }
   }
 }

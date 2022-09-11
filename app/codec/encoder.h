@@ -41,17 +41,24 @@ namespace olive {
 class Encoder;
 using EncoderPtr = std::shared_ptr<Encoder>;
 
-class EncodingParams {
+class EncodingParams
+{
 public:
-  enum YUVRange
-  {
-    kYUVMPEG16_235,
-    kYUVJPEG0_255,
-
-    kYUVDefault = kYUVMPEG16_235
+  enum VideoScalingMethod {
+    kFit,
+    kStretch,
+    kCrop
   };
 
   EncodingParams();
+
+  static QDir GetPresetPath();
+  static QStringList GetListOfPresets();
+
+  bool IsValid() const
+  {
+    return video_enabled_ || audio_enabled_ || subtitles_enabled_;
+  }
 
   void SetFilename(const QString& filename) { filename_ = filename; }
 
@@ -75,7 +82,7 @@ public:
   void set_video_threads(const int& threads) { video_threads_ = threads; }
   void set_video_pix_fmt(const QString& s) { video_pix_fmt_ = s; }
   void set_video_is_image_sequence(bool s) { video_is_image_sequence_ = s; }
-  void set_video_color_range(YUVRange r) { video_color_range_ = r; }
+  void set_color_transform(const ColorTransform& color_transform) { color_transform_ = color_transform; }
 
   const QString& filename() const { return filename_; }
 
@@ -83,6 +90,8 @@ public:
   const ExportCodec::Codec& video_codec() const { return video_codec_; }
   const VideoParams& video_params() const { return video_params_; }
   const QHash<QString, QString>& video_opts() const { return video_opts_; }
+  QString video_option(const QString &key) const { return video_opts_.value(key); }
+  bool has_video_opt(const QString &key) const { return video_opts_.contains(key); }
   const int64_t& video_bit_rate() const { return video_bit_rate_; }
   const int64_t& video_min_bit_rate() const { return video_min_bit_rate_; }
   const int64_t& video_max_bit_rate() const { return video_max_bit_rate_; }
@@ -90,7 +99,7 @@ public:
   const int& video_threads() const { return video_threads_; }
   const QString& video_pix_fmt() const { return video_pix_fmt_; }
   bool video_is_image_sequence() const { return video_is_image_sequence_; }
-  YUVRange video_color_range() const { return video_color_range_; }
+  const ColorTransform& color_transform() const { return color_transform_; }
 
   bool audio_enabled() const { return audio_enabled_; }
   const ExportCodec::Codec &audio_codec() const { return audio_codec_; }
@@ -107,9 +116,32 @@ public:
   const rational& GetExportLength() const { return export_length_; }
   void SetExportLength(const rational& export_length) { export_length_ = export_length; }
 
-  virtual void Save(QXmlStreamWriter* writer) const;
+  bool Load(QIODevice *device);
+  bool Load(QXmlStreamReader *reader);
+
+  void Save(QIODevice *device) const;
+  void Save(QXmlStreamWriter* writer) const;
+
+  bool has_custom_range() const { return has_custom_range_; }
+  const TimeRange& custom_range() const { return custom_range_; }
+  void set_custom_range(const TimeRange& custom_range)
+  {
+    has_custom_range_ = true;
+    custom_range_ = custom_range;
+  }
+
+  const VideoScalingMethod& video_scaling_method() const { return video_scaling_method_; }
+  void set_video_scaling_method(const VideoScalingMethod& video_scaling_method) { video_scaling_method_ = video_scaling_method; }
+
+  static QMatrix4x4 GenerateMatrix(VideoScalingMethod method,
+                                   int source_width, int source_height,
+                                   int dest_width, int dest_height);
 
 private:
+  static const int kEncoderParamsVersion = 1;
+
+  bool LoadV1(QXmlStreamReader *reader);
+
   QString filename_;
   ExportFormat::Format format_;
 
@@ -124,7 +156,7 @@ private:
   int video_threads_;
   QString video_pix_fmt_;
   bool video_is_image_sequence_;
-  YUVRange video_color_range_;
+  ColorTransform color_transform_;
 
   bool audio_enabled_;
   ExportCodec::Codec audio_codec_;
@@ -137,6 +169,10 @@ private:
   ExportCodec::Codec subtitles_codec_;
 
   rational export_length_;
+  VideoScalingMethod video_scaling_method_;
+
+  bool has_custom_range_;
+  TimeRange custom_range_;
 
 };
 

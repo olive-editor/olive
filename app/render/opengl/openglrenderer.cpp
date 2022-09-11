@@ -364,7 +364,7 @@ void OpenGLRenderer::Flush()
 {
   GL_PREAMBLE;
 
-  functions_->glFinish();
+  functions_->glFlush();
 }
 
 Color OpenGLRenderer::GetPixelFromTexture(Texture *texture, const QPointF &pt)

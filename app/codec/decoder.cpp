@@ -93,7 +93,7 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, CancelAtom *cancelled)
+TexturePtr Decoder::RetrieveVideo(const RetrieveVideoParams &p)
 {
   QMutexLocker locker(&mutex_);
 
@@ -109,16 +109,16 @@ TexturePtr Decoder::RetrieveVideo(Renderer *renderer, const rational &timecode, 
     return nullptr;
   }
 
-  if (cancelled && cancelled->IsCancelled()) {
+  if (p.cancelled && p.cancelled->IsCancelled()) {
     return nullptr;
   }
 
-  if (cached_texture_ && cached_time_ == timecode) {
+  if (cached_texture_ && cached_time_ == p.time) {
     return cached_texture_;
   }
 
-  cached_texture_ = RetrieveVideoInternal(renderer, timecode, divider, cancelled);
-  cached_time_ = timecode;
+  cached_texture_ = RetrieveVideoInternal(p);
+  cached_time_ = p.time;
 
   return cached_texture_;
 }
@@ -280,11 +280,9 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   return number_only.toLongLong();
 }
 
-TexturePtr Decoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &divider, CancelAtom *cancelled)
+TexturePtr Decoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 {
-  Q_UNUSED(timecode)
-  Q_UNUSED(divider)
-  Q_UNUSED(cancelled)
+  Q_UNUSED(p)
   return nullptr;
 }
 

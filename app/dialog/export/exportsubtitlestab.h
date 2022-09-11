@@ -26,6 +26,7 @@
 #include <QLabel>
 
 #include "codec/exportformat.h"
+#include "common/qtutils.h"
 #include "dialog/export/exportformatcombobox.h"
 
 namespace olive {
@@ -47,6 +48,11 @@ public:
   ExportCodec::Codec GetSubtitleCodec()
   {
     return static_cast<ExportCodec::Codec>(codec_combobox_->currentData().toInt());
+  }
+
+  void SetSubtitleCodec(ExportCodec::Codec c)
+  {
+    QtUtils::SetComboBoxData(codec_combobox_, c);
   }
 
 private:

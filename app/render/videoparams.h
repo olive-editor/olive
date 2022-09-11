@@ -66,6 +66,14 @@ public:
     kVideoTypeStill,
     kVideoTypeImageSequence
   };
+  enum ColorRange
+  {
+    kColorRangeLimited,   // 16_235
+    kColorRangeFull,      // 0-255
+
+    kColorRangeDefault = kColorRangeLimited
+  };
+
 
   VideoParams();
   VideoParams(int width, int height, Format format, int nb_channels,
@@ -352,6 +360,9 @@ public:
     colorspace_ = c;
   }
 
+  const ColorRange &color_range() const { return color_range_; }
+  void set_color_range(const ColorRange &color_range) { color_range_ = color_range; }
+
   int64_t get_time_in_timebase_units(const rational& time) const;
 
   void Load(QXmlStreamReader* reader);
@@ -398,6 +409,7 @@ private:
   QString colorspace_;
   float x_;
   float y_;
+  ColorRange color_range_;
 
 };
 

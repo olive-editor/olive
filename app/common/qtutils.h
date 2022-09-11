@@ -21,12 +21,7 @@
 #ifndef QTVERSIONABSTRACTION_H
 #define QTVERSIONABSTRACTION_H
 
-/**
- *
- * A fairly simple header for reducing the amount of Qt version checks necessary throughout the code
- *
- */
-
+#include <QComboBox>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QFontMetrics>
@@ -57,6 +52,8 @@ public:
   static QString GetFormattedDateTime(const QDateTime &dt);
 
   static QStringList WordWrapString(const QString &s, const QFontMetrics &fm, int bounding_width);
+
+  static void SetComboBoxData(QComboBox *cb, int data);
 
   template <typename T>
   static T *GetParentOfType(const QObject *child)

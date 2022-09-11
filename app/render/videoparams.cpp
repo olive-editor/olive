@@ -126,8 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  // Arbitrary pixel count (from 640x360)
-  const int target_res = 230400;
+  const int target_res = 1280*720;
 
   qint64 megapixels = width * height;
 
@@ -155,8 +154,8 @@ int VideoParams::generate_auto_divider(qint64 width, qint64 height)
       }
     }
 
-    // "Safe" fallback
-    return 2;
+    // Fallback
+    return 1;
   }
 }
 
@@ -270,6 +269,7 @@ void VideoParams::set_defaults_for_footage()
   premultiplied_alpha_ = false;
   x_ = 0;
   y_ = 0;
+  color_range_ = kColorRangeDefault;
 }
 
 void VideoParams::calculate_square_pixel_width()
@@ -374,6 +374,8 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_premultiplied_alpha(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("colorrange")) {
+      set_color_range(static_cast<ColorRange>(reader->readElementText().toInt()));
     } else {
       reader->skipCurrentElement();
     }
@@ -401,6 +403,7 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
   writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeTextElement(QStringLiteral("colorrange"), QString::number(color_range_));
 }
 
 }

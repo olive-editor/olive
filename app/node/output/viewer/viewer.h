@@ -21,6 +21,7 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
+#include "codec/encoder.h"
 #include "common/rational.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
@@ -164,6 +165,9 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
+  const EncodingParams &GetLastUsedEncodingParams() const { return last_used_encoding_params_; }
+  void SetLastUsedEncodingParams(const EncodingParams &p) { last_used_encoding_params_ = p; }
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;
@@ -215,6 +219,8 @@ private:
 
   TimelineWorkArea *workarea_;
   TimelineMarkerList *markers_;
+
+  EncodingParams last_used_encoding_params_;
 
 };
 

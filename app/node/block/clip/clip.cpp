@@ -92,7 +92,6 @@ void ClipBlock::set_length_and_media_out(const rational &length)
 
   if (reverse()) {
     // Calculate media_in adjustment
-
     rational proposed_media_in = SequenceToMediaTime(this->length() - length, kSTMIgnoreReverse | kSTMIgnoreLoop);
     set_media_in(proposed_media_in);
   }
@@ -108,11 +107,9 @@ void ClipBlock::set_length_and_media_in(const rational &length)
 
   if (!reverse()) {
     // Calculate media_in adjustment
-    rational proposed_media_in = SequenceToMediaTime(this->length() - length, kSTMIgnoreSpeed | kSTMIgnoreLoop);
+    waveform_.TrimIn(SequenceToMediaTime(this->length() - length, kSTMIgnoreSpeed | kSTMIgnoreLoop) - media_in());
 
-    waveform_.TrimIn(proposed_media_in - media_in());
-
-    set_media_in(proposed_media_in);
+    set_media_in(SequenceToMediaTime(this->length() - length, kSTMIgnoreLoop));
   } else {
     // Trim waveform out point
     waveform_.TrimIn(this->length() - length);

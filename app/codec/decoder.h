@@ -164,29 +164,13 @@ public:
 
   struct RetrieveVideoParams
   {
-    RetrieveVideoParams()
-    {
-      divider = 1;
-      maximum_format = VideoParams::kFormatInvalid;
-    }
-
-    int divider;
-    VideoParams::Format maximum_format;
-
-    void reset()
-    {
-      *this = RetrieveVideoParams();
-    }
-
-    bool operator==(const RetrieveVideoParams& rhs) const
-    {
-      return divider == rhs.divider && maximum_format == rhs.maximum_format;
-    }
-
-    bool operator!=(const RetrieveVideoParams& rhs) const
-    {
-      return !(*this == rhs);
-    }
+    Renderer *renderer = nullptr;
+    rational time;
+    int divider = 1;
+    VideoParams::Format maximum_format = VideoParams::kFormatInvalid;
+    CancelAtom *cancelled = nullptr;
+    VideoParams::ColorRange force_range = VideoParams::kColorRangeDefault;
+    VideoParams::Interlacing src_interlacing = VideoParams::kInterlaceNone;
   };
 
   /**
@@ -199,7 +183,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  TexturePtr RetrieveVideo(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, CancelAtom *cancelled = nullptr);
+  TexturePtr RetrieveVideo(const RetrieveVideoParams& p);
 
   enum RetrieveAudioStatus {
     kInvalid = -1,
@@ -294,7 +278,7 @@ protected:
    * Sub-classes must override this function IF they support video. Function is already mutexed
    * so sub-classes don't need to worry about thread safety.
    */
-  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, CancelAtom *cancelled);
+  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p);
 
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled);
 

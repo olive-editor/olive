@@ -186,7 +186,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
     panel = timeline_panels_.first();
   } else {
     panel = AppendTimelinePanel();
-    enable_focus = false;
+    //enable_focus = false;
   }
 
   panel->ConnectViewerNode(sequence);
@@ -314,9 +314,18 @@ void MainWindow::ToggleMaximizedPanel()
       }
     }
   } else {
+    // Preserve currently focused panel
+    auto currently_focused_panel = PanelManager::instance()->CurrentlyFocused(false);
+
     // Assume we are currently maximized, restore the state
+    PanelManager::instance()->SetSuppressChangedSignal(true);
     restoreState(premaximized_state_);
     premaximized_state_.clear();
+
+    currently_focused_panel->raise();
+    currently_focused_panel->setFocus();
+
+    PanelManager::instance()->SetSuppressChangedSignal(false);
   }
 }
 

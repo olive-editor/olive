@@ -54,6 +54,7 @@
 #include "undo/timelineundoworkarea.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/nodeparamview/nodeparamview.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -440,7 +441,7 @@ void TimelineWidget::ReplaceBlocksWithGaps(const QVector<Block *> &blocks,
 
 void TimelineWidget::DeleteSelected(bool ripple)
 {
-  if (ruler()->hasFocus()) {
+  if (ruler()->HasItemsSelected()) {
     ruler()->DeleteSelected();
     return;
   }
@@ -640,13 +641,23 @@ bool TimelineWidget::CopySelected(bool cut)
 
 bool TimelineWidget::Paste()
 {
+  // TimeRuler gets first chance (markers, etc.)
   if (super::Paste()) {
     return true;
-  }  if (!GetConnectedNode()) {
+  }
+
+  // Ensure we have a connected node
+  if (!GetConnectedNode()) {
     return false;
   }
 
-  return PasteInternal(false);
+  // Attempt regular clip pasting
+  if (PasteInternal(false)) {
+    return true;
+  }
+
+  // Give last chance to NodeParamView
+  return NodeParamView::Paste(this, std::bind(&TimelineWidget::GenerateExistingPasteMap, this, std::placeholders::_1));
 }
 
 void TimelineWidget::PasteInsert()
@@ -1128,9 +1139,6 @@ void TimelineWidget::ShowContextMenu()
     show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
     connect(show_waveforms, &QAction::triggered, this, &TimelineWidget::SetViewWaveformsEnabled);
 
-    QAction* scroll_zoom = views_.first()->view()->AddSetScrollZoomsByDefaultActionToMenu(&menu);
-    connect(scroll_zoom, &QAction::triggered, this, &TimelineWidget::SetScrollZoomsByDefaultOnAllViews);
-
     menu.addSeparator();
 
     QAction* properties_action = menu.addAction(tr("Properties"));
@@ -1220,13 +1228,6 @@ void TimelineWidget::TrackIndexChanged(int old, int now)
   }
 }
 
-void TimelineWidget::SetScrollZoomsByDefaultOnAllViews(bool e)
-{
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->SetScrollZoomsByDefault(e);
-  }
-}
-
 void TimelineWidget::SignalBlockSelectionChange()
 {
   signal_block_change_timer_->stop();
@@ -1313,6 +1314,9 @@ void TimelineWidget::NudgeInternal(rational amount)
 
     foreach (Block* b, selected_blocks_) {
       command->add_child(new TrackReplaceBlockWithGapCommand(b->track(), b, false));
+    }
+
+    foreach (Block* b, selected_blocks_) {
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(b->track()->type()), b->track()->Index(), b, b->in() + amount));
     }
 
@@ -1515,6 +1519,10 @@ QVector<Timeline::EditToInfo> TimelineWidget::GetEditToInfo(const rational& play
 
 void TimelineWidget::RippleTo(Timeline::MovementMode mode)
 {
+  if (!GetConnectedNode()) {
+    return;
+  }
+
   rational playhead_time = GetTime();
 
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
@@ -1713,6 +1721,24 @@ TimelineAndTrackView *TimelineWidget::AddTimelineAndTrackView(Qt::Alignment alig
   return v;
 }
 
+QHash<Node *, Node *> TimelineWidget::GenerateExistingPasteMap(const ProjectSerializer::Result &r)
+{
+  QHash<Node *, Node *> m;
+
+  for (Node *n : r.GetLoadedNodes()) {
+    for (Block *b : qAsConst(this->selected_blocks_)) {
+      for (auto it=b->GetContextPositions().cbegin(); it!=b->GetContextPositions().cend(); it++) {
+        if (it.key()->id() == n->id() && !m.contains(it.key())) {
+          m.insert(it.key(), n);
+          break;
+        }
+      }
+    }
+  }
+
+  return m;
+}
+
 QByteArray TimelineWidget::SaveSplitterState() const
 {
   return view_splitter_->saveState();
@@ -1826,6 +1852,10 @@ void TimelineWidget::RemoveSelection(Block *item)
 void TimelineWidget::SetSelections(const TimelineWidgetSelections &s, bool process_block_changes)
 {
   if (selections_ == s) {
+    return;
+  }
+
+  if (!GetConnectedNode()) {
     return;
   }
 

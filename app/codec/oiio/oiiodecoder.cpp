@@ -119,22 +119,20 @@ bool OIIODecoder::OpenInternal()
   return OpenImageHandler(stream().filename(), stream().stream());
 }
 
-TexturePtr OIIODecoder::RetrieveVideoInternal(Renderer *renderer, const rational &timecode, const RetrieveVideoParams &params, CancelAtom *cancelled)
+TexturePtr OIIODecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 {
-  Q_UNUSED(timecode)
-  Q_UNUSED(cancelled)
-
   VideoParams vp = GetVideoParamsFromImageSpec(image_->spec());
-  vp.set_divider(params.divider);
+  vp.set_divider(p.divider);
 
-  if (!buffer_.is_allocated() || last_params_ != params) {
-    last_params_ = params;
+  if (!buffer_.is_allocated()
+      || last_params_.divider != p.divider) {
+    last_params_ = p;
 
     buffer_.destroy();
     buffer_.set_video_params(vp);
     buffer_.allocate();
 
-    if (params.divider == 1) {
+    if (p.divider == 1) {
       // Just upload straight to the buffer
       image_->read_image(oiio_pix_fmt_, buffer_.data(), OIIO::AutoStride, buffer_.linesize_bytes());
     } else {
@@ -156,7 +154,7 @@ TexturePtr OIIODecoder::RetrieveVideoInternal(Renderer *renderer, const rational
     }
   }
 
-  return renderer->CreateTexture(vp, buffer_.data(), buffer_.linesize_pixels());
+  return p.renderer->CreateTexture(vp, buffer_.data(), buffer_.linesize_pixels());
 }
 
 void OIIODecoder::CloseInternal()

@@ -54,6 +54,14 @@ public:
     kVAlignBottom
   };
 
+  VerticalAlignment GetVerticalAlignment() const
+  {
+    return static_cast<VerticalAlignment>(GetStandardValue(kVerticalAlignmentInput).toInt());
+  }
+
+  static Qt::Alignment GetQtAlignmentFromOurs(VerticalAlignment v);
+  static VerticalAlignment GetOurAlignmentFromQts(Qt::Alignment v);
+
   static const QString kTextInput;
   static const QString kVerticalAlignmentInput;
   static const QString kUseArgsInput;
@@ -61,12 +69,18 @@ public:
 
   static QString FormatString(const QString &input, const QStringList &args);
 
+protected:
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
+
 private:
   TextGizmo *text_gizmo_;
+
+  bool dont_emit_valign_;
 
 private slots:
   void GizmoActivated();
   void GizmoDeactivated();
+  void SetVerticalAlignmentUndoable(Qt::Alignment a);
 
 };
 

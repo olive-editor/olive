@@ -44,6 +44,11 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
   AddItem(tr("Enable slider ladder"),
           QStringLiteral("UseSliderLadders"),
           general_group);
+  AddItem(tr("Scrolling zooms by default"),
+          QStringLiteral("ScrollZooms"),
+          tr("By default, scrolling will move the view around, and holding Ctrl/Cmd will make it zoom instead. "
+             "Enabling this will switch those, scrolling will zoom by default, and holding Ctrl/Cmd will move the view instead."),
+          general_group);
 
   QTreeWidgetItem* audio_group = AddParent(tr("Audio"));
   AddItem(tr("Enable audio scrubbing"),

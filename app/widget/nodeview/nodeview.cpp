@@ -814,10 +814,6 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
     m.addSeparator();
 
-    AddSetScrollZoomsByDefaultActionToMenu(&m);
-
-    m.addSeparator();
-
     Menu* direction_menu = new Menu(tr("Direction"), &m);
     m.addMenu(direction_menu);
 

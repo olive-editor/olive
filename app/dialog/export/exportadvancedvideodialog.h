@@ -36,12 +36,12 @@ public:
     pixel_format_combobox_->setCurrentText(s);
   }
 
-  EncodingParams::YUVRange yuv_range() const
+  VideoParams::ColorRange yuv_range() const
   {
-    return static_cast<EncodingParams::YUVRange>(yuv_color_range_combobox_->currentIndex());
+    return static_cast<VideoParams::ColorRange>(yuv_color_range_combobox_->currentIndex());
   }
 
-  void set_yuv_range(EncodingParams::YUVRange i)
+  void set_yuv_range(VideoParams::ColorRange i)
   {
     yuv_color_range_combobox_->setCurrentIndex(i);
   }

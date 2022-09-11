@@ -43,7 +43,7 @@ QFrame *QtUtils::CreateHorizontalLine()
 QFrame *QtUtils::CreateVerticalLine()
 {
   QFrame *l = CreateHorizontalLine();
-  l->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  l->setFrameShape(QFrame::VLine);
   return l;
 }
 
@@ -143,6 +143,16 @@ QStringList QtUtils::WordWrapString(const QString &s, const QFontMetrics &fm, in
   }
 
   return list;
+}
+
+void QtUtils::SetComboBoxData(QComboBox *cb, int data)
+{
+  for (int i=0; i<cb->count(); i++) {
+    if (cb->itemData(i).toInt() == data) {
+      cb->setCurrentIndex(i);
+      break;
+    }
+  }
 }
 
 }
