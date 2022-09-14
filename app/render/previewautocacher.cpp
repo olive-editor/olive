@@ -650,7 +650,7 @@ void PreviewAutoCacher::TryRender()
     }
 
     // Handle audio tasks
-    while (!pending_audio_jobs_.empty()) {
+    while (!pending_audio_jobs_.empty() && running_audio_tasks_.size() < max_tasks) {
       AudioJob &d = pending_audio_jobs_.front();
 
       // Start job
