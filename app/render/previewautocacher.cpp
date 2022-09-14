@@ -156,17 +156,17 @@ void PreviewAutoCacher::AudioRendered()
         AudioVisualWaveform waveform = watcher->GetTicket()->property("waveform").value<AudioVisualWaveform>();
 
         SampleBuffer buf = watcher->Get().value<SampleBuffer>();
-        node->audio_playback_cache()->SetParameters(buf.audio_params());
-        node->waveform_cache()->SetParameters(buf.audio_params());
 
         bool incomplete = watcher->GetTicket()->property("incomplete").toBool();
 
         if (AudioPlaybackCache *pcm = dynamic_cast<AudioPlaybackCache*>(cache)) {
           // WritePCM is tolerant to its buffer being null, it will just write silence instead
+          pcm->SetParameters(buf.audio_params());
           pcm->WritePCM(range,
                         valid_ranges,
                         watcher->Get().value<SampleBuffer>());
         } else if (AudioWaveformCache *wave = dynamic_cast<AudioWaveformCache*>(cache)) {
+          wave->SetParameters(buf.audio_params());
           if (!incomplete) {
             wave->WriteWaveform(range, valid_ranges, &waveform);
           }
@@ -653,14 +653,31 @@ void PreviewAutoCacher::TryRender()
     while (!pending_audio_jobs_.empty() && running_audio_tasks_.size() < max_tasks) {
       AudioJob &d = pending_audio_jobs_.front();
 
+      bool pop = true;
+
       // Start job
       if (Node *copy = copy_map_.value(d.node)) {
-        RenderAudio(copy, d.range, d.cache);
+        TimeRange &queued_range = d.range;
+        TimeRange use_range = queued_range;
+
+        if (dynamic_cast<AudioWaveformCache*>(d.cache)) {
+          rational new_out = std::min(use_range.in() + AudioVisualWaveform::kMinimumSampleRate.flipped(), use_range.out());
+
+          if (new_out != use_range.out()) {
+            use_range.set_out(new_out);
+            queued_range.set_in(new_out);
+            pop = false;
+          }
+        }
+
+        RenderAudio(copy, use_range, d.cache);
       } else {
         qCritical() << "Failed to find node copy for audio job";
       }
 
-      pending_audio_jobs_.pop_front();
+      if (pop) {
+        pending_audio_jobs_.pop_front();
+      }
     }
   }
 }

@@ -24,6 +24,8 @@
 #include "audio/audiovisualwaveform.h"
 #include "playbackcache.h"
 
+//#define AVW_USE_LIST
+
 namespace olive {
 
 class AudioWaveformCache : public PlaybackCache
@@ -35,7 +37,11 @@ public:
   void WriteWaveform(const TimeRange &range, const TimeRangeList &valid_ranges, const AudioVisualWaveform *waveform);
 
   const AudioParams &GetParameters() const { return params_; }
-  void SetParameters(const AudioParams &p) { params_ = p; }
+  void SetParameters(const AudioParams &p)
+  {
+    params_ = p;
+    waveforms_.set_channel_count(p.channel_count());
+  }
 
   void Draw(QPainter* painter, const QRect &rect, const double &scale, const rational &start_time) const;
 
@@ -46,6 +52,7 @@ public:
   virtual void SetPassthrough(PlaybackCache *cache) override;
 
 private:
+#ifdef AVW_USE_LIST
   class TimeRangeWithWaveform : public TimeRange
   {
   public:
@@ -77,6 +84,9 @@ private:
   };
 
   QVector<TimeRangeWithWaveform> waveforms_;
+#else
+  AudioVisualWaveform waveforms_;
+#endif
 
   AudioParams params_;
 

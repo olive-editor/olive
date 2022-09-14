@@ -31,15 +31,25 @@ void AudioWaveformCache::WriteWaveform(const TimeRange &range, const TimeRangeLi
 {
   // Write each valid range to the segments
   foreach (const TimeRange& r, valid_ranges) {
+#ifdef AVW_USE_LIST
     // Write visual
     TimeRangeList::util_remove(&waveforms_, r);
 
     if (waveform) {
       TimeRangeWithWaveform wv = r;
       rational local_start = r.in() - range.in();
-      wv.waveform = waveform->Mid(local_start, r.length());
+      if (local_start != 0) {
+        wv.waveform = waveform->Mid(local_start, r.length());
+      } else {
+        wv.waveform = *waveform;
+      }
       waveforms_.append(wv);
     }
+#else
+    if (waveform) {
+      waveforms_.OverwriteSums(*waveform, r.in(), r.in() - range.in(), r.length());
+    }
+#endif
 
     Validate(r);
   }
@@ -50,6 +60,7 @@ void AudioWaveformCache::Draw(QPainter *painter, const QRect &rect, const double
   rational end = start_time + rational::fromDouble(rect.width() / scale);
   TimeRange draw_range(start_time, end);
 
+#ifdef AVW_USE_LIST
   foreach (const TimeRangeWithWaveform &wv, waveforms_) {
     if (wv.OverlapsWith(draw_range)) {
       rational substart = std::max(wv.in(), draw_range.in());
@@ -63,10 +74,14 @@ void AudioWaveformCache::Draw(QPainter *painter, const QRect &rect, const double
       AudioVisualWaveform::DrawWaveform(painter, subrect, scale, wv.waveform, local_start);
     }
   }
+#else
+  AudioVisualWaveform::DrawWaveform(painter, rect, scale, waveforms_, start_time);
+#endif
 }
 
 AudioVisualWaveform::Sample AudioWaveformCache::GetSummaryFromTime(const rational &start, const rational &length) const
 {
+#ifdef AVW_USE_LIST
   QMap<rational, AudioVisualWaveform::Sample> sample;
 
   TimeRange acquire(start, start+length);
@@ -85,10 +100,14 @@ AudioVisualWaveform::Sample AudioWaveformCache::GetSummaryFromTime(const rationa
   }
 
   return result;
+#else
+  return waveforms_.GetSummaryFromTime(start, length);
+#endif
 }
 
 rational AudioWaveformCache::length() const
 {
+#ifdef AVW_USE_LIST
   rational len = 0;
 
   foreach (const TimeRangeWithWaveform &wv, waveforms_) {
@@ -96,6 +115,9 @@ rational AudioWaveformCache::length() const
   }
 
   return len;
+#else
+  return waveforms_.length();
+#endif
 }
 
 void AudioWaveformCache::SetPassthrough(PlaybackCache *cache)
