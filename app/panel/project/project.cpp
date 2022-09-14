@@ -58,6 +58,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   layout->addWidget(explorer_);
   connect(explorer_, &ProjectExplorer::DoubleClickedItem, this, &ProjectPanel::ItemDoubleClickSlot);
   connect(explorer_, &ProjectExplorer::SelectionChanged, this, &ProjectPanel::SelectionChanged);
+  connect(toolbar, &ProjectToolbar::SearchChanged, explorer_, &ProjectExplorer::SetSearchFilter);
 
   // Set toolbar's view to the explorer's view
   toolbar->SetView(explorer_->view_type());

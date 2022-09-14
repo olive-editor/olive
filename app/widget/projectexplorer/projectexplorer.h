@@ -94,6 +94,8 @@ public slots:
 
   void RenameSelectedItem();
 
+  void SetSearchFilter(const QString &s);
+
 signals:
   /**
    * @brief Emitted when an Item is double clicked
