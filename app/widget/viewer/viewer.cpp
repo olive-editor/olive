@@ -1293,6 +1293,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
     menu.addSeparator();
 
+    /* TEMP: Hide sequence cache options. Want to see if clip caching supersedes it.
     {
       Menu* cache_menu = new Menu(tr("Cache"), &menu);
       menu.addMenu(cache_menu);
@@ -1304,7 +1305,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       // Cache In/Out Sequence
       QAction* cache_inout_sequence = cache_menu->addAction(tr("Cache Sequence In/Out"));
       connect(cache_inout_sequence, &QAction::triggered, this, &ViewerWidget::CacheSequenceInOut);
-    }
+    }*/
 
     menu.addSeparator();
 
