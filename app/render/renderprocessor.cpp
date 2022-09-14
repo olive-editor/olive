@@ -144,6 +144,11 @@ void RenderProcessor::Run()
   SetCacheVideoParams(ticket_->property("vparam").value<VideoParams>());
   SetCacheAudioParams(ticket_->property("aparam").value<AudioParams>());
 
+  if (IsCancelled()) {
+    ticket_->Finish();
+    return;
+  }
+
   switch (type) {
   case RenderManager::kTypeVideo:
   {
@@ -225,11 +230,11 @@ void RenderProcessor::Run()
 
     SampleBuffer samples = sample_val.toSamples();
     if (samples.is_allocated()) {
-      if (ticket_->property("clamp").toBool()) {
+      if (ticket_->property("clamp").toBool() && !IsCancelled()) {
         samples.clamp();
       }
 
-      if (ticket_->property("enablewaveforms").toBool()) {
+      if (ticket_->property("enablewaveforms").toBool() && !IsCancelled()) {
         AudioVisualWaveform vis;
         vis.set_channel_count(samples.audio_params().channel_count());
         vis.OverwriteSamples(samples, samples.audio_params().sample_rate());
