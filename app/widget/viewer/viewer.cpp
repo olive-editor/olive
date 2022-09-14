@@ -940,7 +940,7 @@ void ViewerWidget::PushScrubbedAudio()
 
     if (ignore_scrub_ == 0) {
       // Get audio src device from renderer
-      const AudioParams& params = GetConnectedNode()->audio_playback_cache()->GetParameters();
+      const AudioParams& params = GetConnectedNode()->GetAudioParams();
 
       if (params.is_valid()) {
         // NOTE: Hardcoded scrubbing interval (20ms)
