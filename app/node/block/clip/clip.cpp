@@ -136,6 +136,18 @@ void ClipBlock::SetAutocache(bool e)
   SetStandardValue(kAutoCacheInput, e);
 }
 
+void ClipBlock::DiscardCache()
+{
+  if (Node *connected = GetConnectedOutput(kBufferIn)) {
+    Track::Type type = GetTrackType();
+    if (type == Track::kVideo) {
+      connected->video_frame_cache()->Invalidate(TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+    } else if (type == Track::kAudio) {
+      connected->audio_playback_cache()->Invalidate(TimeRange(RATIONAL_MIN, RATIONAL_MAX));
+    }
+  }
+}
+
 rational ClipBlock::SequenceToMediaTime(const rational &sequence_time, uint64_t flags) const
 {
   // These constants are not considered "values" per se, so we don't modify them
@@ -237,13 +249,18 @@ void ClipBlock::RequestRangeFromConnected(const TimeRange &range)
   }
 }
 
-void ClipBlock::RequestInvalidatedFromConnected()
+void ClipBlock::RequestInvalidatedFromConnected(bool force_all, const TimeRange &intersect)
 {
   Track::Type type = GetTrackType();
 
   if (type == Track::kVideo || type == Track::kAudio) {
     if (Node *connected = GetConnectedOutput(kBufferIn)) {
       TimeRange max_range = media_range();
+
+      if (!intersect.length().isNull()) {
+        max_range = max_range.Intersected(intersect);
+      }
+
       if (type == Track::kVideo) {
         // Handle thumbnails
         TimeRange thumb_range = max_range;
@@ -252,7 +269,7 @@ void ClipBlock::RequestInvalidatedFromConnected()
         }
 
         // Handle video cache
-        if (IsAutocaching()) {
+        if (IsAutocaching() || force_all) {
           RequestInvalidatedForCache(connected->video_frame_cache(), max_range);
         }
       } else if (type == Track::kAudio) {
@@ -262,7 +279,7 @@ void ClipBlock::RequestInvalidatedFromConnected()
         }
 
         // Handle audio cache
-        if (IsAutocaching()) {
+        if (IsAutocaching() || force_all) {
           RequestInvalidatedForCache(connected->audio_playback_cache(), max_range);
         }
       }
@@ -391,6 +408,10 @@ void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *out
   super::InputConnectedEvent(input, element, output);
 
   if (input == kBufferIn) {
+    connect(output->thumbnail_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
+    connect(output->waveform_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
+    connect(output->video_frame_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
+    connect(output->audio_playback_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
     connect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
     connect(output->waveform_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
     connect(output->video_frame_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
@@ -403,6 +424,10 @@ void ClipBlock::InputDisconnectedEvent(const QString &input, int element, Node *
   super::InputDisconnectedEvent(input, element, output);
 
   if (input == kBufferIn) {
+    disconnect(output->thumbnail_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
+    disconnect(output->waveform_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
+    disconnect(output->video_frame_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
+    disconnect(output->audio_playback_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
     disconnect(output->thumbnail_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);
     disconnect(output->waveform_cache(), &AudioPlaybackCache::Validated, this, &Block::PreviewChanged);
     disconnect(output->video_frame_cache(), &FrameHashCache::Validated, this, &Block::PreviewChanged);

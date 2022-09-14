@@ -440,6 +440,10 @@ private slots:
 
   void SetSelectedClipsAutocaching(bool e);
 
+  void CacheClips();
+  void CacheClipsInOut();
+  void CacheDiscard();
+
 };
 
 }

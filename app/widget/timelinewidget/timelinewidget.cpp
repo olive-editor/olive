@@ -1110,10 +1110,26 @@ void TimelineWidget::ShowContextMenu()
     menu.addSeparator();
 
     if (ClipBlock *clip = dynamic_cast<ClipBlock*>(selected.first())) {
-      QAction *autocache_action = menu.addAction(tr("Auto-Cache"));
-      autocache_action->setCheckable(true);
-      autocache_action->setChecked(clip->IsAutocaching());
-      connect(autocache_action, &QAction::triggered, this, &TimelineWidget::SetSelectedClipsAutocaching);
+      {
+        Menu *cache_menu = new Menu(tr("Cache"), &menu);
+        menu.addMenu(cache_menu);
+
+        QAction *autocache_action = cache_menu->addAction(tr("Auto-Cache"));
+        autocache_action->setCheckable(true);
+        autocache_action->setChecked(clip->IsAutocaching());
+        connect(autocache_action, &QAction::triggered, this, &TimelineWidget::SetSelectedClipsAutocaching);
+
+        cache_menu->addSeparator();
+
+        auto cache_clip = cache_menu->addAction(tr("Cache All"));
+        connect(cache_clip, &QAction::triggered, this, &TimelineWidget::CacheClips);
+
+        auto cache_inout = cache_menu->addAction(tr("Cache In/Out"));
+        connect(cache_inout, &QAction::triggered, this, &TimelineWidget::CacheClipsInOut);
+
+        auto cache_discard = cache_menu->addAction(tr("Discard"));
+        connect(cache_discard, &QAction::triggered, this, &TimelineWidget::CacheDiscard);
+      }
 
       if (clip->connected_viewer()) {
         QAction *reveal_in_footage_viewer = menu.addAction(tr("Reveal in Footage Viewer"));
@@ -1145,7 +1161,7 @@ void TimelineWidget::ShowContextMenu()
       menu.addMenu(thumbnail_menu);
 
       thumbnail_menu->AddActionWithData(tr("Disabled"), Timeline::kThumbnailOff, OLIVE_CONFIG("TimelineThumbnailMode"));
-      thumbnail_menu->AddActionWithData(tr("Only At In/Out Points"), Timeline::kThumbnailInOut, OLIVE_CONFIG("TimelineThumbnailMode"));
+      thumbnail_menu->AddActionWithData(tr("Only At In Points"), Timeline::kThumbnailInOut, OLIVE_CONFIG("TimelineThumbnailMode"));
       thumbnail_menu->AddActionWithData(tr("Enabled"), Timeline::kThumbnailOn, OLIVE_CONFIG("TimelineThumbnailMode"));
 
       connect(thumbnail_menu, &Menu::triggered, this, &TimelineWidget::SetViewThumbnailsEnabled);
@@ -1309,6 +1325,50 @@ void TimelineWidget::SetSelectedClipsAutocaching(bool e)
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
+void TimelineWidget::CacheClips()
+{
+  for (Block *b : selected_blocks_) {
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+      clip->RequestInvalidatedFromConnected(true);
+    }
+  }
+}
+
+void TimelineWidget::CacheClipsInOut()
+{
+  if (!this->sequence() || !this->sequence()->GetWorkArea()->enabled()) {
+    return;
+  }
+
+  TimeTargetObject tto;
+  tto.SetTimeTarget(this->sequence());
+
+  const TimeRange &r = this->sequence()->GetWorkArea()->range();
+  for (Block *b : qAsConst(selected_blocks_)) {
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+      if (Node *connected = clip->GetConnectedOutput(clip->kBufferIn)) {
+        TimeRange adjusted = tto.GetAdjustedTime(this->sequence(), connected, r, true);
+        clip->RequestInvalidatedFromConnected(true, adjusted);
+      }
+    }
+  }
+}
+
+void TimelineWidget::CacheDiscard()
+{
+  if (QMessageBox::question(this, tr("Discard Cache"),
+                            tr("This will discard all cache for this clip. "
+                               "If the clip has auto-cache enabled, it will be recached immediately. "
+                               "This cannot be undone.\n\n"
+                               "Do you wish to continue?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    for (Block *b : selected_blocks_) {
+      if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+        clip->DiscardCache();
+      }
+    }
+  }
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)

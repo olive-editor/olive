@@ -503,7 +503,7 @@ void ImportTool::DropGhosts(bool insert)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   while (!imported_clips.empty()) {
-    imported_clips.front()->RerequestCaches();
+    imported_clips.front()->RequestInvalidatedFromConnected();
     imported_clips.pop_front();
   }
 
@@ -522,7 +522,6 @@ TimelineViewGhostItem* ImportTool::CreateGhost(const TimeRange &range, const rat
 
   snap_points_.push_back(ghost->GetIn());
   snap_points_.push_back(ghost->GetOut());
-
 
   ghost->SetMode(Timeline::kMove);
 

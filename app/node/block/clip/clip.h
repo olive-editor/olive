@@ -63,6 +63,8 @@ public:
   bool IsAutocaching() const { return GetStandardValue(kAutoCacheInput).toBool(); }
   void SetAutocache(bool e);
 
+  void DiscardCache();
+
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
@@ -73,7 +75,7 @@ public:
 
   virtual void Retranslate() override;
 
-  void RerequestCaches() { RequestInvalidatedFromConnected(); }
+  void RequestInvalidatedFromConnected(bool force_all = false, const TimeRange &intersect = TimeRange());
 
   double speed() const
   {
@@ -227,7 +229,6 @@ private:
   rational MediaToSequenceTime(const rational& media_time) const;
 
   void RequestRangeFromConnected(const TimeRange &range);
-  void RequestInvalidatedFromConnected();
 
   void RequestRangeForCache(PlaybackCache *cache, const TimeRange &max_range, const TimeRange &range, bool invalidate, bool request);
   void RequestInvalidatedForCache(PlaybackCache *cache, const TimeRange &max_range);
