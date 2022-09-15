@@ -55,6 +55,7 @@ namespace olive {
  * the same texture object, use SetTexture() since it will nearly always be faster to just set it than to check *and*
  * set it.
  */
+class PointGizmo;
 class ViewerDisplayWidget : public ManagedDisplayWidget, public TimeTargetObject
 {
   Q_OBJECT
@@ -290,6 +291,8 @@ private:
 
   void CloseTextEditor();
 
+  bool DragGizmo(DraggableGizmo* gizmo, QMouseEvent *event);
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -408,6 +411,7 @@ private:
   ViewerTextEditorToolBar *text_toolbar_;
   QTransform text_transform_;
   QTransform text_transform_inverted_;
+  QList<PointGizmo*> selected_gizmos_;
 
 private slots:
   void UpdateFromQueue();

@@ -32,5 +32,6 @@ set(OLIVE_SOURCES
   node/gizmo/screen.h
   node/gizmo/text.cpp
   node/gizmo/text.h
+  node/gizmo/selectable.cpp
   PARENT_SCOPE
 )

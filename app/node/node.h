@@ -62,6 +62,7 @@ namespace olive {
 
 class NodeGraph;
 class Folder;
+class PointGizmo;
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -905,6 +906,7 @@ public:
   virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const { return QTransform(); }
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals){}
+  virtual void UpdateGizmosOnSelection(QList<PointGizmo*> &selected) {}
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
