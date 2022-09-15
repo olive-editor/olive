@@ -32,6 +32,7 @@
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "core.h"
+#include "timeline/timelinecommon.h"
 #include "ui/colorcoding.h"
 #include "ui/style/style.h"
 #include "window/mainwindow/mainwindow.h"
@@ -103,6 +104,9 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("UseLegacyColorInInputTab"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("ReassocLinToNonLin"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("PreviewNonFloatDontAskAgain"), NodeValue::kBoolean, false);
+
+  SetEntryInternal(QStringLiteral("TimelineThumbnailMode"), NodeValue::kInt, Timeline::kThumbnailInOut);
+  SetEntryInternal(QStringLiteral("TimelineWaveformMode"), NodeValue::kInt, Timeline::kWaveformsEnabled);
 
   SetEntryInternal(QStringLiteral("DefaultVideoTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
   SetEntryInternal(QStringLiteral("DefaultAudioTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));

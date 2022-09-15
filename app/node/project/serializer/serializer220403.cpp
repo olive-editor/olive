@@ -104,7 +104,11 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
               qWarning() << "Failed to find node with ID" << id;
               reader->skipCurrentElement();
             } else {
+              // Disable cache while node is being loaded (we'll re-enable it later)
+              node->SetCachesEnabled(false);
+
               LoadNode(node, xml_node_data, reader);
+
               node->setParent(project);
             }
           }
@@ -324,6 +328,11 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
     if (node) {
       load_data.properties.insert(node, it.value());
     }
+  }
+
+  // Re-enable caches
+  for (Node *n : project->nodes()) {
+    n->SetCachesEnabled(true);
   }
 
   return load_data;
@@ -558,6 +567,20 @@ void ProjectSerializer220403::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
           reader->skipCurrentElement();
         }
       }
+    } else if (reader->name() == QStringLiteral("caches")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("audio")) {
+          node->audio_playback_cache()->SetUuid(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("video")) {
+          node->video_frame_cache()->SetUuid(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("thumb")) {
+          node->thumbnail_cache()->SetUuid(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("waveform")) {
+          node->waveform_cache()->SetUuid(reader->readElementText());
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
     } else {
       reader->skipCurrentElement();
     }
@@ -612,6 +635,15 @@ void ProjectSerializer220403::SaveNode(Node *node, QXmlStreamWriter *writer) con
     WriteEndElement(writer); // hint
   }
   WriteEndElement(writer); // hints
+
+  WriteStartElement(writer, QStringLiteral("caches"));
+
+  writer->writeTextElement(QStringLiteral("audio"), node->audio_playback_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("video"), node->video_frame_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("thumb"), node->thumbnail_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("waveform"), node->waveform_cache()->GetUuid().toString());
+
+  WriteEndElement(writer); // caches
 
   WriteStartElement(writer, QStringLiteral("custom"));
 

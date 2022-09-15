@@ -423,6 +423,8 @@ private slots:
 
   void SetViewWaveformsEnabled(bool e);
 
+  void SetViewThumbnailsEnabled(QAction *action);
+
   void FrameRateChanged();
 
   void SampleRateChanged();
@@ -435,6 +437,12 @@ private slots:
   void RevealInProject();
 
   void TrackAboutToBeDeleted(Track *track);
+
+  void SetSelectedClipsAutocaching(bool e);
+
+  void CacheClips();
+  void CacheClipsInOut();
+  void CacheDiscard();
 
 };
 

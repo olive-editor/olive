@@ -121,6 +121,8 @@ TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const V
 
 QVariant Renderer::GetDefaultShader()
 {
+  QMutexLocker locker(&color_cache_mutex_);
+
   if (default_shader_.isNull()) {
     default_shader_ = CreateNativeShader(ShaderCode(QString(), QString()));
   }

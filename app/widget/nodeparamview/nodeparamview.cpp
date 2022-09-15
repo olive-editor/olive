@@ -26,7 +26,6 @@
 #include <QScrollBar>
 #include <QSplitter>
 
-#include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"

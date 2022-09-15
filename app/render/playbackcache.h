@@ -21,7 +21,10 @@
 #ifndef PLAYBACKCACHE_H
 #define PLAYBACKCACHE_H
 
+#include <QDir>
+#include <QMutex>
 #include <QObject>
+#include <QPainter>
 #include <QUuid>
 
 #include "common/jobtime.h"
@@ -40,36 +43,60 @@ public:
   PlaybackCache(QObject* parent = nullptr);
 
   const QUuid &GetUuid() const { return uuid_; }
-  void SetUuid(const QUuid &u) { uuid_ = u; }
+  void SetUuid(const QUuid &u);
 
-  bool IsEnabled() const { return enabled_; }
-  void SetEnabled(bool e)
-  {
-    if (enabled_ != e) {
-      enabled_ = e;
-      emit EnabledChanged(e);
-    }
-  }
-
-  TimeRangeList GetInvalidatedRanges(TimeRange intersecting);
-  TimeRangeList GetInvalidatedRanges(const rational &length)
+  TimeRangeList GetInvalidatedRanges(TimeRange intersecting) const;
+  TimeRangeList GetInvalidatedRanges(const rational &length) const
   {
     return GetInvalidatedRanges(TimeRange(0, length));
   }
 
-  bool HasInvalidatedRanges(const TimeRange &intersecting);
-  bool HasInvalidatedRanges(const rational &length)
+  bool HasInvalidatedRanges(const TimeRange &intersecting) const;
+  bool HasInvalidatedRanges(const rational &length) const
   {
     return HasInvalidatedRanges(TimeRange(0, length));
   }
 
   QString GetCacheDirectory() const;
 
-  void Invalidate(const TimeRange& r, bool signal = true);
+  void Invalidate(const TimeRange& r);
 
+  bool HasValidatedRanges() const { return !validated_.isEmpty(); }
   const TimeRangeList &GetValidatedRanges() const { return validated_; }
 
   Node *parent() const;
+
+  QDir GetThisCacheDirectory() const;
+  static QDir GetThisCacheDirectory(const QString &cache_path, const QUuid &cache_id);
+
+  void LoadState();
+  void SaveState();
+
+  void Draw(QPainter *painter, const rational &start, double scale, const QRect &rect) const;
+
+  static int GetCacheIndicatorHeight()
+  {
+    return QFontMetrics(QFont()).height()/4;
+  }
+
+  bool IsSavingEnabled() const { return saving_enabled_; }
+  void SetSavingEnabled(bool e) { saving_enabled_ = e; }
+
+  virtual void SetPassthrough(PlaybackCache *cache);
+
+  QMutex *mutex() { return &mutex_; }
+
+  class Passthrough : public TimeRange
+  {
+  public:
+    Passthrough(const TimeRange &r) :
+      TimeRange(r)
+    {}
+
+    QUuid cache;
+  };
+
+  const QVector<Passthrough> &GetPassthroughs() const { return passthroughs_; }
 
 public slots:
   void InvalidateAll();
@@ -79,12 +106,18 @@ signals:
 
   void Validated(const olive::TimeRange& r);
 
-  void EnabledChanged(bool e);
+  void Request(const olive::TimeRange& r);
+
+  void CancelAll();
 
 protected:
   void Validate(const TimeRange& r, bool signal = true);
 
   virtual void InvalidateEvent(const TimeRange& range);
+
+  virtual void LoadStateEvent(QDataStream &stream){}
+
+  virtual void SaveStateEvent(QDataStream &stream){}
 
   Project* GetProject() const;
 
@@ -93,7 +126,11 @@ private:
 
   QUuid uuid_;
 
-  bool enabled_;
+  bool saving_enabled_;
+
+  QMutex mutex_;
+
+  QVector<Passthrough> passthroughs_;
 
 };
 

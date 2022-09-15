@@ -48,13 +48,17 @@ Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
-  cache_result_(false),
-  flags_(kNone)
+  flags_(kNone),
+  caches_enabled_(true)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
 
   video_cache_ = new FrameHashCache(this);
+  thumbnail_cache_ = new ThumbnailCache(this);
   audio_cache_ = new AudioPlaybackCache(this);
+  waveform_cache_ = new AudioWaveformCache(this);
+
+  waveform_cache_->SetSavingEnabled(false);
 }
 
 Node::~Node()
@@ -230,6 +234,14 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   if (!input.node()->ignore_connections_.contains(input.input())) {
     input.node()->InvalidateAll(input.input(), input.element());
   }
+}
+
+void Node::CopyCacheUuidsFrom(Node *n)
+{
+  video_cache_->SetUuid(n->video_cache_->GetUuid());
+  audio_cache_->SetUuid(n->audio_cache_->GetUuid());
+  thumbnail_cache_->SetUuid(n->thumbnail_cache_->GetUuid());
+  waveform_cache_->SetUuid(n->waveform_cache_->GetUuid());
 }
 
 QString Node::GetInputName(const QString &id) const
@@ -932,12 +944,18 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   Q_UNUSED(from)
   Q_UNUSED(element)
 
-  if (range.in() != range.out()) {
-    if (video_cache_->IsEnabled()) {
-      video_frame_cache()->Invalidate(range);
-    }
-    if (audio_cache_->IsEnabled()) {
-      audio_playback_cache()->Invalidate(range);
+  if (AreCachesEnabled()) {
+    if (range.in() != range.out()) {
+      TimeRange vr = range.Intersected(GetVideoCacheRange());
+      if (vr.length() != 0) {
+        video_frame_cache()->Invalidate(vr);
+        thumbnail_cache()->Invalidate(vr);
+      }
+      TimeRange ar = range.Intersected(GetAudioCacheRange());
+      if (ar.length() != 0) {
+        audio_playback_cache()->Invalidate(ar);
+        waveform_cache()->Invalidate(ar);
+      }
     }
   }
 
