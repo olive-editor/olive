@@ -44,9 +44,10 @@ namespace olive {
 
 #define super QDialog
 
-ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
+ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWidget *parent) :
   super(parent),
-  viewer_node_(viewer_node)
+  viewer_node_(viewer_node),
+  stills_only_mode_(stills_only_mode)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -238,7 +239,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   subtitles_enabled_->setEnabled(has_subtitle_tracks);
 
   // If the viewer already has cached params, use them
-  if (viewer_node_->GetLastUsedEncodingParams().IsValid()) {
+  if (!stills_only_mode_ && viewer_node_->GetLastUsedEncodingParams().IsValid()) {
     SetParams(viewer_node_->GetLastUsedEncodingParams());
   } else {
     SetDefaults();
@@ -572,7 +573,11 @@ bool ExportDialog::SequenceHasSubtitles() const
 
 void ExportDialog::SetDefaults()
 {
-  format_combobox_->SetFormat(ExportFormat::kFormatMPEG4Video);
+  if (!stills_only_mode_) {
+    format_combobox_->SetFormat(ExportFormat::kFormatMPEG4Video);
+  } else {
+    format_combobox_->SetFormat(ExportFormat::kFormatPNG);
+  }
   FormatChanged(format_combobox_->GetFormat());
 
   VideoParams vp = viewer_node_->GetVideoParams();
@@ -745,7 +750,9 @@ void ExportDialog::done(int r)
 {
   preview_viewer_->ConnectViewerNode(nullptr);
 
-  viewer_node_->SetLastUsedEncodingParams(GenerateParams());
+  if (!stills_only_mode_) {
+    viewer_node_->SetLastUsedEncodingParams(GenerateParams());
+  }
 
   super::done(r);
 }

@@ -313,6 +313,8 @@ public:
 
   void OpenNodeInViewer(ViewerOutput* viewer);
 
+  void OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image);
+
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file

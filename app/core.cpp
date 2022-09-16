@@ -394,10 +394,7 @@ void Core::DialogExportShow()
   rational time;
 
   if (GetSequenceToExport(&viewer, &time)) {
-    ExportDialog* ed = new ExportDialog(viewer, main_window_);
-    ed->SetTime(time);
-    connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
-    ed->open();
+    OpenExportDialogForViewer(viewer, time, false);
   }
 }
 
@@ -1251,6 +1248,14 @@ void Core::OpenRecoveryProject(const QString &filename)
 void Core::OpenNodeInViewer(ViewerOutput *viewer)
 {
   main_window_->OpenNodeInViewer(viewer);
+}
+
+void Core::OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image)
+{
+  ExportDialog* ed = new ExportDialog(viewer, start_still_image, main_window_);
+  ed->SetTime(time);
+  connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
+  ed->open();
 }
 
 void Core::CheckForAutoRecoveries()
