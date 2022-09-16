@@ -95,8 +95,8 @@ QRectF PointGizmo::GetDrawingRect(const QTransform &transform, double radius) co
   }
 
   if (smaller_) {
-    width *= 0.5;
-    height *= 0.5;
+    width *= 0.6;
+    height *= 0.6;
   }
 
   return QRectF(point_.x() - width,

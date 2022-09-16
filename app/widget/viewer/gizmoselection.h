@@ -30,7 +30,20 @@ class QPainterPath;
 
 namespace olive {
 
-
+/// This class handles the mouse operations over a gizmo or set of gizmos
+/// to modify the selection. In particular:
+/// * LEFT_CLICK on gizmo => select the gizmo. If control points and main point
+///         are stacked at the same location, the main point is always selected.
+///         Previously selected gizmos are deselected
+/// * ALT+LEFT_CLICK on gizmo => same as 'LEFT_CLICK', but when control points are in the same location
+///         as main point, one control point is selected
+/// * SHIFT+LEFT_CLICK => toggles the selection of the clicked gizmos and preserves
+///         prevously selected gizmos
+/// * LEFT_CLICK outside any gizmo => deselect all gizmos
+/// * CTRL+LEFT_CLICK outside any gizmo => select all gizmos
+/// * Lasso => select gizmos inside lasso. All gizmos outside lasso are deselected
+/// * SHIFT+Lasso => toggle the selection state of gizmos inside lasso. The selection
+///         state of all gizmos outside lasso is unchanged.
 class GizmoSelection : public QObject
 {
   Q_OBJECT
@@ -46,9 +59,11 @@ public:
     return selected_gizmos_;
   }
 
-  const NodeGizmo * CurrentGizmo() const {
-    return current_gizmo_;
+  const NodeGizmo * PressedGizmo() const {
+    return pressed_gizmo_;
   }
+
+  bool CanStartDrag() const;  // TODO_ serve?
 
   void OnMouseLeftPress(QMouseEvent *event);
 
@@ -58,23 +73,27 @@ public:
 
   void DrawSelection(QPainter & painter);
 
+  bool CanMoveGizmo( NodeGizmo * gizmo) const;
+
 private:
   void onMouseHover(QMouseEvent *event);
   void deselectAllGizmos();
-  void selectAllGizmos();
-  void addToSelection(NodeGizmo * gizmo, bool prepend = false);
+  void addToSelection(NodeGizmo * gizmo);
+  void toggleSelection(NodeGizmo * gizmo);
   QList<NodeGizmo *> tryGizmoPress( const QPointF &p);
   void startLassoSelection(QMouseEvent *event);
+  void selectGizmosInsideLasso(bool toggle);
 
 private:
   QWidget * owner_;
   QTransform & gizmo_last_draw_transform_;
-  NodeGizmo * current_gizmo_;
+  NodeGizmo * pressed_gizmo_;
   NodeGizmo * hovered_gizmo_;
   QList<NodeGizmo *> selected_gizmos_;
   Node* gizmos_;
   QPainterPath * lasso_path_;
   bool draw_lasso_flag_;
+
 };
 
 }  // namespace olive

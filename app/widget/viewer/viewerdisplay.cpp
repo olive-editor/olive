@@ -888,12 +888,12 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
     if (current_gizmo_) {
       // Signal movement
-      if (!gizmo_drag_started_) {
+      if (!gizmo_drag_started_ && gizmo_selection_.CanStartDrag()) {
         for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
           DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
 
           if (draggable &&
-              ((a_gizmo == gizmo_selection_.CurrentGizmo()) || (a_gizmo->CanBeDraggedInGroup()))) {
+              ((a_gizmo == gizmo_selection_.PressedGizmo()) || (a_gizmo->CanBeDraggedInGroup()))) {
             QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
 
             rational gizmo_time = GetGizmoTime();
@@ -924,7 +924,7 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
           break;
         }
 
-        if ((a_gizmo == gizmo_selection_.CurrentGizmo()) || (a_gizmo->CanBeDraggedInGroup())) {
+        if (gizmo_selection_.CanMoveGizmo( a_gizmo)) {
           draggable->DragMove(v.x(), v.y(), event->modifiers());
         }
       }
@@ -938,6 +938,8 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
 bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 {
+  gizmo_selection_.OnMouseRelease( e);
+
   if (hand_dragging_) {
 
     // Handle hand drag
@@ -970,7 +972,7 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
       for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
         if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo)) {
-          if (a_gizmo->CanBeDraggedInGroup() || (a_gizmo == gizmo_selection_.CurrentGizmo())) {
+          if (a_gizmo->CanBeDraggedInGroup() || (a_gizmo == gizmo_selection_.PressedGizmo())) {
             draggable->DragEnd(command);
           }
         }
@@ -983,8 +985,6 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
     return true;
 
   }
-
-  gizmo_selection_.OnMouseRelease( e);
 
   return false;
 }

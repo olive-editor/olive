@@ -56,7 +56,7 @@ PolygonGenerator::PolygonGenerator()
   SetSplitStandardValueOnTrack(kPointsInput, 1, -kMiddleY, 4);
 
   // Initiate gizmos
-  poly_gizmo_ = new PathGizmo(this);
+  poly_gizmo_ = AddDraggableGizmo<PathGizmo>();
 }
 
 QString PolygonGenerator::Name() const
@@ -183,6 +183,9 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     gizmo_position_handles_.at(i)->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 0));
     gizmo_position_handles_.at(i)->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 1));
 
+    poly_gizmo_->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 0));
+    poly_gizmo_->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 1));
+
     PointGizmo *bez_gizmo1 = gizmo_bezier_handles_.at(i*2+0);
     bez_gizmo1->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 2));
     bez_gizmo1->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 3));
@@ -230,7 +233,15 @@ void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
   if (gizmo == poly_gizmo_) {
-    // FIXME: Drag all points
+    // the number of draggers should be twice the number of control points
+    int numOfDraggers = gizmo->GetDraggers().size();
+
+    for (int i=0; i < (numOfDraggers/2); i++) {
+      NodeInputDragger &x_drag = gizmo->GetDraggers()[2*i];
+      NodeInputDragger &y_drag = gizmo->GetDraggers()[2*i + 1];
+      x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
+      y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    }
   } else {
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
