@@ -67,6 +67,7 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
 
   // Set up sort filter proxy model
   sort_model_.setSourceModel(&model_);
+  sort_model_.setFilterCaseSensitivity(Qt::CaseInsensitive);
   sort_model_.setSortRole(ProjectViewModel::kInnerTextRole);
 
   // Add tree view to stacked widget
@@ -299,6 +300,11 @@ void ProjectExplorer::RenameSelectedItem()
   if (!indexes.empty()) {
     CurrentView()->edit(indexes.first());
   }
+}
+
+void ProjectExplorer::SetSearchFilter(const QString &s)
+{
+  sort_model_.setFilterFixedString(s);
 }
 
 void ProjectExplorer::ShowContextMenu()

@@ -54,6 +54,7 @@
 #include "undo/timelineundoworkarea.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeparamview/nodeparamview.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
@@ -1109,6 +1110,27 @@ void TimelineWidget::ShowContextMenu()
     menu.addSeparator();
 
     if (ClipBlock *clip = dynamic_cast<ClipBlock*>(selected.first())) {
+      {
+        Menu *cache_menu = new Menu(tr("Cache"), &menu);
+        menu.addMenu(cache_menu);
+
+        QAction *autocache_action = cache_menu->addAction(tr("Auto-Cache"));
+        autocache_action->setCheckable(true);
+        autocache_action->setChecked(clip->IsAutocaching());
+        connect(autocache_action, &QAction::triggered, this, &TimelineWidget::SetSelectedClipsAutocaching);
+
+        cache_menu->addSeparator();
+
+        auto cache_clip = cache_menu->addAction(tr("Cache All"));
+        connect(cache_clip, &QAction::triggered, this, &TimelineWidget::CacheClips);
+
+        auto cache_inout = cache_menu->addAction(tr("Cache In/Out"));
+        connect(cache_inout, &QAction::triggered, this, &TimelineWidget::CacheClipsInOut);
+
+        auto cache_discard = cache_menu->addAction(tr("Discard"));
+        connect(cache_discard, &QAction::triggered, this, &TimelineWidget::CacheDiscard);
+      }
+
       if (clip->connected_viewer()) {
         QAction *reveal_in_footage_viewer = menu.addAction(tr("Reveal in Footage Viewer"));
         reveal_in_footage_viewer->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
@@ -1134,9 +1156,20 @@ void TimelineWidget::ShowContextMenu()
     toggle_audio_units->setChecked(use_audio_time_units_);
     connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
 
+    {
+      Menu *thumbnail_menu = new Menu(tr("Show Thumbnails"), &menu);
+      menu.addMenu(thumbnail_menu);
+
+      thumbnail_menu->AddActionWithData(tr("Disabled"), Timeline::kThumbnailOff, OLIVE_CONFIG("TimelineThumbnailMode"));
+      thumbnail_menu->AddActionWithData(tr("Only At In Points"), Timeline::kThumbnailInOut, OLIVE_CONFIG("TimelineThumbnailMode"));
+      thumbnail_menu->AddActionWithData(tr("Enabled"), Timeline::kThumbnailOn, OLIVE_CONFIG("TimelineThumbnailMode"));
+
+      connect(thumbnail_menu, &Menu::triggered, this, &TimelineWidget::SetViewThumbnailsEnabled);
+    }
+
     QAction* show_waveforms = menu.addAction(tr("Show Waveforms"));
     show_waveforms->setCheckable(true);
-    show_waveforms->setChecked(views_.first()->view()->GetShowWaveforms());
+    show_waveforms->setChecked(OLIVE_CONFIG("TimelineWaveformMode").toInt() == Timeline::kWaveformsEnabled);
     connect(show_waveforms, &QAction::triggered, this, &TimelineWidget::SetViewWaveformsEnabled);
 
     menu.addSeparator();
@@ -1200,9 +1233,14 @@ void TimelineWidget::AddableObjectChanged()
 
 void TimelineWidget::SetViewWaveformsEnabled(bool e)
 {
-  foreach (TimelineAndTrackView* tview, views_) {
-    tview->view()->SetShowWaveforms(e);
-  }
+  OLIVE_CONFIG("TimelineWaveformMode") = e ? Timeline::kWaveformsEnabled : Timeline::kWaveformsDisabled;
+  UpdateViewports();
+}
+
+void TimelineWidget::SetViewThumbnailsEnabled(QAction *action)
+{
+  OLIVE_CONFIG("TimelineThumbnailMode") = action->data();
+  UpdateViewports();
 }
 
 void TimelineWidget::FrameRateChanged()
@@ -1273,6 +1311,63 @@ void TimelineWidget::TrackAboutToBeDeleted(Track *track)
     // might if they misinterpret it as permanent. If so, we handle it cleanly by pushing our
     // command as if the action really were permanent.
     Core::instance()->undo_stack()->push(TakeSubtitleSectionCommand());
+  }
+}
+
+void TimelineWidget::SetSelectedClipsAutocaching(bool e)
+{
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  for (Block *b : selected_blocks_) {
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(clip, ClipBlock::kAutoCacheInput)), e));
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
+void TimelineWidget::CacheClips()
+{
+  for (Block *b : selected_blocks_) {
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+      clip->RequestInvalidatedFromConnected(true);
+    }
+  }
+}
+
+void TimelineWidget::CacheClipsInOut()
+{
+  if (!this->sequence() || !this->sequence()->GetWorkArea()->enabled()) {
+    return;
+  }
+
+  TimeTargetObject tto;
+  tto.SetTimeTarget(this->sequence());
+
+  const TimeRange &r = this->sequence()->GetWorkArea()->range();
+  for (Block *b : qAsConst(selected_blocks_)) {
+    if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+      if (Node *connected = clip->GetConnectedOutput(clip->kBufferIn)) {
+        TimeRange adjusted = tto.GetAdjustedTime(this->sequence(), connected, r, true);
+        clip->RequestInvalidatedFromConnected(true, adjusted);
+      }
+    }
+  }
+}
+
+void TimelineWidget::CacheDiscard()
+{
+  if (QMessageBox::question(this, tr("Discard Cache"),
+                            tr("This will discard all cache for this clip. "
+                               "If the clip has auto-cache enabled, it will be recached immediately. "
+                               "This cannot be undone.\n\n"
+                               "Do you wish to continue?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    for (Block *b : selected_blocks_) {
+      if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
+        clip->DiscardCache();
+      }
+    }
   }
 }
 

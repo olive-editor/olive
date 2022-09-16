@@ -226,8 +226,6 @@ private:
 
   void UpdateAutoCacher();
 
-  void ClearVideoAutoCacherQueue();
-
   void DecrementPrequeuedAudio();
 
   void ArmForRecording();
@@ -274,7 +272,7 @@ private:
   int prequeue_length_;
   int prequeue_count_;
 
-  PreviewAutoCacher auto_cacher_;
+  PreviewAutoCacher *auto_cacher_;
 
   QVector<RenderTicketWatcher*> queue_watchers_;
 
@@ -369,6 +367,8 @@ private slots:
   void DryRunFinished();
 
   void RequestNextDryRun();
+
+  void SaveFrameAsImage();
 
 };
 

@@ -106,7 +106,14 @@ qint64 AudioParams::samples_to_bytes(const qint64 &samples) const
 {
   Q_ASSERT(is_valid());
 
-  return samples * channel_count() * bytes_per_sample_per_channel();
+  return samples_to_bytes_per_channel(samples) * channel_count();
+}
+
+qint64 AudioParams::samples_to_bytes_per_channel(const qint64 &samples) const
+{
+  Q_ASSERT(is_valid());
+
+  return samples * bytes_per_sample_per_channel();
 }
 
 rational AudioParams::samples_to_time(const qint64 &samples) const

@@ -43,7 +43,10 @@ class ExportDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
+  ExportDialog(ViewerOutput* viewer_node, bool stills_only_mode, QWidget* parent = nullptr);
+  ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr) :
+    ExportDialog(viewer_node, false, parent)
+  {}
 
   rational GetSelectedTimebase() const;
   void SetSelectedTimebase(const rational &r);
@@ -63,6 +66,9 @@ public:
 
 public slots:
   virtual void done(int r) override;
+
+signals:
+  void RequestImportFile(const QString &s);
 
 private:
   void AddPreferencesTab(QWidget *inner_widget, const QString &title);
@@ -115,6 +121,9 @@ private:
 
   QWidget* preferences_area_;
   QCheckBox *export_bkg_box_;
+  QCheckBox *import_file_after_export_;
+
+  bool stills_only_mode_;
 
 private slots:
   void BrowseFilename();

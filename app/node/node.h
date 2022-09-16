@@ -40,6 +40,7 @@
 #include "node/param.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
+#include "render/audiowaveformcache.h"
 #include "render/framehashcache.h"
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
@@ -226,10 +227,23 @@ public:
     return video_cache_;
   }
 
+  ThumbnailCache* thumbnail_cache() const
+  {
+    return thumbnail_cache_;
+  }
+
   AudioPlaybackCache* audio_playback_cache() const
   {
     return audio_cache_;
   }
+
+  AudioWaveformCache* waveform_cache() const
+  {
+    return waveform_cache_;
+  }
+
+  virtual TimeRange GetVideoCacheRange() const { return TimeRange(); }
+  virtual TimeRange GetAudioCacheRange() const { return TimeRange(); }
 
   struct Position
   {
@@ -338,6 +352,11 @@ public:
   static void ConnectEdge(Node *output, const NodeInput& input);
 
   static void DisconnectEdge(Node *output, const NodeInput& input);
+
+  void CopyCacheUuidsFrom(Node *n);
+
+  bool AreCachesEnabled() const { return caches_enabled_; }
+  void SetCachesEnabled(bool e) { caches_enabled_ = e; }
 
   virtual QString GetInputName(const QString& id) const;
 
@@ -914,16 +933,6 @@ public:
     folder_ = folder;
   }
 
-  bool GetCacheTextures() const
-  {
-    return cache_result_;
-  }
-
-  void SetCacheTextures(bool e)
-  {
-    cache_result_ = e;
-  }
-
   class ArrayRemoveCommand : public UndoCommand
   {
   public:
@@ -983,6 +992,7 @@ public:
   void SetInputFlags(const QString &input, const InputFlags &f);
 
   virtual void LoadFinishedEvent(){}
+  virtual void ConnectedToPreviewEvent(){}
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
@@ -1388,8 +1398,6 @@ private:
 
   Folder* folder_;
 
-  bool cache_result_;
-
   QMap<InputElementPair, ValueHint> value_hints_;
 
   PositionMap context_positions_;
@@ -1401,8 +1409,12 @@ private:
   QString effect_input_;
 
   FrameHashCache *video_cache_;
+  ThumbnailCache *thumbnail_cache_;
 
   AudioPlaybackCache *audio_cache_;
+  AudioWaveformCache *waveform_cache_;
+
+  bool caches_enabled_;
 
 private slots:
   /**

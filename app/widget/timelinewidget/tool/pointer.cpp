@@ -24,7 +24,6 @@
 #include <QToolTip>
 
 #include "common/clamp.h"
-#include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
@@ -410,7 +409,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
     bool multitrim_enabled = IsClipTrimmable(clicked_item, clips, trim_mode);
 
     // Create ghosts for trimming
-    foreach (Block* clip_item, clips) {
+    for (Block* clip_item : clips) {
       if (clip_item != clicked_item
           && (!multitrim_enabled || !IsClipTrimmable(clip_item, clips, trim_mode))) {
         // Either multitrim is disabled or this clip is NOT the earliest/latest in its track. We
@@ -485,7 +484,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
           //        I'm only including it to prevent any potentially unintended behavior.
           if (clips.size() == 1 && !(modifiers & Qt::AltModifier)) {
             if (ClipBlock *adjacent_clip = dynamic_cast<ClipBlock*>(adjacent)) {
-              foreach (Block *adjacent_link, adjacent_clip->block_links()) {
+              for (Block *adjacent_link : adjacent_clip->block_links()) {
                 adjacent_ghosts.append(AddGhostFromBlock(adjacent_link, flipped_mode));
               }
             }
@@ -500,7 +499,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
         // expected to fill the remaining space (no gap needs to be created)
         ghost->SetData(TimelineViewGhostItem::kTrimIsARollEdit, static_cast<bool>(adjacent));
 
-        foreach (TimelineViewGhostItem *adjacent_ghost, adjacent_ghosts) {
+        for (TimelineViewGhostItem *adjacent_ghost : adjacent_ghosts) {
           if (adjacent_ghost) {
             if (treat_trim_as_slide) {
               // We're sliding a transition rather than a pure trim/roll
@@ -572,6 +571,7 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
       break;
     case Timeline::kTrimIn:
       ghost->SetInAdjustment(time_movement);
+      ghost->SetMediaInAdjustment(time_movement);
       break;
     case Timeline::kTrimOut:
       ghost->SetOutAdjustment(time_movement);
@@ -707,7 +707,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
         block = new_block;
 
         if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(block)) {
-          new_clip->waveform() = static_cast<ClipBlock*>(p.block)->waveform();
+          new_clip->AddCachePassthroughFrom(static_cast<ClipBlock*>(p.block));
         }
       }
 

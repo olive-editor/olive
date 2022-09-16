@@ -52,13 +52,10 @@ RenderManager::RenderManager(QObject *parent) :
   }
 
   if (context_) {
-    video_thread_ = new RenderThread(context_, decoder_cache_, shader_cache_, this);
-    dry_run_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
-    audio_thread_ = new RenderThread(nullptr, decoder_cache_, shader_cache_, this);
-
-    video_thread_->start(QThread::IdlePriority);
-    dry_run_thread_->start(QThread::IdlePriority);
-    audio_thread_->start(QThread::IdlePriority);
+    video_thread_ = CreateThread(context_);
+    dry_run_thread_ = CreateThread();
+    audio_thread_ = CreateThread();
+    waveform_thread_ = CreateThread();
   }
 
   decoder_clear_timer_ = new QTimer(this);
@@ -73,72 +70,49 @@ RenderManager::~RenderManager()
     delete shader_cache_;
     delete decoder_cache_;
 
-    video_thread_->quit();
-    video_thread_->wait();
-
-    dry_run_thread_->quit();
-    dry_run_thread_->wait();
+    for (RenderThread *rt : render_threads_) {
+      rt->quit();
+      rt->wait();
+    }
 
     context_->PostDestroy();
     delete context_;
-
-    audio_thread_->quit();
-    audio_thread_->wait();
   }
 }
 
-RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param,
-                                           ColorManager* color_manager, const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, ReturnType return_type)
+RenderThread *RenderManager::CreateThread(Renderer *renderer)
 {
-  return RenderFrame(node,
-                     color_manager,
-                     time,
-                     mode,
-                     vparam,
-                     param,
-                     QSize(0, 0),
-                     QMatrix4x4(),
-                     VideoParams::kFormatInvalid,
-                     0,
-                     nullptr,
-                     cache,
-                     return_type);
+  auto t = new RenderThread(renderer, decoder_cache_, shader_cache_, this);
+  render_threads_.push_back(t);
+  t->start(QThread::IdlePriority);
+  return t;
 }
 
-RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
-                                           const VideoParams &video_params, const AudioParams &audio_params,
-                                           const QSize& force_size,
-                                           const QMatrix4x4& force_matrix, VideoParams::Format force_format,
-                                           int force_channel_count,
-                                           ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, ReturnType return_type)
+RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(node));
-  ticket->setProperty("time", QVariant::fromValue(time));
-  ticket->setProperty("size", force_size);
-  ticket->setProperty("matrix", force_matrix);
-  ticket->setProperty("format", force_format);
-  ticket->setProperty("channelcount", force_channel_count);
-  ticket->setProperty("mode", mode);
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.time));
+  ticket->setProperty("size", params.force_size);
+  ticket->setProperty("matrix", params.force_matrix);
+  ticket->setProperty("format", params.force_format);
+  ticket->setProperty("usecache", params.use_cache);
+  ticket->setProperty("channelcount", params.force_channel_count);
+  ticket->setProperty("mode", params.mode);
   ticket->setProperty("type", kTypeVideo);
-  ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
-  ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
-  ticket->setProperty("vparam", QVariant::fromValue(video_params));
-  ticket->setProperty("aparam", QVariant::fromValue(audio_params));
-  ticket->setProperty("return", return_type);
+  ticket->setProperty("colormanager", Node::PtrToValue(params.color_manager));
+  ticket->setProperty("coloroutput", QVariant::fromValue(params.force_color_output));
+  Q_ASSERT(params.video_params.is_valid());
+  ticket->setProperty("vparam", QVariant::fromValue(params.video_params));
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
+  ticket->setProperty("return", params.return_type);
+  ticket->setProperty("cache", params.cache_dir);
+  ticket->setProperty("cachetimebase", QVariant::fromValue(params.cache_timebase));
+  ticket->setProperty("cacheid", QVariant::fromValue(params.cache_id));
 
-  if (cache) {
-    ticket->setProperty("cache", cache->GetCacheDirectory());
-    ticket->setProperty("cachetimebase", QVariant::fromValue(cache->GetTimebase()));
-    ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
-  }
-
-  if (return_type == ReturnType::kNull) {
+  if (params.return_type == ReturnType::kNull) {
     dry_run_thread_->AddTicket(ticket);
   } else {
     video_thread_->AddTicket(ticket);
@@ -147,34 +121,37 @@ RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manag
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms)
+RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(node));
-  ticket->setProperty("time", QVariant::fromValue(r));
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.range));
   ticket->setProperty("type", kTypeAudio);
-  ticket->setProperty("mode", mode);
-  ticket->setProperty("enablewaveforms", generate_waveforms);
-  ticket->setProperty("aparam", QVariant::fromValue(params));
+  ticket->setProperty("enablewaveforms", params.generate_waveforms);
+  ticket->setProperty("clamp", params.clamp);
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
+  ticket->setProperty("mode", params.mode);
 
-  audio_thread_->AddTicket(ticket);
+  if (params.generate_waveforms) {
+    waveform_thread_->AddTicket(ticket);
+  } else {
+    audio_thread_->AddTicket(ticket);
+  }
 
   return ticket;
 }
 
 bool RenderManager::RemoveTicket(RenderTicketPtr ticket)
 {
-  if (video_thread_->RemoveTicket(ticket)) {
-    return true;
-  } else if (audio_thread_->RemoveTicket(ticket)) {
-    return true;
-  } else if (dry_run_thread_->RemoveTicket(ticket)) {
-    return true;
-  } else {
-    return false;
+  for (RenderThread *rt : render_threads_) {
+    if (rt->RemoveTicket(ticket)) {
+      return true;
+    }
   }
+
+  return false;
 }
 
 void RenderManager::SetAggressiveGarbageCollection(bool enabled)
@@ -222,6 +199,7 @@ RenderThread::RenderThread(Renderer *renderer, DecoderCache *decoder_cache, Shad
 void RenderThread::AddTicket(RenderTicketPtr ticket)
 {
   QMutexLocker locker(&mutex_);
+  ticket->moveToThread(this);
   queue_.push_back(ticket);
   wait_.wakeOne();
 }

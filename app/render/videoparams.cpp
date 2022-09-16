@@ -126,7 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  const int target_res = 1920*1080;
+  const int target_res = 1280*720;
 
   qint64 megapixels = width * height;
 
@@ -241,6 +241,21 @@ QString VideoParams::GetFormatName(VideoParams::Format format)
   }
 
   return QCoreApplication::translate("VideoParams", "Unknown (0x%1)").arg(format, 0, 16);
+}
+
+int VideoParams::GetDividerForTargetResolution(int src_width, int src_height, int dst_width, int dst_height)
+{
+  int divider = 0;
+  int test_width, test_height;
+
+  do {
+    divider++;
+
+    test_width = VideoParams::GetScaledDimension(src_width, divider);
+    test_height = VideoParams::GetScaledDimension(src_height, divider);
+  } while (test_width > dst_width || test_height > dst_height);
+
+  return divider;
 }
 
 void VideoParams::calculate_effective_size()

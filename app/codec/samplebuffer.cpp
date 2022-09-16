@@ -36,7 +36,7 @@ SampleBuffer::SampleBuffer(const AudioParams &audio_params, const rational &leng
   allocate();
 }
 
-SampleBuffer::SampleBuffer(const AudioParams &audio_params, int samples_per_channel) :
+SampleBuffer::SampleBuffer(const AudioParams &audio_params, size_t samples_per_channel) :
   audio_params_(audio_params),
   sample_count_per_channel_(samples_per_channel)
 {
@@ -58,12 +58,7 @@ void SampleBuffer::set_audio_params(const AudioParams &params)
   audio_params_ = params;
 }
 
-const int &SampleBuffer::sample_count() const
-{
-  return sample_count_per_channel_;
-}
-
-void SampleBuffer::set_sample_count(const int &sample_count)
+void SampleBuffer::set_sample_count(const size_t &sample_count)
 {
   if (is_allocated()) {
     qWarning() << "Tried to set sample count on allocated sample buffer";
@@ -71,11 +66,6 @@ void SampleBuffer::set_sample_count(const int &sample_count)
   }
 
   sample_count_per_channel_ = sample_count;
-}
-
-bool SampleBuffer::is_allocated() const
-{
-  return !data_.isEmpty();
 }
 
 void SampleBuffer::allocate()
@@ -113,10 +103,10 @@ void SampleBuffer::reverse()
     return;
   }
 
-  int half_nb_sample = sample_count_per_channel_ / 2;
+  size_t half_nb_sample = sample_count_per_channel_ / 2;
 
-  for (int i=0;i<half_nb_sample;i++) {
-    int opposite_ind = sample_count_per_channel_ - i - 1;
+  for (size_t i=0;i<half_nb_sample;i++) {
+    size_t opposite_ind = sample_count_per_channel_ - i - 1;
 
     for (int j=0;j<audio_params_.channel_count();j++) {
       std::swap(data_[j][i], data_[j][opposite_ind]);
@@ -133,15 +123,15 @@ void SampleBuffer::speed(double speed)
 
   sample_count_per_channel_ = qRound(static_cast<double>(sample_count_per_channel_) / speed);
 
-  QVector< QVector<float> > output_data;
+  std::vector< std::vector<float> > output_data;
 
   output_data.resize(audio_params_.channel_count());
   for (int i=0; i<audio_params_.channel_count(); i++) {
     output_data[i].resize(sample_count_per_channel_);
   }
 
-  for (int i=0;i<sample_count_per_channel_;i++) {
-    int input_index = qFloor(static_cast<double>(i) * speed);
+  for (size_t i=0;i<sample_count_per_channel_;i++) {
+    size_t input_index = qFloor(static_cast<double>(i) * speed);
 
     for (int j=0;j<audio_params_.channel_count();j++) {
       output_data[j][i] = data_[j][input_index];
@@ -161,12 +151,12 @@ void SampleBuffer::transform_volume(float f)
 void SampleBuffer::transform_volume_for_channel(int channel, float volume)
 {
   float *cdat = data_[channel].data();
-  int unopt_start = 0;
+  size_t unopt_start = 0;
 
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   __m128 mult = _mm_load1_ps(&volume);
   unopt_start = (sample_count_per_channel_ / 4) * 4;
-  for (int j=0; j<unopt_start; j+=4) {
+  for (size_t j=0; j<unopt_start; j+=4) {
     float *here = cdat + j;
     __m128 samples = _mm_loadu_ps(here);
     __m128 multiplied = _mm_mul_ps(samples, mult);
@@ -174,19 +164,19 @@ void SampleBuffer::transform_volume_for_channel(int channel, float volume)
   }
 #endif
 
-  for (int j=unopt_start; j<sample_count_per_channel_; j++) {
+  for (size_t j=unopt_start; j<sample_count_per_channel_; j++) {
     cdat[j] *= volume;
   }
 }
 
-void SampleBuffer::transform_volume_for_sample(int sample_index, float volume)
+void SampleBuffer::transform_volume_for_sample(size_t sample_index, float volume)
 {
   for (int i=0;i<audio_params().channel_count();i++) {
     transform_volume_for_sample_on_channel(sample_index, i, volume);
   }
 }
 
-void SampleBuffer::transform_volume_for_sample_on_channel(int sample_index, int channel, float volume)
+void SampleBuffer::transform_volume_for_sample_on_channel(size_t sample_index, int channel, float volume)
 {
   data_[channel][sample_index] *= volume;
 }
@@ -203,12 +193,12 @@ void SampleBuffer::silence()
   silence(0, sample_count_per_channel_);
 }
 
-void SampleBuffer::silence(int start_sample, int end_sample)
+void SampleBuffer::silence(size_t start_sample, size_t end_sample)
 {
   silence_bytes(start_sample * sizeof(float), end_sample * sizeof(float));
 }
 
-void SampleBuffer::silence_bytes(int start_byte, int end_byte)
+void SampleBuffer::silence_bytes(size_t start_byte, size_t end_byte)
 {
   if (!is_allocated()) {
     qWarning() << "Tried to fill an unallocated sample buffer";
@@ -220,7 +210,7 @@ void SampleBuffer::silence_bytes(int start_byte, int end_byte)
   }
 }
 
-void SampleBuffer::set(int channel, const float *data, int sample_offset, int sample_length)
+void SampleBuffer::set(int channel, const float *data, size_t sample_offset, size_t sample_length)
 {
   if (!is_allocated()) {
     qWarning() << "Tried to fill an unallocated sample buffer";
@@ -236,14 +226,14 @@ void SampleBuffer::clamp_channel(int channel)
   const float max = 1.0f;
 
   float *cdat = data_[channel].data();
-  int unopt_start = 0;
+  size_t unopt_start = 0;
 
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   __m128 min_sse = _mm_load1_ps(&min);
   __m128 max_sse = _mm_load1_ps(&max);
 
   unopt_start = (sample_count_per_channel_ / 4) * 4;
-  for (int j=0; j<unopt_start; j+=4) {
+  for (size_t j=0; j<unopt_start; j+=4) {
     float *here = cdat + j;
     __m128 samples = _mm_loadu_ps(here);
 
@@ -254,7 +244,7 @@ void SampleBuffer::clamp_channel(int channel)
   }
 #endif
 
-  for (int sample=unopt_start; sample<sample_count(); sample++) {
+  for (size_t sample=unopt_start; sample<sample_count(); sample++) {
     float &s = data(channel)[sample];
     s = std::clamp(s, min, max);
   }

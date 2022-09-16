@@ -331,7 +331,6 @@ Project* MarkerChangeTimeCommand::GetRelevantProject() const
 
 void MarkerChangeTimeCommand::redo()
 {
-  old_time_ = marker_->time();
   marker_->set_time(new_time_);
 }
 

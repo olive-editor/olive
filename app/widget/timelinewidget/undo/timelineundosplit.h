@@ -54,6 +54,8 @@ public:
   }
 
 protected:
+  virtual void prepare() override;
+
   virtual void redo() override;
 
   virtual void undo() override;
