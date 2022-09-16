@@ -53,6 +53,8 @@ public:
 
   static QStringList WordWrapString(const QString &s, const QFontMetrics &fm, int bounding_width);
 
+  static Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
+
   static void SetComboBoxData(QComboBox *cb, int data);
 
   template <typename T>

@@ -312,6 +312,11 @@ TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list
   UpdateIndexIfNecessary();
 }
 
+rational TimeRangeListFrameIterator::Snap(const rational &r) const
+{
+  return Timecode::snap_time_to_timebase(r, timebase_, Timecode::kFloor);
+}
+
 bool TimeRangeListFrameIterator::GetNext(rational *out)
 {
   if (!HasNext()) {
@@ -368,7 +373,7 @@ void TimeRangeListFrameIterator::UpdateIndexIfNecessary()
     range_index_++;
 
     if (range_index_ < list_.size()) {
-      current_ = Timecode::snap_time_to_timebase(list_.at(range_index_).in(), timebase_, Timecode::kCeil);
+      current_ = Snap(list_.at(range_index_).in());
     }
   }
 }

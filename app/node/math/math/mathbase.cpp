@@ -301,21 +301,21 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
     SampleBuffer samples_a = val_a.toSamples();
     SampleBuffer samples_b = val_b.toSamples();
 
-    int max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
-    int min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
+    size_t max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
+    size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
     SampleBuffer mixed_samples = SampleBuffer(samples_a.audio_params(), max_samples);
 
     for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
       // Mix samples that are in both buffers
-      for (int j=0;j<min_samples;j++) {
+      for (size_t j=0;j<min_samples;j++) {
         mixed_samples.data(i)[j] = PerformAll<float, float>(operation, samples_a.data(i)[j], samples_b.data(i)[j]);
       }
     }
 
     if (max_samples > min_samples) {
       // Fill in remainder space with 0s
-      int remainder = max_samples - min_samples;
+      size_t remainder = max_samples - min_samples;
 
       const SampleBuffer &larger_buffer = (max_samples == samples_a.sample_count()) ? samples_a : samples_b;
 

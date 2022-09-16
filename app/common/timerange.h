@@ -207,6 +207,8 @@ public:
   TimeRangeListFrameIterator();
   TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase);
 
+  rational Snap(const rational &r) const;
+
   bool GetNext(rational *out);
 
   bool HasNext() const;

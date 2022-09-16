@@ -243,6 +243,21 @@ QString VideoParams::GetFormatName(VideoParams::Format format)
   return QCoreApplication::translate("VideoParams", "Unknown (0x%1)").arg(format, 0, 16);
 }
 
+int VideoParams::GetDividerForTargetResolution(int src_width, int src_height, int dst_width, int dst_height)
+{
+  int divider = 0;
+  int test_width, test_height;
+
+  do {
+    divider++;
+
+    test_width = VideoParams::GetScaledDimension(src_width, divider);
+    test_height = VideoParams::GetScaledDimension(src_height, divider);
+  } while (test_width > dst_width || test_height > dst_height);
+
+  return divider;
+}
+
 void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
