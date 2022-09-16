@@ -70,9 +70,9 @@ void CrossDissolveTransition::SampleJobEvent(const SampleBuffer &from_samples, c
 
       if (to_samples.is_allocated()) {
         // Offset input samples from the end
-        int in_index = i - (out_samples.sample_count() - to_samples.sample_count());
-
-        if (in_index >= 0) {
+        size_t remain = (out_samples.sample_count() - to_samples.sample_count());
+        if (i >= remain) {
+          qint64 in_index = i - remain;
           out_samples.data(j)[i] += to_samples.data(j)[in_index] * TransformCurve(progress);
         }
       }

@@ -558,7 +558,7 @@ void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node
 
   const AudioParams& audio_params = GetCacheAudioParams();
 
-  for (int i=0;i<job.samples().sample_count();i++) {
+  for (size_t i=0;i<job.samples().sample_count();i++) {
     // Calculate the exact rational time at this sample
     double sample_to_second = static_cast<double>(i) / static_cast<double>(audio_params.sample_rate());
 
