@@ -55,7 +55,7 @@ ShaderCode CrossDissolveTransition::GetShaderCode(const ShaderRequest &request) 
 
 void CrossDissolveTransition::SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const
 {
-  for (int i=0; i<out_samples.sample_count(); i++) {
+  for (size_t i=0; i<out_samples.sample_count(); i++) {
     double this_sample_time = out_samples.audio_params().samples_to_time(i).toDouble() + time_in;
     double progress = GetTotalProgress(this_sample_time);
 
