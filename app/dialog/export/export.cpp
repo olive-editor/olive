@@ -157,6 +157,30 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
 
   row++;
 
+  {
+    QGroupBox *options_group = new QGroupBox();
+    preferences_layout->addWidget(options_group, row, 0, 1, 4);
+
+    QGridLayout *options_layout = new QGridLayout(options_group);
+
+    int opt_row = 0;
+
+    export_bkg_box_ = new QCheckBox(tr("Run In Background"));
+    export_bkg_box_->setToolTip(tr("Exporting in the background allows you to continue using Olive while "
+                                   "exporting, but may result in slower export speeds, and may"
+                                   "severely impact editing and playback performance."));
+    options_layout->addWidget(export_bkg_box_, opt_row, 0);
+
+    import_file_after_export_ = new QCheckBox(tr("Import Result After Export"));
+    options_layout->addWidget(import_file_after_export_, opt_row, 1);
+
+    connect(export_bkg_box_, &QCheckBox::toggled, import_file_after_export_, [this](bool e){
+      import_file_after_export_->setEnabled(!e);
+    });
+  }
+
+  row++;
+
   QHBoxLayout *btn_layout = new QHBoxLayout();
   btn_layout->setMargin(0);
   preferences_layout->addLayout(btn_layout, row, 0, 1, 4);
@@ -170,12 +194,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   QPushButton *cancel_btn = new QPushButton(tr("Cancel"));
   btn_layout->addWidget(cancel_btn);
   connect(cancel_btn, &QPushButton::clicked, this, &ExportDialog::reject);
-
-  export_bkg_box_ = new QCheckBox(tr("Run In Background"));
-  export_bkg_box_->setToolTip(tr("Exporting in the background allows you to continue using Olive while "
-                                 "exporting, but may result in slower export speeds, and may"
-                                 "severely impact editing and playback performance."));
-  btn_layout->addWidget(export_bkg_box_);
 
   btn_layout->addStretch();
 
@@ -371,6 +389,11 @@ void ExportDialog::ExportFinished()
     // If this task was cancelled, we stay open so the user can potentially queue another export
   } else {
     // Accept this dialog and close
+    if (import_file_after_export_) {
+      QString filename = filename_edit_->text().trimmed();
+      emit RequestImportFile(filename);
+    }
+
     this->accept();
   }
 }

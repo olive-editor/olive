@@ -656,6 +656,8 @@ private slots:
    */
   void OpenProjectInternal(const QString& filename, bool recovery_project = false);
 
+  void ImportSingleFile(const QString &f);
+
 };
 
 }

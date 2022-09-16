@@ -1256,6 +1256,7 @@ void Core::OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time,
   ed->SetTime(time);
   connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
   ed->open();
+  connect(ed, &ExportDialog::RequestImportFile, this, &Core::ImportSingleFile);
 }
 
 void Core::CheckForAutoRecoveries()
@@ -1419,6 +1420,13 @@ void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
   }
 
   task_dialog->open();
+}
+
+void Core::ImportSingleFile(const QString &f)
+{
+  if (Project *p = GetActiveProject()) {
+    ImportFiles({f}, p->root());
+  }
 }
 
 int Core::CountFilesInFileList(const QFileInfoList &filenames)

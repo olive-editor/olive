@@ -67,6 +67,9 @@ public:
 public slots:
   virtual void done(int r) override;
 
+signals:
+  void RequestImportFile(const QString &s);
+
 private:
   void AddPreferencesTab(QWidget *inner_widget, const QString &title);
 
@@ -118,6 +121,7 @@ private:
 
   QWidget* preferences_area_;
   QCheckBox *export_bkg_box_;
+  QCheckBox *import_file_after_export_;
 
   bool stills_only_mode_;
 
