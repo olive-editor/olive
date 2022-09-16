@@ -316,7 +316,7 @@ void AudioMonitor::UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_tim
 
 void AudioMonitor::AudioVisualWaveformSampleToInternalValues(const AudioVisualWaveform::Sample &in, QVector<double> &out)
 {
-  for (int i=0; i<in.size(); i++) {
+  for (size_t i=0; i<in.size(); i++) {
     float max = qMax(qAbs(in.at(i).min), qAbs(in.at(i).max));
 
     int output_index = i%out.size();
