@@ -263,18 +263,20 @@ jobs:
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
+          mkdir deploy
+          mv olive-editor deploy
 
       - name: Upload Installer Artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PKGNAME }}.exe
+          name: ${{ env.PKGNAME }}-Installer
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
 
       - name: Upload Portable Artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PKGNAME }}
-          path: ${{ runner.workspace }}/build/olive-editor
+          name: ${{ env.PKGNAME }}-Portable
+          path: ${{ runner.workspace }}/build/deploy
 
   macos:
     strategy:
