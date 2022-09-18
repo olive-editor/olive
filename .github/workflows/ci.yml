@@ -125,8 +125,9 @@ jobs:
           filename=$(echo Olive*.AppImage)
           pkgname="${filename/x86_64/Linux-x86_64}"
           mv "${filename}" "${pkgname}"
+          basename="${filename%.*}"
           echo "::set-output name=pkgname::${pkgname}"
-          echo "::set-output name=artifact::${filename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
+          echo "::set-output name=artifact::${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
