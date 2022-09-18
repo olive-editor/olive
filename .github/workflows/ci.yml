@@ -263,7 +263,6 @@ jobs:
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
-          7z a $PKGNAME.zip olive-editor
 
       - name: Upload Installer Artifact to GitHub
         uses: actions/upload-artifact@v2
@@ -276,7 +275,7 @@ jobs:
         continue-on-error: true
         with:
           name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          path: ${{ runner.workspace }}/build/olive-editor
 
   macos:
     strategy:
@@ -440,15 +439,9 @@ jobs:
           # Sign application
           codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
 
-      - name: Deploy Packages
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          zip -r $PKGNAME.zip Olive.app
-
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
         continue-on-error: true
         with:
-          name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          name: ${{ env.PKGNAME }}
+          path: ${{ runner.workspace }}/build/Olive.app
