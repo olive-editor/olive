@@ -68,7 +68,7 @@ protected slots:
 private:
   static void AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after);
 
-  static QPainterPath GeneratePath(const QVector<NodeValue> &points);
+  static QPainterPath GeneratePath(const NodeValueArray &points, int size);
 
   template<typename T>
   void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);

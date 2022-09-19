@@ -212,6 +212,11 @@ public:
     return input_ids_;
   }
 
+  virtual bool IsInputActiveAtTime(const QString &input, int element, const TimeRange &r) const
+  {
+    return true;
+  }
+
   bool HasInputWithID(const QString& id) const
   {
     return input_ids_.contains(id);

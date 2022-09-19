@@ -31,11 +31,15 @@
 #include "node/splitvalue.h"
 #include "render/color.h"
 #include "render/texture.h"
-#include "undo/undocommand.h"
 
 namespace olive {
 
 class Node;
+class NodeValue;
+class NodeValueTable;
+
+using NodeValueArray = std::map<int, NodeValue>;
+using NodeValueTableArray = std::map<int, NodeValueTable>;
 
 class NodeValue
 {
@@ -339,7 +343,7 @@ public:
   QVector3D toVec3() const { return value<QVector3D>(); }
   QVector4D toVec4() const { return value<QVector4D>(); }
   Bezier toBezier() const { return value<Bezier>(); }
-  QVector<NodeValue> toArray() const { return value<QVector<NodeValue> >(); }
+  NodeValueArray toArray() const { return value<NodeValueArray>(); }
 
 private:
   Type type_;

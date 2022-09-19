@@ -80,11 +80,11 @@ NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input
 
   if (value.array()) {
     // Resolve each element of array
-    QVector<NodeValueTable> tables = value.value<QVector<NodeValueTable> >();
-    QVector<NodeValue> output(tables.size());
+    NodeValueTableArray tables = value.value<NodeValueTableArray>();
+    NodeValueArray output;
 
-    for (int i=0; i<tables.size(); i++) {
-      output[i] = GenerateRowValueElement(node, input, i, &tables[i], time);
+    for (auto it=tables.begin(); it!=tables.end(); it++) {
+      output[it->first] = GenerateRowValueElement(node, input, it->first, &it->second, time);
     }
 
     value = NodeValue(value.type(), QVariant::fromValue(output), value.source(), value.array(), value.tag());
@@ -195,6 +195,10 @@ TexturePtr NodeTraverser::GetMainTextureFromJob(const GenerateJob &job)
 
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
 {
+  if (!node->IsInputActiveAtTime(input, -1, range)) {
+    return NodeValueTable();
+  }
+
   // If input is connected, retrieve value directly
   if (node->IsInputConnected(input)) {
 
@@ -214,18 +218,21 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     if (is_array) {
 
       // Value is an array, we will return a list of NodeValueTables
-      QVector<NodeValueTable> array_tbl(node->InputArraySize(input));
+      NodeValueTableArray array_tbl;
 
-      for (int i=0; i<array_tbl.size(); i++) {
-        NodeValueTable& sub_tbl = array_tbl[i];
-        TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
+      int sz = node->InputArraySize(input);
+      for (int i=0; i<sz; i++) {
+        if (node->IsInputActiveAtTime(input, i, range)) {
+          NodeValueTable& sub_tbl = array_tbl[i];
+          TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
 
-        if (node->IsInputConnected(input, i)) {
-          Node *output = node->GetConnectedOutput(input, i);
-          sub_tbl = GenerateTable(output, adjusted_range, node);
-        } else {
-          QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
-          sub_tbl.Push(node->GetInputDataType(input), input_value, node);
+          if (node->IsInputConnected(input, i)) {
+            Node *output = node->GetConnectedOutput(input, i);
+            sub_tbl = GenerateTable(output, adjusted_range, node);
+          } else {
+            QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
+            sub_tbl.Push(node->GetInputDataType(input), input_value, node);
+          }
         }
       }
 
