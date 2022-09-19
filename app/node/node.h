@@ -212,9 +212,38 @@ public:
     return input_ids_;
   }
 
-  virtual bool IsInputActiveAtTime(const QString &input, int element, const TimeRange &r) const
+  class ActiveElements
   {
-    return true;
+  public:
+    enum Mode {
+      kAllElements,
+      kSpecified,
+      kNoElements
+    };
+
+    ActiveElements(Mode m = kAllElements)
+    {
+      mode_ = m;
+    }
+
+    Mode mode() const { return mode_; }
+    std::list<int> elements() const { return elements_; }
+
+    void add(int e)
+    {
+      elements_.push_back(e);
+      mode_ = kSpecified;
+    }
+
+  private:
+    Mode mode_;
+    std::list<int> elements_;
+
+  };
+
+  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
+  {
+    return ActiveElements::kAllElements;
   }
 
   bool HasInputWithID(const QString& id) const

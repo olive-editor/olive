@@ -195,10 +195,6 @@ TexturePtr NodeTraverser::GetMainTextureFromJob(const GenerateJob &job)
 
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
 {
-  if (!node->IsInputActiveAtTime(input, -1, range)) {
-    return NodeValueTable();
-  }
-
   // If input is connected, retrieve value directly
   if (node->IsInputConnected(input)) {
 
@@ -220,19 +216,15 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
       // Value is an array, we will return a list of NodeValueTables
       NodeValueTableArray array_tbl;
 
-      int sz = node->InputArraySize(input);
-      for (int i=0; i<sz; i++) {
-        if (node->IsInputActiveAtTime(input, i, range)) {
-          NodeValueTable& sub_tbl = array_tbl[i];
-          TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
-
-          if (node->IsInputConnected(input, i)) {
-            Node *output = node->GetConnectedOutput(input, i);
-            sub_tbl = GenerateTable(output, adjusted_range, node);
-          } else {
-            QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
-            sub_tbl.Push(node->GetInputDataType(input), input_value, node);
-          }
+      Node::ActiveElements a = node->GetActiveElementsAtTime(input, range);
+      if (a.mode() == Node::ActiveElements::kAllElements) {
+        int sz = node->InputArraySize(input);
+        for (int i=0; i<sz; i++) {
+          ProcessInputElement(array_tbl, node, input, i, range);
+        }
+      } else if (a.mode() == Node::ActiveElements::kSpecified) {
+        for (int ele : a.elements()) {
+          ProcessInputElement(array_tbl, node, input, ele, range);
         }
       }
 
@@ -251,6 +243,20 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     return_table.Push(node->GetInputDataType(input), return_val, node, is_array);
     return return_table;
 
+  }
+}
+
+void NodeTraverser::ProcessInputElement(NodeValueTableArray &array_tbl, const Node *node, const QString &input, int element, const TimeRange &range)
+{
+  NodeValueTable& sub_tbl = array_tbl[element];
+  TimeRange adjusted_range = node->InputTimeAdjustment(input, element, range);
+
+  if (node->IsInputConnected(input, element)) {
+    Node *output = node->GetConnectedOutput(input, element);
+    sub_tbl = GenerateTable(output, adjusted_range, node);
+  } else {
+    QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), element);
+    sub_tbl.Push(node->GetInputDataType(input), input_value, node);
   }
 }
 
@@ -277,12 +283,6 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
 {
   // NOTE: Times how long a node takes to process, useful for profiling.
   //GTTTime gtt(n);Q_UNUSED(gtt);
-
-  const Track* track = dynamic_cast<const Track*>(n);
-  if (track) {
-    // If the range is not wholly contained in this Block, we'll need to do some extra processing
-    return GenerateBlockTable(track, range);
-  }
 
   // FIXME: Cache certain values here if we've already processed them before
 
@@ -336,22 +336,6 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
     m.Push(primary);
     return m;
   }
-}
-
-NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)
-{
-  // By default, just follow the in point
-  Block* active_block = track->BlockAtTime(range.in());
-
-  NodeValueTable table;
-
-  if (active_block) {
-    block_stack_.push_back(active_block);
-    table = GenerateTable(active_block, Track::TransformRangeForBlock(active_block, range), track);
-    block_stack_.pop_back();
-  }
-
-  return table;
 }
 
 TexturePtr NodeTraverser::ProcessVideoCacheJob(const CacheJob &val)

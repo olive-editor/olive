@@ -1056,7 +1056,7 @@ void ViewerDisplayWidget::DrawSubtitleTracks()
   for (int j=subtitle_tracklist.size()-1; j>=0; j--) {
     Track *sub_track = subtitle_tracklist.at(j);
     if (!sub_track->IsMuted()) {
-      if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->BlockAtTime(time_))) {
+      if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->VisibleBlockAtTime(time_))) {
         // Split into lines
         QStringList list = QtUtils::WordWrapString(sub->GetText(), fm, bounding_box.width());
 

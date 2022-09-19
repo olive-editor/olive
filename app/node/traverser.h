@@ -87,7 +87,7 @@ public:
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
-  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
+  void ProcessInputElement(NodeValueTableArray &array_tbl, const Node *node, const QString &input, int element, const TimeRange &range);
 
   virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time){}
 

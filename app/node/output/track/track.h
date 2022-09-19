@@ -22,7 +22,6 @@
 #define TRACK_H
 
 #include "node/block/block.h"
-#include "timeline/timelinecommon.h"
 
 namespace olive {
 
@@ -54,6 +53,9 @@ public:
   virtual QString id() const override;
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
+
+  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
@@ -314,36 +316,18 @@ public:
    */
   Block* NearestBlockAfter(const rational& time) const;
 
-  /**
-   * @brief Returns the block that should be rendered/visible at a given time
-   *
-   * Use this for any video rendering or determining which block will actually be active at any
-   * time.
-   *
-   * @return Catches the first block that matches `block.in <= time && block.out > time`. Returns
-   * nullptr if the time exceeds the track length, the block active at this time is disabled, or
-   * if IsMuted() is true.
-   */
-  Block* BlockAtTime(const rational& time) const;
-
-  /**
-   * @brief Returns a list of blocks that should be rendered/visible during a given time range
-   *
-   * Use this for audio rendering to determine all blocks that will be active throughout a range
-   * of time.
-   *
-   * @return Similar to BlockAtTime() but will match several blocks where
-   * `block.in < range.out && block.out > range.in`. Returns an empty list if IsMuted() or if
-   * `range.in >= track.length`. Blocks that are not enabled will be omitted from the returned list.
-   */
-  QVector<Block*> BlocksAtTimeRange(const TimeRange& range) const;
-
   const QVector<Block *> &Blocks() const
   {
     return blocks_;
   }
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
+
+  Block *VisibleBlockAtTime(const rational &t) const
+  {
+    int index = GetBlockIndexAtTime(t);
+    return (index == -1) ? nullptr : blocks_.at(index);
+  }
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -466,6 +450,10 @@ private:
   int GetArrayIndexFromCacheIndex(int index) const;
 
   int GetCacheIndexFromArrayIndex(int index) const;
+
+  int GetBlockIndexAtTime(const rational &time) const;
+
+  void ProcessAudioTrack(NodeValueTable *table, const TimeRange &range) const;
 
   TimeRangeList block_length_pending_invalidations_;
 

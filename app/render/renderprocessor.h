@@ -42,8 +42,6 @@ public:
   };
 
 protected:
-  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
-
   virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time) override;
 
   virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time) override;
