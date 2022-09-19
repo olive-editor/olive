@@ -59,11 +59,13 @@ public:
     return hovered_;
   }
 
-  // This function can be overriden for gizmo that are moved in group,
-  // for example the control point of a bezier gizmo
+  // This function can be overriden for gizmo that are moved in group.
+  // For example, main point of a bezier returns true, but the control points
+  // return false
   virtual bool CanBeDraggedInGroup() const {
-    return true;
+    return false;
   }
+
 
 signals:
 

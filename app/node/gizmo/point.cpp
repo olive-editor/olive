@@ -27,7 +27,8 @@ namespace olive {
 PointGizmo::PointGizmo(const Shape &shape, bool smaller, QObject *parent) :
   DraggableGizmo{parent},
   shape_(shape),
-  smaller_(smaller)
+  smaller_(smaller),
+  can_drag_in_group_(false)
 {
 }
 
@@ -46,7 +47,9 @@ void PointGizmo::Draw(QPainter *p) const
   QRectF rect = GetDrawingRect(p->transform(), GetStandardRadius());
 
   if (shape_ != kAnchorPoint) {
-    p->setBrush( IsHovered() ? Qt::darkBlue : (IsSelected() ? Qt::gray : Qt::white));
+    p->setBrush( IsHovered() ? QColor(0x20,0xFF, 0xFF) : (IsSelected() ? QColor(0xCC,0x00, 0xFF) : Qt::white));
+    p->setPen( IsHovered() ? QPen(QColor(0x10,0x80, 0x80),6) :
+                             (IsSelected() ? QPen(QColor(0x66,0x00, 0x80), 4) : QPen(Qt::white, 4)));
   }
 
   switch (shape_) {

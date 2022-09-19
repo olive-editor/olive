@@ -182,6 +182,7 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
   for (int i=current_pos_sz; i<gizmo_position_handles_.size(); i++) {
     gizmo_position_handles_.at(i)->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 0));
     gizmo_position_handles_.at(i)->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 1));
+    gizmo_position_handles_.at(i)->SetCanBeDraggedInGroup( true);
 
     poly_gizmo_->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 0));
     poly_gizmo_->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 1));
@@ -192,12 +193,17 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     bez_gizmo1->SetShape(PointGizmo::kCircle);
     bez_gizmo1->SetSmaller(true);
 
+
     PointGizmo *bez_gizmo2 = gizmo_bezier_handles_.at(i*2+1);
     bez_gizmo2->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 4));
     bez_gizmo2->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 5));
     bez_gizmo2->SetShape(PointGizmo::kCircle);
     bez_gizmo2->SetSmaller(true);
+
+    gizmo_position_handles_.at(i)->AddChildPoint( bez_gizmo1);
+    gizmo_position_handles_.at(i)->AddChildPoint( bez_gizmo2);
   }
+
 
   if (!points.isEmpty()) {
     for (int i=0; i<points.size(); i++) {
@@ -213,6 +219,23 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
       gizmo_bezier_lines_[i*2]->SetLine(QLineF(main, cp1));
       gizmo_bezier_handles_[i*2+1]->SetPoint(cp2);
       gizmo_bezier_lines_[i*2+1]->SetLine(QLineF(main, cp2));
+
+      gizmo_bezier_handles_[i*2]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                              gizmo_position_handles_.at(i)->IsHovered() ||
+                                              gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                              gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
+      gizmo_bezier_handles_[i*2+1]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                                gizmo_position_handles_.at(i)->IsHovered() ||
+                                                gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                                gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
+      gizmo_bezier_lines_[i*2]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                            gizmo_position_handles_.at(i)->IsHovered() ||
+                                            gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                            gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
+      gizmo_bezier_lines_[i*2+1]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                              gizmo_position_handles_.at(i)->IsHovered() ||
+                                              gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                              gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
     }
   }
 

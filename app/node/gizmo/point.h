@@ -50,9 +50,20 @@ public:
   bool GetSmaller() const { return smaller_; }
   void SetSmaller(bool e) { smaller_ = e; }
 
-  // avoid to move control points when multiple points are selected
   bool CanBeDraggedInGroup() const override {
-    return smaller_ ? false : true;
+    return can_drag_in_group_;
+  }
+
+  void SetCanBeDraggedInGroup( bool can_drag) {
+    can_drag_in_group_ = can_drag;
+  }
+
+  void AddChildPoint(PointGizmo * child) {
+    child_points_ << child;
+  }
+
+  const QList<PointGizmo *> ChildPoints() const {
+    return child_points_;
   }
 
   virtual void Draw(QPainter *p) const override;
@@ -69,6 +80,9 @@ private:
   QPointF point_;
 
   bool smaller_;
+
+  bool can_drag_in_group_;
+  QList<PointGizmo *> child_points_;
 
 };
 

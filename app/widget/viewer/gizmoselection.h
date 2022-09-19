@@ -63,8 +63,6 @@ public:
     return pressed_gizmo_;
   }
 
-  bool CanStartDrag() const;  // TODO_ serve?
-
   void OnMouseLeftPress(QMouseEvent *event);
 
   void OnMouseRelease(QMouseEvent *event);
@@ -80,7 +78,7 @@ private:
   void deselectAllGizmos();
   void addToSelection(NodeGizmo * gizmo);
   void toggleSelection(NodeGizmo * gizmo);
-  QList<NodeGizmo *> tryGizmoPress( const QPointF &p);
+  QList<NodeGizmo *> tryPointInGizmo( const QPointF &p);
   void startLassoSelection(QMouseEvent *event);
   void selectGizmosInsideLasso(bool toggle);
 

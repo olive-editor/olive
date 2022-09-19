@@ -57,18 +57,27 @@ void GizmoSelection::OnMouseLeftPress(QMouseEvent *event)
 {
   if (gizmos_)
   {
-    QList<NodeGizmo *> pressed_gizmos = tryGizmoPress(gizmo_last_draw_transform_.inverted().map(event->pos()));
+    QList<NodeGizmo *> pressed_gizmos = tryPointInGizmo(gizmo_last_draw_transform_.inverted().map(event->pos()));
+    assert( pressed_gizmos.size() == 3);  // 0:main point; 1: control point; 2: path
 
-    if (pressed_gizmos.size() > 0) {
-      // if more gizmos are selected, choose main point over control point, unless ALT was pressed
-      if (event->modifiers() & Qt::AltModifier) {
-        pressed_gizmo_ = pressed_gizmos.last();
-      } else {
-        pressed_gizmo_ = pressed_gizmos.first();
+    int i=0;
+    pressed_gizmo_ = nullptr;
+    draw_lasso_flag_ = false;
+
+    if (event->modifiers() & Qt::AltModifier) {
+      // discard the main point gizmo at position 0
+      i++;
+    }
+    // select first non null entry, if any
+
+    for (; (i<3) && (pressed_gizmo_ == nullptr); i++) {
+      if (pressed_gizmos.at(i) != nullptr) {
+        pressed_gizmo_ = pressed_gizmos.at(i);
       }
-      draw_lasso_flag_ = false;
-    } else {
-      pressed_gizmo_ = nullptr;
+    }
+
+    if (pressed_gizmo_ == nullptr) {
+      // no gizmo present in click region. Start a lasso select operation
       startLassoSelection(event);
     }
 
@@ -151,30 +160,31 @@ void GizmoSelection::DrawSelection(QPainter &painter)
 bool GizmoSelection::CanMoveGizmo(NodeGizmo *gizmo) const
 {
   return  (pressed_gizmo_ == gizmo) ||
-      ((pressed_gizmo_ != nullptr) && (gizmo->CanBeDraggedInGroup()));
+      ((pressed_gizmo_ != nullptr) &&
+       (pressed_gizmo_->CanBeDraggedInGroup()) &&
+       (gizmo->CanBeDraggedInGroup()));
 }
 
-
-bool GizmoSelection::CanStartDrag() const {
-  // if last "LeftPress" was not on a point, do not
-  // drag points on a mouse move
-  return (pressed_gizmo_ != nullptr);
-}
 
 void GizmoSelection::onMouseHover(QMouseEvent *event)
 {
-  QList<NodeGizmo *> hovered_list = tryGizmoPress(gizmo_last_draw_transform_.inverted().map(event->pos()));
+  QList<NodeGizmo *> hovered_list = tryPointInGizmo(gizmo_last_draw_transform_.inverted().map(event->pos()));
+  assert( hovered_list.size() == 3);  // 0:main point; 1: control point; 2: path
 
+  //pre-remove hover
   if (hovered_gizmo_) {
     hovered_gizmo_->SetHovered( false);
     hovered_gizmo_ = nullptr;
     owner_->update();
   }
 
-  if (hovered_list.size() > 0) {
-    hovered_gizmo_ = hovered_list.first();
-    hovered_gizmo_->SetHovered( true);
-    owner_->update();
+  for (int i=0; (i<3) && (hovered_gizmo_ == nullptr); i++) {
+
+    if (hovered_list.at(i) != nullptr) {
+      hovered_gizmo_ = hovered_list.at(i);
+      hovered_gizmo_->SetHovered( true);
+      owner_->update();
+    }
   }
 }
 
@@ -193,6 +203,15 @@ void GizmoSelection::addToSelection(NodeGizmo *gizmo)
   if ( ! selected_gizmos_.contains(gizmo)) {
     gizmo->SetSelected( true);
     selected_gizmos_.append(gizmo);
+
+    // By default, selecting a Bezier point also selects control points
+    PointGizmo * point_gizmo = dynamic_cast<PointGizmo *>(gizmo);
+    if (point_gizmo) {
+      for (PointGizmo * child : point_gizmo->ChildPoints()) {
+        child->SetSelected(true);
+        selected_gizmos_.append(child);
+      }
+    }
   }
 }
 
@@ -207,11 +226,11 @@ void GizmoSelection::toggleSelection(NodeGizmo *gizmo)
   }
 }
 
-QList<NodeGizmo *> GizmoSelection::tryGizmoPress(const QPointF &p)
+QList<NodeGizmo *> GizmoSelection::tryPointInGizmo(const QPointF &p)
 {
-  QList<NodeGizmo *> pressed_main_points;
-  QList<NodeGizmo *> pressed_control_points;
-  QList<NodeGizmo *> pressed_path;
+  NodeGizmo * main_point = nullptr;
+  NodeGizmo * control_point = nullptr;
+  NodeGizmo * path = nullptr;
 
   if (gizmos_) {
 
@@ -221,26 +240,26 @@ QList<NodeGizmo *> GizmoSelection::tryGizmoPress(const QPointF &p)
         if (PointGizmo *point = dynamic_cast<PointGizmo*>(gizmo)) {
           if (point->GetClickingRect(gizmo_last_draw_transform_).contains(p)) {
             if (point->GetSmaller()) {
-              pressed_control_points.append(point);
+              control_point = point;
             } else {
-              pressed_main_points.append(point);
+              main_point = point;
             }
           }
         } else if (PolygonGizmo *poly = dynamic_cast<PolygonGizmo*>(gizmo)) {
           if (poly->GetPolygon().containsPoint(p, Qt::OddEvenFill)) {
-            pressed_path.append(poly);
+            path = poly;
           }
-        } else if (PathGizmo *path = dynamic_cast<PathGizmo*>(gizmo)) {
-          if (path->GetPath().contains(p)) {
-            pressed_path.append(path);
+        } else if (PathGizmo *giz_path = dynamic_cast<PathGizmo*>(gizmo)) {
+          if (giz_path->GetPath().contains(p)) {
+            path = giz_path;
           }
         }
       }
     }
   }
 
-  // This order is such that main point take the precedence over control points and full path
-  return QList<NodeGizmo *>() << pressed_main_points << pressed_path << pressed_control_points;
+  // return in fixed order
+  return QList<NodeGizmo *>() << main_point << control_point << path;
 }
 
 }  // namespace olive

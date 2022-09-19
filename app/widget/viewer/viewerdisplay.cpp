@@ -889,7 +889,7 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
     if (current_gizmo_) {
       // Signal movement
-      if (!gizmo_drag_started_ && gizmo_selection_.CanStartDrag()) {
+      if (!gizmo_drag_started_) {
         for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
           DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
 
