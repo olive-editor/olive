@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(multicam)
-add_subdirectory(time)
-add_subdirectory(value)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/input/multicam/multicamnode.h
+  node/input/multicam/multicamnode.cpp
   PARENT_SCOPE
 )

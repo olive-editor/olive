@@ -76,6 +76,7 @@ public:
     kMaskDistort,
     kDropShadowFilter,
     kTimeFormat,
+    kMulticamNode,
 
     // Count value
     kInternalNodeCount
