@@ -368,6 +368,8 @@ private slots:
 
   void RequestNextDryRun();
 
+  void SaveFrameAsImage();
+
 };
 
 }

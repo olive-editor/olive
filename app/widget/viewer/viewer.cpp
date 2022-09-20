@@ -588,6 +588,11 @@ void ViewerWidget::RequestNextDryRun()
   }
 }
 
+void ViewerWidget::SaveFrameAsImage()
+{
+  Core::instance()->OpenExportDialogForViewer(GetConnectedNode(), GetTime(), true);
+}
+
 void ViewerWidget::CloseAudioProcessor()
 {
   audio_processor_.Close();
@@ -1384,6 +1389,11 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       display_widget_->update();
     });
   }
+
+  menu.addSeparator();
+
+  auto save_frame_as_image = menu.addAction(tr("Save Frame As Image"));
+  connect(save_frame_as_image, &QAction::triggered, this, &ViewerWidget::SaveFrameAsImage);
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));
 }

@@ -121,6 +121,10 @@ void PlaybackCache::LoadState()
 
 void PlaybackCache::SaveState()
 {
+  if (!DiskManager::instance()) {
+    return;
+  }
+
   QDir cache_dir = GetThisCacheDirectory();
   QFile f(cache_dir.filePath(QStringLiteral("state")));
   if (validated_.isEmpty() && passthroughs_.isEmpty()) {

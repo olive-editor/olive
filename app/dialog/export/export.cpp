@@ -44,9 +44,10 @@ namespace olive {
 
 #define super QDialog
 
-ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
+ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWidget *parent) :
   super(parent),
-  viewer_node_(viewer_node)
+  viewer_node_(viewer_node),
+  stills_only_mode_(stills_only_mode)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -156,6 +157,30 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   row++;
 
+  {
+    QGroupBox *options_group = new QGroupBox();
+    preferences_layout->addWidget(options_group, row, 0, 1, 4);
+
+    QGridLayout *options_layout = new QGridLayout(options_group);
+
+    int opt_row = 0;
+
+    export_bkg_box_ = new QCheckBox(tr("Run In Background"));
+    export_bkg_box_->setToolTip(tr("Exporting in the background allows you to continue using Olive while "
+                                   "exporting, but may result in slower export speeds, and may"
+                                   "severely impact editing and playback performance."));
+    options_layout->addWidget(export_bkg_box_, opt_row, 0);
+
+    import_file_after_export_ = new QCheckBox(tr("Import Result After Export"));
+    options_layout->addWidget(import_file_after_export_, opt_row, 1);
+
+    connect(export_bkg_box_, &QCheckBox::toggled, import_file_after_export_, [this](bool e){
+      import_file_after_export_->setEnabled(!e);
+    });
+  }
+
+  row++;
+
   QHBoxLayout *btn_layout = new QHBoxLayout();
   btn_layout->setMargin(0);
   preferences_layout->addLayout(btn_layout, row, 0, 1, 4);
@@ -169,12 +194,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QPushButton *cancel_btn = new QPushButton(tr("Cancel"));
   btn_layout->addWidget(cancel_btn);
   connect(cancel_btn, &QPushButton::clicked, this, &ExportDialog::reject);
-
-  export_bkg_box_ = new QCheckBox(tr("Run In Background"));
-  export_bkg_box_->setToolTip(tr("Exporting in the background allows you to continue using Olive while "
-                                 "exporting, but may result in slower export speeds, and may"
-                                 "severely impact editing and playback performance."));
-  btn_layout->addWidget(export_bkg_box_);
 
   btn_layout->addStretch();
 
@@ -238,7 +257,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   subtitles_enabled_->setEnabled(has_subtitle_tracks);
 
   // If the viewer already has cached params, use them
-  if (viewer_node_->GetLastUsedEncodingParams().IsValid()) {
+  if (!stills_only_mode_ && viewer_node_->GetLastUsedEncodingParams().IsValid()) {
     SetParams(viewer_node_->GetLastUsedEncodingParams());
   } else {
     SetDefaults();
@@ -370,6 +389,11 @@ void ExportDialog::ExportFinished()
     // If this task was cancelled, we stay open so the user can potentially queue another export
   } else {
     // Accept this dialog and close
+    if (import_file_after_export_) {
+      QString filename = filename_edit_->text().trimmed();
+      emit RequestImportFile(filename);
+    }
+
     this->accept();
   }
 }
@@ -572,7 +596,11 @@ bool ExportDialog::SequenceHasSubtitles() const
 
 void ExportDialog::SetDefaults()
 {
-  format_combobox_->SetFormat(ExportFormat::kFormatMPEG4Video);
+  if (!stills_only_mode_) {
+    format_combobox_->SetFormat(ExportFormat::kFormatMPEG4Video);
+  } else {
+    format_combobox_->SetFormat(ExportFormat::kFormatPNG);
+  }
   FormatChanged(format_combobox_->GetFormat());
 
   VideoParams vp = viewer_node_->GetVideoParams();
@@ -745,7 +773,9 @@ void ExportDialog::done(int r)
 {
   preview_viewer_->ConnectViewerNode(nullptr);
 
-  viewer_node_->SetLastUsedEncodingParams(GenerateParams());
+  if (!stills_only_mode_) {
+    viewer_node_->SetLastUsedEncodingParams(GenerateParams());
+  }
 
   super::done(r);
 }

@@ -125,8 +125,9 @@ jobs:
           filename=$(echo Olive*.AppImage)
           pkgname="${filename/x86_64/Linux-x86_64}"
           mv "${filename}" "${pkgname}"
+          basename="${filename%.*}"
           echo "::set-output name=pkgname::${pkgname}"
-          echo "::set-output name=artifact::${filename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
+          echo "::set-output name=artifact::${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
@@ -263,20 +264,20 @@ jobs:
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
-          7z a $PKGNAME.zip olive-editor
+          mkdir deploy
+          mv olive-editor deploy
 
       - name: Upload Installer Artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PKGNAME }}.exe
+          name: ${{ env.PKGNAME }}-Installer
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
 
       - name: Upload Portable Artifact to GitHub
         uses: actions/upload-artifact@v2
-        continue-on-error: true
         with:
-          name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          name: ${{ env.PKGNAME }}-Portable
+          path: ${{ runner.workspace }}/build/deploy
 
   macos:
     strategy:
@@ -382,7 +383,10 @@ jobs:
           BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
-          mv app/$BUNDLE_NAME .
+          mkdir deploy
+          cd deploy
+
+          mv ../app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
 
           # Copy Qt frameworks and plugins
@@ -404,7 +408,7 @@ jobs:
           mv Olive.sym "$SYM_DIR"
 
       - name: Sign Application
-        working-directory: ${{ runner.workspace }}/build
+        working-directory: ${{ runner.workspace }}/build/deploy
         shell: bash
         if: github.event_name == 'push'
         env:
@@ -440,15 +444,9 @@ jobs:
           # Sign application
           codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
 
-      - name: Deploy Packages
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          zip -r $PKGNAME.zip Olive.app
-
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
         continue-on-error: true
         with:
-          name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          name: ${{ env.PKGNAME }}
+          path: ${{ runner.workspace }}/build/deploy

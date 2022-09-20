@@ -350,7 +350,7 @@ int TimeRangeListFrameIterator::size()
     size_ = 0;
 
     foreach (const TimeRange &range, list_) {
-      rational start = Timecode::snap_time_to_timebase(range.in(), timebase_, Timecode::kCeil);
+      rational start = Snap(range.in());
       rational end = Timecode::snap_time_to_timebase(range.out(), timebase_, Timecode::kFloor);
 
       if (end == range.out()) {
