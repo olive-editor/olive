@@ -58,6 +58,8 @@ public:
     can_drag_in_group_ = can_drag;
   }
 
+  // A child point is a point that is selected automatically
+  // when the parent is selected
   void AddChildPoint(PointGizmo * child) {
     child_points_ << child;
   }

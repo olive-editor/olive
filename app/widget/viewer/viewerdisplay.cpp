@@ -81,6 +81,7 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   frame_rate_averages_.resize(kFrameRateAverageCount);
 
   inner_widget()->setAcceptDrops(true);
+  // needed for hovering feature
   inner_widget()->setMouseTracking( true);
   inner_widget()->installEventFilter( & gizmo_selection_);
 }
@@ -890,6 +891,7 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
     if (current_gizmo_) {
       // Signal movement
       if (!gizmo_drag_started_) {
+        // start a drag operation on all selected gizmos
         for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
           DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
 
@@ -932,6 +934,7 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
       return true;
     }
+
   }
 
   return false;
@@ -971,6 +974,7 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
     if (gizmo_drag_started_) {
       MultiUndoCommand *command = new MultiUndoCommand();
 
+      // End drag operation for all selected gizmos
       for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
         if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo)) {
           if (a_gizmo->CanBeDraggedInGroup() || (a_gizmo == gizmo_selection_.PressedGizmo())) {
@@ -1019,7 +1023,6 @@ bool ViewerDisplayWidget::OnKeyPress(QKeyEvent *e)
       return ForwardEventToTextEdit(e);
     }
   }
-
   return false;
 }
 

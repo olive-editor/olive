@@ -229,7 +229,6 @@ protected slots:
 
   virtual void OnDestroy() override;
 
-
 private:
   QPointF GetTexturePosition(const QPoint& screen_pos);
   QPointF GetTexturePosition(const QSize& size);
@@ -347,7 +346,6 @@ private:
   QTransform gizmo_last_draw_transform_;
   QTransform gizmo_last_draw_transform_inverted_;
 
-
   bool show_subtitles_;
   Sequence *subtitle_tracks_;
 
@@ -423,6 +421,8 @@ private slots:
   void SubtitlesChanged(const TimeRange &r);
 
   void FocusChanged(QWidget *old, QWidget *now);
+
+
 };
 
 }

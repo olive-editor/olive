@@ -80,6 +80,7 @@ private:
   QVector<PointGizmo*> gizmo_position_handles_;
   QVector<PointGizmo*> gizmo_bezier_handles_;
   QVector<LineGizmo*> gizmo_bezier_lines_;
+
 };
 
 }

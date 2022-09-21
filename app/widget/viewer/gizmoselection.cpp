@@ -45,6 +45,7 @@ GizmoSelection::GizmoSelection(QWidget *owner,
 }
 
 
+// Clear old lasso and prepare for a new one
 void olive::GizmoSelection::startLassoSelection(QMouseEvent *event)
 {
   delete lasso_path_;  // method 'QPainterPath::clear' is only available since QT 5.13
@@ -52,6 +53,7 @@ void olive::GizmoSelection::startLassoSelection(QMouseEvent *event)
   lasso_path_->moveTo( gizmo_last_draw_transform_.inverted().map(event->pos()));
   draw_lasso_flag_ = true;
 }
+
 
 void GizmoSelection::OnMouseLeftPress(QMouseEvent *event)
 {
@@ -65,11 +67,11 @@ void GizmoSelection::OnMouseLeftPress(QMouseEvent *event)
     draw_lasso_flag_ = false;
 
     if (event->modifiers() & Qt::AltModifier) {
-      // discard the main point gizmo at position 0
+      // discard the main point gizmo at position 0, so control point can be selected
       i++;
     }
+  
     // select first non null entry, if any
-
     for (; (i<3) && (pressed_gizmo_ == nullptr); i++) {
       if (pressed_gizmos.at(i) != nullptr) {
         pressed_gizmo_ = pressed_gizmos.at(i);
@@ -89,14 +91,14 @@ void GizmoSelection::OnMouseLeftPress(QMouseEvent *event)
           selected_gizmos_.removeAll( pressed_gizmo_);
         }
       } else {
-        // click on a new gizmo. When SHIFT, add to selection; otherwise replace selection
+        // click on a new gizmo. When SHIFT is pressed, add to selection; otherwise replace selection
         if ((event->modifiers() & Qt::ShiftModifier) == 0) {
           deselectAllGizmos();
         }
         addToSelection( pressed_gizmo_);
       }
     } else if ((event->modifiers() & Qt::ShiftModifier) == 0) {
-      // when SHIF is pressed, this may begin a lasso-append selection
+      // if SHIF was pressed, this might have begun a lasso-append selection
       deselectAllGizmos();
     }
   }
@@ -121,6 +123,7 @@ void olive::GizmoSelection::selectGizmosInsideLasso( bool toggle)
       NodeGizmo *gizmo = *it;
       if (gizmo->IsVisible()) {
         if (PointGizmo *point = dynamic_cast<PointGizmo*>(gizmo)) {
+          // check if point is inside lasso
           if (lasso_path_->contains(point->GetPoint())) {
             if (toggle) {
               toggleSelection(point);
@@ -147,6 +150,7 @@ void GizmoSelection::OnMouseMove(QMouseEvent *event)
   }
 }
 
+
 void GizmoSelection::DrawSelection(QPainter &painter)
 {
   if (gizmos_ && draw_lasso_flag_)
@@ -157,6 +161,9 @@ void GizmoSelection::DrawSelection(QPainter &painter)
   }
 }
 
+
+// This function is called for gizmos that are selected. Return TRUE
+// if given gizmo is pressed or can be moved as part of a selection.
 bool GizmoSelection::CanMoveGizmo(NodeGizmo *gizmo) const
 {
   return  (pressed_gizmo_ == gizmo) ||
@@ -215,6 +222,8 @@ void GizmoSelection::addToSelection(NodeGizmo *gizmo)
   }
 }
 
+
+// Toggle the selection for a single gizmo
 void GizmoSelection::toggleSelection(NodeGizmo *gizmo)
 {
   if (selected_gizmos_.contains(gizmo)) {
@@ -226,6 +235,12 @@ void GizmoSelection::toggleSelection(NodeGizmo *gizmo)
   }
 }
 
+
+// Parse all gizmos and check if they contain a given point.
+// The returned value always has 3 entries in fixed position: 
+// [0]=> position  point (main point); [1]=> control point; [2]=> path
+// Each entry may be NULL. If two gizmos of the same type are in the same position,
+// one is returned (the last one).
 QList<NodeGizmo *> GizmoSelection::tryPointInGizmo(const QPointF &p)
 {
   NodeGizmo * main_point = nullptr;

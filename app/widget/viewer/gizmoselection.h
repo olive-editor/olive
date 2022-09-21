@@ -40,7 +40,6 @@ namespace olive {
 /// * SHIFT+LEFT_CLICK => toggles the selection of the clicked gizmos and preserves
 ///         prevously selected gizmos
 /// * LEFT_CLICK outside any gizmo => deselect all gizmos
-/// * CTRL+LEFT_CLICK outside any gizmo => select all gizmos
 /// * Lasso => select gizmos inside lasso. All gizmos outside lasso are deselected
 /// * SHIFT+Lasso => toggle the selection state of gizmos inside lasso. The selection
 ///         state of all gizmos outside lasso is unchanged.
@@ -83,8 +82,12 @@ private:
   void selectGizmosInsideLasso(bool toggle);
 
 private:
+  // This is the widget of a ViewerDisplayWidget. Neede to request refresh
   QWidget * owner_;
+
+  // Transform from full frame size to the frame displayed in ViewerDisplayWidget
   QTransform & gizmo_last_draw_transform_;
+
   NodeGizmo * pressed_gizmo_;
   NodeGizmo * hovered_gizmo_;
   QList<NodeGizmo *> selected_gizmos_;

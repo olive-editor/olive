@@ -200,6 +200,8 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     bez_gizmo2->SetShape(PointGizmo::kCircle);
     bez_gizmo2->SetSmaller(true);
 
+    // Set control point as children of the position point, so that selecting the position point
+    // also selects the control points
     gizmo_position_handles_.at(i)->AddChildPoint( bez_gizmo1);
     gizmo_position_handles_.at(i)->AddChildPoint( bez_gizmo2);
   }
@@ -220,6 +222,10 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
       gizmo_bezier_handles_[i*2+1]->SetPoint(cp2);
       gizmo_bezier_lines_[i*2+1]->SetLine(QLineF(main, cp2));
 
+      // control points (and relative segment) are visible in any of the following:
+      // - the main point is selected or hovered
+      // - the control point itself is selected
+      // - the sibling control point is selected
       gizmo_bezier_handles_[i*2]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
                                               gizmo_position_handles_.at(i)->IsHovered() ||
                                               gizmo_bezier_handles_[i*2]->IsSelected() ||
@@ -256,7 +262,9 @@ void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
   if (gizmo == poly_gizmo_) {
-    // the number of draggers should be twice the number of control points
+    // When the body of the polygon is clicked, a drag operation for each main point is started.
+    // Control point will follow automatically.
+    // The number of draggers should be twice the number of control points.
     int numOfDraggers = gizmo->GetDraggers().size();
 
     for (int i=0; i < (numOfDraggers/2); i++) {
