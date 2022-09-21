@@ -63,6 +63,11 @@ PreviewAutoCacher::~PreviewAutoCacher()
 
 RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool dry)
 {
+  return GetSingleFrame(viewer_node_->GetConnectedTextureOutput(), t, dry);
+}
+
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(Node *n, const rational &t, bool dry)
+{
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
 
@@ -71,6 +76,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool dry)
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
   sfr->setProperty("dry", dry);
+  sfr->setProperty("node", Node::PtrToValue(n));
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -611,11 +617,19 @@ void PreviewAutoCacher::TryRender()
     single_frame_render_ = nullptr;
 
     // Check if already caching this
-    RenderTicketWatcher *watcher = RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(),
-                                               t->property("time").value<rational>(),
-                                               nullptr,
-                                               t->property("dry").toBool());
-    video_immediate_passthroughs_[watcher].append(t);
+    Node *n = Node::ValueToPtr<Node>(t->property("node"));
+    Node *copy = copy_map_.value(n);
+
+    if (copy) {
+      RenderTicketWatcher *watcher = RenderFrame(copy,
+                                                 t->property("time").value<rational>(),
+                                                 nullptr,
+                                                 t->property("dry").toBool());
+      video_immediate_passthroughs_[watcher].append(t);
+    } else {
+      qWarning() << "Failed to find copied node for SFR ticket";
+      t->Finish();
+    }
   }
 
   if (!pause_renders_) {

@@ -58,7 +58,8 @@ protected:
   virtual void initializeGL() override
   {
     connect(context(), &QOpenGLContext::aboutToBeDestroyed,
-            this, &ManagedDisplayWidgetOpenGL::OnDestroy);
+            this, &ManagedDisplayWidgetOpenGL::DestroyListener,
+            Qt::DirectConnection);
 
     emit OnInit();
   }
@@ -210,6 +211,8 @@ protected:
   {
     return wrapper_ ? wrapper_->rect() : QRect();
   }
+
+  VideoParams GetViewportParams() const;
 
 protected slots:
   /**

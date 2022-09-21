@@ -50,6 +50,7 @@ public:
   virtual ~PreviewAutoCacher() override;
 
   RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(Node *n, const rational& t, bool dry = false);
 
   RenderTicketPtr GetRangeOfAudio(TimeRange range);
 

@@ -100,6 +100,8 @@ public:
     enable_audio_scrubbing_ = e;
   }
 
+  PreviewAutoCacher *GetCacher() const { return auto_cacher_; }
+
 public slots:
   void Play(bool in_to_out_only);
 

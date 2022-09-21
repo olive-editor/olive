@@ -25,6 +25,7 @@
 
 #include "mainwindowlayoutinfo.h"
 #include "node/project/project.h"
+#include "panel/multicam/multicampanel.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
@@ -163,6 +164,7 @@ private:
   PixelSamplerPanel* pixel_sampler_panel_;
   ScopePanel* scope_panel_;
   QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
+  MulticamPanel *multicam_panel_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;

@@ -361,10 +361,7 @@ void ViewerDisplayWidget::OnPaint()
   // We only draw if we have a pipeline
   if (push_mode_ != kPushNull) {
     // Draw texture through color transform
-    int device_width = width() * devicePixelRatioF();
-    int device_height = height() * devicePixelRatioF();
-    VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
-    VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
+    VideoParams device_params = GetViewportParams();
 
     if (push_mode_ == kPushBlank) {
       if (blank_shader_.isNull()) {
