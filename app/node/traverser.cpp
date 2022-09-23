@@ -171,7 +171,7 @@ void NodeTraverser::Transform(QTransform *transform, const Node *start, const No
 
 NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const TimeRange &time)
 {
-  return NodeGlobals(QVector2D(params.width(), params.height()), params.pixel_aspect_ratio(), time);
+  return NodeGlobals(params, time);
 }
 
 int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
