@@ -93,7 +93,7 @@ protected:
 
   virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time){}
 
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job){}
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob& job){}
 
   virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job){}
 
@@ -140,7 +140,7 @@ protected:
   CancelAtom *GetCancelPointer() const { return cancel_; }
   void SetCancelPointer(CancelAtom *cancel) { cancel_ = cancel; }
 
-  void ResolveJobs(NodeValue &value, const TimeRange &range);
+  void ResolveJobs(NodeValue &value);
 
   Block *GetCurrentBlock() const
   {
@@ -150,7 +150,7 @@ protected:
   Decoder::LoopMode loop_mode() const { return loop_mode_; }
 
 private:
-  void PreProcessRow(const TimeRange &range, NodeValueRow &row);
+  void PreProcessRow(NodeValueRow &row);
 
   TexturePtr CreateDummyTexture(const VideoParams &p);
 

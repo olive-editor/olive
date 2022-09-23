@@ -410,7 +410,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
         output->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
       } else {
-        SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
+        SampleJob job(globals.time(), val_a.type() == NodeValue::kSamples ? val_a : val_b);
         job.Insert(number_param, NodeValue(NodeValue::kFloat, number, this));
         output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }

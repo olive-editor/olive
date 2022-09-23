@@ -33,7 +33,8 @@ public:
   {
   }
 
-  FootageJob(const QString& decoder, const QString& filename, Track::Type type, const rational& length) :
+  FootageJob(const TimeRange &time, const QString& decoder, const QString& filename, Track::Type type, const rational& length) :
+    time_(time),
     decoder_(decoder),
     filename_(filename),
     type_(type),
@@ -96,7 +97,11 @@ public:
     length_ = length;
   }
 
+  const TimeRange &time() const { return time_; }
+
 private:
+  TimeRange time_;
+
   QString decoder_;
 
   QString filename_;

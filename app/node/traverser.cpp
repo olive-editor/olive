@@ -61,7 +61,7 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
     row.insert(it.key(), value);
   }
 
-  PreProcessRow(range, row);
+  PreProcessRow(row);
 
   return row;
 }
@@ -357,7 +357,7 @@ QVector2D NodeTraverser::GenerateResolution() const
   return QVector2D(video_params_.square_pixel_width(), video_params_.height());
 }
 
-void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
+void NodeTraverser::ResolveJobs(NodeValue &val)
 {
   if (val.type() == NodeValue::kTexture || val.type() == NodeValue::kSamples) {
     if (val.canConvert<CacheJob>()) {
@@ -374,7 +374,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       ShaderJob job = val.value<ShaderJob>();
 
-      PreProcessRow(range, job.GetValues());
+      PreProcessRow(job.GetValues());
 
       VideoParams tex_params = GetCacheVideoParams();
       tex_params.set_channel_count(GetChannelCountFromJob(job));
@@ -389,7 +389,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       TexturePtr tex = CreateTexture(tex_params);
 
-      ProcessShader(tex, val.source(), range, job);
+      ProcessShader(tex, val.source(), job);
 
       val.set_value(tex);
 
@@ -407,7 +407,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       TexturePtr tex = CreateTexture(upload_params);
 
-      PreProcessRow(range, job.GetValues());
+      PreProcessRow(job.GetValues());
       ProcessFrameGeneration(tex, val.source(), job);
 
       if (!job.GetColorspace().isEmpty()) {
@@ -440,7 +440,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       if (job.type() == Track::kVideo) {
 
-        rational footage_time = Footage::AdjustTimeByLoopMode(range.in(), loop_mode_, job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
+        rational footage_time = Footage::AdjustTimeByLoopMode(job.time().in(), loop_mode_, job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
 
         TexturePtr tex;
 
@@ -473,8 +473,8 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       } else if (job.type() == Track::kAudio) {
 
-        SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), range.length());
-        ProcessAudioFootage(buffer, job, range);
+        SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
+        ProcessAudioFootage(buffer, job, job.time());
         val.set_value(buffer);
 
       }
@@ -483,7 +483,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
 
       SampleJob job = val.value<SampleJob>();
       SampleBuffer output_buffer = CreateSampleBuffer(job.samples().audio_params(), job.samples().sample_count());
-      ProcessSamples(output_buffer, val.source(), range, job);
+      ProcessSamples(output_buffer, val.source(), job.time(), job);
       val.set_value(QVariant::fromValue(output_buffer));
 
     }
@@ -491,7 +491,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val, const TimeRange &range)
   }
 }
 
-void NodeTraverser::PreProcessRow(const TimeRange &range, NodeValueRow &row)
+void NodeTraverser::PreProcessRow(NodeValueRow &row)
 {
   QByteArray cached_node_hash;
 
@@ -500,7 +500,7 @@ void NodeTraverser::PreProcessRow(const TimeRange &range, NodeValueRow &row)
     // Jobs will almost always be submitted with one of these types
     NodeValue &val = it.value();
 
-    ResolveJobs(val, range);
+    ResolveJobs(val);
   }
 }
 

@@ -54,7 +54,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 
   NodeValue tex_val = table.Get(NodeValue::kTexture);
 
-  ResolveJobs(tex_val, range);
+  ResolveJobs(tex_val);
 
   return tex_val.toTexture();
 }
@@ -226,7 +226,7 @@ void RenderProcessor::Run()
 
     NodeValue sample_val = table.Get(NodeValue::kSamples);
 
-    ResolveJobs(sample_val, time);
+    ResolveJobs(sample_val);
 
     SampleBuffer samples = sample_val.toSamples();
     if (samples.is_allocated()) {
@@ -522,7 +522,7 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
   }
 }
 
-void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob &job)
+void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, const ShaderJob &job)
 {
   if (!render_ctx_) {
     return;

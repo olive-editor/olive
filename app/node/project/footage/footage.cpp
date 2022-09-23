@@ -265,7 +265,7 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
     // Push each stream as a footage job
     for (int i=0; i<GetTotalStreamCount(); i++) {
       Track::Reference ref = GetReferenceFromRealIndex(i);
-      FootageJob job(decoder_, filename(), ref.type(), GetLength());
+      FootageJob job(globals.time(), decoder_, filename(), ref.type(), GetLength());
 
       NodeValue::Type type;
 

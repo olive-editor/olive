@@ -48,7 +48,7 @@ protected:
 
   virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time) override;
 
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job) override;
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob& job) override;
 
   virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
 
