@@ -109,7 +109,7 @@ NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString
 
   NodeValue value = table->TakeAt(value_index);
 
-  if (value.type() == NodeValue::kTexture) {
+  if (value.type() == NodeValue::kTexture && UseCache()) {
     QMutexLocker locker(node->video_frame_cache()->mutex());
 
     node->video_frame_cache()->LoadState();

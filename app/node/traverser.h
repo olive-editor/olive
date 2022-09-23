@@ -149,6 +149,8 @@ protected:
 
   Decoder::LoopMode loop_mode() const { return loop_mode_; }
 
+  virtual bool UseCache() const { return false; }
+
 private:
   void PreProcessRow(NodeValueRow &row);
 

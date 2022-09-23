@@ -649,4 +649,9 @@ void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr
   render_ctx_->BlitColorManaged(ctj, destination.get());
 }
 
+bool RenderProcessor::UseCache() const
+{
+  return static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()) == RenderMode::kOffline;
+}
+
 }
