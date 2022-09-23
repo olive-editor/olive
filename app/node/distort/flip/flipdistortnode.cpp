@@ -87,11 +87,10 @@ void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
     if (job.Get(kHorizontalInput).toBool() || job.Get(kVerticalInput).toBool()) {
       table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
     } else {
-    // If we're not flipping or flopping just push the texture
-    table->Push(job.Get(kTextureInput));
+      // If we're not flipping or flopping just push the texture
+      table->Push(job.Get(kTextureInput));
     }
   }
-
 }
 
 }
