@@ -68,7 +68,9 @@ void PlaybackCache::LoadState()
 {
   QDir cache_dir = GetThisCacheDirectory();
   QFile f(cache_dir.filePath(QStringLiteral("state")));
-  if (f.open(QFile::ReadOnly)) {
+
+  qint64 file_time = f.fileTime(QFileDevice::FileModificationTime).toMSecsSinceEpoch();
+  if (file_time > last_loaded_state_ && f.open(QFile::ReadOnly)) {
     QDataStream s(&f);
 
     uint32_t version;
@@ -116,6 +118,8 @@ void PlaybackCache::LoadState()
     }
 
     f.close();
+
+    last_loaded_state_ = file_time;
   }
 }
 
@@ -161,6 +165,8 @@ void PlaybackCache::SaveState()
         }
 
         f.close();
+
+        last_loaded_state_ = f.fileTime(QFileDevice::FileModificationTime).toMSecsSinceEpoch();
       }
     }
   }
@@ -236,7 +242,8 @@ Project *PlaybackCache::GetProject() const
 
 PlaybackCache::PlaybackCache(QObject *parent) :
   QObject(parent),
-  saving_enabled_(true)
+  saving_enabled_(true),
+  last_loaded_state_(0)
 {
   uuid_ = QUuid::createUuid();
 }
