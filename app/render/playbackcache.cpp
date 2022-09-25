@@ -69,6 +69,13 @@ void PlaybackCache::LoadState()
   QDir cache_dir = GetThisCacheDirectory();
   QFile f(cache_dir.filePath(QStringLiteral("state")));
 
+  if (!f.exists()) {
+    // No state exists, assume nothing valid
+    validated_.clear();
+    passthroughs_.clear();
+    return;
+  }
+
   qint64 file_time = f.fileTime(QFileDevice::FileModificationTime).toMSecsSinceEpoch();
   if (file_time > last_loaded_state_ && f.open(QFile::ReadOnly)) {
     QDataStream s(&f);
@@ -83,7 +90,6 @@ void PlaybackCache::LoadState()
     {
       int valid_count, pass_count;
 
-      validated_.clear();
       s >> valid_count;
       for (int i=0; i<valid_count; i++) {
         int in_num, in_den, out_num, out_den;
@@ -96,7 +102,6 @@ void PlaybackCache::LoadState()
         validated_.insert(TimeRange(rational(in_num, in_den), rational(out_num, out_den)));
       }
 
-      passthroughs_.clear();
       s >> pass_count;
       for (int i=0; i<pass_count; i++) {
         QUuid id;
