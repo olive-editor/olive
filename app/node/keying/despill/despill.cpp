@@ -91,8 +91,8 @@ void DespillNode::Value(const NodeValueRow &value, const NodeGlobals &globals, N
                   NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
 
   // If there's no texture, no need to run an operation
-  if (job.Get(kTextureInput).toTexture()) {
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  if (TexturePtr tex = job.Get(kTextureInput).toTexture()) {
+    table->Push(NodeValue::kTexture, tex->toJob(job), this);
   }
 }
 

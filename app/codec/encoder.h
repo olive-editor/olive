@@ -33,6 +33,7 @@
 #include "common/timerange.h"
 #include "node/block/subtitle/subtitle.h"
 #include "render/audioparams.h"
+#include "render/colortransform.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 

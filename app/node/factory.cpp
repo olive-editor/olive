@@ -35,7 +35,11 @@
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
 #include "distort/mask/mask.h"
+#include "distort/ripple/rippledistortnode.h"
+#include "distort/swirl/swirldistortnode.h"
+#include "distort/tile/tiledistortnode.h"
 #include "distort/transform/transformdistortnode.h"
+#include "distort/wave/wavedistortnode.h"
 #include "effect/opacity/opacityeffect.h"
 #include "filter/blur/blur.h"
 #include "filter/dropshadow/dropshadowfilter.h"
@@ -295,6 +299,14 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new DropShadowFilter();
   case kTimeFormat:
     return new TimeFormatNode();
+  case kWaveDistort:
+    return new WaveDistortNode();
+  case kTileDistort:
+    return new TileDistortNode();
+  case kSwirlDistort:
+    return new SwirlDistortNode();
+  case kRippleDistort:
+    return new RippleDistortNode();
   case kMulticamNode:
     return new MultiCamNode();
 

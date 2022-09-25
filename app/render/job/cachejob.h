@@ -24,13 +24,16 @@
 #include <QString>
 #include <QVariant>
 
+#include "node/value.h"
+#include "render/job/acceleratedjob.h"
+
 namespace olive {
 
-class CacheJob
+class CacheJob : public AcceleratedJob
 {
 public:
   CacheJob() = default;
-  CacheJob(const QString &filename, const QVariant &fallback = QVariant())
+  CacheJob(const QString &filename, const NodeValue &fallback = NodeValue())
   {
     filename_ = filename;
   }
@@ -38,18 +41,16 @@ public:
   const QString &GetFilename() const { return filename_; }
   void SetFilename(const QString &s) { filename_ = s; }
 
-  const QVariant &GetFallback() const { return fallback_; }
-  void SetFallback(const QVariant &val) { fallback_ = val; }
+  const NodeValue &GetFallback() const { return fallback_; }
+  void SetFallback(const NodeValue &val) { fallback_ = val; }
 
 private:
   QString filename_;
 
-  QVariant fallback_;
+  NodeValue fallback_;
 
 };
 
 }
-
-Q_DECLARE_METATYPE(olive::CacheJob)
 
 #endif // CACHEJOB_H

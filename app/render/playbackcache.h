@@ -132,6 +132,8 @@ private:
 
   QVector<Passthrough> passthroughs_;
 
+  qint64 last_loaded_state_;
+
 };
 
 }
