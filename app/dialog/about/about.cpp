@@ -72,6 +72,8 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
   label->setWordWrap(true);
   label->setOpenExternalLinks(true);
   label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+  label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+  label->setCursor(Qt::IBeamCursor);
   horiz_layout->addWidget(label);
 
   layout->addLayout(horiz_layout);
