@@ -476,7 +476,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
              block_right - block_left,
              block_height);
 
-    QColor shadow_color = block->color().toQColor().darker();
+    QColor shadow_color = block->is_enabled() ? block->color().toQColor().darker() : QColor(Qt::darkGray).darker();
 
     if (r.width() <= 3) {
       painter->fillRect(r, shadow_color);
