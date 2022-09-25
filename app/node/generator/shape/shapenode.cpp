@@ -77,13 +77,14 @@ ShaderCode ShapeNode::GetShaderCode(const ShaderRequest &request) const
 
 void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
+  TexturePtr base = value[kBaseInput].toTexture();
 
-  job.Insert(value);
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
+  ShaderJob job(value);
+
+  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, base ? base->virtual_resolution() : globals.square_resolution(), this));
   job.SetShaderID(QStringLiteral("shape"));
 
-  PushMergableJob(value, QVariant::fromValue(job), table);
+  PushMergableJob(value, Texture::Job(base ? base->params() : globals.vparams(), job), table);
 }
 
 void ShapeNode::InputValueChangedEvent(const QString &input, int element)

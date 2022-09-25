@@ -128,16 +128,17 @@ void ChromaKeyNode::GenerateProcessor()
 
 void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  if (value[kTextureInput].toTexture() && processor()) {
-    ColorTransformJob job;
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (processor()) {
+      ColorTransformJob job(value);
 
-    job.Insert(value);
-    job.SetColorProcessor(processor());
-    job.SetInputTexture(value[kTextureInput].toTexture());
-    job.SetNeedsCustomShader(this);
-    job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
+      job.SetColorProcessor(processor());
+      job.SetInputTexture(value[kTextureInput]);
+      job.SetNeedsCustomShader(this);
+      job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
 
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
+    }
   }
 }
 

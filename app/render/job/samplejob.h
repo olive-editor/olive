@@ -27,7 +27,8 @@
 
 namespace olive {
 
-class SampleJob : public AcceleratedJob {
+class SampleJob : public AcceleratedJob
+{
 public:
   SampleJob()
   {

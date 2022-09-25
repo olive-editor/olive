@@ -24,19 +24,24 @@
 #include <QMatrix4x4>
 #include <QVector>
 
-#include "generatejob.h"
-#include "render/colorprocessor.h"
+#include "acceleratedjob.h"
 #include "render/texture.h"
 
 namespace olive {
 
-class ShaderJob : public GenerateJob {
+class ShaderJob : public AcceleratedJob
+{
 public:
   ShaderJob()
   {
     iterations_ = 1;
     iterative_input_ = nullptr;
-    will_change_image_size_ = true;
+  }
+
+  ShaderJob(const NodeValueRow &row) :
+    ShaderJob()
+  {
+    Insert(row);
   }
 
   const QString& GetShaderID() const
@@ -100,9 +105,6 @@ public:
     return vertex_overrides_;
   }
 
-  bool GetWillChangeImageSize() const { return will_change_image_size_; }
-  void SetWillChangeImageSize(bool e) { will_change_image_size_ = e; }
-
 private:
   QString shader_id_;
 
@@ -114,12 +116,8 @@ private:
 
   QVector<float> vertex_overrides_;
 
-  bool will_change_image_size_;
-
 };
 
 }
-
-Q_DECLARE_METATYPE(olive::ShaderJob)
 
 #endif // SHADERJOB_H

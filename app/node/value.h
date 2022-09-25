@@ -264,6 +264,11 @@ public:
     return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
   }
 
+  operator bool() const
+  {
+    return !data_.isNull();
+  }
+
   static QString GetPrettyDataTypeName(Type type);
 
   static QString GetDataTypeName(Type type);

@@ -267,26 +267,31 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
       Track::Reference ref = GetReferenceFromRealIndex(i);
       FootageJob job(globals.time(), decoder_, filename(), ref.type(), GetLength());
 
-      NodeValue::Type type;
-
       if (ref.type() == Track::kVideo) {
         VideoParams vp = GetVideoParams(ref.index());
 
         // Ensure the colorspace is valid and not empty
         vp.set_colorspace(GetColorspaceToUse(vp));
 
+        // Adjust footage job's divider
+        if (globals.vparams().divider() > 1) {
+          // Use a divider appropriate for this target resolution
+          vp.set_divider(VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), globals.vparams().effective_width(), globals.vparams().effective_height()));
+        } else {
+          // Render everything at full res
+          vp.set_divider(1);
+        }
+
         job.set_video_params(vp);
 
-        type = NodeValue::kTexture;
+        table->Push(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
       } else {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
-        type = NodeValue::kSamples;
+        table->Push(NodeValue::kSamples, QVariant::fromValue(job), this, ref.ToString());
       }
-
-      table->Push(type, QVariant::fromValue(job), this, ref.ToString());
     }
   }
 }

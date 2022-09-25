@@ -39,9 +39,9 @@ public:
   {
   }
 
-  QVector2D resolution() const { return video_params_.resolution(); }
-  QVector2D resolution_by_par() const { return video_params_.square_resolution(); }
-  const VideoParams &video_params() const { return video_params_; }
+  QVector2D square_resolution() const { return video_params_.square_resolution(); }
+  QVector2D nonsquare_resolution() const { return video_params_.resolution(); }
+  const VideoParams &vparams() const { return video_params_; }
   const TimeRange &time() const { return time_; }
 
 private:

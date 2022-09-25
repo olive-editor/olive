@@ -44,19 +44,19 @@ public:
 protected:
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
 
-  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time) override;
+  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time) override;
 
-  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time) override;
+  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time) override;
 
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob& job) override;
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job) override;
 
   virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
 
-  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job) override;
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job) override;
 
-  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job) override;
+  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job) override;
 
-  virtual TexturePtr ProcessVideoCacheJob(const CacheJob &val) override;
+  virtual TexturePtr ProcessVideoCacheJob(const CacheJob *val) override;
 
   virtual TexturePtr CreateTexture(const VideoParams &p) override;
 

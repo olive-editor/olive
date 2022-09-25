@@ -94,28 +94,26 @@ ShaderCode RippleDistortNode::GetShaderCode(const ShaderRequest &request) const
 
 void RippleDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-
   // If there's no texture, no need to run an operation
-  if (job.Get(kTextureInput).toTexture()) {
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qIsNull(job.Get(kIntensityInput).toDouble())) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+    if (!qIsNull(value[kIntensityInput].toDouble())) {
+      ShaderJob job(value);
+      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
     } else {
       // If we're not flipping or flopping just push the texture
-      table->Push(job.Get(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }
 
 void RippleDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  QPointF half_res(globals.resolution_by_par().x()/2, globals.resolution_by_par().y()/2);
-
-  gizmo_->SetPoint(half_res + row[kPositionInput].toVec2().toPointF());
+  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+    QPointF half_res(tex->virtual_resolution().x()/2, tex->virtual_resolution().y()/2);
+    gizmo_->SetPoint(half_res + row[kPositionInput].toVec2().toPointF());
+  }
 }
 
 void RippleDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

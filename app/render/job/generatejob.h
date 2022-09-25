@@ -22,33 +22,22 @@
 #define GENERATEJOB_H
 
 #include "acceleratedjob.h"
-#include "render/videoparams.h"
+#include "codec/frame.h"
 
 namespace olive {
 
-class GenerateJob : public AcceleratedJob {
+class GenerateJob : public AcceleratedJob
+{
 public:
-  GenerateJob()
+  GenerateJob() = default;
+  GenerateJob(const NodeValueRow &row) :
+    GenerateJob()
   {
-    requested_format_ = VideoParams::kFormatInvalid;
+    Insert(row);
   }
-
-  VideoParams::Format GetRequestedFormat() const { return requested_format_; }
-
-  void SetRequestedFormat(VideoParams::Format f) { requested_format_ = f; }
-
-  const QString &GetColorspace() const { return colorspace_; }
-  void SetColorspace(const QString &s) { colorspace_ = s; }
-
-private:
-  VideoParams::Format requested_format_;
-
-  QString colorspace_;
 
 };
 
 }
-
-Q_DECLARE_METATYPE(olive::GenerateJob)
 
 #endif // GENERATEJOB_H

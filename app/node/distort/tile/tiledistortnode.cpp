@@ -110,47 +110,46 @@ ShaderCode TileDistortNode::GetShaderCode(const ShaderRequest &request) const
 
 void TileDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-
   // If there's no texture, no need to run an operation
-  if (job.Get(kTextureInput).toTexture()) {
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qFuzzyCompare(job.Get(kScaleInput).toDouble(), 1.0)) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+    if (!qFuzzyCompare(value[kScaleInput].toDouble(), 1.0)) {
+      ShaderJob job(value);
+      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
     } else {
       // If we're not flipping or flopping just push the texture
-      table->Push(job.Get(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }
 
 void TileDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  QPointF res = globals.resolution_by_par().toPointF();
-  QPointF pos = row[kPositionInput].toVec2().toPointF();
-  qreal x = pos.x();
-  qreal y = pos.y();
+  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+    QPointF res = tex->virtual_resolution().toPointF();
+    QPointF pos = row[kPositionInput].toVec2().toPointF();
+    qreal x = pos.x();
+    qreal y = pos.y();
 
-  Anchor a = static_cast<Anchor>(row[kAnchorInput].toInt());
-  if (a == kTopLeft || a == kTopCenter || a == kTopRight) {
-    // Do nothing
-  } else if (a == kMiddleLeft || a == kMiddleCenter || a == kMiddleRight) {
-    y += res.y()/2;
-  } else if (a == kBottomLeft || a == kBottomCenter || a == kBottomRight) {
-    y += res.y();
-  }
-  if (a == kTopLeft || a == kMiddleLeft || a == kBottomLeft) {
-    // Do nothing
-  } else if (a == kTopCenter || a == kMiddleCenter || a == kBottomCenter) {
-    x += res.x()/2;
-  } else if (a == kTopRight || a == kMiddleRight || a == kBottomRight) {
-    x += res.x();
-  }
+    Anchor a = static_cast<Anchor>(row[kAnchorInput].toInt());
+    if (a == kTopLeft || a == kTopCenter || a == kTopRight) {
+      // Do nothing
+    } else if (a == kMiddleLeft || a == kMiddleCenter || a == kMiddleRight) {
+      y += res.y()/2;
+    } else if (a == kBottomLeft || a == kBottomCenter || a == kBottomRight) {
+      y += res.y();
+    }
+    if (a == kTopLeft || a == kMiddleLeft || a == kBottomLeft) {
+      // Do nothing
+    } else if (a == kTopCenter || a == kMiddleCenter || a == kBottomCenter) {
+      x += res.x()/2;
+    } else if (a == kTopRight || a == kMiddleRight || a == kBottomRight) {
+      x += res.x();
+    }
 
-  gizmo_->SetPoint(QPointF(x, y));
+    gizmo_->SetPoint(QPointF(x, y));
+  }
 }
 
 void TileDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

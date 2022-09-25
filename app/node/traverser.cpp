@@ -61,7 +61,7 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
     row.insert(it.key(), value);
   }
 
-  PreProcessRow(row);
+  //PreProcessRow(row);
 
   return row;
 }
@@ -110,13 +110,15 @@ NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString
   NodeValue value = table->TakeAt(value_index);
 
   if (value.type() == NodeValue::kTexture && UseCache()) {
-    QMutexLocker locker(node->video_frame_cache()->mutex());
+    if (TexturePtr tex = value.toTexture()) {
+      QMutexLocker locker(node->video_frame_cache()->mutex());
 
-    node->video_frame_cache()->LoadState();
+      node->video_frame_cache()->LoadState();
 
-    QString cache = node->video_frame_cache()->GetValidCacheFilename(time.in());
-    if (!cache.isEmpty()) {
-      value.set_value(CacheJob(cache, value.data()));
+      QString cache = node->video_frame_cache()->GetValidCacheFilename(time.in());
+      if (!cache.isEmpty()) {
+        value.set_value(tex->toJob(CacheJob(cache, value)));
+      }
     }
   }
 
@@ -172,25 +174,6 @@ void NodeTraverser::Transform(QTransform *transform, const Node *start, const No
 NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const TimeRange &time)
 {
   return NodeGlobals(params, time);
-}
-
-int NodeTraverser::GetChannelCountFromJob(const GenerateJob &job)
-{
-  return VideoParams::kRGBAChannelCount;
-}
-
-TexturePtr NodeTraverser::GetMainTextureFromJob(const GenerateJob &job)
-{
-  // FIXME: Should probably take Node::GetEffectInput into account here
-  for (auto it=job.GetValues().cbegin(); it!=job.GetValues().cend(); it++) {
-    if (it.value().type() == NodeValue::kTexture) {
-      if (TexturePtr t = it.value().toTexture()) {
-        return t;
-      }
-    }
-  }
-
-  return nullptr;
 }
 
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
@@ -277,7 +260,13 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
     return GenerateBlockTable(track, range);
   }
 
-  // FIXME: Cache certain values here if we've already processed them before
+  // Use table cache to skip processing where available
+  if (value_cache_.contains(n)) {
+    QHash<TimeRange, NodeValueTable> &node_value_map = value_cache_[n];
+    if (node_value_map.contains(range)) {
+      return node_value_map.value(range);
+    }
+  }
 
   // Generate row for node
   NodeValueDatabase database = GenerateDatabase(n, range);
@@ -291,11 +280,13 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
     is_enabled = database[Node::kEnabledInput].Get(NodeValue::kBoolean).toBool();
   }
 
+  NodeValueTable table;
+
   if (is_enabled) {
     NodeValueRow row = GenerateRow(&database, n, range);
 
     // Generate output table
-    NodeValueTable table = database.Merge();
+    table = database.Merge();
 
     // By this point, the node should have all the inputs it needs to render correctly
     NodeGlobals globals = GenerateGlobals(video_params_, range);
@@ -316,8 +307,6 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
         transform_now_ = next_node;
       }
     }
-
-    return table;
   } else {
     // If this node has an effect input, ensure that is pushed last
     NodeValueTable primary;
@@ -325,10 +314,13 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
       primary = database.Take(n->GetEffectInputID());
     }
 
-    NodeValueTable m = database.Merge();
-    m.Push(primary);
-    return m;
+    table = database.Merge();
+    table.Push(primary);
   }
+
+  value_cache_[n][range] = table;
+
+  return table;
 }
 
 NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)
@@ -347,7 +339,7 @@ NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeR
   return table;
 }
 
-TexturePtr NodeTraverser::ProcessVideoCacheJob(const CacheJob &val)
+TexturePtr NodeTraverser::ProcessVideoCacheJob(const CacheJob *val)
 {
   return nullptr;
 }
@@ -359,148 +351,124 @@ QVector2D NodeTraverser::GenerateResolution() const
 
 void NodeTraverser::ResolveJobs(NodeValue &val)
 {
-  if (val.type() == NodeValue::kTexture || val.type() == NodeValue::kSamples) {
-    if (val.canConvert<CacheJob>()) {
-      CacheJob job = val.value<CacheJob>();
-      TexturePtr tex = ProcessVideoCacheJob(job);
-      if (tex) {
-        val.set_value(tex);
-      } else {
-        val.set_value(job.GetFallback());
+  if (val.type() == NodeValue::kTexture) {
+
+    if (TexturePtr job_tex = val.toTexture()) {
+      if (AcceleratedJob *base_job = job_tex->job()) {
+
+        if (resolved_texture_cache_.contains(job_tex.get())) {
+          val.set_value(resolved_texture_cache_.value(job_tex.get()));
+        } else {
+          // Resolve any sub-jobs
+          for (auto it=base_job->GetValues().begin(); it!=base_job->GetValues().end(); it++) {
+            // Jobs will almost always be submitted with one of these types
+            NodeValue &subval = it.value();
+            ResolveJobs(subval);
+          }
+
+          if (CacheJob *cj = dynamic_cast<CacheJob*>(base_job)) {
+            TexturePtr tex = ProcessVideoCacheJob(cj);
+            if (tex) {
+              val.set_value(tex);
+            } else {
+              val.set_value(cj->GetFallback());
+            }
+
+          } else if (ColorTransformJob *ctj = dynamic_cast<ColorTransformJob*>(base_job)) {
+
+            VideoParams ctj_params = job_tex->params();
+
+            ctj_params.set_format(GetCacheVideoParams().format());
+
+            TexturePtr dest = CreateTexture(ctj_params);
+
+            // Resolve input texture
+            NodeValue v = ctj->GetInputTexture();
+            ResolveJobs(v);
+            ctj->SetInputTexture(v);
+
+            ProcessColorTransform(dest, val.source(), ctj);
+
+            val.set_value(dest);
+
+          } else if (ShaderJob *sj = dynamic_cast<ShaderJob*>(base_job)) {
+
+            VideoParams tex_params = job_tex->params();
+
+            TexturePtr tex = CreateTexture(tex_params);
+
+            ProcessShader(tex, val.source(), sj);
+
+            val.set_value(tex);
+
+          } else if (GenerateJob *gj = dynamic_cast<GenerateJob*>(base_job)) {
+
+            VideoParams tex_params = job_tex->params();
+
+            TexturePtr tex = CreateTexture(tex_params);
+
+            ProcessFrameGeneration(tex, val.source(), gj);
+
+            // Convert to reference space
+            const QString &colorspace = tex_params.colorspace();
+            if (!colorspace.isEmpty()) {
+              // Set format to primary format
+              tex_params.set_format(GetCacheVideoParams().format());
+
+              TexturePtr dest = CreateTexture(tex_params);
+
+              ConvertToReferenceSpace(dest, tex, colorspace);
+
+              tex = dest;
+            }
+
+            val.set_value(tex);
+
+          } else if (FootageJob *fj = dynamic_cast<FootageJob*>(base_job)) {
+
+            rational footage_time = Footage::AdjustTimeByLoopMode(fj->time().in(), loop_mode_, fj->length(), fj->video_params().video_type(), fj->video_params().frame_rate_as_time_base());
+
+            TexturePtr tex;
+
+            if (footage_time.isNaN()) {
+              // Push dummy texture
+              tex = CreateDummyTexture(fj->video_params());
+            } else {
+              VideoParams managed_params = fj->video_params();
+              managed_params.set_format(GetCacheVideoParams().format());
+
+              tex = CreateTexture(managed_params);
+              ProcessVideoFootage(tex, fj, footage_time);
+            }
+
+            val.set_value(tex);
+
+          }
+
+          // Cache resolved value
+          resolved_texture_cache_.insert(job_tex.get(), val.toTexture());
+        }
       }
     }
 
-    if (val.canConvert<ShaderJob>()) {
+  } else if (val.type() == NodeValue::kSamples) {
 
-      ShaderJob job = val.value<ShaderJob>();
-
-      PreProcessRow(job.GetValues());
-
-      VideoParams tex_params = GetCacheVideoParams();
-      tex_params.set_channel_count(GetChannelCountFromJob(job));
-
-      if (!job.GetWillChangeImageSize()) {
-        if (TexturePtr texture = GetMainTextureFromJob(job)) {
-          tex_params.set_width(texture->params().width());
-          tex_params.set_height(texture->params().height());
-          tex_params.set_divider(texture->params().divider());
-        }
-      }
-
-      TexturePtr tex = CreateTexture(tex_params);
-
-      ProcessShader(tex, val.source(), job);
-
-      val.set_value(tex);
-
-    } else if (val.canConvert<GenerateJob>()) {
-
-      GenerateJob job = val.value<GenerateJob>();
-
-      VideoParams tex_params = GetCacheVideoParams();
-      tex_params.set_channel_count(GetChannelCountFromJob(job));
-
-      VideoParams upload_params = tex_params;
-      if (job.GetRequestedFormat() != VideoParams::kFormatInvalid) {
-        upload_params.set_format(job.GetRequestedFormat());
-      }
-
-      TexturePtr tex = CreateTexture(upload_params);
-
-      PreProcessRow(job.GetValues());
-      ProcessFrameGeneration(tex, val.source(), job);
-
-      if (!job.GetColorspace().isEmpty()) {
-        // Convert to reference space
-        TexturePtr dest = CreateTexture(tex_params);
-
-        ConvertToReferenceSpace(dest, tex, job.GetColorspace());
-
-        tex = dest;
-      }
-
-      val.set_value(tex);
-
-    } else if (val.canConvert<ColorTransformJob>()) {
-
-      ColorTransformJob job = val.value<ColorTransformJob>();
-
-      VideoParams src_params = job.GetInputTexture()->params();
-      src_params.set_channel_count(GetChannelCountFromJob(job));
-
-      TexturePtr dest = CreateTexture(src_params);
-
-      ProcessColorTransform(dest, val.source(), job);
-
-      val.set_value(dest);
-
-    } else if (val.canConvert<FootageJob>()) {
-
-      FootageJob job = val.value<FootageJob>();
-
-      if (job.type() == Track::kVideo) {
-
-        rational footage_time = Footage::AdjustTimeByLoopMode(job.time().in(), loop_mode_, job.length(), job.video_params().video_type(), job.video_params().frame_rate_as_time_base());
-
-        TexturePtr tex;
-
-        // Adjust footage job's divider
-        VideoParams render_params = GetCacheVideoParams();
-        VideoParams job_params = job.video_params();
-
-        if (render_params.divider() > 1) {
-          // Use a divider appropriate for this target resolution
-          job_params.set_divider(VideoParams::GetDividerForTargetResolution(job_params.width(), job_params.height(), render_params.effective_width(), render_params.effective_height()));
-        } else {
-          // Render everything at full res
-          job_params.set_divider(1);
-        }
-
-        job.set_video_params(job_params);
-
-        if (footage_time.isNaN()) {
-          // Push dummy texture
-          tex = CreateDummyTexture(job.video_params());
-        } else {
-          VideoParams managed_params = job.video_params();
-          managed_params.set_format(GetCacheVideoParams().format());
-
-          tex = CreateTexture(managed_params);
-          ProcessVideoFootage(tex, job, footage_time);
-        }
-
-        val.set_value(tex);
-
-      } else if (job.type() == Track::kAudio) {
-
-        SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
-        ProcessAudioFootage(buffer, job, job.time());
-        val.set_value(buffer);
-
-      }
-
-    } else if (val.canConvert<SampleJob>()) {
+    if (val.canConvert<SampleJob>()) {
 
       SampleJob job = val.value<SampleJob>();
       SampleBuffer output_buffer = CreateSampleBuffer(job.samples().audio_params(), job.samples().sample_count());
       ProcessSamples(output_buffer, val.source(), job.time(), job);
       val.set_value(QVariant::fromValue(output_buffer));
 
+    } else if (val.canConvert<FootageJob>()) {
+
+      FootageJob job = val.value<FootageJob>();
+      SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
+      ProcessAudioFootage(buffer, &job, job.time());
+      val.set_value(buffer);
+
     }
 
-  }
-}
-
-void NodeTraverser::PreProcessRow(NodeValueRow &row)
-{
-  QByteArray cached_node_hash;
-
-  // Resolve any jobs
-  for (auto it=row.begin(); it!=row.end(); it++) {
-    // Jobs will almost always be submitted with one of these types
-    NodeValue &val = it.value();
-
-    ResolveJobs(val);
   }
 }
 

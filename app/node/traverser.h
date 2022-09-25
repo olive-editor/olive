@@ -80,30 +80,26 @@ public:
     audio_params_ = params;
   }
 
-  static int GetChannelCountFromJob(const GenerateJob& job);
-
-  static TexturePtr GetMainTextureFromJob(const GenerateJob& job);
-
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
   virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
 
-  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time){}
+  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time){}
 
-  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time){}
+  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time){}
 
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob& job){}
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job){}
 
-  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job){}
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job){}
 
   virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job){}
 
-  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job){}
+  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job){}
 
   virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs){}
 
-  virtual TexturePtr ProcessVideoCacheJob(const CacheJob &val);
+  virtual TexturePtr ProcessVideoCacheJob(const CacheJob *val);
 
   virtual TexturePtr CreateTexture(const VideoParams &p)
   {
@@ -152,8 +148,6 @@ protected:
   virtual bool UseCache() const { return false; }
 
 private:
-  void PreProcessRow(NodeValueRow &row);
-
   TexturePtr CreateDummyTexture(const VideoParams &p);
 
   VideoParams video_params_;
@@ -169,6 +163,9 @@ private:
   std::list<Block*> block_stack_;
 
   Decoder::LoopMode loop_mode_;
+
+  QHash<const Node*, QHash<TimeRange, NodeValueTable> > value_cache_;
+  QHash<Texture*, TexturePtr> resolved_texture_cache_;
 
 };
 

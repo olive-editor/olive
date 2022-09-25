@@ -82,6 +82,7 @@ private:
   // Gizmo variables
   PointGizmo *point_gizmo_[kGizmoScaleCount];
   PolygonGizmo *poly_gizmo_;
+  QVector2D temp_resolution_;
 
 };
 

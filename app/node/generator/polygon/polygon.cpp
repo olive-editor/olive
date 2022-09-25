@@ -87,12 +87,11 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
+ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const
 {
-  GenerateJob job;
-
-  job.Insert(value);
-  job.SetRequestedFormat(VideoParams::kFormatUnsigned8);
+  VideoParams p = params;
+  p.set_format(VideoParams::kFormatUnsigned8);
+  auto job = Texture::Job(p, GenerateJob(value));
 
   // Conversion to RGB
   ShaderJob rgb;
@@ -105,9 +104,7 @@ ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value) const
 
 void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job = GetGenerateJob(value);
-
-  PushMergableJob(value, QVariant::fromValue(job), table);
+  PushMergableJob(value, Texture::Job(globals.vparams(), GetGenerateJob(value, globals.vparams())), table);
 }
 
 void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const
@@ -169,7 +166,14 @@ void PolygonGenerator::ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz)
 
 void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  QPointF half_res(globals.resolution_by_par().x()/2, globals.resolution_by_par().y()/2);
+  QVector2D res;
+  if (TexturePtr tex = row[kBaseInput].toTexture()) {
+    res = tex->virtual_resolution();
+  } else {
+    res = globals.square_resolution();
+  }
+
+  QPointF half_res = res.toPointF()/2;
 
   QVector<NodeValue> points = row[kPointsInput].value< QVector<NodeValue> >();
 

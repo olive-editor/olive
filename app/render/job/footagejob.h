@@ -25,7 +25,7 @@
 
 namespace olive {
 
-class FootageJob
+class FootageJob : public AcceleratedJob
 {
 public:
   FootageJob() :
