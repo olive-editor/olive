@@ -61,7 +61,15 @@ NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node 
     row.insert(it.key(), value);
   }
 
-  //PreProcessRow(row);
+  // TEMP: Audio needs to be refactored to work with new job system. But refactoring hasn't been
+  //       done yet, so we emulate old behavior here JUST FOR AUDIO.
+  for (auto it=row.begin(); it!=row.end(); it++) {
+    NodeValue &val = it.value();
+    if (val.type() == NodeValue::kSamples) {
+      ResolveJobs(val);
+    }
+  }
+  // END TEMP
 
   return row;
 }

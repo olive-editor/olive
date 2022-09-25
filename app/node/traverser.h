@@ -137,6 +137,7 @@ protected:
   void SetCancelPointer(CancelAtom *cancel) { cancel_ = cancel; }
 
   void ResolveJobs(NodeValue &value);
+  void ResolveAudioJobs(NodeValue &value);
 
   Block *GetCurrentBlock() const
   {
