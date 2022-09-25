@@ -54,12 +54,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 
   NodeValue tex_val = table.Get(NodeValue::kTexture);
 
-  QElapsedTimer t;
-  t.restart();
-
   ResolveJobs(tex_val);
-
-  qDebug() << "Frame took" << t.elapsed();
 
   return tex_val.toTexture();
 }
