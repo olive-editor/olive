@@ -27,6 +27,7 @@
 #include "node/generator/shape/generatorwithmerge.h"
 #include "node/gizmo/line.h"
 #include "node/gizmo/path.h"
+#include "node/gizmo/selectable.h"
 #include "node/gizmo/point.h"
 #include "node/node.h"
 #include "node/inputdragger.h"
@@ -53,6 +54,7 @@ public:
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual void UpdateGizmosOnSelection(QList<PointGizmo*> &selected) override;
 
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
@@ -77,7 +79,7 @@ private:
   NodeGizmo *CreateAppropriateGizmo();
 
   PathGizmo *poly_gizmo_;
-  QVector<PointGizmo*> gizmo_position_handles_;
+  QVector<SelectableGizmo*> gizmo_position_handles_;
   QVector<PointGizmo*> gizmo_bezier_handles_;
   QVector<LineGizmo*> gizmo_bezier_lines_;
 

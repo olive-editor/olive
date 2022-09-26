@@ -21,6 +21,7 @@
 #include "viewerdisplay.h"
 
 #include <OpenImageIO/imagebuf.h>
+#include <qnamespace.h>
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
 #include <QFileInfo>
@@ -177,6 +178,7 @@ void ViewerDisplayWidget::SetGizmos(Node *node)
 {
   if (gizmos_ != node) {
     gizmos_ = node;
+    selected_gizmos_.clear();
 
     update();
   }
@@ -445,6 +447,7 @@ void ViewerDisplayWidget::OnPaint()
     p.setWorldTransform(gizmo_last_draw_transform_);
 
     gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, range));
+    gizmos_->UpdateGizmosOnSelection(selected_gizmos_);
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -822,6 +825,25 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       gizmo_start_drag_ = event->pos();
       gizmo_last_drag_ = gizmo_start_drag_;
       current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
+      //handle selection
+      if (PointGizmo* point_gizmo = dynamic_cast<PointGizmo*>(current_gizmo_)) {
+        if (point_gizmo->IsSelectable()) {
+          for (PointGizmo* pg: selected_gizmos_)
+            pg->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
+          if (event->modifiers().testFlag(Qt::ControlModifier)) {
+            if (selected_gizmos_.contains(point_gizmo)) {
+              selected_gizmos_.removeOne(point_gizmo);
+            } else {
+              selected_gizmos_.append(point_gizmo);
+            }
+          } else if (!selected_gizmos_.contains(point_gizmo)) {
+            selected_gizmos_.clear();
+            selected_gizmos_.append(point_gizmo);
+          }
+ 
+        } 
+        update();
+      }
 
     } else {
 
@@ -872,7 +894,7 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
   } else if (current_gizmo_) {
 
     // Signal movement
-    if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
+    if (PointGizmo *point_gizmo = dynamic_cast<PointGizmo*>(current_gizmo_) ) {
       if (!gizmo_drag_started_) {
         QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
 
@@ -880,31 +902,40 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
         NodeTraverser t;
         t.SetCacheVideoParams(gizmo_params_);
         NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
-
-        draggable->DragStart(row, start.x(), start.y(), gizmo_time);
+        
+        if (point_gizmo->IsSelected()) {
+          for (DraggableGizmo* gizmo: selected_gizmos_)
+            gizmo->DragStart(row, start.x(), start.y(), gizmo_time);
+        } else {
+          point_gizmo->DragStart(row, start.x(), start.y(), gizmo_time);
+        }
         gizmo_drag_started_ = true;
       }
-
       QPointF v = event->pos() * gizmo_last_draw_transform_inverted_;
-      switch (draggable->GetDragValueBehavior()) {
-      case DraggableGizmo::kAbsolute:
-        // Above value is correct
-        break;
-      case DraggableGizmo::kDeltaFromPrevious:
-        v -= gizmo_last_drag_ * gizmo_last_draw_transform_inverted_;
-        gizmo_last_drag_ = event->pos();
-        break;
-      case DraggableGizmo::kDeltaFromStart:
-        v -= gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
-        break;
+      switch (point_gizmo->GetDragValueBehavior()) {
+        case DraggableGizmo::kAbsolute:
+          // Above value is correct
+          break;
+        case DraggableGizmo::kDeltaFromPrevious:
+          v -= gizmo_last_drag_ * gizmo_last_draw_transform_inverted_;
+          gizmo_last_drag_ = event->pos();
+          break;
+        case DraggableGizmo::kDeltaFromStart:
+          v -= gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+          break;
       }
 
-      draggable->DragMove(v.x(), v.y(), event->modifiers());
+      if (point_gizmo->IsSelected()) {
+        for (DraggableGizmo* gizmo: selected_gizmos_)
+          gizmo->DragMove(v.x(), v.y(), event->modifiers());
+      } else
+        point_gizmo->DragMove(v.x(), v.y(), event->modifiers());
 
+      update();
       return true;
-    }
-
+    } 
   }
+
 
   return false;
 }
@@ -940,8 +971,13 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
     // Handle gizmo
     if (gizmo_drag_started_) {
       MultiUndoCommand *command = new MultiUndoCommand();
-      if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
-        draggable->DragEnd(command);
+      if (PointGizmo* point_gizmo= dynamic_cast<PointGizmo* >(current_gizmo_)) {
+
+        if (point_gizmo  ->IsSelected()) {
+          for (DraggableGizmo* gizmo: selected_gizmos_)
+            gizmo->DragEnd(command);
+        } else
+            point_gizmo->DragEnd(command);
       }
       Core::instance()->undo_stack()->pushIfHasChildren(command);
       gizmo_drag_started_ = false;
@@ -960,15 +996,18 @@ bool ViewerDisplayWidget::OnMouseDoubleClick(QMouseEvent *event)
   if (text_edit_) {
     return ForwardMouseEventToTextEdit(event);
   } else if (event->button() == Qt::LeftButton && gizmos_) {
+    selected_gizmos_.clear();
+
     QPointF ptr = TransformViewerSpaceToBufferSpace(event->pos());
     foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
       if (TextGizmo *text = dynamic_cast<TextGizmo*>(g)) {
         if (text->GetRect().contains(ptr)) {
           OpenTextGizmo(text, event);
-          return true;
         }
       }
     }
+    update();
+    return true;
   }
 
   return false;

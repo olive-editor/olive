@@ -37,9 +37,9 @@ public:
     kAnchorPoint
   };
 
-  explicit PointGizmo(const Shape &shape, bool smaller, QObject *parent = nullptr);
-  explicit PointGizmo(const Shape &shape, QObject *parent = nullptr);
-  explicit PointGizmo(QObject *parent = nullptr);
+  explicit PointGizmo(const Shape &shape, bool smaller, QObject *parent = nullptr, bool selectable = false);
+  explicit PointGizmo(const Shape &shape, QObject *parent = nullptr, bool selectable = false);
+  explicit PointGizmo(QObject *parent = nullptr, bool selectable = false);
 
   const Shape &GetShape() const { return shape_; }
   void SetShape(const Shape &s) { shape_ = s; }
@@ -49,6 +49,11 @@ public:
 
   bool GetSmaller() const { return smaller_; }
   void SetSmaller(bool e) { smaller_ = e; }
+
+  bool IsSelectable() const { return selectable_; }
+
+  void SetSelected(bool e) { selected_ = e; }
+  bool IsSelected() const { return selected_; }
 
   virtual void Draw(QPainter *p) const override;
 
@@ -64,6 +69,8 @@ private:
   QPointF point_;
 
   bool smaller_;
+  bool selected_ = false;
+  bool selectable_ = false;
 
 };
 

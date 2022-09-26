@@ -142,6 +142,12 @@ NodeGizmo *PolygonGenerator::CreateAppropriateGizmo<PointGizmo>()
   return AddDraggableGizmo<PointGizmo>();
 }
 
+template<>
+NodeGizmo *PolygonGenerator::CreateAppropriateGizmo<SelectableGizmo>()
+{
+  return AddDraggableGizmo<SelectableGizmo>();
+}
+
 template<typename T>
 void PolygonGenerator::ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz)
 {
@@ -218,6 +224,21 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
   }
 
   poly_gizmo_->SetPath(GeneratePath(points).translated(half_res));
+}
+
+void PolygonGenerator::UpdateGizmosOnSelection(QList<PointGizmo*> &selected)
+{
+  for (int i = 0; i < gizmo_position_handles_.size(); i++) {
+    auto& position_handle = gizmo_position_handles_[i];
+    bool point_selected = selected.contains(position_handle);
+    bool beziers_visible = (selected.size() == 1 && point_selected);
+    position_handle->SetSelected(point_selected);
+
+    gizmo_bezier_handles_[i*2]->SetVisible(beziers_visible);
+    gizmo_bezier_lines_[i*2]->SetVisible(beziers_visible);
+    gizmo_bezier_handles_[i*2+1]->SetVisible(beziers_visible);
+    gizmo_bezier_lines_[i*2+1]->SetVisible(beziers_visible);
+  }
 }
 
 ShaderCode PolygonGenerator::GetShaderCode(const ShaderRequest &request) const

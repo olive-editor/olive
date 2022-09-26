@@ -19,25 +19,27 @@
 ***/
 
 #include "point.h"
+#include <qnamespace.h>
 
 #include <QApplication>
 
 namespace olive {
 
-PointGizmo::PointGizmo(const Shape &shape, bool smaller, QObject *parent) :
+PointGizmo::PointGizmo(const Shape &shape, bool smaller, QObject *parent, bool selectable) :
   DraggableGizmo{parent},
   shape_(shape),
-  smaller_(smaller)
+  smaller_(smaller),
+  selectable_(selectable)
 {
 }
 
-PointGizmo::PointGizmo(const Shape &shape, QObject *parent) :
-  PointGizmo(shape, false, parent)
+PointGizmo::PointGizmo(const Shape &shape, QObject *parent,bool selectable) :
+  PointGizmo(shape, false, parent, selectable)
 {
 }
 
-PointGizmo::PointGizmo(QObject *parent) :
-  PointGizmo(kSquare, parent)
+PointGizmo::PointGizmo(QObject *parent, bool selectable) :
+  PointGizmo(kSquare, parent, selectable)
 {
 }
 
@@ -47,7 +49,7 @@ void PointGizmo::Draw(QPainter *p) const
 
   if (shape_ != kAnchorPoint) {
     p->setPen(Qt::NoPen);
-    p->setBrush(Qt::white);
+    p->setBrush(selected_ ? Qt::red : Qt::white);
   }
 
   switch (shape_) {
