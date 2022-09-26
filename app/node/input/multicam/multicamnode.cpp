@@ -11,6 +11,10 @@ MultiCamNode::MultiCamNode()
 {
   AddInput(kCurrentInput, NodeValue::kInt, InputFlags(kInputFlagStatic));
 
+  // Make current index start at 1 instead of 0
+  SetInputProperty(kCurrentInput, QStringLiteral("offset"), 1);
+  SetInputProperty(kCurrentInput, QStringLiteral("min"), 0);
+
   AddInput(kSourcesInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray));
 }
 
