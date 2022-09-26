@@ -440,6 +440,10 @@ void ColorValuesTab::HexChanged(const QString &s)
   uint32_t hex = s.toULong(&ok, 16);
 
   if (ok) {
+    if (hex >= 0x1000000) {
+      hex >>= 8;
+    }
+
     uint32_t r = (hex & 0xFF0000) >> 16;
     uint32_t g = (hex & 0x00FF00) >> 8;
     uint32_t b = (hex & 0x0000FF);
