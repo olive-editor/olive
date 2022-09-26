@@ -53,22 +53,18 @@ void MosaicFilterNode::Retranslate()
 
 void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-
-  // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
-  job.SetInterpolation(kTextureInput, Texture::kLinear);
-
-  if (job.Get(kTextureInput).toTexture()) {
-    TexturePtr texture = job.Get(kTextureInput).toTexture();
-
+  if (TexturePtr texture = value[kTextureInput].toTexture()) {
     if (texture
-        && job.Get(kHorizInput).toInt() != texture->width()
-        && job.Get(kVertInput).toInt() != texture->height()) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+        && value[kHorizInput].toInt() != texture->width()
+        && value[kVertInput].toInt() != texture->height()) {
+      ShaderJob job(value);
+
+      // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
+      job.SetInterpolation(kTextureInput, Texture::kLinear);
+
+      table->Push(NodeValue::kTexture, texture->toJob(job), this);
     } else {
-      table->Push(job.Get(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }

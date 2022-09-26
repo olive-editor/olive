@@ -77,21 +77,16 @@ ShaderCode FlipDistortNode::GetShaderCode(const ShaderRequest &request) const
 
 void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-
   // If there's no texture, no need to run an operation
-  if (job.Get(kTextureInput).toTexture()) {
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (job.Get(kHorizontalInput).toBool() || job.Get(kVerticalInput).toBool()) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+    if (value[kHorizontalInput].toBool() || value[kVerticalInput].toBool()) {
+      table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)), this);
     } else {
-    // If we're not flipping or flopping just push the texture
-    table->Push(job.Get(kTextureInput));
+      // If we're not flipping or flopping just push the texture
+      table->Push(value[kTextureInput]);
     }
   }
-
 }
 
 }

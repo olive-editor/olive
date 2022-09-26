@@ -21,7 +21,6 @@
 #ifndef COLORLABELMENU_H
 #define COLORLABELMENU_H
 
-#include "colorlabelmenuitem.h"
 #include "widget/menu/menu.h"
 
 namespace olive {
@@ -40,7 +39,7 @@ signals:
 private:
   void Retranslate();
 
-  QVector<ColorLabelMenuItem*> color_items_;
+  QVector<QAction*> color_items_;
 
 private slots:
   void ActionTriggered();

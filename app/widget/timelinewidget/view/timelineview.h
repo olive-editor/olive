@@ -119,7 +119,7 @@ private:
   void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height)
   {
     ClipBlock *cb = dynamic_cast<ClipBlock*>(block);
-    DrawBlock(painter, foreground, block, top, height, block->in(), block->out(), cb ? cb->media_in() : 0);
+    return DrawBlock(painter, foreground, block, top, height, block->in(), block->out(), cb ? cb->media_in() : 0);
   }
 
   void DrawZebraStripes(QPainter *painter, const QRectF &r);

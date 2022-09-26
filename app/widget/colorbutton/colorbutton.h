@@ -32,7 +32,11 @@ class ColorButton : public QPushButton
 {
   Q_OBJECT
 public:
-  ColorButton(ColorManager* color_manager, QWidget* parent = nullptr);
+  ColorButton(ColorManager* color_manager, bool show_dialog_on_click, QWidget* parent = nullptr);
+  ColorButton(ColorManager* color_manager, QWidget* parent = nullptr) :
+    ColorButton(color_manager, true, parent)
+  {
+  }
 
   const ManagedColor& GetColor() const;
 

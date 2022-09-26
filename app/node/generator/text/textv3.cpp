@@ -98,9 +98,7 @@ void TextGeneratorV3::Retranslate()
 
 void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  GenerateJob job;
-  job.Insert(value);
-  job.SetRequestedFormat(VideoParams::kFormatUnsigned8);
+  QString text = value[kTextInput].toString();
 
   if (value[kUseArgsInput].toBool()) {
     auto args = value[kArgsInput].toArray();
@@ -111,17 +109,21 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
         list.append(args[i].toString());
       }
 
-      NodeValue v = job.Get(kTextInput);
-      v.set_value(FormatString(v.toString(), list));
-      job.Insert(kTextInput, v);
+      text = FormatString(text, list);
     }
   }
 
-  // FIXME: Provide user override for this
-  job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
+  if (!text.isEmpty()) {
+    TexturePtr base = value[kTextInput].toTexture();
 
-  if (!job.Get(kTextInput).toString().isEmpty()) {
-    PushMergableJob(value, QVariant::fromValue(job), table);
+    VideoParams text_params = base ? base->params() : globals.vparams();
+    text_params.set_format(VideoParams::kFormatUnsigned8);
+    text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
+
+    GenerateJob job(value);
+    job.Insert(kTextInput, NodeValue(NodeValue::kText, text));
+
+    PushMergableJob(value, Texture::Job(text_params, job), table);
   } else if (value[kBaseInput].toTexture()) {
     table->Push(value[kBaseInput]);
   }

@@ -155,50 +155,50 @@ void OCIOGradingTransformLinearNode::GenerateProcessor()
 
 void OCIOGradingTransformLinearNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  if (value[kTextureInput].toTexture() && processor()) {
-    ColorTransformJob job;
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (processor()) {
+      ColorTransformJob job(value);
 
-    job.SetColorProcessor(processor());
-    job.SetInputTexture(value[kTextureInput].toTexture());
+      job.SetColorProcessor(processor());
+      job.SetInputTexture(value[kTextureInput]);
 
-    job.Insert(value);
+      const int MASTER_CHANNEL = 0;
+      const int RED_CHANNEL = 1;
+      const int GREEN_CHANNEL = 2;
+      const int BLUE_CHANNEL = 3;
 
-    const int MASTER_CHANNEL = 0;
-    const int RED_CHANNEL = 1;
-    const int GREEN_CHANNEL = 2;
-    const int BLUE_CHANNEL = 3;
+      // Oddly, OCIO uses RGBMs when setting the GradingPrimary on the CPU, but uses vec3s on the GPU.
+      // Even more oddly, the conversion from RGBM to vec3 does not appear to have a public API.
+      // Therefore, this code has been duplicated from OCIO here:
+      // https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/3abbe5b20521169580fcfe3692aca81859859953/src/OpenColorIO/ops/gradingprimary/GradingPrimary.cpp#L157
+      QVector4D offset = value[kOffsetInput].toVec4();
+      offset[RED_CHANNEL] += offset[MASTER_CHANNEL];
+      offset[GREEN_CHANNEL] += offset[MASTER_CHANNEL];
+      offset[BLUE_CHANNEL] += offset[MASTER_CHANNEL];
+      job.Insert(kOffsetInput, NodeValue(NodeValue::kVec3, QVector3D(offset[RED_CHANNEL], offset[GREEN_CHANNEL], offset[BLUE_CHANNEL])));
 
-    // Oddly, OCIO uses RGBMs when setting the GradingPrimary on the CPU, but uses vec3s on the GPU.
-    // Even more oddly, the conversion from RGBM to vec3 does not appear to have a public API.
-    // Therefore, this code has been duplicated from OCIO here:
-    // https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/3abbe5b20521169580fcfe3692aca81859859953/src/OpenColorIO/ops/gradingprimary/GradingPrimary.cpp#L157
-    QVector4D offset = value[kOffsetInput].toVec4();
-    offset[RED_CHANNEL] += offset[MASTER_CHANNEL];
-    offset[GREEN_CHANNEL] += offset[MASTER_CHANNEL];
-    offset[BLUE_CHANNEL] += offset[MASTER_CHANNEL];
-    job.Insert(kOffsetInput, NodeValue(NodeValue::kVec3, QVector3D(offset[RED_CHANNEL], offset[GREEN_CHANNEL], offset[BLUE_CHANNEL])));
+      QVector4D exposure = value[kExposureInput].toVec4();
+      exposure[RED_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[RED_CHANNEL]);
+      exposure[GREEN_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[GREEN_CHANNEL]);
+      exposure[BLUE_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[BLUE_CHANNEL]);
+      job.Insert(kExposureInput, NodeValue(NodeValue::kVec3, QVector3D(exposure[RED_CHANNEL], exposure[GREEN_CHANNEL], exposure[BLUE_CHANNEL])));
 
-    QVector4D exposure = value[kExposureInput].toVec4();
-    exposure[RED_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[RED_CHANNEL]);
-    exposure[GREEN_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[GREEN_CHANNEL]);
-    exposure[BLUE_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[BLUE_CHANNEL]);
-    job.Insert(kExposureInput, NodeValue(NodeValue::kVec3, QVector3D(exposure[RED_CHANNEL], exposure[GREEN_CHANNEL], exposure[BLUE_CHANNEL])));
+      QVector4D contrast = value[kContrastInput].toVec4();
+      contrast[RED_CHANNEL] *= contrast[MASTER_CHANNEL];
+      contrast[GREEN_CHANNEL] *= contrast[MASTER_CHANNEL];
+      contrast[BLUE_CHANNEL] *= contrast[MASTER_CHANNEL];
+      job.Insert(kContrastInput, NodeValue(NodeValue::kVec3, QVector3D(contrast[RED_CHANNEL], contrast[GREEN_CHANNEL], contrast[BLUE_CHANNEL])));
 
-    QVector4D contrast = value[kContrastInput].toVec4();
-    contrast[RED_CHANNEL] *= contrast[MASTER_CHANNEL];
-    contrast[GREEN_CHANNEL] *= contrast[MASTER_CHANNEL];
-    contrast[BLUE_CHANNEL] *= contrast[MASTER_CHANNEL];
-    job.Insert(kContrastInput, NodeValue(NodeValue::kVec3, QVector3D(contrast[RED_CHANNEL], contrast[GREEN_CHANNEL], contrast[BLUE_CHANNEL])));
+      if (!value[kClampBlackEnableInput].toBool()) {
+        job.Insert(kClampBlackInput, NodeValue(NodeValue::kFloat, OCIO::GradingPrimary::NoClampBlack()));
+      }
 
-    if (!value[kClampBlackEnableInput].toBool()) {
-      job.Insert(kClampBlackInput, NodeValue(NodeValue::kFloat, OCIO::GradingPrimary::NoClampBlack()));
+      if (!value[kClampWhiteEnableInput].toBool()) {
+        job.Insert(kClampWhiteInput, NodeValue(NodeValue::kFloat, OCIO::GradingPrimary::NoClampWhite()));
+      }
+
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
     }
-
-    if (!value[kClampWhiteEnableInput].toBool()) {
-      job.Insert(kClampWhiteInput, NodeValue(NodeValue::kFloat, OCIO::GradingPrimary::NoClampWhite()));
-    }
-
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
   }
 }
 

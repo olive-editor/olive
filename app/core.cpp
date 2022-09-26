@@ -116,9 +116,6 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
   qRegisterMetaType<olive::AudioVisualWaveform>();
-  qRegisterMetaType<olive::SampleJob>();
-  qRegisterMetaType<olive::ShaderJob>();
-  qRegisterMetaType<olive::GenerateJob>();
   qRegisterMetaType<olive::VideoParams>();
   qRegisterMetaType<olive::VideoParams::Interlacing>();
   qRegisterMetaType<olive::MainWindowLayoutInfo>();
