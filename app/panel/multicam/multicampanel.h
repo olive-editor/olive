@@ -3,26 +3,14 @@
 
 #include "panel/viewer/viewerbase.h"
 #include "widget/multicam/multicamwidget.h"
-#include "widget/panel/panel.h"
 
 namespace olive {
 
-class MulticamPanel : public PanelWidget
+class MulticamPanel : public ViewerPanelBase
 {
   Q_OBJECT
 public:
-  MulticamPanel(ViewerPanelBase *sibling, QWidget* parent = nullptr);
-
-  void SetNode(MultiCamNode *n)
-  {
-    widget_->SetNode(n);
-  }
-
-public slots:
-  void SetTime(const rational &t)
-  {
-    widget_->SetTime(t);
-  }
+  MulticamPanel(QWidget* parent = nullptr);
 
 protected:
   virtual void Retranslate() override;

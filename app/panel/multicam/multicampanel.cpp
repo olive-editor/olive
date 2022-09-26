@@ -2,16 +2,13 @@
 
 namespace olive {
 
-#define super PanelWidget
+#define super ViewerPanelBase
 
-MulticamPanel::MulticamPanel(ViewerPanelBase *sibling, QWidget *parent) :
+MulticamPanel::MulticamPanel(QWidget *parent) :
   super(QStringLiteral("MultiCamPanel"), parent)
 {
   widget_ = new MulticamWidget();
-  SetWidgetWithPadding(widget_);
-
-  connect(sibling, &ViewerPanelBase::ColorManagerChanged, widget_, &MulticamWidget::ConnectColorManager);
-  widget_->ConnectCacher(static_cast<ViewerWidget*>(sibling->GetTimeBasedWidget())->GetCacher());
+  SetViewerWidget(widget_);
 
   Retranslate();
 }

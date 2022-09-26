@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
   param_panel_ = new ParamPanel(this);
   curve_panel_ = new CurvePanel(this);
   sequence_viewer_panel_ = new SequenceViewerPanel(this);
-  multicam_panel_ = new MulticamPanel(sequence_viewer_panel_, this);
+  multicam_panel_ = new MulticamPanel(this);
   pixel_sampler_panel_ = new PixelSamplerPanel(this);
   AppendProjectPanel();
   tool_panel_ = new ToolPanel(this);
@@ -106,6 +106,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(param_panel_, &ParamPanel::SelectedNodesChanged, node_panel_, &NodePanel::Select);
 
   // Connect time signals together
+  connect(multicam_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(multicam_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
+  connect(multicam_panel_, &SequenceViewerPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, multicam_panel_, &MulticamPanel::SetTime);
@@ -120,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
+  sequence_viewer_panel_->ConnectTimeBasedPanel(multicam_panel_);
 
   scope_panel_->SetViewerPanel(sequence_viewer_panel_);
 
@@ -494,18 +498,24 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
     UpdateNodePanelContextFromTimelinePanel(panel);
 
-    bool found = false;
+    MultiCamNode *multicam = nullptr;
+
     for (Block *b : blocks) {
       if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
-        if (MultiCamNode *m = dynamic_cast<MultiCamNode*>(c->GetConnectedOutput(c->kBufferIn))) {
-          multicam_panel_->SetNode(m);
-          found = true;
+        if ((multicam = dynamic_cast<MultiCamNode*>(c->GetConnectedOutput(c->kBufferIn)))) {
           break;
         }
       }
     }
-    if (!found) {
-      multicam_panel_->SetNode(nullptr);
+
+    if (multicam) {
+      qDebug() << "Found multicam node!";
+      //multicam_panel_->SetNode(multicam);
+      multicam_panel_->ConnectViewerNode(panel->GetConnectedViewer());
+    } else {
+      qDebug() << "Found NO multicam node";
+      multicam_panel_->ConnectViewerNode(nullptr);
+      //multicam_panel_->SetNode(nullptr);
     }
   }
 }
@@ -624,6 +634,7 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::RevealViewerInFootageViewer, this, &MainWindow::RevealViewerInFootageViewer);
   connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
+  connect(multicam_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
   connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(panel);
