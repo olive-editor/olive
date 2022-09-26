@@ -121,7 +121,11 @@ Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const 
         }
       }
 
-      return a;
+      if (a.elements().empty()) {
+        return ActiveElements::kNoElements;
+      } else {
+        return a;
+      }
     }
   } else {
     return super::GetActiveElementsAtTime(input, r);
