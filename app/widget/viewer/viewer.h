@@ -184,6 +184,13 @@ protected:
     ignore_scrub_++;
   }
 
+  virtual RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false)
+  {
+    return auto_cacher_->GetSingleFrame(t, dry);
+  }
+
+  PreviewAutoCacher *auto_cacher() const { return auto_cacher_; }
+
 private:
   int64_t GetTimestamp() const
   {

@@ -580,7 +580,7 @@ void ViewerWidget::RequestNextDryRun()
       } else {
         RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
         connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::DryRunFinished);
-        watcher->SetTicket(auto_cacher_->GetSingleFrame(next_time, true));
+        watcher->SetTicket(GetSingleFrame(next_time, true));
         dry_run_next_frame_ += playback_speed_;
         dry_run_watchers_.append(watcher);
       }
@@ -1033,7 +1033,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t)
 
   if (!QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
-    return auto_cacher_->GetSingleFrame(t);
+    return GetSingleFrame(t);
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();

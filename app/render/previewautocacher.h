@@ -90,6 +90,9 @@ public:
 
   void SetRendersPaused(bool e);
 
+  void SetMulticamMode(bool e) { multicam_mode_ = e; }
+  void SetIgnoreCacheRequests(bool e) { ignore_cache_requests_ = e; }
+
 public slots:
   void SetDisplayColorProcessor(ColorProcessorPtr processor)
   {
@@ -217,6 +220,9 @@ private:
   QHash<PlaybackCache*, AudioCacheData> audio_cache_data_;
 
   ColorProcessorPtr display_color_processor_;
+
+  bool multicam_mode_;
+  bool ignore_cache_requests_;
 
 private slots:
   /**

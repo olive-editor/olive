@@ -74,6 +74,7 @@ public:
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
+  const VideoParams &GetVideoParams() const { return gizmo_params_; }
   void SetVideoParams(const VideoParams &params);
   void SetTime(const rational& time);
   void SetSubtitleTracks(Sequence *list);
@@ -131,6 +132,8 @@ public:
     return &timer_;
   }
 
+  QPointF ScreenToScenePoint(const QPoint &p);
+
   virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
@@ -182,7 +185,7 @@ signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
    */
-  void DragStarted();
+  void DragStarted(const QPoint &p);
 
   /**
    * @brief Signal emitted when a hand drag starts
@@ -290,6 +293,8 @@ private:
 
   void CloseTextEditor();
 
+  void GenerateGizmoTransforms();
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -340,6 +345,7 @@ private:
   VideoParams gizmo_params_;
   QPoint gizmo_start_drag_;
   QPoint gizmo_last_drag_;
+  TimeRange gizmo_draw_time_;
   NodeGizmo *current_gizmo_;
   bool gizmo_drag_started_;
   QTransform gizmo_last_draw_transform_;

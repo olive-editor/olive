@@ -509,13 +509,11 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
     }
 
     if (multicam) {
-      qDebug() << "Found multicam node!";
-      //multicam_panel_->SetNode(multicam);
+      multicam_panel_->SetMulticamNode(multicam);
       multicam_panel_->ConnectViewerNode(panel->GetConnectedViewer());
     } else {
-      qDebug() << "Found NO multicam node";
       multicam_panel_->ConnectViewerNode(nullptr);
-      //multicam_panel_->SetNode(nullptr);
+      multicam_panel_->SetMulticamNode(nullptr);
     }
   }
 }

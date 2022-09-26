@@ -24,6 +24,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/conformmanager.h"
+#include "node/input/multicam/multicamnode.h"
 #include "node/inputdragger.h"
 #include "node/project/project.h"
 #include "render/diskmanager.h"
@@ -41,7 +42,9 @@ PreviewAutoCacher::PreviewAutoCacher(QObject *parent) :
   use_custom_range_(false),
   pause_renders_(false),
   single_frame_render_(nullptr),
-  display_color_processor_(nullptr)
+  display_color_processor_(nullptr),
+  multicam_mode_(false),
+  ignore_cache_requests_(false)
 {
   // Set defaults
   SetPlayhead(0);
@@ -285,6 +288,13 @@ void PreviewAutoCacher::AddNode(Node *node)
   // Copy node
   Node* copy = node->copy();
 
+  // Fairly hacky way of getting multicam nodes to produce a monitor rather than a single source
+  if (multicam_mode_) {
+    if (MultiCamNode *m = dynamic_cast<MultiCamNode*>(copy)) {
+      m->SetMonitorMode(true);
+    }
+  }
+
   // Add to project
   copy->setParent(&copied_project_);
 
@@ -368,7 +378,9 @@ void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
   Node::CopyInputs(node, copy, false);
 
   // Connect to node's cache
-  ConnectToNodeCache(node);
+  if (ignore_cache_requests_) {
+    ConnectToNodeCache(node);
+  }
 }
 
 void PreviewAutoCacher::ConnectToNodeCache(Node *node)

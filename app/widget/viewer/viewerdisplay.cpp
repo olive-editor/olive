@@ -431,17 +431,13 @@ void ViewerDisplayWidget::OnPaint()
 
   // Draw gizmos if we have any
   if (gizmos_) {
-    NodeTraverser gt;
-    gt.SetCacheVideoParams(gizmo_params_);
-
-    TimeRange range = GenerateGizmoTime();
-    gizmo_db_ = gt.GenerateRow(gizmos_, range);
-
     QPainter p(paint_device());
-    gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, range);
+
+    GenerateGizmoTransforms();
+
     p.setWorldTransform(gizmo_last_draw_transform_);
 
-    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, range));
+    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_draw_time_));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -812,8 +808,7 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       add_band_ = true;
 
     } else if (gizmos_
-               && (gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted(),
-                   current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
+               && (current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
 
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
@@ -823,7 +818,7 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
     } else {
 
       // Handle standard drag
-      emit DragStarted();
+      emit DragStarted(event->pos());
 
     }
 
@@ -871,7 +866,7 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
     // Signal movement
     if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
       if (!gizmo_drag_started_) {
-        QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+        QPointF start = ScreenToScenePoint(gizmo_start_drag_);
 
         rational gizmo_time = GetGizmoTime();
         NodeTraverser t;
@@ -882,17 +877,17 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
         gizmo_drag_started_ = true;
       }
 
-      QPointF v = event->pos() * gizmo_last_draw_transform_inverted_;
+      QPointF v = ScreenToScenePoint(event->pos());
       switch (draggable->GetDragValueBehavior()) {
       case DraggableGizmo::kAbsolute:
         // Above value is correct
         break;
       case DraggableGizmo::kDeltaFromPrevious:
-        v -= gizmo_last_drag_ * gizmo_last_draw_transform_inverted_;
+        v -= ScreenToScenePoint(gizmo_last_drag_);
         gizmo_last_drag_ = event->pos();
         break;
       case DraggableGizmo::kDeltaFromStart:
-        v -= gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+        v -= ScreenToScenePoint(gizmo_start_drag_);
         break;
       }
 
@@ -1182,6 +1177,21 @@ void ViewerDisplayWidget::CloseTextEditor()
   text_edit_ = nullptr;
 }
 
+void ViewerDisplayWidget::GenerateGizmoTransforms()
+{
+  NodeTraverser gt;
+  gt.SetCacheVideoParams(gizmo_params_);
+
+  gizmo_draw_time_ = GenerateGizmoTime();
+
+  if (gizmos_) {
+    gizmo_db_ = gt.GenerateRow(gizmos_, gizmo_draw_time_);
+  }
+
+  gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, gizmo_draw_time_);
+  gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted();
+}
+
 void ViewerDisplayWidget::SetShowFPS(bool e)
 {
   show_fps_ = e;
@@ -1219,6 +1229,15 @@ void ViewerDisplayWidget::Pause()
 
   queue_.clear();
   queue_starved_ = false;
+}
+
+QPointF ViewerDisplayWidget::ScreenToScenePoint(const QPoint &p)
+{
+  if (gizmo_last_draw_transform_.isIdentity()) {
+    GenerateGizmoTransforms();
+  }
+
+  return p * gizmo_last_draw_transform_inverted_;
 }
 
 void ViewerDisplayWidget::UpdateFromQueue()

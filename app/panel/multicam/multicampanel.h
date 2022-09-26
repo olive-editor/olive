@@ -12,6 +12,11 @@ class MulticamPanel : public ViewerPanelBase
 public:
   MulticamPanel(QWidget* parent = nullptr);
 
+  void SetMulticamNode(MultiCamNode *n)
+  {
+    widget_->SetMulticamNode(n);
+  }
+
 protected:
   virtual void Retranslate() override;
 
