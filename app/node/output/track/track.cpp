@@ -116,7 +116,7 @@ Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const 
       ActiveElements a;
       for (int i=start; i<=end; i++) {
         Block *b = blocks_.at(i);
-        if (b->is_enabled()) {
+        if (b->is_enabled() && (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b))) {
           a.add(GetArrayIndexFromCacheIndex(i));
         }
       }
@@ -142,7 +142,7 @@ void Track::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeVal
     }
   } else if (this->type() == Track::kAudio) {
     // Audio
-    ProcessAudioTrack(table, globals.time());
+    ProcessAudioTrack(value, globals, table);
   }
 }
 
@@ -603,100 +603,97 @@ int Track::GetBlockIndexAtTime(const rational &time) const
   return -1;
 }
 
-void Track::ProcessAudioTrack(NodeValueTable *table, const TimeRange &range) const
+void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  /*
+  const TimeRange &range = globals.time();
+
   // All these blocks will need to output to a buffer so we create one here
-  SampleBuffer block_range_buffer(audio_params, range.length());
+  SampleBuffer block_range_buffer(globals.aparams(), range.length());
   block_range_buffer.silence();
 
-  NodeValueTable merged_table;
-
   // Loop through active blocks retrieving their audio
-  foreach (Block* b, active_blocks) {
-    if (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b)) {
-      TimeRange range_for_block(qMax(b->in(), range.in()),
-                                qMin(b->out(), range.out()));
+  NodeValueArray arr = value[kBlockInput].toArray();
 
-      qint64 destination_offset = audio_params.time_to_samples(range_for_block.in() - range.in());
-      qint64 max_dest_sz = audio_params.time_to_samples(range_for_block.length());
+  for (auto it=arr.cbegin(); it!=arr.cend(); it++) {
+    Block *b = blocks_.at(GetCacheIndexFromArrayIndex(it->first));
 
-      // Destination buffer
-      NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
-      SampleBuffer samples_from_this_block = table.Take(NodeValue::kSamples).toSamples();
-      ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
+    TimeRange range_for_block(qMax(b->in(), range.in()),
+                              qMin(b->out(), range.out()));
 
-      if (samples_from_this_block.is_allocated()) {
-        // If this is a clip, we might have extra speed/reverse information
-        if (clip_cast) {
-          double speed_value = clip_cast->speed();
-          bool reversed = clip_cast->reverse();
+    qint64 destination_offset = globals.aparams().time_to_samples(range_for_block.in() - range.in());
+    qint64 max_dest_sz = globals.aparams().time_to_samples(range_for_block.length());
 
-          if (qIsNull(speed_value)) {
-            // Just silence, don't think there's any other practical application of 0 speed audio
-            samples_from_this_block.silence();
-          } else if (!qFuzzyCompare(speed_value, 1.0)) {
-            if (clip_cast->maintain_audio_pitch()) {
-              AudioProcessor processor;
+    // Destination buffer
+    SampleBuffer samples_from_this_block = it->second.toSamples();
+    ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
 
-              if (processor.Open(samples_from_this_block.audio_params(), samples_from_this_block.audio_params(), speed_value)) {
-                AudioProcessor::Buffer out;
+    if (samples_from_this_block.is_allocated()) {
+      // If this is a clip, we might have extra speed/reverse information
+      if (clip_cast) {
+        double speed_value = clip_cast->speed();
+        bool reversed = clip_cast->reverse();
 
-                // FIXME: This is not the best way to do this, the TempoProcessor works best
-                //        when it's given a continuous stream of audio, which is challenging
-                //        in our current "modular" audio system. This should still work reasonably
-                //        well on export (assuming audio is all generated at once on export), but
-                //        users may hear clicks and pops in the audio during preview due to this
-                //        approach.
-                int r = processor.Convert(samples_from_this_block.to_raw_ptrs().data(), samples_from_this_block.sample_count(), nullptr);
+        if (qIsNull(speed_value)) {
+          // Just silence, don't think there's any other practical application of 0 speed audio
+          samples_from_this_block.silence();
+        } else if (!qFuzzyCompare(speed_value, 1.0)) {
+          if (clip_cast->maintain_audio_pitch()) {
+            AudioProcessor processor;
 
-                if (r < 0) {
-                  qCritical() << "Failed to change tempo of audio:" << r;
-                } else {
-                  processor.Flush();
+            if (processor.Open(samples_from_this_block.audio_params(), samples_from_this_block.audio_params(), speed_value)) {
+              AudioProcessor::Buffer out;
 
-                  processor.Convert(nullptr, 0, &out);
+              // FIXME: This is not the best way to do this, the TempoProcessor works best
+              //        when it's given a continuous stream of audio, which is challenging
+              //        in our current "modular" audio system. This should still work reasonably
+              //        well on export (assuming audio is all generated at once on export), but
+              //        users may hear clicks and pops in the audio during preview due to this
+              //        approach.
+              int r = processor.Convert(samples_from_this_block.to_raw_ptrs().data(), samples_from_this_block.sample_count(), nullptr);
 
-                  if (!out.empty()) {
-                    int nb_samples = out.front().size() * samples_from_this_block.audio_params().bytes_per_sample_per_channel();
+              if (r < 0) {
+                qCritical() << "Failed to change tempo of audio:" << r;
+              } else {
+                processor.Flush();
 
-                    if (nb_samples) {
-                      SampleBuffer new_samples(samples_from_this_block.audio_params(), nb_samples);
+                processor.Convert(nullptr, 0, &out);
 
-                      for (int i=0; i<out.size(); i++) {
-                        memcpy(new_samples.data(i), out[i].data(), out[i].size());
-                      }
+                if (!out.empty()) {
+                  int nb_samples = out.front().size() * samples_from_this_block.audio_params().bytes_per_sample_per_channel();
 
-                      samples_from_this_block = new_samples;
+                  if (nb_samples) {
+                    SampleBuffer new_samples(samples_from_this_block.audio_params(), nb_samples);
+
+                    for (int i=0; i<out.size(); i++) {
+                      memcpy(new_samples.data(i), out[i].data(), out[i].size());
                     }
+
+                    samples_from_this_block = new_samples;
                   }
                 }
               }
-            } else {
-              // Multiply time
-              samples_from_this_block.speed(speed_value);
             }
-          }
-
-          if (reversed) {
-            samples_from_this_block.reverse();
+          } else {
+            // Multiply time
+            samples_from_this_block.speed(speed_value);
           }
         }
 
-        qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count()));
-
-        // Copy samples into destination buffer
-        for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
-          block_range_buffer.set(i, samples_from_this_block.data(i), destination_offset, copy_length);
+        if (reversed) {
+          samples_from_this_block.reverse();
         }
+      }
 
-        NodeValueTable::Merge({merged_table, table});
+      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count()));
+
+      // Copy samples into destination buffer
+      for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
+        block_range_buffer.set(i, samples_from_this_block.data(i), destination_offset, copy_length);
       }
     }
   }
 
   table->Push(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), this);
-  */
 }
 
 void Track::BlockLengthChanged()

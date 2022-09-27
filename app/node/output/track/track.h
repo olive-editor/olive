@@ -453,7 +453,7 @@ private:
 
   int GetBlockIndexAtTime(const rational &time) const;
 
-  void ProcessAudioTrack(NodeValueTable *table, const TimeRange &range) const;
+  void ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const;
 
   TimeRangeList block_length_pending_invalidations_;
 

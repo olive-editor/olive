@@ -1678,7 +1678,13 @@ void ViewerWidget::UpdateRendererVideoParameters()
 
 void ViewerWidget::UpdateRendererAudioParameters()
 {
+  AudioParams ap = GetConnectedNode()->GetAudioParams();
+
   UpdateAudioProcessor();
+
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetAudioParams(ap);
+  }
 }
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)

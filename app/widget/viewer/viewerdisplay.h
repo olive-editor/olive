@@ -74,8 +74,13 @@ public:
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
+
   const VideoParams &GetVideoParams() const { return gizmo_params_; }
   void SetVideoParams(const VideoParams &params);
+
+  const AudioParams &GetAudioParams() const { return gizmo_audio_params_; }
+  void SetAudioParams(const AudioParams &p);
+
   void SetTime(const rational& time);
   void SetSubtitleTracks(Sequence *list);
 
@@ -343,6 +348,7 @@ private:
   Node* gizmos_;
   NodeValueRow gizmo_db_;
   VideoParams gizmo_params_;
+  AudioParams gizmo_audio_params_;
   QPoint gizmo_start_drag_;
   QPoint gizmo_last_drag_;
   TimeRange gizmo_draw_time_;

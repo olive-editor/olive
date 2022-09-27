@@ -54,10 +54,10 @@ public:
 
   void Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range);
 
-  static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
-  static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)
+  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const TimeRange &time);
+  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const rational &time)
   {
-    return GenerateGlobals(params, TimeRange(time, time + params.frame_rate_as_time_base()));
+    return GenerateGlobals(vparams, aparams, TimeRange(time, time + vparams.frame_rate_as_time_base()));
   }
 
   const VideoParams& GetCacheVideoParams() const

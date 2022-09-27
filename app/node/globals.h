@@ -24,6 +24,7 @@
 #include <QVector2D>
 
 #include "common/timerange.h"
+#include "render/audioparams.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -33,19 +34,22 @@ class NodeGlobals
 public:
   NodeGlobals(){}
 
-  NodeGlobals(const VideoParams &vparam, const TimeRange &time) :
+  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time) :
     video_params_(vparam),
+    audio_params_(aparam),
     time_(time)
   {
   }
 
   QVector2D square_resolution() const { return video_params_.square_resolution(); }
   QVector2D nonsquare_resolution() const { return video_params_.resolution(); }
+  const AudioParams &aparams() const { return audio_params_; }
   const VideoParams &vparams() const { return video_params_; }
   const TimeRange &time() const { return time_; }
 
 private:
   VideoParams video_params_;
+  AudioParams audio_params_;
   TimeRange time_;
 
 };

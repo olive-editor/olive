@@ -191,6 +191,15 @@ void ViewerDisplayWidget::SetVideoParams(const VideoParams &params)
   }
 }
 
+void ViewerDisplayWidget::SetAudioParams(const AudioParams &params)
+{
+  gizmo_audio_params_ = params;
+
+  if (gizmos_) {
+    update();
+  }
+}
+
 void ViewerDisplayWidget::SetTime(const rational &time)
 {
   time_ = time;
@@ -437,7 +446,7 @@ void ViewerDisplayWidget::OnPaint()
 
     p.setWorldTransform(gizmo_last_draw_transform_);
 
-    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_draw_time_));
+    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -813,7 +822,7 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
       gizmo_last_drag_ = gizmo_start_drag_;
-      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
+      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime()));
 
     } else {
 

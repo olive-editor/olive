@@ -179,9 +179,9 @@ void NodeTraverser::Transform(QTransform *transform, const Node *start, const No
   transform_ = nullptr;
 }
 
-NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const TimeRange &time)
+NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const TimeRange &time)
 {
-  return NodeGlobals(params, time);
+  return NodeGlobals(vparams, aparams, time);
 }
 
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
@@ -304,7 +304,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
     table = database.Merge();
 
     // By this point, the node should have all the inputs it needs to render correctly
-    NodeGlobals globals = GenerateGlobals(video_params_, range);
+    NodeGlobals globals = GenerateGlobals(video_params_, audio_params_, range);
     n->Value(row, globals, &table);
 
     // `transform_now_` is the next node in the path that needs to be traversed. It only ever goes
