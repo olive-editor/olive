@@ -50,7 +50,7 @@ public:
   virtual void SetPassthrough(PlaybackCache *cache) override;
 
 protected:
-  virtual void InvalidateEvent(const TimeRange& range);
+  virtual void InvalidateEvent(const TimeRange& range) override;
 
 private:
   using WaveformPtr = std::shared_ptr<AudioVisualWaveform>;
