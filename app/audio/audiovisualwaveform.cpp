@@ -90,6 +90,15 @@ void AudioVisualWaveform::OverwriteSamplesFromMipmap(const AudioVisualWaveform::
   input_length = samples_length;
 }
 
+void AudioVisualWaveform::ValidateVirtualStart(const rational &new_start)
+{
+  if (length_ == 0) {
+    virtual_start_ = new_start;
+  } else if (virtual_start_ > new_start) {
+    TrimIn(new_start - virtual_start_);
+  }
+}
+
 void AudioVisualWaveform::OverwriteSamples(const SampleBuffer &samples, int sample_rate, const rational &start)
 {
   if (!channels_) {
@@ -97,18 +106,12 @@ void AudioVisualWaveform::OverwriteSamples(const SampleBuffer &samples, int samp
     return;
   }
 
-  // Old less optimized code. Keeping this around as a reference, but the below code is at least
-  // 10x faster so this shouldn't be used in production.
-  //
-  // size_t input_start, input_length;
-  // for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
-  //   OverwriteSamplesFromBuffer(samples, sample_rate, start, it->first.toDouble(), it->second, input_start, input_length);
-  // }
+  ValidateVirtualStart(start);
 
   // Process the largest mipmap directly for the samples
   auto current_mipmap = mipmapped_data_.rbegin();
   size_t input_start, input_length;
-  OverwriteSamplesFromBuffer(samples, sample_rate, start, current_mipmap->first.toDouble(), current_mipmap->second, input_start, input_length);
+  OverwriteSamplesFromBuffer(samples, sample_rate, start - virtual_start_, current_mipmap->first.toDouble(), current_mipmap->second, input_start, input_length);
 
   while (true) {
     // For each smaller mipmap, we just process from the mipmap before it, making each one
@@ -120,7 +123,7 @@ void AudioVisualWaveform::OverwriteSamples(const SampleBuffer &samples, int samp
     }
 
     OverwriteSamplesFromMipmap(previous_mipmap->second, previous_mipmap->first.toDouble(),
-                               input_start, input_length, start, current_mipmap->first.toDouble(),
+                               input_start, input_length, start - virtual_start_, current_mipmap->first.toDouble(),
                                current_mipmap->second);
   }
 
@@ -130,6 +133,8 @@ void AudioVisualWaveform::OverwriteSamples(const SampleBuffer &samples, int samp
 
 void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &dest, const rational& offset, const rational& length)
 {
+  ValidateVirtualStart(dest);
+
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
     rational rate = it->first;
 
@@ -139,7 +144,7 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
     double rate_dbl = rate.toDouble();
 
     // Get our destination sample
-    size_t our_start_index = time_to_samples(dest, rate_dbl);
+    size_t our_start_index = time_to_samples(dest - virtual_start_, rate_dbl);
 
     // Get our source sample
     size_t their_start_index = time_to_samples(offset, rate_dbl);
@@ -172,6 +177,8 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
 
 void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational &length)
 {
+  ValidateVirtualStart(start);
+
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
     rational rate = it->first;
 
@@ -180,7 +187,7 @@ void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational
     double rate_dbl = rate.toDouble();
 
     // Get our destination sample
-    size_t our_start_index = time_to_samples(start, rate_dbl);
+    size_t our_start_index = time_to_samples(start - virtual_start_, rate_dbl);
     size_t our_length_index = time_to_samples(length, rate_dbl);
     size_t our_end_index = our_start_index + our_length_index;
 
@@ -190,6 +197,8 @@ void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational
 
     memset(reinterpret_cast<char*>(our_arr.data()) + our_start_index * sizeof(SamplePerChannel), 0, our_length_index * sizeof(SamplePerChannel));
   }
+
+  length_ = qMax(length_, start + length);
 }
 
 void AudioVisualWaveform::TrimIn(rational length)
@@ -197,6 +206,8 @@ void AudioVisualWaveform::TrimIn(rational length)
   if (length == 0) {
     return;
   }
+
+  virtual_start_ += length;
 
   bool negative = (length < 0);
   if (negative) {
@@ -225,9 +236,9 @@ void AudioVisualWaveform::TrimIn(rational length)
 
 AudioVisualWaveform AudioVisualWaveform::Mid(const rational &offset) const
 {
-  AudioVisualWaveform mid  = *this;
+  AudioVisualWaveform mid = *this;
 
-  mid.TrimIn(offset);
+  mid.TrimIn(offset - virtual_start_);
 
   return mid;
 }
@@ -236,7 +247,7 @@ AudioVisualWaveform AudioVisualWaveform::Mid(const rational &offset, const ratio
 {
   AudioVisualWaveform mid  = *this;
 
-  mid.TrimRange(offset, length);
+  mid.TrimRange(offset - virtual_start_, length);
 
   return mid;
 }
@@ -273,7 +284,7 @@ AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const ration
 
   double rate_dbl = using_mipmap->first.toDouble();
 
-  size_t start_sample = time_to_samples(start, rate_dbl);
+  size_t start_sample = time_to_samples(start - virtual_start_, rate_dbl);
   size_t sample_length = time_to_samples(length, rate_dbl);
 
   const Sample &mipmap_data = using_mipmap->second;
@@ -421,7 +432,8 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
   double rate_dbl = rate.toDouble();
   const Sample& arr = using_mipmap->second;
 
-  size_t start_sample_index = samples.time_to_samples(start_time, rate_dbl);
+  qDebug() << "drawing start time" << start_time << "-" << "vstart" << samples.virtual_start_ << "=" << (start_time-samples.virtual_start_);
+  size_t start_sample_index = samples.time_to_samples(start_time - samples.virtual_start_, rate_dbl);
 
   if (start_sample_index >= arr.size()) {
     return;
