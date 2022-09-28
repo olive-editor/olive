@@ -432,7 +432,6 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
   double rate_dbl = rate.toDouble();
   const Sample& arr = using_mipmap->second;
 
-  qDebug() << "drawing start time" << start_time << "-" << "vstart" << samples.virtual_start_ << "=" << (start_time-samples.virtual_start_);
   size_t start_sample_index = samples.time_to_samples(start_time - samples.virtual_start_, rate_dbl);
 
   if (start_sample_index >= arr.size()) {
