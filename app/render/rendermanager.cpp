@@ -55,7 +55,11 @@ RenderManager::RenderManager(QObject *parent) :
     video_thread_ = CreateThread(context_);
     dry_run_thread_ = CreateThread();
     audio_thread_ = CreateThread();
-    waveform_thread_ = CreateThread();
+
+    waveform_threads_.resize(QThread::idealThreadCount());
+    for (size_t i=0; i<waveform_threads_.size(); i++) {
+      waveform_threads_[i] = CreateThread();
+    }
   }
 
   decoder_clear_timer_ = new QTimer(this);
@@ -135,7 +139,10 @@ RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
   ticket->setProperty("mode", params.mode);
 
   if (params.generate_waveforms) {
-    waveform_thread_->AddTicket(ticket);
+    size_t thread_index = last_waveform_thread_%waveform_threads_.size();
+    RenderThread *thread = waveform_threads_[thread_index];
+    thread->AddTicket(ticket);
+    last_waveform_thread_++;
   } else {
     audio_thread_->AddTicket(ticket);
   }
