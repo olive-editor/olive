@@ -62,7 +62,7 @@ const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 4);
 
 const rational kVideoPlaybackInterval = rational(1, 2);
 
-ViewerWidget::ViewerWidget(QWidget *parent) :
+ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
   super(false, true, parent),
   playback_speed_(0),
   color_menu_enabled_(true),
@@ -85,7 +85,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   layout->addWidget(sizer_);
 
-  display_widget_ = new ViewerDisplayWidget();
+  display_widget_ = display;
   display_widget_->SetShowWidgetBackground(true);
   playback_devices_.append(display_widget_);
   connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);

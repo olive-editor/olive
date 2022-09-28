@@ -226,6 +226,25 @@ signals:
 
   void CreateAddableAt(const QRectF &rect);
 
+protected:
+  QTransform GenerateWorldTransform();
+
+  QTransform GenerateDisplayTransform();
+
+  QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
+  QTransform GenerateGizmoTransform()
+  {
+    NodeTraverser t;
+    t.SetCacheVideoParams(gizmo_params_);
+    return GenerateGizmoTransform(t, GenerateGizmoTime());
+  }
+
+  TimeRange GenerateGizmoTime()
+  {
+    rational node_time = GetGizmoTime();
+    return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
+  }
+
 protected slots:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
@@ -248,24 +267,6 @@ private:
   bool IsHandDrag(QMouseEvent* event) const;
 
   void UpdateMatrix();
-
-  QTransform GenerateWorldTransform();
-
-  QTransform GenerateDisplayTransform();
-
-  QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
-  QTransform GenerateGizmoTransform()
-  {
-    NodeTraverser t;
-    t.SetCacheVideoParams(gizmo_params_);
-    return GenerateGizmoTransform(t, GenerateGizmoTime());
-  }
-
-  TimeRange GenerateGizmoTime()
-  {
-    rational node_time = GetGizmoTime();
-    return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
-  }
 
   NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
 

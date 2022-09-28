@@ -57,7 +57,9 @@ public:
     kWFViewerAndWaveform
   };
 
-  ViewerWidget(QWidget* parent = nullptr);
+  ViewerWidget(QWidget* parent = nullptr) :
+    ViewerWidget(new ViewerDisplayWidget(), parent)
+  {}
 
   virtual ~ViewerWidget() override;
 
@@ -159,6 +161,8 @@ signals:
   void ColorManagerChanged(ColorManager* color_manager);
 
 protected:
+  ViewerWidget(ViewerDisplayWidget *display, QWidget* parent = nullptr);
+
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const rational &time) override;
 

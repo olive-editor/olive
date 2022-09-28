@@ -31,6 +31,11 @@ public:
 
   void SetMonitorMode(bool e) { monitor_ = e; }
 
+  int GetCurrentSource() const
+  {
+    return GetStandardValue(kCurrentInput).toInt();
+  }
+
   int GetSourceCount() const
   {
     return InputArraySize(kSourcesInput);
@@ -41,6 +46,8 @@ public:
   {
     return GetRowsAndColumns(GetSourceCount(), rows, cols);
   }
+
+  static void IndexToRowCols(int index, int total_rows, int total_cols, int *row, int *col);
 
   static int RowsColsToIndex(int row, int col, int total_rows, int total_cols)
   {

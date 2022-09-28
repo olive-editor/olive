@@ -45,7 +45,7 @@ Node::ActiveElements MultiCamNode::GetActiveElementsAtTime(const QString &input,
 {
   if (input == kSourcesInput && !monitor_) {
     Node::ActiveElements a;
-    a.add(GetStandardValue(kCurrentInput).toInt());
+    a.add(GetCurrentSource());
     return a;
   } else {
     return super::GetActiveElementsAtTime(input, r);
@@ -137,14 +137,22 @@ void MultiCamNode::Value(const NodeValueRow &value, const NodeGlobals &globals, 
 
     job.SetShaderID(QStringLiteral("%1,%2").arg(QString::number(rows), QString::number(cols)));
 
-    for (size_t i=0; i<arr.size(); i++) {
-      size_t c = i%cols;
-      size_t r = i/cols;
+    for (int i=0; i<int(arr.size()); i++) {
+      int c, r;
+      IndexToRowCols(i, rows, cols, &r, &c);
       job.Insert(QStringLiteral("tex_%1_%2").arg(QString::number(r), QString::number(c)), arr[i]);
     }
 
     table->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), job), this);
   }
+}
+
+void MultiCamNode::IndexToRowCols(int index, int total_rows, int total_cols, int *row, int *col)
+{
+  Q_UNUSED(total_rows)
+
+  *col = index%total_cols;
+  *row = index/total_cols;
 }
 
 void MultiCamNode::Retranslate()

@@ -18,34 +18,30 @@
 
 ***/
 
-#ifndef MULTICAMWIDGET_H
-#define MULTICAMWIDGET_H
+#ifndef MULTICAMDISPLAY_H
+#define MULTICAMDISPLAY_H
 
-#include "multicamdisplay.h"
 #include "node/input/multicam/multicamnode.h"
-#include "widget/viewer/viewer.h"
+#include "widget/viewer/viewerdisplay.h"
 
 namespace olive {
 
-class MulticamWidget : public ViewerWidget
+class MulticamDisplay : public ViewerDisplayWidget
 {
   Q_OBJECT
 public:
-  explicit MulticamWidget(QWidget *parent = nullptr);
+  explicit MulticamDisplay(QWidget *parent = nullptr);
 
   void SetMulticamNode(MultiCamNode *n);
 
 protected:
-  virtual RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false) override;
+  virtual void OnPaint() override;
 
 private:
   MultiCamNode *node_;
-
-private slots:
-  void DisplayClicked(const QPoint &p);
 
 };
 
 }
 
-#endif // MULTICAMWIDGET_H
+#endif // MULTICAMDISPLAY_H

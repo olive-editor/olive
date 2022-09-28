@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/multicam/multicamdisplay.cpp
+  widget/multicam/multicamdisplay.h
   widget/multicam/multicamwidget.cpp
   widget/multicam/multicamwidget.h
   PARENT_SCOPE
