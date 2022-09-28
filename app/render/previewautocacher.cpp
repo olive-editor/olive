@@ -378,7 +378,7 @@ void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
   Node::CopyInputs(node, copy, false);
 
   // Connect to node's cache
-  if (ignore_cache_requests_) {
+  if (!ignore_cache_requests_) {
     ConnectToNodeCache(node);
   }
 }
