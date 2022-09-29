@@ -35,11 +35,15 @@ public:
 
   void SetMulticamNode(MultiCamNode *n);
 
+  void SetClip(ClipBlock *clip);
+
 protected:
   virtual RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false) override;
 
 private:
   MultiCamNode *node_;
+
+  ClipBlock *clip_;
 
 private slots:
   void DisplayClicked(const QPoint &p);

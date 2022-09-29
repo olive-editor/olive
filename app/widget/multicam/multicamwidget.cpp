@@ -20,6 +20,7 @@
 
 #include "multicamwidget.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
+#include "widget/timelinewidget/undo/timelineundosplit.h"
 
 namespace olive {
 
@@ -27,7 +28,8 @@ namespace olive {
 
 MulticamWidget::MulticamWidget(QWidget *parent) :
   super{new MulticamDisplay(), parent},
-  node_(nullptr)
+  node_(nullptr),
+  clip_(nullptr)
 {
   auto_cacher()->SetMulticamMode(true);
   auto_cacher()->SetIgnoreCacheRequests(true);
@@ -39,6 +41,11 @@ void MulticamWidget::SetMulticamNode(MultiCamNode *n)
 {
   node_ = n;
   static_cast<MulticamDisplay*>(display_widget())->SetMulticamNode(n);
+}
+
+void MulticamWidget::SetClip(ClipBlock *clip)
+{
+  clip_ = clip;
 }
 
 RenderTicketPtr MulticamWidget::GetSingleFrame(const rational &t, bool dry)
@@ -73,8 +80,36 @@ void MulticamWidget::DisplayClicked(const QPoint &p)
   int r = click.y() / (height/multi);
 
   MultiUndoCommand *command = new MultiUndoCommand();
-  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(node_, node_->kCurrentInput)), node_->RowsColsToIndex(r, c, rows, cols)));
+
+  const bool enable_split = true;
+
+  MultiCamNode *cam = node_;
+  ClipBlock *clip = clip_;
+
+  if (clip_ && enable_split && clip_->in() < GetTime() && clip_->out() > GetTime()) {
+    QVector<Block*> blocks;
+
+    blocks.append(clip_);
+    blocks.append(clip_->block_links());
+
+    auto split = new BlockSplitPreservingLinksCommand(blocks, {GetTime()});
+    split->redo_now();
+    command->add_child(split);
+
+    clip = static_cast<ClipBlock*>(split->GetSplit(clip_, 0));
+
+    cam = clip->FindMulticam();
+  }
+
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(cam, cam->kCurrentInput)), cam->RowsColsToIndex(r, c, rows, cols)));
   Core::instance()->undo_stack()->push(command);
+
+  if (cam != node_) {
+    SetMulticamNode(cam);
+  }
+  if (clip != clip_) {
+    SetClip(clip);
+  }
 }
 
 }

@@ -17,6 +17,11 @@ public:
     widget_->SetMulticamNode(n);
   }
 
+  void SetClip(ClipBlock* clip)
+  {
+    widget_->SetClip(clip);
+  }
+
 protected:
   virtual void Retranslate() override;
 

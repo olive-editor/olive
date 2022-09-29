@@ -24,6 +24,7 @@
 #include "audio/audiovisualwaveform.h"
 #include "codec/decoder.h"
 #include "node/block/block.h"
+#include "node/input/multicam/multicamnode.h"
 #include "node/output/track/track.h"
 
 namespace olive {
@@ -196,6 +197,8 @@ public:
   {
     SetStandardValue(kLoopModeInput, int(l));
   }
+
+  MultiCamNode *FindMulticam();
 
   static const QString kBufferIn;
   static const QString kMediaInInput;

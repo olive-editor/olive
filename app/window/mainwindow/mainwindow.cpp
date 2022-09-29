@@ -498,11 +498,12 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
     UpdateNodePanelContextFromTimelinePanel(panel);
 
+    ClipBlock *clip = nullptr;
     MultiCamNode *multicam = nullptr;
 
     for (Block *b : blocks) {
-      if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
-        if ((multicam = dynamic_cast<MultiCamNode*>(c->GetConnectedOutput(c->kBufferIn)))) {
+      if ((clip = dynamic_cast<ClipBlock*>(b))) {
+        if ((multicam = clip->FindMulticam())) {
           break;
         }
       }
@@ -510,10 +511,12 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 
     if (multicam) {
       multicam_panel_->SetMulticamNode(multicam);
+      multicam_panel_->SetClip(clip);
       multicam_panel_->ConnectViewerNode(panel->GetConnectedViewer());
     } else {
       multicam_panel_->ConnectViewerNode(nullptr);
       multicam_panel_->SetMulticamNode(nullptr);
+      multicam_panel_->SetClip(nullptr);
     }
   }
 }
