@@ -33,7 +33,11 @@ class NodeParamViewKeyframeControl : public QWidget, public TimeTargetObject
 {
   Q_OBJECT
 public:
-  NodeParamViewKeyframeControl(bool right_align = true, QWidget* parent = nullptr);
+  NodeParamViewKeyframeControl(bool right_align, QWidget* parent = nullptr);
+  NodeParamViewKeyframeControl(QWidget* parent = nullptr) :
+    NodeParamViewKeyframeControl(true, parent)
+  {
+  }
 
   const NodeInput& GetConnectedInput() const
   {

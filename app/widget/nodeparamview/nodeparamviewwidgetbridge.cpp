@@ -71,9 +71,11 @@ int GetSliderCount(NodeValue::Type type)
 
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
+  QWidget *parent = dynamic_cast<QWidget*>(this->parent());
+
   if (GetInnerInput().IsArray() && GetInnerInput().element() == -1) {
 
-    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(GetInnerInput().node(), GetInnerInput().input());
+    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(GetInnerInput().node(), GetInnerInput().input(), parent);
     connect(w, &NodeParamViewArrayWidget::DoubleClicked, this, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked);
     widgets_.append(w);
 
@@ -94,12 +96,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       break;
     case NodeValue::kInt:
     {
-      CreateSliders<IntegerSlider>(1);
+      CreateSliders<IntegerSlider>(1, parent);
       break;
     }
     case NodeValue::kRational:
     {
-      CreateSliders<RationalSlider>(1);
+      CreateSliders<RationalSlider>(1, parent);
       break;
     }
     case NodeValue::kFloat:
@@ -107,12 +109,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kVec3:
     case NodeValue::kVec4:
     {
-      CreateSliders<FloatSlider>(GetSliderCount(t));
+      CreateSliders<FloatSlider>(GetSliderCount(t), parent);
       break;
     }
     case NodeValue::kCombo:
     {
-      QComboBox* combobox = new QComboBox();
+      QComboBox* combobox = new QComboBox(parent);
 
       QStringList items = GetInnerInput().GetComboBoxStrings();
       foreach (const QString& s, items) {
@@ -125,21 +127,21 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeValue::kFile:
     {
-      FileField* file_field = new FileField();
+      FileField* file_field = new FileField(parent);
       widgets_.append(file_field);
       connect(file_field, &FileField::FilenameChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kColor:
     {
-      ColorButton* color_button = new ColorButton(GetInnerInput().node()->project()->color_manager());
+      ColorButton* color_button = new ColorButton(GetInnerInput().node()->project()->color_manager(), parent);
       widgets_.append(color_button);
       connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kText:
     {
-      NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit();
+      NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit(parent);
       widgets_.append(line_edit);
       connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
       connect(line_edit, &NodeParamViewTextEdit::RequestEditInViewer, this, &NodeParamViewWidgetBridge::RequestEditTextInViewer);
@@ -147,21 +149,21 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeValue::kBoolean:
     {
-      QCheckBox* check_box = new QCheckBox();
+      QCheckBox* check_box = new QCheckBox(parent);
       widgets_.append(check_box);
       connect(check_box, &QCheckBox::clicked, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kFont:
     {
-      QFontComboBox* font_combobox = new QFontComboBox();
+      QFontComboBox* font_combobox = new QFontComboBox(parent);
       widgets_.append(font_combobox);
       connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kBezier:
     {
-      BezierWidget *bezier = new BezierWidget();
+      BezierWidget *bezier = new BezierWidget(parent);
       widgets_.append(bezier);
 
       connect(bezier->x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
@@ -384,10 +386,10 @@ void NodeParamViewWidgetBridge::WidgetCallback()
 }
 
 template <typename T>
-void NodeParamViewWidgetBridge::CreateSliders(int count)
+void NodeParamViewWidgetBridge::CreateSliders(int count, QWidget *parent)
 {
   for (int i=0;i<count;i++) {
-    T* fs = new T();
+    T* fs = new T(parent);
     fs->SliderBase::SetDefaultValue(GetInnerInput().GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
 
