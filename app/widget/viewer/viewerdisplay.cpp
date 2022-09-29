@@ -880,6 +880,7 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
         rational gizmo_time = GetGizmoTime();
         NodeTraverser t;
         t.SetCacheVideoParams(gizmo_params_);
+        t.SetCacheAudioParams(gizmo_audio_params_);
         NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
 
         draggable->DragStart(row, start.x(), start.y(), gizmo_time);
@@ -1190,6 +1191,7 @@ void ViewerDisplayWidget::GenerateGizmoTransforms()
 {
   NodeTraverser gt;
   gt.SetCacheVideoParams(gizmo_params_);
+  gt.SetCacheAudioParams(gizmo_audio_params_);
 
   gizmo_draw_time_ = GenerateGizmoTime();
 
