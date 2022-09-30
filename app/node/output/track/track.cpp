@@ -684,7 +684,7 @@ void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &glob
         }
       }
 
-      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count()));
+      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count() - destination_offset));
 
       // Copy samples into destination buffer
       for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
