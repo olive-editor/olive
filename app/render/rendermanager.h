@@ -232,7 +232,9 @@ private:
   RenderThread *video_thread_;
   RenderThread *dry_run_thread_;
   RenderThread *audio_thread_;
-  RenderThread *waveform_thread_;
+
+  std::vector<RenderThread *> waveform_threads_;
+  size_t last_waveform_thread_;
 
   std::list<RenderThread *> render_threads_;
 

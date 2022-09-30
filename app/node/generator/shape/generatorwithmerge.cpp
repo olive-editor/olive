@@ -59,7 +59,7 @@ void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, TexturePtr j
 
     merge.SetShaderID(QStringLiteral("mrg"));
     merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
-    merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, base->toJob(*job->job()), this));
+    merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
 
     table->Push(NodeValue::kTexture, base->toJob(merge), this);
   } else {

@@ -76,7 +76,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   // Create contexts for three different types
   context_items_.resize(Track::kCount + 1);
   for (int i=0; i<context_items_.size(); i++) {
-    NodeParamViewContext *c = new NodeParamViewContext;
+    NodeParamViewContext *c = new NodeParamViewContext(param_widget_area_);
     c->setVisible(false);
     connect(c, &NodeParamViewContext::AboutToDeleteItem, this, &NodeParamView::ItemAboutToBeRemoved, Qt::DirectConnection);
 
@@ -245,8 +245,6 @@ void NodeParamView::DeselectNodes(const QVector<Node *> &nodes)
 
 void NodeParamView::UpdateContexts()
 {
-  //TIME_THIS_FUNCTION;
-
   bool changes_made = false;
 
   foreach (Node *ctx, current_contexts_) {
@@ -735,7 +733,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
     return;
   }
 
-  NodeParamViewItem* item = new NodeParamViewItem(n, IsGroupMode() ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context);
+  NodeParamViewItem* item = new NodeParamViewItem(n, IsGroupMode() ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context->GetDockArea());
 
   connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::SelectNodeFromConnectedLink);

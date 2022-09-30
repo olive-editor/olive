@@ -126,6 +126,17 @@ public:
     return false;
   }
 
+  bool OverlapsWith(const TimeRange& r, bool in_inclusive = true, bool out_inclusive = true) const
+  {
+    for (const TimeRange &range : array_) {
+      if (range.OverlapsWith(r, in_inclusive, out_inclusive)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   bool isEmpty() const
   {
     return array_.isEmpty();
