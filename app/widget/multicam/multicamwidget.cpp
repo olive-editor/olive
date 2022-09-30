@@ -54,7 +54,6 @@ void MulticamWidget::SetMulticamNode(MultiCamNode *n)
 {
   node_ = n;
   display_->SetMulticamNode(n);
-  display_->update();
 }
 
 void MulticamWidget::SetClip(ClipBlock *clip)

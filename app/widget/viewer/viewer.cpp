@@ -799,6 +799,14 @@ void ViewerWidget::UpdateTextureFromNode()
   }
 }
 
+void ViewerWidget::SetMulticamNode(MultiCamNode *n)
+{
+  auto_cacher()->SetMulticamNode(n);
+  if (!IsPlaying()) {
+    UpdateTextureFromNode();
+  }
+}
+
 void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 {
   Q_ASSERT(speed != 0);

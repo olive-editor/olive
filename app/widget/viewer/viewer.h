@@ -109,10 +109,7 @@ public:
     playback_devices_.push_back(vw);
   }
 
-  void SetMulticamNode(MultiCamNode *n)
-  {
-    auto_cacher()->SetMulticamNode(n);
-  }
+  void SetMulticamNode(MultiCamNode *n);
 
 public slots:
   void Play(bool in_to_out_only);

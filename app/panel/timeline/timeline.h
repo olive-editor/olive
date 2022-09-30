@@ -107,6 +107,11 @@ public:
     return timeline_widget()->GetSelectedBlocks();
   }
 
+  Sequence *GetSequence() const
+  {
+    return dynamic_cast<Sequence*>(GetConnectedViewer());
+  }
+
 protected:
   virtual void Retranslate() override;
 

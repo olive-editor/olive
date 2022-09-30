@@ -147,6 +147,10 @@ private:
 
   void SelectFootageForProjectPanel(const QVector<Footage*> &e, ProjectPanel *p);
 
+  void UpdateMulticamNode();
+
+  void AddMainTimePanel(TimeBasedPanel *p);
+
   QByteArray premaximized_state_;
 
   // Standard panels
@@ -173,6 +177,10 @@ private:
 #endif
 
   bool first_show_;
+
+  QVector<TimeBasedPanel*> main_time_panels_;
+
+  TimelinePanel *last_multicam_panel_;
 
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);
@@ -203,6 +211,8 @@ private slots:
 
   void RevealViewerInProject(ViewerOutput *r);
   void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
+
+  void UpdateMainTimePanels(const rational &r);
 
 };
 
