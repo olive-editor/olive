@@ -104,6 +104,16 @@ public:
 
   PreviewAutoCacher *GetCacher() const { return auto_cacher_; }
 
+  void AddPlaybackDevice(ViewerDisplayWidget *vw)
+  {
+    playback_devices_.push_back(vw);
+  }
+
+  void SetMulticamNode(MultiCamNode *n)
+  {
+    auto_cacher()->SetMulticamNode(n);
+  }
+
 public slots:
   void Play(bool in_to_out_only);
 
@@ -219,7 +229,7 @@ private:
 
   bool ViewerMightBeAStill();
 
-  void SetDisplayImage(QVariant frame);
+  void SetDisplayImage(RenderTicketPtr ticket);
 
   RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
 

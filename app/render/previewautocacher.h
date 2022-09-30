@@ -90,7 +90,8 @@ public:
 
   void SetRendersPaused(bool e);
 
-  void SetMulticamMode(bool e) { multicam_mode_ = e; }
+  void SetMulticamNode(MultiCamNode *n) { multicam_ = n; }
+
   void SetIgnoreCacheRequests(bool e) { ignore_cache_requests_ = e; }
 
 public slots:
@@ -221,7 +222,8 @@ private:
 
   ColorProcessorPtr display_color_processor_;
 
-  bool multicam_mode_;
+  MultiCamNode *multicam_;
+
   bool ignore_cache_requests_;
 
 private slots:

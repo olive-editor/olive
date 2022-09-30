@@ -245,6 +245,11 @@ protected:
     return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
   }
 
+  virtual TexturePtr LoadCustomTextureFromFrame(const QVariant &v)
+  {
+    return nullptr;
+  }
+
 protected slots:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.

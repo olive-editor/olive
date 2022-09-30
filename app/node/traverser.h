@@ -42,7 +42,7 @@ public:
 
   NodeValueTable GenerateTable(const Node *n, const TimeRange &range, const Node *next_node = nullptr);
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
+  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
   NodeValueRow GenerateRow(NodeValueDatabase *database, const Node *node, const TimeRange &range);
   NodeValueRow GenerateRow(const Node *node, const TimeRange &range);

@@ -20,16 +20,12 @@ public:
 
   virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &id) const override;
-
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   virtual void Retranslate() override;
 
   static const QString kCurrentInput;
   static const QString kSourcesInput;
-
-  void SetMonitorMode(bool e) { monitor_ = e; }
 
   int GetCurrentSource() const
   {
@@ -53,9 +49,6 @@ public:
   {
     return col + row * total_cols;
   }
-
-private:
-  bool monitor_;
 
 };
 

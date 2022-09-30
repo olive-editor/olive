@@ -32,6 +32,8 @@ namespace olive {
 class RenderProcessor : public NodeTraverser
 {
 public:
+  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range) override;
+
   static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   struct RenderedWaveform {

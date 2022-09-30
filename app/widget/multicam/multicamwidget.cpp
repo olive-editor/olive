@@ -20,27 +20,41 @@
 
 #include "multicamwidget.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
+#include "widget/timeruler/timeruler.h"
 #include "widget/timelinewidget/undo/timelineundosplit.h"
 
 namespace olive {
 
-#define super ViewerWidget
+#define super TimeBasedWidget
 
 MulticamWidget::MulticamWidget(QWidget *parent) :
-  super{new MulticamDisplay(), parent},
+  super{false, false, parent},
   node_(nullptr),
   clip_(nullptr)
 {
-  auto_cacher()->SetMulticamMode(true);
-  auto_cacher()->SetIgnoreCacheRequests(true);
+  auto layout = new QVBoxLayout(this);
 
-  connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &MulticamWidget::DisplayClicked);
+  sizer_ = new ViewerSizer(this);
+  layout->addWidget(sizer_);
+
+  display_ = new MulticamDisplay(this);
+  display_->SetShowWidgetBackground(true);
+  connect(display_, &ViewerDisplayWidget::DragStarted, this, &MulticamWidget::DisplayClicked);
+
+  connect(sizer_, &ViewerSizer::RequestScale, display_, &ViewerDisplayWidget::SetMatrixZoom);
+  connect(sizer_, &ViewerSizer::RequestTranslate, display_, &ViewerDisplayWidget::SetMatrixTranslate);
+  connect(display_, &ViewerDisplayWidget::HandDragMoved, sizer_, &ViewerSizer::HandDragMove);
+  sizer_->SetWidget(display_);
+
+  layout->addWidget(this->ruler());
+  layout->addWidget(this->scrollbar());
 }
 
 void MulticamWidget::SetMulticamNode(MultiCamNode *n)
 {
   node_ = n;
-  static_cast<MulticamDisplay*>(display_widget())->SetMulticamNode(n);
+  display_->SetMulticamNode(n);
+  display_->update();
 }
 
 void MulticamWidget::SetClip(ClipBlock *clip)
@@ -48,13 +62,20 @@ void MulticamWidget::SetClip(ClipBlock *clip)
   clip_ = clip;
 }
 
-RenderTicketPtr MulticamWidget::GetSingleFrame(const rational &t, bool dry)
+void MulticamWidget::ConnectNodeEvent(ViewerOutput *n)
 {
-  if (node_) {
-    return auto_cacher()->GetSingleFrame(node_, t, dry);
-  } else {
-    return super::GetSingleFrame(t, dry);
-  }
+  connect(n, &ViewerOutput::SizeChanged, sizer_, &ViewerSizer::SetChildSize);
+  connect(n, &ViewerOutput::PixelAspectChanged, sizer_, &ViewerSizer::SetPixelAspectRatio);
+
+  VideoParams vp = n->GetVideoParams();
+  sizer_->SetChildSize(vp.width(), vp.height());
+  sizer_->SetPixelAspectRatio(vp.pixel_aspect_ratio());
+}
+
+void MulticamWidget::DisconnectNodeEvent(ViewerOutput *n)
+{
+  disconnect(n, &ViewerOutput::SizeChanged, sizer_, &ViewerSizer::SetChildSize);
+  disconnect(n, &ViewerOutput::PixelAspectChanged, sizer_, &ViewerSizer::SetPixelAspectRatio);
 }
 
 void MulticamWidget::DisplayClicked(const QPoint &p)
@@ -63,9 +84,9 @@ void MulticamWidget::DisplayClicked(const QPoint &p)
     return;
   }
 
-  QPointF click = display_widget()->ScreenToScenePoint(p);
-  int width = display_widget()->GetVideoParams().width();
-  int height = display_widget()->GetVideoParams().height();
+  QPointF click = display_->ScreenToScenePoint(p);
+  int width = display_->GetVideoParams().width();
+  int height = display_->GetVideoParams().height();
 
   if (click.x() < 0 || click.y() < 0 || click.x() >= width || click.y() >= height) {
     return;

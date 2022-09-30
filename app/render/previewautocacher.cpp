@@ -43,7 +43,7 @@ PreviewAutoCacher::PreviewAutoCacher(QObject *parent) :
   pause_renders_(false),
   single_frame_render_(nullptr),
   display_color_processor_(nullptr),
-  multicam_mode_(false),
+  multicam_(nullptr),
   ignore_cache_requests_(false)
 {
   // Set defaults
@@ -216,6 +216,7 @@ void PreviewAutoCacher::VideoRendered()
   QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
   foreach (RenderTicketPtr t, tickets) {
     if (watcher->HasResult()) {
+      t->setProperty("multicam_output", watcher->GetTicket()->property("multicam_output"));
       t->Finish(watcher->Get());
     } else {
       t->Finish();
@@ -287,13 +288,6 @@ void PreviewAutoCacher::AddNode(Node *node)
 
   // Copy node
   Node* copy = node->copy();
-
-  // Fairly hacky way of getting multicam nodes to produce a monitor rather than a single source
-  if (multicam_mode_) {
-    if (MultiCamNode *m = dynamic_cast<MultiCamNode*>(copy)) {
-      m->SetMonitorMode(true);
-    }
-  }
 
   // Add to project
   copy->setParent(&copied_project_);
@@ -742,6 +736,9 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
   // Allow using cached images for this render job
   rvp.use_cache = true;
 
+  // Multicam
+  rvp.multicam = static_cast<MultiCamNode*>(copy_map_.value(multicam_));
+
   watcher->SetTicket(RenderManager::instance()->RenderFrame(rvp));
 
   return watcher;
@@ -847,6 +844,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     // Ensure all cache data is cleared
     video_cache_data_.clear();
     audio_cache_data_.clear();
+
+    // Clear multicam reference
+    multicam_ = nullptr;
 
     // Disconnect signals for future node additions/deletions
     NodeGraph* graph = viewer_node_->parent();

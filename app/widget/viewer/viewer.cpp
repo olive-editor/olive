@@ -44,6 +44,7 @@
 #include "viewerpreventsleep.h"
 #include "widget/audiomonitor/audiomonitor.h"
 #include "widget/menu/menu.h"
+#include "widget/multicam/multicamdisplay.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
@@ -82,7 +83,6 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
 
   // Create main OpenGL-based view and sizer
   sizer_ = new ViewerSizer();
-  sizer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   layout->addWidget(sizer_);
 
   display_widget_ = display;
@@ -260,7 +260,7 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   CloseAudioProcessor();
   audio_scrub_watchers_.clear();
 
-  SetDisplayImage(QVariant());
+  SetDisplayImage(nullptr);
 
   ruler()->SetPlaybackCache(nullptr);
 
@@ -998,10 +998,18 @@ bool ViewerWidget::ViewerMightBeAStill()
   return GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput() && GetConnectedNode()->GetVideoLength().isNull();
 }
 
-void ViewerWidget::SetDisplayImage(QVariant frame)
+void ViewerWidget::SetDisplayImage(RenderTicketPtr ticket)
 {
   foreach (ViewerDisplayWidget *dw, playback_devices_) {
-    dw->SetImage(frame);
+    QVariant push;
+    if (ticket) {
+      if (dynamic_cast<MulticamDisplay*>(dw)) {
+        push = ticket->property("multicam_output");
+      } else {
+        push = ticket->Get();
+      }
+    }
+    dw->SetImage(push);
   }
 }
 
@@ -1160,7 +1168,7 @@ void ViewerWidget::RendererGeneratedFrame()
         }
       }
 
-      SetDisplayImage(ticket->Get());
+      SetDisplayImage(ticket->GetTicket());
     }
   }
 
@@ -1182,7 +1190,14 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         rational ts = watcher->property("time").value<rational>();
 
         foreach (ViewerDisplayWidget *dw, playback_devices_) {
-          dw->queue()->AppendTimewise({ts, frame}, playback_speed_);
+          QVariant push;
+          if (dynamic_cast<MulticamDisplay*>(dw)) {
+            push = watcher->GetTicket()->property("multicam_output");
+          } else {
+            push = frame;
+          }
+
+          dw->queue()->AppendTimewise({ts, push}, playback_speed_);
         }
 
         if (prequeuing_video_) {

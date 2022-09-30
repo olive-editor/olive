@@ -125,6 +125,8 @@ MainWindow::MainWindow(QWidget *parent) :
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(multicam_panel_);
 
+  sequence_viewer_panel_->AddPlaybackDevice(multicam_panel_->GetMulticamWidget()->GetDisplayWidget());
+
   scope_panel_->SetViewerPanel(sequence_viewer_panel_);
 
   UpdateTitle();
@@ -510,10 +512,12 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
     }
 
     if (multicam) {
+      sequence_viewer_panel_->SetMulticamNode(multicam);
       multicam_panel_->SetMulticamNode(multicam);
       multicam_panel_->SetClip(clip);
       multicam_panel_->ConnectViewerNode(panel->GetConnectedViewer());
     } else {
+      sequence_viewer_panel_->SetMulticamNode(nullptr);
       multicam_panel_->ConnectViewerNode(nullptr);
       multicam_panel_->SetMulticamNode(nullptr);
       multicam_panel_->SetClip(nullptr);
@@ -678,6 +682,7 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
 void MainWindow::TimelineFocused(ViewerOutput* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
+  multicam_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
 }

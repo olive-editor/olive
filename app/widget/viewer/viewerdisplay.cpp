@@ -398,6 +398,8 @@ void ViewerDisplayWidget::OnPaint()
       } else if (TexturePtr texture = load_frame_.value<TexturePtr>()) {
         // This is a GPU texture, switch to it directly
         texture_ = texture;
+      } else {
+        texture_ = LoadCustomTextureFromFrame(load_frame_);
       }
 
       emit TextureChanged(texture_);

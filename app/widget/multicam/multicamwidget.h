@@ -27,20 +27,27 @@
 
 namespace olive {
 
-class MulticamWidget : public ViewerWidget
+class MulticamWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
   explicit MulticamWidget(QWidget *parent = nullptr);
+
+  MulticamDisplay *GetDisplayWidget() const { return display_; }
 
   void SetMulticamNode(MultiCamNode *n);
 
   void SetClip(ClipBlock *clip);
 
 protected:
-  virtual RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false) override;
+  virtual void ConnectNodeEvent(ViewerOutput *n) override;
+  virtual void DisconnectNodeEvent(ViewerOutput *n) override;
 
 private:
+  ViewerSizer *sizer_;
+
+  MulticamDisplay *display_;
+
   MultiCamNode *node_;
 
   ClipBlock *clip_;

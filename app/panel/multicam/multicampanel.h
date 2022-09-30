@@ -6,27 +6,26 @@
 
 namespace olive {
 
-class MulticamPanel : public ViewerPanelBase
+class MulticamPanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
   MulticamPanel(QWidget* parent = nullptr);
 
+  MulticamWidget *GetMulticamWidget() const { return static_cast<MulticamWidget *>(GetTimeBasedWidget()); }
+
   void SetMulticamNode(MultiCamNode *n)
   {
-    widget_->SetMulticamNode(n);
+    GetMulticamWidget()->SetMulticamNode(n);
   }
 
   void SetClip(ClipBlock* clip)
   {
-    widget_->SetClip(clip);
+    GetMulticamWidget()->SetClip(clip);
   }
 
 protected:
   virtual void Retranslate() override;
-
-private:
-  MulticamWidget *widget_;
 
 };
 

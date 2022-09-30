@@ -2,13 +2,12 @@
 
 namespace olive {
 
-#define super ViewerPanelBase
+#define super TimeBasedPanel
 
 MulticamPanel::MulticamPanel(QWidget *parent) :
   super(QStringLiteral("MultiCamPanel"), parent)
 {
-  widget_ = new MulticamWidget();
-  SetViewerWidget(widget_);
+  SetTimeBasedWidget(new MulticamWidget());
 
   Retranslate();
 }

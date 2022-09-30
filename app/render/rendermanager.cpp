@@ -111,6 +111,7 @@ RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
   ticket->setProperty("cache", params.cache_dir);
   ticket->setProperty("cachetimebase", QVariant::fromValue(params.cache_timebase));
   ticket->setProperty("cacheid", QVariant::fromValue(params.cache_id));
+  ticket->setProperty("multicam", Node::PtrToValue(params.multicam));
 
   if (params.return_type == ReturnType::kNull) {
     dry_run_thread_->AddTicket(ticket);

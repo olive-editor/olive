@@ -294,6 +294,30 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
   return dec;
 }
 
+NodeValueDatabase RenderProcessor::GenerateDatabase(const Node *node, const TimeRange &range)
+{
+  NodeValueDatabase db = super::GenerateDatabase(node, range);
+
+  if (const MultiCamNode *multicam = dynamic_cast<const MultiCamNode*>(node)) {
+    if (Node::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
+      int sz = multicam->InputArraySize(multicam->kSourcesInput);
+      NodeValueTableArray arr;
+      QVector<TexturePtr> multicam_tex(sz);
+      for (int i=0; i<sz; i++) {
+        ProcessInputElement(arr, multicam, multicam->kSourcesInput, i, range);
+
+        NodeValue val = GenerateRowValueElement(multicam, multicam->kSourcesInput, i, &arr.at(i), range);
+        ResolveJobs(val);
+
+        multicam_tex[i] = val.toTexture();
+      }
+      ticket_->setProperty("multicam_output", QVariant::fromValue(multicam_tex));
+    }
+  }
+
+  return db;
+}
+
 void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache)
 {
   RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache);
