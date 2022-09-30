@@ -688,7 +688,7 @@ void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &glob
 
       // Copy samples into destination buffer
       for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
-        block_range_buffer.set(i, samples_from_this_block.data(i), destination_offset, copy_length);
+        block_range_buffer.set(i, samples_from_this_block.data(i) + destination_offset, destination_offset, copy_length);
       }
     }
   }
