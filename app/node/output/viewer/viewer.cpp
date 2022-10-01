@@ -389,7 +389,7 @@ Node::ValueHint ViewerOutput::GetConnectedSampleValueHint()
 
 void ViewerOutput::ConnectedToPreviewEvent()
 {
-  if (Node *connected = GetConnectedOutput(kSamplesInput)) {
+  if (Node *connected = this->GetConnectedSampleOutput()) {
     TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()));
     TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
     for (const TimeRange &r : invalid) {

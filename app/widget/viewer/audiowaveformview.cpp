@@ -53,7 +53,7 @@ void AudioWaveformView::SetViewer(ViewerOutput *playback)
     pool_.clear();
     pool_.waitForDone();
 
-    disconnect(playback_, &ViewerOutput::ConnectedWaveformChanged, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
+    disconnect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
 
     SetTimebase(0);
   }
@@ -61,7 +61,7 @@ void AudioWaveformView::SetViewer(ViewerOutput *playback)
   playback_ = playback;
 
   if (playback_) {
-    connect(playback_, &ViewerOutput::ConnectedWaveformChanged, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
+    connect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
 
     SetTimebase(playback_->GetAudioParams().sample_rate_as_time_base());
   }
