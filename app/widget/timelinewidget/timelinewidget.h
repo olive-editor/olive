@@ -112,6 +112,8 @@ public:
 
   void AddTentativeSubtitleTrack();
 
+  void NestSelectedClips();
+
   /**
    * @brief Timelines should always be connected to sequences
    */

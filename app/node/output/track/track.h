@@ -316,6 +316,11 @@ public:
    */
   Block* NearestBlockAfter(const rational& time) const;
 
+  /*
+   * @brief Returns whether a time range is empty or only has a gap
+   */
+  bool IsRangeFree(const TimeRange &range) const;
+
   const QVector<Block *> &Blocks() const
   {
     return blocks_;

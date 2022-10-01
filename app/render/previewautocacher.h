@@ -165,7 +165,7 @@ private:
 
   Project copied_project_;
 
-  QVector<QueuedJob> graph_update_queue_;
+  std::list<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
   QHash<NodeGraph*, NodeGraph*> graph_map_;
   ViewerOutput* copied_viewer_node_;

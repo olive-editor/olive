@@ -293,7 +293,7 @@ void MenuShared::EnableDisableTriggered()
 
 void MenuShared::NestTriggered()
 {
-  qDebug() << "FIXME: Stub";
+  PanelManager::instance()->MostRecentlyFocused<TimelinePanel>()->NestSelectedClips();
 }
 
 void MenuShared::DefaultTransitionTriggered()

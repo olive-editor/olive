@@ -539,12 +539,16 @@ void TimelineWidget::DecreaseTrackHeight()
 
 void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& footage)
 {
-  import_tool_->PlaceAt(footage, GetTime(), true);
+  auto command = new MultiUndoCommand();
+  import_tool_->PlaceAt(footage, GetTime(), true, command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
-  import_tool_->PlaceAt(footage, GetTime(), false);
+  auto command = new MultiUndoCommand();
+  import_tool_->PlaceAt(footage, GetTime(), false, command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::ToggleLinksOnSelected()
@@ -788,13 +792,14 @@ void TimelineWidget::RecordingCallback(const QString &filename, const TimeRange 
   task.Start();
 
   MultiUndoCommand *import_command = task.GetCommand();
-  Core::instance()->undo_stack()->pushIfHasChildren(import_command);
 
   if (task.GetImportedFootage().empty()) {
     qCritical() << "Failed to import recorded audio file" << filename;
   } else {
-    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, track.index());
+    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
   }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(import_command);
 }
 
 void TimelineWidget::EnableRecordingOverlay(const TimelineCoordinate &coord)
@@ -837,6 +842,95 @@ void TimelineWidget::AddTentativeSubtitleTrack()
       subtitle_show_command_->redo_now();
     }
   }
+}
+
+void TimelineWidget::NestSelectedClips()
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  QVector<Block*> blocks = this->selected_blocks_;
+  if (blocks.empty()) {
+    return;
+  }
+
+  QVector<Track::Reference> tracks(blocks.size());
+  QVector<TimeRange> times(blocks.size());
+  QVector<int> track_offset(Track::kCount, INT_MAX);
+  rational start_time = RATIONAL_MAX;
+  rational end_time = RATIONAL_MIN;
+  for (int i=0; i<blocks.size(); i++) {
+    Block *b = blocks.at(i);
+
+    Track::Reference tf = b->track()->ToReference();;
+    tracks[i] = tf;
+    times[i] = b->range();
+
+    int &to = track_offset[tf.type()];
+    to = std::min(to, tf.index());
+
+    start_time = std::min(start_time, b->in());
+    end_time = std::max(end_time, b->out());
+  }
+
+  auto move_to_nest_command = new MultiUndoCommand();
+
+  // Remove blocks from this sequence
+  ReplaceBlocksWithGaps(blocks, false, move_to_nest_command);
+
+  // Create new sequence
+  Project *project = this->GetConnectedNode()->project();
+  Sequence *nest = Core::CreateNewSequenceForProject(tr("Nested Sequence %1"), project);
+  nest->SetVideoParams(GetConnectedNode()->GetVideoParams());
+  nest->SetAudioParams(GetConnectedNode()->GetAudioParams());
+  move_to_nest_command->add_child(new NodeAddCommand(project, nest));
+
+  // Add to same folder
+  move_to_nest_command->add_child(new FolderAddChild(this->GetConnectedNode()->folder(), nest));
+
+  // Place blocks in new sequence
+  for (int i=0; i<blocks.size(); i++) {
+    Block *b = blocks.at(i);
+
+    const TimeRange &range = times.at(i);
+    Track::Reference track = tracks.at(i);
+
+    move_to_nest_command->add_child(new TrackPlaceBlockCommand(nest->track_list(track.type()),
+                                                  track.index() - track_offset.at(track.type()),
+                                                  b, range.in() - start_time));
+  }
+
+  // Do this command now, because we later do checks and actions that rely on these having been done
+  move_to_nest_command->redo_now();
+
+  auto meta_command = new MultiUndoCommand();
+  meta_command->add_child(move_to_nest_command);
+
+  // Find first free track index
+  bool empty = false;
+  int index = -1;
+  while (!empty) {
+    index++;
+    empty = true;
+    for (int i=0; i<Track::kCount; i++) {
+      if (track_offset.at(i) == INT_MAX) {
+        // No clips on this track
+        continue;
+      }
+
+      TrackList *list = sequence()->track_list(static_cast<Track::Type>(i));
+      if (index < list->GetTrackCount() && !list->GetTrackAt(index)->IsRangeFree(TimeRange(start_time, end_time))) {
+        empty = false;
+        break;
+      }
+    }
+  }
+
+  // Place new sequence in this sequence
+  import_tool_->PlaceAt({nest}, start_time, false, meta_command, index);
+
+  Core::instance()->undo_stack()->push(meta_command);
 }
 
 void TimelineWidget::ClearTentativeSubtitleTrack()

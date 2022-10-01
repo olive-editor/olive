@@ -98,15 +98,29 @@ public:
 
   const QVector<Passthrough> &GetPassthroughs() const { return passthroughs_; }
 
+  void ClearRequestRange(const olive::TimeRange &r)
+  {
+    requested_.remove(r);
+  }
+
+  void ResignalRequests()
+  {
+    for (const TimeRange &r : requested_) {
+      emit Requested(r);
+    }
+  }
+
 public slots:
   void InvalidateAll();
+
+  void Request(const olive::TimeRange &r);
 
 signals:
   void Invalidated(const olive::TimeRange& r);
 
   void Validated(const olive::TimeRange& r);
 
-  void Request(const olive::TimeRange& r);
+  void Requested(const olive::TimeRange& r);
 
   void CancelAll();
 
@@ -123,6 +137,8 @@ protected:
 
 private:
   TimeRangeList validated_;
+
+  TimeRangeList requested_;
 
   QUuid uuid_;
 
