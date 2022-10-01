@@ -100,6 +100,7 @@ void ViewerPanelBase::SetViewerWidget(ViewerWidget *vw)
   connect(vw, &ViewerWidget::TextureChanged, this, &ViewerPanelBase::TextureChanged);
   connect(vw, &ViewerWidget::ColorProcessorChanged, this, &ViewerPanelBase::ColorProcessorChanged);
   connect(vw, &ViewerWidget::ColorManagerChanged, this, &ViewerPanelBase::ColorManagerChanged);
+  connect(vw, &ViewerWidget::MulticamNodeDetected, this, &ViewerPanelBase::MulticamNodeDetected);
 
   SetTimeBasedWidget(vw);
 }

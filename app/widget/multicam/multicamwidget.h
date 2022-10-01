@@ -44,6 +44,8 @@ protected:
   virtual void DisconnectNodeEvent(ViewerOutput *n) override;
 
 private:
+  void Switch(int source, bool split_clip);
+
   ViewerSizer *sizer_;
 
   MulticamDisplay *display_;

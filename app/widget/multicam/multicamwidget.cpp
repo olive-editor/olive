@@ -19,6 +19,7 @@
 ***/
 
 #include "multicamwidget.h"
+#include "qshortcut.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timeruler/timeruler.h"
 #include "widget/timelinewidget/undo/timelineundosplit.h"
@@ -48,6 +49,11 @@ MulticamWidget::MulticamWidget(QWidget *parent) :
 
   layout->addWidget(this->ruler());
   layout->addWidget(this->scrollbar());
+
+  for (int i=0; i<9; i++) {
+    new QShortcut(QStringLiteral("Ctrl+%1").arg(QString::number(i+1)), this, this, [this, i]{Switch(i, false);});
+    new QShortcut(QString::number(i+1), this, this, [this, i]{Switch(i, true);});
+  }
 }
 
 void MulticamWidget::SetMulticamNode(MultiCamNode *n)
@@ -77,6 +83,45 @@ void MulticamWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n, &ViewerOutput::PixelAspectChanged, sizer_, &ViewerSizer::SetPixelAspectRatio);
 }
 
+void MulticamWidget::Switch(int source, bool split_clip)
+{
+  if (!node_) {
+    return;
+  }
+
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  MultiCamNode *cam = node_;
+  ClipBlock *clip = clip_;
+
+  if (clip_ && split_clip && clip_->in() < GetTime() && clip_->out() > GetTime()) {
+    QVector<Block*> blocks;
+
+    blocks.append(clip_);
+    blocks.append(clip_->block_links());
+
+    auto split = new BlockSplitPreservingLinksCommand(blocks, {GetTime()});
+    split->redo_now();
+    command->add_child(split);
+
+    clip = static_cast<ClipBlock*>(split->GetSplit(clip_, 0));
+
+    cam = clip->FindMulticam();
+  }
+
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(cam, cam->kCurrentInput)), source));
+  Core::instance()->undo_stack()->push(command);
+
+  if (cam != node_) {
+    SetMulticamNode(cam);
+  }
+  if (clip != clip_) {
+    SetClip(clip);
+  }
+
+  display_->update();
+}
+
 void MulticamWidget::DisplayClicked(const QPoint &p)
 {
   if (!node_) {
@@ -99,37 +144,9 @@ void MulticamWidget::DisplayClicked(const QPoint &p)
   int c = click.x() / (width/multi);
   int r = click.y() / (height/multi);
 
-  MultiUndoCommand *command = new MultiUndoCommand();
+  int source = node_->RowsColsToIndex(r, c, rows, cols);
 
-  const bool enable_split = true;
-
-  MultiCamNode *cam = node_;
-  ClipBlock *clip = clip_;
-
-  if (clip_ && enable_split && clip_->in() < GetTime() && clip_->out() > GetTime()) {
-    QVector<Block*> blocks;
-
-    blocks.append(clip_);
-    blocks.append(clip_->block_links());
-
-    auto split = new BlockSplitPreservingLinksCommand(blocks, {GetTime()});
-    split->redo_now();
-    command->add_child(split);
-
-    clip = static_cast<ClipBlock*>(split->GetSplit(clip_, 0));
-
-    cam = clip->FindMulticam();
-  }
-
-  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(cam, cam->kCurrentInput)), cam->RowsColsToIndex(r, c, rows, cols)));
-  Core::instance()->undo_stack()->push(command);
-
-  if (cam != node_) {
-    SetMulticamNode(cam);
-  }
-  if (clip != clip_) {
-    SetClip(clip);
-  }
+  Switch(source, true);
 }
 
 }

@@ -40,6 +40,8 @@
 #include "node/block/gap/gap.h"
 #include "node/generator/shape/shapenodebase.h"
 #include "node/project/project.h"
+#include "panel/multicam/multicampanel.h"
+#include "panel/panelmanager.h"
 #include "render/rendermanager.h"
 #include "viewerpreventsleep.h"
 #include "widget/audiomonitor/audiomonitor.h"
@@ -75,7 +77,8 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
   first_requeue_watcher_(nullptr),
   enable_audio_scrubbing_(true),
   waveform_mode_(kWFAutomatic),
-  ignore_scrub_(0)
+  ignore_scrub_(0),
+  multicam_panel_(nullptr)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -604,6 +607,53 @@ void ViewerWidget::SetWaveformMode(WaveformMode wf)
   UpdateWaveformViewFromMode();
 }
 
+void ViewerWidget::DetectMulticamNode(const rational &time)
+{
+  // Look for multicam node
+  MultiCamNode *multicam = nullptr;
+  ClipBlock *clip = nullptr;
+
+  // Faster way to do this
+  if (multicam_panel_ && multicam_panel_->isVisible()) {
+    if (Sequence *s = dynamic_cast<Sequence*>(GetConnectedNode())) {
+      // Prefer selected blocks
+      for (Block *b : timeline_selected_blocks_) {
+        if (b->range().Contains(time)) {
+          if ((clip = dynamic_cast<ClipBlock*>(b))) {
+            if ((multicam = clip->FindMulticam())) {
+              break;
+            }
+          }
+        }
+      }
+
+      if (!multicam) {
+        const QVector<Track*> &tracks = s->GetTracks();
+        for (Track *t : tracks) {
+          if (t->IsLocked()) {
+            continue;
+          }
+
+          Block *b = t->NearestBlockBeforeOrAt(time);
+          if ((clip = dynamic_cast<ClipBlock*>(b))) {
+            if ((multicam = clip->FindMulticam())) {
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (multicam) {
+    emit MulticamNodeDetected(GetConnectedNode(), multicam, clip);
+    auto_cacher()->SetMulticamNode(multicam);
+  } else {
+    auto_cacher()->SetMulticamNode(nullptr);
+    emit MulticamNodeDetected(nullptr, nullptr, nullptr);
+  }
+}
+
 void ViewerWidget::UpdateWaveformViewFromMode()
 {
   bool prefer_waveform = ShouldForceWaveform();
@@ -790,20 +840,14 @@ void ViewerWidget::UpdateTextureFromNode()
     // Clear queue because we want this frame more than any others
     auto_cacher_->ClearSingleFrameRenders();
 
+    DetectMulticamNode(time);
+
     watcher->SetTicket(GetFrame(time));
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
     SetEmptyImage();
     return;
-  }
-}
-
-void ViewerWidget::SetMulticamNode(MultiCamNode *n)
-{
-  auto_cacher()->SetMulticamNode(n);
-  if (!IsPlaying()) {
-    UpdateTextureFromNode();
   }
 }
 
@@ -1035,6 +1079,7 @@ RenderTicketWatcher *ViewerWidget::RequestNextFrameForQueue(bool increment)
 
     watcher = new RenderTicketWatcher();
     watcher->setProperty("time", QVariant::fromValue(next_time));
+    DetectMulticamNode(next_time);
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
     queue_watchers_.append(watcher);
     watcher->SetTicket(GetFrame(next_time));

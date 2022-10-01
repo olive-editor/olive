@@ -43,6 +43,8 @@
 
 namespace olive {
 
+class MulticamPanel;
+
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
  */
@@ -109,7 +111,18 @@ public:
     playback_devices_.push_back(vw);
   }
 
-  void SetMulticamNode(MultiCamNode *n);
+  void SetTimelineSelectedBlocks(const QVector<Block*> &b)
+  {
+    timeline_selected_blocks_ = b;
+
+    if (!IsPlaying()) {
+      // If is playing, this will happen by the next frame automatically
+      DetectMulticamNode(GetTime());
+      UpdateTextureFromNode();
+    }
+  }
+
+  void ConnectMulticamPanel(MulticamPanel *p) { multicam_panel_ = p; }
 
 public slots:
   void Play(bool in_to_out_only);
@@ -166,6 +179,8 @@ signals:
    * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
    */
   void ColorManagerChanged(ColorManager* color_manager);
+
+  void MulticamNodeDetected(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip);
 
 protected:
   ViewerWidget(ViewerDisplayWidget *display, QWidget* parent = nullptr);
@@ -256,6 +271,8 @@ private:
 
   void SetWaveformMode(WaveformMode wf);
 
+  void DetectMulticamNode(const rational &time);
+
   ViewerSizer* sizer_;
 
   int playback_speed_;
@@ -323,6 +340,10 @@ private:
   QVector<RenderTicketWatcher*> dry_run_watchers_;
 
   int ignore_scrub_;
+
+  QVector<Block*> timeline_selected_blocks_;
+
+  MulticamPanel *multicam_panel_;
 
 private slots:
   void PlaybackTimerUpdate();

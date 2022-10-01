@@ -38,8 +38,7 @@
 namespace olive {
 
 MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent),
-  last_multicam_panel_(nullptr)
+  QMainWindow(parent)
 {
   // Resizes main window to desktop geometry on startup. Fixes the following issues:
   // * Qt on Windows has a bug that "de-maximizes" the window when widgets are added, resizing the
@@ -119,6 +118,8 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
 
   sequence_viewer_panel_->AddPlaybackDevice(multicam_panel_->GetMulticamWidget()->GetDisplayWidget());
+  sequence_viewer_panel_->ConnectMulticamPanel(multicam_panel_);
+  connect(sequence_viewer_panel_, &ViewerPanelBase::MulticamNodeDetected, multicam_panel_, &MulticamPanel::SetMulticamNode);
 
   scope_panel_->SetViewerPanel(sequence_viewer_panel_);
 
@@ -492,58 +493,7 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
     UpdateNodePanelContextFromTimelinePanel(panel);
-
-    last_multicam_panel_ = panel;
-    UpdateMulticamNode();
-  }
-}
-
-void MainWindow::UpdateMulticamNode()
-{
-  TimelinePanel *panel = last_multicam_panel_;
-  if (!panel) {
-    return;
-  }
-
-  ClipBlock *clip = nullptr;
-  MultiCamNode *multicam = nullptr;
-
-  for (Block *b : panel->GetSelectedBlocks()) {
-    if (b->range().Contains(panel->GetTime())) {
-      if ((clip = dynamic_cast<ClipBlock*>(b))) {
-        if ((multicam = clip->FindMulticam())) {
-          break;
-        }
-      }
-    }
-  }
-
-  if (!multicam && panel->GetSequence()) {
-    const QVector<Track*> &tracks = panel->GetSequence()->GetTracks();
-    for (Track *t : tracks) {
-      if (t->IsLocked()) {
-        continue;
-      }
-
-      Block *b = t->NearestBlockBeforeOrAt(panel->GetTime());
-      if ((clip = dynamic_cast<ClipBlock*>(b))) {
-        if ((multicam = clip->FindMulticam())) {
-          break;
-        }
-      }
-    }
-  }
-
-  if (multicam) {
-    multicam_panel_->SetMulticamNode(multicam);
-    sequence_viewer_panel_->SetMulticamNode(multicam);
-    multicam_panel_->SetClip(clip);
-    multicam_panel_->ConnectViewerNode(panel->GetConnectedViewer());
-  } else {
-    multicam_panel_->ConnectViewerNode(nullptr);
-    sequence_viewer_panel_->SetMulticamNode(nullptr);
-    multicam_panel_->SetMulticamNode(nullptr);
-    multicam_panel_->SetClip(nullptr);
+    sequence_viewer_panel_->SetTimelineSelectedBlocks(blocks);
   }
 }
 
@@ -659,8 +609,6 @@ void MainWindow::UpdateMainTimePanels(const rational &r)
       p->SetTime(r);
     }
   }
-
-  UpdateMulticamNode();
 }
 
 TimelinePanel* MainWindow::AppendTimelinePanel()
@@ -693,9 +641,6 @@ ProjectPanel *MainWindow::AppendProjectPanel()
 void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 {
   // Stop showing this timeline in the viewer
-  if (last_multicam_panel_ == panel) {
-    last_multicam_panel_ = nullptr;
-  }
   TimelineFocused(nullptr);
   panel->ConnectViewerNode(nullptr);
 

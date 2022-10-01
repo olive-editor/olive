@@ -72,9 +72,14 @@ public:
     GetViewerWidget()->AddPlaybackDevice(vw);
   }
 
-  void SetMulticamNode(MultiCamNode *n)
+  void SetTimelineSelectedBlocks(const QVector<Block*> &b)
   {
-    GetViewerWidget()->SetMulticamNode(n);
+    GetViewerWidget()->SetTimelineSelectedBlocks(b);
+  }
+
+  void ConnectMulticamPanel(MulticamPanel *p)
+  {
+    GetViewerWidget()->ConnectMulticamPanel(p);
   }
 
 public slots:
@@ -104,6 +109,8 @@ signals:
    * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
    */
   void ColorManagerChanged(ColorManager* color_manager);
+
+  void MulticamNodeDetected(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip);
 
 protected:
   void SetViewerWidget(ViewerWidget *vw);
