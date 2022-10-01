@@ -223,6 +223,13 @@ void PlaybackCache::InvalidateAll()
   Invalidate(TimeRange(0, RATIONAL_MAX));
 }
 
+void PlaybackCache::Request(const TimeRange &r)
+{
+  requested_.insert(r);
+
+  emit Requested(r);
+}
+
 void PlaybackCache::Validate(const TimeRange &r, bool signal)
 {
   validated_.insert(r);

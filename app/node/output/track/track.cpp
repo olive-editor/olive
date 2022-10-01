@@ -404,6 +404,33 @@ QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
   return list;
 }
 
+bool Track::IsRangeFree(const TimeRange &range) const
+{
+  Block *b = NearestBlockBeforeOrAt(range.in());
+  if (!b) {
+    // No block here, assume track is empty here
+    return true;
+  }
+
+  if (!dynamic_cast<GapBlock*>(b)) {
+    // There's a block at or around the start point that isn't a gap, range is not free
+    return false;
+  }
+
+  while ((b = b->next())) {
+    if (b->in() >= range.out()) {
+      // This block is after the range, no longer relevant
+      break;
+    } else if (!dynamic_cast<GapBlock*>(b)) {
+      // Found a block in this range, range is not free
+      return false;
+    }
+  }
+
+  // If we get here, we couldn't find anything in the way of this range
+  return true;
+}
+
 void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   TimeRange limited;

@@ -98,6 +98,11 @@ public:
     timeline_widget()->ShowSpeedDurationDialogForSelectedClips();
   }
 
+  void NestSelectedClips()
+  {
+    timeline_widget()->NestSelectedClips();
+  }
+
   void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
   void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);

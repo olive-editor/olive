@@ -1490,7 +1490,7 @@ bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
   return false;
 }
 
-Sequence *Core::CreateNewSequenceForProject(Project* project) const
+Sequence *Core::CreateNewSequenceForProject(const QString &format, Project* project)
 {
   Sequence* new_sequence = new Sequence();
 
@@ -1498,7 +1498,7 @@ Sequence *Core::CreateNewSequenceForProject(Project* project) const
   int sequence_number = 1;
   QString sequence_name;
   do {
-    sequence_name = tr("Sequence %1").arg(sequence_number);
+    sequence_name = format.arg(sequence_number);
     sequence_number++;
   } while (project->root()->ChildExistsWithName(sequence_name));
   new_sequence->SetLabel(sequence_name);

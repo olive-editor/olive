@@ -183,7 +183,9 @@ void ImportTool::DragLeave(QDragLeaveEvent* event)
 void ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (!dragged_footage_.isEmpty()) {
-    DropGhosts(event->GetModifiers() & Qt::ControlModifier);
+    auto command = new MultiUndoCommand();
+    DropGhosts(event->GetModifiers() & Qt::ControlModifier, command);
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
 
     event->accept();
   } else {
@@ -191,7 +193,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, int track_offset)
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset)
 {
   DraggedFootageData refs;
 
@@ -199,10 +201,10 @@ void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational 
     refs.append({f, f->GetEnabledStreamsAsReferences()});
   }
 
-  PlaceAt(refs, start, insert, track_offset);
+  PlaceAt(refs, start, insert, command, track_offset);
 }
 
-void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, int track_offset)
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset)
 {
   dragged_footage_ = footage;
 
@@ -211,7 +213,7 @@ void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &star
   }
 
   PrepGhosts(start, track_offset);
-  DropGhosts(insert);
+  DropGhosts(insert, command);
 }
 
 void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData &sorted, const rational& dest_tb, const int& track_start)
@@ -292,9 +294,9 @@ void ImportTool::PrepGhosts(const rational& frame, const int& track_index)
   }
 }
 
-void ImportTool::DropGhosts(bool insert)
+void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
 {
-  MultiUndoCommand* command = new MultiUndoCommand();
+  auto command = new MultiUndoCommand();
 
   if (MultiUndoCommand *c = parent()->TakeSubtitleSectionCommand()) {
     command->add_child(c);
@@ -500,7 +502,10 @@ void ImportTool::DropGhosts(bool insert)
     command->add_child(new OpenSequenceCommand(sequence));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  // Do command now because RequestInvalidatedFromConnected relies on track type, which will be
+  // "none" before this command is done because it won't be connected to any track
+  command->redo_now();
+  parent_command->add_child(command);
 
   while (!imported_clips.empty()) {
     imported_clips.front()->RequestInvalidatedFromConnected();
