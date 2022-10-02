@@ -1352,7 +1352,7 @@ private:
     }
   }
 
-  void ReportInvalidInput(const char* attempted_action, const QString &id) const;
+  void ReportInvalidInput(const char* attempted_action, const QString &id, int element) const;
 
   void ArrayResizeInternal(const QString& id, int size);
 
