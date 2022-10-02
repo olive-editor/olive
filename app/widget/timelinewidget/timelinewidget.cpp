@@ -1234,6 +1234,31 @@ void TimelineWidget::ShowContextMenu()
         QAction *reveal_in_project = menu.addAction(tr("Reveal in Project"));
         reveal_in_project->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
         connect(reveal_in_project, &QAction::triggered, this, &TimelineWidget::RevealInProject);
+
+        /*if (Sequence *sequence = dynamic_cast<Sequence*>(clip->connected_viewer())) {
+          Menu *multicam_menu = new Menu(tr("Multi-Cam"), &menu);
+          menu.addMenu(multicam_menu);
+
+          QAction *multicam_enabled = multicam_menu->addAction(tr("Enabled"));
+          multicam_enabled->setCheckable(true);
+
+          auto mcn = sequence->FindOutputNode<MultiCamNode>();
+          multicam_enabled->setChecked(!mcn.empty());
+
+          multicam_menu->addSeparator();
+
+          QAction *multicam_update = multicam_menu->addAction(tr("Update"));
+          multicam_update->setEnabled(!mcn.empty());
+
+          if (!mcn.empty()) {
+            auto n = mcn.first();
+            multicam_enabled->setProperty("multicam", Node::PtrToValue(n));
+            multicam_update->setProperty("multicam", Node::PtrToValue(n));
+          }
+
+          connect(multicam_enabled, &QAction::triggered, this, &TimelineWidget::MulticamEnabledTriggered);
+          connect(multicam_update, &QAction::triggered, this, &TimelineWidget::MulticamUpdateTriggered);
+        }*/
       }
     }
 
@@ -1463,6 +1488,20 @@ void TimelineWidget::CacheDiscard()
       }
     }
   }
+}
+
+void TimelineWidget::MulticamEnabledTriggered(bool e)
+{
+  if (e) {
+    // Add multicam node
+  } else if (MultiCamNode *m = Node::ValueToPtr<MultiCamNode>(sender()->property("multicam"))) {
+    // Remove multicam node
+  }
+}
+
+void TimelineWidget::MulticamUpdateTriggered()
+{
+  // Update multicam node
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
