@@ -66,7 +66,7 @@ void MulticamWidget::SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode 
 
 void MulticamWidget::SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip, const rational &time)
 {
-  if (time == rational::NaN || time == GetTime()) {
+  if (time.isNaN() || time == GetTime()) {
     SetMulticamNodeInternal(viewer, n, clip);
     play_queue_.clear();
   } else {

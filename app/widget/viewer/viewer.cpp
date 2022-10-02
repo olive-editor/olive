@@ -262,6 +262,9 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 
   timeline_selected_blocks_.clear();
   node_view_selected_.clear();
+  if (multicam_panel_) {
+    multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, rational::NaN);
+  }
 
   CloseAudioProcessor();
   audio_scrub_watchers_.clear();
