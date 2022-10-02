@@ -105,7 +105,7 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
     if (!args.empty()) {
       QStringList list;
       list.reserve(args.size());
-      for (int i=0; i<args.size(); i++) {
+      for (size_t i=0; i<args.size(); i++) {
         list.append(args[i].toString());
       }
 
