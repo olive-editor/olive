@@ -42,9 +42,14 @@ QString MultiCamNode::Description() const
 Node::ActiveElements MultiCamNode::GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
 {
   if (input == kSourcesInput) {
-    Node::ActiveElements a;
-    a.add(GetCurrentSource());
-    return a;
+    int src = GetCurrentSource();
+    if (src >= 0 && src < InputArraySize(kSourcesInput)) {
+      Node::ActiveElements a;
+      a.add(src);
+      return a;
+    } else {
+      return ActiveElements::kNoElements;
+    }
   } else {
     return super::GetActiveElementsAtTime(input, r);
   }
