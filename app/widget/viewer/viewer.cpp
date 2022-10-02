@@ -260,6 +260,9 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateWaveformViewFromMode);
 
+  timeline_selected_blocks_.clear();
+  node_view_selected_.clear();
+
   CloseAudioProcessor();
   audio_scrub_watchers_.clear();
 
@@ -621,12 +624,30 @@ void ViewerWidget::DetectMulticamNode(const rational &time)
   // Faster way to do this
   if (multicam_panel_ && multicam_panel_->isVisible()) {
     if (Sequence *s = dynamic_cast<Sequence*>(GetConnectedNode())) {
-      // Prefer selected blocks
-      for (Block *b : timeline_selected_blocks_) {
-        if (b->range().Contains(time)) {
-          if ((clip = dynamic_cast<ClipBlock*>(b))) {
-            if ((multicam = clip->FindMulticam())) {
-              break;
+      // Prefer selected nodes
+      for (Node *n : qAsConst(node_view_selected_)) {
+        if ((multicam = dynamic_cast<MultiCamNode*>(n))) {
+          // Found multicam, now try to find corresponding clip from selected timeline blocks
+          for (Block *b : qAsConst(timeline_selected_blocks_)) {
+            if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
+              if (c->range().Contains(time) && c->ContextContainsNode(multicam)) {
+                clip = c;
+                break;
+              }
+            }
+          }
+          break;
+        }
+      }
+
+      // Next, prefer multicam from selected block
+      if (!multicam) {
+        for (Block *b : qAsConst(timeline_selected_blocks_)) {
+          if (b->range().Contains(time)) {
+            if ((clip = dynamic_cast<ClipBlock*>(b))) {
+              if ((multicam = clip->FindMulticam())) {
+                break;
+              }
             }
           }
         }

@@ -77,6 +77,11 @@ public:
     GetViewerWidget()->SetTimelineSelectedBlocks(b);
   }
 
+  void SetNodeViewSelections(const QVector<Node*> &n)
+  {
+    GetViewerWidget()->SetNodeViewSelections(n);
+  }
+
   void ConnectMulticamWidget(MulticamWidget *p)
   {
     GetViewerWidget()->ConnectMulticamWidget(p);

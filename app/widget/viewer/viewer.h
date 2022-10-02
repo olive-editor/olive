@@ -122,6 +122,17 @@ public:
     }
   }
 
+  void SetNodeViewSelections(const QVector<Node*> &n)
+  {
+    node_view_selected_ = n;
+
+    if (!IsPlaying()) {
+      // If is playing, this will happen by the next frame automatically
+      DetectMulticamNode(GetTime());
+      UpdateTextureFromNode();
+    }
+  }
+
   void ConnectMulticamWidget(MulticamWidget *p);
 
 public slots:
@@ -340,6 +351,7 @@ private:
   int ignore_scrub_;
 
   QVector<Block*> timeline_selected_blocks_;
+  QVector<Node*> node_view_selected_;
 
   MulticamWidget *multicam_panel_;
 

@@ -105,6 +105,8 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
   connect(param_panel_, &ParamPanel::SelectedNodesChanged, node_panel_, &NodePanel::Select);
 
+  connect(node_panel_, &NodePanel::NodeSelectionChanged, sequence_viewer_panel_, &ViewerPanel::SetNodeViewSelections);
+
   // Connect time signals together
   AddMainTimePanel(multicam_panel_);
   AddMainTimePanel(curve_panel_);
