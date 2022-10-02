@@ -115,13 +115,15 @@ void MulticamWidget::Switch(int source, bool split_clip)
   MultiCamNode *cam = node_;
   ClipBlock *clip = clip_;
 
+  BlockSplitPreservingLinksCommand *split = nullptr;
+
   if (clip_ && split_clip && clip_->in() < GetTime() && clip_->out() > GetTime()) {
     QVector<Block*> blocks;
 
     blocks.append(clip_);
     blocks.append(clip_->block_links());
 
-    auto split = new BlockSplitPreservingLinksCommand(blocks, {GetTime()});
+    split = new BlockSplitPreservingLinksCommand(blocks, {GetTime()});
     split->redo_now();
     command->add_child(split);
 
@@ -131,6 +133,15 @@ void MulticamWidget::Switch(int source, bool split_clip)
   }
 
   command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(cam, cam->kCurrentInput)), source));
+
+  for (Block *link : clip->block_links()) {
+    if (ClipBlock *clink = dynamic_cast<ClipBlock*>(link)) {
+      if (MultiCamNode *mlink = clink->FindMulticam()) {
+        command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(mlink, mlink->kCurrentInput)), source));
+      }
+    }
+  }
+
   Core::instance()->undo_stack()->push(command);
 
   display_->update();
