@@ -77,9 +77,9 @@ public:
     GetViewerWidget()->SetTimelineSelectedBlocks(b);
   }
 
-  void ConnectMulticamPanel(MulticamPanel *p)
+  void ConnectMulticamWidget(MulticamWidget *p)
   {
-    GetViewerWidget()->ConnectMulticamPanel(p);
+    GetViewerWidget()->ConnectMulticamWidget(p);
   }
 
 public slots:
@@ -109,8 +109,6 @@ signals:
    * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
    */
   void ColorManagerChanged(ColorManager* color_manager);
-
-  void MulticamNodeDetected(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip);
 
 protected:
   void SetViewerWidget(ViewerWidget *vw);

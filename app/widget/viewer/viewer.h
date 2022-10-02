@@ -43,7 +43,7 @@
 
 namespace olive {
 
-class MulticamPanel;
+class MulticamWidget;
 
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
@@ -122,7 +122,7 @@ public:
     }
   }
 
-  void ConnectMulticamPanel(MulticamPanel *p) { multicam_panel_ = p; }
+  void ConnectMulticamWidget(MulticamWidget *p);
 
 public slots:
   void Play(bool in_to_out_only);
@@ -179,8 +179,6 @@ signals:
    * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
    */
   void ColorManagerChanged(ColorManager* color_manager);
-
-  void MulticamNodeDetected(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip);
 
 protected:
   ViewerWidget(ViewerDisplayWidget *display, QWidget* parent = nullptr);
@@ -343,7 +341,7 @@ private:
 
   QVector<Block*> timeline_selected_blocks_;
 
-  MulticamPanel *multicam_panel_;
+  MulticamWidget *multicam_panel_;
 
 private slots:
   void PlaybackTimerUpdate();

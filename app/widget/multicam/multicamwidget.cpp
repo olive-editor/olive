@@ -56,15 +56,23 @@ MulticamWidget::MulticamWidget(QWidget *parent) :
   }
 }
 
-void MulticamWidget::SetMulticamNode(MultiCamNode *n)
+void MulticamWidget::SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip)
 {
+  ConnectViewerNode(viewer);
   node_ = n;
   display_->SetMulticamNode(n);
+  clip_ = clip;
 }
 
-void MulticamWidget::SetClip(ClipBlock *clip)
+void MulticamWidget::SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip, const rational &time)
 {
-  clip_ = clip;
+  if (time == rational::NaN || time == GetTime()) {
+    SetMulticamNodeInternal(viewer, n, clip);
+    play_queue_.clear();
+  } else {
+    MulticamNodeQueue m = {time, viewer, n, clip};
+    play_queue_.push_back(m);
+  }
 }
 
 void MulticamWidget::ConnectNodeEvent(ViewerOutput *n)
@@ -81,6 +89,19 @@ void MulticamWidget::DisconnectNodeEvent(ViewerOutput *n)
 {
   disconnect(n, &ViewerOutput::SizeChanged, sizer_, &ViewerSizer::SetChildSize);
   disconnect(n, &ViewerOutput::PixelAspectChanged, sizer_, &ViewerSizer::SetPixelAspectRatio);
+}
+
+void MulticamWidget::TimeChangedEvent(const rational &t)
+{
+  super::TimeChangedEvent(t);
+
+  if (!play_queue_.empty()) {
+    const MulticamNodeQueue &m = play_queue_.front();
+    if (m.time >= t) {
+      SetMulticamNodeInternal(m.viewer, m.node, m.clip);
+      play_queue_.pop_front();
+    }
+  }
 }
 
 void MulticamWidget::Switch(int source, bool split_clip)
@@ -111,13 +132,6 @@ void MulticamWidget::Switch(int source, bool split_clip)
 
   command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(cam, cam->kCurrentInput)), source));
   Core::instance()->undo_stack()->push(command);
-
-  if (cam != node_) {
-    SetMulticamNode(cam);
-  }
-  if (clip != clip_) {
-    SetClip(clip);
-  }
 
   display_->update();
 }

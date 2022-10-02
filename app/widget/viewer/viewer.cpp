@@ -419,6 +419,11 @@ void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, c
   recording_track_ = track;
 }
 
+void ViewerWidget::ConnectMulticamWidget(MulticamWidget *p)
+{
+  multicam_panel_ = p;
+}
+
 FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time)
 {
   FramePtr frame = FrameHashCache::LoadCacheFrame(cache_path, cache_id, time);
@@ -646,11 +651,15 @@ void ViewerWidget::DetectMulticamNode(const rational &time)
   }
 
   if (multicam) {
-    emit MulticamNodeDetected(GetConnectedNode(), multicam, clip);
+    if (multicam_panel_) {
+      multicam_panel_->SetMulticamNode(GetConnectedNode(), multicam, clip, time);
+    }
     auto_cacher()->SetMulticamNode(multicam);
   } else {
     auto_cacher()->SetMulticamNode(nullptr);
-    emit MulticamNodeDetected(nullptr, nullptr, nullptr);
+    if (multicam_panel_) {
+      multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, time);
+    }
   }
 }
 

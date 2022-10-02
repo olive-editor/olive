@@ -35,15 +35,16 @@ public:
 
   MulticamDisplay *GetDisplayWidget() const { return display_; }
 
-  void SetMulticamNode(MultiCamNode *n);
-
-  void SetClip(ClipBlock *clip);
+  void SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip, const rational &time);
 
 protected:
   virtual void ConnectNodeEvent(ViewerOutput *n) override;
   virtual void DisconnectNodeEvent(ViewerOutput *n) override;
+  virtual void TimeChangedEvent(const rational &t) override;
 
 private:
+  void SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip);
+
   void Switch(int source, bool split_clip);
 
   ViewerSizer *sizer_;
@@ -53,6 +54,16 @@ private:
   MultiCamNode *node_;
 
   ClipBlock *clip_;
+
+  struct MulticamNodeQueue
+  {
+    rational time;
+    ViewerOutput *viewer;
+    MultiCamNode *node;
+    ClipBlock *clip;
+  };
+
+  std::list<MulticamNodeQueue> play_queue_;
 
 private slots:
   void DisplayClicked(const QPoint &p);

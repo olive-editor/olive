@@ -14,14 +14,6 @@ public:
 
   MulticamWidget *GetMulticamWidget() const { return static_cast<MulticamWidget *>(GetTimeBasedWidget()); }
 
-public slots:
-  void SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip)
-  {
-    ConnectViewerNode(viewer);
-    GetMulticamWidget()->SetMulticamNode(n);
-    GetMulticamWidget()->SetClip(clip);
-  }
-
 protected:
   virtual void Retranslate() override;
 

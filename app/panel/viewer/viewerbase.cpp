@@ -100,16 +100,17 @@ void ViewerPanelBase::SetViewerWidget(ViewerWidget *vw)
   connect(vw, &ViewerWidget::TextureChanged, this, &ViewerPanelBase::TextureChanged);
   connect(vw, &ViewerWidget::ColorProcessorChanged, this, &ViewerPanelBase::ColorProcessorChanged);
   connect(vw, &ViewerWidget::ColorManagerChanged, this, &ViewerPanelBase::ColorManagerChanged);
-  connect(vw, &ViewerWidget::MulticamNodeDetected, this, &ViewerPanelBase::MulticamNodeDetected);
 
   SetTimeBasedWidget(vw);
 }
 
 void ViewerPanelBase::FocusedPanelChanged(PanelWidget *panel)
 {
-  auto vw = GetViewerWidget();
-  if (vw->IsPlaying() && panel != this) {
-    vw->Pause();
+  if (dynamic_cast<ViewerPanelBase*>(panel)) {
+    auto vw = GetViewerWidget();
+    if (vw->IsPlaying() && panel != this) {
+      vw->Pause();
+    }
   }
 }
 
