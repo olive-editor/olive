@@ -294,116 +294,34 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
   return dec;
 }
 
+NodeValueDatabase RenderProcessor::GenerateDatabase(const Node *node, const TimeRange &range)
+{
+  NodeValueDatabase db = super::GenerateDatabase(node, range);
+
+  if (const MultiCamNode *multicam = dynamic_cast<const MultiCamNode*>(node)) {
+    if (Node::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
+      int sz = multicam->InputArraySize(multicam->kSourcesInput);
+      NodeValueTableArray arr;
+      QVector<TexturePtr> multicam_tex(sz);
+      for (int i=0; i<sz; i++) {
+        ProcessInputElement(arr, multicam, multicam->kSourcesInput, i, range);
+
+        NodeValue val = GenerateRowValueElement(multicam, multicam->kSourcesInput, i, &arr.at(i), range);
+        ResolveJobs(val);
+
+        multicam_tex[i] = val.toTexture();
+      }
+      ticket_->setProperty("multicam_output", QVariant::fromValue(multicam_tex));
+    }
+  }
+
+  return db;
+}
+
 void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache)
 {
   RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache);
   p.Run();
-}
-
-NodeValueTable RenderProcessor::GenerateBlockTable(const Track *track, const TimeRange &range)
-{
-  if (track->type() == Track::kAudio) {
-
-    const AudioParams& audio_params = GetCacheAudioParams();
-
-    QVector<Block*> active_blocks = track->BlocksAtTimeRange(range);
-
-    // All these blocks will need to output to a buffer so we create one here
-    SampleBuffer block_range_buffer(audio_params, range.length());
-    block_range_buffer.silence();
-
-    NodeValueTable merged_table;
-
-    // Loop through active blocks retrieving their audio
-    foreach (Block* b, active_blocks) {
-      if (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b)) {
-        TimeRange range_for_block(qMax(b->in(), range.in()),
-                                  qMin(b->out(), range.out()));
-
-        qint64 destination_offset = audio_params.time_to_samples(range_for_block.in() - range.in());
-        qint64 max_dest_sz = audio_params.time_to_samples(range_for_block.length());
-
-        // Destination buffer
-        NodeValueTable table = GenerateTable(b, Track::TransformRangeForBlock(b, range_for_block));
-        SampleBuffer samples_from_this_block = table.Take(NodeValue::kSamples).toSamples();
-        ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
-
-        if (samples_from_this_block.is_allocated()) {
-          // If this is a clip, we might have extra speed/reverse information
-          if (clip_cast) {
-            double speed_value = clip_cast->speed();
-            bool reversed = clip_cast->reverse();
-
-            if (qIsNull(speed_value)) {
-              // Just silence, don't think there's any other practical application of 0 speed audio
-              samples_from_this_block.silence();
-            } else if (!qFuzzyCompare(speed_value, 1.0)) {
-              if (clip_cast->maintain_audio_pitch()) {
-                AudioProcessor processor;
-
-                if (processor.Open(samples_from_this_block.audio_params(), samples_from_this_block.audio_params(), speed_value)) {
-                  AudioProcessor::Buffer out;
-
-                  // FIXME: This is not the best way to do this, the TempoProcessor works best
-                  //        when it's given a continuous stream of audio, which is challenging
-                  //        in our current "modular" audio system. This should still work reasonably
-                  //        well on export (assuming audio is all generated at once on export), but
-                  //        users may hear clicks and pops in the audio during preview due to this
-                  //        approach.
-                  int r = processor.Convert(samples_from_this_block.to_raw_ptrs().data(), samples_from_this_block.sample_count(), nullptr);
-
-                  if (r < 0) {
-                    qCritical() << "Failed to change tempo of audio:" << r;
-                  } else {
-                    processor.Flush();
-
-                    processor.Convert(nullptr, 0, &out);
-
-                    if (!out.empty()) {
-                      int nb_samples = out.front().size() * samples_from_this_block.audio_params().bytes_per_sample_per_channel();
-
-                      if (nb_samples) {
-                        SampleBuffer new_samples(samples_from_this_block.audio_params(), nb_samples);
-
-                        for (int i=0; i<out.size(); i++) {
-                          memcpy(new_samples.data(i), out[i].data(), out[i].size());
-                        }
-
-                        samples_from_this_block = new_samples;
-                      }
-                    }
-                  }
-                }
-              } else {
-                // Multiply time
-                samples_from_this_block.speed(speed_value);
-              }
-            }
-
-            if (reversed) {
-              samples_from_this_block.reverse();
-            }
-          }
-
-          qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count()));
-
-          // Copy samples into destination buffer
-          for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
-            block_range_buffer.set(i, samples_from_this_block.data(i), destination_offset, copy_length);
-          }
-
-          NodeValueTable::Merge({merged_table, table});
-        }
-      }
-    }
-
-    merged_table.Push(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), track);
-
-    return merged_table;
-
-  } else {
-    return super::GenerateBlockTable(track, range);
-  }
 }
 
 void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time)

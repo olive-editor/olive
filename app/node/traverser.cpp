@@ -88,11 +88,11 @@ NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input
 
   if (value.array()) {
     // Resolve each element of array
-    QVector<NodeValueTable> tables = value.value<QVector<NodeValueTable> >();
-    QVector<NodeValue> output(tables.size());
+    NodeValueTableArray tables = value.value<NodeValueTableArray>();
+    NodeValueArray output;
 
-    for (int i=0; i<tables.size(); i++) {
-      output[i] = GenerateRowValueElement(node, input, i, &tables[i], time);
+    for (auto it=tables.begin(); it!=tables.end(); it++) {
+      output[it->first] = GenerateRowValueElement(node, input, it->first, &it->second, time);
     }
 
     value = NodeValue(value.type(), QVariant::fromValue(output), value.source(), value.array(), value.tag());
@@ -179,9 +179,9 @@ void NodeTraverser::Transform(QTransform *transform, const Node *start, const No
   transform_ = nullptr;
 }
 
-NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &params, const TimeRange &time)
+NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const TimeRange &time)
 {
-  return NodeGlobals(params, time);
+  return NodeGlobals(vparams, aparams, time);
 }
 
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
@@ -205,18 +205,17 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     if (is_array) {
 
       // Value is an array, we will return a list of NodeValueTables
-      QVector<NodeValueTable> array_tbl(node->InputArraySize(input));
+      NodeValueTableArray array_tbl;
 
-      for (int i=0; i<array_tbl.size(); i++) {
-        NodeValueTable& sub_tbl = array_tbl[i];
-        TimeRange adjusted_range = node->InputTimeAdjustment(input, i, range);
-
-        if (node->IsInputConnected(input, i)) {
-          Node *output = node->GetConnectedOutput(input, i);
-          sub_tbl = GenerateTable(output, adjusted_range, node);
-        } else {
-          QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), i);
-          sub_tbl.Push(node->GetInputDataType(input), input_value, node);
+      Node::ActiveElements a = node->GetActiveElementsAtTime(input, range);
+      if (a.mode() == Node::ActiveElements::kAllElements) {
+        int sz = node->InputArraySize(input);
+        for (int i=0; i<sz; i++) {
+          ProcessInputElement(array_tbl, node, input, i, range);
+        }
+      } else if (a.mode() == Node::ActiveElements::kSpecified) {
+        for (int ele : a.elements()) {
+          ProcessInputElement(array_tbl, node, input, ele, range);
         }
       }
 
@@ -235,6 +234,20 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     return_table.Push(node->GetInputDataType(input), return_val, node, is_array);
     return return_table;
 
+  }
+}
+
+void NodeTraverser::ProcessInputElement(NodeValueTableArray &array_tbl, const Node *node, const QString &input, int element, const TimeRange &range)
+{
+  NodeValueTable& sub_tbl = array_tbl[element];
+  TimeRange adjusted_range = node->InputTimeAdjustment(input, element, range);
+
+  if (node->IsInputConnected(input, element)) {
+    Node *output = node->GetConnectedOutput(input, element);
+    sub_tbl = GenerateTable(output, adjusted_range, node);
+  } else {
+    QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), element);
+    sub_tbl.Push(node->GetInputDataType(input), input_value, node);
   }
 }
 
@@ -261,12 +274,6 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
 {
   // NOTE: Times how long a node takes to process, useful for profiling.
   //GTTTime gtt(n);Q_UNUSED(gtt);
-
-  const Track* track = dynamic_cast<const Track*>(n);
-  if (track) {
-    // If the range is not wholly contained in this Block, we'll need to do some extra processing
-    return GenerateBlockTable(track, range);
-  }
 
   // Use table cache to skip processing where available
   if (value_cache_.contains(n)) {
@@ -297,7 +304,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
     table = database.Merge();
 
     // By this point, the node should have all the inputs it needs to render correctly
-    NodeGlobals globals = GenerateGlobals(video_params_, range);
+    NodeGlobals globals = GenerateGlobals(video_params_, audio_params_, range);
     n->Value(row, globals, &table);
 
     // `transform_now_` is the next node in the path that needs to be traversed. It only ever goes
@@ -327,22 +334,6 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
   }
 
   value_cache_[n][range] = table;
-
-  return table;
-}
-
-NodeValueTable NodeTraverser::GenerateBlockTable(const Track *track, const TimeRange &range)
-{
-  // By default, just follow the in point
-  Block* active_block = track->BlockAtTime(range.in());
-
-  NodeValueTable table;
-
-  if (active_block) {
-    block_stack_.push_back(active_block);
-    table = GenerateTable(active_block, Track::TransformRangeForBlock(active_block, range), track);
-    block_stack_.pop_back();
-  }
 
   return table;
 }

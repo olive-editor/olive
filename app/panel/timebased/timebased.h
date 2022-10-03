@@ -106,6 +106,8 @@ public:
 
   virtual void Paste() override;
 
+  TimeBasedWidget* GetTimeBasedWidget() const { return widget_; }
+
 public slots:
   void SetTimebase(const rational& timebase);
 
@@ -127,11 +129,6 @@ signals:
   void ShuttleRightRequested();
 
 protected:
-  TimeBasedWidget* GetTimeBasedWidget() const
-  {
-    return widget_;
-  }
-
   void SetTimeBasedWidget(TimeBasedWidget* widget);
 
   virtual void Retranslate() override;

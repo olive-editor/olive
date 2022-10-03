@@ -50,6 +50,7 @@ public:
   virtual ~PreviewAutoCacher() override;
 
   RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(Node *n, const rational& t, bool dry = false);
 
   RenderTicketPtr GetRangeOfAudio(TimeRange range);
 
@@ -88,6 +89,10 @@ public:
   bool IsRenderingCustomRange() const;
 
   void SetRendersPaused(bool e);
+
+  void SetMulticamNode(MultiCamNode *n) { multicam_ = n; }
+
+  void SetIgnoreCacheRequests(bool e) { ignore_cache_requests_ = e; }
 
 public slots:
   void SetDisplayColorProcessor(ColorProcessorPtr processor)
@@ -160,7 +165,7 @@ private:
 
   Project copied_project_;
 
-  QVector<QueuedJob> graph_update_queue_;
+  std::list<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
   QHash<NodeGraph*, NodeGraph*> graph_map_;
   ViewerOutput* copied_viewer_node_;
@@ -216,6 +221,10 @@ private:
   QHash<PlaybackCache*, AudioCacheData> audio_cache_data_;
 
   ColorProcessorPtr display_color_processor_;
+
+  MultiCamNode *multicam_;
+
+  bool ignore_cache_requests_;
 
 private slots:
   /**

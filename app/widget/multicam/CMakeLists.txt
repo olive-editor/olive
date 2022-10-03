@@ -14,26 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audiomonitor)
-add_subdirectory(curve)
-add_subdirectory(footageviewer)
-add_subdirectory(multicam)
-add_subdirectory(node)
-add_subdirectory(param)
-add_subdirectory(pixelsampler)
-add_subdirectory(project)
-add_subdirectory(scope)
-add_subdirectory(sequenceviewer)
-add_subdirectory(table)
-add_subdirectory(taskmanager)
-add_subdirectory(timebased)
-add_subdirectory(timeline)
-add_subdirectory(tool)
-add_subdirectory(viewer)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  panel/panelmanager.h
-  panel/panelmanager.cpp
+  widget/multicam/multicamdisplay.cpp
+  widget/multicam/multicamdisplay.h
+  widget/multicam/multicamwidget.cpp
+  widget/multicam/multicamwidget.h
   PARENT_SCOPE
 )

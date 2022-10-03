@@ -24,8 +24,6 @@
 #include "audio/audiovisualwaveform.h"
 #include "playbackcache.h"
 
-//#define AVW_USE_LIST
-
 namespace olive {
 
 class AudioWaveformCache : public PlaybackCache
@@ -40,7 +38,7 @@ public:
   void SetParameters(const AudioParams &p)
   {
     params_ = p;
-    waveforms_.set_channel_count(p.channel_count());
+    waveforms_->set_channel_count(p.channel_count());
   }
 
   void Draw(QPainter* painter, const QRect &rect, const double &scale, const rational &start_time) const;
@@ -51,44 +49,27 @@ public:
 
   virtual void SetPassthrough(PlaybackCache *cache) override;
 
+protected:
+  virtual void InvalidateEvent(const TimeRange& range) override;
+
 private:
-#ifdef AVW_USE_LIST
-  class TimeRangeWithWaveform : public TimeRange
-  {
-  public:
-    TimeRangeWithWaveform() = default;
-    TimeRangeWithWaveform(const TimeRange &r) :
-      TimeRange(r)
-    {
-    }
+  using WaveformPtr = std::shared_ptr<AudioVisualWaveform>;
 
-    void set_in(const rational& in)
-    {
-      waveform.TrimIn(in - this->in());
-      TimeRange::set_in(in);
-    }
-
-    void set_out(const rational& out)
-    {
-      waveform.Resize(out - this->in());
-      TimeRange::set_out(out);
-    }
-
-    void set_range(const rational& in, const rational& out)
-    {
-      waveform.TrimRange(in, out-in);
-      TimeRange::set_range(in, out);
-    }
-
-    AudioVisualWaveform waveform;
-  };
-
-  QVector<TimeRangeWithWaveform> waveforms_;
-#else
-  AudioVisualWaveform waveforms_;
-#endif
+  WaveformPtr waveforms_;
 
   AudioParams params_;
+
+  class WaveformPassthrough : public TimeRange
+  {
+  public:
+    WaveformPassthrough(const TimeRange &r) :
+      TimeRange(r)
+    {}
+
+    WaveformPtr waveform;
+  };
+
+  QVector<WaveformPassthrough> passthroughs_;
 
 };
 

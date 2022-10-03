@@ -74,7 +74,13 @@ public:
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
+
+  const VideoParams &GetVideoParams() const { return gizmo_params_; }
   void SetVideoParams(const VideoParams &params);
+
+  const AudioParams &GetAudioParams() const { return gizmo_audio_params_; }
+  void SetAudioParams(const AudioParams &p);
+
   void SetTime(const rational& time);
   void SetSubtitleTracks(Sequence *list);
 
@@ -131,6 +137,8 @@ public:
     return &timer_;
   }
 
+  QPointF ScreenToScenePoint(const QPoint &p);
+
   virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
@@ -182,7 +190,7 @@ signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
    */
-  void DragStarted();
+  void DragStarted(const QPoint &p);
 
   /**
    * @brief Signal emitted when a hand drag starts
@@ -218,6 +226,30 @@ signals:
 
   void CreateAddableAt(const QRectF &rect);
 
+protected:
+  QTransform GenerateWorldTransform();
+
+  QTransform GenerateDisplayTransform();
+
+  QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
+  QTransform GenerateGizmoTransform()
+  {
+    NodeTraverser t;
+    t.SetCacheVideoParams(gizmo_params_);
+    return GenerateGizmoTransform(t, GenerateGizmoTime());
+  }
+
+  TimeRange GenerateGizmoTime()
+  {
+    rational node_time = GetGizmoTime();
+    return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
+  }
+
+  virtual TexturePtr LoadCustomTextureFromFrame(const QVariant &v)
+  {
+    return nullptr;
+  }
+
 protected slots:
   /**
    * @brief Paint function to display the texture (received in SetTexture()) on screen.
@@ -240,24 +272,6 @@ private:
   bool IsHandDrag(QMouseEvent* event) const;
 
   void UpdateMatrix();
-
-  QTransform GenerateWorldTransform();
-
-  QTransform GenerateDisplayTransform();
-
-  QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
-  QTransform GenerateGizmoTransform()
-  {
-    NodeTraverser t;
-    t.SetCacheVideoParams(gizmo_params_);
-    return GenerateGizmoTransform(t, GenerateGizmoTime());
-  }
-
-  TimeRange GenerateGizmoTime()
-  {
-    rational node_time = GetGizmoTime();
-    return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
-  }
 
   NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
 
@@ -289,6 +303,8 @@ private:
   QPointF AdjustPosByVAlign(QPointF p);
 
   void CloseTextEditor();
+
+  void GenerateGizmoTransforms();
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
@@ -338,8 +354,10 @@ private:
   Node* gizmos_;
   NodeValueRow gizmo_db_;
   VideoParams gizmo_params_;
+  AudioParams gizmo_audio_params_;
   QPoint gizmo_start_drag_;
   QPoint gizmo_last_drag_;
+  TimeRange gizmo_draw_time_;
   NodeGizmo *current_gizmo_;
   bool gizmo_drag_started_;
   QTransform gizmo_last_draw_transform_;

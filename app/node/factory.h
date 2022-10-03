@@ -80,6 +80,7 @@ public:
     kRippleDistort,
     kTileDistort,
     kSwirlDistort,
+    kMulticamNode,
 
     // Count value
     kInternalNodeCount

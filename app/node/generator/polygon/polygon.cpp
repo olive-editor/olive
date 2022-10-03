@@ -116,9 +116,9 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   QImage img((uchar *) frame->data(), frame->width(), frame->height(), frame->linesize_bytes(), QImage::Format_RGBA8888_Premultiplied);
   img.fill(Qt::transparent);
 
-  QVector<NodeValue> points = job.Get(kPointsInput).value< QVector<NodeValue> >();
+  auto points = job.Get(kPointsInput).toArray();
 
-  QPainterPath path = GeneratePath(points);
+  QPainterPath path = GeneratePath(points, InputArraySize(kPointsInput));
 
   QPainter p(&img);
   double par = frame->video_params().pixel_aspect_ratio().toDouble();
@@ -175,7 +175,7 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
 
   QPointF half_res = res.toPointF()/2;
 
-  QVector<NodeValue> points = row[kPointsInput].value< QVector<NodeValue> >();
+  auto points = row[kPointsInput].toArray();
 
   int current_pos_sz = gizmo_position_handles_.size();
 
@@ -200,8 +200,9 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     bez_gizmo2->SetSmaller(true);
   }
 
-  if (!points.isEmpty()) {
-    for (int i=0; i<points.size(); i++) {
+  int pts_sz = InputArraySize(kPointsInput);
+  if (!points.empty()) {
+    for (int i=0; i<pts_sz; i++) {
       const Bezier &pt = points.at(i).toBezier();
 
       QPointF main = pt.ToPointF() + half_res;
@@ -217,7 +218,7 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     }
   }
 
-  poly_gizmo_->SetPath(GeneratePath(points).translated(half_res));
+  poly_gizmo_->SetPath(GeneratePath(points, pts_sz).translated(half_res));
 }
 
 ShaderCode PolygonGenerator::GetShaderCode(const ShaderRequest &request) const
@@ -250,19 +251,19 @@ void PolygonGenerator::AddPointToPath(QPainterPath *path, const Bezier &before, 
                 after.ToPointF());
 }
 
-QPainterPath PolygonGenerator::GeneratePath(const QVector<NodeValue> &points)
+QPainterPath PolygonGenerator::GeneratePath(const NodeValueArray &points, int size)
 {
   QPainterPath path;
 
-  if (!points.isEmpty()) {
-    const Bezier &first_pt = points.first().toBezier();
+  if (!points.empty()) {
+    const Bezier &first_pt = points.at(0).toBezier();
     path.moveTo(first_pt.ToPointF());
 
-    for (int i=1; i<points.size(); i++) {
+    for (int i=1; i<size; i++) {
       AddPointToPath(&path, points.at(i-1).toBezier(), points.at(i).toBezier());
     }
 
-    AddPointToPath(&path, points.last().toBezier(), first_pt);
+    AddPointToPath(&path, points.at(size-1).toBezier(), first_pt);
   }
 
   return path;

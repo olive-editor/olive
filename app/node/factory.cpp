@@ -53,6 +53,7 @@
 #include "generator/text/textv1.h"
 #include "generator/text/textv2.h"
 #include "generator/text/textv3.h"
+#include "input/multicam/multicamnode.h"
 #include "input/time/timeinput.h"
 #include "input/value/valuenode.h"
 #include "keying/chromakey/chromakey.h"
@@ -306,6 +307,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new SwirlDistortNode();
   case kRippleDistort:
     return new RippleDistortNode();
+  case kMulticamNode:
+    return new MultiCamNode();
 
   case kInternalNodeCount:
     break;

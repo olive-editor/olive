@@ -43,6 +43,8 @@
 
 namespace olive {
 
+class MulticamWidget;
+
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
  */
@@ -57,7 +59,9 @@ public:
     kWFViewerAndWaveform
   };
 
-  ViewerWidget(QWidget* parent = nullptr);
+  ViewerWidget(QWidget* parent = nullptr) :
+    ViewerWidget(new ViewerDisplayWidget(), parent)
+  {}
 
   virtual ~ViewerWidget() override;
 
@@ -99,6 +103,37 @@ public:
   {
     enable_audio_scrubbing_ = e;
   }
+
+  PreviewAutoCacher *GetCacher() const { return auto_cacher_; }
+
+  void AddPlaybackDevice(ViewerDisplayWidget *vw)
+  {
+    playback_devices_.push_back(vw);
+  }
+
+  void SetTimelineSelectedBlocks(const QVector<Block*> &b)
+  {
+    timeline_selected_blocks_ = b;
+
+    if (!IsPlaying()) {
+      // If is playing, this will happen by the next frame automatically
+      DetectMulticamNode(GetTime());
+      UpdateTextureFromNode();
+    }
+  }
+
+  void SetNodeViewSelections(const QVector<Node*> &n)
+  {
+    node_view_selected_ = n;
+
+    if (!IsPlaying()) {
+      // If is playing, this will happen by the next frame automatically
+      DetectMulticamNode(GetTime());
+      UpdateTextureFromNode();
+    }
+  }
+
+  void ConnectMulticamWidget(MulticamWidget *p);
 
 public slots:
   void Play(bool in_to_out_only);
@@ -157,6 +192,8 @@ signals:
   void ColorManagerChanged(ColorManager* color_manager);
 
 protected:
+  ViewerWidget(ViewerDisplayWidget *display, QWidget* parent = nullptr);
+
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const rational &time) override;
 
@@ -182,6 +219,13 @@ protected:
     ignore_scrub_++;
   }
 
+  virtual RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false)
+  {
+    return auto_cacher_->GetSingleFrame(t, dry);
+  }
+
+  PreviewAutoCacher *auto_cacher() const { return auto_cacher_; }
+
 private:
   int64_t GetTimestamp() const
   {
@@ -206,7 +250,7 @@ private:
 
   bool ViewerMightBeAStill();
 
-  void SetDisplayImage(QVariant frame);
+  void SetDisplayImage(RenderTicketPtr ticket);
 
   RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
 
@@ -235,6 +279,8 @@ private:
   void CloseAudioProcessor();
 
   void SetWaveformMode(WaveformMode wf);
+
+  void DetectMulticamNode(const rational &time);
 
   ViewerSizer* sizer_;
 
@@ -303,6 +349,11 @@ private:
   QVector<RenderTicketWatcher*> dry_run_watchers_;
 
   int ignore_scrub_;
+
+  QVector<Block*> timeline_selected_blocks_;
+  QVector<Node*> node_view_selected_;
+
+  MulticamWidget *multicam_panel_;
 
 private slots:
   void PlaybackTimerUpdate();

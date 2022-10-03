@@ -123,6 +123,10 @@ private:
 
   std::map<rational, Sample>::const_iterator GetMipmapForScale(double scale) const;
 
+  void ValidateVirtualStart(const rational &new_start);
+
+  rational virtual_start_;
+
   int channels_;
 
   std::map<rational, Sample> mipmapped_data_;

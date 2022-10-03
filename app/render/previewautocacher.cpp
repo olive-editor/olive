@@ -24,6 +24,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/conformmanager.h"
+#include "node/input/multicam/multicamnode.h"
 #include "node/inputdragger.h"
 #include "node/project/project.h"
 #include "render/diskmanager.h"
@@ -41,7 +42,9 @@ PreviewAutoCacher::PreviewAutoCacher(QObject *parent) :
   use_custom_range_(false),
   pause_renders_(false),
   single_frame_render_(nullptr),
-  display_color_processor_(nullptr)
+  display_color_processor_(nullptr),
+  multicam_(nullptr),
+  ignore_cache_requests_(false)
 {
   // Set defaults
   SetPlayhead(0);
@@ -63,6 +66,11 @@ PreviewAutoCacher::~PreviewAutoCacher()
 
 RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool dry)
 {
+  return GetSingleFrame(viewer_node_->GetConnectedTextureOutput(), t, dry);
+}
+
+RenderTicketPtr PreviewAutoCacher::GetSingleFrame(Node *n, const rational &t, bool dry)
+{
   // If we have a single frame render queued (but not yet sent to the RenderManager), cancel it now
   CancelQueuedSingleFrameRender();
 
@@ -71,6 +79,7 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(const rational &t, bool dry)
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
   sfr->setProperty("dry", dry);
+  sfr->setProperty("node", Node::PtrToValue(n));
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -100,12 +109,16 @@ void PreviewAutoCacher::VideoInvalidatedFromCache(const TimeRange &range)
 {
   PlaybackCache *cache = static_cast<PlaybackCache*>(sender());
 
+  cache->ClearRequestRange(range);
+
   VideoInvalidatedFromNode(cache, range);
 }
 
 void PreviewAutoCacher::AudioInvalidatedFromCache(const TimeRange &range)
 {
   PlaybackCache *cache = static_cast<PlaybackCache*>(sender());
+
+  cache->ClearRequestRange(range);
 
   AudioInvalidatedFromNode(cache, range);
 }
@@ -207,6 +220,7 @@ void PreviewAutoCacher::VideoRendered()
   QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
   foreach (RenderTicketPtr t, tickets) {
     if (watcher->HasResult()) {
+      t->setProperty("multicam_output", watcher->GetTicket()->property("multicam_output"));
       t->Finish(watcher->Get());
     } else {
       t->Finish();
@@ -240,7 +254,10 @@ void PreviewAutoCacher::VideoRendered()
 void PreviewAutoCacher::ProcessUpdateQueue()
 {
   // Iterate everything that happened to the graph and do the same thing on our end
-  foreach (const QueuedJob& job, graph_update_queue_) {
+  while (!graph_update_queue_.empty()) {
+    QueuedJob job = graph_update_queue_.front();
+    graph_update_queue_.pop_front();
+
     switch (job.type) {
     case QueuedJob::kNodeAdded:
       AddNode(job.node);
@@ -262,7 +279,6 @@ void PreviewAutoCacher::ProcessUpdateQueue()
       break;
     }
   }
-  graph_update_queue_.clear();
 
   // Indicate that we have synchronized to this point, which is compared with the graph change
   // time to see if our copied graph is up to date
@@ -362,28 +378,30 @@ void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
   Node::CopyInputs(node, copy, false);
 
   // Connect to node's cache
-  ConnectToNodeCache(node);
+  if (!ignore_cache_requests_) {
+    ConnectToNodeCache(node);
+  }
 }
 
 void PreviewAutoCacher::ConnectToNodeCache(Node *node)
 {
   connect(node->video_frame_cache(),
-          &PlaybackCache::Request,
+          &PlaybackCache::Requested,
           this,
           &PreviewAutoCacher::VideoInvalidatedFromCache);
 
   connect(node->thumbnail_cache(),
-          &PlaybackCache::Request,
+          &PlaybackCache::Requested,
           this,
           &PreviewAutoCacher::VideoInvalidatedFromCache);
 
   connect(node->audio_playback_cache(),
-          &PlaybackCache::Request,
+          &PlaybackCache::Requested,
           this,
           &PreviewAutoCacher::AudioInvalidatedFromCache);
 
   connect(node->waveform_cache(),
-          &PlaybackCache::Request,
+          &PlaybackCache::Requested,
           this,
           &PreviewAutoCacher::AudioInvalidatedFromCache);
 
@@ -396,27 +414,32 @@ void PreviewAutoCacher::ConnectToNodeCache(Node *node)
           &PlaybackCache::CancelAll,
           this,
           &PreviewAutoCacher::CancelForCache);
+
+  node->video_frame_cache()->ResignalRequests();
+  node->thumbnail_cache()->ResignalRequests();
+  node->audio_playback_cache()->ResignalRequests();
+  node->waveform_cache()->ResignalRequests();
 }
 
 void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
 {
   disconnect(node->video_frame_cache(),
-             &PlaybackCache::Request,
+             &PlaybackCache::Requested,
              this,
              &PreviewAutoCacher::VideoInvalidatedFromCache);
 
   disconnect(node->thumbnail_cache(),
-             &PlaybackCache::Request,
+             &PlaybackCache::Requested,
              this,
              &PreviewAutoCacher::VideoInvalidatedFromCache);
 
   disconnect(node->audio_playback_cache(),
-             &PlaybackCache::Request,
+             &PlaybackCache::Requested,
              this,
              &PreviewAutoCacher::AudioInvalidatedFromCache);
 
   disconnect(node->waveform_cache(),
-             &PlaybackCache::Request,
+             &PlaybackCache::Requested,
              this,
              &PreviewAutoCacher::AudioInvalidatedFromCache);
 
@@ -466,6 +489,8 @@ void PreviewAutoCacher::StartCachingVideoRange(PlaybackCache *cache, const TimeR
     using_tb = viewer_node_->GetVideoParams().frame_rate_as_time_base();
   }
 
+  cache->ClearRequestRange(range);
+
   TimeRangeListFrameIterator iterator({range}, using_tb);
   pending_video_jobs_.push_back({node, cache, range, iterator});
   video_cache_data_[cache].job_tracker.insert(TimeRange(iterator.Snap(range.in()), range.out()), graph_changed_time_);
@@ -475,6 +500,9 @@ void PreviewAutoCacher::StartCachingVideoRange(PlaybackCache *cache, const TimeR
 void PreviewAutoCacher::StartCachingAudioRange(PlaybackCache *cache, const TimeRange &range)
 {
   Node *node = cache->parent();
+
+  cache->ClearRequestRange(range);
+
   pending_audio_jobs_.push_back({node, cache, range});
   audio_cache_data_[cache].job_tracker.insert(range, graph_changed_time_);
   TryRender();
@@ -485,6 +513,8 @@ void PreviewAutoCacher::VideoInvalidatedFromNode(PlaybackCache *cache, const Tim
   // Stop any current render tasks because a) they might be out of date now anyway, and b) we
   // want to dedicate all our rendering power to realtime feedback for the user
   //CancelVideoTasks(node);
+
+  cache->ClearRequestRange(range);
 
   // If auto-cache is enabled and a slider is not being dragged, queue up to hash these frames
   if (!NodeInputDragger::IsInputBeingDragged()) {
@@ -497,6 +527,8 @@ void PreviewAutoCacher::AudioInvalidatedFromNode(PlaybackCache *cache, const Tim
   // We don't stop rendering audio because currently there's no system of requeuing audio if it's
   // cancelled, so some areas may end up unrendered forever
   //  ClearAudioQueue();
+
+  cache->ClearRequestRange(range);
 
   // If we're auto-caching audio or require realtime waveforms, we'll have to render this
   StartCachingAudioRange(cache, range);
@@ -553,37 +585,37 @@ void PreviewAutoCacher::SetRendersPaused(bool e)
 
 void PreviewAutoCacher::NodeAdded(Node *node)
 {
-  graph_update_queue_.append({QueuedJob::kNodeAdded, node, NodeInput(), nullptr});
+  graph_update_queue_.push_back({QueuedJob::kNodeAdded, node, NodeInput(), nullptr});
   UpdateGraphChangeValue();
 }
 
 void PreviewAutoCacher::NodeRemoved(Node *node)
 {
-  graph_update_queue_.append({QueuedJob::kNodeRemoved, node, NodeInput(), nullptr});
+  graph_update_queue_.push_back({QueuedJob::kNodeRemoved, node, NodeInput(), nullptr});
   UpdateGraphChangeValue();
 }
 
 void PreviewAutoCacher::EdgeAdded(Node *output, const NodeInput &input)
 {
-  graph_update_queue_.append({QueuedJob::kEdgeAdded, nullptr, input, output});
+  graph_update_queue_.push_back({QueuedJob::kEdgeAdded, nullptr, input, output});
   UpdateGraphChangeValue();
 }
 
 void PreviewAutoCacher::EdgeRemoved(Node *output, const NodeInput &input)
 {
-  graph_update_queue_.append({QueuedJob::kEdgeRemoved, nullptr, input, output});
+  graph_update_queue_.push_back({QueuedJob::kEdgeRemoved, nullptr, input, output});
   UpdateGraphChangeValue();
 }
 
 void PreviewAutoCacher::ValueChanged(const NodeInput &input)
 {
-  graph_update_queue_.append({QueuedJob::kValueChanged, nullptr, input, nullptr});
+  graph_update_queue_.push_back({QueuedJob::kValueChanged, nullptr, input, nullptr});
   UpdateGraphChangeValue();
 }
 
 void PreviewAutoCacher::ValueHintChanged(const NodeInput &input)
 {
-  graph_update_queue_.append({QueuedJob::kValueHintChanged, nullptr, input, nullptr});
+  graph_update_queue_.push_back({QueuedJob::kValueHintChanged, nullptr, input, nullptr});
   UpdateGraphChangeValue();
 }
 
@@ -591,7 +623,7 @@ void PreviewAutoCacher::TryRender()
 {
   delayed_requeue_timer_.stop();
 
-  if (!graph_update_queue_.isEmpty()) {
+  if (!graph_update_queue_.empty()) {
     // Check if we have jobs running in other threads that shouldn't be interrupted right now
     // NOTE: We don't check for downloads because, while they run in another thread, they don't
     //       require any access to the graph and therefore don't risk race conditions.
@@ -611,11 +643,19 @@ void PreviewAutoCacher::TryRender()
     single_frame_render_ = nullptr;
 
     // Check if already caching this
-    RenderTicketWatcher *watcher = RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(),
-                                               t->property("time").value<rational>(),
-                                               nullptr,
-                                               t->property("dry").toBool());
-    video_immediate_passthroughs_[watcher].append(t);
+    Node *n = Node::ValueToPtr<Node>(t->property("node"));
+    Node *copy = copy_map_.value(n);
+
+    if (copy) {
+      RenderTicketWatcher *watcher = RenderFrame(copy,
+                                                 t->property("time").value<rational>(),
+                                                 nullptr,
+                                                 t->property("dry").toBool());
+      video_immediate_passthroughs_[watcher].append(t);
+    } else {
+      qWarning() << "Failed to find copied node for SFR ticket";
+      t->Finish();
+    }
   }
 
   if (!pause_renders_) {
@@ -715,6 +755,9 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
 
   // Allow using cached images for this render job
   rvp.use_cache = true;
+
+  // Multicam
+  rvp.multicam = static_cast<MultiCamNode*>(copy_map_.value(multicam_));
 
   watcher->SetTicket(RenderManager::instance()->RenderFrame(rvp));
 
@@ -821,6 +864,9 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     // Ensure all cache data is cleared
     video_cache_data_.clear();
     audio_cache_data_.clear();
+
+    // Clear multicam reference
+    multicam_ = nullptr;
 
     // Disconnect signals for future node additions/deletions
     NodeGraph* graph = viewer_node_->parent();

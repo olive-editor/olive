@@ -212,6 +212,40 @@ public:
     return input_ids_;
   }
 
+  class ActiveElements
+  {
+  public:
+    enum Mode {
+      kAllElements,
+      kSpecified,
+      kNoElements
+    };
+
+    ActiveElements(Mode m = kAllElements)
+    {
+      mode_ = m;
+    }
+
+    Mode mode() const { return mode_; }
+    std::list<int> elements() const { return elements_; }
+
+    void add(int e)
+    {
+      elements_.push_back(e);
+      mode_ = kSpecified;
+    }
+
+  private:
+    Mode mode_;
+    std::list<int> elements_;
+
+  };
+
+  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
+  {
+    return ActiveElements::kAllElements;
+  }
+
   bool HasInputWithID(const QString& id) const
   {
     return input_ids_.contains(id);
@@ -1318,7 +1352,7 @@ private:
     }
   }
 
-  void ReportInvalidInput(const char* attempted_action, const QString &id) const;
+  void ReportInvalidInput(const char* attempted_action, const QString &id, int element) const;
 
   void ArrayResizeInternal(const QString& id, int size);
 

@@ -42,7 +42,7 @@ public:
 
   NodeValueTable GenerateTable(const Node *n, const TimeRange &range, const Node *next_node = nullptr);
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
+  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
   NodeValueRow GenerateRow(NodeValueDatabase *database, const Node *node, const TimeRange &range);
   NodeValueRow GenerateRow(const Node *node, const TimeRange &range);
@@ -54,10 +54,10 @@ public:
 
   void Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range);
 
-  static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
-  static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)
+  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const TimeRange &time);
+  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const rational &time)
   {
-    return GenerateGlobals(params, TimeRange(time, time + params.frame_rate_as_time_base()));
+    return GenerateGlobals(vparams, aparams, TimeRange(time, time + vparams.frame_rate_as_time_base()));
   }
 
   const VideoParams& GetCacheVideoParams() const
@@ -83,7 +83,7 @@ public:
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
-  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
+  void ProcessInputElement(NodeValueTableArray &array_tbl, const Node *node, const QString &input, int element, const TimeRange &range);
 
   virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time){}
 

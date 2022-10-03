@@ -37,8 +37,8 @@ public:
 
   using DraggedFootageData = QVector<QPair<ViewerOutput*, QVector<Track::Reference> > >;
 
-  void PlaceAt(const QVector<ViewerOutput *> &footage, const rational& start, bool insert, int track_offset = 0);
-  void PlaceAt(const DraggedFootageData &footage, const rational& start, bool insert, int track_offset = 0);
+  void PlaceAt(const QVector<ViewerOutput *> &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0);
+  void PlaceAt(const DraggedFootageData &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0);
 
   enum DropWithoutSequenceBehavior {
     kDWSAsk,
@@ -52,7 +52,7 @@ private:
 
   void PrepGhosts(const rational &frame, const int &track_index);
 
-  void DropGhosts(bool insert);
+  void DropGhosts(bool insert, MultiUndoCommand *parent_command);
 
   TimelineViewGhostItem* CreateGhost(const TimeRange &range, const rational &media_in, const Track::Reference &track);
 

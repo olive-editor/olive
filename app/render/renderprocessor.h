@@ -32,6 +32,8 @@ namespace olive {
 class RenderProcessor : public NodeTraverser
 {
 public:
+  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range) override;
+
   static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   struct RenderedWaveform {
@@ -42,8 +44,6 @@ public:
   };
 
 protected:
-  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
-
   virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time) override;
 
   virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time) override;
