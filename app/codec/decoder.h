@@ -297,6 +297,8 @@ protected:
   static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
   static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time);
 
+  virtual rational GetAudioStartOffset() const { return 0; }
+
 signals:
   /**
    * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
@@ -307,7 +309,7 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange &range, LoopMode loop_mode, const AudioParams &params);
+  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &params);
 
   CodecStream stream_;
 

@@ -143,7 +143,7 @@ bool FFmpegDecoder::OpenInternal()
 
 TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 {
-  if (AVFramePtr f = RetrieveFrame(p.time, p.cancelled)) {
+  if (AVFramePtr f = RetrieveFrame(p.time, p.src_interlacing, p.cancelled)) {
     if (p.cancelled && p.cancelled->IsCancelled()) {
       return nullptr;
     }
@@ -309,6 +309,16 @@ void FFmpegDecoder::CloseInternal()
   input_fmt_ = AV_PIX_FMT_NONE;
   native_internal_pix_fmt_ = VideoParams::kFormatInvalid;
   native_output_pix_fmt_ = VideoParams::kFormatInvalid;
+}
+
+rational FFmpegDecoder::GetAudioStartOffset() const
+{
+  AVStream *s = this->instance_.avstream();
+  if (s) {
+    return rational(s->start_time * s->time_base.num, s->time_base.den);
+  } else {
+    return 0;
+  }
 }
 
 QString FFmpegDecoder::id() const
@@ -787,9 +797,13 @@ void FFmpegDecoder::ClearFrameCache()
   }
 }
 
-AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, CancelAtom *cancelled)
+AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, VideoParams::Interlacing interlacing, CancelAtom *cancelled)
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
+
+  if (interlacing != VideoParams::kInterlaceNone) {
+    target_ts *= 2;
+  }
 
   const int64_t min_seek = -instance_.avstream()->start_time;
   int64_t seek_ts = std::max(min_seek, target_ts - MaximumQueueSize());
