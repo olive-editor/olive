@@ -801,10 +801,6 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, VideoParams::Inter
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
 
-  if (interlacing != VideoParams::kInterlaceNone) {
-    target_ts *= 2;
-  }
-
   const int64_t min_seek = -instance_.avstream()->start_time;
   int64_t seek_ts = std::max(min_seek, target_ts - MaximumQueueSize());
   bool still_seeking = false;
@@ -1004,20 +1000,6 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
 
   // Link filters as necessary
   AVFilterContext *last_filter = buffersrc_ctx_;
-
-  // Add deinterlace filter if necessary
-  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone) {
-    AVFilterContext* deint_filter;
-
-    snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
-             filter_params_.src_interlacing == VideoParams::kInterlacedTopFirst ? "0" : "1");
-
-    avfilter_graph_create_filter(&deint_filter, avfilter_get_by_name("yadif"), "deint", filter_args, nullptr, filter_graph_);
-
-    avfilter_link(last_filter, 0, deint_filter, 0);
-
-    last_filter = deint_filter;
-  }
 
   // Add scale filter if necessary
   int dst_width, dst_height;
