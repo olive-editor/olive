@@ -40,12 +40,9 @@ extern "C" {
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/planarfiledevice.h"
-#include "common/define.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
-#include "render/framehashcache.h"
-#include "render/diskmanager.h"
 #include "render/renderer.h"
 #include "render/subtitleparams.h"
 
@@ -1002,10 +999,10 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
   AVFilterContext *last_filter = buffersrc_ctx_;
 
   // Add scale filter if necessary
-  int dst_width, dst_height;
   if (filter_params_.divider > 1) {
     AVFilterContext* scale_filter;
 
+    int dst_width, dst_height;
     dst_width = VideoParams::GetScaledDimension(src_width, filter_params_.divider);
     dst_height = VideoParams::GetScaledDimension(src_height, filter_params_.divider);
 
@@ -1017,9 +1014,6 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
 
     avfilter_link(last_filter, 0, scale_filter, 0);
     last_filter = scale_filter;
-  } else {
-    dst_width = src_width;
-    dst_height = src_height;
   }
 
   // Add format filter if necessary
@@ -1125,6 +1119,7 @@ int FFmpegDecoder::MaximumQueueSize()
 FFmpegDecoder::Instance::Instance() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
+  avstream_(nullptr),
   opts_(nullptr)
 {
 }
