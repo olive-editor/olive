@@ -258,6 +258,7 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
     writer->writeTextElement(QStringLiteral("samplerate"), QString::number(audio_params_.sample_rate()));
     writer->writeTextElement(QStringLiteral("channellayout"), QString::number(audio_params_.channel_layout()));
     writer->writeTextElement(QStringLiteral("format"), QString::number(audio_params_.format()));
+    writer->writeTextElement(QStringLiteral("bitrate"), QString::number(audio_bit_rate_));
   }
 
   writer->writeStartElement(QStringLiteral("subtitles"));
@@ -464,9 +465,16 @@ bool EncodingParams::LoadV1(QXmlStreamReader *reader)
           audio_params_.set_channel_layout(reader->readElementText().toULongLong());
         } else if (reader->name() == QStringLiteral("format")) {
           audio_params_.set_format(static_cast<AudioParams::Format>(reader->readElementText().toInt()));
+        } else if (reader->name() == QStringLiteral("bitrate")) {
+          audio_bit_rate_ = reader->readElementText().toLongLong();
         } else {
           reader->skipCurrentElement();
         }
+      }
+
+      // HACK: Resolve bug where I forgot to serialize the audio bit rate
+      if (!audio_bit_rate_) {
+        audio_bit_rate_ = 320000;
       }
     } else if (reader->name() == QStringLiteral("subtitles")) {
       XMLAttributeLoop(reader, attr) {
