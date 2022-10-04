@@ -427,7 +427,15 @@ void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, c
 
 void ViewerWidget::ConnectMulticamWidget(MulticamWidget *p)
 {
+  if (multicam_panel_) {
+    disconnect(multicam_panel_, &MulticamWidget::Switched, this, &ViewerWidget::DetectMulticamNodeNow);
+  }
+
   multicam_panel_ = p;
+
+  if (multicam_panel_) {
+    connect(multicam_panel_, &MulticamWidget::Switched, this, &ViewerWidget::DetectMulticamNodeNow);
+  }
 }
 
 FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time)
@@ -605,6 +613,11 @@ void ViewerWidget::RequestNextDryRun()
 void ViewerWidget::SaveFrameAsImage()
 {
   Core::instance()->OpenExportDialogForViewer(GetConnectedNode(), GetTime(), true);
+}
+
+void ViewerWidget::DetectMulticamNodeNow()
+{
+  DetectMulticamNode(GetTime());
 }
 
 void ViewerWidget::CloseAudioProcessor()
@@ -903,7 +916,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     if (viewer != this) {
       viewer->PauseInternal();
     }
-    viewer->auto_cacher_->SetRendersPaused(true);
+    viewer->auto_cacher_->SetThumbnailsPaused(true);
   }
 
   RenderManager::instance()->SetAggressiveGarbageCollection(true);
@@ -1005,7 +1018,7 @@ void ViewerWidget::PauseInternal()
     UpdateAudioProcessor();
 
     foreach (ViewerWidget* viewer, instances_) {
-      viewer->auto_cacher_->SetRendersPaused(false);
+      viewer->auto_cacher_->SetThumbnailsPaused(false);
     }
 
     UpdateTextureFromNode();
@@ -1796,7 +1809,7 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
   // If our current frame is within this range, we need to update
-  if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
+  if (!IsPlaying() && GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
     QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }

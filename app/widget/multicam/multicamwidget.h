@@ -42,6 +42,9 @@ protected:
   virtual void DisconnectNodeEvent(ViewerOutput *n) override;
   virtual void TimeChangedEvent(const rational &t) override;
 
+signals:
+  void Switched();
+
 private:
   void SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip);
 

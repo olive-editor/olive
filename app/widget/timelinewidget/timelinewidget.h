@@ -447,7 +447,6 @@ private slots:
   void CacheDiscard();
 
   void MulticamEnabledTriggered(bool e);
-  void MulticamUpdateTriggered();
 
 };
 

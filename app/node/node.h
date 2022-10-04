@@ -418,6 +418,15 @@ public:
     return IsInputConnected(input.input(), input.element());
   }
 
+  virtual bool IsInputConnectedForRender(const QString& input, int element = -1) const
+  {
+    return IsInputConnected(input, element);
+  }
+  bool IsInputConnectedForRender(const NodeInput& input) const
+  {
+    return IsInputConnectedForRender(input.input(), input.element());
+  }
+
   bool IsInputStatic(const QString& input, int element = -1) const
   {
     return !IsInputConnected(input, element) && !IsInputKeyframing(input, element);
@@ -433,6 +442,16 @@ public:
   Node *GetConnectedOutput(const NodeInput& input) const
   {
     return GetConnectedOutput(input.input(), input.element());
+  }
+
+  virtual Node *GetConnectedRenderOutput(const QString& input, int element = -1) const
+  {
+    return GetConnectedOutput(input, element);
+  }
+
+  Node *GetConnectedRenderOutput(const NodeInput& input) const
+  {
+    return GetConnectedRenderOutput(input.input(), input.element());
   }
 
   bool IsUsingStandardValue(const QString& input, int track, int element = -1) const;
@@ -796,6 +815,15 @@ public:
    */
   bool InputsFrom(const QString& id, bool recursively) const;
 
+
+  /**
+   * @brief Find inputs that `output` outputs to in order to arrive at this node
+   *
+   * Traverse this node's inputs recursively looking for `output`, and return a list of
+   * edges that `output` uses to get to `this` node.
+   */
+  QVector<NodeInput> FindWaysNodeArrivesHere(const Node *output) const;
+
   /**
    * @brief Determines how many paths go from this node out to another node
    */
@@ -966,6 +994,90 @@ public:
   {
     folder_ = folder;
   }
+
+  class ArrayInsertCommand : public UndoCommand
+  {
+  public:
+    ArrayInsertCommand(Node* node, const QString& input, int index) :
+      node_(node),
+      input_(input),
+      index_(index)
+    {
+    }
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override
+    {
+      node_->InputArrayInsert(input_, index_, false);
+    }
+
+    virtual void undo() override
+    {
+      node_->InputArrayRemove(input_, index_, false);
+    }
+
+  private:
+    Node* node_;
+    QString input_;
+    int index_;
+
+  };
+
+  class ArrayResizeCommand : public UndoCommand
+  {
+  public:
+    ArrayResizeCommand(Node* node, const QString& input, int size) :
+      node_(node),
+      input_(input),
+      size_(size)
+    {}
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override
+    {
+      old_size_ = node_->InputArraySize(input_);
+
+      if (old_size_ > size_) {
+        // Decreasing in size, disconnect any extraneous edges
+        for (int i=size_; i<old_size_; i++) {
+
+          try {
+            NodeInput input(node_, input_, i);
+            Node *output = node_->input_connections().at(input);
+
+            removed_connections_[input] = output;
+
+            DisconnectEdge(output, input);
+          } catch (std::out_of_range&) {}
+        }
+      }
+
+      node_->ArrayResizeInternal(input_, size_);
+    }
+
+    virtual void undo() override
+    {
+      for (auto it=removed_connections_.cbegin(); it!=removed_connections_.cend(); it++) {
+        ConnectEdge(it->second, it->first);
+      }
+      removed_connections_.clear();
+
+      node_->ArrayResizeInternal(input_, old_size_);
+    }
+
+  private:
+    Node* node_;
+    QString input_;
+    int size_;
+    int old_size_;
+
+    InputConnections removed_connections_;
+
+  };
 
   class ArrayRemoveCommand : public UndoCommand
   {
@@ -1203,90 +1315,6 @@ signals:
   void InputFlagsChanged(const QString &input, const InputFlags &flags);
 
 private:
-  class ArrayInsertCommand : public UndoCommand
-  {
-  public:
-    ArrayInsertCommand(Node* node, const QString& input, int index) :
-      node_(node),
-      input_(input),
-      index_(index)
-    {
-    }
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      node_->InputArrayInsert(input_, index_, false);
-    }
-
-    virtual void undo() override
-    {
-      node_->InputArrayRemove(input_, index_, false);
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int index_;
-
-  };
-
-  class ArrayResizeCommand : public UndoCommand
-  {
-  public:
-    ArrayResizeCommand(Node* node, const QString& input, int size) :
-      node_(node),
-      input_(input),
-      size_(size)
-    {}
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      old_size_ = node_->InputArraySize(input_);
-
-      if (old_size_ > size_) {
-        // Decreasing in size, disconnect any extraneous edges
-        for (int i=size_; i<old_size_; i++) {
-
-          try {
-            NodeInput input(node_, input_, i);
-            Node *output = node_->input_connections().at(input);
-
-            removed_connections_[input] = output;
-
-            DisconnectEdge(output, input);
-          } catch (std::out_of_range&) {}
-        }
-      }
-
-      node_->ArrayResizeInternal(input_, size_);
-    }
-
-    virtual void undo() override
-    {
-      for (auto it=removed_connections_.cbegin(); it!=removed_connections_.cend(); it++) {
-        ConnectEdge(it->second, it->first);
-      }
-      removed_connections_.clear();
-
-      node_->ArrayResizeInternal(input_, old_size_);
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int size_;
-    int old_size_;
-
-    InputConnections removed_connections_;
-
-  };
-
   struct Input {
     NodeValue::Type type;
     InputFlags flags;
@@ -1540,7 +1568,7 @@ void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list)
       list.append(cast_test);
     }
 
-    FindOutputNodeInternal<T>(connected);
+    FindOutputNodeInternal<T>(connected, list);
   }
 }
 
