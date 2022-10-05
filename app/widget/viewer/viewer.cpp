@@ -708,6 +708,10 @@ void ViewerWidget::UpdateWaveformViewFromMode()
   waveform_view_->setVisible(waveform_mode_ == kWFViewerAndWaveform || waveform_mode_ == kWFWaveformOnly || (waveform_mode_ == kWFAutomatic && prefer_waveform));
 
   waveform_view_->setSizePolicy(QSizePolicy::Expanding, waveform_mode_ == kWFViewerAndWaveform ? QSizePolicy::Maximum : QSizePolicy::Expanding);
+
+  if (GetConnectedNode()) {
+    GetConnectedNode()->SetWaveformEnabled(waveform_view_->isVisible());
+  }
 }
 
 void ViewerWidget::QueueNextAudioBuffer()
