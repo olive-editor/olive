@@ -697,6 +697,7 @@ EncodingParams ExportDialog::GenerateParams() const
 void ExportDialog::SetParams(const EncodingParams &e)
 {
   format_combobox_->SetFormat(e.format());
+  FormatChanged(format_combobox_->GetFormat());
 
   if (e.has_custom_range() && viewer_node_->GetWorkArea()->enabled()) {
     range_combobox_->setCurrentIndex(kRangeInToOut);
