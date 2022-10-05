@@ -98,6 +98,11 @@ bool MultiCamNode::IsInputConnectedForRender(const QString &input, int element) 
   }
 }
 
+QVector<QString> MultiCamNode::IgnoreInputsForRendering() const
+{
+  return {kSequenceInput};
+}
+
 void MultiCamNode::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kSequenceInput) {

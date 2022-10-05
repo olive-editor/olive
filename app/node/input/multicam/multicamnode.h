@@ -60,6 +60,8 @@ public:
   virtual Node *GetConnectedRenderOutput(const QString& input, int element = -1) const override;
   virtual bool IsInputConnectedForRender(const QString& input, int element = -1) const override;
 
+  virtual QVector<QString> IgnoreInputsForRendering() const override;
+
 protected:
   virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
   virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;

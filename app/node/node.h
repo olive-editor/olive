@@ -212,6 +212,11 @@ public:
     return input_ids_;
   }
 
+  virtual QVector<QString> IgnoreInputsForRendering() const
+  {
+    return QVector<QString>();
+  }
+
   class ActiveElements
   {
   public:

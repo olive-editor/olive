@@ -38,9 +38,14 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   }
 
   // We need to insert tables into the database for each input
+  auto ignore = node->IgnoreInputsForRendering();
   foreach (const QString& input, node->inputs()) {
     if (IsCancelled()) {
       return NodeValueDatabase();
+    }
+
+    if (ignore.contains(input)) {
+      continue;
     }
 
     database.Insert(input, ProcessInput(node, input, range));
