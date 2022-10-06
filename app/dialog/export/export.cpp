@@ -260,6 +260,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   // If the viewer already has cached params, use them
   if (!stills_only_mode_ && viewer_node_->GetLastUsedEncodingParams().IsValid()) {
     SetParams(viewer_node_->GetLastUsedEncodingParams());
+    QtUtils::SetComboBoxData(preset_combobox_, kPresetLastUsed);
   } else {
     SetDefaults();
   }
