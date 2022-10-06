@@ -47,7 +47,8 @@ namespace olive {
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWidget *parent) :
   super(parent),
   viewer_node_(viewer_node),
-  stills_only_mode_(stills_only_mode)
+  stills_only_mode_(stills_only_mode),
+  loading_presets_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -432,6 +433,10 @@ void ExportDialog::SavePreset()
 
 void ExportDialog::PresetComboBoxChanged()
 {
+  if (loading_presets_) {
+    return;
+  }
+  
   QComboBox *c = static_cast<QComboBox *>(sender());
 
   int preset_number = c->currentData().toInt();
@@ -536,6 +541,8 @@ void ExportDialog::ResolutionChanged()
 
 void ExportDialog::LoadPresets()
 {
+  loading_presets_ = true;
+
   preset_combobox_->clear();
   presets_.clear();
 
@@ -562,6 +569,8 @@ void ExportDialog::LoadPresets()
       f.close();
     }
   }
+
+  loading_presets_ = false;
 }
 
 void ExportDialog::SetDefaultFilename()
