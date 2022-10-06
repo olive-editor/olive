@@ -214,6 +214,7 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
     writer->writeTextElement(QStringLiteral("width"), QString::number(video_params_.width()));
     writer->writeTextElement(QStringLiteral("height"), QString::number(video_params_.height()));
     writer->writeTextElement(QStringLiteral("format"), QString::number(video_params_.format()));
+    writer->writeTextElement(QStringLiteral("pixelaspect"), video_params_.pixel_aspect_ratio().toString());
     writer->writeTextElement(QStringLiteral("timebase"), video_params_.time_base().toString());
     writer->writeTextElement(QStringLiteral("divider"), QString::number(video_params_.divider()));
     writer->writeTextElement(QStringLiteral("bitrate"), QString::number(video_bit_rate_));
@@ -399,6 +400,8 @@ bool EncodingParams::LoadV1(QXmlStreamReader *reader)
           video_params_.set_height(reader->readElementText().toInt());
         } else if (reader->name() == QStringLiteral("format")) {
           video_params_.set_format(static_cast<VideoParams::Format>(reader->readElementText().toInt()));
+        } else if (reader->name() == QStringLiteral("pixelaspect")) {
+          video_params_.set_pixel_aspect_ratio(rational::fromString(reader->readElementText()));
         } else if (reader->name() == QStringLiteral("timebase")) {
           video_params_.set_time_base(rational::fromString(reader->readElementText()));
         } else if (reader->name() == QStringLiteral("divider")) {
@@ -448,6 +451,11 @@ bool EncodingParams::LoadV1(QXmlStreamReader *reader)
         } else {
           reader->skipCurrentElement();
         }
+      }
+
+      // HACK: Resolve bug where I forgot to serialize pixel aspect ratio
+      if (video_params_.pixel_aspect_ratio().isNull()) {
+        video_params_.set_pixel_aspect_ratio(1);
       }
     } else if (reader->name() == QStringLiteral("audio")) {
       XMLAttributeLoop(reader, attr) {
