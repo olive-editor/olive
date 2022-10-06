@@ -265,6 +265,8 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 
           tex = p.renderer->CreateTexture(vp);
           p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
+
+          av_frame_unref(working_frame_);
         }
       }
 
