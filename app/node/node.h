@@ -853,7 +853,7 @@ public:
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  QVector<T*> FindInputNodes() const;
+  QVector<T*> FindInputNodes(int maximum = 0) const;
 
   /**
    * @brief Find nodes of a certain type that this Node takes inputs from
@@ -1550,11 +1550,11 @@ void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list, int maximum)
 }
 
 template<class T>
-QVector<T *> Node::FindInputNodes() const
+QVector<T *> Node::FindInputNodes(int maximum) const
 {
   QVector<T *> list;
 
-  FindInputNodeInternal<T>(this, list);
+  FindInputNodeInternal<T>(this, list, maximum);
 
   return list;
 }
