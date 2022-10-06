@@ -66,6 +66,14 @@ public:
     kVideoTypeStill,
     kVideoTypeImageSequence
   };
+  enum ColorRange
+  {
+    kColorRangeLimited,   // 16_235
+    kColorRangeFull,      // 0-255
+
+    kColorRangeDefault = kColorRangeLimited
+  };
+
 
   VideoParams();
   VideoParams(int width, int height, Format format, int nb_channels,
@@ -99,6 +107,16 @@ public:
     return par_width_;
   }
 
+  QVector2D resolution() const
+  {
+    return QVector2D(width_, height_);
+  }
+
+  QVector2D square_resolution() const
+  {
+    return QVector2D(par_width_, height_);
+  }
+
   int height() const
   {
     return height_;
@@ -120,6 +138,8 @@ public:
     depth_ = depth;
     calculate_effective_size();
   }
+
+  bool is_3d() const { return depth_ > 1; }
 
   const rational& time_base() const
   {
@@ -231,9 +251,13 @@ public:
     return GetBufferSize(width_, height_, format_, channel_count_);
   }
 
+  static QString GetNameForDivider(int div);
+
   static bool FormatIsFloat(Format format);
 
   static QString GetFormatName(Format format);
+
+  static int GetDividerForTargetResolution(int src_width, int src_height, int dst_width, int dst_height);
 
   static const int kInternalChannelCount;
 
@@ -348,6 +372,9 @@ public:
     colorspace_ = c;
   }
 
+  const ColorRange &color_range() const { return color_range_; }
+  void set_color_range(const ColorRange &color_range) { color_range_ = color_range; }
+
   int64_t get_time_in_timebase_units(const rational& time) const;
 
   void Load(QXmlStreamReader* reader);
@@ -394,6 +421,7 @@ private:
   QString colorspace_;
   float x_;
   float y_;
+  ColorRange color_range_;
 
 };
 

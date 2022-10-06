@@ -116,9 +116,6 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
   qRegisterMetaType<olive::AudioVisualWaveform>();
-  qRegisterMetaType<olive::SampleJob>();
-  qRegisterMetaType<olive::ShaderJob>();
-  qRegisterMetaType<olive::GenerateJob>();
   qRegisterMetaType<olive::VideoParams>();
   qRegisterMetaType<olive::VideoParams::Interlacing>();
   qRegisterMetaType<olive::MainWindowLayoutInfo>();
@@ -390,12 +387,11 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerOutput* viewer = GetSequenceToExport();
+  ViewerOutput* viewer;
+  rational time;
 
-  if (viewer) {
-    ExportDialog* ed = new ExportDialog(viewer, main_window_);
-    connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
-    ed->open();
+  if (GetSequenceToExport(&viewer, &time)) {
+    OpenExportDialogForViewer(viewer, time, false);
   }
 }
 
@@ -520,6 +516,9 @@ bool Core::AddOpenProjectFromTask(Task *task)
       return true;
     } else {
       delete project;
+      if (open_projects_.empty()) {
+        CreateNewProject();
+      }
     }
   }
 
@@ -581,6 +580,8 @@ void Core::ImportTaskComplete(Task* task)
   }
 
   undo_stack_.pushIfHasChildren(command);
+
+  main_window_->SelectFootage(import_task->GetImportedFootage());
 }
 
 bool Core::ConfirmImageSequence(const QString& filename)
@@ -857,7 +858,7 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
   psm->deleteLater();
 }
 
-ViewerOutput* Core::GetSequenceToExport()
+bool Core::GetSequenceToExport(ViewerOutput **viewer, rational *time)
 {
   // First try the most recently focused time based window
   TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
@@ -875,7 +876,9 @@ ViewerOutput* Core::GetSequenceToExport()
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      return time_panel->GetConnectedViewer();
+      *viewer = time_panel->GetConnectedViewer();
+      *time = time_panel->GetTime();
+      return true;
     }
   } else {
     QMessageBox::critical(main_window_,
@@ -884,7 +887,7 @@ ViewerOutput* Core::GetSequenceToExport()
                           QMessageBox::Ok);
   }
 
-  return nullptr;
+  return false;
 }
 
 QString Core::GetAutoRecoveryIndexFilename()
@@ -1244,6 +1247,15 @@ void Core::OpenNodeInViewer(ViewerOutput *viewer)
   main_window_->OpenNodeInViewer(viewer);
 }
 
+void Core::OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image)
+{
+  ExportDialog* ed = new ExportDialog(viewer, start_still_image, main_window_);
+  ed->SetTime(time);
+  connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
+  ed->open();
+  connect(ed, &ExportDialog::RequestImportFile, this, &Core::ImportSingleFile);
+}
+
 void Core::CheckForAutoRecoveries()
 {
   QFile autorecovery_index(GetAutoRecoveryIndexFilename());
@@ -1353,6 +1365,11 @@ void Core::PushRecentlyOpenedProject(const QString& s)
     recent_projects_.move(existing_index, 0);
   } else {
     recent_projects_.prepend(s);
+
+    const int kMaximumRecentProjects = 10;
+    while (recent_projects_.size() > kMaximumRecentProjects) {
+      recent_projects_.removeLast();
+    }
   }
 
   emit OpenRecentListChanged();
@@ -1405,6 +1422,13 @@ void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
   }
 
   task_dialog->open();
+}
+
+void Core::ImportSingleFile(const QString &f)
+{
+  if (Project *p = GetActiveProject()) {
+    ImportFiles({f}, p->root());
+  }
 }
 
 int Core::CountFilesInFileList(const QFileInfoList &filenames)
@@ -1471,7 +1495,7 @@ bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
   return false;
 }
 
-Sequence *Core::CreateNewSequenceForProject(Project* project) const
+Sequence *Core::CreateNewSequenceForProject(const QString &format, Project* project)
 {
   Sequence* new_sequence = new Sequence();
 
@@ -1479,7 +1503,7 @@ Sequence *Core::CreateNewSequenceForProject(Project* project) const
   int sequence_number = 1;
   QString sequence_name;
   do {
-    sequence_name = tr("Sequence %1").arg(sequence_number);
+    sequence_name = format.arg(sequence_number);
     sequence_number++;
   } while (project->root()->ChildExistsWithName(sequence_name));
   new_sequence->SetLabel(sequence_name);

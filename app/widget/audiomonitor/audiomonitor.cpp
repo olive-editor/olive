@@ -20,6 +20,7 @@
 
 #include "audiomonitor.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QPainter>
 
@@ -35,8 +36,7 @@ const int kMaximumSmoothness = 8;
 
 QVector<AudioMonitor*> AudioMonitor::instances_;
 
-AudioMonitor::AudioMonitor(QWidget *parent) :
-  QOpenGLWidget(parent),
+AudioMonitor::AudioMonitor() :
   waveform_(nullptr),
   cached_channels_(0)
 {
@@ -93,11 +93,12 @@ void AudioMonitor::PushSampleBuffer(const SampleBuffer &d)
   SetUpdateLoop(true);
 }
 
-void AudioMonitor::StartWaveform(const AudioVisualWaveform *waveform, const rational &start, int playback_speed)
+void AudioMonitor::StartWaveform(const AudioWaveformCache *waveform, const rational &start, int playback_speed)
 {
   Stop();
 
-  if (start >= waveform->length()) {
+  waveform_length_ = waveform->length();
+  if (start >= waveform_length_) {
     return;
   }
 
@@ -125,7 +126,10 @@ void AudioMonitor::SetUpdateLoop(bool e)
 void AudioMonitor::paintGL()
 {
   QPainter p(this);
-  p.fillRect(rect(), palette().window().color());
+  QPalette palette = qApp->palette();
+  QRect geometry(0, 0, width(), height());
+
+  p.fillRect(geometry, palette.window().color());
 
   if (!params_.channel_count()) {
     return;
@@ -137,12 +141,12 @@ void AudioMonitor::paintGL()
   int font_height = fm.height();
 
   // Create rect where decibel markings will go on the side
-  QRect db_labels_rect = rect();
+  QRect db_labels_rect = geometry;
   db_labels_rect.setWidth(QtUtils::QFontMetricsWidth(p.fontMetrics(), "-00"));
   db_labels_rect.adjust(0, font_height, 0, 0);
 
   // Determine rect where the main meter will go
-  QRect full_meter_rect = rect();
+  QRect full_meter_rect = geometry;
   full_meter_rect.adjust(db_labels_rect.width(), font_height, 0, 0);
 
   // Width of each channel in the meter
@@ -163,7 +167,7 @@ void AudioMonitor::paintGL()
       // Draw decibel markings
       QRect last_db_marking_rect;
 
-      cached_painter.setPen(palette().text().color());
+      cached_painter.setPen(palette.text().color());
 
       for (int i=0;i>=kDecibelMinimum;i-=kDecibelStep) {
         QString db_label;
@@ -239,7 +243,7 @@ void AudioMonitor::paintGL()
     if (waveform_) {
       UpdateValuesFromWaveform(v, delta_time);
 
-      if (waveform_time_ >= waveform_->length()) {
+      if (waveform_time_ >= waveform_length_) {
         Stop();
       }
     }
@@ -312,7 +316,7 @@ void AudioMonitor::UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_tim
 
 void AudioMonitor::AudioVisualWaveformSampleToInternalValues(const AudioVisualWaveform::Sample &in, QVector<double> &out)
 {
-  for (int i=0; i<in.size(); i++) {
+  for (size_t i=0; i<in.size(); i++) {
     float max = qMax(qAbs(in.at(i).min), qAbs(in.at(i).max));
 
     int output_index = i%out.size();

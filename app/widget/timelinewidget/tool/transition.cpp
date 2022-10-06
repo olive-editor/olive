@@ -178,7 +178,7 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
     return false;
   }
 
-  Block* block_at_time = t->BlockAtTime(coord.GetFrame());
+  Block* block_at_time = t->NearestBlockBeforeOrAt(coord.GetFrame());
   if (!dynamic_cast<ClipBlock*>(block_at_time)) {
     return false;
   }

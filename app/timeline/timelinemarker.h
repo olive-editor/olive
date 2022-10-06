@@ -51,7 +51,7 @@ public:
   void set_color(int c);
 
   static int GetMarkerHeight(const QFontMetrics &fm);
-  QRect Draw(QPainter *p, const QPoint &pt, double scale, bool selected);
+  QRect Draw(QPainter *p, const QPoint &pt, int max_right, double scale, bool selected);
 
 signals:
   void TimeChanged(const TimeRange& time);

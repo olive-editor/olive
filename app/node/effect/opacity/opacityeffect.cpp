@@ -45,18 +45,13 @@ ShaderCode OpacityEffect::GetShaderCode(const ShaderRequest &request) const
 
 void OpacityEffect::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-
   // If there's no texture, no need to run an operation
-  if (job.Get(kTextureInput).toTexture()) {
-    if (!qFuzzyCompare(job.Get(kValueInput).toDouble(), 1.0)) {
-      job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (!qFuzzyCompare(value[kValueInput].toDouble(), 1.0)) {
+      table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)), this);
     } else {
       // 1.0 float is a no-op, so just push the texture
-      table->Push(job.Get(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }

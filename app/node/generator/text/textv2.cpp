@@ -25,7 +25,6 @@
 #include <QTextDocument>
 
 #include "common/cpuoptimize.h"
-#include "common/functiontimer.h"
 
 namespace olive {
 
@@ -95,13 +94,11 @@ void TextGeneratorV2::Retranslate()
 
 void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  GenerateJob job;
-  job.Insert(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-  job.SetRequestedFormat(VideoParams::kFormatFloat32);
-
-  if (!job.Get(kTextInput).toString().isEmpty()) {
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  if (!value[kTextInput].toString().isEmpty()) {
+    GenerateJob job(value);
+    auto text_params = globals.vparams();
+    text_params.set_format(VideoParams::kFormatFloat32);
+    table->Push(NodeValue::kTexture, Texture::Job(text_params, job), this);
   }
 }
 

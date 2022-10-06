@@ -27,12 +27,14 @@
 
 namespace olive {
 
-struct ViewerPlaybackFrame {
+struct ViewerPlaybackFrame
+{
   rational timestamp;
   QVariant frame;
 };
 
-class ViewerQueue : public std::list<ViewerPlaybackFrame> {
+class ViewerQueue : public std::list<ViewerPlaybackFrame>
+{
 public:
   ViewerQueue() = default;
 

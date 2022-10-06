@@ -33,8 +33,6 @@
 #include "render/audioparams.h"
 #include "render/renderjobtracker.h"
 #include "render/rendermanager.h"
-#include "threading/threadpool.h"
-#include "threading/threadticketwatcher.h"
 
 namespace olive {
 
@@ -47,13 +45,16 @@ class PreviewAutoCacher : public QObject
 {
   Q_OBJECT
 public:
-  PreviewAutoCacher();
+  PreviewAutoCacher(QObject *parent = nullptr);
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t, RenderTicketPriority prioritize);
+  RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(Node *n, const rational& t, bool dry = false);
 
-  RenderTicketPtr GetRangeOfAudio(TimeRange range, RenderTicketPriority prioritize);
+  RenderTicketPtr GetRangeOfAudio(TimeRange range);
+
+  void ClearSingleFrameRenders();
 
   /**
    * @brief Set the viewer node to auto-cache
@@ -85,12 +86,20 @@ public:
   void CancelVideoTasks(bool and_wait_for_them_to_finish = false);
   void CancelAudioTasks(bool and_wait_for_them_to_finish = false);
 
-  bool IsRenderingCustomRange() const
-  {
-    return queued_frame_iterator_.IsCustomRange() && queued_frame_iterator_.HasNext();
-  }
+  bool IsRenderingCustomRange() const;
 
-  void SetAudioPaused(bool e);
+  void SetRendersPaused(bool e);
+  void SetThumbnailsPaused(bool e);
+
+  void SetMulticamNode(MultiCamNode *n) { multicam_ = n; }
+
+  void SetIgnoreCacheRequests(bool e) { ignore_cache_requests_ = e; }
+
+public slots:
+  void SetDisplayColorProcessor(ColorProcessorPtr processor)
+  {
+    display_color_processor_ = processor;
+  }
 
 signals:
   void StopCacheProxyTasks();
@@ -100,17 +109,9 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, RenderTicketPriority priority, FrameHashCache *cache);
-  RenderTicketWatcher *RenderFrame(const rational &time, RenderTicketPriority priority, FrameHashCache *cache)
-  {
-    return RenderFrame(copied_viewer_node_->GetConnectedTextureOutput(), time, priority, cache);
-  }
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache *cache, bool dry);
 
-  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority);
-  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, RenderTicketPriority priority)
-  {
-    return RenderAudio(copied_viewer_node_->GetConnectedSampleOutput(), range, generate_waveforms, priority);
-  }
+  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache *cache);
 
   /**
    * @brief Process all changes to internal NodeGraph copy
@@ -137,12 +138,12 @@ private:
 
   void CancelQueuedSingleFrameRender();
 
-  void VideoInvalidatedList(const TimeRangeList &list);
-  void AudioInvalidatedList(const TimeRangeList &list);
-
   void StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker);
-  void StartCachingVideoRange(const TimeRange &range);
-  void StartCachingAudioRange(const TimeRange &range);
+  void StartCachingVideoRange(PlaybackCache *cache, const TimeRange &range);
+  void StartCachingAudioRange(PlaybackCache *cache, const TimeRange &range);
+
+  void VideoInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
+  void AudioInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
 
   class QueuedJob {
   public:
@@ -165,7 +166,7 @@ private:
 
   Project copied_project_;
 
-  QVector<QueuedJob> graph_update_queue_;
+  std::list<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
   QHash<NodeGraph*, NodeGraph*> graph_map_;
   ViewerOutput* copied_viewer_node_;
@@ -177,15 +178,10 @@ private:
   bool use_custom_range_;
   TimeRange custom_autocache_range_;
 
-  TimeRangeList invalidated_video_;
-  TimeRangeList invalidated_audio_;
-
-  bool pause_audio_;
+  bool pause_renders_;
+  bool pause_thumbnails_;
 
   RenderTicketPtr single_frame_render_;
-
-  QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
-  QMap<RenderTicketWatcher*, rational> video_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
   JobTime graph_changed_time_;
@@ -193,28 +189,57 @@ private:
 
   QTimer delayed_requeue_timer_;
 
-  TimeRangeList audio_needing_conform_;
-
   JobTime last_conform_task_;
 
-  RenderJobTracker video_job_tracker_;
-  RenderJobTracker audio_job_tracker_;
+  QVector<RenderTicketWatcher*> running_video_tasks_;
+  QVector<RenderTicketWatcher*> running_audio_tasks_;
 
-  TimeRangeListFrameIterator queued_frame_iterator_;
-  TimeRangeList audio_iterator_;
+  struct VideoJob {
+    Node *node;
+    PlaybackCache *cache;
+    TimeRange range;
+    TimeRangeListFrameIterator iterator;
+  };
 
-  static const bool kRealTimeWaveformsEnabled;
+  struct VideoCacheData {
+    RenderJobTracker job_tracker;
+  };
+
+  struct AudioJob {
+    Node *node;
+    PlaybackCache *cache;
+    TimeRange range;
+  };
+
+  struct AudioCacheData {
+    RenderJobTracker job_tracker;
+    TimeRangeList needs_conform;
+  };
+
+  std::list<VideoJob> pending_video_jobs_;
+  std::list<AudioJob> pending_audio_jobs_;
+
+  QHash<PlaybackCache*, VideoCacheData> video_cache_data_;
+  QHash<PlaybackCache*, AudioCacheData> audio_cache_data_;
+
+  ColorProcessorPtr display_color_processor_;
+
+  MultiCamNode *multicam_;
+
+  bool ignore_cache_requests_;
 
 private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidated(const olive::TimeRange &range);
+  void VideoInvalidatedFromCache(const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
-  void AudioInvalidated(const olive::TimeRange &range);
+  void AudioInvalidatedFromCache(const olive::TimeRange &range);
+
+  void CancelForCache();
 
   /**
    * @brief Handler for when the RenderManager has returned rendered audio
@@ -241,13 +266,9 @@ private slots:
   /**
    * @brief Generic function called whenever the frames to render need to be (re)queued
    */
-  void RequeueFrames();
+  //void RequeueFrames();
 
   void ConformFinished();
-
-  void VideoAutoCacheEnableChanged(bool e);
-
-  void AudioAutoCacheEnableChanged(bool e);
 
   void CacheProxyTaskCancelled();
 

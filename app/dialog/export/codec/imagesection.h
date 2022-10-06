@@ -39,6 +39,11 @@ public:
     return image_sequence_checkbox_->isChecked();
   }
 
+  void SetImageSequenceChecked(bool e)
+  {
+    image_sequence_checkbox_->setChecked(e);
+  }
+
   void SetTimebase(const rational& r)
   {
     frame_slider_->SetTimebase(r);

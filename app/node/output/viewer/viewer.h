@@ -21,6 +21,7 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
+#include "codec/encoder.h"
 #include "common/rational.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
@@ -29,7 +30,8 @@
 #include "render/framehashcache.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
-#include "timeline/timelinepoints.h"
+#include "timeline/timelinemarker.h"
+#include "timeline/timelineworkarea.h"
 
 namespace olive {
 
@@ -125,9 +127,18 @@ public:
     return InputArraySize(kSubtitleParamsInput);
   }
 
-  int GetTotalStreamCount() const
+  virtual int GetTotalStreamCount() const
   {
     return GetVideoStreamCount() + GetAudioStreamCount() + GetSubtitleStreamCount();
+  }
+
+  const AudioWaveformCache *GetConnectedWaveform()
+  {
+    if (Node *n = GetConnectedSampleOutput()) {
+      return n->waveform_cache();
+    } else {
+      return nullptr;
+    }
   }
 
   bool HasEnabledVideoStreams() const;
@@ -142,9 +153,17 @@ public:
   const rational &GetVideoLength() const { return video_length_; }
   const rational &GetAudioLength() const { return audio_length_; }
 
-  TimelinePoints* GetTimelinePoints()
+  TimelineWorkArea *GetWorkArea() const { return workarea_; }
+  TimelineMarkerList *GetMarkers() const { return markers_; }
+
+  virtual TimeRange GetVideoCacheRange() const override
   {
-    return timeline_points_;
+    return TimeRange(0, GetVideoLength());
+  }
+
+  virtual TimeRange GetAudioCacheRange() const override
+  {
+    return TimeRange(0, GetAudioLength());
   }
 
   QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
@@ -162,6 +181,16 @@ public:
   virtual Node *GetConnectedSampleOutput();
 
   virtual ValueHint GetConnectedSampleValueHint();
+
+  void SetWaveformEnabled(bool e);
+
+  bool IsVideoAutoCacheEnabled() const { qDebug() << "sequence ac is a stub"; return false; }
+  void SetVideoAutoCacheEnabled(bool e) { qDebug() << "sequence ac is a stub"; }
+
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
+  const EncodingParams &GetLastUsedEncodingParams() const { return last_used_encoding_params_; }
+  void SetLastUsedEncodingParams(const EncodingParams &p) { last_used_encoding_params_ = p; }
 
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
@@ -188,6 +217,8 @@ signals:
 
   void SampleRateChanged(int sr);
 
+  void ConnectedWaveformChanged();
+
 public slots:
   void VerifyLength();
 
@@ -201,6 +232,7 @@ protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
   int AddStream(Track::Type type, const QVariant &value);
+  int SetStream(Track::Type type, const QVariant &value, int index);
 
 private:
   rational last_length_;
@@ -211,7 +243,15 @@ private:
 
   AudioParams cached_audio_params_;
 
-  TimelinePoints *timeline_points_;
+  TimelineWorkArea *workarea_;
+  TimelineMarkerList *markers_;
+
+  bool autocache_input_video_;
+  bool autocache_input_audio_;
+
+  EncodingParams last_used_encoding_params_;
+
+  bool waveform_requests_enabled_;
 
 };
 

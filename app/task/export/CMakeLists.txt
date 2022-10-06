@@ -18,7 +18,5 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   task/export/export.h
   task/export/export.cpp
-  task/export/exportparams.h
-  task/export/exportparams.cpp
   PARENT_SCOPE
 )

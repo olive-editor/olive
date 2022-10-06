@@ -26,9 +26,12 @@
 
 namespace olive {
 
-class AcceleratedJob {
+class AcceleratedJob
+{
 public:
   AcceleratedJob() = default;
+
+  virtual ~AcceleratedJob(){}
 
   NodeValue Get(const QString& input) const
   {

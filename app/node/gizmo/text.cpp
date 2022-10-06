@@ -26,7 +26,8 @@
 namespace olive {
 
 TextGizmo::TextGizmo(QObject *parent)
-  : NodeGizmo{parent}
+  : NodeGizmo{parent},
+    valign_(Qt::AlignTop)
 {
 
 }

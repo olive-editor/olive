@@ -26,7 +26,6 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-#include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "core.h"
@@ -373,7 +372,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     if (element_ == -1) {
       node_name = node_->GetInputName(input_);
     } else {
-      node_name = QString::number(element_);
+      node_name = QString::number(element_ + node_->GetInputProperty(input_, QStringLiteral("arraystart")).toInt());
     }
   }
 
@@ -434,7 +433,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     return;
   }
 
-  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+  event->setModifiers(QtUtils::FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mousePressEvent(event);
 }
@@ -445,7 +444,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     return;
   }
 
-  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+  event->setModifiers(QtUtils::FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mouseMoveEvent(event);
 }
@@ -457,7 +456,7 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     return;
   }
 
-  event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+  event->setModifiers(QtUtils::FlipControlAndShiftModifiers(event->modifiers()));
 
   QGraphicsRectItem::mouseReleaseEvent(event);
 }
@@ -581,7 +580,7 @@ QPointF NodeViewItem::GetInputPoint() const
 QPointF NodeViewItem::GetOutputPoint() const
 {
   QPointF p = output_connector_->scenePos();
-  QRectF r = output_connector_->boundingRect();
+  QRectF r = output_connector_->polygon().boundingRect();
 
   switch (flow_dir_) {
   case NodeViewCommon::kLeftToRight:
@@ -628,7 +627,7 @@ void NodeViewItem::UpdateNodePosition()
 
 void NodeViewItem::UpdateInputConnectorPosition()
 {
-  QRectF output_rect = input_connector_->boundingRect();
+  QRectF output_rect = input_connector_->polygon().boundingRect();
 
   NodeViewCommon::FlowDirection using_flow_dir = flow_dir_;
 

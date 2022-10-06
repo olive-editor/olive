@@ -78,18 +78,15 @@ private:
 #define PRINT_GL_ERRORS ErrorPrinter __e(__FUNCTION__, functions_)
 
 #define GL_PREAMBLE \
-  QMutexLocker __l(&global_opengl_mutex);
+  //QMutexLocker __l(&global_opengl_mutex);
 
-QMutex global_opengl_mutex;
+//QMutex global_opengl_mutex;
 
 OpenGLRenderer::OpenGLRenderer(QObject* parent) :
   Renderer(parent),
-  cache_timer_(this),
   context_(nullptr),
   framebuffer_(0)
 {
-  cache_timer_.setInterval(kTextureCacheMaxSize);
-  connect(&cache_timer_, &QTimer::timeout, this, &OpenGLRenderer::GarbageCollectTextureCache);
 }
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -110,7 +107,7 @@ void OpenGLRenderer::Init(QOpenGLContext *existing_ctx)
 
 bool OpenGLRenderer::Init()
 {
-  QMutexLocker locker(&global_opengl_mutex);
+  GL_PREAMBLE;
 
   if (context_) {
     qCritical() << "Can't initialize already initialized OpenGLRenderer";
@@ -156,8 +153,6 @@ void OpenGLRenderer::PostInit()
 
   // Set up framebuffer used for various things
   functions_->glGenFramebuffers(1, &framebuffer_);
-
-  cache_timer_.start();
 }
 
 void OpenGLRenderer::DestroyInternal()
@@ -169,19 +164,12 @@ void OpenGLRenderer::DestroyInternal()
     functions_->glDeleteFramebuffers(1, &framebuffer_);
     framebuffer_ = 0;
 
-    for (auto it=texture_cache_.cbegin(); it!=texture_cache_.cend(); it++) {
-      functions_->glDeleteTextures(1, &it->texture);
-    }
-    texture_cache_.clear();
-
     // Delete context if it belongs to us
     if (context_->parent() == this) {
       delete context_;
     }
     context_ = nullptr;
   }
-
-  cache_timer_.stop();
 }
 
 void OpenGLRenderer::ClearDestination(Texture *texture, double r, double g, double b, double a)
@@ -189,7 +177,7 @@ void OpenGLRenderer::ClearDestination(Texture *texture, double r, double g, doub
   GL_PREAMBLE;
 
   if (texture) {
-    AttachTextureAsDestination(texture);
+    AttachTextureAsDestination(texture->id());
   }
 
   ClearDestinationInternal(r, g, b, a);
@@ -199,54 +187,45 @@ void OpenGLRenderer::ClearDestination(Texture *texture, double r, double g, doub
   }
 }
 
-QVariant OpenGLRenderer::CreateNativeTexture2D(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
+QVariant OpenGLRenderer::CreateNativeTexture(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
 {
   GL_PREAMBLE;
 
-  return CreateNativeTexture2DInternal(width, height, format, channel_count, data, linesize);
-}
+  bool is_3d = depth > 1;
 
-QVariant OpenGLRenderer::CreateNativeTexture3D(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
-{
-  GL_PREAMBLE;
+  // Generate new texture
+  GLuint texture;
+  functions_->glGenTextures(1, &texture);
+  texture_params_.insert(texture, {width, height, depth, format, channel_count});
 
-  GLuint texture = GetCachedTexture(width, height, depth, format, channel_count);
+  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
 
-  // If no texture in cache, generate new texture
-  bool new_tex = (texture == 0);
-  if (new_tex) {
-    functions_->glGenTextures(1, &texture);
-    texture_params_.insert(texture, {width, height, depth, format, channel_count});
+  GLenum target_current = is_3d ? GL_TEXTURE_BINDING_3D : GL_TEXTURE_BINDING_2D;
+  GLenum target = is_3d ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+
+  GLint current_tex;
+  functions_->glGetIntegerv(target_current, &current_tex);
+
+  functions_->glBindTexture(target, texture);
+
+  if (is_3d) {
+    context_->extraFunctions()->glTexImage3D(target, 0, GetInternalFormat(format, channel_count),
+                                             width, height, depth, 0, GetPixelFormat(channel_count),
+                                             GetPixelType(format), data);
+  } else {
+    functions_->glTexImage2D(target, 0, GetInternalFormat(format, channel_count),
+                             width, height, 0, GetPixelFormat(channel_count),
+                             GetPixelType(format), data);
   }
 
-  if (new_tex || data) {
-    functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
+  functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-    GLint current_tex;
-    functions_->glGetIntegerv(GL_TEXTURE_BINDING_3D, &current_tex);
-
-    functions_->glBindTexture(GL_TEXTURE_3D, texture);
-
-    if (new_tex) {
-      context_->extraFunctions()->glTexImage3D(GL_TEXTURE_3D, 0, GetInternalFormat(format, channel_count),
-                                               width, height, depth, 0, GetPixelFormat(channel_count),
-                                               GetPixelType(format), data);
-    } else {
-      context_->extraFunctions()->glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0,
-                                                  width, height, depth,
-                                                  GetPixelFormat(channel_count), GetPixelType(format),
-                                                  data);
-    }
-
-    functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-    functions_->glBindTexture(GL_TEXTURE_3D, current_tex);
-  }
+  functions_->glBindTexture(target, current_tex);
 
   return texture;
 }
 
-void OpenGLRenderer::AttachTextureAsDestination(Texture* texture)
+void OpenGLRenderer::AttachTextureAsDestination(const QVariant &texture)
 {
   PRINT_GL_ERRORS;
 
@@ -254,7 +233,7 @@ void OpenGLRenderer::AttachTextureAsDestination(Texture* texture)
   functions_->glFramebufferTexture2D(GL_FRAMEBUFFER,
                                      GL_COLOR_ATTACHMENT0,
                                      GL_TEXTURE_2D,
-                                     texture->id().value<GLuint>(),
+                                     texture.value<GLuint>(),
                                      0);
 }
 
@@ -268,10 +247,7 @@ void OpenGLRenderer::DestroyNativeTexture(QVariant texture)
   GLuint t = texture.value<GLuint>();
 
   if (t > 0) {
-    TextureCacheKey key = texture_params_.value(t);
-    TextureCacheEntry entry = {key, t, QDateTime::currentMSecsSinceEpoch()};
-
-    texture_cache_.append(entry);
+    functions_->glDeleteTextures(1, &t);
   }
 }
 
@@ -315,15 +291,16 @@ void OpenGLRenderer::DestroyNativeShader(QVariant shader)
   functions_->glDeleteProgram(program);
 }
 
-void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int linesize)
+void OpenGLRenderer::UploadToTexture(const QVariant &handle, const VideoParams &p, const void *data, int linesize)
 {
   GL_PREAMBLE;
 
-  GLuint t = texture->id().value<GLuint>();
-  const VideoParams& p = texture->params();
+  GLuint t = handle.value<GLuint>();
 
-  GLenum tex_type = texture->type() == Texture::k2D ? GL_TEXTURE_2D : GL_TEXTURE_3D;
-  GLenum tex_binding = texture->type() == Texture::k2D ? GL_TEXTURE_BINDING_2D : GL_TEXTURE_BINDING_3D;
+  bool is_3d = p.is_3d();
+
+  GLenum tex_type = !is_3d ? GL_TEXTURE_2D : GL_TEXTURE_3D;
+  GLenum tex_binding = !is_3d ? GL_TEXTURE_BINDING_2D : GL_TEXTURE_BINDING_3D;
 
   // Store currently bound texture so it can be restored later
   GLint current_tex;
@@ -336,7 +313,7 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int lin
   {
     PRINT_GL_ERRORS;
 
-    if (texture->type() == Texture::k2D) {
+    if (!is_3d) {
       functions_->glTexSubImage2D(tex_type, 0, 0, 0,
                                   p.effective_width(), p.effective_height(),
                                   GetPixelFormat(p.channel_count()), GetPixelType(p.format()),
@@ -354,16 +331,14 @@ void OpenGLRenderer::UploadToTexture(Texture *texture, const void *data, int lin
   functions_->glBindTexture(tex_type, current_tex);
 }
 
-void OpenGLRenderer::DownloadFromTexture(Texture* texture, void *data, int linesize)
+void OpenGLRenderer::DownloadFromTexture(const QVariant &id, const VideoParams &p, void *data, int linesize)
 {
   GL_PREAMBLE;
-
-  const VideoParams& p = texture->params();
 
   GLint current_tex;
   functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
 
-  AttachTextureAsDestination(texture);
+  AttachTextureAsDestination(id);
 
   functions_->glPixelStorei(GL_PACK_ROW_LENGTH, linesize);
 
@@ -394,7 +369,7 @@ void OpenGLRenderer::Flush()
 
 Color OpenGLRenderer::GetPixelFromTexture(Texture *texture, const QPointF &pt)
 {
-  AttachTextureAsDestination(texture);
+  AttachTextureAsDestination(texture->id());
 
   QByteArray data(VideoParams::GetBytesPerPixel(texture->format(), texture->channel_count()), Qt::Uninitialized);
 
@@ -440,6 +415,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     // This variable is used in the shader, let's set it
     const NodeValue& value = it.value();
 
+    // Arrays are not currently supported in this system
     if (value.array()) {
       continue;
     }
@@ -530,7 +506,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
     functions_->glActiveTexture(GL_TEXTURE0 + i);
 
-    GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    GLenum target = (texture && texture->params().is_3d()) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glBindTexture(target, tex_id);
 
     if (tex_id) {
@@ -612,11 +588,11 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   TexturePtr output_tex, input_tex;
   if (real_iteration_count > 1) {
     // Create one texture to bounce off
-    output_tex = CreateTextureFromNativeHandle(CreateNativeTexture2DInternal(destination_params), destination_params);
+    output_tex = CreateTexture(destination_params);
 
     if (real_iteration_count > 2) {
       // Create a second texture bounce off
-      input_tex = CreateTextureFromNativeHandle(CreateNativeTexture2DInternal(destination_params), destination_params);
+      input_tex = CreateTexture(destination_params);
     }
   }
 
@@ -632,7 +608,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       // This is the last iteration, draw to the destination
       if (destination) {
         // If we have a destination texture, draw to it
-        AttachTextureAsDestination(destination);
+        AttachTextureAsDestination(destination->id());
       } else if (iteration > 0) {
         // Otherwise, if we were iterating before, detach texture now
         DetachTextureAsDestination();
@@ -644,7 +620,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       }
     } else {
       // Always draw to output_tex, which gets swapped with input_tex every iteration
-      AttachTextureAsDestination(output_tex.get());
+      AttachTextureAsDestination(output_tex->id());
     }
 
     if (iteration > 0) {
@@ -676,7 +652,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   // Release any textures we bound before
   for (int i=textures_to_bind.size()-1; i>=0; i--) {
     TexturePtr texture = textures_to_bind.at(i).texture;
-    GLenum target = (texture && texture->type() == Texture::k3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    GLenum target = (texture && texture->params().is_3d()) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     functions_->glActiveTexture(GL_TEXTURE0 + i);
     functions_->glBindTexture(target, 0);
   }
@@ -816,71 +792,6 @@ void OpenGLRenderer::ClearDestinationInternal(double r, double g, double b, doub
   functions_->glClear(GL_COLOR_BUFFER_BIT);
 }
 
-QVariant OpenGLRenderer::CreateNativeTexture2DInternal(int width, int height, VideoParams::Format format, int channel_count, const void *data, int linesize)
-{
-  GLuint texture = GetCachedTexture(width, height, 1, format, channel_count);
-
-  // If no texture in cache, generate new texture
-  bool new_tex = (texture == 0);
-  if (new_tex) {
-    functions_->glGenTextures(1, &texture);
-    texture_params_.insert(texture, {width, height, 1, format, channel_count});
-  }
-
-  if (new_tex || data) {
-    functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, linesize);
-
-    GLint current_tex;
-    functions_->glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_tex);
-
-    functions_->glBindTexture(GL_TEXTURE_2D, texture);
-
-    {
-      PRINT_GL_ERRORS;
-      if (new_tex) {
-        functions_->glTexImage2D(GL_TEXTURE_2D, 0, GetInternalFormat(format, channel_count),
-                                 width, height, 0, GetPixelFormat(channel_count),
-                                 GetPixelType(format), data);
-      } else {
-        functions_->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                                    width, height,
-                                    GetPixelFormat(channel_count), GetPixelType(format),
-                                    data);
-      }
-    }
-
-    functions_->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-    functions_->glBindTexture(GL_TEXTURE_2D, current_tex);
-  }
-
-  return texture;
-}
-
-QVariant OpenGLRenderer::CreateNativeTexture2DInternal(const VideoParams &params, const void *data, int linesize)
-{
-  return CreateNativeTexture2DInternal(params.effective_width(), params.effective_height(), params.format(), params.channel_count(), data, linesize);
-}
-
-GLuint OpenGLRenderer::GetCachedTexture(int width, int height, int depth, VideoParams::Format format, int channel_count)
-{
-  TextureCacheKey input_key = {width, height, depth, format, channel_count};
-
-  for (int i=0; i<texture_cache_.size(); i++) {
-    const TextureCacheEntry &entry = texture_cache_.at(i);
-
-    if (entry.key == input_key) {
-      GLuint t = entry.texture;
-
-      texture_cache_.removeAt(i);
-
-      return t;
-    }
-  }
-
-  return 0;
-}
-
 GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
 {
   static const QString shader_preamble =
@@ -926,22 +837,6 @@ GLuint OpenGLRenderer::CompileShader(GLenum type, const QString &code)
   }
 
   return shader;
-}
-
-void OpenGLRenderer::GarbageCollectTextureCache()
-{
-  qint64 max_age = QDateTime::currentMSecsSinceEpoch() - kTextureCacheMaxSize;
-  for (auto it=texture_cache_.begin(); it!=texture_cache_.end(); ) {
-    if (it->age < max_age) {
-      GL_PREAMBLE;
-      GLuint t = it->texture;
-      texture_params_.remove(t);
-      functions_->glDeleteTextures(1, &t);
-      it = texture_cache_.erase(it);
-    } else {
-      it++;
-    }
-  }
 }
 
 }

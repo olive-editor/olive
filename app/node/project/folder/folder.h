@@ -65,6 +65,8 @@ public:
 
   bool ChildExistsWithName(const QString& s) const;
 
+  bool HasChildRecursive(Node *child) const;
+
   int item_child_count() const
   {
     return item_children_.size();

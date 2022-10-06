@@ -20,68 +20,120 @@
 
 #include "exportformatcombobox.h"
 
+#include <QHBoxLayout>
+#include <QLabel>
+
+#include "ui/icons/icons.h"
+
 namespace olive {
 
 ExportFormatComboBox::ExportFormatComboBox(Mode mode, QWidget *parent) :
   QComboBox(parent)
 {
+  custom_menu_ = new Menu(this);
+
   // Populate combobox formats
-  for (int i=0; i<ExportFormat::kFormatCount; i++) {
-    ExportFormat::Format f = static_cast<ExportFormat::Format>(i);
+  switch (mode) {
+  case kShowAllFormats:
+    custom_menu_->addAction(CreateHeader(icon::Video, tr("Video")));
+    PopulateType(Track::kVideo);
+    custom_menu_->addSeparator();
 
-    switch (mode) {
-    case kShowAllFormats:
-      break;
-    case kShowAudioOnly:
-      if (!ExportFormat::GetVideoCodecs(f).isEmpty()
-          || !ExportFormat::GetSubtitleCodecs(f).isEmpty()
-          || ExportFormat::GetAudioCodecs(f).isEmpty()) {
-        continue;
-      }
-      break;
-    case kShowVideoOnly:
-      if (ExportFormat::GetVideoCodecs(f).isEmpty()
-          || !ExportFormat::GetSubtitleCodecs(f).isEmpty()
-          || !ExportFormat::GetAudioCodecs(f).isEmpty()) {
-        continue;
-      }
-      break;
-    }
+    custom_menu_->addAction(CreateHeader(icon::Audio, tr("Audio")));
+    PopulateType(Track::kAudio);
+    custom_menu_->addSeparator();
 
-    QString format_name = ExportFormat::GetName(f);
-
-    bool inserted = false;
-
-    // Sort formats alphabetically
-    for (int j=0; j<count(); j++) {
-      if (itemText(j) > format_name) {
-        insertItem(j, format_name, i);
-        inserted = true;
-        break;
-      }
-    }
-
-    if (!inserted) {
-      addItem(format_name, i);
-    }
+    custom_menu_->addAction(CreateHeader(icon::Subtitles, tr("Subtitle")));
+    PopulateType(Track::kSubtitle);
+    break;
+  case kShowAudioOnly:
+    PopulateType(Track::kAudio);
+    break;
+  case kShowVideoOnly:
+    PopulateType(Track::kVideo);
+    break;
+  case kShowSubtitlesOnly:
+    PopulateType(Track::kSubtitle);
+    break;
   }
 
-  connect(this, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ExportFormatComboBox::HandleIndexChange);
+  connect(custom_menu_, &Menu::triggered, this, &ExportFormatComboBox::HandleIndexChange);
+}
+
+void ExportFormatComboBox::showPopup()
+{
+  custom_menu_->setMinimumWidth(this->width());
+  custom_menu_->exec(mapToGlobal(QPoint(0, 0)));
 }
 
 void ExportFormatComboBox::SetFormat(ExportFormat::Format fmt)
 {
-  for (int i=0; i<count(); i++) {
-    if (itemData(i).toInt() == fmt) {
-      setCurrentIndex(i);
-      break;
+  current_ = fmt;
+  clear();
+  addItem(ExportFormat::GetName(current_));
+}
+
+void ExportFormatComboBox::HandleIndexChange(QAction *a)
+{
+  ExportFormat::Format f = static_cast<ExportFormat::Format>(a->data().toInt());
+  SetFormat(f);
+  emit FormatChanged(f);
+}
+
+void ExportFormatComboBox::PopulateType(Track::Type type)
+{
+  for (int i=0; i<ExportFormat::kFormatCount; i++) {
+    ExportFormat::Format f = static_cast<ExportFormat::Format>(i);
+
+    if (type == Track::kVideo
+        && !ExportFormat::GetVideoCodecs(f).isEmpty()) {
+      // Do nothing
+    } else if (type == Track::kAudio
+               && ExportFormat::GetVideoCodecs(f).isEmpty()
+               && !ExportFormat::GetAudioCodecs(f).isEmpty()) {
+      // Do nothing
+    } else if (type == Track::kSubtitle
+               && ExportFormat::GetVideoCodecs(f).isEmpty()
+               && ExportFormat::GetAudioCodecs(f).isEmpty()
+               && !ExportFormat::GetSubtitleCodecs(f).isEmpty()) {
+      // Do nothing
+    } else {
+      continue;
     }
+
+    QString format_name = ExportFormat::GetName(f);
+
+    QAction *a = custom_menu_->addAction(format_name);
+    a->setData(i);
+    a->setIconVisibleInMenu(false);
   }
 }
 
-void ExportFormatComboBox::HandleIndexChange(int index)
+QWidgetAction *ExportFormatComboBox::CreateHeader(const QIcon &icon, const QString &title)
 {
-  emit FormatChanged(static_cast<ExportFormat::Format>(itemData(index).toInt()));
+  QWidgetAction *a = new QWidgetAction(this);
+
+  QWidget *w = new QWidget();
+  QHBoxLayout *layout = new QHBoxLayout(w);
+
+  QLabel *icon_lbl = new QLabel();
+
+  QLabel *text_lbl = new QLabel(title);
+  text_lbl->setAlignment(Qt::AlignCenter);
+  QFont f = text_lbl->font();
+  f.setWeight(QFont::Bold);
+  text_lbl->setFont(f);
+
+  icon_lbl->setPixmap(icon.pixmap(text_lbl->sizeHint()));
+
+  layout->addStretch();
+  layout->addWidget(icon_lbl);
+  layout->addWidget(text_lbl);
+  layout->addStretch();
+
+  a->setDefaultWidget(w);
+  a->setEnabled(false);
+  return a;
 }
 
 }

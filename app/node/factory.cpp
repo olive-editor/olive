@@ -35,7 +35,11 @@
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
 #include "distort/mask/mask.h"
+#include "distort/ripple/rippledistortnode.h"
+#include "distort/swirl/swirldistortnode.h"
+#include "distort/tile/tiledistortnode.h"
 #include "distort/transform/transformdistortnode.h"
+#include "distort/wave/wavedistortnode.h"
 #include "effect/opacity/opacityeffect.h"
 #include "filter/blur/blur.h"
 #include "filter/dropshadow/dropshadowfilter.h"
@@ -49,6 +53,7 @@
 #include "generator/text/textv1.h"
 #include "generator/text/textv2.h"
 #include "generator/text/textv3.h"
+#include "input/multicam/multicamnode.h"
 #include "input/time/timeinput.h"
 #include "input/value/valuenode.h"
 #include "keying/chromakey/chromakey.h"
@@ -62,6 +67,7 @@
 #include "project/folder/folder.h"
 #include "project/footage/footage.h"
 #include "project/sequence/sequence.h"
+#include "time/timeformat/timeformat.h"
 #include "time/timeoffset/timeoffsetnode.h"
 #include "time/timeremap/timeremap.h"
 
@@ -291,6 +297,18 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MaskDistortNode();
   case kDropShadowFilter:
     return new DropShadowFilter();
+  case kTimeFormat:
+    return new TimeFormatNode();
+  case kWaveDistort:
+    return new WaveDistortNode();
+  case kTileDistort:
+    return new TileDistortNode();
+  case kSwirlDistort:
+    return new SwirlDistortNode();
+  case kRippleDistort:
+    return new RippleDistortNode();
+  case kMulticamNode:
+    return new MultiCamNode();
 
   case kInternalNodeCount:
     break;

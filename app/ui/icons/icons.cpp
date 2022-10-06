@@ -75,6 +75,9 @@ QIcon icon::TextAlignLeft;
 QIcon icon::TextAlignRight;
 QIcon icon::TextAlignCenter;
 QIcon icon::TextAlignJustify;
+QIcon icon::TextAlignTop;
+QIcon icon::TextAlignBottom;
+QIcon icon::TextAlignMiddle;
 QIcon icon::Snapping;
 QIcon icon::ZoomIn;
 QIcon icon::ZoomOut;
@@ -93,6 +96,7 @@ QIcon icon::LockOpened;
 QIcon icon::LockClosed;
 QIcon icon::Pencil;
 QIcon icon::Subtitles;
+QIcon icon::ColorPicker;
 
 void icon::LoadAll(const QString& theme)
 {
@@ -145,6 +149,9 @@ void icon::LoadAll(const QString& theme)
   TextAlignRight = Create(theme, "align-right");
   TextAlignCenter = Create(theme, "align-center");
   TextAlignJustify = Create(theme, "align-justify-all");
+  TextAlignTop = Create(theme, "align-v-top");
+  TextAlignBottom = Create(theme, "align-v-bottom");
+  TextAlignMiddle = Create(theme, "align-v-middle");
 
   Snapping = Create(theme, "magnet");
   ZoomIn = Create(theme, "zoomin");
@@ -158,6 +165,7 @@ void icon::LoadAll(const QString& theme)
   Plus = Create(theme, "plus");
   Minus = Create(theme, "minus");
   AddEffect = Create(theme, "add-effect");
+  ColorPicker = Create(theme, "color-picker");
 
   EyeOpened = Create(theme, "eye-opened");
   EyeClosed = Create(theme, "eye-closed");

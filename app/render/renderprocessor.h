@@ -25,14 +25,16 @@
 #include "node/traverser.h"
 #include "render/renderer.h"
 #include "rendercache.h"
-#include "threading/threadticket.h"
+#include "renderticket.h"
 
 namespace olive {
 
 class RenderProcessor : public NodeTraverser
 {
 public:
-  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
+  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range) override;
+
+  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   struct RenderedWaveform {
     const ClipBlock* block;
@@ -42,26 +44,21 @@ public:
   };
 
 protected:
-  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange &range) override;
+  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time) override;
 
-  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time) override;
+  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time) override;
 
-  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time) override;
-
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job) override;
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job) override;
 
   virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
 
-  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job) override;
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job) override;
 
-  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job) override;
+  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job) override;
 
-  virtual bool CanCacheFrames() override;
+  virtual TexturePtr ProcessVideoCacheJob(const CacheJob *val) override;
 
-  virtual TexturePtr CreateTexture(const VideoParams &p) override
-  {
-    return render_ctx_->CreateTexture(p);
-  }
+  virtual TexturePtr CreateTexture(const VideoParams &p) override;
 
   virtual SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count) override
   {
@@ -70,8 +67,10 @@ protected:
 
   virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs) override;
 
+  virtual bool UseCache() const override;
+
 private:
-  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache, QVariant default_shader);
+  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   TexturePtr GenerateTexture(const rational& time, const rational& frame_length);
 
@@ -88,8 +87,6 @@ private:
   DecoderCache* decoder_cache_;
 
   ShaderCache* shader_cache_;
-
-  QVariant default_shader_;
 
 };
 

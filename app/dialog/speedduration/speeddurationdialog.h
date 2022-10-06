@@ -22,6 +22,7 @@
 #define SPEEDDURATIONDIALOG_H
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialog>
 
 #include "node/block/clip/clip.h"
@@ -62,6 +63,8 @@ private:
 
   QCheckBox *ripple_box_;
 
+  QComboBox *loop_combo_;
+
   int start_reverse_;
 
   int start_maintain_audio_pitch_;
@@ -69,6 +72,8 @@ private:
   double start_speed_;
 
   rational start_duration_;
+
+  int start_loop_;
 
   rational timebase_;
 

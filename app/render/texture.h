@@ -27,16 +27,15 @@
 
 namespace olive {
 
+class AcceleratedJob;
 class Renderer;
+
+class Texture;
+using TexturePtr = std::shared_ptr<Texture>;
 
 class Texture
 {
 public:
-  enum Type {
-    k2D,
-    k3D
-  };
-
   enum Interpolation {
     kNearest,
     kLinear,
@@ -51,18 +50,25 @@ public:
   Texture(const VideoParams& param) :
     renderer_(nullptr),
     params_(param),
-    type_(k2D)
+    job_(nullptr)
   {
+  }
+
+  template <typename T>
+  Texture(const VideoParams &p, const T &j) :
+    Texture(p)
+  {
+    job_ = new T(j);
   }
 
   /**
    * @brief Construct a real texture linked to a renderer backend
    */
-  Texture(Renderer* renderer, const QVariant& native, const VideoParams& param, Type type) :
+  Texture(Renderer* renderer, const QVariant& native, const VideoParams& param) :
     renderer_(renderer),
     params_(param),
     id_(native),
-    type_(type)
+    job_(nullptr)
   {
   }
 
@@ -76,6 +82,18 @@ public:
   const VideoParams& params() const
   {
     return params_;
+  }
+
+  template <typename T>
+  static TexturePtr Job(const VideoParams &p, const T &j)
+  {
+    return std::make_shared<Texture>(p, j);
+  }
+
+  template <typename T>
+  TexturePtr toJob(const T &job)
+  {
+    return Texture::Job(params_, job);
   }
 
   void Upload(void* data, int linesize);
@@ -95,6 +113,11 @@ public:
   int height() const
   {
     return params_.effective_height();
+  }
+
+  QVector2D virtual_resolution() const
+  {
+    return QVector2D(params_.square_pixel_width(), params_.height());
   }
 
   VideoParams::Format format() const
@@ -117,15 +140,13 @@ public:
     return params_.pixel_aspect_ratio();
   }
 
-  Type type() const
-  {
-    return type_;
-  }
-
   Renderer* renderer() const
   {
     return renderer_;
   }
+
+  bool IsJob() const { return job_; }
+  AcceleratedJob *job() const { return job_; }
 
 private:
   Renderer* renderer_;
@@ -134,11 +155,9 @@ private:
 
   QVariant id_;
 
-  Type type_;
+  AcceleratedJob *job_;
 
 };
-
-using TexturePtr = std::shared_ptr<Texture>;
 
 }
 

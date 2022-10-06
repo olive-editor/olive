@@ -68,6 +68,7 @@ public slots:
   void SetUnderline(bool e) { underline_btn_->setChecked(e); }
   void SetStrikethrough(bool e) { strikethrough_btn_->setChecked(e); }
   void SetAlignment(Qt::Alignment a);
+  void SetVerticalAlignment(Qt::Alignment a);
   void SetColor(const QColor &c);
   void SetSmallCaps(bool e) { small_caps_btn_->setChecked(e); }
   void SetStretch(int i) { stretch_slider_->SetValue(i); }
@@ -81,6 +82,7 @@ signals:
   void UnderlineChanged(bool e);
   void StrikethroughChanged(bool e);
   void AlignmentChanged(Qt::Alignment alignment);
+  void VerticalAlignmentChanged(Qt::Alignment alignment);
   void ColorChanged(const QColor &c);
   void SmallCapsChanged(bool e);
   void StretchChanged(int i);
@@ -101,6 +103,8 @@ protected:
   virtual void paintEvent(QPaintEvent *event) override;
 
 private:
+  void AddSpacer(QLayout *l);
+
   QPoint drag_anchor_;
 
   QFontComboBox *font_combo_;
@@ -117,6 +121,10 @@ private:
   QPushButton *align_right_btn_;
   QPushButton *align_justify_btn_;
 
+  QPushButton *align_top_btn_;
+  QPushButton *align_middle_btn_;
+  QPushButton *align_bottom_btn_;
+
   IntegerSlider *stretch_slider_;
   FloatSlider *kerning_slider_;
   FloatSlider *line_height_slider_;
@@ -125,6 +133,8 @@ private:
   QPushButton *color_btn_;
 
   bool painted_;
+
+  bool drag_enabled_;
 
 private slots:
   void UpdateFontStyleList(const QString &family);
@@ -143,9 +153,14 @@ public:
 
   void SetListenToFocusEvents(bool e) { listen_to_focus_events_ = e; }
 
-protected:
-  virtual void keyPressEvent(QKeyEvent *event) override;
+  void Paint(QPainter *p, Qt::Alignment valign);
 
+  virtual void dragEnterEvent(QDragEnterEvent *e) override { return QTextEdit::dragEnterEvent(e); }
+  virtual void dragMoveEvent(QDragMoveEvent *e) override { return QTextEdit::dragMoveEvent(e); }
+  virtual void dragLeaveEvent(QDragLeaveEvent *e) override { return QTextEdit::dragLeaveEvent(e); }
+  virtual void dropEvent(QDropEvent *e) override { return QTextEdit::dropEvent(e); }
+
+protected:
   virtual void paintEvent(QPaintEvent *event) override;
 
 private:
@@ -165,9 +180,10 @@ private:
 
   bool listen_to_focus_events_;
 
-private slots:
-  void FocusChanged(QWidget *old, QWidget *now);
+  bool forced_default_;
+  QTextCharFormat default_fmt_;
 
+private slots:
   void FormatChanged(const QTextCharFormat &f);
 
   void SetFamily(const QString &s);

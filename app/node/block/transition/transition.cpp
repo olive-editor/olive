@@ -182,10 +182,10 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
     double time = globals.time().in().toDouble();
     InsertTransitionTimes(&job, time);
 
-    ShaderJobEvent(value, job);
+    ShaderJobEvent(value, &job);
 
     job_type = NodeValue::kTexture;
-    push_job = QVariant::fromValue(job);
+    push_job = QVariant::fromValue(Texture::Job(globals.vparams(), job));
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
     SampleBuffer from_samples = out_buffer.toSamples();

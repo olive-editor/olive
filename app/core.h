@@ -255,7 +255,11 @@ public:
   /**
    * @brief Create a new sequence named appropriately for the active project
    */
-  Sequence* CreateNewSequenceForProject(Project *project) const;
+  static Sequence* CreateNewSequenceForProject(const QString &format, Project *project);
+  static Sequence* CreateNewSequenceForProject(Project *project)
+  {
+    return CreateNewSequenceForProject(tr("Sequence %1"), project);
+  }
 
   /**
    * @brief Opens a project from the recently opened list
@@ -312,6 +316,8 @@ public:
   void OpenRecoveryProject(const QString& filename);
 
   void OpenNodeInViewer(ViewerOutput* viewer);
+
+  void OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image);
 
 public slots:
   /**
@@ -545,7 +551,7 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  ViewerOutput *GetSequenceToExport();
+  bool GetSequenceToExport(ViewerOutput **viewer, rational *time);
 
   static QString GetAutoRecoveryIndexFilename();
 
@@ -653,6 +659,8 @@ private slots:
    * @brief Internal project open
    */
   void OpenProjectInternal(const QString& filename, bool recovery_project = false);
+
+  void ImportSingleFile(const QString &f);
 
 };
 

@@ -18,7 +18,11 @@ add_subdirectory(cornerpin)
 add_subdirectory(crop)
 add_subdirectory(flip)
 add_subdirectory(mask)
+add_subdirectory(ripple)
+add_subdirectory(swirl)
+add_subdirectory(tile)
 add_subdirectory(transform)
+add_subdirectory(wave)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

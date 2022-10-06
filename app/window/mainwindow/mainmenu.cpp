@@ -183,6 +183,10 @@ MainMenu::MainMenu(MainWindow *parent) :
 
   sequence_disk_cache_clear_item_ = sequence_menu_->AddItem("seqcacheclear", this, &MainMenu::SequenceCacheClearTriggered);
 
+  // TEMP: Hide sequence cache items for now. Want to see if clip caching will supersede it.
+  sequence_cache_item_->setVisible(false);
+  sequence_cache_in_to_out_item_->setVisible(false);
+
   //
   // WINDOW MENU
   //

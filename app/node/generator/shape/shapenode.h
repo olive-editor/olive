@@ -33,7 +33,8 @@ public:
 
   enum Type {
     kRectangle,
-    kEllipse
+    kEllipse,
+    kRoundedRectangle
   };
 
   NODE_DEFAULT_FUNCTIONS(ShapeNode)
@@ -49,6 +50,10 @@ public:
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   static QString kTypeInput;
+  static QString kRadiusInput;
+
+protected:
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 };
 

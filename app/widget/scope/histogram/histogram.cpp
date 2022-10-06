@@ -47,10 +47,10 @@ void HistogramScope::OnInit()
 
 void HistogramScope::OnDestroy()
 {
-  super::OnDestroy();
-
   pipeline_secondary_.clear();
   texture_row_sums_ = nullptr;
+
+  super::OnDestroy();
 }
 
 ShaderCode HistogramScope::GenerateShaderCode()
@@ -91,7 +91,7 @@ void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   renderer()->Blit(pipeline_secondary_, shader_job, texture_row_sums_->params());
 
   // Draw line overlays
-  QPainter p(inner_widget());
+  QPainter p(paint_device());
   QFont font = p.font();
   font.setPixelSize(10);
   QFontMetrics font_metrics = QFontMetrics(font);

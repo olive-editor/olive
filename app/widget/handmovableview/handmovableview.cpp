@@ -31,8 +31,7 @@ namespace olive {
 
 HandMovableView::HandMovableView(QWidget* parent) :
   super(parent),
-  dragging_hand_(false),
-  scroll_zooms_by_default_(OLIVE_CONFIG("ScrollZooms").toBool())
+  dragging_hand_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &HandMovableView::ApplicationToolChanged);
 }
@@ -66,6 +65,8 @@ bool HandMovableView::HandPress(QMouseEvent *event)
                             Qt::LeftButton,
                             event->modifiers());
 
+    transformed_pos_ = QPoint(0, 0);
+
     super::mousePressEvent(&transformed);
 
     return true;
@@ -78,11 +79,33 @@ bool HandMovableView::HandMove(QMouseEvent *event)
 {
   if (dragging_hand_) {
     // Transform mouse event to act like the left button is pressed
+    QPoint adjustment(0, 0);
+
     QMouseEvent transformed(event->type(),
-                            event->localPos(),
+                            event->localPos() - transformed_pos_,
                             Qt::LeftButton,
                             Qt::LeftButton,
                             event->modifiers());
+
+    if (event->localPos().x() < 0) {
+      transformed_pos_.setX(transformed_pos_.x() + width());
+      adjustment.setX(width());
+    } else if (event->localPos().x() >= width()) {
+      transformed_pos_.setX(transformed_pos_.x() - width());
+      adjustment.setX(-width());
+    }
+
+    if (event->pos().y() < 0) {
+      transformed_pos_.setY(transformed_pos_.y() + height());
+      adjustment.setY(height());
+    } else if (event->pos().y() >= height()) {
+      transformed_pos_.setY(transformed_pos_.y() - height());
+      adjustment.setY(-height());
+    }
+
+    if (!adjustment.isNull()) {
+      QCursor::setPos(QCursor::pos() + adjustment);
+    }
 
     super::mouseMoveEvent(&transformed);
   }
@@ -125,7 +148,7 @@ const HandMovableView::DragMode &HandMovableView::GetDefaultDragMode() const
 
 bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event) const
 {
-  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !scroll_zooms_by_default_);
+  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !OLIVE_CONFIG("ScrollZooms").toBool());
 }
 
 void HandMovableView::wheelEvent(QWheelEvent *event)
@@ -153,19 +176,6 @@ void HandMovableView::ZoomIntoCursorPosition(QWheelEvent *event, double multipli
   Q_UNUSED(event)
   Q_UNUSED(multiplier)
   Q_UNUSED(cursor_pos)
-}
-
-QAction *HandMovableView::AddSetScrollZoomsByDefaultActionToMenu(QMenu *m, bool autoconnect)
-{
-  QAction* ctrl_zoom = m->addAction(tr("Scroll Zooms By Default"));
-  ctrl_zoom->setCheckable(true);
-  ctrl_zoom->setChecked(GetScrollZoomsByDefault());
-
-  if (autoconnect) {
-    connect(ctrl_zoom, &QAction::triggered, this, &HandMovableView::SetScrollZoomsByDefault);
-  }
-
-  return ctrl_zoom;
 }
 
 }

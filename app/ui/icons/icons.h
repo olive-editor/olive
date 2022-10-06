@@ -85,6 +85,9 @@ extern QIcon TextAlignLeft;
 extern QIcon TextAlignRight;
 extern QIcon TextAlignCenter;
 extern QIcon TextAlignJustify;
+extern QIcon TextAlignTop;
+extern QIcon TextAlignBottom;
+extern QIcon TextAlignMiddle;
 
 // Miscellaneous Icons
 extern QIcon Snapping;
@@ -105,6 +108,7 @@ extern QIcon LockOpened;
 extern QIcon LockClosed;
 extern QIcon Pencil;
 extern QIcon Subtitles;
+extern QIcon ColorPicker;
 
 /**
  * @brief Create an icon object loaded from file

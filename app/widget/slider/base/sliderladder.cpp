@@ -77,6 +77,14 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString 
   drag_timer_.setInterval(10);
   connect(&drag_timer_, &QTimer::timeout, this, &SliderLadder::TimerUpdate);
 
+  screen_ = nullptr;
+  foreach (QScreen *screen, qApp->screens()) {
+    if (screen->geometry().contains(QCursor::pos())) {
+      screen_ = screen;
+      break;
+    }
+  }
+
   if (UsingLadders()) {
     drag_start_x_ = -1;
     wrap_count_ = 0;
@@ -120,7 +128,7 @@ void SliderLadder::SetValue(const QString &s)
 
 void SliderLadder::StartListeningToMouseInput()
 {
-  drag_timer_.start();
+  QMetaObject::invokeMethod(&drag_timer_, "start", Qt::QueuedConnection);
 }
 
 void SliderLadder::mouseReleaseEvent(QMouseEvent *event)
@@ -198,21 +206,20 @@ void SliderLadder::TimerUpdate()
       emit DraggedByValue(now_pos - drag_start_x_, elements_.at(active_element_)->GetMultiplier());
 
       // Determine if cursor is at desktop edge, if so wrap around to other side
-      int left = 0;
-      int right = 0;
-      foreach (QScreen *screen, qApp->screens()) {
-        left = qMin(left, screen->geometry().left());
-        right = qMax(right, screen->geometry().right());
-      }
-      if (now_pos == left || now_pos == right) {
-        if (now_pos == left) {
-          wrap_count_--;
-          now_pos = right-1;
-        } else {
-          wrap_count_++;
-          now_pos = left+1;
+      if (screen_) {
+        int left = screen_->geometry().left();
+        int right = screen_->geometry().right();
+        int width = right - left;
+        if (now_pos <= left || now_pos >= right) {
+          if (now_pos <= left) {
+            wrap_count_--;
+            now_pos += width;
+          } else {
+            wrap_count_++;
+            now_pos -= width;
+          }
+          QCursor::setPos(now_pos, QCursor::pos().y());
         }
-        QCursor::setPos(now_pos, QCursor::pos().y());
       }
 
       drag_start_x_ = now_pos;

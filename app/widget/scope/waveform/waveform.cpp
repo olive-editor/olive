@@ -72,9 +72,7 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   job.Insert(QStringLiteral("ove_maintex"),
                   NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
-  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
-                                              static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
-                                              VideoParams::kInternalChannelCount));
+  renderer()->Blit(pipeline, job, GetViewportParams());
 
   float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);
   float waveform_dim_y = ceil((height() - 1.0) * waveform_scale);
@@ -85,7 +83,7 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   float waveform_end_dim_x = (width() - 1.0) - waveform_start_dim_x;
 
   // Draw line overlays
-  QPainter p(inner_widget());
+  QPainter p(paint_device());
   QFont font;
   font.setPixelSize(10);
   QFontMetrics font_metrics = QFontMetrics(font);

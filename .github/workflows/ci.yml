@@ -24,6 +24,7 @@ on:
 env:
   DOWNLOAD_TOOL: curl -fLOSs --retry 2 --retry-delay 60
   UPLOAD_TOOL: curl -X POST --retry 2 --retry-delay 60
+  CMAKE_ARGS: -DUSE_WERROR=ON -DBUILD_TESTS=ON
 
 jobs:
   linux:
@@ -31,12 +32,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - build-type: RelWithDebInfo
-            cc-compiler: gcc
-            cxx-compiler: g++
-            compiler-name: GCC 9.3.1
-            cmake-gen: Ninja
-            os-name: Linux (CentOS 7)
+          #- build-type: RelWithDebInfo
+          #  cc-compiler: gcc
+          #  cxx-compiler: g++
+          #  compiler-name: GCC 9.3.1
+          #  cmake-gen: Ninja
+          #  os-name: Linux (CentOS 7)
           - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
@@ -73,7 +74,8 @@ jobs:
           cmake .. -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" \
             -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
-            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}"
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" \
+            $CMAKE_ARGS
 
       - name: Build
         working-directory: build
@@ -123,8 +125,9 @@ jobs:
           filename=$(echo Olive*.AppImage)
           pkgname="${filename/x86_64/Linux-x86_64}"
           mv "${filename}" "${pkgname}"
+          basename="${filename%.*}"
           echo "::set-output name=pkgname::${pkgname}"
-          echo "::set-output name=artifact::${filename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
+          echo "::set-output name=artifact::${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
@@ -204,7 +207,8 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            $CMAKE_ARGS
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -260,20 +264,20 @@ jobs:
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
-          7z a $PKGNAME.zip olive-editor
+          mkdir deploy
+          mv olive-editor deploy
 
       - name: Upload Installer Artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PKGNAME }}.exe
+          name: ${{ env.PKGNAME }}-Installer
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
 
       - name: Upload Portable Artifact to GitHub
         uses: actions/upload-artifact@v2
-        continue-on-error: true
         with:
-          name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          name: ${{ env.PKGNAME }}-Portable
+          path: ${{ runner.workspace }}/build/deploy
 
   macos:
     strategy:
@@ -356,7 +360,8 @@ jobs:
           PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
               -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min-deploy }} -G "${{ matrix.cmake-gen }}" \
-              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}"
+              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}" \
+              $CMAKE_ARGS
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -378,7 +383,10 @@ jobs:
           BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
-          mv app/$BUNDLE_NAME .
+          mkdir deploy
+          cd deploy
+
+          mv ../app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
 
           # Copy Qt frameworks and plugins
@@ -400,7 +408,7 @@ jobs:
           mv Olive.sym "$SYM_DIR"
 
       - name: Sign Application
-        working-directory: ${{ runner.workspace }}/build
+        working-directory: ${{ runner.workspace }}/build/deploy
         shell: bash
         if: github.event_name == 'push'
         env:
@@ -436,15 +444,9 @@ jobs:
           # Sign application
           codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
 
-      - name: Deploy Packages
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          zip -r $PKGNAME.zip Olive.app
-
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
         continue-on-error: true
         with:
-          name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          name: ${{ env.PKGNAME }}
+          path: ${{ runner.workspace }}/build/deploy

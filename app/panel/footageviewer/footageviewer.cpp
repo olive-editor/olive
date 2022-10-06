@@ -20,12 +20,12 @@
 
 #include "footageviewer.h"
 
-#include "widget/viewer/footageviewer.h"
-
 namespace olive {
 
+#define super ViewerPanelBase
+
 FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
-  ViewerPanelBase(QStringLiteral("FootageViewerPanel"), parent)
+  super(QStringLiteral("FootageViewerPanel"), parent)
 {
   // Set ViewerWidget as the central widget
   FootageViewerWidget* fvw = new FootageViewerWidget();
@@ -36,6 +36,11 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
 
   // Show and raise on connect
   SetShowAndRaiseOnConnect();
+}
+
+void FootageViewerPanel::OverrideWorkArea(const TimeRange &r)
+{
+  GetFootageViewerWidget()->OverrideWorkArea(r);
 }
 
 QVector<ViewerOutput *> FootageViewerPanel::GetSelectedFootage() const
@@ -51,7 +56,7 @@ QVector<ViewerOutput *> FootageViewerPanel::GetSelectedFootage() const
 
 void FootageViewerPanel::Retranslate()
 {
-  ViewerPanelBase::Retranslate();
+  super::Retranslate();
 
   SetTitle(tr("Footage Viewer"));
 }

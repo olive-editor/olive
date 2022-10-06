@@ -25,6 +25,7 @@
 #include <QComboBox>
 #include <QWidget>
 
+#include "common/qtutils.h"
 #include "common/rational.h"
 #include "dialog/export/codec/cineformsection.h"
 #include "dialog/export/codec/codecstack.h"
@@ -47,6 +48,7 @@ public:
   int SetFormat(ExportFormat::Format format);
 
   bool IsImageSequenceSet() const;
+  void SetImageSequence(bool e) const;
 
   rational GetStillImageTime() const
   {
@@ -56,6 +58,11 @@ public:
   ExportCodec::Codec GetSelectedCodec() const
   {
     return static_cast<ExportCodec::Codec>(codec_combobox()->currentData().toInt());
+  }
+
+  void SetSelectedCodec(ExportCodec::Codec c)
+  {
+    QtUtils::SetComboBoxData(codec_combobox(), c);
   }
 
   QComboBox* codec_combobox() const
@@ -99,6 +106,11 @@ public:
     return color_space_chooser_->input();
   }
 
+  void SetOCIOColorSpace(const QString &s)
+  {
+    color_space_chooser_->set_input(s);
+  }
+
   CodecSection* GetCodecSection() const
   {
     return static_cast<CodecSection*>(codec_stack_->currentWidget());
@@ -134,9 +146,16 @@ public:
     return threads_;
   }
 
-  const QString& pix_fmt() const {
-    return pix_fmt_;
+  void SetThreads(int t)
+  {
+    threads_ = t;
   }
+
+  const QString& pix_fmt() const { return pix_fmt_; }
+  void SetPixFmt(const QString &s) { pix_fmt_ = s; }
+
+  VideoParams::ColorRange color_range() const { return color_range_; }
+  void SetColorRange(VideoParams::ColorRange c) { color_range_ = c; }
 
 public slots:
   void VideoCodecChanged();
@@ -179,6 +198,7 @@ private:
   int threads_;
 
   QString pix_fmt_;
+  VideoParams::ColorRange color_range_;
 
   ExportFormat::Format format_;
 

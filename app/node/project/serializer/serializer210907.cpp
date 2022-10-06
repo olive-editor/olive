@@ -240,6 +240,8 @@ void ProjectSerializer210907::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
       reader->skipCurrentElement();
     }
   }
+
+  node->LoadFinishedEvent();
 }
 
 void ProjectSerializer210907::LoadInput(Node *node, QXmlStreamReader *reader, XMLNodeData &xml_node_data) const
@@ -486,7 +488,7 @@ void ProjectSerializer210907::LoadNodeCustom(QXmlStreamReader *reader, Node *nod
 
     while (XMLReadNextStartElement(reader)) {
       if (reader->name() == QStringLiteral("points")) {
-        LoadTimelinePoints(reader, viewer->GetTimelinePoints());
+        LoadTimelinePoints(reader, viewer);
       } else if (reader->name() == QStringLiteral("timestamp") && footage) {
         footage->set_timestamp(reader->readElementText().toLongLong());
       } else {
@@ -543,13 +545,13 @@ void ProjectSerializer210907::LoadNodeCustom(QXmlStreamReader *reader, Node *nod
   }
 }
 
-void ProjectSerializer210907::LoadTimelinePoints(QXmlStreamReader *reader, TimelinePoints *points) const
+void ProjectSerializer210907::LoadTimelinePoints(QXmlStreamReader *reader, ViewerOutput *points) const
 {
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("markers")) {
-      LoadMarkerList(reader, points->markers());
+      LoadMarkerList(reader, points->GetMarkers());
     } else if (reader->name() == QStringLiteral("workarea")) {
-      LoadWorkArea(reader, points->workarea());
+      LoadWorkArea(reader, points->GetWorkArea());
     } else {
       reader->skipCurrentElement();
     }

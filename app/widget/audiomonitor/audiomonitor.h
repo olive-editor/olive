@@ -28,7 +28,7 @@
 #include "audio/audiovisualwaveform.h"
 #include "common/define.h"
 #include "render/audioparams.h"
-#include "render/audioplaybackcache.h"
+#include "render/audiowaveformcache.h"
 
 namespace olive {
 
@@ -36,7 +36,7 @@ class AudioMonitor : public QOpenGLWidget
 {
   Q_OBJECT
 public:
-  AudioMonitor(QWidget* parent = nullptr);
+  AudioMonitor();
 
   virtual ~AudioMonitor() override;
 
@@ -45,7 +45,7 @@ public:
     return waveform_;
   }
 
-  static void StartWaveformOnAll(const AudioVisualWaveform *waveform, const rational& start, int playback_speed)
+  static void StartWaveformOnAll(const AudioWaveformCache *waveform, const rational& start, int playback_speed)
   {
     foreach (AudioMonitor *m, instances_) {
       m->StartWaveform(waveform, start, playback_speed);
@@ -73,7 +73,7 @@ public slots:
 
   void PushSampleBuffer(const SampleBuffer &samples);
 
-  void StartWaveform(const AudioVisualWaveform *waveform, const rational& start, int playback_speed);
+  void StartWaveform(const AudioWaveformCache *waveform, const rational& start, int playback_speed);
 
 protected:
   virtual void paintGL() override;
@@ -97,8 +97,9 @@ private:
 
   qint64 last_time_;
 
-  const AudioVisualWaveform* waveform_;
+  const AudioWaveformCache* waveform_;
   rational waveform_time_;
+  rational waveform_length_;
 
   int playback_speed_;
 

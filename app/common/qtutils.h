@@ -21,23 +21,12 @@
 #ifndef QTVERSIONABSTRACTION_H
 #define QTVERSIONABSTRACTION_H
 
-/**
- *
- * A fairly simple header for reducing the amount of Qt version checks necessary throughout the code
- *
- */
-
+#include <QComboBox>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QFontMetrics>
 #include <QFrame>
 #include <QMessageBox>
-
-#include "common/define.h"
-
-#ifdef MessageBox
-#undef MessageBox
-#endif
 
 namespace olive {
 
@@ -56,13 +45,32 @@ public:
 
   static QFrame* CreateVerticalLine();
 
-  static int MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString& title, const QString& message, QMessageBox::StandardButtons buttons = QMessageBox::Ok);
+  static int MsgBox(QWidget *parent, QMessageBox::Icon icon, const QString& title, const QString& message, QMessageBox::StandardButtons buttons = QMessageBox::Ok);
 
   static QDateTime GetCreationDate(const QFileInfo &info);
 
   static QString GetFormattedDateTime(const QDateTime &dt);
 
   static QStringList WordWrapString(const QString &s, const QFontMetrics &fm, int bounding_width);
+
+  static Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
+
+  static void SetComboBoxData(QComboBox *cb, int data);
+
+  template <typename T>
+  static T *GetParentOfType(const QObject *child)
+  {
+    QObject *t = child->parent();
+
+    while (t) {
+      if (T *p = dynamic_cast<T*>(t)) {
+        return p;
+      }
+      t = t->parent();
+    }
+
+    return nullptr;
+  }
 
 };
 

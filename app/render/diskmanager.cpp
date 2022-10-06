@@ -314,9 +314,7 @@ bool DiskCacheFolder::DeleteFileInternal(QMap<QString, HashTime>::iterator hash_
   // Remove from disk
   QFile f(filename);
 
-  if (!f.exists()) {
-    return true;
-  } else if (f.remove()) {
+  if (!f.exists() || f.remove()) {
     // Remove from internal map
     disk_data_.erase(hash_to_delete);
 

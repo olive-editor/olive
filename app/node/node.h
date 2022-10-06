@@ -40,6 +40,7 @@
 #include "node/param.h"
 #include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
+#include "render/audiowaveformcache.h"
 #include "render/framehashcache.h"
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
@@ -211,6 +212,45 @@ public:
     return input_ids_;
   }
 
+  virtual QVector<QString> IgnoreInputsForRendering() const
+  {
+    return QVector<QString>();
+  }
+
+  class ActiveElements
+  {
+  public:
+    enum Mode {
+      kAllElements,
+      kSpecified,
+      kNoElements
+    };
+
+    ActiveElements(Mode m = kAllElements)
+    {
+      mode_ = m;
+    }
+
+    Mode mode() const { return mode_; }
+    std::list<int> elements() const { return elements_; }
+
+    void add(int e)
+    {
+      elements_.push_back(e);
+      mode_ = kSpecified;
+    }
+
+  private:
+    Mode mode_;
+    std::list<int> elements_;
+
+  };
+
+  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
+  {
+    return ActiveElements::kAllElements;
+  }
+
   bool HasInputWithID(const QString& id) const
   {
     return input_ids_.contains(id);
@@ -226,10 +266,23 @@ public:
     return video_cache_;
   }
 
+  ThumbnailCache* thumbnail_cache() const
+  {
+    return thumbnail_cache_;
+  }
+
   AudioPlaybackCache* audio_playback_cache() const
   {
     return audio_cache_;
   }
+
+  AudioWaveformCache* waveform_cache() const
+  {
+    return waveform_cache_;
+  }
+
+  virtual TimeRange GetVideoCacheRange() const { return TimeRange(); }
+  virtual TimeRange GetAudioCacheRange() const { return TimeRange(); }
 
   struct Position
   {
@@ -339,6 +392,11 @@ public:
 
   static void DisconnectEdge(Node *output, const NodeInput& input);
 
+  void CopyCacheUuidsFrom(Node *n);
+
+  bool AreCachesEnabled() const { return caches_enabled_; }
+  void SetCachesEnabled(bool e) { caches_enabled_ = e; }
+
   virtual QString GetInputName(const QString& id) const;
 
   void SetInputName(const QString& id, const QString& name);
@@ -365,6 +423,15 @@ public:
     return IsInputConnected(input.input(), input.element());
   }
 
+  virtual bool IsInputConnectedForRender(const QString& input, int element = -1) const
+  {
+    return IsInputConnected(input, element);
+  }
+  bool IsInputConnectedForRender(const NodeInput& input) const
+  {
+    return IsInputConnectedForRender(input.input(), input.element());
+  }
+
   bool IsInputStatic(const QString& input, int element = -1) const
   {
     return !IsInputConnected(input, element) && !IsInputKeyframing(input, element);
@@ -380,6 +447,16 @@ public:
   Node *GetConnectedOutput(const NodeInput& input) const
   {
     return GetConnectedOutput(input.input(), input.element());
+  }
+
+  virtual Node *GetConnectedRenderOutput(const QString& input, int element = -1) const
+  {
+    return GetConnectedOutput(input, element);
+  }
+
+  Node *GetConnectedRenderOutput(const NodeInput& input) const
+  {
+    return GetConnectedRenderOutput(input.input(), input.element());
   }
 
   bool IsUsingStandardValue(const QString& input, int track, int element = -1) const;
@@ -743,6 +820,15 @@ public:
    */
   bool InputsFrom(const QString& id, bool recursively) const;
 
+
+  /**
+   * @brief Find inputs that `output` outputs to in order to arrive at this node
+   *
+   * Traverse this node's inputs recursively looking for `output`, and return a list of
+   * edges that `output` uses to get to `this` node.
+   */
+  QVector<NodeInput> FindWaysNodeArrivesHere(const Node *output) const;
+
   /**
    * @brief Determines how many paths go from this node out to another node
    */
@@ -767,13 +853,13 @@ public:
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  QVector<T*> FindInputNodes() const;
+  QVector<T*> FindInputNodes(int maximum = 0) const;
 
   /**
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input);
+  static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input, int maximum = 0);
 
   template<class T>
   /**
@@ -914,15 +1000,89 @@ public:
     folder_ = folder;
   }
 
-  bool GetCacheTextures() const
+  class ArrayInsertCommand : public UndoCommand
   {
-    return cache_result_;
-  }
+  public:
+    ArrayInsertCommand(Node* node, const QString& input, int index) :
+      node_(node),
+      input_(input),
+      index_(index)
+    {
+    }
 
-  void SetCacheTextures(bool e)
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override
+    {
+      node_->InputArrayInsert(input_, index_, false);
+    }
+
+    virtual void undo() override
+    {
+      node_->InputArrayRemove(input_, index_, false);
+    }
+
+  private:
+    Node* node_;
+    QString input_;
+    int index_;
+
+  };
+
+  class ArrayResizeCommand : public UndoCommand
   {
-    cache_result_ = e;
-  }
+  public:
+    ArrayResizeCommand(Node* node, const QString& input, int size) :
+      node_(node),
+      input_(input),
+      size_(size)
+    {}
+
+    virtual Project* GetRelevantProject() const override;
+
+  protected:
+    virtual void redo() override
+    {
+      old_size_ = node_->InputArraySize(input_);
+
+      if (old_size_ > size_) {
+        // Decreasing in size, disconnect any extraneous edges
+        for (int i=size_; i<old_size_; i++) {
+
+          try {
+            NodeInput input(node_, input_, i);
+            Node *output = node_->input_connections().at(input);
+
+            removed_connections_[input] = output;
+
+            DisconnectEdge(output, input);
+          } catch (std::out_of_range&) {}
+        }
+      }
+
+      node_->ArrayResizeInternal(input_, size_);
+    }
+
+    virtual void undo() override
+    {
+      for (auto it=removed_connections_.cbegin(); it!=removed_connections_.cend(); it++) {
+        ConnectEdge(it->second, it->first);
+      }
+      removed_connections_.clear();
+
+      node_->ArrayResizeInternal(input_, old_size_);
+    }
+
+  private:
+    Node* node_;
+    QString input_;
+    int size_;
+    int old_size_;
+
+    InputConnections removed_connections_;
+
+  };
 
   class ArrayRemoveCommand : public UndoCommand
   {
@@ -981,6 +1141,9 @@ public:
 
   InputFlags GetInputFlags(const QString& input) const;
   void SetInputFlags(const QString &input, const InputFlags &f);
+
+  virtual void LoadFinishedEvent(){}
+  virtual void ConnectedToPreviewEvent(){}
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
@@ -1157,90 +1320,6 @@ signals:
   void InputFlagsChanged(const QString &input, const InputFlags &flags);
 
 private:
-  class ArrayInsertCommand : public UndoCommand
-  {
-  public:
-    ArrayInsertCommand(Node* node, const QString& input, int index) :
-      node_(node),
-      input_(input),
-      index_(index)
-    {
-    }
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      node_->InputArrayInsert(input_, index_, false);
-    }
-
-    virtual void undo() override
-    {
-      node_->InputArrayRemove(input_, index_, false);
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int index_;
-
-  };
-
-  class ArrayResizeCommand : public UndoCommand
-  {
-  public:
-    ArrayResizeCommand(Node* node, const QString& input, int size) :
-      node_(node),
-      input_(input),
-      size_(size)
-    {}
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      old_size_ = node_->InputArraySize(input_);
-
-      if (old_size_ > size_) {
-        // Decreasing in size, disconnect any extraneous edges
-        for (int i=size_; i<old_size_; i++) {
-
-          try {
-            NodeInput input(node_, input_, i);
-            Node *output = node_->input_connections().at(input);
-
-            removed_connections_[input] = output;
-
-            DisconnectEdge(output, input);
-          } catch (std::out_of_range&) {}
-        }
-      }
-
-      node_->ArrayResizeInternal(input_, size_);
-    }
-
-    virtual void undo() override
-    {
-      for (auto it=removed_connections_.cbegin(); it!=removed_connections_.cend(); it++) {
-        ConnectEdge(it->second, it->first);
-      }
-      removed_connections_.clear();
-
-      node_->ArrayResizeInternal(input_, old_size_);
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int size_;
-    int old_size_;
-
-    InputConnections removed_connections_;
-
-  };
-
   struct Input {
     NodeValue::Type type;
     InputFlags flags;
@@ -1306,7 +1385,7 @@ private:
     }
   }
 
-  void ReportInvalidInput(const char* attempted_action, const QString &id) const;
+  void ReportInvalidInput(const char* attempted_action, const QString &id, int element) const;
 
   void ArrayResizeInternal(const QString& id, int size);
 
@@ -1321,10 +1400,10 @@ private:
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  static void FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *>& list);
+  static void FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *>& list, int maximum);
 
   template<class T>
-  static void FindInputNodeInternal(const Node* n, QVector<T *>& list);
+  static void FindInputNodeInternal(const Node* n, QVector<T *>& list, int maximum);
 
   template<class T>
   static void FindOutputNodeInternal(const Node* n, QVector<T *>& list);
@@ -1386,8 +1465,6 @@ private:
 
   Folder* folder_;
 
-  bool cache_result_;
-
   QMap<InputElementPair, ValueHint> value_hints_;
 
   PositionMap context_positions_;
@@ -1399,8 +1476,12 @@ private:
   QString effect_input_;
 
   FrameHashCache *video_cache_;
+  ThumbnailCache *thumbnail_cache_;
 
   AudioPlaybackCache *audio_cache_;
+  AudioWaveformCache *waveform_cache_;
+
+  bool caches_enabled_;
 
 private slots:
   /**
@@ -1431,7 +1512,7 @@ private slots:
 };
 
 template<class T>
-void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *> &list)
+void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *> &list, int maximum)
 {
   Node* edge = input.GetConnectedOutput();
   if (!edge) {
@@ -1442,35 +1523,38 @@ void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVecto
 
   if (cast_test) {
     list.append(cast_test);
+    if (maximum != 0 && list.size() == maximum) {
+      return;
+    }
   }
 
-  FindInputNodeInternal<T>(edge, list);
+  FindInputNodeInternal<T>(edge, list, maximum);
 }
 
 template<class T>
-QVector<T *> Node::FindInputNodesConnectedToInput(const NodeInput &input)
+QVector<T *> Node::FindInputNodesConnectedToInput(const NodeInput &input, int maximum)
 {
   QVector<T *> list;
 
-  FindInputNodesConnectedToInputInternal<T>(input, list);
+  FindInputNodesConnectedToInputInternal<T>(input, list, maximum);
 
   return list;
 }
 
 template<class T>
-void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
+void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list, int maximum)
 {
   for (auto it=n->input_connections_.cbegin(); it!=n->input_connections_.cend(); it++) {
-    FindInputNodesConnectedToInputInternal(it->first, list);
+    FindInputNodesConnectedToInputInternal(it->first, list, maximum);
   }
 }
 
 template<class T>
-QVector<T *> Node::FindInputNodes() const
+QVector<T *> Node::FindInputNodes(int maximum) const
 {
   QVector<T *> list;
 
-  FindInputNodeInternal<T>(this, list);
+  FindInputNodeInternal<T>(this, list, maximum);
 
   return list;
 }
@@ -1492,7 +1576,7 @@ void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list)
       list.append(cast_test);
     }
 
-    FindOutputNodeInternal<T>(connected);
+    FindOutputNodeInternal<T>(connected, list);
   }
 }
 

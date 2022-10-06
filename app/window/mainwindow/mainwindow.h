@@ -25,6 +25,7 @@
 
 #include "mainwindowlayoutinfo.h"
 #include "node/project/project.h"
+#include "panel/multicam/multicampanel.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
@@ -92,6 +93,8 @@ public:
    */
   void SetApplicationProgressValue(int value);
 
+  void SelectFootage(const QVector<Footage*> &e);
+
 public slots:
   void ProjectOpen(Project *p);
 
@@ -142,6 +145,10 @@ private:
 
   void UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel);
 
+  void SelectFootageForProjectPanel(const QVector<Footage*> &e, ProjectPanel *p);
+
+  void AddMainTimePanel(TimeBasedPanel *p);
+
   QByteArray premaximized_state_;
 
   // Standard panels
@@ -159,6 +166,7 @@ private:
   PixelSamplerPanel* pixel_sampler_panel_;
   ScopePanel* scope_panel_;
   QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
+  MulticamPanel *multicam_panel_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;
@@ -167,6 +175,8 @@ private:
 #endif
 
   bool first_show_;
+
+  QVector<TimeBasedPanel*> main_time_panels_;
 
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);
@@ -196,6 +206,9 @@ private slots:
   void ShowWelcomeDialog();
 
   void RevealViewerInProject(ViewerOutput *r);
+  void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
+
+  void UpdateMainTimePanels(const rational &r);
 
 };
 

@@ -69,41 +69,39 @@ void CornerPinDistortNode::Retranslate()
 
 void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-  job.Insert(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-
-  // Convert slider values to their pixel values and then convert to clip space (-1.0 ... 1.0) for overriding the
-  // vertex coordinates.
-  const QVector2D &resolution = globals.resolution();
-  QVector2D half_resolution = resolution * 0.5;
-  QVector2D top_left = QVector2D(ValueToPixel(0, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
-  QVector2D top_right = QVector2D(ValueToPixel(1, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
-  QVector2D bottom_right = QVector2D(ValueToPixel(2, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
-  QVector2D bottom_left = QVector2D(ValueToPixel(3, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
-
-  // Override default vertex coordinates.
-  QVector<float> adjusted_vertices = {top_left.x(), top_left.y(), 0.0f,
-                                  top_right.x(), top_right.y(), 0.0f,
-                                  bottom_right.x(),  bottom_right.y(), 0.0f,
-
-                                  top_left.x(), top_left.y(), 0.0f,
-                                  bottom_left.x(),  bottom_left.y(), 0.0f,
-                                  bottom_right.x(),  bottom_right.y(), 0.0f};
-  job.SetVertexCoordinates(adjusted_vertices);
-
   // If no texture do nothing
-  if (job.Get(kTextureInput).toTexture()) {
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
     // In the special case that all sliders are in their default position just
     // push the texture.
-    if (!(job.Get(kTopLeftInput).toVec2().isNull()
-        && job.Get(kTopRightInput).toVec2().isNull() &&
-        job.Get(kBottomRightInput).toVec2().isNull() &&
-        job.Get(kBottomLeftInput).toVec2().isNull())) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+    if (!(value[kTopLeftInput].toVec2().isNull()
+        && value[kTopRightInput].toVec2().isNull() &&
+        value[kBottomRightInput].toVec2().isNull() &&
+        value[kBottomLeftInput].toVec2().isNull())) {
+      ShaderJob job(value);
+      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+
+      // Convert slider values to their pixel values and then convert to clip space (-1.0 ... 1.0) for overriding the
+      // vertex coordinates.
+      const QVector2D &resolution = tex->virtual_resolution();
+      QVector2D half_resolution = resolution * 0.5;
+      QVector2D top_left = QVector2D(ValueToPixel(0, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+      QVector2D top_right = QVector2D(ValueToPixel(1, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+      QVector2D bottom_right = QVector2D(ValueToPixel(2, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+      QVector2D bottom_left = QVector2D(ValueToPixel(3, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+
+      // Override default vertex coordinates.
+      QVector<float> adjusted_vertices = {top_left.x(), top_left.y(), 0.0f,
+                                      top_right.x(), top_right.y(), 0.0f,
+                                      bottom_right.x(),  bottom_right.y(), 0.0f,
+
+                                      top_left.x(), top_left.y(), 0.0f,
+                                      bottom_left.x(),  bottom_left.y(), 0.0f,
+                                      bottom_right.x(),  bottom_right.y(), 0.0f};
+      job.SetVertexCoordinates(adjusted_vertices);
+
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
     } else {
-      table->Push(job.Get(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }
@@ -152,27 +150,29 @@ void CornerPinDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
 
 void CornerPinDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  const QVector2D &resolution = globals.resolution();
+  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+    const QVector2D &resolution = tex->virtual_resolution();
 
-  QPointF top_left = ValueToPixel(0, row, resolution);
-  QPointF top_right = ValueToPixel(1, row, resolution);
-  QPointF bottom_right = ValueToPixel(2, row, resolution);
-  QPointF bottom_left = ValueToPixel(3, row, resolution);
+    QPointF top_left = ValueToPixel(0, row, resolution);
+    QPointF top_right = ValueToPixel(1, row, resolution);
+    QPointF bottom_right = ValueToPixel(2, row, resolution);
+    QPointF bottom_left = ValueToPixel(3, row, resolution);
 
-  // Add the correct offset to each slider
-  SetInputProperty(kTopLeftInput, QStringLiteral("offset"), QVector2D(0.0, 0.0));
-  SetInputProperty(kTopRightInput, QStringLiteral("offset"), QVector2D(resolution.x() , 0.0));
-  SetInputProperty(kBottomRightInput, QStringLiteral("offset"), resolution);
-  SetInputProperty(kBottomLeftInput, QStringLiteral("offset"), QVector2D(0.0, resolution.y()));
+    // Add the correct offset to each slider
+    SetInputProperty(kTopLeftInput, QStringLiteral("offset"), QVector2D(0.0, 0.0));
+    SetInputProperty(kTopRightInput, QStringLiteral("offset"), QVector2D(resolution.x() , 0.0));
+    SetInputProperty(kBottomRightInput, QStringLiteral("offset"), resolution);
+    SetInputProperty(kBottomLeftInput, QStringLiteral("offset"), QVector2D(0.0, resolution.y()));
 
-  // Draw bounding box
-  gizmo_whole_rect_->SetPolygon(QPolygonF({top_left, top_right, bottom_right, bottom_left, top_left}));
+    // Draw bounding box
+    gizmo_whole_rect_->SetPolygon(QPolygonF({top_left, top_right, bottom_right, bottom_left, top_left}));
 
-  // Create handles
-  gizmo_resize_handle_[0]->SetPoint(top_left);
-  gizmo_resize_handle_[1]->SetPoint(top_right);
-  gizmo_resize_handle_[2]->SetPoint(bottom_right);
-  gizmo_resize_handle_[3]->SetPoint(bottom_left);
+    // Create handles
+    gizmo_resize_handle_[0]->SetPoint(top_left);
+    gizmo_resize_handle_[1]->SetPoint(top_right);
+    gizmo_resize_handle_[2]->SetPoint(bottom_right);
+    gizmo_resize_handle_[3]->SetPoint(bottom_left);
+  }
 }
 
 }

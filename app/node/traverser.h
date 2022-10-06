@@ -26,8 +26,11 @@
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
 #include "node/output/track/track.h"
+#include "render/job/cachejob.h"
+#include "render/cancelatom.h"
 #include "render/job/footagejob.h"
 #include "render/job/colortransformjob.h"
+#include "render/job/footagejob.h"
 #include "value.h"
 
 namespace olive {
@@ -39,23 +42,22 @@ public:
 
   NodeValueTable GenerateTable(const Node *n, const TimeRange &range, const Node *next_node = nullptr);
 
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
+  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
 
   NodeValueRow GenerateRow(NodeValueDatabase *database, const Node *node, const TimeRange &range);
   NodeValueRow GenerateRow(const Node *node, const TimeRange &range);
 
-  NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table);
-  NodeValue GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table);
-  NodeValue GenerateRowValueElement(const Node::ValueHint &hint, NodeValue::Type preferred_type, NodeValueTable *table);
+  NodeValue GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table, const TimeRange &time);
+  NodeValue GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table, const TimeRange &time);
   int GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table);
   int GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table);
 
   void Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range);
 
-  static NodeGlobals GenerateGlobals(const VideoParams &params, const TimeRange &time);
-  static NodeGlobals GenerateGlobals(const VideoParams &params, const rational &time)
+  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const TimeRange &time);
+  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const rational &time)
   {
-    return GenerateGlobals(params, TimeRange(time, time + params.frame_rate_as_time_base()));
+    return GenerateGlobals(vparams, aparams, TimeRange(time, time + vparams.frame_rate_as_time_base()));
   }
 
   const VideoParams& GetCacheVideoParams() const
@@ -78,28 +80,26 @@ public:
     audio_params_ = params;
   }
 
-  static int GetChannelCountFromJob(const GenerateJob& job);
-
-  static TexturePtr GetMainTextureFromJob(const GenerateJob& job);
-
 protected:
   NodeValueTable ProcessInput(const Node *node, const QString &input, const TimeRange &range);
 
-  virtual NodeValueTable GenerateBlockTable(const Track *track, const TimeRange& range);
+  void ProcessInputElement(NodeValueTableArray &array_tbl, const Node *node, const QString &input, int element, const TimeRange &range);
 
-  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob &stream, const rational &input_time){}
+  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time){}
 
-  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob &stream, const TimeRange &input_time){}
+  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time){}
 
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const TimeRange &range, const ShaderJob& job){}
+  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job){}
 
-  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob& job){}
+  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job){}
 
   virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job){}
 
-  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob& job){}
+  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job){}
 
   virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs){}
+
+  virtual TexturePtr ProcessVideoCacheJob(const CacheJob *val);
 
   virtual TexturePtr CreateTexture(const VideoParams &p)
   {
@@ -121,51 +121,52 @@ protected:
     }
   }
 
-  virtual bool CanCacheFrames()
-  {
-    return false;
-  }
-
   QVector2D GenerateResolution() const;
 
   bool IsCancelled()
   {
-    bool c = cancel_ && *cancel_;
-    if (c) {
-      heard_cancel_ = true;
-    }
-    return c;
+    return cancel_ && cancel_->IsCancelled();
   }
 
-  bool HeardCancel() const { return heard_cancel_; }
-
-  const QAtomicInt *GetCancelPointer() const
+  bool HeardCancel() const
   {
-    return cancel_;
+    return cancel_ && cancel_->HeardCancel();
   }
 
-  void SetCancelPointer(const QAtomicInt *cancel)
+  CancelAtom *GetCancelPointer() const { return cancel_; }
+  void SetCancelPointer(CancelAtom *cancel) { cancel_ = cancel; }
+
+  void ResolveJobs(NodeValue &value);
+  void ResolveAudioJobs(NodeValue &value);
+
+  Block *GetCurrentBlock() const
   {
-    cancel_ = cancel;
+    return block_stack_.empty() ? nullptr : block_stack_.back();
   }
 
-  void ResolveJobs(NodeValue &value, const TimeRange &range);
+  Decoder::LoopMode loop_mode() const { return loop_mode_; }
+
+  virtual bool UseCache() const { return false; }
 
 private:
-  void PreProcessRow(const TimeRange &range, NodeValueRow &row);
-
   TexturePtr CreateDummyTexture(const VideoParams &p);
 
   VideoParams video_params_;
 
   AudioParams audio_params_;
 
-  const QAtomicInt *cancel_;
-  bool heard_cancel_;
+  CancelAtom *cancel_;
 
   const Node *transform_start_;
   const Node *transform_now_;
   QTransform *transform_;
+
+  std::list<Block*> block_stack_;
+
+  Decoder::LoopMode loop_mode_;
+
+  QHash<const Node*, QHash<TimeRange, NodeValueTable> > value_cache_;
+  QHash<Texture*, TexturePtr> resolved_texture_cache_;
 
 };
 

@@ -25,26 +25,21 @@
 #include <inttypes.h>
 
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
 }
 
-#include <QAtomicInt>
 #include <QTimer>
 #include <QVector>
 #include <QWaitCondition>
 
 #include "codec/decoder.h"
+#include "common/ffmpegutils.h"
 
 namespace olive {
-
-using AVFramePtr = std::shared_ptr<AVFrame>;
-inline AVFramePtr CreateAVFramePtr(AVFrame *f)
-{
-  return std::shared_ptr<AVFrame>(f, [](AVFrame *g){ av_frame_free(&g); });
-}
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -64,15 +59,15 @@ public:
   virtual bool SupportsVideo() override{return true;}
   virtual bool SupportsAudio() override{return true;}
 
-  virtual FootageDescription Probe(const QString &filename, const QAtomicInt *cancelled) const override;
-
-  virtual VideoParams GetParamsForTexture(const Decoder::RetrieveVideoParams &p) override;
+  virtual FootageDescription Probe(const QString &filename, CancelAtom *cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;
-  virtual bool RetrieveVideoInternal(TexturePtr destination, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
-  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled) override;
+  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
   virtual void CloseInternal() override;
+
+  virtual rational GetAudioStartOffset() const override;
 
 private:
   class Instance
@@ -149,21 +144,29 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
+  static bool IsPixelFormatGLSLCompatible(AVPixelFormat f);
+
   AVFramePtr GetFrameFromCache(const int64_t &t) const;
 
   void ClearFrameCache();
 
-  AVFramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  AVFramePtr RetrieveFrame(const rational &time, VideoParams::Interlacing interlacing, CancelAtom *cancelled);
 
   void RemoveFirstFrame();
+
+  bool ApplyScaler(AVFrame *in);
+
+  static int MaximumQueueSize();
 
   RetrieveVideoParams filter_params_;
   AVFilterGraph* filter_graph_;
   AVFilterContext* buffersrc_ctx_;
   AVFilterContext* buffersink_ctx_;
   AVPixelFormat input_fmt_;
-  VideoParams::Format native_pix_fmt_;
+  VideoParams::Format native_internal_pix_fmt_;
+  VideoParams::Format native_output_pix_fmt_;
   int native_channel_count_;
+  rational frame_rate_tb_;
 
   AVFrame *working_frame_;
   AVPacket *working_packet_;
@@ -171,9 +174,6 @@ private:
   int64_t second_ts_;
 
   std::list<AVFramePtr> cached_frames_;
-
-  bool is_working_;
-  QMutex is_working_mutex_;
 
   bool cache_at_zero_;
   bool cache_at_eof_;
