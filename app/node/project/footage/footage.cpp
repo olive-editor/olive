@@ -544,7 +544,12 @@ void Footage::CheckFootage()
     if (!fn.isEmpty()) {
       QFileInfo info(fn);
 
-      qint64 current_file_timestamp = info.lastModified().toMSecsSinceEpoch();
+      qint64 current_file_timestamp;
+      if (!info.lastModified().isValid()) {
+        current_file_timestamp = 0;
+      } else {
+        current_file_timestamp = info.lastModified().toMSecsSinceEpoch();
+      }
 
       if (current_file_timestamp != timestamp()) {
         // File has changed!
