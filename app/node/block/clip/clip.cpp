@@ -543,7 +543,7 @@ TimeRange ClipBlock::media_range() const
 
 MultiCamNode *ClipBlock::FindMulticam()
 {
-  auto v = FindInputNodesConnectedToInput<MultiCamNode>(NodeInput(this, kBufferIn));
+  auto v = FindInputNodesConnectedToInput<MultiCamNode>(NodeInput(this, kBufferIn), 1);
   if (v.empty()) {
     return nullptr;
   } else {

@@ -859,7 +859,7 @@ public:
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input);
+  static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input, int maximum = 0);
 
   template<class T>
   /**
@@ -1400,10 +1400,10 @@ private:
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
   template<class T>
-  static void FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *>& list);
+  static void FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *>& list, int maximum);
 
   template<class T>
-  static void FindInputNodeInternal(const Node* n, QVector<T *>& list);
+  static void FindInputNodeInternal(const Node* n, QVector<T *>& list, int maximum);
 
   template<class T>
   static void FindOutputNodeInternal(const Node* n, QVector<T *>& list);
@@ -1512,7 +1512,7 @@ private slots:
 };
 
 template<class T>
-void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *> &list)
+void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *> &list, int maximum)
 {
   Node* edge = input.GetConnectedOutput();
   if (!edge) {
@@ -1523,26 +1523,29 @@ void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVecto
 
   if (cast_test) {
     list.append(cast_test);
+    if (maximum != 0 && list.size() == maximum) {
+      return;
+    }
   }
 
-  FindInputNodeInternal<T>(edge, list);
+  FindInputNodeInternal<T>(edge, list, maximum);
 }
 
 template<class T>
-QVector<T *> Node::FindInputNodesConnectedToInput(const NodeInput &input)
+QVector<T *> Node::FindInputNodesConnectedToInput(const NodeInput &input, int maximum)
 {
   QVector<T *> list;
 
-  FindInputNodesConnectedToInputInternal<T>(input, list);
+  FindInputNodesConnectedToInputInternal<T>(input, list, maximum);
 
   return list;
 }
 
 template<class T>
-void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list)
+void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list, int maximum)
 {
   for (auto it=n->input_connections_.cbegin(); it!=n->input_connections_.cend(); it++) {
-    FindInputNodesConnectedToInputInternal(it->first, list);
+    FindInputNodesConnectedToInputInternal(it->first, list, maximum);
   }
 }
 
