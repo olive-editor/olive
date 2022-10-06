@@ -74,6 +74,7 @@ H264Section::H264Section(int default_crf, QWidget *parent) :
 
   // These items must correspond to the CompressionMethod enum
   compression_box->addItem(tr("Constant Rate Factor"));
+  compression_box->addItem(tr("Lossless"));
   compression_box->addItem(tr("Target Bit Rate"));
   compression_box->addItem(tr("Target File Size"));
 
@@ -87,6 +88,9 @@ H264Section::H264Section(int default_crf, QWidget *parent) :
   crf_section_ = new H264CRFSection(default_crf);
   compression_method_stack_->addWidget(crf_section_);
 
+  lossless_section_ = new H264LosslessSection();
+  compression_method_stack_->addWidget(lossless_section_);
+  
   bitrate_section_ = new H264BitRateSection();
   compression_method_stack_->addWidget(bitrate_section_);
 
@@ -114,6 +118,10 @@ void H264Section::AddOpts(EncodingParams *params)
     // Simply set CRF value
     params->set_video_option(QStringLiteral("crf"), QString::number(crf_section_->GetValue()));
 
+  } else if (method == kLossless) {
+
+    params->set_video_option(QStringLiteral("qp"), QString::number(0));
+  
   } else {
 
     int64_t target_rate, max_rate, min_rate;
@@ -235,6 +243,17 @@ H264BitRateSection::H264BitRateSection(QWidget *parent) :
   // Bit rate defaults
   target_rate_->SetValue(16.0);
   max_rate_->SetValue(32.0);
+}
+
+H264LosslessSection::H264LosslessSection(QWidget *parent) :
+  QWidget(parent)
+{
+  QGridLayout* layout = new QGridLayout(this);
+  layout->setMargin(0);
+
+  int row = 0;
+
+  layout->addWidget(new QLabel(tr("For true lossless, verify the pixel format before exporting")), row, 0);
 }
 
 int64_t H264BitRateSection::GetTargetBitRate() const
