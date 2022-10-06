@@ -364,7 +364,7 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
     }
 
     // Find connected viewer node
-    auto viewers = FindInputNodesConnectedToInput<ViewerOutput>(NodeInput(this, kBufferIn));
+    auto viewers = FindInputNodesConnectedToInput<ViewerOutput>(NodeInput(this, kBufferIn), 1);
     ViewerOutput *new_connected_viewer = viewers.isEmpty() ? nullptr : viewers.first();
 
     if (new_connected_viewer != connected_viewer_) {
