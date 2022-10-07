@@ -39,6 +39,8 @@ ViewerSizer::ViewerSizer(QWidget *parent) :
   vert_scrollbar_ = new QScrollBar(Qt::Vertical, this);
   vert_scrollbar_->setVisible(false);
   connect(vert_scrollbar_, &QScrollBar::valueChanged, this, &ViewerSizer::ScrollBarMoved);
+
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 void ViewerSizer::SetWidget(QWidget *widget)

@@ -72,9 +72,7 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   job.Insert(QStringLiteral("ove_maintex"),
                   NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
-  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
-                                              static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
-                                              VideoParams::kInternalChannelCount));
+  renderer()->Blit(pipeline, job, GetViewportParams());
 
   float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);
   float waveform_dim_y = ceil((height() - 1.0) * waveform_scale);

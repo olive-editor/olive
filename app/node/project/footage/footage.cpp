@@ -265,9 +265,7 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
     // Push each stream as a footage job
     for (int i=0; i<GetTotalStreamCount(); i++) {
       Track::Reference ref = GetReferenceFromRealIndex(i);
-      FootageJob job(decoder_, filename(), ref.type(), GetLength());
-
-      NodeValue::Type type;
+      FootageJob job(globals.time(), decoder_, filename(), ref.type(), GetLength());
 
       if (ref.type() == Track::kVideo) {
         VideoParams vp = GetVideoParams(ref.index());
@@ -275,18 +273,25 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         // Ensure the colorspace is valid and not empty
         vp.set_colorspace(GetColorspaceToUse(vp));
 
+        // Adjust footage job's divider
+        if (globals.vparams().divider() > 1) {
+          // Use a divider appropriate for this target resolution
+          vp.set_divider(VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), globals.vparams().effective_width(), globals.vparams().effective_height()));
+        } else {
+          // Render everything at full res
+          vp.set_divider(1);
+        }
+
         job.set_video_params(vp);
 
-        type = NodeValue::kTexture;
+        table->Push(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
       } else {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
-        type = NodeValue::kSamples;
+        table->Push(NodeValue::kSamples, QVariant::fromValue(job), this, ref.ToString());
       }
-
-      table->Push(type, QVariant::fromValue(job), this, ref.ToString());
     }
   }
 }
@@ -539,7 +544,12 @@ void Footage::CheckFootage()
     if (!fn.isEmpty()) {
       QFileInfo info(fn);
 
-      qint64 current_file_timestamp = info.lastModified().toMSecsSinceEpoch();
+      qint64 current_file_timestamp;
+      if (!info.lastModified().isValid()) {
+        current_file_timestamp = 0;
+      } else {
+        current_file_timestamp = info.lastModified().toMSecsSinceEpoch();
+      }
 
       if (current_file_timestamp != timestamp()) {
         // File has changed!

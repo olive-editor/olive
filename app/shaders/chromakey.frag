@@ -9,6 +9,7 @@ uniform sampler2D garbage_in;
 uniform sampler2D core_in;
 uniform bool garbage_in_enabled;
 uniform bool core_in_enabled;
+uniform bool invert_in;
 
 uniform float highlights_in;
 uniform float shadows_in;
@@ -93,6 +94,11 @@ void main() {
   // Crush blacks and push whites
   mask = shadows_in * 0.01 * (highlights_in * 0.01 * mask - 1.0) + 1.0;
   mask = clamp(mask, 0.0, 1.0);
+
+  // Invert
+  if (invert_in) {
+    mask = 1.0 - mask;
+  }
 
   col.rgb *= mask;
   col.w = mask;

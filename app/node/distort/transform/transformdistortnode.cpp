@@ -89,7 +89,7 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
   // Pop texture
   NodeValue texture_meta = value[kTextureInput];
 
-  QVariant job_to_push;
+  TexturePtr job_to_push = nullptr;
 
   // If we have a texture, generate a matrix and make it happen
   if (TexturePtr texture = texture_meta.toTexture()) {
@@ -99,17 +99,18 @@ void TransformDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
     if (!real_matrix.isIdentity()) {
       // The matrix will transform things
       ShaderJob job;
-      job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture), this));
+      job.Insert(QStringLiteral("ove_maintex"), texture_meta);
       job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, real_matrix, this));
       job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(value[kInterpolationInput].toInt()));
 
-      job_to_push = QVariant::fromValue(job);
+      // Use global resolution rather than texture resolution because this may result in a size change
+      job_to_push = Texture::Job(globals.vparams(), job);
     }
   }
 
   table->Push(NodeValue::kMatrix, QVariant::fromValue(generated_matrix), this);
 
-  if (job_to_push.isNull()) {
+  if (!job_to_push) {
     // Re-push whatever value we received
     table->Push(texture_meta);
   } else {
@@ -142,7 +143,7 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
     }
 
     gizmo_scale_uniform_ = row[kUniformScaleInput].toBool();
-    gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().resolution()/2).toPointF();
+    gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().nonsquare_resolution()/2).toPointF();
 
     if (gizmo == point_gizmo_[kGizmoScaleTopLeft] || gizmo == point_gizmo_[kGizmoScaleTopRight]
         || gizmo == point_gizmo_[kGizmoScaleBottomLeft] || gizmo == point_gizmo_[kGizmoScaleBottomRight]) {
@@ -177,7 +178,7 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
 
   } else if (gizmo == rotation_gizmo_) {
 
-    gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().resolution()/2).toPointF();
+    gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().nonsquare_resolution()/2).toPointF();
     gizmo_start_angle_ = qAtan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
     gizmo_last_angle_ = gizmo_start_angle_;
     gizmo_last_alt_angle_ = qAtan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
@@ -343,7 +344,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
   }
 
   // Get the sequence resolution
-  const QVector2D &sequence_res = globals.resolution();
+  const QVector2D &sequence_res = globals.nonsquare_resolution();
   QVector2D sequence_half_res = sequence_res * 0.5;
   QPointF sequence_half_res_pt = sequence_half_res.toPointF();
 
@@ -418,7 +419,7 @@ QPointF TransformDistortNode::CreateScalePoint(double x, double y, const QPointF
 
 QMatrix4x4 TransformDistortNode::GenerateAutoScaledMatrix(const QMatrix4x4& generated_matrix, const NodeValueRow& value, const NodeGlobals &globals, const VideoParams& texture_params) const
 {
-  const QVector2D &sequence_res = globals.resolution();
+  const QVector2D &sequence_res = globals.nonsquare_resolution();
   QVector2D texture_res(texture_params.square_pixel_width(), texture_params.height());
   AutoScaleType autoscale = static_cast<AutoScaleType>(value[kAutoscaleInput].toInt());
 

@@ -199,6 +199,15 @@ void ViewerDisplayWidget::SetVideoParams(const VideoParams &params)
   }
 }
 
+void ViewerDisplayWidget::SetAudioParams(const AudioParams &params)
+{
+  gizmo_audio_params_ = params;
+
+  if (gizmos_) {
+    update();
+  }
+}
+
 void ViewerDisplayWidget::SetTime(const rational &time)
 {
   time_ = time;
@@ -369,10 +378,7 @@ void ViewerDisplayWidget::OnPaint()
   // We only draw if we have a pipeline
   if (push_mode_ != kPushNull) {
     // Draw texture through color transform
-    int device_width = width() * devicePixelRatioF();
-    int device_height = height() * devicePixelRatioF();
-    VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
-    VideoParams device_params(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
+    VideoParams device_params = GetViewportParams();
 
     if (push_mode_ == kPushBlank) {
       if (blank_shader_.isNull()) {
@@ -400,6 +406,8 @@ void ViewerDisplayWidget::OnPaint()
       } else if (TexturePtr texture = load_frame_.value<TexturePtr>()) {
         // This is a GPU texture, switch to it directly
         texture_ = texture;
+      } else {
+        texture_ = LoadCustomTextureFromFrame(load_frame_);
       }
 
       emit TextureChanged(texture_);
@@ -442,17 +450,13 @@ void ViewerDisplayWidget::OnPaint()
 
   // Draw gizmos if we have any
   if (gizmos_) {
-    NodeTraverser gt;
-    gt.SetCacheVideoParams(gizmo_params_);
-
-    TimeRange range = GenerateGizmoTime();
-    gizmo_db_ = gt.GenerateRow(gizmos_, range);
-
     QPainter p(paint_device());
-    gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, range);
+
+    GenerateGizmoTransforms();
+
     p.setWorldTransform(gizmo_last_draw_transform_);
 
-    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, range));
+    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -827,18 +831,17 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       add_band_ = true;
 
     } else if (gizmos_
-               && (gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted(),
-                   current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
+               && (current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
 
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
       gizmo_last_drag_ = gizmo_start_drag_;
-      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, GenerateGizmoTime()));
+      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime()));
 
     } else {
 
       // Handle standard drag
-      emit DragStarted();
+      emit DragStarted(event->pos());
 
     }
 
@@ -897,11 +900,12 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
           if (draggable &&
               ((a_gizmo == gizmo_selection_.PressedGizmo()) || (a_gizmo->CanBeDraggedInGroup()))) {
-            QPointF start = gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+            QPointF start = ScreenToScenePoint(gizmo_start_drag_);
 
             rational gizmo_time = GetGizmoTime();
             NodeTraverser t;
             t.SetCacheVideoParams(gizmo_params_);
+            t.SetCacheAudioParams(gizmo_audio_params_);
             NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
 
             draggable->DragStart(row, start.x(), start.y(), gizmo_time);
@@ -913,17 +917,17 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
       for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
         DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
-        QPointF v = event->pos() * gizmo_last_draw_transform_inverted_;
+        QPointF v = ScreenToScenePoint(event->pos());
         switch (draggable->GetDragValueBehavior()) {
         case DraggableGizmo::kAbsolute:
           // Above value is correct
           break;
         case DraggableGizmo::kDeltaFromPrevious:
-          v -= gizmo_last_drag_ * gizmo_last_draw_transform_inverted_;
+          v -= ScreenToScenePoint(gizmo_last_drag_);
           gizmo_last_drag_ = event->pos();
           break;
         case DraggableGizmo::kDeltaFromStart:
-          v -= gizmo_start_drag_ * gizmo_last_draw_transform_inverted_;
+          v -= ScreenToScenePoint(gizmo_start_drag_);
           break;
         }
 
@@ -1095,7 +1099,7 @@ void ViewerDisplayWidget::DrawSubtitleTracks()
   for (int j=subtitle_tracklist.size()-1; j>=0; j--) {
     Track *sub_track = subtitle_tracklist.at(j);
     if (!sub_track->IsMuted()) {
-      if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->BlockAtTime(time_))) {
+      if (SubtitleBlock *sub = dynamic_cast<SubtitleBlock*>(sub_track->VisibleBlockAtTime(time_))) {
         // Split into lines
         QStringList list = QtUtils::WordWrapString(sub->GetText(), fm, bounding_box.width());
 
@@ -1224,6 +1228,22 @@ void ViewerDisplayWidget::CloseTextEditor()
   text_edit_ = nullptr;
 }
 
+void ViewerDisplayWidget::GenerateGizmoTransforms()
+{
+  NodeTraverser gt;
+  gt.SetCacheVideoParams(gizmo_params_);
+  gt.SetCacheAudioParams(gizmo_audio_params_);
+
+  gizmo_draw_time_ = GenerateGizmoTime();
+
+  if (gizmos_) {
+    gizmo_db_ = gt.GenerateRow(gizmos_, gizmo_draw_time_);
+  }
+
+  gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, gizmo_draw_time_);
+  gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted();
+}
+
 void ViewerDisplayWidget::SetShowFPS(bool e)
 {
   show_fps_ = e;
@@ -1261,6 +1281,15 @@ void ViewerDisplayWidget::Pause()
 
   queue_.clear();
   queue_starved_ = false;
+}
+
+QPointF ViewerDisplayWidget::ScreenToScenePoint(const QPoint &p)
+{
+  if (gizmo_last_draw_transform_.isIdentity()) {
+    GenerateGizmoTransforms();
+  }
+
+  return p * gizmo_last_draw_transform_inverted_;
 }
 
 void ViewerDisplayWidget::UpdateFromQueue()

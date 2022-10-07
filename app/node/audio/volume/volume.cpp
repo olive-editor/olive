@@ -63,8 +63,6 @@ QString VolumeNode::Description() const
 
 void VolumeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(globals)
-
   // Create a sample job
   SampleBuffer buffer = value[kSamplesInput].toSamples();
 
@@ -80,7 +78,7 @@ void VolumeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, No
       table->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
     } else {
       // Requires job
-      SampleJob job(kSamplesInput, value);
+      SampleJob job(globals.time(), kSamplesInput, value);
       job.Insert(kVolumeInput, value);
       table->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
     }

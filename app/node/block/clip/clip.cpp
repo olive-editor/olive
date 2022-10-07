@@ -232,7 +232,7 @@ void ClipBlock::RequestRangeFromConnected(const TimeRange &range)
         {
           TimeRange thumb_range = range.Intersected(max_range);
           if (GetAdjustedThumbnailRange(&thumb_range)) {
-            emit connected->thumbnail_cache()->Request(thumb_range);
+            connected->thumbnail_cache()->Request(thumb_range);
           }
         }
 
@@ -296,7 +296,7 @@ void ClipBlock::RequestRangeForCache(PlaybackCache *cache, const TimeRange &max_
   }
 
   if (request) {
-    emit cache->Request(r);
+    cache->Request(r);
   }
 }
 
@@ -364,7 +364,7 @@ void ClipBlock::InvalidateCache(const TimeRange& range, const QString& from, int
     }
 
     // Find connected viewer node
-    auto viewers = FindInputNodesConnectedToInput<ViewerOutput>(NodeInput(this, kBufferIn));
+    auto viewers = FindInputNodesConnectedToInput<ViewerOutput>(NodeInput(this, kBufferIn), 1);
     ViewerOutput *new_connected_viewer = viewers.isEmpty() ? nullptr : viewers.first();
 
     if (new_connected_viewer != connected_viewer_) {
@@ -539,6 +539,16 @@ void ClipBlock::ConnectedToPreviewEvent()
 TimeRange ClipBlock::media_range() const
 {
   return InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+}
+
+MultiCamNode *ClipBlock::FindMulticam()
+{
+  auto v = FindInputNodesConnectedToInput<MultiCamNode>(NodeInput(this, kBufferIn), 1);
+  if (v.empty()) {
+    return nullptr;
+  } else {
+    return v.first();
+  }
 }
 
 }

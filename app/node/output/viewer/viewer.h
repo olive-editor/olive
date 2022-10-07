@@ -182,7 +182,7 @@ public:
 
   virtual ValueHint GetConnectedSampleValueHint();
 
-  virtual void ConnectedToPreviewEvent() override;
+  void SetWaveformEnabled(bool e);
 
   bool IsVideoAutoCacheEnabled() const { qDebug() << "sequence ac is a stub"; return false; }
   void SetVideoAutoCacheEnabled(bool e) { qDebug() << "sequence ac is a stub"; }
@@ -250,6 +250,8 @@ private:
   bool autocache_input_audio_;
 
   EncodingParams last_used_encoding_params_;
+
+  bool waveform_requests_enabled_;
 
 };
 

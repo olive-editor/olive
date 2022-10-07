@@ -358,7 +358,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       }
     } else if (pairing == kPairTextureMatrix) {
       // Only allow matrix multiplication
-      const QVector2D &sequence_res = globals.resolution();
+      const QVector2D &sequence_res = globals.nonsquare_resolution();
       QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
 
       QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.toMatrix(),
@@ -380,7 +380,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       output->Push(texture_val);
     } else {
       // Push shader job
-      output->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+      output->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), job), this);
     }
     break;
   }
@@ -410,7 +410,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
         output->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
       } else {
-        SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
+        SampleJob job(globals.time(), val_a.type() == NodeValue::kSamples ? val_a : val_b);
         job.Insert(number_param, NodeValue(NodeValue::kFloat, number, this));
         output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }

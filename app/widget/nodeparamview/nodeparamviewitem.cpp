@@ -88,7 +88,7 @@ void NodeParamViewItem::RecreateBody()
     body_->deleteLater();
   }
 
-  body_ = new NodeParamViewItemBody(node_, create_checkboxes_);
+  body_ = new NodeParamViewItemBody(node_, create_checkboxes_, this);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
   connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
@@ -148,7 +148,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
 
       if (n->InputIsArray(input)) {
         // Insert here
-        QWidget* array_widget = new QWidget();
+        QWidget* array_widget = new QWidget(this);
 
         QGridLayout* array_layout = new QGridLayout(array_widget);
         array_layout->setContentsMargins(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("    ")), 0, 0, 0);
@@ -160,7 +160,7 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
         int arr_sz = 0;
 
         // Add one last add button for appending to the array
-        NodeParamViewArrayButton* append_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
+        NodeParamViewArrayButton* append_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd, this);
         connect(append_btn, &NodeParamViewArrayButton::clicked, this, &NodeParamViewItemBody::ArrayAppendClicked);
         array_layout->addWidget(append_btn, arr_sz, kArrayInsertColumn);
 
@@ -186,7 +186,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
 
   // Create optional checkbox if requested
   if (create_checkboxes_) {
-    ui_objects.optional_checkbox = new QCheckBox();
+    ui_objects.optional_checkbox = new QCheckBox(this);
     connect(ui_objects.optional_checkbox, &QCheckBox::clicked, this, &NodeParamViewItemBody::OptionalCheckBoxClicked);
     layout->addWidget(ui_objects.optional_checkbox, row, kOptionalCheckBox);
 
@@ -196,7 +196,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   }
 
   // Add descriptor label
-  ui_objects.main_label = new QLabel();
+  ui_objects.main_label = new QLabel(this);
 
   // Create input label
   layout->addWidget(ui_objects.main_label, row, kLabelColumn);
@@ -205,7 +205,7 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
     if (element == -1) {
 
       // Create a collapse toggle for expanding/collapsing the array
-      CollapseButton* array_collapse_btn = new CollapseButton();
+      CollapseButton* array_collapse_btn = new CollapseButton(this);
 
       // Default to collapsed
       array_collapse_btn->setChecked(false);
@@ -220,8 +220,8 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
 
     } else {
 
-      NodeParamViewArrayButton* insert_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd);
-      NodeParamViewArrayButton* remove_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kRemove);
+      NodeParamViewArrayButton* insert_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kAdd, this);
+      NodeParamViewArrayButton* remove_element_btn = new NodeParamViewArrayButton(NodeParamViewArrayButton::kRemove, this);
 
       layout->addWidget(insert_element_btn, row, kArrayInsertColumn);
       layout->addWidget(remove_element_btn, row, kArrayRemoveColumn);
@@ -249,14 +249,14 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
 
   if (node->IsInputConnectable(input)) {
     // Create clickable label used when an input is connected
-    ui_objects.connected_label = new NodeParamViewConnectedLabel(resolved);
+    ui_objects.connected_label = new NodeParamViewConnectedLabel(resolved, this);
     connect(ui_objects.connected_label, &NodeParamViewConnectedLabel::RequestSelectNode, this, &NodeParamViewItemBody::RequestSelectNode);
     layout->addWidget(ui_objects.connected_label, row, kWidgetStartColumn, 1, kKeyControlColumn - kWidgetStartColumn);
   }
 
   // Add keyframe control to this layout if parameter is keyframable
   if (node->IsInputKeyframable(input)) {
-    ui_objects.key_control = new NodeParamViewKeyframeControl();
+    ui_objects.key_control = new NodeParamViewKeyframeControl(this);
     ui_objects.key_control->SetInput(resolved);
     layout->addWidget(ui_objects.key_control, row, kKeyControlColumn);
     connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);

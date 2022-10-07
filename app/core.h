@@ -255,7 +255,11 @@ public:
   /**
    * @brief Create a new sequence named appropriately for the active project
    */
-  Sequence* CreateNewSequenceForProject(Project *project) const;
+  static Sequence* CreateNewSequenceForProject(const QString &format, Project *project);
+  static Sequence* CreateNewSequenceForProject(Project *project)
+  {
+    return CreateNewSequenceForProject(tr("Sequence %1"), project);
+  }
 
   /**
    * @brief Opens a project from the recently opened list

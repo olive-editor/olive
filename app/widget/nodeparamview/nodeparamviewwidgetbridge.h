@@ -75,7 +75,7 @@ private:
   void SetProperty(const QString &key, const QVariant &value);
 
   template <typename T>
-  void CreateSliders(int count);
+  void CreateSliders(int count, QWidget *parent);
 
   void UpdateWidgetValues();
 

@@ -116,9 +116,6 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
   qRegisterMetaType<olive::AudioVisualWaveform>();
-  qRegisterMetaType<olive::SampleJob>();
-  qRegisterMetaType<olive::ShaderJob>();
-  qRegisterMetaType<olive::GenerateJob>();
   qRegisterMetaType<olive::VideoParams>();
   qRegisterMetaType<olive::VideoParams::Interlacing>();
   qRegisterMetaType<olive::MainWindowLayoutInfo>();
@@ -1368,6 +1365,11 @@ void Core::PushRecentlyOpenedProject(const QString& s)
     recent_projects_.move(existing_index, 0);
   } else {
     recent_projects_.prepend(s);
+
+    const int kMaximumRecentProjects = 10;
+    while (recent_projects_.size() > kMaximumRecentProjects) {
+      recent_projects_.removeLast();
+    }
   }
 
   emit OpenRecentListChanged();
@@ -1493,7 +1495,7 @@ bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
   return false;
 }
 
-Sequence *Core::CreateNewSequenceForProject(Project* project) const
+Sequence *Core::CreateNewSequenceForProject(const QString &format, Project* project)
 {
   Sequence* new_sequence = new Sequence();
 
@@ -1501,7 +1503,7 @@ Sequence *Core::CreateNewSequenceForProject(Project* project) const
   int sequence_number = 1;
   QString sequence_name;
   do {
-    sequence_name = tr("Sequence %1").arg(sequence_number);
+    sequence_name = format.arg(sequence_number);
     sequence_number++;
   } while (project->root()->ChildExistsWithName(sequence_name));
   new_sequence->SetLabel(sequence_name);

@@ -68,7 +68,16 @@ void PlaybackCache::LoadState()
 {
   QDir cache_dir = GetThisCacheDirectory();
   QFile f(cache_dir.filePath(QStringLiteral("state")));
-  if (f.open(QFile::ReadOnly)) {
+
+  if (!f.exists()) {
+    // No state exists, assume nothing valid
+    validated_.clear();
+    passthroughs_.clear();
+    return;
+  }
+
+  qint64 file_time = f.fileTime(QFileDevice::FileModificationTime).toMSecsSinceEpoch();
+  if (file_time > last_loaded_state_ && f.open(QFile::ReadOnly)) {
     QDataStream s(&f);
 
     uint32_t version;
@@ -81,7 +90,6 @@ void PlaybackCache::LoadState()
     {
       int valid_count, pass_count;
 
-      validated_.clear();
       s >> valid_count;
       for (int i=0; i<valid_count; i++) {
         int in_num, in_den, out_num, out_den;
@@ -94,7 +102,6 @@ void PlaybackCache::LoadState()
         validated_.insert(TimeRange(rational(in_num, in_den), rational(out_num, out_den)));
       }
 
-      passthroughs_.clear();
       s >> pass_count;
       for (int i=0; i<pass_count; i++) {
         QUuid id;
@@ -116,6 +123,8 @@ void PlaybackCache::LoadState()
     }
 
     f.close();
+
+    last_loaded_state_ = file_time;
   }
 }
 
@@ -161,6 +170,8 @@ void PlaybackCache::SaveState()
         }
 
         f.close();
+
+        last_loaded_state_ = f.fileTime(QFileDevice::FileModificationTime).toMSecsSinceEpoch();
       }
     }
   }
@@ -212,6 +223,13 @@ void PlaybackCache::InvalidateAll()
   Invalidate(TimeRange(0, RATIONAL_MAX));
 }
 
+void PlaybackCache::Request(const TimeRange &r)
+{
+  requested_.insert(r);
+
+  emit Requested(r);
+}
+
 void PlaybackCache::Validate(const TimeRange &r, bool signal)
 {
   validated_.insert(r);
@@ -236,7 +254,8 @@ Project *PlaybackCache::GetProject() const
 
 PlaybackCache::PlaybackCache(QObject *parent) :
   QObject(parent),
-  saving_enabled_(true)
+  saving_enabled_(true),
+  last_loaded_state_(0)
 {
   uuid_ = QUuid::createUuid();
 }

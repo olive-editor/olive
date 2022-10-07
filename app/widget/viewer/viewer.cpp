@@ -40,10 +40,13 @@
 #include "node/block/gap/gap.h"
 #include "node/generator/shape/shapenodebase.h"
 #include "node/project/project.h"
+#include "panel/multicam/multicampanel.h"
+#include "panel/panelmanager.h"
 #include "render/rendermanager.h"
 #include "viewerpreventsleep.h"
 #include "widget/audiomonitor/audiomonitor.h"
 #include "widget/menu/menu.h"
+#include "widget/multicam/multicamdisplay.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
@@ -62,7 +65,7 @@ const rational ViewerWidget::kAudioPlaybackInterval = rational(1, 4);
 
 const rational kVideoPlaybackInterval = rational(1, 2);
 
-ViewerWidget::ViewerWidget(QWidget *parent) :
+ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
   super(false, true, parent),
   playback_speed_(0),
   color_menu_enabled_(true),
@@ -74,7 +77,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   first_requeue_watcher_(nullptr),
   enable_audio_scrubbing_(true),
   waveform_mode_(kWFAutomatic),
-  ignore_scrub_(0)
+  ignore_scrub_(0),
+  multicam_panel_(nullptr)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -82,10 +86,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Create main OpenGL-based view and sizer
   sizer_ = new ViewerSizer();
-  sizer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   layout->addWidget(sizer_);
 
-  display_widget_ = new ViewerDisplayWidget();
+  display_widget_ = display;
   display_widget_->SetShowWidgetBackground(true);
   playback_devices_.append(display_widget_);
   connect(display_widget_, &ViewerDisplayWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
@@ -257,10 +260,16 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(n->video_frame_cache(), &FrameHashCache::Invalidated, this, &ViewerWidget::ViewerInvalidatedVideoRange);
   disconnect(n, &ViewerOutput::TextureInputChanged, this, &ViewerWidget::UpdateWaveformViewFromMode);
 
+  timeline_selected_blocks_.clear();
+  node_view_selected_.clear();
+  if (multicam_panel_) {
+    multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, rational::NaN);
+  }
+
   CloseAudioProcessor();
   audio_scrub_watchers_.clear();
 
-  SetDisplayImage(QVariant());
+  SetDisplayImage(nullptr);
 
   ruler()->SetPlaybackCache(nullptr);
 
@@ -414,6 +423,19 @@ void ViewerWidget::StartCapture(TimelineWidget *source, const TimeRange &time, c
   recording_callback_ = source;
   recording_range_ = time;
   recording_track_ = track;
+}
+
+void ViewerWidget::ConnectMulticamWidget(MulticamWidget *p)
+{
+  if (multicam_panel_) {
+    disconnect(multicam_panel_, &MulticamWidget::Switched, this, &ViewerWidget::DetectMulticamNodeNow);
+  }
+
+  multicam_panel_ = p;
+
+  if (multicam_panel_) {
+    connect(multicam_panel_, &MulticamWidget::Switched, this, &ViewerWidget::DetectMulticamNodeNow);
+  }
 }
 
 FramePtr ViewerWidget::DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time)
@@ -580,7 +602,7 @@ void ViewerWidget::RequestNextDryRun()
       } else {
         RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
         connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::DryRunFinished);
-        watcher->SetTicket(auto_cacher_->GetSingleFrame(next_time, true));
+        watcher->SetTicket(GetSingleFrame(next_time, true));
         dry_run_next_frame_ += playback_speed_;
         dry_run_watchers_.append(watcher);
       }
@@ -591,6 +613,11 @@ void ViewerWidget::RequestNextDryRun()
 void ViewerWidget::SaveFrameAsImage()
 {
   Core::instance()->OpenExportDialogForViewer(GetConnectedNode(), GetTime(), true);
+}
+
+void ViewerWidget::DetectMulticamNodeNow()
+{
+  DetectMulticamNode(GetTime());
 }
 
 void ViewerWidget::CloseAudioProcessor()
@@ -604,6 +631,75 @@ void ViewerWidget::SetWaveformMode(WaveformMode wf)
   UpdateWaveformViewFromMode();
 }
 
+void ViewerWidget::DetectMulticamNode(const rational &time)
+{
+  // Look for multicam node
+  MultiCamNode *multicam = nullptr;
+  ClipBlock *clip = nullptr;
+
+  // Faster way to do this
+  if (multicam_panel_ && multicam_panel_->isVisible()) {
+    if (Sequence *s = dynamic_cast<Sequence*>(GetConnectedNode())) {
+      // Prefer selected nodes
+      for (Node *n : qAsConst(node_view_selected_)) {
+        if ((multicam = dynamic_cast<MultiCamNode*>(n))) {
+          // Found multicam, now try to find corresponding clip from selected timeline blocks
+          for (Block *b : qAsConst(timeline_selected_blocks_)) {
+            if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
+              if (c->range().Contains(time) && c->ContextContainsNode(multicam)) {
+                clip = c;
+                break;
+              }
+            }
+          }
+          break;
+        }
+      }
+
+      // Next, prefer multicam from selected block
+      if (!multicam) {
+        for (Block *b : qAsConst(timeline_selected_blocks_)) {
+          if (b->range().Contains(time)) {
+            if ((clip = dynamic_cast<ClipBlock*>(b))) {
+              if ((multicam = clip->FindMulticam())) {
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (!multicam) {
+        const QVector<Track*> &tracks = s->GetTracks();
+        for (Track *t : tracks) {
+          if (t->IsLocked()) {
+            continue;
+          }
+
+          Block *b = t->NearestBlockBeforeOrAt(time);
+          if ((clip = dynamic_cast<ClipBlock*>(b))) {
+            if ((multicam = clip->FindMulticam())) {
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (multicam) {
+    if (multicam_panel_) {
+      multicam_panel_->SetMulticamNode(GetConnectedNode(), multicam, clip, time);
+    }
+    auto_cacher()->SetMulticamNode(multicam);
+  } else {
+    auto_cacher()->SetMulticamNode(nullptr);
+    if (multicam_panel_) {
+      multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, time);
+    }
+  }
+}
+
 void ViewerWidget::UpdateWaveformViewFromMode()
 {
   bool prefer_waveform = ShouldForceWaveform();
@@ -612,6 +708,10 @@ void ViewerWidget::UpdateWaveformViewFromMode()
   waveform_view_->setVisible(waveform_mode_ == kWFViewerAndWaveform || waveform_mode_ == kWFWaveformOnly || (waveform_mode_ == kWFAutomatic && prefer_waveform));
 
   waveform_view_->setSizePolicy(QSizePolicy::Expanding, waveform_mode_ == kWFViewerAndWaveform ? QSizePolicy::Maximum : QSizePolicy::Expanding);
+
+  if (GetConnectedNode()) {
+    GetConnectedNode()->SetWaveformEnabled(waveform_view_->isVisible());
+  }
 }
 
 void ViewerWidget::QueueNextAudioBuffer()
@@ -790,6 +890,8 @@ void ViewerWidget::UpdateTextureFromNode()
     // Clear queue because we want this frame more than any others
     auto_cacher_->ClearSingleFrameRenders();
 
+    DetectMulticamNode(time);
+
     watcher->SetTicket(GetFrame(time));
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
@@ -818,7 +920,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     if (viewer != this) {
       viewer->PauseInternal();
     }
-    viewer->auto_cacher_->SetRendersPaused(true);
+    viewer->auto_cacher_->SetThumbnailsPaused(true);
   }
 
   RenderManager::instance()->SetAggressiveGarbageCollection(true);
@@ -920,7 +1022,7 @@ void ViewerWidget::PauseInternal()
     UpdateAudioProcessor();
 
     foreach (ViewerWidget* viewer, instances_) {
-      viewer->auto_cacher_->SetRendersPaused(false);
+      viewer->auto_cacher_->SetThumbnailsPaused(false);
     }
 
     UpdateTextureFromNode();
@@ -998,10 +1100,18 @@ bool ViewerWidget::ViewerMightBeAStill()
   return GetConnectedNode() && GetConnectedNode()->GetConnectedTextureOutput() && GetConnectedNode()->GetVideoLength().isNull();
 }
 
-void ViewerWidget::SetDisplayImage(QVariant frame)
+void ViewerWidget::SetDisplayImage(RenderTicketPtr ticket)
 {
   foreach (ViewerDisplayWidget *dw, playback_devices_) {
-    dw->SetImage(frame);
+    QVariant push;
+    if (ticket) {
+      if (dynamic_cast<MulticamDisplay*>(dw)) {
+        push = ticket->property("multicam_output");
+      } else {
+        push = ticket->Get();
+      }
+    }
+    dw->SetImage(push);
   }
 }
 
@@ -1019,6 +1129,7 @@ RenderTicketWatcher *ViewerWidget::RequestNextFrameForQueue(bool increment)
 
     watcher = new RenderTicketWatcher();
     watcher->setProperty("time", QVariant::fromValue(next_time));
+    DetectMulticamNode(next_time);
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
     queue_watchers_.append(watcher);
     watcher->SetTicket(GetFrame(next_time));
@@ -1033,7 +1144,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t)
 
   if (!QFileInfo::exists(cache_fn)) {
     // Frame hasn't been cached, start render job
-    return auto_cacher_->GetSingleFrame(t);
+    return GetSingleFrame(t);
   } else {
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
@@ -1160,7 +1271,7 @@ void ViewerWidget::RendererGeneratedFrame()
         }
       }
 
-      SetDisplayImage(ticket->Get());
+      SetDisplayImage(ticket->GetTicket());
     }
   }
 
@@ -1182,7 +1293,14 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         rational ts = watcher->property("time").value<rational>();
 
         foreach (ViewerDisplayWidget *dw, playback_devices_) {
-          dw->queue()->AppendTimewise({ts, frame}, playback_speed_);
+          QVariant push;
+          if (dynamic_cast<MulticamDisplay*>(dw)) {
+            push = watcher->GetTicket()->property("multicam_output");
+          } else {
+            push = frame;
+          }
+
+          dw->queue()->AppendTimewise({ts, push}, playback_speed_);
         }
 
         if (prequeuing_video_) {
@@ -1678,7 +1796,13 @@ void ViewerWidget::UpdateRendererVideoParameters()
 
 void ViewerWidget::UpdateRendererAudioParameters()
 {
+  AudioParams ap = GetConnectedNode()->GetAudioParams();
+
   UpdateAudioProcessor();
+
+  foreach (ViewerDisplayWidget *dw, playback_devices_) {
+    dw->SetAudioParams(ap);
+  }
 }
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)
@@ -1689,7 +1813,7 @@ void ViewerWidget::SetZoomFromMenu(QAction *action)
 void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)
 {
   // If our current frame is within this range, we need to update
-  if (GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
+  if (!IsPlaying() && GetTime() >= range.in() && (GetTime() < range.out() || range.in() == range.out())) {
     QMetaObject::invokeMethod(this, &ViewerWidget::UpdateTextureFromNode, Qt::QueuedConnection);
   }
 }

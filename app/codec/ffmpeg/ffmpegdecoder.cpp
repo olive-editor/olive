@@ -40,12 +40,9 @@ extern "C" {
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/planarfiledevice.h"
-#include "common/define.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
-#include "render/framehashcache.h"
-#include "render/diskmanager.h"
 #include "render/renderer.h"
 #include "render/subtitleparams.h"
 
@@ -143,7 +140,7 @@ bool FFmpegDecoder::OpenInternal()
 
 TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 {
-  if (AVFramePtr f = RetrieveFrame(p.time, p.cancelled)) {
+  if (AVFramePtr f = RetrieveFrame(p.time, p.src_interlacing, p.cancelled)) {
     if (p.cancelled && p.cancelled->IsCancelled()) {
       return nullptr;
     }
@@ -235,9 +232,9 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
           job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
           job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
           job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
-          job.Insert(QStringLiteral("full_range"), NodeValue(NodeValue::kBoolean, f->color_range == AVCOL_RANGE_JPEG));
+          job.Insert(QStringLiteral("full_range"), NodeValue(NodeValue::kBoolean, hw_in->color_range == AVCOL_RANGE_JPEG));
 
-          const int *yuv_coeffs = sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(f.get()->colorspace));
+          const int *yuv_coeffs = sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(hw_in->colorspace));
           job.Insert(QStringLiteral("yuv_crv"), NodeValue(NodeValue::kInt, yuv_coeffs[0]));
           job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kInt, yuv_coeffs[2]));
           job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kInt, yuv_coeffs[3]));
@@ -246,7 +243,7 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
           int interlacing = 0;
           if (p.src_interlacing != VideoParams::kInterlaceNone) {
             if (frame_rate_tb_.isNull()) {
-              frame_rate_tb_ = av_guess_frame_rate(instance_.fmt_ctx(), instance_.avstream(), f.get());
+              frame_rate_tb_ = av_guess_frame_rate(instance_.fmt_ctx(), instance_.avstream(), hw_in);
 
               // Double frame rate for interlaced fields
               frame_rate_tb_ *= 2;
@@ -256,7 +253,7 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
             }
 
             int64_t req = Timecode::time_to_timestamp(p.time, frame_rate_tb_);
-            int64_t frm = Timecode::rescale_timestamp(f->pts - instance_.avstream()->start_time, instance_.avstream()->time_base, frame_rate_tb_);
+            int64_t frm = Timecode::rescale_timestamp(hw_in->pts - instance_.avstream()->start_time, instance_.avstream()->time_base, frame_rate_tb_);
 
             bool first = (req == frm);
             bool top_first = (p.src_interlacing == VideoParams::kInterlacedTopFirst);
@@ -268,6 +265,8 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 
           tex = p.renderer->CreateTexture(vp);
           p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
+
+          av_frame_unref(working_frame_);
         }
       }
 
@@ -309,6 +308,16 @@ void FFmpegDecoder::CloseInternal()
   input_fmt_ = AV_PIX_FMT_NONE;
   native_internal_pix_fmt_ = VideoParams::kFormatInvalid;
   native_output_pix_fmt_ = VideoParams::kFormatInvalid;
+}
+
+rational FFmpegDecoder::GetAudioStartOffset() const
+{
+  AVStream *s = this->instance_.avstream();
+  if (s) {
+    return rational(s->start_time * s->time_base.num, s->time_base.den);
+  } else {
+    return 0;
+  }
 }
 
 QString FFmpegDecoder::id() const
@@ -787,9 +796,13 @@ void FFmpegDecoder::ClearFrameCache()
   }
 }
 
-AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, CancelAtom *cancelled)
+AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, VideoParams::Interlacing interlacing, CancelAtom *cancelled)
 {
   int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
+
+  if (interlacing != VideoParams::kInterlaceNone && !IsPixelFormatGLSLCompatible(static_cast<AVPixelFormat>(instance_.avstream()->codecpar->format))) {
+    target_ts *= 2;
+  }
 
   const int64_t min_seek = -instance_.avstream()->start_time;
   int64_t seek_ts = std::max(min_seek, target_ts - MaximumQueueSize());
@@ -991,8 +1004,10 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
   // Link filters as necessary
   AVFilterContext *last_filter = buffersrc_ctx_;
 
+  bool glsl_available = IsPixelFormatGLSLCompatible(static_cast<AVPixelFormat>(input->format));
+
   // Add deinterlace filter if necessary
-  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone) {
+  if (filter_params_.src_interlacing != VideoParams::kInterlaceNone && !glsl_available) {
     AVFilterContext* deint_filter;
 
     snprintf(filter_args, kFilterArgSz, "mode=1:parity=%s",
@@ -1006,10 +1021,10 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
   }
 
   // Add scale filter if necessary
-  int dst_width, dst_height;
   if (filter_params_.divider > 1) {
     AVFilterContext* scale_filter;
 
+    int dst_width, dst_height;
     dst_width = VideoParams::GetScaledDimension(src_width, filter_params_.divider);
     dst_height = VideoParams::GetScaledDimension(src_height, filter_params_.divider);
 
@@ -1021,13 +1036,10 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
 
     avfilter_link(last_filter, 0, scale_filter, 0);
     last_filter = scale_filter;
-  } else {
-    dst_width = src_width;
-    dst_height = src_height;
   }
 
   // Add format filter if necessary
-  if (ideal_pix_fmt != input->format && !IsPixelFormatGLSLCompatible(static_cast<AVPixelFormat>(input->format))) {
+  if (ideal_pix_fmt != input->format && !glsl_available) {
     AVFilterContext* format_filter;
 
     snprintf(filter_args, kFilterArgSz, "pix_fmts=%u", ideal_pix_fmt);
@@ -1129,6 +1141,7 @@ int FFmpegDecoder::MaximumQueueSize()
 FFmpegDecoder::Instance::Instance() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
+  avstream_(nullptr),
   opts_(nullptr)
 {
 }

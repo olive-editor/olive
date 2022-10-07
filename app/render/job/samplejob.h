@@ -23,23 +23,27 @@
 
 #include "acceleratedjob.h"
 #include "codec/samplebuffer.h"
+#include "common/timerange.h"
 
 namespace olive {
 
-class SampleJob : public AcceleratedJob {
+class SampleJob : public AcceleratedJob
+{
 public:
   SampleJob()
   {
   }
 
-  SampleJob(const NodeValue& value)
+  SampleJob(const TimeRange &time, const NodeValue& value)
   {
     samples_ = value.toSamples();
+    time_ = time;
   }
 
-  SampleJob(const QString& from, const NodeValueRow& row)
+  SampleJob(const TimeRange &time, const QString& from, const NodeValueRow& row)
   {
     samples_ = row[from].toSamples();
+    time_ = time;
   }
 
   const SampleBuffer &samples() const
@@ -52,8 +56,12 @@ public:
     return samples_.is_allocated();
   }
 
+  const TimeRange &time() const { return time_; }
+
 private:
   SampleBuffer samples_;
+
+  TimeRange time_;
 
 };
 

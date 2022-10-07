@@ -539,12 +539,16 @@ void TimelineWidget::DecreaseTrackHeight()
 
 void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& footage)
 {
-  import_tool_->PlaceAt(footage, GetTime(), true);
+  auto command = new MultiUndoCommand();
+  import_tool_->PlaceAt(footage, GetTime(), true, command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
-  import_tool_->PlaceAt(footage, GetTime(), false);
+  auto command = new MultiUndoCommand();
+  import_tool_->PlaceAt(footage, GetTime(), false, command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::ToggleLinksOnSelected()
@@ -788,13 +792,14 @@ void TimelineWidget::RecordingCallback(const QString &filename, const TimeRange 
   task.Start();
 
   MultiUndoCommand *import_command = task.GetCommand();
-  Core::instance()->undo_stack()->pushIfHasChildren(import_command);
 
   if (task.GetImportedFootage().empty()) {
     qCritical() << "Failed to import recorded audio file" << filename;
   } else {
-    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, track.index());
+    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
   }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(import_command);
 }
 
 void TimelineWidget::EnableRecordingOverlay(const TimelineCoordinate &coord)
@@ -837,6 +842,95 @@ void TimelineWidget::AddTentativeSubtitleTrack()
       subtitle_show_command_->redo_now();
     }
   }
+}
+
+void TimelineWidget::NestSelectedClips()
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  QVector<Block*> blocks = this->selected_blocks_;
+  if (blocks.empty()) {
+    return;
+  }
+
+  QVector<Track::Reference> tracks(blocks.size());
+  QVector<TimeRange> times(blocks.size());
+  QVector<int> track_offset(Track::kCount, INT_MAX);
+  rational start_time = RATIONAL_MAX;
+  rational end_time = RATIONAL_MIN;
+  for (int i=0; i<blocks.size(); i++) {
+    Block *b = blocks.at(i);
+
+    Track::Reference tf = b->track()->ToReference();;
+    tracks[i] = tf;
+    times[i] = b->range();
+
+    int &to = track_offset[tf.type()];
+    to = std::min(to, tf.index());
+
+    start_time = std::min(start_time, b->in());
+    end_time = std::max(end_time, b->out());
+  }
+
+  auto move_to_nest_command = new MultiUndoCommand();
+
+  // Remove blocks from this sequence
+  ReplaceBlocksWithGaps(blocks, false, move_to_nest_command);
+
+  // Create new sequence
+  Project *project = this->GetConnectedNode()->project();
+  Sequence *nest = Core::CreateNewSequenceForProject(tr("Nested Sequence %1"), project);
+  nest->SetVideoParams(GetConnectedNode()->GetVideoParams());
+  nest->SetAudioParams(GetConnectedNode()->GetAudioParams());
+  move_to_nest_command->add_child(new NodeAddCommand(project, nest));
+
+  // Add to same folder
+  move_to_nest_command->add_child(new FolderAddChild(this->GetConnectedNode()->folder(), nest));
+
+  // Place blocks in new sequence
+  for (int i=0; i<blocks.size(); i++) {
+    Block *b = blocks.at(i);
+
+    const TimeRange &range = times.at(i);
+    Track::Reference track = tracks.at(i);
+
+    move_to_nest_command->add_child(new TrackPlaceBlockCommand(nest->track_list(track.type()),
+                                                  track.index() - track_offset.at(track.type()),
+                                                  b, range.in() - start_time));
+  }
+
+  // Do this command now, because we later do checks and actions that rely on these having been done
+  move_to_nest_command->redo_now();
+
+  auto meta_command = new MultiUndoCommand();
+  meta_command->add_child(move_to_nest_command);
+
+  // Find first free track index
+  bool empty = false;
+  int index = -1;
+  while (!empty) {
+    index++;
+    empty = true;
+    for (int i=0; i<Track::kCount; i++) {
+      if (track_offset.at(i) == INT_MAX) {
+        // No clips on this track
+        continue;
+      }
+
+      TrackList *list = sequence()->track_list(static_cast<Track::Type>(i));
+      if (index < list->GetTrackCount() && !list->GetTrackAt(index)->IsRangeFree(TimeRange(start_time, end_time))) {
+        empty = false;
+        break;
+      }
+    }
+  }
+
+  // Place new sequence in this sequence
+  import_tool_->PlaceAt({nest}, start_time, false, meta_command, index);
+
+  Core::instance()->undo_stack()->push(meta_command);
 }
 
 void TimelineWidget::ClearTentativeSubtitleTrack()
@@ -1140,6 +1234,24 @@ void TimelineWidget::ShowContextMenu()
         QAction *reveal_in_project = menu.addAction(tr("Reveal in Project"));
         reveal_in_project->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
         connect(reveal_in_project, &QAction::triggered, this, &TimelineWidget::RevealInProject);
+
+        if (Sequence *sequence = dynamic_cast<Sequence*>(clip->connected_viewer())) {
+          QAction *multicam_enabled = menu.addAction(tr("Multi-Cam"));
+          multicam_enabled->setCheckable(true);
+
+          MultiCamNode *mcn = nullptr;
+          auto paths = clip->FindWaysNodeArrivesHere(sequence);
+
+          for (const NodeInput &i : paths) {
+            if ((mcn = dynamic_cast<MultiCamNode*>(i.node()))) {
+              break;
+            }
+          }
+
+          multicam_enabled->setChecked(mcn);
+
+          connect(multicam_enabled, &QAction::triggered, this, &TimelineWidget::MulticamEnabledTriggered);
+        }
       }
     }
 
@@ -1369,6 +1481,61 @@ void TimelineWidget::CacheDiscard()
       }
     }
   }
+}
+
+void TimelineWidget::MulticamEnabledTriggered(bool e)
+{
+  MultiUndoCommand *command = new MultiUndoCommand();
+
+  for (Block *b : qAsConst(selected_blocks_)) {
+    if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
+      if (Sequence *s = dynamic_cast<Sequence*>(c->connected_viewer())) {
+        if (e) {
+
+          // Adding multicams
+          // Create multicam node and add it to the graph
+          MultiCamNode *n = new MultiCamNode();
+          n->SetSequenceType(c->GetTrackType());
+          command->add_child(new NodeAddCommand(s->parent(), n));
+
+
+          // For each output the sequence has to this clip, disconnect it and
+          // connect to the multicam instead
+          QVector<NodeInput> inputs = c->FindWaysNodeArrivesHere(s);
+          for (const NodeInput &i : inputs) {
+            command->add_child(new NodeEdgeRemoveCommand(s, i));
+            command->add_child(new NodeEdgeAddCommand(n, i));
+          }
+
+          command->add_child(new NodeEdgeAddCommand(s, NodeInput(n, n->kSequenceInput)));
+
+          // Move sequence node one unit back, and place multicam in sequence's spot
+          QPointF sequence_pos = c->GetNodePositionInContext(s);
+          command->add_child(new NodeSetPositionCommand(s, c, sequence_pos - QPointF(1, 0)));
+          command->add_child(new NodeSetPositionCommand(n, c, sequence_pos));
+
+        } else {
+
+          // Removing multicams
+          // Locate first multicam that specifically ends up at this clip
+          QVector<NodeInput> inputs = c->FindWaysNodeArrivesHere(s);
+          for (const NodeInput &i : inputs) {
+            if (MultiCamNode *mcn = dynamic_cast<MultiCamNode*>(i.node())) {
+              for (auto it=mcn->output_connections().cbegin(); it!=mcn->output_connections().cend(); it++) {
+                command->add_child(new NodeEdgeRemoveCommand(it->first, it->second));
+                command->add_child(new NodeEdgeAddCommand(s, it->second));
+              }
+
+              command->add_child(new NodeRemoveAndDisconnectCommand(mcn));
+            }
+          }
+
+        }
+      }
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)

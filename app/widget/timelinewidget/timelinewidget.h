@@ -112,6 +112,8 @@ public:
 
   void AddTentativeSubtitleTrack();
 
+  void NestSelectedClips();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -443,6 +445,8 @@ private slots:
   void CacheClips();
   void CacheClipsInOut();
   void CacheDiscard();
+
+  void MulticamEnabledTriggered(bool e);
 
 };
 

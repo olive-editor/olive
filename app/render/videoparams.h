@@ -107,6 +107,16 @@ public:
     return par_width_;
   }
 
+  QVector2D resolution() const
+  {
+    return QVector2D(width_, height_);
+  }
+
+  QVector2D square_resolution() const
+  {
+    return QVector2D(par_width_, height_);
+  }
+
   int height() const
   {
     return height_;

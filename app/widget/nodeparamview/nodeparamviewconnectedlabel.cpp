@@ -50,13 +50,13 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   label_layout->setMargin(0);
   layout->addLayout(label_layout);
 
-  CollapseButton *collapse_btn = new CollapseButton();
+  CollapseButton *collapse_btn = new CollapseButton(this);
   collapse_btn->setChecked(false);
   label_layout->addWidget(collapse_btn);
 
-  label_layout->addWidget(new QLabel(tr("Connected to")));
+  label_layout->addWidget(new QLabel(tr("Connected to"), this));
 
-  connected_to_lbl_ = new ClickableLabel();
+  connected_to_lbl_ = new ClickableLabel(this);
   connected_to_lbl_->setCursor(Qt::PointingHandCursor);
   connected_to_lbl_->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(connected_to_lbl_, &ClickableLabel::MouseClicked, this, &NodeParamViewConnectedLabel::ConnectionClicked);
@@ -80,18 +80,23 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   connect(input_.node(), &Node::InputConnected, this, &NodeParamViewConnectedLabel::InputConnected);
   connect(input_.node(), &Node::InputDisconnected, this, &NodeParamViewConnectedLabel::InputDisconnected);
 
-  // Set up table area
-  value_tree_ = new NodeValueTree();
-  value_tree_->setVisible(false);
-  layout->addWidget(value_tree_);
+  // Creating the tree is expensive, hold off until the user specifically requests it
+  value_tree_ = nullptr;
   connect(collapse_btn, &CollapseButton::toggled, this, &NodeParamViewConnectedLabel::SetValueTreeVisible);
+}
+
+void NodeParamViewConnectedLabel::CreateTree()
+{
+  // Set up table area
+  value_tree_ = new NodeValueTree(this);
+  layout()->addWidget(value_tree_);
 }
 
 void NodeParamViewConnectedLabel::SetTime(const rational &time)
 {
   time_ = time;
 
-  if (value_tree_->isVisible()) {
+  if (value_tree_ && value_tree_->isVisible()) {
     UpdateValueTree();
   }
 }
@@ -154,14 +159,22 @@ void NodeParamViewConnectedLabel::UpdateLabel()
 
 void NodeParamViewConnectedLabel::UpdateValueTree()
 {
-  value_tree_->SetNode(input_, time_);
+  if (value_tree_) {
+    value_tree_->SetNode(input_, time_);
+  }
 }
 
 void NodeParamViewConnectedLabel::SetValueTreeVisible(bool e)
 {
-  value_tree_->setVisible(e);
+  if (value_tree_) {
+    value_tree_->setVisible(e);
+  }
 
   if (e) {
+    if (!value_tree_) {
+      CreateTree();
+    }
+
     UpdateValueTree();
   }
 }
