@@ -17,6 +17,7 @@
 #define COLORSPACECOMBOBOX_H
 
 #include <QComboBox>
+#include <QLabel>
 
 #include "node/color/colormanager/colormanager.h"
 
@@ -31,13 +32,19 @@ public:
 
   virtual void showPopup() override;
 
+  void setColorSpacePlaceHolder(QString text) { placeholder_->setText(QString("  ") + text); };
+
+  QString ColorSpacePlaceHolder() { return placeholder_->text().trimmed(); };
+
 private:
 
-  ColorManager* color_manager_;//
+  ColorManager* color_manager_;
 
   QString categories_;
 
   bool use_family_;
+
+  QLabel* placeholder_;
 
 };
 

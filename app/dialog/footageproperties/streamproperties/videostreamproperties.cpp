@@ -63,11 +63,11 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
 
   video_layout->addWidget(new QLabel(tr("Color Space:")), row, 0);
 
+  ColorManager *color_manager = footage_->project()->color_manager();
   video_color_space_ = new ColorSpaceComboBox(footage_->project()->color_manager(), "Input", true, this);
-  ColorManager* color_manager = footage_->project()->color_manager();
   
   if (!vp.colorspace().isEmpty()) {
-    video_color_space_->setPlaceholderText(color_manager->GetConfig()->getCanonicalName(
+    video_color_space_->setColorSpacePlaceHolder(color_manager->GetConfig()->getCanonicalName(
         vp.colorspace().toStdString().c_str()));
   } else {
     QString colorspace;
@@ -77,7 +77,7 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
     } else {
       colorspace = color_manager->GetDefaultFloatInputColorSpace();
     }
-    video_color_space_->setPlaceholderText(color_manager->GetConfig()->getCanonicalName(
+    video_color_space_->setColorSpacePlaceHolder(color_manager->GetConfig()->getCanonicalName(
         colorspace.toStdString().c_str()));
   }
 
@@ -140,7 +140,7 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
 
 void VideoStreamProperties::Accept(MultiUndoCommand *parent)
 {
-  QString set_colorspace = video_color_space_->placeholderText();
+  QString set_colorspace = video_color_space_->ColorSpacePlaceHolder();
 
   VideoParams vp = footage_->GetVideoParams(video_index_);
 

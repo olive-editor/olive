@@ -499,24 +499,22 @@ void Footage::Reprobe()
 
             // Attempt to use file rules to set colorspace
             ColorManager *color_manager = Core::instance()->GetActiveProject()->color_manager();
-            QString colorspace = color_manager->GetConfig()->getColorSpaceFromFilepath(filename().toStdString().c_str());
-
+            QString colorspace = color_manager->GetConfig()->getColorSpaceFromFilepath(filename.toStdString().c_str());
             QString default_rule_space = color_manager->GetConfig()->getFileRules()->getColorSpace(
                                                 color_manager->GetConfig()->getFileRules()->getNumEntries() - 1);
 
             // If the config file rules haven't worked AND the config has a default float and byte type
             // try and set them based on the buffer type
             if (colorspace.compare(default_rule_space) == 0) {
-              if (existing.format() == VideoParams::Format::kFormatUnsigned8 ||
-                  existing.format() == VideoParams::Format::kFormatUnsigned16) {
+              if (video_stream.format() == VideoParams::Format::kFormatUnsigned8 ||
+                  video_stream.format() == VideoParams::Format::kFormatUnsigned16) {
                 colorspace = color_manager->GetDefaultByteInputColorSpace();
-              } else if (existing.format() == VideoParams::Format::kFormatFloat16 ||
-                         existing.format() == VideoParams::Format::kFormatFloat32) {
+              } else if (video_stream.format() == VideoParams::Format::kFormatFloat16 ||
+                         video_stream.format() == VideoParams::Format::kFormatFloat32) {
                 colorspace = color_manager->GetDefaultFloatInputColorSpace();
               }
             }
-
-            existing.set_colorspace(colorspace);
+            video_stream.set_colorspace(colorspace);
             
             if (existing.is_valid()) {
               video_stream = MergeVideoStream(video_stream, existing);
@@ -555,6 +553,7 @@ VideoParams Footage::MergeVideoStream(const VideoParams &base, const VideoParams
   merged.set_premultiplied_alpha(over.premultiplied_alpha());
   merged.set_video_type(over.video_type());
   merged.set_color_range(over.color_range());
+  merged.set_colorspace(over.colorspace());
   if (merged.video_type() == VideoParams::kVideoTypeImageSequence) {
     merged.set_start_time(over.start_time());
     merged.set_duration(over.duration());

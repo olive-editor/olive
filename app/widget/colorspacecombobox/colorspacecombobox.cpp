@@ -15,6 +15,8 @@
 
 #include "colorspacecombobox.h"
 
+
+#include <QVBoxLayout>
 #include <QMap>
 #include <QMenu>
 
@@ -28,7 +30,13 @@ ColorSpaceComboBox::ColorSpaceComboBox(ColorManager* color_manager, QString cate
   categories_(categories),
   use_family_(use_family)
 {
-  
+  auto space = QString(" ");
+  placeholder_ = new QLabel(space + "Select Color Space");
+  this->setLayout(new QVBoxLayout());
+  this->layout()->setContentsMargins(0, 0, 0, 0);
+  this->layout()->addWidget(placeholder_);
+
+  setCurrentIndex(-1);
 }
 
 void ColorSpaceComboBox::showPopup()
@@ -69,7 +77,7 @@ void ColorSpaceComboBox::showPopup()
   QAction* a = menu.exec(parentWidget()->mapToGlobal(pos()));
 
   if (a) {
-    this->setPlaceholderText(a->data().toString());
+    setColorSpacePlaceHolder(a->data().toString());
     emit currentTextChanged(a->data().toString());
   }
 }

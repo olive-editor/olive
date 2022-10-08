@@ -53,7 +53,7 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
     layout->addWidget(input_combobox_, row, 1);
 
     if (!color_manager_->GetDefaultFloatInputColorSpace().isEmpty()) {
-      input_combobox_->setPlaceholderText(color_manager_->GetDefaultFloatInputColorSpace());
+      input_combobox_->setColorSpacePlaceHolder(color_manager_->GetDefaultFloatInputColorSpace());
     }
 
     connect(input_combobox_, &QComboBox::currentTextChanged, this, &ColorSpaceChooser::ComboBoxChanged);

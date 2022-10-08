@@ -46,7 +46,7 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
     OCIO_SET_C_LOCALE_FOR_SCOPE;
 
     if (transform.look().isEmpty()) {
-      display_transform->setDirection(dir_ == Direction::kNormal ? OCIO::TRANSFORM_DIR_FORWARD
+      display_transform->setDirection(direction == Direction::kNormal ? OCIO::TRANSFORM_DIR_FORWARD
                                                                  : OCIO::TRANSFORM_DIR_INVERSE);
       processor_ = config->GetConfig()->getProcessor(display_transform);
     } else {
@@ -65,7 +65,7 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
 
       display_transform->setSrc(out_cs);
       group->appendTransform(display_transform);
-      group->setDirection(dir_ == Direction::kNormal ? OCIO::TRANSFORM_DIR_FORWARD : OCIO::TRANSFORM_DIR_INVERSE);
+      group->setDirection(direction == Direction::kNormal ? OCIO::TRANSFORM_DIR_FORWARD : OCIO::TRANSFORM_DIR_INVERSE);
 
       processor_ = config->GetConfig()->getProcessor(group);
     }
