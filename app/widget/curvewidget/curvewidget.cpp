@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -103,6 +103,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(view_, &CurveView::SelectionChanged, this, &CurveWidget::SelectionChanged);
   connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
   connect(view_, &CurveView::Dragged, this, &CurveWidget::KeyframeViewDragged);
+  connect(view_, &CurveView::Released, this, &CurveWidget::KeyframeViewReleased);
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   view_->setHorizontalScrollBar(scrollbar());
@@ -127,6 +128,36 @@ void CurveWidget::SetVerticalScale(const double &vscale)
 void CurveWidget::DeleteSelected()
 {
   view_->DeleteSelected();
+}
+
+Node *CurveWidget::GetSelectedNodeWithID(const QString &id)
+{
+  for (auto it=view_->GetConnections().cbegin(); it!=view_->GetConnections().cend(); it++) {
+    Node *n = it.key().input().node();
+    if (n->id() == id) {
+      return n;
+    }
+  }
+
+  return nullptr;
+}
+
+bool CurveWidget::CopySelected(bool cut)
+{
+  if (super::CopySelected(cut)) {
+    return true;
+  }
+
+  return view_->CopySelected(cut);
+}
+
+bool CurveWidget::Paste()
+{
+  if (super::Paste()) {
+    return true;
+  }
+
+  return view_->Paste(std::bind(&CurveWidget::GetSelectedNodeWithID, this, std::placeholders::_1));
 }
 
 void CurveWidget::SetNodes(const QVector<Node *> &nodes)
@@ -349,15 +380,14 @@ void CurveWidget::InputSelectionChanged(const NodeKeyframeTrackReference& ref)
 
 void CurveWidget::KeyframeViewDragged(int x, int y)
 {
-  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
-                            Q_ARG(int, x));
-  QMetaObject::invokeMethod(this, "CatchUpYScrollToPoint", Qt::QueuedConnection,
-                            Q_ARG(int, y));
+  SetCatchUpScrollValue(x);
+  SetCatchUpScrollValue(view_->verticalScrollBar(), y, view_->height());
 }
 
-void CurveWidget::CatchUpYScrollToPoint(int point)
+void CurveWidget::KeyframeViewReleased()
 {
-  PageScrollInternal(view_->verticalScrollBar(), view_->height(), point, false);
+  StopCatchUpScrollTimer();
+  StopCatchUpScrollTimer(view_->verticalScrollBar());
 }
 
 }

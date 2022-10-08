@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -126,8 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  // Arbitrary pixel count (from 640x360)
-  const int target_res = 230400;
+  const int target_res = 1280*720;
 
   qint64 megapixels = width * height;
 
@@ -155,8 +154,8 @@ int VideoParams::generate_auto_divider(qint64 width, qint64 height)
       }
     }
 
-    // "Safe" fallback
-    return 2;
+    // Fallback
+    return 1;
   }
 }
 
@@ -200,6 +199,15 @@ int VideoParams::GetBytesPerPixel(VideoParams::Format format, int channels)
   return GetBytesPerChannel(format) * channels;
 }
 
+QString VideoParams::GetNameForDivider(int div)
+{
+  if (div == 1) {
+    return QCoreApplication::translate("VideoParams", "Full");
+  } else {
+    return QCoreApplication::translate("VideoParams", "1/%1").arg(div);
+  }
+}
+
 bool VideoParams::FormatIsFloat(VideoParams::Format format)
 {
   switch (format) {
@@ -235,6 +243,21 @@ QString VideoParams::GetFormatName(VideoParams::Format format)
   return QCoreApplication::translate("VideoParams", "Unknown (0x%1)").arg(format, 0, 16);
 }
 
+int VideoParams::GetDividerForTargetResolution(int src_width, int src_height, int dst_width, int dst_height)
+{
+  int divider = 0;
+  int test_width, test_height;
+
+  do {
+    divider++;
+
+    test_width = VideoParams::GetScaledDimension(src_width, divider);
+    test_height = VideoParams::GetScaledDimension(src_height, divider);
+  } while (test_width > dst_width || test_height > dst_height);
+
+  return divider;
+}
+
 void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
@@ -261,12 +284,13 @@ void VideoParams::set_defaults_for_footage()
   premultiplied_alpha_ = false;
   x_ = 0;
   y_ = 0;
+  color_range_ = kColorRangeDefault;
 }
 
 void VideoParams::calculate_square_pixel_width()
 {
   if (pixel_aspect_ratio_.denominator() != 0) {
-    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+    par_width_ = qRound(width_ * pixel_aspect_ratio_.toDouble());
   } else {
     par_width_ = width_;
   }
@@ -313,33 +337,6 @@ QString VideoParams::FormatPixelAspectRatioString(const QString &format, const r
 int VideoParams::GetScaledDimension(int dim, int divider)
 {
   return dim / divider;
-}
-
-QByteArray VideoParams::toBytes() const
-{
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-  hasher.addData(reinterpret_cast<const char*>(&width_), sizeof(width_));
-  hasher.addData(reinterpret_cast<const char*>(&height_), sizeof(height_));
-  hasher.addData(reinterpret_cast<const char*>(&depth_), sizeof(depth_));
-  hasher.addData(reinterpret_cast<const char*>(&time_base_), sizeof(time_base_));
-  hasher.addData(reinterpret_cast<const char*>(&format_), sizeof(format_));
-  hasher.addData(reinterpret_cast<const char*>(&channel_count_), sizeof(channel_count_));
-  hasher.addData(reinterpret_cast<const char*>(&pixel_aspect_ratio_), sizeof(pixel_aspect_ratio_));
-  hasher.addData(reinterpret_cast<const char*>(&interlacing_), sizeof(interlacing_));
-  hasher.addData(reinterpret_cast<const char*>(&divider_), sizeof(divider_));
-  hasher.addData(reinterpret_cast<const char*>(&enabled_), sizeof(enabled_));
-  hasher.addData(reinterpret_cast<const char*>(&x_), sizeof(x_));
-  hasher.addData(reinterpret_cast<const char*>(&y_), sizeof(y_));
-  hasher.addData(reinterpret_cast<const char*>(&stream_index_), sizeof(stream_index_));
-  hasher.addData(reinterpret_cast<const char*>(&video_type_), sizeof(video_type_));
-  hasher.addData(reinterpret_cast<const char*>(&frame_rate_), sizeof(frame_rate_));
-  hasher.addData(reinterpret_cast<const char*>(&start_time_), sizeof(start_time_));
-  hasher.addData(reinterpret_cast<const char*>(&duration_), sizeof(duration_));
-  hasher.addData(reinterpret_cast<const char*>(&premultiplied_alpha_), sizeof(premultiplied_alpha_));
-  hasher.addData(colorspace_.toUtf8());
-
-  return hasher.result();
 }
 
 int64_t VideoParams::get_time_in_timebase_units(const rational &time) const
@@ -392,6 +389,8 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_premultiplied_alpha(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("colorrange")) {
+      set_color_range(static_cast<ColorRange>(reader->readElementText().toInt()));
     } else {
       reader->skipCurrentElement();
     }
@@ -419,6 +418,7 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
   writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeTextElement(QStringLiteral("colorrange"), QString::number(color_range_));
 }
 
 }

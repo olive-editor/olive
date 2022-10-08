@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -312,6 +312,11 @@ TimeRangeListFrameIterator::TimeRangeListFrameIterator(const TimeRangeList &list
   UpdateIndexIfNecessary();
 }
 
+rational TimeRangeListFrameIterator::Snap(const rational &r) const
+{
+  return Timecode::snap_time_to_timebase(r, timebase_, Timecode::kFloor);
+}
+
 bool TimeRangeListFrameIterator::GetNext(rational *out)
 {
   if (!HasNext()) {
@@ -345,7 +350,7 @@ int TimeRangeListFrameIterator::size()
     size_ = 0;
 
     foreach (const TimeRange &range, list_) {
-      rational start = Timecode::snap_time_to_timebase(range.in(), timebase_, Timecode::kCeil);
+      rational start = Snap(range.in());
       rational end = Timecode::snap_time_to_timebase(range.out(), timebase_, Timecode::kFloor);
 
       if (end == range.out()) {
@@ -368,7 +373,7 @@ void TimeRangeListFrameIterator::UpdateIndexIfNecessary()
     range_index_++;
 
     if (range_index_ < list_.size()) {
-      current_ = Timecode::snap_time_to_timebase(list_.at(range_index_).in(), timebase_, Timecode::kCeil);
+      current_ = Snap(list_.at(range_index_).in());
     }
   }
 }

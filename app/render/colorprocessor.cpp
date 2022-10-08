@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,8 +26,7 @@
 
 namespace olive {
 
-ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform, Direction direction):
-    dir_(direction)
+ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform, Direction direction)
 {
   QMutexLocker locker(config->mutex());
 
@@ -42,7 +41,7 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
     display_transform->setSrc(input.toUtf8());
     display_transform->setDisplay(output.toUtf8());
     display_transform->setView(view.toUtf8());
-    display_transform->setDirection(dir_ == Direction::kNormal ? OCIO::TRANSFORM_DIR_FORWARD : OCIO::TRANSFORM_DIR_INVERSE);
+    display_transform->setDirection(direction == kNormal ? OCIO::TRANSFORM_DIR_FORWARD : OCIO::TRANSFORM_DIR_INVERSE);
 
     OCIO_SET_C_LOCALE_FOR_SCOPE;
 
@@ -74,16 +73,25 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
   } else {
 
     OCIO_SET_C_LOCALE_FOR_SCOPE;
-    if (dir_ == kNormal) {
-      processor_ = config->GetConfig()->getProcessor(input.toUtf8(), output.toUtf8());
-    } else {
-      processor_ = config->GetConfig()->getProcessor(output.toUtf8(), input.toUtf8());
+    try {
+      if (direction == kNormal) {
+        processor_ = config->GetConfig()->getProcessor(input.toUtf8(), output.toUtf8());
+      } else {
+        processor_ = config->GetConfig()->getProcessor(output.toUtf8(), input.toUtf8());
+      }
+    } catch (OCIO::Exception &e) {
+      qWarning() << "ColorProcessor exception:" << e.what();
     }
 
   }
 
   cpu_processor_ = processor_->getDefaultCPUProcessor();
-  id_ = GenerateID(config, input, transform);
+}
+
+ColorProcessor::ColorProcessor(OCIO::ConstProcessorRcPtr processor)
+{
+  processor_ = processor;
+  cpu_processor_ = processor_->getDefaultCPUProcessor();
 }
 
 void ColorProcessor::ConvertFrame(Frame *f)
@@ -117,18 +125,14 @@ Color ColorProcessor::ConvertColor(const Color& in)
   return Color(c[0], c[1], c[2], c[3]);
 }
 
-QString ColorProcessor::GenerateID(ColorManager *config, const QString &input, const ColorTransform &transform)
-{
-  return QStringLiteral("%1:%2:%3:%4:%5").arg(config->GetConfigFilename(),
-                                              input,
-                                              transform.display(),
-                                              transform.view(),
-                                              transform.look());
-}
-
 ColorProcessorPtr ColorProcessor::Create(ColorManager *config, const QString& input, const ColorTransform &transform, Direction direction)
 {
   return std::make_shared<ColorProcessor>(config, input, transform, direction);
+}
+
+ColorProcessorPtr ColorProcessor::Create(OCIO::ConstProcessorRcPtr processor)
+{
+  return std::make_shared<ColorProcessor>(processor);
 }
 
 OCIO::ConstProcessorRcPtr ColorProcessor::GetProcessor()

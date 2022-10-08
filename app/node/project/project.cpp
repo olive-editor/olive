@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include "common/qtutils.h"
 #include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
@@ -31,6 +32,8 @@
 #include "window/mainwindow/mainwindow.h"
 
 namespace olive {
+
+const QString Project::kItemMimeType = QStringLiteral("application/x-oliveprojectitemdata");
 
 Project::Project() :
   is_modified_(false),
@@ -171,16 +174,7 @@ void Project::RegenerateUuid()
 
 Project *Project::GetProjectFromObject(const QObject *o)
 {
-  QObject *t = o->parent();
-
-  while (t) {
-    if (Project *p = dynamic_cast<Project*>(t)) {
-      return p;
-    }
-    t = t->parent();
-  }
-
-  return nullptr;
+  return QtUtils::GetParentOfType<Project>(o);
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)

@@ -82,17 +82,17 @@ ShaderCode DespillNode::GetShaderCode(const ShaderRequest &request) const {
 
 void DespillNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const {
   ShaderJob job;
-  job.InsertValue(value);
+  job.Insert(value);
 
   // Set luma coefficients
   double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
   project()->color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-  job.InsertValue(QStringLiteral("luma_coeffs"),
+  job.Insert(QStringLiteral("luma_coeffs"),
                   NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
 
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  if (TexturePtr tex = job.Get(kTextureInput).toTexture()) {
+    table->Push(NodeValue::kTexture, tex->toJob(job), this);
   }
 }
 

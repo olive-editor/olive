@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "widget/resizablescrollbar/resizabletimelinescrollbar.h"
 #include "widget/timebased/timescaledobject.h"
 #include "widget/timelinewidget/view/timelineview.h"
+#include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
@@ -50,6 +51,11 @@ public:
 
   void ConnectViewerNode(ViewerOutput *node);
 
+  TimelineWorkArea *GetConnectedWorkArea() const { return workarea_; }
+  TimelineMarkerList *GetConnectedMarkers() const { return markers_; }
+  void ConnectWorkArea(TimelineWorkArea *workarea);
+  void ConnectMarkers(TimelineMarkerList *markers);
+
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
   TimeRuler* ruler() const;
@@ -62,6 +68,7 @@ public:
     kSnapToPlayhead = 0x2,
     kSnapToMarkers = 0x4,
     kSnapToKeyframes = 0x8,
+    kSnapToWorkarea = 0x10,
     kSnapAll = UINT32_MAX
   };
 
@@ -71,6 +78,10 @@ public:
   bool SnapPoint(const std::vector<rational> &start_times, rational *movement, SnapMask snap_points = kSnapAll);
   void ShowSnaps(const std::vector<rational> &times);
   void HideSnaps();
+
+  virtual bool CopySelected(bool cut);
+
+  virtual bool Paste();
 
 public slots:
   void SetTime(const rational &time);
@@ -111,9 +122,6 @@ public slots:
 
   void DeleteSelected();
 
-protected slots:
-  void SetTimeAndSignal(const rational& t);
-
 protected:
   ResizableTimelineScrollBar* scrollbar() const;
 
@@ -124,6 +132,9 @@ protected:
   virtual void ScaleChangedEvent(const double &) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput*){}
+
+  virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *){}
+  virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *){}
 
   virtual void ConnectNodeEvent(ViewerOutput*){}
 
@@ -137,9 +148,15 @@ protected:
 
   void PassWheelEventsToScrollBar(QObject* object);
 
+  void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
+  void SetCatchUpScrollValue(int v);
+  void StopCatchUpScrollTimer(QScrollBar *b);
+
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
   virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const { return nullptr; }
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const { return nullptr; }
   virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const { return nullptr; }
+  virtual const std::vector<TimelineMarker*> *GetSnapIgnoreMarkers() const { return nullptr; }
 
 protected slots:
   /**
@@ -155,6 +172,13 @@ protected slots:
 
   static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
 
+  void SetTimeAndSignal(const olive::rational& t);
+
+  void StopCatchUpScrollTimer()
+  {
+    StopCatchUpScrollTimer(scrollbar_);
+  }
+
 signals:
   void TimeChanged(const rational&);
 
@@ -163,8 +187,6 @@ signals:
   void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
 
 private:
-
-
   /**
    * @brief Set either in or out point to the current playhead
    *
@@ -213,6 +235,17 @@ private:
   double scrollbar_start_scale_;
   bool scrollbar_top_handle_;
 
+  TimelineWorkArea *workarea_;
+  TimelineMarkerList *markers_;
+
+  QTimer *catchup_scroll_timer_;
+  struct CatchUpScrollData {
+    qint64 last_forced = 0;
+    int maximum;
+    int value;
+  };
+  QMap<QScrollBar*, CatchUpScrollData> catchup_scroll_values_;
+
 private slots:
   void UpdateMaximumScroll();
 
@@ -231,6 +264,8 @@ private slots:
   void CatchUpScrollToPlayhead();
 
   void CatchUpScrollToPoint(int point);
+
+  void CatchUpTimerTimeout();
 
   void AutoUpdateTimebase();
 

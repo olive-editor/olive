@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -86,13 +86,13 @@ OLIVE_ADD_TEST(TimeRangeListFrameIteratorSize)
   ranges.insert(TimeRange(rational(1402, 20), rational(1403, 20)));     // 1
   ranges.insert(TimeRange(rational(10001, 40), rational(10002, 40)));   // 0
   ranges.insert(TimeRange(rational(10001, 40), rational(10004, 40)));   // 0
-  ranges.insert(TimeRange(rational(10001, 40), rational(10005, 40)));   // 1
+  ranges.insert(TimeRange(rational(10001, 40), rational(10005, 40)));   // 2
 
   TimeRangeListFrameIterator iterator(ranges, timebase);
 
   QVector<rational> vec = iterator.ToVector();
 
-  OLIVE_ASSERT_EQUAL(vec.size(), 253);
+  OLIVE_ASSERT_EQUAL(vec.size(), 254);
   OLIVE_ASSERT_EQUAL(iterator.size(), vec.size());
 
   TimeRangeListFrameIterator empty(TimeRangeList(), timebase);
@@ -101,6 +101,26 @@ OLIVE_ADD_TEST(TimeRangeListFrameIteratorSize)
 
   OLIVE_ASSERT_EQUAL(empty_vec.size(), 0);
   OLIVE_ASSERT_EQUAL(empty_vec.size(), empty.size());
+
+  OLIVE_TEST_END;
+}
+
+OLIVE_ADD_TEST(TimeRangeListFrameIteratorSize2)
+{
+  const rational timebase(1001, 30000);
+
+  TimeRangeList ranges;
+
+  ranges.insert(TimeRange(rational(247247, 30000), rational(31031, 3750))); // 1
+
+  TimeRange tr(rational(247247, 30000), rational(31031, 3750));
+
+  TimeRangeListFrameIterator iterator(ranges, timebase);
+
+  QVector<rational> vec = iterator.ToVector();
+
+  OLIVE_ASSERT_EQUAL(vec.size(), 1);
+  OLIVE_ASSERT_EQUAL(iterator.size(), vec.size());
 
   OLIVE_TEST_END;
 }

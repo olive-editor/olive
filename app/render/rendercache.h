@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,15 +39,10 @@ private:
 
 };
 
-struct DecoderPair {
-  DecoderPair()
-  {
-    decoder = nullptr;
-    last_modified = 0;
-  }
-
-  DecoderPtr decoder;
-  qint64 last_modified;
+struct DecoderPair
+{
+  DecoderPtr decoder = nullptr;
+  qint64 last_modified = 0;
 };
 
 using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;

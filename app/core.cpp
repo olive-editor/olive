@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -87,7 +87,8 @@ Core::Core(const CoreParams& params) :
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
   core_params_(params),
-  pixel_sampling_users_(0)
+  pixel_sampling_users_(0),
+  shown_cache_full_warning_(false)
 {
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
@@ -108,16 +109,13 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<NodeValueDatabase>();
   qRegisterMetaType<FramePtr>();
-  qRegisterMetaType<SampleBufferPtr>();
+  qRegisterMetaType<SampleBuffer>();
   qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
   qRegisterMetaType<olive::TimeRange>();
   qRegisterMetaType<Color>();
   qRegisterMetaType<olive::AudioVisualWaveform>();
-  qRegisterMetaType<olive::SampleJob>();
-  qRegisterMetaType<olive::ShaderJob>();
-  qRegisterMetaType<olive::GenerateJob>();
   qRegisterMetaType<olive::VideoParams>();
   qRegisterMetaType<olive::VideoParams::Interlacing>();
   qRegisterMetaType<olive::MainWindowLayoutInfo>();
@@ -185,9 +183,7 @@ void Core::Start()
     QTimer *crash_timer = new QTimer(this);
     crash_timer->setInterval(interval);
     connect(crash_timer, &QTimer::timeout, this, []{
-      // Try to read invalid memory to crash the application
-      int *invalid_ptr = nullptr;
-      qDebug() << *invalid_ptr;
+      abort();
     });
     crash_timer->start();
   }
@@ -370,7 +366,7 @@ void Core::DialogImportShow()
 
 void Core::DialogPreferencesShow()
 {
-  PreferencesDialog pd(main_window_, main_window_->menuBar());
+  PreferencesDialog pd(main_window_);
   pd.exec();
 }
 
@@ -391,12 +387,11 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerOutput* viewer = GetSequenceToExport();
+  ViewerOutput* viewer;
+  rational time;
 
-  if (viewer) {
-    ExportDialog* ed = new ExportDialog(viewer, main_window_);
-    connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
-    ed->open();
+  if (GetSequenceToExport(&viewer, &time)) {
+    OpenExportDialogForViewer(viewer, time, false);
   }
 }
 
@@ -521,6 +516,9 @@ bool Core::AddOpenProjectFromTask(Task *task)
       return true;
     } else {
       delete project;
+      if (open_projects_.empty()) {
+        CreateNewProject();
+      }
     }
   }
 
@@ -582,6 +580,8 @@ void Core::ImportTaskComplete(Task* task)
   }
 
   undo_stack_.pushIfHasChildren(command);
+
+  main_window_->SelectFootage(import_task->GetImportedFootage());
 }
 
 bool Core::ConfirmImageSequence(const QString& filename)
@@ -858,7 +858,7 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
   psm->deleteLater();
 }
 
-ViewerOutput* Core::GetSequenceToExport()
+bool Core::GetSequenceToExport(ViewerOutput **viewer, rational *time)
 {
   // First try the most recently focused time based window
   TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
@@ -876,7 +876,9 @@ ViewerOutput* Core::GetSequenceToExport()
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      return time_panel->GetConnectedViewer();
+      *viewer = time_panel->GetConnectedViewer();
+      *time = time_panel->GetTime();
+      return true;
     }
   } else {
     QMessageBox::critical(main_window_,
@@ -885,7 +887,7 @@ ViewerOutput* Core::GetSequenceToExport()
                           QMessageBox::Ok);
   }
 
-  return nullptr;
+  return false;
 }
 
 QString Core::GetAutoRecoveryIndexFilename()
@@ -1245,6 +1247,15 @@ void Core::OpenNodeInViewer(ViewerOutput *viewer)
   main_window_->OpenNodeInViewer(viewer);
 }
 
+void Core::OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image)
+{
+  ExportDialog* ed = new ExportDialog(viewer, start_still_image, main_window_);
+  ed->SetTime(time);
+  connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
+  ed->open();
+  connect(ed, &ExportDialog::RequestImportFile, this, &Core::ImportSingleFile);
+}
+
 void Core::CheckForAutoRecoveries()
 {
   QFile autorecovery_index(GetAutoRecoveryIndexFilename());
@@ -1299,6 +1310,22 @@ void Core::RequestPixelSamplingInViewers(bool e)
   }
 }
 
+void Core::WarnCacheFull()
+{
+  if (!shown_cache_full_warning_ && main_window_) {
+    shown_cache_full_warning_ = true;
+
+    QMessageBox::warning(main_window_, tr("Disk Cache Full"),
+                         tr("The disk cache is currently full and Olive is having to delete old "
+                            "frames to keep it within the limits set in the Disk preferences. This "
+                            "will result in SIGNIFICANTLY reduced cache performance.\n\n"
+                            "To remedy this, please do one of the following:\n\n"
+                            "1. Manually clear the disk cache in Disk preferences.\n"
+                            "2. Increase the maximum disk cache size in Disk preferences.\n"
+                            "3. Reduce usage of the disk cache (e.g. disable auto-cache or only cache specific sections of your sequence)."));
+  }
+}
+
 bool Core::SaveProjectAs(Project* p)
 {
   QFileDialog fd(main_window_, tr("Save Project As"));
@@ -1338,6 +1365,11 @@ void Core::PushRecentlyOpenedProject(const QString& s)
     recent_projects_.move(existing_index, 0);
   } else {
     recent_projects_.prepend(s);
+
+    const int kMaximumRecentProjects = 10;
+    while (recent_projects_.size() > kMaximumRecentProjects) {
+      recent_projects_.removeLast();
+    }
   }
 
   emit OpenRecentListChanged();
@@ -1392,6 +1424,13 @@ void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
   task_dialog->open();
 }
 
+void Core::ImportSingleFile(const QString &f)
+{
+  if (Project *p = GetActiveProject()) {
+    ImportFiles({f}, p->root());
+  }
+}
+
 int Core::CountFilesInFileList(const QFileInfoList &filenames)
 {
   int file_count = 0;
@@ -1410,25 +1449,6 @@ int Core::CountFilesInFileList(const QFileInfoList &filenames)
   }
 
   return file_count;
-}
-
-QString GetRenderModePreferencePrefix(RenderMode::Mode mode, const QString &preference) {
-  QString key;
-
-  key.append((mode == RenderMode::kOffline) ? QStringLiteral("Offline") : QStringLiteral("Online"));
-  key.append(preference);
-
-  return key;
-}
-
-QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference)
-{
-  return OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference));
-}
-
-void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
-{
-  OLIVE_CONFIG_STR(GetRenderModePreferencePrefix(mode, preference)) = value;
 }
 
 bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
@@ -1475,7 +1495,7 @@ bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
   return false;
 }
 
-Sequence *Core::CreateNewSequenceForProject(Project* project) const
+Sequence *Core::CreateNewSequenceForProject(const QString &format, Project* project)
 {
   Sequence* new_sequence = new Sequence();
 
@@ -1483,7 +1503,7 @@ Sequence *Core::CreateNewSequenceForProject(Project* project) const
   int sequence_number = 1;
   QString sequence_name;
   do {
-    sequence_name = tr("Sequence %1").arg(sequence_number);
+    sequence_name = format.arg(sequence_number);
     sequence_number++;
   } while (project->root()->ChildExistsWithName(sequence_name));
   new_sequence->SetLabel(sequence_name);

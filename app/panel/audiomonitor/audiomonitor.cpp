@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,12 +20,16 @@
 
 #include "audiomonitor.h"
 
+#include "panel/panelmanager.h"
+
 namespace olive {
 
+#define super PanelWidget
+
 AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("AudioMonitor"), parent)
+  super(QStringLiteral("AudioMonitor"), parent)
 {
-  audio_monitor_ = new AudioMonitor(this);
+  audio_monitor_ = new AudioMonitor();
 
   setWidget(audio_monitor_);
 

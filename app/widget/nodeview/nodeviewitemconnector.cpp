@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -79,6 +79,21 @@ void NodeViewItemConnector::SetFlowDirection(NodeViewCommon::FlowDirection dir)
   }
 
   setPolygon(p);
+}
+
+QPainterPath NodeViewItemConnector::shape() const
+{
+  // Yes, we skip QGraphicsPolygonItem because it adds the polygon. QGraphicsItem adds the
+  // boundingRect which we modify below
+  return QGraphicsItem::shape(); // clazy:exclude=skipped-base-method
+}
+
+QRectF NodeViewItemConnector::boundingRect() const
+{
+  QRectF b = this->polygon().boundingRect();
+  const int radius = QFontMetrics(QFont()).height()/2;
+  b.adjust(-radius, -radius, radius, radius);
+  return b;
 }
 
 }

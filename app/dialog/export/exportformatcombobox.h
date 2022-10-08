@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,8 +22,11 @@
 #define EXPORTFORMATCOMBOBOX_H
 
 #include <QComboBox>
+#include <QWidgetAction>
 
 #include "codec/exportformat.h"
+#include "node/output/track/track.h"
+#include "widget/menu/menu.h"
 
 namespace olive {
 
@@ -34,7 +37,8 @@ public:
   enum Mode {
     kShowAllFormats,
     kShowAudioOnly,
-    kShowVideoOnly
+    kShowVideoOnly,
+    kShowSubtitlesOnly
   };
 
   ExportFormatComboBox(Mode mode, QWidget *parent = nullptr);
@@ -44,8 +48,10 @@ public:
 
   ExportFormat::Format GetFormat() const
   {
-    return static_cast<ExportFormat::Format>(currentData().toInt());
+    return current_;
   }
+
+  void showPopup();
 
 signals:
   void FormatChanged(ExportFormat::Format fmt);
@@ -54,7 +60,16 @@ public slots:
   void SetFormat(ExportFormat::Format fmt);
 
 private slots:
-  void HandleIndexChange(int index);
+  void HandleIndexChange(QAction *a);
+
+private:
+  void PopulateType(Track::Type type);
+
+  QWidgetAction *CreateHeader(const QIcon &icon, const QString &title);
+
+  Menu *custom_menu_;
+
+  ExportFormat::Format current_;
 
 };
 

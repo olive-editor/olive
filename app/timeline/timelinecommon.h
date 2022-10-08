@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,6 +36,17 @@ public:
     kMove,
     kTrimIn,
     kTrimOut
+  };
+
+  enum ThumbnailMode {
+    kThumbnailOff,
+    kThumbnailInOut,
+    kThumbnailOn
+  };
+
+  enum WaveformMode {
+    kWaveformsDisabled,
+    kWaveformsEnabled
   };
 
   static bool IsATrimMode(MovementMode mode) {return mode == kTrimIn || mode == kTrimOut;}

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,9 +40,13 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   splitter->setChildrenCollapsible(false);
   layout->addWidget(splitter);
 
-  QWidget* wheel_area = new QWidget();
-  QHBoxLayout* wheel_layout = new QHBoxLayout(wheel_area);
-  splitter->addWidget(wheel_area);
+  QWidget* graphics_area = new QWidget();
+  splitter->addWidget(graphics_area);
+
+  QVBoxLayout *graphics_layout = new QVBoxLayout(graphics_area);
+
+  QHBoxLayout* wheel_layout = new QHBoxLayout();
+  graphics_layout->addLayout(wheel_layout);
 
   color_wheel_ = new ColorWheelWidget();
   wheel_layout->addWidget(color_wheel_);
@@ -50,6 +54,17 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   hsv_value_gradient_ = new ColorGradientWidget(Qt::Vertical);
   hsv_value_gradient_->setFixedWidth(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("HHH")));
   wheel_layout->addWidget(hsv_value_gradient_);
+
+  QHBoxLayout *swatch_layout = new QHBoxLayout();
+  graphics_layout->addLayout(swatch_layout);
+
+  swatch_layout->addStretch();
+
+  swatch_ = new ColorSwatchChooser(color_manager_);
+  swatch_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+  swatch_layout->addWidget(swatch_);
+
+  swatch_layout->addStretch();
 
   QWidget* value_area = new QWidget();
   QVBoxLayout* value_layout = new QVBoxLayout(value_area);
@@ -61,8 +76,6 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   value_layout->addWidget(color_values_widget_);
 
   chooser_ = new ColorSpaceChooser(color_manager_);
-  chooser_->set_input(start.color_input());
-  chooser_->set_output(start.color_output());
 
   value_layout->addWidget(chooser_);
 
@@ -71,10 +84,16 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
 
   connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, color_values_widget_, &ColorValuesWidget::SetColor);
   connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
+  connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, swatch_, &ColorSwatchChooser::SetCurrentColor);
   connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged, color_values_widget_, &ColorValuesWidget::SetColor);
   connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged, color_wheel_, &ColorWheelWidget::SetSelectedColor);
+  connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged, swatch_, &ColorSwatchChooser::SetCurrentColor);
   connect(color_values_widget_, &ColorValuesWidget::ColorChanged, hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
   connect(color_values_widget_, &ColorValuesWidget::ColorChanged, color_wheel_, &ColorWheelWidget::SetSelectedColor);
+  connect(color_values_widget_, &ColorValuesWidget::ColorChanged, swatch_, &ColorSwatchChooser::SetCurrentColor);
+  connect(swatch_, &ColorSwatchChooser::ColorClicked, hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
+  connect(swatch_, &ColorSwatchChooser::ColorClicked, color_wheel_, &ColorWheelWidget::SetSelectedColor);
+  connect(swatch_, &ColorSwatchChooser::ColorClicked, color_values_widget_, &ColorValuesWidget::SetColor);
 
   connect(color_wheel_, &ColorWheelWidget::DiameterChanged, hsv_value_gradient_, &ColorGradientWidget::setFixedHeight);
 
@@ -82,6 +101,20 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
   layout->addWidget(buttons);
+
+  SetColor(start);
+
+  connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
+  ColorSpaceChanged(chooser_->input(), chooser_->output());
+
+  // Set default size ratio to 2:1
+  resize(sizeHint().height() * 2, sizeHint().height());
+}
+
+void ColorDialog::SetColor(const ManagedColor &start)
+{
+  chooser_->set_input(start.color_input());
+  chooser_->set_output(start.color_output());
 
   Color managed_start;
 
@@ -103,12 +136,7 @@ ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start,
   color_wheel_->SetSelectedColor(managed_start);
   hsv_value_gradient_->SetSelectedColor(managed_start);
   color_values_widget_->SetColor(managed_start);
-
-  connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
-  ColorSpaceChanged(chooser_->input(), chooser_->output());
-
-  // Set default size ratio to 2:1
-  resize(sizeHint().height() * 2, sizeHint().height());
+  swatch_->SetCurrentColor(managed_start);
 }
 
 ManagedColor ColorDialog::GetSelectedColor() const

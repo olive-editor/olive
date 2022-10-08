@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,6 +39,11 @@ public:
   void Insert(const QString& key, const NodeValueTable &value)
   {
     tables_.insert(key, value);
+  }
+
+  NodeValueTable Take(const QString &key)
+  {
+    return tables_.take(key);
   }
 
   NodeValueTable Merge() const;

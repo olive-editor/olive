@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 ***/
 
 #include "timelinemarker.h"
+
+#include <QApplication>
 
 #include "common/qtutils.h"
 #include "common/xmlutils.h"
@@ -76,7 +78,7 @@ int TimelineMarker::GetMarkerHeight(const QFontMetrics &fm)
   return fm.height();
 }
 
-QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool selected)
+QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, int max_right, double scale, bool selected)
 {
   QFontMetrics fm = p->fontMetrics();
 
@@ -96,6 +98,9 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool sel
 
   int top = pt.y() - marker_height;
 
+  QTextOption op(Qt::AlignLeft | Qt::AlignVCenter);
+  op.setWrapMode(QTextOption::NoWrap);
+
   if (time_.out() != time_.in()) {
     QRect marker_rect(pt.x(), top, time_.length().toDouble() * scale, marker_height);
 
@@ -103,7 +108,7 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool sel
 
     if (!name_.isEmpty()) {
       p->setPen(ColorCoding::GetUISelectorColor(ColorCoding::GetColor(color_)));
-      p->drawText(marker_rect.adjusted(marker_width/4, 0, 0, 0), name_, Qt::AlignLeft | Qt::AlignVCenter);
+      p->drawText(marker_rect.adjusted(marker_width/4, 0, 0, 0), name_, op);
     }
 
     return marker_rect;
@@ -124,6 +129,16 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool sel
 
     p->setRenderHint(QPainter::Antialiasing);
     p->drawPolygon(points, 6);
+
+    if (!name_.isEmpty() && max_right != -1) {
+      QRect text_rect(right, top, max_right - right, marker_height);
+
+      int padding = QtUtils::QFontMetricsWidth(p->fontMetrics(), QStringLiteral(" "));
+      text_rect.adjust(padding, 0, - padding - half_width, 0);
+
+      p->setPen(qApp->palette().text().color());
+      p->drawText(text_rect, name_, op);
+    }
 
     return QRect(left, top, marker_width, marker_height);
   }
@@ -167,9 +182,9 @@ void TimelineMarkerList::InsertIntoList(TimelineMarker *marker)
   for (auto it=markers_.begin(); it!=markers_.end(); it++) {
     TimelineMarker *m = *it;
 
-    Q_ASSERT(m->time() != marker->time());
+    Q_ASSERT(m->time().in() != marker->time().in());
 
-    if (m->time() > marker->time()) {
+    if (m->time().in() > marker->time().in()) {
       markers_.insert(it, marker);
       found = true;
       break;
@@ -204,9 +219,7 @@ void TimelineMarkerList::HandleMarkerTimeChange()
 
   auto it = std::find(markers_.begin(), markers_.end(), m);
 
-  if ((it+1 != markers_.end() && (*(it+1))->time() < m->time())
-      || (it != markers_.begin() && (*(it-1))->time() > m->time())) {
-    // Re-sort into list
+  if (it != markers_.end()) {
     markers_.erase(it);
     InsertIntoList(m);
   }
@@ -304,8 +317,9 @@ void MarkerChangeNameCommand::undo()
   marker_->set_name(old_name_);
 }
 
-MarkerChangeTimeCommand::MarkerChangeTimeCommand(TimelineMarker* marker, TimeRange time) :
+MarkerChangeTimeCommand::MarkerChangeTimeCommand(TimelineMarker* marker, const TimeRange &time, const TimeRange &old_time) :
   marker_(marker),
+  old_time_(old_time),
   new_time_(time)
 {
 }
@@ -317,7 +331,6 @@ Project* MarkerChangeTimeCommand::GetRelevantProject() const
 
 void MarkerChangeTimeCommand::redo()
 {
-  old_time_ = marker_->time_range();
   marker_->set_time(new_time_);
 }
 

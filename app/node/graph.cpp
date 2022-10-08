@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,6 +39,10 @@ void NodeGraph::Clear()
 {
   // By deleting the last nodes first, we assume that nodes that are most important are deleted last
   // (e.g. Project's ColorManager or ProjectSettingsNode.
+  for (auto it=node_children_.cbegin(); it!=node_children_.cend(); it++) {
+    (*it)->SetCachesEnabled(false);
+  }
+
   while (!node_children_.isEmpty()) {
     delete node_children_.last();
   }

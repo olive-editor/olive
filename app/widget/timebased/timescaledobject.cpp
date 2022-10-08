@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -64,6 +64,9 @@ rational TimeScaledObject::SceneToTime(const double &x, const double &x_scale, c
 
   if (round) {
     rounded_x_mvmt = qRound64(unscaled_time);
+  } else if (unscaled_time < 0) {
+    // "floor" to zero
+    rounded_x_mvmt = qCeil(unscaled_time);
   } else {
     rounded_x_mvmt = qFloor(unscaled_time);
   }

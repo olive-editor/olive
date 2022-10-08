@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,17 +24,17 @@
 #include <client/crashpad_client.h>
 
 // Copied from base::FilePath to match its macro
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 // On most platforms, native pathnames are char arrays, and the encoding
 // may or may not be specified.  On Mac OS X, native pathnames are encoded
 // in UTF-8.
 #define QSTRING_TO_BASE_STRING(x) x.toStdString()
 #define BASE_STRING_TO_QSTRING(x) QString::fromStdString(x)
-#elif defined(OS_WIN)
+#elif BUILDFLAG(IS_WIN)
 // On Windows, for Unicode-aware applications, native pathnames are wchar_t
 // arrays encoded in UTF-16.
 #define QSTRING_TO_BASE_STRING(x) x.toStdWString()
 #define BASE_STRING_TO_QSTRING(x) QString::fromStdWString(x)
-#endif  // OS_WIN
+#endif  // BUILDFLAG(IS_WIN)
 
 #endif // CRASHPADUTILS_H

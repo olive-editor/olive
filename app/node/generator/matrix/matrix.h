@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -53,12 +53,13 @@ public:
   static const QString kAnchorInput;
 
 protected:
-  QMatrix4x4 GenerateMatrix(const NodeValueRow &value, bool take, bool ignore_anchor, bool ignore_position, bool ignore_scale) const;
+  QMatrix4x4 GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const;
   static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
                                    const float &rot,
                                    const QVector2D &scale,
                                    bool uniform_scale,
-                                   const QVector2D &anchor);
+                                   const QVector2D &anchor,
+                                   QMatrix4x4 mat);
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 

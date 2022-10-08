@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -80,11 +80,13 @@ ShaderCode NoiseGeneratorNode::GetShaderCode(const ShaderRequest &request) const
 
 void NoiseGeneratorNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
+  ShaderJob job(value);
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
 
-  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  TexturePtr base = value[kBaseIn].toTexture();
+
+  table->Push(NodeValue::kTexture, Texture::Job(base ? base->params() : globals.vparams(), job), this);
 }
 }

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,11 +41,13 @@ public:
     kInverse
   };
 
-  ColorProcessor(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction=kNormal);
+  ColorProcessor(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction = kNormal);
+  ColorProcessor(OCIO::ConstProcessorRcPtr processor);
 
   DISABLE_COPY_MOVE(ColorProcessor)
 
-  static ColorProcessorPtr Create(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction=kNormal);
+  static ColorProcessorPtr Create(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction = kNormal);
+  static ColorProcessorPtr Create(OCIO::ConstProcessorRcPtr processor);
 
   OCIO::ConstProcessorRcPtr GetProcessor();
 
@@ -54,21 +56,15 @@ public:
 
   Color ConvertColor(const Color &in);
 
-  const QString& id() const
+  const char *id() const
   {
-    return id_;
+    return processor_->getCacheID();
   }
-
-  static QString GenerateID(ColorManager* config, const QString& input, const ColorTransform& dest_space);
 
 private:
   OCIO::ConstProcessorRcPtr processor_;
 
   OCIO::ConstCPUProcessorRcPtr cpu_processor_;
-
-  QString id_;
-
-  Direction dir_;
 
 };
 

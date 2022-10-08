@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -170,6 +170,11 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
     }
   }
     break;
+  case Qt::EditRole:
+    if (column_type == kName) {
+      return internal_item->GetLabel();
+    }
+    break;
   case Qt::DecorationRole:
     // If this is the first column, return the Item's icon
     if (column_type == kName) {
@@ -271,7 +276,7 @@ Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 QStringList ProjectViewModel::mimeTypes() const
 {
   // Allow data from this model and a file list from external sources
-  return {QStringLiteral("application/x-oliveprojectitemdata"), QStringLiteral("text/uri-list")};
+  return {Project::kItemMimeType, QStringLiteral("text/uri-list")};
 }
 
 QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
@@ -312,7 +317,7 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
   }
 
   // Set byte array as the mime data and return the mime data
-  data->setData(QStringLiteral("application/x-oliveprojectitemdata"), encoded_data);
+  data->setData(Project::kItemMimeType, encoded_data);
 
   return data;
 }
@@ -331,9 +336,9 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   // Probe mime data for its format
   QStringList mime_formats = data->formats();
 
-  if (mime_formats.contains(QStringLiteral("application/x-oliveprojectitemdata"))) {
+  if (mime_formats.contains(Project::kItemMimeType)) {
     // Data is drag/drop data from this model
-    QByteArray model_data = data->data(QStringLiteral("application/x-oliveprojectitemdata"));
+    QByteArray model_data = data->data(Project::kItemMimeType);
 
     // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);

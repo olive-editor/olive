@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,15 +33,11 @@ public:
   {
   }
 
-  const QString& frag_code() const
-  {
-    return frag_code_;
-  }
+  const QString& frag_code() const { return frag_code_; }
+  void set_frag_code(const QString &f) { frag_code_ = f; }
 
-  const QString& vert_code() const
-  {
-    return vert_code_;
-  }
+  const QString& vert_code() const { return vert_code_; }
+  void set_vert_code(const QString &v) { vert_code_ = v; }
 
 private:
   QString frag_code_;

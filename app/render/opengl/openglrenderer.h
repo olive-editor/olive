@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -47,36 +47,34 @@ public:
 
   virtual void PostDestroy() override;
 
-public slots:
   virtual void PostInit() override;
 
-  virtual void DestroyInternal() override;
-
   virtual void ClearDestination(olive::Texture *texture = nullptr, double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) override;
-
-  virtual QVariant CreateNativeTexture2D(int width, int height, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
-  virtual QVariant CreateNativeTexture3D(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
-
-  virtual void DestroyNativeTexture(QVariant texture) override;
 
   virtual QVariant CreateNativeShader(olive::ShaderCode code) override;
 
   virtual void DestroyNativeShader(QVariant shader) override;
 
-  virtual void UploadToTexture(olive::Texture* texture, const void* data, int linesize) override;
+  virtual void UploadToTexture(const QVariant &handle, const VideoParams &params, const void* data, int linesize) override;
 
-  virtual void DownloadFromTexture(olive::Texture* texture, void* data, int linesize) override;
+  virtual void DownloadFromTexture(const QVariant &handle, const VideoParams &params, void* data, int linesize) override;
 
   virtual void Flush() override;
 
   virtual Color GetPixelFromTexture(olive::Texture *texture, const QPointF &pt) override;
 
-protected slots:
+protected:
   virtual void Blit(QVariant shader,
                     olive::ShaderJob job,
                     olive::Texture* destination,
                     olive::VideoParams destination_params,
                     bool clear_destination) override;
+
+  virtual QVariant CreateNativeTexture(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
+
+  virtual void DestroyNativeTexture(QVariant texture) override;
+
+  virtual void DestroyInternal() override;
 
 private:
   static GLint GetInternalFormat(VideoParams::Format format, int channel_layout);
@@ -85,7 +83,7 @@ private:
 
   static GLenum GetPixelFormat(int channel_count);
 
-  void AttachTextureAsDestination(olive::Texture* texture);
+  void AttachTextureAsDestination(const QVariant &texture);
 
   void DetachTextureAsDestination();
 
@@ -93,14 +91,7 @@ private:
 
   void ClearDestinationInternal(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0);
 
-  QVariant CreateNativeTexture2DInternal(int width, int height, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0);
-  QVariant CreateNativeTexture2DInternal(const VideoParams &params, const void* data = nullptr, int linesize = 0);
-
-  GLuint GetCachedTexture(int width, int height, int depth, VideoParams::Format format, int channel_count);
-
   GLuint CompileShader(GLenum type, const QString &code);
-
-  QTimer cache_timer_;
 
   QOpenGLContext* context_;
 
@@ -124,20 +115,9 @@ private:
     }
   };
 
-  struct TextureCacheEntry {
-    TextureCacheKey key;
-    GLuint texture;
-    qint64 age;
-  };
-
-  QVector<TextureCacheEntry> texture_cache_;
-
   QMap<GLuint, TextureCacheKey> texture_params_;
 
   static const int kTextureCacheMaxSize;
-
-private slots:
-  void GarbageCollectTextureCache();
 
 };
 

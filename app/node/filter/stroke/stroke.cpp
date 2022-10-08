@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -86,17 +86,14 @@ void StrokeFilterNode::Retranslate()
 
 void StrokeFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    if (job.GetValue(kRadiusInput).data().toDouble() > 0.0
-        && job.GetValue(kOpacityInput).data().toDouble() > 0.0) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (value[kRadiusInput].toDouble() > 0.0
+        && value[kOpacityInput].toDouble() > 0.0) {
+      ShaderJob job(value);
+      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
     } else {
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }

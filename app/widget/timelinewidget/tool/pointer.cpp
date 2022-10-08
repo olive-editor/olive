@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #include <QToolTip>
 
 #include "common/clamp.h"
-#include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
@@ -264,10 +263,30 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
       return;
     }
 
-    // Determine if this move is a slide, which is determined by either
-    bool clips_are_sliding = (slide_instead_of_moving || dynamic_cast<TransitionBlock*>(clicked_item));
+    bool sliding_due_to_transition = false;
 
-    if (clips_are_sliding) {
+    if (!slide_instead_of_moving) {
+      // If the user tries to move a transition without moving the clip it belongs to, we turn
+      // this into a slide
+      foreach (Block* block, clips) {
+        if (TransitionBlock* transit = dynamic_cast<TransitionBlock*>(block)) {
+          if (!CanTransitionMove(transit, clips)) {
+            slide_instead_of_moving = true;
+            break;
+          }
+        } else if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+          if ((clip->in_transition() && !CanTransitionMove(clip->in_transition(), clips))
+              || (clip->out_transition() && !CanTransitionMove(clip->out_transition(), clips))) {
+            slide_instead_of_moving = true;
+            break;
+          }
+        }
+      }
+
+      sliding_due_to_transition = slide_instead_of_moving;
+    }
+
+    if (slide_instead_of_moving) {
       // This is a slide. What we do here is move clips within their own track, between the clips
       // that they're already next to. We don't allow changing tracks or changing the order of
       // blocks.
@@ -297,17 +316,51 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
         Block* latest = latest_block_on_track.value(i.key());
 
         // First we add the block that's out trimming, the one prior to the earliest
-        TimelineViewGhostItem* earliest_ghost;
-        if (earliest->previous()) {
-          earliest_ghost = AddGhostFromBlock(earliest->previous(), Timeline::kTrimOut);
-        } else {
-          earliest_ghost = AddGhostFromNull(earliest->in(), earliest->in(), track->ToReference(), Timeline::kTrimOut);
+        {
+          TimelineViewGhostItem* earliest_ghost;
+          bool slide_with_earliest_previous = true;
+          if (sliding_due_to_transition && earliest->previous()) {
+            if (TransitionBlock *transit = dynamic_cast<TransitionBlock *>(earliest)) {
+              if (earliest->previous() != transit->connected_out_block()) {
+                slide_with_earliest_previous = false;
+              }
+            } else if (ClipBlock *clip = dynamic_cast<ClipBlock*>(earliest)) {
+              if (earliest->previous() != clip->in_transition()) {
+                slide_with_earliest_previous = false;
+              }
+            }
+          }
+
+          if (earliest->previous() && slide_with_earliest_previous) {
+            earliest_ghost = AddGhostFromBlock(earliest->previous(), Timeline::kTrimOut);
+          } else {
+            earliest_ghost = AddGhostFromNull(earliest->in(), earliest->in(), track->ToReference(), Timeline::kTrimOut);
+          }
+          SetGhostToSlideMode(earliest_ghost);
         }
-        SetGhostToSlideMode(earliest_ghost);
 
         // Then we add the block that's in trimming, the one after the latest
         if (latest->next()) {
-          TimelineViewGhostItem* latest_ghost = AddGhostFromBlock(latest->next(), Timeline::kTrimIn);
+          TimelineViewGhostItem* latest_ghost;
+
+          bool slide_with_latest_next = true;
+          if (sliding_due_to_transition) {
+            if (TransitionBlock *transit = dynamic_cast<TransitionBlock *>(latest)) {
+              if (latest->next() != transit->connected_in_block()) {
+                slide_with_latest_next = false;
+              }
+            } else if (ClipBlock *clip = dynamic_cast<ClipBlock*>(latest)) {
+              if (latest->next() != clip->out_transition()) {
+                slide_with_latest_next = false;
+              }
+            }
+          }
+
+          if (slide_with_latest_next) {
+            latest_ghost = AddGhostFromBlock(latest->next(), Timeline::kTrimIn);
+          } else {
+            latest_ghost = AddGhostFromNull(latest->out(), latest->out(), track->ToReference(), Timeline::kTrimIn);
+          }
           SetGhostToSlideMode(latest_ghost);
         }
 
@@ -329,13 +382,22 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
     } else {
       // Prepare for a standard pointer move by creating ghosts for them and any related blocks
       foreach (Block* block, clips) {
-        if (dynamic_cast<GapBlock*>(block) || dynamic_cast<TransitionBlock*>(block)) {
-          // Gaps cannot move, and we handle transitions further down
+        if (dynamic_cast<GapBlock*>(block)) {
           continue;
         }
 
         // Create ghost for this block
-        AddGhostFromBlock(block, trim_mode, true);
+        auto ghost = AddGhostFromBlock(block, trim_mode, true);
+        Q_UNUSED(ghost)
+
+        if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+          if (clip->out_transition()) {
+            AddGhostFromBlock(clip->out_transition(), trim_mode, true);
+          }
+          if (clip->in_transition()) {
+            AddGhostFromBlock(clip->in_transition(), trim_mode, true);
+          }
+        }
       }
     }
 
@@ -347,7 +409,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
     bool multitrim_enabled = IsClipTrimmable(clicked_item, clips, trim_mode);
 
     // Create ghosts for trimming
-    foreach (Block* clip_item, clips) {
+    for (Block* clip_item : clips) {
       if (clip_item != clicked_item
           && (!multitrim_enabled || !IsClipTrimmable(clip_item, clips, trim_mode))) {
         // Either multitrim is disabled or this clip is NOT the earliest/latest in its track. We
@@ -422,7 +484,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
           //        I'm only including it to prevent any potentially unintended behavior.
           if (clips.size() == 1 && !(modifiers & Qt::AltModifier)) {
             if (ClipBlock *adjacent_clip = dynamic_cast<ClipBlock*>(adjacent)) {
-              foreach (Block *adjacent_link, adjacent_clip->block_links()) {
+              for (Block *adjacent_link : adjacent_clip->block_links()) {
                 adjacent_ghosts.append(AddGhostFromBlock(adjacent_link, flipped_mode));
               }
             }
@@ -437,7 +499,7 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
         // expected to fill the remaining space (no gap needs to be created)
         ghost->SetData(TimelineViewGhostItem::kTrimIsARollEdit, static_cast<bool>(adjacent));
 
-        foreach (TimelineViewGhostItem *adjacent_ghost, adjacent_ghosts) {
+        for (TimelineViewGhostItem *adjacent_ghost : adjacent_ghosts) {
           if (adjacent_ghost) {
             if (treat_trim_as_slide) {
               // We're sliding a transition rather than a pure trim/roll
@@ -452,6 +514,18 @@ void PointerTool::InitiateDragInternal(Block *clicked_item,
       }
     }
   }
+}
+
+bool PointerTool::CanTransitionMove(TransitionBlock *transit, const QVector<Block *> &clips)
+{
+  Block *out = transit->connected_out_block();
+  Block *in = transit->connected_in_block();
+
+  if ((out && !clips.contains(out)) || (in && !clips.contains(in))) {
+    return false;
+  }
+
+  return true;
 }
 
 void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
@@ -497,6 +571,7 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
       break;
     case Timeline::kTrimIn:
       ghost->SetInAdjustment(time_movement);
+      ghost->SetMediaInAdjustment(time_movement);
       break;
     case Timeline::kTrimOut:
       ghost->SetOutAdjustment(time_movement);
@@ -618,6 +693,8 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       InsertGapsAtGhostDestination(command);
     }
 
+    QMap<Node*, Node*> relinks;
+
     // Now we can re-add each clip
     foreach (const GhostBlockPair& p, blocks_moving) {
       Block* block = p.block;
@@ -625,9 +702,12 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
       if (duplicate_clips) {
         // Duplicate rather than move
         // Place the copy instead of the original block
-        block = static_cast<Block*>(Node::CopyNodeInGraph(block, command));
+        Block *new_block = static_cast<Block*>(Node::CopyNodeInGraph(block, command));
+        relinks.insert(block, new_block);
+        block = new_block;
+
         if (ClipBlock *new_clip = dynamic_cast<ClipBlock*>(block)) {
-          new_clip->waveform() = static_cast<ClipBlock*>(p.block)->waveform();
+          new_clip->AddCachePassthroughFrom(static_cast<ClipBlock*>(p.block));
         }
       }
 
@@ -636,6 +716,18 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
                                                     track_ref.index(),
                                                     block,
                                                     p.ghost->GetAdjustedIn()));
+    }
+
+    if (!relinks.empty()) {
+      for (auto it=relinks.cbegin(); it!=relinks.cend(); it++) {
+        for (auto jt=it.key()->links().cbegin(); jt!=it.key()->links().cend(); jt++) {
+          Node *link = *jt;
+          Node *copy_link = relinks.value(link);
+          if (copy_link) {
+            command->add_child(new NodeLinkCommand(it.value(), copy_link, true));
+          }
+        }
+      }
     }
 
     // Adjust selections
@@ -691,8 +783,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     }
 
     if (!movement.isNull()) {
-      QHash<Track::Reference, QList<Block*> >::const_iterator i;
-      for (i=slide_info.constBegin(); i!=slide_info.constEnd(); i++) {
+      for (auto i=slide_info.constBegin(); i!=slide_info.constEnd(); i++) {
         command->add_child(new TrackSlideCommand(parent()->GetTrackFromReference(i.key()),
                                                  i.value(),
                                                  in_adjacents.value(i.key()),
@@ -737,6 +828,17 @@ void PointerTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_
   InitiateDragInternal(clicked_item, trim_mode, modifiers, false, false, false);
 }
 
+TimelineViewGhostItem *PointerTool::GetExistingGhostFromBlock(Block *block)
+{
+  foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
+    if (Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)) == block) {
+      return ghost;
+    }
+  }
+
+  return nullptr;
+}
+
 //#define HIDE_GAP_GHOSTS
 
 TimelineViewGhostItem* PointerTool::AddGhostFromBlock(Block* block, Timeline::MovementMode mode, bool check_if_exists)
@@ -747,17 +849,17 @@ TimelineViewGhostItem* PointerTool::AddGhostFromBlock(Block* block, Timeline::Mo
     return nullptr;
   }
 
+  TimelineViewGhostItem* ghost;
+
   // Check if we've already made a ghost for this block
   if (check_if_exists) {
-    foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-      if (Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)) == block) {
-        return ghost;
-      }
+    if ((ghost = GetExistingGhostFromBlock(block))) {
+      return ghost;
     }
   }
 
   // Otherwise, it's time to make a ghost for this block
-  TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromBlock(block);
+  ghost = TimelineViewGhostItem::FromBlock(block);
 
 #ifdef HIDE_GAP_GHOSTS
   if (block->type() == Block::kGap) {

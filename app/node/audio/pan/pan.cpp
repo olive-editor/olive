@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -64,48 +64,46 @@ QString PanNode::Description() const
 
 void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(globals)
-
   // Create a sample job
-  SampleJob job(kSamplesInput, value);
-
-  if (job.HasSamples()) {
-    bool push_job = false;
-
+  SampleBuffer samples = value[kSamplesInput].toSamples();
+  if (samples.is_allocated()) {
     // This node is only compatible with stereo audio
-    if (job.samples()->audio_params().channel_count() == 2) {
+    if (samples.audio_params().channel_count() == 2) {
       // If the input is static, we can just do it now which will be faster
       if (IsInputStatic(kPanningInput)) {
-        float pan_volume = job.GetValue(kPanningInput).data().toFloat();
+        float pan_volume = value[kPanningInput].toDouble();
         if (!qIsNull(pan_volume)) {
           if (pan_volume > 0) {
-            job.samples()->transform_volume_for_channel(0, 1.0f - pan_volume);
+            samples.transform_volume_for_channel(0, 1.0f - pan_volume);
           } else {
-            job.samples()->transform_volume_for_channel(1, 1.0f + pan_volume);
+            samples.transform_volume_for_channel(1, 1.0f + pan_volume);
           }
         }
+
+        table->Push(NodeValue(NodeValue::kSamples, samples, this));
       } else {
         // Requires job
-        push_job = true;
+        table->Push(NodeValue::kSamples, SampleJob(globals.time(), kSamplesInput, value), this);
       }
+    } else {
+      // Pass right through
+      table->Push(value[kSamplesInput]);
     }
-
-    table->Push(NodeValue::kSamples, push_job ? QVariant::fromValue(job) : QVariant::fromValue(job.samples()), this);
   }
 }
 
-void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
 {
-  float pan_val = values[kPanningInput].data().toFloat();
+  float pan_val = values[kPanningInput].toDouble();
 
-  for (int i=0;i<input->audio_params().channel_count();i++) {
-    output->data(i)[index] = input->data(i)[index];
+  for (int i=0;i<input.audio_params().channel_count();i++) {
+    output.data(i)[index] = input.data(i)[index];
   }
 
   if (pan_val > 0) {
-    output->data(0)[index] *= (1.0F - pan_val);
+    output.data(0)[index] *= (1.0F - pan_val);
   } else if (pan_val < 0) {
-    output->data(1)[index] *= (1.0F - qAbs(pan_val));
+    output.data(1)[index] *= (1.0F - qAbs(pan_val));
   }
 }
 

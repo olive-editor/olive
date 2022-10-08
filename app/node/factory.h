@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -70,6 +70,17 @@ public:
     kNoiseGenerator,
     kTimeOffsetNode,
     kCornerPinDistort,
+    kDisplayTransform,
+    kOCIOGradingTransformLinear,
+    kChromaKey,
+    kMaskDistort,
+    kDropShadowFilter,
+    kTimeFormat,
+    kWaveDistort,
+    kRippleDistort,
+    kTileDistort,
+    kSwirlDistort,
+    kMulticamNode,
 
     // Count value
     kInternalNodeCount
@@ -95,8 +106,6 @@ public:
 
 private:
   static QList<Node*> library_;
-
-  static QVector<int> hidden_;
 
 };
 

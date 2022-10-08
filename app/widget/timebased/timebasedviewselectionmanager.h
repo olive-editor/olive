@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,10 +26,12 @@
 #include <QRubberBand>
 #include <QToolTip>
 
+#include "common/qtutils.h"
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
 #include "timebasedview.h"
 #include "timebasedwidget.h"
+#include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
@@ -158,19 +160,50 @@ public:
     return !dragging_.empty();
   }
 
-  void DragStart(T *initial_item, QMouseEvent *event)
+  void DragStart(T *initial_item, QMouseEvent *event, TimeTargetObject *target = nullptr)
   {
+    if (event->button() != Qt::LeftButton) {
+      return;
+    }
+
+    time_target_ = target;
+
     initial_drag_item_ = initial_item;
 
     dragging_.resize(selected_.size());
-    snap_points_.resize(selected_.size()*2);
+
+    if constexpr (std::is_same_v<T, TimelineMarker>) {
+      snap_points_.resize(selected_.size()*2);
+    } else {
+      snap_points_.resize(selected_.size());
+    }
+
+    if (target) {
+      time_targets_.resize(snap_points_.size());
+      memset(time_targets_.data(), 0, time_targets_.size() * sizeof(Node*));
+    } else {
+      time_targets_.clear();
+    }
+
     for (size_t i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
-      dragging_[i] = obj->time();
+      if constexpr (std::is_same_v<T, TimelineMarker>) {
+        dragging_[i] = obj->time().in();
+        snap_points_[i] = obj->time().in();
+        snap_points_[i+selected_.size()] = obj->time().out();
 
-      snap_points_[i] = obj->time();
-      snap_points_[i+selected_.size()] = obj->time_range().out();
+        if (target) {
+          time_targets_[i] = time_targets_[i+selected_.size()] = QtUtils::GetParentOfType<Node>(obj);
+        }
+      } else {
+        dragging_[i] = obj->time();
+        snap_points_[i] = obj->time();
+
+        if (target) {
+          time_targets_[i] = QtUtils::GetParentOfType<Node>(obj);
+        }
+      }
     }
 
     drag_mouse_start_ = view_->mapToScene(event->pos());
@@ -178,8 +211,18 @@ public:
 
   void SnapPoints(rational *movement)
   {
+    std::vector<rational> copy = snap_points_;
+
+    if (time_target_) {
+      for (size_t i=0; i<copy.size(); i++) {
+        if (Node *parent = time_targets_[i]) {
+          copy[i] = time_target_->GetAdjustedTime(parent, time_target_->GetTimeTarget(), copy[i], false);
+        }
+      }
+    }
+
     if (Core::instance()->snapping() && view_->GetSnapService()) {
-      view_->GetSnapService()->SnapPoint(snap_points_, movement, snap_mask_);
+      view_->GetSnapService()->SnapPoint(copy, movement, snap_mask_);
     }
   }
 
@@ -195,7 +238,25 @@ public:
     rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
 
     // Snap points
+    rational presnap_time_diff = time_diff;
     SnapPoints(&time_diff);
+
+    // Validate snapping
+    if (Core::instance()->snapping() && view_->GetSnapService()) {
+      for (size_t i=0; i<selected_.size(); i++) {
+        rational proposed_time = dragging_.at(i) + time_diff;
+        T *sel = selected_.at(i);
+
+        if (sel->has_sibling_at_time(proposed_time)) {
+          // Unsnap
+          time_diff = presnap_time_diff;
+          if (view_->GetSnapService()) {
+            view_->GetSnapService()->HideSnaps();
+          }
+          break;
+        }
+      }
+    }
 
     // Validate movement
     for (size_t i=0; i<selected_.size(); i++) {
@@ -240,7 +301,15 @@ public:
     }
 
     // Show information about this keyframe
-    QString tip = Timecode::time_to_timecode(initial_drag_item_->time(), timebase_,
+    rational display_time;
+
+    if constexpr (std::is_same_v<T, TimelineMarker>) {
+      display_time = initial_drag_item_->time().in();
+    } else {
+      display_time = initial_drag_item_->time();
+    }
+
+    QString tip = Timecode::time_to_timecode(display_time, timebase_,
                                              Core::instance()->GetTimecodeDisplay(), false);
 
     if (!tip_format.isEmpty()) {
@@ -251,12 +320,23 @@ public:
     QToolTip::showText(QCursor::pos(), tip);
   }
 
+  void DragMove(QMouseEvent *event, TimeTargetObject *target)
+  {
+    return DragMove(event, QString(), target);
+  }
+
   void DragStop(MultiUndoCommand *command)
   {
     QToolTip::hideText();
 
     for (size_t i=0; i<selected_.size(); i++) {
-      command->add_child(new SetTimeCommand(selected_.at(i), selected_.at(i)->time(), dragging_.at(i)));
+      rational current;
+      if constexpr (std::is_same_v<T, TimelineMarker>) {
+        current = selected_.at(i)->time().in();
+      } else {
+        current = selected_.at(i)->time();
+      }
+      command->add_child(new SetTimeCommand(selected_.at(i), current, dragging_.at(i)));
     }
 
     dragging_.clear();
@@ -357,6 +437,7 @@ private:
 
   std::vector<rational> dragging_;
   std::vector<rational> snap_points_;
+  std::vector<Node*> time_targets_;
 
   T *initial_drag_item_;
 
@@ -369,6 +450,8 @@ private:
   std::vector<T*> rubberband_preselected_;
 
   TimeBasedWidget::SnapMask snap_mask_;
+
+  TimeTargetObject *time_target_;
 
 };
 

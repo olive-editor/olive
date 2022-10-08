@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -63,9 +63,7 @@ void SolidGenerator::Retranslate()
 
 void SolidGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-  job.InsertValue(value);
-  table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  table->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), ShaderJob(value)), this);
 }
 
 ShaderCode SolidGenerator::GetShaderCode(const ShaderRequest &request) const

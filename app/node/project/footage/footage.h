@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,12 +24,13 @@
 #include <QList>
 #include <QDateTime>
 
+#include "codec/decoder.h"
 #include "common/rational.h"
 #include "footagedescription.h"
 #include "node/output/viewer/viewer.h"
 #include "render/audioparams.h"
+#include "render/cancelatom.h"
 #include "render/videoparams.h"
-#include "timeline/timelinepoints.h"
 
 namespace olive {
 
@@ -44,12 +45,6 @@ class Footage : public ViewerOutput
 {
   Q_OBJECT
 public:
-  enum LoopMode {
-    kLoopModeOff,
-    kLoopModeLoop,
-    kLoopModeClamp
-  };
-
   /**
    * @brief Footage Constructor
    */
@@ -102,11 +97,6 @@ public:
   void SetValid();
 
   /**
-   * @brief Get currently set loop mode
-   */
-  LoopMode loop_mode() const;
-
-  /**
    * @brief Return the current filename of this Footage object
    */
   QString filename() const;
@@ -142,7 +132,7 @@ public:
    */
   void set_timestamp(const qint64 &t);
 
-  void SetCancelPointer(const QAtomicInt* c)
+  void SetCancelPointer(CancelAtom *c)
   {
     cancelled_ = c;
   }
@@ -173,6 +163,7 @@ public:
 
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
+  static QString DescribeSubtitleStream(const SubtitleParams& params);
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
@@ -182,20 +173,21 @@ public:
 
   virtual Node *GetConnectedSampleOutput() override;
 
-  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
+  static rational AdjustTimeByLoopMode(rational time, Decoder::LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
+
+  virtual void LoadFinishedEvent() override;
 
   virtual qint64 creation_time() const override;
   virtual qint64 mod_time() const override;
 
+  virtual int GetTotalStreamCount() const override { return total_stream_count_; }
+
   static const QString kFilenameInput;
-  static const QString kLoopModeInput;
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
   virtual rational VerifyLengthInternal(Track::Type type) const override;
-
-  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   QString GetColorspaceToUse(const VideoParams& params) const;
@@ -216,6 +208,10 @@ private:
    */
   void UpdateTooltip();
 
+  void Reprobe();
+
+  VideoParams MergeVideoStream(const VideoParams &base, const VideoParams &over);
+
   /**
    * @brief Internal timestamp object
    */
@@ -228,7 +224,9 @@ private:
 
   bool valid_;
 
-  const QAtomicInt* cancelled_;
+  CancelAtom *cancelled_;
+
+  int total_stream_count_;
 
 private slots:
   void CheckFootage();

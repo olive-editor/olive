@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -65,9 +65,9 @@ bool PreCacheTask::Run()
   // Get list of invalidated ranges
   TimeRange intersection;
 
-  if (footage_->GetTimelinePoints()->workarea()->enabled()) {
+  if (footage_->GetWorkArea()->enabled()) {
     // If we're caching only in-out, limit the range to that
-    intersection = footage_->GetTimelinePoints()->workarea()->range();
+    intersection = footage_->GetWorkArea()->range();
   } else {
     // Otherwise use full length
     intersection = TimeRange(0, footage_->GetVideoLength());
@@ -85,19 +85,18 @@ bool PreCacheTask::Run()
   return true;
 }
 
-bool PreCacheTask::FrameDownloaded(FramePtr frame, const QByteArray &hash, const QVector<rational> &times)
+bool PreCacheTask::FrameDownloaded(FramePtr frame, const rational &time)
 {
   // Do nothing. Pre-cache essentially just creates more frames in the cache, it doesn't need to do
   // anything else.
 
   Q_UNUSED(frame)
-  Q_UNUSED(hash)
-  Q_UNUSED(times)
+  Q_UNUSED(time)
 
   return true;
 }
 
-bool PreCacheTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+bool PreCacheTask::AudioDownloaded(const TimeRange &range, const SampleBuffer &samples)
 {
   // Pre-cache doesn't cache any audio
 

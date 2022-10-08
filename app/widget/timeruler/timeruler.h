@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -52,8 +52,6 @@ private:
   void UpdateHeight();
 
   int CacheStatusHeight() const;
-
-  int cache_status_height_;
 
   int minimum_gap_between_lines_;
 

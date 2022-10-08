@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -75,7 +75,6 @@ public:
       ghost->can_have_zero_length_ = false;
     } else if (dynamic_cast<TransitionBlock*>(block)) {
       ghost->can_have_zero_length_ = false;
-      ghost->SetCanMoveTracks(false);
     }
 
     return ghost;

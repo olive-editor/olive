@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@
 #include <QScrollBar>
 
 #include "common/rational.h"
-#include "timeline/timelinepoints.h"
 #include "widget/menu/menu.h"
 #include "widget/timebased/timebasedviewselectionmanager.h"
 
@@ -42,23 +41,39 @@ public:
     return horizontalScrollBar()->value();
   }
 
-  TimelinePoints* GetTimelinePoints() const { return timeline_points_; }
-  void ConnectTimelinePoints(TimelinePoints* points);
+  TimelineMarkerList *GetMarkers() const { return markers_; }
+  TimelineWorkArea *GetWorkArea() const { return workarea_; }
+
+  void SetMarkers(TimelineMarkerList *markers);
+  void SetWorkArea(TimelineWorkArea *workarea);
 
   bool IsDraggingPlayhead() const
   {
     return dragging_;
   }
 
+  bool IsMarkerEditingEnabled() const { return marker_editing_enabled_; }
+  void SetMarkerEditingEnabled(bool e) { marker_editing_enabled_ = e; }
+
   void DeleteSelected();
 
   bool CopySelected(bool cut);
 
-  bool PasteMarkers(bool insert, rational insert_time);
+  bool PasteMarkers();
 
   void DeselectAllMarkers();
 
   void SeekToScenePoint(qreal scene);
+
+  bool HasItemsSelected() const
+  {
+    return !selection_manager_.GetSelectedObjects().empty();
+  }
+
+  const std::vector<TimelineMarker*> &GetSelectedMarkers() const
+  {
+    return selection_manager_.GetSelectedObjects();
+  }
 
   virtual void SelectionManagerSelectEvent(void *obj) override;
   virtual void SelectionManagerDeselectEvent(void *obj) override;
@@ -71,6 +86,9 @@ public slots:
 
   virtual void TimebaseChangedEvent(const rational &) override;
 
+signals:
+  void DragReleased();
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
@@ -79,7 +97,8 @@ protected:
 
   virtual void focusOutEvent(QFocusEvent *event) override;
 
-  void DrawTimelinePoints(QPainter *p, int marker_bottom = 0);
+  void DrawMarkers(QPainter *p, int marker_bottom = 0);
+  void DrawWorkArea(QPainter *p);
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
@@ -91,11 +110,27 @@ protected:
     return playhead_width_;
   }
 
+  int GetLeftLimit() const;
+  int GetRightLimit() const;
+
 protected slots:
   virtual bool ShowContextMenu(const QPoint &p);
 
 private:
-  TimelinePoints* timeline_points_;
+  enum ResizeMode {
+    kResizeNone,
+    kResizeIn,
+    kResizeOut
+  };
+
+  bool FindResizeHandle(QMouseEvent *event);
+
+  void DragResizeHandle(const QPointF &scene_pos);
+
+  void CommitResizeHandle();
+
+  TimelineMarkerList* markers_;
+  TimelineWorkArea* workarea_;
 
   int text_height_;
 
@@ -106,6 +141,17 @@ private:
   bool ignore_next_focus_out_;
 
   TimeBasedViewSelectionManager<TimelineMarker> selection_manager_;
+
+  QObject *resize_item_;
+  ResizeMode resize_mode_;
+  TimeRange resize_item_range_;
+  QPointF resize_start_;
+  uint32_t resize_snap_mask_;
+
+  int marker_top_;
+  int marker_bottom_;
+
+  bool marker_editing_enabled_;
 
 private slots:
   void SetMarkerColor(int c);

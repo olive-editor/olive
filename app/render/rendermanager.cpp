@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,9 +26,7 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "node/hashtraverser.h"
 #include "render/opengl/openglrenderer.h"
-#include "render/rendererthreadwrapper.h"
 #include "renderprocessor.h"
 #include "task/conform/conform.h"
 #include "task/taskmanager.h"
@@ -37,48 +35,141 @@
 namespace olive {
 
 RenderManager* RenderManager::instance_ = nullptr;
-const int RenderManager::kDecoderMaximumInactivity = 10000;
+const rational RenderManager::kDryRunInterval = rational(10);
 
 RenderManager::RenderManager(QObject *parent) :
-  ThreadPool(QThread::IdlePriority, 0, parent),
-  backend_(kOpenGL)
+  backend_(kOpenGL),
+  aggressive_gc_(0)
 {
-  Renderer* graphics_renderer = nullptr;
-
   if (backend_ == kOpenGL) {
-    graphics_renderer = new OpenGLRenderer();
-  }
-
-  if (graphics_renderer) {
-    context_ = new RendererThreadWrapper(graphics_renderer, this);
-    context_->Init();
-    context_->PostInit();
-
+    context_ = new OpenGLRenderer();
     decoder_cache_ = new DecoderCache();
     shader_cache_ = new ShaderCache();
-    default_shader_ = context_->CreateNativeShader(ShaderCode(QString(), QString()));
-
-    decoder_clear_timer_.setInterval(kDecoderMaximumInactivity);
-    connect(&decoder_clear_timer_, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
-    decoder_clear_timer_.start();
   } else {
     qCritical() << "Tried to initialize unknown graphics backend";
     context_ = nullptr;
     decoder_cache_ = nullptr;
   }
+
+  if (context_) {
+    video_thread_ = CreateThread(context_);
+    dry_run_thread_ = CreateThread();
+    audio_thread_ = CreateThread();
+
+    waveform_threads_.resize(QThread::idealThreadCount());
+    for (size_t i=0; i<waveform_threads_.size(); i++) {
+      waveform_threads_[i] = CreateThread();
+    }
+  }
+
+  decoder_clear_timer_ = new QTimer(this);
+  decoder_clear_timer_->setInterval(kDecoderMaximumInactivity);
+  connect(decoder_clear_timer_, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
+  decoder_clear_timer_->start();
 }
 
 RenderManager::~RenderManager()
 {
   if (context_) {
-    context_->DestroyNativeShader(default_shader_);
-
     delete shader_cache_;
     delete decoder_cache_;
 
-    context_->Destroy();
+    for (RenderThread *rt : render_threads_) {
+      rt->quit();
+      rt->wait();
+    }
+
     context_->PostDestroy();
     delete context_;
+  }
+}
+
+RenderThread *RenderManager::CreateThread(Renderer *renderer)
+{
+  auto t = new RenderThread(renderer, decoder_cache_, shader_cache_, this);
+  render_threads_.push_back(t);
+  t->start(QThread::IdlePriority);
+  return t;
+}
+
+RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
+{
+  // Create ticket
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
+
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.time));
+  ticket->setProperty("size", params.force_size);
+  ticket->setProperty("matrix", params.force_matrix);
+  ticket->setProperty("format", params.force_format);
+  ticket->setProperty("usecache", params.use_cache);
+  ticket->setProperty("channelcount", params.force_channel_count);
+  ticket->setProperty("mode", params.mode);
+  ticket->setProperty("type", kTypeVideo);
+  ticket->setProperty("colormanager", Node::PtrToValue(params.color_manager));
+  ticket->setProperty("coloroutput", QVariant::fromValue(params.force_color_output));
+  Q_ASSERT(params.video_params.is_valid());
+  ticket->setProperty("vparam", QVariant::fromValue(params.video_params));
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
+  ticket->setProperty("return", params.return_type);
+  ticket->setProperty("cache", params.cache_dir);
+  ticket->setProperty("cachetimebase", QVariant::fromValue(params.cache_timebase));
+  ticket->setProperty("cacheid", QVariant::fromValue(params.cache_id));
+  ticket->setProperty("multicam", Node::PtrToValue(params.multicam));
+
+  if (params.return_type == ReturnType::kNull) {
+    dry_run_thread_->AddTicket(ticket);
+  } else {
+    video_thread_->AddTicket(ticket);
+  }
+
+  return ticket;
+}
+
+RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
+{
+  // Create ticket
+  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
+
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.range));
+  ticket->setProperty("type", kTypeAudio);
+  ticket->setProperty("enablewaveforms", params.generate_waveforms);
+  ticket->setProperty("clamp", params.clamp);
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
+  ticket->setProperty("mode", params.mode);
+
+  if (params.generate_waveforms) {
+    size_t thread_index = last_waveform_thread_%waveform_threads_.size();
+    RenderThread *thread = waveform_threads_[thread_index];
+    thread->AddTicket(ticket);
+    last_waveform_thread_++;
+  } else {
+    audio_thread_->AddTicket(ticket);
+  }
+
+  return ticket;
+}
+
+bool RenderManager::RemoveTicket(RenderTicketPtr ticket)
+{
+  for (RenderThread *rt : render_threads_) {
+    if (rt->RemoveTicket(ticket)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void RenderManager::SetAggressiveGarbageCollection(bool enabled)
+{
+  aggressive_gc_ += enabled ? 1 : -1;
+
+  if (aggressive_gc_ > 0) {
+    decoder_clear_timer_->setInterval(kDecoderMaximumInactivityAggressive);
+  } else {
+    decoder_clear_timer_->setInterval(kDecoderMaximumInactivity);
   }
 }
 
@@ -100,132 +191,87 @@ void RenderManager::ClearOldDecoders()
   }
 }
 
-QByteArray RenderManager::Hash(const Node *n, const Node::ValueHint &output, const VideoParams &params, const rational &time)
+RenderThread::RenderThread(Renderer *renderer, DecoderCache *decoder_cache, ShaderCache *shader_cache, QObject *parent) :
+  QThread(parent),
+  cancelled_(false),
+  context_(renderer),
+  decoder_cache_(decoder_cache),
+  shader_cache_(shader_cache)
 {
-  Q_ASSERT(n);
-
-  if (n) {
-    HashTraverser hasher;
-    return hasher.GetHash(n, output, params, TimeRange(time, time + params.frame_rate_as_time_base()));
-  } else {
-    qCritical() << "Hash called with null node";
-    return QByteArray();
+  if (context_) {
+    context_->Init();
+    context_->moveToThread(this);
   }
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, bool prioritize, bool texture_only)
+void RenderThread::AddTicket(RenderTicketPtr ticket)
 {
-  return RenderFrame(viewer,
-                     color_manager,
-                     time,
-                     mode,
-                     viewer->GetVideoParams(),
-                     viewer->GetAudioParams(),
-                     QSize(0, 0),
-                     QMatrix4x4(),
-                     VideoParams::kFormatInvalid,
-                     nullptr,
-                     cache,
-                     prioritize,
-                     texture_only);
+  QMutexLocker locker(&mutex_);
+  ticket->moveToThread(this);
+  queue_.push_back(ticket);
+  wait_.wakeOne();
 }
 
-RenderTicketPtr RenderManager::RenderFrame(ViewerOutput *viewer, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
-                                           const VideoParams &video_params, const AudioParams &audio_params,
-                                           const QSize& force_size,
-                                           const QMatrix4x4& force_matrix, VideoParams::Format force_format,
-                                           ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, bool prioritize, bool texture_only)
+bool RenderThread::RemoveTicket(RenderTicketPtr ticket)
 {
-  // Create ticket
-  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
+  QMutexLocker locker(&mutex_);
 
-  ticket->setProperty("viewer", Node::PtrToValue(viewer));
-  ticket->setProperty("time", QVariant::fromValue(time));
-  ticket->setProperty("size", force_size);
-  ticket->setProperty("matrix", force_matrix);
-  ticket->setProperty("format", force_format);
-  ticket->setProperty("mode", mode);
-  ticket->setProperty("type", kTypeVideo);
-  ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
-  ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
-  ticket->setProperty("vparam", QVariant::fromValue(video_params));
-  ticket->setProperty("aparam", QVariant::fromValue(audio_params));
-  ticket->setProperty("textureonly", texture_only);
-
-  if (cache) {
-    ticket->setProperty("cache", cache->GetCacheDirectory());
+  auto it = std::find(queue_.begin(), queue_.end(), ticket);
+  if (it == queue_.end()) {
+    return false;
   }
 
-  if (ticket->thread() != this->thread()) {
-    ticket->moveToThread(this->thread());
+  queue_.erase(it);
+  return true;
+}
+
+void RenderThread::quit()
+{
+  QMutexLocker locker(&mutex_);
+  cancelled_ = true;
+  wait_.wakeOne();
+}
+
+void RenderThread::run()
+{
+  if (context_) {
+    context_->PostInit();
   }
 
-  // Queue appending the ticket and running the next job on our thread to make this function thread-safe
-  QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
-                            OLIVE_NS_ARG(RenderTicketPtr, ticket),
-                            Q_ARG(bool, prioritize));
+  QMutexLocker locker(&mutex_);
 
-  return ticket;
-}
+  while (!cancelled_) {
+    if (queue_.empty()) {
+      wait_.wait(&mutex_);
+    }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange& r, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
-{
-  return RenderAudio(viewer, r, viewer->GetAudioParams(), mode, generate_waveforms, prioritize);
-}
+    if (cancelled_) {
+      break;
+    }
 
-RenderTicketPtr RenderManager::RenderAudio(ViewerOutput* viewer, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, bool prioritize)
-{
-  // Create ticket
-  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
+    if (!queue_.empty()) {
+      RenderTicketPtr ticket = queue_.front();
+      queue_.pop_front();
 
-  ticket->setProperty("viewer", Node::PtrToValue(viewer));
-  ticket->setProperty("time", QVariant::fromValue(r));
-  ticket->setProperty("type", kTypeAudio);
-  ticket->setProperty("mode", mode);
-  ticket->setProperty("enablewaveforms", generate_waveforms);
-  ticket->setProperty("aparam", QVariant::fromValue(params));
+      locker.unlock();
 
-  if (ticket->thread() != this->thread()) {
-    ticket->moveToThread(this->thread());
+      // Setup the ticket for ::Process
+      ticket->Start();
+
+      if (ticket->IsCancelled()) {
+        ticket->Finish();
+      } else {
+        RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
+      }
+
+      locker.relock();
+    }
   }
 
-  // Queue appending the ticket and running the next job on our thread to make this function thread-safe
-  QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
-                            OLIVE_NS_ARG(RenderTicketPtr, ticket),
-                            Q_ARG(bool, prioritize));
-
-  return ticket;
-}
-
-RenderTicketPtr RenderManager::SaveFrameToCache(FrameHashCache *cache, FramePtr frame, const QByteArray &hash, bool prioritize)
-{
-  // Create ticket
-  RenderTicketPtr ticket = std::make_shared<RenderTicket>();
-
-  ticket->setProperty("cache", cache->GetCacheDirectory());
-  ticket->setProperty("frame", QVariant::fromValue(frame));
-  ticket->setProperty("hash", hash);
-  ticket->setProperty("type", kTypeVideoDownload);
-
-  if (ticket->thread() != this->thread()) {
-    ticket->moveToThread(this->thread());
+  if (context_) {
+    context_->Destroy();
+    context_->moveToThread(this->thread());
   }
-
-  // Queue appending the ticket and running the next job on our thread to make this function thread-safe
-  QMetaObject::invokeMethod(this, "AddTicket", Qt::AutoConnection,
-                            OLIVE_NS_ARG(RenderTicketPtr, ticket),
-                            Q_ARG(bool, prioritize));
-
-  return ticket;
-}
-
-void RenderManager::RunTicket(RenderTicketPtr ticket) const
-{
-  RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_, default_shader_);
 }
 
 }

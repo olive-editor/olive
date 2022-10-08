@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -55,14 +55,6 @@ void TimeInput::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
               this,
               false,
               QStringLiteral("time"));
-}
-
-void TimeInput::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  super::Hash(hash, globals, video_params);
-
-  // Make sure time is hashed
-  hash.addData(NodeValue::ValueToBytes(NodeValue::kFloat, globals.time().in().toDouble()));
 }
 
 }

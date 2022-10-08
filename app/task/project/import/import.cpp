@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -222,7 +222,7 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
 void ProjectImportTask::AddItemToFolder(Folder *folder, Node *item, MultiUndoCommand *command)
 {
   // Create undoable command that adds the items to the model
-  Project* project = folder->project();
+  Project* project = folder_->project();
 
   NodeAddCommand* nac = new NodeAddCommand(project, item);
   nac->PushToThread(project->thread());

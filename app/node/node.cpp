@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,11 +27,8 @@
 
 #include "common/bezier.h"
 #include "common/lerp.h"
-#include "common/timecodefunctions.h"
-#include "common/xmlutils.h"
 #include "core.h"
 #include "config/config.h"
-#include "node/project/footage/footage.h"
 #include "project/project.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
@@ -48,12 +45,17 @@ Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
-  operation_stack_(0),
-  cache_result_(false),
   flags_(kNone),
-  effect_element_(-1)
+  caches_enabled_(true)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
+
+  video_cache_ = new FrameHashCache(this);
+  thumbnail_cache_ = new ThumbnailCache(this);
+  audio_cache_ = new AudioPlaybackCache(this);
+  waveform_cache_ = new AudioWaveformCache(this);
+
+  waveform_cache_->SetSavingEnabled(false);
 }
 
 Node::~Node()
@@ -231,6 +233,14 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   }
 }
 
+void Node::CopyCacheUuidsFrom(Node *n)
+{
+  video_cache_->SetUuid(n->video_cache_->GetUuid());
+  audio_cache_->SetUuid(n->audio_cache_->GetUuid());
+  thumbnail_cache_->SetUuid(n->thumbnail_cache_->GetUuid());
+  waveform_cache_->SetUuid(n->waveform_cache_->GetUuid());
+}
+
 QString Node::GetInputName(const QString &id) const
 {
   const Input* i = GetInternalInputData(id);
@@ -238,7 +248,7 @@ QString Node::GetInputName(const QString &id) const
   if (i) {
     return i->human_name;
   } else {
-    ReportInvalidInput("get name of", id);
+    ReportInvalidInput("get name of", id, -1);
     return QString();
   }
 }
@@ -265,7 +275,7 @@ bool Node::IsInputKeyframing(const QString &input, int element) const
   if (imm) {
     return imm->is_keyframing();
   } else {
-    ReportInvalidInput("get keyframing state of", input);
+    ReportInvalidInput("get keyframing state of", input, element);
     return false;
   }
 }
@@ -284,7 +294,7 @@ void Node::SetInputIsKeyframing(const QString &input, bool e, int element)
 
     emit KeyframeEnableChanged(NodeInput(this, input, element), e);
   } else {
-    ReportInvalidInput("set keyframing state of", input);
+    ReportInvalidInput("set keyframing state of", input, element);
   }
 }
 
@@ -311,7 +321,7 @@ bool Node::IsUsingStandardValue(const QString &input, int track, int element) co
   if (imm) {
     return imm->is_using_standard_value(track);
   } else {
-    ReportInvalidInput("determine whether using standard value in", input);
+    ReportInvalidInput("determine whether using standard value in", input, element);
     return true;
   }
 }
@@ -323,7 +333,7 @@ NodeValue::Type Node::GetInputDataType(const QString &id) const
   if (i) {
     return i->type;
   } else {
-    ReportInvalidInput("get data type of", id);
+    ReportInvalidInput("get data type of", id, -1);
     return NodeValue::kNone;
   }
 }
@@ -342,7 +352,7 @@ void Node::SetInputDataType(const QString &id, const NodeValue::Type &type)
 
     emit InputDataTypeChanged(id, type);
   } else {
-    ReportInvalidInput("set data type of", id);
+    ReportInvalidInput("set data type of", id, -1);
   }
 }
 
@@ -353,7 +363,7 @@ bool Node::HasInputProperty(const QString &id, const QString &name) const
   if (i) {
     return i->properties.contains(name);
   } else {
-    ReportInvalidInput("get property of", id);
+    ReportInvalidInput("get property of", id, -1);
     return false;
   }
 }
@@ -365,7 +375,7 @@ QHash<QString, QVariant> Node::GetInputProperties(const QString &id) const
   if (i) {
     return i->properties;
   } else {
-    ReportInvalidInput("get property table of", id);
+    ReportInvalidInput("get property table of", id, -1);
     return QHash<QString, QVariant>();
   }
 }
@@ -377,7 +387,7 @@ QVariant Node::GetInputProperty(const QString &id, const QString &name) const
   if (i) {
     return i->properties.value(name);
   } else {
-    ReportInvalidInput("get property of", id);
+    ReportInvalidInput("get property of", id, -1);
     return QVariant();
   }
 }
@@ -391,7 +401,7 @@ void Node::SetInputProperty(const QString &id, const QString &name, const QVaria
 
     emit InputPropertyChanged(id, name, value);
   } else {
-    ReportInvalidInput("set property of", id);
+    ReportInvalidInput("set property of", id, -1);
   }
 }
 
@@ -535,7 +545,7 @@ SplitValue Node::GetSplitDefaultValue(const QString &input) const
   if (i) {
     return i->default_value;
   } else {
-    ReportInvalidInput("retrieve default value of", input);
+    ReportInvalidInput("retrieve default value of", input, -1);
     return SplitValue();
   }
 }
@@ -564,7 +574,7 @@ void Node::SetSplitDefaultValue(const QString &input, const SplitValue &val)
   if (i) {
     i->default_value = val;
   } else {
-    ReportInvalidInput("set default value of", input);
+    ReportInvalidInput("set default value of", input, -1);
   }
 }
 
@@ -577,7 +587,7 @@ void Node::SetSplitDefaultValueOnTrack(const QString &input, const QVariant &val
       i->default_value[track] = val;
     }
   } else {
-    ReportInvalidInput("set default value on track of", input);
+    ReportInvalidInput("set default value on track of", input, -1);
   }
 }
 
@@ -593,7 +603,7 @@ QVector<NodeKeyframe *> Node::GetKeyframesAtTime(const QString &input, const rat
   if (imm) {
     return imm->get_keyframe_at_time(time);
   } else {
-    ReportInvalidInput("get keyframes at time from", input);
+    ReportInvalidInput("get keyframes at time from", input, element);
     return QVector<NodeKeyframe*>();
   }
 }
@@ -605,7 +615,7 @@ NodeKeyframe *Node::GetKeyframeAtTimeOnTrack(const QString &input, const rationa
   if (imm) {
     return imm->get_keyframe_at_time_on_track(time, track);
   } else {
-    ReportInvalidInput("get keyframe at time on track from", input);
+    ReportInvalidInput("get keyframe at time on track from", input, element);
     return nullptr;
   }
 }
@@ -617,7 +627,7 @@ NodeKeyframe::Type Node::GetBestKeyframeTypeForTimeOnTrack(const QString &input,
   if (imm) {
     return imm->get_best_keyframe_type_for_time(time, track);
   } else {
-    ReportInvalidInput("get closest keyframe before a time from", input);
+    ReportInvalidInput("get closest keyframe before a time from", input, element);
     return NodeKeyframe::kDefaultType;
   }
 }
@@ -634,7 +644,7 @@ NodeKeyframe *Node::GetEarliestKeyframe(const QString &id, int element) const
   if (imm) {
     return imm->get_earliest_keyframe();
   } else {
-    ReportInvalidInput("get earliest keyframe from", id);
+    ReportInvalidInput("get earliest keyframe from", id, element);
     return nullptr;
   }
 }
@@ -646,7 +656,7 @@ NodeKeyframe *Node::GetLatestKeyframe(const QString &id, int element) const
   if (imm) {
     return imm->get_latest_keyframe();
   } else {
-    ReportInvalidInput("get latest keyframe from", id);
+    ReportInvalidInput("get latest keyframe from", id, element);
     return nullptr;
   }
 }
@@ -658,7 +668,7 @@ NodeKeyframe *Node::GetClosestKeyframeBeforeTime(const QString &id, const ration
   if (imm) {
     return imm->get_closest_keyframe_before_time(time);
   } else {
-    ReportInvalidInput("get closest keyframe before a time from", id);
+    ReportInvalidInput("get closest keyframe before a time from", id, element);
     return nullptr;
   }
 }
@@ -670,7 +680,7 @@ NodeKeyframe *Node::GetClosestKeyframeAfterTime(const QString &id, const rationa
   if (imm) {
     return imm->get_closest_keyframe_after_time(time);
   } else {
-    ReportInvalidInput("get closest keyframe after a time from", id);
+    ReportInvalidInput("get closest keyframe after a time from", id, element);
     return nullptr;
   }
 }
@@ -682,7 +692,7 @@ bool Node::HasKeyframeAtTime(const QString &id, const rational &time, int elemen
   if (imm) {
     return imm->has_keyframe_at_time(time);
   } else {
-    ReportInvalidInput("determine if it has a keyframe at a time from", id);
+    ReportInvalidInput("determine if it has a keyframe at a time from", id, element);
     return false;
   }
 }
@@ -706,7 +716,7 @@ SplitValue Node::GetSplitStandardValue(const QString &id, int element) const
   if (imm) {
     return imm->get_split_standard_value();
   } else {
-    ReportInvalidInput("get standard value of", id);
+    ReportInvalidInput("get standard value of", id, element);
     return SplitValue();
   }
 }
@@ -718,7 +728,7 @@ QVariant Node::GetSplitStandardValueOnTrack(const QString &input, int track, int
   if (imm) {
     return imm->get_split_standard_value_on_track(track);
   } else {
-    ReportInvalidInput("get standard value of", input);
+    ReportInvalidInput("get standard value of", input, element);
     return QVariant();
   }
 }
@@ -745,7 +755,7 @@ void Node::SetSplitStandardValue(const QString &id, const SplitValue &value, int
       }
     }
   } else {
-    ReportInvalidInput("set standard value of", id);
+    ReportInvalidInput("set standard value of", id, element);
   }
 }
 
@@ -761,7 +771,7 @@ void Node::SetSplitStandardValueOnTrack(const QString &id, int track, const QVar
       ParameterValueChanged(id, element, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
     }
   } else {
-    ReportInvalidInput("set standard value of", id);
+    ReportInvalidInput("set standard value of", id, element);
   }
 }
 
@@ -860,15 +870,9 @@ int Node::InputArraySize(const QString &id) const
   if (i) {
     return i->array_size;
   } else {
-    ReportInvalidInput("retrieve array size of", id);
+    ReportInvalidInput("retrieve array size of", id, -1);
     return 0;
   }
-}
-
-void Node::Hash(const Node *node, const ValueHint &hint, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params)
-{
-  hint.Hash(hash);
-  node->Hash(hash, globals, video_params);
 }
 
 void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int element)
@@ -907,7 +911,7 @@ InputFlags Node::GetInputFlags(const QString &input) const
   if (i) {
     return i->flags;
   } else {
-    ReportInvalidInput("retrieve flags of", input);
+    ReportInvalidInput("retrieve flags of", input, -1);
     return InputFlags(kInputFlagNormal);
   }
 }
@@ -918,8 +922,9 @@ void Node::SetInputFlags(const QString &input, const InputFlags &f)
 
   if (i) {
     i->flags = f;
+    emit InputFlagsChanged(input, i->flags);
   } else {
-    ReportInvalidInput("set flags of", input);
+    ReportInvalidInput("set flags of", input, -1);
   }
 }
 
@@ -936,19 +941,22 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   Q_UNUSED(from)
   Q_UNUSED(element)
 
+  if (AreCachesEnabled()) {
+    if (range.in() != range.out()) {
+      TimeRange vr = range.Intersected(GetVideoCacheRange());
+      if (vr.length() != 0) {
+        video_frame_cache()->Invalidate(vr);
+        thumbnail_cache()->Invalidate(vr);
+      }
+      TimeRange ar = range.Intersected(GetAudioCacheRange());
+      if (ar.length() != 0) {
+        audio_playback_cache()->Invalidate(ar);
+        waveform_cache()->Invalidate(ar);
+      }
+    }
+  }
+
   SendInvalidateCache(range, options);
-}
-
-void Node::BeginOperation()
-{
-  // Increase operation stack
-  operation_stack_++;
-}
-
-void Node::EndOperation()
-{
-  // Decrease operation stack
-  operation_stack_--;
 }
 
 TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
@@ -1064,7 +1072,7 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
   }
 
   // Copy values to the clone
-  command->add_child(new NodeCopyInputsCommand(node, copy, false));
+  CopyInputs(node, copy, false, command);
 
   // Go through input connections and copy if non-item and connect if item
   for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
@@ -1110,7 +1118,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
     command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()), copy));
 
-    command->add_child(new NodeCopyInputsCommand(node, copy, true));
+    CopyInputs(node, copy, true, command);
 
     const PositionMap &map = node->GetContextPositions();
     for (auto it=map.cbegin(); it!=map.cend(); it++) {
@@ -1124,13 +1132,11 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
 void Node::SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options)
 {
-  if (GetOperationStack() == 0) {
-    for (const OutputConnection& conn : output_connections_) {
-      // Send clear cache signal to the Node
-      const NodeInput& in = conn.second;
+  for (const OutputConnection& conn : output_connections_) {
+    // Send clear cache signal to the Node
+    const NodeInput& in = conn.second;
 
-      in.node()->InvalidateCache(range, in.input(), in.element(), options);
-    }
+    in.node()->InvalidateCache(range, in.input(), in.element(), options);
   }
 }
 
@@ -1184,12 +1190,6 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
-void Node::HashAddNodeSignature(QCryptographicHash &hash) const
-{
-  // Add node ID
-  hash.addData(id().toUtf8());
-}
-
 void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
 {
   if (id.isEmpty()) {
@@ -1224,7 +1224,7 @@ void Node::RemoveInput(const QString &id)
   int index = input_ids_.indexOf(id);
 
   if (index == -1) {
-    ReportInvalidInput("remove", id);
+    ReportInvalidInput("remove", id, -1);
     return;
   }
 
@@ -1234,9 +1234,9 @@ void Node::RemoveInput(const QString &id)
   emit InputRemoved(id);
 }
 
-void Node::ReportInvalidInput(const char *attempted_action, const QString& id) const
+void Node::ReportInvalidInput(const char *attempted_action, const QString& id, int element) const
 {
-  qWarning() << "Failed to" << attempted_action << "parameter" << id
+  qWarning() << "Failed to" << attempted_action << "parameter" << id << "element" << element
              << "in node" << this->id() << "- input doesn't exist";
 }
 
@@ -1247,7 +1247,7 @@ NodeInputImmediate *Node::CreateImmediate(const QString &input)
   if (i) {
     return new NodeInputImmediate(i->type, i->default_value);
   } else {
-    ReportInvalidInput("create immediate", input);
+    ReportInvalidInput("create immediate", input, -1);
     return nullptr;
   }
 }
@@ -1257,7 +1257,7 @@ void Node::ArrayResizeInternal(const QString &id, int size)
   Input* imm = GetInternalInputData(id);
 
   if (!imm) {
-    ReportInvalidInput("set array size", id);
+    ReportInvalidInput("set array size", id, -1);
     return;
   }
 
@@ -1287,6 +1287,26 @@ int Node::GetInternalInputArraySize(const QString &input)
   return array_immediates_.value(input).size();
 }
 
+void FindWaysNodeArrivesHereRecursively(const Node *output, const Node *input, QVector<NodeInput> &v)
+{
+  for (auto it=input->input_connections().cbegin(); it!=input->input_connections().cend(); it++) {
+    if (it->second == output) {
+      v.append(it->first);
+    } else {
+      FindWaysNodeArrivesHereRecursively(output, it->second, v);
+    }
+  }
+}
+
+QVector<NodeInput> Node::FindWaysNodeArrivesHere(const Node *output) const
+{
+  QVector<NodeInput> v;
+
+  FindWaysNodeArrivesHereRecursively(output, this, v);
+
+  return v;
+}
+
 void Node::SetInputName(const QString &id, const QString &name)
 {
   Input* i = GetInternalInputData(id);
@@ -1296,18 +1316,13 @@ void Node::SetInputName(const QString &id, const QString &name)
 
     emit InputNameChanged(id, name);
   } else {
-    ReportInvalidInput("set name of", id);
+    ReportInvalidInput("set name of", id, -1);
   }
 }
 
 void Node::IgnoreInvalidationsFrom(const QString& input_id)
 {
   ignore_connections_.append(input_id);
-}
-
-void Node::IgnoreHashingFrom(const QString &input_id)
-{
-  ignore_when_hashing_.append(input_id);
 }
 
 const QString &Node::GetLabel() const
@@ -1341,25 +1356,7 @@ QString Node::GetLabelOrName() const
   return GetLabel();
 }
 
-void Node::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  // Add this Node's ID and output being used
-  HashAddNodeSignature(hash);
-
-  foreach (const QString& input, inputs()) {
-    // For each input, try to hash its value
-    if (ignore_when_hashing_.contains(input)) {
-      continue;
-    }
-
-    int arr_sz = InputArraySize(input);
-    for (int i=-1; i<arr_sz; i++) {
-      HashInputElement(hash, input, i, globals, video_params);
-    }
-  }
-}
-
-void Node::CopyInputs(const Node *source, Node *destination, bool include_connections)
+void Node::CopyInputs(const Node *source, Node *destination, bool include_connections, MultiUndoCommand *command)
 {
   Q_ASSERT(source->id() == destination->id());
 
@@ -1369,76 +1366,119 @@ void Node::CopyInputs(const Node *source, Node *destination, bool include_connec
     //       passthroughs correctly.
     Q_ASSERT(destination->HasInputWithID(input));
 
-    CopyInput(source, destination, input, include_connections, true);
+    CopyInput(source, destination, input, include_connections, true, command);
   }
 
-  destination->SetLabel(source->GetLabel());
-  destination->SetOverrideColor(source->GetOverrideColor());
+  if (command) {
+    command->add_child(new NodeRenameCommand(destination, source->GetLabel()));
+  } else {
+    destination->SetLabel(source->GetLabel());
+  }
+
+  if (command) {
+    command->add_child(new NodeOverrideColorCommand(destination, source->GetOverrideColor()));
+  } else {
+    destination->SetOverrideColor(source->GetOverrideColor());
+  }
 }
 
-void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays)
+void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool include_connections, bool traverse_arrays, MultiUndoCommand *command)
 {
   Q_ASSERT(src->id() == dst->id());
 
-  CopyValuesOfElement(src, dst, input, -1);
+  CopyValuesOfElement(src, dst, input, -1, command);
 
   // Copy array size
   if (src->InputIsArray(input) && traverse_arrays) {
     int src_array_sz = src->InputArraySize(input);
 
     for (int i=0; i<src_array_sz; i++) {
-      CopyValuesOfElement(src, dst, input, i);
+      CopyValuesOfElement(src, dst, input, i, command);
     }
   }
 
   // Copy connections
   if (include_connections) {
-    if (traverse_arrays) {
-      // Copy all connections
-      for (auto it=src->input_connections().cbegin(); it!=src->input_connections().cend(); it++) {
-        ConnectEdge(it->second, NodeInput(dst, input, it->first.element()));
+    // Copy all connections
+    for (auto it=src->input_connections().cbegin(); it!=src->input_connections().cend(); it++) {
+      if (!traverse_arrays && it->first.element() != -1) {
+        continue;
       }
-    } else {
-      // Just copy the primary connection (at -1)
-      if (src->IsInputConnected(input)) {
-        ConnectEdge(src->GetConnectedOutput(input), NodeInput(dst, input));
+
+      auto conn_output = it->second;
+      NodeInput conn_input(dst, input, it->first.element());
+
+      if (command) {
+        command->add_child(new NodeEdgeAddCommand(conn_output, conn_input));
+      } else {
+        ConnectEdge(conn_output, conn_input);
       }
     }
   }
 }
 
-void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input, int src_element, int dst_element)
+void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input, int src_element, int dst_element, MultiUndoCommand *command)
 {
   if (dst_element >= dst->GetInternalInputArraySize(input)) {
     qDebug() << "Ignored destination element that was out of array bounds";
     return;
   }
 
+  NodeInput dst_input(dst, input, dst_element);
+
   // Copy standard value
-  dst->SetSplitStandardValue(input, src->GetSplitStandardValue(input, src_element), dst_element);
+  SplitValue standard = src->GetSplitStandardValue(input, src_element);
+  if (command) {
+    command->add_child(new NodeParamSetSplitStandardValueCommand(dst_input, standard));
+  } else {
+    dst->SetSplitStandardValue(input, standard, dst_element);
+  }
 
   // Copy keyframes
   if (NodeInputImmediate *immediate = dst->GetImmediate(input, dst_element)) {
-    immediate->delete_all_keyframes();
+    if (command) {
+      command->add_child(new ImmediateRemoveAllKeyframesCommand(immediate));
+    } else {
+      immediate->delete_all_keyframes();
+    }
   }
-  foreach (const NodeKeyframeTrack& track, src->GetImmediate(input, src_element)->keyframe_tracks()) {
-    foreach (NodeKeyframe* key, track) {
-      key->copy(dst_element, dst);
+
+  for (const NodeKeyframeTrack& track : src->GetImmediate(input, src_element)->keyframe_tracks()) {
+    for (NodeKeyframe* key : track) {
+      NodeKeyframe *copy = key->copy(dst_element, command ? nullptr : dst);
+      if (command) {
+        command->add_child(new NodeParamInsertKeyframeCommand(dst, copy));
+      }
     }
   }
 
   // Copy keyframing state
   if (src->IsInputKeyframable(input)) {
-    dst->SetInputIsKeyframing(input, src->IsInputKeyframing(input, src_element), dst_element);
+    bool is_keying = src->IsInputKeyframing(input, src_element);
+    if (command) {
+      command->add_child(new NodeParamSetKeyframingCommand(dst_input, is_keying));
+    } else {
+      dst->SetInputIsKeyframing(input, is_keying, dst_element);
+    }
   }
 
   // If this is the root of an array, copy the array size
   if (src_element == -1 && dst_element == -1) {
-    dst->ArrayResizeInternal(input, src->InputArraySize(input));
+    int array_sz = src->InputArraySize(input);
+    if (command) {
+      command->add_child(new Node::ArrayResizeCommand(dst, input, array_sz));
+    } else {
+      dst->ArrayResizeInternal(input, array_sz);
+    }
   }
 
   // Copy value hint
-  dst->SetValueHintForInput(input, src->GetValueHintForInput(input, src_element), dst_element);
+  Node::ValueHint vh = src->GetValueHintForInput(input, src_element);
+  if (command) {
+    command->add_child(new NodeSetValueHintCommand(dst_input, vh));
+  } else {
+    dst->SetValueHintForInput(input, vh, dst_element);
+  }
 }
 
 bool Node::CanBeDeleted() const
@@ -1485,26 +1525,6 @@ QVector<Node *> Node::GetDependenciesInternal(bool traverse, bool exclusive_only
   return list;
 }
 
-void Node::HashInputElement(QCryptographicHash &hash, const QString& input, int element, const NodeGlobals &globals, const VideoParams& video_params) const
-{
-  // Get time adjustment
-  // For a single frame, we only care about one of the times
-  TimeRange input_time = InputTimeAdjustment(input, element, globals.time());
-
-  if (IsInputConnected(input, element)) {
-    // Traverse down this edge
-    Node *output = GetConnectedOutput(input, element);
-
-    NodeGlobals new_globals = globals;
-    new_globals.set_time(input_time);
-    Node::Hash(output, GetValueHintForInput(input, element), hash, new_globals, video_params);
-  } else {
-    // Grab the value at this time
-    QVariant value = GetValueAtTime(input, input_time.in(), element);
-    hash.addData(NodeValue::ValueToBytes(GetInputDataType(input), value));
-  }
-}
-
 QVector<Node *> Node::GetDependencies() const
 {
   return GetDependenciesInternal(true, false);
@@ -1525,7 +1545,7 @@ ShaderCode Node::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(QString(), QString());
 }
 
-void Node::ProcessSamples(const NodeValueRow &, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(const NodeValueRow &, const SampleBuffer &, SampleBuffer &, int) const
 {
 }
 
@@ -2108,16 +2128,6 @@ void NodeRemovePositionFromAllContextsCommand::undo()
   contexts_.clear();
 }
 
-void Node::ValueHint::Hash(QCryptographicHash &hash) const
-{
-  // Add value hint
-  if (!types().isEmpty()) {
-    hash.addData(reinterpret_cast<const char*>(types().constData()), sizeof(NodeValue::Type) * types().size());
-  }
-  hash.addData(reinterpret_cast<const char*>(&index()), sizeof(index()));
-  hash.addData(tag().toUtf8());
-}
-
 void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()
 {
   move_recursively(node_, pos_.position - context_->GetNodePositionDataInContext(node_).position);
@@ -2148,6 +2158,27 @@ void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *no
     if (context_->ContextContainsNode(output)) {
       move_recursively(output, diff);
     }
+  }
+}
+
+void Node::ImmediateRemoveAllKeyframesCommand::prepare()
+{
+  for (const NodeKeyframeTrack& track : immediate_->keyframe_tracks()) {
+    keys_.append(track);
+  }
+}
+
+void Node::ImmediateRemoveAllKeyframesCommand::redo()
+{
+  for (auto it=keys_.cbegin(); it!=keys_.cend(); it++) {
+    (*it)->setParent(&memory_manager_);
+  }
+}
+
+void Node::ImmediateRemoveAllKeyframesCommand::undo()
+{
+  for (auto it=keys_.crbegin(); it!=keys_.crend(); it++) {
+    (*it)->setParent(&memory_manager_);
   }
 }
 

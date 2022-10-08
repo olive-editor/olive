@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,9 +27,8 @@ namespace olive {
 
 NodeParamSetKeyframingCommand::NodeParamSetKeyframingCommand(const NodeInput &input, bool setting) :
   input_(input),
-  setting_(setting)
+  new_setting_(setting)
 {
-  Q_ASSERT(setting != input_.IsKeyframing());
 }
 
 Project *NodeParamSetKeyframingCommand::GetRelevantProject() const
@@ -39,12 +38,13 @@ Project *NodeParamSetKeyframingCommand::GetRelevantProject() const
 
 void NodeParamSetKeyframingCommand::redo()
 {
-  input_.node()->SetInputIsKeyframing(input_, setting_);
+  old_setting_ = input_.IsKeyframing();
+  input_.node()->SetInputIsKeyframing(input_, new_setting_);
 }
 
 void NodeParamSetKeyframingCommand::undo()
 {
-  input_.node()->SetInputIsKeyframing(input_, !setting_);
+  input_.node()->SetInputIsKeyframing(input_, old_setting_);
 }
 
 NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value) :

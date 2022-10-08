@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -233,14 +233,13 @@ private:
 
 class TrackReplaceBlockWithGapCommand : public UndoCommand {
 public:
-  TrackReplaceBlockWithGapCommand(Track* track, Block* block, bool handle_transitions = true, bool handle_invalidations = true) :
+  TrackReplaceBlockWithGapCommand(Track* track, Block* block, bool handle_transitions = true) :
     track_(track),
     block_(block),
     existing_gap_(nullptr),
     existing_merged_gap_(nullptr),
     our_gap_(nullptr),
-    handle_transitions_(handle_transitions),
-    handle_invalidations_(handle_invalidations)
+    handle_transitions_(handle_transitions)
   {
   }
 
@@ -266,7 +265,6 @@ private:
   GapBlock* our_gap_;
 
   bool handle_transitions_;
-  bool handle_invalidations_;
 
   QObject memory_manager_;
 
@@ -344,8 +342,6 @@ private:
 
   QVector<Track*> working_tracks_;
 
-  bool all_tracks_unlocked_;
-
   QVector<Block*> gaps_to_extend_;
 
   struct AddGap {
@@ -362,59 +358,58 @@ private:
 
 };
 
-class NodeBeginOperationCommand : public UndoCommand
+class TimelineAddDefaultTransitionCommand : public UndoCommand
 {
 public:
-  NodeBeginOperationCommand(Node *node) :
-    node_(node)
+  TimelineAddDefaultTransitionCommand(const QVector<ClipBlock*> &clips, const rational &timebase) :
+    clips_(clips),
+    timebase_(timebase)
   {}
+
+  virtual ~TimelineAddDefaultTransitionCommand() override
+  {
+    qDeleteAll(commands_);
+  }
 
   virtual Project* GetRelevantProject() const override
   {
-    return node_->project();
+    return clips_.empty() ? nullptr : clips_.first()->project();
   }
 
 protected:
+  virtual void prepare() override;
+
   virtual void redo() override
   {
-    node_->BeginOperation();
+    for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
+      (*it)->redo_now();
+    }
   }
 
   virtual void undo() override
   {
-    node_->EndOperation();
+    for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
+      (*it)->undo_now();
+    }
   }
 
 private:
-  Node *node_;
+  enum CreateTransitionMode {
+    kIn,
+    kOut,
+    kOutDual
+  };
 
-};
+  void AddTransition(ClipBlock *c, CreateTransitionMode mode);
+  void AdjustClipLength(ClipBlock *c, const rational &transition_length, bool out);
+  void ValidateTransitionLength(ClipBlock *c, rational &transition_length);
 
-class NodeEndOperationCommand : public UndoCommand
-{
-public:
-  NodeEndOperationCommand(Node *node) :
-    node_(node)
-  {}
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return node_->project();
-  }
+  QVector<ClipBlock*> clips_;
+  rational timebase_;
+  QVector<UndoCommand*> commands_;
 
-protected:
-  virtual void redo() override
-  {
-    node_->EndOperation();
-  }
-
-  virtual void undo() override
-  {
-    node_->BeginOperation();
-  }
-
-private:
-  Node *node_;
+  QHash<ClipBlock*, rational> lengths_;
 
 };
 

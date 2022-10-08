@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -113,12 +113,12 @@ QString CrashHandlerDialog::GetSymbolPath()
   QDir app_path(qApp->applicationDirPath());
   QString symbols_path;
 
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   symbols_path = app_path.filePath(QStringLiteral("symbols"));
-#elif defined(OS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
   app_path.cdUp();
   symbols_path = app_path.filePath(QStringLiteral("share/olive-editor/symbols"));
-#elif defined(OS_APPLE)
+#elif BUILDFLAG(IS_APPLE)
   app_path.cdUp();
   symbols_path = app_path.filePath(QStringLiteral("Resources/symbols"));
 #endif
@@ -153,12 +153,28 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
     b.setIcon(QMessageBox::Critical);
     b.setWindowModality(Qt::WindowModal);
     b.setWindowTitle(tr("Upload Failed"));
-    b.setText(tr("Failed to send error report. Please try again later."));
+    b.setText(tr("Failed to send error report (%1). Please try again later.").arg(QString::number(reply->error())));
     b.addButton(QMessageBox::Ok);
     b.exec();
 
     SetGUIObjectsEnabled(true);
   }
+}
+
+void CrashHandlerDialog::HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &se)
+{
+  QStringList errors;
+  for (const QSslError &err : se) {
+    errors.append(err.errorString());
+  }
+
+  QMessageBox b(this);
+  b.setIcon(QMessageBox::Critical);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(tr("SSL Error"));
+  b.setText(tr("Encountered the following SSL errors:\n\n%1").arg(errors.join('\n')));
+  b.addButton(QMessageBox::Ok);
+  b.exec();
 }
 
 void CrashHandlerDialog::AttemptToFindReport()
@@ -198,6 +214,7 @@ void CrashHandlerDialog::SendErrorReport()
 
   QNetworkAccessManager* manager = new QNetworkAccessManager();
   connect(manager, &QNetworkAccessManager::finished, this, &CrashHandlerDialog::ReplyFinished);
+  connect(manager, &QNetworkAccessManager::sslErrors, this, &CrashHandlerDialog::HandleSslErrors);
 
   QNetworkRequest request;
   request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
@@ -242,9 +259,9 @@ void CrashHandlerDialog::SendErrorReport()
   QDir symbol_dir(GetSymbolPath());
 
   QString symbol_bin_name;
-#if defined(OS_WIN)
+#if BUILDFLAG(IS_WIN)
   symbol_bin_name = QStringLiteral("olive-editor.pdb");
-#elif defined(OS_APPLE)
+#elif BUILDFLAG(IS_APPLE)
   symbol_bin_name = QStringLiteral("Olive");
 #else
   symbol_bin_name = QStringLiteral("olive-editor");
@@ -270,7 +287,7 @@ void CrashHandlerDialog::SendErrorReport()
 
   // Create sym section
   QString symbol_filename;
-#if defined(OS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   symbol_filename = QStringLiteral("Olive.sym");
 #else
   symbol_filename = QStringLiteral("olive-editor.sym");

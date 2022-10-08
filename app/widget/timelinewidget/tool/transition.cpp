@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -178,7 +178,7 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
     return false;
   }
 
-  Block* block_at_time = t->BlockAtTime(coord.GetFrame());
+  Block* block_at_time = t->NearestBlockBeforeOrAt(coord.GetFrame());
   if (!dynamic_cast<ClipBlock*>(block_at_time)) {
     return false;
   }

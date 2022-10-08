@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,11 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  codec/ffmpeg/ffmpegdecoder.h
   codec/ffmpeg/ffmpegdecoder.cpp
-  codec/ffmpeg/ffmpegencoder.h
+  codec/ffmpeg/ffmpegdecoder.h
   codec/ffmpeg/ffmpegencoder.cpp
-  codec/ffmpeg/ffmpegframepool.h
-  codec/ffmpeg/ffmpegframepool.cpp
+  codec/ffmpeg/ffmpegencoder.h
   PARENT_SCOPE
 )

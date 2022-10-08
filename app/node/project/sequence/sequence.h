@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 
 #include "node/output/track/tracklist.h"
 #include "node/output/viewer/viewer.h"
-#include "timeline/timelinepoints.h"
 
 namespace olive {
 
@@ -84,6 +83,8 @@ public:
 
   virtual void Retranslate() override;
 
+  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
+
   static const QString kTrackInputFormat;
 
   virtual bool IsItem() const override
@@ -101,6 +102,8 @@ protected:
 signals:
   void TrackAdded(Track* track);
   void TrackRemoved(Track* track);
+
+  void SubtitlesChanged(const TimeRange &range);
 
 private:
   QVector<TrackList*> track_lists_;

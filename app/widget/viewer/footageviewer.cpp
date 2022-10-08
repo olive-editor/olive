@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,12 +38,29 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   controls_->SetAudioVideoDragButtonsVisible(true);
   connect(controls_, &PlaybackControls::VideoPressed, this, &FootageViewerWidget::StartVideoDrag);
   connect(controls_, &PlaybackControls::AudioPressed, this, &FootageViewerWidget::StartAudioDrag);
+
+  override_workarea_ = new TimelineWorkArea(this);
+}
+
+void FootageViewerWidget::OverrideWorkArea(const TimeRange &r)
+{
+  override_workarea_->set_enabled(true);
+  override_workarea_->set_range(r);
+  this->ConnectWorkArea(override_workarea_);
+}
+
+void FootageViewerWidget::ResetWorkArea()
+{
+  if (GetConnectedWorkArea() == override_workarea_) {
+    this->ConnectWorkArea(GetConnectedNode() ? GetConnectedNode()->GetWorkArea() : nullptr);
+  }
 }
 
 void FootageViewerWidget::ConnectNodeEvent(ViewerOutput *n)
 {
   super::ConnectNodeEvent(n);
 
+  IgnoreNextScrubEvent();
   SetTime(cached_timestamps_.value(n, 0));
 }
 
@@ -54,6 +71,7 @@ void FootageViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 
   super::DisconnectNodeEvent(n);
 
+  IgnoreNextScrubEvent();
   SetTime(0);
 }
 
@@ -87,7 +105,7 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   if (!streams.isEmpty()) {
     data_stream << streams << reinterpret_cast<quintptr>(GetConnectedNode());
 
-    mimedata->setData(QStringLiteral("application/x-oliveprojectitemdata"), encoded_data);
+    mimedata->setData(Project::kItemMimeType, encoded_data);
     drag->setMimeData(mimedata);
 
     drag->exec();

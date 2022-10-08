@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -110,18 +110,6 @@ void NodeAddCommand::undo()
 Project *NodeAddCommand::GetRelevantProject() const
 {
   return dynamic_cast<Project*>(graph_);
-}
-
-NodeCopyInputsCommand::NodeCopyInputsCommand(const Node *src, Node *dest, bool include_connections) :
-  src_(src),
-  dest_(dest),
-  include_connections_(include_connections)
-{
-}
-
-void NodeCopyInputsCommand::redo()
-{
-  Node::CopyInputs(src_, dest_, include_connections_);
 }
 
 void NodeRemoveAndDisconnectCommand::prepare()

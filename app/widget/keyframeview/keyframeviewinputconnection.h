@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -58,6 +58,11 @@ public:
   const QBrush &GetBrush() const
   {
     return brush_;
+  }
+
+  const NodeKeyframeTrackReference &GetReference() const
+  {
+    return input_;
   }
 
   void SetBrush(const QBrush &brush);

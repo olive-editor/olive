@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,16 +21,20 @@
 #ifndef VIEWERGLWIDGET_H
 #define VIEWERGLWIDGET_H
 
-#include <QOpenGLWidget>
 #include <QMatrix4x4>
+#include <QRubberBand>
 
 #include "node/color/colormanager/colormanager.h"
+#include "node/gizmo/text.h"
 #include "node/node.h"
+#include "node/output/track/tracklist.h"
+#include "node/traverser.h"
 #include "render/color.h"
 #include "tool/tool.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
 #include "viewersafemargininfo.h"
+#include "viewertexteditor.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
 
@@ -70,8 +74,15 @@ public:
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
 
   void SetGizmos(Node* node);
+
+  const VideoParams &GetVideoParams() const { return gizmo_params_; }
   void SetVideoParams(const VideoParams &params);
+
+  const AudioParams &GetAudioParams() const { return gizmo_audio_params_; }
+  void SetAudioParams(const AudioParams &p);
+
   void SetTime(const rational& time);
+  void SetSubtitleTracks(Sequence *list);
 
   void SetShowWidgetBackground(bool e)
   {
@@ -96,6 +107,9 @@ public:
   {
     return show_fps_;
   }
+
+  bool GetShowSubtitles() const { return show_subtitles_; }
+  void SetShowSubtitles(bool e) { show_subtitles_ = e; update(); }
 
   void IncrementSkippedFrames();
 
@@ -122,6 +136,10 @@ public:
   {
     return &timer_;
   }
+
+  QPointF ScreenToScenePoint(const QPoint &p);
+
+  virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
   /**
@@ -157,6 +175,8 @@ public slots:
    */
   void UpdateCursor();
 
+  void ToolChanged();
+
   /**
    * @brief Enables/disables a basic deinterlace on the viewer
    */
@@ -164,11 +184,13 @@ public slots:
 
   void SetShowFPS(bool e);
 
+  void RequestStartEditingText();
+
 signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
    */
-  void DragStarted();
+  void DragStarted(const QPoint &p);
 
   /**
    * @brief Signal emitted when a hand drag starts
@@ -200,29 +222,33 @@ signals:
 
   void QueueStarved();
 
+  void QueueNoLongerStarved();
+
+  void CreateAddableAt(const QRectF &rect);
+
 protected:
-  /**
-   * @brief Override the mouse press event for the DragStarted() signal and gizmos
-   */
-  virtual void mousePressEvent(QMouseEvent* event) override;
+  QTransform GenerateWorldTransform();
 
-  /**
-   * @brief Override mouse move to signal for the pixel sampler and gizmos
-   */
-  virtual void mouseMoveEvent(QMouseEvent* event) override;
+  QTransform GenerateDisplayTransform();
 
-  /**
-   * @brief Override mouse release event for gizmos
-   */
-  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+  QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
+  QTransform GenerateGizmoTransform()
+  {
+    NodeTraverser t;
+    t.SetCacheVideoParams(gizmo_params_);
+    return GenerateGizmoTransform(t, GenerateGizmoTime());
+  }
 
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+  TimeRange GenerateGizmoTime()
+  {
+    rational node_time = GetGizmoTime();
+    return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
+  }
 
-  virtual void dragEnterEvent(QDragEnterEvent* event) override;
-
-  virtual void dragLeaveEvent(QDragLeaveEvent* event) override;
-
-  virtual void dropEvent(QDropEvent* event) override;
+  virtual TexturePtr LoadCustomTextureFromFrame(const QVariant &v)
+  {
+    return nullptr;
+  }
 
 protected slots:
   /**
@@ -239,7 +265,7 @@ private:
   QPointF GetTexturePosition(const QSize& size);
   QPointF GetTexturePosition(const double& x, const double& y);
 
-  static void DrawTextWithCrudeShadow(QPainter* painter, const QRect& rect, const QString& text);
+  static void DrawTextWithCrudeShadow(QPainter* painter, const QRect& rect, const QString& text, const QTextOption &opt = QTextOption());
 
   rational GetGizmoTime();
 
@@ -247,17 +273,38 @@ private:
 
   void UpdateMatrix();
 
-  QTransform GenerateWorldTransform();
+  NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
 
-  QTransform GenerateGizmoTransform();
+  void OpenTextGizmo(TextGizmo *text, QMouseEvent *event = nullptr);
 
-  TimeRange GenerateGizmoTime()
+  bool OnMousePress(QMouseEvent *e);
+  bool OnMouseMove(QMouseEvent *e);
+  bool OnMouseRelease(QMouseEvent *e);
+  bool OnMouseDoubleClick(QMouseEvent *e);
+
+  bool OnKeyPress(QKeyEvent *e);
+  bool OnKeyRelease(QKeyEvent *e);
+
+  void EmitColorAtCursor(QMouseEvent* e);
+
+  void DrawSubtitleTracks();
+
+  QPointF GetVirtualPosForTextEdit(const QPointF &p)
   {
-    rational node_time = GetGizmoTime();
-    return TimeRange(node_time, node_time + gizmo_params_.frame_rate_as_time_base());
+    return text_transform_inverted_.map(p) - text_edit_pos_;
   }
 
-  NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
+  template <typename T>
+  void ForwardDragEventToTextEdit(T *event);
+
+  bool ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside = false);
+  bool ForwardEventToTextEdit(QEvent *event);
+
+  QPointF AdjustPosByVAlign(QPointF p);
+
+  void CloseTextEditor();
+
+  void GenerateGizmoTransforms();
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
@@ -307,10 +354,17 @@ private:
   Node* gizmos_;
   NodeValueRow gizmo_db_;
   VideoParams gizmo_params_;
+  AudioParams gizmo_audio_params_;
   QPoint gizmo_start_drag_;
   QPoint gizmo_last_drag_;
+  TimeRange gizmo_draw_time_;
   NodeGizmo *current_gizmo_;
   bool gizmo_drag_started_;
+  QTransform gizmo_last_draw_transform_;
+  QTransform gizmo_last_draw_transform_inverted_;
+
+  bool show_subtitles_;
+  Sequence *subtitle_tracks_;
 
   rational time_;
 
@@ -335,6 +389,8 @@ private:
 
   QVariant load_frame_;
 
+  int playback_speed_;
+
   enum PushMode {
     /// New frame to push to internal texture
     kPushFrame,
@@ -358,12 +414,29 @@ private:
 
   rational playback_timebase_;
 
-private slots:
-  void EmitColorAtCursor(QMouseEvent* e);
+  bool add_band_;
+  QPoint add_band_start_;
+  QPoint add_band_end_;
 
+  bool queue_starved_;
+
+  TextGizmo *active_text_gizmo_;
+  QPointF text_edit_pos_;
+  ViewerTextEditor *text_edit_;
+  ViewerTextEditorToolBar *text_toolbar_;
+  QTransform text_transform_;
+  QTransform text_transform_inverted_;
+
+private slots:
   void UpdateFromQueue();
 
   void TextEditChanged();
+  void TextEditDestroyed();
+
+  void SubtitlesChanged(const TimeRange &r);
+
+  void FocusChanged(QWidget *old, QWidget *now);
+
 
 };
 

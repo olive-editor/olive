@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ set(OLIVE_SOURCES
   dialog/export/exportaudiotab.h
   dialog/export/exportformatcombobox.cpp
   dialog/export/exportformatcombobox.h
+  dialog/export/exportsavepresetdialog.cpp
+  dialog/export/exportsavepresetdialog.h
   dialog/export/exportsubtitlestab.cpp
   dialog/export/exportsubtitlestab.h
   dialog/export/exportvideotab.cpp

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -122,6 +122,11 @@ public:
    */
   void UnregisterPanel(PanelWidget *panel);
 
+  void SetSuppressChangedSignal(bool e)
+  {
+    suppress_changed_signal_ = e;
+  }
+
 public slots:
   /**
    * @brief Connect this to a QApplication's SIGNAL(focusChanged())
@@ -156,6 +161,8 @@ private:
    * @brief PanelManager singleton instance
    */
   static PanelManager* instance_;
+
+  bool suppress_changed_signal_;
 
 };
 

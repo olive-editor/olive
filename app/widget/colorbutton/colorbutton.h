@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,11 @@ class ColorButton : public QPushButton
 {
   Q_OBJECT
 public:
-  ColorButton(ColorManager* color_manager, QWidget* parent = nullptr);
+  ColorButton(ColorManager* color_manager, bool show_dialog_on_click, QWidget* parent = nullptr);
+  ColorButton(ColorManager* color_manager, QWidget* parent = nullptr) :
+    ColorButton(color_manager, true, parent)
+  {
+  }
 
   const ManagedColor& GetColor() const;
 
