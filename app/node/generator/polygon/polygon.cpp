@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,8 +22,6 @@
 
 #include <QGuiApplication>
 #include <QVector2D>
-
-#include "common/cpuoptimize.h"
 
 namespace olive {
 
@@ -89,15 +87,24 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
+ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const
+{
+  VideoParams p = params;
+  p.set_format(VideoParams::kFormatUnsigned8);
+  auto job = Texture::Job(p, GenerateJob(value));
+
+  // Conversion to RGB
+  ShaderJob rgb;
+  rgb.SetShaderID(QStringLiteral("rgb"));
+  rgb.Insert(QStringLiteral("texture_in"), NodeValue(NodeValue::kTexture, job, this));
+  rgb.Insert(QStringLiteral("color_in"), value[kColorInput]);
+
+  return rgb;
+}
+
 void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  GenerateJob job;
-
-  job.InsertValue(value);
-  job.SetRequestedFormat(VideoParams::kFormatFloat32);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-
-  PushMergableJob(value, QVariant::fromValue(job), table);
+  PushMergableJob(value, Texture::Job(globals.vparams(), GetGenerateJob(value, globals.vparams())), table);
 }
 
 void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const
@@ -106,12 +113,12 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto
   // a single-channel QImage (alpha only) and then transplant that alpha channel to our float buffer
   // with correct float RGB.
-  QImage img(frame->width(), frame->height(), QImage::Format_Grayscale8);
+  QImage img((uchar *) frame->data(), frame->width(), frame->height(), frame->linesize_bytes(), QImage::Format_RGBA8888_Premultiplied);
   img.fill(Qt::transparent);
 
-  QVector<NodeValue> points = job.GetValue(kPointsInput).data().value< QVector<NodeValue> >();
+  auto points = job.Get(kPointsInput).toArray();
 
-  QPainterPath path = GeneratePath(points);
+  QPainterPath path = GeneratePath(points, InputArraySize(kPointsInput));
 
   QPainter p(&img);
   double par = frame->video_params().pixel_aspect_ratio().toDouble();
@@ -121,34 +128,6 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   p.setPen(Qt::NoPen);
 
   p.drawPath(path);
-
-  // Transplant alpha channel to frame
-  Color rgba = job.GetValue(kColorInput).data().value<Color>();
-#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-  __m128 sse_color = _mm_loadu_ps(rgba.data());
-#endif
-
-  float *frame_dst = reinterpret_cast<float*>(frame->data());
-  for (int y=0; y<frame->height(); y++) {
-    uchar *src_y = img.bits() + img.bytesPerLine() * y;
-    float *dst_y = frame_dst + y*frame->linesize_pixels()*VideoParams::kRGBAChannelCount;
-
-    for (int x=0; x<frame->width(); x++) {
-      float alpha = float(src_y[x]) / 255.0f;
-      float *dst = dst_y + x*VideoParams::kRGBAChannelCount;
-
-#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-      __m128 sse_alpha = _mm_load1_ps(&alpha);
-      __m128 sse_res = _mm_mul_ps(sse_color, sse_alpha);
-
-      _mm_store_ps(dst, sse_res);
-#else
-      for (int i=0; i<VideoParams::kRGBAChannelCount; i++) {
-        dst[i] = rgba.data()[i] * alpha;
-      }
-#endif
-    }
-  }
 }
 
 template<typename T>
@@ -187,9 +166,16 @@ void PolygonGenerator::ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz)
 
 void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  QPointF half_res(globals.resolution_by_par().x()/2, globals.resolution_by_par().y()/2);
+  QVector2D res;
+  if (TexturePtr tex = row[kBaseInput].toTexture()) {
+    res = tex->virtual_resolution();
+  } else {
+    res = globals.square_resolution();
+  }
 
-  QVector<NodeValue> points = row[kPointsInput].data().value< QVector<NodeValue> >();
+  QPointF half_res = res.toPointF()/2;
+
+  auto points = row[kPointsInput].toArray();
 
   int current_pos_sz = gizmo_position_handles_.size();
 
@@ -214,9 +200,10 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     bez_gizmo2->SetSmaller(true);
   }
 
-  if (!points.isEmpty()) {
-    for (int i=0; i<points.size(); i++) {
-      const Bezier &pt = points.at(i).data().value<Bezier>();
+  int pts_sz = InputArraySize(kPointsInput);
+  if (!points.empty()) {
+    for (int i=0; i<pts_sz; i++) {
+      const Bezier &pt = points.at(i).toBezier();
 
       QPointF main = pt.ToPointF() + half_res;
       QPointF cp1 = main + pt.ControlPoint1ToPointF();
@@ -231,7 +218,16 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     }
   }
 
-  poly_gizmo_->SetPath(GeneratePath(points).translated(half_res));
+  poly_gizmo_->SetPath(GeneratePath(points, pts_sz).translated(half_res));
+}
+
+ShaderCode PolygonGenerator::GetShaderCode(const ShaderRequest &request) const
+{
+  if (request.id == QStringLiteral("rgb")) {
+    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgb.frag"));
+  } else {
+    return super::GetShaderCode(request);
+  }
 }
 
 void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)
@@ -255,19 +251,19 @@ void PolygonGenerator::AddPointToPath(QPainterPath *path, const Bezier &before, 
                 after.ToPointF());
 }
 
-QPainterPath PolygonGenerator::GeneratePath(const QVector<NodeValue> &points)
+QPainterPath PolygonGenerator::GeneratePath(const NodeValueArray &points, int size)
 {
   QPainterPath path;
 
-  if (!points.isEmpty()) {
-    const Bezier &first_pt = points.first().data().value<Bezier>();
+  if (!points.empty()) {
+    const Bezier &first_pt = points.at(0).toBezier();
     path.moveTo(first_pt.ToPointF());
 
-    for (int i=1; i<points.size(); i++) {
-      AddPointToPath(&path, points.at(i-1).data().value<Bezier>(), points.at(i).data().value<Bezier>());
+    for (int i=1; i<size; i++) {
+      AddPointToPath(&path, points.at(i-1).toBezier(), points.at(i).toBezier());
     }
 
-    AddPointToPath(&path, points.last().data().value<Bezier>(), first_pt);
+    AddPointToPath(&path, points.at(size-1).toBezier(), first_pt);
   }
 
   return path;

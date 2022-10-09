@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ extern "C" {
 }
 
 #include <QCoreApplication>
-#include <QCryptographicHash>
 
 #include "common/xmlutils.h"
 
@@ -107,7 +106,14 @@ qint64 AudioParams::samples_to_bytes(const qint64 &samples) const
 {
   Q_ASSERT(is_valid());
 
-  return samples * channel_count() * bytes_per_sample_per_channel();
+  return samples_to_bytes_per_channel(samples) * channel_count();
+}
+
+qint64 AudioParams::samples_to_bytes_per_channel(const qint64 &samples) const
+{
+  Q_ASSERT(is_valid());
+
+  return samples * bytes_per_sample_per_channel();
 }
 
 rational AudioParams::samples_to_time(const qint64 &samples) const
@@ -179,18 +185,6 @@ bool AudioParams::is_valid() const
           && channel_layout() > 0
           && format_ > kFormatInvalid
           && format_ < kFormatCount);
-}
-
-QByteArray AudioParams::toBytes() const
-{
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-  hasher.addData(reinterpret_cast<const char*>(&sample_rate_), sizeof(sample_rate_));
-  hasher.addData(reinterpret_cast<const char*>(&channel_layout_), sizeof(channel_layout_));
-  hasher.addData(reinterpret_cast<const char*>(&format_), sizeof(format_));
-  hasher.addData(reinterpret_cast<const char*>(&timebase_), sizeof(timebase_));
-
-  return hasher.result();
 }
 
 void AudioParams::Load(QXmlStreamReader *reader)

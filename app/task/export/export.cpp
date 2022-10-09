@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ namespace olive {
 
 ExportTask::ExportTask(ViewerOutput *viewer_node,
                        ColorManager* color_manager,
-                       const ExportParams& params) :
+                       const EncodingParams& params) :
   color_manager_(color_manager),
   params_(params)
 {
@@ -58,7 +58,14 @@ bool ExportTask::Run()
     params_.SetFilename(FileFunctions::GetSafeTemporaryFilename(real_filename));
   }
 
-  encoder_ = Encoder::CreateFromID(params_.encoder(), params_);
+  // If we're exporting to a sidecar subtitle file, disable the subtitles in the main encoder
+  bool subtitles_enabled = params_.subtitles_enabled();
+  EncodingParams sidecar_params = params_;
+  if (subtitles_enabled && params_.subtitles_are_sidecar()) {
+    params_.DisableSubtitles();
+  }
+
+  encoder_ = std::shared_ptr<Encoder>(Encoder::CreateFromParams(params_));
 
   if (!encoder_) {
     SetError(tr("Failed to create encoder"));
@@ -67,8 +74,36 @@ bool ExportTask::Run()
 
   if (!encoder_->Open()) {
     SetError(tr("Failed to open file: %1").arg(encoder_->GetError()));
-    encoder_->deleteLater();
     return false;
+  }
+
+  if (subtitles_enabled && params_.subtitles_are_sidecar()) {
+    // Construct sidecar params
+    sidecar_params.DisableVideo();
+    sidecar_params.DisableAudio();
+
+    QString sidecar_filename;
+    {
+      QFileInfo fi(real_filename);
+      sidecar_filename = fi.completeBaseName();
+      sidecar_filename.append('.');
+      sidecar_filename.append(ExportFormat::GetExtension(sidecar_params.subtitle_sidecar_fmt()));
+      sidecar_filename = fi.dir().filePath(sidecar_filename);
+    }
+    sidecar_params.SetFilename(sidecar_filename);
+
+    subtitle_encoder_ = std::shared_ptr<Encoder>(Encoder::CreateFromFormat(sidecar_params.subtitle_sidecar_fmt(), sidecar_params));
+    if (!subtitle_encoder_) {
+      SetError(tr("Failed to create subtitle encoder"));
+      return false;
+    }
+
+    if (!subtitle_encoder_->Open()) {
+      SetError(tr("Failed to open subtitle sidecar file: %1").arg(sidecar_filename));
+      return false;
+    }
+  } else {
+    subtitle_encoder_ = encoder_;
   }
 
   if (params_.has_custom_range()) {
@@ -91,12 +126,12 @@ bool ExportTask::Run()
         || video_params().height() != params_.video_params().height()) {
       video_force_size = QSize(params_.video_params().width(), params_.video_params().height());
 
-      if (params_.video_scaling_method() != ExportParams::kStretch) {
-        video_force_matrix = ExportParams::GenerateMatrix(params_.video_scaling_method(),
-                                                          video_params().width(),
-                                                          video_params().height(),
-                                                          params_.video_params().width(),
-                                                          params_.video_params().height());
+      if (params_.video_scaling_method() != EncodingParams::kStretch) {
+        video_force_matrix = EncodingParams::GenerateMatrix(params_.video_scaling_method(),
+                                                            video_params().width(),
+                                                            video_params().height(),
+                                                            params_.video_params().width(),
+                                                            params_.video_params().height());
       }
     } else {
       // Disables forcing size in the renderer
@@ -121,24 +156,29 @@ bool ExportTask::Run()
     audio_range = {range};
   }
 
-  if (params_.subtitles_enabled()) {
+  if (subtitles_enabled) {
     subtitle_range = range;
   }
 
   Render(color_manager_, video_range, audio_range, subtitle_range, RenderMode::kOnline, nullptr,
          video_force_size, video_force_matrix, encoder_->GetDesiredPixelFormat(),
-         color_processor_);
+         VideoParams::kRGBAChannelCount, color_processor_);
 
   bool success = true;
 
   encoder_->Close();
-
   if (!encoder_->GetError().isEmpty()) {
     SetError(encoder_->GetError());
     success = false;
   }
 
-  delete encoder_;
+  if (subtitle_encoder_ != encoder_) {
+    subtitle_encoder_->Close();
+    if (!subtitle_encoder_->GetError().isEmpty()) {
+      SetError(subtitle_encoder_->GetError());
+      success = false;
+    }
+  }
 
   // If cancelled, delete the file we made, which is always a file we created since we write to a
   // temp file during the actual encoding process
@@ -156,19 +196,15 @@ bool ExportTask::Run()
   return success;
 }
 
-bool ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVector<rational> &times)
+bool ExportTask::FrameDownloaded(FramePtr f, const rational &time)
 {
-  Q_UNUSED(hash)
+  rational actual_time = time;
 
-  foreach (const rational& t, times) {
-    rational actual_time = t;
-
-    if (params_.has_custom_range()) {
-      actual_time -= params_.custom_range().in();
-    }
-
-    time_map_.insert(actual_time, f);
+  if (params_.has_custom_range()) {
+    actual_time -= params_.custom_range().in();
   }
+
+  time_map_.insert(actual_time, f);
 
   while (!IsCancelled()) {
     rational real_time = Timecode::timestamp_to_time(frame_time_,
@@ -192,7 +228,7 @@ bool ExportTask::FrameDownloaded(FramePtr f, const QByteArray &hash, const QVect
   return true;
 }
 
-bool ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples)
+bool ExportTask::AudioDownloaded(const TimeRange &range, const SampleBuffer &samples)
 {
   TimeRange adjusted_range = range;
 
@@ -213,15 +249,15 @@ bool ExportTask::AudioDownloaded(const TimeRange &range, SampleBufferPtr samples
 
 bool ExportTask::EncodeSubtitle(const SubtitleBlock *sub)
 {
-  if (!encoder_->WriteSubtitle(sub)) {
-    SetError(encoder_->GetError());
+  if (!subtitle_encoder_->WriteSubtitle(sub)) {
+    SetError(subtitle_encoder_->GetError());
     return false;
   } else {
     return true;
   }
 }
 
-bool ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)
+bool ExportTask::WriteAudioLoop(const TimeRange& time, const SampleBuffer &samples)
 {
   if (!encoder_->WriteAudio(samples)) {
     SetError(encoder_->GetError());
@@ -232,7 +268,7 @@ bool ExportTask::WriteAudioLoop(const TimeRange& time, SampleBufferPtr samples)
 
   for (auto it=audio_map_.begin(); it!=audio_map_.end(); it++) {
     TimeRange t = it.key();
-    SampleBufferPtr s = it.value();
+    SampleBuffer s = it.value();
 
     if (t.in() == audio_time_) {
       // Erase from audio map since we're just about to write it

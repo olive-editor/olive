@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,19 +34,6 @@ class HandMovableView : public QGraphicsView
 public:
   HandMovableView(QWidget* parent = nullptr);
 
-  bool GetScrollZoomsByDefault() const
-  {
-    return scroll_zooms_by_default_;
-  }
-
-  QAction* AddSetScrollZoomsByDefaultActionToMenu(QMenu* menu, bool autoconnect = true);
-
-public slots:
-  void SetScrollZoomsByDefault(bool e)
-  {
-    scroll_zooms_by_default_ = e;
-  }
-
 protected:
   virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
 
@@ -69,13 +56,7 @@ private:
 
   DragMode default_drag_mode_;
 
-  /**
-   * @brief Whether scrolling should perform a scroll or a zoom
-   *
-   * If TRUE, scrolling will ZOOM and Ctrl+Scroll with SCROLL.
-   * If FALSE (default), scrolling will SCROLL and Ctrl+Scroll will ZOOM.
-   */
-  bool scroll_zooms_by_default_;
+  QPointF transformed_pos_;
 
 private slots:
   void ApplicationToolChanged(Tool::Item tool);

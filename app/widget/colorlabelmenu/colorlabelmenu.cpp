@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "colorlabelmenu.h"
 
 #include <QEvent>
+#include <QPainter>
 #include <QWidgetAction>
 
 #include "ui/colorcoding.h"
@@ -30,17 +31,22 @@ namespace olive {
 ColorLabelMenu::ColorLabelMenu(QWidget *parent) :
   Menu(parent)
 {
+  // Used for size calculations
+  int box_size = fontMetrics().height();
+
+  color_items_.resize(ColorCoding::standard_colors().size());
   for (int i=0; i<ColorCoding::standard_colors().size(); i++) {
-    ColorLabelMenuItem* item = new ColorLabelMenuItem();
-    item->SetColor(ColorCoding::standard_colors().at(i));
-    color_items_.append(item);
+    QPixmap p(box_size, box_size);
 
-    QWidgetAction* a = new QWidgetAction(this);
-    Menu::ConformItem(a, QStringLiteral("colorlabel%1").arg(i), this, &ColorLabelMenu::ActionTriggered);
+    QPainter painter(&p);
+    painter.setPen(Qt::black);
+    painter.setBrush(ColorCoding::standard_colors().at(i).toQColor());
+    painter.drawRect(p.rect().adjusted(0, 0, -1, -1));
+
+    QAction *a = AddItem(QStringLiteral("colorlabel%1").arg(i), this, &ColorLabelMenu::ActionTriggered);
+    a->setIcon(p);
     a->setData(i);
-    a->setDefaultWidget(item);
-
-    this->addAction(a);
+    color_items_.replace(i, a);
   }
 
   Retranslate();
@@ -60,7 +66,7 @@ void ColorLabelMenu::Retranslate()
   this->setTitle(tr("Color"));
 
   for (int i=0; i<color_items_.size(); i++) {
-    color_items_.at(i)->SetText(ColorCoding::GetColorName(i));
+    color_items_.at(i)->setText(ColorCoding::GetColorName(i));
   }
 }
 

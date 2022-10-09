@@ -142,7 +142,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
   if (!(fmt.alignment() & Qt::AlignLeft)) {
     if (fmt.alignment() & Qt::AlignRight) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("right"));
-    } else if (fmt.alignment() & Qt::AlignCenter) {
+    } else if (fmt.alignment() & Qt::AlignHCenter) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("center"));
     } else if (fmt.alignment() & Qt::AlignJustify) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("justify"));
@@ -161,7 +161,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
     WriteCSSProperty(&style, QStringLiteral("line-height"), QStringLiteral("%1%").arg(fmt.lineHeight()));
   }
 
-  //WriteCharFormat(&style, block.charFormat());
+  WriteCharFormat(&style, block.charFormat());
 
   if (!style.isEmpty()) {
     writer->writeAttribute(QStringLiteral("style"), style);
@@ -169,12 +169,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
 
   auto it = block.begin();
 
-  if (it == block.end()) {
-    // FIXME: Might not be necessary with our custom HTML implementation
-    QString s;
-    s.append(QChar::Nbsp);
-    writer->writeCharacters(s);
-  } else {
+  if (it != block.end()) {
     for (; it!=block.end(); it++) {
       WriteFragment(writer, it.fragment());
     }
@@ -374,7 +369,7 @@ QTextBlockFormat Html::ReadBlockFormat(const QXmlStreamAttributes &attributes)
       if (StrEquals(attr.value(), QStringLiteral("right"))) {
         block_fmt.setAlignment(Qt::AlignRight);
       } else if (StrEquals(attr.value(), QStringLiteral("center"))) {
-        block_fmt.setAlignment(Qt::AlignCenter);
+        block_fmt.setAlignment(Qt::AlignHCenter);
       } else if (StrEquals(attr.value(), QStringLiteral("justify"))) {
         block_fmt.setAlignment(Qt::AlignJustify);
       }

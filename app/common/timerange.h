@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -115,6 +115,28 @@ public:
 
   bool contains(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
+  bool contains(const rational &r) const
+  {
+    for (const TimeRange &range : array_) {
+      if (range.Contains(r)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool OverlapsWith(const TimeRange& r, bool in_inclusive = true, bool out_inclusive = true) const
+  {
+    for (const TimeRange &range : array_) {
+      if (range.OverlapsWith(r, in_inclusive, out_inclusive)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   bool isEmpty() const
   {
     return array_.isEmpty();
@@ -195,6 +217,8 @@ class TimeRangeListFrameIterator
 public:
   TimeRangeListFrameIterator();
   TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase);
+
+  rational Snap(const rational &r) const;
 
   bool GetNext(rational *out);
 

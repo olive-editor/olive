@@ -24,6 +24,7 @@ namespace olive {
 
 const QString ChromaKeyNode::kColorInput = QStringLiteral("color_key");
 const QString ChromaKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
+const QString ChromaKeyNode::kInvertInput = QStringLiteral("invert_in");
 const QString ChromaKeyNode::kUpperToleranceInput = QStringLiteral("upper_tolerence_in");
 const QString ChromaKeyNode::kLowerToleranceInput = QStringLiteral("lower_tolerence_in");
 const QString ChromaKeyNode::kGarbageMatteInput = QStringLiteral("garbage_in");
@@ -59,6 +60,8 @@ ChromaKeyNode::ChromaKeyNode()
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kShadowsInput, QStringLiteral("base"), 0.1);
 
+  AddInput(kInvertInput, NodeValue::kBoolean, false);
+
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 }
 
@@ -93,6 +96,7 @@ void ChromaKeyNode::Retranslate()
   SetInputName(kHighlightsInput, tr("Highlights"));
   SetInputName(kUpperToleranceInput, tr("Upper Tolerance"));
   SetInputName(kLowerToleranceInput, tr("Lower Tolerance"));
+  SetInputName(kInvertInput, tr("Invert Mask"));
   SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
 }
 
@@ -128,17 +132,17 @@ void ChromaKeyNode::GenerateProcessor()
 
 void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  if (!value[kTextureInput].data().isNull() && processor()) {
-    ColorTransformJob job;
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (processor()) {
+      ColorTransformJob job(value);
 
-    job.InsertValue(value);
-    job.SetAlphaChannelRequired(ColorTransformJob::kAlphaForceOn);
-    job.SetColorProcessor(processor());
-    job.SetInputTexture(value[kTextureInput].data().value<TexturePtr>());
-    job.SetNeedsCustomShader(this);
-    job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
+      job.SetColorProcessor(processor());
+      job.SetInputTexture(value[kTextureInput]);
+      job.SetNeedsCustomShader(this);
+      job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
 
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
+    }
   }
 }
 

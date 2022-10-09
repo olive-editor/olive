@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,7 +43,8 @@ public:
 
   virtual QString ShortName() const override
   {
-    return Node::ShortName();
+    // Override MatrixGenerator's short name "Ortho"
+    return Name();
   }
 
   virtual QString id() const override
@@ -81,13 +82,12 @@ public:
                                               AutoScaleType autoscale_type = kAutoScaleNone);
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const override;
 
+  static const QString kParentInput;
   static const QString kTextureInput;
   static const QString kAutoscaleInput;
   static const QString kInterpolationInput;
-
-protected:
-  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 protected slots:
   virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::rational &time) override;

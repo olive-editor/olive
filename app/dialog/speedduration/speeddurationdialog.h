@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #define SPEEDDURATIONDIALOG_H
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialog>
 
 #include "node/block/clip/clip.h"
@@ -62,6 +63,8 @@ private:
 
   QCheckBox *ripple_box_;
 
+  QComboBox *loop_combo_;
+
   int start_reverse_;
 
   int start_maintain_audio_pitch_;
@@ -69,6 +72,8 @@ private:
   double start_speed_;
 
   rational start_duration_;
+
+  int start_loop_;
 
   rational timebase_;
 

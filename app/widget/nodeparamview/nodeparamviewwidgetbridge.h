@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -57,6 +57,8 @@ signals:
 
   void WidgetsRecreated(const NodeInput& input);
 
+  void RequestEditTextInViewer();
+
 private:
   void CreateWidgets();
 
@@ -73,7 +75,7 @@ private:
   void SetProperty(const QString &key, const QVariant &value);
 
   template <typename T>
-  void CreateSliders(int count);
+  void CreateSliders(int count, QWidget *parent);
 
   void UpdateWidgetValues();
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,14 +24,16 @@
 
 namespace olive {
 
-ColorButton::ColorButton(ColorManager* color_manager, QWidget *parent) :
+ColorButton::ColorButton(ColorManager* color_manager, bool show_dialog_on_click, QWidget *parent) :
   QPushButton(parent),
   color_manager_(color_manager),
   color_processor_(nullptr)
 {
   setAutoFillBackground(true);
 
-  connect(this, &ColorButton::clicked, this, &ColorButton::ShowColorDialog);
+  if (show_dialog_on_click) {
+    connect(this, &ColorButton::clicked, this, &ColorButton::ShowColorDialog);
+  }
 
   SetColor(Color(1.0f, 1.0f, 1.0f));
 }

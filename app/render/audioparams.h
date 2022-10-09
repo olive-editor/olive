@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -213,6 +213,7 @@ public:
   qint64 time_to_samples(const double& time) const;
   qint64 time_to_samples(const rational& time) const;
   qint64 samples_to_bytes(const qint64& samples) const;
+  qint64 samples_to_bytes_per_channel(const qint64& samples) const;
   rational samples_to_time(const qint64& samples) const;
   qint64 bytes_to_samples(const qint64 &bytes) const;
   rational bytes_to_time(const qint64 &bytes) const;
@@ -221,8 +222,6 @@ public:
   int bytes_per_sample_per_channel() const;
   int bits_per_sample() const;
   bool is_valid() const;
-
-  QByteArray toBytes() const;
 
   void Load(QXmlStreamReader* reader);
 

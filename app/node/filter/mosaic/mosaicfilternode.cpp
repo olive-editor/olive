@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -53,22 +53,18 @@ void MosaicFilterNode::Retranslate()
 
 void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.InsertValue(value);
-
-  // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
-  job.SetInterpolation(kTextureInput, Texture::kLinear);
-
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    TexturePtr texture = job.GetValue(kTextureInput).data().value<TexturePtr>();
-
+  if (TexturePtr texture = value[kTextureInput].toTexture()) {
     if (texture
-        && job.GetValue(kHorizInput).data().toInt() != texture->width()
-        && job.GetValue(kVertInput).data().toInt() != texture->height()) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+        && value[kHorizInput].toInt() != texture->width()
+        && value[kVertInput].toInt() != texture->height()) {
+      ShaderJob job(value);
+
+      // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
+      job.SetInterpolation(kTextureInput, Texture::kLinear);
+
+      table->Push(NodeValue::kTexture, texture->toJob(job), this);
     } else {
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }

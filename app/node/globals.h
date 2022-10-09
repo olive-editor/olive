@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #include <QVector2D>
 
 #include "common/timerange.h"
+#include "render/audioparams.h"
+#include "render/videoparams.h"
 
 namespace olive {
 
@@ -32,46 +34,22 @@ class NodeGlobals
 public:
   NodeGlobals(){}
 
-  NodeGlobals(const QVector2D &resolution, const rational &pixel_aspect, const TimeRange &time) :
-    resolution_(resolution),
-    pixel_aspect_(pixel_aspect),
+  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time) :
+    video_params_(vparam),
+    audio_params_(aparam),
     time_(time)
   {
-    resolution_by_par_ = QVector2D(resolution_.x() * pixel_aspect_.toDouble(), resolution_.y());
   }
 
-  const QVector2D &resolution() const
-  {
-    return resolution_;
-  }
-
-  const QVector2D &resolution_by_par() const
-  {
-    return resolution_by_par_;
-  }
-
-  const rational &pixel_aspect() const
-  {
-    return pixel_aspect_;
-  }
-
-  const TimeRange &time() const
-  {
-    return time_;
-  }
-
-  void set_time(const TimeRange &time)
-  {
-    time_ = time;
-  }
+  QVector2D square_resolution() const { return video_params_.square_resolution(); }
+  QVector2D nonsquare_resolution() const { return video_params_.resolution(); }
+  const AudioParams &aparams() const { return audio_params_; }
+  const VideoParams &vparams() const { return video_params_; }
+  const TimeRange &time() const { return time_; }
 
 private:
-  QVector2D resolution_;
-
-  rational pixel_aspect_;
-
-  QVector2D resolution_by_par_;
-
+  VideoParams video_params_;
+  AudioParams audio_params_;
   TimeRange time_;
 
 };

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -96,6 +96,7 @@ public:
   void set_track(Track* track)
   {
     track_ = track;
+    emit TrackChanged(track_);
   }
 
   bool is_enabled() const;
@@ -126,12 +127,10 @@ signals:
 
   void PreviewChanged();
 
+  void TrackChanged(Track *track);
+
 protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
-
-  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
-  bool HashPassthrough(const QString &input, QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const;
 
   Block* previous_;
   Block* next_;

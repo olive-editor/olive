@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -76,61 +76,20 @@ ShaderCode MergeNode::GetShaderCode(const ShaderRequest &request) const
 
 void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-  job.InsertValue(value);
 
-  TexturePtr base_tex = job.GetValue(kBaseIn).data().value<TexturePtr>();
-  TexturePtr blend_tex = job.GetValue(kBlendIn).data().value<TexturePtr>();
+  TexturePtr base_tex = value[kBaseIn].toTexture();
+  TexturePtr blend_tex = value[kBlendIn].toTexture();
 
   if (base_tex || blend_tex) {
     if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
       // We only have a blend texture or the blend texture is RGB only, no need to alpha over
-      table->Push(job.GetValue(kBlendIn));
+      table->Push(value[kBlendIn]);
     } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
-      table->Push(job.GetValue(kBaseIn));
+      table->Push(value[kBaseIn]);
     } else {
-      // We have both textures, push the job
-      if (base_tex->channel_count() < VideoParams::kRGBAChannelCount) {
-        // Base has no alpha, therefore this merge operation will not add an alpha channel
-        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOff);
-      }
-
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, base_tex->toJob(ShaderJob(value)), this);
     }
-  }
-}
-
-void MergeNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  NodeTraverser traverser;
-  traverser.SetCacheVideoParams(video_params);
-
-  NodeValueDatabase db = traverser.GenerateDatabase(this, globals.time());
-
-  TexturePtr base_tex = db[kBaseIn].Get(NodeValue::kTexture).value<TexturePtr>();
-  TexturePtr blend_tex = db[kBlendIn].Get(NodeValue::kTexture).value<TexturePtr>();
-
-  if (base_tex || blend_tex) {
-    bool passthrough_base = !blend_tex;
-    bool passthrough_blend = !base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount);
-
-    if (!passthrough_base && !passthrough_blend) {
-      // This merge will actually do something so we add a fingerprint
-      HashAddNodeSignature(hash);
-    }
-
-    if (!passthrough_base) {
-      Node *blend_output = GetConnectedOutput(kBlendIn);
-      Node::Hash(blend_output, GetValueHintForInput(kBlendIn), hash, globals, video_params);
-    }
-
-    if (!passthrough_blend) {
-      Node *base_output = GetConnectedOutput(kBaseIn);
-      Node::Hash(base_output, GetValueHintForInput(kBaseIn), hash, globals, video_params);
-    }
-
-    Q_ASSERT(!passthrough_base || !passthrough_blend);
   }
 }
 

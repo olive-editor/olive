@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@
 #include "node/output/viewer/viewer.h"
 #include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"
-#include "threading/threadticketwatcher.h"
 #include "viewerdisplay.h"
 #include "viewersizer.h"
 #include "viewerwindow.h"
@@ -44,6 +43,8 @@
 
 namespace olive {
 
+class MulticamWidget;
+
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
  */
@@ -51,7 +52,16 @@ class ViewerWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
-  ViewerWidget(QWidget* parent = nullptr);
+  enum WaveformMode {
+    kWFAutomatic,
+    kWFViewerOnly,
+    kWFWaveformOnly,
+    kWFViewerAndWaveform
+  };
+
+  ViewerWidget(QWidget* parent = nullptr) :
+    ViewerWidget(new ViewerDisplayWidget(), parent)
+  {}
 
   virtual ~ViewerWidget() override;
 
@@ -89,6 +99,42 @@ public:
 
   void StartCapture(TimelineWidget *source, const TimeRange &time, const Track::Reference &track);
 
+  void SetAudioScrubbingEnabled(bool e)
+  {
+    enable_audio_scrubbing_ = e;
+  }
+
+  PreviewAutoCacher *GetCacher() const { return auto_cacher_; }
+
+  void AddPlaybackDevice(ViewerDisplayWidget *vw)
+  {
+    playback_devices_.push_back(vw);
+  }
+
+  void SetTimelineSelectedBlocks(const QVector<Block*> &b)
+  {
+    timeline_selected_blocks_ = b;
+
+    if (!IsPlaying()) {
+      // If is playing, this will happen by the next frame automatically
+      DetectMulticamNodeNow();
+      UpdateTextureFromNode();
+    }
+  }
+
+  void SetNodeViewSelections(const QVector<Node*> &n)
+  {
+    node_view_selected_ = n;
+
+    if (!IsPlaying()) {
+      // If is playing, this will happen by the next frame automatically
+      DetectMulticamNodeNow();
+      UpdateTextureFromNode();
+    }
+  }
+
+  void ConnectMulticamWidget(MulticamWidget *p);
+
 public slots:
   void Play(bool in_to_out_only);
 
@@ -119,6 +165,11 @@ public slots:
 
   void UpdateTextureFromNode();
 
+  void RequestStartEditingText()
+  {
+    display_widget_->RequestStartEditingText();
+  }
+
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
@@ -141,12 +192,16 @@ signals:
   void ColorManagerChanged(ColorManager* color_manager);
 
 protected:
+  ViewerWidget(ViewerDisplayWidget *display, QWidget* parent = nullptr);
+
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const rational &time) override;
 
   virtual void ConnectNodeEvent(ViewerOutput *) override;
   virtual void DisconnectNodeEvent(ViewerOutput *) override;
   virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
+  virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *) override;
+  virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *) override;
 
   virtual void ScaleChangedEvent(const double& s) override;
 
@@ -158,6 +213,18 @@ protected:
   {
     return display_widget_;
   }
+
+  void IgnoreNextScrubEvent()
+  {
+    ignore_scrub_++;
+  }
+
+  virtual RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false)
+  {
+    return auto_cacher_->GetSingleFrame(t, dry);
+  }
+
+  PreviewAutoCacher *auto_cacher() const { return auto_cacher_; }
 
 private:
   int64_t GetTimestamp() const
@@ -183,27 +250,25 @@ private:
 
   bool ViewerMightBeAStill();
 
-  void SetDisplayImage(QVariant frame);
+  void SetDisplayImage(RenderTicketPtr ticket);
 
-  void RequestNextFrameForQueue(bool prioritize = false, bool increment = true);
+  RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t, bool prioritize);
+  RenderTicketPtr GetFrame(const rational& t);
 
   void FinishPlayPreprocess();
 
   int DeterminePlaybackQueueSize();
 
-  static FramePtr DecodeCachedImage(const QString &cache_path, const QByteArray &hash, const rational& time);
+  static FramePtr DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time);
 
-  static void DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QByteArray &hash, const rational& time);
+  static void DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QUuid &cache_id, const int64_t &time);
 
   bool ShouldForceWaveform() const;
 
   void SetEmptyImage();
 
   void UpdateAutoCacher();
-
-  void ClearVideoAutoCacherQueue();
 
   void DecrementPrequeuedAudio();
 
@@ -213,7 +278,9 @@ private:
 
   void CloseAudioProcessor();
 
-  QStackedWidget* stack_;
+  void SetWaveformMode(WaveformMode wf);
+
+  void DetectMulticamNode(const rational &time);
 
   ViewerSizer* sizer_;
 
@@ -238,6 +305,7 @@ private:
   QTimer playback_backup_timer_;
 
   int64_t playback_queue_next_frame_;
+  int64_t dry_run_next_frame_;
   QVector<ViewerDisplayWidget*> playback_devices_;
 
   bool prequeuing_video_;
@@ -250,7 +318,7 @@ private:
   int prequeue_length_;
   int prequeue_count_;
 
-  PreviewAutoCacher auto_cacher_;
+  PreviewAutoCacher *auto_cacher_;
 
   QVector<RenderTicketWatcher*> queue_watchers_;
 
@@ -262,12 +330,30 @@ private:
 
   static QVector<ViewerWidget*> instances_;
 
+  std::list<RenderTicketWatcher*> audio_scrub_watchers_;
+
   bool record_armed_;
   bool recording_;
   TimelineWidget *recording_callback_;
   TimeRange recording_range_;
   Track::Reference recording_track_;
   QString recording_filename_;
+
+  qint64 queue_starved_start_;
+  RenderTicketWatcher *first_requeue_watcher_;
+
+  bool enable_audio_scrubbing_;
+
+  WaveformMode waveform_mode_;
+
+  QVector<RenderTicketWatcher*> dry_run_watchers_;
+
+  int ignore_scrub_;
+
+  QVector<Block*> timeline_selected_blocks_;
+  QVector<Node*> node_view_selected_;
+
+  MulticamWidget *multicam_panel_;
 
 private slots:
   void PlaybackTimerUpdate();
@@ -284,11 +370,11 @@ private slots:
 
   void SetZoomFromMenu(QAction* action);
 
-  void ViewerShiftedRange(const olive::rational& from, const olive::rational& to);
-
-  void UpdateStack();
+  void UpdateWaveformViewFromMode();
 
   void ContextMenuSetFullScreen(QAction* action);
+
+  void ContextMenuSetPlaybackRes(QAction* action);
 
   void ContextMenuDisableSafeMargins();
 
@@ -304,7 +390,7 @@ private slots:
 
   void ViewerInvalidatedVideoRange(const olive::TimeRange &range);
 
-  void ManualSwitchToWaveform(bool e);
+  void UpdateWaveformModeFromMenu(QAction *a);
 
   void DragEntered(QDragEnterEvent* event);
 
@@ -316,9 +402,26 @@ private slots:
 
   void ReceivedAudioBufferForScrubbing();
 
+  void QueueStarved();
+  void QueueNoLongerStarved();
+
   void ForceRequeueFromCurrentTime();
 
   void UpdateAudioProcessor();
+
+  void CreateAddableAt(const QRectF &f);
+
+  void HandleFirstRequeueDestroy();
+
+  void ShowSubtitleProperties();
+
+  void DryRunFinished();
+
+  void RequestNextDryRun();
+
+  void SaveFrameAsImage();
+
+  void DetectMulticamNodeNow();
 
 };
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "node/project/project.h"
 #include "render/audioparams.h"
 #include "render/renderjobtracker.h"
-#include "threading/threadticketwatcher.h"
+#include "render/rendermanager.h"
 
 namespace olive {
 
@@ -45,13 +45,16 @@ class PreviewAutoCacher : public QObject
 {
   Q_OBJECT
 public:
-  PreviewAutoCacher();
+  PreviewAutoCacher(QObject *parent = nullptr);
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t, bool prioritize);
+  RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(Node *n, const rational& t, bool dry = false);
 
-  RenderTicketPtr GetRangeOfAudio(TimeRange range, bool prioritize);
+  RenderTicketPtr GetRangeOfAudio(TimeRange range);
+
+  void ClearSingleFrameRenders();
 
   /**
    * @brief Set the viewer node to auto-cache
@@ -73,18 +76,6 @@ public:
   void SetPlayhead(const rational& playhead);
 
   /**
-   * @brief If any hashes are currently running, wait for them to finish
-   *
-   * Once this function returns, it can be guaranteed that all hash tasks have been finished.
-   * They will NOT have been removed from the hash task list yet until they run HashesProcessed.
-   * If you don't want the continued processing in HashesProcessed to run, remove the task manually
-   * from the list after calling this function. It will still call HashesProcessed, but will be
-   * largely ignored (that function will simply free it).
-   */
-  void WaitForHashesToFinish();
-  void WaitForVideoDownloadsToFinish();
-
-  /**
    * @brief Call cancel on all currently running video tasks
    *
    * Signalling cancel to a video task indicates that we're no longer interested in its end result.
@@ -95,12 +86,20 @@ public:
   void CancelVideoTasks(bool and_wait_for_them_to_finish = false);
   void CancelAudioTasks(bool and_wait_for_them_to_finish = false);
 
-  bool IsRenderingCustomRange() const
-  {
-    return queued_frame_iterator_.IsCustomRange() && queued_frame_iterator_.HasNext();
-  }
+  bool IsRenderingCustomRange() const;
 
-  void SetAudioPaused(bool e);
+  void SetRendersPaused(bool e);
+  void SetThumbnailsPaused(bool e);
+
+  void SetMulticamNode(MultiCamNode *n) { multicam_ = n; }
+
+  void SetIgnoreCacheRequests(bool e) { ignore_cache_requests_ = e; }
+
+public slots:
+  void SetDisplayColorProcessor(ColorProcessorPtr processor)
+  {
+    display_color_processor_ = processor;
+  }
 
 signals:
   void StopCacheProxyTasks();
@@ -110,8 +109,9 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(const QByteArray& hash, const rational &time, bool prioritize, bool texture_only);
-  RenderTicketPtr RenderAudio(const TimeRange &range, bool generate_waveforms, bool prioritize);
+  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache *cache, bool dry);
+
+  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache *cache);
 
   /**
    * @brief Process all changes to internal NodeGraph copy
@@ -130,25 +130,20 @@ private:
 
   void InsertIntoCopyMap(Node* node, Node* copy);
 
+  void ConnectToNodeCache(Node *node);
+  void DisconnectFromNodeCache(Node *node);
+
   void UpdateGraphChangeValue();
   void UpdateLastSyncedValue();
 
   void CancelQueuedSingleFrameRender();
 
-  void VideoInvalidatedList(const TimeRangeList &list);
-  void AudioInvalidatedList(const TimeRangeList &list);
-
   void StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker);
-  void StartCachingVideoRange(const TimeRange &range);
-  void StartCachingAudioRange(const TimeRange &range);
+  void StartCachingVideoRange(PlaybackCache *cache, const TimeRange &range);
+  void StartCachingAudioRange(PlaybackCache *cache, const TimeRange &range);
 
-  struct HashData {
-    rational time;
-    QByteArray hash;
-    bool exists;
-  };
-
-  static QVector<HashData> GenerateHashes(ViewerOutput *viewer, FrameHashCache* cache, const QVector<rational> &times);
+  void VideoInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
+  void AudioInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
 
   class QueuedJob {
   public:
@@ -171,7 +166,7 @@ private:
 
   Project copied_project_;
 
-  QVector<QueuedJob> graph_update_queue_;
+  std::list<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
   QHash<NodeGraph*, NodeGraph*> graph_map_;
   ViewerOutput* copied_viewer_node_;
@@ -183,17 +178,10 @@ private:
   bool use_custom_range_;
   TimeRange custom_autocache_range_;
 
-  TimeRangeList invalidated_video_;
-  TimeRangeList invalidated_audio_;
-
-  bool pause_audio_;
+  bool pause_renders_;
+  bool pause_thumbnails_;
 
   RenderTicketPtr single_frame_render_;
-
-  QList<QFutureWatcher< QVector<HashData> >*> hash_tasks_;
-  QMap<RenderTicketWatcher*, TimeRange> audio_tasks_;
-  QMap<RenderTicketWatcher*, QByteArray> video_tasks_;
-  QMap<RenderTicketWatcher*, QByteArray> video_download_tasks_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
   JobTime graph_changed_time_;
@@ -201,34 +189,57 @@ private:
 
   QTimer delayed_requeue_timer_;
 
-  TimeRangeList audio_needing_conform_;
-
   JobTime last_conform_task_;
 
-  RenderJobTracker video_job_tracker_;
-  RenderJobTracker audio_job_tracker_;
+  QVector<RenderTicketWatcher*> running_video_tasks_;
+  QVector<RenderTicketWatcher*> running_audio_tasks_;
 
-  TimeRangeListFrameIterator queued_frame_iterator_;
-  TimeRangeListFrameIterator hash_iterator_;
-  TimeRangeList audio_iterator_;
+  struct VideoJob {
+    Node *node;
+    PlaybackCache *cache;
+    TimeRange range;
+    TimeRangeListFrameIterator iterator;
+  };
 
-  static const bool kRealTimeWaveformsEnabled;
+  struct VideoCacheData {
+    RenderJobTracker job_tracker;
+  };
+
+  struct AudioJob {
+    Node *node;
+    PlaybackCache *cache;
+    TimeRange range;
+  };
+
+  struct AudioCacheData {
+    RenderJobTracker job_tracker;
+    TimeRangeList needs_conform;
+  };
+
+  std::list<VideoJob> pending_video_jobs_;
+  std::list<AudioJob> pending_audio_jobs_;
+
+  QHash<PlaybackCache*, VideoCacheData> video_cache_data_;
+  QHash<PlaybackCache*, AudioCacheData> audio_cache_data_;
+
+  ColorProcessorPtr display_color_processor_;
+
+  MultiCamNode *multicam_;
+
+  bool ignore_cache_requests_;
 
 private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidated(const olive::TimeRange &range);
+  void VideoInvalidatedFromCache(const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
-  void AudioInvalidated(const olive::TimeRange &range);
+  void AudioInvalidatedFromCache(const olive::TimeRange &range);
 
-  /**
-   * @brief Handler for when we have applied all the hashes to the FrameHashCache
-   */
-  void HashesProcessed();
+  void CancelForCache();
 
   /**
    * @brief Handler for when the RenderManager has returned rendered audio
@@ -239,11 +250,6 @@ private slots:
    * @brief Handler for when the RenderManager has returned rendered video frames
    */
   void VideoRendered();
-
-  /**
-   * @brief Handler for when we've saved a video frame to the cache
-   */
-  void VideoDownloaded();
 
   void NodeAdded(Node* node);
 
@@ -260,13 +266,9 @@ private slots:
   /**
    * @brief Generic function called whenever the frames to render need to be (re)queued
    */
-  void RequeueFrames();
+  //void RequeueFrames();
 
   void ConformFinished();
-
-  void VideoAutoCacheEnableChanged(bool e);
-
-  void AudioAutoCacheEnableChanged(bool e);
 
   void CacheProxyTaskCancelled();
 

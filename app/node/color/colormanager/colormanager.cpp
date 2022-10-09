@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -272,7 +272,21 @@ void ColorManager::InputValueChangedEvent(const QString &input, int element)
   if (input == kConfigFilenameIn) {
 
     try {
+      QString old_default_cs = GetDefaultInputColorSpace();
+
       SetConfig(OCIO::Config::CreateFromFile(GetConfigFilename().toUtf8()));
+
+      // Set new default colorspace appropriately
+      int new_default = 0;
+      QStringList available_cs = ListAvailableColorspaces();
+      for (int i=0; i<available_cs.size(); i++) {
+        if (available_cs.at(i).compare(old_default_cs, Qt::CaseInsensitive)) {
+          new_default = i;
+          break;
+        }
+      }
+      SetStandardValue(kDefaultColorspaceIn, new_default);
+
       emit ConfigChanged();
     } catch (OCIO::Exception&) {}
 

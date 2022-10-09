@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,11 +29,13 @@
 
 namespace olive {
 
+class MainWindow;
+
 class PreferencesKeyboardTab : public ConfigDialogBaseTab
 {
   Q_OBJECT
 public:
-  PreferencesKeyboardTab(QMenuBar* menubar);
+  PreferencesKeyboardTab(MainWindow* main_window);
 
   virtual void Accept(MultiUndoCommand* command) override;
 
@@ -132,6 +134,9 @@ private:
    * key_shortcut_actions and key_shortcut_fields)
    */
   QVector<KeySequenceEditor*> key_shortcut_fields_;
+
+  MainWindow *main_window_;
+
 };
 
 }

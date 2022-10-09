@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include "core.h"
 #include "node/block/transition/transition.h"
 #include "node/output/viewer/viewer.h"
+#include "node/project/serializer/serializer.h"
 #include "timeline/timelinecommon.h"
 #include "timelineandtrackview.h"
 #include "widget/slider/rationalslider.h"
@@ -79,9 +80,13 @@ public:
 
   void ToggleLinksOnSelected();
 
-  void CopySelected(bool cut);
+  void AddDefaultTransitionsToSelected();
 
-  void Paste(bool insert);
+  virtual bool CopySelected(bool cut) override;
+
+  virtual bool Paste() override;
+
+  void PasteInsert();
 
   void DeleteInToOut(bool ripple);
 
@@ -105,6 +110,10 @@ public:
 
   void DisableRecordingOverlay();
 
+  void AddTentativeSubtitleTrack();
+
+  void NestSelectedClips();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -122,7 +131,7 @@ public:
 
   void RestoreSplitterState(const QByteArray& state);
 
-  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command, bool handle_transitions = true, bool handle_invalidations = true);
+  static void ReplaceBlocksWithGaps(const QVector<Block *> &blocks, bool remove_from_graph, MultiUndoCommand *command, bool handle_transitions = true);
 
   /**
    * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -228,6 +237,7 @@ public:
 
     // Set to null
     subtitle_show_command_ = nullptr;
+    subtitle_tentative_track_ = nullptr;
 
     // Return command
     return c;
@@ -264,11 +274,17 @@ public:
 
   };
 
+public slots:
+  void ClearTentativeSubtitleTrack();
+
+  void RenameSelectedBlocks();
+
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
 
   void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
 
+  void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
   void RevealViewerInProject(ViewerOutput *r);
 
 protected:
@@ -293,6 +309,12 @@ private:
   void UpdateViewports(const Track::Type& type = Track::kNone);
 
   QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
+
+  bool PasteInternal(bool insert);
+
+  TimelineAndTrackView *AddTimelineAndTrackView(Qt::Alignment alignment);
+
+  QHash<Node*, Node*> GenerateExistingPasteMap(const ProjectSerializer::Result &r);
 
   QPoint drag_origin_;
 
@@ -327,6 +349,7 @@ private:
   QSplitter* view_splitter_;
 
   MultiUndoCommand *subtitle_show_command_;
+  Track *subtitle_tentative_track_;
 
   QTimer *signal_block_change_timer_;
 
@@ -402,19 +425,28 @@ private slots:
 
   void SetViewWaveformsEnabled(bool e);
 
+  void SetViewThumbnailsEnabled(QAction *action);
+
   void FrameRateChanged();
 
   void SampleRateChanged();
 
   void TrackIndexChanged(int old, int now);
 
-  void SetScrollZoomsByDefaultOnAllViews(bool e);
-
   void SignalBlockSelectionChange();
 
+  void RevealInFootageViewer();
   void RevealInProject();
 
-  void RenameSelectedBlocks();
+  void TrackAboutToBeDeleted(Track *track);
+
+  void SetSelectedClipsAutocaching(bool e);
+
+  void CacheClips();
+  void CacheClipsInOut();
+  void CacheDiscard();
+
+  void MulticamEnabledTriggered(bool e);
 
 };
 

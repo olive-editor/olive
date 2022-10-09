@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #ifndef TIMELINEVIEWMOUSEEVENT_H
 #define TIMELINEVIEWMOUSEEVENT_H
 
+#include <QEvent>
 #include <QMimeData>
 #include <QPointF>
 #include <QPoint>
@@ -33,20 +34,23 @@ namespace olive {
 class TimelineViewMouseEvent
 {
 public:
-  TimelineViewMouseEvent(const qreal& scene_x,
+  TimelineViewMouseEvent(const QPointF& scene_pos,
+                         const QPoint &screen_pos,
                          const double& scale_x,
                          const rational& timebase,
                          const Track::Reference &track,
                          const Qt::MouseButton &button,
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier) :
-    scene_x_(scene_x),
+    scene_pos_(scene_pos),
+    screen_pos_(screen_pos),
     scale_x_(scale_x),
     timebase_(timebase),
     track_(track),
     button_(button),
     modifiers_(modifiers),
     source_event_(nullptr),
-    mime_data_(nullptr)
+    mime_data_(nullptr),
+    bypass_import_buffer_(false)
   {
   }
 
@@ -71,7 +75,7 @@ public:
    */
   rational GetFrame(bool round = false) const
   {
-    return TimeScaledObject::SceneToTime(scene_x_, scale_x_, timebase_, round);
+    return TimeScaledObject::SceneToTime(GetSceneX(), scale_x_, timebase_, round);
   }
 
   const Track::Reference& GetTrack() const
@@ -94,10 +98,13 @@ public:
     source_event_ = event;
   }
 
-  const qreal& GetSceneX() const
+  qreal GetSceneX() const
   {
-    return scene_x_;
+    return scene_pos_.x();
   }
+
+  const QPointF &GetScenePos() const { return scene_pos_; }
+  const QPoint &GetScreenPos() const { return screen_pos_; }
 
   const Qt::MouseButton& GetButton() const
   {
@@ -116,8 +123,12 @@ public:
       source_event_->ignore();
   }
 
+  bool GetBypassImportBuffer() const { return bypass_import_buffer_; }
+  void SetBypassImportBuffer(bool e) { bypass_import_buffer_ = e; }
+
 private:
-  qreal scene_x_;
+  QPointF scene_pos_;
+  QPoint screen_pos_;
   double scale_x_;
   rational timebase_;
 
@@ -130,6 +141,8 @@ private:
   QEvent* source_event_;
 
   const QMimeData* mime_data_;
+
+  bool bypass_import_buffer_;
 
 };
 

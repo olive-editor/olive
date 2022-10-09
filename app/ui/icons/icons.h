@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -85,6 +85,9 @@ extern QIcon TextAlignLeft;
 extern QIcon TextAlignRight;
 extern QIcon TextAlignCenter;
 extern QIcon TextAlignJustify;
+extern QIcon TextAlignTop;
+extern QIcon TextAlignBottom;
+extern QIcon TextAlignMiddle;
 
 // Miscellaneous Icons
 extern QIcon Snapping;
@@ -103,6 +106,9 @@ extern QIcon EyeOpened;
 extern QIcon EyeClosed;
 extern QIcon LockOpened;
 extern QIcon LockClosed;
+extern QIcon Pencil;
+extern QIcon Subtitles;
+extern QIcon ColorPicker;
 
 /**
  * @brief Create an icon object loaded from file

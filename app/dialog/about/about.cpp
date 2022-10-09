@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -72,6 +72,8 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
   label->setWordWrap(true);
   label->setOpenExternalLinks(true);
   label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+  label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+  label->setCursor(Qt::IBeamCursor);
   horiz_layout->addWidget(label);
 
   layout->addLayout(horiz_layout);

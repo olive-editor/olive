@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   // Text height is used to calculate widget height
-  cache_status_height_ = text_height() / 4;
 
   // Get the "minimum" space allowed between two line markers on the ruler (in screen pixels)
   // Mediocre but reliable way of scaling UI objects by font/DPI size
@@ -80,17 +79,15 @@ void TimeRuler::SetPlaybackCache(PlaybackCache *cache)
   }
 
   if (playback_cache_) {
-    disconnect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    disconnect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    disconnect(playback_cache_, &PlaybackCache::Shifted, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    disconnect(playback_cache_, &PlaybackCache::Invalidated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+    disconnect(playback_cache_, &PlaybackCache::Validated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
   }
 
   playback_cache_ = cache;
 
   if (playback_cache_) {
-    connect(playback_cache_, &PlaybackCache::Invalidated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    connect(playback_cache_, &PlaybackCache::Validated, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
-    connect(playback_cache_, &PlaybackCache::Shifted, this, static_cast<void(TimeRuler::*)()>(&TimeRuler::update));
+    connect(playback_cache_, &PlaybackCache::Invalidated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+    connect(playback_cache_, &PlaybackCache::Validated, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
   }
 
   update();
@@ -105,9 +102,8 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
 
   // Draw timeline points if connected
   int marker_height = TimelineMarker::GetMarkerHeight(p->fontMetrics());
-  if (GetTimelinePoints()) {
-    DrawTimelinePoints(p, marker_height);
-  }
+  DrawMarkers(p, marker_height);
+  DrawWorkArea(p);
 
   double width_of_frame = timebase_dbl() * GetScale();
   double width_of_second = 0;
@@ -183,7 +179,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   int line_bottom = height();
 
   if (show_cache_status_) {
-    line_bottom -= cache_status_height_;
+    line_bottom -= PlaybackCache::GetCacheIndicatorHeight();
   }
 
   int long_height = fm.height();
@@ -255,38 +251,18 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   }
 
   // If cache status is enabled
-  if (show_cache_status_ && playback_cache_) {
+  if (show_cache_status_ && playback_cache_ && playback_cache_->HasValidatedRanges()) {
     // FIXME: Hardcoded to get video length, if we ever need audio length, this will have to change
-    rational len = playback_cache_->viewer_parent()->GetVideoLength();
-    int lim_left = GetScroll();
-    int lim_right = lim_left + width();
+    int h = PlaybackCache::GetCacheIndicatorHeight();
+    QRect cache_rect(0, height() - h, width(), h);
 
-    int cache_screen_length = TimeToScene(len);
+    if (ViewerOutput *viewer = dynamic_cast<ViewerOutput*>(playback_cache_->parent())) {
+      int right = TimeToScene(viewer->GetVideoLength());
+      cache_rect.setWidth(std::max(0, right));
+    }
 
-    if (cache_screen_length > 0) {
-      int cache_y = height() - cache_status_height_;
-
-      p->fillRect(0, cache_y, cache_screen_length, cache_status_height_, Qt::green);
-
-      foreach (const TimeRange& range, playback_cache_->GetInvalidatedRanges(len)) {
-        int range_left = TimeToScene(range.in());
-        if (range_left >= width()) {
-          continue;
-        }
-
-        int range_right = TimeToScene(range.out());
-        if (range_right < 0) {
-          continue;
-        }
-
-        int adjusted_left = qMax(lim_left, range_left);
-
-        p->fillRect(adjusted_left,
-                    cache_y,
-                    qMin(lim_right, range_right) - adjusted_left,
-                    cache_status_height_,
-                    Qt::red);
-      }
+    if (cache_rect.width() > 0) {
+      playback_cache_->Draw(p, SceneToTime(GetScroll()), GetScale(), cache_rect);
     }
   }
 
@@ -338,7 +314,7 @@ void TimeRuler::UpdateHeight()
 
   // Add cache status height
   if (show_cache_status_) {
-    height += cache_status_height_;
+    height += PlaybackCache::GetCacheIndicatorHeight();
   }
 
   // Add marker height

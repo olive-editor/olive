@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,9 +37,16 @@ namespace olive {
 
 const rational Decoder::kAnyTimecode = RATIONAL_MIN;
 
-Decoder::Decoder()
+Decoder::Decoder() :
+  cached_texture_(nullptr)
 {
   UpdateLastAccessed();
+}
+
+void Decoder::IncrementAccessTime(qint64 t)
+{
+  QMutexLocker locker(&mutex_);
+  last_accessed_ += t;
 }
 
 bool Decoder::Open(const CodecStream &stream)
@@ -86,7 +93,7 @@ bool Decoder::Open(const CodecStream &stream)
   }
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+TexturePtr Decoder::RetrieveVideo(const RetrieveVideoParams &p)
 {
   QMutexLocker locker(&mutex_);
 
@@ -102,14 +109,21 @@ FramePtr Decoder::RetrieveVideo(const rational &timecode, const RetrieveVideoPar
     return nullptr;
   }
 
-  if (cancelled && *cancelled) {
+  if (p.cancelled && p.cancelled->IsCancelled()) {
     return nullptr;
   }
 
-  return RetrieveVideoInternal(timecode, divider, cancelled);
+  if (cached_texture_ && cached_time_ == p.time) {
+    return cached_texture_;
+  }
+
+  cached_texture_ = RetrieveVideoInternal(p);
+  cached_time_ = p.time;
+
+  return cached_texture_;
 }
 
-Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBufferPtr dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode)
+Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, LoopMode loop_mode, RenderMode::Mode mode)
 {
   QMutexLocker locker(&mutex_);
 
@@ -152,6 +166,8 @@ void Decoder::Close()
 
   UpdateLastAccessed();
 
+  cached_texture_ = nullptr;
+
   if (stream_.IsValid()) {
     CloseInternal();
     stream_.Reset();
@@ -160,7 +176,7 @@ void Decoder::Close()
   }
 }
 
-bool Decoder::ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, const QAtomicInt *cancelled)
+bool Decoder::ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, CancelAtom *cancelled)
 {
   return ConformAudioInternal(output_filenames, params, cancelled);
 }
@@ -201,7 +217,12 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
 
 int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
 {
-  return Timecode::time_to_timestamp(time, timebase) + start_time;
+  return Timecode::time_to_timestamp(time, timebase);
+}
+
+rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time)
+{
+  return Timecode::timestamp_to_time(time, timebase);
 }
 
 void Decoder::SignalProcessingProgress(int64_t ts, int64_t duration)
@@ -256,15 +277,13 @@ int64_t Decoder::GetImageSequenceIndex(const QString &filename)
   return number_only.toLongLong();
 }
 
-FramePtr Decoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+TexturePtr Decoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 {
-  Q_UNUSED(timecode)
-  Q_UNUSED(divider)
-  Q_UNUSED(cancelled)
+  Q_UNUSED(p)
   return nullptr;
 }
 
-bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, const QAtomicInt* cancelled)
+bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const AudioParams &params, CancelAtom *cancelled)
 {
   Q_UNUSED(filenames)
   Q_UNUSED(cancelled)
@@ -272,17 +291,20 @@ bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const Audi
   return false;
 }
 
-bool Decoder::RetrieveAudioFromConform(SampleBufferPtr sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, Footage::LoopMode loop_mode, const AudioParams &input_params)
+bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &input_params)
 {
   PlanarFileDevice input;
   if (input.open(conform_filenames, QFile::ReadOnly)) {
+    // Offset range by audio start offset
+    range -= GetAudioStartOffset();
+
     qint64 read_index = input_params.time_to_bytes(range.in()) / input_params.channel_count();
     qint64 write_index = 0;
 
-    const qint64 buffer_length_in_bytes = sample_buffer->sample_count() * input_params.bytes_per_sample_per_channel();
+    const qint64 buffer_length_in_bytes = sample_buffer.sample_count() * input_params.bytes_per_sample_per_channel();
 
     while (write_index < buffer_length_in_bytes) {
-      if (loop_mode == Footage::kLoopModeLoop) {
+      if (loop_mode == kLoopModeLoop) {
         while (read_index >= input.size()) {
           read_index -= input.size();
         }
@@ -297,15 +319,15 @@ bool Decoder::RetrieveAudioFromConform(SampleBufferPtr sample_buffer, const QVec
       if (read_index < 0) {
         // Reading before 0, write silence here until audio data would actually start
         write_count = qMin(-read_index, buffer_length_in_bytes);
-        sample_buffer->silence_bytes(write_index, write_index + write_count);
+        sample_buffer.silence_bytes(write_index, write_index + write_count);
       } else if (read_index >= input.size()) {
         // Reading after data length, write silence until the end of the buffer
         write_count = buffer_length_in_bytes - write_index;
-        sample_buffer->silence_bytes(write_index, write_index + write_count);
+        sample_buffer.silence_bytes(write_index, write_index + write_count);
       } else {
         write_count = qMin(input.size() - read_index, buffer_length_in_bytes - write_index);
         input.seek(read_index);
-        input.read(reinterpret_cast<char**>(sample_buffer->to_raw_ptrs()), write_count, write_index);
+        input.read(reinterpret_cast<char**>(sample_buffer.to_raw_ptrs().data()), write_count, write_index);
       }
 
       read_index += write_count;
@@ -327,7 +349,7 @@ void Decoder::UpdateLastAccessed()
 
 uint qHash(Decoder::CodecStream stream, uint seed)
 {
-  return qHash(stream.filename(), seed) ^ qHash(stream.stream(), seed);
+  return qHash(stream.filename(), seed) ^ qHash(stream.stream(), seed) ^ qHash(stream.block(), seed);
 }
 
 }

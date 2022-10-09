@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -102,8 +102,31 @@ void SequenceDialog::SetNameIsEditable(bool e)
 void SequenceDialog::accept()
 {
   if (name_field_->isEnabled() && name_field_->text().isEmpty()) {
-    QtUtils::MessageBox(this, QMessageBox::Critical, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
+    QtUtils::MsgBox(this, QMessageBox::Critical, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
     return;
+  }
+
+  if (!VideoParams::FormatIsFloat(parameter_tab_->GetSelectedPreviewFormat())
+      && !OLIVE_CONFIG("PreviewNonFloatDontAskAgain").toBool()) {
+    QMessageBox b(this);
+    QCheckBox *dont_show_again_ = new QCheckBox(tr("Don't ask me again"));
+
+    b.setIcon(QMessageBox::Warning);
+    b.setWindowTitle(tr("Low Quality Preview"));
+    b.setText(tr("The preview resolution has been set to a non-float format. This may cause banding and clipping artifacts in the preview.\n\n"
+                 "Do you wish to continue?"));
+    b.setCheckBox(dont_show_again_);
+
+    b.addButton(QMessageBox::Yes);
+    b.addButton(QMessageBox::No);
+
+    if (b.exec() == QMessageBox::No) {
+      return;
+    }
+
+    if (dont_show_again_->isChecked()) {
+      OLIVE_CONFIG("PreviewNonFloatDontAskAgain") = true;
+    }
   }
 
   // Generate video and audio parameter structs from data
@@ -144,7 +167,7 @@ void SequenceDialog::accept()
 
 void SequenceDialog::SetAsDefaultClicked()
 {
-  if (QtUtils::MessageBox(this, QMessageBox::Question, tr("Confirm Set As Default"),
+  if (QtUtils::MsgBox(this, QMessageBox::Question, tr("Confirm Set As Default"),
                           tr("Are you sure you want to set the current parameters as defaults?"),
                           QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     // Maybe replace with Preset system
@@ -155,7 +178,6 @@ void SequenceDialog::SetAsDefaultClicked()
     OLIVE_CONFIG("DefaultSequenceInterlacing") = parameter_tab_->GetSelectedVideoInterlacingMode();
     OLIVE_CONFIG("DefaultSequenceAudioFrequency") = parameter_tab_->GetSelectedAudioSampleRate();
     OLIVE_CONFIG("DefaultSequenceAudioLayout") = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
-    OLIVE_CONFIG("DefaultSequenceAutoCache") = QVariant::fromValue(parameter_tab_->GetSelectedPreviewAutoCache());
   }
 }
 
@@ -171,7 +193,7 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
   old_video_params_(s->GetVideoParams()),
   old_audio_params_(s->GetAudioParams()),
   old_name_(s->GetLabel()),
-  old_autocache_(s->GetVideoAutoCacheEnabled())
+  old_autocache_(s->IsVideoAutoCacheEnabled())
 {
 }
 

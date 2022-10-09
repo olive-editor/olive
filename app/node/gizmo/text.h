@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -42,12 +42,30 @@ public:
 
   void UpdateInputHtml(const QString &s, const rational &time);
 
+  Qt::Alignment GetVerticalAlignment() const
+  {
+    return valign_;
+  }
+
+  void SetVerticalAlignment(Qt::Alignment va)
+  {
+    valign_ = va;
+    emit VerticalAlignmentChanged(valign_);
+  }
+
+signals:
+  void Activated();
+  void Deactivated();
+  void VerticalAlignmentChanged(Qt::Alignment va);
+
 private:
   QRectF rect_;
 
   QString text_;
 
   NodeKeyframeTrackReference input_;
+
+  Qt::Alignment valign_;
 
 };
 

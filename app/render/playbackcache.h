@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,14 +21,18 @@
 #ifndef PLAYBACKCACHE_H
 #define PLAYBACKCACHE_H
 
+#include <QDir>
 #include <QMutex>
 #include <QObject>
+#include <QPainter>
+#include <QUuid>
 
 #include "common/jobtime.h"
 #include "common/timerange.h"
 
 namespace olive {
 
+class Node;
 class Project;
 class ViewerOutput;
 
@@ -36,52 +40,115 @@ class PlaybackCache : public QObject
 {
   Q_OBJECT
 public:
-  PlaybackCache(QObject* parent = nullptr) :
-    QObject(parent)
-  {
-  }
+  PlaybackCache(QObject* parent = nullptr);
 
-  TimeRangeList GetInvalidatedRanges(TimeRange intersecting);
-  TimeRangeList GetInvalidatedRanges(const rational &length)
+  const QUuid &GetUuid() const { return uuid_; }
+  void SetUuid(const QUuid &u);
+
+  TimeRangeList GetInvalidatedRanges(TimeRange intersecting) const;
+  TimeRangeList GetInvalidatedRanges(const rational &length) const
   {
     return GetInvalidatedRanges(TimeRange(0, length));
   }
 
-  bool HasInvalidatedRanges(const TimeRange &intersecting);
-  bool HasInvalidatedRanges(const rational &length)
+  bool HasInvalidatedRanges(const TimeRange &intersecting) const;
+  bool HasInvalidatedRanges(const rational &length) const
   {
     return HasInvalidatedRanges(TimeRange(0, length));
   }
 
   QString GetCacheDirectory() const;
 
-  ViewerOutput *viewer_parent() const;
+  void Invalidate(const TimeRange& r);
 
-  void Invalidate(const TimeRange& r, bool signal = true);
+  bool HasValidatedRanges() const { return !validated_.isEmpty(); }
+  const TimeRangeList &GetValidatedRanges() const { return validated_; }
+
+  Node *parent() const;
+
+  QDir GetThisCacheDirectory() const;
+  static QDir GetThisCacheDirectory(const QString &cache_path, const QUuid &cache_id);
+
+  void LoadState();
+  void SaveState();
+
+  void Draw(QPainter *painter, const rational &start, double scale, const QRect &rect) const;
+
+  static int GetCacheIndicatorHeight()
+  {
+    return QFontMetrics(QFont()).height()/4;
+  }
+
+  bool IsSavingEnabled() const { return saving_enabled_; }
+  void SetSavingEnabled(bool e) { saving_enabled_ = e; }
+
+  virtual void SetPassthrough(PlaybackCache *cache);
+
+  QMutex *mutex() { return &mutex_; }
+
+  class Passthrough : public TimeRange
+  {
+  public:
+    Passthrough(const TimeRange &r) :
+      TimeRange(r)
+    {}
+
+    QUuid cache;
+  };
+
+  const QVector<Passthrough> &GetPassthroughs() const { return passthroughs_; }
+
+  void ClearRequestRange(const olive::TimeRange &r)
+  {
+    requested_.remove(r);
+  }
+
+  void ResignalRequests()
+  {
+    for (const TimeRange &r : requested_) {
+      emit Requested(r);
+    }
+  }
 
 public slots:
   void InvalidateAll();
 
-  void Shift(rational from, rational to);
+  void Request(const olive::TimeRange &r);
 
 signals:
   void Invalidated(const olive::TimeRange& r);
 
   void Validated(const olive::TimeRange& r);
 
-  void Shifted(const olive::rational& from, const olive::rational& to);
+  void Requested(const olive::TimeRange& r);
+
+  void CancelAll();
 
 protected:
   void Validate(const TimeRange& r, bool signal = true);
 
   virtual void InvalidateEvent(const TimeRange& range);
 
-  virtual void ShiftEvent(const rational& from, const rational& to);
+  virtual void LoadStateEvent(QDataStream &stream){}
+
+  virtual void SaveStateEvent(QDataStream &stream){}
 
   Project* GetProject() const;
 
 private:
   TimeRangeList validated_;
+
+  TimeRangeList requested_;
+
+  QUuid uuid_;
+
+  bool saving_enabled_;
+
+  QMutex mutex_;
+
+  QVector<Passthrough> passthroughs_;
+
+  qint64 last_loaded_state_;
 
 };
 

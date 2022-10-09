@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@
 
 #include "config/config.h"
 #include "common/cpuoptimize.h"
-#include "common/functiontimer.h"
 
 namespace olive {
 
@@ -40,50 +39,50 @@ AudioVisualWaveform::AudioVisualWaveform() :
   }
 }
 
-void AudioVisualWaveform::OverwriteSamplesFromBuffer(SampleBufferPtr samples, int sample_rate, const rational &start, double target_rate, Sample& data, int &start_index, int &samples_length)
+void AudioVisualWaveform::OverwriteSamplesFromBuffer(const SampleBuffer &samples, int sample_rate, const rational &start, double target_rate, Sample& data, size_t &start_index, size_t &samples_length)
 {
   start_index = time_to_samples(start, target_rate);
-  samples_length = time_to_samples(static_cast<double>(samples->sample_count()) / static_cast<double>(sample_rate), target_rate);
+  samples_length = time_to_samples(static_cast<double>(samples.sample_count()) / static_cast<double>(sample_rate), target_rate);
 
-  int end_index = start_index + samples_length;
+  size_t end_index = start_index + samples_length;
   if (data.size() < end_index) {
     data.resize(end_index);
   }
 
   double chunk_size = double(sample_rate) / double(target_rate);
 
-  for (int i=0; i<samples_length; i+=channels_) {
-    int src_start = qRound((double(i) * chunk_size)) / channels_;
-    int src_end = qMin(qRound((double(i + channels_) * chunk_size)) / channels_, samples->sample_count());
+  for (size_t i=0; i<samples_length; i+=channels_) {
+    size_t src_start = qRound((double(i) * chunk_size)) / channels_;
+    size_t src_end = qMin(size_t(qRound64((double(i + channels_) * chunk_size))) / channels_, samples.sample_count());
 
     Sample summary = SumSamples(samples,
                                 src_start,
                                 src_end - src_start);
 
     memcpy(&data.data()[i + start_index],
-        summary.constData(),
+        summary.data(),
         summary.size() * sizeof(SamplePerChannel));
   }
 }
 
-void AudioVisualWaveform::OverwriteSamplesFromMipmap(const AudioVisualWaveform::Sample &input, double input_sample_rate, int &input_start, int &input_length, const rational &start, double output_rate, AudioVisualWaveform::Sample &output_data)
+void AudioVisualWaveform::OverwriteSamplesFromMipmap(const AudioVisualWaveform::Sample &input, double input_sample_rate, size_t &input_start, size_t &input_length, const rational &start, double output_rate, AudioVisualWaveform::Sample &output_data)
 {
-  int start_index = time_to_samples(start, output_rate);
-  int samples_length = time_to_samples(static_cast<double>(input_length / channels_) / input_sample_rate, output_rate);
+  size_t start_index = time_to_samples(start, output_rate);
+  size_t samples_length = time_to_samples(static_cast<double>(input_length / channels_) / input_sample_rate, output_rate);
 
-  int end_index = start_index + samples_length;
+  size_t end_index = start_index + samples_length;
   if (output_data.size() < end_index) {
     output_data.resize(end_index);
   }
 
   // We guarantee mipmaps are powers of two so integer division should be perfectly accurate here
-  int chunk_size = input_sample_rate / output_rate;
+  size_t chunk_size = input_sample_rate / output_rate;
 
-  for (int i=0; i<samples_length; i+=channels_) {
-    Sample summary = ReSumSamples(&input.constData()[input_start + (i*chunk_size)], chunk_size * channels_, channels_);
+  for (size_t i=0; i<samples_length; i+=channels_) {
+    Sample summary = ReSumSamples(&input.data()[input_start + (i*chunk_size)], chunk_size * channels_, channels_);
 
     memcpy(&output_data.data()[i + start_index],
-        summary.constData(),
+        summary.data(),
         summary.size() * sizeof(SamplePerChannel));
   }
 
@@ -91,25 +90,28 @@ void AudioVisualWaveform::OverwriteSamplesFromMipmap(const AudioVisualWaveform::
   input_length = samples_length;
 }
 
-void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_rate, const rational &start)
+void AudioVisualWaveform::ValidateVirtualStart(const rational &new_start)
+{
+  if (length_ == 0) {
+    virtual_start_ = new_start;
+  } else if (virtual_start_ > new_start) {
+    TrimIn(new_start - virtual_start_);
+  }
+}
+
+void AudioVisualWaveform::OverwriteSamples(const SampleBuffer &samples, int sample_rate, const rational &start)
 {
   if (!channels_) {
     qWarning() << "Failed to write samples - channel count is zero";
     return;
   }
 
-  // Old less optimized code. Keeping this around as a reference, but the below code is at least
-  // 10x faster so this shouldn't be used in production.
-  //
-  // int input_start, input_length;
-  // for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
-  //   OverwriteSamplesFromBuffer(samples, sample_rate, start, it->first.toDouble(), it->second, input_start, input_length);
-  // }
+  ValidateVirtualStart(start);
 
   // Process the largest mipmap directly for the samples
   auto current_mipmap = mipmapped_data_.rbegin();
-  int input_start, input_length;
-  OverwriteSamplesFromBuffer(samples, sample_rate, start, current_mipmap->first.toDouble(), current_mipmap->second, input_start, input_length);
+  size_t input_start, input_length;
+  OverwriteSamplesFromBuffer(samples, sample_rate, start - virtual_start_, current_mipmap->first.toDouble(), current_mipmap->second, input_start, input_length);
 
   while (true) {
     // For each smaller mipmap, we just process from the mipmap before it, making each one
@@ -121,16 +123,18 @@ void AudioVisualWaveform::OverwriteSamples(SampleBufferPtr samples, int sample_r
     }
 
     OverwriteSamplesFromMipmap(previous_mipmap->second, previous_mipmap->first.toDouble(),
-                               input_start, input_length, start, current_mipmap->first.toDouble(),
+                               input_start, input_length, start - virtual_start_, current_mipmap->first.toDouble(),
                                current_mipmap->second);
   }
 
-  rational sample_length(samples->sample_count(), sample_rate);
+  rational sample_length(samples.sample_count(), sample_rate);
   length_ = qMax(length_, start + sample_length);
 }
 
 void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const rational &dest, const rational& offset, const rational& length)
 {
+  ValidateVirtualStart(dest);
+
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
     rational rate = it->first;
 
@@ -140,28 +144,31 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
     double rate_dbl = rate.toDouble();
 
     // Get our destination sample
-    int our_start_index = time_to_samples(dest, rate_dbl);
+    size_t our_start_index = time_to_samples(dest - virtual_start_, rate_dbl);
 
     // Get our source sample
-    int their_start_index = time_to_samples(offset, rate_dbl);
+    size_t their_start_index = time_to_samples(offset, rate_dbl);
     if (their_start_index >= their_arr.size()) {
       continue;
     }
 
     // Determine how much we're copying
-    int copy_len = their_arr.size() - their_start_index;
+    size_t copy_len = their_arr.size() - their_start_index;
     if (!length.isNull()) {
       copy_len = qMin(copy_len, time_to_samples(length, rate_dbl));
+      if (copy_len == 0) {
+        continue;
+      }
     }
 
     // Determine end index of our array
-    int end_index = our_start_index + copy_len;
+    size_t end_index = our_start_index + copy_len;
     if (our_arr.size() < end_index) {
       our_arr.resize(end_index);
     }
 
     memcpy(reinterpret_cast<char*>(our_arr.data()) + our_start_index * sizeof(SamplePerChannel),
-           reinterpret_cast<const char*>(their_arr.constData()) + their_start_index * sizeof(SamplePerChannel),
+           reinterpret_cast<const char*>(their_arr.data()) + their_start_index * sizeof(SamplePerChannel),
            copy_len * sizeof(SamplePerChannel));
   }
 
@@ -170,6 +177,8 @@ void AudioVisualWaveform::OverwriteSums(const AudioVisualWaveform &sums, const r
 
 void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational &length)
 {
+  ValidateVirtualStart(start);
+
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
     rational rate = it->first;
 
@@ -178,9 +187,9 @@ void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational
     double rate_dbl = rate.toDouble();
 
     // Get our destination sample
-    int our_start_index = time_to_samples(start, rate_dbl);
-    int our_length_index = time_to_samples(length, rate_dbl);
-    int our_end_index = our_start_index + our_length_index;
+    size_t our_start_index = time_to_samples(start - virtual_start_, rate_dbl);
+    size_t our_length_index = time_to_samples(length, rate_dbl);
+    size_t our_end_index = our_start_index + our_length_index;
 
     if (our_arr.size() < our_end_index) {
       our_arr.resize(our_end_index);
@@ -188,55 +197,37 @@ void AudioVisualWaveform::OverwriteSilence(const rational &start, const rational
 
     memset(reinterpret_cast<char*>(our_arr.data()) + our_start_index * sizeof(SamplePerChannel), 0, our_length_index * sizeof(SamplePerChannel));
   }
+
+  length_ = qMax(length_, start + length);
 }
 
-void AudioVisualWaveform::Shift(const rational &from, const rational &to)
+void AudioVisualWaveform::TrimIn(rational length)
 {
-  for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
-    rational rate = it->first;
-    double rate_dbl = rate.toDouble();
-    Sample& data = it->second;
-
-    int from_index = time_to_samples(from, rate_dbl);
-    int to_index = time_to_samples(to, rate_dbl);
-
-    if (from_index == to_index) {
-      continue;
-    }
-
-    if (from_index >= data.size()) {
-      continue;
-    }
-
-    if (from_index > to_index) {
-      // Shifting backwards <-
-      data.remove(to_index, from_index - to_index);
-    } else {
-      // Shifting forwards ->
-      data.insert(from_index, to_index - from_index, {0, 0});
-    }
+  if (length == 0) {
+    return;
   }
 
-  length_ = qMax(rational(0), length_ + (to-from));
-}
+  virtual_start_ += length;
 
-void AudioVisualWaveform::TrimIn(const rational &length)
-{
+  bool negative = (length < 0);
+  if (negative) {
+    length = -length;
+  }
+
   for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
     rational rate = it->first;
     double rate_dbl = rate.toDouble();
     Sample& data = it->second;
 
-    int chop_length = time_to_samples(length, rate_dbl);
-
+    size_t chop_length = time_to_samples(length, rate_dbl);
     if (chop_length == 0) {
       continue;
     }
 
-    if (chop_length > 0) {
-      data = data.mid(chop_length);
+    if (!negative) {
+      data = Sample(data.begin() + chop_length, data.end());
     } else {
-      data.insert(0, -chop_length, SamplePerChannel());
+      data.insert(data.begin(), chop_length, SamplePerChannel());
     }
   }
 
@@ -245,11 +236,45 @@ void AudioVisualWaveform::TrimIn(const rational &length)
 
 AudioVisualWaveform AudioVisualWaveform::Mid(const rational &offset) const
 {
-  AudioVisualWaveform mid  = *this;
+  AudioVisualWaveform mid = *this;
 
-  mid.TrimIn(offset);
+  mid.TrimIn(offset - virtual_start_);
 
   return mid;
+}
+
+AudioVisualWaveform AudioVisualWaveform::Mid(const rational &offset, const rational &length) const
+{
+  AudioVisualWaveform mid  = *this;
+
+  mid.TrimRange(offset - virtual_start_, length);
+
+  return mid;
+}
+
+void AudioVisualWaveform::Resize(const rational &length)
+{
+  if (length_ == length) {
+    return;
+  }
+
+  for (auto it=mipmapped_data_.begin(); it!=mipmapped_data_.end(); it++) {
+    rational rate = it->first;
+    double rate_dbl = rate.toDouble();
+    Sample& data = it->second;
+
+    size_t chop_length = time_to_samples(length, rate_dbl);
+
+    data.resize(chop_length);
+  }
+
+  length_ = length;
+}
+
+void AudioVisualWaveform::TrimRange(const rational &in, const rational &length)
+{
+  TrimIn(in);
+  Resize(length);
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const rational &start, const rational &length) const
@@ -259,10 +284,10 @@ AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const ration
 
   double rate_dbl = using_mipmap->first.toDouble();
 
-  int start_sample = time_to_samples(start, rate_dbl);
-  int sample_length = time_to_samples(length, rate_dbl);
+  size_t start_sample = time_to_samples(start - virtual_start_, rate_dbl);
+  size_t sample_length = time_to_samples(length, rate_dbl);
 
-  const QVector<AudioVisualWaveform::SamplePerChannel> &mipmap_data = using_mipmap->second;
+  const Sample &mipmap_data = using_mipmap->second;
 
   // Determine if the array actually has this sample
   sample_length = qMin(sample_length, mipmap_data.size() - start_sample);
@@ -270,26 +295,26 @@ AudioVisualWaveform::Sample AudioVisualWaveform::GetSummaryFromTime(const ration
   // Based on the above `min`, if sample length <= 0, that means start_sample >= the size of the
   // array and nothing can be returned.
   if (sample_length > 0) {
-    return ReSumSamples(&mipmap_data.constData()[start_sample], sample_length, channels_);
+    return ReSumSamples(&mipmap_data.data()[start_sample], sample_length, channels_);
   }
 
   // Return null samples
   return AudioVisualWaveform::Sample(channel_count(), {0, 0});
 }
 
-void ExpandMinMaxChannel(float *a, int start, int length, float &min_val, float &max_val)
+void ExpandMinMaxChannel(const float *a, size_t length, float &min_val, float &max_val)
 {
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
   // SSE optimized
 
   // load the first 4 elements of 'a' into min and max (they are 4 * 32 = 128 bits)
-  __m128 max = _mm_loadu_ps(a + start);
-  __m128 min = _mm_loadu_ps(a + start);
+  __m128 max = _mm_loadu_ps(a);
+  __m128 min = _mm_loadu_ps(a);
 
   // loop over 'a' and compare current elements with min and max 4 by 4.
-  // we need to make sure we don't read out of boundaries should 'a' lenght be not mod. 4
-  for(int i = 4; i < length-4; i+=4) {
-    __m128 cur = _mm_loadu_ps(a + start + i);
+  // we need to make sure we don't read out of boundaries should 'a' length be not mod. 4
+  for(size_t i = 4; i < length-4; i+=4) {
+    __m128 cur = _mm_loadu_ps(a + i);
     max = _mm_max_ps(max, cur);
     min = _mm_min_ps(min, cur);
   }
@@ -301,7 +326,7 @@ void ExpandMinMaxChannel(float *a, int start, int length, float &min_val, float 
 
   // min and max will contain 4 min and max. To get the absolute min and max
   // we need to compare the 4 values over themselves by shuffling each time.
-  for (int i = 0; i < 3; i++) {
+  for (size_t i = 0; i < 3; i++) {
     max = _mm_max_ps(max, _mm_shuffle_ps(max, max, 0x93));
     min = _mm_min_ps(min, _mm_shuffle_ps(min, min, 0x93));
   }
@@ -313,25 +338,24 @@ void ExpandMinMaxChannel(float *a, int start, int length, float &min_val, float 
   // I bet you don't find annotated low level code very often.
 #else
   // Standard unoptimized function
-  int end = start + length;
-  for (int i=start; i<end; i++) {
+  for (size_t i=0; i<length; i++) {
     min_val = std::min(min_val, a[i]);
     max_val = std::max(max_val, a[i]);
   }
 #endif
 }
 
-AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(SampleBufferPtr samples, int start_index, int length)
+AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(const SampleBuffer &samples, size_t start_index, size_t length)
 {
-  int channels = samples->audio_params().channel_count();
+  int channels = samples.audio_params().channel_count();
   AudioVisualWaveform::Sample summed_samples(channels);
 
-  for (int channel=0; channel<samples->audio_params().channel_count(); channel++) {
-    ExpandMinMaxChannel(samples->data(channel), start_index, length, summed_samples[channel].min, summed_samples[channel].max);
+  for (int channel=0; channel<samples.audio_params().channel_count(); channel++) {
+    ExpandMinMaxChannel(samples.data(channel) + start_index, length, summed_samples[channel].min, summed_samples[channel].max);
   }
 
   // for reference: this approximation is n x faster (and less accurate) for a n-tracks clip
-  // for (int i=start_index; i<end_index; i++) {
+  // for (size_t i=start_index; i<end_index; i++) {
   //   ExpandMinMax(summed_samples[i%channels], samples->data(i%channels)[i]);
   // }
 
@@ -339,12 +363,12 @@ AudioVisualWaveform::Sample AudioVisualWaveform::SumSamples(SampleBufferPtr samp
 }
 
 AudioVisualWaveform::Sample AudioVisualWaveform::ReSumSamples(const SamplePerChannel* samples,
-                                                                                 int nb_samples,
+                                                                                 size_t nb_samples,
                                                                                  int nb_channels)
 {
   AudioVisualWaveform::Sample summed_samples(nb_channels);
 
-  for (int i=0;i<nb_samples;i+=nb_channels) {
+  for (size_t i=0;i<nb_samples;i+=nb_channels) {
     for (int j=0;j<nb_channels;j++) {
       const AudioVisualWaveform::SamplePerChannel& sample = samples[i + j];
 
@@ -363,14 +387,14 @@ AudioVisualWaveform::Sample AudioVisualWaveform::ReSumSamples(const SamplePerCha
 
 void AudioVisualWaveform::DrawSample(QPainter *painter, const Sample& sample, int x, int y, int height, bool rectified)
 {
-  if (sample.isEmpty()) {
+  if (sample.empty()) {
     return;
   }
 
   int channel_height = height / sample.size();
   int channel_half_height = channel_height / 2;
 
-  for (int i=0;i<sample.size();i++) {
+  for (size_t i=0;i<sample.size();i++) {
     float max = qMin(sample.at(i).max, 1.0f);
     float min = qMax(sample.at(i).min, -1.0f);
 
@@ -408,27 +432,27 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
   double rate_dbl = rate.toDouble();
   const Sample& arr = using_mipmap->second;
 
-  int start_sample_index = samples.time_to_samples(start_time, rate_dbl);
+  size_t start_sample_index = samples.time_to_samples(start_time - samples.virtual_start_, rate_dbl);
 
   if (start_sample_index >= arr.size()) {
     return;
   }
 
-  int next_sample_index = start_sample_index;
-  int sample_index;
+  size_t next_sample_index = start_sample_index;
+  size_t sample_index;
 
   Sample summary;
-  int summary_index = -1;
+  size_t summary_index = -1;
 
   const QRect& viewport = painter->viewport();
   QPoint top_left = painter->transform().map(viewport.topLeft());
 
-  int start = qMax(rect.x(), -top_left.x());
-  int end = qMin(rect.right(), -top_left.x() + viewport.width());
+  size_t start = qMax(rect.x(), -top_left.x());
+  size_t end = qMin(rect.right(), -top_left.x() + viewport.width());
 
   bool rectified = OLIVE_CONFIG("RectifiedWaveforms").toBool();
 
-  for (int i=start;i<end;i++) {
+  for (size_t i=start;i<end;i++) {
     sample_index = next_sample_index;
 
     if (sample_index == arr.size()) {
@@ -440,7 +464,7 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
 
     if (summary_index != sample_index) {
       summary = AudioVisualWaveform::ReSumSamples(&arr.at(sample_index),
-                                                  qMax(samples.channel_count(), next_sample_index - sample_index),
+                                                  qMax(size_t(samples.channel_count()), next_sample_index - sample_index),
                                                   samples.channel_count());
       summary_index = sample_index;
     }
@@ -449,12 +473,12 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
   }
 }
 
-int AudioVisualWaveform::time_to_samples(const rational &time, double sample_rate) const
+size_t AudioVisualWaveform::time_to_samples(const rational &time, double sample_rate) const
 {
   return time_to_samples(time.toDouble(), sample_rate);
 }
 
-int AudioVisualWaveform::time_to_samples(const double &time, double sample_rate) const
+size_t AudioVisualWaveform::time_to_samples(const double &time, double sample_rate) const
 {
   return qFloor(time * sample_rate) * channels_;
 }

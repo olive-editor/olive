@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -51,7 +51,9 @@ private:
   ColorProcessorPtr processor_;
 
 private slots:
-  void ParentChanged(olive::NodeGraph *graph);
+  void AddedToGraph(NodeGraph *graph);
+
+  void RemovedFromGraph();
 
 };
 

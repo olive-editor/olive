@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ namespace olive {
 TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(Track* track, const TimeRange& range) :
   track_(track),
   range_(range),
+  allow_splitting_gaps_(false),
   splice_split_command_(nullptr)
 {
   trim_out_.block = nullptr;
@@ -63,8 +64,15 @@ void TrackRippleRemoveAreaCommand::prepare()
 
   // If it's getting trimmed, determine if it's actually getting spliced
   if (first_block_is_out_trimmed && first_block_is_in_trimmed) {
-    // This block is getting spliced, so we'll handle that later
-    splice_split_command_ = new BlockSplitCommand(first_block, range_.in());
+    if (!allow_splitting_gaps_ && dynamic_cast<GapBlock*>(first_block)) {
+      // As a rule, we don't split gaps, so we just treat it as a trim of the range requested
+      trim_out_ = {first_block,
+                   first_block->length(),
+                   first_block->length() - range_.length()};
+    } else {
+      // This block is getting spliced, so we'll handle that later
+      splice_split_command_ = new BlockSplitCommand(first_block, range_.in());
+    }
   } else {
     // It's just getting trimmed or removed, so we'll append that operation
     if (first_block_is_out_trimmed) {
@@ -106,8 +114,6 @@ void TrackRippleRemoveAreaCommand::prepare()
 
 void TrackRippleRemoveAreaCommand::redo()
 {
-  track_->BeginOperation();
-
   if (splice_split_command_) {
     // We're just splicing
     splice_split_command_->redo_now();
@@ -145,17 +151,10 @@ void TrackRippleRemoveAreaCommand::redo()
       }
     }
   }
-
-  track_->EndOperation();
-
-  track_->Node::InvalidateCache(TimeRange(range_.in(), RATIONAL_MAX), Track::kBlockInput);
 }
 
 void TrackRippleRemoveAreaCommand::undo()
 {
-  // Begin operations
-  track_->BeginOperation();
-
   if (splice_split_command_) {
     splice_split_command_->undo_now();
   } else {
@@ -176,84 +175,35 @@ void TrackRippleRemoveAreaCommand::undo()
       track_->InsertBlockAfter(op.block, op.before);
     }
   }
-
-  // End operations and invalidate
-  track_->EndOperation();
-
-  track_->Node::InvalidateCache(TimeRange(range_.in(), RATIONAL_MAX), Track::kBlockInput);
 }
 
 //
 // TrackListRippleRemoveAreaCommand
 //
+void TrackListRippleRemoveAreaCommand::prepare()
+{
+  foreach (Track* track, list_->GetTracks()) {
+    if (track->IsLocked()) {
+      continue;
+    }
+
+    TrackRippleRemoveAreaCommand* c = new TrackRippleRemoveAreaCommand(track, range_);
+    commands_.append(c);
+    working_tracks_.append(track);
+  }
+}
+
 void TrackListRippleRemoveAreaCommand::redo()
 {
-  // Code that's only run on the first redo
-  if (commands_.isEmpty()) {
-    all_tracks_unlocked_ = true;
-
-    foreach (Track* track, list_->GetTracks()) {
-      if (track->IsLocked()) {
-        all_tracks_unlocked_ = false;
-        continue;
-      }
-
-      TrackRippleRemoveAreaCommand* c = new TrackRippleRemoveAreaCommand(track, range_);
-      commands_.append(c);
-      working_tracks_.append(track);
-    }
-  }
-
-  if (all_tracks_unlocked_) {
-    // We can optimize here by simply shifting the whole cache forward instead of re-caching
-    // everything following this time
-    if (list_->type() == Track::kVideo) {
-      list_->parent()->ShiftVideoCache(range_.out(), range_.in());
-    } else if (list_->type() == Track::kAudio) {
-      list_->parent()->ShiftAudioCache(range_.out(), range_.in());
-    }
-
-    foreach (Track* track, working_tracks_) {
-      track->BeginOperation();
-    }
-  }
-
   foreach (TrackRippleRemoveAreaCommand* c, commands_) {
     c->redo_now();
-  }
-
-  if (all_tracks_unlocked_) {
-    foreach (Track* track, working_tracks_) {
-      track->EndOperation();
-    }
   }
 }
 
 void TrackListRippleRemoveAreaCommand::undo()
 {
-  if (all_tracks_unlocked_) {
-    // We can optimize here by simply shifting the whole cache forward instead of re-caching
-    // everything following this time
-    if (list_->type() == Track::kVideo) {
-      list_->parent()->ShiftVideoCache(range_.in(), range_.out());
-    } else if (list_->type() == Track::kAudio) {
-      list_->parent()->ShiftAudioCache(range_.in(), range_.out());
-    }
-
-    foreach (Track* track, working_tracks_) {
-      track->BeginOperation();
-    }
-  }
-
   foreach (TrackRippleRemoveAreaCommand* c, commands_) {
     c->undo_now();
-  }
-
-  if (all_tracks_unlocked_) {
-    foreach (Track* track, working_tracks_) {
-      track->EndOperation();
-      track->Node::InvalidateCache(range_, Track::kBlockInput);
-    }
   }
 }
 
@@ -282,7 +232,6 @@ TrackListRippleToolCommand::TrackListRippleToolCommand(TrackList* track_list,
   ripple_movement_(ripple_movement),
   movement_mode_(movement_mode)
 {
-  all_tracks_unlocked_ = (info_.size() == track_list_->GetTrackCount());
 }
 
 void TrackListRippleToolCommand::ripple(bool redo)
@@ -323,9 +272,6 @@ void TrackListRippleToolCommand::ripple(bool redo)
 
     rational pre_shift;
     rational post_shift;
-
-    // Begin operation so we can invalidate better later
-    track->BeginOperation();
 
     if (info.append_gap) {
 
@@ -429,29 +375,6 @@ void TrackListRippleToolCommand::ripple(bool redo)
     pre_latest_out = qMax(pre_latest_out, pre_shift);
     post_latest_out = qMax(post_latest_out, post_shift);
   }
-
-  if (all_tracks_unlocked_) {
-    // We rippled all the tracks, so we can shift the whole cache
-    if (track_list_->type() == Track::kVideo) {
-      track_list_->parent()->ShiftVideoCache(pre_latest_out, post_latest_out);
-    } else if (track_list_->type() == Track::kAudio) {
-      track_list_->parent()->ShiftAudioCache(pre_latest_out, post_latest_out);
-    }
-  }
-
-  for (auto it=working_data_.cbegin(); it!=working_data_.cend(); it++) {
-    Track* track = it.key();
-
-    track->EndOperation();
-
-    if (!all_tracks_unlocked_) {
-      // If we're not shifting, the whole track must get invalidated
-      track->Node::InvalidateCache(TimeRange(it.value().earliest_point_of_change, RATIONAL_MAX), Track::kBlockInput);
-    } else if (pre_latest_out < post_latest_out) {
-      // If we're here, then a new section has been rippled in that needs to be rendered
-      track->Node::InvalidateCache(TimeRange(pre_latest_out, post_latest_out), Track::kBlockInput);
-    }
-  }
 }
 
 //
@@ -513,11 +436,8 @@ void TimelineRippleDeleteGapsAtRegionsCommand::prepare()
     // Determine which gaps will be involved in this operation
     QVector<GapBlock*> gaps;
 
-    bool all_tracks_unlocked = true;
-
     foreach (Track* track, timeline_->GetTracks()) {
       if (track->IsLocked()) {
-        all_tracks_unlocked = false;
         continue;
       }
 
@@ -573,24 +493,12 @@ void TimelineRippleDeleteGapsAtRegionsCommand::prepare()
 
     if (ripple_length > 0) {
       foreach (GapBlock *gap, gaps) {
-        if (all_tracks_unlocked) {
-          commands_.append(new NodeBeginOperationCommand(gap->track()));
-        }
-
         if (gap_lengths.value(gap) == ripple_length) {
           commands_.append(new TrackRippleRemoveBlockCommand(gap->track(), gap));
         } else {
           gap_lengths[gap] -= ripple_length;
           commands_.append(new BlockResizeCommand(gap, gap_lengths.value(gap)));
         }
-
-        if (all_tracks_unlocked) {
-          commands_.append(new NodeEndOperationCommand(gap->track()));
-        }
-      }
-
-      if (all_tracks_unlocked) {
-        commands_.append(new TimelineShiftCacheCommand(timeline_, latest_point, latest_point - ripple_length));
       }
     }
   }
@@ -608,16 +516,6 @@ void TimelineRippleDeleteGapsAtRegionsCommand::undo()
   for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
     (*it)->undo_now();
   }
-}
-
-void TimelineShiftCacheCommand::redo()
-{
-  timeline_->ShiftCache(from_, to_);
-}
-
-void TimelineShiftCacheCommand::undo()
-{
-  timeline_->ShiftCache(to_, from_);
 }
 
 }

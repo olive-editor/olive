@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -67,6 +67,11 @@ public:
     return nullptr;
   }
 
+  void SetAllowSplittingGaps(bool e)
+  {
+    allow_splitting_gaps_ = e;
+  }
+
 protected:
   virtual void prepare() override;
 
@@ -93,6 +98,7 @@ private:
   QVector<RemoveOperation> removals_;
   TrimOperation trim_in_;
   Block* insert_previous_;
+  bool allow_splitting_gaps_;
 
   BlockSplitCommand* splice_split_command_;
   QVector<UndoCommand*> remove_block_commands_;
@@ -119,6 +125,8 @@ public:
   }
 
 protected:
+  virtual void prepare() override;
+
   virtual void redo() override;
 
   virtual void undo() override;
@@ -129,8 +137,6 @@ private:
   QList<Track*> working_tracks_;
 
   TimeRange range_;
-
-  bool all_tracks_unlocked_;
 
   QVector<TrackRippleRemoveAreaCommand*> commands_;
 
@@ -200,14 +206,14 @@ private:
 
   QObject memory_manager_;
 
-  bool all_tracks_unlocked_;
-
 };
 
 class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand
 {
 public:
-  TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const QVector<QPair<Track*, TimeRange> >& regions) :
+  using RangeList = QVector<QPair<Track*, TimeRange> >;
+
+  TimelineRippleDeleteGapsAtRegionsCommand(Sequence* vo, const RangeList& regions) :
     timeline_(vo),
     regions_(regions)
   {
@@ -237,7 +243,7 @@ protected:
 
 private:
   Sequence* timeline_;
-  QVector<QPair<Track*, TimeRange> > regions_;
+  RangeList regions_;
 
   QVector<UndoCommand*> commands_;
 
@@ -245,34 +251,6 @@ private:
     GapBlock *gap;
     TimeRange range;
   };
-
-};
-
-class TimelineShiftCacheCommand : public UndoCommand
-{
-public:
-  TimelineShiftCacheCommand(Sequence* timeline, const rational &from, const rational &to) :
-    timeline_(timeline),
-    from_(from),
-    to_(to)
-  {}
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return timeline_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Sequence* timeline_;
-
-  rational from_;
-
-  rational to_;
 
 };
 

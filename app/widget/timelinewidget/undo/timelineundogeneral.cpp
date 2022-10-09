@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,9 +22,11 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
+#include "node/factory.h"
 #include "node/math/math/math.h"
 #include "node/math/merge/merge.h"
 #include "timelineundocommon.h"
+#include "widget/timelinewidget/undo/timelineundotrack.h"
 
 namespace olive {
 
@@ -208,8 +210,6 @@ void TransitionRemoveCommand::redo()
 
   Q_ASSERT(out_block_ || in_block_);
 
-  track_->BeginOperation();
-
   TimeRange invalidate_range(block_->in(), block_->out());
 
   if (in_block_) {
@@ -230,10 +230,6 @@ void TransitionRemoveCommand::redo()
 
   track_->RippleRemoveBlock(block_);
 
-  track_->EndOperation();
-
-  track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
-
   if (remove_from_graph_) {
     if (!remove_command_) {
       remove_command_ = CreateRemoveCommand(block_);
@@ -248,8 +244,6 @@ void TransitionRemoveCommand::undo()
   if (remove_from_graph_) {
     remove_command_->undo_now();
   }
-
-  track_->BeginOperation();
 
   if (in_block_) {
     track_->InsertBlockBefore(block_, in_block_);
@@ -275,10 +269,6 @@ void TransitionRemoveCommand::undo()
   if (out_block_) {
     out_block_->set_length_and_media_out(out_block_->length() - block_->out_offset());
   }
-
-  track_->EndOperation();
-
-  track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
 }
 
 //
@@ -287,11 +277,8 @@ void TransitionRemoveCommand::undo()
 void TrackListInsertGaps::prepare()
 {
   // Determine if all tracks will be affected, which will allow us to make some optimizations
-  all_tracks_unlocked_ = true;
-
   foreach (Track* track, track_list_->GetTracks()) {
     if (track->IsLocked()) {
-      all_tracks_unlocked_ = false;
       continue;
     }
 
@@ -302,8 +289,8 @@ void TrackListInsertGaps::prepare()
   QVector<Block*> blocks_to_append_gap_to;
   QVector<Track*> tracks_to_append_gap_to;
 
-  foreach (Track* track, working_tracks_) {
-    foreach (Block* b, track->Blocks()) {
+  for (Track* track : qAsConst(working_tracks_)) {
+    for (Block* b : track->Blocks()) {
       if (dynamic_cast<GapBlock*>(b) && b->in() <= point_ && b->out() >= point_) {
         // Found a gap at the location
         gaps_to_extend_.append(b);
@@ -346,19 +333,6 @@ void TrackListInsertGaps::prepare()
 
 void TrackListInsertGaps::redo()
 {
-  if (all_tracks_unlocked_) {
-    // Optimize by shifting over since we have a constant amount of time being inserted
-    if (track_list_->type() == Track::kVideo) {
-      track_list_->parent()->ShiftVideoCache(point_, point_ + length_);
-    } else if (track_list_->type() == Track::kAudio) {
-      track_list_->parent()->ShiftAudioCache(point_, point_ + length_);
-    }
-  }
-
-  foreach (Track* track, working_tracks_) {
-    track->BeginOperation();
-  }
-
   foreach (Block* gap, gaps_to_extend_) {
     gap->set_length_and_media_out(gap->length() + length_);
   }
@@ -371,33 +345,10 @@ void TrackListInsertGaps::redo()
     add_gap.gap->setParent(add_gap.track->parent());
     add_gap.track->InsertBlockAfter(add_gap.gap, add_gap.before);
   }
-
-  foreach (Track* track, working_tracks_) {
-    track->EndOperation();
-  }
-
-  if (!all_tracks_unlocked_) {
-    foreach (Track* track, working_tracks_) {
-      track->Node::InvalidateCache(TimeRange(point_, RATIONAL_MAX), Track::kBlockInput);
-    }
-  }
 }
 
 void TrackListInsertGaps::undo()
 {
-  if (all_tracks_unlocked_) {
-    // Optimize by shifting over since we have a constant amount of time being inserted
-    if (track_list_->type() == Track::kVideo) {
-      track_list_->parent()->ShiftVideoCache(point_ + length_, point_);
-    } else if (track_list_->type() == Track::kAudio) {
-      track_list_->parent()->ShiftAudioCache(point_ + length_, point_);
-    }
-  }
-
-  foreach (Track* track, working_tracks_) {
-    track->BeginOperation();
-  }
-
   // Remove added gaps
   foreach (auto add_gap, gaps_added_) {
     add_gap.gap->track()->RippleRemoveBlock(add_gap.gap);
@@ -412,16 +363,6 @@ void TrackListInsertGaps::undo()
   // Restore original length of gaps
   foreach (Block* gap, gaps_to_extend_) {
     gap->set_length_and_media_out(gap->length() - length_);
-  }
-
-  foreach (Track* track, working_tracks_) {
-    track->EndOperation();
-  }
-
-  if (!all_tracks_unlocked_) {
-    foreach (Track* track, working_tracks_) {
-      track->Node::InvalidateCache(TimeRange(point_, RATIONAL_MAX), Track::kBlockInput);
-    }
   }
 }
 
@@ -440,8 +381,6 @@ void TrackReplaceBlockWithGapCommand::redo()
   }
 
   if (block_->next()) {
-    track_->BeginOperation();
-
     // Invalidate the range inhabited by this block
     TimeRange invalidate_range(block_->in(), block_->out());
 
@@ -488,12 +427,6 @@ void TrackReplaceBlockWithGapCommand::redo()
       track_->ReplaceBlock(block_, our_gap_);
     }
 
-    track_->EndOperation();
-
-    if (handle_invalidations_) {
-      track_->Node::InvalidateCache(invalidate_range, Track::kBlockInput);
-    }
-
   } else {
     // Block is at the end of the track, simply remove it
     Block* preceding = block_->previous();
@@ -512,8 +445,6 @@ void TrackReplaceBlockWithGapCommand::redo()
 void TrackReplaceBlockWithGapCommand::undo()
 {
   if (our_gap_ || existing_gap_) {
-    track_->BeginOperation();
-
     if (our_gap_) {
 
       // We made this gap, simply swap our gap back
@@ -547,11 +478,6 @@ void TrackReplaceBlockWithGapCommand::undo()
 
     }
 
-    track_->EndOperation();
-
-    if (handle_invalidations_) {
-      track_->Node::InvalidateCache(TimeRange(block_->in(), block_->out()), Track::kBlockInput);
-    }
   } else {
 
     // Our gap and existing gap were both null, our block must have been at the end and thus
@@ -616,6 +542,123 @@ void TimelineRemoveTrackCommand::undo()
   list_->parent()->InputArrayInsert(list_->track_input(), index_);
 
   remove_command_->undo_now();
+}
+
+void TimelineAddDefaultTransitionCommand::prepare()
+{
+  for (auto it=clips_.cbegin(); it!=clips_.cend(); it++) {
+    ClipBlock *c = *it;
+
+    // Handle in transition
+    if (clips_.contains(static_cast<ClipBlock*>(c->previous()))) {
+      // Do nothing, assume this will be handled by a dual transition from that clip
+    } else if (dynamic_cast<GapBlock*>(c->previous()) || !c->previous()) {
+      // Create in transition
+      AddTransition(c, kIn);
+    }
+
+    // Handle out transition
+    if (clips_.contains(static_cast<ClipBlock*>(c->next()))) {
+      AddTransition(c, kOutDual);
+    } else if (dynamic_cast<GapBlock*>(c->next()) || !c->next()) {
+      // Create out transition
+      AddTransition(c, kOut);
+    }
+  }
+}
+
+void TimelineAddDefaultTransitionCommand::AddTransition(ClipBlock *c, CreateTransitionMode mode)
+{
+  if (Track *t = c->track()) {
+    Node *p = nullptr;
+    if (t->type() == Track::kVideo) {
+      p = NodeFactory::CreateFromID(OLIVE_CONFIG("DefaultVideoTransition").toString());
+    } else if (t->type() == Track::kAudio) {
+      p = NodeFactory::CreateFromID(OLIVE_CONFIG("DefaultAudioTransition").toString());
+    }
+
+    rational transition_length = OLIVE_CONFIG("DefaultTransitionLength").value<rational>();
+
+    // Resize original clip
+    switch (mode) {
+    case kIn:
+      ValidateTransitionLength(c, transition_length);
+
+      if (transition_length > 0) {
+        AdjustClipLength(c, transition_length, false);
+      }
+      break;
+    case kOut:
+      ValidateTransitionLength(c, transition_length);
+
+      if (transition_length > 0) {
+        AdjustClipLength(c, transition_length, true);
+      }
+      break;
+    case kOutDual:
+    {
+      rational half_length = transition_length / 2;
+
+      ValidateTransitionLength(static_cast<ClipBlock*>(c->next()), half_length);
+      ValidateTransitionLength(c, half_length);
+
+      transition_length = half_length * 2;
+
+      if (transition_length > 0) {
+        AdjustClipLength(static_cast<ClipBlock*>(c->next()), half_length, false);
+        AdjustClipLength(c, half_length, true);
+      }
+      break;
+    }
+    }
+
+    if (transition_length > 0) {
+      if (TransitionBlock *transition = dynamic_cast<TransitionBlock*>(p)) {
+        transition->set_length_and_media_out(transition_length);
+
+        // Add transition
+        commands_.append(new NodeAddCommand(c->parent(), transition));
+
+        // Insert block
+        Block *insert_after = (mode == kIn) ? c->previous() : c;
+        commands_.append(new TrackInsertBlockAfterCommand(c->track(), transition, insert_after));
+
+        // Connect
+        switch (mode) {
+        case kIn:
+          commands_.append(new NodeEdgeAddCommand(c, NodeInput(transition, TransitionBlock::kInBlockInput)));
+          break;
+        case kOutDual:
+          commands_.append(new NodeEdgeAddCommand(c->next(), NodeInput(transition, TransitionBlock::kInBlockInput)));
+          /* fall through */
+        case kOut:
+          commands_.append(new NodeEdgeAddCommand(c, NodeInput(transition, TransitionBlock::kOutBlockInput)));
+          break;
+        }
+      }
+    }
+  }
+}
+
+void TimelineAddDefaultTransitionCommand::AdjustClipLength(ClipBlock *c, const rational &transition_length, bool out)
+{
+  rational cur_len = lengths_.value(c, c->length());
+  rational new_len = cur_len - transition_length;
+  if (out) {
+    commands_.append(new BlockResizeCommand(c, new_len));
+  } else {
+    commands_.append(new BlockResizeWithMediaInCommand(c, new_len));
+  }
+  lengths_.insert(c, new_len);
+}
+
+void TimelineAddDefaultTransitionCommand::ValidateTransitionLength(ClipBlock *c, rational &transition_length)
+{
+  rational cur_len = lengths_.value(c, c->length());
+  rational half_cur_len = cur_len/2;
+  if (transition_length >= half_cur_len) {
+    transition_length = half_cur_len - timebase_;
+  }
 }
 
 }

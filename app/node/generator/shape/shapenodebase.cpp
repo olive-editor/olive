@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #include "common/util.h"
 #include "core.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 
 namespace olive {
 
@@ -76,11 +77,11 @@ void ShapeNodeBase::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlob
 {
   // Use offsets to make the appearance of values that start in the top left, even though we
   // really anchor around the center
-  QVector2D center_pt = globals.resolution() * 0.5;
+  QVector2D center_pt = globals.square_resolution() * 0.5;
   SetInputProperty(kPositionInput, QStringLiteral("offset"), center_pt);
 
-  QVector2D pos = row[kPositionInput].data().value<QVector2D>();
-  QVector2D sz = row[kSizeInput].data().value<QVector2D>();
+  QVector2D pos = row[kPositionInput].toVec2();
+  QVector2D sz = row[kSizeInput].toVec2();
   QVector2D half_sz = sz * 0.5;
 
   double left_pt = pos.x() + center_pt.x() - half_sz.x();
@@ -102,6 +103,21 @@ void ShapeNodeBase::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlob
   poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
 }
 
+void ShapeNodeBase::SetRect(QRectF rect, const VideoParams &sequence_res, MultiUndoCommand *command)
+{
+  // Normalize around center of sequence
+  rect.translate(-sequence_res.width()*0.5, -sequence_res.height()*0.5);
+  rect.translate(rect.width()*0.5, rect.height()*0.5);
+
+  NodeInput pos(this, ShapeNodeBase::kPositionInput);
+  NodeInput sz(this, ShapeNodeBase::kSizeInput);
+
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 0), rect.width()));
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(sz, 1), rect.height()));
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 0), rect.x()));
+  command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(pos, 1), rect.y()));
+}
+
 void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)
 {
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
@@ -121,7 +137,7 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
 
     QVector2D gizmo_sz_start(w_drag.GetStartValue().toDouble(), h_drag.GetStartValue().toDouble());
     QVector2D gizmo_pos_start(x_drag.GetStartValue().toDouble(), y_drag.GetStartValue().toDouble());
-    QVector2D gizmo_half_res = gizmo->GetGlobals().resolution()/2;
+    QVector2D gizmo_half_res = gizmo->GetGlobals().square_resolution()/2;
     QVector2D adjusted_pt(x, y);
     QVector2D new_size;
     QVector2D new_pos;

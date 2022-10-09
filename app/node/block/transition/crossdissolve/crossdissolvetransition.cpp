@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -53,34 +53,27 @@ ShaderCode CrossDissolveTransition::GetShaderCode(const ShaderRequest &request) 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
 }
 
-void CrossDissolveTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
+void CrossDissolveTransition::SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const
 {
-  Q_UNUSED(value)
-
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-}
-
-void CrossDissolveTransition::SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const
-{
-  for (int i=0; i<out_samples->sample_count(); i++) {
-    double this_sample_time = out_samples->audio_params().samples_to_time(i).toDouble() + time_in;
+  for (size_t i=0; i<out_samples.sample_count(); i++) {
+    double this_sample_time = out_samples.audio_params().samples_to_time(i).toDouble() + time_in;
     double progress = GetTotalProgress(this_sample_time);
 
-    for (int j=0; j<out_samples->audio_params().channel_count(); j++) {
-      out_samples->data(j)[i] = 0;
+    for (int j=0; j<out_samples.audio_params().channel_count(); j++) {
+      out_samples.data(j)[i] = 0;
 
-      if (from_samples) {
-        if (i < from_samples->sample_count()) {
-          out_samples->data(j)[i] += from_samples->data(j)[i] * TransformCurve(1.0 - progress);
+      if (from_samples.is_allocated()) {
+        if (i < from_samples.sample_count()) {
+          out_samples.data(j)[i] += from_samples.data(j)[i] * TransformCurve(1.0 - progress);
         }
       }
 
-      if (to_samples) {
+      if (to_samples.is_allocated()) {
         // Offset input samples from the end
-        int in_index = i - (out_samples->sample_count() - to_samples->sample_count());
-
-        if (in_index >= 0) {
-          out_samples->data(j)[i] += to_samples->data(j)[in_index] * TransformCurve(progress);
+        size_t remain = (out_samples.sample_count() - to_samples.sample_count());
+        if (i >= remain) {
+          qint64 in_index = i - remain;
+          out_samples.data(j)[i] += to_samples.data(j)[in_index] * TransformCurve(progress);
         }
       }
     }

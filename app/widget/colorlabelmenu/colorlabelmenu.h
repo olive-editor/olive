@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 #ifndef COLORLABELMENU_H
 #define COLORLABELMENU_H
 
-#include "colorlabelmenuitem.h"
 #include "widget/menu/menu.h"
 
 namespace olive {
@@ -40,7 +39,7 @@ signals:
 private:
   void Retranslate();
 
-  QVector<ColorLabelMenuItem*> color_items_;
+  QVector<QAction*> color_items_;
 
 private slots:
   void ActionTriggered();

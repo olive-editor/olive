@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -109,22 +109,24 @@ void TimeBasedView::ZoomIntoCursorPosition(QWheelEvent *event, double scale_mult
   }
 
   if (!only_vertical) {
-    double new_x_scale = GetScale() * scale_multiplier;
+    double old_scroll = horizontalScrollBar()->value();
 
-    int new_x_scroll = qRound(double(cursor_pos.x() + horizontalScrollBar()->value()) / GetScale() * new_x_scale - cursor_pos.x());
+    double old_scale = GetScale();
+    emit ScaleChanged(old_scale * scale_multiplier);
 
-    emit ScaleChanged(new_x_scale);
-
+    // Use GetScale so that if this value was clamped, we don't erroneously use an unclamped value
+    int new_x_scroll = qRound((cursor_pos.x() + old_scroll) / old_scale * GetScale() - cursor_pos.x());
     horizontalScrollBar()->setValue(new_x_scroll);
   }
 
   if (!only_horizontal) {
-    double new_y_scale = GetYScale() * scale_multiplier;
+    double old_y_scroll = verticalScrollBar()->value();
 
-    int new_y_scroll = qRound(double(cursor_pos.y() + verticalScrollBar()->value()) / GetYScale() * new_y_scale - cursor_pos.y());
+    double old_y_scale = GetYScale();
+    SetYScale(old_y_scale * scale_multiplier);
 
-    SetYScale(new_y_scale);
-
+    // Use GetYScale so that if this value was clamped, we don't erroneously use an unclamped value
+    int new_y_scroll = qRound((cursor_pos.y() + old_y_scroll) / old_y_scale * GetYScale() - cursor_pos.y());
     verticalScrollBar()->setValue(new_y_scroll);
   }
 }

@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ add_subdirectory(panel)
 add_subdirectory(render)
 add_subdirectory(shaders)
 add_subdirectory(task)
-add_subdirectory(threading)
 add_subdirectory(timeline)
 add_subdirectory(ts)
 add_subdirectory(tool)
@@ -99,7 +98,7 @@ if (WIN32)
   # Set Windows application icon
   target_sources(olive-editor PRIVATE packaging/windows/resources.rc)
 
-  # Preserve folder structure in visual studio 
+  # Preserve folder structure in visual studio
   source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${OLIVE_SOURCES})
 
 elseif(APPLE)

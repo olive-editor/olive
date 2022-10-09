@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,9 +41,9 @@ public:
 
   bool ClearCache();
 
-  void Accessed(const QByteArray& hash);
+  void Accessed(const QString& filename);
 
-  void CreatedFile(const QString& file_name, const QByteArray& hash);
+  void CreatedFile(const QString& filename);
 
   const QString& GetPath() const
   {
@@ -75,16 +75,15 @@ public:
   bool DeleteSpecificFile(const QString &f);
 
 signals:
-  void DeletedFrame(const QString& path, const QByteArray& hash);
+  void DeletedFrame(const QString& path, const QString& filename);
 
 private:
   struct HashTime {
-    QString file_name;
     qint64 file_size;
     qint64 access_time;
   };
 
-  bool DeleteFileInternal(QMap<QByteArray, HashTime>::iterator hash_to_delete);
+  bool DeleteFileInternal(QMap<QString, HashTime>::iterator hash_to_delete);
 
   bool DeleteLeastRecent();
 
@@ -94,7 +93,7 @@ private:
 
   QString index_path_;
 
-  QMap<QByteArray, HashTime> disk_data_;
+  QMap<QString, HashTime> disk_data_;
 
   qint64 consumption_;
 
@@ -149,14 +148,14 @@ public:
   void ShowDiskCacheSettingsDialog(const QString& path, QWidget* parent);
 
 public slots:
-  void Accessed(const QString& cache_folder, const QByteArray& hash);
+  void Accessed(const QString& cache_folder, const QString& filename);
 
-  void CreatedFile(const QString& cache_folder, const QString& file_name, const QByteArray& hash);
+  void CreatedFile(const QString& cache_folder, const QString& filename);
 
   void DeleteSpecificFile(const QString &filename);
 
 signals:
-  void DeletedFrame(const QString& path, const QByteArray& hash);
+  void DeletedFrame(const QString& path, const QString& filename);
 
   void InvalidateProject(Project* p);
 

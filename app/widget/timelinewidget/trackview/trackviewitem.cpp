@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -145,6 +145,7 @@ void TrackViewItem::ShowContextMenu(const QPoint &p)
 
 void TrackViewItem::DeleteTrack()
 {
+  emit AboutToDeleteTrack(track_);
   Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_));
 }
 
