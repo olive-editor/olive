@@ -24,7 +24,7 @@
 #include <QMatrix4x4>
 #include <QString>
 
-#include "render/job/generatejob.h"
+#include "acceleratedjob.h"
 #include "render/alphaassoc.h"
 #include "render/colorprocessor.h"
 #include "render/texture.h"
@@ -33,16 +33,21 @@ namespace olive {
 
 class Node;
 
-class ColorTransformJob : public GenerateJob
+class ColorTransformJob : public AcceleratedJob
 {
 public:
   ColorTransformJob()
   {
     processor_ = nullptr;
-    input_texture_ = nullptr;
     custom_shader_src_ = nullptr;
     input_alpha_association_ = kAlphaNone;
     clear_destination_ = true;
+  }
+
+  ColorTransformJob(const NodeValueRow &row) :
+    ColorTransformJob()
+  {
+    Insert(row);
   }
 
   QString id() const
@@ -56,8 +61,13 @@ public:
 
   void SetOverrideID(const QString &id) { id_ = id; }
 
-  TexturePtr GetInputTexture() const { return input_texture_; }
-  void SetInputTexture(TexturePtr tex) { input_texture_ = tex; }
+  const NodeValue &GetInputTexture() const { return input_texture_; }
+  void SetInputTexture(const NodeValue &tex) { input_texture_ = tex; }
+  void SetInputTexture(TexturePtr tex)
+  {
+    Q_ASSERT(!tex->IsDummy());
+    input_texture_ = NodeValue(NodeValue::kTexture, tex);
+  }
 
   ColorProcessorPtr GetColorProcessor() const { return processor_; }
   void SetColorProcessor(ColorProcessorPtr p) { processor_ = p; }
@@ -89,7 +99,7 @@ private:
   ColorProcessorPtr processor_;
   QString id_;
 
-  TexturePtr input_texture_;
+  NodeValue input_texture_;
 
   const Node *custom_shader_src_;
   QString custom_shader_id_;
@@ -107,7 +117,5 @@ private:
 };
 
 }
-
-Q_DECLARE_METATYPE(olive::ColorTransformJob)
 
 #endif // COLORTRANSFORMJOB_H

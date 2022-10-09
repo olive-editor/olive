@@ -119,6 +119,7 @@ MarkerPropertiesDialog::MarkerPropertiesDialog(const std::vector<TimelineMarker 
   layout->addWidget(buttons, row, 0, 1, 2);
 
   setWindowTitle(tr("Edit Markers"));
+  label_edit_->setFocus();
 }
 
 void MarkerPropertiesDialog::accept()

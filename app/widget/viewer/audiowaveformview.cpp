@@ -47,13 +47,13 @@ AudioWaveformView::AudioWaveformView(QWidget *parent) :
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
-void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
+void AudioWaveformView::SetViewer(ViewerOutput *playback)
 {
   if (playback_) {
     pool_.clear();
     pool_.waitForDone();
 
-    disconnect(playback_, &AudioPlaybackCache::Validated, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
+    disconnect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
 
     SetTimebase(0);
   }
@@ -61,9 +61,9 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
   playback_ = playback;
 
   if (playback_) {
-    connect(playback_, &AudioPlaybackCache::Validated, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
+    connect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
 
-    SetTimebase(playback_->GetParameters().sample_rate_as_time_base());
+    SetTimebase(playback_->GetAudioParams().sample_rate_as_time_base());
   }
 }
 
@@ -75,8 +75,12 @@ void AudioWaveformView::drawForeground(QPainter *p, const QRectF &rect)
     return;
   }
 
-  const AudioParams& params = playback_->GetParameters();
+  const AudioWaveformCache *wave = playback_->GetConnectedWaveform();
+  if (!wave) {
+    return;
+  }
 
+  const AudioParams& params = wave->GetParameters();
   if (!params.is_valid()) {
     return;
   }
@@ -87,7 +91,7 @@ void AudioWaveformView::drawForeground(QPainter *p, const QRectF &rect)
 
   // Draw waveform
   p->setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color
-  AudioVisualWaveform::DrawWaveform(p, rect.toRect(), GetScale(), playback_->visual(), SceneToTime(GetScroll()));
+  wave->Draw(p, rect.toRect(), GetScale(), SceneToTime(GetScroll()));
 
   // Draw playhead
   p->setPen(PLAYHEAD_COLOR);

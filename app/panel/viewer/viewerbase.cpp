@@ -24,35 +24,37 @@
 
 namespace olive {
 
+#define super TimeBasedPanel
+
 ViewerPanelBase::ViewerPanelBase(const QString& object_name, QWidget *parent) :
-  TimeBasedPanel(object_name, parent)
+  super(object_name, parent)
 {
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &ViewerPanelBase::FocusedPanelChanged);
 }
 
 void ViewerPanelBase::PlayPause()
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->TogglePlayPause();
+  GetViewerWidget()->TogglePlayPause();
 }
 
 void ViewerPanelBase::PlayInToOut()
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->Play(true);
+  GetViewerWidget()->Play(true);
 }
 
 void ViewerPanelBase::ShuttleLeft()
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->ShuttleLeft();
+  GetViewerWidget()->ShuttleLeft();
 }
 
 void ViewerPanelBase::ShuttleStop()
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->ShuttleStop();
+  GetViewerWidget()->ShuttleStop();
 }
 
 void ViewerPanelBase::ShuttleRight()
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->ShuttleRight();
+  GetViewerWidget()->ShuttleRight();
 }
 
 void ViewerPanelBase::ConnectTimeBasedPanel(TimeBasedPanel *panel)
@@ -75,22 +77,22 @@ void ViewerPanelBase::DisconnectTimeBasedPanel(TimeBasedPanel *panel)
 
 void ViewerPanelBase::SetFullScreen(QScreen *screen)
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetFullScreen(screen);
+  GetViewerWidget()->SetFullScreen(screen);
 }
 
 void ViewerPanelBase::SetGizmos(Node *node)
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetGizmos(node);
+  GetViewerWidget()->SetGizmos(node);
 }
 
 void ViewerPanelBase::CacheEntireSequence()
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->CacheEntireSequence();
+  GetViewerWidget()->CacheEntireSequence();
 }
 
 void ViewerPanelBase::CacheSequenceInOut()
 {
-  static_cast<ViewerWidget*>(GetTimeBasedWidget())->CacheSequenceInOut();
+  GetViewerWidget()->CacheSequenceInOut();
 }
 
 void ViewerPanelBase::SetViewerWidget(ViewerWidget *vw)
@@ -104,9 +106,11 @@ void ViewerPanelBase::SetViewerWidget(ViewerWidget *vw)
 
 void ViewerPanelBase::FocusedPanelChanged(PanelWidget *panel)
 {
-  auto vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());
-  if (vw->IsPlaying() && panel != this) {
-    vw->Pause();
+  if (dynamic_cast<ViewerPanelBase*>(panel)) {
+    auto vw = GetViewerWidget();
+    if (vw->IsPlaying() && panel != this) {
+      vw->Pause();
+    }
   }
 }
 

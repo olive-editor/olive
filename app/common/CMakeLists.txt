@@ -34,9 +34,6 @@ set(OLIVE_SOURCES
   common/ffmpegutils.h
   common/filefunctions.cpp
   common/filefunctions.h
-  common/flipmodifiers.cpp
-  common/flipmodifiers.h
-  common/functiontimer.h
   common/html.cpp
   common/html.h
   common/jobtime.cpp

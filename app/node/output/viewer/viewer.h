@@ -132,6 +132,15 @@ public:
     return GetVideoStreamCount() + GetAudioStreamCount() + GetSubtitleStreamCount();
   }
 
+  const AudioWaveformCache *GetConnectedWaveform()
+  {
+    if (Node *n = GetConnectedSampleOutput()) {
+      return n->waveform_cache();
+    } else {
+      return nullptr;
+    }
+  }
+
   bool HasEnabledVideoStreams() const;
   bool HasEnabledAudioStreams() const;
   bool HasEnabledSubtitleStreams() const;
@@ -146,6 +155,16 @@ public:
 
   TimelineWorkArea *GetWorkArea() const { return workarea_; }
   TimelineMarkerList *GetMarkers() const { return markers_; }
+
+  virtual TimeRange GetVideoCacheRange() const override
+  {
+    return TimeRange(0, GetVideoLength());
+  }
+
+  virtual TimeRange GetAudioCacheRange() const override
+  {
+    return TimeRange(0, GetAudioLength());
+  }
 
   QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
 
@@ -162,6 +181,11 @@ public:
   virtual Node *GetConnectedSampleOutput();
 
   virtual ValueHint GetConnectedSampleValueHint();
+
+  void SetWaveformEnabled(bool e);
+
+  bool IsVideoAutoCacheEnabled() const { qDebug() << "sequence ac is a stub"; return false; }
+  void SetVideoAutoCacheEnabled(bool e) { qDebug() << "sequence ac is a stub"; }
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
@@ -193,6 +217,8 @@ signals:
 
   void SampleRateChanged(int sr);
 
+  void ConnectedWaveformChanged();
+
 public slots:
   void VerifyLength();
 
@@ -220,7 +246,12 @@ private:
   TimelineWorkArea *workarea_;
   TimelineMarkerList *markers_;
 
+  bool autocache_input_video_;
+  bool autocache_input_audio_;
+
   EncodingParams last_used_encoding_params_;
+
+  bool waveform_requests_enabled_;
 
 };
 

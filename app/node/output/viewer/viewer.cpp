@@ -37,7 +37,10 @@ const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_streams) :
   last_length_(0),
   video_length_(0),
-  audio_length_(0)
+  audio_length_(0),
+  autocache_input_video_(false),
+  autocache_input_audio_(false),
+  waveform_requests_enabled_(false)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
@@ -214,26 +217,33 @@ void ViewerOutput::set_default_parameters()
                  OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
       AudioParams::kInternalFormat
       ));
-
-  video_frame_cache()->SetEnabled(OLIVE_CONFIG("DefaultSequenceAutoCache").toBool());
 }
 
 void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
 {
   Q_UNUSED(element)
 
+  if (Node *connected = GetConnectedOutput(from, element)) {
+    if (from == kTextureInput) {
+      //connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
+      if (autocache_input_video_) {
+        TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetVideoLength()));
+        connected->video_frame_cache()->Request(range.Intersected(max_range));
+      }
+    } else if (from == kSamplesInput) {
+      TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetAudioLength()));
+      if (waveform_requests_enabled_) {
+        connected->waveform_cache()->Request(range.Intersected(max_range));
+      }
+      if (autocache_input_audio_) {
+        connected->audio_playback_cache()->Request(range.Intersected(max_range));
+      }
+    }
+  }
+
   VerifyLength();
 
   super::InvalidateCache(range, from, element, options);
-
-  // TEMP: Just to restore the intended functionality for now. This will be removed later.
-  if (from == kTextureInput) {
-    TimeRange r = range.Intersected(TimeRange(0, GetVideoLength()));
-    if (r.length() != 0) video_frame_cache()->Invalidate(r);
-  } else if (from == kSamplesInput) {
-    TimeRange r = range.Intersected(TimeRange(0, GetAudioLength()));
-    if (r.length() != 0) audio_playback_cache()->Invalidate(r);
-  }
 }
 
 QVector<Track::Reference> ViewerOutput::GetEnabledStreamsAsReferences() const
@@ -310,6 +320,8 @@ void ViewerOutput::InputConnectedEvent(const QString &input, int element, Node *
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
+  } else if (input == kSamplesInput) {
+    connect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputConnectedEvent(input, element, output);
@@ -319,6 +331,8 @@ void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, Nod
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
+  } else if (input == kSamplesInput) {
+    disconnect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputDisconnectedEvent(input, element, output);
@@ -376,6 +390,19 @@ Node::ValueHint ViewerOutput::GetConnectedSampleValueHint()
   return GetValueHintForInput(kSamplesInput);
 }
 
+void ViewerOutput::SetWaveformEnabled(bool e)
+{
+  if ((waveform_requests_enabled_ = e)) {
+    if (Node *connected = this->GetConnectedSampleOutput()) {
+      TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()));
+      TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
+      for (const TimeRange &r : invalid) {
+        connected->waveform_cache()->Request(r);
+      }
+    }
+  }
+}
+
 void ViewerOutput::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   if (HasInputWithID(kTextureInput)) {
@@ -415,10 +442,6 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       if (frame_rate_changed) {
-        // FIXME: Will need to find a better way to update this soon
-        //if (video_frame_cache()->IsEnabled()) {
-          video_frame_cache()->SetTimebase(new_video_params.frame_rate_as_time_base());
-        //}
         emit FrameRateChanged(new_video_params.frame_rate());
       }
 
@@ -437,11 +460,6 @@ void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
       }
 
       emit AudioParamsChanged();
-
-      // FIXME: Will need to find a better way to update this soon
-      //if (audio_playback_cache()->IsEnabled()) {
-        audio_playback_cache()->SetParameters(GetAudioParams());
-      //}
 
       cached_audio_params_ = new_audio_params;
 

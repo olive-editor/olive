@@ -112,6 +112,8 @@ public:
 
   void AddTentativeSubtitleTrack();
 
+  void NestSelectedClips();
+
   /**
    * @brief Timelines should always be connected to sequences
    */
@@ -423,6 +425,8 @@ private slots:
 
   void SetViewWaveformsEnabled(bool e);
 
+  void SetViewThumbnailsEnabled(QAction *action);
+
   void FrameRateChanged();
 
   void SampleRateChanged();
@@ -435,6 +439,14 @@ private slots:
   void RevealInProject();
 
   void TrackAboutToBeDeleted(Track *track);
+
+  void SetSelectedClipsAutocaching(bool e);
+
+  void CacheClips();
+  void CacheClipsInOut();
+  void CacheDiscard();
+
+  void MulticamEnabledTriggered(bool e);
 
 };
 

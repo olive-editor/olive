@@ -51,6 +51,8 @@ private:
 
   void UpdateValueTree();
 
+  void CreateTree();
+
   ClickableLabel* connected_to_lbl_;
 
   NodeInput input_;

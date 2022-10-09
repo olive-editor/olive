@@ -20,7 +20,6 @@
 
 #include "nodeviewscene.h"
 
-#include "common/functiontimer.h"
 #include "core.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeviewedge.h"

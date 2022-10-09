@@ -217,14 +217,11 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
 
 int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
 {
-  int64_t t = Timecode::time_to_timestamp(time, timebase);
-  t += start_time;
-  return t;
+  return Timecode::time_to_timestamp(time, timebase);
 }
 
 rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time)
 {
-  time -= start_time;
   return Timecode::timestamp_to_time(time, timebase);
 }
 
@@ -294,10 +291,13 @@ bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const Audi
   return false;
 }
 
-bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, LoopMode loop_mode, const AudioParams &input_params)
+bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &input_params)
 {
   PlanarFileDevice input;
   if (input.open(conform_filenames, QFile::ReadOnly)) {
+    // Offset range by audio start offset
+    range -= GetAudioStartOffset();
+
     qint64 read_index = input_params.time_to_bytes(range.in()) / input_params.channel_count();
     qint64 write_index = 0;
 

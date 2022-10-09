@@ -93,11 +93,12 @@ void AudioMonitor::PushSampleBuffer(const SampleBuffer &d)
   SetUpdateLoop(true);
 }
 
-void AudioMonitor::StartWaveform(const AudioVisualWaveform *waveform, const rational &start, int playback_speed)
+void AudioMonitor::StartWaveform(const AudioWaveformCache *waveform, const rational &start, int playback_speed)
 {
   Stop();
 
-  if (start >= waveform->length()) {
+  waveform_length_ = waveform->length();
+  if (start >= waveform_length_) {
     return;
   }
 
@@ -242,7 +243,7 @@ void AudioMonitor::paintGL()
     if (waveform_) {
       UpdateValuesFromWaveform(v, delta_time);
 
-      if (waveform_time_ >= waveform_->length()) {
+      if (waveform_time_ >= waveform_length_) {
         Stop();
       }
     }
@@ -315,7 +316,7 @@ void AudioMonitor::UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_tim
 
 void AudioMonitor::AudioVisualWaveformSampleToInternalValues(const AudioVisualWaveform::Sample &in, QVector<double> &out)
 {
-  for (int i=0; i<in.size(); i++) {
+  for (size_t i=0; i<in.size(); i++) {
     float max = qMax(qAbs(in.at(i).min), qAbs(in.at(i).max));
 
     int output_index = i%out.size();

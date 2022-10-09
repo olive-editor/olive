@@ -22,6 +22,8 @@ set(OLIVE_SOURCES
   widget/colorwheel/colorpreviewbox.cpp
   widget/colorwheel/colorspacechooser.h
   widget/colorwheel/colorspacechooser.cpp
+  widget/colorwheel/colorswatchchooser.h
+  widget/colorwheel/colorswatchchooser.cpp
   widget/colorwheel/colorswatchwidget.h
   widget/colorwheel/colorswatchwidget.cpp
   widget/colorwheel/colorvalueswidget.h

@@ -43,7 +43,7 @@ public:
     float max;
   };
 
-  using Sample = QVector<SamplePerChannel>;
+  using Sample = std::vector<SamplePerChannel>;
 
   int channel_count() const
   {
@@ -90,17 +90,20 @@ public:
 
   void OverwriteSilence(const rational &start, const rational &length);
 
-  void Shift(const rational& from, const rational& to);
-
-  void TrimIn(const rational &length);
+  void TrimIn(rational length);
 
   AudioVisualWaveform Mid(const rational &offset) const;
+  AudioVisualWaveform Mid(const rational &offset, const rational &length) const;
+
+  void Resize(const rational &length);
+
+  void TrimRange(const rational &in, const rational &length);
 
   Sample GetSummaryFromTime(const rational& start, const rational& length) const;
 
-  static Sample SumSamples(const SampleBuffer &samples, int start_index, int length);
+  static Sample SumSamples(const SampleBuffer &samples, size_t start_index, size_t length);
 
-  static Sample ReSumSamples(const SamplePerChannel *samples, int nb_samples, int nb_channels);
+  static Sample ReSumSamples(const SamplePerChannel *samples, size_t nb_samples, int nb_channels);
 
   static void DrawSample(QPainter* painter, const Sample &sample, int x, int y, int height, bool rectified);
 
@@ -111,14 +114,18 @@ public:
   static const rational kMaximumSampleRate;
 
 private:
-  void OverwriteSamplesFromBuffer(const SampleBuffer &samples, int sample_rate, const rational& start, double target_rate, Sample &data, int &start_index, int &samples_length);
+  void OverwriteSamplesFromBuffer(const SampleBuffer &samples, int sample_rate, const rational& start, double target_rate, Sample &data, size_t &start_index, size_t &samples_length);
 
-  void OverwriteSamplesFromMipmap(const Sample& input, double input_sample_rate, int &input_start, int &input_length, const rational& start, double output_rate, Sample &output_data);
+  void OverwriteSamplesFromMipmap(const Sample& input, double input_sample_rate, size_t &input_start, size_t &input_length, const rational& start, double output_rate, Sample &output_data);
 
-  int time_to_samples(const rational& time, double sample_rate) const;
-  int time_to_samples(const double& time, double sample_rate) const;
+  size_t time_to_samples(const rational& time, double sample_rate) const;
+  size_t time_to_samples(const double& time, double sample_rate) const;
 
   std::map<rational, Sample>::const_iterator GetMipmapForScale(double scale) const;
+
+  void ValidateVirtualStart(const rational &new_start);
+
+  rational virtual_start_;
 
   int channels_;
 
