@@ -100,8 +100,7 @@ void main() {
     mask = 1.0 - mask;
   }
 
-  col.rgb *= mask;
-  col.w = mask;
+  col *= mask;
 
   if (!mask_only_in) {
     frag_color = col;
