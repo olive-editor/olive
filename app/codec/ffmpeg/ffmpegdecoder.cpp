@@ -312,9 +312,11 @@ void FFmpegDecoder::CloseInternal()
 
 rational FFmpegDecoder::GetAudioStartOffset() const
 {
-  AVStream *s = this->instance_.avstream();
-  if (s) {
-    return rational(s->start_time * s->time_base.num, s->time_base.den);
+  auto f = instance_.fmt_ctx();
+  if (f) {
+    rational fmt_start = rational(instance_.fmt_ctx()->start_time, AV_TIME_BASE);
+    rational str_start = rational(instance_.avstream()->time_base) * instance_.avstream()->start_time;
+    return str_start - fmt_start;
   } else {
     return 0;
   }
@@ -804,7 +806,9 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, VideoParams::Inter
     target_ts *= 2;
   }
 
-  target_ts += instance_.avstream()->start_time;
+  if (instance_.fmt_ctx()->start_time != AV_NOPTS_VALUE) {
+    target_ts += av_rescale_q(instance_.fmt_ctx()->start_time, AV_TIME_BASE_Q, instance_.avstream()->time_base);
+  }
 
   const int64_t min_seek = 0;
   int64_t seek_ts = std::max(min_seek, target_ts - MaximumQueueSize());
