@@ -350,4 +350,9 @@ AudioParams::Format AudioParams::GetPlanarEquivalent(Format fmt)
   return kFormatInvalid;
 }
 
+void AudioParams::calculate_channel_count()
+{
+  channel_count_ = av_get_channel_layout_nb_channels(channel_layout());
+}
+
 }
