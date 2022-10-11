@@ -49,6 +49,10 @@ class RGBToBWNode : public Node
   static const QString kCustomWeightsInput;
 
   double luma_coeffs_[3];
+  bool weights_edited_;
+
+ private:
+  void UpdateInputs(bool cutsom_coefficients);
 };
 
 }  // namespace olive
