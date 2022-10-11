@@ -256,10 +256,7 @@ private:
     duration_ = 0;
   }
 
-  void calculate_channel_count()
-  {
-    channel_count_ = av_get_channel_layout_nb_channels(channel_layout());
-  }
+  void calculate_channel_count();
 
   int sample_rate_;
 
