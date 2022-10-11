@@ -1034,7 +1034,7 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
     dst_width = VideoParams::GetScaledDimension(src_width, filter_params_.divider);
     dst_height = VideoParams::GetScaledDimension(src_height, filter_params_.divider);
 
-    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=-1",
+    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=0",
              dst_width,
              dst_height);
 
