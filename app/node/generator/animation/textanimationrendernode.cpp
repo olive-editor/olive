@@ -28,6 +28,7 @@
 
 #include "common/cpuoptimize.h"
 #include "common/html.h"
+#include "node/project/project.h"
 #include "node/generator/animation/textanimationxmlparser.h"
 #include "node/generator/text/textv3.h"
 
@@ -97,6 +98,8 @@ GenerateJob TextAnimationRenderNode::GetGenerateJob(const NodeValueRow &value) c
 void TextAnimationRenderNode::Value(const NodeValueRow &value, const NodeGlobals & globals, NodeValueTable *table) const
 {
   GenerateJob job = GetGenerateJob(value);
+  job.SetColorspace(project()->color_manager()->GetDefaultInputColorSpace());
+
   // We store here the current time that will be used in 'GenerateFrame'
   job.Insert(kCurrentTime, NodeValue(NodeValue::kRational, globals.time().in(), this));
 

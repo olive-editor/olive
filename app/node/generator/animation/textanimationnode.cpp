@@ -46,6 +46,9 @@ TextAnimationNode::TextAnimationNode()
   AddInput( kCompositeInput, NodeValue::kText,
             QStringLiteral("<!-- Don't write here. Attach a TextAnimation node -->"),
             InputFlags(kInputFlagNotKeyframable));
+  SetInputProperty( kCompositeInput, QString("tooltip"),
+                    tr("<p>This input is used to cascade multiple animations.</p>"));
+
   AddInput( kCompositeOutput, NodeValue::kText, QString(""), InputFlags(kInputFlagHidden));
 
   AddInput( kFeatureInput, NodeValue::kCombo, 1);
@@ -60,28 +63,54 @@ TextAnimationNode::TextAnimationNode()
                       << tr("Horizontal Stretch")
                       << tr("Transparency")
                       );
+  SetInputProperty( kFeatureInput, QString("tooltip"),
+                    tr("<p>The aspect of the text that is animated.</p>"));
 
   // index of first character. Should be int, but float is used to allow key-framing over time
   AddInput( kIndexFromInput, NodeValue::kFloat, 0.);
   SetInputProperty( kIndexFromInput, QStringLiteral("min"), 0.);
+  SetInputProperty( kIndexFromInput, QString("tooltip"),
+                    tr("<p>The index of the first character to which animation applies.</p>"
+                       "<p>Use 0 to start from the first character.</p>"));
 
   // index of last character. Should be int, but float is used to allow key-framing over time
   AddInput( kIndexToInput, NodeValue::kFloat, -1.);  // default to negative value to animate the full text
   SetInputProperty( kIndexToInput, QStringLiteral("min"), -1.);
+  SetInputProperty( kIndexToInput, QString("tooltip"),
+                    tr("<p>The index of the last character to which animation applies.</p>"
+                       "<p>Use -1 for the last character of the whole text.</p>"));
 
   // when 0, effect is applied to all characters. When greater then 0, this number of characters is skipped
   // for each one for which the effect is applied
   AddInput( kStrideInput, NodeValue::kFloat, 0.);
   SetInputProperty( kStrideInput, QStringLiteral("min"), 0.);
+  SetInputProperty( kStrideInput, QString("tooltip"),
+                    tr("<p>When 0, the animation is applied to all characters defined by parameters 'from' and 'to'.</p>"
+                       "<p>When greater than 0, this is the number of characters that are skipped for each character "
+                       "that is animated</p>"));
 
+  AddInput( kValueInput, NodeValue::kFloat, 10.);
+  SetInputProperty( kValueInput, QString("tooltip"),
+                    tr("<p>The amount of the feature that is animated when the animation begins,"
+                       "i.e. when 'progress' is 0'.</p>"));
 
   AddInput( kOverlapInInput, NodeValue::kFloat, 1.);
   SetInputProperty( kOverlapInInput, QStringLiteral("min"), 0.);
   SetInputProperty( kOverlapInInput, QStringLiteral("max"), 1.);
+  SetInputProperty( kOverlapInInput, QString("tooltip"),
+                    tr("<p><b>Range: 0-1</b></p>"
+                       "<p>This controls when each charater starts the animation. "
+                       "When 0, all characters start the animation at the same time; "
+                       "when 1, the begin of the animation for each character is distributed over time.</p>"));
 
   AddInput( kOverlapOutInput, NodeValue::kFloat, 1.);
   SetInputProperty( kOverlapOutInput, QStringLiteral("min"), 0.);
   SetInputProperty( kOverlapOutInput, QStringLiteral("max"), 1.);
+  SetInputProperty( kOverlapOutInput, QString("tooltip"),
+                    tr("<p><b>Range: 0-1</b></p>"
+                       "<p>This controls when each charater ends the animation. "
+                       "When 0, all characters end the animation at the same time; "
+                       "when 1, the end of the animation for each character is distributed over time.</p>"));
 
   AddInput( kCurveInput, NodeValue::kCombo, 1);
   // keep order defined in TextAnimation::Curve, not the one in QMaps
@@ -94,16 +123,29 @@ TextAnimationNode::TextAnimationNode()
                       << tr("Ease_Elastic")
                       << tr("Ease_Bounce")
                       );
+  SetInputProperty( kCurveInput, QString("tooltip"),
+                    tr("<p>The shape of the curve used for animation.</p>"));
 
   AddInput( kC1Input, NodeValue::kFloat, 1.0);
+  SetInputProperty( kC1Input, QString("tooltip"),
+                    tr("<p>A coefficient that modifies the animation curve.</p>"
+                       "<p>According to the kind of curve, this may or may not affect the curve. "
+                       "Value 1 is always a good defualt value.</p>"));
 
   AddInput( kC2Input, NodeValue::kFloat, 1.0);
-
-  AddInput( kValueInput, NodeValue::kFloat, 10.);
+  SetInputProperty( kC2Input, QString("tooltip"),
+                    tr("<p>A coefficient that modifies the animation curve.</p>"
+                       "<p>According to the kind of curve, this may or may not affect the curve. "
+                       "Value 1 is always a good defualt value.</p>"));
 
   AddInput( kAlphaInput, NodeValue::kFloat, 0.);
   SetInputProperty( kAlphaInput, QStringLiteral("min"), 0.);
   SetInputProperty( kAlphaInput, QStringLiteral("max"), 1.);
+  SetInputProperty( kAlphaInput, QString("tooltip"),
+                    tr("<p><b>Range: 0-1</b></p>"
+                       "<p>The progress of the animation.</p> <p>This input must be animated by keyframes from "
+                       "0 to 1 to let animation happen. When 0, the animation is not started; when 1,"
+                       "the animation is complete</p>"));
 
   SetEffectInput(kCompositeInput);
 }
@@ -112,18 +154,18 @@ void TextAnimationNode::Retranslate()
 {
   super::Retranslate();
 
-  SetInputName( kCompositeInput, tr("Composite"));
+  SetInputName( kCompositeInput, tr("Animators"));
   SetInputName( kFeatureInput, tr("Feature"));
-  SetInputName( kIndexFromInput, tr("Index from"));
-  SetInputName( kIndexToInput, tr("Index to"));
+  SetInputName( kIndexFromInput, tr("First character"));
+  SetInputName( kIndexToInput, tr("Last character"));
   SetInputName( kStrideInput, tr("Stride"));
-  SetInputName( kOverlapInInput, tr("Overlap IN"));
-  SetInputName( kOverlapOutInput, tr("Overlap OUT"));
+  SetInputName( kOverlapInInput, tr("Start timing"));
+  SetInputName( kOverlapOutInput, tr("End timing"));
   SetInputName( kCurveInput, tr("Curve"));
   SetInputName( kC1Input, tr("C1"));
   SetInputName( kC2Input, tr("C2"));
   SetInputName( kValueInput, tr("Value"));
-  SetInputName( kAlphaInput, tr("Alpha"));
+  SetInputName( kAlphaInput, tr("Progress"));
 }
 
 
