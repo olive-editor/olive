@@ -45,7 +45,6 @@ Decoder::Decoder() :
 
 void Decoder::IncrementAccessTime(qint64 t)
 {
-  QMutexLocker locker(&mutex_);
   last_accessed_ += t;
 }
 
@@ -156,7 +155,6 @@ Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const Ti
 
 qint64 Decoder::GetLastAccessedTime()
 {
-  QMutexLocker locker(&mutex_);
   return last_accessed_;
 }
 
@@ -213,16 +211,6 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   }
 
   return nullptr;
-}
-
-int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
-{
-  return Timecode::time_to_timestamp(time, timebase);
-}
-
-rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time)
-{
-  return Timecode::timestamp_to_time(time, timebase);
 }
 
 void Decoder::SignalProcessingProgress(int64_t ts, int64_t duration)

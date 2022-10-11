@@ -315,7 +315,7 @@ private:
 
   QMutex mutex_;
 
-  qint64 last_accessed_;
+  std::atomic_int64_t last_accessed_;
 
   TexturePtr cached_texture_;
   rational cached_time_;
