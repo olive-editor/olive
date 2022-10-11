@@ -807,7 +807,7 @@ AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, VideoParams::Inter
   }
 
   if (instance_.fmt_ctx()->start_time != AV_NOPTS_VALUE) {
-    target_ts += av_rescale_q(instance_.fmt_ctx()->start_time, AV_TIME_BASE_Q, instance_.avstream()->time_base);
+    target_ts += av_rescale_q(instance_.fmt_ctx()->start_time, {1, AV_TIME_BASE}, instance_.avstream()->time_base);
   }
 
   const int64_t min_seek = 0;
