@@ -26,6 +26,8 @@ const QString DilateErodeFilterNode::kTextureInput = QStringLiteral("tex_in");
 const QString DilateErodeFilterNode::kMethodInput = QStringLiteral("method_in");
 const QString DilateErodeFilterNode::kPixelsInput = QStringLiteral("pixels_in");
 
+#define super Node
+
 DilateErodeFilterNode::DilateErodeFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -33,6 +35,9 @@ DilateErodeFilterNode::DilateErodeFilterNode()
   AddInput(kMethodInput, NodeValue::kCombo, 0);
 
   AddInput(kPixelsInput, NodeValue::kInt, 0);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 Node* DilateErodeFilterNode::copy() const
@@ -62,33 +67,32 @@ QString DilateErodeFilterNode::Description() const
 
 void DilateErodeFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kMethodInput, tr("Method"));
   SetComboBoxStrings(kMethodInput, {tr("Box"), tr("Distance"), tr("Gaussian")});
   SetInputName(kPixelsInput, tr("Pixels"));
 }
 
-ShaderCode DilateErodeFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode DilateErodeFilterNode::GetShaderCode(const ShaderRequest& request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/dilateerode.frag"));
 }
 
 void DilateErodeFilterNode::Value(const NodeValueRow& value, const NodeGlobals& globals, NodeValueTable* table) const
 {
-  ShaderJob job;
-
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-
   // If there's no texture and no dilation/erosion, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull() && job.GetValue(kPixelsInput).data().toInt() != 0) {
+  if (value[kTextureInput].toTexture() && value[kPixelsInput].data().toInt() != 0) {
+    TexturePtr tex = value[kTextureInput].toTexture();
     //job.SetIterations(2, kTextureInput);
-
-    table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+    ShaderJob job(value);
+    job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+    table->Push(NodeValue::kTexture, tex->toJob(job), this);
   } else {
     // If we're not doing anything just push the texture
-    table->Push(job.GetValue(kTextureInput));
+    table->Push(value[kTextureInput]);
   }
 }
 
