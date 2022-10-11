@@ -51,7 +51,7 @@ RGBToBWNode::RGBToBWNode() :
 
 QString RGBToBWNode::Name() const
 {
-  return tr("RGB to B&&W");
+  return tr("RGB to B&W");
 }
 
 QString RGBToBWNode::id() const
@@ -66,7 +66,7 @@ QVector<Node::CategoryID> RGBToBWNode::Category() const
 
 QString RGBToBWNode::Description() const
 {
-  return tr("Converts an color image to a black and white image");
+  return tr("Converts a color image to black and white");
 }
 
 void RGBToBWNode::Retranslate()
