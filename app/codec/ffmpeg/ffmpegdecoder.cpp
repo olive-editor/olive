@@ -798,13 +798,15 @@ void FFmpegDecoder::ClearFrameCache()
 
 AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, VideoParams::Interlacing interlacing, CancelAtom *cancelled)
 {
-  int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
+  int64_t target_ts = Timecode::time_to_timestamp(time, instance_.avstream()->time_base);
 
   if (interlacing != VideoParams::kInterlaceNone && !IsPixelFormatGLSLCompatible(static_cast<AVPixelFormat>(instance_.avstream()->codecpar->format))) {
     target_ts *= 2;
   }
 
-  const int64_t min_seek = -instance_.avstream()->start_time;
+  target_ts += instance_.avstream()->start_time;
+
+  const int64_t min_seek = 0;
   int64_t seek_ts = std::max(min_seek, target_ts - MaximumQueueSize());
   bool still_seeking = false;
 

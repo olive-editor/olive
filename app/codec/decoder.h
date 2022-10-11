@@ -294,9 +294,6 @@ protected:
     return stream_;
   }
 
-  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
-  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time);
-
   virtual rational GetAudioStartOffset() const { return 0; }
 
 signals:
