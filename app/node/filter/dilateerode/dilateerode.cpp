@@ -89,6 +89,7 @@ void DilateErodeFilterNode::Value(const NodeValueRow& value, const NodeGlobals& 
     //job.SetIterations(2, kTextureInput);
     ShaderJob job(value);
     job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+    job.SetIterations(2, kTextureInput);
     table->Push(NodeValue::kTexture, tex->toJob(job), this);
   } else {
     // If we're not doing anything just push the texture

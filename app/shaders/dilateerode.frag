@@ -34,40 +34,42 @@ void main(void) {
     // Gaussian erode essentially inverts the image, does a gaussian dilate and then
     // reinverts the image hence there being a special case here for method_in == 2
     composite = pixels_in > 0 || method_in == 2 ? vec4(-9999.0) : vec4(9999.0);
-    for (int j = -size; j <= size; j++) {
-        for(int i = -size; i <= size; i++) {
+    for(int i = -size; i <= size; i++) {
 
+        if(ove_iteration == 0){
             offset.x = float(i) / resolution_in.x;
-            offset.y = float(j) / resolution_in.y;
+            offset.y = 0.0;
+        } else{
+            offset.x = 0.0;
+            offset.y = float(i) / resolution_in.y;
+        }
 
-            if (method_in == 0) { // Box
+        if (method_in == 0) { // Box
+            sample = texture(tex_in, pixel_coord+offset);
+            if (pixels_in > 0) {
+                composite = max(sample, composite);
+            } else if (pixels_in < 0) {
+                composite = min(sample, composite);
+            }
+        } else if (method_in == 1) { // Distance
+            float len = length(offset);
+            float scaled_size = float(size) / length(resolution_in);
+            if (len <= scaled_size){
                 sample = texture(tex_in, pixel_coord+offset);
                 if (pixels_in > 0) {
                     composite = max(sample, composite);
                 } else if (pixels_in < 0) {
                     composite = min(sample, composite);
                 }
-            } else if (method_in == 1) { // Distance
-                float len = length(offset);
-                float scaled_size = float(size) / length(resolution_in);
-                if (len <= scaled_size){
-                    sample = texture(tex_in, pixel_coord+offset);
-                    if (pixels_in > 0) {
-                        composite = max(sample, composite);
-                    } else if (pixels_in < 0) {
-                        composite = min(sample, composite);
-                    } 
-                }
-            } else if (method_in == 2) { // Gaussian
-                float weight = gaussian2(float(i), float(j), sigma) / max_weight;
-
-                sample = texture(tex_in, pixel_coord+offset);
-                if (pixels_in > 0) {
-                    // weight^2 seems to give a better result
-                    composite = max(sample*weight*weight, composite);
-                } else if (pixels_in < 0) {
-                    composite = max((1.0-sample)*weight*weight, composite);
-                }
+            }
+        } else if (method_in == 2) { // Gaussian
+            float weight = gaussian2(float(i), 0.0, sigma) / max_weight;
+            sample = texture(tex_in, pixel_coord+offset);
+            if (pixels_in > 0) {
+                // weight^2 seems to give a better result
+                composite = max(sample*weight*weight, composite);
+            } else if (pixels_in < 0) {
+                composite = max((1.0-sample)*weight*weight, composite);
             }
         }
     }
