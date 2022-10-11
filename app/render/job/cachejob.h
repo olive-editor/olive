@@ -18,17 +18,39 @@
 
 ***/
 
-#ifndef FLIPMODIFIERS_H
-#define FLIPMODIFIERS_H
+#ifndef CACHEJOB_H
+#define CACHEJOB_H
 
-#include <QtCore>
+#include <QString>
+#include <QVariant>
 
-#include "common/define.h"
+#include "node/value.h"
+#include "render/job/acceleratedjob.h"
 
 namespace olive {
 
-Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
+class CacheJob : public AcceleratedJob
+{
+public:
+  CacheJob() = default;
+  CacheJob(const QString &filename, const NodeValue &fallback = NodeValue())
+  {
+    filename_ = filename;
+  }
+
+  const QString &GetFilename() const { return filename_; }
+  void SetFilename(const QString &s) { filename_ = s; }
+
+  const NodeValue &GetFallback() const { return fallback_; }
+  void SetFallback(const NodeValue &val) { fallback_ = val; }
+
+private:
+  QString filename_;
+
+  NodeValue fallback_;
+
+};
 
 }
 
-#endif // FLIPMODIFIERS_H
+#endif // CACHEJOB_H

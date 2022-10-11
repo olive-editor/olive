@@ -275,6 +275,14 @@ void ManagedDisplayWidget::SetInnerMouseTracking(bool e)
   }
 }
 
+VideoParams ManagedDisplayWidget::GetViewportParams() const
+{
+  int device_width = width() * devicePixelRatioF();
+  int device_height = height() * devicePixelRatioF();
+  VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
+  return VideoParams(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
+}
+
 void ManagedDisplayWidget::update()
 {
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {

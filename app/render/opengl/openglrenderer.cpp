@@ -415,6 +415,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     // This variable is used in the shader, let's set it
     const NodeValue& value = it.value();
 
+    // Arrays are not currently supported in this system
     if (value.array()) {
       continue;
     }

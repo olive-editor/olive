@@ -53,8 +53,6 @@ private:
 
   int CacheStatusHeight() const;
 
-  int cache_status_height_;
-
   int minimum_gap_between_lines_;
 
   bool text_visible_;

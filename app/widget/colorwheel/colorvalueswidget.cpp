@@ -270,14 +270,16 @@ ColorValuesTab::ColorValuesTab(bool with_legacy_option, QWidget *parent) :
 
   row++;
 
-  hex_lbl_ = new QLabel(tr("Hex"));
+  hex_lbl_ = new QLabel(tr("Web"));
   layout->addWidget(hex_lbl_, row, 0);
 
   hex_slider_ = new StringSlider();
   connect(hex_slider_, &StringSlider::ValueChanged, this, &ColorValuesTab::HexChanged);
   layout->addWidget(hex_slider_, row, 1);
 
-  LegacyChanged(AreSlidersLegacyValues());
+  if (legacy_box_) {
+    LegacyChanged(AreSlidersLegacyValues());
+  }
 }
 
 Color ColorValuesTab::GetColor() const
@@ -371,9 +373,18 @@ void ColorValuesTab::LegacyChanged(bool legacy)
     s->SetDragMultiplier(drag_multiplier);
   }
 
-  hex_lbl_->setVisible(legacy);
-  hex_slider_->setVisible(legacy);
   UpdateHex();
+}
+
+QString RGBValToString(double d)
+{
+  QString s = QString::number(d);
+
+  if (!s.contains('.')) {
+    s.append(QStringLiteral(".0"));
+  }
+
+  return s;
 }
 
 void ColorValuesTab::UpdateHex()
@@ -390,7 +401,37 @@ void ColorValuesTab::UpdateHex()
 
       hex_slider_->SetValue(QStringLiteral("%1").arg(rgb, 6, 16, QLatin1Char('0')).toUpper());
     }
+  } else {
+    hex_slider_->SetValue(QStringLiteral("rgb(%1, %2, %3)").arg(RGBValToString(red_slider_->GetValue()), RGBValToString(green_slider_->GetValue()), RGBValToString(blue_slider_->GetValue())));
   }
+}
+
+bool ParseRGBString(QString s, double *r, double *g, double *b)
+{
+  // Trim whitespace
+  s = s.trimmed();
+
+  s.remove(QStringLiteral("rgba"), Qt::CaseInsensitive);
+  s.remove(QStringLiteral("rgb"), Qt::CaseInsensitive);
+  s.remove('(');
+  s.remove(')');
+
+  QStringList vals = s.split(',');
+  if (vals.size() < 3) {
+    return false;
+  }
+
+  bool ok;
+  *r = vals.at(0).toDouble(&ok);
+  if (!ok) return false;
+
+  *g = vals.at(1).toDouble(&ok);
+  if (!ok) return false;
+
+  *b = vals.at(2).toDouble(&ok);
+  if (!ok) return false;
+
+  return true;
 }
 
 void ColorValuesTab::HexChanged(const QString &s)
@@ -399,19 +440,45 @@ void ColorValuesTab::HexChanged(const QString &s)
   uint32_t hex = s.toULong(&ok, 16);
 
   if (ok) {
+    if (hex >= 0x1000000) {
+      hex >>= 8;
+    }
+
     uint32_t r = (hex & 0xFF0000) >> 16;
     uint32_t g = (hex & 0x00FF00) >> 8;
     uint32_t b = (hex & 0x0000FF);
 
-    red_slider_->SetValue(r);
-    green_slider_->SetValue(g);
-    blue_slider_->SetValue(b);
+    if (AreSlidersLegacyValues()) {
+      red_slider_->SetValue(r);
+      green_slider_->SetValue(g);
+      blue_slider_->SetValue(b);
+    } else {
+      red_slider_->SetValue(double(r)/kLegacyMultiplier);
+      green_slider_->SetValue(double(g)/kLegacyMultiplier);
+      blue_slider_->SetValue(double(b)/kLegacyMultiplier);
+    }
 
     emit ColorChanged(GetColor());
   } else {
-    // Return to original value
-    UpdateHex();
+    // Attempt to parse rgb/rgba
+    double r, g, b;
+    if (ParseRGBString(s, &r, &g, &b)) {
+      if (AreSlidersLegacyValues()) {
+        red_slider_->SetValue(r*kLegacyMultiplier);
+        green_slider_->SetValue(g*kLegacyMultiplier);
+        blue_slider_->SetValue(b*kLegacyMultiplier);
+      } else {
+        red_slider_->SetValue(r);
+        green_slider_->SetValue(g);
+        blue_slider_->SetValue(b);
+      }
+
+      emit ColorChanged(GetColor());
+    }
   }
+
+  // Conform string to our formatting
+  UpdateHex();
 }
 
 bool ColorValuesTab::AreSlidersLegacyValues() const

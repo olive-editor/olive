@@ -52,9 +52,7 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 
   job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
-  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
-                                              static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
-                                              VideoParams::kInternalChannelCount));
+  renderer()->Blit(pipeline, job, GetViewportParams());
 }
 
 void ScopeBase::OnInit()
@@ -89,11 +87,11 @@ void ScopeBase::OnPaint()
 
 void ScopeBase::OnDestroy()
 {
-  super::OnDestroy();
-
   managed_tex_ = nullptr;
   texture_ = nullptr;
   pipeline_.clear();
+
+  super::OnDestroy();
 }
 
 }

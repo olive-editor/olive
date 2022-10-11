@@ -67,6 +67,8 @@ protected:
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
   virtual void CloseInternal() override;
 
+  virtual rational GetAudioStartOffset() const override;
+
 private:
   class Instance
   {
@@ -148,7 +150,7 @@ private:
 
   void ClearFrameCache();
 
-  AVFramePtr RetrieveFrame(const rational &time, CancelAtom *cancelled);
+  AVFramePtr RetrieveFrame(const rational &time, VideoParams::Interlacing interlacing, CancelAtom *cancelled);
 
   void RemoveFirstFrame();
 

@@ -47,10 +47,10 @@ void HistogramScope::OnInit()
 
 void HistogramScope::OnDestroy()
 {
-  super::OnDestroy();
-
   pipeline_secondary_.clear();
   texture_row_sums_ = nullptr;
+
+  super::OnDestroy();
 }
 
 ShaderCode HistogramScope::GenerateShaderCode()

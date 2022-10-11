@@ -64,8 +64,6 @@ QString PanNode::Description() const
 
 void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  Q_UNUSED(globals)
-
   // Create a sample job
   SampleBuffer samples = value[kSamplesInput].toSamples();
   if (samples.is_allocated()) {
@@ -85,7 +83,7 @@ void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         table->Push(NodeValue(NodeValue::kSamples, samples, this));
       } else {
         // Requires job
-        table->Push(NodeValue::kSamples, SampleJob(kSamplesInput, value), this);
+        table->Push(NodeValue::kSamples, SampleJob(globals.time(), kSamplesInput, value), this);
       }
     } else {
       // Pass right through

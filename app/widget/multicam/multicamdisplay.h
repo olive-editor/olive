@@ -18,31 +18,40 @@
 
 ***/
 
-#ifndef COLORLABELMENUITEM_H
-#define COLORLABELMENUITEM_H
+#ifndef MULTICAMDISPLAY_H
+#define MULTICAMDISPLAY_H
 
-#include <QLabel>
-#include <QWidget>
-
-#include "widget/colorwheel/colorpreviewbox.h"
+#include "node/input/multicam/multicamnode.h"
+#include "widget/viewer/viewerdisplay.h"
 
 namespace olive {
 
-class ColorLabelMenuItem : public QWidget
+class MulticamDisplay : public ViewerDisplayWidget
 {
+  Q_OBJECT
 public:
-  ColorLabelMenuItem(QWidget* parent = nullptr);
+  explicit MulticamDisplay(QWidget *parent = nullptr);
 
-  void SetText(const QString& text);
+  void SetMulticamNode(MultiCamNode *n);
 
-  void SetColor(const Color& color);
+protected:
+  virtual void OnPaint() override;
+
+  virtual void OnDestroy() override;
+
+  virtual TexturePtr LoadCustomTextureFromFrame(const QVariant &v) override;
 
 private:
-  ColorPreviewBox* box_;
-  QLabel* label_;
+  static QString GenerateShaderCode(int rows, int cols);
+
+  MultiCamNode *node_;
+
+  QVariant shader_;
+  int rows_;
+  int cols_;
 
 };
 
 }
 
-#endif // COLORLABELMENUITEM_H
+#endif // MULTICAMDISPLAY_H

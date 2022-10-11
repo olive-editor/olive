@@ -87,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
   param_panel_ = new ParamPanel(this);
   curve_panel_ = new CurvePanel(this);
   sequence_viewer_panel_ = new SequenceViewerPanel(this);
+  multicam_panel_ = new MulticamPanel(this);
   pixel_sampler_panel_ = new PixelSamplerPanel(this);
   AppendProjectPanel();
   tool_panel_ = new ToolPanel(this);
@@ -104,18 +105,22 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
   connect(param_panel_, &ParamPanel::SelectedNodesChanged, node_panel_, &NodePanel::Select);
 
-  // Connect time signals together
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
-  connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
-  connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
-  connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
-  connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTime);
+  connect(node_panel_, &NodePanel::NodeSelectionChanged, sequence_viewer_panel_, &ViewerPanel::SetNodeViewSelections);
 
-  connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
+  // Connect time signals together
+  AddMainTimePanel(multicam_panel_);
+  AddMainTimePanel(curve_panel_);
+  AddMainTimePanel(param_panel_);
+  AddMainTimePanel(sequence_viewer_panel_);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
+  sequence_viewer_panel_->ConnectTimeBasedPanel(multicam_panel_);
+
+  connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
+
+  sequence_viewer_panel_->AddPlaybackDevice(multicam_panel_->GetMulticamWidget()->GetDisplayWidget());
+  sequence_viewer_panel_->ConnectMulticamWidget(multicam_panel_->GetMulticamWidget());
 
   scope_panel_->SetViewerPanel(sequence_viewer_panel_);
 
@@ -489,6 +494,7 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
     UpdateNodePanelContextFromTimelinePanel(panel);
+    sequence_viewer_panel_->SetTimelineSelectedBlocks(blocks);
   }
 }
 
@@ -549,7 +555,9 @@ void MainWindow::UpdateTitle()
 
 void MainWindow::TimelineCloseRequested()
 {
-  RemoveTimelinePanel(static_cast<TimelinePanel*>(sender()));
+  TimelinePanel *t = static_cast<TimelinePanel*>(sender());
+  RemoveTimelinePanel(t);
+  main_time_panels_.removeOne(t);
 }
 
 void MainWindow::ProjectCloseRequested()
@@ -591,21 +599,32 @@ void MainWindow::FloatingPanelCloseRequested()
   panel->deleteLater();
 }
 
+void MainWindow::AddMainTimePanel(TimeBasedPanel *p)
+{
+  main_time_panels_.append(p);
+  connect(p, &TimeBasedPanel::TimeChanged, this, &MainWindow::UpdateMainTimePanels);
+}
+
+void MainWindow::UpdateMainTimePanels(const rational &r)
+{
+  for (TimeBasedPanel *p : main_time_panels_) {
+    if (p != sender()) {
+      p->SetTime(r);
+    }
+  }
+}
+
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
   TimelinePanel* panel = AppendPanelInternal<TimelinePanel>(timeline_panels_);
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
-  connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTime);
-  connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
   connect(panel, &TimelinePanel::RevealViewerInFootageViewer, this, &MainWindow::RevealViewerInFootageViewer);
-  connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
-  connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
+
+  AddMainTimePanel(panel);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(panel);
 
@@ -647,6 +666,7 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
 void MainWindow::TimelineFocused(ViewerOutput* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
+  multicam_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
 }
@@ -836,6 +856,10 @@ void MainWindow::SetDefaultLayout()
   scope_panel_->hide();
   scope_panel_->setFloating(true);
   addDockWidget(Qt::TopDockWidgetArea, scope_panel_);
+
+  multicam_panel_->hide();
+  multicam_panel_->setFloating(true);
+  addDockWidget(Qt::TopDockWidgetArea, multicam_panel_);
 
   sequence_viewer_panel_->show();
   addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);

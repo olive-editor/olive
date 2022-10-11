@@ -90,6 +90,10 @@ CMakeLists.txt.user*
 # QtCreator 4.8< compilation database 
 compile_commands.json
 
+# Hand-written compilation database listing compilation flags for clangd to use when parsing the code, similarly to the compilation database above
+# https://clangd.llvm.org/design/compile-commands#where-do-compile-commands-come-from
+compile_flags.txt
+
 # QtCreator local machine specific files for imported projects
 *creator.user*
 

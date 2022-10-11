@@ -60,13 +60,15 @@ void OCIOBaseNode::RemovedFromGraph()
 
 void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  if (value[kTextureInput].toTexture() && processor_) {
+  auto tex_met = value[kTextureInput];
+  TexturePtr t = tex_met.toTexture();
+  if (t && processor_) {
     ColorTransformJob job;
 
     job.SetColorProcessor(processor_);
-    job.SetInputTexture(value[kTextureInput].toTexture());
+    job.SetInputTexture(tex_met);
 
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+    table->Push(NodeValue::kTexture, t->toJob(job), this);
   }
 }
 

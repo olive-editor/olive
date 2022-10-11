@@ -39,6 +39,10 @@ void NodeGraph::Clear()
 {
   // By deleting the last nodes first, we assume that nodes that are most important are deleted last
   // (e.g. Project's ColorManager or ProjectSettingsNode.
+  for (auto it=node_children_.cbegin(); it!=node_children_.cend(); it++) {
+    (*it)->SetCachesEnabled(false);
+  }
+
   while (!node_children_.isEmpty()) {
     delete node_children_.last();
   }

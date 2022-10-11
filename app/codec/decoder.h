@@ -294,8 +294,7 @@ protected:
     return stream_;
   }
 
-  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
-  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time);
+  virtual rational GetAudioStartOffset() const { return 0; }
 
 signals:
   /**
@@ -307,13 +306,13 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange &range, LoopMode loop_mode, const AudioParams &params);
+  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &params);
 
   CodecStream stream_;
 
   QMutex mutex_;
 
-  qint64 last_accessed_;
+  std::atomic_int64_t last_accessed_;
 
   TexturePtr cached_texture_;
   rational cached_time_;

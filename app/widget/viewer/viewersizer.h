@@ -51,6 +51,7 @@ public:
    */
   void SetWidget(QWidget* widget);
 
+public slots:
   /**
    * @brief Set resolution to use
    *
@@ -70,7 +71,6 @@ public:
    */
   void SetZoom(int percent);
 
-public slots:
   void HandDragMove(int x, int y);
 
 signals:

@@ -121,6 +121,8 @@ TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const V
 
 QVariant Renderer::GetDefaultShader()
 {
+  QMutexLocker locker(&color_cache_mutex_);
+
   if (default_shader_.isNull()) {
     default_shader_ = CreateNativeShader(ShaderCode(QString(), QString()));
   }
@@ -290,7 +292,7 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
   }
 
   ShaderJob job;
-  job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(color_job.GetInputTexture())));
+  job.Insert(QStringLiteral("ove_maintex"), color_job.GetInputTexture());
   job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, color_job.GetTransformMatrix()));
   job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
   job.Insert(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, int(color_job.GetInputAlphaAssociation())));

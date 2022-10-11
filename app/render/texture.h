@@ -27,7 +27,11 @@
 
 namespace olive {
 
+class AcceleratedJob;
 class Renderer;
+
+class Texture;
+using TexturePtr = std::shared_ptr<Texture>;
 
 class Texture
 {
@@ -45,8 +49,16 @@ public:
    */
   Texture(const VideoParams& param) :
     renderer_(nullptr),
-    params_(param)
+    params_(param),
+    job_(nullptr)
   {
+  }
+
+  template <typename T>
+  Texture(const VideoParams &p, const T &j) :
+    Texture(p)
+  {
+    job_ = new T(j);
   }
 
   /**
@@ -55,7 +67,8 @@ public:
   Texture(Renderer* renderer, const QVariant& native, const VideoParams& param) :
     renderer_(renderer),
     params_(param),
-    id_(native)
+    id_(native),
+    job_(nullptr)
   {
   }
 
@@ -69,6 +82,18 @@ public:
   const VideoParams& params() const
   {
     return params_;
+  }
+
+  template <typename T>
+  static TexturePtr Job(const VideoParams &p, const T &j)
+  {
+    return std::make_shared<Texture>(p, j);
+  }
+
+  template <typename T>
+  TexturePtr toJob(const T &job)
+  {
+    return Texture::Job(params_, job);
   }
 
   void Upload(void* data, int linesize);
@@ -88,6 +113,11 @@ public:
   int height() const
   {
     return params_.effective_height();
+  }
+
+  QVector2D virtual_resolution() const
+  {
+    return QVector2D(params_.square_pixel_width(), params_.height());
   }
 
   VideoParams::Format format() const
@@ -115,6 +145,9 @@ public:
     return renderer_;
   }
 
+  bool IsJob() const { return job_; }
+  AcceleratedJob *job() const { return job_; }
+
 private:
   Renderer* renderer_;
 
@@ -122,9 +155,9 @@ private:
 
   QVariant id_;
 
-};
+  AcceleratedJob *job_;
 
-using TexturePtr = std::shared_ptr<Texture>;
+};
 
 }
 

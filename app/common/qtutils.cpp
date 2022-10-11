@@ -145,6 +145,23 @@ QStringList QtUtils::WordWrapString(const QString &s, const QFontMetrics &fm, in
   return list;
 }
 
+Qt::KeyboardModifiers QtUtils::FlipControlAndShiftModifiers(Qt::KeyboardModifiers e)
+{
+  if (e & Qt::ControlModifier & Qt::ShiftModifier) {
+    return e;
+  }
+
+  if (e & Qt::ShiftModifier) {
+    e |= Qt::ControlModifier;
+    e &= ~Qt::ShiftModifier;
+  } else if (e & Qt::ControlModifier) {
+    e |= Qt::ShiftModifier;
+    e &= ~Qt::ControlModifier;
+  }
+
+  return e;
+}
+
 void QtUtils::SetComboBoxData(QComboBox *cb, int data)
 {
   for (int i=0; i<cb->count(); i++) {
