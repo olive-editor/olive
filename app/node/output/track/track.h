@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 #define TRACK_H
 
 #include "node/block/block.h"
-#include "timeline/timelinecommon.h"
 
 namespace olive {
 
@@ -45,17 +44,18 @@ public:
 
   Track();
 
-  NODE_DEFAULT_DESTRUCTOR(Track)
+  NODE_DEFAULT_FUNCTIONS(Track)
 
   const Track::Type& type() const;
   void set_type(const Track::Type& track_type);
-
-  virtual Node* copy() const override;
 
   virtual QString Name() const override;
   virtual QString id() const override;
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
+
+  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
@@ -224,6 +224,9 @@ public:
           } else if (s.at(0) == 'a') {
             // Audio stream
             return Track::kAudio;
+          } else if (s.at(0) == 's') {
+            // Subtitle stream
+            return Track::kSubtitle;
           }
         }
       }
@@ -313,29 +316,10 @@ public:
    */
   Block* NearestBlockAfter(const rational& time) const;
 
-  /**
-   * @brief Returns the block that should be rendered/visible at a given time
-   *
-   * Use this for any video rendering or determining which block will actually be active at any
-   * time.
-   *
-   * @return Catches the first block that matches `block.in <= time && block.out > time`. Returns
-   * nullptr if the time exceeds the track length, the block active at this time is disabled, or
-   * if IsMuted() is true.
+  /*
+   * @brief Returns whether a time range is empty or only has a gap
    */
-  Block* BlockAtTime(const rational& time) const;
-
-  /**
-   * @brief Returns a list of blocks that should be rendered/visible during a given time range
-   *
-   * Use this for audio rendering to determine all blocks that will be active throughout a range
-   * of time.
-   *
-   * @return Similar to BlockAtTime() but will match several blocks where
-   * `block.in < range.out && block.out > range.in`. Returns an empty list if IsMuted() or if
-   * `range.in >= track.length`. Blocks that are not enabled will be omitted from the returned list.
-   */
-  QVector<Block*> BlocksAtTimeRange(const TimeRange& range) const;
+  bool IsRangeFree(const TimeRange &range) const;
 
   const QVector<Block *> &Blocks() const
   {
@@ -343,6 +327,12 @@ public:
   }
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
+
+  Block *VisibleBlockAtTime(const rational &t) const
+  {
+    int index = GetBlockIndexAtTime(t);
+    return (index == -1) ? nullptr : blocks_.at(index);
+  }
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -453,8 +443,6 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
-
   virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
 
   virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
@@ -467,6 +455,10 @@ private:
   int GetArrayIndexFromCacheIndex(int index) const;
 
   int GetCacheIndexFromArrayIndex(int index) const;
+
+  int GetBlockIndexAtTime(const rational &time) const;
+
+  void ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const;
 
   TimeRangeList block_length_pending_invalidations_;
 

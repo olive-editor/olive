@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -209,6 +209,26 @@ void TimeBasedPanel::GoToIn()
 void TimeBasedPanel::GoToOut()
 {
   GetTimeBasedWidget()->GoToOut();
+}
+
+void TimeBasedPanel::DeleteSelected()
+{
+  GetTimeBasedWidget()->DeleteSelected();
+}
+
+void TimeBasedPanel::CutSelected()
+{
+  GetTimeBasedWidget()->CopySelected(true);
+}
+
+void TimeBasedPanel::CopySelected()
+{
+  GetTimeBasedWidget()->CopySelected(false);
+}
+
+void TimeBasedPanel::Paste()
+{
+  GetTimeBasedWidget()->Paste();
 }
 
 }

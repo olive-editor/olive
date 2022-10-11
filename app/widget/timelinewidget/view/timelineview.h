@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -56,6 +56,8 @@ public:
 
   void SetBeamCursor(const TimelineCoordinate& coord);
   void SetTransitionOverlay(ClipBlock *out, ClipBlock *in);
+  void EnableRecordingOverlay(const TimelineCoordinate &coord);
+  void DisableRecordingOverlay();
 
   void SetSelectionList(QHash<Track::Reference, TimeRangeList>* s)
   {
@@ -70,17 +72,6 @@ public:
   int SceneToTrack(double y);
 
   Block* GetItemAtScenePos(const rational& time, int track_index) const;
-
-  bool GetShowWaveforms() const
-  {
-    return show_waveforms_;
-  }
-
-  void SetShowWaveforms(bool e)
-  {
-    show_waveforms_ = e;
-    viewport()->update();
-  }
 
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
@@ -124,10 +115,11 @@ private:
 
   void DrawBlocks(QPainter* painter, bool foreground);
 
-  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height, const rational &in, const rational &out);
+  void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height, const rational &in, const rational &out, const rational &media_in);
   void DrawBlock(QPainter *painter, bool foreground, Block *block, qreal top, qreal height)
   {
-    DrawBlock(painter, foreground, block, top, height, block->in(), block->out());
+    ClipBlock *cb = dynamic_cast<ClipBlock*>(block);
+    return DrawBlock(painter, foreground, block, top, height, block->in(), block->out(), cb ? cb->media_in() : 0);
   }
 
   void DrawZebraStripes(QPainter *painter, const QRectF &r);
@@ -140,6 +132,8 @@ private:
 
   qreal GetTimelineRightBound() const;
 
+  void DrawThumbnail(QPainter *painter, const FrameHashCache *thumbs, const rational &time, int x, const QRect &preview_rect, QRect *thumb_rect) const;
+
   QHash<Track::Reference, TimeRangeList>* selections_;
 
   QVector<TimelineViewGhostItem*>* ghosts_;
@@ -150,10 +144,13 @@ private:
 
   TrackList* connected_track_list_;
 
-  bool show_waveforms_;
-
   ClipBlock *transition_overlay_out_;
   ClipBlock *transition_overlay_in_;
+
+  QMap<TimelineMarker*, QRectF> clip_marker_rects_;
+
+  bool recording_overlay_;
+  TimelineCoordinate recording_coord_;
 
 private slots:
   void TrackListChanged();

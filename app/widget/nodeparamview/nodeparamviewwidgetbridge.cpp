@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "node/node.h"
 #include "node/project/sequence/sequence.h"
@@ -70,9 +71,11 @@ int GetSliderCount(NodeValue::Type type)
 
 void NodeParamViewWidgetBridge::CreateWidgets()
 {
+  QWidget *parent = dynamic_cast<QWidget*>(this->parent());
+
   if (GetInnerInput().IsArray() && GetInnerInput().element() == -1) {
 
-    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(GetInnerInput().node(), GetInnerInput().input());
+    NodeParamViewArrayWidget* w = new NodeParamViewArrayWidget(GetInnerInput().node(), GetInnerInput().input(), parent);
     connect(w, &NodeParamViewArrayWidget::DoubleClicked, this, &NodeParamViewWidgetBridge::ArrayWidgetDoubleClicked);
     widgets_.append(w);
 
@@ -86,22 +89,19 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kTexture:
     case NodeValue::kMatrix:
     case NodeValue::kSamples:
-    case NodeValue::kFootageJob:
-    case NodeValue::kShaderJob:
-    case NodeValue::kSampleJob:
-    case NodeValue::kGenerateJob:
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
+    case NodeValue::kSubtitleParams:
     case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
     {
-      CreateSliders<IntegerSlider>(1);
+      CreateSliders<IntegerSlider>(1, parent);
       break;
     }
     case NodeValue::kRational:
     {
-      CreateSliders<RationalSlider>(1);
+      CreateSliders<RationalSlider>(1, parent);
       break;
     }
     case NodeValue::kFloat:
@@ -109,12 +109,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kVec3:
     case NodeValue::kVec4:
     {
-      CreateSliders<FloatSlider>(GetSliderCount(t));
+      CreateSliders<FloatSlider>(GetSliderCount(t), parent);
       break;
     }
     case NodeValue::kCombo:
     {
-      QComboBox* combobox = new QComboBox();
+      QComboBox* combobox = new QComboBox(parent);
 
       QStringList items = GetInnerInput().GetComboBoxStrings();
       foreach (const QString& s, items) {
@@ -127,42 +127,43 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     }
     case NodeValue::kFile:
     {
-      FileField* file_field = new FileField();
+      FileField* file_field = new FileField(parent);
       widgets_.append(file_field);
       connect(file_field, &FileField::FilenameChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kColor:
     {
-      ColorButton* color_button = new ColorButton(GetInnerInput().node()->project()->color_manager());
+      ColorButton* color_button = new ColorButton(GetInnerInput().node()->project()->color_manager(), parent);
       widgets_.append(color_button);
       connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kText:
     {
-      NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit();
+      NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit(parent);
       widgets_.append(line_edit);
       connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
+      connect(line_edit, &NodeParamViewTextEdit::RequestEditInViewer, this, &NodeParamViewWidgetBridge::RequestEditTextInViewer);
       break;
     }
     case NodeValue::kBoolean:
     {
-      QCheckBox* check_box = new QCheckBox();
+      QCheckBox* check_box = new QCheckBox(parent);
       widgets_.append(check_box);
       connect(check_box, &QCheckBox::clicked, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kFont:
     {
-      QFontComboBox* font_combobox = new QFontComboBox();
+      QFontComboBox* font_combobox = new QFontComboBox(parent);
       widgets_.append(font_combobox);
       connect(font_combobox, &QFontComboBox::currentFontChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
       break;
     }
     case NodeValue::kBezier:
     {
-      BezierWidget *bezier = new BezierWidget();
+      BezierWidget *bezier = new BezierWidget(parent);
       widgets_.append(bezier);
 
       connect(bezier->x_slider(), &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
@@ -240,12 +241,9 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
   case NodeValue::kSamples:
-  case NodeValue::kFootageJob:
-  case NodeValue::kShaderJob:
-  case NodeValue::kSampleJob:
-  case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kSubtitleParams:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -388,12 +386,16 @@ void NodeParamViewWidgetBridge::WidgetCallback()
 }
 
 template <typename T>
-void NodeParamViewWidgetBridge::CreateSliders(int count)
+void NodeParamViewWidgetBridge::CreateSliders(int count, QWidget *parent)
 {
   for (int i=0;i<count;i++) {
-    T* fs = new T();
+    T* fs = new T(parent);
     fs->SliderBase::SetDefaultValue(GetInnerInput().GetSplitDefaultValueForTrack(i));
     fs->SetLadderElementCount(2);
+
+    // HACK: Force some spacing between sliders
+    fs->setContentsMargins(0, 0, QtUtils::QFontMetricsWidth(fs->fontMetrics(), QStringLiteral("        ")), 0);
+
     widgets_.append(fs);
     connect(fs, &T::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
   }
@@ -417,12 +419,9 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kTexture:
   case NodeValue::kMatrix:
   case NodeValue::kSamples:
-  case NodeValue::kFootageJob:
-  case NodeValue::kShaderJob:
-  case NodeValue::kSampleJob:
-  case NodeValue::kGenerateJob:
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
+  case NodeValue::kSubtitleParams:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -554,22 +553,33 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
   NodeValue::Type data_type = GetDataType();
 
   // Parameters for all types
-  if (key == QStringLiteral("enabled")) {
-    foreach (QWidget* w, widgets_) {
-      w->setEnabled(value.toBool());
+  bool key_is_disable = key.startsWith(QStringLiteral("disable"));
+  if (key_is_disable || key.startsWith(QStringLiteral("enabled"))) {
+
+    bool e = value.toBool();
+    if (key_is_disable) {
+      e = !e;
     }
+
+    if (key.size() == 7) { // just the word "disable" or "enabled"
+      for (int i=0; i<widgets_.size(); i++) {
+        widgets_.at(i)->setEnabled(e);
+      }
+    } else { // set specific track/widget
+      bool ok;
+      int element = key.midRef(7).toInt(&ok);
+      int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
+
+      if (ok && element >= 0 && element < tracks) {
+        widgets_.at(element)->setEnabled(e);
+      }
+    }
+
   }
 
-  // Parameters for vectors only
-  if (NodeValue::type_is_vector(data_type)) {
-    if (key == QStringLiteral("disablex")) {
-      static_cast<FloatSlider*>(widgets_.at(0))->setEnabled(!value.toBool());
-    } else if (key == QStringLiteral("disabley")) {
-      static_cast<FloatSlider*>(widgets_.at(1))->setEnabled(!value.toBool());
-    } else if (widgets_.size() > 2 && key == QStringLiteral("disablez")) {
-      static_cast<FloatSlider*>(widgets_.at(2))->setEnabled(!value.toBool());
-    } else if (widgets_.size() > 3 && key == QStringLiteral("disablew")) {
-      static_cast<FloatSlider*>(widgets_.at(3))->setEnabled(!value.toBool());
+  if (key == QStringLiteral("tooltip")) {
+    for (int i = 0; i < widgets_.size(); i++) {
+      widgets_.at(i)->setToolTip(value.toString());
     }
   }
 
@@ -652,6 +662,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
         break;
       }
     } else if (key == QStringLiteral("offset")) {
+
       int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
 
       QVector<QVariant> offsets = NodeValue::split_normal_value_into_track_values(data_type, value);
@@ -661,6 +672,33 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       }
 
       UpdateWidgetValues();
+
+    } else if (key.startsWith(QStringLiteral("color"))) {
+
+      QColor c(value.toString());
+
+      int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
+
+      if (key.size() == 5) {
+        // Set for all tracks
+        for (int i=0; i<tracks; i++) {
+          static_cast<SliderBase*>(widgets_.at(i))->SetColor(c);
+        }
+      } else {
+        bool ok;
+        int element = key.midRef(5).toInt(&ok);
+        if (ok && element >= 0 && element < tracks) {
+          static_cast<SliderBase*>(widgets_.at(element))->SetColor(c);
+        }
+      }
+
+    } else if (key == QStringLiteral("base")) {
+
+      double d = value.toDouble();
+      for (int i=0; i<widgets_.size(); i++) {
+        static_cast<NumericSliderBase*>(widgets_.at(i))->SetDragMultiplier(d);
+      }
+
     }
   }
 
@@ -747,6 +785,15 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       ff->SetPlaceholder(value.toString());
     } else if (key == QStringLiteral("directory")) {
       ff->SetDirectoryMode(value.toBool());
+    }
+  }
+
+  // Parameters for text
+  if (data_type == NodeValue::kText) {
+    NodeParamViewTextEdit *tex = static_cast<NodeParamViewTextEdit *>(widgets_.first());
+
+    if (key == QStringLiteral("vieweronly")) {
+      tex->SetEditInViewerOnlyMode(value.toBool());
     }
   }
 }

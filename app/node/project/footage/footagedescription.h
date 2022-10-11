@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include "node/output/track/track.h"
 #include "render/audioparams.h"
+#include "render/subtitleparams.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -31,13 +32,14 @@ class FootageDescription
 {
 public:
   FootageDescription(const QString& decoder = QString()) :
-    decoder_(decoder)
+    decoder_(decoder),
+    total_stream_count_(0)
   {
   }
 
   bool IsValid() const
   {
-    return !decoder_.isEmpty() && (!video_streams_.isEmpty() || !audio_streams_.isEmpty());
+    return !decoder_.isEmpty() && (!video_streams_.isEmpty() || !audio_streams_.isEmpty() || !subtitle_streams_.isEmpty());
   }
 
   const QString& decoder() const
@@ -59,12 +61,21 @@ public:
     audio_streams_.append(audio_params);
   }
 
+  void AddSubtitleStream(const SubtitleParams& sub_params)
+  {
+    Q_ASSERT(!HasStreamIndex(sub_params.stream_index()));
+
+    subtitle_streams_.append(sub_params);
+  }
+
   Track::Type GetTypeOfStream(int index)
   {
     if (StreamIsVideo(index)) {
       return Track::kVideo;
     } else if (StreamIsAudio(index)) {
       return Track::kAudio;
+    } else if (StreamIsSubtitle(index)) {
+      return Track::kSubtitle;
     } else {
       return Track::kNone;
     }
@@ -92,10 +103,24 @@ public:
     return false;
   }
 
+  bool StreamIsSubtitle(int index) const
+  {
+    foreach (const SubtitleParams& sp, subtitle_streams_) {
+      if (sp.stream_index() == index) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   bool HasStreamIndex(int index) const
   {
-    return StreamIsVideo(index) || StreamIsAudio(index);
+    return StreamIsVideo(index) || StreamIsAudio(index) || StreamIsSubtitle(index);
   }
+
+  int GetStreamCount() const { return total_stream_count_; }
+  void SetStreamCount(int s) { total_stream_count_ = s; }
 
   bool Load(const QString& filename);
 
@@ -111,12 +136,23 @@ public:
     return audio_streams_;
   }
 
+  const QVector<SubtitleParams>& GetSubtitleStreams() const
+  {
+    return subtitle_streams_;
+  }
+
 private:
+  static constexpr unsigned kFootageMetaVersion = 5;
+
   QString decoder_;
 
   QVector<VideoParams> video_streams_;
 
   QVector<AudioParams> audio_streams_;
+
+  QVector<SubtitleParams> subtitle_streams_;
+
+  int total_stream_count_;
 
 };
 

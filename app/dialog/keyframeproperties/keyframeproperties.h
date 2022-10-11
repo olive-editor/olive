@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ class KeyframePropertiesDialog : public QDialog
 {
   Q_OBJECT
 public:
-  KeyframePropertiesDialog(const QVector<NodeKeyframe*>& keys, const rational& timebase, QWidget* parent = nullptr);
+  KeyframePropertiesDialog(const std::vector<NodeKeyframe*>& keys, const rational& timebase, QWidget* parent = nullptr);
 
 public slots:
   virtual void accept() override;
@@ -43,7 +43,7 @@ public slots:
 private:
   void SetUpBezierSlider(FloatSlider *slider, bool all_same, double value);
 
-  const QVector<NodeKeyframe*>& keys_;
+  const std::vector<NodeKeyframe*>& keys_;
 
   rational timebase_;
 

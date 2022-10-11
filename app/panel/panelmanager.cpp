@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ PanelManager* PanelManager::instance_ = nullptr;
 
 PanelManager::PanelManager(QObject *parent) :
   QObject(parent),
-  locked_(false)
+  locked_(false),
+  suppress_changed_signal_(false)
 {
 }
 
@@ -49,7 +50,7 @@ PanelWidget *PanelManager::CurrentlyFocused(bool enable_hover) const
 {
   // If hover focus is enabled, find the currently hovered panel and return it (if no panel is hovered, resort to
   // default behavior)
-  if (enable_hover && Config::Current()[QStringLiteral("HoverFocus")].toBool()) {
+  if (enable_hover && OLIVE_CONFIG("HoverFocus").toBool()) {
     PanelWidget* hovered = CurrentlyHovered();
 
     if (hovered != nullptr) {
@@ -66,8 +67,10 @@ PanelWidget *PanelManager::CurrentlyFocused(bool enable_hover) const
 
 PanelWidget *PanelManager::CurrentlyHovered() const
 {
+  QPoint global_mouse = QCursor::pos();
+
   foreach (PanelWidget* panel, focus_history_) {
-    if (panel->underMouse()) {
+    if (panel->rect().contains(panel->mapFromGlobal(global_mouse))) {
       return panel;
     }
   }
@@ -163,7 +166,9 @@ void PanelManager::FocusChanged(QWidget *old, QWidget *now)
           focus_history_.move(panel_index, 0);
         }
 
-        emit FocusedPanelChanged(panel_cast_test);
+        if (!suppress_changed_signal_) {
+          emit FocusedPanelChanged(panel_cast_test);
+        }
       }
 
       break;

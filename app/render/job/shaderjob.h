@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,17 +24,24 @@
 #include <QMatrix4x4>
 #include <QVector>
 
-#include "generatejob.h"
+#include "acceleratedjob.h"
 #include "render/texture.h"
 
 namespace olive {
 
-class ShaderJob : public GenerateJob {
+class ShaderJob : public AcceleratedJob
+{
 public:
   ShaderJob()
   {
     iterations_ = 1;
     iterative_input_ = nullptr;
+  }
+
+  ShaderJob(const NodeValueRow &row) :
+    ShaderJob()
+  {
+    Insert(row);
   }
 
   const QString& GetShaderID() const
@@ -112,7 +119,5 @@ private:
 };
 
 }
-
-Q_DECLARE_METATYPE(olive::ShaderJob)
 
 #endif // SHADERJOB_H

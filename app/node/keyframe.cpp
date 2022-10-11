@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,6 +39,11 @@ NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, Type typ
   next_(nullptr)
 {
   setParent(parent);
+}
+
+NodeKeyframe::NodeKeyframe()
+{
+  type_ = NodeKeyframe::kLinear;
 }
 
 NodeKeyframe::~NodeKeyframe()
@@ -94,7 +99,7 @@ const NodeKeyframe::Type &NodeKeyframe::type() const
 void NodeKeyframe::set_type(const NodeKeyframe::Type &type)
 {
   if (type_ != type) {
-    type_ = type;
+    set_type_no_bezier_adj(type);
 
     if (type_ == kBezier) {
       // Set some sane defaults if this keyframe existed in the track and was just changed
@@ -115,9 +120,13 @@ void NodeKeyframe::set_type(const NodeKeyframe::Type &type)
         }
       }
     }
-
-    emit TypeChanged(type_);
   }
+}
+
+void NodeKeyframe::set_type_no_bezier_adj(const Type &type)
+{
+  type_ = type;
+  emit TypeChanged(type_);
 }
 
 const QPointF &NodeKeyframe::bezier_control_in() const
@@ -193,6 +202,12 @@ NodeKeyframe::BezierType NodeKeyframe::get_opposing_bezier_type(NodeKeyframe::Be
   } else {
     return kInHandle;
   }
+}
+
+bool NodeKeyframe::has_sibling_at_time(const rational &t) const
+{
+  NodeKeyframe *k = parent()->GetKeyframeAtTimeOnTrack(input(), t, track(), element());
+  return k && k != this;
 }
 
 }

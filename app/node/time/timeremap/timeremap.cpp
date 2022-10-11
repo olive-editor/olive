@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,14 +34,8 @@ TimeRemapNode::TimeRemapNode()
   AddInput(kTimeInput, NodeValue::kRational, QVariant::fromValue(rational(0)), InputFlags(kInputFlagNotConnectable));
   SetInputProperty(kTimeInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kTimeInput, QStringLiteral("viewlock"), true);
-  IgnoreHashingFrom(kTimeInput);
 
   AddInput(kInputInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-}
-
-Node *TimeRemapNode::copy() const
-{
-  return new TimeRemapNode();
 }
 
 QString TimeRemapNode::Name() const
@@ -87,6 +81,8 @@ TimeRange TimeRemapNode::OutputTimeAdjustment(const QString &input, int element,
 
 void TimeRemapNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTimeInput, QStringLiteral("Time"));
   SetInputName(kInputInput, QStringLiteral("Input"));
 }
@@ -94,18 +90,6 @@ void TimeRemapNode::Retranslate()
 void TimeRemapNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   table->Push(value[kInputInput]);
-}
-
-void TimeRemapNode::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  // Don't hash anything of our own, just pass-through to the connected node at the remapped tmie
-  if (IsInputConnected(kInputInput)) {
-    Node *out = GetConnectedOutput(kInputInput);
-
-    NodeGlobals new_globals = globals;
-    new_globals.set_time(TimeRange(GetRemappedTime(globals.time().in()), GetRemappedTime(globals.time().out())));
-    Node::Hash(out, GetValueHintForInput(kInputInput), hash, new_globals, video_params);
-  }
 }
 
 rational TimeRemapNode::GetRemappedTime(const rational &input) const

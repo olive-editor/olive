@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,21 +20,28 @@
 
 #include "noise.h"
 
+#include "widget/slider/floatslider.h"
+
 namespace olive {
 
+const QString NoiseGeneratorNode::kBaseIn = QStringLiteral("base_in");
 const QString NoiseGeneratorNode::kColorInput = QStringLiteral("color_in");
 const QString NoiseGeneratorNode::kStrengthInput = QStringLiteral("strength_in");
 
+#define super Node
+
 NoiseGeneratorNode::NoiseGeneratorNode()
 {
-  AddInput(kStrengthInput, NodeValue::kFloat, 20);
+  AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+
+  AddInput(kStrengthInput, NodeValue::kFloat, 0.2);
+  SetInputProperty(kStrengthInput, QStringLiteral("view"), FloatSlider::kPercentage);
+  SetInputProperty(kStrengthInput, QStringLiteral("min"), 0);
 
   AddInput(kColorInput, NodeValue::kBoolean, false);
-}
 
-Node* NoiseGeneratorNode::copy() const
-{
-  return new NoiseGeneratorNode();
+  SetEffectInput(kBaseIn);
+  SetFlags(kVideoEffect);
 }
 
 QString NoiseGeneratorNode::Name() const
@@ -59,24 +66,27 @@ QString NoiseGeneratorNode::Description() const
 
 void NoiseGeneratorNode::Retranslate()
 {
+  super::Retranslate();
+
+  SetInputName(kBaseIn, tr("Base"));
   SetInputName(kStrengthInput, tr("Strength"));
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderCode NoiseGeneratorNode::GetShaderCode(const QString& shader_id) const {
-  Q_UNUSED(shader_id)
+ShaderCode NoiseGeneratorNode::GetShaderCode(const ShaderRequest &request) const
+{
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/noise.frag"));
 }
 
 void NoiseGeneratorNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
+  ShaderJob job(value);
 
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
+  job.Insert(value);
+  job.Insert(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
 
+  TexturePtr base = value[kBaseIn].toTexture();
 
-  table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
-
+  table->Push(NodeValue::kTexture, Texture::Job(base ? base->params() : globals.vparams(), job), this);
 }
 }

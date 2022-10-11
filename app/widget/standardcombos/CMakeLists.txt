@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ set(OLIVE_SOURCES
   widget/standardcombos/interlacedcombobox.h
   widget/standardcombos/pixelaspectratiocombobox.h
   widget/standardcombos/pixelformatcombobox.h
+  widget/standardcombos/sampleformatcombobox.h
   widget/standardcombos/sampleratecombobox.h
   widget/standardcombos/standardcombos.h
   widget/standardcombos/videodividercombobox.h

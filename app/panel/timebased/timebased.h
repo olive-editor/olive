@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -98,6 +98,16 @@ public:
 
   virtual void GoToOut() override;
 
+  virtual void DeleteSelected() override;
+
+  virtual void CutSelected() override;
+
+  virtual void CopySelected() override;
+
+  virtual void Paste() override;
+
+  TimeBasedWidget* GetTimeBasedWidget() const { return widget_; }
+
 public slots:
   void SetTimebase(const rational& timebase);
 
@@ -119,11 +129,6 @@ signals:
   void ShuttleRightRequested();
 
 protected:
-  TimeBasedWidget* GetTimeBasedWidget() const
-  {
-    return widget_;
-  }
-
   void SetTimeBasedWidget(TimeBasedWidget* widget);
 
   virtual void Retranslate() override;

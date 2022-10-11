@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/generator/shape/generatorwithmerge.cpp
+  node/generator/shape/generatorwithmerge.h
   node/generator/shape/shapenode.cpp
   node/generator/shape/shapenode.h
   node/generator/shape/shapenodebase.cpp

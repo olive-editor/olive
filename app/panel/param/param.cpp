@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,22 +28,13 @@ ParamPanel::ParamPanel(QWidget* parent) :
   TimeBasedPanel(QStringLiteral("ParamPanel"), parent)
 {
   NodeParamView* view = new NodeParamView();
-  connect(view, &NodeParamView::RequestSelectNode, this, &ParamPanel::RequestSelectNode);
   connect(view, &NodeParamView::FocusedNodeChanged, this, &ParamPanel::FocusedNodeChanged);
+  connect(view, &NodeParamView::SelectedNodesChanged, this, &ParamPanel::SelectedNodesChanged);
+  connect(view, &NodeParamView::RequestViewerToStartEditingText, this, &ParamPanel::RequestViewerToStartEditingText);
   connect(this, &ParamPanel::visibilityChanged, view, &NodeParamView::UpdateElementY);
   SetTimeBasedWidget(view);
 
   Retranslate();
-}
-
-void ParamPanel::SelectNodes(const QVector<Node *> &nodes)
-{
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectNodes(nodes);
-}
-
-void ParamPanel::DeselectNodes(const QVector<Node *> &nodes)
-{
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectNodes(nodes);
 }
 
 void ParamPanel::DeleteSelected()

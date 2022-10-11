@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ PreferencesDiskTab::PreferencesDiskTab()
   cache_ahead_slider_ = new FloatSlider();
   cache_ahead_slider_->SetFormat(tr("%1 seconds"));
   cache_ahead_slider_->SetMinimum(0);
-  cache_ahead_slider_->SetValue(Config::Current()["DiskCacheAhead"].value<rational>().toDouble());
+  cache_ahead_slider_->SetValue(OLIVE_CONFIG("DiskCacheAhead").value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_ahead_slider_, row, 1);
 
   cache_behavior_layout->addWidget(new QLabel(tr("Cache Behind:")), row, 2);
@@ -79,7 +79,7 @@ PreferencesDiskTab::PreferencesDiskTab()
   cache_behind_slider_ = new FloatSlider();
   cache_behind_slider_->SetMinimum(0);
   cache_behind_slider_->SetFormat(tr("%1 seconds"));
-  cache_behind_slider_->SetValue(Config::Current()["DiskCacheBehind"].value<rational>().toDouble());
+  cache_behind_slider_->SetValue(OLIVE_CONFIG("DiskCacheBehind").value<rational>().toDouble());
   cache_behavior_layout->addWidget(cache_behind_slider_, row, 3);
 
   outer_layout->addStretch();
@@ -115,8 +115,8 @@ void PreferencesDiskTab::Accept(MultiUndoCommand *command)
     default_disk_cache_folder_->SetPath(disk_cache_location_->text());
   }
 
-  Config::Current()["DiskCacheBehind"] = QVariant::fromValue(rational::fromDouble(cache_behind_slider_->GetValue()));
-  Config::Current()["DiskCacheAhead"] = QVariant::fromValue(rational::fromDouble(cache_ahead_slider_->GetValue()));
+  OLIVE_CONFIG("DiskCacheBehind") = QVariant::fromValue(rational::fromDouble(cache_behind_slider_->GetValue()));
+  OLIVE_CONFIG("DiskCacheAhead") = QVariant::fromValue(rational::fromDouble(cache_ahead_slider_->GetValue()));
 }
 
 }

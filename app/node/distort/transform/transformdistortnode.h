@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,12 +34,7 @@ class TransformDistortNode : public MatrixGenerator
 public:
   TransformDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TransformDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new TransformDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(TransformDistortNode)
 
   virtual QString Name() const override
   {
@@ -48,7 +43,8 @@ public:
 
   virtual QString ShortName() const override
   {
-    return Node::ShortName();
+    // Override MatrixGenerator's short name "Ortho"
+    return Name();
   }
 
   virtual QString id() const override
@@ -70,7 +66,7 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const QString& shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   enum AutoScaleType {
     kAutoScaleNone,
@@ -82,16 +78,16 @@ public:
   static QMatrix4x4 AdjustMatrixByResolutions(const QMatrix4x4& mat,
                                               const QVector2D& sequence_res,
                                               const QVector2D& texture_res,
+                                              const QVector2D& offset,
                                               AutoScaleType autoscale_type = kAutoScaleNone);
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const override;
 
+  static const QString kParentInput;
   static const QString kTextureInput;
   static const QString kAutoscaleInput;
   static const QString kInterpolationInput;
-
-protected:
-  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 protected slots:
   virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::rational &time) override;

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
 #include <QUrl>
@@ -37,6 +38,7 @@
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -65,6 +67,7 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
 
   // Set up sort filter proxy model
   sort_model_.setSourceModel(&model_);
+  sort_model_.setFilterCaseSensitivity(Qt::CaseInsensitive);
   sort_model_.setSortRole(ProjectViewModel::kInnerTextRole);
 
   // Add tree view to stacked widget
@@ -90,13 +93,11 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   // Set default icon size
   SizeChangedSlot(kProjectIconSizeDefault);
 
-  // Set rename timer timeout
-  rename_timer_.setInterval(500);
-  connect(&rename_timer_, &QTimer::timeout, this, &ProjectExplorer::RenameTimerSlot);
-
   connect(tree_view_, &ProjectExplorerTreeView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(list_view_, &ProjectExplorerListView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
   connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
+
+  UpdateNavBarText();
 }
 
 const ProjectToolbar::ViewType &ProjectExplorer::view_type() const
@@ -133,8 +134,7 @@ void ProjectExplorer::Edit(Node *item)
 void ProjectExplorer::AddView(QAbstractItemView *view)
 {
   view->setModel(&sort_model_);
-  view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  connect(view, &QAbstractItemView::clicked, this, &ProjectExplorer::ItemClickedSlot);
+  view->setEditTriggers(QAbstractItemView::SelectedClicked);
   connect(view, &QAbstractItemView::doubleClicked, this, &ProjectExplorer::ItemDoubleClickedSlot);
   connect(view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectExplorer::ViewSelectionChanged);
   connect(view, SIGNAL(DoubleClickedEmptyArea()), this, SLOT(ViewEmptyAreaDoubleClickedSlot()));
@@ -143,21 +143,12 @@ void ProjectExplorer::AddView(QAbstractItemView *view)
 
 void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 {
-  // Make sure any rename timers are stopped
-  rename_timer_.stop();
-
   // Set appropriate views to this index
   icon_view_->setRootIndex(index);
   list_view_->setRootIndex(index);
 
   // Set navbar text to folder's name
-  if (index.isValid()) {
-    Folder* f = static_cast<Folder*>(sort_model_.mapToSource(index).internalPointer());
-    nav_bar_->set_text(f->GetLabel());
-  } else {
-    // Or set it to an empty string if the index is valid (which means we're browsing to the root directory)
-    nav_bar_->set_text(QString());
-  }
+  UpdateNavBarText();
 
   // Set directory up enabled button based on whether we're in root or not
   nav_bar_->set_dir_up_enabled(index.isValid());
@@ -246,58 +237,39 @@ QString ProjectExplorer::GetHumanReadableNodeName(Node *node)
   }
 }
 
+void ProjectExplorer::UpdateNavBarText()
+{
+  QString absolute;
+
+  Folder* f = static_cast<Folder*>(sort_model_.mapToSource(list_view_->rootIndex()).internalPointer());
+  while (f && f != project()->root()) {
+    absolute.prepend(QStringLiteral("%1 / ").arg(f->GetLabel()));
+    f = f->folder();
+  }
+
+  absolute.prepend(QStringLiteral("/ "));
+
+  nav_bar_->set_text(absolute);
+}
+
 QAbstractItemView *ProjectExplorer::CurrentView() const
 {
   return static_cast<QAbstractItemView*>(stacked_widget_->currentWidget());
 }
 
-void ProjectExplorer::ItemClickedSlot(const QModelIndex &index)
-{
-  if (index.isValid()) {
-    if (CurrentView()->selectionModel()->selectedRows().size() == 1) {
-      if (clicked_index_ == index) {
-        // The item has been clicked more than once, start a timer for renaming
-        rename_timer_.start();
-      } else {
-        // Cache this index for the next click
-        clicked_index_ = index;
-
-        // If the rename timer had started, stop it now
-        rename_timer_.stop();
-      }
-    } else {
-      clicked_index_ = QModelIndex();
-      rename_timer_.stop();
-    }
-  } else {
-    // Stop the rename timer
-    rename_timer_.stop();
-  }
-}
-
 void ProjectExplorer::ViewEmptyAreaDoubleClickedSlot()
 {
-  // Ensure no attempts to rename are made
-  clicked_index_ = QModelIndex();
-  rename_timer_.stop();
-
   emit DoubleClickedItem(nullptr);
 }
 
 void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
 {
-  // Ensure no attempts to rename are made
-  clicked_index_ = QModelIndex();
-  rename_timer_.stop();
-
   // Retrieve source item from index
   Node* i = static_cast<Node*>(sort_model_.mapToSource(index).internalPointer());
 
   // If the item is a folder, browse to it
   if (dynamic_cast<Folder*>(i) && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
-
     BrowseToFolder(index);
-
   }
 
   // Emit a signal
@@ -322,16 +294,17 @@ void ProjectExplorer::DirUpSlot()
   }
 }
 
-void ProjectExplorer::RenameTimerSlot()
+void ProjectExplorer::RenameSelectedItem()
 {
-  // Start editing this index
-  CurrentView()->edit(clicked_index_);
+  auto indexes = CurrentView()->selectionModel()->selectedRows();
+  if (!indexes.empty()) {
+    CurrentView()->edit(indexes.first());
+  }
+}
 
-  // Reset clicked index state
-  clicked_index_ = QModelIndex();
-
-  // Stop rename timer
-  rename_timer_.stop();
+void ProjectExplorer::SetSearchFilter(const QString &s)
+{
+  sort_model_.setFilterFixedString(s);
 }
 
 void ProjectExplorer::ShowContextMenu()
@@ -381,6 +354,9 @@ void ProjectExplorer::ShowContextMenu()
         QAction* reveal_action = menu.addAction(reveal_text);
         connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
 
+        QAction *replace_action = menu.addAction(tr("Replace Footage"));
+        connect(replace_action, &QAction::triggered, this, &ProjectExplorer::ReplaceSelectedFootage);
+
       }
 
       menu.addSeparator();
@@ -427,6 +403,16 @@ void ProjectExplorer::ShowContextMenu()
     }
 
     Q_UNUSED(all_items_are_footage_or_sequence)
+
+    if (context_menu_items_.size() == 1) {
+      menu.addSeparator();
+
+      auto rename_action = menu.addAction(tr("Rename"));
+      connect(rename_action, &QAction::triggered, this, &ProjectExplorer::RenameSelectedItem);
+    }
+
+    auto delete_action = menu.addAction(tr("Delete"));
+    connect(delete_action, &QAction::triggered, this, &ProjectExplorer::DeleteSelected);
 
     if (context_menu_items_.size() == 1) {
       menu.addSeparator();
@@ -484,6 +470,17 @@ void ProjectExplorer::RevealSelectedFootage()
 #else
   QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(footage->filename()).dir().absolutePath()));
 #endif
+}
+
+void ProjectExplorer::ReplaceSelectedFootage()
+{
+  Footage* footage = static_cast<Footage*>(context_menu_items_.first());
+
+  QString file = QFileDialog::getOpenFileName(this, tr("Replace Footage"));
+  if (!file.isEmpty()) {
+    auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(footage, Footage::kFilenameInput)), file);
+    Core::instance()->undo_stack()->push(c);
+  }
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewTab()
@@ -665,6 +662,36 @@ void ProjectExplorer::DeleteSelected()
   } else {
     delete command;
   }
+}
+
+bool ProjectExplorer::SelectItem(Node *n, bool deselect_all_first)
+{
+  if (deselect_all_first) {
+    DeselectAll();
+  }
+
+  QModelIndex index = model_.CreateIndexFromItem(n);
+
+  if (index.isValid()) {
+    index = sort_model_.mapFromSource(index);
+
+    QModelIndex parent = index.parent();
+    if (view_type() == ProjectToolbar::TreeView) {
+      // Expand all folders until this index is visible
+      while (parent.isValid()) {
+        tree_view_->expand(parent);
+        parent = parent.parent();
+      }
+    } else {
+      BrowseToFolder(parent);
+    }
+
+    CurrentView()->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+
+    return true;
+  }
+
+  return false;
 }
 
 }

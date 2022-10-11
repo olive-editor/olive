@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,6 +41,8 @@ public:
     update();
   }
 
+  bool IsHighlighted() const { return highlighted_; }
+
   bool IsExpanded() const;
 
   static QString GetTitleBarTextFromNode(Node *n);
@@ -60,6 +62,8 @@ signals:
 
   void Moved();
 
+  void Clicked();
+
 protected:
   void SetBody(QWidget *body);
 
@@ -73,6 +77,8 @@ protected:
   virtual void changeEvent(QEvent *e) override;
 
   virtual void moveEvent(QMoveEvent *event) override;
+
+  virtual void mousePressEvent(QMouseEvent *e) override;
 
 protected slots:
   virtual void Retranslate(){}

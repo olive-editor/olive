@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,15 +38,22 @@ AudioWaveformView::AudioWaveformView(QWidget *parent) :
 {
   setAutoFillBackground(true);
   setBackgroundRole(QPalette::Base);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+  // NOTE: At some point it might make sense for this to be AlignCenter since the waveform
+  //       originates from the center. But we're leaving it top/left for now since it was just
+  //       ported from a QWidget's paintEvent.
+  setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
-void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
+void AudioWaveformView::SetViewer(ViewerOutput *playback)
 {
   if (playback_) {
     pool_.clear();
     pool_.waitForDone();
 
-    disconnect(playback_, &AudioPlaybackCache::Validated, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
+    disconnect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
 
     SetTimebase(0);
   }
@@ -54,40 +61,43 @@ void AudioWaveformView::SetViewer(AudioPlaybackCache *playback)
   playback_ = playback;
 
   if (playback_) {
-    connect(playback_, &AudioPlaybackCache::Validated, this, static_cast<void(AudioWaveformView::*)()>(&AudioWaveformView::update));
+    connect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
 
-    SetTimebase(playback_->GetParameters().sample_rate_as_time_base());
+    SetTimebase(playback_->GetAudioParams().sample_rate_as_time_base());
   }
 }
 
-void AudioWaveformView::paintEvent(QPaintEvent *event)
+void AudioWaveformView::drawForeground(QPainter *p, const QRectF &rect)
 {
-  super::paintEvent(event);
+  super::drawForeground(p, rect);
 
   if (!playback_) {
     return;
   }
 
-  const AudioParams& params = playback_->GetParameters();
+  const AudioWaveformCache *wave = playback_->GetConnectedWaveform();
+  if (!wave) {
+    return;
+  }
 
+  const AudioParams& params = wave->GetParameters();
   if (!params.is_valid()) {
     return;
   }
 
-  QPainter p(this);
-
   // Draw in/out points
-  DrawTimelinePoints(&p);
+  DrawWorkArea(p);
+  DrawMarkers(p);
 
   // Draw waveform
-  p.setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color
-  AudioVisualWaveform::DrawWaveform(&p, rect(), GetScale(), playback_->visual(), SceneToTime(GetScroll()));
+  p->setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color
+  wave->Draw(p, rect.toRect(), GetScale(), SceneToTime(GetScroll()));
 
   // Draw playhead
-  p.setPen(PLAYHEAD_COLOR);
+  p->setPen(PLAYHEAD_COLOR);
 
-  int playhead_x = TimeToScreen(GetTime());
-  p.drawLine(playhead_x, 0, playhead_x, height());
+  int playhead_x = TimeToScene(GetTime());
+  p->drawLine(playhead_x, 0, playhead_x, height());
 }
 
 }

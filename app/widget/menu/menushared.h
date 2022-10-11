@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ private:
   QAction* edit_paste_item_;
   QAction* edit_paste_insert_item_;
   QAction* edit_duplicate_item_;
+  QAction* edit_rename_item_;
   QAction* edit_delete_item_;
   QAction* edit_ripple_delete_item_;
   QAction* edit_split_item_;
@@ -129,6 +130,8 @@ private slots:
   void PasteInsertTriggered();
 
   void DuplicateTriggered();
+
+  void RenameSelectedTriggered();
 
   void EnableDisableTriggered();
 

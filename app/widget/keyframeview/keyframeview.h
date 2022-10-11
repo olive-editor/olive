@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 
 #ifndef KEYFRAMEVIEWBASE_H
 #define KEYFRAMEVIEWBASE_H
+
+#include <functional>
 
 #include "keyframeviewinputconnection.h"
 #include "node/keyframe.h"
@@ -58,9 +60,14 @@ public:
 
   void Clear();
 
-  const QVector<NodeKeyframe*> &GetSelectedKeyframes() const
+  const std::vector<NodeKeyframe*> &GetSelectedKeyframes() const
   {
     return selection_manager_.GetSelectedObjects();
+  }
+
+  const QVector<KeyframeViewInputConnection*> &GetKeyframeTracks() const
+  {
+    return tracks_;
   }
 
   virtual void SelectionManagerSelectEvent(void *obj) override;
@@ -72,10 +79,16 @@ public:
     UpdateSceneRect();
   }
 
+  bool CopySelected(bool cut);
+
+  bool Paste(std::function<Node *(const QString &)> find_node_function);
+
 signals:
   void Dragged(int current_x, int current_y);
 
   void SelectionChanged();
+
+  void Released();
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;

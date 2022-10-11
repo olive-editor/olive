@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -104,17 +104,24 @@ public:
     node_widget_->view()->ZoomOut();
   }
 
-public slots:
-  void Select(const QVector<Node*>& nodes, bool center_view_on_item)
+  virtual void RenameSelected() override
   {
-    node_widget_->view()->Select(nodes, center_view_on_item);
-    this->raise();
+    node_widget_->view()->LabelSelectedNodes();
+  }
+
+public slots:
+  void Select(const QVector<Node::ContextPair> &p)
+  {
+    node_widget_->view()->Select(p, true);
   }
 
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
   void NodesDeselected(const QVector<Node*>& nodes);
+
+  void NodeSelectionChanged(const QVector<Node*>& nodes);
+  void NodeSelectionChangedWithContexts(const QVector<Node::ContextPair>& nodes);
 
   void NodeGroupOpened(NodeGroup *group);
 

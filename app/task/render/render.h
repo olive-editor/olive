@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,8 +27,7 @@
 #include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
 #include "task/task.h"
-#include "threading/threadticket.h"
-#include "threading/threadticketwatcher.h"
+#include "render/renderticket.h"
 
 namespace olive {
 
@@ -47,13 +46,13 @@ protected:
               FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
               const QMatrix4x4& force_matrix = QMatrix4x4(),
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
-              ColorProcessorPtr force_color_output = nullptr);
+              int force_channel_count = 0, ColorProcessorPtr force_color_output = nullptr);
 
-  virtual bool DownloadFrame(QThread* thread, FramePtr frame, const QByteArray &hash);
+  virtual bool DownloadFrame(QThread* thread, FramePtr frame, const rational &time);
 
-  virtual bool FrameDownloaded(FramePtr frame, const QByteArray& hash, const QVector<rational>& times) = 0;
+  virtual bool FrameDownloaded(FramePtr frame, const rational &time) = 0;
 
-  virtual bool AudioDownloaded(const TimeRange& range, SampleBufferPtr samples) = 0;
+  virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) = 0;
 
   virtual bool EncodeSubtitle(const SubtitleBlock *subtitle);
 
@@ -112,20 +111,12 @@ protected:
     return total_number_of_frames_;
   }
 
-  /**
-   * @brief Only valid after Render() is called
-   */
-  int64_t GetTotalNumberOfUniqueFrames() const
-  {
-    return total_number_of_unique_frames_;
-  }
-
 private:
   void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
 
   void IncrementRunningTickets();
 
-  void StartTicket(const QByteArray &hash, QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
+  void StartTicket(QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, int force_channel_count, ColorProcessorPtr force_color_output);
 
   ViewerOutput* viewer_;
 
@@ -142,7 +133,6 @@ private:
   bool native_progress_signalling_;
 
   int64_t total_number_of_frames_;
-  int64_t total_number_of_unique_frames_;
 
 private slots:
   void TicketDone(RenderTicketWatcher *watcher);

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class ProjectSettingsNode : public Node
 public:
   ProjectSettingsNode();
 
-  NODE_DEFAULT_DESTRUCTOR(ProjectSettingsNode)
+  NODE_DEFAULT_FUNCTIONS(ProjectSettingsNode)
 
   virtual QString Name() const override
   {
@@ -51,11 +51,6 @@ public:
   virtual QString Description() const override
   {
     return tr("Settings used throughout the project.");
-  }
-
-  virtual Node* copy() const override
-  {
-    return new ProjectSettingsNode();
   }
 
   enum CacheSetting {

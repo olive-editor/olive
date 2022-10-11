@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,13 +22,15 @@
 #define TIMELINEVIEWBASE_H
 
 #include <QGraphicsView>
+#include <vector>
 
 #include "core.h"
 #include "timescaledobject.h"
 #include "widget/handmovableview/handmovableview.h"
-#include "widget/snapservice/snapservice.h"
 
 namespace olive {
+
+class TimeBasedWidget;
 
 class TimeBasedView : public HandMovableView, public TimeScaledObject
 {
@@ -36,14 +38,17 @@ class TimeBasedView : public HandMovableView, public TimeScaledObject
 public:
   TimeBasedView(QWidget* parent = nullptr);
 
-  void EnableSnap(const QVector<rational> &points);
+  void EnableSnap(const std::vector<rational> &points);
   void DisableSnap();
   bool IsSnapped() const
   {
     return snapped_;
   }
 
-  void SetSnapService(SnapService* service);
+  const rational &GetTime() const { return playhead_; }
+
+  TimeBasedWidget *GetSnapService() const { return snap_service_; }
+  void SetSnapService(TimeBasedWidget* service) { snap_service_ = service; }
 
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
@@ -85,11 +90,6 @@ protected:
 
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
 
-  const rational &GetPlayheadTime() const
-  {
-    return playhead_;
-  }
-
   bool PlayheadPress(QMouseEvent* event);
   bool PlayheadMove(QMouseEvent* event);
   bool PlayheadRelease(QMouseEvent* event);
@@ -119,11 +119,11 @@ private:
   QGraphicsScene scene_;
 
   bool snapped_;
-  QVector<rational> snap_time_;
+  std::vector<rational> snap_time_;
 
   rational end_time_;
 
-  SnapService* snap_service_;
+  TimeBasedWidget* snap_service_;
 
   bool y_axis_enabled_;
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -193,28 +193,6 @@ private:
 
 };
 
-class NodeCopyInputsCommand : public UndoCommand {
-public:
-  NodeCopyInputsCommand(const Node* src,
-                        Node* dest,
-                        bool include_connections);
-
-  virtual Project* GetRelevantProject() const override {return nullptr;}
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override {}
-
-private:
-  const Node* src_;
-
-  Node* dest_;
-
-  bool include_connections_;
-
-};
-
 class NodeLinkCommand : public UndoCommand {
 public:
   NodeLinkCommand(Node* a, Node* b, bool link) :
@@ -324,6 +302,10 @@ class NodeRenameCommand : public UndoCommand
 {
 public:
   NodeRenameCommand() = default;
+  NodeRenameCommand(Node* node, const QString& new_name)
+  {
+    AddNode(node, new_name);
+  }
 
   void AddNode(Node* node, const QString& new_name);
 
@@ -372,6 +354,8 @@ public:
 
   void AddEdge(Node *output, const NodeInput &input);
 
+  bool ContainsNode(Node *node, Node *context);
+
   virtual Project * GetRelevantProject() const override;
 
 protected:
@@ -380,9 +364,7 @@ protected:
   virtual void undo() override;
 
 private:
-  using NodePair = QPair<Node *, Node*>;
-
-  QVector<NodePair> nodes_;
+  QVector<Node::ContextPair> nodes_;
 
   QVector<Node::OutputConnection> edges_;
 

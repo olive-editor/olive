@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@ ViewerSizer::ViewerSizer(QWidget *parent) :
   vert_scrollbar_ = new QScrollBar(Qt::Vertical, this);
   vert_scrollbar_->setVisible(false);
   connect(vert_scrollbar_, &QScrollBar::valueChanged, this, &ViewerSizer::ScrollBarMoved);
+
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 void ViewerSizer::SetWidget(QWidget *widget)

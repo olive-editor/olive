@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 ***/
 
 #include "timecodefunctions.h"
+
+extern "C" {
+#include <libavutil/mathematics.h>
+}
 
 #include <QtMath>
 
@@ -254,7 +258,14 @@ rational Timecode::snap_time_to_timebase(const rational &time, const rational &t
 
 rational Timecode::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
 {
-  return rational(timestamp) * timebase;
+  int64_t num = int64_t(timebase.numerator()) * timestamp;
+  int64_t den = timebase.denominator();
+
+  int num_r, den_r;
+
+  av_reduce(&num_r, &den_r, num, den, INT_MAX);
+
+  return rational(num_r, den_r);
 }
 
 QString Timecode::time_to_timecode(const rational &time, const rational &timebase, const Timecode::Display &display, bool show_plus_if_positive)
@@ -287,16 +298,30 @@ int64_t Timecode::time_to_timestamp(const rational &time, const rational &timeba
 
 int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase, Rounding floor)
 {
-  double d = time * timebase.flipped().toDouble();
+  const double d = time * timebase.flipped().toDouble();
+
+  if (std::isnan(d)) {
+    return 0;
+  }
+
+  const double eps = 0.000000000001;
 
   switch (floor) {
   case kRound:
   default:
     return qRound64(d);
   case kFloor:
-    return qFloor(d);
+    if (d > qCeil(d)-eps) {
+      return qCeil(d);
+    } else {
+      return qFloor(d);
+    }
   case kCeil:
-    return qCeil(d);
+    if (d < qFloor(d)+eps) {
+      return qFloor(d);
+    } else {
+      return qCeil(d);
+    }
   }
 }
 
@@ -306,7 +331,7 @@ int64_t Timecode::rescale_timestamp(const int64_t &ts, const rational &source, c
     return ts;
   }
 
-  return qRound64(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
+  return av_rescale_q(ts, source.toAVRational(), dest.toAVRational());
 }
 
 int64_t Timecode::rescale_timestamp_ceil(const int64_t &ts, const rational &source, const rational &dest)
@@ -315,7 +340,7 @@ int64_t Timecode::rescale_timestamp_ceil(const int64_t &ts, const rational &sour
     return ts;
   }
 
-  return qCeil(static_cast<double>(ts) * source.toDouble() / dest.toDouble());
+  return av_rescale_q_rnd(ts, source.toAVRational(), dest.toAVRational(), AV_ROUND_UP);
 }
 
 }

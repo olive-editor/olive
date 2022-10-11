@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ const QString StrokeFilterNode::kRadiusInput = QStringLiteral("radius_in");
 const QString StrokeFilterNode::kOpacityInput = QStringLiteral("opacity_in");
 const QString StrokeFilterNode::kInnerInput = QStringLiteral("inner_in");
 
+#define super Node
+
 StrokeFilterNode::StrokeFilterNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -46,11 +48,9 @@ StrokeFilterNode::StrokeFilterNode()
   SetInputProperty(kOpacityInput, QStringLiteral("max"), 1.0f);
 
   AddInput(kInnerInput, NodeValue::kBoolean, false);
-}
 
-Node *StrokeFilterNode::copy() const
-{
-  return new StrokeFilterNode();
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 QString StrokeFilterNode::Name() const
@@ -75,6 +75,8 @@ QString StrokeFilterNode::Description() const
 
 void StrokeFilterNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kColorInput, tr("Color"));
   SetInputName(kRadiusInput, tr("Radius"));
@@ -84,24 +86,21 @@ void StrokeFilterNode::Retranslate()
 
 void StrokeFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    if (job.GetValue(kRadiusInput).data().toDouble() > 0.0
-        && job.GetValue(kOpacityInput).data().toDouble() > 0.0) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (value[kRadiusInput].toDouble() > 0.0
+        && value[kOpacityInput].toDouble() > 0.0) {
+      ShaderJob job(value);
+      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
     } else {
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }
 
-ShaderCode StrokeFilterNode::GetShaderCode(const QString &shader_id) const
+ShaderCode StrokeFilterNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"));
 }

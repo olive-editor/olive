@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,6 +34,9 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   Retranslate();
 
   connect(tw, &TimelineWidget::BlockSelectionChanged, this, &TimelinePanel::BlockSelectionChanged);
+  connect(tw, &TimelineWidget::RequestCaptureStart, this, &TimelinePanel::RequestCaptureStart);
+  connect(tw, &TimelineWidget::RevealViewerInProject, this, &TimelinePanel::RevealViewerInProject);
+  connect(tw, &TimelineWidget::RevealViewerInFootageViewer, this, &TimelinePanel::RevealViewerInFootageViewer);
 }
 
 void TimelinePanel::SplitAtPlayhead()
@@ -106,24 +109,9 @@ void TimelinePanel::ToggleLinks()
   timeline_widget()->ToggleLinksOnSelected();
 }
 
-void TimelinePanel::CutSelected()
-{
-  timeline_widget()->CopySelected(true);
-}
-
-void TimelinePanel::CopySelected()
-{
-  timeline_widget()->CopySelected(false);
-}
-
-void TimelinePanel::Paste()
-{
-  timeline_widget()->Paste(false);
-}
-
 void TimelinePanel::PasteInsert()
 {
-  timeline_widget()->Paste(true);
+  timeline_widget()->PasteInsert();
 }
 
 void TimelinePanel::DeleteInToOut()
@@ -164,6 +152,11 @@ void TimelinePanel::MoveInToPlayhead()
 void TimelinePanel::MoveOutToPlayhead()
 {
   timeline_widget()->MoveOutToPlayhead();
+}
+
+void TimelinePanel::RenameSelected()
+{
+  timeline_widget()->RenameSelectedBlocks();
 }
 
 void TimelinePanel::InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage)

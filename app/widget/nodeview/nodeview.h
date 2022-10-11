@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 
 #include "core.h"
 #include "node/graph.h"
-#include "node/nodecopypaste.h"
 #include "nodeviewedge.h"
 #include "nodeviewcontext.h"
 #include "nodeviewminimap.h"
@@ -42,7 +41,7 @@ namespace olive {
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public HandMovableView, public NodeCopyPasteService
+class NodeView : public HandMovableView
 {
   Q_OBJECT
 public:
@@ -78,7 +77,7 @@ public:
   void SelectAll();
   void DeselectAll();
 
-  void Select(const QVector<Node *> &nodes, bool center_view_on_item);
+  void Select(const QVector<Node::ContextPair> &nodes, bool center_view_on_item);
 
   void CopySelected(bool cut);
   void Paste();
@@ -113,10 +112,15 @@ public slots:
 
   void CenterOnNode(olive::Node *n);
 
+  void LabelSelectedNodes();
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
   void NodesDeselected(const QVector<Node*>& nodes);
+
+  void NodeSelectionChanged(const QVector<Node*>& nodes);
+  void NodeSelectionChangedWithContexts(const QVector<Node::ContextPair>& nodes);
 
   void NodeGroupOpened(NodeGroup *group);
   void NodeGroupClosed();
@@ -131,6 +135,11 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
+  virtual void dragEnterEvent(QDragEnterEvent *event) override;
+  virtual void dragMoveEvent(QDragMoveEvent *event) override;
+  virtual void dropEvent(QDropEvent *event) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
+
   virtual void resizeEvent(QResizeEvent *event) override;
 
   virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier, const QPointF &cursor_pos) override;
@@ -138,9 +147,6 @@ protected:
   virtual bool event(QEvent *event) override;
 
   virtual bool eventFilter(QObject *object, QEvent *event) override;
-
-  virtual void CopyNodesToClipboardCallback(const QVector<Node *> &nodes, ProjectSerializer::SaveData *data, void* userdata) override;
-  virtual void PasteNodesToClipboardCallback(const QVector<Node*> &nodes, const ProjectSerializer::LoadData &ldata, void *userdata) override;
 
   virtual void changeEvent(QEvent *e) override;
 
@@ -150,6 +156,9 @@ private:
   void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
   void MoveAttachedNodesToCursor(const QPoint &p);
+  void ProcessMovingAttachedNodes(const QPoint &pos);
+  QVector<Node*> ProcessDroppingAttachedNodes(MultiUndoCommand *command, Node *select_context, const QPoint &pos);
+  Node *GetContextAtMousePos(const QPoint &p);
 
   void ConnectSelectionChangedSignal();
   void DisconnectSelectionChangedSignal();
@@ -222,6 +231,8 @@ private:
 
   double scale_;
 
+  bool dont_emit_selection_signals_;
+
   static const double kMinimumScale;
 
 private slots:
@@ -265,8 +276,6 @@ private slots:
   void UngroupNodes();
 
   void ShowNodeProperties();
-
-  void LabelSelectedNodes();
 
   void ItemAboutToBeDeleted(NodeViewItem *item);
 

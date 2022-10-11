@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -406,7 +406,7 @@ void CurveView::FirstChanceMouseRelease(QMouseEvent *event)
 void CurveView::KeyframeDragStart(QMouseEvent *event)
 {
   drag_keyframe_values_.resize(GetSelectedKeyframes().size());
-  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+  for (size_t i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *key = GetSelectedKeyframes().at(i);
     drag_keyframe_values_[i] = key->value();
   }
@@ -418,7 +418,7 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
 {
   if (event->modifiers() & Qt::ShiftModifier) {
     // Lock to X axis only and set original values on all keys
-    for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+    for (size_t i=0; i<GetSelectedKeyframes().size(); i++) {
       NodeKeyframe *key = GetSelectedKeyframes().at(i);
       key->set_value(drag_keyframe_values_.at(i));
     }
@@ -429,7 +429,7 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
   double scaled_diff = (mapToScene(event->pos()).y() - drag_start_.y()) / GetYScale();
 
   // Validate movement - ensure no keyframe goes above its max point or below its min point
-  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+  for (size_t i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *key = GetSelectedKeyframes().at(i);
 
     FloatSlider::DisplayType display = GetFloatDisplayTypeFromKeyframe(key);
@@ -453,13 +453,13 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
   }
 
   // Set values
-  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+  for (size_t i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *key = GetSelectedKeyframes().at(i);
     FloatSlider::DisplayType display = GetFloatDisplayTypeFromKeyframe(key);
     key->set_value(FloatSlider::TransformDisplayToValue(FloatSlider::TransformValueToDisplay(drag_keyframe_values_.at(i).toDouble(), display) - scaled_diff, display));
   }
 
-  NodeKeyframe *tip_item = GetSelectedKeyframes().first();
+  NodeKeyframe *tip_item = GetSelectedKeyframes().front();
 
   bool ok;
   double num_value = tip_item->value().toDouble(&ok);
@@ -472,7 +472,7 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
 
 void CurveView::KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command)
 {
-  for (int i=0; i<GetSelectedKeyframes().size(); i++) {
+  for (size_t i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *k = GetSelectedKeyframes().at(i);
     if (!qFuzzyCompare(k->value().toDouble(), drag_keyframe_values_.at(i).toDouble())) {
       command->add_child(new NodeParamSetKeyframeValueCommand(k, k->value(), drag_keyframe_values_.at(i)));

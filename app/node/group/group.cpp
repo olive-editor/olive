@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ namespace olive {
 NodeGroup::NodeGroup() :
   output_passthrough_(nullptr)
 {
+  SetFlags(kDontShowInCreateMenu);
 }
 
 QString NodeGroup::Name() const
@@ -53,6 +54,8 @@ QString NodeGroup::Description() const
 
 void NodeGroup::Retranslate()
 {
+  super::Retranslate();
+
   for (auto it=GetContextPositions().cbegin(); it!=GetContextPositions().cend(); it++) {
     it.key()->Retranslate();
   }

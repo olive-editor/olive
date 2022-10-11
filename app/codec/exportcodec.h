@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@ class ExportCodec : public QObject
 {
   Q_OBJECT
 public:
+  // Only append to this list (never insert) because indexes are used in serialized files
   enum Codec {
-    // Video codecs
     kCodecDNxHD,
     kCodecH264,
     kCodecH264rgb,
@@ -45,8 +45,6 @@ public:
     kCodecCineform,
     kCodecTIFF,
     kCodecVP9,
-
-    // Audio codecs
     kCodecMP2,
     kCodecMP3,
     kCodecAAC,
@@ -54,8 +52,6 @@ public:
     kCodecOpus,
     kCodecVorbis,
     kCodecFLAC,
-
-    // Subtitle codecs
     kCodecSRT,
 
     kCodecCount
@@ -64,6 +60,8 @@ public:
   static QString GetCodecName(Codec c);
 
   static bool IsCodecAStillImage(Codec c);
+
+  static bool IsCodecLossless(Codec c);
 
 };
 

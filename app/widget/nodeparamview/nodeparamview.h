@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "node/project/serializer/serializer.h"
 #include "nodeparamviewcontext.h"
 #include "nodeparamviewdockarea.h"
 #include "nodeparamviewitem.h"
@@ -61,13 +62,21 @@ public:
     keyframe_view_->DeselectAll();
   }
 
-  void SelectNodes(const QVector<Node*> &nodes);
-  void DeselectNodes(const QVector<Node*> &nodes);
+  void SetSelectedNodes(const QVector<NodeParamViewItem *> &nodes, bool handle_focused_node = true, bool emit_signal = true);
+  void SetSelectedNodes(const QVector<Node::ContextPair> &nodes, bool emit_signal = true);
+
+  Node *GetNodeWithID(const QString &id);
+  Node *GetNodeWithIDAndIgnoreList(const QString &id, const QVector<Node*> &ignore);
 
   const QVector<Node*> &GetContexts() const
   {
     return contexts_;
   }
+
+  virtual bool CopySelected(bool cut) override;
+
+  virtual bool Paste() override;
+  static bool Paste(QWidget *parent, std::function<QHash<Node *, Node*>(const ProjectSerializer::Result &)> get_existing_map_function);
 
 public slots:
   void SetContexts(const QVector<Node*> &contexts);
@@ -75,9 +84,11 @@ public slots:
   void UpdateElementY();
 
 signals:
-  void RequestSelectNode(const QVector<Node*>& target);
-
   void FocusedNodeChanged(Node* n);
+
+  void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
+
+  void RequestViewerToStartEditingText();
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -87,6 +98,21 @@ protected:
   virtual void TimeChangedEvent(const rational &time) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
+
+  virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetKeyframeTracks() : nullptr;
+  }
+
+  virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
+  {
+    return keyframe_view_ ? &keyframe_view_->GetSelectedKeyframes() : nullptr;
+  }
+
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const override
+  {
+    return keyframe_view_;
+  }
 
 private:
   void UpdateItemTime(const rational &time);
@@ -108,6 +134,10 @@ private:
     return contexts_.size() == 1 && dynamic_cast<NodeGroup*>(contexts_.first());
   }
 
+  void ToggleSelect(NodeParamViewItem *item);
+
+  QHash<Node *, Node *> GenerateExistingPasteMap(const ProjectSerializer::Result &r);
+
   KeyframeView* keyframe_view_;
 
   QVector<NodeParamViewContext*> context_items_;
@@ -127,20 +157,24 @@ private:
   QVector<Node*> active_nodes_;
 
   NodeParamViewItem* focused_node_;
+  QVector<NodeParamViewItem*> selected_nodes_;
 
   Node *time_target_;
 
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;
 
+  bool show_all_nodes_;
+
 private slots:
   void UpdateGlobalScrollBar();
 
   void PinNode(bool pin);
 
-  void FocusChanged(QWidget *old, QWidget *now);
+  //void FocusChanged(QWidget *old, QWidget *now);
 
   void KeyframeViewDragged(int x, int y);
+  void KeyframeViewReleased();
 
   void NodeAddedToContext(Node *n);
 
@@ -155,6 +189,12 @@ private slots:
   void UpdateContexts();
 
   void ItemAboutToBeRemoved(NodeParamViewItem *item);
+
+  void ItemClicked();
+
+  void SelectNodeFromConnectedLink(Node *node);
+
+  void RequestEditTextInViewer();
 
 };
 

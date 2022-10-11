@@ -24,6 +24,9 @@ OpacityEffect::OpacityEffect()
   SetInputProperty(kValueInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kValueInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kValueInput, QStringLiteral("max"), 1.0);
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void OpacityEffect::Retranslate()
@@ -34,26 +37,21 @@ void OpacityEffect::Retranslate()
   SetInputName(kValueInput, tr("Opacity"));
 }
 
-ShaderCode OpacityEffect::GetShaderCode(const QString &shader_id) const
+ShaderCode OpacityEffect::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity.frag"));
 }
 
 void OpacityEffect::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.InsertValue(value);
-
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    if (!qFuzzyCompare(job.GetValue(kValueInput).data().toDouble(), 1.0)) {
-      job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (!qFuzzyCompare(value[kValueInput].toDouble(), 1.0)) {
+      table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)), this);
     } else {
       // 1.0 float is a no-op, so just push the texture
-      table->Push(job.GetValue(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }

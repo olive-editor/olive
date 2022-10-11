@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ public:
    */
   void SetWidget(QWidget* widget);
 
+public slots:
   /**
    * @brief Set resolution to use
    *
@@ -70,7 +71,6 @@ public:
    */
   void SetZoom(int percent);
 
-public slots:
   void HandDragMove(int x, int y);
 
 signals:

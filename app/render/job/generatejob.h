@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,46 +22,22 @@
 #define GENERATEJOB_H
 
 #include "acceleratedjob.h"
-#include "render/videoparams.h"
+#include "codec/frame.h"
 
 namespace olive {
 
-class GenerateJob : public AcceleratedJob {
+class GenerateJob : public AcceleratedJob
+{
 public:
-  enum AlphaChannelSetting {
-    kAlphaAuto,
-    kAlphaForceOn,
-    kAlphaForceOff
-  };
-
-  GenerateJob()
+  GenerateJob() = default;
+  GenerateJob(const NodeValueRow &row) :
+    GenerateJob()
   {
-    alpha_channel_required_ = kAlphaAuto;
-    requested_format_ = VideoParams::kFormatInvalid;
+    Insert(row);
   }
-
-  AlphaChannelSetting GetAlphaChannelRequired() const { return alpha_channel_required_; }
-
-  void SetAlphaChannelRequired(AlphaChannelSetting e) { alpha_channel_required_ = e; }
-
-  VideoParams::Format GetRequestedFormat() const { return requested_format_; }
-
-  void SetRequestedFormat(VideoParams::Format f) { requested_format_ = f; }
-
-  const QString &GetColorspace() const { return colorspace_; }
-  void SetColorspace(const QString &s) { colorspace_ = s; }
-
-private:
-  AlphaChannelSetting alpha_channel_required_;
-
-  VideoParams::Format requested_format_;
-
-  QString colorspace_;
 
 };
 
 }
-
-Q_DECLARE_METATYPE(olive::GenerateJob)
 
 #endif // GENERATEJOB_H

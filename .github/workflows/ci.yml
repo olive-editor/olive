@@ -24,6 +24,7 @@ on:
 env:
   DOWNLOAD_TOOL: curl -fLOSs --retry 2 --retry-delay 60
   UPLOAD_TOOL: curl -X POST --retry 2 --retry-delay 60
+  CMAKE_ARGS: -DUSE_WERROR=ON -DBUILD_TESTS=ON
 
 jobs:
   linux:
@@ -31,12 +32,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - build-type: RelWithDebInfo
-            cc-compiler: gcc
-            cxx-compiler: g++
-            compiler-name: GCC 9.3.1
-            cmake-gen: Ninja
-            os-name: Linux (CentOS 7)
+          #- build-type: RelWithDebInfo
+          #  cc-compiler: gcc
+          #  cxx-compiler: g++
+          #  compiler-name: GCC 9.3.1
+          #  cmake-gen: Ninja
+          #  os-name: Linux (CentOS 7)
           - build-type: RelWithDebInfo
             cc-compiler: clang
             cxx-compiler: clang++
@@ -50,7 +51,7 @@ jobs:
        ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-latest
     container:
-      image: olivevideoeditor/ci-olive:2022.1
+      image: olivevideoeditor/ci-olive:2022.2
 
     steps:
       - name: Checkout Source Code
@@ -73,7 +74,8 @@ jobs:
           cmake .. -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" \
             -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
-            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}"
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" \
+            $CMAKE_ARGS
 
       - name: Build
         working-directory: build
@@ -123,8 +125,9 @@ jobs:
           filename=$(echo Olive*.AppImage)
           pkgname="${filename/x86_64/Linux-x86_64}"
           mv "${filename}" "${pkgname}"
+          basename="${filename%.*}"
           echo "::set-output name=pkgname::${pkgname}"
-          echo "::set-output name=artifact::${filename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
+          echo "::set-output name=artifact::${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
@@ -204,7 +207,8 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            $CMAKE_ARGS
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -260,20 +264,20 @@ jobs:
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
-          7z a $PKGNAME.zip olive-editor
+          mkdir deploy
+          mv olive-editor deploy
 
       - name: Upload Installer Artifact to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PKGNAME }}.exe
+          name: ${{ env.PKGNAME }}-Installer
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
 
       - name: Upload Portable Artifact to GitHub
         uses: actions/upload-artifact@v2
-        continue-on-error: true
         with:
-          name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          name: ${{ env.PKGNAME }}-Portable
+          path: ${{ runner.workspace }}/build/deploy
 
   macos:
     strategy:
@@ -332,7 +336,6 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-${{ matrix.os-arch }}.tar.gz
           sudo tar xzf crashpad-mac-${{ matrix.os-arch }}.tar.gz -C /
-        if: matrix.os-arch == 'x86_64' # TEMPORARY: Crashpad isn't compiling on ARM64 yet for some reason
 
       - name: Generate Patreon List
         env:
@@ -344,15 +347,21 @@ jobs:
         if: github.event_name == 'push'
         continue-on-error: true
 
+      - name: Install Ninja
+        shell: bash
+        run: |
+          brew update
+          brew install ninja
+
       - name: Configure CMake
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
-          brew install ninja
           PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
               -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min-deploy }} -G "${{ matrix.cmake-gen }}" \
-              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}"
+              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}" \
+              $CMAKE_ARGS
 
       - name: Build
         working-directory: ${{ runner.workspace }}/build
@@ -367,42 +376,39 @@ jobs:
           ctest -C ${{ matrix.build-type }} -V
         if: matrix.os-arch == 'x86_64' # ARM64 tests naturally won't be able to run on x86_64 runners
 
-      - name: Create Package
+      - name: Bundle Application
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         run: |
           BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
-          if [ "${{ matrix.os-arch }}" == "x86_64" ]
-          then
-            DYLIBBUNDLER_EXTRA_ARGS="-x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler"
-          fi
+          mkdir deploy
+          cd deploy
 
-          mv app/$BUNDLE_NAME .
+          mv ../app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
-          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" $DYLIBBUNDLER_EXTRA_ARGS
 
           # Copy Qt frameworks and plugins
           cp -Ra $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
           cp -Ra $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
 
+          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" \
+            -x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler -x $BUNDLE_NAME/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+
           # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
           #       but perhaps I'll bring it up with them soon.
           cp -a $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
 
-          if [ "${{ matrix.os-arch }}" == "x86_64" ]
-          then
-            # Crashpad symbols
-            $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
-            SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
-            SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
-            mkdir -p "$SYM_DIR"
-            mv Olive.sym "$SYM_DIR"
-          fi
+          # Crashpad symbols
+          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
+          SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
+          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
+          mkdir -p "$SYM_DIR"
+          mv Olive.sym "$SYM_DIR"
 
       - name: Sign Application
-        working-directory: ${{ runner.workspace }}/build
+        working-directory: ${{ runner.workspace }}/build/deploy
         shell: bash
         if: github.event_name == 'push'
         env:
@@ -438,15 +444,18 @@ jobs:
           # Sign application
           codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
 
-      - name: Deploy Packages
-        working-directory: ${{ runner.workspace }}/build
+      - name: Deploy
         shell: bash
+        working-directory: ${{ runner.workspace }}/build/deploy
         run: |
-          zip -r $PKGNAME.zip Olive.app
+          ln -s /Applications Applications
+          cd ..
+          hdiutil create img.dmg -volname Olive -fs HFS+ -srcfolder deploy
+          hdiutil convert img.dmg -format UDZO -o $PKGNAME.dmg
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
         continue-on-error: true
         with:
-          name: ${{ env.PKGNAME }}.zip
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.zip
+          name: ${{ env.PKGNAME }}
+          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.dmg

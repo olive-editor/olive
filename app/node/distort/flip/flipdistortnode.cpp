@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ const QString FlipDistortNode::kTextureInput = QStringLiteral("tex_in");
 const QString FlipDistortNode::kHorizontalInput = QStringLiteral("horiz_in");
 const QString FlipDistortNode::kVerticalInput = QStringLiteral("vert_in");
 
+#define super Node
+
 FlipDistortNode::FlipDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -33,11 +35,9 @@ FlipDistortNode::FlipDistortNode()
   AddInput(kHorizontalInput, NodeValue::kBoolean, false);
 
   AddInput(kVerticalInput, NodeValue::kBoolean, false);
-}
 
-Node* FlipDistortNode::copy() const
-{
-  return new FlipDistortNode();
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 QString FlipDistortNode::Name() const
@@ -62,34 +62,31 @@ QString FlipDistortNode::Description() const
 
 void FlipDistortNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kHorizontalInput, tr("Horizontal"));
   SetInputName(kVerticalInput, tr("Vertical"));
 }
 
-ShaderCode FlipDistortNode::GetShaderCode(const QString& shader_id) const
+ShaderCode FlipDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 
 void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.InsertValue(value);
-
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (job.GetValue(kHorizontalInput).data().toBool() || job.GetValue(kVerticalInput).data().toBool()) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+    if (value[kHorizontalInput].toBool() || value[kVerticalInput].toBool()) {
+      table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)), this);
     } else {
-    // If we're not flipping or flopping just push the texture
-    table->Push(job.GetValue(kTextureInput));
+      // If we're not flipping or flopping just push the texture
+      table->Push(value[kTextureInput]);
     }
   }
-
 }
 
 }

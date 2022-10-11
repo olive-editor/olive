@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -54,6 +54,8 @@ public:
   }
 
 protected:
+  virtual void prepare() override;
+
   virtual void redo() override;
 
   virtual void undo() override;
@@ -89,8 +91,17 @@ public:
     return blocks_.first()->project();
   }
 
+  Block *GetSplit(Block *original, int time_index) const;
+
 protected:
-  virtual void redo() override;
+  virtual void prepare() override;
+
+  virtual void redo() override
+  {
+    for (int i=0; i<commands_.size(); i++) {
+      commands_.at(i)->redo_now();
+    }
+  }
 
   virtual void undo() override
   {
@@ -105,6 +116,8 @@ private:
   QList<rational> times_;
 
   QVector<UndoCommand*> commands_;
+
+  QVector< QVector<Block*> > splits_;
 
 };
 

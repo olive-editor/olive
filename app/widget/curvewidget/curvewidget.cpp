@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "common/timecodefunctions.h"
 #include "node/node.h"
 #include "widget/keyframeview/keyframeviewundo.h"
+#include "widget/timeruler/timeruler.h"
 
 namespace olive {
 
@@ -92,6 +93,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   view_ = new CurveView();
   ConnectTimelineView(view_);
+  view_->SetSnapService(this);
   ruler_view_layout->addWidget(view_);
 
   layout->addLayout(ruler_view_layout);
@@ -101,6 +103,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(view_, &CurveView::SelectionChanged, this, &CurveWidget::SelectionChanged);
   connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
   connect(view_, &CurveView::Dragged, this, &CurveWidget::KeyframeViewDragged);
+  connect(view_, &CurveView::Released, this, &CurveWidget::KeyframeViewReleased);
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   view_->setHorizontalScrollBar(scrollbar());
@@ -125,6 +128,36 @@ void CurveWidget::SetVerticalScale(const double &vscale)
 void CurveWidget::DeleteSelected()
 {
   view_->DeleteSelected();
+}
+
+Node *CurveWidget::GetSelectedNodeWithID(const QString &id)
+{
+  for (auto it=view_->GetConnections().cbegin(); it!=view_->GetConnections().cend(); it++) {
+    Node *n = it.key().input().node();
+    if (n->id() == id) {
+      return n;
+    }
+  }
+
+  return nullptr;
+}
+
+bool CurveWidget::CopySelected(bool cut)
+{
+  if (super::CopySelected(cut)) {
+    return true;
+  }
+
+  return view_->CopySelected(cut);
+}
+
+bool CurveWidget::Paste()
+{
+  if (super::Paste()) {
+    return true;
+  }
+
+  return view_->Paste(std::bind(&CurveWidget::GetSelectedNodeWithID, this, std::placeholders::_1));
 }
 
 void CurveWidget::SetNodes(const QVector<Node *> &nodes)
@@ -251,16 +284,16 @@ void CurveWidget::ConnectInputInternal(Node *node, const QString &input, int ele
 
 void CurveWidget::SelectionChanged()
 {
-  const QVector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
+  const std::vector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
 
   SetKeyframeButtonChecked(false);
-  SetKeyframeButtonEnabled(!selected.isEmpty());
+  SetKeyframeButtonEnabled(!selected.empty());
 
-  if (!selected.isEmpty()) {
+  if (!selected.empty()) {
     bool all_same_type = true;
-    NodeKeyframe::Type type = selected.first()->type();
+    NodeKeyframe::Type type = selected.front()->type();
 
-    for (int i=1;i<selected.size();i++) {
+    for (size_t i=1;i<selected.size();i++) {
       NodeKeyframe* prev_item = selected.at(i-1);
       NodeKeyframe* this_item = selected.at(i);
 
@@ -287,8 +320,8 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
   }
 
   // Get selected items and do nothing if there are none
-  const QVector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
-  if (selected.isEmpty()) {
+  const std::vector<NodeKeyframe*> &selected = view_->GetSelectedKeyframes();
+  if (selected.empty()) {
     return;
   }
 
@@ -347,15 +380,14 @@ void CurveWidget::InputSelectionChanged(const NodeKeyframeTrackReference& ref)
 
 void CurveWidget::KeyframeViewDragged(int x, int y)
 {
-  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
-                            Q_ARG(int, x));
-  QMetaObject::invokeMethod(this, "CatchUpYScrollToPoint", Qt::QueuedConnection,
-                            Q_ARG(int, y));
+  SetCatchUpScrollValue(x);
+  SetCatchUpScrollValue(view_->verticalScrollBar(), y, view_->height());
 }
 
-void CurveWidget::CatchUpYScrollToPoint(int point)
+void CurveWidget::KeyframeViewReleased()
 {
-  PageScrollInternal(view_->verticalScrollBar(), view_->height(), point, false);
+  StopCatchUpScrollTimer();
+  StopCatchUpScrollTimer(view_->verticalScrollBar());
 }
 
 }

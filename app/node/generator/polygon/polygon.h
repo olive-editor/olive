@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <QPainterPath>
 
 #include "common/bezier.h"
+#include "node/generator/shape/generatorwithmerge.h"
 #include "node/gizmo/line.h"
 #include "node/gizmo/path.h"
 #include "node/gizmo/point.h"
@@ -32,15 +33,13 @@
 
 namespace olive {
 
-class PolygonGenerator : public Node
+class PolygonGenerator : public GeneratorWithMerge
 {
   Q_OBJECT
 public:
   PolygonGenerator();
 
-  NODE_DEFAULT_DESTRUCTOR(PolygonGenerator)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(PolygonGenerator)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -55,8 +54,13 @@ public:
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+
   static const QString kPointsInput;
   static const QString kColorInput;
+
+protected:
+  ShaderJob GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const;
 
 protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
@@ -64,7 +68,7 @@ protected slots:
 private:
   static void AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after);
 
-  static QPainterPath GeneratePath(const QVector<NodeValue> &points);
+  static QPainterPath GeneratePath(const NodeValueArray &points, int size);
 
   template<typename T>
   void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);

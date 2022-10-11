@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -136,7 +136,7 @@ void StyleManager::Init()
   available_themes_.insert(QStringLiteral("olive-dark"), QStringLiteral("Olive Dark"));
   available_themes_.insert(QStringLiteral("olive-light"), QStringLiteral("Olive Light"));
 
-  QString config_style = Config::Current()["Style"].toString();
+  QString config_style = OLIVE_CONFIG("Style").toString();
 
   if (config_style.isEmpty() || !available_themes_.contains(config_style)) {
     SetStyle(kDefaultStyle);

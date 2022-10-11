@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 
 #include "oiiodecoder.h"
 
-#include <OpenImageIO/imagebufalgo.h>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -30,14 +29,14 @@
 #include "common/oiioutils.h"
 #include "config/config.h"
 #include "core.h"
+#include "render/renderer.h"
 
 namespace olive {
 
 QStringList OIIODecoder::supported_formats_;
 
 OIIODecoder::OIIODecoder() :
-  image_(nullptr),
-  buffer_(nullptr)
+  image_(nullptr)
 {
 }
 
@@ -46,7 +45,7 @@ QString OIIODecoder::id() const
   return QStringLiteral("oiio");
 }
 
-FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt* cancelled) const
+FootageDescription OIIODecoder::Probe(const QString &filename, CancelAtom *cancelled) const
 {
   Q_UNUSED(cancelled)
 
@@ -72,22 +71,41 @@ FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt*
     return desc;
   }
 
-  VideoParams video_params;
+  bool stream_enabled = true;
 
-  video_params.set_stream_index(0);
-  video_params.set_width(in->spec().width);
-  video_params.set_height(in->spec().height);
-  video_params.set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(in->spec().format.basetype)));
-  video_params.set_channel_count(in->spec().nchannels);
-  video_params.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(in->spec()));
-  video_params.set_video_type(VideoParams::kVideoTypeStill);
+  int i;
+  for (i=0; in->seek_subimage(i, 0); i++) {
+    OIIO::ImageSpec spec = in->spec();
 
-  // OIIO automatically premultiplies alpha
-  // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this
-  //        likely reduces the fidelity?
-  video_params.set_premultiplied_alpha(true);
+    VideoParams video_params = GetVideoParamsFromImageSpec(spec);
 
-  desc.AddVideoStream(video_params);
+    video_params.set_stream_index(i);
+
+    if (i > 1) {
+      // This is a multilayer image and this image might have an offset
+      OIIO::ImageSpec root_spec = in->spec(0);
+
+      float norm_x = spec.x + float(spec.width)*0.5f - float(root_spec.width)*0.5f;
+      float norm_y = spec.y + float(spec.height)*0.5f - float(root_spec.height)*0.5f;
+
+      video_params.set_x(norm_x);
+      video_params.set_y(norm_y);
+    }
+
+    // By default, only enable the first subimage (presumably the combined image). Later we will
+    // ask the user if they want to enable the layers instead.
+    video_params.set_enabled(stream_enabled);
+    stream_enabled = false;
+
+    // OIIO automatically premultiplies alpha
+    // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this
+    //        likely reduces the fidelity?
+    video_params.set_premultiplied_alpha(true);
+
+    desc.AddVideoStream(video_params);
+  }
+
+  desc.SetStreamCount(i);
 
   // If we're here, we have a successful image open
   in->close();
@@ -98,43 +116,45 @@ FootageDescription OIIODecoder::Probe(const QString &filename, const QAtomicInt*
 bool OIIODecoder::OpenInternal()
 {
   // If we can open the filename provided, assume everything is working
-  return OpenImageHandler(stream().filename());
+  return OpenImageHandler(stream().filename(), stream().stream());
 }
 
-FramePtr OIIODecoder::RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams &divider, const QAtomicInt *cancelled)
+TexturePtr OIIODecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
 {
-  Q_UNUSED(timecode)
-  Q_UNUSED(cancelled)
+  VideoParams vp = GetVideoParamsFromImageSpec(image_->spec());
+  vp.set_divider(p.divider);
 
-  FramePtr frame = Frame::Create();
+  if (!buffer_.is_allocated()
+      || last_params_.divider != p.divider) {
+    last_params_ = p;
 
-  frame->set_video_params(VideoParams(buffer_->spec().width,
-                                      buffer_->spec().height,
-                                      pix_fmt_,
-                                      channel_count_,
-                                      OIIOUtils::GetPixelAspectRatioFromOIIO(buffer_->spec()),
-                                      VideoParams::kInterlaceNone, // FIXME: Does OIIO deinterlace for us?
-                                      divider.divider));
-  frame->allocate();
+    buffer_.destroy();
+    buffer_.set_video_params(vp);
+    buffer_.allocate();
 
-  if (divider.divider == 1) {
+    if (p.divider == 1) {
+      // Just upload straight to the buffer
+      image_->read_image(oiio_pix_fmt_, buffer_.data(), OIIO::AutoStride, buffer_.linesize_bytes());
+    } else {
+      OIIO::ImageBuf buf(image_->spec());
+      image_->read_image(image_->spec().format, buf.localpixels(), buf.pixel_stride(), buf.scanline_stride(), buf.z_stride());
 
-    OIIOUtils::BufferToFrame(buffer_, frame.get());
+      // Roughly downsample image for divider (for some reason OIIO::ImageBufAlgo::resample failed here)
+      int px_sz = vp.GetBytesPerPixel();
+      for (int dst_y=0; dst_y<buffer_.height(); dst_y++) {
+        int src_y = dst_y * buf.spec().height / buffer_.height();
 
-  } else {
-
-    // Will need to resize the image
-    OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format));
-
-    if (!OIIO::ImageBufAlgo::resample(dst, *buffer_)) {
-      qWarning() << "OIIO resize failed";
+        for (int dst_x=0; dst_x<buffer_.width(); dst_x++) {
+          int src_x = dst_x * buf.spec().width / buffer_.width();
+          memcpy(buffer_.data() + buffer_.linesize_bytes() * dst_y + px_sz * dst_x,
+                 static_cast<uint8_t*>(buf.localpixels()) + buf.scanline_stride() * src_y + px_sz * src_x,
+                 px_sz);
+        }
+      }
     }
-
-    OIIOUtils::BufferToFrame(&dst, frame.get());
-
   }
 
-  return frame;
+  return p.renderer->CreateTexture(vp, buffer_.data(), buffer_.linesize_pixels());
 }
 
 void OIIODecoder::CloseInternal()
@@ -167,7 +187,7 @@ bool OIIODecoder::FileTypeIsSupported(const QString& fn)
   return true;
 }
 
-bool OIIODecoder::OpenImageHandler(const QString &fn)
+bool OIIODecoder::OpenImageHandler(const QString &fn, int subimage)
 {
   image_ = OIIO::ImageInput::open(fn.toStdString());
 
@@ -175,11 +195,12 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
     return false;
   }
 
+  if (!image_->seek_subimage(subimage, 0)) {
+    return false;
+  }
+
   // Check if we can work with this pixel format
   const OIIO::ImageSpec& spec = image_->spec();
-
-  // Store channel count
-  channel_count_ = spec.nchannels;
 
   // We use RGBA frames because that tends to be the native format of GPUs
   pix_fmt_ = OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(spec.format.basetype));
@@ -189,17 +210,12 @@ bool OIIODecoder::OpenImageHandler(const QString &fn)
     return false;
   }
 
-  OIIO::TypeDesc::BASETYPE type = OIIOUtils::GetOIIOBaseTypeFromFormat(pix_fmt_);
+  oiio_pix_fmt_ = OIIOUtils::GetOIIOBaseTypeFromFormat(pix_fmt_);
 
-  if (type == OIIO::TypeDesc::UNKNOWN) {
+  if (oiio_pix_fmt_ == OIIO::TypeDesc::UNKNOWN) {
     qCritical() << "Failed to determine appropriate OIIO basetype from native format";
     return false;
   }
-
-  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type),
-                               OIIO::InitializePixels::No);
-
-  image_->read_image(type, buffer_->localpixels());
 
   return true;
 }
@@ -211,10 +227,21 @@ void OIIODecoder::CloseImageHandle()
     image_ = nullptr;
   }
 
-  if (buffer_) {
-    delete buffer_;
-    buffer_ = nullptr;
-  }
+  buffer_.destroy();
+}
+
+VideoParams OIIODecoder::GetVideoParamsFromImageSpec(const OIIO::ImageSpec &spec)
+{
+  VideoParams video_params;
+
+  video_params.set_width(spec.width);
+  video_params.set_height(spec.height);
+  video_params.set_format(OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(spec.format.basetype)));
+  video_params.set_channel_count(spec.nchannels);
+  video_params.set_pixel_aspect_ratio(OIIOUtils::GetPixelAspectRatioFromOIIO(spec));
+  video_params.set_video_type(VideoParams::kVideoTypeStill);
+
+  return video_params;
 }
 
 }

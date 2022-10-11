@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,12 +37,7 @@ class Folder : public Node
 public:
   Folder();
 
-  NODE_DEFAULT_DESTRUCTOR(Folder)
-
-  virtual Node* copy() const override
-  {
-    return new Folder();
-  }
+  NODE_DEFAULT_FUNCTIONS(Folder)
 
   virtual QString Name() const override
   {
@@ -69,6 +64,8 @@ public:
   virtual void Retranslate() override;
 
   bool ChildExistsWithName(const QString& s) const;
+
+  bool HasChildRecursive(Node *child) const;
 
   int item_child_count() const
   {

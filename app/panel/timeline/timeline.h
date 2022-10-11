@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -68,12 +68,6 @@ public:
 
   virtual void ToggleLinks() override;
 
-  virtual void CutSelected() override;
-
-  virtual void CopySelected() override;
-
-  virtual void Paste() override;
-
   virtual void PasteInsert() override;
 
   virtual void DeleteInToOut() override;
@@ -92,9 +86,21 @@ public:
 
   virtual void MoveOutToPlayhead() override;
 
+  virtual void RenameSelected() override;
+
+  void AddDefaultTransitionsToSelected()
+  {
+    timeline_widget()->AddDefaultTransitionsToSelected();
+  }
+
   void ShowSpeedDurationDialogForSelectedClips()
   {
     timeline_widget()->ShowSpeedDurationDialogForSelectedClips();
+  }
+
+  void NestSelectedClips()
+  {
+    timeline_widget()->NestSelectedClips();
   }
 
   void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
@@ -106,11 +112,21 @@ public:
     return timeline_widget()->GetSelectedBlocks();
   }
 
+  Sequence *GetSequence() const
+  {
+    return dynamic_cast<Sequence*>(GetConnectedViewer());
+  }
+
 protected:
   virtual void Retranslate() override;
 
 signals:
   void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
+
+  void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
+
+  void RevealViewerInProject(ViewerOutput *r);
+  void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
 
 };
 

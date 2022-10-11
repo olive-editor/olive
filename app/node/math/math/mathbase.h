@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,8 +29,6 @@ class MathNodeBase : public Node
 {
 public:
   MathNodeBase() = default;
-
-  NODE_DEFAULT_DESTRUCTOR(MathNodeBase)
 
   enum Operation {
     kOpAdd,
@@ -123,7 +121,7 @@ protected:
 
   void ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b, const NodeGlobals &globals, NodeValueTable *output) const;
 
-  void ProcessSamplesInternal(const NodeValueRow &values, Operation operation, const QString& param_a_in, const QString& param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  void ProcessSamplesInternal(const NodeValueRow &values, Operation operation, const QString& param_a_in, const QString& param_b_in, const SampleBuffer &input, SampleBuffer &output, int index) const;
 
 };
 

@@ -25,7 +25,10 @@ const QString ColorDifferenceKeyNode::kShadowsInput = QStringLiteral("shadows_in
 const QString ColorDifferenceKeyNode::kHighlightsInput = QStringLiteral("highlights_in");
 const QString ColorDifferenceKeyNode::kMaskOnlyInput = QStringLiteral("mask_only_in");
 
-ColorDifferenceKeyNode::ColorDifferenceKeyNode() {
+#define super Node
+
+ColorDifferenceKeyNode::ColorDifferenceKeyNode()
+{
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
   AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -34,18 +37,18 @@ ColorDifferenceKeyNode::ColorDifferenceKeyNode() {
 
   AddInput(kColorInput, NodeValue::kCombo, 0);
 
-  AddInput(kHighlightsInput, NodeValue::kFloat, 100.0f);
+  AddInput(kHighlightsInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kHighlightsInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kHighlightsInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kShadowsInput, NodeValue::kFloat, 100.0f);
+  AddInput(kShadowsInput, NodeValue::kFloat, 1.0f);
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
+  SetInputProperty(kShadowsInput, QStringLiteral("base"), 0.01);
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
-}
 
-Node *ColorDifferenceKeyNode::copy() const
-{
-  return new ColorDifferenceKeyNode();
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 QString ColorDifferenceKeyNode::Name() const
@@ -70,6 +73,8 @@ QString ColorDifferenceKeyNode::Description() const
 
 void ColorDifferenceKeyNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Input"));
   SetInputName(kGarbageMatteInput, tr("Garbage Matte"));
   SetInputName(kCoreMatteInput, tr("Core Matte"));
@@ -80,21 +85,19 @@ void ColorDifferenceKeyNode::Retranslate()
   SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
 }
 
-ShaderCode ColorDifferenceKeyNode::GetShaderCode(const QString &shader_id) const
+ShaderCode ColorDifferenceKeyNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/colordifferencekey.frag"));
 }
 
 void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-  job.InsertValue(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-
   // If there's no texture, no need to run an operation
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    ShaderJob job;
+    job.Insert(value);
+    table->Push(NodeValue::kTexture, tex->toJob(job), this);
   }
 }
 

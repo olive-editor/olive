@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,26 +26,29 @@
 
 namespace olive {
 
-class AcceleratedJob {
+class AcceleratedJob
+{
 public:
   AcceleratedJob() = default;
 
-  NodeValue GetValue(const QString& input) const
+  virtual ~AcceleratedJob(){}
+
+  NodeValue Get(const QString& input) const
   {
     return value_map_.value(input);
   }
 
-  void InsertValue(const QString &input, const NodeValueRow &row)
+  void Insert(const QString &input, const NodeValueRow &row)
   {
     value_map_.insert(input, row.value(input));
   }
 
-  void InsertValue(const QString& input, const NodeValue& value)
+  void Insert(const QString& input, const NodeValue& value)
   {
     value_map_.insert(input, value);
   }
 
-  void InsertValue(const NodeValueRow &row)
+  void Insert(const NodeValueRow &row)
   {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     value_map_.insert(row);
@@ -56,10 +59,8 @@ public:
 #endif
   }
 
-  const NodeValueRow &GetValues() const
-  {
-    return value_map_;
-  }
+  const NodeValueRow &GetValues() const { return value_map_; }
+  NodeValueRow &GetValues() { return value_map_; }
 
 private:
   NodeValueRow value_map_;

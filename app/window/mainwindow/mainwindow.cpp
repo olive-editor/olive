@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QMessageBox>
+#include <QScreen>
 
 #ifdef Q_OS_LINUX
 #include <QOffscreenSurface>
@@ -32,6 +33,7 @@
 #include "dialog/about/about.h"
 #include "mainmenu.h"
 #include "mainstatusbar.h"
+#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -43,7 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
   //   window beforehand works around that issue and we just set it to whatever size is available.
   // * On Linux, it seems the window starts off at a vastly different size and then maximizes
   //   which throws off the proportions and makes the resulting layout wonky.
-  resize(qApp->desktop()->availableGeometry(this).size());
+  if (!qApp->screens().empty()) {
+    resize(qApp->screens().at(0)->availableSize());
+  }
 
 #ifdef Q_OS_WINDOWS
   // Set up taskbar button progress bar (used for some modal tasks like exporting)
@@ -83,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
   param_panel_ = new ParamPanel(this);
   curve_panel_ = new CurvePanel(this);
   sequence_viewer_panel_ = new SequenceViewerPanel(this);
+  multicam_panel_ = new MulticamPanel(this);
   pixel_sampler_panel_ = new PixelSamplerPanel(this);
   AppendProjectPanel();
   tool_panel_ = new ToolPanel(this);
@@ -92,28 +97,30 @@ MainWindow::MainWindow(QWidget *parent) :
   scope_panel_ = new ScopePanel(this);
 
   // Make node-related connections
-  connect(node_panel_, &NodePanel::NodesSelected, param_panel_, &ParamPanel::SelectNodes);
-  connect(node_panel_, &NodePanel::NodesDeselected, param_panel_, &ParamPanel::DeselectNodes);
+  connect(node_panel_, &NodePanel::NodeSelectionChangedWithContexts, param_panel_, &ParamPanel::SetSelectedNodes);
   connect(node_panel_, &NodePanel::NodeGroupOpened, this, &MainWindow::NodePanelGroupOpenedOrClosed);
   connect(node_panel_, &NodePanel::NodeGroupClosed, this, &MainWindow::NodePanelGroupOpenedOrClosed);
-  connect(param_panel_, &ParamPanel::RequestSelectNode, this, [this](const QVector<Node*>& target){
-    node_panel_->Select(target, true);
-  });
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, sequence_viewer_panel_, &ViewerPanel::SetGizmos);
+  connect(param_panel_, &ParamPanel::RequestViewerToStartEditingText, sequence_viewer_panel_, &ViewerPanel::RequestStartEditingText);
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
+  connect(param_panel_, &ParamPanel::SelectedNodesChanged, node_panel_, &NodePanel::Select);
+
+  connect(node_panel_, &NodePanel::NodeSelectionChanged, sequence_viewer_panel_, &ViewerPanel::SetNodeViewSelections);
 
   // Connect time signals together
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
-  connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
-  connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &NodeTablePanel::SetTime);
-  connect(curve_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
-  connect(curve_panel_, &ParamPanel::TimeChanged, param_panel_, &NodeTablePanel::SetTime);
-
-  connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
+  AddMainTimePanel(multicam_panel_);
+  AddMainTimePanel(curve_panel_);
+  AddMainTimePanel(param_panel_);
+  AddMainTimePanel(sequence_viewer_panel_);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
+  sequence_viewer_panel_->ConnectTimeBasedPanel(multicam_panel_);
+
+  connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
+
+  sequence_viewer_panel_->AddPlaybackDevice(multicam_panel_->GetMulticamWidget()->GetDisplayWidget());
+  sequence_viewer_panel_->ConnectMulticamWidget(multicam_panel_->GetMulticamWidget());
 
   scope_panel_->SetViewerPanel(sequence_viewer_panel_);
 
@@ -184,7 +191,7 @@ TimelinePanel* MainWindow::OpenSequence(Sequence *sequence, bool enable_focus)
     panel = timeline_panels_.first();
   } else {
     panel = AppendTimelinePanel();
-    enable_focus = false;
+    //enable_focus = false;
   }
 
   panel->ConnectViewerNode(sequence);
@@ -312,9 +319,18 @@ void MainWindow::ToggleMaximizedPanel()
       }
     }
   } else {
+    // Preserve currently focused panel
+    auto currently_focused_panel = PanelManager::instance()->CurrentlyFocused(false);
+
     // Assume we are currently maximized, restore the state
+    PanelManager::instance()->SetSuppressChangedSignal(true);
     restoreState(premaximized_state_);
     premaximized_state_.clear();
+
+    currently_focused_panel->raise();
+    currently_focused_panel->setFocus();
+
+    PanelManager::instance()->SetSuppressChangedSignal(false);
   }
 }
 
@@ -408,6 +424,16 @@ void MainWindow::SetApplicationProgressValue(int value)
 #endif
 }
 
+void MainWindow::SelectFootage(const QVector<Footage *> &e)
+{
+  for (ProjectPanel *p : project_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
+  for (ProjectPanel *p : folder_panels_) {
+    SelectFootageForProjectPanel(e, p);
+  }
+}
+
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   // Try to close all projects (this will return false if the user chooses not to close)
@@ -468,15 +494,39 @@ void MainWindow::TimelinePanelSelectionChanged(const QVector<Block *> &blocks)
 
   if (PanelManager::instance()->CurrentlyFocused(false) == panel) {
     UpdateNodePanelContextFromTimelinePanel(panel);
+    sequence_viewer_panel_->SetTimelineSelectedBlocks(blocks);
   }
 }
 
 void MainWindow::ShowWelcomeDialog()
 {
-  if (Config::Current()[QStringLiteral("ShowWelcomeDialog")].toBool()) {
+  if (OLIVE_CONFIG("ShowWelcomeDialog").toBool()) {
     AboutDialog ad(true, this);
     ad.exec();
   }
+}
+
+void MainWindow::RevealViewerInProject(ViewerOutput *r)
+{
+  foreach (ProjectPanel *p, project_panels_) {
+    if (p->project() == r->project() && p->SelectItem(r)) {
+      break;
+    }
+  }
+}
+
+void MainWindow::RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range)
+{
+  footage_viewer_panel_->ConnectViewerNode(r);
+
+  auto command = new MultiUndoCommand();
+  if (!r->GetWorkArea()->enabled()) {
+    command->add_child(new WorkareaSetEnabledCommand(r->project(), r->GetWorkArea(), true));
+  }
+  command->add_child(new WorkareaSetRangeCommand(r->GetWorkArea(), range));
+  Core::instance()->undo_stack()->push(command);
+
+  footage_viewer_panel_->SetTime(range.in());
 }
 
 #ifdef Q_OS_LINUX
@@ -505,7 +555,9 @@ void MainWindow::UpdateTitle()
 
 void MainWindow::TimelineCloseRequested()
 {
-  RemoveTimelinePanel(static_cast<TimelinePanel*>(sender()));
+  TimelinePanel *t = static_cast<TimelinePanel*>(sender());
+  RemoveTimelinePanel(t);
+  main_time_panels_.removeOne(t);
 }
 
 void MainWindow::ProjectCloseRequested()
@@ -547,18 +599,32 @@ void MainWindow::FloatingPanelCloseRequested()
   panel->deleteLater();
 }
 
+void MainWindow::AddMainTimePanel(TimeBasedPanel *p)
+{
+  main_time_panels_.append(p);
+  connect(p, &TimeBasedPanel::TimeChanged, this, &MainWindow::UpdateMainTimePanels);
+}
+
+void MainWindow::UpdateMainTimePanels(const rational &r)
+{
+  for (TimeBasedPanel *p : main_time_panels_) {
+    if (p != sender()) {
+      p->SetTime(r);
+    }
+  }
+}
+
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
   TimelinePanel* panel = AppendPanelInternal<TimelinePanel>(timeline_panels_);
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
-  connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &ParamPanel::SetTime);
-  connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
+  connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
-  connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
-  connect(curve_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
-  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
+  connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
+  connect(panel, &TimelinePanel::RevealViewerInFootageViewer, this, &MainWindow::RevealViewerInFootageViewer);
+
+  AddMainTimePanel(panel);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(panel);
 
@@ -600,6 +666,7 @@ void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
 void MainWindow::TimelineFocused(ViewerOutput* viewer)
 {
   sequence_viewer_panel_->ConnectViewerNode(viewer);
+  multicam_panel_->ConnectViewerNode(viewer);
   param_panel_->ConnectViewerNode(viewer);
   curve_panel_->ConnectViewerNode(viewer);
 }
@@ -731,6 +798,16 @@ void MainWindow::UpdateNodePanelContextFromTimelinePanel(TimelinePanel *panel)
   param_panel_->SetContexts(context);
 }
 
+void MainWindow::SelectFootageForProjectPanel(const QVector<Footage *> &e, ProjectPanel *p)
+{
+  p->DeselectAll();
+  for (Footage *f : e) {
+    if (p->get_root()->HasChildRecursive(f)) {
+      p->SelectItem(f, false);
+    }
+  }
+}
+
 void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 {
   // Update audio monitor panel
@@ -779,6 +856,10 @@ void MainWindow::SetDefaultLayout()
   scope_panel_->hide();
   scope_panel_->setFloating(true);
   addDockWidget(Qt::TopDockWidgetArea, scope_panel_);
+
+  multicam_panel_->hide();
+  multicam_panel_->setFloating(true);
+  addDockWidget(Qt::TopDockWidgetArea, multicam_panel_);
 
   sequence_viewer_panel_->show();
   addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);

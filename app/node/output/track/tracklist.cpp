@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ TrackList::TrackList(Sequence *parent, const Track::Type &type, const QString &t
 
 Track *TrackList::GetTrackAt(int index) const
 {
-  if (index < track_cache_.size()) {
+  if (index >= 0 && index < track_cache_.size()) {
     return track_cache_.at(index);
   } else {
     return nullptr;
@@ -81,6 +81,9 @@ void TrackList::TrackConnected(Node *node, int element)
   UpdateTrackIndexesFrom(cache_index);
 
   connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+  connect(track, &Track::TrackHeightChangedInPixels, this, [this](int height){
+    emit TrackHeightChanged(static_cast<Track*>(sender()), height);
+  });
 
   track->set_type(type_);
   track->set_sequence(parent());

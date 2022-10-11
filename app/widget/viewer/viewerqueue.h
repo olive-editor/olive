@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,12 +27,14 @@
 
 namespace olive {
 
-struct ViewerPlaybackFrame {
+struct ViewerPlaybackFrame
+{
   rational timestamp;
   QVariant frame;
 };
 
-class ViewerQueue : public std::list<ViewerPlaybackFrame> {
+class ViewerQueue : public std::list<ViewerPlaybackFrame>
+{
 public:
   ViewerQueue() = default;
 
@@ -41,7 +43,7 @@ public:
     if (this->empty() || (this->back().timestamp < f.timestamp) == (playback_speed > 0)) {
       this->push_back(f);
     } else {
-      for (iterator i=this->begin(); i!=this->end(); i++) {
+      for (auto i=this->begin(); i!=this->end(); i++) {
         if ((i->timestamp > f.timestamp) == (playback_speed > 0)) {
           this->insert(i, f);
           break;

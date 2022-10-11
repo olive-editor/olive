@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,10 +27,12 @@
 #include <QStandardPaths>
 #include <QXmlStreamWriter>
 
+#include "codec/exportformat.h"
 #include "common/autoscroll.h"
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "core.h"
+#include "timeline/timelinecommon.h"
 #include "ui/colorcoding.h"
 #include "ui/style/style.h"
 #include "window/mainwindow/mainwindow.h"
@@ -101,6 +103,19 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("StopPlaybackOnLastFrame"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("UseLegacyColorInInputTab"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("ReassocLinToNonLin"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("PreviewNonFloatDontAskAgain"), NodeValue::kBoolean, false);
+
+  SetEntryInternal(QStringLiteral("TimelineThumbnailMode"), NodeValue::kInt, Timeline::kThumbnailInOut);
+  SetEntryInternal(QStringLiteral("TimelineWaveformMode"), NodeValue::kInt, Timeline::kWaveformsEnabled);
+
+  SetEntryInternal(QStringLiteral("DefaultVideoTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
+  SetEntryInternal(QStringLiteral("DefaultAudioTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
+  SetEntryInternal(QStringLiteral("DefaultTransitionLength"), NodeValue::kRational, QVariant::fromValue(rational(1)));
+
+  SetEntryInternal(QStringLiteral("DefaultSubtitleSize"), NodeValue::kInt, 48);
+  SetEntryInternal(QStringLiteral("DefaultSubtitleFamily"), NodeValue::kText, QString());
+  SetEntryInternal(QStringLiteral("DefaultSubtitleWeight"), NodeValue::kInt, QFont::Bold);
+  SetEntryInternal(QStringLiteral("AntialiasSubtitles"), NodeValue::kBoolean, true);
 
   SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
 
@@ -120,6 +135,17 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
   SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());
 
+  SetEntryInternal(QStringLiteral("AudioOutputSampleRate"), NodeValue::kInt, 48000);
+  SetEntryInternal(QStringLiteral("AudioOutputChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
+  SetEntryInternal(QStringLiteral("AudioOutputSampleFormat"), NodeValue::kInt, AudioParams::kFormatSigned16Packed);
+
+  SetEntryInternal(QStringLiteral("AudioRecordingFormat"), NodeValue::kInt, ExportFormat::kFormatWAV);
+  SetEntryInternal(QStringLiteral("AudioRecordingCodec"), NodeValue::kInt, ExportCodec::kCodecPCM);
+  SetEntryInternal(QStringLiteral("AudioRecordingSampleRate"), NodeValue::kInt, 48000);
+  SetEntryInternal(QStringLiteral("AudioRecordingChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
+  SetEntryInternal(QStringLiteral("AudioRecordingSampleFormat"), NodeValue::kInt, AudioParams::kFormatSigned16Packed);
+  SetEntryInternal(QStringLiteral("AudioRecordingBitRate"), NodeValue::kInt, 320);
+
   SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(0)));
   SetEntryInternal(QStringLiteral("DiskCacheAhead"), NodeValue::kRational, QVariant::fromValue(rational(60)));
 
@@ -128,13 +154,15 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequencePixelAspect"), NodeValue::kRational, QVariant::fromValue(rational(1)));
   SetEntryInternal(QStringLiteral("DefaultSequenceFrameRate"), NodeValue::kRational, QVariant::fromValue(rational(1001, 30000)));
   SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeValue::kInt, VideoParams::kInterlaceNone);
-  SetEntryInternal(QStringLiteral("DefaultSequenceAutoCache"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("DefaultSequenceAutoCache2"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeValue::kInt, 48000);
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeValue::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
 
   // Online/offline settings
   SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat32);
   SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat16);
+
+  SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kLime);
 }
 
 void Config::Load()

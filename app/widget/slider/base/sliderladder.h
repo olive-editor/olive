@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -94,6 +94,8 @@ private:
   int active_element_;
 
   QTimer drag_timer_;
+
+  QScreen *screen_;
 
 private slots:
   void TimerUpdate();

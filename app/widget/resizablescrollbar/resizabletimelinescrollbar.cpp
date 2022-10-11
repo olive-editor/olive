@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,38 +25,57 @@
 #include <QStyleOptionSlider>
 #include <QtMath>
 
+#include "ui/colorcoding.h"
+
 namespace olive {
 
 ResizableTimelineScrollBar::ResizableTimelineScrollBar(QWidget* parent) :
   ResizableScrollBar(parent),
-  points_(nullptr),
+  markers_(nullptr),
+  workarea_(nullptr),
   scale_(1.0)
 {
 }
 
 ResizableTimelineScrollBar::ResizableTimelineScrollBar(Qt::Orientation orientation, QWidget* parent) :
   ResizableScrollBar(orientation, parent),
-  points_(nullptr),
+  markers_(nullptr),
+  workarea_(nullptr),
   scale_(1.0)
 {
 }
 
-void ResizableTimelineScrollBar::ConnectTimelinePoints(TimelinePoints *points)
+void ResizableTimelineScrollBar::ConnectMarkers(TimelineMarkerList *markers)
 {
-  if (points_) {
-    disconnect(points_->workarea(), &TimelineWorkArea::RangeChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
-    disconnect(points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
-    disconnect(points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
-    disconnect(points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+  if (markers_) {
+    disconnect(markers_, &TimelineMarkerList::MarkerAdded, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+    disconnect(markers_, &TimelineMarkerList::MarkerRemoved, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+    disconnect(markers_, &TimelineMarkerList::MarkerModified, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
   }
 
-  points_ = points;
+  markers_ = markers;
 
-  if (points_) {
-    connect(points_->workarea(), &TimelineWorkArea::RangeChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
-    connect(points_->workarea(), &TimelineWorkArea::EnabledChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
-    connect(points_->markers(), &TimelineMarkerList::MarkerAdded, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
-    connect(points_->markers(), &TimelineMarkerList::MarkerRemoved, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+  if (markers_) {
+    connect(markers_, &TimelineMarkerList::MarkerAdded, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+    connect(markers_, &TimelineMarkerList::MarkerRemoved, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+    connect(markers_, &TimelineMarkerList::MarkerModified, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+  }
+
+  update();
+}
+
+void ResizableTimelineScrollBar::ConnectWorkArea(TimelineWorkArea *workarea)
+{
+  if (workarea_) {
+    disconnect(workarea_, &TimelineWorkArea::RangeChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+    disconnect(workarea_, &TimelineWorkArea::EnabledChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+  }
+
+  workarea_ = workarea;
+
+  if (workarea_) {
+    connect(workarea_, &TimelineWorkArea::RangeChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
+    connect(workarea_, &TimelineWorkArea::EnabledChanged, this, static_cast<void (ResizableTimelineScrollBar::*)()>(&ResizableTimelineScrollBar::update));
   }
 
   update();
@@ -73,9 +92,8 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
 {
   ResizableScrollBar::paintEvent(event);
 
-  if (points_
-      && !timebase().isNull()
-      && (points_->workarea()->enabled() || !points_->markers()->list().isEmpty())) {
+  if (!timebase().isNull() && ((workarea_ && workarea_->enabled()) || (markers_ && !markers_->empty()))) {
+    // Draw workarea
     QStyleOptionSlider opt;
     initStyleOption(&opt);
 
@@ -83,20 +101,20 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
                                        QStyle::SC_ScrollBarGroove, this);
 
     double ratio = scale_ * double(gr.width()) / double(this->maximum() + gr.width());
-
     QPainter p(this);
 
-    if (points_->workarea()->enabled()) {
+    if (workarea_ && workarea_->enabled()) {
+
       QColor workarea_color(this->palette().highlight().color());
       workarea_color.setAlpha(128);
 
-      qint64 in = qMax(qint64(0), qRound64(ratio * TimeToScene(points_->workarea()->in())));
+      qint64 in = qMax(qint64(0), qRound64(ratio * TimeToScene(workarea_->in())));
 
       qint64 out;
-      if (points_->workarea()->out() == RATIONAL_MAX) {
+      if (workarea_->out() == RATIONAL_MAX) {
         out = gr.width();
       } else {
-        out = qMin(qint64(gr.width()), qRound64(ratio * TimeToScene(points_->workarea()->out())));
+        out = qMin(qint64(gr.width()), qRound64(ratio * TimeToScene(workarea_->out())));
       }
 
       qint64 length = qMax(qint64(1), out-in);
@@ -108,9 +126,12 @@ void ResizableTimelineScrollBar::paintEvent(QPaintEvent *event)
                  workarea_color);
     }
 
-    if (!points_->markers()->list().isEmpty()) {
-      QColor marker_color(0, 255, 0, 128);
-      foreach (TimelineMarker* marker, points_->markers()->list()) {
+    // Draw markers
+    if (markers_ && !markers_->empty()) {
+      for (auto it=markers_->cbegin(); it!=markers_->cend(); it++) {
+        TimelineMarker* marker = *it;
+
+        QColor marker_color = ColorCoding::GetColor(marker->color()).toQColor();
         int64_t in = qRound64(ratio * TimeToScene(marker->time().in()));
         int64_t out = qRound64(ratio * TimeToScene(marker->time().out()));
         int64_t length = qMax(int64_t(1), out-in);

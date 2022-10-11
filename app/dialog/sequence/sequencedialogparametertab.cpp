@@ -71,12 +71,15 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   preview_layout->addWidget(preview_resolution_label_, row, 2);
   row++;
   preview_layout->addWidget(new QLabel(tr("Quality:")), row, 0);
-  preview_format_field_ = new PixelFormatComboBox(true);
+  preview_format_field_ = new PixelFormatComboBox(false);
   preview_layout->addWidget(preview_format_field_, row, 1, 1, 2);
+
+  /* TEMP: Disable sequence auto-cache, wanna see if clip cache supersedes it.
   row++;
   preview_layout->addWidget(new QLabel(tr("Auto-Cache:")), row, 0);
+  preview_layout->addWidget(preview_autocache_field_, row, 1);*/
   preview_autocache_field_ = new QCheckBox();
-  preview_layout->addWidget(preview_autocache_field_, row, 1);
+
   layout->addWidget(preview_group);
 
   // Set values based on input sequence
@@ -89,7 +92,7 @@ SequenceDialogParameterTab::SequenceDialogParameterTab(Sequence* sequence, QWidg
   interlacing_combo_->SetInterlaceMode(vp.interlacing());
   preview_resolution_field_->SetDivider(vp.divider());
   preview_format_field_->SetPixelFormat(vp.format());
-  preview_autocache_field_->setChecked(sequence->GetVideoAutoCacheEnabled());
+  preview_autocache_field_->setChecked(sequence->IsVideoAutoCacheEnabled());
   audio_sample_rate_field_->SetSampleRate(ap.sample_rate());
   audio_channels_field_->SetChannelLayout(ap.channel_layout());
 

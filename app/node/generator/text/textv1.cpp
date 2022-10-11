@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ const QString TextGeneratorV1::kVAlignInput = QStringLiteral("valign_in");
 const QString TextGeneratorV1::kFontInput = QStringLiteral("font_in");
 const QString TextGeneratorV1::kFontSizeInput = QStringLiteral("font_size_in");
 
+#define super Node
+
 TextGeneratorV1::TextGeneratorV1()
 {
   AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
@@ -51,6 +53,8 @@ TextGeneratorV1::TextGeneratorV1()
   AddInput(kFontInput, NodeValue::kFont);
 
   AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
+
+  SetFlags(kDontShowInCreateMenu);
 }
 
 QString TextGeneratorV1::Name() const
@@ -75,6 +79,8 @@ QString TextGeneratorV1::Description() const
 
 void TextGeneratorV1::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextInput, tr("Text"));
   SetInputName(kHtmlInput, tr("Enable HTML"));
   SetInputName(kFontInput, tr("Font"));
@@ -86,12 +92,8 @@ void TextGeneratorV1::Retranslate()
 
 void TextGeneratorV1::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  GenerateJob job;
-  job.InsertValue(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-
-  if (!job.GetValue(kTextInput).data().toString().isEmpty()) {
-    table->Push(NodeValue::kGenerateJob, QVariant::fromValue(job), this);
+  if (!value[kTextInput].toString().isEmpty()) {
+    table->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), GenerateJob(value)), this);
   }
 }
 
@@ -108,15 +110,15 @@ void TextGeneratorV1::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
 
   // Set default font
   QFont default_font;
-  default_font.setFamily(job.GetValue(kFontInput).data().toString());
-  default_font.setPointSizeF(job.GetValue(kFontSizeInput).data().toFloat());
+  default_font.setFamily(job.Get(kFontInput).toString());
+  default_font.setPointSizeF(job.Get(kFontSizeInput).toDouble());
   text_doc.setDefaultFont(default_font);
 
   // Center by default
   text_doc.setDefaultTextOption(QTextOption(Qt::AlignCenter));
 
-  QString html = job.GetValue(kTextInput).data().toString();
-  if (job.GetValue(kHtmlInput).data().toBool()) {
+  QString html = job.Get(kTextInput).toString();
+  if (job.Get(kHtmlInput).toBool()) {
     html.replace('\n', QStringLiteral("<br>"));
     text_doc.setHtml(html);
   } else {
@@ -134,7 +136,7 @@ void TextGeneratorV1::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   // Push 10% inwards to compensate for title safe area
   p.translate(tenth_of_width, 0);
 
-  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.GetValue(kVAlignInput).data().toInt());
+  TextVerticalAlign valign = static_cast<TextVerticalAlign>(job.Get(kVAlignInput).toInt());
   int doc_height = text_doc.size().height();
 
   switch (valign) {
@@ -157,7 +159,7 @@ void TextGeneratorV1::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   text_doc.documentLayout()->draw(&p, ctx);
 
   // Transplant alpha channel to frame
-  Color rgb = job.GetValue(kColorInput).data().value<Color>();
+  Color rgb = job.Get(kColorInput).toColor();
   for (int x=0; x<frame->width(); x++) {
     for (int y=0; y<frame->height(); y++) {
       uchar src_alpha = img.bits()[img.bytesPerLine() * y + x];

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -71,6 +71,21 @@ bool ChildExistsWithNameInternal(const Folder* n, const QString& s)
 bool Folder::ChildExistsWithName(const QString &s) const
 {
   return ChildExistsWithNameInternal(this, s);
+}
+
+bool Folder::HasChildRecursive(Node *child) const
+{
+  for (Node *i : item_children_) {
+    if (i == child) {
+      return true;
+    } else if (Folder *f = dynamic_cast<Folder*>(i)) {
+      if (f->HasChildRecursive(child)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 int Folder::index_of_child_in_array(Node *item) const

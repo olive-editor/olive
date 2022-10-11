@@ -10,9 +10,7 @@ class OpacityEffect : public Node
 public:
   OpacityEffect();
 
-  NODE_DEFAULT_DESTRUCTOR(OpacityEffect)
-
-  NODE_COPY_FUNCTION(OpacityEffect)
+  NODE_DEFAULT_FUNCTIONS(OpacityEffect)
 
   virtual QString Name() const override
   {
@@ -36,7 +34,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
   static const QString kTextureInput;

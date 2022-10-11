@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include <QVariant>
 
 #include "common/rational.h"
+#include "common/timerange.h"
 #include "node/param.h"
 
 namespace olive {
@@ -63,6 +64,7 @@ public:
    * @brief NodeKeyframe Constructor
    */
   NodeKeyframe(const rational& time, const QVariant& value, Type type, int track, int element, const QString& input, QObject* parent = nullptr);
+  NodeKeyframe();
 
   virtual ~NodeKeyframe() override;
 
@@ -70,10 +72,9 @@ public:
   NodeKeyframe* copy(QObject* parent = nullptr) const;
 
   Node* parent() const;
-  const QString& input() const
-  {
-    return input_;
-  }
+
+  const QString& input() const { return input_; }
+  void set_input(const QString& input) { input_ = input; }
 
   NodeKeyframeTrackReference key_track_ref() const
   {
@@ -97,6 +98,7 @@ public:
    */
   const Type& type() const;
   void set_type(const Type& type);
+  void set_type_no_bezier_adj(const Type& type);
 
   /**
    * @brief For bezier interpolation, the control point leading into this keyframe
@@ -132,15 +134,11 @@ public:
    * For the majority of keyfreames, this will be 0, but for some types, such as kVec2, this will be 0 for X keyframes
    * and 1 for Y keyframes, etc.
    */
-  int track() const
-  {
-    return track_;
-  }
+  int track() const { return track_; }
+  void set_track(int t) { track_ = t; }
 
-  int element() const
-  {
-    return element_;
-  }
+  int element() const { return element_; }
+  void set_element(int e) { element_ = e; }
 
   /**
    * @brief Convenience function for getting the opposite handle type (e.g. kInHandle <-> kOutHandle)
@@ -166,6 +164,8 @@ public:
   {
     next_ = keyframe;
   }
+
+  bool has_sibling_at_time(const rational &t) const;
 
 signals:
   /**

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ void TransitionTool::MousePress(TimelineViewMouseEvent *event)
 
   parent()->AddGhost(ghost_);
 
-  snap_points_.append(transition_start_point);
+  snap_points_.push_back(transition_start_point);
 
   // Set the drag start point
   drag_start_point_ = event->GetFrame();
@@ -178,7 +178,7 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
     return false;
   }
 
-  Block* block_at_time = t->BlockAtTime(coord.GetFrame());
+  Block* block_at_time = t->NearestBlockBeforeOrAt(coord.GetFrame());
   if (!dynamic_cast<ClipBlock*>(block_at_time)) {
     return false;
   }

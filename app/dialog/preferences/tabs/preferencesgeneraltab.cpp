@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
       AddLanguage(l);
     }
 
-    QString current_language = Config::Current()[QStringLiteral("Language")].toString();
+    QString current_language = OLIVE_CONFIG("Language").toString();
     if (current_language.isEmpty()) {
       // No configured language, use system language
       current_language = QLocale::system().name();
@@ -86,7 +86,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autoscroll_method_->addItem(tr("None"), AutoScroll::kNone);
     autoscroll_method_->addItem(tr("Page Scrolling"), AutoScroll::kPage);
     autoscroll_method_->addItem(tr("Smooth Scrolling"), AutoScroll::kSmooth);
-    autoscroll_method_->setCurrentIndex(Config::Current()["Autoscroll"].toInt());
+    autoscroll_method_->setCurrentIndex(OLIVE_CONFIG("Autoscroll").toInt());
     timeline_layout->addWidget(autoscroll_method_, row, 1);
 
     row++;
@@ -94,7 +94,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     timeline_layout->addWidget(new QLabel(tr("Rectified Waveforms:")), row, 0);
 
     rectified_waveforms_ = new QCheckBox();
-    rectified_waveforms_->setChecked(Config::Current()["RectifiedWaveforms"].toBool());
+    rectified_waveforms_->setChecked(OLIVE_CONFIG("RectifiedWaveforms").toBool());
     timeline_layout->addWidget(rectified_waveforms_, row, 1);
 
     row++;
@@ -105,7 +105,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     default_still_length_->SetMinimum(rational(100, 1000));
     default_still_length_->SetTimebase(rational(100, 1000));
     default_still_length_->SetFormat(tr("%1 seconds"));
-    default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>());
+    default_still_length_->SetValue(OLIVE_CONFIG("DefaultStillLength").value<rational>());
     timeline_layout->addWidget(default_still_length_);
   }
 
@@ -119,7 +119,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_layout->addWidget(new QLabel(tr("Enable Auto-Recovery:")), row, 0);
 
     autorecovery_enabled_ = new QCheckBox();
-    autorecovery_enabled_->setChecked(Config::Current()[QStringLiteral("AutorecoveryEnabled")].toBool());
+    autorecovery_enabled_->setChecked(OLIVE_CONFIG("AutorecoveryEnabled").toBool());
     autorecovery_layout->addWidget(autorecovery_enabled_, row, 1);
 
     row++;
@@ -130,7 +130,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_interval_->SetMinimum(1);
     autorecovery_interval_->SetMaximum(60);
     autorecovery_interval_->SetFormat(QT_TRANSLATE_N_NOOP("olive::SliderBase", "%n minute(s)"), true);
-    autorecovery_interval_->SetValue(Config::Current()[QStringLiteral("AutorecoveryInterval")].toLongLong());
+    autorecovery_interval_->SetValue(OLIVE_CONFIG("AutorecoveryInterval").toLongLong());
     autorecovery_layout->addWidget(autorecovery_interval_, row, 1);
 
     row++;
@@ -140,7 +140,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_maximum_ = new IntegerSlider();
     autorecovery_maximum_->SetMinimum(1);
     autorecovery_maximum_->SetMaximum(1000);
-    autorecovery_maximum_->SetValue(Config::Current()[QStringLiteral("AutorecoveryMaximum")].toLongLong());
+    autorecovery_maximum_->SetValue(OLIVE_CONFIG("AutorecoveryMaximum").toLongLong());
     autorecovery_layout->addWidget(autorecovery_maximum_, row, 1);
 
     row++;
@@ -157,11 +157,11 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
 {
   Q_UNUSED(command)
 
-  Config::Current()[QStringLiteral("RectifiedWaveforms")] = rectified_waveforms_->isChecked();
+  OLIVE_CONFIG("RectifiedWaveforms") = rectified_waveforms_->isChecked();
 
-  Config::Current()[QStringLiteral("Autoscroll")] = autoscroll_method_->currentData();
+  OLIVE_CONFIG("Autoscroll") = autoscroll_method_->currentData();
 
-  Config::Current()[QStringLiteral("DefaultStillLength")] = QVariant::fromValue(default_still_length_->GetValue());
+  OLIVE_CONFIG("DefaultStillLength") = QVariant::fromValue(default_still_length_->GetValue());
 
   QString set_language = language_combobox_->currentData().toString();
   if (QLocale::system().name() == set_language) {
@@ -170,14 +170,14 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
   }
 
   // If the language has changed, set it now
-  if (Config::Current()[QStringLiteral("Language")].toString() != set_language) {
-    Config::Current()[QStringLiteral("Language")] = set_language;
+  if (OLIVE_CONFIG("Language").toString() != set_language) {
+    OLIVE_CONFIG("Language") = set_language;
     Core::instance()->SetLanguage(set_language.isEmpty() ? QLocale::system().name() : set_language);
   }
 
-  Config::Current()[QStringLiteral("AutorecoveryEnabled")] = autorecovery_enabled_->isChecked();
-  Config::Current()[QStringLiteral("AutorecoveryInterval")] = QVariant::fromValue(autorecovery_interval_->GetValue());
-  Config::Current()[QStringLiteral("AutorecoveryMaximum")] = QVariant::fromValue(autorecovery_maximum_->GetValue());
+  OLIVE_CONFIG("AutorecoveryEnabled") = autorecovery_enabled_->isChecked();
+  OLIVE_CONFIG("AutorecoveryInterval") = QVariant::fromValue(autorecovery_interval_->GetValue());
+  OLIVE_CONFIG("AutorecoveryMaximum") = QVariant::fromValue(autorecovery_maximum_->GetValue());
   Core::instance()->SetAutorecoveryInterval(autorecovery_interval_->GetValue());
 }
 

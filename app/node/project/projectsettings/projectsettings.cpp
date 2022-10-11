@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@ namespace olive {
 const QString ProjectSettingsNode::kCacheSetting = QStringLiteral("cache_setting");
 const QString ProjectSettingsNode::kCachePath = QStringLiteral("cache_path");
 
+#define super Node
+
 ProjectSettingsNode::ProjectSettingsNode()
 {
   AddInput(kCacheSetting, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
@@ -36,6 +38,8 @@ ProjectSettingsNode::ProjectSettingsNode()
 
 void ProjectSettingsNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kCacheSetting, tr("Disk Cache Location"));
   SetInputName(kCachePath, tr("Disk Cache Path"));
   SetComboBoxStrings(kCacheSetting, {tr("Use Default Location"), tr("Store Alongside Project"), tr("Use Custom Location")});

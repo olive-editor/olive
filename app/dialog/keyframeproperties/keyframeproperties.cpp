@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 
 namespace olive {
 
-KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> &keys, const rational &timebase, QWidget *parent) :
+KeyframePropertiesDialog::KeyframePropertiesDialog(const std::vector<NodeKeyframe*> &keys, const rational &timebase, QWidget *parent) :
   QDialog(parent),
   keys_(keys),
   timebase_(timebase)
@@ -91,7 +91,7 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> 
   bool all_same_bezier_out_x = true;
   bool all_same_bezier_out_y = true;
 
-  for (int i=0;i<keys_.size();i++) {
+  for (size_t i=0;i<keys_.size();i++) {
     if (i > 0) {
       NodeKeyframe* prev_key = keys_.at(i-1);
       NodeKeyframe* this_key = keys_.at(i);
@@ -126,7 +126,7 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> 
 
     // Determine if any keyframes are on the same track (in which case we can't set the time)
     if (can_set_time) {
-      for (int j=0;j<keys_.size();j++) {
+      for (size_t j=0;j<keys_.size();j++) {
         if (i != j
             && keys_.at(j)->track() == keys_.at(i)->track()) {
           can_set_time = false;
@@ -147,7 +147,7 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> 
   }
 
   if (all_same_time) {
-    time_slider_->SetValue(keys_.first()->time());
+    time_slider_->SetValue(keys_.front()->time());
   } else {
     time_slider_->SetTristate();
   }
@@ -169,7 +169,7 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> 
   if (all_same_type) {
     // If all keyframes are the same type, set it here
     for (int i=0;i<type_select_->count();i++) {
-      if (type_select_->itemData(i).toInt() == keys_.first()->type()) {
+      if (type_select_->itemData(i).toInt() == keys_.front()->type()) {
         type_select_->setCurrentIndex(i);
 
         // Ensure UI updates for this index
@@ -179,10 +179,10 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QVector<NodeKeyframe*> 
     }
   }
 
-  SetUpBezierSlider(bezier_in_x_slider_, all_same_bezier_in_x, keys_.first()->bezier_control_in().x());
-  SetUpBezierSlider(bezier_in_y_slider_, all_same_bezier_in_y, keys_.first()->bezier_control_in().y());
-  SetUpBezierSlider(bezier_out_x_slider_, all_same_bezier_out_x, keys_.first()->bezier_control_out().x());
-  SetUpBezierSlider(bezier_out_y_slider_, all_same_bezier_out_y, keys_.first()->bezier_control_out().y());
+  SetUpBezierSlider(bezier_in_x_slider_, all_same_bezier_in_x, keys_.front()->bezier_control_in().x());
+  SetUpBezierSlider(bezier_in_y_slider_, all_same_bezier_in_y, keys_.front()->bezier_control_in().y());
+  SetUpBezierSlider(bezier_out_x_slider_, all_same_bezier_out_x, keys_.front()->bezier_control_out().x());
+  SetUpBezierSlider(bezier_out_y_slider_, all_same_bezier_out_y, keys_.front()->bezier_control_out().y());
 
   row++;
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -141,12 +141,12 @@ QVector4D MathNodeBase::RetrieveVector(const NodeValue &val)
   // QVariant doesn't know that QVector*D can convert themselves so we do it here
   switch (val.type()) {
   case NodeValue::kVec2:
-    return val.data().value<QVector2D>();
+    return val.toVec2();
   case NodeValue::kVec3:
-    return val.data().value<QVector3D>();
+    return val.toVec3();
   case NodeValue::kVec4:
   default:
-    return val.data().value<QVector4D>();
+    return val.toVec4();
   }
 }
 
@@ -225,7 +225,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
     if (val_a.type() == NodeValue::kRational && val_b.type() == NodeValue::kRational && operation != kOpPower) {
       // Preserve rationals
       output->Push(NodeValue::kRational,
-                  QVariant::fromValue(PerformAddSubMultDiv<rational, rational>(operation, val_a.data().value<rational>(), val_b.data().value<rational>())),
+                  QVariant::fromValue(PerformAddSubMultDiv<rational, rational>(operation, val_a.toRational(), val_b.toRational())),
                   this);
     } else {
       output->Push(NodeValue::kFloat,
@@ -247,7 +247,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
   case kPairMatrixVec:
   {
-    QMatrix4x4 matrix = (val_a.type() == NodeValue::kMatrix) ? val_a.data().value<QMatrix4x4>() : val_b.data().value<QMatrix4x4>();
+    QMatrix4x4 matrix = (val_a.type() == NodeValue::kMatrix) ? val_a.toMatrix() : val_b.toMatrix();
     QVector4D vec = (val_a.type() == NodeValue::kMatrix) ? RetrieveVector(val_b) : RetrieveVector(val_a);
 
     // Only valid operation is multiply
@@ -269,16 +269,16 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
   case kPairMatrixMatrix:
   {
-    QMatrix4x4 mat_a = val_a.data().value<QMatrix4x4>();
-    QMatrix4x4 mat_b = val_b.data().value<QMatrix4x4>();
+    QMatrix4x4 mat_a = val_a.toMatrix();
+    QMatrix4x4 mat_b = val_b.toMatrix();
     output->Push(NodeValue::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(operation, mat_a, mat_b), this);
     break;
   }
 
   case kPairColorColor:
   {
-    Color col_a = val_a.data().value<Color>();
-    Color col_b = val_b.data().value<Color>();
+    Color col_a = val_a.toColor();
+    Color col_b = val_b.toColor();
 
     // Only add and subtract are valid operations
     output->Push(NodeValue::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(operation, col_a, col_b)), this);
@@ -288,8 +288,8 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
   case kPairNumberColor:
   {
-    Color col = (val_a.type() == NodeValue::kColor) ? val_a.data().value<Color>() : val_b.data().value<Color>();
-    float num = (val_a.type() == NodeValue::kColor) ? val_b.data().toFloat() : val_a.data().toFloat();
+    Color col = (val_a.type() == NodeValue::kColor) ? val_a.toColor() : val_b.toColor();
+    float num = (val_a.type() == NodeValue::kColor) ? val_b.toDouble() : val_a.toDouble();
 
     // Only multiply and divide are valid operations
     output->Push(NodeValue::kColor, QVariant::fromValue(PerformMult<Color, float>(operation, col, num)), this);
@@ -298,30 +298,30 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
   case kPairSampleSample:
   {
-    SampleBufferPtr samples_a = val_a.data().value<SampleBufferPtr>();
-    SampleBufferPtr samples_b = val_b.data().value<SampleBufferPtr>();
+    SampleBuffer samples_a = val_a.toSamples();
+    SampleBuffer samples_b = val_b.toSamples();
 
-    int max_samples = qMax(samples_a->sample_count(), samples_b->sample_count());
-    int min_samples = qMin(samples_a->sample_count(), samples_b->sample_count());
+    size_t max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
+    size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
-    SampleBufferPtr mixed_samples = SampleBuffer::CreateAllocated(samples_a->audio_params(), max_samples);
+    SampleBuffer mixed_samples = SampleBuffer(samples_a.audio_params(), max_samples);
 
-    for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
+    for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
       // Mix samples that are in both buffers
-      for (int j=0;j<min_samples;j++) {
-        mixed_samples->data(i)[j] = PerformAll<float, float>(operation, samples_a->data(i)[j], samples_b->data(i)[j]);
+      for (size_t j=0;j<min_samples;j++) {
+        mixed_samples.data(i)[j] = PerformAll<float, float>(operation, samples_a.data(i)[j], samples_b.data(i)[j]);
       }
     }
 
     if (max_samples > min_samples) {
       // Fill in remainder space with 0s
-      int remainder = max_samples - min_samples;
+      size_t remainder = max_samples - min_samples;
 
-      SampleBufferPtr larger_buffer = (max_samples == samples_a->sample_count()) ? samples_a : samples_b;
+      const SampleBuffer &larger_buffer = (max_samples == samples_a.sample_count()) ? samples_a : samples_b;
 
-      for (int i=0;i<mixed_samples->audio_params().channel_count();i++) {
-        memcpy(&mixed_samples->data(i)[min_samples],
-               &larger_buffer->data(i)[min_samples],
+      for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
+        memcpy(&mixed_samples.data(i)[min_samples],
+               &larger_buffer.data(i)[min_samples],
                remainder * sizeof(float));
       }
     }
@@ -341,14 +341,14 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
                                                       QString::number(val_a.type()),
                                                       QString::number(val_b.type())));
 
-    job.InsertValue(param_a_in, val_a);
-    job.InsertValue(param_b_in, val_b);
+    job.Insert(param_a_in, val_a);
+    job.Insert(param_b_in, val_b);
 
     bool operation_is_noop = false;
 
     const NodeValue& number_val = val_a.type() == NodeValue::kTexture ? val_b : val_a;
     const NodeValue& texture_val = val_a.type() == NodeValue::kTexture ? val_a : val_b;
-    TexturePtr texture = texture_val.data().value<TexturePtr>();
+    TexturePtr texture = texture_val.toTexture();
 
     if (!texture) {
       operation_is_noop = true;
@@ -358,22 +358,20 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       }
     } else if (pairing == kPairTextureMatrix) {
       // Only allow matrix multiplication
-      const QVector2D &sequence_res = globals.resolution();
+      const QVector2D &sequence_res = globals.nonsquare_resolution();
       QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
 
-      QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.data().value<QMatrix4x4>(),
+      QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.toMatrix(),
                                                                                    sequence_res,
+                                                                                   texture->params().offset(),
                                                                                    texture_res);
 
       if (operation != kOpMultiply || adjusted_matrix.isIdentity()) {
         operation_is_noop = true;
       } else {
         // Replace with adjusted matrix
-        job.InsertValue(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
+        job.Insert(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
                         NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
-
-        // It's likely an alpha channel will result from this operation
-        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
     }
 
@@ -382,7 +380,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       output->Push(texture_val);
     } else {
       // Push shader job
-      output->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+      output->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), job), this);
     }
     break;
   }
@@ -395,28 +393,27 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
     float number = RetrieveNumber(number_val);
 
-    SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
-    job.InsertValue(number_param, NodeValue(NodeValue::kFloat, number, this));
+    SampleBuffer buffer = val_a.type() == NodeValue::kSamples ? val_a.toSamples() : val_b.toSamples();
 
-    if (job.HasSamples()) {
+    if (buffer.is_allocated()) {
       if (IsInputStatic(number_param)) {
         if (!NumberIsNoOp(operation, number)) {
-          for (int i=0;i<job.samples()->audio_params().channel_count();i++) {
+          for (int i=0;i<buffer.audio_params().channel_count();i++) {
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
             // Use SSE instructions for optimization
-            PerformAllOnFloatBufferSSE(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
+            PerformAllOnFloatBufferSSE(operation, buffer.data(i), number, 0, buffer.sample_count());
 #else
-            PerformAllOnFloatBuffer(operation, job.samples()->data(i), number, 0, job.samples()->sample_count());
+            PerformAllOnFloatBuffer(operation, buffer.data(i), number, 0, buffer.sample_count());
 #endif
           }
         }
 
-        output->Push(NodeValue::kSamples, QVariant::fromValue(job.samples()), this);
+        output->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
       } else {
-        output->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
+        SampleJob job(globals.time(), val_a.type() == NodeValue::kSamples ? val_a : val_b);
+        job.Insert(number_param, NodeValue(NodeValue::kFloat, number, this));
+        output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }
-    } else {
-      output->Push(NodeValue::kSampleJob, QVariant::fromValue(job), this);
     }
     break;
   }
@@ -427,7 +424,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
   }
 }
 
-void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBase::Operation operation, const QString &param_a_in, const QString &param_b_in, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBase::Operation operation, const QString &param_a_in, const QString &param_b_in, const olive::SampleBuffer &input, olive::SampleBuffer &output, int index) const
 {
   // This function is only used for sample+number pairing
   NodeValue number_val = values[param_a_in];
@@ -442,17 +439,17 @@ void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBa
 
   float number_flt = RetrieveNumber(number_val);
 
-  for (int i=0;i<output->audio_params().channel_count();i++) {
-    output->data(i)[index] = PerformAll<float, float>(operation, input->data(i)[index], number_flt);
+  for (int i=0;i<output.audio_params().channel_count();i++) {
+    output.data(i)[index] = PerformAll<float, float>(operation, input.data(i)[index], number_flt);
   }
 }
 
 float MathNodeBase::RetrieveNumber(const NodeValue &val)
 {
   if (val.type() == NodeValue::kRational) {
-    return val.data().value<rational>().toDouble();
+    return val.toRational().toDouble();
   } else {
-    return val.data().toFloat();
+    return val.toDouble();
   }
 }
 

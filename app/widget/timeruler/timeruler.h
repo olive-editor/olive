@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,16 +41,17 @@ public:
   void SetPlaybackCache(PlaybackCache* cache);
 
 protected:
-  virtual void paintEvent(QPaintEvent* e) override;
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
   virtual void TimebaseChangedEvent(const rational& tb) override;
+
+protected slots:
+  virtual bool ShowContextMenu(const QPoint &p) override;
 
 private:
   void UpdateHeight();
 
   int CacheStatusHeight() const;
-
-  int cache_status_height_;
 
   int minimum_gap_between_lines_;
 
@@ -63,9 +64,6 @@ private:
   bool show_cache_status_;
 
   PlaybackCache* playback_cache_;
-
-private slots:
-  void ShowContextMenu();
 
 };
 

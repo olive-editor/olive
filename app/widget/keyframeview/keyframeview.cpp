@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include "dialog/keyframeproperties/keyframeproperties.h"
 #include "keyframeviewundo.h"
 #include "node/node.h"
+#include "node/project/serializer/serializer.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
@@ -52,13 +53,15 @@ KeyframeView::KeyframeView(QWidget *parent) :
 
 void KeyframeView::DeleteSelected()
 {
-  MultiUndoCommand* command = new MultiUndoCommand();
+  if (!selection_manager_.IsDragging()) {
+    MultiUndoCommand* command = new MultiUndoCommand();
 
-  foreach (NodeKeyframe *key, GetSelectedKeyframes()) {
-    command->add_child(new NodeParamRemoveKeyframeCommand(key));
+    foreach (NodeKeyframe *key, GetSelectedKeyframes()) {
+      command->add_child(new NodeParamRemoveKeyframeCommand(key));
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 KeyframeView::NodeConnections KeyframeView::AddKeyframesOfNode(Node *n)
@@ -181,6 +184,71 @@ void KeyframeView::SelectionManagerDeselectEvent(void *obj)
   emit SelectionChanged();
 }
 
+bool KeyframeView::CopySelected(bool cut)
+{
+  if (!selection_manager_.GetSelectedObjects().empty()) {
+    ProjectSerializer::SaveData sdata;
+    sdata.SetOnlySerializeKeyframes(selection_manager_.GetSelectedObjects());
+
+    ProjectSerializer::Copy(sdata, QStringLiteral("keyframes"));
+
+    if (cut) {
+      DeleteSelected();
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_function)
+{
+  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
+  if (res == ProjectSerializer::kSuccess) {
+    const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
+
+    MultiUndoCommand *command = new MultiUndoCommand();
+
+    rational min = RATIONAL_MAX;
+    for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
+      for (NodeKeyframe *key : it.value()) {
+        min = std::min(min, key->time());
+      }
+    }
+    min -= GetTime();
+
+    for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
+      const QString &paste_id = it.key();
+
+      // Find a node with this ID
+      Node *node_with_id = find_node_function(paste_id);
+
+      if (node_with_id) {
+        for (NodeKeyframe *key : it.value()) {
+          // Adjust sequence time to node's time
+          rational t = key->time() - min;
+          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, true);
+          key->set_time(t);
+
+          if (NodeKeyframe *existing = node_with_id->GetKeyframeAtTimeOnTrack(key->input(), key->time(), key->track(), key->element())) {
+            command->add_child(new NodeParamRemoveKeyframeCommand(existing));
+          }
+
+          command->add_child(new NodeParamInsertKeyframeCommand(node_with_id, key));
+        }
+      } else {
+        qDeleteAll(it.value());
+      }
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    return true;
+  }
+
+  return false;
+}
+
 void KeyframeView::mousePressEvent(QMouseEvent *event)
 {
   NodeKeyframe *key_under_cursor = selection_manager_.GetObjectAtPoint(event->pos());
@@ -193,7 +261,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event)
   if (FirstChanceMousePress(event)) {
     first_chance_mouse_event_ = true;
   } else if (NodeKeyframe *initial_key = selection_manager_.MousePress(event)) {
-    selection_manager_.DragStart(initial_key, event);
+    selection_manager_.DragStart(initial_key, event, this);
     KeyframeDragStart(event);
   } else {
     selection_manager_.RubberBandStart(event);
@@ -222,8 +290,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
 
   if (event->buttons()) {
     // Signal cursor pos in case we should scroll to catch up to it
-    QPointF scene_pos = mapToScene(event->pos());
-    emit Dragged(scene_pos.x(), scene_pos.y());
+    emit Dragged(event->pos().x(), event->pos().y());
   }
 }
 
@@ -241,6 +308,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     selection_manager_.DragStop(command);
     KeyframeDragRelease(event, command);
     Core::instance()->undo_stack()->push(command);
+    emit Released();
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
@@ -462,11 +530,11 @@ void KeyframeView::ShowContextMenu()
   QAction* bezier_key_action = nullptr;
   QAction* hold_key_action = nullptr;
 
-  if (!GetSelectedKeyframes().isEmpty()) {
+  if (!GetSelectedKeyframes().empty()) {
     bool all_keys_are_same_type = true;
-    NodeKeyframe::Type type = GetSelectedKeyframes().first()->type();
+    NodeKeyframe::Type type = GetSelectedKeyframes().front()->type();
 
-    for (int i=1;i<GetSelectedKeyframes().size();i++) {
+    for (size_t i=1;i<GetSelectedKeyframes().size();i++) {
       NodeKeyframe* key_item = GetSelectedKeyframes().at(i);
       NodeKeyframe* prev_item = GetSelectedKeyframes().at(i-1);
 
@@ -501,13 +569,9 @@ void KeyframeView::ShowContextMenu()
 
   m.addSeparator();
 
-  AddSetScrollZoomsByDefaultActionToMenu(&m);
-
-  m.addSeparator();
-
   ContextMenuEvent(m);
 
-  if (!GetSelectedKeyframes().isEmpty()) {
+  if (!GetSelectedKeyframes().empty()) {
     m.addSeparator();
 
     QAction* properties_action = m.addAction(tr("P&roperties"));
@@ -542,7 +606,7 @@ void KeyframeView::ShowContextMenu()
 
 void KeyframeView::ShowKeyframePropertiesDialog()
 {
-  if (!GetSelectedKeyframes().isEmpty()) {
+  if (!GetSelectedKeyframes().empty()) {
     KeyframePropertiesDialog kd(GetSelectedKeyframes(), timebase(), this);
     kd.exec();
   }

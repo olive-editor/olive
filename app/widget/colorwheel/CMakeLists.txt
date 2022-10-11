@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2021 Olive Team
+# Copyright (C) 2022 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ set(OLIVE_SOURCES
   widget/colorwheel/colorpreviewbox.cpp
   widget/colorwheel/colorspacechooser.h
   widget/colorwheel/colorspacechooser.cpp
+  widget/colorwheel/colorswatchchooser.h
+  widget/colorwheel/colorswatchchooser.cpp
   widget/colorwheel/colorswatchwidget.h
   widget/colorwheel/colorswatchwidget.cpp
   widget/colorwheel/colorvalueswidget.h

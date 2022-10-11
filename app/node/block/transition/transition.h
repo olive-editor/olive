@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,8 +32,6 @@ class TransitionBlock : public Block
   Q_OBJECT
 public:
   TransitionBlock();
-
-  NODE_DEFAULT_DESTRUCTOR(TransitionBlock)
 
   virtual void Retranslate() override;
 
@@ -75,9 +73,9 @@ public:
   static const QString kCenterInput;
 
 protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob& job) const;
+  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const {}
 
-  virtual void SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const;
+  virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const {}
 
   double TransformCurve(double linear) const;
 
@@ -88,8 +86,6 @@ protected:
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
-
-  virtual void Hash(QCryptographicHash& hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   enum CurveType {

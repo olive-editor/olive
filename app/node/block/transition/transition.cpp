@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -47,7 +47,6 @@ TransitionBlock::TransitionBlock() :
   AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
-  IgnoreHashingFrom(kCenterInput);
 }
 
 void TransitionBlock::Retranslate()
@@ -137,23 +136,6 @@ double TransitionBlock::GetInProgress(const double &time) const
   return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
-void TransitionBlock::Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams &video_params) const
-{
-  if (HashPassthrough(kInBlockInput, hash, globals, video_params)
-      || HashPassthrough(kOutBlockInput, hash, globals, video_params)) {
-    HashAddNodeSignature(hash);
-
-    double time_dbl = globals.time().in().toDouble();
-    double all_prog = GetTotalProgress(time_dbl);
-    double in_prog = GetInProgress(time_dbl);
-    double out_prog = GetOutProgress(time_dbl);
-
-    hash.addData(reinterpret_cast<const char*>(&all_prog), sizeof(all_prog));
-    hash.addData(reinterpret_cast<const char*>(&in_prog), sizeof(in_prog));
-    hash.addData(reinterpret_cast<const char*>(&out_prog), sizeof(out_prog));
-  }
-}
-
 double TransitionBlock::GetInternalTransitionTime(const double &time) const
 {
   return time;
@@ -162,15 +144,15 @@ double TransitionBlock::GetInternalTransitionTime(const double &time) const
 void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &time) const
 {
   // Provides total transition progress from 0.0 (start) - 1.0 (end)
-  job->InsertValue(QStringLiteral("ove_tprog_all"),
+  job->Insert(QStringLiteral("ove_tprog_all"),
                    NodeValue(NodeValue::kFloat, GetTotalProgress(time), this));
 
   // Provides progress of out section from 1.0 (start) - 0.0 (end)
-  job->InsertValue(QStringLiteral("ove_tprog_out"),
+  job->Insert(QStringLiteral("ove_tprog_out"),
                    NodeValue(NodeValue::kFloat, GetOutProgress(time), this));
 
   // Provides progress of in section from 0.0 (start) - 1.0 (end)
-  job->InsertValue(QStringLiteral("ove_tprog_in"),
+  job->Insert(QStringLiteral("ove_tprog_in"),
                    NodeValue(NodeValue::kFloat, GetInProgress(time), this));
 }
 
@@ -188,43 +170,40 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
     ShaderJob job;
 
     if (out_buffer.type() != NodeValue::kNone) {
-      job.InsertValue(kOutBlockInput, out_buffer);
+      job.Insert(kOutBlockInput, out_buffer);
     }
 
     if (in_buffer.type() != NodeValue::kNone) {
-      job.InsertValue(kInBlockInput, in_buffer);
+      job.Insert(kInBlockInput, in_buffer);
     }
 
-    job.InsertValue(kCurveInput, value);
+    job.Insert(kCurveInput, value);
 
     double time = globals.time().in().toDouble();
     InsertTransitionTimes(&job, time);
 
-    ShaderJobEvent(value, job);
+    ShaderJobEvent(value, &job);
 
-    job_type = NodeValue::kShaderJob;
-    push_job = QVariant::fromValue(job);
+    job_type = NodeValue::kTexture;
+    push_job = QVariant::fromValue(Texture::Job(globals.vparams(), job));
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
-    SampleBufferPtr from_samples = out_buffer.data().value<SampleBufferPtr>();
-    SampleBufferPtr to_samples = in_buffer.data().value<SampleBufferPtr>();
+    SampleBuffer from_samples = out_buffer.toSamples();
+    SampleBuffer to_samples = in_buffer.toSamples();
 
-    if (from_samples || to_samples) {
+    if (from_samples.is_allocated() || to_samples.is_allocated()) {
       double time_in = globals.time().in().toDouble();
       double time_out = globals.time().out().toDouble();
 
-      const AudioParams& params = (from_samples) ? from_samples->audio_params() : to_samples->audio_params();
+      const AudioParams& params = (from_samples.is_allocated()) ? from_samples.audio_params() : to_samples.audio_params();
 
-      SampleBufferPtr out_samples;
+      SampleBuffer out_samples;
 
       if (params.is_valid()) {
         int nb_samples = params.time_to_samples(time_out - time_in);
 
-        out_samples = SampleBuffer::CreateAllocated(params, nb_samples);
+        out_samples = SampleBuffer(params, nb_samples);
         SampleJobEvent(from_samples, to_samples, out_samples, time_in);
-      } else {
-        // Create dummy sample buffer
-        out_samples = SampleBuffer::Create();
       }
 
       job_type = NodeValue::kSamples;
@@ -249,20 +228,6 @@ void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &fro
   }
 
   super::InvalidateCache(r, from, element, options);
-}
-
-void TransitionBlock::ShaderJobEvent(const NodeValueRow &value, ShaderJob &job) const
-{
-  Q_UNUSED(value)
-  Q_UNUSED(job)
-}
-
-void TransitionBlock::SampleJobEvent(SampleBufferPtr from_samples, SampleBufferPtr to_samples, SampleBufferPtr out_samples, double time_in) const
-{
-  Q_UNUSED(from_samples)
-  Q_UNUSED(to_samples)
-  Q_UNUSED(out_samples)
-  Q_UNUSED(time_in)
 }
 
 double TransitionBlock::TransformCurve(double linear) const

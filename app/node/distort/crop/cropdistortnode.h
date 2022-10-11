@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -36,12 +36,7 @@ class CropDistortNode : public Node
 public:
   CropDistortNode();
 
-  NODE_DEFAULT_DESTRUCTOR(CropDistortNode)
-
-  virtual Node* copy() const override
-  {
-    return new CropDistortNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(CropDistortNode)
 
   virtual QString Name() const override
   {
@@ -67,7 +62,7 @@ public:
 
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
@@ -87,6 +82,7 @@ private:
   // Gizmo variables
   PointGizmo *point_gizmo_[kGizmoScaleCount];
   PolygonGizmo *poly_gizmo_;
+  QVector2D temp_resolution_;
 
 };
 

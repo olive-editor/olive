@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -86,53 +86,66 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
 {
   // Determine project version
   uint version = 0;
+  Result res = kUnknownVersion;
 
-  while (!version && XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("olive") || reader->name() == type) {
-      while(!version && XMLReadNextStartElement(reader)) {
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("olive")
+        || reader->name() == QStringLiteral("project")) { // 0.1 projects only
+
+      while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("version")) {
           version = reader->readElementText().toUInt();
+        } else if (reader->name() == QStringLiteral("url")) {
+          project->SetSavedURL(reader->readElementText());
+
+          // HACK for 0.1 projects
+          if (version == 190219) {
+            res = LoadWithSerializerVersion(version, project, reader);
+          }
+        } else if (reader->name() == type) {
+          // Found our data
+          res = LoadWithSerializerVersion(version, project, reader);
         } else {
           reader->skipCurrentElement();
         }
       }
+
     } else {
       reader->skipCurrentElement();
     }
   }
 
-  // Failed to find version in file
-  if (version == 0) {
-    return kUnknownVersion;
+  return res;
+}
+
+ProjectSerializer::Result ProjectSerializer::Paste(const QString &type)
+{
+  QString clipboard = Core::PasteStringFromClipboard();
+  if (clipboard.isEmpty()) {
+    return kNoData;
   }
 
-  // We should now have the version, if we have a serializer for it, use it to load the project
-  ProjectSerializer *serializer = nullptr;
+  QXmlStreamReader reader(clipboard);
 
-  foreach (ProjectSerializer *s, instances_) {
-    if (version == s->Version()) {
-      serializer = s;
-      break;
-    } else if (version < s->Version()) {
-      // Assuming the instance list is in order, if the project version is less than any version
-      // we find, we must not support it anymore
-      return kProjectTooOld;
+  Project temp;
+  ProjectSerializer::Result res = ProjectSerializer::Load(&temp, &reader, type);
+
+  if (res.code() != ProjectSerializer::kSuccess) {
+    return res;
+  }
+
+  QVector<Node*> pasted_nodes;
+  foreach (Node *n, temp.nodes()) {
+    if (!temp.default_nodes().contains(n)) {
+      // Move nodes out of Project
+      n->setParent(nullptr);
+      pasted_nodes.append(n);
     }
   }
 
-  if (serializer) {
-    LoadData ld = serializer->Load(project, reader, nullptr);
-    Result r(kSuccess);
-    if (reader->hasError()) {
-      r = Result(kXmlError);
-      r.SetDetails(reader->errorString());
-    }
-    r.SetLoadData(ld);
-    return r;
-  } else {
-    // Reached the end of the list with no serializer, assume too new
-    return kProjectTooNew;
-  }
+  res.SetLoadedNodes(pasted_nodes);
+
+  return res;
 }
 
 ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type)
@@ -145,6 +158,11 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QS
     QXmlStreamWriter writer(&project_file);
 
     Result inner_result = Save(&writer, data, type);
+
+    if (writer.hasError()) {
+      Result r(kXmlError);
+      return r;
+    }
 
     project_file.close();
 
@@ -204,9 +222,76 @@ ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, cons
   return kSuccess;
 }
 
+ProjectSerializer::Result ProjectSerializer::Copy(const SaveData &data, const QString &type)
+{
+  QString copy_str;
+  QXmlStreamWriter writer(&copy_str);
+
+  ProjectSerializer::Result res = ProjectSerializer::Save(&writer, data, type);
+
+  if (res == kSuccess) {
+    Core::CopyStringToClipboard(copy_str);
+  }
+
+  return res;
+}
+
 bool ProjectSerializer::IsCancelled() const
 {
   return false;
+}
+
+ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader)
+{
+  // Failed to find version in file
+  if (version == 0) {
+    return kUnknownVersion;
+  }
+
+  // We should now have the version, if we have a serializer for it, use it to load the project
+  ProjectSerializer *serializer = nullptr;
+
+  foreach (ProjectSerializer *s, instances_) {
+    if (version == s->Version()) {
+      serializer = s;
+      break;
+    } else if (version < s->Version()) {
+      // Assuming the instance list is in order, if the project version is less than any version
+      // we find, we must not support it anymore
+      return kProjectTooOld;
+    }
+  }
+
+  if (serializer) {
+    LoadData ld = serializer->Load(project, reader, nullptr);
+    Result r(kSuccess);
+    if (reader->hasError()) {
+      r = Result(kXmlError);
+      r.SetDetails(QCoreApplication::translate("Serializer", "%1 on line %2").arg(reader->errorString(), QString::number(reader->lineNumber())));
+    }
+    r.SetLoadData(ld);
+    return r;
+  } else {
+    // Reached the end of the list with no serializer, assume too new
+    return kProjectTooNew;
+  }
+}
+
+void ProjectSerializer::SaveData::SetOnlySerializeNodesAndResolveGroups(QVector<Node *> nodes)
+{
+  // For any groups, add children
+  for (int i=0; i<nodes.size(); i++) {
+    // If this is a group, add the child nodes too
+    if (NodeGroup *g = dynamic_cast<NodeGroup*>(nodes.at(i))) {
+      for (auto it=g->GetContextPositions().cbegin(); it!=g->GetContextPositions().cend(); it++) {
+        if (!nodes.contains(it.key())) {
+          nodes.append(it.key());
+        }
+      }
+    }
+  }
+
+  SetOnlySerializeNodes(nodes);
 }
 
 }

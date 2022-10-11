@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,17 +22,20 @@
 
 namespace olive {
 
-AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
+AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, VideoParams::Format maximum)
 {
-  AVPixelFormat possible_pix_fmts[] = {
-    AV_PIX_FMT_RGB24,
-    AV_PIX_FMT_RGBA,
-    AV_PIX_FMT_RGB48,
-    AV_PIX_FMT_RGBA64,
-    AV_PIX_FMT_NONE
-  };
+  std::vector<AVPixelFormat> possible_pix_fmts(3);
 
-  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
+  possible_pix_fmts[0] = AV_PIX_FMT_RGBA;
+
+  if (maximum == VideoParams::kFormatUnsigned8) {
+    possible_pix_fmts[1] = AV_PIX_FMT_NONE;
+  } else {
+    possible_pix_fmts[1] = AV_PIX_FMT_RGBA64;
+    possible_pix_fmts[2] = AV_PIX_FMT_NONE;
+  }
+
+  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts.data(),
                                            pix_fmt,
                                            1,
                                            nullptr);
@@ -42,23 +45,29 @@ AudioParams::Format FFmpegUtils::GetNativeSampleFormat(const AVSampleFormat &smp
 {
   switch (smp_fmt) {
   case AV_SAMPLE_FMT_U8:
-    return AudioParams::kFormatUnsigned8;
+    return AudioParams::kFormatUnsigned8Packed;
   case AV_SAMPLE_FMT_S16:
-    return AudioParams::kFormatSigned16;
+    return AudioParams::kFormatSigned16Packed;
   case AV_SAMPLE_FMT_S32:
-    return AudioParams::kFormatSigned32;
+    return AudioParams::kFormatSigned32Packed;
   case AV_SAMPLE_FMT_S64:
-    return AudioParams::kFormatSigned64;
+    return AudioParams::kFormatSigned64Packed;
   case AV_SAMPLE_FMT_FLT:
-    return AudioParams::kFormatFloat32;
+    return AudioParams::kFormatFloat32Packed;
   case AV_SAMPLE_FMT_DBL:
-    return AudioParams::kFormatFloat64;
+    return AudioParams::kFormatFloat64Packed;
   case AV_SAMPLE_FMT_U8P :
+    return AudioParams::kFormatUnsigned8Planar;
   case AV_SAMPLE_FMT_S16P:
+    return AudioParams::kFormatSigned16Planar;
   case AV_SAMPLE_FMT_S32P:
+    return AudioParams::kFormatSigned32Planar;
   case AV_SAMPLE_FMT_S64P:
+    return AudioParams::kFormatSigned64Planar;
   case AV_SAMPLE_FMT_FLTP:
+    return AudioParams::kFormatFloat32Planar;
   case AV_SAMPLE_FMT_DBLP:
+    return AudioParams::kFormatFloat64Planar;
   case AV_SAMPLE_FMT_NONE:
   case AV_SAMPLE_FMT_NB:
     break;
@@ -67,27 +76,76 @@ AudioParams::Format FFmpegUtils::GetNativeSampleFormat(const AVSampleFormat &smp
   return AudioParams::kFormatInvalid;
 }
 
-AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt, bool planar)
+AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt)
 {
   switch (smp_fmt) {
-  case AudioParams::kFormatUnsigned8:
-    return planar ? AV_SAMPLE_FMT_U8P : AV_SAMPLE_FMT_U8;
-  case AudioParams::kFormatSigned16:
-    return planar ? AV_SAMPLE_FMT_S16P : AV_SAMPLE_FMT_S16;
-  case AudioParams::kFormatSigned32:
-    return planar ? AV_SAMPLE_FMT_S32P : AV_SAMPLE_FMT_S32;
-  case AudioParams::kFormatSigned64:
-    return planar ? AV_SAMPLE_FMT_S64P : AV_SAMPLE_FMT_S64;
-  case AudioParams::kFormatFloat32:
-    return planar ? AV_SAMPLE_FMT_FLTP : AV_SAMPLE_FMT_FLT;
-  case AudioParams::kFormatFloat64:
-    return planar ? AV_SAMPLE_FMT_DBLP : AV_SAMPLE_FMT_DBL;
+  case AudioParams::kFormatUnsigned8Packed:
+    return AV_SAMPLE_FMT_U8;
+  case AudioParams::kFormatSigned16Packed:
+    return AV_SAMPLE_FMT_S16;
+  case AudioParams::kFormatSigned32Packed:
+    return AV_SAMPLE_FMT_S32;
+  case AudioParams::kFormatSigned64Packed:
+    return AV_SAMPLE_FMT_S64;
+  case AudioParams::kFormatFloat32Packed:
+    return AV_SAMPLE_FMT_FLT;
+  case AudioParams::kFormatFloat64Packed:
+    return AV_SAMPLE_FMT_DBL;
+  case AudioParams::kFormatUnsigned8Planar:
+    return AV_SAMPLE_FMT_U8P;
+  case AudioParams::kFormatSigned16Planar:
+    return AV_SAMPLE_FMT_S16P;
+  case AudioParams::kFormatSigned32Planar:
+    return AV_SAMPLE_FMT_S32P;
+  case AudioParams::kFormatSigned64Planar:
+    return AV_SAMPLE_FMT_S64P;
+  case AudioParams::kFormatFloat32Planar:
+    return AV_SAMPLE_FMT_FLTP;
+  case AudioParams::kFormatFloat64Planar:
+    return AV_SAMPLE_FMT_DBLP;
   case AudioParams::kFormatInvalid:
   case AudioParams::kFormatCount:
     break;
   }
 
   return AV_SAMPLE_FMT_NONE;
+}
+
+int FFmpegUtils::GetSwsColorspaceFromAVColorSpace(AVColorSpace cs)
+{
+  switch (cs) {
+  case AVCOL_SPC_BT709:
+    return SWS_CS_ITU709;
+  case AVCOL_SPC_FCC:
+    return SWS_CS_FCC;
+  case AVCOL_SPC_BT470BG:
+    return SWS_CS_ITU624;
+  case AVCOL_SPC_SMPTE170M:
+    return SWS_CS_SMPTE170M;
+  case AVCOL_SPC_SMPTE240M:
+    return SWS_CS_SMPTE240M;
+  case AVCOL_SPC_BT2020_NCL:
+    return SWS_CS_BT2020;
+  default:
+    break;
+  }
+
+  return SWS_CS_DEFAULT;
+}
+
+AVPixelFormat FFmpegUtils::ConvertJPEGSpaceToRegularSpace(AVPixelFormat f)
+{
+  switch (f) {
+  case AV_PIX_FMT_YUVJ420P: return AV_PIX_FMT_YUV420P;
+  case AV_PIX_FMT_YUVJ422P: return AV_PIX_FMT_YUV422P;
+  case AV_PIX_FMT_YUVJ444P: return AV_PIX_FMT_YUV444P;
+  case AV_PIX_FMT_YUVJ440P: return AV_PIX_FMT_YUV440P;
+  case AV_PIX_FMT_YUVJ411P: return AV_PIX_FMT_YUV411P;
+  default:
+    break;
+  }
+
+  return f;
 }
 
 AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const VideoParams::Format &pix_fmt, int channel_layout)

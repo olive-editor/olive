@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,55 +21,84 @@
 #ifndef SEEKABLEWIDGET_H
 #define SEEKABLEWIDGET_H
 
+#include <QHBoxLayout>
+#include <QScrollBar>
+
 #include "common/rational.h"
-#include "timeline/timelinepoints.h"
-#include "widget/snapservice/snapservice.h"
-#include "widget/timebased/timescaledobject.h"
+#include "widget/menu/menu.h"
+#include "widget/timebased/timebasedviewselectionmanager.h"
 
 namespace olive {
 
-class SeekableWidget : public TimelineScaledWidget
+class SeekableWidget : public TimeBasedView
 {
   Q_OBJECT
 public:
   SeekableWidget(QWidget *parent = nullptr);
 
-  const rational& GetTime() const
+  int GetScroll() const
   {
-    return time_;
+    return horizontalScrollBar()->value();
   }
 
-  const int& GetScroll() const;
+  TimelineMarkerList *GetMarkers() const { return markers_; }
+  TimelineWorkArea *GetWorkArea() const { return workarea_; }
 
-  void ConnectTimelinePoints(TimelinePoints* points);
-
-  void SetSnapService(SnapService* service);
+  void SetMarkers(TimelineMarkerList *markers);
+  void SetWorkArea(TimelineWorkArea *workarea);
 
   bool IsDraggingPlayhead() const
   {
     return dragging_;
   }
 
-public slots:
-  void SetTime(const rational &r);
+  bool IsMarkerEditingEnabled() const { return marker_editing_enabled_; }
+  void SetMarkerEditingEnabled(bool e) { marker_editing_enabled_ = e; }
 
-  void SetScroll(int s);
+  void DeleteSelected();
+
+  bool CopySelected(bool cut);
+
+  bool PasteMarkers();
+
+  void DeselectAllMarkers();
+
+  void SeekToScenePoint(qreal scene);
+
+  bool HasItemsSelected() const
+  {
+    return !selection_manager_.GetSelectedObjects().empty();
+  }
+
+  const std::vector<TimelineMarker*> &GetSelectedMarkers() const
+  {
+    return selection_manager_.GetSelectedObjects();
+  }
+
+  virtual void SelectionManagerSelectEvent(void *obj) override;
+  virtual void SelectionManagerDeselectEvent(void *obj) override;
+
+public slots:
+  void SetScroll(int i)
+  {
+    horizontalScrollBar()->setValue(i);
+  }
+
+  virtual void TimebaseChangedEvent(const rational &) override;
+
+signals:
+  void DragReleased();
 
 protected:
-  void SeekToScreenPoint(int screen);
-
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
-  virtual void ScaleChangedEvent(const double&) override;
+  virtual void focusOutEvent(QFocusEvent *event) override;
 
-  void DrawTimelinePoints(QPainter *p, int marker_bottom = 0);
-
-  TimelinePoints* timeline_points() const;
-
-  int TimeToScreen(const rational& time) const;
-  rational ScreenToTime(int x) const;
+  void DrawMarkers(QPainter *p, int marker_bottom = 0);
+  void DrawWorkArea(QPainter *p);
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
@@ -81,26 +110,53 @@ protected:
     return playhead_width_;
   }
 
-signals:
-  /**
-   * @brief Signal emitted whenever the time changes on this ruler, either by user or programmatically
-   */
-  void TimeChanged(const rational &time);
+  int GetLeftLimit() const;
+  int GetRightLimit() const;
+
+protected slots:
+  virtual bool ShowContextMenu(const QPoint &p);
 
 private:
-  rational time_;
+  enum ResizeMode {
+    kResizeNone,
+    kResizeIn,
+    kResizeOut
+  };
 
-  TimelinePoints* timeline_points_;
+  bool FindResizeHandle(QMouseEvent *event);
 
-  int scroll_;
+  void DragResizeHandle(const QPointF &scene_pos);
+
+  void CommitResizeHandle();
+
+  TimelineMarkerList* markers_;
+  TimelineWorkArea* workarea_;
 
   int text_height_;
 
   int playhead_width_;
 
-  SnapService* snap_service_;
-
   bool dragging_;
+
+  bool ignore_next_focus_out_;
+
+  TimeBasedViewSelectionManager<TimelineMarker> selection_manager_;
+
+  QObject *resize_item_;
+  ResizeMode resize_mode_;
+  TimeRange resize_item_range_;
+  QPointF resize_start_;
+  uint32_t resize_snap_mask_;
+
+  int marker_top_;
+  int marker_bottom_;
+
+  bool marker_editing_enabled_;
+
+private slots:
+  void SetMarkerColor(int c);
+
+  void ShowMarkerProperties();
 
 };
 

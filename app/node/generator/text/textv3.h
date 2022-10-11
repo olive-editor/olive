@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,8 +32,7 @@ class TextGeneratorV3 : public ShapeNodeBase
 public:
   TextGeneratorV3();
 
-  NODE_DEFAULT_DESTRUCTOR(TextGeneratorV3)
-  NODE_COPY_FUNCTION(TextGeneratorV3)
+  NODE_DEFAULT_FUNCTIONS(TextGeneratorV3)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -48,10 +47,40 @@ public:
 
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
+  enum VerticalAlignment
+  {
+    kVAlignTop,
+    kVAlignMiddle,
+    kVAlignBottom
+  };
+
+  VerticalAlignment GetVerticalAlignment() const
+  {
+    return static_cast<VerticalAlignment>(GetStandardValue(kVerticalAlignmentInput).toInt());
+  }
+
+  static Qt::Alignment GetQtAlignmentFromOurs(VerticalAlignment v);
+  static VerticalAlignment GetOurAlignmentFromQts(Qt::Alignment v);
+
   static const QString kTextInput;
+  static const QString kVerticalAlignmentInput;
+  static const QString kUseArgsInput;
+  static const QString kArgsInput;
+
+  static QString FormatString(const QString &input, const QStringList &args);
+
+protected:
+  virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
   TextGizmo *text_gizmo_;
+
+  bool dont_emit_valign_;
+
+private slots:
+  void GizmoActivated();
+  void GizmoDeactivated();
+  void SetVerticalAlignmentUndoable(Qt::Alignment a);
 
 };
 

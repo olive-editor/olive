@@ -93,6 +93,15 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
       description = tr("%1 Hz %2 channels").arg(QString::number(ap.sample_rate()), QString::number(ap.channel_count()));
       break;
     }
+    case Track::kSubtitle:
+    {
+      SubtitleParams sp = footage_->GetSubtitleParams(reference.index());
+      is_enabled = sp.enabled();
+
+      // FIXME: Language?
+      description = tr("Subtitles");
+      break;
+    }
     default:
       stacked_widget_->addWidget(new StreamProperties());
       description = tr("Unknown");
@@ -106,7 +115,8 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
     if (first_usable_stream == -1
         && (reference.type() == Track::kVideo
-            || reference.type() == Track::kAudio)) {
+            || reference.type() == Track::kAudio
+            || reference.type() == Track::kSubtitle)) {
       first_usable_stream = i;
     }
   }
@@ -163,6 +173,8 @@ void FootagePropertiesDialog::accept()
       old_stream_enabled = footage_->GetAudioParams(reference.index()).enabled();
       break;
     case Track::kSubtitle:
+      old_stream_enabled = footage_->GetSubtitleParams(reference.index()).enabled();
+      break;
     case Track::kNone:
     case Track::kCount:
       break;
@@ -218,6 +230,13 @@ void FootagePropertiesDialog::StreamEnableChangeCommand::redo()
     break;
   }
   case Track::kSubtitle:
+  {
+    SubtitleParams sp = footage_->GetSubtitleParams(index_);
+    old_enabled_ = sp.enabled();
+    sp.set_enabled(new_enabled_);
+    footage_->SetSubtitleParams(sp, index_);
+    break;
+  }
   case Track::kNone:
   case Track::kCount:
     break;
@@ -242,6 +261,12 @@ void FootagePropertiesDialog::StreamEnableChangeCommand::undo()
     break;
   }
   case Track::kSubtitle:
+  {
+    SubtitleParams sp = footage_->GetSubtitleParams(index_);
+    sp.set_enabled(old_enabled_);
+    footage_->SetSubtitleParams(sp, index_);
+    break;
+  }
   case Track::kNone:
   case Track::kCount:
     break;

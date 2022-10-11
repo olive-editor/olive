@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,6 +43,11 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           general_group);
   AddItem(tr("Enable slider ladder"),
           QStringLiteral("UseSliderLadders"),
+          general_group);
+  AddItem(tr("Scrolling zooms by default"),
+          QStringLiteral("ScrollZooms"),
+          tr("By default, scrolling will move the view around, and holding Ctrl/Cmd will make it zoom instead. "
+             "Enabling this will switch those, scrolling will zoom by default, and holding Ctrl/Cmd will move the view instead."),
           general_group);
 
   QTreeWidgetItem* audio_group = AddParent(tr("Audio"));
@@ -108,10 +113,8 @@ void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)
 {
   Q_UNUSED(command)
 
-  QMap<QTreeWidgetItem*, QString>::const_iterator iterator;
-
-  for (iterator=config_map_.begin();iterator!=config_map_.end();iterator++) {
-    Config::Current()[iterator.value()] = (iterator.key()->checkState(0) == Qt::Checked);
+  for (auto iterator=config_map_.begin();iterator!=config_map_.end();iterator++) {
+    OLIVE_CONFIG_STR(iterator.value()) = (iterator.key()->checkState(0) == Qt::Checked);
   }
 }
 
@@ -119,7 +122,7 @@ QTreeWidgetItem* PreferencesBehaviorTab::AddItem(const QString &text, const QStr
 {
   QTreeWidgetItem* item = new QTreeWidgetItem({text});
   item->setToolTip(0, tooltip);
-  item->setCheckState(0, Config::Current()[config_key].toBool() ? Qt::Checked : Qt::Unchecked);
+  item->setCheckState(0, OLIVE_CONFIG_STR(config_key).toBool() ? Qt::Checked : Qt::Unchecked);
 
   config_map_.insert(item, config_key);
 

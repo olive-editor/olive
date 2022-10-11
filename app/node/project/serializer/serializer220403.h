@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -86,6 +86,10 @@ private:
 
   void SaveImmediate(QXmlStreamWriter *writer, Node *node, const QString &input, int element) const;
 
+  void LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, NodeValue::Type data_type) const;
+
+  void SaveKeyframe(QXmlStreamWriter *writer, NodeKeyframe *key, NodeValue::Type data_type) const;
+
   bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos) const;
 
   void SavePosition(QXmlStreamWriter *writer, Node *node, const Node::Position &pos) const;
@@ -96,9 +100,13 @@ private:
 
   void SaveNodeCustom(QXmlStreamWriter *writer, Node *node) const;
 
-  void LoadTimelinePoints(QXmlStreamReader *reader, TimelinePoints *points) const;
+  void LoadTimelinePoints(QXmlStreamReader *reader, ViewerOutput *viewer) const;
 
-  void SaveTimelinePoints(QXmlStreamWriter *writer, TimelinePoints *points) const;
+  void SaveTimelinePoints(QXmlStreamWriter *writer, ViewerOutput *viewer) const;
+
+  void LoadMarker(QXmlStreamReader *reader, TimelineMarker *marker) const;
+
+  void SaveMarker(QXmlStreamWriter *writer, TimelineMarker *marker) const;
 
   void LoadWorkArea(QXmlStreamReader *reader, TimelineWorkArea *workarea) const;
 

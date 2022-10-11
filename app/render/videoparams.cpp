@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 ***/
 
 #include "videoparams.h"
+
+extern "C" {
+#include <libavutil/avutil.h>
+}
 
 #include <QtMath>
 
@@ -122,8 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  // Arbitrary pixel count (from 640x360)
-  const int target_res = 230400;
+  const int target_res = 1280*720;
 
   qint64 megapixels = width * height;
 
@@ -151,8 +154,8 @@ int VideoParams::generate_auto_divider(qint64 width, qint64 height)
       }
     }
 
-    // "Safe" fallback
-    return 2;
+    // Fallback
+    return 1;
   }
 }
 
@@ -161,6 +164,7 @@ bool VideoParams::operator==(const VideoParams &rhs) const
   return width() == rhs.width()
       && height() == rhs.height()
       && depth() == rhs.depth()
+      && interlacing() == rhs.interlacing()
       && time_base() == rhs.time_base()
       && format() == rhs.format()
       && pixel_aspect_ratio() == rhs.pixel_aspect_ratio()
@@ -194,6 +198,15 @@ int VideoParams::GetBytesPerChannel(VideoParams::Format format)
 int VideoParams::GetBytesPerPixel(VideoParams::Format format, int channels)
 {
   return GetBytesPerChannel(format) * channels;
+}
+
+QString VideoParams::GetNameForDivider(int div)
+{
+  if (div == 1) {
+    return QCoreApplication::translate("VideoParams", "Full");
+  } else {
+    return QCoreApplication::translate("VideoParams", "1/%1").arg(div);
+  }
 }
 
 bool VideoParams::FormatIsFloat(VideoParams::Format format)
@@ -231,11 +244,26 @@ QString VideoParams::GetFormatName(VideoParams::Format format)
   return QCoreApplication::translate("VideoParams", "Unknown (0x%1)").arg(format, 0, 16);
 }
 
+int VideoParams::GetDividerForTargetResolution(int src_width, int src_height, int dst_width, int dst_height)
+{
+  int divider = 0;
+  int test_width, test_height;
+
+  do {
+    divider++;
+
+    test_width = VideoParams::GetScaledDimension(src_width, divider);
+    test_height = VideoParams::GetScaledDimension(src_height, divider);
+  } while (test_width > dst_width || test_height > dst_height);
+
+  return divider;
+}
+
 void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
   effective_height_ = GetScaledDimension(height(), divider_);
-  effective_depth_ = GetScaledDimension(depth(), divider_);
+  effective_depth_ = (depth() == 1) ? depth() : GetScaledDimension(depth(), divider_);
   calculate_square_pixel_width();
 }
 
@@ -255,12 +283,15 @@ void VideoParams::set_defaults_for_footage()
   start_time_ = 0;
   duration_ = 0;
   premultiplied_alpha_ = false;
+  x_ = 0;
+  y_ = 0;
+  color_range_ = kColorRangeDefault;
 }
 
 void VideoParams::calculate_square_pixel_width()
 {
   if (pixel_aspect_ratio_.denominator() != 0) {
-    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+    par_width_ = qRound(width_ * pixel_aspect_ratio_.toDouble());
   } else {
     par_width_ = width_;
   }
@@ -309,31 +340,6 @@ int VideoParams::GetScaledDimension(int dim, int divider)
   return dim / divider;
 }
 
-QByteArray VideoParams::toBytes() const
-{
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-
-  hasher.addData(reinterpret_cast<const char*>(&width_), sizeof(width_));
-  hasher.addData(reinterpret_cast<const char*>(&height_), sizeof(height_));
-  hasher.addData(reinterpret_cast<const char*>(&depth_), sizeof(depth_));
-  hasher.addData(reinterpret_cast<const char*>(&time_base_), sizeof(time_base_));
-  hasher.addData(reinterpret_cast<const char*>(&format_), sizeof(format_));
-  hasher.addData(reinterpret_cast<const char*>(&channel_count_), sizeof(channel_count_));
-  hasher.addData(reinterpret_cast<const char*>(&pixel_aspect_ratio_), sizeof(pixel_aspect_ratio_));
-  hasher.addData(reinterpret_cast<const char*>(&interlacing_), sizeof(interlacing_));
-  hasher.addData(reinterpret_cast<const char*>(&divider_), sizeof(divider_));
-  hasher.addData(reinterpret_cast<const char*>(&enabled_), sizeof(enabled_));
-  hasher.addData(reinterpret_cast<const char*>(&stream_index_), sizeof(stream_index_));
-  hasher.addData(reinterpret_cast<const char*>(&video_type_), sizeof(video_type_));
-  hasher.addData(reinterpret_cast<const char*>(&frame_rate_), sizeof(frame_rate_));
-  hasher.addData(reinterpret_cast<const char*>(&start_time_), sizeof(start_time_));
-  hasher.addData(reinterpret_cast<const char*>(&duration_), sizeof(duration_));
-  hasher.addData(reinterpret_cast<const char*>(&premultiplied_alpha_), sizeof(premultiplied_alpha_));
-  hasher.addData(colorspace_.toUtf8());
-
-  return hasher.result();
-}
-
 int64_t VideoParams::get_time_in_timebase_units(const rational &time) const
 {
   if (time_base_.isNull()) {
@@ -366,6 +372,10 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_divider(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("enabled")) {
       set_enabled(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("x")) {
+      set_x(reader->readElementText().toFloat());
+    } else if (reader->name() == QStringLiteral("y")) {
+      set_y(reader->readElementText().toFloat());
     } else if (reader->name() == QStringLiteral("streamindex")) {
       set_stream_index(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("videotype")) {
@@ -380,6 +390,8 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_premultiplied_alpha(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("colorrange")) {
+      set_color_range(static_cast<ColorRange>(reader->readElementText().toInt()));
     } else {
       reader->skipCurrentElement();
     }
@@ -398,6 +410,8 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
   writer->writeTextElement(QStringLiteral("divider"), QString::number(divider_));
   writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
+  writer->writeTextElement(QStringLiteral("x"), QString::number(x_));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(y_));
   writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index_));
   writer->writeTextElement(QStringLiteral("videotype"), QString::number(video_type_));
   writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
@@ -405,6 +419,7 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
   writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeTextElement(QStringLiteral("colorrange"), QString::number(color_range_));
 }
 
 }

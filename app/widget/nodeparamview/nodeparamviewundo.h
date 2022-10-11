@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -41,7 +41,8 @@ protected:
 
 private:
   NodeInput input_;
-  bool setting_;
+  bool new_setting_;
+  bool old_setting_;
 
 };
 
@@ -142,6 +143,43 @@ private:
 
   QVariant old_value_;
   QVariant new_value_;
+
+};
+
+class NodeParamSetSplitStandardValueCommand : public UndoCommand
+{
+public:
+  NodeParamSetSplitStandardValueCommand(const NodeInput& input, const SplitValue& new_value, const SplitValue& old_value) :
+    ref_(input),
+    old_value_(old_value),
+    new_value_(new_value)
+  {}
+
+  NodeParamSetSplitStandardValueCommand(const NodeInput& input, const SplitValue& value) :
+    NodeParamSetSplitStandardValueCommand(input, value, input.node()->GetSplitStandardValue(input.input()))
+  {}
+
+  virtual Project* GetRelevantProject() const override
+  {
+    return ref_.node()->project();
+  }
+
+protected:
+  virtual void redo() override
+  {
+    ref_.node()->SetSplitStandardValue(ref_.input(), new_value_, ref_.element());
+  }
+
+  virtual void undo() override
+  {
+    ref_.node()->SetSplitStandardValue(ref_.input(), old_value_, ref_.element());
+  }
+
+private:
+  NodeInput ref_;
+
+  SplitValue old_value_;
+  SplitValue new_value_;
 
 };
 

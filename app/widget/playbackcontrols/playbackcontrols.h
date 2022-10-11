@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -61,6 +61,23 @@ public slots:
 
   void ShowPlayButton();
 
+  void StartPlayBlink()
+  {
+    play_blink_timer_->start();
+    SetButtonRecordingState(play_btn_, true);
+  }
+
+  void StopPlayBlink()
+  {
+    play_blink_timer_->stop();
+    SetButtonRecordingState(play_btn_, false);
+  }
+
+  void SetPauseButtonRecordingState(bool on)
+  {
+    SetButtonRecordingState(pause_btn_, on);
+  }
+
 signals:
   /**
    * @brief Signal emitted when "Go to Start" is clicked
@@ -108,6 +125,8 @@ protected:
 private:
   void UpdateIcons();
 
+  static void SetButtonRecordingState(QPushButton *btn, bool on);
+
   QWidget* lower_left_container_;
   QWidget* lower_right_container_;
 
@@ -129,8 +148,12 @@ private:
 
   QStackedWidget* playpause_stack_;
 
+  QTimer *play_blink_timer_;
+
 private slots:
   void TimecodeChanged();
+
+  void PlayBlink();
 
 };
 

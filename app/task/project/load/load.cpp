@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -56,6 +56,9 @@ bool ProjectLoadTask::Run()
     break;
   case ProjectSerializer::kXmlError:
     SetError(tr("Failed to read XML document. File may be corrupt. Error was: %1").arg(result.GetDetails()));
+    break;
+  case ProjectSerializer::kNoData:
+    SetError(tr("Failed to find any data to parse."));
     break;
 
     // Errors that should never be thrown by a load

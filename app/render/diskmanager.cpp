@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ DiskManager::DiskManager()
     GetOpenFolder(GetDefaultDiskCachePath());
   }
 
-  QFile disk_cache_index(QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("diskcache")));
+  QFile disk_cache_index(QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("diskcache2")));
 
   if (disk_cache_index.open(QFile::ReadOnly)) {
     QTextStream stream(&disk_cache_index);
@@ -103,18 +103,18 @@ DiskManager *DiskManager::instance()
   return instance_;
 }
 
-void DiskManager::Accessed(const QString &cache_folder, const QByteArray &hash)
+void DiskManager::Accessed(const QString &cache_folder, const QString &filename)
 {
   DiskCacheFolder* f = GetOpenFolder(cache_folder);
 
-  f->Accessed(hash);
+  f->Accessed(filename);
 }
 
-void DiskManager::CreatedFile(const QString &cache_folder, const QString &file_name, const QByteArray &hash)
+void DiskManager::CreatedFile(const QString &cache_folder, const QString &filename)
 {
   DiskCacheFolder* f = GetOpenFolder(cache_folder);
 
-  f->CreatedFile(file_name, hash);
+  f->CreatedFile(filename);
 }
 
 void DiskManager::DeleteSpecificFile(const QString &filename)
@@ -196,7 +196,7 @@ DiskCacheFolder::DiskCacheFolder(const QString &path, QObject *parent) :
 {
   SetPath(path);
 
-  save_timer_.setInterval(Config::Current()[QStringLiteral("DiskCacheSaveInterval")].toInt());
+  save_timer_.setInterval(OLIVE_CONFIG("DiskCacheSaveInterval").toInt());
   connect(&save_timer_, &QTimer::timeout, this, &DiskCacheFolder::SaveDiskCacheIndex);
   save_timer_.start();
 }
@@ -214,13 +214,13 @@ bool DiskCacheFolder::ClearCache()
 
   while (i != disk_data_.end()) {
     // We return a false result if any of the files fail to delete, but still try to delete as many as we can
-    const HashTime& ht = i.value();
+    QString filename = i.key();
 
-    if (QFile::remove(ht.file_name) || !QFileInfo::exists(ht.file_name)) {
-      emit DeletedFrame(path_, i.key());
+    if (QFile::remove(filename) || !QFileInfo::exists(filename)) {
+      emit DeletedFrame(path_, filename);
       i = disk_data_.erase(i);
     } else {
-      qWarning() << "Failed to delete" << i->file_name;
+      qWarning() << "Failed to delete" << filename;
       deleted_files = false;
       i++;
     }
@@ -229,20 +229,20 @@ bool DiskCacheFolder::ClearCache()
   return deleted_files;
 }
 
-void DiskCacheFolder::Accessed(const QByteArray &hash)
+void DiskCacheFolder::Accessed(const QString &filename)
 {
-  if (!disk_data_.contains(hash)) {
+  if (!disk_data_.contains(filename)) {
     return;
   }
 
-  disk_data_[hash].access_time = QDateTime::currentMSecsSinceEpoch();
+  disk_data_[filename].access_time = QDateTime::currentMSecsSinceEpoch();
 }
 
-void DiskCacheFolder::CreatedFile(const QString &file_name, const QByteArray &hash)
+void DiskCacheFolder::CreatedFile(const QString &filename)
 {
-  qint64 file_size = QFile(file_name).size();
+  qint64 file_size = QFile(filename).size();
 
-  disk_data_.insert(hash, {file_name, file_size, QDateTime::currentMSecsSinceEpoch()});
+  disk_data_.insert(filename, {file_size, QDateTime::currentMSecsSinceEpoch()});
 
   consumption_ += file_size;
 
@@ -288,17 +288,16 @@ void DiskCacheFolder::SetPath(const QString &path)
     ds >> clear_on_close_;
 
     while (!cache_index_file.atEnd()) {
-      QByteArray hash;
+      QString filename;
       HashTime h;
 
-      ds >> h.file_name;
-      ds >> hash;
+      ds >> filename;
       ds >> h.file_size;
       ds >> h.access_time;
 
-      if (QFileInfo::exists(h.file_name)) {
+      if (QFileInfo::exists(filename)) {
         consumption_ += h.file_size;
-        disk_data_.insert(hash, h);
+        disk_data_.insert(filename, h);
       }
     }
 
@@ -306,24 +305,23 @@ void DiskCacheFolder::SetPath(const QString &path)
   }
 }
 
-bool DiskCacheFolder::DeleteFileInternal(QMap<QByteArray, HashTime>::iterator hash_to_delete)
+bool DiskCacheFolder::DeleteFileInternal(QMap<QString, HashTime>::iterator hash_to_delete)
 {
   // Cache HashTime object
-  QByteArray hash = hash_to_delete.key();
+  QString filename = hash_to_delete.key();
   HashTime ht = hash_to_delete.value();
 
   // Remove from disk
-  if (QFile::remove(ht.file_name)) {
+  QFile f(filename);
+
+  if (!f.exists() || f.remove()) {
     // Remove from internal map
     disk_data_.erase(hash_to_delete);
 
     // Reduce consumption
     consumption_ -= ht.file_size;
 
-    if (!hash.isEmpty()) {
-      emit DeletedFrame(path_, hash);
-    }
-
+    emit DeletedFrame(path_, filename);
     return true;
   }
 
@@ -333,7 +331,7 @@ bool DiskCacheFolder::DeleteFileInternal(QMap<QByteArray, HashTime>::iterator ha
 bool DiskCacheFolder::DeleteSpecificFile(const QString &f)
 {
   for (auto it=disk_data_.begin(); it!=disk_data_.end(); it++) {
-    if (it->file_name == f) {
+    if (it.key() == f) {
       // Break out of this loop, assuming we'll only have one instance of each filename
       return DeleteFileInternal(it);
     }
@@ -346,13 +344,23 @@ bool DiskCacheFolder::DeleteLeastRecent()
 {
   auto hash_to_delete = disk_data_.begin();
 
-  for (auto it=disk_data_.begin()+1; it!=disk_data_.end(); it++) {
-    if (it->access_time < hash_to_delete->access_time) {
-      hash_to_delete = it;
+  if (disk_data_.begin() != disk_data_.end()) {
+    for (auto it=disk_data_.begin()+1; it!=disk_data_.end(); it++) {
+      if (it->access_time < hash_to_delete->access_time) {
+        hash_to_delete = it;
+      }
     }
-  }
 
-  return DeleteFileInternal(hash_to_delete);
+    bool e = DeleteFileInternal(hash_to_delete);
+
+    if (e) {
+      Core::instance()->WarnCacheFull();
+    }
+
+    return e;
+  } else {
+    return false;
+  }
 }
 
 void DiskCacheFolder::CloseCacheFolder()
@@ -384,7 +392,6 @@ void DiskCacheFolder::SaveDiskCacheIndex()
     for (auto it=disk_data_.cbegin(); it!=disk_data_.cend(); it++) {
       const HashTime& ht = it.value();
 
-      ds << ht.file_name;
       ds << it.key();
       ds << ht.file_size;
       ds << ht.access_time;

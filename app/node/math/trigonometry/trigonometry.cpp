@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,16 +25,13 @@ namespace olive {
 const QString TrigonometryNode::kMethodIn = QStringLiteral("method_in");
 const QString TrigonometryNode::kXIn = QStringLiteral("x_in");
 
+#define super Node
+
 TrigonometryNode::TrigonometryNode()
 {
   AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   AddInput(kXIn, NodeValue::kFloat, 0.0);
-}
-
-olive::Node *olive::TrigonometryNode::copy() const
-{
-  return new TrigonometryNode();
 }
 
 QString TrigonometryNode::Name() const
@@ -59,6 +56,8 @@ QString TrigonometryNode::Description() const
 
 void TrigonometryNode::Retranslate()
 {
+  super::Retranslate();
+
   QStringList strings = {tr("Sine"),
                          tr("Cosine"),
                          tr("Tangent"),
@@ -80,7 +79,7 @@ void TrigonometryNode::Retranslate()
 
 void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  double x = value[kXIn].data().toFloat();
+  double x = value[kXIn].toDouble();
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:

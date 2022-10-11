@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,8 +30,7 @@ class TimeOffsetNode : public Node
 public:
   TimeOffsetNode();
 
-  NODE_DEFAULT_DESTRUCTOR(TimeOffsetNode)
-  NODE_COPY_FUNCTION(TimeOffsetNode)
+  NODE_DEFAULT_FUNCTIONS(TimeOffsetNode)
 
   virtual QString Name() const override
   {
@@ -62,9 +61,6 @@ public:
 
   static const QString kTimeInput;
   static const QString kInputInput;
-
-protected:
-  virtual void Hash(QCryptographicHash &hash, const NodeGlobals &globals, const VideoParams& video_params) const override;
 
 private:
   rational GetRemappedTime(const rational& input) const;

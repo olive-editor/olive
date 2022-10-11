@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ const QString CropDistortNode::kRightInput = QStringLiteral("right_in");
 const QString CropDistortNode::kBottomInput = QStringLiteral("bottom_in");
 const QString CropDistortNode::kFeatherInput = QStringLiteral("feather_in");
 
+#define super Node
+
 CropDistortNode::CropDistortNode()
 {
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
@@ -56,10 +58,15 @@ CropDistortNode::CropDistortNode()
   point_gizmo_[kGizmoScaleBottomRight] = AddDraggableGizmo<PointGizmo>({kRightInput, kBottomInput});
   point_gizmo_[kGizmoScaleCenterLeft] = AddDraggableGizmo<PointGizmo>({kLeftInput});
   point_gizmo_[kGizmoScaleCenterRight] = AddDraggableGizmo<PointGizmo>({kRightInput});
+
+  SetFlags(kVideoEffect);
+  SetEffectInput(kTextureInput);
 }
 
 void CropDistortNode::Retranslate()
 {
+  super::Retranslate();
+
   SetInputName(kTextureInput, tr("Texture"));
   SetInputName(kLeftInput, tr("Left"));
   SetInputName(kTopInput, tr("Top"));
@@ -71,56 +78,59 @@ void CropDistortNode::Retranslate()
 void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   ShaderJob job;
-  job.InsertValue(value);
-  job.InsertValue(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
+  job.Insert(value);
 
-  if (!job.GetValue(kTextureInput).data().isNull()) {
-    if (!qIsNull(job.GetValue(kLeftInput).data().toDouble())
-        || !qIsNull(job.GetValue(kRightInput).data().toDouble())
-        || !qIsNull(job.GetValue(kTopInput).data().toDouble())
-        || !qIsNull(job.GetValue(kBottomInput).data().toDouble())) {
-      table->Push(NodeValue::kShaderJob, QVariant::fromValue(job), this);
+  if (TexturePtr texture = job.Get(kTextureInput).toTexture()) {
+    job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture->params().width(), texture->params().height()), this));
+
+    if (!qIsNull(job.Get(kLeftInput).toDouble())
+        || !qIsNull(job.Get(kRightInput).toDouble())
+        || !qIsNull(job.Get(kTopInput).toDouble())
+        || !qIsNull(job.Get(kBottomInput).toDouble())) {
+      table->Push(NodeValue::kTexture, texture->toJob(job), this);
     } else {
-      table->Push(NodeValue::kTexture, job.GetValue(kTextureInput).data(), this);
+      table->Push(job.Get(kTextureInput));
     }
   }
 }
 
-ShaderCode CropDistortNode::GetShaderCode(const QString &shader_id) const
+ShaderCode CropDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(shader_id)
+  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
 }
 
 void CropDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  const QVector2D &resolution = globals.resolution();
+  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+    const QVector2D &resolution = tex->virtual_resolution();
+    temp_resolution_ = resolution;
 
-  double left_pt = resolution.x() * row[kLeftInput].data().toDouble();
-  double top_pt = resolution.y() * row[kTopInput].data().toDouble();
-  double right_pt = resolution.x() * (1.0 - row[kRightInput].data().toDouble());
-  double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].data().toDouble());
-  double center_x_pt = mid(left_pt, right_pt);
-  double center_y_pt = mid(top_pt, bottom_pt);
+    double left_pt = resolution.x() * row[kLeftInput].toDouble();
+    double top_pt = resolution.y() * row[kTopInput].toDouble();
+    double right_pt = resolution.x() * (1.0 - row[kRightInput].toDouble());
+    double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].toDouble());
+    double center_x_pt = mid(left_pt, right_pt);
+    double center_y_pt = mid(top_pt, bottom_pt);
 
-  point_gizmo_[kGizmoScaleTopLeft]->SetPoint(QPointF(left_pt, top_pt));
-  point_gizmo_[kGizmoScaleTopCenter]->SetPoint(QPointF(center_x_pt, top_pt));
-  point_gizmo_[kGizmoScaleTopRight]->SetPoint(QPointF(right_pt, top_pt));
-  point_gizmo_[kGizmoScaleBottomLeft]->SetPoint(QPointF(left_pt, bottom_pt));
-  point_gizmo_[kGizmoScaleBottomCenter]->SetPoint(QPointF(center_x_pt, bottom_pt));
-  point_gizmo_[kGizmoScaleBottomRight]->SetPoint(QPointF(right_pt, bottom_pt));
-  point_gizmo_[kGizmoScaleCenterLeft]->SetPoint(QPointF(left_pt, center_y_pt));
-  point_gizmo_[kGizmoScaleCenterRight]->SetPoint(QPointF(right_pt, center_y_pt));
+    point_gizmo_[kGizmoScaleTopLeft]->SetPoint(QPointF(left_pt, top_pt));
+    point_gizmo_[kGizmoScaleTopCenter]->SetPoint(QPointF(center_x_pt, top_pt));
+    point_gizmo_[kGizmoScaleTopRight]->SetPoint(QPointF(right_pt, top_pt));
+    point_gizmo_[kGizmoScaleBottomLeft]->SetPoint(QPointF(left_pt, bottom_pt));
+    point_gizmo_[kGizmoScaleBottomCenter]->SetPoint(QPointF(center_x_pt, bottom_pt));
+    point_gizmo_[kGizmoScaleBottomRight]->SetPoint(QPointF(right_pt, bottom_pt));
+    point_gizmo_[kGizmoScaleCenterLeft]->SetPoint(QPointF(left_pt, center_y_pt));
+    point_gizmo_[kGizmoScaleCenterRight]->SetPoint(QPointF(right_pt, center_y_pt));
 
-  poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
+    poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
+  }
 }
 
 void CropDistortNode::GizmoDragMove(double x_diff, double y_diff, const Qt::KeyboardModifiers &modifiers)
 {
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
-  QVector2D res = gizmo->GetGlobals().resolution();
+  QVector2D res = temp_resolution_;
   x_diff /= res.x();
   y_diff /= res.y();
 

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,9 +37,10 @@ public:
   H264CRFSection(int default_crf, QWidget* parent = nullptr);
 
   int GetValue() const;
+  void SetValue(int c);
 
-  static const int kDefaultH264CRF = 23;
-  static const int kDefaultH265CRF = 28;
+  static const int kDefaultH264CRF = 18;
+  static const int kDefaultH265CRF = 23;
 
 private:
   static const int kMinimumCRF = 0;
@@ -59,11 +60,13 @@ public:
    * @brief Get user-selected target bit rate (returns in BITS)
    */
   int64_t GetTargetBitRate() const;
+  void SetTargetBitRate(int64_t b);
 
   /**
    * @brief Get user-selected maximum bit rate (returns in BITS)
    */
   int64_t GetMaximumBitRate() const;
+  void SetMaximumBitRate(int64_t b);
 
 private:
   FloatSlider* target_rate_;
@@ -82,6 +85,7 @@ public:
    * @brief Returns file size in BITS
    */
   int64_t GetFileSize() const;
+  void SetFileSize(int64_t f);
 
 private:
   FloatSlider* file_size_;
@@ -102,6 +106,8 @@ public:
   H264Section(int default_crf, QWidget* parent);
 
   virtual void AddOpts(EncodingParams* params) override;
+
+  virtual void SetOpts(const EncodingParams *p) override;
 
 private:
   QStackedWidget* compression_method_stack_;

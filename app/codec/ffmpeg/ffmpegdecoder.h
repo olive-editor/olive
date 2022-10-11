@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,19 +25,19 @@
 #include <inttypes.h>
 
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
 }
 
-#include <QAtomicInt>
 #include <QTimer>
 #include <QVector>
 #include <QWaitCondition>
 
 #include "codec/decoder.h"
-#include "ffmpegframepool.h"
+#include "common/ffmpegutils.h"
 
 namespace olive {
 
@@ -59,13 +59,15 @@ public:
   virtual bool SupportsVideo() override{return true;}
   virtual bool SupportsAudio() override{return true;}
 
-  virtual FootageDescription Probe(const QString &filename, const QAtomicInt *cancelled) const override;
+  virtual FootageDescription Probe(const QString &filename, CancelAtom *cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;
-  virtual FramePtr RetrieveVideoInternal(const rational &timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
-  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled) override;
+  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
   virtual void CloseInternal() override;
+
+  virtual rational GetAudioStartOffset() const override;
 
 private:
   class Instance
@@ -80,6 +82,11 @@ private:
 
     bool Open(const char* filename, int stream_index);
 
+    bool IsOpen() const
+    {
+      return fmt_ctx_;
+    }
+
     void Close();
 
     /**
@@ -90,6 +97,12 @@ private:
      * An FFmpeg error code, or >= 0 on success
      */
     int GetFrame(AVPacket* pkt, AVFrame* frame);
+
+    const char *GetSubtitleHeader() const;
+
+    int GetSubtitle(AVPacket* pkt, AVSubtitle* sub);
+
+    int GetPacket(AVPacket *pkt);
 
     void Seek(int64_t timestamp);
 
@@ -111,8 +124,6 @@ private:
 
   };
 
-  int GetFilteredFrame(AVPacket *packet, AVFrame *frame);
-
   /**
    * @brief Handle an FFmpeg error code
    *
@@ -123,7 +134,7 @@ private:
    */
   static QString FFmpegError(int error_code);
 
-  bool InitScaler(const RetrieveVideoParams &params);
+  bool InitScaler(AVFrame *input, const RetrieveVideoParams &params);
   void FreeScaler();
 
   static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
@@ -133,30 +144,36 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
-  FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
+  static bool IsPixelFormatGLSLCompatible(AVPixelFormat f);
+
+  AVFramePtr GetFrameFromCache(const int64_t &t) const;
 
   void ClearFrameCache();
 
-  FFmpegFramePool::ElementPtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  AVFramePtr RetrieveFrame(const rational &time, VideoParams::Interlacing interlacing, CancelAtom *cancelled);
 
   void RemoveFirstFrame();
+
+  bool ApplyScaler(AVFrame *in);
+
+  static int MaximumQueueSize();
 
   RetrieveVideoParams filter_params_;
   AVFilterGraph* filter_graph_;
   AVFilterContext* buffersrc_ctx_;
   AVFilterContext* buffersink_ctx_;
-  AVPixelFormat ideal_pix_fmt_;
-  VideoParams::Format native_pix_fmt_;
+  AVPixelFormat input_fmt_;
+  VideoParams::Format native_internal_pix_fmt_;
+  VideoParams::Format native_output_pix_fmt_;
   int native_channel_count_;
+  rational frame_rate_tb_;
 
-  FFmpegFramePool pool_;
+  AVFrame *working_frame_;
+  AVPacket *working_packet_;
 
   int64_t second_ts_;
 
-  QList<FFmpegFramePool::ElementPtr> cached_frames_;
-
-  bool is_working_;
-  QMutex is_working_mutex_;
+  std::list<AVFramePtr> cached_frames_;
 
   bool cache_at_zero_;
   bool cache_at_eof_;

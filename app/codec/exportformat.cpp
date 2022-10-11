@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,8 +31,10 @@ QString ExportFormat::GetName(olive::ExportFormat::Format f)
     return tr("DNxHD");
   case kFormatMatroska:
     return tr("Matroska Video");
-  case kFormatMPEG4:
+  case kFormatMPEG4Video:
     return tr("MPEG-4 Video");
+  case kFormatMPEG4Audio:
+    return tr("MPEG-4 Audio");
   case kFormatOpenEXR:
     return tr("OpenEXR");
   case kFormatPNG:
@@ -70,8 +72,10 @@ QString ExportFormat::GetExtension(ExportFormat::Format f)
     return QStringLiteral("mxf");
   case kFormatMatroska:
     return QStringLiteral("mkv");
-  case kFormatMPEG4:
+  case kFormatMPEG4Video:
     return QStringLiteral("mp4");
+  case kFormatMPEG4Audio:
+    return QStringLiteral("m4a");
   case kFormatOpenEXR:
     return QStringLiteral("exr");
   case kFormatPNG:
@@ -108,7 +112,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
     return {ExportCodec::kCodecDNxHD};
   case kFormatMatroska:
     return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265, ExportCodec::kCodecVP9};
-  case kFormatMPEG4:
+  case kFormatMPEG4Video:
     return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265};
   case kFormatOpenEXR:
     return {ExportCodec::kCodecOpenEXR};
@@ -122,6 +126,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
     return {ExportCodec::kCodecVP9};
   case kFormatOgg:
   case kFormatWAV:
+  case kFormatMPEG4Audio:
   case kFormatAIFF:
   case kFormatMP3:
   case kFormatFLAC:
@@ -141,7 +146,8 @@ QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
     return {ExportCodec::kCodecPCM};
   case kFormatMatroska:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus, ExportCodec::kCodecFLAC};
-  case kFormatMPEG4:
+  case kFormatMPEG4Video:
+  case kFormatMPEG4Audio:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3};
   case kFormatQuickTime:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
@@ -177,7 +183,8 @@ QList<ExportCodec::Codec> ExportFormat::GetSubtitleCodecs(Format f)
 {
   switch (f) {
   case kFormatDNxHD:
-  case kFormatMPEG4:
+  case kFormatMPEG4Video:
+  case kFormatMPEG4Audio:
   case kFormatOpenEXR:
   case kFormatQuickTime:
   case kFormatPNG:
@@ -209,6 +216,20 @@ QStringList ExportFormat::GetPixelFormatsForCodec(ExportFormat::Format f, Export
   }
 
   return list;
+}
+
+std::vector<AudioParams::Format> ExportFormat::GetSampleFormatsForCodec(Format format, ExportCodec::Codec c)
+{
+  std::vector<AudioParams::Format> f;
+  Encoder *e = Encoder::CreateFromFormat(format, EncodingParams());
+
+  if (e) {
+    f = e->GetSampleFormatsForCodec(c);
+    delete e;
+  }
+
+
+  return f;
 }
 
 }

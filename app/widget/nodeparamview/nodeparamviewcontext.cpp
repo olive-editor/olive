@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,13 +23,16 @@
 #include <QMessageBox>
 
 #include "node/block/clip/clip.h"
+#include "node/factory.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
 #define super NodeParamViewItemBase
 
 NodeParamViewContext::NodeParamViewContext(QWidget *parent) :
-  super(parent)
+  super(parent),
+  type_(Track::kNone)
 {
   QWidget *body = new QWidget();
   QHBoxLayout *body_layout = new QHBoxLayout(body);
@@ -124,13 +127,68 @@ void NodeParamViewContext::SetTime(const rational &time)
   }
 }
 
+void NodeParamViewContext::SetEffectType(Track::Type type)
+{
+  type_ = type;
+}
+
 void NodeParamViewContext::Retranslate()
 {
 }
 
 void NodeParamViewContext::AddEffectButtonClicked()
 {
-  QMessageBox::information(this, tr("STUB"), tr("This feature is coming soon. Thanks for testing development builds of Olive :)"));
+  Node::Flag flag = Node::kNone;
+
+  if (type_ == Track::kVideo) {
+    flag = Node::kVideoEffect;
+  } else {
+    flag = Node::kAudioEffect;
+  }
+
+  if (flag == Node::kNone) {
+    return;
+  }
+
+  Menu *m = NodeFactory::CreateMenu(this, false, Node::kCategoryUnknown, flag);
+  connect(m, &Menu::triggered, this, &NodeParamViewContext::AddEffectMenuItemTriggered);
+  m->exec(QCursor::pos());
+  delete m;
+}
+
+void NodeParamViewContext::AddEffectMenuItemTriggered(QAction *a)
+{
+  Node *n = NodeFactory::CreateFromMenuAction(a);
+
+  if (n) {
+    NodeInput new_node_input = n->GetEffectInput();
+    MultiUndoCommand *command = new MultiUndoCommand();
+
+    QVector<NodeGraph*> graphs_added_to;
+
+    foreach (Node *ctx, contexts_) {
+      NodeInput ctx_input = ctx->GetEffectInput();
+
+      if (!graphs_added_to.contains(ctx->parent())) {
+        command->add_child(new NodeAddCommand(ctx->parent(), n));
+        graphs_added_to.append(ctx->parent());
+      }
+
+      command->add_child(new NodeSetPositionCommand(n, ctx, ctx->GetNodePositionInContext(ctx)));
+      command->add_child(new NodeSetPositionCommand(ctx, ctx, ctx->GetNodePositionInContext(ctx) + QPointF(1, 0)));
+
+      if (ctx_input.IsConnected()) {
+        Node *prev_output = ctx_input.GetConnectedOutput();
+
+        command->add_child(new NodeEdgeRemoveCommand(prev_output, ctx_input));
+        command->add_child(new NodeEdgeAddCommand(prev_output, new_node_input));
+      }
+
+      command->add_child(new NodeEdgeAddCommand(n, ctx_input));
+    }
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
+  }
 }
 
 }

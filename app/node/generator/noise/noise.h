@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,9 +30,7 @@ class NoiseGeneratorNode : public Node {
  public:
   NoiseGeneratorNode();
 
-  NODE_DEFAULT_DESTRUCTOR(NoiseGeneratorNode)
-
-  virtual Node *copy() const override;
+  NODE_DEFAULT_FUNCTIONS(NoiseGeneratorNode)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -41,11 +39,13 @@ class NoiseGeneratorNode : public Node {
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const QString &shader_id) const override;
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual void Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
+  static const QString kBaseIn;
   static const QString kColorInput;
   static const QString kStrengthInput;
+
 };
 
 }  // namespace olive

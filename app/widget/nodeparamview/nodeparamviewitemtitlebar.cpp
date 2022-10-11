@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,29 +33,34 @@ NodeParamViewItemTitleBar::NodeParamViewItemTitleBar(QWidget *parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
-  collapse_btn_ = new CollapseButton();
+  collapse_btn_ = new CollapseButton(this);
   connect(collapse_btn_, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::ExpandedStateChanged);
   layout->addWidget(collapse_btn_);
 
-  lbl_ = new QLabel();
+  lbl_ = new QLabel(this);
   layout->addWidget(lbl_);
 
   // Place next buttons on the far side
   layout->addStretch();
 
-  add_fx_btn_ = new QPushButton();
+  add_fx_btn_ = new QPushButton(this);
   add_fx_btn_->setIcon(icon::AddEffect);
   add_fx_btn_->setFixedSize(add_fx_btn_->sizeHint().height(), add_fx_btn_->sizeHint().height());
   add_fx_btn_->setVisible(false);
   layout->addWidget(add_fx_btn_);
   connect(add_fx_btn_, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::AddEffectButtonClicked);
 
-  pin_btn_ = new QPushButton(QStringLiteral("P"));
+  pin_btn_ = new QPushButton(QStringLiteral("P"), this);
   pin_btn_->setCheckable(true);
   pin_btn_->setFixedSize(pin_btn_->sizeHint().height(), pin_btn_->sizeHint().height());
   pin_btn_->setVisible(false);
   layout->addWidget(pin_btn_);
   connect(pin_btn_, &QPushButton::clicked, this, &NodeParamViewItemTitleBar::PinToggled);
+
+  enabled_checkbox_ = new QCheckBox(this);
+  enabled_checkbox_->setVisible(false);
+  layout->addWidget(enabled_checkbox_);
+  connect(enabled_checkbox_, &QCheckBox::clicked, this, &NodeParamViewItemTitleBar::EnabledCheckBoxClicked);
 }
 
 void NodeParamViewItemTitleBar::SetExpanded(bool e)
@@ -78,6 +83,13 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
     p.setPen(palette().text().color());
     p.drawLine(0, bottom, width(), bottom);
   }
+}
+
+void NodeParamViewItemTitleBar::mousePressEvent(QMouseEvent *event)
+{
+  QWidget::mousePressEvent(event);
+
+  emit Clicked();
 }
 
 void NodeParamViewItemTitleBar::mouseDoubleClickEvent(QMouseEvent *event)

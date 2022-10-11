@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,12 +31,7 @@ class ValueNode : public Node
 public:
   ValueNode();
 
-  NODE_DEFAULT_DESTRUCTOR(ValueNode)
-
-  virtual Node* copy() const override
-  {
-    return new ValueNode();
-  }
+  NODE_DEFAULT_FUNCTIONS(ValueNode)
 
   virtual QString Name() const override
   {

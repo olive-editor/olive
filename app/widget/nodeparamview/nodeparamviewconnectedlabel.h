@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ public:
   void SetTime(const rational &time);
 
 signals:
-  void RequestSelectNode(const QVector<Node*>& node);
+  void RequestSelectNode(Node *n);
 
 private slots:
   void InputConnected(Node *output, const NodeInput &input);
@@ -50,6 +50,8 @@ private:
   void UpdateLabel();
 
   void UpdateValueTree();
+
+  void CreateTree();
 
   ClickableLabel* connected_to_lbl_;
 

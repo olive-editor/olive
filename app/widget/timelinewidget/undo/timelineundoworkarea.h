@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,16 +22,15 @@
 #define TIMELINEUNDOWORKAREA_H
 
 #include "node/project/project.h"
-#include "timeline/timelinepoints.h"
 
 namespace olive {
 
 class WorkareaSetEnabledCommand : public UndoCommand {
 public:
-  WorkareaSetEnabledCommand(Project *project, TimelinePoints* points, bool enabled) :
+  WorkareaSetEnabledCommand(Project *project, TimelineWorkArea* points, bool enabled) :
     project_(project),
     points_(points),
-    old_enabled_(points_->workarea()->enabled()),
+    old_enabled_(points_->enabled()),
     new_enabled_(enabled)
   {
   }
@@ -44,18 +43,18 @@ public:
 protected:
   virtual void redo() override
   {
-    points_->workarea()->set_enabled(new_enabled_);
+    points_->set_enabled(new_enabled_);
   }
 
   virtual void undo() override
   {
-    points_->workarea()->set_enabled(old_enabled_);
+    points_->set_enabled(old_enabled_);
   }
 
 private:
   Project* project_;
 
-  TimelinePoints* points_;
+  TimelineWorkArea* points_;
 
   bool old_enabled_;
 
@@ -65,34 +64,36 @@ private:
 
 class WorkareaSetRangeCommand : public UndoCommand {
 public:
-  WorkareaSetRangeCommand(Project *project, TimelinePoints* points, const TimeRange& range) :
-    project_(project),
-    points_(points),
-    old_range_(points_->workarea()->range()),
+  WorkareaSetRangeCommand(TimelineWorkArea *workarea, const TimeRange& range, const TimeRange &old_range) :
+    workarea_(workarea),
+    old_range_(old_range),
     new_range_(range)
+  {
+  }
+
+  WorkareaSetRangeCommand(TimelineWorkArea *workarea, const TimeRange& range) :
+    WorkareaSetRangeCommand(workarea, range, workarea->range())
   {
   }
 
   virtual Project* GetRelevantProject() const override
   {
-    return project_;
+    return Project::GetProjectFromObject(workarea_);
   }
 
 protected:
   virtual void redo() override
   {
-    points_->workarea()->set_range(new_range_);
+    workarea_->set_range(new_range_);
   }
 
   virtual void undo() override
   {
-    points_->workarea()->set_range(old_range_);
+    workarea_->set_range(old_range_);
   }
 
 private:
-  Project* project_;
-
-  TimelinePoints* points_;
+  TimelineWorkArea *workarea_;
 
   TimeRange old_range_;
 

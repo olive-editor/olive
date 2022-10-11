@@ -2,7 +2,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -54,27 +54,25 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   ShaderJob job;
 
   // Set viewport size
-  job.InsertValue(QStringLiteral("viewport"),
+  job.Insert(QStringLiteral("viewport"),
                   NodeValue(NodeValue::kVec2, QVector2D(width(), height())));
 
   // Set luma coefficients
   double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
   color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-  job.InsertValue(QStringLiteral("luma_coeffs"),
+  job.Insert(QStringLiteral("luma_coeffs"),
                   NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
 
 
   // Scale of the waveform relative to the viewport surface.
-  job.InsertValue(QStringLiteral("waveform_scale"),
+  job.Insert(QStringLiteral("waveform_scale"),
                   NodeValue(NodeValue::kFloat, waveform_scale));
 
   // Insert source texture
-  job.InsertValue(QStringLiteral("ove_maintex"),
+  job.Insert(QStringLiteral("ove_maintex"),
                   NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
 
-  renderer()->Blit(pipeline, job, VideoParams(width(), height(),
-                                              static_cast<VideoParams::Format>(Config::Current()["OfflinePixelFormat"].toInt()),
-                                              VideoParams::kInternalChannelCount));
+  renderer()->Blit(pipeline, job, GetViewportParams());
 
   float waveform_dim_x = ceil((width() - 1.0) * waveform_scale);
   float waveform_dim_y = ceil((height() - 1.0) * waveform_scale);
@@ -85,7 +83,7 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   float waveform_end_dim_x = (width() - 1.0) - waveform_start_dim_x;
 
   // Draw line overlays
-  QPainter p(inner_widget());
+  QPainter p(paint_device());
   QFont font;
   font.setPixelSize(10);
   QFontMetrics font_metrics = QFontMetrics(font);

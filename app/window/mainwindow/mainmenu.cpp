@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2021 Olive Team
+  Copyright (C) 2022 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -182,6 +182,10 @@ MainMenu::MainMenu(MainWindow *parent) :
   sequence_menu_->addSeparator();
 
   sequence_disk_cache_clear_item_ = sequence_menu_->AddItem("seqcacheclear", this, &MainMenu::SequenceCacheClearTriggered);
+
+  // TEMP: Hide sequence cache items for now. Want to see if clip caching will supersede it.
+  sequence_cache_item_->setVisible(false);
+  sequence_cache_in_to_out_item_->setVisible(false);
 
   //
   // WINDOW MENU
@@ -381,7 +385,7 @@ void MainMenu::ToolsMenuAboutToShow()
 
 void MainMenu::PlaybackMenuAboutToShow()
 {
-  playback_loop_item_->setChecked(Config::Current()["Loop"].toBool());
+  playback_loop_item_->setChecked(OLIVE_CONFIG("Loop").toBool());
 }
 
 void MainMenu::SequenceMenuAboutToShow()
@@ -506,7 +510,7 @@ void MainMenu::PlayInToOutTriggered()
 
 void MainMenu::LoopTriggered(bool enabled)
 {
-  Config::Current()["Loop"] = enabled;
+  OLIVE_CONFIG("Loop") = enabled;
 }
 
 void MainMenu::NextFrameTriggered()
