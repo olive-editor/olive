@@ -2,8 +2,11 @@
 #define MULTICAMNODE_H
 
 #include "node/node.h"
+#include "node/output/track/tracklist.h"
 
 namespace olive {
+
+class Sequence;
 
 class MultiCamNode : public Node
 {
@@ -26,21 +29,25 @@ public:
 
   static const QString kCurrentInput;
   static const QString kSourcesInput;
+  static const QString kSequenceInput;
+  static const QString kSequenceTypeInput;
 
   int GetCurrentSource() const
   {
     return GetStandardValue(kCurrentInput).toInt();
   }
 
-  int GetSourceCount() const
-  {
-    return InputArraySize(kSourcesInput);
-  }
+  int GetSourceCount() const;
 
   static void GetRowsAndColumns(int sources, int *rows, int *cols);
   void GetRowsAndColumns(int *rows, int *cols) const
   {
     return GetRowsAndColumns(GetSourceCount(), rows, cols);
+  }
+
+  void SetSequenceType(Track::Type t)
+  {
+    SetStandardValue(kSequenceTypeInput, t);
   }
 
   static void IndexToRowCols(int index, int total_rows, int total_cols, int *row, int *col);
@@ -49,6 +56,20 @@ public:
   {
     return col + row * total_cols;
   }
+
+  virtual Node *GetConnectedRenderOutput(const QString& input, int element = -1) const override;
+  virtual bool IsInputConnectedForRender(const QString& input, int element = -1) const override;
+
+  virtual QVector<QString> IgnoreInputsForRendering() const override;
+
+protected:
+  virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
+  virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
+
+private:
+  TrackList *GetTrackList() const;
+
+  Sequence *sequence_;
 
 };
 

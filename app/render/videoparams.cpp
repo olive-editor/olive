@@ -164,6 +164,7 @@ bool VideoParams::operator==(const VideoParams &rhs) const
   return width() == rhs.width()
       && height() == rhs.height()
       && depth() == rhs.depth()
+      && interlacing() == rhs.interlacing()
       && time_base() == rhs.time_base()
       && format() == rhs.format()
       && pixel_aspect_ratio() == rhs.pixel_aspect_ratio()
@@ -262,7 +263,7 @@ void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
   effective_height_ = GetScaledDimension(height(), divider_);
-  effective_depth_ = GetScaledDimension(depth(), divider_);
+  effective_depth_ = (depth() == 1) ? depth() : GetScaledDimension(depth(), divider_);
   calculate_square_pixel_width();
 }
 

@@ -1365,6 +1365,11 @@ void Core::PushRecentlyOpenedProject(const QString& s)
     recent_projects_.move(existing_index, 0);
   } else {
     recent_projects_.prepend(s);
+
+    const int kMaximumRecentProjects = 10;
+    while (recent_projects_.size() > kMaximumRecentProjects) {
+      recent_projects_.removeLast();
+    }
   }
 
   emit OpenRecentListChanged();

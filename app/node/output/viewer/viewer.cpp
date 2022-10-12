@@ -39,7 +39,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   video_length_(0),
   audio_length_(0),
   autocache_input_video_(false),
-  autocache_input_audio_(false)
+  autocache_input_audio_(false),
+  waveform_requests_enabled_(false)
 {
   AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
 
@@ -231,7 +232,9 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
       }
     } else if (from == kSamplesInput) {
       TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetAudioLength()));
-      connected->waveform_cache()->Request(range.Intersected(max_range));
+      if (waveform_requests_enabled_) {
+        connected->waveform_cache()->Request(range.Intersected(max_range));
+      }
       if (autocache_input_audio_) {
         connected->audio_playback_cache()->Request(range.Intersected(max_range));
       }
@@ -387,13 +390,15 @@ Node::ValueHint ViewerOutput::GetConnectedSampleValueHint()
   return GetValueHintForInput(kSamplesInput);
 }
 
-void ViewerOutput::ConnectedToPreviewEvent()
+void ViewerOutput::SetWaveformEnabled(bool e)
 {
-  if (Node *connected = this->GetConnectedSampleOutput()) {
-    TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()));
-    TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
-    for (const TimeRange &r : invalid) {
-      connected->waveform_cache()->Request(r);
+  if ((waveform_requests_enabled_ = e)) {
+    if (Node *connected = this->GetConnectedSampleOutput()) {
+      TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()));
+      TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
+      for (const TimeRange &r : invalid) {
+        connected->waveform_cache()->Request(r);
+      }
     }
   }
 }

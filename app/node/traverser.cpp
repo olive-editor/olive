@@ -38,9 +38,14 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   }
 
   // We need to insert tables into the database for each input
+  auto ignore = node->IgnoreInputsForRendering();
   foreach (const QString& input, node->inputs()) {
     if (IsCancelled()) {
       return NodeValueDatabase();
+    }
+
+    if (ignore.contains(input)) {
+      continue;
     }
 
     database.Insert(input, ProcessInput(node, input, range));
@@ -187,12 +192,12 @@ NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &vparams, const Aud
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
 {
   // If input is connected, retrieve value directly
-  if (node->IsInputConnected(input)) {
+  if (node->IsInputConnectedForRender(input)) {
 
     TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
 
     // Value will equal something from the connected node, follow it
-    Node *output = node->GetConnectedOutput(input);
+    Node *output = node->GetConnectedRenderOutput(input);
     NodeValueTable table = GenerateTable(output, adjusted_range, node);
     return table;
 
@@ -242,8 +247,8 @@ void NodeTraverser::ProcessInputElement(NodeValueTableArray &array_tbl, const No
   NodeValueTable& sub_tbl = array_tbl[element];
   TimeRange adjusted_range = node->InputTimeAdjustment(input, element, range);
 
-  if (node->IsInputConnected(input, element)) {
-    Node *output = node->GetConnectedOutput(input, element);
+  if (node->IsInputConnectedForRender(input, element)) {
+    Node *output = node->GetConnectedRenderOutput(input, element);
     sub_tbl = GenerateTable(output, adjusted_range, node);
   } else {
     QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), element);

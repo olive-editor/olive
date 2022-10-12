@@ -1235,30 +1235,23 @@ void TimelineWidget::ShowContextMenu()
         reveal_in_project->setData(reinterpret_cast<quintptr>(clip->connected_viewer()));
         connect(reveal_in_project, &QAction::triggered, this, &TimelineWidget::RevealInProject);
 
-        /*if (Sequence *sequence = dynamic_cast<Sequence*>(clip->connected_viewer())) {
-          Menu *multicam_menu = new Menu(tr("Multi-Cam"), &menu);
-          menu.addMenu(multicam_menu);
-
-          QAction *multicam_enabled = multicam_menu->addAction(tr("Enabled"));
+        if (Sequence *sequence = dynamic_cast<Sequence*>(clip->connected_viewer())) {
+          QAction *multicam_enabled = menu.addAction(tr("Multi-Cam"));
           multicam_enabled->setCheckable(true);
 
-          auto mcn = sequence->FindOutputNode<MultiCamNode>();
-          multicam_enabled->setChecked(!mcn.empty());
+          MultiCamNode *mcn = nullptr;
+          auto paths = clip->FindWaysNodeArrivesHere(sequence);
 
-          multicam_menu->addSeparator();
-
-          QAction *multicam_update = multicam_menu->addAction(tr("Update"));
-          multicam_update->setEnabled(!mcn.empty());
-
-          if (!mcn.empty()) {
-            auto n = mcn.first();
-            multicam_enabled->setProperty("multicam", Node::PtrToValue(n));
-            multicam_update->setProperty("multicam", Node::PtrToValue(n));
+          for (const NodeInput &i : paths) {
+            if ((mcn = dynamic_cast<MultiCamNode*>(i.node()))) {
+              break;
+            }
           }
 
+          multicam_enabled->setChecked(mcn);
+
           connect(multicam_enabled, &QAction::triggered, this, &TimelineWidget::MulticamEnabledTriggered);
-          connect(multicam_update, &QAction::triggered, this, &TimelineWidget::MulticamUpdateTriggered);
-        }*/
+        }
       }
     }
 
@@ -1492,16 +1485,57 @@ void TimelineWidget::CacheDiscard()
 
 void TimelineWidget::MulticamEnabledTriggered(bool e)
 {
-  if (e) {
-    // Add multicam node
-  } else if (MultiCamNode *m = Node::ValueToPtr<MultiCamNode>(sender()->property("multicam"))) {
-    // Remove multicam node
-  }
-}
+  MultiUndoCommand *command = new MultiUndoCommand();
 
-void TimelineWidget::MulticamUpdateTriggered()
-{
-  // Update multicam node
+  for (Block *b : qAsConst(selected_blocks_)) {
+    if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
+      if (Sequence *s = dynamic_cast<Sequence*>(c->connected_viewer())) {
+        if (e) {
+
+          // Adding multicams
+          // Create multicam node and add it to the graph
+          MultiCamNode *n = new MultiCamNode();
+          n->SetSequenceType(c->GetTrackType());
+          command->add_child(new NodeAddCommand(s->parent(), n));
+
+
+          // For each output the sequence has to this clip, disconnect it and
+          // connect to the multicam instead
+          QVector<NodeInput> inputs = c->FindWaysNodeArrivesHere(s);
+          for (const NodeInput &i : inputs) {
+            command->add_child(new NodeEdgeRemoveCommand(s, i));
+            command->add_child(new NodeEdgeAddCommand(n, i));
+          }
+
+          command->add_child(new NodeEdgeAddCommand(s, NodeInput(n, n->kSequenceInput)));
+
+          // Move sequence node one unit back, and place multicam in sequence's spot
+          QPointF sequence_pos = c->GetNodePositionInContext(s);
+          command->add_child(new NodeSetPositionCommand(s, c, sequence_pos - QPointF(1, 0)));
+          command->add_child(new NodeSetPositionCommand(n, c, sequence_pos));
+
+        } else {
+
+          // Removing multicams
+          // Locate first multicam that specifically ends up at this clip
+          QVector<NodeInput> inputs = c->FindWaysNodeArrivesHere(s);
+          for (const NodeInput &i : inputs) {
+            if (MultiCamNode *mcn = dynamic_cast<MultiCamNode*>(i.node())) {
+              for (auto it=mcn->output_connections().cbegin(); it!=mcn->output_connections().cend(); it++) {
+                command->add_child(new NodeEdgeRemoveCommand(it->first, it->second));
+                command->add_child(new NodeEdgeAddCommand(s, it->second));
+              }
+
+              command->add_child(new NodeRemoveAndDisconnectCommand(mcn));
+            }
+          }
+
+        }
+      }
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)

@@ -89,6 +89,7 @@ public:
   bool IsRenderingCustomRange() const;
 
   void SetRendersPaused(bool e);
+  void SetThumbnailsPaused(bool e);
 
   void SetMulticamNode(MultiCamNode *n) { multicam_ = n; }
 
@@ -178,6 +179,7 @@ private:
   TimeRange custom_autocache_range_;
 
   bool pause_renders_;
+  bool pause_thumbnails_;
 
   RenderTicketPtr single_frame_render_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;

@@ -300,13 +300,11 @@ NodeValueDatabase RenderProcessor::GenerateDatabase(const Node *node, const Time
 
   if (const MultiCamNode *multicam = dynamic_cast<const MultiCamNode*>(node)) {
     if (Node::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
-      int sz = multicam->InputArraySize(multicam->kSourcesInput);
-      NodeValueTableArray arr;
+      int sz = multicam->GetSourceCount();
       QVector<TexturePtr> multicam_tex(sz);
       for (int i=0; i<sz; i++) {
-        ProcessInputElement(arr, multicam, multicam->kSourcesInput, i, range);
-
-        NodeValue val = GenerateRowValueElement(multicam, multicam->kSourcesInput, i, &arr.at(i), range);
+        NodeValueTable t = GenerateTable(multicam->GetConnectedRenderOutput(multicam->kSourcesInput, i), range, multicam);
+        NodeValue val = GenerateRowValueElement(multicam, multicam->kSourcesInput, i, &t, range);
         ResolveJobs(val);
 
         multicam_tex[i] = val.toTexture();

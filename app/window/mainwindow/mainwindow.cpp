@@ -555,7 +555,9 @@ void MainWindow::UpdateTitle()
 
 void MainWindow::TimelineCloseRequested()
 {
-  RemoveTimelinePanel(static_cast<TimelinePanel*>(sender()));
+  TimelinePanel *t = static_cast<TimelinePanel*>(sender());
+  RemoveTimelinePanel(t);
+  main_time_panels_.removeOne(t);
 }
 
 void MainWindow::ProjectCloseRequested()

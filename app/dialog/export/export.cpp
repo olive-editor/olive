@@ -47,7 +47,8 @@ namespace olive {
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWidget *parent) :
   super(parent),
   viewer_node_(viewer_node),
-  stills_only_mode_(stills_only_mode)
+  stills_only_mode_(stills_only_mode),
+  loading_presets_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -258,7 +259,8 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
 
   // If the viewer already has cached params, use them
   if (!stills_only_mode_ && viewer_node_->GetLastUsedEncodingParams().IsValid()) {
-    SetParams(viewer_node_->GetLastUsedEncodingParams());
+    // This will automatically set the param data
+    QtUtils::SetComboBoxData(preset_combobox_, kPresetLastUsed);
   } else {
     SetDefaults();
   }
@@ -432,6 +434,10 @@ void ExportDialog::SavePreset()
 
 void ExportDialog::PresetComboBoxChanged()
 {
+  if (loading_presets_) {
+    return;
+  }
+  
   QComboBox *c = static_cast<QComboBox *>(sender());
 
   int preset_number = c->currentData().toInt();
@@ -536,6 +542,8 @@ void ExportDialog::ResolutionChanged()
 
 void ExportDialog::LoadPresets()
 {
+  loading_presets_ = true;
+
   preset_combobox_->clear();
   presets_.clear();
 
@@ -562,6 +570,8 @@ void ExportDialog::LoadPresets()
       f.close();
     }
   }
+
+  loading_presets_ = false;
 }
 
 void ExportDialog::SetDefaultFilename()
@@ -697,6 +707,7 @@ EncodingParams ExportDialog::GenerateParams() const
 void ExportDialog::SetParams(const EncodingParams &e)
 {
   format_combobox_->SetFormat(e.format());
+  FormatChanged(format_combobox_->GetFormat());
 
   if (e.has_custom_range() && viewer_node_->GetWorkArea()->enabled()) {
     range_combobox_->setCurrentIndex(kRangeInToOut);

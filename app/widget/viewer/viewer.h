@@ -117,7 +117,7 @@ public:
 
     if (!IsPlaying()) {
       // If is playing, this will happen by the next frame automatically
-      DetectMulticamNode(GetTime());
+      DetectMulticamNodeNow();
       UpdateTextureFromNode();
     }
   }
@@ -128,7 +128,7 @@ public:
 
     if (!IsPlaying()) {
       // If is playing, this will happen by the next frame automatically
-      DetectMulticamNode(GetTime());
+      DetectMulticamNodeNow();
       UpdateTextureFromNode();
     }
   }
@@ -420,6 +420,8 @@ private slots:
   void RequestNextDryRun();
 
   void SaveFrameAsImage();
+
+  void DetectMulticamNodeNow();
 
 };
 

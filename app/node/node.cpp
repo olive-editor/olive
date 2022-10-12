@@ -1287,6 +1287,26 @@ int Node::GetInternalInputArraySize(const QString &input)
   return array_immediates_.value(input).size();
 }
 
+void FindWaysNodeArrivesHereRecursively(const Node *output, const Node *input, QVector<NodeInput> &v)
+{
+  for (auto it=input->input_connections().cbegin(); it!=input->input_connections().cend(); it++) {
+    if (it->second == output) {
+      v.append(it->first);
+    } else {
+      FindWaysNodeArrivesHereRecursively(output, it->second, v);
+    }
+  }
+}
+
+QVector<NodeInput> Node::FindWaysNodeArrivesHere(const Node *output) const
+{
+  QVector<NodeInput> v;
+
+  FindWaysNodeArrivesHereRecursively(output, this, v);
+
+  return v;
+}
+
 void Node::SetInputName(const QString &id, const QString &name)
 {
   Input* i = GetInternalInputData(id);

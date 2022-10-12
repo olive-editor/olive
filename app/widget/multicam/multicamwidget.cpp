@@ -58,10 +58,18 @@ MulticamWidget::MulticamWidget(QWidget *parent) :
 
 void MulticamWidget::SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip)
 {
-  ConnectViewerNode(viewer);
-  node_ = n;
-  display_->SetMulticamNode(n);
-  clip_ = clip;
+  if (GetConnectedNode() != viewer) {
+    ConnectViewerNode(viewer);
+  }
+
+  if (node_ != n) {
+    node_ = n;
+    display_->SetMulticamNode(n);
+  }
+
+  if (clip_ != clip) {
+    clip_ = clip;
+  }
 }
 
 void MulticamWidget::SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip, const rational &time)
@@ -145,6 +153,8 @@ void MulticamWidget::Switch(int source, bool split_clip)
   Core::instance()->undo_stack()->push(command);
 
   display_->update();
+
+  emit Switched();
 }
 
 void MulticamWidget::DisplayClicked(const QPoint &p)

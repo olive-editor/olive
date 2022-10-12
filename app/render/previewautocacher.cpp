@@ -41,6 +41,7 @@ PreviewAutoCacher::PreviewAutoCacher(QObject *parent) :
   viewer_node_(nullptr),
   use_custom_range_(false),
   pause_renders_(false),
+  pause_thumbnails_(false),
   single_frame_render_(nullptr),
   display_color_processor_(nullptr),
   multicam_(nullptr),
@@ -583,6 +584,14 @@ void PreviewAutoCacher::SetRendersPaused(bool e)
   }
 }
 
+void PreviewAutoCacher::SetThumbnailsPaused(bool e)
+{
+  pause_thumbnails_ = e;
+  if (!e) {
+    TryRender();
+  }
+}
+
 void PreviewAutoCacher::NodeAdded(Node *node)
 {
   graph_update_queue_.push_back({QueuedJob::kNodeAdded, node, NodeInput(), nullptr});
@@ -663,29 +672,31 @@ void PreviewAutoCacher::TryRender()
     const int max_tasks = 4;
 
     // Handle video tasks
-    while (!pending_video_jobs_.empty()) {
-      VideoJob &d = pending_video_jobs_.front();
+    if (!pause_thumbnails_) {
+      while (!pending_video_jobs_.empty()) {
+        VideoJob &d = pending_video_jobs_.front();
 
-      if (Node *copy = copy_map_.value(d.node)) {
-        // Queue next frames
-        rational t;
-        while (running_video_tasks_.size() < max_tasks && d.iterator.GetNext(&t)) {
-          RenderFrame(copy, t, d.cache, false);
+        if (Node *copy = copy_map_.value(d.node)) {
+          // Queue next frames
+          rational t;
+          while (running_video_tasks_.size() < max_tasks && d.iterator.GetNext(&t)) {
+            RenderFrame(copy, t, d.cache, false);
 
-          emit SignalCacheProxyTaskProgress(double(d.iterator.frame_index()) / double(d.iterator.size()));
+            emit SignalCacheProxyTaskProgress(double(d.iterator.frame_index()) / double(d.iterator.size()));
 
-          if (!d.iterator.HasNext()) {
-            emit StopCacheProxyTasks();
+            if (!d.iterator.HasNext()) {
+              emit StopCacheProxyTasks();
+            }
           }
+        } else {
+          qCritical() << "Failed to find node copy for video job";
         }
-      } else {
-        qCritical() << "Failed to find node copy for video job";
-      }
 
-      if (d.iterator.HasNext()) {
-        break;
-      } else {
-        pending_video_jobs_.pop_front();
+        if (d.iterator.HasNext()) {
+          break;
+        } else {
+          pending_video_jobs_.pop_front();
+        }
       }
     }
 

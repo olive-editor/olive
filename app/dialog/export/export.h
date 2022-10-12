@@ -125,6 +125,8 @@ private:
 
   bool stills_only_mode_;
 
+  bool loading_presets_;
+
 private slots:
   void BrowseFilename();
 

@@ -45,7 +45,6 @@ Decoder::Decoder() :
 
 void Decoder::IncrementAccessTime(qint64 t)
 {
-  QMutexLocker locker(&mutex_);
   last_accessed_ += t;
 }
 
@@ -156,7 +155,6 @@ Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const Ti
 
 qint64 Decoder::GetLastAccessedTime()
 {
-  QMutexLocker locker(&mutex_);
   return last_accessed_;
 }
 
@@ -213,19 +211,6 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   }
 
   return nullptr;
-}
-
-int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
-{
-  int64_t t = Timecode::time_to_timestamp(time, timebase);
-  t += start_time;
-  return t;
-}
-
-rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time)
-{
-  time -= start_time;
-  return Timecode::timestamp_to_time(time, timebase);
 }
 
 void Decoder::SignalProcessingProgress(int64_t ts, int64_t duration)
@@ -294,10 +279,13 @@ bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const Audi
   return false;
 }
 
-bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange& range, LoopMode loop_mode, const AudioParams &input_params)
+bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &input_params)
 {
   PlanarFileDevice input;
   if (input.open(conform_filenames, QFile::ReadOnly)) {
+    // Offset range by audio start offset
+    range -= GetAudioStartOffset();
+
     qint64 read_index = input_params.time_to_bytes(range.in()) / input_params.channel_count();
     qint64 write_index = 0;
 
