@@ -47,6 +47,8 @@ TransitionBlock::TransitionBlock() :
   AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
+
+  SetFlags(GetFlags() & ~kDontShowInParamView);
 }
 
 void TransitionBlock::Retranslate()
