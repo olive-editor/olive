@@ -23,6 +23,9 @@
 
 #include "node/generator/shape/shapenodebase.h"
 #include "node/gizmo/text.h"
+#include "node/generator/animation/textanimationengine.h"
+
+class QTextCursor;
 
 namespace olive {
 
@@ -66,6 +69,7 @@ public:
   static const QString kVerticalAlignmentInput;
   static const QString kUseArgsInput;
   static const QString kArgsInput;
+  static const QString kAnimatorsInput;
 
   static QString FormatString(const QString &input, const QStringList &args);
 
@@ -77,10 +81,18 @@ private:
 
   bool dont_emit_valign_;
 
+  TextAnimationEngine * engine_;
+
+  // any instance of a text node is being edited
+  static bool editing_;
+
 private slots:
   void GizmoActivated();
   void GizmoDeactivated();
   void SetVerticalAlignmentUndoable(Qt::Alignment a);
+
+private:
+  int CalculateLineHeight(QTextCursor& start) const;
 
 };
 

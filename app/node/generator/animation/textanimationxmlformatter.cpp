@@ -26,7 +26,7 @@ QString TextAnimationXmlFormatter::Format() const
     writer.writeAttribute( "c1", QString("%1").arg(descriptor_->c1));
     writer.writeAttribute( "c2", QString("%1").arg(descriptor_->c2));
     writer.writeAttribute( "value", QString("%1").arg(descriptor_->value));
-    writer.writeAttribute( "alpha", QString("%1").arg(descriptor_->alpha));
+    writer.writeAttribute( "progress", QString("%1").arg(descriptor_->progress));
 
     writer.writeEndElement();
   }

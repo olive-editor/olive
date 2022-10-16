@@ -102,7 +102,7 @@ struct Descriptor {
   double value;
   // Evolution of the transition in range [0,1]. When 0, the animated value is equal to 'value';
   // When 1, the animated value is equal to 0.
-  double alpha;
+  double progress;
 };
 
 }  // TextAnimation

@@ -28,6 +28,11 @@
 #include "core.h"
 #include "node/project/project.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
+#include "node/generator/animation/textanimationxmlparser.h"
+#include "node/generator/animation/textanimationnode.h"
+
+#include <QDebug>  // TODO_
+
 
 namespace olive {
 
@@ -43,6 +48,11 @@ const QString TextGeneratorV3::kTextInput = QStringLiteral("text_in");
 const QString TextGeneratorV3::kVerticalAlignmentInput = QStringLiteral("valign_in");
 const QString TextGeneratorV3::kUseArgsInput = QStringLiteral("use_args_in");
 const QString TextGeneratorV3::kArgsInput = QStringLiteral("args_in");
+const QString TextGeneratorV3::kAnimatorsInput = QStringLiteral("animators_in");
+
+// TODO_ comment
+bool TextGeneratorV3::editing_;
+
 
 TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false),
@@ -60,10 +70,17 @@ TextGeneratorV3::TextGeneratorV3() :
   AddInput(kArgsInput, NodeValue::kText, InputFlags(kInputFlagArray));
   SetInputProperty(kArgsInput, QStringLiteral("arraystart"), 1);
 
+  AddInput( kAnimatorsInput, NodeValue::kText,
+            QStringLiteral("<!-- Don't write here. Attach a TextAnimation node -->"),
+            InputFlags(kInputFlagNotKeyframable));
+
   text_gizmo_ = new TextGizmo(this);
   text_gizmo_->SetInput(NodeInput(this, kTextInput));
   connect(text_gizmo_, &TextGizmo::Activated, this, &TextGeneratorV3::GizmoActivated);
   connect(text_gizmo_, &TextGizmo::Deactivated, this, &TextGeneratorV3::GizmoDeactivated);
+
+  engine_ = new TextAnimationEngine();
+  editing_ = false;
 }
 
 QString TextGeneratorV3::Name() const
@@ -94,6 +111,7 @@ void TextGeneratorV3::Retranslate()
   SetInputName(kVerticalAlignmentInput, tr("Vertical Alignment"));
   SetComboBoxStrings(kVerticalAlignmentInput, {tr("Top"), tr("Middle"), tr("Bottom")});
   SetInputName(kArgsInput, tr("Arguments"));
+  SetInputName(kAnimatorsInput, tr("Animators"));
 }
 
 void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
@@ -173,7 +191,75 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   QAbstractTextDocumentLayout::PaintContext ctx;
   ctx.palette.setColor(QPalette::Text, Qt::white);
 
-  text_doc.documentLayout()->draw(&p, ctx);
+  qDebug() << "editing: " << editing_;
+
+  if (editing_) {
+    text_doc.documentLayout()->draw(&p, ctx);
+  }
+  else {
+    int textSize = text_doc.characterCount();
+
+    QTextCursor cursor( &text_doc);
+    cursor.movePosition( QTextCursor::Start);
+    cursor.movePosition( QTextCursor::Right);
+
+    // 'kAnimatorsInput' holds a list of XML tags without main opening and closing tags.
+    // Prepend and append XML start and closing tags.
+    QString animators_xml = QStringLiteral("<TR>\n") +
+        job.Get(kAnimatorsInput).toString() +
+        QStringLiteral("</TR>");
+
+    QList<TextAnimation::Descriptor> animators = TextAnimationXmlParser::Parse( animators_xml);
+
+    engine_->SetTextSize( textSize);
+    engine_->SetAnimators( & animators);
+    engine_->Calulate();
+
+    int posx = 0;
+    int char_size = 0;
+    int line_Voffset = CalculateLineHeight(cursor);
+
+
+    const QVector<double> & horiz_offsets = engine_->HorizontalOffset();
+    const QVector<double> & vert_offsets = engine_->VerticalOffset();
+    const QVector<double> & rotations = engine_->Rotation();
+    const QVector<double> & spacings = engine_->Spacing();
+    const QVector<double> & horiz_stretches = engine_->HorizontalStretch();
+    const QVector<double> & vert_stretches = engine_->VerticalStretch();
+    const QVector<int> & transparencies = engine_->Transparency();
+
+    // parse the whole text document and print every character
+    for (int i=0; i < textSize; i++) {
+      QChar ch = text_doc.characterAt(i);
+
+      if ((ch == QChar::LineSeparator) ||
+          (ch == QChar::ParagraphSeparator) )
+      {
+        posx = 0;
+        cursor.movePosition( QTextCursor::Right);
+        line_Voffset += CalculateLineHeight(cursor);
+      }
+      else {
+
+        p.save();
+        p.setFont( cursor.charFormat().font());
+        QColor ch_color = cursor.charFormat().foreground().color();
+        // "transparencies" can be assumed to be in range 0 - 255
+        ch_color.setAlpha(255 - transparencies[i]);
+        p.setPen( ch_color);
+        p.translate( QPointF(posx + horiz_offsets[i],
+                             line_Voffset + vert_offsets[i]));
+        p.rotate( rotations[i]);
+        p.scale( 1.+ horiz_stretches[i], 1.+ vert_stretches[i]);
+        p.drawText( QPointF(0,0), ch);
+        p.restore();
+
+        char_size = QFontMetrics( cursor.charFormat().font()).horizontalAdvance(text_doc.characterAt(i));
+        posx += (int)(((double)char_size*(1. + (spacings[i])))*(1. + horiz_stretches[i]));
+        cursor.movePosition( QTextCursor::Right);
+      }
+    }
+  }
 }
 
 void TextGeneratorV3::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
@@ -264,6 +350,8 @@ void TextGeneratorV3::GizmoActivated()
   SetStandardValue(kUseArgsInput, false);
   connect(text_gizmo_, &TextGizmo::VerticalAlignmentChanged, this, &TextGeneratorV3::SetVerticalAlignmentUndoable);
   dont_emit_valign_ = true;
+
+  editing_ = true;
 }
 
 void TextGeneratorV3::GizmoDeactivated()
@@ -271,11 +359,32 @@ void TextGeneratorV3::GizmoDeactivated()
   SetStandardValue(kUseArgsInput, true);
   disconnect(text_gizmo_, &TextGizmo::VerticalAlignmentChanged, this, &TextGeneratorV3::SetVerticalAlignmentUndoable);
   dont_emit_valign_ = true;
+
+  editing_ = false;
 }
 
 void TextGeneratorV3::SetVerticalAlignmentUndoable(Qt::Alignment a)
 {
   Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)));
+}
+
+int TextGeneratorV3::CalculateLineHeight(QTextCursor& start) const
+{
+  QTextCursor cur(start);
+  int height = QFontMetrics(cur.charFormat().font()).lineSpacing();
+  cur.movePosition( QTextCursor::Right);
+
+  while (cur.atBlockEnd() ==  false) {
+    int new_height = QFontMetrics(cur.charFormat().font()).lineSpacing();
+
+    if (new_height > height) {
+      height = new_height;
+    }
+
+    cur.movePosition( QTextCursor::Right);
+  }
+
+  return height;
 }
 
 }

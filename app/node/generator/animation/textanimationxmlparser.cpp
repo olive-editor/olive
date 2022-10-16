@@ -28,7 +28,7 @@ QList<TextAnimation::Descriptor> TextAnimationXmlParser::Parse(const QString& xm
       item.c1 = reader.attributes().value(QString("c1")).toDouble();
       item.c2 = reader.attributes().value(QString("c2")).toDouble();
       item.value = reader.attributes().value(QString("value")).toDouble();
-      item.alpha = reader.attributes().value(QString("alpha")).toDouble();
+      item.progress = reader.attributes().value(QString("progress")).toDouble();
 
       if (item.feature != TextAnimation::None) {
         descriptors << item;

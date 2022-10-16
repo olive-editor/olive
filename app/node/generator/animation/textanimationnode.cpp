@@ -37,7 +37,7 @@ const QString TextAnimationNode::kCurveInput = QStringLiteral("curve_in");
 const QString TextAnimationNode::kC1Input = QStringLiteral("c1_in");
 const QString TextAnimationNode::kC2Input = QStringLiteral("c2_in");
 const QString TextAnimationNode::kValueInput = QStringLiteral("fvalue_in");
-const QString TextAnimationNode::kAlphaInput = QStringLiteral("alpha_in");
+const QString TextAnimationNode::kProgressInput = QStringLiteral("progress_in");
 
 #define super Node
 
@@ -89,12 +89,12 @@ TextAnimationNode::TextAnimationNode()
                        "<p>When greater than 0, this is the number of characters that are skipped for each character "
                        "that is animated</p>"));
 
-  AddInput( kValueInput, NodeValue::kFloat, 10.);
+  AddInput( kValueInput, NodeValue::kFloat, 250.);
   SetInputProperty( kValueInput, QString("tooltip"),
                     tr("<p>The amount of the feature that is animated when the animation begins,"
                        "i.e. when 'progress' is 0'.</p>"));
 
-  AddInput( kOverlapInInput, NodeValue::kFloat, 1.);
+  AddInput( kOverlapInInput, NodeValue::kFloat, 0.5);
   SetInputProperty( kOverlapInInput, QStringLiteral("min"), 0.);
   SetInputProperty( kOverlapInInput, QStringLiteral("max"), 1.);
   SetInputProperty( kOverlapInInput, QString("tooltip"),
@@ -103,7 +103,7 @@ TextAnimationNode::TextAnimationNode()
                        "When 0, all characters start the animation at the same time; "
                        "when 1, the begin of the animation for each character is distributed over time.</p>"));
 
-  AddInput( kOverlapOutInput, NodeValue::kFloat, 1.);
+  AddInput( kOverlapOutInput, NodeValue::kFloat, 0.5);
   SetInputProperty( kOverlapOutInput, QStringLiteral("min"), 0.);
   SetInputProperty( kOverlapOutInput, QStringLiteral("max"), 1.);
   SetInputProperty( kOverlapOutInput, QString("tooltip"),
@@ -138,10 +138,10 @@ TextAnimationNode::TextAnimationNode()
                        "<p>According to the kind of curve, this may or may not affect the curve. "
                        "Value 1 is always a good defualt value.</p>"));
 
-  AddInput( kAlphaInput, NodeValue::kFloat, 0.);
-  SetInputProperty( kAlphaInput, QStringLiteral("min"), 0.);
-  SetInputProperty( kAlphaInput, QStringLiteral("max"), 1.);
-  SetInputProperty( kAlphaInput, QString("tooltip"),
+  AddInput( kProgressInput, NodeValue::kFloat, 0.);
+  SetInputProperty( kProgressInput, QStringLiteral("min"), 0.);
+  SetInputProperty( kProgressInput, QStringLiteral("max"), 1.);
+  SetInputProperty( kProgressInput, QString("tooltip"),
                     tr("<p><b>Range: 0-1</b></p>"
                        "<p>The progress of the animation.</p> <p>This input must be animated by keyframes from "
                        "0 to 1 to let animation happen. When 0, the animation is not started; when 1,"
@@ -165,7 +165,7 @@ void TextAnimationNode::Retranslate()
   SetInputName( kC1Input, tr("C1"));
   SetInputName( kC2Input, tr("C2"));
   SetInputName( kValueInput, tr("Value"));
-  SetInputName( kAlphaInput, tr("Progress"));
+  SetInputName( kProgressInput, tr("Progress"));
 }
 
 
@@ -190,7 +190,7 @@ void TextAnimationNode::Value(const NodeValueRow &value, const NodeGlobals & /*g
   animation.c1 = job.Get(kC1Input).toDouble ();
   animation.c2 = job.Get(kC2Input).toDouble ();
   animation.value = job.Get(kValueInput).toDouble ();
-  animation.alpha = job.Get(kAlphaInput).toDouble ();
+  animation.progress = job.Get(kProgressInput).toDouble ();
 
   TextAnimationXmlFormatter formatter;
   formatter.SetAnimationData( & animation);

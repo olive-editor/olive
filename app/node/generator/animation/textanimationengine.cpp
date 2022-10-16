@@ -198,8 +198,8 @@ int TextAnimationEngine::CalculateEndIndex( const TextAnimation::Descriptor &ani
 // When 'overlap_in' and 'overlap_out' are 1, each character perform its transition in one of this slice.
 // By lowering 'overlap_in', the transitions begin earlier (when overlap_in=0 they all start at the begin).
 // By lowering 'overlap_out', the transitions end earlier (when overlap_out=1 they all finish at the end).
-// The field 'alpha' of parameter 'animator' identifies the evolution of the transition: when alpha = 0,
-// the transition is not started; when alpha = 1, the transition is complete.
+// The field 'progress' of parameter 'animator' identifies the evolution of the transition: when progress = 0,
+// the transition is not started; when progress = 1, the transition is complete.
 double TextAnimationEngine::CalculateAnimatorForChar( const TextAnimation::Descriptor &animator, int char_index)
 {
   int num_chars = last_index_ - animator.character_from + 1;
@@ -213,10 +213,10 @@ double TextAnimationEngine::CalculateAnimatorForChar( const TextAnimation::Descr
   double low = i*dt*(animator.overlap_in);
   double hi = (i+1.)*dt*(animator.overlap_out) + (1. - (animator.overlap_out));
 
-  if (animator.alpha <= (low)) {
+  if (animator.progress <= (low)) {
     animation_value = 1.0;
-  } else if (animator.alpha < hi) {
-    double x = (animator.alpha - low)/(hi-low);
+  } else if (animator.progress < hi) {
+    double x = (animator.progress - low)/(hi-low);
     animation_value = ANIMATION_TABLE.value( animator.curve)( x, animator.c1, animator.c2);
   }
   else {
