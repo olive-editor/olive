@@ -795,15 +795,20 @@ void TimelineWidget::RecordingCallback(const QString &filename, const TimeRange 
   ProjectImportTask task(GetConnectedNode()->project()->root(), {filename});
   task.Start();
 
-  MultiUndoCommand *import_command = task.GetCommand();
+  auto subimport_command = task.GetCommand();
 
   if (task.GetImportedFootage().empty()) {
     qCritical() << "Failed to import recorded audio file" << filename;
+    delete subimport_command;
   } else {
-    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
-  }
+    subimport_command->redo_now();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(import_command);
+    auto import_command = new MultiUndoCommand();
+    import_command->add_child(subimport_command);
+
+    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
+    Core::instance()->undo_stack()->pushIfHasChildren(import_command);
+  }
 }
 
 void TimelineWidget::EnableRecordingOverlay(const TimelineCoordinate &coord)
