@@ -391,7 +391,7 @@ void ExportDialog::ExportFinished()
     // If this task was cancelled, we stay open so the user can potentially queue another export
   } else {
     // Accept this dialog and close
-    if (import_file_after_export_) {
+    if (import_file_after_export_->isEnabled() && import_file_after_export_->isChecked()) {
       QString filename = filename_edit_->text().trimmed();
       emit RequestImportFile(filename);
     }
