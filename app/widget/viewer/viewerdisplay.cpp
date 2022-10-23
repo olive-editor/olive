@@ -596,7 +596,7 @@ void ViewerDisplayWidget::DrawTextWithCrudeShadow(QPainter *painter, const QRect
 
 rational ViewerDisplayWidget::GetGizmoTime()
 {
-  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, true);
+  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, Node::kTransformTowardsInput);
 }
 
 bool ViewerDisplayWidget::IsHandDrag(QMouseEvent *event) const

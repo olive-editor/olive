@@ -528,7 +528,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
 
 rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), time_, true);
+  return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), time_, Node::kTransformTowardsInput);
 }
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)

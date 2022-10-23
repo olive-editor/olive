@@ -1470,7 +1470,7 @@ void TimelineWidget::CacheClipsInOut()
   for (Block *b : qAsConst(selected_blocks_)) {
     if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
       if (Node *connected = clip->GetConnectedOutput(clip->kBufferIn)) {
-        TimeRange adjusted = tto.GetAdjustedTime(this->sequence(), connected, r, true);
+        TimeRange adjusted = tto.GetAdjustedTime(this->sequence(), connected, r, Node::kTransformTowardsInput);
         clip->RequestInvalidatedFromConnected(true, adjusted);
       }
     }

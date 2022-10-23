@@ -868,7 +868,7 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
         rational time = key->time();
         if (const TimeTargetObject *target = GetKeyframeTimeTarget()) {
           if (Node *parent = key->parent()) {
-            time = target->GetAdjustedTime(parent, target->GetTimeTarget(), time, false);
+            time = target->GetAdjustedTime(parent, target->GetTimeTarget(), time, Node::kTransformTowardsOutput);
           }
         }
 
