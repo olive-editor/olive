@@ -167,6 +167,19 @@ void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type typ
   }
 }
 
+QString MathNodeBase::GetOperationName(Operation o)
+{
+  switch (o) {
+  case kOpAdd: return tr("Add");
+  case kOpSubtract: return tr("Subtract");
+  case kOpMultiply: return tr("Multiply");
+  case kOpDivide: return tr("Divide");
+  case kOpPower: return tr("Power");
+  }
+
+  return QString();
+}
+
 void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end)
 {
   for (int j=start;j<end;j++) {
