@@ -60,8 +60,6 @@ public:
 
   TimeRuler* ruler() const;
 
-  virtual bool eventFilter(QObject* object, QEvent* event) override;
-
   using SnapMask = uint32_t;
   enum SnapPoints {
     kSnapToClips = 0x1,
@@ -146,8 +144,6 @@ protected:
 
   void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
 
-  void PassWheelEventsToScrollBar(QObject* object);
-
   void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
   void SetCatchUpScrollValue(int v);
   void StopCatchUpScrollTimer(QScrollBar *b);
@@ -227,8 +223,6 @@ private:
   int toggle_show_all_old_scroll_;
 
   bool auto_set_timebase_;
-
-  QVector<QObject*> wheel_passthrough_objects_;
 
   int scrollbar_start_width_;
   double scrollbar_start_value_;

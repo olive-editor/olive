@@ -114,7 +114,6 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
   ConnectTimelineView(waveform_view_, true);
-  PassWheelEventsToScrollBar(waveform_view_);
   layout->addWidget(waveform_view_);
 
   // Create time ruler

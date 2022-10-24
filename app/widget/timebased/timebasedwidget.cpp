@@ -51,9 +51,6 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ConnectTimelineView(ruler_, true);
   ruler()->SetSnapService(this);
   connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
-  connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
-
-  PassWheelEventsToScrollBar(ruler_);
 
   catchup_scroll_timer_ = new QTimer(this);
   catchup_scroll_timer_->setInterval(250); // Hardcoded 1/4 scroll limit value
@@ -307,24 +304,20 @@ void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base, bool connect_time
     connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
   }
 
+  // Connect scale
   connect(base, &TimeBasedView::ScaleChanged, this, &TimeBasedWidget::SetScale);
 
+  // Main scrollbar to view scrollbar and vice versa
   connect(scrollbar(), &QScrollBar::valueChanged, base->horizontalScrollBar(), &QScrollBar::setValue);
   connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
-  connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
+  // Connect scrollbar to other scrollbars
   for (TimeBasedView *other : qAsConst(timeline_views_)) {
     connect(other->horizontalScrollBar(), &QScrollBar::valueChanged, base->horizontalScrollBar(), &QScrollBar::setValue);
     connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, other->horizontalScrollBar(), &QScrollBar::setValue);
   }
 
   timeline_views_.append(base);
-}
-
-void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
-{
-  wheel_passthrough_objects_.append(object);
-  object->installEventFilter(this);
 }
 
 void TimeBasedWidget::SetCatchUpScrollValue(QScrollBar *b, int v, int maximum)
@@ -756,15 +749,6 @@ void TimeBasedWidget::DeleteSelected()
   if (ruler_->HasItemsSelected()) {
     ruler_->DeleteSelected();
   }
-}
-
-bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
-{
-  if (wheel_passthrough_objects_.contains(object) && event->type() == QEvent::Wheel) {
-    QCoreApplication::sendEvent(scrollbar(), event);
-  }
-
-  return false;
 }
 
 struct SnapData {
