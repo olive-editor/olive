@@ -34,9 +34,9 @@ void main(void) {
 
         frag_color = out_block_col + in_block_col;
     } else if (out_block_in_enabled) {
-        frag_color = mix(texture(out_block_in, ove_texcoord), color_in, TransformCurve(ove_tprog_all));
+        frag_color = mix(color_in, texture(out_block_in, ove_texcoord), TransformCurve(ove_tprog_out));
     } else if (in_block_in_enabled) {
-        frag_color = mix(texture(in_block_in, ove_texcoord), color_in, TransformCurve(1.0 - ove_tprog_all));
+        frag_color = mix(texture(in_block_in, ove_texcoord), color_in, TransformCurve(1.0 - ove_tprog_in));
     } else {
         frag_color = vec4(0.0);
     }
