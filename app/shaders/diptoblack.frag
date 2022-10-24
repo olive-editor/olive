@@ -29,7 +29,7 @@ float TransformCurve(float linear) {
 void main(void) {
     if (out_block_in_enabled && in_block_in_enabled) {
         // mix(x, y , a): a(1-x) + b(x)
-        vec4 out_block_col = mix(color_in, texture(out_block_in, ove_texcoord),TransformCurve(ove_tprog_out));
+        vec4 out_block_col = ove_tprog_out==0.0? vec4(0.0) : mix(color_in, texture(out_block_in, ove_texcoord),TransformCurve(ove_tprog_out));
         vec4 in_block_col = mix(color_in, texture(in_block_in, ove_texcoord), TransformCurve(ove_tprog_in));
 
         frag_color = out_block_col + in_block_col;
