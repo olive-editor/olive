@@ -83,7 +83,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   timecode_label_->SetDisplayType(RationalSlider::kTime);
   timecode_label_->setVisible(false);
   timecode_label_->SetMinimum(0);
-  connect(timecode_label_, &RationalSlider::ValueChanged, this, &TimelineWidget::SetTimeAndSignal);
   ruler_and_time_layout->addWidget(timecode_label_);
 
   ruler_and_time_layout->addWidget(ruler());
@@ -144,11 +143,10 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     view_splitter_->addWidget(tview);
 
-    ConnectTimelineView(view, false);
+    ConnectTimelineView(view);
 
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
     connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
-    connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::SetTimeAndSignal);
     connect(view, &TimelineView::customContextMenuRequested, this, &TimelineWidget::ShowContextMenu);
     connect(scrollbar(), &QScrollBar::valueChanged, view->horizontalScrollBar(), &QScrollBar::setValue);
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
@@ -244,15 +242,6 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
   UpdateTimecodeWidthFromSplitters(views_.first()->splitter());
 }
 
-void TimelineWidget::TimeChangedEvent(const rational &time)
-{
-  super::TimeChangedEvent(time);
-
-  SetViewTime(time);
-
-  timecode_label_->SetValue(time);
-}
-
 void TimelineWidget::ScaleChangedEvent(const double &scale)
 {
   super::ScaleChangedEvent(scale);
@@ -270,6 +259,9 @@ void TimelineWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   connect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
   connect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
+
+  connect(timecode_label_, &RationalSlider::ValueChanged, s, &Sequence::SetPlayhead);
+  connect(s, &Sequence::PlayheadChanged, timecode_label_, &RationalSlider::SetValue);
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
@@ -300,6 +292,8 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   disconnect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
   disconnect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
+
+  disconnect(timecode_label_, &RationalSlider::ValueChanged, s, &Sequence::SetPlayhead);
 
   DeselectAll();
 
@@ -371,7 +365,7 @@ void TimelineWidget::SplitAtPlayhead()
     return;
   }
 
-  const rational &playhead_time = GetTime();
+  const rational &playhead_time = GetConnectedNode()->GetPlayhead();
 
   QVector<Block*> selected_blocks = GetSelectedBlocks();
 
@@ -513,7 +507,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   ClearGhosts();
 
   if (ripple_command && ripple_command->HasCommands() && new_playhead != RATIONAL_MAX) {
-    SetTimeAndSignal(new_playhead);
+    GetConnectedNode()->SetPlayhead(new_playhead);
   }
 }
 
@@ -544,14 +538,14 @@ void TimelineWidget::DecreaseTrackHeight()
 void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& footage)
 {
   auto command = new MultiUndoCommand();
-  import_tool_->PlaceAt(footage, GetTime(), true, command);
+  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), true, command);
   Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   auto command = new MultiUndoCommand();
-  import_tool_->PlaceAt(footage, GetTime(), false, command);
+  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), false, command);
   Core::instance()->undo_stack()->push(command);
 }
 
@@ -714,7 +708,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
                                                    false));
 
   if (ripple) {
-    SetTimeAndSignal(GetConnectedNode()->GetWorkArea()->in());
+    GetConnectedNode()->SetPlayhead(GetConnectedNode()->GetWorkArea()->in());
   }
 
   Core::instance()->undo_stack()->push(command);
@@ -1325,14 +1319,6 @@ void TimelineWidget::SetUseAudioTimeUnits(bool use)
   UpdateViewTimebases();
 }
 
-void TimelineWidget::SetViewTime(const rational &time)
-{
-  for (int i=0;i<views_.size();i++) {
-    TimelineAndTrackView* view = views_.at(i);
-    view->view()->SetTime(time);
-  }
-}
-
 void TimelineWidget::ToolChanged()
 {
   HideSnaps();
@@ -1618,7 +1604,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
     }
 
     foreach (Block *b, selected_blocks_) {
-      rational shift_amt = GetTime() - earliest_pts.value(b->track());
+      rational shift_amt = GetConnectedNode()->GetPlayhead() - earliest_pts.value(b->track());
       rational new_in = b->in() + shift_amt;
       bool can_shift = true;
 
@@ -1641,7 +1627,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
     // Shift selections
     TimelineWidgetSelections new_sel = GetSelections();
     for (auto it=new_sel.begin(); it!=new_sel.end(); it++) {
-      rational track_adj = GetTime() - earliest_pts.value(GetTrackFromReference(it.key()), GetTime());
+      rational track_adj = GetConnectedNode()->GetPlayhead() - earliest_pts.value(GetTrackFromReference(it.key()), GetConnectedNode()->GetPlayhead());
       if (!track_adj.isNull()) {
         it.value().shift(track_adj);
       }
@@ -1794,7 +1780,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
     return;
   }
 
-  rational playhead_time = GetTime();
+  rational playhead_time = GetConnectedNode()->GetPlayhead();
 
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
 
@@ -1842,15 +1828,15 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
 
   // If we rippled, ump to where new cut is if applicable
   if (mode == Timeline::kTrimIn) {
-    SetTimeAndSignal(closest_point_to_playhead);
-  } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetTime()) {
-    SetTimeAndSignal(playhead_time);
+    GetConnectedNode()->SetPlayhead(closest_point_to_playhead);
+  } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetConnectedNode()->GetPlayhead()) {
+    GetConnectedNode()->SetPlayhead(playhead_time);
   }
 }
 
 void TimelineWidget::EditTo(Timeline::MovementMode mode)
 {
-  const rational playhead_time = GetTime();
+  const rational playhead_time = GetConnectedNode()->GetPlayhead();
 
   // Get list of unlocked tracks
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
@@ -1952,10 +1938,10 @@ bool TimelineWidget::PasteInternal(bool insert)
     command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
   }
 
-  rational paste_start = GetTime();
+  rational paste_start = GetConnectedNode()->GetPlayhead();
 
   if (insert) {
-    rational paste_end = GetTime();
+    rational paste_end = paste_start;
 
     for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
       rational length = static_cast<Block*>(it.key())->length();

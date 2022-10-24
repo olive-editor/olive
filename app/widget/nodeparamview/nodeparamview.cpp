@@ -126,9 +126,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     keyframe_area_layout->addWidget(keyframe_view_);
 
     // Connect ruler and keyframe view together
-    connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
-    connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
-    connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
     connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
     connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
 
@@ -361,19 +358,6 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
   foreach (NodeParamViewContext* ctx, context_items_) {
     ctx->SetTimebase(timebase);
   }
-
-  UpdateItemTime(GetTime());
-}
-
-void NodeParamView::TimeChangedEvent(const rational &time)
-{
-  super::TimeChangedEvent(time);
-
-  if (keyframe_view_) {
-    keyframe_view_->SetTime(time);
-  }
-
-  UpdateItemTime(time);
 }
 
 void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
@@ -390,7 +374,7 @@ void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
   time_target_ = n;
 }
 
-Node *NodeParamView::GetTimeTarget() const
+ViewerOutput *NodeParamView::GetTimeTarget() const
 {
   return time_target_;
 }
@@ -683,13 +667,6 @@ bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(co
   return true;
 }
 
-void NodeParamView::UpdateItemTime(const rational &time)
-{
-  foreach (NodeParamViewContext* item, context_items_) {
-    item->SetTime(time);
-  }
-}
-
 void NodeParamView::QueueKeyframePositionUpdate()
 {
   QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
@@ -735,7 +712,6 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 
   NodeParamViewItem* item = new NodeParamViewItem(n, IsGroupMode() ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context->GetDockArea());
 
-  connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::SelectNodeFromConnectedLink);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
@@ -745,7 +721,6 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
   item->SetContext(ctx);
   item->SetTimeTarget(GetTimeTarget());
   item->SetTimebase(timebase());
-  item->SetTime(GetTime());
 
   context->AddNode(item);
 

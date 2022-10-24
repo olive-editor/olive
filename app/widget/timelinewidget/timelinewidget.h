@@ -291,7 +291,6 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
   virtual void TimebaseChangedEvent(const rational &) override;
-  virtual void TimeChangedEvent(const rational &time) override;
   virtual void ScaleChangedEvent(const double &) override;
 
   virtual void ConnectNodeEvent(ViewerOutput* n) override;
@@ -416,8 +415,6 @@ private slots:
   void ShowSequenceDialog();
 
   void SetUseAudioTimeUnits(bool use);
-
-  void SetViewTime(const rational &time);
 
   void ToolChanged();
 

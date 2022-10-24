@@ -149,7 +149,7 @@ bool SeekableWidget::PasteMarkers()
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
         min = std::min(min, (*it)->time().in());
       }
-      min -= GetTime();
+      min -= GetViewerNode()->GetPlayhead();
 
       for (auto it=markers.cbegin(); it!=markers.cend(); it++) {
         TimelineMarker *m = *it;
@@ -379,10 +379,8 @@ void SeekableWidget::SeekToScenePoint(qreal scene)
     playhead_time += movement;
   }
 
-  if (playhead_time != GetTime()) {
-    SetTime(playhead_time);
-
-    emit TimeChanged(playhead_time);
+  if (playhead_time != GetViewerNode()->GetPlayhead()) {
+    GetViewerNode()->SetPlayhead(playhead_time);
   }
 }
 

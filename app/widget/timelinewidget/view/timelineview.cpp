@@ -64,15 +64,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
   QPointF scene_pos = mapToScene(event->pos());
   for (auto it=clip_marker_rects_.cbegin(); it!=clip_marker_rects_.cend(); it++) {
     if (it.value().contains(scene_pos)) {
-      QObject *p = this->parent();
-      while (p) {
-        if (TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(p)) {
-          timeline->SetTime(it.key()->time().in());
-          break;
-        }
-
-        p = p->parent();
-      }
+      GetViewerNode()->SetPlayhead(it.key()->time().in());
+      break;
     }
   }
 
@@ -353,7 +346,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
     int x = TimeToScene(recording_coord_.GetFrame());
     painter->drawRect(x, GetTrackY(recording_coord_.GetTrack().index()),
-                      TimeToScene(GetTime()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
+                      TimeToScene(GetViewerNode()->GetPlayhead()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
   }
 
   // Draw standard TimelineViewBase things (such as playhead)

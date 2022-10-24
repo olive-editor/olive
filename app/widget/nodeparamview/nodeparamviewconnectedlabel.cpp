@@ -34,7 +34,8 @@ namespace olive {
 NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input, QWidget *parent) :
   QWidget(parent),
   input_(input),
-  connected_node_(nullptr)
+  connected_node_(nullptr),
+  viewer_(nullptr)
 {
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -85,20 +86,25 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   connect(collapse_btn, &CollapseButton::toggled, this, &NodeParamViewConnectedLabel::SetValueTreeVisible);
 }
 
+void NodeParamViewConnectedLabel::SetViewerNode(ViewerOutput *viewer)
+{
+  if (viewer_) {
+    disconnect(viewer_, &ViewerOutput::PlayheadChanged, this, &NodeParamViewConnectedLabel::UpdateValueTree);
+  }
+
+  viewer_ = viewer;
+
+  if (viewer_) {
+    connect(viewer_, &ViewerOutput::PlayheadChanged, this, &NodeParamViewConnectedLabel::UpdateValueTree);
+    UpdateValueTree();
+  }
+}
+
 void NodeParamViewConnectedLabel::CreateTree()
 {
   // Set up table area
   value_tree_ = new NodeValueTree(this);
   layout()->addWidget(value_tree_);
-}
-
-void NodeParamViewConnectedLabel::SetTime(const rational &time)
-{
-  time_ = time;
-
-  if (value_tree_ && value_tree_->isVisible()) {
-    UpdateValueTree();
-  }
 }
 
 void NodeParamViewConnectedLabel::InputConnected(Node *output, const NodeInput& input)
@@ -159,8 +165,8 @@ void NodeParamViewConnectedLabel::UpdateLabel()
 
 void NodeParamViewConnectedLabel::UpdateValueTree()
 {
-  if (value_tree_) {
-    value_tree_->SetNode(input_, time_);
+  if (value_tree_ && viewer_ && value_tree_->isVisible()) {
+    value_tree_->SetNode(input_, viewer_->GetPlayhead());
   }
 }
 
@@ -173,6 +179,7 @@ void NodeParamViewConnectedLabel::SetValueTreeVisible(bool e)
   if (e) {
     if (!value_tree_) {
       CreateTree();
+      value_tree_->setVisible(true);
     }
 
     UpdateValueTree();

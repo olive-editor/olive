@@ -47,6 +47,7 @@ ImageSection::ImageSection(QWidget* parent) :
   frame_slider_->SetMinimum(0);
   frame_slider_->SetValue(0);
   frame_slider_->SetDisplayType(RationalSlider::kTime);
+  connect(frame_slider_, &RationalSlider::ValueChanged, this, &ImageSection::TimeChanged);
   layout->addWidget(frame_slider_, row, 1);
 }
 

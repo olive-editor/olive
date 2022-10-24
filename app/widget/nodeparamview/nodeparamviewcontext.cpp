@@ -113,17 +113,10 @@ void NodeParamViewContext::SetTimebase(const rational &timebase)
   }
 }
 
-void NodeParamViewContext::SetTimeTarget(Node *n)
+void NodeParamViewContext::SetTimeTarget(ViewerOutput *n)
 {
   foreach (NodeParamViewItem* item, items_) {
     item->SetTimeTarget(n);
-  }
-}
-
-void NodeParamViewContext::SetTime(const rational &time)
-{
-  foreach (NodeParamViewItem* item, items_) {
-    item->SetTime(time);
   }
 }
 

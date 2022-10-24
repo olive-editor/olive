@@ -96,7 +96,7 @@ void AudioWaveformView::drawForeground(QPainter *p, const QRectF &rect)
   // Draw playhead
   p->setPen(PLAYHEAD_COLOR);
 
-  int playhead_x = TimeToScene(GetTime());
+  int playhead_x = TimeToScene(GetViewerNode()->GetPlayhead());
   p->drawLine(playhead_x, 0, playhead_x, height());
 }
 
