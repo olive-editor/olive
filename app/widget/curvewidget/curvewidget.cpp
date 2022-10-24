@@ -101,13 +101,11 @@ CurveWidget::CurveWidget(QWidget *parent) :
   // Connect ruler and view together
   connect(view_, &CurveView::TimeChanged, this, &CurveWidget::SetTimeAndSignal);
   connect(view_, &CurveView::SelectionChanged, this, &CurveWidget::SelectionChanged);
-  connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
   connect(view_, &CurveView::Dragged, this, &CurveWidget::KeyframeViewDragged);
   connect(view_, &CurveView::Released, this, &CurveWidget::KeyframeViewReleased);
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   view_->setHorizontalScrollBar(scrollbar());
-  connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   // Disable collapsing the main curve view (but allow collapsing the tree)
   splitter->setCollapsible(1, false);

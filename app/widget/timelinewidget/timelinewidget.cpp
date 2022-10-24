@@ -129,7 +129,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.append(import_tool_);
 
   // Global scrollbar
-  connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   connect(views_.first()->view()->horizontalScrollBar(), &QScrollBar::rangeChanged, scrollbar(), &QScrollBar::setRange);
   vert_layout->addWidget(scrollbar());
 
@@ -146,12 +145,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     ConnectTimelineView(view, false);
 
-    connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
-    connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
     connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::SetTimeAndSignal);
     connect(view, &TimelineView::customContextMenuRequested, this, &TimelineWidget::ShowContextMenu);
-    connect(scrollbar(), &QScrollBar::valueChanged, view->horizontalScrollBar(), &QScrollBar::setValue);
-    connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
 
     connect(view, &TimelineView::MousePressed, this, &TimelineWidget::ViewMousePressed);
     connect(view, &TimelineView::MouseMoved, this, &TimelineWidget::ViewMouseMoved);
@@ -163,15 +158,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, &TimelineView::DragDropped, this, &TimelineWidget::ViewDragDropped);
 
     connect(tview->splitter(), &QSplitter::splitterMoved, this, &TimelineWidget::UpdateHorizontalSplitters);
-
-    // Connect each view's scroll to each other
-    foreach (TimelineAndTrackView* other_tview, views_) {
-      TimelineView* other_view = other_tview->view();
-
-      if (view != other_view) {
-        connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, other_view->horizontalScrollBar(), &QScrollBar::setValue);
-      }
-    }
   }
 
   // Split viewer 50/50

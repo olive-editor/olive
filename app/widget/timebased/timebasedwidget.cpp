@@ -43,14 +43,15 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   workarea_(nullptr),
   markers_(nullptr)
 {
+  scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
+  connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
+  connect(scrollbar_, &ResizableScrollBar::ResizeMoved, this, &TimeBasedWidget::ScrollBarResizeMoved);
+
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   ConnectTimelineView(ruler_, true);
   ruler()->SetSnapService(this);
   connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
-
-  scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
-  connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
-  connect(scrollbar_, &ResizableScrollBar::ResizeMoved, this, &TimeBasedWidget::ScrollBarResizeMoved);
+  connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   PassWheelEventsToScrollBar(ruler_);
 
@@ -304,6 +305,17 @@ void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base, bool connect_time
 {
   if (connect_time_change_event) {
     connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
+  }
+
+  connect(base, &TimeBasedView::ScaleChanged, this, &TimeBasedWidget::SetScale);
+
+  connect(scrollbar(), &QScrollBar::valueChanged, base->horizontalScrollBar(), &QScrollBar::setValue);
+  connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
+  connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
+
+  for (TimeBasedView *other : qAsConst(timeline_views_)) {
+    connect(other->horizontalScrollBar(), &QScrollBar::valueChanged, base->horizontalScrollBar(), &QScrollBar::setValue);
+    connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, other->horizontalScrollBar(), &QScrollBar::setValue);
   }
 
   timeline_views_.append(base);

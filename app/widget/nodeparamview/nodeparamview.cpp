@@ -132,9 +132,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
     connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
 
-    // Connect keyframe view scaling to this
-    connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
-
     splitter->addWidget(keyframe_area);
 
     // Set both widgets to 50/50
@@ -148,8 +145,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
     keyframe_view_->setHorizontalScrollBar(scrollbar());
     keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-    connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   } else {
     keyframe_view_ = nullptr;
   }
