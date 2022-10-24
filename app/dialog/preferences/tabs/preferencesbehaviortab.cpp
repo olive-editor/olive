@@ -73,7 +73,7 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           tr("Hold ALT on any UI element to switch scrolling axes"),
           timeline_group);
   AddItem(tr("Seek Also Selects"),
-          QStringLiteral("SelectAlsoSeeks"),
+          QStringLiteral("SeekAlsoSelects"),
           timeline_group);
   AddItem(tr("Seek to the End of Pastes"),
           QStringLiteral("PasteSeeks"),

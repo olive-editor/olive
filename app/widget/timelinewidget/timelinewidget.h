@@ -290,6 +290,7 @@ signals:
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
+  virtual void TimeChangedEvent(const rational &) override;
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void ScaleChangedEvent(const double &) override;
 

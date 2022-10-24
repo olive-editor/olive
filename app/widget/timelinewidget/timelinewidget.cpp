@@ -198,6 +198,17 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   signal_block_change_timer_->setSingleShot(true);
   connect(signal_block_change_timer_, &QTimer::timeout, this, [this]{
     signal_block_change_timer_->stop();
+
+    if (OLIVE_CONFIG("SelectAlsoSeeks").toBool()) {
+      rational start = RATIONAL_MAX;
+      for (Block *b : selected_blocks_) {
+        start = std::min(start, b->in());
+      }
+      if (start != RATIONAL_MAX) {
+        GetConnectedNode()->SetPlayhead(start);
+      }
+    }
+
     emit BlockSelectionChanged(selected_blocks_);
   });
 }
@@ -240,6 +251,36 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
   // Update timecode label size
   UpdateTimecodeWidthFromSplitters(views_.first()->splitter());
+}
+
+void TimelineWidget::TimeChangedEvent(const rational &t)
+{
+  if (OLIVE_CONFIG("SeekAlsoSelects").toBool()) {
+    TimelineWidgetSelections sels;
+
+    QVector<Block*> new_blocks;
+
+    for (auto it=sequence()->GetTracks().cbegin(); it!=sequence()->GetTracks().cend(); it++) {
+      Track *track = *it;
+      if (track->IsLocked()) {
+        continue;
+      }
+
+      Block *b = track->VisibleBlockAtTime(sequence()->GetPlayhead());
+      if (!b || dynamic_cast<GapBlock*>(b)) {
+        continue;
+      }
+
+      new_blocks.push_back(b);
+      sels[track->ToReference()].insert(b->range());
+    }
+
+    if (selected_blocks_ != new_blocks) {
+      selected_blocks_ = new_blocks;
+      SetSelections(sels, false);
+      SignalBlockSelectionChange();
+    }
+  }
 }
 
 void TimelineWidget::ScaleChangedEvent(const double &scale)
