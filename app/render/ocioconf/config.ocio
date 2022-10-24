@@ -266,6 +266,21 @@ colorspaces:
         - !<MatrixTransform> {matrix: [1.617523, -0.537287, -0.080237, 0, -0.070573, 1.334613, -0.26404, 0, -0.021102, -0.226954, 1.248056, 0, 0, 0, 0, 1]}
 
   - !<ColorSpace>
+    name: Arri Wide Gamut 4/ LogC4
+    family: Camera Footage
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Arri Wide Gamut 4 LogC4 input
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<LogCameraTransform> {log_side_slope: 0.0647954196341293, log_side_offset: -0.295908392682586, lin_side_slope: 2231.82630906769, lin_side_offset: 64, lin_side_break: -0.0180569961199113, direction: inverse}
+        - !<MatrixTransform> {matrix: [1.893123, -0.780882, -0.112242, 0, -0.205700,  1.340257, -0.134557, 0, -0.012706, -0.152185,  1.164891, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
     name: Blackmagic Film Wide Gamut (Gen 5)
     family: Camera Footage
     equalitygroup: ""
