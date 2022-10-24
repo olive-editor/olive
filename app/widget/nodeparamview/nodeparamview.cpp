@@ -697,12 +697,19 @@ void NodeParamView::QueueKeyframePositionUpdate()
 
 void NodeParamView::AddContext(Node *ctx)
 {
+  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+
+  // TEMP: Creating many NPV items is EXTREMELY slow so limit to one item per context for now.
+  //       I have a better solution in the works to use one UI for several nodes, but I haven't
+  //       done it yet, and this can severely affect productivity.
+  if (item->GetContexts().size() == 1) {
+    return;
+  }
+
   // Queued so that if any further work is done in connecting this node to the context, it'll be
   // done before our sorting function is called
   connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
   connect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext, Qt::QueuedConnection);
-
-  NodeParamViewContext *item = GetContextItemFromContext(ctx);
 
   item->AddContext(ctx);
   item->setVisible(true);
