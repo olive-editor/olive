@@ -112,12 +112,13 @@ TexturePtr Decoder::RetrieveVideo(const RetrieveVideoParams &p)
     return nullptr;
   }
 
-  if (cached_texture_ && cached_time_ == p.time) {
+  if (cached_texture_ && cached_time_ == p.time && cached_divider_ == p.divider) {
     return cached_texture_;
   }
 
   cached_texture_ = RetrieveVideoInternal(p);
   cached_time_ = p.time;
+  cached_divider_ = p.divider;
 
   return cached_texture_;
 }

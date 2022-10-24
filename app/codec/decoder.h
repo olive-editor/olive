@@ -316,6 +316,7 @@ private:
 
   TexturePtr cached_texture_;
   rational cached_time_;
+  int cached_divider_;
 
 };
 
