@@ -452,26 +452,31 @@ void TimelineWidget::DeleteSelected(bool ripple)
   }
 
   QVector<Block*> selected_list = GetSelectedBlocks();
-  QVector<Block*> blocks_to_delete;
-
-  foreach (Block* b, selected_list) {
-    blocks_to_delete.append(b);
-  }
 
   // No-op if nothing is selected
-  if (blocks_to_delete.isEmpty()) {
+  if (selected_list.isEmpty()) {
     return;
   }
 
   QVector<Block*> clips_to_delete;
   QVector<TransitionBlock*> transitions_to_delete;
 
-  foreach (Block* b, blocks_to_delete) {
+  bool all_gaps = true;
+
+  foreach (Block* b, selected_list) {
+    if (!dynamic_cast<GapBlock*>(b)) {
+      all_gaps = false;
+    }
+
     if (dynamic_cast<ClipBlock*>(b)) {
       clips_to_delete.append(b);
     } else if (dynamic_cast<TransitionBlock*>(b)) {
       transitions_to_delete.append(static_cast<TransitionBlock*>(b));
     }
+  }
+
+  if (all_gaps) {
+    ripple = true;
   }
 
   MultiUndoCommand* command = new MultiUndoCommand();
@@ -498,7 +503,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   if (ripple) {
     TimelineRippleDeleteGapsAtRegionsCommand::RangeList range_list;
 
-    foreach (Block* b, blocks_to_delete) {
+    foreach (Block* b, selected_list) {
       range_list.append({b->track(), b->range()});
       new_playhead = qMin(new_playhead, b->in());
     }
