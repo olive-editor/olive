@@ -352,6 +352,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
     bool bad_duration = false;
 
+    // Catch when ffmpeg uses its inaccurate method of duration estimation so we can 
+    // use manual calculation
     if (fmt_ctx->duration_estimation_method == AVFMT_DURATION_FROM_BITRATE) {
       bad_duration = true;
       qWarning() << "Potentially bad duration estimation, using fallback. This could be slow.";
