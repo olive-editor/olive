@@ -52,7 +52,6 @@ public:
     kTextGeneratorV2,
     kTextGeneratorV3,
     kTextAnimation,
-    kTextAnimationRender,
     kCrossDissolveTransition,
     kDipToColorTransition,
     kMosaicFilter,

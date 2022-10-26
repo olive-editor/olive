@@ -25,7 +25,7 @@ set(OLIVE_SOURCES
   node/generator/animation/textanimationxmlparser.h
   node/generator/animation/textanimationnode.cpp
   node/generator/animation/textanimationnode.h
-  node/generator/animation/textanimationrendernode.cpp
-  node/generator/animation/textanimationrendernode.h
+  node/generator/animation/textanimationrender.cpp
+  node/generator/animation/textanimationrender.h
   PARENT_SCOPE
 )

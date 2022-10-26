@@ -28,10 +28,7 @@
 #include "core.h"
 #include "node/project/project.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
-#include "node/generator/animation/textanimationxmlparser.h"
-#include "node/generator/animation/textanimationnode.h"
-
-#include <QDebug>  // TODO_
+#include "node/generator/animation/textanimationrender.h"
 
 
 namespace olive {
@@ -50,7 +47,9 @@ const QString TextGeneratorV3::kUseArgsInput = QStringLiteral("use_args_in");
 const QString TextGeneratorV3::kArgsInput = QStringLiteral("args_in");
 const QString TextGeneratorV3::kAnimatorsInput = QStringLiteral("animators_in");
 
-// TODO_ comment
+// We need to make this variable static because it is set in 'GizmoActivated' and used in 'GenerateFrame'.
+// These methods are not called from the same instance, but we assume that there is only one text that
+// is currently edited.
 bool TextGeneratorV3::editing_;
 
 
@@ -79,7 +78,6 @@ TextGeneratorV3::TextGeneratorV3() :
   connect(text_gizmo_, &TextGizmo::Activated, this, &TextGeneratorV3::GizmoActivated);
   connect(text_gizmo_, &TextGizmo::Deactivated, this, &TextGeneratorV3::GizmoDeactivated);
 
-  engine_ = new TextAnimationEngine();
   editing_ = false;
 }
 
@@ -173,7 +171,11 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   QVector2D pos = job.Get(kPositionInput).toVec2();
   p.translate(pos.x() - size.x()/2, pos.y() - size.y()/2);
   p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
-  p.setClipRect(0, 0, size.x(), size.y());
+
+  // when text is animated, it may go outside the clip rect
+  if (editing_ || (IsInputConnected(kAnimatorsInput) == false)) {
+    p.setClipRect(0, 0, size.x(), size.y());
+  }
 
   switch (static_cast<VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
   case kVAlignTop:
@@ -191,74 +193,16 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   QAbstractTextDocumentLayout::PaintContext ctx;
   ctx.palette.setColor(QPalette::Text, Qt::white);
 
-  qDebug() << "editing: " << editing_;
-
-  if (editing_) {
+  // When animators are not used, we use the default drawing method because
+  // the drawing method for animators makes some assumptions and may not work well
+  // for all languages (expecially right-to-left ones) and formatting options.
+  if (editing_ || (IsInputConnected(kAnimatorsInput) == false)) {
     text_doc.documentLayout()->draw(&p, ctx);
   }
   else {
-    int textSize = text_doc.characterCount();
-
-    QTextCursor cursor( &text_doc);
-    cursor.movePosition( QTextCursor::Start);
-    cursor.movePosition( QTextCursor::Right);
-
-    // 'kAnimatorsInput' holds a list of XML tags without main opening and closing tags.
-    // Prepend and append XML start and closing tags.
-    QString animators_xml = QStringLiteral("<TR>\n") +
-        job.Get(kAnimatorsInput).toString() +
-        QStringLiteral("</TR>");
-
-    QList<TextAnimation::Descriptor> animators = TextAnimationXmlParser::Parse( animators_xml);
-
-    engine_->SetTextSize( textSize);
-    engine_->SetAnimators( & animators);
-    engine_->Calulate();
-
-    int posx = 0;
-    int char_size = 0;
-    int line_Voffset = CalculateLineHeight(cursor);
-
-
-    const QVector<double> & horiz_offsets = engine_->HorizontalOffset();
-    const QVector<double> & vert_offsets = engine_->VerticalOffset();
-    const QVector<double> & rotations = engine_->Rotation();
-    const QVector<double> & spacings = engine_->Spacing();
-    const QVector<double> & horiz_stretches = engine_->HorizontalStretch();
-    const QVector<double> & vert_stretches = engine_->VerticalStretch();
-    const QVector<int> & transparencies = engine_->Transparency();
-
-    // parse the whole text document and print every character
-    for (int i=0; i < textSize; i++) {
-      QChar ch = text_doc.characterAt(i);
-
-      if ((ch == QChar::LineSeparator) ||
-          (ch == QChar::ParagraphSeparator) )
-      {
-        posx = 0;
-        cursor.movePosition( QTextCursor::Right);
-        line_Voffset += CalculateLineHeight(cursor);
-      }
-      else {
-
-        p.save();
-        p.setFont( cursor.charFormat().font());
-        QColor ch_color = cursor.charFormat().foreground().color();
-        // "transparencies" can be assumed to be in range 0 - 255
-        ch_color.setAlpha(255 - transparencies[i]);
-        p.setPen( ch_color);
-        p.translate( QPointF(posx + horiz_offsets[i],
-                             line_Voffset + vert_offsets[i]));
-        p.rotate( rotations[i]);
-        p.scale( 1.+ horiz_stretches[i], 1.+ vert_stretches[i]);
-        p.drawText( QPointF(0,0), ch);
-        p.restore();
-
-        char_size = QFontMetrics( cursor.charFormat().font()).horizontalAdvance(text_doc.characterAt(i));
-        posx += (int)(((double)char_size*(1. + (spacings[i])))*(1. + horiz_stretches[i]));
-        cursor.movePosition( QTextCursor::Right);
-      }
-    }
+    TextAnimationRender animated_text_render;
+    animated_text_render.render( job.Get(kAnimatorsInput).toString(),
+                                  text_doc, p);
   }
 }
 
@@ -368,23 +312,6 @@ void TextGeneratorV3::SetVerticalAlignmentUndoable(Qt::Alignment a)
   Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)));
 }
 
-int TextGeneratorV3::CalculateLineHeight(QTextCursor& start) const
-{
-  QTextCursor cur(start);
-  int height = QFontMetrics(cur.charFormat().font()).lineSpacing();
-  cur.movePosition( QTextCursor::Right);
 
-  while (cur.atBlockEnd() ==  false) {
-    int new_height = QFontMetrics(cur.charFormat().font()).lineSpacing();
-
-    if (new_height > height) {
-      height = new_height;
-    }
-
-    cur.movePosition( QTextCursor::Right);
-  }
-
-  return height;
-}
 
 }
