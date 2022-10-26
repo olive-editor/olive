@@ -383,6 +383,10 @@ void TimelineWidget::SplitAtPlayhead()
 
   // Get all blocks at the playhead
   foreach (Track* track, sequence()->GetTracks()) {
+    if (track->IsLocked()) {
+      continue;
+    }
+
     Block* b = track->BlockContainingTime(playhead_time);
 
     if (dynamic_cast<ClipBlock*>(b)) {
