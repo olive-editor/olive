@@ -350,6 +350,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
     int64_t footage_duration = fmt_ctx->duration;
 
+    bool duration_guessed_from_bitrate = (fmt_ctx->duration_estimation_method == AVFMT_DURATION_FROM_BITRATE);
+
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 
@@ -409,8 +411,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
               if (ret >= 0) {
                 // Check if we need a manual duration
-                if (avstream->duration == AV_NOPTS_VALUE) {
-                  if (footage_duration == AV_NOPTS_VALUE) {
+                if (avstream->duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
+                  if (footage_duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
 
                     // Manually read through file for duration
                     int64_t new_dur;
@@ -468,9 +470,9 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
             channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(avstream->codecpar->channels));
           }
 
-          if (avstream->duration == AV_NOPTS_VALUE) {
+          if (avstream->duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
             // Loop through stream until we get the whole duration
-            if (footage_duration == AV_NOPTS_VALUE) {
+            if (footage_duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
               Instance instance;
               instance.Open(filename_c, avstream->index);
 
