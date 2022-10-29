@@ -102,7 +102,6 @@ set(QT_LIBRARIES
   OpenGL
   LinguistTools
   Concurrent
-  OpenGLWidgets
 )
 if (UNIX AND NOT APPLE)
   list(APPEND QT_LIBRARIES DBus)
@@ -131,6 +130,11 @@ list(APPEND OLIVE_LIBRARIES
 )
 
 if (${QT_VERSION_MAJOR} EQUAL "6")
+  find_package(Qt${QT_VERSION_MAJOR}
+    REQUIRED
+      OpenGLWidgets
+  )
+
   list(APPEND OLIVE_LIBRARIES
     Qt${QT_VERSION_MAJOR}::OpenGLWidgets
   )
