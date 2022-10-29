@@ -47,6 +47,8 @@ TransitionBlock::TransitionBlock() :
   AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
+
+  SetFlags(GetFlags() & ~kDontShowInParamView);
 }
 
 void TransitionBlock::Retranslate()
@@ -171,10 +173,14 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
 
     if (out_buffer.type() != NodeValue::kNone) {
       job.Insert(kOutBlockInput, out_buffer);
+    } else {
+      job.Insert(kOutBlockInput, NodeValue(NodeValue::kTexture, nullptr));
     }
 
     if (in_buffer.type() != NodeValue::kNone) {
       job.Insert(kInBlockInput, in_buffer);
+    } else {
+      job.Insert(kInBlockInput, NodeValue(NodeValue::kTexture, nullptr));
     }
 
     job.Insert(kCurveInput, value);

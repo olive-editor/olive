@@ -39,7 +39,7 @@ H264Section::H264Section(int default_crf, QWidget *parent) :
   CodecSection(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
   layout->addWidget(new QLabel(tr("Encode Speed:")), row, 0);
@@ -173,7 +173,7 @@ H264CRFSection::H264CRFSection(int default_crf, QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   crf_slider_ = new QSlider(Qt::Horizontal);
   crf_slider_->setMinimum(kMinimumCRF);
@@ -207,7 +207,7 @@ H264BitRateSection::H264BitRateSection(QWidget *parent) :
   QWidget(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -261,7 +261,7 @@ H264FileSizeSection::H264FileSizeSection(QWidget *parent) :
   QWidget(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 

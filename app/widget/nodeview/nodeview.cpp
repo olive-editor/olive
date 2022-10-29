@@ -44,6 +44,7 @@
 namespace olive {
 
 const double NodeView::kMinimumScale = 0.1;
+const int NodeView::kMaximumContexts = 10;
 
 NodeView::NodeView(QWidget *parent) :
   HandMovableView(parent),
@@ -102,6 +103,10 @@ void NodeView::SetContexts(const QVector<Node*> &nodes)
 
   // Add contexts that are now in the list
   foreach (Node *n, nodes) {
+    if (scene_.context_map().size() >= kMaximumContexts) {
+      break;
+    }
+
     if (!contexts_.contains(n)) {
       AddContext(n);
     }

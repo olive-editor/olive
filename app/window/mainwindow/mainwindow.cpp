@@ -22,7 +22,6 @@
 
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QMessageBox>
 #include <QScreen>
 

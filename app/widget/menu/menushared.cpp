@@ -20,6 +20,8 @@
 
 #include "menushared.h"
 
+#include <QActionGroup>
+
 #include "core.h"
 #include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"

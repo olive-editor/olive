@@ -38,7 +38,7 @@ Toolbar::Toolbar(QWidget *parent) :
   super(parent)
 {
   layout_ = new FlowLayout(this);
-  layout_->setMargin(0);
+  layout_->setContentsMargins(0, 0, 0, 0);
 
   // Create standard tool buttons
   btn_pointer_tool_ = CreateToolButton(Tool::kPointer);

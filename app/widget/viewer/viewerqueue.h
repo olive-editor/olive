@@ -21,8 +21,6 @@
 #ifndef VIEWERQUEUE_H
 #define VIEWERQUEUE_H
 
-#include <QLinkedList>
-
 #include "codec/frame.h"
 
 namespace olive {

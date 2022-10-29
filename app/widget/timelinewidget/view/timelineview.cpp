@@ -56,6 +56,8 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
   viewport()->setMouseTracking(true);
+
+  SetIsTimelineAxes(true);
 }
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
@@ -145,61 +147,6 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
   TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MouseDoubleClicked(&timeline_event);
-}
-
-void TimelineView::wheelEvent(QWheelEvent *event)
-{
-  if (WheelEventIsAZoomEvent(event)) {
-    super::wheelEvent(event);
-  } else {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-
-    QPoint angle_delta = event->angleDelta();
-
-    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool() // Check if config is set to invert timeline axes
-        && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
-      angle_delta = QPoint(angle_delta.y(), angle_delta.x());
-    }
-
-    QWheelEvent e(
-      #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-          event->position(),
-          event->globalPosition(),
-      #else
-          event->pos(),
-          event->globalPos(),
-      #endif
-          event->pixelDelta(),
-          angle_delta,
-          event->buttons(),
-          event->modifiers(),
-          event->phase(),
-          event->inverted(),
-          event->source()
-          );
-
-#else
-
-    Qt::Orientation orientation = event->orientation();
-
-    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool()) {
-      orientation = (orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
-    }
-
-    QWheelEvent e(
-          event->pos(),
-          event->globalPos(),
-          event->pixelDelta(),
-          event->angleDelta(),
-          event->delta(),
-          orientation,
-          event->buttons(),
-          event->modifiers()
-          );
-#endif
-
-    super::wheelEvent(&e);
-  }
 }
 
 void TimelineView::dragEnterEvent(QDragEnterEvent *event)

@@ -20,6 +20,7 @@
 
 #include "mainmenu.h"
 
+#include <QActionGroup>
 #include <QDesktopServices>
 #include <QEvent>
 #include <QStyleFactory>

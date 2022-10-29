@@ -82,7 +82,7 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   // Create main OpenGL-based view and sizer
   sizer_ = new ViewerSizer();
@@ -114,7 +114,6 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
   ConnectTimelineView(waveform_view_, true);
-  PassWheelEventsToScrollBar(waveform_view_);
   layout->addWidget(waveform_view_);
 
   // Create time ruler
@@ -122,8 +121,6 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
 
   // Create scrollbar
   layout->addWidget(scrollbar());
-  connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
-  connect(scrollbar(), &QScrollBar::valueChanged, waveform_view_, &AudioWaveformView::SetScroll);
 
   // Create lower controls
   controls_ = new PlaybackControls();
@@ -169,6 +166,9 @@ ViewerWidget::~ViewerWidget()
   foreach (ViewerWindow* window, windows) {
     delete window;
   }
+
+  delete display_widget_;
+  display_widget_ = nullptr;
 }
 
 void ViewerWidget::TimeChangedEvent(const rational &time)
@@ -1149,7 +1149,7 @@ RenderTicketPtr ViewerWidget::GetFrame(const rational &t)
     // Frame has been cached, grab the frame
     RenderTicketPtr ticket = std::make_shared<RenderTicket>();
     ticket->setProperty("time", QVariant::fromValue(t));
-    QtConcurrent::run(ViewerWidget::DecodeCachedImage, ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), GetConnectedNode()->video_frame_cache()->GetUuid(), Timecode::time_to_timestamp(t, timebase(), Timecode::kFloor));
+    QtConcurrent::run(static_cast<void(*)(RenderTicketPtr, const QString &, const QUuid &, const int64_t &)>(ViewerWidget::DecodeCachedImage), ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), GetConnectedNode()->video_frame_cache()->GetUuid(), Timecode::time_to_timestamp(t, timebase(), Timecode::kFloor));
     return ticket;
   }
 }

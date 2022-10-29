@@ -198,15 +198,6 @@ void Core::Stop()
   // Save Config
   Config::Save();
 
-  // Save recently opened projects
-  {
-    QFile recent_projects_file(GetRecentProjectsFilePath());
-    if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
-      recent_projects_file.write(recent_projects_.join('\n').toUtf8());
-      recent_projects_file.close();
-    }
-  }
-
   ProjectSerializer::Destroy();
 
   ConformManager::DestroyInstance();
@@ -292,6 +283,7 @@ void Core::SetSelectedTransitionObject(const QString &obj)
 void Core::ClearOpenRecentList()
 {
   recent_projects_.clear();
+  SaveRecentProjectsList();
   emit OpenRecentListChanged();
 }
 
@@ -960,6 +952,16 @@ bool Core::RevertProjectInternal(Project *p, bool by_opening_existing)
   return false;
 }
 
+void Core::SaveRecentProjectsList()
+{
+  // Save recently opened projects
+  QFile recent_projects_file(GetRecentProjectsFilePath());
+  if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
+    recent_projects_file.write(recent_projects_.join('\n').toUtf8());
+    recent_projects_file.close();
+  }
+}
+
 void Core::SaveAutorecovery()
 {
   if (OLIVE_CONFIG("AutorecoveryEnabled").toBool()) {
@@ -1372,6 +1374,8 @@ void Core::PushRecentlyOpenedProject(const QString& s)
     }
   }
 
+  SaveRecentProjectsList();
+
   emit OpenRecentListChanged();
 }
 
@@ -1522,6 +1526,8 @@ void Core::OpenProjectFromRecentList(int index)
                                       tr("The project \"%1\" doesn't exist. Would you like to remove this file from the recent list?").arg(open_fn),
                                       QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     recent_projects_.removeAt(index);
+
+    SaveRecentProjectsList();
 
     emit OpenRecentListChanged();
   }

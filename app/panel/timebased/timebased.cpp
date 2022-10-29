@@ -29,6 +29,11 @@ TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
 {
 }
 
+TimeBasedPanel::~TimeBasedPanel()
+{
+  delete widget_;
+}
+
 rational TimeBasedPanel::GetTime()
 {
   return widget_->GetTime();

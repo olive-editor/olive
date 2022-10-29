@@ -24,6 +24,7 @@ extern "C" {
 #include <libavutil/mathematics.h>
 }
 
+#include <QRegularExpression>
 #include <QtMath>
 
 #include "config/config.h"
@@ -149,7 +150,7 @@ int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational 
   case kTimecodeSeconds:
   {
     const int kTimecodeElementCount = 4;
-    QStringList timecode_split = timecode.split(QRegExp("(:)|(;)|(\\.)"));
+    QStringList timecode_split = timecode.split(QRegularExpression("(:)|(;)|(\\.)"));
 
     bool valid;
 

@@ -32,6 +32,8 @@ class TimeBasedPanel : public PanelWidget
 public:
   TimeBasedPanel(const QString& object_name, QWidget *parent = nullptr);
 
+  virtual ~TimeBasedPanel() override;
+
   void ConnectViewerNode(ViewerOutput *node);
 
   void DisconnectViewerNode()

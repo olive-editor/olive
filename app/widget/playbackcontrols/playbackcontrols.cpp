@@ -37,7 +37,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   // Create lower controls
   QHBoxLayout* lower_control_layout = new QHBoxLayout(this);
   lower_control_layout->setSpacing(0);
-  lower_control_layout->setMargin(0);
+  lower_control_layout->setContentsMargins(0, 0, 0, 0);
 
   QSizePolicy lower_container_size_policy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   lower_container_size_policy.setHorizontalStretch(1);
@@ -51,7 +51,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   QHBoxLayout* lower_left_layout = new QHBoxLayout(lower_left_container_);
   lower_left_layout->setSpacing(0);
-  lower_left_layout->setMargin(0);
+  lower_left_layout->setContentsMargins(0, 0, 0, 0);
 
   cur_tc_lbl_ = new RationalSlider();
   cur_tc_lbl_->SetDisplayType(RationalSlider::kTime);
@@ -73,7 +73,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   QHBoxLayout* lower_middle_layout = new QHBoxLayout(lower_middle_container);
   lower_middle_layout->setSpacing(0);
-  lower_middle_layout->setMargin(0);
+  lower_middle_layout->setContentsMargins(0, 0, 0, 0);
   lower_middle_layout->addStretch();
 
   QSizePolicy btn_sz_policy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -124,7 +124,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   av_btn_widget->setSizePolicy(lower_container_size_policy);
   QHBoxLayout* av_btn_layout = new QHBoxLayout(av_btn_widget);
   av_btn_layout->setSpacing(0);
-  av_btn_layout->setMargin(0);
+  av_btn_layout->setContentsMargins(0, 0, 0, 0);
   video_drag_btn_ = new DragButton();
   connect(video_drag_btn_, &QPushButton::clicked, this, &PlaybackControls::VideoClicked);
   connect(video_drag_btn_, &DragButton::MousePressed, this, &PlaybackControls::VideoPressed);
@@ -143,7 +143,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   QHBoxLayout* lower_right_layout = new QHBoxLayout(lower_right_container_);
   lower_right_layout->setSpacing(0);
-  lower_right_layout->setMargin(0);
+  lower_right_layout->setContentsMargins(0, 0, 0, 0);
 
   lower_right_layout->addStretch();
   end_tc_lbl_ = new QLabel();

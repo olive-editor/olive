@@ -46,7 +46,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   QSplitter* splitter = new QSplitter(Qt::Horizontal);
   layout->addWidget(splitter);
@@ -113,7 +113,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     QWidget* keyframe_area = new QWidget();
     QVBoxLayout* keyframe_area_layout = new QVBoxLayout(keyframe_area);
     keyframe_area_layout->setSpacing(0);
-    keyframe_area_layout->setMargin(0);
+    keyframe_area_layout->setContentsMargins(0, 0, 0, 0);
 
     // Create ruler object
     keyframe_area_layout->addWidget(ruler());
@@ -132,9 +132,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
     connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
 
-    // Connect keyframe view scaling to this
-    connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
-
     splitter->addWidget(keyframe_area);
 
     // Set both widgets to 50/50
@@ -148,8 +145,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
     keyframe_view_->setHorizontalScrollBar(scrollbar());
     keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-    connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   } else {
     keyframe_view_ = nullptr;
   }
@@ -697,12 +692,19 @@ void NodeParamView::QueueKeyframePositionUpdate()
 
 void NodeParamView::AddContext(Node *ctx)
 {
+  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+
+  // TEMP: Creating many NPV items is EXTREMELY slow so limit to one item per context for now.
+  //       I have a better solution in the works to use one UI for several nodes, but I haven't
+  //       done it yet, and this can severely affect productivity.
+  if (item->GetContexts().size() == 1) {
+    return;
+  }
+
   // Queued so that if any further work is done in connecting this node to the context, it'll be
   // done before our sorting function is called
   connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
   connect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext, Qt::QueuedConnection);
-
-  NodeParamViewContext *item = GetContextItemFromContext(ctx);
 
   item->AddContext(ctx);
   item->setVisible(true);

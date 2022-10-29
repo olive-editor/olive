@@ -53,7 +53,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   QWidget* workarea = new QWidget();
   QVBoxLayout* layout = new QVBoxLayout(workarea);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   splitter->addWidget(workarea);
 
   QHBoxLayout* top_controls = new QHBoxLayout();
@@ -86,7 +86,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   // We use a separate layout for the ruler+view combination so that there's no spacing between them
   QVBoxLayout* ruler_view_layout = new QVBoxLayout();
-  ruler_view_layout->setMargin(0);
+  ruler_view_layout->setContentsMargins(0, 0, 0, 0);
   ruler_view_layout->setSpacing(0);
 
   ruler_view_layout->addWidget(ruler());
@@ -101,13 +101,11 @@ CurveWidget::CurveWidget(QWidget *parent) :
   // Connect ruler and view together
   connect(view_, &CurveView::TimeChanged, this, &CurveWidget::SetTimeAndSignal);
   connect(view_, &CurveView::SelectionChanged, this, &CurveWidget::SelectionChanged);
-  connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
   connect(view_, &CurveView::Dragged, this, &CurveWidget::KeyframeViewDragged);
   connect(view_, &CurveView::Released, this, &CurveWidget::KeyframeViewReleased);
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   view_->setHorizontalScrollBar(scrollbar());
-  connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   // Disable collapsing the main curve view (but allow collapsing the tree)
   splitter->setCollapsible(1, false);

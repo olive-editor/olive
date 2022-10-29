@@ -63,6 +63,8 @@ SeekableWidget::SeekableWidget(QWidget* parent) :
   setMouseTracking(true);
 
   selection_manager_.SetSnapMask(TimeBasedWidget::kSnapAll);
+
+  SetIsTimelineAxes(true);
 }
 
 void SeekableWidget::SetMarkers(TimelineMarkerList *markers)

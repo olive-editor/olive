@@ -54,8 +54,6 @@ private:
 
   static QMap<QString, QString> available_themes_;
 
-  static QPalette platform_palette_;
-
 };
 
 }

@@ -44,7 +44,7 @@ add_subdirectory(widget)
 add_subdirectory(window)
 
 # Add translations
-qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
+qt_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
 
 set(QRC_BODY "")
 foreach(QM_FILE ${OLIVE_QM_FILES})
@@ -64,7 +64,7 @@ add_library(olive-version-obj
   version.cpp
   version.h
 )
-target_link_libraries(olive-version-obj PRIVATE Qt5::Core)
+target_link_libraries(olive-version-obj PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 target_compile_options(olive-version-obj PRIVATE -DAPPVERSION="${PROJECT_VERSION}" -DAPPVERSIONLONG="${PROJECT_LONG_VERSION}" )
 
 # Add main library
@@ -142,6 +142,6 @@ target_include_directories(olive-editor PRIVATE ${OLIVE_INCLUDE_DIRS})
 target_include_directories(libolive-editor PRIVATE ${OLIVE_INCLUDE_DIRS})
 
 # Add crash handler
-if (GoogleCrashpad_FOUND AND Qt5Network_FOUND)
+if (GoogleCrashpad_FOUND AND Qt${QT_VERSION_MAJOR}Network_FOUND)
   add_subdirectory(crashhandler)
 endif()

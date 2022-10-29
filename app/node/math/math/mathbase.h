@@ -38,6 +38,8 @@ public:
     kOpPower
   };
 
+  static QString GetOperationName(Operation o);
+
 protected:
   enum Pairing {
     kPairNone = -1,

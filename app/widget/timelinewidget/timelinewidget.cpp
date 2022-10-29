@@ -73,7 +73,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 {
   QVBoxLayout* vert_layout = new QVBoxLayout(this);
   vert_layout->setSpacing(0);
-  vert_layout->setMargin(0);
+  vert_layout->setContentsMargins(0, 0, 0, 0);
 
   QHBoxLayout* ruler_and_time_layout = new QHBoxLayout();
   vert_layout->addLayout(ruler_and_time_layout);
@@ -129,7 +129,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.append(import_tool_);
 
   // Global scrollbar
-  connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   connect(views_.first()->view()->horizontalScrollBar(), &QScrollBar::rangeChanged, scrollbar(), &QScrollBar::setRange);
   vert_layout->addWidget(scrollbar());
 
@@ -146,12 +145,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     ConnectTimelineView(view, false);
 
-    connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
-    connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
     connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::SetTimeAndSignal);
     connect(view, &TimelineView::customContextMenuRequested, this, &TimelineWidget::ShowContextMenu);
-    connect(scrollbar(), &QScrollBar::valueChanged, view->horizontalScrollBar(), &QScrollBar::setValue);
-    connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
 
     connect(view, &TimelineView::MousePressed, this, &TimelineWidget::ViewMousePressed);
     connect(view, &TimelineView::MouseMoved, this, &TimelineWidget::ViewMouseMoved);
@@ -163,15 +158,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, &TimelineView::DragDropped, this, &TimelineWidget::ViewDragDropped);
 
     connect(tview->splitter(), &QSplitter::splitterMoved, this, &TimelineWidget::UpdateHorizontalSplitters);
-
-    // Connect each view's scroll to each other
-    foreach (TimelineAndTrackView* other_tview, views_) {
-      TimelineView* other_view = other_tview->view();
-
-      if (view != other_view) {
-        connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, other_view->horizontalScrollBar(), &QScrollBar::setValue);
-      }
-    }
   }
 
   // Split viewer 50/50
@@ -452,26 +438,31 @@ void TimelineWidget::DeleteSelected(bool ripple)
   }
 
   QVector<Block*> selected_list = GetSelectedBlocks();
-  QVector<Block*> blocks_to_delete;
-
-  foreach (Block* b, selected_list) {
-    blocks_to_delete.append(b);
-  }
 
   // No-op if nothing is selected
-  if (blocks_to_delete.isEmpty()) {
+  if (selected_list.isEmpty()) {
     return;
   }
 
   QVector<Block*> clips_to_delete;
   QVector<TransitionBlock*> transitions_to_delete;
 
-  foreach (Block* b, blocks_to_delete) {
+  bool all_gaps = true;
+
+  foreach (Block* b, selected_list) {
+    if (!dynamic_cast<GapBlock*>(b)) {
+      all_gaps = false;
+    }
+
     if (dynamic_cast<ClipBlock*>(b)) {
       clips_to_delete.append(b);
     } else if (dynamic_cast<TransitionBlock*>(b)) {
       transitions_to_delete.append(static_cast<TransitionBlock*>(b));
     }
+  }
+
+  if (all_gaps) {
+    ripple = true;
   }
 
   MultiUndoCommand* command = new MultiUndoCommand();
@@ -498,7 +489,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   if (ripple) {
     TimelineRippleDeleteGapsAtRegionsCommand::RangeList range_list;
 
-    foreach (Block* b, blocks_to_delete) {
+    foreach (Block* b, selected_list) {
       range_list.append({b->track(), b->range()});
       new_playhead = qMin(new_playhead, b->in());
     }
@@ -795,15 +786,20 @@ void TimelineWidget::RecordingCallback(const QString &filename, const TimeRange 
   ProjectImportTask task(GetConnectedNode()->project()->root(), {filename});
   task.Start();
 
-  MultiUndoCommand *import_command = task.GetCommand();
+  auto subimport_command = task.GetCommand();
 
   if (task.GetImportedFootage().empty()) {
     qCritical() << "Failed to import recorded audio file" << filename;
+    delete subimport_command;
   } else {
-    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
-  }
+    subimport_command->redo_now();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(import_command);
+    auto import_command = new MultiUndoCommand();
+    import_command->add_child(subimport_command);
+
+    import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
+    Core::instance()->undo_stack()->pushIfHasChildren(import_command);
+  }
 }
 
 void TimelineWidget::EnableRecordingOverlay(const TimelineCoordinate &coord)
@@ -1465,7 +1461,7 @@ void TimelineWidget::CacheClipsInOut()
   for (Block *b : qAsConst(selected_blocks_)) {
     if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
       if (Node *connected = clip->GetConnectedOutput(clip->kBufferIn)) {
-        TimeRange adjusted = tto.GetAdjustedTime(this->sequence(), connected, r, true);
+        TimeRange adjusted = tto.GetAdjustedTime(this->sequence(), connected, r, Node::kTransformTowardsInput);
         clip->RequestInvalidatedFromConnected(true, adjusted);
       }
     }

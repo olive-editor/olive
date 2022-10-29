@@ -48,6 +48,15 @@ class ManagedDisplayWidgetOpenGL
 public:
   ManagedDisplayWidgetOpenGL() = default;
 
+  virtual ~ManagedDisplayWidgetOpenGL() override
+  {
+    if (context()) {
+      DestroyListener();
+      disconnect(context(), &QOpenGLContext::aboutToBeDestroyed,
+                 this, &ManagedDisplayWidgetOpenGL::DestroyListener);
+    }
+  }
+
 signals:
   // Render signals
   void OnInit();

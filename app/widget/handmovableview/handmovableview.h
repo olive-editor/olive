@@ -50,6 +50,8 @@ protected:
 
   virtual void ZoomIntoCursorPosition(QWheelEvent* event, double multiplier, const QPointF &cursor_pos);
 
+  void SetIsTimelineAxes(bool e) { is_timeline_axes_ = e; }
+
 private:
   bool dragging_hand_;
   DragMode pre_hand_drag_mode_;
@@ -57,6 +59,8 @@ private:
   DragMode default_drag_mode_;
 
   QPointF transformed_pos_;
+
+  bool is_timeline_axes_;
 
 private slots:
   void ApplicationToolChanged(Tool::Item tool);
