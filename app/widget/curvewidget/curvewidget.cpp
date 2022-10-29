@@ -53,7 +53,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   QWidget* workarea = new QWidget();
   QVBoxLayout* layout = new QVBoxLayout(workarea);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   splitter->addWidget(workarea);
 
   QHBoxLayout* top_controls = new QHBoxLayout();
@@ -86,7 +86,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   // We use a separate layout for the ruler+view combination so that there's no spacing between them
   QVBoxLayout* ruler_view_layout = new QVBoxLayout();
-  ruler_view_layout->setMargin(0);
+  ruler_view_layout->setContentsMargins(0, 0, 0, 0);
   ruler_view_layout->setSpacing(0);
 
   ruler_view_layout->addWidget(ruler());

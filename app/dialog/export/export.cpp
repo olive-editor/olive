@@ -58,7 +58,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
 
   preferences_area_ = new QWidget();
   QGridLayout* preferences_layout = new QGridLayout(preferences_area_);
-  preferences_layout->setMargin(0);
+  preferences_layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -183,7 +183,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   row++;
 
   QHBoxLayout *btn_layout = new QHBoxLayout();
-  btn_layout->setMargin(0);
+  btn_layout->setContentsMargins(0, 0, 0, 0);
   preferences_layout->addLayout(btn_layout, row, 0, 1, 4);
 
   btn_layout->addStretch();
@@ -437,7 +437,7 @@ void ExportDialog::PresetComboBoxChanged()
   if (loading_presets_) {
     return;
   }
-  
+
   QComboBox *c = static_cast<QComboBox *>(sender());
 
   int preset_number = c->currentData().toInt();

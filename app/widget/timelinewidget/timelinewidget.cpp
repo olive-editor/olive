@@ -73,7 +73,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 {
   QVBoxLayout* vert_layout = new QVBoxLayout(this);
   vert_layout->setSpacing(0);
-  vert_layout->setMargin(0);
+  vert_layout->setContentsMargins(0, 0, 0, 0);
 
   QHBoxLayout* ruler_and_time_layout = new QHBoxLayout();
   vert_layout->addLayout(ruler_and_time_layout);

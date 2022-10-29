@@ -12,22 +12,7 @@ const QVector<QString> Html::kBlockTags = {
   QStringLiteral("div")
 };
 
-inline bool StrEquals(const QString &a, const QStringRef &b)
-{
-  return !a.compare(b, Qt::CaseInsensitive);
-}
-
-inline bool StrEquals(const QString &a, const QString &b)
-{
-  return !a.compare(b, Qt::CaseInsensitive);
-}
-
-inline bool StrEquals(const QStringRef &a, const QString &b)
-{
-  return !a.compare(b, Qt::CaseInsensitive);
-}
-
-inline bool StrEquals(const QStringRef &a, const QStringRef &b)
+inline bool StrEquals(const QStringView &a, const QStringView &b)
 {
   return !a.compare(b, Qt::CaseInsensitive);
 }
@@ -421,7 +406,7 @@ QMap<QString, QStringList> Html::GetCSSFromStyle(const QString &s)
     // match. Also commas should be filtered out.
     QStringList values;
     const QString &val = kv.at(1);
-    QChar in_quote = 0;
+    QChar in_quote(0);
     QString current_str;
     for (int i=0; i<val.size(); i++) {
       const QChar &current_char = val.at(i);
@@ -429,7 +414,7 @@ QMap<QString, QStringList> Html::GetCSSFromStyle(const QString &s)
       if (!in_quote.isNull()) {
         // If inside quotes and character isn't quote, indiscriminately append char
         if (current_char == in_quote) {
-          in_quote = 0;
+          in_quote = QChar(0);
         } else {
           current_str.append(current_char);
         }

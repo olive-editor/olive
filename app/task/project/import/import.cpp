@@ -35,7 +35,7 @@ ProjectImportTask::ProjectImportTask(Folder *folder, const QStringList &filename
   folder_(folder)
 {
   foreach (const QString& f, filenames) {
-    filenames_.append(f);
+    filenames_.append(QFileInfo(f));
   }
 
   file_count_ = Core::CountFilesInFileList(filenames_);

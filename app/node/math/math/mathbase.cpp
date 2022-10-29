@@ -141,9 +141,9 @@ QVector4D MathNodeBase::RetrieveVector(const NodeValue &val)
   // QVariant doesn't know that QVector*D can convert themselves so we do it here
   switch (val.type()) {
   case NodeValue::kVec2:
-    return val.toVec2();
+    return QVector4D(val.toVec2());
   case NodeValue::kVec3:
-    return val.toVec3();
+    return QVector4D(val.toVec3());
   case NodeValue::kVec4:
   default:
     return val.toVec4();

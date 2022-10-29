@@ -46,7 +46,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   QSplitter* splitter = new QSplitter(Qt::Horizontal);
   layout->addWidget(splitter);
@@ -113,7 +113,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     QWidget* keyframe_area = new QWidget();
     QVBoxLayout* keyframe_area_layout = new QVBoxLayout(keyframe_area);
     keyframe_area_layout->setSpacing(0);
-    keyframe_area_layout->setMargin(0);
+    keyframe_area_layout->setContentsMargins(0, 0, 0, 0);
 
     // Create ruler object
     keyframe_area_layout->addWidget(ruler());

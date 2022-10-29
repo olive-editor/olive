@@ -37,7 +37,7 @@ TaskView::TaskView(QWidget* parent) :
   // Create layout for central widget
   layout_ = new QVBoxLayout(central_widget_);
   layout_->setSpacing(0);
-  layout_->setMargin(0);
+  layout_->setContentsMargins(0, 0, 0, 0);
 
   // Add a "stretch" so that TaskViewItems don't try to expand all the way to the bottom
   layout_->addStretch();

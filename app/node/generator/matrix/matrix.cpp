@@ -128,7 +128,7 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
                                            QMatrix4x4 mat)
 {
   // Position
-  mat.translate(pos);
+  mat.translate(pos.x(), pos.y());
 
   // Rotation
   mat.rotate(rot, 0, 0, 1);
@@ -143,7 +143,7 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
   mat.scale(full_scale);
 
   // Anchor Point
-  mat.translate(-anchor);
+  mat.translate(-anchor.x(), -anchor.y());
 
   return mat;
 }

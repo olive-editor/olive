@@ -25,7 +25,6 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDebug>
-#include <QLinkedList>
 #include <QMutex>
 #include <QTimer>
 #include <stdint.h>
