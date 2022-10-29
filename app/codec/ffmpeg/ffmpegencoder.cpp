@@ -289,11 +289,16 @@ bool FFmpegEncoder::WriteAudio(const SampleBuffer &audio)
     input_sample_count = audio.sample_count();
     int input_linesize;
 
-    av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio.audio_params().channel_count(),
-                                       input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio.audio_params().format()), 0);
+    int r = av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio.audio_params().channel_count(),
+                                               input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio.audio_params().format()), 0);
 
-    for (int i=0; i<audio.audio_params().channel_count(); i++) {
-      memcpy(input_data[i], audio.data(i), input_sample_count * audio.audio_params().bytes_per_sample_per_channel());
+    if (r < 0) {
+      FFmpegError(tr("Failed to allocate sample array"), r);
+      return false;
+    } else {
+      for (int i=0; i<audio.audio_params().channel_count(); i++) {
+        memcpy(input_data[i], audio.data(i), input_sample_count * audio.audio_params().bytes_per_sample_per_channel());
+      }
     }
   }
 
