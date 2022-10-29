@@ -81,6 +81,13 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   inner_widget()->setAcceptDrops(true);
 }
 
+ViewerDisplayWidget::~ViewerDisplayWidget()
+{
+  delete text_edit_;
+
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;
+}
+
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
 {
   translate_matrix_ = mat;

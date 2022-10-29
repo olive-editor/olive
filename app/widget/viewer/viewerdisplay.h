@@ -68,7 +68,7 @@ public:
    */
   ViewerDisplayWidget(QWidget* parent = nullptr);
 
-  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ViewerDisplayWidget)
+  virtual ~ViewerDisplayWidget() override;
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
