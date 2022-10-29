@@ -208,8 +208,9 @@ void Html::WriteCSSProperty(QString *style, const QString &key, const QStringLis
 
 void Html::WriteCharFormat(QString *style, const QTextCharFormat &fmt)
 {
-  if (!fmt.fontFamily().isEmpty()) {
-    WriteCSSProperty(style, QStringLiteral("font-family"), fmt.fontFamily());
+  QStringList families = fmt.fontFamilies().toStringList();
+  if (!families.isEmpty()) {
+    WriteCSSProperty(style, QStringLiteral("font-family"), families.first());
   }
 
   if (fmt.hasProperty(QTextFormat::FontPointSize)) {
@@ -287,7 +288,7 @@ QTextCharFormat Html::ReadCharFormat(const QXmlStreamAttributes &attributes)
         const QString &first_val = it.value().first();
 
         if (it.key() == QStringLiteral("font-family")) {
-          fmt.setFontFamily(first_val);
+          fmt.setFontFamilies({first_val});
         } else if (it.key() == QStringLiteral("font-size")) {
           if (first_val.endsWith(QStringLiteral("pt"), Qt::CaseInsensitive)) {
             fmt.setFontPointSize(first_val.chopped(2).toDouble());

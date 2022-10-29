@@ -152,15 +152,16 @@ void ViewerTextEditor::paintEvent(QPaintEvent *e)
 
 void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment)
 {
-  QFontDatabase fd;
-
-  QString family = f.fontFamily();
-  if (family.isEmpty()) {
+  QStringList families = f.fontFamilies().toStringList();
+  QString family;
+  if (families.isEmpty()) {
     family = qApp->font().family();
+  } else {
+    family = families.first();
   }
 
   QString style = f.fontStyleName().toString();
-  QStringList styles = fd.styles(family);
+  QStringList styles = QFontDatabase::styles(family);
   if (!styles.isEmpty() && (style.isEmpty() || !styles.contains(style))) {
     // There seems to be no better way to find the "regular" style outside of this heuristic.
     // Feel free to add more if a font isn't working right.
