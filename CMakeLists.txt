@@ -119,7 +119,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED
   OPTIONAL_COMPONENTS
     Network
 )
-message("Qt version: " ${QT_VERSION_MAJOR})
 if (NOT Qt${QT_VERSION_MAJOR}Network_FOUND)
   message("   Qt${QT_VERSION_MAJOR}::Network module not found, crash reporting will be disabled.")
 endif()
@@ -129,8 +128,13 @@ list(APPEND OLIVE_LIBRARIES
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::OpenGL
   Qt${QT_VERSION_MAJOR}::Concurrent
-  Qt${QT_VERSION_MAJOR}::OpenGLWidgets
 )
+
+if (${QT_VERSION_MAJOR} EQUAL "6")
+  list(APPEND OLIVE_LIBRARIES
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+  )
+endif()
 
 # Link FFmpeg
 find_package(FFMPEG 3.0 REQUIRED
