@@ -5,10 +5,10 @@ uniform sampler2D v_channel;
 uniform int bits_per_pixel;
 uniform bool full_range;
 
-uniform int yuv_crv;
-uniform int yuv_cgu;
-uniform int yuv_cgv;
-uniform int yuv_cbu;
+uniform float yuv_crv;
+uniform float yuv_cgu;
+uniform float yuv_cgv;
+uniform float yuv_cbu;
 
 uniform int interlacing;
 uniform int pixel_height;
@@ -51,15 +51,10 @@ void main()
   yuv.b = yuv.b - 0.5;
 
   // Use coefficients to weigh YUV into RGB
-  float crv = float(yuv_crv) / 65536.0;
-  float cgu = float(yuv_cgu) / 65536.0;
-  float cgv = float(yuv_cgv) / 65536.0;
-  float cbu = float(yuv_cbu) / 65536.0;
-
   vec4 rgba;
-  rgba.r = yuv.r + crv * yuv.b;
-  rgba.g = yuv.r - cgu * yuv.g - cgv * yuv.b;
-  rgba.b = yuv.r + cbu * yuv.g;
+  rgba.r = yuv.r + yuv_crv * yuv.b;
+  rgba.g = yuv.r - yuv_cgu * yuv.g - yuv_cgv * yuv.b;
+  rgba.b = yuv.r + yuv_cbu * yuv.g;
 
   // If the expected value is full range, transform to full range here
   if (full_range) {

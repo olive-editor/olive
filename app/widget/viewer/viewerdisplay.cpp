@@ -81,6 +81,13 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   inner_widget()->setAcceptDrops(true);
 }
 
+ViewerDisplayWidget::~ViewerDisplayWidget()
+{
+  delete text_edit_;
+
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;
+}
+
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
 {
   translate_matrix_ = mat;
@@ -1122,11 +1129,11 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
   if constexpr (std::is_same_v<T, QDragLeaveEvent>) {
     text_edit_->dragLeaveEvent(e);
   } else {
-    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->posF())).toPoint(),
+    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->position())).toPoint(),
             e->possibleActions(),
             e->mimeData(),
-            e->mouseButtons(),
-            e->keyboardModifiers());
+            e->buttons(),
+            e->modifiers());
 
     if (e->type() == QEvent::DragEnter) {
       text_edit_->dragEnterEvent(static_cast<QDragEnterEvent*>(&relay));

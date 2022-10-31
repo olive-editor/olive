@@ -280,28 +280,43 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
 
 bool FFmpegEncoder::WriteAudio(const SampleBuffer &audio)
 {
-  bool result = true;
-
-  // Create input buffer
-  int input_sample_count = 0;
-  uint8_t** input_data = nullptr;
-  if (audio.is_allocated()) {
-    input_sample_count = audio.sample_count();
-    int input_linesize;
-
-    av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio.audio_params().channel_count(),
-                                       input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio.audio_params().format()), 0);
-
-    for (int i=0; i<audio.audio_params().channel_count(); i++) {
-      memcpy(input_data[i], audio.data(i), input_sample_count * audio.audio_params().bytes_per_sample_per_channel());
-    }
+  if (!audio.is_allocated()) {
+    return true;
   }
 
-  result = WriteAudioData(audio.audio_params().is_valid() ? audio.audio_params() : params().audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
+  bool result = true;
 
-  if (input_data) {
-    av_freep(&input_data[0]);
-    av_freep(&input_data);
+  size_t start = 0;
+  size_t end = audio.sample_count();
+  const size_t max_frame = 48000;
+
+  while (start < end) {
+    // Create input buffer
+    uint8_t** input_data = nullptr;
+    size_t input_sample_count = std::min(end - start, max_frame);
+    int input_linesize;
+
+    int r = av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio.audio_params().channel_count(),
+                                               input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio.audio_params().format()), 0);
+
+    if (r < 0) {
+      FFmpegError(tr("Failed to allocate sample array"), r);
+      return false;
+    } else {
+      int bpsc = audio.audio_params().bytes_per_sample_per_channel();
+      for (int i=0; i<audio.audio_params().channel_count(); i++) {
+        memcpy(input_data[i], audio.data(i) + start, input_sample_count * bpsc);
+      }
+
+      start += input_sample_count;
+    }
+
+    result = WriteAudioData(audio.audio_params().is_valid() ? audio.audio_params() : params().audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
+
+    if (input_data) {
+      av_freep(&input_data[0]);
+      av_freep(&input_data);
+    }
   }
 
   return result;

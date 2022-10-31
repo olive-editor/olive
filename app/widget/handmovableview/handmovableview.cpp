@@ -118,10 +118,14 @@ bool HandMovableView::HandRelease(QMouseEvent *event)
   if (dragging_hand_) {
     // Transform mouse event to act like the left button is pressed
     QMouseEvent transformed(event->type(),
-                            event->localPos(),
+                            event->position(),
+                            event->scenePosition(),
+                            event->globalPosition(),
                             Qt::LeftButton,
                             Qt::LeftButton,
-                            event->modifiers());
+                            event->modifiers(),
+                            event->source(),
+                            event->pointingDevice());
 
     super::mouseReleaseEvent(&transformed);
 
