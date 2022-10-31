@@ -73,6 +73,8 @@ public:
   static const QString kIndexFromInput;
   // index of last character to be animated
   static const QString kIndexToInput;
+  // flag that indicates if transition starts from first or last letter
+  static const QString kLastToFirstInput;
   // number of characters to be skipped for each one that is applied
   static const QString kStrideInput;
   // range [0-1]. When 0 all characters start the animation at the begin;

@@ -142,31 +142,36 @@ void TextAnimationEngine::CalculateAnimator( const TextAnimation::Descriptor &an
 
   while (index <= last_index_) {
 
+    // if 'last_to_first' is set, fill data in indexes from last to first
+    int target_index = animator.last_to_first ?
+          last_index_ + animator.character_from - index :
+          index;
+
     double anim_value = CalculateAnimatorForChar( animator, index);
 
     switch( animator.feature) {
     case TextAnimation::PositionVertical:
-      vert_offsets_[index] += anim_value;
+      vert_offsets_[target_index] += anim_value;
       break;
     case TextAnimation::PositionHorizontal:
-      horiz_offsets_[index] += anim_value;
+      horiz_offsets_[target_index] += anim_value;
       break;
     case TextAnimation::Rotation:
-      rotations_[index] += anim_value;
+      rotations_[target_index] += anim_value;
       break;
     case TextAnimation::SpacingFactor:
-      spacings_[index] += anim_value;
+      spacings_[target_index] += anim_value;
       break;
     case TextAnimation::StretchVertical:
-      vert_stretch_[index] += anim_value;
+      vert_stretch_[target_index] += anim_value;
       break;
     case TextAnimation::StretchHorizontal:
-      horiz_stretch_[index] += anim_value;
+      horiz_stretch_[target_index] += anim_value;
       break;
     case TextAnimation::Transparency:
-      transparency_[index] += (int)anim_value;
-      transparency_[index] = qMin( transparency_[index], 255);
-      transparency_[index] = qMax( transparency_[index], 0);
+      transparency_[target_index] += (int)anim_value;
+      transparency_[target_index] = qMin( transparency_[index], 255);
+      transparency_[target_index] = qMax( transparency_[index], 0);
       break;
     default:
     case TextAnimation::None:

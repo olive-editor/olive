@@ -30,6 +30,7 @@ const QString TextAnimationNode::kCompositeOutput = QStringLiteral("composite_ou
 const QString TextAnimationNode::kFeatureInput = QStringLiteral("feature_in");
 const QString TextAnimationNode::kIndexFromInput = QStringLiteral("from_in");
 const QString TextAnimationNode::kIndexToInput = QStringLiteral("to_in");
+const QString TextAnimationNode::kLastToFirstInput = QStringLiteral("from_last_in");
 const QString TextAnimationNode::kStrideInput = QStringLiteral("stride_in");
 const QString TextAnimationNode::kOverlapInInput = QStringLiteral("overlap_in_in");
 const QString TextAnimationNode::kOverlapOutInput = QStringLiteral("overlap_out_in");
@@ -79,6 +80,13 @@ TextAnimationNode::TextAnimationNode()
   SetInputProperty( kIndexToInput, QString("tooltip"),
                     tr("<p>The index of the last character to which animation applies.</p>"
                        "<p>Use -1 for the last character of the whole text.</p>"));
+
+  // flag that indicates if transition starts from first or last letter
+  AddInput( kLastToFirstInput, NodeValue::kBoolean, false);
+  SetInputProperty( kLastToFirstInput, QString("tooltip"),
+                    tr("<p>When checked, the first character to be animated is the one"
+                       " at position 'First character'. Otherwise, the first character to"
+                       " be animated is the one at position 'Last character'</p>"));
 
   // when 0, effect is applied to all characters. When greater then 0, this number of characters is skipped
   // for each one for which the effect is applied
@@ -158,6 +166,7 @@ void TextAnimationNode::Retranslate()
   SetInputName( kFeatureInput, tr("Feature"));
   SetInputName( kIndexFromInput, tr("First character"));
   SetInputName( kIndexToInput, tr("Last character"));
+  SetInputName( kLastToFirstInput, tr("Last to first"));
   SetInputName( kStrideInput, tr("Stride"));
   SetInputName( kOverlapInInput, tr("Start timing"));
   SetInputName( kOverlapOutInput, tr("End timing"));
@@ -183,6 +192,7 @@ void TextAnimationNode::Value(const NodeValueRow &value, const NodeGlobals & /*g
   animation.feature = (TextAnimation::Feature) (job.Get(kFeatureInput).toInt());
   animation.character_from = (int)(job.Get(kIndexFromInput).toDouble());
   animation.character_to = (int)(job.Get(kIndexToInput).toDouble());
+  animation.last_to_first = job.Get(kLastToFirstInput).toBool();
   animation.stride = (int)(job.Get(kStrideInput).toDouble());
   animation.overlap_in = job.Get(kOverlapInInput).toDouble ();
   animation.overlap_out = job.Get(kOverlapOutInput).toDouble ();

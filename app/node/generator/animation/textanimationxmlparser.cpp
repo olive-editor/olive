@@ -21,6 +21,7 @@ QList<TextAnimation::Descriptor> TextAnimationXmlParser::Parse(const QString& xm
       item.feature = TextAnimation::FEATURE_TABLE_REV.value( reader.name().toString(), TextAnimation::None);
       item.character_from = reader.attributes().value(QString("ch_from")).toInt();
       item.character_to = reader.attributes().value(QString("ch_to")).toInt();
+      item.last_to_first = reader.attributes().value(QString("last_to_first")).toInt();
       item.stride = reader.attributes().value(QString("stride")).toInt();
       item.overlap_in = reader.attributes().value(QString("overlap_in")).toDouble();
       item.overlap_out = reader.attributes().value(QString("overlap_out")).toDouble();
