@@ -82,6 +82,8 @@ struct Descriptor {
   int character_from;
   // last character to be animated. Use -1 to indicate the end of the text
   int character_to;
+  // When true, the animation starts from 'character_to' and ends to 'character_from'
+  bool last_to_first;
   // When 0 (or negative), the effect is applied to all characetrs.
   // When 1 or more, 'stride' items are skipped for evry one that is applied.
   int stride;

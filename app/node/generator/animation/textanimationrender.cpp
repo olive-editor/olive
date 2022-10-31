@@ -27,14 +27,14 @@
 #include "textanimationrender.h"
 #include "node/generator/animation/textanimationxmlparser.h"
 
-#include <QDebug>
+
 namespace olive {
 
 TextAnimationRender::TextAnimationRender()
 {
 }
 
-void TextAnimationRender::render(const QString & animators_tags,
+void TextAnimationRender::render( const QString & animators_tags,
                                   QTextDocument & text_doc,
                                   QPainter & p)
 {
@@ -60,8 +60,6 @@ void TextAnimationRender::render(const QString & animators_tags,
   const QVector<double> & vert_offsets = engine_.VerticalOffset();
   const QVector<double> & vert_stretches = engine_.VerticalStretch();
   const QVector<int> & transparencies = engine_.Transparency();
-
-  qDebug() << vert_offsets;
 
   // parse the whole text document and print every character
   for (int blk=0; blk < block_count; blk++) {
@@ -92,8 +90,8 @@ void TextAnimationRender::render(const QString & animators_tags,
       ch_color.setAlpha(255 - transparencies[index]);
 
       p.setPen( ch_color);
-      p.translate( QPointF((posx + x)*(1. + horiz_offsets[index])*(1. + spacings[index]),
-                           line_Voffset + vert_offsets[index]));
+      p.translate( QPointF(posx + (x + horiz_offsets[index])*(1. + spacings[index]),
+                                 line_Voffset + vert_offsets[index]));
       p.rotate( rotations[index]);
       p.scale( 1.+ horiz_stretches[index], 1. + vert_stretches[index]);
       p.drawText( QPointF(0,0), text_doc.characterAt(cursor.position() - 1));
@@ -106,8 +104,6 @@ void TextAnimationRender::render(const QString & animators_tags,
     line_Voffset = text_doc.documentLayout()->blockBoundingRect(cursor.block()).bottom() -
                    maxDescent(cursor);
   }
-
-  qDebug() << "index:" << index;
 }
 
 qreal TextAnimationRender::maxDescent( QTextCursor cursor) const
