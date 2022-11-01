@@ -265,7 +265,7 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
     // Push each stream as a footage job
     for (int i=0; i<GetTotalStreamCount(); i++) {
       Track::Reference ref = GetReferenceFromRealIndex(i);
-      FootageJob job(globals.time(), decoder_, filename(), ref.type(), GetLength());
+      FootageJob job(globals.time(), decoder_, filename(), ref.type(), GetLength(), globals.loop_mode());
 
       if (ref.type() == Track::kVideo) {
         VideoParams vp = GetVideoParams(ref.index());
@@ -337,7 +337,7 @@ bool TimeIsOutOfBounds(const rational& time, const rational& length)
   return time < 0 || time >= length;
 }
 
-rational Footage::AdjustTimeByLoopMode(rational time, Decoder::LoopMode loop_mode, const rational &length, VideoParams::Type type, const rational& timebase)
+rational Footage::AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational &length, VideoParams::Type type, const rational& timebase)
 {
   if (type == VideoParams::kVideoTypeStill) {
     // No looping for still images
@@ -346,15 +346,15 @@ rational Footage::AdjustTimeByLoopMode(rational time, Decoder::LoopMode loop_mod
 
   if (TimeIsOutOfBounds(time, length)) {
     switch (loop_mode) {
-    case Decoder::kLoopModeOff:
+    case LoopMode::kLoopModeOff:
       // Return no time to indicate no frame should be shown here
       time = rational::NaN;
       break;
-    case Decoder::kLoopModeClamp:
+    case LoopMode::kLoopModeClamp:
       // Clamp footage time to length
       time = clamp(time, rational(0), length - timebase);
       break;
-    case Decoder::kLoopModeLoop:
+    case LoopMode::kLoopModeLoop:
       // Loop footage time around job length
       do {
         if (time >= length) {

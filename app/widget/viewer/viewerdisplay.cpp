@@ -380,15 +380,7 @@ void ViewerDisplayWidget::OnPaint()
     VideoParams device_params = GetViewportParams();
 
     if (push_mode_ == kPushBlank) {
-      if (blank_shader_.isNull()) {
-        blank_shader_ = renderer()->CreateNativeShader(ShaderCode());
-      }
-
-      ShaderJob job;
-      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
-      job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
-
-      renderer()->Blit(blank_shader_, job, device_params, false);
+      DrawBlank(device_params);
     } else if (color_service()) {
       if (FramePtr frame = load_frame_.value<FramePtr>()) {
         // This is a CPU frame, upload it now
@@ -415,35 +407,39 @@ void ViewerDisplayWidget::OnPaint()
 
       TexturePtr texture_to_draw = texture_;
 
-      if (deinterlace_) {
-        if (deinterlace_shader_.isNull()) {
-          deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+      if (!texture_to_draw || texture_to_draw->IsDummy()) {
+        DrawBlank(device_params);
+      } else {
+        if (deinterlace_) {
+          if (deinterlace_shader_.isNull()) {
+            deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+          }
+
+          if (!deinterlace_texture_
+              || deinterlace_texture_->params() != texture_to_draw->params()) {
+            // (Re)create texture
+            deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
+          }
+
+          ShaderJob job;
+          job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
+          job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
+
+          renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
+
+          texture_to_draw = deinterlace_texture_;
         }
 
-        if (!deinterlace_texture_
-            || deinterlace_texture_->params() != texture_to_draw->params()) {
-          // (Re)create texture
-          deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
-        }
+        ColorTransformJob ctj;
+        ctj.SetColorProcessor(color_service());
+        ctj.SetInputTexture(texture_to_draw);
+        ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
+        ctj.SetClearDestinationEnabled(false);
+        ctj.SetTransformMatrix(combined_matrix_flipped_);
+        ctj.SetCropMatrix(crop_matrix_);
 
-        ShaderJob job;
-        job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
-        job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
-
-        renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
-
-        texture_to_draw = deinterlace_texture_;
+        renderer()->BlitColorManaged(ctj, device_params);
       }
-
-      ColorTransformJob ctj;
-      ctj.SetColorProcessor(color_service());
-      ctj.SetInputTexture(texture_to_draw);
-      ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
-      ctj.SetClearDestinationEnabled(false);
-      ctj.SetTransformMatrix(combined_matrix_flipped_);
-      ctj.SetCropMatrix(crop_matrix_);
-
-      renderer()->BlitColorManaged(ctj, device_params);
     }
   }
 
@@ -455,7 +451,7 @@ void ViewerDisplayWidget::OnPaint()
 
     p.setWorldTransform(gizmo_last_draw_transform_);
 
-    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_));
+    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, LoopMode::kLoopModeOff));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -831,7 +827,7 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
       gizmo_last_drag_ = gizmo_start_drag_;
-      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime()));
+      current_gizmo_->SetGlobals(NodeGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime(), LoopMode::kLoopModeOff));
 
     } else {
 
@@ -1211,6 +1207,19 @@ void ViewerDisplayWidget::GenerateGizmoTransforms()
 
   gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, gizmo_draw_time_);
   gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted();
+}
+
+void ViewerDisplayWidget::DrawBlank(const VideoParams &device_params)
+{
+  if (blank_shader_.isNull()) {
+    blank_shader_ = renderer()->CreateNativeShader(ShaderCode());
+  }
+
+  ShaderJob job;
+  job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
+  job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
+
+  renderer()->Blit(blank_shader_, job, device_params, false);
 }
 
 void ViewerDisplayWidget::SetShowFPS(bool e)

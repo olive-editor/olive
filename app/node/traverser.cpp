@@ -32,7 +32,7 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
   NodeValueDatabase database;
 
   // HACK: Pick up loop mode from clips
-  Decoder::LoopMode old_loop_mode = loop_mode_;
+  LoopMode old_loop_mode = loop_mode_;
   if (const ClipBlock *clip = dynamic_cast<const ClipBlock*>(node)) {
     loop_mode_ = clip->loop_mode();
   }
@@ -184,11 +184,6 @@ void NodeTraverser::Transform(QTransform *transform, const Node *start, const No
   transform_ = nullptr;
 }
 
-NodeGlobals NodeTraverser::GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const TimeRange &time)
-{
-  return NodeGlobals(vparams, aparams, time);
-}
-
 NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
 {
   // If input is connected, retrieve value directly
@@ -259,7 +254,7 @@ void NodeTraverser::ProcessInputElement(NodeValueTableArray &array_tbl, const No
 NodeTraverser::NodeTraverser() :
   cancel_(nullptr),
   transform_(nullptr),
-  loop_mode_(Decoder::kLoopModeOff)
+  loop_mode_(LoopMode::kLoopModeOff)
 {
 }
 
@@ -309,7 +304,7 @@ NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& rang
     table = database.Merge();
 
     // By this point, the node should have all the inputs it needs to render correctly
-    NodeGlobals globals = GenerateGlobals(video_params_, audio_params_, range);
+    NodeGlobals globals(video_params_, audio_params_, range, loop_mode_);
     n->Value(row, globals, &table);
 
     // `transform_now_` is the next node in the path that needs to be traversed. It only ever goes
@@ -430,7 +425,7 @@ void NodeTraverser::ResolveJobs(NodeValue &val)
 
           } else if (FootageJob *fj = dynamic_cast<FootageJob*>(base_job)) {
 
-            rational footage_time = Footage::AdjustTimeByLoopMode(fj->time().in(), loop_mode_, fj->length(), fj->video_params().video_type(), fj->video_params().frame_rate_as_time_base());
+            rational footage_time = Footage::AdjustTimeByLoopMode(fj->time().in(), fj->loop_mode(), fj->length(), fj->video_params().video_type(), fj->video_params().frame_rate_as_time_base());
 
             TexturePtr tex;
 

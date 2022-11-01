@@ -100,9 +100,9 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
     loop_layout->addWidget(new QLabel(tr("Loop:")), row, 0);
 
     loop_combo_ = new QComboBox();
-    loop_combo_->addItem(tr("None"), Decoder::kLoopModeOff);
-    loop_combo_->addItem(tr("Loop"), Decoder::kLoopModeLoop);
-    loop_combo_->addItem(tr("Clamp"), Decoder::kLoopModeClamp);
+    loop_combo_->addItem(tr("None"), int(LoopMode::kLoopModeOff));
+    loop_combo_->addItem(tr("Loop"), int(LoopMode::kLoopModeLoop));
+    loop_combo_->addItem(tr("Clamp"), int(LoopMode::kLoopModeClamp));
     loop_layout->addWidget(loop_combo_, row, 1);
   }
 
@@ -117,7 +117,7 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
   start_duration_ = clips.first()->length();
   start_reverse_ = clips.first()->reverse();
   start_maintain_audio_pitch_ = clips.first()->maintain_audio_pitch();
-  start_loop_ = clips.first()->loop_mode();
+  start_loop_ = int(clips.first()->loop_mode());
   for (int i=1; i<clips.size(); i++) {
     ClipBlock *c = clips.at(i);
 
@@ -141,7 +141,7 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
       start_maintain_audio_pitch_ = -1;
     }
 
-    if (start_loop_ != -1 && c->loop_mode() != start_loop_) {
+    if (start_loop_ != -1 && int(c->loop_mode()) != start_loop_) {
       start_loop_ = -1;
     }
   }

@@ -188,12 +188,12 @@ public:
   /**
    * @brief Get currently set loop mode
    */
-  Decoder::LoopMode loop_mode() const
+  LoopMode loop_mode() const
   {
-    return static_cast<Decoder::LoopMode>(GetStandardValue(kLoopModeInput).toInt());
+    return static_cast<LoopMode>(GetStandardValue(kLoopModeInput).toInt());
   }
 
-  void set_loop_mode(Decoder::LoopMode l)
+  void set_loop_mode(LoopMode l)
   {
     SetStandardValue(kLoopModeInput, int(l));
   }

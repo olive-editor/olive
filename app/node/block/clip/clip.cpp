@@ -453,6 +453,8 @@ void ClipBlock::InputValueChangedEvent(const QString &input, int element)
         }
       }
     }
+  } else if (input == kLoopModeInput) {
+    emit PreviewChanged();
   }
 }
 
