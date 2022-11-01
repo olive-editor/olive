@@ -959,7 +959,7 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   SendInvalidateCache(range, options);
 }
 
-TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
+TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time, bool clamp) const
 {
   // Default behavior is no time adjustment at all
   return input_time;
@@ -1727,7 +1727,7 @@ TimeRange Node::TransformTimeTo(TimeRange time, Node *target, TransformTimeDirec
     if (dir == kTransformTowardsInput) {
       for (auto it=path.crbegin(); it!=path.crend(); it++) {
         const NodeInput &i = (*it);
-        time = i.node()->InputTimeAdjustment(i.input(), i.element(), time);
+        time = i.node()->InputTimeAdjustment(i.input(), i.element(), time, false);
       }
     } else {
       // Traverse in output direction

@@ -287,7 +287,7 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
   }
 }
 
-TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time, bool clamp) const
 {
   if (input == kInBlockInput || input == kOutBlockInput) {
     Block* block = dynamic_cast<Block*>(GetConnectedOutput(input));
@@ -296,7 +296,7 @@ TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element
     }
   }
 
-  return super::InputTimeAdjustment(input, element, input_time);
+  return super::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange TransitionBlock::OutputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const

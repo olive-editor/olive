@@ -189,7 +189,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
   // If input is connected, retrieve value directly
   if (node->IsInputConnectedForRender(input)) {
 
-    TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
+    TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range, true);
 
     // Value will equal something from the connected node, follow it
     Node *output = node->GetConnectedRenderOutput(input);
@@ -224,7 +224,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
     } else {
 
       // Not connected or an array, just pull the immediate
-      TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range);
+      TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range, true);
 
       return_val = node->GetValueAtTime(input, adjusted_range.in());
 
@@ -240,7 +240,7 @@ NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& inpu
 void NodeTraverser::ProcessInputElement(NodeValueTableArray &array_tbl, const Node *node, const QString &input, int element, const TimeRange &range)
 {
   NodeValueTable& sub_tbl = array_tbl[element];
-  TimeRange adjusted_range = node->InputTimeAdjustment(input, element, range);
+  TimeRange adjusted_range = node->InputTimeAdjustment(input, element, range, true);
 
   if (node->IsInputConnectedForRender(input, element)) {
     Node *output = node->GetConnectedRenderOutput(input, element);

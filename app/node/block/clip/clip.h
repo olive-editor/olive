@@ -68,7 +68,7 @@ public:
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 

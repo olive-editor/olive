@@ -458,15 +458,26 @@ void ClipBlock::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
+TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const
 {
   Q_UNUSED(element)
 
   if (input == kBufferIn) {
-    return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
+    rational in = input_time.in();
+    rational out = input_time.out();
+
+    if (clamp) {
+      in = std::max(in, rational(0));
+      out = std::min(out, length());
+    }
+
+    in = SequenceToMediaTime(in);
+    out = SequenceToMediaTime(out);
+
+    return TimeRange(in, out);
   }
 
-  return super::InputTimeAdjustment(input, element, input_time);
+  return super::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
@@ -540,7 +551,7 @@ void ClipBlock::ConnectedToPreviewEvent()
 
 TimeRange ClipBlock::media_range() const
 {
-  return InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+  return InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()), false);
 }
 
 MultiCamNode *ClipBlock::FindMulticam()
