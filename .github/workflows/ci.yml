@@ -259,8 +259,8 @@ jobs:
           cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
           cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
           $DOWNLOAD_TOOL https://nsis.sourceforge.io/mediawiki/images/6/68/ShellExecAsUser_amd64-Unicode.7z
-          7z e ShellExecAsUser_amd64-Unicode.7z Plugins/x86-unicode/ShellExecAsUser.dll
-          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir /x86-unicode $(pwd -W)" olive.nsi
+          7z e ShellExecAsUser_amd64-Unicode.7z Plugins/amd64-unicode/ShellExecAsUser.dll
+          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir /amd64-unicode $(pwd -W)" olive.nsi
 
           # Create Portable ZIP
           echo -n > olive-editor/portable
