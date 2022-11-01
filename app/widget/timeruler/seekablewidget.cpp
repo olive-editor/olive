@@ -179,6 +179,8 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
 
   if (HandPress(event)) {
     return;
+  } else if (event->modifiers() & Qt::ControlModifier) {
+    selection_manager_.RubberBandStart(event);
   } else if (resize_item_) {
     // Handle selection, even though we won't be using it for dragging
     if (!(event->modifiers() & Qt::ShiftModifier)) {
@@ -203,6 +205,9 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 {
   if (HandMove(event)) {
     return;
+  } else if (selection_manager_.IsRubberBanding()) {
+    selection_manager_.RubberBandMove(event);
+    viewport()->update();
   } else if (selection_manager_.IsDragging()) {
     selection_manager_.DragMove(event);
   } else if (dragging_) {
@@ -225,6 +230,11 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
 void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
 {
   if (HandRelease(event)) {
+    return;
+  }
+
+  if (selection_manager_.IsRubberBanding()) {
+    selection_manager_.RubberBandStop();
     return;
   }
 
