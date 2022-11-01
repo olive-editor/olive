@@ -43,16 +43,14 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   workarea_(nullptr),
   markers_(nullptr)
 {
-  ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
-  ConnectTimelineView(ruler_, true);
-  ruler()->SetSnapService(this);
-  connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
-
   scrollbar_ = new ResizableTimelineScrollBar(Qt::Horizontal, this);
   connect(scrollbar_, &ResizableScrollBar::ResizeBegan, this, &TimeBasedWidget::ScrollBarResizeBegan);
   connect(scrollbar_, &ResizableScrollBar::ResizeMoved, this, &TimeBasedWidget::ScrollBarResizeMoved);
 
-  PassWheelEventsToScrollBar(ruler_);
+  ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
+  ConnectTimelineView(ruler_, true);
+  ruler()->SetSnapService(this);
+  connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
 
   catchup_scroll_timer_ = new QTimer(this);
   catchup_scroll_timer_->setInterval(250); // Hardcoded 1/4 scroll limit value
@@ -306,13 +304,20 @@ void TimeBasedWidget::ConnectTimelineView(TimeBasedView *base, bool connect_time
     connect(base, &TimeBasedView::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
   }
 
-  timeline_views_.append(base);
-}
+  // Connect scale
+  connect(base, &TimeBasedView::ScaleChanged, this, &TimeBasedWidget::SetScale);
 
-void TimeBasedWidget::PassWheelEventsToScrollBar(QObject *object)
-{
-  wheel_passthrough_objects_.append(object);
-  object->installEventFilter(this);
+  // Main scrollbar to view scrollbar and vice versa
+  connect(scrollbar(), &QScrollBar::valueChanged, base->horizontalScrollBar(), &QScrollBar::setValue);
+  connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
+
+  // Connect scrollbar to other scrollbars
+  for (TimeBasedView *other : qAsConst(timeline_views_)) {
+    connect(other->horizontalScrollBar(), &QScrollBar::valueChanged, base->horizontalScrollBar(), &QScrollBar::setValue);
+    connect(base->horizontalScrollBar(), &QScrollBar::valueChanged, other->horizontalScrollBar(), &QScrollBar::setValue);
+  }
+
+  timeline_views_.append(base);
 }
 
 void TimeBasedWidget::SetCatchUpScrollValue(QScrollBar *b, int v, int maximum)
@@ -746,15 +751,6 @@ void TimeBasedWidget::DeleteSelected()
   }
 }
 
-bool TimeBasedWidget::eventFilter(QObject *object, QEvent *event)
-{
-  if (wheel_passthrough_objects_.contains(object) && event->type() == QEvent::Wheel) {
-    QCoreApplication::sendEvent(scrollbar(), event);
-  }
-
-  return false;
-}
-
 struct SnapData {
   rational time;
   rational movement;
@@ -868,7 +864,7 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
         rational time = key->time();
         if (const TimeTargetObject *target = GetKeyframeTimeTarget()) {
           if (Node *parent = key->parent()) {
-            time = target->GetAdjustedTime(parent, target->GetTimeTarget(), time, false);
+            time = target->GetAdjustedTime(parent, target->GetTimeTarget(), time, Node::kTransformTowardsOutput);
           }
         }
 

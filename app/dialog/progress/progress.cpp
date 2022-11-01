@@ -55,7 +55,7 @@ ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWi
 
   QHBoxLayout* cancel_layout = new QHBoxLayout();
   layout->addLayout(cancel_layout);
-  cancel_layout->setMargin(0);
+  cancel_layout->setContentsMargins(0, 0, 0, 0);
   cancel_layout->setSpacing(0);
   cancel_layout->addStretch();
 

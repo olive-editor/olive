@@ -235,6 +235,8 @@ private:
 
   static const double kMinimumScale;
 
+  static const int kMaximumContexts;
+
 private slots:
   /**
    * @brief Receiver for when the scene's selected items change

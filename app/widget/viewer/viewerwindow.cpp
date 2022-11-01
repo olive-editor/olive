@@ -32,7 +32,7 @@ ViewerWindow::ViewerWindow(QWidget *parent) :
   pixel_aspect_(1)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
   display_widget_ = new ViewerDisplayWidget();

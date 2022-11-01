@@ -68,7 +68,7 @@ ManagedPixelSamplerWidget::ManagedPixelSamplerWidget(QWidget *parent) :
   QWidget(parent)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   display_view_ = new PixelSamplerWidget();
   display_view_->setTitle(tr("Display"));

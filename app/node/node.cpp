@@ -1712,42 +1712,33 @@ QString Node::GetCategoryName(const CategoryID &c)
   return tr("Uncategorized");
 }
 
-QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bool input_dir)
+TimeRange Node::TransformTimeTo(TimeRange time, Node *target, TransformTimeDirection dir, int path_index)
 {
-  QVector<TimeRange> paths_found;
+  Node *from = this;
+  Node *to = target;
 
-  if (input_dir) {
-    // If this input is connected, traverse it to see if we stumble across the specified `node`
-    for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-      TimeRange input_adjustment = InputTimeAdjustment(it->first.input(), it->first.element(), time);
-      Node* connected = it->second;
+  if (dir == kTransformTowardsInput) {
+    std::swap(from, to);
+  }
 
-      if (connected == target) {
-        // We found the target, no need to keep traversing
-        if (!paths_found.contains(input_adjustment)) {
-          paths_found.append(input_adjustment);
-        }
-      } else {
-        // We did NOT find the target, traverse this
-        paths_found.append(connected->TransformTimeTo(input_adjustment, target, input_dir));
+  std::list<NodeInput> path = FindPath(from, to, path_index);
+
+  if (!path.empty()) {
+    if (dir == kTransformTowardsInput) {
+      for (auto it=path.crbegin(); it!=path.crend(); it++) {
+        const NodeInput &i = (*it);
+        time = i.node()->InputTimeAdjustment(i.input(), i.element(), time);
       }
-    }
-  } else {
-    // If this input is connected, traverse it to see if we stumble across the specified `node`
-    foreach (const OutputConnection& conn, output_connections_) {
-      Node* connected_node = conn.second.node();
-
-      TimeRange output_adjustment = connected_node->OutputTimeAdjustment(conn.second.input(), conn.second.element(), time);
-
-      if (connected_node == target) {
-        paths_found.append(output_adjustment);
-      } else {
-        paths_found.append(connected_node->TransformTimeTo(output_adjustment, target, input_dir));
+    } else {
+      // Traverse in output direction
+      for (auto it=path.cbegin(); it!=path.cend(); it++) {
+        const NodeInput &i = (*it);
+        time = i.node()->OutputTimeAdjustment(i.input(), i.element(), time);
       }
     }
   }
 
-  return paths_found;
+  return time;
 }
 
 QVariant Node::PtrToValue(void *ptr)
@@ -2011,46 +2002,39 @@ void Node::SetValueAtTime(const NodeInput &input, const rational &time, const QV
   }
 }
 
-void FindPathInternal(std::list<Node *> &vec, Node *to, int &path_index)
+bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path_index)
 {
-  Node *from = vec.back();
+  for (auto it=from->output_connections().cbegin(); it!=from->output_connections().cend(); it++) {
+    const NodeInput &next = it->second;
 
-  for (auto it=from->input_connections().cbegin(); it!=from->input_connections().cend(); it++) {
-    vec.push_back(it->second);
-    if (it->second == to) {
-      // Found a path, determine if it's the one we want
+    vec.push_back(next);
+
+    if (next.node() == to) {
+      // Found a path! Determine if it's the index we want
       if (path_index == 0) {
         // It is!
-        break;
+        return true;
       } else {
+        // It isn't, keep looking...
         path_index--;
       }
     }
 
-    // Recurse to see if we can find it here
-    FindPathInternal(vec, to, path_index);
-    if (vec.back() == to) {
-      // Found through recursion
-      break;
-    } else {
-      // Must not be available through this path
-      vec.pop_back();
+    if (FindPathInternal(vec, next.node(), to, path_index)) {
+      return true;
     }
+
+    vec.pop_back();
   }
+
+  return false;
 }
 
-std::list<Node *> Node::FindPath(Node *from, Node *to, int path_index)
+std::list<NodeInput> Node::FindPath(Node *from, Node *to, int path_index)
 {
-  std::list<Node *> v;
+  std::list<NodeInput> v;
 
-  v.push_back(from);
-
-  FindPathInternal(v, to, path_index);
-
-  if (v.size() == 1) {
-    // Failed to find path, return empty list
-    v.pop_back();
-  }
+  FindPathInternal(v, from, to, path_index);
 
   return v;
 }

@@ -42,7 +42,7 @@ SliderLadder::SliderLadder(double drag_multiplier, int nb_outer_values, QString 
   QFrame(parent, Qt::Popup)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
   setFrameShape(QFrame::Box);

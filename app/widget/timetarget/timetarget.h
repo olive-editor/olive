@@ -35,8 +35,8 @@ public:
 
   void SetPathIndex(int index);
 
-  rational GetAdjustedTime(Node* from, Node* to, const rational& r, bool input_direction) const;
-  TimeRange GetAdjustedTime(Node* from, Node* to, const TimeRange& r, bool input_direction) const;
+  rational GetAdjustedTime(Node* from, Node* to, const rational& r, Node::TransformTimeDirection dir) const;
+  TimeRange GetAdjustedTime(Node* from, Node* to, const TimeRange& r, Node::TransformTimeDirection dir) const;
 
   //int GetNumberOfPathAdjustments(Node* from, NodeParam::Type direction) const;
 

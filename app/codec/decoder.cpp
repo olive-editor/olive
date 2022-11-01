@@ -45,7 +45,6 @@ Decoder::Decoder() :
 
 void Decoder::IncrementAccessTime(qint64 t)
 {
-  QMutexLocker locker(&mutex_);
   last_accessed_ += t;
 }
 
@@ -113,12 +112,13 @@ TexturePtr Decoder::RetrieveVideo(const RetrieveVideoParams &p)
     return nullptr;
   }
 
-  if (cached_texture_ && cached_time_ == p.time) {
+  if (cached_texture_ && cached_time_ == p.time && cached_divider_ == p.divider) {
     return cached_texture_;
   }
 
   cached_texture_ = RetrieveVideoInternal(p);
   cached_time_ = p.time;
+  cached_divider_ = p.divider;
 
   return cached_texture_;
 }
@@ -156,7 +156,6 @@ Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const Ti
 
 qint64 Decoder::GetLastAccessedTime()
 {
-  QMutexLocker locker(&mutex_);
   return last_accessed_;
 }
 
@@ -213,16 +212,6 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   }
 
   return nullptr;
-}
-
-int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
-{
-  return Timecode::time_to_timestamp(time, timebase);
-}
-
-rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time)
-{
-  return Timecode::timestamp_to_time(time, timebase);
 }
 
 void Decoder::SignalProcessingProgress(int64_t ts, int64_t duration)

@@ -36,7 +36,6 @@ namespace olive {
 const char* StyleManager::kDefaultStyle = "olive-dark";
 QString StyleManager::current_style_;
 QMap<QString, QString> StyleManager::available_themes_;
-QPalette StyleManager::platform_palette_;
 
 QPalette StyleManager::ParsePalette(const QString& ini_path)
 {
@@ -127,10 +126,6 @@ void StyleManager::ParsePaletteColor(QSettings *ini, QPalette *palette, QPalette
 
 void StyleManager::Init()
 {
-  // Store standard palette before replacing it with our own
-  platform_palette_ = qApp->palette();
-  platform_palette_.resolve(-1);
-
   qApp->setStyle(QStyleFactory::create("Fusion"));
 
   available_themes_.insert(QStringLiteral("olive-dark"), QStringLiteral("Olive Dark"));

@@ -13,7 +13,7 @@ NodeViewToolBar::NodeViewToolBar(QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout *layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   add_node_btn_ = new QPushButton();
   connect(add_node_btn_, &QPushButton::clicked, this, &NodeViewToolBar::AddNodeClicked);

@@ -235,10 +235,10 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
           job.Insert(QStringLiteral("full_range"), NodeValue(NodeValue::kBoolean, hw_in->color_range == AVCOL_RANGE_JPEG));
 
           const int *yuv_coeffs = sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(hw_in->colorspace));
-          job.Insert(QStringLiteral("yuv_crv"), NodeValue(NodeValue::kInt, yuv_coeffs[0]));
-          job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kInt, yuv_coeffs[2]));
-          job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kInt, yuv_coeffs[3]));
-          job.Insert(QStringLiteral("yuv_cbu"), NodeValue(NodeValue::kInt, yuv_coeffs[1]));
+          job.Insert(QStringLiteral("yuv_crv"), NodeValue(NodeValue::kFloat, yuv_coeffs[0]/65536.0));
+          job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kFloat, yuv_coeffs[2]/65536.0));
+          job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kFloat, yuv_coeffs[3]/65536.0));
+          job.Insert(QStringLiteral("yuv_cbu"), NodeValue(NodeValue::kFloat, yuv_coeffs[1]/65536.0));
 
           int interlacing = 0;
           if (p.src_interlacing != VideoParams::kInterlaceNone) {
@@ -312,9 +312,11 @@ void FFmpegDecoder::CloseInternal()
 
 rational FFmpegDecoder::GetAudioStartOffset() const
 {
-  AVStream *s = this->instance_.avstream();
-  if (s) {
-    return rational(s->start_time * s->time_base.num, s->time_base.den);
+  auto f = instance_.fmt_ctx();
+  if (f) {
+    rational fmt_start = rational(instance_.fmt_ctx()->start_time, AV_TIME_BASE);
+    rational str_start = rational(instance_.avstream()->time_base) * instance_.avstream()->start_time;
+    return str_start - fmt_start;
   } else {
     return 0;
   }
@@ -347,6 +349,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
     avformat_find_stream_info(fmt_ctx, nullptr);
 
     int64_t footage_duration = fmt_ctx->duration;
+
+    bool duration_guessed_from_bitrate = (fmt_ctx->duration_estimation_method == AVFMT_DURATION_FROM_BITRATE);
 
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
@@ -407,8 +411,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
               if (ret >= 0) {
                 // Check if we need a manual duration
-                if (avstream->duration == AV_NOPTS_VALUE) {
-                  if (footage_duration == AV_NOPTS_VALUE) {
+                if (avstream->duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
+                  if (footage_duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
 
                     // Manually read through file for duration
                     int64_t new_dur;
@@ -466,9 +470,9 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
             channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(avstream->codecpar->channels));
           }
 
-          if (avstream->duration == AV_NOPTS_VALUE) {
+          if (avstream->duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
             // Loop through stream until we get the whole duration
-            if (footage_duration == AV_NOPTS_VALUE) {
+            if (footage_duration == AV_NOPTS_VALUE || duration_guessed_from_bitrate) {
               Instance instance;
               instance.Open(filename_c, avstream->index);
 
@@ -798,13 +802,17 @@ void FFmpegDecoder::ClearFrameCache()
 
 AVFramePtr FFmpegDecoder::RetrieveFrame(const rational& time, VideoParams::Interlacing interlacing, CancelAtom *cancelled)
 {
-  int64_t target_ts = GetTimeInTimebaseUnits(time, instance_.avstream()->time_base, instance_.avstream()->start_time);
+  int64_t target_ts = Timecode::time_to_timestamp(time, instance_.avstream()->time_base);
 
   if (interlacing != VideoParams::kInterlaceNone && !IsPixelFormatGLSLCompatible(static_cast<AVPixelFormat>(instance_.avstream()->codecpar->format))) {
     target_ts *= 2;
   }
 
-  const int64_t min_seek = -instance_.avstream()->start_time;
+  if (instance_.fmt_ctx()->start_time != AV_NOPTS_VALUE) {
+    target_ts += av_rescale_q(instance_.fmt_ctx()->start_time, {1, AV_TIME_BASE}, instance_.avstream()->time_base);
+  }
+
+  const int64_t min_seek = 0;
   int64_t seek_ts = std::max(min_seek, target_ts - MaximumQueueSize());
   bool still_seeking = false;
 
@@ -1028,7 +1036,7 @@ bool FFmpegDecoder::InitScaler(AVFrame *input, const RetrieveVideoParams& params
     dst_width = VideoParams::GetScaledDimension(src_width, filter_params_.divider);
     dst_height = VideoParams::GetScaledDimension(src_height, filter_params_.divider);
 
-    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=-1",
+    snprintf(filter_args, kFilterArgSz, "w=%d:h=%d:flags=fast_bilinear:interl=0",
              dst_width,
              dst_height);
 

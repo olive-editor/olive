@@ -294,9 +294,6 @@ protected:
     return stream_;
   }
 
-  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
-  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time);
-
   virtual rational GetAudioStartOffset() const { return 0; }
 
 signals:
@@ -315,10 +312,11 @@ private:
 
   QMutex mutex_;
 
-  qint64 last_accessed_;
+  std::atomic_int64_t last_accessed_;
 
   TexturePtr cached_texture_;
   rational cached_time_;
+  int cached_divider_;
 
 };
 

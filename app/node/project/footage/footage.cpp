@@ -276,7 +276,8 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         // Adjust footage job's divider
         if (globals.vparams().divider() > 1) {
           // Use a divider appropriate for this target resolution
-          vp.set_divider(VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), globals.vparams().effective_width(), globals.vparams().effective_height()));
+          int calculated = VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), globals.vparams().effective_width(), globals.vparams().effective_height());
+          vp.set_divider(std::min(calculated, globals.vparams().divider()));
         } else {
           // Render everything at full res
           vp.set_divider(1);

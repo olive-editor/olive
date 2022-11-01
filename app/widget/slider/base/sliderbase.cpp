@@ -103,14 +103,26 @@ void SliderBase::changeEvent(QEvent *e)
   super::changeEvent(e);
 }
 
+bool SliderBase::GetLabelSubstitution(const QVariant &v, QString *out) const
+{
+  for (auto it=label_substitutions_.constBegin(); it!=label_substitutions_.constEnd(); it++) {
+    if (it->first == v) {
+      *out = it->second;
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void SliderBase::UpdateLabel()
 {
   QString s;
 
   if (tristate_) {
     s = tr("---");
-  } else if (label_substitutions_.contains(GetValueInternal())) {
-    s = label_substitutions_.value(GetValueInternal());
+  } else if (GetLabelSubstitution(GetValueInternal(), &s)) {
+    // String will already be set, just pass through
   } else {
     s = GetFormattedValueToString();
   }

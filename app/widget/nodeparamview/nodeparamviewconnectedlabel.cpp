@@ -37,7 +37,7 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   connected_node_(nullptr)
 {
   QVBoxLayout *layout = new QVBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   QSizePolicy p = sizePolicy();
   p.setHorizontalStretch(1);
@@ -47,7 +47,7 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   // Set up label area
   QHBoxLayout *label_layout = new QHBoxLayout();
   label_layout->setSpacing(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral(" ")));
-  label_layout->setMargin(0);
+  label_layout->setContentsMargins(0, 0, 0, 0);
   layout->addLayout(label_layout);
 
   CollapseButton *collapse_btn = new CollapseButton(this);

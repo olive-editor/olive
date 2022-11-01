@@ -40,7 +40,6 @@ ViewerTextEditor::ViewerTextEditor(double scale, QWidget *parent) :
   super(parent),
   transparent_clone_(nullptr),
   block_update_toolbar_signal_(false),
-  listen_to_focus_events_(false),
   forced_default_(false)
 {
   // Ensure default text color is white
@@ -152,15 +151,16 @@ void ViewerTextEditor::paintEvent(QPaintEvent *e)
 
 void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTextCharFormat &f, const QTextBlockFormat &b, Qt::Alignment alignment)
 {
-  QFontDatabase fd;
-
-  QString family = f.fontFamily();
-  if (family.isEmpty()) {
+  QStringList families = f.fontFamilies().toStringList();
+  QString family;
+  if (families.isEmpty()) {
     family = qApp->font().family();
+  } else {
+    family = families.first();
   }
 
   QString style = f.fontStyleName().toString();
-  QStringList styles = fd.styles(family);
+  QStringList styles = QFontDatabase::styles(family);
   if (!styles.isEmpty() && (style.isEmpty() || !styles.contains(style))) {
     // There seems to be no better way to find the "regular" style outside of this heuristic.
     // Feel free to add more if a font isn't working right.
@@ -207,10 +207,7 @@ void ViewerTextEditor::SetFamily(const QString &s)
   ViewerTextEditorToolBar *toolbar = static_cast<ViewerTextEditorToolBar *>(sender());
 
   QTextCharFormat f;
-  f.setFontFamily(s);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
   f.setFontFamilies({s});
-#endif
 
   ApplyStyle(&f, s, toolbar->GetFontStyleName());
 
@@ -270,9 +267,8 @@ void ViewerTextEditor::ApplyStyle(QTextCharFormat *format, const QString &family
 {
   // NOTE: Windows appears to require setting weight and italic manually, while macOS and Linux are
   //       perfectly fine with just the style name
-  QFontDatabase fd;
-  format->setFontWeight(fd.weight(family, style));
-  format->setFontItalic(fd.italic(family, style));
+  format->setFontWeight(QFontDatabase::weight(family, style));
+  format->setFontItalic(QFontDatabase::italic(family, style));
 
   format->setFontStyleName(style);
 }
@@ -540,7 +536,7 @@ void ViewerTextEditorToolBar::UpdateFontStyleList(const QString &family)
 
   style_combo_->blockSignals(true);
   style_combo_->clear();
-  QStringList l = QFontDatabase().styles(family);
+  QStringList l = QFontDatabase::styles(family);
   foreach (const QString &style, l) {
     style_combo_->addItem(style);
   }

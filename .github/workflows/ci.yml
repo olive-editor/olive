@@ -376,7 +376,7 @@ jobs:
           ctest -C ${{ matrix.build-type }} -V
         if: matrix.os-arch == 'x86_64' # ARM64 tests naturally won't be able to run on x86_64 runners
 
-      - name: Create Package
+      - name: Bundle Application
         working-directory: ${{ runner.workspace }}/build
         shell: bash
         run: |
@@ -444,9 +444,18 @@ jobs:
           # Sign application
           codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
 
+      - name: Deploy
+        shell: bash
+        working-directory: ${{ runner.workspace }}/build/deploy
+        run: |
+          ln -s /Applications Applications
+          cd ..
+          hdiutil create img.dmg -volname Olive -fs HFS+ -srcfolder deploy
+          hdiutil convert img.dmg -format UDZO -o $PKGNAME.dmg
+
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v2
         continue-on-error: true
         with:
           name: ${{ env.PKGNAME }}
-          path: ${{ runner.workspace }}/build/deploy
+          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.dmg

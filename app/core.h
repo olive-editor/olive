@@ -559,6 +559,8 @@ private:
 
   bool RevertProjectInternal(Project *p, bool by_opening_existing);
 
+  void SaveRecentProjectsList();
+
   /**
    * @brief Internal main window object
    */

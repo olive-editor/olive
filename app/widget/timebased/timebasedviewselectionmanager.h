@@ -216,7 +216,7 @@ public:
     if (time_target_) {
       for (size_t i=0; i<copy.size(); i++) {
         if (Node *parent = time_targets_[i]) {
-          copy[i] = time_target_->GetAdjustedTime(parent, time_target_->GetTimeTarget(), copy[i], false);
+          copy[i] = time_target_->GetAdjustedTime(parent, time_target_->GetTimeTarget(), copy[i], Node::kTransformTowardsOutput);
         }
       }
     }

@@ -81,6 +81,13 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   inner_widget()->setAcceptDrops(true);
 }
 
+ViewerDisplayWidget::~ViewerDisplayWidget()
+{
+  delete text_edit_;
+
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;
+}
+
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
 {
   translate_matrix_ = mat;
@@ -596,7 +603,7 @@ void ViewerDisplayWidget::DrawTextWithCrudeShadow(QPainter *painter, const QRect
 
 rational ViewerDisplayWidget::GetGizmoTime()
 {
-  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, true);
+  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, Node::kTransformTowardsInput);
 }
 
 bool ViewerDisplayWidget::IsHandDrag(QMouseEvent *event) const
@@ -1051,7 +1058,7 @@ void ViewerDisplayWidget::DrawSubtitleTracks()
     f.setFamily(family);
   }
 
-  f.setWeight(OLIVE_CONFIG("DefaultSubtitleWeight").toInt());
+  f.setWeight(static_cast<QFont::Weight>(OLIVE_CONFIG("DefaultSubtitleWeight").toInt()));
 
   bounding_box.adjust(bounding_box.width()/10, bounding_box.height()/10, -bounding_box.width()/10, -bounding_box.height()/10);
 
@@ -1122,11 +1129,11 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
   if constexpr (std::is_same_v<T, QDragLeaveEvent>) {
     text_edit_->dragLeaveEvent(e);
   } else {
-    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->posF())).toPoint(),
+    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->position())).toPoint(),
             e->possibleActions(),
             e->mimeData(),
-            e->mouseButtons(),
-            e->keyboardModifiers());
+            e->buttons(),
+            e->modifiers());
 
     if (e->type() == QEvent::DragEnter) {
       text_edit_->dragEnterEvent(static_cast<QDragEnterEvent*>(&relay));
@@ -1145,7 +1152,7 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
 bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside)
 {
   // Transform screen mouse coords to world mouse coords
-  QPointF local_pos = GetVirtualPosForTextEdit(event->localPos());
+  QPointF local_pos = GetVirtualPosForTextEdit(event->position());
 
   if (check_if_outside) {
     if (local_pos.x() < 0 || local_pos.x() >= text_edit_->width() || local_pos.y() < 0 || local_pos.y() >= text_edit_->height()) {
@@ -1156,8 +1163,8 @@ bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool c
 
   local_pos = AdjustPosByVAlign(local_pos);
 
-  event->setLocalPos(local_pos);
-  return ForwardEventToTextEdit(event);
+  QMouseEvent derived(event->type(), local_pos, event->scenePosition(), event->globalPosition(), event->button(), event->buttons(), event->modifiers(), event->source(), event->pointingDevice());
+  return ForwardEventToTextEdit(&derived);
 }
 
 bool ViewerDisplayWidget::ForwardEventToTextEdit(QEvent *event)

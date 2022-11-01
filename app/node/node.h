@@ -844,10 +844,15 @@ public:
    */
   static QString GetCategoryName(const CategoryID &c);
 
+  enum TransformTimeDirection {
+    kTransformTowardsInput,
+    kTransformTowardsOutput
+  };
+
   /**
    * @brief Transforms time from this node through the connections it takes to get to the specified node
    */
-  QVector<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, bool input_dir);
+  TimeRange TransformTimeTo(TimeRange time, Node* target, TransformTimeDirection dir, int path_index);
 
   /**
    * @brief Find nodes of a certain type that this Node takes inputs from
@@ -1147,7 +1152,10 @@ public:
 
   static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
-  static std::list<Node*> FindPath(Node *from, Node *to, int path_index = 0);
+  /**
+   * @brief Find path starting at `from` that outputs to arrive at `to`
+   */
+  static std::list<NodeInput> FindPath(Node *from, Node *to, int path_index);
 
   static const QString kEnabledInput;
 

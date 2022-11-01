@@ -44,10 +44,10 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
   QFontMetrics fm = fontMetrics();
 
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(fm.height());
+  layout->setContentsMargins(fm.height(), fm.height(), fm.height(), fm.height());
 
   QHBoxLayout *horiz_layout = new QHBoxLayout();
-  horiz_layout->setMargin(fm.height());
+  horiz_layout->setContentsMargins(fm.height(), fm.height(), fm.height(), fm.height());
   horiz_layout->setSpacing(fm.height()*2);
 
   QLabel* icon = new QLabel(QStringLiteral("<html><img src=':/graphics/olive-splash.png'></html>"));
@@ -108,7 +108,7 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
   layout->addWidget(new QLabel());
 
   QHBoxLayout *btn_layout = new QHBoxLayout();
-  btn_layout->setMargin(0);
+  btn_layout->setContentsMargins(0, 0, 0, 0);
   btn_layout->setSpacing(0);
 
   if (welcome_dialog) {

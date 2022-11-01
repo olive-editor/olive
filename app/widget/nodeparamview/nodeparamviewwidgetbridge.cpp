@@ -528,7 +528,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
 
 rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), time_, true);
+  return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), time_, Node::kTransformTowardsInput);
 }
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
@@ -567,7 +567,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       }
     } else { // set specific track/widget
       bool ok;
-      int element = key.midRef(7).toInt(&ok);
+      int element = key.mid(7).toInt(&ok);
       int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
 
       if (ok && element >= 0 && element < tracks) {
@@ -686,7 +686,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
         }
       } else {
         bool ok;
-        int element = key.midRef(5).toInt(&ok);
+        int element = key.mid(5).toInt(&ok);
         if (ok && element >= 0 && element < tracks) {
           static_cast<SliderBase*>(widgets_.at(element))->SetColor(c);
         }

@@ -33,7 +33,7 @@ ProjectExplorerNavigation::ProjectExplorerNavigation(QWidget *parent) :
 {
   // Create widget layout
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   // Create "directory up" button
   dir_up_btn_ = new QPushButton(this);

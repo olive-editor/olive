@@ -33,7 +33,7 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWi
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
   if (right_align) {
@@ -122,12 +122,12 @@ void NodeParamViewKeyframeControl::SetButtonsEnabled(bool e)
 
 rational NodeParamViewKeyframeControl::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, true);
+  return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, Node::kTransformTowardsInput);
 }
 
 rational NodeParamViewKeyframeControl::ConvertToViewerTime(const rational &r) const
 {
-  return GetAdjustedTime(input_.node(), GetTimeTarget(), r, false);
+  return GetAdjustedTime(input_.node(), GetTimeTarget(), r, Node::kTransformTowardsOutput);
 }
 
 void NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable(bool e)
