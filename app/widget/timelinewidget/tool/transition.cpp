@@ -194,12 +194,16 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
       return false;
     }
 
+    ClipBlock *adjacent = dynamic_cast<ClipBlock*>(block_at_time->previous());
+    if (adjacent) {
+      tenth_point = std::min(tenth_point, adjacent->length()/10);
+    }
+
     transition_start_point = block_at_time->in();
     trim_mode = Timeline::kTrimIn;
 
-    if (cursor_frame < (block_at_time->in() + tenth_point)
-        && dynamic_cast<ClipBlock*>(block_at_time->previous())) {
-      other_block = block_at_time->previous();
+    if (cursor_frame < (block_at_time->in() + tenth_point) && adjacent) {
+      other_block = adjacent;
     }
   } else {
     if (static_cast<ClipBlock*>(block_at_time)->out_transition()) {
@@ -207,11 +211,15 @@ bool TransitionTool::GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock
       return false;
     }
 
+    ClipBlock *adjacent = dynamic_cast<ClipBlock*>(block_at_time->next());
+    if (adjacent) {
+      tenth_point = std::min(tenth_point, adjacent->length()/10);
+    }
+
     transition_start_point = block_at_time->out();
     trim_mode = Timeline::kTrimOut;
 
-    if (cursor_frame > block_at_time->out() - tenth_point
-        && dynamic_cast<ClipBlock*>(block_at_time->next())) {
+    if (cursor_frame > block_at_time->out() - tenth_point && adjacent) {
       other_block = block_at_time->next();
     }
   }
