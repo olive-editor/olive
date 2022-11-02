@@ -41,8 +41,6 @@ public:
     ConnectViewerNode(nullptr);
   }
 
-  rational GetTime();
-
   // Get the timebase of this panels widget
   const rational& timebase();
 
@@ -113,13 +111,7 @@ public:
 public slots:
   void SetTimebase(const rational& timebase);
 
-  void SetTime(const rational &time);
-
 signals:
-  void TimeChanged(const rational& time);
-
-  void TimebaseChanged(const rational& timebase);
-
   void PlayPauseRequested();
 
   void PlayInToOutRequested();

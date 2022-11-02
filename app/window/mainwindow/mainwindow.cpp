@@ -106,12 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   connect(node_panel_, &NodePanel::NodeSelectionChanged, sequence_viewer_panel_, &ViewerPanel::SetNodeViewSelections);
 
-  // Connect time signals together
-  AddMainTimePanel(multicam_panel_);
-  AddMainTimePanel(curve_panel_);
-  AddMainTimePanel(param_panel_);
-  AddMainTimePanel(sequence_viewer_panel_);
-
+  // Route play/pause/shuttle commands from these panels to the sequence viewer
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(multicam_panel_);
@@ -525,7 +520,7 @@ void MainWindow::RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &r
   command->add_child(new WorkareaSetRangeCommand(r->GetWorkArea(), range));
   Core::instance()->undo_stack()->push(command);
 
-  footage_viewer_panel_->SetTime(range.in());
+  r->SetPlayhead(range.in());
 }
 
 #ifdef Q_OS_LINUX
@@ -556,7 +551,6 @@ void MainWindow::TimelineCloseRequested()
 {
   TimelinePanel *t = static_cast<TimelinePanel*>(sender());
   RemoveTimelinePanel(t);
-  main_time_panels_.removeOne(t);
 }
 
 void MainWindow::ProjectCloseRequested()
@@ -598,21 +592,6 @@ void MainWindow::FloatingPanelCloseRequested()
   panel->deleteLater();
 }
 
-void MainWindow::AddMainTimePanel(TimeBasedPanel *p)
-{
-  main_time_panels_.append(p);
-  connect(p, &TimeBasedPanel::TimeChanged, this, &MainWindow::UpdateMainTimePanels);
-}
-
-void MainWindow::UpdateMainTimePanels(const rational &r)
-{
-  for (TimeBasedPanel *p : main_time_panels_) {
-    if (p != sender()) {
-      p->SetTime(r);
-    }
-  }
-}
-
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
   TimelinePanel* panel = AppendPanelInternal<TimelinePanel>(timeline_panels_);
@@ -622,8 +601,6 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   connect(panel, &TimelinePanel::BlockSelectionChanged, this, &MainWindow::TimelinePanelSelectionChanged);
   connect(panel, &TimelinePanel::RevealViewerInProject, this, &MainWindow::RevealViewerInProject);
   connect(panel, &TimelinePanel::RevealViewerInFootageViewer, this, &MainWindow::RevealViewerInFootageViewer);
-
-  AddMainTimePanel(panel);
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(panel);
 

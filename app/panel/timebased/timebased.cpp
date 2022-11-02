@@ -34,11 +34,6 @@ TimeBasedPanel::~TimeBasedPanel()
   delete widget_;
 }
 
-rational TimeBasedPanel::GetTime()
-{
-  return widget_->GetTime();
-}
-
 const rational& TimeBasedPanel::timebase()
 {
   return widget_->timebase();
@@ -77,11 +72,6 @@ void TimeBasedPanel::ZoomOut()
 void TimeBasedPanel::SetTimebase(const rational &timebase)
 {
   widget_->SetTimebase(timebase);
-}
-
-void TimeBasedPanel::SetTime(const rational &time)
-{
-  widget_->SetTime(time);
 }
 
 void TimeBasedPanel::GoToPrevCut()
@@ -127,16 +117,12 @@ void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
 {
   if (widget_) {
-    disconnect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
-    disconnect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
     disconnect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 
   widget_ = widget;
 
   if (widget_) {
-    connect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
-    connect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
     connect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 

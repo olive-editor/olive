@@ -204,6 +204,10 @@ bool KeyframeView::CopySelected(bool cut)
 
 bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_function)
 {
+  if (!GetViewerNode()) {
+    return false;
+  }
+
   ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
   if (res == ProjectSerializer::kSuccess) {
     const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
@@ -216,7 +220,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
         min = std::min(min, key->time());
       }
     }
-    min -= GetTime();
+    min -= GetViewerNode()->GetPlayhead();
 
     for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
       const QString &paste_id = it.key();
@@ -454,7 +458,7 @@ void KeyframeView::ScaleChangedEvent(const double &scale)
   Redraw();
 }
 
-void KeyframeView::TimeTargetChangedEvent(Node *target)
+void KeyframeView::TimeTargetChangedEvent(ViewerOutput *v)
 {
   Redraw();
 }

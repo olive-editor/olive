@@ -166,6 +166,8 @@ signals:
 
   void ImageSequenceCheckBoxChanged(bool e);
 
+  void TimeChanged(const rational &time);
+
 private:
   QWidget* SetupResolutionSection();
   QWidget* SetupColorSection();

@@ -82,7 +82,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("InvertTimelineScrollAxes"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("SelectAlsoSeeks"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("PasteSeeks"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("SelectAlsoSeeks"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("SeekAlsoSelects"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("AutoSeekToBeginning"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("DropFileOnMediaToReplace"), NodeValue::kBoolean, false);

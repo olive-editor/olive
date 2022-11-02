@@ -317,7 +317,7 @@ public:
 
   void OpenNodeInViewer(ViewerOutput* viewer);
 
-  void OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image);
+  void OpenExportDialogForViewer(ViewerOutput *viewer, bool start_still_image);
 
 public slots:
   /**
@@ -551,7 +551,7 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  bool GetSequenceToExport(ViewerOutput **viewer, rational *time);
+  ViewerOutput *GetSequenceToExport();
 
   static QString GetAutoRecoveryIndexFilename();
 

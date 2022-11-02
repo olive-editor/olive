@@ -65,11 +65,10 @@ public slots:
   void SetNodes(const QVector<Node *> &nodes);
 
 protected:
-  virtual void TimeChangedEvent(const rational &) override;
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void TimeTargetChangedEvent(Node* target) override;
+  virtual void TimeTargetChangedEvent(ViewerOutput *target) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
@@ -94,8 +93,6 @@ private:
   void SetKeyframeButtonChecked(bool checked);
 
   void SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type);
-
-  void UpdateBridgeTime(const rational &time);
 
   void ConnectInput(Node *node, const QString &input, int element);
 

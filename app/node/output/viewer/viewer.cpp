@@ -316,6 +316,12 @@ void ViewerOutput::VerifyLength()
   }
 }
 
+void ViewerOutput::SetPlayhead(const rational &t)
+{
+  playhead_ = t;
+  emit PlayheadChanged(t);
+}
+
 void ViewerOutput::InputConnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kTextureInput) {
