@@ -21,6 +21,7 @@
 #include "clip.h"
 
 #include "config/config.h"
+#include "node/block/transition/transition.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/slider/floatslider.h"
@@ -467,8 +468,19 @@ TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, cons
     rational out = input_time.out();
 
     if (clamp) {
-      in = std::max(in, rational(0));
-      out = std::min(out, length());
+      rational minimum = 0;
+      rational maximum = length();
+
+      if (in_transition_) {
+        minimum -= in_transition_->length();
+      }
+
+      if (out_transition_) {
+        maximum += out_transition_->length();
+      }
+
+      in = std::max(in, minimum);
+      out = std::min(out, maximum);
     }
 
     in = SequenceToMediaTime(in);
