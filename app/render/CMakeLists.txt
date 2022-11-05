@@ -47,6 +47,8 @@ set(OLIVE_SOURCES
   render/previewaudiodevice.h
   render/previewautocacher.cpp
   render/previewautocacher.h
+  render/projectcopier.cpp
+  render/projectcopier.h
   render/renderer.cpp
   render/renderer.h
   render/rendercache.h
