@@ -388,7 +388,7 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 
   (*vw->display_widget()->queue()) = *playback_devices_.first()->queue();
   if (IsPlaying()) {
-    vw->display_widget()->Play(GetTimestamp(), playback_speed_, timebase());
+    vw->display_widget()->Play(GetTimestamp(), playback_speed_, timebase(), true);
   }
 
   windows_.insert(screen, vw);
@@ -702,6 +702,12 @@ void ViewerWidget::DetectMulticamNode(const rational &time)
   }
 }
 
+bool ViewerWidget::IsVideoVisible() const
+{
+  return GetConnectedNode()->GetVideoParams().video_type() != VideoParams::kVideoTypeStill
+      && (display_widget_->isVisible() || !windows_.isEmpty());
+}
+
 void ViewerWidget::UpdateWaveformViewFromMode()
 {
   bool prefer_waveform = ShouldForceWaveform();
@@ -954,7 +960,7 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
   queue_starved_start_ = 0;
 
   // Attempt to fill playback queue
-  if (display_widget_->isVisible() || !windows_.isEmpty()) {
+  if (IsVideoVisible()) {
     prequeue_length_ = DeterminePlaybackQueueSize();
 
     if (prequeue_length_ > 0) {
@@ -1181,7 +1187,7 @@ void ViewerWidget::FinishPlayPreprocess()
   display_widget_->ResetFPSTimer();
 
   foreach (ViewerDisplayWidget *dw, playback_devices_) {
-    dw->Play(playback_start_time, playback_speed_, timebase());
+    dw->Play(playback_start_time, playback_speed_, timebase(), IsVideoVisible());
   }
 
   // This is our timer for loading the queue and setting the time
@@ -1731,7 +1737,7 @@ void ViewerWidget::PlaybackTimerUpdate()
     }
   }
 
-  if (IsPlaying()) {
+  if (IsPlaying() && IsVideoVisible()) {
     while ((int(display_widget_->queue()->size()) + queue_watchers_.size()) < DeterminePlaybackQueueSize()) {
       if (!RequestNextFrameForQueue()) {
         // Prevent infinite loop

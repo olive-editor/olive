@@ -282,6 +282,8 @@ private:
 
   void DetectMulticamNode(const rational &time);
 
+  bool IsVideoVisible() const;
+
   ViewerSizer* sizer_;
 
   int playback_speed_;

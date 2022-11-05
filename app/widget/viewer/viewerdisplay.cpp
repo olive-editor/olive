@@ -1241,16 +1241,18 @@ void ViewerDisplayWidget::RequestStartEditingText()
   }
 }
 
-void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase)
+void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase, bool start_updating)
 {
   playback_timebase_ = timebase;
   playback_speed_ = playback_speed;
 
   timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
 
-  connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
+  if (start_updating) {
+    connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
 
-  update();
+    update();
+  }
 }
 
 void ViewerDisplayWidget::Pause()

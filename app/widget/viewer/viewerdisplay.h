@@ -123,7 +123,7 @@ public:
     return texture_;
   }
 
-  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase);
+  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase, bool start_updating);
 
   void Pause();
 
