@@ -104,6 +104,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("UseLegacyColorInInputTab"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("ReassocLinToNonLin"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("PreviewNonFloatDontAskAgain"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("UseGLFinish"), NodeValue::kBoolean, false);
 
   SetEntryInternal(QStringLiteral("TimelineThumbnailMode"), NodeValue::kInt, Timeline::kThumbnailInOut);
   SetEntryInternal(QStringLiteral("TimelineWaveformMode"), NodeValue::kInt, Timeline::kWaveformsEnabled);

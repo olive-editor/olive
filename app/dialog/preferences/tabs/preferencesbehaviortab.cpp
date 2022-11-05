@@ -107,6 +107,11 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           tr("Multiple clips can share the same nodes. Disable this to automatically share node "
              "dependencies among clips when copying or splitting them."),
           node_group);
+
+  QTreeWidgetItem* opengl_group = AddParent(tr("OpenGL"));
+  AddItem(tr("Use glFinish"),
+          QStringLiteral("UseGLFinish"),
+          opengl_group);
 }
 
 void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)
