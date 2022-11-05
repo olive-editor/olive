@@ -289,6 +289,7 @@ void TimelineWidget::ConnectNodeEvent(ViewerOutput *n)
 
   connect(timecode_label_, &RationalSlider::ValueChanged, s, &Sequence::SetPlayhead);
   connect(s, &Sequence::PlayheadChanged, timecode_label_, &RationalSlider::SetValue);
+  timecode_label_->SetValue(s->GetPlayhead());
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
