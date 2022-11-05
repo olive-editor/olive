@@ -319,6 +319,8 @@ public:
 
   void OpenExportDialogForViewer(ViewerOutput *viewer, bool start_still_image);
 
+  bool IsMagicEnabled() const { return magic_; }
+
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file
@@ -448,6 +450,11 @@ public slots:
   void RequestPixelSamplingInViewers(bool e);
 
   void WarnCacheFull();
+
+  void SetMagic(bool e)
+  {
+    magic_ = e;
+  }
 
 signals:
   /**
@@ -625,6 +632,11 @@ private:
    * @brief List of projects that are unsaved but have autorecovery projects
    */
   QVector<QUuid> autorecovered_projects_;
+
+  /**
+   * @brief Do something debug related
+   */
+  bool magic_;
 
   /**
    * @brief How many widgets currently need pixel sampling access

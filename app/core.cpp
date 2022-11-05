@@ -88,7 +88,8 @@ Core::Core(const CoreParams& params) :
   snapping_(true),
   core_params_(params),
   pixel_sampling_users_(0),
-  shown_cache_full_warning_(false)
+  shown_cache_full_warning_(false),
+  magic_(false)
 {
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
