@@ -87,9 +87,9 @@ Core::Core(const CoreParams& params) :
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
   core_params_(params),
+  magic_(false),
   pixel_sampling_users_(0),
-  shown_cache_full_warning_(false),
-  magic_(false)
+  shown_cache_full_warning_(false)
 {
   // Store reference to this object, making the assumption that Core will only ever be made in
   // main(). This will obviously break if not.
