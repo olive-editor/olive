@@ -34,6 +34,7 @@ TextAnimationRender::TextAnimationRender()
 {
 }
 
+
 void TextAnimationRender::render( const QString & animators_tags,
                                   QTextDocument & text_doc,
                                   QPainter & p)
@@ -42,6 +43,10 @@ void TextAnimationRender::render( const QString & animators_tags,
   int block_count = text_doc.blockCount();
   // character index in full document
   int index = 0;
+  // index of first character in current block
+  int block_start_index = 0;
+  // calculated by the spacing of each character from the begin of block
+  qreal spacing_offset = 0;
   cursor.movePosition( QTextCursor::Start);
 
   qreal line_Voffset = text_doc.documentLayout()->blockBoundingRect(cursor.block()).bottom() -
@@ -64,6 +69,7 @@ void TextAnimationRender::render( const QString & animators_tags,
   // parse the whole text document and print every character
   for (int blk=0; blk < block_count; blk++) {
     qreal posx = 0.;
+    block_start_index = index;
 
     // x position of characters of current block without any animation
     QVector<qreal> base_position_x;
@@ -76,7 +82,10 @@ void TextAnimationRender::render( const QString & animators_tags,
      * print because the "charFormat()" refers to previous character */
     cursor.movePosition( QTextCursor::Right);
 
-    for( qreal & x: base_position_x) {
+    //for( qreal & x: base_position_x) {
+    for( int i = 0; i < base_position_x.size(); i++) {
+      const qreal & x = base_position_x[i];
+
       p.save();
       p.setFont( cursor.charFormat().font());
 
@@ -89,9 +98,12 @@ void TextAnimationRender::render( const QString & animators_tags,
       // "transparencies" can be assumed to be in range 0 - 255
       ch_color.setAlpha(255 - transparencies[index]);
 
+      // calcualte spacing from the begin of block
+      spacing_offset = calculateSpacing(block_start_index, index, spacings);
+
       p.setPen( ch_color);
-      p.translate( QPointF(posx + (x + horiz_offsets[index])*(1. + spacings[index]),
-                                 line_Voffset + vert_offsets[index]));
+      p.translate( QPointF(posx + (x + horiz_offsets[index] + spacing_offset),
+                           line_Voffset + vert_offsets[index]));
       p.rotate( rotations[index]);
       p.scale( 1.+ horiz_stretches[index], 1. + vert_stretches[index]);
       p.drawText( QPointF(0,0), text_doc.characterAt(cursor.position() - 1));
@@ -187,6 +199,22 @@ double TextAnimationRender::currentCharWidth( QTextCursor & cursor) const
                             1.;
 
   return  (double)char_size*(stretch_factor);
+}
+
+// the spacing for a char at a given 'index' in the whole document is the sum
+// of the spacing values from the begin of the block (whose index is
+// 'block_start_index'). The vector 'spacings' holds the values for the whole
+// document.
+qreal TextAnimationRender::calculateSpacing(int block_start_index, int index,
+                                            const QVector<double>& spacings)
+{
+  qreal char_spacing = 0.;
+
+  for (int ch=block_start_index; ch < index; ch++) {
+    char_spacing += spacings[ch];
+  }
+
+  return char_spacing;
 }
 
 }  // olive

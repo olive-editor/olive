@@ -170,8 +170,8 @@ void TextAnimationEngine::CalculateAnimator( const TextAnimation::Descriptor &an
       break;
     case TextAnimation::Transparency:
       transparency_[target_index] += (int)anim_value;
-      transparency_[target_index] = qMin( transparency_[index], 255);
-      transparency_[target_index] = qMax( transparency_[index], 0);
+      transparency_[target_index] = qMin( transparency_[target_index], 255);
+      transparency_[target_index] = qMax( transparency_[target_index], 0);
       break;
     default:
     case TextAnimation::None:

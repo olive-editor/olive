@@ -57,8 +57,11 @@ private:
 
   double currentCharWidth( QTextCursor & cursor) const;
 
+  qreal calculateSpacing(int block_start_index, int index, const QVector<double>& spacings);
+
 private:
   TextAnimationEngine engine_;
+
 };
 
 }

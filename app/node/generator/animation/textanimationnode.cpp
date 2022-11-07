@@ -107,7 +107,7 @@ TextAnimationNode::TextAnimationNode()
   SetInputProperty( kOverlapInInput, QStringLiteral("max"), 1.);
   SetInputProperty( kOverlapInInput, QString("tooltip"),
                     tr("<p><b>Range: 0-1</b></p>"
-                       "<p>This controls when each charater starts the animation. "
+                       "<p>This controls when each character starts the animation. "
                        "When 0, all characters start the animation at the same time; "
                        "when 1, the begin of the animation for each character is distributed over time.</p>"));
 
