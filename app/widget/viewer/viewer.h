@@ -229,7 +229,7 @@ protected:
 private:
   int64_t GetTimestamp() const
   {
-    return Timecode::time_to_timestamp(GetTime(), timebase(), Timecode::kFloor);
+    return Timecode::time_to_timestamp(GetConnectedNode()->GetPlayhead(), timebase(), Timecode::kFloor);
   }
 
   void UpdateTimeInternal(int64_t i);
@@ -281,6 +281,8 @@ private:
   void SetWaveformMode(WaveformMode wf);
 
   void DetectMulticamNode(const rational &time);
+
+  bool IsVideoVisible() const;
 
   ViewerSizer* sizer_;
 

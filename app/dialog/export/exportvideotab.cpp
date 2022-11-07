@@ -184,6 +184,7 @@ QWidget *ExportVideoTab::SetupCodecSection()
   codec_layout->addWidget(codec_stack_, row, 0, 1, 2);
 
   image_section_ = new ImageSection();
+  connect(image_section_, &ImageSection::TimeChanged, this, &ExportVideoTab::TimeChanged);
   codec_stack_->addWidget(image_section_);
 
   h264_section_ = new H264Section();

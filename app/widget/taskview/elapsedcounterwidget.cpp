@@ -22,6 +22,7 @@
 
 #include <QDateTime>
 #include <QHBoxLayout>
+#include <cmath>
 
 #include "common/timecodefunctions.h"
 
@@ -80,7 +81,7 @@ void ElapsedCounterWidget::UpdateTimers()
     double ms_per_progress_unit = elapsed_ms / last_progress_;
     double remaining_progress = 1.0 - last_progress_;
 
-    remaining_ms = qRound64(ms_per_progress_unit * remaining_progress);
+    remaining_ms = std::ceil(ms_per_progress_unit * remaining_progress);
   } else {
     elapsed_ms = 0;
     remaining_ms = 0;

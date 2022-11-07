@@ -290,7 +290,7 @@ bool FFmpegEncoder::WriteAudio(const SampleBuffer &audio)
   size_t end = audio.sample_count();
   const size_t max_frame = 48000;
 
-  while (start < end) {
+  while (result && start < end) {
     // Create input buffer
     uint8_t** input_data = nullptr;
     size_t input_sample_count = std::min(end - start, max_frame);

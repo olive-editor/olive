@@ -28,11 +28,6 @@
 #include "node/inputdragger.h"
 #include "node/project/project.h"
 #include "render/diskmanager.h"
-#include "render/renderprocessor.h"
-#include "task/customcache/customcachetask.h"
-#include "task/taskmanager.h"
-#include "widget/slider/base/numericsliderbase.h"
-#include "widget/viewer/viewer.h"
 
 namespace olive {
 
@@ -47,6 +42,10 @@ PreviewAutoCacher::PreviewAutoCacher(QObject *parent) :
   multicam_(nullptr),
   ignore_cache_requests_(false)
 {
+  copier_ = new ProjectCopier(this);
+  connect(copier_, &ProjectCopier::AddedNode, this, &PreviewAutoCacher::ConnectToNodeCache);
+  connect(copier_, &ProjectCopier::RemovedNode, this, &PreviewAutoCacher::DisconnectFromNodeCache);
+
   // Set defaults
   SetPlayhead(0);
 
@@ -157,7 +156,7 @@ void PreviewAutoCacher::AudioRendered()
   if (running_audio_tasks_.removeOne(watcher)) {
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
     TimeRange range = watcher->property("time").value<TimeRange>();
-    Node *node = copy_map_.key(Node::ValueToPtr<Node>(watcher->property("node")));
+    Node *node = copier_->GetOriginal(Node::ValueToPtr<Node>(watcher->property("node")));
 
     if (watcher->HasResult() && node) {
       if (PlaybackCache *cache = Node::ValueToPtr<PlaybackCache>(watcher->property("cache"))) {
@@ -252,140 +251,12 @@ void PreviewAutoCacher::VideoRendered()
   delete watcher;
 }
 
-void PreviewAutoCacher::ProcessUpdateQueue()
-{
-  // Iterate everything that happened to the graph and do the same thing on our end
-  while (!graph_update_queue_.empty()) {
-    QueuedJob job = graph_update_queue_.front();
-    graph_update_queue_.pop_front();
-
-    switch (job.type) {
-    case QueuedJob::kNodeAdded:
-      AddNode(job.node);
-      break;
-    case QueuedJob::kNodeRemoved:
-      RemoveNode(job.node);
-      break;
-    case QueuedJob::kEdgeAdded:
-      AddEdge(job.output, job.input);
-      break;
-    case QueuedJob::kEdgeRemoved:
-      RemoveEdge(job.output, job.input);
-      break;
-    case QueuedJob::kValueChanged:
-      CopyValue(job.input);
-      break;
-    case QueuedJob::kValueHintChanged:
-      CopyValueHint(job.input);
-      break;
-    }
-  }
-
-  // Indicate that we have synchronized to this point, which is compared with the graph change
-  // time to see if our copied graph is up to date
-  UpdateLastSyncedValue();
-}
-
-void PreviewAutoCacher::AddNode(Node *node)
-{
-  if (dynamic_cast<NodeGroup*>(node)) {
-    // Group nodes are just dummy nodes, no need to copy them
-    return;
-  }
-
-  // Copy node
-  Node* copy = node->copy();
-
-  // Add to project
-  copy->setParent(&copied_project_);
-
-  // Disable caches for copy
-  copy->SetCachesEnabled(false);
-
-  // Copy cache UUIDs
-  copy->CopyCacheUuidsFrom(node);
-
-  // Insert into map
-  InsertIntoCopyMap(node, copy);
-
-  // Keep track of our nodes
-  created_nodes_.append(copy);
-}
-
-void PreviewAutoCacher::RemoveNode(Node *node)
-{
-  // Find our copy and remove it
-  Node* copy = copy_map_.take(node);
-
-  // Disconnect from node's caches
-  DisconnectFromNodeCache(node);
-
-  // Remove from created list
-  created_nodes_.removeOne(copy);
-
-  // Delete it
-  delete copy;
-}
-
-void PreviewAutoCacher::AddEdge(Node *output, const NodeInput &input)
-{
-  // Create same connection with our copied graph
-  Node* our_output = copy_map_.value(output);
-  Node* our_input = copy_map_.value(input.node());
-
-  Node::ConnectEdge(our_output, NodeInput(our_input, input.input(), input.element()));
-}
-
-void PreviewAutoCacher::RemoveEdge(Node *output, const NodeInput &input)
-{
-  // Remove same connection with our copied graph
-  Node* our_output = copy_map_.value(output);
-  Node* our_input = copy_map_.value(input.node());
-
-  Node::DisconnectEdge(our_output, NodeInput(our_input, input.input(), input.element()));
-}
-
-void PreviewAutoCacher::CopyValue(const NodeInput &input)
-{
-  if (dynamic_cast<NodeGroup*>(input.node())) {
-    // Group nodes are just dummy nodes, no need to copy them
-    return;
-  }
-
-  // Copy all values to our graph
-  Node* our_input = copy_map_.value(input.node());
-  Node::CopyValuesOfElement(input.node(), our_input, input.input(), input.element());
-}
-
-void PreviewAutoCacher::CopyValueHint(const NodeInput &input)
-{
-  if (dynamic_cast<NodeGroup*>(input.node())) {
-    // Group nodes are just dummy nodes, no need to copy them
-    return;
-  }
-
-  // Copy value hint to our graph
-  Node* our_input = copy_map_.value(input.node());
-  Node::ValueHint hint = input.node()->GetValueHintForInput(input.input(), input.element());
-  our_input->SetValueHintForInput(input.input(), hint, input.element());
-}
-
-void PreviewAutoCacher::InsertIntoCopyMap(Node *node, Node *copy)
-{
-  // Insert into map
-  copy_map_.insert(node, copy);
-
-  // Copy parameters
-  Node::CopyInputs(node, copy, false);
-
-  // Connect to node's cache
-  if (!ignore_cache_requests_) {
-    ConnectToNodeCache(node);
-  }
-}
-
 void PreviewAutoCacher::ConnectToNodeCache(Node *node)
 {
+  if (ignore_cache_requests_) {
+    return;
+  }
+
   connect(node->video_frame_cache(),
           &PlaybackCache::Requested,
           this,
@@ -455,16 +326,6 @@ void PreviewAutoCacher::DisconnectFromNodeCache(Node *node)
              &PreviewAutoCacher::CancelForCache);
 }
 
-void PreviewAutoCacher::UpdateGraphChangeValue()
-{
-  graph_changed_time_.Acquire();
-}
-
-void PreviewAutoCacher::UpdateLastSyncedValue()
-{
-  last_update_time_.Acquire();
-}
-
 void PreviewAutoCacher::CancelQueuedSingleFrameRender()
 {
   if (single_frame_render_) {
@@ -477,7 +338,7 @@ void PreviewAutoCacher::CancelQueuedSingleFrameRender()
 void PreviewAutoCacher::StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker)
 {
   range_list->insert(range);
-  tracker->insert(range, graph_changed_time_);
+  tracker->insert(range, copier_->GetGraphChangeTime());
 }
 
 void PreviewAutoCacher::StartCachingVideoRange(PlaybackCache *cache, const TimeRange &range)
@@ -494,7 +355,7 @@ void PreviewAutoCacher::StartCachingVideoRange(PlaybackCache *cache, const TimeR
 
   TimeRangeListFrameIterator iterator({range}, using_tb);
   pending_video_jobs_.push_back({node, cache, range, iterator});
-  video_cache_data_[cache].job_tracker.insert(TimeRange(iterator.Snap(range.in()), range.out()), graph_changed_time_);
+  video_cache_data_[cache].job_tracker.insert(TimeRange(iterator.Snap(range.in()), range.out()), copier_->GetGraphChangeTime());
   TryRender();
 }
 
@@ -505,7 +366,7 @@ void PreviewAutoCacher::StartCachingAudioRange(PlaybackCache *cache, const TimeR
   cache->ClearRequestRange(range);
 
   pending_audio_jobs_.push_back({node, cache, range});
-  audio_cache_data_[cache].job_tracker.insert(range, graph_changed_time_);
+  audio_cache_data_[cache].job_tracker.insert(range, copier_->GetGraphChangeTime());
   TryRender();
 }
 
@@ -592,47 +453,11 @@ void PreviewAutoCacher::SetThumbnailsPaused(bool e)
   }
 }
 
-void PreviewAutoCacher::NodeAdded(Node *node)
-{
-  graph_update_queue_.push_back({QueuedJob::kNodeAdded, node, NodeInput(), nullptr});
-  UpdateGraphChangeValue();
-}
-
-void PreviewAutoCacher::NodeRemoved(Node *node)
-{
-  graph_update_queue_.push_back({QueuedJob::kNodeRemoved, node, NodeInput(), nullptr});
-  UpdateGraphChangeValue();
-}
-
-void PreviewAutoCacher::EdgeAdded(Node *output, const NodeInput &input)
-{
-  graph_update_queue_.push_back({QueuedJob::kEdgeAdded, nullptr, input, output});
-  UpdateGraphChangeValue();
-}
-
-void PreviewAutoCacher::EdgeRemoved(Node *output, const NodeInput &input)
-{
-  graph_update_queue_.push_back({QueuedJob::kEdgeRemoved, nullptr, input, output});
-  UpdateGraphChangeValue();
-}
-
-void PreviewAutoCacher::ValueChanged(const NodeInput &input)
-{
-  graph_update_queue_.push_back({QueuedJob::kValueChanged, nullptr, input, nullptr});
-  UpdateGraphChangeValue();
-}
-
-void PreviewAutoCacher::ValueHintChanged(const NodeInput &input)
-{
-  graph_update_queue_.push_back({QueuedJob::kValueHintChanged, nullptr, input, nullptr});
-  UpdateGraphChangeValue();
-}
-
 void PreviewAutoCacher::TryRender()
 {
   delayed_requeue_timer_.stop();
 
-  if (!graph_update_queue_.empty()) {
+  if (copier_->HasUpdatesInQueue()) {
     // Check if we have jobs running in other threads that shouldn't be interrupted right now
     // NOTE: We don't check for downloads because, while they run in another thread, they don't
     //       require any access to the graph and therefore don't risk race conditions.
@@ -642,7 +467,7 @@ void PreviewAutoCacher::TryRender()
     }
 
     // No jobs are active, we can process the update queue
-    ProcessUpdateQueue();
+    copier_->ProcessUpdateQueue();
   }
 
   if (single_frame_render_) {
@@ -653,7 +478,7 @@ void PreviewAutoCacher::TryRender()
 
     // Check if already caching this
     Node *n = Node::ValueToPtr<Node>(t->property("node"));
-    Node *copy = copy_map_.value(n);
+    Node *copy = copier_->GetCopy(n);
 
     if (copy) {
       RenderTicketWatcher *watcher = RenderFrame(copy,
@@ -676,7 +501,7 @@ void PreviewAutoCacher::TryRender()
       while (!pending_video_jobs_.empty()) {
         VideoJob &d = pending_video_jobs_.front();
 
-        if (Node *copy = copy_map_.value(d.node)) {
+        if (Node *copy = copier_->GetCopy(d.node)) {
           // Queue next frames
           rational t;
           while (running_video_tasks_.size() < max_tasks && d.iterator.GetNext(&t)) {
@@ -707,7 +532,7 @@ void PreviewAutoCacher::TryRender()
       bool pop = true;
 
       // Start job
-      if (Node *copy = copy_map_.value(d.node)) {
+      if (Node *copy = copier_->GetCopy(d.node)) {
         TimeRange &queued_range = d.range;
         TimeRange use_range = queued_range;
 
@@ -736,7 +561,7 @@ void PreviewAutoCacher::TryRender()
 RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& time, PlaybackCache *cache, bool dry)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+  watcher->setProperty("job", QVariant::fromValue(copier_->GetLastUpdateTime()));
   watcher->setProperty("cache", Node::PtrToValue(cache));
   watcher->setProperty("time", QVariant::fromValue(time));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
@@ -768,7 +593,7 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
   rvp.use_cache = true;
 
   // Multicam
-  rvp.multicam = static_cast<MultiCamNode*>(copy_map_.value(multicam_));
+  rvp.multicam = copier_->GetCopy(multicam_);
 
   watcher->SetTicket(RenderManager::instance()->RenderFrame(rvp));
 
@@ -778,7 +603,7 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
 RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, const TimeRange &r, PlaybackCache *cache)
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
-  watcher->setProperty("job", QVariant::fromValue(last_update_time_));
+  watcher->setProperty("job", QVariant::fromValue(copier_->GetLastUpdateTime()));
   watcher->setProperty("node", Node::PtrToValue(node));
   watcher->setProperty("cache", Node::PtrToValue(cache));
   watcher->setProperty("time", QVariant::fromValue(r));
@@ -861,16 +686,13 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
     video_immediate_passthroughs_.clear();
 
     // Disconnect from all node cache's
-    for (auto it=copy_map_.cbegin(); it!=copy_map_.cend(); it++) {
+    for (auto it=copier_->GetNodeMap().cbegin(); it!=copier_->GetNodeMap().cend(); it++) {
       DisconnectFromNodeCache(it.key());
     }
 
     // Delete all of our copied nodes
-    qDeleteAll(created_nodes_);
-    created_nodes_.clear();
-    copy_map_.clear();
+    copier_->SetProject(nullptr);
     copied_viewer_node_ = nullptr;
-    graph_update_queue_.clear();
 
     // Ensure all cache data is cleared
     video_cache_data_.clear();
@@ -878,59 +700,25 @@ void PreviewAutoCacher::SetViewerNode(ViewerOutput *viewer_node)
 
     // Clear multicam reference
     multicam_ = nullptr;
-
-    // Disconnect signals for future node additions/deletions
-    NodeGraph* graph = viewer_node_->parent();
-
-    disconnect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded);
-    disconnect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved);
-    disconnect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded);
-    disconnect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved);
-    disconnect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged);
-    disconnect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged);
   }
 
   viewer_node_ = viewer_node;
 
   if (viewer_node_) {
-    // Copy graph
-    NodeGraph* graph = viewer_node_->parent();
+    // Copy graph (this should always be a Project)
+    Project* graph = static_cast<Project*>(viewer_node_->parent());
 
     SetRendersPaused(true);
 
-    // Add all nodes
-    for (int i=0; i<copied_project_.nodes().size(); i++) {
-      InsertIntoCopyMap(graph->nodes().at(i), copied_project_.nodes().at(i));
-    }
-    for (int i=copied_project_.nodes().size(); i<graph->nodes().size(); i++) {
-      AddNode(graph->nodes().at(i));
-    }
+    copier_->SetProject(graph);
+
     for (int i=0; i<graph->nodes().size(); i++) {
       graph->nodes().at(i)->ConnectedToPreviewEvent();
     }
 
     // Find copied viewer node
-    copied_viewer_node_ = static_cast<ViewerOutput*>(copy_map_.value(viewer_node_));
-    copied_color_manager_ = static_cast<ColorManager*>(copy_map_.value(viewer_node_->project()->color_manager()));
-
-    // Add all connections
-    foreach (Node* node, graph->nodes()) {
-      for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-        AddEdge(it->second, it->first);
-      }
-    }
-
-    // Ensure graph change value is just before the sync value
-    UpdateGraphChangeValue();
-    UpdateLastSyncedValue();
-
-    // Connect signals for future node additions/deletions
-    connect(graph, &NodeGraph::NodeAdded, this, &PreviewAutoCacher::NodeAdded, Qt::DirectConnection);
-    connect(graph, &NodeGraph::NodeRemoved, this, &PreviewAutoCacher::NodeRemoved, Qt::DirectConnection);
-    connect(graph, &NodeGraph::InputConnected, this, &PreviewAutoCacher::EdgeAdded, Qt::DirectConnection);
-    connect(graph, &NodeGraph::InputDisconnected, this, &PreviewAutoCacher::EdgeRemoved, Qt::DirectConnection);
-    connect(graph, &NodeGraph::ValueChanged, this, &PreviewAutoCacher::ValueChanged, Qt::DirectConnection);
-    connect(graph, &NodeGraph::InputValueHintChanged, this, &PreviewAutoCacher::ValueHintChanged, Qt::DirectConnection);
+    copied_viewer_node_ = copier_->GetCopy(viewer_node_);
+    copied_color_manager_ = copier_->GetCopy(graph->color_manager());
 
     SetRendersPaused(false);
   }

@@ -48,7 +48,7 @@ public:
 
   void CloseContextsBelongingToProject(Project *p);
 
-  Node* GetTimeTarget() const;
+  ViewerOutput *GetTimeTarget() const;
 
   void DeleteSelected();
 
@@ -95,7 +95,6 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
   virtual void TimebaseChangedEvent(const rational&) override;
-  virtual void TimeChangedEvent(const rational &time) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
@@ -115,8 +114,6 @@ protected:
   }
 
 private:
-  void UpdateItemTime(const rational &time);
-
   void QueueKeyframePositionUpdate();
 
   void AddContext(Node *context);
@@ -159,7 +156,7 @@ private:
   NodeParamViewItem* focused_node_;
   QVector<NodeParamViewItem*> selected_nodes_;
 
-  Node *time_target_;
+  ViewerOutput *time_target_;
 
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;

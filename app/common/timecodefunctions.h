@@ -56,9 +56,7 @@ public:
   /**
    * @brief Convert a timestamp (according to a rational timebase) to a user-friendly string representation
    */
-  static QString timestamp_to_timecode(const int64_t &timestamp, const rational& timebase, const Display &display, bool show_plus_if_positive = false);
-
-  static int64_t timecode_to_timestamp(const QString& timecode, const rational& timebase, const Display& display, bool *ok = nullptr);
+  static QString time_to_timecode(const rational& time, const rational& timebase, const Display &display, bool show_plus_if_positive = false);
   static rational timecode_to_time(const QString& timecode, const rational& timebase, const Display& display, bool *ok = nullptr);
 
   static rational snap_time_to_timebase(const rational& time, const rational& timebase, Rounding floor = kRound);
@@ -70,8 +68,6 @@ public:
   static int64_t rescale_timestamp_ceil(const int64_t& ts, const rational& source, const rational& dest);
 
   static rational timestamp_to_time(const int64_t& timestamp, const rational& timebase);
-
-  static QString time_to_timecode(const rational& time, const rational& timebase, const Display &display, bool show_plus_if_positive = false);
 
   static bool TimebaseIsDropFrame(const rational& timebase);
 

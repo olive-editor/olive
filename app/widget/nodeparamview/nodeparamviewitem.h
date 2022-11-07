@@ -51,9 +51,7 @@ class NodeParamViewItemBody : public QWidget {
 public:
   NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
-  void SetTimeTarget(Node* target);
-
-  void SetTime(const rational& time);
+  void SetTimeTarget(ViewerOutput *target);
 
   void Retranslate();
 
@@ -65,8 +63,6 @@ public:
   void SetInputChecked(const NodeInput &input, bool e);
 
 signals:
-  void RequestSetTime(const rational& time);
-
   void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
@@ -167,16 +163,9 @@ class NodeParamViewItem : public NodeParamViewItemBase
 public:
   NodeParamViewItem(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
-  void SetTimeTarget(Node* target)
+  void SetTimeTarget(ViewerOutput* target)
   {
     body_->SetTimeTarget(target);
-  }
-
-  void SetTime(const rational& time)
-  {
-    time_ = time;
-
-    body_->SetTime(time_);
   }
 
   void SetTimebase(const rational& timebase)
@@ -216,8 +205,6 @@ public:
   }
 
 signals:
-  void RequestSetTime(const rational& time);
-
   void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
@@ -238,7 +225,6 @@ private:
 
   Node *ctx_;
 
-  rational time_;
   rational timebase_;
 
   KeyframeView::NodeConnections keyframe_connections_;

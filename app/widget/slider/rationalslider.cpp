@@ -98,18 +98,24 @@ void RationalSlider::DisableDisplayType(RationalSlider::DisplayType type)
 
 QString RationalSlider::ValueToString(const QVariant &v) const
 {
-  double val = v.value<rational>().toDouble() + GetOffset().value<rational>().toDouble();
+  rational r = v.value<rational>();
 
-  switch (display_type_) {
-  case kTime:
-    return Timecode::time_to_timecode(v.value<rational>(), timebase_, Core::instance()->GetTimecodeDisplay());
-  case kFloat:
-    return FloatToString(val, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
-  case kRational:
-    return v.value<rational>().toString();
+  if (r.isNaN()) {
+    return tr("NaN");
+  } else {
+    double val = r.toDouble() + GetOffset().value<rational>().toDouble();
+
+    switch (display_type_) {
+    case kTime:
+      return Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay());
+    case kFloat:
+      return FloatToString(val, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
+    case kRational:
+      return v.value<rational>().toString();
+    }
+
+    return v.toString();
   }
-
-  return v.toString();
 }
 
 QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const

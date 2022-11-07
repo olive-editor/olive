@@ -787,30 +787,6 @@ public:
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const;
 
   /**
-   * @brief Returns whether this Node outputs to `n`
-   *
-   * @param n
-   *
-   * The node instance to check.
-   *
-   * @param recursively
-   *
-   * Whether to keep traversing down outputs to find this node (TRUE) or stick to immediate outputs
-   * (FALSE).
-   */
-  bool OutputsTo(Node* n, bool recursively, const OutputConnections &ignore_edges = OutputConnections(), const OutputConnection &added_edge = OutputConnection()) const;
-
-  /**
-   * @brief Same as OutputsTo(Node*), but for a node ID rather than a specific instance.
-   */
-  bool OutputsTo(const QString& id, bool recursively) const;
-
-  /**
-   * @brief Same as OutputsTo(Node*), but for a specific node input rather than just a node.
-   */
-  bool OutputsTo(const NodeInput &input, bool recursively) const;
-
-  /**
    * @brief Returns whether this node ever receives an input from a particular node instance
    */
   bool InputsFrom(Node* n, bool recursively) const;
@@ -820,7 +796,6 @@ public:
    */
   bool InputsFrom(const QString& id, bool recursively) const;
 
-
   /**
    * @brief Find inputs that `output` outputs to in order to arrive at this node
    *
@@ -828,11 +803,6 @@ public:
    * edges that `output` uses to get to `this` node.
    */
   QVector<NodeInput> FindWaysNodeArrivesHere(const Node *output) const;
-
-  /**
-   * @brief Determines how many paths go from this node out to another node
-   */
-  int GetNumberOfRoutesTo(Node* n) const;
 
   /**
    * @brief Severs all input and output connections
@@ -865,12 +835,6 @@ public:
    */
   template<class T>
   static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input, int maximum = 0);
-
-  template<class T>
-  /**
-   * @brief Find a node of a certain type that this Node outputs to
-   */
-  QVector<T *>  FindOutputNode();
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
@@ -907,7 +871,7 @@ public:
    * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be
    * overridden to do so. Also make sure to override OutputTimeAdjustment() to provide the inverse function.
    */
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const;
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const;
 
   /**
    * @brief The inverse of InputTimeAdjustment()
@@ -1413,9 +1377,6 @@ private:
   template<class T>
   static void FindInputNodeInternal(const Node* n, QVector<T *>& list, int maximum);
 
-  template<class T>
-  static void FindOutputNodeInternal(const Node* n, QVector<T *>& list);
-
   QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
   void ParameterValueChanged(const QString &input, int element, const olive::TimeRange &range);
@@ -1571,31 +1532,6 @@ template<class T>
 T* Node::ValueToPtr(const QVariant &ptr)
 {
   return reinterpret_cast<T*>(ptr.value<quintptr>());
-}
-
-template<class T>
-void Node::FindOutputNodeInternal(const Node* n, QVector<T *>& list)
-{
-  foreach (const OutputConnection& output, n->output_connections_) {
-    Node* connected = output.second.node();
-    T* cast_test = dynamic_cast<T*>(connected);
-
-    if (cast_test) {
-      list.append(cast_test);
-    }
-
-    FindOutputNodeInternal<T>(connected, list);
-  }
-}
-
-template<class T>
-QVector<T *> Node::FindOutputNode()
-{
-  QVector<T *> list;
-
-  FindOutputNodeInternal<T>(this, list);
-
-  return list;
 }
 
 using NodePtr = std::shared_ptr<Node>;

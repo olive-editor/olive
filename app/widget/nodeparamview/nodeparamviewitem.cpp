@@ -90,12 +90,10 @@ void NodeParamViewItem::RecreateBody()
 
   body_ = new NodeParamViewItemBody(node_, create_checkboxes_, this);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
-  connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
   connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
   connect(body_, &NodeParamViewItemBody::RequestEditTextInViewer, this, &NodeParamViewItem::RequestEditTextInViewer);
   body_->Retranslate();
-  body_->SetTime(time_);
   body_->SetTimebase(timebase_);
   SetBody(body_);
 }
@@ -263,7 +261,6 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
     ui_objects.key_control = new NodeParamViewKeyframeControl(this);
     ui_objects.key_control->SetInput(resolved);
     layout->addWidget(ui_objects.key_control, row, kKeyControlColumn);
-    connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
   }
 
   input_ui_map_.insert(input_ref, ui_objects);
@@ -273,31 +270,17 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   }
 }
 
-void NodeParamViewItemBody::SetTimeTarget(Node *target)
+void NodeParamViewItemBody::SetTimeTarget(ViewerOutput *target)
 {
   foreach (const InputUI& ui_obj, input_ui_map_) {
     // Only keyframable inputs have a key control widget
     if (ui_obj.key_control) {
       ui_obj.key_control->SetTimeTarget(target);
     }
-
-    ui_obj.widget_bridge->SetTimeTarget(target);
-  }
-}
-
-void NodeParamViewItemBody::SetTime(const rational &time)
-{
-  foreach (const InputUI& ui_obj, input_ui_map_) {
-    // Only keyframable inputs have a key control widget
-    if (ui_obj.key_control) {
-      ui_obj.key_control->SetTime(time);
-    }
-
     if (ui_obj.connected_label) {
-      ui_obj.connected_label->SetTime(time);
+      ui_obj.connected_label->SetViewerNode(target);
     }
-
-    ui_obj.widget_bridge->SetTime(time);
+    ui_obj.widget_bridge->SetTimeTarget(target);
   }
 }
 

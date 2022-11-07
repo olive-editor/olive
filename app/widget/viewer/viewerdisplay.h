@@ -123,7 +123,7 @@ public:
     return texture_;
   }
 
-  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase);
+  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase, bool start_updating);
 
   void Pause();
 
@@ -305,6 +305,8 @@ private:
   void CloseTextEditor();
 
   void GenerateGizmoTransforms();
+
+  void DrawBlank(const VideoParams &device_params);
 
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().

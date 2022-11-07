@@ -959,7 +959,7 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   SendInvalidateCache(range, options);
 }
 
-TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
+TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time, bool clamp) const
 {
   // Default behavior is no time adjustment at all
   return input_time;
@@ -1555,64 +1555,6 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
   Q_UNUSED(job)
 }
 
-bool Node::OutputsTo(Node *n, bool recursively, const OutputConnections &ignore_edges, const OutputConnection &added_edge) const
-{
-  for (const OutputConnection& conn : output_connections_) {
-    if (std::find(ignore_edges.cbegin(), ignore_edges.cend(), conn) != ignore_edges.cend()) {
-      // If this edge is in the "ignore edges" list, skip it
-      continue;
-    }
-
-    Node* connected = conn.second.node();
-
-    if (connected == n) {
-      return true;
-    } else if (recursively && connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
-      return true;
-    } else if (added_edge.first == this) {
-      Node *proposed_connected = added_edge.second.node();
-
-      if (proposed_connected == n) {
-        return true;
-      } else if (recursively && proposed_connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-bool Node::OutputsTo(const QString &id, bool recursively) const
-{
-  for (const OutputConnection& conn : output_connections_) {
-    Node* connected = conn.second.node();
-
-    if (connected->id() == id) {
-      return true;
-    } else if (recursively && connected->OutputsTo(id, recursively)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool Node::OutputsTo(const NodeInput &input, bool recursively) const
-{
-  for (const OutputConnection& conn : output_connections_) {
-    const NodeInput& connected = conn.second;
-
-    if (connected == input) {
-      return true;
-    } else if (recursively && connected.node()->OutputsTo(input, recursively)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
@@ -1641,28 +1583,6 @@ bool Node::InputsFrom(const QString &id, bool recursively) const
   }
 
   return false;
-}
-
-int Node::GetNumberOfRoutesTo(Node *n) const
-{
-  bool outputs_directly = false;
-  int routes = 0;
-
-  foreach (const OutputConnection& conn, output_connections_) {
-    Node* connected_node = conn.second.node();
-
-    if (connected_node == n) {
-      outputs_directly = true;
-    } else {
-      routes += connected_node->GetNumberOfRoutesTo(n);
-    }
-  }
-
-  if (outputs_directly) {
-    routes++;
-  }
-
-  return routes;
 }
 
 void Node::DisconnectAll()
@@ -1727,7 +1647,7 @@ TimeRange Node::TransformTimeTo(TimeRange time, Node *target, TransformTimeDirec
     if (dir == kTransformTowardsInput) {
       for (auto it=path.crbegin(); it!=path.crend(); it++) {
         const NodeInput &i = (*it);
-        time = i.node()->InputTimeAdjustment(i.input(), i.element(), time);
+        time = i.node()->InputTimeAdjustment(i.input(), i.element(), time, false);
       }
     } else {
       // Traverse in output direction

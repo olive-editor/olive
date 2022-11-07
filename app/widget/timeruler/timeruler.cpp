@@ -267,7 +267,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   }
 
   // Draw the playhead if it's on screen at the moment
-  int playhead_pos = TimeToScene(GetTime());
+  int playhead_pos = TimeToScene(GetViewerNode()->GetPlayhead());
   p->setPen(Qt::NoPen);
   p->setBrush(PLAYHEAD_COLOR);
   DrawPlayhead(p, playhead_pos, line_bottom);

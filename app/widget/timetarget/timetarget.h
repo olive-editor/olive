@@ -21,7 +21,7 @@
 #ifndef TIMETARGETOBJECT_H
 #define TIMETARGETOBJECT_H
 
-#include "node/node.h"
+#include "node/output/viewer/viewer.h"
 
 namespace olive {
 
@@ -30,8 +30,8 @@ class TimeTargetObject
 public:
   TimeTargetObject();
 
-  Node* GetTimeTarget() const;
-  void SetTimeTarget(Node* target);
+  ViewerOutput* GetTimeTarget() const;
+  void SetTimeTarget(ViewerOutput* target);
 
   void SetPathIndex(int index);
 
@@ -41,10 +41,12 @@ public:
   //int GetNumberOfPathAdjustments(Node* from, NodeParam::Type direction) const;
 
 protected:
-  virtual void TimeTargetChangedEvent(Node* ){}
+  virtual void TimeTargetDisconnectEvent(ViewerOutput *){}
+  virtual void TimeTargetChangedEvent(ViewerOutput *){}
+  virtual void TimeTargetConnectEvent(ViewerOutput *){}
 
 private:
-  Node* time_target_;
+  ViewerOutput* time_target_;
 
   int path_index_;
 

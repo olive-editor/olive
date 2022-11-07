@@ -25,6 +25,8 @@
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
 
+#include "config/config.h"
+
 namespace olive {
 
 const int OpenGLRenderer::kTextureCacheMaxSize = 5000;
@@ -364,7 +366,11 @@ void OpenGLRenderer::Flush()
 {
   GL_PREAMBLE;
 
-  functions_->glFlush();
+  if (OLIVE_CONFIG("UseGLFinish").toBool()) {
+    functions_->glFinish();
+  } else {
+    functions_->glFlush();
+  }
 }
 
 Color OpenGLRenderer::GetPixelFromTexture(Texture *texture, const QPointF &pt)

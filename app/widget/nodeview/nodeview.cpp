@@ -1043,7 +1043,7 @@ void NodeView::ProcessMovingAttachedNodes(const QPoint &pos)
           }
         }
 
-        if (new_drop_edge->input().node()->OutputsTo(attached_node, true)) {
+        if (attached_node->InputsFrom(new_drop_edge->input().node(), true)) {
           drop_input_.Reset();
         }
 
@@ -1079,7 +1079,7 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
   for (int i=0; i<attached.size(); i++) {
     const AttachedItem &ai = attached.at(i);
 
-    if (select_context->OutputsTo(ai.node, true)) {
+    if (ai.node->InputsFrom(select_context, true)) {
       attached.removeAt(i);
     } else if (select_context->ContextContainsNode(ai.node)) {
       select_nodes.append(ai.node);
@@ -1118,7 +1118,7 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
       Node* dropping_node = nullptr;
 
       foreach (const AttachedItem &ai, attached) {
-        if (ai.item && !select_context->OutputsTo(ai.node, true)) {
+        if (ai.item && !ai.node->InputsFrom(select_context, true)) {
           dropping_node = ai.node;
           break;
         }
@@ -1325,7 +1325,7 @@ void NodeView::PositionNewEdge(const QPoint &pos)
 
   // Filter out connecting to a node that connects to us or an item of the same type
   if (item_at_cursor
-      && ((create_edge_from_output_ && item_at_cursor->GetNode()->OutputsTo(source_item->GetNode(), true))
+      && ((create_edge_from_output_ && source_item->GetNode()->InputsFrom(item_at_cursor->GetNode(), true))
           || (!create_edge_from_output_ && item_at_cursor->GetNode()->InputsFrom(source_item->GetNode(), true))
           || (create_edge_from_output_ == item_at_cursor->IsOutputItem()))) {
     item_at_cursor = nullptr;
@@ -1412,7 +1412,7 @@ void NodeView::GroupNodes()
       // Default to the first node we find that doesn't output to a node inside the group
       output_passthrough = nodes_to_group.first();
       foreach (Node *potential_in, nodes_to_group) {
-        if (potential_in != n && !n->OutputsTo(potential_in, false)) {
+        if (potential_in != n && !potential_in->InputsFrom(n, false)) {
           output_passthrough = n;
           break;
         }

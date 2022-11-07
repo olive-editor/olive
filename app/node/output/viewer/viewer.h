@@ -97,6 +97,8 @@ public:
     }
   }
 
+  const rational &GetPlayhead() { return playhead_; }
+
   void SetVideoParams(const VideoParams &video, int index = 0)
   {
     SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
@@ -219,8 +221,12 @@ signals:
 
   void ConnectedWaveformChanged();
 
+  void PlayheadChanged(const rational &t);
+
 public slots:
   void VerifyLength();
+
+  void SetPlayhead(const rational &t);
 
 protected:
   virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
@@ -252,6 +258,8 @@ private:
   EncodingParams last_used_encoding_params_;
 
   bool waveform_requests_enabled_;
+
+  rational playhead_;
 
 };
 

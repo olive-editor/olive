@@ -54,12 +54,6 @@ public:
 
   void Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range);
 
-  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const TimeRange &time);
-  static NodeGlobals GenerateGlobals(const VideoParams &vparams, const AudioParams &aparams, const rational &time)
-  {
-    return GenerateGlobals(vparams, aparams, TimeRange(time, time + vparams.frame_rate_as_time_base()));
-  }
-
   const VideoParams& GetCacheVideoParams() const
   {
     return video_params_;
@@ -144,7 +138,7 @@ protected:
     return block_stack_.empty() ? nullptr : block_stack_.back();
   }
 
-  Decoder::LoopMode loop_mode() const { return loop_mode_; }
+  LoopMode loop_mode() const { return loop_mode_; }
 
   virtual bool UseCache() const { return false; }
 
@@ -163,7 +157,7 @@ private:
 
   std::list<Block*> block_stack_;
 
-  Decoder::LoopMode loop_mode_;
+  LoopMode loop_mode_;
 
   QHash<const Node*, QHash<TimeRange, NodeValueTable> > value_cache_;
   QHash<Texture*, TexturePtr> resolved_texture_cache_;

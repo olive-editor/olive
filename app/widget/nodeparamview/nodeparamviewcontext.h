@@ -60,9 +60,7 @@ public:
 
   void SetTimebase(const rational &timebase);
 
-  void SetTimeTarget(Node *n);
-
-  void SetTime(const rational &time);
+  void SetTimeTarget(ViewerOutput *n);
 
   void SetEffectType(Track::Type type);
 

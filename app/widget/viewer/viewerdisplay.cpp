@@ -380,15 +380,7 @@ void ViewerDisplayWidget::OnPaint()
     VideoParams device_params = GetViewportParams();
 
     if (push_mode_ == kPushBlank) {
-      if (blank_shader_.isNull()) {
-        blank_shader_ = renderer()->CreateNativeShader(ShaderCode());
-      }
-
-      ShaderJob job;
-      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
-      job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
-
-      renderer()->Blit(blank_shader_, job, device_params, false);
+      DrawBlank(device_params);
     } else if (color_service()) {
       if (FramePtr frame = load_frame_.value<FramePtr>()) {
         // This is a CPU frame, upload it now
@@ -415,35 +407,39 @@ void ViewerDisplayWidget::OnPaint()
 
       TexturePtr texture_to_draw = texture_;
 
-      if (deinterlace_) {
-        if (deinterlace_shader_.isNull()) {
-          deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+      if (!texture_to_draw || texture_to_draw->IsDummy()) {
+        DrawBlank(device_params);
+      } else {
+        if (deinterlace_) {
+          if (deinterlace_shader_.isNull()) {
+            deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+          }
+
+          if (!deinterlace_texture_
+              || deinterlace_texture_->params() != texture_to_draw->params()) {
+            // (Re)create texture
+            deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
+          }
+
+          ShaderJob job;
+          job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
+          job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
+
+          renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
+
+          texture_to_draw = deinterlace_texture_;
         }
 
-        if (!deinterlace_texture_
-            || deinterlace_texture_->params() != texture_to_draw->params()) {
-          // (Re)create texture
-          deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
-        }
+        ColorTransformJob ctj;
+        ctj.SetColorProcessor(color_service());
+        ctj.SetInputTexture(texture_to_draw);
+        ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
+        ctj.SetClearDestinationEnabled(false);
+        ctj.SetTransformMatrix(combined_matrix_flipped_);
+        ctj.SetCropMatrix(crop_matrix_);
 
-        ShaderJob job;
-        job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
-        job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
-
-        renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
-
-        texture_to_draw = deinterlace_texture_;
+        renderer()->BlitColorManaged(ctj, device_params);
       }
-
-      ColorTransformJob ctj;
-      ctj.SetColorProcessor(color_service());
-      ctj.SetInputTexture(texture_to_draw);
-      ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
-      ctj.SetClearDestinationEnabled(false);
-      ctj.SetTransformMatrix(combined_matrix_flipped_);
-      ctj.SetCropMatrix(crop_matrix_);
-
-      renderer()->BlitColorManaged(ctj, device_params);
     }
   }
 
@@ -455,7 +451,7 @@ void ViewerDisplayWidget::OnPaint()
 
     p.setWorldTransform(gizmo_last_draw_transform_);
 
-    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_));
+    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, LoopMode::kLoopModeOff));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -831,7 +827,7 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
       gizmo_last_drag_ = gizmo_start_drag_;
-      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime()));
+      current_gizmo_->SetGlobals(NodeGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime(), LoopMode::kLoopModeOff));
 
     } else {
 
@@ -1129,11 +1125,12 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
   if constexpr (std::is_same_v<T, QDragLeaveEvent>) {
     text_edit_->dragLeaveEvent(e);
   } else {
-    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->position())).toPoint(),
+
+    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->pos())).toPoint(),
             e->possibleActions(),
             e->mimeData(),
-            e->buttons(),
-            e->modifiers());
+            e->mouseButtons(),
+            e->keyboardModifiers());
 
     if (e->type() == QEvent::DragEnter) {
       text_edit_->dragEnterEvent(static_cast<QDragEnterEvent*>(&relay));
@@ -1152,7 +1149,7 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
 bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside)
 {
   // Transform screen mouse coords to world mouse coords
-  QPointF local_pos = GetVirtualPosForTextEdit(event->position());
+  QPointF local_pos = GetVirtualPosForTextEdit(event->pos());
 
   if (check_if_outside) {
     if (local_pos.x() < 0 || local_pos.x() >= text_edit_->width() || local_pos.y() < 0 || local_pos.y() >= text_edit_->height()) {
@@ -1163,7 +1160,7 @@ bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool c
 
   local_pos = AdjustPosByVAlign(local_pos);
 
-  QMouseEvent derived(event->type(), local_pos, event->scenePosition(), event->globalPosition(), event->button(), event->buttons(), event->modifiers(), event->source(), event->pointingDevice());
+  QMouseEvent derived(event->type(), local_pos, event->windowPos(), event->screenPos(), event->button(), event->buttons(), event->modifiers(), event->source());
   return ForwardEventToTextEdit(&derived);
 }
 
@@ -1212,6 +1209,19 @@ void ViewerDisplayWidget::GenerateGizmoTransforms()
   gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted();
 }
 
+void ViewerDisplayWidget::DrawBlank(const VideoParams &device_params)
+{
+  if (blank_shader_.isNull()) {
+    blank_shader_ = renderer()->CreateNativeShader(ShaderCode());
+  }
+
+  ShaderJob job;
+  job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
+  job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
+
+  renderer()->Blit(blank_shader_, job, device_params, false);
+}
+
 void ViewerDisplayWidget::SetShowFPS(bool e)
 {
   show_fps_ = e;
@@ -1231,16 +1241,18 @@ void ViewerDisplayWidget::RequestStartEditingText()
   }
 }
 
-void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase)
+void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase, bool start_updating)
 {
   playback_timebase_ = timebase;
   playback_speed_ = playback_speed;
 
   timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
 
-  connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
+  if (start_updating) {
+    connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
 
-  update();
+    update();
+  }
 }
 
 void ViewerDisplayWidget::Pause()
