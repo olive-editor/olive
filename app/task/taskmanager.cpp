@@ -29,6 +29,7 @@ TaskManager* TaskManager::instance_ = nullptr;
 
 TaskManager::TaskManager()
 {
+  thread_pool_.setMaxThreadCount(1);
 }
 
 TaskManager::~TaskManager()
@@ -95,9 +96,9 @@ void TaskManager::AddTask(Task* t)
   // Run task concurrently
   watcher->setFuture(
 #if QT_VERSION_MAJOR >= 6
-        QtConcurrent::run(&Task::Start, t)
+        QtConcurrent::run(&thread_pool_, &Task::Start, t)
 #else
-        QtConcurrent::run(t, &Task::Start)
+        QtConcurrent::run(&thread_pool_, t, &Task::Start)
 #endif
         );
 
