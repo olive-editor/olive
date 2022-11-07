@@ -253,7 +253,7 @@ void PreviewAutoCacher::VideoRendered()
 
 void PreviewAutoCacher::ConnectToNodeCache(Node *node)
 {
-  if (!ignore_cache_requests_) {
+  if (ignore_cache_requests_) {
     return;
   }
 
