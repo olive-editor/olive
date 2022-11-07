@@ -619,7 +619,9 @@ void ViewerWidget::SaveFrameAsImage()
 
 void ViewerWidget::DetectMulticamNodeNow()
 {
-  DetectMulticamNode(GetConnectedNode()->GetPlayhead());
+  if (GetConnectedNode()) {
+    DetectMulticamNode(GetConnectedNode()->GetPlayhead());
+  }
 }
 
 void ViewerWidget::CloseAudioProcessor()
