@@ -72,9 +72,9 @@ TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
 
   // Set up elapsed timer
   status_stack_->setCurrentWidget(elapsed_timer_lbl_);
-  elapsed_timer_lbl_->Start(task_->GetStartTime());
 
   // Connect to the task
+  connect(task_, &Task::Started, elapsed_timer_lbl_, qOverload<qint64>(&ElapsedCounterWidget::Start));
   connect(task_, &Task::ProgressChanged, this, &TaskViewItem::UpdateProgress);
   connect(cancel_btn_, &QPushButton::clicked, this, [this] { emit TaskCancelled(task_); });
 }

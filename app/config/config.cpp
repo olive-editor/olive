@@ -82,7 +82,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("InvertTimelineScrollAxes"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("SelectAlsoSeeks"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("PasteSeeks"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("SelectAlsoSeeks"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("SeekAlsoSelects"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("AutoSeekToBeginning"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("DropFileOnMediaToReplace"), NodeValue::kBoolean, false);
@@ -104,6 +104,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("UseLegacyColorInInputTab"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("ReassocLinToNonLin"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("PreviewNonFloatDontAskAgain"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("UseGLFinish"), NodeValue::kBoolean, false);
 
   SetEntryInternal(QStringLiteral("TimelineThumbnailMode"), NodeValue::kInt, Timeline::kThumbnailInOut);
   SetEntryInternal(QStringLiteral("TimelineWaveformMode"), NodeValue::kInt, Timeline::kWaveformsEnabled);

@@ -56,25 +56,6 @@ void FootageViewerWidget::ResetWorkArea()
   }
 }
 
-void FootageViewerWidget::ConnectNodeEvent(ViewerOutput *n)
-{
-  super::ConnectNodeEvent(n);
-
-  IgnoreNextScrubEvent();
-  SetTime(cached_timestamps_.value(n, 0));
-}
-
-void FootageViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
-{
-  // Cache timestamp in case this footage is opened again later
-  cached_timestamps_.insert(n, GetTime());
-
-  super::DisconnectNodeEvent(n);
-
-  IgnoreNextScrubEvent();
-  SetTime(0);
-}
-
 void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)
 {
   if (!GetConnectedNode()) {

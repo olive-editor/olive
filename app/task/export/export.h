@@ -24,6 +24,7 @@
 #include "codec/encoder.h"
 #include "node/output/viewer/viewer.h"
 #include "render/colorprocessor.h"
+#include "render/projectcopier.h"
 #include "task/render/render.h"
 #include "task/task.h"
 
@@ -51,6 +52,8 @@ protected:
 
 private:
   bool WriteAudioLoop(const TimeRange &time, const SampleBuffer &samples);
+
+  ProjectCopier *copier_;
 
   QHash<rational, FramePtr> time_map_;
 

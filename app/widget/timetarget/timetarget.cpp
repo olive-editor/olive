@@ -28,16 +28,23 @@ TimeTargetObject::TimeTargetObject() :
 {
 }
 
-Node *TimeTargetObject::GetTimeTarget() const
+ViewerOutput *TimeTargetObject::GetTimeTarget() const
 {
   return time_target_;
 }
 
-void TimeTargetObject::SetTimeTarget(Node *target)
+void TimeTargetObject::SetTimeTarget(ViewerOutput *target)
 {
-  time_target_ = target;
+  if (time_target_) {
+    TimeTargetDisconnectEvent(time_target_);
+  }
 
+  time_target_ = target;
   TimeTargetChangedEvent(time_target_);
+
+  if (time_target_) {
+    TimeTargetConnectEvent(time_target_);
+  }
 }
 
 void TimeTargetObject::SetPathIndex(int index)

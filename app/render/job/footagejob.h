@@ -33,12 +33,13 @@ public:
   {
   }
 
-  FootageJob(const TimeRange &time, const QString& decoder, const QString& filename, Track::Type type, const rational& length) :
+  FootageJob(const TimeRange &time, const QString& decoder, const QString& filename, Track::Type type, const rational& length, LoopMode loop_mode) :
     time_(time),
     decoder_(decoder),
     filename_(filename),
     type_(type),
-    length_(length)
+    length_(length),
+    loop_mode_(loop_mode)
   {
   }
 
@@ -99,6 +100,9 @@ public:
 
   const TimeRange &time() const { return time_; }
 
+  LoopMode loop_mode() const { return loop_mode_; }
+  void set_loop_mode(LoopMode m) { loop_mode_ = m; }
+
 private:
   TimeRange time_;
 
@@ -115,6 +119,8 @@ private:
   QString cache_path_;
 
   rational length_;
+
+  LoopMode loop_mode_;
 
 };
 

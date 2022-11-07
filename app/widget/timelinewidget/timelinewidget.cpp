@@ -83,7 +83,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   timecode_label_->SetDisplayType(RationalSlider::kTime);
   timecode_label_->setVisible(false);
   timecode_label_->SetMinimum(0);
-  connect(timecode_label_, &RationalSlider::ValueChanged, this, &TimelineWidget::SetTimeAndSignal);
   ruler_and_time_layout->addWidget(timecode_label_);
 
   ruler_and_time_layout->addWidget(ruler());
@@ -143,9 +142,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     view_splitter_->addWidget(tview);
 
-    ConnectTimelineView(view, false);
+    ConnectTimelineView(view);
 
-    connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::SetTimeAndSignal);
     connect(view, &TimelineView::customContextMenuRequested, this, &TimelineWidget::ShowContextMenu);
 
     connect(view, &TimelineView::MousePressed, this, &TimelineWidget::ViewMousePressed);
@@ -186,6 +184,17 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   signal_block_change_timer_->setSingleShot(true);
   connect(signal_block_change_timer_, &QTimer::timeout, this, [this]{
     signal_block_change_timer_->stop();
+
+    if (OLIVE_CONFIG("SelectAlsoSeeks").toBool()) {
+      rational start = RATIONAL_MAX;
+      for (Block *b : selected_blocks_) {
+        start = std::min(start, b->in());
+      }
+      if (start != RATIONAL_MAX) {
+        GetConnectedNode()->SetPlayhead(start);
+      }
+    }
+
     emit BlockSelectionChanged(selected_blocks_);
   });
 }
@@ -230,13 +239,34 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
   UpdateTimecodeWidthFromSplitters(views_.first()->splitter());
 }
 
-void TimelineWidget::TimeChangedEvent(const rational &time)
+void TimelineWidget::TimeChangedEvent(const rational &t)
 {
-  super::TimeChangedEvent(time);
+  if (OLIVE_CONFIG("SeekAlsoSelects").toBool()) {
+    TimelineWidgetSelections sels;
 
-  SetViewTime(time);
+    QVector<Block*> new_blocks;
 
-  timecode_label_->SetValue(time);
+    for (auto it=sequence()->GetTracks().cbegin(); it!=sequence()->GetTracks().cend(); it++) {
+      Track *track = *it;
+      if (track->IsLocked()) {
+        continue;
+      }
+
+      Block *b = track->VisibleBlockAtTime(sequence()->GetPlayhead());
+      if (!b || dynamic_cast<GapBlock*>(b)) {
+        continue;
+      }
+
+      new_blocks.push_back(b);
+      sels[track->ToReference()].insert(b->range());
+    }
+
+    if (selected_blocks_ != new_blocks) {
+      selected_blocks_ = new_blocks;
+      SetSelections(sels, false);
+      SignalBlockSelectionChange();
+    }
+  }
 }
 
 void TimelineWidget::ScaleChangedEvent(const double &scale)
@@ -256,6 +286,10 @@ void TimelineWidget::ConnectNodeEvent(ViewerOutput *n)
   connect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   connect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
   connect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
+
+  connect(timecode_label_, &RationalSlider::ValueChanged, s, &Sequence::SetPlayhead);
+  connect(s, &Sequence::PlayheadChanged, timecode_label_, &RationalSlider::SetValue);
+  timecode_label_->SetValue(s->GetPlayhead());
 
   ruler()->SetPlaybackCache(n->video_frame_cache());
 
@@ -286,6 +320,8 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
   disconnect(s, &Sequence::TrackRemoved, this, &TimelineWidget::RemoveTrack);
   disconnect(s, &Sequence::FrameRateChanged, this, &TimelineWidget::FrameRateChanged);
   disconnect(s, &Sequence::SampleRateChanged, this, &TimelineWidget::SampleRateChanged);
+
+  disconnect(timecode_label_, &RationalSlider::ValueChanged, s, &Sequence::SetPlayhead);
 
   DeselectAll();
 
@@ -357,7 +393,7 @@ void TimelineWidget::SplitAtPlayhead()
     return;
   }
 
-  const rational &playhead_time = GetTime();
+  const rational &playhead_time = GetConnectedNode()->GetPlayhead();
 
   QVector<Block*> selected_blocks = GetSelectedBlocks();
 
@@ -504,7 +540,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
   ClearGhosts();
 
   if (ripple_command && ripple_command->HasCommands() && new_playhead != RATIONAL_MAX) {
-    SetTimeAndSignal(new_playhead);
+    GetConnectedNode()->SetPlayhead(new_playhead);
   }
 }
 
@@ -535,14 +571,14 @@ void TimelineWidget::DecreaseTrackHeight()
 void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& footage)
 {
   auto command = new MultiUndoCommand();
-  import_tool_->PlaceAt(footage, GetTime(), true, command);
+  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), true, command);
   Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   auto command = new MultiUndoCommand();
-  import_tool_->PlaceAt(footage, GetTime(), false, command);
+  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), false, command);
   Core::instance()->undo_stack()->push(command);
 }
 
@@ -705,7 +741,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
                                                    false));
 
   if (ripple) {
-    SetTimeAndSignal(GetConnectedNode()->GetWorkArea()->in());
+    GetConnectedNode()->SetPlayhead(GetConnectedNode()->GetWorkArea()->in());
   }
 
   Core::instance()->undo_stack()->push(command);
@@ -1316,14 +1352,6 @@ void TimelineWidget::SetUseAudioTimeUnits(bool use)
   UpdateViewTimebases();
 }
 
-void TimelineWidget::SetViewTime(const rational &time)
-{
-  for (int i=0;i<views_.size();i++) {
-    TimelineAndTrackView* view = views_.at(i);
-    view->view()->SetTime(time);
-  }
-}
-
 void TimelineWidget::ToolChanged()
 {
   HideSnaps();
@@ -1609,7 +1637,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
     }
 
     foreach (Block *b, selected_blocks_) {
-      rational shift_amt = GetTime() - earliest_pts.value(b->track());
+      rational shift_amt = GetConnectedNode()->GetPlayhead() - earliest_pts.value(b->track());
       rational new_in = b->in() + shift_amt;
       bool can_shift = true;
 
@@ -1632,7 +1660,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
     // Shift selections
     TimelineWidgetSelections new_sel = GetSelections();
     for (auto it=new_sel.begin(); it!=new_sel.end(); it++) {
-      rational track_adj = GetTime() - earliest_pts.value(GetTrackFromReference(it.key()), GetTime());
+      rational track_adj = GetConnectedNode()->GetPlayhead() - earliest_pts.value(GetTrackFromReference(it.key()), GetConnectedNode()->GetPlayhead());
       if (!track_adj.isNull()) {
         it.value().shift(track_adj);
       }
@@ -1785,7 +1813,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
     return;
   }
 
-  rational playhead_time = GetTime();
+  rational playhead_time = GetConnectedNode()->GetPlayhead();
 
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
 
@@ -1833,15 +1861,15 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
 
   // If we rippled, ump to where new cut is if applicable
   if (mode == Timeline::kTrimIn) {
-    SetTimeAndSignal(closest_point_to_playhead);
-  } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetTime()) {
-    SetTimeAndSignal(playhead_time);
+    GetConnectedNode()->SetPlayhead(closest_point_to_playhead);
+  } else if (mode == Timeline::kTrimOut && closest_point_to_playhead == GetConnectedNode()->GetPlayhead()) {
+    GetConnectedNode()->SetPlayhead(playhead_time);
   }
 }
 
 void TimelineWidget::EditTo(Timeline::MovementMode mode)
 {
-  const rational playhead_time = GetTime();
+  const rational playhead_time = GetConnectedNode()->GetPlayhead();
 
   // Get list of unlocked tracks
   QVector<Timeline::EditToInfo> tracks = GetEditToInfo(playhead_time, mode);
@@ -1943,10 +1971,10 @@ bool TimelineWidget::PasteInternal(bool insert)
     command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
   }
 
-  rational paste_start = GetTime();
+  rational paste_start = GetConnectedNode()->GetPlayhead();
 
   if (insert) {
-    rational paste_end = GetTime();
+    rational paste_end = paste_start;
 
     for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
       rational length = static_cast<Block*>(it.key())->length();

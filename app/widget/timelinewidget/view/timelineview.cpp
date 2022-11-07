@@ -66,15 +66,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
   QPointF scene_pos = mapToScene(event->pos());
   for (auto it=clip_marker_rects_.cbegin(); it!=clip_marker_rects_.cend(); it++) {
     if (it.value().contains(scene_pos)) {
-      QObject *p = this->parent();
-      while (p) {
-        if (TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(p)) {
-          timeline->SetTime(it.key()->time().in());
-          break;
-        }
-
-        p = p->parent();
-      }
+      GetViewerNode()->SetPlayhead(it.key()->time().in());
+      break;
     }
   }
 
@@ -300,7 +293,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
     int x = TimeToScene(recording_coord_.GetFrame());
     painter->drawRect(x, GetTrackY(recording_coord_.GetTrack().index()),
-                      TimeToScene(GetTime()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
+                      TimeToScene(GetViewerNode()->GetPlayhead()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
   }
 
   // Draw standard TimelineViewBase things (such as playhead)
@@ -532,18 +525,18 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
                 qreal zebra_right = TimeToScene(clip->in() - clip->media_in());
 
                 switch (clip->loop_mode()) {
-                case Decoder::kLoopModeOff:
+                case LoopMode::kLoopModeOff:
                   // Draw stripes for sections of clip < 0
                   if (zebra_right > GetTimelineLeftBound()) {
                     DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right - block_left, block_height));
                   }
                   break;
-                case Decoder::kLoopModeLoop:
+                case LoopMode::kLoopModeLoop:
                   for (qreal i=zebra_right; i>block_left; i-=TimeToScene(clip->connected_viewer()->GetLength())) {
                     painter->drawLine(i, block_top, i, block_top + block_height);
                   }
                   break;
-                case Decoder::kLoopModeClamp:
+                case LoopMode::kLoopModeClamp:
                   painter->drawLine(zebra_right, block_top, zebra_right, block_top + block_height);
                   break;
                 }
@@ -552,18 +545,18 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
               if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
                 qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
                 switch (clip->loop_mode()) {
-                case Decoder::kLoopModeOff:
+                case LoopMode::kLoopModeOff:
                   // Draw stripes for sections for clip > clip length
                   if (zebra_left < GetTimelineRightBound()) {
                     DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
                   }
                   break;
-                case Decoder::kLoopModeLoop:
+                case LoopMode::kLoopModeLoop:
                   for (qreal i=zebra_left; i<block_right; i+=TimeToScene(clip->connected_viewer()->GetLength())) {
                     painter->drawLine(i, block_top, i, block_top + block_height);
                   }
                   break;
-                case Decoder::kLoopModeClamp:
+                case LoopMode::kLoopModeClamp:
                   painter->drawLine(zebra_left, block_top, zebra_left, block_top + block_height);
                   break;
                 }

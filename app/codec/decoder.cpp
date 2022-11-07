@@ -293,7 +293,7 @@ bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVecto
     const qint64 buffer_length_in_bytes = sample_buffer.sample_count() * input_params.bytes_per_sample_per_channel();
 
     while (write_index < buffer_length_in_bytes) {
-      if (loop_mode == kLoopModeLoop) {
+      if (loop_mode == LoopMode::kLoopModeLoop) {
         while (read_index >= input.size()) {
           read_index -= input.size();
         }

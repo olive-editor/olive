@@ -41,8 +41,6 @@ class TimeBasedWidget : public TimelineScaledWidget
 public:
   TimeBasedWidget(bool ruler_text_visible = true, bool ruler_cache_status_visible = false, QWidget* parent = nullptr);
 
-  const rational &GetTime() const;
-
   void ZoomIn();
 
   void ZoomOut();
@@ -82,8 +80,6 @@ public:
   virtual bool Paste();
 
 public slots:
-  void SetTime(const rational &time);
-
   void SetTimebase(const rational& timebase);
 
   void SetScale(const double& scale);
@@ -142,7 +138,7 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
+  void ConnectTimelineView(TimeBasedView* base);
 
   void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
   void SetCatchUpScrollValue(int v);
@@ -168,16 +164,12 @@ protected slots:
 
   static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
 
-  void SetTimeAndSignal(const olive::rational& t);
-
   void StopCatchUpScrollTimer()
   {
     StopCatchUpScrollTimer(scrollbar_);
   }
 
 signals:
-  void TimeChanged(const rational&);
-
   void TimebaseChanged(const rational&);
 
   void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
@@ -264,6 +256,8 @@ private slots:
   void AutoUpdateTimebase();
 
   void ConnectedNodeRemovedFromGraph();
+
+  void PlayheadTimeChanged(const rational &time);
 
 };
 

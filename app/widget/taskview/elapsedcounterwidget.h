@@ -37,8 +37,9 @@ public:
 
   void SetProgress(double d);
 
-  void Start();
+public slots:
   void Start(qint64 start_time);
+  void Start();
 
 public slots:
   void Stop();

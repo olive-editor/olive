@@ -317,7 +317,9 @@ public:
 
   void OpenNodeInViewer(ViewerOutput* viewer);
 
-  void OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image);
+  void OpenExportDialogForViewer(ViewerOutput *viewer, bool start_still_image);
+
+  bool IsMagicEnabled() const { return magic_; }
 
 public slots:
   /**
@@ -449,6 +451,11 @@ public slots:
 
   void WarnCacheFull();
 
+  void SetMagic(bool e)
+  {
+    magic_ = e;
+  }
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -551,7 +558,7 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  bool GetSequenceToExport(ViewerOutput **viewer, rational *time);
+  ViewerOutput *GetSequenceToExport();
 
   static QString GetAutoRecoveryIndexFilename();
 
@@ -625,6 +632,11 @@ private:
    * @brief List of projects that are unsaved but have autorecovery projects
    */
   QVector<QUuid> autorecovered_projects_;
+
+  /**
+   * @brief Do something debug related
+   */
+  bool magic_;
 
   /**
    * @brief How many widgets currently need pixel sampling access

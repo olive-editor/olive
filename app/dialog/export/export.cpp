@@ -148,6 +148,11 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   video_tab_ = new ExportVideoTab(color_manager_);
   AddPreferencesTab(video_tab_, tr("Video"));
 
+  // Set video tab time and make connections
+  connect(viewer_node, &ViewerOutput::PlayheadChanged, video_tab_, &ExportVideoTab::SetTime);
+  connect(video_tab_, &ExportVideoTab::TimeChanged, viewer_node, &ViewerOutput::SetPlayhead);
+  video_tab_->SetTime(viewer_node->GetPlayhead());
+
   audio_tab_ = new ExportAudioTab();
   AddPreferencesTab(audio_tab_, tr("Audio"));
 
@@ -206,7 +211,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   preview_viewer_ = new ViewerWidget();
   preview_viewer_->ruler()->SetMarkerEditingEnabled(false);
   preview_viewer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  connect(preview_viewer_, &ViewerWidget::TimeChanged, video_tab_, &ExportVideoTab::SetTime);
   preview_layout->addWidget(preview_viewer_);
   splitter->addWidget(preview_area);
 

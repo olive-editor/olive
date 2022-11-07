@@ -51,14 +51,6 @@ public:
   rational GetSelectedTimebase() const;
   void SetSelectedTimebase(const rational &r);
 
-  void SetTime(const rational &time)
-  {
-    preview_viewer_->SetAudioScrubbingEnabled(false);
-    preview_viewer_->SetTime(time);
-    video_tab_->SetTime(time);
-    preview_viewer_->SetAudioScrubbingEnabled(true);
-  }
-
   EncodingParams GenerateParams() const;
   void SetParams(const EncodingParams &e);
 

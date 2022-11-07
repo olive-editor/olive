@@ -173,7 +173,7 @@ public:
 
   virtual Node *GetConnectedSampleOutput() override;
 
-  static rational AdjustTimeByLoopMode(rational time, Decoder::LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
+  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
   virtual void LoadFinishedEvent() override;
 

@@ -160,7 +160,7 @@ void ViewerTextEditor::UpdateToolBar(ViewerTextEditorToolBar *toolbar, const QTe
   }
 
   QString style = f.fontStyleName().toString();
-  QStringList styles = QFontDatabase::styles(family);
+  QStringList styles = QFontDatabase().styles(family);
   if (!styles.isEmpty() && (style.isEmpty() || !styles.contains(style))) {
     // There seems to be no better way to find the "regular" style outside of this heuristic.
     // Feel free to add more if a font isn't working right.
@@ -267,8 +267,8 @@ void ViewerTextEditor::ApplyStyle(QTextCharFormat *format, const QString &family
 {
   // NOTE: Windows appears to require setting weight and italic manually, while macOS and Linux are
   //       perfectly fine with just the style name
-  format->setFontWeight(QFontDatabase::weight(family, style));
-  format->setFontItalic(QFontDatabase::italic(family, style));
+  format->setFontWeight(QFontDatabase().weight(family, style));
+  format->setFontItalic(QFontDatabase().italic(family, style));
 
   format->setFontStyleName(style);
 }
@@ -536,7 +536,7 @@ void ViewerTextEditorToolBar::UpdateFontStyleList(const QString &family)
 
   style_combo_->blockSignals(true);
   style_combo_->clear();
-  QStringList l = QFontDatabase::styles(family);
+  QStringList l = QFontDatabase().styles(family);
   foreach (const QString &style, l) {
     style_combo_->addItem(style);
   }
