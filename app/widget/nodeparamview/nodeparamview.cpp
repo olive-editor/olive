@@ -40,7 +40,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   super(true, false, parent),
   last_scroll_val_(0),
   focused_node_(nullptr),
-  time_target_(nullptr),
   show_all_nodes_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
@@ -365,13 +364,6 @@ void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
   foreach (NodeParamViewContext* item, context_items_) {
     item->SetTimeTarget(n);
   }
-
-  time_target_ = n;
-}
-
-ViewerOutput *NodeParamView::GetTimeTarget() const
-{
-  return time_target_;
 }
 
 void ReconnectOutputsIfNotDeletingNode(MultiUndoCommand *c, NodeViewDeleteCommand *dc, Node *output, Node *deleting, Node *context)
@@ -721,7 +713,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
   connect(item, &NodeParamViewItem::RequestEditTextInViewer, this, &NodeParamView::RequestEditTextInViewer);
 
   item->SetContext(ctx);
-  item->SetTimeTarget(GetTimeTarget());
+  item->SetTimeTarget(GetConnectedNode());
   item->SetTimebase(timebase());
 
   context->AddNode(item);

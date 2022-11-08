@@ -547,7 +547,8 @@ void NodeParamViewWidgetBridge::TimeTargetConnectEvent(ViewerOutput *v)
 
 void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const TimeRange &range)
 {
-  if (GetInnerInput() == input
+  if (GetTimeTarget()
+      && GetInnerInput() == input
       && !dragger_.IsStarted()
       && range.in() <= GetTimeTarget()->GetPlayhead() && range.out() >= GetTimeTarget()->GetPlayhead()) {
     // We'll need to update the widgets because the values have changed on our current time

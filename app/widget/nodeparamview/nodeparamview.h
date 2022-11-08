@@ -48,8 +48,6 @@ public:
 
   void CloseContextsBelongingToProject(Project *p);
 
-  ViewerOutput *GetTimeTarget() const;
-
   void DeleteSelected();
 
   void SelectAll()
@@ -155,8 +153,6 @@ private:
 
   NodeParamViewItem* focused_node_;
   QVector<NodeParamViewItem*> selected_nodes_;
-
-  ViewerOutput *time_target_;
 
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;
