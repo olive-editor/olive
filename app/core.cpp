@@ -1713,38 +1713,39 @@ QString StripWindowsDriveLetter(QString s)
 
 bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
-  QVector<Footage*> project_footage = project->root()->ListChildrenOfType<Footage>();
   QVector<Footage*> footage_we_couldnt_validate;
 
-  foreach (Footage* footage, project_footage) {
-    QString footage_fn = StripWindowsDriveLetter(footage->filename());
-    QString project_fn = StripWindowsDriveLetter(project_saved_url);
+  for (Node *n : project->nodes()) {
+    if (Footage *footage = dynamic_cast<Footage*>(n)) {
+      QString footage_fn = StripWindowsDriveLetter(footage->filename());
+      QString project_fn = StripWindowsDriveLetter(project_saved_url);
 
-    if (!QFileInfo::exists(footage_fn) && !project_saved_url.isEmpty()) {
-      // If the footage doesn't exist, it might have moved with the project
-      const QString& project_current_url = project->filename();
+      if (!QFileInfo::exists(footage_fn) && !project_saved_url.isEmpty()) {
+        // If the footage doesn't exist, it might have moved with the project
+        const QString& project_current_url = project->filename();
 
-      if (project_current_url != project_fn) {
-        // Project has definitely moved, try to resolve relative paths
-        QDir saved_dir(QFileInfo(project_fn).dir());
-        QDir true_dir(QFileInfo(project_current_url).dir());
+        if (project_current_url != project_fn) {
+          // Project has definitely moved, try to resolve relative paths
+          QDir saved_dir(QFileInfo(project_fn).dir());
+          QDir true_dir(QFileInfo(project_current_url).dir());
 
-        QString relative_filename = saved_dir.relativeFilePath(footage_fn);
-        QString transformed_abs_filename = true_dir.filePath(relative_filename);
+          QString relative_filename = saved_dir.relativeFilePath(footage_fn);
+          QString transformed_abs_filename = true_dir.filePath(relative_filename);
 
-        if (QFileInfo::exists(transformed_abs_filename)) {
-          // Use this file instead
-          qInfo() << "Resolved" << footage_fn << "relatively to" << transformed_abs_filename;
-          footage->set_filename(transformed_abs_filename);
+          if (QFileInfo::exists(transformed_abs_filename)) {
+            // Use this file instead
+            qInfo() << "Resolved" << footage_fn << "relatively to" << transformed_abs_filename;
+            footage->set_filename(transformed_abs_filename);
+          }
         }
       }
-    }
 
-    if (QFileInfo::exists(footage->filename())) {
-      // Assume valid
-      footage->SetValid();
-    } else {
-      footage_we_couldnt_validate.append(footage);
+      if (QFileInfo::exists(footage->filename())) {
+        // Assume valid
+        footage->SetValid();
+      } else {
+        footage_we_couldnt_validate.append(footage);
+      }
     }
   }
 
