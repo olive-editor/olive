@@ -468,7 +468,7 @@ void Core::CreateNewSequence()
   }
 }
 
-void Core::AddOpenProject(Project* p)
+void Core::AddOpenProject(Project* p, bool add_to_recents)
 {
   // Ensure project is not open at the moment
   foreach (Project* already_open, open_projects_) {
@@ -487,12 +487,14 @@ void Core::AddOpenProject(Project* p)
   connect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
   open_projects_.append(p);
 
-  PushRecentlyOpenedProject(p->filename());
+  if (!p->filename().isEmpty() && add_to_recents) {
+    PushRecentlyOpenedProject(p->filename());
+  }
 
   emit ProjectOpened(p);
 }
 
-bool Core::AddOpenProjectFromTask(Task *task)
+bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
@@ -500,7 +502,7 @@ bool Core::AddOpenProjectFromTask(Task *task)
     Project* project = load_task->GetLoadedProject();
 
     if (ValidateFootageInLoadedProject(project, project->GetSavedURL())) {
-      AddOpenProject(project);
+      AddOpenProject(project, add_to_recents);
       main_window_->LoadLayout(project->GetLayoutInfo());
 
       return true;
@@ -723,7 +725,7 @@ void Core::OpenStartupProject()
 
 void Core::AddRecoveryProjectFromTask(Task *task)
 {
-  if (AddOpenProjectFromTask(task)) {
+  if (AddOpenProjectFromTask(task, false)) {
     ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
     Project* project = load_task->GetLoadedProject();
@@ -1417,7 +1419,7 @@ void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
   if (recovery_project) {
     connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddRecoveryProjectFromTask);
   } else {
-    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTaskAndAddToRecents);
   }
 
   task_dialog->open();
