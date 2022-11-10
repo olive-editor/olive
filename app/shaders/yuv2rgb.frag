@@ -36,19 +36,24 @@ void main()
 
   // Pixels will have come in aligned to 16-bit regardless of their actual bit depth, so they must
   // be scaled as if they were actually 16-bit
-  if (bits_per_pixel == 10) {
+  if (bits_per_pixel == 8) {
+    // Convert 0.0-1.0 to -0.5-0.5
+    yuv.gb -= (128.0/255.0);
+  } else if (bits_per_pixel == 10) {
+    // Convert 0.0-1.0 to -0.5-0.5
+    yuv.gb -= (512.0/1023.0);
+
     yuv *= 64.0;
   } else if (bits_per_pixel == 12) {
+    // Convert 0.0-1.0 to -0.5-0.5
+    yuv.gb -= (2048.0/4095.0);
+
     yuv *= 16.0;
   }
 
   // Convert YUV limited range from 16-235 to 0-255
   yuv.r -= 0.0625; // 16/256
   yuv.r *= 1.1643; // 255/219
-
-  // Convert 0.0-1.0 to -0.5-0.5
-  yuv.g = yuv.g - 0.5;
-  yuv.b = yuv.b - 0.5;
 
   // Use coefficients to weigh YUV into RGB
   vec4 rgba;
