@@ -70,6 +70,9 @@ void main()
   // Currently this shader is only used for RGB textures, so just set alpha to 1
   rgba.a = 1.0;
 
-  //frag_color = rgba;
-  frag_color = vec4(yuv_crv, yuv_cgu, yuv_cgv, yuv_cbu);
+  rgba.r = texture(u_channel, real_coord).r;
+  rgba.g = 0.5;
+  rgba.b = 128.0/255.0;
+
+  frag_color = rgba;
 }
