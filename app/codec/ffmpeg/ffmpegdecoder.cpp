@@ -263,10 +263,21 @@ TexturePtr FFmpegDecoder::RetrieveVideoInternal(const RetrieveVideoParams &p)
           job.Insert(QStringLiteral("interlacing"), NodeValue(NodeValue::kInt, interlacing));
           job.Insert(QStringLiteral("pixel_height"), NodeValue(NodeValue::kInt, f->height));
 
+          vp.set_format(VideoParams::kFormatFloat32);
+
           tex = p.renderer->CreateTexture(vp);
           p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
 
           av_frame_unref(working_frame_);
+
+          QByteArray b(vp.GetBufferSize(), Qt::Uninitialized);
+          tex->Download(b.data(), 0);
+
+          qDebug() << "Sent coeffs:" << (yuv_coeffs[0]/65536.0) << (yuv_coeffs[2]/65536.0) << (yuv_coeffs[3]/65536.0) << (yuv_coeffs[1]/65536.0);
+
+          float *fl = reinterpret_cast<float*>(b.data());
+          qDebug() << "  Received coeffs:" << fl[0] << fl[1] << fl[2] << fl[3];
+          qDebug() << "  Simulated f16s:" << qfloat16(fl[0]) << qfloat16(fl[1]) << qfloat16(fl[2]) << qfloat16(fl[3]);
         }
       }
 
