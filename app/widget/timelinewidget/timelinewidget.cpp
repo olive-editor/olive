@@ -1171,7 +1171,7 @@ void TimelineWidget::AddTrack(Track *track)
   connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
   connect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
-  connect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
+  connect(track, &Track::TrackHeightChanged, this, &TimelineWidget::TrackUpdated);
   connect(track, &Track::BlockAdded, this, &TimelineWidget::AddBlock);
   connect(track, &Track::BlockRemoved, this, &TimelineWidget::RemoveBlock);
 }
@@ -1181,7 +1181,7 @@ void TimelineWidget::RemoveTrack(Track *track)
   disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::IndexChanged, this, &TimelineWidget::TrackIndexChanged);
   disconnect(track, &Track::BlocksRefreshed, this, &TimelineWidget::TrackUpdated);
-  disconnect(track, &Track::TrackHeightChangedInPixels, this, &TimelineWidget::TrackUpdated);
+  disconnect(track, &Track::TrackHeightChanged, this, &TimelineWidget::TrackUpdated);
   disconnect(track, &Track::BlockAdded, this, &TimelineWidget::AddBlock);
   disconnect(track, &Track::BlockRemoved, this, &TimelineWidget::RemoveBlock);
 

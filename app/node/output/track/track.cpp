@@ -180,7 +180,7 @@ const double &Track::GetTrackHeight() const
 void Track::SetTrackHeight(const double &height)
 {
   track_height_ = height;
-  emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
+  emit TrackHeightChanged(track_height_);
 }
 
 void Track::InputConnectedEvent(const QString &input, int element, Node *output)
