@@ -722,10 +722,22 @@ int TimelineView::GetTrackY(int track_index) const
 
 int TimelineView::GetTrackHeight(int track_index) const
 {
-  if (!connected_track_list_ || track_index >= connected_track_list_->GetTrackCount()) {
+  if (!connected_track_list_ || connected_track_list_->GetTrackCount() == 0) {
+    // Handle null or empty track list
     return Track::GetDefaultTrackHeightInPixels();
   }
 
+  if (track_index >= connected_track_list_->GetTrackCount()) {
+    // Handle new track at the end of the list
+    return connected_track_list_->GetTrackAt(connected_track_list_->GetTrackCount()-1)->GetTrackHeightInPixels();
+  }
+
+  if (track_index < 0) {
+    // Handle new track at the beginning of the list
+    return connected_track_list_->GetTrackAt(0)->GetTrackHeightInPixels();
+  }
+
+  // Track definitely exists, return its actual height
   return connected_track_list_->GetTrackAt(track_index)->GetTrackHeightInPixels();
 }
 
