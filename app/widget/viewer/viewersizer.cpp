@@ -175,11 +175,6 @@ void ViewerSizer::UpdateSize()
     double zoom_diff = (zoom_ * 0.01) / current_scale;
     child_matrix.scale(zoom_diff, zoom_diff, 1.0);
 
-  } else {
-
-    // Fit - add a small amount of padding
-    child_matrix.scale(0.95f, 0.95f);
-
   }
 
   emit RequestScale(child_matrix);
