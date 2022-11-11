@@ -150,16 +150,21 @@ const HandMovableView::DragMode &HandMovableView::GetDefaultDragMode() const
   return default_drag_mode_;
 }
 
-bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event) const
+bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event)
 {
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !OLIVE_CONFIG("ScrollZooms").toBool());
+}
+
+qreal HandMovableView::GetScrollZoomMultiplier(QWheelEvent *event)
+{
+  return 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
 }
 
 void HandMovableView::wheelEvent(QWheelEvent *event)
 {
   if (WheelEventIsAZoomEvent(event)) {
     if (!event->angleDelta().isNull()) {
-      qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
+      qreal multiplier = GetScrollZoomMultiplier(event);
 
       QPointF cursor_pos;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)

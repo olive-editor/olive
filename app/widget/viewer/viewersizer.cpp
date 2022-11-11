@@ -20,7 +20,12 @@
 
 #include "viewersizer.h"
 
+#include <QApplication>
+#include <QEvent>
 #include <QMatrix4x4>
+#include <QWheelEvent>
+
+#include "widget/handmovableview/handmovableview.h"
 
 namespace olive {
 
@@ -30,7 +35,8 @@ ViewerSizer::ViewerSizer(QWidget *parent) :
   width_(0),
   height_(0),
   pixel_aspect_(1),
-  zoom_(0)
+  zoom_(0),
+  current_widget_scale_(0)
 {
   horiz_scrollbar_ = new QScrollBar(Qt::Horizontal, this);
   horiz_scrollbar_->setVisible(false);
@@ -52,6 +58,7 @@ void ViewerSizer::SetWidget(QWidget *widget)
 
   if (widget_ != nullptr) {
     widget_->setParent(this);
+    widget_->installEventFilter(this);
 
     UpdateSize();
   }
@@ -88,6 +95,51 @@ void ViewerSizer::HandDragMove(int x, int y)
   if (vert_scrollbar_->isVisible()) {
     vert_scrollbar_->setValue(vert_scrollbar_->value() - y);
   }
+}
+
+bool ViewerSizer::eventFilter(QObject *watched, QEvent *event)
+{
+  if (watched == widget_) {
+    if (event->type() == QEvent::Wheel) {
+      QWheelEvent *w = static_cast<QWheelEvent*>(event);
+
+      if (HandMovableView::WheelEventIsAZoomEvent(w)) {
+        int x = w->angleDelta().x() + w->angleDelta().y();
+
+        int current_percent = zoom_;
+        if (current_percent == 0) {
+          // Currently set to "fit"
+          current_percent = current_widget_scale_;
+        }
+
+        if (x > 0) {
+          // Zoom in
+          for (int i=kZoomLevelCount-2; i>=0; i--) {
+            if (current_percent >= kZoomLevels[i]) {
+              SetZoom(kZoomLevels[i+1]);
+              break;
+            }
+          }
+        } else if (x < 0) {
+          // Zoom out
+          for (int i=1; i<kZoomLevelCount; i++) {
+            if (current_percent <= kZoomLevels[i]) {
+              SetZoom(kZoomLevels[i-1]);
+              break;
+            }
+          }
+        }
+      } else {
+        // Pass scroll values to scrollbars
+        QPoint p = w->pixelDelta();
+        horiz_scrollbar_->setValue(horiz_scrollbar_->value() - p.x());
+        vert_scrollbar_->setValue(vert_scrollbar_->value() - p.y());
+      }
+      return true;
+    }
+  }
+
+  return QWidget::eventFilter(watched, event);
 }
 
 void ViewerSizer::resizeEvent(QResizeEvent *event)
@@ -168,6 +220,8 @@ void ViewerSizer::UpdateSize()
     current_scale = double(available_width) / double(width_);
 
   }
+
+  current_widget_scale_ = current_scale * 100;
 
   if (zoom_ > 0) {
 
