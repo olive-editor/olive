@@ -286,7 +286,7 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         job.set_video_params(vp);
 
         table->Push(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
-      } else {
+      } else if (ref.type() == Track::kAudio) {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
