@@ -745,7 +745,7 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 
   // Create toolbar
   text_toolbar_ = new ViewerTextEditorToolBar(text_edit_);
-  text_toolbar_->setWindowFlags(Qt::Dialog| Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+  text_toolbar_->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
   connect(text_toolbar_, &ViewerTextEditorToolBar::VerticalAlignmentChanged, text, &TextGizmo::SetVerticalAlignment);
   connect(text, &TextGizmo::VerticalAlignmentChanged, text_toolbar_, &ViewerTextEditorToolBar::SetVerticalAlignment);
   text_toolbar_->SetVerticalAlignment(text->GetVerticalAlignment());
