@@ -311,6 +311,36 @@ colorspaces:
         - !<FileTransform> {src: rec709_to_linear.spi1d, interpolation: linear}
 
   - !<ColorSpace>
+    name: Rec.601 OETF (NTSC)
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      Rec.601 Optical-Electro Transfer Function.
+    isdata: false
+    allocation: uniform
+    allocationvars: [0.0, 1.0]
+    to_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [0.939542, 0.050181, 0.010277, 0, 0.017772, 0.965793, 0.016435, 0, -0.001622, -0.004370, 1.005991, 0, 0, 0, 0, 1]}
+        - !<ColorSpaceTransform> {src: Rec.709 OETF, dst: Linear}
+
+  - !<ColorSpace>
+    name: Rec.601 OETF (PAL)
+    family:
+    equalitygroup:
+    bitdepth: 32f
+    description: |
+      Rec.601 Optical-Electro Transfer Function.
+    isdata: false
+    allocation: uniform
+    allocationvars: [0.0, 1.0]
+    to_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [1.044043, -0.044043, 0.000000, 0, 0.000000, 1.000000, -0.000000, 0, -0.000000, 0.011793, 0.988207, 0, 0, 0, 0, 1]}
+        - !<ColorSpaceTransform> {src: Rec.709 OETF, dst: Linear}
+
+  - !<ColorSpace>
     name: Non-Colour Data
     family:
     description: |
