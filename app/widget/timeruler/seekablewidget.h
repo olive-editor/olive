@@ -47,7 +47,7 @@ public:
   void SetMarkers(TimelineMarkerList *markers);
   void SetWorkArea(TimelineWorkArea *workarea);
 
-  bool IsDraggingPlayhead() const
+  virtual bool IsDraggingPlayhead() const override
   {
     return dragging_;
   }
