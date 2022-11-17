@@ -166,6 +166,8 @@ private:
   int sws_dst_width_;
   int sws_dst_height_;
   AVPixelFormat sws_dst_format_;
+  AVColorRange sws_colrange_;
+  AVColorSpace sws_colspace_;
 
   AVPacket *working_packet_;
 

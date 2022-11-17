@@ -687,7 +687,6 @@ const char *FFmpegDecoder::GetInterlacingModeInFFmpeg(VideoParams::Interlacing i
 
 bool FFmpegDecoder::IsPixelFormatGLSLCompatible(AVPixelFormat f)
 {
-  return false;
   // NOTE: We don't include RGB24 or RGB48 here because those are slow on the GPU and performance
   //       should be better if we convert to RGBA on the CPU beforehand
   switch (f) {
@@ -759,7 +758,9 @@ AVFramePtr FFmpegDecoder::PreProcessFrame(AVFramePtr f, const RetrieveVideoParam
       || sws_src_format_ != f->format
       || sws_dst_width_ != dest->width
       || sws_dst_height_ != dest->height
-      || sws_dst_format_ != dest->format) {
+      || sws_dst_format_ != dest->format
+      || sws_colrange_ != dest->color_range
+      || sws_colspace_ != dest->colorspace) {
     // SwsContext must be recreated, destroy current if it exists
     FreeScaler();
 
@@ -770,6 +771,8 @@ AVFramePtr FFmpegDecoder::PreProcessFrame(AVFramePtr f, const RetrieveVideoParam
     sws_dst_width_ = dest->width;
     sws_dst_height_ = dest->height;
     sws_dst_format_ = static_cast<AVPixelFormat>(dest->format);
+    sws_colrange_ = dest->color_range;
+    sws_colspace_ = dest->colorspace;
 
     // Create new scaler
     sws_ctx_ = sws_getContext(sws_src_width_,
@@ -785,10 +788,10 @@ AVFramePtr FFmpegDecoder::PreProcessFrame(AVFramePtr f, const RetrieveVideoParam
 
     // Set swscale's colorspace details
     sws_setColorspaceDetails(sws_ctx_,
-                             sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(f->colorspace)),
-                             f->color_range == AVCOL_RANGE_JPEG ? 1 : 0,
-                             sws_getCoefficients(SWS_CS_DEFAULT),
-                             1,
+                             sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(dest->colorspace)),
+                             dest->color_range == AVCOL_RANGE_JPEG ? 1 : 0,
+                             sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(dest->colorspace)),
+                             dest->color_range == AVCOL_RANGE_JPEG ? 1 : 0,
                              0, 0x10000, 0x10000);
   }
 
