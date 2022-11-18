@@ -125,6 +125,8 @@ private:
 
   bool FindResizeHandle(QMouseEvent *event);
 
+  void ClearResizeHandle();
+
   void DragResizeHandle(const QPointF &scene_pos);
 
   void CommitResizeHandle();
@@ -152,6 +154,8 @@ private:
   int marker_bottom_;
 
   bool marker_editing_enabled_;
+
+  QPolygon last_playhead_shape_;
 
 private slots:
   void SetMarkerColor(int c);

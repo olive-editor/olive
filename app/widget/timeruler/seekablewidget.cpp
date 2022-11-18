@@ -219,10 +219,13 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
     }
   } else {
     // Look for resize points
-    if (!selection_manager_.GetObjectAtPoint(event->pos()) && FindResizeHandle(event)) {
+    if (!last_playhead_shape_.containsPoint(event->pos(), Qt::OddEvenFill)
+        && !selection_manager_.GetObjectAtPoint(event->pos())
+        && FindResizeHandle(event)) {
       setCursor(Qt::SizeHorCursor);
     } else {
       unsetCursor();
+      ClearResizeHandle();
     }
   }
 }
@@ -425,16 +428,16 @@ void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
 
   int half_text_height = text_height() / 3;
 
-  QPoint points[] = {
+  last_playhead_shape_ = QPolygon({
     QPoint(x, y),
     QPoint(x - half_width, y - half_text_height),
     QPoint(x - half_width, y - text_height()),
     QPoint(x + 1 + half_width, y - text_height()),
     QPoint(x + 1 + half_width, y - half_text_height),
     QPoint(x + 1, y),
-  };
+  });
 
-  p->drawPolygon(points, 6);
+  p->drawPolygon(last_playhead_shape_);
 
   p->setRenderHint(QPainter::Antialiasing, false);
 }
@@ -482,8 +485,7 @@ bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
     return false;
   }
 
-  resize_item_ = nullptr;
-  resize_mode_ = kResizeNone;
+  ClearResizeHandle();
 
   QPointF scene = mapToScene(event->pos());
   const int border = 10;
@@ -529,6 +531,12 @@ bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
   }
 
   return resize_item_;
+}
+
+void SeekableWidget::ClearResizeHandle()
+{
+  resize_item_ = nullptr;
+  resize_mode_ = kResizeNone;
 }
 
 void SeekableWidget::DragResizeHandle(const QPointF &scene)
