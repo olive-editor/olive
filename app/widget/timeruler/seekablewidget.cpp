@@ -181,6 +181,8 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
     return;
   } else if (event->modifiers() & Qt::ControlModifier) {
     selection_manager_.RubberBandStart(event);
+  } else if (marker_editing_enabled_ && (initial = selection_manager_.MousePress(event))) {
+    selection_manager_.DragStart(initial, event);
   } else if (resize_item_) {
     // Handle selection, even though we won't be using it for dragging
     if (!(event->modifiers() & Qt::ShiftModifier)) {
@@ -191,8 +193,6 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
     }
     dragging_ = true;
     resize_start_ = mapToScene(event->pos());
-  } else if (marker_editing_enabled_ && (initial = selection_manager_.MousePress(event))) {
-    selection_manager_.DragStart(initial, event);
   } else if (!selection_manager_.GetObjectAtPoint(event->pos()) && event->button() == Qt::LeftButton) {
     SeekToScenePoint(mapToScene(event->pos()).x());
     dragging_ = true;
@@ -219,7 +219,7 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
     }
   } else {
     // Look for resize points
-    if (FindResizeHandle(event)) {
+    if (!selection_manager_.GetObjectAtPoint(event->pos()) && FindResizeHandle(event)) {
       setCursor(Qt::SizeHorCursor);
     } else {
       unsetCursor();
