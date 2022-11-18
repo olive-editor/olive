@@ -39,6 +39,7 @@
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
+#include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
 #include "widget/nodeview/nodeviewundo.h"
@@ -478,8 +479,17 @@ void ProjectExplorer::ReplaceSelectedFootage()
 
   QString file = QFileDialog::getOpenFileName(this, tr("Replace Footage"));
   if (!file.isEmpty()) {
-    auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(footage, Footage::kFilenameInput)), file);
-    Core::instance()->undo_stack()->push(c);
+    auto p = new MultiUndoCommand();
+
+    // Change filename parameter
+    p->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(footage, Footage::kFilenameInput)), file));
+
+    if (QFileInfo(footage->filename()).fileName() == footage->GetLabel()) {
+      // Footage label == filename, change label too
+      p->add_child(new NodeRenameCommand(footage, QFileInfo(file).fileName()));
+    }
+
+    Core::instance()->undo_stack()->push(p);
   }
 }
 
