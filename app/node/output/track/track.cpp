@@ -152,7 +152,14 @@ TimeRange Track::InputTimeAdjustment(const QString& input, int element, const Ti
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
     if (cache_index > -1) {
-      return TransformRangeForBlock(blocks_.at(cache_index), input_time);
+      TimeRange r = input_time;
+      Block *b = blocks_.at(cache_index);
+
+      if (clamp) {
+        r.set_range(std::max(r.in(), b->in()), std::min(r.out(), b->out()));
+      }
+
+      return TransformRangeForBlock(b, r);
     }
   }
 

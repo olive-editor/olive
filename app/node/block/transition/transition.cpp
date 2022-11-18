@@ -292,12 +292,8 @@ TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element
   if (input == kInBlockInput || input == kOutBlockInput) {
     Block* block = dynamic_cast<Block*>(GetConnectedOutput(input));
     if (block) {
-      TimeRange range = input_time;
-      if (clamp) {
-        range.set_range(std::max(rational(0), range.in()), std::min(this->length(), range.out()));
-      }
-      range = range + in() - block->in();
-      return range;
+      // Retransform time as if it came from the track
+      return input_time + in() - block->in();
     }
   }
 

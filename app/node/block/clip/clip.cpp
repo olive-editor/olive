@@ -464,29 +464,7 @@ TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, cons
   Q_UNUSED(element)
 
   if (input == kBufferIn) {
-    rational in = input_time.in();
-    rational out = input_time.out();
-
-    if (clamp) {
-      rational minimum = 0;
-      rational maximum = length();
-
-      if (in_transition_) {
-        minimum -= in_transition_->length();
-      }
-
-      if (out_transition_) {
-        maximum += out_transition_->length();
-      }
-
-      in = std::max(in, minimum);
-      out = std::min(out, maximum);
-    }
-
-    in = SequenceToMediaTime(in);
-    out = SequenceToMediaTime(out);
-
-    return TimeRange(in, out);
+    return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
   }
 
   return super::InputTimeAdjustment(input, element, input_time, clamp);
