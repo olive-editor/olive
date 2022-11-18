@@ -491,7 +491,7 @@ bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
   rational max = SceneToTimeNoGrid(scene.x() + border);
 
   // Test for workarea
-  if (workarea_) {
+  if (workarea_ && workarea_->enabled()) {
     if (workarea_->in() >= min && workarea_->in() < max) {
       resize_mode_ = kResizeIn;
     } else if (workarea_->out() >= min && workarea_->out() < max) {

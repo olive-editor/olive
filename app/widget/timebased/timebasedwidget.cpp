@@ -828,7 +828,7 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
     }
   }
 
-  if ((snap_points & kSnapToWorkarea) && ruler()->GetWorkArea()) {
+  if ((snap_points & kSnapToWorkarea) && ruler()->GetWorkArea() && ruler()->GetWorkArea()->enabled()) {
     const rational &workarea_in = ruler()->GetWorkArea()->in();
     const rational &workarea_out = ruler()->GetWorkArea()->out();
 
