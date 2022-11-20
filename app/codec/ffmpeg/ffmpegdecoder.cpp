@@ -315,6 +315,9 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
     int64_t footage_duration = fmt_ctx->duration;
 
     bool duration_guessed_from_bitrate = (fmt_ctx->duration_estimation_method == AVFMT_DURATION_FROM_BITRATE);
+    if (duration_guessed_from_bitrate) {
+      qWarning() << "Unreliable duration detected - we will manually determine it ourselves (this may take some time)";
+    }
 
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
@@ -383,7 +386,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
                     do {
                       new_dur = frame->best_effort_timestamp;
-                    } while (instance.GetFrame(pkt, frame) >= 0);
+                    } while (instance.GetFrame(pkt, frame) >= 0 && (!cancelled || !cancelled->IsCancelled()));
 
                     avstream->duration = new_dur;
 
@@ -447,7 +450,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
               do {
                 new_dur = frame->best_effort_timestamp;
-              } while (instance.GetFrame(pkt, frame) >= 0);
+              } while (instance.GetFrame(pkt, frame) >= 0 && (!cancelled || !cancelled->IsCancelled()));
 
               avstream->duration = new_dur;
 

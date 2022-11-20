@@ -474,8 +474,10 @@ void Footage::Reprobe()
           }
         }
 
-        if (!footage_info.Save(meta_cache_file)) {
-          qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+        if (!cancelled_ || !cancelled_->HeardCancel()) {
+          if (!footage_info.Save(meta_cache_file)) {
+            qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+          }
         }
 
       }

@@ -106,9 +106,14 @@ void ProjectImportTask::Import(Folder *folder, QFileInfoList import, int &counte
 
     } else {
 
-      Footage* footage = new Footage(file_info.absoluteFilePath());
+      Footage* footage = new Footage();
 
+      footage->SetCancelPointer(this->GetCancelAtom());
+
+      footage->set_filename(file_info.absoluteFilePath());
       footage->SetLabel(file_info.fileName());
+
+      footage->SetCancelPointer(nullptr);
 
       if (footage->IsValid()) {
         // See if this footage is an image sequence
