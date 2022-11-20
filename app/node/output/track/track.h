@@ -425,7 +425,7 @@ signals:
   /**
    * @brief Signal emitted when the height of the track has changed
    */
-  void TrackHeightChangedInPixels(int pixel_height);
+  void TrackHeightChanged(qreal virtual_height);
 
   /**
    * @brief Signal emitted when the muted setting changes

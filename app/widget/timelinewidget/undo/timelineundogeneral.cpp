@@ -126,6 +126,9 @@ void TimelineAddTrackCommand::redo()
 
   // Add track to sequence
   track_->setParent(timeline_->GetParentGraph());
+  if (timeline_->GetTrackCount() > 0) {
+    track_->SetTrackHeight(timeline_->GetTrackAt(timeline_->GetTrackCount()-1)->GetTrackHeight());
+  }
   timeline_->ArrayAppend();
   Node::ConnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
 

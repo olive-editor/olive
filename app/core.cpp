@@ -468,7 +468,7 @@ void Core::CreateNewSequence()
   }
 }
 
-void Core::AddOpenProject(Project* p)
+void Core::AddOpenProject(Project* p, bool add_to_recents)
 {
   // Ensure project is not open at the moment
   foreach (Project* already_open, open_projects_) {
@@ -487,12 +487,14 @@ void Core::AddOpenProject(Project* p)
   connect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
   open_projects_.append(p);
 
-  PushRecentlyOpenedProject(p->filename());
+  if (!p->filename().isEmpty() && add_to_recents) {
+    PushRecentlyOpenedProject(p->filename());
+  }
 
   emit ProjectOpened(p);
 }
 
-bool Core::AddOpenProjectFromTask(Task *task)
+bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
@@ -500,7 +502,7 @@ bool Core::AddOpenProjectFromTask(Task *task)
     Project* project = load_task->GetLoadedProject();
 
     if (ValidateFootageInLoadedProject(project, project->GetSavedURL())) {
-      AddOpenProject(project);
+      AddOpenProject(project, add_to_recents);
       main_window_->LoadLayout(project->GetLayoutInfo());
 
       return true;
@@ -723,7 +725,7 @@ void Core::OpenStartupProject()
 
 void Core::AddRecoveryProjectFromTask(Task *task)
 {
-  if (AddOpenProjectFromTask(task)) {
+  if (AddOpenProjectFromTask(task, false)) {
     ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
     Project* project = load_task->GetLoadedProject();
@@ -1038,6 +1040,8 @@ void Core::ProjectSaveSucceeded(Task* task)
 
   autorecovered_projects_.removeOne(p->GetUuid());
   SaveUnrecoveredList();
+
+  ShowStatusBarMessage(tr("Saved to \"%1\" successfully").arg(p->filename()));
 }
 
 Project* Core::GetActiveProject() const
@@ -1417,7 +1421,7 @@ void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
   if (recovery_project) {
     connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddRecoveryProjectFromTask);
   } else {
-    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTaskAndAddToRecents);
   }
 
   task_dialog->open();
@@ -1713,38 +1717,39 @@ QString StripWindowsDriveLetter(QString s)
 
 bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
-  QVector<Footage*> project_footage = project->root()->ListChildrenOfType<Footage>();
   QVector<Footage*> footage_we_couldnt_validate;
 
-  foreach (Footage* footage, project_footage) {
-    QString footage_fn = StripWindowsDriveLetter(footage->filename());
-    QString project_fn = StripWindowsDriveLetter(project_saved_url);
+  for (Node *n : project->nodes()) {
+    if (Footage *footage = dynamic_cast<Footage*>(n)) {
+      QString footage_fn = StripWindowsDriveLetter(footage->filename());
+      QString project_fn = StripWindowsDriveLetter(project_saved_url);
 
-    if (!QFileInfo::exists(footage_fn) && !project_saved_url.isEmpty()) {
-      // If the footage doesn't exist, it might have moved with the project
-      const QString& project_current_url = project->filename();
+      if (!QFileInfo::exists(footage_fn) && !project_saved_url.isEmpty()) {
+        // If the footage doesn't exist, it might have moved with the project
+        const QString& project_current_url = project->filename();
 
-      if (project_current_url != project_fn) {
-        // Project has definitely moved, try to resolve relative paths
-        QDir saved_dir(QFileInfo(project_fn).dir());
-        QDir true_dir(QFileInfo(project_current_url).dir());
+        if (project_current_url != project_fn) {
+          // Project has definitely moved, try to resolve relative paths
+          QDir saved_dir(QFileInfo(project_fn).dir());
+          QDir true_dir(QFileInfo(project_current_url).dir());
 
-        QString relative_filename = saved_dir.relativeFilePath(footage_fn);
-        QString transformed_abs_filename = true_dir.filePath(relative_filename);
+          QString relative_filename = saved_dir.relativeFilePath(footage_fn);
+          QString transformed_abs_filename = true_dir.filePath(relative_filename);
 
-        if (QFileInfo::exists(transformed_abs_filename)) {
-          // Use this file instead
-          qInfo() << "Resolved" << footage_fn << "relatively to" << transformed_abs_filename;
-          footage->set_filename(transformed_abs_filename);
+          if (QFileInfo::exists(transformed_abs_filename)) {
+            // Use this file instead
+            qInfo() << "Resolved" << footage_fn << "relatively to" << transformed_abs_filename;
+            footage->set_filename(transformed_abs_filename);
+          }
         }
       }
-    }
 
-    if (QFileInfo::exists(footage->filename())) {
-      // Assume valid
-      footage->SetValid();
-    } else {
-      footage_we_couldnt_validate.append(footage);
+      if (QFileInfo::exists(footage->filename())) {
+        // Assume valid
+        footage->SetValid();
+      } else {
+        footage_we_couldnt_validate.append(footage);
+      }
     }
   }
 

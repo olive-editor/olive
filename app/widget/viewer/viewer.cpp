@@ -1373,10 +1373,10 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       Menu* zoom_menu = new Menu(tr("Zoom"), &menu);
       menu.addMenu(zoom_menu);
 
-      int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
       zoom_menu->addAction(tr("Fit"))->setData(0);
-      for (int i=0;i<8;i++) {
-        zoom_menu->addAction(tr("%1%").arg(zoom_levels[i]))->setData(zoom_levels[i]);
+      for (int i=0;i<ViewerSizer::kZoomLevelCount;i++) {
+        int z = ViewerSizer::kZoomLevels[i];
+        zoom_menu->addAction(tr("%1%").arg(z))->setData(z);
       }
 
       connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);

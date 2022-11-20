@@ -82,6 +82,10 @@ inline AVFramePtr CreateAVFramePtr(AVFrame *f)
 {
   return std::shared_ptr<AVFrame>(f, [](AVFrame *g){ av_frame_free(&g); });
 }
+inline AVFramePtr CreateAVFramePtr()
+{
+  return CreateAVFramePtr(av_frame_alloc());
+}
 
 }
 

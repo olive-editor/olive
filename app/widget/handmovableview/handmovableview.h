@@ -34,6 +34,10 @@ class HandMovableView : public QGraphicsView
 public:
   HandMovableView(QWidget* parent = nullptr);
 
+  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
+
+  static qreal GetScrollZoomMultiplier(QWheelEvent* event);
+
 protected:
   virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
 
@@ -43,8 +47,6 @@ protected:
 
   void SetDefaultDragMode(DragMode mode);
   const DragMode& GetDefaultDragMode() const;
-
-  bool WheelEventIsAZoomEvent(QWheelEvent* event) const;
 
   virtual void wheelEvent(QWheelEvent* event) override;
 

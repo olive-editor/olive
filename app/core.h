@@ -569,6 +569,13 @@ private:
   void SaveRecentProjectsList();
 
   /**
+   * @brief Adds a project to the "open projects" list
+   */
+  void AddOpenProject(olive::Project* p, bool add_to_recents = false);
+
+  bool AddOpenProjectFromTask(Task* task, bool add_to_recents);
+
+  /**
    * @brief Internal main window object
    */
   MainWindow* main_window_;
@@ -650,12 +657,10 @@ private slots:
 
   void ProjectSaveSucceeded(Task *task);
 
-  /**
-   * @brief Adds a project to the "open projects" list
-   */
-  void AddOpenProject(olive::Project* p);
-
-  bool AddOpenProjectFromTask(Task* task);
+  bool AddOpenProjectFromTaskAndAddToRecents(Task* task)
+  {
+    return AddOpenProjectFromTask(task, true);
+  }
 
   void ImportTaskComplete(Task *task);
 

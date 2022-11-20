@@ -286,7 +286,7 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         job.set_video_params(vp);
 
         table->Push(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
-      } else {
+      } else if (ref.type() == Track::kAudio) {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
@@ -474,8 +474,10 @@ void Footage::Reprobe()
           }
         }
 
-        if (!footage_info.Save(meta_cache_file)) {
-          qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+        if (!cancelled_ || !cancelled_->HeardCancel()) {
+          if (!footage_info.Save(meta_cache_file)) {
+            qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+          }
         }
 
       }
