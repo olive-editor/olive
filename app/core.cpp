@@ -1040,6 +1040,8 @@ void Core::ProjectSaveSucceeded(Task* task)
 
   autorecovered_projects_.removeOne(p->GetUuid());
   SaveUnrecoveredList();
+
+  ShowStatusBarMessage(tr("Saved to \"%1\" successfully").arg(p->filename()));
 }
 
 Project* Core::GetActiveProject() const
