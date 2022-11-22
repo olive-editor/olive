@@ -372,6 +372,11 @@ void PreviewAutoCacher::StartCachingAudioRange(PlaybackCache *cache, const TimeR
 
 void PreviewAutoCacher::VideoInvalidatedFromNode(PlaybackCache *cache, const TimeRange &range)
 {
+  // Ignore render requests if no video is present
+  if (!viewer_node_ || !viewer_node_->GetVideoParams().is_valid()) {
+    return;
+  }
+
   // Stop any current render tasks because a) they might be out of date now anyway, and b) we
   // want to dedicate all our rendering power to realtime feedback for the user
   //CancelVideoTasks(node);
@@ -386,6 +391,11 @@ void PreviewAutoCacher::VideoInvalidatedFromNode(PlaybackCache *cache, const Tim
 
 void PreviewAutoCacher::AudioInvalidatedFromNode(PlaybackCache *cache, const TimeRange &range)
 {
+  // Ignore render requests if no video is present
+  if (!viewer_node_ || !viewer_node_->GetAudioParams().is_valid()) {
+    return;
+  }
+
   // We don't stop rendering audio because currently there's no system of requeuing audio if it's
   // cancelled, so some areas may end up unrendered forever
   //  ClearAudioQueue();
