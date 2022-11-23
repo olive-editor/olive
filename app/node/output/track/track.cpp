@@ -113,6 +113,10 @@ Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const 
         end = blocks_.size()-1;
       }
 
+      if (blocks_.at(end)->in() == r.out()) {
+        end--;
+      }
+
       ActiveElements a;
       for (int i=start; i<=end; i++) {
         Block *b = blocks_.at(i);
