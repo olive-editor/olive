@@ -40,13 +40,12 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   super(true, false, parent),
   last_scroll_val_(0),
   focused_node_(nullptr),
-  time_target_(nullptr),
   show_all_nodes_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   QSplitter* splitter = new QSplitter(Qt::Horizontal);
   layout->addWidget(splitter);
@@ -113,7 +112,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     QWidget* keyframe_area = new QWidget();
     QVBoxLayout* keyframe_area_layout = new QVBoxLayout(keyframe_area);
     keyframe_area_layout->setSpacing(0);
-    keyframe_area_layout->setMargin(0);
+    keyframe_area_layout->setContentsMargins(0, 0, 0, 0);
 
     // Create ruler object
     keyframe_area_layout->addWidget(ruler());
@@ -126,14 +125,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     keyframe_area_layout->addWidget(keyframe_view_);
 
     // Connect ruler and keyframe view together
-    connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
-    connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
-    connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
     connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
     connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
-
-    // Connect keyframe view scaling to this
-    connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
 
     splitter->addWidget(keyframe_area);
 
@@ -148,8 +141,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
     keyframe_view_->setHorizontalScrollBar(scrollbar());
     keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-    connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   } else {
     keyframe_view_ = nullptr;
   }
@@ -361,19 +352,6 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
   foreach (NodeParamViewContext* ctx, context_items_) {
     ctx->SetTimebase(timebase);
   }
-
-  UpdateItemTime(GetTime());
-}
-
-void NodeParamView::TimeChangedEvent(const rational &time)
-{
-  super::TimeChangedEvent(time);
-
-  if (keyframe_view_) {
-    keyframe_view_->SetTime(time);
-  }
-
-  UpdateItemTime(time);
 }
 
 void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
@@ -386,13 +364,6 @@ void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
   foreach (NodeParamViewContext* item, context_items_) {
     item->SetTimeTarget(n);
   }
-
-  time_target_ = n;
-}
-
-Node *NodeParamView::GetTimeTarget() const
-{
-  return time_target_;
 }
 
 void ReconnectOutputsIfNotDeletingNode(MultiUndoCommand *c, NodeViewDeleteCommand *dc, Node *output, Node *deleting, Node *context)
@@ -683,13 +654,6 @@ bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(co
   return true;
 }
 
-void NodeParamView::UpdateItemTime(const rational &time)
-{
-  foreach (NodeParamViewContext* item, context_items_) {
-    item->SetTime(time);
-  }
-}
-
 void NodeParamView::QueueKeyframePositionUpdate()
 {
   QMetaObject::invokeMethod(this, &NodeParamView::UpdateElementY, Qt::QueuedConnection);
@@ -697,12 +661,19 @@ void NodeParamView::QueueKeyframePositionUpdate()
 
 void NodeParamView::AddContext(Node *ctx)
 {
+  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+
+  // TEMP: Creating many NPV items is EXTREMELY slow so limit to one item per context for now.
+  //       I have a better solution in the works to use one UI for several nodes, but I haven't
+  //       done it yet, and this can severely affect productivity.
+  if (item->GetContexts().size() == 1) {
+    return;
+  }
+
   // Queued so that if any further work is done in connecting this node to the context, it'll be
   // done before our sorting function is called
   connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
   connect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext, Qt::QueuedConnection);
-
-  NodeParamViewContext *item = GetContextItemFromContext(ctx);
 
   item->AddContext(ctx);
   item->setVisible(true);
@@ -735,7 +706,6 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 
   NodeParamViewItem* item = new NodeParamViewItem(n, IsGroupMode() ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context->GetDockArea());
 
-  connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::SelectNodeFromConnectedLink);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
@@ -743,9 +713,8 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
   connect(item, &NodeParamViewItem::RequestEditTextInViewer, this, &NodeParamView::RequestEditTextInViewer);
 
   item->SetContext(ctx);
-  item->SetTimeTarget(GetTimeTarget());
+  item->SetTimeTarget(GetConnectedNode());
   item->SetTimebase(timebase());
-  item->SetTime(GetTime());
 
   context->AddNode(item);
 

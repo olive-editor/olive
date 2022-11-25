@@ -297,7 +297,7 @@ QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat
   adjusted_matrix.scale(2.0 / sequence_res.x(), 2.0 / sequence_res.y(), 1.0);
 
   // Apply offset if applicable
-  adjusted_matrix.translate(offset);
+  adjusted_matrix.translate(offset.x(), offset.y());
 
   // Adjust by the matrix we generated earlier
   adjusted_matrix *= mat;
@@ -358,7 +358,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
 
   // Fold values into a matrix for the rectangle
   QMatrix4x4 rectangle_matrix;
-  rectangle_matrix.scale(sequence_half_res);
+  rectangle_matrix.scale(sequence_half_res.x(), sequence_half_res.y());
   rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, false, false, row[kParentInput].toMatrix()),
                                                 sequence_res,
                                                 tex_sz,
@@ -378,7 +378,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
 
   // Draw anchor point
   QMatrix4x4 anchor_matrix;
-  anchor_matrix.scale(sequence_half_res);
+  anchor_matrix.scale(sequence_half_res.x(), sequence_half_res.y());
   anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, true, false, false, row[kParentInput].toMatrix()),
                                              sequence_res,
                                              tex_sz,

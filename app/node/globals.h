@@ -25,6 +25,7 @@
 
 #include "common/timerange.h"
 #include "render/audioparams.h"
+#include "render/loopmode.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -34,10 +35,16 @@ class NodeGlobals
 public:
   NodeGlobals(){}
 
-  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time) :
+  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, LoopMode loop_mode) :
     video_params_(vparam),
     audio_params_(aparam),
-    time_(time)
+    time_(time),
+    loop_mode_(loop_mode)
+  {
+  }
+
+  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const rational &time, LoopMode loop_mode) :
+    NodeGlobals(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), loop_mode)
   {
   }
 
@@ -46,11 +53,13 @@ public:
   const AudioParams &aparams() const { return audio_params_; }
   const VideoParams &vparams() const { return video_params_; }
   const TimeRange &time() const { return time_; }
+  LoopMode loop_mode() const { return loop_mode_; }
 
 private:
   VideoParams video_params_;
   AudioParams audio_params_;
   TimeRange time_;
+  LoopMode loop_mode_;
 
 };
 

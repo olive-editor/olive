@@ -151,8 +151,6 @@ public:
 
   void ConnectToolBar(ViewerTextEditorToolBar *toolbar);
 
-  void SetListenToFocusEvents(bool e) { listen_to_focus_events_ = e; }
-
   void Paint(QPainter *p, Qt::Alignment valign);
 
   virtual void dragEnterEvent(QDragEnterEvent *e) override { return QTextEdit::dragEnterEvent(e); }
@@ -177,8 +175,6 @@ private:
   QTextDocument *transparent_clone_;
 
   bool block_update_toolbar_signal_;
-
-  bool listen_to_focus_events_;
 
   bool forced_default_;
   QTextCharFormat default_fmt_;

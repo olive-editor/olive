@@ -21,6 +21,7 @@
 #include "clip.h"
 
 #include "config/config.h"
+#include "node/block/transition/transition.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/slider/floatslider.h"
@@ -453,10 +454,12 @@ void ClipBlock::InputValueChangedEvent(const QString &input, int element)
         }
       }
     }
+  } else if (input == kLoopModeInput) {
+    emit PreviewChanged();
   }
 }
 
-TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
+TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const
 {
   Q_UNUSED(element)
 
@@ -464,7 +467,7 @@ TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, cons
     return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
   }
 
-  return super::InputTimeAdjustment(input, element, input_time);
+  return super::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
@@ -538,7 +541,7 @@ void ClipBlock::ConnectedToPreviewEvent()
 
 TimeRange ClipBlock::media_range() const
 {
-  return InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()));
+  return InputTimeAdjustment(kBufferIn, -1, TimeRange(0, length()), false);
 }
 
 MultiCamNode *ClipBlock::FindMulticam()

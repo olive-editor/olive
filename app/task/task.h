@@ -93,6 +93,7 @@ public slots:
   bool Start()
   {
     start_time_ = QDateTime::currentMSecsSinceEpoch();
+    emit Started(start_time_);
 
     bool ret = Run();
 
@@ -150,6 +151,8 @@ protected:
   }
 
 signals:
+  void Started(qint64 start_time);
+
   /**
    * @brief Signal emitted whenever progress is made
    *

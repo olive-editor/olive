@@ -31,12 +31,11 @@ extern "C" {
 #include <QWaitCondition>
 #include <stdint.h>
 
-#include "codec/frame.h"
 #include "codec/samplebuffer.h"
 #include "common/rational.h"
 #include "node/block/block.h"
 #include "node/project/footage/footagedescription.h"
-#include "task/task.h"
+#include "render/cancelatom.h"
 
 namespace olive {
 
@@ -69,12 +68,6 @@ public:
     kReady,
     kFailedToOpen,
     kIndexUnavailable
-  };
-
-  enum LoopMode {
-    kLoopModeOff,
-    kLoopModeLoop,
-    kLoopModeClamp
   };
 
   Decoder();
@@ -316,6 +309,7 @@ private:
 
   TexturePtr cached_texture_;
   rational cached_time_;
+  int cached_divider_;
 
 };
 

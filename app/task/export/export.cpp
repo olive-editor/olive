@@ -28,10 +28,14 @@ namespace olive {
 ExportTask::ExportTask(ViewerOutput *viewer_node,
                        ColorManager* color_manager,
                        const EncodingParams& params) :
-  color_manager_(color_manager),
   params_(params)
 {
-  set_viewer(viewer_node);
+  // Create a copy of the project
+  copier_ = new ProjectCopier(this);
+  copier_->SetProject(viewer_node->project());
+
+  set_viewer(copier_->GetCopy(viewer_node));
+  color_manager_ = copier_->GetCopy(color_manager);
 
   // Adjust video params to have no divider
   VideoParams vp = viewer_node->GetVideoParams();

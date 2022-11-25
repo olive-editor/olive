@@ -59,6 +59,9 @@ public:
     frame_slider_->SetValue(t);
   }
 
+signals:
+  void TimeChanged(const rational &t);
+
 private:
   QCheckBox* image_sequence_checkbox_;
 

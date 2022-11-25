@@ -47,7 +47,7 @@ SequenceDialogPresetTab::SequenceDialogPresetTab(QWidget* parent) :
   PresetManager<SequencePreset>(this, QStringLiteral("sequencepresets"))
 {
   QVBoxLayout* outer_layout = new QVBoxLayout(this);
-  outer_layout->setMargin(0);
+  outer_layout->setContentsMargins(0, 0, 0, 0);
 
   preset_tree_ = new QTreeWidget();
   preset_tree_->setColumnCount(1);

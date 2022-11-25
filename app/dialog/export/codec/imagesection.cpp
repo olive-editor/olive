@@ -29,7 +29,7 @@ ImageSection::ImageSection(QWidget* parent) :
   CodecSection(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -47,6 +47,7 @@ ImageSection::ImageSection(QWidget* parent) :
   frame_slider_->SetMinimum(0);
   frame_slider_->SetValue(0);
   frame_slider_->SetDisplayType(RationalSlider::kTime);
+  connect(frame_slider_, &RationalSlider::ValueChanged, this, &ImageSection::TimeChanged);
   layout->addWidget(frame_slider_, row, 1);
 }
 

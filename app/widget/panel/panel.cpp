@@ -158,7 +158,7 @@ void PanelWidget::SetWidgetWithPadding(QWidget *widget)
 {
   QWidget* wrapper = new QWidget();
   QHBoxLayout* layout = new QHBoxLayout(wrapper);
-  layout->setMargin(layout->margin() / 2);
+  layout->setContentsMargins(layout->contentsMargins() / 2);
   layout->addWidget(widget);
   setWidget(wrapper);
 }

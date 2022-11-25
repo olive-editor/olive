@@ -39,7 +39,7 @@ Block::Block() :
   track_(nullptr),
   index_(-1)
 {
-  AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden));
   SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);

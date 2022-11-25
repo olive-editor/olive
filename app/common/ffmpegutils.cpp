@@ -24,7 +24,7 @@ namespace olive {
 
 AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, VideoParams::Format maximum)
 {
-  std::vector<AVPixelFormat> possible_pix_fmts(3);
+  AVPixelFormat possible_pix_fmts[3];
 
   possible_pix_fmts[0] = AV_PIX_FMT_RGBA;
 
@@ -35,7 +35,7 @@ AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt
     possible_pix_fmts[2] = AV_PIX_FMT_NONE;
   }
 
-  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts.data(),
+  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
                                            pix_fmt,
                                            1,
                                            nullptr);

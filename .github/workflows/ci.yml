@@ -287,7 +287,7 @@ jobs:
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
-            os: macos-10.15
+            os: macos-11.0
             cmake-gen: Ninja
             min-deploy: 10.13
           - build-type: RelWithDebInfo

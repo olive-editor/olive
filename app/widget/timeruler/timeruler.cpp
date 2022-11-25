@@ -102,8 +102,8 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
 
   // Draw timeline points if connected
   int marker_height = TimelineMarker::GetMarkerHeight(p->fontMetrics());
-  DrawMarkers(p, marker_height);
   DrawWorkArea(p);
+  DrawMarkers(p, marker_height);
 
   double width_of_frame = timebase_dbl() * GetScale();
   double width_of_second = 0;
@@ -267,7 +267,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
   }
 
   // Draw the playhead if it's on screen at the moment
-  int playhead_pos = TimeToScene(GetTime());
+  int playhead_pos = TimeToScene(GetViewerNode()->GetPlayhead());
   p->setPen(Qt::NoPen);
   p->setBrush(PLAYHEAD_COLOR);
   DrawPlayhead(p, playhead_pos, line_bottom);

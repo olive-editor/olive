@@ -36,7 +36,7 @@ PreferencesAudioTab::PreferencesAudioTab()
   {
     // Backend Layout
     QGridLayout* main_layout = new QGridLayout();
-    main_layout->setMargin(0);
+    main_layout->setContentsMargins(0, 0, 0, 0);
 
     int row = 0;
 

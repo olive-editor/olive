@@ -57,7 +57,7 @@ public:
   virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
@@ -425,7 +425,7 @@ signals:
   /**
    * @brief Signal emitted when the height of the track has changed
    */
-  void TrackHeightChangedInPixels(int pixel_height);
+  void TrackHeightChanged(qreal virtual_height);
 
   /**
    * @brief Signal emitted when the muted setting changes

@@ -24,6 +24,7 @@ extern "C" {
 #include <libavutil/mathematics.h>
 }
 
+#include <QRegularExpression>
 #include <QtMath>
 
 #include "config/config.h"
@@ -34,16 +35,13 @@ QString padded(int64_t arg, int padding) {
   return QStringLiteral("%1").arg(arg, padding, 10, QChar('0'));
 }
 
-QString Timecode::timestamp_to_timecode(const int64_t &timestamp,
-                                        const rational& timebase,
-                                        const Display& display,
-                                        bool show_plus_if_positive)
+QString Timecode::time_to_timecode(const rational &time, const rational &timebase, const Timecode::Display &display, bool show_plus_if_positive)
 {
   if (timebase.isNull()) {
     return QStringLiteral("INVALID TIMEBASE");
   }
 
-  double timestamp_dbl = (rational(timestamp) * timebase).toDouble();
+  double time_dbl = time.toDouble();
 
   switch (display) {
   case kTimecodeNonDropFrame:
@@ -52,21 +50,21 @@ QString Timecode::timestamp_to_timecode(const int64_t &timestamp,
   {
     QString prefix;
 
-    if (timestamp_dbl < 0) {
+    if (time_dbl < 0) {
       prefix = "-";
     } else if (show_plus_if_positive) {
       prefix = "+";
     }
 
     if (display == kTimecodeSeconds) {
-      timestamp_dbl = qAbs(timestamp_dbl);
+      time_dbl = qAbs(time_dbl);
 
-      int64_t total_seconds = qFloor(timestamp_dbl);
+      int64_t total_seconds = qFloor(time_dbl);
 
       int64_t hours = total_seconds / 3600;
       int64_t mins = total_seconds / 60 - hours * 60;
       int64_t secs = total_seconds - mins * 60;
-      int64_t fraction = qRound64((timestamp_dbl - static_cast<double>(total_seconds)) * 1000);
+      int64_t fraction = qRound64((time_dbl - static_cast<double>(total_seconds)) * 1000);
 
       return QStringLiteral("%1%2:%3:%4.%5").arg(prefix,
                                                  padded(hours, 2),
@@ -79,7 +77,7 @@ QString Timecode::timestamp_to_timecode(const int64_t &timestamp,
       double frame_rate = timebase.flipped().toDouble();
       int rounded_frame_rate = qRound(frame_rate);
       int64_t frames, secs, mins, hours;
-      int64_t f = qAbs(timestamp);
+      int64_t f = qAbs(time_to_timestamp(time, timebase));
 
       if (display == kTimecodeDropFrame && TimebaseIsDropFrame(timebase)) {
         frame_token = ";";
@@ -127,18 +125,36 @@ QString Timecode::timestamp_to_timecode(const int64_t &timestamp,
     }
   }
   case kFrames:
-    return QString::number(timestamp);
+    return QString::number(time_to_timestamp(time, timebase));
   case kMilliseconds:
-    return QString::number(qRound(timestamp_dbl * 1000));
+    return QString::number(qRound(time_dbl * 1000));
   }
 
   return QStringLiteral("INVALID TIMECODE MODE");
 }
 
-int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational &timebase, const Display &display, bool* ok)
+int64_t StrToInt64EmptyTolerant(const QString &s, bool *ok)
 {
-  double timebase_dbl = timebase.toDouble();
+  if (s.isEmpty()) {
+    if (ok) *ok = true;
+    return 0;
+  } else {
+    return s.toLongLong(ok);
+  }
+}
 
+double StrToDoubleEmptyTolerant(const QString &s, bool *ok)
+{
+  if (s.isEmpty()) {
+    if (ok) *ok = true;
+    return 0;
+  } else {
+    return s.toDouble(ok);
+  }
+}
+
+rational Timecode::timecode_to_time(const QString &timecode, const rational &timebase, const Timecode::Display &display, bool *ok)
+{
   if (timecode.isEmpty()) {
     goto err_fatal;
   }
@@ -148,71 +164,73 @@ int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational 
   case kTimecodeDropFrame:
   case kTimecodeSeconds:
   {
-    const int kTimecodeElementCount = 4;
-    QStringList timecode_split = timecode.split(QRegExp("(:)|(;)|(\\.)"));
+    QStringList timecode_split = timecode.split(QRegularExpression("(:)|(;)"));
 
-    bool valid;
+    const int element_count = display == kTimecodeSeconds ? 3 : 4;
 
-    // We only deal with HH, MM, SS, and FF. Any values after that are ignored.
-    while (timecode_split.size() > kTimecodeElementCount) {
+    // Remove excess tokens (we're only interested in HH:MM:SS.FF)
+    while (timecode_split.size() > element_count) {
       timecode_split.removeLast();
     }
 
-    // Convert values to integers
-    QList<int64_t> timecode_numbers;
+    // For easier index calculations, ensure minimum size
+    while (timecode_split.size() < element_count) {
+      timecode_split.prepend(QString());
+    }
 
     bool negative = timecode.trimmed().startsWith('-');
-
-    foreach (const QString& element, timecode_split) {
-      valid = true;
-
-      timecode_numbers.append((element.isEmpty()) ? 0 : qAbs(element.toLong(&valid)));
-
-      // If element cannot be converted to a number,
-      if (!valid) {
-        goto err_fatal;
-      }
-    }
-
-    // Ensure value size is always 4
-    while (timecode_numbers.size() < 4) {
-      timecode_numbers.prepend(0);
-    }
 
     double frame_rate = timebase.flipped().toDouble();
     int rounded_frame_rate = qRound(frame_rate);
 
-    int64_t hours = timecode_numbers.at(0);
-    int64_t mins = timecode_numbers.at(1);
-    int64_t secs = timecode_numbers.at(2);
-    int64_t frames = timecode_numbers.at(3);
+    bool valid;
+    rational time;
 
-    int64_t sec_count = (hours*3600 + mins*60 + secs);
-    int64_t timestamp = sec_count*rounded_frame_rate + frames;
+    int64_t hours = StrToInt64EmptyTolerant(timecode_split.at(0), &valid);
+    if (!valid) goto err_fatal;
+    int64_t mins = StrToInt64EmptyTolerant(timecode_split.at(1), &valid);
+    if (!valid) goto err_fatal;
 
-    if (display == kTimecodeDropFrame && TimebaseIsDropFrame(timebase)) {
+    if (display == kTimecodeSeconds) {
+      double secs = StrToDoubleEmptyTolerant(timecode_split.at(2), &valid);
+      if (!valid) goto err_fatal;
 
-      // Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
-      int64_t dropFrames = qRound64(frame_rate * (2.0/30.0));
+      time = rational::fromDouble(hours * 3600 + mins * 60 + secs);
+    } else {
+      int64_t secs = StrToInt64EmptyTolerant(timecode_split.at(2), &valid);
+      if (!valid) goto err_fatal;
+      int64_t frames = StrToInt64EmptyTolerant(timecode_split.at(3), &valid);
+      if (!valid) goto err_fatal;
 
-      // d and m need to be calculated from
-      int64_t real_fr_ts = qRound64(static_cast<double>(sec_count)*frame_rate) + frames;
+      int64_t sec_count = (hours*3600 + mins*60 + secs);
+      int64_t frame_count = sec_count*rounded_frame_rate + frames;
 
-      int64_t framesPer10Minutes = qRound(frame_rate * 600);
-      int64_t d = real_fr_ts / framesPer10Minutes;
-      int64_t m = real_fr_ts % framesPer10Minutes;
+      if (display == kTimecodeDropFrame && TimebaseIsDropFrame(timebase)) {
 
-      if (m > dropFrames) {
-        timestamp -= dropFrames * ((m - dropFrames) / (qRound(frame_rate)*60 - dropFrames));
+        // Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
+        int64_t dropFrames = qRound64(frame_rate * (2.0/30.0));
+
+        // d and m need to be calculated from
+        int64_t real_fr_ts = qRound64(static_cast<double>(sec_count)*frame_rate) + frames;
+
+        int64_t framesPer10Minutes = qRound(frame_rate * 600);
+        int64_t d = real_fr_ts / framesPer10Minutes;
+        int64_t m = real_fr_ts % framesPer10Minutes;
+
+        if (m > dropFrames) {
+          frame_count -= dropFrames * ((m - dropFrames) / (qRound(frame_rate)*60 - dropFrames));
+        }
+        frame_count -= dropFrames*9*d;
       }
-      timestamp -= dropFrames*9*d;
+
+      time = timestamp_to_time(frame_count, timebase);
     }
 
     if (ok) *ok = true;
 
-    if (negative) timestamp = -timestamp;
+    if (negative) time = -time;
 
-    return timestamp;
+    return time;
   }
   case kMilliseconds:
   {
@@ -223,29 +241,28 @@ int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational 
       // Convert milliseconds to seconds
       timecode_secs *= 0.001;
 
-      // Convert seconds to frames
-      timecode_secs /= timebase_dbl;
-
-      if (ok) *ok = true;
-      return qRound(timecode_secs);
+      // Convert seconds to rational
+      return rational::fromDouble(timecode_secs, ok);
     } else {
       goto err_fatal;
     }
   }
   case kFrames:
+  {
+    bool valid;
+    int64_t ts = timecode.toLongLong(&valid);
+    if (!valid) {
+      goto err_fatal;
+    }
+
     if (ok) *ok = true;
-    return timecode.toLong(ok);
+    return timestamp_to_time(ts, timebase);
+  }
   }
 
 err_fatal:
   if (ok) *ok = false;
   return 0;
-}
-
-rational Timecode::timecode_to_time(const QString &timecode, const rational &timebase, const Timecode::Display &display, bool *ok)
-{
-  int64_t timestamp = timecode_to_timestamp(timecode, timebase, display, ok);
-  return timestamp_to_time(timestamp, timebase);
 }
 
 rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase, Rounding floor)
@@ -266,11 +283,6 @@ rational Timecode::timestamp_to_time(const int64_t &timestamp, const rational &t
   av_reduce(&num_r, &den_r, num, den, INT_MAX);
 
   return rational(num_r, den_r);
-}
-
-QString Timecode::time_to_timecode(const rational &time, const rational &timebase, const Timecode::Display &display, bool show_plus_if_positive)
-{
-  return timestamp_to_timecode(time_to_timestamp(time, timebase), timebase, display, show_plus_if_positive);
 }
 
 bool Timecode::TimebaseIsDropFrame(const rational &timebase)

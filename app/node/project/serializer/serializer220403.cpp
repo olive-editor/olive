@@ -570,13 +570,13 @@ void ProjectSerializer220403::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
     } else if (reader->name() == QStringLiteral("caches")) {
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("audio")) {
-          node->audio_playback_cache()->SetUuid(reader->readElementText());
+          node->audio_playback_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
         } else if (reader->name() == QStringLiteral("video")) {
-          node->video_frame_cache()->SetUuid(reader->readElementText());
+          node->video_frame_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
         } else if (reader->name() == QStringLiteral("thumb")) {
-          node->thumbnail_cache()->SetUuid(reader->readElementText());
+          node->thumbnail_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
         } else if (reader->name() == QStringLiteral("waveform")) {
-          node->waveform_cache()->SetUuid(reader->readElementText());
+          node->waveform_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
         } else {
           reader->skipCurrentElement();
         }

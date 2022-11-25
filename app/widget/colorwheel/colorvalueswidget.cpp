@@ -44,7 +44,7 @@ ColorValuesWidget::ColorValuesWidget(ColorManager *manager, QWidget *parent) :
   {
     QHBoxLayout* preview_layout = new QHBoxLayout();
 
-    preview_layout->setMargin(0);
+    preview_layout->setContentsMargins(0, 0, 0, 0);
 
     preview_layout->addWidget(new QLabel(tr("Preview")));
 

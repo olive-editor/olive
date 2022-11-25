@@ -40,7 +40,7 @@ TrackViewItem::TrackViewItem(Track* track, QWidget *parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   stack_ = new QStackedWidget();
   layout->addWidget(stack_);

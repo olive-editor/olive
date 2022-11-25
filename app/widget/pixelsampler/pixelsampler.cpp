@@ -54,21 +54,25 @@ void PixelSamplerWidget::UpdateLabelInternal()
   box_->SetColor(color_);
 
   label_->setText(tr("<html>"
-                     "<font color='#FF8080'>R: %1</font><br>"
-                     "<font color='#80FF80'>G: %2</font><br>"
-                     "<font color='#8080FF'>B: %3</font><br>"
-                     "A: %4"
+                     "<font color='#FF8080'>R: %1 (%5)</font><br>"
+                     "<font color='#80FF80'>G: %2 (%6)</font><br>"
+                     "<font color='#8080FF'>B: %3 (%7)</font><br>"
+                     "A: %4 (%8)"
                      "</html>").arg(QString::number(color_.red()),
                                     QString::number(color_.green()),
                                     QString::number(color_.blue()),
-                                    QString::number(color_.alpha())));
+                                    QString::number(color_.alpha()),
+                                    QString::number(int(color_.red()*255.0)),
+                                    QString::number(int(color_.green()*255.0)),
+                                    QString::number(int(color_.blue()*255.0)),
+                                    QString::number(int(color_.alpha()*255.0))));
 }
 
 ManagedPixelSamplerWidget::ManagedPixelSamplerWidget(QWidget *parent) :
   QWidget(parent)
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   display_view_ = new PixelSamplerWidget();
   display_view_->setTitle(tr("Display"));

@@ -22,6 +22,7 @@
 #define RENDERTEXTURE_H
 
 #include <memory>
+#include <QVariant>
 
 #include "render/videoparams.h"
 

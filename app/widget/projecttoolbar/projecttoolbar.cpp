@@ -33,7 +33,7 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   new_button_ = new QPushButton();
   connect(new_button_, &QPushButton::clicked, this, &ProjectToolbar::NewClicked);

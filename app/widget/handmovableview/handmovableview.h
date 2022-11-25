@@ -34,6 +34,10 @@ class HandMovableView : public QGraphicsView
 public:
   HandMovableView(QWidget* parent = nullptr);
 
+  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
+
+  static qreal GetScrollZoomMultiplier(QWheelEvent* event);
+
 protected:
   virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
 
@@ -44,11 +48,11 @@ protected:
   void SetDefaultDragMode(DragMode mode);
   const DragMode& GetDefaultDragMode() const;
 
-  bool WheelEventIsAZoomEvent(QWheelEvent* event) const;
-
   virtual void wheelEvent(QWheelEvent* event) override;
 
   virtual void ZoomIntoCursorPosition(QWheelEvent* event, double multiplier, const QPointF &cursor_pos);
+
+  void SetIsTimelineAxes(bool e) { is_timeline_axes_ = e; }
 
 private:
   bool dragging_hand_;
@@ -57,6 +61,8 @@ private:
   DragMode default_drag_mode_;
 
   QPointF transformed_pos_;
+
+  bool is_timeline_axes_;
 
 private slots:
   void ApplicationToolChanged(Tool::Item tool);

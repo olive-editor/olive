@@ -22,6 +22,7 @@
 
 #include <QCoreApplication>
 #include <QMessageBox>
+#include <QRegularExpression>
 
 namespace olive {
 
@@ -49,7 +50,7 @@ double GetFloatRatioFromUser(QWidget* parent,
       return qSNaN();
     }
 
-    QStringList ratio_components = s.split(QRegExp(QStringLiteral(":|;|\\/")));
+    QStringList ratio_components = s.split(QRegularExpression(QStringLiteral(":|;|\\/")));
 
     if (ratio_components.size() == 1) {
       bool float_ok;

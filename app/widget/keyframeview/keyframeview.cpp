@@ -204,6 +204,10 @@ bool KeyframeView::CopySelected(bool cut)
 
 bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_function)
 {
+  if (!GetViewerNode()) {
+    return false;
+  }
+
   ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
   if (res == ProjectSerializer::kSuccess) {
     const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
@@ -216,7 +220,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
         min = std::min(min, key->time());
       }
     }
-    min -= GetTime();
+    min -= GetViewerNode()->GetPlayhead();
 
     for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
       const QString &paste_id = it.key();
@@ -228,7 +232,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
         for (NodeKeyframe *key : it.value()) {
           // Adjust sequence time to node's time
           rational t = key->time() - min;
-          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, true);
+          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, Node::kTransformTowardsInput);
           key->set_time(t);
 
           if (NodeKeyframe *existing = node_with_id->GetKeyframeAtTimeOnTrack(key->input(), key->time(), key->track(), key->element())) {
@@ -454,7 +458,7 @@ void KeyframeView::ScaleChangedEvent(const double &scale)
   Redraw();
 }
 
-void KeyframeView::TimeTargetChangedEvent(Node *target)
+void KeyframeView::TimeTargetChangedEvent(ViewerOutput *v)
 {
   Redraw();
 }
@@ -491,12 +495,12 @@ void KeyframeView::DeselectKeyframe(NodeKeyframe *key)
 
 rational KeyframeView::GetUnadjustedKeyframeTime(NodeKeyframe *key, const rational &time)
 {
-  return GetAdjustedTime(GetTimeTarget(), key->parent(), time, true);
+  return GetAdjustedTime(GetTimeTarget(), key->parent(), time, Node::kTransformTowardsInput);
 }
 
 rational KeyframeView::GetAdjustedKeyframeTime(NodeKeyframe *key)
 {
-  return GetAdjustedTime(key->parent(), GetTimeTarget(), key->time(), false);
+  return GetAdjustedTime(key->parent(), GetTimeTarget(), key->time(), Node::kTransformTowardsOutput);
 }
 
 double KeyframeView::GetKeyframeSceneX(NodeKeyframe *key)

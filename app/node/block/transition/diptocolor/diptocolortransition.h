@@ -40,6 +40,8 @@ public:
 
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
+  virtual void Retranslate() override;
+
   static const QString kColorInput;
 
 protected:

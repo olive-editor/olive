@@ -42,8 +42,6 @@ class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 public:
   NodeParamViewWidgetBridge(NodeInput input, QObject* parent);
 
-  void SetTime(const rational& time);
-
   const QVector<QWidget*>& widgets() const
   {
     return widgets_;
@@ -58,6 +56,10 @@ signals:
   void WidgetsRecreated(const NodeInput& input);
 
   void RequestEditTextInViewer();
+
+protected:
+  virtual void TimeTargetDisconnectEvent(ViewerOutput *v) override;
+  virtual void TimeTargetConnectEvent(ViewerOutput *v) override;
 
 private:
   void CreateWidgets();
@@ -101,8 +103,6 @@ private:
   QVector<NodeInput> input_hierarchy_;
 
   QVector<QWidget*> widgets_;
-
-  rational time_;
 
   NodeInputDragger dragger_;
 

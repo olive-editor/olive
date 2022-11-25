@@ -56,6 +56,8 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
   viewport()->setMouseTracking(true);
+
+  SetIsTimelineAxes(true);
 }
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
@@ -64,15 +66,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
   QPointF scene_pos = mapToScene(event->pos());
   for (auto it=clip_marker_rects_.cbegin(); it!=clip_marker_rects_.cend(); it++) {
     if (it.value().contains(scene_pos)) {
-      QObject *p = this->parent();
-      while (p) {
-        if (TimelineWidget *timeline = dynamic_cast<TimelineWidget *>(p)) {
-          timeline->SetTime(it.key()->time().in());
-          break;
-        }
-
-        p = p->parent();
-      }
+      GetViewerNode()->SetPlayhead(it.key()->time().in());
+      break;
     }
   }
 
@@ -145,61 +140,6 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
   TimelineViewMouseEvent timeline_event = CreateMouseEvent(event);
 
   emit MouseDoubleClicked(&timeline_event);
-}
-
-void TimelineView::wheelEvent(QWheelEvent *event)
-{
-  if (WheelEventIsAZoomEvent(event)) {
-    super::wheelEvent(event);
-  } else {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-
-    QPoint angle_delta = event->angleDelta();
-
-    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool() // Check if config is set to invert timeline axes
-        && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
-      angle_delta = QPoint(angle_delta.y(), angle_delta.x());
-    }
-
-    QWheelEvent e(
-      #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-          event->position(),
-          event->globalPosition(),
-      #else
-          event->pos(),
-          event->globalPos(),
-      #endif
-          event->pixelDelta(),
-          angle_delta,
-          event->buttons(),
-          event->modifiers(),
-          event->phase(),
-          event->inverted(),
-          event->source()
-          );
-
-#else
-
-    Qt::Orientation orientation = event->orientation();
-
-    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool()) {
-      orientation = (orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
-    }
-
-    QWheelEvent e(
-          event->pos(),
-          event->globalPos(),
-          event->pixelDelta(),
-          event->angleDelta(),
-          event->delta(),
-          orientation,
-          event->buttons(),
-          event->modifiers()
-          );
-#endif
-
-    super::wheelEvent(&e);
-  }
 }
 
 void TimelineView::dragEnterEvent(QDragEnterEvent *event)
@@ -353,7 +293,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 
     int x = TimeToScene(recording_coord_.GetFrame());
     painter->drawRect(x, GetTrackY(recording_coord_.GetTrack().index()),
-                      TimeToScene(GetTime()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
+                      TimeToScene(GetViewerNode()->GetPlayhead()) - x, GetTrackHeight(recording_coord_.GetTrack().index()));
   }
 
   // Draw standard TimelineViewBase things (such as playhead)
@@ -478,8 +418,17 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
 
     QColor shadow_color = block->is_enabled() ? block->color().toQColor().darker() : QColor(Qt::darkGray).darker();
 
-    if (r.width() <= 3) {
-      painter->fillRect(r, shadow_color);
+    const qreal MINIMUM_RECT_WIDTH = 2;
+    const qreal MINIMUM_DETAIL_WIDTH = 8;
+
+    if (r.width() <= MINIMUM_RECT_WIDTH) {
+      if (!foreground) {
+        // Just draw a green background
+        // Width is likely fractional, so we ceil it and add 1 to ensure the entire width of the
+        // rect is painted
+        r.setWidth(std::ceil(r.width())+1);
+        painter->fillRect(r, shadow_color);
+      }
     } else {
       QFontMetrics fm = fontMetrics();
       int text_height = fm.height();
@@ -489,19 +438,21 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
       if (foreground) {
         painter->setBrush(Qt::NoBrush);
 
-        QString using_label = block->GetLabelOrName();
+        if (r.width() > MINIMUM_DETAIL_WIDTH) {
+          QString using_label = block->GetLabelOrName();
 
-        QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
-        painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
-        painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, using_label);
+          QRectF text_rect = r.adjusted(text_padding, text_padding, -text_padding, -text_padding);
+          painter->setPen(block->is_enabled() ? ColorCoding::GetUISelectorColor(block->color()) : Qt::lightGray);
+          painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignTop, using_label);
 
-        if (block->HasLinks()) {
-          int text_width = qMin(qRound(text_rect.width()),
-                                QtUtils::QFontMetricsWidth(fm, using_label));
+          if (block->HasLinks()) {
+            int text_width = qMin(qRound(text_rect.width()),
+                                  QtUtils::QFontMetricsWidth(fm, using_label));
 
-          int underline_y = text_rect.y() + text_height;
+            int underline_y = text_rect.y() + text_height;
 
-          painter->drawLine(text_rect.x(), underline_y, text_width + text_rect.x(), underline_y);
+            painter->drawLine(text_rect.x(), underline_y, text_width + text_rect.x(), underline_y);
+          }
         }
 
         qreal line_bottom = block_top+block_height-1;
@@ -518,177 +469,179 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
         painter->setBrush(block->is_enabled() ? block->brush(block_top, block_top + block_height) : Qt::gray);
         painter->drawRect(r);
 
-        if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
-          QRect preview_rect = r.toRect();
+        if (r.width() > MINIMUM_DETAIL_WIDTH) {
+          if (ClipBlock *clip = dynamic_cast<ClipBlock*>(block)) {
+            QRect preview_rect = r.toRect();
 
-          // Draw clip thumbnails
-          if (clip->GetTrackType() == Track::kVideo
-              && OLIVE_CONFIG("TimelineThumbnailMode").toInt() != Timeline::kThumbnailOff
-              && preview_rect.height() > r.height()/3) {
-            if (const FrameHashCache *thumbs = clip->thumbnails()) {
-              // Start thumbnails underneath clip name
-              preview_rect.adjust(0, text_total_height, 0, 0);
+            // Draw clip thumbnails
+            if (clip->GetTrackType() == Track::kVideo
+                && OLIVE_CONFIG("TimelineThumbnailMode").toInt() != Timeline::kThumbnailOff
+                && preview_rect.height() > r.height()/3) {
+              if (const FrameHashCache *thumbs = clip->thumbnails()) {
+                // Start thumbnails underneath clip name
+                preview_rect.adjust(0, text_total_height, 0, 0);
 
-              QRect thumb_rect;
-              painter->setRenderHint(QPainter::SmoothPixmapTransform);
-              painter->setClipRect(preview_rect);
+                QRect thumb_rect;
+                painter->setRenderHint(QPainter::SmoothPixmapTransform);
+                painter->setClipRect(preview_rect);
 
-              if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
+                if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
 
-                Sequence *s = clip->track()->sequence();
-                int width = s->GetVideoParams().width();
-                int height = s->GetVideoParams().height();
-                int start;
-                if (height > 0) { // Prevent divide by zero/invalid params
-                  double scale = double(preview_rect.height())/double(height);
-                  thumb_rect.setWidth(width * scale);
-                  start = (((preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width()) * thumb_rect.width()) + qFloor(block_in);
+                  Sequence *s = clip->track()->sequence();
+                  int width = s->GetVideoParams().width();
+                  int height = s->GetVideoParams().height();
+                  int start;
+                  if (height > 0) { // Prevent divide by zero/invalid params
+                    double scale = double(preview_rect.height())/double(height);
+                    thumb_rect.setWidth(width * scale);
+                    start = (((preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width()) * thumb_rect.width()) + qFloor(block_in);
+                  } else {
+                    start = preview_rect.left();
+                  }
+
+                  for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
+                    rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
+                    DrawThumbnail(painter, thumbs, time_here, i, preview_rect, &thumb_rect);
+                  }
+
                 } else {
-                  start = preview_rect.left();
+
+                  rational time = clip->media_range().in();
+                  time = Timecode::snap_time_to_timebase(time, thumbs->GetTimebase(), Timecode::kFloor);
+                  DrawThumbnail(painter, thumbs, time, block_left, preview_rect, &thumb_rect);
+
                 }
 
-                for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
-                  rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
-                  DrawThumbnail(painter, thumbs, time_here, i, preview_rect, &thumb_rect);
-                }
+                painter->setClipping(false);
 
-              } else {
-
-                rational time = clip->media_range().in();
-                time = Timecode::snap_time_to_timebase(time, thumbs->GetTimebase(), Timecode::kFloor);
-                DrawThumbnail(painter, thumbs, time, block_left, preview_rect, &thumb_rect);
-
-              }
-
-              painter->setClipping(false);
-
-            }
-          }
-
-          // Draw waveform
-          if (clip->GetTrackType() == Track::kAudio
-              && OLIVE_CONFIG("TimelineWaveformMode").toInt() == Timeline::kWaveformsEnabled) {
-            if (const AudioWaveformCache *wave = clip->waveform()) {
-              rational waveform_start = SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in;
-              painter->setPen(shadow_color);
-
-              wave->Draw(painter, preview_rect, this->GetScale(), waveform_start);
-            }
-          }
-
-          // Draw zebra stripes and markers
-          if (clip->connected_viewer()) {
-            if (!clip->connected_viewer()->GetLength().isNull()) {
-              painter->setPen(shadow_color);
-
-              if (clip->media_in() < 0) {
-                qreal zebra_right = TimeToScene(clip->in() - clip->media_in());
-
-                switch (clip->loop_mode()) {
-                case Decoder::kLoopModeOff:
-                  // Draw stripes for sections of clip < 0
-                  if (zebra_right > GetTimelineLeftBound()) {
-                    DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right - block_left, block_height));
-                  }
-                  break;
-                case Decoder::kLoopModeLoop:
-                  for (qreal i=zebra_right; i>block_left; i-=TimeToScene(clip->connected_viewer()->GetLength())) {
-                    painter->drawLine(i, block_top, i, block_top + block_height);
-                  }
-                  break;
-                case Decoder::kLoopModeClamp:
-                  painter->drawLine(zebra_right, block_top, zebra_right, block_top + block_height);
-                  break;
-                }
-              }
-
-              if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
-                qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
-                switch (clip->loop_mode()) {
-                case Decoder::kLoopModeOff:
-                  // Draw stripes for sections for clip > clip length
-                  if (zebra_left < GetTimelineRightBound()) {
-                    DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
-                  }
-                  break;
-                case Decoder::kLoopModeLoop:
-                  for (qreal i=zebra_left; i<block_right; i+=TimeToScene(clip->connected_viewer()->GetLength())) {
-                    painter->drawLine(i, block_top, i, block_top + block_height);
-                  }
-                  break;
-                case Decoder::kLoopModeClamp:
-                  painter->drawLine(zebra_left, block_top, zebra_left, block_top + block_height);
-                  break;
-                }
               }
             }
 
-            TimelineMarkerList *marker_list = clip->connected_viewer()->GetMarkers();
-            if (!marker_list->empty()) {
+            // Draw waveform
+            if (clip->GetTrackType() == Track::kAudio
+                && OLIVE_CONFIG("TimelineWaveformMode").toInt() == Timeline::kWaveformsEnabled) {
+              if (const AudioWaveformCache *wave = clip->waveform()) {
+                rational waveform_start = SceneToTime(block_left - block_in, GetScale(), connected_track_list_->parent()->GetAudioParams().sample_rate_as_time_base()) + media_in;
+                painter->setPen(shadow_color);
 
-              clip_marker_rects_.clear();
+                wave->Draw(painter, preview_rect, this->GetScale(), waveform_start);
+              }
+            }
 
-              for (auto it=marker_list->cbegin(); it!=marker_list->cend(); it++) {
-                TimelineMarker *marker = *it;
-                // Make sure marker is within In/Out points of the clip
-                if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
-                  QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time().in()), block_top + block_height);
-                  painter->setClipRect(r);
-                  QRect marker_rect = marker->Draw(painter, marker_pt, -1, GetScale(), false);
-                  clip_marker_rects_.insert(marker, marker_rect);
-                  painter->setClipping(false);
+            // Draw zebra stripes and markers
+            if (clip->connected_viewer()) {
+              if (!clip->connected_viewer()->GetLength().isNull()) {
+                painter->setPen(shadow_color);
+
+                if (clip->media_in() < 0) {
+                  qreal zebra_right = TimeToScene(clip->in() - clip->media_in());
+
+                  switch (clip->loop_mode()) {
+                  case LoopMode::kLoopModeOff:
+                    // Draw stripes for sections of clip < 0
+                    if (zebra_right > GetTimelineLeftBound()) {
+                      DrawZebraStripes(painter, QRectF(block_left, block_top, zebra_right - block_left, block_height));
+                    }
+                    break;
+                  case LoopMode::kLoopModeLoop:
+                    for (qreal i=zebra_right; i>block_left; i-=TimeToScene(clip->connected_viewer()->GetLength())) {
+                      painter->drawLine(i, block_top, i, block_top + block_height);
+                    }
+                    break;
+                  case LoopMode::kLoopModeClamp:
+                    painter->drawLine(zebra_right, block_top, zebra_right, block_top + block_height);
+                    break;
+                  }
                 }
+
+                if (clip->length() + clip->media_in() > clip->connected_viewer()->GetLength()) {
+                  qreal zebra_left = TimeToScene(clip->out() - (clip->media_in() + clip->length() - clip->connected_viewer()->GetLength()));
+                  switch (clip->loop_mode()) {
+                  case LoopMode::kLoopModeOff:
+                    // Draw stripes for sections for clip > clip length
+                    if (zebra_left < GetTimelineRightBound()) {
+                      DrawZebraStripes(painter, QRectF(zebra_left, block_top, block_right - zebra_left, block_height));
+                    }
+                    break;
+                  case LoopMode::kLoopModeLoop:
+                    for (qreal i=zebra_left; i<block_right; i+=TimeToScene(clip->connected_viewer()->GetLength())) {
+                      painter->drawLine(i, block_top, i, block_top + block_height);
+                    }
+                    break;
+                  case LoopMode::kLoopModeClamp:
+                    painter->drawLine(zebra_left, block_top, zebra_left, block_top + block_height);
+                    break;
+                  }
+                }
+              }
+
+              TimelineMarkerList *marker_list = clip->connected_viewer()->GetMarkers();
+              if (!marker_list->empty()) {
+
+                clip_marker_rects_.clear();
+
+                for (auto it=marker_list->cbegin(); it!=marker_list->cend(); it++) {
+                  TimelineMarker *marker = *it;
+                  // Make sure marker is within In/Out points of the clip
+                  if (marker->time().in() >= clip->media_in() && marker->time().out() <= clip->media_in() + clip->length()) {
+                    QPoint marker_pt(TimeToScene(clip->in() - clip->media_in() + marker->time().in()), block_top + block_height);
+                    painter->setClipRect(r);
+                    QRect marker_rect = marker->Draw(painter, marker_pt, -1, GetScale(), false);
+                    clip_marker_rects_.insert(marker, marker_rect);
+                    painter->setClipping(false);
+                  }
+                }
+              }
+            }
+
+            if (const FrameHashCache *cache = clip->connected_video_cache()) {
+              if (cache->HasValidatedRanges()) {
+                QRect cache_rect = r.adjusted(0, r.height() - PlaybackCache::GetCacheIndicatorHeight(), 0, 0).toRect();
+                cache->Draw(painter, clip->media_in(), GetScale(), cache_rect);
               }
             }
           }
 
-          if (const FrameHashCache *cache = clip->connected_video_cache()) {
-            if (cache->HasValidatedRanges()) {
-              QRect cache_rect = r.adjusted(0, r.height() - PlaybackCache::GetCacheIndicatorHeight(), 0, 0).toRect();
-              cache->Draw(painter, clip->media_in(), GetScale(), cache_rect);
+          // For transitions, show lines representing a transition
+          if (TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block)) {
+            QVector<QLineF> lines;
+
+            if (transition->connected_in_block()) {
+              lines.append(QLineF(r.bottomLeft(), r.topRight()));
             }
-          }
-        }
 
-        // For transitions, show lines representing a transition
-        if (TransitionBlock* transition = dynamic_cast<TransitionBlock*>(block)) {
-          QVector<QLineF> lines;
+            if (transition->connected_out_block()) {
+              lines.append(QLineF(r.topLeft(), r.bottomRight()));
+            }
 
-          if (transition->connected_in_block()) {
-            lines.append(QLineF(r.bottomLeft(), r.topRight()));
+            painter->setPen(shadow_color);
+            painter->drawLines(lines);
           }
 
-          if (transition->connected_out_block()) {
-            lines.append(QLineF(r.topLeft(), r.bottomRight()));
+          if (transition_overlay_out_ == block || transition_overlay_in_ == block) {
+            QRectF transition_overlay_rect = r;
+
+            qreal transition_overlay_width = TimeToScene(block->length()) * 0.5;
+            if (transition_overlay_out_ && transition_overlay_in_) {
+              // This is a dual transition, use the smallest width
+              Block *other_block = (transition_overlay_out_ == block) ? transition_overlay_in_ : transition_overlay_out_;
+
+              qreal other_width = TimeToScene(other_block->length()) * 0.5;
+
+              transition_overlay_width = qMin(transition_overlay_width, other_width);
+            }
+
+            if (transition_overlay_out_ == block) {
+              transition_overlay_rect.setLeft(transition_overlay_rect.right() - transition_overlay_width);
+            } else {
+              transition_overlay_rect.setRight(transition_overlay_rect.left() + transition_overlay_width);
+            }
+
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(QColor(0, 0, 0, 64));
+
+            painter->drawRect(transition_overlay_rect);
           }
-
-          painter->setPen(shadow_color);
-          painter->drawLines(lines);
-        }
-
-        if (transition_overlay_out_ == block || transition_overlay_in_ == block) {
-          QRectF transition_overlay_rect = r;
-
-          qreal transition_overlay_width = TimeToScene(block->length()) * 0.5;
-          if (transition_overlay_out_ && transition_overlay_in_) {
-            // This is a dual transition, use the smallest width
-            Block *other_block = (transition_overlay_out_ == block) ? transition_overlay_in_ : transition_overlay_out_;
-
-            qreal other_width = TimeToScene(other_block->length()) * 0.5;
-
-            transition_overlay_width = qMin(transition_overlay_width, other_width);
-          }
-
-          if (transition_overlay_out_ == block) {
-            transition_overlay_rect.setLeft(transition_overlay_rect.right() - transition_overlay_width);
-          } else {
-            transition_overlay_rect.setRight(transition_overlay_rect.left() + transition_overlay_width);
-          }
-
-          painter->setPen(Qt::NoPen);
-          painter->setBrush(QColor(0, 0, 0, 64));
-
-          painter->drawRect(transition_overlay_rect);
         }
       }
     }
@@ -782,10 +735,22 @@ int TimelineView::GetTrackY(int track_index) const
 
 int TimelineView::GetTrackHeight(int track_index) const
 {
-  if (!connected_track_list_ || track_index >= connected_track_list_->GetTrackCount()) {
+  if (!connected_track_list_ || connected_track_list_->GetTrackCount() == 0) {
+    // Handle null or empty track list
     return Track::GetDefaultTrackHeightInPixels();
   }
 
+  if (track_index >= connected_track_list_->GetTrackCount()) {
+    // Handle new track at the end of the list
+    return connected_track_list_->GetTrackAt(connected_track_list_->GetTrackCount()-1)->GetTrackHeightInPixels();
+  }
+
+  if (track_index < 0) {
+    // Handle new track at the beginning of the list
+    return connected_track_list_->GetTrackAt(0)->GetTrackHeightInPixels();
+  }
+
+  // Track definitely exists, return its actual height
   return connected_track_list_->GetTrackAt(track_index)->GetTrackHeightInPixels();
 }
 

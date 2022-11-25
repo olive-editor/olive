@@ -57,13 +57,6 @@ NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput input, QObject *p
   CreateWidgets();
 }
 
-void NodeParamViewWidgetBridge::SetTime(const rational &time)
-{
-  time_ = time;
-
-  UpdateWidgetValues();
-}
-
 int GetSliderCount(NodeValue::Type type)
 {
   return NodeValue::get_number_of_keyframe_tracks(type);
@@ -528,7 +521,11 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
 
 rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), time_, true);
+  if (GetTimeTarget()) {
+    return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), GetTimeTarget()->GetPlayhead(), Node::kTransformTowardsInput);
+  } else {
+    return 0;
+  }
 }
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
@@ -538,11 +535,22 @@ void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
   }
 }
 
+void NodeParamViewWidgetBridge::TimeTargetDisconnectEvent(ViewerOutput *v)
+{
+  disconnect(v, &ViewerOutput::PlayheadChanged, this, &NodeParamViewWidgetBridge::UpdateWidgetValues);
+}
+
+void NodeParamViewWidgetBridge::TimeTargetConnectEvent(ViewerOutput *v)
+{
+  connect(v, &ViewerOutput::PlayheadChanged, this, &NodeParamViewWidgetBridge::UpdateWidgetValues);
+}
+
 void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const TimeRange &range)
 {
-  if (GetInnerInput() == input
+  if (GetTimeTarget()
+      && GetInnerInput() == input
       && !dragger_.IsStarted()
-      && range.in() <= time_ && range.out() >= time_) {
+      && range.in() <= GetTimeTarget()->GetPlayhead() && range.out() >= GetTimeTarget()->GetPlayhead()) {
     // We'll need to update the widgets because the values have changed on our current time
     UpdateWidgetValues();
   }
@@ -567,7 +575,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       }
     } else { // set specific track/widget
       bool ok;
-      int element = key.midRef(7).toInt(&ok);
+      int element = key.mid(7).toInt(&ok);
       int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
 
       if (ok && element >= 0 && element < tracks) {
@@ -686,7 +694,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
         }
       } else {
         bool ok;
-        int element = key.midRef(5).toInt(&ok);
+        int element = key.mid(5).toInt(&ok);
         if (ok && element >= 0 && element < tracks) {
           static_cast<SliderBase*>(widgets_.at(element))->SetColor(c);
         }

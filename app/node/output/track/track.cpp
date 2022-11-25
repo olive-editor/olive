@@ -113,6 +113,10 @@ Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const 
         end = blocks_.size()-1;
       }
 
+      if (blocks_.at(end)->in() == r.out()) {
+        end--;
+      }
+
       ActiveElements a;
       for (int i=start; i<=end; i++) {
         Block *b = blocks_.at(i);
@@ -146,17 +150,24 @@ void Track::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeVal
   }
 }
 
-TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
+TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const
 {
   if (input == kBlockInput && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
     if (cache_index > -1) {
-      return TransformRangeForBlock(blocks_.at(cache_index), input_time);
+      TimeRange r = input_time;
+      Block *b = blocks_.at(cache_index);
+
+      if (clamp) {
+        r.set_range(std::max(r.in(), b->in()), std::min(r.out(), b->out()));
+      }
+
+      return TransformRangeForBlock(b, r);
     }
   }
 
-  return Node::InputTimeAdjustment(input, element, input_time);
+  return Node::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange Track::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
@@ -180,7 +191,7 @@ const double &Track::GetTrackHeight() const
 void Track::SetTrackHeight(const double &height)
 {
   track_height_ = height;
-  emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
+  emit TrackHeightChanged(track_height_);
 }
 
 void Track::InputConnectedEvent(const QString &input, int element, Node *output)
@@ -647,16 +658,16 @@ void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &glob
     TimeRange range_for_block(qMax(b->in(), range.in()),
                               qMin(b->out(), range.out()));
 
+    qint64 source_offset = 0;
     qint64 destination_offset = globals.aparams().time_to_samples(range_for_block.in() - range.in());
     qint64 max_dest_sz = globals.aparams().time_to_samples(range_for_block.length());
 
     // Destination buffer
     SampleBuffer samples_from_this_block = it->second.toSamples();
-    ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
 
     if (samples_from_this_block.is_allocated()) {
       // If this is a clip, we might have extra speed/reverse information
-      if (clip_cast) {
+      if (ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b)) {
         double speed_value = clip_cast->speed();
         bool reversed = clip_cast->reverse();
 
@@ -711,11 +722,11 @@ void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &glob
         }
       }
 
-      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count() - destination_offset));
+      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count() - source_offset));
 
       // Copy samples into destination buffer
       for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
-        block_range_buffer.set(i, samples_from_this_block.data(i) + destination_offset, destination_offset, copy_length);
+        block_range_buffer.set(i, samples_from_this_block.data(i) + source_offset, destination_offset, copy_length);
       }
     }
   }

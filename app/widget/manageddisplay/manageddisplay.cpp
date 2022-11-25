@@ -38,7 +38,7 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     // Create OpenGL widget
@@ -312,11 +312,11 @@ bool ManagedDisplayWidget::eventFilter(QObject *o, QEvent *e)
   {
     // HACK: QWindows don't seem to receive ContextMenu events on right click (only when pressing
     //       the menu button on the keyboard) so we handle it manually here
-    QMouseEvent *ev = static_cast<QMouseEvent*>(e);
+    /*QMouseEvent *ev = static_cast<QMouseEvent*>(e);
     if (ev->button() == Qt::RightButton) {
       emit customContextMenuRequested(ev->pos());
       return true;
-    }
+    }*/
     break;
   }
   default:

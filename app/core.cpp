@@ -87,6 +87,7 @@ Core::Core(const CoreParams& params) :
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
   core_params_(params),
+  magic_(false),
   pixel_sampling_users_(0),
   shown_cache_full_warning_(false)
 {
@@ -198,15 +199,6 @@ void Core::Stop()
   // Save Config
   Config::Save();
 
-  // Save recently opened projects
-  {
-    QFile recent_projects_file(GetRecentProjectsFilePath());
-    if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
-      recent_projects_file.write(recent_projects_.join('\n').toUtf8());
-      recent_projects_file.close();
-    }
-  }
-
   ProjectSerializer::Destroy();
 
   ConformManager::DestroyInstance();
@@ -292,6 +284,7 @@ void Core::SetSelectedTransitionObject(const QString &obj)
 void Core::ClearOpenRecentList()
 {
   recent_projects_.clear();
+  SaveRecentProjectsList();
   emit OpenRecentListChanged();
 }
 
@@ -387,11 +380,8 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerOutput* viewer;
-  rational time;
-
-  if (GetSequenceToExport(&viewer, &time)) {
-    OpenExportDialogForViewer(viewer, time, false);
+  if (ViewerOutput* viewer = GetSequenceToExport()) {
+    OpenExportDialogForViewer(viewer, false);
   }
 }
 
@@ -478,7 +468,7 @@ void Core::CreateNewSequence()
   }
 }
 
-void Core::AddOpenProject(Project* p)
+void Core::AddOpenProject(Project* p, bool add_to_recents)
 {
   // Ensure project is not open at the moment
   foreach (Project* already_open, open_projects_) {
@@ -497,12 +487,14 @@ void Core::AddOpenProject(Project* p)
   connect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
   open_projects_.append(p);
 
-  PushRecentlyOpenedProject(p->filename());
+  if (!p->filename().isEmpty() && add_to_recents) {
+    PushRecentlyOpenedProject(p->filename());
+  }
 
   emit ProjectOpened(p);
 }
 
-bool Core::AddOpenProjectFromTask(Task *task)
+bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
 {
   ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
@@ -510,7 +502,7 @@ bool Core::AddOpenProjectFromTask(Task *task)
     Project* project = load_task->GetLoadedProject();
 
     if (ValidateFootageInLoadedProject(project, project->GetSavedURL())) {
-      AddOpenProject(project);
+      AddOpenProject(project, add_to_recents);
       main_window_->LoadLayout(project->GetLayoutInfo());
 
       return true;
@@ -733,7 +725,7 @@ void Core::OpenStartupProject()
 
 void Core::AddRecoveryProjectFromTask(Task *task)
 {
-  if (AddOpenProjectFromTask(task)) {
+  if (AddOpenProjectFromTask(task, false)) {
     ProjectLoadBaseTask* load_task = static_cast<ProjectLoadBaseTask*>(task);
 
     Project* project = load_task->GetLoadedProject();
@@ -858,7 +850,7 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
   psm->deleteLater();
 }
 
-bool Core::GetSequenceToExport(ViewerOutput **viewer, rational *time)
+ViewerOutput *Core::GetSequenceToExport()
 {
   // First try the most recently focused time based window
   TimeBasedPanel* time_panel = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
@@ -876,9 +868,7 @@ bool Core::GetSequenceToExport(ViewerOutput **viewer, rational *time)
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      *viewer = time_panel->GetConnectedViewer();
-      *time = time_panel->GetTime();
-      return true;
+      return time_panel->GetConnectedViewer();
     }
   } else {
     QMessageBox::critical(main_window_,
@@ -887,7 +877,7 @@ bool Core::GetSequenceToExport(ViewerOutput **viewer, rational *time)
                           QMessageBox::Ok);
   }
 
-  return false;
+  return nullptr;
 }
 
 QString Core::GetAutoRecoveryIndexFilename()
@@ -958,6 +948,16 @@ bool Core::RevertProjectInternal(Project *p, bool by_opening_existing)
   }
 
   return false;
+}
+
+void Core::SaveRecentProjectsList()
+{
+  // Save recently opened projects
+  QFile recent_projects_file(GetRecentProjectsFilePath());
+  if (recent_projects_file.open(QFile::WriteOnly | QFile::Text)) {
+    recent_projects_file.write(recent_projects_.join('\n').toUtf8());
+    recent_projects_file.close();
+  }
 }
 
 void Core::SaveAutorecovery()
@@ -1040,6 +1040,8 @@ void Core::ProjectSaveSucceeded(Task* task)
 
   autorecovered_projects_.removeOne(p->GetUuid());
   SaveUnrecoveredList();
+
+  ShowStatusBarMessage(tr("Saved to \"%1\" successfully").arg(p->filename()));
 }
 
 Project* Core::GetActiveProject() const
@@ -1247,10 +1249,9 @@ void Core::OpenNodeInViewer(ViewerOutput *viewer)
   main_window_->OpenNodeInViewer(viewer);
 }
 
-void Core::OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image)
+void Core::OpenExportDialogForViewer(ViewerOutput *viewer, bool start_still_image)
 {
   ExportDialog* ed = new ExportDialog(viewer, start_still_image, main_window_);
-  ed->SetTime(time);
   connect(ed, &ExportDialog::finished, ed, &ExportDialog::deleteLater);
   ed->open();
   connect(ed, &ExportDialog::RequestImportFile, this, &Core::ImportSingleFile);
@@ -1372,6 +1373,8 @@ void Core::PushRecentlyOpenedProject(const QString& s)
     }
   }
 
+  SaveRecentProjectsList();
+
   emit OpenRecentListChanged();
 }
 
@@ -1418,7 +1421,7 @@ void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
   if (recovery_project) {
     connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddRecoveryProjectFromTask);
   } else {
-    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTask);
+    connect(task_dialog, &TaskDialog::TaskSucceeded, this, &Core::AddOpenProjectFromTaskAndAddToRecents);
   }
 
   task_dialog->open();
@@ -1522,6 +1525,8 @@ void Core::OpenProjectFromRecentList(int index)
                                       tr("The project \"%1\" doesn't exist. Would you like to remove this file from the recent list?").arg(open_fn),
                                       QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
     recent_projects_.removeAt(index);
+
+    SaveRecentProjectsList();
 
     emit OpenRecentListChanged();
   }
@@ -1688,37 +1693,63 @@ void Core::CacheActiveSequence(bool in_out_only)
   }
 }
 
+QString StripWindowsDriveLetter(QString s)
+{
+  // HACK: On Windows, absolute paths are saved with a drive letter (e.g. "C:\video.mp4"). Below,
+  //       we use Qt's relative path system to resolve when an entire project may be in a different
+  //       folder, but the files are all in the same place relatively to the project. Unfortunately,
+  //       Qt chooses not to understand paths from Windows on non-Windows platforms, which causes
+  //       this to break when a project is moving from Windows to non-Windows. To resolve that, if
+  //       we're on a non-Windows platform and we detect a Windows path (i.e. a path with a drive
+  //       letter at the start), we strip it off. We also convert any back-slashes to forward-slashes
+  //       because on Windows they are interchangeable and on non-Windows they are not.
+#ifndef Q_OS_WINDOWS
+  if (s.size() >= 2) {
+    if (s.at(0).isLetter() && s.at(1) == ':') {
+      s = s.mid(2);
+      s.replace('\\', '/');
+    }
+  }
+#endif
+
+  return s;
+}
+
 bool Core::ValidateFootageInLoadedProject(Project* project, const QString& project_saved_url)
 {
-  QVector<Footage*> project_footage = project->root()->ListChildrenOfType<Footage>();
   QVector<Footage*> footage_we_couldnt_validate;
 
-  foreach (Footage* footage, project_footage) {
-    if (!QFileInfo::exists(footage->filename()) && !project_saved_url.isEmpty()) {
-      // If the footage doesn't exist, it might have moved with the project
-      const QString& project_current_url = project->filename();
+  for (Node *n : project->nodes()) {
+    if (Footage *footage = dynamic_cast<Footage*>(n)) {
+      QString footage_fn = StripWindowsDriveLetter(footage->filename());
+      QString project_fn = StripWindowsDriveLetter(project_saved_url);
 
-      if (project_current_url != project_saved_url) {
-        // Project has definitely moved, try to resolve relative paths
-        QDir saved_dir(QFileInfo(project_saved_url).dir());
-        QDir true_dir(QFileInfo(project_current_url).dir());
+      if (!QFileInfo::exists(footage_fn) && !project_saved_url.isEmpty()) {
+        // If the footage doesn't exist, it might have moved with the project
+        const QString& project_current_url = project->filename();
 
-        QString relative_filename = saved_dir.relativeFilePath(footage->filename());
-        QString transformed_abs_filename = true_dir.filePath(relative_filename);
+        if (project_current_url != project_fn) {
+          // Project has definitely moved, try to resolve relative paths
+          QDir saved_dir(QFileInfo(project_fn).dir());
+          QDir true_dir(QFileInfo(project_current_url).dir());
 
-        if (QFileInfo::exists(transformed_abs_filename)) {
-          // Use this file instead
-          qInfo() << "Resolved" << footage->filename() << "relatively to" << transformed_abs_filename;
-          footage->set_filename(transformed_abs_filename);
+          QString relative_filename = saved_dir.relativeFilePath(footage_fn);
+          QString transformed_abs_filename = true_dir.filePath(relative_filename);
+
+          if (QFileInfo::exists(transformed_abs_filename)) {
+            // Use this file instead
+            qInfo() << "Resolved" << footage_fn << "relatively to" << transformed_abs_filename;
+            footage->set_filename(transformed_abs_filename);
+          }
         }
       }
-    }
 
-    if (QFileInfo::exists(footage->filename())) {
-      // Assume valid
-      footage->SetValid();
-    } else {
-      footage_we_couldnt_validate.append(footage);
+      if (QFileInfo::exists(footage->filename())) {
+        // Assume valid
+        footage->SetValid();
+      } else {
+        footage_we_couldnt_validate.append(footage);
+      }
     }
   }
 
