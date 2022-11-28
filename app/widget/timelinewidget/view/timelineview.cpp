@@ -475,45 +475,46 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
 
             // Draw clip thumbnails
             if (clip->GetTrackType() == Track::kVideo
-                && OLIVE_CONFIG("TimelineThumbnailMode").toInt() != Timeline::kThumbnailOff
-                && preview_rect.height() > r.height()/3) {
-              if (const FrameHashCache *thumbs = clip->thumbnails()) {
-                // Start thumbnails underneath clip name
-                preview_rect.adjust(0, text_total_height, 0, 0);
+                && OLIVE_CONFIG("TimelineThumbnailMode").toInt() != Timeline::kThumbnailOff) {
+              // Start thumbnails underneath clip name
+              preview_rect.adjust(0, text_total_height, 0, 0);
 
-                QRect thumb_rect;
-                painter->setRenderHint(QPainter::SmoothPixmapTransform);
-                painter->setClipRect(preview_rect);
+              if (preview_rect.height() > r.height()/3) {
+                if (const FrameHashCache *thumbs = clip->thumbnails()) {
+                  QRect thumb_rect;
+                  painter->setRenderHint(QPainter::SmoothPixmapTransform);
+                  painter->setClipRect(preview_rect);
 
-                if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
+                  if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
 
-                  Sequence *s = clip->track()->sequence();
-                  int width = s->GetVideoParams().width();
-                  int height = s->GetVideoParams().height();
-                  int start;
-                  if (height > 0) { // Prevent divide by zero/invalid params
-                    double scale = double(preview_rect.height())/double(height);
-                    thumb_rect.setWidth(width * scale);
-                    start = (((preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width()) * thumb_rect.width()) + qFloor(block_in);
+                    Sequence *s = clip->track()->sequence();
+                    int width = s->GetVideoParams().width();
+                    int height = s->GetVideoParams().height();
+                    int start;
+                    if (height > 0) { // Prevent divide by zero/invalid params
+                      double scale = double(preview_rect.height())/double(height);
+                      thumb_rect.setWidth(width * scale);
+                      start = (((preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width()) * thumb_rect.width()) + qFloor(block_in);
+                    } else {
+                      start = preview_rect.left();
+                    }
+
+                    for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
+                      rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
+                      DrawThumbnail(painter, thumbs, time_here, i, preview_rect, &thumb_rect);
+                    }
+
                   } else {
-                    start = preview_rect.left();
+
+                    rational time = clip->media_range().in();
+                    time = Timecode::snap_time_to_timebase(time, thumbs->GetTimebase(), Timecode::kFloor);
+                    DrawThumbnail(painter, thumbs, time, block_left, preview_rect, &thumb_rect);
+
                   }
 
-                  for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
-                    rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
-                    DrawThumbnail(painter, thumbs, time_here, i, preview_rect, &thumb_rect);
-                  }
-
-                } else {
-
-                  rational time = clip->media_range().in();
-                  time = Timecode::snap_time_to_timebase(time, thumbs->GetTimebase(), Timecode::kFloor);
-                  DrawThumbnail(painter, thumbs, time, block_left, preview_rect, &thumb_rect);
+                  painter->setClipping(false);
 
                 }
-
-                painter->setClipping(false);
-
               }
             }
 
