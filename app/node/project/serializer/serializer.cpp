@@ -59,10 +59,21 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QStrin
 {
   QFile project_file(filename);
 
-  if (project_file.open(QFile::ReadOnly | QFile::Text)) {
-    QXmlStreamReader reader(&project_file);
+  if (project_file.open(QFile::ReadOnly)) {
+    // Some project files are compressed, marked with "OVEC" at the beginning of the file. Check for
+    // that signature now.
+    std::unique_ptr<QXmlStreamReader> reader;
+    QByteArray b = project_file.read(4);
+    if (!memcmp(b.data(), "OVEC", 4)) {
+      // File is compressed, decompress into memory
+      b = qUncompress(project_file.readAll());
+      reader.reset(new QXmlStreamReader(b));
+    } else {
+      project_file.seek(0);
+      reader.reset(new QXmlStreamReader(&project_file));
+    }
 
-    Result inner_result = Load(project, &reader, type);
+    Result inner_result = Load(project, reader.get(), type);
 
     project_file.close();
 
@@ -70,9 +81,9 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QStrin
       return inner_result;
     }
 
-    if (reader.hasError()) {
+    if (reader->hasError()) {
       Result r(kXmlError);
-      r.SetDetails(reader.errorString());
+      r.SetDetails(reader->errorString());
       return r;
     } else {
       return kSuccess;
@@ -154,8 +165,9 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QS
 
   QFile project_file(temp_save);
 
-  if (project_file.open(QFile::WriteOnly | QFile::Text)) {
-    QXmlStreamWriter writer(&project_file);
+  if (project_file.open(QFile::WriteOnly)) {
+    QByteArray b;
+    QXmlStreamWriter writer(&b);
 
     Result inner_result = Save(&writer, data, type);
 
@@ -163,6 +175,9 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QS
       Result r(kXmlError);
       return r;
     }
+
+    project_file.write("OVEC");
+    project_file.write(qCompress(b));
 
     project_file.close();
 
