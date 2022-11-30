@@ -1351,6 +1351,11 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     // Color options
     if (context_menu_widget_->color_manager() && color_menu_enabled_) {
       {
+        Menu* ocio_colorspace_menu = context_menu_widget_->GetColorSpaceMenu(&menu);
+        menu.addMenu(ocio_colorspace_menu);
+      }
+
+      {
         Menu* ocio_display_menu = context_menu_widget_->GetDisplayMenu(&menu);
         menu.addMenu(ocio_display_menu);
       }
