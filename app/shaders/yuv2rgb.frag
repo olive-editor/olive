@@ -27,15 +27,17 @@ void main()
     // Convert 0.0-1.0 to -0.5-0.5
     yuv.gb -= (128.0/255.0);
   } else if (bits_per_pixel == 10) {
+    // Scale from 10-bit to 16-bit
+    yuv *= (65535.0/1023.0);
+
     // Convert 0.0-1.0 to -0.5-0.5
     yuv.gb -= (512.0/1023.0);
-
-    yuv *= 64.0;
   } else if (bits_per_pixel == 12) {
+    // Scale from 12-bit to 16-bit
+    yuv *= (65535.0/4095.0);
+
     // Convert 0.0-1.0 to -0.5-0.5
     yuv.gb -= (2048.0/4095.0);
-
-    yuv *= 16.0;
   }
 
   // Convert YUV limited range from 16-235 to 0-255
