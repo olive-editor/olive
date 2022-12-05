@@ -824,7 +824,8 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
     return;
 #endif
   } else {
-    psm = new ProjectSaveTask(project);
+    bool use_compression = !project->filename().endsWith(QStringLiteral(".ovexml"), Qt::CaseInsensitive);
+    psm = new ProjectSaveTask(project, use_compression);
 
     if (!override_filename.isEmpty()) {
       // Set override filename if provided
@@ -1170,24 +1171,35 @@ bool Core::CloseAllExceptActiveProject()
 
 QString Core::GetProjectFilter(bool include_any_filter)
 {
-  QString filters;
+  static const QVector< QPair<QString, QString> > FILTERS = {
+    // Standard compressed Olive project
+    {tr("Olive Project"), QStringLiteral("ove")},
 
+    // Uncompressed XML Olive project
+    {tr("Olive Project (Uncompressed XML)"), QStringLiteral("ovexml")},
+
+    // OpenTimelineIO project, if available
 #ifdef USE_OTIO
+    {tr("OpenTimelineIO"), QStringLiteral("otio")}
+#endif
+  };
+
+  QStringList filters;
+  filters.reserve(FILTERS.size() + 1);
+
   if (include_any_filter) {
-    filters.append(QStringLiteral("All Supported Projects (*.ove *.otio);;"));
+    QStringList combined;
+    for (auto it=FILTERS.cbegin(); it!=FILTERS.cend(); it++) {
+      combined.append(QStringLiteral("*.%1").arg(it->second));
+    }
+    filters.append(QStringLiteral("%1 (%2)").arg(tr("All Supported Projects"), combined.join(' ')));
   }
-#else
-  Q_UNUSED(include_any_filter)
-#endif
 
-  // Append standard filter
-  filters.append(QStringLiteral("%1 (*.ove)").arg(tr("Olive Project")));
+  for (auto it=FILTERS.cbegin(); it!=FILTERS.cend(); it++) {
+    filters.append(QStringLiteral("%1 (*.%2)").arg(it->first, it->second));
+  }
 
-#ifdef USE_OTIO
-  filters.append(QStringLiteral(";;%2 (*.otio)").arg(tr("OpenTimelineIO")));
-#endif
-
-  return filters;
+  return filters.join(QStringLiteral(";;"));
 }
 
 QString Core::GetRecentProjectsFilePath()
