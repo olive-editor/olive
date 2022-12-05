@@ -149,7 +149,12 @@ int AudioParams::channel_count() const
 
 int AudioParams::bytes_per_sample_per_channel() const
 {
-  switch (format_) {
+  return bytes_per_sample_per_channel(format_);
+}
+
+int AudioParams::bytes_per_sample_per_channel(Format format)
+{
+  switch (format) {
   case kFormatUnsigned8Packed:
   case kFormatUnsigned8Planar:
     return 1;

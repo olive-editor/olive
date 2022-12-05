@@ -24,9 +24,6 @@
 #include <QFile>
 #include <QObject>
 
-#include "codec/samplebuffer.h"
-#include "common/define.h"
-
 namespace olive {
 
 class PlanarFileDevice : public QObject

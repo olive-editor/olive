@@ -65,9 +65,11 @@ protected:
   virtual bool OpenInternal() override;
   virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
+  virtual RetrieveAudioStatus RetrieveAudioInternal(SampleBuffer &dest, const rational& time) override;
   virtual void CloseInternal() override;
 
   virtual rational GetAudioStartOffset() const override;
+  virtual int GetAudioSampleRate() const override;
 
 private:
   class Instance
@@ -136,6 +138,8 @@ private:
 
   void FreeScaler();
 
+  void FreeResampler();
+
   static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
   static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
@@ -157,6 +161,11 @@ private:
 
   void RemoveFirstFrame();
 
+  Decoder::RetrieveAudioStatus ValidateResampler(const AudioParams &output);
+
+  int64_t ts_to_samples(int64_t t) const;
+  int64_t samples_to_ts(int64_t s) const;
+
   static int MaximumQueueSize();
 
   SwsContext *sws_ctx_;
@@ -168,6 +177,15 @@ private:
   AVPixelFormat sws_dst_format_;
   AVColorRange sws_colrange_;
   AVColorSpace sws_colspace_;
+
+  SwrContext *swr_ctx_;
+  int swr_irate_;
+  int64_t swr_ichannels_;
+  AudioParams::Format swr_iformat_;
+  int swr_orate_;
+  int64_t swr_ochannels_;
+  AudioParams::Format swr_oformat_;
+  int64_t swr_time_;
 
   AVPacket *working_packet_;
 

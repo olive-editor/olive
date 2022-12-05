@@ -220,6 +220,7 @@ public:
   rational bytes_per_channel_to_time(const qint64 &bytes) const;
   int channel_count() const;
   int bytes_per_sample_per_channel() const;
+  static int bytes_per_sample_per_channel(AudioParams::Format format);
   int bits_per_sample() const;
   bool is_valid() const;
 
