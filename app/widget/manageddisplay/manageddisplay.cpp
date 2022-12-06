@@ -147,7 +147,7 @@ void ManagedDisplayWidget::ColorConfigChanged()
     return;
   }
 
-  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, true));
+  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, false));
 }
 
 ColorProcessorPtr ManagedDisplayWidget::color_service()
