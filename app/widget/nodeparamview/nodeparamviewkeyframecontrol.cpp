@@ -33,7 +33,7 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWi
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
   if (right_align) {
@@ -96,10 +96,14 @@ void NodeParamViewKeyframeControl::SetInput(const NodeInput& input)
   }
 }
 
-void NodeParamViewKeyframeControl::SetTime(const rational &time)
+void NodeParamViewKeyframeControl::TimeTargetDisconnectEvent(ViewerOutput *v)
 {
-  time_ = time;
+  disconnect(v, &ViewerOutput::PlayheadChanged, this, &NodeParamViewKeyframeControl::UpdateState);
+}
 
+void NodeParamViewKeyframeControl::TimeTargetConnectEvent(ViewerOutput *v)
+{
+  connect(v, &ViewerOutput::PlayheadChanged, this, &NodeParamViewKeyframeControl::UpdateState);
   UpdateState();
 }
 
@@ -122,12 +126,12 @@ void NodeParamViewKeyframeControl::SetButtonsEnabled(bool e)
 
 rational NodeParamViewKeyframeControl::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), input_.node(), time_, true);
+  return GetAdjustedTime(GetTimeTarget(), input_.node(), GetTimeTarget()->GetPlayhead(), Node::kTransformTowardsInput);
 }
 
 rational NodeParamViewKeyframeControl::ConvertToViewerTime(const rational &r) const
 {
-  return GetAdjustedTime(input_.node(), GetTimeTarget(), r, false);
+  return GetAdjustedTime(input_.node(), GetTimeTarget(), r, Node::kTransformTowardsOutput);
 }
 
 void NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable(bool e)
@@ -177,7 +181,7 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
 
 void NodeParamViewKeyframeControl::UpdateState()
 {
-  if (!input_.IsValid() || !input_.IsKeyframing()) {
+  if (!input_.IsValid() || !input_.IsKeyframing() || !GetTimeTarget()) {
     return;
   }
 
@@ -197,10 +201,9 @@ void NodeParamViewKeyframeControl::GoToPreviousKey()
 
   NodeKeyframe* previous_key = input_.node()->GetClosestKeyframeBeforeTime(input_, node_time);
 
-  if (previous_key) {
+  if (previous_key && GetTimeTarget()) {
     rational key_time = ConvertToViewerTime(previous_key->time());
-
-    emit RequestSetTime(key_time);
+    GetTimeTarget()->SetPlayhead(key_time);
   }
 }
 
@@ -210,10 +213,9 @@ void NodeParamViewKeyframeControl::GoToNextKey()
 
   NodeKeyframe* next_key = input_.node()->GetClosestKeyframeAfterTime(input_, node_time);
 
-  if (next_key) {
+  if (next_key && GetTimeTarget()) {
     rational key_time = ConvertToViewerTime(next_key->time());
-
-    emit RequestSetTime(key_time);
+    GetTimeTarget()->SetPlayhead(key_time);
   }
 }
 

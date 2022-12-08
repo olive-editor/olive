@@ -25,26 +25,21 @@
 #include <inttypes.h>
 
 extern "C" {
+#include <libavcodec/avcodec.h>
 #include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
 }
 
-#include <QAtomicInt>
 #include <QTimer>
 #include <QVector>
 #include <QWaitCondition>
 
 #include "codec/decoder.h"
+#include "common/ffmpegutils.h"
 
 namespace olive {
-
-using AVFramePtr = std::shared_ptr<AVFrame>;
-inline AVFramePtr CreateAVFramePtr(AVFrame *f)
-{
-  return std::shared_ptr<AVFrame>(f, [](AVFrame *g){ av_frame_free(&g); });
-}
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -64,13 +59,15 @@ public:
   virtual bool SupportsVideo() override{return true;}
   virtual bool SupportsAudio() override{return true;}
 
-  virtual FootageDescription Probe(const QString &filename, const QAtomicInt *cancelled) const override;
+  virtual FootageDescription Probe(const QString &filename, CancelAtom *cancelled) const override;
 
 protected:
   virtual bool OpenInternal() override;
-  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled) override;
-  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled) override;
+  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
   virtual void CloseInternal() override;
+
+  virtual rational GetAudioStartOffset() const override;
 
 private:
   class Instance
@@ -137,7 +134,6 @@ private:
    */
   static QString FFmpegError(int error_code);
 
-  bool InitScaler(AVFrame *input, const RetrieveVideoParams &params);
   void FreeScaler();
 
   static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
@@ -147,26 +143,32 @@ private:
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
+  static bool IsPixelFormatGLSLCompatible(AVPixelFormat f);
+
   AVFramePtr GetFrameFromCache(const int64_t &t) const;
 
   void ClearFrameCache();
 
-  AVFramePtr RetrieveFrame(const rational &time, const QAtomicInt *cancelled);
+  AVFramePtr PreProcessFrame(AVFramePtr f, const RetrieveVideoParams &p);
+
+  TexturePtr ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVideoParams &p, const AVFramePtr original);
+
+  AVFramePtr RetrieveFrame(const rational &time, CancelAtom *cancelled);
 
   void RemoveFirstFrame();
 
   static int MaximumQueueSize();
 
-  RetrieveVideoParams filter_params_;
-  AVFilterGraph* filter_graph_;
-  AVFilterContext* buffersrc_ctx_;
-  AVFilterContext* buffersink_ctx_;
-  AVPixelFormat input_fmt_;
-  VideoParams::Format native_internal_pix_fmt_;
-  VideoParams::Format native_output_pix_fmt_;
-  int native_channel_count_;
+  SwsContext *sws_ctx_;
+  int sws_src_width_;
+  int sws_src_height_;
+  AVPixelFormat sws_src_format_;
+  int sws_dst_width_;
+  int sws_dst_height_;
+  AVPixelFormat sws_dst_format_;
+  AVColorRange sws_colrange_;
+  AVColorSpace sws_colspace_;
 
-  AVFrame *working_frame_;
   AVPacket *working_packet_;
 
   int64_t second_ts_;

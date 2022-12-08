@@ -38,12 +38,12 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
   clips_(clips),
   timebase_(timebase)
 {
-  setWindowTitle(tr("Speed/Duration"));
+  setWindowTitle(tr("Clip Properties"));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
 
   {
-    QGroupBox *speed_group = new QGroupBox();
+    QGroupBox *speed_group = new QGroupBox(tr("Speed/Duration"));
     layout->addWidget(speed_group);
 
     QGridLayout *speed_layout = new QGridLayout(speed_group);
@@ -72,16 +72,39 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
     link_box_ = new QCheckBox(tr("Link Speed and Duration"));
     link_box_->setChecked(true);
     speed_layout->addWidget(link_box_, row, 0, 1, 2);
+
+    row++;
+
+    reverse_box_ = new QCheckBox(tr("Reverse"));
+    speed_layout->addWidget(reverse_box_, row, 0, 1, 2);
+
+    row++;
+
+    maintain_audio_pitch_box_ = new QCheckBox(tr("Maintain Audio Pitch"));
+    speed_layout->addWidget(maintain_audio_pitch_box_, row, 0, 1, 2);
+
+    row++;
+
+    ripple_box_ = new QCheckBox(tr("Ripple Trailing Clips"));
+    speed_layout->addWidget(ripple_box_, row, 0, 1, 2);
   }
 
-  reverse_box_ = new QCheckBox(tr("Reverse"));
-  layout->addWidget(reverse_box_);
+  {
+    auto loop_box = new QGroupBox(tr("Loop"));
+    layout->addWidget(loop_box);
 
-  maintain_audio_pitch_box_ = new QCheckBox(tr("Maintain Audio Pitch"));
-  layout->addWidget(maintain_audio_pitch_box_);
+    auto loop_layout = new QGridLayout(loop_box);
 
-  ripple_box_ = new QCheckBox(tr("Ripple Trailing Clips"));
-  layout->addWidget(ripple_box_);
+    int row = 0;
+
+    loop_layout->addWidget(new QLabel(tr("Loop:")), row, 0);
+
+    loop_combo_ = new QComboBox();
+    loop_combo_->addItem(tr("None"), int(LoopMode::kLoopModeOff));
+    loop_combo_->addItem(tr("Loop"), int(LoopMode::kLoopModeLoop));
+    loop_combo_->addItem(tr("Clamp"), int(LoopMode::kLoopModeClamp));
+    loop_layout->addWidget(loop_combo_, row, 1);
+  }
 
   QDialogButtonBox *btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   btns->setCenterButtons(true);
@@ -94,6 +117,7 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
   start_duration_ = clips.first()->length();
   start_reverse_ = clips.first()->reverse();
   start_maintain_audio_pitch_ = clips.first()->maintain_audio_pitch();
+  start_loop_ = int(clips.first()->loop_mode());
   for (int i=1; i<clips.size(); i++) {
     ClipBlock *c = clips.at(i);
 
@@ -115,6 +139,10 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
     }
     if (start_maintain_audio_pitch_ != -1 && clip_maintain_pitch != start_maintain_audio_pitch_) {
       start_maintain_audio_pitch_ = -1;
+    }
+
+    if (start_loop_ != -1 && int(c->loop_mode()) != start_loop_) {
+      start_loop_ = -1;
     }
   }
 
@@ -140,6 +168,12 @@ SpeedDurationDialog::SpeedDurationDialog(const QVector<ClipBlock *> &clips, cons
     maintain_audio_pitch_box_->setTristate();
   } else {
     maintain_audio_pitch_box_->setChecked(start_maintain_audio_pitch_);
+  }
+
+  if (start_loop_ == -1) {
+    loop_combo_->setCurrentIndex(-1);
+  } else {
+    loop_combo_->setCurrentIndex(start_loop_);
   }
 }
 
@@ -208,6 +242,12 @@ void SpeedDurationDialog::accept()
   if (!maintain_audio_pitch_box_->isTristate()) {
     foreach (ClipBlock *c, clips_) {
       command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kMaintainAudioPitchInput)), maintain_audio_pitch_box_->isChecked()));
+    }
+  }
+
+  if (loop_combo_->currentIndex() != -1) {
+    foreach (ClipBlock *c, clips_) {
+      command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(c, ClipBlock::kLoopModeInput)), loop_combo_->currentData()));
     }
   }
 

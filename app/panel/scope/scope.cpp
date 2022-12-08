@@ -36,7 +36,7 @@ ScopePanel::ScopePanel(QWidget* parent) :
   QVBoxLayout* layout = new QVBoxLayout(central);
 
   QHBoxLayout* toolbar_layout = new QHBoxLayout();
-  toolbar_layout->setMargin(0);
+  toolbar_layout->setContentsMargins(0, 0, 0, 0);
 
   scope_type_combobox_ = new QComboBox();
 

@@ -88,6 +88,8 @@ signals:
 
   void SelectionChanged();
 
+  void Released();
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
@@ -99,7 +101,7 @@ protected:
 
   virtual void ScaleChangedEvent(const double& scale) override;
 
-  virtual void TimeTargetChangedEvent(Node*) override;
+  virtual void TimeTargetChangedEvent(ViewerOutput *v) override;
 
   virtual void TimebaseChangedEvent(const rational &timebase) override;
 

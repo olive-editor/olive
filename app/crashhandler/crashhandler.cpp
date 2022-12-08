@@ -153,12 +153,28 @@ void CrashHandlerDialog::ReplyFinished(QNetworkReply* reply)
     b.setIcon(QMessageBox::Critical);
     b.setWindowModality(Qt::WindowModal);
     b.setWindowTitle(tr("Upload Failed"));
-    b.setText(tr("Failed to send error report. Please try again later."));
+    b.setText(tr("Failed to send error report (%1). Please try again later.").arg(QString::number(reply->error())));
     b.addButton(QMessageBox::Ok);
     b.exec();
 
     SetGUIObjectsEnabled(true);
   }
+}
+
+void CrashHandlerDialog::HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &se)
+{
+  QStringList errors;
+  for (const QSslError &err : se) {
+    errors.append(err.errorString());
+  }
+
+  QMessageBox b(this);
+  b.setIcon(QMessageBox::Critical);
+  b.setWindowModality(Qt::WindowModal);
+  b.setWindowTitle(tr("SSL Error"));
+  b.setText(tr("Encountered the following SSL errors:\n\n%1").arg(errors.join('\n')));
+  b.addButton(QMessageBox::Ok);
+  b.exec();
 }
 
 void CrashHandlerDialog::AttemptToFindReport()
@@ -198,6 +214,7 @@ void CrashHandlerDialog::SendErrorReport()
 
   QNetworkAccessManager* manager = new QNetworkAccessManager();
   connect(manager, &QNetworkAccessManager::finished, this, &CrashHandlerDialog::ReplyFinished);
+  connect(manager, &QNetworkAccessManager::sslErrors, this, &CrashHandlerDialog::HandleSslErrors);
 
   QNetworkRequest request;
   request.setSslConfiguration(QSslConfiguration::defaultConfiguration());

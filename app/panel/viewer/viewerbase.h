@@ -33,6 +33,11 @@ class ViewerPanelBase : public TimeBasedPanel
 public:
   ViewerPanelBase(const QString& object_name, QWidget* parent = nullptr);
 
+  ViewerWidget *GetViewerWidget() const
+  {
+    return static_cast<ViewerWidget*>(GetTimeBasedWidget());
+  }
+
   virtual void PlayPause() override;
 
   virtual void PlayInToOut() override;
@@ -54,12 +59,32 @@ public:
 
   ColorManager *GetColorManager()
   {
-    return static_cast<ViewerWidget*>(GetTimeBasedWidget())->color_manager();
+    return GetViewerWidget()->color_manager();
   }
 
   void UpdateTextureFromNode()
   {
-    static_cast<ViewerWidget*>(GetTimeBasedWidget())->UpdateTextureFromNode();
+    GetViewerWidget()->UpdateTextureFromNode();
+  }
+
+  void AddPlaybackDevice(ViewerDisplayWidget *vw)
+  {
+    GetViewerWidget()->AddPlaybackDevice(vw);
+  }
+
+  void SetTimelineSelectedBlocks(const QVector<Block*> &b)
+  {
+    GetViewerWidget()->SetTimelineSelectedBlocks(b);
+  }
+
+  void SetNodeViewSelections(const QVector<Node*> &n)
+  {
+    GetViewerWidget()->SetNodeViewSelections(n);
+  }
+
+  void ConnectMulticamWidget(MulticamWidget *p)
+  {
+    GetViewerWidget()->ConnectMulticamWidget(p);
   }
 
 public slots:
@@ -71,7 +96,7 @@ public slots:
 
   void RequestStartEditingText()
   {
-    static_cast<ViewerWidget*>(GetTimeBasedWidget())->RequestStartEditingText();
+    GetViewerWidget()->RequestStartEditingText();
   }
 
 signals:
@@ -92,6 +117,9 @@ signals:
 
 protected:
   void SetViewerWidget(ViewerWidget *vw);
+
+private slots:
+  void FocusedPanelChanged(PanelWidget *panel);
 
 };
 

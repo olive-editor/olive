@@ -38,7 +38,7 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     // Create OpenGL widget
@@ -62,7 +62,11 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
     attached_renderer_ = new OpenGLRenderer(this);
 
     // Create widget wrapper for OpenGL window
+#ifdef USE_QOPENGLWINDOW
     wrapper_ = QWidget::createWindowContainer(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_));
+#else
+    wrapper_ = inner_widget_;
+#endif
     layout->addWidget(wrapper_);
   } else {
     inner_widget_ = nullptr;
@@ -143,7 +147,7 @@ void ManagedDisplayWidget::ColorConfigChanged()
     return;
   }
 
-  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, true));
+  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, false));
 }
 
 ColorProcessorPtr ManagedDisplayWidget::color_service()
@@ -271,6 +275,14 @@ void ManagedDisplayWidget::SetInnerMouseTracking(bool e)
   }
 }
 
+VideoParams ManagedDisplayWidget::GetViewportParams() const
+{
+  int device_width = width() * devicePixelRatioF();
+  int device_height = height() * devicePixelRatioF();
+  VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
+  return VideoParams(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
+}
+
 void ManagedDisplayWidget::update()
 {
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
@@ -300,11 +312,11 @@ bool ManagedDisplayWidget::eventFilter(QObject *o, QEvent *e)
   {
     // HACK: QWindows don't seem to receive ContextMenu events on right click (only when pressing
     //       the menu button on the keyboard) so we handle it manually here
-    QMouseEvent *ev = static_cast<QMouseEvent*>(e);
+    /*QMouseEvent *ev = static_cast<QMouseEvent*>(e);
     if (ev->button() == Qt::RightButton) {
       emit customContextMenuRequested(ev->pos());
       return true;
-    }
+    }*/
     break;
   }
   default:

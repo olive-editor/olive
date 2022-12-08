@@ -51,7 +51,7 @@ public:
 
   void InsertLabelSubstitution(const QVariant &value, const QString &label)
   {
-    label_substitutions_.insert(value, label);
+    label_substitutions_.append({value, label});
     UpdateLabel();
   }
 
@@ -90,6 +90,8 @@ protected:
   virtual void changeEvent(QEvent* e) override;
 
 private:
+  bool GetLabelSubstitution(const QVariant &v, QString *out) const;
+
   SliderLabel* label_;
 
   FocusableLineEdit* editor_;
@@ -103,7 +105,7 @@ private:
 
   bool format_plural_;
 
-  QMap<QVariant, QString> label_substitutions_;
+  QVector<QPair<QVariant, QString> > label_substitutions_;
 
 private slots:
   void LineEditConfirmed();

@@ -12,22 +12,7 @@ const QVector<QString> Html::kBlockTags = {
   QStringLiteral("div")
 };
 
-inline bool StrEquals(const QString &a, const QStringRef &b)
-{
-  return !a.compare(b, Qt::CaseInsensitive);
-}
-
-inline bool StrEquals(const QString &a, const QString &b)
-{
-  return !a.compare(b, Qt::CaseInsensitive);
-}
-
-inline bool StrEquals(const QStringRef &a, const QString &b)
-{
-  return !a.compare(b, Qt::CaseInsensitive);
-}
-
-inline bool StrEquals(const QStringRef &a, const QStringRef &b)
+inline bool StrEquals(const QStringView &a, const QStringView &b)
 {
   return !a.compare(b, Qt::CaseInsensitive);
 }
@@ -142,7 +127,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
   if (!(fmt.alignment() & Qt::AlignLeft)) {
     if (fmt.alignment() & Qt::AlignRight) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("right"));
-    } else if (fmt.alignment() & Qt::AlignCenter) {
+    } else if (fmt.alignment() & Qt::AlignHCenter) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("center"));
     } else if (fmt.alignment() & Qt::AlignJustify) {
       writer->writeAttribute(QStringLiteral("align"), QStringLiteral("justify"));
@@ -161,7 +146,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
     WriteCSSProperty(&style, QStringLiteral("line-height"), QStringLiteral("%1%").arg(fmt.lineHeight()));
   }
 
-  //WriteCharFormat(&style, block.charFormat());
+  WriteCharFormat(&style, block.charFormat());
 
   if (!style.isEmpty()) {
     writer->writeAttribute(QStringLiteral("style"), style);
@@ -169,12 +154,7 @@ void Html::WriteBlock(QXmlStreamWriter *writer, const QTextBlock &block)
 
   auto it = block.begin();
 
-  if (it == block.end()) {
-    // FIXME: Might not be necessary with our custom HTML implementation
-    QString s;
-    s.append(QChar::Nbsp);
-    writer->writeCharacters(s);
-  } else {
+  if (it != block.end()) {
     for (; it!=block.end(); it++) {
       WriteFragment(writer, it.fragment());
     }
@@ -228,8 +208,9 @@ void Html::WriteCSSProperty(QString *style, const QString &key, const QStringLis
 
 void Html::WriteCharFormat(QString *style, const QTextCharFormat &fmt)
 {
-  if (!fmt.fontFamily().isEmpty()) {
-    WriteCSSProperty(style, QStringLiteral("font-family"), fmt.fontFamily());
+  QStringList families = fmt.fontFamilies().toStringList();
+  if (!families.isEmpty()) {
+    WriteCSSProperty(style, QStringLiteral("font-family"), families.first());
   }
 
   if (fmt.hasProperty(QTextFormat::FontPointSize)) {
@@ -307,7 +288,7 @@ QTextCharFormat Html::ReadCharFormat(const QXmlStreamAttributes &attributes)
         const QString &first_val = it.value().first();
 
         if (it.key() == QStringLiteral("font-family")) {
-          fmt.setFontFamily(first_val);
+          fmt.setFontFamilies({first_val});
         } else if (it.key() == QStringLiteral("font-size")) {
           if (first_val.endsWith(QStringLiteral("pt"), Qt::CaseInsensitive)) {
             fmt.setFontPointSize(first_val.chopped(2).toDouble());
@@ -374,7 +355,7 @@ QTextBlockFormat Html::ReadBlockFormat(const QXmlStreamAttributes &attributes)
       if (StrEquals(attr.value(), QStringLiteral("right"))) {
         block_fmt.setAlignment(Qt::AlignRight);
       } else if (StrEquals(attr.value(), QStringLiteral("center"))) {
-        block_fmt.setAlignment(Qt::AlignCenter);
+        block_fmt.setAlignment(Qt::AlignHCenter);
       } else if (StrEquals(attr.value(), QStringLiteral("justify"))) {
         block_fmt.setAlignment(Qt::AlignJustify);
       }
@@ -426,7 +407,7 @@ QMap<QString, QStringList> Html::GetCSSFromStyle(const QString &s)
     // match. Also commas should be filtered out.
     QStringList values;
     const QString &val = kv.at(1);
-    QChar in_quote = 0;
+    QChar in_quote(0);
     QString current_str;
     for (int i=0; i<val.size(); i++) {
       const QChar &current_char = val.at(i);
@@ -434,7 +415,7 @@ QMap<QString, QStringList> Html::GetCSSFromStyle(const QString &s)
       if (!in_quote.isNull()) {
         // If inside quotes and character isn't quote, indiscriminately append char
         if (current_char == in_quote) {
-          in_quote = 0;
+          in_quote = QChar(0);
         } else {
           current_str.append(current_char);
         }

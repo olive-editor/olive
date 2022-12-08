@@ -38,23 +38,22 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   controls_->SetAudioVideoDragButtonsVisible(true);
   connect(controls_, &PlaybackControls::VideoPressed, this, &FootageViewerWidget::StartVideoDrag);
   connect(controls_, &PlaybackControls::AudioPressed, this, &FootageViewerWidget::StartAudioDrag);
+
+  override_workarea_ = new TimelineWorkArea(this);
 }
 
-void FootageViewerWidget::ConnectNodeEvent(ViewerOutput *n)
+void FootageViewerWidget::OverrideWorkArea(const TimeRange &r)
 {
-  super::ConnectNodeEvent(n);
-
-  SetTime(cached_timestamps_.value(n, 0));
+  override_workarea_->set_enabled(true);
+  override_workarea_->set_range(r);
+  this->ConnectWorkArea(override_workarea_);
 }
 
-void FootageViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
+void FootageViewerWidget::ResetWorkArea()
 {
-  // Cache timestamp in case this footage is opened again later
-  cached_timestamps_.insert(n, GetTime());
-
-  super::DisconnectNodeEvent(n);
-
-  SetTime(0);
+  if (GetConnectedWorkArea() == override_workarea_) {
+    this->ConnectWorkArea(GetConnectedNode() ? GetConnectedNode()->GetWorkArea() : nullptr);
+  }
 }
 
 void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)

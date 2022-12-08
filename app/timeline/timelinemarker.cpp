@@ -20,6 +20,8 @@
 
 #include "timelinemarker.h"
 
+#include <QApplication>
+
 #include "common/qtutils.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
@@ -76,7 +78,7 @@ int TimelineMarker::GetMarkerHeight(const QFontMetrics &fm)
   return fm.height();
 }
 
-QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool selected)
+QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, int max_right, double scale, bool selected)
 {
   QFontMetrics fm = p->fontMetrics();
 
@@ -96,6 +98,9 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool sel
 
   int top = pt.y() - marker_height;
 
+  QTextOption op(Qt::AlignLeft | Qt::AlignVCenter);
+  op.setWrapMode(QTextOption::NoWrap);
+
   if (time_.out() != time_.in()) {
     QRect marker_rect(pt.x(), top, time_.length().toDouble() * scale, marker_height);
 
@@ -103,7 +108,7 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool sel
 
     if (!name_.isEmpty()) {
       p->setPen(ColorCoding::GetUISelectorColor(ColorCoding::GetColor(color_)));
-      p->drawText(marker_rect.adjusted(marker_width/4, 0, 0, 0), name_, Qt::AlignLeft | Qt::AlignVCenter);
+      p->drawText(marker_rect.adjusted(marker_width/4, 0, 0, 0), name_, op);
     }
 
     return marker_rect;
@@ -124,6 +129,16 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, double scale, bool sel
 
     p->setRenderHint(QPainter::Antialiasing);
     p->drawPolygon(points, 6);
+
+    if (!name_.isEmpty() && max_right != -1) {
+      QRect text_rect(right, top, max_right - right, marker_height);
+
+      int padding = QtUtils::QFontMetricsWidth(p->fontMetrics(), QStringLiteral(" "));
+      text_rect.adjust(padding, 0, - padding - half_width, 0);
+
+      p->setPen(qApp->palette().text().color());
+      p->drawText(text_rect, name_, op);
+    }
 
     return QRect(left, top, marker_width, marker_height);
   }
@@ -316,7 +331,6 @@ Project* MarkerChangeTimeCommand::GetRelevantProject() const
 
 void MarkerChangeTimeCommand::redo()
 {
-  old_time_ = marker_->time();
   marker_->set_time(new_time_);
 }
 

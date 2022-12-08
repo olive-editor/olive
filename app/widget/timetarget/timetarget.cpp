@@ -28,16 +28,23 @@ TimeTargetObject::TimeTargetObject() :
 {
 }
 
-Node *TimeTargetObject::GetTimeTarget() const
+ViewerOutput *TimeTargetObject::GetTimeTarget() const
 {
   return time_target_;
 }
 
-void TimeTargetObject::SetTimeTarget(Node *target)
+void TimeTargetObject::SetTimeTarget(ViewerOutput *target)
 {
-  time_target_ = target;
+  if (time_target_) {
+    TimeTargetDisconnectEvent(time_target_);
+  }
 
+  time_target_ = target;
   TimeTargetChangedEvent(time_target_);
+
+  if (time_target_) {
+    TimeTargetConnectEvent(time_target_);
+  }
 }
 
 void TimeTargetObject::SetPathIndex(int index)
@@ -45,28 +52,22 @@ void TimeTargetObject::SetPathIndex(int index)
   path_index_ = index;
 }
 
-rational TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const rational &r, bool input_direction) const
+rational TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const rational &r, Node::TransformTimeDirection dir) const
 {
   if (!from || !to) {
     return r;
   }
 
-  return GetAdjustedTime(from, to, TimeRange(r, r), input_direction).in();
+  return GetAdjustedTime(from, to, TimeRange(r, r), dir).in();
 }
 
-TimeRange TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const TimeRange &r, bool input_direction) const
+TimeRange TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const TimeRange &r, Node::TransformTimeDirection dir) const
 {
   if (!from || !to) {
     return r;
   }
 
-  QVector<TimeRange> adjusted = from->TransformTimeTo(r, to, input_direction);
-
-  if (adjusted.isEmpty()) {
-    return r;
-  }
-
-  return adjusted.at(path_index_);
+  return from->TransformTimeTo(r, to, dir, path_index_);
 }
 
 /*int TimeTargetObject::GetNumberOfPathAdjustments(Node* from, NodeParam::Type direction) const

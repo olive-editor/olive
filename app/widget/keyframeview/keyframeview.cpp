@@ -204,6 +204,10 @@ bool KeyframeView::CopySelected(bool cut)
 
 bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_function)
 {
+  if (!GetViewerNode()) {
+    return false;
+  }
+
   ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
   if (res == ProjectSerializer::kSuccess) {
     const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
@@ -216,7 +220,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
         min = std::min(min, key->time());
       }
     }
-    min -= GetTime();
+    min -= GetViewerNode()->GetPlayhead();
 
     for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
       const QString &paste_id = it.key();
@@ -228,7 +232,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
         for (NodeKeyframe *key : it.value()) {
           // Adjust sequence time to node's time
           rational t = key->time() - min;
-          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, true);
+          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, Node::kTransformTowardsInput);
           key->set_time(t);
 
           if (NodeKeyframe *existing = node_with_id->GetKeyframeAtTimeOnTrack(key->input(), key->time(), key->track(), key->element())) {
@@ -261,7 +265,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event)
   if (FirstChanceMousePress(event)) {
     first_chance_mouse_event_ = true;
   } else if (NodeKeyframe *initial_key = selection_manager_.MousePress(event)) {
-    selection_manager_.DragStart(initial_key, event);
+    selection_manager_.DragStart(initial_key, event, this);
     KeyframeDragStart(event);
   } else {
     selection_manager_.RubberBandStart(event);
@@ -290,8 +294,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
 
   if (event->buttons()) {
     // Signal cursor pos in case we should scroll to catch up to it
-    QPointF scene_pos = mapToScene(event->pos());
-    emit Dragged(scene_pos.x(), scene_pos.y());
+    emit Dragged(event->pos().x(), event->pos().y());
   }
 }
 
@@ -309,6 +312,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     selection_manager_.DragStop(command);
     KeyframeDragRelease(event, command);
     Core::instance()->undo_stack()->push(command);
+    emit Released();
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
@@ -454,7 +458,7 @@ void KeyframeView::ScaleChangedEvent(const double &scale)
   Redraw();
 }
 
-void KeyframeView::TimeTargetChangedEvent(Node *target)
+void KeyframeView::TimeTargetChangedEvent(ViewerOutput *v)
 {
   Redraw();
 }
@@ -491,12 +495,12 @@ void KeyframeView::DeselectKeyframe(NodeKeyframe *key)
 
 rational KeyframeView::GetUnadjustedKeyframeTime(NodeKeyframe *key, const rational &time)
 {
-  return GetAdjustedTime(GetTimeTarget(), key->parent(), time, true);
+  return GetAdjustedTime(GetTimeTarget(), key->parent(), time, Node::kTransformTowardsInput);
 }
 
 rational KeyframeView::GetAdjustedKeyframeTime(NodeKeyframe *key)
 {
-  return GetAdjustedTime(key->parent(), GetTimeTarget(), key->time(), false);
+  return GetAdjustedTime(key->parent(), GetTimeTarget(), key->time(), Node::kTransformTowardsOutput);
 }
 
 double KeyframeView::GetKeyframeSceneX(NodeKeyframe *key)
@@ -566,10 +570,6 @@ void KeyframeView::ShowContextMenu()
       }
     }
   }
-
-  m.addSeparator();
-
-  AddSetScrollZoomsByDefaultActionToMenu(&m);
 
   m.addSeparator();
 

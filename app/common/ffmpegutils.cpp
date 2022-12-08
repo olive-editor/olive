@@ -24,7 +24,7 @@ namespace olive {
 
 AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, VideoParams::Format maximum)
 {
-  std::vector<AVPixelFormat> possible_pix_fmts(3);
+  AVPixelFormat possible_pix_fmts[3];
 
   possible_pix_fmts[0] = AV_PIX_FMT_RGBA;
 
@@ -35,7 +35,7 @@ AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt
     possible_pix_fmts[2] = AV_PIX_FMT_NONE;
   }
 
-  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts.data(),
+  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
                                            pix_fmt,
                                            1,
                                            nullptr);
@@ -109,6 +109,43 @@ AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp
   }
 
   return AV_SAMPLE_FMT_NONE;
+}
+
+int FFmpegUtils::GetSwsColorspaceFromAVColorSpace(AVColorSpace cs)
+{
+  switch (cs) {
+  case AVCOL_SPC_BT709:
+    return SWS_CS_ITU709;
+  case AVCOL_SPC_FCC:
+    return SWS_CS_FCC;
+  case AVCOL_SPC_BT470BG:
+    return SWS_CS_ITU624;
+  case AVCOL_SPC_SMPTE170M:
+    return SWS_CS_SMPTE170M;
+  case AVCOL_SPC_SMPTE240M:
+    return SWS_CS_SMPTE240M;
+  case AVCOL_SPC_BT2020_NCL:
+    return SWS_CS_BT2020;
+  default:
+    break;
+  }
+
+  return SWS_CS_DEFAULT;
+}
+
+AVPixelFormat FFmpegUtils::ConvertJPEGSpaceToRegularSpace(AVPixelFormat f)
+{
+  switch (f) {
+  case AV_PIX_FMT_YUVJ420P: return AV_PIX_FMT_YUV420P;
+  case AV_PIX_FMT_YUVJ422P: return AV_PIX_FMT_YUV422P;
+  case AV_PIX_FMT_YUVJ444P: return AV_PIX_FMT_YUV444P;
+  case AV_PIX_FMT_YUVJ440P: return AV_PIX_FMT_YUV440P;
+  case AV_PIX_FMT_YUVJ411P: return AV_PIX_FMT_YUV411P;
+  default:
+    break;
+  }
+
+  return f;
 }
 
 AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const VideoParams::Format &pix_fmt, int channel_layout)

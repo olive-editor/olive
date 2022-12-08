@@ -47,6 +47,8 @@ TransitionBlock::TransitionBlock() :
   AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
+
+  SetFlags(GetFlags() & ~kDontShowInParamView);
 }
 
 void TransitionBlock::Retranslate()
@@ -171,10 +173,14 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
 
     if (out_buffer.type() != NodeValue::kNone) {
       job.Insert(kOutBlockInput, out_buffer);
+    } else {
+      job.Insert(kOutBlockInput, NodeValue(NodeValue::kTexture, nullptr));
     }
 
     if (in_buffer.type() != NodeValue::kNone) {
       job.Insert(kInBlockInput, in_buffer);
+    } else {
+      job.Insert(kInBlockInput, NodeValue(NodeValue::kTexture, nullptr));
     }
 
     job.Insert(kCurveInput, value);
@@ -182,10 +188,10 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
     double time = globals.time().in().toDouble();
     InsertTransitionTimes(&job, time);
 
-    ShaderJobEvent(value, job);
+    ShaderJobEvent(value, &job);
 
     job_type = NodeValue::kTexture;
-    push_job = QVariant::fromValue(job);
+    push_job = QVariant::fromValue(Texture::Job(globals.vparams(), job));
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
     SampleBuffer from_samples = out_buffer.toSamples();
@@ -281,16 +287,17 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
   }
 }
 
-TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time, bool clamp) const
 {
   if (input == kInBlockInput || input == kOutBlockInput) {
     Block* block = dynamic_cast<Block*>(GetConnectedOutput(input));
     if (block) {
+      // Retransform time as if it came from the track
       return input_time + in() - block->in();
     }
   }
 
-  return super::InputTimeAdjustment(input, element, input_time);
+  return super::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange TransitionBlock::OutputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const

@@ -20,7 +20,5 @@ set(OLIVE_SOURCES
   widget/colorlabelmenu/colorcodingcombobox.h
   widget/colorlabelmenu/colorlabelmenu.cpp
   widget/colorlabelmenu/colorlabelmenu.h
-  widget/colorlabelmenu/colorlabelmenuitem.cpp
-  widget/colorlabelmenu/colorlabelmenuitem.h
   PARENT_SCOPE
 )

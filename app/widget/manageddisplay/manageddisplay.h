@@ -21,9 +21,15 @@
 #ifndef MANAGEDDISPLAYOBJECT_H
 #define MANAGEDDISPLAYOBJECT_H
 
+//#define USE_QOPENGLWINDOW
+
 #include <QMouseEvent>
 #include <QOpenGLContext>
+#ifdef USE_QOPENGLWINDOW
 #include <QOpenGLWindow>
+#else
+#include <QOpenGLWidget>
+#endif
 
 #include "node/color/colormanager/colormanager.h"
 #include "render/renderer.h"
@@ -31,11 +37,25 @@
 
 namespace olive {
 
-class ManagedDisplayWidgetOpenGL : public QOpenGLWindow
+class ManagedDisplayWidgetOpenGL
+#ifdef USE_QOPENGLWINDOW
+    : public QOpenGLWindow
+#else
+    : public QOpenGLWidget
+#endif
 {
   Q_OBJECT
 public:
   ManagedDisplayWidgetOpenGL() = default;
+
+  virtual ~ManagedDisplayWidgetOpenGL() override
+  {
+    if (context()) {
+      DestroyListener();
+      disconnect(context(), &QOpenGLContext::aboutToBeDestroyed,
+                 this, &ManagedDisplayWidgetOpenGL::DestroyListener);
+    }
+  }
 
 signals:
   // Render signals
@@ -47,7 +67,8 @@ protected:
   virtual void initializeGL() override
   {
     connect(context(), &QOpenGLContext::aboutToBeDestroyed,
-            this, &ManagedDisplayWidgetOpenGL::OnDestroy);
+            this, &ManagedDisplayWidgetOpenGL::DestroyListener,
+            Qt::DirectConnection);
 
     emit OnInit();
   }
@@ -175,7 +196,12 @@ protected:
 
   void doneCurrent();
 
-  QWindow* inner_widget() const
+#ifdef USE_QOPENGLWINDOW
+  QWindow*
+#else
+  QWidget*
+#endif
+  inner_widget() const
   {
     return inner_widget_;
   }
@@ -194,6 +220,8 @@ protected:
   {
     return wrapper_ ? wrapper_->rect() : QRect();
   }
+
+  VideoParams GetViewportParams() const;
 
 protected slots:
   /**
@@ -225,7 +253,11 @@ private:
   /**
    * @brief Main drawing surface abstraction
    */
+#ifdef USE_QOPENGLWINDOW
   QWindow* inner_widget_;
+#else
+  QWidget* inner_widget_;
+#endif
   QWidget *wrapper_;
 
   /**

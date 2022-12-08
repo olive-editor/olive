@@ -34,18 +34,9 @@ class HandMovableView : public QGraphicsView
 public:
   HandMovableView(QWidget* parent = nullptr);
 
-  bool GetScrollZoomsByDefault() const
-  {
-    return scroll_zooms_by_default_;
-  }
+  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
 
-  QAction* AddSetScrollZoomsByDefaultActionToMenu(QMenu* menu, bool autoconnect = true);
-
-public slots:
-  void SetScrollZoomsByDefault(bool e)
-  {
-    scroll_zooms_by_default_ = e;
-  }
+  static qreal GetScrollZoomMultiplier(QWheelEvent* event);
 
 protected:
   virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
@@ -57,11 +48,11 @@ protected:
   void SetDefaultDragMode(DragMode mode);
   const DragMode& GetDefaultDragMode() const;
 
-  bool WheelEventIsAZoomEvent(QWheelEvent* event) const;
-
   virtual void wheelEvent(QWheelEvent* event) override;
 
   virtual void ZoomIntoCursorPosition(QWheelEvent* event, double multiplier, const QPointF &cursor_pos);
+
+  void SetIsTimelineAxes(bool e) { is_timeline_axes_ = e; }
 
 private:
   bool dragging_hand_;
@@ -69,13 +60,9 @@ private:
 
   DragMode default_drag_mode_;
 
-  /**
-   * @brief Whether scrolling should perform a scroll or a zoom
-   *
-   * If TRUE, scrolling will ZOOM and Ctrl+Scroll with SCROLL.
-   * If FALSE (default), scrolling will SCROLL and Ctrl+Scroll will ZOOM.
-   */
-  bool scroll_zooms_by_default_;
+  QPointF transformed_pos_;
+
+  bool is_timeline_axes_;
 
 private slots:
   void ApplicationToolChanged(Tool::Item tool);

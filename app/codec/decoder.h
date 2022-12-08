@@ -31,13 +31,11 @@ extern "C" {
 #include <QWaitCondition>
 #include <stdint.h>
 
-#include "codec/frame.h"
 #include "codec/samplebuffer.h"
 #include "common/rational.h"
 #include "node/block/block.h"
-#include "node/project/footage/footage.h"
 #include "node/project/footage/footagedescription.h"
-#include "task/task.h"
+#include "render/cancelatom.h"
 
 namespace olive {
 
@@ -81,6 +79,8 @@ public:
 
   virtual bool SupportsVideo(){return false;}
   virtual bool SupportsAudio(){return false;}
+
+  void IncrementAccessTime(qint64 t);
 
   class CodecStream
   {
@@ -157,29 +157,13 @@ public:
 
   struct RetrieveVideoParams
   {
-    RetrieveVideoParams()
-    {
-      divider = 1;
-      maximum_format = VideoParams::kFormatInvalid;
-    }
-
-    int divider;
-    VideoParams::Format maximum_format;
-
-    void reset()
-    {
-      *this = RetrieveVideoParams();
-    }
-
-    bool operator==(const RetrieveVideoParams& rhs) const
-    {
-      return divider == rhs.divider && maximum_format == rhs.maximum_format;
-    }
-
-    bool operator!=(const RetrieveVideoParams& rhs) const
-    {
-      return !(*this == rhs);
-    }
+    Renderer *renderer = nullptr;
+    rational time;
+    int divider = 1;
+    VideoParams::Format maximum_format = VideoParams::kFormatInvalid;
+    CancelAtom *cancelled = nullptr;
+    VideoParams::ColorRange force_range = VideoParams::kColorRangeDefault;
+    VideoParams::Interlacing src_interlacing = VideoParams::kInterlaceNone;
   };
 
   /**
@@ -192,7 +176,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  TexturePtr RetrieveVideo(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled = nullptr);
+  TexturePtr RetrieveVideo(const RetrieveVideoParams& p);
 
   enum RetrieveAudioStatus {
     kInvalid = -1,
@@ -209,7 +193,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  RetrieveAudioStatus RetrieveAudio(SampleBuffer &dest, const TimeRange& range, const AudioParams& params, const QString &cache_path, Footage::LoopMode loop_mode, RenderMode::Mode mode);
+  RetrieveAudioStatus RetrieveAudio(SampleBuffer &dest, const TimeRange& range, const AudioParams& params, const QString &cache_path, LoopMode loop_mode, RenderMode::Mode mode);
 
   /**
    * @brief Determine the last time this decoder instance was used in any way
@@ -227,7 +211,7 @@ public:
    *
    * This function is re-entrant.
    */
-  virtual FootageDescription Probe(const QString& filename, const QAtomicInt* cancelled) const = 0;
+  virtual FootageDescription Probe(const QString& filename, CancelAtom *cancelled) const = 0;
 
   /**
    * @brief Closes media/deallocates memory
@@ -239,7 +223,7 @@ public:
   /**
    * @brief Conform audio stream
    */
-  bool ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, const QAtomicInt *cancelled = nullptr);
+  bool ConformAudio(const QVector<QString> &output_filenames, const AudioParams &params, CancelAtom *cancelled = nullptr);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -287,9 +271,9 @@ protected:
    * Sub-classes must override this function IF they support video. Function is already mutexed
    * so sub-classes don't need to worry about thread safety.
    */
-  virtual TexturePtr RetrieveVideoInternal(Renderer *renderer, const rational& timecode, const RetrieveVideoParams& params, const QAtomicInt *cancelled);
+  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p);
 
-  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, const QAtomicInt* cancelled);
+  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled);
 
   void SignalProcessingProgress(int64_t ts, int64_t duration);
 
@@ -303,8 +287,7 @@ protected:
     return stream_;
   }
 
-  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
-  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time);
+  virtual rational GetAudioStartOffset() const { return 0; }
 
 signals:
   /**
@@ -316,13 +299,17 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, const TimeRange &range, Footage::LoopMode loop_mode, const AudioParams &params);
+  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &params);
 
   CodecStream stream_;
 
   QMutex mutex_;
 
-  qint64 last_accessed_;
+  std::atomic_int64_t last_accessed_;
+
+  TexturePtr cached_texture_;
+  rational cached_time_;
+  int cached_divider_;
 
 };
 

@@ -30,7 +30,7 @@ CineformSection::CineformSection(QWidget *parent) :
 {
   QGridLayout *layout = new QGridLayout(this);
 
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -80,6 +80,11 @@ CineformSection::CineformSection(QWidget *parent) :
 void CineformSection::AddOpts(EncodingParams *params)
 {
   params->set_video_option(QStringLiteral("quality"), QString::number(quality_combobox_->currentIndex()));
+}
+
+void CineformSection::SetOpts(const EncodingParams *p)
+{
+  quality_combobox_->setCurrentIndex(p->video_option(QStringLiteral("quality")).toInt());
 }
 
 }

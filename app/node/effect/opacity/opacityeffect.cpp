@@ -39,24 +39,26 @@ void OpacityEffect::Retranslate()
 
 ShaderCode OpacityEffect::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(request)
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity.frag"));
+  if (request.id == QStringLiteral("rgbmult")) {
+    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity_rgb.frag"));
+  } else {
+    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity.frag"));
+  }
 }
 
 void OpacityEffect::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-
   // If there's no texture, no need to run an operation
-  if (job.Get(kTextureInput).toTexture()) {
-    if (!qFuzzyCompare(job.Get(kValueInput).toDouble(), 1.0)) {
-      job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+    if (TexturePtr opacity_tex = value[kValueInput].toTexture()) {
+      ShaderJob job(value);
+      job.SetShaderID(QStringLiteral("rgbmult"));
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
+    } else if (!qFuzzyCompare(value[kValueInput].toDouble(), 1.0)) {
+      table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)), this);
     } else {
       // 1.0 float is a no-op, so just push the texture
-      table->Push(job.Get(kTextureInput));
+      table->Push(value[kTextureInput]);
     }
   }
 }

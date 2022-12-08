@@ -27,7 +27,6 @@
 #include "config/config.h"
 #include "core.h"
 #include "render/opengl/openglrenderer.h"
-#include "render/rendererthreadwrapper.h"
 #include "renderprocessor.h"
 #include "task/conform/conform.h"
 #include "task/taskmanager.h"
@@ -36,22 +35,14 @@
 namespace olive {
 
 RenderManager* RenderManager::instance_ = nullptr;
+const rational RenderManager::kDryRunInterval = rational(10);
 
 RenderManager::RenderManager(QObject *parent) :
-  ThreadPool(0, parent),
-  backend_(kOpenGL)
+  backend_(kOpenGL),
+  aggressive_gc_(0)
 {
-  Renderer* graphics_renderer = nullptr;
-
   if (backend_ == kOpenGL) {
-    graphics_renderer = new OpenGLRenderer();
-  }
-
-  if (graphics_renderer) {
-    context_ = new RendererThreadWrapper(graphics_renderer, this);
-    context_->Init();
-    context_->PostInit();
-
+    context_ = new OpenGLRenderer();
     decoder_cache_ = new DecoderCache();
     shader_cache_ = new ShaderCache();
   } else {
@@ -60,10 +51,21 @@ RenderManager::RenderManager(QObject *parent) :
     decoder_cache_ = nullptr;
   }
 
-  QTimer *decoder_clear_timer = new QTimer(this);
-  decoder_clear_timer->setInterval(kDecoderMaximumInactivity);
-  connect(decoder_clear_timer, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
-  decoder_clear_timer->start();
+  if (context_) {
+    video_thread_ = CreateThread(context_);
+    dry_run_thread_ = CreateThread();
+    audio_thread_ = CreateThread();
+
+    waveform_threads_.resize(QThread::idealThreadCount());
+    for (size_t i=0; i<waveform_threads_.size(); i++) {
+      waveform_threads_[i] = CreateThread();
+    }
+  }
+
+  decoder_clear_timer_ = new QTimer(this);
+  decoder_clear_timer_->setInterval(kDecoderMaximumInactivity);
+  connect(decoder_clear_timer_, &QTimer::timeout, this, &RenderManager::ClearOldDecoders);
+  decoder_clear_timer_->start();
 }
 
 RenderManager::~RenderManager()
@@ -72,94 +74,103 @@ RenderManager::~RenderManager()
     delete shader_cache_;
     delete decoder_cache_;
 
-    context_->Destroy();
+    for (RenderThread *rt : render_threads_) {
+      rt->quit();
+      rt->wait();
+    }
+
     context_->PostDestroy();
     delete context_;
   }
 }
 
-RenderTicketPtr RenderManager::RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param,
-                                           ColorManager* color_manager, const rational& time, RenderMode::Mode mode,
-                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
+RenderThread *RenderManager::CreateThread(Renderer *renderer)
 {
-  return RenderFrame(node,
-                     color_manager,
-                     time,
-                     mode,
-                     vparam,
-                     param,
-                     QSize(0, 0),
-                     QMatrix4x4(),
-                     VideoParams::kFormatInvalid,
-                     nullptr,
-                     cache,
-                     priority,
-                     return_type);
+  auto t = new RenderThread(renderer, decoder_cache_, shader_cache_, this);
+  render_threads_.push_back(t);
+  t->start(QThread::IdlePriority);
+  return t;
 }
 
-RenderTicketPtr RenderManager::RenderFrame(Node *node, ColorManager* color_manager,
-                                           const rational& time, RenderMode::Mode mode,
-                                           const VideoParams &video_params, const AudioParams &audio_params,
-                                           const QSize& force_size,
-                                           const QMatrix4x4& force_matrix, VideoParams::Format force_format,
-                                           ColorProcessorPtr force_color_output,
-                                           FrameHashCache* cache, RenderTicketPriority priority, ReturnType return_type)
+RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(node));
-  ticket->setProperty("time", QVariant::fromValue(time));
-  ticket->setProperty("size", force_size);
-  ticket->setProperty("matrix", force_matrix);
-  ticket->setProperty("format", force_format);
-  ticket->setProperty("mode", mode);
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.time));
+  ticket->setProperty("size", params.force_size);
+  ticket->setProperty("matrix", params.force_matrix);
+  ticket->setProperty("format", params.force_format);
+  ticket->setProperty("usecache", params.use_cache);
+  ticket->setProperty("channelcount", params.force_channel_count);
+  ticket->setProperty("mode", params.mode);
   ticket->setProperty("type", kTypeVideo);
-  ticket->setProperty("colormanager", Node::PtrToValue(color_manager));
-  ticket->setProperty("coloroutput", QVariant::fromValue(force_color_output));
-  ticket->setProperty("vparam", QVariant::fromValue(video_params));
-  ticket->setProperty("aparam", QVariant::fromValue(audio_params));
-  ticket->setProperty("return", return_type);
+  ticket->setProperty("colormanager", Node::PtrToValue(params.color_manager));
+  ticket->setProperty("coloroutput", QVariant::fromValue(params.force_color_output));
+  Q_ASSERT(params.video_params.is_valid());
+  ticket->setProperty("vparam", QVariant::fromValue(params.video_params));
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
+  ticket->setProperty("return", params.return_type);
+  ticket->setProperty("cache", params.cache_dir);
+  ticket->setProperty("cachetimebase", QVariant::fromValue(params.cache_timebase));
+  ticket->setProperty("cacheid", QVariant::fromValue(params.cache_id));
+  ticket->setProperty("multicam", Node::PtrToValue(params.multicam));
 
-  if (cache) {
-    ticket->setProperty("cache", cache->GetCacheDirectory());
-    ticket->setProperty("cachetimebase", QVariant::fromValue(cache->GetTimebase()));
-    ticket->setProperty("cacheuuid", QVariant::fromValue(cache->GetUuid()));
+  if (params.return_type == ReturnType::kNull) {
+    dry_run_thread_->AddTicket(ticket);
+  } else {
+    video_thread_->AddTicket(ticket);
   }
-
-  AddTicket(ticket, priority);
 
   return ticket;
 }
 
-RenderTicketPtr RenderManager::RenderAudio(Node *node, const TimeRange &r, const AudioParams &params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority)
+RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
 {
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(node));
-  ticket->setProperty("time", QVariant::fromValue(r));
+  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("time", QVariant::fromValue(params.range));
   ticket->setProperty("type", kTypeAudio);
-  ticket->setProperty("mode", mode);
-  ticket->setProperty("enablewaveforms", generate_waveforms);
-  ticket->setProperty("aparam", QVariant::fromValue(params));
+  ticket->setProperty("enablewaveforms", params.generate_waveforms);
+  ticket->setProperty("clamp", params.clamp);
+  ticket->setProperty("aparam", QVariant::fromValue(params.audio_params));
+  ticket->setProperty("mode", params.mode);
 
-  AddTicket(ticket, priority);
+  if (params.generate_waveforms) {
+    size_t thread_index = last_waveform_thread_%waveform_threads_.size();
+    RenderThread *thread = waveform_threads_[thread_index];
+    thread->AddTicket(ticket);
+    last_waveform_thread_++;
+  } else {
+    audio_thread_->AddTicket(ticket);
+  }
 
   return ticket;
 }
 
-void RenderManager::RunTicket(RenderTicketPtr ticket) const
+bool RenderManager::RemoveTicket(RenderTicketPtr ticket)
 {
-  // Setup the ticket for ::Process
-  ticket->Start();
-
-  if (ticket->IsCancelled()) {
-    ticket->Finish();
-    return;
+  for (RenderThread *rt : render_threads_) {
+    if (rt->RemoveTicket(ticket)) {
+      return true;
+    }
   }
 
-  RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
+  return false;
+}
+
+void RenderManager::SetAggressiveGarbageCollection(bool enabled)
+{
+  aggressive_gc_ += enabled ? 1 : -1;
+
+  if (aggressive_gc_ > 0) {
+    decoder_clear_timer_->setInterval(kDecoderMaximumInactivityAggressive);
+  } else {
+    decoder_clear_timer_->setInterval(kDecoderMaximumInactivity);
+  }
 }
 
 void RenderManager::ClearOldDecoders()
@@ -177,6 +188,89 @@ void RenderManager::ClearOldDecoders()
     } else {
       it++;
     }
+  }
+}
+
+RenderThread::RenderThread(Renderer *renderer, DecoderCache *decoder_cache, ShaderCache *shader_cache, QObject *parent) :
+  QThread(parent),
+  cancelled_(false),
+  context_(renderer),
+  decoder_cache_(decoder_cache),
+  shader_cache_(shader_cache)
+{
+  if (context_) {
+    context_->Init();
+    context_->moveToThread(this);
+  }
+}
+
+void RenderThread::AddTicket(RenderTicketPtr ticket)
+{
+  QMutexLocker locker(&mutex_);
+  ticket->moveToThread(this);
+  queue_.push_back(ticket);
+  wait_.wakeOne();
+}
+
+bool RenderThread::RemoveTicket(RenderTicketPtr ticket)
+{
+  QMutexLocker locker(&mutex_);
+
+  auto it = std::find(queue_.begin(), queue_.end(), ticket);
+  if (it == queue_.end()) {
+    return false;
+  }
+
+  queue_.erase(it);
+  return true;
+}
+
+void RenderThread::quit()
+{
+  QMutexLocker locker(&mutex_);
+  cancelled_ = true;
+  wait_.wakeOne();
+}
+
+void RenderThread::run()
+{
+  if (context_) {
+    context_->PostInit();
+  }
+
+  QMutexLocker locker(&mutex_);
+
+  while (!cancelled_) {
+    if (queue_.empty()) {
+      wait_.wait(&mutex_);
+    }
+
+    if (cancelled_) {
+      break;
+    }
+
+    if (!queue_.empty()) {
+      RenderTicketPtr ticket = queue_.front();
+      queue_.pop_front();
+
+      locker.unlock();
+
+      // Setup the ticket for ::Process
+      ticket->Start();
+
+      if (ticket->IsCancelled()) {
+        ticket->Finish();
+      } else {
+        RenderProcessor::Process(ticket, context_, decoder_cache_, shader_cache_);
+      }
+
+      locker.relock();
+    }
+  }
+
+  if (context_) {
+    context_->Destroy();
+    context_->moveToThread(this->thread());
   }
 }
 

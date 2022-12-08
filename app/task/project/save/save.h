@@ -30,7 +30,7 @@ class ProjectSaveTask : public Task
 {
   Q_OBJECT
 public:
-  ProjectSaveTask(Project* project);
+  ProjectSaveTask(Project* project, bool use_compression);
 
   Project* GetProject() const
   {
@@ -49,6 +49,8 @@ private:
   Project* project_;
 
   QString override_filename_;
+
+  bool use_compression_;
 
 };
 

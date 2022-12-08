@@ -126,8 +126,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Forma
 
 int VideoParams::generate_auto_divider(qint64 width, qint64 height)
 {
-  // Arbitrary pixel count (from 640x360)
-  const int target_res = 230400;
+  const int target_res = 1280*720;
 
   qint64 megapixels = width * height;
 
@@ -155,8 +154,8 @@ int VideoParams::generate_auto_divider(qint64 width, qint64 height)
       }
     }
 
-    // "Safe" fallback
-    return 2;
+    // Fallback
+    return 1;
   }
 }
 
@@ -165,6 +164,7 @@ bool VideoParams::operator==(const VideoParams &rhs) const
   return width() == rhs.width()
       && height() == rhs.height()
       && depth() == rhs.depth()
+      && interlacing() == rhs.interlacing()
       && time_base() == rhs.time_base()
       && format() == rhs.format()
       && pixel_aspect_ratio() == rhs.pixel_aspect_ratio()
@@ -198,6 +198,15 @@ int VideoParams::GetBytesPerChannel(VideoParams::Format format)
 int VideoParams::GetBytesPerPixel(VideoParams::Format format, int channels)
 {
   return GetBytesPerChannel(format) * channels;
+}
+
+QString VideoParams::GetNameForDivider(int div)
+{
+  if (div == 1) {
+    return QCoreApplication::translate("VideoParams", "Full");
+  } else {
+    return QCoreApplication::translate("VideoParams", "1/%1").arg(div);
+  }
 }
 
 bool VideoParams::FormatIsFloat(VideoParams::Format format)
@@ -235,11 +244,26 @@ QString VideoParams::GetFormatName(VideoParams::Format format)
   return QCoreApplication::translate("VideoParams", "Unknown (0x%1)").arg(format, 0, 16);
 }
 
+int VideoParams::GetDividerForTargetResolution(int src_width, int src_height, int dst_width, int dst_height)
+{
+  int divider = 0;
+  int test_width, test_height;
+
+  do {
+    divider++;
+
+    test_width = VideoParams::GetScaledDimension(src_width, divider);
+    test_height = VideoParams::GetScaledDimension(src_height, divider);
+  } while (test_width > dst_width || test_height > dst_height);
+
+  return divider;
+}
+
 void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
   effective_height_ = GetScaledDimension(height(), divider_);
-  effective_depth_ = GetScaledDimension(depth(), divider_);
+  effective_depth_ = (depth() == 1) ? depth() : GetScaledDimension(depth(), divider_);
   calculate_square_pixel_width();
 }
 
@@ -261,12 +285,13 @@ void VideoParams::set_defaults_for_footage()
   premultiplied_alpha_ = false;
   x_ = 0;
   y_ = 0;
+  color_range_ = kColorRangeDefault;
 }
 
 void VideoParams::calculate_square_pixel_width()
 {
   if (pixel_aspect_ratio_.denominator() != 0) {
-    par_width_ = width_ * pixel_aspect_ratio_.numerator() / pixel_aspect_ratio_.denominator();
+    par_width_ = qRound(width_ * pixel_aspect_ratio_.toDouble());
   } else {
     par_width_ = width_;
   }
@@ -365,6 +390,8 @@ void VideoParams::Load(QXmlStreamReader *reader)
       set_premultiplied_alpha(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("colorspace")) {
       set_colorspace(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("colorrange")) {
+      set_color_range(static_cast<ColorRange>(reader->readElementText().toInt()));
     } else {
       reader->skipCurrentElement();
     }
@@ -392,6 +419,7 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
   writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
+  writer->writeTextElement(QStringLiteral("colorrange"), QString::number(color_range_));
 }
 
 }

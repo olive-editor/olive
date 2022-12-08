@@ -32,7 +32,7 @@ namespace olive {
 HandMovableView::HandMovableView(QWidget* parent) :
   super(parent),
   dragging_hand_(false),
-  scroll_zooms_by_default_(OLIVE_CONFIG("ScrollZooms").toBool())
+  is_timeline_axes_(false)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &HandMovableView::ApplicationToolChanged);
 }
@@ -61,10 +61,12 @@ bool HandMovableView::HandPress(QMouseEvent *event)
 
     // Transform mouse event to act like the left button is pressed
     QMouseEvent transformed(event->type(),
-                            event->localPos(),
+                            event->pos(),
                             Qt::LeftButton,
                             Qt::LeftButton,
                             event->modifiers());
+
+    transformed_pos_ = QPoint(0, 0);
 
     super::mousePressEvent(&transformed);
 
@@ -78,11 +80,33 @@ bool HandMovableView::HandMove(QMouseEvent *event)
 {
   if (dragging_hand_) {
     // Transform mouse event to act like the left button is pressed
+    QPoint adjustment(0, 0);
+
     QMouseEvent transformed(event->type(),
-                            event->localPos(),
+                            event->pos() - transformed_pos_,
                             Qt::LeftButton,
                             Qt::LeftButton,
                             event->modifiers());
+
+    if (event->pos().x() < 0) {
+      transformed_pos_.setX(transformed_pos_.x() + width());
+      adjustment.setX(width());
+    } else if (event->pos().x() >= width()) {
+      transformed_pos_.setX(transformed_pos_.x() - width());
+      adjustment.setX(-width());
+    }
+
+    if (event->pos().y() < 0) {
+      transformed_pos_.setY(transformed_pos_.y() + height());
+      adjustment.setY(height());
+    } else if (event->pos().y() >= height()) {
+      transformed_pos_.setY(transformed_pos_.y() - height());
+      adjustment.setY(-height());
+    }
+
+    if (!adjustment.isNull()) {
+      QCursor::setPos(QCursor::pos() + adjustment);
+    }
 
     super::mouseMoveEvent(&transformed);
   }
@@ -95,9 +119,12 @@ bool HandMovableView::HandRelease(QMouseEvent *event)
     // Transform mouse event to act like the left button is pressed
     QMouseEvent transformed(event->type(),
                             event->localPos(),
+                            event->windowPos(),
+                            event->screenPos(),
                             Qt::LeftButton,
                             Qt::LeftButton,
-                            event->modifiers());
+                            event->modifiers(),
+                            event->source());
 
     super::mouseReleaseEvent(&transformed);
 
@@ -123,16 +150,21 @@ const HandMovableView::DragMode &HandMovableView::GetDefaultDragMode() const
   return default_drag_mode_;
 }
 
-bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event) const
+bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event)
 {
-  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !scroll_zooms_by_default_);
+  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !OLIVE_CONFIG("ScrollZooms").toBool());
+}
+
+qreal HandMovableView::GetScrollZoomMultiplier(QWheelEvent *event)
+{
+  return 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
 }
 
 void HandMovableView::wheelEvent(QWheelEvent *event)
 {
   if (WheelEventIsAZoomEvent(event)) {
     if (!event->angleDelta().isNull()) {
-      qreal multiplier = 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
+      qreal multiplier = GetScrollZoomMultiplier(event);
 
       QPointF cursor_pos;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
@@ -143,6 +175,54 @@ void HandMovableView::wheelEvent(QWheelEvent *event)
 
       ZoomIntoCursorPosition(event, multiplier, cursor_pos);
     }
+  } else if (is_timeline_axes_) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+
+    QPoint angle_delta = event->angleDelta();
+
+    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool() // Check if config is set to invert timeline axes
+        && event->source() != Qt::MouseEventSynthesizedBySystem) { // Never flip axes on Apple trackpads though
+      angle_delta = QPoint(angle_delta.y(), angle_delta.x());
+    }
+
+    QWheelEvent e(
+      #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+          event->position(),
+          event->globalPosition(),
+      #else
+          event->pos(),
+          event->globalPos(),
+      #endif
+          event->pixelDelta(),
+          angle_delta,
+          event->buttons(),
+          event->modifiers(),
+          event->phase(),
+          event->inverted(),
+          event->source()
+          );
+
+#else
+
+    Qt::Orientation orientation = event->orientation();
+
+    if (OLIVE_CONFIG("InvertTimelineScrollAxes").toBool()) {
+      orientation = (orientation == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
+    }
+
+    QWheelEvent e(
+          event->pos(),
+          event->globalPos(),
+          event->pixelDelta(),
+          event->angleDelta(),
+          event->delta(),
+          orientation,
+          event->buttons(),
+          event->modifiers()
+          );
+#endif
+
+    super::wheelEvent(&e);
   } else {
     super::wheelEvent(event);
   }
@@ -153,19 +233,6 @@ void HandMovableView::ZoomIntoCursorPosition(QWheelEvent *event, double multipli
   Q_UNUSED(event)
   Q_UNUSED(multiplier)
   Q_UNUSED(cursor_pos)
-}
-
-QAction *HandMovableView::AddSetScrollZoomsByDefaultActionToMenu(QMenu *m, bool autoconnect)
-{
-  QAction* ctrl_zoom = m->addAction(tr("Scroll Zooms By Default"));
-  ctrl_zoom->setCheckable(true);
-  ctrl_zoom->setChecked(GetScrollZoomsByDefault());
-
-  if (autoconnect) {
-    connect(ctrl_zoom, &QAction::triggered, this, &HandMovableView::SetScrollZoomsByDefault);
-  }
-
-  return ctrl_zoom;
 }
 
 }

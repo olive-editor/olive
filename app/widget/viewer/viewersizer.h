@@ -51,6 +51,10 @@ public:
    */
   void SetWidget(QWidget* widget);
 
+  static constexpr int kZoomLevelCount = 8;
+  static constexpr int kZoomLevels[kZoomLevelCount] = {10, 25, 50, 75, 100, 150, 200, 400};
+
+public slots:
   /**
    * @brief Set resolution to use
    *
@@ -70,8 +74,9 @@ public:
    */
   void SetZoom(int percent);
 
-public slots:
   void HandDragMove(int x, int y);
+
+  virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 signals:
   void RequestScale(const QMatrix4x4& matrix);
@@ -111,6 +116,7 @@ private:
    * @brief Internal zoom value
    */
   int zoom_;
+  int current_widget_scale_;
 
   QScrollBar* horiz_scrollbar_;
   QScrollBar* vert_scrollbar_;

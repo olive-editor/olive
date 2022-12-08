@@ -38,7 +38,7 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   code_issues_flag_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   line_edit_ = new QPlainTextEdit();
   line_edit_->setUndoRedoEnabled(true);

@@ -61,7 +61,8 @@ bool LoadOTIOTask::Run()
   auto root = OTIO::SerializableObjectWithMetadata::from_json_file(GetFilename().toStdString(), &es);
 
   if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
-    SetError(tr("Failed to load OpenTimelineIO from file \"%1\"").arg(GetFilename()));
+    SetError(tr("Failed to load OpenTimelineIO from file \"%1\" \n\nOpenTimelineIO Error:\n\n%2")
+        .arg(GetFilename(), QString::fromStdString(es.full_description)));
     return false;
   }
 

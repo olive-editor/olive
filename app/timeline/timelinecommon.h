@@ -38,6 +38,17 @@ public:
     kTrimOut
   };
 
+  enum ThumbnailMode {
+    kThumbnailOff,
+    kThumbnailInOut,
+    kThumbnailOn
+  };
+
+  enum WaveformMode {
+    kWaveformsDisabled,
+    kWaveformsEnabled
+  };
+
   static bool IsATrimMode(MovementMode mode) {return mode == kTrimIn || mode == kTrimOut;}
 
   struct EditToInfo {

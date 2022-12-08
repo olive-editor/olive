@@ -90,11 +90,11 @@ void MatrixGenerator::Retranslate()
 void MatrixGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
   // Push matrix output
-  QMatrix4x4 mat = GenerateMatrix(value, false, false, false);
+  QMatrix4x4 mat = GenerateMatrix(value, false, false, false, QMatrix4x4());
   table->Push(NodeValue::kMatrix, mat, this);
 }
 
-QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const
 {
   QVector2D anchor;
   QVector2D position;
@@ -116,19 +116,19 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignor
                         value[kRotationInput].toDouble(),
                         scale,
                         value[kUniformScaleInput].toBool(),
-                        anchor);
+                        anchor,
+                        mat);
 }
 
 QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
                                            const float& rot,
                                            const QVector2D& scale,
                                            bool uniform_scale,
-                                           const QVector2D& anchor)
+                                           const QVector2D& anchor,
+                                           QMatrix4x4 mat)
 {
-  QMatrix4x4 mat;
-
   // Position
-  mat.translate(pos);
+  mat.translate(pos.x(), pos.y());
 
   // Rotation
   mat.rotate(rot, 0, 0, 1);
@@ -143,7 +143,7 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const QVector2D& pos,
   mat.scale(full_scale);
 
   // Anchor Point
-  mat.translate(-anchor);
+  mat.translate(-anchor.x(), -anchor.y());
 
   return mat;
 }

@@ -31,11 +31,15 @@
 #include "node/splitvalue.h"
 #include "render/color.h"
 #include "render/texture.h"
-#include "undo/undocommand.h"
 
 namespace olive {
 
 class Node;
+class NodeValue;
+class NodeValueTable;
+
+using NodeValueArray = std::map<int, NodeValue>;
+using NodeValueTableArray = std::map<int, NodeValueTable>;
 
 class NodeValue
 {
@@ -208,6 +212,12 @@ public:
     set_value(data);
   }
 
+  template <typename T>
+  NodeValue(Type type, const T& data, const Node* from, const QString& tag) :
+    NodeValue(type, data, from, false, tag)
+  {
+  }
+
   Type type() const
   {
     return type_;
@@ -225,6 +235,8 @@ public:
     data_ = QVariant::fromValue(v);
   }
 
+  const QVariant &data() const { return data_; }
+
   template <typename T>
   bool canConvert() const
   {
@@ -234,6 +246,11 @@ public:
   const QString& tag() const
   {
     return tag_;
+  }
+
+  void set_tag(const QString& tag)
+  {
+    tag_ = tag;
   }
 
   const Node* source() const
@@ -249,6 +266,11 @@ public:
   bool operator==(const NodeValue& rhs) const
   {
     return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
+  }
+
+  operator bool() const
+  {
+    return !data_.isNull();
   }
 
   static QString GetPrettyDataTypeName(Type type);
@@ -326,6 +348,7 @@ public:
   QVector3D toVec3() const { return value<QVector3D>(); }
   QVector4D toVec4() const { return value<QVector4D>(); }
   Bezier toBezier() const { return value<Bezier>(); }
+  NodeValueArray toArray() const { return value<NodeValueArray>(); }
 
 private:
   Type type_;
@@ -373,6 +396,12 @@ public:
     Push(NodeValue(type, data, from, array, tag));
   }
 
+  template <typename T>
+  void Push(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
+  {
+    Push(NodeValue(type, data, from, false, tag));
+  }
+
   void Prepend(const NodeValue& value)
   {
     values_.prepend(value);
@@ -382,6 +411,12 @@ public:
   void Prepend(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
   {
     Prepend(NodeValue(type, data, from, array, tag));
+  }
+
+  template <typename T>
+  void Prepend(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
+  {
+    Prepend(NodeValue(type, data, from, false, tag));
   }
 
   const NodeValue& at(int index) const

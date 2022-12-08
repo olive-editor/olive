@@ -30,12 +30,44 @@
 #include "node/output/viewer/viewer.h"
 #include "node/traverser.h"
 #include "render/renderer.h"
+#include "render/renderticket.h"
 #include "rendercache.h"
-#include "threading/threadpool.h"
 
 namespace olive {
 
-class RenderManager : public ThreadPool
+class RenderThread : public QThread
+{
+  Q_OBJECT
+public:
+  RenderThread(Renderer *renderer, DecoderCache *decoder_cache, ShaderCache *shader_cache, QObject *parent = nullptr);
+
+  void AddTicket(RenderTicketPtr ticket);
+
+  bool RemoveTicket(RenderTicketPtr ticket);
+
+  void quit();
+
+protected:
+  virtual void run() override;
+
+private:
+  QMutex mutex_;
+
+  QWaitCondition wait_;
+
+  std::list<RenderTicketPtr> queue_;
+
+  bool cancelled_;
+
+  Renderer *context_;
+
+  DecoderCache *decoder_cache_;
+
+  ShaderCache *shader_cache_;
+
+};
+
+class RenderManager : public QObject
 {
   Q_OBJECT
 public:
@@ -65,8 +97,58 @@ public:
 
   enum ReturnType {
     kTexture,
-    kFrame
+    kFrame,
+    kNull
   };
+
+  struct RenderVideoParams {
+    RenderVideoParams(Node *n, const VideoParams &vparam, const AudioParams &aparam, const rational &t,
+                ColorManager *colorman, RenderMode::Mode m)
+    {
+      node = n;
+      video_params = vparam;
+      audio_params = aparam;
+      time = t;
+      color_manager = colorman;
+      use_cache = false;
+      return_type = kFrame;
+      force_format = VideoParams::kFormatInvalid;
+      force_color_output = nullptr;
+      force_size = QSize(0, 0);
+      force_channel_count = 0;
+      mode = m;
+      multicam = nullptr;
+    }
+
+    void AddCache(FrameHashCache *cache)
+    {
+      cache_dir = cache->GetCacheDirectory();
+      cache_timebase = cache->GetTimebase();
+      cache_id = cache->GetUuid().toString();
+    }
+
+    Node *node;
+    VideoParams video_params;
+    AudioParams audio_params;
+    rational time;
+    ColorManager *color_manager;
+    bool use_cache;
+    ReturnType return_type;
+    RenderMode::Mode mode;
+    MultiCamNode *multicam;
+
+    QString cache_dir;
+    rational cache_timebase;
+    QString cache_id;
+
+    QSize force_size;
+    int force_channel_count;
+    QMatrix4x4 force_matrix;
+    VideoParams::Format force_format;
+    ColorProcessorPtr force_color_output;
+  };
+
+  static const rational kDryRunInterval;
 
   /**
    * @brief Asynchronously generate a frame at a given time
@@ -76,16 +158,26 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderFrame(Node *node, const VideoParams &vparam, const AudioParams &param, ColorManager* color_manager,
-                              const rational& time, RenderMode::Mode mode,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
-  RenderTicketPtr RenderFrame(Node *node, ColorManager* color_manager,
-                              const rational& time, RenderMode::Mode mode,
-                              const VideoParams& video_params, const AudioParams& audio_params,
-                              const QSize& force_size,
-                              const QMatrix4x4& force_matrix, VideoParams::Format force_format,
-                              ColorProcessorPtr force_color_output,
-                              FrameHashCache* cache = nullptr, RenderTicketPriority priority = RenderTicketPriority::kNormal, ReturnType return_type = kFrame);
+  RenderTicketPtr RenderFrame(const RenderVideoParams &params);
+
+  struct RenderAudioParams {
+    RenderAudioParams(Node *n, const TimeRange &time, const AudioParams &aparam, RenderMode::Mode m)
+    {
+      node = n;
+      range = time;
+      audio_params = aparam;
+      generate_waveforms = false;
+      clamp = true;
+      mode = m;
+    }
+
+    Node *node;
+    TimeRange range;
+    AudioParams audio_params;
+    bool generate_waveforms;
+    bool clamp;
+    RenderMode::Mode mode;
+  };
 
   /**
    * @brief Asynchronously generate a chunk of audio
@@ -94,9 +186,9 @@ public:
    *
    * This function is thread-safe.
    */
-  RenderTicketPtr RenderAudio(Node *viewer, const TimeRange& r, const AudioParams& params, RenderMode::Mode mode, bool generate_waveforms, RenderTicketPriority priority = RenderTicketPriority::kNormal);
+  RenderTicketPtr RenderAudio(const RenderAudioParams &params);
 
-  virtual void RunTicket(RenderTicketPtr ticket) const override;
+  bool RemoveTicket(RenderTicketPtr ticket);
 
   enum TicketType {
     kTypeVideo,
@@ -108,10 +200,8 @@ public:
     return backend_;
   }
 
-  static int GetNumberOfIdealConcurrentJobs()
-  {
-    return QThread::idealThreadCount();
-  }
+public slots:
+  void SetAggressiveGarbageCollection(bool enabled);
 
 signals:
 
@@ -119,6 +209,8 @@ private:
   RenderManager(QObject* parent = nullptr);
 
   virtual ~RenderManager() override;
+
+  RenderThread *CreateThread(Renderer *renderer = nullptr);
 
   static RenderManager* instance_;
 
@@ -130,7 +222,21 @@ private:
 
   ShaderCache* shader_cache_;
 
-  static constexpr auto kDecoderMaximumInactivity = 10000;
+  static constexpr auto kDecoderMaximumInactivityAggressive = 1000;
+  static constexpr auto kDecoderMaximumInactivity = 5000;
+
+  int aggressive_gc_;
+
+  QTimer *decoder_clear_timer_;
+
+  RenderThread *video_thread_;
+  RenderThread *dry_run_thread_;
+  RenderThread *audio_thread_;
+
+  std::vector<RenderThread *> waveform_threads_;
+  size_t last_waveform_thread_;
+
+  std::list<RenderThread *> render_threads_;
 
 private slots:
   void ClearOldDecoders();

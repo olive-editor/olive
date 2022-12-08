@@ -79,8 +79,6 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
 {
   ShaderJob job;
   job.Insert(value);
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-  job.SetWillChangeImageSize(false);
 
   if (TexturePtr texture = job.Get(kTextureInput).toTexture()) {
     job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture->params().width(), texture->params().height()), this));
@@ -89,7 +87,7 @@ void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &global
         || !qIsNull(job.Get(kRightInput).toDouble())
         || !qIsNull(job.Get(kTopInput).toDouble())
         || !qIsNull(job.Get(kBottomInput).toDouble())) {
-      table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+      table->Push(NodeValue::kTexture, texture->toJob(job), this);
     } else {
       table->Push(job.Get(kTextureInput));
     }
@@ -104,32 +102,35 @@ ShaderCode CropDistortNode::GetShaderCode(const ShaderRequest &request) const
 
 void CropDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
 {
-  const QVector2D &resolution = globals.resolution();
+  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+    const QVector2D &resolution = tex->virtual_resolution();
+    temp_resolution_ = resolution;
 
-  double left_pt = resolution.x() * row[kLeftInput].toDouble();
-  double top_pt = resolution.y() * row[kTopInput].toDouble();
-  double right_pt = resolution.x() * (1.0 - row[kRightInput].toDouble());
-  double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].toDouble());
-  double center_x_pt = mid(left_pt, right_pt);
-  double center_y_pt = mid(top_pt, bottom_pt);
+    double left_pt = resolution.x() * row[kLeftInput].toDouble();
+    double top_pt = resolution.y() * row[kTopInput].toDouble();
+    double right_pt = resolution.x() * (1.0 - row[kRightInput].toDouble());
+    double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].toDouble());
+    double center_x_pt = mid(left_pt, right_pt);
+    double center_y_pt = mid(top_pt, bottom_pt);
 
-  point_gizmo_[kGizmoScaleTopLeft]->SetPoint(QPointF(left_pt, top_pt));
-  point_gizmo_[kGizmoScaleTopCenter]->SetPoint(QPointF(center_x_pt, top_pt));
-  point_gizmo_[kGizmoScaleTopRight]->SetPoint(QPointF(right_pt, top_pt));
-  point_gizmo_[kGizmoScaleBottomLeft]->SetPoint(QPointF(left_pt, bottom_pt));
-  point_gizmo_[kGizmoScaleBottomCenter]->SetPoint(QPointF(center_x_pt, bottom_pt));
-  point_gizmo_[kGizmoScaleBottomRight]->SetPoint(QPointF(right_pt, bottom_pt));
-  point_gizmo_[kGizmoScaleCenterLeft]->SetPoint(QPointF(left_pt, center_y_pt));
-  point_gizmo_[kGizmoScaleCenterRight]->SetPoint(QPointF(right_pt, center_y_pt));
+    point_gizmo_[kGizmoScaleTopLeft]->SetPoint(QPointF(left_pt, top_pt));
+    point_gizmo_[kGizmoScaleTopCenter]->SetPoint(QPointF(center_x_pt, top_pt));
+    point_gizmo_[kGizmoScaleTopRight]->SetPoint(QPointF(right_pt, top_pt));
+    point_gizmo_[kGizmoScaleBottomLeft]->SetPoint(QPointF(left_pt, bottom_pt));
+    point_gizmo_[kGizmoScaleBottomCenter]->SetPoint(QPointF(center_x_pt, bottom_pt));
+    point_gizmo_[kGizmoScaleBottomRight]->SetPoint(QPointF(right_pt, bottom_pt));
+    point_gizmo_[kGizmoScaleCenterLeft]->SetPoint(QPointF(left_pt, center_y_pt));
+    point_gizmo_[kGizmoScaleCenterRight]->SetPoint(QPointF(right_pt, center_y_pt));
 
-  poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
+    poly_gizmo_->SetPolygon(QRectF(left_pt, top_pt, right_pt - left_pt, bottom_pt - top_pt));
+  }
 }
 
 void CropDistortNode::GizmoDragMove(double x_diff, double y_diff, const Qt::KeyboardModifiers &modifiers)
 {
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
-  QVector2D res = gizmo->GetGlobals().resolution();
+  QVector2D res = temp_resolution_;
   x_diff /= res.x();
   y_diff /= res.y();
 

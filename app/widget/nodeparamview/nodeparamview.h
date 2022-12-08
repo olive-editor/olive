@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "node/project/serializer/serializer.h"
 #include "nodeparamviewcontext.h"
 #include "nodeparamviewdockarea.h"
 #include "nodeparamviewitem.h"
@@ -46,8 +47,6 @@ public:
   virtual ~NodeParamView() override;
 
   void CloseContextsBelongingToProject(Project *p);
-
-  Node* GetTimeTarget() const;
 
   void DeleteSelected();
 
@@ -75,6 +74,7 @@ public:
   virtual bool CopySelected(bool cut) override;
 
   virtual bool Paste() override;
+  static bool Paste(QWidget *parent, std::function<QHash<Node *, Node*>(const ProjectSerializer::Result &)> get_existing_map_function);
 
 public slots:
   void SetContexts(const QVector<Node*> &contexts);
@@ -93,7 +93,6 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
   virtual void TimebaseChangedEvent(const rational&) override;
-  virtual void TimeChangedEvent(const rational &time) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
@@ -107,9 +106,12 @@ protected:
     return keyframe_view_ ? &keyframe_view_->GetSelectedKeyframes() : nullptr;
   }
 
-private:
-  void UpdateItemTime(const rational &time);
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const override
+  {
+    return keyframe_view_;
+  }
 
+private:
   void QueueKeyframePositionUpdate();
 
   void AddContext(Node *context);
@@ -128,6 +130,8 @@ private:
   }
 
   void ToggleSelect(NodeParamViewItem *item);
+
+  QHash<Node *, Node *> GenerateExistingPasteMap(const ProjectSerializer::Result &r);
 
   KeyframeView* keyframe_view_;
 
@@ -150,8 +154,6 @@ private:
   NodeParamViewItem* focused_node_;
   QVector<NodeParamViewItem*> selected_nodes_;
 
-  Node *time_target_;
-
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;
 
@@ -165,6 +167,7 @@ private slots:
   //void FocusChanged(QWidget *old, QWidget *now);
 
   void KeyframeViewDragged(int x, int y);
+  void KeyframeViewReleased();
 
   void NodeAddedToContext(Node *n);
 

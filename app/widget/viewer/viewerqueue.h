@@ -21,18 +21,18 @@
 #ifndef VIEWERQUEUE_H
 #define VIEWERQUEUE_H
 
-#include <QLinkedList>
-
 #include "codec/frame.h"
 
 namespace olive {
 
-struct ViewerPlaybackFrame {
+struct ViewerPlaybackFrame
+{
   rational timestamp;
   QVariant frame;
 };
 
-class ViewerQueue : public std::list<ViewerPlaybackFrame> {
+class ViewerQueue : public std::list<ViewerPlaybackFrame>
+{
 public:
   ViewerQueue() = default;
 

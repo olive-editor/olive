@@ -39,6 +39,9 @@ public:
     return output_;
   }
 
+  virtual QPainterPath shape() const override;
+  virtual QRectF boundingRect() const override;
+
 private:
   bool output_;
 

@@ -20,6 +20,7 @@
 
 #include "mainmenu.h"
 
+#include <QActionGroup>
 #include <QDesktopServices>
 #include <QEvent>
 #include <QStyleFactory>
@@ -183,6 +184,10 @@ MainMenu::MainMenu(MainWindow *parent) :
 
   sequence_disk_cache_clear_item_ = sequence_menu_->AddItem("seqcacheclear", this, &MainMenu::SequenceCacheClearTriggered);
 
+  // TEMP: Hide sequence cache items for now. Want to see if clip caching will supersede it.
+  sequence_cache_item_->setVisible(false);
+  sequence_cache_in_to_out_item_->setVisible(false);
+
   //
   // WINDOW MENU
   //
@@ -276,6 +281,11 @@ MainMenu::MainMenu(MainWindow *parent) :
   tools_menu_->addSeparator();
 
   tools_preferences_item_ = tools_menu_->AddItem("prefs", Core::instance(), &Core::DialogPreferencesShow, tr("Ctrl+,"));
+
+#ifndef NDEBUG
+  tools_magic_item_ = tools_menu_->AddItem("magic", Core::instance(), &Core::SetMagic);
+  tools_magic_item_->setCheckable(true);
+#endif
 
   //
   // HELP MENU
@@ -782,6 +792,9 @@ void MainMenu::Retranslate()
   tools_record_item_->setText(tr("Record Tool"));
   tools_snapping_item_->setText(tr("Enable Snapping"));
   tools_preferences_item_->setText(tr("Preferences"));
+#ifndef NDEBUG
+  tools_magic_item_->setText("Magic");
+#endif
 
   // Help menu
   help_menu_->setTitle(tr("&Help"));

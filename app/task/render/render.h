@@ -27,8 +27,7 @@
 #include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
 #include "task/task.h"
-#include "threading/threadticket.h"
-#include "threading/threadticketwatcher.h"
+#include "render/renderticket.h"
 
 namespace olive {
 
@@ -47,7 +46,7 @@ protected:
               FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
               const QMatrix4x4& force_matrix = QMatrix4x4(),
               VideoParams::Format force_format = VideoParams::kFormatInvalid,
-              ColorProcessorPtr force_color_output = nullptr);
+              int force_channel_count = 0, ColorProcessorPtr force_color_output = nullptr);
 
   virtual bool DownloadFrame(QThread* thread, FramePtr frame, const rational &time);
 
@@ -117,7 +116,7 @@ private:
 
   void IncrementRunningTickets();
 
-  void StartTicket(QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, ColorProcessorPtr force_color_output);
+  void StartTicket(QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, VideoParams::Format force_format, int force_channel_count, ColorProcessorPtr force_color_output);
 
   ViewerOutput* viewer_;
 

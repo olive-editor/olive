@@ -24,8 +24,10 @@
 #include <QDebug>
 #include <QFontMetrics>
 
+#include "audio/audioprocessor.h"
+#include "node/block/clip/clip.h"
 #include "node/block/gap/gap.h"
-#include "node/graph.h"
+#include "node/block/transition/transition.h"
 
 namespace olive {
 
@@ -95,17 +97,77 @@ QString Track::Description() const
             "a Sequence.");
 }
 
-TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
+Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
+{
+  if (input == kBlockInput) {
+    if (IsMuted() || blocks_.empty() || r.in() >= track_length() || r.out() <= 0) {
+      return ActiveElements::kNoElements;
+    } else {
+      int start = GetBlockIndexAtTime(r.in());
+      int end = GetBlockIndexAtTime(r.out());
+
+      if (start == -1) {
+        start = 0;
+      }
+      if (end == -1) {
+        end = blocks_.size()-1;
+      }
+
+      if (blocks_.at(end)->in() == r.out()) {
+        end--;
+      }
+
+      ActiveElements a;
+      for (int i=start; i<=end; i++) {
+        Block *b = blocks_.at(i);
+        if (b->is_enabled() && (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b))) {
+          a.add(GetArrayIndexFromCacheIndex(i));
+        }
+      }
+
+      if (a.elements().empty()) {
+        return ActiveElements::kNoElements;
+      } else {
+        return a;
+      }
+    }
+  } else {
+    return super::GetActiveElementsAtTime(input, r);
+  }
+}
+
+void Track::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  if (this->type() == Track::kVideo) {
+    // Just pass straight through
+    NodeValueArray a = value[kBlockInput].toArray();
+    if (!a.empty()) {
+      table->Push(a.begin()->second);
+    }
+  } else if (this->type() == Track::kAudio) {
+    // Audio
+    ProcessAudioTrack(value, globals, table);
+  }
+}
+
+TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const
 {
   if (input == kBlockInput && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
     if (cache_index > -1) {
-      return TransformRangeForBlock(blocks_.at(cache_index), input_time);
+      TimeRange r = input_time;
+      Block *b = blocks_.at(cache_index);
+
+      if (clamp) {
+        r.set_range(std::max(r.in(), b->in()), std::min(r.out(), b->out()));
+      }
+
+      return TransformRangeForBlock(b, r);
     }
   }
 
-  return Node::InputTimeAdjustment(input, element, input_time);
+  return Node::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange Track::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
@@ -129,7 +191,7 @@ const double &Track::GetTrackHeight() const
 void Track::SetTrackHeight(const double &height)
 {
   track_height_ = height;
-  emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
+  emit TrackHeightChanged(track_height_);
 }
 
 void Track::InputConnectedEvent(const QString &input, int element, Node *output)
@@ -352,56 +414,31 @@ Block *Track::NearestBlockAfter(const rational &time) const
   return nullptr;
 }
 
-Block *Track::BlockAtTime(const rational &time) const
+bool Track::IsRangeFree(const TimeRange &range) const
 {
-  if (IsMuted() || time > track_length() || blocks_.isEmpty()) {
-    return nullptr;
+  Block *b = NearestBlockBeforeOrAt(range.in());
+  if (!b) {
+    // No block here, assume track is empty here
+    return true;
   }
 
-  // Use binary search to find block at time
-  Block* using_block = nullptr;
+  if (!dynamic_cast<GapBlock*>(b)) {
+    // There's a block at or around the start point that isn't a gap, range is not free
+    return false;
+  }
 
-  int low = 0;
-  int high = blocks_.size() - 1;
-  while (low <= high) {
-    int mid = low + (high - low) / 2;
-
-    Block* block = blocks_.at(mid);
-    if (block->in() <= time && block->out() > time) {
-      using_block = block;
+  while ((b = b->next())) {
+    if (b->in() >= range.out()) {
+      // This block is after the range, no longer relevant
       break;
-    } else if (block->out() <= time) {
-      low = mid + 1;
-    } else {
-      high = mid - 1;
+    } else if (!dynamic_cast<GapBlock*>(b)) {
+      // Found a block in this range, range is not free
+      return false;
     }
   }
 
-  if (using_block && !using_block->is_enabled()) {
-    using_block = nullptr;
-  }
-
-  return using_block;
-}
-
-QVector<Block *> Track::BlocksAtTimeRange(const TimeRange &range) const
-{
-  QVector<Block*> list;
-
-  if (IsMuted()) {
-    return list;
-  }
-
-  foreach (Block* block, blocks_) {
-    if (block
-        && block->is_enabled()
-        && block->out() > range.in()
-        && block->in() < range.out()) {
-      list.append(block);
-    }
-  }
-
-  return list;
+  // If we get here, we couldn't find anything in the way of this range
+  return true;
 }
 
 void Track::InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options)
@@ -577,6 +614,124 @@ int Track::GetArrayIndexFromCacheIndex(int index) const
 int Track::GetCacheIndexFromArrayIndex(int index) const
 {
   return block_array_indexes_.indexOf(index);
+}
+
+int Track::GetBlockIndexAtTime(const rational &time) const
+{
+  if (time < 0 || time >= track_length()) {
+    return -1;
+  }
+
+  // Use binary search to find block at time
+  int low = 0;
+  int high = blocks_.size() - 1;
+  while (low <= high) {
+    int mid = low + (high - low) / 2;
+
+    Block* block = blocks_.at(mid);
+    if (block->in() <= time && block->out() > time) {
+      return mid;
+    } else if (block->out() <= time) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  return -1;
+}
+
+void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+{
+  const TimeRange &range = globals.time();
+
+  // All these blocks will need to output to a buffer so we create one here
+  SampleBuffer block_range_buffer(globals.aparams(), range.length());
+  block_range_buffer.silence();
+
+  // Loop through active blocks retrieving their audio
+  NodeValueArray arr = value[kBlockInput].toArray();
+
+  for (auto it=arr.cbegin(); it!=arr.cend(); it++) {
+    Block *b = blocks_.at(GetCacheIndexFromArrayIndex(it->first));
+
+    TimeRange range_for_block(qMax(b->in(), range.in()),
+                              qMin(b->out(), range.out()));
+
+    qint64 source_offset = 0;
+    qint64 destination_offset = globals.aparams().time_to_samples(range_for_block.in() - range.in());
+    qint64 max_dest_sz = globals.aparams().time_to_samples(range_for_block.length());
+
+    // Destination buffer
+    SampleBuffer samples_from_this_block = it->second.toSamples();
+
+    if (samples_from_this_block.is_allocated()) {
+      // If this is a clip, we might have extra speed/reverse information
+      if (ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b)) {
+        double speed_value = clip_cast->speed();
+        bool reversed = clip_cast->reverse();
+
+        if (qIsNull(speed_value)) {
+          // Just silence, don't think there's any other practical application of 0 speed audio
+          samples_from_this_block.silence();
+        } else if (!qFuzzyCompare(speed_value, 1.0)) {
+          if (clip_cast->maintain_audio_pitch()) {
+            AudioProcessor processor;
+
+            if (processor.Open(samples_from_this_block.audio_params(), samples_from_this_block.audio_params(), speed_value)) {
+              AudioProcessor::Buffer out;
+
+              // FIXME: This is not the best way to do this, the TempoProcessor works best
+              //        when it's given a continuous stream of audio, which is challenging
+              //        in our current "modular" audio system. This should still work reasonably
+              //        well on export (assuming audio is all generated at once on export), but
+              //        users may hear clicks and pops in the audio during preview due to this
+              //        approach.
+              int r = processor.Convert(samples_from_this_block.to_raw_ptrs().data(), samples_from_this_block.sample_count(), nullptr);
+
+              if (r < 0) {
+                qCritical() << "Failed to change tempo of audio:" << r;
+              } else {
+                processor.Flush();
+
+                processor.Convert(nullptr, 0, &out);
+
+                if (!out.empty()) {
+                  int nb_samples = out.front().size() * samples_from_this_block.audio_params().bytes_per_sample_per_channel();
+
+                  if (nb_samples) {
+                    SampleBuffer new_samples(samples_from_this_block.audio_params(), nb_samples);
+
+                    for (int i=0; i<out.size(); i++) {
+                      memcpy(new_samples.data(i), out[i].data(), out[i].size());
+                    }
+
+                    samples_from_this_block = new_samples;
+                  }
+                }
+              }
+            }
+          } else {
+            // Multiply time
+            samples_from_this_block.speed(speed_value);
+          }
+        }
+
+        if (reversed) {
+          samples_from_this_block.reverse();
+        }
+      }
+
+      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count() - source_offset));
+
+      // Copy samples into destination buffer
+      for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
+        block_range_buffer.set(i, samples_from_this_block.data(i) + source_offset, destination_offset, copy_length);
+      }
+    }
+  }
+
+  table->Push(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), this);
 }
 
 void Track::BlockLengthChanged()

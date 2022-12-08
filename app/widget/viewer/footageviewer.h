@@ -32,15 +32,13 @@ class FootageViewerWidget : public ViewerWidget
 public:
   FootageViewerWidget(QWidget* parent = nullptr);
 
-protected:
-  virtual void ConnectNodeEvent(ViewerOutput *) override;
-
-  virtual void DisconnectNodeEvent(ViewerOutput *) override;
+  void OverrideWorkArea(const TimeRange &r);
+  void ResetWorkArea();
 
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
 
-  QHash<ViewerOutput*, rational> cached_timestamps_;
+  TimelineWorkArea *override_workarea_;
 
 private slots:
   void StartFootageDrag();

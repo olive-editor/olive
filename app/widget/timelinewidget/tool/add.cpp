@@ -130,9 +130,9 @@ Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, 
     clip = new SubtitleBlock();
   } else {
     clip = new ClipBlock();
+    clip->SetLabel(olive::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
   }
   clip->set_length_and_media_out(length);
-  clip->SetLabel(olive::Tool::GetAddableObjectName(Core::instance()->GetSelectedAddableObject()));
 
   NodeGraph* graph = sequence->parent();
 

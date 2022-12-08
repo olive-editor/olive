@@ -112,6 +112,8 @@ public slots:
 
   void CenterOnNode(olive::Node *n);
 
+  void LabelSelectedNodes();
+
 signals:
   void NodesSelected(const QVector<Node*>& nodes);
 
@@ -233,6 +235,8 @@ private:
 
   static const double kMinimumScale;
 
+  static const int kMaximumContexts;
+
 private slots:
   /**
    * @brief Receiver for when the scene's selected items change
@@ -274,8 +278,6 @@ private slots:
   void UngroupNodes();
 
   void ShowNodeProperties();
-
-  void LabelSelectedNodes();
 
   void ItemAboutToBeDeleted(NodeViewItem *item);
 

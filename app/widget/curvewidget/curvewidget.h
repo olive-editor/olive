@@ -65,17 +65,21 @@ public slots:
   void SetNodes(const QVector<Node *> &nodes);
 
 protected:
-  virtual void TimeChangedEvent(const rational &) override;
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void TimeTargetChangedEvent(Node* target) override;
+  virtual void TimeTargetChangedEvent(ViewerOutput *target) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
   virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const override
   {
     return &view_->GetKeyframeTracks();
+  }
+
+  virtual const TimeTargetObject *GetKeyframeTimeTarget() const override
+  {
+    return view_;
   }
 
   virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
@@ -89,8 +93,6 @@ private:
   void SetKeyframeButtonChecked(bool checked);
 
   void SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type);
-
-  void UpdateBridgeTime(const rational &time);
 
   void ConnectInput(Node *node, const QString &input, int element);
 
@@ -122,8 +124,7 @@ private slots:
   void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
 
   void KeyframeViewDragged(int x, int y);
-
-  void CatchUpYScrollToPoint(int point);
+  void KeyframeViewReleased();
 
 };
 

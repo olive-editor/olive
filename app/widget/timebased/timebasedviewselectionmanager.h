@@ -26,10 +26,12 @@
 #include <QRubberBand>
 #include <QToolTip>
 
+#include "common/qtutils.h"
 #include "common/rational.h"
 #include "common/timecodefunctions.h"
 #include "timebasedview.h"
 #include "timebasedwidget.h"
+#include "widget/timetarget/timetarget.h"
 
 namespace olive {
 
@@ -158,8 +160,14 @@ public:
     return !dragging_.empty();
   }
 
-  void DragStart(T *initial_item, QMouseEvent *event)
+  void DragStart(T *initial_item, QMouseEvent *event, TimeTargetObject *target = nullptr)
   {
+    if (event->button() != Qt::LeftButton) {
+      return;
+    }
+
+    time_target_ = target;
+
     initial_drag_item_ = initial_item;
 
     dragging_.resize(selected_.size());
@@ -170,6 +178,13 @@ public:
       snap_points_.resize(selected_.size());
     }
 
+    if (target) {
+      time_targets_.resize(snap_points_.size());
+      memset(time_targets_.data(), 0, time_targets_.size() * sizeof(Node*));
+    } else {
+      time_targets_.clear();
+    }
+
     for (size_t i=0; i<selected_.size(); i++) {
       T *obj = selected_.at(i);
 
@@ -177,9 +192,17 @@ public:
         dragging_[i] = obj->time().in();
         snap_points_[i] = obj->time().in();
         snap_points_[i+selected_.size()] = obj->time().out();
+
+        if (target) {
+          time_targets_[i] = time_targets_[i+selected_.size()] = QtUtils::GetParentOfType<Node>(obj);
+        }
       } else {
         dragging_[i] = obj->time();
         snap_points_[i] = obj->time();
+
+        if (target) {
+          time_targets_[i] = QtUtils::GetParentOfType<Node>(obj);
+        }
       }
     }
 
@@ -188,8 +211,18 @@ public:
 
   void SnapPoints(rational *movement)
   {
+    std::vector<rational> copy = snap_points_;
+
+    if (time_target_) {
+      for (size_t i=0; i<copy.size(); i++) {
+        if (Node *parent = time_targets_[i]) {
+          copy[i] = time_target_->GetAdjustedTime(parent, time_target_->GetTimeTarget(), copy[i], Node::kTransformTowardsOutput);
+        }
+      }
+    }
+
     if (Core::instance()->snapping() && view_->GetSnapService()) {
-      view_->GetSnapService()->SnapPoint(snap_points_, movement, snap_mask_);
+      view_->GetSnapService()->SnapPoint(copy, movement, snap_mask_);
     }
   }
 
@@ -285,6 +318,11 @@ public:
 
     QToolTip::hideText();
     QToolTip::showText(QCursor::pos(), tip);
+  }
+
+  void DragMove(QMouseEvent *event, TimeTargetObject *target)
+  {
+    return DragMove(event, QString(), target);
   }
 
   void DragStop(MultiUndoCommand *command)
@@ -399,6 +437,7 @@ private:
 
   std::vector<rational> dragging_;
   std::vector<rational> snap_points_;
+  std::vector<Node*> time_targets_;
 
   T *initial_drag_item_;
 
@@ -411,6 +450,8 @@ private:
   std::vector<T*> rubberband_preselected_;
 
   TimeBasedWidget::SnapMask snap_mask_;
+
+  TimeTargetObject *time_target_;
 
 };
 

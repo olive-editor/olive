@@ -141,9 +141,9 @@ QVector4D MathNodeBase::RetrieveVector(const NodeValue &val)
   // QVariant doesn't know that QVector*D can convert themselves so we do it here
   switch (val.type()) {
   case NodeValue::kVec2:
-    return val.toVec2();
+    return QVector4D(val.toVec2());
   case NodeValue::kVec3:
-    return val.toVec3();
+    return QVector4D(val.toVec3());
   case NodeValue::kVec4:
   default:
     return val.toVec4();
@@ -165,6 +165,19 @@ void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type typ
   default:
     break;
   }
+}
+
+QString MathNodeBase::GetOperationName(Operation o)
+{
+  switch (o) {
+  case kOpAdd: return tr("Add");
+  case kOpSubtract: return tr("Subtract");
+  case kOpMultiply: return tr("Multiply");
+  case kOpDivide: return tr("Divide");
+  case kOpPower: return tr("Power");
+  }
+
+  return QString();
 }
 
 void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end)
@@ -301,21 +314,21 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
     SampleBuffer samples_a = val_a.toSamples();
     SampleBuffer samples_b = val_b.toSamples();
 
-    int max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
-    int min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
+    size_t max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
+    size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
     SampleBuffer mixed_samples = SampleBuffer(samples_a.audio_params(), max_samples);
 
     for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
       // Mix samples that are in both buffers
-      for (int j=0;j<min_samples;j++) {
+      for (size_t j=0;j<min_samples;j++) {
         mixed_samples.data(i)[j] = PerformAll<float, float>(operation, samples_a.data(i)[j], samples_b.data(i)[j]);
       }
     }
 
     if (max_samples > min_samples) {
       // Fill in remainder space with 0s
-      int remainder = max_samples - min_samples;
+      size_t remainder = max_samples - min_samples;
 
       const SampleBuffer &larger_buffer = (max_samples == samples_a.sample_count()) ? samples_a : samples_b;
 
@@ -358,7 +371,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       }
     } else if (pairing == kPairTextureMatrix) {
       // Only allow matrix multiplication
-      const QVector2D &sequence_res = globals.resolution();
+      const QVector2D &sequence_res = globals.nonsquare_resolution();
       QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
 
       QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.toMatrix(),
@@ -372,9 +385,6 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
         // Replace with adjusted matrix
         job.Insert(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
                         NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
-
-        // It's likely an alpha channel will result from this operation
-        job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
       }
     }
 
@@ -383,7 +393,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       output->Push(texture_val);
     } else {
       // Push shader job
-      output->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+      output->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), job), this);
     }
     break;
   }
@@ -413,7 +423,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
         output->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
       } else {
-        SampleJob job(val_a.type() == NodeValue::kSamples ? val_a : val_b);
+        SampleJob job(globals.time(), val_a.type() == NodeValue::kSamples ? val_a : val_b);
         job.Insert(number_param, NodeValue(NodeValue::kFloat, number, this));
         output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
       }

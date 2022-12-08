@@ -32,7 +32,7 @@ PathWidget::PathWidget(const QString &path, QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   path_edit_ = new QLineEdit();
   path_edit_->setText(path);

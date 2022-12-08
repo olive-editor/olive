@@ -30,7 +30,7 @@ TimelineAndTrackView::TimelineAndTrackView(Qt::Alignment vertical_alignment, QWi
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   splitter_ = new QSplitter(Qt::Horizontal);
   splitter_->setChildrenCollapsible(false);

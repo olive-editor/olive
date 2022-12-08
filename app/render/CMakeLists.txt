@@ -24,6 +24,9 @@ set(OLIVE_SOURCES
   render/audioparams.h
   render/audioplaybackcache.cpp
   render/audioplaybackcache.h
+  render/audiowaveformcache.cpp
+  render/audiowaveformcache.h
+  render/cancelatom.h
   render/color.cpp
   render/color.h
   render/colorprocessor.cpp
@@ -35,6 +38,7 @@ set(OLIVE_SOURCES
   render/framehashcache.h
   render/framemanager.cpp
   render/framemanager.h
+  render/loopmode.h
   render/managedcolor.cpp
   render/managedcolor.h
   render/playbackcache.cpp
@@ -43,11 +47,11 @@ set(OLIVE_SOURCES
   render/previewaudiodevice.h
   render/previewautocacher.cpp
   render/previewautocacher.h
+  render/projectcopier.cpp
+  render/projectcopier.h
   render/renderer.cpp
   render/renderer.h
   render/rendercache.h
-  render/rendererthreadwrapper.cpp
-  render/rendererthreadwrapper.h
   render/renderjobtracker.cpp
   render/renderjobtracker.h
   render/rendermanager.cpp
@@ -55,6 +59,8 @@ set(OLIVE_SOURCES
   render/rendermodes.h
   render/renderprocessor.cpp
   render/renderprocessor.h
+  render/renderticket.cpp
+  render/renderticket.h
   render/shadercode.h
   render/subtitleparams.cpp
   render/subtitleparams.h

@@ -27,11 +27,8 @@
 
 #include "common/bezier.h"
 #include "common/lerp.h"
-#include "common/timecodefunctions.h"
-#include "common/xmlutils.h"
 #include "core.h"
 #include "config/config.h"
-#include "node/project/footage/footage.h"
 #include "project/project.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
@@ -48,13 +45,17 @@ Node::Node() :
   can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
-  cache_result_(false),
-  flags_(kNone)
+  flags_(kNone),
+  caches_enabled_(true)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
 
   video_cache_ = new FrameHashCache(this);
+  thumbnail_cache_ = new ThumbnailCache(this);
   audio_cache_ = new AudioPlaybackCache(this);
+  waveform_cache_ = new AudioWaveformCache(this);
+
+  waveform_cache_->SetSavingEnabled(false);
 }
 
 Node::~Node()
@@ -232,6 +233,14 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   }
 }
 
+void Node::CopyCacheUuidsFrom(Node *n)
+{
+  video_cache_->SetUuid(n->video_cache_->GetUuid());
+  audio_cache_->SetUuid(n->audio_cache_->GetUuid());
+  thumbnail_cache_->SetUuid(n->thumbnail_cache_->GetUuid());
+  waveform_cache_->SetUuid(n->waveform_cache_->GetUuid());
+}
+
 QString Node::GetInputName(const QString &id) const
 {
   const Input* i = GetInternalInputData(id);
@@ -239,7 +248,7 @@ QString Node::GetInputName(const QString &id) const
   if (i) {
     return i->human_name;
   } else {
-    ReportInvalidInput("get name of", id);
+    ReportInvalidInput("get name of", id, -1);
     return QString();
   }
 }
@@ -266,7 +275,7 @@ bool Node::IsInputKeyframing(const QString &input, int element) const
   if (imm) {
     return imm->is_keyframing();
   } else {
-    ReportInvalidInput("get keyframing state of", input);
+    ReportInvalidInput("get keyframing state of", input, element);
     return false;
   }
 }
@@ -285,7 +294,7 @@ void Node::SetInputIsKeyframing(const QString &input, bool e, int element)
 
     emit KeyframeEnableChanged(NodeInput(this, input, element), e);
   } else {
-    ReportInvalidInput("set keyframing state of", input);
+    ReportInvalidInput("set keyframing state of", input, element);
   }
 }
 
@@ -312,7 +321,7 @@ bool Node::IsUsingStandardValue(const QString &input, int track, int element) co
   if (imm) {
     return imm->is_using_standard_value(track);
   } else {
-    ReportInvalidInput("determine whether using standard value in", input);
+    ReportInvalidInput("determine whether using standard value in", input, element);
     return true;
   }
 }
@@ -324,7 +333,7 @@ NodeValue::Type Node::GetInputDataType(const QString &id) const
   if (i) {
     return i->type;
   } else {
-    ReportInvalidInput("get data type of", id);
+    ReportInvalidInput("get data type of", id, -1);
     return NodeValue::kNone;
   }
 }
@@ -343,7 +352,7 @@ void Node::SetInputDataType(const QString &id, const NodeValue::Type &type)
 
     emit InputDataTypeChanged(id, type);
   } else {
-    ReportInvalidInput("set data type of", id);
+    ReportInvalidInput("set data type of", id, -1);
   }
 }
 
@@ -354,7 +363,7 @@ bool Node::HasInputProperty(const QString &id, const QString &name) const
   if (i) {
     return i->properties.contains(name);
   } else {
-    ReportInvalidInput("get property of", id);
+    ReportInvalidInput("get property of", id, -1);
     return false;
   }
 }
@@ -366,7 +375,7 @@ QHash<QString, QVariant> Node::GetInputProperties(const QString &id) const
   if (i) {
     return i->properties;
   } else {
-    ReportInvalidInput("get property table of", id);
+    ReportInvalidInput("get property table of", id, -1);
     return QHash<QString, QVariant>();
   }
 }
@@ -378,7 +387,7 @@ QVariant Node::GetInputProperty(const QString &id, const QString &name) const
   if (i) {
     return i->properties.value(name);
   } else {
-    ReportInvalidInput("get property of", id);
+    ReportInvalidInput("get property of", id, -1);
     return QVariant();
   }
 }
@@ -392,7 +401,7 @@ void Node::SetInputProperty(const QString &id, const QString &name, const QVaria
 
     emit InputPropertyChanged(id, name, value);
   } else {
-    ReportInvalidInput("set property of", id);
+    ReportInvalidInput("set property of", id, -1);
   }
 }
 
@@ -536,7 +545,7 @@ SplitValue Node::GetSplitDefaultValue(const QString &input) const
   if (i) {
     return i->default_value;
   } else {
-    ReportInvalidInput("retrieve default value of", input);
+    ReportInvalidInput("retrieve default value of", input, -1);
     return SplitValue();
   }
 }
@@ -565,7 +574,7 @@ void Node::SetSplitDefaultValue(const QString &input, const SplitValue &val)
   if (i) {
     i->default_value = val;
   } else {
-    ReportInvalidInput("set default value of", input);
+    ReportInvalidInput("set default value of", input, -1);
   }
 }
 
@@ -578,7 +587,7 @@ void Node::SetSplitDefaultValueOnTrack(const QString &input, const QVariant &val
       i->default_value[track] = val;
     }
   } else {
-    ReportInvalidInput("set default value on track of", input);
+    ReportInvalidInput("set default value on track of", input, -1);
   }
 }
 
@@ -594,7 +603,7 @@ QVector<NodeKeyframe *> Node::GetKeyframesAtTime(const QString &input, const rat
   if (imm) {
     return imm->get_keyframe_at_time(time);
   } else {
-    ReportInvalidInput("get keyframes at time from", input);
+    ReportInvalidInput("get keyframes at time from", input, element);
     return QVector<NodeKeyframe*>();
   }
 }
@@ -606,7 +615,7 @@ NodeKeyframe *Node::GetKeyframeAtTimeOnTrack(const QString &input, const rationa
   if (imm) {
     return imm->get_keyframe_at_time_on_track(time, track);
   } else {
-    ReportInvalidInput("get keyframe at time on track from", input);
+    ReportInvalidInput("get keyframe at time on track from", input, element);
     return nullptr;
   }
 }
@@ -618,7 +627,7 @@ NodeKeyframe::Type Node::GetBestKeyframeTypeForTimeOnTrack(const QString &input,
   if (imm) {
     return imm->get_best_keyframe_type_for_time(time, track);
   } else {
-    ReportInvalidInput("get closest keyframe before a time from", input);
+    ReportInvalidInput("get closest keyframe before a time from", input, element);
     return NodeKeyframe::kDefaultType;
   }
 }
@@ -635,7 +644,7 @@ NodeKeyframe *Node::GetEarliestKeyframe(const QString &id, int element) const
   if (imm) {
     return imm->get_earliest_keyframe();
   } else {
-    ReportInvalidInput("get earliest keyframe from", id);
+    ReportInvalidInput("get earliest keyframe from", id, element);
     return nullptr;
   }
 }
@@ -647,7 +656,7 @@ NodeKeyframe *Node::GetLatestKeyframe(const QString &id, int element) const
   if (imm) {
     return imm->get_latest_keyframe();
   } else {
-    ReportInvalidInput("get latest keyframe from", id);
+    ReportInvalidInput("get latest keyframe from", id, element);
     return nullptr;
   }
 }
@@ -659,7 +668,7 @@ NodeKeyframe *Node::GetClosestKeyframeBeforeTime(const QString &id, const ration
   if (imm) {
     return imm->get_closest_keyframe_before_time(time);
   } else {
-    ReportInvalidInput("get closest keyframe before a time from", id);
+    ReportInvalidInput("get closest keyframe before a time from", id, element);
     return nullptr;
   }
 }
@@ -671,7 +680,7 @@ NodeKeyframe *Node::GetClosestKeyframeAfterTime(const QString &id, const rationa
   if (imm) {
     return imm->get_closest_keyframe_after_time(time);
   } else {
-    ReportInvalidInput("get closest keyframe after a time from", id);
+    ReportInvalidInput("get closest keyframe after a time from", id, element);
     return nullptr;
   }
 }
@@ -683,7 +692,7 @@ bool Node::HasKeyframeAtTime(const QString &id, const rational &time, int elemen
   if (imm) {
     return imm->has_keyframe_at_time(time);
   } else {
-    ReportInvalidInput("determine if it has a keyframe at a time from", id);
+    ReportInvalidInput("determine if it has a keyframe at a time from", id, element);
     return false;
   }
 }
@@ -707,7 +716,7 @@ SplitValue Node::GetSplitStandardValue(const QString &id, int element) const
   if (imm) {
     return imm->get_split_standard_value();
   } else {
-    ReportInvalidInput("get standard value of", id);
+    ReportInvalidInput("get standard value of", id, element);
     return SplitValue();
   }
 }
@@ -719,7 +728,7 @@ QVariant Node::GetSplitStandardValueOnTrack(const QString &input, int track, int
   if (imm) {
     return imm->get_split_standard_value_on_track(track);
   } else {
-    ReportInvalidInput("get standard value of", input);
+    ReportInvalidInput("get standard value of", input, element);
     return QVariant();
   }
 }
@@ -746,7 +755,7 @@ void Node::SetSplitStandardValue(const QString &id, const SplitValue &value, int
       }
     }
   } else {
-    ReportInvalidInput("set standard value of", id);
+    ReportInvalidInput("set standard value of", id, element);
   }
 }
 
@@ -762,7 +771,7 @@ void Node::SetSplitStandardValueOnTrack(const QString &id, int track, const QVar
       ParameterValueChanged(id, element, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
     }
   } else {
-    ReportInvalidInput("set standard value of", id);
+    ReportInvalidInput("set standard value of", id, element);
   }
 }
 
@@ -861,7 +870,7 @@ int Node::InputArraySize(const QString &id) const
   if (i) {
     return i->array_size;
   } else {
-    ReportInvalidInput("retrieve array size of", id);
+    ReportInvalidInput("retrieve array size of", id, -1);
     return 0;
   }
 }
@@ -902,7 +911,7 @@ InputFlags Node::GetInputFlags(const QString &input) const
   if (i) {
     return i->flags;
   } else {
-    ReportInvalidInput("retrieve flags of", input);
+    ReportInvalidInput("retrieve flags of", input, -1);
     return InputFlags(kInputFlagNormal);
   }
 }
@@ -915,7 +924,7 @@ void Node::SetInputFlags(const QString &input, const InputFlags &f)
     i->flags = f;
     emit InputFlagsChanged(input, i->flags);
   } else {
-    ReportInvalidInput("set flags of", input);
+    ReportInvalidInput("set flags of", input, -1);
   }
 }
 
@@ -932,19 +941,25 @@ void Node::InvalidateCache(const TimeRange &range, const QString &from, int elem
   Q_UNUSED(from)
   Q_UNUSED(element)
 
-  if (range.in() != range.out()) {
-    if (video_cache_->IsEnabled()) {
-      video_frame_cache()->Invalidate(range);
-    }
-    if (audio_cache_->IsEnabled()) {
-      audio_playback_cache()->Invalidate(range);
+  if (AreCachesEnabled()) {
+    if (range.in() != range.out()) {
+      TimeRange vr = range.Intersected(GetVideoCacheRange());
+      if (vr.length() != 0) {
+        video_frame_cache()->Invalidate(vr);
+        thumbnail_cache()->Invalidate(vr);
+      }
+      TimeRange ar = range.Intersected(GetAudioCacheRange());
+      if (ar.length() != 0) {
+        audio_playback_cache()->Invalidate(ar);
+        waveform_cache()->Invalidate(ar);
+      }
     }
   }
 
   SendInvalidateCache(range, options);
 }
 
-TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time) const
+TimeRange Node::InputTimeAdjustment(const QString &, int, const TimeRange &input_time, bool clamp) const
 {
   // Default behavior is no time adjustment at all
   return input_time;
@@ -1209,7 +1224,7 @@ void Node::RemoveInput(const QString &id)
   int index = input_ids_.indexOf(id);
 
   if (index == -1) {
-    ReportInvalidInput("remove", id);
+    ReportInvalidInput("remove", id, -1);
     return;
   }
 
@@ -1219,9 +1234,9 @@ void Node::RemoveInput(const QString &id)
   emit InputRemoved(id);
 }
 
-void Node::ReportInvalidInput(const char *attempted_action, const QString& id) const
+void Node::ReportInvalidInput(const char *attempted_action, const QString& id, int element) const
 {
-  qWarning() << "Failed to" << attempted_action << "parameter" << id
+  qWarning() << "Failed to" << attempted_action << "parameter" << id << "element" << element
              << "in node" << this->id() << "- input doesn't exist";
 }
 
@@ -1232,7 +1247,7 @@ NodeInputImmediate *Node::CreateImmediate(const QString &input)
   if (i) {
     return new NodeInputImmediate(i->type, i->default_value);
   } else {
-    ReportInvalidInput("create immediate", input);
+    ReportInvalidInput("create immediate", input, -1);
     return nullptr;
   }
 }
@@ -1242,7 +1257,7 @@ void Node::ArrayResizeInternal(const QString &id, int size)
   Input* imm = GetInternalInputData(id);
 
   if (!imm) {
-    ReportInvalidInput("set array size", id);
+    ReportInvalidInput("set array size", id, -1);
     return;
   }
 
@@ -1272,6 +1287,26 @@ int Node::GetInternalInputArraySize(const QString &input)
   return array_immediates_.value(input).size();
 }
 
+void FindWaysNodeArrivesHereRecursively(const Node *output, const Node *input, QVector<NodeInput> &v)
+{
+  for (auto it=input->input_connections().cbegin(); it!=input->input_connections().cend(); it++) {
+    if (it->second == output) {
+      v.append(it->first);
+    } else {
+      FindWaysNodeArrivesHereRecursively(output, it->second, v);
+    }
+  }
+}
+
+QVector<NodeInput> Node::FindWaysNodeArrivesHere(const Node *output) const
+{
+  QVector<NodeInput> v;
+
+  FindWaysNodeArrivesHereRecursively(output, this, v);
+
+  return v;
+}
+
 void Node::SetInputName(const QString &id, const QString &name)
 {
   Input* i = GetInternalInputData(id);
@@ -1281,7 +1316,7 @@ void Node::SetInputName(const QString &id, const QString &name)
 
     emit InputNameChanged(id, name);
   } else {
-    ReportInvalidInput("set name of", id);
+    ReportInvalidInput("set name of", id, -1);
   }
 }
 
@@ -1408,8 +1443,8 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
     }
   }
 
-  foreach (const NodeKeyframeTrack& track, src->GetImmediate(input, src_element)->keyframe_tracks()) {
-    foreach (NodeKeyframe* key, track) {
+  for (const NodeKeyframeTrack& track : src->GetImmediate(input, src_element)->keyframe_tracks()) {
+    for (NodeKeyframe* key : track) {
       NodeKeyframe *copy = key->copy(dst_element, command ? nullptr : dst);
       if (command) {
         command->add_child(new NodeParamInsertKeyframeCommand(dst, copy));
@@ -1520,64 +1555,6 @@ void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
   Q_UNUSED(job)
 }
 
-bool Node::OutputsTo(Node *n, bool recursively, const OutputConnections &ignore_edges, const OutputConnection &added_edge) const
-{
-  for (const OutputConnection& conn : output_connections_) {
-    if (std::find(ignore_edges.cbegin(), ignore_edges.cend(), conn) != ignore_edges.cend()) {
-      // If this edge is in the "ignore edges" list, skip it
-      continue;
-    }
-
-    Node* connected = conn.second.node();
-
-    if (connected == n) {
-      return true;
-    } else if (recursively && connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
-      return true;
-    } else if (added_edge.first == this) {
-      Node *proposed_connected = added_edge.second.node();
-
-      if (proposed_connected == n) {
-        return true;
-      } else if (recursively && proposed_connected->OutputsTo(n, recursively, ignore_edges, added_edge)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-bool Node::OutputsTo(const QString &id, bool recursively) const
-{
-  for (const OutputConnection& conn : output_connections_) {
-    Node* connected = conn.second.node();
-
-    if (connected->id() == id) {
-      return true;
-    } else if (recursively && connected->OutputsTo(id, recursively)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool Node::OutputsTo(const NodeInput &input, bool recursively) const
-{
-  for (const OutputConnection& conn : output_connections_) {
-    const NodeInput& connected = conn.second;
-
-    if (connected == input) {
-      return true;
-    } else if (recursively && connected.node()->OutputsTo(input, recursively)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
@@ -1606,28 +1583,6 @@ bool Node::InputsFrom(const QString &id, bool recursively) const
   }
 
   return false;
-}
-
-int Node::GetNumberOfRoutesTo(Node *n) const
-{
-  bool outputs_directly = false;
-  int routes = 0;
-
-  foreach (const OutputConnection& conn, output_connections_) {
-    Node* connected_node = conn.second.node();
-
-    if (connected_node == n) {
-      outputs_directly = true;
-    } else {
-      routes += connected_node->GetNumberOfRoutesTo(n);
-    }
-  }
-
-  if (outputs_directly) {
-    routes++;
-  }
-
-  return routes;
 }
 
 void Node::DisconnectAll()
@@ -1677,42 +1632,33 @@ QString Node::GetCategoryName(const CategoryID &c)
   return tr("Uncategorized");
 }
 
-QVector<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, bool input_dir)
+TimeRange Node::TransformTimeTo(TimeRange time, Node *target, TransformTimeDirection dir, int path_index)
 {
-  QVector<TimeRange> paths_found;
+  Node *from = this;
+  Node *to = target;
 
-  if (input_dir) {
-    // If this input is connected, traverse it to see if we stumble across the specified `node`
-    for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-      TimeRange input_adjustment = InputTimeAdjustment(it->first.input(), it->first.element(), time);
-      Node* connected = it->second;
+  if (dir == kTransformTowardsInput) {
+    std::swap(from, to);
+  }
 
-      if (connected == target) {
-        // We found the target, no need to keep traversing
-        if (!paths_found.contains(input_adjustment)) {
-          paths_found.append(input_adjustment);
-        }
-      } else {
-        // We did NOT find the target, traverse this
-        paths_found.append(connected->TransformTimeTo(input_adjustment, target, input_dir));
+  std::list<NodeInput> path = FindPath(from, to, path_index);
+
+  if (!path.empty()) {
+    if (dir == kTransformTowardsInput) {
+      for (auto it=path.crbegin(); it!=path.crend(); it++) {
+        const NodeInput &i = (*it);
+        time = i.node()->InputTimeAdjustment(i.input(), i.element(), time, false);
       }
-    }
-  } else {
-    // If this input is connected, traverse it to see if we stumble across the specified `node`
-    foreach (const OutputConnection& conn, output_connections_) {
-      Node* connected_node = conn.second.node();
-
-      TimeRange output_adjustment = connected_node->OutputTimeAdjustment(conn.second.input(), conn.second.element(), time);
-
-      if (connected_node == target) {
-        paths_found.append(output_adjustment);
-      } else {
-        paths_found.append(connected_node->TransformTimeTo(output_adjustment, target, input_dir));
+    } else {
+      // Traverse in output direction
+      for (auto it=path.cbegin(); it!=path.cend(); it++) {
+        const NodeInput &i = (*it);
+        time = i.node()->OutputTimeAdjustment(i.input(), i.element(), time);
       }
     }
   }
 
-  return paths_found;
+  return time;
 }
 
 QVariant Node::PtrToValue(void *ptr)
@@ -1976,46 +1922,39 @@ void Node::SetValueAtTime(const NodeInput &input, const rational &time, const QV
   }
 }
 
-void FindPathInternal(std::list<Node *> &vec, Node *to, int &path_index)
+bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path_index)
 {
-  Node *from = vec.back();
+  for (auto it=from->output_connections().cbegin(); it!=from->output_connections().cend(); it++) {
+    const NodeInput &next = it->second;
 
-  for (auto it=from->input_connections().cbegin(); it!=from->input_connections().cend(); it++) {
-    vec.push_back(it->second);
-    if (it->second == to) {
-      // Found a path, determine if it's the one we want
+    vec.push_back(next);
+
+    if (next.node() == to) {
+      // Found a path! Determine if it's the index we want
       if (path_index == 0) {
         // It is!
-        break;
+        return true;
       } else {
+        // It isn't, keep looking...
         path_index--;
       }
     }
 
-    // Recurse to see if we can find it here
-    FindPathInternal(vec, to, path_index);
-    if (vec.back() == to) {
-      // Found through recursion
-      break;
-    } else {
-      // Must not be available through this path
-      vec.pop_back();
+    if (FindPathInternal(vec, next.node(), to, path_index)) {
+      return true;
     }
+
+    vec.pop_back();
   }
+
+  return false;
 }
 
-std::list<Node *> Node::FindPath(Node *from, Node *to, int path_index)
+std::list<NodeInput> Node::FindPath(Node *from, Node *to, int path_index)
 {
-  std::list<Node *> v;
+  std::list<NodeInput> v;
 
-  v.push_back(from);
-
-  FindPathInternal(v, to, path_index);
-
-  if (v.size() == 1) {
-    // Failed to find path, return empty list
-    v.pop_back();
-  }
+  FindPathInternal(v, from, to, path_index);
 
   return v;
 }

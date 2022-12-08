@@ -54,15 +54,15 @@ void NumericSliderBase::LabelPressed()
 {
   // Generate width hint
   drag_ladder_ = new SliderLadder(drag_multiplier_, ladder_element_count_, GetFormattedValueToString(99999999));
+  connect(drag_ladder_, &SliderLadder::DraggedByValue, this, &NumericSliderBase::LadderDragged);
+  connect(drag_ladder_, &SliderLadder::Released, this, &NumericSliderBase::LadderReleased);
+
   drag_ladder_->SetValue(GetFormattedValueToString());
   drag_ladder_->show();
 
   drag_start_value_ = GetValueInternal();
 
   QMetaObject::invokeMethod(this, "RepositionLadder", Qt::QueuedConnection);
-
-  connect(drag_ladder_, &SliderLadder::DraggedByValue, this, &NumericSliderBase::LadderDragged);
-  connect(drag_ladder_, &SliderLadder::Released, this, &NumericSliderBase::LadderReleased);
 }
 
 void NumericSliderBase::LadderDragged(int value, double multiplier)

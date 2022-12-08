@@ -30,8 +30,9 @@
 
 namespace olive {
 
-ProjectSaveTask::ProjectSaveTask(Project *project) :
-  project_(project)
+ProjectSaveTask::ProjectSaveTask(Project *project, bool use_compression) :
+  project_(project),
+  use_compression_(use_compression)
 {
   SetTitle(tr("Saving '%1'").arg(project->filename()));
 }
@@ -42,7 +43,7 @@ bool ProjectSaveTask::Run()
 
   ProjectSerializer::SaveData data(project_, using_filename);
 
-  ProjectSerializer::Result result = ProjectSerializer::Save(data, QStringLiteral("project"));
+  ProjectSerializer::Result result = ProjectSerializer::Save(data, QStringLiteral("project"), use_compression_);
 
   bool success = false;
 

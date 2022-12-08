@@ -28,7 +28,7 @@ NodeWidget::NodeWidget(QWidget *parent) :
   QWidget(parent)
 {
   QVBoxLayout *outer_layout = new QVBoxLayout(this);
-  outer_layout->setMargin(0);
+  outer_layout->setContentsMargins(0, 0, 0, 0);
 
   toolbar_ = new NodeViewToolBar();
   outer_layout->addWidget(toolbar_);

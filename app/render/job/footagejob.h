@@ -25,16 +25,16 @@
 
 namespace olive {
 
-class FootageJob
+class FootageJob : public AcceleratedJob
 {
 public:
   FootageJob() :
-    type_(Track::kNone),
-    loop_mode_(Footage::kLoopModeOff)
+    type_(Track::kNone)
   {
   }
 
-  FootageJob(const QString& decoder, const QString& filename, Track::Type type, const rational& length, Footage::LoopMode loop_mode) :
+  FootageJob(const TimeRange &time, const QString& decoder, const QString& filename, Track::Type type, const rational& length, LoopMode loop_mode) :
+    time_(time),
     decoder_(decoder),
     filename_(filename),
     type_(type),
@@ -98,17 +98,14 @@ public:
     length_ = length;
   }
 
-  Footage::LoopMode loop_mode() const
-  {
-    return loop_mode_;
-  }
+  const TimeRange &time() const { return time_; }
 
-  void set_loop_mode(Footage::LoopMode loop_mode)
-  {
-    loop_mode_ = loop_mode;
-  }
+  LoopMode loop_mode() const { return loop_mode_; }
+  void set_loop_mode(LoopMode m) { loop_mode_ = m; }
 
 private:
+  TimeRange time_;
+
   QString decoder_;
 
   QString filename_;
@@ -123,7 +120,7 @@ private:
 
   rational length_;
 
-  Footage::LoopMode loop_mode_;
+  LoopMode loop_mode_;
 
 };
 

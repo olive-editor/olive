@@ -96,6 +96,7 @@ public:
   void set_track(Track* track)
   {
     track_ = track;
+    emit TrackChanged(track_);
   }
 
   bool is_enabled() const;
@@ -125,6 +126,8 @@ signals:
   void LengthChanged();
 
   void PreviewChanged();
+
+  void TrackChanged(Track *track);
 
 protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;

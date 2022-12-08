@@ -519,7 +519,7 @@ void CurveView::ZoomToFitInternal(bool selected_only)
         rational transformed_time = GetAdjustedTime(key->parent(),
                                                     GetTimeTarget(),
                                                     key->time(),
-                                                    false);
+                                                    Node::kTransformTowardsOutput);
 
         qreal key_y = GetUnscaledItemYFromKeyframeValue(key);
 

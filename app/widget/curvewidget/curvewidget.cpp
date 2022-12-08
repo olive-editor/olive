@@ -53,13 +53,12 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   QWidget* workarea = new QWidget();
   QVBoxLayout* layout = new QVBoxLayout(workarea);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
   splitter->addWidget(workarea);
 
   QHBoxLayout* top_controls = new QHBoxLayout();
 
   key_control_ = new NodeParamViewKeyframeControl(false);
-  connect(key_control_, &NodeParamViewKeyframeControl::RequestSetTime, this, &CurveWidget::SetTimeAndSignal);
   top_controls->addWidget(key_control_);
 
   top_controls->addStretch();
@@ -86,7 +85,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   // We use a separate layout for the ruler+view combination so that there's no spacing between them
   QVBoxLayout* ruler_view_layout = new QVBoxLayout();
-  ruler_view_layout->setMargin(0);
+  ruler_view_layout->setContentsMargins(0, 0, 0, 0);
   ruler_view_layout->setSpacing(0);
 
   ruler_view_layout->addWidget(ruler());
@@ -99,14 +98,12 @@ CurveWidget::CurveWidget(QWidget *parent) :
   layout->addLayout(ruler_view_layout);
 
   // Connect ruler and view together
-  connect(view_, &CurveView::TimeChanged, this, &CurveWidget::SetTimeAndSignal);
   connect(view_, &CurveView::SelectionChanged, this, &CurveWidget::SelectionChanged);
-  connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
   connect(view_, &CurveView::Dragged, this, &CurveWidget::KeyframeViewDragged);
+  connect(view_, &CurveView::Released, this, &CurveWidget::KeyframeViewReleased);
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   view_->setHorizontalScrollBar(scrollbar());
-  connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   // Disable collapsing the main curve view (but allow collapsing the tree)
   splitter->setCollapsible(1, false);
@@ -192,14 +189,6 @@ void CurveWidget::SetNodes(const QVector<Node *> &nodes)
   }
 }
 
-void CurveWidget::TimeChangedEvent(const rational &time)
-{
-  super::TimeChangedEvent(time);
-
-  view_->SetTime(time);
-  UpdateBridgeTime(time);
-}
-
 void CurveWidget::TimebaseChangedEvent(const rational &timebase)
 {
   super::TimebaseChangedEvent(timebase);
@@ -214,7 +203,7 @@ void CurveWidget::ScaleChangedEvent(const double &scale)
   view_->SetScale(scale);
 }
 
-void CurveWidget::TimeTargetChangedEvent(Node *target)
+void CurveWidget::TimeTargetChangedEvent(ViewerOutput *target)
 {
   TimeTargetObject::TimeTargetChangedEvent(target);
 
@@ -226,6 +215,8 @@ void CurveWidget::TimeTargetChangedEvent(Node *target)
 void CurveWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
   super::ConnectedNodeChangeEvent(n);
+
+  key_control_->SetTimeTarget(n);
 
   SetTimeTarget(n);
 }
@@ -249,11 +240,6 @@ void CurveWidget::SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type)
   linear_button_->setChecked(type == NodeKeyframe::kLinear);
   bezier_button_->setChecked(type == NodeKeyframe::kBezier);
   hold_button_->setChecked(type == NodeKeyframe::kHold);
-}
-
-void CurveWidget::UpdateBridgeTime(const rational &time)
-{
-  key_control_->SetTime(time);
 }
 
 void CurveWidget::ConnectInput(Node *node, const QString &input, int element)
@@ -379,15 +365,14 @@ void CurveWidget::InputSelectionChanged(const NodeKeyframeTrackReference& ref)
 
 void CurveWidget::KeyframeViewDragged(int x, int y)
 {
-  QMetaObject::invokeMethod(this, "CatchUpScrollToPoint", Qt::QueuedConnection,
-                            Q_ARG(int, x));
-  QMetaObject::invokeMethod(this, "CatchUpYScrollToPoint", Qt::QueuedConnection,
-                            Q_ARG(int, y));
+  SetCatchUpScrollValue(x);
+  SetCatchUpScrollValue(view_->verticalScrollBar(), y, view_->height());
 }
 
-void CurveWidget::CatchUpYScrollToPoint(int point)
+void CurveWidget::KeyframeViewReleased()
 {
-  PageScrollInternal(view_->verticalScrollBar(), view_->height(), point, false);
+  StopCatchUpScrollTimer();
+  StopCatchUpScrollTimer(view_->verticalScrollBar());
 }
 
 }

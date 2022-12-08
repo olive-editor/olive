@@ -38,7 +38,7 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
   video_premultiply_alpha_(nullptr)
 {
   QGridLayout* video_layout = new QGridLayout(this);
-  video_layout->setMargin(0);
+  video_layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -78,6 +78,17 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
   video_color_space_->setCurrentText(vp.colorspace());
 
   video_layout->addWidget(video_color_space_, row, 1);
+
+  row++;
+
+  video_layout->addWidget(new QLabel(tr("Color Range:")), row, 0);
+
+  color_range_combo_ = new QComboBox();
+  color_range_combo_->addItem(tr("Limited (16-235)"), VideoParams::kColorRangeLimited);
+  color_range_combo_->addItem(tr("Full (0-255)"), VideoParams::kColorRangeFull);
+  color_range_combo_->setCurrentIndex(vp.color_range());
+
+  video_layout->addWidget(color_range_combo_, row, 1);
 
   if (vp.channel_count() == VideoParams::kRGBAChannelCount) {
     row++;
@@ -136,14 +147,16 @@ void VideoStreamProperties::Accept(MultiUndoCommand *parent)
   if ((video_premultiply_alpha_ && video_premultiply_alpha_->isChecked() != vp.premultiplied_alpha())
       || set_colorspace != vp.colorspace()
       || static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()) != vp.interlacing()
-      || pixel_aspect_combo_->GetPixelAspectRatio() != vp.pixel_aspect_ratio()) {
+      || pixel_aspect_combo_->GetPixelAspectRatio() != vp.pixel_aspect_ratio()
+      || color_range_combo_->currentData().toInt() != vp.color_range()) {
 
     parent->add_child(new VideoStreamChangeCommand(footage_,
                                                    video_index_,
                                                    video_premultiply_alpha_ ? video_premultiply_alpha_->isChecked() : vp.premultiplied_alpha(),
                                                    set_colorspace,
                                                    static_cast<VideoParams::Interlacing>(video_interlace_combo_->currentIndex()),
-                                                   pixel_aspect_combo_->GetPixelAspectRatio()));
+                                                   pixel_aspect_combo_->GetPixelAspectRatio(),
+                                                   static_cast<VideoParams::ColorRange>(color_range_combo_->currentData().toInt())));
   }
 
   if (vp.video_type() == VideoParams::kVideoTypeImageSequence) {
@@ -181,13 +194,14 @@ VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(Footag
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           VideoParams::Interlacing interlacing,
-                                                                          const rational &pixel_ar) :
+                                                                          const rational &pixel_ar, VideoParams::ColorRange range) :
   footage_(footage),
   video_index_(video_index),
   new_premultiplied_(premultiplied),
   new_colorspace_(colorspace),
   new_interlacing_(interlacing),
-  new_pixel_ar_(pixel_ar)
+  new_pixel_ar_(pixel_ar),
+  new_range_(range)
 {
 }
 
@@ -204,11 +218,13 @@ void VideoStreamProperties::VideoStreamChangeCommand::redo()
   old_colorspace_ = vp.colorspace();
   old_interlacing_ = vp.interlacing();
   old_pixel_ar_ = vp.pixel_aspect_ratio();
+  old_range_ = vp.color_range();
 
   vp.set_premultiplied_alpha(new_premultiplied_);
   vp.set_colorspace(new_colorspace_);
   vp.set_interlacing(new_interlacing_);
   vp.set_pixel_aspect_ratio(new_pixel_ar_);
+  vp.set_color_range(new_range_);
 
   footage_->SetVideoParams(vp, video_index_);
 }
@@ -221,6 +237,7 @@ void VideoStreamProperties::VideoStreamChangeCommand::undo()
   vp.set_colorspace(old_colorspace_);
   vp.set_interlacing(old_interlacing_);
   vp.set_pixel_aspect_ratio(old_pixel_ar_);
+  vp.set_color_range(old_range_);
 
   footage_->SetVideoParams(vp, video_index_);
 }

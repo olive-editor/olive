@@ -20,6 +20,8 @@
 
 #include "qtutils.h"
 
+#include <QDebug>
+
 namespace olive {
 
 int QtUtils::QFontMetricsWidth(QFontMetrics fm, const QString& s) {
@@ -41,11 +43,11 @@ QFrame *QtUtils::CreateHorizontalLine()
 QFrame *QtUtils::CreateVerticalLine()
 {
   QFrame *l = CreateHorizontalLine();
-  l->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  l->setFrameShape(QFrame::VLine);
   return l;
 }
 
-int QtUtils::MessageBox(QWidget *parent, QMessageBox::Icon icon, const QString &title, const QString &message, QMessageBox::StandardButtons buttons)
+int QtUtils::MsgBox(QWidget *parent, QMessageBox::Icon icon, const QString &title, const QString &message, QMessageBox::StandardButtons buttons)
 {
   QMessageBox b(parent);
   b.setIcon(icon);
@@ -94,19 +96,43 @@ QStringList QtUtils::WordWrapString(const QString &s, const QFontMetrics &fm, in
     QString this_line = lines.at(i);
 
     while (this_line.size() > 1 && QFontMetricsWidth(fm, this_line) >= bounding_width) {
+      int old_size = this_line.size();
+      int hard_break = -1;
+
       for (int j=this_line.size()-1; j>=0; j--) {
-        if (this_line.at(j).isSpace()) {
-          QString chopped = this_line.left(j);
-          if (QFontMetricsWidth(fm, chopped) < bounding_width) {
+        const QChar &char_test = this_line.at(j);
+
+        if (char_test.isSpace()
+            || char_test == '-') {
+          if (QFontMetricsWidth(fm, this_line.left(j)) < bounding_width) {
+            if (!char_test.isSpace()) {
+              j++;
+            }
+
+            QString chopped = this_line.left(j);
+
             list.append(chopped);
 
-            int k = j+1;
-            while (k < this_line.size() && this_line.at(k).isSpace()) {
-              k++;
+            while (j < this_line.size() && this_line.at(j).isSpace()) {
+              j++;
             }
-            this_line.remove(0, k);
+            this_line.remove(0, j);
             break;
           }
+        } else if (hard_break == -1 && QFontMetricsWidth(fm, this_line.left(j)) < bounding_width) {
+          // In case we can't find a better place to split, split at the earliest time the line
+          // goes under the width limit
+          hard_break = j;
+        }
+      }
+
+      if (old_size == this_line.size()) {
+        if (hard_break != -1) {
+          list.append(this_line.left(hard_break));
+          this_line.remove(0, hard_break);
+        } else {
+          qWarning() << "Failed to find anywhere to wrap. Returning full line.";
+          break;
         }
       }
     }
@@ -117,6 +143,33 @@ QStringList QtUtils::WordWrapString(const QString &s, const QFontMetrics &fm, in
   }
 
   return list;
+}
+
+Qt::KeyboardModifiers QtUtils::FlipControlAndShiftModifiers(Qt::KeyboardModifiers e)
+{
+  if (e & Qt::ControlModifier & Qt::ShiftModifier) {
+    return e;
+  }
+
+  if (e & Qt::ShiftModifier) {
+    e |= Qt::ControlModifier;
+    e &= ~Qt::ShiftModifier;
+  } else if (e & Qt::ControlModifier) {
+    e |= Qt::ShiftModifier;
+    e &= ~Qt::ControlModifier;
+  }
+
+  return e;
+}
+
+void QtUtils::SetComboBoxData(QComboBox *cb, int data)
+{
+  for (int i=0; i<cb->count(); i++) {
+    if (cb->itemData(i).toInt() == data) {
+      cb->setCurrentIndex(i);
+      break;
+    }
+  }
 }
 
 }

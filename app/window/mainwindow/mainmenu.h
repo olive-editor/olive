@@ -287,6 +287,10 @@ private:
   QAction* tools_snapping_item_;
   QAction* tools_preferences_item_;
 
+#ifndef NDEBUG
+  QAction* tools_magic_item_;
+#endif
+
   Menu* help_menu_;
   QAction* help_action_search_item_;
   QAction* help_feedback_item_;

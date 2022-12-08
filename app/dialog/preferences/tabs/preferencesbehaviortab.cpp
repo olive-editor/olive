@@ -44,6 +44,11 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
   AddItem(tr("Enable slider ladder"),
           QStringLiteral("UseSliderLadders"),
           general_group);
+  AddItem(tr("Scrolling zooms by default"),
+          QStringLiteral("ScrollZooms"),
+          tr("By default, scrolling will move the view around, and holding Ctrl/Cmd will make it zoom instead. "
+             "Enabling this will switch those, scrolling will zoom by default, and holding Ctrl/Cmd will move the view instead."),
+          general_group);
 
   QTreeWidgetItem* audio_group = AddParent(tr("Audio"));
   AddItem(tr("Enable audio scrubbing"),
@@ -68,7 +73,7 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           tr("Hold ALT on any UI element to switch scrolling axes"),
           timeline_group);
   AddItem(tr("Seek Also Selects"),
-          QStringLiteral("SelectAlsoSeeks"),
+          QStringLiteral("SeekAlsoSelects"),
           timeline_group);
   AddItem(tr("Seek to the End of Pastes"),
           QStringLiteral("PasteSeeks"),
@@ -102,6 +107,11 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           tr("Multiple clips can share the same nodes. Disable this to automatically share node "
              "dependencies among clips when copying or splitting them."),
           node_group);
+
+  QTreeWidgetItem* opengl_group = AddParent(tr("OpenGL"));
+  AddItem(tr("Use glFinish"),
+          QStringLiteral("UseGLFinish"),
+          opengl_group);
 }
 
 void PreferencesBehaviorTab::Accept(MultiUndoCommand *command)

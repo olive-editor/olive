@@ -255,7 +255,11 @@ public:
   /**
    * @brief Create a new sequence named appropriately for the active project
    */
-  Sequence* CreateNewSequenceForProject(Project *project) const;
+  static Sequence* CreateNewSequenceForProject(const QString &format, Project *project);
+  static Sequence* CreateNewSequenceForProject(Project *project)
+  {
+    return CreateNewSequenceForProject(tr("Sequence %1"), project);
+  }
 
   /**
    * @brief Opens a project from the recently opened list
@@ -312,6 +316,10 @@ public:
   void OpenRecoveryProject(const QString& filename);
 
   void OpenNodeInViewer(ViewerOutput* viewer);
+
+  void OpenExportDialogForViewer(ViewerOutput *viewer, bool start_still_image);
+
+  bool IsMagicEnabled() const { return magic_; }
 
 public slots:
   /**
@@ -443,6 +451,11 @@ public slots:
 
   void WarnCacheFull();
 
+  void SetMagic(bool e)
+  {
+    magic_ = e;
+  }
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -545,13 +558,22 @@ private:
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  bool GetSequenceToExport(ViewerOutput **viewer, rational *time);
+  ViewerOutput *GetSequenceToExport();
 
   static QString GetAutoRecoveryIndexFilename();
 
   void SaveUnrecoveredList();
 
   bool RevertProjectInternal(Project *p, bool by_opening_existing);
+
+  void SaveRecentProjectsList();
+
+  /**
+   * @brief Adds a project to the "open projects" list
+   */
+  void AddOpenProject(olive::Project* p, bool add_to_recents = false);
+
+  bool AddOpenProjectFromTask(Task* task, bool add_to_recents);
 
   /**
    * @brief Internal main window object
@@ -619,6 +641,11 @@ private:
   QVector<QUuid> autorecovered_projects_;
 
   /**
+   * @brief Do something debug related
+   */
+  bool magic_;
+
+  /**
    * @brief How many widgets currently need pixel sampling access
    */
   int pixel_sampling_users_;
@@ -630,12 +657,10 @@ private slots:
 
   void ProjectSaveSucceeded(Task *task);
 
-  /**
-   * @brief Adds a project to the "open projects" list
-   */
-  void AddOpenProject(olive::Project* p);
-
-  bool AddOpenProjectFromTask(Task* task);
+  bool AddOpenProjectFromTaskAndAddToRecents(Task* task)
+  {
+    return AddOpenProjectFromTask(task, true);
+  }
 
   void ImportTaskComplete(Task *task);
 
@@ -653,6 +678,8 @@ private slots:
    * @brief Internal project open
    */
   void OpenProjectInternal(const QString& filename, bool recovery_project = false);
+
+  void ImportSingleFile(const QString &f);
 
 };
 

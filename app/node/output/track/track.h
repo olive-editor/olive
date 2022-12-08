@@ -22,7 +22,6 @@
 #define TRACK_H
 
 #include "node/block/block.h"
-#include "timeline/timelinecommon.h"
 
 namespace olive {
 
@@ -55,7 +54,10 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
+  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
@@ -314,29 +316,10 @@ public:
    */
   Block* NearestBlockAfter(const rational& time) const;
 
-  /**
-   * @brief Returns the block that should be rendered/visible at a given time
-   *
-   * Use this for any video rendering or determining which block will actually be active at any
-   * time.
-   *
-   * @return Catches the first block that matches `block.in <= time && block.out > time`. Returns
-   * nullptr if the time exceeds the track length, the block active at this time is disabled, or
-   * if IsMuted() is true.
+  /*
+   * @brief Returns whether a time range is empty or only has a gap
    */
-  Block* BlockAtTime(const rational& time) const;
-
-  /**
-   * @brief Returns a list of blocks that should be rendered/visible during a given time range
-   *
-   * Use this for audio rendering to determine all blocks that will be active throughout a range
-   * of time.
-   *
-   * @return Similar to BlockAtTime() but will match several blocks where
-   * `block.in < range.out && block.out > range.in`. Returns an empty list if IsMuted() or if
-   * `range.in >= track.length`. Blocks that are not enabled will be omitted from the returned list.
-   */
-  QVector<Block*> BlocksAtTimeRange(const TimeRange& range) const;
+  bool IsRangeFree(const TimeRange &range) const;
 
   const QVector<Block *> &Blocks() const
   {
@@ -344,6 +327,12 @@ public:
   }
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
+
+  Block *VisibleBlockAtTime(const rational &t) const
+  {
+    int index = GetBlockIndexAtTime(t);
+    return (index == -1) ? nullptr : blocks_.at(index);
+  }
 
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
@@ -436,7 +425,7 @@ signals:
   /**
    * @brief Signal emitted when the height of the track has changed
    */
-  void TrackHeightChangedInPixels(int pixel_height);
+  void TrackHeightChanged(qreal virtual_height);
 
   /**
    * @brief Signal emitted when the muted setting changes
@@ -466,6 +455,10 @@ private:
   int GetArrayIndexFromCacheIndex(int index) const;
 
   int GetCacheIndexFromArrayIndex(int index) const;
+
+  int GetBlockIndexAtTime(const rational &time) const;
+
+  void ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const;
 
   TimeRangeList block_length_pending_invalidations_;
 

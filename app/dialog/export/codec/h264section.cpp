@@ -39,7 +39,7 @@ H264Section::H264Section(int default_crf, QWidget *parent) :
   CodecSection(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
   layout->addWidget(new QLabel(tr("Encode Speed:")), row, 0);
@@ -60,7 +60,7 @@ H264Section::H264Section(int default_crf, QWidget *parent) :
   preset_combobox_->addItem(tr("Slow"));
   preset_combobox_->addItem(tr("Slower"));
   preset_combobox_->addItem(tr("Very Slow"));
-  
+
   //Default to "medium"
   preset_combobox_->setCurrentIndex(5);
 
@@ -105,6 +105,10 @@ void H264Section::AddOpts(EncodingParams *params)
 
   CompressionMethod method = static_cast<CompressionMethod>(compression_method_stack_->currentIndex());
 
+  // This option is not used by the encoder (nor is anything with the ove_ prefix), it's to help us
+  // identify which option was chosen when params are restored
+  params->set_video_option(QStringLiteral("ove_compressionmethod"), QString::number(method));
+
   if (method == kConstantRateFactor) {
 
     // Simply set CRF value
@@ -121,9 +125,12 @@ void H264Section::AddOpts(EncodingParams *params)
       max_rate = bitrate_section_->GetMaximumBitRate();
     } else {
       // Calculate the bit rate from the file size divided by the sequence length in seconds (bits per second)
-      target_rate = qRound64(static_cast<double>(filesize_section_->GetFileSize()) / params->GetExportLength().toDouble());
+      int64_t target_fs = filesize_section_->GetFileSize();
+      target_rate = qRound64(static_cast<double>(target_fs) / params->GetExportLength().toDouble());
       min_rate = target_rate;
       max_rate = target_rate;
+
+      params->set_video_option(QStringLiteral("ove_targetfilesize"), QString::number(target_fs));
     }
 
     // Disable CRF encoding
@@ -135,15 +142,38 @@ void H264Section::AddOpts(EncodingParams *params)
     params->set_video_buffer_size(2000000);
 
   }
-  
+
   params->set_video_option(QStringLiteral("preset"), QString::number(preset_combobox_->currentIndex()));
+}
+
+void H264Section::SetOpts(const EncodingParams *p)
+{
+  CompressionMethod method = static_cast<CompressionMethod>(p->video_option(QStringLiteral("ove_compressionmethod")).toInt());
+
+  compression_method_stack_->setCurrentIndex(method);
+
+  if (method == kConstantRateFactor) {
+    crf_section_->SetValue(p->video_option(QStringLiteral("crf")).toInt());
+  } else {
+    int64_t target_rate = p->video_bit_rate();
+    int64_t max_rate = p->video_max_bit_rate();
+
+    if (method == kTargetBitRate) {
+      // Use user-supplied values for the bit rate
+      bitrate_section_->SetTargetBitRate(target_rate);
+      bitrate_section_->SetMaximumBitRate(max_rate);
+    } else {
+      // Calculate the bit rate from the file size divided by the sequence length in seconds (bits per second)
+      filesize_section_->SetFileSize(p->video_option(QStringLiteral("ove_targetfilesize")).toLongLong());
+    }
+  }
 }
 
 H264CRFSection::H264CRFSection(int default_crf, QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   crf_slider_ = new QSlider(Qt::Horizontal);
   crf_slider_->setMinimum(kMinimumCRF);
@@ -168,11 +198,16 @@ int H264CRFSection::GetValue() const
   return crf_slider_->value();
 }
 
+void H264CRFSection::SetValue(int c)
+{
+  crf_slider_->setValue(c);
+}
+
 H264BitRateSection::H264BitRateSection(QWidget *parent) :
   QWidget(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -207,16 +242,26 @@ int64_t H264BitRateSection::GetTargetBitRate() const
   return qRound64(target_rate_->GetValue() * 1000000.0);
 }
 
+void H264BitRateSection::SetTargetBitRate(int64_t b)
+{
+  target_rate_->SetValue(double(b) * 0.000001);
+}
+
 int64_t H264BitRateSection::GetMaximumBitRate() const
 {
   return qRound64(max_rate_->GetValue() * 1000000.0);
+}
+
+void H264BitRateSection::SetMaximumBitRate(int64_t b)
+{
+  max_rate_->SetValue(double(b) * 0.000001);
 }
 
 H264FileSizeSection::H264FileSizeSection(QWidget *parent) :
   QWidget(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -241,6 +286,12 @@ int64_t H264FileSizeSection::GetFileSize() const
 {
   // Convert megabytes to BITS
   return qRound64(file_size_->GetValue() * 1024.0 * 1024.0 * 8.0);
+}
+
+void H264FileSizeSection::SetFileSize(int64_t f)
+{
+  // Convert bits back to megabytes
+  file_size_->SetValue(double(f) / 8.0 / 1024.0 / 1024.0);
 }
 
 H265Section::H265Section(QWidget *parent) :

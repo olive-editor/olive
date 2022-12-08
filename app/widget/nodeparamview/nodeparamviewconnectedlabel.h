@@ -32,7 +32,7 @@ class NodeParamViewConnectedLabel : public QWidget {
 public:
   NodeParamViewConnectedLabel(const NodeInput& input, QWidget* parent = nullptr);
 
-  void SetTime(const rational &time);
+  void SetViewerNode(ViewerOutput *viewer);
 
 signals:
   void RequestSelectNode(Node *n);
@@ -51,6 +51,8 @@ private:
 
   void UpdateValueTree();
 
+  void CreateTree();
+
   ClickableLabel* connected_to_lbl_;
 
   NodeInput input_;
@@ -59,7 +61,7 @@ private:
 
   NodeValueTree *value_tree_;
 
-  rational time_;
+  ViewerOutput *viewer_;
 
 private slots:
   void SetValueTreeVisible(bool e);

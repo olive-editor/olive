@@ -19,8 +19,8 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project(olive-editor VERSION 0.2.0 LANGUAGES CXX)
 
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
-option(BUILD_TESTS "Build unit tests" ON)
-option(USE_WERROR "Error on compile warning" ON)
+option(BUILD_TESTS "Build unit tests" OFF)
+option(USE_WERROR "Error on compile warning" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -94,36 +94,55 @@ find_package(OpenEXR REQUIRED)
 list(APPEND OLIVE_LIBRARIES ${OPENEXR_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
 
-# Link Qt 5
+# Link Qt
 set(QT_LIBRARIES
   Core
   Gui
   Widgets
   OpenGL
-  Svg
   LinguistTools
   Concurrent
 )
 if (UNIX AND NOT APPLE)
   list(APPEND QT_LIBRARIES DBus)
 endif()
-find_package(Qt5 5.6 REQUIRED
+find_package(QT
+  NAMES
+    Qt6
+    Qt5
+  REQUIRED
   COMPONENTS
     ${QT_LIBRARIES}
   OPTIONAL_COMPONENTS
     Network
 )
-if (NOT Qt5Network_FOUND)
-  message("   Qt5::Network module not found, crash reporting will be disabled.")
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED
+  COMPONENTS
+    ${QT_LIBRARIES}
+  OPTIONAL_COMPONENTS
+    Network
+)
+if (NOT Qt${QT_VERSION_MAJOR}Network_FOUND)
+  message("   Qt${QT_VERSION_MAJOR}::Network module not found, crash reporting will be disabled.")
 endif()
 list(APPEND OLIVE_LIBRARIES
-  Qt5::Core
-  Qt5::Gui
-  Qt5::Widgets
-  Qt5::OpenGL
-  Qt5::Svg
-  Qt5::Concurrent
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::Gui
+  Qt${QT_VERSION_MAJOR}::Widgets
+  Qt${QT_VERSION_MAJOR}::OpenGL
+  Qt${QT_VERSION_MAJOR}::Concurrent
 )
+
+if (${QT_VERSION_MAJOR} EQUAL "6")
+  find_package(Qt${QT_VERSION_MAJOR}
+    REQUIRED
+      OpenGLWidgets
+  )
+
+  list(APPEND OLIVE_LIBRARIES
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+  )
+endif()
 
 # Link FFmpeg
 find_package(FFMPEG 3.0 REQUIRED
@@ -188,7 +207,7 @@ if (WIN32)
 elseif (APPLE)
   list(APPEND OLIVE_LIBRARIES "-framework IOKit")
 elseif(UNIX)
-  list(APPEND OLIVE_LIBRARIES Qt5::DBus)
+  list(APPEND OLIVE_LIBRARIES Qt${QT_VERSION_MAJOR}::DBus)
 endif()
 
 # Generate Git hash

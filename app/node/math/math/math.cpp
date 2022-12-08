@@ -44,6 +44,14 @@ MathNode::MathNode()
 
 QString MathNode::Name() const
 {
+  // Default to naming after the operation
+  if (parent()) {
+    QString op_name = GetOperationName(GetOperation());
+    if (!op_name.isEmpty()) {
+      return op_name;
+    }
+  }
+
   return tr("Math");
 }
 
@@ -70,12 +78,12 @@ void MathNode::Retranslate()
   SetInputName(kParamAIn, tr("Value"));
   SetInputName(kParamBIn, tr("Value"));
 
-  QStringList operations = {tr("Add"),
-                            tr("Subtract"),
-                            tr("Multiply"),
-                            tr("Divide"),
+  QStringList operations = {GetOperationName(kOpAdd),
+                            GetOperationName(kOpSubtract),
+                            GetOperationName(kOpMultiply),
+                            GetOperationName(kOpDivide),
                             QString(),
-                            tr("Power")};
+                            GetOperationName(kOpPower)};
 
   SetComboBoxStrings(kMethodIn, operations);
 }
