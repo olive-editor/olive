@@ -52,8 +52,6 @@ public:
 
     NodeValue::Type type;
     InputFlags flags;
-    // when true, this input becomes the output when node is disabled
-    bool is_effect_input;
     // list of entries for a selection combo
     QStringList values;
     // only applicable for type kVec2. How the point is drawn
@@ -108,7 +106,7 @@ private:
      SHADER_COMPLETE
   };
 
-  InputParseState parseSingleLine( const QStringRef & line);
+  InputParseState parseSingleLine( const QString & line);
 
   // pointer to a function that parse a line that matches an //OVE comment
   typedef InputParseState (ShaderInputsParser::* LineParseFunction)( const QRegularExpressionMatch & match);
@@ -129,10 +127,9 @@ private:
   InputParseState parseInputDescription( const QRegularExpressionMatch &);
   InputParseState stopParse( const QRegularExpressionMatch &);
 
-  QVariant parseColor( const QStringRef & line);
-  QVariant parsePoint( const QStringRef & line);
+  QVariant parseColor( const QString & line);
+  QVariant parsePoint( const QString & line);
   void reportError( const QString & error);
-  void setAsMainInput();
 
 private:
   const QString & shader_code_;

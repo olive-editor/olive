@@ -58,8 +58,10 @@ public:
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
   void InputValueChangedEvent(const QString &input, int element) override;
 
-  static const QString kShaderCode;
+  bool ShaderCodeInvalidateFlag() const override;
 
+  static const QString kTextureInput;
+  static const QString kShaderCode;
   static const QString kOutputMessages;
 
 private:
@@ -75,6 +77,10 @@ protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
+
+  // set to true when shader code changes. Must be mutable because
+  // it is reset when it is read
+  mutable bool invalidate_code_flag_;
 
   // source GLSL code
   QString shader_code_;

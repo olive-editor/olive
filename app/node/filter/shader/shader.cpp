@@ -28,8 +28,11 @@
 #include <QLabel>
 #include <QLayout>
 #include <QOpenGLShader>
+#include <QRandomGenerator>
 
 #include "shaderinputsparser.h"
+
+#include <QDebug>
 
 namespace olive {
 
@@ -38,32 +41,35 @@ namespace olive {
 
 namespace  {
 // a default shader that replicates to output a texture input.
-// The input is flagged as MAIN_INPUT to comply with "Video Nodes" menu button
 const QString TEMPLATE(
     "//OVE shader_name: \n"
     "//OVE shader_description: \n\n"
-    "//OVE name: input\n"
-    "//OVE type: TEXTURE\n"
-    "//OVE flag: NOT_KEYFRAMABLE, MAIN_INPUT\n"
-    "//OVE description:\n"
-    "uniform sampler2D texture_in;\n\n"
+    "//Default texture: this comes on the house:\n"
+    "uniform sampler2D tex_in;\n\n"
     "//OVE end\n\n\n"
     "// pixel coordinates in range [0..1]x[0..1]\n"
     "in vec2 ove_texcoord;\n"
     "// output color\n"
     "out vec4 frag_color;\n\n"
     "void main(void) {\n"
-    "   vec4 textureColor = texture2D(texture_in, ove_texcoord);\n"
-    "   frag_color= textureColor;\n"
+    "   vec4 textureColor = texture2D(tex_in, ove_texcoord);\n"
+    "   frag_color= textureColor.yzxt;\n"
     "}\n");
-}
 
+}  // namespace
+
+const QString ShaderFilterNode::kTextureInput = QStringLiteral("tex_in");
 const QString ShaderFilterNode::kShaderCode = QStringLiteral("source");
 const QString ShaderFilterNode::kOutputMessages = QStringLiteral("issues");
 
 
-ShaderFilterNode::ShaderFilterNode()
+ShaderFilterNode::ShaderFilterNode():
+  invalidate_code_flag_(false)
 {
+  // A default texture
+  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  SetEffectInput(kTextureInput);
+
   // Full code of the shader. Inputs to be exposed are defined within the shader code
   // with mark-up comments.
   AddInput(kShaderCode, NodeValue::kText, QVariant::fromValue<QString>(TEMPLATE),
@@ -130,8 +136,17 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
 
       SetStandardValue( kOutputMessages, output_messages_.isEmpty() ? tr("None") : output_messages_);
       qDebug() << "parsed shader code for " << GetLabel() << " @ " << (uint64_t)this;
+
+      invalidate_code_flag_ = true;
     }
   }
+}
+
+bool ShaderFilterNode::ShaderCodeInvalidateFlag() const
+{
+  bool invalid = invalidate_code_flag_;
+  invalidate_code_flag_ = false;
+  return invalid;
 }
 
 
@@ -146,6 +161,7 @@ void ShaderFilterNode::Retranslate()
 
   // Retranslate only fixed inputs.
   // Other inputs are read from the shader code
+  SetInputName( kTextureInput, tr("Input"));
   SetInputName( kShaderCode, tr("Shader code"));
   SetInputName( kOutputMessages, tr("Issues"));
 }
@@ -159,17 +175,14 @@ ShaderCode ShaderFilterNode::GetShaderCode(const Node::ShaderRequest &request) c
 
 void ShaderFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
 {
-  ShaderJob job;
-
-  job.Insert(value);
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, globals.resolution(), this));
-  job.SetAlphaChannelRequired(GenerateJob::kAlphaForceOn);
-
-  // If there's no shader code, no need to run an operation
-  if (shader_code_ != QString()) {
-    table->Push(NodeValue::kTexture, QVariant::fromValue(job), this);
+  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+      ShaderJob job(value);
+      job.SetShaderID(GetLabel());  // TBD: label may not be enough to identify a shader univocally
+      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      table->Push(NodeValue::kTexture, tex->toJob(job), this);
   }
 }
+
 
 
 void olive::ShaderFilterNode::checkShaderSyntax()
@@ -264,10 +277,6 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
       SetComboBoxStrings(it->uniform_name, it->values);
     }
 
-    if (it->is_effect_input) {
-      SetEffectInput( it->uniform_name);
-    }
-
     if (it->type == NodeValue::kVec2) {
       handle_shape_table_.insert( it->uniform_name, it->pointShape);
       handle_color_table_.insert( it->uniform_name, it->gizmoColor);
@@ -342,7 +351,7 @@ void ShaderFilterNode::GizmoDragMove(double x, double y, const Qt::KeyboardModif
 
 void ShaderFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals & globals)
 {
-  resolution_  = globals.resolution();
+  resolution_  = globals.vparams().resolution();
 
   for (QString aInput : user_input_list_)
   {

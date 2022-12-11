@@ -236,7 +236,7 @@ private:
   NodeParamViewCheckBoxBehavior create_checkboxes_;
 
   Node *ctx_;
-  Node * time_target_;
+  ViewerOutput * time_target_;
 
   rational timebase_;
 

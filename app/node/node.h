@@ -773,6 +773,13 @@ public:
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const;
 
   /**
+   * @brief Set to true when shader code that was already compiled must be recompiled.
+   */
+  virtual bool ShaderCodeInvalidateFlag() const {
+    return false;
+  }
+
+  /**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.
    */
   virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const;

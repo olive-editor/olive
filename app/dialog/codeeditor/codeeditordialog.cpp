@@ -59,7 +59,7 @@ CodeEditorDialog::CodeEditorDialog(const QString &start, QWidget* parent) :
   layout->addWidget( search_bar_);
 
   QAction * show_find_dialog = edit_menu->addAction(tr("find/replace"));
-  show_find_dialog->setShortcut( QKeySequence(Qt::CTRL + Qt::Key_F));
+  show_find_dialog->setShortcut( QKeySequence(Qt::CTRL | Qt::Key_F));
 
   connect( show_find_dialog, &QAction::triggered, this, &CodeEditorDialog::OnFindRequest);
 
