@@ -90,6 +90,11 @@ public:
     return shader_name_;
   }
 
+  // name of default input
+  const QString & MainInputName() const {
+    return main_input_name_;
+  }
+
   // list of issue found in parsing inputs
   const QList<Error> & ErrorList() const {
      return error_list_;
@@ -114,6 +119,7 @@ private:
   InputParseState parseShaderName( const QRegularExpressionMatch &);
   InputParseState parseShaderDescription( const QRegularExpressionMatch &);
   InputParseState parseShaderVersion( const QRegularExpressionMatch &);
+  InputParseState parseMainInputName( const QRegularExpressionMatch &);
   InputParseState parseInputName( const QRegularExpressionMatch &);
   InputParseState parseInputUniform( const QRegularExpressionMatch &);
   InputParseState parseInputType( const QRegularExpressionMatch &);
@@ -138,6 +144,7 @@ private:
   int line_number_;
 
   QString shader_name_;
+  QString main_input_name_;
   QMap< const QRegularExpression *, LineParseFunction> INPUT_PARAM_PARSE_TABLE;
 };
 

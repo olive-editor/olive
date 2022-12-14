@@ -32,7 +32,6 @@
 
 #include "shaderinputsparser.h"
 
-#include <QDebug>
 
 namespace olive {
 
@@ -44,7 +43,7 @@ namespace  {
 const QString TEMPLATE(
     "//OVE shader_name: \n"
     "//OVE shader_description: \n\n"
-    "//Default texture: this comes on the house:\n"
+    "//OVE main_input_name: Input\n"
     "uniform sampler2D tex_in;\n\n"
     "//OVE end\n\n\n"
     "// pixel coordinates in range [0..1]x[0..1]\n"
@@ -64,12 +63,9 @@ const QString ShaderFilterNode::kOutputMessages = QStringLiteral("issues");
 
 
 ShaderFilterNode::ShaderFilterNode():
-  invalidate_code_flag_(false)
+  invalidate_code_flag_(false),
+  main_input_name_("Input")
 {
-  // A default texture
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-  SetEffectInput(kTextureInput);
-
   // Full code of the shader. Inputs to be exposed are defined within the shader code
   // with mark-up comments.
   AddInput(kShaderCode, NodeValue::kText, QVariant::fromValue<QString>(TEMPLATE),
@@ -82,6 +78,10 @@ ShaderFilterNode::ShaderFilterNode():
   SetInputProperty( kShaderCode, QStringLiteral("text_type"), QString("shader_code"));
   // mark this text input as output messages
   SetInputProperty( kOutputMessages, QStringLiteral("text_type"), QString("shader_issues"));
+
+  // A default texture. Must be connected even for shaders that do not require a texture.
+  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  SetEffectInput(kTextureInput);
 
   SetFlags(kVideoEffect);
 }
@@ -135,7 +135,6 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
       checkShaderSyntax();
 
       SetStandardValue( kOutputMessages, output_messages_.isEmpty() ? tr("None") : output_messages_);
-      qDebug() << "parsed shader code for " << GetLabel() << " @ " << (uint64_t)this;
 
       invalidate_code_flag_ = true;
     }
@@ -161,7 +160,6 @@ void ShaderFilterNode::Retranslate()
 
   // Retranslate only fixed inputs.
   // Other inputs are read from the shader code
-  SetInputName( kTextureInput, tr("Input"));
   SetInputName( kShaderCode, tr("Shader code"));
   SetInputName( kOutputMessages, tr("Issues"));
 }
@@ -282,6 +280,10 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
       handle_color_table_.insert( it->uniform_name, it->gizmoColor);
     }
   }
+
+  // main input
+  main_input_name_ = (parser.MainInputName().isEmpty()) ? "Input" : parser.MainInputName();
+  SetInputName( kTextureInput, main_input_name_);
 
   // compare 'new_input_list' and 'user_input_list_' to find deleted inputs.
   checkDeletedInputs( new_input_list);

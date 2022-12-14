@@ -86,6 +86,8 @@ private:
   QString shader_code_;
   // error in metadata or shader
   QString output_messages_;
+  // name of default texture input
+  QString main_input_name_;
   // user defined inputs
   QStringList user_input_list_;
   // input of type vec2 to gizmo map

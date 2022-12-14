@@ -46,6 +46,8 @@ QRegularExpression SHADER_NAME_REGEX("^\\s*//OVE\\s*shader_name:\\s*(?<name>.*)\
 QRegularExpression SHADER_DESCRIPTION_REGEX("^\\s*//OVE\\s*shader_description:\\s*(?<description>.*)\\s*$");
 // Version string. So far not used by application
 QRegularExpression SHADER_VERSION_REGEX("^\\s*//OVE\\s*shader_version:\\s*(?<version>.*)\\s*$");
+// human name for default input
+QRegularExpression SHADER_MAIN_INPUT_NAME_REGEX("^\\s*//OVE\\s*main_input_name:\\s*(?<name>.*)\\s*$");
 
 // per Input metadata
 
@@ -127,6 +129,7 @@ ShaderInputsParser::ShaderInputsParser( const QString & shader_code) :
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_NAME_REGEX, & ShaderInputsParser::parseShaderName);
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_DESCRIPTION_REGEX, & ShaderInputsParser::parseShaderDescription);
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_VERSION_REGEX, & ShaderInputsParser::parseShaderVersion);
+  INPUT_PARAM_PARSE_TABLE.insert( & SHADER_MAIN_INPUT_NAME_REGEX, & ShaderInputsParser::parseMainInputName);
 
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_NAME_REGEX, & ShaderInputsParser::parseInputName);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_UNIFORM_REGEX, & ShaderInputsParser::parseInputUniform);
@@ -241,7 +244,7 @@ ShaderInputsParser::parseShaderName(const QRegularExpressionMatch & match)
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseShaderDescription(const QRegularExpressionMatch & /*match*/)
 {
-  // nothing to do. SO far.
+  // nothing to do. So far.
   return PARSING;
 }
 
@@ -249,6 +252,13 @@ ShaderInputsParser::InputParseState
 ShaderInputsParser::parseShaderVersion(const QRegularExpressionMatch & /*match*/)
 {
   // nothing to do. So far.
+  return PARSING;
+}
+
+ShaderInputsParser::InputParseState
+ShaderInputsParser::parseMainInputName(const QRegularExpressionMatch & match)
+{
+  main_input_name_ = match.captured("name");
   return PARSING;
 }
 
