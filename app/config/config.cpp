@@ -91,7 +91,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("Autoscroll"), NodeValue::kInt, AutoScroll::kPage);
   SetEntryInternal(QStringLiteral("AutoSelectDivider"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeValue::kInt, ImportTool::kDWSAsk);
   SetEntryInternal(QStringLiteral("Loop"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeValue::kBoolean, true);
