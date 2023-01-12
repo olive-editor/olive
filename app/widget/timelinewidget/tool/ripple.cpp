@@ -78,6 +78,15 @@ void RippleTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_m
       // Find the block that starts just after or at the ripple point
       Block* block_after_ripple = track->NearestBlockAfterOrAt(earliest_ripple);
 
+      // Exception for out-transitions, do not create a gap between them
+      if (block_after_ripple) {
+        if (ClipBlock *prev_clip = dynamic_cast<ClipBlock*>(block_after_ripple->previous())) {
+          if (prev_clip->out_transition() == block_after_ripple) {
+            block_after_ripple = block_after_ripple->next();
+          }
+        }
+      }
+
       // If block is null, there will be no blocks after to ripple
       if (block_after_ripple) {
         TimelineViewGhostItem* ghost;
