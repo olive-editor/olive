@@ -25,7 +25,6 @@
 #include <QScrollBar>
 #include <QTimer>
 
-#include "common/timecodefunctions.h"
 #include "widget/timebased/timebasedwidget.h"
 
 namespace olive {

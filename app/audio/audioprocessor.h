@@ -27,6 +27,7 @@ extern "C" {
 #include <libavfilter/avfilter.h>
 }
 
+#include "common/define.h"
 #include "render/audioparams.h"
 
 namespace olive {

@@ -24,7 +24,6 @@
 
 #include "common/autoscroll.h"
 #include "common/range.h"
-#include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"

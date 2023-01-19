@@ -22,13 +22,13 @@
 
 namespace olive {
 
-AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, VideoParams::Format maximum)
+AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, PixelFormat maximum)
 {
   AVPixelFormat possible_pix_fmts[3];
 
   possible_pix_fmts[0] = AV_PIX_FMT_RGBA;
 
-  if (maximum == VideoParams::kFormatUnsigned8) {
+  if (maximum == PixelFormat::U8) {
     possible_pix_fmts[1] = AV_PIX_FMT_NONE;
   } else {
     possible_pix_fmts[1] = AV_PIX_FMT_RGBA64;
@@ -148,30 +148,30 @@ AVPixelFormat FFmpegUtils::ConvertJPEGSpaceToRegularSpace(AVPixelFormat f)
   return f;
 }
 
-AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const VideoParams::Format &pix_fmt, int channel_layout)
+AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const PixelFormat &pix_fmt, int channel_layout)
 {
   if (channel_layout == VideoParams::kRGBChannelCount) {
     switch (pix_fmt) {
-    case VideoParams::kFormatUnsigned8:
+    case PixelFormat::U8:
       return AV_PIX_FMT_RGB24;
-    case VideoParams::kFormatUnsigned16:
+    case PixelFormat::U16:
       return AV_PIX_FMT_RGB48;
-    case VideoParams::kFormatFloat16:
-    case VideoParams::kFormatFloat32:
-    case VideoParams::kFormatInvalid:
-    case VideoParams::kFormatCount:
+    case PixelFormat::F16:
+    case PixelFormat::F32:
+    case PixelFormat::INVALID:
+    case PixelFormat::FORMAT_COUNT:
       break;
     }
   } else if (channel_layout == VideoParams::kRGBAChannelCount) {
     switch (pix_fmt) {
-    case VideoParams::kFormatUnsigned8:
+    case PixelFormat::U8:
       return AV_PIX_FMT_RGBA;
-    case VideoParams::kFormatUnsigned16:
+    case PixelFormat::U16:
       return AV_PIX_FMT_RGBA64;
-    case VideoParams::kFormatFloat16:
-    case VideoParams::kFormatFloat32:
-    case VideoParams::kFormatInvalid:
-    case VideoParams::kFormatCount:
+    case PixelFormat::F16:
+    case PixelFormat::F32:
+    case PixelFormat::INVALID:
+    case PixelFormat::FORMAT_COUNT:
       break;
     }
   }
@@ -179,21 +179,21 @@ AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const VideoParams::Format &pix_f
   return AV_PIX_FMT_NONE;
 }
 
-VideoParams::Format FFmpegUtils::GetCompatiblePixelFormat(const VideoParams::Format &pix_fmt)
+PixelFormat FFmpegUtils::GetCompatiblePixelFormat(const PixelFormat &pix_fmt)
 {
   switch (pix_fmt) {
-  case VideoParams::kFormatUnsigned8:
-    return VideoParams::kFormatUnsigned8;
-  case VideoParams::kFormatUnsigned16:
-  case VideoParams::kFormatFloat16:
-  case VideoParams::kFormatFloat32:
-    return VideoParams::kFormatUnsigned16;
-  case VideoParams::kFormatInvalid:
-  case VideoParams::kFormatCount:
+  case PixelFormat::U8:
+    return PixelFormat::U8;
+  case PixelFormat::U16:
+  case PixelFormat::F16:
+  case PixelFormat::F32:
+    return PixelFormat::U16;
+  case PixelFormat::INVALID:
+  case PixelFormat::FORMAT_COUNT:
     break;
   }
 
-  return VideoParams::kFormatInvalid;
+  return PixelFormat::INVALID;
 }
 
 }

@@ -23,7 +23,6 @@
 
 #include <QWidget>
 
-#include "render/color.h"
 #include "render/colorprocessor.h"
 
 namespace olive {

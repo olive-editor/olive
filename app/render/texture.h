@@ -121,7 +121,7 @@ public:
     return QVector2D(params_.square_pixel_width(), params_.height());
   }
 
-  VideoParams::Format format() const
+  PixelFormat format() const
   {
     return params_.format();
   }

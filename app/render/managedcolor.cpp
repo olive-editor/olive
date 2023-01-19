@@ -31,7 +31,7 @@ ManagedColor::ManagedColor(const double &r, const double &g, const double &b, co
 {
 }
 
-ManagedColor::ManagedColor(const char *data, const VideoParams::Format &format, int channel_layout) :
+ManagedColor::ManagedColor(const char *data, const PixelFormat &format, int channel_layout) :
   Color(data, format, channel_layout)
 {
 }

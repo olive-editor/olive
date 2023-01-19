@@ -27,8 +27,6 @@ set(OLIVE_SOURCES
   render/audiowaveformcache.cpp
   render/audiowaveformcache.h
   render/cancelatom.h
-  render/color.cpp
-  render/color.h
   render/colorprocessor.cpp
   render/colorprocessor.h
   render/colorprocessorcache.h

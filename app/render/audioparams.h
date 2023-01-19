@@ -25,13 +25,14 @@ extern "C" {
 #include <libavutil/channel_layout.h>
 }
 
+#include <olive/core/core.h>
 #include <QtMath>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "common/rational.h"
-
 namespace olive {
+
+using namespace core;
 
 class AudioParams {
 public:

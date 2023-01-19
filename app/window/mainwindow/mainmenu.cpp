@@ -25,7 +25,6 @@
 #include <QEvent>
 #include <QStyleFactory>
 
-#include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "dialog/actionsearch/actionsearch.h"

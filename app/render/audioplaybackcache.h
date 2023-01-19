@@ -22,7 +22,6 @@
 #define AUDIOPLAYBACKCACHE_H
 
 #include "audio/audiovisualwaveform.h"
-#include "common/timerange.h"
 #include "codec/samplebuffer.h"
 #include "render/playbackcache.h"
 

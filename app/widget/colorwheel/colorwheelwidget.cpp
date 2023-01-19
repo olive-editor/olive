@@ -73,7 +73,7 @@ void ColorWheelWidget::paintEvent(QPaintEvent *e)
 
         if (tri.hypotenuse <= radius) {
           Color managed = GetManagedColor(GetColorFromTriangle(tri));
-          QColor c = managed.toQColor();
+          QColor c = QtUtils::toQColor(managed);
 
           // Very basic antialiasing around the edges of the wheel
           qreal alpha = qMin(1.0, radius - tri.hypotenuse);

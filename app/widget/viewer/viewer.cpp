@@ -34,7 +34,6 @@
 #include "audio/audiomanager.h"
 #include "common/clamp.h"
 #include "common/ratiodialog.h"
-#include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "node/block/gap/gap.h"

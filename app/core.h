@@ -21,13 +21,12 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <olive/core/core.h>
 #include <QFileInfoList>
 #include <QList>
 #include <QTimer>
 #include <QTranslator>
 
-#include "common/rational.h"
-#include "common/timecodefunctions.h"
 #include "node/project/footage/footage.h"
 #include "node/project/project.h"
 #include "node/project/projectviewmodel.h"

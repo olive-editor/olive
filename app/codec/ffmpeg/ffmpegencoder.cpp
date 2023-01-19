@@ -29,7 +29,6 @@ extern "C" {
 #include <QFile>
 
 #include "common/ffmpegutils.h"
-#include "common/timecodefunctions.h"
 
 namespace olive {
 
@@ -130,7 +129,7 @@ bool FFmpegEncoder::Open()
     }
 
     // This is the format we will expect frames received in Write() to be in
-    VideoParams::Format native_pixel_fmt = params().video_params().format();
+    PixelFormat native_pixel_fmt = params().video_params().format();
 
     // This is the format we will need to convert the frame to for swscale to understand it
     video_conversion_fmt_ = FFmpegUtils::GetCompatiblePixelFormat(native_pixel_fmt);

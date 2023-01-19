@@ -158,11 +158,11 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
 
       int div = qMax(1, static_cast<const Imf::IntAttribute&>(file.header()["oliveDivider"]).value());
 
-      VideoParams::Format image_format;
+      PixelFormat image_format;
       if (pix_type == Imf::HALF) {
-        image_format = VideoParams::kFormatFloat16;
+        image_format = PixelFormat::F16;
       } else {
-        image_format = VideoParams::kFormatFloat32;
+        image_format = PixelFormat::F32;
       }
 
       int channel_count = has_alpha ? VideoParams::kRGBAChannelCount : VideoParams::kRGBChannelCount;
@@ -202,7 +202,7 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
 
         // FIXME: Hardcoded
         const int div = 1;
-        const VideoParams::Format image_format = VideoParams::kFormatUnsigned8;
+        const PixelFormat image_format = PixelFormat::U8;
         const int channel_count = 4;
         const rational par(1, 1);
 
@@ -343,7 +343,7 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, const FramePtr fram
     // Floating point types are stored in EXR
     Imf::PixelType pix_type;
 
-    if (frame->format() == VideoParams::kFormatFloat16) {
+    if (frame->format() == PixelFormat::F16) {
       pix_type = Imf::HALF;
     } else {
       pix_type = Imf::FLOAT;
@@ -392,22 +392,22 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, const FramePtr fram
     QImage::Format fmt = QImage::Format_Invalid;
 
     switch (frame->format()) {
-    case VideoParams::kFormatUnsigned8:
+    case PixelFormat::U8:
       if (frame->channel_count() == VideoParams::kRGBAChannelCount){
         fmt = QImage::Format_RGBA8888_Premultiplied;
       } else if (frame->channel_count() == VideoParams::kRGBChannelCount){
         fmt = QImage::Format_RGB888;
       }
       break;
-    case VideoParams::kFormatUnsigned16:
+    case PixelFormat::U16:
       if (frame->channel_count() == VideoParams::kRGBAChannelCount){
         fmt = QImage::Format_RGBA64_Premultiplied;
       }
       break;
-    case VideoParams::kFormatFloat16:
-    case VideoParams::kFormatFloat32:
-    case VideoParams::kFormatCount:
-    case VideoParams::kFormatInvalid:
+    case PixelFormat::F16:
+    case PixelFormat::F32:
+    case PixelFormat::FORMAT_COUNT:
+    case PixelFormat::INVALID:
       break;
     }
 

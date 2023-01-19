@@ -21,12 +21,13 @@
 #ifndef SUBTITLEPARAMS_H
 #define SUBTITLEPARAMS_H
 
+#include <olive/core/core.h>
 #include <QRect>
 #include <QString>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "common/timerange.h"
+using namespace olive::core;
 
 namespace olive {
 

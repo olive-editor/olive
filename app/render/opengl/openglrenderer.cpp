@@ -189,7 +189,7 @@ void OpenGLRenderer::ClearDestination(Texture *texture, double r, double g, doub
   }
 }
 
-QVariant OpenGLRenderer::CreateNativeTexture(int width, int height, int depth, VideoParams::Format format, int channel_count, const void *data, int linesize)
+QVariant OpenGLRenderer::CreateNativeTexture(int width, int height, int depth, PixelFormat format, int channel_count, const void *data, int linesize)
 {
   GL_PREAMBLE;
 
@@ -673,10 +673,10 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
   vao_.destroy();
 }
 
-GLint OpenGLRenderer::GetInternalFormat(VideoParams::Format format, int channel_layout)
+GLint OpenGLRenderer::GetInternalFormat(PixelFormat format, int channel_layout)
 {
   switch (format) {
-  case VideoParams::kFormatUnsigned8:
+  case PixelFormat::U8:
     switch (channel_layout) {
     case 1:
       return GL_R8;
@@ -688,7 +688,7 @@ GLint OpenGLRenderer::GetInternalFormat(VideoParams::Format format, int channel_
       return GL_RGBA8;
     }
     break;
-  case VideoParams::kFormatUnsigned16:
+  case PixelFormat::U16:
     switch (channel_layout) {
     case 1:
       return GL_R16;
@@ -700,7 +700,7 @@ GLint OpenGLRenderer::GetInternalFormat(VideoParams::Format format, int channel_
       return GL_RGBA16;
     }
     break;
-  case VideoParams::kFormatFloat16:
+  case PixelFormat::F16:
     switch (channel_layout) {
     case 1:
       return GL_R16F;
@@ -712,7 +712,7 @@ GLint OpenGLRenderer::GetInternalFormat(VideoParams::Format format, int channel_
       return GL_RGBA16F;
     }
     break;
-  case VideoParams::kFormatFloat32:
+  case PixelFormat::F32:
     switch (channel_layout) {
     case 1:
       return GL_R32F;
@@ -724,28 +724,28 @@ GLint OpenGLRenderer::GetInternalFormat(VideoParams::Format format, int channel_
       return GL_RGBA32F;
     }
     break;
-  case VideoParams::kFormatInvalid:
-  case VideoParams::kFormatCount:
+  case PixelFormat::INVALID:
+  case PixelFormat::FORMAT_COUNT:
     break;
   }
 
   return GL_INVALID_VALUE;
 }
 
-GLenum OpenGLRenderer::GetPixelType(VideoParams::Format format)
+GLenum OpenGLRenderer::GetPixelType(PixelFormat format)
 {
   switch (format) {
-  case VideoParams::kFormatUnsigned8:
+  case PixelFormat::U8:
     return GL_UNSIGNED_BYTE;
-  case VideoParams::kFormatUnsigned16:
+  case PixelFormat::U16:
     return GL_UNSIGNED_SHORT;
-  case VideoParams::kFormatFloat16:
+  case PixelFormat::F16:
     return GL_HALF_FLOAT;
-  case VideoParams::kFormatFloat32:
+  case PixelFormat::F32:
     return GL_FLOAT;
 
-  case VideoParams::kFormatInvalid:
-  case VideoParams::kFormatCount:
+  case PixelFormat::INVALID:
+  case PixelFormat::FORMAT_COUNT:
     break;
   }
 

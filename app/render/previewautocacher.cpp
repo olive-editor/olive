@@ -589,7 +589,7 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, const rational& 
     if (ThumbnailCache *wave_cache = dynamic_cast<ThumbnailCache *>(cache)) {
       rvp.video_params.set_divider(VideoParams::GetDividerForTargetResolution(rvp.video_params.width(), rvp.video_params.height(), 160, 120));
       rvp.force_color_output = display_color_processor_;
-      rvp.force_format = VideoParams::kFormatUnsigned8;
+      rvp.force_format = PixelFormat::U8;
     } else {
       frame_cache->SetTimebase(viewer_node_->GetVideoParams().frame_rate_as_time_base());
     }

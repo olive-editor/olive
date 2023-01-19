@@ -22,7 +22,6 @@
 #define VIEWER_H
 
 #include "codec/encoder.h"
-#include "common/rational.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
 #include "render/audioparams.h"

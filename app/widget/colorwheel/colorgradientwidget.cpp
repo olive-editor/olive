@@ -62,7 +62,7 @@ void ColorGradientWidget::paintEvent(QPaintEvent *e)
   }
 
   for (int i=0;i<max;i++) {
-    p.setPen(GetManagedColor(LerpColor(start_, end_, i, max)).toQColor());
+    p.setPen(QtUtils::toQColor(GetManagedColor(LerpColor(start_, end_, i, max))));
 
     if (orientation_ == Qt::Horizontal) {
       p.drawLine(i, 0, i, height());

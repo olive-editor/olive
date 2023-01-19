@@ -160,8 +160,8 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeValue::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
 
   // Online/offline settings
-  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat32);
-  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat16);
+  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, PixelFormat::F32);
+  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, PixelFormat::F16);
 
   SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kLime);
 }

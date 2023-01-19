@@ -31,7 +31,6 @@
 #include "render/audioparams.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
-#include "render/color.h"
 
 namespace olive {
 
@@ -72,7 +71,7 @@ QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool val
                                                    QString::number(b.cp2_x()),
                                                    QString::number(b.cp2_y()));
   } else if (data_type == kRational) {
-    return value.value<rational>().toString();
+    return QString::fromStdString(value.value<rational>().toString());
   } else if (data_type == kTexture
              || data_type == kSamples
              || data_type == kNone) {
@@ -245,7 +244,7 @@ QVariant NodeValue::StringToValue(Type data_type, const QString &string, bool va
   } else if (data_type == kInt) {
     return QVariant::fromValue(string.toLongLong());
   } else if (data_type == kRational) {
-    return QVariant::fromValue(rational::fromString(string));
+    return QVariant::fromValue(rational::fromString(string.toStdString()));
   } else {
     return string;
   }

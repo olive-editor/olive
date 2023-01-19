@@ -203,7 +203,7 @@ void AudioParams::Load(QXmlStreamReader *reader)
     } else if (reader->name() == QStringLiteral("duration")) {
       set_duration(reader->readElementText().toLongLong());
     } else if (reader->name() == QStringLiteral("timebase")) {
-      set_time_base(rational::fromString(reader->readElementText()));
+      set_time_base(rational::fromString(reader->readElementText().toStdString()));
     } else {
       reader->skipCurrentElement();
     }
@@ -218,7 +218,7 @@ void AudioParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
   writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index_));
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
-  writer->writeTextElement(QStringLiteral("timebase"), timebase_.toString());
+  writer->writeTextElement(QStringLiteral("timebase"), QString::fromStdString(timebase_.toString()));
 }
 
 QString AudioParams::SampleRateToString(const int &sample_rate)

@@ -50,13 +50,7 @@ set(OLIVE_SOURCES
   common/range.h
   common/ratiodialog.cpp
   common/ratiodialog.h
-  common/rational.cpp
-  common/rational.h
   common/threadsafemap.h
-  common/timecodefunctions.cpp
-  common/timecodefunctions.h
-  common/timerange.cpp
-  common/timerange.h
   common/tohex.h
   common/util.h
   common/xmlutils.cpp

@@ -26,7 +26,6 @@
 #include "common/cpuoptimize.h"
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
-#include "render/color.h"
 
 namespace olive {
 

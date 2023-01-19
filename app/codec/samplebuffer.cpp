@@ -20,6 +20,8 @@
 
 #include "samplebuffer.h"
 
+#include <QDebug>
+
 #include "common/cpuoptimize.h"
 
 namespace olive {

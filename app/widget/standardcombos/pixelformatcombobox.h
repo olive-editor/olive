@@ -35,21 +35,21 @@ public:
     QComboBox(parent)
   {
     // Set up preview formats
-    for (int i=0;i<VideoParams::kFormatCount;i++) {
-      VideoParams::Format pix_fmt = static_cast<VideoParams::Format>(i);
+    for (int i=0;i<PixelFormat::FORMAT_COUNT;i++) {
+      PixelFormat pix_fmt = static_cast<PixelFormat::Format>(i);
 
-      if (!float_only || VideoParams::FormatIsFloat(pix_fmt)) {
-        this->addItem(VideoParams::GetFormatName(pix_fmt), pix_fmt);
+      if (!float_only || pix_fmt.is_float()) {
+        this->addItem(VideoParams::GetFormatName(pix_fmt), static_cast<PixelFormat::Format>(pix_fmt));
       }
     }
   }
 
-  VideoParams::Format GetPixelFormat() const
+  PixelFormat GetPixelFormat() const
   {
-    return static_cast<VideoParams::Format>(this->currentData().toInt());
+    return static_cast<PixelFormat::Format>(this->currentData().toInt());
   }
 
-  void SetPixelFormat(VideoParams::Format fmt)
+  void SetPixelFormat(PixelFormat fmt)
   {
     for (int i=0; i<this->count(); i++) {
       if (this->itemData(i).toInt() == fmt) {

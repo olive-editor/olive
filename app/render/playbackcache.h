@@ -21,6 +21,7 @@
 #ifndef PLAYBACKCACHE_H
 #define PLAYBACKCACHE_H
 
+#include <olive/core/core.h>
 #include <QDir>
 #include <QMutex>
 #include <QObject>
@@ -28,7 +29,8 @@
 #include <QUuid>
 
 #include "common/jobtime.h"
-#include "common/timerange.h"
+
+using namespace olive::core;
 
 namespace olive {
 
@@ -96,9 +98,9 @@ public:
     QUuid cache;
   };
 
-  const QVector<Passthrough> &GetPassthroughs() const { return passthroughs_; }
+  const std::vector<Passthrough> &GetPassthroughs() const { return passthroughs_; }
 
-  void ClearRequestRange(const olive::TimeRange &r)
+  void ClearRequestRange(const TimeRange &r)
   {
     requested_.remove(r);
   }
@@ -113,14 +115,14 @@ public:
 public slots:
   void InvalidateAll();
 
-  void Request(const olive::TimeRange &r);
+  void Request(const TimeRange &r);
 
 signals:
-  void Invalidated(const olive::TimeRange& r);
+  void Invalidated(const TimeRange& r);
 
-  void Validated(const olive::TimeRange& r);
+  void Validated(const TimeRange& r);
 
-  void Requested(const olive::TimeRange& r);
+  void Requested(const TimeRange& r);
 
   void CancelAll();
 
@@ -146,7 +148,7 @@ private:
 
   QMutex mutex_;
 
-  QVector<Passthrough> passthroughs_;
+  std::vector<Passthrough> passthroughs_;
 
   qint64 last_loaded_state_;
 

@@ -22,6 +22,8 @@
 
 #include <QDebug>
 
+#include "common/clamp.h"
+
 namespace olive {
 
 int QtUtils::QFontMetricsWidth(QFontMetrics fm, const QString& s) {
@@ -170,6 +172,34 @@ void QtUtils::SetComboBoxData(QComboBox *cb, int data)
       break;
     }
   }
+}
+
+QColor QtUtils::toQColor(const core::Color &i)
+{
+  QColor c;
+
+  // QColor only supports values from 0.0 to 1.0 and are only used for UI representations
+  c.setRedF(clamp(i.red(), 0.0f, 1.0f));
+  c.setGreenF(clamp(i.green(), 0.0f, 1.0f));
+  c.setBlueF(clamp(i.blue(), 0.0f, 1.0f));
+  c.setAlphaF(clamp(i.alpha(), 0.0f, 1.0f));
+
+  return c;
+}
+
+namespace core {
+
+uint qHash(const core::rational &r, uint seed)
+{
+  return ::qHash(r.toDouble(), seed);
+}
+
+uint qHash(const core::TimeRange &r, uint seed)
+{
+  return qHash(r.in(), seed) ^ qHash(r.out(), seed);
+}
+
+
 }
 
 }

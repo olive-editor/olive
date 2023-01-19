@@ -90,7 +90,7 @@ void PolygonGenerator::Retranslate()
 ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const
 {
   VideoParams p = params;
-  p.set_format(VideoParams::kFormatUnsigned8);
+  p.set_format(PixelFormat::U8);
   auto job = Texture::Job(p, GenerateJob(value));
 
   // Conversion to RGB

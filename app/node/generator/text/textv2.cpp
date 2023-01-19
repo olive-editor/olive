@@ -97,7 +97,7 @@ void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &global
   if (!value[kTextInput].toString().isEmpty()) {
     GenerateJob job(value);
     auto text_params = globals.vparams();
-    text_params.set_format(VideoParams::kFormatFloat32);
+    text_params.set_format(PixelFormat::F32);
     table->Push(NodeValue::kTexture, Texture::Job(text_params, job), this);
   }
 }

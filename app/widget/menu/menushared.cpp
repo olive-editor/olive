@@ -23,7 +23,6 @@
 #include <QActionGroup>
 
 #include "core.h"
-#include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 #include "window/mainwindow/mainwindow.h"
@@ -189,7 +188,7 @@ void MenuShared::AboutToShowTimeRulerActions(const rational& timebase)
   Timecode::Display current_timecode_display = Core::instance()->GetTimecodeDisplay();
 
   // Only show the drop-frame option if the timebase is drop-frame
-  view_timecode_view_dropframe_item_->setVisible(!timebase.isNull() && Timecode::TimebaseIsDropFrame(timebase));
+  view_timecode_view_dropframe_item_->setVisible(!timebase.isNull() && Timecode::timebase_is_drop_frame(timebase));
 
   if (!view_timecode_view_dropframe_item_->isVisible() && current_timecode_display == Timecode::kTimecodeDropFrame) {
     // If the current setting is drop-frame, correct to non-drop frame

@@ -22,6 +22,8 @@
 
 #include <QPainter>
 
+#include "common/qtutils.h"
+
 namespace olive {
 
 ColorPreviewBox::ColorPreviewBox(QWidget *parent) :
@@ -53,9 +55,9 @@ void ColorPreviewBox::paintEvent(QPaintEvent *e)
 
   // Color management
   if (to_ref_processor_ && to_display_processor_) {
-    c = to_display_processor_->ConvertColor(to_ref_processor_->ConvertColor(color_)).toQColor();
+    c = QtUtils::toQColor(to_display_processor_->ConvertColor(to_ref_processor_->ConvertColor(color_)));
   } else {
-    c = color_.toQColor();
+    c = QtUtils::toQColor(color_);
   }
 
   QPainter p(this);

@@ -163,7 +163,7 @@ QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
   grad.setStart(0, top);
   grad.setFinalStop(0, bottom);
 
-  QColor c = color().toQColor();
+  QColor c = QtUtils::toQColor(color());
 
   grad.setColorAt(0.0, c.lighter());
   grad.setColorAt(1.0, c);
@@ -176,7 +176,7 @@ QBrush Node::brush(qreal top, qreal bottom) const
   if (OLIVE_CONFIG("UseGradients").toBool()) {
     return gradient_color(top, bottom);
   } else {
-    return color().toQColor();
+    return QtUtils::toQColor(color());
   }
 }
 

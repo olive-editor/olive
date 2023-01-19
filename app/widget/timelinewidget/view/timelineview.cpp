@@ -29,7 +29,6 @@
 
 #include "config/config.h"
 #include "common/qtutils.h"
-#include "common/timecodefunctions.h"
 #include "node/project/footage/footage.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
@@ -106,9 +105,9 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     Block* b = GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index());
     if (b) {
       setToolTip(tr("In: %1\nOut: %2\nDuration: %3").arg(
-                   Timecode::time_to_timecode(b->in(), timebase(), Core::instance()->GetTimecodeDisplay()),
-                   Timecode::time_to_timecode(b->out(), timebase(), Core::instance()->GetTimecodeDisplay()),
-                   Timecode::time_to_timecode(b->length(), timebase(), Core::instance()->GetTimecodeDisplay())
+                   QString::fromStdString(Timecode::time_to_timecode(b->in(), timebase(), Core::instance()->GetTimecodeDisplay())),
+                   QString::fromStdString(Timecode::time_to_timecode(b->out(), timebase(), Core::instance()->GetTimecodeDisplay())),
+                   QString::fromStdString(Timecode::time_to_timecode(b->length(), timebase(), Core::instance()->GetTimecodeDisplay()))
       ));
     } else {
       setToolTip(QString());
@@ -416,7 +415,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
              block_right - block_left,
              block_height);
 
-    QColor shadow_color = block->is_enabled() ? block->color().toQColor().darker() : QColor(Qt::darkGray).darker();
+    QColor shadow_color = block->is_enabled() ? QtUtils::toQColor(block->color()).darker() : QColor(Qt::darkGray).darker();
 
     const qreal MINIMUM_RECT_WIDTH = 2;
     const qreal MINIMUM_DETAIL_WIDTH = 8;

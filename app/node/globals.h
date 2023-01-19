@@ -23,7 +23,6 @@
 
 #include <QVector2D>
 
-#include "common/timerange.h"
 #include "render/audioparams.h"
 #include "render/loopmode.h"
 #include "render/videoparams.h"

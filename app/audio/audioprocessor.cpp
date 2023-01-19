@@ -25,6 +25,8 @@ extern "C" {
 #include <libavfilter/buffersink.h>
 }
 
+#include <QDebug>
+
 #include "common/ffmpegutils.h"
 
 namespace olive {

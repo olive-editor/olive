@@ -21,6 +21,7 @@
 #ifndef QTVERSIONABSTRACTION_H
 #define QTVERSIONABSTRACTION_H
 
+#include <olive/core/core.h>
 #include <QComboBox>
 #include <QDateTime>
 #include <QFileInfo>
@@ -72,8 +73,21 @@ public:
     return nullptr;
   }
 
+  static QColor toQColor(const core::Color &c);
+
 };
 
+namespace core {
+
+uint qHash(const core::rational& r, uint seed = 0);
+uint qHash(const core::TimeRange& r, uint seed = 0);
+
 }
+
+}
+
+Q_DECLARE_METATYPE(olive::core::rational);
+Q_DECLARE_METATYPE(olive::core::Color);
+Q_DECLARE_METATYPE(olive::core::TimeRange);
 
 #endif // QTVERSIONABSTRACTION_H

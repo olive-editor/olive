@@ -33,7 +33,6 @@
 #include "core.h"
 #include "common/channellayout.h"
 #include "common/qtutils.h"
-#include "common/rational.h"
 #include "undo/undostack.h"
 
 namespace olive {
