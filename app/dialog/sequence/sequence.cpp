@@ -140,7 +140,7 @@ void SequenceDialog::accept()
 
   AudioParams audio_params = AudioParams(parameter_tab_->GetSelectedAudioSampleRate(),
                                          parameter_tab_->GetSelectedAudioChannelLayout(),
-                                         AudioParams::kInternalFormat);
+                                         Sequence::kDefaultSampleFormat);
 
   if (make_undoable_) {
 

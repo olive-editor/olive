@@ -22,7 +22,6 @@
 
 #include <QPainter>
 
-#include "common/clamp.h"
 #include "common/lerp.h"
 #include "node/node.h"
 
@@ -76,7 +75,7 @@ void ColorGradientWidget::paintEvent(QPaintEvent *e)
   p.setPen(QPen(GetUISelectorColor(), qMax(1, selector_radius / 2)));
   p.setBrush(Qt::NoBrush);
 
-  float clamped_val = clamp(val_, 0.0f, 1.0f);
+  float clamped_val = std::clamp(val_, 0.0f, 1.0f);
 
   if (orientation_ == Qt::Horizontal) {
     p.drawRect(qRound(width() * (1.0 - clamped_val)) - selector_radius, 0, selector_radius * 2, height() - 1);
@@ -99,7 +98,7 @@ void ColorGradientWidget::SelectedColorChangedEvent(const Color &c, bool externa
 
 Color ColorGradientWidget::LerpColor(const Color &a, const Color &b, int i, int max)
 {
-  float t = clamp(static_cast<float>(i) / static_cast<float>(max), 0.0f, 1.0f);
+  float t = std::clamp(static_cast<float>(i) / static_cast<float>(max), 0.0f, 1.0f);
 
   return Color(lerp(a.red(), b.red(), t),
                lerp(a.green(), b.green(), t),

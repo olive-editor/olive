@@ -30,7 +30,6 @@
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/project.h"
-#include "render/audioparams.h"
 #include "render/projectcopier.h"
 #include "render/renderjobtracker.h"
 #include "render/rendermanager.h"

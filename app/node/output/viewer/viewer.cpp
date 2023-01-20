@@ -32,6 +32,8 @@ const QString ViewerOutput::kSubtitleParamsInput = QStringLiteral("subtitle_para
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 
+const SampleFormat ViewerOutput::kDefaultSampleFormat = SampleFormat::F32P;
+
 #define super Node
 
 ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_streams) :
@@ -213,9 +215,9 @@ void ViewerOutput::set_default_parameters()
       VideoParams::generate_auto_divider(width, height)
       ));
   SetAudioParams(AudioParams(
-                   OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
-                 OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
-      AudioParams::kInternalFormat
+      OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
+      OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
+      kDefaultSampleFormat
       ));
 }
 
@@ -518,7 +520,7 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
 
     if (!audio_streams.isEmpty()) {
       const AudioParams& s = audio_streams.first();
-      SetAudioParams(AudioParams(s.sample_rate(), s.channel_layout(), AudioParams::kInternalFormat));
+      SetAudioParams(AudioParams(s.sample_rate(), s.channel_layout(), kDefaultSampleFormat));
     }
   }
 }

@@ -41,7 +41,7 @@ public:
 
   virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const override;
 
-  virtual std::vector<AudioParams::Format> GetSampleFormatsForCodec(ExportCodec::Codec c) const override;
+  virtual std::vector<SampleFormat> GetSampleFormatsForCodec(ExportCodec::Codec c) const override;
 
   virtual bool Open() override;
 
@@ -82,7 +82,7 @@ private:
 
   bool InitializeResampleContext(const AudioParams &audio);
 
-  static const AVCodec *GetEncoder(ExportCodec::Codec c, AudioParams::Format aformat);
+  static const AVCodec *GetEncoder(ExportCodec::Codec c, SampleFormat aformat);
 
   AVFormatContext* fmt_ctx_;
 

@@ -23,7 +23,6 @@
 #include <QPainter>
 #include <QtMath>
 
-#include "common/clamp.h"
 #include "node/node.h"
 
 namespace olive {
@@ -121,7 +120,7 @@ void ColorWheelWidget::SelectedColorChangedEvent(const Color &c, bool external)
 {
   if (external) {
     force_redraw_ = true;
-    val_ = clamp(c.value(), 0.0f, 1.0f);
+    val_ = std::clamp(c.value(), 0.0f, 1.0f);
   }
 }
 

@@ -27,7 +27,6 @@
 
 #include "audio/audiovisualwaveform.h"
 #include "common/define.h"
-#include "render/audioparams.h"
 #include "render/audiowaveformcache.h"
 
 namespace olive {

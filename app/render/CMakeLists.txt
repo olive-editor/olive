@@ -20,8 +20,6 @@ add_subdirectory(opengl)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/audioparams.cpp
-  render/audioparams.h
   render/audioplaybackcache.cpp
   render/audioplaybackcache.h
   render/audiowaveformcache.cpp

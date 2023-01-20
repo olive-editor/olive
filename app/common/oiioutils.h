@@ -43,7 +43,7 @@ public:
     case PixelFormat::F32:
       return OIIO::TypeDesc::FLOAT;
     case PixelFormat::INVALID:
-    case PixelFormat::FORMAT_COUNT:
+    case PixelFormat::COUNT:
       break;
     }
 

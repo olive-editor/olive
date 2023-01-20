@@ -24,7 +24,6 @@
 #include <QPainter>
 #include <QtMath>
 
-#include "common/clamp.h"
 #include "config/config.h"
 #include "timeline/timelinecommon.h"
 

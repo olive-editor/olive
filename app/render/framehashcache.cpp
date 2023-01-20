@@ -406,7 +406,7 @@ bool FrameHashCache::SaveCacheFrame(const QString &filename, const FramePtr fram
       break;
     case PixelFormat::F16:
     case PixelFormat::F32:
-    case PixelFormat::FORMAT_COUNT:
+    case PixelFormat::COUNT:
     case PixelFormat::INVALID:
       break;
     }

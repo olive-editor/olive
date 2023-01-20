@@ -32,7 +32,6 @@
 #include <QVBoxLayout>
 
 #include "audio/audiomanager.h"
-#include "common/clamp.h"
 #include "common/ratiodialog.h"
 #include "config/config.h"
 #include "core.h"
@@ -512,7 +511,7 @@ void ViewerWidget::UpdateAudioProcessor()
     AudioParams ap = GetConnectedNode()->GetAudioParams();
     AudioParams packed(OLIVE_CONFIG("AudioOutputSampleRate").toInt(),
                        OLIVE_CONFIG("AudioOutputChannelLayout").toULongLong(),
-                       static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioOutputSampleFormat").toInt()));
+                       SampleFormat::from_string(OLIVE_CONFIG("AudioOutputSampleFormat").toString().toStdString()));
 
     audio_processor_.Open(ap, packed, (playback_speed_ == 0) ? 1 : std::abs(playback_speed_));
   }
@@ -728,7 +727,7 @@ void ViewerWidget::QueueNextAudioBuffer()
   rational queue_end = audio_playback_queue_time_ + (kAudioPlaybackInterval * playback_speed_);
 
   // Clamp queue end by zero and the audio length
-  queue_end  = clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
+  queue_end  = std::clamp(queue_end, rational(0), GetConnectedNode()->GetAudioLength());
   if ((playback_speed_ > 0 && queue_end <= audio_playback_queue_time_)
       || (playback_speed_ < 0 && queue_end >= audio_playback_queue_time_)) {
     // This will queue nothing, so stop the loop here
@@ -1558,7 +1557,9 @@ void ViewerWidget::Play(bool in_to_out_only)
                                                 ExportFormat::GetExtension(static_cast<ExportFormat::Format>(OLIVE_CONFIG("AudioRecordingFormat").toInt())))
                                               );
 
-    AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(), OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong(), static_cast<AudioParams::Format>(OLIVE_CONFIG("AudioRecordingSampleFormat").toInt()));
+    AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(),
+                   OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong(),
+                   SampleFormat::from_string(OLIVE_CONFIG("AudioRecordingSampleFormat").toString().toStdString()));
 
     EncodingParams encode_param;
     encode_param.EnableAudio(ap, static_cast<ExportCodec::Codec>(OLIVE_CONFIG("AudioRecordingCodec").toInt()));

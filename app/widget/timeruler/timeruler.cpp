@@ -198,7 +198,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
     double screen_pt = static_cast<double>(i);
 
     if (long_interval > -1) {
-      int this_long_unit = qFloor(screen_pt/long_interval);
+      int this_long_unit = std::floor(screen_pt/long_interval);
       if (this_long_unit != last_long_unit) {
         int line_y = long_y;
 
@@ -241,7 +241,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
     }
 
     if (short_interval > -1) {
-      int this_short_unit = qFloor(screen_pt/short_interval);
+      int this_short_unit = std::floor(screen_pt/short_interval);
       if (this_short_unit != last_short_unit) {
         p->drawLine(i, short_y, i, line_bottom);
         last_short_unit = this_short_unit;

@@ -725,7 +725,7 @@ GLint OpenGLRenderer::GetInternalFormat(PixelFormat format, int channel_layout)
     }
     break;
   case PixelFormat::INVALID:
-  case PixelFormat::FORMAT_COUNT:
+  case PixelFormat::COUNT:
     break;
   }
 
@@ -745,7 +745,7 @@ GLenum OpenGLRenderer::GetPixelType(PixelFormat format)
     return GL_FLOAT;
 
   case PixelFormat::INVALID:
-  case PixelFormat::FORMAT_COUNT:
+  case PixelFormat::COUNT:
     break;
   }
 

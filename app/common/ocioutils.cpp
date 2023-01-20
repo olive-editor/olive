@@ -37,7 +37,7 @@ OCIO::BitDepth OCIOUtils::GetOCIOBitDepthFromPixelFormat(PixelFormat format)
     return OCIO::BIT_DEPTH_F32;
     break;
   case PixelFormat::INVALID:
-  case PixelFormat::FORMAT_COUNT:
+  case PixelFormat::COUNT:
     break;
   }
 

@@ -24,7 +24,6 @@
 #include <QtGlobal>
 
 #include "config/config.h"
-#include "common/cpuoptimize.h"
 
 namespace olive {
 
@@ -459,8 +458,8 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
       break;
     }
 
-    next_sample_index = qMin(arr.size(),
-                             start_sample_index + qFloor(rate_dbl * static_cast<double>(i - rect.x() + 1) / scale) * samples.channel_count());
+    next_sample_index = std::min(arr.size(),
+                                 size_t(start_sample_index + std::floor(rate_dbl * static_cast<double>(i - rect.x() + 1) / scale) * samples.channel_count()));
 
     if (summary_index != sample_index) {
       summary = AudioVisualWaveform::ReSumSamples(&arr.at(sample_index),
@@ -480,7 +479,7 @@ size_t AudioVisualWaveform::time_to_samples(const rational &time, double sample_
 
 size_t AudioVisualWaveform::time_to_samples(const double &time, double sample_rate) const
 {
-  return qFloor(time * sample_rate) * channels_;
+  return std::floor(time * sample_rate) * channels_;
 }
 
 std::map<rational, AudioVisualWaveform::Sample>::const_iterator AudioVisualWaveform::GetMipmapForScale(double scale) const

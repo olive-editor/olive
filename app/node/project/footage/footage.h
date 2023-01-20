@@ -28,7 +28,6 @@
 #include "codec/decoder.h"
 #include "footagedescription.h"
 #include "node/output/viewer/viewer.h"
-#include "render/audioparams.h"
 #include "render/cancelatom.h"
 #include "render/videoparams.h"
 

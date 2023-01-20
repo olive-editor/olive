@@ -35,7 +35,7 @@ public:
     QComboBox(parent)
   {
     // Set up preview formats
-    for (int i=0;i<PixelFormat::FORMAT_COUNT;i++) {
+    for (int i=0;i<PixelFormat::COUNT;i++) {
       PixelFormat pix_fmt = static_cast<PixelFormat::Format>(i);
 
       if (!float_only || pix_fmt.is_float()) {

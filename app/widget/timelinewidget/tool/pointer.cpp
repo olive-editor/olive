@@ -23,7 +23,6 @@
 #include <QDebug>
 #include <QToolTip>
 
-#include "common/clamp.h"
 #include "common/qtutils.h"
 #include "common/range.h"
 #include "config/config.h"
@@ -948,7 +947,7 @@ rational PointerTool::ValidateInTrimming(rational movement)
 
     // Clamp adjusted value between the earliest and latest values
     rational adjusted = ghost->GetIn() + movement;
-    rational clamped = clamp(adjusted, earliest_in, latest_in);
+    rational clamped = std::clamp(adjusted, earliest_in, latest_in);
 
     if (clamped != adjusted) {
       movement = clamped - ghost->GetIn();
@@ -985,7 +984,7 @@ rational PointerTool::ValidateOutTrimming(rational movement)
 
     // Clamp adjusted value between the earliest and latest values
     rational adjusted = ghost->GetOut() + movement;
-    rational clamped = clamp(adjusted, earliest_out, latest_out);
+    rational clamped = std::clamp(adjusted, earliest_out, latest_out);
 
     if (clamped != adjusted) {
       movement = clamped - ghost->GetOut();

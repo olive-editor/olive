@@ -25,7 +25,6 @@
 #include <QStandardPaths>
 
 #include "codec/decoder.h"
-#include "common/clamp.h"
 #include "common/filefunctions.h"
 #include "common/qtutils.h"
 #include "common/xmlutils.h"
@@ -352,7 +351,7 @@ rational Footage::AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const 
       break;
     case LoopMode::kLoopModeClamp:
       // Clamp footage time to length
-      time = clamp(time, rational(0), length - timebase);
+      time = std::clamp(time, rational(0), length - timebase);
       break;
     case LoopMode::kLoopModeLoop:
       // Loop footage time around job length

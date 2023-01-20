@@ -68,28 +68,28 @@ void AudioPlaybackCache::WriteSilence(const TimeRange &range)
 
 bool AudioPlaybackCache::WritePartOfSampleBuffer(const SampleBuffer &samples, const rational &write_start, const rational &buffer_start, const rational &length)
 {
-  qint64 length_in_bytes = params_.time_to_bytes_per_channel(length);
+  int64_t length_in_bytes = params_.time_to_bytes_per_channel(length);
 
-  qint64 start_cache_offset = params_.time_to_bytes_per_channel(write_start);
-  qint64 end_cache_offset = start_cache_offset + length_in_bytes;
+  int64_t start_cache_offset = params_.time_to_bytes_per_channel(write_start);
+  int64_t end_cache_offset = start_cache_offset + length_in_bytes;
 
-  qint64 start_buffer_offset = params_.time_to_bytes_per_channel(buffer_start);
-  qint64 end_buffer_offset = std::min(start_buffer_offset + length_in_bytes, params_.samples_to_bytes_per_channel(samples.sample_count()));
+  int64_t start_buffer_offset = params_.time_to_bytes_per_channel(buffer_start);
+  int64_t end_buffer_offset = std::min(start_buffer_offset + length_in_bytes, params_.samples_to_bytes_per_channel(samples.sample_count()));
 
-  qint64 current_cache_offset = start_cache_offset;
-  qint64 current_buffer_offset = start_buffer_offset;
+  int64_t current_cache_offset = start_cache_offset;
+  int64_t current_buffer_offset = start_buffer_offset;
 
   bool success = true;
 
   while (current_cache_offset != end_cache_offset) {
-    qint64 segment = current_cache_offset / kDefaultSegmentSizePerChannel;
-    qint64 segment_start = segment * kDefaultSegmentSizePerChannel;
-    qint64 segment_end = segment_start + kDefaultSegmentSizePerChannel;
+    int64_t segment = current_cache_offset / kDefaultSegmentSizePerChannel;
+    int64_t segment_start = segment * kDefaultSegmentSizePerChannel;
+    int64_t segment_end = segment_start + kDefaultSegmentSizePerChannel;
 
-    qint64 offset_in_segment = current_cache_offset - segment_start;
-    qint64 write_len = segment_end - offset_in_segment;
-    qint64 max_buffer_len = end_buffer_offset - current_buffer_offset;
-    qint64 zero_len = 0;
+    int64_t offset_in_segment = current_cache_offset - segment_start;
+    int64_t write_len = segment_end - offset_in_segment;
+    int64_t max_buffer_len = end_buffer_offset - current_buffer_offset;
+    int64_t zero_len = 0;
 
     if (write_len > max_buffer_len) {
       zero_len = write_len - max_buffer_len;

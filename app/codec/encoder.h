@@ -29,9 +29,7 @@
 #include "codec/exportcodec.h"
 #include "codec/exportformat.h"
 #include "codec/frame.h"
-#include "codec/samplebuffer.h"
 #include "node/block/subtitle/subtitle.h"
-#include "render/audioparams.h"
 #include "render/colortransform.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
@@ -204,7 +202,7 @@ public:
   static Encoder *CreateFromParams(const EncodingParams &params);
 
   virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const;
-  virtual std::vector<AudioParams::Format> GetSampleFormatsForCodec(ExportCodec::Codec c) const;
+  virtual std::vector<SampleFormat> GetSampleFormatsForCodec(ExportCodec::Codec c) const;
 
   const EncodingParams& params() const;
 

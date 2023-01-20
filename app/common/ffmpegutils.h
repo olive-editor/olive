@@ -27,10 +27,13 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include "render/audioparams.h"
+#include <olive/core/core.h>
+
 #include "render/videoparams.h"
 
 namespace olive {
+
+using namespace core;
 
 class FFmpegUtils {
 public:
@@ -52,12 +55,12 @@ public:
   /**
    * @brief Returns a native sample format type for a given AVSampleFormat
    */
-  static AudioParams::Format GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
+  static SampleFormat GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
 
   /**
    * @brief Returns an FFmpeg sample format type for a given native type
    */
-  static AVSampleFormat GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt);
+  static AVSampleFormat GetFFmpegSampleFormat(const SampleFormat &smp_fmt);
 
   /**
    * @brief Returns an SWS_CS_* macro from an AVColorSpace enum member

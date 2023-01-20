@@ -182,7 +182,7 @@ int VideoParams::GetBytesPerChannel(PixelFormat format)
 {
   switch (format) {
   case PixelFormat::INVALID:
-  case PixelFormat::FORMAT_COUNT:
+  case PixelFormat::COUNT:
     break;
   case PixelFormat::U8:
     return 1;
@@ -222,7 +222,7 @@ QString VideoParams::GetFormatName(PixelFormat format)
   case PixelFormat::F32:
     return QCoreApplication::translate("VideoParams", "Full-Float (32-bit)");
   case PixelFormat::INVALID:
-  case PixelFormat::FORMAT_COUNT:
+  case PixelFormat::COUNT:
     break;
   }
 
@@ -287,7 +287,7 @@ bool VideoParams::is_valid() const
   return (width() > 0
           && height() > 0
           && !pixel_aspect_ratio_.isNull()
-          && format_ > PixelFormat::INVALID && format_ < PixelFormat::FORMAT_COUNT
+          && format_ > PixelFormat::INVALID && format_ < PixelFormat::COUNT
           && channel_count_ > 0);
 }
 

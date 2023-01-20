@@ -468,7 +468,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
           stream.set_stream_index(i);
           stream.set_channel_layout(channel_layout);
           stream.set_sample_rate(avstream->codecpar->sample_rate);
-          stream.set_format(AudioParams::kInternalFormat);
+          stream.set_format(FFmpegUtils::GetNativeSampleFormat(static_cast<AVSampleFormat>(avstream->codecpar->format)));
           stream.set_time_base(avstream->time_base);
           stream.set_duration(avstream->duration);
           desc.AddAudioStream(stream);

@@ -29,15 +29,19 @@ foreach (COMPONENT ${LIBOLIVE_COMPONENTS})
     HINTS
       "${LIBOLIVE_LOCATION}"
       "$ENV{LIBOLIVE_LOCATION}"
+      "${LIBOLIVE_ROOT}"
+      "$ENV{LIBOLIVE_ROOT}"
     PATH_SUFFIXES
       include/
   )
 
   find_library(LIBOLIVE_${UPPER_COMPONENT}_LIBRARY
-      olivecore
+      olive${LOWER_COMPONENT}
     HINTS
       "${LIBOLIVE_LOCATION}"
       "$ENV{LIBOLIVE_LOCATION}"
+      "${LIBOLIVE_ROOT}"
+      "$ENV{LIBOLIVE_ROOT}"
     PATH_SUFFIXES
       lib/
   )

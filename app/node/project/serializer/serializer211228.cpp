@@ -375,8 +375,7 @@ void ProjectSerializer211228::LoadImmediate(QXmlStreamReader *reader, Node *node
             vp.Load(reader);
             value_on_track = QVariant::fromValue(vp);
           } else if (data_type == NodeValue::kAudioParams) {
-            AudioParams ap;
-            ap.Load(reader);
+            AudioParams ap = TypeSerializer::LoadAudioParams(reader);
             value_on_track = QVariant::fromValue(ap);
           } else {
             QString value_text = reader->readElementText();

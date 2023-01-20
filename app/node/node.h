@@ -29,14 +29,12 @@
 #include <QXmlStreamWriter>
 
 #include "codec/frame.h"
-#include "codec/samplebuffer.h"
 #include "common/xmlutils.h"
 #include "node/gizmo/draggable.h"
 #include "node/globals.h"
 #include "node/keyframe.h"
 #include "node/inputimmediate.h"
 #include "node/param.h"
-#include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/audiowaveformcache.h"
 #include "render/framehashcache.h"

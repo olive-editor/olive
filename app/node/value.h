@@ -26,8 +26,6 @@
 #include <QVariant>
 #include <QVector>
 
-#include "codec/samplebuffer.h"
-#include "common/bezier.h"
 #include "common/qtutils.h"
 #include "node/splitvalue.h"
 #include "render/texture.h"

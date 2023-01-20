@@ -257,7 +257,7 @@ void EncodingParams::Save(QXmlStreamWriter *writer) const
     writer->writeTextElement(QStringLiteral("codec"), QString::number(audio_codec_));
     writer->writeTextElement(QStringLiteral("samplerate"), QString::number(audio_params_.sample_rate()));
     writer->writeTextElement(QStringLiteral("channellayout"), QString::number(audio_params_.channel_layout()));
-    writer->writeTextElement(QStringLiteral("format"), QString::number(audio_params_.format()));
+    writer->writeTextElement(QStringLiteral("format"), QString::fromStdString(audio_params_.format().to_string()));
     writer->writeTextElement(QStringLiteral("bitrate"), QString::number(audio_bit_rate_));
   }
 
@@ -337,9 +337,9 @@ QStringList Encoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
   return QStringList();
 }
 
-std::vector<AudioParams::Format> Encoder::GetSampleFormatsForCodec(ExportCodec::Codec c) const
+std::vector<SampleFormat> Encoder::GetSampleFormatsForCodec(ExportCodec::Codec c) const
 {
-  return std::vector<AudioParams::Format>();
+  return std::vector<SampleFormat>();
 }
 
 QMatrix4x4 EncodingParams::GenerateMatrix(EncodingParams::VideoScalingMethod method,
@@ -471,7 +471,7 @@ bool EncodingParams::LoadV1(QXmlStreamReader *reader)
         } else if (reader->name() == QStringLiteral("channellayout")) {
           audio_params_.set_channel_layout(reader->readElementText().toULongLong());
         } else if (reader->name() == QStringLiteral("format")) {
-          audio_params_.set_format(static_cast<AudioParams::Format>(reader->readElementText().toInt()));
+          audio_params_.set_format(SampleFormat::from_string(reader->readElementText().toStdString()));
         } else if (reader->name() == QStringLiteral("bitrate")) {
           audio_bit_rate_ = reader->readElementText().toLongLong();
         } else {

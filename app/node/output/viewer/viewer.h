@@ -24,7 +24,6 @@
 #include "codec/encoder.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
-#include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
 #include "render/subtitleparams.h"
@@ -199,6 +198,8 @@ public:
 
   static const QString kTextureInput;
   static const QString kSamplesInput;
+
+  static const SampleFormat kDefaultSampleFormat;
 
 signals:
   void FrameRateChanged(const rational&);

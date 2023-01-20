@@ -26,9 +26,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
-#include "common/bezier.h"
 #include "common/tohex.h"
-#include "render/audioparams.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 

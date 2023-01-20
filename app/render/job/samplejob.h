@@ -22,7 +22,6 @@
 #define SAMPLEJOB_H
 
 #include "acceleratedjob.h"
-#include "codec/samplebuffer.h"
 
 namespace olive {
 
