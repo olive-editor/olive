@@ -49,17 +49,11 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
 
     layout->addWidget(new QLabel(field_text), row, 0);
 
-    input_combobox_ = new QComboBox();
+    input_combobox_ = new ColorSpaceComboBox(color_manager_, "Input");
     layout->addWidget(input_combobox_, row, 1);
 
-    QStringList input_spaces = color_manager->ListAvailableColorspaces();
-
-    foreach (const QString& s, input_spaces) {
-      input_combobox_->addItem(s);
-    }
-
-    if (!color_manager_->GetDefaultInputColorSpace().isEmpty()) {
-      input_combobox_->setCurrentText(color_manager_->GetDefaultInputColorSpace());
+    if (!color_manager_->GetDefaultFloatInputColorSpace().isEmpty()) {
+      input_combobox_->setColorSpacePlaceHolder(color_manager_->GetDefaultFloatInputColorSpace());
     }
 
     connect(input_combobox_, &QComboBox::currentTextChanged, this, &ColorSpaceChooser::ComboBoxChanged);
@@ -128,7 +122,7 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
 QString ColorSpaceChooser::input() const
 {
   if (input_combobox_) {
-    return input_combobox_->currentText();
+    return input_combobox_->placeholderText();
   } else {
     return QString();
   }
@@ -143,7 +137,7 @@ ColorTransform ColorSpaceChooser::output() const
 
 void ColorSpaceChooser::set_input(const QString &s)
 {
-  input_combobox_->setCurrentText(color_manager_->GetCompliantColorSpace(s));
+  input_combobox_->setPlaceholderText(color_manager_->GetCompliantColorSpace(s));
 }
 
 void ColorSpaceChooser::set_output(const ColorTransform &out)

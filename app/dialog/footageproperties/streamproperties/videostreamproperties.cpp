@@ -63,19 +63,23 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
 
   video_layout->addWidget(new QLabel(tr("Color Space:")), row, 0);
 
-  video_color_space_ = new QComboBox();
-  OCIO::ConstConfigRcPtr config = footage_->project()->color_manager()->GetConfig();
-  int number_of_colorspaces = config->getNumColorSpaces();
-
-  video_color_space_->addItem(tr("Default (%1)").arg(footage_->project()->color_manager()->GetDefaultInputColorSpace()));
-
-  for (int i=0;i<number_of_colorspaces;i++) {
-    QString colorspace = config->getColorSpaceNameByIndex(i);
-
-    video_color_space_->addItem(colorspace);
+  ColorManager *color_manager = footage_->project()->color_manager();
+  video_color_space_ = new ColorSpaceComboBox(footage_->project()->color_manager(), "Input", true, this);
+  
+  if (!vp.colorspace().isEmpty()) {
+    video_color_space_->setColorSpacePlaceHolder(color_manager->GetConfig()->getCanonicalName(
+        vp.colorspace().toStdString().c_str()));
+  } else {
+    QString colorspace;
+    if (vp.format() == VideoParams::Format::kFormatUnsigned8 ||
+        vp.format() == VideoParams::Format::kFormatUnsigned16) {
+      colorspace = color_manager->GetDefaultByteInputColorSpace();
+    } else {
+      colorspace = color_manager->GetDefaultFloatInputColorSpace();
+    }
+    video_color_space_->setColorSpacePlaceHolder(color_manager->GetConfig()->getCanonicalName(
+        colorspace.toStdString().c_str()));
   }
-
-  video_color_space_->setCurrentText(vp.colorspace());
 
   video_layout->addWidget(video_color_space_, row, 1);
 
@@ -136,11 +140,7 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
 
 void VideoStreamProperties::Accept(MultiUndoCommand *parent)
 {
-  QString set_colorspace;
-
-  if (video_color_space_->currentIndex() > 0) {
-    set_colorspace = video_color_space_->currentText();
-  }
+  QString set_colorspace = video_color_space_->ColorSpacePlaceHolder();
 
   VideoParams vp = footage_->GetVideoParams(video_index_);
 

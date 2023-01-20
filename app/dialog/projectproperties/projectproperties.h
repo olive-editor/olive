@@ -29,6 +29,7 @@
 #include <QRadioButton>
 
 #include "node/project/project.h"
+#include "widget/colorspacecombobox/colorspacecombobox.h"
 #include "widget/path/pathwidget.h"
 
 namespace olive {
@@ -49,7 +50,8 @@ private:
 
   QLineEdit* ocio_filename_;
 
-  QComboBox* default_input_colorspace_;
+  ColorSpaceComboBox* default_float_input_colorspace_;
+  ColorSpaceComboBox* default_byte_input_colorspace_;
 
   bool ocio_config_is_valid_;
 

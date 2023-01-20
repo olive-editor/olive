@@ -25,6 +25,7 @@
 #include <QGroupBox>
 
 #include "node/color/colormanager/colormanager.h"
+#include "widget/colorspacecombobox/colorspacecombobox.h"
 
 namespace olive {
 
@@ -53,7 +54,7 @@ private slots:
 private:
   ColorManager* color_manager_;
 
-  QComboBox* input_combobox_;
+  ColorSpaceComboBox* input_combobox_;
 
   QComboBox* display_combobox_;
 

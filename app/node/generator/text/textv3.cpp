@@ -118,7 +118,7 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
 
     VideoParams text_params = base ? base->params() : globals.vparams();
     text_params.set_format(VideoParams::kFormatUnsigned8);
-    text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
+    text_params.set_colorspace(project()->color_manager()->GetDefaultFloatInputColorSpace());
 
     GenerateJob job(value);
     job.Insert(kTextInput, NodeValue(NodeValue::kText, text));

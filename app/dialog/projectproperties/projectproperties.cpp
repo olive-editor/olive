@@ -70,10 +70,19 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
 
     row++;
 
-    color_layout->addWidget(new QLabel(tr("Default Input Color Space:")), row, 0);
+    color_layout->addWidget(new QLabel(tr("Default Float Input Color Space:")), row, 0);
 
-    default_input_colorspace_ = new QComboBox();
-    color_layout->addWidget(default_input_colorspace_, row, 1, 1, 2);
+    default_float_input_colorspace_ = new ColorSpaceComboBox(working_project_->color_manager(), "Input");
+    default_float_input_colorspace_->setColorSpacePlaceHolder(working_project_->color_manager()->GetDefaultFloatInputColorSpace());
+    color_layout->addWidget(default_float_input_colorspace_, row, 1, 1, 2);
+
+    row++;
+
+    color_layout->addWidget(new QLabel(tr("Default Byte Input Color Space:")), row, 0);
+
+    default_byte_input_colorspace_ = new ColorSpaceComboBox(working_project_->color_manager(), "Input");
+    default_byte_input_colorspace_->setColorSpacePlaceHolder(working_project_->color_manager()->GetDefaultByteInputColorSpace());
+    color_layout->addWidget(default_byte_input_colorspace_, row, 1, 1, 2);
 
     row++;
 
@@ -177,8 +186,11 @@ void ProjectPropertiesDialog::accept()
   if (working_project_->color_manager()->GetConfigFilename() != ocio_filename_->text()) {
     working_project_->color_manager()->SetConfigFilename(ocio_filename_->text());
   }
-  if (working_project_->color_manager()->GetDefaultInputColorSpace() != default_input_colorspace_->currentText()) {
-    working_project_->color_manager()->SetDefaultInputColorSpace(default_input_colorspace_->currentText());
+  if (working_project_->color_manager()->GetDefaultFloatInputColorSpace() != default_float_input_colorspace_->ColorSpacePlaceHolder()) {
+    working_project_->color_manager()->SetDefaultFloatInputColorSpace(default_float_input_colorspace_->ColorSpacePlaceHolder());
+  }
+  if (working_project_->color_manager()->GetDefaultByteInputColorSpace() != default_byte_input_colorspace_->ColorSpacePlaceHolder()) {
+    working_project_->color_manager()->SetDefaultByteInputColorSpace(default_byte_input_colorspace_->ColorSpacePlaceHolder());
   }
 
   super::accept();
@@ -210,7 +222,8 @@ void ProjectPropertiesDialog::BrowseForOCIOConfig()
 
 void ProjectPropertiesDialog::OCIOFilenameUpdated()
 {
-  default_input_colorspace_->clear();
+  default_float_input_colorspace_->clear();
+  default_byte_input_colorspace_->clear();
 
   try {
     OCIO::ConstConfigRcPtr c;
@@ -219,21 +232,18 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
       c = ColorManager::GetDefaultConfig();
     } else {
       c = ColorManager::CreateConfigFromFile(ocio_filename_->text());
+      c->validate();
     }
 
     ocio_filename_->setStyleSheet(QString());
     ocio_config_is_valid_ = true;
 
-    // List input color spaces
-    QStringList input_cs = ColorManager::ListAvailableColorspaces(c);
+    default_float_input_colorspace_->setPlaceholderText(working_project_->color_manager()->GetConfig()->getCanonicalName(
+                                               working_project_->color_manager()->GetDefaultFloatInputColorSpace().toStdString().c_str()));
 
-    foreach (QString cs, input_cs) {
-      default_input_colorspace_->addItem(cs);
+    default_byte_input_colorspace_->setPlaceholderText(working_project_->color_manager()->GetConfig()->getCanonicalName(
+                                               working_project_->color_manager()->GetDefaultByteInputColorSpace().toStdString().c_str()));
 
-      if (cs == working_project_->color_manager()->GetDefaultInputColorSpace()) {
-        default_input_colorspace_->setCurrentIndex(default_input_colorspace_->count()-1);
-      }
-    }
   } catch (OCIO::Exception& e) {
     ocio_config_is_valid_ = false;
     ocio_filename_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
