@@ -67,10 +67,26 @@ jobs:
         if: github.event_name == 'push'
         continue-on-error: true
 
+      - name: Build Core Library
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          git clone https://github.com/olive-editor/core
+          cd core
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/core/install" \
+            $CMAKE_ARGS
+          ninja install
+
       - name: Configure CMake
         run: |
           mkdir build
           cd build
+          PATH=$GITHUB_WORKSPACE/core/install:$PATH
           cmake .. -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" \
             -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
@@ -202,10 +218,25 @@ jobs:
         if: github.event_name == 'push'
         continue-on-error: true
 
+      - name: Build Core Library
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          git clone https://github.com/olive-editor/core
+          cd core
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/core/install" \
+            $CMAKE_ARGS
+          ninja install
+
       - name: Configure CMake
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
+          PATH=$GITHUB_WORKSPACE/core/install:$PATH
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             $CMAKE_ARGS
@@ -353,11 +384,26 @@ jobs:
           brew update
           brew install ninja
 
+      - name: Build Core Library
+        shell: bash
+        working-directory: ${{ runner.workspace }}
+        run: |
+          git clone https://github.com/olive-editor/core
+          cd core
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min-deploy }} -G "${{ matrix.cmake-gen }}" \
+            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}" \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/core/install" \
+            $CMAKE_ARGS
+          ninja install
+
       - name: Configure CMake
         shell: bash
         working-directory: ${{ runner.workspace }}/build
         run: |
-          PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
+          PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$GITHUB_WORKSPACE/core/install:$PATH \
             cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
               -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min-deploy }} -G "${{ matrix.cmake-gen }}" \
               -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}" \
