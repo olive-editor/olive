@@ -22,11 +22,10 @@
 #define FRAME_H
 
 #include <memory>
+#include <olive/core/core.h>
 #include <QVector>
 
 #include "common/define.h"
-#include "common/rational.h"
-#include "render/color.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -53,7 +52,7 @@ public:
 
   static FramePtr Interlace(FramePtr top, FramePtr bottom);
 
-  static int generate_linesize_bytes(int width, VideoParams::Format format, int channel_count);
+  static int generate_linesize_bytes(int width, PixelFormat format, int channel_count);
 
   int linesize_pixels() const
   {
@@ -75,7 +74,7 @@ public:
     return params_.effective_height();
   }
 
-  VideoParams::Format format() const
+  PixelFormat format() const
   {
     return params_.format();
   }
@@ -152,7 +151,7 @@ public:
     return data_size_;
   }
 
-  FramePtr convert(VideoParams::Format format) const;
+  FramePtr convert(PixelFormat format) const;
 
 private:
   VideoParams params_;

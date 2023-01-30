@@ -112,7 +112,7 @@ public:
       color_manager = colorman;
       use_cache = false;
       return_type = kFrame;
-      force_format = VideoParams::kFormatInvalid;
+      force_format = PixelFormat::INVALID;
       force_color_output = nullptr;
       force_size = QSize(0, 0);
       force_channel_count = 0;
@@ -144,7 +144,7 @@ public:
     QSize force_size;
     int force_channel_count;
     QMatrix4x4 force_matrix;
-    VideoParams::Format force_format;
+    PixelFormat force_format;
     ColorProcessorPtr force_color_output;
   };
 

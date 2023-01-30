@@ -90,7 +90,7 @@ void PolygonGenerator::Retranslate()
 ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const
 {
   VideoParams p = params;
-  p.set_format(VideoParams::kFormatUnsigned8);
+  p.set_format(PixelFormat::U8);
   auto job = Texture::Job(p, GenerateJob(value));
 
   // Conversion to RGB
@@ -173,7 +173,7 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     res = globals.square_resolution();
   }
 
-  QPointF half_res = res.toPointF()/2;
+  Imath::V2d half_res(res.x()/2, res.y()/2);
 
   auto points = row[kPointsInput].toArray();
 
@@ -205,20 +205,20 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     for (int i=0; i<pts_sz; i++) {
       const Bezier &pt = points.at(i).toBezier();
 
-      QPointF main = pt.ToPointF() + half_res;
-      QPointF cp1 = main + pt.ControlPoint1ToPointF();
-      QPointF cp2 = main + pt.ControlPoint2ToPointF();
+      Imath::V2d main = pt.to_vec() + half_res;
+      Imath::V2d cp1 = main + pt.control_point_1_to_vec();
+      Imath::V2d cp2 = main + pt.control_point_2_to_vec();
 
-      gizmo_position_handles_[i]->SetPoint(main);
+      gizmo_position_handles_[i]->SetPoint(QPointF(main.x, main.y));
 
-      gizmo_bezier_handles_[i*2]->SetPoint(cp1);
-      gizmo_bezier_lines_[i*2]->SetLine(QLineF(main, cp1));
-      gizmo_bezier_handles_[i*2+1]->SetPoint(cp2);
-      gizmo_bezier_lines_[i*2+1]->SetLine(QLineF(main, cp2));
+      gizmo_bezier_handles_[i*2]->SetPoint(QPointF(cp1.x, cp1.y));
+      gizmo_bezier_lines_[i*2]->SetLine(QLineF(QPointF(main.x, main.y), QPointF(cp1.x, cp1.y)));
+      gizmo_bezier_handles_[i*2+1]->SetPoint(QPointF(cp2.x, cp2.y));
+      gizmo_bezier_lines_[i*2+1]->SetLine(QLineF(QPointF(main.x, main.y), QPointF(cp2.x, cp2.y)));
     }
   }
 
-  poly_gizmo_->SetPath(GeneratePath(points, pts_sz).translated(half_res));
+  poly_gizmo_->SetPath(GeneratePath(points, pts_sz).translated(QPointF(half_res.x, half_res.y)));
 }
 
 ShaderCode PolygonGenerator::GetShaderCode(const ShaderRequest &request) const
@@ -246,9 +246,11 @@ void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModif
 
 void PolygonGenerator::AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after)
 {
-  path->cubicTo(before.ToPointF() + before.ControlPoint2ToPointF(),
-                after.ToPointF() + after.ControlPoint1ToPointF(),
-                after.ToPointF());
+  Imath::V2d a = before.to_vec() + before.control_point_2_to_vec();
+  Imath::V2d b = after.to_vec() + after.control_point_1_to_vec();
+  Imath::V2d c = after.to_vec();
+
+  path->cubicTo(QPointF(a.x, a.y), QPointF(b.x, b.y), QPointF(c.x, c.y));
 }
 
 QPainterPath PolygonGenerator::GeneratePath(const NodeValueArray &points, int size)
@@ -257,7 +259,8 @@ QPainterPath PolygonGenerator::GeneratePath(const NodeValueArray &points, int si
 
   if (!points.empty()) {
     const Bezier &first_pt = points.at(0).toBezier();
-    path.moveTo(first_pt.ToPointF());
+    Imath::V2d v = first_pt.to_vec();
+    path.moveTo(QPointF(v.x, v.y));
 
     for (int i=1; i<size; i++) {
       AddPointToPath(&path, points.at(i-1).toBezier(), points.at(i).toBezier());

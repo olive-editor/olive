@@ -20,7 +20,6 @@
 
 #include "stroke.h"
 
-#include "render/color.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {

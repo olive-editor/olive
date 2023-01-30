@@ -83,22 +83,22 @@ void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globa
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:
-    x = qSin(x);
+    x = std::sin(x);
     break;
   case kOpCosine:
-    x = qCos(x);
+    x = std::cos(x);
     break;
   case kOpTangent:
-    x = qTan(x);
+    x = std::tan(x);
     break;
   case kOpArcSine:
-    x = qAsin(x);
+    x = std::asin(x);
     break;
   case kOpArcCosine:
-    x = qAcos(x);
+    x = std::acos(x);
     break;
   case kOpArcTangent:
-    x = qAtan(x);
+    x = std::atan(x);
     break;
   case kOpHypSine:
     x = std::sinh(x);

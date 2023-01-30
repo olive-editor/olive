@@ -24,7 +24,6 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 
-#include "common/rational.h"
 #include "widget/menu/menu.h"
 #include "widget/timebased/timebasedviewselectionmanager.h"
 

@@ -31,7 +31,7 @@ namespace olive {
 class OCIOUtils
 {
 public:
-  static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(VideoParams::Format format);
+  static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(PixelFormat format);
 };
 
 }

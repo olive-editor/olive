@@ -21,11 +21,14 @@
 #ifndef CHANNELLAYOUTCOMBOBOX_H
 #define CHANNELLAYOUTCOMBOBOX_H
 
+#include <olive/core/core.h>
 #include <QComboBox>
 
-#include "render/audioparams.h"
+#include "ui/humanstrings.h"
 
 namespace olive {
+
+using namespace core;
 
 class ChannelLayoutComboBox : public QComboBox
 {
@@ -35,7 +38,7 @@ public:
     QComboBox(parent)
   {
     foreach (const uint64_t& ch_layout, AudioParams::kSupportedChannelLayouts) {
-      this->addItem(AudioParams::ChannelLayoutToString(ch_layout),
+      this->addItem(HumanStrings::ChannelLayoutToString(ch_layout),
                     QVariant::fromValue(ch_layout));
     }
   }

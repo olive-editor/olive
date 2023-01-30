@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,30 +18,29 @@
 
 ***/
 
-#ifndef CLAMP_H
-#define CLAMP_H
+#ifndef TYPESERIALIZER_H
+#define TYPESERIALIZER_H
 
-template<typename T>
-/**
- * @brief Clamp a value between a minimum and a maximum value
- *
- * Similar to using min() and max() functions, but performs both at once. If value is less than minimum, this returns
- * minimum. If it is more than maximum, this returns maximum. Otherwise it returns value as-is.
- *
- * @return
- *
- * Will always return a value between minimum and maximum (inclusive).
- */
-T clamp(T value, T minimum, T maximum) {
-  if (value < minimum) {
-    return minimum;
-  }
+#include <olive/core/core.h>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
-  if (value > maximum) {
-    return maximum;
-  }
+#include "common/xmlutils.h"
 
-  return value;
+namespace olive {
+
+using namespace core;
+
+class TypeSerializer
+{
+public:
+  TypeSerializer() = default;
+
+  static AudioParams LoadAudioParams(QXmlStreamReader *reader);
+  static void SaveAudioParams(QXmlStreamWriter *writer, const AudioParams &a);
+
+};
+
 }
 
-#endif // CLAMP_H
+#endif // TYPESERIALIZER_H

@@ -83,7 +83,7 @@ void ColorButton::UpdateColor()
                                             color_.color_input(),
                                             color_.color_output());
 
-  QColor managed = color_processor_->ConvertColor(color_).toQColor();
+  QColor managed = QtUtils::toQColor(color_processor_->ConvertColor(color_));
 
   setStyleSheet(QStringLiteral("%1--ColorButton {background: %2;}").arg(MACRO_VAL_AS_STR(olive), managed.name()));
 }

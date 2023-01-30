@@ -25,7 +25,6 @@
 #include <QDebug>
 #include <QFile>
 
-#include "common/bezier.h"
 #include "common/lerp.h"
 #include "core.h"
 #include "config/config.h"
@@ -163,7 +162,7 @@ QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
   grad.setStart(0, top);
   grad.setFinalStop(0, bottom);
 
-  QColor c = color().toQColor();
+  QColor c = QtUtils::toQColor(color());
 
   grad.setColorAt(0.0, c.lighter());
   grad.setColorAt(1.0, c);
@@ -176,7 +175,7 @@ QBrush Node::brush(qreal top, qreal bottom) const
   if (OLIVE_CONFIG("UseGradients").toBool()) {
     return gradient_color(top, bottom);
   } else {
-    return color().toQColor();
+    return QtUtils::toQColor(color());
   }
 }
 
@@ -484,31 +483,29 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
 
           // Perform a cubic bezier with two control points
           interpolated = Bezier::CubicXtoY(time.toDouble(),
-                                           QPointF(before->time().toDouble(), before_val),
-                                           QPointF(before->time().toDouble() + before->valid_bezier_control_out().x(), before_val + before->valid_bezier_control_out().y()),
-                                           QPointF(after->time().toDouble() + after->valid_bezier_control_in().x(), after_val + after->valid_bezier_control_in().y()),
-                                           QPointF(after->time().toDouble(), after_val));
+                                           Imath::V2d(before->time().toDouble(), before_val),
+                                           Imath::V2d(before->time().toDouble() + before->valid_bezier_control_out().x(), before_val + before->valid_bezier_control_out().y()),
+                                           Imath::V2d(after->time().toDouble() + after->valid_bezier_control_in().x(), after_val + after->valid_bezier_control_in().y()),
+                                           Imath::V2d(after->time().toDouble(), after_val));
 
         } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
           // Perform a quadratic bezier with only one control point
 
-          QPointF control_point;
+          Imath::V2d control_point;
 
           if (before->type() == NodeKeyframe::kBezier) {
-            control_point = before->valid_bezier_control_out();
-            control_point.setX(control_point.x() + before->time().toDouble());
-            control_point.setY(control_point.y() + before_val);
+            control_point.x = (before->valid_bezier_control_out().x() + before->time().toDouble());
+            control_point.y = (before->valid_bezier_control_out().y() + before_val);
           } else {
-            control_point = after->valid_bezier_control_in();
-            control_point.setX(control_point.x() + after->time().toDouble());
-            control_point.setY(control_point.y() + after_val);
+            control_point.x = (after->valid_bezier_control_in().x() + after->time().toDouble());
+            control_point.y = (after->valid_bezier_control_in().y() + after_val);
           }
 
           // Interpolate value using quadratic beziers
           interpolated = Bezier::QuadraticXtoY(time.toDouble(),
-                                               QPointF(before->time().toDouble(), before_val),
+                                               Imath::V2d(before->time().toDouble(), before_val),
                                                control_point,
-                                               QPointF(after->time().toDouble(), after_val));
+                                               Imath::V2d(after->time().toDouble(), after_val));
 
         } else {
           // To have arrived here, the keyframes must both be linear

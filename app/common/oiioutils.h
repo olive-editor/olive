@@ -31,19 +31,19 @@ namespace olive {
 
 class OIIOUtils {
 public:
-  static OIIO::TypeDesc::BASETYPE GetOIIOBaseTypeFromFormat(VideoParams::Format format)
+  static OIIO::TypeDesc::BASETYPE GetOIIOBaseTypeFromFormat(PixelFormat format)
   {
     switch (format) {
-    case VideoParams::kFormatUnsigned8:
+    case PixelFormat::U8:
       return OIIO::TypeDesc::UINT8;
-    case VideoParams::kFormatUnsigned16:
+    case PixelFormat::U16:
       return OIIO::TypeDesc::UINT16;
-    case VideoParams::kFormatFloat16:
+    case PixelFormat::F16:
       return OIIO::TypeDesc::HALF;
-    case VideoParams::kFormatFloat32:
+    case PixelFormat::F32:
       return OIIO::TypeDesc::FLOAT;
-    case VideoParams::kFormatInvalid:
-    case VideoParams::kFormatCount:
+    case PixelFormat::INVALID:
+    case PixelFormat::COUNT:
       break;
     }
 
@@ -54,7 +54,7 @@ public:
 
   static void BufferToFrame(OIIO::ImageBuf* buf, Frame* frame);
 
-  static VideoParams::Format GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYPE type);
+  static PixelFormat GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYPE type);
 
   static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
 

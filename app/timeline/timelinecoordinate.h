@@ -21,7 +21,6 @@
 #ifndef TIMELINECOORDINATE_H
 #define TIMELINECOORDINATE_H
 
-#include "common/rational.h"
 #include "node/output/track/track.h"
 
 namespace olive {

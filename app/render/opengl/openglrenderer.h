@@ -70,16 +70,16 @@ protected:
                     olive::VideoParams destination_params,
                     bool clear_destination) override;
 
-  virtual QVariant CreateNativeTexture(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) override;
+  virtual QVariant CreateNativeTexture(int width, int height, int depth, PixelFormat format, int channel_count, const void* data = nullptr, int linesize = 0) override;
 
   virtual void DestroyNativeTexture(QVariant texture) override;
 
   virtual void DestroyInternal() override;
 
 private:
-  static GLint GetInternalFormat(VideoParams::Format format, int channel_layout);
+  static GLint GetInternalFormat(PixelFormat format, int channel_layout);
 
-  static GLenum GetPixelType(VideoParams::Format format);
+  static GLenum GetPixelType(PixelFormat format);
 
   static GLenum GetPixelFormat(int channel_count);
 
@@ -105,7 +105,7 @@ private:
     int width;
     int height;
     int depth;
-    VideoParams::Format format;
+    PixelFormat format;
     int channel_count;
 
     bool operator==(const TextureCacheKey &rhs) const

@@ -21,11 +21,13 @@
 #ifndef MENUSHARED_H
 #define MENUSHARED_H
 
-#include "common/rational.h"
+#include <olive/core/core.h>
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menu.h"
 
 namespace olive {
+
+using namespace core;
 
 /**
  * @brief A static object that provides various "stock" menus for use throughout the application

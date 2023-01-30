@@ -22,14 +22,18 @@
 #define AUDIOPROCESSOR_H
 
 #include <inttypes.h>
+#include <olive/core/core.h>
+#include <QByteArray>
 
 extern "C" {
 #include <libavfilter/avfilter.h>
 }
 
-#include "render/audioparams.h"
+#include "common/define.h"
 
 namespace olive {
+
+using namespace core;
 
 class AudioProcessor
 {

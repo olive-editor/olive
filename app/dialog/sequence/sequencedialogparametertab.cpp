@@ -141,7 +141,7 @@ void SequenceDialogParameterTab::UpdatePreviewResolutionLabel()
 {
   VideoParams test_param(GetSelectedVideoWidth(),
                          GetSelectedVideoHeight(),
-                         VideoParams::kFormatInvalid,
+                         PixelFormat::INVALID,
                          VideoParams::kInternalChannelCount,
                          rational(1),
                          VideoParams::kInterlaceNone,

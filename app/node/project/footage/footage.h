@@ -21,14 +21,13 @@
 #ifndef FOOTAGE_H
 #define FOOTAGE_H
 
+#include <olive/core/core.h>
 #include <QList>
 #include <QDateTime>
 
 #include "codec/decoder.h"
-#include "common/rational.h"
 #include "footagedescription.h"
 #include "node/output/viewer/viewer.h"
-#include "render/audioparams.h"
 #include "render/cancelatom.h"
 #include "render/videoparams.h"
 

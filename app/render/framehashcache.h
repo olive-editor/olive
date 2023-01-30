@@ -21,9 +21,6 @@
 #ifndef VIDEORENDERFRAMECACHE_H
 #define VIDEORENDERFRAMECACHE_H
 
-#include "common/rational.h"
-#include "common/timecodefunctions.h"
-#include "common/timerange.h"
 #include "codec/frame.h"
 #include "render/playbackcache.h"
 #include "render/videoparams.h"

@@ -29,8 +29,8 @@ NodeViewContext::NodeViewContext(Node *context, QGraphicsItem *item) :
     lbl_ = QCoreApplication::translate("NodeViewContext",
                                        "%1 [%2] :: %3 - %4").arg(block->GetLabelAndName(),
                                                                  Track::Reference::TypeToTranslatedString(block->track()->type()),
-                                                                 Timecode::time_to_timecode(block->in(), timebase, Core::instance()->GetTimecodeDisplay()),
-                                                                 Timecode::time_to_timecode(block->out(), timebase, Core::instance()->GetTimecodeDisplay()));
+                                                                 QString::fromStdString(Timecode::time_to_timecode(block->in(), timebase, Core::instance()->GetTimecodeDisplay())),
+                                                                 QString::fromStdString(Timecode::time_to_timecode(block->out(), timebase, Core::instance()->GetTimecodeDisplay())));
   } else {
     lbl_ = context_->GetLabelAndName();
   }
@@ -244,7 +244,7 @@ void NodeViewContext::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 {
   // Set pen and brush
   Color color = context_->color();
-  QColor c = color.toQColor();
+  QColor c = QtUtils::toQColor(color);
   QPen pen(c, 2);
   if (option->state & QStyle::State_Selected) {
     pen.setStyle(Qt::DotLine);

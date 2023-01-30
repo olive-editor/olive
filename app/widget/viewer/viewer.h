@@ -30,7 +30,6 @@
 
 #include "audio/audioprocessor.h"
 #include "audiowaveformview.h"
-#include "common/rational.h"
 #include "node/output/viewer/viewer.h"
 #include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"

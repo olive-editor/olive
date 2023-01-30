@@ -218,9 +218,9 @@ QStringList ExportFormat::GetPixelFormatsForCodec(ExportFormat::Format f, Export
   return list;
 }
 
-std::vector<AudioParams::Format> ExportFormat::GetSampleFormatsForCodec(Format format, ExportCodec::Codec c)
+std::vector<SampleFormat> ExportFormat::GetSampleFormatsForCodec(Format format, ExportCodec::Codec c)
 {
-  std::vector<AudioParams::Format> f;
+  std::vector<SampleFormat> f;
   Encoder *e = Encoder::CreateFromFormat(format, EncodingParams());
 
   if (e) {

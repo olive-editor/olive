@@ -23,7 +23,6 @@
 
 #include <QString>
 
-#include "common/rational.h"
 #include "value.h"
 
 namespace olive {

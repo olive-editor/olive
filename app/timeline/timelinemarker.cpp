@@ -87,7 +87,7 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, int max_right, double 
 
   int half_width = marker_width / 2;
 
-  QColor c = ColorCoding::GetColor(color()).toQColor();
+  QColor c = QtUtils::toQColor(ColorCoding::GetColor(color()));
   if (selected) {
     p->setPen(Qt::white);
     p->setBrush(c.lighter());
