@@ -22,8 +22,13 @@
 #define OTIODECODER_H
 
 #ifdef USE_OTIO
+#include <opentimelineio/composable.h>
+#include <opentimelineio/serializableCollection.h>
 
 #include "common/otioutils.h"
+#include "node/block/clip/clip.h"
+#include "node/block/gap/gap.h"
+#include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/project/project.h"
 #include "task/project/load/loadbasetask.h"
 
@@ -38,6 +43,18 @@ public:
 protected:
   virtual bool Run() override;
 
+private:
+  ClipBlock* LoadClip(OTIO::Composable* otio_block, Track* track, Sequence* sequence, Folder* sequence_footage);
+  
+  GapBlock* LoadGap(OTIO::Composable* otio_block, Track* track, Sequence* sequence);
+
+  CrossDissolveTransition* LoadTransition(OTIO::Composable* otio_block, Track* track, Sequence* sequence);
+
+  Block* previous_block_;
+  bool prev_block_transition_;
+  bool transition_flag_;
+
+  QMap<QString, Footage*> imported_footage_;
 };
 
 }
