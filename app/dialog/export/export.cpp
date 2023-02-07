@@ -632,6 +632,7 @@ void ExportDialog::SetDefaults()
   audio_tab_->sample_format_combobox()->SetAttemptToRestoreFormat(false);
   audio_tab_->channel_layout_combobox()->SetChannelLayout(ap.channel_layout());
   subtitles_enabled_->setChecked(SequenceHasSubtitles());
+  subtitle_tab_->SetSidecarFormat(ExportFormat::kFormatSRT);
 }
 
 EncodingParams ExportDialog::GenerateParams() const

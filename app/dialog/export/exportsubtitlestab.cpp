@@ -24,7 +24,7 @@ ExportSubtitlesTab::ExportSubtitlesTab(QWidget *parent) :
   layout->addWidget(sidecar_format_label_, row, 0);
 
   sidecar_format_combobox_ = new ExportFormatComboBox(ExportFormatComboBox::kShowSubtitlesOnly);
-  sidecar_format_combobox_->setVisible(false);
+  sidecar_format_combobox_->setVisible(true);
   layout->addWidget(sidecar_format_combobox_, row, 1);
 
   row++;
@@ -42,10 +42,20 @@ ExportSubtitlesTab::ExportSubtitlesTab(QWidget *parent) :
 
 int ExportSubtitlesTab::SetFormat(ExportFormat::Format format)
 {
+  auto vcodecs = ExportFormat::GetVideoCodecs(format);
+  auto acodecs = ExportFormat::GetAudioCodecs(format);
+
   auto scodecs = ExportFormat::GetSubtitleCodecs(format);
 
-  sidecar_checkbox_->setChecked(scodecs.empty());
-  sidecar_checkbox_->setEnabled(!scodecs.empty());
+  if (!scodecs.empty() && vcodecs.empty() && acodecs.empty()) {
+    // If format supports ONLY scodecs, default this to off and disable it
+    sidecar_checkbox_->setChecked(false);
+    sidecar_checkbox_->setEnabled(false);
+  } else {
+    // If format does not support scodecs, default this to checked and disable it
+    sidecar_checkbox_->setChecked(scodecs.empty());
+    sidecar_checkbox_->setEnabled(!scodecs.empty());
+  }
 
   scodecs = ExportFormat::GetSubtitleCodecs(sidecar_format_combobox_->GetFormat());
 

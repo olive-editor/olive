@@ -610,7 +610,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   }
 
   if (encoder->type != type) {
-    SetError(tr("Retrieved unexpected codec type %1 for codec %2").arg(QString::number(encoder->type), codec));
+    SetError(tr("Retrieved unexpected codec type %1 for codec %2").arg(QString::number(encoder->type), QString::number(codec)));
     return false;
   }
 
