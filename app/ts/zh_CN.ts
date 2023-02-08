@@ -575,7 +575,7 @@ Current driver information: %1 %2 %3</source>
     </message>
     <message>
         <source>&lt;html&gt;%1 If you like this project, please consider making a &lt;a href=&apos;https://olivevideoeditor.org/donate.php&apos;&gt;one-time donation&lt;/a&gt; or &lt;a href=&apos;https://www.patreon.com/olivevideoeditor&apos;&gt;pledging monthly&lt;/a&gt; to support its development.&lt;/html&gt;</source>
-        <translation>&lt;html&gt;%1如果您喜欢这个项目，请考虑给予&lt;a href=&apos;https://olivevideoeditor.org/donate.php&apos;&gt;一次捐赠&lt;/a&gt;或&lt;a href=&apos;https://www.patreon.com/olivevideoeditor“&gt;成为会员&lt;/a&gt;支持其发展&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;%1如果您喜欢这个项目，请考虑给予&lt;a href=&apos;https://olivevideoeditor.org/donate.php&apos;&gt;一次捐赠&lt;/a&gt;或&lt;a href=&apos;https://www.patreon.com/olivevideoeditor&apos;&gt;成为会员&lt;/a&gt;支持其发展&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again</source>
@@ -850,255 +850,255 @@ Current driver information: %1 %2 %3</source>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>颠倒</translation>
     </message>
     <message>
         <source>Maintain Audio Pitch</source>
-        <translation type="unfinished"></translation>
+        <translation>保持音频音调</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished">循环</translation>
+        <translation>循环</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Clamp</source>
-        <translation type="unfinished"></translation>
+        <translation>白色夹钳</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorCoding</name>
     <message>
         <source>Red</source>
-        <translation type="unfinished">红色</translation>
+        <translation>红色</translation>
     </message>
     <message>
         <source>Maroon</source>
-        <translation type="unfinished"></translation>
+        <translation>紫褐色</translation>
     </message>
     <message>
         <source>Orange</source>
-        <translation type="unfinished"></translation>
+        <translation>橙色</translation>
     </message>
     <message>
         <source>Brown</source>
-        <translation type="unfinished"></translation>
+        <translation>棕色</translation>
     </message>
     <message>
         <source>Yellow</source>
-        <translation type="unfinished"></translation>
+        <translation>黄色</translation>
     </message>
     <message>
         <source>Olive</source>
-        <translation type="unfinished">Olive</translation>
+        <translation>Olive</translation>
     </message>
     <message>
         <source>Lime</source>
-        <translation type="unfinished"></translation>
+        <translation>石灰</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation type="unfinished">绿色</translation>
+        <translation>绿色</translation>
     </message>
     <message>
         <source>Cyan</source>
-        <translation type="unfinished"></translation>
+        <translation>青色</translation>
     </message>
     <message>
         <source>Teal</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation type="unfinished">蓝色</translation>
+        <translation>蓝色</translation>
     </message>
     <message>
         <source>Navy</source>
-        <translation type="unfinished"></translation>
+        <translation>深蓝色</translation>
     </message>
     <message>
         <source>Pink</source>
-        <translation type="unfinished"></translation>
+        <translation>粉色</translation>
     </message>
     <message>
         <source>Purple</source>
-        <translation type="unfinished"></translation>
+        <translation>紫色</translation>
     </message>
     <message>
         <source>Silver</source>
-        <translation type="unfinished"></translation>
+        <translation>银色</translation>
     </message>
     <message>
         <source>Gray</source>
-        <translation type="unfinished"></translation>
+        <translation>灰色</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorDialog</name>
     <message>
         <source>Select Color</source>
-        <translation type="unfinished">选择颜色</translation>
+        <translation>选择颜色</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorDifferenceKeyNode</name>
     <message>
         <source>Color Difference Key</source>
-        <translation type="unfinished"></translation>
+        <translation>色差键</translation>
     </message>
     <message>
         <source>A simple color key based on the distance of one color from other colors.</source>
-        <translation type="unfinished"></translation>
+        <translation>基于一种颜色与其他颜色的距离的简单颜色键.</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Garbage Matte</source>
-        <translation type="unfinished"></translation>
+        <translation>垃圾遮片</translation>
     </message>
     <message>
         <source>Core Matte</source>
-        <translation type="unfinished"></translation>
+        <translation>核心遮片</translation>
     </message>
     <message>
         <source>Key Color</source>
-        <translation type="unfinished"></translation>
+        <translation>基本色调</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation type="unfinished">绿色</translation>
+        <translation>绿色</translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation type="unfinished">蓝色</translation>
+        <translation>蓝色</translation>
     </message>
     <message>
         <source>Shadows</source>
-        <translation type="unfinished"></translation>
+        <translation>阴影</translation>
     </message>
     <message>
         <source>Highlights</source>
-        <translation type="unfinished"></translation>
+        <translation>高光</translation>
     </message>
     <message>
         <source>Show Mask Only</source>
-        <translation type="unfinished"></translation>
+        <translation>只显示遮罩</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorLabelMenu</name>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorManager</name>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>配置</translation>
     </message>
     <message>
         <source>Default Input</source>
-        <translation type="unfinished"></translation>
+        <translation>默认输入</translation>
     </message>
     <message>
         <source>Reference Space</source>
-        <translation type="unfinished"></translation>
+        <translation>参考空间</translation>
     </message>
     <message>
         <source>Scene Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>场景线性</translation>
     </message>
     <message>
         <source>Compositing Log</source>
-        <translation type="unfinished"></translation>
+        <translation>合成日志</translation>
     </message>
     <message>
         <source>(built-in)</source>
-        <translation type="unfinished"></translation>
+        <translation>内置</translation>
     </message>
     <message>
         <source>Color Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>色彩管理</translation>
     </message>
     <message>
         <source>Color management configuration for project.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目色彩配置.</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorSpaceChooser</name>
     <message>
         <source>Color Management</source>
-        <translation type="unfinished">颜色管理</translation>
+        <translation>颜色管理</translation>
     </message>
     <message>
         <source>Input:</source>
-        <translation type="unfinished">输入：</translation>
+        <translation>输入：</translation>
     </message>
     <message>
         <source>Color Space:</source>
-        <translation type="unfinished">颜色空间：</translation>
+        <translation>颜色空间：</translation>
     </message>
     <message>
         <source>Display:</source>
-        <translation type="unfinished">显示：</translation>
+        <translation>显示：</translation>
     </message>
     <message>
         <source>View:</source>
-        <translation type="unfinished">视图：</translation>
+        <translation>视图：</translation>
     </message>
     <message>
         <source>Look:</source>
-        <translation type="unfinished">风格：</translation>
+        <translation>风格：</translation>
     </message>
     <message>
         <source>(None)</source>
-        <translation type="unfinished">(无)</translation>
+        <translation>(无)</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorSwatchChooser</name>
     <message>
         <source>Save Color Here</source>
-        <translation type="unfinished"></translation>
+        <translation>在这保存颜色</translation>
     </message>
     <message>
         <source>Reset To Default</source>
-        <translation type="unfinished"></translation>
+        <translation>恢复默认</translation>
     </message>
 </context>
 <context>
     <name>olive::ColorValuesTab</name>
     <message>
         <source>Red</source>
-        <translation type="unfinished">红色</translation>
+        <translation>红色</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation type="unfinished">绿色</translation>
+        <translation>绿色</translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation type="unfinished">蓝色</translation>
+        <translation>蓝色</translation>
     </message>
     <message>
         <source>Use legacy (8-bit) values</source>
-        <translation type="unfinished"></translation>
+        <translation>使用传统（8位）值</translation>
     </message>
     <message>
         <source>Web</source>
-        <translation type="unfinished"></translation>
+        <translation>网络</translation>
     </message>
     <message>
         <source>(Invalid)</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的</translation>
     </message>
 </context>
 <context>
