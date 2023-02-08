@@ -123,7 +123,7 @@ QList<ExportCodec::Codec> ExportFormat::GetVideoCodecs(ExportFormat::Format f)
   case kFormatQuickTime:
     return {ExportCodec::kCodecH264, ExportCodec::kCodecH264rgb, ExportCodec::kCodecH265, ExportCodec::kCodecProRes, ExportCodec::kCodecCineform};
   case kFormatWebM:
-    return {ExportCodec::kCodecVP9};
+    return {ExportCodec::kCodecAV1, ExportCodec::kCodecVP9};
   case kFormatOgg:
   case kFormatWAV:
   case kFormatMPEG4Audio:
@@ -152,7 +152,7 @@ QList<ExportCodec::Codec> ExportFormat::GetAudioCodecs(ExportFormat::Format f)
   case kFormatQuickTime:
     return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM};
   case kFormatWebM:
-    return {ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis, ExportCodec::kCodecOpus};
+    return {ExportCodec::kCodecOpus, ExportCodec::kCodecAAC, ExportCodec::kCodecMP2, ExportCodec::kCodecMP3, ExportCodec::kCodecPCM, ExportCodec::kCodecVorbis};
 
   // Audio only formats
   case kFormatWAV:
