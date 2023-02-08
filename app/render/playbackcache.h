@@ -108,21 +108,21 @@ public:
   void ResignalRequests()
   {
     for (const TimeRange &r : requested_) {
-      emit Requested(r);
+      emit Requested(request_context_, r);
     }
   }
 
 public slots:
   void InvalidateAll();
 
-  void Request(const TimeRange &r);
+  void Request(ViewerOutput *context, const TimeRange &r);
 
 signals:
   void Invalidated(const TimeRange& r);
 
   void Validated(const TimeRange& r);
 
-  void Requested(const TimeRange& r);
+  void Requested(ViewerOutput *context, const TimeRange& r);
 
   void CancelAll();
 
@@ -141,6 +141,7 @@ private:
   TimeRangeList validated_;
 
   TimeRangeList requested_;
+  ViewerOutput *request_context_;
 
   QUuid uuid_;
 

@@ -230,15 +230,15 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
       //connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
       if (autocache_input_video_) {
         TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetVideoLength()), false);
-        connected->video_frame_cache()->Request(range.Intersected(max_range));
+        connected->video_frame_cache()->Request(this, range.Intersected(max_range));
       }
     } else if (from == kSamplesInput) {
       TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetAudioLength()), false);
       if (waveform_requests_enabled_) {
-        connected->waveform_cache()->Request(range.Intersected(max_range));
+        connected->waveform_cache()->Request(this, range.Intersected(max_range));
       }
       if (autocache_input_audio_) {
-        connected->audio_playback_cache()->Request(range.Intersected(max_range));
+        connected->audio_playback_cache()->Request(this, range.Intersected(max_range));
       }
     }
   }
@@ -405,7 +405,7 @@ void ViewerOutput::SetWaveformEnabled(bool e)
       TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()), false);
       TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
       for (const TimeRange &r : invalid) {
-        connected->waveform_cache()->Request(r);
+        connected->waveform_cache()->Request(this, r);
       }
     }
   }

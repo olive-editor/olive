@@ -480,6 +480,7 @@ void Core::AddOpenProject(Project* p, bool add_to_recents)
 
   connect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
   open_project_ = p;
+  RenderManager::instance()->SetProject(p);
 
   if (!p->filename().isEmpty() && add_to_recents) {
     PushRecentlyOpenedProject(p->filename());
@@ -1476,6 +1477,7 @@ bool Core::CloseProject(bool auto_open_new, bool ignore_modified)
     undo_stack_.clear();
 
     disconnect(open_project_, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+    RenderManager::instance()->SetProject(nullptr);
     emit ProjectClosed(open_project_);
     delete open_project_;
     open_project_ = nullptr;

@@ -144,8 +144,8 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
 
   instances_.append(this);
 
-  auto_cacher_ = new PreviewAutoCacher(this);
-  connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, auto_cacher_, &PreviewAutoCacher::SetDisplayColorProcessor);
+  qDebug() << "FIXME: No signal connected between VDW and Cacher";
+  //connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, RenderManager::instance()->GetCacher(), &PreviewAutoCacher::SetDisplayColorProcessor);
 
   UpdateWaveformViewFromMode();
 
@@ -195,7 +195,7 @@ void ViewerWidget::TimeChangedEvent(const rational &time)
   }
 
   // Send time to auto-cacher
-  auto_cacher_->SetPlayhead(time);
+  RenderManager::instance()->GetCacher()->SetPlayhead(time);
 
   last_time_ = time;
 }
@@ -290,7 +290,6 @@ void ViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
 
 void ViewerWidget::ConnectedNodeChangeEvent(ViewerOutput *n)
 {
-  auto_cacher_->SetViewerNode(n);
   display_widget_->SetSubtitleTracks(dynamic_cast<Sequence*>(n));
 }
 
@@ -316,6 +315,11 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
   super::resizeEvent(event);
 
   UpdateMinimumScale();
+}
+
+RenderTicketPtr ViewerWidget::GetSingleFrame(const rational &t, bool dry)
+{
+  return RenderManager::instance()->GetCacher()->GetSingleFrame(this->GetConnectedNode(), t, dry);
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -394,13 +398,13 @@ void ViewerWidget::SetFullScreen(QScreen *screen)
 
 void ViewerWidget::CacheEntireSequence()
 {
-  auto_cacher_->ForceCacheRange(TimeRange(0, GetConnectedNode()->GetVideoLength()));
+  RenderManager::instance()->GetCacher()->ForceCacheRange(GetConnectedNode(), TimeRange(0, GetConnectedNode()->GetVideoLength()));
 }
 
 void ViewerWidget::CacheSequenceInOut()
 {
   if (GetConnectedNode() && GetConnectedNode()->GetWorkArea()->enabled()) {
-    auto_cacher_->ForceCacheRange(GetConnectedNode()->GetWorkArea()->range());
+    RenderManager::instance()->GetCacher()->ForceCacheRange(GetConnectedNode(), GetConnectedNode()->GetWorkArea()->range());
   } else {
     QMessageBox::warning(this,
                          tr("Error"),
@@ -480,7 +484,7 @@ void ViewerWidget::SetEmptyImage()
 
 void ViewerWidget::UpdateAutoCacher()
 {
-  auto_cacher_->SetPlayhead(GetConnectedNode()->GetPlayhead());
+  RenderManager::instance()->GetCacher()->SetPlayhead(GetConnectedNode()->GetPlayhead());
 }
 
 void ViewerWidget::DecrementPrequeuedAudio()
@@ -693,9 +697,10 @@ void ViewerWidget::DetectMulticamNode(const rational &time)
     if (multicam_panel_) {
       multicam_panel_->SetMulticamNode(GetConnectedNode(), multicam, clip, time);
     }
-    auto_cacher()->SetMulticamNode(multicam);
+    // FIXME: Really dirty
+    RenderManager::instance()->GetCacher()->SetMulticamNode(multicam);
   } else {
-    auto_cacher()->SetMulticamNode(nullptr);
+    RenderManager::instance()->GetCacher()->SetMulticamNode(nullptr);
     if (multicam_panel_) {
       multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, time);
     }
@@ -740,7 +745,7 @@ void ViewerWidget::QueueNextAudioBuffer()
   RenderTicketWatcher *watcher = new RenderTicketWatcher(this);
   connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForPlayback);
   audio_playback_queue_.push_back(watcher);
-  watcher->SetTicket(auto_cacher_->GetRangeOfAudio(TimeRange(audio_playback_queue_time_, queue_end)));
+  watcher->SetTicket(RenderManager::instance()->GetCacher()->GetRangeOfAudio(GetConnectedNode(), TimeRange(audio_playback_queue_time_, queue_end)));
 
   audio_playback_queue_time_ = queue_end;
 }
@@ -857,7 +862,7 @@ void ViewerWidget::ForceRequeueFromCurrentTime()
   // Allow half a second for requeue to complete
   static const rational kRequeueWaitTime(1);
 
-  auto_cacher_->ClearSingleFrameRenders();
+  RenderManager::instance()->GetCacher()->ClearSingleFrameRenders();
   queue_watchers_.clear();
   int queue = DeterminePlaybackQueueSize();
   playback_queue_next_frame_ = GetTimestamp() + playback_speed_ * Timecode::time_to_timestamp(kRequeueWaitTime, timebase(), Timecode::kFloor);;
@@ -896,7 +901,7 @@ void ViewerWidget::UpdateTextureFromNode()
     nonqueue_watchers_.append(watcher);
 
     // Clear queue because we want this frame more than any others
-    auto_cacher_->ClearSingleFrameRenders();
+    RenderManager::instance()->GetCacher()->ClearSingleFrameRenders();
 
     DetectMulticamNode(time);
 
@@ -928,8 +933,8 @@ void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
     if (viewer != this) {
       viewer->PauseInternal();
     }
-    viewer->auto_cacher_->SetThumbnailsPaused(true);
   }
+  RenderManager::instance()->GetCacher()->SetThumbnailsPaused(true);
 
   RenderManager::instance()->SetAggressiveGarbageCollection(true);
 
@@ -1016,7 +1021,7 @@ void ViewerWidget::PauseInternal()
 
     qDeleteAll(queue_watchers_);
     queue_watchers_.clear();
-    auto_cacher_->ClearSingleFrameRenders();
+    RenderManager::instance()->GetCacher()->ClearSingleFrameRenders();
 
     playback_backup_timer_.stop();
 
@@ -1029,9 +1034,7 @@ void ViewerWidget::PauseInternal()
     audio_playback_queue_.clear();
     UpdateAudioProcessor();
 
-    foreach (ViewerWidget* viewer, instances_) {
-      viewer->auto_cacher_->SetThumbnailsPaused(false);
-    }
+    RenderManager::instance()->GetCacher()->SetThumbnailsPaused(false);
 
     UpdateTextureFromNode();
 
@@ -1064,7 +1067,7 @@ void ViewerWidget::PushScrubbedAudio()
         RenderTicketWatcher *watcher = new RenderTicketWatcher();
         connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::ReceivedAudioBufferForScrubbing);
         audio_scrub_watchers_.push_back(watcher);
-        watcher->SetTicket(auto_cacher_->GetRangeOfAudio(TimeRange(GetConnectedNode()->GetPlayhead(), GetConnectedNode()->GetPlayhead() + interval)));
+        watcher->SetTicket(RenderManager::instance()->GetCacher()->GetRangeOfAudio(GetConnectedNode(), TimeRange(GetConnectedNode()->GetPlayhead(), GetConnectedNode()->GetPlayhead() + interval)));
       }
     }
   }

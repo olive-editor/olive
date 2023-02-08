@@ -225,11 +225,12 @@ void PlaybackCache::InvalidateAll()
   Invalidate(TimeRange(0, RATIONAL_MAX));
 }
 
-void PlaybackCache::Request(const TimeRange &r)
+void PlaybackCache::Request(ViewerOutput *context, const TimeRange &r)
 {
+  request_context_ = context;
   requested_.insert(r);
 
-  emit Requested(r);
+  emit Requested(request_context_, r);
 }
 
 void PlaybackCache::Validate(const TimeRange &r, bool signal)
