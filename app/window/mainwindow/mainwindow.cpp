@@ -431,7 +431,7 @@ void MainWindow::SelectFootage(const QVector<Footage *> &e)
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   // Try to close all projects (this will return false if the user chooses not to close)
-  if (!Core::instance()->CloseAllProjects(false)) {
+  if (!Core::instance()->CloseProject(false)) {
     e->ignore();
     return;
   }
@@ -555,10 +555,7 @@ void MainWindow::TimelineCloseRequested()
 
 void MainWindow::ProjectCloseRequested()
 {
-  ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
-  Project* p = panel->project();
-
-  Core::instance()->CloseProject(p, true);
+  Core::instance()->CloseProject(true);
 }
 
 void MainWindow::ViewerCloseRequested()

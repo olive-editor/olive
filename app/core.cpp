@@ -83,6 +83,7 @@ Core* Core::instance_ = nullptr;
 
 Core::Core(const CoreParams& params) :
   main_window_(nullptr),
+  open_project_(nullptr),
   tool_(Tool::kPointer),
   addable_object_(Tool::kAddableEmpty),
   snapping_(true),
@@ -291,14 +292,9 @@ void Core::ClearOpenRecentList()
 void Core::CreateNewProject()
 {
   // If we already have an empty/new project, switch to it
-  foreach (Project* already_open, open_projects_) {
-    if (already_open->is_new()) {
-      AddOpenProject(already_open);
-      return;
-    }
+  if (CloseProject(false)) {
+    AddOpenProject(new Project());
   }
-
-  AddOpenProject(new Project());
 }
 
 const bool &Core::snapping() const
@@ -471,21 +467,19 @@ void Core::CreateNewSequence()
 void Core::AddOpenProject(Project* p, bool add_to_recents)
 {
   // Ensure project is not open at the moment
-  foreach (Project* already_open, open_projects_) {
-    if (already_open == p) {
-      // Signal UI to switch to this project
-      emit ProjectOpened(p);
-      return;
-    }
+  if (open_project_ == p) {
+    // Signal UI to switch to this project
+    emit ProjectOpened(p);
+    return;
   }
 
   // If we currently have an empty project, close it first
-  if (!open_projects_.isEmpty() && open_projects_.last()->is_new()) {
-    CloseProject(open_projects_.last(), false);
+  if (open_project_) {
+    CloseProject(false);
   }
 
   connect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
-  open_projects_.append(p);
+  open_project_ = p;
 
   if (!p->filename().isEmpty() && add_to_recents) {
     PushRecentlyOpenedProject(p->filename());
@@ -508,9 +502,7 @@ bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
       return true;
     } else {
       delete project;
-      if (open_projects_.empty()) {
-        CreateNewProject();
-      }
+      CreateNewProject();
     }
   }
 
@@ -593,23 +585,7 @@ bool Core::ConfirmImageSequence(const QString& filename)
 
 void Core::ProjectWasModified(bool e)
 {
-  //Project* p = static_cast<Project*>(sender());
-
-  if (e) {
-    // If this project is modified, we know for sure the window should show a "modified" flag (the * in the titlebar)
-    main_window_->setWindowModified(true);
-  } else {
-    // If we just set this project to "not modified", see if all projects are not modified in which case we can hide
-    // the modified flag
-    foreach (Project* open, open_projects_) {
-      if (open->is_modified()) {
-        main_window_->setWindowModified(true);
-        return;
-      }
-    }
-
-    main_window_->setWindowModified(false);
-  }
+  main_window_->setWindowModified(e);
 }
 
 bool Core::StartHeadlessExport()
@@ -805,15 +781,15 @@ void Core::StartGUI(bool full_screen)
   }
 }
 
-void Core::SaveProjectInternal(Project* project, const QString& override_filename)
+void Core::SaveProjectInternal(const QString& override_filename)
 {
   // Create save manager
   Task* psm;
 
   // Put layout into project
-  project->SetLayoutInfo(main_window_->SaveLayout());
+  open_project_->SetLayoutInfo(main_window_->SaveLayout());
 
-  if (project->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
+  if (open_project_->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
 #ifdef USE_OTIO
     psm = new SaveOTIOTask(project);
 #else
@@ -824,8 +800,8 @@ void Core::SaveProjectInternal(Project* project, const QString& override_filenam
     return;
 #endif
   } else {
-    bool use_compression = !project->filename().endsWith(QStringLiteral(".ovexml"), Qt::CaseInsensitive);
-    psm = new ProjectSaveTask(project, use_compression);
+    bool use_compression = !open_project_->filename().endsWith(QStringLiteral(".ovexml"), Qt::CaseInsensitive);
+    psm = new ProjectSaveTask(open_project_, use_compression);
 
     if (!override_filename.isEmpty()) {
       // Set override filename if provided
@@ -915,9 +891,9 @@ void Core::SaveUnrecoveredList()
   }
 }
 
-bool Core::RevertProjectInternal(Project *p, bool by_opening_existing)
+bool Core::RevertProjectInternal(bool by_opening_existing)
 {
-  if (p->filename().isEmpty()) {
+  if (open_project_->filename().isEmpty()) {
     QMessageBox::critical(main_window_, tr("Revert"),
                           tr("This project has not yet been saved, therefore there is no last saved state to revert to."));
   } else {
@@ -925,21 +901,20 @@ bool Core::RevertProjectInternal(Project *p, bool by_opening_existing)
 
     if (by_opening_existing) {
       msg = tr("The project \"%1\" is already open. By re-opening it, the project will revert to "
-               "its last saved state. Any unsaved changes will be lost. Do you wish to continue?").arg(p->filename());
+               "its last saved state. Any unsaved changes will be lost. Do you wish to continue?").arg(open_project_->filename());
     } else {
       msg = tr("This will revert the project \"%1\" back to its last saved state. "
-                                 "All unsaved changes will be lost. Do you wish to continue?").arg(p->name());
+                                 "All unsaved changes will be lost. Do you wish to continue?").arg(open_project_->name());
     }
 
     if (QMessageBox::question(main_window_, tr("Revert"), msg, QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
       // Copy filename because CloseProject is going to delete `p`
-      QString filename = p->filename();
+      QString filename = open_project_->filename();
 
       // Close project without prompting to save it
-      CloseProjectBehavior b = kCloseProjectDontSave;
-      CloseProject(p, false, b);
+      CloseProject(false, true);
 
-      // NOTE: `p` will be deleted now, so don't try accessing it
+      // NOTE: `open_project_` will be deleted now, so don't try accessing it
 
       // Re-open project at the filename
       OpenProjectInternal(filename);
@@ -964,65 +939,63 @@ void Core::SaveRecentProjectsList()
 void Core::SaveAutorecovery()
 {
   if (OLIVE_CONFIG("AutorecoveryEnabled").toBool()) {
-    foreach (Project* p, open_projects_) {
-      if (!p->has_autorecovery_been_saved()) {
-        QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(p->GetUuid().toString()));
-        if (FileFunctions::DirectoryIsValid(project_autorecovery_dir)) {
-          QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));
+    if (!open_project_->has_autorecovery_been_saved()) {
+      QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(open_project_->GetUuid().toString()));
+      if (FileFunctions::DirectoryIsValid(project_autorecovery_dir)) {
+        QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));
 
-          SaveProjectInternal(p, this_autorecovery_path);
+        SaveProjectInternal(this_autorecovery_path);
 
-          p->set_autorecovery_saved(true);
+        open_project_->set_autorecovery_saved(true);
 
-          // Keep track of projects that where the "newest" save is the recovery project
-          if (!autorecovered_projects_.contains(p->GetUuid())) {
-            autorecovered_projects_.append(p->GetUuid());
-          }
+        // Keep track of projects that where the "newest" save is the recovery project
+        if (!autorecovered_projects_.contains(open_project_->GetUuid())) {
+          autorecovered_projects_.append(open_project_->GetUuid());
+        }
 
-          qDebug() << "Saved auto-recovery to:" << this_autorecovery_path;
+        qDebug() << "Saved auto-recovery to:" << this_autorecovery_path;
 
-          // Write human-readable real name so it's not just a UUID
-          {
-            QFile realname_file(project_autorecovery_dir.filePath(QStringLiteral("realname.txt")));
-            realname_file.open(QFile::WriteOnly);
-            realname_file.write(p->pretty_filename().toUtf8());
-            realname_file.close();
-          }
+        // Write human-readable real name so it's not just a UUID
+        {
+          QFile realname_file(project_autorecovery_dir.filePath(QStringLiteral("realname.txt")));
+          realname_file.open(QFile::WriteOnly);
+          realname_file.write(open_project_->pretty_filename().toUtf8());
+          realname_file.close();
+        }
 
-          int64_t max_recoveries_per_file = OLIVE_CONFIG("AutorecoveryMaximum").toLongLong();
+        int64_t max_recoveries_per_file = OLIVE_CONFIG("AutorecoveryMaximum").toLongLong();
 
-          // Since we write an extra file, increment total allowed files by 1
-          max_recoveries_per_file++;
+        // Since we write an extra file, increment total allowed files by 1
+        max_recoveries_per_file++;
 
-          // Delete old entries
-          QStringList recovery_files = project_autorecovery_dir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
-          while (recovery_files.size() > max_recoveries_per_file) {
-            bool deleted = false;
-            for (int i=0; i<recovery_files.size(); i++) {
-              const QString& f = recovery_files.at(i);
+        // Delete old entries
+        QStringList recovery_files = project_autorecovery_dir.entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+        while (recovery_files.size() > max_recoveries_per_file) {
+          bool deleted = false;
+          for (int i=0; i<recovery_files.size(); i++) {
+            const QString& f = recovery_files.at(i);
 
-              if (f.endsWith(QStringLiteral(".ove"), Qt::CaseInsensitive)) {
-                QString delete_full_path = project_autorecovery_dir.filePath(f);
-                qDebug() << "Deleted old recovery:" << delete_full_path;
-                QFile::remove(delete_full_path);
-                recovery_files.removeAt(i);
-                deleted = true;
-                break;
-              }
-            }
-
-            if (!deleted) {
-              // For some reason none of the files were deletable. Break so we don't end up in
-              // an infinite loop.
+            if (f.endsWith(QStringLiteral(".ove"), Qt::CaseInsensitive)) {
+              QString delete_full_path = project_autorecovery_dir.filePath(f);
+              qDebug() << "Deleted old recovery:" << delete_full_path;
+              QFile::remove(delete_full_path);
+              recovery_files.removeAt(i);
+              deleted = true;
               break;
             }
           }
-        } else {
-          QMessageBox::critical(main_window_, tr("Auto-Recovery Error"),
-                                tr("Failed to save auto-recovery to \"%1\". "
-                                   "Olive may not have permission to this directory.")
-                                .arg(project_autorecovery_dir.absolutePath()));
+
+          if (!deleted) {
+            // For some reason none of the files were deletable. Break so we don't end up in
+            // an infinite loop.
+            break;
+          }
         }
+      } else {
+        QMessageBox::critical(main_window_, tr("Auto-Recovery Error"),
+                              tr("Failed to save auto-recovery to \"%1\". "
+                                 "Olive may not have permission to this directory.")
+                              .arg(project_autorecovery_dir.absolutePath()));
       }
     }
 
@@ -1047,24 +1020,7 @@ void Core::ProjectSaveSucceeded(Task* task)
 
 Project* Core::GetActiveProject() const
 {
-  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
-
-  if (active_project_panel && active_project_panel->project()) {
-    return active_project_panel->project();
-  }
-
-  return nullptr;
-}
-
-ProjectViewModel *Core::GetActiveProjectModel() const
-{
-  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
-
-  if (active_project_panel) {
-    return active_project_panel->model();
-  } else {
-    return nullptr;
-  }
+  return open_project_;
 }
 
 Folder *Core::GetSelectedFolderInActiveProject() const
@@ -1104,69 +1060,6 @@ void Core::CopyStringToClipboard(const QString &s)
 QString Core::PasteStringFromClipboard()
 {
   return QGuiApplication::clipboard()->text();
-}
-
-bool Core::SaveActiveProject()
-{
-  Project* active_project = GetActiveProject();
-
-  if (active_project) {
-    return SaveProject(active_project);
-  }
-
-  return false;
-}
-
-bool Core::SaveActiveProjectAs()
-{
-  Project* active_project = GetActiveProject();
-
-  if (active_project) {
-    return SaveProjectAs(active_project);
-  }
-
-  return false;
-}
-
-bool Core::SaveAllProjects()
-{
-  foreach (Project* p, open_projects_) {
-    if (!SaveProject(p)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-void Core::RevertActiveProject()
-{
-  Project *p = GetActiveProject();
-
-  if (p) {
-    RevertProjectInternal(p, false);
-  }
-}
-
-bool Core::CloseActiveProject()
-{
-  return CloseProject(GetActiveProject(), true);
-}
-
-bool Core::CloseAllExceptActiveProject()
-{
-  Project* active_proj = GetActiveProject();
-  QList<Project*> copy = open_projects_;
-
-  foreach (Project* p, copy) {
-    if (p != active_proj) {
-      if (!CloseProject(p, true)) {
-        return false;
-      }
-    }
-  }
-
-  return true;
 }
 
 QString Core::GetProjectFilter(bool include_any_filter)
@@ -1230,12 +1123,12 @@ void Core::SetStartupLocale()
   }
 }
 
-bool Core::SaveProject(Project* p)
+bool Core::SaveProject()
 {
-  if (p->filename().isEmpty()) {
-    return SaveProjectAs(p);
+  if (open_project_->filename().isEmpty()) {
+    return SaveProjectAs();
   } else {
-    SaveProjectInternal(p);
+    SaveProjectInternal();
 
     return true;
   }
@@ -1339,7 +1232,7 @@ void Core::WarnCacheFull()
   }
 }
 
-bool Core::SaveProjectAs(Project* p)
+bool Core::SaveProjectAs()
 {
   QFileDialog fd(main_window_, tr("Save Project As"));
 
@@ -1356,14 +1249,19 @@ bool Core::SaveProjectAs(Project* p)
 
     fn = FileFunctions::EnsureFilenameExtension(fn, extension);
 
-    p->set_filename(fn);
+    open_project_->set_filename(fn);
 
-    SaveProjectInternal(p);
+    SaveProjectInternal();
 
     return true;
   }
 
   return false;
+}
+
+void Core::RevertProject()
+{
+  RevertProjectInternal(false);
 }
 
 void Core::PushRecentlyOpenedProject(const QString& s)
@@ -1392,17 +1290,16 @@ void Core::PushRecentlyOpenedProject(const QString& s)
 
 void Core::OpenProjectInternal(const QString &filename, bool recovery_project)
 {
-  // See if this project is open already
-  foreach (Project* p, open_projects_) {
+  if (open_project_) {
     // Comparing QFileInfos will handle case insensitivity and both slash directions on platforms
     // where this is necessary (not naming any names *cough* Windows)
-    if (QFileInfo(p->filename()) == QFileInfo(filename)) {
+    if (QFileInfo(open_project_->filename()) == QFileInfo(filename)) {
       // This project is already open
-      bool reverted = RevertProjectInternal(p, true);
+      bool reverted = RevertProjectInternal(true);
 
       if (!reverted) {
         // Calling this will focus attention to the project that the user just tried to re-open
-        AddOpenProject(p);
+        AddOpenProject(open_project_);
       }
 
       // Don't do anything else
@@ -1544,128 +1441,49 @@ void Core::OpenProjectFromRecentList(int index)
   }
 }
 
-bool Core::CloseProject(Project *p, bool auto_open_new)
+bool Core::CloseProject(bool auto_open_new, bool ignore_modified)
 {
-  CloseProjectBehavior b = kCloseProjectOnlyOne;
-  return CloseProject(p, auto_open_new, b);
-}
+  if (open_project_) {
+    if (open_project_->is_modified() && !ignore_modified) {
+      QMessageBox mb(main_window_);
 
-bool Core::CloseProject(Project* p, bool auto_open_new, CloseProjectBehavior &confirm_behavior)
-{
-  for (int i=0;i<open_projects_.size();i++) {
-    if (open_projects_.at(i) == p) {
+      mb.setWindowModality(Qt::WindowModal);
+      mb.setIcon(QMessageBox::Question);
+      mb.setWindowTitle(tr("Unsaved Changes"));
+      mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
+                 .arg(open_project_->name()));
 
-      if (p->is_modified() && confirm_behavior != kCloseProjectDontSave) {
+      QPushButton* yes_btn = mb.addButton(tr("Save"), QMessageBox::YesRole);
 
-        bool save_this_project;
+      mb.addButton(tr("Don't Save"), QMessageBox::NoRole);
 
-        if (confirm_behavior == kCloseProjectAsk || confirm_behavior == kCloseProjectOnlyOne) {
-          QMessageBox mb(main_window_);
+      QPushButton* cancel_btn = mb.addButton(QMessageBox::Cancel);
 
-          mb.setWindowModality(Qt::WindowModal);
-          mb.setIcon(QMessageBox::Question);
-          mb.setWindowTitle(tr("Unsaved Changes"));
-          mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
-                     .arg(p->name()));
+      mb.exec();
 
-          QPushButton* yes_btn = mb.addButton(tr("Save"), QMessageBox::YesRole);
-
-          QPushButton* yes_to_all_btn;
-          if (confirm_behavior == kCloseProjectOnlyOne) {
-            yes_to_all_btn = nullptr;
-          } else {
-            yes_to_all_btn = mb.addButton(tr("Save All"), QMessageBox::YesRole);
-          }
-
-          mb.addButton(tr("Don't Save"), QMessageBox::NoRole);
-
-          QPushButton* no_to_all_btn;
-          if (confirm_behavior == kCloseProjectOnlyOne) {
-            no_to_all_btn = nullptr;
-          } else {
-            no_to_all_btn = mb.addButton(tr("Don't Save All"), QMessageBox::NoRole);
-          }
-
-          QPushButton* cancel_btn = mb.addButton(QMessageBox::Cancel);
-
-          mb.exec();
-
-          if (mb.clickedButton() == cancel_btn) {
-            // Stop closing projects if the user clicked cancel
-            return false;
-          } else if (mb.clickedButton() == yes_to_all_btn) {
-            // Set flag that other CloseProject commands are going to use
-            confirm_behavior = kCloseProjectSave;
-          } else if (mb.clickedButton() == no_to_all_btn) {
-            // Set flag that other CloseProject commands are going to use
-            confirm_behavior = kCloseProjectDontSave;
-          }
-
-          save_this_project = (mb.clickedButton() == yes_btn || mb.clickedButton() == yes_to_all_btn);
-
-        } else {
-          // We must be saving this project
-          save_this_project = true;
-        }
-
-        if (save_this_project && !SaveProject(p)) {
-          // The save failed, stop closing projects
-          return false;
-        }
-
+      if (mb.clickedButton() == cancel_btn) {
+        // Stop closing projects if the user clicked cancel
+        return false;
       }
 
-      // For safety, the undo stack is cleared so no commands try to affect a freed project
-      undo_stack_.clear();
-
-      disconnect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
-      emit ProjectClosed(p);
-      open_projects_.removeAt(i);
-      delete p;
-      break;
+      if (mb.clickedButton() == yes_btn && !SaveProject()) {
+        // The save failed, stop closing projects
+        return false;
+      }
     }
+
+    // For safety, the undo stack is cleared so no commands try to affect a freed project
+    undo_stack_.clear();
+
+    disconnect(open_project_, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+    emit ProjectClosed(open_project_);
+    delete open_project_;
+    open_project_ = nullptr;
   }
 
   // Ensure a project is always active
-  if (auto_open_new && open_projects_.isEmpty()) {
+  if (auto_open_new) {
     CreateNewProject();
-  }
-
-  return true;
-}
-
-bool Core::CloseAllProjects(bool auto_open_new)
-{
-  QList<Project*> copy = open_projects_;
-
-  // See how many projects are modified so we can set "behavior" correctly
-  // (i.e. whether to show "Yes/No To All" buttons or not)
-  int modified_count = 0;
-  foreach (Project* p, copy) {
-    if (p->is_modified()) {
-      modified_count++;
-    }
-  }
-
-  CloseProjectBehavior behavior;
-
-  if (modified_count > 1) {
-    behavior = kCloseProjectAsk;
-  } else {
-    behavior = kCloseProjectOnlyOne;
-  }
-
-  foreach (Project* p, copy) {
-    // If this is the only remaining project and the user hasn't chose "yes/no to all", hide those buttons
-    if (modified_count == 1 && behavior == kCloseProjectAsk) {
-      behavior = kCloseProjectOnlyOne;
-    }
-
-    if (!CloseProject(p, auto_open_new, behavior)) {
-      return false;
-    }
-
-    modified_count--;
   }
 
   return true;
@@ -1785,11 +1603,6 @@ bool Core::SetLanguage(const QString &locale)
   }
 
   return false;
-}
-
-bool Core::CloseAllProjects()
-{
-  return CloseAllProjects(true);
 }
 
 void Core::OpenProject()

@@ -52,20 +52,15 @@ MainMenu::MainMenu(MainWindow *parent) :
   file_open_recent_menu_ = new Menu(file_menu_);
   file_open_recent_separator_ = file_open_recent_menu_->addSeparator();
   file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", Core::instance(), &Core::ClearOpenRecentList);
-  file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveActiveProject, tr("Ctrl+S"));
-  file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), &Core::SaveActiveProjectAs, tr("Ctrl+Shift+S"));
-  file_save_all_item_ = file_menu_->AddItem("saveallproj", Core::instance(), &Core::SaveAllProjects);
+  file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), &Core::SaveProject, tr("Ctrl+S"));
+  file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), &Core::SaveProjectAs, tr("Ctrl+Shift+S"));
   file_menu_->addSeparator();
-  file_revert_item_ = file_menu_->AddItem("revert", Core::instance(), &Core::RevertActiveProject, tr("F12"));
+  file_revert_item_ = file_menu_->AddItem("revert", Core::instance(), &Core::RevertProject, tr("F12"));
   file_menu_->addSeparator();
   file_import_item_ = file_menu_->AddItem("import", Core::instance(), &Core::DialogImportShow, tr("Ctrl+I"));
   file_menu_->addSeparator();
   file_export_menu_ = new Menu(file_menu_);
   file_export_media_item_ = file_export_menu_->AddItem("export", Core::instance(), &Core::DialogExportShow, tr("Ctrl+M"));
-  file_menu_->addSeparator();
-  file_close_project_item_ = file_menu_->AddItem("closeproj", Core::instance(), &Core::CloseActiveProject);
-  file_close_all_projects_item_ = file_menu_->AddItem("closeallproj", Core::instance(), static_cast<bool(Core::*)()>(&Core::CloseAllProjects));
-  file_close_all_except_item_ = file_menu_->AddItem("closeallexcept", Core::instance(), &Core::CloseAllExceptActiveProject);
   file_menu_->addSeparator();
   file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), &Core::DialogProjectPropertiesShow, tr("Shift+F10"));
   file_menu_->addSeparator();
@@ -328,20 +323,13 @@ void MainMenu::FileMenuAboutToShow()
 
   file_save_item_->setEnabled(active_project);
   file_save_as_item_->setEnabled(active_project);
-  file_close_project_item_->setEnabled(active_project);
-  file_close_all_projects_item_->setEnabled(active_project);
-  file_close_all_except_item_->setEnabled(active_project);
 
   if (active_project) {
     file_save_item_->setText(tr("&Save '%1'").arg(active_project->name()));
     file_save_as_item_->setText(tr("Save '%1' &As").arg(active_project->name()));
-    file_close_project_item_->setText(tr("Close '%1'").arg(active_project->name()));
-    file_close_all_except_item_->setText(tr("Close All Except '%1'").arg(active_project->name()));
   } else {
     file_save_item_->setText(tr("&Save Project"));
     file_save_as_item_->setText(tr("Save Project &As"));
-    file_close_project_item_->setText(tr("Close Project"));
-    file_close_all_except_item_->setText(tr("Close All Except Current Project"));
   }
 }
 
@@ -704,12 +692,10 @@ void MainMenu::Retranslate()
   file_open_item_->setText(tr("&Open Project"));
   file_open_recent_menu_->setTitle(tr("Open &Recent"));
   file_open_recent_clear_item_->setText(tr("&Clear Recent List"));
-  file_save_all_item_->setText(tr("Sa&ve All Projects"));
   file_revert_item_->setText(tr("Revert"));
   file_import_item_->setText(tr("&Import..."));
   file_export_menu_->setTitle(tr("&Export"));
   file_export_media_item_->setText(tr("&Media..."));
-  file_close_all_projects_item_->setText(tr("Close All Projects"));
   file_project_properties_item_->setText(tr("Project Properties"));
   file_exit_item_->setText(tr("E&xit"));
 

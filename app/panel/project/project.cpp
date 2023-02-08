@@ -221,7 +221,7 @@ void ProjectPanel::UpdateSubtitle()
 
 void ProjectPanel::SaveConnectedProject()
 {
-  Core::instance()->SaveProject(this->project());
+  Core::instance()->SaveProject();
 }
 
 QVector<ViewerOutput *> ProjectPanel::GetSelectedFootage() const
