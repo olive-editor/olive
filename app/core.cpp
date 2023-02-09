@@ -797,7 +797,7 @@ void Core::SaveProjectInternal(const QString& override_filename)
 
   if (open_project_->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
 #ifdef USE_OTIO
-    psm = new SaveOTIOTask(project);
+    psm = new SaveOTIOTask(open_project_);
 #else
     QMessageBox::critical(main_window_,
                           tr("Missing OpenTimelineIO Libraries"),
