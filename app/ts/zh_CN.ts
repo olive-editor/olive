@@ -2589,65 +2589,65 @@ To remedy this, please do one of the following:
     </message>
     <message>
         <source>Import video, audio, or still image files into the composition.</source>
-        <translation type="unfinished">将视频、音频或静止图像文件导入合成。 </translation>
+        <translation>将视频、音频或静止图像文件导入合成。</translation>
     </message>
 </context>
 <context>
     <name>olive::FootagePropertiesDialog</name>
     <message>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished">&quot;%1&quot; 属性</translation>
+        <translation>&quot;%1&quot; 属性</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称：</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Tracks:</source>
-        <translation type="unfinished">轨道：</translation>
+        <translation>轨道：</translation>
     </message>
     <message>
         <source>%1x%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 Hz %2 channels</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Subtitles</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
 </context>
 <context>
     <name>olive::FootageRelinkDialog</name>
     <message>
         <source>Footage</source>
-        <translation type="unfinished">素材</translation>
+        <translation>素材</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished">文件名</translation>
+        <translation>文件名</translation>
     </message>
     <message>
         <source>Actions</source>
-        <translation type="unfinished">操作</translation>
+        <translation>操作</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">浏览</translation>
+        <translation>浏览</translation>
     </message>
     <message>
         <source>Relink Footage</source>
-        <translation type="unfinished">重新链接素材</translation>
+        <translation>重新链接素材</translation>
     </message>
     <message>
         <source>Relink &quot;%1&quot;</source>
-        <translation type="unfinished">重新链接 &quot;%1&quot;</translation>
+        <translation>重新链接 &quot;%1&quot;</translation>
     </message>
     <message>
         <source>All Files</source>
@@ -2658,101 +2658,101 @@ To remedy this, please do one of the following:
     <name>olive::FootageViewerPanel</name>
     <message>
         <source>Footage Viewer</source>
-        <translation type="unfinished">素材查看器</translation>
+        <translation>素材查看器</translation>
     </message>
 </context>
 <context>
     <name>olive::FrameRateComboBox</name>
     <message>
         <source>Custom Frame Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义帧速率</translation>
     </message>
     <message>
         <source>Enter custom frame rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>输入自定义帧速率：</translation>
     </message>
     <message>
         <source>Invalid Input</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的输入</translation>
     </message>
     <message>
         <source>Failed to convert &quot;%1&quot; to a frame rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法将“%1”转换为帧速率。</translation>
     </message>
     <message>
         <source>Custom...</source>
-        <translation type="unfinished">自定义...</translation>
+        <translation>自定义...</translation>
     </message>
     <message>
         <source>Custom (%1)</source>
-        <translation type="unfinished">自定义 (%1)</translation>
+        <translation>自定义 (%1)</translation>
     </message>
 </context>
 <context>
     <name>olive::GapBlock</name>
     <message>
         <source>Gap</source>
-        <translation type="unfinished">空隙</translation>
+        <translation>空隙</translation>
     </message>
     <message>
         <source>A time-based node that represents an empty space.</source>
-        <translation type="unfinished">基于时间的节点，表示一段空白空间。</translation>
+        <translation>基于时间的节点，表示一段空白空间。</translation>
     </message>
 </context>
 <context>
     <name>olive::GeneratorWithMerge</name>
     <message>
         <source>Base</source>
-        <translation type="unfinished">底色</translation>
+        <translation>底色</translation>
     </message>
 </context>
 <context>
     <name>olive::H264BitRateSection</name>
     <message>
         <source>Target Bit Rate (Mbps):</source>
-        <translation type="unfinished">目标码率 (Mbps)：</translation>
+        <translation>目标码率 (Mbps)：</translation>
     </message>
     <message>
         <source>Maximum Bit Rate (Mbps):</source>
-        <translation type="unfinished">最大码率 (Mbps)：</translation>
+        <translation>最大码率 (Mbps)：</translation>
     </message>
     <message>
         <source>Two-Pass</source>
-        <translation type="unfinished">Two-Pass</translation>
+        <translation>Two-Pass</translation>
     </message>
 </context>
 <context>
     <name>olive::H264FileSizeSection</name>
     <message>
         <source>Target File Size (MB):</source>
-        <translation type="unfinished">目标文件大小 (MB)：</translation>
+        <translation>目标文件大小 (MB)：</translation>
     </message>
     <message>
         <source>Two-Pass</source>
-        <translation type="unfinished">Two-Pass</translation>
+        <translation>Two-Pass</translation>
     </message>
 </context>
 <context>
     <name>olive::H264Section</name>
     <message>
         <source>Compression Method:</source>
-        <translation type="unfinished">压缩方式：</translation>
+        <translation>压缩方式：</translation>
     </message>
     <message>
         <source>Constant Rate Factor</source>
-        <translation type="unfinished">恒定速率因子（CRF）</translation>
+        <translation>恒定速率因子（CRF）</translation>
     </message>
     <message>
         <source>Target Bit Rate</source>
-        <translation type="unfinished">目标码率</translation>
+        <translation>目标码率</translation>
     </message>
     <message>
         <source>Target File Size</source>
-        <translation type="unfinished">目标文件大小</translation>
+        <translation>目标文件大小</translation>
     </message>
     <message>
         <source>Encode Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>编码速度：</translation>
     </message>
     <message>
         <source>This setting allows you to tweak the ratio of export speed to compression quality. 
@@ -2762,115 +2762,124 @@ If using Constant Rate Factor, slower speeds will result in smaller file sizes f
 If using Target Bit Rate or Target File Size, slower speeds will result in higher quality for the same bitrate/filesize. 
 
 This setting is equivalent to the `preset` setting in libx264.</source>
-        <translation type="unfinished"></translation>
+        <translation>此设置允许您调整导出速度与压缩质量的比率。
+
+
+如果使用“恒定速率因子”（Constant Rate Factor），较慢的速度将导致相同质量的文件大小变小。
+
+
+如果使用“目标比特率”或“目标文件大小”，则速度较慢将导致相同比特率/文件大小的质量更高。
+
+
+此设置相当于libx264中的“预设”设置。</translation>
     </message>
     <message>
         <source>Ultra Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>极致快</translation>
     </message>
     <message>
         <source>Super Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>超快</translation>
     </message>
     <message>
         <source>Very Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>非常快</translation>
     </message>
     <message>
         <source>Faster</source>
-        <translation type="unfinished"></translation>
+        <translation>更快</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>快</translation>
     </message>
     <message>
         <source>Medium</source>
-        <translation type="unfinished"></translation>
+        <translation>中等</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished"></translation>
+        <translation>慢</translation>
     </message>
     <message>
         <source>Slower</source>
-        <translation type="unfinished"></translation>
+        <translation>更慢</translation>
     </message>
     <message>
         <source>Very Slow</source>
-        <translation type="unfinished"></translation>
+        <translation>非常慢</translation>
     </message>
 </context>
 <context>
     <name>olive::ImageSection</name>
     <message>
         <source>Image Sequence:</source>
-        <translation type="unfinished">图像序列：</translation>
+        <translation>图像序列：</translation>
     </message>
     <message>
         <source>Frame to Export:</source>
-        <translation type="unfinished"></translation>
+        <translation>要导出的框架：</translation>
     </message>
 </context>
 <context>
     <name>olive::InterlacedComboBox</name>
     <message>
         <source>None (Progressive)</source>
-        <translation type="unfinished">无 (渐进)</translation>
+        <translation>无 (渐进)</translation>
     </message>
     <message>
         <source>Top-Field First</source>
-        <translation type="unfinished">上场优先</translation>
+        <translation>上场优先</translation>
     </message>
     <message>
         <source>Bottom-Field First</source>
-        <translation type="unfinished">下场优先</translation>
+        <translation>下场优先</translation>
     </message>
 </context>
 <context>
     <name>olive::KeyframePropertiesDialog</name>
     <message>
         <source>Keyframe Properties</source>
-        <translation type="unfinished">关键帧属性</translation>
+        <translation>关键帧属性</translation>
     </message>
     <message>
         <source>In:</source>
-        <translation type="unfinished">入：</translation>
+        <translation>入：</translation>
     </message>
     <message>
         <source>Out:</source>
-        <translation type="unfinished">出：</translation>
+        <translation>出：</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">线性</translation>
+        <translation>线性</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">保留</translation>
+        <translation>保留</translation>
     </message>
     <message>
         <source>Bezier</source>
-        <translation type="unfinished">贝塞尔曲线</translation>
+        <translation>贝塞尔曲线</translation>
     </message>
 </context>
 <context>
     <name>olive::KeyframeView</name>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">线性</translation>
+        <translation>线性</translation>
     </message>
     <message>
         <source>Bezier</source>
-        <translation type="unfinished">贝塞尔曲线</translation>
+        <translation>贝塞尔曲线</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">保留</translation>
+        <translation>保留</translation>
     </message>
     <message>
         <source>P&amp;roperties</source>
-        <translation type="unfinished">属性(&amp;R)</translation>
+        <translation>属性(&amp;R)</translation>
     </message>
 </context>
 <context>
@@ -2900,11 +2909,11 @@ This setting is equivalent to the `preset` setting in libx264.</source>
     </message>
     <message>
         <source>Unknown OpenTimelineIO root element</source>
-        <translation type="unfinished">未知的 OpenTimelineIO 根元素</translation>
+        <translation>未知的 OpenTimelineIO 根元素</translation>
     </message>
     <message>
         <source>Failed to load clip</source>
-        <translation type="unfinished">无法加载片段</translation>
+        <translation>无法加载片段</translation>
     </message>
     <message>
         <source>Failed to load OpenTimelineIO from file &quot;%1&quot; 
@@ -2912,86 +2921,90 @@ This setting is equivalent to the `preset` setting in libx264.</source>
 OpenTimelineIO Error:
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从文件“%1”加载OpenTimelineIO
+
+OpenTimelineIO错误：
+
+%2</translation>
     </message>
     <message>
         <source>Sequence %1</source>
-        <translation type="unfinished">序列 %1</translation>
+        <translation>序列 %1</translation>
     </message>
 </context>
 <context>
     <name>olive::MainMenu</name>
     <message>
         <source>&amp;Save &apos;%1&apos;</source>
-        <translation type="unfinished">保存 &apos;%1&apos;(&amp;S)</translation>
+        <translation>保存 &apos;%1&apos;(&amp;S)</translation>
     </message>
     <message>
         <source>Save &apos;%1&apos; &amp;As</source>
-        <translation type="unfinished">另存 &apos;%1&apos; 为(&amp;A)</translation>
+        <translation>另存 &apos;%1&apos; 为(&amp;A)</translation>
     </message>
     <message>
         <source>Close &apos;%1&apos;</source>
-        <translation type="unfinished">关闭 &apos;%1&apos;</translation>
+        <translation>关闭 &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Close All Except &apos;%1&apos;</source>
-        <translation type="unfinished">除‘%1’外关闭所有</translation>
+        <translation>除‘%1’外关闭所有</translation>
     </message>
     <message>
         <source>&amp;Save Project</source>
-        <translation type="unfinished">保存项目(&amp;S)</translation>
+        <translation>保存项目(&amp;S)</translation>
     </message>
     <message>
         <source>Save Project &amp;As</source>
-        <translation type="unfinished">另存项目为(&amp;A)</translation>
+        <translation>另存项目为(&amp;A)</translation>
     </message>
     <message>
         <source>Close Project</source>
-        <translation type="unfinished">关闭项目</translation>
+        <translation>关闭项目</translation>
     </message>
     <message>
         <source>Close All Except Current Project</source>
-        <translation type="unfinished">除当前项目外关闭所有</translation>
+        <translation>除当前项目外关闭所有</translation>
     </message>
     <message>
         <source>(None)</source>
-        <translation type="unfinished">(无)</translation>
+        <translation>(无)</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished">文件(&amp;F)</translation>
+        <translation>文件(&amp;F)</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">新建(&amp;N)</translation>
+        <translation>新建(&amp;N)</translation>
     </message>
     <message>
         <source>&amp;Open Project</source>
-        <translation type="unfinished">打开项目(&amp;O)</translation>
+        <translation>打开项目(&amp;O)</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished">打开最近(&amp;R)</translation>
+        <translation>打开最近(&amp;R)</translation>
     </message>
     <message>
         <source>&amp;Clear Recent List</source>
-        <translation type="unfinished">清除最近列表(&amp;C)</translation>
+        <translation>清除最近列表(&amp;C)</translation>
     </message>
     <message>
         <source>Sa&amp;ve All Projects</source>
-        <translation type="unfinished">保存所有项目(&amp;V)</translation>
+        <translation>保存所有项目(&amp;V)</translation>
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation type="unfinished">导入(&amp;I)...</translation>
+        <translation>导入(&amp;I)...</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">导出(&amp;E)</translation>
+        <translation>导出(&amp;E)</translation>
     </message>
     <message>
         <source>&amp;Media...</source>
-        <translation type="unfinished">媒体(&amp;M)...</translation>
+        <translation>媒体(&amp;M)...</translation>
     </message>
     <message>
         <source>&amp;Project Properties...</source>
@@ -2999,542 +3012,542 @@ OpenTimelineIO Error:
     </message>
     <message>
         <source>Close All Projects</source>
-        <translation type="unfinished">关闭所有项目</translation>
+        <translation>关闭所有项目</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation type="unfinished">退出(&amp;X)</translation>
+        <translation>退出(&amp;X)</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">编辑(&amp;E)</translation>
+        <translation>编辑(&amp;E)</translation>
     </message>
     <message>
         <source>Insert</source>
-        <translation type="unfinished">插入</translation>
+        <translation>插入</translation>
     </message>
     <message>
         <source>Overwrite</source>
-        <translation type="unfinished">覆盖</translation>
+        <translation>覆盖</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
-        <translation type="unfinished">全选(&amp;A)</translation>
+        <translation>全选(&amp;A)</translation>
     </message>
     <message>
         <source>Deselect All</source>
-        <translation type="unfinished">取消全选</translation>
+        <translation>取消全选</translation>
     </message>
     <message>
         <source>Ripple to In Point</source>
-        <translation type="unfinished">波纹删除至入点</translation>
+        <translation>波纹删除至入点</translation>
     </message>
     <message>
         <source>Ripple to Out Point</source>
-        <translation type="unfinished">波纹删除至出点</translation>
+        <translation>波纹删除至出点</translation>
     </message>
     <message>
         <source>Edit to In Point</source>
-        <translation type="unfinished">剪辑至入点</translation>
+        <translation>剪辑至入点</translation>
     </message>
     <message>
         <source>Edit to Out Point</source>
-        <translation type="unfinished">剪辑至出点</translation>
+        <translation>剪辑至出点</translation>
     </message>
     <message>
         <source>Delete In/Out Point</source>
-        <translation type="unfinished">删除入点/出点</translation>
+        <translation>删除入点/出点</translation>
     </message>
     <message>
         <source>Ripple Delete In/Out Point</source>
-        <translation type="unfinished">波纹删除入点/出点</translation>
+        <translation>波纹删除入点/出点</translation>
     </message>
     <message>
         <source>Set/Edit Marker</source>
-        <translation type="unfinished">设置/编辑标记</translation>
+        <translation>设置/编辑标记</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished">视图(&amp;V)</translation>
+        <translation>视图(&amp;V)</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">放大</translation>
+        <translation>放大</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">缩小</translation>
+        <translation>缩小</translation>
     </message>
     <message>
         <source>Increase Track Height</source>
-        <translation type="unfinished">增加轨道高度</translation>
+        <translation>增加轨道高度</translation>
     </message>
     <message>
         <source>Decrease Track Height</source>
-        <translation type="unfinished">降低轨道高度</translation>
+        <translation>降低轨道高度</translation>
     </message>
     <message>
         <source>Toggle Show All</source>
-        <translation type="unfinished">轨道全部显示</translation>
+        <translation>轨道全部显示</translation>
     </message>
     <message>
         <source>Full Screen</source>
-        <translation type="unfinished">全屏</translation>
+        <translation>全屏</translation>
     </message>
     <message>
         <source>Full Screen Viewer</source>
-        <translation type="unfinished">全屏查看器</translation>
+        <translation>全屏查看器</translation>
     </message>
     <message>
         <source>&amp;Playback</source>
-        <translation type="unfinished">回放(&amp;P)</translation>
+        <translation>回放(&amp;P)</translation>
     </message>
     <message>
         <source>Go to Start</source>
-        <translation type="unfinished">回到起始帧</translation>
+        <translation>回到起始帧</translation>
     </message>
     <message>
         <source>Previous Frame</source>
-        <translation type="unfinished">前一帧</translation>
+        <translation>前一帧</translation>
     </message>
     <message>
         <source>Play/Pause</source>
-        <translation type="unfinished">播放/暂停</translation>
+        <translation>播放/暂停</translation>
     </message>
     <message>
         <source>Play In to Out</source>
-        <translation type="unfinished">播放入点至出点</translation>
+        <translation>播放入点至出点</translation>
     </message>
     <message>
         <source>Next Frame</source>
-        <translation type="unfinished">后一帧</translation>
+        <translation>后一帧</translation>
     </message>
     <message>
         <source>Go to End</source>
-        <translation type="unfinished">转到结束帧</translation>
+        <translation>转到结束帧</translation>
     </message>
     <message>
         <source>Go to Previous Cut</source>
-        <translation type="unfinished">转到前一切点</translation>
+        <translation>转到前一切点</translation>
     </message>
     <message>
         <source>Go to Next Cut</source>
-        <translation type="unfinished">转到后一切点</translation>
+        <translation>转到后一切点</translation>
     </message>
     <message>
         <source>Go to In Point</source>
-        <translation type="unfinished">转到入点</translation>
+        <translation>转到入点</translation>
     </message>
     <message>
         <source>Go to Out Point</source>
-        <translation type="unfinished">转到出点</translation>
+        <translation>转到出点</translation>
     </message>
     <message>
         <source>Shuttle Left</source>
-        <translation type="unfinished">向左播放</translation>
+        <translation>向左播放</translation>
     </message>
     <message>
         <source>Shuttle Stop</source>
-        <translation type="unfinished">停止播放</translation>
+        <translation>停止播放</translation>
     </message>
     <message>
         <source>Shuttle Right</source>
-        <translation type="unfinished">向右播放</translation>
+        <translation>向右播放</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished">循环</translation>
+        <translation>循环</translation>
     </message>
     <message>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">序列(&amp;S)</translation>
+        <translation>序列(&amp;S)</translation>
     </message>
     <message>
         <source>Cache Entire Sequence</source>
-        <translation type="unfinished">缓存整个序列</translation>
+        <translation>缓存整个序列</translation>
     </message>
     <message>
         <source>Cache Sequence In/Out</source>
-        <translation type="unfinished">缓存序列入点/出点</translation>
+        <translation>缓存序列入点/出点</translation>
     </message>
     <message>
         <source>Maximize Panel</source>
-        <translation type="unfinished">最大化面板</translation>
+        <translation>最大化面板</translation>
     </message>
     <message>
         <source>Lock Panels</source>
-        <translation type="unfinished">锁定面板</translation>
+        <translation>锁定面板</translation>
     </message>
     <message>
         <source>Reset to Default Layout</source>
-        <translation type="unfinished">重置为默认布局</translation>
+        <translation>重置为默认布局</translation>
     </message>
     <message>
         <source>&amp;Tools</source>
-        <translation type="unfinished">工具(&amp;T)</translation>
+        <translation>工具(&amp;T)</translation>
     </message>
     <message>
         <source>Pointer Tool</source>
-        <translation type="unfinished">指针工具</translation>
+        <translation>指针工具</translation>
     </message>
     <message>
         <source>Edit Tool</source>
-        <translation type="unfinished">编辑工具</translation>
+        <translation>编辑工具</translation>
     </message>
     <message>
         <source>Ripple Tool</source>
-        <translation type="unfinished">波纹工具</translation>
+        <translation>波纹工具</translation>
     </message>
     <message>
         <source>Rolling Tool</source>
-        <translation type="unfinished">滚动工具</translation>
+        <translation>滚动工具</translation>
     </message>
     <message>
         <source>Razor Tool</source>
-        <translation type="unfinished">刀片工具</translation>
+        <translation>刀片工具</translation>
     </message>
     <message>
         <source>Slip Tool</source>
-        <translation type="unfinished">滑移工具</translation>
+        <translation>滑移工具</translation>
     </message>
     <message>
         <source>Slide Tool</source>
-        <translation type="unfinished">滑动工具</translation>
+        <translation>滑动工具</translation>
     </message>
     <message>
         <source>Hand Tool</source>
-        <translation type="unfinished">手形工具</translation>
+        <translation>手形工具</translation>
     </message>
     <message>
         <source>Zoom Tool</source>
-        <translation type="unfinished">缩放工具</translation>
+        <translation>缩放工具</translation>
     </message>
     <message>
         <source>Transition Tool</source>
-        <translation type="unfinished">转场工具</translation>
+        <translation>转场工具</translation>
     </message>
     <message>
         <source>Enable Snapping</source>
-        <translation type="unfinished">启用吸附</translation>
+        <translation>启用吸附</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">首选项</translation>
+        <translation>首选项</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation type="unfinished">帮助(&amp;H)</translation>
+        <translation>帮助(&amp;H)</translation>
     </message>
     <message>
         <source>A&amp;ction Search</source>
-        <translation type="unfinished">操作搜索(&amp;C)</translation>
+        <translation>操作搜索(&amp;C)</translation>
     </message>
     <message>
         <source>Send &amp;Feedback...</source>
-        <translation type="unfinished">发送反馈(&amp;F)...</translation>
+        <translation>发送反馈(&amp;F)...</translation>
     </message>
     <message>
         <source>&amp;About...</source>
-        <translation type="unfinished">关于(&amp;A)...</translation>
+        <translation>关于(&amp;A)...</translation>
     </message>
     <message>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F12</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+I</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Shift+F10</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Z</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Shift+Z</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Backspace</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Shift+A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>,</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Q</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>W</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Alt+Q</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Alt+W</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>[</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>]</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>M</source>
-        <translation type="unfinished">M</translation>
+        <translation>M</translation>
     </message>
     <message>
         <source>=</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+=</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>\</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F11</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Shift+Space</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Shift+I</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Shift+O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>J</source>
-        <translation type="unfinished">J</translation>
+        <translation>J</translation>
     </message>
     <message>
         <source>K</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>L</source>
-        <translation type="unfinished">L</translation>
+        <translation>L</translation>
     </message>
     <message>
         <source>`</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>B</source>
-        <translation type="unfinished">B</translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>N</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>C</source>
-        <translation type="unfinished">C</translation>
+        <translation>C</translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>U</source>
-        <translation type="unfinished">U</translation>
+        <translation>U</translation>
     </message>
     <message>
         <source>H</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>R</source>
-        <translation type="unfinished">R</translation>
+        <translation>R</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Ctrl+,</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>/</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>还原</translation>
     </message>
     <message>
         <source>Project Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>项目属性</translation>
     </message>
     <message>
         <source>Delete (alt)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Nudge Left</source>
-        <translation type="unfinished"></translation>
+        <translation>向左微移</translation>
     </message>
     <message>
         <source>Nudge Right</source>
-        <translation type="unfinished"></translation>
+        <translation>向右微移</translation>
     </message>
     <message>
         <source>Move In Point to Playhead</source>
-        <translation type="unfinished"></translation>
+        <translation>移入点到播放头</translation>
     </message>
     <message>
         <source>Move Out Point to Playhead</source>
-        <translation type="unfinished"></translation>
+        <translation>移出点到播放头</translation>
     </message>
     <message>
         <source>Clear Disk Cache</source>
-        <translation type="unfinished">清除磁盘缓存</translation>
+        <translation>清除磁盘缓存</translation>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;窗口</translation>
     </message>
     <message>
         <source>Track Select Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>轨道选择工具</translation>
     </message>
     <message>
         <source>Add Tool</source>
-        <translation type="unfinished">添加工具</translation>
+        <translation>添加工具</translation>
     </message>
     <message>
         <source>Record Tool</source>
-        <translation type="unfinished">录制工具</translation>
+        <translation>录制工具</translation>
     </message>
 </context>
 <context>
     <name>olive::MainStatusBar</name>
     <message>
         <source>Welcome to %1 %2</source>
-        <translation type="unfinished">欢迎使用 %1 %2</translation>
+        <translation>欢迎使用 %1 %2</translation>
     </message>
     <message>
         <source>Running %1 background tasks</source>
@@ -3542,20 +3555,20 @@ OpenTimelineIO Error:
     </message>
     <message>
         <source>Running %n background task(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>正在运行%n后台任务</translation>
     </message>
 </context>
 <context>
     <name>olive::MainWindow</name>
     <message>
         <source>Driver Warning</source>
-        <translation type="unfinished">驱动程序警告</translation>
+        <translation>驱动程序警告</translation>
     </message>
     <message>
         <source>Olive has detected your system is using the Nouveau graphics driver.
 
 This driver is known to have stability and performance issues with Olive. It is highly recommended you install the proprietary NVIDIA driver before continuing to use Olive.</source>
-        <translation type="unfinished">Olive 检测到您的系统正在使用 Nouveau 图形驱动程序。
+        <translation>Olive 检测到您的系统正在使用 Nouveau 图形驱动程序。
 
 此驱动程序用于 Olive 会有稳定性和性能问题。强烈建议您在继续使用 Olive 之前安装 NVIDIA 专有驱动程序。</translation>
     </message>
@@ -3564,127 +3577,127 @@ This driver is known to have stability and performance issues with Olive. It is 
     <name>olive::ManagedDisplayWidget</name>
     <message>
         <source>Color Space</source>
-        <translation type="unfinished">颜色空间</translation>
+        <translation>颜色空间</translation>
     </message>
     <message>
         <source>No color manager connected</source>
-        <translation type="unfinished">没有已连接的颜色管理器</translation>
+        <translation>没有已连接的颜色管理器</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation type="unfinished">显示</translation>
+        <translation>显示</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished">视图</translation>
+        <translation>视图</translation>
     </message>
     <message>
         <source>Look</source>
-        <translation type="unfinished">风格</translation>
+        <translation>风格</translation>
     </message>
     <message>
         <source>(None)</source>
-        <translation type="unfinished">(无)</translation>
+        <translation>(无)</translation>
     </message>
     <message>
         <source>OpenColorIO Error</source>
-        <translation type="unfinished">OpenColorIO 错误</translation>
+        <translation>OpenColorIO 错误</translation>
     </message>
     <message>
         <source>Failed to set color configuration: %1</source>
-        <translation type="unfinished">无法设置颜色配置：%1</translation>
+        <translation>无法设置颜色配置：%1</translation>
     </message>
 </context>
 <context>
     <name>olive::ManagedPixelSamplerWidget</name>
     <message>
         <source>Display</source>
-        <translation type="unfinished">显示</translation>
+        <translation>显示</translation>
     </message>
     <message>
         <source>Reference</source>
-        <translation type="unfinished">参考</translation>
+        <translation>参考</translation>
     </message>
 </context>
 <context>
     <name>olive::MarkerPropertiesDialog</name>
     <message>
         <source>Time</source>
-        <translation type="unfinished">时间</translation>
+        <translation>时间</translation>
     </message>
     <message>
         <source>In:</source>
-        <translation type="unfinished">入：</translation>
+        <translation>入：</translation>
     </message>
     <message>
         <source>Out:</source>
-        <translation type="unfinished">出：</translation>
+        <translation>出：</translation>
     </message>
     <message>
         <source>Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>颜色：</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称：</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>(multiple)</source>
-        <translation type="unfinished">(多个)</translation>
+        <translation>(多个)</translation>
     </message>
     <message>
         <source>Edit Markers</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑标记</translation>
     </message>
     <message>
         <source>Invalid Values</source>
-        <translation type="unfinished"></translation>
+        <translation>无效值</translation>
     </message>
     <message>
         <source>In point must be less than or equal to out point.</source>
-        <translation type="unfinished"></translation>
+        <translation>输入点必须小于或等于输出点。</translation>
     </message>
 </context>
 <context>
     <name>olive::MaskDistortNode</name>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Invert</source>
-        <translation type="unfinished"></translation>
+        <translation>倒转</translation>
     </message>
     <message>
         <source>Feather</source>
-        <translation type="unfinished"></translation>
+        <translation>削薄</translation>
     </message>
     <message>
         <source>Mask</source>
-        <translation type="unfinished"></translation>
+        <translation>遮罩</translation>
     </message>
     <message>
         <source>Apply a polygonal mask.</source>
-        <translation type="unfinished"></translation>
+        <translation>应用多边形遮罩.</translation>
     </message>
 </context>
 <context>
     <name>olive::MathNode</name>
     <message>
         <source>Math</source>
-        <translation type="unfinished">数学</translation>
+        <translation>数学</translation>
     </message>
     <message>
         <source>Perform a mathematical operation between two values.</source>
-        <translation type="unfinished">在两个值之间进行数学运算。</translation>
+        <translation>在两个值之间进行数学运算。</translation>
     </message>
     <message>
         <source>Method</source>
-        <translation type="unfinished">方法</translation>
+        <translation>方法</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
     <message>
         <source>Add</source>
@@ -3711,58 +3724,58 @@ This driver is known to have stability and performance issues with Olive. It is 
     <name>olive::MathNodeBase</name>
     <message>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>增加</translation>
     </message>
     <message>
         <source>Subtract</source>
-        <translation type="unfinished">减</translation>
+        <translation>减</translation>
     </message>
     <message>
         <source>Multiply</source>
-        <translation type="unfinished">乘</translation>
+        <translation>乘</translation>
     </message>
     <message>
         <source>Divide</source>
-        <translation type="unfinished">除</translation>
+        <translation>除</translation>
     </message>
     <message>
         <source>Power</source>
-        <translation type="unfinished">幂</translation>
+        <translation>幂</translation>
     </message>
 </context>
 <context>
     <name>olive::MatrixGenerator</name>
     <message>
         <source>Orthographic Matrix</source>
-        <translation type="unfinished">正交矩阵</translation>
+        <translation>正交矩阵</translation>
     </message>
     <message>
         <source>Ortho</source>
-        <translation type="unfinished">正交</translation>
+        <translation>正交</translation>
     </message>
     <message>
         <source>Generate an orthographic matrix using position, rotation, and scale.</source>
-        <translation type="unfinished">使用位置、旋转和缩放生成正交矩阵。</translation>
+        <translation>使用位置、旋转和缩放生成正交矩阵。</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">位置</translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>Rotation</source>
-        <translation type="unfinished">旋转</translation>
+        <translation>旋转</translation>
     </message>
     <message>
         <source>Scale</source>
-        <translation type="unfinished">缩放</translation>
+        <translation>缩放</translation>
     </message>
     <message>
         <source>Uniform Scale</source>
-        <translation type="unfinished">统一缩放</translation>
+        <translation>统一缩放</translation>
     </message>
     <message>
         <source>Anchor Point</source>
-        <translation type="unfinished">锚点</translation>
+        <translation>锚点</translation>
     </message>
 </context>
 <context>
@@ -3776,271 +3789,271 @@ This driver is known to have stability and performance issues with Olive. It is 
     <name>olive::MenuShared</name>
     <message>
         <source>&amp;Project</source>
-        <translation type="unfinished">项目(&amp;P)</translation>
+        <translation>项目(&amp;P)</translation>
     </message>
     <message>
         <source>&amp;Sequence</source>
-        <translation type="unfinished">序列(&amp;S)</translation>
+        <translation>序列(&amp;S)</translation>
     </message>
     <message>
         <source>&amp;Folder</source>
-        <translation type="unfinished">文件夹(&amp;F)</translation>
+        <translation>文件夹(&amp;F)</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">剪切(&amp;T)</translation>
+        <translation>剪切(&amp;T)</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
-        <translation type="unfinished">复制(&amp;Y)</translation>
+        <translation>复制(&amp;Y)</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished">粘帖(&amp;P)</translation>
+        <translation>粘帖(&amp;P)</translation>
     </message>
     <message>
         <source>Paste Insert</source>
-        <translation type="unfinished">粘贴插入</translation>
+        <translation>粘贴插入</translation>
     </message>
     <message>
         <source>Duplicate</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <source>Ripple Delete</source>
-        <translation type="unfinished">波纹删除</translation>
+        <translation>波纹删除</translation>
     </message>
     <message>
         <source>Split</source>
-        <translation type="unfinished">切断</translation>
+        <translation>切断</translation>
     </message>
     <message>
         <source>Set In Point</source>
-        <translation type="unfinished">设置入点</translation>
+        <translation>设置入点</translation>
     </message>
     <message>
         <source>Set Out Point</source>
-        <translation type="unfinished">设置出点</translation>
+        <translation>设置出点</translation>
     </message>
     <message>
         <source>Reset In Point</source>
-        <translation type="unfinished">重置入点</translation>
+        <translation>重置入点</translation>
     </message>
     <message>
         <source>Reset Out Point</source>
-        <translation type="unfinished">重置出点</translation>
+        <translation>重置出点</translation>
     </message>
     <message>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished">清除入点/出点</translation>
+        <translation>清除入点/出点</translation>
     </message>
     <message>
         <source>Add Default Transition</source>
-        <translation type="unfinished">添加默认转场效果</translation>
+        <translation>添加默认转场效果</translation>
     </message>
     <message>
         <source>Link/Unlink</source>
-        <translation type="unfinished">链接/取消链接</translation>
+        <translation>链接/取消链接</translation>
     </message>
     <message>
         <source>Enable/Disable</source>
-        <translation type="unfinished">启用/禁用</translation>
+        <translation>启用/禁用</translation>
     </message>
     <message>
         <source>Nest</source>
-        <translation type="unfinished">嵌套</translation>
+        <translation>嵌套</translation>
     </message>
     <message>
         <source>Frames</source>
-        <translation type="unfinished">帧</translation>
+        <translation>帧</translation>
     </message>
     <message>
         <source>Drop Frame</source>
-        <translation type="unfinished">丢帧</translation>
+        <translation>丢帧</translation>
     </message>
     <message>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished">不丢帧</translation>
+        <translation>不丢帧</translation>
     </message>
     <message>
         <source>Milliseconds</source>
-        <translation type="unfinished">毫秒</translation>
+        <translation>毫秒</translation>
     </message>
     <message>
         <source>Seconds</source>
-        <translation type="unfinished">秒</translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Shift+N</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+X</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>F2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Del</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Shift+Del</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+K</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>I</source>
-        <translation type="unfinished">I</translation>
+        <translation>I</translation>
     </message>
     <message>
         <source>O</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+Shift+D</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ctrl+L</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Shift+E</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名</translation>
     </message>
     <message>
         <source>Speed/Duration</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::MergeNode</name>
     <message>
         <source>Merge</source>
-        <translation type="unfinished">合并</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <source>Merge two textures together.</source>
-        <translation type="unfinished">合并两个纹理到一起。</translation>
+        <translation>合并两个纹理到一起。</translation>
     </message>
     <message>
         <source>Base</source>
-        <translation type="unfinished">底色</translation>
+        <translation>底色</translation>
     </message>
     <message>
         <source>Blend</source>
-        <translation type="unfinished">混合</translation>
+        <translation>混合</translation>
     </message>
 </context>
 <context>
     <name>olive::MosaicFilterNode</name>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished">水平</translation>
+        <translation>水平</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished">垂直</translation>
+        <translation>垂直</translation>
     </message>
     <message>
         <source>Mosaic</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Apply a pixelated mosaic filter to video.</source>
-        <translation type="unfinished"></translation>
+        <translation>对视频应用像素化马赛克过滤器.</translation>
     </message>
 </context>
 <context>
     <name>olive::MultiCamNode</name>
     <message>
         <source>Multi-Cam</source>
-        <translation type="unfinished"></translation>
+        <translation>多凸轮</translation>
     </message>
     <message>
         <source>Allows easy switching between multiple sources.</source>
-        <translation type="unfinished"></translation>
+        <translation>允许在多个源之间轻松切换。</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>现在的</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>源</translation>
     </message>
     <message>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>序列</translation>
     </message>
     <message>
         <source>Sequence Type</source>
-        <translation type="unfinished"></translation>
+        <translation>序列类型</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished">视频</translation>
+        <translation>视频</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
 </context>
 <context>
     <name>olive::MulticamPanel</name>
     <message>
         <source>Multi-Cam</source>
-        <translation type="unfinished"></translation>
+        <translation>多凸轮</translation>
     </message>
 </context>
 <context>
@@ -4051,7 +4064,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">输出</translation>
+        <translation>输出</translation>
     </message>
     <message>
         <source>General</source>
@@ -4059,23 +4072,23 @@ This driver is known to have stability and performance issues with Olive. It is 
     </message>
     <message>
         <source>Math</source>
-        <translation type="unfinished">数学</translation>
+        <translation>数学</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">滤镜</translation>
+        <translation>滤镜</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">时间线</translation>
+        <translation>时间线</translation>
     </message>
     <message>
         <source>Generator</source>
-        <translation type="unfinished">生成器</translation>
+        <translation>生成器</translation>
     </message>
     <message>
         <source>Channel</source>
@@ -4083,46 +4096,46 @@ This driver is known to have stability and performance issues with Olive. It is 
     </message>
     <message>
         <source>Transition</source>
-        <translation type="unfinished">转场</translation>
+        <translation>转场</translation>
     </message>
     <message>
         <source>Uncategorized</source>
-        <translation type="unfinished">未分类</translation>
+        <translation>未分类</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">已启用</translation>
+        <translation>已启用</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Distort</source>
-        <translation type="unfinished"></translation>
+        <translation>变形</translation>
     </message>
     <message>
         <source>Keying</source>
-        <translation type="unfinished"></translation>
+        <translation>键入</translation>
     </message>
     <message>
         <source>Project</source>
-        <translation type="unfinished">项目</translation>
+        <translation>项目</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">时间</translation>
+        <translation>时间</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeGroup</name>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>组</translation>
     </message>
     <message>
         <source>A group of nodes that is represented as a single node.</source>
-        <translation type="unfinished"></translation>
+        <translation>表示为单个节点的一组节点。</translation>
     </message>
 </context>
 <context>
@@ -4143,7 +4156,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <name>olive::NodePanel</name>
     <message>
         <source>Node Editor</source>
-        <translation type="unfinished">节点编辑器</translation>
+        <translation>节点编辑器</translation>
     </message>
 </context>
 <context>
@@ -4225,15 +4238,15 @@ This driver is known to have stability and performance issues with Olive. It is 
     <name>olive::NodeParamView</name>
     <message>
         <source>%1 Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 个节点</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>其他</translation>
     </message>
     <message>
         <source>Paste Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>粘贴节点</translation>
     </message>
     <message>
         <source>The following node types already exist in this context:
@@ -4241,26 +4254,30 @@ This driver is known to have stability and performance issues with Olive. It is 
 %1
 
 Do you wish to paste values onto the existing nodes or paste new nodes?</source>
-        <translation type="unfinished"></translation>
+        <translation>此上下文中已存在以下节点类型：
+
+%1
+
+要将值粘贴到现有节点还是粘贴新节点？</translation>
     </message>
     <message>
         <source>Paste As Values</source>
-        <translation type="unfinished"></translation>
+        <translation>粘贴为值</translation>
     </message>
     <message>
         <source>Paste As Nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>粘贴为节点</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewArrayButton</name>
     <message>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <source>-</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4275,22 +4292,22 @@ Do you wish to paste values onto the existing nodes or paste new nodes?</source>
     </message>
     <message>
         <source>%n element(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>%n 个元素</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewConnectedLabel</name>
     <message>
         <source>Connected to</source>
-        <translation type="unfinished">已连接到</translation>
+        <translation>已连接到</translation>
     </message>
     <message>
         <source>Nothing</source>
-        <translation type="unfinished">无内容</translation>
+        <translation>无内容</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation type="unfinished">断开连接</translation>
+        <translation>断开连接</translation>
     </message>
 </context>
 <context>
@@ -4304,124 +4321,124 @@ Do you wish to paste values onto the existing nodes or paste new nodes?</source>
     <name>olive::NodeParamViewItemBase</name>
     <message>
         <source>%1 (%2)</source>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation>%1 (%2)</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewItemBody</name>
     <message>
         <source>%1:</source>
-        <translation type="unfinished">%1:</translation>
+        <translation>%1:</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewKeyframeControl</name>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>Are you sure you want to disable keyframing on this value? This will clear all existing keyframes.</source>
-        <translation type="unfinished">您确定要禁用当前值上的关键帧？这会清除所有已存在的关键帧。</translation>
+        <translation>您确定要禁用当前值上的关键帧？这会清除所有已存在的关键帧。</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeParamViewTextEdit</name>
     <message>
         <source>Edit In Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>在查看器中编辑</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeTablePanel</name>
     <message>
         <source>Table View</source>
-        <translation type="unfinished">表格视图</translation>
+        <translation>表格视图</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeTableView</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">源</translation>
+        <translation>源</translation>
     </message>
     <message>
         <source>R/X</source>
-        <translation type="unfinished">R/X</translation>
+        <translation>R/X</translation>
     </message>
     <message>
         <source>G/Y</source>
-        <translation type="unfinished">G/Y</translation>
+        <translation>G/Y</translation>
     </message>
     <message>
         <source>B/Z</source>
-        <translation type="unfinished">B/Z</translation>
+        <translation>B/Z</translation>
     </message>
     <message>
         <source>A/W</source>
-        <translation type="unfinished">A/W</translation>
+        <translation>A/W</translation>
     </message>
     <message>
         <source>(unknown)</source>
-        <translation type="unfinished">(未知)</translation>
+        <translation>(未知)</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeTreeView</name>
     <message>
         <source>Nodes</source>
-        <translation type="unfinished">节点</translation>
+        <translation>节点</translation>
     </message>
     <message>
         <source>R</source>
-        <translation type="unfinished">R</translation>
+        <translation>R</translation>
     </message>
     <message>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>B</source>
-        <translation type="unfinished">B</translation>
+        <translation>B</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>W</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::NodeValueTree</name>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished">源</translation>
+        <translation>源</translation>
     </message>
 </context>
 <context>
@@ -4436,7 +4453,7 @@ Do you wish to paste values onto the existing nodes or paste new nodes?</source>
     </message>
     <message>
         <source>Smooth Edges</source>
-        <translation type="unfinished">平滑边缘</translation>
+        <translation>平滑边缘</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -4452,93 +4469,93 @@ Do you wish to paste values onto the existing nodes or paste new nodes?</source>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished">方向</translation>
+        <translation>方向</translation>
     </message>
     <message>
         <source>Top to Bottom</source>
-        <translation type="unfinished">从上到下</translation>
+        <translation>从上到下</translation>
     </message>
     <message>
         <source>Bottom to Top</source>
-        <translation type="unfinished">从下到上</translation>
+        <translation>从下到上</translation>
     </message>
     <message>
         <source>Left to Right</source>
-        <translation type="unfinished">从左到右</translation>
+        <translation>从左到右</translation>
     </message>
     <message>
         <source>Right to Left</source>
-        <translation type="unfinished">从右到左</translation>
+        <translation>从右到左</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <source>Nodes must be placed inside a context.</source>
-        <translation type="unfinished"></translation>
+        <translation>节点必须放置在上下文中。</translation>
     </message>
     <message>
         <source>Ungroup</source>
-        <translation type="unfinished"></translation>
+        <translation>取消分组</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>分组</translation>
     </message>
     <message>
         <source>Open in Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>在查看器中打开</translation>
     </message>
     <message>
         <source>P&amp;roperties</source>
-        <translation type="unfinished">属性(&amp;R)</translation>
+        <translation>属性(&amp;R)</translation>
     </message>
     <message>
         <source>Failed to group nodes</source>
-        <translation type="unfinished"></translation>
+        <translation>无法对节点进行分组</translation>
     </message>
     <message>
         <source>Nodes can only be grouped if they&apos;re in the same context.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nodes can only be grouped if they&apos;re in the same context.</translation>
     </message>
     <message>
         <source>Input &quot;%1&quot; is currently connected to node &quot;%2&quot;, which is not visible in this context. By connecting this, that connection will be removed. Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>输入“%1”当前连接到节点“%2”，该节点在此上下文中不可见。通过连接此，将删除该连接。是否要继续？</translation>
     </message>
 </context>
 <context>
     <name>olive::NodeViewToolBar</name>
     <message>
         <source>Add Node</source>
-        <translation type="unfinished"></translation>
+        <translation>添加节点</translation>
     </message>
     <message>
         <source>Toggle Mini-Map</source>
-        <translation type="unfinished"></translation>
+        <translation>切换小地图</translation>
     </message>
 </context>
 <context>
     <name>olive::NoiseGeneratorNode</name>
     <message>
         <source>Noise</source>
-        <translation type="unfinished"></translation>
+        <translation>噪音</translation>
     </message>
     <message>
         <source>Generates noise patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>生成噪波模式</translation>
     </message>
     <message>
         <source>Base</source>
-        <translation type="unfinished">底色</translation>
+        <translation>底色</translation>
     </message>
     <message>
         <source>Strength</source>
-        <translation type="unfinished"></translation>
+        <translation>强度</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
 </context>
 <context>
