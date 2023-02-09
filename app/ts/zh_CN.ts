@@ -1105,97 +1105,97 @@ Current driver information: %1 %2 %3</source>
     <name>olive::ColorValuesWidget</name>
     <message>
         <source>Preview</source>
-        <translation type="unfinished">预览</translation>
+        <translation>预览</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Reference</source>
-        <translation type="unfinished">参考</translation>
+        <translation>参考</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation type="unfinished">显示</translation>
+        <translation>显示</translation>
     </message>
 </context>
 <context>
     <name>olive::ConformTask</name>
     <message>
         <source>Conforming Audio %1:%2</source>
-        <translation type="unfinished">确认音频 %1:%2</translation>
+        <translation>确认音频 %1:%2</translation>
     </message>
     <message>
         <source>Failed to open decoder for audio conform</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开解码器以符合音频</translation>
     </message>
 </context>
 <context>
     <name>olive::Core</name>
     <message>
         <source>Import error</source>
-        <translation type="unfinished">导入出错</translation>
+        <translation>导入出错</translation>
     </message>
     <message>
         <source>Nothing to import</source>
-        <translation type="unfinished">没有可导出的内容</translation>
+        <translation>没有可导出的内容</translation>
     </message>
     <message>
         <source>Importing...</source>
-        <translation type="unfinished">正在导入...</translation>
+        <translation>正在导入...</translation>
     </message>
     <message>
         <source>Import footage...</source>
-        <translation type="unfinished">导入素材...</translation>
+        <translation>导入素材...</translation>
     </message>
     <message>
         <source>Failed to import footage</source>
-        <translation type="unfinished">无法导入素材</translation>
+        <translation>无法导入素材</translation>
     </message>
     <message>
         <source>Failed to find active Project panel</source>
-        <translation type="unfinished">找不到活动项目面板</translation>
+        <translation>找不到活动项目面板</translation>
     </message>
     <message>
         <source>No Active Project</source>
-        <translation type="unfinished">没有活动项目</translation>
+        <translation>没有活动项目</translation>
     </message>
     <message>
         <source>No project is currently open to set the properties for</source>
-        <translation type="unfinished">当前没有用于设置属性的已打开项目</translation>
+        <translation>当前没有用于设置属性的已打开项目</translation>
     </message>
     <message>
         <source>Failed to create new folder</source>
-        <translation type="unfinished">无法创建新文件夹</translation>
+        <translation>无法创建新文件夹</translation>
     </message>
     <message>
         <source>Failed to find active project</source>
-        <translation type="unfinished">找不到活动项目</translation>
+        <translation>找不到活动项目</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation type="unfinished">新建文件夹</translation>
+        <translation>新建文件夹</translation>
     </message>
     <message>
         <source>Failed to create new sequence</source>
-        <translation type="unfinished">无法创建新序列</translation>
+        <translation>无法创建新序列</translation>
     </message>
     <message>
         <source>Possible image sequence detected</source>
-        <translation type="unfinished">检测到可能的图像序列</translation>
+        <translation>检测到可能的图像序列</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; looks like it might be part of an image sequence. Would you like to import it as such?</source>
-        <translation type="unfinished">文件“%1”可能是图像序列的一部分。您要如此导入它吗？</translation>
+        <translation>文件“%1”可能是图像序列的一部分。您要如此导入它吗？</translation>
     </message>
     <message>
         <source>You must specify a project file to export</source>
-        <translation type="unfinished">您必须指定要导出的项目文件</translation>
+        <translation>您必须指定要导出的项目文件</translation>
     </message>
     <message>
         <source>Specified project does not exist</source>
-        <translation type="unfinished">指定的项目不存在</translation>
+        <translation>指定的项目不存在</translation>
     </message>
     <message>
         <source>Project contains no sequences, nothing to export</source>
@@ -1227,19 +1227,19 @@ Current driver information: %1 %2 %3</source>
     </message>
     <message>
         <source>Failed to open startup file</source>
-        <translation type="unfinished">无法打开启动文件</translation>
+        <translation>无法打开启动文件</translation>
     </message>
     <message>
         <source>The project &quot;%1&quot; doesn&apos;t exist. A new project will be started instead.</source>
-        <translation type="unfinished">项目“%1”不存在。将打开一个新建项目。</translation>
+        <translation>项目“%1”不存在。将打开一个新建项目。</translation>
     </message>
     <message>
         <source>Missing OpenTimelineIO Libraries</source>
-        <translation type="unfinished">缺失 OpenTimelineIO 库</translation>
+        <translation>缺失 OpenTimelineIO 库</translation>
     </message>
     <message>
         <source>This build was compiled without OpenTimelineIO and therefore cannot open OpenTimelineIO files.</source>
-        <translation type="unfinished">本构建未使用 OpenTimelineIO 编译，所以无法打开 OpenTimelineIO 文件。</translation>
+        <translation>本构建未使用 OpenTimelineIO 编译，所以无法打开 OpenTimelineIO 文件。</translation>
     </message>
     <message>
         <source>Save Project</source>
@@ -1247,161 +1247,162 @@ Current driver information: %1 %2 %3</source>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <source>This Sequence is empty. There is nothing to export.</source>
-        <translation type="unfinished">此序列是空的。没有可导出的内容。</translation>
+        <translation>此序列是空的。没有可导出的内容。</translation>
     </message>
     <message>
         <source>No valid sequence detected.
 
 Make sure a sequence is loaded and it has a connected Viewer node.</source>
-        <translation type="unfinished">未检测到有效的序列。
+        <translation>未检测到有效的序列。
 
 请确保序列已加载并连接到查看器节点。</translation>
     </message>
     <message>
         <source>Olive Project</source>
-        <translation type="unfinished">Olive 项目</translation>
+        <translation>Olive 项目</translation>
     </message>
     <message>
         <source>OpenTimelineIO</source>
-        <translation type="unfinished">OpenTimelineIO</translation>
+        <translation>OpenTimelineIO</translation>
     </message>
     <message>
         <source>Save Project As</source>
-        <translation type="unfinished">另存项目为</translation>
+        <translation>另存项目为</translation>
     </message>
     <message>
         <source>Load Project</source>
-        <translation type="unfinished">加载项目</translation>
+        <translation>加载项目</translation>
     </message>
     <message>
         <source>Label Node</source>
-        <translation type="unfinished">标签节点</translation>
+        <translation>标签节点</translation>
     </message>
     <message>
         <source>Set node label</source>
-        <translation type="unfinished">设置节点标签</translation>
+        <translation>设置节点标签</translation>
     </message>
     <message>
         <source>Sequence %1</source>
-        <translation type="unfinished">序列 %1</translation>
+        <translation>序列 %1</translation>
     </message>
     <message>
         <source>Cannot open recent project</source>
-        <translation type="unfinished">无法打开最近项目</translation>
+        <translation>无法打开最近项目</translation>
     </message>
     <message>
         <source>The project &quot;%1&quot; doesn&apos;t exist. Would you like to remove this file from the recent list?</source>
-        <translation type="unfinished">项目“%1”不存在。您要从最近列表移除此文件吗？</translation>
+        <translation>项目“%1”不存在。您要从最近列表移除此文件吗？</translation>
     </message>
     <message>
         <source>Unsaved Changes</source>
-        <translation type="unfinished">未保存的更改</translation>
+        <translation>未保存的更改</translation>
     </message>
     <message>
         <source>The project &apos;%1&apos; has unsaved changes. Would you like to save them?</source>
-        <translation type="unfinished">项目“%1”有未保存的更改。您要保存吗？</translation>
+        <translation>项目“%1”有未保存的更改。您要保存吗？</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Save All</source>
-        <translation type="unfinished">全部保存</translation>
+        <translation>全部保存</translation>
     </message>
     <message>
         <source>Don&apos;t Save</source>
-        <translation type="unfinished">不保存</translation>
+        <translation>不保存</translation>
     </message>
     <message>
         <source>Don&apos;t Save All</source>
-        <translation type="unfinished">全部不保存</translation>
+        <translation>全部不保存</translation>
     </message>
     <message>
         <source>Failed to cache sequence</source>
-        <translation type="unfinished">无法缓存序列</translation>
+        <translation>无法缓存序列</translation>
     </message>
     <message>
         <source>No active viewer found with this sequence.</source>
-        <translation type="unfinished">没有找到此序列的活动查看器。</translation>
+        <translation>没有找到此序列的活动查看器。</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">打开项目</translation>
+        <translation>打开项目</translation>
     </message>
     <message>
         <source>Multi-Layer Image</source>
-        <translation type="unfinished"></translation>
+        <translation>多层图像</translation>
     </message>
     <message>
         <source>The file &apos;%1&apos; has multiple layers. Would you like these layers to be separated across multiple tracks or merged into a single image?</source>
-        <translation type="unfinished"></translation>
+        <translation>文件“%1”有多个层。您希望这些层跨多个轨迹分离还是合并到单个图像中?</translation>
     </message>
     <message>
         <source>Multiple Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>多层</translation>
     </message>
     <message>
         <source>Single Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>单层</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>还原</translation>
     </message>
     <message>
         <source>This project has not yet been saved, therefore there is no last saved state to revert to.</source>
-        <translation type="unfinished"></translation>
+        <translation>此项目尚未保存，因此没有要恢复到的上次保存状态.</translation>
     </message>
     <message>
         <source>The project &quot;%1&quot; is already open. By re-opening it, the project will revert to its last saved state. Any unsaved changes will be lost. Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>项目“%1”已打开。通过重新打开它，项目将恢复到上次保存的状态。任何未保存的更改都将丢失。是否要继续？</translation>
     </message>
     <message>
         <source>This will revert the project &quot;%1&quot; back to its last saved state. All unsaved changes will be lost. Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>这将使项目“%1”恢复到上次保存的状态。所有未保存的更改都将丢失。是否要继续？</translation>
     </message>
     <message>
         <source>Auto-Recovery Error</source>
-        <translation type="unfinished"></translation>
+        <translation>自动恢复错误</translation>
     </message>
     <message>
         <source>Failed to save auto-recovery to &quot;%1&quot;. Olive may not have permission to this directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法将自动恢复保存到“%1”。Olive可能没有此目录的权限。</translation>
     </message>
     <message>
         <source>Saved to &quot;%1&quot; successfully</source>
-        <translation type="unfinished"></translation>
+        <translation>已成功保存到“%1”</translation>
     </message>
     <message>
         <source>Olive Project (Uncompressed XML)</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive项目（未压缩的XML）</translation>
     </message>
     <message>
         <source>All Supported Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>所有支持的项目</translation>
     </message>
     <message>
         <source>The following projects had unsaved changes when Olive forcefully quit. Would you like to load them?</source>
-        <translation type="unfinished"></translation>
+        <translation>当Olive强制退出时，以下项目有未保存的更改。是否要加载它们？</translation>
     </message>
     <message>
         <source>Found auto-recoveries but failed to load the auto-recovery index. Auto-recover projects will have to be opened manually.
 
 Your recoverable projects are still available at: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>找到了自动恢复，但未能加载自动恢复索引。必须手动打开自动恢复项目。
+您的可恢复项目仍位于：%1</translation>
     </message>
     <message>
         <source>The following project versions have been auto-saved:</source>
-        <translation type="unfinished"></translation>
+        <translation>以下项目版本已自动保存：</translation>
     </message>
     <message>
         <source>Disk Cache Full</source>
-        <translation type="unfinished"></translation>
+        <translation>磁盘缓存已满</translation>
     </message>
     <message>
         <source>The disk cache is currently full and Olive is having to delete old frames to keep it within the limits set in the Disk preferences. This will result in SIGNIFICANTLY reduced cache performance.
@@ -1411,14 +1412,24 @@ To remedy this, please do one of the following:
 1. Manually clear the disk cache in Disk preferences.
 2. Increase the maximum disk cache size in Disk preferences.
 3. Reduce usage of the disk cache (e.g. disable auto-cache or only cache specific sections of your sequence).</source>
-        <translation type="unfinished"></translation>
+        <translation>磁盘缓存当前已满，Olive必须删除旧帧以将其保持在磁盘首选项中设置的限制范围内。这将导致缓存性能显著降低。
+
+
+要解决此问题，请执行以下操作之一：
+
+
+1.手动清除磁盘首选项中的磁盘缓存。
+
+2.在磁盘首选项中增加最大磁盘缓存大小。
+
+3.减少磁盘缓存的使用（例如，禁用自动缓存或仅缓存序列的特定部分）。</translation>
     </message>
 </context>
 <context>
     <name>olive::CornerPinDistortNode</name>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Perspective</source>
