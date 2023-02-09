@@ -4562,55 +4562,55 @@ Do you wish to paste values onto the existing nodes or paste new nodes?</source>
     <name>olive::OCIOGradingTransformLinearNode</name>
     <message>
         <source>OCIO Color Grading (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translation>OCIO颜色分级（线性）</translation>
     </message>
     <message>
         <source>Simple linear color grading using OpenColorIO.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用OpenColorIO进行简单的线性颜色分级。</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Contrast</source>
-        <translation type="unfinished"></translation>
+        <translation>对比</translation>
     </message>
     <message>
         <source>Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>补偿</translation>
     </message>
     <message>
         <source>Exposure</source>
-        <translation type="unfinished"></translation>
+        <translation>曝光</translation>
     </message>
     <message>
         <source>Exposure increments in stops.</source>
-        <translation type="unfinished"></translation>
+        <translation>停止时的曝光增量。</translation>
     </message>
     <message>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>饱和</translation>
     </message>
     <message>
         <source>Pivot</source>
-        <translation type="unfinished"></translation>
+        <translation>支点</translation>
     </message>
     <message>
         <source>Enable Black Clamp</source>
-        <translation type="unfinished"></translation>
+        <translation>启用黑色钳制</translation>
     </message>
     <message>
         <source>Black Clamp</source>
-        <translation type="unfinished"></translation>
+        <translation>黑色钳制</translation>
     </message>
     <message>
         <source>Enable White Clamp</source>
-        <translation type="unfinished"></translation>
+        <translation>启用白色钳制</translation>
     </message>
     <message>
         <source>White Clamp</source>
-        <translation type="unfinished"></translation>
+        <translation>白色钳制</translation>
     </message>
 </context>
 <context>
@@ -4619,69 +4619,73 @@ Do you wish to paste values onto the existing nodes or paste new nodes?</source>
         <source>OpenTimelineIO files do not store sequence parameters (resolution, frame rate, etc.)
 
 Please set the correct parameters on the sequences below (they have been set to your default sequence parameters as a starting point).</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenTimelineIO文件不存储序列参数（分辨率、帧速率等）
+
+请在以下序列上设置正确的参数（它们已设置为默认序列参数作为起点）。</translation>
     </message>
     <message>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>序列</translation>
     </message>
     <message>
         <source>Actions</source>
-        <translation type="unfinished">操作</translation>
+        <translation>操作</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>设置</translation>
     </message>
     <message>
         <source>Load OpenTimelineIO Project</source>
-        <translation type="unfinished"></translation>
+        <translation>加载OpenTimelineIO项目</translation>
     </message>
 </context>
 <context>
     <name>olive::OpacityEffect</name>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">不透明度</translation>
+        <translation>不透明度</translation>
     </message>
     <message>
         <source>Alter a video&apos;s opacity.
 
 This is equivalent to multiplying a video by a number between 0.0 and 1.0.</source>
-        <translation type="unfinished"></translation>
+        <translation>改变视频的不透明度。
+
+这相当于将视频乘以0.0到1.0之间的数字。</translation>
     </message>
 </context>
 <context>
     <name>olive::PanNode</name>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">音频平移</translation>
+        <translation>音频平移</translation>
     </message>
     <message>
         <source>Adjust the stereo panning of an audio source.</source>
-        <translation type="unfinished">调整音频源的立体声平移。</translation>
+        <translation>调整音频源的立体声平移。</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">采样</translation>
+        <translation>采样</translation>
     </message>
 </context>
 <context>
     <name>olive::PanelWidget</name>
     <message>
         <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
 </context>
 <context>
     <name>olive::ParamPanel</name>
     <message>
         <source>Parameter Editor</source>
-        <translation type="unfinished">参数编辑器</translation>
+        <translation>参数编辑器</translation>
     </message>
     <message>
         <source>(none)</source>
@@ -4696,40 +4700,40 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     <name>olive::PathWidget</name>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">浏览</translation>
+        <translation>浏览</translation>
     </message>
     <message>
         <source>Browse for path</source>
-        <translation type="unfinished">浏览路径</translation>
+        <translation>浏览路径</translation>
     </message>
 </context>
 <context>
     <name>olive::PixelAspectRatioComboBox</name>
     <message>
         <source>Set Custom Pixel Aspect Ratio</source>
-        <translation type="unfinished">设置自定义像素宽高比</translation>
+        <translation>设置自定义像素宽高比</translation>
     </message>
     <message>
         <source>Custom...</source>
-        <translation type="unfinished">自定义...</translation>
+        <translation>自定义...</translation>
     </message>
     <message>
         <source>Custom (%1)</source>
-        <translation type="unfinished">自定义 (%1)</translation>
+        <translation>自定义 (%1)</translation>
     </message>
 </context>
 <context>
     <name>olive::PixelSamplerPanel</name>
     <message>
         <source>Pixel Sampler</source>
-        <translation type="unfinished">像素采样器</translation>
+        <translation>像素采样器</translation>
     </message>
 </context>
 <context>
     <name>olive::PixelSamplerWidget</name>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;font color=&apos;#FF8080&apos;&gt;R: %1&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#80FF80&apos;&gt;G: %2&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#8080FF&apos;&gt;B: %3&lt;/font&gt;&lt;br&gt;A: %4&lt;/html&gt;</source>
@@ -4737,40 +4741,40 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;font color=&apos;#FF8080&apos;&gt;R: %1 (%5)&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#80FF80&apos;&gt;G: %2 (%6)&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#8080FF&apos;&gt;B: %3 (%7)&lt;/font&gt;&lt;br&gt;A: %4 (%8)&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::PolygonGenerator</name>
     <message>
         <source>Polygon</source>
-        <translation type="unfinished">多边形</translation>
+        <translation>多边形</translation>
     </message>
     <message>
         <source>Generate a 2D polygon of any amount of points.</source>
-        <translation type="unfinished">生成任意点数量的2D多边形。</translation>
+        <translation>生成任意点数量的2D多边形。</translation>
     </message>
     <message>
         <source>Points</source>
-        <translation type="unfinished">点</translation>
+        <translation>点</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
 </context>
 <context>
     <name>olive::PreCacheTask</name>
     <message>
         <source>Pre-caching %1:%2</source>
-        <translation type="unfinished">正在预缓存 %1:%2</translation>
+        <translation>正在预缓存 %1:%2</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesAppearanceTab</name>
     <message>
         <source>Theme</source>
-        <translation type="unfinished">主题</translation>
+        <translation>主题</translation>
     </message>
     <message>
         <source>Node Color Scheme</source>
@@ -4778,11 +4782,11 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     </message>
     <message>
         <source>Default Node Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>默认节点颜色</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>混杂的</translation>
     </message>
 </context>
 <context>
@@ -4797,7 +4801,7 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     </message>
     <message>
         <source>Sample Rate:</source>
-        <translation type="unfinished">采样率：</translation>
+        <translation>采样率：</translation>
     </message>
     <message>
         <source>Audio Recording:</source>
@@ -4813,7 +4817,7 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     </message>
     <message>
         <source>Refresh Devices</source>
-        <translation type="unfinished">刷新设备</translation>
+        <translation>刷新设备</translation>
     </message>
     <message>
         <source>Please wait...</source>
@@ -4825,58 +4829,58 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     </message>
     <message>
         <source>Backend:</source>
-        <translation type="unfinished"></translation>
+        <translation>后端:</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">输出</translation>
+        <translation>输出</translation>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>装置:</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">高级</translation>
+        <translation>高级</translation>
     </message>
     <message>
         <source>Channel Layout:</source>
-        <translation type="unfinished">通道布局：</translation>
+        <translation>通道布局：</translation>
     </message>
     <message>
         <source>Sample Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>示例格式：</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>记录中</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>格式：</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesBehaviorTab</name>
     <message>
         <source>Behavior</source>
-        <translation type="unfinished">行为</translation>
+        <translation>行为</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
     <message>
         <source>Enable hover focus</source>
-        <translation type="unfinished">启用悬停聚焦</translation>
+        <translation>启用悬停聚焦</translation>
     </message>
     <message>
         <source>Panels will be considered focused when the mouse cursor is over them without having to click them.</source>
-        <translation type="unfinished">面板会在鼠标指针悬停在上方时获取焦点，而无需点击。</translation>
+        <translation>面板会在鼠标指针悬停在上方时获取焦点，而无需点击。</translation>
     </message>
     <message>
         <source>Scroll wheel zooms by default instead of scrolling</source>
@@ -4888,344 +4892,344 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>Enable audio scrubbing</source>
-        <translation type="unfinished">启用音频清理</translation>
+        <translation>启用音频清理</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">时间线</translation>
+        <translation>时间线</translation>
     </message>
     <message>
         <source>Auto-Seek to Imported Clips</source>
-        <translation type="unfinished">自动寻找并导入片段</translation>
+        <translation>自动寻找并导入片段</translation>
     </message>
     <message>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished">编辑工具并寻找</translation>
+        <translation>编辑工具并寻找</translation>
     </message>
     <message>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished">编辑工具选择链接</translation>
+        <translation>编辑工具选择链接</translation>
     </message>
     <message>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished">启用拖放文件到时间线</translation>
+        <translation>启用拖放文件到时间线</translation>
     </message>
     <message>
         <source>Invert Timeline Scroll Axes</source>
-        <translation type="unfinished">反转时间线滚动轴</translation>
+        <translation>反转时间线滚动轴</translation>
     </message>
     <message>
         <source>Hold ALT on any UI element to switch scrolling axes</source>
-        <translation type="unfinished">在任意 UI 元素上按住 ALT 来切换滚动轴</translation>
+        <translation>在任意 UI 元素上按住 ALT 来切换滚动轴</translation>
     </message>
     <message>
         <source>Seek Also Selects</source>
-        <translation type="unfinished">查找并选择</translation>
+        <translation>查找并选择</translation>
     </message>
     <message>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished">查找至最后粘帖</translation>
+        <translation>查找至最后粘帖</translation>
     </message>
     <message>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished">选择并查找</translation>
+        <translation>选择并查找</translation>
     </message>
     <message>
         <source>Playback</source>
-        <translation type="unfinished">回放</translation>
+        <translation>回放</translation>
     </message>
     <message>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="unfinished">设置标记时询问名称</translation>
+        <translation>设置标记时询问名称</translation>
     </message>
     <message>
         <source>Automatically rewind at the end of a sequence</source>
-        <translation type="unfinished">序列结束时自动倒带</translation>
+        <translation>序列结束时自动倒带</translation>
     </message>
     <message>
         <source>Project</source>
-        <translation type="unfinished">项目</translation>
+        <translation>项目</translation>
     </message>
     <message>
         <source>Drop Files on Media to Replace</source>
-        <translation type="unfinished">拖放文件到媒体进行替换</translation>
+        <translation>拖放文件到媒体进行替换</translation>
     </message>
     <message>
         <source>Nodes</source>
-        <translation type="unfinished">节点</translation>
+        <translation>节点</translation>
     </message>
     <message>
         <source>Add Default Effects to New Clips</source>
-        <translation type="unfinished">添加默认效果到新的片段</translation>
+        <translation>添加默认效果到新的片段</translation>
     </message>
     <message>
         <source>Auto-Scale By Default</source>
-        <translation type="unfinished">默认情况下自动缩放</translation>
+        <translation>默认情况下自动缩放</translation>
     </message>
     <message>
         <source>Splitting Clips Copies Dependencies</source>
-        <translation type="unfinished">切断片段副本依赖</translation>
+        <translation>切断片段副本依赖</translation>
     </message>
     <message>
         <source>Multiple clips can share the same nodes. Disable this to automatically share node dependencies among clips when copying or splitting them.</source>
-        <translation type="unfinished">多个片段可以共享相同节点。禁用此项来在复制或切断片段时在其中共享节点依赖。</translation>
+        <translation>多个片段可以共享相同节点。禁用此项来在复制或切断片段时在其中共享节点依赖。</translation>
     </message>
     <message>
         <source>Enable slider ladder</source>
-        <translation type="unfinished"></translation>
+        <translation>启用滑块阶梯</translation>
     </message>
     <message>
         <source>Scrolling zooms by default</source>
-        <translation type="unfinished"></translation>
+        <translation>默认情况下滚动缩放</translation>
     </message>
     <message>
         <source>By default, scrolling will move the view around, and holding Ctrl/Cmd will make it zoom instead. Enabling this will switch those, scrolling will zoom by default, and holding Ctrl/Cmd will move the view instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>默认情况下，滚动将移动视图，按住Ctrl/Cmd将使其变为缩放。启用此选项将切换这些视图，默认情况下滚动将缩放，而按住Ctrl/Cmd将移动视图。</translation>
     </message>
     <message>
         <source>OpenGL</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Use glFinish</source>
-        <translation type="unfinished"></translation>
+        <translation>使用glFinish</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesDialog</name>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">首选项</translation>
+        <translation>首选项</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished">外观</translation>
+        <translation>外观</translation>
     </message>
     <message>
         <source>Behavior</source>
-        <translation type="unfinished">行为</translation>
+        <translation>行为</translation>
     </message>
     <message>
         <source>Disk</source>
-        <translation type="unfinished">磁盘</translation>
+        <translation>磁盘</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>Keyboard</source>
-        <translation type="unfinished">键盘</translation>
+        <translation>键盘</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesDiskTab</name>
     <message>
         <source>Disk Management</source>
-        <translation type="unfinished">磁盘管理</translation>
+        <translation>磁盘管理</translation>
     </message>
     <message>
         <source>Disk Cache Location:</source>
-        <translation type="unfinished">磁盘缓存位置：</translation>
+        <translation>磁盘缓存位置：</translation>
     </message>
     <message>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished">磁盘缓存设置</translation>
+        <translation>磁盘缓存设置</translation>
     </message>
     <message>
         <source>Cache Behavior</source>
-        <translation type="unfinished">缓存行为</translation>
+        <translation>缓存行为</translation>
     </message>
     <message>
         <source>Cache Ahead:</source>
-        <translation type="unfinished">向前缓存：</translation>
+        <translation>向前缓存：</translation>
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 秒</translation>
+        <translation>%1 秒</translation>
     </message>
     <message>
         <source>Cache Behind:</source>
-        <translation type="unfinished">向后缓存：</translation>
+        <translation>向后缓存：</translation>
     </message>
     <message>
         <source>Disk Cache</source>
-        <translation type="unfinished">磁盘缓存</translation>
+        <translation>磁盘缓存</translation>
     </message>
     <message>
         <source>Failed to set disk cache location. Access was denied.</source>
-        <translation type="unfinished">无法设置磁盘缓存位置。访问被拒绝。</translation>
+        <translation>无法设置磁盘缓存位置。访问被拒绝。</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesGeneralTab</name>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">语言：</translation>
+        <translation>语言：</translation>
     </message>
     <message>
         <source>Auto-Scroll Method:</source>
-        <translation type="unfinished">自动滚动模式：</translation>
+        <translation>自动滚动模式：</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Page Scrolling</source>
-        <translation type="unfinished">页面滚动</translation>
+        <translation>页面滚动</translation>
     </message>
     <message>
         <source>Smooth Scrolling</source>
-        <translation type="unfinished">平滑滚动</translation>
+        <translation>平滑滚动</translation>
     </message>
     <message>
         <source>Rectified Waveforms:</source>
-        <translation type="unfinished">整流波形:</translation>
+        <translation>整流波形:</translation>
     </message>
     <message>
         <source>Default Still Image Length:</source>
-        <translation type="unfinished">默认静态图像长度：</translation>
+        <translation>默认静态图像长度：</translation>
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 秒</translation>
+        <translation>%1 秒</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Locale</source>
-        <translation type="unfinished"></translation>
+        <translation>区域</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">时间线</translation>
+        <translation>时间线</translation>
     </message>
     <message>
         <source>Auto-Recovery</source>
-        <translation type="unfinished"></translation>
+        <translation>自动恢复</translation>
     </message>
     <message>
         <source>Enable Auto-Recovery:</source>
-        <translation type="unfinished"></translation>
+        <translation>启用自动恢复：</translation>
     </message>
     <message>
         <source>Auto-Recovery Interval:</source>
-        <translation type="unfinished"></translation>
+        <translation>自动恢复间隔：</translation>
     </message>
     <message>
         <source>Maximum Versions Per Project:</source>
-        <translation type="unfinished"></translation>
+        <translation>每个项目的最大版本数：</translation>
     </message>
     <message>
         <source>Browse Auto-Recoveries</source>
-        <translation type="unfinished"></translation>
+        <translation>浏览自动恢复</translation>
     </message>
 </context>
 <context>
     <name>olive::PreferencesKeyboardTab</name>
     <message>
         <source>Search for action or shortcut</source>
-        <translation type="unfinished">搜索操作或者快捷键</translation>
+        <translation>搜索操作或者快捷键</translation>
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished">操作</translation>
+        <translation>操作</translation>
     </message>
     <message>
         <source>Shortcut</source>
-        <translation type="unfinished">快捷键</translation>
+        <translation>快捷键</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">导出</translation>
+        <translation>导出</translation>
     </message>
     <message>
         <source>Reset Selected</source>
-        <translation type="unfinished">重新选择</translation>
+        <translation>重新选择</translation>
     </message>
     <message>
         <source>Reset All</source>
-        <translation type="unfinished">全部重置</translation>
+        <translation>全部重置</translation>
     </message>
     <message>
         <source>Confirm Reset All Shortcuts</source>
-        <translation type="unfinished">确认重置所有快捷键</translation>
+        <translation>确认重置所有快捷键</translation>
     </message>
     <message>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation type="unfinished">您确定要将所有键盘快捷键重置为默认值吗？</translation>
+        <translation>您确定要将所有键盘快捷键重置为默认值吗？</translation>
     </message>
     <message>
         <source>Import Keyboard Shortcuts</source>
-        <translation type="unfinished">导入键盘快捷键配置</translation>
+        <translation>导入键盘快捷键配置</translation>
     </message>
     <message>
         <source>Error saving shortcuts</source>
-        <translation type="unfinished">保存键盘快捷键时发生错误</translation>
+        <translation>保存键盘快捷键时发生错误</translation>
     </message>
     <message>
         <source>Failed to open file for reading</source>
-        <translation type="unfinished">无法读取文件</translation>
+        <translation>无法读取文件</translation>
     </message>
     <message>
         <source>Export Keyboard Shortcuts</source>
-        <translation type="unfinished">导出键盘快捷键</translation>
+        <translation>导出键盘快捷键</translation>
     </message>
     <message>
         <source>Export Shortcuts</source>
-        <translation type="unfinished">导出快捷键</translation>
+        <translation>导出快捷键</translation>
     </message>
     <message>
         <source>Shortcuts exported successfully</source>
-        <translation type="unfinished">快捷键导出成功</translation>
+        <translation>快捷键导出成功</translation>
     </message>
     <message>
         <source>Failed to open file for writing</source>
-        <translation type="unfinished">无法打开文件进行写入</translation>
+        <translation>无法打开文件进行写入</translation>
     </message>
 </context>
 <context>
     <name>olive::ProgressDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
     <name>olive::Project</name>
     <message>
         <source>(untitled)</source>
-        <translation type="unfinished">(未命名)</translation>
+        <translation>(未命名)</translation>
     </message>
     <message>
         <source>Root</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectExplorer</name>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">新建(&amp;N)</translation>
+        <translation>新建(&amp;N)</translation>
     </message>
     <message>
         <source>&amp;Import...</source>
-        <translation type="unfinished">输入(&amp;I)...</translation>
+        <translation>输入(&amp;I)...</translation>
     </message>
     <message>
         <source>&amp;Project Properties...</source>
@@ -5233,39 +5237,39 @@ This is equivalent to multiplying a video by a number between 0.0 and 1.0.</sour
     </message>
     <message>
         <source>Open in New Tab</source>
-        <translation type="unfinished">在新标签页中打开</translation>
+        <translation>在新标签页中打开</translation>
     </message>
     <message>
         <source>Open in New Window</source>
-        <translation type="unfinished">在新窗口中打开</translation>
+        <translation>在新窗口中打开</translation>
     </message>
     <message>
         <source>Reveal in Explorer</source>
-        <translation type="unfinished">在资源管理器中显示</translation>
+        <translation>在资源管理器中显示</translation>
     </message>
     <message>
         <source>Reveal in Finder</source>
-        <translation type="unfinished">在 Finder 中显示</translation>
+        <translation>在 Finder 中显示</translation>
     </message>
     <message>
         <source>Reveal in File Manager</source>
-        <translation type="unfinished">在文件管理器中显示</translation>
+        <translation>在文件管理器中显示</translation>
     </message>
     <message>
         <source>Pre-Cache</source>
-        <translation type="unfinished">预缓存</translation>
+        <translation>预缓存</translation>
     </message>
     <message>
         <source>No sequences exist in project</source>
-        <translation type="unfinished">项目中不存在序列</translation>
+        <translation>项目中不存在序列</translation>
     </message>
     <message>
         <source>For &quot;%1&quot;</source>
-        <translation type="unfinished">对于 &quot;%1&quot;</translation>
+        <translation>对于 &quot;%1&quot;</translation>
     </message>
     <message>
         <source>P&amp;roperties</source>
-        <translation type="unfinished">属性(&amp;R)</translation>
+        <translation>属性(&amp;R)</translation>
     </message>
     <message>
         <source>Confirm Footage Deletion</source>
@@ -5291,7 +5295,7 @@ What would you like to do with these clips?</source>
     </message>
     <message>
         <source>Confirm Item Deletion</source>
-        <translation type="unfinished"></translation>
+        <translation>确认项目删除</translation>
     </message>
     <message>
         <source>The item &quot;%1&quot; is currently connected to the following nodes:
@@ -5299,41 +5303,45 @@ What would you like to do with these clips?</source>
 %2
 
 Are you sure you wish to delete this footage?</source>
-        <translation type="unfinished"></translation>
+        <translation>项目“%1”当前连接到以下节点：
+
+%2
+
+您确定要删除此视频吗？</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation>%1 (%2)</translation>
     </message>
     <message>
         <source>Replace Footage</source>
-        <translation type="unfinished"></translation>
+        <translation>替换素材</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectExplorerNavigation</name>
     <message>
         <source>Go to parent folder</source>
-        <translation type="unfinished">转到上级文件夹</translation>
+        <translation>转到上级文件夹</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectImportErrorDialog</name>
     <message>
         <source>Import Error</source>
-        <translation type="unfinished">导入出错</translation>
+        <translation>导入出错</translation>
     </message>
     <message>
         <source>The following files failed to import. Olive likely does not support their formats.</source>
-        <translation type="unfinished">下列文件无法导入。Olive 可能不支持这些文件格式。</translation>
+        <translation>下列文件无法导入。Olive 可能不支持这些文件格式。</translation>
     </message>
 </context>
 <context>
@@ -5344,14 +5352,14 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Importing %n file(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>正在导入 %n 个文件</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectLoadBaseTask</name>
     <message>
         <source>Loading &apos;%1&apos;</source>
-        <translation type="unfinished">正在加载 &apos;%1&apos;</translation>
+        <translation>正在加载 &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -5362,102 +5370,102 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>This project is from a version of Olive that is no longer supported in this version.</source>
-        <translation type="unfinished">这个项目来自当前版本已不支持的 Olive 版本。</translation>
+        <translation>这个项目来自当前版本已不支持的 Olive 版本。</translation>
     </message>
     <message>
         <source>Failed to read file &quot;%1&quot; for reading.</source>
-        <translation type="unfinished">无法读取文件 &quot;%1&quot;。</translation>
+        <translation>无法读取文件 &quot;%1&quot;。</translation>
     </message>
     <message>
         <source>This project is from a newer version of Olive and cannot be opened in this version.</source>
-        <translation type="unfinished"></translation>
+        <translation>此项目来自较新版本的Olive，无法在此版本中打开。</translation>
     </message>
     <message>
         <source>Failed to determine project version.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法确定项目版本。</translation>
     </message>
     <message>
         <source>Failed to read XML document. File may be corrupt. Error was: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法读取XML文档。文件可能已损坏。错误为：%1</translation>
     </message>
     <message>
         <source>Failed to find any data to parse.</source>
-        <translation type="unfinished"></translation>
+        <translation>找不到任何要分析的数据。</translation>
     </message>
     <message>
         <source>Unknown error.</source>
-        <translation type="unfinished"></translation>
+        <translation>未知错误。</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectPanel</name>
     <message>
         <source>Folder</source>
-        <translation type="unfinished">文件夹</translation>
+        <translation>文件夹</translation>
     </message>
     <message>
         <source>Project</source>
-        <translation type="unfinished">项目</translation>
+        <translation>项目</translation>
     </message>
     <message>
         <source>(none)</source>
-        <translation type="unfinished">(无)</translation>
+        <translation>(无)</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectPropertiesDialog</name>
     <message>
         <source>Project Properties for &apos;%1&apos;</source>
-        <translation type="unfinished">&apos;%1&apos; 的项目属性</translation>
+        <translation>&apos;%1&apos; 的项目属性</translation>
     </message>
     <message>
         <source>OpenColorIO Configuration:</source>
-        <translation type="unfinished">OpenColorIO 配置：</translation>
+        <translation>OpenColorIO 配置：</translation>
     </message>
     <message>
         <source>(default)</source>
-        <translation type="unfinished">(默认)</translation>
+        <translation>(默认)</translation>
     </message>
     <message>
         <source>Default Input Color Space:</source>
-        <translation type="unfinished">默认输入颜色空间：</translation>
+        <translation>默认输入颜色空间：</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">浏览</translation>
+        <translation>浏览</translation>
     </message>
     <message>
         <source>Color Management</source>
         <translatorcomment>色彩管理</translatorcomment>
-        <translation type="unfinished">颜色管理</translation>
+        <translation>颜色管理</translation>
     </message>
     <message>
         <source>Use Default Location</source>
-        <translation type="unfinished">使用默认位置</translation>
+        <translation>使用默认位置</translation>
     </message>
     <message>
         <source>Use Custom Location:</source>
-        <translation type="unfinished">使用默认位置：</translation>
+        <translation>使用默认位置：</translation>
     </message>
     <message>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished">磁盘缓存设置</translation>
+        <translation>磁盘缓存设置</translation>
     </message>
     <message>
         <source>Disk Cache</source>
-        <translation type="unfinished">磁盘缓存</translation>
+        <translation>磁盘缓存</translation>
     </message>
     <message>
         <source>OpenColorIO Config Error</source>
-        <translation type="unfinished">OpenColorIO 配置错误</translation>
+        <translation>OpenColorIO 配置错误</translation>
     </message>
     <message>
         <source>Failed to set OpenColorIO configuration: %1</source>
-        <translation type="unfinished">无法设置 OpenColorIO 配置：%1</translation>
+        <translation>无法设置 OpenColorIO 配置：%1</translation>
     </message>
     <message>
         <source>Invalid path</source>
-        <translation type="unfinished">无效的路径</translation>
+        <translation>无效的路径</translation>
     </message>
     <message>
         <source>The cache path is invalid. Please check it and try again.</source>
@@ -5465,22 +5473,22 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Browse for OpenColorIO configuration</source>
-        <translation type="unfinished">浏览 OpenColorIO 配置</translation>
+        <translation>浏览 OpenColorIO 配置</translation>
     </message>
     <message>
         <source>Store Alongside Project</source>
-        <translation type="unfinished"></translation>
+        <translation>项目旁边的仓库</translation>
     </message>
     <message>
         <source>The custom cache path is invalid. Please check it and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义缓存路径无效。请检查并重试。</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectSaveTask</name>
     <message>
         <source>Saving &apos;%1&apos;</source>
-        <translation type="unfinished">正在保存 &apos;%1&apos;</translation>
+        <translation>正在保存 &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Failed to write XML data</source>
@@ -5488,7 +5496,7 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Failed to overwrite &quot;%1&quot;. Project has been saved as &quot;%2&quot; instead.</source>
-        <translation type="unfinished">无法覆盖 &quot;%1&quot;。项目已保存为 &quot;%2&quot;。</translation>
+        <translation>无法覆盖 &quot;%1&quot;。项目已保存为 &quot;%2&quot;。</translation>
     </message>
     <message>
         <source>Failed to open temporary file &quot;%1&quot; for writing.</source>
@@ -5496,65 +5504,65 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Failed to write XML data.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法写入XML数据。</translation>
     </message>
     <message>
         <source>Failed to open file &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开文件“%1”进行写入。</translation>
     </message>
     <message>
         <source>Unknown error.</source>
-        <translation type="unfinished"></translation>
+        <translation>未知错误。</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectSettingsNode</name>
     <message>
         <source>Disk Cache Location</source>
-        <translation type="unfinished"></translation>
+        <translation>磁盘缓存位置</translation>
     </message>
     <message>
         <source>Disk Cache Path</source>
-        <translation type="unfinished"></translation>
+        <translation>磁盘缓存路径</translation>
     </message>
     <message>
         <source>Use Default Location</source>
-        <translation type="unfinished">使用默认位置</translation>
+        <translation>使用默认位置</translation>
     </message>
     <message>
         <source>Store Alongside Project</source>
-        <translation type="unfinished"></translation>
+        <translation>项目旁边的仓库</translation>
     </message>
     <message>
         <source>Use Custom Location</source>
-        <translation type="unfinished"></translation>
+        <translation>使用默认位置</translation>
     </message>
     <message>
         <source>(default)</source>
-        <translation type="unfinished">(默认)</translation>
+        <translation>(默认)</translation>
     </message>
     <message>
         <source>Project Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>项目设置</translation>
     </message>
     <message>
         <source>Settings used throughout the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>整个项目中使用的设置。</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectToolbar</name>
     <message>
         <source>New...</source>
-        <translation type="unfinished">新建...</translation>
+        <translation>新建...</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">打开项目</translation>
+        <translation>打开项目</translation>
     </message>
     <message>
         <source>Save Project</source>
-        <translation type="unfinished">保存项目</translation>
+        <translation>保存项目</translation>
     </message>
     <message>
         <source>Undo</source>
@@ -5566,7 +5574,7 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Search media, markers, etc.</source>
-        <translation type="unfinished">搜索媒体、标记等。</translation>
+        <translation>搜索媒体、标记等。</translation>
     </message>
     <message>
         <source>Switch to Tree View</source>
@@ -5582,74 +5590,74 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Tree View</source>
-        <translation type="unfinished"></translation>
+        <translation>树视图</translation>
     </message>
     <message>
         <source>List View</source>
-        <translation type="unfinished"></translation>
+        <translation>列表视图</translation>
     </message>
     <message>
         <source>Icon View</source>
-        <translation type="unfinished"></translation>
+        <translation>图标视图</translation>
     </message>
 </context>
 <context>
     <name>olive::ProjectViewModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名称</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">持续时间</translation>
+        <translation>持续时间</translation>
     </message>
     <message>
         <source>Rate</source>
         <translatorcomment>帧率</translatorcomment>
-        <translation type="unfinished">速率</translation>
+        <translation>速率</translation>
     </message>
     <message>
         <source>Move Items</source>
-        <translation type="unfinished">移动项</translation>
+        <translation>移动项</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>调整</translation>
     </message>
     <message>
         <source>Created</source>
-        <translation type="unfinished"></translation>
+        <translation>创建</translation>
     </message>
 </context>
 <context>
     <name>olive::RationalSlider</name>
     <message>
         <source>NaN</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Float</source>
-        <translation type="unfinished">浮点数</translation>
+        <translation>浮点数</translation>
     </message>
     <message>
         <source>Rational</source>
-        <translation type="unfinished">有理数</translation>
+        <translation>有理数</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">时间</translation>
+        <translation>时间</translation>
     </message>
 </context>
 <context>
     <name>olive::RenderCancelDialog</name>
     <message>
         <source>Waiting for workers to finish...</source>
-        <translation type="unfinished">正在等待工作器完成...</translation>
+        <translation>正在等待工作器完成...</translation>
     </message>
     <message>
         <source>Renderer</source>
         <translatorcomment>渲染器</translatorcomment>
-        <translation type="unfinished">渲染器</translation>
+        <translation>渲染器</translation>
     </message>
 </context>
 <context>
@@ -5731,61 +5739,61 @@ Are you sure you wish to delete this footage?</source>
     <name>olive::RippleDistortNode</name>
     <message>
         <source>Ripple</source>
-        <translation type="unfinished"></translation>
+        <translation>波纹</translation>
     </message>
     <message>
         <source>Distorts an image with a ripple effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用波纹效果扭曲图像。</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>频率</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>强度</translation>
     </message>
     <message>
         <source>Evolution</source>
-        <translation type="unfinished"></translation>
+        <translation>渐进</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">位置</translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>Stretch</source>
-        <translation type="unfinished">拉伸</translation>
+        <translation>拉伸</translation>
     </message>
 </context>
 <context>
     <name>olive::SaveOTIOTask</name>
     <message>
         <source>Exporting project to OpenTimelineIO</source>
-        <translation type="unfinished">正在导出项目到 OpenTimelineIO</translation>
+        <translation>正在导出项目到 OpenTimelineIO</translation>
     </message>
     <message>
         <source>Project contains no sequences to export.</source>
-        <translation type="unfinished">项目不包含可导出的序列。</translation>
+        <translation>项目不包含可导出的序列。</translation>
     </message>
     <message>
         <source>Failed to serialize sequence &quot;%1&quot;</source>
-        <translation type="unfinished">序列化序列 &quot;%1&quot; 失败</translation>
+        <translation>序列化序列 &quot;%1&quot; 失败</translation>
     </message>
 </context>
 <context>
     <name>olive::ScopePanel</name>
     <message>
         <source>Waveform</source>
-        <translation type="unfinished">波形</translation>
+        <translation>波形</translation>
     </message>
     <message>
         <source>Histogram</source>
-        <translation type="unfinished">直方图</translation>
+        <translation>直方图</translation>
     </message>
     <message>
         <source>Scope</source>
@@ -5793,261 +5801,263 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Scopes</source>
-        <translation type="unfinished">范围</translation>
+        <translation>范围</translation>
     </message>
 </context>
 <context>
     <name>olive::SeekableWidget</name>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">属性</translation>
+        <translation>属性</translation>
     </message>
 </context>
 <context>
     <name>olive::Sequence</name>
     <message>
         <source>Video Tracks</source>
-        <translation type="unfinished">视频轨道</translation>
+        <translation>视频轨道</translation>
     </message>
     <message>
         <source>Audio Tracks</source>
-        <translation type="unfinished">音频轨道</translation>
+        <translation>音频轨道</translation>
     </message>
     <message>
         <source>Subtitle Tracks</source>
-        <translation type="unfinished">字幕轨道</translation>
+        <translation>字幕轨道</translation>
     </message>
     <message>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>序列</translation>
     </message>
     <message>
         <source>A series of cuts that result in an edited video. Also called a timeline.</source>
-        <translation type="unfinished"></translation>
+        <translation>生成编辑视频的一系列剪辑。也称为时间线.</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceDialog</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称：</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>New Sequence</source>
-        <translation type="unfinished">新建序列</translation>
+        <translation>新建序列</translation>
     </message>
     <message>
         <source>Editing &quot;%1&quot;</source>
-        <translation type="unfinished">正在编辑 &quot;%1&quot;</translation>
+        <translation>正在编辑 &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Error editing Sequence</source>
-        <translation type="unfinished">编辑序列时出错</translation>
+        <translation>编辑序列时出错</translation>
     </message>
     <message>
         <source>Please enter a name for this Sequence.</source>
-        <translation type="unfinished">请输入此序列名称.</translation>
+        <translation>请输入此序列名称.</translation>
     </message>
     <message>
         <source>Set As Default</source>
-        <translation type="unfinished"></translation>
+        <translation>设置为默认值</translation>
     </message>
     <message>
         <source>Don&apos;t ask me again</source>
-        <translation type="unfinished">不再询问</translation>
+        <translation>不再询问</translation>
     </message>
     <message>
         <source>Low Quality Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>低质量预览</translation>
     </message>
     <message>
         <source>The preview resolution has been set to a non-float format. This may cause banding and clipping artifacts in the preview.
 
 Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>预览分辨率已设置为非浮动格式。这可能会导致预览中出现条带和剪裁瑕疵。
+
+是否要继续？</translation>
     </message>
     <message>
         <source>Confirm Set As Default</source>
-        <translation type="unfinished"></translation>
+        <translation>确认设置为默认值</translation>
     </message>
     <message>
         <source>Are you sure you want to set the current parameters as defaults?</source>
-        <translation type="unfinished"></translation>
+        <translation>是否确实要将当前参数设置为默认值？</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceDialogParameterTab</name>
     <message>
         <source>Video</source>
-        <translation type="unfinished">视频</translation>
+        <translation>视频</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished">宽度：</translation>
+        <translation>宽度：</translation>
     </message>
     <message>
         <source>Height:</source>
-        <translation type="unfinished">高度：</translation>
+        <translation>高度：</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="unfinished">帧率：</translation>
+        <translation>帧率：</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished">像素宽高比：</translation>
+        <translation>像素宽高比：</translation>
     </message>
     <message>
         <source>Interlacing:</source>
-        <translation type="unfinished">交错：</translation>
+        <translation>交错：</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>Sample Rate:</source>
-        <translation type="unfinished">采样率：</translation>
+        <translation>采样率：</translation>
     </message>
     <message>
         <source>Channels:</source>
-        <translation type="unfinished">声道：</translation>
+        <translation>声道：</translation>
     </message>
     <message>
         <source>Preview</source>
-        <translation type="unfinished">预览</translation>
+        <translation>预览</translation>
     </message>
     <message>
         <source>Resolution:</source>
-        <translation type="unfinished">分辨率：</translation>
+        <translation>分辨率：</translation>
     </message>
     <message>
         <source>Quality:</source>
-        <translation type="unfinished">质量：</translation>
+        <translation>质量：</translation>
     </message>
     <message>
         <source>Save Preset</source>
-        <translation type="unfinished">保存预设</translation>
+        <translation>保存预设</translation>
     </message>
     <message>
         <source>(%1x%2)</source>
-        <translation type="unfinished">(%1x%2)</translation>
+        <translation>(%1x%2)</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceDialogPresetTab</name>
     <message>
         <source>Preset</source>
-        <translation type="unfinished">预设</translation>
+        <translation>预设</translation>
     </message>
     <message>
         <source>My Presets</source>
-        <translation type="unfinished">我的预设</translation>
+        <translation>我的预设</translation>
     </message>
     <message>
         <source>4K UHD</source>
-        <translation type="unfinished">4K UHD</translation>
+        <translation>4K UHD</translation>
     </message>
     <message>
         <source>1080p</source>
-        <translation type="unfinished">1080p</translation>
+        <translation>1080p</translation>
     </message>
     <message>
         <source>720p</source>
-        <translation type="unfinished">720p</translation>
+        <translation>720p</translation>
     </message>
     <message>
         <source>NTSC</source>
-        <translation type="unfinished">NTSC</translation>
+        <translation>NTSC</translation>
     </message>
     <message>
         <source>PAL</source>
-        <translation type="unfinished">PAL</translation>
+        <translation>PAL</translation>
     </message>
     <message>
         <source>%1 23.976 FPS</source>
-        <translation type="unfinished">%1 23.976 FPS</translation>
+        <translation>%1 23.976 FPS</translation>
     </message>
     <message>
         <source>%1 25 FPS</source>
-        <translation type="unfinished">%1 25 FPS</translation>
+        <translation>%1 25 FPS</translation>
     </message>
     <message>
         <source>%1 29.97 FPS</source>
-        <translation type="unfinished">%1 29.97 FPS</translation>
+        <translation>%1 29.97 FPS</translation>
     </message>
     <message>
         <source>%1 50 FPS</source>
-        <translation type="unfinished">%1 50 FPS</translation>
+        <translation>%1 50 FPS</translation>
     </message>
     <message>
         <source>%1 59.94 FPS</source>
-        <translation type="unfinished">%1 59.94 FPS</translation>
+        <translation>%1 59.94 FPS</translation>
     </message>
     <message>
         <source>%1 Standard</source>
-        <translation type="unfinished">%1 标准</translation>
+        <translation>%1 标准</translation>
     </message>
     <message>
         <source>%1 Widescreen</source>
-        <translation type="unfinished">%1 宽屏</translation>
+        <translation>%1 宽屏</translation>
     </message>
     <message>
         <source>Delete Preset</source>
-        <translation type="unfinished">删除预设</translation>
+        <translation>删除预设</translation>
     </message>
 </context>
 <context>
     <name>olive::SequenceViewerPanel</name>
     <message>
         <source>Sequence Viewer</source>
-        <translation type="unfinished">序列查看器</translation>
+        <translation>序列查看器</translation>
     </message>
 </context>
 <context>
     <name>olive::ShapeNode</name>
     <message>
         <source>Shape</source>
-        <translation type="unfinished"></translation>
+        <translation>形状</translation>
     </message>
     <message>
         <source>Generate a 2D primitive shape.</source>
-        <translation type="unfinished"></translation>
+        <translation>生成二维基本体形状。</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">半径</translation>
+        <translation>半径</translation>
     </message>
     <message>
         <source>Rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>长方形</translation>
     </message>
     <message>
         <source>Ellipse</source>
-        <translation type="unfinished"></translation>
+        <translation>椭圆</translation>
     </message>
     <message>
         <source>Rounded Rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>圆角矩形</translation>
     </message>
 </context>
 <context>
     <name>olive::ShapeNodeBase</name>
     <message>
         <source>Position</source>
-        <translation type="unfinished">位置</translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
 </context>
 <context>
