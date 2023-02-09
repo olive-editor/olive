@@ -144,9 +144,6 @@ ViewerWidget::ViewerWidget(ViewerDisplayWidget *display, QWidget *parent) :
 
   instances_.append(this);
 
-  qDebug() << "FIXME: No signal connected between VDW and Cacher";
-  //connect(display_widget_, &ViewerDisplayWidget::ColorProcessorChanged, RenderManager::instance()->GetCacher(), &PreviewAutoCacher::SetDisplayColorProcessor);
-
   UpdateWaveformViewFromMode();
 
   connect(Core::instance(), &Core::ColorPickerEnabled, this, &ViewerWidget::SetSignalCursorColorEnabled);
