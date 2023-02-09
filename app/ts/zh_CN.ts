@@ -893,7 +893,7 @@ Current driver information: %1 %2 %3</source>
     </message>
     <message>
         <source>Olive</source>
-        <translation>Olive</translation>
+        <translation>橄榄</translation>
     </message>
     <message>
         <source>Lime</source>
@@ -3040,11 +3040,11 @@ OpenTimelineIO错误：
     </message>
     <message>
         <source>Ripple to In Point</source>
-        <translation>波纹删除至入点</translation>
+        <translation>涟漪删除至入点</translation>
     </message>
     <message>
         <source>Ripple to Out Point</source>
-        <translation>波纹删除至出点</translation>
+        <translation>涟漪删除至出点</translation>
     </message>
     <message>
         <source>Edit to In Point</source>
@@ -3060,7 +3060,7 @@ OpenTimelineIO错误：
     </message>
     <message>
         <source>Ripple Delete In/Out Point</source>
-        <translation>波纹删除入点/出点</translation>
+        <translation>涟漪删除入点/出点</translation>
     </message>
     <message>
         <source>Set/Edit Marker</source>
@@ -3196,7 +3196,7 @@ OpenTimelineIO错误：
     </message>
     <message>
         <source>Ripple Tool</source>
-        <translation>波纹工具</translation>
+        <translation>涟漪工具</translation>
     </message>
     <message>
         <source>Rolling Tool</source>
@@ -3825,7 +3825,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     </message>
     <message>
         <source>Ripple Delete</source>
-        <translation>波纹删除</translation>
+        <translation>涟漪删除</translation>
     </message>
     <message>
         <source>Split</source>
@@ -3965,7 +3965,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     </message>
     <message>
         <source>Speed/Duration</source>
-        <translation></translation>
+        <translation>速度/持续时间</translation>
     </message>
 </context>
 <context>
@@ -4238,7 +4238,7 @@ This driver is known to have stability and performance issues with Olive. It is 
     <name>olive::NodeParamView</name>
     <message>
         <source>%1 Nodes</source>
-        <translation>%1 个节点</translation>
+        <translation>%1 节点</translation>
     </message>
     <message>
         <source>Other</source>
@@ -5743,7 +5743,7 @@ Are you sure you wish to delete this footage?</source>
     </message>
     <message>
         <source>Distorts an image with a ripple effect.</source>
-        <translation>使用波纹效果扭曲图像。</translation>
+        <translation>使用涟漪效果扭曲图像。</translation>
     </message>
     <message>
         <source>Input</source>
@@ -6694,7 +6694,7 @@ Do you wish to continue?</source>
     </message>
     <message>
         <source>Ripple Tool</source>
-        <translation>波纹工具</translation>
+        <translation>涟漪工具</translation>
     </message>
     <message>
         <source>Rolling Tool</source>
