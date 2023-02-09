@@ -5,79 +5,79 @@
     <name>AudioParams</name>
     <message>
         <source>%1 Hz</source>
-        <translation type="unfinished">%1 Hz</translation>
+        <translation>%1 Hz</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished">单声道</translation>
+        <translation>单声道</translation>
     </message>
     <message>
         <source>Stereo</source>
-        <translation type="unfinished">立体声</translation>
+        <translation>立体声</translation>
     </message>
     <message>
         <source>2.1</source>
-        <translation type="unfinished">2.1</translation>
+        <translation>2.1</translation>
     </message>
     <message>
         <source>5.1</source>
-        <translation type="unfinished">5.1</translation>
+        <translation>5.1</translation>
     </message>
     <message>
         <source>7.1</source>
-        <translation type="unfinished">7.1</translation>
+        <translation>7.1</translation>
     </message>
     <message>
         <source>Unknown (0x%1)</source>
-        <translation type="unfinished">未知 (0x%1)</translation>
+        <translation>未知 (0x%1)</translation>
     </message>
     <message>
         <source>Unsigned 8-bit (Packed)</source>
-        <translation type="unfinished"></translation>
+        <translation>无符号8位（压缩）</translation>
     </message>
     <message>
         <source>Signed 16-bit (Packed)</source>
-        <translation type="unfinished"></translation>
+        <translation>有符号16位（压缩）</translation>
     </message>
     <message>
         <source>Signed 32-bit (Packed)</source>
-        <translation type="unfinished"></translation>
+        <translation>有符号32位（压缩）</translation>
     </message>
     <message>
         <source>Signed 64-bit (Packed)</source>
-        <translation type="unfinished"></translation>
+        <translation>有符号64位（压缩）</translation>
     </message>
     <message>
         <source>Float 32-bit (Packed)</source>
-        <translation type="unfinished"></translation>
+        <translation>浮点32位（压缩）</translation>
     </message>
     <message>
         <source>Float 64-bit (Packed)</source>
-        <translation type="unfinished"></translation>
+        <translation>浮点64位（压缩）</translation>
     </message>
     <message>
         <source>Unsigned 8-bit (Planar)</source>
-        <translation type="unfinished"></translation>
+        <translation>无符号8位（平面）</translation>
     </message>
     <message>
         <source>Signed 16-bit (Planar)</source>
-        <translation type="unfinished"></translation>
+        <translation>有符号16位（平面）</translation>
     </message>
     <message>
         <source>Signed 32-bit (Planar)</source>
-        <translation type="unfinished"></translation>
+        <translation>有符号32位（平面）</translation>
     </message>
     <message>
         <source>Signed 64-bit (Planar)</source>
-        <translation type="unfinished"></translation>
+        <translation>有符号64位（平面）</translation>
     </message>
     <message>
         <source>Float 32-bit (Planar)</source>
-        <translation type="unfinished"></translation>
+        <translation>浮点32位（平面）</translation>
     </message>
     <message>
         <source>Float 64-bit (Planar)</source>
-        <translation type="unfinished"></translation>
+        <translation>浮点64位（平面）</translation>
     </message>
 </context>
 <context>
@@ -1433,31 +1433,31 @@ To remedy this, please do one of the following:
     </message>
     <message>
         <source>Perspective</source>
-        <translation type="unfinished"></translation>
+        <translation>透视</translation>
     </message>
     <message>
         <source>Top Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左上方</translation>
     </message>
     <message>
         <source>Top Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右上方</translation>
     </message>
     <message>
         <source>Bottom Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右下角</translation>
     </message>
     <message>
         <source>Bottom Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左下角</translation>
     </message>
     <message>
         <source>Corner Pin</source>
-        <translation type="unfinished"></translation>
+        <translation>边角</translation>
     </message>
     <message>
         <source>Distort the image by dragging the corners.</source>
-        <translation type="unfinished"></translation>
+        <translation>通过拖动角来扭曲图像.</translation>
     </message>
 </context>
 <context>
