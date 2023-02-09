@@ -1464,35 +1464,35 @@ To remedy this, please do one of the following:
     <name>olive::CrashHandlerDialog</name>
     <message>
         <source>Olive</source>
-        <translation type="unfinished">Olive</translation>
+        <translation>Olive</translation>
     </message>
     <message>
         <source>We&apos;re sorry, Olive has crashed. Please help us fix it by sending an error report.</source>
-        <translation type="unfinished">抱歉，Olive 崩溃了。请发送错误报告帮助我们修复它。</translation>
+        <translation>抱歉，Olive 崩溃了。请发送错误报告帮助我们修复它。</translation>
     </message>
     <message>
         <source>Describe what you were doing in as much detail as possible. If you can, provide steps to reproduce this crash.</source>
-        <translation type="unfinished">尽可能详细地描述您正在进行的操作。 如果可以，请您提供能重现此崩溃的步骤。</translation>
+        <translation>尽可能详细地描述您正在进行的操作。 如果可以，请您提供能重现此崩溃的步骤。</translation>
     </message>
     <message>
         <source>Crash Report:</source>
-        <translation type="unfinished">崩溃报告：</translation>
+        <translation>崩溃报告：</translation>
     </message>
     <message>
         <source>Send Error Report</source>
-        <translation type="unfinished">发送错误报告</translation>
+        <translation>发送错误报告</translation>
     </message>
     <message>
         <source>Don&apos;t Send</source>
-        <translation type="unfinished">不发送</translation>
+        <translation>不发送</translation>
     </message>
     <message>
         <source>Waiting for crash report to be generated...</source>
-        <translation type="unfinished">正在等待崩溃报告生成...</translation>
+        <translation>正在等待崩溃报告生成...</translation>
     </message>
     <message>
         <source>Upload Failed</source>
-        <translation type="unfinished">上传失败</translation>
+        <translation>上传失败</translation>
     </message>
     <message>
         <source>Failed to send error report. Please try again later.</source>
@@ -1508,94 +1508,96 @@ To remedy this, please do one of the following:
     </message>
     <message>
         <source>Failed to send error report (%1). Please try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法发送错误报告（%1）。请稍后再试。</translation>
     </message>
     <message>
         <source>SSL Error</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL错误</translation>
     </message>
     <message>
         <source>Encountered the following SSL errors:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>遇到以下SSL错误：
+
+%1</translation>
     </message>
     <message>
         <source>You must write a description to submit this crash report.</source>
-        <translation type="unfinished"></translation>
+        <translation>您必须写一个描述才能提交此崩溃报告。</translation>
     </message>
     <message>
         <source>Failed to send report</source>
-        <translation type="unfinished"></translation>
+        <translation>无法发送报告</translation>
     </message>
     <message>
         <source>Failed to find symbols necessary to send report. This is a packaging issue. Please notify the maintainers of this package.</source>
-        <translation type="unfinished"></translation>
+        <translation>未能找到发送报告所需的符号。这是一个包装问题。请通知此包的维护人员。</translation>
     </message>
     <message>
         <source>Failed to open symbol file. You may not have permission to access it.</source>
-        <translation type="unfinished"></translation>
+        <translation>未能打开符号文件。您可能无权访问它。</translation>
     </message>
     <message>
         <source>Confirm Close</source>
-        <translation type="unfinished"></translation>
+        <translation>确认关闭</translation>
     </message>
     <message>
         <source>Crash report is still uploading. Closing now may result in no report being sent. Are you sure you wish to close?</source>
-        <translation type="unfinished"></translation>
+        <translation>崩溃报告仍在上传。现在关闭可能导致不发送报告。您确定要关闭吗？</translation>
     </message>
 </context>
 <context>
     <name>olive::CropDistortNode</name>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">顶部</translation>
+        <translation>顶部</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">底部</translation>
+        <translation>底部</translation>
     </message>
     <message>
         <source>Feather</source>
-        <translation type="unfinished"></translation>
+        <translation>羽毛</translation>
     </message>
     <message>
         <source>Crop</source>
-        <translation type="unfinished">裁剪</translation>
+        <translation>裁剪</translation>
     </message>
     <message>
         <source>Crop the edges of an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>裁剪图像的边缘。</translation>
     </message>
 </context>
 <context>
     <name>olive::CrossDissolveTransition</name>
     <message>
         <source>Cross Dissolve</source>
-        <translation type="unfinished">交叉溶解</translation>
+        <translation>交叉溶解</translation>
     </message>
     <message>
         <source>Smoothly transition between two clips.</source>
-        <translation type="unfinished">两个片段之间平滑转场。</translation>
+        <translation>两个片段之间平滑转场。</translation>
     </message>
 </context>
 <context>
     <name>olive::CurvePanel</name>
     <message>
         <source>Curve Editor</source>
-        <translation type="unfinished">曲线编辑器</translation>
+        <translation>曲线编辑器</translation>
     </message>
 </context>
 <context>
@@ -1603,414 +1605,414 @@ To remedy this, please do one of the following:
     <message>
         <source>Zoom to Fit</source>
         <translatorcomment>适屏缩放</translatorcomment>
-        <translation type="unfinished">缩放到合适大小</translation>
+        <translation>缩放到合适大小</translation>
     </message>
     <message>
         <source>Zoom to Fit Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>缩放以适合选定对象</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>重置缩放</translation>
     </message>
 </context>
 <context>
     <name>olive::CurveWidget</name>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">线性</translation>
+        <translation>线性</translation>
     </message>
     <message>
         <source>Bezier</source>
-        <translation type="unfinished">贝塞尔曲线</translation>
+        <translation>贝塞尔曲线</translation>
     </message>
     <message>
         <source>Hold</source>
-        <translation type="unfinished">保留</translation>
+        <translation>保留</translation>
     </message>
 </context>
 <context>
     <name>olive::CustomCacheTask</name>
     <message>
         <source>Caching custom range for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>正在缓存“%1”的自定义范围</translation>
     </message>
 </context>
 <context>
     <name>olive::DespillNode</name>
     <message>
         <source>Despill</source>
-        <translation type="unfinished"></translation>
+        <translation>去除溢色</translation>
     </message>
     <message>
         <source>Selection of simple depsill operations</source>
-        <translation type="unfinished"></translation>
+        <translation>选择简单的去除溢色操作</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Key Color</source>
-        <translation type="unfinished"></translation>
+        <translation>关键颜色</translation>
     </message>
     <message>
         <source>Green</source>
-        <translation type="unfinished">绿色</translation>
+        <translation>绿色</translation>
     </message>
     <message>
         <source>Blue</source>
-        <translation type="unfinished">蓝色</translation>
+        <translation>蓝色</translation>
     </message>
     <message>
         <source>Method</source>
-        <translation type="unfinished">方法</translation>
+        <translation>方法</translation>
     </message>
     <message>
         <source>Average</source>
-        <translation type="unfinished"></translation>
+        <translation>平均的</translation>
     </message>
     <message>
         <source>Double Red Average</source>
-        <translation type="unfinished"></translation>
+        <translation>双倍红色平均值</translation>
     </message>
     <message>
         <source>Double Average</source>
-        <translation type="unfinished"></translation>
+        <translation>双倍平均值</translation>
     </message>
     <message>
         <source>Limit</source>
-        <translation type="unfinished"></translation>
+        <translation>限制</translation>
     </message>
     <message>
         <source>Preserve Luminance</source>
-        <translation type="unfinished"></translation>
+        <translation>保持亮度</translation>
     </message>
 </context>
 <context>
     <name>olive::DipToColorTransition</name>
     <message>
         <source>Dip To Color</source>
-        <translation type="unfinished">浸入颜色</translation>
+        <translation>浸入颜色</translation>
     </message>
     <message>
         <source>Transition between clips by dipping to a color.</source>
-        <translation type="unfinished">通过浸入颜色在两个片段之间转场。</translation>
+        <translation>通过浸入颜色在两个片段之间转场。</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
 </context>
 <context>
     <name>olive::DiskCacheDialog</name>
     <message>
         <source>Disk Cache: %1</source>
-        <translation type="unfinished">磁盘缓存：%1</translation>
+        <translation>磁盘缓存：%1</translation>
     </message>
     <message>
         <source>Disk Cache Settings</source>
-        <translation type="unfinished">磁盘缓存设置</translation>
+        <translation>磁盘缓存设置</translation>
     </message>
     <message>
         <source>Maximum Disk Cache:</source>
-        <translation type="unfinished">最大磁盘缓存：</translation>
+        <translation>最大磁盘缓存：</translation>
     </message>
     <message>
         <source>%1 GB</source>
-        <translation type="unfinished">%1 GB</translation>
+        <translation>%1 GB</translation>
     </message>
     <message>
         <source>Clear Disk Cache</source>
-        <translation type="unfinished">清除磁盘缓存</translation>
+        <translation>清除磁盘缓存</translation>
     </message>
     <message>
         <source>Automatically clear disk cache on close</source>
-        <translation type="unfinished">关闭时自动清除磁盘缓存</translation>
+        <translation>关闭时自动清除磁盘缓存</translation>
     </message>
     <message>
         <source>Are you sure you want to clear the disk cache in &apos;%1&apos;?</source>
-        <translation type="unfinished">您确定要清除“%1”中的磁盘缓存？</translation>
+        <translation>您确定要清除“%1”中的磁盘缓存？</translation>
     </message>
     <message>
         <source>Disk Cache Cleared</source>
-        <translation type="unfinished">磁盘缓存已清除</translation>
+        <translation>磁盘缓存已清除</translation>
     </message>
     <message>
         <source>Disk cache failed to fully clear. You may have to delete the cache files manually.</source>
-        <translation type="unfinished">磁盘缓存无法完全清除。您可能需要手动删除缓存文件。</translation>
+        <translation>磁盘缓存无法完全清除。您可能需要手动删除缓存文件。</translation>
     </message>
     <message>
         <source>Disk Cache Partially Cleared</source>
-        <translation type="unfinished">磁盘缓存已部分清除</translation>
+        <translation>磁盘缓存已部分清除</translation>
     </message>
 </context>
 <context>
     <name>olive::DiskManager</name>
     <message>
         <source>Disk Cache Error</source>
-        <translation type="unfinished">磁盘缓存错误</translation>
+        <translation>磁盘缓存错误</translation>
     </message>
     <message>
         <source>Unable to set custom application disk cache. Using default instead.</source>
-        <translation type="unfinished">无法设置自定义应用程序磁盘缓存。使用默认设置。</translation>
+        <translation>无法设置自定义应用程序磁盘缓存。使用默认设置。</translation>
     </message>
     <message>
         <source>Disk Cache</source>
-        <translation type="unfinished">磁盘缓存</translation>
+        <translation>磁盘缓存</translation>
     </message>
     <message>
         <source>You&apos;ve chosen to change the default disk cache location. This will invalidate your current cache. Would you like to continue?</source>
-        <translation type="unfinished">您已选择更改默认磁盘缓存位置。这将使当前缓存无效。您要继续吗？</translation>
+        <translation>您已选择更改默认磁盘缓存位置。这将使当前缓存无效。您要继续吗？</translation>
     </message>
     <message>
         <source>Failed to open disk cache at &quot;%1&quot;. Try a different folder.</source>
-        <translation type="unfinished">无法打开位于 &quot;%1&quot; 的磁盘缓存。请尝试其他文件夹。</translation>
+        <translation>无法打开位于 &quot;%1&quot; 的磁盘缓存。请尝试其他文件夹。</translation>
     </message>
 </context>
 <context>
     <name>olive::DisplayTransformNode</name>
     <message>
         <source>Display Transform</source>
-        <translation type="unfinished"></translation>
+        <translation>显示变换</translation>
     </message>
     <message>
         <source>Converts an image to or from a display color space.</source>
-        <translation type="unfinished"></translation>
+        <translation>Converts an image to or from a display color space.</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation type="unfinished">显示</translation>
+        <translation>显示</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished">视图</translation>
+        <translation>视图</translation>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished">方向</translation>
+        <translation>方向</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>向前</translation>
     </message>
     <message>
         <source>Inverse</source>
-        <translation type="unfinished"></translation>
+        <translation>反转</translation>
     </message>
 </context>
 <context>
     <name>olive::DropShadowFilter</name>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
     <message>
         <source>Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>距离</translation>
     </message>
     <message>
         <source>Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>角</translation>
     </message>
     <message>
         <source>Softness</source>
-        <translation type="unfinished"></translation>
+        <translation>柔化</translation>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">不透明度</translation>
+        <translation>不透明度</translation>
     </message>
     <message>
         <source>Faster (Lower Quality)</source>
-        <translation type="unfinished"></translation>
+        <translation>更快（质量更低）</translation>
     </message>
     <message>
         <source>Drop Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>放置阴影</translation>
     </message>
     <message>
         <source>Adds a drop shadow to an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>向图像添加放置阴影。</translation>
     </message>
 </context>
 <context>
     <name>olive::ElapsedCounterWidget</name>
     <message>
         <source>Elapsed: %1</source>
-        <translation type="unfinished">经过：%1</translation>
+        <translation>经过：%1</translation>
     </message>
     <message>
         <source>Remaining: %1</source>
-        <translation type="unfinished">剩余：%1</translation>
+        <translation>剩余：%1</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportAdvancedVideoDialog</name>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">高级</translation>
+        <translation>高级</translation>
     </message>
     <message>
         <source>Pixel</source>
-        <translation type="unfinished">像素</translation>
+        <translation>像素</translation>
     </message>
     <message>
         <source>Pixel Format:</source>
-        <translation type="unfinished">像素格式：</translation>
+        <translation>像素格式：</translation>
     </message>
     <message>
         <source>Performance</source>
-        <translation type="unfinished">性能</translation>
+        <translation>性能</translation>
     </message>
     <message>
         <source>Threads:</source>
-        <translation type="unfinished">线程：</translation>
+        <translation>线程：</translation>
     </message>
     <message>
         <source>YUV Color Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>YUV颜色范围：</translation>
     </message>
     <message>
         <source>Limited (16-235)</source>
-        <translation type="unfinished"></translation>
+        <translation>有限（16-235）</translation>
     </message>
     <message>
         <source>Full (0-255)</source>
-        <translation type="unfinished"></translation>
+        <translation>完整（0-255）</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation type="unfinished"></translation>
+        <translation>自动</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportAudioTab</name>
     <message>
         <source>Codec:</source>
-        <translation type="unfinished">编解码器：</translation>
+        <translation>编解码器：</translation>
     </message>
     <message>
         <source>Sample Rate:</source>
-        <translation type="unfinished">采样率：</translation>
+        <translation>采样率：</translation>
     </message>
     <message>
         <source>Channel Layout:</source>
-        <translation type="unfinished">通道布局：</translation>
+        <translation>通道布局：</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished">格式：</translation>
+        <translation>格式：</translation>
     </message>
     <message>
         <source>Bit Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>比特率：</translation>
     </message>
     <message>
         <source>%1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::ExportCodec</name>
     <message>
         <source>DNxHD</source>
-        <translation type="unfinished">DNxHD</translation>
+        <translation>DNxHD</translation>
     </message>
     <message>
         <source>H.264</source>
-        <translation type="unfinished">H.264</translation>
+        <translation>H.264</translation>
     </message>
     <message>
         <source>H.265</source>
-        <translation type="unfinished">H.265</translation>
+        <translation>H.265</translation>
     </message>
     <message>
         <source>OpenEXR</source>
-        <translation type="unfinished">OpenEXR</translation>
+        <translation>OpenEXR</translation>
     </message>
     <message>
         <source>PNG</source>
-        <translation type="unfinished">PNG</translation>
+        <translation>PNG</translation>
     </message>
     <message>
         <source>ProRes</source>
-        <translation type="unfinished">ProRes</translation>
+        <translation>ProRes</translation>
     </message>
     <message>
         <source>TIFF</source>
-        <translation type="unfinished">TIFF</translation>
+        <translation>TIFF</translation>
     </message>
     <message>
         <source>MP2</source>
-        <translation type="unfinished">MP2</translation>
+        <translation>MP2</translation>
     </message>
     <message>
         <source>MP3</source>
-        <translation type="unfinished">MP3</translation>
+        <translation>MP3</translation>
     </message>
     <message>
         <source>AAC</source>
-        <translation type="unfinished">AAC</translation>
+        <translation>AAC</translation>
     </message>
     <message>
         <source>PCM (Uncompressed)</source>
-        <translation type="unfinished">PCM (Uncompressed)</translation>
+        <translation>PCM (Uncompressed)</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>H.264 RGB</source>
-        <translation type="unfinished"></translation>
+        <translation>H.264 RGB</translation>
     </message>
     <message>
         <source>Cineform</source>
-        <translation type="unfinished"></translation>
+        <translation>Cineform</translation>
     </message>
     <message>
         <source>FLAC</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Opus</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Vorbis</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>VP9</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>SubRip SRT</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::ExportDialog</name>
     <message>
         <source>Filename:</source>
-        <translation type="unfinished">文件名：</translation>
+        <translation>文件名：</translation>
     </message>
     <message>
         <source>Browse for exported file filename</source>
-        <translation type="unfinished">浏览已导出的文件名</translation>
+        <translation>浏览已导出的文件名</translation>
     </message>
     <message>
         <source>Preset:</source>
-        <translation type="unfinished">预设：</translation>
+        <translation>预设：</translation>
     </message>
     <message>
         <source>Same As Source - High Quality</source>
@@ -2026,47 +2028,47 @@ To remedy this, please do one of the following:
     </message>
     <message>
         <source>Range:</source>
-        <translation type="unfinished">范围：</translation>
+        <translation>范围：</translation>
     </message>
     <message>
         <source>Entire Sequence</source>
-        <translation type="unfinished">整个序列</translation>
+        <translation>整个序列</translation>
     </message>
     <message>
         <source>In to Out</source>
-        <translation type="unfinished">入点至出点</translation>
+        <translation>入点至出点</translation>
     </message>
     <message>
         <source>Format:</source>
-        <translation type="unfinished">格式:</translation>
+        <translation>格式:</translation>
     </message>
     <message>
         <source>Export Video</source>
-        <translation type="unfinished">导出视频</translation>
+        <translation>导出视频</translation>
     </message>
     <message>
         <source>Export Audio</source>
-        <translation type="unfinished">导出音频</translation>
+        <translation>导出音频</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished">视频</translation>
+        <translation>视频</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">导出</translation>
+        <translation>导出</translation>
     </message>
     <message>
         <source>Preview</source>
-        <translation type="unfinished">预览</translation>
+        <translation>预览</translation>
     </message>
     <message>
         <source>Invalid parameters</source>
-        <translation type="unfinished">无效的参数</translation>
+        <translation>无效的参数</translation>
     </message>
     <message>
         <source>Both video and audio are disabled. There&apos;s nothing to export.</source>
@@ -2074,222 +2076,222 @@ To remedy this, please do one of the following:
     </message>
     <message>
         <source>Invalid filename</source>
-        <translation type="unfinished">无效文件名</translation>
+        <translation>无效文件名</translation>
     </message>
     <message>
         <source>The filename must contain the extension &quot;%1&quot;. Would you like to append it automatically?</source>
-        <translation type="unfinished">文件名必须包含扩展名“%1”。您要自动附加扩展名吗？</translation>
+        <translation>文件名必须包含扩展名“%1”。您要自动附加扩展名吗？</translation>
     </message>
     <message>
         <source>Failed to create output directory</source>
-        <translation type="unfinished">无法创建输出目录</translation>
+        <translation>无法创建输出目录</translation>
     </message>
     <message>
         <source>The intended output directory doesn&apos;t exist and Olive couldn&apos;t create it. Please choose a different filename.</source>
-        <translation type="unfinished">指定的输出目录不存在且 Olive 无法创建它。请选择一个其他的文件名。</translation>
+        <translation>指定的输出目录不存在且 Olive 无法创建它。请选择一个其他的文件名。</translation>
     </message>
     <message>
         <source>Confirm Overwrite</source>
-        <translation type="unfinished">确认覆盖</translation>
+        <translation>确认覆盖</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished">文件“%1”已存在。您要覆盖它吗？</translation>
+        <translation>文件“%1”已存在。您要覆盖它吗？</translation>
     </message>
     <message>
         <source>Invalid Parameters</source>
-        <translation type="unfinished">无效的参数</translation>
+        <translation>无效的参数</translation>
     </message>
     <message>
         <source>Width and height must be multiples of 2.</source>
-        <translation type="unfinished">宽度和高度必须是2的倍数。</translation>
+        <translation>宽度和高度必须是2的倍数。</translation>
     </message>
     <message>
         <source>Export Subtitles</source>
-        <translation type="unfinished"></translation>
+        <translation>导出字幕</translation>
     </message>
     <message>
         <source>Subtitles</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕</translation>
     </message>
     <message>
         <source>Run In Background</source>
-        <translation type="unfinished"></translation>
+        <translation>在后台运行</translation>
     </message>
     <message>
         <source>Exporting in the background allows you to continue using Olive while exporting, but may result in slower export speeds, and mayseverely impact editing and playback performance.</source>
-        <translation type="unfinished"></translation>
+        <translation>在后台导出允许您在导出时继续使用Olive，但可能会导致导出速度变慢，并可能严重影响编辑和播放性能。</translation>
     </message>
     <message>
         <source>Import Result After Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Import Result After Export</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Video, audio, and subtitles are disabled. There&apos;s nothing to export.</source>
-        <translation type="unfinished"></translation>
+        <translation>已经禁用视频、音频和字幕。没有可以导出的东西。</translation>
     </message>
     <message>
         <source>Export is set to an image sequence, but the filename does not have a section for digits (formatted as [#####] where the amount of # is the amount of digits).</source>
-        <translation type="unfinished"></translation>
+        <translation>导出设置为图像序列，但文件名没有数字部分（格式为[######]，其中#的数量是数字的数量）。</translation>
     </message>
     <message>
         <source>Filename doesn&apos;t contain enough digits for the amount of frames this export will need (need %1 for %n frame(s)).</source>
-        <translation type="unfinished"></translation>
+        <translation>文件名包含的位数不足，无法满足此导出所需的帧数（对于%n帧，需要%1）。</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>Last Used</source>
-        <translation type="unfinished"></translation>
+        <translation>最后使用的</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportFormat</name>
     <message>
         <source>DNxHD</source>
-        <translation type="unfinished">DNxHD</translation>
+        <translation>DNxHD</translation>
     </message>
     <message>
         <source>Matroska Video</source>
-        <translation type="unfinished">Matroska Video</translation>
+        <translation>Matroska Video</translation>
     </message>
     <message>
         <source>MPEG-4 Video</source>
-        <translation type="unfinished">MPEG-4 Video</translation>
+        <translation>MPEG-4 Video</translation>
     </message>
     <message>
         <source>OpenEXR</source>
-        <translation type="unfinished">OpenEXR</translation>
+        <translation>OpenEXR</translation>
     </message>
     <message>
         <source>PNG</source>
-        <translation type="unfinished">PNG</translation>
+        <translation>PNG</translation>
     </message>
     <message>
         <source>TIFF</source>
-        <translation type="unfinished">TIFF</translation>
+        <translation>TIFF</translation>
     </message>
     <message>
         <source>QuickTime</source>
-        <translation type="unfinished">QuickTime</translation>
+        <translation>QuickTime</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>MPEG-4 Audio</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Wave Audio</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>AIFF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>MP3</source>
-        <translation type="unfinished">MP3</translation>
+        <translation>MP3</translation>
     </message>
     <message>
         <source>FLAC</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Ogg</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>WebM</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>SubRip SRT</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::ExportFormatComboBox</name>
     <message>
         <source>Video</source>
-        <translation type="unfinished">视频</translation>
+        <translation>视频</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportSavePresetDialog</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称：</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Save Export Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>保存导出预设</translation>
     </message>
     <message>
         <source>Invalid Name</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的名称</translation>
     </message>
     <message>
         <source>You must enter a name to save an export preset.</source>
-        <translation type="unfinished"></translation>
+        <translation>必须输入名称才能保存导出预设。</translation>
     </message>
     <message>
         <source>Overwrite Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>覆盖预设</translation>
     </message>
     <message>
         <source>A preset with the name &quot;%1&quot; already exists. Do you wish to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>名为“%1”的预设已存在。是否要覆盖它？</translation>
     </message>
     <message>
         <source>Write Error</source>
-        <translation type="unfinished"></translation>
+        <translation>写入错误</translation>
     </message>
     <message>
         <source>Failed to open file &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开文件“%1”进行写入。</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportSubtitlesTab</name>
     <message>
         <source>Export to sidecar file</source>
-        <translation type="unfinished"></translation>
+        <translation>导出到附加文件</translation>
     </message>
     <message>
         <source>Sidecar Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>附加格式：</translation>
     </message>
     <message>
         <source>Codec:</source>
-        <translation type="unfinished">编解码器：</translation>
+        <translation>编解码器：</translation>
     </message>
 </context>
 <context>
     <name>olive::ExportTask</name>
     <message>
         <source>Exporting &quot;%1&quot;</source>
-        <translation type="unfinished">正在导出 &quot;%1&quot;</translation>
+        <translation>正在导出 &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Failed to create encoder</source>
-        <translation type="unfinished">无法创建编码器</translation>
+        <translation>无法创建编码器</translation>
     </message>
     <message>
         <source>Failed to open file</source>
@@ -2297,19 +2299,19 @@ To remedy this, please do one of the following:
     </message>
     <message>
         <source>Failed to overwrite &quot;%1&quot;. Export has been saved as &quot;%2&quot; instead.</source>
-        <translation type="unfinished">无法覆盖“%1”。导出将被保存为“%2”。</translation>
+        <translation>无法覆盖“%1”。导出将被保存为“%2”。</translation>
     </message>
     <message>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开文件：%1</translation>
     </message>
     <message>
         <source>Failed to create subtitle encoder</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建字幕编码器</translation>
     </message>
     <message>
         <source>Failed to open subtitle sidecar file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开字幕侧边栏文件：%1</translation>
     </message>
 </context>
 <context>
@@ -2321,273 +2323,273 @@ To remedy this, please do one of the following:
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished">宽度：</translation>
+        <translation>宽度：</translation>
     </message>
     <message>
         <source>Height:</source>
-        <translation type="unfinished">高度：</translation>
+        <translation>高度：</translation>
     </message>
     <message>
         <source>Maintain Aspect Ratio:</source>
-        <translation type="unfinished">保持宽高比：</translation>
+        <translation>保持宽高比：</translation>
     </message>
     <message>
         <source>Scaling Method:</source>
-        <translation type="unfinished">缩放方式：</translation>
+        <translation>缩放方式：</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">适合</translation>
+        <translation>适合</translation>
     </message>
     <message>
         <source>Stretch</source>
-        <translation type="unfinished">拉伸</translation>
+        <translation>拉伸</translation>
     </message>
     <message>
         <source>Crop</source>
-        <translation type="unfinished">裁剪</translation>
+        <translation>裁剪</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="unfinished">帧率：</translation>
+        <translation>帧率：</translation>
     </message>
     <message>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished">像素宽高比：</translation>
+        <translation>像素宽高比：</translation>
     </message>
     <message>
         <source>Interlacing:</source>
-        <translation type="unfinished">交错：</translation>
+        <translation>交错：</translation>
     </message>
     <message>
         <source>Quality:</source>
-        <translation type="unfinished">质量：</translation>
+        <translation>质量：</translation>
     </message>
     <message>
         <source>Codec</source>
-        <translation type="unfinished">编解码器</translation>
+        <translation>编解码器</translation>
     </message>
     <message>
         <source>Codec:</source>
-        <translation type="unfinished">编解码器：</translation>
+        <translation>编解码器：</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">高级</translation>
+        <translation>高级</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">常规</translation>
+        <translation>常规</translation>
     </message>
 </context>
 <context>
     <name>olive::FFmpegEncoder</name>
     <message>
         <source>Failed to allocate output context</source>
-        <translation type="unfinished"></translation>
+        <translation>无法分配输出上下文</translation>
     </message>
     <message>
         <source>Failed to find suitable pixel format for this buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>未能找到适合此缓冲区的像素格式</translation>
     </message>
     <message>
         <source>Failed to configure filter graph</source>
-        <translation type="unfinished"></translation>
+        <translation>无法配置筛选器图表</translation>
     </message>
     <message>
         <source>Failed to open IO context</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开IO上下文</translation>
     </message>
     <message>
         <source>Failed to write format header</source>
-        <translation type="unfinished"></translation>
+        <translation>无法写入格式标头</translation>
     </message>
     <message>
         <source>Failed to add frame to filter graph</source>
-        <translation type="unfinished"></translation>
+        <translation>未能将框架添加到筛选器图</translation>
     </message>
     <message>
         <source>Failed to retrieve frame from buffer sink</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从缓冲区接收器检索帧</translation>
     </message>
     <message>
         <source>Failed to allocate sample array</source>
-        <translation type="unfinished"></translation>
+        <translation>未能分配样本数组</translation>
     </message>
     <message>
         <source>Failed to resample audio</source>
-        <translation type="unfinished"></translation>
+        <translation>无法重新采样音频</translation>
     </message>
     <message>
         <source>Failed to write interleaved packet</source>
-        <translation type="unfinished"></translation>
+        <translation>写入交错数据包失败</translation>
     </message>
     <message>
         <source>%1: %2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Failed to send frame to encoder</source>
-        <translation type="unfinished"></translation>
+        <translation>无法将帧发送到编码器</translation>
     </message>
     <message>
         <source>Failed to receive packet from decoder</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从解码器接收数据包</translation>
     </message>
     <message>
         <source>Cannot initialize a stream that is not a video, audio, or subtitle type</source>
-        <translation type="unfinished"></translation>
+        <translation>无法初始化非视频、音频或字幕类型的流</translation>
     </message>
     <message>
         <source>Failed to find codec for 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>找不到0x%1的编解码器</translation>
     </message>
     <message>
         <source>Retrieved unexpected codec type %1 for codec %2</source>
-        <translation type="unfinished"></translation>
+        <translation>已检索到编解码器%2的意外编解码器类型%1</translation>
     </message>
     <message>
         <source>Failed to allocate AVStream</source>
-        <translation type="unfinished"></translation>
+        <translation>分配AVStream失败</translation>
     </message>
     <message>
         <source>Failed to allocate AVCodecContext</source>
-        <translation type="unfinished"></translation>
+        <translation>无法分配AVCodecContext</translation>
     </message>
     <message>
         <source>Failed to open encoder</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开编码器</translation>
     </message>
     <message>
         <source>Failed to copy codec parameters to stream</source>
-        <translation type="unfinished"></translation>
+        <translation>无法将编解码器参数复制到流</translation>
     </message>
     <message>
         <source>Failed to create resampling context</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建重新采样上下文</translation>
     </message>
     <message>
         <source>Failed to create audio frame</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建音频帧</translation>
     </message>
 </context>
 <context>
     <name>olive::FileField</name>
     <message>
         <source>Open Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>打开目录</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>打开文件</translation>
     </message>
 </context>
 <context>
     <name>olive::FlipDistortNode</name>
     <message>
         <source>Flip</source>
-        <translation type="unfinished"></translation>
+        <translation>翻转</translation>
     </message>
     <message>
         <source>Flips an image horizontally or vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>水平或垂直翻转图像</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished">水平</translation>
+        <translation>水平</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished">垂直</translation>
+        <translation>垂直</translation>
     </message>
 </context>
 <context>
     <name>olive::FloatSlider</name>
     <message>
         <source>%1 dB</source>
-        <translation type="unfinished">%1 dB</translation>
+        <translation>%1 dB</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished">%1%</translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>â</source>
-        <translation type="unfinished"></translation>
+        <translation>♪</translation>
     </message>
 </context>
 <context>
     <name>olive::Folder</name>
     <message>
         <source>Children</source>
-        <translation type="unfinished"></translation>
+        <translation>孩子</translation>
     </message>
     <message>
         <source>Folder</source>
-        <translation type="unfinished">文件夹</translation>
+        <translation>文件夹</translation>
     </message>
     <message>
         <source>Organize several items into a single collection.</source>
-        <translation type="unfinished"></translation>
+        <translation>将多个项目组织成一个集合.</translation>
     </message>
 </context>
 <context>
     <name>olive::Footage</name>
     <message>
         <source>Filename</source>
-        <translation type="unfinished">文件名</translation>
+        <translation>文件名</translation>
     </message>
     <message>
         <source>%1: Image - %2x%3</source>
-        <translation type="unfinished">%1：图像 - %2x%3</translation>
+        <translation>%1：图像 - %2x%3</translation>
     </message>
     <message>
         <source>%1: Video - %2x%3</source>
-        <translation type="unfinished">%1：视频 - %2x%3</translation>
+        <translation>%1：视频 - %2x%3</translation>
     </message>
     <message>
         <source>%1: Audio - %n Channel(s), %2Hz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1:音频-%n频道，%2Hz</translation>
     </message>
     <message>
         <source>%1: Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>%1：字幕</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished">视频</translation>
+        <translation>视频</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished">音频</translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>Filename: %1</source>
-        <translation type="unfinished">文件名：%1</translation>
+        <translation>文件名：%1</translation>
     </message>
     <message>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的</translation>
     </message>
     <message>
         <source>Media</source>
-        <translation type="unfinished"></translation>
+        <translation>媒体</translation>
     </message>
     <message>
         <source>Import video, audio, or still image files into the composition.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">将视频、音频或静止图像文件导入合成。 </translation>
     </message>
 </context>
 <context>
