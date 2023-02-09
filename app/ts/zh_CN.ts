@@ -866,7 +866,7 @@ Current driver information: %1 %2 %3</source>
     </message>
     <message>
         <source>Clamp</source>
-        <translation>白色夹钳</translation>
+        <translation>夹钳</translation>
     </message>
 </context>
 <context>
@@ -6064,193 +6064,193 @@ Do you wish to continue?</source>
     <name>olive::SliderBase</name>
     <message>
         <source>Invalid Value</source>
-        <translation type="unfinished">无效的值</translation>
+        <translation>无效的值</translation>
     </message>
     <message>
         <source>The entered value is not valid for this field.</source>
-        <translation type="unfinished">输入的值在在这个字段无效。</translation>
+        <translation>输入的值在在这个字段无效。</translation>
     </message>
     <message>
         <source>---</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>olive::SolidGenerator</name>
     <message>
         <source>Solid</source>
-        <translation type="unfinished">纯色</translation>
+        <translation>纯色</translation>
     </message>
     <message>
         <source>Generate a solid color.</source>
-        <translation type="unfinished">生成纯色。</translation>
+        <translation>生成纯色。</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
 </context>
 <context>
     <name>olive::SpeedDurationDialog</name>
     <message>
         <source>Clip Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>剪辑财产</translation>
     </message>
     <message>
         <source>Speed/Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>速度/持续时间</translation>
     </message>
     <message>
         <source>Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>速度:</translation>
     </message>
     <message>
         <source>Duration:</source>
-        <translation type="unfinished"></translation>
+        <translation>持续时间:</translation>
     </message>
     <message>
         <source>Link Speed and Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>链路速度和持续时间</translation>
     </message>
     <message>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>颠倒</translation>
     </message>
     <message>
         <source>Maintain Audio Pitch</source>
-        <translation type="unfinished"></translation>
+        <translation>保持音频音调</translation>
     </message>
     <message>
         <source>Ripple Trailing Clips</source>
-        <translation type="unfinished"></translation>
+        <translation>涟漪尾部剪辑</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished">循环</translation>
+        <translation>循环</translation>
     </message>
     <message>
         <source>Loop:</source>
-        <translation type="unfinished"></translation>
+        <translation>循环:</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Clamp</source>
-        <translation type="unfinished"></translation>
+        <translation>夹钳</translation>
     </message>
 </context>
 <context>
     <name>olive::StringSlider</name>
     <message>
         <source>(none)</source>
-        <translation type="unfinished">(无)</translation>
+        <translation>(无)</translation>
     </message>
 </context>
 <context>
     <name>olive::StrokeFilterNode</name>
     <message>
         <source>Stroke</source>
-        <translation type="unfinished">笔画</translation>
+        <translation>笔画</translation>
     </message>
     <message>
         <source>Creates a stroke outline around an image.</source>
-        <translation type="unfinished">围绕图像创建一个笔画轮廓。</translation>
+        <translation>围绕图像创建一个笔画轮廓。</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">半径</translation>
+        <translation>半径</translation>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">不透明度</translation>
+        <translation>不透明度</translation>
     </message>
     <message>
         <source>Inner</source>
-        <translation type="unfinished">内部</translation>
+        <translation>内部</translation>
     </message>
 </context>
 <context>
     <name>olive::SubtitleBlock</name>
     <message>
         <source>Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕</translation>
     </message>
     <message>
         <source>A time-based node representing a single subtitle element for a certain period of time.</source>
-        <translation type="unfinished"></translation>
+        <translation>一种基于时间的节点，表示特定时间段内的单个字幕元素。</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">文字</translation>
+        <translation>文字</translation>
     </message>
 </context>
 <context>
     <name>olive::SwirlDistortNode</name>
     <message>
         <source>Swirl</source>
-        <translation type="unfinished"></translation>
+        <translation>旋转</translation>
     </message>
     <message>
         <source>Distorts an image along a sine wave.</source>
-        <translation type="unfinished"></translation>
+        <translation>沿正弦扭曲图像。</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Radius</source>
-        <translation type="unfinished">半径</translation>
+        <translation>半径</translation>
     </message>
     <message>
         <source>Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>角</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">位置</translation>
+        <translation>位置</translation>
     </message>
 </context>
 <context>
     <name>olive::Task</name>
     <message>
         <source>Task</source>
-        <translation type="unfinished">任务</translation>
+        <translation>任务</translation>
     </message>
     <message>
         <source>Unknown error</source>
-        <translation type="unfinished">未知错误</translation>
+        <translation>未知错误</translation>
     </message>
 </context>
 <context>
     <name>olive::TaskDialog</name>
     <message>
         <source>Task Failed</source>
-        <translation type="unfinished">任务失败</translation>
+        <translation>任务失败</translation>
     </message>
 </context>
 <context>
     <name>olive::TaskManagerPanel</name>
     <message>
         <source>Task Manager</source>
-        <translation type="unfinished">任务管理器</translation>
+        <translation>任务管理器</translation>
     </message>
 </context>
 <context>
     <name>olive::TaskViewItem</name>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished">错误：%1</translation>
+        <translation>错误：%1</translation>
     </message>
 </context>
 <context>
@@ -6300,211 +6300,211 @@ Do you wish to continue?</source>
     <name>olive::TextGeneratorV1</name>
     <message>
         <source>Sample Text</source>
-        <translation type="unfinished">文字样本</translation>
+        <translation>文字样本</translation>
     </message>
     <message>
         <source>Text (Legacy)</source>
-        <translation type="unfinished"></translation>
+        <translation>文本（传统）</translation>
     </message>
     <message>
         <source>Generate rich text.</source>
-        <translation type="unfinished">生成富文本。</translation>
+        <translation>生成富文本。</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">文字</translation>
+        <translation>文字</translation>
     </message>
     <message>
         <source>Enable HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>启用HTML</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished">字体</translation>
+        <translation>字体</translation>
     </message>
     <message>
         <source>Font Size</source>
-        <translation type="unfinished">字体大小</translation>
+        <translation>字体大小</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
     <message>
         <source>Vertical Align</source>
-        <translation type="unfinished">垂直对齐</translation>
+        <translation>垂直对齐</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">顶部</translation>
+        <translation>顶部</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">居中</translation>
+        <translation>居中</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">底部</translation>
+        <translation>底部</translation>
     </message>
 </context>
 <context>
     <name>olive::TextGeneratorV2</name>
     <message>
         <source>Sample Text</source>
-        <translation type="unfinished">文字样本</translation>
+        <translation>文字样本</translation>
     </message>
     <message>
         <source>Text (Legacy)</source>
-        <translation type="unfinished"></translation>
+        <translation>文本（传统）</translation>
     </message>
     <message>
         <source>Generate rich text.</source>
-        <translation type="unfinished">生成富文本。</translation>
+        <translation>生成富文本。</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">文字</translation>
+        <translation>文字</translation>
     </message>
     <message>
         <source>Enable HTML</source>
-        <translation type="unfinished"></translation>
+        <translation>启用HTML</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation type="unfinished">字体</translation>
+        <translation>字体</translation>
     </message>
     <message>
         <source>Font Size</source>
-        <translation type="unfinished">字体大小</translation>
+        <translation>字体大小</translation>
     </message>
     <message>
         <source>Vertical Align</source>
-        <translation type="unfinished">垂直对齐</translation>
+        <translation>垂直对齐</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">顶部</translation>
+        <translation>顶部</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">居中</translation>
+        <translation>居中</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">底部</translation>
+        <translation>底部</translation>
     </message>
 </context>
 <context>
     <name>olive::TextGeneratorV3</name>
     <message>
         <source>Sample Text</source>
-        <translation type="unfinished">文字样本</translation>
+        <translation>文字样本</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation type="unfinished">文字</translation>
+        <translation>文字</translation>
     </message>
     <message>
         <source>Generate rich text.</source>
-        <translation type="unfinished">生成富文本。</translation>
+        <translation>生成富文本。</translation>
     </message>
     <message>
         <source>Vertical Alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直对齐方式</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">顶部</translation>
+        <translation>顶部</translation>
     </message>
     <message>
         <source>Middle</source>
-        <translation type="unfinished"></translation>
+        <translation>中间</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">底部</translation>
+        <translation>底部</translation>
     </message>
     <message>
         <source>Arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>参数</translation>
     </message>
 </context>
 <context>
     <name>olive::TileDistortNode</name>
     <message>
         <source>Tile</source>
-        <translation type="unfinished"></translation>
+        <translation>平铺</translation>
     </message>
     <message>
         <source>Infinitely tile an image horizontally and vertically.</source>
-        <translation type="unfinished"></translation>
+        <translation>水平和垂直无限平铺图像。</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Scale</source>
-        <translation type="unfinished">缩放</translation>
+        <translation>缩放</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">位置</translation>
+        <translation>位置</translation>
     </message>
     <message>
         <source>Mirror Horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>水平镜像</translation>
     </message>
     <message>
         <source>Mirror Vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>垂直镜像</translation>
     </message>
     <message>
         <source>Anchor</source>
-        <translation type="unfinished"></translation>
+        <translation>锚</translation>
     </message>
     <message>
         <source>Top-Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左上方</translation>
     </message>
     <message>
         <source>Top-Center</source>
-        <translation type="unfinished"></translation>
+        <translation>顶部居中</translation>
     </message>
     <message>
         <source>Top-Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右上方</translation>
     </message>
     <message>
         <source>Middle-Left</source>
-        <translation type="unfinished"></translation>
+        <translation>中间偏左</translation>
     </message>
     <message>
         <source>Middle-Center</source>
-        <translation type="unfinished"></translation>
+        <translation>中间居中</translation>
     </message>
     <message>
         <source>Middle-Right</source>
-        <translation type="unfinished"></translation>
+        <translation>中间偏右</translation>
     </message>
     <message>
         <source>Bottom-Left</source>
-        <translation type="unfinished"></translation>
+        <translation>左下角</translation>
     </message>
     <message>
         <source>Bottom-Center</source>
-        <translation type="unfinished"></translation>
+        <translation>底部居中</translation>
     </message>
     <message>
         <source>Bottom-Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右下角</translation>
     </message>
 </context>
 <context>
     <name>olive::TimeBasedPanel</name>
     <message>
         <source>(none)</source>
-        <translation type="unfinished">(无)</translation>
+        <translation>(无)</translation>
     </message>
 </context>
 <context>
@@ -6522,30 +6522,30 @@ Do you wish to continue?</source>
     <name>olive::TimeFormatNode</name>
     <message>
         <source>Time Format</source>
-        <translation type="unfinished"></translation>
+        <translation>时间格式</translation>
     </message>
     <message>
         <source>Format time (in Unix epoch seconds) into a string.</source>
-        <translation type="unfinished"></translation>
+        <translation>将时间（以Unix纪元秒为单位）格式化为字符串。</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">时间</translation>
+        <translation>时间</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>格式</translation>
     </message>
     <message>
         <source>Interpret time as local time</source>
-        <translation type="unfinished"></translation>
+        <translation>将时间解释为本地时间</translation>
     </message>
 </context>
 <context>
     <name>olive::TimeInput</name>
     <message>
         <source>Time</source>
-        <translation type="unfinished">时间</translation>
+        <translation>时间</translation>
     </message>
     <message>
         <source>Generates the time (in seconds) at this frame</source>
@@ -6553,36 +6553,36 @@ Do you wish to continue?</source>
     </message>
     <message>
         <source>Generates the time (in seconds) at this frame.</source>
-        <translation type="unfinished"></translation>
+        <translation>在这一帧生成时间 (以秒为单位).</translation>
     </message>
 </context>
 <context>
     <name>olive::TimeOffsetNode</name>
     <message>
         <source>Time Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>时间偏移量</translation>
     </message>
     <message>
         <source>Offset time passing through the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>通过图形的偏移时间。</translation>
     </message>
 </context>
 <context>
     <name>olive::TimeRemapNode</name>
     <message>
         <source>Time Remap</source>
-        <translation type="unfinished"></translation>
+        <translation>时间重映射</translation>
     </message>
     <message>
         <source>Arbitrarily remap time through the nodes.</source>
-        <translation type="unfinished"></translation>
+        <translation>通过节点任意重新映射时间。</translation>
     </message>
 </context>
 <context>
     <name>olive::TimelinePanel</name>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">时间线</translation>
+        <translation>时间线</translation>
     </message>
 </context>
 <context>
@@ -6591,193 +6591,197 @@ Do you wish to continue?</source>
         <source>In: %1
 Out: %2
 Duration: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>在：%1
+输出：%2
+持续时间：%3</translation>
     </message>
 </context>
 <context>
     <name>olive::TimelineWidget</name>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">属性</translation>
+        <translation>属性</translation>
     </message>
     <message>
         <source>Use Audio Time Units</source>
-        <translation type="unfinished">使用音频时间单位</translation>
+        <translation>使用音频时间单位</translation>
     </message>
     <message>
         <source>Nested Sequence %1</source>
-        <translation type="unfinished"></translation>
+        <translation>嵌套序列%1</translation>
     </message>
     <message>
         <source>Cache</source>
-        <translation type="unfinished">缓存</translation>
+        <translation>缓存</translation>
     </message>
     <message>
         <source>Auto-Cache</source>
-        <translation type="unfinished">自动缓存</translation>
+        <translation>自动缓存</translation>
     </message>
     <message>
         <source>Cache All</source>
-        <translation type="unfinished"></translation>
+        <translation>缓存全部</translation>
     </message>
     <message>
         <source>Cache In/Out</source>
-        <translation type="unfinished"></translation>
+        <translation>缓存输入/输出</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation type="unfinished"></translation>
+        <translation>丢弃</translation>
     </message>
     <message>
         <source>Reveal in Footage Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>在素材查看器中显示</translation>
     </message>
     <message>
         <source>Reveal in Project</source>
-        <translation type="unfinished"></translation>
+        <translation>在项目中显示</translation>
     </message>
     <message>
         <source>Multi-Cam</source>
-        <translation type="unfinished"></translation>
+        <translation>多凸轮</translation>
     </message>
     <message>
         <source>Show Thumbnails</source>
-        <translation type="unfinished"></translation>
+        <translation>显示缩略图</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <source>Only At In Points</source>
-        <translation type="unfinished"></translation>
+        <translation>仅在输入点</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">已启用</translation>
+        <translation>已启用</translation>
     </message>
     <message>
         <source>Show Waveforms</source>
-        <translation type="unfinished"></translation>
+        <translation>显示波形</translation>
     </message>
     <message>
         <source>Discard Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>丢弃缓存</translation>
     </message>
     <message>
         <source>This will discard all cache for this clip. If the clip has auto-cache enabled, it will be recached immediately. This cannot be undone.
 
 Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>这将丢弃此剪辑的所有缓存。如果片段已启用自动缓存，将立即重新缓存。这无法撤消。
+
+是否要继续？</translation>
     </message>
 </context>
 <context>
     <name>olive::ToolPanel</name>
     <message>
         <source>Tools</source>
-        <translation type="unfinished">工具</translation>
+        <translation>工具</translation>
     </message>
 </context>
 <context>
     <name>olive::Toolbar</name>
     <message>
         <source>Pointer Tool</source>
-        <translation type="unfinished">指针工具</translation>
+        <translation>指针工具</translation>
     </message>
     <message>
         <source>Edit Tool</source>
-        <translation type="unfinished">编辑工具</translation>
+        <translation>编辑工具</translation>
     </message>
     <message>
         <source>Ripple Tool</source>
-        <translation type="unfinished">波纹工具</translation>
+        <translation>波纹工具</translation>
     </message>
     <message>
         <source>Rolling Tool</source>
-        <translation type="unfinished">滚动工具</translation>
+        <translation>滚动工具</translation>
     </message>
     <message>
         <source>Razor Tool</source>
-        <translation type="unfinished">刀片工具</translation>
+        <translation>刀片工具</translation>
     </message>
     <message>
         <source>Slip Tool</source>
-        <translation type="unfinished">滑移工具</translation>
+        <translation>滑移工具</translation>
     </message>
     <message>
         <source>Slide Tool</source>
-        <translation type="unfinished">滑动工具</translation>
+        <translation>滑动工具</translation>
     </message>
     <message>
         <source>Hand Tool</source>
-        <translation type="unfinished">手形工具</translation>
+        <translation>手形工具</translation>
     </message>
     <message>
         <source>Zoom Tool</source>
-        <translation type="unfinished">缩放工具</translation>
+        <translation>缩放工具</translation>
     </message>
     <message>
         <source>Transition Tool</source>
-        <translation type="unfinished">转场工具</translation>
+        <translation>转场工具</translation>
     </message>
     <message>
         <source>Record Tool</source>
-        <translation type="unfinished">录制工具</translation>
+        <translation>录制工具</translation>
     </message>
     <message>
         <source>Add Tool</source>
-        <translation type="unfinished">添加工具</translation>
+        <translation>添加工具</translation>
     </message>
     <message>
         <source>Toggle Snapping</source>
-        <translation type="unfinished">切换吸附</translation>
+        <translation>切换吸附</translation>
     </message>
     <message>
         <source>Track Select Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>轨道选择工具</translation>
     </message>
 </context>
 <context>
     <name>olive::Track</name>
     <message>
         <source>Video Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>视频轨道 %1</translation>
     </message>
     <message>
         <source>Audio Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>音频轨道 %1</translation>
     </message>
     <message>
         <source>Subtitle Track %1</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕轨道 %1</translation>
     </message>
     <message>
         <source>Track</source>
-        <translation type="unfinished">轨道</translation>
+        <translation>轨道</translation>
     </message>
     <message>
         <source>Node for representing and processing a single array of Blocks sorted by time. Also represents the end of a Sequence.</source>
-        <translation type="unfinished">代表并处理单组方块节点，以时间排序，也代表序列的结尾。</translation>
+        <translation>代表并处理单组方块节点，以时间排序，也代表序列的结尾。</translation>
     </message>
     <message>
         <source>Blocks</source>
-        <translation type="unfinished">方块</translation>
+        <translation>方块</translation>
     </message>
     <message>
         <source>Muted</source>
-        <translation type="unfinished">已静音</translation>
+        <translation>已静音</translation>
     </message>
     <message>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
 </context>
 <context>
@@ -6827,19 +6831,19 @@ Do you wish to continue?</source>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Delete All &amp;Empty</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Delete All Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>删除全部空片段</translation>
     </message>
     <message>
         <source>No tracks are currently empty</source>
-        <translation type="unfinished"></translation>
+        <translation>当前没有空轨道</translation>
     </message>
     <message>
         <source>This will delete the following tracks:
@@ -6847,159 +6851,163 @@ Do you wish to continue?</source>
 %1
 
 Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>这将删除以下曲目：
+
+%1
+
+是否要继续？</translation>
     </message>
 </context>
 <context>
     <name>olive::TransformDistortNode</name>
     <message>
         <source>Parent</source>
-        <translation type="unfinished"></translation>
+        <translation>父级</translation>
     </message>
     <message>
         <source>Auto-Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>自动缩放</translation>
     </message>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation>插值</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">适合</translation>
+        <translation>适合</translation>
     </message>
     <message>
         <source>Fill</source>
-        <translation type="unfinished"></translation>
+        <translation>填满</translation>
     </message>
     <message>
         <source>Stretch</source>
-        <translation type="unfinished">拉伸</translation>
+        <translation>拉伸</translation>
     </message>
     <message>
         <source>Nearest Neighbor</source>
-        <translation type="unfinished"></translation>
+        <translation>最短距离</translation>
     </message>
     <message>
         <source>Bilinear</source>
-        <translation type="unfinished"></translation>
+        <translation>双线性</translation>
     </message>
     <message>
         <source>Mipmapped Bilinear</source>
-        <translation type="unfinished"></translation>
+        <translation>Mipmap双线性</translation>
     </message>
     <message>
         <source>Transform</source>
-        <translation type="unfinished"></translation>
+        <translation>变换</translation>
     </message>
     <message>
         <source>Transform an image in 2D space. Equivalent to multiplying by an orthographic matrix.</source>
-        <translation type="unfinished"></translation>
+        <translation>在2D空间中变换图像。相当于乘以正交矩阵。</translation>
     </message>
 </context>
 <context>
     <name>olive::TransitionBlock</name>
     <message>
         <source>From</source>
-        <translation type="unfinished">从</translation>
+        <translation>从</translation>
     </message>
     <message>
         <source>To</source>
-        <translation type="unfinished">到</translation>
+        <translation>到</translation>
     </message>
     <message>
         <source>Curve</source>
-        <translation type="unfinished">曲线</translation>
+        <translation>曲线</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished">线性</translation>
+        <translation>线性</translation>
     </message>
     <message>
         <source>Exponential</source>
-        <translation type="unfinished">指数</translation>
+        <translation>指数</translation>
     </message>
     <message>
         <source>Logarithmic</source>
-        <translation type="unfinished">对数</translation>
+        <translation>对数</translation>
     </message>
     <message>
         <source>Center Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>中心偏移量</translation>
     </message>
 </context>
 <context>
     <name>olive::TrigonometryNode</name>
     <message>
         <source>Trigonometry</source>
-        <translation type="unfinished">三角函数</translation>
+        <translation>三角函数</translation>
     </message>
     <message>
         <source>Perform a trigonometry operation on a value.</source>
-        <translation type="unfinished">对一个值进行三角函数运算。</translation>
+        <translation>对一个值进行三角函数运算。</translation>
     </message>
     <message>
         <source>Sine</source>
-        <translation type="unfinished">正弦</translation>
+        <translation>正弦</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished">余弦</translation>
+        <translation>余弦</translation>
     </message>
     <message>
         <source>Tangent</source>
-        <translation type="unfinished">正切</translation>
+        <translation>正切</translation>
     </message>
     <message>
         <source>Inverse Sine</source>
-        <translation type="unfinished">反正弦</translation>
+        <translation>反正弦</translation>
     </message>
     <message>
         <source>Inverse Cosine</source>
-        <translation type="unfinished">反余弦</translation>
+        <translation>反余弦</translation>
     </message>
     <message>
         <source>Inverse Tangent</source>
-        <translation type="unfinished">反正切</translation>
+        <translation>反正切</translation>
     </message>
     <message>
         <source>Hyperbolic Sine</source>
-        <translation type="unfinished">双曲正弦</translation>
+        <translation>双曲正弦</translation>
     </message>
     <message>
         <source>Hyperbolic Cosine</source>
-        <translation type="unfinished">双曲余弦</translation>
+        <translation>双曲余弦</translation>
     </message>
     <message>
         <source>Hyperbolic Tangent</source>
-        <translation type="unfinished">双曲正切</translation>
+        <translation>双曲正切</translation>
     </message>
     <message>
         <source>Method</source>
-        <translation type="unfinished">方法</translation>
+        <translation>方法</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
 </context>
 <context>
     <name>olive::ValueNode</name>
     <message>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
     <message>
         <source>Create a single value that can be connected to various other inputs.</source>
-        <translation type="unfinished"></translation>
+        <translation>创建一个可以连接到其他各种输入的值。</translation>
     </message>
 </context>
 <context>
@@ -7032,93 +7040,93 @@ Do you wish to continue?</source>
     <name>olive::VideoStreamProperties</name>
     <message>
         <source>Pixel Aspect:</source>
-        <translation type="unfinished">像素宽高比：</translation>
+        <translation>像素宽高比：</translation>
     </message>
     <message>
         <source>Interlacing:</source>
-        <translation type="unfinished">交错：</translation>
+        <translation>交错：</translation>
     </message>
     <message>
         <source>Color Space:</source>
-        <translation type="unfinished">颜色空间：</translation>
+        <translation>颜色空间：</translation>
     </message>
     <message>
         <source>Default (%1)</source>
-        <translation type="unfinished">默认 (%1)</translation>
+        <translation>默认 (%1)</translation>
     </message>
     <message>
         <source>Premultiplied Alpha</source>
-        <translation type="unfinished">预乘 Alpha</translation>
+        <translation>预乘 Alpha</translation>
     </message>
     <message>
         <source>Image Sequence</source>
-        <translation type="unfinished">图像序列</translation>
+        <translation>图像序列</translation>
     </message>
     <message>
         <source>Start Index:</source>
-        <translation type="unfinished">起始索引：</translation>
+        <translation>起始索引：</translation>
     </message>
     <message>
         <source>End Index:</source>
-        <translation type="unfinished">结束索引：</translation>
+        <translation>结束索引：</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation type="unfinished">帧率：</translation>
+        <translation>帧率：</translation>
     </message>
     <message>
         <source>Invalid Configuration</source>
-        <translation type="unfinished">无效的配置</translation>
+        <translation>无效的配置</translation>
     </message>
     <message>
         <source>Image sequence end index must be a value higher than the start index.</source>
-        <translation type="unfinished">图像序列结束索引必须是比起始索引大的值。</translation>
+        <translation>图像序列结束索引必须是比起始索引大的值。</translation>
     </message>
     <message>
         <source>Color Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>颜色范围：</translation>
     </message>
     <message>
         <source>Limited (16-235)</source>
-        <translation type="unfinished"></translation>
+        <translation>有限（16-235）</translation>
     </message>
     <message>
         <source>Full (0-255)</source>
-        <translation type="unfinished"></translation>
+        <translation>完整（0-255）</translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerDisplayWidget</name>
     <message>
         <source>%n skipped frame(s) detected during playback</source>
-        <translation type="unfinished"></translation>
+        <translation>播放过程中检测到%n个跳过的帧</translation>
     </message>
     <message>
         <source>%1 FPS</source>
-        <translation type="unfinished">%1 FPS</translation>
+        <translation>%1 FPS</translation>
     </message>
     <message>
         <source>%1 frames skipped</source>
-        <translation type="unfinished"></translation>
+        <translation>跳过%1帧</translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerOutput</name>
     <message>
         <source>Viewer</source>
-        <translation type="unfinished">查看器</translation>
+        <translation>查看器</translation>
     </message>
     <message>
         <source>Interface between a Viewer panel and the node system.</source>
-        <translation type="unfinished">查看器面板与节点系统之间的接口。</translation>
+        <translation>查看器面板与节点系统之间的接口。</translation>
     </message>
     <message>
         <source>Texture</source>
-        <translation type="unfinished">纹理</translation>
+        <translation>纹理</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">采样</translation>
+        <translation>采样</translation>
     </message>
     <message>
         <source>Video Tracks</source>
@@ -7134,88 +7142,88 @@ Do you wish to continue?</source>
     </message>
     <message>
         <source>%1 FPS</source>
-        <translation type="unfinished">%1 FPS</translation>
+        <translation>%1 FPS</translation>
     </message>
     <message>
         <source>%1 Hz</source>
-        <translation type="unfinished">%1 Hz</translation>
+        <translation>%1 Hz</translation>
     </message>
     <message>
         <source>Video Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>音频参数</translation>
     </message>
     <message>
         <source>Audio Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>音频参数</translation>
     </message>
     <message>
         <source>Subtitle Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕参数</translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerPanel</name>
     <message>
         <source>Viewer</source>
-        <translation type="unfinished">查看器</translation>
+        <translation>查看器</translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerTextEditorToolBar</name>
     <message>
         <source>Stretch: </source>
-        <translation type="unfinished"></translation>
+        <translation>拉伸: </translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished">%1%</translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>Kerning: </source>
-        <translation type="unfinished"></translation>
+        <translation>字距: </translation>
     </message>
     <message>
         <source>Line Height: </source>
-        <translation type="unfinished"></translation>
+        <translation>线条高度： </translation>
     </message>
 </context>
 <context>
     <name>olive::ViewerWidget</name>
     <message>
         <source>Error</source>
-        <translation type="unfinished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <source>No in or out points are set to cache.</source>
-        <translation type="unfinished">未设置要缓存的入点或出点。</translation>
+        <translation>未设置要缓存的入点或出点。</translation>
     </message>
     <message>
         <source>Safe Margins</source>
-        <translation type="unfinished">安全边距</translation>
+        <translation>安全边距</translation>
     </message>
     <message>
         <source>Zoom</source>
-        <translation type="unfinished">缩放</translation>
+        <translation>缩放</translation>
     </message>
     <message>
         <source>Fit</source>
-        <translation type="unfinished">适合</translation>
+        <translation>适合</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="unfinished">%1%</translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>Full Screen</source>
-        <translation type="unfinished">全屏</translation>
+        <translation>全屏</translation>
     </message>
     <message>
         <source>Screen %1: %2x%3</source>
-        <translation type="unfinished">屏幕 %1：%2x%3</translation>
+        <translation>屏幕 %1：%2x%3</translation>
     </message>
     <message>
         <source>Deinterlace</source>
-        <translation type="unfinished">去交错</translation>
+        <translation>去交错</translation>
     </message>
     <message>
         <source>Scopes</source>
@@ -7243,15 +7251,15 @@ Do you wish to continue?</source>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">关闭</translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <source>On</source>
-        <translation type="unfinished">开启</translation>
+        <translation>开启</translation>
     </message>
     <message>
         <source>Custom Aspect</source>
-        <translation type="unfinished">自定义宽高比</translation>
+        <translation>自定义宽高比</translation>
     </message>
     <message>
         <source>Show Audio Waveform</source>
@@ -7259,135 +7267,137 @@ Do you wish to continue?</source>
     </message>
     <message>
         <source>Audio scrubbing failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>音频清理失败：%1</translation>
     </message>
     <message>
         <source>Audio Error</source>
-        <translation type="unfinished"></translation>
+        <translation>音频错误</translation>
     </message>
     <message>
         <source>Failed to start audio: %1
 
 Please check your audio preferences and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法启动音频：%1
+
+请检查您的音频首选项，然后重试。</translation>
     </message>
     <message>
         <source>Playback Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>播放分辨率</translation>
     </message>
     <message>
         <source>Stop Playback On Last Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>在最后一帧停止播放</translation>
     </message>
     <message>
         <source>Audio Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>音频波形</translation>
     </message>
     <message>
         <source>Automatically Show/Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>自动显示/隐藏</translation>
     </message>
     <message>
         <source>Show Waveform Only</source>
-        <translation type="unfinished"></translation>
+        <translation>显示音频波形</translation>
     </message>
     <message>
         <source>Show Both Viewer And Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>显示查看器和波形</translation>
     </message>
     <message>
         <source>Show FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>显示FPS</translation>
     </message>
     <message>
         <source>Subtitles</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕</translation>
     </message>
     <message>
         <source>Show Subtitles</source>
-        <translation type="unfinished"></translation>
+        <translation>显示字幕</translation>
     </message>
     <message>
         <source>Subtitle Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕财产</translation>
     </message>
     <message>
         <source>Use Anti-aliasing</source>
-        <translation type="unfinished"></translation>
+        <translation>使用抗锯齿</translation>
     </message>
     <message>
         <source>Save Frame As Image</source>
-        <translation type="unfinished"></translation>
+        <translation>将帧另存为图像</translation>
     </message>
     <message>
         <source>Audio Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>音频录制</translation>
     </message>
     <message>
         <source>Project must be saved before you can record audio.</source>
-        <translation type="unfinished"></translation>
+        <translation>必须先保存项目，然后才能录制音频。</translation>
     </message>
     <message>
         <source>audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音频</translation>
     </message>
     <message>
         <source>Failed to start audio recording: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法启动音频录制：%1</translation>
     </message>
 </context>
 <context>
     <name>olive::VolumeNode</name>
     <message>
         <source>Volume</source>
-        <translation type="unfinished">音量</translation>
+        <translation>音量</translation>
     </message>
     <message>
         <source>Adjusts the volume of an audio source.</source>
-        <translation type="unfinished">调整音频源的音量。</translation>
+        <translation>调整音频源的音量。</translation>
     </message>
     <message>
         <source>Samples</source>
-        <translation type="unfinished">采样</translation>
+        <translation>采样</translation>
     </message>
 </context>
 <context>
     <name>olive::WaveDistortNode</name>
     <message>
         <source>Wave</source>
-        <translation type="unfinished"></translation>
+        <translation>波形</translation>
     </message>
     <message>
         <source>Distorts an image along a sine wave.</source>
-        <translation type="unfinished"></translation>
+        <translation>沿正弦扭曲图像。</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">输入</translation>
+        <translation>输入</translation>
     </message>
     <message>
         <source>Frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>频率</translation>
     </message>
     <message>
         <source>Intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>强度</translation>
     </message>
     <message>
         <source>Evolution</source>
-        <translation type="unfinished"></translation>
+        <translation>渐进</translation>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished">方向</translation>
+        <translation>方向</translation>
     </message>
     <message>
         <source>Horizontal</source>
-        <translation type="unfinished">水平</translation>
+        <translation>水平</translation>
     </message>
     <message>
         <source>Vertical</source>
-        <translation type="unfinished">垂直</translation>
+        <translation>垂直</translation>
     </message>
 </context>
 </TS>
