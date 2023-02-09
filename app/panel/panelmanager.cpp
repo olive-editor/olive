@@ -78,6 +78,17 @@ PanelWidget *PanelManager::CurrentlyHovered() const
   return nullptr;
 }
 
+PanelWidget *PanelManager::GetPanelWithName(const QString &name) const
+{
+  foreach (PanelWidget* panel, focus_history_) {
+    if (panel->objectName() == name) {
+      return panel;
+    }
+  }
+
+  return nullptr;
+}
+
 bool PanelManager::ArePanelsLocked()
 {
   return locked_;

@@ -66,6 +66,11 @@ public:
    */
   void SetSignalInsteadOfClose(bool e);
 
+  using Info = std::map<QString, QString>;
+
+  virtual void LoadData(const Info &info){}
+  virtual Info SaveData() const {return Info();}
+
   /**
    * @brief Called whenever this panel is focused and user uses "Zoom In" (either in menus or as a keyboard shortcut)
    *

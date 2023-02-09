@@ -408,20 +408,6 @@ public slots:
 
 signals:
   /**
-   * @brief Signal emitted when a project is opened
-   *
-   * Connects to main window so its UI can update based on the project
-   *
-   * @param p
-   */
-  void ProjectOpened(Project* p);
-
-  /**
-   * @brief Signal emitted when a project is closed
-   */
-  void ProjectClosed(Project* p);
-
-  /**
    * @brief Signal emitted when the tool is changed from somewhere
    */
   void ToolChanged(const Tool::Item& tool);
@@ -519,6 +505,8 @@ private:
   void AddOpenProject(olive::Project* p, bool add_to_recents = false);
 
   bool AddOpenProjectFromTask(Task* task, bool add_to_recents);
+
+  void SetActiveProject(Project *p);
 
   /**
    * @brief Internal main window object

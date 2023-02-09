@@ -144,14 +144,14 @@ void Core::Start()
   // Initialize task manager
   TaskManager::CreateInstance();
 
+  // Initialize ConformManager
+  ConformManager::CreateInstance();
+
   // Initialize RenderManager
   RenderManager::CreateInstance();
 
   // Initialize FrameManager
   FrameManager::CreateInstance();
-
-  // Initialize ConformManager
-  ConformManager::CreateInstance();
 
   // Initialize project serializers
   ProjectSerializer::Initialize();
@@ -468,8 +468,6 @@ void Core::AddOpenProject(Project* p, bool add_to_recents)
 {
   // Ensure project is not open at the moment
   if (open_project_ == p) {
-    // Signal UI to switch to this project
-    emit ProjectOpened(p);
     return;
   }
 
@@ -478,15 +476,11 @@ void Core::AddOpenProject(Project* p, bool add_to_recents)
     CloseProject(false);
   }
 
-  connect(p, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
-  open_project_ = p;
-  RenderManager::instance()->SetProject(p);
+  SetActiveProject(p);
 
   if (!p->filename().isEmpty() && add_to_recents) {
     PushRecentlyOpenedProject(p->filename());
   }
-
-  emit ProjectOpened(p);
 }
 
 bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
@@ -508,6 +502,21 @@ bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
   }
 
   return false;
+}
+
+void Core::SetActiveProject(Project *p)
+{
+  if (open_project_) {
+    disconnect(open_project_, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+  }
+
+  open_project_ = p;
+  RenderManager::instance()->SetProject(p);
+  main_window_->SetProject(p);
+
+  if (open_project_) {
+    connect(open_project_, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
+  }
 }
 
 void Core::ImportTaskComplete(Task* task)
@@ -757,10 +766,6 @@ void Core::StartGUI(bool full_screen)
   // See: https://doc.qt.io/qt-5/windows-issues.html
   QWindowsWindowFunctions::setHasBorderInFullScreen(main_window_->windowHandle(), true);
 #endif
-
-  // When a new project is opened, update the mainwindow
-  connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen, Qt::QueuedConnection);
-  connect(this, &Core::ProjectClosed, main_window_, &MainWindow::ProjectClose);
 
   // Start autorecovery timer using the config value as its interval
   SetAutorecoveryInterval(OLIVE_CONFIG("AutorecoveryInterval").toInt());
@@ -1476,11 +1481,9 @@ bool Core::CloseProject(bool auto_open_new, bool ignore_modified)
     // For safety, the undo stack is cleared so no commands try to affect a freed project
     undo_stack_.clear();
 
-    disconnect(open_project_, &Project::ModifiedChanged, this, &Core::ProjectWasModified);
-    RenderManager::instance()->SetProject(nullptr);
-    emit ProjectClosed(open_project_);
-    delete open_project_;
-    open_project_ = nullptr;
+    Project *tmp = open_project_;
+    SetActiveProject(nullptr);
+    delete tmp;
   }
 
   // Ensure a project is always active

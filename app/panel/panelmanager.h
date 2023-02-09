@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QList>
 
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 
 namespace olive {
 
@@ -73,6 +73,8 @@ public:
    * @brief Return the widget that the mouse is currently hovering over, or nullptr if nothing is hovered over
    */
   PanelWidget* CurrentlyHovered() const;
+
+  PanelWidget *GetPanelWithName(const QString &name) const;
 
   template<class T>
   /**

@@ -37,7 +37,8 @@
 namespace olive {
 
 MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent)
+  QMainWindow(parent),
+  project_(nullptr)
 {
   // Resizes main window to desktop geometry on startup. Fixes the following issues:
   // * Qt on Windows has a bug that "de-maximizes" the window when widgets are added, resizing the
@@ -88,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
   sequence_viewer_panel_ = new SequenceViewerPanel(this);
   multicam_panel_ = new MulticamPanel(this);
   pixel_sampler_panel_ = new PixelSamplerPanel(this);
-  AppendProjectPanel();
+  project_panel_ = new ProjectPanel(this);
   tool_panel_ = new ToolPanel(this);
   task_man_panel_ = new TaskManagerPanel(this);
   AppendTimelinePanel();
@@ -103,6 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(param_panel_, &ParamPanel::RequestViewerToStartEditingText, sequence_viewer_panel_, &ViewerPanel::RequestStartEditingText);
   connect(param_panel_, &ParamPanel::FocusedNodeChanged, curve_panel_, &CurvePanel::SetNode);
   connect(param_panel_, &ParamPanel::SelectedNodesChanged, node_panel_, &NodePanel::Select);
+  connect(project_panel_, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
 
   connect(node_panel_, &NodePanel::NodeSelectionChanged, sequence_viewer_panel_, &ViewerPanel::SetNodeViewSelections);
 
@@ -135,12 +137,22 @@ MainWindow::~MainWindow()
 void MainWindow::LoadLayout(const MainWindowLayoutInfo &info)
 {
   foreach (Folder* folder, info.open_folders()) {
-    FolderOpen(folder->project(), folder, true);
+    OpenFolder(folder->project(), folder, true);
   }
 
-  foreach (const MainWindowLayoutInfo::OpenSequence& sequence, info.open_sequences()) {
-    TimelinePanel* panel = OpenSequence(sequence.sequence, info.open_sequences().size() == 1);
-    panel->RestoreSplitterState(sequence.panel_state);
+  foreach (Sequence *sequence, info.open_sequences()) {
+    OpenSequence(sequence, info.open_sequences().size() == 1);
+  }
+
+  foreach (ViewerOutput *viewer, info.open_viewers()) {
+    OpenNodeInViewer(viewer);
+  }
+
+  for (auto it=info.panel_data().cbegin(); it!=info.panel_data().cend(); it++) {
+    // Find panel with this ID
+    if (PanelWidget *panel = PanelManager::instance()->GetPanelWithName(it->first)) {
+      panel->LoadData(it->second);
+    }
   }
 
   restoreState(info.state());
@@ -158,12 +170,19 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
 
   foreach (TimelinePanel* panel, timeline_panels_) {
     if (panel->GetConnectedViewer()) {
-      info.add_sequence({static_cast<Sequence*>(panel->GetConnectedViewer()),
-                         panel->SaveSplitterState()});
+      info.add_sequence(panel->GetSequence());
     }
   }
 
-  info.set_state(saveState());
+  for (auto it=viewer_panels_.cbegin(); it!=viewer_panels_.cend(); it++) {
+    info.add_viewer((*it)->GetConnectedViewer());
+  }
+
+  foreach (PanelWidget *panel, PanelManager::instance()->panels()) {
+    info.set_panel_data(panel->objectName(), panel->SaveData());
+  }
+
+  info.set_state(this->saveState());
 
   return info;
 }
@@ -222,39 +241,38 @@ bool MainWindow::IsSequenceOpen(Sequence *sequence) const
   return false;
 }
 
-void MainWindow::FolderOpen(Project* p, Folder *i, bool floating)
+void MainWindow::OpenFolder(Project* p, Folder *i, bool floating)
 {
-  ProjectPanel* panel = new ProjectPanel(this);
+  ProjectPanel* panel = AppendPanelInternal(folder_panels_);
 
   panel->set_project(p);
   panel->set_root(i);
 
-  // Tabify with source project panel
-  foreach (ProjectPanel* proj_panel, project_panels_) {
-    if (proj_panel->project() == p) {
-      tabifyDockWidget(proj_panel, panel);
-      break;
-    }
+  if (floating) {
+    panel->setFloating(floating);
+  } else {
+    tabifyDockWidget(project_panel_, panel);
   }
 
-  panel->setFloating(floating);
-
-  panel->show();
-  panel->raise();
-
   // If the panel is closed, just destroy it
-  panel->SetSignalInsteadOfClose(true);
-  panel->setProperty("parent_list", reinterpret_cast<quintptr>(&folder_panels_));
-  connect(panel, &ProjectPanel::CloseRequested, this, &MainWindow::FloatingPanelCloseRequested);
-
-  folder_panels_.append(panel);
+  connect(panel, &ProjectPanel::CloseRequested, this, &MainWindow::FolderPanelCloseRequested);
 }
 
 void MainWindow::OpenNodeInViewer(ViewerOutput *node)
 {
-  if (viewer_panels_.contains(node)) {
+  ViewerPanel *existing = nullptr;
+
+  for (auto it = viewer_panels_.cbegin(); it != viewer_panels_.cend(); it++) {
+    ViewerPanel *it2 = (*it);
+    if (it2->GetConnectedViewer() == node) {
+      existing = it2;
+      break;
+    }
+  }
+
+  if (existing) {
     // This node already has a viewer, raise it
-    viewer_panels_.value(node)->raise();
+    existing->raise();
   } else {
     // Create a viewer for this node
     ViewerPanel* viewer = new ViewerPanel(this);
@@ -267,7 +285,7 @@ void MainWindow::OpenNodeInViewer(ViewerOutput *node)
     connect(viewer, &ViewerPanel::CloseRequested, this, &MainWindow::ViewerCloseRequested);
     connect(node, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
 
-    viewer_panels_.insert(node, viewer);
+    viewer_panels_.append(viewer);
   }
 }
 
@@ -328,62 +346,47 @@ void MainWindow::ToggleMaximizedPanel()
   }
 }
 
-void MainWindow::ProjectOpen(Project *p)
+void MainWindow::SetProject(Project *p)
 {
-  // See if this project is already open, and switch to it if so
-  foreach (ProjectPanel* pl, project_panels_) {
-    if (pl->project() == p) {
-      pl->raise();
-      return;
-    }
+  if (project_ == p) {
+    return;
   }
 
-  ProjectPanel* panel;
+  if (project_) {
+    // Clear all data
+    param_panel_->SetContexts(QVector<Node*>());
+    node_panel_->SetContexts(QVector<Node*>());
 
-  if (!project_panels_.first()->project()) {
-    panel = project_panels_.first();
-  } else {
-    panel = AppendProjectPanel();
-  }
+    // Close any nodes open in TimeBasedWidgets
+    foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
+      TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
 
-  panel->set_project(p);
-  panel->setFocus();
-}
-
-void MainWindow::ProjectClose(Project *p)
-{
-  // Close project from NodeParamView
-  param_panel_->CloseContextsBelongingToProject(p);
-
-  // Close project from NodeView
-  node_panel_->CloseContextsBelongingToProject(p);
-
-  // Close any nodes open in TimeBasedWidgets
-  foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
-    TimeBasedPanel* tbp = dynamic_cast<TimeBasedPanel*>(panel);
-
-    if (tbp && tbp->GetConnectedViewer() && tbp->GetConnectedViewer()->project() == p) {
-      if (dynamic_cast<TimelinePanel*>(tbp)) {
-        // Prefer our CloseSequence function which will delete any unnecessary timeline panels
-        CloseSequence(static_cast<Sequence*>(tbp->GetConnectedViewer()));
-      } else {
-        tbp->DisconnectViewerNode();
+      if (tbp && tbp->GetConnectedViewer() && tbp->GetConnectedViewer()->project() == project_) {
+        if (dynamic_cast<TimelinePanel*>(tbp)) {
+          // Prefer our CloseSequence function which will delete any unnecessary timeline panels
+          CloseSequence(static_cast<Sequence*>(tbp->GetConnectedViewer()));
+        } else {
+          tbp->DisconnectViewerNode();
+        }
       }
     }
-  }
 
-  // Close any extra folder panels
-  foreach (ProjectPanel* panel, folder_panels_) {
-    if (panel->project() == p) {
+    // Close any extra folder panels
+    foreach (ProjectPanel* panel, folder_panels_) {
       panel->close();
     }
+
+    // Close any extra viewer panels
+    foreach (ViewerPanel *viewer, viewer_panels_) {
+      viewer->close();
+    }
   }
 
-  // Close project from project panel
-  foreach (ProjectPanel* panel, project_panels_) {
-    if (panel->project() == p) {
-      RemoveProjectPanel(panel);
-    }
+  project_ = p;
+  project_panel_->set_project(p);
+
+  if (project_) {
+    project_panel_->setFocus();
   }
 }
 
@@ -420,9 +423,7 @@ void MainWindow::SetApplicationProgressValue(int value)
 
 void MainWindow::SelectFootage(const QVector<Footage *> &e)
 {
-  for (ProjectPanel *p : project_panels_) {
-    SelectFootageForProjectPanel(e, p);
-  }
+  SelectFootageForProjectPanel(e, project_panel_);
   for (ProjectPanel *p : folder_panels_) {
     SelectFootageForProjectPanel(e, p);
   }
@@ -502,8 +503,11 @@ void MainWindow::ShowWelcomeDialog()
 
 void MainWindow::RevealViewerInProject(ViewerOutput *r)
 {
-  foreach (ProjectPanel *p, project_panels_) {
-    if (p->project() == r->project() && p->SelectItem(r)) {
+  // Rather than just using the resident ProjectPanel, find the most recently focused one since
+  // that's probably the one people will want
+  auto panels = PanelManager::instance()->GetPanelsOfType<ProjectPanel>();
+  foreach (ProjectPanel *p, panels) {
+    if (p->SelectItem(r)) {
       break;
     }
   }
@@ -553,11 +557,6 @@ void MainWindow::TimelineCloseRequested()
   RemoveTimelinePanel(t);
 }
 
-void MainWindow::ProjectCloseRequested()
-{
-  Core::instance()->CloseProject(true);
-}
-
 void MainWindow::ViewerCloseRequested()
 {
   ViewerPanel* panel = static_cast<ViewerPanel*>(sender());
@@ -566,7 +565,7 @@ void MainWindow::ViewerCloseRequested()
     scope_panel_->SetViewerPanel(sequence_viewer_panel_);
   }
 
-  viewer_panels_.remove(viewer_panels_.key(panel));
+  RemovePanelInternal(viewer_panels_, panel);
 
   panel->deleteLater();
 }
@@ -574,24 +573,37 @@ void MainWindow::ViewerCloseRequested()
 void MainWindow::ViewerWithPanelRemovedFromGraph()
 {
   ViewerOutput* vo = static_cast<ViewerOutput*>(sender());
-  viewer_panels_.take(vo)->deleteLater();
-  disconnect(vo, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
+  ViewerPanel *panel = nullptr;
+
+  foreach (ViewerPanel *p, viewer_panels_) {
+    if (p->GetConnectedViewer() == vo) {
+      panel = p;
+      break;
+    }
+  }
+
+  if (panel) {
+    RemovePanelInternal(viewer_panels_, panel);
+    panel->deleteLater();
+    disconnect(vo, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
+  }
 }
 
-void MainWindow::FloatingPanelCloseRequested()
+void MainWindow::FolderPanelCloseRequested()
 {
-  PanelWidget* panel = static_cast<PanelWidget*>(sender());
-
-  quintptr list_ptr = panel->property("parent_list").value<quintptr>();
-  QList<PanelWidget*>* list = reinterpret_cast< QList<PanelWidget*>* >(list_ptr);
-
-  list->removeOne(panel);
+  ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
+  RemovePanelInternal(folder_panels_, panel);
+  removeDockWidget(panel);
   panel->deleteLater();
 }
 
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
-  TimelinePanel* panel = AppendPanelInternal<TimelinePanel>(timeline_panels_);
+  TimelinePanel* panel = AppendPanelInternal(timeline_panels_);
+
+  if (!timeline_panels_.isEmpty()) {
+    tabifyDockWidget(timeline_panels_.last(), panel);
+  }
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
   connect(panel, &TimelinePanel::RequestCaptureStart, sequence_viewer_panel_, &SequenceViewerPanel::StartCapture);
@@ -604,16 +616,6 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   return panel;
 }
 
-ProjectPanel *MainWindow::AppendProjectPanel()
-{
-  ProjectPanel* panel = AppendPanelInternal<ProjectPanel>(project_panels_);
-
-  connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::ProjectCloseRequested);
-  connect(panel, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
-
-  return panel;
-}
-
 void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 {
   // Stop showing this timeline in the viewer
@@ -621,17 +623,7 @@ void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
   panel->ConnectViewerNode(nullptr);
 
   if (timeline_panels_.size() != 1) {
-    timeline_panels_.removeOne(panel);
-    panel->deleteLater();
-  }
-}
-
-void MainWindow::RemoveProjectPanel(ProjectPanel *panel)
-{
-  if (project_panels_.size() == 1) {
-    panel->set_project(nullptr);
-  } else {
-    project_panels_.removeOne(panel);
+    RemovePanelInternal(timeline_panels_, panel);
     panel->deleteLater();
   }
 }
@@ -841,8 +833,8 @@ void MainWindow::SetDefaultLayout()
   pixel_sampler_panel_->setFloating(true);
   addDockWidget(Qt::TopDockWidgetArea, pixel_sampler_panel_);
 
-  project_panels_.first()->show();
-  addDockWidget(Qt::BottomDockWidgetArea, project_panels_.first());
+  project_panel_->show();
+  addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
 
   tool_panel_->show();
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel_);
@@ -861,11 +853,11 @@ void MainWindow::SetDefaultLayout()
   {width()/2, width()/2},
               Qt::Horizontal);
 
-  resizeDocks({project_panels_.first(), tool_panel_, timeline_panels_.first(), audio_monitor_panel_},
+  resizeDocks({project_panel_, tool_panel_, timeline_panels_.first(), audio_monitor_panel_},
   {width()/4, 1, width(), 1},
               Qt::Horizontal);
 
-  resizeDocks({node_panel_, project_panels_.first()},
+  resizeDocks({node_panel_, project_panel_},
   {height()/2, height()/2},
               Qt::Vertical);
 }
@@ -897,19 +889,24 @@ void MainWindow::showEvent(QShowEvent *e)
   }
 }
 
+void UpdatePanelName(PanelWidget *panel, int index)
+{
+  QString old_name = panel->objectName();
+  QString new_name = QStringLiteral("%1:%2").arg(old_name.split(':').at(0), QString::number(index));
+  qDebug() << "renaming" << old_name << "to" << new_name;
+  panel->setObjectName(new_name);
+}
+
 template<typename T>
 T *MainWindow::AppendPanelInternal(QList<T*>& list)
 {
   T* panel = new T(this);
 
-  if (!list.isEmpty()) {
-    tabifyDockWidget(list.last(), panel);
-  }
-
   // For some reason raise() on its own doesn't do anything, we need both
   panel->show();
   panel->raise();
 
+  UpdatePanelName(panel, list.size());
   list.append(panel);
 
   // Let us handle the panel closing rather than the panel itself
@@ -919,19 +916,16 @@ T *MainWindow::AppendPanelInternal(QList<T*>& list)
 }
 
 template<typename T>
-T *MainWindow::AppendFloatingPanelInternal(QList<T *> &list)
+void MainWindow::RemovePanelInternal(QList<T *> &list, T *panel)
 {
-  T* panel = new T(this);
+  int index = list.indexOf(panel);
 
-  panel->setFloating(true);
-  panel->show();
-
-  panel->SetSignalInsteadOfClose(true);
-  connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::FloatingPanelCloseRequested);
-
-  panel->setProperty("parent_list", reinterpret_cast<quintptr>(&list));
-
-  return panel;
+  if (index != -1) {
+    list.removeAt(index);
+    for (int i = index; i < list.size(); i++) {
+      UpdatePanelName(list.at(i), i);
+    }
+  }
 }
 
 }

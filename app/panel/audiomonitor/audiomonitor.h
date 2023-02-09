@@ -21,8 +21,8 @@
 #ifndef AUDIOMONITORPANEL_H
 #define AUDIOMONITORPANEL_H
 
+#include "panel/panel.h"
 #include "widget/audiomonitor/audiomonitor.h"
-#include "widget/panel/panel.h"
 
 namespace olive {
 

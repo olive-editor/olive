@@ -32,8 +32,10 @@
 
 namespace olive {
 
+#define super QDockWidget
+
 PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
-  QDockWidget(parent),
+  super(parent),
   border_visible_(false),
   signal_instead_of_close_(false)
 {
@@ -55,15 +57,9 @@ void PanelWidget::SetMovementLocked(bool locked)
   if (locked) {
     // Disable moving on QDockWidget
     setFeatures(features() & ~QDockWidget::DockWidgetMovable);
-
-    // Hide the title bar (only real way to do this is to replace it with an empty QWidget)
-    setTitleBarWidget(new QWidget(this));
   } else {
     // Re-enable moving on QDockWidget
     setFeatures(features() | QDockWidget::DockWidgetMovable);
-
-    // Set the "custom" titlebar to null so the default gets restored
-    setTitleBarWidget(nullptr);
   }
 }
 
@@ -89,7 +85,7 @@ void PanelWidget::SetSubtitle(const QString &t)
 void PanelWidget::paintEvent(QPaintEvent *event)
 {
   // Perform default behavior
-  QDockWidget::paintEvent(event);
+  super::paintEvent(event);
 
   // Check if this panel (or a child of it) has focus using PanelFocusManager
   if (border_visible_) {

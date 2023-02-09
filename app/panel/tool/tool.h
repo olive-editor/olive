@@ -21,7 +21,7 @@
 #ifndef TOOL_PANEL_H
 #define TOOL_PANEL_H
 
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 
 namespace olive {
 

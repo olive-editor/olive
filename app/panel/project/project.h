@@ -23,7 +23,7 @@
 
 #include "footagemanagementpanel.h"
 #include "node/project/project.h"
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
 namespace olive {

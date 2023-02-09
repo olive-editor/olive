@@ -21,8 +21,8 @@
 #ifndef NODEPANEL_H
 #define NODEPANEL_H
 
+#include "panel/panel.h"
 #include "widget/nodeview/nodewidget.h"
-#include "widget/panel/panel.h"
 
 namespace olive {
 
