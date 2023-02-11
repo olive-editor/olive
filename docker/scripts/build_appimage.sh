@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 cd /opt/olive/core
-mkdir build && \
+( test -e build || mkdir build ) && \
 cd build && \
 cmake .. -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ && \
 cmake --build . && \
 ninja install && \
 \
 cd /opt/olive && \
-mkdir build && \
+( test -e build || mkdir build ) && \
 cd build && \
 cmake .. -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ && \
 cmake --build . && \
