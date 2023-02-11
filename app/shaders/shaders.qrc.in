@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="/shaders">
-    @QRC_BODY@
-  </qresource>
-</RCC>
