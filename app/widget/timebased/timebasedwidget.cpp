@@ -498,7 +498,9 @@ void TimeBasedWidget::GoToEnd()
 
 void TimeBasedWidget::CenterScrollOnPlayhead()
 {
-  scrollbar_->setValue(qRound(TimeToScene(GetConnectedNode()->GetPlayhead())) - scrollbar_->width()/2);
+  if (GetConnectedNode()) {
+    scrollbar_->setValue(qRound(TimeToScene(GetConnectedNode()->GetPlayhead())) - scrollbar_->width()/2);
+  }
 }
 
 void TimeBasedWidget::SetAutoSetTimebase(bool e)
