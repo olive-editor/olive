@@ -182,7 +182,7 @@ MainWindowLayoutInfo MainWindow::SaveLayout() const
     info.set_panel_data(panel->objectName(), panel->SaveData());
   }
 
-  info.set_state(this->saveState());
+  info.set_state(premaximized_state_.isEmpty() ? this->saveState() : premaximized_state_);
 
   return info;
 }
