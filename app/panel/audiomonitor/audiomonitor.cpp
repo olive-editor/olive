@@ -31,7 +31,7 @@ AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
 {
   audio_monitor_ = new AudioMonitor();
 
-  setWidget(audio_monitor_);
+  SetWidgetWithPadding(audio_monitor_);
 
   Retranslate();
 }
