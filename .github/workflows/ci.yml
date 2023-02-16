@@ -192,10 +192,9 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/vcpkg-registry/releases/download/continuous/olive-dep-x64-windows.zip
-          7z x olive-dep-x64-windows.zip
-          VCPKG_DIR=(vcpkg-export-*)
-          echo "VCPKG_ROOT=$(pwd -W)/$VCPKG_DIR" >> $GITHUB_ENV
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32-Release.tar.gz
+          tar xzf olive-dep-win32-Release.tar.gz
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
 
       - name: Acquire Google Crashpad
         shell: bash
@@ -228,9 +227,10 @@ jobs:
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
             -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/core/install" \
+            -DCMAKE_INSTALL_PREFIX="install" \
             $CMAKE_ARGS
           ninja install
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
 
       - name: Configure CMake
         shell: bash
@@ -238,7 +238,6 @@ jobs:
         run: |
           PATH=$GITHUB_WORKSPACE/core/install:$PATH
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             $CMAKE_ARGS
 
       - name: Build
