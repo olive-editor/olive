@@ -25,10 +25,10 @@
 
 namespace olive {
 
-TimelinePanel::TimelinePanel(QWidget *parent) :
-  TimeBasedPanel(QStringLiteral("TimelinePanel"), parent)
+TimelinePanel::TimelinePanel(const QString &name) :
+  TimeBasedPanel(name)
 {
-  TimelineWidget* tw = new TimelineWidget();
+  TimelineWidget* tw = new TimelineWidget(this);
   SetTimeBasedWidget(tw);
 
   Retranslate();

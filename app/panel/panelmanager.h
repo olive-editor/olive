@@ -87,11 +87,6 @@ public:
   T* MostRecentlyFocused();
 
   /**
-   * @brief Get whether panels are currently prevented from moving
-   */
-  bool ArePanelsLocked();
-
-  /**
    * @brief Create PanelManager singleton instance
    */
   static void CreateInstance();
@@ -137,11 +132,6 @@ public slots:
    */
   void FocusChanged(QWidget* old, QWidget* now);
 
-  /**
-   * @brief Sets whether panels should be prevented from moving
-   */
-  void SetPanelsLocked(bool locked);
-
 signals:
   /**
    * @brief Signal emitted when the currently focused panel changes
@@ -153,11 +143,6 @@ private:
    * @brief History array for traversing through (see MostRecentlyFocused())
    */
   QList<PanelWidget*> focus_history_;
-
-  /**
-   * @brief Internal panel movement is locked value
-   */
-  bool locked_;
 
   /**
    * @brief PanelManager singleton instance

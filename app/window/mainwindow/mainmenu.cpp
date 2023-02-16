@@ -188,8 +188,6 @@ MainMenu::MainMenu(MainWindow *parent) :
   window_menu_ = new Menu(this, this, &MainMenu::WindowMenuAboutToShow);
   window_menu_separator_ = window_menu_->addSeparator();
   window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", parent, &MainWindow::ToggleMaximizedPanel, tr("`"));
-  window_lock_layout_item_ = window_menu_->AddItem("lockpanels", PanelManager::instance(), &PanelManager::SetPanelsLocked);
-  window_lock_layout_item_->setCheckable(true);
   window_menu_->addSeparator();
   window_reset_layout_item_ = window_menu_->AddItem("resetdefaultlayout", parent, &MainWindow::SetDefaultLayout);
 
@@ -403,7 +401,7 @@ void MainMenu::WindowMenuAboutToShow()
   // Alphabetize actions - keeps actions in a consistent order since PanelManager::panels() is
   // ordered from most recently focused to least, which may be confusing user experience.
   foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
-    QAction* panel_action = panel->toggleViewAction();
+    QAction* panel_action = panel->toggleAction();
 
     bool inserted = false;
 
@@ -422,8 +420,6 @@ void MainMenu::WindowMenuAboutToShow()
 
   // Add new items
   window_menu_->insertActions(window_menu_separator_, panel_actions);
-
-  window_lock_layout_item_->setChecked(PanelManager::instance()->ArePanelsLocked());
 }
 
 void MainMenu::PopulateOpenRecent()
@@ -757,7 +753,6 @@ void MainMenu::Retranslate()
   // Window menu
   window_menu_->setTitle(tr("&Window"));
   window_maximize_panel_item_->setText(tr("Maximize Panel"));
-  window_lock_layout_item_->setText(tr("Lock Panels"));
   window_reset_layout_item_->setText(tr("Reset to Default Layout"));
 
   // Tools menu

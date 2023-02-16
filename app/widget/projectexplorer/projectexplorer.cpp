@@ -495,12 +495,12 @@ void ProjectExplorer::ReplaceSelectedFootage()
 
 void ProjectExplorer::OpenContextMenuItemInNewTab()
 {
-  Core::instance()->main_window()->OpenFolder(project(), static_cast<Folder*>(context_menu_items_.first()), false);
+  Core::instance()->main_window()->OpenFolder(static_cast<Folder*>(context_menu_items_.first()), false);
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewWindow()
 {
-  Core::instance()->main_window()->OpenFolder(project(), static_cast<Folder*>(context_menu_items_.first()), true);
+  Core::instance()->main_window()->OpenFolder(static_cast<Folder*>(context_menu_items_.first()), true);
 }
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)

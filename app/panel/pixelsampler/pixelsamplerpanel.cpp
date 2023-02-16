@@ -24,13 +24,14 @@
 
 namespace olive {
 
-PixelSamplerPanel::PixelSamplerPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("PixelSamplerPanel"), parent)
+PixelSamplerPanel::PixelSamplerPanel() :
+  PanelWidget(QStringLiteral("PixelSamplerPanel"))
 {
-  sampler_widget_ = new ManagedPixelSamplerWidget();
+  sampler_widget_ = new ManagedPixelSamplerWidget(this);
   SetWidgetWithPadding(sampler_widget_);
 
-  connect(this, &PixelSamplerPanel::visibilityChanged, Core::instance(), &Core::RequestPixelSamplingInViewers);
+  connect(this, &PixelSamplerPanel::shown, Core::instance(), []{Core::instance()->RequestPixelSamplingInViewers(true);});
+  connect(this, &PixelSamplerPanel::hidden, Core::instance(), []{Core::instance()->RequestPixelSamplingInViewers(false);});
   connect(Core::instance(), &Core::ColorPickerColorEmitted, this, &PixelSamplerPanel::SetValues);
 
   Retranslate();

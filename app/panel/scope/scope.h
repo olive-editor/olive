@@ -42,7 +42,7 @@ public:
     kTypeCount
   };
 
-  ScopePanel(QWidget* parent = nullptr);
+  ScopePanel();
 
   void SetType(Type t);
 

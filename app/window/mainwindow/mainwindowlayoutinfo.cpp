@@ -176,6 +176,13 @@ void MainWindowLayoutInfo::set_panel_data(const QString &id, const PanelWidget::
   panel_data_[id] = data;
 }
 
+void MainWindowLayoutInfo::move_panel_data(const QString &old, const QString &now)
+{
+  PanelWidget::Info tmp = panel_data_.at(old);
+  panel_data_.erase(old);
+  panel_data_[now] = tmp;
+}
+
 void MainWindowLayoutInfo::set_state(const QByteArray &layout)
 {
   state_ = layout;

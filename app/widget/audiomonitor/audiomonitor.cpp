@@ -36,7 +36,8 @@ const int kMaximumSmoothness = 8;
 
 QVector<AudioMonitor*> AudioMonitor::instances_;
 
-AudioMonitor::AudioMonitor() :
+AudioMonitor::AudioMonitor(QWidget *parent) :
+  QOpenGLWidget(parent),
   waveform_(nullptr),
   cached_channels_(0)
 {

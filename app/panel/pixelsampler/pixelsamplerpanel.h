@@ -30,7 +30,7 @@ class PixelSamplerPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  PixelSamplerPanel(QWidget* parent = nullptr);
+  PixelSamplerPanel();
 
 public slots:
   void SetValues(const Color& reference, const Color& display);

@@ -33,7 +33,7 @@ class TaskManagerPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  TaskManagerPanel(QWidget* parent);
+  TaskManagerPanel();
 
 private:
   virtual void Retranslate() override;

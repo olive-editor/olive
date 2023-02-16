@@ -10,7 +10,7 @@ class MulticamPanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
-  MulticamPanel(QWidget* parent = nullptr);
+  MulticamPanel();
 
   MulticamWidget *GetMulticamWidget() const { return static_cast<MulticamWidget *>(GetTimeBasedWidget()); }
 

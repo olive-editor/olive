@@ -30,7 +30,7 @@ class NodeTablePanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
-  NodeTablePanel(QWidget* parent);
+  NodeTablePanel();
 
 public slots:
   void SelectNodes(const QVector<Node*>& nodes)

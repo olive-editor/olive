@@ -24,8 +24,8 @@
 
 namespace olive {
 
-TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
-  PanelWidget(QStringLiteral("TaskManagerPanel"), parent)
+TaskManagerPanel::TaskManagerPanel() :
+  PanelWidget(QStringLiteral("TaskManagerPanel"))
 {
   // Create task view
   view_ = new TaskView(this);

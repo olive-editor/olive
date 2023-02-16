@@ -752,6 +752,15 @@ void Core::StartGUI(bool full_screen)
           PanelManager::instance(),
           &PanelManager::FocusChanged);
 
+  // Set KDDockWidgets flags
+  auto &config = KDDockWidgets::Config::self();
+  auto flags = config.flags();
+  flags |= KDDockWidgets::Config::Flag_TabsHaveCloseButton;
+  flags |= KDDockWidgets::Config::Flag_HideTitleBarWhenTabsVisible;
+  flags |= KDDockWidgets::Config::Flag_AlwaysShowTabs;
+  flags |= KDDockWidgets::Config::Flag_AllowReorderTabs;
+  config.setFlags(flags);
+
   // Create main window and open it
   main_window_ = new MainWindow();
 

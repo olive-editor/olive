@@ -21,7 +21,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <kddockwidgets/Config.h>
+#include <kddockwidgets/MainWindow.h>
 
 #include "mainwindowlayoutinfo.h"
 #include "node/project/project.h"
@@ -50,7 +51,7 @@ namespace olive {
 /**
  * @brief Olive's main window responsible for docking widgets and the main menu bar.
  */
-class MainWindow : public QMainWindow
+class MainWindow : public KDDockWidgets::MainWindow
 {
   Q_OBJECT
 public:
@@ -68,7 +69,7 @@ public:
 
   bool IsSequenceOpen(Sequence* sequence) const;
 
-  void OpenFolder(Project* p, Folder *i, bool floating);
+  void OpenFolder(Folder *i, bool floating);
 
   void OpenNodeInViewer(ViewerOutput* node);
 
@@ -117,7 +118,7 @@ private:
   TimelinePanel* AppendTimelinePanel();
 
   template <typename T>
-  T* AppendPanelInternal(QList<T*>& list);
+  T* AppendPanelInternal(const QString &panel_name, QList<T*>& list);
 
   template <typename T>
   void RemovePanelInternal(QList<T*>& list, T *panel);

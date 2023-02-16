@@ -32,7 +32,7 @@ class ToolPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  ToolPanel(QWidget* parent);
+  ToolPanel();
 
 private:
   virtual void Retranslate() override;

@@ -32,17 +32,16 @@
 
 namespace olive {
 
-#define super QDockWidget
+#define super KDDockWidgets::DockWidget
 
-PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
-  super(parent),
+PanelWidget::PanelWidget(const QString &object_name) :
+  super(object_name),
   border_visible_(false),
   signal_instead_of_close_(false)
 {
-  setObjectName(object_name);
   setFocusPolicy(Qt::ClickFocus);
 
-  connect(this, &PanelWidget::visibilityChanged, this, &PanelWidget::PanelVisibilityChanged);
+  connect(this, &PanelWidget::shown, this, static_cast<void(PanelWidget::*)()>(&PanelWidget::setFocus));
 
   PanelManager::instance()->RegisterPanel(this);
 }
@@ -50,17 +49,6 @@ PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
 PanelWidget::~PanelWidget()
 {
   PanelManager::instance()->UnregisterPanel(this);
-}
-
-void PanelWidget::SetMovementLocked(bool locked)
-{
-  if (locked) {
-    // Disable moving on QDockWidget
-    setFeatures(features() & ~QDockWidget::DockWidgetMovable);
-  } else {
-    // Re-enable moving on QDockWidget
-    setFeatures(features() | QDockWidget::DockWidgetMovable);
-  }
 }
 
 void PanelWidget::SetBorderVisible(bool enabled)
@@ -110,16 +98,9 @@ void PanelWidget::UpdateTitle()
   // If there's no subtitle, just use the title. Otherwise, we set a formatted combination of the two that can
   // differ based on translation
   if (subtitle_.isEmpty()) {
-    setWindowTitle(title_);
+    this->setTitle(title_);
   } else {
-    setWindowTitle(tr("%1: %2").arg(title_, subtitle_));
-  }
-}
-
-void PanelWidget::PanelVisibilityChanged(bool e)
-{
-  if (e) {
-    setFocus();
+    this->setTitle(tr("%1: %2").arg(title_, subtitle_));
   }
 }
 
@@ -134,7 +115,7 @@ void PanelWidget::closeEvent(QCloseEvent *event)
     event->ignore();
     emit CloseRequested();
   } else {
-    QDockWidget::closeEvent(event);
+    super::closeEvent(event);
   }
 }
 
@@ -143,7 +124,7 @@ void PanelWidget::changeEvent(QEvent *e)
   if (e->type() == QEvent::LanguageChange) {
     Retranslate();
   }
-  QDockWidget::changeEvent(e);
+  super::changeEvent(e);
 }
 
 void PanelWidget::Retranslate()

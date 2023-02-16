@@ -33,7 +33,7 @@ class TimelinePanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
-  TimelinePanel(QWidget* parent);
+  TimelinePanel(const QString &name);
 
   inline TimelineWidget *timeline_widget() const
   {

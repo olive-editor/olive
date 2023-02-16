@@ -30,7 +30,7 @@ class TimeBasedPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  TimeBasedPanel(const QString& object_name, QWidget *parent = nullptr);
+  TimeBasedPanel(const QString& object_name);
 
   virtual ~TimeBasedPanel() override;
 

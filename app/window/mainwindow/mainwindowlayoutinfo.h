@@ -24,6 +24,8 @@ public:
 
   void set_panel_data(const QString &id, const PanelWidget::Info &data);
 
+  void move_panel_data(const QString &old, const QString &now);
+
   void set_state(const QByteArray& layout);
 
   const std::vector<Folder*>& open_folders() const

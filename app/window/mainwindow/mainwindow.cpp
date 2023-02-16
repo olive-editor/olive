@@ -36,8 +36,10 @@
 
 namespace olive {
 
+#define super KDDockWidgets::MainWindow
+
 MainWindow::MainWindow(QWidget *parent) :
-  QMainWindow(parent),
+  super(QStringLiteral("OliveMain"), KDDockWidgets::MainWindowOption_None, parent),
   project_(nullptr)
 {
   // Resizes main window to desktop geometry on startup. Fixes the following issues:
@@ -57,18 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   first_show_ = true;
 
-  // Create empty central widget - we don't actually want a central widget (so we set its maximum
-  // size to 0,0) but some of Qt's docking/undocking fails without it
-  QWidget* centralWidget = new QWidget(this);
-  centralWidget->setMaximumSize(QSize(0, 0));
-  setCentralWidget(centralWidget);
-
-  // Set tabs to be on top of panels (default behavior is bottom)
-  setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-
-  // Allow panels to be tabbed within each other
-  setDockNestingEnabled(true);
-
   // Create and set main menu
   MainMenu* main_menu = new MainMenu(this);
   setMenuBar(main_menu);
@@ -82,19 +72,19 @@ MainWindow::MainWindow(QWidget *parent) :
   setStatusBar(status_bar);
 
   // Create standard panels
-  node_panel_ = new NodePanel(this);
-  footage_viewer_panel_ = new FootageViewerPanel(this);
-  param_panel_ = new ParamPanel(this);
-  curve_panel_ = new CurvePanel(this);
-  sequence_viewer_panel_ = new SequenceViewerPanel(this);
-  multicam_panel_ = new MulticamPanel(this);
-  pixel_sampler_panel_ = new PixelSamplerPanel(this);
-  project_panel_ = new ProjectPanel(this);
-  tool_panel_ = new ToolPanel(this);
-  task_man_panel_ = new TaskManagerPanel(this);
+  node_panel_ = new NodePanel();
+  footage_viewer_panel_ = new FootageViewerPanel();
+  param_panel_ = new ParamPanel();
+  curve_panel_ = new CurvePanel();
+  sequence_viewer_panel_ = new SequenceViewerPanel();
+  multicam_panel_ = new MulticamPanel();
+  pixel_sampler_panel_ = new PixelSamplerPanel();
+  project_panel_ = new ProjectPanel(QStringLiteral("ProjectPanel"));
+  tool_panel_ = new ToolPanel();
+  task_man_panel_ = new TaskManagerPanel();
   AppendTimelinePanel();
-  audio_monitor_panel_ = new AudioMonitorPanel(this);
-  scope_panel_ = new ScopePanel(this);
+  audio_monitor_panel_ = new AudioMonitorPanel();
+  scope_panel_ = new ScopePanel();
 
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodeSelectionChangedWithContexts, param_panel_, &ParamPanel::SetSelectedNodes);
@@ -137,7 +127,7 @@ MainWindow::~MainWindow()
 void MainWindow::LoadLayout(const MainWindowLayoutInfo &info)
 {
   foreach (Folder* folder, info.open_folders()) {
-    OpenFolder(folder->project(), folder, true);
+    OpenFolder(folder, true);
   }
 
   foreach (Sequence *sequence, info.open_sequences()) {
@@ -155,34 +145,52 @@ void MainWindow::LoadLayout(const MainWindowLayoutInfo &info)
     }
   }
 
-  restoreState(info.state());
+  KDDockWidgets::LayoutSaver().restoreLayout(qUncompress(info.state()));
+}
+
+QString TransformNameForSerialization(const QString &unique, int i)
+{
+  return QStringLiteral("%1:%2").arg(unique.split(':').at(0), QString::number(i));
+}
+
+void CorrectPanelDataIfNecessary(const QString &unique_name, int index, MainWindowLayoutInfo &info, QByteArray &layout)
+{
+  QString corrected = TransformNameForSerialization(unique_name, index);
+  if (corrected != unique_name) {
+    info.move_panel_data(unique_name, corrected);
+    layout.replace(unique_name.toUtf8(), corrected.toUtf8());
+  }
 }
 
 MainWindowLayoutInfo MainWindow::SaveLayout() const
 {
   MainWindowLayoutInfo info;
 
-  foreach (ProjectPanel* panel, folder_panels_) {
-    if (panel->project()) {
-      info.add_folder(panel->get_root());
-    }
-  }
-
-  foreach (TimelinePanel* panel, timeline_panels_) {
-    if (panel->GetConnectedViewer()) {
-      info.add_sequence(panel->GetSequence());
-    }
-  }
-
-  for (auto it=viewer_panels_.cbegin(); it!=viewer_panels_.cend(); it++) {
-    info.add_viewer((*it)->GetConnectedViewer());
-  }
+  QByteArray layout = premaximized_state_.isEmpty() ? KDDockWidgets::LayoutSaver().serializeLayout() : premaximized_state_;
 
   foreach (PanelWidget *panel, PanelManager::instance()->panels()) {
-    info.set_panel_data(panel->objectName(), panel->SaveData());
+    info.set_panel_data(panel->uniqueName(), panel->SaveData());
   }
 
-  info.set_state(premaximized_state_.isEmpty() ? this->saveState() : premaximized_state_);
+  for (int i = 0; i < folder_panels_.size(); i++) {
+    auto panel = folder_panels_.at(i);
+    info.add_folder(panel->get_root());
+    CorrectPanelDataIfNecessary(panel->uniqueName(), i, info, layout);
+  }
+
+  for (int i = 0; i < timeline_panels_.size(); i++) {
+    auto panel = timeline_panels_.at(i);
+    info.add_sequence(panel->GetSequence());
+    CorrectPanelDataIfNecessary(panel->uniqueName(), i, info, layout);
+  }
+
+  for (int i = 0; i < viewer_panels_.size(); i++) {
+    auto panel = viewer_panels_.at(i);
+    info.add_viewer(panel->GetConnectedViewer());
+    CorrectPanelDataIfNecessary(panel->uniqueName(), i, info, layout);
+  }
+
+  info.set_state(qCompress(layout));
 
   return info;
 }
@@ -241,17 +249,17 @@ bool MainWindow::IsSequenceOpen(Sequence *sequence) const
   return false;
 }
 
-void MainWindow::OpenFolder(Project* p, Folder *i, bool floating)
+void MainWindow::OpenFolder(Folder *i, bool floating)
 {
-  ProjectPanel* panel = AppendPanelInternal(folder_panels_);
+  ProjectPanel* panel = AppendPanelInternal(QStringLiteral("FolderPanel"), folder_panels_);
 
-  panel->set_project(p);
+  panel->set_project(i->project());
   panel->set_root(i);
 
   if (floating) {
     panel->setFloating(floating);
   } else {
-    tabifyDockWidget(project_panel_, panel);
+    project_panel_->addDockWidgetAsTab(panel);
   }
 
   // If the panel is closed, just destroy it
@@ -275,17 +283,12 @@ void MainWindow::OpenNodeInViewer(ViewerOutput *node)
     existing->raise();
   } else {
     // Create a viewer for this node
-    ViewerPanel* viewer = new ViewerPanel(this);
+    ViewerPanel* viewer = AppendPanelInternal(QStringLiteral("ViewerPanel"), viewer_panels_);
 
-    viewer->SetSignalInsteadOfClose(true);
-    viewer->setFloating(true);
-    viewer->setVisible(true);
     viewer->ConnectViewerNode(node);
 
     connect(viewer, &ViewerPanel::CloseRequested, this, &MainWindow::ViewerCloseRequested);
     connect(node, &ViewerOutput::RemovedFromGraph, this, &MainWindow::ViewerWithPanelRemovedFromGraph);
-
-    viewer_panels_.append(viewer);
   }
 }
 
@@ -300,6 +303,8 @@ void MainWindow::SetFullscreen(bool fullscreen)
 
 void MainWindow::ToggleMaximizedPanel()
 {
+  KDDockWidgets::LayoutSaver saver;
+
   if (premaximized_state_.isEmpty()) {
     // Assume nothing is maximized at the moment
 
@@ -322,12 +327,12 @@ void MainWindow::ToggleMaximizedPanel()
     }
 
     // Save the current state so it can be restored later
-    premaximized_state_ = saveState();
+    premaximized_state_ = saver.serializeLayout();
 
     // For every other panel that is on the main window, hide it
     foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
       if (!panel->isFloating() && panel != currently_hovered) {
-        panel->setVisible(false);
+        panel->close();
       }
     }
   } else {
@@ -336,7 +341,7 @@ void MainWindow::ToggleMaximizedPanel()
 
     // Assume we are currently maximized, restore the state
     PanelManager::instance()->SetSuppressChangedSignal(true);
-    restoreState(premaximized_state_);
+    saver.restoreLayout(premaximized_state_);
     premaximized_state_.clear();
 
     currently_focused_panel->raise();
@@ -593,16 +598,17 @@ void MainWindow::FolderPanelCloseRequested()
 {
   ProjectPanel* panel = static_cast<ProjectPanel*>(sender());
   RemovePanelInternal(folder_panels_, panel);
-  removeDockWidget(panel);
   panel->deleteLater();
 }
 
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
-  TimelinePanel* panel = AppendPanelInternal(timeline_panels_);
+  TimelinePanel* panel = AppendPanelInternal(QStringLiteral("TimelinePanel"), timeline_panels_);
 
-  if (!timeline_panels_.isEmpty()) {
-    tabifyDockWidget(timeline_panels_.last(), panel);
+  if (timeline_panels_.size() > 1) {
+    timeline_panels_.last()->addDockWidgetAsTab(panel);
+  } else {
+    panel->SetSignalInsteadOfClose(false);
   }
 
   connect(panel, &PanelWidget::CloseRequested, this, &MainWindow::TimelineCloseRequested);
@@ -734,7 +740,6 @@ void MainWindow::SaveCustomShortcuts()
   } else {
     qCritical() << "Failed to save custom keyboard shortcuts";
   }
-
 }
 
 void MainWindow::UpdateAudioMonitorParams(ViewerOutput *viewer)
@@ -804,62 +809,52 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
 
 void MainWindow::SetDefaultLayout()
 {
-  footage_viewer_panel_->show();
-  addDockWidget(Qt::TopDockWidgetArea, footage_viewer_panel_);
+  KDDockWidgets::InitialOption o;
+  o.preferredSize = QSize(0, centralAreaGeometry().height());
 
-  param_panel_->show();
-  tabifyDockWidget(footage_viewer_panel_, param_panel_);
-
-  node_panel_->show();
-  tabifyDockWidget(param_panel_, node_panel_);
+  // Top left - Tabify footage viewer, param panel, and node panel
+  addDockWidget(footage_viewer_panel_, KDDockWidgets::Location_OnTop, nullptr, o);
+  footage_viewer_panel_->addDockWidgetAsTab(param_panel_);
+  footage_viewer_panel_->addDockWidgetAsTab(node_panel_);
   param_panel_->raise();
 
-  curve_panel_->hide();
-  curve_panel_->setFloating(true);
-  addDockWidget(Qt::TopDockWidgetArea, curve_panel_);
+  // Top right - sequence viewer
+  addDockWidget(sequence_viewer_panel_, KDDockWidgets::Location_OnRight, footage_viewer_panel_, o);
 
-  scope_panel_->hide();
-  scope_panel_->setFloating(true);
-  addDockWidget(Qt::TopDockWidgetArea, scope_panel_);
+  // Bottom center - timelines
+  addDockWidget(timeline_panels_.first(), KDDockWidgets::Location_OnBottom);
 
-  multicam_panel_->hide();
-  multicam_panel_->setFloating(true);
-  addDockWidget(Qt::TopDockWidgetArea, multicam_panel_);
+  // Left of timeline - tool panel
+  o.preferredSize = QSize(1, 0);
+  addDockWidget(tool_panel_, KDDockWidgets::Location_OnLeft, timeline_panels_.first(), o);
 
-  sequence_viewer_panel_->show();
-  addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);
+  // Right of timeline - audio monitor
+  addDockWidget(audio_monitor_panel_, KDDockWidgets::Location_OnRight, timeline_panels_.first(), o);
 
-  pixel_sampler_panel_->hide();
-  pixel_sampler_panel_->setFloating(true);
-  addDockWidget(Qt::TopDockWidgetArea, pixel_sampler_panel_);
+  // Bottom left - project panel
+  addDockWidget(project_panel_, KDDockWidgets::Location_OnLeft, tool_panel_);
 
-  project_panel_->show();
-  addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
+  // Hidden panels
+  pixel_sampler_panel_->close();
+  task_man_panel_->close();
+  curve_panel_->close();
+  scope_panel_->close();
+  multicam_panel_->close();
+  for (auto it = folder_panels_.cbegin(); it != folder_panels_.cend(); it++) {
+    (*it)->close();
+  }
+  for (auto it = viewer_panels_.cbegin(); it != viewer_panels_.cend(); it++) {
+    (*it)->close();
+  }
+  for (auto it = timeline_panels_.cbegin(); it != timeline_panels_.cend(); it++) {
+    auto p = *it;
+    if (p != timeline_panels_.first()) {
+      p->addDockWidgetAsTab(p);
+    }
+  }
 
-  tool_panel_->show();
-  addDockWidget(Qt::BottomDockWidgetArea, tool_panel_);
-
-  timeline_panels_.first()->show();
-  addDockWidget(Qt::BottomDockWidgetArea, timeline_panels_.first());
-
-  task_man_panel_->hide();
-  task_man_panel_->setFloating(true);
-  addDockWidget(Qt::BottomDockWidgetArea, task_man_panel_);
-
-  audio_monitor_panel_->show();
-  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel_);
-
-  resizeDocks({param_panel_, sequence_viewer_panel_},
-  {width()/2, width()/2},
-              Qt::Horizontal);
-
-  resizeDocks({project_panel_, tool_panel_, timeline_panels_.first(), audio_monitor_panel_},
-  {width()/4, 1, width(), 1},
-              Qt::Horizontal);
-
-  resizeDocks({node_panel_, project_panel_},
-  {height()/2, height()/2},
-              Qt::Vertical);
+  // Set to unmaximized panels
+  premaximized_state_.clear();
 }
 
 void MainWindow::showEvent(QShowEvent *e)
@@ -889,24 +884,15 @@ void MainWindow::showEvent(QShowEvent *e)
   }
 }
 
-void UpdatePanelName(PanelWidget *panel, int index)
-{
-  QString old_name = panel->objectName();
-  QString new_name = QStringLiteral("%1:%2").arg(old_name.split(':').at(0), QString::number(index));
-  qDebug() << "renaming" << old_name << "to" << new_name;
-  panel->setObjectName(new_name);
-}
-
 template<typename T>
-T *MainWindow::AppendPanelInternal(QList<T*>& list)
+T *MainWindow::AppendPanelInternal(const QString &panel_name, QList<T*>& list)
 {
-  T* panel = new T(this);
+  T* panel = new T(TransformNameForSerialization(panel_name, list.size()));
 
   // For some reason raise() on its own doesn't do anything, we need both
   panel->show();
   panel->raise();
 
-  UpdatePanelName(panel, list.size());
   list.append(panel);
 
   // Let us handle the panel closing rather than the panel itself
@@ -918,14 +904,7 @@ T *MainWindow::AppendPanelInternal(QList<T*>& list)
 template<typename T>
 void MainWindow::RemovePanelInternal(QList<T *> &list, T *panel)
 {
-  int index = list.indexOf(panel);
-
-  if (index != -1) {
-    list.removeAt(index);
-    for (int i = index; i < list.size(); i++) {
-      UpdatePanelName(list.at(i), i);
-    }
-  }
+  list.removeOne(panel);
 }
 
 }

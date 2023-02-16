@@ -33,7 +33,7 @@ class NodePanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  NodePanel(QWidget* parent);
+  NodePanel();
 
   NodeWidget *GetNodeWidget() const
   {

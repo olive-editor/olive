@@ -25,8 +25,8 @@
 
 namespace olive {
 
-ToolPanel::ToolPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("ToolPanel"), parent)
+ToolPanel::ToolPanel() :
+  PanelWidget(QStringLiteral("ToolPanel"))
 {
   Toolbar* t = new Toolbar(this);
 

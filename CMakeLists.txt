@@ -150,7 +150,17 @@ if (${QT_VERSION_MAJOR} EQUAL "6")
   list(APPEND OLIVE_LIBRARIES
     Qt${QT_VERSION_MAJOR}::OpenGLWidgets
   )
+
+  # Link KDDockWidgets
+  find_package(KDDockWidgets-qt6 CONFIG REQUIRED)
+else()
+  # Link KDDockWidgets
+  find_package(KDDockWidgets CONFIG REQUIRED)
 endif()
+
+list(APPEND OLIVE_LIBRARIES
+  KDAB::kddockwidgets
+)
 
 # Link FFmpeg
 find_package(FFMPEG 3.0 REQUIRED

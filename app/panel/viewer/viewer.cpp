@@ -22,11 +22,11 @@
 
 namespace olive {
 
-ViewerPanel::ViewerPanel(const QString &object_name, QWidget *parent) :
-  ViewerPanelBase(object_name, parent)
+ViewerPanel::ViewerPanel(const QString &object_name) :
+  ViewerPanelBase(object_name)
 {
   // Set ViewerWidget as the central widget
-  ViewerWidget* vw = new ViewerWidget();
+  ViewerWidget* vw = new ViewerWidget(this);
   SetViewerWidget(vw);
 
   // Set strings

@@ -262,7 +262,6 @@ private:
   Menu* window_menu_;
   QAction* window_menu_separator_;
   QAction* window_maximize_panel_item_;
-  QAction* window_lock_layout_item_;
   QAction* window_reset_layout_item_;
 
   Menu* tools_menu_;

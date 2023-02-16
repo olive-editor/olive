@@ -34,8 +34,8 @@
 
 namespace olive {
 
-ProjectPanel::ProjectPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("ProjectPanel"), parent)
+ProjectPanel::ProjectPanel(const QString &unique_name) :
+  PanelWidget(unique_name)
 {
   // Create main widget and its layout
   QWidget* central_widget = new QWidget(this);
@@ -83,7 +83,6 @@ void ProjectPanel::set_project(Project* p)
   if (project()) {
     disconnect(project(), &Project::NameChanged, this, &ProjectPanel::UpdateSubtitle);
     disconnect(project(), &Project::NameChanged, this, &ProjectPanel::ProjectNameChanged);
-    disconnect(project(), &Project::ModifiedChanged, this, &ProjectPanel::setWindowModified);
   }
 
   explorer_->set_project(p);
@@ -91,18 +90,11 @@ void ProjectPanel::set_project(Project* p)
   if (project()) {
     connect(project(), &Project::NameChanged, this, &ProjectPanel::UpdateSubtitle);
     connect(project(), &Project::NameChanged, this, &ProjectPanel::ProjectNameChanged);
-    connect(project(), &Project::ModifiedChanged, this, &ProjectPanel::setWindowModified);
   }
 
   UpdateSubtitle();
 
   emit ProjectNameChanged();
-
-  if (p) {
-    setWindowModified(p->is_modified());
-  } else {
-    setWindowModified(false);
-  }
 }
 
 Folder *ProjectPanel::get_root() const
@@ -197,7 +189,7 @@ void ProjectPanel::ShowNewMenu()
 void ProjectPanel::UpdateSubtitle()
 {
   if (project()) {
-    QString project_title = QStringLiteral("[*]%1").arg(project()->name());
+    QString project_title = QStringLiteral("%1").arg(project()->name());
 
     if (explorer_->get_root() != project()->root()) {
       QString folder_path;
