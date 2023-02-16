@@ -264,7 +264,6 @@ jobs:
           cp app/olive-editor.pdb olive-editor
           windeployqt --no-angle olive-editor/olive-crashhandler.exe
           windeployqt --no-angle olive-editor/olive-editor.exe
-          cp $(cygpath $VCPKG_ROOT)/installed/x64-windows/bin/*.dll olive-editor
           cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/*.dll olive-editor
           cp $(cygpath $ORIGINAL_WORKSPACE)/install/crashpad/out/Default/crashpad_handler.exe olive-editor
           cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/minidump_stackwalk.exe olive-editor
