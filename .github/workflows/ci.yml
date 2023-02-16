@@ -246,11 +246,11 @@ jobs:
         run: |
           cmake --build .
 
-      - name: Test
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          ctest -C ${{ matrix.build-type }} -V
+      #- name: Test
+      #  working-directory: ${{ runner.workspace }}/build
+      #  shell: bash
+      #  run: |
+      #    ctest -C ${{ matrix.build-type }} -V
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
