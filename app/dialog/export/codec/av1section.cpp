@@ -39,7 +39,7 @@ AV1Section::AV1Section(int default_crf, QWidget *parent) :
   CodecSection(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
   layout->addWidget(new QLabel(tr("Preset:")), row, 0);
@@ -104,7 +104,7 @@ AV1CRFSection::AV1CRFSection(int default_crf, QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   crf_slider_ = new QSlider(Qt::Horizontal);
   crf_slider_->setMinimum(kMinimumCRF);
