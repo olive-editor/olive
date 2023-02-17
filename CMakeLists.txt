@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2022 Olive Team
+# Copyright (C) 2023 Olive Studios LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -95,12 +95,8 @@ list(APPEND OLIVE_LIBRARIES ${OPENEXR_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
 
 # Link Olive
-find_package(Olive REQUIRED
-  COMPONENTS
-    Core
-)
-list(APPEND OLIVE_LIBRARIES ${LIBOLIVE_LIBRARIES})
-list(APPEND OLIVE_INCLUDE_DIRS ${LIBOLIVE_INCLUDE_DIRS})
+list(APPEND OLIVE_LIBRARIES olivecore)
+list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ext/core/include)
 
 # Link Qt
 set(QT_LIBRARIES
@@ -152,10 +148,10 @@ if (${QT_VERSION_MAJOR} EQUAL "6")
   )
 
   # Link KDDockWidgets
-  find_package(KDDockWidgets-qt6 CONFIG REQUIRED)
+  #find_package(KDDockWidgets-qt6 CONFIG REQUIRED)
 else()
   # Link KDDockWidgets
-  find_package(KDDockWidgets CONFIG REQUIRED)
+  #find_package(KDDockWidgets CONFIG REQUIRED)
 endif()
 
 list(APPEND OLIVE_LIBRARIES
@@ -251,6 +247,7 @@ endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext)
 
+add_subdirectory(ext)
 add_subdirectory(app)
 
 if (BUILD_TESTS)
