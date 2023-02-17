@@ -603,10 +603,15 @@ void MainWindow::FolderPanelCloseRequested()
 
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
+  TimelinePanel *previous = nullptr;
+  if (!timeline_panels_.empty()) {
+    previous = timeline_panels_.last();
+  }
+
   TimelinePanel* panel = AppendPanelInternal(QStringLiteral("TimelinePanel"), timeline_panels_);
 
-  if (timeline_panels_.size() > 1) {
-    timeline_panels_.last()->addDockWidgetAsTab(panel);
+  if (previous) {
+    previous->addDockWidgetAsTab(panel);
   } else {
     panel->SetSignalInsteadOfClose(false);
   }
