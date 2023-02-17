@@ -9,8 +9,9 @@
 
 #include "core.h"
 #include "node/block/block.h"
-#include "node/graph.h"
+#include "node/group/group.h"
 #include "node/output/track/track.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeviewitem.h"
 #include "ui/colorcoding.h"

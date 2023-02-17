@@ -134,7 +134,7 @@ Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, 
   }
   clip->set_length_and_media_out(length);
 
-  NodeGraph* graph = sequence->parent();
+  Project* graph = sequence->parent();
 
   command->add_child(new NodeAddCommand(graph, clip));
   command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));

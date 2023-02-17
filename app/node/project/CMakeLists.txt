@@ -22,9 +22,5 @@ add_subdirectory(serializer)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/project/project.h
-  node/project/project.cpp
-  node/project/projectviewmodel.h
-  node/project/projectviewmodel.cpp
   PARENT_SCOPE
 )

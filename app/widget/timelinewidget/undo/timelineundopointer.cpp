@@ -22,7 +22,7 @@
 
 #include "node/block/gap/gap.h"
 #include "node/block/transition/transition.h"
-#include "node/graph.h"
+#include "node/project.h"
 #include "timelineundocommon.h"
 
 namespace olive {

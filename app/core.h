@@ -28,12 +28,12 @@
 #include <QTranslator>
 
 #include "node/project/footage/footage.h"
-#include "node/project/project.h"
-#include "node/project/projectviewmodel.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "task/task.h"
 #include "tool/tool.h"
 #include "undo/undostack.h"
+#include "widget/projectexplorer/projectviewmodel.h"
 
 namespace olive {
 

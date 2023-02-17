@@ -28,7 +28,7 @@
 #include "audio/audioprocessor.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "rendermanager.h"
 
 namespace olive {

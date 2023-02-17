@@ -20,7 +20,7 @@
 
 #include "group.h"
 
-#include "node/graph.h"
+#include "node/project.h"
 
 namespace olive {
 

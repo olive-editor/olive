@@ -56,7 +56,7 @@ namespace olive {
 #define NODE_COPY_FUNCTION(x) \
   virtual Node *copy() const override {return new x();}
 
-class NodeGraph;
+class Project;
 class Folder;
 
 /**
@@ -123,7 +123,7 @@ public:
   /**
    * @brief Convenience function - assumes parent is a NodeGraph
    */
-  NodeGraph* parent() const;
+  Project *parent() const;
 
   Project* project() const;
 
@@ -1275,9 +1275,9 @@ signals:
 
   void InputDataTypeChanged(const QString& id, NodeValue::Type type);
 
-  void AddedToGraph(NodeGraph* graph);
+  void AddedToGraph(Project* graph);
 
-  void RemovedFromGraph(NodeGraph* graph);
+  void RemovedFromGraph(Project* graph);
 
   void NodeAddedToContext(Node *node);
 

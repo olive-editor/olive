@@ -84,7 +84,7 @@ Project *NodeEdgeRemoveCommand::GetRelevantProject() const
   return output_->project();
 }
 
-NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node) :
+NodeAddCommand::NodeAddCommand(Project *graph, Node *node) :
   graph_(graph),
   node_(node)
 {

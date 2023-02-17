@@ -157,7 +157,7 @@ void NodeParamViewContext::AddEffectMenuItemTriggered(QAction *a)
     NodeInput new_node_input = n->GetEffectInput();
     MultiUndoCommand *command = new MultiUndoCommand();
 
-    QVector<NodeGraph*> graphs_added_to;
+    QVector<Project*> graphs_added_to;
 
     foreach (Node *ctx, contexts_) {
       NodeInput ctx_input = ctx->GetEffectInput();

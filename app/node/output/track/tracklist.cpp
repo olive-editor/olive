@@ -142,7 +142,7 @@ void TrackList::UpdateTrackIndexesFrom(int index)
   }
 }
 
-NodeGraph *TrackList::GetParentGraph() const
+Project *TrackList::GetParentGraph() const
 {
   return parent()->parent();
 }

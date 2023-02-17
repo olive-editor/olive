@@ -724,7 +724,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
       gap->set_length_and_media_out(GetConnectedNode()->GetWorkArea()->length());
 
-      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
+      command->add_child(new NodeAddCommand(static_cast<Project*>(track->parent()),
                                             gap));
 
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),

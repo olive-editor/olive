@@ -26,6 +26,7 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "dialog/speedduration/speeddurationdialog.h"
+#include "node/group/group.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeparamviewundo.h"
 

@@ -21,9 +21,8 @@
 #ifndef NODEVIEWUNDO_H
 #define NODEVIEWUNDO_H
 
-#include "node/graph.h"
 #include "node/node.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -76,7 +75,7 @@ private:
 
 class NodeAddCommand : public UndoCommand {
 public:
-  NodeAddCommand(NodeGraph* graph, Node* node);
+  NodeAddCommand(Project* graph, Node* node);
 
   void PushToThread(QThread* thread);
 
@@ -89,7 +88,7 @@ protected:
 private:
   QObject memory_manager_;
 
-  NodeGraph* graph_;
+  Project* graph_;
   Node* node_;
 };
 
@@ -109,7 +108,7 @@ public:
 
   virtual Project* GetRelevantProject() const override
   {
-    return dynamic_cast<Project*>(graph_);
+    return graph_;
   }
 
 protected:
@@ -135,7 +134,7 @@ private:
   QObject memory_manager_;
 
   Node* node_;
-  NodeGraph* graph_;
+  Project* graph_;
 
   MultiUndoCommand* command_;
 
@@ -372,7 +371,7 @@ private:
     Node *node;
     Node *context;
     QPointF pos;
-    NodeGraph *removed_from_graph;
+    Project *removed_from_graph;
   };
 
   QVector<RemovedNode> removed_nodes_;

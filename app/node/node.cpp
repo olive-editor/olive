@@ -28,7 +28,8 @@
 #include "common/lerp.h"
 #include "core.h"
 #include "config/config.h"
-#include "project/project.h"
+#include "node/group/group.h"
+#include "project.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
@@ -76,9 +77,9 @@ Node::~Node()
   }
 }
 
-NodeGraph *Node::parent() const
+Project *Node::parent() const
 {
-  return static_cast<NodeGraph*>(QObject::parent());
+  return static_cast<Project*>(QObject::parent());
 }
 
 Project *Node::project() const
@@ -982,7 +983,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, MultiUnd
     Node::CopyInputs(nodes.at(i), c, false);
 
     // Add to graph
-    NodeGraph* graph = static_cast<NodeGraph*>(nodes.at(i)->parent());
+    Project* graph = nodes.at(i)->parent();
     if (command) {
       command->add_child(new NodeAddCommand(graph, c));
     } else {
@@ -1113,7 +1114,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
   } else {
     copy = node->copy();
 
-    command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()), copy));
+    command->add_child(new NodeAddCommand(node->parent(), copy));
 
     CopyInputs(node, copy, true, command);
 
@@ -2010,7 +2011,7 @@ void NodeRemovePositionFromContextCommand::undo()
 
 void NodeRemovePositionFromAllContextsCommand::redo()
 {
-  NodeGraph *graph = node_->parent();
+  Project *graph = node_->parent();
 
   foreach (Node* context, graph->nodes()) {
     if (context->ContextContainsNode(node_)) {

@@ -37,7 +37,7 @@
 #include "core.h"
 #include "node/block/gap/gap.h"
 #include "node/generator/shape/shapenodebase.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "panel/multicam/multicampanel.h"
 #include "panel/panelmanager.h"
 #include "render/rendermanager.h"

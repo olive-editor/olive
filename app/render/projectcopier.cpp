@@ -20,6 +20,8 @@
 
 #include "projectcopier.h"
 
+#include "node/group/group.h"
+
 namespace olive {
 
 ProjectCopier::ProjectCopier(QObject *parent) :
@@ -39,12 +41,12 @@ void ProjectCopier::SetProject(Project *project)
     copy_map_.clear();
     graph_update_queue_.clear();
 
-    disconnect(original_, &NodeGraph::NodeAdded, this, &ProjectCopier::QueueNodeAdd);
-    disconnect(original_, &NodeGraph::NodeRemoved, this, &ProjectCopier::QueueNodeRemove);
-    disconnect(original_, &NodeGraph::InputConnected, this, &ProjectCopier::QueueEdgeAdd);
-    disconnect(original_, &NodeGraph::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove);
-    disconnect(original_, &NodeGraph::ValueChanged, this, &ProjectCopier::QueueValueChange);
-    disconnect(original_, &NodeGraph::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange);
+    disconnect(original_, &Project::NodeAdded, this, &ProjectCopier::QueueNodeAdd);
+    disconnect(original_, &Project::NodeRemoved, this, &ProjectCopier::QueueNodeRemove);
+    disconnect(original_, &Project::InputConnected, this, &ProjectCopier::QueueEdgeAdd);
+    disconnect(original_, &Project::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove);
+    disconnect(original_, &Project::ValueChanged, this, &ProjectCopier::QueueValueChange);
+    disconnect(original_, &Project::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange);
   }
 
   original_ = project;
@@ -71,12 +73,12 @@ void ProjectCopier::SetProject(Project *project)
     UpdateLastSyncedValue();
 
     // Connect signals for future node additions/deletions
-    connect(original_, &NodeGraph::NodeAdded, this, &ProjectCopier::QueueNodeAdd, Qt::DirectConnection);
-    connect(original_, &NodeGraph::NodeRemoved, this, &ProjectCopier::QueueNodeRemove, Qt::DirectConnection);
-    connect(original_, &NodeGraph::InputConnected, this, &ProjectCopier::QueueEdgeAdd, Qt::DirectConnection);
-    connect(original_, &NodeGraph::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove, Qt::DirectConnection);
-    connect(original_, &NodeGraph::ValueChanged, this, &ProjectCopier::QueueValueChange, Qt::DirectConnection);
-    connect(original_, &NodeGraph::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange, Qt::DirectConnection);
+    connect(original_, &Project::NodeAdded, this, &ProjectCopier::QueueNodeAdd, Qt::DirectConnection);
+    connect(original_, &Project::NodeRemoved, this, &ProjectCopier::QueueNodeRemove, Qt::DirectConnection);
+    connect(original_, &Project::InputConnected, this, &ProjectCopier::QueueEdgeAdd, Qt::DirectConnection);
+    connect(original_, &Project::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove, Qt::DirectConnection);
+    connect(original_, &Project::ValueChanged, this, &ProjectCopier::QueueValueChange, Qt::DirectConnection);
+    connect(original_, &Project::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange, Qt::DirectConnection);
   }
 }
 

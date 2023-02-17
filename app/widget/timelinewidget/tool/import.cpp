@@ -302,7 +302,7 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
     command->add_child(c);
   }
 
-  NodeGraph* dst_graph = nullptr;
+  Project* dst_graph = nullptr;
   Sequence* sequence = this->sequence();
   bool open_sequence = false;
 

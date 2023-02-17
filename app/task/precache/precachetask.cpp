@@ -20,7 +20,7 @@
 
 #include "precachetask.h"
 
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 

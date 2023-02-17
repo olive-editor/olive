@@ -110,7 +110,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
       MultiUndoCommand* command = new MultiUndoCommand();
 
       // Place transition in place
-      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
+      command->add_child(new NodeAddCommand(parent()->GetConnectedNode()->parent(),
                                             transition));
 
       command->add_child(new NodeSetPositionCommand(transition, transition, QPointF(0, 0)));

@@ -23,9 +23,9 @@
 
 #include <QAbstractItemModel>
 
-#include "project.h"
-#include "undo/undocommand.h"
 #include "node/block/block.h"
+#include "node/project.h"
+#include "undo/undocommand.h"
 
 namespace olive {
 

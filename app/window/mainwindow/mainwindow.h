@@ -25,7 +25,7 @@
 #include <kddockwidgets/MainWindow.h>
 
 #include "mainwindowlayoutinfo.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "panel/multicam/multicampanel.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"

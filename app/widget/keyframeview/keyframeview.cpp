@@ -27,6 +27,7 @@
 #include "common/qtutils.h"
 #include "dialog/keyframeproperties/keyframeproperties.h"
 #include "keyframeviewundo.h"
+#include "node/group/group.h"
 #include "node/node.h"
 #include "node/project/serializer/serializer.h"
 #include "widget/menu/menu.h"

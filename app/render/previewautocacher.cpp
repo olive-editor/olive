@@ -26,7 +26,7 @@
 #include "codec/conformmanager.h"
 #include "node/input/multicam/multicamnode.h"
 #include "node/inputdragger.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "render/diskmanager.h"
 #include "render/rendermanager.h"
 

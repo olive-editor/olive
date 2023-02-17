@@ -24,7 +24,7 @@
 #include <vector>
 
 #include "common/define.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "typeserializer.h"
 
 namespace olive {
