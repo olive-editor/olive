@@ -29,7 +29,7 @@ void RenderJobTracker::insert(const TimeRange &range, JobTime job_time)
 
   // Now append the job
   TimeRangeWithJob job(range, job_time);
-  jobs_.append(job);
+  jobs_.push_back(job);
 }
 
 void RenderJobTracker::insert(const TimeRangeList &ranges, JobTime job_time)

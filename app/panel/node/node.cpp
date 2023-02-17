@@ -22,11 +22,11 @@
 
 namespace olive {
 
-NodePanel::NodePanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("NodePanel"), parent)
+NodePanel::NodePanel() :
+  PanelWidget(QStringLiteral("NodePanel"))
 {
-  node_widget_ = new NodeWidget();
-  connect(this, &NodePanel::visibilityChanged, node_widget_->view(), &NodeView::CenterOnItemsBoundingRect);
+  node_widget_ = new NodeWidget(this);
+  connect(this, &NodePanel::shown, node_widget_->view(), &NodeView::CenterOnItemsBoundingRect);
 
   connect(node_widget_->view(), &NodeView::NodesSelected, this, &NodePanel::NodesSelected);
   connect(node_widget_->view(), &NodeView::NodesDeselected, this, &NodePanel::NodesDeselected);

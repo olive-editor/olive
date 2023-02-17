@@ -179,9 +179,9 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
   } else if (gizmo == rotation_gizmo_) {
 
     gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().nonsquare_resolution()/2).toPointF();
-    gizmo_start_angle_ = qAtan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
+    gizmo_start_angle_ = std::atan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
     gizmo_last_angle_ = gizmo_start_angle_;
-    gizmo_last_alt_angle_ = qAtan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
+    gizmo_last_alt_angle_ = std::atan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
     gizmo_rotate_wrap_ = 0;
     gizmo_rotate_last_dir_ = kDirectionNone;
 
@@ -216,8 +216,8 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
 
   } else if (gizmo == rotation_gizmo_) {
 
-    double raw_angle = qAtan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
-    double alt_angle = qAtan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
+    double raw_angle = std::atan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
+    double alt_angle = std::atan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
 
     double current_angle = raw_angle;
 

@@ -117,7 +117,7 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
     TexturePtr base = value[kTextInput].toTexture();
 
     VideoParams text_params = base ? base->params() : globals.vparams();
-    text_params.set_format(VideoParams::kFormatUnsigned8);
+    text_params.set_format(PixelFormat::U8);
     text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
     GenerateJob job(value);

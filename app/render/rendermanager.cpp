@@ -60,6 +60,8 @@ RenderManager::RenderManager(QObject *parent) :
     for (size_t i=0; i<waveform_threads_.size(); i++) {
       waveform_threads_[i] = CreateThread();
     }
+
+    auto_cacher_ = new PreviewAutoCacher(this);
   }
 
   decoder_clear_timer_ = new QTimer(this);
@@ -101,7 +103,7 @@ RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
   ticket->setProperty("time", QVariant::fromValue(params.time));
   ticket->setProperty("size", params.force_size);
   ticket->setProperty("matrix", params.force_matrix);
-  ticket->setProperty("format", params.force_format);
+  ticket->setProperty("format", static_cast<PixelFormat::Format>(params.force_format));
   ticket->setProperty("usecache", params.use_cache);
   ticket->setProperty("channelcount", params.force_channel_count);
   ticket->setProperty("mode", params.mode);

@@ -73,6 +73,8 @@ private:
 
   rational audio_time_;
 
+  TimeRange export_range_;
+
 };
 
 }

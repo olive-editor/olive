@@ -23,7 +23,6 @@
 
 #include <QDragLeaveEvent>
 
-#include "common/rational.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/view/timelineviewghostitem.h"
 #include "widget/timelinewidget/view/timelineviewmouseevent.h"

@@ -198,9 +198,9 @@ void PlaybackControls::SetEndTime(const rational &r)
 
   end_time_ = r;
 
-  end_tc_lbl_->setText(Timecode::time_to_timecode(end_time_,
-                                                  time_base_,
-                                                  Core::instance()->GetTimecodeDisplay()));
+  end_tc_lbl_->setText(QString::fromStdString(Timecode::time_to_timecode(end_time_,
+                                                                         time_base_,
+                                                                         Core::instance()->GetTimecodeDisplay())));
 }
 
 void PlaybackControls::ShowPauseButton()

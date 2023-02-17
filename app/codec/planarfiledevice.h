@@ -21,10 +21,13 @@
 #ifndef PLANARFILEDEVICE_H
 #define PLANARFILEDEVICE_H
 
+#include <olive/core/core.h>
 #include <QFile>
 #include <QObject>
 
 namespace olive {
+
+using namespace core;
 
 class PlanarFileDevice : public QObject
 {

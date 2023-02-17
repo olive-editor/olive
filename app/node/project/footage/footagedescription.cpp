@@ -25,6 +25,7 @@
 #include <QXmlStreamWriter>
 
 #include "common/xmlutils.h"
+#include "node/project/serializer/typeserializer.h"
 
 namespace olive {
 
@@ -74,8 +75,7 @@ bool FootageDescription::Load(const QString &filename)
                 vp.Load(&reader);
                 AddVideoStream(vp);
               } else if (reader.name() == QStringLiteral("audio")) {
-                AudioParams ap;
-                ap.Load(&reader);
+                AudioParams ap = TypeSerializer::LoadAudioParams(&reader);
                 AddAudioStream(ap);
               } else if (reader.name() == QStringLiteral("subtitle")) {
                 SubtitleParams sp;
@@ -136,7 +136,7 @@ bool FootageDescription::Save(const QString &filename) const
 
   foreach (const AudioParams& ap, audio_streams_) {
     writer.writeStartElement(QStringLiteral("audio"));
-    ap.Save(&writer);
+    TypeSerializer::SaveAudioParams(&writer, ap);
     writer.writeEndElement(); // audio
   }
 

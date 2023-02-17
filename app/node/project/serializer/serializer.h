@@ -21,10 +21,11 @@
 #ifndef PROJECTSERIALIZER_H
 #define PROJECTSERIALIZER_H
 
-#include <QIODevice>
+#include <vector>
 
 #include "common/define.h"
 #include "node/project/project.h"
+#include "typeserializer.h"
 
 namespace olive {
 
@@ -160,7 +161,7 @@ public:
   static Result Load(Project *project, QXmlStreamReader *read_device, const QString &type);
   static Result Paste(const QString &type);
 
-  static Result Save(const SaveData &data, const QString &type);
+  static Result Save(const SaveData &data, const QString &type, bool compress);
   static Result Save(QXmlStreamWriter *write_device, const SaveData &data, const QString &type);
   static Result Copy(const SaveData &data, const QString &type);
 

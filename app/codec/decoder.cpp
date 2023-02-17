@@ -22,13 +22,13 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QHash>
 
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/planarfiledevice.h"
 #include "codec/oiio/oiiodecoder.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
-#include "common/timecodefunctions.h"
 #include "conformmanager.h"
 #include "node/project/project.h"
 #include "task/taskmanager.h"
@@ -346,7 +346,7 @@ void Decoder::UpdateLastAccessed()
 
 uint qHash(Decoder::CodecStream stream, uint seed)
 {
-  return qHash(stream.filename(), seed) ^ qHash(stream.stream(), seed) ^ qHash(stream.block(), seed);
+  return qHash(stream.filename(), seed) ^ ::qHash(stream.stream(), seed) ^ qHash(stream.block(), seed);
 }
 
 }

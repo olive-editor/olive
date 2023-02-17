@@ -22,13 +22,13 @@
 
 namespace olive {
 
-AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, VideoParams::Format maximum)
+AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, PixelFormat maximum)
 {
   AVPixelFormat possible_pix_fmts[3];
 
   possible_pix_fmts[0] = AV_PIX_FMT_RGBA;
 
-  if (maximum == VideoParams::kFormatUnsigned8) {
+  if (maximum == PixelFormat::U8) {
     possible_pix_fmts[1] = AV_PIX_FMT_NONE;
   } else {
     possible_pix_fmts[1] = AV_PIX_FMT_RGBA64;
@@ -41,70 +41,70 @@ AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt
                                            nullptr);
 }
 
-AudioParams::Format FFmpegUtils::GetNativeSampleFormat(const AVSampleFormat &smp_fmt)
+SampleFormat FFmpegUtils::GetNativeSampleFormat(const AVSampleFormat &smp_fmt)
 {
   switch (smp_fmt) {
   case AV_SAMPLE_FMT_U8:
-    return AudioParams::kFormatUnsigned8Packed;
+    return SampleFormat::U8;
   case AV_SAMPLE_FMT_S16:
-    return AudioParams::kFormatSigned16Packed;
+    return SampleFormat::S16;
   case AV_SAMPLE_FMT_S32:
-    return AudioParams::kFormatSigned32Packed;
+    return SampleFormat::S32;
   case AV_SAMPLE_FMT_S64:
-    return AudioParams::kFormatSigned64Packed;
+    return SampleFormat::S64;
   case AV_SAMPLE_FMT_FLT:
-    return AudioParams::kFormatFloat32Packed;
+    return SampleFormat::F32;
   case AV_SAMPLE_FMT_DBL:
-    return AudioParams::kFormatFloat64Packed;
+    return SampleFormat::F64;
   case AV_SAMPLE_FMT_U8P :
-    return AudioParams::kFormatUnsigned8Planar;
+    return SampleFormat::U8P;
   case AV_SAMPLE_FMT_S16P:
-    return AudioParams::kFormatSigned16Planar;
+    return SampleFormat::S16P;
   case AV_SAMPLE_FMT_S32P:
-    return AudioParams::kFormatSigned32Planar;
+    return SampleFormat::S32P;
   case AV_SAMPLE_FMT_S64P:
-    return AudioParams::kFormatSigned64Planar;
+    return SampleFormat::S64P;
   case AV_SAMPLE_FMT_FLTP:
-    return AudioParams::kFormatFloat32Planar;
+    return SampleFormat::F32P;
   case AV_SAMPLE_FMT_DBLP:
-    return AudioParams::kFormatFloat64Planar;
+    return SampleFormat::F64P;
   case AV_SAMPLE_FMT_NONE:
   case AV_SAMPLE_FMT_NB:
     break;
   }
 
-  return AudioParams::kFormatInvalid;
+  return SampleFormat::INVALID;
 }
 
-AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const AudioParams::Format &smp_fmt)
+AVSampleFormat FFmpegUtils::GetFFmpegSampleFormat(const SampleFormat &smp_fmt)
 {
   switch (smp_fmt) {
-  case AudioParams::kFormatUnsigned8Packed:
+  case SampleFormat::U8:
     return AV_SAMPLE_FMT_U8;
-  case AudioParams::kFormatSigned16Packed:
+  case SampleFormat::S16:
     return AV_SAMPLE_FMT_S16;
-  case AudioParams::kFormatSigned32Packed:
+  case SampleFormat::S32:
     return AV_SAMPLE_FMT_S32;
-  case AudioParams::kFormatSigned64Packed:
+  case SampleFormat::S64:
     return AV_SAMPLE_FMT_S64;
-  case AudioParams::kFormatFloat32Packed:
+  case SampleFormat::F32:
     return AV_SAMPLE_FMT_FLT;
-  case AudioParams::kFormatFloat64Packed:
+  case SampleFormat::F64:
     return AV_SAMPLE_FMT_DBL;
-  case AudioParams::kFormatUnsigned8Planar:
+  case SampleFormat::U8P:
     return AV_SAMPLE_FMT_U8P;
-  case AudioParams::kFormatSigned16Planar:
+  case SampleFormat::S16P:
     return AV_SAMPLE_FMT_S16P;
-  case AudioParams::kFormatSigned32Planar:
+  case SampleFormat::S32P:
     return AV_SAMPLE_FMT_S32P;
-  case AudioParams::kFormatSigned64Planar:
+  case SampleFormat::S64P:
     return AV_SAMPLE_FMT_S64P;
-  case AudioParams::kFormatFloat32Planar:
+  case SampleFormat::F32P:
     return AV_SAMPLE_FMT_FLTP;
-  case AudioParams::kFormatFloat64Planar:
+  case SampleFormat::F64P:
     return AV_SAMPLE_FMT_DBLP;
-  case AudioParams::kFormatInvalid:
-  case AudioParams::kFormatCount:
+  case SampleFormat::INVALID:
+  case SampleFormat::COUNT:
     break;
   }
 
@@ -148,30 +148,30 @@ AVPixelFormat FFmpegUtils::ConvertJPEGSpaceToRegularSpace(AVPixelFormat f)
   return f;
 }
 
-AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const VideoParams::Format &pix_fmt, int channel_layout)
+AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const PixelFormat &pix_fmt, int channel_layout)
 {
   if (channel_layout == VideoParams::kRGBChannelCount) {
     switch (pix_fmt) {
-    case VideoParams::kFormatUnsigned8:
+    case PixelFormat::U8:
       return AV_PIX_FMT_RGB24;
-    case VideoParams::kFormatUnsigned16:
+    case PixelFormat::U16:
       return AV_PIX_FMT_RGB48;
-    case VideoParams::kFormatFloat16:
-    case VideoParams::kFormatFloat32:
-    case VideoParams::kFormatInvalid:
-    case VideoParams::kFormatCount:
+    case PixelFormat::F16:
+    case PixelFormat::F32:
+    case PixelFormat::INVALID:
+    case PixelFormat::COUNT:
       break;
     }
   } else if (channel_layout == VideoParams::kRGBAChannelCount) {
     switch (pix_fmt) {
-    case VideoParams::kFormatUnsigned8:
+    case PixelFormat::U8:
       return AV_PIX_FMT_RGBA;
-    case VideoParams::kFormatUnsigned16:
+    case PixelFormat::U16:
       return AV_PIX_FMT_RGBA64;
-    case VideoParams::kFormatFloat16:
-    case VideoParams::kFormatFloat32:
-    case VideoParams::kFormatInvalid:
-    case VideoParams::kFormatCount:
+    case PixelFormat::F16:
+    case PixelFormat::F32:
+    case PixelFormat::INVALID:
+    case PixelFormat::COUNT:
       break;
     }
   }
@@ -179,21 +179,21 @@ AVPixelFormat FFmpegUtils::GetFFmpegPixelFormat(const VideoParams::Format &pix_f
   return AV_PIX_FMT_NONE;
 }
 
-VideoParams::Format FFmpegUtils::GetCompatiblePixelFormat(const VideoParams::Format &pix_fmt)
+PixelFormat FFmpegUtils::GetCompatiblePixelFormat(const PixelFormat &pix_fmt)
 {
   switch (pix_fmt) {
-  case VideoParams::kFormatUnsigned8:
-    return VideoParams::kFormatUnsigned8;
-  case VideoParams::kFormatUnsigned16:
-  case VideoParams::kFormatFloat16:
-  case VideoParams::kFormatFloat32:
-    return VideoParams::kFormatUnsigned16;
-  case VideoParams::kFormatInvalid:
-  case VideoParams::kFormatCount:
+  case PixelFormat::U8:
+    return PixelFormat::U8;
+  case PixelFormat::U16:
+  case PixelFormat::F16:
+  case PixelFormat::F32:
+    return PixelFormat::U16;
+  case PixelFormat::INVALID:
+  case PixelFormat::COUNT:
     break;
   }
 
-  return VideoParams::kFormatInvalid;
+  return PixelFormat::INVALID;
 }
 
 }

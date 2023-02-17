@@ -24,7 +24,6 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "common/timerange.h"
 #include "seekablewidget.h"
 #include "render/playbackcache.h"
 

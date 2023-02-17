@@ -25,8 +25,6 @@
 #include <QPointF>
 #include <QVariant>
 
-#include "common/rational.h"
-#include "common/timerange.h"
 #include "node/param.h"
 
 namespace olive {

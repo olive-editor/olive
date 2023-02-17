@@ -42,7 +42,6 @@ extern "C" {
 #include "codec/planarfiledevice.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
-#include "common/timecodefunctions.h"
 #include "render/renderer.h"
 #include "render/subtitleparams.h"
 
@@ -79,7 +78,7 @@ TexturePtr FFmpegDecoder::ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVi
 {
   // Determine native format
   AVPixelFormat ideal_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(f->format));
-  VideoParams::Format native_fmt = GetNativePixelFormat(ideal_fmt);
+  PixelFormat native_fmt = GetNativePixelFormat(ideal_fmt);
   int native_channels = GetNativeChannelCount(ideal_fmt);
 
   // Set up video params
@@ -474,7 +473,7 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
           stream.set_stream_index(i);
           stream.set_channel_layout(channel_layout);
           stream.set_sample_rate(avstream->codecpar->sample_rate);
-          stream.set_format(AudioParams::kInternalFormat);
+          stream.set_format(FFmpegUtils::GetNativeSampleFormat(static_cast<AVSampleFormat>(avstream->codecpar->format)));
           stream.set_time_base(avstream->time_base);
           stream.set_duration(avstream->duration);
           desc.AddAudioStream(stream);
@@ -740,17 +739,17 @@ Decoder::RetrieveAudioStatus FFmpegDecoder::RetrieveAudioInternal(SampleBuffer &
   return kOK;
 }
 
-VideoParams::Format FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
+PixelFormat FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
 {
   switch (pix_fmt) {
   case AV_PIX_FMT_RGB24:
   case AV_PIX_FMT_RGBA:
-    return VideoParams::kFormatUnsigned8;
+    return PixelFormat::U8;
   case AV_PIX_FMT_RGB48:
   case AV_PIX_FMT_RGBA64:
-    return VideoParams::kFormatUnsigned16;
+    return PixelFormat::U16;
   default:
-    return VideoParams::kFormatInvalid;
+    return PixelFormat::INVALID;
   }
 }
 

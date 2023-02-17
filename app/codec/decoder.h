@@ -31,11 +31,10 @@ extern "C" {
 #include <QWaitCondition>
 #include <stdint.h>
 
-#include "codec/samplebuffer.h"
-#include "common/rational.h"
 #include "node/block/block.h"
 #include "node/project/footage/footagedescription.h"
 #include "render/cancelatom.h"
+#include "render/rendermodes.h"
 
 namespace olive {
 
@@ -160,7 +159,7 @@ public:
     Renderer *renderer = nullptr;
     rational time;
     int divider = 1;
-    VideoParams::Format maximum_format = VideoParams::kFormatInvalid;
+    PixelFormat maximum_format = PixelFormat::INVALID;
     CancelAtom *cancelled = nullptr;
     VideoParams::ColorRange force_range = VideoParams::kColorRangeDefault;
     VideoParams::Interlacing src_interlacing = VideoParams::kInterlaceNone;

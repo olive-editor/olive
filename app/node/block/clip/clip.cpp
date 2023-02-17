@@ -22,6 +22,7 @@
 
 #include "config/config.h"
 #include "node/block/transition/transition.h"
+#include "node/project/sequence/sequence.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/slider/floatslider.h"
@@ -233,7 +234,7 @@ void ClipBlock::RequestRangeFromConnected(const TimeRange &range)
         {
           TimeRange thumb_range = range.Intersected(max_range);
           if (GetAdjustedThumbnailRange(&thumb_range)) {
-            connected->thumbnail_cache()->Request(thumb_range);
+            connected->thumbnail_cache()->Request(this->track()->sequence(), thumb_range);
           }
         }
 
@@ -297,7 +298,7 @@ void ClipBlock::RequestRangeForCache(PlaybackCache *cache, const TimeRange &max_
   }
 
   if (request) {
-    cache->Request(r);
+    cache->Request(this->track()->sequence(), r);
   }
 }
 

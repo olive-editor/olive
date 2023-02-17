@@ -140,7 +140,8 @@ private:
 
   void FreeResampler();
 
-  static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+  static PixelFormat GetNativePixelFormat(AVPixelFormat pix_fmt);
+
   static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
   static uint64_t ValidateChannelLayout(AVStream *stream);

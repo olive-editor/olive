@@ -193,6 +193,9 @@ QWidget *ExportVideoTab::SetupCodecSection()
   h265_section_ = new H265Section();
   codec_stack_->addWidget(h265_section_);
 
+  av1_section_ = new AV1Section();
+  codec_stack_->addWidget(av1_section_);
+
   cineform_section_ = new CineformSection();
   codec_stack_->addWidget(cineform_section_);
 
@@ -252,6 +255,9 @@ void ExportVideoTab::VideoCodecChanged()
       break;
     case ExportCodec::kCodecH265:
       SetCodecSection(h265_section_);
+      break;
+    case ExportCodec::kCodecAV1:
+      SetCodecSection(av1_section_);
       break;
     case ExportCodec::kCodecCineform:
       SetCodecSection(cineform_section_);

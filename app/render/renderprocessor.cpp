@@ -70,8 +70,8 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
     frame_params.set_height(frame_size.height());
   }
 
-  VideoParams::Format frame_format = static_cast<VideoParams::Format>(ticket_->property("format").toInt());
-  if (frame_format != VideoParams::kFormatInvalid) {
+  PixelFormat frame_format = static_cast<PixelFormat::Format>(ticket_->property("format").toInt());
+  if (frame_format != PixelFormat::INVALID) {
     frame_params.set_format(frame_format);
   }
 

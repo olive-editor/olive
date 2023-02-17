@@ -25,6 +25,8 @@ extern "C" {
 #include <libavfilter/buffersink.h>
 }
 
+#include <QDebug>
+
 #include "common/ffmpegutils.h"
 
 namespace olive {
@@ -88,13 +90,13 @@ bool AudioProcessor::Open(const AudioParams &from, const AudioParams &to, double
     double speed_log = log(tempo) / log(base);
 
     // This is the number of how many 0.5 or 2.0 tempos we need to daisychain
-    int whole = qFloor(speed_log);
+    int whole = std::floor(speed_log);
 
     // Set speed_log to the remainder
     speed_log -= whole;
 
     for (int i=0;i<=whole;i++) {
-      double filter_tempo = (i == whole) ? qPow(base, speed_log) : base;
+      double filter_tempo = (i == whole) ? std::pow(base, speed_log) : base;
 
       if (qFuzzyCompare(filter_tempo, 1.0)) {
         // This filter would do nothing
@@ -115,7 +117,7 @@ bool AudioProcessor::Open(const AudioParams &from, const AudioParams &to, double
 
   // Create conversion filter
   if (from.sample_rate() != to.sample_rate() || from.channel_layout() != to.channel_layout() || from.format() != to.format()
-      || (to.FormatIsPlanar() && create_tempo)) { // Tempo processor automatically converts to packed,
+      || (to.format().is_planar() && create_tempo)) { // Tempo processor automatically converts to packed,
                                                   // so if the desired output is planar, it'll need
                                                   // to be converted
     snprintf(filter_args, 200, "sample_fmts=%s:sample_rates=%d:channel_layouts=0x%" PRIx64,
@@ -236,7 +238,7 @@ int AudioProcessor::Convert(float **in, int nb_in_samples, AudioProcessor::Buffe
   if (output) {
     int nb_channels = to_.channel_count();
 
-    if (to_.FormatIsPacked()) {
+    if (to_.format().is_packed()) {
       nb_channels = 1;
     }
 
@@ -259,7 +261,7 @@ int AudioProcessor::Convert(float **in, int nb_in_samples, AudioProcessor::Buffe
       }
 
       int nb_bytes = out_frame_->nb_samples * to_.bytes_per_sample_per_channel();
-      if (to_.FormatIsPacked()) {
+      if (to_.format().is_packed()) {
         nb_bytes *= to_.channel_count();
       }
 

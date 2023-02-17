@@ -774,8 +774,7 @@ void ProjectSerializer220403::LoadImmediate(QXmlStreamReader *reader, Node *node
             vp.Load(reader);
             value_on_track = QVariant::fromValue(vp);
           } else if (data_type == NodeValue::kAudioParams) {
-            AudioParams ap;
-            ap.Load(reader);
+            AudioParams ap = TypeSerializer::LoadAudioParams(reader);
             value_on_track = QVariant::fromValue(ap);
           } else {
             QString value_text = reader->readElementText();
@@ -857,7 +856,7 @@ void ProjectSerializer220403::SaveImmediate(QXmlStreamWriter *writer, Node *node
     if (data_type == NodeValue::kVideoParams) {
       v.value<VideoParams>().Save(writer);
     } else if (data_type == NodeValue::kAudioParams) {
-      v.value<AudioParams>().Save(writer);
+      TypeSerializer::SaveAudioParams(writer, v.value<AudioParams>());
     } else {
       writer->writeCharacters(NodeValue::ValueToString(data_type, v, true));
     }
@@ -909,7 +908,7 @@ void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyfram
     if (attr.name() == QStringLiteral("input")) {
       key_input = attr.value().toString();
     } else if (attr.name() == QStringLiteral("time")) {
-      key->set_time(rational::fromString(attr.value().toString()));
+      key->set_time(rational::fromString(attr.value().toString().toStdString()));
     } else if (attr.name() == QStringLiteral("type")) {
       key->set_type_no_bezier_adj(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
     } else if (attr.name() == QStringLiteral("inhandlex")) {
@@ -932,7 +931,7 @@ void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyfram
 void ProjectSerializer220403::SaveKeyframe(QXmlStreamWriter *writer, NodeKeyframe *key, NodeValue::Type data_type) const
 {
   writer->writeAttribute(QStringLiteral("input"), key->input());
-  writer->writeAttribute(QStringLiteral("time"), key->time().toString());
+  writer->writeAttribute(QStringLiteral("time"), QString::fromStdString(key->time().toString()));
   writer->writeAttribute(QStringLiteral("type"), QString::number(key->type()));
   writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(key->bezier_control_in().x()));
   writer->writeAttribute(QStringLiteral("inhandley"), QString::number(key->bezier_control_in().y()));
@@ -1214,9 +1213,9 @@ void ProjectSerializer220403::LoadMarker(QXmlStreamReader *reader, TimelineMarke
     if (attr.name() == QStringLiteral("name")) {
       marker->set_name(attr.value().toString());
     } else if (attr.name() == QStringLiteral("in")) {
-      in = rational::fromString(attr.value().toString());
+      in = rational::fromString(attr.value().toString().toStdString());
     } else if (attr.name() == QStringLiteral("out")) {
-      out = rational::fromString(attr.value().toString());
+      out = rational::fromString(attr.value().toString().toStdString());
     } else if (attr.name() == QStringLiteral("color")) {
       marker->set_color(attr.value().toInt());
     }
@@ -1231,8 +1230,8 @@ void ProjectSerializer220403::LoadMarker(QXmlStreamReader *reader, TimelineMarke
 void ProjectSerializer220403::SaveMarker(QXmlStreamWriter *writer, TimelineMarker *marker) const
 {
   writer->writeAttribute(QStringLiteral("name"), marker->name());
-  writer->writeAttribute(QStringLiteral("in"), marker->time().in().toString());
-  writer->writeAttribute(QStringLiteral("out"), marker->time().out().toString());
+  writer->writeAttribute(QStringLiteral("in"), QString::fromStdString(marker->time().in().toString()));
+  writer->writeAttribute(QStringLiteral("out"), QString::fromStdString(marker->time().out().toString()));
   writer->writeAttribute(QStringLiteral("color"), QString::number(marker->color()));
 }
 
@@ -1245,9 +1244,9 @@ void ProjectSerializer220403::LoadWorkArea(QXmlStreamReader *reader, TimelineWor
     if (attr.name() == QStringLiteral("enabled")) {
       workarea->set_enabled(attr.value() != QStringLiteral("0"));
     } else if (attr.name() == QStringLiteral("in")) {
-      range_in = rational::fromString(attr.value().toString());
+      range_in = rational::fromString(attr.value().toString().toStdString());
     } else if (attr.name() == QStringLiteral("out")) {
-      range_out = rational::fromString(attr.value().toString());
+      range_out = rational::fromString(attr.value().toString().toStdString());
     }
   }
 
@@ -1263,8 +1262,8 @@ void ProjectSerializer220403::LoadWorkArea(QXmlStreamReader *reader, TimelineWor
 void ProjectSerializer220403::SaveWorkArea(QXmlStreamWriter *writer, TimelineWorkArea *workarea) const
 {
   writer->writeAttribute(QStringLiteral("enabled"), QString::number(workarea->enabled()));
-  writer->writeAttribute(QStringLiteral("in"), workarea->in().toString());
-  writer->writeAttribute(QStringLiteral("out"), workarea->out().toString());
+  writer->writeAttribute(QStringLiteral("in"), QString::fromStdString(workarea->in().toString()));
+  writer->writeAttribute(QStringLiteral("out"), QString::fromStdString(workarea->out().toString()));
 }
 
 void ProjectSerializer220403::LoadMarkerList(QXmlStreamReader *reader, TimelineMarkerList *markers) const

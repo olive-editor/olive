@@ -20,8 +20,8 @@ set -ex
     cd nasm*
     ./autogen.sh
     ./configure \
-      --prefix="${OLIVE_INSTALL_PREFIX}"
-    make -j${NUM_JOBS}
+      --prefix="/usr"
+    make -j$(nproc)
     make install
     cd ..
     rm -rf nasm*
@@ -34,8 +34,8 @@ set -ex
     rm -f yasm.tar.gz
     cd yasm*
     ./configure \
-      --prefix="${OLIVE_INSTALL_PREFIX}"
-    make -j${NUM_JOBS}
+      --prefix="/usr"
+    make -j$(nproc)
     make install
     cd ..
     rm -rf yasm*
@@ -44,19 +44,19 @@ set -ex
 # join jobs, some libs depend on NASM/YASM
 wait
 
-# Set up libaom
+# Set up libsvtav1
 {
-    git clone --depth 1 --branch "${AOM_VERSION}" "https://aomedia.googlesource.com/aom"
-    cd aom
-    mkdir _build
-    cd _build
+    git clone --depth 1 --branch "${SVTAV1_VERSION}" "https://gitlab.com/AOMediaCodec/SVT-AV1.git"
+    cd SVT-AV1/Build
     cmake .. \
+      -G "Unix Makefiles" \
       -DCMAKE_INSTALL_PREFIX="${OLIVE_INSTALL_PREFIX}" \
-      -DBUILD_SHARED_LIBS=1
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_APPS=OFF
     cmake --build .
     cmake --install .
     cd ../..
-    rm -rf aom
+    rm -rf SVT-AV1
 } &
 
 # Set up libx264
@@ -269,7 +269,7 @@ PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:$PKG_CONFIG
   --enable-gpl \
   --enable-version3 \
   --enable-shared \
-  --enable-libaom \
+  --enable-libsvtav1 \
   --enable-libfreetype \
   --enable-libx264 \
   --enable-libx265 \
@@ -286,7 +286,7 @@ PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:$PKG_CONFIG
   --extra-libs=-lm \
   --extra-cflags="-I${OLIVE_INSTALL_PREFIX}/include" \
   --extra-ldflags="-L${OLIVE_INSTALL_PREFIX}/lib"
-make -j${NUM_JOBS}
+make -j$(nproc)
 make install
 cd ..
 rm -rf ffmpeg*

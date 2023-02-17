@@ -30,7 +30,6 @@
 #include "audio/audioprocessor.h"
 #include "common/define.h"
 #include "codec/ffmpeg/ffmpegencoder.h"
-#include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/previewaudiodevice.h"
 
@@ -94,7 +93,7 @@ private:
 
   virtual ~AudioManager() override;
 
-  static PaSampleFormat GetPortAudioSampleFormat(AudioParams::Format fmt);
+  static PaSampleFormat GetPortAudioSampleFormat(SampleFormat fmt);
 
   void CloseOutputStream();
 

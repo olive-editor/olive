@@ -4,10 +4,10 @@ namespace olive {
 
 #define super TimeBasedPanel
 
-MulticamPanel::MulticamPanel(QWidget *parent) :
-  super(QStringLiteral("MultiCamPanel"), parent)
+MulticamPanel::MulticamPanel() :
+  super(QStringLiteral("MultiCamPanel"))
 {
-  SetTimeBasedWidget(new MulticamWidget());
+  SetTimeBasedWidget(new MulticamWidget(this));
 
   Retranslate();
 }

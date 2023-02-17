@@ -115,7 +115,7 @@ void PlaybackCache::LoadState()
 
         Passthrough p = TimeRange(rational(in_num, in_den), rational(out_num, out_den));
         p.cache = id;
-        passthroughs_.append(p);
+        passthroughs_.push_back(p);
       }
 
       break;
@@ -136,7 +136,7 @@ void PlaybackCache::SaveState()
 
   QDir cache_dir = GetThisCacheDirectory();
   QFile f(cache_dir.filePath(QStringLiteral("state")));
-  if (validated_.isEmpty() && passthroughs_.isEmpty()) {
+  if (validated_.isEmpty() && passthroughs_.empty()) {
     if (f.exists()) {
       f.remove();
     }
@@ -150,7 +150,8 @@ void PlaybackCache::SaveState()
 
         SaveStateEvent(s);
 
-        s << validated_.size();
+        // Using "int" for backwards compatibility with when we used QVector, could potentially overflow
+        s << int(validated_.size());
 
         for (const TimeRange &r : validated_) {
           s << r.in().numerator();
@@ -159,7 +160,8 @@ void PlaybackCache::SaveState()
           s << r.out().denominator();
         }
 
-        s << passthroughs_.size();
+        // Using "int" for backwards compatibility with when we used QVector, could potentially overflow
+        s << int(passthroughs_.size());
 
         for (const Passthrough &p : passthroughs_) {
           s << p.in().numerator();
@@ -211,7 +213,7 @@ void PlaybackCache::SetPassthrough(PlaybackCache *cache)
     passthroughs_.push_back(p);
   }
 
-  passthroughs_.append(cache->GetPassthroughs());
+  passthroughs_.insert(passthroughs_.end(), cache->GetPassthroughs().begin(), cache->GetPassthroughs().end());
 
   if (saving_enabled_) {
     SaveState();
@@ -223,11 +225,12 @@ void PlaybackCache::InvalidateAll()
   Invalidate(TimeRange(0, RATIONAL_MAX));
 }
 
-void PlaybackCache::Request(const TimeRange &r)
+void PlaybackCache::Request(ViewerOutput *context, const TimeRange &r)
 {
+  request_context_ = context;
   requested_.insert(r);
 
-  emit Requested(r);
+  emit Requested(request_context_, r);
 }
 
 void PlaybackCache::Validate(const TimeRange &r, bool signal)

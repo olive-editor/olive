@@ -32,6 +32,8 @@ const QString ViewerOutput::kSubtitleParamsInput = QStringLiteral("subtitle_para
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 
+const SampleFormat ViewerOutput::kDefaultSampleFormat = SampleFormat::F32P;
+
 #define super Node
 
 ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_streams) :
@@ -116,7 +118,7 @@ QString ViewerOutput::duration() const
     return QString();
   } else {
     // Return time transformed to timecode
-    return Timecode::time_to_timecode(GetLength(), using_timebase, using_display);
+    return QString::fromStdString(Timecode::time_to_timecode(GetLength(), using_timebase, using_display));
   }
 }
 
@@ -206,16 +208,16 @@ void ViewerOutput::set_default_parameters()
                    width,
                    height,
                    OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>(),
-                 static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
+                 static_cast<PixelFormat::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
       VideoParams::kInternalChannelCount,
       OLIVE_CONFIG("DefaultSequencePixelAspect").value<rational>(),
       OLIVE_CONFIG("DefaultSequenceInterlacing").value<VideoParams::Interlacing>(),
       VideoParams::generate_auto_divider(width, height)
       ));
   SetAudioParams(AudioParams(
-                   OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
-                 OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
-      AudioParams::kInternalFormat
+      OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
+      OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
+      kDefaultSampleFormat
       ));
 }
 
@@ -228,15 +230,15 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
       //connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
       if (autocache_input_video_) {
         TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetVideoLength()), false);
-        connected->video_frame_cache()->Request(range.Intersected(max_range));
+        connected->video_frame_cache()->Request(this, range.Intersected(max_range));
       }
     } else if (from == kSamplesInput) {
       TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetAudioLength()), false);
       if (waveform_requests_enabled_) {
-        connected->waveform_cache()->Request(range.Intersected(max_range));
+        connected->waveform_cache()->Request(this, range.Intersected(max_range));
       }
       if (autocache_input_audio_) {
-        connected->audio_playback_cache()->Request(range.Intersected(max_range));
+        connected->audio_playback_cache()->Request(this, range.Intersected(max_range));
       }
     }
   }
@@ -403,7 +405,7 @@ void ViewerOutput::SetWaveformEnabled(bool e)
       TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()), false);
       TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
       for (const TimeRange &r : invalid) {
-        connected->waveform_cache()->Request(r);
+        connected->waveform_cache()->Request(this, r);
       }
     }
   }
@@ -505,7 +507,7 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
       SetVideoParams(VideoParams(s.width(),
                                    s.height(),
                                    using_timebase,
-                                   static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
+                                   static_cast<PixelFormat::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
                        VideoParams::kInternalChannelCount,
                        s.pixel_aspect_ratio(),
                        s.interlacing(),
@@ -518,7 +520,7 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
 
     if (!audio_streams.isEmpty()) {
       const AudioParams& s = audio_streams.first();
-      SetAudioParams(AudioParams(s.sample_rate(), s.channel_layout(), AudioParams::kInternalFormat));
+      SetAudioParams(AudioParams(s.sample_rate(), s.channel_layout(), kDefaultSampleFormat));
     }
   }
 }

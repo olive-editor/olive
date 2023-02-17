@@ -26,12 +26,12 @@ namespace olive {
 
 #define super PanelWidget
 
-AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
-  super(QStringLiteral("AudioMonitor"), parent)
+AudioMonitorPanel::AudioMonitorPanel() :
+  super(QStringLiteral("AudioMonitor"))
 {
-  audio_monitor_ = new AudioMonitor();
+  audio_monitor_ = new AudioMonitor(this);
 
-  setWidget(audio_monitor_);
+  SetWidgetWithPadding(audio_monitor_);
 
   Retranslate();
 }

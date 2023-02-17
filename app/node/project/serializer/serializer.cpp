@@ -159,7 +159,7 @@ ProjectSerializer::Result ProjectSerializer::Paste(const QString &type)
   return res;
 }
 
-ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type)
+ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type, bool compress)
 {
   QString temp_save = FileFunctions::GetSafeTemporaryFilename(data.GetFilename());
 
@@ -176,8 +176,12 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QS
       return r;
     }
 
-    project_file.write("OVEC");
-    project_file.write(qCompress(b));
+    if (compress) {
+      project_file.write("OVEC");
+      project_file.write(qCompress(b));
+    } else {
+      project_file.write(b);
+    }
 
     project_file.close();
 

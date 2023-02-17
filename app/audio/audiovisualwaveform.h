@@ -21,12 +21,13 @@
 #ifndef SUMSAMPLES_H
 #define SUMSAMPLES_H
 
+#include <olive/core/core.h>
 #include <QPainter>
 #include <QVector>
 
-#include "codec/samplebuffer.h"
-
 namespace olive {
+
+using namespace core;
 
 /**
  * @brief A buffer of data used to store a visual representation of audio

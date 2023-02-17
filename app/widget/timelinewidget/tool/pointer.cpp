@@ -23,10 +23,8 @@
 #include <QDebug>
 #include <QToolTip>
 
-#include "common/clamp.h"
 #include "common/qtutils.h"
 #include "common/range.h"
-#include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "node/block/gap/gap.h"
@@ -596,10 +594,10 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::time_to_timecode(time_movement,
-                                                tooltip_timebase,
-                                                Core::instance()->GetTimecodeDisplay(),
-                                                true),
+                     QString::fromStdString(Timecode::time_to_timecode(time_movement,
+                                                                       tooltip_timebase,
+                                                                       Core::instance()->GetTimecodeDisplay(),
+                                                                       true)),
                      parent());
 }
 
@@ -949,7 +947,7 @@ rational PointerTool::ValidateInTrimming(rational movement)
 
     // Clamp adjusted value between the earliest and latest values
     rational adjusted = ghost->GetIn() + movement;
-    rational clamped = clamp(adjusted, earliest_in, latest_in);
+    rational clamped = std::clamp(adjusted, earliest_in, latest_in);
 
     if (clamped != adjusted) {
       movement = clamped - ghost->GetIn();
@@ -986,7 +984,7 @@ rational PointerTool::ValidateOutTrimming(rational movement)
 
     // Clamp adjusted value between the earliest and latest values
     rational adjusted = ghost->GetOut() + movement;
-    rational clamped = clamp(adjusted, earliest_out, latest_out);
+    rational clamped = std::clamp(adjusted, earliest_out, latest_out);
 
     if (clamped != adjusted) {
       movement = clamped - ghost->GetOut();
