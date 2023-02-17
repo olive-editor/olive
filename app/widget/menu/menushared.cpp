@@ -50,6 +50,14 @@ MenuShared::MenuShared()
   edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, tr("Ctrl+K"));
   edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered, tr("Ctrl+R"));
 
+  // List of addable items
+  for (int i=0;i<Tool::kAddableCount;i++) {
+    Tool::AddableObject t = static_cast<Tool::AddableObject>(i);
+    QAction *a = Menu::CreateItem(this, QStringLiteral("add:%1").arg(Tool::GetAddableObjectID(t)), this, &MenuShared::AddableItemTriggered);
+    a->setData(t);
+    addable_items_.append(a);
+  }
+
   // "In/Out" menu shared items
   inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, tr("I"));
   inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", this, &MenuShared::SetOutTriggered, tr("O"));
@@ -147,6 +155,14 @@ void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
     m->addAction(clip_link_unlink_item_);
     m->addAction(clip_enable_disable_item_);
     m->addAction(clip_nest_item_);
+  }
+}
+
+void MenuShared::AddItemsForAddableObjectsMenu(Menu *m)
+{
+  for (QAction *a : qAsConst(addable_items_)) {
+    a->setChecked((a->data().toInt() == Core::instance()->GetSelectedAddableObject()));
+    m->addAction(a);
   }
 }
 
@@ -328,6 +344,14 @@ void MenuShared::SpeedDurationTriggered()
   }
 }
 
+void MenuShared::AddableItemTriggered()
+{
+  QAction *a = static_cast<QAction*>(sender());
+  Tool::AddableObject i = static_cast<Tool::AddableObject>(a->data().toInt());
+  Core::instance()->SetTool(Tool::kAdd);
+  Core::instance()->SetSelectedAddableObject(i);
+}
+
 void MenuShared::Retranslate()
 {
   // "New" menu shared items
@@ -346,6 +370,10 @@ void MenuShared::Retranslate()
   edit_ripple_delete_item_->setText(tr("Ripple Delete"));
   edit_split_item_->setText(tr("Split"));
   edit_speedduration_item_->setText(tr("Speed/Duration"));
+
+  for (QAction *a : qAsConst(addable_items_)) {
+    a->setText(Tool::GetAddableObjectName(static_cast<Tool::AddableObject>(a->data().toInt())));
+  }
 
   // "In/Out" menu shared items
   inout_set_in_item_->setText(tr("Set In Point"));

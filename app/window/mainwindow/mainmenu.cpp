@@ -266,6 +266,13 @@ MainMenu::MainMenu(MainWindow *parent) :
 
   tools_menu_->addSeparator();
 
+  tools_add_item_menu_ = new Menu(tools_menu_);
+  tools_menu_->addMenu(tools_add_item_menu_);
+
+  MenuShared::instance()->AddItemsForAddableObjectsMenu(tools_add_item_menu_);
+
+  tools_menu_->addSeparator();
+
   tools_snapping_item_ = tools_menu_->AddItem("snapping", Core::instance(), &Core::SetSnapping, tr("S"));
   tools_snapping_item_->setCheckable(true);
   tools_snapping_item_->setChecked(Core::instance()->snapping());
@@ -772,6 +779,7 @@ void MainMenu::Retranslate()
   tools_record_item_->setText(tr("Record Tool"));
   tools_snapping_item_->setText(tr("Enable Snapping"));
   tools_preferences_item_->setText(tr("Preferences"));
+  tools_add_item_menu_->setTitle(tr("Add Tool Item"));
 #ifndef NDEBUG
   tools_magic_item_->setText("Magic");
 #endif

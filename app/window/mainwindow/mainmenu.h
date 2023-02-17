@@ -281,6 +281,7 @@ private:
   QAction* tools_record_item_;
   QAction* tools_snapping_item_;
   QAction* tools_preferences_item_;
+  Menu *tools_add_item_menu_;
 
 #ifndef NDEBUG
   QAction* tools_magic_item_;

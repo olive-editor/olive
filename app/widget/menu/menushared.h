@@ -32,7 +32,8 @@ using namespace core;
 /**
  * @brief A static object that provides various "stock" menus for use throughout the application
  */
-class MenuShared : public QObject {
+class MenuShared : public QObject
+{
   Q_OBJECT
 public:
   MenuShared();
@@ -45,6 +46,7 @@ public:
 
   void AddItemsForNewMenu(Menu* m);
   void AddItemsForEditMenu(Menu* m, bool for_clips);
+  void AddItemsForAddableObjectsMenu(Menu* m);
   void AddItemsForInOutMenu(Menu* m);
   void AddColorCodingMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
@@ -79,6 +81,9 @@ private:
   QAction* edit_ripple_delete_item_;
   QAction* edit_split_item_;
   QAction* edit_speedduration_item_;
+
+  // List of addable items
+  QVector<QAction*> addable_items_;
 
   // "In/Out" menu shared items
   QAction* inout_set_in_item_;
@@ -152,6 +157,8 @@ private slots:
   void ColorLabelTriggered(int color_index);
 
   void SpeedDurationTriggered();
+
+  void AddableItemTriggered();
 
 };
 
