@@ -16,5 +16,5 @@
 
 add_subdirectory(core)
 
-set(KDDockWidgets_STATIC ON)
+set(KDDockWidgets_STATIC ON PARENT_SCOPE)
 add_subdirectory(KDDockWidgets)
