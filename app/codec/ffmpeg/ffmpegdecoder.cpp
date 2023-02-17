@@ -678,7 +678,7 @@ Decoder::RetrieveAudioStatus FFmpegDecoder::RetrieveAudioInternal(SampleBuffer &
 
   // Copy data continuously to output, resampling if necessary
   AVFramePtr decoded = CreateAVFramePtr();
-  int dst_bpc = AudioParams::bytes_per_sample_per_channel(params.format());
+  int dst_bpc = params.format().byte_count();
   auto dst_ptrs_vector = dest.to_raw_ptrs();
   uint8_t **dst_ptrs = reinterpret_cast<uint8_t**>(dst_ptrs_vector.data());
   int64_t dst_offset = std::max(int64_t(0), -ts);

@@ -182,10 +182,10 @@ private:
   SwrContext *swr_ctx_;
   int swr_irate_;
   int64_t swr_ichannels_;
-  AudioParams::Format swr_iformat_;
+  SampleFormat swr_iformat_;
   int swr_orate_;
   int64_t swr_ochannels_;
-  AudioParams::Format swr_oformat_;
+  SampleFormat swr_oformat_;
   int64_t swr_time_;
 
   AVPacket *working_packet_;
