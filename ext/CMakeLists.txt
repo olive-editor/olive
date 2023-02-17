@@ -16,5 +16,5 @@
 
 add_subdirectory(core)
 
-set(KDDockWidgets_STATIC ON PARENT_SCOPE)
+set(KDDockWidgets_STATIC ON CACHE INTERNAL "Force KDDockWidgets to build statically")
 add_subdirectory(KDDockWidgets)
