@@ -778,87 +778,74 @@ bool Node::InputIsArray(const QString &id) const
   return GetInputFlags(id) & kInputFlagArray;
 }
 
-void Node::InputArrayInsert(const QString &id, int index, bool undoable)
+void Node::InputArrayInsert(const QString &id, int index)
 {
-  if (undoable) {
-    Core::instance()->undo_stack()->push(new ArrayInsertCommand(this, id, index));
-  } else {
-    // Add new input
-    ArrayResizeInternal(id, InputArraySize(id) + 1);
+  // Add new input
+  ArrayResizeInternal(id, InputArraySize(id) + 1);
 
-    // Move connections down
-    InputConnections copied_edges = input_connections();
-    for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
-      if (it->first.input() == id && it->first.element() >= index) {
-        // Disconnect this and reconnect it one element down
-        NodeInput new_edge = it->first;
-        new_edge.set_element(new_edge.element() + 1);
+  // Move connections down
+  InputConnections copied_edges = input_connections();
+  for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
+    if (it->first.input() == id && it->first.element() >= index) {
+      // Disconnect this and reconnect it one element down
+      NodeInput new_edge = it->first;
+      new_edge.set_element(new_edge.element() + 1);
 
-        DisconnectEdge(it->second, it->first);
-        ConnectEdge(it->second, new_edge);
-      }
+      DisconnectEdge(it->second, it->first);
+      ConnectEdge(it->second, new_edge);
     }
-
-    // Shift values and keyframes up one element
-    for (int i=InputArraySize(id)-1; i>index; i--) {
-      CopyValuesOfElement(this, this, id, i-1, i);
-    }
-
-    // Reset value of element we just "inserted"
-    ClearElement(id, index);
   }
+
+  // Shift values and keyframes up one element
+  for (int i=InputArraySize(id)-1; i>index; i--) {
+    CopyValuesOfElement(this, this, id, i-1, i);
+  }
+
+  // Reset value of element we just "inserted"
+  ClearElement(id, index);
 }
 
-void Node::InputArrayResize(const QString &id, int size, bool undoable)
+void Node::InputArrayResize(const QString &id, int size)
 {
   if (InputArraySize(id) == size) {
     return;
   }
 
   ArrayResizeCommand* c = new ArrayResizeCommand(this, id, size);
-
-  if (undoable) {
-    Core::instance()->undo_stack()->push(c);
-  } else {
-    c->redo_now();
-    delete c;
-  }
+  c->redo_now();
+  delete c;
 }
 
-void Node::InputArrayRemove(const QString &id, int index, bool undoable)
+void Node::InputArrayRemove(const QString &id, int index)
 {
-  if (undoable) {
-    Core::instance()->undo_stack()->push(new ArrayRemoveCommand(this, id, index));
-  } else {
-    // Remove input
-    ArrayResizeInternal(id, InputArraySize(id) - 1);
+  // Remove input
+  ArrayResizeInternal(id, InputArraySize(id) - 1);
 
-    // Move connections up
-    InputConnections copied_edges = input_connections();
-    for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-      if (it->first.input() == id && it->first.element() >= index) {
-        // Disconnect this and reconnect it one element up if it's not the element being removed
-        DisconnectEdge(it->second, it->first);
+  // Move connections up
+  InputConnections copied_edges = input_connections();
+  for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+    if (it->first.input() == id && it->first.element() >= index) {
+      // Disconnect this and reconnect it one element up if it's not the element being removed
+      DisconnectEdge(it->second, it->first);
 
-        if (it->first.element() > index) {
-          NodeInput new_edge = it->first;
-          new_edge.set_element(new_edge.element() - 1);
+      if (it->first.element() > index) {
+        NodeInput new_edge = it->first;
+        new_edge.set_element(new_edge.element() - 1);
 
-          ConnectEdge(it->second, new_edge);
-        }
+        ConnectEdge(it->second, new_edge);
       }
     }
-
-    // Shift values and keyframes down one element
-    int arr_sz = InputArraySize(id);
-    for (int i=index; i<arr_sz; i++) {
-      // Copying ArraySize()+1 is actually legal because immediates are never deleted
-      CopyValuesOfElement(this, this, id, i+1, i);
-    }
-
-    // Reset value of last element
-    ClearElement(id, arr_sz);
   }
+
+  // Shift values and keyframes down one element
+  int arr_sz = InputArraySize(id);
+  for (int i=index; i<arr_sz; i++) {
+    // Copying ArraySize()+1 is actually legal because immediates are never deleted
+    CopyValuesOfElement(this, this, id, i+1, i);
+  }
+
+  // Reset value of last element
+  ClearElement(id, arr_sz);
 }
 
 int Node::InputArraySize(const QString &id) const

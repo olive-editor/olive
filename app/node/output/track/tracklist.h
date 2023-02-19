@@ -67,8 +67,8 @@ public:
 
   int ArraySize() const;
 
-  void ArrayAppend(bool undoable = false);
-  void ArrayRemoveLast(bool undoable = false);
+  void ArrayAppend();
+  void ArrayRemoveLast();
 
   int GetArrayIndexFromCacheIndex(int index) const
   {

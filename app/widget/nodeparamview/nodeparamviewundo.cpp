@@ -193,12 +193,12 @@ Project *NodeParamArrayAppendCommand::GetRelevantProject() const
 
 void NodeParamArrayAppendCommand::redo()
 {
-  node_->InputArrayAppend(input_, false);
+  node_->InputArrayAppend(input_);
 }
 
 void NodeParamArrayAppendCommand::undo()
 {
-  node_->InputArrayRemoveLast(input_, false);
+  node_->InputArrayRemoveLast(input_);
 }
 
 void NodeSetValueHintCommand::redo()

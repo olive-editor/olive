@@ -614,23 +614,23 @@ public:
 
   bool InputIsArray(const QString& id) const;
 
-  void InputArrayInsert(const QString& id, int index, bool undoable = false);
-  void InputArrayResize(const QString& id, int size, bool undoable = false);
-  void InputArrayRemove(const QString& id, int index, bool undoable = false);
+  void InputArrayInsert(const QString& id, int index);
+  void InputArrayResize(const QString& id, int size);
+  void InputArrayRemove(const QString& id, int index);
 
-  void InputArrayAppend(const QString& id, bool undoable = false)
+  void InputArrayAppend(const QString& id)
   {
-    InputArrayResize(id, InputArraySize(id) + 1, undoable);
+    InputArrayResize(id, InputArraySize(id) + 1);
   }
 
-  void InputArrayPrepend(const QString& id, bool undoable = false)
+  void InputArrayPrepend(const QString& id)
   {
-    InputArrayInsert(id, 0, undoable);
+    InputArrayInsert(id, 0);
   }
 
-  void InputArrayRemoveLast(const QString& id, bool undoable = false)
+  void InputArrayRemoveLast(const QString& id)
   {
-    InputArrayResize(id, InputArraySize(id) - 1, undoable);
+    InputArrayResize(id, InputArraySize(id) - 1);
   }
 
   int InputArraySize(const QString& id) const;
@@ -980,12 +980,12 @@ public:
   protected:
     virtual void redo() override
     {
-      node_->InputArrayInsert(input_, index_, false);
+      node_->InputArrayInsert(input_, index_);
     }
 
     virtual void undo() override
     {
-      node_->InputArrayRemove(input_, index_, false);
+      node_->InputArrayRemove(input_, index_);
     }
 
   private:
@@ -1072,12 +1072,12 @@ public:
       keyframes_ = node_->GetKeyframeTracks(input_, index_);
       node_->GetImmediate(input_, index_)->delete_all_keyframes(&memory_manager_);
 
-      node_->InputArrayRemove(input_, index_, false);
+      node_->InputArrayRemove(input_, index_);
     }
 
     virtual void undo() override
     {
-      node_->InputArrayInsert(input_, index_, false);
+      node_->InputArrayInsert(input_, index_);
 
       // Restore keyframes
       foreach (const NodeKeyframeTrack& track, keyframes_) {

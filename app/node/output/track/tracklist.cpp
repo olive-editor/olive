@@ -167,14 +167,14 @@ int TrackList::ArraySize() const
   return parent()->InputArraySize(track_input());
 }
 
-void TrackList::ArrayAppend(bool undoable)
+void TrackList::ArrayAppend()
 {
-  parent()->InputArrayAppend(track_input(), undoable);
+  parent()->InputArrayAppend(track_input());
 }
 
-void TrackList::ArrayRemoveLast(bool undoable)
+void TrackList::ArrayRemoveLast()
 {
-  parent()->InputArrayRemoveLast(track_input(), undoable);
+  parent()->InputArrayRemoveLast(track_input());
 }
 
 void TrackList::UpdateTotalLength()

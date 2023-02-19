@@ -140,7 +140,7 @@ Project *FolderAddChild::GetRelevantProject() const
 void FolderAddChild::redo()
 {
   int array_index = folder_->InputArraySize(Folder::kChildInput);
-  folder_->InputArrayAppend(Folder::kChildInput, false);
+  folder_->InputArrayAppend(Folder::kChildInput);
   Node::ConnectEdge(child_, NodeInput(folder_, Folder::kChildInput, array_index));
 }
 
