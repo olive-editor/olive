@@ -134,4 +134,14 @@ void Block::InvalidateCache(const TimeRange& range, const QString& from, int ele
   super::InvalidateCache(r, from, element, options);
 }
 
+void Block::set_previous_next(Block *previous, Block *next)
+{
+  if (previous) {
+    previous->set_next(next);
+  }
+  if (next) {
+    next->set_previous(previous);
+  }
+}
+
 }

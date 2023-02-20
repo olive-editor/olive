@@ -118,6 +118,8 @@ public:
 
   static const QString kLengthInput;
 
+  static void set_previous_next(Block *previous, Block *next);
+
 public slots:
 
 signals:
