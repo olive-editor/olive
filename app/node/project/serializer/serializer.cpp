@@ -32,6 +32,7 @@
 #include "serializer210907.h"
 #include "serializer211228.h"
 #include "serializer220403.h"
+#include "serializer230220.h"
 
 namespace olive {
 
@@ -48,6 +49,7 @@ void ProjectSerializer::Initialize()
   instances_.append(new ProjectSerializer210907);
   instances_.append(new ProjectSerializer211228);
   instances_.append(new ProjectSerializer220403);
+  instances_.append(new ProjectSerializer230220);
 }
 
 void ProjectSerializer::Destroy()
@@ -64,9 +66,9 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QStrin
     // Some project files are compressed, marked with "OVEC" at the beginning of the file. Check for
     // that signature now.
     std::unique_ptr<QXmlStreamReader> reader;
-    QByteArray b = project_file.read(4);
-    if (!memcmp(b.data(), "OVEC", 4)) {
+    if (CheckCompressedID(&project_file)) {
       // File is compressed, decompress into memory
+      QByteArray b;
       b = qUncompress(project_file.readAll());
       reader.reset(new QXmlStreamReader(b));
     } else {
@@ -254,6 +256,12 @@ ProjectSerializer::Result ProjectSerializer::Copy(const SaveData &data, const QS
   }
 
   return res;
+}
+
+bool ProjectSerializer::CheckCompressedID(QFile *file)
+{
+  QByteArray b = file->read(4);
+  return !memcmp(b.data(), "OVEC", 4);
 }
 
 bool ProjectSerializer::IsCancelled() const

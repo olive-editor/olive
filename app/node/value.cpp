@@ -77,6 +77,8 @@ QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool val
     return QString();
   } else if (data_type == kInt) {
     return QString::number(value.value<int64_t>());
+  } else if (data_type == kBinary) {
+    return value.toByteArray().toBase64();
   } else {
     if (value.canConvert<QString>()) {
       return value.toString();
@@ -243,6 +245,8 @@ QVariant NodeValue::StringToValue(Type data_type, const QString &string, bool va
     return QVariant::fromValue(string.toLongLong());
   } else if (data_type == kRational) {
     return QVariant::fromValue(rational::fromString(string.toStdString()));
+  } else if (data_type == kBinary) {
+    return QByteArray::fromBase64(string.toLatin1());
   } else {
     return string;
   }
@@ -297,6 +301,8 @@ QString NodeValue::GetPrettyDataTypeName(Type type)
     return QCoreApplication::translate("NodeValue", "Audio Parameters");
   case kSubtitleParams:
     return QCoreApplication::translate("NodeValue", "Subtitle Parameters");
+  case kBinary:
+    return QCoreApplication::translate("NodeValue", "Binary");
 
   case kDataTypeCount:
     break;
@@ -348,6 +354,8 @@ QString NodeValue::GetDataTypeName(Type type)
     return QStringLiteral("aparam");
   case kSubtitleParams:
     return QStringLiteral("sparam");
+  case kBinary:
+    return QStringLiteral("binary");
   case kDataTypeCount:
     break;
   }

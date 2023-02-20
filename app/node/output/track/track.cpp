@@ -46,7 +46,8 @@ Track::Track() :
   index_(-1),
   locked_(false),
   sequence_(nullptr),
-  ignore_arraymap_(0)
+  ignore_arraymap_(0),
+  arraymap_invalid_(false)
 {
   AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden));
 
@@ -205,33 +206,11 @@ void Track::InputValueChangedEvent(const QString &input, int element)
 
   if (input == kMutedInput) {
     emit MutedChanged(IsMuted());
-  } else if (false && input == kArrayMapInput) {
+  } else if (input == kArrayMapInput) {
     if (ignore_arraymap_ > 0) {
-      qDebug() << "ignored our own array map update";
       ignore_arraymap_--;
     } else {
-      qDebug() << "received REAL array map update";
-
-      block_array_indexes_ = GetStandardValue(kArrayMapInput).value< QVector<int> >();
-      blocks_.reserve(block_array_indexes_.size());
-      Block *prev = nullptr;
-      for (int i = 0; i < block_array_indexes_.size(); i++) {
-        Block *b = static_cast<Block*>(GetConnectedOutput(kBlockInput, block_array_indexes_.at(i)));
-
-        Block::set_previous_next(prev, b);
-
-        if (b) {
-          blocks_.append(b);
-          prev = b;
-        } else {
-          block_array_indexes_.removeAt(i);
-          i--;
-        }
-      }
-      if (prev) {
-        prev->set_next(nullptr);
-      }
-      UpdateInOutFrom(0);
+      RefreshBlockCacheFromArrayMap();
     }
   }
 }
@@ -427,8 +406,7 @@ void Track::InsertBlockAtIndex(Block *block, int index)
 
   emit BlockAdded(block);
 
-  ignore_arraymap_++;
-  SetStandardValue(kArrayMapInput, QVariant::fromValue(block_array_indexes_));
+  UpdateArrayMap();
 }
 
 void Track::AppendBlock(Block *block)
@@ -472,8 +450,7 @@ void Track::RippleRemoveBlock(Block *block)
 
   Node::InvalidateCache(TimeRange(remove_in, qMax(track_length(), remove_out)), kBlockInput);
 
-  ignore_arraymap_++;
-  SetStandardValue(kArrayMapInput, QVariant::fromValue(block_array_indexes_));
+  UpdateArrayMap();
 }
 
 void Track::ReplaceBlock(Block *old, Block *replace)
@@ -520,8 +497,7 @@ void Track::ReplaceBlock(Block *old, Block *replace)
 
   emit BlockAdded(replace);
 
-  ignore_arraymap_++;
-  SetStandardValue(kArrayMapInput, QVariant::fromValue(block_array_indexes_));
+  UpdateArrayMap();
 }
 
 rational Track::track_length() const
@@ -551,6 +527,13 @@ void Track::SetMuted(bool e)
 void Track::SetLocked(bool e)
 {
   locked_ = e;
+}
+
+void Track::InputConnectedEvent(const QString &input, int element, Node *node)
+{
+  if (arraymap_invalid_ && input == kBlockInput && element >= 0) {
+    RefreshBlockCacheFromArrayMap();
+  }
 }
 
 void Track::UpdateInOutFrom(int index)
@@ -725,6 +708,46 @@ int Track::ConnectBlock(Block *b)
     Node::ConnectEdge(b, NodeInput(this, kBlockInput, old_sz));
     return old_sz;
   }
+}
+
+void Track::UpdateArrayMap()
+{
+  ignore_arraymap_++;
+  SetStandardValue(kArrayMapInput, QByteArray(reinterpret_cast<const char *>(block_array_indexes_.data()), block_array_indexes_.size() * sizeof(uint32_t)));
+}
+
+void Track::RefreshBlockCacheFromArrayMap()
+{
+  QByteArray bytes = GetStandardValue(kArrayMapInput).toByteArray();
+  block_array_indexes_.resize(bytes.size() / sizeof(uint32_t));
+  memcpy(block_array_indexes_.data(), bytes.data(), bytes.size());
+  blocks_.clear();
+  blocks_.reserve(block_array_indexes_.size());
+
+  Block *prev = nullptr;
+  arraymap_invalid_ = false;
+
+  for (int i = 0; i < block_array_indexes_.size(); i++) {
+    Block *b = static_cast<Block*>(GetConnectedOutput(kBlockInput, block_array_indexes_.at(i)));
+
+    Block::set_previous_next(prev, b);
+
+    if (b) {
+      b->set_track(this);
+      blocks_.append(b);
+      prev = b;
+    } else {
+      block_array_indexes_.resize(i);
+      arraymap_invalid_ = true;
+      break;
+    }
+  }
+
+  if (prev) {
+    prev->set_next(nullptr);
+  }
+
+  UpdateInOutFrom(0);
 }
 
 void Track::BlockLengthChanged()

@@ -165,6 +165,8 @@ public:
   static Result Save(QXmlStreamWriter *write_device, const SaveData &data, const QString &type);
   static Result Copy(const SaveData &data, const QString &type);
 
+  static bool CheckCompressedID(QFile *file);
+
 protected:
   virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const = 0;
 
