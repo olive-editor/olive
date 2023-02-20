@@ -74,7 +74,6 @@ MainWindowLayoutInfo MainWindowLayoutInfo::fromXml(QXmlStreamReader *reader, con
 
   // Really basic version checking, in the future we may use this to parse multiple versions
   if (file_version != kVersion) {
-    return info;
   }
 
   while (XMLReadNextStartElement(reader)) {
