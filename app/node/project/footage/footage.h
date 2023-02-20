@@ -153,8 +153,6 @@ public:
    */
   const QString& decoder() const;
 
-  virtual QIcon icon() const override;
-
   virtual bool IsItem() const override
   {
     return true;
@@ -176,8 +174,7 @@ public:
 
   virtual void LoadFinishedEvent() override;
 
-  virtual qint64 creation_time() const override;
-  virtual qint64 mod_time() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   virtual int GetTotalStreamCount() const override { return total_stream_count_; }
 

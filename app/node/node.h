@@ -194,14 +194,16 @@ public:
    */
   virtual void Retranslate();
 
-  virtual QIcon icon() const;
+  enum DataType
+  {
+    ICON,
+    DURATION,
+    CREATED_TIME,
+    MODIFIED_TIME,
+    FREQUENCY_RATE
+  };
 
-  virtual QString duration() const {return QString();}
-
-  virtual qint64 creation_time() const {return 0;}
-  virtual qint64 mod_time() const {return 0;}
-
-  virtual QString rate() const {return QString();}
+  virtual QVariant data(const DataType &d) const;
 
   const QVector<QString>& inputs() const
   {

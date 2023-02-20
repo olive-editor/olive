@@ -59,7 +59,7 @@ public:
 
   void add_default_nodes(MultiUndoCommand *command = nullptr);
 
-  virtual QIcon icon() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   const QVector<Track *> &GetTracks() const
   {

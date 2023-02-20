@@ -59,7 +59,7 @@ public:
     return tr("Organize several items into a single collection.");
   }
 
-  virtual QIcon icon() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   virtual void Retranslate() override;
 

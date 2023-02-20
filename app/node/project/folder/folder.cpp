@@ -37,9 +37,13 @@ Folder::Folder()
   AddInput(kChildInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
 }
 
-QIcon Folder::icon() const
+QVariant Folder::data(const DataType &d) const
 {
-  return icon::Folder;
+  if (d == ICON) {
+    return icon::Folder;
+  }
+
+  return super::data(d);
 }
 
 void Folder::Retranslate()

@@ -87,56 +87,61 @@ QString ViewerOutput::Description() const
   return tr("Interface between a Viewer panel and the node system.");
 }
 
-QString ViewerOutput::duration() const
+QVariant ViewerOutput::data(const DataType &d) const
 {
-  rational using_timebase;
-  Timecode::Display using_display = Core::instance()->GetTimecodeDisplay();
+  switch (d) {
+  case DURATION:
+  {
+    rational using_timebase;
+    Timecode::Display using_display = Core::instance()->GetTimecodeDisplay();
 
-  // Get first enabled streams
-  VideoParams video = GetFirstEnabledVideoStream();
-  AudioParams audio = GetFirstEnabledAudioStream();
-  SubtitleParams sub = GetFirstEnabledSubtitleStream();
+    // Get first enabled streams
+    VideoParams video = GetFirstEnabledVideoStream();
+    AudioParams audio = GetFirstEnabledAudioStream();
+    SubtitleParams sub = GetFirstEnabledSubtitleStream();
 
-  if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
-    // Prioritize video
-    using_timebase = video.frame_rate_as_time_base();
-  } else if (audio.is_valid()) {
-    // Use audio as a backup
-    // If we're showing in a timecode, we prefer showing audio in seconds instead
-    if (using_display == Timecode::kTimecodeDropFrame
-        || using_display == Timecode::kTimecodeNonDropFrame) {
-      using_display = Timecode::kTimecodeSeconds;
+    if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
+      // Prioritize video
+      using_timebase = video.frame_rate_as_time_base();
+    } else if (audio.is_valid()) {
+      // Use audio as a backup
+      // If we're showing in a timecode, we prefer showing audio in seconds instead
+      if (using_display == Timecode::kTimecodeDropFrame
+          || using_display == Timecode::kTimecodeNonDropFrame) {
+        using_display = Timecode::kTimecodeSeconds;
+      }
+
+      using_timebase = audio.sample_rate_as_time_base();
+    } else if (sub.is_valid()) {
+      using_timebase = OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>();
     }
 
-    using_timebase = audio.sample_rate_as_time_base();
-  } else if (sub.is_valid()) {
-    using_timebase = OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>();
+    if (!using_timebase.isNull()) {
+      // Return time transformed to timecode
+      return QString::fromStdString(Timecode::time_to_timecode(GetLength(), using_timebase, using_display));
+    }
+    break;
+  }
+  case FREQUENCY_RATE:
+  {
+    VideoParams video_stream;
+
+    if (HasEnabledVideoStreams()
+        && (video_stream = GetFirstEnabledVideoStream()).video_type() != VideoParams::kVideoTypeStill) {
+      // This is a video editor, prioritize video streams
+      return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
+    } else if (HasEnabledAudioStreams()) {
+      // No video streams, return audio
+      AudioParams audio_stream = GetFirstEnabledAudioStream();
+      return tr("%1 Hz").arg(audio_stream.sample_rate());
+    }
+    break;
+  }
+  default:
+    break;
   }
 
-  if (using_timebase.isNull()) {
-    // No timebase, return null
-    return QString();
-  } else {
-    // Return time transformed to timecode
-    return QString::fromStdString(Timecode::time_to_timecode(GetLength(), using_timebase, using_display));
-  }
-}
-
-QString ViewerOutput::rate() const
-{
-  VideoParams video_stream;
-
-  if (HasEnabledVideoStreams()
-      && (video_stream = GetFirstEnabledVideoStream()).video_type() != VideoParams::kVideoTypeStill) {
-    // This is a video editor, prioritize video streams
-    return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
-  } else if (HasEnabledAudioStreams()) {
-    // No video streams, return audio
-    AudioParams audio_stream = GetFirstEnabledAudioStream();
-    return tr("%1 Hz").arg(audio_stream.sample_rate());
-  }
-
-  return QString();
+  return super::data(d);
 }
 
 bool ViewerOutput::HasEnabledVideoStreams() const
