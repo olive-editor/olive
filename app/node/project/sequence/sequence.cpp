@@ -34,6 +34,8 @@ const QString Sequence::kTrackInputFormat = QStringLiteral("track_in_%1");
 
 Sequence::Sequence()
 {
+  SetFlag(kIsItem);
+
   // Create TrackList instances
   track_lists_.resize(Track::kCount);
 

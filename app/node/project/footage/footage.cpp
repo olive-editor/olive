@@ -46,6 +46,8 @@ Footage::Footage(const QString &filename) :
   cancelled_(nullptr),
   total_stream_count_(0)
 {
+  SetFlag(kIsItem);
+
   PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   Clear();

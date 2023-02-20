@@ -46,7 +46,7 @@ Block::Block() :
 
   SetInputFlags(kEnabledInput, InputFlags(GetInputFlags(kEnabledInput) | kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  SetFlags(kDontShowInParamView);
+  SetFlag(kDontShowInParamView);
 }
 
 QVector<Node::CategoryID> Block::Category() const

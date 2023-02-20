@@ -64,7 +64,7 @@ TransformDistortNode::TransformDistortNode()
     point_gizmo_[i]->SetDragValueBehavior(PointGizmo::kAbsolute);
   }
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

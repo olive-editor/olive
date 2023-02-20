@@ -36,7 +36,7 @@ DespillNode::DespillNode()
 
   AddInput(kPreserveLuminanceInput, NodeValue::kBoolean, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

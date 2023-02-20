@@ -153,11 +153,6 @@ public:
    */
   const QString& decoder() const;
 
-  virtual bool IsItem() const override
-  {
-    return true;
-  }
-
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
   static QString DescribeSubtitleStream(const SubtitleParams& params);

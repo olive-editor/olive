@@ -86,11 +86,6 @@ public:
     return item_children_;
   }
 
-  virtual bool IsItem() const override
-  {
-    return true;
-  }
-
   int index_of_child(Node* item) const
   {
     return item_children_.indexOf(item);

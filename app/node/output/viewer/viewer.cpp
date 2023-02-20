@@ -61,7 +61,7 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
     set_default_parameters();
   }
 
-  SetFlags(kDontShowInParamView);
+  SetFlag(kDontShowInParamView);
 
   workarea_ = new TimelineWorkArea(this);
   markers_ = new TimelineMarkerList(this);

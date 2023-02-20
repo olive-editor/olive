@@ -38,7 +38,7 @@ SubtitleBlock::SubtitleBlock()
   SetInputFlags(kMaintainAudioPitchInput, InputFlags(GetInputFlags(kMaintainAudioPitchInput) | kInputFlagHidden));
 
   // Undo block flag that hides in param view
-  SetFlags(GetFlags() & ~kDontShowInParamView);
+  SetFlag(kDontShowInParamView, false);
 }
 
 QString SubtitleBlock::Name() const

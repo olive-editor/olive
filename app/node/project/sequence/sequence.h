@@ -87,11 +87,6 @@ public:
 
   static const QString kTrackInputFormat;
 
-  virtual bool IsItem() const override
-  {
-    return true;
-  }
-
 protected:
   virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
 

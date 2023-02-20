@@ -100,7 +100,8 @@ public:
     kDontShowInParamView = 0x1,
     kVideoEffect = 0x2,
     kAudioEffect = 0x4,
-    kDontShowInCreateMenu = 0x8
+    kDontShowInCreateMenu = 0x8,
+    kIsItem = 0x10
   };
 
   struct ContextPair {
@@ -184,10 +185,7 @@ public:
     return folder_;
   }
 
-  virtual bool IsItem() const
-  {
-    return false;
-  }
+  bool IsItem() const { return flags_ & kIsItem; }
 
   /**
    * @brief Function called to retranslate parameter names (should be overridden in derivatives)
@@ -1198,9 +1196,13 @@ protected:
     tooltip_ = s;
   }
 
-  void SetFlags(const uint64_t &f)
+  void SetFlag(Flag f, bool on = true)
   {
-    flags_ = f;
+    if (on) {
+      flags_ |= f;
+    } else {
+      flags_ &= ~f;
+    }
   }
 
   template<typename T>

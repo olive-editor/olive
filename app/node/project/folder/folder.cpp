@@ -34,6 +34,8 @@ const QString Folder::kChildInput = QStringLiteral("child_in");
 
 Folder::Folder()
 {
+  SetFlag(kIsItem);
+
   AddInput(kChildInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
 }
 
