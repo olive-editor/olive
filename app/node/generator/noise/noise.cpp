@@ -41,7 +41,7 @@ NoiseGeneratorNode::NoiseGeneratorNode()
   AddInput(kColorInput, NodeValue::kBoolean, false);
 
   SetEffectInput(kBaseIn);
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
 }
 
 QString NoiseGeneratorNode::Name() const

@@ -103,10 +103,14 @@ void Node::Retranslate()
   SetInputName(kEnabledInput, tr("Enabled"));
 }
 
-QIcon Node::icon() const
+QVariant Node::data(const DataType &d) const
 {
-  // Just a meaningless default icon to be used where necessary
-  return icon::New;
+  if (d == ICON) {
+    // Just a meaningless default icon to be used where necessary
+    return icon::New;
+  }
+
+  return QVariant();
 }
 
 bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)

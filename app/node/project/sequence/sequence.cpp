@@ -34,6 +34,8 @@ const QString Sequence::kTrackInputFormat = QStringLiteral("track_in_%1");
 
 Sequence::Sequence()
 {
+  SetFlag(kIsItem);
+
   // Create TrackList instances
   track_lists_.resize(Track::kCount);
 
@@ -71,9 +73,13 @@ void Sequence::add_default_nodes(MultiUndoCommand* command)
   }
 }
 
-QIcon Sequence::icon() const
+QVariant Sequence::data(const DataType &d) const
 {
-  return icon::Sequence;
+  if (d == ICON) {
+    return icon::Sequence;
+  }
+
+  return super::data(d);
 }
 
 QVector<Track *> Sequence::GetUnlockedTracks() const

@@ -66,7 +66,7 @@ BlurFilterNode::BlurFilterNode()
 
   AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 
   radial_center_gizmo_ = AddDraggableGizmo<PointGizmo>();

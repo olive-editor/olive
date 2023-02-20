@@ -38,7 +38,7 @@ OCIOBaseNode::OCIOBaseNode() :
   connect(this, &Node::AddedToGraph, this, &OCIOBaseNode::AddedToGraph);
   connect(this, &Node::RemovedFromGraph, this, &OCIOBaseNode::RemovedFromGraph);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
 }
 
 void OCIOBaseNode::AddedToGraph(Project *p)

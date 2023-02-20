@@ -38,7 +38,7 @@ MosaicFilterNode::MosaicFilterNode()
   AddInput(kVertInput, NodeValue::kFloat, 18.0);
   SetInputProperty(kVertInput, QStringLiteral("min"), 1.0);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

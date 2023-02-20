@@ -100,7 +100,8 @@ public:
     kDontShowInParamView = 0x1,
     kVideoEffect = 0x2,
     kAudioEffect = 0x4,
-    kDontShowInCreateMenu = 0x8
+    kDontShowInCreateMenu = 0x8,
+    kIsItem = 0x10
   };
 
   struct ContextPair {
@@ -184,24 +185,23 @@ public:
     return folder_;
   }
 
-  virtual bool IsItem() const
-  {
-    return false;
-  }
+  bool IsItem() const { return flags_ & kIsItem; }
 
   /**
    * @brief Function called to retranslate parameter names (should be overridden in derivatives)
    */
   virtual void Retranslate();
 
-  virtual QIcon icon() const;
+  enum DataType
+  {
+    ICON,
+    DURATION,
+    CREATED_TIME,
+    MODIFIED_TIME,
+    FREQUENCY_RATE
+  };
 
-  virtual QString duration() const {return QString();}
-
-  virtual qint64 creation_time() const {return 0;}
-  virtual qint64 mod_time() const {return 0;}
-
-  virtual QString rate() const {return QString();}
+  virtual QVariant data(const DataType &d) const;
 
   const QVector<QString>& inputs() const
   {
@@ -1196,9 +1196,13 @@ protected:
     tooltip_ = s;
   }
 
-  void SetFlags(const uint64_t &f)
+  void SetFlag(Flag f, bool on = true)
   {
-    flags_ = f;
+    if (on) {
+      flags_ |= f;
+    } else {
+      flags_ &= ~f;
+    }
   }
 
   template<typename T>

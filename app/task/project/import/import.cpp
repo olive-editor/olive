@@ -157,9 +157,6 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
     QString previous_img_fn = Decoder::TransformImageSequenceFileName(footage->filename(), ind - 1);
     QString next_img_fn = Decoder::TransformImageSequenceFileName(footage->filename(), ind + 1);
 
-    // See if the same decoder can retrieve surrounding files
-    DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
-
     Footage* previous_file = new Footage(previous_img_fn);
     Footage* next_file = new Footage(next_img_fn);
 
