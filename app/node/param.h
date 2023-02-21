@@ -37,7 +37,7 @@ enum InputFlag : uint64_t {
   kInputFlagNotKeyframable = 0x2,
   kInputFlagNotConnectable = 0x4,
   kInputFlagHidden = 0x8,
-  kInputFlagIgnoreConnections = 0x10,
+  kInputFlagIgnoreInvalidations = 0x10,
 
   kInputFlagStatic = kInputFlagNotKeyframable | kInputFlagNotConnectable
 };
