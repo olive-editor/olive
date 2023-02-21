@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,49 +18,8 @@
 
 ***/
 
-#ifndef PROJECTSAVEMANAGER_H
-#define PROJECTSAVEMANAGER_H
-
-#include "node/project.h"
-#include "task/task.h"
+#include "serializeddata.h"
 
 namespace olive {
 
-class ProjectSaveTask : public Task
-{
-  Q_OBJECT
-public:
-  ProjectSaveTask(Project* project, bool use_compression);
-
-  Project* GetProject() const
-  {
-    return project_;
-  }
-
-  void SetOverrideFilename(const QString& filename)
-  {
-    override_filename_ = filename;
-  }
-
-  void SetLayout(const MainWindowLayoutInfo &layout)
-  {
-    layout_ = layout;
-  }
-
-protected:
-  virtual bool Run() override;
-
-private:
-  Project* project_;
-
-  QString override_filename_;
-
-  bool use_compression_;
-
-  MainWindowLayoutInfo layout_;
-
-};
-
 }
-
-#endif // PROJECTSAVEMANAGER_H

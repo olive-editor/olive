@@ -42,11 +42,18 @@ public:
     return filename_;
   }
 
+  const MainWindowLayoutInfo &GetLoadedLayout() const
+  {
+    return layout_;
+  }
+
 protected:
   Project* project_;
 
 private:
   QString filename_;
+
+  MainWindowLayoutInfo layout_;
 
 };
 

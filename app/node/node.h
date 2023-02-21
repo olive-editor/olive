@@ -56,8 +56,9 @@ namespace olive {
 #define NODE_COPY_FUNCTION(x) \
   virtual Node *copy() const override {return new x();}
 
-class Project;
 class Folder;
+class Project;
+class SerializedData;
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -287,6 +288,9 @@ public:
       position = p;
       expanded = e;
     }
+
+    bool load(QXmlStreamReader *reader);
+    void save(QXmlStreamWriter *writer) const;
 
     QPointF position;
     bool expanded;
@@ -682,6 +686,9 @@ public:
     void set_index(const int &index) { index_ = index; }
     void set_tag(const QString &tag) { tag_ = tag; }
 
+    bool load(QXmlStreamReader *reader);
+    void save(QXmlStreamWriter *writer) const;
+
   private:
     QVector<NodeValue::Type> type_;
     int index_;
@@ -940,6 +947,19 @@ public:
   static bool Link(Node* a, Node* b);
   static bool Unlink(Node* a, Node* b);
   static bool AreLinked(Node* a, Node* b);
+
+  bool Load(QXmlStreamReader *reader, SerializedData *data);
+  void Save(QXmlStreamWriter *writer) const;
+
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data);
+  virtual void SaveCustom(QXmlStreamWriter *writer) const {}
+  virtual void PostLoadEvent(SerializedData *data);
+
+  bool LoadInput(QXmlStreamReader *reader, SerializedData *data);
+  void SaveInput(QXmlStreamWriter *writer, const QString &id) const;
+
+  bool LoadImmediate(QXmlStreamReader *reader, const QString &input, int element, SerializedData *data);
+  void SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const;
 
   void SetFolder(Folder* folder)
   {

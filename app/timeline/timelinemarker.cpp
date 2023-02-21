@@ -144,6 +144,65 @@ QRect TimelineMarker::Draw(QPainter *p, const QPoint &pt, int max_right, double 
   }
 }
 
+bool TimelineMarker::load(QXmlStreamReader *reader)
+{
+  rational in, out;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("name")) {
+      this->set_name(attr.value().toString());
+    } else if (attr.name() == QStringLiteral("in")) {
+      in = rational::fromString(attr.value().toString().toStdString());
+    } else if (attr.name() == QStringLiteral("out")) {
+      out = rational::fromString(attr.value().toString().toStdString());
+    } else if (attr.name() == QStringLiteral("color")) {
+      this->set_color(attr.value().toInt());
+    }
+  }
+
+  this->set_time(TimeRange(in, out));
+
+  // This element has no inner text, so just skip it
+  reader->skipCurrentElement();
+}
+
+void TimelineMarker::save(QXmlStreamWriter *writer) const
+{
+  writer->writeAttribute(QStringLiteral("name"), this->name());
+  writer->writeAttribute(QStringLiteral("in"), QString::fromStdString(this->time().in().toString()));
+  writer->writeAttribute(QStringLiteral("out"), QString::fromStdString(this->time().out().toString()));
+  writer->writeAttribute(QStringLiteral("color"), QString::number(this->color()));
+}
+
+bool TimelineMarkerList::load(QXmlStreamReader *reader)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("marker")) {
+      TimelineMarker *marker = new TimelineMarker(this);
+      if (!marker->load(reader)) {
+        return false;
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
+}
+
+void TimelineMarkerList::save(QXmlStreamWriter *writer) const
+{
+  for (auto it=this->cbegin(); it!=this->cend(); it++) {
+    TimelineMarker* marker = *it;
+
+    writer->writeStartElement(QStringLiteral("marker"));
+
+    marker->save(writer);
+
+    writer->writeEndElement(); // marker
+  }
+}
+
 void TimelineMarkerList::childEvent(QChildEvent *e)
 {
   QObject::childEvent(e);

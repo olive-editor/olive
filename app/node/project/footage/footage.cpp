@@ -404,6 +404,34 @@ QVariant Footage::data(const DataType &d) const
   return super::data(d);
 }
 
+bool Footage::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("timestamp")) {
+      this->set_timestamp(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("viewer")) {
+      if (!ViewerOutput::LoadCustom(reader, data)) {
+        return false;
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
+}
+
+void Footage::SaveCustom(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(this->timestamp()));
+
+  writer->writeStartElement(QStringLiteral("viewer"));
+
+  ViewerOutput::SaveCustom(writer);
+
+  writer->writeEndElement(); // viewer
+}
+
 void Footage::UpdateTooltip()
 {
   if (valid_) {

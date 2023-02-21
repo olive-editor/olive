@@ -70,9 +70,10 @@ public:
     return default_nodes_;
   }
 
-  int GetNumberOfContextsNodeIsIn(Node *node, bool except_itself = false) const;
+  void Load(QXmlStreamReader *reader);
+  void Save(QXmlStreamWriter *writer) const;
 
-  Folder* root();
+  int GetNumberOfContextsNodeIsIn(Node *node, bool except_itself = false) const;
 
   QString name() const;
 
@@ -80,8 +81,9 @@ public:
   QString pretty_filename() const;
   void set_filename(const QString& s);
 
-  ColorManager* color_manager() { return color_manager_; }
-  ProjectSettingsNode* settings() { return settings_; }
+  Folder* root() const { return root_; }
+  ColorManager* color_manager() const { return color_manager_; }
+  ProjectSettingsNode* settings() const { return settings_; }
 
   bool is_modified() const { return is_modified_; }
   void set_modified(bool e);
@@ -105,16 +107,6 @@ public:
   }
 
   void RegenerateUuid();
-
-  const MainWindowLayoutInfo &GetLayoutInfo() const
-  {
-    return layout_info_;
-  }
-
-  void SetLayoutInfo(const MainWindowLayoutInfo &info)
-  {
-    layout_info_ = info;
-  }
 
   /**
    * @brief Returns the filename the project was saved as, but not necessarily where it is now
@@ -194,8 +186,6 @@ private:
   bool is_modified_;
 
   bool autorecovery_saved_;
-
-  MainWindowLayoutInfo layout_info_;
 
   QVector<Node*> node_children_;
 

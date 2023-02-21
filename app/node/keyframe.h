@@ -165,6 +165,9 @@ public:
 
   bool has_sibling_at_time(const rational &t) const;
 
+  bool load(QXmlStreamReader *reader, NodeValue::Type data_type);
+  void save(QXmlStreamWriter *writer, NodeValue::Type data_type) const;
+
 signals:
   /**
    * @brief Signal emitted when this keyframe's time is changed

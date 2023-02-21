@@ -35,16 +35,7 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
   LoadData load_data;
 
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("layout")) {
-
-      // Since the main window's functions have to occur in the GUI thread (and we're likely
-      // loading in a secondary thread), we load all necessary data into a separate struct so we
-      // can continue loading and queue it with the main window so it can handle the data
-      // appropriately in its own thread.
-
-      project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data.node_ptrs));
-
-    } else if (reader->name() == QStringLiteral("uuid")) {
+    if (reader->name() == QStringLiteral("uuid")) {
 
       project->SetUuid(QUuid::fromString(reader->readElementText()));
 

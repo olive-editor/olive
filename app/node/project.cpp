@@ -28,6 +28,7 @@
 #include "core.h"
 #include "dialog/progress/progress.h"
 #include "node/factory.h"
+#include "node/serializeddata.h"
 #include "render/diskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -80,6 +81,131 @@ void Project::Clear()
   while (!node_children_.isEmpty()) {
     delete node_children_.last();
   }
+}
+
+void Project::Load(QXmlStreamReader *reader)
+{
+  SerializedData data;
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("uuid")) {
+
+      this->SetUuid(QUuid::fromString(reader->readElementText()));
+
+    } else if (reader->name() == QStringLiteral("nodes")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          bool is_root = false;
+          bool is_cm = false;
+          bool is_settings = false;
+          QString id;
+
+          {
+            XMLAttributeLoop(reader, attr) {
+              if (attr.name() == QStringLiteral("id")) {
+                id = attr.value().toString();
+              } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
+                is_root = true;
+              } else if (attr.name() == QStringLiteral("cm") && attr.value() == QStringLiteral("1")) {
+                is_cm = true;
+              } else if (attr.name() == QStringLiteral("settings") && attr.value() == QStringLiteral("1")) {
+                is_settings = true;
+              }
+            }
+          }
+
+          if (id.isEmpty()) {
+            qWarning() << "Failed to load node with empty ID";
+            reader->skipCurrentElement();
+          } else {
+            Node* node;
+
+            if (is_root) {
+              node = this->root();
+            } else if (is_cm) {
+              node = this->color_manager();
+            } else if (is_settings) {
+              node = this->settings();
+            } else {
+              node = NodeFactory::CreateFromID(id);
+            }
+
+            if (!node) {
+              qWarning() << "Failed to find node with ID" << id;
+              reader->skipCurrentElement();
+            } else {
+              // Disable cache while node is being loaded (we'll re-enable it later)
+              node->SetCachesEnabled(false);
+
+              node->Load(reader, &data);
+
+              node->setParent(this);
+            }
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+    } else {
+
+      // Skip this
+      reader->skipCurrentElement();
+
+    }
+  }
+
+  for (auto it = this->nodes().cbegin(); it != this->nodes().cend(); it++){
+    (*it)->PostLoadEvent(&data);
+  }
+
+  foreach (const SerializedData::SerializedConnection& con, data.desired_connections) {
+    if (Node *out = data.node_ptrs.value(con.output_node)) {
+      Node::ConnectEdge(out, con.input);
+    }
+  }
+
+  foreach (const SerializedData::BlockLink& l, data.block_links) {
+    Node *a = l.block;
+    Node *b = data.node_ptrs.value(l.link);
+
+    Node::Link(a, b);
+  }
+
+  // Re-enable caches and resolve tracks
+  for (Node *n : this->nodes()) {
+    n->SetCachesEnabled(true);
+  }
+}
+
+void Project::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeAttribute(QStringLiteral("version"), QString::number(230220));
+
+  writer->writeTextElement(QStringLiteral("uuid"), this->GetUuid().toString());
+
+  writer->writeStartElement(QStringLiteral("nodes"));
+
+  foreach (Node* node, this->nodes()) {
+    writer->writeStartElement(QStringLiteral("node"));
+
+    if (node == this->root()) {
+      writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
+    } else if (node == this->color_manager()) {
+      writer->writeAttribute(QStringLiteral("cm"), QStringLiteral("1"));
+    } else if (node == this->settings()) {
+      writer->writeAttribute(QStringLiteral("settings"), QStringLiteral("1"));
+    }
+
+    writer->writeAttribute(QStringLiteral("id"), node->id());
+
+    node->Save(writer);
+
+    writer->writeEndElement(); // node
+  }
+
+  writer->writeEndElement(); // nodes
 }
 
 int Project::GetNumberOfContextsNodeIsIn(Node *node, bool except_itself) const
@@ -160,11 +286,6 @@ void Project::childEvent(QChildEvent *event)
       }
     }
   }
-}
-
-Folder *Project::root()
-{
-  return root_;
 }
 
 QString Project::name() const

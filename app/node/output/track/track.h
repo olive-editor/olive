@@ -102,6 +102,9 @@ public:
     SetTrackHeight(PixelHeightToInternalHeight(h));
   }
 
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
   static int InternalHeightToPixelHeight(double h)
   {
     return qRound(h * QFontMetrics(QFont()).height());

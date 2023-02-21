@@ -29,8 +29,10 @@
 #include "core.h"
 #include "config/config.h"
 #include "node/group/group.h"
+#include "node/project/serializer/typeserializer.h"
 #include "nodeundo.h"
 #include "project.h"
+#include "serializeddata.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
 
@@ -1181,6 +1183,463 @@ bool Node::AreLinked(Node *a, Node *b)
   return a->links_.contains(b);
 }
 
+bool Node::Load(QXmlStreamReader *reader, SerializedData *data)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("input")) {
+      LoadInput(reader, data);
+    } else if (reader->name() == QStringLiteral("ptr")) {
+      quintptr ptr = reader->readElementText().toULongLong();
+      data->node_ptrs.insert(ptr, this);
+    } else if (reader->name() == QStringLiteral("label")) {
+      this->SetLabel(reader->readElementText());
+    } else if (reader->name() == QStringLiteral("uuid")) {
+      data->node_uuids.insert(this, QUuid::fromString(reader->readElementText()));
+    } else if (reader->name() == QStringLiteral("color")) {
+      this->SetOverrideColor(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("links")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("link")) {
+          data->block_links.append({this, reader->readElementText().toULongLong()});
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("custom")) {
+      if (!LoadCustom(reader, data)) {
+        return false;
+      }
+    } else if (reader->name() == QStringLiteral("connections")) {
+      // Load connections
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("connection")) {
+          QString param_id;
+          int ele = -1;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("element")) {
+              ele = attr.value().toInt();
+            } else if (attr.name() == QStringLiteral("input")) {
+              param_id = attr.value().toString();
+            }
+          }
+
+          QString output_node_id;
+
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("output")) {
+              output_node_id = reader->readElementText();
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          data->desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong()});
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("hints")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("hint")) {
+          QString input;
+          int element = -1;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("input")) {
+              input = attr.value().toString();
+            } else if (attr.name() == QStringLiteral("element")) {
+              element = attr.value().toInt();
+            }
+          }
+
+          Node::ValueHint vh;
+          if (!vh.load(reader)) {
+            return false;
+          }
+          this->SetValueHintForInput(input, vh, element);
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("context")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          quintptr node_ptr = 0;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("ptr")) {
+              node_ptr = attr.value().toULongLong();
+            }
+          }
+
+          if (node_ptr) {
+            Node::Position node_pos;
+            if (!node_pos.load(reader)) {
+              return false;
+            }
+            data->positions[reinterpret_cast<quintptr>(this)].insert(node_ptr, node_pos);
+          } else {
+            return false;
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("caches")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("audio")) {
+          this->audio_playback_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
+        } else if (reader->name() == QStringLiteral("video")) {
+          this->video_frame_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
+        } else if (reader->name() == QStringLiteral("thumb")) {
+          this->thumbnail_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
+        } else if (reader->name() == QStringLiteral("waveform")) {
+          this->waveform_cache()->SetUuid(QUuid::fromString(reader->readElementText()));
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  this->LoadFinishedEvent();
+
+  return true;
+}
+
+void Node::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeAttribute(QStringLiteral("version"), QString::number(1));
+
+  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
+
+  writer->writeTextElement(QStringLiteral("label"), this->GetLabel());
+  writer->writeTextElement(QStringLiteral("color"), QString::number(this->GetOverrideColor()));
+
+  foreach (const QString& input, this->inputs()) {
+    writer->writeStartElement(QStringLiteral("input"));
+
+    SaveInput(writer, input);
+
+    writer->writeEndElement(); // input
+  }
+
+  writer->writeStartElement(QStringLiteral("links"));
+  foreach (Node* link, this->links()) {
+    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
+  }
+  writer->writeEndElement(); // links
+
+  writer->writeStartElement(QStringLiteral("connections"));
+  for (auto it=this->input_connections().cbegin(); it!=this->input_connections().cend(); it++) {
+    writer->writeStartElement(QStringLiteral("connection"));
+
+    writer->writeAttribute(QStringLiteral("input"), it->first.input());
+    writer->writeAttribute(QStringLiteral("element"), QString::number(it->first.element()));
+
+    writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->second)));
+
+    writer->writeEndElement(); // connection
+  }
+  writer->writeEndElement(); // connections
+
+  writer->writeStartElement(QStringLiteral("hints"));
+  for (auto it=this->GetValueHints().cbegin(); it!=this->GetValueHints().cend(); it++) {
+    writer->writeStartElement(QStringLiteral("hint"));
+
+    writer->writeAttribute(QStringLiteral("input"), it.key().input);
+    writer->writeAttribute(QStringLiteral("element"), QString::number(it.key().element));
+
+    it.value().save(writer);
+
+    writer->writeEndElement(); // hint
+  }
+  writer->writeEndElement(); // hints
+
+  writer->writeStartElement(QStringLiteral("context"));
+
+  const Node::PositionMap &map = this->GetContextPositions();
+
+  if (!map.isEmpty()) {
+    for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
+      writer->writeStartElement(QStringLiteral("node"));
+      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
+      jt.value().save(writer);
+      writer->writeEndElement(); // node
+    }
+  }
+
+  writer->writeEndElement(); // context
+
+  writer->writeStartElement(QStringLiteral("caches"));
+
+  writer->writeTextElement(QStringLiteral("audio"), this->audio_playback_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("video"), this->video_frame_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("thumb"), this->thumbnail_cache()->GetUuid().toString());
+  writer->writeTextElement(QStringLiteral("waveform"), this->waveform_cache()->GetUuid().toString());
+
+  writer->writeEndElement(); // caches
+
+  writer->writeStartElement(QStringLiteral("custom"));
+
+  SaveCustom(writer);
+
+  writer->writeEndElement(); // custom
+}
+
+bool Node::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
+{
+  reader->skipCurrentElement();
+  return true;
+}
+
+void Node::PostLoadEvent(SerializedData *data)
+{
+  // Resolve positions
+  quintptr this_ptr = data->node_ptrs.key(this);
+  const QMap<quintptr, Node::Position> &positions = data->positions.value(this_ptr);
+
+  for (auto jt=positions.cbegin(); jt!=positions.cend(); jt++) {
+    Node *n = data->node_ptrs.value(jt.key());
+    if (n) {
+      this->SetNodePositionInContext(n, jt.value());
+    }
+  }
+}
+
+bool Node::LoadInput(QXmlStreamReader *reader, SerializedData *data)
+{
+  if (dynamic_cast<NodeGroup*>(this)) {
+    // Ignore input of group
+    reader->skipCurrentElement();
+    return true;
+  }
+
+  QString param_id;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("id")) {
+      param_id = attr.value().toString();
+
+      break;
+    }
+  }
+
+  if (param_id.isEmpty()) {
+    qWarning() << "Failed to load parameter with missing ID";
+    reader->skipCurrentElement();
+    return false;
+  }
+
+  if (!this->HasInputWithID(param_id)) {
+    qWarning() << "Failed to load parameter that didn't exist:" << param_id;
+    reader->skipCurrentElement();
+    return false;
+  }
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("primary")) {
+      // Load primary immediate
+      if (!LoadImmediate(reader, param_id, -1, data)) {
+        return false;
+      }
+    } else if (reader->name() == QStringLiteral("subelements")) {
+      // Load subelements
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("count")) {
+          this->InputArrayResize(param_id, attr.value().toInt());
+        }
+      }
+
+      int element_counter = 0;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("element")) {
+          if (!LoadImmediate(reader, param_id, element_counter, data)) {
+            return false;
+          }
+
+          element_counter++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
+}
+
+void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
+{
+  writer->writeAttribute(QStringLiteral("id"), id);
+
+  writer->writeStartElement(QStringLiteral("primary"));
+
+  SaveImmediate(writer, id, -1);
+
+  writer->writeEndElement(); // primary
+
+  writer->writeStartElement(QStringLiteral("subelements"));
+
+  int arr_sz = this->InputArraySize(id);
+
+  writer->writeAttribute(QStringLiteral("count"), QString::number(arr_sz));
+
+  for (int i=0; i<arr_sz; i++) {
+    writer->writeStartElement(QStringLiteral("element"));
+
+    SaveImmediate(writer, id, i);
+
+    writer->writeEndElement(); // element
+  }
+
+  writer->writeEndElement(); // subelements
+}
+
+bool Node::LoadImmediate(QXmlStreamReader *reader, const QString &input, int element, SerializedData *data)
+{
+  NodeValue::Type data_type = this->GetInputDataType(input);
+
+  // HACK: SubtitleParams contain the actual subtitle data, so loading/replacing it will overwrite
+  //       the valid subtitles. We hack around it by simply skipping loading subtitles, we'll see
+  //       if this ends up being an issue in the future.
+  if (data_type == NodeValue::kSubtitleParams) {
+    reader->skipCurrentElement();
+    return true;
+  }
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("standard")) {
+      // Load standard value
+      int val_index = 0;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("track")) {
+          QVariant value_on_track;
+
+          if (data_type == NodeValue::kVideoParams) {
+            VideoParams vp;
+            vp.Load(reader);
+            value_on_track = QVariant::fromValue(vp);
+          } else if (data_type == NodeValue::kAudioParams) {
+            AudioParams ap = TypeSerializer::LoadAudioParams(reader);
+            value_on_track = QVariant::fromValue(ap);
+          } else {
+            QString value_text = reader->readElementText();
+
+            if (!value_text.isEmpty()) {
+              value_on_track = NodeValue::StringToValue(data_type, value_text, true);
+            }
+          }
+
+          this->SetSplitStandardValueOnTrack(input, val_index, value_on_track, element);
+
+          val_index++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("keyframing") && this->IsInputKeyframable(input)) {
+      this->SetInputIsKeyframing(input, reader->readElementText().toInt(), element);
+    } else if (reader->name() == QStringLiteral("keyframes")) {
+      int track = 0;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("track")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("key")) {
+              NodeKeyframe* key = new NodeKeyframe();
+              key->set_input(input);
+              key->set_element(element);
+              key->set_track(track);
+
+              key->load(reader, data_type);
+              key->setParent(this);
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          track++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("csinput")) {
+      this->SetInputProperty(input, QStringLiteral("col_input"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csdisplay")) {
+      this->SetInputProperty(input, QStringLiteral("col_display"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("csview")) {
+      this->SetInputProperty(input, QStringLiteral("col_view"), reader->readElementText());
+    } else if (reader->name() == QStringLiteral("cslook")) {
+      this->SetInputProperty(input, QStringLiteral("col_look"), reader->readElementText());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const
+{
+  if (this->IsInputKeyframable(input)) {
+    writer->writeTextElement(QStringLiteral("keyframing"), QString::number(this->IsInputKeyframing(input, element)));
+  }
+
+  NodeValue::Type data_type = this->GetInputDataType(input);
+
+  // Write standard value
+  writer->writeStartElement(QStringLiteral("standard"));
+
+  foreach (const QVariant& v, this->GetSplitStandardValue(input, element)) {
+    writer->writeStartElement(QStringLiteral("track"));
+
+    if (data_type == NodeValue::kVideoParams) {
+      v.value<VideoParams>().Save(writer);
+    } else if (data_type == NodeValue::kAudioParams) {
+      TypeSerializer::SaveAudioParams(writer, v.value<AudioParams>());
+    } else {
+      writer->writeCharacters(NodeValue::ValueToString(data_type, v, true));
+    }
+
+    writer->writeEndElement(); // track
+  }
+
+  writer->writeEndElement(); // standard
+
+  // Write keyframes
+  writer->writeStartElement(QStringLiteral("keyframes"));
+
+  for (const NodeKeyframeTrack& track : this->GetKeyframeTracks(input, element)) {
+    writer->writeStartElement(QStringLiteral("track"));
+
+    for (NodeKeyframe* key : track) {
+      writer->writeStartElement(QStringLiteral("key"));
+
+      key->save(writer, data_type);
+
+      writer->writeEndElement(); // key
+    }
+
+    writer->writeEndElement(); // track
+  }
+
+  writer->writeEndElement(); // keyframes
+
+  if (data_type == NodeValue::kColor) {
+    // Save color management information
+    writer->writeTextElement(QStringLiteral("csinput"), this->GetInputProperty(input, QStringLiteral("col_input")).toString());
+    writer->writeTextElement(QStringLiteral("csdisplay"), this->GetInputProperty(input, QStringLiteral("col_display")).toString());
+    writer->writeTextElement(QStringLiteral("csview"), this->GetInputProperty(input, QStringLiteral("col_view")).toString());
+    writer->writeTextElement(QStringLiteral("cslook"), this->GetInputProperty(input, QStringLiteral("col_look")).toString());
+  }
+}
+
 void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
 {
   if (id.isEmpty()) {
@@ -1928,6 +2387,82 @@ std::list<NodeInput> Node::FindPath(Node *from, Node *to, int path_index)
   FindPathInternal(v, from, to, path_index);
 
   return v;
+}
+
+bool Node::ValueHint::load(QXmlStreamReader *reader)
+{
+  uint version = 0;
+  XMLAttributeLoop(reader, attr) {
+    version = attr.value().toUInt();
+  }
+
+  Q_UNUSED(version)
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("types")) {
+      QVector<NodeValue::Type> types;
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("type")) {
+          types.append(static_cast<NodeValue::Type>(reader->readElementText().toInt()));
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+      this->set_type(types);
+    } else if (reader->name() == QStringLiteral("index")) {
+      this->set_index(reader->readElementText().toInt());
+    } else if (reader->name() == QStringLiteral("tag")) {
+      this->set_tag(reader->readElementText());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void Node::ValueHint::save(QXmlStreamWriter *writer) const
+{
+  writer->writeAttribute(QStringLiteral("version"), QString::number(1));
+
+  writer->writeStartElement(QStringLiteral("types"));
+
+  for (auto it=this->types().cbegin(); it!=this->types().cend(); it++) {
+    writer->writeTextElement(QStringLiteral("type"), QString::number(*it));
+  }
+
+  writer->writeEndElement(); // types
+
+  writer->writeTextElement(QStringLiteral("index"), QString::number(this->index()));
+
+  writer->writeTextElement(QStringLiteral("tag"), this->tag());
+}
+
+bool Node::Position::load(QXmlStreamReader *reader)
+{
+  bool got_pos_x = false;
+  bool got_pos_y = false;
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("x")) {
+      this->position.setX(reader->readElementText().toDouble());
+      got_pos_x = true;
+    } else if (reader->name() == QStringLiteral("y")) {
+      this->position.setY(reader->readElementText().toDouble());
+      got_pos_y = true;
+    } else if (reader->name() == QStringLiteral("expanded")) {
+      this->expanded = reader->readElementText().toInt();
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return got_pos_x && got_pos_y;
+}
+
+void Node::Position::save(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("x"), QString::number(this->position.x()));
+  writer->writeTextElement(QStringLiteral("y"), QString::number(this->position.y()));
+  writer->writeTextElement(QStringLiteral("expanded"), QString::number(this->expanded));
 }
 
 }

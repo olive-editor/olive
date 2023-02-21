@@ -492,7 +492,7 @@ bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
 
     if (ValidateFootageInLoadedProject(project, project->GetSavedURL())) {
       AddOpenProject(project, add_to_recents);
-      main_window_->LoadLayout(project->GetLayoutInfo());
+      main_window_->LoadLayout(load_task->GetLoadedLayout());
 
       return true;
     } else {
@@ -801,9 +801,6 @@ void Core::SaveProjectInternal(const QString& override_filename)
   // Create save manager
   Task* psm;
 
-  // Put layout into project
-  open_project_->SetLayoutInfo(main_window_->SaveLayout());
-
   if (open_project_->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
 #ifdef USE_OTIO
     psm = new SaveOTIOTask(open_project_);
@@ -817,6 +814,7 @@ void Core::SaveProjectInternal(const QString& override_filename)
   } else {
     bool use_compression = !open_project_->filename().endsWith(QStringLiteral(".ovexml"), Qt::CaseInsensitive);
     psm = new ProjectSaveTask(open_project_, use_compression);
+    static_cast<ProjectSaveTask*>(psm)->SetLayout(main_window_->SaveLayout());
 
     if (!override_filename.isEmpty()) {
       // Set override filename if provided

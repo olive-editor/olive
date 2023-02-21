@@ -173,6 +173,9 @@ public:
 
   virtual int GetTotalStreamCount() const override { return total_stream_count_; }
 
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
   static const QString kFilenameInput;
 
 protected:

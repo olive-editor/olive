@@ -195,6 +195,24 @@ void Track::SetTrackHeight(const double &height)
   emit TrackHeightChanged(track_height_);
 }
 
+bool Track::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("height")) {
+      this->SetTrackHeight(reader->readElementText().toDouble());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
+}
+
+void Track::SaveCustom(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("height"), QString::number(this->GetTrackHeight()));
+}
+
 void Track::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element)
