@@ -30,12 +30,12 @@ SubtitleBlock::SubtitleBlock()
 {
   AddInput(kTextIn, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  SetInputFlags(kBufferIn, InputFlags(GetInputFlags(kBufferIn) | kInputFlagHidden));
-  SetInputFlags(kLengthInput, InputFlags(GetInputFlags(kLengthInput) | kInputFlagHidden));
-  SetInputFlags(kMediaInInput, InputFlags(GetInputFlags(kMediaInInput) | kInputFlagHidden));
-  SetInputFlags(kSpeedInput, InputFlags(GetInputFlags(kSpeedInput) | kInputFlagHidden));
-  SetInputFlags(kReverseInput, InputFlags(GetInputFlags(kReverseInput) | kInputFlagHidden));
-  SetInputFlags(kMaintainAudioPitchInput, InputFlags(GetInputFlags(kMaintainAudioPitchInput) | kInputFlagHidden));
+  SetInputFlag(kBufferIn, kInputFlagHidden);
+  SetInputFlag(kLengthInput, kInputFlagHidden);
+  SetInputFlag(kMediaInInput, kInputFlagHidden);
+  SetInputFlag(kSpeedInput, kInputFlagHidden);
+  SetInputFlag(kReverseInput, kInputFlagHidden);
+  SetInputFlag(kMaintainAudioPitchInput, kInputFlagHidden);
 
   // Undo block flag that hides in param view
   SetFlag(kDontShowInParamView, false);

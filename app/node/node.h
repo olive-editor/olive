@@ -947,7 +947,7 @@ public:
   }
 
   InputFlags GetInputFlags(const QString& input) const;
-  void SetInputFlags(const QString &input, const InputFlags &f);
+  void SetInputFlag(const QString &input, InputFlag f, bool on = true);
 
   virtual void LoadFinishedEvent(){}
   virtual void ConnectedToPreviewEvent(){}

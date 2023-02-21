@@ -30,7 +30,7 @@ namespace olive {
 class Node;
 class NodeKeyframe;
 
-enum InputFlag {
+enum InputFlag : uint64_t {
   /// By default, inputs are keyframable, connectable, and NOT arrays
   kInputFlagNormal = 0x0,
   kInputFlagArray = 0x1,
@@ -61,12 +61,6 @@ public:
     return i;
   }
 
-  InputFlags &operator|=(const InputFlags &f)
-  {
-    f_ |= f.f_;
-    return *this;
-  }
-
   InputFlags operator|(const InputFlag &f) const
   {
     InputFlags i = *this;
@@ -74,7 +68,26 @@ public:
     return i;
   }
 
+  InputFlags operator|(const uint64_t &f) const
+  {
+    InputFlags i = *this;
+    i |= f;
+    return i;
+  }
+
+  InputFlags &operator|=(const InputFlags &f)
+  {
+    f_ |= f.f_;
+    return *this;
+  }
+
   InputFlags &operator|=(const InputFlag &f)
+  {
+    f_ |= f;
+    return *this;
+  }
+
+  InputFlags &operator|=(const uint64_t &f)
   {
     f_ |= f;
     return *this;
@@ -87,12 +100,6 @@ public:
     return i;
   }
 
-  InputFlags &operator&=(const InputFlags &f)
-  {
-    f_ &= f.f_;
-    return *this;
-  }
-
   InputFlags operator&(const InputFlag &f) const
   {
     InputFlags i = *this;
@@ -100,7 +107,26 @@ public:
     return i;
   }
 
+  InputFlags operator&(const uint64_t &f) const
+  {
+    InputFlags i = *this;
+    i &= f;
+    return i;
+  }
+
+  InputFlags &operator&=(const InputFlags &f)
+  {
+    f_ &= f.f_;
+    return *this;
+  }
+
   InputFlags &operator&=(const InputFlag &f)
+  {
+    f_ &= f;
+    return *this;
+  }
+
+  InputFlags &operator&=(const uint64_t &f)
   {
     f_ &= f;
     return *this;

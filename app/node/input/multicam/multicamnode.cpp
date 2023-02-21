@@ -103,7 +103,7 @@ void MultiCamNode::InputConnectedEvent(const QString &input, int element, Node *
 {
   if (input == kSequenceInput) {
     if (Sequence *s = dynamic_cast<Sequence*>(output)) {
-      SetInputFlags(kSequenceTypeInput, GetInputFlags(kSequenceTypeInput) & InputFlag(~kInputFlagHidden));
+      SetInputFlag(kSequenceTypeInput, kInputFlagHidden, false);
       sequence_ = s;
     }
   }
@@ -112,7 +112,7 @@ void MultiCamNode::InputConnectedEvent(const QString &input, int element, Node *
 void MultiCamNode::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kSequenceInput) {
-    SetInputFlags(kSequenceTypeInput, GetInputFlags(kSequenceTypeInput) | kInputFlagHidden);
+    SetInputFlag(kSequenceTypeInput, kInputFlagHidden, true);
     sequence_ = nullptr;
   }
 }

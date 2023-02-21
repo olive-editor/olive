@@ -903,12 +903,16 @@ InputFlags Node::GetInputFlags(const QString &input) const
   }
 }
 
-void Node::SetInputFlags(const QString &input, const InputFlags &f)
+void Node::SetInputFlag(const QString &input, InputFlag f, bool on)
 {
   Input* i = GetInternalInputData(input);
 
   if (i) {
-    i->flags = f;
+    if (on) {
+      i->flags |= f;
+    } else {
+      i->flags &= ~f;
+    }
     emit InputFlagsChanged(input, i->flags);
   } else {
     ReportInvalidInput("set flags of", input, -1);
