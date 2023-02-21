@@ -8,7 +8,7 @@
 #include "common/define.h"
 #include "opentimelineio/timeline.h"
 #include "node/project/sequence/sequence.h"
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 
