@@ -49,7 +49,7 @@ Track::Track() :
   ignore_arraymap_(0),
   arraymap_invalid_(false)
 {
-  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden | kInputFlagIgnoreConnections));
+  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden | kInputFlagIgnoreInvalidations));
 
   AddInput(kMutedInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
