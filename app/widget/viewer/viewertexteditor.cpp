@@ -294,6 +294,9 @@ void ViewerTextEditor::DocumentChanged()
       forced_default_ = true;
     }
   } else {
+    if (default_fmt_.isEmpty()) {
+      default_fmt_ = document()->firstBlock().charFormat();
+    }
     forced_default_ = false;
   }
 
