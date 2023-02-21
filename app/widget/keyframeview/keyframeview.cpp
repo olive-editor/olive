@@ -29,10 +29,10 @@
 #include "keyframeviewundo.h"
 #include "node/group/group.h"
 #include "node/node.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 
 namespace olive {
 

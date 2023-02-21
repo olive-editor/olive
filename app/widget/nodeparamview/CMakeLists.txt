@@ -36,8 +36,6 @@ set(OLIVE_SOURCES
   widget/nodeparamview/nodeparamviewkeyframecontrol.h
   widget/nodeparamview/nodeparamviewtextedit.cpp
   widget/nodeparamview/nodeparamviewtextedit.h
-  widget/nodeparamview/nodeparamviewundo.cpp
-  widget/nodeparamview/nodeparamviewundo.h
   widget/nodeparamview/nodeparamviewwidgetbridge.cpp
   widget/nodeparamview/nodeparamviewwidgetbridge.h
   PARENT_SCOPE

@@ -80,8 +80,8 @@ RenderTicketPtr PreviewAutoCacher::GetSingleFrame(Node *n, ViewerOutput *viewer,
   sfr->Start();
   sfr->setProperty("time", QVariant::fromValue(t));
   sfr->setProperty("dry", dry);
-  sfr->setProperty("node", Node::PtrToValue(n));
-  sfr->setProperty("viewer", Node::PtrToValue(viewer));
+  sfr->setProperty("node", QtUtils::PtrToValue(n));
+  sfr->setProperty("viewer", QtUtils::PtrToValue(viewer));
 
   // Queue it and try to render
   single_frame_render_ = sfr;
@@ -159,10 +159,10 @@ void PreviewAutoCacher::AudioRendered()
   if (running_audio_tasks_.removeOne(watcher)) {
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
     TimeRange range = watcher->property("time").value<TimeRange>();
-    Node *node = copier_->GetOriginal(Node::ValueToPtr<Node>(watcher->property("node")));
+    Node *node = copier_->GetOriginal(QtUtils::ValueToPtr<Node>(watcher->property("node")));
 
     if (watcher->HasResult() && node) {
-      if (PlaybackCache *cache = Node::ValueToPtr<PlaybackCache>(watcher->property("cache"))) {
+      if (PlaybackCache *cache = QtUtils::ValueToPtr<PlaybackCache>(watcher->property("cache"))) {
         AudioCacheData &d = audio_cache_data_[cache];
 
         JobTime watcher_job_time = watcher->property("job").value<JobTime>();
@@ -236,7 +236,7 @@ void PreviewAutoCacher::VideoRendered()
     // Assume that a "result" is a fully completed image and a non-result is a cancelled ticket
     if (watcher->HasResult()) {
       if (watcher->GetTicket()->property("cached").toBool()) {
-        if (FrameHashCache *cache = Node::ValueToPtr<FrameHashCache>(watcher->property("cache"))) {
+        if (FrameHashCache *cache = QtUtils::ValueToPtr<FrameHashCache>(watcher->property("cache"))) {
           rational time = watcher->property("time").value<rational>();
           JobTime job = watcher->property("job").value<JobTime>();
 
@@ -490,12 +490,12 @@ void PreviewAutoCacher::TryRender()
     single_frame_render_ = nullptr;
 
     // Check if already caching this
-    Node *n = Node::ValueToPtr<Node>(t->property("node"));
+    Node *n = QtUtils::ValueToPtr<Node>(t->property("node"));
     Node *copy = copier_->GetCopy(n);
 
     if (copy) {
       RenderTicketWatcher *watcher = RenderFrame(copy,
-                                                 Node::ValueToPtr<ViewerOutput>(t->property("viewer")),
+                                                 QtUtils::ValueToPtr<ViewerOutput>(t->property("viewer")),
                                                  t->property("time").value<rational>(),
                                                  nullptr,
                                                  t->property("dry").toBool());
@@ -576,7 +576,7 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, ViewerOutput *co
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(copier_->GetLastUpdateTime()));
-  watcher->setProperty("cache", Node::PtrToValue(cache));
+  watcher->setProperty("cache", QtUtils::PtrToValue(cache));
   watcher->setProperty("time", QVariant::fromValue(time));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::VideoRendered);
 
@@ -591,6 +591,7 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, ViewerOutput *co
 
   if (FrameHashCache *frame_cache = dynamic_cast<FrameHashCache *>(cache)) {
     if (ThumbnailCache *wave_cache = dynamic_cast<ThumbnailCache *>(cache)) {
+      Q_UNUSED(wave_cache)
       rvp.video_params.set_divider(VideoParams::GetDividerForTargetResolution(rvp.video_params.width(), rvp.video_params.height(), 160, 120));
       rvp.force_color_output = display_color_processor_;
       rvp.force_format = PixelFormat::U8;
@@ -618,8 +619,8 @@ RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, ViewerOutput *context
 {
   RenderTicketWatcher* watcher = new RenderTicketWatcher();
   watcher->setProperty("job", QVariant::fromValue(copier_->GetLastUpdateTime()));
-  watcher->setProperty("node", Node::PtrToValue(node));
-  watcher->setProperty("cache", Node::PtrToValue(cache));
+  watcher->setProperty("node", QtUtils::PtrToValue(node));
+  watcher->setProperty("cache", QtUtils::PtrToValue(cache));
   watcher->setProperty("time", QVariant::fromValue(r));
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
   running_audio_tasks_.append(watcher);

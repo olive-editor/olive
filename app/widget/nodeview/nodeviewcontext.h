@@ -5,9 +5,9 @@
 #include <QGraphicsTextItem>
 
 #include "node/node.h"
+#include "node/nodeundo.h"
 #include "nodeviewcommon.h"
 #include "nodeviewedge.h"
-#include "nodeviewundo.h"
 
 namespace olive {
 

@@ -48,7 +48,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
   TimeRange range = TimeRange(time, time + frame_length);
 
   NodeValueTable table;
-  if (Node* node = Node::ValueToPtr<Node>(ticket_->property("node"))) {
+  if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
     table = GenerateTable(node, range);
   }
 
@@ -220,7 +220,7 @@ void RenderProcessor::Run()
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
     NodeValueTable table;
-    if (Node* node = Node::ValueToPtr<Node>(ticket_->property("node"))) {
+    if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
       table = GenerateTable(node, time);
     }
 
@@ -299,7 +299,7 @@ NodeValueDatabase RenderProcessor::GenerateDatabase(const Node *node, const Time
   NodeValueDatabase db = super::GenerateDatabase(node, range);
 
   if (const MultiCamNode *multicam = dynamic_cast<const MultiCamNode*>(node)) {
-    if (Node::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
+    if (QtUtils::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
       int sz = multicam->GetSourceCount();
       QVector<TexturePtr> multicam_tex(sz);
       for (int i=0; i<sz; i++) {
@@ -334,7 +334,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
   // to optimize such a situation
   VideoParams stream_data = stream->video_params();
 
-  ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+  ColorManager* color_manager = QtUtils::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
 
   QString using_colorspace = stream_data.colorspace();
 
@@ -557,7 +557,7 @@ void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr
     return;
   }
 
-  ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+  ColorManager* color_manager = QtUtils::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
   ColorProcessorPtr cp = ColorProcessor::Create(color_manager, input_cs, color_manager->GetReferenceColorSpace());
 
   ColorTransformJob ctj;

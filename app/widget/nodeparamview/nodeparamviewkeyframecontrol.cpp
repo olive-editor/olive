@@ -24,7 +24,7 @@
 #include <QMessageBox>
 
 #include "core.h"
-#include "nodeparamviewundo.h"
+#include "node/nodeundo.h"
 #include "ui/icons/icons.h"
 
 namespace olive {

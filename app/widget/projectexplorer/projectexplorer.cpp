@@ -38,11 +38,9 @@
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "node/nodeundo.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
-#include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
@@ -396,7 +394,7 @@ void ProjectExplorer::ShowContextMenu()
       } else {
         foreach (Sequence* i, sequences) {
           QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->GetLabel()));
-          a->setData(Node::PtrToValue(i));
+          a->setData(QtUtils::PtrToValue(i));
         }
 
         connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
@@ -505,7 +503,7 @@ void ProjectExplorer::OpenContextMenuItemInNewWindow()
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
+  Sequence* sequence = QtUtils::ValueToPtr<Sequence>(a->data());
 
   // To get here, the `context_menu_items_` must be all kFootage
   foreach (Node* item, context_menu_items_) {

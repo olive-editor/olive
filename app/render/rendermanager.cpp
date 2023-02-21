@@ -99,7 +99,7 @@ RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("node", QtUtils::PtrToValue(params.node));
   ticket->setProperty("time", QVariant::fromValue(params.time));
   ticket->setProperty("size", params.force_size);
   ticket->setProperty("matrix", params.force_matrix);
@@ -108,7 +108,7 @@ RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
   ticket->setProperty("channelcount", params.force_channel_count);
   ticket->setProperty("mode", params.mode);
   ticket->setProperty("type", kTypeVideo);
-  ticket->setProperty("colormanager", Node::PtrToValue(params.color_manager));
+  ticket->setProperty("colormanager", QtUtils::PtrToValue(params.color_manager));
   ticket->setProperty("coloroutput", QVariant::fromValue(params.force_color_output));
   Q_ASSERT(params.video_params.is_valid());
   ticket->setProperty("vparam", QVariant::fromValue(params.video_params));
@@ -117,7 +117,7 @@ RenderTicketPtr RenderManager::RenderFrame(const RenderVideoParams &params)
   ticket->setProperty("cache", params.cache_dir);
   ticket->setProperty("cachetimebase", QVariant::fromValue(params.cache_timebase));
   ticket->setProperty("cacheid", QVariant::fromValue(params.cache_id));
-  ticket->setProperty("multicam", Node::PtrToValue(params.multicam));
+  ticket->setProperty("multicam", QtUtils::PtrToValue(params.multicam));
 
   if (params.return_type == ReturnType::kNull) {
     dry_run_thread_->AddTicket(ticket);
@@ -133,7 +133,7 @@ RenderTicketPtr RenderManager::RenderAudio(const RenderAudioParams &params)
   // Create ticket
   RenderTicketPtr ticket = std::make_shared<RenderTicket>();
 
-  ticket->setProperty("node", Node::PtrToValue(params.node));
+  ticket->setProperty("node", QtUtils::PtrToValue(params.node));
   ticket->setProperty("time", QVariant::fromValue(params.range));
   ticket->setProperty("type", kTypeAudio);
   ticket->setProperty("enablewaveforms", params.generate_waveforms);

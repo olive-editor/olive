@@ -48,19 +48,16 @@ Project::Project() :
   root_ = new Folder();
   root_->setParent(this);
   root_->SetLabel(tr("Root"));
-  root_->SetCanBeDeleted(false);
   AddDefaultNode(root_);
 
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
-  color_manager_->SetCanBeDeleted(false);
   AddDefaultNode(color_manager_);
 
   // Same with project settings
   settings_ = new ProjectSettingsNode();
   settings_->setParent(this);
-  settings_->SetCanBeDeleted(false);
   AddDefaultNode(settings_);
 
   connect(color_manager(), &ColorManager::ValueChanged,

@@ -37,6 +37,7 @@
 #include "core.h"
 #include "node/block/gap/gap.h"
 #include "node/generator/shape/shapenodebase.h"
+#include "node/nodeundo.h"
 #include "node/project.h"
 #include "panel/multicam/multicampanel.h"
 #include "panel/panelmanager.h"
@@ -45,7 +46,6 @@
 #include "widget/audiomonitor/audiomonitor.h"
 #include "widget/menu/menu.h"
 #include "widget/multicam/multicamdisplay.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
 

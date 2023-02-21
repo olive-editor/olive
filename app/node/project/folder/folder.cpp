@@ -21,10 +21,10 @@
 #include "folder.h"
 
 #include "common/xmlutils.h"
+#include "node/nodeundo.h"
 #include "node/project/footage/footage.h"
 #include "node/project/sequence/sequence.h"
 #include "ui/icons/icons.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -164,7 +164,7 @@ void Folder::RemoveElementCommand::redo()
       NodeInput connected_input(folder_, Folder::kChildInput, remove_index_);
       subcommand_ = new MultiUndoCommand();
       subcommand_->add_child(new NodeEdgeRemoveCommand(folder_->GetConnectedOutput(connected_input), connected_input));
-      subcommand_->add_child(new Node::ArrayRemoveCommand(folder_, Folder::kChildInput, remove_index_));
+      subcommand_->add_child(new NodeArrayRemoveCommand(folder_, Folder::kChildInput, remove_index_));
     }
   }
 

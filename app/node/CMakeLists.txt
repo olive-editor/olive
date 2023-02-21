@@ -44,6 +44,8 @@ set(OLIVE_SOURCES
   node/keyframe.h
   node/node.cpp
   node/node.h
+  node/nodeundo.cpp
+  node/nodeundo.h
   node/param.cpp
   node/param.h
   node/project.cpp

@@ -635,6 +635,8 @@ public:
 
   int InputArraySize(const QString& id) const;
 
+  NodeInputImmediate* GetImmediate(const QString& input, int element) const;
+
   NodeInput GetEffectInput()
   {
     return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_);
@@ -832,17 +834,6 @@ public:
   template<class T>
   static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input, int maximum = 0);
 
-  /**
-   * @brief Convert a pointer to a value that can be sent between NodeParams
-   */
-  static QVariant PtrToValue(void* ptr);
-
-  template<class T>
-  /**
-   * @brief Convert a NodeParam value to a pointer of any kind
-   */
-  static T* ValueToPtr(const QVariant& ptr);
-
   using InvalidateCacheOptions = QHash<QString, QVariant>;
 
   /**
@@ -900,16 +891,6 @@ public:
   static Node* CopyNodeInGraph(Node *node, MultiUndoCommand* command);
 
   /**
-   * @brief Return whether this Node can be deleted or not
-   */
-  bool CanBeDeleted() const;
-
-  /**
-   * @brief Set whether this Node can be deleted in the UI or not
-   */
-  void SetCanBeDeleted(bool s);
-
-  /**
    * @brief The main processing function
    *
    * The node's main purpose is to take values from inputs to set values in outputs. For whatever subclass node you
@@ -965,145 +946,6 @@ public:
     folder_ = folder;
   }
 
-  class ArrayInsertCommand : public UndoCommand
-  {
-  public:
-    ArrayInsertCommand(Node* node, const QString& input, int index) :
-      node_(node),
-      input_(input),
-      index_(index)
-    {
-    }
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      node_->InputArrayInsert(input_, index_);
-    }
-
-    virtual void undo() override
-    {
-      node_->InputArrayRemove(input_, index_);
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int index_;
-
-  };
-
-  class ArrayResizeCommand : public UndoCommand
-  {
-  public:
-    ArrayResizeCommand(Node* node, const QString& input, int size) :
-      node_(node),
-      input_(input),
-      size_(size)
-    {}
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      old_size_ = node_->InputArraySize(input_);
-
-      if (old_size_ > size_) {
-        // Decreasing in size, disconnect any extraneous edges
-        for (int i=size_; i<old_size_; i++) {
-
-          try {
-            NodeInput input(node_, input_, i);
-            Node *output = node_->input_connections().at(input);
-
-            removed_connections_[input] = output;
-
-            DisconnectEdge(output, input);
-          } catch (std::out_of_range&) {}
-        }
-      }
-
-      node_->ArrayResizeInternal(input_, size_);
-    }
-
-    virtual void undo() override
-    {
-      for (auto it=removed_connections_.cbegin(); it!=removed_connections_.cend(); it++) {
-        ConnectEdge(it->second, it->first);
-      }
-      removed_connections_.clear();
-
-      node_->ArrayResizeInternal(input_, old_size_);
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int size_;
-    int old_size_;
-
-    InputConnections removed_connections_;
-
-  };
-
-  class ArrayRemoveCommand : public UndoCommand
-  {
-  public:
-    ArrayRemoveCommand(Node* node, const QString& input, int index) :
-      node_(node),
-      input_(input),
-      index_(index)
-    {
-    }
-
-    virtual Project* GetRelevantProject() const override;
-
-  protected:
-    virtual void redo() override
-    {
-      // Save immediate data
-      if (node_->IsInputKeyframable(input_)) {
-        is_keyframing_ = node_->IsInputKeyframing(input_, index_);
-      }
-      standard_value_ = node_->GetSplitStandardValue(input_, index_);
-      keyframes_ = node_->GetKeyframeTracks(input_, index_);
-      node_->GetImmediate(input_, index_)->delete_all_keyframes(&memory_manager_);
-
-      node_->InputArrayRemove(input_, index_);
-    }
-
-    virtual void undo() override
-    {
-      node_->InputArrayInsert(input_, index_);
-
-      // Restore keyframes
-      foreach (const NodeKeyframeTrack& track, keyframes_) {
-        foreach (NodeKeyframe* key, track) {
-          key->setParent(node_);
-        }
-      }
-      node_->SetSplitStandardValue(input_, standard_value_, index_);
-
-      if (node_->IsInputKeyframable(input_)) {
-        node_->SetInputIsKeyframing(input_, is_keyframing_, index_);
-      }
-    }
-
-  private:
-    Node* node_;
-    QString input_;
-    int index_;
-
-    SplitValue standard_value_;
-    bool is_keyframing_;
-    QVector<NodeKeyframeTrack> keyframes_;
-    QObject memory_manager_;
-
-  };
-
   InputFlags GetInputFlags(const QString& input) const;
   void SetInputFlags(const QString &input, const InputFlags &f);
 
@@ -1116,6 +958,8 @@ public:
    * @brief Find path starting at `from` that outputs to arrive at `to`
    */
   static std::list<NodeInput> FindPath(Node *from, Node *to, int path_index);
+
+  void ArrayResizeInternal(const QString& id, int size);
 
   static const QString kEnabledInput;
 
@@ -1301,34 +1145,7 @@ private:
     int array_size;
   };
 
-  class ImmediateRemoveAllKeyframesCommand : public UndoCommand
-  {
-  public:
-    ImmediateRemoveAllKeyframesCommand(NodeInputImmediate *immediate) :
-      immediate_(immediate)
-    {}
-
-    virtual Project* GetRelevantProject() const override { return nullptr; }
-
-  protected:
-    virtual void prepare() override;
-
-    virtual void redo() override;
-
-    virtual void undo() override;
-
-  private:
-    NodeInputImmediate *immediate_;
-
-    QObject memory_manager_;
-
-    QVector<NodeKeyframe*> keys_;
-
-  };
-
   NodeInputImmediate* CreateImmediate(const QString& input);
-
-  NodeInputImmediate* GetImmediate(const QString& input, int element) const;
 
   int GetInternalInputIndex(const QString& input) const
   {
@@ -1358,8 +1175,6 @@ private:
   }
 
   void ReportInvalidInput(const char* attempted_action, const QString &id, int element) const;
-
-  void ArrayResizeInternal(const QString& id, int size);
 
   static Node *CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node *, Node *> &created, Node *node, MultiUndoCommand *command);
 
@@ -1398,11 +1213,6 @@ private:
   void ClearElement(const QString &input, int index);
 
   QVector<QString> ignore_connections_;
-
-  /**
-   * @brief Internal variable for whether this Node can be deleted or not
-   */
-  bool can_be_deleted_;
 
   /**
    * @brief Custom user label for node
@@ -1527,128 +1337,6 @@ QVector<T *> Node::FindInputNodes(int maximum) const
 
   return list;
 }
-
-template<class T>
-T* Node::ValueToPtr(const QVariant &ptr)
-{
-  return reinterpret_cast<T*>(ptr.value<quintptr>());
-}
-
-using NodePtr = std::shared_ptr<Node>;
-
-class NodeSetPositionCommand : public UndoCommand
-{
-public:
-  NodeSetPositionCommand(Node* node, Node* context, const Node::Position& pos)
-  {
-    node_ = node;
-    context_ = context;
-    pos_ = pos;
-  }
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Node* node_;
-  Node* context_;
-  Node::Position pos_;
-  Node::Position old_pos_;
-  bool added_;
-
-};
-
-class NodeSetPositionAndDependenciesRecursivelyCommand : public UndoCommand{
-public:
-  NodeSetPositionAndDependenciesRecursivelyCommand(Node* node, Node* context, const Node::Position& pos) :
-    node_(node),
-    context_(context),
-    pos_(pos)
-  {}
-
-  virtual Project* GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void prepare() override;
-
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  void move_recursively(Node *node, const QPointF &diff);
-
-  Node* node_;
-  Node* context_;
-  Node::Position pos_;
-  QVector<UndoCommand*> commands_;
-
-};
-
-class NodeRemovePositionFromContextCommand : public UndoCommand
-{
-public:
-  NodeRemovePositionFromContextCommand(Node *node, Node *context) :
-    node_(node),
-    context_(context)
-  {
-  }
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Node *node_;
-
-  Node *context_;
-
-  Node::Position old_pos_;
-
-  bool contained_;
-
-};
-
-class NodeRemovePositionFromAllContextsCommand : public UndoCommand
-{
-public:
-  NodeRemovePositionFromAllContextsCommand(Node *node) :
-    node_(node)
-  {
-  }
-
-  virtual Project * GetRelevantProject() const override
-  {
-    return node_->project();
-  }
-
-protected:
-  virtual void redo() override;
-
-  virtual void undo() override;
-
-private:
-  Node *node_;
-
-  std::map<Node *, QPointF> contexts_;
-
-};
 
 }
 
