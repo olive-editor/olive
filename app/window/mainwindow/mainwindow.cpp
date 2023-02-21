@@ -32,7 +32,7 @@
 #include "dialog/about/about.h"
 #include "mainmenu.h"
 #include "mainstatusbar.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
+#include "timeline/timelineundoworkarea.h"
 
 namespace olive {
 

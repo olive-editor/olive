@@ -32,7 +32,7 @@ const QString MaskDistortNode::kInvertInput = QStringLiteral("invert_in");
 MaskDistortNode::MaskDistortNode()
 {
   // Mask should always be (1.0, 1.0, 1.0) for multiply to work correctly
-  SetInputFlags(kColorInput, InputFlags(GetInputFlags(kColorInput) | kInputFlagHidden));
+  SetInputFlag(kColorInput, kInputFlagHidden);
 
   AddInput(kInvertInput, NodeValue::kBoolean, false);
 

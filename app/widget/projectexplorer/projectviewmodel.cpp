@@ -26,8 +26,7 @@
 
 #include "common/qtutils.h"
 #include "core.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "node/nodeundo.h"
 
 namespace olive {
 

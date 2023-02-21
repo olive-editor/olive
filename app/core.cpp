@@ -52,6 +52,7 @@
 #include "dialog/preferences/preferences.h"
 #include "node/color/colormanager/colormanager.h"
 #include "node/factory.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
@@ -73,7 +74,6 @@
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
 #include "widget/viewer/viewer.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "window/mainwindow/mainstatusbar.h"
 #include "window/mainwindow/mainwindow.h"
 

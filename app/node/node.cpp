@@ -29,11 +29,10 @@
 #include "core.h"
 #include "config/config.h"
 #include "node/group/group.h"
+#include "nodeundo.h"
 #include "project.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -42,7 +41,6 @@ namespace olive {
 const QString Node::kEnabledInput = QStringLiteral("enabled_in");
 
 Node::Node() :
-  can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
   flags_(kNone),
@@ -205,7 +203,7 @@ void Node::ConnectEdge(Node *output, const NodeInput &input)
   emit output->OutputConnected(output, input);
 
   // Invalidate all if this node isn't ignoring this input
-  if (!input.node()->ignore_connections_.contains(input.input())) {
+  if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreConnections)) {
     input.node()->InvalidateAll(input.input(), input.element());
   }
 }
@@ -232,7 +230,7 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   emit input.node()->InputDisconnected(output, input);
   emit output->OutputDisconnected(output, input);
 
-  if (!input.node()->ignore_connections_.contains(input.input())) {
+  if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreConnections)) {
     input.node()->InvalidateAll(input.input(), input.element());
   }
 }
@@ -815,7 +813,7 @@ void Node::InputArrayResize(const QString &id, int size)
     return;
   }
 
-  ArrayResizeCommand* c = new ArrayResizeCommand(this, id, size);
+  NodeArrayResizeCommand* c = new NodeArrayResizeCommand(this, id, size);
   c->redo_now();
   delete c;
 }
@@ -905,12 +903,16 @@ InputFlags Node::GetInputFlags(const QString &input) const
   }
 }
 
-void Node::SetInputFlags(const QString &input, const InputFlags &f)
+void Node::SetInputFlag(const QString &input, InputFlag f, bool on)
 {
   Input* i = GetInternalInputData(input);
 
   if (i) {
-    i->flags = f;
+    if (on) {
+      i->flags |= f;
+    } else {
+      i->flags &= ~f;
+    }
     emit InputFlagsChanged(input, i->flags);
   } else {
     ReportInvalidInput("set flags of", input, -1);
@@ -1309,11 +1311,6 @@ void Node::SetInputName(const QString &id, const QString &name)
   }
 }
 
-void Node::IgnoreInvalidationsFrom(const QString& input_id)
-{
-  ignore_connections_.append(input_id);
-}
-
 const QString &Node::GetLabel() const
 {
   return label_;
@@ -1426,7 +1423,7 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   // Copy keyframes
   if (NodeInputImmediate *immediate = dst->GetImmediate(input, dst_element)) {
     if (command) {
-      command->add_child(new ImmediateRemoveAllKeyframesCommand(immediate));
+      command->add_child(new NodeImmediateRemoveAllKeyframesCommand(immediate));
     } else {
       immediate->delete_all_keyframes();
     }
@@ -1455,7 +1452,7 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   if (src_element == -1 && dst_element == -1) {
     int array_sz = src->InputArraySize(input);
     if (command) {
-      command->add_child(new Node::ArrayResizeCommand(dst, input, array_sz));
+      command->add_child(new NodeArrayResizeCommand(dst, input, array_sz));
     } else {
       dst->ArrayResizeInternal(input, array_sz);
     }
@@ -1468,16 +1465,6 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   } else {
     dst->SetValueHintForInput(input, vh, dst_element);
   }
-}
-
-bool Node::CanBeDeleted() const
-{
-  return can_be_deleted_;
-}
-
-void Node::SetCanBeDeleted(bool s)
-{
-  can_be_deleted_ = s;
 }
 
 void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool traverse, bool exclusive_only)
@@ -1650,18 +1637,13 @@ TimeRange Node::TransformTimeTo(TimeRange time, Node *target, TransformTimeDirec
   return time;
 }
 
-QVariant Node::PtrToValue(void *ptr)
-{
-  return reinterpret_cast<quintptr>(ptr);
-}
-
 void Node::ParameterValueChanged(const QString& input, int element, const TimeRange& range)
 {
   InputValueChangedEvent(input, element);
 
   emit ValueChanged(NodeInput(this, input, element), range);
 
-  if (ignore_connections_.contains(input)) {
+  if (GetInputFlags(input) & kInputFlagIgnoreConnections) {
     return;
   }
 
@@ -1946,133 +1928,6 @@ std::list<NodeInput> Node::FindPath(Node *from, Node *to, int path_index)
   FindPathInternal(v, from, to, path_index);
 
   return v;
-}
-
-Project *Node::ArrayInsertCommand::GetRelevantProject() const
-{
-  return node_->project();
-}
-
-Project *Node::ArrayRemoveCommand::GetRelevantProject() const
-{
-  return node_->project();
-}
-
-Project *Node::ArrayResizeCommand::GetRelevantProject() const
-{
-  return node_->project();
-}
-
-void NodeSetPositionCommand::redo()
-{
-  added_ = !context_->ContextContainsNode(node_);
-
-  if (!added_) {
-    old_pos_ = context_->GetNodePositionDataInContext(node_);
-  }
-
-  context_->SetNodePositionInContext(node_, pos_);
-}
-
-void NodeSetPositionCommand::undo()
-{
-  if (added_) {
-    context_->RemoveNodeFromContext(node_);
-  } else {
-    context_->SetNodePositionInContext(node_, old_pos_);
-  }
-}
-
-void NodeRemovePositionFromContextCommand::redo()
-{
-  contained_ = context_->ContextContainsNode(node_);
-
-  if (contained_) {
-    old_pos_ = context_->GetNodePositionDataInContext(node_);
-    context_->RemoveNodeFromContext(node_);
-  }
-}
-
-void NodeRemovePositionFromContextCommand::undo()
-{
-  if (contained_) {
-    context_->SetNodePositionInContext(node_, old_pos_);
-  }
-}
-
-void NodeRemovePositionFromAllContextsCommand::redo()
-{
-  Project *graph = node_->parent();
-
-  foreach (Node* context, graph->nodes()) {
-    if (context->ContextContainsNode(node_)) {
-      contexts_.insert({context, context->GetNodePositionInContext(node_)});
-      context->RemoveNodeFromContext(node_);
-    }
-  }
-}
-
-void NodeRemovePositionFromAllContextsCommand::undo()
-{
-  for (auto it = contexts_.crbegin(); it != contexts_.crend(); it++) {
-    it->first->SetNodePositionInContext(node_, it->second);
-  }
-
-  contexts_.clear();
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()
-{
-  move_recursively(node_, pos_.position - context_->GetNodePositionDataInContext(node_).position);
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::redo()
-{
-  for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
-    (*it)->redo_now();
-  }
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::undo()
-{
-  for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
-    (*it)->undo_now();
-  }
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *node, const QPointF &diff)
-{
-  Node::Position pos = context_->GetNodePositionDataInContext(node);
-  pos += diff;
-  commands_.append(new NodeSetPositionCommand(node_, context_, pos));
-
-  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node *output = it->second;
-    if (context_->ContextContainsNode(output)) {
-      move_recursively(output, diff);
-    }
-  }
-}
-
-void Node::ImmediateRemoveAllKeyframesCommand::prepare()
-{
-  for (const NodeKeyframeTrack& track : immediate_->keyframe_tracks()) {
-    keys_.append(track);
-  }
-}
-
-void Node::ImmediateRemoveAllKeyframesCommand::redo()
-{
-  for (auto it=keys_.cbegin(); it!=keys_.cend(); it++) {
-    (*it)->setParent(&memory_manager_);
-  }
-}
-
-void Node::ImmediateRemoveAllKeyframesCommand::undo()
-{
-  for (auto it=keys_.crbegin(); it!=keys_.crend(); it++) {
-    (*it)->setParent(&memory_manager_);
-  }
 }
 
 }

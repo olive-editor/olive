@@ -24,7 +24,7 @@
 
 #include "panel/timeline/timeline.h"
 #include "ui/icons/icons.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
+#include "timeline/timelineundogeneral.h"
 
 namespace olive {
 
@@ -43,9 +43,7 @@ Sequence::Sequence()
     // Create track input
     QString track_input_id = kTrackInputFormat.arg(i);
 
-    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
-
-    IgnoreInvalidationsFrom(track_input_id);
+    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden | kInputFlagIgnoreConnections));
 
     TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input_id);
     track_lists_.replace(i, list);

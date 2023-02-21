@@ -25,8 +25,8 @@
 
 #include "config/config.h"
 #include "core.h"
+#include "node/nodeundo.h"
 #include "node/project/footage/footage.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 

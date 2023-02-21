@@ -26,9 +26,8 @@
 #include <QScrollBar>
 #include <QSplitter>
 
+#include "node/nodeundo.h"
 #include "node/output/viewer/viewer.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
 namespace olive {

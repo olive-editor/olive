@@ -24,7 +24,7 @@
 
 #include "node/block/clip/clip.h"
 #include "node/factory.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "node/nodeundo.h"
 
 namespace olive {
 

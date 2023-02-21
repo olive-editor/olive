@@ -26,7 +26,7 @@
 #include "node/math/math/math.h"
 #include "node/math/merge/merge.h"
 #include "timelineundocommon.h"
-#include "widget/timelinewidget/undo/timelineundotrack.h"
+#include "timelineundotrack.h"
 
 namespace olive {
 
