@@ -51,7 +51,7 @@ private:
   ColorProcessorPtr processor_;
 
 private slots:
-  void AddedToGraph(NodeGraph *graph);
+  void AddedToGraph(Project *p);
 
   void RemovedFromGraph();
 

@@ -69,7 +69,7 @@ public:
       ghost->SetMediaIn(static_cast<ClipBlock*>(block)->media_in());
     }
     ghost->SetTrack(block->track()->ToReference());
-    ghost->SetData(kAttachedBlock, Node::PtrToValue(block));
+    ghost->SetData(kAttachedBlock, QtUtils::PtrToValue(block));
 
     if (dynamic_cast<ClipBlock*>(block)) {
       ghost->can_have_zero_length_ = false;

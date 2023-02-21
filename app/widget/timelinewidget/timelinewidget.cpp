@@ -30,8 +30,13 @@
 #include "dialog/sequence/sequence.h"
 #include "dialog/speedduration/speeddurationdialog.h"
 #include "node/block/transition/transition.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "task/project/import/import.h"
+#include "timeline/timelineundogeneral.h"
+#include "timeline/timelineundopointer.h"
+#include "timeline/timelineundoripple.h"
+#include "timeline/timelineundoworkarea.h"
 #include "tool/add.h"
 #include "tool/beam.h"
 #include "tool/edit.h"
@@ -47,15 +52,9 @@
 #include "tool/zoom.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
-#include "undo/timelineundogeneral.h"
-#include "undo/timelineundopointer.h"
-#include "undo/timelineundoripple.h"
-#include "undo/timelineundoworkarea.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeparamview/nodeparamview.h"
-#include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
 namespace olive {
@@ -724,7 +723,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
       gap->set_length_and_media_out(GetConnectedNode()->GetWorkArea()->length());
 
-      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
+      command->add_child(new NodeAddCommand(static_cast<Project*>(track->parent()),
                                             gap));
 
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),

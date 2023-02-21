@@ -66,7 +66,7 @@ BlurFilterNode::BlurFilterNode()
 
   AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 
   radial_center_gizmo_ = AddDraggableGizmo<PointGizmo>();
@@ -209,10 +209,10 @@ void BlurFilterNode::InputValueChangedEvent(const QString &input, int element)
 
 void BlurFilterNode::UpdateInputs(Method method)
 {
-  SetInputFlags(kHorizInput, (method == kBox || method == kGaussian) ? InputFlags() : InputFlags(kInputFlagHidden));
-  SetInputFlags(kVertInput, (method == kBox || method == kGaussian) ? InputFlags() : InputFlags(kInputFlagHidden));
-  SetInputFlags(kDirectionalDegreesInput, (method == kDirectional) ? InputFlags() : InputFlags(kInputFlagHidden));
-  SetInputFlags(kRadialCenterInput, (method == kRadial) ? InputFlags() : InputFlags(kInputFlagHidden));
+  SetInputFlag(kHorizInput, kInputFlagHidden, !(method == kBox || method == kGaussian));
+  SetInputFlag(kVertInput, kInputFlagHidden, !(method == kBox || method == kGaussian));
+  SetInputFlag(kDirectionalDegreesInput, kInputFlagHidden, !(method == kDirectional));
+  SetInputFlag(kRadialCenterInput, kInputFlagHidden, !(method == kRadial));
 }
 
 }

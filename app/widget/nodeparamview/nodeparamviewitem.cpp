@@ -26,8 +26,9 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "dialog/speedduration/speeddurationdialog.h"
+#include "node/group/group.h"
+#include "node/nodeundo.h"
 #include "node/project/sequence/sequence.h"
-#include "nodeparamviewundo.h"
 
 namespace olive {
 
@@ -443,7 +444,7 @@ void NodeParamViewItemBody::ArrayAppendClicked()
   for (auto it=array_ui_.cbegin(); it!=array_ui_.cend(); it++) {
     if (it.value().append_btn == sender()) {
       NodeInput real_input = NodeGroup::ResolveInput(NodeInput(it.key().node, it.key().input));
-      real_input.node()->InputArrayAppend(real_input.input(), true);
+      Core::instance()->undo_stack()->push(new NodeArrayInsertCommand(real_input.node(), real_input.input(), real_input.GetArraySize()+1));
       break;
     }
   }
@@ -455,7 +456,7 @@ void NodeParamViewItemBody::ArrayInsertClicked()
     if (it.value().array_insert_btn == sender()) {
       // Found our input and element
       NodeInput ic = NodeGroup::ResolveInput(it.key());
-      ic.node()->InputArrayInsert(ic.input(), ic.element(), true);
+      Core::instance()->undo_stack()->push(new NodeArrayInsertCommand(ic.node(), ic.input(), ic.element()));
       break;
     }
   }
@@ -467,7 +468,7 @@ void NodeParamViewItemBody::ArrayRemoveClicked()
     if (it.value().array_remove_btn == sender()) {
       // Found our input and element
       NodeInput ic = NodeGroup::ResolveInput(it.key());
-      ic.node()->InputArrayRemove(ic.input(), ic.element(), true);
+      Core::instance()->undo_stack()->push(new NodeArrayRemoveCommand(ic.node(), ic.input(), ic.element()));
       break;
     }
   }

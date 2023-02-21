@@ -21,7 +21,7 @@
 #ifndef PROJECTCOPIER_H
 #define PROJECTCOPIER_H
 
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 
@@ -99,7 +99,7 @@ private:
 
   std::list<QueuedJob> graph_update_queue_;
   QHash<Node*, Node*> copy_map_;
-  QHash<NodeGraph*, NodeGraph*> graph_map_;
+  QHash<Project*, Project*> graph_map_;
   QVector<Node*> created_nodes_;
 
   JobTime graph_changed_time_;

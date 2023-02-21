@@ -21,7 +21,7 @@
 #include "playbackcache.h"
 
 #include "node/output/viewer/viewer.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "render/diskmanager.h"
 

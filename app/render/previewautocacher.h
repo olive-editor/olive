@@ -25,11 +25,10 @@
 
 #include "config/config.h"
 #include "node/color/colormanager/colormanager.h"
-#include "node/graph.h"
 #include "node/group/group.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "render/projectcopier.h"
 #include "render/renderjobtracker.h"
 #include "render/renderticket.h"

@@ -21,7 +21,7 @@
 #ifndef TIMELINEUNDOWORKAREA_H
 #define TIMELINEUNDOWORKAREA_H
 
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 

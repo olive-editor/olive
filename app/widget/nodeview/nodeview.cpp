@@ -28,11 +28,11 @@
 #include <QScrollBar>
 #include <QToolTip>
 
-#include "nodeviewundo.h"
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
 #include "node/group/group.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "node/traverser.h"
 #include "ui/icons/icons.h"

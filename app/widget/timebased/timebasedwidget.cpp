@@ -28,8 +28,8 @@
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/sequence/sequence.h"
+#include "timeline/timelineundoworkarea.h"
 #include "widget/timeruler/timeruler.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 

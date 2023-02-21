@@ -26,6 +26,7 @@
 
 #include "common/xmlutils.h"
 #include "core.h"
+#include "node/group/group.h"
 #include "serializer190219.h"
 #include "serializer210528.h"
 #include "serializer210907.h"

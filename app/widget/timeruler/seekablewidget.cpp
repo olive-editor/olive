@@ -30,10 +30,10 @@
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/serializer/serializer.h"
+#include "timeline/timelineundoworkarea.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedwidget.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 

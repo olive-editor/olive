@@ -30,7 +30,7 @@
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
 #include "conformmanager.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "task/taskmanager.h"
 
 namespace olive {

@@ -242,7 +242,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
           && !ghost->IsInvisible()) {
         int track_index = ghost->GetAdjustedTrack().index();
 
-        Block *attached = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+        Block *attached = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
         if (attached && OLIVE_CONFIG("ShowClipWhileDragging").toBool()) {
           int adj_track = ghost->GetAdjustedTrack().index();

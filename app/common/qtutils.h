@@ -75,6 +75,23 @@ public:
 
   static QColor toQColor(const core::Color &c);
 
+  /**
+   * @brief Convert a pointer to a value that can be sent between NodeParams
+   */
+  static QVariant PtrToValue(void* ptr)
+  {
+    return reinterpret_cast<quintptr>(ptr);
+  }
+
+  /**
+   * @brief Convert a NodeParam value to a pointer of any kind
+   */
+  template<class T>
+  static T* ValueToPtr(const QVariant &ptr)
+  {
+    return reinterpret_cast<T*>(ptr.value<quintptr>());
+  }
+
 };
 
 namespace core {

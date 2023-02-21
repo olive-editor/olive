@@ -21,7 +21,7 @@
 #include "ociobase.h"
 
 #include "node/color/colormanager/colormanager.h"
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 
@@ -38,16 +38,14 @@ OCIOBaseNode::OCIOBaseNode() :
   connect(this, &Node::AddedToGraph, this, &OCIOBaseNode::AddedToGraph);
   connect(this, &Node::RemovedFromGraph, this, &OCIOBaseNode::RemovedFromGraph);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
 }
 
-void OCIOBaseNode::AddedToGraph(NodeGraph *graph)
+void OCIOBaseNode::AddedToGraph(Project *p)
 {
-  if (Project *p = dynamic_cast<Project*>(graph)) {
-    manager_ = p->color_manager();
-    connect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
-    ConfigChanged();
-  }
+  manager_ = p->color_manager();
+  connect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
+  ConfigChanged();
 }
 
 void OCIOBaseNode::RemovedFromGraph()

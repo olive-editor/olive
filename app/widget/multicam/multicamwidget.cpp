@@ -19,10 +19,12 @@
 ***/
 
 #include "multicamwidget.h"
-#include "qshortcut.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+
+#include <QShortcut>
+
+#include "node/nodeundo.h"
+#include "timeline/timelineundosplit.h"
 #include "widget/timeruler/timeruler.h"
-#include "widget/timelinewidget/undo/timelineundosplit.h"
 
 namespace olive {
 

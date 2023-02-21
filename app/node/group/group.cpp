@@ -20,7 +20,7 @@
 
 #include "group.h"
 
-#include "node/graph.h"
+#include "node/project.h"
 
 namespace olive {
 
@@ -29,7 +29,7 @@ namespace olive {
 NodeGroup::NodeGroup() :
   output_passthrough_(nullptr)
 {
-  SetFlags(kDontShowInCreateMenu);
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString NodeGroup::Name() const

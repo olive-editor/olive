@@ -53,8 +53,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual QString duration() const override;
-  virtual QString rate() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   void set_default_parameters();
 

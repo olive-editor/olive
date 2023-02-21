@@ -22,7 +22,7 @@
 #define PROJECT_PANEL_H
 
 #include "footagemanagementpanel.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 

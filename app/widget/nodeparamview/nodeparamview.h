@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "node/group/group.h"
 #include "node/node.h"
 #include "node/project/serializer/serializer.h"
 #include "nodeparamviewcontext.h"

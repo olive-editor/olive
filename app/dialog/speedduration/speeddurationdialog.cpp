@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
 #include <QMessageBox>
 
 #include "core.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/timelinewidget/undo/timelineundopointer.h"
+#include "node/nodeundo.h"
+#include "timeline/timelineundopointer.h"
 
 namespace olive {
 

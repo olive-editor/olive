@@ -24,7 +24,7 @@
 #include <QMimeData>
 
 #include "config/config.h"
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 

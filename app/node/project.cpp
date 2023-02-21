@@ -33,6 +33,8 @@
 
 namespace olive {
 
+#define super QObject
+
 const QString Project::kItemMimeType = QStringLiteral("application/x-oliveprojectitemdata");
 
 Project::Project() :
@@ -46,23 +48,118 @@ Project::Project() :
   root_ = new Folder();
   root_->setParent(this);
   root_->SetLabel(tr("Root"));
-  root_->SetCanBeDeleted(false);
   AddDefaultNode(root_);
 
   // Adds a color manager "node" to this project so that it synchronizes
   color_manager_ = new ColorManager();
   color_manager_->setParent(this);
-  color_manager_->SetCanBeDeleted(false);
   AddDefaultNode(color_manager_);
 
   // Same with project settings
   settings_ = new ProjectSettingsNode();
   settings_->setParent(this);
-  settings_->SetCanBeDeleted(false);
   AddDefaultNode(settings_);
 
   connect(color_manager(), &ColorManager::ValueChanged,
           this, &Project::ColorManagerValueChanged);
+}
+
+Project::~Project()
+{
+  Clear();
+}
+
+void Project::Clear()
+{
+  // By deleting the last nodes first, we assume that nodes that are most important are deleted last
+  // (e.g. Project's ColorManager or ProjectSettingsNode.
+  for (auto it=node_children_.cbegin(); it!=node_children_.cend(); it++) {
+    (*it)->SetCachesEnabled(false);
+  }
+
+  while (!node_children_.isEmpty()) {
+    delete node_children_.last();
+  }
+}
+
+int Project::GetNumberOfContextsNodeIsIn(Node *node, bool except_itself) const
+{
+  int count = 0;
+
+  foreach (Node *ctx, node_children_) {
+    if (ctx->ContextContainsNode(node) && (!except_itself || ctx != node)) {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+void Project::childEvent(QChildEvent *event)
+{
+  super::childEvent(event);
+
+  Node* node = dynamic_cast<Node*>(event->child());
+
+  if (node) {
+    if (event->type() == QEvent::ChildAdded) {
+
+      node_children_.append(node);
+
+      // Connect signals
+      connect(node, &Node::InputConnected, this, &Project::InputConnected, Qt::DirectConnection);
+      connect(node, &Node::InputDisconnected, this, &Project::InputDisconnected, Qt::DirectConnection);
+      connect(node, &Node::ValueChanged, this, &Project::ValueChanged, Qt::DirectConnection);
+      connect(node, &Node::InputValueHintChanged, this, &Project::InputValueHintChanged, Qt::DirectConnection);
+
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        connect(group, &NodeGroup::InputPassthroughAdded, this, &Project::GroupAddedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::InputPassthroughRemoved, this, &Project::GroupRemovedInputPassthrough, Qt::DirectConnection);
+        connect(group, &NodeGroup::OutputPassthroughChanged, this, &Project::GroupChangedOutputPassthrough, Qt::DirectConnection);
+      }
+
+      emit NodeAdded(node);
+      emit node->AddedToGraph(this);
+
+      // Emit input connections
+      for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
+        if (nodes().contains(it->second)) {
+          emit InputConnected(it->second, it->first);
+        }
+      }
+
+      // Emit output connections
+      for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
+        if (nodes().contains(it->second.node())) {
+          emit InputConnected(it->first, it->second);
+        }
+      }
+
+    } else if (event->type() == QEvent::ChildRemoved) {
+
+      node_children_.removeOne(node);
+
+      // Disconnect signals
+      disconnect(node, &Node::InputConnected, this, &Project::InputConnected);
+      disconnect(node, &Node::InputDisconnected, this, &Project::InputDisconnected);
+      disconnect(node, &Node::ValueChanged, this, &Project::ValueChanged);
+      disconnect(node, &Node::InputValueHintChanged, this, &Project::InputValueHintChanged);
+
+      if (NodeGroup *group = dynamic_cast<NodeGroup*>(node)) {
+        disconnect(group, &NodeGroup::InputPassthroughAdded, this, &Project::GroupAddedInputPassthrough);
+        disconnect(group, &NodeGroup::InputPassthroughRemoved, this, &Project::GroupRemovedInputPassthrough);
+        disconnect(group, &NodeGroup::OutputPassthroughChanged, this, &Project::GroupChangedOutputPassthrough);
+      }
+
+      emit NodeRemoved(node);
+      emit node->RemovedFromGraph(this);
+
+      // Remove from any contexts
+      foreach (Node *context, node_children_) {
+        context->RemoveNodeFromContext(node);
+      }
+    }
+  }
 }
 
 Folder *Project::root()

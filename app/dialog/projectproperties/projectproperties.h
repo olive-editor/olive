@@ -28,7 +28,7 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
-#include "node/project/project.h"
+#include "node/project.h"
 #include "widget/path/pathwidget.h"
 
 namespace olive {

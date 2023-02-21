@@ -59,7 +59,7 @@ public:
     return tr("Organize several items into a single collection.");
   }
 
-  virtual QIcon icon() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   virtual void Retranslate() override;
 
@@ -84,11 +84,6 @@ public:
   const QVector<Node*>& children() const
   {
     return item_children_;
-  }
-
-  virtual bool IsItem() const override
-  {
-    return true;
   }
 
   int index_of_child(Node* item) const
