@@ -203,7 +203,7 @@ void Node::ConnectEdge(Node *output, const NodeInput &input)
   emit output->OutputConnected(output, input);
 
   // Invalidate all if this node isn't ignoring this input
-  if (!input.node()->ignore_connections_.contains(input.input())) {
+  if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreConnections)) {
     input.node()->InvalidateAll(input.input(), input.element());
   }
 }
@@ -230,7 +230,7 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   emit input.node()->InputDisconnected(output, input);
   emit output->OutputDisconnected(output, input);
 
-  if (!input.node()->ignore_connections_.contains(input.input())) {
+  if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreConnections)) {
     input.node()->InvalidateAll(input.input(), input.element());
   }
 }
@@ -1307,11 +1307,6 @@ void Node::SetInputName(const QString &id, const QString &name)
   }
 }
 
-void Node::IgnoreInvalidationsFrom(const QString& input_id)
-{
-  ignore_connections_.append(input_id);
-}
-
 const QString &Node::GetLabel() const
 {
   return label_;
@@ -1644,7 +1639,7 @@ void Node::ParameterValueChanged(const QString& input, int element, const TimeRa
 
   emit ValueChanged(NodeInput(this, input, element), range);
 
-  if (ignore_connections_.contains(input)) {
+  if (GetInputFlags(input) & kInputFlagIgnoreConnections) {
     return;
   }
 

@@ -36,8 +36,10 @@ enum InputFlag {
   kInputFlagArray = 0x1,
   kInputFlagNotKeyframable = 0x2,
   kInputFlagNotConnectable = 0x4,
-  kInputFlagStatic = kInputFlagNotKeyframable | kInputFlagNotConnectable,
-  kInputFlagHidden = 0x8
+  kInputFlagHidden = 0x8,
+  kInputFlagIgnoreConnections = 0x10,
+
+  kInputFlagStatic = kInputFlagNotKeyframable | kInputFlagNotConnectable
 };
 
 class InputFlags {

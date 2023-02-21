@@ -995,15 +995,6 @@ protected:
 
   void SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options);
 
-  /**
-   * @brief Don't send cache invalidation signals if `input` is connected or disconnected
-   *
-   * By default, when a node is connected or disconnected from input, the Node assumes that the
-   * parameters has changed throughout the duration of the clip (essential from 0 to infinity).
-   * In some scenarios, it may be preferable to handle this signal separately in order to
-   */
-  void IgnoreInvalidationsFrom(const QString &input_id);
-
   enum GizmoScaleHandles {
     kGizmoScaleTopLeft,
     kGizmoScaleTopCenter,
@@ -1211,8 +1202,6 @@ private:
   TimeRange GetRangeAroundIndex(const QString& input, int index, int track, int element) const;
 
   void ClearElement(const QString &input, int index);
-
-  QVector<QString> ignore_connections_;
 
   /**
    * @brief Custom user label for node
