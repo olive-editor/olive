@@ -1003,7 +1003,7 @@ void ProjectSerializer230220::PostConnect(const XMLNodeData &xml_node_data) cons
 
       l.group->AddInputPassthrough(resolved, l.passthrough_id);
 
-      l.group->SetInputFlags(l.passthrough_id, resolved.GetFlags() | l.custom_flags);
+      l.group->SetInputFlag(l.passthrough_id, InputFlag(l.custom_flags.value()));
 
       if (!l.custom_name.isEmpty()) {
         l.group->SetInputName(l.passthrough_id, l.custom_name);

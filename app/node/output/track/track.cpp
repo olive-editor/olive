@@ -53,8 +53,7 @@ Track::Track() :
 
   AddInput(kMutedInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
-  AddInput(kArrayMapInput, NodeValue::kBinary, InputFlags(kInputFlagStatic | kInputFlagHidden));
-  IgnoreInvalidationsFrom(kArrayMapInput);
+  AddInput(kArrayMapInput, NodeValue::kBinary, InputFlags(kInputFlagStatic | kInputFlagHidden | kInputFlagIgnoreConnections));
 
   // Set default height
   track_height_ = kTrackHeightDefault;
