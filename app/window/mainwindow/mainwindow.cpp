@@ -86,6 +86,13 @@ MainWindow::MainWindow(QWidget *parent) :
   audio_monitor_panel_ = new AudioMonitorPanel();
   scope_panel_ = new ScopePanel();
 
+  // HACK: The pixel sampler is closed by default, which signals to Core that
+  //       it's no longer visible. However KDDockWidgets doesn't appear to
+  //       emit the "shown" signal before emitting the "hidden" signals, resulting
+  //       in Core thinking there are -1 pixel samplers open. To mitigate that,
+  //       we force "shown" to emit ourselves here.
+  emit pixel_sampler_panel_->shown();
+
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodeSelectionChangedWithContexts, param_panel_, &ParamPanel::SetSelectedNodes);
   connect(node_panel_, &NodePanel::NodeGroupOpened, this, &MainWindow::NodePanelGroupOpenedOrClosed);
