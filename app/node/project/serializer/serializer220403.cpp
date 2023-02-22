@@ -334,6 +334,13 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
   // Re-enable caches
   for (Node *n : project->nodes()) {
     n->SetCachesEnabled(true);
+
+    // Clear duplicate label (to facilitate #2147)
+    if (ClipBlock *c = dynamic_cast<ClipBlock*>(n)) {
+      if (c->connected_viewer() && c->GetLabel() == c->connected_viewer()->GetLabel()) {
+        c->SetLabel(QString());
+      }
+    }
   }
 
   return load_data;
