@@ -116,8 +116,10 @@ public:
     track_(track),
     blocks_(moving_blocks),
     movement_(movement),
+    we_removed_in_adjacent_(false),
     in_adjacent_(in_adjacent),
     in_adjacent_remove_command_(nullptr),
+    we_removed_out_adjacent_(false),
     out_adjacent_(out_adjacent),
     out_adjacent_remove_command_(nullptr)
   {
@@ -148,9 +150,11 @@ private:
   rational movement_;
 
   bool we_created_in_adjacent_;
+  bool we_removed_in_adjacent_;
   Block* in_adjacent_;
   UndoCommand* in_adjacent_remove_command_;
   bool we_created_out_adjacent_;
+  bool we_removed_out_adjacent_;
   Block* out_adjacent_;
   UndoCommand* out_adjacent_remove_command_;
 
