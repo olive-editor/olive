@@ -1178,7 +1178,11 @@ bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool c
 bool ViewerDisplayWidget::ForwardEventToTextEdit(QEvent *event)
 {
   qApp->sendEvent(text_edit_->viewport(), event);
-  return event->isAccepted();
+  bool e = event->isAccepted();
+  if (e) {
+    update();
+  }
+  return e;
 }
 
 QPointF ViewerDisplayWidget::AdjustPosByVAlign(QPointF p)
