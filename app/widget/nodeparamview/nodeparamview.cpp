@@ -726,6 +726,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
     connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
+    connect(item, &NodeParamViewItem::InputArraySizeChanged, this, &NodeParamView::InputArraySizeChanged);
 
     item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
   }
@@ -997,6 +998,44 @@ void NodeParamView::GroupInputPassthroughRemoved(NodeGroup *group, const NodeInp
   foreach (NodeParamViewContext *pvctx, context_items_) {
     pvctx->SetInputChecked(input, false);
   }
+}
+
+void NodeParamView::InputArraySizeChanged(const QString &input, int, int new_size)
+{
+  NodeParamViewItem *sender = static_cast<NodeParamViewItem *>(this->sender());
+
+  KeyframeView::NodeConnections &connections = sender->GetKeyframeConnections();
+  KeyframeView::InputConnections &inputs = connections[input];
+
+  int adj_new_size = new_size + 1;
+
+  if (adj_new_size != inputs.size()) {
+    if (adj_new_size < inputs.size()) {
+      // Remove elements from keyframe view
+      for (int i = adj_new_size; i < inputs.size(); i++) {
+        const KeyframeView::ElementConnections &ec = inputs.at(i);
+        for (auto kc : ec) {
+          keyframe_view_->RemoveKeyframesOfTrack(kc);
+        }
+      }
+
+      // Resize vector to match new size
+      inputs.resize(adj_new_size);
+    } else {
+      // Add elements
+      int old_size = inputs.size();
+
+      // Resize vector to match
+      inputs.resize(adj_new_size);
+
+      // Fill in extra elements
+      for (int i = old_size; i < inputs.size(); i++) {
+        inputs[i] = keyframe_view_->AddKeyframesOfElement(NodeInput(sender->GetNode(), input, i - 1));
+      }
+    }
+  }
+
+  QueueKeyframePositionUpdate();
 }
 
 }
