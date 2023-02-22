@@ -444,7 +444,7 @@ void NodeParamViewItemBody::ArrayAppendClicked()
   for (auto it=array_ui_.cbegin(); it!=array_ui_.cend(); it++) {
     if (it.value().append_btn == sender()) {
       NodeInput real_input = NodeGroup::ResolveInput(NodeInput(it.key().node, it.key().input));
-      Core::instance()->undo_stack()->push(new NodeArrayInsertCommand(real_input.node(), real_input.input(), real_input.GetArraySize()+1));
+      Core::instance()->undo_stack()->push(new NodeArrayInsertCommand(real_input.node(), real_input.input(), real_input.GetArraySize()));
       break;
     }
   }
