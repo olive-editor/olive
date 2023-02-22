@@ -104,31 +104,28 @@ bool ViewerSizer::eventFilter(QObject *watched, QEvent *event)
       QWheelEvent *w = static_cast<QWheelEvent*>(event);
 
       if (HandMovableView::WheelEventIsAZoomEvent(w)) {
-        int x = w->angleDelta().x() + w->angleDelta().y();
-
         int current_percent = zoom_;
         if (current_percent == 0) {
           // Currently set to "fit"
           current_percent = current_widget_scale_;
         }
 
-        if (x > 0) {
-          // Zoom in
-          for (int i=kZoomLevelCount-2; i>=0; i--) {
-            if (current_percent >= kZoomLevels[i]) {
-              SetZoom(kZoomLevels[i+1]);
-              break;
-            }
-          }
-        } else if (x < 0) {
-          // Zoom out
-          for (int i=1; i<kZoomLevelCount; i++) {
-            if (current_percent <= kZoomLevels[i]) {
-              SetZoom(kZoomLevels[i-1]);
-              break;
-            }
-          }
-        }
+        double cur_scale = current_percent * 0.01;
+
+        current_percent *= HandMovableView::GetScrollZoomMultiplier(w);
+        current_percent = std::clamp(current_percent, kZoomLevels[0], kZoomLevels[kZoomLevelCount-1]);
+
+        double next_scale = current_percent * 0.01;
+
+        QPointF cursor_pos = w->position();
+
+        int anchor_x = qRound(double(cursor_pos.x() + horiz_scrollbar_->value()) / cur_scale * next_scale - cursor_pos.x());
+        int anchor_y = qRound(double(cursor_pos.y() + vert_scrollbar_->value()) / cur_scale * next_scale - cursor_pos.y());
+
+        SetZoom(current_percent);
+
+        horiz_scrollbar_->setValue(anchor_x);
+        vert_scrollbar_->setValue(anchor_y);
       } else {
         // Pass scroll values to scrollbars
         QPoint p = w->pixelDelta();
