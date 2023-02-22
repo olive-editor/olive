@@ -311,8 +311,7 @@ void NodeParamView::RequestEditTextInViewer()
 {
   NodeParamViewItem *item = static_cast<NodeParamViewItem *>(sender());
 
-  focused_node_ = item;
-  emit FocusedNodeChanged(item->GetNode());
+  SetSelectedNodes({item});
   emit RequestViewerToStartEditingText();
 }
 

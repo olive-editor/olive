@@ -708,6 +708,9 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
 
 void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
+  GenerateGizmoTransforms();
+  gizmos_->UpdateGizmoPositions(gizmo_db_, NodeGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, LoopMode::kLoopModeOff));
+
   active_text_gizmo_ = text;
   connect(active_text_gizmo_, &TextGizmo::RectChanged, this, &ViewerDisplayWidget::UpdateActiveTextGizmoSize);
   text_transform_ = GenerateGizmoTransform();
