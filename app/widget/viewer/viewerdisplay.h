@@ -438,6 +438,8 @@ private slots:
 
   void FocusChanged(QWidget *old, QWidget *now);
 
+  QRectF UpdateActiveTextGizmoSize();
+
 
 };
 
