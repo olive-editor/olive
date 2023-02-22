@@ -51,8 +51,10 @@ public:
    */
   void SetWidget(QWidget* widget);
 
-  static constexpr int kZoomLevelCount = 8;
-  static constexpr int kZoomLevels[kZoomLevelCount] = {10, 25, 50, 75, 100, 150, 200, 400};
+  QSize GetContainerSize() const;
+
+  static constexpr int kZoomLevelCount = 10;
+  static constexpr double kZoomLevels[kZoomLevelCount] = {0.05, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0};
 
 public slots:
   /**
@@ -72,7 +74,8 @@ public slots:
    *
    * The number is an integer percentage (100 = 100%). Set to 0 to auto-fit.
    */
-  void SetZoom(int percent);
+  void SetZoom(double percent);
+  void SetZoomAnchored(double percent, double cursor_x, double cursor_y);
 
   void HandDragMove(int x, int y);
 
@@ -97,6 +100,8 @@ private:
 
   int GetZoomedValue(int value);
 
+  double GetRealCurrentZoom() const;
+
   /**
    * @brief Reference to widget
    *
@@ -115,8 +120,8 @@ private:
   /**
    * @brief Internal zoom value
    */
-  int zoom_;
-  int current_widget_scale_;
+  double zoom_;
+  double current_widget_scale_;
 
   QScrollBar* horiz_scrollbar_;
   QScrollBar* vert_scrollbar_;
