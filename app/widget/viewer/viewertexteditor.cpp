@@ -138,6 +138,7 @@ void ViewerTextEditor::Paint(QPainter *p, Qt::Alignment valign)
 
   const bool use_transparent_clone = true;
   if (transparent_clone_ && use_transparent_clone) {
+    transparent_clone_->setPageSize(this->document()->pageSize());
     transparent_clone_->documentLayout()->draw(p, ctx);
   } else {
     document()->documentLayout()->draw(p, ctx);
