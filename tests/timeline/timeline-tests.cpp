@@ -23,7 +23,7 @@
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/math/math/math.h"
 #include "node/math/merge/merge.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "undo/undocommand.h"
 #include "widget/timelinewidget/undo/timelineundogeneral.h"
