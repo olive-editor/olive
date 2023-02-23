@@ -190,6 +190,8 @@ private slots:
 
   void RequestEditTextInViewer();
 
+  void InputArraySizeChanged(const QString &input, int old_size, int new_size);
+
 };
 
 }

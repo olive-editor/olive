@@ -27,6 +27,7 @@
 #include <QScrollBar>
 #include <QtMath>
 
+#include "common/decibel.h"
 #include "common/qtutils.h"
 #include "node/nodeundo.h"
 #include "widget/keyframeview/keyframeviewundo.h"

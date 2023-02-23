@@ -32,6 +32,12 @@ TextGizmo::TextGizmo(QObject *parent)
 
 }
 
+void TextGizmo::SetRect(const QRectF &r)
+{
+  rect_ = r;
+  emit RectChanged(rect_);
+}
+
 void TextGizmo::UpdateInputHtml(const QString &s, const rational &time)
 {
   if (input_.IsValid()) {
@@ -39,6 +45,12 @@ void TextGizmo::UpdateInputHtml(const QString &s, const rational &time)
     Node::SetValueAtTime(input_.input(), time, s, input_.track(), command, true);
     Core::instance()->undo_stack()->pushIfHasChildren(command);
   }
+}
+
+void TextGizmo::SetVerticalAlignment(Qt::Alignment va)
+{
+  valign_ = va;
+  emit VerticalAlignmentChanged(valign_);
 }
 
 }

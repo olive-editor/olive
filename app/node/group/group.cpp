@@ -307,6 +307,10 @@ bool NodeGroup::GetInner(NodeInput *input)
 {
   if (NodeGroup *g = dynamic_cast<NodeGroup*>(input->node())) {
     const NodeInput &passthrough = g->GetInputFromID(input->input());
+    if (!passthrough.IsValid()) {
+      return false;
+    }
+
     input->set_node(passthrough.node());
     input->set_input(passthrough.input());
     return true;
