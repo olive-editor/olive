@@ -424,7 +424,6 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
         ClipBlock* clip = new ClipBlock();
         block = clip;
         clip->set_media_in(ghost->GetMediaIn());
-        clip->SetLabel(footage_stream.footage->GetLabel());
         command->add_child(new NodeAddCommand(dst_graph, clip));
 
         // Position clip in its own context

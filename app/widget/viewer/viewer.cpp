@@ -1376,10 +1376,10 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       Menu* zoom_menu = new Menu(tr("Zoom"), &menu);
       menu.addMenu(zoom_menu);
 
-      zoom_menu->addAction(tr("Fit"))->setData(0);
+      zoom_menu->addAction(tr("Fit"))->setData(-1);
       for (int i=0;i<ViewerSizer::kZoomLevelCount;i++) {
-        int z = ViewerSizer::kZoomLevels[i];
-        zoom_menu->addAction(tr("%1%").arg(z))->setData(z);
+        double z = ViewerSizer::kZoomLevels[i];
+        zoom_menu->addAction(tr("%1%").arg(z * 100.0))->setData(z);
       }
 
       connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
@@ -1822,7 +1822,8 @@ void ViewerWidget::UpdateRendererAudioParameters()
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)
 {
-  sizer_->SetZoom(action->data().toInt());
+  auto s = sizer_->GetContainerSize();
+  sizer_->SetZoomAnchored(action->data().toDouble(), s.width()/2, s.height()/2);
 }
 
 void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)

@@ -69,7 +69,9 @@ ClipBlock::ClipBlock() :
 
 QString ClipBlock::Name() const
 {
-  if (track()) {
+  if (connected_viewer_ && !connected_viewer_->GetLabel().isEmpty()) {
+    return connected_viewer_->GetLabel();
+  } else if (track()) {
     if (track()->type() == Track::kVideo) {
       return tr("Video Clip");
     } else if (track()->type() == Track::kAudio) {
