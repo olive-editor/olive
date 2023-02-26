@@ -188,10 +188,10 @@ void KeyframeView::SelectionManagerDeselectEvent(void *obj)
 bool KeyframeView::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata;
+    ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyKeyframes);
     sdata.SetOnlySerializeKeyframes(selection_manager_.GetSelectedObjects());
 
-    ProjectSerializer::Copy(sdata, QStringLiteral("keyframes"));
+    ProjectSerializer::Copy(sdata);
 
     if (cut) {
       DeleteSelected();
@@ -209,7 +209,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
     return false;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyKeyframes);
   if (res == ProjectSerializer::kSuccess) {
     const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
 

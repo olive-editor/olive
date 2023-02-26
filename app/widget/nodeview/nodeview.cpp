@@ -225,7 +225,7 @@ void NodeView::CopySelected(bool cut)
   QString copy_str;
   QXmlStreamWriter writer(&copy_str);
 
-  ProjectSerializer::SaveData sdata(selected_nodes_.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes_);
 
   ProjectSerializer::SerializedProperties properties;
@@ -244,7 +244,7 @@ void NodeView::CopySelected(bool cut)
 
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Save(&writer, sdata, QStringLiteral("nodes"));
+  ProjectSerializer::Save(&writer, sdata);
 
   Core::CopyStringToClipboard(copy_str);
 
@@ -259,8 +259,8 @@ void NodeView::Paste()
     return;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  if (res.GetLoadData().nodes.isEmpty()) {
     return;
   }
 
@@ -274,12 +274,10 @@ void NodeView::Paste()
     pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
     pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
 
-    qDebug() << it.key() << pos.position;
-
     map.insert(it.key(), pos);
   }
 
-  PostPaste(res.GetLoadedNodes(), map);
+  PostPaste(res.GetLoadData().nodes, map);
 }
 
 void NodeView::Duplicate()

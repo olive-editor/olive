@@ -1185,16 +1185,24 @@ bool Node::AreLinked(Node *a, Node *b)
 
 bool Node::Load(QXmlStreamReader *reader, SerializedData *data)
 {
+  uint version = 0;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("ptr")) {
+      quintptr ptr = attr.value().toULongLong();
+      data->node_ptrs.insert(ptr, this);
+    } else if (attr.name() == QStringLiteral("version")) {
+      version = attr.value().toUInt();
+    }
+  }
+
+  Q_UNUSED(version)
+
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("input")) {
       LoadInput(reader, data);
-    } else if (reader->name() == QStringLiteral("ptr")) {
-      quintptr ptr = reader->readElementText().toULongLong();
-      data->node_ptrs.insert(ptr, this);
     } else if (reader->name() == QStringLiteral("label")) {
       this->SetLabel(reader->readElementText());
-    } else if (reader->name() == QStringLiteral("uuid")) {
-      data->node_uuids.insert(this, QUuid::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("color")) {
       this->SetOverrideColor(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("links")) {
@@ -1278,7 +1286,7 @@ bool Node::Load(QXmlStreamReader *reader, SerializedData *data)
             if (!node_pos.load(reader)) {
               return false;
             }
-            data->positions[reinterpret_cast<quintptr>(this)].insert(node_ptr, node_pos);
+            data->positions[this].insert(node_ptr, node_pos);
           } else {
             return false;
           }
@@ -1313,11 +1321,16 @@ bool Node::Load(QXmlStreamReader *reader, SerializedData *data)
 void Node::Save(QXmlStreamWriter *writer) const
 {
   writer->writeAttribute(QStringLiteral("version"), QString::number(1));
+  writer->writeAttribute(QStringLiteral("id"), this->id());
+  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
-  writer->writeTextElement(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
+  if (!this->GetLabel().isEmpty()) {
+    writer->writeTextElement(QStringLiteral("label"), this->GetLabel());
+  }
 
-  writer->writeTextElement(QStringLiteral("label"), this->GetLabel());
-  writer->writeTextElement(QStringLiteral("color"), QString::number(this->GetOverrideColor()));
+  if (this->GetOverrideColor() != -1) {
+    writer->writeTextElement(QStringLiteral("color"), QString::number(this->GetOverrideColor()));
+  }
 
   foreach (const QString& input, this->inputs()) {
     writer->writeStartElement(QStringLiteral("input"));
@@ -1327,52 +1340,58 @@ void Node::Save(QXmlStreamWriter *writer) const
     writer->writeEndElement(); // input
   }
 
-  writer->writeStartElement(QStringLiteral("links"));
-  foreach (Node* link, this->links()) {
-    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
+  if (!this->links().empty()) {
+    writer->writeStartElement(QStringLiteral("links"));
+    foreach (Node* link, this->links()) {
+      writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
+    }
+    writer->writeEndElement(); // links
   }
-  writer->writeEndElement(); // links
 
-  writer->writeStartElement(QStringLiteral("connections"));
-  for (auto it=this->input_connections().cbegin(); it!=this->input_connections().cend(); it++) {
-    writer->writeStartElement(QStringLiteral("connection"));
+  if (!this->input_connections().empty()) {
+    writer->writeStartElement(QStringLiteral("connections"));
+    for (auto it=this->input_connections().cbegin(); it!=this->input_connections().cend(); it++) {
+      writer->writeStartElement(QStringLiteral("connection"));
 
-    writer->writeAttribute(QStringLiteral("input"), it->first.input());
-    writer->writeAttribute(QStringLiteral("element"), QString::number(it->first.element()));
+      writer->writeAttribute(QStringLiteral("input"), it->first.input());
+      writer->writeAttribute(QStringLiteral("element"), QString::number(it->first.element()));
 
-    writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->second)));
+      writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->second)));
 
-    writer->writeEndElement(); // connection
+      writer->writeEndElement(); // connection
+    }
+    writer->writeEndElement(); // connections
   }
-  writer->writeEndElement(); // connections
 
-  writer->writeStartElement(QStringLiteral("hints"));
-  for (auto it=this->GetValueHints().cbegin(); it!=this->GetValueHints().cend(); it++) {
-    writer->writeStartElement(QStringLiteral("hint"));
+  if (!this->GetValueHints().empty()) {
+    writer->writeStartElement(QStringLiteral("hints"));
+    for (auto it=this->GetValueHints().cbegin(); it!=this->GetValueHints().cend(); it++) {
+      writer->writeStartElement(QStringLiteral("hint"));
 
-    writer->writeAttribute(QStringLiteral("input"), it.key().input);
-    writer->writeAttribute(QStringLiteral("element"), QString::number(it.key().element));
+      writer->writeAttribute(QStringLiteral("input"), it.key().input);
+      writer->writeAttribute(QStringLiteral("element"), QString::number(it.key().element));
 
-    it.value().save(writer);
+      it.value().save(writer);
 
-    writer->writeEndElement(); // hint
+      writer->writeEndElement(); // hint
+    }
+    writer->writeEndElement(); // hints
   }
-  writer->writeEndElement(); // hints
-
-  writer->writeStartElement(QStringLiteral("context"));
 
   const Node::PositionMap &map = this->GetContextPositions();
 
   if (!map.isEmpty()) {
+    writer->writeStartElement(QStringLiteral("context"));
+
     for (auto jt=map.cbegin(); jt!=map.cend(); jt++) {
       writer->writeStartElement(QStringLiteral("node"));
-      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
+      writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(jt.key())));
       jt.value().save(writer);
       writer->writeEndElement(); // node
     }
-  }
 
-  writer->writeEndElement(); // context
+    writer->writeEndElement(); // context
+  }
 
   writer->writeStartElement(QStringLiteral("caches"));
 
@@ -1399,8 +1418,7 @@ bool Node::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
 void Node::PostLoadEvent(SerializedData *data)
 {
   // Resolve positions
-  quintptr this_ptr = data->node_ptrs.key(this);
-  const QMap<quintptr, Node::Position> &positions = data->positions.value(this_ptr);
+  const QMap<quintptr, Node::Position> &positions = data->positions.value(this);
 
   for (auto jt=positions.cbegin(); jt!=positions.cend(); jt++) {
     Node *n = data->node_ptrs.value(jt.key());
@@ -1479,27 +1497,31 @@ void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
 {
   writer->writeAttribute(QStringLiteral("id"), id);
 
-  writer->writeStartElement(QStringLiteral("primary"));
+  if (!GetStandardValue(id, -1).isNull()) {
+    writer->writeStartElement(QStringLiteral("primary"));
 
-  SaveImmediate(writer, id, -1);
+    SaveImmediate(writer, id, -1);
 
-  writer->writeEndElement(); // primary
-
-  writer->writeStartElement(QStringLiteral("subelements"));
+    writer->writeEndElement(); // primary
+  }
 
   int arr_sz = this->InputArraySize(id);
 
-  writer->writeAttribute(QStringLiteral("count"), QString::number(arr_sz));
+  if (arr_sz > 0) {
+    writer->writeStartElement(QStringLiteral("subelements"));
 
-  for (int i=0; i<arr_sz; i++) {
-    writer->writeStartElement(QStringLiteral("element"));
+    writer->writeAttribute(QStringLiteral("count"), QString::number(arr_sz));
 
-    SaveImmediate(writer, id, i);
+    for (int i=0; i<arr_sz; i++) {
+      writer->writeStartElement(QStringLiteral("element"));
 
-    writer->writeEndElement(); // element
+      SaveImmediate(writer, id, i);
+
+      writer->writeEndElement(); // element
+    }
+
+    writer->writeEndElement(); // subelements
   }
-
-  writer->writeEndElement(); // subelements
 }
 
 bool Node::LoadImmediate(QXmlStreamReader *reader, const QString &input, int element, SerializedData *data)
@@ -1545,8 +1567,11 @@ bool Node::LoadImmediate(QXmlStreamReader *reader, const QString &input, int ele
           reader->skipCurrentElement();
         }
       }
-    } else if (reader->name() == QStringLiteral("keyframing") && this->IsInputKeyframable(input)) {
-      this->SetInputIsKeyframing(input, reader->readElementText().toInt(), element);
+    } else if (reader->name() == QStringLiteral("keyframing")) {
+      bool k = reader->readElementText().toInt();
+      if (this->IsInputKeyframable(input)) {
+        this->SetInputIsKeyframing(input, k, element);
+      }
     } else if (reader->name() == QStringLiteral("keyframes")) {
       int track = 0;
 
@@ -1583,12 +1608,16 @@ bool Node::LoadImmediate(QXmlStreamReader *reader, const QString &input, int ele
       reader->skipCurrentElement();
     }
   }
+
+  return true;
 }
 
 void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const
 {
+  bool is_keyframing = this->IsInputKeyframing(input, element);
+
   if (this->IsInputKeyframable(input)) {
-    writer->writeTextElement(QStringLiteral("keyframing"), QString::number(this->IsInputKeyframing(input, element)));
+    writer->writeTextElement(QStringLiteral("keyframing"), QString::number(is_keyframing));
   }
 
   NodeValue::Type data_type = this->GetInputDataType(input);
@@ -1613,23 +1642,25 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
   writer->writeEndElement(); // standard
 
   // Write keyframes
-  writer->writeStartElement(QStringLiteral("keyframes"));
+  if (is_keyframing) {
+    writer->writeStartElement(QStringLiteral("keyframes"));
 
-  for (const NodeKeyframeTrack& track : this->GetKeyframeTracks(input, element)) {
-    writer->writeStartElement(QStringLiteral("track"));
+    for (const NodeKeyframeTrack& track : this->GetKeyframeTracks(input, element)) {
+      writer->writeStartElement(QStringLiteral("track"));
 
-    for (NodeKeyframe* key : track) {
-      writer->writeStartElement(QStringLiteral("key"));
+      for (NodeKeyframe* key : track) {
+        writer->writeStartElement(QStringLiteral("key"));
 
-      key->save(writer, data_type);
+        key->save(writer, data_type);
 
-      writer->writeEndElement(); // key
+        writer->writeEndElement(); // key
+      }
+
+      writer->writeEndElement(); // track
     }
 
-    writer->writeEndElement(); // track
+    writer->writeEndElement(); // keyframes
   }
-
-  writer->writeEndElement(); // keyframes
 
   if (data_type == NodeValue::kColor) {
     // Save color management information
@@ -2417,6 +2448,8 @@ bool Node::ValueHint::load(QXmlStreamReader *reader)
       reader->skipCurrentElement();
     }
   }
+
+  return true;
 }
 
 void Node::ValueHint::save(QXmlStreamWriter *writer) const

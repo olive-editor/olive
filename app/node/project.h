@@ -70,7 +70,7 @@ public:
     return default_nodes_;
   }
 
-  void Load(QXmlStreamReader *reader);
+  SerializedData Load(QXmlStreamReader *reader);
   void Save(QXmlStreamWriter *writer) const;
 
   int GetNumberOfContextsNodeIsIn(Node *node, bool except_itself = false) const;

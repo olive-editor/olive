@@ -646,7 +646,7 @@ bool TimelineWidget::CopySelected(bool cut)
     }
   }
 
-  ProjectSerializer::SaveData sdata(selected_nodes.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes);
 
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
@@ -664,7 +664,7 @@ bool TimelineWidget::CopySelected(bool cut)
 
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Copy(sdata, QStringLiteral("timeline"));
+  ProjectSerializer::Copy(sdata);
 
   if (cut) {
     DeleteSelected();
@@ -1958,14 +1958,14 @@ bool TimelineWidget::PasteInternal(bool insert)
     return false;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("timeline"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  if (res.GetLoadData().nodes.isEmpty()) {
     return false;
   }
 
   MultiUndoCommand *command = new MultiUndoCommand();
 
-  foreach (Node *n, res.GetLoadedNodes()) {
+  foreach (Node *n, res.GetLoadData().nodes) {
     command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
   }
 
@@ -2013,7 +2013,7 @@ QHash<Node *, Node *> TimelineWidget::GenerateExistingPasteMap(const ProjectSeri
 {
   QHash<Node *, Node *> m;
 
-  for (Node *n : r.GetLoadedNodes()) {
+  for (Node *n : r.GetLoadData().nodes) {
     for (Block *b : qAsConst(this->selected_blocks_)) {
       for (auto it=b->GetContextPositions().cbegin(); it!=b->GetContextPositions().cend(); it++) {
         if (it.key()->id() == n->id() && !m.contains(it.key())) {

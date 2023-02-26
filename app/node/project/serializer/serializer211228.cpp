@@ -26,7 +26,7 @@
 
 namespace olive {
 
-ProjectSerializer211228::LoadData ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, void *reserved) const
+ProjectSerializer211228::LoadData ProjectSerializer211228::Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const
 {
   QMap<quintptr, QMap<QString, QString> > properties;
   QMap<quintptr, QMap<quintptr, Node::Position> > positions;

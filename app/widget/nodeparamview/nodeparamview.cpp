@@ -537,7 +537,7 @@ bool NodeParamView::CopySelected(bool cut)
     return false;
   }
 
-  ProjectSerializer::SaveData sdata(contexts_.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   ProjectSerializer::SerializedProperties properties;
   QVector<Node*> nodes;
 
@@ -558,7 +558,7 @@ bool NodeParamView::CopySelected(bool cut)
   sdata.SetOnlySerializeNodesAndResolveGroups(nodes);
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Copy(sdata, QStringLiteral("nodes"));
+  ProjectSerializer::Copy(sdata);
 
   if (cut) {
     DeleteSelected();
@@ -580,15 +580,15 @@ bool NodeParamView::Paste()
 
 bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(const ProjectSerializer::Result &)> get_existing_map_function)
 {
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  if (res.GetLoadData().nodes.isEmpty()) {
     return false;
   }
 
   // Determine if any nodes of this type are already in the editor
   QHash<Node*, Node*> existing_nodes = get_existing_map_function(res);
 
-  QVector<Node*> nodes_to_paste_as_new = res.GetLoadedNodes();
+  QVector<Node*> nodes_to_paste_as_new = res.GetLoadData().nodes;
   MultiUndoCommand *command = new MultiUndoCommand();
 
   if (!existing_nodes.empty()) {
@@ -835,7 +835,7 @@ QHash<Node *, Node *> NodeParamView::GenerateExistingPasteMap(const ProjectSeria
 {
   QVector<Node*> ignore_nodes;
   QHash<Node*, Node*> existing_nodes;
-  for (Node *n : r.GetLoadedNodes()) {
+  for (Node *n : r.GetLoadData().nodes) {
     if (Node *existing = GetNodeWithIDAndIgnoreList(n->id(), ignore_nodes)) {
       existing_nodes.insert(existing, n);
       ignore_nodes.append(existing);

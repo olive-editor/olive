@@ -164,6 +164,8 @@ bool TimelineMarker::load(QXmlStreamReader *reader)
 
   // This element has no inner text, so just skip it
   reader->skipCurrentElement();
+
+  return true;
 }
 
 void TimelineMarker::save(QXmlStreamWriter *writer) const

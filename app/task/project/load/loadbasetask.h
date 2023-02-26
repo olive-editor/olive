@@ -50,10 +50,10 @@ public:
 protected:
   Project* project_;
 
+  MainWindowLayoutInfo layout_;
+
 private:
   QString filename_;
-
-  MainWindowLayoutInfo layout_;
 
 };
 

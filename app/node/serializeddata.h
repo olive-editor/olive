@@ -54,7 +54,7 @@ struct SerializedData {
     QHash<QString, QVariant> custom_properties;
   };
 
-  QMap<quintptr, QMap<quintptr, Node::Position> > positions;
+  QMap<Node *, QMap<quintptr, Node::Position> > positions;
   QHash<quintptr, Node*> node_ptrs;
   QList<SerializedConnection> desired_connections;
   QList<BlockLink> block_links;

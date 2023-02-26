@@ -66,6 +66,7 @@ bool TimelineWorkArea::load(QXmlStreamReader *reader)
       version = attr.value().toUInt();
     }
   }
+  Q_UNUSED(version)
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("enabled")) {

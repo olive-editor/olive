@@ -123,10 +123,10 @@ void SeekableWidget::DeleteSelected()
 bool SeekableWidget::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata;
+    ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyMarkers);
     sdata.SetOnlySerializeMarkers(selection_manager_.GetSelectedObjects());
 
-    ProjectSerializer::Copy(sdata, QStringLiteral("markers"));
+    ProjectSerializer::Copy(sdata);
 
     if (cut) {
       DeleteSelected();
@@ -140,7 +140,7 @@ bool SeekableWidget::CopySelected(bool cut)
 
 bool SeekableWidget::PasteMarkers()
 {
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("markers"));
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyMarkers);
   if (res == ProjectSerializer::kSuccess) {
     const std::vector<TimelineMarker*> &markers = res.GetLoadData().markers;
     if (!markers.empty()) {

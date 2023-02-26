@@ -58,7 +58,7 @@ namespace olive {
 
 class Folder;
 class Project;
-class SerializedData;
+struct SerializedData;
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems

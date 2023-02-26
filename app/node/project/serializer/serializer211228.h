@@ -31,7 +31,7 @@ public:
   ProjectSerializer211228() = default;
 
 protected:
-  virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const override;
+  virtual LoadData Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const override;
 
   virtual uint Version() const override
   {

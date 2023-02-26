@@ -83,7 +83,7 @@ void Project::Clear()
   }
 }
 
-void Project::Load(QXmlStreamReader *reader)
+SerializedData Project::Load(QXmlStreamReader *reader)
 {
   SerializedData data;
 
@@ -156,32 +156,12 @@ void Project::Load(QXmlStreamReader *reader)
     }
   }
 
-  for (auto it = this->nodes().cbegin(); it != this->nodes().cend(); it++){
-    (*it)->PostLoadEvent(&data);
-  }
-
-  foreach (const SerializedData::SerializedConnection& con, data.desired_connections) {
-    if (Node *out = data.node_ptrs.value(con.output_node)) {
-      Node::ConnectEdge(out, con.input);
-    }
-  }
-
-  foreach (const SerializedData::BlockLink& l, data.block_links) {
-    Node *a = l.block;
-    Node *b = data.node_ptrs.value(l.link);
-
-    Node::Link(a, b);
-  }
-
-  // Re-enable caches and resolve tracks
-  for (Node *n : this->nodes()) {
-    n->SetCachesEnabled(true);
-  }
+  return data;
 }
 
 void Project::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeAttribute(QStringLiteral("version"), QString::number(230220));
+  writer->writeAttribute(QStringLiteral("version"), QString::number(1));
 
   writer->writeTextElement(QStringLiteral("uuid"), this->GetUuid().toString());
 
@@ -197,8 +177,6 @@ void Project::Save(QXmlStreamWriter *writer) const
     } else if (node == this->settings()) {
       writer->writeAttribute(QStringLiteral("settings"), QStringLiteral("1"));
     }
-
-    writer->writeAttribute(QStringLiteral("id"), node->id());
 
     node->Save(writer);
 
