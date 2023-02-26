@@ -1,0 +1,29 @@
+--- ImathTargets-release.cmake	2022-05-25 22:12:51.000000000 +0000
++++ rel.cmake	2022-12-10 21:25:53.362472000 +0000
+@@ -15,16 +15,17 @@
+ list(APPEND _IMPORT_CHECK_TARGETS Imath::Imath )
+ list(APPEND _IMPORT_CHECK_FILES_FOR_Imath::Imath "${_IMPORT_PREFIX}/lib64/libImath-3_1.so.29.4.0" )
+ 
++# HACK: Ignore Imath Python support for Olive
+ # Import target "Imath::PyImath_Python3_9" for configuration "Release"
+-set_property(TARGET Imath::PyImath_Python3_9 APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+-set_target_properties(Imath::PyImath_Python3_9 PROPERTIES
+-  IMPORTED_LINK_DEPENDENT_LIBRARIES_RELEASE "Python3::Python"
+-  IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib64/libPyImath_Python3_9-3_1.so.29.4.0"
+-  IMPORTED_SONAME_RELEASE "libPyImath_Python3_9-3_1.so.29"
+-  )
+-
+-list(APPEND _IMPORT_CHECK_TARGETS Imath::PyImath_Python3_9 )
+-list(APPEND _IMPORT_CHECK_FILES_FOR_Imath::PyImath_Python3_9 "${_IMPORT_PREFIX}/lib64/libPyImath_Python3_9-3_1.so.29.4.0" )
++#set_property(TARGET Imath::PyImath_Python3_9 APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
++#set_target_properties(Imath::PyImath_Python3_9 PROPERTIES
++#  IMPORTED_LINK_DEPENDENT_LIBRARIES_RELEASE "Python3::Python"
++#  IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib64/libPyImath_Python3_9-3_1.so.29.4.0"
++#  IMPORTED_SONAME_RELEASE "libPyImath_Python3_9-3_1.so.29"
++#  )
++#
++#list(APPEND _IMPORT_CHECK_TARGETS Imath::PyImath_Python3_9 )
++#list(APPEND _IMPORT_CHECK_FILES_FOR_Imath::PyImath_Python3_9 "${_IMPORT_PREFIX}/lib64/libPyImath_Python3_9-3_1.so.29.4.0" )
+ 
+ # Commands beyond this point should not need to know the version.
+ set(CMAKE_IMPORT_FILE_VERSION)

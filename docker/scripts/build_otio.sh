@@ -15,7 +15,10 @@ cmake .. -G "Ninja" \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_CXX_STANDARD="${CXX_STANDARD}" \
   -DCMAKE_INSTALL_PREFIX="${OLIVE_INSTALL_PREFIX}" \
-  -DOTIO_PYTHON_INSTALL=OFF
+  -DOTIO_PYTHON_INSTALL=OFF \
+  -DOTIO_FIND_IMATH=ON
+# We could also set -DOTIO_IMATH_LIBS="..."
+# but unclear what the value would need to be and whether this option even works
 cmake --build .
 cmake --install .
 
