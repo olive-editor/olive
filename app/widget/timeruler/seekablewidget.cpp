@@ -30,10 +30,10 @@
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/serializer/serializer.h"
+#include "timeline/timelineundoworkarea.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedwidget.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -181,6 +181,8 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
     return;
   } else if (event->modifiers() & Qt::ControlModifier) {
     selection_manager_.RubberBandStart(event);
+  } else if (marker_editing_enabled_ && (initial = selection_manager_.MousePress(event))) {
+    selection_manager_.DragStart(initial, event);
   } else if (resize_item_) {
     // Handle selection, even though we won't be using it for dragging
     if (!(event->modifiers() & Qt::ShiftModifier)) {
@@ -191,8 +193,6 @@ void SeekableWidget::mousePressEvent(QMouseEvent *event)
     }
     dragging_ = true;
     resize_start_ = mapToScene(event->pos());
-  } else if (marker_editing_enabled_ && (initial = selection_manager_.MousePress(event))) {
-    selection_manager_.DragStart(initial, event);
   } else if (!selection_manager_.GetObjectAtPoint(event->pos()) && event->button() == Qt::LeftButton) {
     SeekToScenePoint(mapToScene(event->pos()).x());
     dragging_ = true;
@@ -219,10 +219,13 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
     }
   } else {
     // Look for resize points
-    if (FindResizeHandle(event)) {
+    if (!last_playhead_shape_.containsPoint(event->pos(), Qt::OddEvenFill)
+        && !selection_manager_.GetObjectAtPoint(event->pos())
+        && FindResizeHandle(event)) {
       setCursor(Qt::SizeHorCursor);
     } else {
       unsetCursor();
+      ClearResizeHandle();
     }
   }
 }
@@ -425,16 +428,16 @@ void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
 
   int half_text_height = text_height() / 3;
 
-  QPoint points[] = {
+  last_playhead_shape_ = QPolygon({
     QPoint(x, y),
     QPoint(x - half_width, y - half_text_height),
     QPoint(x - half_width, y - text_height()),
     QPoint(x + 1 + half_width, y - text_height()),
     QPoint(x + 1 + half_width, y - half_text_height),
     QPoint(x + 1, y),
-  };
+  });
 
-  p->drawPolygon(points, 6);
+  p->drawPolygon(last_playhead_shape_);
 
   p->setRenderHint(QPainter::Antialiasing, false);
 }
@@ -482,8 +485,7 @@ bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
     return false;
   }
 
-  resize_item_ = nullptr;
-  resize_mode_ = kResizeNone;
+  ClearResizeHandle();
 
   QPointF scene = mapToScene(event->pos());
   const int border = 10;
@@ -491,7 +493,7 @@ bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
   rational max = SceneToTimeNoGrid(scene.x() + border);
 
   // Test for workarea
-  if (workarea_) {
+  if (workarea_ && workarea_->enabled()) {
     if (workarea_->in() >= min && workarea_->in() < max) {
       resize_mode_ = kResizeIn;
     } else if (workarea_->out() >= min && workarea_->out() < max) {
@@ -529,6 +531,12 @@ bool SeekableWidget::FindResizeHandle(QMouseEvent *event)
   }
 
   return resize_item_;
+}
+
+void SeekableWidget::ClearResizeHandle()
+{
+  resize_item_ = nullptr;
+  resize_mode_ = kResizeNone;
 }
 
 void SeekableWidget::DragResizeHandle(const QPointF &scene)

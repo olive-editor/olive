@@ -44,9 +44,10 @@ Block::Block() :
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
 
-  SetInputFlags(kEnabledInput, InputFlags(GetInputFlags(kEnabledInput) | kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  SetInputFlag(kEnabledInput, kInputFlagNotConnectable);
+  SetInputFlag(kEnabledInput, kInputFlagNotKeyframable);
 
-  SetFlags(kDontShowInParamView);
+  SetFlag(kDontShowInParamView);
 }
 
 QVector<Node::CategoryID> Block::Category() const

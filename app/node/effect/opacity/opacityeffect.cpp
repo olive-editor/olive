@@ -25,7 +25,7 @@ OpacityEffect::OpacityEffect()
   SetInputProperty(kValueInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kValueInput, QStringLiteral("max"), 1.0);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

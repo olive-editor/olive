@@ -22,7 +22,7 @@
 #define TIMELINEUNDOCOMMON_H
 
 #include "node/node.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "node/nodeundo.h"
 
 namespace olive {
 

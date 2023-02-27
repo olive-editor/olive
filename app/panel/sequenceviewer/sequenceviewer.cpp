@@ -23,8 +23,8 @@
 
 namespace olive {
 
-SequenceViewerPanel::SequenceViewerPanel(QWidget *parent) :
-  ViewerPanel(QStringLiteral("SequenceViewerPanel"), parent)
+SequenceViewerPanel::SequenceViewerPanel() :
+  ViewerPanel(QStringLiteral("SequenceViewerPanel"))
 {
   // Set strings
   Retranslate();

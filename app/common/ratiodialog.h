@@ -23,8 +23,6 @@
 
 #include <QInputDialog>
 
-#include "common/rational.h"
-
 namespace olive {
 
 double GetFloatRatioFromUser(QWidget* parent,

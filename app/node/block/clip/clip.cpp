@@ -22,6 +22,7 @@
 
 #include "config/config.h"
 #include "node/block/transition/transition.h"
+#include "node/project/sequence/sequence.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/slider/floatslider.h"
@@ -68,7 +69,9 @@ ClipBlock::ClipBlock() :
 
 QString ClipBlock::Name() const
 {
-  if (track()) {
+  if (connected_viewer_ && !connected_viewer_->GetLabel().isEmpty()) {
+    return connected_viewer_->GetLabel();
+  } else if (track()) {
     if (track()->type() == Track::kVideo) {
       return tr("Video Clip");
     } else if (track()->type() == Track::kAudio) {
@@ -233,7 +236,7 @@ void ClipBlock::RequestRangeFromConnected(const TimeRange &range)
         {
           TimeRange thumb_range = range.Intersected(max_range);
           if (GetAdjustedThumbnailRange(&thumb_range)) {
-            connected->thumbnail_cache()->Request(thumb_range);
+            connected->thumbnail_cache()->Request(this->track()->sequence(), thumb_range);
           }
         }
 
@@ -297,7 +300,7 @@ void ClipBlock::RequestRangeForCache(PlaybackCache *cache, const TimeRange &max_
   }
 
   if (request) {
-    cache->Request(r);
+    cache->Request(this->track()->sequence(), r);
   }
 }
 
@@ -464,29 +467,7 @@ TimeRange ClipBlock::InputTimeAdjustment(const QString& input, int element, cons
   Q_UNUSED(element)
 
   if (input == kBufferIn) {
-    rational in = input_time.in();
-    rational out = input_time.out();
-
-    if (clamp) {
-      rational minimum = 0;
-      rational maximum = length();
-
-      if (in_transition_) {
-        minimum -= in_transition_->length();
-      }
-
-      if (out_transition_) {
-        maximum += out_transition_->length();
-      }
-
-      in = std::max(in, minimum);
-      out = std::min(out, maximum);
-    }
-
-    in = SequenceToMediaTime(in);
-    out = SequenceToMediaTime(out);
-
-    return TimeRange(in, out);
+    return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
   }
 
   return super::InputTimeAdjustment(input, element, input_time, clamp);

@@ -30,6 +30,10 @@ are guaranteed to set these variables or provide targets.
 #]==]
 
 function (_ffmpeg_find component headername)
+  if (${FFMPEG_${component}_FOUND})
+    return()
+  endif()
+
   find_path("FFMPEG_${component}_INCLUDE_DIR"
     NAMES
       "lib${component}/${headername}"

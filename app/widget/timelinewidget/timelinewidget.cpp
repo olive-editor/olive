@@ -27,12 +27,16 @@
 
 #include "core.h"
 #include "common/range.h"
-#include "common/timecodefunctions.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/speedduration/speeddurationdialog.h"
 #include "node/block/transition/transition.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "task/project/import/import.h"
+#include "timeline/timelineundogeneral.h"
+#include "timeline/timelineundopointer.h"
+#include "timeline/timelineundoripple.h"
+#include "timeline/timelineundoworkarea.h"
 #include "tool/add.h"
 #include "tool/beam.h"
 #include "tool/edit.h"
@@ -48,15 +52,9 @@
 #include "tool/zoom.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
-#include "undo/timelineundogeneral.h"
-#include "undo/timelineundopointer.h"
-#include "undo/timelineundoripple.h"
-#include "undo/timelineundoworkarea.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/nodeparamview/nodeparamview.h"
-#include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
 namespace olive {
@@ -660,7 +658,7 @@ bool TimelineWidget::CopySelected(bool cut)
   }
 
   foreach (Block* block, selected_blocks_) {
-    properties[block][QStringLiteral("in")] = (block->in() - earliest_in).toString();
+    properties[block][QStringLiteral("in")] = QString::fromStdString((block->in() - earliest_in).toString());
     properties[block][QStringLiteral("track")] = block->track()->ToReference().ToString();
   }
 
@@ -725,7 +723,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
 
       gap->set_length_and_media_out(GetConnectedNode()->GetWorkArea()->length());
 
-      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(track->parent()),
+      command->add_child(new NodeAddCommand(static_cast<Project*>(track->parent()),
                                             gap));
 
       command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track->type()),
@@ -1978,7 +1976,7 @@ bool TimelineWidget::PasteInternal(bool insert)
 
     for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
       rational length = static_cast<Block*>(it.key())->length();
-      rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+      rational in = rational::fromString(it.value()[QStringLiteral("in")].toStdString());
 
       paste_end = qMax(paste_end, paste_start + in + length);
     }
@@ -1990,7 +1988,7 @@ bool TimelineWidget::PasteInternal(bool insert)
 
   for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
     Block *block = static_cast<Block*>(it.key());
-    rational in = rational::fromString(it.value()[QStringLiteral("in")]);
+    rational in = rational::fromString(it.value()[QStringLiteral("in")].toStdString());
     Track::Reference track = Track::Reference::FromString(it.value()[QStringLiteral("track")]);
 
     command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),

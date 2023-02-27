@@ -23,17 +23,15 @@
 #include <QDebug>
 #include <QToolTip>
 
-#include "common/clamp.h"
 #include "common/qtutils.h"
 #include "common/range.h"
-#include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "node/block/gap/gap.h"
 #include "node/block/transition/transition.h"
+#include "node/nodeundo.h"
 #include "pointer.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/undo/timelineundopointer.h"
+#include "timeline/timelineundopointer.h"
 #include "widget/timeruler/timeruler.h"
 
 namespace olive {
@@ -596,10 +594,10 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::time_to_timecode(time_movement,
-                                                tooltip_timebase,
-                                                Core::instance()->GetTimecodeDisplay(),
-                                                true),
+                     QString::fromStdString(Timecode::time_to_timecode(time_movement,
+                                                                       tooltip_timebase,
+                                                                       Core::instance()->GetTimecodeDisplay(),
+                                                                       true)),
                      parent());
 }
 
@@ -617,7 +615,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
   // Sort ghosts depending on which ones are trimming, which are moving, and which are sliding
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
     if (ghost->HasBeenAdjusted()) {
-      Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+      Block* b = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
       if (ghost->GetData(TimelineViewGhostItem::kGhostIsSliding).toBool()) {
         blocks_sliding.append({ghost, b});
@@ -720,11 +718,30 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
     if (!relinks.empty()) {
       for (auto it=relinks.cbegin(); it!=relinks.cend(); it++) {
+        // Re-connect links on duplicate clips
         for (auto jt=it.key()->links().cbegin(); jt!=it.key()->links().cend(); jt++) {
           Node *link = *jt;
           Node *copy_link = relinks.value(link);
           if (copy_link) {
             command->add_child(new NodeLinkCommand(it.value(), copy_link, true));
+          }
+        }
+
+        // Re-connect transitions where applicable
+        if (ClipBlock *og_clip = dynamic_cast<ClipBlock *>(it.key())) {
+          ClipBlock *cp_clip = static_cast<ClipBlock *>(it.value());
+
+          TransitionBlock *og_in_transition = og_clip->in_transition();
+          TransitionBlock *og_out_transition = og_clip->out_transition();
+
+          if (og_in_transition && relinks.contains(og_in_transition)) {
+            TransitionBlock *cp_in_transition = static_cast<TransitionBlock *>(relinks.value(og_in_transition));
+            command->add_child(new NodeEdgeAddCommand(cp_clip, NodeInput(cp_in_transition, TransitionBlock::kInBlockInput)));
+          }
+
+          if (og_out_transition && relinks.contains(og_out_transition)) {
+            TransitionBlock *cp_out_transition = static_cast<TransitionBlock *>(relinks.value(og_out_transition));
+            command->add_child(new NodeEdgeAddCommand(cp_clip, NodeInput(cp_out_transition, TransitionBlock::kOutBlockInput)));
           }
         }
       }
@@ -831,7 +848,7 @@ void PointerTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_
 TimelineViewGhostItem *PointerTool::GetExistingGhostFromBlock(Block *block)
 {
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-    if (Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)) == block) {
+    if (QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock)) == block) {
       return ghost;
     }
   }
@@ -949,7 +966,7 @@ rational PointerTool::ValidateInTrimming(rational movement)
 
     // Clamp adjusted value between the earliest and latest values
     rational adjusted = ghost->GetIn() + movement;
-    rational clamped = clamp(adjusted, earliest_in, latest_in);
+    rational clamped = std::clamp(adjusted, earliest_in, latest_in);
 
     if (clamped != adjusted) {
       movement = clamped - ghost->GetIn();
@@ -986,7 +1003,7 @@ rational PointerTool::ValidateOutTrimming(rational movement)
 
     // Clamp adjusted value between the earliest and latest values
     rational adjusted = ghost->GetOut() + movement;
-    rational clamped = clamp(adjusted, earliest_out, latest_out);
+    rational clamped = std::clamp(adjusted, earliest_out, latest_out);
 
     if (clamped != adjusted) {
       movement = clamped - ghost->GetOut();

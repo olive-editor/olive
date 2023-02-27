@@ -51,7 +51,7 @@ public:
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
 
-  bool IsDraggingPlayhead() const
+  virtual bool IsDraggingPlayhead() const
   {
     return dragging_playhead_;
   }

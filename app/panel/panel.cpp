@@ -32,15 +32,16 @@
 
 namespace olive {
 
-PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
-  QDockWidget(parent),
+#define super KDDockWidgets::DockWidget
+
+PanelWidget::PanelWidget(const QString &object_name) :
+  super(object_name),
   border_visible_(false),
   signal_instead_of_close_(false)
 {
-  setObjectName(object_name);
   setFocusPolicy(Qt::ClickFocus);
 
-  connect(this, &PanelWidget::visibilityChanged, this, &PanelWidget::PanelVisibilityChanged);
+  connect(this, &PanelWidget::shown, this, static_cast<void(PanelWidget::*)()>(&PanelWidget::setFocus));
 
   PanelManager::instance()->RegisterPanel(this);
 }
@@ -48,23 +49,6 @@ PanelWidget::PanelWidget(const QString &object_name, QWidget *parent) :
 PanelWidget::~PanelWidget()
 {
   PanelManager::instance()->UnregisterPanel(this);
-}
-
-void PanelWidget::SetMovementLocked(bool locked)
-{
-  if (locked) {
-    // Disable moving on QDockWidget
-    setFeatures(features() & ~QDockWidget::DockWidgetMovable);
-
-    // Hide the title bar (only real way to do this is to replace it with an empty QWidget)
-    setTitleBarWidget(new QWidget(this));
-  } else {
-    // Re-enable moving on QDockWidget
-    setFeatures(features() | QDockWidget::DockWidgetMovable);
-
-    // Set the "custom" titlebar to null so the default gets restored
-    setTitleBarWidget(nullptr);
-  }
 }
 
 void PanelWidget::SetBorderVisible(bool enabled)
@@ -89,7 +73,7 @@ void PanelWidget::SetSubtitle(const QString &t)
 void PanelWidget::paintEvent(QPaintEvent *event)
 {
   // Perform default behavior
-  QDockWidget::paintEvent(event);
+  super::paintEvent(event);
 
   // Check if this panel (or a child of it) has focus using PanelFocusManager
   if (border_visible_) {
@@ -114,16 +98,9 @@ void PanelWidget::UpdateTitle()
   // If there's no subtitle, just use the title. Otherwise, we set a formatted combination of the two that can
   // differ based on translation
   if (subtitle_.isEmpty()) {
-    setWindowTitle(title_);
+    this->setTitle(title_);
   } else {
-    setWindowTitle(tr("%1: %2").arg(title_, subtitle_));
-  }
-}
-
-void PanelWidget::PanelVisibilityChanged(bool e)
-{
-  if (e) {
-    setFocus();
+    this->setTitle(tr("%1: %2").arg(title_, subtitle_));
   }
 }
 
@@ -138,7 +115,7 @@ void PanelWidget::closeEvent(QCloseEvent *event)
     event->ignore();
     emit CloseRequested();
   } else {
-    QDockWidget::closeEvent(event);
+    super::closeEvent(event);
   }
 }
 
@@ -147,7 +124,7 @@ void PanelWidget::changeEvent(QEvent *e)
   if (e->type() == QEvent::LanguageChange) {
     Retranslate();
   }
-  QDockWidget::changeEvent(e);
+  super::changeEvent(e);
 }
 
 void PanelWidget::Retranslate()

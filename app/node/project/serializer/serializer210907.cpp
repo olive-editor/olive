@@ -22,6 +22,7 @@
 
 #include "config/config.h"
 #include "node/factory.h"
+#include "node/group/group.h"
 
 namespace olive {
 
@@ -325,8 +326,7 @@ void ProjectSerializer210907::LoadImmediate(QXmlStreamReader *reader, Node *node
             vp.Load(reader);
             value_on_track = QVariant::fromValue(vp);
           } else if (data_type == NodeValue::kAudioParams) {
-            AudioParams ap;
-            ap.Load(reader);
+            AudioParams ap = TypeSerializer::LoadAudioParams(reader);
             value_on_track = QVariant::fromValue(ap);
           } else {
             QString value_text = reader->readElementText();
@@ -375,7 +375,7 @@ void ProjectSerializer210907::LoadImmediate(QXmlStreamReader *reader, Node *node
                 if (attr.name() == QStringLiteral("input")) {
                   key_input = attr.value().toString();
                 } else if (attr.name() == QStringLiteral("time")) {
-                  key_time = rational::fromString(attr.value().toString());
+                  key_time = rational::fromString(attr.value().toString().toStdString());
                 } else if (attr.name() == QStringLiteral("type")) {
                   key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
                 } else if (attr.name() == QStringLiteral("inhandlex")) {
@@ -567,9 +567,9 @@ void ProjectSerializer210907::LoadWorkArea(QXmlStreamReader *reader, TimelineWor
     if (attr.name() == QStringLiteral("enabled")) {
       workarea->set_enabled(attr.value() != QStringLiteral("0"));
     } else if (attr.name() == QStringLiteral("in")) {
-      range_in = rational::fromString(attr.value().toString());
+      range_in = rational::fromString(attr.value().toString().toStdString());
     } else if (attr.name() == QStringLiteral("out")) {
-      range_out = rational::fromString(attr.value().toString());
+      range_out = rational::fromString(attr.value().toString().toStdString());
     }
   }
 
@@ -593,9 +593,9 @@ void ProjectSerializer210907::LoadMarkerList(QXmlStreamReader *reader, TimelineM
         if (attr.name() == QStringLiteral("name")) {
           name = attr.value().toString();
         } else if (attr.name() == QStringLiteral("in")) {
-          in = rational::fromString(attr.value().toString());
+          in = rational::fromString(attr.value().toString().toStdString());
         } else if (attr.name() == QStringLiteral("out")) {
-          out = rational::fromString(attr.value().toString());
+          out = rational::fromString(attr.value().toString().toStdString());
         }
       }
 

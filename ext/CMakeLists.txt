@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2022 Olive Team
+# Copyright (C) 2023 Olive Studios LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,9 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/panel/panel.h
-  widget/panel/panel.cpp
-  PARENT_SCOPE
-)
+add_subdirectory(core EXCLUDE_FROM_ALL)
+
+set(KDDockWidgets_STATIC ON CACHE INTERNAL "Force KDDockWidgets to build statically")
+set(KDDockWidgets_QT6 ${BUILD_QT6} CACHE INTERNAL "Conform KDDockWidgets' Qt 6 setting to ours")
+add_subdirectory(KDDockWidgets EXCLUDE_FROM_ALL)

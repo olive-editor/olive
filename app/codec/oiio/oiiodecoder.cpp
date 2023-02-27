@@ -205,7 +205,7 @@ bool OIIODecoder::OpenImageHandler(const QString &fn, int subimage)
   // We use RGBA frames because that tends to be the native format of GPUs
   pix_fmt_ = OIIOUtils::GetFormatFromOIIOBasetype(static_cast<OIIO::TypeDesc::BASETYPE>(spec.format.basetype));
 
-  if (pix_fmt_ == VideoParams::kFormatInvalid) {
+  if (pix_fmt_ == PixelFormat::INVALID) {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";
     return false;
   }

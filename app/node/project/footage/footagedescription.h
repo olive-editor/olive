@@ -22,7 +22,6 @@
 #define FOOTAGEDESCRIPTION_H
 
 #include "node/output/track/track.h"
-#include "render/audioparams.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 

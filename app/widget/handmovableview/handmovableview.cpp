@@ -157,7 +157,11 @@ bool HandMovableView::WheelEventIsAZoomEvent(QWheelEvent *event)
 
 qreal HandMovableView::GetScrollZoomMultiplier(QWheelEvent *event)
 {
-  return 1.0 + (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
+  qreal v = (static_cast<qreal>(event->angleDelta().x() + event->angleDelta().y()) * 0.001);
+  if (event->inverted()) {
+    v = -v;
+  }
+  return 1.0 + v;
 }
 
 void HandMovableView::wheelEvent(QWheelEvent *event)

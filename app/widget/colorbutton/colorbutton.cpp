@@ -27,7 +27,8 @@ namespace olive {
 ColorButton::ColorButton(ColorManager* color_manager, bool show_dialog_on_click, QWidget *parent) :
   QPushButton(parent),
   color_manager_(color_manager),
-  color_processor_(nullptr)
+  color_processor_(nullptr),
+  dialog_open_(false)
 {
   setAutoFillBackground(true);
 
@@ -55,11 +56,14 @@ void ColorButton::SetColor(const ManagedColor &c)
 
 void ColorButton::ShowColorDialog()
 {
-  ColorDialog *cd = new ColorDialog(color_manager_, color_, this);
+  if (!dialog_open_) {
+    dialog_open_ = true;
+    ColorDialog *cd = new ColorDialog(color_manager_, color_, this);
 
-  connect(cd, &ColorDialog::finished, this, &ColorButton::ColorDialogFinished);
+    connect(cd, &ColorDialog::finished, this, &ColorButton::ColorDialogFinished);
 
-  cd->show();
+    cd->show();
+  }
 }
 
 void ColorButton::ColorDialogFinished(int e)
@@ -75,6 +79,8 @@ void ColorButton::ColorDialogFinished(int e)
   }
 
   cd->deleteLater();
+
+  dialog_open_ = false;
 }
 
 void ColorButton::UpdateColor()
@@ -83,7 +89,7 @@ void ColorButton::UpdateColor()
                                             color_.color_input(),
                                             color_.color_output());
 
-  QColor managed = color_processor_->ConvertColor(color_).toQColor();
+  QColor managed = QtUtils::toQColor(color_processor_->ConvertColor(color_));
 
   setStyleSheet(QStringLiteral("%1--ColorButton {background: %2;}").arg(MACRO_VAL_AS_STR(olive), managed.name()));
 }

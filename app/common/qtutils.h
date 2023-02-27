@@ -21,6 +21,7 @@
 #ifndef QTVERSIONABSTRACTION_H
 #define QTVERSIONABSTRACTION_H
 
+#include <olive/core/core.h>
 #include <QComboBox>
 #include <QDateTime>
 #include <QFileInfo>
@@ -72,8 +73,41 @@ public:
     return nullptr;
   }
 
+  static QColor toQColor(const core::Color &c);
+
+  /**
+   * @brief Convert a pointer to a value that can be sent between NodeParams
+   */
+  static QVariant PtrToValue(void* ptr)
+  {
+    return reinterpret_cast<quintptr>(ptr);
+  }
+
+  /**
+   * @brief Convert a NodeParam value to a pointer of any kind
+   */
+  template<class T>
+  static T* ValueToPtr(const QVariant &ptr)
+  {
+    return reinterpret_cast<T*>(ptr.value<quintptr>());
+  }
+
 };
 
+namespace core {
+
+uint qHash(const core::rational& r, uint seed = 0);
+uint qHash(const core::TimeRange& r, uint seed = 0);
+
 }
+
+}
+
+Q_DECLARE_METATYPE(olive::core::rational);
+Q_DECLARE_METATYPE(olive::core::Color);
+Q_DECLARE_METATYPE(olive::core::TimeRange);
+Q_DECLARE_METATYPE(olive::core::Bezier);
+Q_DECLARE_METATYPE(olive::core::AudioParams);
+Q_DECLARE_METATYPE(olive::core::SampleBuffer);
 
 #endif // QTVERSIONABSTRACTION_H

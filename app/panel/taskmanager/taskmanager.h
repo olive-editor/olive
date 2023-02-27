@@ -21,8 +21,8 @@
 #ifndef TASKMANAGER_PANEL_H
 #define TASKMANAGER_PANEL_H
 
+#include "panel/panel.h"
 #include "widget/taskview/taskview.h"
-#include "widget/panel/panel.h"
 
 namespace olive {
 
@@ -33,7 +33,7 @@ class TaskManagerPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  TaskManagerPanel(QWidget* parent);
+  TaskManagerPanel();
 
 private:
   virtual void Retranslate() override;

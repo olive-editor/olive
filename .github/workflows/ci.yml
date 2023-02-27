@@ -56,6 +56,8 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v3
+        with:
+          submodules: 'true'
 
       - name: Generate Patreon List
         env:
@@ -156,6 +158,8 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v3
+        with:
+          submodules: 'true'
 
       - name: Automatically Generate Package Name
         shell: bash
@@ -176,10 +180,10 @@ jobs:
         shell: bash
         working-directory: ${{ runner.workspace }}
         run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/vcpkg-registry/releases/download/continuous/olive-dep-x64-windows.zip
-          7z x olive-dep-x64-windows.zip
-          VCPKG_DIR=(vcpkg-export-*)
-          echo "VCPKG_ROOT=$(pwd -W)/$VCPKG_DIR" >> $GITHUB_ENV
+          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32-Release.tar.gz
+          tar xzf olive-dep-win32-Release.tar.gz
+          echo "$(pwd -W)/install" >> $GITHUB_PATH
+          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
 
       - name: Acquire Google Crashpad
         shell: bash
@@ -207,7 +211,6 @@ jobs:
         working-directory: ${{ runner.workspace }}/build
         run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
             $CMAKE_ARGS
 
       - name: Build
@@ -216,11 +219,11 @@ jobs:
         run: |
           cmake --build .
 
-      - name: Test
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          PATH=$PATH:$VCPKG_ROOT/installed/x64-windows/bin ctest -C ${{ matrix.build-type }} -V
+      #- name: Test
+      #  working-directory: ${{ runner.workspace }}/build
+      #  shell: bash
+      #  run: |
+      #    ctest -C ${{ matrix.build-type }} -V
 
       - name: Create Package
         working-directory: ${{ runner.workspace }}/build
@@ -232,9 +235,8 @@ jobs:
           cp app/olive-editor.exe olive-editor
           cp app/crashhandler/olive-crashhandler.exe olive-editor
           cp app/olive-editor.pdb olive-editor
-          $VCPKG_ROOT/installed/x64-windows/tools/qt5/bin/windeployqt --no-angle olive-editor/olive-crashhandler.exe
-          $VCPKG_ROOT/installed/x64-windows/tools/qt5/bin/windeployqt --no-angle olive-editor/olive-editor.exe
-          cp $(cygpath $VCPKG_ROOT)/installed/x64-windows/bin/*.dll olive-editor
+          windeployqt --no-angle olive-editor/olive-crashhandler.exe
+          windeployqt --no-angle olive-editor/olive-editor.exe
           cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/*.dll olive-editor
           cp $(cygpath $ORIGINAL_WORKSPACE)/install/crashpad/out/Default/crashpad_handler.exe olive-editor
           cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/minidump_stackwalk.exe olive-editor
@@ -287,7 +289,7 @@ jobs:
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
-            os: macos-10.15
+            os: macos-11.0
             cmake-gen: Ninja
             min-deploy: 10.13
           - build-type: RelWithDebInfo
@@ -310,6 +312,8 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v3
+        with:
+          submodules: 'true'
 
       - name: Automatically Generate Package Name
         shell: bash

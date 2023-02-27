@@ -25,7 +25,6 @@
 #include <QGroupBox>
 #include <QWidget>
 
-#include "render/color.h"
 #include "widget/colorwheel/colorpreviewbox.h"
 
 namespace olive {

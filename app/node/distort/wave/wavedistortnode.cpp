@@ -40,7 +40,7 @@ WaveDistortNode::WaveDistortNode()
 
   AddInput(kVerticalInput, NodeValue::kCombo, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

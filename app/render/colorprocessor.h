@@ -23,7 +23,6 @@
 
 #include "codec/frame.h"
 #include "common/ocioutils.h"
-#include "render/color.h"
 #include "render/colortransform.h"
 
 namespace olive {

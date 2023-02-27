@@ -41,7 +41,7 @@ SwirlDistortNode::SwirlDistortNode()
 
   AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 
   gizmo_ = AddDraggableGizmo<PointGizmo>({

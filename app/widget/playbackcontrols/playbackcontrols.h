@@ -26,7 +26,6 @@
 #include <QPushButton>
 #include <QStackedWidget>
 
-#include "common/rational.h"
 #include "dragbutton.h"
 #include "widget/slider/rationalslider.h"
 

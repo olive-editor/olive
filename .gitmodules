@@ -1,0 +1,6 @@
+[submodule "ext/core"]
+	path = ext/core
+	url = https://github.com/olive-editor/core
+[submodule "ext/KDDockWidgets"]
+	path = ext/KDDockWidgets
+	url = https://github.com/KDAB/KDDockWidgets

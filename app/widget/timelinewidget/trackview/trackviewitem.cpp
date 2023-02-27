@@ -28,9 +28,9 @@
 #include <QtMath>
 
 #include "core.h"
+#include "timeline/timelineundogeneral.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 

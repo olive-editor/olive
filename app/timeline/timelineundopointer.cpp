@@ -22,7 +22,7 @@
 
 #include "node/block/gap/gap.h"
 #include "node/block/transition/transition.h"
-#include "node/graph.h"
+#include "node/project.h"
 #include "timelineundocommon.h"
 
 namespace olive {
@@ -203,6 +203,8 @@ void TrackSlideCommand::redo()
 
       in_adjacent_remove_command_->redo_now();
     }
+
+    we_removed_in_adjacent_ = true;
   } else {
     // Simply resize adjacent
     in_adjacent_->set_length_and_media_out(in_adjacent_->length() + movement_);
@@ -225,6 +227,8 @@ void TrackSlideCommand::redo()
 
         out_adjacent_remove_command_->redo_now();
       }
+
+      we_removed_out_adjacent_ = true;
     } else {
       // Simply resize adjacent
       out_adjacent_->set_length_and_media_in(out_adjacent_->length() - movement_);
@@ -246,9 +250,13 @@ void TrackSlideCommand::undo()
     // We created this, so we can remove it now
     track_->RippleRemoveBlock(in_adjacent_);
     in_adjacent_->setParent(&memory_manager_);
-  } else if (in_adjacent_remove_command_) {
-    // We removed this, so we can restore it now
-    in_adjacent_remove_command_->undo_now();
+  } else if (we_removed_in_adjacent_) {
+    if (in_adjacent_remove_command_) {
+      // We removed this, so we can restore it now
+      in_adjacent_remove_command_->undo_now();
+    }
+
+    track_->InsertBlockBefore(in_adjacent_, blocks_.first());
   } else {
     // Simply resize adjacent
     in_adjacent_->set_length_and_media_out(in_adjacent_->length() - movement_);
@@ -259,8 +267,12 @@ void TrackSlideCommand::undo()
       // We created this, so we can remove it now
       track_->RippleRemoveBlock(out_adjacent_);
       out_adjacent_->setParent(&memory_manager_);
-    } else if (out_adjacent_remove_command_) {
-      out_adjacent_remove_command_->undo_now();
+    } else if (we_removed_out_adjacent_) {
+      if (out_adjacent_remove_command_) {
+        out_adjacent_remove_command_->undo_now();
+      }
+
+      track_->InsertBlockAfter(out_adjacent_, blocks_.last());
     } else {
       out_adjacent_->set_length_and_media_in(out_adjacent_->length() + movement_);
     }

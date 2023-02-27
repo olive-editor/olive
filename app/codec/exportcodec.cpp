@@ -64,6 +64,8 @@ QString ExportCodec::GetCodecName(ExportCodec::Codec c)
     return tr("Vorbis");
   case kCodecVP9:
     return tr("VP9");
+  case kCodecAV1:
+    return tr("AV1");
   case kCodecSRT:
     return tr("SubRip SRT");
   case kCodecCount:
@@ -90,6 +92,7 @@ bool ExportCodec::IsCodecAStillImage(ExportCodec::Codec c)
   case kCodecOpus:
   case kCodecFLAC:
   case kCodecVP9:
+  case kCodecAV1:
   case kCodecSRT:
     return false;
   case kCodecOpenEXR:
@@ -121,6 +124,7 @@ bool ExportCodec::IsCodecLossless(Codec c)
   case kCodecVorbis:
   case kCodecOpus:
   case kCodecVP9:
+  case kCodecAV1:
   case kCodecSRT:
   case kCodecOpenEXR:
   case kCodecPNG:

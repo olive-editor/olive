@@ -23,7 +23,6 @@
 
 #include <QPainterPath>
 
-#include "common/bezier.h"
 #include "node/generator/shape/generatorwithmerge.h"
 #include "node/gizmo/line.h"
 #include "node/gizmo/path.h"

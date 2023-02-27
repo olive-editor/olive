@@ -21,7 +21,6 @@
 #ifndef NODEINPUTIMMEDIATE_H
 #define NODEINPUTIMMEDIATE_H
 
-#include "common/timerange.h"
 #include "common/xmlutils.h"
 #include "node/keyframe.h"
 #include "node/value.h"

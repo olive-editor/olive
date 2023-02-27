@@ -44,11 +44,33 @@ namespace olive {
  * * Project Settings
  * * Window Layout
  */
-class Project : public NodeGraph
+class Project : public QObject
 {
   Q_OBJECT
 public:
   Project();
+
+  virtual ~Project() override;
+
+  /**
+   * @brief Destructively destroys all nodes in the graph
+   */
+  void Clear();
+
+  /**
+   * @brief Retrieve a complete list of the nodes belonging to this graph
+   */
+  const QVector<Node*>& nodes() const
+  {
+    return node_children_;
+  }
+
+  const QVector<Node*>& default_nodes() const
+  {
+    return default_nodes_;
+  }
+
+  int GetNumberOfContextsNodeIsIn(Node *node, bool except_itself = false) const;
 
   Folder* root();
 
@@ -124,6 +146,38 @@ signals:
 
   void ModifiedChanged(bool e);
 
+  /**
+   * @brief Signal emitted when a Node is added to the graph
+   */
+  void NodeAdded(Node* node);
+
+  /**
+   * @brief Signal emitted when a Node is removed from the graph
+   */
+  void NodeRemoved(Node* node);
+
+  void InputConnected(Node *output, const NodeInput& input);
+
+  void InputDisconnected(Node *output, const NodeInput& input);
+
+  void ValueChanged(const NodeInput& input);
+
+  void InputValueHintChanged(const NodeInput& input);
+
+  void GroupAddedInputPassthrough(NodeGroup *group, const NodeInput &input);
+
+  void GroupRemovedInputPassthrough(NodeGroup *group, const NodeInput &input);
+
+  void GroupChangedOutputPassthrough(NodeGroup *group, Node *output);
+
+protected:
+  void AddDefaultNode(Node* n)
+  {
+    default_nodes_.append(n);
+  }
+
+  virtual void childEvent(QChildEvent* event) override;
+
 private:
   QUuid uuid_;
 
@@ -142,6 +196,10 @@ private:
   bool autorecovery_saved_;
 
   MainWindowLayoutInfo layout_info_;
+
+  QVector<Node*> node_children_;
+
+  QVector<Node*> default_nodes_;
 
 private slots:
   void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);

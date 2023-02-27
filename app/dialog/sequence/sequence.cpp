@@ -33,7 +33,6 @@
 #include "core.h"
 #include "common/channellayout.h"
 #include "common/qtutils.h"
-#include "common/rational.h"
 #include "undo/undostack.h"
 
 namespace olive {
@@ -141,7 +140,7 @@ void SequenceDialog::accept()
 
   AudioParams audio_params = AudioParams(parameter_tab_->GetSelectedAudioSampleRate(),
                                          parameter_tab_->GetSelectedAudioChannelLayout(),
-                                         AudioParams::kInternalFormat);
+                                         Sequence::kDefaultSampleFormat);
 
   if (make_undoable_) {
 

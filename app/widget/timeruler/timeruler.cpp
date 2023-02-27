@@ -23,7 +23,6 @@
 #include <QDebug>
 #include <QPainter>
 
-#include "common/timecodefunctions.h"
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "core.h"
@@ -102,8 +101,8 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
 
   // Draw timeline points if connected
   int marker_height = TimelineMarker::GetMarkerHeight(p->fontMetrics());
-  DrawMarkers(p, marker_height);
   DrawWorkArea(p);
+  DrawMarkers(p, marker_height);
 
   double width_of_frame = timebase_dbl() * GetScale();
   double width_of_second = 0;
@@ -199,14 +198,14 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
     double screen_pt = static_cast<double>(i);
 
     if (long_interval > -1) {
-      int this_long_unit = qFloor(screen_pt/long_interval);
+      int this_long_unit = std::floor(screen_pt/long_interval);
       if (this_long_unit != last_long_unit) {
         int line_y = long_y;
 
         if (text_visible_) {
           QRect text_rect;
           Qt::Alignment text_align;
-          QString timecode_str = Timecode::time_to_timecode(SceneToTime(i), timebase(), Core::instance()->GetTimecodeDisplay());
+          QString timecode_str = QString::fromStdString(Timecode::time_to_timecode(SceneToTime(i), timebase(), Core::instance()->GetTimecodeDisplay()));
           int timecode_width = QtUtils::QFontMetricsWidth(fm, timecode_str);
           int timecode_left;
 
@@ -242,7 +241,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
     }
 
     if (short_interval > -1) {
-      int this_short_unit = qFloor(screen_pt/short_interval);
+      int this_short_unit = std::floor(screen_pt/short_interval);
       if (this_short_unit != last_short_unit) {
         p->drawLine(i, short_y, i, line_bottom);
         last_short_unit = this_short_unit;

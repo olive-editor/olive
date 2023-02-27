@@ -20,7 +20,6 @@
 
 #include "render.h"
 
-#include "common/timecodefunctions.h"
 #include "node/project/sequence/sequence.h"
 #include "render/rendermanager.h"
 
@@ -41,7 +40,7 @@ bool RenderTask::Render(ColorManager* manager,
                         const TimeRangeList &audio_range, const TimeRange &subtitle_range,
                         RenderMode::Mode mode,
                         FrameHashCache* cache, const QSize &force_size,
-                        const QMatrix4x4 &force_matrix, VideoParams::Format force_format,
+                        const QMatrix4x4 &force_matrix, PixelFormat force_format,
                         int force_channel_count, ColorProcessorPtr force_color_output)
 {
   QMetaObject::invokeMethod(RenderManager::instance(), "SetAggressiveGarbageCollection", Q_ARG(bool, true));
@@ -279,7 +278,7 @@ void RenderTask::IncrementRunningTickets()
 void RenderTask::StartTicket(QThread* watcher_thread, ColorManager* manager,
                              const rational& time, RenderMode::Mode mode, FrameHashCache* cache,
                              const QSize &force_size, const QMatrix4x4 &force_matrix,
-                             VideoParams::Format force_format, int force_channel_count,
+                             PixelFormat force_format, int force_channel_count,
                              ColorProcessorPtr force_color_output)
 {
   RenderManager::RenderVideoParams rvp(viewer_->GetConnectedTextureOutput(), video_params_, audio_params_,

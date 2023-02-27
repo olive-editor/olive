@@ -25,8 +25,8 @@
 #include <QUndoCommand>
 
 #include "codec/decoder.h"
-#include "node/project/projectviewmodel.h"
 #include "task/task.h"
+#include "widget/projectexplorer/projectviewmodel.h"
 
 namespace olive {
 

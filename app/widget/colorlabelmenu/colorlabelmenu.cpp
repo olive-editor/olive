@@ -24,6 +24,7 @@
 #include <QPainter>
 #include <QWidgetAction>
 
+#include "common/qtutils.h"
 #include "ui/colorcoding.h"
 
 namespace olive {
@@ -40,7 +41,7 @@ ColorLabelMenu::ColorLabelMenu(QWidget *parent) :
 
     QPainter painter(&p);
     painter.setPen(Qt::black);
-    painter.setBrush(ColorCoding::standard_colors().at(i).toQColor());
+    painter.setBrush(QtUtils::toQColor(ColorCoding::standard_colors().at(i)));
     painter.drawRect(p.rect().adjusted(0, 0, -1, -1));
 
     QAction *a = AddItem(QStringLiteral("colorlabel%1").arg(i), this, &ColorLabelMenu::ActionTriggered);

@@ -10,29 +10,16 @@ uniform float yuv_cgu;
 uniform float yuv_cgv;
 uniform float yuv_cbu;
 
-uniform int interlacing;
-uniform int pixel_height;
-
 in vec2 ove_texcoord;
 out vec4 frag_color;
 
 void main()
 {
-  vec2 real_coord = ove_texcoord;
-  if (interlacing != 0) {
-    float field_height = float(pixel_height / 2);
-    real_coord.y = floor(real_coord.y * field_height) + 0.25;
-    if (interlacing == 2) {
-      real_coord.y += 0.5;
-    }
-    real_coord.y /= field_height;
-  }
-
   // Sample YUV planes
   vec3 yuv;
-  yuv.r = texture(y_channel, real_coord).r;
-  yuv.g = texture(u_channel, real_coord).r;
-  yuv.b = texture(v_channel, real_coord).r;
+  yuv.r = texture(y_channel, ove_texcoord).r;
+  yuv.g = texture(u_channel, ove_texcoord).r;
+  yuv.b = texture(v_channel, ove_texcoord).r;
 
   // Pixels will have come in aligned to 16-bit regardless of their actual bit depth, so they must
   // be scaled as if they were actually 16-bit
@@ -40,15 +27,17 @@ void main()
     // Convert 0.0-1.0 to -0.5-0.5
     yuv.gb -= (128.0/255.0);
   } else if (bits_per_pixel == 10) {
+    // Scale from 10-bit to 16-bit
+    yuv *= (65535.0/1023.0);
+
     // Convert 0.0-1.0 to -0.5-0.5
     yuv.gb -= (512.0/1023.0);
-
-    yuv *= 64.0;
   } else if (bits_per_pixel == 12) {
+    // Scale from 12-bit to 16-bit
+    yuv *= (65535.0/4095.0);
+
     // Convert 0.0-1.0 to -0.5-0.5
     yuv.gb -= (2048.0/4095.0);
-
-    yuv *= 16.0;
   }
 
   // Convert YUV limited range from 16-235 to 0-255

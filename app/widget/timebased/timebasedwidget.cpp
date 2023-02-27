@@ -24,13 +24,12 @@
 
 #include "common/autoscroll.h"
 #include "common/range.h"
-#include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/sequence/sequence.h"
+#include "timeline/timelineundoworkarea.h"
 #include "widget/timeruler/timeruler.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -154,7 +153,7 @@ void TimeBasedWidget::UpdateMaximumScroll()
   rational length = (viewer_node_) ? viewer_node_->GetLength() : 0;
 
   if (auto_max_scrollbar_) {
-    scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(length)) - width()));
+    scrollbar_->setMaximum(std::max(0, int(std::ceil(TimeToScene(length)) - width())));
   }
 
   foreach (TimeBasedView* base, timeline_views_) {
@@ -499,7 +498,9 @@ void TimeBasedWidget::GoToEnd()
 
 void TimeBasedWidget::CenterScrollOnPlayhead()
 {
-  scrollbar_->setValue(qRound(TimeToScene(GetConnectedNode()->GetPlayhead())) - scrollbar_->width()/2);
+  if (GetConnectedNode()) {
+    scrollbar_->setValue(qRound(TimeToScene(GetConnectedNode()->GetPlayhead())) - scrollbar_->width()/2);
+  }
 }
 
 void TimeBasedWidget::SetAutoSetTimebase(bool e)
@@ -828,7 +829,7 @@ bool TimeBasedWidget::SnapPoint(const std::vector<rational> &start_times, ration
     }
   }
 
-  if ((snap_points & kSnapToWorkarea) && ruler()->GetWorkArea()) {
+  if ((snap_points & kSnapToWorkarea) && ruler()->GetWorkArea() && ruler()->GetWorkArea()->enabled()) {
     const rational &workarea_in = ruler()->GetWorkArea()->in();
     const rational &workarea_out = ruler()->GetWorkArea()->out();
 

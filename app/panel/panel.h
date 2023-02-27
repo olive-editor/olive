@@ -21,7 +21,7 @@
 #ifndef PANEL_WIDGET_H
 #define PANEL_WIDGET_H
 
-#include <QDockWidget>
+#include <kddockwidgets/DockWidget.h>
 #include <QEvent>
 
 #include "common/define.h"
@@ -31,7 +31,7 @@ namespace olive {
 /**
  * @brief A widget that is always dockable within the MainWindow.
  */
-class PanelWidget : public QDockWidget
+class PanelWidget : public KDDockWidgets::DockWidget
 {
   Q_OBJECT
 public:
@@ -43,14 +43,9 @@ public:
    * The PanelWidget's parent, enforced to help with memory handling. Most of the time this will be an instance of
    * MainWindow.
    */
-  PanelWidget(const QString& object_name, QWidget* parent);
+  PanelWidget(const QString& object_name);
 
   virtual ~PanelWidget() override;
-
-  /**
-   * @brief Set whether panel movement is locked or not
-   */
-  void SetMovementLocked(bool locked);
 
   /**
    * @brief Set visibility of panel's highlighted border, mostly used for showing panel focus
@@ -65,6 +60,11 @@ public:
    * Defaults to FALSE. Use this to override default panel closing functionality.
    */
   void SetSignalInsteadOfClose(bool e);
+
+  using Info = std::map<QString, QString>;
+
+  virtual void LoadData(const Info &info){}
+  virtual Info SaveData() const {return Info();}
 
   /**
    * @brief Called whenever this panel is focused and user uses "Zoom In" (either in menus or as a keyboard shortcut)
@@ -240,9 +240,6 @@ private:
   bool border_visible_;
 
   bool signal_instead_of_close_;
-
-private slots:
-  void PanelVisibilityChanged(bool e);
 
 };
 

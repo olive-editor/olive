@@ -25,7 +25,6 @@
 #include <QStandardPaths>
 
 #include "codec/decoder.h"
-#include "common/clamp.h"
 #include "common/filefunctions.h"
 #include "common/qtutils.h"
 #include "common/xmlutils.h"
@@ -47,6 +46,8 @@ Footage::Footage(const QString &filename) :
   cancelled_(nullptr),
   total_stream_count_(0)
 {
+  SetFlag(kIsItem);
+
   PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   Clear();
@@ -204,26 +205,6 @@ const QString &Footage::decoder() const
   return decoder_;
 }
 
-QIcon Footage::icon() const
-{
-  if (valid_ && GetTotalStreamCount()) {
-    // Prioritize video > audio > image
-    VideoParams s = GetFirstEnabledVideoStream();
-
-    if (s.is_valid() && s.video_type() != VideoParams::kVideoTypeStill) {
-      return icon::Video;
-    } else if (HasEnabledAudioStreams()) {
-      return icon::Audio;
-    } else if (s.is_valid() && s.video_type() == VideoParams::kVideoTypeStill) {
-      return icon::Image;
-    } else if (HasEnabledSubtitleStreams()) {
-      return icon::Subtitles;
-    }
-  }
-
-  return icon::Error;
-}
-
 QString Footage::DescribeVideoStream(const VideoParams &params)
 {
   if (params.video_type() == VideoParams::kVideoTypeStill) {
@@ -352,7 +333,7 @@ rational Footage::AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const 
       break;
     case LoopMode::kLoopModeClamp:
       // Clamp footage time to length
-      time = clamp(time, rational(0), length - timebase);
+      time = std::clamp(time, rational(0), length - timebase);
       break;
     case LoopMode::kLoopModeLoop:
       // Loop footage time around job length
@@ -376,26 +357,51 @@ void Footage::LoadFinishedEvent()
   }
 }
 
-qint64 Footage::creation_time() const
+QVariant Footage::data(const DataType &d) const
 {
-  QFileInfo info(filename());
+  switch (d) {
+  case CREATED_TIME:
+  {
+    QFileInfo info(filename());
 
-  if (info.exists()) {
-    return QtUtils::GetCreationDate(info).toSecsSinceEpoch();
+    if (info.exists()) {
+      return QtUtils::GetCreationDate(info).toSecsSinceEpoch();
+    }
+    break;
+  }
+  case MODIFIED_TIME:
+  {
+    QFileInfo info(filename());
+
+    if (info.exists()) {
+      return info.lastModified().toSecsSinceEpoch();
+    }
+    break;
+  }
+  case ICON:
+  {
+    if (valid_ && GetTotalStreamCount()) {
+      // Prioritize video > audio > image
+      VideoParams s = GetFirstEnabledVideoStream();
+
+      if (s.is_valid() && s.video_type() != VideoParams::kVideoTypeStill) {
+        return icon::Video;
+      } else if (HasEnabledAudioStreams()) {
+        return icon::Audio;
+      } else if (s.is_valid() && s.video_type() == VideoParams::kVideoTypeStill) {
+        return icon::Image;
+      } else if (HasEnabledSubtitleStreams()) {
+        return icon::Subtitles;
+      }
+    }
+
+    return icon::Error;
+  }
+  default:
+    break;
   }
 
-  return 0;
-}
-
-qint64 Footage::mod_time() const
-{
-  QFileInfo info(filename());
-
-  if (info.exists()) {
-    return info.lastModified().toSecsSinceEpoch();
-  }
-
-  return 0;
+  return super::data(d);
 }
 
 void Footage::UpdateTooltip()
@@ -474,8 +480,10 @@ void Footage::Reprobe()
           }
         }
 
-        if (!footage_info.Save(meta_cache_file)) {
-          qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+        if (!cancelled_ || !cancelled_->HeardCancel()) {
+          if (!footage_info.Save(meta_cache_file)) {
+            qWarning() << "Failed to save stream cache, footage will have to be re-probed";
+          }
         }
 
       }

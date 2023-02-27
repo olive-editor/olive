@@ -91,7 +91,7 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("Autoscroll"), NodeValue::kInt, AutoScroll::kPage);
   SetEntryInternal(QStringLiteral("AutoSelectDivider"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeValue::kBoolean, false);
+  SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeValue::kBoolean, true);
   SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeValue::kInt, ImportTool::kDWSAsk);
   SetEntryInternal(QStringLiteral("Loop"), NodeValue::kBoolean, false);
   SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeValue::kBoolean, true);
@@ -138,13 +138,13 @@ void Config::SetDefaults()
 
   SetEntryInternal(QStringLiteral("AudioOutputSampleRate"), NodeValue::kInt, 48000);
   SetEntryInternal(QStringLiteral("AudioOutputChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
-  SetEntryInternal(QStringLiteral("AudioOutputSampleFormat"), NodeValue::kInt, AudioParams::kFormatSigned16Packed);
+  SetEntryInternal(QStringLiteral("AudioOutputSampleFormat"), NodeValue::kText, QString::fromStdString(SampleFormat(SampleFormat::S16).to_string()));
 
   SetEntryInternal(QStringLiteral("AudioRecordingFormat"), NodeValue::kInt, ExportFormat::kFormatWAV);
   SetEntryInternal(QStringLiteral("AudioRecordingCodec"), NodeValue::kInt, ExportCodec::kCodecPCM);
   SetEntryInternal(QStringLiteral("AudioRecordingSampleRate"), NodeValue::kInt, 48000);
   SetEntryInternal(QStringLiteral("AudioRecordingChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
-  SetEntryInternal(QStringLiteral("AudioRecordingSampleFormat"), NodeValue::kInt, AudioParams::kFormatSigned16Packed);
+  SetEntryInternal(QStringLiteral("AudioRecordingSampleFormat"), NodeValue::kText, QString::fromStdString(SampleFormat(SampleFormat::S16).to_string()));
   SetEntryInternal(QStringLiteral("AudioRecordingBitRate"), NodeValue::kInt, 320);
 
   SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(0)));
@@ -160,8 +160,8 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeValue::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
 
   // Online/offline settings
-  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat32);
-  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, VideoParams::kFormatFloat16);
+  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, PixelFormat::F32);
+  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, PixelFormat::F16);
 
   SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kLime);
 }

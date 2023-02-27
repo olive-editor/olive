@@ -170,12 +170,12 @@ int NodeInput::GetArraySize() const
 
 uint qHash(const NodeInput &i)
 {
-  return qHash(i.node()) ^ qHash(i.input()) ^ qHash(i.element());
+  return qHash(i.node()) ^ qHash(i.input()) ^ ::qHash(i.element());
 }
 
 uint qHash(const NodeKeyframeTrackReference &i)
 {
-  return qHash(i.input()) & qHash(i.track());
+  return qHash(i.input()) & ::qHash(i.track());
 }
 
 uint qHash(const NodeInputPair &i)

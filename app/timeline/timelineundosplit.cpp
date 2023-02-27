@@ -22,7 +22,7 @@
 
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "node/nodeundo.h"
 
 namespace olive {
 

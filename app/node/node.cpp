@@ -25,15 +25,14 @@
 #include <QDebug>
 #include <QFile>
 
-#include "common/bezier.h"
 #include "common/lerp.h"
 #include "core.h"
 #include "config/config.h"
-#include "project/project.h"
+#include "node/group/group.h"
+#include "nodeundo.h"
+#include "project.h"
 #include "ui/colorcoding.h"
 #include "ui/icons/icons.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -42,7 +41,6 @@ namespace olive {
 const QString Node::kEnabledInput = QStringLiteral("enabled_in");
 
 Node::Node() :
-  can_be_deleted_(true),
   override_color_(-1),
   folder_(nullptr),
   flags_(kNone),
@@ -77,9 +75,9 @@ Node::~Node()
   }
 }
 
-NodeGraph *Node::parent() const
+Project *Node::parent() const
 {
-  return static_cast<NodeGraph*>(QObject::parent());
+  return static_cast<Project*>(QObject::parent());
 }
 
 Project *Node::project() const
@@ -103,10 +101,14 @@ void Node::Retranslate()
   SetInputName(kEnabledInput, tr("Enabled"));
 }
 
-QIcon Node::icon() const
+QVariant Node::data(const DataType &d) const
 {
-  // Just a meaningless default icon to be used where necessary
-  return icon::New;
+  if (d == ICON) {
+    // Just a meaningless default icon to be used where necessary
+    return icon::New;
+  }
+
+  return QVariant();
 }
 
 bool Node::SetNodePositionInContext(Node *node, const QPointF &pos)
@@ -163,7 +165,7 @@ QLinearGradient Node::gradient_color(qreal top, qreal bottom) const
   grad.setStart(0, top);
   grad.setFinalStop(0, bottom);
 
-  QColor c = color().toQColor();
+  QColor c = QtUtils::toQColor(color());
 
   grad.setColorAt(0.0, c.lighter());
   grad.setColorAt(1.0, c);
@@ -176,7 +178,7 @@ QBrush Node::brush(qreal top, qreal bottom) const
   if (OLIVE_CONFIG("UseGradients").toBool()) {
     return gradient_color(top, bottom);
   } else {
-    return color().toQColor();
+    return QtUtils::toQColor(color());
   }
 }
 
@@ -201,7 +203,7 @@ void Node::ConnectEdge(Node *output, const NodeInput &input)
   emit output->OutputConnected(output, input);
 
   // Invalidate all if this node isn't ignoring this input
-  if (!input.node()->ignore_connections_.contains(input.input())) {
+  if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreInvalidations)) {
     input.node()->InvalidateAll(input.input(), input.element());
   }
 }
@@ -228,7 +230,7 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   emit input.node()->InputDisconnected(output, input);
   emit output->OutputDisconnected(output, input);
 
-  if (!input.node()->ignore_connections_.contains(input.input())) {
+  if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreInvalidations)) {
     input.node()->InvalidateAll(input.input(), input.element());
   }
 }
@@ -484,31 +486,29 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
 
           // Perform a cubic bezier with two control points
           interpolated = Bezier::CubicXtoY(time.toDouble(),
-                                           QPointF(before->time().toDouble(), before_val),
-                                           QPointF(before->time().toDouble() + before->valid_bezier_control_out().x(), before_val + before->valid_bezier_control_out().y()),
-                                           QPointF(after->time().toDouble() + after->valid_bezier_control_in().x(), after_val + after->valid_bezier_control_in().y()),
-                                           QPointF(after->time().toDouble(), after_val));
+                                           Imath::V2d(before->time().toDouble(), before_val),
+                                           Imath::V2d(before->time().toDouble() + before->valid_bezier_control_out().x(), before_val + before->valid_bezier_control_out().y()),
+                                           Imath::V2d(after->time().toDouble() + after->valid_bezier_control_in().x(), after_val + after->valid_bezier_control_in().y()),
+                                           Imath::V2d(after->time().toDouble(), after_val));
 
         } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
           // Perform a quadratic bezier with only one control point
 
-          QPointF control_point;
+          Imath::V2d control_point;
 
           if (before->type() == NodeKeyframe::kBezier) {
-            control_point = before->valid_bezier_control_out();
-            control_point.setX(control_point.x() + before->time().toDouble());
-            control_point.setY(control_point.y() + before_val);
+            control_point.x = (before->valid_bezier_control_out().x() + before->time().toDouble());
+            control_point.y = (before->valid_bezier_control_out().y() + before_val);
           } else {
-            control_point = after->valid_bezier_control_in();
-            control_point.setX(control_point.x() + after->time().toDouble());
-            control_point.setY(control_point.y() + after_val);
+            control_point.x = (after->valid_bezier_control_in().x() + after->time().toDouble());
+            control_point.y = (after->valid_bezier_control_in().y() + after_val);
           }
 
           // Interpolate value using quadratic beziers
           interpolated = Bezier::QuadraticXtoY(time.toDouble(),
-                                               QPointF(before->time().toDouble(), before_val),
+                                               Imath::V2d(before->time().toDouble(), before_val),
                                                control_point,
-                                               QPointF(after->time().toDouble(), after_val));
+                                               Imath::V2d(after->time().toDouble(), after_val));
 
         } else {
           // To have arrived here, the keyframes must both be linear
@@ -780,87 +780,74 @@ bool Node::InputIsArray(const QString &id) const
   return GetInputFlags(id) & kInputFlagArray;
 }
 
-void Node::InputArrayInsert(const QString &id, int index, bool undoable)
+void Node::InputArrayInsert(const QString &id, int index)
 {
-  if (undoable) {
-    Core::instance()->undo_stack()->push(new ArrayInsertCommand(this, id, index));
-  } else {
-    // Add new input
-    ArrayResizeInternal(id, InputArraySize(id) + 1);
+  // Add new input
+  ArrayResizeInternal(id, InputArraySize(id) + 1);
 
-    // Move connections down
-    InputConnections copied_edges = input_connections();
-    for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
-      if (it->first.input() == id && it->first.element() >= index) {
-        // Disconnect this and reconnect it one element down
-        NodeInput new_edge = it->first;
-        new_edge.set_element(new_edge.element() + 1);
+  // Move connections down
+  InputConnections copied_edges = input_connections();
+  for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
+    if (it->first.input() == id && it->first.element() >= index) {
+      // Disconnect this and reconnect it one element down
+      NodeInput new_edge = it->first;
+      new_edge.set_element(new_edge.element() + 1);
 
-        DisconnectEdge(it->second, it->first);
-        ConnectEdge(it->second, new_edge);
-      }
+      DisconnectEdge(it->second, it->first);
+      ConnectEdge(it->second, new_edge);
     }
-
-    // Shift values and keyframes up one element
-    for (int i=InputArraySize(id)-1; i>index; i--) {
-      CopyValuesOfElement(this, this, id, i-1, i);
-    }
-
-    // Reset value of element we just "inserted"
-    ClearElement(id, index);
   }
+
+  // Shift values and keyframes up one element
+  for (int i=InputArraySize(id)-1; i>index; i--) {
+    CopyValuesOfElement(this, this, id, i-1, i);
+  }
+
+  // Reset value of element we just "inserted"
+  ClearElement(id, index);
 }
 
-void Node::InputArrayResize(const QString &id, int size, bool undoable)
+void Node::InputArrayResize(const QString &id, int size)
 {
   if (InputArraySize(id) == size) {
     return;
   }
 
-  ArrayResizeCommand* c = new ArrayResizeCommand(this, id, size);
-
-  if (undoable) {
-    Core::instance()->undo_stack()->push(c);
-  } else {
-    c->redo_now();
-    delete c;
-  }
+  NodeArrayResizeCommand* c = new NodeArrayResizeCommand(this, id, size);
+  c->redo_now();
+  delete c;
 }
 
-void Node::InputArrayRemove(const QString &id, int index, bool undoable)
+void Node::InputArrayRemove(const QString &id, int index)
 {
-  if (undoable) {
-    Core::instance()->undo_stack()->push(new ArrayRemoveCommand(this, id, index));
-  } else {
-    // Remove input
-    ArrayResizeInternal(id, InputArraySize(id) - 1);
+  // Remove input
+  ArrayResizeInternal(id, InputArraySize(id) - 1);
 
-    // Move connections up
-    InputConnections copied_edges = input_connections();
-    for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-      if (it->first.input() == id && it->first.element() >= index) {
-        // Disconnect this and reconnect it one element up if it's not the element being removed
-        DisconnectEdge(it->second, it->first);
+  // Move connections up
+  InputConnections copied_edges = input_connections();
+  for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
+    if (it->first.input() == id && it->first.element() >= index) {
+      // Disconnect this and reconnect it one element up if it's not the element being removed
+      DisconnectEdge(it->second, it->first);
 
-        if (it->first.element() > index) {
-          NodeInput new_edge = it->first;
-          new_edge.set_element(new_edge.element() - 1);
+      if (it->first.element() > index) {
+        NodeInput new_edge = it->first;
+        new_edge.set_element(new_edge.element() - 1);
 
-          ConnectEdge(it->second, new_edge);
-        }
+        ConnectEdge(it->second, new_edge);
       }
     }
-
-    // Shift values and keyframes down one element
-    int arr_sz = InputArraySize(id);
-    for (int i=index; i<arr_sz; i++) {
-      // Copying ArraySize()+1 is actually legal because immediates are never deleted
-      CopyValuesOfElement(this, this, id, i+1, i);
-    }
-
-    // Reset value of last element
-    ClearElement(id, arr_sz);
   }
+
+  // Shift values and keyframes down one element
+  int arr_sz = InputArraySize(id);
+  for (int i=index; i<arr_sz; i++) {
+    // Copying ArraySize()+1 is actually legal because immediates are never deleted
+    CopyValuesOfElement(this, this, id, i+1, i);
+  }
+
+  // Reset value of last element
+  ClearElement(id, arr_sz);
 }
 
 int Node::InputArraySize(const QString &id) const
@@ -916,12 +903,16 @@ InputFlags Node::GetInputFlags(const QString &input) const
   }
 }
 
-void Node::SetInputFlags(const QString &input, const InputFlags &f)
+void Node::SetInputFlag(const QString &input, InputFlag f, bool on)
 {
   Input* i = GetInternalInputData(input);
 
   if (i) {
-    i->flags = f;
+    if (on) {
+      i->flags |= f;
+    } else {
+      i->flags &= ~f;
+    }
     emit InputFlagsChanged(input, i->flags);
   } else {
     ReportInvalidInput("set flags of", input, -1);
@@ -985,7 +976,7 @@ QVector<Node *> Node::CopyDependencyGraph(const QVector<Node *> &nodes, MultiUnd
     Node::CopyInputs(nodes.at(i), c, false);
 
     // Add to graph
-    NodeGraph* graph = static_cast<NodeGraph*>(nodes.at(i)->parent());
+    Project* graph = nodes.at(i)->parent();
     if (command) {
       command->add_child(new NodeAddCommand(graph, c));
     } else {
@@ -1116,7 +1107,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
   } else {
     copy = node->copy();
 
-    command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(node->parent()), copy));
+    command->add_child(new NodeAddCommand(node->parent(), copy));
 
     CopyInputs(node, copy, true, command);
 
@@ -1320,11 +1311,6 @@ void Node::SetInputName(const QString &id, const QString &name)
   }
 }
 
-void Node::IgnoreInvalidationsFrom(const QString& input_id)
-{
-  ignore_connections_.append(input_id);
-}
-
 const QString &Node::GetLabel() const
 {
   return label_;
@@ -1437,7 +1423,7 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   // Copy keyframes
   if (NodeInputImmediate *immediate = dst->GetImmediate(input, dst_element)) {
     if (command) {
-      command->add_child(new ImmediateRemoveAllKeyframesCommand(immediate));
+      command->add_child(new NodeImmediateRemoveAllKeyframesCommand(immediate));
     } else {
       immediate->delete_all_keyframes();
     }
@@ -1466,7 +1452,7 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   if (src_element == -1 && dst_element == -1) {
     int array_sz = src->InputArraySize(input);
     if (command) {
-      command->add_child(new Node::ArrayResizeCommand(dst, input, array_sz));
+      command->add_child(new NodeArrayResizeCommand(dst, input, array_sz));
     } else {
       dst->ArrayResizeInternal(input, array_sz);
     }
@@ -1479,16 +1465,6 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   } else {
     dst->SetValueHintForInput(input, vh, dst_element);
   }
-}
-
-bool Node::CanBeDeleted() const
-{
-  return can_be_deleted_;
-}
-
-void Node::SetCanBeDeleted(bool s)
-{
-  can_be_deleted_ = s;
 }
 
 void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool traverse, bool exclusive_only)
@@ -1661,18 +1637,13 @@ TimeRange Node::TransformTimeTo(TimeRange time, Node *target, TransformTimeDirec
   return time;
 }
 
-QVariant Node::PtrToValue(void *ptr)
-{
-  return reinterpret_cast<quintptr>(ptr);
-}
-
 void Node::ParameterValueChanged(const QString& input, int element, const TimeRange& range)
 {
   InputValueChangedEvent(input, element);
 
   emit ValueChanged(NodeInput(this, input, element), range);
 
-  if (ignore_connections_.contains(input)) {
+  if (GetInputFlags(input) & kInputFlagIgnoreInvalidations) {
     return;
   }
 
@@ -1957,133 +1928,6 @@ std::list<NodeInput> Node::FindPath(Node *from, Node *to, int path_index)
   FindPathInternal(v, from, to, path_index);
 
   return v;
-}
-
-Project *Node::ArrayInsertCommand::GetRelevantProject() const
-{
-  return node_->project();
-}
-
-Project *Node::ArrayRemoveCommand::GetRelevantProject() const
-{
-  return node_->project();
-}
-
-Project *Node::ArrayResizeCommand::GetRelevantProject() const
-{
-  return node_->project();
-}
-
-void NodeSetPositionCommand::redo()
-{
-  added_ = !context_->ContextContainsNode(node_);
-
-  if (!added_) {
-    old_pos_ = context_->GetNodePositionDataInContext(node_);
-  }
-
-  context_->SetNodePositionInContext(node_, pos_);
-}
-
-void NodeSetPositionCommand::undo()
-{
-  if (added_) {
-    context_->RemoveNodeFromContext(node_);
-  } else {
-    context_->SetNodePositionInContext(node_, old_pos_);
-  }
-}
-
-void NodeRemovePositionFromContextCommand::redo()
-{
-  contained_ = context_->ContextContainsNode(node_);
-
-  if (contained_) {
-    old_pos_ = context_->GetNodePositionDataInContext(node_);
-    context_->RemoveNodeFromContext(node_);
-  }
-}
-
-void NodeRemovePositionFromContextCommand::undo()
-{
-  if (contained_) {
-    context_->SetNodePositionInContext(node_, old_pos_);
-  }
-}
-
-void NodeRemovePositionFromAllContextsCommand::redo()
-{
-  NodeGraph *graph = node_->parent();
-
-  foreach (Node* context, graph->nodes()) {
-    if (context->ContextContainsNode(node_)) {
-      contexts_.insert({context, context->GetNodePositionInContext(node_)});
-      context->RemoveNodeFromContext(node_);
-    }
-  }
-}
-
-void NodeRemovePositionFromAllContextsCommand::undo()
-{
-  for (auto it = contexts_.crbegin(); it != contexts_.crend(); it++) {
-    it->first->SetNodePositionInContext(node_, it->second);
-  }
-
-  contexts_.clear();
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::prepare()
-{
-  move_recursively(node_, pos_.position - context_->GetNodePositionDataInContext(node_).position);
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::redo()
-{
-  for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
-    (*it)->redo_now();
-  }
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::undo()
-{
-  for (auto it=commands_.crbegin(); it!=commands_.crend(); it++) {
-    (*it)->undo_now();
-  }
-}
-
-void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *node, const QPointF &diff)
-{
-  Node::Position pos = context_->GetNodePositionDataInContext(node);
-  pos += diff;
-  commands_.append(new NodeSetPositionCommand(node_, context_, pos));
-
-  for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node *output = it->second;
-    if (context_->ContextContainsNode(output)) {
-      move_recursively(output, diff);
-    }
-  }
-}
-
-void Node::ImmediateRemoveAllKeyframesCommand::prepare()
-{
-  for (const NodeKeyframeTrack& track : immediate_->keyframe_tracks()) {
-    keys_.append(track);
-  }
-}
-
-void Node::ImmediateRemoveAllKeyframesCommand::redo()
-{
-  for (auto it=keys_.cbegin(); it!=keys_.cend(); it++) {
-    (*it)->setParent(&memory_manager_);
-  }
-}
-
-void Node::ImmediateRemoveAllKeyframesCommand::undo()
-{
-  for (auto it=keys_.crbegin(); it!=keys_.crend(); it++) {
-    (*it)->setParent(&memory_manager_);
-  }
 }
 
 }

@@ -24,7 +24,7 @@
 #include <QGraphicsScene>
 #include <QTimer>
 
-#include "node/graph.h"
+#include "node/project.h"
 #include "nodeviewcontext.h"
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
@@ -74,7 +74,7 @@ public slots:
 private:
   QHash<Node*, NodeViewContext*> context_map_;
 
-  NodeGraph* graph_;
+  Project* graph_;
 
   NodeViewCommon::FlowDirection direction_;
 

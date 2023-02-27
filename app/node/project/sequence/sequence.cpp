@@ -24,7 +24,7 @@
 
 #include "panel/timeline/timeline.h"
 #include "ui/icons/icons.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
+#include "timeline/timelineundogeneral.h"
 
 namespace olive {
 
@@ -34,6 +34,8 @@ const QString Sequence::kTrackInputFormat = QStringLiteral("track_in_%1");
 
 Sequence::Sequence()
 {
+  SetFlag(kIsItem);
+
   // Create TrackList instances
   track_lists_.resize(Track::kCount);
 
@@ -41,9 +43,7 @@ Sequence::Sequence()
     // Create track input
     QString track_input_id = kTrackInputFormat.arg(i);
 
-    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
-
-    IgnoreInvalidationsFrom(track_input_id);
+    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden | kInputFlagIgnoreInvalidations));
 
     TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input_id);
     track_lists_.replace(i, list);
@@ -71,9 +71,13 @@ void Sequence::add_default_nodes(MultiUndoCommand* command)
   }
 }
 
-QIcon Sequence::icon() const
+QVariant Sequence::data(const DataType &d) const
 {
-  return icon::Sequence;
+  if (d == ICON) {
+    return icon::Sequence;
+  }
+
+  return super::data(d);
 }
 
 QVector<Track *> Sequence::GetUnlockedTracks() const

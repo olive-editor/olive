@@ -20,7 +20,7 @@
 
 #include "group.h"
 
-#include "node/graph.h"
+#include "node/project.h"
 
 namespace olive {
 
@@ -29,7 +29,7 @@ namespace olive {
 NodeGroup::NodeGroup() :
   output_passthrough_(nullptr)
 {
-  SetFlags(kDontShowInCreateMenu);
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString NodeGroup::Name() const
@@ -160,6 +160,10 @@ bool NodeGroup::GetInner(NodeInput *input)
 {
   if (NodeGroup *g = dynamic_cast<NodeGroup*>(input->node())) {
     const NodeInput &passthrough = g->GetInputFromID(input->input());
+    if (!passthrough.IsValid()) {
+      return false;
+    }
+
     input->set_node(passthrough.node());
     input->set_input(passthrough.input());
     return true;

@@ -22,8 +22,6 @@
 
 #include "node/block/block.h"
 #include "node/factory.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 

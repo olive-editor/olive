@@ -46,11 +46,7 @@ Track::Track() :
   locked_(false),
   sequence_(nullptr)
 {
-  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden));
-
-  // Since blocks are time based, we can handle the invalidate timing a little more intelligently
-  // on our end
-  IgnoreInvalidationsFrom(kBlockInput);
+  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden | kInputFlagIgnoreInvalidations));
 
   AddInput(kMutedInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
@@ -113,6 +109,10 @@ Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const 
         end = blocks_.size()-1;
       }
 
+      if (blocks_.at(end)->in() == r.out()) {
+        end--;
+      }
+
       ActiveElements a;
       for (int i=start; i<=end; i++) {
         Block *b = blocks_.at(i);
@@ -152,7 +152,14 @@ TimeRange Track::InputTimeAdjustment(const QString& input, int element, const Ti
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
     if (cache_index > -1) {
-      return TransformRangeForBlock(blocks_.at(cache_index), input_time);
+      TimeRange r = input_time;
+      Block *b = blocks_.at(cache_index);
+
+      if (clamp) {
+        r.set_range(std::max(r.in(), b->in()), std::min(r.out(), b->out()));
+      }
+
+      return TransformRangeForBlock(b, r);
     }
   }
 

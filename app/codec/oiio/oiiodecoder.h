@@ -58,7 +58,7 @@ private:
 
   static VideoParams GetVideoParamsFromImageSpec(const OIIO::ImageSpec &spec);
 
-  VideoParams::Format pix_fmt_;
+  PixelFormat pix_fmt_;
   OIIO::TypeDesc::BASETYPE oiio_pix_fmt_;
 
   Frame buffer_;

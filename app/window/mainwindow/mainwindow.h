@@ -21,10 +21,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <kddockwidgets/Config.h>
+#include <kddockwidgets/MainWindow.h>
 
 #include "mainwindowlayoutinfo.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "panel/multicam/multicampanel.h"
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
@@ -50,7 +51,7 @@ namespace olive {
 /**
  * @brief Olive's main window responsible for docking widgets and the main menu bar.
  */
-class MainWindow : public QMainWindow
+class MainWindow : public KDDockWidgets::MainWindow
 {
   Q_OBJECT
 public:
@@ -68,7 +69,7 @@ public:
 
   bool IsSequenceOpen(Sequence* sequence) const;
 
-  void FolderOpen(Project* p, Folder *i, bool floating);
+  void OpenFolder(Folder *i, bool floating);
 
   void OpenNodeInViewer(ViewerOutput* node);
 
@@ -96,9 +97,7 @@ public:
   void SelectFootage(const QVector<Footage*> &e);
 
 public slots:
-  void ProjectOpen(Project *p);
-
-  void ProjectClose(Project* p);
+  void SetProject(Project *p);
 
   void SetFullscreen(bool fullscreen);
 
@@ -118,20 +117,13 @@ protected:
 private:
   TimelinePanel* AppendTimelinePanel();
 
-  ProjectPanel* AppendProjectPanel();
+  template <typename T>
+  T* AppendPanelInternal(const QString &panel_name, QList<T*>& list);
 
   template <typename T>
-  T* AppendPanelInternal(QList<T*>& list);
-
-  template <typename T>
-  T* AppendFloatingPanelInternal(QList<T*>& list);
-
-  template<typename T>
-  void SetUniquePanelID(T* panel, const QList<T*>& list);
+  void RemovePanelInternal(QList<T*>& list, T *panel);
 
   void RemoveTimelinePanel(TimelinePanel *panel);
-
-  void RemoveProjectPanel(ProjectPanel* panel);
 
   void TimelineFocused(ViewerOutput *viewer);
 
@@ -150,12 +142,12 @@ private:
   QByteArray premaximized_state_;
 
   // Standard panels
+  ProjectPanel *project_panel_;
   NodePanel* node_panel_;
   ParamPanel* param_panel_;
   CurvePanel* curve_panel_;
   SequenceViewerPanel* sequence_viewer_panel_;
   FootageViewerPanel* footage_viewer_panel_;
-  QList<ProjectPanel*> project_panels_;
   QList<ProjectPanel*> folder_panels_;
   ToolPanel* tool_panel_;
   QList<TimelinePanel*> timeline_panels_;
@@ -163,7 +155,7 @@ private:
   TaskManagerPanel* task_man_panel_;
   PixelSamplerPanel* pixel_sampler_panel_;
   ScopePanel* scope_panel_;
-  QMap<ViewerOutput*, ViewerPanel*> viewer_panels_;
+  QList<ViewerPanel*> viewer_panels_;
   MulticamPanel *multicam_panel_;
 
 #ifdef Q_OS_WINDOWS
@@ -174,6 +166,8 @@ private:
 
   bool first_show_;
 
+  Project *project_;
+
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);
 
@@ -181,13 +175,11 @@ private slots:
 
   void TimelineCloseRequested();
 
-  void ProjectCloseRequested();
-
   void ViewerCloseRequested();
 
   void ViewerWithPanelRemovedFromGraph();
 
-  void FloatingPanelCloseRequested();
+  void FolderPanelCloseRequested();
 
   void StatusBarDoubleClicked();
 

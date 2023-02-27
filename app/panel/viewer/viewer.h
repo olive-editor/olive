@@ -33,11 +33,7 @@ namespace olive {
 class ViewerPanel : public ViewerPanelBase {
   Q_OBJECT
 public:
-  ViewerPanel(const QString& object_name, QWidget* parent);
-  ViewerPanel(QWidget *parent) :
-    ViewerPanel(QStringLiteral("ViewerPanel"), parent)
-  {
-  }
+  ViewerPanel(const QString& object_name);
 
 protected:
   virtual void Retranslate() override;

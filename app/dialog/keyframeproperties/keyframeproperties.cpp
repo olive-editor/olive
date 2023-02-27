@@ -24,9 +24,8 @@
 #include <QGridLayout>
 
 #include "core.h"
-#include "common/timecodefunctions.h"
+#include "node/nodeundo.h"
 #include "widget/keyframeview/keyframeviewundo.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 
 namespace olive {
 

@@ -23,8 +23,6 @@
 #include <QKeyEvent>
 #include <QVBoxLayout>
 
-#include "common/timecodefunctions.h"
-
 namespace olive {
 
 ViewerWindow::ViewerWindow(QWidget *parent) :

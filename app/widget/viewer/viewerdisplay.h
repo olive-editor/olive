@@ -29,7 +29,6 @@
 #include "node/node.h"
 #include "node/output/track/tracklist.h"
 #include "node/traverser.h"
-#include "render/color.h"
 #include "tool/tool.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -438,6 +437,8 @@ private slots:
   void SubtitlesChanged(const TimeRange &r);
 
   void FocusChanged(QWidget *old, QWidget *now);
+
+  QRectF UpdateActiveTextGizmoSize();
 
 
 };

@@ -15,7 +15,7 @@
 
 #include "despill.h"
 
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 
@@ -36,7 +36,7 @@ DespillNode::DespillNode()
 
   AddInput(kPreserveLuminanceInput, NodeValue::kBoolean, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

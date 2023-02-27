@@ -27,8 +27,6 @@
 #include <QToolTip>
 
 #include "common/qtutils.h"
-#include "common/rational.h"
-#include "common/timecodefunctions.h"
 #include "timebasedview.h"
 #include "timebasedwidget.h"
 #include "widget/timetarget/timetarget.h"
@@ -309,8 +307,9 @@ public:
       display_time = initial_drag_item_->time();
     }
 
-    QString tip = Timecode::time_to_timecode(display_time, timebase_,
-                                             Core::instance()->GetTimecodeDisplay(), false);
+    QString tip = QString::fromStdString(Timecode::time_to_timecode(
+                                           display_time, timebase_,
+                                           Core::instance()->GetTimecodeDisplay(), false));
 
     if (!tip_format.isEmpty()) {
       tip = tip_format.arg(tip);

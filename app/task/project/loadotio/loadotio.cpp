@@ -40,12 +40,12 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
+#include "node/nodeundo.h"
 #include "node/project/folder/folder.h"
 #include "node/project/footage/footage.h"
 #include "node/project/sequence/sequence.h"
+#include "timeline/timelineundogeneral.h"
 #include "window/mainwindow/mainwindowundo.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 

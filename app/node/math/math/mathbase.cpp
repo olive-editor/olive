@@ -23,10 +23,8 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
-#include "common/cpuoptimize.h"
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
-#include "render/color.h"
 
 namespace olive {
 
@@ -596,7 +594,7 @@ T MathNodeBase::PerformAll(Operation operation, T a, U b)
   case kOpDivide:
     return a / b;
   case kOpPower:
-    return qPow(a, b);
+    return std::pow(a, b);
   }
 
   return a;

@@ -24,7 +24,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QWidget>
 
-#include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "widget/timeruler/seekablewidget.h"
 

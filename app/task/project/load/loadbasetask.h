@@ -21,7 +21,7 @@
 #ifndef PROJECTLOADBASETASK_H
 #define PROJECTLOADBASETASK_H
 
-#include "node/project/project.h"
+#include "node/project.h"
 #include "task/task.h"
 
 namespace olive {

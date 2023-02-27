@@ -22,10 +22,10 @@
 
 namespace olive {
 
-NodeTablePanel::NodeTablePanel(QWidget* parent) :
-  TimeBasedPanel(QStringLiteral("NodeTablePanel"), parent)
+NodeTablePanel::NodeTablePanel() :
+  TimeBasedPanel(QStringLiteral("NodeTablePanel"))
 {
-  SetTimeBasedWidget(new NodeTableWidget());
+  SetTimeBasedWidget(new NodeTableWidget(this));
 
   Retranslate();
 }

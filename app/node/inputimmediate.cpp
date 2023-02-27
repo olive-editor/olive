@@ -20,7 +20,6 @@
 
 #include "inputimmediate.h"
 
-#include "common/bezier.h"
 #include "common/lerp.h"
 #include "common/tohex.h"
 
