@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-git clone --depth 1 https://github.com/olive-editor/olive.git
+git clone --depth 1 --recurse-submodules https://github.com/olive-editor/olive.git
 cd olive
 mkdir build
 cd build
