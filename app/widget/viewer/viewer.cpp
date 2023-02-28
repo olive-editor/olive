@@ -510,6 +510,8 @@ void ViewerWidget::UpdateAudioProcessor()
     CloseAudioProcessor();
 
     AudioParams ap = GetConnectedNode()->GetAudioParams();
+    ap.set_format(ViewerOutput::kDefaultSampleFormat);
+
     AudioParams packed(OLIVE_CONFIG("AudioOutputSampleRate").toInt(),
                        OLIVE_CONFIG("AudioOutputChannelLayout").toULongLong(),
                        SampleFormat::from_string(OLIVE_CONFIG("AudioOutputSampleFormat").toString().toStdString()));
