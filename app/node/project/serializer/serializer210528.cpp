@@ -63,23 +63,27 @@ ProjectSerializer210528::LoadData ProjectSerializer210528::Load(Project *project
             reader->skipCurrentElement();
           } else {
             Node* node;
+            bool handled_elsewhere = false;
 
             if (is_root) {
               node = project->root();
             } else if (is_cm) {
               node = project->color_manager();
             } else if (is_settings) {
-              node = project->settings();
+              LoadProjectSettings(reader, project);
+              handled_elsewhere = true;
             } else {
               node = NodeFactory::CreateFromID(id);
             }
 
-            if (!node) {
-              qWarning() << "Failed to find node with ID" << id;
-              reader->skipCurrentElement();
-            } else {
-              LoadNode(node, xml_node_data, reader);
-              node->setParent(project);
+            if (!handled_elsewhere) {
+              if (!node) {
+                qWarning() << "Failed to find node with ID" << id;
+                reader->skipCurrentElement();
+              } else {
+                LoadNode(node, xml_node_data, reader);
+                node->setParent(project);
+              }
             }
           }
         } else {
@@ -251,6 +255,54 @@ void ProjectSerializer210528::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
   }
 
   node->LoadFinishedEvent();
+}
+
+void ProjectSerializer210528::LoadProjectSettings(QXmlStreamReader *reader, Project *project) const
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("input")) {
+      QString id;
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("id")) {
+          id = attr.value().toString();
+        }
+      }
+
+      if (id == QStringLiteral("cache_setting") || id == QStringLiteral("cache_path")) {
+        QString value;
+
+        while (XMLReadNextStartElement(reader)) {
+          if (reader->name() == QStringLiteral("primary")) {
+            while (XMLReadNextStartElement(reader)) {
+              if (reader->name() == QStringLiteral("standard")) {
+                while (XMLReadNextStartElement(reader)) {
+                  if (reader->name() == QStringLiteral("track")) {
+                    value = reader->readElementText();
+                  } else {
+                    reader->skipCurrentElement();
+                  }
+                }
+              } else {
+                reader->skipCurrentElement();
+              }
+            }
+          } else {
+            reader->skipCurrentElement();
+          }
+        }
+
+        if (id == QStringLiteral("cache_setting")) {
+          project->SetCacheLocationSetting(static_cast<Project::CacheSetting>(value.toInt()));
+        } else {
+          project->SetCustomCachePath(value);
+        }
+      } else {
+        reader->skipCurrentElement();
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
 }
 
 void ProjectSerializer210528::LoadInput(Node *node, QXmlStreamReader *reader, XMLNodeData &xml_node_data) const

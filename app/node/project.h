@@ -28,7 +28,6 @@
 #include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/footage/footage.h"
-#include "node/project/projectsettings/projectsettings.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
 namespace olive {
@@ -48,6 +47,12 @@ class Project : public QObject
 {
   Q_OBJECT
 public:
+  enum CacheSetting {
+    kCacheUseDefaultLocation,
+    kCacheStoreAlongsideProject,
+    kCacheCustomPath
+  };
+
   Project();
 
   virtual ~Project() override;
@@ -83,7 +88,6 @@ public:
 
   Folder* root() const { return root_; }
   ColorManager* color_manager() const { return color_manager_; }
-  ProjectSettingsNode* settings() const { return settings_; }
 
   bool is_modified() const { return is_modified_; }
   void set_modified(bool e);
@@ -131,7 +135,18 @@ public:
    */
   static Project *GetProjectFromObject(const QObject *o);
 
+  static void CopySettings(Project *from, Project *to) { to->settings_ = from->settings_; }
+
   static const QString kItemMimeType;
+
+  QString GetSetting(const QString &key) const { return settings_.value(key); }
+  void SetSetting(const QString &key, const QString &value);
+
+  CacheSetting GetCacheLocationSetting() const { return static_cast<CacheSetting>(GetSetting(QStringLiteral("cachesetting")).toInt()); }
+  void SetCacheLocationSetting(CacheSetting s) { SetSetting(QStringLiteral("cachesetting"), QString::number(s)); }
+
+  QString GetCustomCachePath() const { return GetSetting(QStringLiteral("customcachepath")); }
+  void SetCustomCachePath(const QString &path) { SetSetting(QStringLiteral("customcachepath"), path); }
 
 signals:
   void NameChanged();
@@ -162,6 +177,8 @@ signals:
 
   void GroupChangedOutputPassthrough(NodeGroup *group, Node *output);
 
+  void SettingChanged(const QString &key, const QString &value);
+
 protected:
   void AddDefaultNode(Node* n)
   {
@@ -181,8 +198,6 @@ private:
 
   ColorManager* color_manager_;
 
-  ProjectSettingsNode* settings_;
-
   bool is_modified_;
 
   bool autorecovery_saved_;
@@ -190,6 +205,8 @@ private:
   QVector<Node*> node_children_;
 
   QVector<Node*> default_nodes_;
+
+  QMap<QString, QString> settings_;
 
 private slots:
   void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);

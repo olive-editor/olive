@@ -67,6 +67,8 @@ private:
 
   void LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const;
 
+  void LoadProjectSettings(QXmlStreamReader* reader, Project *project) const;
+
   void LoadInput(Node *node, QXmlStreamReader* reader, XMLNodeData &xml_node_data) const;
 
   void LoadImmediate(QXmlStreamReader *reader, Node *node, const QString& input, int element, XMLNodeData& xml_node_data) const;

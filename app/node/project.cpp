@@ -56,11 +56,6 @@ Project::Project() :
   color_manager_->setParent(this);
   AddDefaultNode(color_manager_);
 
-  // Same with project settings
-  settings_ = new ProjectSettingsNode();
-  settings_->setParent(this);
-  AddDefaultNode(settings_);
-
   connect(color_manager(), &ColorManager::ValueChanged,
           this, &Project::ColorManagerValueChanged);
 }
@@ -125,8 +120,6 @@ SerializedData Project::Load(QXmlStreamReader *reader)
               node = this->root();
             } else if (is_cm) {
               node = this->color_manager();
-            } else if (is_settings) {
-              node = this->settings();
             } else {
               node = NodeFactory::CreateFromID(id);
             }
@@ -174,8 +167,6 @@ void Project::Save(QXmlStreamWriter *writer) const
       writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
     } else if (node == this->color_manager()) {
       writer->writeAttribute(QStringLiteral("cm"), QStringLiteral("1"));
-    } else if (node == this->settings()) {
-      writer->writeAttribute(QStringLiteral("settings"), QStringLiteral("1"));
     }
 
     node->Save(writer);
@@ -337,20 +328,20 @@ QString Project::get_cache_alongside_project_path() const
 
 QString Project::cache_path() const
 {
-  ProjectSettingsNode::CacheSetting setting = settings_->GetCacheSetting();
+  CacheSetting setting = GetCacheLocationSetting();
 
   switch (setting) {
-  case ProjectSettingsNode::kCacheUseDefaultLocation:
+  case kCacheUseDefaultLocation:
     break;
-  case ProjectSettingsNode::kCacheCustomPath:
+  case kCacheCustomPath:
   {
-    QString cache_path = settings_->GetCustomCachePath();
+    QString cache_path = GetCustomCachePath();
     if (cache_path.isEmpty()) {
       return cache_path;
     }
     break;
   }
-  case ProjectSettingsNode::kCacheStoreAlongsideProject:
+  case kCacheStoreAlongsideProject:
   {
     QString alongside = get_cache_alongside_project_path();
     if (!alongside.isEmpty()) {
@@ -371,6 +362,12 @@ void Project::RegenerateUuid()
 Project *Project::GetProjectFromObject(const QObject *o)
 {
   return QtUtils::GetParentOfType<Project>(o);
+}
+
+void Project::SetSetting(const QString &key, const QString &value)
+{
+  settings_.insert(key, value);
+  emit SettingChanged(key, value);
 }
 
 void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
