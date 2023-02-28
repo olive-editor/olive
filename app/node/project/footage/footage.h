@@ -186,22 +186,6 @@ protected:
 private:
   QString GetColorspaceToUse(const VideoParams& params) const;
 
-  /**
-   * @brief Update the icon based on the Footage status
-   *
-   * For kUnprobed and kError an appropriate icon will be shown. For kReady, this function will determine what the
-   * dominant type of media in this Footage is (video/audio/image) and set the icon accordingly based on that.
-   */
-  void UpdateIcon();
-
-  /**
-   * @brief Update the tooltip based on the Footage status
-   *
-   * For kUnprobed and kError, this sets an appropriate generic message. For kReady, this function will set
-   * basic information about the Footage in the tooltip (based on the results of a previous probe).
-   */
-  void UpdateTooltip();
-
   void Reprobe();
 
   VideoParams MergeVideoStream(const VideoParams &base, const VideoParams &over);

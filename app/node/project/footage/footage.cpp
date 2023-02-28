@@ -397,6 +397,46 @@ QVariant Footage::data(const DataType &d) const
 
     return icon::Error;
   }
+  case TOOLTIP:
+  {
+    if (valid_) {
+      QString tip = tr("Filename: %1").arg(filename());
+
+      int vp_sz = GetVideoStreamCount();
+      for (int i=0; i<vp_sz; i++) {
+        VideoParams p = GetVideoParams(i);
+
+        if (p.enabled()) {
+          tip.append("\n");
+          tip.append(DescribeVideoStream(p));
+        }
+      }
+
+      int ap_sz = GetAudioStreamCount();
+      for (int i=0; i<ap_sz; i++) {
+        AudioParams p = GetAudioParams(i);
+
+        if (p.enabled()) {
+          tip.append("\n");
+          tip.append(DescribeAudioStream(p));
+        }
+      }
+
+      int sp_sz = GetSubtitleStreamCount();
+      for (int i=0; i<sp_sz; i++) {
+        SubtitleParams p = GetSubtitleParams(i);
+
+        if (p.enabled()) {
+          tip.append("\n");
+          tip.append(DescribeSubtitleStream(p));
+        }
+      }
+
+      return tip;
+    } else {
+      return tr("Invalid");
+    }
+  }
   default:
     break;
   }
@@ -430,47 +470,6 @@ void Footage::SaveCustom(QXmlStreamWriter *writer) const
   ViewerOutput::SaveCustom(writer);
 
   writer->writeEndElement(); // viewer
-}
-
-void Footage::UpdateTooltip()
-{
-  if (valid_) {
-    QString tip = tr("Filename: %1").arg(filename());
-
-    int vp_sz = GetVideoStreamCount();
-    for (int i=0; i<vp_sz; i++) {
-      VideoParams p = GetVideoParams(i);
-
-      if (p.enabled()) {
-        tip.append("\n");
-        tip.append(DescribeVideoStream(p));
-      }
-    }
-
-    int ap_sz = GetAudioStreamCount();
-    for (int i=0; i<ap_sz; i++) {
-      AudioParams p = GetAudioParams(i);
-
-      if (p.enabled()) {
-        tip.append("\n");
-        tip.append(DescribeAudioStream(p));
-      }
-    }
-
-    int sp_sz = GetSubtitleStreamCount();
-    for (int i=0; i<sp_sz; i++) {
-      SubtitleParams p = GetSubtitleParams(i);
-
-      if (p.enabled()) {
-        tip.append("\n");
-        tip.append(DescribeSubtitleStream(p));
-      }
-    }
-
-    SetToolTip(tip);
-  } else {
-    SetToolTip(tr("Invalid"));
-  }
 }
 
 void Footage::Reprobe()

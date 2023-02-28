@@ -176,11 +176,6 @@ public:
    */
   virtual QString Description() const;
 
-  const QString& ToolTip() const
-  {
-    return tooltip_;
-  }
-
   Folder* folder() const
   {
     return folder_;
@@ -199,7 +194,8 @@ public:
     DURATION,
     CREATED_TIME,
     MODIFIED_TIME,
-    FREQUENCY_RATE
+    FREQUENCY_RATE,
+    TOOLTIP
   };
 
   virtual QVariant data(const DataType &d) const;
@@ -1046,11 +1042,6 @@ protected:
     effect_input_ = input;
   }
 
-  void SetToolTip(const QString& s)
-  {
-    tooltip_ = s;
-  }
-
   void SetFlag(Flag f, bool on = true)
   {
     if (on) {
@@ -1248,8 +1239,6 @@ private:
   InputConnections input_connections_;
 
   OutputConnections output_connections_;
-
-  QString tooltip_;
 
   Folder* folder_;
 
