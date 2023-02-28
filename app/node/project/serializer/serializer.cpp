@@ -109,13 +109,15 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
       XMLAttributeLoop(reader, attr) {
         if (attr.name() == QStringLiteral("version")) { // 230220+ projects
           version = attr.value().toUInt();
+        } else if (reader->name() == QStringLiteral("url")) { // 230220+ projects
+          project->SetSavedURL(attr.value().toString());
         }
       }
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("version")) { // projects <= 220403
           version = reader->readElementText().toUInt();
-        } else if (reader->name() == QStringLiteral("url")) {
+        } else if (reader->name() == QStringLiteral("url")) { // projects <= 220403
           if (project) {
             project->SetSavedURL(reader->readElementText());
           } else {
@@ -208,7 +210,7 @@ ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, cons
   writer->writeAttribute(QStringLiteral("version"), QString::number(serializer->Version()));
 
   if (!data.GetFilename().isEmpty()) {
-    writer->writeTextElement("url", data.GetFilename());
+    writer->writeAttribute("url", data.GetFilename());
   }
 
   serializer->Save(writer, data, nullptr);

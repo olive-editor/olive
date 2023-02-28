@@ -57,6 +57,7 @@ public:
   static Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
 
   static void SetComboBoxData(QComboBox *cb, int data);
+  static void SetComboBoxData(QComboBox *cb, const QString &data);
 
   template <typename T>
   static T *GetParentOfType(const QObject *child)

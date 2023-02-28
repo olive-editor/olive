@@ -74,6 +74,8 @@ private:
 
   void LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const;
 
+  void LoadColorManager(QXmlStreamReader* reader, Project *project) const;
+
   void LoadProjectSettings(QXmlStreamReader* reader, Project *project) const;
 
   void LoadInput(Node *node, QXmlStreamReader* reader, XMLNodeData &xml_node_data) const;

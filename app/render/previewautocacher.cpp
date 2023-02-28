@@ -733,7 +733,7 @@ void PreviewAutoCacher::SetProject(Project *project)
     }
 
     // Find copied viewer node
-    copied_color_manager_ = copier_->GetCopy(project_->color_manager());
+    copied_color_manager_ = copier_->GetCopiedProject()->color_manager();
 
     SetRendersPaused(false);
   }

@@ -977,6 +977,9 @@ public:
 
   void ArrayResizeInternal(const QString& id, int size);
 
+  virtual void AddedToGraphEvent(Project *p){}
+  virtual void RemovedFromGraphEvent(Project *p){}
+
   static const QString kEnabledInput;
 
 protected:

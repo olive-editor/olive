@@ -37,196 +37,211 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
   switch (load_type) {
   case kProject:
   {
-    while (XMLReadNextStartElement(reader)) {
-      if (reader->name() == QStringLiteral("project")) {
-        project_data = project->Load(reader);
-      } else if (reader->name() == QStringLiteral("layout")) {
-        load_data.layout = MainWindowLayoutInfo::fromXml(reader, project_data.node_ptrs);
-      } else {
-        reader->skipCurrentElement();
+    if (reader->name() == QStringLiteral("project")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("project")) {
+          project_data = project->Load(reader);
+        } else if (reader->name() == QStringLiteral("layout")) {
+          load_data.layout = MainWindowLayoutInfo::fromXml(reader, project_data.node_ptrs);
+        } else {
+          reader->skipCurrentElement();
+        }
       }
-    }
 
-    PostConnect(project->nodes(), &project_data);
+      PostConnect(project->nodes(), &project_data);
+    } else {
+      reader->skipCurrentElement();
+    }
     break;
   }
   case kOnlyMarkers:
   {
-    while (XMLReadNextStartElement(reader)) {
-      if (reader->name() == QStringLiteral("marker")) {
-        TimelineMarker *marker = new TimelineMarker();
-        marker->load(reader);
-        load_data.markers.push_back(marker);
-      } else {
-        reader->skipCurrentElement();
+    if (reader->name() == QStringLiteral("markers")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("marker")) {
+          TimelineMarker *marker = new TimelineMarker();
+          marker->load(reader);
+          load_data.markers.push_back(marker);
+        } else {
+          reader->skipCurrentElement();
+        }
       }
+    } else {
+      reader->skipCurrentElement();
     }
     break;
   }
   case kOnlyKeyframes:
   {
-    while (XMLReadNextStartElement(reader)) {
-      if (reader->name() == QStringLiteral("node")) {
-        QString node_id;
-        XMLAttributeLoop(reader, attr) {
-          if (attr.name() == QStringLiteral("id")) {
-            node_id = attr.value().toString();
-            break;
-          }
-        }
-
-        Node *n = nullptr;
-        if (!node_id.isEmpty()) {
-          n = NodeFactory::CreateFromID(node_id);
-        }
-
-        if (!n) {
-          reader->skipCurrentElement();
-        } else {
-          while (XMLReadNextStartElement(reader)) {
-            if (reader->name() == QStringLiteral("input")) {
-              QString input_id;
-              XMLAttributeLoop(reader, attr) {
-                if (attr.name() == QStringLiteral("id")) {
-                  input_id = attr.value().toString();
-                  break;
-                }
-              }
-
-              if (input_id.isEmpty()) {
-                reader->skipCurrentElement();
-              } else {
-                while (XMLReadNextStartElement(reader)) {
-                  if (reader->name() == QStringLiteral("element")) {
-                    QString element_id;
-                    XMLAttributeLoop(reader, attr) {
-                      if (attr.name() == QStringLiteral("id")) {
-                        element_id = attr.value().toString();
-                        break;
-                      }
-                    }
-
-                    if (element_id.isEmpty()) {
-                      reader->skipCurrentElement();
-                    } else {
-                      while (XMLReadNextStartElement(reader)) {
-                        if (reader->name() == QStringLiteral("track")) {
-                          QString track_id;
-                          XMLAttributeLoop(reader, attr) {
-                            if (attr.name() == QStringLiteral("id")) {
-                              track_id = attr.value().toString();
-                              break;
-                            }
-                          }
-
-                          if (track_id.isEmpty()) {
-                            reader->skipCurrentElement();
-                          } else {
-                            while (XMLReadNextStartElement(reader)) {
-                              if (reader->name() == QStringLiteral("key")) {
-                                NodeKeyframe *key = new NodeKeyframe();
-                                key->set_input(input_id);
-                                key->set_element(element_id.toInt());
-                                key->set_track(track_id.toInt());
-
-                                key->load(reader, n->GetInputDataType(input_id));
-
-                                load_data.keyframes[node_id].append(key);
-                              } else {
-                                reader->skipCurrentElement();
-                              }
-                            }
-                          }
-                        } else {
-                          reader->skipCurrentElement();
-                        }
-                      }
-                    }
-                  } else {
-                    reader->skipCurrentElement();
-                  }
-                }
-              }
-            } else {
-              reader->skipCurrentElement();
+    if (reader->name() == QStringLiteral("keyframes")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          QString node_id;
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("id")) {
+              node_id = attr.value().toString();
+              break;
             }
           }
-        }
 
-        delete n;
-      } else {
-        reader->skipCurrentElement();
+          Node *n = nullptr;
+          if (!node_id.isEmpty()) {
+            n = NodeFactory::CreateFromID(node_id);
+          }
+
+          if (!n) {
+            reader->skipCurrentElement();
+          } else {
+            while (XMLReadNextStartElement(reader)) {
+              if (reader->name() == QStringLiteral("input")) {
+                QString input_id;
+                XMLAttributeLoop(reader, attr) {
+                  if (attr.name() == QStringLiteral("id")) {
+                    input_id = attr.value().toString();
+                    break;
+                  }
+                }
+
+                if (input_id.isEmpty()) {
+                  reader->skipCurrentElement();
+                } else {
+                  while (XMLReadNextStartElement(reader)) {
+                    if (reader->name() == QStringLiteral("element")) {
+                      QString element_id;
+                      XMLAttributeLoop(reader, attr) {
+                        if (attr.name() == QStringLiteral("id")) {
+                          element_id = attr.value().toString();
+                          break;
+                        }
+                      }
+
+                      if (element_id.isEmpty()) {
+                        reader->skipCurrentElement();
+                      } else {
+                        while (XMLReadNextStartElement(reader)) {
+                          if (reader->name() == QStringLiteral("track")) {
+                            QString track_id;
+                            XMLAttributeLoop(reader, attr) {
+                              if (attr.name() == QStringLiteral("id")) {
+                                track_id = attr.value().toString();
+                                break;
+                              }
+                            }
+
+                            if (track_id.isEmpty()) {
+                              reader->skipCurrentElement();
+                            } else {
+                              while (XMLReadNextStartElement(reader)) {
+                                if (reader->name() == QStringLiteral("key")) {
+                                  NodeKeyframe *key = new NodeKeyframe();
+                                  key->set_input(input_id);
+                                  key->set_element(element_id.toInt());
+                                  key->set_track(track_id.toInt());
+
+                                  key->load(reader, n->GetInputDataType(input_id));
+
+                                  load_data.keyframes[node_id].append(key);
+                                } else {
+                                  reader->skipCurrentElement();
+                                }
+                              }
+                            }
+                          } else {
+                            reader->skipCurrentElement();
+                          }
+                        }
+                      }
+                    } else {
+                      reader->skipCurrentElement();
+                    }
+                  }
+                }
+              } else {
+                reader->skipCurrentElement();
+              }
+            }
+          }
+
+          delete n;
+        } else {
+          reader->skipCurrentElement();
+        }
       }
+    } else {
+      reader->skipCurrentElement();
     }
     break;
   }
   case kOnlyNodes:
   {
-    while (XMLReadNextStartElement(reader)) {
-      if (reader->name() == QStringLiteral("node")) {
-        QString id;
+    if (reader->name() == QStringLiteral("nodes")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          QString id;
 
-        XMLAttributeLoop(reader, attr) {
-          if (attr.name() == QStringLiteral("id")) {
-            id = attr.value().toString();
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == QStringLiteral("id")) {
+              id = attr.value().toString();
+            }
           }
-        }
 
-        if (id.isEmpty()) {
-          qWarning() << "Failed to load node with empty ID";
-          reader->skipCurrentElement();
+          if (id.isEmpty()) {
+            qWarning() << "Failed to load node with empty ID";
+            reader->skipCurrentElement();
+          } else {
+            Node* node = NodeFactory::CreateFromID(id);
+            if (!node) {
+              qWarning() << "Failed to find node with ID" << id;
+              reader->skipCurrentElement();
+            } else {
+              // Disable cache while node is being loaded (we'll re-enable it later)
+              node->SetCachesEnabled(false);
+              node->Load(reader, &project_data);
+              load_data.nodes.append(node);
+            }
+          }
+        } else if (reader->name() == QStringLiteral("properties")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("node")) {
+              quintptr ptr = 0;
+
+              XMLAttributeLoop(reader, attr) {
+                if (attr.name() == QStringLiteral("ptr")) {
+                  ptr = attr.value().toULongLong();
+
+                  // Only attribute we're looking for right now
+                  break;
+                }
+              }
+
+              if (ptr) {
+                QMap<QString, QString> properties_for_node;
+                while (XMLReadNextStartElement(reader)) {
+                  properties_for_node.insert(reader->name().toString(), reader->readElementText());
+                }
+                properties.insert(ptr, properties_for_node);
+              }
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
         } else {
-          Node* node = NodeFactory::CreateFromID(id);
-          if (!node) {
-            qWarning() << "Failed to find node with ID" << id;
-            reader->skipCurrentElement();
-          } else {
-            // Disable cache while node is being loaded (we'll re-enable it later)
-            node->SetCachesEnabled(false);
-            node->Load(reader, &project_data);
-            load_data.nodes.append(node);
-          }
+          reader->skipCurrentElement();
         }
-      } else if (reader->name() == QStringLiteral("properties")) {
-        while (XMLReadNextStartElement(reader)) {
-          if (reader->name() == QStringLiteral("node")) {
-            quintptr ptr = 0;
+      }
 
-            XMLAttributeLoop(reader, attr) {
-              if (attr.name() == QStringLiteral("ptr")) {
-                ptr = attr.value().toULongLong();
+      PostConnect(load_data.nodes, &project_data);
 
-                // Only attribute we're looking for right now
-                break;
-              }
-            }
-
-            if (ptr) {
-              QMap<QString, QString> properties_for_node;
-              while (XMLReadNextStartElement(reader)) {
-                properties_for_node.insert(reader->name().toString(), reader->readElementText());
-              }
-              properties.insert(ptr, properties_for_node);
-            }
-          } else {
-            reader->skipCurrentElement();
-          }
+      // Resolve serialized properties (if any)
+      for (auto it=properties.cbegin(); it!=properties.cend(); it++) {
+        Node *node = project_data.node_ptrs.value(it.key());
+        if (node) {
+          load_data.properties.insert(node, it.value());
         }
-      } else {
-        reader->skipCurrentElement();
       }
+    } else {
+      reader->skipCurrentElement();
     }
-
-    PostConnect(load_data.nodes, &project_data);
-
-    // Resolve serialized properties (if any)
-    for (auto it=properties.cbegin(); it!=properties.cend(); it++) {
-      Node *node = project_data.node_ptrs.value(it.key());
-      if (node) {
-        load_data.properties.insert(node, it.value());
-      }
-    }
-
     break;
   }
   }
@@ -333,12 +348,16 @@ void ProjectSerializer230220::Save(QXmlStreamWriter *writer, const SaveData &dat
     writer->writeEndElement(); // nodes
   } else if (Project *project = data.GetProject()) {
     writer->writeStartElement(QStringLiteral("project"));
+
+    writer->writeStartElement(QStringLiteral("project"));
     project->Save(writer);
-    writer->writeEndElement();
+    writer->writeEndElement(); // project
 
     writer->writeStartElement(QStringLiteral("layout"));
     data.GetLayout().toXml(writer);
-    writer->writeEndElement();
+    writer->writeEndElement(); // layout
+
+    writer->writeEndElement(); // project
   } else {
     qCritical() << "ProjectSerializer provided nothing to save";
   }

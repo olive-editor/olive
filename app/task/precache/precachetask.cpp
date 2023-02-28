@@ -40,7 +40,6 @@ PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence)
   viewer()->SetAudioParams(sequence->GetAudioParams());
 
   // Copy project config nodes
-  Node::CopyInputs(footage->project()->color_manager(), project_->color_manager(), false);
   Project::CopySettings(footage->project(), project_);
 
   // Copy footage node so it can precache without any modifications from the user screwing it up

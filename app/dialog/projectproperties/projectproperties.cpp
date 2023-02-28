@@ -74,6 +74,16 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
 
     row++;
 
+    color_layout->addWidget(new QLabel(tr("Reference Space:")), row, 0);
+
+    reference_space_ = new QComboBox(this);
+    reference_space_->addItem(tr("Scene Linear"), OCIO::ROLE_SCENE_LINEAR);
+    reference_space_->addItem(tr("Compositing Log"), OCIO::ROLE_COMPOSITING_LOG);
+    QtUtils::SetComboBoxData(reference_space_, p->GetColorReferenceSpace());
+    color_layout->addWidget(reference_space_, row, 1, 1, 2);
+
+    row++;
+
     QPushButton* browse_btn = new QPushButton(tr("Browse"));
     color_layout->addWidget(browse_btn, 0, 2);
     connect(browse_btn, &QPushButton::clicked, this, &ProjectPropertiesDialog::BrowseForOCIOConfig);
@@ -176,6 +186,9 @@ void ProjectPropertiesDialog::accept()
   }
   if (working_project_->color_manager()->GetDefaultInputColorSpace() != default_input_colorspace_->currentText()) {
     working_project_->color_manager()->SetDefaultInputColorSpace(default_input_colorspace_->currentText());
+  }
+  if (working_project_->GetColorReferenceSpace() != reference_space_->currentData().toString()) {
+    working_project_->SetColorReferenceSpace(reference_space_->currentData().toString());
   }
 
   super::accept();

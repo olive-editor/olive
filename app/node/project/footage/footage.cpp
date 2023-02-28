@@ -350,13 +350,6 @@ rational Footage::AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const 
   return time;
 }
 
-void Footage::LoadFinishedEvent()
-{
-  if (!filename().isEmpty()) {
-    Reprobe();
-  }
-}
-
 QVariant Footage::data(const DataType &d) const
 {
   switch (d) {
@@ -470,6 +463,16 @@ void Footage::SaveCustom(QXmlStreamWriter *writer) const
   ViewerOutput::SaveCustom(writer);
 
   writer->writeEndElement(); // viewer
+}
+
+void Footage::AddedToGraphEvent(Project *p)
+{
+  connect(p->color_manager(), &ColorManager::DefaultInputChanged, this, &Footage::DefaultColorSpaceChanged);
+}
+
+void Footage::RemovedFromGraphEvent(Project *p)
+{
+  disconnect(p->color_manager(), &ColorManager::DefaultInputChanged, this, &Footage::DefaultColorSpaceChanged);
 }
 
 void Footage::Reprobe()
@@ -593,6 +596,23 @@ void Footage::CheckFootage()
         InvalidateAll(kFilenameInput);
       }
     }
+  }
+}
+
+void Footage::DefaultColorSpaceChanged()
+{
+  bool inv = false;
+  int sz = GetVideoStreamCount();
+  for (int i = 0; i < sz; i++) {
+    // Check if any of our streams are using the default colorspace
+    if (GetVideoParams(i).colorspace().isEmpty()) {
+      inv = true;
+      break;
+    }
+  }
+
+  if (inv) {
+    InvalidateAll(kVideoParamsInput);
   }
 }
 

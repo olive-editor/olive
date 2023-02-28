@@ -35,20 +35,17 @@ OCIOBaseNode::OCIOBaseNode() :
 
   SetEffectInput(kTextureInput);
 
-  connect(this, &Node::AddedToGraph, this, &OCIOBaseNode::AddedToGraph);
-  connect(this, &Node::RemovedFromGraph, this, &OCIOBaseNode::RemovedFromGraph);
-
   SetFlag(kVideoEffect);
 }
 
-void OCIOBaseNode::AddedToGraph(Project *p)
+void OCIOBaseNode::AddedToGraphEvent(Project *p)
 {
   manager_ = p->color_manager();
   connect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
   ConfigChanged();
 }
 
-void OCIOBaseNode::RemovedFromGraph()
+void OCIOBaseNode::RemovedFromGraphEvent(Project *p)
 {
   if (manager_) {
     disconnect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);

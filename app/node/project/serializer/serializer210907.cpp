@@ -68,7 +68,8 @@ ProjectSerializer210907::LoadData ProjectSerializer210907::Load(Project *project
             if (is_root) {
               node = project->root();
             } else if (is_cm) {
-              node = project->color_manager();
+              LoadColorManager(reader, project);
+              handled_elsewhere = true;
             } else if (is_settings) {
               LoadProjectSettings(reader, project);
               handled_elsewhere = true;
@@ -252,6 +253,87 @@ void ProjectSerializer210907::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
   }
 
   node->LoadFinishedEvent();
+}
+
+void ProjectSerializer210907::LoadColorManager(QXmlStreamReader *reader, Project *project) const
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("input")) {
+      QString id;
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("id")) {
+          id = attr.value().toString();
+        }
+      }
+
+      if (id == QStringLiteral("config") || id == QStringLiteral("default_input") || id == QStringLiteral("reference_space")) {
+        QString value;
+
+        while (XMLReadNextStartElement(reader)) {
+          if (reader->name() == QStringLiteral("primary")) {
+            while (XMLReadNextStartElement(reader)) {
+              if (reader->name() == QStringLiteral("standard")) {
+                while (XMLReadNextStartElement(reader)) {
+                  if (reader->name() == QStringLiteral("track")) {
+                    value = reader->readElementText();
+                  } else {
+                    reader->skipCurrentElement();
+                  }
+                }
+              } else {
+                reader->skipCurrentElement();
+              }
+            }
+          } else {
+            reader->skipCurrentElement();
+          }
+        }
+
+        if (id == QStringLiteral("default_input")) {
+          // Default color space
+          // NOTE: Stupidly, we saved these as integers which means we can't add anything to the OCIO
+          //       config. So we must convert back to string here.
+          static const QStringList list = {
+            QStringLiteral("Linear"),
+            QStringLiteral("CIE-XYZ D65"),
+            QStringLiteral("Filmic Log Encoding"),
+            QStringLiteral("sRGB OETF"),
+            QStringLiteral("Apple DCI-P3 D65"),
+            QStringLiteral("AppleP3 sRGB OETF"),
+            QStringLiteral("BT.1886 EOTF"),
+            QStringLiteral("AppleP3 Filmic Log Encoding"),
+            QStringLiteral("BT.1886 Filmic Log Encoding"),
+            QStringLiteral("Fuji F-Log OETF"),
+            QStringLiteral("Fuji F-Log F-Gamut"),
+            QStringLiteral("Panasonic V-Log V-Gamut"),
+            QStringLiteral("Arri Wide Gamut / LogC EI 800"),
+            QStringLiteral("Arri Wide Gamut / LogC EI 400"),
+            QStringLiteral("Blackmagic Film Wide Gamut (Gen 5)"),
+            QStringLiteral("Rec.709 OETF"),
+            QStringLiteral("Non-Colour Data")
+          };
+          int num_value = value.toInt();
+          value = list.at(num_value);
+          project->SetDefaultInputColorSpace(value);
+        } else if (id == QStringLiteral("reference_space")) {
+          // Reference space
+          if (value == QStringLiteral("1")) {
+            value = OCIO::ROLE_COMPOSITING_LOG;
+          } else {
+            value = OCIO::ROLE_SCENE_LINEAR;
+          }
+          project->SetColorReferenceSpace(value);
+        } else {
+          // Config filename
+          project->SetColorConfigFilename(value);
+        }
+      } else {
+        reader->skipCurrentElement();
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
 }
 
 void ProjectSerializer210907::LoadProjectSettings(QXmlStreamReader *reader, Project *project) const

@@ -25,9 +25,9 @@
 #include <QObject>
 #include <QUuid>
 
-#include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/footage/footage.h"
+#include "node/color/colormanager/colormanager.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
 namespace olive {
@@ -87,7 +87,7 @@ public:
   void set_filename(const QString& s);
 
   Folder* root() const { return root_; }
-  ColorManager* color_manager() const { return color_manager_; }
+  ColorManager *color_manager() const { return color_manager_; }
 
   bool is_modified() const { return is_modified_; }
   void set_modified(bool e);
@@ -139,14 +139,29 @@ public:
 
   static const QString kItemMimeType;
 
+  static const QString kCacheLocationSettingKey;
+  static const QString kCachePathKey;
+  static const QString kColorConfigFilename;
+  static const QString kColorReferenceSpace;
+  static const QString kDefaultInputColorSpaceKey;
+
   QString GetSetting(const QString &key) const { return settings_.value(key); }
   void SetSetting(const QString &key, const QString &value);
 
-  CacheSetting GetCacheLocationSetting() const { return static_cast<CacheSetting>(GetSetting(QStringLiteral("cachesetting")).toInt()); }
-  void SetCacheLocationSetting(CacheSetting s) { SetSetting(QStringLiteral("cachesetting"), QString::number(s)); }
+  CacheSetting GetCacheLocationSetting() const { return static_cast<CacheSetting>(GetSetting(kCacheLocationSettingKey).toInt()); }
+  void SetCacheLocationSetting(CacheSetting s) { SetSetting(kCacheLocationSettingKey, QString::number(s)); }
 
-  QString GetCustomCachePath() const { return GetSetting(QStringLiteral("customcachepath")); }
-  void SetCustomCachePath(const QString &path) { SetSetting(QStringLiteral("customcachepath"), path); }
+  QString GetCustomCachePath() const { return GetSetting(kCachePathKey); }
+  void SetCustomCachePath(const QString &path) { SetSetting(kCachePathKey, path); }
+
+  QString GetColorConfigFilename() const { return GetSetting(kColorConfigFilename); }
+  void SetColorConfigFilename(const QString& s) { SetSetting(kColorConfigFilename, s); }
+
+  QString GetDefaultInputColorSpace() const { return GetSetting(kDefaultInputColorSpaceKey); }
+  void SetDefaultInputColorSpace(const QString& s) { SetSetting(kDefaultInputColorSpaceKey, s); }
+
+  QString GetColorReferenceSpace() const { return GetSetting(kColorReferenceSpace); }
+  void SetColorReferenceSpace(const QString& s) { SetSetting(kColorReferenceSpace, s); }
 
 signals:
   void NameChanged();
@@ -196,20 +211,17 @@ private:
 
   QString saved_url_;
 
-  ColorManager* color_manager_;
-
   bool is_modified_;
 
   bool autorecovery_saved_;
+
+  ColorManager *color_manager_;
 
   QVector<Node*> node_children_;
 
   QVector<Node*> default_nodes_;
 
   QMap<QString, QString> settings_;
-
-private slots:
-  void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);
 
 };
 

@@ -28,8 +28,6 @@ namespace olive {
 
 ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const ColorTransform &transform, Direction direction)
 {
-  QMutexLocker locker(config->mutex());
-
   const QString& output = (transform.output().isEmpty()) ? config->GetDefaultDisplay() : transform.output();
 
   if (transform.is_display()) {
@@ -42,8 +40,6 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
     display_transform->setDisplay(output.toUtf8());
     display_transform->setView(view.toUtf8());
     display_transform->setDirection(direction == kNormal ? OCIO::TRANSFORM_DIR_FORWARD : OCIO::TRANSFORM_DIR_INVERSE);
-
-    OCIO_SET_C_LOCALE_FOR_SCOPE;
 
     if (transform.look().isEmpty()) {
       processor_ = config->GetConfig()->getProcessor(display_transform);
@@ -69,7 +65,6 @@ ColorProcessor::ColorProcessor(ColorManager *config, const QString &input, const
 
   } else {
 
-    OCIO_SET_C_LOCALE_FOR_SCOPE;
     try {
       if (direction == kNormal) {
         processor_ = config->GetConfig()->getProcessor(input.toUtf8(), output.toUtf8());

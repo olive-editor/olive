@@ -167,8 +167,6 @@ public:
 
   static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
-  virtual void LoadFinishedEvent() override;
-
   virtual QVariant data(const DataType &d) const override;
 
   virtual int GetTotalStreamCount() const override { return total_stream_count_; }
@@ -177,6 +175,9 @@ public:
   virtual void SaveCustom(QXmlStreamWriter *writer) const override;
 
   static const QString kFilenameInput;
+
+  virtual void AddedToGraphEvent(Project *p)  override;
+  virtual void RemovedFromGraphEvent(Project *p) override;
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
@@ -208,6 +209,8 @@ private:
 
 private slots:
   void CheckFootage();
+
+  void DefaultColorSpaceChanged();
 
 };
 

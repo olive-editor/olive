@@ -45,6 +45,8 @@ public:
     return static_cast<T*>(copy_map_.key(copy));
   }
 
+  Project *GetCopiedProject() const { return copy_; }
+
   const QHash<Node*, Node*> &GetNodeMap() const { return copy_map_; }
 
   const JobTime &GetGraphChangeTime() const { return graph_changed_time_; }

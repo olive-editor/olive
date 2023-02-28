@@ -27,6 +27,7 @@
 #include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
+#include "node/color/ociobase/ociobase.h"
 #include "node/factory.h"
 #include "node/serializeddata.h"
 #include "render/diskmanager.h"
@@ -35,6 +36,12 @@
 namespace olive {
 
 #define super QObject
+
+const QString Project::kCacheLocationSettingKey = QStringLiteral("cachesetting");
+const QString Project::kCachePathKey = QStringLiteral("customcachepath");
+const QString Project::kColorConfigFilename = QStringLiteral("colorconfigfilename");
+const QString Project::kDefaultInputColorSpaceKey = QStringLiteral("defaultinputcolorspace");
+const QString Project::kColorReferenceSpace = QStringLiteral("colorreferencespace");
 
 const QString Project::kItemMimeType = QStringLiteral("application/x-oliveprojectitemdata");
 
@@ -51,13 +58,8 @@ Project::Project() :
   root_->SetLabel(tr("Root"));
   AddDefaultNode(root_);
 
-  // Adds a color manager "node" to this project so that it synchronizes
-  color_manager_ = new ColorManager();
-  color_manager_->setParent(this);
-  AddDefaultNode(color_manager_);
-
-  connect(color_manager(), &ColorManager::ValueChanged,
-          this, &Project::ColorManagerValueChanged);
+  color_manager_ = new ColorManager(this);
+  color_manager_->Init();
 }
 
 Project::~Project()
@@ -92,8 +94,6 @@ SerializedData Project::Load(QXmlStreamReader *reader)
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("node")) {
           bool is_root = false;
-          bool is_cm = false;
-          bool is_settings = false;
           QString id;
 
           {
@@ -102,10 +102,6 @@ SerializedData Project::Load(QXmlStreamReader *reader)
                 id = attr.value().toString();
               } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
                 is_root = true;
-              } else if (attr.name() == QStringLiteral("cm") && attr.value() == QStringLiteral("1")) {
-                is_cm = true;
-              } else if (attr.name() == QStringLiteral("settings") && attr.value() == QStringLiteral("1")) {
-                is_settings = true;
               }
             }
           }
@@ -118,8 +114,6 @@ SerializedData Project::Load(QXmlStreamReader *reader)
 
             if (is_root) {
               node = this->root();
-            } else if (is_cm) {
-              node = this->color_manager();
             } else {
               node = NodeFactory::CreateFromID(id);
             }
@@ -141,6 +135,12 @@ SerializedData Project::Load(QXmlStreamReader *reader)
         }
       }
 
+    } else if (reader->name() == QStringLiteral("settings")) {
+      while (XMLReadNextStartElement(reader)) {
+        QString key = reader->name().toString();
+        QString val = reader->readElementText();
+        SetSetting(key, val);
+      }
     } else {
 
       // Skip this
@@ -158,23 +158,33 @@ void Project::Save(QXmlStreamWriter *writer) const
 
   writer->writeTextElement(QStringLiteral("uuid"), this->GetUuid().toString());
 
-  writer->writeStartElement(QStringLiteral("nodes"));
+  if (!this->nodes().isEmpty()) {
+    writer->writeStartElement(QStringLiteral("nodes"));
 
-  foreach (Node* node, this->nodes()) {
-    writer->writeStartElement(QStringLiteral("node"));
+    foreach (Node* node, this->nodes()) {
+      writer->writeStartElement(QStringLiteral("node"));
 
-    if (node == this->root()) {
-      writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
-    } else if (node == this->color_manager()) {
-      writer->writeAttribute(QStringLiteral("cm"), QStringLiteral("1"));
+      if (node == this->root()) {
+        writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
+      }
+
+      node->Save(writer);
+
+      writer->writeEndElement(); // node
     }
 
-    node->Save(writer);
-
-    writer->writeEndElement(); // node
+    writer->writeEndElement(); // nodes
   }
 
-  writer->writeEndElement(); // nodes
+  if (!this->settings_.isEmpty()) {
+    writer->writeStartElement(QStringLiteral("settings"));
+
+    for (auto it = this->settings_.cbegin(); it != this->settings_.cend(); it++) {
+      writer->writeTextElement(it.key(), it.value());
+    }
+
+    writer->writeEndElement(); // settings
+  }
 }
 
 int Project::GetNumberOfContextsNodeIsIn(Node *node, bool except_itself) const
@@ -215,6 +225,7 @@ void Project::childEvent(QChildEvent *event)
 
       emit NodeAdded(node);
       emit node->AddedToGraph(this);
+      node->AddedToGraphEvent(this);
 
       // Emit input connections
       for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
@@ -248,6 +259,7 @@ void Project::childEvent(QChildEvent *event)
 
       emit NodeRemoved(node);
       emit node->RemovedFromGraph(this);
+      node->RemovedFromGraphEvent(this);
 
       // Remove from any contexts
       foreach (Node *context, node_children_) {
@@ -368,17 +380,13 @@ void Project::SetSetting(const QString &key, const QString &value)
 {
   settings_.insert(key, value);
   emit SettingChanged(key, value);
-}
 
-void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
-{
-  Q_UNUSED(input)
-  Q_UNUSED(range)
-
-  QVector<Footage*> footage = root()->ListChildrenOfType<Footage>();
-
-  foreach (Footage* item, footage) {
-    item->InvalidateAll(QString());
+  if (key == kColorReferenceSpace) {
+    emit color_manager_->ReferenceSpaceChanged(value);
+  } else if (key == kColorConfigFilename) {
+    color_manager_->UpdateConfigFromFilename();
+  } else if (key == kDefaultInputColorSpaceKey) {
+    emit color_manager_->DefaultInputChanged(value);
   }
 }
 
