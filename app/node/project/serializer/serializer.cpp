@@ -136,7 +136,7 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
   return res;
 }
 
-ProjectSerializer::Result ProjectSerializer::Paste(LoadType load_type)
+ProjectSerializer::Result ProjectSerializer::Paste(LoadType load_type, Project *project)
 {
   QString clipboard = Core::PasteStringFromClipboard();
   if (clipboard.isEmpty()) {
@@ -145,7 +145,7 @@ ProjectSerializer::Result ProjectSerializer::Paste(LoadType load_type)
 
   QXmlStreamReader reader(clipboard);
 
-  return ProjectSerializer::Load(nullptr, &reader, load_type);
+  return ProjectSerializer::Load(project, &reader, load_type);
 }
 
 ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, bool compress)

@@ -1938,7 +1938,7 @@ bool TimelineWidget::PasteInternal(bool insert)
     return false;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes, GetConnectedNode()->project());
   if (res.GetLoadData().nodes.isEmpty()) {
     return false;
   }
@@ -1951,6 +1951,13 @@ bool TimelineWidget::PasteInternal(bool insert)
     if (n->IsItem() && !n->folder()) {
       command->add_child(new FolderAddChild(project->root(), n));
     }
+  }
+
+  qDebug() << "pasing" << res.GetLoadData().nodes.size() << "nodes";
+
+  for (auto it = res.GetLoadData().promised_connections.cbegin(); it != res.GetLoadData().promised_connections.cend(); it++) {
+    auto oc = *it;
+    command->add_child(new NodeEdgeAddCommand(oc.first, oc.second));
   }
 
   rational paste_start = GetConnectedNode()->GetPlayhead();

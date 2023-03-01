@@ -81,6 +81,8 @@ public:
 
     QVector<Node*> nodes;
 
+    Node::OutputConnections promised_connections;
+
   };
 
   class Result
@@ -171,7 +173,7 @@ public:
 
   static Result Load(Project *project, const QString &filename, LoadType load_type);
   static Result Load(Project *project, QXmlStreamReader *read_device, LoadType load_type);
-  static Result Paste(LoadType load_type);
+  static Result Paste(LoadType load_type, Project *project = nullptr);
 
   static Result Save(const SaveData &data, bool compress);
   static Result Save(QXmlStreamWriter *write_device, const SaveData &data);

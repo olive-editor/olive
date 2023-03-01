@@ -175,13 +175,25 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
   case kOnlyNodes:
   {
     if (reader->name() == QStringLiteral("nodes")) {
+      QMap<quintptr, Node*> skipped_items;
+
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("node")) {
           QString id;
+          quintptr ptr = 0;
+          QVector<quintptr> items;
 
           XMLAttributeLoop(reader, attr) {
             if (attr.name() == QStringLiteral("id")) {
               id = attr.value().toString();
+            } else if (attr.name() == QStringLiteral("ptr")) {
+              ptr = attr.value().toULongLong();
+            } else if (attr.name() == QStringLiteral("items")) {
+              QVector<QStringRef> l = attr.value().split(',');
+              items.reserve(l.size());
+              for (const QStringRef &s : l) {
+                items.append(s.toULongLong());
+              }
             }
           }
 
@@ -189,15 +201,49 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
             qWarning() << "Failed to load node with empty ID";
             reader->skipCurrentElement();
           } else {
-            Node* node = NodeFactory::CreateFromID(id);
-            if (!node) {
-              qWarning() << "Failed to find node with ID" << id;
+            bool dependency_of_item = false;
+
+            if (project && !items.empty()) {
+              for (quintptr p : items) {
+                if (project->nodes().contains(reinterpret_cast<Node*>(p))) {
+                  dependency_of_item = true;
+                  break;
+                }
+              }
+            }
+
+            if (dependency_of_item) {
               reader->skipCurrentElement();
             } else {
-              // Disable cache while node is being loaded (we'll re-enable it later)
-              node->SetCachesEnabled(false);
-              node->Load(reader, &project_data);
-              load_data.nodes.append(node);
+              Node* node = NodeFactory::CreateFromID(id);
+              if (!node) {
+                qWarning() << "Failed to find node with ID" << id;
+                reader->skipCurrentElement();
+              } else {
+                if (project && node->IsItem() && ptr) {
+                  // If we're pasting an object into the same project, we should re-use the item
+                  // rather than duplicate.
+                  Node *existing = reinterpret_cast<Node *>(ptr);
+                  if (project->nodes().contains(existing)) {
+                    // Connect this
+                    skipped_items.insert(ptr, existing);
+
+                    // Don't continue loading this
+                    delete node;
+                    node = nullptr;
+
+                    // Skip element
+                    reader->skipCurrentElement();
+                  }
+                }
+
+                if (node) {
+                  // Disable cache while node is being loaded (we'll re-enable it later)
+                  node->SetCachesEnabled(false);
+                  node->Load(reader, &project_data);
+                  load_data.nodes.append(node);
+                }
+              }
             }
           }
         } else if (reader->name() == QStringLiteral("properties")) {
@@ -230,6 +276,21 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
         }
       }
 
+      if (!skipped_items.empty()) {
+        for (auto it = project_data.desired_connections.begin(); it != project_data.desired_connections.end(); ) {
+          const SerializedData::SerializedConnection &sc = *it;
+
+          if (Node *si = skipped_items.value(sc.output_node)) {
+            // Convert this to a promised connection
+            Node::OutputConnection oc = {si, sc.input};
+            load_data.promised_connections.push_back(oc);
+            it = project_data.desired_connections.erase(it);
+          } else {
+            it++;
+          }
+        }
+      }
+
       PostConnect(load_data.nodes, &project_data);
 
       // Resolve serialized properties (if any)
@@ -247,6 +308,21 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
   }
 
   return load_data;
+}
+
+void WriteNodeMap(QXmlStreamWriter *writer, Node *node, const QVector<Node*> &nodes)
+{
+  writer->writeStartElement(QStringLiteral("node"));
+
+  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(node)));
+
+  for (auto oc : node->output_connections()) {
+    if (nodes.contains(oc.second.node())) {
+      WriteNodeMap(writer, oc.second.node(), nodes);
+    }
+  }
+
+  writer->writeEndElement();
 }
 
 void ProjectSerializer230220::Save(QXmlStreamWriter *writer, const SaveData &data, void *reserved) const
@@ -325,8 +401,19 @@ void ProjectSerializer230220::Save(QXmlStreamWriter *writer, const SaveData &dat
 
     for (Node *n : data.GetOnlySerializeNodes()) {
       writer->writeStartElement(QStringLiteral("node"));
+
+      QStringList item_list;
+      for (Node *i : data.GetOnlySerializeNodes()) {
+        if (i->IsItem() && i->InputsFrom(n, true)) {
+          item_list.append(QString::number(reinterpret_cast<quintptr>(i)));
+        }
+      }
+      if (!item_list.empty()) {
+        writer->writeAttribute(QStringLiteral("items"), item_list.join(','));
+      }
+
       n->Save(writer);
-      writer->writeEndElement();
+      writer->writeEndElement(); // node
     }
 
     if (!data.GetProperties().empty()) {
