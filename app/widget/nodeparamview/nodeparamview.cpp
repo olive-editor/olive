@@ -123,8 +123,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     keyframe_area_layout->addWidget(keyframe_view_);
 
     // Connect ruler and keyframe view together
-    connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
-    connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
+    connect(keyframe_view_, &KeyframeView::Dragged, this, static_cast<void(NodeParamView::*)(int)>(&NodeParamView::SetCatchUpScrollValue));
+    connect(keyframe_view_, &KeyframeView::Released, this, static_cast<void(NodeParamView::*)()>(&NodeParamView::StopCatchUpScrollTimer));
 
     splitter->addWidget(keyframe_area);
 
@@ -897,18 +897,6 @@ void NodeParamView::PinNode(bool pin)
     parent = parent->parent();
   }
 }*/
-
-void NodeParamView::KeyframeViewDragged(int x, int y)
-{
-  Q_UNUSED(y)
-
-  SetCatchUpScrollValue(x);
-}
-
-void NodeParamView::KeyframeViewReleased()
-{
-  StopCatchUpScrollTimer();
-}
 
 void NodeParamView::UpdateElementY()
 {
