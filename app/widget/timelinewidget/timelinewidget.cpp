@@ -1945,8 +1945,12 @@ bool TimelineWidget::PasteInternal(bool insert)
 
   MultiUndoCommand *command = new MultiUndoCommand();
 
+  Project *project = GetConnectedNode()->project();
   foreach (Node *n, res.GetLoadData().nodes) {
-    command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
+    command->add_child(new NodeAddCommand(project, n));
+    if (n->IsItem() && !n->folder()) {
+      command->add_child(new FolderAddChild(project->root(), n));
+    }
   }
 
   rational paste_start = GetConnectedNode()->GetPlayhead();

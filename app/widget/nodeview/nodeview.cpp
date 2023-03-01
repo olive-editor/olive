@@ -1092,6 +1092,9 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
       // Add node to the same graph that the context is in
       if (ai.node->parent() != select_context->parent()) {
         add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
+        if (ai.node->IsItem() && !ai.node->folder()) {
+          add_command->add_child(new FolderAddChild(select_context->parent()->root(), ai.node));
+        }
       }
 
       // Add node to the context
