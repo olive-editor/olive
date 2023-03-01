@@ -67,6 +67,7 @@ bool LoadOTIOTask::Run()
   }
 
   project_ = new Project();
+  project_->Initialize();
   project_->set_modified(true);
 
   std::vector<OTIO::Timeline*> timelines;

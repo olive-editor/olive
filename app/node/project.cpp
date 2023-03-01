@@ -42,22 +42,19 @@ const QString Project::kCachePathKey = QStringLiteral("customcachepath");
 const QString Project::kColorConfigFilename = QStringLiteral("colorconfigfilename");
 const QString Project::kDefaultInputColorSpaceKey = QStringLiteral("defaultinputcolorspace");
 const QString Project::kColorReferenceSpace = QStringLiteral("colorreferencespace");
+const QString Project::kRootKey = QStringLiteral("root");
 
 const QString Project::kItemMimeType = QStringLiteral("application/x-oliveprojectitemdata");
 
 Project::Project() :
+  root_(nullptr),
   is_modified_(false),
   autorecovery_saved_(true)
 {
   // Generate UUID for this project
   RegenerateUuid();
 
-  // Folder root for project
-  root_ = new Folder();
-  root_->setParent(this);
-  root_->SetLabel(tr("Root"));
-  AddDefaultNode(root_);
-
+  // Initialize color manager
   color_manager_ = new ColorManager(this);
   color_manager_->Init();
 }
@@ -65,6 +62,16 @@ Project::Project() :
 Project::~Project()
 {
   Clear();
+}
+
+void Project::Initialize()
+{
+  if (!root_) {
+    root_ = new Folder();
+    root_->setParent(this);
+    root_->SetLabel(tr("Root"));
+    settings_.insert(kRootKey, QString::number(reinterpret_cast<quintptr>(root_)));
+  }
 }
 
 void Project::Clear()
@@ -93,15 +100,12 @@ SerializedData Project::Load(QXmlStreamReader *reader)
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("node")) {
-          bool is_root = false;
           QString id;
 
           {
             XMLAttributeLoop(reader, attr) {
               if (attr.name() == QStringLiteral("id")) {
                 id = attr.value().toString();
-              } else if (attr.name() == QStringLiteral("root") && attr.value() == QStringLiteral("1")) {
-                is_root = true;
               }
             }
           }
@@ -110,13 +114,7 @@ SerializedData Project::Load(QXmlStreamReader *reader)
             qWarning() << "Failed to load node with empty ID";
             reader->skipCurrentElement();
           } else {
-            Node* node;
-
-            if (is_root) {
-              node = this->root();
-            } else {
-              node = NodeFactory::CreateFromID(id);
-            }
+            Node* node = NodeFactory::CreateFromID(id);
 
             if (!node) {
               qWarning() << "Failed to find node with ID" << id;
@@ -149,6 +147,17 @@ SerializedData Project::Load(QXmlStreamReader *reader)
     }
   }
 
+  // Resolve root if applicable
+  QString root = GetSetting(kRootKey);
+  if (!root.isEmpty()) {
+    quintptr r = root.toULongLong();
+    if (Node *n = data.node_ptrs.value(r)) {
+      Q_ASSERT(!root_);
+      root_ = dynamic_cast<Folder*>(n);
+      SetSetting(kRootKey, QString::number(reinterpret_cast<quintptr>(root_)));
+    }
+  }
+
   return data;
 }
 
@@ -163,10 +172,6 @@ void Project::Save(QXmlStreamWriter *writer) const
 
     foreach (Node* node, this->nodes()) {
       writer->writeStartElement(QStringLiteral("node"));
-
-      if (node == this->root()) {
-        writer->writeAttribute(QStringLiteral("root"), QStringLiteral("1"));
-      }
 
       node->Save(writer);
 

@@ -70,10 +70,7 @@ public:
     return node_children_;
   }
 
-  const QVector<Node*>& default_nodes() const
-  {
-    return default_nodes_;
-  }
+  void Initialize();
 
   SerializedData Load(QXmlStreamReader *reader);
   void Save(QXmlStreamWriter *writer) const;
@@ -86,7 +83,7 @@ public:
   QString pretty_filename() const;
   void set_filename(const QString& s);
 
-  Folder* root() const { return root_; }
+  Folder *root() const { return root_; }
   ColorManager *color_manager() const { return color_manager_; }
 
   bool is_modified() const { return is_modified_; }
@@ -144,6 +141,7 @@ public:
   static const QString kColorConfigFilename;
   static const QString kColorReferenceSpace;
   static const QString kDefaultInputColorSpaceKey;
+  static const QString kRootKey;
 
   QString GetSetting(const QString &key) const { return settings_.value(key); }
   void SetSetting(const QString &key, const QString &value);
@@ -195,11 +193,6 @@ signals:
   void SettingChanged(const QString &key, const QString &value);
 
 protected:
-  void AddDefaultNode(Node* n)
-  {
-    default_nodes_.append(n);
-  }
-
   virtual void childEvent(QChildEvent* event) override;
 
 private:
@@ -218,8 +211,6 @@ private:
   ColorManager *color_manager_;
 
   QVector<Node*> node_children_;
-
-  QVector<Node*> default_nodes_;
 
   QMap<QString, QString> settings_;
 

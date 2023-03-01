@@ -66,6 +66,7 @@ ProjectSerializer210528::LoadData ProjectSerializer210528::Load(Project *project
             bool handled_elsewhere = false;
 
             if (is_root) {
+              project->Initialize();
               node = project->root();
             } else if (is_cm) {
               LoadColorManager(reader, project);

@@ -293,7 +293,9 @@ void Core::CreateNewProject()
 {
   // If we already have an empty/new project, switch to it
   if (CloseProject(false)) {
-    AddOpenProject(new Project());
+    Project *p = new Project();
+    p->Initialize();
+    AddOpenProject(p);
   }
 }
 
