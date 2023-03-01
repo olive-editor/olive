@@ -313,12 +313,13 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     selection_manager_.DragStop(command);
     KeyframeDragRelease(event, command);
     Core::instance()->undo_stack()->push(command);
-    emit Released();
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
     emit SelectionChanged();
   }
+
+  emit Released();
 }
 
 int BinarySearchFirstKeyframeAfterOrAt(const QVector<NodeKeyframe*> &keys, const rational &time)
