@@ -299,6 +299,9 @@ protected:
 
   virtual const QVector<Block*> *GetSnapBlocks() const override { return &added_blocks_; }
 
+protected slots:
+  virtual void SendCatchUpScrollEvent() override;
+
 private:
   QVector<Timeline::EditToInfo> GetEditToInfo(const rational &playhead_time, Timeline::MovementMode mode);
 
@@ -308,19 +311,18 @@ private:
 
   void UpdateViewports(const Track::Type& type = Track::kNone);
 
-  QVector<Block*> GetBlocksInGlobalRect(const QPoint &p1, const QPoint &p2);
-
   bool PasteInternal(bool insert);
 
   TimelineAndTrackView *AddTimelineAndTrackView(Qt::Alignment alignment);
 
   QHash<Node*, Node*> GenerateExistingPasteMap(const ProjectSerializer::Result &r);
 
-  QPoint drag_origin_;
-
   QRubberBand rubberband_;
+  QVector<QPointF> rubberband_scene_pos_;
   TimelineWidgetSelections rubberband_old_selections_;
   QVector<Block*> rubberband_now_selected_;
+  bool rubberband_enable_selecting_;
+  bool rubberband_select_links_;
 
   TimelineWidgetSelections selections_;
 
@@ -445,6 +447,8 @@ private slots:
   void CacheDiscard();
 
   void MulticamEnabledTriggered(bool e);
+
+  void ForceUpdateRubberBand();
 
 };
 
