@@ -254,6 +254,15 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
   return false;
 }
 
+void KeyframeView::CatchUpScrollEvent()
+{
+  super::CatchUpScrollEvent();
+
+  if (this->selection_manager_.IsRubberBanding()) {
+    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
+  }
+}
+
 void KeyframeView::mousePressEvent(QMouseEvent *event)
 {
   NodeKeyframe *key_under_cursor = selection_manager_.GetObjectAtPoint(event->pos());
@@ -289,7 +298,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
     KeyframeDragMove(event, tip);
     selection_manager_.DragMove(event, tip);
   } else if (selection_manager_.IsRubberBanding()) {
-    selection_manager_.RubberBandMove(event);
+    selection_manager_.RubberBandMove(event->pos());
     Redraw();
   }
 
@@ -615,6 +624,13 @@ void KeyframeView::ShowKeyframePropertiesDialog()
   if (!GetSelectedKeyframes().empty()) {
     KeyframePropertiesDialog kd(GetSelectedKeyframes(), timebase(), this);
     kd.exec();
+  }
+}
+
+void KeyframeView::UpdateRubberBandForScroll()
+{
+  if (this->selection_manager_.IsRubberBanding()) {
+    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
   }
 }
 

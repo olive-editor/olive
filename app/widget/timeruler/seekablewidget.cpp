@@ -206,7 +206,7 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
   if (HandMove(event)) {
     return;
   } else if (selection_manager_.IsRubberBanding()) {
-    selection_manager_.RubberBandMove(event);
+    selection_manager_.RubberBandMove(event->pos());
     viewport()->update();
   } else if (selection_manager_.IsDragging()) {
     selection_manager_.DragMove(event);
@@ -227,6 +227,11 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
       unsetCursor();
       ClearResizeHandle();
     }
+  }
+
+  if (event->buttons()) {
+    // Signal cursor pos in case we should scroll to catch up to it
+    emit DragMoved(event->pos().x(), event->pos().y());
   }
 }
 
@@ -411,6 +416,15 @@ void SeekableWidget::SelectionManagerDeselectEvent(void *obj)
   super::SelectionManagerDeselectEvent(obj);
 
   viewport()->update();
+}
+
+void SeekableWidget::CatchUpScrollEvent()
+{
+  super::CatchUpScrollEvent();
+
+  if (this->selection_manager_.IsRubberBanding()) {
+    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
+  }
 }
 
 void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
