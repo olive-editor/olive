@@ -104,7 +104,7 @@ public:
 
   virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
   virtual void SaveCustom(QXmlStreamWriter *writer) const override;
-  virtual void PostLoadEvent(SerializedData *data);
+  virtual void PostLoadEvent(SerializedData *data) override;
 
   static int InternalHeightToPixelHeight(double h)
   {
