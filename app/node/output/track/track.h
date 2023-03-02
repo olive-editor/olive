@@ -104,6 +104,7 @@ public:
 
   virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
   virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+  virtual void PostLoadEvent(SerializedData *data);
 
   static int InternalHeightToPixelHeight(double h)
   {
@@ -484,6 +485,7 @@ private:
 
   int ignore_arraymap_;
   bool arraymap_invalid_;
+  bool ignore_arraymap_set_;
 
 private slots:
   void BlockLengthChanged();

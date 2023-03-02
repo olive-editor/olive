@@ -47,7 +47,8 @@ Track::Track() :
   locked_(false),
   sequence_(nullptr),
   ignore_arraymap_(0),
-  arraymap_invalid_(false)
+  arraymap_invalid_(false),
+  ignore_arraymap_set_(false)
 {
   AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden | kInputFlagIgnoreInvalidations));
 
@@ -197,6 +198,8 @@ void Track::SetTrackHeight(const double &height)
 
 bool Track::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
 {
+  ignore_arraymap_set_ = true;
+
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("height")) {
       this->SetTrackHeight(reader->readElementText().toDouble());
@@ -211,6 +214,12 @@ bool Track::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
 void Track::SaveCustom(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("height"), QString::number(this->GetTrackHeight()));
+}
+
+void Track::PostLoadEvent(SerializedData *data)
+{
+  ignore_arraymap_set_ = false;
+  RefreshBlockCacheFromArrayMap();
 }
 
 void Track::InputValueChangedEvent(const QString &input, int element)
@@ -457,6 +466,8 @@ void Track::RippleRemoveBlock(Block *block)
   Block::set_previous_next(previous, next);
   block->set_previous(nullptr);
   block->set_next(nullptr);
+  block->set_in(0);
+  block->set_out(block->length());
 
   // Update in/outs
   UpdateInOutFrom(index);
@@ -563,8 +574,6 @@ void Track::UpdateInOutFrom(int index)
     last_out += b->length();
 
     b->set_out(last_out);
-
-    b->set_index(i);
   }
 
   emit BlocksRefreshed();
@@ -731,6 +740,21 @@ void Track::UpdateArrayMap()
 
 void Track::RefreshBlockCacheFromArrayMap()
 {
+  if (ignore_arraymap_set_) {
+    return;
+  }
+
+  // Disconnecting any existing blocks
+  for (Block *b : blocks_) {
+    Q_ASSERT(b->track() == this);
+    b->set_track(nullptr);
+    b->set_previous(nullptr);
+    b->set_next(nullptr);
+    b->set_in(0);
+    b->set_out(b->length());
+    disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+  }
+
   QByteArray bytes = GetStandardValue(kArrayMapInput).toByteArray();
   block_array_indexes_.resize(bytes.size() / sizeof(uint32_t));
   memcpy(block_array_indexes_.data(), bytes.data(), bytes.size());
@@ -747,6 +771,8 @@ void Track::RefreshBlockCacheFromArrayMap()
 
     if (b) {
       b->set_track(this);
+      connect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+
       blocks_.append(b);
       prev = b;
     } else {

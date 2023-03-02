@@ -36,8 +36,7 @@ const QString Block::kLengthInput = QStringLiteral("length_in");
 Block::Block() :
   previous_(nullptr),
   next_(nullptr),
-  track_(nullptr),
-  index_(-1)
+  track_(nullptr)
 {
   AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden));
   SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));

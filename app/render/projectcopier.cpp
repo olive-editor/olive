@@ -251,13 +251,13 @@ void ProjectCopier::QueueEdgeRemove(Node *output, const NodeInput &input)
 
 void ProjectCopier::QueueValueChange(const NodeInput &input)
 {
-  for (auto it = graph_update_queue_.begin(); it != graph_update_queue_.end(); ) {
+  /*for (auto it = graph_update_queue_.begin(); it != graph_update_queue_.end(); ) {
     if (it->type == QueuedJob::kValueChanged && it->input == input) {
       it = graph_update_queue_.erase(it);
     } else {
       it++;
     }
-  }
+  }*/
 
   graph_update_queue_.push_back({QueuedJob::kValueChanged, nullptr, input, nullptr, QString(), QString()});
   UpdateGraphChangeValue();

@@ -291,8 +291,6 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
         }
       }
 
-      PostConnect(load_data.nodes, &project_data);
-
       // Resolve serialized properties (if any)
       for (auto it=properties.cbegin(); it!=properties.cend(); it++) {
         Node *node = project_data.node_ptrs.value(it.key());
@@ -300,6 +298,8 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
           load_data.properties.insert(node, it.value());
         }
       }
+
+      PostConnect(load_data.nodes, &project_data);
     } else {
       reader->skipCurrentElement();
     }
@@ -452,14 +452,6 @@ void ProjectSerializer230220::Save(QXmlStreamWriter *writer, const SaveData &dat
 
 void ProjectSerializer230220::PostConnect(const QVector<Node *> &nodes, SerializedData *project_data) const
 {
-  for (auto it = nodes.cbegin(); it != nodes.cend(); it++){
-    Node *n = *it;
-
-    n->PostLoadEvent(project_data);
-
-    n->SetCachesEnabled(true);
-  }
-
   foreach (const SerializedData::SerializedConnection& con, project_data->desired_connections) {
     if (Node *out = project_data->node_ptrs.value(con.output_node)) {
       Node::ConnectEdge(out, con.input);
@@ -471,6 +463,14 @@ void ProjectSerializer230220::PostConnect(const QVector<Node *> &nodes, Serializ
     Node *b = project_data->node_ptrs.value(l.link);
 
     Node::Link(a, b);
+  }
+
+  for (auto it = nodes.cbegin(); it != nodes.cend(); it++){
+    Node *n = *it;
+
+    n->PostLoadEvent(project_data);
+
+    n->SetCachesEnabled(true);
   }
 }
 
