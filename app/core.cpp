@@ -954,7 +954,7 @@ void Core::SaveRecentProjectsList()
 void Core::SaveAutorecovery()
 {
   if (OLIVE_CONFIG("AutorecoveryEnabled").toBool()) {
-    if (!open_project_->has_autorecovery_been_saved()) {
+    if (open_project_ && !open_project_->has_autorecovery_been_saved()) {
       QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(open_project_->GetUuid().toString()));
       if (FileFunctions::DirectoryIsValid(project_autorecovery_dir)) {
         QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));
