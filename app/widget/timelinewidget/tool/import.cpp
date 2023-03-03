@@ -192,7 +192,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset)
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset, bool jump_to_end)
 {
   DraggedFootageData refs;
 
@@ -200,10 +200,10 @@ void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational 
     refs.append({f, f->GetEnabledStreamsAsReferences()});
   }
 
-  PlaceAt(refs, start, insert, command, track_offset);
+  PlaceAt(refs, start, insert, command, track_offset, jump_to_end);
 }
 
-void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset)
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset, bool jump_to_end)
 {
   dragged_footage_ = footage;
 
@@ -212,7 +212,19 @@ void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &star
   }
 
   PrepGhosts(start, track_offset);
+
+  rational max(0);
+  if (jump_to_end) {
+    for (TimelineViewGhostItem* ghost : parent()->GetGhostItems()) {
+      max = std::max(max, ghost->GetAdjustedOut());
+    }
+  }
+
   DropGhosts(insert, command);
+
+  if (jump_to_end) {
+    this->sequence()->SetPlayhead(max);
+  }
 }
 
 void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData &sorted, const rational& dest_tb, const int& track_start)
