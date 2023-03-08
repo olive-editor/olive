@@ -51,7 +51,7 @@
         <source>Failed to load application settings. This session will use defaults.
 
 %1</source>
-        <translation>Fehler beim Laden der Programm-Einstellungen. In dieser Sitzung wird deshalb die Standardkonfiguration verwendet.
+        <translation>Die Anwendungseinstellungen konnten nicht geladen werden. In dieser Sitzung werden die Standardeinstellungen verwendet.
 
 %1</translation>
     </message>
@@ -63,7 +63,7 @@
     <message>
         <location filename="../config/config.cpp" line="223"/>
         <source>Failed to save application settings. The application may lack write permissions for this location.</source>
-        <translation>Fehler beim Speichern der Programm-Einstellungen. Vermutlich hat die Anwendung keinen Schreibzugriff auf dieses Verzeichnis.</translation>
+        <translation>Die Anwendungseinstellungen konnten nicht gespeichert werden. Der Anwendung fehlen möglicherweise Schreibrechte für diesen Speicherort.</translation>
     </message>
 </context>
 <context>
@@ -100,12 +100,12 @@
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="292"/>
         <source>No sequence is currently open. Would you like to create one?</source>
-        <translation>Aktuell ist keine Sequenz geöffnet. Soll eine neue erstellt werden?</translation>
+        <translation>Aktuell ist keine Sequenz geöffnet. Möchten Sie eine neue erstellen?</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="295"/>
         <source>Automatically Detect Parameters From Footage</source>
-        <translation>Parameter des Quellmaterials automatisch übernehmen</translation>
+        <translation>Parameter des Quellmaterials automatisch erkennen</translation>
     </message>
     <message>
         <location filename="../widget/timelinewidget/tool/import.cpp" line="296"/>
@@ -260,7 +260,7 @@
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="185"/>
         <source>Preset exists</source>
-        <translation>Voreinstellung schon vorhanden</translation>
+        <translation>Voreinstellung existiert bereits</translation>
     </message>
     <message>
         <location filename="../dialog/sequence/presetmanager.h" line="186"/>
@@ -405,7 +405,7 @@
     <message>
         <location filename="../main.cpp" line="87"/>
         <source>Show application version</source>
-        <translation>Version des Programms anzeigen</translation>
+        <translation>Version der Anwendung anzeigen</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="91"/>
@@ -944,14 +944,14 @@
     <message>
         <location filename="../core.cpp" line="780"/>
         <source>This Sequence is empty. There is nothing to export.</source>
-        <translation>Diese Sequenz ist leer. Es gibt nichts, was exportiert werden könnte.</translation>
+        <translation>Diese Sequenz ist leer. Es gibt nichts zu exportieren.</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="788"/>
         <source>No valid sequence detected.
 
 Make sure a sequence is loaded and it has a connected Viewer node.</source>
-        <translation>Es konnte keine valide Sequenz gefunden werden.
+        <translation>Keine gültige Sequenz erkannt.
 
 Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorschau-Node verknüpft ist.</translation>
     </message>
@@ -964,7 +964,7 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
     <message>
         <location filename="../core.cpp" line="887"/>
         <source>Failed to save auto-recovery to &quot;%1&quot;. Olive may not have permission to this directory.</source>
-        <translation>Die Datei für automatische Wiederherstellung konnte nicht unter &quot;%1&quot; gespeichert werden. Vermutlich fehlen die Zugriffsrechte für dieses Verzeichnis.</translation>
+        <translation>Die Datei für automatische Wiederherstellung konnte nicht in &quot;%1&quot; gespeichert werden. Olive hat möglicherweise keine Berechtigung für dieses Verzeichnis.</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1039"/>
@@ -986,14 +986,15 @@ Es sollte sichergestellt werden, dass eine Sequenz geladen und mit einer Vorscha
         <source>Found auto-recoveries but failed to load the auto-recovery index. Auto-recover projects will have to be opened manually.
 
 Your recoverable projects are still available at: %1</source>
-        <translation>Automatische Sicherungen wurden gefunden, aber der zugehörige Index konnte nicht geladen werden. Die Dateien können aber manuell geöffnet werden.
+        <translatorcomment>have to be = müssen</translatorcomment>
+        <translation>Automatische Sicherungen wurden gefunden, aber der zugehörige Index konnte nicht geladen werden. Die Dateien müssen manuell geöffnet werden.
 
 Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1136"/>
         <source>The following project versions have been auto-saved:</source>
-        <translation>Die folgenden Versionen des Projekts wurden automatisch gespeichert:</translation>
+        <translation>Die folgenden Projektversionen wurden automatisch gespeichert:</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1144"/>
@@ -1008,7 +1009,6 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../core.cpp" line="1284"/>
         <source>Label Node</source>
-        <translatorcomment>?</translatorcomment>
         <translation>Node beschriften</translation>
     </message>
     <message>
@@ -1024,12 +1024,13 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../core.cpp" line="1324"/>
         <source>Cannot open recent project</source>
-        <translation>Das zuletzt geöffnete Projekt ist nicht auffindbar</translation>
+        <translatorcomment>cannot open = kann nicht geöffnet werden</translatorcomment>
+        <translation>Zuletzt geöffnetes Projekt kann nicht geöffnet werden</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1325"/>
         <source>The project &quot;%1&quot; doesn&apos;t exist. Would you like to remove this file from the recent list?</source>
-        <translation>Das Projekt &quot;%1&quot; gibt es nicht. Soll es aus der Liste der zuletzt geöffneten Projekte entfernt werden?</translation>
+        <translation>Das Projekt &quot;%1&quot; existiert nicht. Soll es aus der Liste der zuletzt geöffneten Projekte entfernt werden?</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1353"/>
@@ -1049,7 +1050,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../core.cpp" line="1363"/>
         <source>Save All</source>
-        <translation>Speichern für alle</translation>
+        <translation>Alles speichern</translation>
     </message>
     <message>
         <location filename="../core.cpp" line="1366"/>
@@ -1059,6 +1060,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../core.cpp" line="1372"/>
         <source>Don&apos;t Save All</source>
+        <translatorcomment>?</translatorcomment>
         <translation>Nicht speichern für alle</translation>
     </message>
     <message>
@@ -1087,11 +1089,13 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="55"/>
         <source>We&apos;re sorry, Olive has crashed. Please help us fix it by sending an error report.</source>
+        <translatorcomment>Du oder Sie?</translatorcomment>
         <translation>Leider ist Olive abgestürzt. Bitte sende uns einen Fehlerbericht, der dabei hilft, das Problem zu beheben.</translation>
     </message>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="63"/>
         <source>Describe what you were doing in as much detail as possible. If you can, provide steps to reproduce this crash.</source>
+        <translatorcomment>Du oder Sie?</translatorcomment>
         <translation>Bitte beschreibe so genau wie möglich, was du gemacht hast. Erkläre, mit welchen Schritten man den Absturz auslösen kann, sofern das geht.</translation>
     </message>
     <message>
@@ -1132,7 +1136,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="194"/>
         <source>Are you sure you want to send an error report with no crash summary?</source>
-        <translation>Soll der Fehlerbericht wirklich ohne Beschreibung der Umstände des Absturzes gesendet werden?</translation>
+        <translation>Soll der Fehlerbericht wirklich ohne Absturzzusammenfassung gesendet werden?</translation>
     </message>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="266"/>
@@ -1148,7 +1152,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="294"/>
         <source>Failed to open symbol file. You may not have permission to access it.</source>
-        <translation>Die Debugging-Symboldatei konnte nicht geöffnet werden. Wahrscheinlich fehlen die notwendigen Zugriffsrechte.</translation>
+        <translation>Die Symboldatei konnte nicht geöffnet werden. Sie haben möglicherweise keine Zugriffsberechtigung für die Datei.</translation>
     </message>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="318"/>
@@ -1158,7 +1162,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../crashhandler/crashhandler.cpp" line="319"/>
         <source>Crash report is still uploading. Closing now may result in no report being sent. Are you sure you wish to close?</source>
-        <translation>Der Absturzbericht wird noch hochgeladen. Diesen Vorgang abzubrechen würde dazu führen, dass der Bericht nicht ankommt. Soll der Absturzmelder wirklich beendet werden?</translation>
+        <translation>Der Absturzbericht wird noch hochgeladen. Wenn Sie jetzt schließen, wird möglicherweise kein Bericht gesendet. Sind Sie sicher, dass Sie den Bericht schließen möchten?</translation>
     </message>
 </context>
 <context>
@@ -1214,7 +1218,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../node/block/transition/crossdissolve/crossdissolvetransition.cpp" line="52"/>
         <source>Smoothly transition between two clips.</source>
-        <translation>Sanft von einem Clip in den nächsten übergehen.</translation>
+        <translation>Weicher Übergang zwischen zwei Clips.</translation>
     </message>
 </context>
 <context>
@@ -1230,13 +1234,12 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../widget/curvewidget/curveview.cpp" line="311"/>
         <source>Zoom to Fit</source>
-        <translatorcomment>?</translatorcomment>
-        <translation>Ansicht füllen</translation>
+        <translation>Zum Anpassen zoomen</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curveview.cpp" line="314"/>
         <source>Zoom to Fit Selected</source>
-        <translation>Ansicht auf Auswahl füllen</translation>
+        <translation>Auf Auswahl zoomen</translation>
     </message>
     <message>
         <location filename="../widget/curvewidget/curveview.cpp" line="317"/>
@@ -1281,12 +1284,13 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="40"/>
         <source>Disk Cache: %1</source>
+        <translatorcomment>Puffer kann meiner Meinung nach Cache bleiben, sollte eingedeutscht sein</translatorcomment>
         <translation>Puffer: %1</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="41"/>
         <source>Disk Cache Settings</source>
-        <translation>Puffer-Einstellungen</translation>
+        <translation>Cache-Einstellungen</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="45"/>
@@ -1303,33 +1307,33 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="90"/>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="99"/>
         <source>Clear Disk Cache</source>
-        <translation>Puffer leeren</translation>
+        <translation>Cache leeren</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="61"/>
         <source>Automatically clear disk cache on close</source>
-        <translation>Puffer beim Schließen automatisch leeren</translation>
+        <translation>Cache beim Schließen automatisch leeren</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="91"/>
         <source>Are you sure you want to clear the disk cache in &apos;%1&apos;?</source>
         <translatorcomment>Mögliche Pronomen: unter/bei/in</translatorcomment>
-        <translation>Soll der Puffer &apos;%1&apos; wirklich geleert werden?</translation>
+        <translation>Soll der Cache &apos;%1&apos; wirklich geleert werden?</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="96"/>
         <source>Disk Cache Cleared</source>
-        <translation>Puffer geleert</translation>
+        <translation>Cache geleert</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="100"/>
         <source>Disk cache failed to fully clear. You may have to delete the cache files manually.</source>
-        <translation>Der Puffer konnte nicht vollständig geleert werden. Womöglich müssen die verbliebenen Dateien von Hand entfernt werden.</translation>
+        <translation>Der Cache konnte nicht vollständig geleert werden. Möglicherweise müssen Sie die Cache-Dateien manuell löschen.</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="102"/>
         <source>Disk Cache Partially Cleared</source>
-        <translation>Puffer nur teilweise geleert</translation>
+        <translation>Cache nur teilweise geleert</translation>
     </message>
 </context>
 <context>
@@ -1677,7 +1681,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../codec/exportformat.cpp" line="33"/>
         <source>Matroska Video</source>
-        <translation>Matroska Vdieo</translation>
+        <translation>Matroska Video</translation>
     </message>
     <message>
         <location filename="../codec/exportformat.cpp" line="35"/>
@@ -1911,7 +1915,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="589"/>
         <source>Retrieved unexpected codec type %1 for codec %2</source>
-        <translation>Für Codec %2 ist der unerwartete Codec-Typ %1 angekommen</translation>
+        <translation>Unerwarteter Codec-Typ %1 für Codec %2 abgerufen</translation>
     </message>
     <message>
         <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="675"/>
@@ -1926,7 +1930,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="710"/>
         <source>Failed to open encoder</source>
-        <translation>Der Encodierer konnte nicht geöffnet werden</translation>
+        <translation>Encoder konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <location filename="../codec/ffmpeg/ffmpegencoder.cpp" line="717"/>
@@ -2157,12 +2161,12 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../widget/standardcombos/frameratecombobox.h" line="110"/>
         <source>Custom Frame Rate</source>
-        <translation>Individuelle Bildfrequenz</translation>
+        <translation>Individuelle Bildrate</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/frameratecombobox.h" line="110"/>
         <source>Enter custom frame rate:</source>
-        <translation>Individuelle Bildfrequenz eingeben:</translation>
+        <translation>Individuelle Bildrate eingeben:</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/frameratecombobox.h" line="137"/>
@@ -2172,7 +2176,7 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../widget/standardcombos/frameratecombobox.h" line="137"/>
         <source>Failed to convert &quot;%1&quot; to a frame rate.</source>
-        <translation>&quot;%1&quot; konnte nicht als Bildfrequenz interpretiert werden.</translation>
+        <translation>&quot;%1&quot; konnte nicht als Bildrate interpretiert werden.</translation>
     </message>
     <message>
         <location filename="../widget/standardcombos/frameratecombobox.h" line="168"/>
@@ -2359,12 +2363,13 @@ Die wiederherstellbaren Projektdateien sind verfügbar unter: %1</translation>
     <message>
         <location filename="../task/project/loadotio/loadotio.cpp" line="55"/>
         <source>Failed to load OpenTimelineIO from file &quot;%1&quot;</source>
-        <translation>Es konnte keine OpenTimelineIO-Sequenz geladen werden aus der Datei &quot;%1&quot;</translation>
+        <translation>Aus der Datei &quot;%1&quot; konnte keine OpenTimelineIO-Sequenz geladen werden</translation>
     </message>
     <message>
         <location filename="../task/project/loadotio/loadotio.cpp" line="77"/>
         <source>Unknown OpenTimelineIO root element</source>
-        <translation>Unbekanntes OpenTimelineIO-Wurzelelement</translation>
+        <translatorcomment>Stamm klingt besser als Wurzel, Root könnte man theoretisch auch verwenden</translatorcomment>
+        <translation>Unbekanntes OpenTimelineIO-Stammelement</translation>
     </message>
     <message>
         <location filename="../task/project/loadotio/loadotio.cpp" line="123"/>
@@ -3186,14 +3191,14 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../node/node.cpp" line="1777"/>
         <source>Generator</source>
-        <translatorcomment>klingt extrem komisch</translatorcomment>
-        <translation>Erzeuger</translation>
+        <translatorcomment>benötigt keine Übersetzung</translatorcomment>
+        <translation>Generator</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="1779"/>
         <source>Channel</source>
-        <translatorcomment>ich denke das trifft es vom Kontext am besten, aber Kanal bzw. Kanäle ginge schon auch...</translatorcomment>
-        <translation>Audio</translation>
+        <translatorcomment>ich denke das trifft es vom Kontext am besten, aber Kanal bzw. Kanäle ginge schon auch = lass uns Kanal verwenden</translatorcomment>
+        <translation>Kanal</translation>
     </message>
     <message>
         <location filename="../node/node.cpp" line="1781"/>
@@ -3208,7 +3213,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../node/node.cpp" line="1789"/>
         <source>Uncategorized</source>
-        <translation>Verschiedenes</translation>
+        <translation>Nicht kategorisiert</translation>
     </message>
 </context>
 <context>
@@ -3399,8 +3404,8 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="707"/>
         <source>Smooth Edges</source>
-        <translatorcomment>was genau bedeutet &apos;smooth&apos; in diesem Kontext?</translatorcomment>
-        <translation>Glatte Ränder</translation>
+        <translatorcomment>was genau bedeutet &apos;smooth&apos; in diesem Kontext? = Kantenglättung</translatorcomment>
+        <translation>Kanten glätten</translation>
     </message>
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="718"/>
@@ -3446,7 +3451,7 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../widget/nodeview/nodeview.cpp" line="757"/>
         <source>Add</source>
-        <translation>Node hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -4055,7 +4060,8 @@ Mit diesem Treiber gibt es bekannte Stabilitäts- und Performanceprobleme. Es wi
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="140"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation>Sollen wirklich alle individuellen Tastatur-Kurzbefehle auf die Standardeinstellung zurückgesetzt werden?</translation>
+        <translatorcomment>Kurzbefehle sind immer individuell solang sie nicht der Standardeinstellung entsprechen</translatorcomment>
+        <translation>Sollen wirklich alle Kurzbefehle auf die Standardeinstellung zurückgesetzt werden?</translation>
     </message>
     <message>
         <location filename="../dialog/preferences/tabs/preferenceskeyboardtab.cpp" line="190"/>
@@ -4518,7 +4524,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="55"/>
         <source>Font Size</source>
-        <translation>Schritgröße</translation>
+        <translation>Schriftgröße</translation>
     </message>
     <message>
         <location filename="../dialog/richtext/richtext.cpp" line="60"/>
@@ -5248,7 +5254,7 @@ Soll es wirklich gelöscht werden?</translation>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="54"/>
         <source>Nearest Neighbor</source>
         <translatorcomment>kling bizarr</translatorcomment>
-        <translation>Nähster Nachbar</translation>
+        <translation>Nächstgelegener Nachbar</translation>
     </message>
     <message>
         <location filename="../node/distort/transform/transformdistortnode.cpp" line="54"/>
@@ -5330,7 +5336,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="64"/>
         <source>Tangent</source>
-        <translation>Tangens</translation>
+        <translation>Tangente</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="66"/>
@@ -5345,7 +5351,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="68"/>
         <source>Inverse Tangent</source>
-        <translation>Arkustangens</translation>
+        <translation>Arkustangente</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="70"/>
@@ -5360,7 +5366,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="72"/>
         <source>Hyperbolic Tangent</source>
-        <translation>Hyperbeltangens</translation>
+        <translation>Hyperbeltangente</translation>
     </message>
     <message>
         <location filename="../node/math/trigonometry/trigonometry.cpp" line="76"/>
@@ -5631,7 +5637,8 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="1001"/>
         <source>Deinterlace</source>
-        <translation>Zeilenentflechtung</translation>
+        <translatorcomment>Deinterlace braucht keine Übersetzung, Fachjargon</translatorcomment>
+        <translation>Deinterlace</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="1012"/>
@@ -5661,7 +5668,7 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="1042"/>
         <source>Cache Sequence In/Out</source>
-        <translation>Sequenz von Anfangs- bis Endpunkt vorladen</translation>
+        <translation>Sequenz von Anfang- bis Endpunkt vorladen</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="1053"/>
@@ -5681,7 +5688,8 @@ Soll es wirklich gelöscht werden?</translation>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="1073"/>
         <source>Show Audio Waveform</source>
-        <translation>Audio-Wellenform anzeigen</translation>
+        <translatorcomment>Waveform benötigt keine gesonderte Übersetzung, Fachjargon</translatorcomment>
+        <translation>Audio-Waveform anzeigen</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="1081"/>
