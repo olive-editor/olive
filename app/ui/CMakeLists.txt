@@ -28,5 +28,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   ui/colorcoding.cpp
   ui/colorcoding.h
+  ui/humanstrings.cpp
+  ui/humanstrings.h
   PARENT_SCOPE
 )

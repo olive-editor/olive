@@ -21,13 +21,15 @@
 #ifndef TIMELINEMARKER_H
 #define TIMELINEMARKER_H
 
+#include <olive/core/core.h>
 #include <QPainter>
 #include <QString>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "common/timerange.h"
 #include "undo/undocommand.h"
+
+using namespace olive::core;
 
 namespace olive {
 
@@ -52,6 +54,9 @@ public:
 
   static int GetMarkerHeight(const QFontMetrics &fm);
   QRect Draw(QPainter *p, const QPoint &pt, int max_right, double scale, bool selected);
+
+  bool load(QXmlStreamReader *reader);
+  void save(QXmlStreamWriter *writer) const;
 
 signals:
   void TimeChanged(const TimeRange& time);
@@ -86,6 +91,9 @@ public:
   inline TimelineMarker *back() const { return markers_.back(); }
   inline TimelineMarker *front() const { return markers_.front(); }
   inline size_t size() const { return markers_.size(); }
+
+  bool load(QXmlStreamReader *reader);
+  void save(QXmlStreamWriter *writer) const;
 
   TimelineMarker *GetMarkerAtTime(const rational &t) const
   {

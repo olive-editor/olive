@@ -25,8 +25,8 @@
 
 namespace olive {
 
-ToolPanel::ToolPanel(QWidget *parent) :
-  PanelWidget(QStringLiteral("ToolPanel"), parent)
+ToolPanel::ToolPanel() :
+  PanelWidget(QStringLiteral("ToolPanel"))
 {
   Toolbar* t = new Toolbar(this);
 
@@ -41,7 +41,6 @@ ToolPanel::ToolPanel(QWidget *parent) :
   connect(t, &Toolbar::SnappingChanged, Core::instance(), &Core::SetSnapping);
   connect(Core::instance(), &Core::SnappingChanged, t, &Toolbar::SetSnapping);
 
-  connect(t, &Toolbar::AddableObjectChanged, Core::instance(), &Core::SetSelectedAddableObject);
   connect(t, &Toolbar::SelectedTransitionChanged, Core::instance(), &Core::SetSelectedTransitionObject);
 
   Retranslate();

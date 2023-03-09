@@ -31,7 +31,7 @@ class ParamPanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
-  ParamPanel(QWidget* parent);
+  ParamPanel();
 
   NodeParamView *GetParamView() const
   {

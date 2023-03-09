@@ -23,7 +23,6 @@
 #include <QPainter>
 #include <QtMath>
 
-#include "common/clamp.h"
 #include "node/node.h"
 
 namespace olive {
@@ -73,7 +72,7 @@ void ColorWheelWidget::paintEvent(QPaintEvent *e)
 
         if (tri.hypotenuse <= radius) {
           Color managed = GetManagedColor(GetColorFromTriangle(tri));
-          QColor c = managed.toQColor();
+          QColor c = QtUtils::toQColor(managed);
 
           // Very basic antialiasing around the edges of the wheel
           qreal alpha = qMin(1.0, radius - tri.hypotenuse);
@@ -121,7 +120,7 @@ void ColorWheelWidget::SelectedColorChangedEvent(const Color &c, bool external)
 {
   if (external) {
     force_redraw_ = true;
-    val_ = clamp(c.value(), 0.0f, 1.0f);
+    val_ = std::clamp(c.value(), 0.0f, 1.0f);
   }
 }
 

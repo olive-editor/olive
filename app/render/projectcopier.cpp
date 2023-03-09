@@ -20,6 +20,8 @@
 
 #include "projectcopier.h"
 
+#include "node/group/group.h"
+
 namespace olive {
 
 ProjectCopier::ProjectCopier(QObject *parent) :
@@ -39,12 +41,13 @@ void ProjectCopier::SetProject(Project *project)
     copy_map_.clear();
     graph_update_queue_.clear();
 
-    disconnect(original_, &NodeGraph::NodeAdded, this, &ProjectCopier::QueueNodeAdd);
-    disconnect(original_, &NodeGraph::NodeRemoved, this, &ProjectCopier::QueueNodeRemove);
-    disconnect(original_, &NodeGraph::InputConnected, this, &ProjectCopier::QueueEdgeAdd);
-    disconnect(original_, &NodeGraph::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove);
-    disconnect(original_, &NodeGraph::ValueChanged, this, &ProjectCopier::QueueValueChange);
-    disconnect(original_, &NodeGraph::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange);
+    disconnect(original_, &Project::NodeAdded, this, &ProjectCopier::QueueNodeAdd);
+    disconnect(original_, &Project::NodeRemoved, this, &ProjectCopier::QueueNodeRemove);
+    disconnect(original_, &Project::InputConnected, this, &ProjectCopier::QueueEdgeAdd);
+    disconnect(original_, &Project::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove);
+    disconnect(original_, &Project::ValueChanged, this, &ProjectCopier::QueueValueChange);
+    disconnect(original_, &Project::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange);
+    disconnect(original_, &Project::SettingChanged, this, &ProjectCopier::QueueProjectSettingChange);
   }
 
   original_ = project;
@@ -66,17 +69,21 @@ void ProjectCopier::SetProject(Project *project)
       }
     }
 
+    // Copy project settings
+    Project::CopySettings(original_, copy_);
+
     // Ensure graph change value is just before the sync value
     UpdateGraphChangeValue();
     UpdateLastSyncedValue();
 
     // Connect signals for future node additions/deletions
-    connect(original_, &NodeGraph::NodeAdded, this, &ProjectCopier::QueueNodeAdd, Qt::DirectConnection);
-    connect(original_, &NodeGraph::NodeRemoved, this, &ProjectCopier::QueueNodeRemove, Qt::DirectConnection);
-    connect(original_, &NodeGraph::InputConnected, this, &ProjectCopier::QueueEdgeAdd, Qt::DirectConnection);
-    connect(original_, &NodeGraph::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove, Qt::DirectConnection);
-    connect(original_, &NodeGraph::ValueChanged, this, &ProjectCopier::QueueValueChange, Qt::DirectConnection);
-    connect(original_, &NodeGraph::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange, Qt::DirectConnection);
+    connect(original_, &Project::NodeAdded, this, &ProjectCopier::QueueNodeAdd, Qt::DirectConnection);
+    connect(original_, &Project::NodeRemoved, this, &ProjectCopier::QueueNodeRemove, Qt::DirectConnection);
+    connect(original_, &Project::InputConnected, this, &ProjectCopier::QueueEdgeAdd, Qt::DirectConnection);
+    connect(original_, &Project::InputDisconnected, this, &ProjectCopier::QueueEdgeRemove, Qt::DirectConnection);
+    connect(original_, &Project::ValueChanged, this, &ProjectCopier::QueueValueChange, Qt::DirectConnection);
+    connect(original_, &Project::InputValueHintChanged, this, &ProjectCopier::QueueValueHintChange, Qt::DirectConnection);
+    connect(original_, &Project::SettingChanged, this, &ProjectCopier::QueueProjectSettingChange, Qt::DirectConnection);
   }
 }
 
@@ -105,6 +112,9 @@ void ProjectCopier::ProcessUpdateQueue()
       break;
     case QueuedJob::kValueHintChanged:
       DoValueHintChange(job.input);
+      break;
+    case QueuedJob::kProjectSettingChanged:
+      DoProjectSettingChange(job.key, job.value);
       break;
     }
   }
@@ -198,6 +208,11 @@ void ProjectCopier::DoValueHintChange(const NodeInput &input)
   our_input->SetValueHintForInput(input.input(), hint, input.element());
 }
 
+void ProjectCopier::DoProjectSettingChange(const QString &key, const QString &value)
+{
+  copy_->SetSetting(key, value);
+}
+
 void ProjectCopier::InsertIntoCopyMap(Node *node, Node *copy)
 {
   // Insert into map
@@ -212,37 +227,51 @@ void ProjectCopier::InsertIntoCopyMap(Node *node, Node *copy)
 
 void ProjectCopier::QueueNodeAdd(Node *node)
 {
-  graph_update_queue_.push_back({QueuedJob::kNodeAdded, node, NodeInput(), nullptr});
+  graph_update_queue_.push_back({QueuedJob::kNodeAdded, node, NodeInput(), nullptr, QString(), QString()});
   UpdateGraphChangeValue();
 }
 
 void ProjectCopier::QueueNodeRemove(Node *node)
 {
-  graph_update_queue_.push_back({QueuedJob::kNodeRemoved, node, NodeInput(), nullptr});
+  graph_update_queue_.push_back({QueuedJob::kNodeRemoved, node, NodeInput(), nullptr, QString(), QString()});
   UpdateGraphChangeValue();
 }
 
 void ProjectCopier::QueueEdgeAdd(Node *output, const NodeInput &input)
 {
-  graph_update_queue_.push_back({QueuedJob::kEdgeAdded, nullptr, input, output});
+  graph_update_queue_.push_back({QueuedJob::kEdgeAdded, nullptr, input, output, QString(), QString()});
   UpdateGraphChangeValue();
 }
 
 void ProjectCopier::QueueEdgeRemove(Node *output, const NodeInput &input)
 {
-  graph_update_queue_.push_back({QueuedJob::kEdgeRemoved, nullptr, input, output});
+  graph_update_queue_.push_back({QueuedJob::kEdgeRemoved, nullptr, input, output, QString(), QString()});
   UpdateGraphChangeValue();
 }
 
 void ProjectCopier::QueueValueChange(const NodeInput &input)
 {
-  graph_update_queue_.push_back({QueuedJob::kValueChanged, nullptr, input, nullptr});
+  /*for (auto it = graph_update_queue_.begin(); it != graph_update_queue_.end(); ) {
+    if (it->type == QueuedJob::kValueChanged && it->input == input) {
+      it = graph_update_queue_.erase(it);
+    } else {
+      it++;
+    }
+  }*/
+
+  graph_update_queue_.push_back({QueuedJob::kValueChanged, nullptr, input, nullptr, QString(), QString()});
   UpdateGraphChangeValue();
 }
 
 void ProjectCopier::QueueValueHintChange(const NodeInput &input)
 {
-  graph_update_queue_.push_back({QueuedJob::kValueHintChanged, nullptr, input, nullptr});
+  graph_update_queue_.push_back({QueuedJob::kValueHintChanged, nullptr, input, nullptr, QString(), QString()});
+  UpdateGraphChangeValue();
+}
+
+void ProjectCopier::QueueProjectSettingChange(const QString &key, const QString &value)
+{
+  graph_update_queue_.push_back({QueuedJob::kProjectSettingChanged, nullptr, NodeInput(), nullptr, key, value});
   UpdateGraphChangeValue();
 }
 

@@ -28,11 +28,12 @@
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "node/group/group.h"
 #include "node/node.h"
+#include "node/nodeundo.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeparamviewarraywidget.h"
 #include "nodeparamviewtextedit.h"
-#include "nodeparamviewundo.h"
 #include "undo/undostack.h"
 #include "widget/bezier/bezierwidget.h"
 #include "widget/colorbutton/colorbutton.h"
@@ -85,6 +86,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
     case NodeValue::kSubtitleParams:
+    case NodeValue::kBinary:
     case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
@@ -247,6 +249,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kSubtitleParams:
+  case NodeValue::kBinary:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -425,6 +428,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kSubtitleParams:
+  case NodeValue::kBinary:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:

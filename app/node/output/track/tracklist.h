@@ -23,7 +23,6 @@
 
 #include <QObject>
 
-#include "node/graph.h"
 #include "node/output/track/track.h"
 #include "timeline/timelinecommon.h"
 
@@ -59,7 +58,7 @@ public:
     return track_cache_.size();
   }
 
-  NodeGraph* GetParentGraph() const;
+  Project* GetParentGraph() const;
 
   const QString &track_input() const;
   NodeInput track_input(int element) const;
@@ -68,8 +67,8 @@ public:
 
   int ArraySize() const;
 
-  void ArrayAppend(bool undoable = false);
-  void ArrayRemoveLast(bool undoable = false);
+  void ArrayAppend();
+  void ArrayRemoveLast();
 
   int GetArrayIndexFromCacheIndex(int index) const
   {

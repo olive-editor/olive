@@ -28,7 +28,7 @@
 #include "audio/audioprocessor.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "rendermanager.h"
 
 namespace olive {
@@ -48,7 +48,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
   TimeRange range = TimeRange(time, time + frame_length);
 
   NodeValueTable table;
-  if (Node* node = Node::ValueToPtr<Node>(ticket_->property("node"))) {
+  if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
     table = GenerateTable(node, range);
   }
 
@@ -70,8 +70,8 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
     frame_params.set_height(frame_size.height());
   }
 
-  VideoParams::Format frame_format = static_cast<VideoParams::Format>(ticket_->property("format").toInt());
-  if (frame_format != VideoParams::kFormatInvalid) {
+  PixelFormat frame_format = static_cast<PixelFormat::Format>(ticket_->property("format").toInt());
+  if (frame_format != PixelFormat::INVALID) {
     frame_params.set_format(frame_format);
   }
 
@@ -220,7 +220,7 @@ void RenderProcessor::Run()
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
     NodeValueTable table;
-    if (Node* node = Node::ValueToPtr<Node>(ticket_->property("node"))) {
+    if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
       table = GenerateTable(node, time);
     }
 
@@ -299,7 +299,7 @@ NodeValueDatabase RenderProcessor::GenerateDatabase(const Node *node, const Time
   NodeValueDatabase db = super::GenerateDatabase(node, range);
 
   if (const MultiCamNode *multicam = dynamic_cast<const MultiCamNode*>(node)) {
-    if (Node::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
+    if (QtUtils::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
       int sz = multicam->GetSourceCount();
       QVector<TexturePtr> multicam_tex(sz);
       for (int i=0; i<sz; i++) {
@@ -334,7 +334,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
   // to optimize such a situation
   VideoParams stream_data = stream->video_params();
 
-  ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+  ColorManager* color_manager = QtUtils::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
 
   QString using_colorspace = stream_data.colorspace();
 
@@ -561,7 +561,7 @@ void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr
     return;
   }
 
-  ColorManager* color_manager = Node::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
+  ColorManager* color_manager = QtUtils::ValueToPtr<ColorManager>(ticket_->property("colormanager"));
   ColorProcessorPtr cp = ColorProcessor::Create(color_manager, input_cs, color_manager->GetReferenceColorSpace());
 
   ColorTransformJob ctj;

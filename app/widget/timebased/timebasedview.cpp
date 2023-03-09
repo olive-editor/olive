@@ -25,7 +25,6 @@
 #include <QScrollBar>
 #include <QTimer>
 
-#include "common/timecodefunctions.h"
 #include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
@@ -134,6 +133,8 @@ void TimeBasedView::ZoomIntoCursorPosition(QWheelEvent *event, double scale_mult
 
 void TimeBasedView::SetYScale(const double &y_scale)
 {
+  Q_ASSERT(y_scale > 0);
+
   y_scale_ = y_scale;
 
   if (y_axis_enabled_) {
@@ -154,6 +155,16 @@ void TimeBasedView::SetViewerNode(ViewerOutput *v)
   if (viewer_) {
     connect(viewer_, &ViewerOutput::PlayheadChanged, viewport(), static_cast<void(QWidget::*)()>(&TimeBasedView::update));
   }
+}
+
+QPointF TimeBasedView::ScalePoint(const QPointF &p) const
+{
+  return QPointF(p.x() * GetScale(), p.y() * GetYScale());
+}
+
+QPointF TimeBasedView::UnscalePoint(const QPointF &p) const
+{
+  return QPointF(p.x() / GetScale(), p.y() / GetYScale());
 }
 
 void TimeBasedView::drawForeground(QPainter *painter, const QRectF &rect)

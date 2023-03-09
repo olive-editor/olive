@@ -23,9 +23,9 @@
 #include "node/block/transition/crossdissolve/crossdissolvetransition.h"
 #include "node/block/transition/transition.h"
 #include "node/factory.h"
+#include "node/nodeundo.h"
+#include "timeline/timelineundopointer.h"
 #include "transition.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/undo/timelineundopointer.h"
 
 namespace olive {
 
@@ -65,11 +65,11 @@ void TransitionTool::MousePress(TimelineViewMouseEvent *event)
   ghost_->SetIn(transition_start_point);
   ghost_->SetOut(transition_start_point);
   ghost_->SetMode(trim_mode);
-  ghost_->SetData(TimelineViewGhostItem::kAttachedBlock, Node::PtrToValue(primary));
+  ghost_->SetData(TimelineViewGhostItem::kAttachedBlock, QtUtils::PtrToValue(primary));
 
   dual_transition_ = (secondary);
   if (secondary)
-    ghost_->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(secondary));
+    ghost_->SetData(TimelineViewGhostItem::kReferenceBlock, QtUtils::PtrToValue(secondary));
 
   parent()->AddGhost(ghost_);
 
@@ -110,7 +110,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
       MultiUndoCommand* command = new MultiUndoCommand();
 
       // Place transition in place
-      command->add_child(new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
+      command->add_child(new NodeAddCommand(parent()->GetConnectedNode()->parent(),
                                             transition));
 
       command->add_child(new NodeSetPositionCommand(transition, transition, QPointF(0, 0)));
@@ -122,10 +122,10 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 
       if (dual_transition_) {
         // Block mouse is hovering over
-        Block* active_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
+        Block* active_block = QtUtils::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
 
         // Block mouse is next to
-        Block* friend_block = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kReferenceBlock));
+        Block* friend_block = QtUtils::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kReferenceBlock));
 
         // Use ghost mode to determine which block is which
         Block* out_block = (ghost_->GetMode() == Timeline::kTrimIn) ? friend_block : active_block;
@@ -141,7 +141,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(new NodeSetPositionCommand(out_block, transition, QPointF(-1, -0.5)));
         command->add_child(new NodeSetPositionCommand(in_block, transition, QPointF(-1, 0.5)));
       } else {
-        Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
+        Block* block_to_transition = QtUtils::ValueToPtr<Block>(ghost_->GetData(TimelineViewGhostItem::kAttachedBlock));
         QString transition_input_to_connect;
 
         if (ghost_->GetMode() == Timeline::kTrimIn) {

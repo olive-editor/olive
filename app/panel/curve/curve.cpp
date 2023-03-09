@@ -22,11 +22,11 @@
 
 namespace olive {
 
-CurvePanel::CurvePanel(QWidget *parent) :
-  TimeBasedPanel(QStringLiteral("CurvePanel"), parent)
+CurvePanel::CurvePanel() :
+  TimeBasedPanel(QStringLiteral("CurvePanel"))
 {
   // Create main widget and set it
-  SetTimeBasedWidget(new CurveWidget());
+  SetTimeBasedWidget(new CurveWidget(this));
 
   // Set strings
   Retranslate();

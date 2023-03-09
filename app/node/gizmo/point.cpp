@@ -47,7 +47,7 @@ void PointGizmo::Draw(QPainter *p) const
   QVariant color = this->property("color");
 
   if (shape_ != kAnchorPoint) {
-    p->setPen(Qt::NoPen);
+    p->setPen(QPen(Qt::black, 0));
     p->setBrush(Qt::white);
   }
 

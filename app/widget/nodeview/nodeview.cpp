@@ -28,11 +28,11 @@
 #include <QScrollBar>
 #include <QToolTip>
 
-#include "nodeviewundo.h"
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
 #include "node/group/group.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "node/traverser.h"
 #include "ui/icons/icons.h"
@@ -225,7 +225,7 @@ void NodeView::CopySelected(bool cut)
   QString copy_str;
   QXmlStreamWriter writer(&copy_str);
 
-  ProjectSerializer::SaveData sdata(selected_nodes_.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes_);
 
   ProjectSerializer::SerializedProperties properties;
@@ -244,7 +244,7 @@ void NodeView::CopySelected(bool cut)
 
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Save(&writer, sdata, QStringLiteral("nodes"));
+  ProjectSerializer::Save(&writer, sdata);
 
   Core::CopyStringToClipboard(copy_str);
 
@@ -259,8 +259,8 @@ void NodeView::Paste()
     return;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  if (res.GetLoadData().nodes.isEmpty()) {
     return;
   }
 
@@ -274,12 +274,10 @@ void NodeView::Paste()
     pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
     pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
 
-    qDebug() << it.key() << pos.position;
-
     map.insert(it.key(), pos);
   }
 
-  PostPaste(res.GetLoadedNodes(), map);
+  PostPaste(res.GetLoadData().nodes, map);
 }
 
 void NodeView::Duplicate()
@@ -1094,6 +1092,9 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
       // Add node to the same graph that the context is in
       if (ai.node->parent() != select_context->parent()) {
         add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
+        if (ai.node->IsItem() && !ai.node->folder()) {
+          add_command->add_child(new FolderAddChild(select_context->parent()->root(), ai.node));
+        }
       }
 
       // Add node to the context

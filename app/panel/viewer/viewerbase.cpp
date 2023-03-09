@@ -26,8 +26,8 @@ namespace olive {
 
 #define super TimeBasedPanel
 
-ViewerPanelBase::ViewerPanelBase(const QString& object_name, QWidget *parent) :
-  super(object_name, parent)
+ViewerPanelBase::ViewerPanelBase(const QString& object_name) :
+  super(object_name)
 {
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &ViewerPanelBase::FocusedPanelChanged);
 }

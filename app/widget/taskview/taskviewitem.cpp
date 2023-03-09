@@ -23,7 +23,6 @@
 #include <QDateTime>
 #include <QVBoxLayout>
 
-#include "common/timecodefunctions.h"
 #include "ui/icons/icons.h"
 
 namespace olive {

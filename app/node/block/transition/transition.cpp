@@ -20,7 +20,6 @@
 
 #include "transition.h"
 
-#include "common/clamp.h"
 #include "node/block/clip/clip.h"
 #include "node/output/track/track.h"
 #include "widget/slider/rationalslider.h"
@@ -48,7 +47,7 @@ TransitionBlock::TransitionBlock() :
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
 
-  SetFlags(GetFlags() & ~kDontShowInParamView);
+  SetFlag(kDontShowInParamView, false);
 }
 
 void TransitionBlock::Retranslate()
@@ -126,7 +125,7 @@ double TransitionBlock::GetOutProgress(const double &time) const
     return 0;
   }
 
-  return clamp(1.0 - (GetInternalTransitionTime(time) / out_offset().toDouble()), 0.0, 1.0);
+  return std::clamp(1.0 - (GetInternalTransitionTime(time) / out_offset().toDouble()), 0.0, 1.0);
 }
 
 double TransitionBlock::GetInProgress(const double &time) const
@@ -135,7 +134,7 @@ double TransitionBlock::GetInProgress(const double &time) const
     return 0;
   }
 
-  return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
+  return std::clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
 double TransitionBlock::GetInternalTransitionTime(const double &time) const
@@ -245,7 +244,7 @@ double TransitionBlock::TransformCurve(double linear) const
     linear *= linear;
     break;
   case kLogarithmic:
-    linear = qSqrt(linear);
+    linear = std::sqrt(linear);
     break;
   }
 

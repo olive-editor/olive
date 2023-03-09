@@ -25,7 +25,6 @@
 #include <QString>
 #include <QVariant>
 
-#include "common/timecodefunctions.h"
 #include "node/value.h"
 
 namespace olive {

@@ -20,11 +20,10 @@
 
 #include "textv2.h"
 
+#include <olive/core/core.h>
 #include <QAbstractTextDocumentLayout>
 #include <QDateTime>
 #include <QTextDocument>
-
-#include "common/cpuoptimize.h"
 
 namespace olive {
 
@@ -57,7 +56,7 @@ TextGeneratorV2::TextGeneratorV2()
   SetStandardValue(kColorInput, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
-  SetFlags(kDontShowInCreateMenu);
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString TextGeneratorV2::Name() const
@@ -97,7 +96,7 @@ void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &global
   if (!value[kTextInput].toString().isEmpty()) {
     GenerateJob job(value);
     auto text_params = globals.vparams();
-    text_params.set_format(VideoParams::kFormatFloat32);
+    text_params.set_format(PixelFormat::F32);
     table->Push(NodeValue::kTexture, Texture::Job(text_params, job), this);
   }
 }

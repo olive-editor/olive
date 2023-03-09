@@ -21,12 +21,14 @@
 #ifndef RATIONALSLIDER_H
 #define RATIONALSLIDER_H
 
+#include <olive/core/core.h>
 #include <QMouseEvent>
 
 #include "base/decimalsliderbase.h"
-#include "common/rational.h"
 
 namespace olive {
+
+using namespace core;
 
  /**
  * @brief A olive::rational based slider

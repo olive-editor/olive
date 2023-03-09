@@ -31,7 +31,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-#include "common/clamp.h"
 #include "common/lerp.h"
 #include "common/qtutils.h"
 #include "config/config.h"

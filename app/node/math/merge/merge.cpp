@@ -35,7 +35,7 @@ MergeNode::MergeNode()
 
   AddInput(kBlendIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
 
-  SetFlags(kDontShowInParamView);
+  SetFlag(kDontShowInParamView);
 }
 
 QString MergeNode::Name() const

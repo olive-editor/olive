@@ -31,9 +31,7 @@ public:
   ProjectSerializer220403() = default;
 
 protected:
-  virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const override;
-
-  virtual void Save(QXmlStreamWriter *writer, const SaveData &data, void *reserved) const override;
+  virtual LoadData Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const override;
 
   virtual uint Version() const override
   {
@@ -76,49 +74,31 @@ private:
 
   void LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const;
 
-  void SaveNode(Node *node, QXmlStreamWriter *writer) const;
+  void LoadColorManager(QXmlStreamReader* reader, Project *project) const;
+
+  void LoadProjectSettings(QXmlStreamReader* reader, Project *project) const;
 
   void LoadInput(Node *node, QXmlStreamReader* reader, XMLNodeData &xml_node_data) const;
 
-  void SaveInput(Node *node, QXmlStreamWriter* writer, const QString& id) const;
-
   void LoadImmediate(QXmlStreamReader *reader, Node *node, const QString& input, int element, XMLNodeData& xml_node_data) const;
-
-  void SaveImmediate(QXmlStreamWriter *writer, Node *node, const QString &input, int element) const;
 
   void LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, NodeValue::Type data_type) const;
 
-  void SaveKeyframe(QXmlStreamWriter *writer, NodeKeyframe *key, NodeValue::Type data_type) const;
-
   bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos) const;
-
-  void SavePosition(QXmlStreamWriter *writer, Node *node, const Node::Position &pos) const;
 
   void PostConnect(const XMLNodeData &xml_node_data) const;
 
   void LoadNodeCustom(QXmlStreamReader *reader, Node *node, XMLNodeData &xml_node_data) const;
 
-  void SaveNodeCustom(QXmlStreamWriter *writer, Node *node) const;
-
   void LoadTimelinePoints(QXmlStreamReader *reader, ViewerOutput *viewer) const;
-
-  void SaveTimelinePoints(QXmlStreamWriter *writer, ViewerOutput *viewer) const;
 
   void LoadMarker(QXmlStreamReader *reader, TimelineMarker *marker) const;
 
-  void SaveMarker(QXmlStreamWriter *writer, TimelineMarker *marker) const;
-
   void LoadWorkArea(QXmlStreamReader *reader, TimelineWorkArea *workarea) const;
-
-  void SaveWorkArea(QXmlStreamWriter *writer, TimelineWorkArea *workarea) const;
 
   void LoadMarkerList(QXmlStreamReader *reader, TimelineMarkerList *markers) const;
 
-  void SaveMarkerList(QXmlStreamWriter *writer, TimelineMarkerList *markers) const;
-
   void LoadValueHint(Node::ValueHint *hint, QXmlStreamReader *reader) const;
-
-  void SaveValueHint(const Node::ValueHint *hint, QXmlStreamWriter *writer) const;
 
 };
 

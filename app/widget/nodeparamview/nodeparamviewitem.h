@@ -104,6 +104,9 @@ private:
     NodeParamViewArrayButton* append_btn;
   };
 
+  void SetTimeTargetOnInputUI(const InputUI &ui);
+  void SetTimebaseOnInputUI(const InputUI &ui);
+
   Node *node_;
 
   QHash<NodeInputPair, ArrayUI> array_ui_;
@@ -111,6 +114,8 @@ private:
   QHash<NodeInputPair, CollapseButton*> array_collapse_buttons_;
 
   rational timebase_;
+
+  ViewerOutput *time_target_;
 
   NodeParamViewCheckBoxBehavior create_checkboxes_;
 
@@ -165,6 +170,8 @@ public:
 
   void SetTimeTarget(ViewerOutput* target)
   {
+    time_target_ = target;
+
     body_->SetTimeTarget(target);
     time_target_ = target;
   }
@@ -195,7 +202,7 @@ public:
 
   void SetInputChecked(const NodeInput &input, bool e);
 
-  const KeyframeView::NodeConnections &GetKeyframeConnections() const
+  KeyframeView::NodeConnections &GetKeyframeConnections()
   {
     return keyframe_connections_;
   }
@@ -220,6 +227,8 @@ signals:
 
   void RequestEditTextInViewer();
 
+  void InputArraySizeChanged(const QString &input, int old_size, int new_size);
+
 protected slots:
   virtual void Retranslate() override;
 
@@ -237,6 +246,8 @@ private:
 
   Node *ctx_;
   ViewerOutput * time_target_;
+
+  ViewerOutput *time_target_;
 
   rational timebase_;
 

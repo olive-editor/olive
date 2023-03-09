@@ -35,6 +35,7 @@ const QVector<NodeValue::Type> ValueNode::kSupportedTypes = {
   NodeValue::kText,
   NodeValue::kMatrix,
   NodeValue::kFont,
+  NodeValue::kBoolean,
 };
 
 #define super Node

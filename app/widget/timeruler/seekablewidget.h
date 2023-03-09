@@ -24,7 +24,6 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 
-#include "common/rational.h"
 #include "widget/menu/menu.h"
 #include "widget/timebased/timebasedviewselectionmanager.h"
 
@@ -78,6 +77,8 @@ public:
   virtual void SelectionManagerSelectEvent(void *obj) override;
   virtual void SelectionManagerDeselectEvent(void *obj) override;
 
+  virtual void CatchUpScrollEvent() override;
+
 public slots:
   void SetScroll(int i)
   {
@@ -87,6 +88,8 @@ public slots:
   virtual void TimebaseChangedEvent(const rational &) override;
 
 signals:
+  void DragMoved(int x, int y);
+
   void DragReleased();
 
 protected:

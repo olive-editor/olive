@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2022 Olive Team
+# Copyright (C) 2023 Olive Studios LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 project(olive-editor VERSION 0.2.0 LANGUAGES CXX)
 
+option(BUILD_QT6 "Build with Qt 6 over 5 (experimental)" OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 option(BUILD_TESTS "Build unit tests" OFF)
 option(USE_WERROR "Error on compile warning" OFF)
@@ -94,6 +95,10 @@ find_package(OpenEXR REQUIRED)
 list(APPEND OLIVE_LIBRARIES ${OPENEXR_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
 
+# Link Olive
+list(APPEND OLIVE_LIBRARIES olivecore)
+list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ext/core/include)
+
 # Link Qt
 set(QT_LIBRARIES
   Core
@@ -106,10 +111,14 @@ set(QT_LIBRARIES
 if (UNIX AND NOT APPLE)
   list(APPEND QT_LIBRARIES DBus)
 endif()
+if (BUILD_QT6)
+  set(QT_NAME Qt6)
+else()
+  set(QT_NAME Qt5)
+endif()
 find_package(QT
   NAMES
-    Qt6
-    Qt5
+    ${QT_NAME}
   REQUIRED
   COMPONENTS
     ${QT_LIBRARIES}
@@ -142,7 +151,17 @@ if (${QT_VERSION_MAJOR} EQUAL "6")
   list(APPEND OLIVE_LIBRARIES
     Qt${QT_VERSION_MAJOR}::OpenGLWidgets
   )
+
+  # Link KDDockWidgets
+  #find_package(KDDockWidgets-qt6 CONFIG REQUIRED)
+else()
+  # Link KDDockWidgets
+  #find_package(KDDockWidgets CONFIG REQUIRED)
 endif()
+
+list(APPEND OLIVE_LIBRARIES
+  KDAB::kddockwidgets
+)
 
 # Link FFmpeg
 find_package(FFMPEG 3.0 REQUIRED
@@ -233,9 +252,10 @@ endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext)
 
+add_subdirectory(ext)
 add_subdirectory(app)
 
 if (BUILD_TESTS)
-enable_testing()
-add_subdirectory(tests)
+  enable_testing()
+  add_subdirectory(tests)
 endif()

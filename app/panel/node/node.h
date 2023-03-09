@@ -21,8 +21,8 @@
 #ifndef NODEPANEL_H
 #define NODEPANEL_H
 
+#include "panel/panel.h"
 #include "widget/nodeview/nodewidget.h"
-#include "widget/panel/panel.h"
 
 namespace olive {
 
@@ -33,7 +33,7 @@ class NodePanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  NodePanel(QWidget* parent);
+  NodePanel();
 
   NodeWidget *GetNodeWidget() const
   {

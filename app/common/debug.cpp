@@ -45,7 +45,8 @@ void DebugHandler(QtMsgType type, const QMessageLogContext &context, const QStri
     break;
   }
 
-  fprintf(stderr, "[%s] %s (%s:%u)\n", msg_type, localMsg.constData(), context.function, context.line);
+  //fprintf(stderr, "[%s] %s (%s:%u)\n", msg_type, localMsg.constData(), context.function, context.line);
+  fprintf(stderr, "[%s] %s\n", msg_type, localMsg.constData());
 
 #ifdef Q_OS_WINDOWS
   // Windows still seems to buffer stderr and we want to see debug messages immediately, so here we make sure each line

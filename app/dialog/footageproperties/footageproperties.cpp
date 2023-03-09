@@ -32,9 +32,9 @@
 #include <QSpinBox>
 
 #include "core.h"
+#include "node/nodeundo.h"
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 

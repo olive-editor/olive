@@ -21,7 +21,7 @@
 #ifndef PIXELSAMPLERPANEL_H
 #define PIXELSAMPLERPANEL_H
 
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 #include "widget/pixelsampler/pixelsampler.h"
 
 namespace olive {
@@ -30,7 +30,7 @@ class PixelSamplerPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  PixelSamplerPanel(QWidget* parent = nullptr);
+  PixelSamplerPanel();
 
 public slots:
   void SetValues(const Color& reference, const Color& display);

@@ -25,10 +25,10 @@
 
 namespace olive {
 
-TimelinePanel::TimelinePanel(QWidget *parent) :
-  TimeBasedPanel(QStringLiteral("TimelinePanel"), parent)
+TimelinePanel::TimelinePanel(const QString &name) :
+  TimeBasedPanel(name)
 {
-  TimelineWidget* tw = new TimelineWidget();
+  TimelineWidget* tw = new TimelineWidget(this);
   SetTimeBasedWidget(tw);
 
   Retranslate();
@@ -44,14 +44,18 @@ void TimelinePanel::SplitAtPlayhead()
   timeline_widget()->SplitAtPlayhead();
 }
 
-QByteArray TimelinePanel::SaveSplitterState() const
+void TimelinePanel::LoadData(const Info &info)
 {
-  return timeline_widget()->SaveSplitterState();
+  timeline_widget()->RestoreSplitterState(QByteArray::fromBase64(info.at("splitter").toUtf8()));
 }
 
-void TimelinePanel::RestoreSplitterState(const QByteArray &state)
+PanelWidget::Info TimelinePanel::SaveData() const
 {
-  timeline_widget()->RestoreSplitterState(state);
+  Info i;
+
+  i["splitter"] = timeline_widget()->SaveSplitterState().toBase64();
+
+  return i;
 }
 
 void TimelinePanel::SelectAll()

@@ -29,6 +29,7 @@
 #include "node/factory.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
+#include "widget/menu/menushared.h"
 
 namespace olive {
 
@@ -191,12 +192,7 @@ void Toolbar::AddButtonClicked()
 {
   Menu m(this);
 
-  for (int i=0;i<Tool::kAddableCount;i++) {
-    QAction* action = m.addAction(Tool::GetAddableObjectName(static_cast<Tool::AddableObject>(i)));
-    action->setData(i);
-  }
-
-  connect(&m, &QMenu::triggered, this, &Toolbar::AddMenuItemTriggered);
+  MenuShared::instance()->AddItemsForAddableObjectsMenu(&m);
 
   m.exec(QCursor::pos());
 }
@@ -210,11 +206,6 @@ void Toolbar::TransitionButtonClicked()
   m->exec(QCursor::pos());
 
   delete m;
-}
-
-void Toolbar::AddMenuItemTriggered(QAction* a)
-{
-  emit AddableObjectChanged(static_cast<Tool::AddableObject>(a->data().toInt()));
 }
 
 void Toolbar::TransitionMenuItemTriggered(QAction *a)

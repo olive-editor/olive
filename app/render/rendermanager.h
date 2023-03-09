@@ -26,9 +26,10 @@
 #include "config/config.h"
 #include "colorprocessorcache.h"
 #include "dialog/rendercancel/rendercancel.h"
-#include "node/graph.h"
 #include "node/output/viewer/viewer.h"
+#include "node/project.h"
 #include "node/traverser.h"
+#include "render/previewautocacher.h"
 #include "render/renderer.h"
 #include "render/renderticket.h"
 #include "rendercache.h"
@@ -112,7 +113,7 @@ public:
       color_manager = colorman;
       use_cache = false;
       return_type = kFrame;
-      force_format = VideoParams::kFormatInvalid;
+      force_format = PixelFormat::INVALID;
       force_color_output = nullptr;
       force_size = QSize(0, 0);
       force_channel_count = 0;
@@ -144,7 +145,7 @@ public:
     QSize force_size;
     int force_channel_count;
     QMatrix4x4 force_matrix;
-    VideoParams::Format force_format;
+    PixelFormat force_format;
     ColorProcessorPtr force_color_output;
   };
 
@@ -200,6 +201,16 @@ public:
     return backend_;
   }
 
+  PreviewAutoCacher *GetCacher() const
+  {
+    return auto_cacher_;
+  }
+
+  void SetProject(Project *p)
+  {
+    auto_cacher_->SetProject(p);
+  }
+
 public slots:
   void SetAggressiveGarbageCollection(bool enabled);
 
@@ -237,6 +248,8 @@ private:
   size_t last_waveform_thread_;
 
   std::list<RenderThread *> render_threads_;
+
+  PreviewAutoCacher *auto_cacher_;
 
 private slots:
   void ClearOldDecoders();

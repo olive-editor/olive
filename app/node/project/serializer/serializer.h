@@ -21,10 +21,11 @@
 #ifndef PROJECTSERIALIZER_H
 #define PROJECTSERIALIZER_H
 
-#include <QIODevice>
+#include <vector>
 
 #include "common/define.h"
-#include "node/project/project.h"
+#include "node/project.h"
+#include "typeserializer.h"
 
 namespace olive {
 
@@ -37,6 +38,14 @@ namespace olive {
 class ProjectSerializer
 {
 public:
+  enum LoadType
+  {
+    kProject,
+    kOnlyNodes,
+    kOnlyMarkers,
+    kOnlyKeyframes
+  };
+
   ProjectSerializer() = default;
 
   virtual ~ProjectSerializer(){}
@@ -68,6 +77,12 @@ public:
 
     SerializedKeyframes keyframes;
 
+    MainWindowLayoutInfo layout;
+
+    QVector<Node*> nodes;
+
+    Node::OutputConnections promised_connections;
+
   };
 
   class Result
@@ -90,10 +105,6 @@ public:
 
     void SetLoadData(const LoadData &p) { load_data_ = p; }
 
-    const QVector<Node*> &GetLoadedNodes() const { return loaded_nodes_; }
-
-    void SetLoadedNodes(const QVector<Node*> &n) { loaded_nodes_ = n; }
-
   private:
     ResultCode code_;
 
@@ -101,28 +112,28 @@ public:
 
     LoadData load_data_;
 
-    QVector<Node*> loaded_nodes_;
-
   };
 
   class SaveData
   {
   public:
-    SaveData(Project *project = nullptr, const QString &filename = QString())
+    SaveData(LoadType type, Project *project = nullptr, const QString &filename = QString())
     {
+      type_ = type;
       project_ = project;
       filename_ = filename;
     }
 
-    Project *GetProject() const
-    {
-      return project_;
-    }
+    Project *GetProject() const { return project_; }
+    void SetProject(Project *p) { project_ = p; }
 
-    const QString &GetFilename() const
-    {
-      return filename_;
-    }
+    const QString &GetFilename() const { return filename_; }
+    void SetFilename(const QString &s) { filename_ = s; }
+
+    LoadType type() const { return type_; }
+
+    const MainWindowLayoutInfo &GetLayout() const { return layout_; }
+    void SetLayout(const MainWindowLayoutInfo &layout) { layout_ = layout; }
 
     const QVector<Node*> &GetOnlySerializeNodes() const { return only_serialize_nodes_; }
     void SetOnlySerializeNodes(const QVector<Node*> &only) { only_serialize_nodes_ = only; }
@@ -138,9 +149,13 @@ public:
     void SetProperties(const SerializedProperties &p) { properties_ = p; }
 
   private:
+    LoadType type_;
+
     Project *project_;
 
     QString filename_;
+
+    MainWindowLayoutInfo layout_;
 
     QVector<Node*> only_serialize_nodes_;
 
@@ -156,16 +171,18 @@ public:
 
   static void Destroy();
 
-  static Result Load(Project *project, const QString &filename, const QString &type);
-  static Result Load(Project *project, QXmlStreamReader *read_device, const QString &type);
-  static Result Paste(const QString &type);
+  static Result Load(Project *project, const QString &filename, LoadType load_type);
+  static Result Load(Project *project, QXmlStreamReader *read_device, LoadType load_type);
+  static Result Paste(LoadType load_type, Project *project = nullptr);
 
-  static Result Save(const SaveData &data, const QString &type, bool compress);
-  static Result Save(QXmlStreamWriter *write_device, const SaveData &data, const QString &type);
-  static Result Copy(const SaveData &data, const QString &type);
+  static Result Save(const SaveData &data, bool compress);
+  static Result Save(QXmlStreamWriter *write_device, const SaveData &data);
+  static Result Copy(const SaveData &data);
+
+  static bool CheckCompressedID(QFile *file);
 
 protected:
-  virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const = 0;
+  virtual LoadData Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const = 0;
 
   virtual void Save(QXmlStreamWriter *writer, const SaveData &data, void *reserved) const {}
 
@@ -174,7 +191,7 @@ protected:
   bool IsCancelled() const;
 
 private:
-  static Result LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader);
+  static Result LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader, LoadType load_type);
 
   static QVector<ProjectSerializer*> instances_;
 

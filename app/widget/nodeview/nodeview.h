@@ -25,7 +25,7 @@
 #include <QTimer>
 
 #include "core.h"
-#include "node/graph.h"
+#include "node/group/group.h"
 #include "nodeviewedge.h"
 #include "nodeviewcontext.h"
 #include "nodeviewminimap.h"

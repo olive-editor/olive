@@ -20,7 +20,6 @@
 
 #include "export.h"
 
-#include "common/timecodefunctions.h"
 #include "node/color/colormanager/colormanager.h"
 
 namespace olive {
@@ -35,7 +34,7 @@ ExportTask::ExportTask(ViewerOutput *viewer_node,
   copier_->SetProject(viewer_node->project());
 
   set_viewer(copier_->GetCopy(viewer_node));
-  color_manager_ = copier_->GetCopy(color_manager);
+  color_manager_ = copier_->GetCopiedProject()->color_manager();
 
   // Adjust video params to have no divider
   VideoParams vp = viewer_node->GetVideoParams();
@@ -52,8 +51,6 @@ ExportTask::ExportTask(ViewerOutput *viewer_node,
 
 bool ExportTask::Run()
 {
-  TimeRange range;
-
   // For safety, if we're overwriting, we save to a temporary filename and then only overwrite it
   // at the end
   QString real_filename = params_.filename();
@@ -112,10 +109,10 @@ bool ExportTask::Run()
 
   if (params_.has_custom_range()) {
     // Render custom range only
-    range = params_.custom_range();
+    export_range_ = params_.custom_range();
   } else {
     // Render entire sequence
-    range = TimeRange(0, viewer()->GetLength());
+    export_range_ = TimeRange(0, viewer()->GetLength());
   }
 
   frame_time_ = 0;
@@ -153,15 +150,19 @@ bool ExportTask::Run()
   TimeRange subtitle_range;
 
   if (params_.video_enabled()) {
-    video_range = {range};
+    if (export_range_.in() > 0) {
+      export_range_.set_in(Timecode::snap_time_to_timebase(export_range_.in(), video_params().frame_rate_as_time_base()));
+    }
+
+    video_range = {export_range_};
   }
 
   if (params_.audio_enabled()) {
-    audio_range = {range};
+    audio_range = {export_range_};
   }
 
   if (subtitles_enabled) {
-    subtitle_range = range;
+    subtitle_range = export_range_;
   }
 
   Render(color_manager_, video_range, audio_range, subtitle_range, RenderMode::kOnline, nullptr,
@@ -202,11 +203,7 @@ bool ExportTask::Run()
 
 bool ExportTask::FrameDownloaded(FramePtr f, const rational &time)
 {
-  rational actual_time = time;
-
-  if (params_.has_custom_range()) {
-    actual_time -= params_.custom_range().in();
-  }
+  rational actual_time = time - export_range_.in();
 
   time_map_.insert(actual_time, f);
 
@@ -234,11 +231,7 @@ bool ExportTask::FrameDownloaded(FramePtr f, const rational &time)
 
 bool ExportTask::AudioDownloaded(const TimeRange &range, const SampleBuffer &samples)
 {
-  TimeRange adjusted_range = range;
-
-  if (params_.has_custom_range()) {
-    adjusted_range -= params_.custom_range().in();
-  }
+  TimeRange adjusted_range = range - export_range_.in();
 
   if (adjusted_range.in() == audio_time_) {
     if (!WriteAudioLoop(adjusted_range, samples)) {

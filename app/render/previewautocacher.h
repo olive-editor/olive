@@ -25,15 +25,13 @@
 
 #include "config/config.h"
 #include "node/color/colormanager/colormanager.h"
-#include "node/graph.h"
 #include "node/group/group.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
-#include "node/project/project.h"
-#include "render/audioparams.h"
+#include "node/project.h"
 #include "render/projectcopier.h"
 #include "render/renderjobtracker.h"
-#include "render/rendermanager.h"
+#include "render/renderticket.h"
 
 namespace olive {
 
@@ -50,17 +48,17 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
-  RenderTicketPtr GetSingleFrame(Node *n, const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(ViewerOutput *viewer, const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(Node *n, ViewerOutput *viewer, const rational& t, bool dry = false);
 
-  RenderTicketPtr GetRangeOfAudio(TimeRange range);
+  RenderTicketPtr GetRangeOfAudio(ViewerOutput *viewer, TimeRange range);
 
   void ClearSingleFrameRenders();
 
   /**
    * @brief Set the viewer node to auto-cache
    */
-  void SetViewerNode(ViewerOutput *viewer_node);
+  void SetProject(Project *project);
 
   /**
    * @brief Force a certain range to be cached
@@ -69,7 +67,7 @@ public:
    * times they may want certain non-playhead-related time ranges to be cached (i.e. entire sequence
    * or in/out range), so that can be set here.
    */
-  void ForceCacheRange(const TimeRange& range);
+  void ForceCacheRange(ViewerOutput *context, const TimeRange& range);
 
   /**
    * @brief Updates the range of frames to auto-cache
@@ -110,9 +108,9 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache *cache, bool dry);
+  RenderTicketWatcher *RenderFrame(Node *node, ViewerOutput *context, const rational &time, PlaybackCache *cache, bool dry);
 
-  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache *cache);
+  RenderTicketPtr RenderAudio(Node *node, ViewerOutput *context, const TimeRange &range, PlaybackCache *cache);
 
   void ConnectToNodeCache(Node *node);
   void DisconnectFromNodeCache(Node *node);
@@ -120,13 +118,13 @@ private:
   void CancelQueuedSingleFrameRender();
 
   void StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker);
-  void StartCachingVideoRange(PlaybackCache *cache, const TimeRange &range);
-  void StartCachingAudioRange(PlaybackCache *cache, const TimeRange &range);
+  void StartCachingVideoRange(ViewerOutput *context, PlaybackCache *cache, const TimeRange &range);
+  void StartCachingAudioRange(ViewerOutput *context, PlaybackCache *cache, const TimeRange &range);
 
-  void VideoInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
-  void AudioInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
+  void VideoInvalidatedFromNode(ViewerOutput *context, PlaybackCache *cache, const olive::TimeRange &range);
+  void AudioInvalidatedFromNode(ViewerOutput *context, PlaybackCache *cache, const olive::TimeRange &range);
 
-  ViewerOutput* viewer_node_;
+  Project* project_;
 
   ProjectCopier *copier_;
 
@@ -148,11 +146,11 @@ private:
   QVector<RenderTicketWatcher*> running_video_tasks_;
   QVector<RenderTicketWatcher*> running_audio_tasks_;
 
-  ViewerOutput* copied_viewer_node_;
   ColorManager* copied_color_manager_;
 
   struct VideoJob {
     Node *node;
+    ViewerOutput *context;
     PlaybackCache *cache;
     TimeRange range;
     TimeRangeListFrameIterator iterator;
@@ -164,6 +162,7 @@ private:
 
   struct AudioJob {
     Node *node;
+    ViewerOutput *context;
     PlaybackCache *cache;
     TimeRange range;
   };
@@ -189,12 +188,12 @@ private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidatedFromCache(const olive::TimeRange &range);
+  void VideoInvalidatedFromCache(ViewerOutput *context, const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
-  void AudioInvalidatedFromCache(const olive::TimeRange &range);
+  void AudioInvalidatedFromCache(ViewerOutput *context, const olive::TimeRange &range);
 
   void CancelForCache();
 

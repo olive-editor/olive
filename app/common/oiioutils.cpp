@@ -20,6 +20,8 @@
 
 #include "oiioutils.h"
 
+#include <QDebug>
+
 namespace olive {
 
 void OIIOUtils::FrameToBuffer(const Frame* frame, OIIO::ImageBuf *buf)
@@ -45,7 +47,7 @@ rational OIIOUtils::GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec &spec)
   return rational::fromDouble(spec.get_float_attribute("PixelAspectRatio", 1));
 }
 
-VideoParams::Format OIIOUtils::GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYPE type)
+PixelFormat OIIOUtils::GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYPE type)
 {
   switch (type) {
   case OIIO::TypeDesc::UNKNOWN:
@@ -66,16 +68,16 @@ VideoParams::Format OIIOUtils::GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYP
     break;
 
   case OIIO::TypeDesc::UINT8:
-    return VideoParams::kFormatUnsigned8;
+    return PixelFormat::U8;
   case OIIO::TypeDesc::UINT16:
-    return VideoParams::kFormatUnsigned16;
+    return PixelFormat::U16;
   case OIIO::TypeDesc::HALF:
-    return VideoParams::kFormatFloat16;
+    return PixelFormat::F16;
   case OIIO::TypeDesc::FLOAT:
-    return VideoParams::kFormatFloat32;
+    return PixelFormat::F32;
   }
 
-  return VideoParams::kFormatInvalid;
+  return PixelFormat::INVALID;
 }
 
 }

@@ -24,8 +24,8 @@
 #include <QComboBox>
 #include <QStackedWidget>
 
+#include "panel/panel.h"
 #include "panel/viewer/viewerbase.h"
-#include "widget/panel/panel.h"
 #include "widget/scope/histogram/histogram.h"
 #include "widget/scope/waveform/waveform.h"
 
@@ -42,7 +42,7 @@ public:
     kTypeCount
   };
 
-  ScopePanel(QWidget* parent = nullptr);
+  ScopePanel();
 
   void SetType(Type t);
 

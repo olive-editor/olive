@@ -84,7 +84,7 @@ FramePtr Frame::Interlace(FramePtr top, FramePtr bottom)
   return interlaced;
 }
 
-int Frame::generate_linesize_bytes(int width, VideoParams::Format format, int channel_count)
+int Frame::generate_linesize_bytes(int width, PixelFormat format, int channel_count)
 {
   // Align to 32 bytes (not sure if this is necessary?)
   return VideoParams::GetBytesPerPixel(format, channel_count) * ((width + 31) & ~31);
@@ -146,7 +146,7 @@ void Frame::destroy()
   }
 }
 
-FramePtr Frame::convert(VideoParams::Format format) const
+FramePtr Frame::convert(PixelFormat format) const
 {
   // Create new params with destination format
   VideoParams params = params_;

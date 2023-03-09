@@ -72,7 +72,7 @@ void NodeTreeView::SetNodes(const QVector<Node *> &nodes)
       node_item->setCheckState(0, disabled_nodes_.contains(n) ? Qt::Unchecked : Qt::Checked);
     }
     node_item->setData(0, kItemType, kItemTypeNode);
-    node_item->setData(0, kItemNodePointer, Node::PtrToValue(n));
+    node_item->setData(0, kItemNodePointer, QtUtils::PtrToValue(n));
 
     foreach (const QString& input, n->inputs()) {
       if (n->IsInputHidden(input) || (only_show_keyframable_ && !n->IsInputKeyframable(input))) {
@@ -158,7 +158,7 @@ NodeKeyframeTrackReference NodeTreeView::GetSelectedInput()
     if (item->data(0, kItemType).toInt() == kItemTypeInput) {
       selected_ref = item->data(0, kItemInputReference).value<NodeKeyframeTrackReference>();
     } else {
-      selected_ref = NodeKeyframeTrackReference(NodeInput(Node::ValueToPtr<Node>(item->data(0, kItemNodePointer)), QString()));
+      selected_ref = NodeKeyframeTrackReference(NodeInput(QtUtils::ValueToPtr<Node>(item->data(0, kItemNodePointer)), QString()));
     }
   }
 
@@ -232,7 +232,7 @@ void NodeTreeView::ItemCheckStateChanged(QTreeWidgetItem *item, int column)
   switch (item->data(0, kItemType).toInt()) {
   case kItemTypeNode:
   {
-    Node* n = Node::ValueToPtr<Node>(item->data(0, kItemNodePointer));
+    Node* n = QtUtils::ValueToPtr<Node>(item->data(0, kItemNodePointer));
 
     if (item->checkState(0) == Qt::Checked) {
       if (disabled_nodes_.contains(n)) {

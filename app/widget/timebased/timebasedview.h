@@ -64,6 +64,9 @@ public:
 
   void SetViewerNode(ViewerOutput *v);
 
+  QPointF ScalePoint(const QPointF &p) const;
+  QPointF UnscalePoint(const QPointF &p) const;
+
 public slots:
   void SetEndTime(const rational& length);
 

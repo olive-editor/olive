@@ -36,8 +36,6 @@ set(OLIVE_SOURCES
   node/factory.h
   node/globals.cpp
   node/globals.h
-  node/graph.cpp
-  node/graph.h
   node/inputdragger.cpp
   node/inputdragger.h
   node/inputimmediate.cpp
@@ -46,8 +44,12 @@ set(OLIVE_SOURCES
   node/keyframe.h
   node/node.cpp
   node/node.h
+  node/nodeundo.cpp
+  node/nodeundo.h
   node/param.cpp
   node/param.h
+  node/project.cpp
+  node/project.h
   node/splitvalue.h
   node/traverser.cpp
   node/traverser.h

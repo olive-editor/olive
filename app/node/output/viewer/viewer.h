@@ -22,10 +22,8 @@
 #define VIEWER_H
 
 #include "codec/encoder.h"
-#include "common/rational.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
-#include "render/audioparams.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
 #include "render/subtitleparams.h"
@@ -55,8 +53,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual QString duration() const override;
-  virtual QString rate() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   void set_default_parameters();
 
@@ -194,12 +191,17 @@ public:
   const EncodingParams &GetLastUsedEncodingParams() const { return last_used_encoding_params_; }
   void SetLastUsedEncodingParams(const EncodingParams &p) { last_used_encoding_params_ = p; }
 
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;
 
   static const QString kTextureInput;
   static const QString kSamplesInput;
+
+  static const SampleFormat kDefaultSampleFormat;
 
 signals:
   void FrameRateChanged(const rational&);

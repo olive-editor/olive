@@ -20,7 +20,7 @@
 
 #include "precachetask.h"
 
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 
@@ -40,8 +40,7 @@ PreCacheTask::PreCacheTask(Footage *footage, int index, Sequence* sequence)
   viewer()->SetAudioParams(sequence->GetAudioParams());
 
   // Copy project config nodes
-  Node::CopyInputs(footage->project()->color_manager(), project_->color_manager(), false);
-  Node::CopyInputs(footage->project()->settings(), project_->settings(), false);
+  Project::CopySettings(footage->project(), project_);
 
   // Copy footage node so it can precache without any modifications from the user screwing it up
   footage_ = static_cast<Footage*>(footage->copy());

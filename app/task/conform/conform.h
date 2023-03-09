@@ -23,7 +23,6 @@
 
 #include "codec/decoder.h"
 #include "node/project/footage/footage.h"
-#include "render/audioparams.h"
 #include "task/task.h"
 
 namespace olive {

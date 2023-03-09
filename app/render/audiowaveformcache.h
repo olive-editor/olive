@@ -69,7 +69,7 @@ private:
     WaveformPtr waveform;
   };
 
-  QVector<WaveformPassthrough> passthroughs_;
+  std::vector<WaveformPassthrough> passthroughs_;
 
 };
 
