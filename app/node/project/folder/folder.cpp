@@ -21,10 +21,10 @@
 #include "folder.h"
 
 #include "common/xmlutils.h"
+#include "node/nodeundo.h"
 #include "node/project/footage/footage.h"
 #include "node/project/sequence/sequence.h"
 #include "ui/icons/icons.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -34,12 +34,18 @@ const QString Folder::kChildInput = QStringLiteral("child_in");
 
 Folder::Folder()
 {
+  SetFlag(kIsItem);
+
   AddInput(kChildInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
 }
 
-QIcon Folder::icon() const
+QVariant Folder::data(const DataType &d) const
 {
-  return icon::Folder;
+  if (d == ICON) {
+    return icon::Folder;
+  }
+
+  return super::data(d);
 }
 
 void Folder::Retranslate()
@@ -140,7 +146,7 @@ Project *FolderAddChild::GetRelevantProject() const
 void FolderAddChild::redo()
 {
   int array_index = folder_->InputArraySize(Folder::kChildInput);
-  folder_->InputArrayAppend(Folder::kChildInput, false);
+  folder_->InputArrayAppend(Folder::kChildInput);
   Node::ConnectEdge(child_, NodeInput(folder_, Folder::kChildInput, array_index));
 }
 
@@ -158,7 +164,7 @@ void Folder::RemoveElementCommand::redo()
       NodeInput connected_input(folder_, Folder::kChildInput, remove_index_);
       subcommand_ = new MultiUndoCommand();
       subcommand_->add_child(new NodeEdgeRemoveCommand(folder_->GetConnectedOutput(connected_input), connected_input));
-      subcommand_->add_child(new Node::ArrayRemoveCommand(folder_, Folder::kChildInput, remove_index_));
+      subcommand_->add_child(new NodeArrayRemoveCommand(folder_, Folder::kChildInput, remove_index_));
     }
   }
 

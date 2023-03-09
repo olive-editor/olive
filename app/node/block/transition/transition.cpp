@@ -47,7 +47,7 @@ TransitionBlock::TransitionBlock() :
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
 
-  SetFlags(GetFlags() & ~kDontShowInParamView);
+  SetFlag(kDontShowInParamView, false);
 }
 
 void TransitionBlock::Retranslate()

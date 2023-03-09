@@ -21,9 +21,8 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "timeline/timelineundoripple.h"
 #include "ripple.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/undo/timelineundoripple.h"
 
 namespace olive {
 
@@ -105,7 +104,7 @@ void RippleTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_m
           } else {
             // Previous is not a gap, we'll have to insert one there ourselves
             ghost = AddGhostFromNull(block_after_ripple->in(), block_after_ripple->in(), track->ToReference(), trim_mode);
-            ghost->SetData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_after_ripple));
+            ghost->SetData(TimelineViewGhostItem::kReferenceBlock, QtUtils::PtrToValue(block_after_ripple));
           }
         }
       }
@@ -128,13 +127,13 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
       Track* track = parent()->GetTrackFromReference(ghost->GetTrack());
 
       TrackListRippleToolCommand::RippleInfo info;
-      Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+      Block* b = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
       if (b) {
         info.block = b;
         info.append_gap = false;
       } else {
-        info.block = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock));
+        info.block = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kReferenceBlock));
         info.append_gap = true;
       }
 

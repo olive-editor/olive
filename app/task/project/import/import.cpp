@@ -25,8 +25,8 @@
 
 #include "config/config.h"
 #include "core.h"
+#include "node/nodeundo.h"
 #include "node/project/footage/footage.h"
-#include "widget/nodeview/nodeviewundo.h"
 
 namespace olive {
 
@@ -156,9 +156,6 @@ void ProjectImportTask::ValidateImageSequence(Footage *footage, QFileInfoList& i
     // Check if files around exist around it with that follow a sequence
     QString previous_img_fn = Decoder::TransformImageSequenceFileName(footage->filename(), ind - 1);
     QString next_img_fn = Decoder::TransformImageSequenceFileName(footage->filename(), ind + 1);
-
-    // See if the same decoder can retrieve surrounding files
-    DecoderPtr decoder = Decoder::CreateFromID(footage->decoder());
 
     Footage* previous_file = new Footage(previous_img_fn);
     Footage* next_file = new Footage(next_img_fn);

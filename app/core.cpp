@@ -52,6 +52,7 @@
 #include "dialog/preferences/preferences.h"
 #include "node/color/colormanager/colormanager.h"
 #include "node/factory.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
@@ -73,7 +74,6 @@
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
 #include "widget/viewer/viewer.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "window/mainwindow/mainstatusbar.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -293,7 +293,9 @@ void Core::CreateNewProject()
 {
   // If we already have an empty/new project, switch to it
   if (CloseProject(false)) {
-    AddOpenProject(new Project());
+    Project *p = new Project();
+    p->Initialize();
+    AddOpenProject(p);
   }
 }
 
@@ -492,7 +494,7 @@ bool Core::AddOpenProjectFromTask(Task *task, bool add_to_recents)
 
     if (ValidateFootageInLoadedProject(project, project->GetSavedURL())) {
       AddOpenProject(project, add_to_recents);
-      main_window_->LoadLayout(project->GetLayoutInfo());
+      main_window_->LoadLayout(load_task->GetLoadedLayout());
 
       return true;
     } else {
@@ -801,9 +803,6 @@ void Core::SaveProjectInternal(const QString& override_filename)
   // Create save manager
   Task* psm;
 
-  // Put layout into project
-  open_project_->SetLayoutInfo(main_window_->SaveLayout());
-
   if (open_project_->filename().endsWith(QStringLiteral(".otio"), Qt::CaseInsensitive)) {
 #ifdef USE_OTIO
     psm = new SaveOTIOTask(open_project_);
@@ -817,6 +816,7 @@ void Core::SaveProjectInternal(const QString& override_filename)
   } else {
     bool use_compression = !open_project_->filename().endsWith(QStringLiteral(".ovexml"), Qt::CaseInsensitive);
     psm = new ProjectSaveTask(open_project_, use_compression);
+    static_cast<ProjectSaveTask*>(psm)->SetLayout(main_window_->SaveLayout());
 
     if (!override_filename.isEmpty()) {
       // Set override filename if provided
@@ -954,7 +954,7 @@ void Core::SaveRecentProjectsList()
 void Core::SaveAutorecovery()
 {
   if (OLIVE_CONFIG("AutorecoveryEnabled").toBool()) {
-    if (!open_project_->has_autorecovery_been_saved()) {
+    if (open_project_ && !open_project_->has_autorecovery_been_saved()) {
       QDir project_autorecovery_dir(QDir(FileFunctions::GetAutoRecoveryRoot()).filePath(open_project_->GetUuid().toString()));
       if (FileFunctions::DirectoryIsValid(project_autorecovery_dir)) {
         QString this_autorecovery_path = project_autorecovery_dir.filePath(QStringLiteral("%1.ove").arg(QString::number(QDateTime::currentSecsSinceEpoch())));

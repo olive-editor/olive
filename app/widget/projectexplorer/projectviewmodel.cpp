@@ -26,8 +26,7 @@
 
 #include "common/qtutils.h"
 #include "core.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "node/nodeundo.h"
 
 namespace olive {
 
@@ -140,13 +139,13 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
     case kName:
       return internal_item->GetLabel();
     case kDuration:
-      return internal_item->duration();
+      return internal_item->data(Node::DURATION);
     case kRate:
-      return internal_item->rate();
+      return internal_item->data(Node::FREQUENCY_RATE);
     case kLastModified:
     case kCreatedTime:
     {
-      qint64 using_time = (column_type == kLastModified) ? internal_item->mod_time() : internal_item->creation_time();
+      qint64 using_time = (column_type == kLastModified) ? internal_item->data(Node::MODIFIED_TIME).toLongLong() : internal_item->data(Node::CREATED_TIME).toLongLong();
 
       if (using_time == 0) {
         // 0 is the null value, return nothing
@@ -178,11 +177,11 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
   case Qt::DecorationRole:
     // If this is the first column, return the Item's icon
     if (column_type == kName) {
-      return internal_item->icon();
+      return internal_item->data(Node::ICON);
     }
     break;
   case Qt::ToolTipRole:
-    return internal_item->ToolTip();
+    return internal_item->data(Node::TOOLTIP);
   }
 
   return QVariant();

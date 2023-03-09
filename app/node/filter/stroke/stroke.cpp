@@ -48,7 +48,7 @@ StrokeFilterNode::StrokeFilterNode()
 
   AddInput(kInnerInput, NodeValue::kBoolean, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

@@ -56,7 +56,7 @@ TextGeneratorV2::TextGeneratorV2()
   SetStandardValue(kColorInput, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
-  SetFlags(kDontShowInCreateMenu);
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString TextGeneratorV2::Name() const

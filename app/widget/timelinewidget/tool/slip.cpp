@@ -18,13 +18,13 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#include "slip.h"
 
 #include <QToolTip>
 
 #include "config/config.h"
-#include "slip.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
+#include "timeline/timelineundogeneral.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -72,7 +72,7 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
 
   // Find earliest point to ripple around
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-    Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+    Block* b = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
     ClipBlock *cb = dynamic_cast<ClipBlock*>(b);
     if (cb) {

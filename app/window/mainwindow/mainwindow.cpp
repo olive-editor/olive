@@ -32,7 +32,7 @@
 #include "dialog/about/about.h"
 #include "mainmenu.h"
 #include "mainstatusbar.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
+#include "timeline/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -85,6 +85,13 @@ MainWindow::MainWindow(QWidget *parent) :
   AppendTimelinePanel();
   audio_monitor_panel_ = new AudioMonitorPanel();
   scope_panel_ = new ScopePanel();
+
+  // HACK: The pixel sampler is closed by default, which signals to Core that
+  //       it's no longer visible. However KDDockWidgets doesn't appear to
+  //       emit the "shown" signal before emitting the "hidden" signals, resulting
+  //       in Core thinking there are -1 pixel samplers open. To mitigate that,
+  //       we force "shown" to emit ourselves here.
+  emit pixel_sampler_panel_->shown();
 
   // Make node-related connections
   connect(node_panel_, &NodePanel::NodeSelectionChangedWithContexts, param_panel_, &ParamPanel::SetSelectedNodes);
@@ -603,10 +610,15 @@ void MainWindow::FolderPanelCloseRequested()
 
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
+  TimelinePanel *previous = nullptr;
+  if (!timeline_panels_.empty()) {
+    previous = timeline_panels_.last();
+  }
+
   TimelinePanel* panel = AppendPanelInternal(QStringLiteral("TimelinePanel"), timeline_panels_);
 
-  if (timeline_panels_.size() > 1) {
-    timeline_panels_.last()->addDockWidgetAsTab(panel);
+  if (previous) {
+    previous->addDockWidgetAsTab(panel);
   } else {
     panel->SetSignalInsteadOfClose(false);
   }

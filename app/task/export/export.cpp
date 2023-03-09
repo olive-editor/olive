@@ -34,7 +34,7 @@ ExportTask::ExportTask(ViewerOutput *viewer_node,
   copier_->SetProject(viewer_node->project());
 
   set_viewer(copier_->GetCopy(viewer_node));
-  color_manager_ = copier_->GetCopy(color_manager);
+  color_manager_ = copier_->GetCopiedProject()->color_manager();
 
   // Adjust video params to have no divider
   VideoParams vp = viewer_node->GetVideoParams();

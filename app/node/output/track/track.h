@@ -102,6 +102,10 @@ public:
     SetTrackHeight(PixelHeightToInternalHeight(h));
   }
 
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+  virtual void PostLoadEvent(SerializedData *data);
+
   static int InternalHeightToPixelHeight(double h)
   {
     return qRound(h * QFontMetrics(QFont()).height());
@@ -400,6 +404,7 @@ public:
 
   static const QString kBlockInput;
   static const QString kMutedInput;
+  static const QString kArrayMapInput;
 
 public slots:
   void SetMuted(bool e);
@@ -443,10 +448,7 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
-
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
-
+  virtual void InputConnectedEvent(const QString& input, int element, Node *node) override;
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:
@@ -460,10 +462,16 @@ private:
 
   void ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const;
 
+  int ConnectBlock(Block *b);
+
+  void UpdateArrayMap();
+
   TimeRangeList block_length_pending_invalidations_;
 
   QVector<Block*> blocks_;
-  QVector<int> block_array_indexes_;
+  QVector<uint32_t> block_array_indexes_;
+
+  std::list<int> empty_inputs_;
 
   Track::Type track_type_;
 
@@ -475,8 +483,14 @@ private:
 
   Sequence *sequence_;
 
+  int ignore_arraymap_;
+  bool arraymap_invalid_;
+  bool ignore_arraymap_set_;
+
 private slots:
   void BlockLengthChanged();
+
+  void RefreshBlockCacheFromArrayMap();
 
 };
 

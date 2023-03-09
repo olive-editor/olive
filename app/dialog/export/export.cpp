@@ -34,7 +34,7 @@
 #include "common/qtutils.h"
 #include "dialog/task/task.h"
 #include "exportsavepresetdialog.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "task/taskmanager.h"
 #include "ui/icons/icons.h"

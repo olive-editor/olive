@@ -38,6 +38,8 @@ public:
 
   static qreal GetScrollZoomMultiplier(QWheelEvent* event);
 
+  virtual void CatchUpScrollEvent(){}
+
 protected:
   virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
 

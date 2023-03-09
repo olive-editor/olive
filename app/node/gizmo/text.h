@@ -33,7 +33,7 @@ public:
   explicit TextGizmo(QObject *parent = nullptr);
 
   const QRectF &GetRect() const { return rect_; }
-  void SetRect(const QRectF &r) { rect_ = r; }
+  void SetRect(const QRectF &r);
 
   const QString &GetHtml() const { return text_; }
   void SetHtml(const QString &t) { text_ = t; }
@@ -42,21 +42,14 @@ public:
 
   void UpdateInputHtml(const QString &s, const rational &time);
 
-  Qt::Alignment GetVerticalAlignment() const
-  {
-    return valign_;
-  }
-
-  void SetVerticalAlignment(Qt::Alignment va)
-  {
-    valign_ = va;
-    emit VerticalAlignmentChanged(valign_);
-  }
+  Qt::Alignment GetVerticalAlignment() const { return valign_; }
+  void SetVerticalAlignment(Qt::Alignment va);
 
 signals:
   void Activated();
   void Deactivated();
   void VerticalAlignmentChanged(Qt::Alignment va);
+  void RectChanged(const QRectF &r);
 
 private:
   QRectF rect_;

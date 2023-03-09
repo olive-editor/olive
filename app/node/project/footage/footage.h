@@ -153,13 +153,6 @@ public:
    */
   const QString& decoder() const;
 
-  virtual QIcon icon() const override;
-
-  virtual bool IsItem() const override
-  {
-    return true;
-  }
-
   static QString DescribeVideoStream(const VideoParams& params);
   static QString DescribeAudioStream(const AudioParams& params);
   static QString DescribeSubtitleStream(const SubtitleParams& params);
@@ -174,14 +167,17 @@ public:
 
   static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
 
-  virtual void LoadFinishedEvent() override;
-
-  virtual qint64 creation_time() const override;
-  virtual qint64 mod_time() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   virtual int GetTotalStreamCount() const override { return total_stream_count_; }
 
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
   static const QString kFilenameInput;
+
+  virtual void AddedToGraphEvent(Project *p)  override;
+  virtual void RemovedFromGraphEvent(Project *p) override;
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
@@ -190,22 +186,6 @@ protected:
 
 private:
   QString GetColorspaceToUse(const VideoParams& params) const;
-
-  /**
-   * @brief Update the icon based on the Footage status
-   *
-   * For kUnprobed and kError an appropriate icon will be shown. For kReady, this function will determine what the
-   * dominant type of media in this Footage is (video/audio/image) and set the icon accordingly based on that.
-   */
-  void UpdateIcon();
-
-  /**
-   * @brief Update the tooltip based on the Footage status
-   *
-   * For kUnprobed and kError, this sets an appropriate generic message. For kReady, this function will set
-   * basic information about the Footage in the tooltip (based on the results of a previous probe).
-   */
-  void UpdateTooltip();
 
   void Reprobe();
 
@@ -229,6 +209,8 @@ private:
 
 private slots:
   void CheckFootage();
+
+  void DefaultColorSpaceChanged();
 
 };
 

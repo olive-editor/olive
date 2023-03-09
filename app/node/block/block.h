@@ -104,19 +104,11 @@ public:
 
   virtual void Retranslate() override;
 
-  int index() const
-  {
-    return index_;
-  }
-
-  void set_index(int i)
-  {
-    index_ = i;
-  }
-
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
   static const QString kLengthInput;
+
+  static void set_previous_next(Block *previous, Block *next);
 
 public slots:
 
@@ -141,7 +133,6 @@ private:
   rational in_point_;
   rational out_point_;
   Track* track_;
-  int index_;
 
   rational last_length_;
 

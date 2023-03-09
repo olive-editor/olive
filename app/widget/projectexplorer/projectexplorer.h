@@ -26,8 +26,8 @@
 #include <QTimer>
 #include <QTreeView>
 
-#include "node/project/project.h"
-#include "node/project/projectviewmodel.h"
+#include "node/project.h"
+#include "projectviewmodel.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
 #include "widget/projectexplorer/projectexplorerlistview.h"
 #include "widget/projectexplorer/projectexplorertreeview.h"

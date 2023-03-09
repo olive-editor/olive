@@ -34,10 +34,9 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
+#include "node/nodeundo.h"
 #include "node/project/sequence/sequence.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/undo/timelineundopointer.h"
+#include "timeline/timelineundopointer.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
 
@@ -302,7 +301,7 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
     command->add_child(c);
   }
 
-  NodeGraph* dst_graph = nullptr;
+  Project* dst_graph = nullptr;
   Sequence* sequence = this->sequence();
   bool open_sequence = false;
 
@@ -425,7 +424,6 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
         ClipBlock* clip = new ClipBlock();
         block = clip;
         clip->set_media_in(ghost->GetMediaIn());
-        clip->SetLabel(footage_stream.footage->GetLabel());
         command->add_child(new NodeAddCommand(dst_graph, clip));
 
         // Position clip in its own context

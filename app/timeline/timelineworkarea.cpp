@@ -55,6 +55,49 @@ void TimelineWorkArea::set_range(const TimeRange &range)
   emit RangeChanged(workarea_range_);
 }
 
+bool TimelineWorkArea::load(QXmlStreamReader *reader)
+{
+  rational range_in = this->in();
+  rational range_out = this->out();
+
+  uint version = 0;
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("version")) {
+      version = attr.value().toUInt();
+    }
+  }
+  Q_UNUSED(version)
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("enabled")) {
+      this->set_enabled(reader->readElementText() != QStringLiteral("0"));
+    } else if (reader->name() == QStringLiteral("in")) {
+      range_in = rational::fromString(reader->readElementText().toStdString());
+    } else if (reader->name() == QStringLiteral("out")) {
+      range_out = rational::fromString(reader->readElementText().toStdString());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  TimeRange loaded_workarea(range_in, range_out);
+
+  if (loaded_workarea != this->range()) {
+    this->set_range(loaded_workarea);
+  }
+
+  return true;
+}
+
+void TimelineWorkArea::save(QXmlStreamWriter *writer) const
+{
+  writer->writeAttribute(QStringLiteral("version"), QString::number(1));
+
+  writer->writeTextElement(QStringLiteral("enabled"), QString::number(this->enabled()));
+  writer->writeTextElement(QStringLiteral("in"), QString::fromStdString(this->in().toString()));
+  writer->writeTextElement(QStringLiteral("out"), QString::fromStdString(this->out().toString()));
+}
+
 const rational &TimelineWorkArea::in() const
 {
   return workarea_range_.in();

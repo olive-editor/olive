@@ -24,14 +24,25 @@
 #include <QtGlobal>
 #include <cmath>
 
+//#define ALLOW_RETURNING_INFINITY
+
 namespace olive {
 
 class Decibel
 {
 public:
+  // In basically all circumstances, this should calculate to 0.0 linear
+  static constexpr double MINIMUM = -200.0;
+
   static double fromLinear(double linear)
   {
-    return double(20.0) * std::log10(linear);
+    double v = double(20.0) * std::log10(linear);
+#ifndef ALLOW_RETURNING_INFINITY
+    if (std::isinf(v)) {
+      return MINIMUM;
+    }
+#endif
+    return v;
   }
 
   static double toLinear(double decibel)
@@ -49,7 +60,11 @@ public:
   static double fromLogarithmic(double logarithmic)
   {
     if (logarithmic < 0.001)
-      return -200.0;
+#ifdef ALLOW_RETURNING_INFINITY
+      return std::numeric_limits<double>::infinity();
+#else
+      return MINIMUM;
+#endif
     else if (logarithmic > 0.99)
       return 0;
     else

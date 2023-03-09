@@ -51,7 +51,7 @@ CornerPinDistortNode::CornerPinDistortNode()
   gizmo_resize_handle_[2] = AddDraggableGizmo<PointGizmo>({NodeKeyframeTrackReference(NodeInput(this, kBottomRightInput), 0), NodeKeyframeTrackReference(NodeInput(this, kBottomRightInput), 1)});
   gizmo_resize_handle_[3] = AddDraggableGizmo<PointGizmo>({NodeKeyframeTrackReference(NodeInput(this, kBottomLeftInput), 0), NodeKeyframeTrackReference(NodeInput(this, kBottomLeftInput), 1)});
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

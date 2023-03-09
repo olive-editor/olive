@@ -41,6 +41,7 @@ extern "C" {
 #include "core.h"
 #include "common/commandlineparser.h"
 #include "common/debug.h"
+#include "node/project/serializer/serializer.h"
 #include "version.h"
 
 #ifdef _WIN32
@@ -53,6 +54,63 @@ extern "C" {
 #ifdef USE_CRASHPAD
 #include "common/crashpadinterface.h"
 #endif // USE_CRASHPAD
+
+int decompress_project(const QString &project)
+{
+  if (project.isEmpty()) {
+    printf("%s\n", QCoreApplication::translate("main", "No project filename set to decompress").toUtf8().constData());
+    return 1;
+  }
+
+  QFile project_file(project);
+  if (!project_file.open(QFile::ReadOnly)) {
+    printf("%s\n", QCoreApplication::translate("main", "Failed to open file \"%1\"").arg(project).toUtf8().constData());
+    return 1;
+  }
+
+  printf("%s\n", QCoreApplication::translate("main", "Decompressing project...").toUtf8().constData());
+
+  if (!olive::ProjectSerializer::CheckCompressedID(&project_file)) {
+    printf("%s\n", QCoreApplication::translate("main", "Failed to decompress, project may be corrupt").toUtf8().constData());
+    return 1;
+  }
+
+  QByteArray b = project_file.readAll();
+
+  project_file.close();
+
+  QByteArray decompressed = qUncompress(b);
+
+  if (decompressed.isEmpty()) {
+    printf("%s\n", QCoreApplication::translate("main", "Failed to decompress, project may be corrupt").toUtf8().constData());
+    return 1;
+  }
+
+  QFileInfo info(project);
+
+  QString filename;
+  QString append;
+  int append_num = 0;
+  do {
+    filename = info.dir().filePath(info.completeBaseName().append(append).append(QStringLiteral(".ovexml")));
+    append_num++;
+    append = QStringLiteral("-%1").arg(append_num);
+  } while(QFileInfo::exists(filename));
+
+  printf("%s\n", QCoreApplication::translate("main", "Outputting to file \"%1\"").arg(filename).toUtf8().constData());
+
+  QFile out(filename);
+  if (!out.open(QFile::WriteOnly)) {
+    printf("%s\n", QCoreApplication::translate("main", "Failed to open output file \"%1\"").arg(filename).toUtf8().constData());
+    return 1;
+  }
+
+  out.write(decompressed);
+  out.close();
+
+  printf("%s\n", QCoreApplication::translate("main", "Decompressed successfully").toUtf8().constData());
+  return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -114,6 +172,10 @@ int main(int argc, char *argv[])
                        true,
                        QCoreApplication::translate("main", "qm-file"));
 
+  auto decompress_option =
+      parser.AddOption({QStringLiteral("d"), QStringLiteral("-decompress")},
+                       QCoreApplication::translate("main", "Decompress project file (No GUI)"));
+
 #ifdef _WIN32
   auto console_option =
       parser.AddOption({QStringLiteral("c"), QStringLiteral("-console")},
@@ -158,6 +220,10 @@ int main(int argc, char *argv[])
     // Print version
     printf("%s\n", QCoreApplication::applicationVersion().toUtf8().constData());
     return 0;
+  }
+
+  if (decompress_option->IsSet()) {
+    return decompress_project(project_argument->GetSetting());
   }
 
   if (export_option->IsSet()) {

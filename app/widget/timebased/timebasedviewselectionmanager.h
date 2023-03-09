@@ -53,9 +53,10 @@ public:
     drawn_objects_.clear();
   }
 
-  void DeclareDrawnObject(T *object, const QRectF &pos)
+  void DeclareDrawnObject(T *object, const QRectF &rect)
   {
-    drawn_objects_.push_back({object, pos});
+    QRectF r(view_->UnscalePoint(rect.topLeft()), view_->UnscalePoint(rect.bottomRight()));
+    drawn_objects_.push_back({object, r});
   }
 
   bool Select(T *key)
@@ -345,23 +346,24 @@ public:
   void RubberBandStart(QMouseEvent *event)
   {
     if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
-      rubberband_start_ = event->pos();
+      rubberband_scene_start_ = view_->UnscalePoint(view_->mapToScene(event->pos()));
 
       rubberband_ = new QRubberBand(QRubberBand::Rectangle, view_);
-      rubberband_->setGeometry(QRect(rubberband_start_.x(), rubberband_start_.y(), 0, 0));
+      rubberband_->setGeometry(QRect(event->pos().x(), event->pos().y(), 0, 0));
       rubberband_->show();
 
       rubberband_preselected_ = selected_;
     }
   }
 
-  void RubberBandMove(QMouseEvent *event)
+  void RubberBandMove(const QPoint &pos)
   {
     if (IsRubberBanding()) {
-      QRect band_rect = QRect(rubberband_start_, event->pos()).normalized();
-      rubberband_->setGeometry(band_rect);
+      QRectF band_rect = QRectF(view_->mapFromScene(view_->ScalePoint(rubberband_scene_start_)), pos).normalized();
+      rubberband_->setGeometry(band_rect.toRect());
 
-      QRectF scene_rect = view_->mapToScene(band_rect).boundingRect();
+      QPointF current = view_->UnscalePoint(view_->mapToScene(pos));
+      QRectF scene_rect = QRectF(rubberband_scene_start_, current).normalized();
 
       selected_ = rubberband_preselected_;
       foreach (const DrawnObject &kp, drawn_objects_) {
@@ -445,7 +447,7 @@ private:
   rational timebase_;
 
   QRubberBand *rubberband_;
-  QPoint rubberband_start_;
+  QPointF rubberband_scene_start_;
   std::vector<T*> rubberband_preselected_;
 
   TimeBasedWidget::SnapMask snap_mask_;

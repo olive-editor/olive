@@ -242,7 +242,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
           && !ghost->IsInvisible()) {
         int track_index = ghost->GetAdjustedTrack().index();
 
-        Block *attached = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+        Block *attached = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
         if (attached && OLIVE_CONFIG("ShowClipWhileDragging").toBool()) {
           int adj_track = ghost->GetAdjustedTrack().index();
@@ -865,6 +865,34 @@ Block *TimelineView::GetItemAtScenePos(const rational &time, int track_index) co
   }
 
   return nullptr;
+}
+
+QVector<Block *> TimelineView::GetItemsAtSceneRect(const QRectF &rect) const
+{
+  QVector<Block *> list;
+
+  if (connected_track_list_) {
+    rational start = this->SceneToTime(rect.left());
+    rational end = this->SceneToTime(rect.right());
+
+    for (int i = 0; i < connected_track_list_->GetTrackCount(); i++) {
+      Track *track = connected_track_list_->GetTrackAt(i);
+      int track_top = GetTrackY(i);
+      int track_bottom = track_top + GetTrackHeight(i);
+
+      if (track) {
+        if (!(track_bottom < rect.top() || track_top > rect.bottom())) {
+          Block *b = track->NearestBlockBeforeOrAt(start);
+          while (b && b->in() < end) {
+            list.append(b);
+            b = b->next();
+          }
+        }
+      }
+    }
+  }
+
+  return list;
 }
 
 void TimelineView::TrackListChanged()

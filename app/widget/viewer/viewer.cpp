@@ -37,7 +37,8 @@
 #include "core.h"
 #include "node/block/gap/gap.h"
 #include "node/generator/shape/shapenodebase.h"
-#include "node/project/project.h"
+#include "node/nodeundo.h"
+#include "node/project.h"
 #include "panel/multicam/multicampanel.h"
 #include "panel/panelmanager.h"
 #include "render/rendermanager.h"
@@ -45,7 +46,6 @@
 #include "widget/audiomonitor/audiomonitor.h"
 #include "widget/menu/menu.h"
 #include "widget/multicam/multicamdisplay.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 #include "widget/timelinewidget/tool/add.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -510,6 +510,8 @@ void ViewerWidget::UpdateAudioProcessor()
     CloseAudioProcessor();
 
     AudioParams ap = GetConnectedNode()->GetAudioParams();
+    ap.set_format(ViewerOutput::kDefaultSampleFormat);
+
     AudioParams packed(OLIVE_CONFIG("AudioOutputSampleRate").toInt(),
                        OLIVE_CONFIG("AudioOutputChannelLayout").toULongLong(),
                        SampleFormat::from_string(OLIVE_CONFIG("AudioOutputSampleFormat").toString().toStdString()));
@@ -1376,10 +1378,10 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
       Menu* zoom_menu = new Menu(tr("Zoom"), &menu);
       menu.addMenu(zoom_menu);
 
-      zoom_menu->addAction(tr("Fit"))->setData(0);
+      zoom_menu->addAction(tr("Fit"))->setData(-1);
       for (int i=0;i<ViewerSizer::kZoomLevelCount;i++) {
-        int z = ViewerSizer::kZoomLevels[i];
-        zoom_menu->addAction(tr("%1%").arg(z))->setData(z);
+        double z = ViewerSizer::kZoomLevels[i];
+        zoom_menu->addAction(tr("%1%").arg(z * 100.0))->setData(z);
       }
 
       connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
@@ -1822,7 +1824,8 @@ void ViewerWidget::UpdateRendererAudioParameters()
 
 void ViewerWidget::SetZoomFromMenu(QAction *action)
 {
-  sizer_->SetZoom(action->data().toInt());
+  auto s = sizer_->GetContainerSize();
+  sizer_->SetZoomAnchored(action->data().toDouble(), s.width()/2, s.height()/2);
 }
 
 void ViewerWidget::ViewerInvalidatedVideoRange(const TimeRange &range)

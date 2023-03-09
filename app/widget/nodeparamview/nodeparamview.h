@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "node/group/group.h"
 #include "node/node.h"
 #include "node/project/serializer/serializer.h"
 #include "nodeparamviewcontext.h"
@@ -166,9 +167,6 @@ private slots:
 
   //void FocusChanged(QWidget *old, QWidget *now);
 
-  void KeyframeViewDragged(int x, int y);
-  void KeyframeViewReleased();
-
   void NodeAddedToContext(Node *n);
 
   void NodeRemovedFromContext(Node *n);
@@ -188,6 +186,8 @@ private slots:
   void SelectNodeFromConnectedLink(Node *node);
 
   void RequestEditTextInViewer();
+
+  void InputArraySizeChanged(const QString &input, int old_size, int new_size);
 
 };
 

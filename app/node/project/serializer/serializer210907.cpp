@@ -22,24 +22,16 @@
 
 #include "config/config.h"
 #include "node/factory.h"
+#include "node/group/group.h"
 
 namespace olive {
 
-ProjectSerializer210907::LoadData ProjectSerializer210907::Load(Project *project, QXmlStreamReader *reader, void *reserved) const
+ProjectSerializer210907::LoadData ProjectSerializer210907::Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const
 {
   XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("layout")) {
-
-      // Since the main window's functions have to occur in the GUI thread (and we're likely
-      // loading in a secondary thread), we load all necessary data into a separate struct so we
-      // can continue loading and queue it with the main window so it can handle the data
-      // appropriately in its own thread.
-
-      project->SetLayoutInfo(MainWindowLayoutInfo::fromXml(reader, xml_node_data.node_ptrs));
-
-    } else if (reader->name() == QStringLiteral("uuid")) {
+    if (reader->name() == QStringLiteral("uuid")) {
 
       project->SetUuid(QUuid::fromString(reader->readElementText()));
 
@@ -71,23 +63,29 @@ ProjectSerializer210907::LoadData ProjectSerializer210907::Load(Project *project
             reader->skipCurrentElement();
           } else {
             Node* node;
+            bool handled_elsewhere = false;
 
             if (is_root) {
+              project->Initialize();
               node = project->root();
             } else if (is_cm) {
-              node = project->color_manager();
+              LoadColorManager(reader, project);
+              handled_elsewhere = true;
             } else if (is_settings) {
-              node = project->settings();
+              LoadProjectSettings(reader, project);
+              handled_elsewhere = true;
             } else {
               node = NodeFactory::CreateFromID(id);
             }
 
-            if (!node) {
-              qWarning() << "Failed to find node with ID" << id;
-              reader->skipCurrentElement();
-            } else {
-              LoadNode(node, xml_node_data, reader);
-              node->setParent(project);
+            if (!handled_elsewhere) {
+              if (!node) {
+                qWarning() << "Failed to find node with ID" << id;
+                reader->skipCurrentElement();
+              } else {
+                LoadNode(node, xml_node_data, reader);
+                node->setParent(project);
+              }
             }
           }
         } else {
@@ -154,6 +152,20 @@ ProjectSerializer210907::LoadData ProjectSerializer210907::Load(Project *project
 
   // Make connections
   PostConnect(xml_node_data);
+
+  // Resolve tracks
+  for (Node *n : project->nodes()) {
+    n->SetCachesEnabled(true);
+
+    if (Track *t = dynamic_cast<Track *>(n)) {
+      for (int i = 0; i < t->InputArraySize(Track::kBlockInput); i++) {
+        Block *b = static_cast<Block*>(t->GetConnectedOutput(Track::kBlockInput, i));
+        if (!b->track()) {
+          t->AppendBlock(b);
+        }
+      }
+    }
+  }
 
   return LoadData();
 }
@@ -242,6 +254,135 @@ void ProjectSerializer210907::LoadNode(Node *node, XMLNodeData &xml_node_data, Q
   }
 
   node->LoadFinishedEvent();
+}
+
+void ProjectSerializer210907::LoadColorManager(QXmlStreamReader *reader, Project *project) const
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("input")) {
+      QString id;
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("id")) {
+          id = attr.value().toString();
+        }
+      }
+
+      if (id == QStringLiteral("config") || id == QStringLiteral("default_input") || id == QStringLiteral("reference_space")) {
+        QString value;
+
+        while (XMLReadNextStartElement(reader)) {
+          if (reader->name() == QStringLiteral("primary")) {
+            while (XMLReadNextStartElement(reader)) {
+              if (reader->name() == QStringLiteral("standard")) {
+                while (XMLReadNextStartElement(reader)) {
+                  if (reader->name() == QStringLiteral("track")) {
+                    value = reader->readElementText();
+                  } else {
+                    reader->skipCurrentElement();
+                  }
+                }
+              } else {
+                reader->skipCurrentElement();
+              }
+            }
+          } else {
+            reader->skipCurrentElement();
+          }
+        }
+
+        if (id == QStringLiteral("default_input")) {
+          // Default color space
+          // NOTE: Stupidly, we saved these as integers which means we can't add anything to the OCIO
+          //       config. So we must convert back to string here.
+          static const QStringList list = {
+            QStringLiteral("Linear"),
+            QStringLiteral("CIE-XYZ D65"),
+            QStringLiteral("Filmic Log Encoding"),
+            QStringLiteral("sRGB OETF"),
+            QStringLiteral("Apple DCI-P3 D65"),
+            QStringLiteral("AppleP3 sRGB OETF"),
+            QStringLiteral("BT.1886 EOTF"),
+            QStringLiteral("AppleP3 Filmic Log Encoding"),
+            QStringLiteral("BT.1886 Filmic Log Encoding"),
+            QStringLiteral("Fuji F-Log OETF"),
+            QStringLiteral("Fuji F-Log F-Gamut"),
+            QStringLiteral("Panasonic V-Log V-Gamut"),
+            QStringLiteral("Arri Wide Gamut / LogC EI 800"),
+            QStringLiteral("Arri Wide Gamut / LogC EI 400"),
+            QStringLiteral("Blackmagic Film Wide Gamut (Gen 5)"),
+            QStringLiteral("Rec.709 OETF"),
+            QStringLiteral("Non-Colour Data")
+          };
+          int num_value = value.toInt();
+          value = list.at(num_value);
+          project->SetDefaultInputColorSpace(value);
+        } else if (id == QStringLiteral("reference_space")) {
+          // Reference space
+          if (value == QStringLiteral("1")) {
+            value = OCIO::ROLE_COMPOSITING_LOG;
+          } else {
+            value = OCIO::ROLE_SCENE_LINEAR;
+          }
+          project->SetColorReferenceSpace(value);
+        } else {
+          // Config filename
+          project->SetColorConfigFilename(value);
+        }
+      } else {
+        reader->skipCurrentElement();
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+}
+
+void ProjectSerializer210907::LoadProjectSettings(QXmlStreamReader *reader, Project *project) const
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("input")) {
+      QString id;
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("id")) {
+          id = attr.value().toString();
+        }
+      }
+
+      if (id == QStringLiteral("cache_setting") || id == QStringLiteral("cache_path")) {
+        QString value;
+
+        while (XMLReadNextStartElement(reader)) {
+          if (reader->name() == QStringLiteral("primary")) {
+            while (XMLReadNextStartElement(reader)) {
+              if (reader->name() == QStringLiteral("standard")) {
+                while (XMLReadNextStartElement(reader)) {
+                  if (reader->name() == QStringLiteral("track")) {
+                    value = reader->readElementText();
+                  } else {
+                    reader->skipCurrentElement();
+                  }
+                }
+              } else {
+                reader->skipCurrentElement();
+              }
+            }
+          } else {
+            reader->skipCurrentElement();
+          }
+        }
+
+        if (id == QStringLiteral("cache_setting")) {
+          project->SetCacheLocationSetting(static_cast<Project::CacheSetting>(value.toInt()));
+        } else {
+          project->SetCustomCachePath(value);
+        }
+      } else {
+        reader->skipCurrentElement();
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
 }
 
 void ProjectSerializer210907::LoadInput(Node *node, QXmlStreamReader *reader, XMLNodeData &xml_node_data) const
