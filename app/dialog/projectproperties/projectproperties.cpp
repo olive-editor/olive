@@ -29,9 +29,6 @@
 #include <QPushButton>
 
 #include "common/filefunctions.h"
-#include "common/ocioutils.h"
-#include "config/config.h"
-#include "core.h"
 #include "node/color/colormanager/colormanager.h"
 #include "render/diskmanager.h"
 
@@ -77,6 +74,16 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
 
     row++;
 
+    color_layout->addWidget(new QLabel(tr("Reference Space:")), row, 0);
+
+    reference_space_ = new QComboBox(this);
+    reference_space_->addItem(tr("Scene Linear"), OCIO::ROLE_SCENE_LINEAR);
+    reference_space_->addItem(tr("Compositing Log"), OCIO::ROLE_COMPOSITING_LOG);
+    QtUtils::SetComboBoxData(reference_space_, p->GetColorReferenceSpace());
+    color_layout->addWidget(reference_space_, row, 1, 1, 2);
+
+    row++;
+
     QPushButton* browse_btn = new QPushButton(tr("Browse"));
     color_layout->addWidget(browse_btn, 0, 2);
     connect(browse_btn, &QPushButton::clicked, this, &ProjectPropertiesDialog::BrowseForOCIOConfig);
@@ -100,24 +107,24 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(Project* p, QWidget *parent) :
     QButtonGroup* disk_cache_btn_group = new QButtonGroup();
 
     // Create radio buttons and add to widget and button group
-    disk_cache_radios_[ProjectSettingsNode::kCacheUseDefaultLocation] = new QRadioButton(tr("Use Default Location"));
-    disk_cache_radios_[ProjectSettingsNode::kCacheStoreAlongsideProject] = new QRadioButton(tr("Store Alongside Project"));
-    disk_cache_radios_[ProjectSettingsNode::kCacheCustomPath] = new QRadioButton(tr("Use Custom Location:"));
+    disk_cache_radios_[Project::kCacheUseDefaultLocation] = new QRadioButton(tr("Use Default Location"));
+    disk_cache_radios_[Project::kCacheStoreAlongsideProject] = new QRadioButton(tr("Store Alongside Project"));
+    disk_cache_radios_[Project::kCacheCustomPath] = new QRadioButton(tr("Use Custom Location:"));
     for (int i=0; i<kDiskCacheRadioCount; i++) {
       disk_cache_btn_group->addButton(disk_cache_radios_[i]);
       cache_layout->addWidget(disk_cache_radios_[i]);
     }
 
     // Create custom cache path widget
-    custom_cache_path_ = new PathWidget(working_project_->settings()->GetCustomCachePath(), this);
+    custom_cache_path_ = new PathWidget(working_project_->GetCustomCachePath(), this);
     custom_cache_path_->setEnabled(false);
     cache_layout->addWidget(custom_cache_path_);
 
     // Ensure custom cache path "enabled" is tied to the radio button being checked
-    connect(disk_cache_radios_[ProjectSettingsNode::kCacheCustomPath], &QRadioButton::toggled, custom_cache_path_, &PathWidget::setEnabled);
+    connect(disk_cache_radios_[Project::kCacheCustomPath], &QRadioButton::toggled, custom_cache_path_, &PathWidget::setEnabled);
 
     // Check the radio button that should currently be active
-    disk_cache_radios_[working_project_->settings()->GetCacheSetting()]->setChecked(true);
+    disk_cache_radios_[working_project_->GetCacheLocationSetting()]->setChecked(true);
 
     // Add disk cache settings button
     QPushButton* disk_cache_settings_btn = new QPushButton(tr("Disk Cache Settings"));
@@ -147,9 +154,9 @@ void ProjectPropertiesDialog::accept()
     return;
   }
 
-  if (disk_cache_radios_[ProjectSettingsNode::kCacheUseDefaultLocation]->isChecked()) {
+  if (disk_cache_radios_[Project::kCacheUseDefaultLocation]->isChecked()) {
     // Keep new cache path empty, which means default
-  } else if (disk_cache_radios_[ProjectSettingsNode::kCacheStoreAlongsideProject]->isChecked()) {
+  } else if (disk_cache_radios_[Project::kCacheStoreAlongsideProject]->isChecked()) {
     // Ensure alongside project path is valid
     if (!VerifyPathAndWarnIfBad(working_project_->get_cache_alongside_project_path())) {
       return;
@@ -161,13 +168,13 @@ void ProjectPropertiesDialog::accept()
     }
   }
 
-  if (custom_cache_path_->text() != working_project_->settings()->GetCustomCachePath()) {
+  if (custom_cache_path_->text() != working_project_->GetCustomCachePath()) {
     // Check if the user is okay with invalidating the current cache
     if (!DiskManager::ShowDiskCacheChangeConfirmationDialog(this)) {
       return;
     }
 
-    working_project_->settings()->SetCustomCachePath(custom_cache_path_->text());
+    working_project_->SetCustomCachePath(custom_cache_path_->text());
 
     emit DiskManager::instance()->InvalidateProject(working_project_);
   }
@@ -179,6 +186,9 @@ void ProjectPropertiesDialog::accept()
   }
   if (working_project_->color_manager()->GetDefaultInputColorSpace() != default_input_colorspace_->currentText()) {
     working_project_->color_manager()->SetDefaultInputColorSpace(default_input_colorspace_->currentText());
+  }
+  if (working_project_->GetColorReferenceSpace() != reference_space_->currentData().toString()) {
+    working_project_->SetColorReferenceSpace(reference_space_->currentData().toString());
   }
 
   super::accept();
@@ -243,9 +253,9 @@ void ProjectPropertiesDialog::OCIOFilenameUpdated()
 
 void ProjectPropertiesDialog::OpenDiskCacheSettings()
 {
-  if (disk_cache_radios_[ProjectSettingsNode::kCacheUseDefaultLocation]->isChecked()) {
+  if (disk_cache_radios_[Project::kCacheUseDefaultLocation]->isChecked()) {
     DiskManager::instance()->ShowDiskCacheSettingsDialog(DiskManager::instance()->GetDefaultCacheFolder(), this);
-  } else if (disk_cache_radios_[ProjectSettingsNode::kCacheStoreAlongsideProject]->isChecked()) {
+  } else if (disk_cache_radios_[Project::kCacheStoreAlongsideProject]->isChecked()) {
     DiskManager::instance()->ShowDiskCacheSettingsDialog(working_project_->get_cache_alongside_project_path(), this);
   } else {
     DiskManager::instance()->ShowDiskCacheSettingsDialog(custom_cache_path_->text(), this);

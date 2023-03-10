@@ -24,6 +24,7 @@
 #include <QXmlStreamReader>
 
 #include "node/param.h"
+#include "render/cancelatom.h"
 #include "undo/undocommand.h"
 
 namespace olive {
@@ -45,7 +46,7 @@ class NodeGroup;
  *
  * See also: https://stackoverflow.com/questions/46346450/qt-qxmlstreamreader-always-returns-premature-end-of-document-error
  */
-bool XMLReadNextStartElement(QXmlStreamReader* reader);
+bool XMLReadNextStartElement(QXmlStreamReader* reader, CancelAtom *cancel_atom = nullptr);
 
 }
 

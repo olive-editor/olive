@@ -4,8 +4,6 @@ namespace olive {
 
 void MainWindowLayoutInfo::toXml(QXmlStreamWriter *writer) const
 {
-  writer->writeStartElement(QStringLiteral("layout"));
-
   writer->writeAttribute(QStringLiteral("version"), QString::number(kVersion));
 
   writer->writeStartElement(QStringLiteral("folders"));
@@ -56,8 +54,6 @@ void MainWindowLayoutInfo::toXml(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // data
 
   writer->writeTextElement(QStringLiteral("state"), QString(state_.toBase64()));
-
-  writer->writeEndElement(); // layout
 }
 
 MainWindowLayoutInfo MainWindowLayoutInfo::fromXml(QXmlStreamReader *reader, const QHash<quintptr, Node *> &node_ptrs)

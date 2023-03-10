@@ -123,10 +123,10 @@ void SeekableWidget::DeleteSelected()
 bool SeekableWidget::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata;
+    ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyMarkers);
     sdata.SetOnlySerializeMarkers(selection_manager_.GetSelectedObjects());
 
-    ProjectSerializer::Copy(sdata, QStringLiteral("markers"));
+    ProjectSerializer::Copy(sdata);
 
     if (cut) {
       DeleteSelected();
@@ -140,7 +140,7 @@ bool SeekableWidget::CopySelected(bool cut)
 
 bool SeekableWidget::PasteMarkers()
 {
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("markers"));
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyMarkers);
   if (res == ProjectSerializer::kSuccess) {
     const std::vector<TimelineMarker*> &markers = res.GetLoadData().markers;
     if (!markers.empty()) {
@@ -206,7 +206,7 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
   if (HandMove(event)) {
     return;
   } else if (selection_manager_.IsRubberBanding()) {
-    selection_manager_.RubberBandMove(event);
+    selection_manager_.RubberBandMove(event->pos());
     viewport()->update();
   } else if (selection_manager_.IsDragging()) {
     selection_manager_.DragMove(event);
@@ -227,6 +227,11 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
       unsetCursor();
       ClearResizeHandle();
     }
+  }
+
+  if (event->buttons()) {
+    // Signal cursor pos in case we should scroll to catch up to it
+    emit DragMoved(event->pos().x(), event->pos().y());
   }
 }
 
@@ -411,6 +416,15 @@ void SeekableWidget::SelectionManagerDeselectEvent(void *obj)
   super::SelectionManagerDeselectEvent(obj);
 
   viewport()->update();
+}
+
+void SeekableWidget::CatchUpScrollEvent()
+{
+  super::CatchUpScrollEvent();
+
+  if (this->selection_manager_.IsRubberBanding()) {
+    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
+  }
 }
 
 void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)

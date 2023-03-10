@@ -350,13 +350,6 @@ rational Footage::AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const 
   return time;
 }
 
-void Footage::LoadFinishedEvent()
-{
-  if (!filename().isEmpty()) {
-    Reprobe();
-  }
-}
-
 QVariant Footage::data(const DataType &d) const
 {
   switch (d) {
@@ -397,6 +390,46 @@ QVariant Footage::data(const DataType &d) const
 
     return icon::Error;
   }
+  case TOOLTIP:
+  {
+    if (valid_) {
+      QString tip = tr("Filename: %1").arg(filename());
+
+      int vp_sz = GetVideoStreamCount();
+      for (int i=0; i<vp_sz; i++) {
+        VideoParams p = GetVideoParams(i);
+
+        if (p.enabled()) {
+          tip.append("\n");
+          tip.append(DescribeVideoStream(p));
+        }
+      }
+
+      int ap_sz = GetAudioStreamCount();
+      for (int i=0; i<ap_sz; i++) {
+        AudioParams p = GetAudioParams(i);
+
+        if (p.enabled()) {
+          tip.append("\n");
+          tip.append(DescribeAudioStream(p));
+        }
+      }
+
+      int sp_sz = GetSubtitleStreamCount();
+      for (int i=0; i<sp_sz; i++) {
+        SubtitleParams p = GetSubtitleParams(i);
+
+        if (p.enabled()) {
+          tip.append("\n");
+          tip.append(DescribeSubtitleStream(p));
+        }
+      }
+
+      return tip;
+    } else {
+      return tr("Invalid");
+    }
+  }
   default:
     break;
   }
@@ -404,45 +437,42 @@ QVariant Footage::data(const DataType &d) const
   return super::data(d);
 }
 
-void Footage::UpdateTooltip()
+bool Footage::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
 {
-  if (valid_) {
-    QString tip = tr("Filename: %1").arg(filename());
-
-    int vp_sz = GetVideoStreamCount();
-    for (int i=0; i<vp_sz; i++) {
-      VideoParams p = GetVideoParams(i);
-
-      if (p.enabled()) {
-        tip.append("\n");
-        tip.append(DescribeVideoStream(p));
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("timestamp")) {
+      this->set_timestamp(reader->readElementText().toLongLong());
+    } else if (reader->name() == QStringLiteral("viewer")) {
+      if (!ViewerOutput::LoadCustom(reader, data)) {
+        return false;
       }
+    } else {
+      reader->skipCurrentElement();
     }
-
-    int ap_sz = GetAudioStreamCount();
-    for (int i=0; i<ap_sz; i++) {
-      AudioParams p = GetAudioParams(i);
-
-      if (p.enabled()) {
-        tip.append("\n");
-        tip.append(DescribeAudioStream(p));
-      }
-    }
-
-    int sp_sz = GetSubtitleStreamCount();
-    for (int i=0; i<sp_sz; i++) {
-      SubtitleParams p = GetSubtitleParams(i);
-
-      if (p.enabled()) {
-        tip.append("\n");
-        tip.append(DescribeSubtitleStream(p));
-      }
-    }
-
-    SetToolTip(tip);
-  } else {
-    SetToolTip(tr("Invalid"));
   }
+
+  return true;
+}
+
+void Footage::SaveCustom(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement(QStringLiteral("timestamp"), QString::number(this->timestamp()));
+
+  writer->writeStartElement(QStringLiteral("viewer"));
+
+  ViewerOutput::SaveCustom(writer);
+
+  writer->writeEndElement(); // viewer
+}
+
+void Footage::AddedToGraphEvent(Project *p)
+{
+  connect(p->color_manager(), &ColorManager::DefaultInputChanged, this, &Footage::DefaultColorSpaceChanged);
+}
+
+void Footage::RemovedFromGraphEvent(Project *p)
+{
+  disconnect(p->color_manager(), &ColorManager::DefaultInputChanged, this, &Footage::DefaultColorSpaceChanged);
 }
 
 void Footage::Reprobe()
@@ -566,6 +596,23 @@ void Footage::CheckFootage()
         InvalidateAll(kFilenameInput);
       }
     }
+  }
+}
+
+void Footage::DefaultColorSpaceChanged()
+{
+  bool inv = false;
+  int sz = GetVideoStreamCount();
+  for (int i = 0; i < sz; i++) {
+    // Check if any of our streams are using the default colorspace
+    if (GetVideoParams(i).colorspace().isEmpty()) {
+      inv = true;
+      break;
+    }
+  }
+
+  if (inv) {
+    InvalidateAll(kVideoParamsInput);
   }
 }
 

@@ -27,7 +27,9 @@
 #include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
+#include "node/color/ociobase/ociobase.h"
 #include "node/factory.h"
+#include "node/serializeddata.h"
 #include "render/diskmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -35,38 +37,41 @@ namespace olive {
 
 #define super QObject
 
+const QString Project::kCacheLocationSettingKey = QStringLiteral("cachesetting");
+const QString Project::kCachePathKey = QStringLiteral("customcachepath");
+const QString Project::kColorConfigFilename = QStringLiteral("colorconfigfilename");
+const QString Project::kDefaultInputColorSpaceKey = QStringLiteral("defaultinputcolorspace");
+const QString Project::kColorReferenceSpace = QStringLiteral("colorreferencespace");
+const QString Project::kRootKey = QStringLiteral("root");
+
 const QString Project::kItemMimeType = QStringLiteral("application/x-oliveprojectitemdata");
 
 Project::Project() :
+  root_(nullptr),
   is_modified_(false),
   autorecovery_saved_(true)
 {
   // Generate UUID for this project
   RegenerateUuid();
 
-  // Folder root for project
-  root_ = new Folder();
-  root_->setParent(this);
-  root_->SetLabel(tr("Root"));
-  AddDefaultNode(root_);
-
-  // Adds a color manager "node" to this project so that it synchronizes
-  color_manager_ = new ColorManager();
-  color_manager_->setParent(this);
-  AddDefaultNode(color_manager_);
-
-  // Same with project settings
-  settings_ = new ProjectSettingsNode();
-  settings_->setParent(this);
-  AddDefaultNode(settings_);
-
-  connect(color_manager(), &ColorManager::ValueChanged,
-          this, &Project::ColorManagerValueChanged);
+  // Initialize color manager
+  color_manager_ = new ColorManager(this);
+  color_manager_->Init();
 }
 
 Project::~Project()
 {
   Clear();
+}
+
+void Project::Initialize()
+{
+  if (!root_) {
+    root_ = new Folder();
+    root_->setParent(this);
+    root_->SetLabel(tr("Root"));
+    settings_.insert(kRootKey, QString::number(reinterpret_cast<quintptr>(root_)));
+  }
 }
 
 void Project::Clear()
@@ -79,6 +84,111 @@ void Project::Clear()
 
   while (!node_children_.isEmpty()) {
     delete node_children_.last();
+  }
+}
+
+SerializedData Project::Load(QXmlStreamReader *reader)
+{
+  SerializedData data;
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("uuid")) {
+
+      this->SetUuid(QUuid::fromString(reader->readElementText()));
+
+    } else if (reader->name() == QStringLiteral("nodes")) {
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("node")) {
+          QString id;
+
+          {
+            XMLAttributeLoop(reader, attr) {
+              if (attr.name() == QStringLiteral("id")) {
+                id = attr.value().toString();
+              }
+            }
+          }
+
+          if (id.isEmpty()) {
+            qWarning() << "Failed to load node with empty ID";
+            reader->skipCurrentElement();
+          } else {
+            Node* node = NodeFactory::CreateFromID(id);
+
+            if (!node) {
+              qWarning() << "Failed to find node with ID" << id;
+              reader->skipCurrentElement();
+            } else {
+              // Disable cache while node is being loaded (we'll re-enable it later)
+              node->SetCachesEnabled(false);
+
+              node->Load(reader, &data);
+
+              node->setParent(this);
+            }
+          }
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+    } else if (reader->name() == QStringLiteral("settings")) {
+      while (XMLReadNextStartElement(reader)) {
+        QString key = reader->name().toString();
+        QString val = reader->readElementText();
+        SetSetting(key, val);
+      }
+    } else {
+
+      // Skip this
+      reader->skipCurrentElement();
+
+    }
+  }
+
+  // Resolve root if applicable
+  QString root = GetSetting(kRootKey);
+  if (!root.isEmpty()) {
+    quintptr r = root.toULongLong();
+    if (Node *n = data.node_ptrs.value(r)) {
+      Q_ASSERT(!root_);
+      root_ = dynamic_cast<Folder*>(n);
+      SetSetting(kRootKey, QString::number(reinterpret_cast<quintptr>(root_)));
+    }
+  }
+
+  return data;
+}
+
+void Project::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeAttribute(QStringLiteral("version"), QString::number(1));
+
+  writer->writeTextElement(QStringLiteral("uuid"), this->GetUuid().toString());
+
+  if (!this->nodes().isEmpty()) {
+    writer->writeStartElement(QStringLiteral("nodes"));
+
+    foreach (Node* node, this->nodes()) {
+      writer->writeStartElement(QStringLiteral("node"));
+
+      node->Save(writer);
+
+      writer->writeEndElement(); // node
+    }
+
+    writer->writeEndElement(); // nodes
+  }
+
+  if (!this->settings_.isEmpty()) {
+    writer->writeStartElement(QStringLiteral("settings"));
+
+    for (auto it = this->settings_.cbegin(); it != this->settings_.cend(); it++) {
+      writer->writeTextElement(it.key(), it.value());
+    }
+
+    writer->writeEndElement(); // settings
   }
 }
 
@@ -120,6 +230,7 @@ void Project::childEvent(QChildEvent *event)
 
       emit NodeAdded(node);
       emit node->AddedToGraph(this);
+      node->AddedToGraphEvent(this);
 
       // Emit input connections
       for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
@@ -153,6 +264,7 @@ void Project::childEvent(QChildEvent *event)
 
       emit NodeRemoved(node);
       emit node->RemovedFromGraph(this);
+      node->RemovedFromGraphEvent(this);
 
       // Remove from any contexts
       foreach (Node *context, node_children_) {
@@ -160,11 +272,6 @@ void Project::childEvent(QChildEvent *event)
       }
     }
   }
-}
-
-Folder *Project::root()
-{
-  return root_;
 }
 
 QString Project::name() const
@@ -238,20 +345,20 @@ QString Project::get_cache_alongside_project_path() const
 
 QString Project::cache_path() const
 {
-  ProjectSettingsNode::CacheSetting setting = settings_->GetCacheSetting();
+  CacheSetting setting = GetCacheLocationSetting();
 
   switch (setting) {
-  case ProjectSettingsNode::kCacheUseDefaultLocation:
+  case kCacheUseDefaultLocation:
     break;
-  case ProjectSettingsNode::kCacheCustomPath:
+  case kCacheCustomPath:
   {
-    QString cache_path = settings_->GetCustomCachePath();
+    QString cache_path = GetCustomCachePath();
     if (cache_path.isEmpty()) {
       return cache_path;
     }
     break;
   }
-  case ProjectSettingsNode::kCacheStoreAlongsideProject:
+  case kCacheStoreAlongsideProject:
   {
     QString alongside = get_cache_alongside_project_path();
     if (!alongside.isEmpty()) {
@@ -274,15 +381,17 @@ Project *Project::GetProjectFromObject(const QObject *o)
   return QtUtils::GetParentOfType<Project>(o);
 }
 
-void Project::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
+void Project::SetSetting(const QString &key, const QString &value)
 {
-  Q_UNUSED(input)
-  Q_UNUSED(range)
+  settings_.insert(key, value);
+  emit SettingChanged(key, value);
 
-  QVector<Footage*> footage = root()->ListChildrenOfType<Footage>();
-
-  foreach (Footage* item, footage) {
-    item->InvalidateAll(QString());
+  if (key == kColorReferenceSpace) {
+    emit color_manager_->ReferenceSpaceChanged(value);
+  } else if (key == kColorConfigFilename) {
+    color_manager_->UpdateConfigFromFilename();
+  } else if (key == kDefaultInputColorSpaceKey) {
+    emit color_manager_->DefaultInputChanged(value);
   }
 }
 

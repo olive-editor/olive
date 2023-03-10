@@ -45,6 +45,8 @@ public:
     return static_cast<T*>(copy_map_.key(copy));
   }
 
+  Project *GetCopiedProject() const { return copy_; }
+
   const QHash<Node*, Node*> &GetNodeMap() const { return copy_map_; }
 
   const JobTime &GetGraphChangeTime() const { return graph_changed_time_; }
@@ -70,7 +72,8 @@ private:
   void DoEdgeAdd(Node *output, const NodeInput& input);
   void DoEdgeRemove(Node *output, const NodeInput& input);
   void DoValueChange(const NodeInput& input);
-  void DoValueHintChange(const NodeInput& input);
+  void DoValueHintChange(const NodeInput &input);
+  void DoProjectSettingChange(const QString &key, const QString &value);
 
   void InsertIntoCopyMap(Node* node, Node* copy);
 
@@ -88,13 +91,17 @@ private:
       kEdgeAdded,
       kEdgeRemoved,
       kValueChanged,
-      kValueHintChanged
+      kValueHintChanged,
+      kProjectSettingChanged
     };
 
     Type type;
     Node* node;
     NodeInput input;
     Node *output;
+
+    QString key;
+    QString value;
   };
 
   std::list<QueuedJob> graph_update_queue_;
@@ -117,6 +124,8 @@ private slots:
   void QueueValueChange(const NodeInput& input);
 
   void QueueValueHintChange(const NodeInput &input);
+
+  void QueueProjectSettingChange(const QString &key, const QString &value);
 
 };
 

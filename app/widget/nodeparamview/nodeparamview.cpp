@@ -123,8 +123,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     keyframe_area_layout->addWidget(keyframe_view_);
 
     // Connect ruler and keyframe view together
-    connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
-    connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
+    connect(keyframe_view_, &KeyframeView::Dragged, this, static_cast<void(NodeParamView::*)(int)>(&NodeParamView::SetCatchUpScrollValue));
+    connect(keyframe_view_, &KeyframeView::Released, this, static_cast<void(NodeParamView::*)()>(&NodeParamView::StopCatchUpScrollTimer));
 
     splitter->addWidget(keyframe_area);
 
@@ -537,7 +537,7 @@ bool NodeParamView::CopySelected(bool cut)
     return false;
   }
 
-  ProjectSerializer::SaveData sdata(contexts_.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   ProjectSerializer::SerializedProperties properties;
   QVector<Node*> nodes;
 
@@ -558,7 +558,7 @@ bool NodeParamView::CopySelected(bool cut)
   sdata.SetOnlySerializeNodesAndResolveGroups(nodes);
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Copy(sdata, QStringLiteral("nodes"));
+  ProjectSerializer::Copy(sdata);
 
   if (cut) {
     DeleteSelected();
@@ -580,15 +580,15 @@ bool NodeParamView::Paste()
 
 bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(const ProjectSerializer::Result &)> get_existing_map_function)
 {
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  if (res.GetLoadData().nodes.isEmpty()) {
     return false;
   }
 
   // Determine if any nodes of this type are already in the editor
   QHash<Node*, Node*> existing_nodes = get_existing_map_function(res);
 
-  QVector<Node*> nodes_to_paste_as_new = res.GetLoadedNodes();
+  QVector<Node*> nodes_to_paste_as_new = res.GetLoadData().nodes;
   MultiUndoCommand *command = new MultiUndoCommand();
 
   if (!existing_nodes.empty()) {
@@ -835,7 +835,7 @@ QHash<Node *, Node *> NodeParamView::GenerateExistingPasteMap(const ProjectSeria
 {
   QVector<Node*> ignore_nodes;
   QHash<Node*, Node*> existing_nodes;
-  for (Node *n : r.GetLoadedNodes()) {
+  for (Node *n : r.GetLoadData().nodes) {
     if (Node *existing = GetNodeWithIDAndIgnoreList(n->id(), ignore_nodes)) {
       existing_nodes.insert(existing, n);
       ignore_nodes.append(existing);
@@ -897,18 +897,6 @@ void NodeParamView::PinNode(bool pin)
     parent = parent->parent();
   }
 }*/
-
-void NodeParamView::KeyframeViewDragged(int x, int y)
-{
-  Q_UNUSED(y)
-
-  SetCatchUpScrollValue(x);
-}
-
-void NodeParamView::KeyframeViewReleased()
-{
-  StopCatchUpScrollTimer();
-}
 
 void NodeParamView::UpdateElementY()
 {

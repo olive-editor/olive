@@ -188,10 +188,10 @@ void KeyframeView::SelectionManagerDeselectEvent(void *obj)
 bool KeyframeView::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata;
+    ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyKeyframes);
     sdata.SetOnlySerializeKeyframes(selection_manager_.GetSelectedObjects());
 
-    ProjectSerializer::Copy(sdata, QStringLiteral("keyframes"));
+    ProjectSerializer::Copy(sdata);
 
     if (cut) {
       DeleteSelected();
@@ -209,7 +209,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
     return false;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyKeyframes);
   if (res == ProjectSerializer::kSuccess) {
     const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
 
@@ -254,6 +254,15 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
   return false;
 }
 
+void KeyframeView::CatchUpScrollEvent()
+{
+  super::CatchUpScrollEvent();
+
+  if (this->selection_manager_.IsRubberBanding()) {
+    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
+  }
+}
+
 void KeyframeView::mousePressEvent(QMouseEvent *event)
 {
   NodeKeyframe *key_under_cursor = selection_manager_.GetObjectAtPoint(event->pos());
@@ -289,7 +298,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
     KeyframeDragMove(event, tip);
     selection_manager_.DragMove(event, tip);
   } else if (selection_manager_.IsRubberBanding()) {
-    selection_manager_.RubberBandMove(event);
+    selection_manager_.RubberBandMove(event->pos());
     Redraw();
   }
 
@@ -313,12 +322,13 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     selection_manager_.DragStop(command);
     KeyframeDragRelease(event, command);
     Core::instance()->undo_stack()->push(command);
-    emit Released();
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
     emit SelectionChanged();
   }
+
+  emit Released();
 }
 
 int BinarySearchFirstKeyframeAfterOrAt(const QVector<NodeKeyframe*> &keys, const rational &time)
@@ -614,6 +624,13 @@ void KeyframeView::ShowKeyframePropertiesDialog()
   if (!GetSelectedKeyframes().empty()) {
     KeyframePropertiesDialog kd(GetSelectedKeyframes(), timebase(), this);
     kd.exec();
+  }
+}
+
+void KeyframeView::UpdateRubberBandForScroll()
+{
+  if (this->selection_manager_.IsRubberBanding()) {
+    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
   }
 }
 

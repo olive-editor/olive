@@ -36,8 +36,7 @@ const QString Block::kLengthInput = QStringLiteral("length_in");
 Block::Block() :
   previous_(nullptr),
   next_(nullptr),
-  track_(nullptr),
-  index_(-1)
+  track_(nullptr)
 {
   AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden));
   SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
@@ -133,6 +132,16 @@ void Block::InvalidateCache(const TimeRange& range, const QString& from, int ele
   }
 
   super::InvalidateCache(r, from, element, options);
+}
+
+void Block::set_previous_next(Block *previous, Block *next)
+{
+  if (previous) {
+    previous->set_next(next);
+  }
+  if (next) {
+    next->set_previous(previous);
+  }
 }
 
 }

@@ -198,7 +198,7 @@ void NodeAddCommand::undo()
 
 Project *NodeAddCommand::GetRelevantProject() const
 {
-  return dynamic_cast<Project*>(graph_);
+  return graph_;
 }
 
 void NodeRemoveAndDisconnectCommand::prepare()

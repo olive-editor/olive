@@ -191,6 +191,9 @@ public:
   const EncodingParams &GetLastUsedEncodingParams() const { return last_used_encoding_params_; }
   void SetLastUsedEncodingParams(const EncodingParams &p) { last_used_encoding_params_ = p; }
 
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
   static const QString kVideoParamsInput;
   static const QString kAudioParamsInput;
   static const QString kSubtitleParamsInput;

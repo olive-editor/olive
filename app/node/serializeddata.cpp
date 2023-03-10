@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,13 +18,8 @@
 
 ***/
 
-#include "serializer190219.h"
+#include "serializeddata.h"
 
 namespace olive {
-
-ProjectSerializer::LoadData ProjectSerializer190219::Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const
-{
-  return LoadData();
-}
 
 }

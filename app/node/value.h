@@ -188,6 +188,11 @@ public:
     kSubtitleParams,
 
     /**
+     * Binary Data
+     */
+    kBinary,
+
+    /**
      * End of list
      */
     kDataTypeCount

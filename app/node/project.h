@@ -25,10 +25,9 @@
 #include <QObject>
 #include <QUuid>
 
-#include "node/color/colormanager/colormanager.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project/footage/footage.h"
-#include "node/project/projectsettings/projectsettings.h"
+#include "node/color/colormanager/colormanager.h"
 #include "window/mainwindow/mainwindowlayoutinfo.h"
 
 namespace olive {
@@ -48,6 +47,12 @@ class Project : public QObject
 {
   Q_OBJECT
 public:
+  enum CacheSetting {
+    kCacheUseDefaultLocation,
+    kCacheStoreAlongsideProject,
+    kCacheCustomPath
+  };
+
   Project();
 
   virtual ~Project() override;
@@ -65,14 +70,12 @@ public:
     return node_children_;
   }
 
-  const QVector<Node*>& default_nodes() const
-  {
-    return default_nodes_;
-  }
+  void Initialize();
+
+  SerializedData Load(QXmlStreamReader *reader);
+  void Save(QXmlStreamWriter *writer) const;
 
   int GetNumberOfContextsNodeIsIn(Node *node, bool except_itself = false) const;
-
-  Folder* root();
 
   QString name() const;
 
@@ -80,8 +83,8 @@ public:
   QString pretty_filename() const;
   void set_filename(const QString& s);
 
-  ColorManager* color_manager() { return color_manager_; }
-  ProjectSettingsNode* settings() { return settings_; }
+  Folder *root() const { return root_; }
+  ColorManager *color_manager() const { return color_manager_; }
 
   bool is_modified() const { return is_modified_; }
   void set_modified(bool e);
@@ -106,16 +109,6 @@ public:
 
   void RegenerateUuid();
 
-  const MainWindowLayoutInfo &GetLayoutInfo() const
-  {
-    return layout_info_;
-  }
-
-  void SetLayoutInfo(const MainWindowLayoutInfo &info)
-  {
-    layout_info_ = info;
-  }
-
   /**
    * @brief Returns the filename the project was saved as, but not necessarily where it is now
    *
@@ -139,7 +132,34 @@ public:
    */
   static Project *GetProjectFromObject(const QObject *o);
 
+  static void CopySettings(Project *from, Project *to) { to->settings_ = from->settings_; }
+
   static const QString kItemMimeType;
+
+  static const QString kCacheLocationSettingKey;
+  static const QString kCachePathKey;
+  static const QString kColorConfigFilename;
+  static const QString kColorReferenceSpace;
+  static const QString kDefaultInputColorSpaceKey;
+  static const QString kRootKey;
+
+  QString GetSetting(const QString &key) const { return settings_.value(key); }
+  void SetSetting(const QString &key, const QString &value);
+
+  CacheSetting GetCacheLocationSetting() const { return static_cast<CacheSetting>(GetSetting(kCacheLocationSettingKey).toInt()); }
+  void SetCacheLocationSetting(CacheSetting s) { SetSetting(kCacheLocationSettingKey, QString::number(s)); }
+
+  QString GetCustomCachePath() const { return GetSetting(kCachePathKey); }
+  void SetCustomCachePath(const QString &path) { SetSetting(kCachePathKey, path); }
+
+  QString GetColorConfigFilename() const { return GetSetting(kColorConfigFilename); }
+  void SetColorConfigFilename(const QString& s) { SetSetting(kColorConfigFilename, s); }
+
+  QString GetDefaultInputColorSpace() const { return GetSetting(kDefaultInputColorSpaceKey); }
+  void SetDefaultInputColorSpace(const QString& s) { SetSetting(kDefaultInputColorSpaceKey, s); }
+
+  QString GetColorReferenceSpace() const { return GetSetting(kColorReferenceSpace); }
+  void SetColorReferenceSpace(const QString& s) { SetSetting(kColorReferenceSpace, s); }
 
 signals:
   void NameChanged();
@@ -170,12 +190,9 @@ signals:
 
   void GroupChangedOutputPassthrough(NodeGroup *group, Node *output);
 
-protected:
-  void AddDefaultNode(Node* n)
-  {
-    default_nodes_.append(n);
-  }
+  void SettingChanged(const QString &key, const QString &value);
 
+protected:
   virtual void childEvent(QChildEvent* event) override;
 
 private:
@@ -187,22 +204,15 @@ private:
 
   QString saved_url_;
 
-  ColorManager* color_manager_;
-
-  ProjectSettingsNode* settings_;
-
   bool is_modified_;
 
   bool autorecovery_saved_;
 
-  MainWindowLayoutInfo layout_info_;
+  ColorManager *color_manager_;
 
   QVector<Node*> node_children_;
 
-  QVector<Node*> default_nodes_;
-
-private slots:
-  void ColorManagerValueChanged(const NodeInput& input, const TimeRange& range);
+  QMap<QString, QString> settings_;
 
 };
 

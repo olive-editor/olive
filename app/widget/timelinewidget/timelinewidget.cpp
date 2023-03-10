@@ -274,6 +274,10 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetScale(scale);
   }
+
+  if (rubberband_.isVisible()) {
+    QMetaObject::invokeMethod(this, &TimelineWidget::ForceUpdateRubberBand, Qt::QueuedConnection);
+  }
 }
 
 void TimelineWidget::ConnectNodeEvent(ViewerOutput *n)
@@ -336,6 +340,15 @@ void TimelineWidget::DisconnectNodeEvent(ViewerOutput *n)
   foreach (TimelineAndTrackView* tview, views_) {
     tview->track_view()->DisconnectTrackList();
     tview->view()->ConnectTrackList(nullptr);
+  }
+}
+
+void TimelineWidget::SendCatchUpScrollEvent()
+{
+  super::SendCatchUpScrollEvent();
+
+  if (rubberband_.isVisible()) {
+    this->ForceUpdateRubberBand();
   }
 }
 
@@ -569,14 +582,14 @@ void TimelineWidget::DecreaseTrackHeight()
 void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& footage)
 {
   auto command = new MultiUndoCommand();
-  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), true, command);
+  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), true, command, 0, true);
   Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   auto command = new MultiUndoCommand();
-  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), false, command);
+  import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), false, command, 0, true);
   Core::instance()->undo_stack()->push(command);
 }
 
@@ -646,7 +659,7 @@ bool TimelineWidget::CopySelected(bool cut)
     }
   }
 
-  ProjectSerializer::SaveData sdata(selected_nodes.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes);
 
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
@@ -664,7 +677,7 @@ bool TimelineWidget::CopySelected(bool cut)
 
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Copy(sdata, QStringLiteral("timeline"));
+  ProjectSerializer::Copy(sdata);
 
   if (cut) {
     DeleteSelected();
@@ -1564,6 +1577,13 @@ void TimelineWidget::MulticamEnabledTriggered(bool e)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void TimelineWidget::ForceUpdateRubberBand()
+{
+  if (rubberband_.isVisible()) {
+    this->MoveRubberBandSelect(rubberband_enable_selecting_, rubberband_select_links_);
+  }
+}
+
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 {
   ghost_items_.append(ghost);
@@ -1912,61 +1932,32 @@ void TimelineWidget::UpdateViewports(const Track::Type &type)
   }
 }
 
-QVector<Block *> TimelineWidget::GetBlocksInGlobalRect(const QPoint &p1, const QPoint& p2)
-{
-  QVector<Block*> blocks_in_rect;
-
-  // Determine which tracks are in the rect
-  for (int i=0; i<views_.size(); i++) {
-    TimelineView* view = views_.at(i)->view();
-
-    // Map global mouse coordinates to viewport
-    QRectF mapped_rect(view->mapToScene(view->viewport()->mapFromGlobal(p1)),
-                       view->mapToScene(view->viewport()->mapFromGlobal(p2)));
-
-    // Normalize
-    mapped_rect = mapped_rect.normalized();
-
-    // Get tracks
-    TrackList* track_list = sequence()->track_list(static_cast<Track::Type>(i));
-
-    for (int j=0; j<track_list->GetTrackCount(); j++) {
-      int track_top = view->GetTrackY(j);
-      int track_bottom = track_top + view->GetTrackHeight(j);
-
-      if (!(track_bottom < mapped_rect.top() || track_top > mapped_rect.bottom())) {
-        // This track is in the rect, so we'll iterate through its blocks and see where they start
-        rational left_time = SceneToTime(mapped_rect.left());
-        rational right_time = SceneToTime(mapped_rect.right(), true);
-
-        Track* track = track_list->GetTrackAt(j);
-        foreach (Block* b, track->Blocks()) {
-          if (!(b->out() < left_time || b->in() > right_time)) {
-            blocks_in_rect.append(b);
-          }
-        }
-      }
-    }
-  }
-
-  return blocks_in_rect;
-}
-
 bool TimelineWidget::PasteInternal(bool insert)
 {
   if (!GetConnectedNode()) {
     return false;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("timeline"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes, GetConnectedNode()->project());
+  if (res.GetLoadData().nodes.isEmpty()) {
     return false;
   }
 
   MultiUndoCommand *command = new MultiUndoCommand();
 
-  foreach (Node *n, res.GetLoadedNodes()) {
-    command->add_child(new NodeAddCommand(GetConnectedNode()->project(), n));
+  Project *project = GetConnectedNode()->project();
+  foreach (Node *n, res.GetLoadData().nodes) {
+    command->add_child(new NodeAddCommand(project, n));
+    if (n->IsItem() && !n->folder()) {
+      command->add_child(new FolderAddChild(project->root(), n));
+    }
+  }
+
+  qDebug() << "pasing" << res.GetLoadData().nodes.size() << "nodes";
+
+  for (auto it = res.GetLoadData().promised_connections.cbegin(); it != res.GetLoadData().promised_connections.cend(); it++) {
+    auto oc = *it;
+    command->add_child(new NodeEdgeAddCommand(oc.first, oc.second));
   }
 
   rational paste_start = GetConnectedNode()->GetPlayhead();
@@ -2013,7 +2004,7 @@ QHash<Node *, Node *> TimelineWidget::GenerateExistingPasteMap(const ProjectSeri
 {
   QHash<Node *, Node *> m;
 
-  for (Node *n : r.GetLoadedNodes()) {
+  for (Node *n : r.GetLoadData().nodes) {
     for (Block *b : qAsConst(this->selected_blocks_)) {
       for (auto it=b->GetContextPositions().cbegin(); it!=b->GetContextPositions().cend(); it++) {
         if (it.key()->id() == n->id() && !m.contains(it.key())) {
@@ -2039,11 +2030,12 @@ void TimelineWidget::RestoreSplitterState(const QByteArray &state)
 
 void TimelineWidget::StartRubberBandSelect(const QPoint &global_cursor_start)
 {
-  drag_origin_ = global_cursor_start;
-
-  // Start rubberband at origin
-  QPoint local_origin = mapFromGlobal(drag_origin_);
-  rubberband_.setGeometry(QRect(local_origin.x(), local_origin.y(), 0, 0));
+  // Store scene positions for each view
+  rubberband_scene_pos_.resize(views_.size());
+  for (int i = 0; i < rubberband_scene_pos_.size(); i++) {
+    TimelineView *v = views_.at(i)->view();
+    rubberband_scene_pos_[i] = v->UnscalePoint(v->mapToScene(v->mapFromGlobal(global_cursor_start)));
+  }
 
   rubberband_.show();
 
@@ -2056,14 +2048,30 @@ void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_lin
 {
   QPoint rubberband_now = QCursor::pos();
 
-  rubberband_.setGeometry(QRect(mapFromGlobal(drag_origin_), mapFromGlobal(rubberband_now)).normalized());
+  TimelineView *fv = views_.first()->view();
+  const QPointF &rubberband_scene_start = rubberband_scene_pos_.at(0);
+  QPointF rubberband_now_scaled = fv->UnscalePoint(fv->mapToScene(fv->mapFromGlobal(rubberband_now)));
+
+  QPoint rubberband_local_start = fv->mapTo(this, fv->mapFromScene(fv->ScalePoint(rubberband_scene_start)));
+  QPoint rubberband_local_now = fv->mapTo(this, fv->mapFromScene(fv->ScalePoint(rubberband_now_scaled)));
+
+  rubberband_.setGeometry(QRect(rubberband_local_start, rubberband_local_now).normalized());
+
+  rubberband_enable_selecting_ = enable_selecting;
+  rubberband_select_links_ = select_links;
 
   if (!enable_selecting) {
     return;
   }
 
   // Get current items in rubberband
-  QVector<Block*> items_in_rubberband = GetBlocksInGlobalRect(drag_origin_, rubberband_now);
+  QVector<Block*> items_in_rubberband;
+
+  for (int i = 0; i < views_.size(); i++) {
+    TimelineView *v = views_.at(i)->view();
+    QRectF r = QRectF(v->ScalePoint(rubberband_scene_pos_.at(i)), v->mapToScene(v->mapFromGlobal(rubberband_now))).normalized();
+    items_in_rubberband.append(v->GetItemsAtSceneRect(r));
+  }
 
   // Reset selection to whatever it was before
   SetSelections(rubberband_old_selections_, false);

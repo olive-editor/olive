@@ -56,8 +56,9 @@ namespace olive {
 #define NODE_COPY_FUNCTION(x) \
   virtual Node *copy() const override {return new x();}
 
-class Project;
 class Folder;
+class Project;
+struct SerializedData;
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -175,11 +176,6 @@ public:
    */
   virtual QString Description() const;
 
-  const QString& ToolTip() const
-  {
-    return tooltip_;
-  }
-
   Folder* folder() const
   {
     return folder_;
@@ -198,7 +194,8 @@ public:
     DURATION,
     CREATED_TIME,
     MODIFIED_TIME,
-    FREQUENCY_RATE
+    FREQUENCY_RATE,
+    TOOLTIP
   };
 
   virtual QVariant data(const DataType &d) const;
@@ -287,6 +284,9 @@ public:
       position = p;
       expanded = e;
     }
+
+    bool load(QXmlStreamReader *reader);
+    void save(QXmlStreamWriter *writer) const;
 
     QPointF position;
     bool expanded;
@@ -682,6 +682,9 @@ public:
     void set_index(const int &index) { index_ = index; }
     void set_tag(const QString &tag) { tag_ = tag; }
 
+    bool load(QXmlStreamReader *reader);
+    void save(QXmlStreamWriter *writer) const;
+
   private:
     QVector<NodeValue::Type> type_;
     int index_;
@@ -941,6 +944,19 @@ public:
   static bool Unlink(Node* a, Node* b);
   static bool AreLinked(Node* a, Node* b);
 
+  bool Load(QXmlStreamReader *reader, SerializedData *data);
+  void Save(QXmlStreamWriter *writer) const;
+
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data);
+  virtual void SaveCustom(QXmlStreamWriter *writer) const {}
+  virtual void PostLoadEvent(SerializedData *data);
+
+  bool LoadInput(QXmlStreamReader *reader, SerializedData *data);
+  void SaveInput(QXmlStreamWriter *writer, const QString &id) const;
+
+  bool LoadImmediate(QXmlStreamReader *reader, const QString &input, int element, SerializedData *data);
+  void SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const;
+
   void SetFolder(Folder* folder)
   {
     folder_ = folder;
@@ -960,6 +976,9 @@ public:
   static std::list<NodeInput> FindPath(Node *from, Node *to, int path_index);
 
   void ArrayResizeInternal(const QString& id, int size);
+
+  virtual void AddedToGraphEvent(Project *p){}
+  virtual void RemovedFromGraphEvent(Project *p){}
 
   static const QString kEnabledInput;
 
@@ -1024,11 +1043,6 @@ protected:
   void SetEffectInput(const QString &input)
   {
     effect_input_ = input;
-  }
-
-  void SetToolTip(const QString& s)
-  {
-    tooltip_ = s;
   }
 
   void SetFlag(Flag f, bool on = true)
@@ -1228,8 +1242,6 @@ private:
   InputConnections input_connections_;
 
   OutputConnections output_connections_;
-
-  QString tooltip_;
 
   Folder* folder_;
 

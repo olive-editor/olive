@@ -172,6 +172,16 @@ void QtUtils::SetComboBoxData(QComboBox *cb, int data)
   }
 }
 
+void QtUtils::SetComboBoxData(QComboBox *cb, const QString &data)
+{
+  for (int i=0; i<cb->count(); i++) {
+    if (cb->itemData(i).toString() == data) {
+      cb->setCurrentIndex(i);
+      break;
+    }
+  }
+}
+
 QColor QtUtils::toQColor(const core::Color &i)
 {
   QColor c;

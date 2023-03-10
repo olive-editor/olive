@@ -42,6 +42,11 @@ public:
     override_filename_ = filename;
   }
 
+  void SetLayout(const MainWindowLayoutInfo &layout)
+  {
+    layout_ = layout;
+  }
+
 protected:
   virtual bool Run() override;
 
@@ -51,6 +56,8 @@ private:
   QString override_filename_;
 
   bool use_compression_;
+
+  MainWindowLayoutInfo layout_;
 
 };
 

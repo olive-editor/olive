@@ -31,7 +31,7 @@ public:
   ProjectSerializer210907() = default;
 
 protected:
-  virtual LoadData Load(Project *project, QXmlStreamReader *reader, void *reserved) const override;
+  virtual LoadData Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const override;
 
   virtual uint Version() const override
   {
@@ -66,6 +66,10 @@ private:
   };
 
   void LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const;
+
+  void LoadColorManager(QXmlStreamReader* reader, Project *project) const;
+
+  void LoadProjectSettings(QXmlStreamReader* reader, Project *project) const;
 
   void LoadInput(Node *node, QXmlStreamReader* reader, XMLNodeData &xml_node_data) const;
 

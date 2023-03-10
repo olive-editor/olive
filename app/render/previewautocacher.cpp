@@ -625,9 +625,12 @@ RenderTicketPtr PreviewAutoCacher::RenderAudio(Node *node, ViewerOutput *context
   connect(watcher, &RenderTicketWatcher::Finished, this, &PreviewAutoCacher::AudioRendered);
   running_audio_tasks_.append(watcher);
 
+  AudioParams p = context->GetAudioParams();
+  p.set_format(ViewerOutput::kDefaultSampleFormat);
+
   RenderManager::RenderAudioParams rap(node,
                                        r,
-                                       context->GetAudioParams(),
+                                       p,
                                        RenderMode::kOffline);
 
   rap.generate_waveforms = dynamic_cast<AudioWaveformCache*>(cache);
@@ -730,7 +733,7 @@ void PreviewAutoCacher::SetProject(Project *project)
     }
 
     // Find copied viewer node
-    copied_color_manager_ = copier_->GetCopy(project_->color_manager());
+    copied_color_manager_ = copier_->GetCopiedProject()->color_manager();
 
     SetRendersPaused(false);
   }

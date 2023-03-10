@@ -51,6 +51,8 @@ private:
 
   QComboBox* default_input_colorspace_;
 
+  QComboBox *reference_space_;
+
   bool ocio_config_is_valid_;
 
   QString ocio_config_error_;

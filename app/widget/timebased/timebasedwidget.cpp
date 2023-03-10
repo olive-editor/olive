@@ -49,6 +49,7 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   ConnectTimelineView(ruler_);
   ruler()->SetSnapService(this);
+  connect(ruler(), &TimeRuler::DragMoved, this, static_cast<void(TimeBasedWidget::*)(int)>(&TimeBasedWidget::SetCatchUpScrollValue));
   connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
 
   catchup_scroll_timer_ = new QTimer(this);
@@ -230,6 +231,15 @@ void TimeBasedWidget::CatchUpTimerTimeout()
     const CatchUpScrollData &d = it.value();
     PageScrollInternal(sb, d.maximum, sb->value() + d.value, false);
   }
+
+  SendCatchUpScrollEvent();
+}
+
+void TimeBasedWidget::SendCatchUpScrollEvent()
+{
+  for (auto v : this->timeline_views_) {
+    v->CatchUpScrollEvent();
+  }
 }
 
 void TimeBasedWidget::AutoUpdateTimebase()
@@ -282,6 +292,8 @@ void TimeBasedWidget::ScaleChangedEvent(const double &scale)
   scrollbar_->SetScale(scale);
 
   UpdateMaximumScroll();
+
+  QMetaObject::invokeMethod(this, &TimeBasedWidget::SendCatchUpScrollEvent, Qt::QueuedConnection);
 
   toggle_show_all_ = false;
 }
@@ -911,7 +923,7 @@ void TimeBasedWidget::HideSnaps()
 
 bool TimeBasedWidget::CopySelected(bool cut)
 {
-  if (ruler()->hasFocus() && ruler()->CopySelected(cut)) {
+  if (ruler()->CopySelected(cut)) {
     return true;
   }
 
@@ -920,7 +932,7 @@ bool TimeBasedWidget::CopySelected(bool cut)
 
 bool TimeBasedWidget::Paste()
 {
-  if (ruler()->hasFocus() && ruler()->PasteMarkers()) {
+  if (ruler()->PasteMarkers()) {
     return true;
   }
 

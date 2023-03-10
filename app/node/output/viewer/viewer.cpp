@@ -430,6 +430,36 @@ void ViewerOutput::Value(const NodeValueRow &value, const NodeGlobals &globals, 
   }
 }
 
+bool ViewerOutput::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("markers")) {
+      if (!this->GetMarkers()->load(reader)) {
+        return false;
+      }
+    } else if (reader->name() == QStringLiteral("workarea")) {
+      if (!this->GetWorkArea()->load(reader)) {
+        return false;
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
+}
+
+void ViewerOutput::SaveCustom(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement(QStringLiteral("workarea"));
+  this->GetWorkArea()->save(writer);
+  writer->writeEndElement(); // workarea
+
+  writer->writeStartElement(QStringLiteral("markers"));
+  this->GetMarkers()->save(writer);
+  writer->writeEndElement(); // markers
+}
+
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
 {
   if (element == 0) {
