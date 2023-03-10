@@ -1,5 +1,5 @@
 --- ImathTargets-release.cmake	2022-05-25 22:12:51.000000000 +0000
-+++ rel.cmake	2022-12-10 21:25:53.362472000 +0000
++++ ImathTargets-release.cmake	2022-12-10 21:25:53.362472000 +0000
 @@ -15,16 +15,17 @@
  list(APPEND _IMPORT_CHECK_TARGETS Imath::Imath )
  list(APPEND _IMPORT_CHECK_FILES_FOR_Imath::Imath "${_IMPORT_PREFIX}/lib64/libImath-3_1.so.29.4.0" )

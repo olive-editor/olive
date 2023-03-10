@@ -74,7 +74,8 @@ COPY scripts/build_olive.sh /tmp/
 
 # HACK: The ASWF Imath is compiled with Python support that we ignore to avoid an error:
 #  set_property could not find TARGET Imath::PyImath_Python3_9.
-COPY scripts/DisableImathPythonRelease.patch /tmp/
+COPY scripts/DisableImathPython.patch scripts/DisableImathPythonRelease.patch /tmp/
+RUN patch -u /usr/local/lib64/cmake/Imath/ImathTargets.cmake /tmp/DisableImathPython.patch
 RUN patch -u /usr/local/lib64/cmake/Imath/ImathTargets-release.cmake /tmp/DisableImathPythonRelease.patch
 
 RUN curl --location "https://github.com/probonopd/linuxdeployqt/releases/download/7/linuxdeployqt-7-x86_64.AppImage" \
