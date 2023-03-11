@@ -105,7 +105,11 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
                   reader->skipCurrentElement();
                 } else {
                   LoadNode(node, xml_node_data, reader);
-                  node->setParent(project);
+                  if (project) {
+                    node->setParent(project);
+                  } else {
+                    load_data.nodes.append(node);
+                  }
                 }
               }
             }
