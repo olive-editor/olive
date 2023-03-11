@@ -209,7 +209,7 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
     selection_manager_.RubberBandMove(event->pos());
     viewport()->update();
   } else if (selection_manager_.IsDragging()) {
-    selection_manager_.DragMove(event);
+    selection_manager_.DragMove(event->pos());
   } else if (dragging_) {
     QPointF scene = mapToScene(event->pos());
     if (resize_item_) {
@@ -422,9 +422,7 @@ void SeekableWidget::CatchUpScrollEvent()
 {
   super::CatchUpScrollEvent();
 
-  if (this->selection_manager_.IsRubberBanding()) {
-    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
-  }
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)

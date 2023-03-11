@@ -258,9 +258,7 @@ void KeyframeView::CatchUpScrollEvent()
 {
   super::CatchUpScrollEvent();
 
-  if (this->selection_manager_.IsRubberBanding()) {
-    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
-  }
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event)
@@ -296,7 +294,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
   } else if (selection_manager_.IsDragging()) {
     QString tip;
     KeyframeDragMove(event, tip);
-    selection_manager_.DragMove(event, tip);
+    selection_manager_.DragMove(event->pos(), tip);
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandMove(event->pos());
     Redraw();
@@ -629,9 +627,7 @@ void KeyframeView::ShowKeyframePropertiesDialog()
 
 void KeyframeView::UpdateRubberBandForScroll()
 {
-  if (this->selection_manager_.IsRubberBanding()) {
-    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
-  }
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void KeyframeView::Redraw()

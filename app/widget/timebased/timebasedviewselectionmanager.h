@@ -206,7 +206,7 @@ public:
       }
     }
 
-    drag_mouse_start_ = view_->mapToScene(event->pos());
+    drag_mouse_start_ = view_->UnscalePoint(view_->mapToScene(event->pos()));
   }
 
   void SnapPoints(rational *movement)
@@ -233,9 +233,9 @@ public:
     }
   }
 
-  void DragMove(QMouseEvent *event, const QString &tip_format = QString())
+  void DragMove(const QPoint &local_pos, const QString &tip_format = QString())
   {
-    rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
+    rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(local_pos).x() - view_->ScalePoint(drag_mouse_start_).x());
 
     // Snap points
     rational presnap_time_diff = time_diff;
@@ -313,17 +313,13 @@ public:
                                            display_time, timebase_,
                                            Core::instance()->GetTimecodeDisplay(), false));
 
+    last_used_tip_format_ = tip_format;
     if (!tip_format.isEmpty()) {
       tip = tip_format.arg(tip);
     }
 
     QToolTip::hideText();
     QToolTip::showText(QCursor::pos(), tip);
-  }
-
-  void DragMove(QMouseEvent *event, TimeTargetObject *target)
-  {
-    return DragMove(event, QString(), target);
   }
 
   void DragStop(MultiUndoCommand *command)
@@ -386,6 +382,18 @@ public:
   bool IsRubberBanding() const
   {
     return rubberband_;
+  }
+
+  void ForceDragUpdate()
+  {
+    if (IsRubberBanding() || IsDragging()) {
+      QPoint local_pos = view_->viewport()->mapFromGlobal(QCursor::pos());
+      if (IsRubberBanding()) {
+        RubberBandMove(local_pos);
+      } else {
+        DragMove(local_pos, last_used_tip_format_);
+      }
+    }
   }
 
 private:
@@ -454,6 +462,8 @@ private:
   TimeBasedWidget::SnapMask snap_mask_;
 
   TimeTargetObject *time_target_;
+
+  QString last_used_tip_format_;
 
 };
 
