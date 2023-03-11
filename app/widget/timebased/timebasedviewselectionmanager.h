@@ -107,9 +107,10 @@ public:
   T *GetObjectAtPoint(const QPointF &scene_pt)
   {
     // Iterate in reverse order because the objects drawn later will appear on top to the user
+    QPointF unscaled = view_->UnscalePoint(scene_pt);
     for (auto it=drawn_objects_.crbegin(); it!=drawn_objects_.crend(); it++) {
       const DrawnObject &kp = *it;
-      if (kp.second.contains(scene_pt)) {
+      if (kp.second.contains(unscaled)) {
         return kp.first;
       }
     }
