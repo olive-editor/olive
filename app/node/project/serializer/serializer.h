@@ -42,6 +42,7 @@ public:
   {
     kProject,
     kOnlyNodes,
+    kOnlyClips,
     kOnlyMarkers,
     kOnlyKeyframes
   };

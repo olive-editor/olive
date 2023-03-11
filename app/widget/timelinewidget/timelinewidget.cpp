@@ -659,7 +659,7 @@ bool TimelineWidget::CopySelected(bool cut)
     }
   }
 
-  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyClips);
   sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes);
 
   // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
@@ -1938,7 +1938,7 @@ bool TimelineWidget::PasteInternal(bool insert)
     return false;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes, GetConnectedNode()->project());
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyClips, GetConnectedNode()->project());
   if (res.GetLoadData().nodes.isEmpty()) {
     return false;
   }
