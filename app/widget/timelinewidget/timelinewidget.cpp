@@ -451,7 +451,7 @@ void TimelineWidget::SplitAtPlayhead()
   }
 
   if (!blocks_to_split.isEmpty()) {
-    Core::instance()->undo_stack()->push(new BlockSplitPreservingLinksCommand(blocks_to_split, {playhead_time}));
+    Core::instance()->undo_stack()->push(new BlockSplitPreservingLinksCommand(blocks_to_split, {playhead_time}), tr("Split Clips At Playhead"));
   }
 }
 
@@ -545,7 +545,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
     command->add_child(ripple_command);
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Deleted Clips"));
 
   // Ensures any current drag operations are cancelled
   ClearGhosts();
@@ -583,14 +583,14 @@ void TimelineWidget::InsertFootageAtPlayhead(const QVector<ViewerOutput*>& foota
 {
   auto command = new MultiUndoCommand();
   import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), true, command, 0, true);
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Inserted Footage At Playhead"));
 }
 
 void TimelineWidget::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
 {
   auto command = new MultiUndoCommand();
   import_tool_->PlaceAt(footage, GetConnectedNode()->GetPlayhead(), false, command, 0, true);
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Overwrote Footage At Playhead"));
 }
 
 void TimelineWidget::ToggleLinksOnSelected()
@@ -616,7 +616,7 @@ void TimelineWidget::ToggleLinksOnSelected()
     return;
   }
 
-  Core::instance()->undo_stack()->push(new NodeLinkManyCommand(blocks, link));
+  Core::instance()->undo_stack()->push(new NodeLinkManyCommand(blocks, link), tr("Linked Clips"));
 }
 
 void TimelineWidget::AddDefaultTransitionsToSelected()
@@ -631,7 +631,7 @@ void TimelineWidget::AddDefaultTransitionsToSelected()
   }
 
   if (!blocks.isEmpty()) {
-    Core::instance()->undo_stack()->push(new TimelineAddDefaultTransitionCommand(blocks, timebase()));
+    Core::instance()->undo_stack()->push(new TimelineAddDefaultTransitionCommand(blocks, timebase()), tr("Added Default Transitions"));
   }
 }
 
@@ -755,7 +755,7 @@ void TimelineWidget::DeleteInToOut(bool ripple)
     GetConnectedNode()->SetPlayhead(GetConnectedNode()->GetWorkArea()->in());
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Deleted In To Out"));
 }
 
 void TimelineWidget::ToggleSelectedEnabled()
@@ -773,7 +773,7 @@ void TimelineWidget::ToggleSelectedEnabled()
                                                      !i->is_enabled()));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Toggled Clips Enabled"));
 }
 
 void TimelineWidget::SetColorLabel(int index)
@@ -784,7 +784,7 @@ void TimelineWidget::SetColorLabel(int index)
     command->add_child(new NodeOverrideColorCommand(b, index));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Set Colors of %1 Clips").arg(selected_blocks_.size()));
 }
 
 void TimelineWidget::NudgeLeft()
@@ -845,7 +845,7 @@ void TimelineWidget::RecordingCallback(const QString &filename, const TimeRange 
     import_command->add_child(subimport_command);
 
     import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
-    Core::instance()->undo_stack()->push(import_command);
+    Core::instance()->undo_stack()->push(import_command, tr("Recorded Audio Clip"));
   }
 }
 
@@ -977,7 +977,7 @@ void TimelineWidget::NestSelectedClips()
   // Place new sequence in this sequence
   import_tool_->PlaceAt({nest}, start_time, false, meta_command, index);
 
-  Core::instance()->undo_stack()->push(meta_command);
+  Core::instance()->undo_stack()->push(meta_command, tr("Nested Clips"));
 }
 
 void TimelineWidget::ClearTentativeSubtitleTrack()
@@ -1452,7 +1452,7 @@ void TimelineWidget::RenameSelectedBlocks()
   }
 
   Core::instance()->LabelNodes(nodes);
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Renamed %1 Clip(s)").arg(nodes.size()));
 }
 
 void TimelineWidget::TrackAboutToBeDeleted(Track *track)
@@ -1461,7 +1461,7 @@ void TimelineWidget::TrackAboutToBeDeleted(Track *track)
     // User is deleting the tentative subtitle track. Technically they shouldn't do this, but they
     // might if they misinterpret it as permanent. If so, we handle it cleanly by pushing our
     // command as if the action really were permanent.
-    Core::instance()->undo_stack()->push(TakeSubtitleSectionCommand());
+    Core::instance()->undo_stack()->push(TakeSubtitleSectionCommand(), tr("Created Subtitle Track"));
   }
 }
 
@@ -1475,7 +1475,7 @@ void TimelineWidget::SetSelectedClipsAutocaching(bool e)
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, e ? tr("Enabled Auto-Caching On %1 Clip(s)").arg(selected_blocks_.size()) : tr("Disabled Auto-Caching On %1 Clip(s)").arg(selected_blocks_.size()));
 }
 
 void TimelineWidget::CacheClips()
@@ -1574,7 +1574,7 @@ void TimelineWidget::MulticamEnabledTriggered(bool e)
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, e ? tr("Multi-Cam Enabled On %1 Clip(s)").arg(selected_blocks_.size()) : tr("Multi-Cam Disabled On %1 Clip(s)").arg(selected_blocks_.size()));
 }
 
 void TimelineWidget::ForceUpdateRubberBand()
@@ -1633,7 +1633,7 @@ void TimelineWidget::NudgeInternal(rational amount)
     new_sel.ShiftTime(amount);
     command->add_child(new TimelineWidget::SetSelectionsCommand(this, new_sel, GetSelections()));
 
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, tr("Nudged Clips"));
   }
 }
 
@@ -1685,7 +1685,7 @@ void TimelineWidget::MoveToPlayheadInternal(bool out)
     }
     command->add_child(new SetSelectionsCommand(this, new_sel, GetSelections()));
 
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, tr("Moved Clip(s) To Point"));
   }
 }
 
@@ -1875,7 +1875,7 @@ void TimelineWidget::RippleTo(Timeline::MovementMode mode)
                                                                            in_ripple,
                                                                            out_ripple);
 
-  Core::instance()->undo_stack()->push(c);
+  Core::instance()->undo_stack()->push(c, tr("Rippled Clip(s) To Point"));
 
   // If we rippled, ump to where new cut is if applicable
   if (mode == Timeline::kTrimIn) {
@@ -1918,7 +1918,7 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Cut Clip(s) To Point"));
 }
 
 void TimelineWidget::UpdateViewports(const Track::Type &type)
@@ -1986,7 +1986,7 @@ bool TimelineWidget::PasteInternal(bool insert)
                                                   paste_start + in));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Pasted %1 Clip(s)").arg(res.GetLoadData().properties.size()));
 
   return true;
 }

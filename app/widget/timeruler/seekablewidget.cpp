@@ -116,7 +116,7 @@ void SeekableWidget::DeleteSelected()
       command->add_child(new MarkerRemoveCommand(marker));
     }
 
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, tr("Deleted %1 Marker(s)").arg(selection_manager_.GetSelectedObjects().size()));
   }
 }
 
@@ -165,7 +165,7 @@ bool SeekableWidget::PasteMarkers()
         command->add_child(new MarkerAddCommand(markers_, m));
       }
 
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, tr("Pasted %1 Marker(s)").arg(markers.size()));
       return true;
     }
   }
@@ -249,7 +249,7 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
   if (selection_manager_.IsDragging()) {
     MultiUndoCommand *command = new MultiUndoCommand();
     selection_manager_.DragStop(command);
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, tr("Moved %1 Marker(s)").arg(selection_manager_.GetSelectedObjects().size()));
   }
 
   if (GetSnapService()) {
@@ -364,7 +364,7 @@ void SeekableWidget::SetMarkerColor(int c)
     command->add_child(new MarkerChangeColorCommand(marker, c));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Changed Color of %1 Marker(s)").arg(selection_manager_.GetSelectedObjects().size()));
 }
 
 void SeekableWidget::ShowMarkerProperties()
@@ -608,13 +608,17 @@ void SeekableWidget::CommitResizeHandle()
 {
   MultiUndoCommand *command = new MultiUndoCommand();
 
+  QString command_name;
+
   if (TimelineMarker *marker = dynamic_cast<TimelineMarker*>(resize_item_)) {
     command->add_child(new MarkerChangeTimeCommand(marker, marker->time(), resize_item_range_));
+    command_name = tr("Changed Marker Length");
   } else if (TimelineWorkArea *workarea = dynamic_cast<TimelineWorkArea*>(resize_item_)) {
     command->add_child(new WorkareaSetRangeCommand(workarea, workarea->range(), resize_item_range_));
+    command_name = tr("Changed Workarea Length");
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, command_name);
 }
 
 }

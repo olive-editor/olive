@@ -251,7 +251,8 @@ void SpeedDurationDialog::accept()
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  QString name = (clips_.size() > 1) ? tr("Set %1 Clip Properties").arg(clips_.size()) : tr("Set Clip \"%1\" Properties").arg(clips_.first()->GetLabelOrName());
+  Core::instance()->undo_stack()->push(command, name);
 
   super::accept();
 }

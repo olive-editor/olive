@@ -43,7 +43,7 @@ void TextGizmo::UpdateInputHtml(const QString &s, const rational &time)
   if (input_.IsValid()) {
     MultiUndoCommand *command = new MultiUndoCommand();
     Node::SetValueAtTime(input_.input(), time, s, input_.track(), command, true);
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, tr("Edit Text"));
   }
 }
 

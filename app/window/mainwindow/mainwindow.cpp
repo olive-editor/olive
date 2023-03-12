@@ -535,7 +535,7 @@ void MainWindow::RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &r
     command->add_child(new WorkareaSetEnabledCommand(r->project(), r->GetWorkArea(), true));
   }
   command->add_child(new WorkareaSetRangeCommand(r->GetWorkArea(), range));
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Set Footage Workarea"));
 
   r->SetPlayhead(range.in());
 }

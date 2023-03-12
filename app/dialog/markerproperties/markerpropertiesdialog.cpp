@@ -147,7 +147,7 @@ void MarkerPropertiesDialog::accept()
     command->add_child(new MarkerChangeTimeCommand(markers_.front(), TimeRange(in_slider_->GetValue(), out_slider_->GetValue())));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Set Marker Properties"));
 
   super::accept();
 }

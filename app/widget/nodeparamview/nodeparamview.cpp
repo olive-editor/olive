@@ -420,7 +420,7 @@ void NodeParamView::DeleteSelected()
       }
     }
 
-    Core::instance()->undo_stack()->push(c);
+    Core::instance()->undo_stack()->push(c, tr("Deleted %1 Node(s)").arg(selected_nodes_.size()));
   }
 }
 
@@ -646,7 +646,7 @@ bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(co
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Pasted %1 Node(s)").arg(nodes_to_paste_as_new.size()));
 
   return true;
 }

@@ -137,7 +137,7 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
 
   QAction* disconnect_action = m.addAction(tr("Disconnect"));
   connect(disconnect_action, &QAction::triggered, this, [this](){
-    Core::instance()->undo_stack()->push(new NodeEdgeRemoveCommand(connected_node_, input_));
+    Core::instance()->undo_stack()->push(new NodeEdgeRemoveCommand(connected_node_, input_), Node::GetDisconnectCommandString(connected_node_, input_));
   });
 
   m.exec(QCursor::pos());

@@ -37,7 +37,7 @@ public:
 
   virtual ~UndoStack() override;
 
-  void push(UndoCommand* command);
+  void push(UndoCommand* command, const QString &name);
 
   void jump(size_t index);
 
@@ -81,9 +81,15 @@ public slots:
 private:
   static const int kMaxUndoCommands;
 
-  std::list<UndoCommand*> commands_;
+  struct CommandEntry
+  {
+    UndoCommand *command;
+    QString name;
+  };
 
-  std::list<UndoCommand*> undone_commands_;
+  std::list<CommandEntry> commands_;
+
+  std::list<CommandEntry> undone_commands_;
 
   QAction* undo_action_;
 

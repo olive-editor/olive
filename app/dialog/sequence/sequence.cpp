@@ -151,7 +151,7 @@ void SequenceDialog::accept()
                                                                    name_field_->text(),
                                                                    parameter_tab_->GetSelectedPreviewAutoCache());
 
-    Core::instance()->undo_stack()->push(param_command);
+    Core::instance()->undo_stack()->push(param_command, tr("Set Sequence Parameters For \"%1\"").arg(sequence_->GetLabel()));
 
   } else {
     // Set sequence values directly with no undo command

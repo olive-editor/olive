@@ -152,7 +152,7 @@ void MulticamWidget::Switch(int source, bool split_clip)
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Switched Multi-Camera Source"));
 
   display_->update();
 

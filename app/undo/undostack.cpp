@@ -59,7 +59,7 @@ UndoStack::~UndoStack()
   delete redo_action_;
 }
 
-void UndoStack::push(UndoCommand *command)
+void UndoStack::push(UndoCommand *command, const QString &name)
 {
   MultiUndoCommand *mcu = dynamic_cast<MultiUndoCommand*>(command);
   if (mcu && mcu->child_count() == 0) {
@@ -71,7 +71,7 @@ void UndoStack::push(UndoCommand *command)
   this->beginRemoveRows(QModelIndex(), commands_.size(), commands_.size() + undone_commands_.size());
   if (CanRedo()) {
     for (auto it=undone_commands_.cbegin(); it!=undone_commands_.cend(); it++) {
-      delete (*it);
+      delete (*it).command;
     }
     undone_commands_.clear();
   }
@@ -80,13 +80,13 @@ void UndoStack::push(UndoCommand *command)
   // Do command and push
   this->beginInsertRows(QModelIndex(), commands_.size(), commands_.size());
   command->redo_and_set_modified();
-  commands_.push_back(command);
+  commands_.push_back({command, name});
   this->endInsertRows();
 
   // Delete oldest
   if (commands_.size() > kMaxUndoCommands) {
     this->beginRemoveRows(QModelIndex(), 0, 0);
-    delete commands_.front();
+    delete commands_.front().command;
     commands_.pop_front();
     this->endRemoveRows();
   }
@@ -108,7 +108,7 @@ void UndoStack::undo()
 {
   if (CanUndo()) {
     // Undo most recently done command
-    commands_.back()->undo_and_set_modified();
+    commands_.back().command->undo_and_set_modified();
 
     // Place at the front of the "undone commands" list
     undone_commands_.push_front(commands_.back());
@@ -125,7 +125,7 @@ void UndoStack::redo()
 {
   if (CanRedo()) {
     // Redo most recently undone command
-    undone_commands_.front()->redo_and_set_modified();
+    undone_commands_.front().command->redo_and_set_modified();
 
     // Place at the back of the done commands list
     commands_.push_back(undone_commands_.front());
@@ -143,24 +143,22 @@ void UndoStack::clear()
   this->beginResetModel();
 
   for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
-    delete (*it);
+    delete (*it).command;
   }
   commands_.clear();
   for (auto it=undone_commands_.cbegin(); it!=undone_commands_.cend(); it++) {
-    delete (*it);
+    delete (*it).command;
   }
   undone_commands_.clear();
 
   this->endResetModel();
 
-  EmptyCommand *e = new EmptyCommand();
-  e->set_name(tr("New/Open Project"));
-  push(e);
+  push(new EmptyCommand(), tr("New/Open Project"));
 }
 
 bool UndoStack::CanUndo() const
 {
-  return !commands_.empty() && !dynamic_cast<EmptyCommand*>(commands_.back());
+  return !commands_.empty() && !dynamic_cast<EmptyCommand*>(commands_.back().command);
 }
 
 void UndoStack::UpdateActions()
@@ -168,8 +166,8 @@ void UndoStack::UpdateActions()
   undo_action_->setEnabled(CanUndo());
   redo_action_->setEnabled(CanRedo());
 
-  undo_action_->setText(QCoreApplication::translate("UndoStack", "Undo %1").arg(CanUndo() ? commands_.back()->name() : QString()));
-  redo_action_->setText(QCoreApplication::translate("UndoStack", "Redo %1").arg(CanRedo() ? undone_commands_.front()->name() : QString()));
+  undo_action_->setText(QCoreApplication::translate("UndoStack", "Undo %1").arg(CanUndo() ? commands_.back().name : QString()));
+  redo_action_->setText(QCoreApplication::translate("UndoStack", "Redo %1").arg(CanRedo() ? undone_commands_.front().name : QString()));
 
   emit indexChanged(commands_.size());
 }
@@ -190,7 +188,7 @@ QVariant UndoStack::data(const QModelIndex &index, int role) const
       return index.row() + 1;
     case 1:
     {
-      std::list<UndoCommand*>::const_iterator it;
+      std::list<CommandEntry>::const_iterator it;
       size_t real_index = index.row();
       if (real_index < commands_.size()) {
         it = commands_.cbegin();
@@ -201,8 +199,8 @@ QVariant UndoStack::data(const QModelIndex &index, int role) const
       for (size_t i = 0; i < real_index; i++) {
         it++;
       }
-      const QString &name = (*it)->name();
-      return (name.isEmpty()) ? QStringLiteral("Command") : name;
+      const QString &name = (*it).name;
+      return (name.isEmpty()) ? tr("Command") : name;
     }
     }
   } else if (role == Qt::ForegroundRole) {

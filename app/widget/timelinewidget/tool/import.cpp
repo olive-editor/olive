@@ -184,7 +184,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   if (!dragged_footage_.isEmpty()) {
     auto command = new MultiUndoCommand();
     DropGhosts(event->GetModifiers() & Qt::ControlModifier, command);
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, qApp->translate("ImportTool", "Dropped Footage Into Sequence"));
 
     event->accept();
   } else {

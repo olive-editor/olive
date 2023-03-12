@@ -980,6 +980,9 @@ public:
   virtual void AddedToGraphEvent(Project *p){}
   virtual void RemovedFromGraphEvent(Project *p){}
 
+  static QString GetConnectCommandString(Node *output, const NodeInput &input);
+  static QString GetDisconnectCommandString(Node *output, const NodeInput &input);
+
   static const QString kEnabledInput;
 
 protected:

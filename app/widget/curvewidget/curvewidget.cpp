@@ -330,7 +330,7 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
     command->add_child(new KeyframeSetTypeCommand(item, new_type));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Changed Type of %1 Keyframe(s) to %2"));
 }
 
 void CurveWidget::InputSelectionChanged(const NodeKeyframeTrackReference& ref)

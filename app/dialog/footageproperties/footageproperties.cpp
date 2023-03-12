@@ -192,7 +192,7 @@ void FootagePropertiesDialog::accept()
     static_cast<StreamProperties*>(stacked_widget_->widget(i))->Accept(command);
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Set Footage \"%1\" Properties").arg(footage_->GetLabel()));
 
   QDialog::accept();
 }

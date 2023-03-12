@@ -78,6 +78,15 @@ InputFlags NodeInput::GetFlags() const
   }
 }
 
+QString NodeInput::GetInputName() const
+{
+  if (IsValid()) {
+    return node_->GetInputName(input_);
+  } else {
+    return QString();
+  }
+}
+
 Node *NodeInput::GetConnectedOutput() const
 {
   if (IsValid()) {

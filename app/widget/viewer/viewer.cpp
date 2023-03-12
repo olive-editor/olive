@@ -557,7 +557,7 @@ void ViewerWidget::CreateAddableAt(const QRectF &f)
       shape->SetRect(f, s->GetVideoParams(), command);
     }
 
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, tr("Created Shape"));
     SetGizmos(clip);
   }
 }
@@ -1235,7 +1235,7 @@ void ViewerWidget::ContextMenuSetPlaybackRes(QAction *action)
   vp.set_divider(div);
 
   auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(GetConnectedNode(), ViewerOutput::kVideoParamsInput, 0)), QVariant::fromValue(vp));
-  Core::instance()->undo_stack()->push(c);
+  Core::instance()->undo_stack()->push(c, tr("Changed Playback Resolution"));
 }
 
 void ViewerWidget::ContextMenuDisableSafeMargins()

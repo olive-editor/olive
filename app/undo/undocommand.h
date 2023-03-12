@@ -51,16 +51,6 @@ public:
 
   virtual Project* GetRelevantProject() const = 0;
 
-  const QString& name() const
-  {
-    return name_;
-  }
-
-  void set_name(const QString& name)
-  {
-    name_ = name;
-  }
-
 protected:
   virtual void prepare(){}
   virtual void redo() = 0;
@@ -68,8 +58,6 @@ protected:
 
 private:
   bool modified_;
-
-  QString name_;
 
   Project* project_;
 
