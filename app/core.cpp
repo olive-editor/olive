@@ -29,6 +29,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
+#include "window/mainwindow/mainwindowundo.h"
 #ifdef Q_OS_WINDOWS
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
@@ -450,13 +451,12 @@ void Core::CreateNewSequence()
     command->add_child(new NodeAddCommand(active_project, new_sequence));
     command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
     command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, Node::Position()));
+    command->add_child(new OpenSequenceCommand(new_sequence));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);
 
     Core::instance()->undo_stack()->push(command);
-
-    Core::instance()->main_window()->OpenSequence(new_sequence);
 
   } else {
 
@@ -575,7 +575,7 @@ void Core::ImportTaskComplete(Task* task)
     d.exec();
   }
 
-  undo_stack_.pushIfHasChildren(command);
+  undo_stack_.push(command);
 
   main_window_->SelectFootage(import_task->GetImportedFootage());
 }

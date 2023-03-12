@@ -815,7 +815,7 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 Timeline::MovementMode PointerTool::IsCursorInTrimHandle(Block *block, qreal cursor_x)

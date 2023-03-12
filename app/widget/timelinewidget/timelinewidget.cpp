@@ -545,7 +545,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
     command->add_child(ripple_command);
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 
   // Ensures any current drag operations are cancelled
   ClearGhosts();
@@ -773,7 +773,7 @@ void TimelineWidget::ToggleSelectedEnabled()
                                                      !i->is_enabled()));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::SetColorLabel(int index)
@@ -845,7 +845,7 @@ void TimelineWidget::RecordingCallback(const QString &filename, const TimeRange 
     import_command->add_child(subimport_command);
 
     import_tool_->PlaceAt({task.GetImportedFootage().front()}, time.in(), false, import_command, track.index());
-    Core::instance()->undo_stack()->pushIfHasChildren(import_command);
+    Core::instance()->undo_stack()->push(import_command);
   }
 }
 
@@ -1452,7 +1452,7 @@ void TimelineWidget::RenameSelectedBlocks()
   }
 
   Core::instance()->LabelNodes(nodes);
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::TrackAboutToBeDeleted(Track *track)
@@ -1475,7 +1475,7 @@ void TimelineWidget::SetSelectedClipsAutocaching(bool e)
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::CacheClips()
@@ -1574,7 +1574,7 @@ void TimelineWidget::MulticamEnabledTriggered(bool e)
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::ForceUpdateRubberBand()
@@ -1918,7 +1918,7 @@ void TimelineWidget::EditTo(Timeline::MovementMode mode)
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void TimelineWidget::UpdateViewports(const Track::Type &type)
@@ -1953,8 +1953,6 @@ bool TimelineWidget::PasteInternal(bool insert)
     }
   }
 
-  qDebug() << "pasing" << res.GetLoadData().nodes.size() << "nodes";
-
   for (auto it = res.GetLoadData().promised_connections.cbegin(); it != res.GetLoadData().promised_connections.cend(); it++) {
     auto oc = *it;
     command->add_child(new NodeEdgeAddCommand(oc.first, oc.second));
@@ -1988,7 +1986,7 @@ bool TimelineWidget::PasteInternal(bool insert)
                                                   paste_start + in));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 
   return true;
 }

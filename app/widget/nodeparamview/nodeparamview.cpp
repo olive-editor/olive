@@ -646,7 +646,7 @@ bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(co
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 
   return true;
 }

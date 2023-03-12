@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,39 +18,33 @@
 
 ***/
 
-#include "text.h"
+#ifndef HISTORYWIDGET_H
+#define HISTORYWIDGET_H
 
-#include "core.h"
-#include "undo/undocommand.h"
+#include <QTreeView>
+
+#include "undo/undostack.h"
 
 namespace olive {
 
-TextGizmo::TextGizmo(QObject *parent)
-  : NodeGizmo{parent},
-    valign_(Qt::AlignTop)
+class HistoryWidget : public QTreeView
 {
+  Q_OBJECT
+public:
+  HistoryWidget(QWidget *parent = nullptr);
+
+private:
+  UndoStack *stack_;
+
+  size_t current_row_;
+
+private slots:
+  void indexChanged(int i);
+
+  void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
+
+};
 
 }
 
-void TextGizmo::SetRect(const QRectF &r)
-{
-  rect_ = r;
-  emit RectChanged(rect_);
-}
-
-void TextGizmo::UpdateInputHtml(const QString &s, const rational &time)
-{
-  if (input_.IsValid()) {
-    MultiUndoCommand *command = new MultiUndoCommand();
-    Node::SetValueAtTime(input_.input(), time, s, input_.track(), command, true);
-    Core::instance()->undo_stack()->push(command);
-  }
-}
-
-void TextGizmo::SetVerticalAlignment(Qt::Alignment va)
-{
-  valign_ = va;
-  emit VerticalAlignmentChanged(valign_);
-}
-
-}
+#endif // HISTORYWIDGET_H

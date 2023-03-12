@@ -116,7 +116,7 @@ void SeekableWidget::DeleteSelected()
       command->add_child(new MarkerRemoveCommand(marker));
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
   }
 }
 
@@ -249,7 +249,7 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
   if (selection_manager_.IsDragging()) {
     MultiUndoCommand *command = new MultiUndoCommand();
     selection_manager_.DragStop(command);
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
   }
 
   if (GetSnapService()) {
@@ -364,7 +364,7 @@ void SeekableWidget::SetMarkerColor(int c)
     command->add_child(new MarkerChangeColorCommand(marker, c));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void SeekableWidget::ShowMarkerProperties()
@@ -614,7 +614,7 @@ void SeekableWidget::CommitResizeHandle()
     command->add_child(new WorkareaSetRangeCommand(workarea, workarea->range(), resize_item_range_));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 }

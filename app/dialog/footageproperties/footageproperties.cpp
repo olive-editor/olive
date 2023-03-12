@@ -192,7 +192,7 @@ void FootagePropertiesDialog::accept()
     static_cast<StreamProperties*>(stacked_widget_->widget(i))->Accept(command);
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 
   QDialog::accept();
 }

@@ -557,7 +557,7 @@ void ViewerWidget::CreateAddableAt(const QRectF &f)
       shape->SetRect(f, s->GetVideoParams(), command);
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
     SetGizmos(clip);
   }
 }

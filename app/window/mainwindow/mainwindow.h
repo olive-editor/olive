@@ -30,6 +30,7 @@
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
 #include "panel/curve/curve.h"
+#include "panel/history/historypanel.h"
 #include "panel/node/node.h"
 #include "panel/param/param.h"
 #include "panel/project/project.h"
@@ -157,6 +158,7 @@ private:
   ScopePanel* scope_panel_;
   QList<ViewerPanel*> viewer_panels_;
   MulticamPanel *multicam_panel_;
+  HistoryPanel *history_panel_;
 
 #ifdef Q_OS_WINDOWS
   unsigned int taskbar_btn_id_;

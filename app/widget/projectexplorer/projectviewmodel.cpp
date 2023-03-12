@@ -374,7 +374,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
       }
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(move_command);
+    Core::instance()->undo_stack()->push(move_command);
 
     return true;
 

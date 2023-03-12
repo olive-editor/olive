@@ -184,7 +184,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   if (!dragged_footage_.isEmpty()) {
     auto command = new MultiUndoCommand();
     DropGhosts(event->GetModifiers() & Qt::ControlModifier, command);
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
 
     event->accept();
   } else {

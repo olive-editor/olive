@@ -219,7 +219,7 @@ void KeyframePropertiesDialog::accept()
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 
   QDialog::accept();
 }

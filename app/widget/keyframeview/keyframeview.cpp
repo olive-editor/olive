@@ -61,7 +61,7 @@ void KeyframeView::DeleteSelected()
       command->add_child(new NodeParamRemoveKeyframeCommand(key));
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
   }
 }
 
@@ -247,7 +247,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
       }
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
     return true;
   }
 

@@ -26,6 +26,19 @@ namespace olive {
 
 const int UndoStack::kMaxUndoCommands = 200;
 
+class EmptyCommand : public UndoCommand
+{
+public:
+  EmptyCommand(){}
+
+  virtual Project* GetRelevantProject() const override {return nullptr;}
+
+protected:
+  virtual void redo() override {}
+  virtual void undo() override {}
+
+};
+
 UndoStack::UndoStack()
 {
   undo_action_ = new QAction();
@@ -34,6 +47,7 @@ UndoStack::UndoStack()
   redo_action_ = new QAction();
   connect(redo_action_, &QAction::triggered, this, &UndoStack::redo);
 
+  clear();
   UpdateActions();
 }
 
@@ -45,33 +59,49 @@ UndoStack::~UndoStack()
   delete redo_action_;
 }
 
-void UndoStack::pushIfHasChildren(MultiUndoCommand *command)
-{
-  if (command->child_count() > 0) {
-    push(command);
-  } else {
-    delete command;
-  }
-}
-
 void UndoStack::push(UndoCommand *command)
 {
-  command->redo_and_set_modified();
-  commands_.push_back(command);
-
-  if (commands_.size() > kMaxUndoCommands) {
-    delete commands_.front();
-    commands_.pop_front();
+  MultiUndoCommand *mcu = dynamic_cast<MultiUndoCommand*>(command);
+  if (mcu && mcu->child_count() == 0) {
+    delete command;
+    return;
   }
 
+  // Clear any redoable commands
+  this->beginRemoveRows(QModelIndex(), commands_.size(), commands_.size() + undone_commands_.size());
   if (CanRedo()) {
     for (auto it=undone_commands_.cbegin(); it!=undone_commands_.cend(); it++) {
       delete (*it);
     }
     undone_commands_.clear();
   }
+  this->endRemoveRows();
+
+  // Do command and push
+  this->beginInsertRows(QModelIndex(), commands_.size(), commands_.size());
+  command->redo_and_set_modified();
+  commands_.push_back(command);
+  this->endInsertRows();
+
+  // Delete oldest
+  if (commands_.size() > kMaxUndoCommands) {
+    this->beginRemoveRows(QModelIndex(), 0, 0);
+    delete commands_.front();
+    commands_.pop_front();
+    this->endRemoveRows();
+  }
 
   UpdateActions();
+}
+
+void UndoStack::jump(size_t index)
+{
+  while (commands_.size() > index) {
+    undo();
+  }
+  while (commands_.size() < index) {
+    redo();
+  }
 }
 
 void UndoStack::undo()
@@ -110,10 +140,27 @@ void UndoStack::redo()
 
 void UndoStack::clear()
 {
+  this->beginResetModel();
+
   for (auto it=commands_.cbegin(); it!=commands_.cend(); it++) {
     delete (*it);
   }
   commands_.clear();
+  for (auto it=undone_commands_.cbegin(); it!=undone_commands_.cend(); it++) {
+    delete (*it);
+  }
+  undone_commands_.clear();
+
+  this->endResetModel();
+
+  EmptyCommand *e = new EmptyCommand();
+  e->set_name(tr("New/Open Project"));
+  push(e);
+}
+
+bool UndoStack::CanUndo() const
+{
+  return !commands_.empty() && !dynamic_cast<EmptyCommand*>(commands_.back());
 }
 
 void UndoStack::UpdateActions()
@@ -123,6 +170,86 @@ void UndoStack::UpdateActions()
 
   undo_action_->setText(QCoreApplication::translate("UndoStack", "Undo %1").arg(CanUndo() ? commands_.back()->name() : QString()));
   redo_action_->setText(QCoreApplication::translate("UndoStack", "Redo %1").arg(CanRedo() ? undone_commands_.front()->name() : QString()));
+
+  emit indexChanged(commands_.size());
+}
+
+int UndoStack::columnCount(const QModelIndex &parent) const
+{
+  if (parent.isValid()) {
+    return 0;
+  }
+  return 2;
+}
+
+QVariant UndoStack::data(const QModelIndex &index, int role) const
+{
+  if (role == Qt::DisplayRole) {
+    switch (index.column()) {
+    case 0:
+      return index.row() + 1;
+    case 1:
+    {
+      std::list<UndoCommand*>::const_iterator it;
+      size_t real_index = index.row();
+      if (real_index < commands_.size()) {
+        it = commands_.cbegin();
+      } else {
+        real_index -= commands_.size();
+        it = undone_commands_.cbegin();
+      }
+      for (size_t i = 0; i < real_index; i++) {
+        it++;
+      }
+      const QString &name = (*it)->name();
+      return (name.isEmpty()) ? QStringLiteral("Command") : name;
+    }
+    }
+  } else if (role == Qt::ForegroundRole) {
+    if (size_t(index.row()) >= commands_.size()) {
+      return QVariant(QColor(Qt::gray));
+    }
+  }
+
+  return QVariant();
+}
+
+QModelIndex UndoStack::index(int row, int column, const QModelIndex &parent) const
+{
+  return createIndex(row, column, nullptr);
+}
+
+QModelIndex UndoStack::parent(const QModelIndex &index) const
+{
+  return QModelIndex();
+}
+
+int UndoStack::rowCount(const QModelIndex &parent) const
+{
+  if (parent.isValid()) {
+    return 0;
+  }
+
+  return commands_.size() + undone_commands_.size();
+}
+
+QVariant UndoStack::headerData(int section, Qt::Orientation orientation, int role) const
+{
+  if (role == Qt::DisplayRole) {
+    switch (section) {
+    case 0:
+      return QStringLiteral("Number");
+    case 1:
+      return QStringLiteral("Action");
+    }
+  }
+
+  return QVariant();
+}
+
+bool UndoStack::hasChildren(const QModelIndex &parent) const
+{
+  return !parent.isValid();
 }
 
 }

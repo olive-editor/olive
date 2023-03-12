@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
   AppendTimelinePanel();
   audio_monitor_panel_ = new AudioMonitorPanel();
   scope_panel_ = new ScopePanel();
+  history_panel_ = new HistoryPanel();
 
   // HACK: The pixel sampler is closed by default, which signals to Core that
   //       it's no longer visible. However KDDockWidgets doesn't appear to
@@ -845,6 +846,8 @@ void MainWindow::SetDefaultLayout()
 
   // Bottom left - project panel
   addDockWidget(project_panel_, KDDockWidgets::Location_OnLeft, tool_panel_);
+  project_panel_->addDockWidgetAsTab(history_panel_);
+  project_panel_->raise();
 
   // Hidden panels
   pixel_sampler_panel_->close();

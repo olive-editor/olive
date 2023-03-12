@@ -190,7 +190,7 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
   SetInputValueInternal(value, track, command, true);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
@@ -314,7 +314,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_look"), c.color_output().look());
     n->blockSignals(false);
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
     break;
   }
   case NodeValue::kText:

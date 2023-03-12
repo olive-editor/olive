@@ -411,7 +411,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
         }
       }
     }
-    Core::instance()->undo_stack()->pushIfHasChildren(pos_command);
+    Core::instance()->undo_stack()->push(pos_command);
     break;
   }
   case Qt::Key_Escape:
@@ -581,7 +581,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
   }
   dragging_items_.clear();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 
   if (!had_attached_items) {
     super::mouseReleaseEvent(event);
@@ -674,7 +674,7 @@ void NodeView::dropEvent(QDropEvent *event)
   if (Node *drop_ctx = GetContextAtMousePos(event->pos())) {
     MultiUndoCommand *command = new MultiUndoCommand();
     QVector<Node*> select_nodes = ProcessDroppingAttachedNodes(command, drop_ctx, event->pos());
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
 
     DeselectAll();
     scene_.context_map().value(drop_ctx)->Select(select_nodes);
@@ -1680,7 +1680,7 @@ void NodeView::EndEdgeDrag(bool cancel)
   }
   create_edge_expanded_items_.clear();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command);
 }
 
 void NodeView::PostPaste(const QVector<Node *> &new_nodes, const Node::PositionMap &map)

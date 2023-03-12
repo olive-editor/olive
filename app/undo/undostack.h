@@ -22,13 +22,14 @@
 #define UNDOSTACK_H
 
 #include <QAction>
+#include <QAbstractItemModel>
 
 #include "common/define.h"
 #include "undo/undocommand.h"
 
 namespace olive {
 
-class UndoStack : public QObject
+class UndoStack : public QAbstractItemModel
 {
   Q_OBJECT
 public:
@@ -36,21 +37,13 @@ public:
 
   virtual ~UndoStack() override;
 
-  /**
-   * @brief A wrapper for push() that either pushes if the command has children or deletes if not
-   *
-   * This function takes ownership of `command`, and may delete it so it should never be accessed after this call.
-   */
-  void pushIfHasChildren(MultiUndoCommand* command);
-
   void push(UndoCommand* command);
+
+  void jump(size_t index);
 
   void clear();
 
-  bool CanUndo() const
-  {
-    return !commands_.empty();
-  }
+  bool CanUndo() const;
 
   bool CanRedo() const
   {
@@ -68,6 +61,17 @@ public:
   {
     return redo_action_;
   }
+
+  virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+  virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+  virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+  virtual QModelIndex parent(const QModelIndex &index) const override;
+  virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+  virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+  virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
+
+signals:
+  void indexChanged(int i);
 
 public slots:
   void undo();

@@ -666,7 +666,7 @@ void ProjectExplorer::DeleteSelected()
   bool check_if_item_is_in_use = true;
 
   if (DeleteItemsInternal(selected, check_if_item_is_in_use, command)) {
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command);
   } else {
     delete command;
   }
