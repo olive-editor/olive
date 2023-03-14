@@ -236,7 +236,7 @@ bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, 
 
       nrc->AddNode(item, value.toString());
 
-      Core::instance()->undo_stack()->push(nrc);
+      Core::instance()->undo_stack()->push(nrc, tr("Renamed Item \"%1\" to \"%2\"").arg(item->GetLabel(), new_name));
 
       return true;
     }
@@ -357,7 +357,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     // Loop through all data
     MultiUndoCommand* move_command = new MultiUndoCommand();
 
-    move_command->set_name(tr("Move Items"));
+    int count = 0;
 
     while (!stream.atEnd()) {
       stream >> streams >> item_ptr;
@@ -371,10 +371,11 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
           && (!dynamic_cast<Folder*>(item) || !ItemIsParentOfChild(static_cast<Folder*>(item), drop_location))) {
         move_command->add_child(new NodeEdgeRemoveCommand(item, NodeInput(item->folder(), Folder::kChildInput, item->folder()->index_of_child_in_array(item))));
         move_command->add_child(new FolderAddChild(drop_location, item));
+        count++;
       }
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(move_command);
+    Core::instance()->undo_stack()->push(move_command, tr("Move %1 Item(s)").arg(count));
 
     return true;
 

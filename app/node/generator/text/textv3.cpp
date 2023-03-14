@@ -275,7 +275,7 @@ void TextGeneratorV3::GizmoDeactivated()
 
 void TextGeneratorV3::SetVerticalAlignmentUndoable(Qt::Alignment a)
 {
-  Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)));
+  Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)), tr("Set Text Vertical Alignment"));
 }
 
 }

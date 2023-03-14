@@ -176,7 +176,7 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, tr("Toggled Keyframe"));
 }
 
 void NodeParamViewKeyframeControl::UpdateState()
@@ -228,6 +228,8 @@ void NodeParamViewKeyframeControl::KeyframeEnableBtnClicked(bool e)
 
   MultiUndoCommand* command = new MultiUndoCommand();
 
+  QString command_name;
+
   if (e) {
     // Enable keyframing
     command->add_child(new NodeParamSetKeyframingCommand(input_, true));
@@ -245,6 +247,8 @@ void NodeParamViewKeyframeControl::KeyframeEnableBtnClicked(bool e)
 
       command->add_child(new NodeParamInsertKeyframeCommand(input_.node(), key));
     }
+
+    command_name = tr("Enabled Keyframing On %1 - %2").arg(input_.node()->GetLabelAndName(), input_.GetInputName());
   } else {
     // Confirm the user wants to clear all keyframes
     if (QMessageBox::warning(this,
@@ -270,13 +274,14 @@ void NodeParamViewKeyframeControl::KeyframeEnableBtnClicked(bool e)
       // Disable keyframing
       command->add_child(new NodeParamSetKeyframingCommand(input_, false));
 
+      command_name = tr("Disabled Keyframing On %1 - %2").arg(input_.node()->GetLabelAndName(), input_.GetInputName());
     } else {
       // Disable action has effectively been ignored
       enable_key_btn_->setChecked(true);
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, command_name);
 }
 
 void NodeParamViewKeyframeControl::KeyframeEnableChanged(const NodeInput &input, bool e)

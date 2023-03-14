@@ -30,7 +30,7 @@ public:
 
   void SetCurvedEdges(bool e);
 
-  void DeleteSelected(NodeViewDeleteCommand *command);
+  int DeleteSelected(NodeViewDeleteCommand *command);
 
   void Select(const QVector<Node*> &nodes);
 

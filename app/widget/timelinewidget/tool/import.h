@@ -37,8 +37,8 @@ public:
 
   using DraggedFootageData = QVector<QPair<ViewerOutput*, QVector<Track::Reference> > >;
 
-  void PlaceAt(const QVector<ViewerOutput *> &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0);
-  void PlaceAt(const DraggedFootageData &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0);
+  void PlaceAt(const QVector<ViewerOutput *> &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0, bool jump_to_end = false);
+  void PlaceAt(const DraggedFootageData &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0, bool jump_to_end = false);
 
   enum DropWithoutSequenceBehavior {
     kDWSAsk,

@@ -401,7 +401,7 @@ void CurveView::FirstChanceMouseRelease(QMouseEvent *event)
 
   dragging_bezier_pt_ = nullptr;
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Moved Keyframe Bezier Control Point"));
 }
 
 void CurveView::KeyframeDragStart(QMouseEvent *event)

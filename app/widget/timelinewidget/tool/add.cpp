@@ -114,7 +114,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       CreateAddableClip(command, s, ghost_->GetTrack(), ghost_->GetAdjustedIn(), ghost_->GetAdjustedLength(), r);
 
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, qApp->translate("AddTool", "Added Clip"));
     }
 
     parent()->ClearGhosts();

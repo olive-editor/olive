@@ -258,6 +258,8 @@ public:
 
   InputFlags GetFlags() const;
 
+  QString GetInputName() const;
+
   Node *GetConnectedOutput() const;
 
   NodeValue::Type GetDataType() const;

@@ -1763,6 +1763,16 @@ void Node::ArrayResizeInternal(const QString &id, int size)
   }
 }
 
+QString Node::GetConnectCommandString(Node *output, const NodeInput &input)
+{
+  return tr("Connected %1 to %2 - %3").arg(output->GetLabelAndName(), input.node()->GetLabelAndName(), input.GetInputName());
+}
+
+QString Node::GetDisconnectCommandString(Node *output, const NodeInput &input)
+{
+  return tr("Disconnected %1 from %2 - %3").arg(output->GetLabelAndName(), input.node()->GetLabelAndName(), input.GetInputName());
+}
+
 int Node::GetInternalInputArraySize(const QString &input)
 {
   return array_immediates_.value(input).size();

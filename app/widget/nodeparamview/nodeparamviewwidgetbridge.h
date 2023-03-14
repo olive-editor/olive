@@ -93,6 +93,8 @@ private:
     return input_hierarchy_.last();
   }
 
+  QString GetCommandName() const;
+
   NodeValue::Type GetDataType() const
   {
     return GetOuterInput().GetDataType();

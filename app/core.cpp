@@ -29,6 +29,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QStyleFactory>
+#include "window/mainwindow/mainwindowundo.h"
 #ifdef Q_OS_WINDOWS
 #include <QtPlatformHeaders/QWindowsWindowFunctions>
 #endif
@@ -418,7 +419,7 @@ void Core::CreateNewFolder()
   command->add_child(new NodeAddCommand(active_project, new_folder));
   command->add_child(new FolderAddChild(folder, new_folder));
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Created New Folder"));
 
   // Trigger an automatic rename so users can enter the folder name
   active_project_panel->Edit(new_folder);
@@ -450,13 +451,12 @@ void Core::CreateNewSequence()
     command->add_child(new NodeAddCommand(active_project, new_sequence));
     command->add_child(new FolderAddChild(GetSelectedFolderInActiveProject(), new_sequence));
     command->add_child(new NodeSetPositionCommand(new_sequence, new_sequence, Node::Position()));
+    command->add_child(new OpenSequenceCommand(new_sequence));
 
     // Create and connect default nodes to new sequence
     new_sequence->add_default_nodes(command);
 
-    Core::instance()->undo_stack()->push(command);
-
-    Core::instance()->main_window()->OpenSequence(new_sequence);
+    Core::instance()->undo_stack()->push(command, tr("Created New Sequence"));
 
   } else {
 
@@ -575,7 +575,7 @@ void Core::ImportTaskComplete(Task* task)
     d.exec();
   }
 
-  undo_stack_.pushIfHasChildren(command);
+  undo_stack_.push(command, tr("Imported %1 File(s)").arg(import_task->GetImportedFootage().size()));
 
   main_window_->SelectFootage(import_task->GetImportedFootage());
 }
@@ -1413,7 +1413,7 @@ bool Core::LabelNodes(const QVector<Node *> &nodes, MultiUndoCommand *parent)
     if (parent) {
       parent->add_child(rename_command);
     } else {
-      undo_stack_.push(rename_command);
+      undo_stack_.push(rename_command, tr("Renamed %1 Node(s)").arg(nodes.size()));
     }
 
     return true;

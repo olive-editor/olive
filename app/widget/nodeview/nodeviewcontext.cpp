@@ -191,8 +191,10 @@ void NodeViewContext::SetCurvedEdges(bool e)
   }
 }
 
-void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
+int NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
 {
+  int count = 0;
+
   // Delete any selected edges
   foreach (NodeViewEdge *edge, edges_) {
     if (edge->isSelected()) {
@@ -204,8 +206,11 @@ void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
   foreach (NodeViewItem *node, item_map_) {
     if (node->isSelected()) {
       command->AddNode(node->GetNode(), context_);
+      count++;
     }
   }
+
+  return count;
 }
 
 void NodeViewContext::Select(const QVector<Node *> &nodes)
