@@ -900,7 +900,7 @@ void ViewerWidget::UpdateTextureFromNode()
     nonqueue_watchers_.append(watcher);
 
     // Clear queue because we want this frame more than any others
-    RenderManager::instance()->GetCacher()->ClearSingleFrameRenders();
+    RenderManager::instance()->GetCacher()->ClearSingleFrameRendersThatArentRunning();
 
     DetectMulticamNode(time);
 
