@@ -842,6 +842,7 @@ void MainWindow::SetDefaultLayout()
   addDockWidget(tool_panel_, KDDockWidgets::Location_OnLeft, timeline_panels_.first(), o);
 
   // Right of timeline - audio monitor
+  o.preferredSize = QSize(320, 0);
   addDockWidget(audio_monitor_panel_, KDDockWidgets::Location_OnRight, timeline_panels_.first(), o);
 
   // Bottom left - project panel

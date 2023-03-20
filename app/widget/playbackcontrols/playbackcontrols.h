@@ -112,9 +112,9 @@ signals:
 
   void VideoClicked();
 
-  void AudioPressed();
+  void AudioDragged();
 
-  void VideoPressed();
+  void VideoDragged();
 
   void TimeChanged(const rational& t);
 

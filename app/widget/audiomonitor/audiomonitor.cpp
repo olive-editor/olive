@@ -44,6 +44,8 @@ AudioMonitor::AudioMonitor(QWidget *parent) :
   instances_.append(this);
 
   values_.resize(kMaximumSmoothness);
+
+  this->setMinimumWidth(this->fontMetrics().height());
 }
 
 AudioMonitor::~AudioMonitor()
@@ -146,11 +148,14 @@ void AudioMonitor::paintGL()
 
   bool horizontal = this->width() > this->height();
 
-  // Create rect where decibel markings will go on the side
-  QRect db_labels_rect = geometry;
+  int minimum_width = this->fontMetrics().height() * 3;
 
   // Determine rect where the main meter will go
   QRect full_meter_rect = geometry;
+
+  // Create rect where decibel markings will go on the side
+  QRect db_labels_rect;
+  bool draw_text;
 
   // Width of each channel in the meter
   int peaks_pos;
@@ -158,13 +163,20 @@ void AudioMonitor::paintGL()
   int db_line_length = fm.horizontalAdvance(QStringLiteral("-"));
   int db_width = QtUtils::QFontMetricsWidth(p.fontMetrics(), "-00 ");
   if (horizontal) {
-    // Insert meter rect
-    full_meter_rect.adjust(db_width/2, 0, -font_height, -font_height);
+    // Insert peaks area
+    full_meter_rect.adjust(0, 0, -font_height, 0);
+
+    draw_text = (height() >= minimum_width);
 
     // Derive dB label rect
-    db_labels_rect = full_meter_rect;
-    db_labels_rect.setTop(db_labels_rect.bottom());
-    db_labels_rect.setHeight(font_height + db_line_length);
+    if (draw_text) {
+      // Insert meter rect
+      full_meter_rect.adjust(db_width/2, 0, 0, -font_height);
+
+      db_labels_rect = full_meter_rect;
+      db_labels_rect.setTop(db_labels_rect.bottom());
+      db_labels_rect.setHeight(font_height + db_line_length);
+    }
 
     // Divide height by channel count
     channel_size = full_meter_rect.height() / params_.channel_count();
@@ -172,15 +184,22 @@ void AudioMonitor::paintGL()
     // Set peaks Y to right-most
     peaks_pos = full_meter_rect.right();
   } else {
-    int db_width_and_line = db_width + db_line_length;
+    // Insert peaks rect
+    full_meter_rect.adjust(0, font_height, 0, 0);
 
-    // Inset meter rect
-    full_meter_rect.adjust(db_width_and_line, font_height, 0, -font_height/2);
+    draw_text = (width() >= minimum_width);
 
     // Derive dB label rect
-    db_labels_rect = full_meter_rect;
-    db_labels_rect.setX(0);
-    db_labels_rect.setWidth(db_width_and_line);
+    if (draw_text) {
+      int db_width_and_line = db_width + db_line_length;
+
+      // Insert meter rect
+      full_meter_rect.adjust(db_width_and_line, 0, 0, -font_height/2);
+
+      db_labels_rect = full_meter_rect;
+      db_labels_rect.setX(0);
+      db_labels_rect.setWidth(db_width_and_line);
+    }
 
     // Divide width by channel count
     channel_size = full_meter_rect.width() / params_.channel_count();
@@ -199,9 +218,10 @@ void AudioMonitor::paintGL()
     cached_background_.fill(Qt::transparent);
 
     QPainter cached_painter(&cached_background_);
-    cached_painter.setFont(f);
 
-    {
+    if (draw_text) {
+      cached_painter.setFont(f);
+
       // Draw decibel markings
       QRect last_db_marking_rect;
 

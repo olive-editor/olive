@@ -762,6 +762,7 @@ void Core::StartGUI(bool full_screen)
   flags |= KDDockWidgets::Config::Flag_AlwaysShowTabs;
   flags |= KDDockWidgets::Config::Flag_AllowReorderTabs;
   config.setFlags(flags);
+  config.setAbsoluteWidgetMinSize(QSize(1, 1));
 
   // Create main window and open it
   main_window_ = new MainWindow();

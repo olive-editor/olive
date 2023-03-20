@@ -36,8 +36,10 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 
   controls_->SetAudioVideoDragButtonsVisible(true);
-  connect(controls_, &PlaybackControls::VideoPressed, this, &FootageViewerWidget::StartVideoDrag);
-  connect(controls_, &PlaybackControls::AudioPressed, this, &FootageViewerWidget::StartAudioDrag);
+  connect(controls_, &PlaybackControls::VideoClicked, this, &FootageViewerWidget::VideoButtonClicked);
+  connect(controls_, &PlaybackControls::AudioClicked, this, &FootageViewerWidget::AudioButtonClicked);
+  connect(controls_, &PlaybackControls::VideoDragged, this, &FootageViewerWidget::StartVideoDrag);
+  connect(controls_, &PlaybackControls::AudioDragged, this, &FootageViewerWidget::StartAudioDrag);
 
   override_workarea_ = new TimelineWorkArea(this);
 }
@@ -106,6 +108,16 @@ void FootageViewerWidget::StartVideoDrag()
 void FootageViewerWidget::StartAudioDrag()
 {
   StartFootageDragInternal(false, true);
+}
+
+void FootageViewerWidget::VideoButtonClicked()
+{
+  this->SetWaveformMode(kWFAutomatic);
+}
+
+void FootageViewerWidget::AudioButtonClicked()
+{
+  this->SetWaveformMode(kWFWaveformOnly);
 }
 
 }

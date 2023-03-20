@@ -327,6 +327,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
     }
 
     // Dump it into the Footage object
+    int video_streams = 0, audio_streams = 0, still_streams = 0;
+
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 
       // FFmpeg AVStream
@@ -436,6 +438,12 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
           desc.AddVideoStream(stream);
 
+          if (image_is_still) {
+            still_streams++;
+          } else {
+            video_streams++;
+          }
+
         } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
           // Create an audio stream object
@@ -478,6 +486,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
           stream.set_duration(avstream->duration);
           desc.AddAudioStream(stream);
 
+          audio_streams++;
+
         } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE) {
 
           // Limit to SRT for now...
@@ -512,6 +522,16 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
     }
 
     desc.SetStreamCount(fmt_ctx->nb_streams);
+
+    if (video_streams == 0 && audio_streams > 0 && still_streams > 0) {
+      // This footage has no video streams, but has audio and image streams. We've probably
+      // imported a song with embedded album art that most people don't care about. We'll keep the
+      // stills referenced in case users do, but we'll default them to disabled so they're
+      // easier to work with.
+      for (VideoParams &vp : desc.GetVideoStreams()) {
+        vp.set_enabled(false);
+      }
+    }
 
   }
 
