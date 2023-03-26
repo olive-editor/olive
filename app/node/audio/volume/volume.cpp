@@ -64,8 +64,9 @@ QString VolumeNode::Description() const
 NodeValue VolumeNode::Value(const ValueParams &p) const
 {
   // Create a sample job
-  SampleBuffer buffer = GetInputValue(p, kSamplesInput).toSamples();
+  NodeValue meta = GetInputValue(p, kSamplesInput);
 
+  SampleBuffer buffer = meta.toSamples();
   if (buffer.is_allocated()) {
     // If the input is static, we can just do it now which will be faster
     if (IsInputStatic(kVolumeInput)) {
@@ -84,7 +85,7 @@ NodeValue VolumeNode::Value(const ValueParams &p) const
     }
   }
 
-  return NodeValue();
+  return meta;
 }
 
 void VolumeNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const

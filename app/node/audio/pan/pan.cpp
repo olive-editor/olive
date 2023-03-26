@@ -66,6 +66,7 @@ NodeValue PanNode::Value(const ValueParams &p) const
 {
   // Create a sample job
   NodeValue samples_original = GetInputValue(p, kSamplesInput);
+
   SampleBuffer samples = samples_original.toSamples();
   if (samples.is_allocated()) {
     // This node is only compatible with stereo audio
@@ -91,6 +92,8 @@ NodeValue PanNode::Value(const ValueParams &p) const
       return samples_original;
     }
   }
+
+  return samples_original;
 }
 
 void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
