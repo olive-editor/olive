@@ -67,9 +67,9 @@ TimeRange TimeOffsetNode::OutputTimeAdjustment(const QString &input, int element
   return super::OutputTimeAdjustment(input, element, input_time);
 }
 
-void TimeOffsetNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TimeOffsetNode::Value(const ValueParams &p) const
 {
-  table->Push(value[kInputInput]);
+  return GetInputValue(p, kInputInput);
 }
 
 rational TimeOffsetNode::GetRemappedTime(const rational &input) const

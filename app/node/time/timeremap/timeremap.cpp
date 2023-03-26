@@ -87,9 +87,9 @@ void TimeRemapNode::Retranslate()
   SetInputName(kInputInput, QStringLiteral("Input"));
 }
 
-void TimeRemapNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TimeRemapNode::Value(const ValueParams &p) const
 {
-  table->Push(value[kInputInput]);
+  return GetInputValue(p, kInputInput);
 }
 
 rational TimeRemapNode::GetRemappedTime(const rational &input) const

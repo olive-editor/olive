@@ -22,7 +22,6 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "node/traverser.h"
 
 namespace olive {
 
@@ -353,25 +352,15 @@ void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, Nod
 
 rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
 {
-  NodeTraverser traverser;
-
   switch (type) {
   case Track::kVideo:
-    if (IsInputConnected(kTextureInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
-      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).toRational();
-      if (!r.isNaN()) {
-        return r;
-      }
+    if (ViewerOutput *v = dynamic_cast<ViewerOutput *>(GetConnectedOutput(kTextureInput))) {
+      return v->GetVideoLength();
     }
     break;
   case Track::kAudio:
-    if (IsInputConnected(kSamplesInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
-      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).toRational();
-      if (!r.isNaN()) {
-        return r;
-      }
+    if (ViewerOutput *v = dynamic_cast<ViewerOutput *>(GetConnectedOutput(kSamplesInput))) {
+      return v->GetAudioLength();
     }
     break;
   case Track::kNone:
@@ -416,18 +405,20 @@ void ViewerOutput::SetWaveformEnabled(bool e)
   }
 }
 
-void ViewerOutput::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue ViewerOutput::Value(const ValueParams &p) const
 {
   if (HasInputWithID(kTextureInput)) {
-    NodeValue repush = value[kTextureInput];
+    NodeValue repush = GetInputValue(p, kTextureInput);
     repush.set_tag(Track::Reference(Track::kVideo, 0).ToString());
-    table->Push(repush);
+    return repush;
   }
   if (HasInputWithID(kSamplesInput)) {
-    NodeValue repush = value[kSamplesInput];
+    NodeValue repush = GetInputValue(p, kSamplesInput);
     repush.set_tag(Track::Reference(Track::kAudio, 0).ToString());
-    table->Push(value[kSamplesInput]);
+    return repush;
   }
+
+  return NodeValue();
 }
 
 bool ViewerOutput::LoadCustom(QXmlStreamReader *reader, SerializedData *data)

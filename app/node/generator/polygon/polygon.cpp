@@ -87,24 +87,24 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const
+ShaderJob PolygonGenerator::GetGenerateJob(const ValueParams &p, const VideoParams &params) const
 {
-  VideoParams p = params;
-  p.set_format(PixelFormat::U8);
-  auto job = Texture::Job(p, GenerateJob(value));
+  VideoParams vp = params;
+  vp.set_format(PixelFormat::U8);
+  auto job = Texture::Job(vp, CreateJob<GenerateJob>(p));
 
   // Conversion to RGB
   ShaderJob rgb;
   rgb.SetShaderID(QStringLiteral("rgb"));
   rgb.Insert(QStringLiteral("texture_in"), NodeValue(NodeValue::kTexture, job, this));
-  rgb.Insert(QStringLiteral("color_in"), value[kColorInput]);
+  rgb.Insert(QStringLiteral("color_in"), GetInputValue(p, kColorInput));
 
   return rgb;
 }
 
-void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue PolygonGenerator::Value(const ValueParams &p) const
 {
-  PushMergableJob(value, Texture::Job(globals.vparams(), GetGenerateJob(value, globals.vparams())), table);
+  return GetMergableJob(p, Texture::Job(p.vparams(), GetGenerateJob(p, p.vparams())));
 }
 
 void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const
@@ -164,18 +164,18 @@ void PolygonGenerator::ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz)
   }
 }
 
-void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void PolygonGenerator::UpdateGizmoPositions(const ValueParams &p)
 {
   QVector2D res;
-  if (TexturePtr tex = row[kBaseInput].toTexture()) {
+  if (TexturePtr tex = GetInputValue(p, kBaseInput).toTexture()) {
     res = tex->virtual_resolution();
   } else {
-    res = globals.square_resolution();
+    res = p.square_resolution();
   }
 
   Imath::V2d half_res(res.x()/2, res.y()/2);
 
-  auto points = row[kPointsInput].toArray();
+  auto points = GetInputValue(p, kPointsInput).toArray();
 
   int current_pos_sz = gizmo_position_handles_.size();
 

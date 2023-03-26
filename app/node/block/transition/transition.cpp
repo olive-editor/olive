@@ -157,10 +157,20 @@ void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &t
                    NodeValue(NodeValue::kFloat, GetInProgress(time), this));
 }
 
-void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TransitionBlock::Value(const ValueParams &p) const
 {
-  NodeValue out_buffer = value[kOutBlockInput];
-  NodeValue in_buffer = value[kInBlockInput];
+  NodeValue out_buffer, in_buffer;
+
+  if (Block* block = dynamic_cast<Block*>(GetConnectedOutput(kOutBlockInput))) {
+    // Retransform time as if it came from the track
+    out_buffer = GetInputValue(p, kOutBlockInput);
+  }
+
+  if (Block* block = dynamic_cast<Block*>(GetConnectedOutput(kInBlockInput))) {
+    // Retransform time as if it came from the track
+    in_buffer = GetInputValue(p, kInBlockInput);
+  }
+
   NodeValue::Type data_type = (out_buffer.type() != NodeValue::kNone) ? out_buffer.type() : in_buffer.type();
 
   NodeValue::Type job_type = NodeValue::kNone;
@@ -182,23 +192,23 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
       job.Insert(kInBlockInput, NodeValue(NodeValue::kTexture, nullptr));
     }
 
-    job.Insert(kCurveInput, value);
+    job.Insert(kCurveInput, GetInputValue(p, kCurveInput));
 
-    double time = globals.time().in().toDouble();
+    double time = p.time().in().toDouble();
     InsertTransitionTimes(&job, time);
 
-    ShaderJobEvent(value, &job);
+    ShaderJobEvent(p, &job);
 
     job_type = NodeValue::kTexture;
-    push_job = QVariant::fromValue(Texture::Job(globals.vparams(), job));
+    push_job = QVariant::fromValue(Texture::Job(p.vparams(), job));
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
     SampleBuffer from_samples = out_buffer.toSamples();
     SampleBuffer to_samples = in_buffer.toSamples();
 
     if (from_samples.is_allocated() || to_samples.is_allocated()) {
-      double time_in = globals.time().in().toDouble();
-      double time_out = globals.time().out().toDouble();
+      double time_in = p.time().in().toDouble();
+      double time_out = p.time().out().toDouble();
 
       const AudioParams& params = (from_samples.is_allocated()) ? from_samples.audio_params() : to_samples.audio_params();
 
@@ -217,8 +227,9 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
   }
 
   if (!push_job.isNull()) {
-    table->Push(job_type, push_job, this);
+    return NodeValue(job_type, push_job, this);
   }
+  return NodeValue();
 }
 
 void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)

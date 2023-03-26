@@ -34,7 +34,6 @@
 #include "node/group/group.h"
 #include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
-#include "node/traverser.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedview.h"

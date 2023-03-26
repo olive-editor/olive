@@ -80,20 +80,23 @@ ShaderCode DespillNode::GetShaderCode(const ShaderRequest &request) const {
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/despill.frag"));
 }
 
-void DespillNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const {
-  ShaderJob job;
-  job.Insert(value);
+NodeValue DespillNode::Value(const ValueParams &p) const
+{
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
 
-  // Set luma coefficients
-  double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
-  project()->color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-  job.Insert(QStringLiteral("luma_coeffs"),
-                  NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
+  if (TexturePtr tex = tex_meta.toTexture()) {
+    ShaderJob job = CreateJob<ShaderJob>(p);
 
-  // If there's no texture, no need to run an operation
-  if (TexturePtr tex = job.Get(kTextureInput).toTexture()) {
-    table->Push(NodeValue::kTexture, tex->toJob(job), this);
+    // Set luma coefficients
+    double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
+    project()->color_manager()->GetDefaultLumaCoefs(luma_coeffs);
+    job.Insert(QStringLiteral("luma_coeffs"),
+                    NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
+
+    return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
   }
+
+  return tex_meta;
 }
 
 

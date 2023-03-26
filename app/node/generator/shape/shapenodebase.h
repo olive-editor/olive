@@ -37,7 +37,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   void SetRect(QRectF rect, const VideoParams &sequence_res, MultiUndoCommand *command);
 

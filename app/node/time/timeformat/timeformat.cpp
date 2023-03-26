@@ -66,14 +66,14 @@ void TimeFormatNode::Retranslate()
   SetInputName(kLocalTimeInput, tr("Interpret time as local time"));
 }
 
-void TimeFormatNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TimeFormatNode::Value(const ValueParams &p) const
 {
-  qint64 ms_since_epoch = value[kTimeInput].toDouble()*1000;
-  bool time_is_local = value[kLocalTimeInput].toBool();
+  qint64 ms_since_epoch = GetInputValue(p, kTimeInput).toDouble()*1000;
+  bool time_is_local = GetInputValue(p, kLocalTimeInput).toBool();
   QDateTime dt = QDateTime::fromMSecsSinceEpoch(ms_since_epoch, time_is_local ? Qt::LocalTime : Qt::UTC);
-  QString format = value[kFormatInput].toString();
+  QString format = GetInputValue(p, kFormatInput).toString();
   QString output = dt.toString(format);
-  table->Push(NodeValue(NodeValue::kText, output, this));
+  return NodeValue(NodeValue::kText, output, this);
 }
 
 }

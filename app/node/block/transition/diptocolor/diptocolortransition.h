@@ -45,7 +45,7 @@ public:
   static const QString kColorInput;
 
 protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const override;
+  virtual void ShaderJobEvent(const ValueParams &p, ShaderJob *job) const override;
 
 };
 

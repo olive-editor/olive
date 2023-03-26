@@ -44,28 +44,15 @@ QString MultiCamNode::Description() const
   return tr("Allows easy switching between multiple sources.");
 }
 
-Node::ActiveElements MultiCamNode::GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
+NodeValue MultiCamNode::Value(const ValueParams &p) const
 {
-  if (input == kSourcesInput) {
-    int src = GetCurrentSource();
-    if (src >= 0 && src < GetSourceCount()) {
-      Node::ActiveElements a;
-      a.add(src);
-      return a;
-    } else {
-      return ActiveElements::kNoElements;
-    }
-  } else {
-    return super::GetActiveElementsAtTime(input, r);
-  }
-}
+  int current = GetInputValue(p, kCurrentInput);
 
-void MultiCamNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
-{
-  NodeValueArray arr = value[kSourcesInput].toArray();
-  if (!arr.empty()) {
-    table->Push(arr.begin()->second);
+  if (Node *n = GetSourceNode(current)) {
+    n->Value(p);
   }
+
+  return NodeValue();
 }
 
 void MultiCamNode::IndexToRowCols(int index, int total_rows, int total_cols, int *row, int *col)
@@ -74,29 +61,6 @@ void MultiCamNode::IndexToRowCols(int index, int total_rows, int total_cols, int
 
   *col = index%total_cols;
   *row = index/total_cols;
-}
-
-Node *MultiCamNode::GetConnectedRenderOutput(const QString &input, int element) const
-{
-  if (sequence_ && input == kSourcesInput && element >= 0 && element < GetSourceCount()) {
-    return GetTrackList()->GetTrackAt(element);
-  } else {
-    return Node::GetConnectedRenderOutput(input, element);
-  }
-}
-
-bool MultiCamNode::IsInputConnectedForRender(const QString &input, int element) const
-{
-  if (sequence_ && input == kSourcesInput && element >= 0 && element < GetSourceCount()) {
-    return true;
-  } else {
-    return Node::IsInputConnectedForRender(input, element);
-  }
-}
-
-QVector<QString> MultiCamNode::IgnoreInputsForRendering() const
-{
-  return {kSequenceInput};
 }
 
 void MultiCamNode::InputConnectedEvent(const QString &input, int element, Node *output)
@@ -114,6 +78,15 @@ void MultiCamNode::InputDisconnectedEvent(const QString &input, int element, Nod
   if (input == kSequenceInput) {
     SetInputFlag(kSequenceTypeInput, kInputFlagHidden, true);
     sequence_ = nullptr;
+  }
+}
+
+Node *MultiCamNode::GetSourceNode(int source) const
+{
+  if (sequence_) {
+    return GetTrackList()->GetTrackAt(source);
+  } else {
+    return GetConnectedOutput(kSourcesInput, source);
   }
 }
 
@@ -137,7 +110,7 @@ void MultiCamNode::Retranslate()
   names.reserve(name_count);
   for (int i=0; i<name_count; i++) {
     QString src_name;
-    if (Node *n = GetConnectedRenderOutput(kSourcesInput, i)) {
+    if (Node *n = GetSourceNode(i)) {
       src_name = n->Name();
     }
     names.append(tr("%1: %2").arg(QString::number(i+1), src_name));

@@ -130,20 +130,24 @@ void ChromaKeyNode::GenerateProcessor()
   }
 }
 
-void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue ChromaKeyNode::Value(const ValueParams &p) const
 {
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
     if (processor()) {
-      ColorTransformJob job(value);
+      ColorTransformJob job = CreateJob<ColorTransformJob>(p);
 
       job.SetColorProcessor(processor());
-      job.SetInputTexture(value[kTextureInput]);
+      job.SetInputTexture(GetInputValue(p, kTextureInput));
       job.SetNeedsCustomShader(this);
       job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
 
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
+      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
     }
   }
+
+  return tex_meta;
 }
 
 void ChromaKeyNode::ConfigChanged()

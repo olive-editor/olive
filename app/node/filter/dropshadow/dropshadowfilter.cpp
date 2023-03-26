@@ -76,22 +76,26 @@ ShaderCode DropShadowFilter::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/dropshadow.frag"));
 }
 
-void DropShadowFilter::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue DropShadowFilter::Value(const ValueParams &p) const
 {
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-    ShaderJob job(value);
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
+    ShaderJob job = CreateJob<ShaderJob>(p);
 
     QString iterative = QStringLiteral("previous_iteration_in");
 
     job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-    job.Insert(iterative, value[kTextureInput]);
+    job.Insert(iterative, tex_meta);
 
-    if (!qIsNull(value[kSoftnessInput].toDouble())) {
+    if (!qIsNull(GetInputValue(p, kSoftnessInput).toDouble())) {
       job.SetIterations(3, iterative);
     }
 
-    table->Push(NodeValue::kTexture, tex->toJob(job), this);
+    return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
   }
+
+  return NodeValue();
 }
 
 }

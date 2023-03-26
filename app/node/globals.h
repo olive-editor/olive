@@ -23,26 +23,30 @@
 
 #include <QVector2D>
 
+#include "render/cancelatom.h"
 #include "render/loopmode.h"
 #include "render/videoparams.h"
 
 namespace olive {
 
-class NodeGlobals
+class ValueParams
 {
 public:
-  NodeGlobals(){}
-
-  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, LoopMode loop_mode) :
-    video_params_(vparam),
-    audio_params_(aparam),
-    time_(time),
-    loop_mode_(loop_mode)
+  ValueParams()
   {
   }
 
-  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const rational &time, LoopMode loop_mode) :
-    NodeGlobals(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), loop_mode)
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, LoopMode loop_mode, CancelAtom *cancel) :
+    video_params_(vparam),
+    audio_params_(aparam),
+    time_(time),
+    loop_mode_(loop_mode),
+    cancel_atom_(cancel)
+  {
+  }
+
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const rational &time, LoopMode loop_mode, CancelAtom *cancel) :
+    ValueParams(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), loop_mode, cancel)
   {
   }
 
@@ -53,11 +57,17 @@ public:
   const TimeRange &time() const { return time_; }
   LoopMode loop_mode() const { return loop_mode_; }
 
+  CancelAtom *cancel_atom() const { return cancel_atom_; }
+  bool is_cancelled() const { return cancel_atom_ && cancel_atom_->IsCancelled(); }
+
+  //ValueParams time_transformed(const TimeRange &time) const;
+
 private:
   VideoParams video_params_;
   AudioParams audio_params_;
   TimeRange time_;
   LoopMode loop_mode_;
+  CancelAtom *cancel_atom_;
 
 };
 

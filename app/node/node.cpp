@@ -864,6 +864,46 @@ int Node::InputArraySize(const QString &id) const
   }
 }
 
+NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int element) const
+{
+  if (g.is_cancelled()) {
+    return NodeValue();
+  }
+
+  TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
+
+  if (Node *output = GetConnectedOutput(input, element)) {
+    ValueParams adj_param(g.vparams(), g.aparams(), adjusted_time, g.loop_mode(), g.cancel_atom());
+
+    NodeValue ret;
+
+    while (output) {
+      if (output->GetStandardValue(kEnabledInput).toBool()) {
+        ret = output->Value(adj_param);
+        break;
+      } else {
+        output = output->GetConnectedOutput(output->GetEffectInput());
+      }
+    }
+
+    return ret;
+  } else {
+    if (element == -1 && InputIsArray(input)) {
+      NodeValueArray array;
+
+      int sz = InputArraySize(input);
+      for (int i = 0; i < sz; i++) {
+        NodeValue ele(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), i), this, false);
+        array[i] = ele;
+      }
+
+      return NodeValue(GetInputDataType(input), array, this, true);
+    } else {
+      return NodeValue(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), element), this, false);
+    }
+  }
+}
+
 void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int element)
 {
   value_hints_.insert({input, element}, hint);
@@ -921,12 +961,10 @@ void Node::SetInputFlag(const QString &input, InputFlag f, bool on)
   }
 }
 
-void Node::Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue Node::Value(const ValueParams &p) const
 {
-  // Do nothing
-  Q_UNUSED(value)
-  Q_UNUSED(globals)
-  Q_UNUSED(table)
+  Q_UNUSED(p)
+  return NodeValue();
 }
 
 void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
@@ -2395,12 +2433,10 @@ void Node::SetValueAtTime(const NodeInput &input, const rational &time, const QV
 
 bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path_index)
 {
-  for (auto it=from->output_connections().cbegin(); it!=from->output_connections().cend(); it++) {
-    const NodeInput &next = it->second;
+  for (auto it = to->input_connections().cbegin(); it != to->input_connections().cend(); it++) {
+    vec.push_front(it->first);
 
-    vec.push_back(next);
-
-    if (next.node() == to) {
+    if (it->second == from) {
       // Found a path! Determine if it's the index we want
       if (path_index == 0) {
         // It is!
@@ -2411,11 +2447,11 @@ bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path
       }
     }
 
-    if (FindPathInternal(vec, next.node(), to, path_index)) {
+    if (FindPathInternal(vec, from, it->second, path_index)) {
       return true;
     }
 
-    vec.pop_back();
+    vec.pop_front();
   }
 
   return false;

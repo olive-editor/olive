@@ -33,8 +33,6 @@
 
 namespace olive {
 
-#define super NodeTraverser
-
 RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache* decoder_cache, ShaderCache *shader_cache) :
   ticket_(ticket),
   render_ctx_(render_ctx),
@@ -48,11 +46,11 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
   TimeRange range = TimeRange(time, time + frame_length);
 
   NodeValueTable table;
+  NodeValue tex_val;
   if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
-    table = GenerateTable(node, range);
+    ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), range, LoopMode::kLoopModeOff, GetCancelPointer());
+    tex_val = node->Value(vp);
   }
-
-  NodeValue tex_val = table.Get(NodeValue::kTexture);
 
   ResolveJobs(tex_val);
 
@@ -219,12 +217,11 @@ void RenderProcessor::Run()
   {
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
-    NodeValueTable table;
+    NodeValue sample_val;
     if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
-      table = GenerateTable(node, time);
+      ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), time, LoopMode::kLoopModeOff, GetCancelPointer());
+      sample_val = node->Value(vp);
     }
-
-    NodeValue sample_val = table.Get(NodeValue::kSamples);
 
     ResolveJobs(sample_val);
 
@@ -294,28 +291,6 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
   return dec;
 }
 
-NodeValueDatabase RenderProcessor::GenerateDatabase(const Node *node, const TimeRange &range)
-{
-  NodeValueDatabase db = super::GenerateDatabase(node, range);
-
-  if (const MultiCamNode *multicam = dynamic_cast<const MultiCamNode*>(node)) {
-    if (QtUtils::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
-      int sz = multicam->GetSourceCount();
-      QVector<TexturePtr> multicam_tex(sz);
-      for (int i=0; i<sz; i++) {
-        NodeValueTable t = GenerateTable(multicam->GetConnectedRenderOutput(multicam->kSourcesInput, i), range, multicam);
-        NodeValue val = GenerateRowValueElement(multicam, multicam->kSourcesInput, i, &t, range);
-        ResolveJobs(val);
-
-        multicam_tex[i] = val.toTexture();
-      }
-      ticket_->setProperty("multicam_output", QVariant::fromValue(multicam_tex));
-    }
-  }
-
-  return db;
-}
-
 void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache)
 {
   RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache);
@@ -343,7 +318,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     qWarning() << "HAVEN'T GOTTEN DEFAULT INPUT COLORSPACE";
   }
 
-  Decoder::CodecStream default_codec_stream(stream->filename(), stream_data.stream_index(), GetCurrentBlock());
+  Decoder::CodecStream default_codec_stream(stream->filename(), stream_data.stream_index(), nullptr);
 
   QString decoder_id = stream->decoder();
 
@@ -426,10 +401,11 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
   if (decoder) {
     const AudioParams& audio_params = GetCacheAudioParams();
 
+    qDebug() << "audio loop modes are stubbed";
     Decoder::RetrieveAudioStatus status = decoder->RetrieveAudio(destination,
                                                                  input_time, audio_params,
                                                                  stream->cache_path(),
-                                                                 loop_mode(),
+                                                                 LoopMode::kLoopModeOff, //loop_mode(),
                                                                  static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
     if (status == Decoder::kWaitingForConform) {
@@ -470,6 +446,7 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
 
 void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job)
 {
+  /*
   if (!job.samples().is_allocated()) {
     return;
   }
@@ -497,6 +474,8 @@ void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node
                          destination,
                          i);
   }
+  */
+  qDebug() << "processing samples is stubbed";
 }
 
 void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job)
@@ -545,10 +524,17 @@ TexturePtr RenderProcessor::ProcessVideoCacheJob(const CacheJob *val)
 TexturePtr RenderProcessor::CreateTexture(const VideoParams &p)
 {
   if (render_ctx_) {
+    // Create real texture with render context
     return render_ctx_->CreateTexture(p);
   } else {
-    return super::CreateTexture(p);
+    // Create dummy texture
+    return CreateDummyTexture(p);
   }
+}
+
+TexturePtr RenderProcessor::CreateDummyTexture(const VideoParams &p)
+{
+  return std::make_shared<Texture>(p);
 }
 
 void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs)
@@ -572,6 +558,129 @@ void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr
 bool RenderProcessor::UseCache() const
 {
   return static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()) == RenderMode::kOffline;
+}
+
+void RenderProcessor::ResolveJobs(NodeValue &val)
+{
+  if (val.type() == NodeValue::kTexture) {
+
+    if (TexturePtr job_tex = val.toTexture()) {
+      if (AcceleratedJob *base_job = job_tex->job()) {
+
+        if (resolved_texture_cache_.contains(job_tex.get())) {
+          val.set_value(resolved_texture_cache_.value(job_tex.get()));
+        } else {
+          // Resolve any sub-jobs
+          for (auto it=base_job->GetValues().begin(); it!=base_job->GetValues().end(); it++) {
+            // Jobs will almost always be submitted with one of these types
+            NodeValue &subval = it.value();
+            ResolveJobs(subval);
+          }
+
+          if (CacheJob *cj = dynamic_cast<CacheJob*>(base_job)) {
+            TexturePtr tex = ProcessVideoCacheJob(cj);
+            if (tex) {
+              val.set_value(tex);
+            } else {
+              val.set_value(cj->GetFallback());
+            }
+
+          } else if (ColorTransformJob *ctj = dynamic_cast<ColorTransformJob*>(base_job)) {
+
+            VideoParams ctj_params = job_tex->params();
+
+            ctj_params.set_format(GetCacheVideoParams().format());
+
+            TexturePtr dest = CreateTexture(ctj_params);
+
+            // Resolve input texture
+            NodeValue v = ctj->GetInputTexture();
+            ResolveJobs(v);
+            ctj->SetInputTexture(v);
+
+            ProcessColorTransform(dest, val.source(), ctj);
+
+            val.set_value(dest);
+
+          } else if (ShaderJob *sj = dynamic_cast<ShaderJob*>(base_job)) {
+
+            VideoParams tex_params = job_tex->params();
+
+            TexturePtr tex = CreateTexture(tex_params);
+
+            ProcessShader(tex, val.source(), sj);
+
+            val.set_value(tex);
+
+          } else if (GenerateJob *gj = dynamic_cast<GenerateJob*>(base_job)) {
+
+            VideoParams tex_params = job_tex->params();
+
+            TexturePtr tex = CreateTexture(tex_params);
+
+            ProcessFrameGeneration(tex, val.source(), gj);
+
+            // Convert to reference space
+            const QString &colorspace = tex_params.colorspace();
+            if (!colorspace.isEmpty()) {
+              // Set format to primary format
+              tex_params.set_format(GetCacheVideoParams().format());
+
+              TexturePtr dest = CreateTexture(tex_params);
+
+              ConvertToReferenceSpace(dest, tex, colorspace);
+
+              tex = dest;
+            }
+
+            val.set_value(tex);
+
+          } else if (FootageJob *fj = dynamic_cast<FootageJob*>(base_job)) {
+
+            rational footage_time = Footage::AdjustTimeByLoopMode(fj->time().in(), fj->loop_mode(), fj->length(), fj->video_params().video_type(), fj->video_params().frame_rate_as_time_base());
+
+            TexturePtr tex;
+
+            if (footage_time.isNaN()) {
+              // Push dummy texture
+              tex = CreateDummyTexture(fj->video_params());
+            } else {
+              VideoParams managed_params = fj->video_params();
+              managed_params.set_format(GetCacheVideoParams().format());
+
+              tex = CreateTexture(managed_params);
+              ProcessVideoFootage(tex, fj, footage_time);
+            }
+
+            val.set_value(tex);
+
+          }
+
+          // Cache resolved value
+          resolved_texture_cache_.insert(job_tex.get(), val.toTexture());
+        }
+      }
+    }
+
+  } else if (val.type() == NodeValue::kSamples) {
+
+    if (val.canConvert<SampleJob>()) {
+
+      SampleJob job = val.value<SampleJob>();
+      SampleBuffer output_buffer = CreateSampleBuffer(job.samples().audio_params(), job.samples().sample_count());
+      ProcessSamples(output_buffer, val.source(), job.time(), job);
+      val.set_value(QVariant::fromValue(output_buffer));
+
+    } else if (val.canConvert<FootageJob>()) {
+
+      FootageJob job = val.value<FootageJob>();
+      SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
+      ProcessAudioFootage(buffer, &job, job.time());
+      val.set_value(buffer);
+
+    }
+
+  }
 }
 
 }

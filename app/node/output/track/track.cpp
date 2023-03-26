@@ -99,57 +99,26 @@ QString Track::Description() const
             "a Sequence.");
 }
 
-Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
+NodeValue Track::Value(const ValueParams &p) const
 {
-  if (input == kBlockInput) {
-    if (IsMuted() || blocks_.empty() || r.in() >= track_length() || r.out() <= 0) {
-      return ActiveElements::kNoElements;
-    } else {
-      int start = GetBlockIndexAtTime(r.in());
-      int end = GetBlockIndexAtTime(r.out());
+  if (!IsMuted() && !blocks_.empty() && p.time().in() < track_length() && p.time().out() > 0) {
+    if (this->type() == Track::kVideo) {
+      // Just pass straight through
+      int index = GetBlockIndexAtTime(p.time().in());
+      if (index != -1) {
+        Block *b = blocks_.at(index);
 
-      if (start == -1) {
-        start = 0;
-      }
-      if (end == -1) {
-        end = blocks_.size()-1;
-      }
-
-      if (blocks_.at(end)->in() == r.out()) {
-        end--;
-      }
-
-      ActiveElements a;
-      for (int i=start; i<=end; i++) {
-        Block *b = blocks_.at(i);
         if (b->is_enabled() && (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b))) {
-          a.add(GetArrayIndexFromCacheIndex(i));
+          return GetInputValue(p, kBlockInput, GetArrayIndexFromCacheIndex(index));
         }
       }
-
-      if (a.elements().empty()) {
-        return ActiveElements::kNoElements;
-      } else {
-        return a;
-      }
+    } else if (this->type() == Track::kAudio) {
+      // Audio
+      return ProcessAudioTrack(p);
     }
-  } else {
-    return super::GetActiveElementsAtTime(input, r);
   }
-}
 
-void Track::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
-{
-  if (this->type() == Track::kVideo) {
-    // Just pass straight through
-    NodeValueArray a = value[kBlockInput].toArray();
-    if (!a.empty()) {
-      table->Push(a.begin()->second);
-    }
-  } else if (this->type() == Track::kAudio) {
-    // Audio
-    ProcessAudioTrack(value, globals, table);
-  }
+  return NodeValue();
 }
 
 TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const
@@ -625,29 +594,48 @@ int Track::GetBlockIndexAtTime(const rational &time) const
   return -1;
 }
 
-void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue Track::ProcessAudioTrack(const ValueParams &p) const
 {
-  const TimeRange &range = globals.time();
+  const TimeRange &range = p.time();
+
+  int start = GetBlockIndexAtTime(range.in());
+  int end = GetBlockIndexAtTime(range.out());
+
+  if (start == -1) {
+    start = 0;
+  }
+  if (end == -1) {
+    end = blocks_.size()-1;
+  }
+
+  if (blocks_.at(end)->in() == range.out()) {
+    end--;
+  }
+
+  QVector<int> blocks;
+  for (int i=start; i<=end; i++) {
+    Block *b = blocks_.at(i);
+    if (b->is_enabled() && (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b))) {
+      blocks.append(i);
+    }
+  }
 
   // All these blocks will need to output to a buffer so we create one here
-  SampleBuffer block_range_buffer(globals.aparams(), range.length());
+  SampleBuffer block_range_buffer(p.aparams(), range.length());
   block_range_buffer.silence();
 
-  // Loop through active blocks retrieving their audio
-  NodeValueArray arr = value[kBlockInput].toArray();
-
-  for (auto it=arr.cbegin(); it!=arr.cend(); it++) {
-    Block *b = blocks_.at(GetCacheIndexFromArrayIndex(it->first));
+  for (int block_index : blocks) {
+    Block *b = blocks_.at(block_index);
 
     TimeRange range_for_block(qMax(b->in(), range.in()),
                               qMin(b->out(), range.out()));
 
     qint64 source_offset = 0;
-    qint64 destination_offset = globals.aparams().time_to_samples(range_for_block.in() - range.in());
-    qint64 max_dest_sz = globals.aparams().time_to_samples(range_for_block.length());
+    qint64 destination_offset = p.aparams().time_to_samples(range_for_block.in() - range.in());
+    qint64 max_dest_sz = p.aparams().time_to_samples(range_for_block.length());
 
     // Destination buffer
-    SampleBuffer samples_from_this_block = it->second.toSamples();
+    SampleBuffer samples_from_this_block = GetInputValue(p, kBlockInput, GetArrayIndexFromCacheIndex(block_index)).toSamples();
 
     if (samples_from_this_block.is_allocated()) {
       // If this is a clip, we might have extra speed/reverse information
@@ -715,7 +703,7 @@ void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &glob
     }
   }
 
-  table->Push(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), this);
+  return NodeValue(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), this);
 }
 
 int Track::ConnectBlock(Block *b)

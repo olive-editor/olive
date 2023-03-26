@@ -48,13 +48,13 @@ QString TimeInput::Description() const
   return tr("Generates the time (in seconds) at this frame.");
 }
 
-void TimeInput::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TimeInput::Value(const ValueParams &p) const
 {
-  table->Push(NodeValue::kFloat,
-              globals.time().in().toDouble(),
-              this,
-              false,
-              QStringLiteral("time"));
+  return NodeValue(NodeValue::kFloat,
+                   p.time().in().toDouble(),
+                   this,
+                   false,
+                   QStringLiteral("time"));
 }
 
 }

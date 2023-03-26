@@ -22,4 +22,11 @@
 
 namespace olive {
 
+/*ValueParams ValueParams::time_transformed(const TimeRange &time) const
+{
+  ValueParams g = *this;
+  g.time_ = time;
+  return g;
+}*/
+
 }

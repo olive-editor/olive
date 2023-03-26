@@ -87,27 +87,28 @@ ShaderCode SwirlDistortNode::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/swirl.frag"));
 }
 
-void SwirlDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue SwirlDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qIsNull(value[kAngleInput].toDouble()) && !qIsNull(value[kRadiusInput].toDouble())) {
-      ShaderJob job(value);
+    if (!qIsNull(GetInputValue(p, kAngleInput).toDouble()) && !qIsNull(GetInputValue(p, kRadiusInput).toDouble())) {
+      ShaderJob job = CreateJob<ShaderJob>(p);
       job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
     }
   }
+
+  return tex_meta;
 }
 
-void SwirlDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void SwirlDistortNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  QPointF half_res(globals.square_resolution().x()/2, globals.square_resolution().y()/2);
+  QPointF half_res(p.square_resolution().x()/2, p.square_resolution().y()/2);
 
-  gizmo_->SetPoint(half_res + row[kPositionInput].toVec2().toPointF());
+  gizmo_->SetPoint(half_res + GetInputValue(p, kPositionInput).toVec2().toPointF());
 }
 
 void SwirlDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

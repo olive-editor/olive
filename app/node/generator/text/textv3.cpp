@@ -96,12 +96,12 @@ void TextGeneratorV3::Retranslate()
   SetInputName(kArgsInput, tr("Arguments"));
 }
 
-void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TextGeneratorV3::Value(const ValueParams &p) const
 {
-  QString text = value[kTextInput].toString();
+  QString text = GetInputValue(p, kTextInput).toString();
 
-  if (value[kUseArgsInput].toBool()) {
-    auto args = value[kArgsInput].toArray();
+  if (GetInputValue(p, kUseArgsInput).toBool()) {
+    auto args = GetInputValue(p, kArgsInput).toArray();
     if (!args.empty()) {
       QStringList list;
       list.reserve(args.size());
@@ -113,20 +113,22 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
     }
   }
 
-  if (!text.isEmpty()) {
-    TexturePtr base = value[kTextInput].toTexture();
+  NodeValue base_val = GetInputValue(p, kTextInput);
 
-    VideoParams text_params = base ? base->params() : globals.vparams();
+  if (!text.isEmpty()) {
+    TexturePtr base = base_val.toTexture();
+
+    VideoParams text_params = base ? base->params() : p.vparams();
     text_params.set_format(PixelFormat::U8);
     text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
-    GenerateJob job(value);
+    GenerateJob job = CreateJob<GenerateJob>(p);
     job.Insert(kTextInput, NodeValue(NodeValue::kText, text));
 
-    PushMergableJob(value, Texture::Job(text_params, job), table);
-  } else if (value[kBaseInput].toTexture()) {
-    table->Push(value[kBaseInput]);
+    return GetMergableJob(p, Texture::Job(text_params, job));
   }
+
+  return base_val;
 }
 
 void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) const
@@ -176,13 +178,13 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   text_doc.documentLayout()->draw(&p, ctx);
 }
 
-void TextGeneratorV3::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void TextGeneratorV3::UpdateGizmoPositions(const ValueParams &p)
 {
-  super::UpdateGizmoPositions(row, globals);
+  super::UpdateGizmoPositions(p);
 
   QRectF rect = poly_gizmo()->GetPolygon().boundingRect();
   text_gizmo_->SetRect(rect);
-  text_gizmo_->SetHtml(row[kTextInput].toString());
+  text_gizmo_->SetHtml(GetInputValue(p, kTextInput).toString());
 }
 
 Qt::Alignment TextGeneratorV3::GetQtAlignmentFromOurs(VerticalAlignment v)

@@ -28,13 +28,13 @@ DraggableGizmo::DraggableGizmo(QObject *parent)
 {
 }
 
-void DraggableGizmo::DragStart(const NodeValueRow &row, double abs_x, double abs_y, const rational &time)
+void DraggableGizmo::DragStart(const ValueParams &p, double abs_x, double abs_y, const rational &time)
 {
   for (int i=0; i<draggers_.size(); i++) {
     draggers_[i].Start(inputs_[i], time);
   }
 
-  emit HandleStart(row, abs_x, abs_y, time);
+  emit HandleStart(p, abs_x, abs_y, time);
 }
 
 void DraggableGizmo::DragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

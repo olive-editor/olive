@@ -47,11 +47,11 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual NodeValue Value(const ValueParams &p) const override;
 
   virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
@@ -59,7 +59,7 @@ public:
   static const QString kColorInput;
 
 protected:
-  ShaderJob GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const;
+  ShaderJob GetGenerateJob(const ValueParams &p, const VideoParams &params) const;
 
 protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;

@@ -484,17 +484,9 @@ TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, con
   return super::OutputTimeAdjustment(input, element, input_time);
 }
 
-void ClipBlock::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue ClipBlock::Value(const ValueParams &p) const
 {
-  Q_UNUSED(globals)
-
-  // We discard most values here except for the buffer we received
-  NodeValue data = value[kBufferIn];
-
-  table->Clear();
-  if (data.type() != NodeValue::kNone) {
-    table->Push(data);
-  }
+  return GetInputValue(p, kBufferIn);
 }
 
 void ClipBlock::Retranslate()

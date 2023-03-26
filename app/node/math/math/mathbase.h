@@ -119,9 +119,9 @@ protected:
 
   ShaderCode GetShaderCodeInternal(const QString &shader_id, const QString &param_a_in, const QString &param_b_in) const;
 
-  void PushVector(NodeValueTable* output, NodeValue::Type type, const QVector4D& vec) const;
+  NodeValue PushVector(NodeValue::Type type, const QVector4D& vec) const;
 
-  void ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b, const NodeGlobals &globals, NodeValueTable *output) const;
+  NodeValue ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const;
 
   void ProcessSamplesInternal(const NodeValueRow &values, Operation operation, const QString& param_a_in, const QString& param_b_in, const SampleBuffer &input, SampleBuffer &output, int index) const;
 

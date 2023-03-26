@@ -59,9 +59,9 @@ void SolidGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-void SolidGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue SolidGenerator::Value(const ValueParams &p) const
 {
-  table->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), ShaderJob(value)), this);
+  return NodeValue(NodeValue::kTexture, Texture::Job(p.vparams(), CreateJob<ShaderJob>(p)), this);
 }
 
 ShaderCode SolidGenerator::GetShaderCode(const ShaderRequest &request) const

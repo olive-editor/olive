@@ -62,16 +62,17 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
-void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue PanNode::Value(const ValueParams &p) const
 {
   // Create a sample job
-  SampleBuffer samples = value[kSamplesInput].toSamples();
+  NodeValue samples_original = GetInputValue(p, kSamplesInput);
+  SampleBuffer samples = samples_original.toSamples();
   if (samples.is_allocated()) {
     // This node is only compatible with stereo audio
     if (samples.audio_params().channel_count() == 2) {
       // If the input is static, we can just do it now which will be faster
       if (IsInputStatic(kPanningInput)) {
-        float pan_volume = value[kPanningInput].toDouble();
+        float pan_volume = GetInputValue(p, kPanningInput).toDouble();
         if (!qIsNull(pan_volume)) {
           if (pan_volume > 0) {
             samples.transform_volume_for_channel(0, 1.0f - pan_volume);
@@ -80,14 +81,14 @@ void PanNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
           }
         }
 
-        table->Push(NodeValue(NodeValue::kSamples, samples, this));
+        return NodeValue(NodeValue::kSamples, samples, this);
       } else {
         // Requires job
-        table->Push(NodeValue::kSamples, SampleJob(globals.time(), kSamplesInput, value), this);
+        return NodeValue(NodeValue::kSamples, CreateSampleJob(p, kSamplesInput), this);
       }
     } else {
       // Pass right through
-      table->Push(value[kSamplesInput]);
+      return samples_original;
     }
   }
 }

@@ -20,8 +20,6 @@
 
 #include "merge.h"
 
-#include "node/traverser.h"
-
 namespace olive {
 
 const QString MergeNode::kBaseIn = QStringLiteral("base_in");
@@ -74,23 +72,27 @@ ShaderCode MergeNode::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
-void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue MergeNode::Value(const ValueParams &p) const
 {
+  NodeValue base_val = GetInputValue(p, kBaseIn);
+  NodeValue blend_val = GetInputValue(p, kBlendIn);
 
-  TexturePtr base_tex = value[kBaseIn].toTexture();
-  TexturePtr blend_tex = value[kBlendIn].toTexture();
+  TexturePtr base_tex = base_val.toTexture();
+  TexturePtr blend_tex = blend_val.toTexture();
 
   if (base_tex || blend_tex) {
     if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
       // We only have a blend texture or the blend texture is RGB only, no need to alpha over
-      table->Push(value[kBlendIn]);
+      return blend_val;
     } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
-      table->Push(value[kBaseIn]);
+      return base_val;
     } else {
-      table->Push(NodeValue::kTexture, base_tex->toJob(ShaderJob(value)), this);
+      return NodeValue(NodeValue::kTexture, base_tex->toJob(CreateJob<ShaderJob>(p)), this);
     }
   }
+
+  return NodeValue();
 }
 
 }

@@ -59,17 +59,17 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual NodeValue Value(const ValueParams &p) const override;
 
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   /**
    * @brief Convenience function - converts the 2D slider values from being
    * an offset to the actual pixel value.
    */
-  QPointF ValueToPixel(int value, const NodeValueRow &row, const QVector2D &resolution) const;
+  QPointF ValueToPixel(int value, const ValueParams &p, const QVector2D &resolution) const;
 
   static const QString kTextureInput;
   static const QString kPerspectiveInput;

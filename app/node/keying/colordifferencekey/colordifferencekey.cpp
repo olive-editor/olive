@@ -91,14 +91,17 @@ ShaderCode ColorDifferenceKeyNode::GetShaderCode(const ShaderRequest &request) c
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/colordifferencekey.frag"));
 }
 
-void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue ColorDifferenceKeyNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-    ShaderJob job;
-    job.Insert(value);
-    table->Push(NodeValue::kTexture, tex->toJob(job), this);
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
+    ShaderJob job = CreateJob<ShaderJob>(p);
+    return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
   }
+
+  return tex_meta;
 }
 
 }  // namespace olive

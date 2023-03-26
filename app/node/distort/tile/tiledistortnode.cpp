@@ -108,31 +108,32 @@ ShaderCode TileDistortNode::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/tile.frag"));
 }
 
-void TileDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TileDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  NodeValue texture = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = texture.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qFuzzyCompare(value[kScaleInput].toDouble(), 1.0)) {
-      ShaderJob job(value);
+    if (!qFuzzyCompare(GetInputValue(p, kScaleInput).toDouble(), 1.0)) {
+      ShaderJob job = CreateJob<ShaderJob>(p);
       job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
     }
   }
+
+  return texture;
 }
 
-void TileDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void TileDistortNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+  if (TexturePtr tex = GetInputValue(p, kTextureInput).toTexture()) {
     QPointF res = tex->virtual_resolution().toPointF();
-    QPointF pos = row[kPositionInput].toVec2().toPointF();
+    QPointF pos = GetInputValue(p, kPositionInput).toVec2().toPointF();
     qreal x = pos.x();
     qreal y = pos.y();
 
-    Anchor a = static_cast<Anchor>(row[kAnchorInput].toInt());
+    Anchor a = static_cast<Anchor>(GetInputValue(p, kAnchorInput).toInt());
     if (a == kTopLeft || a == kTopCenter || a == kTopRight) {
       // Do nothing
     } else if (a == kMiddleLeft || a == kMiddleCenter || a == kMiddleRight) {

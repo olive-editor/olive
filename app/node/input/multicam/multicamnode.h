@@ -21,9 +21,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
-
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual NodeValue Value(const ValueParams &p) const override;
 
   virtual void Retranslate() override;
 
@@ -57,16 +55,13 @@ public:
     return col + row * total_cols;
   }
 
-  virtual Node *GetConnectedRenderOutput(const QString& input, int element = -1) const override;
-  virtual bool IsInputConnectedForRender(const QString& input, int element = -1) const override;
-
-  virtual QVector<QString> IgnoreInputsForRendering() const override;
-
 protected:
   virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
   virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
 
 private:
+  Node *GetSourceNode(int source) const;
+
   TrackList *GetTrackList() const;
 
   Sequence *sequence_;

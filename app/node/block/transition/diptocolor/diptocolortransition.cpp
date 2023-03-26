@@ -65,9 +65,9 @@ void DipToColorTransition::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const
+void DipToColorTransition::ShaderJobEvent(const ValueParams &p, ShaderJob *job) const
 {
-  job->Insert(kColorInput, value);
+  job->Insert(kColorInput, GetInputValue(p, kColorInput));
 }
 
 }

@@ -87,35 +87,35 @@ void MatrixGenerator::Retranslate()
   SetInputName(kAnchorInput, tr("Anchor Point"));
 }
 
-void MatrixGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue MatrixGenerator::Value(const ValueParams &p) const
 {
   // Push matrix output
-  QMatrix4x4 mat = GenerateMatrix(value, false, false, false, QMatrix4x4());
-  table->Push(NodeValue::kMatrix, mat, this);
+  QMatrix4x4 mat = GenerateMatrix(p, false, false, false, QMatrix4x4());
+  return NodeValue(NodeValue::kMatrix, mat, this);
 }
 
-QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(const ValueParams &p, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const
 {
   QVector2D anchor;
   QVector2D position;
   QVector2D scale;
 
   if (!ignore_anchor) {
-    anchor = value[kAnchorInput].toVec2();
+    anchor = GetInputValue(p, kAnchorInput).toVec2();
   }
 
   if (!ignore_scale) {
-    scale = value[kScaleInput].toVec2();
+    scale = GetInputValue(p, kScaleInput).toVec2();
   }
 
   if (!ignore_position) {
-    position = value[kPositionInput].toVec2();
+    position = GetInputValue(p, kPositionInput).toVec2();
   }
 
   return GenerateMatrix(position,
-                        value[kRotationInput].toDouble(),
+                        GetInputValue(p, kRotationInput).toDouble(),
                         scale,
-                        value[kUniformScaleInput].toBool(),
+                        GetInputValue(p, kUniformScaleInput).toBool(),
                         anchor,
                         mat);
 }

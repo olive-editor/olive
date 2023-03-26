@@ -62,12 +62,12 @@ void ValueNode::Retranslate()
   SetComboBoxStrings(kTypeInput, type_names);
 }
 
-void ValueNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue ValueNode::Value(const ValueParams &p) const
 {
-  Q_UNUSED(globals)
+  Q_UNUSED(p)
 
   // Ensure value is pushed onto the table
-  table->Push(value[kValueInput]);
+  return GetInputValue(p, kValueInput);
 }
 
 void ValueNode::InputValueChangedEvent(const QString &input, int element)

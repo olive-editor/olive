@@ -117,24 +117,25 @@ ShaderCode BlurFilterNode::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
-void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue BlurFilterNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-    Method method = static_cast<Method>(value[kMethodInput].toInt());
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  if (TexturePtr tex = tex_meta.toTexture()) {
+    Method method = static_cast<Method>(GetInputValue(p, kMethodInput).toInt());
 
     bool can_push_job = true;
     int iterations = 1;
 
     // Check if radius is > 0
-    if (value[kRadiusInput].toDouble() > 0.0) {
+    if (GetInputValue(p, kRadiusInput).toDouble() > 0.0) {
       // Method-specific considerations
       switch (method) {
       case kBox:
       case kGaussian:
       {
-        bool horiz = value[kHorizInput].toBool();
-        bool vert = value[kVertInput].toBool();
+        bool horiz = GetInputValue(p, kHorizInput).toBool();
+        bool vert = GetInputValue(p, kVertInput).toBool();
 
         if (!horiz && !vert) {
           // Disable job if horiz and vert are unchecked
@@ -154,27 +155,27 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
     }
 
     if (can_push_job) {
-      ShaderJob job(value);
+      ShaderJob job = CreateJob<ShaderJob>(p);
+
       job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
       job.SetIterations(iterations, kTextureInput);
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      // If we're not performing the blur job, just push the texture
-      table->Push(value[kTextureInput]);
-    }
 
+      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+    }
   }
+
+  return tex_meta;
 }
 
-void BlurFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void BlurFilterNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  if (TexturePtr tex = row[kTextureInput].toTexture()) {
-    if (row[kMethodInput].toInt() == kRadial) {
+  if (TexturePtr tex = GetInputValue(p, kTextureInput).toTexture()) {
+    if (GetInputValue(p, kMethodInput).toInt() == kRadial) {
       const QVector2D &sequence_res = tex->virtual_resolution();
       QVector2D sequence_half_res = sequence_res * 0.5;
 
       radial_center_gizmo_->SetVisible(true);
-      radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + row[kRadialCenterInput].toVec2().toPointF());
+      radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + GetInputValue(p, kRadialCenterInput).toVec2().toPointF());
 
       SetInputProperty(kRadialCenterInput, QStringLiteral("offset"), sequence_half_res);
     } else{

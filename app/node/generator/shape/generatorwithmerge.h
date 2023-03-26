@@ -38,7 +38,7 @@ public:
   static const QString kBaseInput;
 
 protected:
-  void PushMergableJob(const NodeValueRow &value, TexturePtr job, NodeValueTable *table) const;
+  NodeValue GetMergableJob(const ValueParams &p, TexturePtr job) const;
 
 };
 

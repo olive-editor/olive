@@ -51,8 +51,6 @@ set(OLIVE_SOURCES
   node/project.cpp
   node/project.h
   node/splitvalue.h
-  node/traverser.cpp
-  node/traverser.h
   node/value.cpp
   node/value.h
   node/valuedatabase.cpp

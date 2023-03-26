@@ -2,8 +2,6 @@
 
 #include <QEvent>
 
-#include "node/traverser.h"
-
 namespace olive {
 
 #define super QTreeWidget
@@ -26,13 +24,13 @@ NodeValueTree::NodeValueTree(QWidget *parent) :
 
 void NodeValueTree::SetNode(const NodeInput &input, const rational &time)
 {
+  /*
   clear();
-
-  NodeTraverser traverser;
 
   Node *connected_node = input.GetConnectedOutput();
 
-  NodeValueTable table = traverser.GenerateTable(connected_node, TimeRange(time, time));
+  ValueParams p(VideoParams(), AudioParams(), time, LoopMode::kLoopModeOff);
+  NodeValue v = connected_node->Value(p);
 
   int index = traverser.GenerateRowValueElementIndex(input.node(), input.input(), input.element(), &table);
 
@@ -55,6 +53,7 @@ void NodeValueTree::SetNode(const NodeInput &input, const rational &time)
     item->setText(2, NodeValue::ValueToString(value, false));
     item->setText(3, value.source()->GetLabelAndName());
   }
+  */
 }
 
 void NodeValueTree::changeEvent(QEvent *event)

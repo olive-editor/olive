@@ -51,20 +51,22 @@ ShaderCode GeneratorWithMerge::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode();
 }
 
-void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, TexturePtr job, NodeValueTable *table) const
+NodeValue GeneratorWithMerge::GetMergableJob(const ValueParams &p, TexturePtr job) const
 {
-  if (TexturePtr base = value[kBaseInput].toTexture()) {
+  NodeValue tex_meta = GetInputValue(p, kBaseInput);
+
+  if (TexturePtr base = tex_meta.toTexture()) {
     // Push as merge node
     ShaderJob merge;
 
     merge.SetShaderID(QStringLiteral("mrg"));
-    merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
+    merge.Insert(MergeNode::kBaseIn, tex_meta);
     merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
 
-    table->Push(NodeValue::kTexture, base->toJob(merge), this);
+    return NodeValue(NodeValue::kTexture, base->toJob(merge), this);
   } else {
     // Just push generate job
-    table->Push(NodeValue::kTexture, job, this);
+    return NodeValue(NodeValue::kTexture, job, this);
   }
 }
 

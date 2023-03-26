@@ -77,9 +77,9 @@ void TrigonometryNode::Retranslate()
   SetInputName(kXIn, tr("Value"));
 }
 
-void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TrigonometryNode::Value(const ValueParams &p) const
 {
-  double x = value[kXIn].toDouble();
+  double x = GetInputValue(p, kXIn).toDouble();
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:
@@ -111,7 +111,7 @@ void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globa
     break;
   }
 
-  table->Push(NodeValue::kFloat, x, this);
+  return NodeValue(NodeValue::kFloat, x, this);
 }
 
 }

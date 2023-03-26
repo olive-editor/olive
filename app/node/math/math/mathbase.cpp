@@ -148,21 +148,20 @@ QVector4D MathNodeBase::RetrieveVector(const NodeValue &val)
   }
 }
 
-void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type type, const QVector4D &vec) const
+NodeValue MathNodeBase::PushVector(olive::NodeValue::Type type, const QVector4D &vec) const
 {
   switch (type) {
   case NodeValue::kVec2:
-    output->Push(type, QVector2D(vec), this);
-    break;
+    return NodeValue(type, QVector2D(vec), this);
   case NodeValue::kVec3:
-    output->Push(type, QVector3D(vec), this);
-    break;
+    return NodeValue(type, QVector3D(vec), this);
   case NodeValue::kVec4:
-    output->Push(type, vec, this);
-    break;
+    return NodeValue(type, vec, this);
   default:
     break;
   }
+
+  return NodeValue();
 }
 
 QString MathNodeBase::GetOperationName(Operation o)
@@ -227,7 +226,7 @@ void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, flo
 }
 #endif
 
-void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b, const NodeGlobals &globals, NodeValueTable *output) const
+NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const
 {
   switch (pairing) {
 
@@ -235,25 +234,22 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
   {
     if (val_a.type() == NodeValue::kRational && val_b.type() == NodeValue::kRational && operation != kOpPower) {
       // Preserve rationals
-      output->Push(NodeValue::kRational,
+      return NodeValue(NodeValue::kRational,
                   QVariant::fromValue(PerformAddSubMultDiv<rational, rational>(operation, val_a.toRational(), val_b.toRational())),
                   this);
     } else {
-      output->Push(NodeValue::kFloat,
+      return NodeValue(NodeValue::kFloat,
                   PerformAll<float, float>(operation, RetrieveNumber(val_a), RetrieveNumber(val_b)),
                   this);
     }
-    break;
   }
 
   case kPairVecVec:
   {
     // We convert all vectors to QVector4D just for simplicity and exploit the fact that kVec4 is higher than kVec2 in
     // the enum to find the largest data type
-    PushVector(output,
-               qMax(val_a.type(), val_b.type()),
-               PerformAddSubMultDiv<QVector4D, QVector4D>(operation, RetrieveVector(val_a), RetrieveVector(val_b)));
-    break;
+    return PushVector(qMax(val_a.type(), val_b.type()),
+                      PerformAddSubMultDiv<QVector4D, QVector4D>(operation, RetrieveVector(val_a), RetrieveVector(val_b)));
   }
 
   case kPairMatrixVec:
@@ -262,10 +258,8 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
     QVector4D vec = (val_a.type() == NodeValue::kMatrix) ? RetrieveVector(val_b) : RetrieveVector(val_a);
 
     // Only valid operation is multiply
-    PushVector(output,
-               qMax(val_a.type(), val_b.type()),
-               PerformMult<QVector4D, QMatrix4x4>(operation, vec, matrix));
-    break;
+    return PushVector(qMax(val_a.type(), val_b.type()),
+                      PerformMult<QVector4D, QMatrix4x4>(operation, vec, matrix));
   }
 
   case kPairVecNumber:
@@ -274,16 +268,14 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
     float number = RetrieveNumber((val_a.type() & NodeValue::kMatrix) ? val_b : val_a);
 
     // Only multiply and divide are valid operations
-    PushVector(output, val_a.type(), PerformMultDiv<QVector4D, float>(operation, vec, number));
-    break;
+    return PushVector(val_a.type(), PerformMultDiv<QVector4D, float>(operation, vec, number));
   }
 
   case kPairMatrixMatrix:
   {
     QMatrix4x4 mat_a = val_a.toMatrix();
     QMatrix4x4 mat_b = val_b.toMatrix();
-    output->Push(NodeValue::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(operation, mat_a, mat_b), this);
-    break;
+    return NodeValue(NodeValue::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(operation, mat_a, mat_b), this);
   }
 
   case kPairColorColor:
@@ -292,8 +284,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
     Color col_b = val_b.toColor();
 
     // Only add and subtract are valid operations
-    output->Push(NodeValue::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(operation, col_a, col_b)), this);
-    break;
+    return NodeValue(NodeValue::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(operation, col_a, col_b)), this);
   }
 
 
@@ -303,8 +294,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
     float num = (val_a.type() == NodeValue::kColor) ? val_b.toDouble() : val_a.toDouble();
 
     // Only multiply and divide are valid operations
-    output->Push(NodeValue::kColor, QVariant::fromValue(PerformMult<Color, float>(operation, col, num)), this);
-    break;
+    return NodeValue(NodeValue::kColor, QVariant::fromValue(PerformMult<Color, float>(operation, col, num)), this);
   }
 
   case kPairSampleSample:
@@ -337,8 +327,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       }
     }
 
-    output->Push(NodeValue::kSamples, QVariant::fromValue(mixed_samples), this);
-    break;
+    return NodeValue(NodeValue::kSamples, QVariant::fromValue(mixed_samples), this);
   }
 
   case kPairTextureColor:
@@ -369,7 +358,7 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
       }
     } else if (pairing == kPairTextureMatrix) {
       // Only allow matrix multiplication
-      const QVector2D &sequence_res = globals.nonsquare_resolution();
+      const QVector2D &sequence_res = p.nonsquare_resolution();
       QVector2D texture_res(texture->params().width() * texture->pixel_aspect_ratio().toDouble(), texture->params().height());
 
       QMatrix4x4 adjusted_matrix = TransformDistortNode::AdjustMatrixByResolutions(number_val.toMatrix(),
@@ -388,10 +377,10 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
 
     if (operation_is_noop) {
       // Just push texture as-is
-      output->Push(texture_val);
+      return texture_val;
     } else {
       // Push shader job
-      output->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), job), this);
+      return NodeValue(NodeValue::kTexture, Texture::Job(p.vparams(), job), this);
     }
     break;
   }
@@ -419,11 +408,11 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
           }
         }
 
-        output->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
+        return NodeValue(NodeValue::kSamples, QVariant::fromValue(buffer), this);
       } else {
-        SampleJob job(globals.time(), val_a.type() == NodeValue::kSamples ? val_a : val_b);
+        SampleJob job(p.time(), val_a.type() == NodeValue::kSamples ? val_a : val_b);
         job.Insert(number_param, NodeValue(NodeValue::kFloat, number, this));
-        output->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
+        return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this);
       }
     }
     break;
@@ -433,6 +422,8 @@ void MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QSt
   case kPairCount:
     break;
   }
+
+  return NodeValue();
 }
 
 void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBase::Operation operation, const QString &param_a_in, const QString &param_b_in, const olive::SampleBuffer &input, olive::SampleBuffer &output, int index) const

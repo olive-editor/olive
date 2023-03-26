@@ -22,18 +22,20 @@
 #define RENDERPROCESSOR_H
 
 #include "node/block/clip/clip.h"
-#include "node/traverser.h"
+#include "render/job/cachejob.h"
+#include "render/job/colortransformjob.h"
+#include "render/job/footagejob.h"
+#include "render/job/samplejob.h"
+#include "render/job/shaderjob.h"
 #include "render/renderer.h"
 #include "rendercache.h"
 #include "renderticket.h"
 
 namespace olive {
 
-class RenderProcessor : public NodeTraverser
+class RenderProcessor
 {
 public:
-  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range) override;
-
   static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
 
   struct RenderedWaveform {
@@ -44,30 +46,40 @@ public:
   };
 
 protected:
-  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time) override;
+  void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time);
 
-  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time) override;
+  void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time);
 
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job) override;
+  void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job);
 
-  virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
+  void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job);
 
-  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job) override;
+  void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job);
 
-  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job) override;
+  void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job);
 
-  virtual TexturePtr ProcessVideoCacheJob(const CacheJob *val) override;
+  TexturePtr ProcessVideoCacheJob(const CacheJob *val);
 
-  virtual TexturePtr CreateTexture(const VideoParams &p) override;
+  TexturePtr CreateTexture(const VideoParams &p);
+  TexturePtr CreateDummyTexture(const VideoParams &p);
 
-  virtual SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count) override
+  SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count)
   {
     return SampleBuffer(params, sample_count);
   }
 
-  virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs) override;
+  SampleBuffer CreateSampleBuffer(const AudioParams &params, const rational &length)
+  {
+    if (params.is_valid()) {
+      return CreateSampleBuffer(params, params.time_to_samples(length));
+    } else {
+      return SampleBuffer();
+    }
+  }
 
-  virtual bool UseCache() const override;
+  void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs);
+
+  bool UseCache() const;
 
 private:
   RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
@@ -80,6 +92,18 @@ private:
 
   DecoderPtr ResolveDecoderFromInput(const QString &decoder_id, const Decoder::CodecStream& stream);
 
+  void ResolveJobs(NodeValue &value);
+
+  const VideoParams &GetCacheVideoParams() const { return vparam_; }
+  const AudioParams &GetCacheAudioParams() const { return aparam_; }
+  void SetCacheVideoParams(const VideoParams &vparam) { vparam_ = vparam; }
+  void SetCacheAudioParams(const AudioParams &aparam) { aparam_ = aparam; }
+  bool IsCancelled() const { return cancel_atom_ && cancel_atom_->IsCancelled(); }
+  bool HeardCancel() const { return cancel_atom_ && cancel_atom_->HeardCancel(); }
+  CancelAtom *GetCancelPointer() const { return cancel_atom_; }
+  void SetCancelPointer(CancelAtom *p) { cancel_atom_ = p; }
+  Block *GetCurrentBlock() const { return nullptr; }
+
   RenderTicketPtr ticket_;
 
   Renderer* render_ctx_;
@@ -87,6 +111,12 @@ private:
   DecoderCache* decoder_cache_;
 
   ShaderCache* shader_cache_;
+
+  VideoParams vparam_;
+  AudioParams aparam_;
+  CancelAtom *cancel_atom_;
+
+  QHash<Texture*, TexturePtr> resolved_texture_cache_;
 
 };
 

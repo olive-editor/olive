@@ -51,22 +51,24 @@ void MosaicFilterNode::Retranslate()
   SetInputName(kVertInput, tr("Vertical"));
 }
 
-void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue MosaicFilterNode::Value(const ValueParams &p) const
 {
-  if (TexturePtr texture = value[kTextureInput].toTexture()) {
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr texture = tex_meta.toTexture()) {
     if (texture
-        && value[kHorizInput].toInt() != texture->width()
-        && value[kVertInput].toInt() != texture->height()) {
-      ShaderJob job(value);
+        && GetInputValue(p, kHorizInput).toInt() != texture->width()
+        && GetInputValue(p, kVertInput).toInt() != texture->height()) {
+      ShaderJob job = CreateJob<ShaderJob>(p);
 
       // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
       job.SetInterpolation(kTextureInput, Texture::kLinear);
 
-      table->Push(NodeValue::kTexture, texture->toJob(job), this);
-    } else {
-      table->Push(value[kTextureInput]);
+      return NodeValue(NodeValue::kTexture, texture->toJob(job), this);
     }
   }
+
+  return tex_meta;
 }
 
 ShaderCode MosaicFilterNode::GetShaderCode(const ShaderRequest &request) const

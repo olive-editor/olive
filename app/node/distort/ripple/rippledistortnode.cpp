@@ -92,27 +92,41 @@ ShaderCode RippleDistortNode::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/ripple.frag"));
 }
 
-void RippleDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue RippleDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  NodeValue texture = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = texture.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qIsNull(value[kIntensityInput].toDouble())) {
-      ShaderJob job(value);
+    NodeValue intensity = GetInputValue(p, kIntensityInput);
+
+    if (!qIsNull(intensity.toDouble())) {
+      ShaderJob job;
+
+      job.Insert(kTextureInput, texture);
+      job.Insert(kEvolutionInput, GetInputValue(p, kEvolutionInput));
+      job.Insert(kIntensityInput, intensity);
+      job.Insert(kFrequencyInput, GetInputValue(p, kFrequencyInput));
+      job.Insert(kPositionInput, GetInputValue(p, kPositionInput));
+      job.Insert(kStretchInput, GetInputValue(p, kStretchInput));
       job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
+
+      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
     } else {
       // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+      return texture;
     }
   }
+
+  return NodeValue();
 }
 
-void RippleDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void RippleDistortNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+  if (TexturePtr tex = GetInputValue(p, kTextureInput).toTexture()) {
     QPointF half_res(tex->virtual_resolution().x()/2, tex->virtual_resolution().y()/2);
-    gizmo_->SetPoint(half_res + row[kPositionInput].toVec2().toPointF());
+    gizmo_->SetPoint(half_res + GetInputValue(p, kPositionInput).toVec2().toPointF());
   }
 }
 

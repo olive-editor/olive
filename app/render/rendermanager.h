@@ -28,7 +28,6 @@
 #include "dialog/rendercancel/rendercancel.h"
 #include "node/output/viewer/viewer.h"
 #include "node/project.h"
-#include "node/traverser.h"
 #include "render/previewautocacher.h"
 #include "render/renderer.h"
 #include "render/renderticket.h"

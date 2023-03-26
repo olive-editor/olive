@@ -200,79 +200,16 @@ public:
 
   virtual QVariant data(const DataType &d) const;
 
-  const QVector<QString>& inputs() const
-  {
-    return input_ids_;
-  }
+  const QVector<QString>& inputs() const { return input_ids_; }
 
-  virtual QVector<QString> IgnoreInputsForRendering() const
-  {
-    return QVector<QString>();
-  }
+  bool HasInputWithID(const QString& id) const { return input_ids_.contains(id); }
+  bool HasParamWithID(const QString& id) const { return HasInputWithID(id); }
 
-  class ActiveElements
-  {
-  public:
-    enum Mode {
-      kAllElements,
-      kSpecified,
-      kNoElements
-    };
-
-    ActiveElements(Mode m = kAllElements)
-    {
-      mode_ = m;
-    }
-
-    Mode mode() const { return mode_; }
-    std::list<int> elements() const { return elements_; }
-
-    void add(int e)
-    {
-      elements_.push_back(e);
-      mode_ = kSpecified;
-    }
-
-  private:
-    Mode mode_;
-    std::list<int> elements_;
-
-  };
-
-  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
-  {
-    return ActiveElements::kAllElements;
-  }
-
-  bool HasInputWithID(const QString& id) const
-  {
-    return input_ids_.contains(id);
-  }
-
-  bool HasParamWithID(const QString& id) const
-  {
-    return HasInputWithID(id);
-  }
-
-  FrameHashCache* video_frame_cache() const
-  {
-    return video_cache_;
-  }
-
-  ThumbnailCache* thumbnail_cache() const
-  {
-    return thumbnail_cache_;
-  }
-
-  AudioPlaybackCache* audio_playback_cache() const
-  {
-    return audio_cache_;
-  }
-
-  AudioWaveformCache* waveform_cache() const
-  {
-    return waveform_cache_;
-  }
+  // Node caches
+  FrameHashCache* video_frame_cache() const { return video_cache_; }
+  ThumbnailCache* thumbnail_cache() const { return thumbnail_cache_; }
+  AudioPlaybackCache* audio_playback_cache() const { return audio_cache_; }
+  AudioWaveformCache* waveform_cache() const { return waveform_cache_; }
 
   virtual TimeRange GetVideoCacheRange() const { return TimeRange(); }
   virtual TimeRange GetAudioCacheRange() const { return TimeRange(); }
@@ -419,15 +356,6 @@ public:
     return IsInputConnected(input.input(), input.element());
   }
 
-  virtual bool IsInputConnectedForRender(const QString& input, int element = -1) const
-  {
-    return IsInputConnected(input, element);
-  }
-  bool IsInputConnectedForRender(const NodeInput& input) const
-  {
-    return IsInputConnectedForRender(input.input(), input.element());
-  }
-
   bool IsInputStatic(const QString& input, int element = -1) const
   {
     return !IsInputConnected(input, element) && !IsInputKeyframing(input, element);
@@ -443,16 +371,6 @@ public:
   Node *GetConnectedOutput(const NodeInput& input) const
   {
     return GetConnectedOutput(input.input(), input.element());
-  }
-
-  virtual Node *GetConnectedRenderOutput(const QString& input, int element = -1) const
-  {
-    return GetConnectedOutput(input, element);
-  }
-
-  Node *GetConnectedRenderOutput(const NodeInput& input) const
-  {
-    return GetConnectedRenderOutput(input.input(), input.element());
   }
 
   bool IsUsingStandardValue(const QString& input, int track, int element = -1) const;
@@ -634,6 +552,8 @@ public:
   }
 
   int InputArraySize(const QString& id) const;
+
+  NodeValue GetInputValue(const ValueParams &g, const QString &input, int element = -1) const;
 
   NodeInputImmediate* GetImmediate(const QString& input, int element) const;
 
@@ -906,7 +826,7 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const;
+  virtual NodeValue Value(const ValueParams &p) const;
 
   bool HasGizmos() const
   {
@@ -918,9 +838,9 @@ public:
     return gizmos_;
   }
 
-  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const { return QTransform(); }
+  virtual QTransform GizmoTransformation(const ValueParams &p) const { return QTransform(); }
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals){}
+  virtual void UpdateGizmoPositions(const ValueParams &p){}
 
   const QString& GetLabel() const;
   void SetLabel(const QString& s);
@@ -1080,8 +1000,23 @@ protected:
     return AddDraggableGizmo<T>(refs, behavior);
   }
 
+  template<typename T>
+  T CreateJob(const ValueParams &p) const
+  {
+    T job;
+    for (const QString &input : inputs()) {
+      job.Insert(input, GetInputValue(p, input));
+    }
+    return job;
+  }
+
+  SampleJob CreateSampleJob(const ValueParams &p, const QString &sample_input) const
+  {
+    return SampleJob(p.time(), GetInputValue(p, sample_input));
+  }
+
 protected slots:
-  virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::core::rational &time){}
+  virtual void GizmoDragStart(const olive::ValueParams &p, double x, double y, const olive::core::rational &time){}
 
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers){}
 

@@ -82,19 +82,19 @@ ShaderCode WaveDistortNode::GetShaderCode(const ShaderRequest &request) const
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/wave.frag"));
 }
 
-void WaveDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue WaveDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr texture = value[kTextureInput].toTexture()) {
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr texture = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qIsNull(value[kIntensityInput].toDouble())) {
-      table->Push(NodeValue::kTexture, Texture::Job(texture->params(), ShaderJob(value)), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+    if (!qIsNull(GetInputValue(p, kIntensityInput).toDouble())) {
+      return NodeValue(NodeValue::kTexture, Texture::Job(texture->params(), CreateJob<ShaderJob>(p)), this);
     }
   }
 
+  return tex_meta;
 }
 
 }

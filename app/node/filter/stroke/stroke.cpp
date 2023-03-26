@@ -83,18 +83,20 @@ void StrokeFilterNode::Retranslate()
   SetInputName(kInnerInput, tr("Inner"));
 }
 
-void StrokeFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue StrokeFilterNode::Value(const ValueParams &p) const
 {
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-    if (value[kRadiusInput].toDouble() > 0.0
-        && value[kOpacityInput].toDouble() > 0.0) {
-      ShaderJob job(value);
+  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
+    if (GetInputValue(p, kRadiusInput).toDouble() > 0.0
+        && GetInputValue(p, kOpacityInput).toDouble() > 0.0) {
+      ShaderJob job = CreateJob<ShaderJob>(p);
       job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      table->Push(value[kTextureInput]);
+      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
     }
   }
+
+  return tex_meta;
 }
 
 ShaderCode StrokeFilterNode::GetShaderCode(const ShaderRequest &request) const

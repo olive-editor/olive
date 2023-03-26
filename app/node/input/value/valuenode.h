@@ -58,7 +58,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual NodeValue Value(const ValueParams &p) const override;
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;

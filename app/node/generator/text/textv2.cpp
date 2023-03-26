@@ -91,14 +91,16 @@ void TextGeneratorV2::Retranslate()
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue TextGeneratorV2::Value(const ValueParams &p) const
 {
-  if (!value[kTextInput].toString().isEmpty()) {
-    GenerateJob job(value);
-    auto text_params = globals.vparams();
+  if (!GetInputValue(p, kTextInput).toString().isEmpty()) {
+    GenerateJob job = CreateJob<GenerateJob>(p);
+    auto text_params = p.vparams();
     text_params.set_format(PixelFormat::F32);
-    table->Push(NodeValue::kTexture, Texture::Job(text_params, job), this);
+    return NodeValue(NodeValue::kTexture, Texture::Job(text_params, job), this);
   }
+
+  return NodeValue();
 }
 
 void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) const

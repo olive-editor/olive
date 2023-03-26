@@ -231,22 +231,17 @@ QString Footage::DescribeSubtitleStream(const SubtitleParams &params)
     .arg(QString::number(params.stream_index()));
 }
 
-void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+NodeValue Footage::Value(const ValueParams &p) const
 {
-  Q_UNUSED(globals)
-
   // Pop filename from table
-  QString file = value[kFilenameInput].toString();
+  QString file = GetInputValue(p, kFilenameInput).toString();
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo::exists(file)) {
-    // Push length
-    table->Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, QStringLiteral("length"));
-
     // Push each stream as a footage job
     for (int i=0; i<GetTotalStreamCount(); i++) {
       Track::Reference ref = GetReferenceFromRealIndex(i);
-      FootageJob job(globals.time(), decoder_, filename(), ref.type(), GetLength(), globals.loop_mode());
+      FootageJob job(p.time(), decoder_, filename(), ref.type(), GetLength(), p.loop_mode());
 
       if (ref.type() == Track::kVideo) {
         VideoParams vp = GetVideoParams(ref.index());
@@ -255,10 +250,10 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
         vp.set_colorspace(GetColorspaceToUse(vp));
 
         // Adjust footage job's divider
-        if (globals.vparams().divider() > 1) {
+        if (p.vparams().divider() > 1) {
           // Use a divider appropriate for this target resolution
-          int calculated = VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), globals.vparams().effective_width(), globals.vparams().effective_height());
-          vp.set_divider(std::min(calculated, globals.vparams().divider()));
+          int calculated = VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), p.vparams().effective_width(), p.vparams().effective_height());
+          vp.set_divider(std::min(calculated, p.vparams().divider()));
         } else {
           // Render everything at full res
           vp.set_divider(1);
@@ -266,16 +261,18 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
 
         job.set_video_params(vp);
 
-        table->Push(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
+        return NodeValue(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
       } else if (ref.type() == Track::kAudio) {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
-        table->Push(NodeValue::kSamples, QVariant::fromValue(job), this, ref.ToString());
+        return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this, ref.ToString());
       }
     }
   }
+
+  return NodeValue();
 }
 
 QString Footage::GetStreamTypeName(Track::Type type)
