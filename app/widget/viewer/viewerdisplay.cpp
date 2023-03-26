@@ -682,9 +682,12 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform(const TimeRange &range)
     for (auto it = list.cbegin(); it != list.cend(); it++) {
       // Transform matrix down the list
       ValueParams vp(gizmo_params_, gizmo_audio_params_, ranges.front(), LoopMode::kLoopModeOff, nullptr);
-      QTransform this_transform = (*it).node()->GizmoTransformation(vp);
-      if (!this_transform.isIdentity()) {
-        nt *= this_transform;
+      Node *n = (*it).node();
+      if (n->is_enabled()) {
+        QTransform this_transform = n->GizmoTransformation(vp);
+        if (!this_transform.isIdentity()) {
+          nt *= this_transform;
+        }
       }
       ranges.pop_front();
     }

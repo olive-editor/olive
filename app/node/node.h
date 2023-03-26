@@ -373,6 +373,9 @@ public:
     return GetConnectedOutput(input.input(), input.element());
   }
 
+  bool is_enabled() const { return GetStandardValue(kEnabledInput).toBool(); }
+  void set_enabled(bool e) {  SetStandardValue(kEnabledInput, e); }
+
   bool IsUsingStandardValue(const QString& input, int track, int element = -1) const;
 
   NodeValue::Type GetInputDataType(const QString& id) const;

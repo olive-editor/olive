@@ -878,7 +878,7 @@ NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int el
     NodeValue ret;
 
     while (output) {
-      if (output->GetStandardValue(kEnabledInput).toBool()) {
+      if (output->is_enabled()) {
         ret = output->Value(adj_param);
         break;
       } else {

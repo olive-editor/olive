@@ -78,18 +78,6 @@ void Block::set_length_and_media_in(const rational &length)
   set_length_internal(length);
 }
 
-bool Block::is_enabled() const
-{
-  return GetStandardValue(kEnabledInput).toBool();
-}
-
-void Block::set_enabled(bool e)
-{
-  SetStandardValue(kEnabledInput, e);
-
-  emit EnabledChanged();
-}
-
 void Block::InputValueChangedEvent(const QString &input, int element)
 {
   super::InputValueChangedEvent(input, element);
