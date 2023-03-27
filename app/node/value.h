@@ -35,7 +35,7 @@ namespace olive {
 class Node;
 class NodeValue;
 
-using NodeValueArray = std::map<int, NodeValue>;
+using NodeValueArray = std::vector<NodeValue>;
 
 class NodeValue
 {

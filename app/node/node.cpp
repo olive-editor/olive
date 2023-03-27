@@ -887,12 +887,10 @@ NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int el
     return ret;
   } else {
     if (element == -1 && InputIsArray(input)) {
-      NodeValueArray array;
+      NodeValueArray array(InputArraySize(input));
 
-      int sz = InputArraySize(input);
-      for (int i = 0; i < sz; i++) {
-        NodeValue ele(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), i), this, false);
-        array[i] = ele;
+      for (size_t i = 0; i < array.size(); i++) {
+        array[i] = NodeValue(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), i), this, false);
       }
 
       return NodeValue(GetInputDataType(input), array, this, true);
