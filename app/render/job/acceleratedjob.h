@@ -28,6 +28,8 @@ namespace olive {
 class AcceleratedJob
 {
 public:
+  using NodeValueRow = QHash<QString, NodeValue>;
+
   AcceleratedJob() = default;
 
   virtual ~AcceleratedJob(){}

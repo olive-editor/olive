@@ -360,8 +360,6 @@ private:
 
 };
 
-using NodeValueRow = QHash<QString, NodeValue>;
-
 }
 
 Q_DECLARE_METATYPE(olive::NodeValue)
