@@ -233,17 +233,18 @@ QString Footage::DescribeSubtitleStream(const SubtitleParams &params)
 
 NodeValue Footage::Value(const ValueParams &p) const
 {
+  Track::Reference ref = Track::Reference::FromString(p.output());
+
   // Pop filename from table
   QString file = GetInputValue(p, kFilenameInput).toString();
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo::exists(file)) {
-    // Push each stream as a footage job
-    for (int i=0; i<GetTotalStreamCount(); i++) {
-      Track::Reference ref = GetReferenceFromRealIndex(i);
-      FootageJob job(p.time(), decoder_, filename(), ref.type(), GetLength(), p.loop_mode());
+    FootageJob job(p.time(), decoder_, filename(), ref.type(), GetLength(), p.loop_mode());
 
-      if (ref.type() == Track::kVideo) {
+    switch (ref.type()) {
+    case Track::kVideo:
+      if (ref.index() >= 0 && ref.index() < GetVideoStreamCount()) {
         VideoParams vp = GetVideoParams(ref.index());
 
         // Ensure the colorspace is valid and not empty
@@ -262,13 +263,21 @@ NodeValue Footage::Value(const ValueParams &p) const
         job.set_video_params(vp);
 
         return NodeValue(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
-      } else if (ref.type() == Track::kAudio) {
+      }
+      break;
+    case Track::kAudio:
+      if (ref.index() >= 0 && ref.index() < GetAudioStreamCount()) {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
         return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this, ref.ToString());
       }
+      break;
+    case Track::kSubtitle:
+    case Track::kNone:
+    case Track::kCount:
+      break;
     }
   }
 

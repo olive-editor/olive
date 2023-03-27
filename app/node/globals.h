@@ -36,17 +36,18 @@ public:
   {
   }
 
-  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, LoopMode loop_mode, CancelAtom *cancel) :
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel) :
     video_params_(vparam),
     audio_params_(aparam),
     time_(time),
     loop_mode_(loop_mode),
-    cancel_atom_(cancel)
+    cancel_atom_(cancel),
+    output_(output)
   {
   }
 
-  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const rational &time, LoopMode loop_mode, CancelAtom *cancel) :
-    ValueParams(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), loop_mode, cancel)
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const rational &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel) :
+    ValueParams(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), output, loop_mode, cancel)
   {
   }
 
@@ -56,11 +57,13 @@ public:
   const VideoParams &vparams() const { return video_params_; }
   const TimeRange &time() const { return time_; }
   LoopMode loop_mode() const { return loop_mode_; }
+  const QString &output() const { return output_; }
 
   CancelAtom *cancel_atom() const { return cancel_atom_; }
   bool is_cancelled() const { return cancel_atom_ && cancel_atom_->IsCancelled(); }
 
-  //ValueParams time_transformed(const TimeRange &time) const;
+  ValueParams time_transformed(const TimeRange &time) const;
+  ValueParams output_edited(const QString &output) const;
 
 private:
   VideoParams video_params_;
@@ -68,6 +71,7 @@ private:
   TimeRange time_;
   LoopMode loop_mode_;
   CancelAtom *cancel_atom_;
+  QString output_;
 
 };
 

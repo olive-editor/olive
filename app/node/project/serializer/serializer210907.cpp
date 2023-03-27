@@ -748,27 +748,13 @@ void ProjectSerializer210907::LoadMarkerList(QXmlStreamReader *reader, TimelineM
 
 void ProjectSerializer210907::LoadValueHint(Node::ValueHint *hint, QXmlStreamReader *reader) const
 {
-  QVector<NodeValue::Type> types;
-
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("types")) {
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("type")) {
-          types.append(static_cast<NodeValue::Type>(reader->readElementText().toInt()));
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("index")) {
-      hint->set_index(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("tag")) {
+    if (reader->name() == QStringLiteral("tag")) {
       hint->set_tag(reader->readElementText());
     } else {
       reader->skipCurrentElement();
     }
   }
-
-  hint->set_type(types);
 }
 
 }

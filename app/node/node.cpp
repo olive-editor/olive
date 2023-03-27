@@ -873,13 +873,11 @@ NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int el
   TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
 
   if (Node *output = GetConnectedOutput(input, element)) {
-    ValueParams adj_param(g.vparams(), g.aparams(), adjusted_time, g.loop_mode(), g.cancel_atom());
-
     NodeValue ret;
 
     while (output) {
       if (output->is_enabled()) {
-        ret = output->Value(adj_param);
+        ret = output->Value(g.time_transformed(adjusted_time).output_edited(this->GetValueHintForInput(input, element).tag()));
         break;
       } else {
         output = output->GetConnectedOutput(output->GetEffectInput());
@@ -2476,19 +2474,7 @@ bool Node::ValueHint::load(QXmlStreamReader *reader)
   Q_UNUSED(version)
 
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("types")) {
-      QVector<NodeValue::Type> types;
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("type")) {
-          types.append(static_cast<NodeValue::Type>(reader->readElementText().toInt()));
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-      this->set_type(types);
-    } else if (reader->name() == QStringLiteral("index")) {
-      this->set_index(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("tag")) {
+    if (reader->name() == QStringLiteral("tag")) {
       this->set_tag(reader->readElementText());
     } else {
       reader->skipCurrentElement();
@@ -2500,17 +2486,7 @@ bool Node::ValueHint::load(QXmlStreamReader *reader)
 
 void Node::ValueHint::save(QXmlStreamWriter *writer) const
 {
-  writer->writeAttribute(QStringLiteral("version"), QString::number(1));
-
-  writer->writeStartElement(QStringLiteral("types"));
-
-  for (auto it=this->types().cbegin(); it!=this->types().cend(); it++) {
-    writer->writeTextElement(QStringLiteral("type"), QString::number(*it));
-  }
-
-  writer->writeEndElement(); // types
-
-  writer->writeTextElement(QStringLiteral("index"), QString::number(this->index()));
+  writer->writeAttribute(QStringLiteral("version"), QString::number(2));
 
   writer->writeTextElement(QStringLiteral("tag"), this->tag());
 }

@@ -228,8 +228,6 @@ void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, flo
 
 NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const
 {
-  qDebug() << pairing;
-
   switch (pairing) {
 
   case kPairNumberNumber:
@@ -439,8 +437,8 @@ void MathNodeBase::ProcessSamplesNumberInternal(const ValueParams &p, MathNodeBa
   } else {
     for (size_t j = 0; j < input.sample_count(); j++) {
       rational this_sample_time = p.time().in() + rational(j, input.audio_params().sample_rate());
-      ValueParams this_sample_p(p.vparams(), p.aparams(), TimeRange(this_sample_time, this_sample_time + input.audio_params().sample_rate_as_time_base()), p.loop_mode(), p.cancel_atom());
-      auto v = GetInputValue(this_sample_p, number_in).toDouble();
+      TimeRange this_sample_range(this_sample_time, this_sample_time + input.audio_params().sample_rate_as_time_base());
+      auto v = GetInputValue(p.time_transformed(this_sample_range), number_in).toDouble();
 
       for (int i=0;i<output.audio_params().channel_count();i++) {
         output.data(i)[j] = PerformAll<float, float>(operation, input.data(i)[j], v);

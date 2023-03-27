@@ -101,8 +101,8 @@ void PanNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
     } else {
       for (size_t index = 0; index < output.sample_count(); index++) {
         rational this_sample_time = p.time().in() + rational(index, job.audio_params().sample_rate());
-        ValueParams this_sample_p(p.vparams(), p.aparams(), TimeRange(this_sample_time, this_sample_time + job.audio_params().sample_rate_as_time_base()), p.loop_mode(), p.cancel_atom());
-        auto pan_val = GetInputValue(this_sample_p, kPanningInput).toDouble();
+        TimeRange this_sample_range(this_sample_time, this_sample_time + job.audio_params().sample_rate_as_time_base());
+        auto pan_val = GetInputValue(p.time_transformed(this_sample_range), kPanningInput).toDouble();
 
         if (pan_val > 0) {
           output.data(0)[index] = input.data(0)[index] * (1.0F - pan_val);
