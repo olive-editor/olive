@@ -479,13 +479,13 @@ bool MathNodeBase::NumberIsNoOp(const MathNodeBase::Operation &op, const float &
   return false;
 }
 
-MathNodeBase::PairingCalculator::PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b)
+MathNodeBase::PairingCalculator::PairingCalculator(const NodeValue &table_a, const NodeValue &table_b)
 {
   QVector<int> pair_likelihood_a = GetPairLikelihood(table_a);
   QVector<int> pair_likelihood_b = GetPairLikelihood(table_b);
 
-  int weight_a = qMax(0, table_b.Count() - table_a.Count());
-  int weight_b = qMax(0, table_a.Count() - table_b.Count());
+  int weight_a = 0;
+  int weight_b = 0;
 
   QVector<int> likelihoods(kPairCount);
 
@@ -509,47 +509,45 @@ MathNodeBase::PairingCalculator::PairingCalculator(const NodeValueTable &table_a
   }
 
   if (most_likely_pairing_ != kPairNone) {
-    most_likely_value_a_ = table_a.at(pair_likelihood_a.at(most_likely_pairing_));
-    most_likely_value_b_ = table_b.at(pair_likelihood_b.at(most_likely_pairing_));
+    most_likely_value_a_ = table_a;
+    most_likely_value_b_ = table_b;
   }
 }
 
-QVector<int> MathNodeBase::PairingCalculator::GetPairLikelihood(const NodeValueTable &table)
+QVector<int> MathNodeBase::PairingCalculator::GetPairLikelihood(const NodeValue &table)
 {
   QVector<int> likelihood(kPairCount, -1);
 
-  for (int i=0;i<table.Count();i++) {
-    NodeValue::Type type = table.at(i).type();
+  NodeValue::Type type = table.type();
 
-    int weight = i;
+  int weight = 0;
 
-    if (NodeValue::type_is_vector(type)) {
-      likelihood.replace(kPairVecVec, weight);
-      likelihood.replace(kPairVecNumber, weight);
-      likelihood.replace(kPairMatrixVec, weight);
-    } else if (type == NodeValue::kMatrix) {
-      likelihood.replace(kPairMatrixMatrix, weight);
-      likelihood.replace(kPairMatrixVec, weight);
-      likelihood.replace(kPairTextureMatrix, weight);
-    } else if (type == NodeValue::kColor) {
-      likelihood.replace(kPairColorColor, weight);
-      likelihood.replace(kPairNumberColor, weight);
-      likelihood.replace(kPairTextureColor, weight);
-    } else if (NodeValue::type_is_numeric(type)) {
-      likelihood.replace(kPairNumberNumber, weight);
-      likelihood.replace(kPairVecNumber, weight);
-      likelihood.replace(kPairNumberColor, weight);
-      likelihood.replace(kPairTextureNumber, weight);
-      likelihood.replace(kPairSampleNumber, weight);
-    } else if (type == NodeValue::kSamples) {
-      likelihood.replace(kPairSampleSample, weight);
-      likelihood.replace(kPairSampleNumber, weight);
-    } else if (type == NodeValue::kTexture) {
-      likelihood.replace(kPairTextureTexture, weight);
-      likelihood.replace(kPairTextureNumber, weight);
-      likelihood.replace(kPairTextureColor, weight);
-      likelihood.replace(kPairTextureMatrix, weight);
-    }
+  if (NodeValue::type_is_vector(type)) {
+    likelihood.replace(kPairVecVec, weight);
+    likelihood.replace(kPairVecNumber, weight);
+    likelihood.replace(kPairMatrixVec, weight);
+  } else if (type == NodeValue::kMatrix) {
+    likelihood.replace(kPairMatrixMatrix, weight);
+    likelihood.replace(kPairMatrixVec, weight);
+    likelihood.replace(kPairTextureMatrix, weight);
+  } else if (type == NodeValue::kColor) {
+    likelihood.replace(kPairColorColor, weight);
+    likelihood.replace(kPairNumberColor, weight);
+    likelihood.replace(kPairTextureColor, weight);
+  } else if (NodeValue::type_is_numeric(type)) {
+    likelihood.replace(kPairNumberNumber, weight);
+    likelihood.replace(kPairVecNumber, weight);
+    likelihood.replace(kPairNumberColor, weight);
+    likelihood.replace(kPairTextureNumber, weight);
+    likelihood.replace(kPairSampleNumber, weight);
+  } else if (type == NodeValue::kSamples) {
+    likelihood.replace(kPairSampleSample, weight);
+    likelihood.replace(kPairSampleNumber, weight);
+  } else if (type == NodeValue::kTexture) {
+    likelihood.replace(kPairTextureTexture, weight);
+    likelihood.replace(kPairTextureNumber, weight);
+    likelihood.replace(kPairTextureColor, weight);
+    likelihood.replace(kPairTextureMatrix, weight);
   }
 
   return likelihood;

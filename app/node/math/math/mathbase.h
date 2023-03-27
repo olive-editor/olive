@@ -62,9 +62,10 @@ protected:
     kPairCount
   };
 
-  class PairingCalculator {
+  class PairingCalculator
+  {
   public:
-    PairingCalculator(const NodeValueTable &table_a, const NodeValueTable &table_b);
+    PairingCalculator(const NodeValue &table_a, const NodeValue &table_b);
 
     bool FoundMostLikelyPairing() const;
     Pairing GetMostLikelyPairing() const;
@@ -73,7 +74,7 @@ protected:
     const NodeValue& GetMostLikelyValueB() const;
 
   private:
-    static QVector<int> GetPairLikelihood(const NodeValueTable& table);
+    static QVector<int> GetPairLikelihood(const NodeValue &table);
 
     Pairing most_likely_pairing_;
 

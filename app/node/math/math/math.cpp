@@ -97,7 +97,6 @@ NodeValue MathNode::Value(const ValueParams &p) const
 {
   // Auto-detect what values to operate with
   // FIXME: Very inefficient
-  NodeValueTable at, bt;
   auto aval = GetInputValue(p, kParamAIn);
   auto bval = GetInputValue(p, kParamBIn);
 
@@ -108,9 +107,7 @@ NodeValue MathNode::Value(const ValueParams &p) const
     return bval;
   }
 
-  at.Push(aval);
-  bt.Push(bval);
-  PairingCalculator calc(at, bt);
+  PairingCalculator calc(aval, bval);
 
   // Do nothing if no pairing was found
   if (calc.FoundMostLikelyPairing()) {

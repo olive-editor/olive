@@ -34,10 +34,8 @@ namespace olive {
 
 class Node;
 class NodeValue;
-class NodeValueTable;
 
 using NodeValueArray = std::map<int, NodeValue>;
-using NodeValueTableArray = std::map<int, NodeValueTable>;
 
 class NodeValue
 {
@@ -362,107 +360,10 @@ private:
 
 };
 
-class NodeValueTable
-{
-public:
-  NodeValueTable() = default;
-
-  NodeValue Get(NodeValue::Type type, const QString& tag = QString()) const
-  {
-    QVector<NodeValue::Type> types = {type};
-    return Get(types, tag);
-  }
-
-  NodeValue Get(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const;
-
-  NodeValue Take(NodeValue::Type type, const QString& tag = QString())
-  {
-    QVector<NodeValue::Type> types = {type};
-    return Take(types, tag);
-  }
-
-  NodeValue Take(const QVector<NodeValue::Type>& type, const QString& tag = QString());
-
-  void Push(const NodeValue& value)
-  {
-    values_.append(value);
-  }
-
-  void Push(const NodeValueTable& value)
-  {
-    values_.append(value.values_);
-  }
-
-  template <typename T>
-  void Push(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
-  {
-    Push(NodeValue(type, data, from, array, tag));
-  }
-
-  template <typename T>
-  void Push(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
-  {
-    Push(NodeValue(type, data, from, false, tag));
-  }
-
-  void Prepend(const NodeValue& value)
-  {
-    values_.prepend(value);
-  }
-
-  template <typename T>
-  void Prepend(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
-  {
-    Prepend(NodeValue(type, data, from, array, tag));
-  }
-
-  template <typename T>
-  void Prepend(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
-  {
-    Prepend(NodeValue(type, data, from, false, tag));
-  }
-
-  const NodeValue& at(int index) const
-  {
-    return values_.at(index);
-  }
-  NodeValue TakeAt(int index)
-  {
-    return values_.takeAt(index);
-  }
-
-  int Count() const
-  {
-    return values_.size();
-  }
-
-  bool Has(NodeValue::Type type) const;
-  void Remove(const NodeValue& v);
-
-  void Clear()
-  {
-    values_.clear();
-  }
-
-  bool isEmpty() const
-  {
-    return values_.isEmpty();
-  }
-
-  int GetValueIndex(const QVector<NodeValue::Type> &type, const QString& tag) const;
-
-  static NodeValueTable Merge(QList<NodeValueTable> tables);
-
-private:
-  QVector<NodeValue> values_;
-
-};
-
 using NodeValueRow = QHash<QString, NodeValue>;
 
 }
 
 Q_DECLARE_METATYPE(olive::NodeValue)
-Q_DECLARE_METATYPE(olive::NodeValueTable)
 
 #endif // NODEVALUE_H

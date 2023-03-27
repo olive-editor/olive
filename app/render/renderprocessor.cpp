@@ -45,7 +45,6 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 {
   TimeRange range = TimeRange(time, time + frame_length);
 
-  NodeValueTable table;
   NodeValue tex_val;
   if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
     ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), range, LoopMode::kLoopModeOff, GetCancelPointer());
