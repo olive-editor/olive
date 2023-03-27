@@ -699,7 +699,7 @@ public:
   /**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.
    */
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const;
+  virtual void ProcessSamples(const SampleJob &job, SampleBuffer &output) const;
 
   /**
    * @brief If Value() pushes a GenerateJob, override this function for the image to create
@@ -1011,11 +1011,6 @@ protected:
       job.Insert(input, GetInputValue(p, input));
     }
     return job;
-  }
-
-  SampleJob CreateSampleJob(const ValueParams &p, const QString &sample_input) const
-  {
-    return SampleJob(p.time(), GetInputValue(p, sample_input));
   }
 
 protected slots:

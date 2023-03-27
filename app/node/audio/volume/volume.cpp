@@ -66,31 +66,31 @@ NodeValue VolumeNode::Value(const ValueParams &p) const
   // Create a sample job
   NodeValue meta = GetInputValue(p, kSamplesInput);
 
-  SampleBuffer buffer = meta.toSamples();
-  if (buffer.is_allocated()) {
-    // If the input is static, we can just do it now which will be faster
-    if (IsInputStatic(kVolumeInput)) {
-      auto volume = GetInputValue(p, kVolumeInput).toDouble();
+  if (!IsInputStatic(kVolumeInput) || !qFuzzyCompare(GetInputValue(p, kVolumeInput).toDouble(), 1.0)) {
+    SampleJob job(p);
 
-      if (!qFuzzyCompare(volume, 1.0)) {
-        buffer.transform_volume(volume);
-      }
+    job.Insert(kSamplesInput, GetInputValue(p, kSamplesInput));
 
-      return NodeValue(NodeValue::kSamples, QVariant::fromValue(buffer), this);
-    } else {
-      // Requires job
-      SampleJob job = CreateSampleJob(p, kSamplesInput);
-      job.Insert(kVolumeInput, GetInputValue(p, kVolumeInput));
-      return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this);
-    }
+    return NodeValue(NodeValue::kSamples, job, this);
   }
 
   return meta;
 }
 
-void VolumeNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
+void VolumeNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
 {
-  return ProcessSamplesInternal(values, kOpMultiply, kSamplesInput, kVolumeInput, input, output, index);
+  SampleBuffer buffer = job.Get(kSamplesInput).toSamples();
+  const ValueParams &p = job.value_params();
+
+  if (IsInputStatic(kVolumeInput)) {
+    auto volume = GetInputValue(p, kVolumeInput).toDouble();
+
+    if (!qFuzzyCompare(volume, 1.0)) {
+      SampleBuffer::transform_volume(volume, &buffer, &output);
+    }
+  } else {
+    return ProcessSamplesNumberInternal(p, kOpMultiply, kVolumeInput, buffer, output);
+  }
 }
 
 void VolumeNode::Retranslate()

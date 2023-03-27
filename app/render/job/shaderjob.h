@@ -44,16 +44,6 @@ public:
     Insert(row);
   }
 
-  const QString& GetShaderID() const
-  {
-    return shader_id_;
-  }
-
-  void SetShaderID(const QString& id)
-  {
-    shader_id_ = id;
-  }
-
   void SetIterations(int iterations, const NodeInput& iterative_input)
   {
     SetIterations(iterations, iterative_input.input());
@@ -106,8 +96,6 @@ public:
   }
 
 private:
-  QString shader_id_;
-
   int iterations_;
 
   QString iterative_input_;

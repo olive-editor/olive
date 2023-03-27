@@ -98,8 +98,18 @@ NodeValue MathNode::Value(const ValueParams &p) const
   // Auto-detect what values to operate with
   // FIXME: Very inefficient
   NodeValueTable at, bt;
-  at.Push(GetInputValue(p, kParamAIn));
-  bt.Push(GetInputValue(p, kParamBIn));
+  auto aval = GetInputValue(p, kParamAIn);
+  auto bval = GetInputValue(p, kParamBIn);
+
+  if (!bval.data().isValid()) {
+    return aval;
+  }
+  if (!aval.data().isValid()) {
+    return bval;
+  }
+
+  at.Push(aval);
+  bt.Push(bval);
   PairingCalculator calc(at, bt);
 
   // Do nothing if no pairing was found
@@ -116,9 +126,16 @@ NodeValue MathNode::Value(const ValueParams &p) const
   return NodeValue();
 }
 
-void MathNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
+void MathNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
 {
-  return ProcessSamplesInternal(values, GetOperation(), kParamAIn, kParamBIn, input, output, index);
+  const ValueParams &p = job.value_params();
+  int pairing = job.Get(QStringLiteral("pairing")).toInt();
+
+  if (pairing == kPairSampleNumber) {
+    return ProcessSamplesNumberInternal(p, GetOperation(), job.Get(QStringLiteral("number")).toString(), job.Get(QStringLiteral("samples")).toSamples(), output);
+  } else {
+    return ProcessSamplesSamplesInternal(p, GetOperation(), job.Get(QStringLiteral("a")).toSamples(), job.Get(QStringLiteral("b")).toSamples(), output);
+  }
 }
 
 }

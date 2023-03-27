@@ -22,6 +22,7 @@
 #define SAMPLEJOB_H
 
 #include "acceleratedjob.h"
+#include "node/globals.h"
 
 namespace olive {
 
@@ -30,36 +31,27 @@ class SampleJob : public AcceleratedJob
 public:
   SampleJob()
   {
+    sample_count_ = 0;
   }
 
-  SampleJob(const TimeRange &time, const NodeValue& value)
+  SampleJob(const ValueParams &p, size_t sample_count)
   {
-    samples_ = value.toSamples();
-    time_ = time;
+    value_params_ = p;
+    sample_count_ = sample_count;
   }
 
-  SampleJob(const TimeRange &time, const QString& from, const NodeValueRow& row)
+  SampleJob(const ValueParams &p) :
+    SampleJob(p, p.aparams().time_to_samples(p.time().length()))
   {
-    samples_ = row[from].toSamples();
-    time_ = time;
   }
 
-  const SampleBuffer &samples() const
-  {
-    return samples_;
-  }
-
-  bool HasSamples() const
-  {
-    return samples_.is_allocated();
-  }
-
-  const TimeRange &time() const { return time_; }
+  const ValueParams &value_params() const { return value_params_; }
+  const AudioParams &audio_params() const { return value_params_.aparams(); }
+  size_t sample_count() const { return sample_count_; }
 
 private:
-  SampleBuffer samples_;
-
-  TimeRange time_;
+  ValueParams value_params_;
+  size_t sample_count_;
 
 };
 

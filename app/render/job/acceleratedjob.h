@@ -33,6 +33,16 @@ public:
 
   virtual ~AcceleratedJob(){}
 
+  const QString& GetShaderID() const
+  {
+    return id_;
+  }
+
+  void SetShaderID(const QString& id)
+  {
+    id_ = id;
+  }
+
   NodeValue Get(const QString& input) const
   {
     return value_map_.value(input);
@@ -63,6 +73,8 @@ public:
   NodeValueRow &GetValues() { return value_map_; }
 
 private:
+  QString id_;
+
   NodeValueRow value_map_;
 
 };

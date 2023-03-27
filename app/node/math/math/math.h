@@ -54,7 +54,7 @@ public:
 
   virtual NodeValue Value(const ValueParams &p) const override;
 
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const override;
+  virtual void ProcessSamples(const SampleJob &job, SampleBuffer &output) const override;
 
   static const QString kMethodIn;
   static const QString kParamAIn;

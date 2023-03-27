@@ -52,7 +52,7 @@ protected:
 
   void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job);
 
-  void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job);
+  void ProcessSamples(SampleBuffer &destination, const Node *node, const SampleJob &job);
 
   void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job);
 

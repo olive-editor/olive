@@ -228,6 +228,8 @@ void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, flo
 
 NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const
 {
+  qDebug() << pairing;
+
   switch (pairing) {
 
   case kPairNumberNumber:
@@ -299,35 +301,13 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
 
   case kPairSampleSample:
   {
-    SampleBuffer samples_a = val_a.toSamples();
-    SampleBuffer samples_b = val_b.toSamples();
+    SampleJob job(p);
 
-    size_t max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
-    size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
+    job.Insert(QStringLiteral("a"), val_a);
+    job.Insert(QStringLiteral("b"), val_b);
+    job.Insert(QStringLiteral("pairing"), NodeValue(NodeValue::kInt, int(pairing)));
 
-    SampleBuffer mixed_samples = SampleBuffer(samples_a.audio_params(), max_samples);
-
-    for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
-      // Mix samples that are in both buffers
-      for (size_t j=0;j<min_samples;j++) {
-        mixed_samples.data(i)[j] = PerformAll<float, float>(operation, samples_a.data(i)[j], samples_b.data(i)[j]);
-      }
-    }
-
-    if (max_samples > min_samples) {
-      // Fill in remainder space with 0s
-      size_t remainder = max_samples - min_samples;
-
-      const SampleBuffer &larger_buffer = (max_samples == samples_a.sample_count()) ? samples_a : samples_b;
-
-      for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
-        memcpy(&mixed_samples.data(i)[min_samples],
-               &larger_buffer.data(i)[min_samples],
-               remainder * sizeof(float));
-      }
-    }
-
-    return NodeValue(NodeValue::kSamples, QVariant::fromValue(mixed_samples), this);
+    return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this);
   }
 
   case kPairTextureColor:
@@ -393,27 +373,18 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
 
     float number = RetrieveNumber(number_val);
 
-    SampleBuffer buffer = val_a.type() == NodeValue::kSamples ? val_a.toSamples() : val_b.toSamples();
+    const NodeValue &sample_val = val_a.type() == NodeValue::kSamples ? val_a : val_b;
 
-    if (buffer.is_allocated()) {
-      if (IsInputStatic(number_param)) {
-        if (!NumberIsNoOp(operation, number)) {
-          for (int i=0;i<buffer.audio_params().channel_count();i++) {
-#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-            // Use SSE instructions for optimization
-            PerformAllOnFloatBufferSSE(operation, buffer.data(i), number, 0, buffer.sample_count());
-#else
-            PerformAllOnFloatBuffer(operation, buffer.data(i), number, 0, buffer.sample_count());
-#endif
-          }
-        }
+    if (IsInputStatic(number_param) && NumberIsNoOp(operation, number)) {
+      return sample_val;
+    } else {
+      SampleJob job(p);
 
-        return NodeValue(NodeValue::kSamples, QVariant::fromValue(buffer), this);
-      } else {
-        SampleJob job(p.time(), val_a.type() == NodeValue::kSamples ? val_a : val_b);
-        job.Insert(number_param, NodeValue(NodeValue::kFloat, number, this));
-        return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this);
-      }
+      job.Insert(QStringLiteral("samples"), sample_val);
+      job.Insert(QStringLiteral("pairing"), NodeValue(NodeValue::kInt, int(pairing)));
+      job.Insert(QStringLiteral("number"), NodeValue(NodeValue::kText, val_a.type() == NodeValue::kSamples ? param_b_in : param_a_in));
+
+      return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this);
     }
     break;
   }
@@ -426,23 +397,55 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
   return NodeValue();
 }
 
-void MathNodeBase::ProcessSamplesInternal(const NodeValueRow &values, MathNodeBase::Operation operation, const QString &param_a_in, const QString &param_b_in, const olive::SampleBuffer &input, olive::SampleBuffer &output, int index) const
+void MathNodeBase::ProcessSamplesSamplesInternal(const ValueParams &p, Operation operation, const SampleBuffer &samples_a, const SampleBuffer &samples_b, SampleBuffer &mixed_samples) const
 {
-  // This function is only used for sample+number pairing
-  NodeValue number_val = values[param_a_in];
+  size_t max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
+  size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
-  if (number_val.type() == NodeValue::kNone) {
-    number_val = values[param_b_in];
-
-    if (number_val.type() == NodeValue::kNone) {
-      return;
+  for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
+    // Mix samples that are in both buffers
+    for (size_t j=0;j<min_samples;j++) {
+      mixed_samples.data(i)[j] = PerformAll<float, float>(operation, samples_a.data(i)[j], samples_b.data(i)[j]);
     }
   }
 
-  float number_flt = RetrieveNumber(number_val);
+  if (max_samples > min_samples) {
+    size_t remainder = max_samples - min_samples;
 
-  for (int i=0;i<output.audio_params().channel_count();i++) {
-    output.data(i)[index] = PerformAll<float, float>(operation, input.data(i)[index], number_flt);
+    const SampleBuffer &larger_buffer = (max_samples == samples_a.sample_count()) ? samples_a : samples_b;
+
+    for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
+      memcpy(&mixed_samples.data(i)[min_samples],
+             &larger_buffer.data(i)[min_samples],
+             remainder * sizeof(float));
+    }
+  }
+}
+
+void MathNodeBase::ProcessSamplesNumberInternal(const ValueParams &p, MathNodeBase::Operation operation, const QString &number_in, const olive::SampleBuffer &input, olive::SampleBuffer &output) const
+{
+  if (IsInputStatic(number_in)) {
+    auto f = GetStandardValue(number_in).toDouble();
+    output = input;
+
+    for (int i=0;i<output.audio_params().channel_count();i++) {
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+      // Use SSE instructions for optimization
+      PerformAllOnFloatBufferSSE(operation, output.data(i), f, 0, output.sample_count());
+#else
+      PerformAllOnFloatBuffer(operation, output.data(i), f, 0, output.sample_count());
+#endif
+    }
+  } else {
+    for (size_t j = 0; j < input.sample_count(); j++) {
+      rational this_sample_time = p.time().in() + rational(j, input.audio_params().sample_rate());
+      ValueParams this_sample_p(p.vparams(), p.aparams(), TimeRange(this_sample_time, this_sample_time + input.audio_params().sample_rate_as_time_base()), p.loop_mode(), p.cancel_atom());
+      auto v = GetInputValue(this_sample_p, number_in).toDouble();
+
+      for (int i=0;i<output.audio_params().channel_count();i++) {
+        output.data(i)[j] = PerformAll<float, float>(operation, input.data(i)[j], v);
+      }
+    }
   }
 }
 

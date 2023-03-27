@@ -123,7 +123,8 @@ protected:
 
   NodeValue ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const;
 
-  void ProcessSamplesInternal(const NodeValueRow &values, Operation operation, const QString& param_a_in, const QString& param_b_in, const SampleBuffer &input, SampleBuffer &output, int index) const;
+  void ProcessSamplesSamplesInternal(const ValueParams &p, Operation operation, const SampleBuffer& a, const SampleBuffer &b, SampleBuffer &output) const;
+  void ProcessSamplesNumberInternal(const ValueParams &p, Operation operation, const QString& number_in, const SampleBuffer &input, SampleBuffer &output) const;
 
 };
 

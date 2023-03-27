@@ -95,8 +95,7 @@ QVector<Node::CategoryID> Track::Category() const
 
 QString Track::Description() const
 {
-  return tr("Node for representing and processing a single array of Blocks sorted by time. Also represents the end of "
-            "a Sequence.");
+  return tr("Node for representing and processing a single array of Blocks sorted by time. Also represents the end of a Sequence.");
 }
 
 NodeValue Track::Value(const ValueParams &p) const
@@ -114,7 +113,32 @@ NodeValue Track::Value(const ValueParams &p) const
       }
     } else if (this->type() == Track::kAudio) {
       // Audio
-      return ProcessAudioTrack(p);
+      const TimeRange &range = p.time();
+
+      int start = GetBlockIndexAtTime(range.in());
+      int end = GetBlockIndexAtTime(range.out());
+
+      if (start == -1) {
+        start = 0;
+      }
+      if (end == -1) {
+        end = blocks_.size()-1;
+      }
+
+      if (blocks_.at(end)->in() == range.out()) {
+        end--;
+      }
+
+      SampleJob job(p);
+
+      for (int i=start; i<=end; i++) {
+        Block *b = blocks_.at(i);
+        if (b->is_enabled() && (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b))) {
+          job.Insert(QString::number(i), GetInputValue(p, kBlockInput, GetArrayIndexFromCacheIndex(i)));
+        }
+      }
+
+      return NodeValue(NodeValue::kSamples, job, this);
     }
   }
 
@@ -559,73 +583,16 @@ int Track::GetArrayIndexFromBlock(Block *block) const
   return block_array_indexes_.at(blocks_.indexOf(block));
 }
 
-int Track::GetArrayIndexFromCacheIndex(int index) const
+void Track::ProcessSamples(const SampleJob &job, SampleBuffer &block_range_buffer) const
 {
-  return block_array_indexes_.at(index);
-}
-
-int Track::GetCacheIndexFromArrayIndex(int index) const
-{
-  return block_array_indexes_.indexOf(index);
-}
-
-int Track::GetBlockIndexAtTime(const rational &time) const
-{
-  if (time < 0 || time >= track_length()) {
-    return -1;
-  }
-
-  // Use binary search to find block at time
-  int low = 0;
-  int high = blocks_.size() - 1;
-  while (low <= high) {
-    int mid = low + (high - low) / 2;
-
-    Block* block = blocks_.at(mid);
-    if (block->in() <= time && block->out() > time) {
-      return mid;
-    } else if (block->out() <= time) {
-      low = mid + 1;
-    } else {
-      high = mid - 1;
-    }
-  }
-
-  return -1;
-}
-
-NodeValue Track::ProcessAudioTrack(const ValueParams &p) const
-{
-  const TimeRange &range = p.time();
-
-  int start = GetBlockIndexAtTime(range.in());
-  int end = GetBlockIndexAtTime(range.out());
-
-  if (start == -1) {
-    start = 0;
-  }
-  if (end == -1) {
-    end = blocks_.size()-1;
-  }
-
-  if (blocks_.at(end)->in() == range.out()) {
-    end--;
-  }
-
-  QVector<int> blocks;
-  for (int i=start; i<=end; i++) {
-    Block *b = blocks_.at(i);
-    if (b->is_enabled() && (dynamic_cast<ClipBlock*>(b) || dynamic_cast<TransitionBlock*>(b))) {
-      blocks.append(i);
-    }
-  }
+  const ValueParams &p = job.value_params();
+  const TimeRange &range = job.value_params().time();
 
   // All these blocks will need to output to a buffer so we create one here
-  SampleBuffer block_range_buffer(p.aparams(), range.length());
   block_range_buffer.silence();
 
-  for (int block_index : blocks) {
-    Block *b = blocks_.at(block_index);
+  for (auto it = job.GetValues().cbegin(); it != job.GetValues().cend(); it++) {
+    Block *b = blocks_.at(it.key().toInt());
 
     TimeRange range_for_block(qMax(b->in(), range.in()),
                               qMin(b->out(), range.out()));
@@ -635,7 +602,7 @@ NodeValue Track::ProcessAudioTrack(const ValueParams &p) const
     qint64 max_dest_sz = p.aparams().time_to_samples(range_for_block.length());
 
     // Destination buffer
-    SampleBuffer samples_from_this_block = GetInputValue(p, kBlockInput, GetArrayIndexFromCacheIndex(block_index)).toSamples();
+    SampleBuffer samples_from_this_block = it.value().toSamples();
 
     if (samples_from_this_block.is_allocated()) {
       // If this is a clip, we might have extra speed/reverse information
@@ -702,8 +669,41 @@ NodeValue Track::ProcessAudioTrack(const ValueParams &p) const
       }
     }
   }
+}
 
-  return NodeValue(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), this);
+int Track::GetArrayIndexFromCacheIndex(int index) const
+{
+  return block_array_indexes_.at(index);
+}
+
+int Track::GetCacheIndexFromArrayIndex(int index) const
+{
+  return block_array_indexes_.indexOf(index);
+}
+
+int Track::GetBlockIndexAtTime(const rational &time) const
+{
+  if (time < 0 || time >= track_length()) {
+    return -1;
+  }
+
+  // Use binary search to find block at time
+  int low = 0;
+  int high = blocks_.size() - 1;
+  while (low <= high) {
+    int mid = low + (high - low) / 2;
+
+    Block* block = blocks_.at(mid);
+    if (block->in() <= time && block->out() > time) {
+      return mid;
+    } else if (block->out() <= time) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  return -1;
 }
 
 int Track::ConnectBlock(Block *b)
@@ -736,7 +736,7 @@ void Track::RefreshBlockCacheFromArrayMap()
   }
 
   // Disconnecting any existing blocks
-  for (Block *b : blocks_) {
+  for (Block *b : qAsConst(blocks_)) {
     Q_ASSERT(b->track() == this);
     b->set_track(nullptr);
     b->set_previous(nullptr);

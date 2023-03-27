@@ -67,47 +67,52 @@ NodeValue PanNode::Value(const ValueParams &p) const
   // Create a sample job
   NodeValue samples_original = GetInputValue(p, kSamplesInput);
 
-  SampleBuffer samples = samples_original.toSamples();
-  if (samples.is_allocated()) {
-    // This node is only compatible with stereo audio
-    if (samples.audio_params().channel_count() == 2) {
-      // If the input is static, we can just do it now which will be faster
-      if (IsInputStatic(kPanningInput)) {
-        float pan_volume = GetInputValue(p, kPanningInput).toDouble();
-        if (!qIsNull(pan_volume)) {
-          if (pan_volume > 0) {
-            samples.transform_volume_for_channel(0, 1.0f - pan_volume);
-          } else {
-            samples.transform_volume_for_channel(1, 1.0f + pan_volume);
-          }
-        }
+  if (!IsInputStatic(kPanningInput) || !qIsNull(GetInputValue(p, kPanningInput).toDouble())) {
+    // Requires sample job
+    SampleJob job(p);
 
-        return NodeValue(NodeValue::kSamples, samples, this);
-      } else {
-        // Requires job
-        return NodeValue(NodeValue::kSamples, CreateSampleJob(p, kSamplesInput), this);
-      }
-    } else {
-      // Pass right through
-      return samples_original;
-    }
+    job.Insert(kSamplesInput, GetInputValue(p, kSamplesInput));
+
+    return NodeValue(NodeValue::kSamples, SampleJob(job), this);
   }
 
   return samples_original;
 }
 
-void PanNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
+void PanNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
 {
-  float pan_val = values[kPanningInput].toDouble();
+  const ValueParams &p = job.value_params();
 
-  for (int i=0;i<input.audio_params().channel_count();i++) {
-    output.data(i)[index] = input.data(i)[index];
-  }
+  SampleBuffer input = job.Get(kSamplesInput).toSamples();
 
-  if (pan_val > 0) {
-    output.data(0)[index] *= (1.0F - pan_val);
-  } else if (pan_val < 0) {
-    output.data(1)[index] *= (1.0F - qAbs(pan_val));
+  // This node is only compatible with stereo audio
+  if (job.audio_params().channel_count() == 2) {
+    if (IsInputStatic(kPanningInput)) {
+      float pan_volume = GetInputValue(p, kPanningInput).toDouble();
+      if (!qIsNull(pan_volume)) {
+        if (pan_volume > 0) {
+          SampleBuffer::transform_volume_for_channel(0, 1.0f - pan_volume, &input, &output);
+          output.set(1, input.data(1), input.sample_count());
+        } else {
+          output.set(0, input.data(0), input.sample_count());
+          SampleBuffer::transform_volume_for_channel(1, 1.0f + pan_volume, &input, &output);
+        }
+      }
+    } else {
+      for (size_t index = 0; index < output.sample_count(); index++) {
+        rational this_sample_time = p.time().in() + rational(index, job.audio_params().sample_rate());
+        ValueParams this_sample_p(p.vparams(), p.aparams(), TimeRange(this_sample_time, this_sample_time + job.audio_params().sample_rate_as_time_base()), p.loop_mode(), p.cancel_atom());
+        auto pan_val = GetInputValue(this_sample_p, kPanningInput).toDouble();
+
+        if (pan_val > 0) {
+          output.data(0)[index] = input.data(0)[index] * (1.0F - pan_val);
+          output.data(1)[index] = input.data(1)[index];
+        } else if (pan_val < 0) {
+          output.data(0)[index] = input.data(0)[index];
+          output.data(1)[index] = input.data(1)[index] * (1.0F - qAbs(pan_val));
+        }
+      }
+    }
   }
 }
 

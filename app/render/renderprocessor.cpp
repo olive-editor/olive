@@ -444,38 +444,9 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
   render_ctx_->BlitToTexture(shader, *job, destination.get());
 }
 
-void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job)
+void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node, const SampleJob &job)
 {
-  /*
-  if (!job.samples().is_allocated()) {
-    return;
-  }
-
-  NodeValueRow value_db;
-
-  const AudioParams& audio_params = GetCacheAudioParams();
-
-  for (size_t i=0;i<job.samples().sample_count();i++) {
-    // Calculate the exact rational time at this sample
-    double sample_to_second = static_cast<double>(i) / static_cast<double>(audio_params.sample_rate());
-
-    rational this_sample_time = rational::fromDouble(range.in().toDouble() + sample_to_second);
-
-    // Update all non-sample and non-footage inputs
-    for (auto j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
-      TimeRange r = TimeRange(this_sample_time, this_sample_time);
-      NodeValueTable value = ProcessInput(node, j.key(), r);
-
-      value_db.insert(j.key(), GenerateRowValue(node, j.key(), &value, r));
-    }
-
-    node->ProcessSamples(value_db,
-                         job.samples(),
-                         destination,
-                         i);
-  }
-  */
-  qDebug() << "processing samples is stubbed";
+  node->ProcessSamples(job, destination);
 }
 
 void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job)
@@ -667,8 +638,15 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
     if (val.canConvert<SampleJob>()) {
 
       SampleJob job = val.value<SampleJob>();
-      SampleBuffer output_buffer = CreateSampleBuffer(job.samples().audio_params(), job.samples().sample_count());
-      ProcessSamples(output_buffer, val.source(), job.time(), job);
+
+      for (auto it=job.GetValues().begin(); it!=job.GetValues().end(); it++) {
+        // Jobs will almost always be submitted with one of these types
+        NodeValue &subval = it.value();
+        ResolveJobs(subval);
+      }
+
+      SampleBuffer output_buffer = CreateSampleBuffer(job.audio_params(), job.sample_count());
+      ProcessSamples(output_buffer, val.source(), job);
       val.set_value(QVariant::fromValue(output_buffer));
 
     } else if (val.canConvert<FootageJob>()) {
