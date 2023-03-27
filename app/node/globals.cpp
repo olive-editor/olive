@@ -36,4 +36,11 @@ ValueParams ValueParams::output_edited(const QString &output) const
   return g;
 }
 
+ValueParams ValueParams::loop_mode_edited(const LoopMode &lm) const
+{
+  ValueParams g = *this;
+  g.loop_mode_ = lm;
+  return g;
+}
+
 }

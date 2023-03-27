@@ -486,7 +486,7 @@ TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, con
 
 NodeValue ClipBlock::Value(const ValueParams &p) const
 {
-  return GetInputValue(p, kBufferIn);
+  return GetInputValue(p.loop_mode_edited(this->loop_mode()), kBufferIn);
 }
 
 void ClipBlock::Retranslate()

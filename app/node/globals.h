@@ -64,6 +64,7 @@ public:
 
   ValueParams time_transformed(const TimeRange &time) const;
   ValueParams output_edited(const QString &output) const;
+  ValueParams loop_mode_edited(const LoopMode &lm) const;
 
 private:
   VideoParams video_params_;

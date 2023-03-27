@@ -400,11 +400,10 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
   if (decoder) {
     const AudioParams& audio_params = GetCacheAudioParams();
 
-    qDebug() << "audio loop modes are stubbed";
     Decoder::RetrieveAudioStatus status = decoder->RetrieveAudio(destination,
                                                                  input_time, audio_params,
                                                                  stream->cache_path(),
-                                                                 LoopMode::kLoopModeOff, //loop_mode(),
+                                                                 stream->loop_mode(),
                                                                  static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
     if (status == Decoder::kWaitingForConform) {
