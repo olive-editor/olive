@@ -22,7 +22,6 @@
 #define ACCELERATEDJOB_H
 
 #include "node/param.h"
-#include "node/valuedatabase.h"
 
 namespace olive {
 

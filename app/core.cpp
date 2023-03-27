@@ -110,7 +110,6 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<olive::core::rational>();
   qRegisterMetaType<NodeValue>();
   qRegisterMetaType<NodeValueTable>();
-  qRegisterMetaType<NodeValueDatabase>();
   qRegisterMetaType<FramePtr>();
   qRegisterMetaType<SampleBuffer>();
   qRegisterMetaType<AudioParams>();

@@ -53,7 +53,5 @@ set(OLIVE_SOURCES
   node/splitvalue.h
   node/value.cpp
   node/value.h
-  node/valuedatabase.cpp
-  node/valuedatabase.h
   PARENT_SCOPE
 )
