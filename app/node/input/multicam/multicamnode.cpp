@@ -44,12 +44,109 @@ QString MultiCamNode::Description() const
   return tr("Allows easy switching between multiple sources.");
 }
 
+ShaderCode MultiCamNode::GetShaderCode(const ShaderRequest &request) const
+{
+  auto l = request.id.split(':');
+  int rows = l.at(0).toInt();
+  int cols = l.at(1).toInt();
+
+  return ShaderCode(GenerateShaderCode(rows, cols));
+}
+
+QString dblToGlsl(double d)
+{
+  return QString::number(d, 'f');
+}
+
+QString MultiCamNode::GenerateShaderCode(int rows, int cols)
+{
+  int multiplier = std::max(cols, rows);
+
+  QStringList shader;
+
+  shader.append(QStringLiteral("in vec2 ove_texcoord;"));
+  shader.append(QStringLiteral("out vec4 frag_color;"));
+
+  for (int x=0;x<cols;x++) {
+    for (int y=0;y<rows;y++) {
+      shader.append(QStringLiteral("uniform sampler2D tex_%1_%2;").arg(QString::number(y), QString::number(x)));
+      shader.append(QStringLiteral("uniform bool tex_%1_%2_enabled;").arg(QString::number(y), QString::number(x)));
+    }
+  }
+
+  shader.append(QStringLiteral("void main() {"));
+
+  for (int x=0;x<cols;x++) {
+    if (x > 0) {
+      shader.append(QStringLiteral("  else"));
+    }
+    if (x == cols-1) {
+      shader.append(QStringLiteral("  {"));
+    } else {
+      shader.append(QStringLiteral("  if (ove_texcoord.x < %1) {").arg(dblToGlsl(double(x+1)/double(multiplier))));
+    }
+
+    for (int y=0;y<rows;y++) {
+      if (y > 0) {
+        shader.append(QStringLiteral("    else"));
+      }
+      if (y == rows-1) {
+        shader.append(QStringLiteral("    {"));
+      } else {
+        shader.append(QStringLiteral("    if (ove_texcoord.y < %1) {").arg(dblToGlsl(double(y+1)/double(multiplier))));
+      }
+      QString input = QStringLiteral("tex_%1_%2").arg(QString::number(y), QString::number(x));
+      shader.append(QStringLiteral("      vec2 coord = vec2((ove_texcoord.x+%1)*%2, (ove_texcoord.y+%3)*%4);").arg(
+                      dblToGlsl( - double(x)/double(multiplier)),
+                      dblToGlsl(multiplier),
+                      dblToGlsl( - double(y)/double(multiplier)),
+                      dblToGlsl(multiplier)
+                      ));
+      shader.append(QStringLiteral("      if (%1_enabled && coord.x >= 0.0 && coord.x < 1.0 && coord.y >= 0.0 && coord.y < 1.0) {").arg(input));
+      shader.append(QStringLiteral("        frag_color = texture(%1, coord);").arg(input));
+      shader.append(QStringLiteral("      } else {"));
+      shader.append(QStringLiteral("        discard;"));
+      shader.append(QStringLiteral("      }"));
+      shader.append(QStringLiteral("    }"));
+    }
+
+    shader.append(QStringLiteral("  }"));
+  }
+
+  shader.append(QStringLiteral("}"));
+
+  return shader.join('\n');
+}
+
 NodeValue MultiCamNode::Value(const ValueParams &p) const
 {
-  int current = GetInputValue(p, kCurrentInput);
+  if (p.output() == QStringLiteral("all")) {
+    // Switcher mode: output a collage of all sources
+    int sources = GetSourceCount();
+    int rows, cols;
+    MultiCamNode::GetRowsAndColumns(sources, &rows, &cols);
 
-  if (Node *n = GetSourceNode(current)) {
-    n->Value(p);
+    ShaderJob job;
+    job.SetShaderID(QStringLiteral("%1:%2").arg(QString::number(rows), QString::number(cols)));
+
+    for (int i=0; i<sources; i++) {
+      int c, r;
+      MultiCamNode::IndexToRowCols(i, rows, cols, &r, &c);
+
+      if (Node *n = GetSourceNode(i)) {
+        NodeValue v = GetFakeConnectedValue(p, n, kSourcesInput, i);
+        job.Insert(QStringLiteral("tex_%1_%2").arg(QString::number(r), QString::number(c)), v);
+      }
+    }
+
+    return NodeValue(NodeValue::kTexture, Texture::Job(p.vparams(), job), this);
+  } else {
+    // Default behavior: output currently selected source
+    int current = GetInputValue(p, kCurrentInput).toInt();
+
+    if (Node *n = GetSourceNode(current)) {
+      return GetFakeConnectedValue(p, n, kSourcesInput, current);
+    }
   }
 
   return NodeValue();

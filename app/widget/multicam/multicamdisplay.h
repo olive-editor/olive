@@ -37,18 +37,8 @@ public:
 protected:
   virtual void OnPaint() override;
 
-  virtual void OnDestroy() override;
-
-  virtual TexturePtr LoadCustomTextureFromFrame(const QVariant &v) override;
-
 private:
-  static QString GenerateShaderCode(int rows, int cols);
-
   MultiCamNode *node_;
-
-  QVariant shader_;
-  int rows_;
-  int cols_;
 
 };
 

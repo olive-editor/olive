@@ -557,6 +557,7 @@ public:
   int InputArraySize(const QString& id) const;
 
   NodeValue GetInputValue(const ValueParams &g, const QString &input, int element = -1) const;
+  NodeValue GetFakeConnectedValue(const ValueParams &g, Node *node, const QString &input, int element = -1) const;
 
   NodeInputImmediate* GetImmediate(const QString& input, int element) const;
 

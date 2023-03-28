@@ -35,6 +35,7 @@ public:
 
   MulticamDisplay *GetDisplayWidget() const { return display_; }
 
+  MultiCamNode *GetMultiCamNode() const { return node_; }
   void SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip, const rational &time);
 
 protected:

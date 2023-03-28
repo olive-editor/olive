@@ -117,7 +117,6 @@ public:
       force_size = QSize(0, 0);
       force_channel_count = 0;
       mode = m;
-      multicam = nullptr;
     }
 
     void AddCache(FrameHashCache *cache)
@@ -135,7 +134,7 @@ public:
     bool use_cache;
     ReturnType return_type;
     RenderMode::Mode mode;
-    MultiCamNode *multicam;
+    QString node_output;
 
     QString cache_dir;
     rational cache_timebase;

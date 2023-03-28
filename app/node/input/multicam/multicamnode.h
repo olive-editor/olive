@@ -21,6 +21,8 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
+  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+
   virtual NodeValue Value(const ValueParams &p) const override;
 
   virtual void Retranslate() override;
@@ -60,6 +62,8 @@ protected:
   virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
 
 private:
+  static QString GenerateShaderCode(int rows, int cols);
+
   Node *GetSourceNode(int source) const;
 
   TrackList *GetTrackList() const;

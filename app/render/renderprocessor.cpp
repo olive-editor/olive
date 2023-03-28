@@ -47,7 +47,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 
   NodeValue tex_val;
   if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
-    ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), range, QString(), LoopMode::kLoopModeOff, GetCancelPointer());
+    ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), range, ticket_->property("output").toString(), LoopMode::kLoopModeOff, GetCancelPointer());
     tex_val = node->Value(vp);
   }
 
@@ -218,7 +218,7 @@ void RenderProcessor::Run()
 
     NodeValue sample_val;
     if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
-      ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), time, QString(), LoopMode::kLoopModeOff, GetCancelPointer());
+      ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), time, ticket_->property("output").toString(), LoopMode::kLoopModeOff, GetCancelPointer());
       sample_val = node->Value(vp);
     }
 

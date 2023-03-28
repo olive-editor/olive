@@ -430,12 +430,14 @@ void ViewerWidget::ConnectMulticamWidget(MulticamWidget *p)
 {
   if (multicam_panel_) {
     disconnect(multicam_panel_, &MulticamWidget::Switched, this, &ViewerWidget::DetectMulticamNodeNow);
+    playback_devices_.removeOne(multicam_panel_->GetDisplayWidget());
   }
 
   multicam_panel_ = p;
 
   if (multicam_panel_) {
     connect(multicam_panel_, &MulticamWidget::Switched, this, &ViewerWidget::DetectMulticamNodeNow);
+    playback_devices_.push_back(multicam_panel_->GetDisplayWidget());
   }
 }
 
@@ -636,35 +638,53 @@ void ViewerWidget::SetWaveformMode(WaveformMode wf)
   UpdateWaveformViewFromMode();
 }
 
-void ViewerWidget::DetectMulticamNode(const rational &time)
+MultiCamNode *ViewerWidget::DetectMulticamNode(const rational &time)
 {
   // Look for multicam node
   MultiCamNode *multicam = nullptr;
   ClipBlock *clip = nullptr;
 
   // Faster way to do this
-  if (multicam_panel_ && multicam_panel_->isVisible()) {
-    if (Sequence *s = dynamic_cast<Sequence*>(GetConnectedNode())) {
-      // Prefer selected nodes
-      for (Node *n : qAsConst(node_view_selected_)) {
-        if ((multicam = dynamic_cast<MultiCamNode*>(n))) {
-          // Found multicam, now try to find corresponding clip from selected timeline blocks
+  if (multicam_panel_) {
+    if (multicam_panel_->isVisible()) {
+      if (Sequence *s = dynamic_cast<Sequence*>(GetConnectedNode())) {
+        // Prefer selected nodes
+        for (Node *n : qAsConst(node_view_selected_)) {
+          if ((multicam = dynamic_cast<MultiCamNode*>(n))) {
+            // Found multicam, now try to find corresponding clip from selected timeline blocks
+            for (Block *b : qAsConst(timeline_selected_blocks_)) {
+              if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
+                if (c->range().Contains(time) && c->ContextContainsNode(multicam)) {
+                  clip = c;
+                  break;
+                }
+              }
+            }
+            break;
+          }
+        }
+
+        // Next, prefer multicam from selected block
+        if (!multicam) {
           for (Block *b : qAsConst(timeline_selected_blocks_)) {
-            if (ClipBlock *c = dynamic_cast<ClipBlock*>(b)) {
-              if (c->range().Contains(time) && c->ContextContainsNode(multicam)) {
-                clip = c;
-                break;
+            if (b->range().Contains(time)) {
+              if ((clip = dynamic_cast<ClipBlock*>(b))) {
+                if ((multicam = clip->FindMulticam())) {
+                  break;
+                }
               }
             }
           }
-          break;
         }
-      }
 
-      // Next, prefer multicam from selected block
-      if (!multicam) {
-        for (Block *b : qAsConst(timeline_selected_blocks_)) {
-          if (b->range().Contains(time)) {
+        if (!multicam) {
+          const QVector<Track*> &tracks = s->GetTracks();
+          for (Track *t : tracks) {
+            if (t->IsLocked()) {
+              continue;
+            }
+
+            Block *b = t->NearestBlockBeforeOrAt(time);
             if ((clip = dynamic_cast<ClipBlock*>(b))) {
               if ((multicam = clip->FindMulticam())) {
                 break;
@@ -673,37 +693,16 @@ void ViewerWidget::DetectMulticamNode(const rational &time)
           }
         }
       }
-
-      if (!multicam) {
-        const QVector<Track*> &tracks = s->GetTracks();
-        for (Track *t : tracks) {
-          if (t->IsLocked()) {
-            continue;
-          }
-
-          Block *b = t->NearestBlockBeforeOrAt(time);
-          if ((clip = dynamic_cast<ClipBlock*>(b))) {
-            if ((multicam = clip->FindMulticam())) {
-              break;
-            }
-          }
-        }
-      }
     }
   }
 
   if (multicam) {
-    if (multicam_panel_) {
-      multicam_panel_->SetMulticamNode(GetConnectedNode(), multicam, clip, time);
-    }
-    // FIXME: Really dirty
-    RenderManager::instance()->GetCacher()->SetMulticamNode(multicam);
+    multicam_panel_->SetMulticamNode(GetConnectedNode(), multicam, clip, time);
   } else {
-    RenderManager::instance()->GetCacher()->SetMulticamNode(nullptr);
-    if (multicam_panel_) {
-      multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, time);
-    }
+    multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, time);
   }
+
+  return multicam;
 }
 
 bool ViewerWidget::IsVideoVisible() const
@@ -897,17 +896,24 @@ void ViewerWidget::UpdateTextureFromNode()
     watcher->setProperty("start", QDateTime::currentMSecsSinceEpoch());
     watcher->setProperty("time", QVariant::fromValue(time));
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrame);
-    nonqueue_watchers_.append(watcher);
+    nonqueue_watchers_.push_back(watcher);
 
     // Clear queue because we want this frame more than any others
     RenderManager::instance()->GetCacher()->ClearSingleFrameRendersThatArentRunning();
 
-    DetectMulticamNode(time);
+    watcher->SetTicket(GetSingleFrame(time));
 
-    watcher->SetTicket(GetFrame(time));
+    if (MultiCamNode *m = DetectMulticamNode(time)) {
+      // Render multicam frame too
+      RenderTicketWatcher *mcw = new RenderTicketWatcher();
+      connect(mcw, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedMultiCamFrame);
+      nonqueue_multicam_watchers_.push_back(mcw);
+      mcw->SetTicket(RenderManager::instance()->GetCacher()->GetSingleFrame(m, this->GetConnectedNode(), time, false));
+    }
   } else {
     // There is definitely no frame here, we can immediately flip to showing nothing
     nonqueue_watchers_.clear();
+    nonqueue_multicam_watchers_.clear();
     SetEmptyImage();
     return;
   }
@@ -1113,15 +1119,9 @@ bool ViewerWidget::ViewerMightBeAStill()
 void ViewerWidget::SetDisplayImage(RenderTicketPtr ticket)
 {
   foreach (ViewerDisplayWidget *dw, playback_devices_) {
-    QVariant push;
-    if (ticket) {
-      if (dynamic_cast<MulticamDisplay*>(dw)) {
-        push = ticket->property("multicam_output");
-      } else {
-        push = ticket->Get();
-      }
+    if (!dynamic_cast<MulticamDisplay*>(dw)) {
+      dw->SetImage(ticket ? ticket->Get() : QVariant());
     }
-    dw->SetImage(push);
   }
 }
 
@@ -1129,8 +1129,7 @@ RenderTicketWatcher *ViewerWidget::RequestNextFrameForQueue(bool increment)
 {
   RenderTicketWatcher *watcher = nullptr;
 
-  rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_,
-                                                   timebase());
+  rational next_time = Timecode::timestamp_to_time(playback_queue_next_frame_, timebase());
 
   if (FrameExistsAtTime(next_time) || ViewerMightBeAStill()) {
     if (increment) {
@@ -1139,29 +1138,21 @@ RenderTicketWatcher *ViewerWidget::RequestNextFrameForQueue(bool increment)
 
     watcher = new RenderTicketWatcher();
     watcher->setProperty("time", QVariant::fromValue(next_time));
-    DetectMulticamNode(next_time);
     connect(watcher, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
     queue_watchers_.append(watcher);
-    watcher->SetTicket(GetFrame(next_time));
+    watcher->SetTicket(GetSingleFrame(next_time));
+
+    if (auto m = DetectMulticamNode(next_time)) {
+      RenderTicketWatcher *mcw = new RenderTicketWatcher();
+      connect(mcw, &RenderTicketWatcher::Finished, this, &ViewerWidget::RendererGeneratedFrameForQueue);
+      mcw->setProperty("time", QVariant::fromValue(next_time));
+      mcw->setProperty("multicam", true);
+      queue_watchers_.push_back(mcw);
+      mcw->SetTicket(RenderManager::instance()->GetCacher()->GetSingleFrame(m, this->GetConnectedNode(), next_time, false));
+    }
   }
 
   return watcher;
-}
-
-RenderTicketPtr ViewerWidget::GetFrame(const rational &t)
-{
-  QString cache_fn = GetConnectedNode()->video_frame_cache()->GetValidCacheFilename(t);
-
-  if (!QFileInfo::exists(cache_fn)) {
-    // Frame hasn't been cached, start render job
-    return GetSingleFrame(t);
-  } else {
-    // Frame has been cached, grab the frame
-    RenderTicketPtr ticket = std::make_shared<RenderTicket>();
-    ticket->setProperty("time", QVariant::fromValue(t));
-    QtConcurrent::run(static_cast<void(*)(RenderTicketPtr, const QString &, const QUuid &, const int64_t &)>(ViewerWidget::DecodeCachedImage), ticket, GetConnectedNode()->video_frame_cache()->GetCacheDirectory(), GetConnectedNode()->video_frame_cache()->GetUuid(), Timecode::time_to_timestamp(t, timebase(), Timecode::kFloor));
-    return ticket;
-  }
 }
 
 void ViewerWidget::FinishPlayPreprocess()
@@ -1273,15 +1264,37 @@ void ViewerWidget::RendererGeneratedFrame()
   RenderTicketWatcher* ticket = static_cast<RenderTicketWatcher*>(sender());
 
   if (ticket->HasResult()) {
-    if (nonqueue_watchers_.contains(ticket)) {
-      while (!nonqueue_watchers_.isEmpty()) {
-        // Pop frames that are "old"
-        if (nonqueue_watchers_.takeFirst() == ticket) {
-          break;
-        }
+    while (!nonqueue_watchers_.empty()) {
+      // Pop frames that are "old"
+      auto f = nonqueue_watchers_.front();
+      nonqueue_watchers_.pop_front();
+      if (f == ticket) {
+        break;
       }
+    }
 
-      SetDisplayImage(ticket->GetTicket());
+    SetDisplayImage(ticket->GetTicket());
+  }
+
+  delete ticket;
+}
+
+void ViewerWidget::RendererGeneratedMultiCamFrame()
+{
+  RenderTicketWatcher* ticket = static_cast<RenderTicketWatcher*>(sender());
+
+  if (ticket->HasResult()) {
+    while (!nonqueue_multicam_watchers_.empty()) {
+      // Pop frames that are "old"
+      auto f = nonqueue_multicam_watchers_.front();
+      nonqueue_multicam_watchers_.pop_front();
+      if (f == ticket) {
+        break;
+      }
+    }
+
+    if (multicam_panel_) {
+      multicam_panel_->GetDisplayWidget()->SetImage(ticket->GetTicket()->Get());
     }
   }
 
@@ -1303,14 +1316,9 @@ void ViewerWidget::RendererGeneratedFrameForQueue()
         rational ts = watcher->property("time").value<rational>();
 
         foreach (ViewerDisplayWidget *dw, playback_devices_) {
-          QVariant push;
-          if (dynamic_cast<MulticamDisplay*>(dw)) {
-            push = watcher->GetTicket()->property("multicam_output");
-          } else {
-            push = frame;
+          if (watcher->property("multicam").toBool() == bool(dynamic_cast<MulticamDisplay*>(dw))) {
+            dw->queue()->AppendTimewise({ts, frame}, playback_speed_);
           }
-
-          dw->queue()->AppendTimewise({ts, push}, playback_speed_);
         }
 
         if (prequeuing_video_) {

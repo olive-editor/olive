@@ -870,22 +870,12 @@ NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int el
     return NodeValue();
   }
 
-  TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
-
   if (Node *output = GetConnectedOutput(input, element)) {
-    NodeValue ret;
-
-    while (output) {
-      if (output->is_enabled()) {
-        ret = output->Value(g.time_transformed(adjusted_time).output_edited(this->GetValueHintForInput(input, element).tag()));
-        break;
-      } else {
-        output = output->GetConnectedOutput(output->GetEffectInput());
-      }
-    }
-
-    return ret;
+    return GetFakeConnectedValue(g, output, input, element);
   } else {
+
+    TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
+
     if (element == -1 && InputIsArray(input)) {
       NodeValueArray array(InputArraySize(input));
 
@@ -898,6 +888,25 @@ NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int el
       return NodeValue(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), element), this, false);
     }
   }
+}
+
+NodeValue Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QString &input, int element) const
+{
+  if (g.is_cancelled()) {
+    return NodeValue();
+  }
+
+  TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
+
+  while (output) {
+    if (output->is_enabled()) {
+      return output->Value(g.time_transformed(adjusted_time).output_edited(this->GetValueHintForInput(input, element).tag()));
+    } else {
+      output = output->GetConnectedOutput(output->GetEffectInput());
+    }
+  }
+
+  return NodeValue();
 }
 
 void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int element)
