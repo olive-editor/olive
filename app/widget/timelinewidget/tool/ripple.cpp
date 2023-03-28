@@ -169,7 +169,7 @@ void RippleTool::FinishDrag(TimelineViewMouseEvent *event)
       }
       command->add_child(new TimelineWidget::SetSelectionsCommand(parent(), new_sel, parent()->GetSelections(), false));
 
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, qApp->translate("RippleTool", "Rippled Clips"));
     } else {
       delete command;
     }

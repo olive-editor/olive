@@ -108,6 +108,18 @@ void PreviewAutoCacher::ClearSingleFrameRenders()
   }
 }
 
+void PreviewAutoCacher::ClearSingleFrameRendersThatArentRunning()
+{
+  QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > copy = video_immediate_passthroughs_;
+  for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
+    if (!it.key()->IsRunning()) {
+      it.key()->Cancel();
+      RenderManager::instance()->RemoveTicket(it.key()->GetTicket());
+      emit it.key()->GetTicket()->Finished();
+    }
+  }
+}
+
 void PreviewAutoCacher::VideoInvalidatedFromCache(ViewerOutput *context, const TimeRange &range)
 {
   PlaybackCache *cache = static_cast<PlaybackCache*>(sender());

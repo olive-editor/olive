@@ -18,39 +18,32 @@
 
 ***/
 
-#include "dragbutton.h"
+#include "historywidget.h"
 
-#include <QMouseEvent>
+#include "core.h"
 
 namespace olive {
 
-DragButton::DragButton(QWidget *parent) :
-  QPushButton(parent)
+HistoryWidget::HistoryWidget(QWidget *parent) :
+  QTreeView(parent)
 {
-  setCursor(Qt::OpenHandCursor);
-  dragging_ = false;
+  stack_ = Core::instance()->undo_stack();
+
+  this->setModel(stack_);
+  this->setRootIsDecorated(false);
+  connect(stack_, &UndoStack::indexChanged, this, &HistoryWidget::indexChanged);
+  connect(this->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &HistoryWidget::currentRowChanged);
 }
 
-void DragButton::mousePressEvent(QMouseEvent *event)
+void HistoryWidget::indexChanged(int i)
 {
-  QPushButton::mousePressEvent(event);
+  this->selectionModel()->select(this->model()->index(i-1, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
-void DragButton::mouseMoveEvent(QMouseEvent *event)
+void HistoryWidget::currentRowChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-  QPushButton::mouseMoveEvent(event);
-
-  if (event->buttons() && !dragging_) {
-    emit DragStarted();
-    dragging_ = true;
-  }
-}
-
-void DragButton::mouseReleaseEvent(QMouseEvent *event)
-{
-  QPushButton::mouseReleaseEvent(event);
-
-  dragging_ = false;
+  size_t jump_to = (current.row() + 1);
+  stack_->jump(jump_to);
 }
 
 }

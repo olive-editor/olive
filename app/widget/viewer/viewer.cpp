@@ -557,7 +557,7 @@ void ViewerWidget::CreateAddableAt(const QRectF &f)
       shape->SetRect(f, s->GetVideoParams(), command);
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Created Shape"));
     SetGizmos(clip);
   }
 }
@@ -900,7 +900,7 @@ void ViewerWidget::UpdateTextureFromNode()
     nonqueue_watchers_.append(watcher);
 
     // Clear queue because we want this frame more than any others
-    RenderManager::instance()->GetCacher()->ClearSingleFrameRenders();
+    RenderManager::instance()->GetCacher()->ClearSingleFrameRendersThatArentRunning();
 
     DetectMulticamNode(time);
 
@@ -1235,7 +1235,7 @@ void ViewerWidget::ContextMenuSetPlaybackRes(QAction *action)
   vp.set_divider(div);
 
   auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(GetConnectedNode(), ViewerOutput::kVideoParamsInput, 0)), QVariant::fromValue(vp));
-  Core::instance()->undo_stack()->push(c);
+  Core::instance()->undo_stack()->push(c, tr("Changed Playback Resolution"));
 }
 
 void ViewerWidget::ContextMenuDisableSafeMargins()

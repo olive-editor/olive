@@ -172,9 +172,10 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
     }
     break;
   }
+  case kOnlyClips:
   case kOnlyNodes:
   {
-    if (reader->name() == QStringLiteral("nodes")) {
+    if ((load_type == kOnlyNodes && reader->name() == QStringLiteral("nodes")) || (load_type == kOnlyClips && reader->name() == QStringLiteral("timeline"))) {
       QMap<quintptr, Node*> skipped_items;
 
       while (XMLReadNextStartElement(reader)) {
@@ -395,7 +396,11 @@ void ProjectSerializer230220::Save(QXmlStreamWriter *writer, const SaveData &dat
 
     writer->writeEndElement(); // keyframes
   } else if (!data.GetOnlySerializeNodes().empty()) {
-    writer->writeStartElement(QStringLiteral("nodes"));
+    if (data.type() == kOnlyClips) {
+      writer->writeStartElement(QStringLiteral("timeline"));
+    } else {
+      writer->writeStartElement(QStringLiteral("nodes"));
+    }
 
     writer->writeAttribute(QStringLiteral("version"), QString::number(1));
 

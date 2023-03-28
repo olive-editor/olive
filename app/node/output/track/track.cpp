@@ -511,6 +511,9 @@ void Track::ReplaceBlock(Block *old, Block *replace)
   }
 
   if (old->length() == replace->length()) {
+    replace->set_in(replace->previous() ? replace->previous()->out() : 0);
+    replace->set_out(replace->in() + replace->length());
+
     Node::InvalidateCache(TimeRange(replace->in(), replace->out()), kBlockInput);
   } else {
     // Update in/outs

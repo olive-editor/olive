@@ -47,6 +47,10 @@ private slots:
 
   void StartAudioDrag();
 
+  void VideoButtonClicked();
+
+  void AudioButtonClicked();
+
 };
 
 }

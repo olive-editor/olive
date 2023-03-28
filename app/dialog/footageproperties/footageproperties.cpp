@@ -81,7 +81,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
       VideoParams vp = footage_->GetVideoParams(reference.index());
       is_enabled = vp.enabled();
-      description = tr("%1x%2 %3 FPS").arg(QString::number(vp.width()), QString::number(vp.height()), QString::number(vp.frame_rate().toDouble()));
+      description = Footage::DescribeVideoStream(vp);
       break;
     }
     case Track::kAudio:
@@ -90,7 +90,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
       AudioParams ap = footage_->GetAudioParams(reference.index());
       is_enabled = ap.enabled();
-      description = tr("%1 Hz %2 channels").arg(QString::number(ap.sample_rate()), QString::number(ap.channel_count()));
+      description = Footage::DescribeAudioStream(ap);
       break;
     }
     case Track::kSubtitle:
@@ -192,7 +192,7 @@ void FootagePropertiesDialog::accept()
     static_cast<StreamProperties*>(stacked_widget_->widget(i))->Accept(command);
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, tr("Set Footage \"%1\" Properties").arg(footage_->GetLabel()));
 
   QDialog::accept();
 }

@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
   AppendTimelinePanel();
   audio_monitor_panel_ = new AudioMonitorPanel();
   scope_panel_ = new ScopePanel();
+  history_panel_ = new HistoryPanel();
 
   // HACK: The pixel sampler is closed by default, which signals to Core that
   //       it's no longer visible. However KDDockWidgets doesn't appear to
@@ -534,7 +535,7 @@ void MainWindow::RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &r
     command->add_child(new WorkareaSetEnabledCommand(r->project(), r->GetWorkArea(), true));
   }
   command->add_child(new WorkareaSetRangeCommand(r->GetWorkArea(), range));
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Set Footage Workarea"));
 
   r->SetPlayhead(range.in());
 }
@@ -841,10 +842,13 @@ void MainWindow::SetDefaultLayout()
   addDockWidget(tool_panel_, KDDockWidgets::Location_OnLeft, timeline_panels_.first(), o);
 
   // Right of timeline - audio monitor
+  o.preferredSize = QSize(320, 0);
   addDockWidget(audio_monitor_panel_, KDDockWidgets::Location_OnRight, timeline_panels_.first(), o);
 
   // Bottom left - project panel
   addDockWidget(project_panel_, KDDockWidgets::Location_OnLeft, tool_panel_);
+  project_panel_->addDockWidgetAsTab(history_panel_);
+  project_panel_->raise();
 
   // Hidden panels
   pixel_sampler_panel_->close();

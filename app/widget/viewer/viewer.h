@@ -218,6 +218,8 @@ protected:
 
   RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false);
 
+  void SetWaveformMode(WaveformMode wf);
+
 private:
   int64_t GetTimestamp() const
   {
@@ -269,8 +271,6 @@ private:
   void DisarmRecording();
 
   void CloseAudioProcessor();
-
-  void SetWaveformMode(WaveformMode wf);
 
   void DetectMulticamNode(const rational &time);
 

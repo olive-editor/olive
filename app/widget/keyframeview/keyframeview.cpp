@@ -61,7 +61,7 @@ void KeyframeView::DeleteSelected()
       command->add_child(new NodeParamRemoveKeyframeCommand(key));
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Deleted %1 Keyframe(s)").arg(GetSelectedKeyframes().size()));
   }
 }
 
@@ -247,7 +247,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
       }
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Pasted %1 Keyframe(s)").arg(keys.size()));
     return true;
   }
 
@@ -258,9 +258,7 @@ void KeyframeView::CatchUpScrollEvent()
 {
   super::CatchUpScrollEvent();
 
-  if (this->selection_manager_.IsRubberBanding()) {
-    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
-  }
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event)
@@ -296,7 +294,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
   } else if (selection_manager_.IsDragging()) {
     QString tip;
     KeyframeDragMove(event, tip);
-    selection_manager_.DragMove(event, tip);
+    selection_manager_.DragMove(event->pos(), tip);
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandMove(event->pos());
     Redraw();
@@ -321,7 +319,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     MultiUndoCommand* command = new MultiUndoCommand();
     selection_manager_.DragStop(command);
     KeyframeDragRelease(event, command);
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, tr("Moved %1 Keyframe(s)").arg(selection_manager_.GetSelectedObjects().size()));
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
@@ -614,7 +612,7 @@ void KeyframeView::ShowContextMenu()
       foreach (NodeKeyframe* item, GetSelectedKeyframes()) {
         command->add_child(new KeyframeSetTypeCommand(item, new_type));
       }
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, tr("Set Type of %1 Keyframe(s)").arg(GetSelectedKeyframes().size()));
     }
   }
 }
@@ -629,9 +627,7 @@ void KeyframeView::ShowKeyframePropertiesDialog()
 
 void KeyframeView::UpdateRubberBandForScroll()
 {
-  if (this->selection_manager_.IsRubberBanding()) {
-    this->selection_manager_.RubberBandMove(this->viewport()->mapFromGlobal(QCursor::pos()));
-  }
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void KeyframeView::Redraw()

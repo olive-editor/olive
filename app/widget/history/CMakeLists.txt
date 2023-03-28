@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2022 Olive Team
+# Copyright (C) 2023 Olive Studios LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,29 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audiomonitor)
-add_subdirectory(curve)
-add_subdirectory(footageviewer)
-add_subdirectory(history)
-add_subdirectory(multicam)
-add_subdirectory(node)
-add_subdirectory(param)
-add_subdirectory(pixelsampler)
-add_subdirectory(project)
-add_subdirectory(scope)
-add_subdirectory(sequenceviewer)
-add_subdirectory(table)
-add_subdirectory(taskmanager)
-add_subdirectory(timebased)
-add_subdirectory(timeline)
-add_subdirectory(tool)
-add_subdirectory(viewer)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  panel/panel.h
-  panel/panel.cpp
-  panel/panelmanager.h
-  panel/panelmanager.cpp
+  widget/history/historywidget.cpp
+  widget/history/historywidget.h
   PARENT_SCOPE
 )

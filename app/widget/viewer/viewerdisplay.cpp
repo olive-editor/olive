@@ -946,7 +946,7 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
       if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
         draggable->DragEnd(command);
       }
-      Core::instance()->undo_stack()->pushIfHasChildren(command);
+      Core::instance()->undo_stack()->push(command, tr("Dragged Gizmo"));
       gizmo_drag_started_ = false;
     }
     current_gizmo_ = nullptr;

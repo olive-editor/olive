@@ -47,7 +47,7 @@ ShaderCode MaskDistortNode::GetShaderCode(const ShaderRequest &request) const
   } else if (request.id == QStringLiteral("feather")) {
     return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/blur.frag")));
   } else if (request.id == QStringLiteral("invert")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/invertrgb.frag")));
+    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/invertrgba.frag")));
   } else {
     return super::GetShaderCode(request);
   }

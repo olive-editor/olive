@@ -35,7 +35,7 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
   LoadData load_data;
 
   if ((load_type == kProject && reader->name() == QStringLiteral("project"))
-      || (load_type == kOnlyNodes && (reader->name() == QStringLiteral("nodes") || reader->name() == QStringLiteral("timeline")))
+      || ((load_type == kOnlyNodes && reader->name() == QStringLiteral("nodes")) || (load_type == kOnlyClips && reader->name() == QStringLiteral("timeline")))
       || (load_type == kOnlyKeyframes && reader->name() == QStringLiteral("keyframes"))
       || (load_type == kOnlyMarkers && reader->name() == QStringLiteral("markers"))) {
     while (XMLReadNextStartElement(reader)) {
@@ -105,7 +105,11 @@ ProjectSerializer220403::LoadData ProjectSerializer220403::Load(Project *project
                   reader->skipCurrentElement();
                 } else {
                   LoadNode(node, xml_node_data, reader);
-                  node->setParent(project);
+                  if (project) {
+                    node->setParent(project);
+                  } else {
+                    load_data.nodes.append(node);
+                  }
                 }
               }
             }

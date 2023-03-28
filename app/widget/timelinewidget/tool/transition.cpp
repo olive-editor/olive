@@ -157,7 +157,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         command->add_child(new NodeSetPositionCommand(block_to_transition, transition, QPointF(-1, 0)));
       }
 
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, qApp->translate("TransitionTool", "Created Transition"));
 
       parent()->SetViewTransitionOverlay(nullptr, nullptr);
     }

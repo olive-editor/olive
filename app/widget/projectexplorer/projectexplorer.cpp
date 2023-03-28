@@ -487,7 +487,7 @@ void ProjectExplorer::ReplaceSelectedFootage()
       p->add_child(new NodeRenameCommand(footage, QFileInfo(file).fileName()));
     }
 
-    Core::instance()->undo_stack()->push(p);
+    Core::instance()->undo_stack()->push(p, tr("Replaced Footage"));
   }
 }
 
@@ -666,7 +666,7 @@ void ProjectExplorer::DeleteSelected()
   bool check_if_item_is_in_use = true;
 
   if (DeleteItemsInternal(selected, check_if_item_is_in_use, command)) {
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Deleted %1 Item(s)").arg(selected.size()));
   } else {
     delete command;
   }

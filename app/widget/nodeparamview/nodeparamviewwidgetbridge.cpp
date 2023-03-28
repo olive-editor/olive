@@ -200,7 +200,7 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
   SetInputValueInternal(value, track, command, true);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, GetCommandName());
 }
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
@@ -228,7 +228,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, int sli
 
     MultiUndoCommand *command = new MultiUndoCommand();
     dragger_.End(command);
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, GetCommandName());
 
   } else {
 
@@ -324,7 +324,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_look"), c.color_output().look());
     n->blockSignals(false);
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, GetCommandName());
     break;
   }
   case NodeValue::kText:
@@ -540,6 +540,12 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
   } else {
     return 0;
   }
+}
+
+QString NodeParamViewWidgetBridge::GetCommandName() const
+{
+  NodeInput i = GetInnerInput();
+  return tr("Edited Value Of %1 - %2").arg(i.node()->GetLabelAndName(), i.node()->GetInputName(i.input()));
 }
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)

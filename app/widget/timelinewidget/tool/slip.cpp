@@ -80,7 +80,7 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, qApp->translate("SlipTool", "Slipped %1 Clip(s)").arg(parent()->GetGhostItems().size()));
 }
 
 }
