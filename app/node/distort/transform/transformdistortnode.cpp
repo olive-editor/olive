@@ -108,7 +108,6 @@ NodeValue TransformDistortNode::Value(const ValueParams &p) const
     }
   }
 
-  qDebug() << "Add second output for matrix";
   //table->Push(NodeValue::kMatrix, QVariant::fromValue(generated_matrix), this);
 
   if (!job_to_push) {
