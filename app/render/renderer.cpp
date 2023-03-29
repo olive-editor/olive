@@ -189,9 +189,9 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
     color_job.GetColorProcessor()->GetProcessor()->getDefaultGPUProcessor()->extractGpuShaderInfo(shader_desc);
 
     ShaderCode code;
-    if (const Node *shader_src = color_job.CustomShaderSource()) {
+    if (ShaderJob::GetShaderCodeFunction_t cf = color_job.GetCustomShaderFunction()) {
       // Use shader code from associated node
-      code = shader_src->GetShaderCode({color_job.CustomShaderID(), shader_desc->getShaderText()});
+      code = cf(shader_desc->getShaderText());
     } else {
       // Generate shader code using OCIO stub and our auto-generated name
       code = FileFunctions::ReadFileAsString(QStringLiteral(":shaders/colormanage.frag"));

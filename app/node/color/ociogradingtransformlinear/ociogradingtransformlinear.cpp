@@ -159,7 +159,7 @@ NodeValue OCIOGradingTransformLinearNode::Value(const ValueParams &p) const
 
   if (TexturePtr tex = tex_meta.toTexture()) {
     if (processor()) {
-      ColorTransformJob job = CreateJob<ColorTransformJob>(p);
+      ColorTransformJob job = CreateColorTransformJob(p);
 
       job.SetColorProcessor(processor());
       job.SetInputTexture(tex_meta);
@@ -177,29 +177,29 @@ NodeValue OCIOGradingTransformLinearNode::Value(const ValueParams &p) const
       offset[RED_CHANNEL] += offset[MASTER_CHANNEL];
       offset[GREEN_CHANNEL] += offset[MASTER_CHANNEL];
       offset[BLUE_CHANNEL] += offset[MASTER_CHANNEL];
-      job.Insert(kOffsetInput, NodeValue(NodeValue::kVec3, QVector3D(offset[RED_CHANNEL], offset[GREEN_CHANNEL], offset[BLUE_CHANNEL])));
+      job.Insert(kOffsetInput, QVector3D(offset[RED_CHANNEL], offset[GREEN_CHANNEL], offset[BLUE_CHANNEL]));
 
       QVector4D exposure = GetInputValue(p, kExposureInput).toVec4();
       exposure[RED_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[RED_CHANNEL]);
       exposure[GREEN_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[GREEN_CHANNEL]);
       exposure[BLUE_CHANNEL] = std::pow(2.0f, exposure[MASTER_CHANNEL] + exposure[BLUE_CHANNEL]);
-      job.Insert(kExposureInput, NodeValue(NodeValue::kVec3, QVector3D(exposure[RED_CHANNEL], exposure[GREEN_CHANNEL], exposure[BLUE_CHANNEL])));
+      job.Insert(kExposureInput, QVector3D(exposure[RED_CHANNEL], exposure[GREEN_CHANNEL], exposure[BLUE_CHANNEL]));
 
       QVector4D contrast = GetInputValue(p, kContrastInput).toVec4();
       contrast[RED_CHANNEL] *= contrast[MASTER_CHANNEL];
       contrast[GREEN_CHANNEL] *= contrast[MASTER_CHANNEL];
       contrast[BLUE_CHANNEL] *= contrast[MASTER_CHANNEL];
-      job.Insert(kContrastInput, NodeValue(NodeValue::kVec3, QVector3D(contrast[RED_CHANNEL], contrast[GREEN_CHANNEL], contrast[BLUE_CHANNEL])));
+      job.Insert(kContrastInput, QVector3D(contrast[RED_CHANNEL], contrast[GREEN_CHANNEL], contrast[BLUE_CHANNEL]));
 
       if (!GetInputValue(p, kClampBlackEnableInput).toBool()) {
-        job.Insert(kClampBlackInput, NodeValue(NodeValue::kFloat, OCIO::GradingPrimary::NoClampBlack()));
+        job.Insert(kClampBlackInput, OCIO::GradingPrimary::NoClampBlack());
       }
 
       if (!GetInputValue(p, kClampWhiteEnableInput).toBool()) {
-        job.Insert(kClampWhiteInput, NodeValue(NodeValue::kFloat, OCIO::GradingPrimary::NoClampWhite()));
+        job.Insert(kClampWhiteInput, OCIO::GradingPrimary::NoClampWhite());
       }
 
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      return tex->toJob(job);
     }
   }
 

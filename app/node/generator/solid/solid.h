@@ -41,9 +41,11 @@ public:
   virtual void Retranslate() override;
 
   virtual NodeValue Value(const ValueParams &p) const override;
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
 
   static const QString kColorInput;
+
+private:
+  static ShaderCode GetShaderCode(const QString &id);
 
 };
 

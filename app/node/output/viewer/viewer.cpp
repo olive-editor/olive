@@ -407,15 +407,15 @@ void ViewerOutput::SetWaveformEnabled(bool e)
 
 NodeValue ViewerOutput::Value(const ValueParams &p) const
 {
-  if (HasInputWithID(kTextureInput)) {
-    NodeValue repush = GetInputValue(p, kTextureInput);
-    repush.set_tag(Track::Reference(Track::kVideo, 0).ToString());
-    return repush;
+  Track::Reference ref = Track::Reference::FromString(p.output());
+
+  if (ref.type() == Track::kVideo && HasInputWithID(kTextureInput)) {
+    NodeValue v = GetInputValue(p, kTextureInput);
+    qDebug() << "what the fuck" << v.data();
+    return v;
   }
-  if (HasInputWithID(kSamplesInput)) {
-    NodeValue repush = GetInputValue(p, kSamplesInput);
-    repush.set_tag(Track::Reference(Track::kAudio, 0).ToString());
-    return repush;
+  if (ref.type() == Track::kAudio && HasInputWithID(kSamplesInput)) {
+    return GetInputValue(p, kSamplesInput);
   }
 
   return NodeValue();

@@ -40,13 +40,14 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual NodeValue Value(const ValueParams &p) const override;
 
   static const QString kBaseIn;
   static const QString kBlendIn;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   NodeInput* base_in_;
 
   NodeInput* blend_in_;

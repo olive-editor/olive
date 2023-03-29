@@ -65,10 +65,8 @@ void MergeNode::Retranslate()
   SetInputName(kBlendIn, tr("Blend"));
 }
 
-ShaderCode MergeNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode MergeNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
-
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
@@ -88,7 +86,7 @@ NodeValue MergeNode::Value(const ValueParams &p) const
       // We only have a base texture, no need to alpha over
       return base_val;
     } else {
-      return NodeValue(NodeValue::kTexture, base_tex->toJob(CreateJob<ShaderJob>(p)), this);
+      return base_tex->toJob(CreateShaderJob(p, GetShaderCode));
     }
   }
 

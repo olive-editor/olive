@@ -113,9 +113,9 @@ void ChromaKeyNode::InputValueChangedEvent(const QString &input, int element)
   GenerateProcessor();
 }
 
-ShaderCode ChromaKeyNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode GetColorTransformCode(const QString &stub)
 {
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/chromakey.frag")).arg(request.stub));
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/chromakey.frag")).arg(stub));
 }
 
 void ChromaKeyNode::GenerateProcessor()
@@ -136,14 +136,14 @@ NodeValue ChromaKeyNode::Value(const ValueParams &p) const
 
   if (TexturePtr tex = tex_meta.toTexture()) {
     if (processor()) {
-      ColorTransformJob job = CreateJob<ColorTransformJob>(p);
+      ColorTransformJob job = CreateColorTransformJob(p);
 
       job.SetColorProcessor(processor());
       job.SetInputTexture(GetInputValue(p, kTextureInput));
-      job.SetNeedsCustomShader(this);
+      job.SetCustomShaderFunction(GetColorTransformCode);
       job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
 
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      return tex->toJob(job);
     }
   }
 

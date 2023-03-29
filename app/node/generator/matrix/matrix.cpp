@@ -90,8 +90,7 @@ void MatrixGenerator::Retranslate()
 NodeValue MatrixGenerator::Value(const ValueParams &p) const
 {
   // Push matrix output
-  QMatrix4x4 mat = GenerateMatrix(p, false, false, false, QMatrix4x4());
-  return NodeValue(NodeValue::kMatrix, mat, this);
+  return GenerateMatrix(p, false, false, false, QMatrix4x4());
 }
 
 QMatrix4x4 MatrixGenerator::GenerateMatrix(const ValueParams &p, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const

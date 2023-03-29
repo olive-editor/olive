@@ -40,14 +40,14 @@ public:
 
   virtual NodeValue Value(const ValueParams &p) const override;
 
-  virtual void ProcessSamples(const SampleJob &job, SampleBuffer &output) const override;
-
   virtual void Retranslate() override;
 
   static const QString kSamplesInput;
   static const QString kPanningInput;
 
 private:
+  static void ProcessSamples(const void *context, const SampleJob &job, SampleBuffer &output);
+
   NodeInput* samples_input_;
   NodeInput* panning_input_;
 

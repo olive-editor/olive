@@ -38,14 +38,15 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   virtual void Retranslate() override;
 
   static const QString kColorInput;
 
 protected:
   virtual void ShaderJobEvent(const ValueParams &p, ShaderJob *job) const override;
+
+private:
+  static ShaderCode GetShaderCode(const QString &id);
 
 };
 

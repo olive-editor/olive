@@ -111,7 +111,7 @@ NodeValue TrigonometryNode::Value(const ValueParams &p) const
     break;
   }
 
-  return NodeValue(NodeValue::kFloat, x, this);
+  return x;
 }
 
 }

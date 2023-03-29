@@ -34,7 +34,6 @@ class DespillNode : public Node {
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual NodeValue Value(const ValueParams &globals) const override;
 
   static const QString kTextureInput;
@@ -42,6 +41,8 @@ class DespillNode : public Node {
   static const QString kMethodInput;
   static const QString kPreserveLuminanceInput;
 
+private:
+  static ShaderCode GetShaderCode(const QString &id);
 
 };
 

@@ -48,7 +48,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual NodeValue Value(const ValueParams &globals) const override;
 
   Method GetMethod() const
@@ -76,6 +75,8 @@ protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   void UpdateInputs(Method method);
 
   PointGizmo *radial_center_gizmo_;

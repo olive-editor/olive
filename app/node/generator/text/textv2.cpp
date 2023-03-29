@@ -91,19 +91,7 @@ void TextGeneratorV2::Retranslate()
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-NodeValue TextGeneratorV2::Value(const ValueParams &p) const
-{
-  if (!GetInputValue(p, kTextInput).toString().isEmpty()) {
-    GenerateJob job = CreateJob<GenerateJob>(p);
-    auto text_params = p.vparams();
-    text_params.set_format(PixelFormat::F32);
-    return NodeValue(NodeValue::kTexture, Texture::Job(text_params, job), this);
-  }
-
-  return NodeValue();
-}
-
-void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) const
+void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job)
 {
   // This could probably be more optimized, but for now we use Qt to draw to a QImage.
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto
@@ -195,6 +183,18 @@ void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
 #endif
     }
   }
+}
+
+NodeValue TextGeneratorV2::Value(const ValueParams &p) const
+{
+  if (!GetInputValue(p, kTextInput).toString().isEmpty()) {
+    GenerateJob job = CreateGenerateJob(p, GenerateFrame);
+    auto text_params = p.vparams();
+    text_params.set_format(PixelFormat::F32);
+    return Texture::Job(text_params, job);
+  }
+
+  return NodeValue();
 }
 
 }

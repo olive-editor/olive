@@ -50,13 +50,13 @@ protected:
 
   void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time);
 
-  void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job);
+  void ProcessShader(TexturePtr destination, const ShaderJob *job);
 
-  void ProcessSamples(SampleBuffer &destination, const Node *node, const SampleJob &job);
+  void ProcessSamples(SampleBuffer &destination, const SampleJob &job);
 
-  void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job);
+  void ProcessColorTransform(TexturePtr destination, const ColorTransformJob *job);
 
-  void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job);
+  void ProcessFrameGeneration(TexturePtr destination, const GenerateJob *job);
 
   TexturePtr ProcessVideoCacheJob(const CacheJob *val);
 

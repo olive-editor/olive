@@ -114,8 +114,8 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
 
       // No color transform, just blit
       ShaderJob job;
-      job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
-      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
+      job.Insert(QStringLiteral("ove_maintex"), texture);
+      job.Insert(QStringLiteral("ove_mvpmat"), matrix);
 
       render_ctx_->BlitToTexture(render_ctx_->GetDefaultShader(), job, blit_tex.get());
 
@@ -412,13 +412,13 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
   }
 }
 
-void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job)
+void RenderProcessor::ProcessShader(TexturePtr destination, const ShaderJob *job)
 {
   if (!render_ctx_) {
     return;
   }
 
-  QString full_shader_id = QStringLiteral("%1:%2").arg(node->id(), job->GetShaderID());
+  QString full_shader_id = QStringLiteral("%1:%2").arg(QString::number(reinterpret_cast<quintptr>(job->function())), job->GetShaderID());
 
   QMutexLocker locker(shader_cache_->mutex());
 
@@ -426,7 +426,7 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
 
   if (shader.isNull()) {
     // Since we have shader code, compile it now
-    shader = render_ctx_->CreateNativeShader(node->GetShaderCode(job->GetShaderID()));
+    shader = render_ctx_->CreateNativeShader(job->do_function());
 
     if (shader.isNull()) {
       // Couldn't find or build the shader required
@@ -442,12 +442,12 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
   render_ctx_->BlitToTexture(shader, *job, destination.get());
 }
 
-void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node, const SampleJob &job)
+void RenderProcessor::ProcessSamples(SampleBuffer &destination, const SampleJob &job)
 {
-  node->ProcessSamples(job, destination);
+  job.do_function(destination);
 }
 
-void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job)
+void RenderProcessor::ProcessColorTransform(TexturePtr destination, const ColorTransformJob *job)
 {
   if (!render_ctx_) {
     return;
@@ -456,7 +456,7 @@ void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *
   render_ctx_->BlitColorManaged(*job, destination.get());
 }
 
-void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job)
+void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const GenerateJob *job)
 {
   if (!render_ctx_) {
     return;
@@ -467,7 +467,7 @@ void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node 
   frame->set_video_params(destination->params());
   frame->allocate();
 
-  node->GenerateFrame(frame, *job);
+  job->do_function(frame);
 
   destination->Upload(frame->data(), frame->linesize_pixels());
 }
@@ -567,7 +567,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
             ResolveJobs(v);
             ctj->SetInputTexture(v);
 
-            ProcessColorTransform(dest, val.source(), ctj);
+            ProcessColorTransform(dest, ctj);
 
             val.set_value(dest);
 
@@ -577,7 +577,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
 
             TexturePtr tex = CreateTexture(tex_params);
 
-            ProcessShader(tex, val.source(), sj);
+            ProcessShader(tex, sj);
 
             val.set_value(tex);
 
@@ -587,7 +587,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
 
             TexturePtr tex = CreateTexture(tex_params);
 
-            ProcessFrameGeneration(tex, val.source(), gj);
+            ProcessFrameGeneration(tex, gj);
 
             // Convert to reference space
             const QString &colorspace = tex_params.colorspace();
@@ -644,7 +644,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
       }
 
       SampleBuffer output_buffer = CreateSampleBuffer(job.audio_params(), job.sample_count());
-      ProcessSamples(output_buffer, val.source(), job);
+      ProcessSamples(output_buffer, job);
       val.set_value(QVariant::fromValue(output_buffer));
 
     } else if (val.canConvert<FootageJob>()) {

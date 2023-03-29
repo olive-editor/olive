@@ -37,13 +37,14 @@ void OpacityEffect::Retranslate()
   SetInputName(kValueInput, tr("Opacity"));
 }
 
-ShaderCode OpacityEffect::GetShaderCode(const ShaderRequest &request) const
+ShaderCode GetRGBShaderCode(const QString &id)
 {
-  if (request.id == QStringLiteral("rgbmult")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity_rgb.frag"));
-  } else {
-    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity.frag"));
-  }
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity_rgb.frag"));
+}
+
+ShaderCode GetNumberShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity.frag"));
 }
 
 NodeValue OpacityEffect::Value(const ValueParams &p) const
@@ -54,11 +55,11 @@ NodeValue OpacityEffect::Value(const ValueParams &p) const
 
   if (TexturePtr tex = texture.toTexture()) {
     if (TexturePtr opacity_tex = value.toTexture()) {
-      ShaderJob job = CreateJob<ShaderJob>(p);
+      ShaderJob job = CreateShaderJob(p, GetRGBShaderCode);
       job.SetShaderID(QStringLiteral("rgbmult"));
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      return tex->toJob(job);
     } else if (!qFuzzyCompare(value.toDouble(), 1.0)) {
-      return NodeValue(NodeValue::kTexture, tex->toJob(CreateJob<ShaderJob>(p)), this);
+      return tex->toJob(CreateShaderJob(p, GetNumberShaderCode));
     }
   }
 

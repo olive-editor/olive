@@ -46,7 +46,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual NodeValue Value(const ValueParams &p) const override;
 
   static QString kTypeInput;
@@ -54,6 +53,9 @@ public:
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
+
+private:
+  static ShaderCode GetShaderCode(const QString &id);
 
 };
 

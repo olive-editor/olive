@@ -53,8 +53,6 @@ public:
     return tr("Apply a polygonal mask.");
   }
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   virtual void Retranslate() override;
 
   virtual NodeValue Value(const ValueParams &p) const override;

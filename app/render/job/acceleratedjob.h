@@ -21,7 +21,7 @@
 #ifndef ACCELERATEDJOB_H
 #define ACCELERATEDJOB_H
 
-#include "node/param.h"
+#include "node/value.h"
 
 namespace olive {
 

@@ -67,6 +67,12 @@ void CornerPinDistortNode::Retranslate()
   SetInputName(kBottomLeftInput, tr("Bottom Left"));
 }
 
+ShaderCode CornerPinDistortNode::GetShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),
+                    FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
+}
+
 NodeValue CornerPinDistortNode::Value(const ValueParams &p) const
 {
   // If no texture do nothing
@@ -79,8 +85,8 @@ NodeValue CornerPinDistortNode::Value(const ValueParams &p) const
         && GetInputValue(p, kTopRightInput).toVec2().isNull() &&
         GetInputValue(p, kBottomRightInput).toVec2().isNull() &&
         GetInputValue(p, kBottomLeftInput).toVec2().isNull())) {
-      ShaderJob job = CreateJob<ShaderJob>(p);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
 
       // Convert slider values to their pixel values and then convert to clip space (-1.0 ... 1.0) for overriding the
       // vertex coordinates.
@@ -101,19 +107,11 @@ NodeValue CornerPinDistortNode::Value(const ValueParams &p) const
                                       bottom_right.x(),  bottom_right.y(), 0.0f};
       job.SetVertexCoordinates(adjusted_vertices);
 
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      return tex->toJob(job);
     }
   }
 
   return tex_meta;
-}
-
-ShaderCode CornerPinDistortNode::GetShaderCode(const ShaderRequest &request) const
-{
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),
-                    FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
 }
 
 QPointF CornerPinDistortNode::ValueToPixel(int value, const ValueParams& p, const QVector2D &resolution) const

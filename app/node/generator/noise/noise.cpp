@@ -73,19 +73,19 @@ void NoiseGeneratorNode::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderCode NoiseGeneratorNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode NoiseGeneratorNode::GetShaderCode(const QString &id)
 {
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/noise.frag"));
 }
 
 NodeValue NoiseGeneratorNode::Value(const ValueParams &p) const
 {
-  ShaderJob job = CreateJob<ShaderJob>(p);
+  ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
-  job.Insert(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, p.time().in().toDouble(), this));
+  job.Insert(QStringLiteral("time_in"), p.time().in().toDouble());
 
   TexturePtr base = GetInputValue(p, kBaseIn).toTexture();
 
-  return NodeValue(NodeValue::kTexture, Texture::Job(base ? base->params() : p.vparams(), job), this);
+  return Texture::Job(base ? base->params() : p.vparams(), job);
 }
 }

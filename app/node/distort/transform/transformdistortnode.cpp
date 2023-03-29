@@ -81,6 +81,12 @@ void TransformDistortNode::Retranslate()
   SetComboBoxStrings(kInterpolationInput, {tr("Nearest Neighbor"), tr("Bilinear"), tr("Mipmapped Bilinear")});
 }
 
+ShaderCode TransformDistortNode::GetShaderCode(const QString &id)
+{
+  // Returns default frag and vert shader
+  return ShaderCode();
+}
+
 NodeValue TransformDistortNode::Value(const ValueParams &p) const
 {
   // Generate matrix
@@ -100,8 +106,9 @@ NodeValue TransformDistortNode::Value(const ValueParams &p) const
       // The matrix will transform things
       ShaderJob job;
       job.Insert(QStringLiteral("ove_maintex"), texture_meta);
-      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, real_matrix, this));
+      job.Insert(QStringLiteral("ove_mvpmat"), real_matrix);
       job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(GetInputValue(p, kInterpolationInput).toInt()));
+      job.set_function(GetShaderCode);
 
       // Use global resolution rather than texture resolution because this may result in a size change
       job_to_push = Texture::Job(p.vparams(), job);
@@ -114,16 +121,8 @@ NodeValue TransformDistortNode::Value(const ValueParams &p) const
     // Re-push whatever value we received
     return texture_meta;
   } else {
-    return NodeValue(NodeValue::kTexture, job_to_push, this);
+    return job_to_push;
   }
-}
-
-ShaderCode TransformDistortNode::GetShaderCode(const ShaderRequest &request) const
-{
-  Q_UNUSED(request);
-
-  // Returns default frag and vert shader
-  return ShaderCode();
 }
 
 void TransformDistortNode::GizmoDragStart(const ValueParams &p, double x, double y, const rational &time)

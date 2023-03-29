@@ -34,7 +34,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual NodeValue Value(const ValueParams &p) const override;
 
   static const QString kTextureInput;

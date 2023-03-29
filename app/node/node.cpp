@@ -866,43 +866,41 @@ int Node::InputArraySize(const QString &id) const
 
 NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int element) const
 {
-  if (g.is_cancelled()) {
-    return NodeValue();
-  }
-
-  if (Node *output = GetConnectedOutput(input, element)) {
-    return GetFakeConnectedValue(g, output, input, element);
-  } else {
-
-    TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
-
-    if (element == -1 && InputIsArray(input)) {
-      NodeValueArray array(InputArraySize(input));
-
-      for (size_t i = 0; i < array.size(); i++) {
-        array[i] = NodeValue(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), i), this, false);
-      }
-
-      return NodeValue(GetInputDataType(input), array, this, true);
+  if (!g.is_cancelled()) {
+    if (Node *output = GetConnectedOutput(input, element)) {
+      return GetFakeConnectedValue(g, output, input, element);
     } else {
-      return NodeValue(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), element), this, false);
+      NodeValue::Type type = GetInputDataType(input);
+      TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
+
+      if (element == -1 && InputIsArray(input)) {
+        NodeValueArray array(InputArraySize(input));
+
+        for (size_t i = 0; i < array.size(); i++) {
+          array[i] = NodeValue(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), i));
+        }
+
+        return NodeValue(type, array);
+      } else {
+        return NodeValue(type, GetValueAtTime(input, adjusted_time.in(), element));
+      }
     }
   }
+
+  return NodeValue();
 }
 
 NodeValue Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QString &input, int element) const
 {
-  if (g.is_cancelled()) {
-    return NodeValue();
-  }
+  if (!g.is_cancelled()) {
+    TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
 
-  TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
-
-  while (output) {
-    if (output->is_enabled()) {
-      return output->Value(g.time_transformed(adjusted_time).output_edited(this->GetValueHintForInput(input, element).tag()));
-    } else {
-      output = output->GetConnectedOutput(output->GetEffectInput());
+    while (output) {
+      if (output->is_enabled()) {
+        return output->Value(g.time_transformed(adjusted_time).output_edited(this->GetValueHintForInput(input, element).tag()));
+      } else {
+        output = output->GetConnectedOutput(output->GetEffectInput());
+      }
     }
   }
 
@@ -964,12 +962,6 @@ void Node::SetInputFlag(const QString &input, InputFlag f, bool on)
   } else {
     ReportInvalidInput("set flags of", input, -1);
   }
-}
-
-NodeValue Node::Value(const ValueParams &p) const
-{
-  Q_UNUSED(p)
-  return NodeValue();
 }
 
 void Node::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)
@@ -2057,21 +2049,6 @@ QVector<Node *> Node::GetExclusiveDependencies() const
 QVector<Node *> Node::GetImmediateDependencies() const
 {
   return GetDependenciesInternal(false, false);
-}
-
-ShaderCode Node::GetShaderCode(const ShaderRequest &request) const
-{
-  return ShaderCode(QString(), QString());
-}
-
-void Node::ProcessSamples(const SampleJob &, SampleBuffer &) const
-{
-}
-
-void Node::GenerateFrame(FramePtr frame, const GenerateJob &job) const
-{
-  Q_UNUSED(frame)
-  Q_UNUSED(job)
 }
 
 bool Node::InputsFrom(Node *n, bool recursively) const

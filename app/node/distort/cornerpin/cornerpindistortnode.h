@@ -61,8 +61,6 @@ public:
 
   virtual NodeValue Value(const ValueParams &p) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   /**
@@ -82,6 +80,8 @@ protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   // Gizmo variables
   static const int kGizmoCornerCount = 4;
   PointGizmo *gizmo_resize_handle_[kGizmoCornerCount];

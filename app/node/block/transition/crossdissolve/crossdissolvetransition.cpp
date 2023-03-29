@@ -46,25 +46,34 @@ QString CrossDissolveTransition::Description() const
   return tr("Smoothly transition between two clips.");
 }
 
-ShaderCode CrossDissolveTransition::GetShaderCode(const ShaderRequest &request) const
+ShaderCode CrossDissolveTransition::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/crossdissolve.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/crossdissolve.frag"));
 }
 
-void CrossDissolveTransition::SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const
+void CrossDissolveTransition::ShaderJobEvent(const ValueParams &p, ShaderJob *job) const
 {
+  job->set_function(GetShaderCode);
+}
+
+void CrossDissolveTransition::ProcessSamples(const void *context, const SampleJob &job, SampleBuffer &out_samples)
+{
+  const CrossDissolveTransition *t = static_cast<const CrossDissolveTransition *>(context);
+  SampleBuffer from_samples = job.Get(TransitionBlock::kOutBlockInput).toSamples();
+  SampleBuffer to_samples = job.Get(TransitionBlock::kInBlockInput).toSamples();
+
+  double time_in = job.value_params().time().in().toDouble();
+
   for (size_t i=0; i<out_samples.sample_count(); i++) {
     double this_sample_time = out_samples.audio_params().samples_to_time(i).toDouble() + time_in;
-    double progress = GetTotalProgress(this_sample_time);
+    double progress = t->GetTotalProgress(this_sample_time);
 
     for (int j=0; j<out_samples.audio_params().channel_count(); j++) {
       out_samples.data(j)[i] = 0;
 
       if (from_samples.is_allocated()) {
         if (i < from_samples.sample_count()) {
-          out_samples.data(j)[i] += from_samples.data(j)[i] * TransformCurve(1.0 - progress);
+          out_samples.data(j)[i] += from_samples.data(j)[i] * t->TransformCurve(1.0 - progress);
         }
       }
 
@@ -73,11 +82,16 @@ void CrossDissolveTransition::SampleJobEvent(const SampleBuffer &from_samples, c
         size_t remain = (out_samples.sample_count() - to_samples.sample_count());
         if (i >= remain) {
           qint64 in_index = i - remain;
-          out_samples.data(j)[i] += to_samples.data(j)[in_index] * TransformCurve(progress);
+          out_samples.data(j)[i] += to_samples.data(j)[in_index] * t->TransformCurve(progress);
         }
       }
     }
   }
+}
+
+void CrossDissolveTransition::SampleJobEvent(const ValueParams &p, SampleJob *job) const
+{
+  job->set_function(ProcessSamples, this);
 }
 
 }

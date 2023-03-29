@@ -40,8 +40,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   Operation GetOperation() const
   {
     return static_cast<Operation>(GetStandardValue(kMethodIn).toInt());
@@ -53,8 +51,6 @@ public:
   }
 
   virtual NodeValue Value(const ValueParams &p) const override;
-
-  virtual void ProcessSamples(const SampleJob &job, SampleBuffer &output) const override;
 
   static const QString kMethodIn;
   static const QString kParamAIn;

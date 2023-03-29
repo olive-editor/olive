@@ -29,12 +29,33 @@ namespace olive {
 class GenerateJob : public AcceleratedJob
 {
 public:
-  GenerateJob() = default;
+  typedef void (*GenerateFrameFunction_t)(FramePtr frame, const GenerateJob &job);
+
+  GenerateJob()
+  {
+    function_ = nullptr;
+  }
+
   GenerateJob(const NodeValueRow &row) :
     GenerateJob()
   {
     Insert(row);
   }
+
+  void do_function(FramePtr frame) const
+  {
+    if (function_) {
+      function_(frame, *this);
+    }
+  }
+
+  void set_function(GenerateFrameFunction_t function)
+  {
+    function_ = function;
+  }
+
+private:
+  GenerateFrameFunction_t function_;
 
 };
 

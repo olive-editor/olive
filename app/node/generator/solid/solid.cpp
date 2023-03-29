@@ -59,16 +59,14 @@ void SolidGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-NodeValue SolidGenerator::Value(const ValueParams &p) const
+ShaderCode SolidGenerator::GetShaderCode(const QString &id)
 {
-  return NodeValue(NodeValue::kTexture, Texture::Job(p.vparams(), CreateJob<ShaderJob>(p)), this);
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
 }
 
-ShaderCode SolidGenerator::GetShaderCode(const ShaderRequest &request) const
+NodeValue SolidGenerator::Value(const ValueParams &p) const
 {
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
+  return Texture::Job(p.vparams(), CreateShaderJob(p, GetShaderCode));
 }
 
 }

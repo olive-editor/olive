@@ -66,8 +66,6 @@ public:
 
   virtual NodeValue Value(const ValueParams &p) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   enum AutoScaleType {
     kAutoScaleNone,
     kAutoScaleFit,
@@ -96,6 +94,8 @@ protected slots:
 
 private:
   static QPointF CreateScalePoint(double x, double y, const QPointF& half_res, const QMatrix4x4& mat);
+
+  static ShaderCode GetShaderCode(const QString &id);
 
   QMatrix4x4 GenerateAutoScaledMatrix(const QMatrix4x4 &generated_matrix, const ValueParams &globals, const VideoParams &texture_params) const;
 

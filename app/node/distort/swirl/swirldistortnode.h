@@ -41,7 +41,6 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual NodeValue Value(const ValueParams &p) const override;
 
   virtual void UpdateGizmoPositions(const ValueParams &p) override;
@@ -55,6 +54,8 @@ protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   PointGizmo *gizmo_;
 
 };

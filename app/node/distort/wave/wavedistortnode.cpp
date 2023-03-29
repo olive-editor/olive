@@ -76,9 +76,8 @@ void WaveDistortNode::Retranslate()
   SetComboBoxStrings(kVerticalInput, {tr("Horizontal"), tr("Vertical")});
 }
 
-ShaderCode WaveDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode WaveDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/wave.frag"));
 }
 
@@ -90,7 +89,7 @@ NodeValue WaveDistortNode::Value(const ValueParams &p) const
   if (TexturePtr texture = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
     if (!qIsNull(GetInputValue(p, kIntensityInput).toDouble())) {
-      return NodeValue(NodeValue::kTexture, Texture::Job(texture->params(), CreateJob<ShaderJob>(p)), this);
+      return Texture::Job(texture->params(), CreateShaderJob(p, GetShaderCode));
     }
   }
 

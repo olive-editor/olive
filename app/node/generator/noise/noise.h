@@ -39,12 +39,14 @@ class NoiseGeneratorNode : public Node {
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
   virtual NodeValue Value(const ValueParams &p) const override;
 
   static const QString kBaseIn;
   static const QString kColorInput;
   static const QString kStrengthInput;
+
+private:
+  static ShaderCode GetShaderCode(const QString &id);
 
 };
 

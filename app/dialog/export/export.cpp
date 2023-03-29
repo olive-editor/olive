@@ -31,6 +31,7 @@
 #include <QStandardPaths>
 
 #include "common/digit.h"
+#include "common/filefunctions.h"
 #include "common/qtutils.h"
 #include "dialog/task/task.h"
 #include "exportsavepresetdialog.h"

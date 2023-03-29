@@ -50,11 +50,7 @@ QString TimeInput::Description() const
 
 NodeValue TimeInput::Value(const ValueParams &p) const
 {
-  return NodeValue(NodeValue::kFloat,
-                   p.time().in().toDouble(),
-                   this,
-                   false,
-                   QStringLiteral("time"));
+  return p.time().in().toDouble();
 }
 
 }

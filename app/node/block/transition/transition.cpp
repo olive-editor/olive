@@ -145,36 +145,21 @@ double TransitionBlock::GetInternalTransitionTime(const double &time) const
 void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &time) const
 {
   // Provides total transition progress from 0.0 (start) - 1.0 (end)
-  job->Insert(QStringLiteral("ove_tprog_all"),
-                   NodeValue(NodeValue::kFloat, GetTotalProgress(time), this));
+  job->Insert(QStringLiteral("ove_tprog_all"), GetTotalProgress(time));
 
   // Provides progress of out section from 1.0 (start) - 0.0 (end)
-  job->Insert(QStringLiteral("ove_tprog_out"),
-                   NodeValue(NodeValue::kFloat, GetOutProgress(time), this));
+  job->Insert(QStringLiteral("ove_tprog_out"), GetOutProgress(time));
 
   // Provides progress of in section from 0.0 (start) - 1.0 (end)
-  job->Insert(QStringLiteral("ove_tprog_in"),
-                   NodeValue(NodeValue::kFloat, GetInProgress(time), this));
+  job->Insert(QStringLiteral("ove_tprog_in"), GetInProgress(time));
 }
 
 NodeValue TransitionBlock::Value(const ValueParams &p) const
 {
-  NodeValue out_buffer, in_buffer;
-
-  if (Block* block = dynamic_cast<Block*>(GetConnectedOutput(kOutBlockInput))) {
-    // Retransform time as if it came from the track
-    out_buffer = GetInputValue(p, kOutBlockInput);
-  }
-
-  if (Block* block = dynamic_cast<Block*>(GetConnectedOutput(kInBlockInput))) {
-    // Retransform time as if it came from the track
-    in_buffer = GetInputValue(p, kInBlockInput);
-  }
+  NodeValue out_buffer = GetInputValue(p, kOutBlockInput);
+  NodeValue in_buffer = GetInputValue(p, kInBlockInput);
 
   NodeValue::Type data_type = (out_buffer.type() != NodeValue::kNone) ? out_buffer.type() : in_buffer.type();
-
-  NodeValue::Type job_type = NodeValue::kNone;
-  QVariant push_job;
 
   if (data_type == NodeValue::kTexture) {
     // This must be a visual transition
@@ -199,36 +184,19 @@ NodeValue TransitionBlock::Value(const ValueParams &p) const
 
     ShaderJobEvent(p, &job);
 
-    job_type = NodeValue::kTexture;
-    push_job = QVariant::fromValue(Texture::Job(p.vparams(), job));
+    return Texture::Job(p.vparams(), job);
   } else if (data_type == NodeValue::kSamples) {
     // This must be an audio transition
-    SampleBuffer from_samples = out_buffer.toSamples();
-    SampleBuffer to_samples = in_buffer.toSamples();
+    SampleJob job(p);
 
-    if (from_samples.is_allocated() || to_samples.is_allocated()) {
-      double time_in = p.time().in().toDouble();
-      double time_out = p.time().out().toDouble();
+    job.Insert(kOutBlockInput, out_buffer);
+    job.Insert(kInBlockInput, in_buffer);
 
-      const AudioParams& params = (from_samples.is_allocated()) ? from_samples.audio_params() : to_samples.audio_params();
+    SampleJobEvent(p, &job);
 
-      SampleBuffer out_samples;
-
-      if (params.is_valid()) {
-        int nb_samples = params.time_to_samples(time_out - time_in);
-
-        out_samples = SampleBuffer(params, nb_samples);
-        SampleJobEvent(from_samples, to_samples, out_samples, time_in);
-      }
-
-      job_type = NodeValue::kSamples;
-      push_job = QVariant::fromValue(out_samples);
-    }
+    return job;
   }
 
-  if (!push_job.isNull()) {
-    return NodeValue(job_type, push_job, this);
-  }
   return NodeValue();
 }
 

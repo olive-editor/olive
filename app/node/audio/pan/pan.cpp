@@ -62,33 +62,17 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
-NodeValue PanNode::Value(const ValueParams &p) const
+void PanNode::ProcessSamples(const void *context, const SampleJob &job, SampleBuffer &output)
 {
-  // Create a sample job
-  NodeValue samples_original = GetInputValue(p, kSamplesInput);
-
-  if (!IsInputStatic(kPanningInput) || !qIsNull(GetInputValue(p, kPanningInput).toDouble())) {
-    // Requires sample job
-    SampleJob job(p);
-
-    job.Insert(kSamplesInput, GetInputValue(p, kSamplesInput));
-
-    return NodeValue(NodeValue::kSamples, SampleJob(job), this);
-  }
-
-  return samples_original;
-}
-
-void PanNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
-{
+  const PanNode *n = static_cast<const PanNode *>(context);
   const ValueParams &p = job.value_params();
 
-  SampleBuffer input = job.Get(kSamplesInput).toSamples();
+  SampleBuffer input = job.Get(PanNode::kSamplesInput).toSamples();
 
   // This node is only compatible with stereo audio
   if (job.audio_params().channel_count() == 2) {
-    if (IsInputStatic(kPanningInput)) {
-      float pan_volume = GetInputValue(p, kPanningInput).toDouble();
+    if (n->IsInputStatic(kPanningInput)) {
+      float pan_volume = n->GetInputValue(p, kPanningInput).toDouble();
       if (!qIsNull(pan_volume)) {
         if (pan_volume > 0) {
           SampleBuffer::transform_volume_for_channel(0, 1.0f - pan_volume, &input, &output);
@@ -102,7 +86,7 @@ void PanNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
       for (size_t index = 0; index < output.sample_count(); index++) {
         rational this_sample_time = p.time().in() + rational(index, job.audio_params().sample_rate());
         TimeRange this_sample_range(this_sample_time, this_sample_time + job.audio_params().sample_rate_as_time_base());
-        auto pan_val = GetInputValue(p.time_transformed(this_sample_range), kPanningInput).toDouble();
+        auto pan_val = n->GetInputValue(p.time_transformed(this_sample_range), kPanningInput).toDouble();
 
         if (pan_val > 0) {
           output.data(0)[index] = input.data(0)[index] * (1.0F - pan_val);
@@ -114,6 +98,24 @@ void PanNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
       }
     }
   }
+}
+
+NodeValue PanNode::Value(const ValueParams &p) const
+{
+  // Create a sample job
+  NodeValue samples_original = GetInputValue(p, kSamplesInput);
+
+  if (!IsInputStatic(kPanningInput) || !qIsNull(GetInputValue(p, kPanningInput).toDouble())) {
+    // Requires sample job
+    SampleJob job(p);
+
+    job.Insert(kSamplesInput, GetInputValue(p, kSamplesInput));
+    job.set_function(ProcessSamples, this);
+
+    return job;
+  }
+
+  return samples_original;
 }
 
 void PanNode::Retranslate()

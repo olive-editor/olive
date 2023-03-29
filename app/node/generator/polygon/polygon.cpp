@@ -87,27 +87,7 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderJob PolygonGenerator::GetGenerateJob(const ValueParams &p, const VideoParams &params) const
-{
-  VideoParams vp = params;
-  vp.set_format(PixelFormat::U8);
-  auto job = Texture::Job(vp, CreateJob<GenerateJob>(p));
-
-  // Conversion to RGB
-  ShaderJob rgb;
-  rgb.SetShaderID(QStringLiteral("rgb"));
-  rgb.Insert(QStringLiteral("texture_in"), NodeValue(NodeValue::kTexture, job, this));
-  rgb.Insert(QStringLiteral("color_in"), GetInputValue(p, kColorInput));
-
-  return rgb;
-}
-
-NodeValue PolygonGenerator::Value(const ValueParams &p) const
-{
-  return GetMergableJob(p, Texture::Job(p.vparams(), GetGenerateJob(p, p.vparams())));
-}
-
-void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const
+void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job)
 {
   // This could probably be more optimized, but for now we use Qt to draw to a QImage.
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto
@@ -118,7 +98,7 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
 
   auto points = job.Get(kPointsInput).toArray();
 
-  QPainterPath path = GeneratePath(points, InputArraySize(kPointsInput));
+  QPainterPath path = GeneratePath(points, points.size());
 
   QPainter p(&img);
   double par = frame->video_params().pixel_aspect_ratio().toDouble();
@@ -128,6 +108,31 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   p.setPen(Qt::NoPen);
 
   p.drawPath(path);
+}
+
+ShaderCode PolygonGenerator::GetShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgb.frag"));
+}
+
+ShaderJob PolygonGenerator::GetGenerateJob(const ValueParams &p, const VideoParams &params) const
+{
+  VideoParams vp = params;
+  vp.set_format(PixelFormat::U8);
+  auto job = Texture::Job(vp, CreateGenerateJob(p, GenerateFrame));
+
+  // Conversion to RGB
+  ShaderJob rgb;
+  rgb.set_function(GetShaderCode);
+  rgb.Insert(QStringLiteral("texture_in"), job);
+  rgb.Insert(QStringLiteral("color_in"), GetInputValue(p, kColorInput));
+
+  return rgb;
+}
+
+NodeValue PolygonGenerator::Value(const ValueParams &p) const
+{
+  return GetMergableJob(p, Texture::Job(p.vparams(), GetGenerateJob(p, p.vparams())));
 }
 
 template<typename T>
@@ -219,15 +224,6 @@ void PolygonGenerator::UpdateGizmoPositions(const ValueParams &p)
   }
 
   poly_gizmo_->SetPath(GeneratePath(points, pts_sz).translated(QPointF(half_res.x, half_res.y)));
-}
-
-ShaderCode PolygonGenerator::GetShaderCode(const ShaderRequest &request) const
-{
-  if (request.id == QStringLiteral("rgb")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgb.frag"));
-  } else {
-    return super::GetShaderCode(request);
-  }
 }
 
 void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

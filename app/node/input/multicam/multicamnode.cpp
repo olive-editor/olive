@@ -44,21 +44,12 @@ QString MultiCamNode::Description() const
   return tr("Allows easy switching between multiple sources.");
 }
 
-ShaderCode MultiCamNode::GetShaderCode(const ShaderRequest &request) const
-{
-  auto l = request.id.split(':');
-  int rows = l.at(0).toInt();
-  int cols = l.at(1).toInt();
-
-  return ShaderCode(GenerateShaderCode(rows, cols));
-}
-
 QString dblToGlsl(double d)
 {
   return QString::number(d, 'f');
 }
 
-QString MultiCamNode::GenerateShaderCode(int rows, int cols)
+QString GenerateShaderCode(int rows, int cols)
 {
   int multiplier = std::max(cols, rows);
 
@@ -118,6 +109,15 @@ QString MultiCamNode::GenerateShaderCode(int rows, int cols)
   return shader.join('\n');
 }
 
+ShaderCode MultiCamNode::GetShaderCode(const QString &id)
+{
+  auto l = id.split(':');
+  int rows = l.at(0).toInt();
+  int cols = l.at(1).toInt();
+
+  return ShaderCode(GenerateShaderCode(rows, cols));
+}
+
 NodeValue MultiCamNode::Value(const ValueParams &p) const
 {
   if (p.output() == QStringLiteral("all")) {
@@ -128,6 +128,7 @@ NodeValue MultiCamNode::Value(const ValueParams &p) const
 
     ShaderJob job;
     job.SetShaderID(QStringLiteral("%1:%2").arg(QString::number(rows), QString::number(cols)));
+    job.set_function(GetShaderCode);
 
     for (int i=0; i<sources; i++) {
       int c, r;
@@ -139,7 +140,7 @@ NodeValue MultiCamNode::Value(const ValueParams &p) const
       }
     }
 
-    return NodeValue(NodeValue::kTexture, Texture::Job(p.vparams(), job), this);
+    return NodeValue(Texture::Job(p.vparams(), job));
   } else {
     // Default behavior: output currently selected source
     int current = GetInputValue(p, kCurrentInput).toInt();

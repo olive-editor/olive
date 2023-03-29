@@ -75,29 +75,28 @@ void CropDistortNode::Retranslate()
   SetInputName(kFeatherInput, tr("Feather"));
 }
 
+ShaderCode CropDistortNode::GetShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
+}
+
 NodeValue CropDistortNode::Value(const ValueParams &p) const
 {
   NodeValue tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr texture = tex_meta.toTexture()) {
-    ShaderJob job = CreateJob<ShaderJob>(p);
-    job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture->params().width(), texture->params().height()), this));
+    ShaderJob job = CreateShaderJob(p, GetShaderCode);
+    job.Insert(QStringLiteral("resolution_in"), QVector2D(texture->params().width(), texture->params().height()));
 
     if (!qIsNull(job.Get(kLeftInput).toDouble())
         || !qIsNull(job.Get(kRightInput).toDouble())
         || !qIsNull(job.Get(kTopInput).toDouble())
         || !qIsNull(job.Get(kBottomInput).toDouble())) {
-      return NodeValue(NodeValue::kTexture, texture->toJob(job), this);
+      return texture->toJob(job);
     }
   }
 
   return tex_meta;
-}
-
-ShaderCode CropDistortNode::GetShaderCode(const ShaderRequest &request) const
-{
-  Q_UNUSED(request)
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
 }
 
 void CropDistortNode::UpdateGizmoPositions(const ValueParams &p)

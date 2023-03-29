@@ -63,7 +63,7 @@ NodeValue OCIOBaseNode::Value(const ValueParams &p) const
     job.SetColorProcessor(processor_);
     job.SetInputTexture(tex_met);
 
-    return NodeValue(NodeValue::kTexture, t->toJob(job), this);
+    return t->toJob(job);
   }
 
   return tex_met;

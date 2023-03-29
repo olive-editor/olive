@@ -85,9 +85,8 @@ void ColorDifferenceKeyNode::Retranslate()
   SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
 }
 
-ShaderCode ColorDifferenceKeyNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode ColorDifferenceKeyNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/colordifferencekey.frag"));
 }
 
@@ -97,8 +96,8 @@ NodeValue ColorDifferenceKeyNode::Value(const ValueParams &p) const
   NodeValue tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
-    ShaderJob job = CreateJob<ShaderJob>(p);
-    return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+    ShaderJob job = CreateShaderJob(p, GetShaderCode);
+    return tex->toJob(job);
   }
 
   return tex_meta;

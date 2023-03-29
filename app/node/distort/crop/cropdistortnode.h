@@ -62,8 +62,6 @@ public:
 
   virtual NodeValue Value(const ValueParams &p) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   static const QString kTextureInput;
@@ -77,6 +75,8 @@ protected slots:
   virtual void GizmoDragMove(double delta_x, double delta_y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   void CreateCropSideInput(const QString& id);
 
   // Gizmo variables

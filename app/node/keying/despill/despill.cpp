@@ -75,8 +75,8 @@ void DespillNode::Retranslate()
   SetInputName(kPreserveLuminanceInput, tr("Preserve Luminance"));
 }
 
-ShaderCode DespillNode::GetShaderCode(const ShaderRequest &request) const {
-  Q_UNUSED(request)
+ShaderCode DespillNode::GetShaderCode(const QString &id)
+{
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/despill.frag"));
 }
 
@@ -85,7 +85,7 @@ NodeValue DespillNode::Value(const ValueParams &p) const
   NodeValue tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
-    ShaderJob job = CreateJob<ShaderJob>(p);
+    ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
     // Set luma coefficients
     double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
@@ -93,7 +93,7 @@ NodeValue DespillNode::Value(const ValueParams &p) const
     job.Insert(QStringLiteral("luma_coeffs"),
                     NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
 
-    return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+    return tex->toJob(job);
   }
 
   return tex_meta;

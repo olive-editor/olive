@@ -81,9 +81,8 @@ void SwirlDistortNode::Retranslate()
   SetInputName(kPositionInput, tr("Position"));
 }
 
-ShaderCode SwirlDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode SwirlDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/swirl.frag"));
 }
 
@@ -95,9 +94,9 @@ NodeValue SwirlDistortNode::Value(const ValueParams &p) const
   if (TexturePtr tex = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
     if (!qIsNull(GetInputValue(p, kAngleInput).toDouble()) && !qIsNull(GetInputValue(p, kRadiusInput).toDouble())) {
-      ShaderJob job = CreateJob<ShaderJob>(p);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
+      return tex->toJob(job);
     }
   }
 

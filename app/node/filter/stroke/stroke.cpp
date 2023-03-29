@@ -83,6 +83,11 @@ void StrokeFilterNode::Retranslate()
   SetInputName(kInnerInput, tr("Inner"));
 }
 
+ShaderCode StrokeFilterNode::GetShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"));
+}
+
 NodeValue StrokeFilterNode::Value(const ValueParams &p) const
 {
   NodeValue tex_meta = GetInputValue(p, kTextureInput);
@@ -90,20 +95,13 @@ NodeValue StrokeFilterNode::Value(const ValueParams &p) const
   if (TexturePtr tex = tex_meta.toTexture()) {
     if (GetInputValue(p, kRadiusInput).toDouble() > 0.0
         && GetInputValue(p, kOpacityInput).toDouble() > 0.0) {
-      ShaderJob job = CreateJob<ShaderJob>(p);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
+      return tex->toJob(job);
     }
   }
 
   return tex_meta;
-}
-
-ShaderCode StrokeFilterNode::GetShaderCode(const ShaderRequest &request) const
-{
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"));
 }
 
 }

@@ -2,6 +2,7 @@
 
 #include <QDir>
 
+#include "common/filefunctions.h"
 #include "task/taskmanager.h"
 
 namespace olive {

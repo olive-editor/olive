@@ -27,6 +27,7 @@
 #include <QVector4D>
 
 #include "common/tohex.h"
+#include "render/job/samplejob.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 
@@ -257,6 +258,11 @@ void NodeValue::ValidateVectorString(QStringList* list, int count)
   while (list->size() < count) {
     list->append(QStringLiteral("0"));
   }
+}
+
+NodeValue::NodeValue(const SampleJob &samples) :
+  NodeValue(kSamples, samples)
+{
 }
 
 QString NodeValue::GetPrettyDataTypeName(Type type)

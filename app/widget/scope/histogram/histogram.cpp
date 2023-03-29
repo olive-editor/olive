@@ -70,7 +70,7 @@ void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 
   ShaderJob shader_job;
 
-  shader_job.Insert(QStringLiteral("viewport"), NodeValue(NodeValue::kVec2, QVector2D(width(), height())));
+  shader_job.Insert(QStringLiteral("viewport"), QVector2D(width(), height()));
   shader_job.Insert(QStringLiteral("histogram_scale"), NodeValue(NodeValue::kFloat, histogram_scale));
   shader_job.Insert(QStringLiteral("histogram_power"), NodeValue(NodeValue::kFloat, histogram_power));
 
@@ -83,11 +83,11 @@ void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   }
 
   // Draw managed texture to a sums texture
-  shader_job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
+  shader_job.Insert(QStringLiteral("ove_maintex"), managed_tex);
   renderer()->BlitToTexture(pipeline, shader_job, texture_row_sums_.get());
 
   // Draw sums into a histogram
-  shader_job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_row_sums_)));
+  shader_job.Insert(QStringLiteral("ove_maintex"), texture_row_sums_);
   renderer()->Blit(pipeline_secondary_, shader_job, texture_row_sums_->params());
 
   // Draw line overlays

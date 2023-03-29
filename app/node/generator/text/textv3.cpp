@@ -96,42 +96,7 @@ void TextGeneratorV3::Retranslate()
   SetInputName(kArgsInput, tr("Arguments"));
 }
 
-NodeValue TextGeneratorV3::Value(const ValueParams &p) const
-{
-  QString text = GetInputValue(p, kTextInput).toString();
-
-  if (GetInputValue(p, kUseArgsInput).toBool()) {
-    auto args = GetInputValue(p, kArgsInput).toArray();
-    if (!args.empty()) {
-      QStringList list;
-      list.reserve(args.size());
-      for (size_t i=0; i<args.size(); i++) {
-        list.append(args[i].toString());
-      }
-
-      text = FormatString(text, list);
-    }
-  }
-
-  NodeValue base_val = GetInputValue(p, kTextInput);
-
-  if (!text.isEmpty()) {
-    TexturePtr base = base_val.toTexture();
-
-    VideoParams text_params = base ? base->params() : p.vparams();
-    text_params.set_format(PixelFormat::U8);
-    text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
-
-    GenerateJob job = CreateJob<GenerateJob>(p);
-    job.Insert(kTextInput, NodeValue(NodeValue::kText, text));
-
-    return GetMergableJob(p, Texture::Job(text_params, job));
-  }
-
-  return base_val;
-}
-
-void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) const
+void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job)
 {
   QImage img(reinterpret_cast<uchar*>(frame->data()), frame->width(), frame->height(), frame->linesize_bytes(), QImage::Format_RGBA8888_Premultiplied);
   img.fill(Qt::transparent);
@@ -159,14 +124,14 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
   p.setClipRect(0, 0, size.x(), size.y());
 
-  switch (static_cast<VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
-  case kVAlignTop:
+  switch (static_cast<TextGeneratorV3::VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
+  case TextGeneratorV3::kVAlignTop:
     // Do nothing
     break;
-  case kVAlignMiddle:
+  case TextGeneratorV3::kVAlignMiddle:
     p.translate(0, size.y()/2-text_doc.size().height()/2);
     break;
-  case kVAlignBottom:
+  case TextGeneratorV3::kVAlignBottom:
     p.translate(0, size.y()-text_doc.size().height());
     break;
   }
@@ -176,6 +141,41 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   ctx.palette.setColor(QPalette::Text, Qt::white);
 
   text_doc.documentLayout()->draw(&p, ctx);
+}
+
+NodeValue TextGeneratorV3::Value(const ValueParams &p) const
+{
+  QString text = GetInputValue(p, kTextInput).toString();
+
+  if (GetInputValue(p, kUseArgsInput).toBool()) {
+    auto args = GetInputValue(p, kArgsInput).toArray();
+    if (!args.empty()) {
+      QStringList list;
+      list.reserve(args.size());
+      for (size_t i=0; i<args.size(); i++) {
+        list.append(args[i].toString());
+      }
+
+      text = FormatString(text, list);
+    }
+  }
+
+  NodeValue base_val = GetInputValue(p, kTextInput);
+
+  if (!text.isEmpty()) {
+    TexturePtr base = base_val.toTexture();
+
+    VideoParams text_params = base ? base->params() : p.vparams();
+    text_params.set_format(PixelFormat::U8);
+    text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
+
+    GenerateJob job = CreateGenerateJob(p, GenerateFrame);
+    job.Insert(kTextInput, NodeValue(NodeValue::kText, text));
+
+    return GetMergableJob(p, Texture::Job(text_params, job));
+  }
+
+  return base_val;
 }
 
 void TextGeneratorV3::UpdateGizmoPositions(const ValueParams &p)

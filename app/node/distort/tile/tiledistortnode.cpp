@@ -102,9 +102,8 @@ void TileDistortNode::Retranslate()
   });
 }
 
-ShaderCode TileDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode TileDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/tile.frag"));
 }
 
@@ -116,9 +115,9 @@ NodeValue TileDistortNode::Value(const ValueParams &p) const
   if (TexturePtr tex = texture.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
     if (!qFuzzyCompare(GetInputValue(p, kScaleInput).toDouble(), 1.0)) {
-      ShaderJob job = CreateJob<ShaderJob>(p);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
+      return tex->toJob(job);
     }
   }
 

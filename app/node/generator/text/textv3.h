@@ -43,8 +43,6 @@ public:
 
   virtual NodeValue Value(const ValueParams &p) const override;
 
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
-
   virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   enum VerticalAlignment
@@ -73,6 +71,8 @@ protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
+  static void GenerateFrame(FramePtr frame, const GenerateJob& job);
+
   TextGizmo *text_gizmo_;
 
   bool dont_emit_valign_;

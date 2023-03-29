@@ -38,10 +38,10 @@
 #include "render/audioplaybackcache.h"
 #include "render/audiowaveformcache.h"
 #include "render/framehashcache.h"
+#include "render/job/colortransformjob.h"
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
 #include "render/job/shaderjob.h"
-#include "render/shadercode.h"
 #include "splitvalue.h"
 
 namespace olive {
@@ -663,42 +663,6 @@ public:
    */
   QVector<Node *> GetImmediateDependencies() const;
 
-  struct ShaderRequest
-  {
-    ShaderRequest(const QString &shader_id)
-    {
-      id = shader_id;
-    }
-
-    ShaderRequest(const QString &shader_id, const QString &shader_stub)
-    {
-      id = shader_id;
-      stub = shader_stub;
-    }
-
-    QString id;
-    QString stub;
-  };
-
-  /**
-   * @brief Generate hardware accelerated code for this Node
-   */
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const;
-
-  /**
-   * @brief If Value() pushes a ShaderJob, this is the function that will process them.
-   */
-  virtual void ProcessSamples(const SampleJob &job, SampleBuffer &output) const;
-
-  /**
-   * @brief If Value() pushes a GenerateJob, override this function for the image to create
-   *
-   * @param frame
-   *
-   * The destination buffer. It will already be allocated and ready for writing to.
-   */
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const;
-
   /**
    * @brief Returns whether this node ever receives an input from a particular node instance
    */
@@ -818,7 +782,7 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual NodeValue Value(const ValueParams &p) const;
+  virtual NodeValue Value(const ValueParams &p) const {return NodeValue();}
 
   bool HasGizmos() const
   {
@@ -992,14 +956,23 @@ protected:
     return AddDraggableGizmo<T>(refs, behavior);
   }
 
-  template<typename T>
-  T CreateJob(const ValueParams &p) const
+  ShaderJob CreateShaderJob(const ValueParams &p, ShaderJob::GetShaderCodeFunction_t f) const
   {
-    T job;
-    for (const QString &input : inputs()) {
-      job.Insert(input, GetInputValue(p, input));
-    }
-    return job;
+    ShaderJob j = CreateJob<ShaderJob>(p);
+    j.set_function(f);
+    return j;
+  }
+
+  GenerateJob CreateGenerateJob(const ValueParams &p, GenerateJob::GenerateFrameFunction_t f) const
+  {
+    GenerateJob j = CreateJob<GenerateJob>(p);
+    j.set_function(f);
+    return j;
+  }
+
+  ColorTransformJob CreateColorTransformJob(const ValueParams &p) const
+  {
+    return CreateJob<ColorTransformJob>(p);
   }
 
 protected slots:
@@ -1121,6 +1094,16 @@ private:
 
   template<class T>
   static void FindInputNodeInternal(const Node* n, QVector<T *>& list, int maximum);
+
+  template<typename T>
+  T CreateJob(const ValueParams &p) const
+  {
+    T job;
+    for (const QString &input : inputs()) {
+      job.Insert(input, GetInputValue(p, input));
+    }
+    return job;
+  }
 
   QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 

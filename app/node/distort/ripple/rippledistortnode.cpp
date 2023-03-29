@@ -86,9 +86,8 @@ void RippleDistortNode::Retranslate()
   SetInputName(kStretchInput, tr("Stretch"));
 }
 
-ShaderCode RippleDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode RippleDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/ripple.frag"));
 }
 
@@ -104,15 +103,16 @@ NodeValue RippleDistortNode::Value(const ValueParams &p) const
     if (!qIsNull(intensity.toDouble())) {
       ShaderJob job;
 
+      job.set_function(GetShaderCode);
       job.Insert(kTextureInput, texture);
       job.Insert(kEvolutionInput, GetInputValue(p, kEvolutionInput));
       job.Insert(kIntensityInput, intensity);
       job.Insert(kFrequencyInput, GetInputValue(p, kFrequencyInput));
       job.Insert(kPositionInput, GetInputValue(p, kPositionInput));
       job.Insert(kStretchInput, GetInputValue(p, kStretchInput));
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
 
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      return tex->toJob(job);
     } else {
       // If we're not flipping or flopping just push the texture
       return texture;

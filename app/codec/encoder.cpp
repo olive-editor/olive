@@ -22,6 +22,7 @@
 
 #include <QFile>
 
+#include "common/filefunctions.h"
 #include "common/xmlutils.h"
 #include "ffmpeg/ffmpegencoder.h"
 #include "oiio/oiioencoder.h"

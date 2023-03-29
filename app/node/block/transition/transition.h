@@ -63,6 +63,8 @@ public:
   double GetOutProgress(const double &time) const;
   double GetInProgress(const double &time) const;
 
+  double TransformCurve(double linear) const;
+
   virtual NodeValue Value(const ValueParams &globals) const override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
@@ -75,9 +77,7 @@ public:
 protected:
   virtual void ShaderJobEvent(const ValueParams &p, ShaderJob *job) const {}
 
-  virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const {}
-
-  double TransformCurve(double linear) const;
+  virtual void SampleJobEvent(const ValueParams &p, SampleJob *job) const {}
 
   virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
 

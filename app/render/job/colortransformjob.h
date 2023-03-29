@@ -28,6 +28,7 @@
 #include "render/alphaassoc.h"
 #include "render/colorprocessor.h"
 #include "render/texture.h"
+#include "shaderjob.h"
 
 namespace olive {
 
@@ -39,7 +40,7 @@ public:
   ColorTransformJob()
   {
     processor_ = nullptr;
-    custom_shader_src_ = nullptr;
+    custom_shader_ = nullptr;
     input_alpha_association_ = kAlphaNone;
     clear_destination_ = true;
   }
@@ -75,13 +76,8 @@ public:
   const AlphaAssociated &GetInputAlphaAssociation() const { return input_alpha_association_; }
   void SetInputAlphaAssociation(const AlphaAssociated &e) { input_alpha_association_ = e; }
 
-  const Node *CustomShaderSource() const { return custom_shader_src_; }
-  const QString &CustomShaderID() const { return custom_shader_id_; }
-  void SetNeedsCustomShader(const Node *node, const QString &id = QString())
-  {
-    custom_shader_src_ = node;
-    custom_shader_id_ = id;
-  }
+  ShaderJob::GetShaderCodeFunction_t GetCustomShaderFunction() const { return custom_shader_; }
+  void SetCustomShaderFunction(ShaderJob::GetShaderCodeFunction_t shader) { custom_shader_ = shader; }
 
   bool IsClearDestinationEnabled() const { return clear_destination_; }
   void SetClearDestinationEnabled(bool e) { clear_destination_ = e; }
@@ -101,8 +97,7 @@ private:
 
   NodeValue input_texture_;
 
-  const Node *custom_shader_src_;
-  QString custom_shader_id_;
+  ShaderJob::GetShaderCodeFunction_t custom_shader_;
 
   AlphaAssociated input_alpha_association_;
 

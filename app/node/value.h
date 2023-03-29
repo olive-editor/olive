@@ -34,6 +34,7 @@ namespace olive {
 
 class Node;
 class NodeValue;
+class SampleJob;
 
 using NodeValueArray = std::vector<NodeValue>;
 
@@ -196,26 +197,90 @@ public:
     kDataTypeCount
   };
 
-  NodeValue() :
-    type_(kNone),
-    from_(nullptr),
-    array_(false)
-  {
-  }
-
   template <typename T>
-  NodeValue(Type type, const T& data, const Node* from = nullptr, bool array = false, const QString& tag = QString()) :
-    type_(type),
-    from_(from),
-    tag_(tag),
-    array_(array)
+  NodeValue(Type type, const T& data)
   {
+    type_ = type;
     set_value(data);
+    array_ = false;
   }
 
-  template <typename T>
-  NodeValue(Type type, const T& data, const Node* from, const QString& tag) :
-    NodeValue(type, data, from, false, tag)
+  NodeValue(Type type, const NodeValueArray &array)
+  {
+    type_ = type;
+    set_value(array);
+    array_ = true;
+  }
+
+  NodeValue() :
+    NodeValue(kNone, QVariant())
+  {
+  }
+
+  NodeValue(const QMatrix4x4& data) :
+    NodeValue(NodeValue::kMatrix, data)
+  {
+  }
+
+  NodeValue(TexturePtr texture) :
+    NodeValue(NodeValue::kTexture, texture)
+  {
+  }
+
+  NodeValue(const SampleJob &samples);
+
+  NodeValue(const SampleBuffer &samples) :
+    NodeValue(NodeValue::kSamples, samples)
+  {
+  }
+
+  NodeValue(const QVector2D &vec) :
+    NodeValue(NodeValue::kVec2, vec)
+  {
+  }
+
+  NodeValue(const QVector3D &vec) :
+    NodeValue(NodeValue::kVec3, vec)
+  {
+  }
+
+  NodeValue(const QVector4D &vec) :
+    NodeValue(NodeValue::kVec4, vec)
+  {
+  }
+
+  NodeValue(const double &d) :
+    NodeValue(NodeValue::kFloat, d)
+  {
+  }
+
+  NodeValue(const int64_t &i) :
+    NodeValue(NodeValue::kInt, i)
+  {
+  }
+
+  NodeValue(const int &i) :
+    NodeValue(NodeValue::kInt, i)
+  {
+  }
+
+  NodeValue(const bool &i) :
+    NodeValue(NodeValue::kBoolean, i)
+  {
+  }
+
+  NodeValue(const Color &i) :
+    NodeValue(NodeValue::kColor, i)
+  {
+  }
+
+  NodeValue(const QString &i) :
+    NodeValue(NodeValue::kText, i)
+  {
+  }
+
+  NodeValue(const rational &i) :
+    NodeValue(NodeValue::kRational, i)
   {
   }
 
@@ -244,21 +309,6 @@ public:
     return data_.canConvert<T>();
   }
 
-  const QString& tag() const
-  {
-    return tag_;
-  }
-
-  void set_tag(const QString& tag)
-  {
-    tag_ = tag;
-  }
-
-  const Node* source() const
-  {
-    return from_;
-  }
-
   bool array() const
   {
     return array_;
@@ -266,7 +316,7 @@ public:
 
   bool operator==(const NodeValue& rhs) const
   {
-    return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
+    return type_ == rhs.type_ && data_ == rhs.data_;
   }
 
   operator bool() const
@@ -354,8 +404,6 @@ public:
 private:
   Type type_;
   QVariant data_;
-  const Node* from_;
-  QString tag_;
   bool array_;
 
 };

@@ -28,7 +28,10 @@
 
 namespace olive {
 
-ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const QString& param_a_in, const QString& param_b_in) const
+static const QString param_a = QStringLiteral("param_a");
+static const QString param_b = QStringLiteral("param_b");
+
+ShaderCode MathNodeBase::GetShaderCode(const QString &shader_id)
 {
   QStringList code_id = shader_id.split('.');
 
@@ -42,8 +45,8 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
   if (pairing == kPairTextureMatrix && op == kOpMultiply) {
 
     // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
-    const QString& tex_in = (type_a == NodeValue::kTexture) ? param_a_in : param_b_in;
-    const QString& mat_in = (type_a == NodeValue::kTexture) ? param_b_in : param_a_in;
+    const QString& tex_in = (type_a == NodeValue::kTexture) ? param_a : param_b;
+    const QString& mat_in = (type_a == NodeValue::kTexture) ? param_b : param_a;
 
     // No-op frag shader (can we return QString() instead?)
     operation = QStringLiteral("texture(%1, ove_texcoord)").arg(tex_in);
@@ -88,8 +91,8 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
       break;
     }
 
-    operation = operation.arg(GetShaderVariableCall(param_a_in, type_a),
-                              GetShaderVariableCall(param_b_in, type_b));
+    operation = operation.arg(GetShaderVariableCall(param_a, type_a),
+                              GetShaderVariableCall(param_b, type_b));
   }
 
   frag = QStringLiteral("uniform %1 %3;\n"
@@ -104,8 +107,8 @@ ShaderCode MathNodeBase::GetShaderCodeInternal(const QString &shader_id, const Q
                         "    frag_color = c;\n"
                         "}\n").arg(GetShaderUniformType(type_a),
                                    GetShaderUniformType(type_b),
-                                   param_a_in,
-                                   param_b_in,
+                                   param_a,
+                                   param_b,
                                    operation);
 
   return ShaderCode(frag, vert);
@@ -152,11 +155,11 @@ NodeValue MathNodeBase::PushVector(olive::NodeValue::Type type, const QVector4D 
 {
   switch (type) {
   case NodeValue::kVec2:
-    return NodeValue(type, QVector2D(vec), this);
+    return QVector2D(vec);
   case NodeValue::kVec3:
-    return NodeValue(type, QVector3D(vec), this);
+    return QVector3D(vec);
   case NodeValue::kVec4:
-    return NodeValue(type, vec, this);
+    return vec;
   default:
     break;
   }
@@ -177,17 +180,17 @@ QString MathNodeBase::GetOperationName(Operation o)
   return QString();
 }
 
-void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end)
+void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, const float *input, float *output, float b, size_t start, size_t end)
 {
-  for (int j=start;j<end;j++) {
-    a[j] = PerformAll(operation, a[j], b);
+  for (size_t j=start;j<end;j++) {
+    output[j] = PerformAll(operation, input[j], b);
   }
 }
 
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end)
+void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, const float *input, float *output, float b, size_t start, size_t end)
 {
-  int end_divisible_4 = (end / 4) * 4;
+  size_t end_divisible_4 = (end / 4) * 4;
 
   // Load number to multiply by into buffer
   __m128 mult = _mm_load1_ps(&b);
@@ -195,23 +198,23 @@ void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, flo
   switch (operation) {
   case kOpAdd:
     // Loop all values
-    for(int j = 0; j < end_divisible_4; j+=4) {
-      _mm_storeu_ps(a + start + j, _mm_add_ps(_mm_loadu_ps(a + start + j), mult));
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_add_ps(_mm_loadu_ps(input + start + j), mult));
     }
     break;
   case kOpSubtract:
-    for(int j = 0; j < end_divisible_4; j+=4) {
-      _mm_storeu_ps(a + start + j, _mm_sub_ps(_mm_loadu_ps(a + start + j), mult));
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_sub_ps(_mm_loadu_ps(input + start + j), mult));
     }
     break;
   case kOpMultiply:
-    for(int j = 0; j < end_divisible_4; j+=4) {
-      _mm_storeu_ps(a + start + j, _mm_mul_ps(_mm_loadu_ps(a + start + j), mult));
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_mul_ps(_mm_loadu_ps(input + start + j), mult));
     }
     break;
   case kOpDivide:
-    for(int j = 0; j < end_divisible_4; j+=4) {
-      _mm_storeu_ps(a + start + j, _mm_div_ps(_mm_loadu_ps(a + start + j), mult));
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_div_ps(_mm_loadu_ps(input + start + j), mult));
     }
     break;
   case kOpPower:
@@ -222,9 +225,42 @@ void MathNodeBase::PerformAllOnFloatBufferSSE(Operation operation, float *a, flo
 
   // Handle last 1-3 bytes if necessary, or all bytes if we couldn't
   // support this op on SSE
-  PerformAllOnFloatBuffer(operation, a, b, end_divisible_4, end);
+  PerformAllOnFloatBuffer(operation, input, output, b, end_divisible_4, end);
 }
 #endif
+
+void MathNodeBase::ProcessSamplesNumber(const void *context, const SampleJob &job, SampleBuffer &output)
+{
+  const MathNodeBase *n = static_cast<const MathNodeBase *>(context);
+
+  const ValueParams &p = job.value_params();
+  const SampleBuffer input = job.Get(QStringLiteral("samples")).toSamples();
+  const QString number_in = job.Get(QStringLiteral("number")).toString();
+  const Operation operation = static_cast<Operation>(job.Get(QStringLiteral("operation")).toInt());
+
+  if (n->IsInputStatic(number_in)) {
+    auto f = n->GetStandardValue(number_in).toDouble();
+
+    for (int i=0;i<output.audio_params().channel_count();i++) {
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+      // Use SSE instructions for optimization
+      PerformAllOnFloatBufferSSE(operation, input.data(i), output.data(i), f, 0, output.sample_count());
+#else
+      PerformAllOnFloatBuffer(operation, input.data(i), output.data(i), f, 0, output.sample_count());
+#endif
+    }
+  } else {
+    for (size_t j = 0; j < input.sample_count(); j++) {
+      rational this_sample_time = p.time().in() + rational(j, input.audio_params().sample_rate());
+      TimeRange this_sample_range(this_sample_time, this_sample_time + input.audio_params().sample_rate_as_time_base());
+      auto v = n->GetInputValue(p.time_transformed(this_sample_range), number_in).toDouble();
+
+      for (int i=0;i<output.audio_params().channel_count();i++) {
+        output.data(i)[j] = PerformAll<float, float>(operation, input.data(i)[j], v);
+      }
+    }
+  }
+}
 
 NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue& val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const
 {
@@ -234,13 +270,9 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
   {
     if (val_a.type() == NodeValue::kRational && val_b.type() == NodeValue::kRational && operation != kOpPower) {
       // Preserve rationals
-      return NodeValue(NodeValue::kRational,
-                  QVariant::fromValue(PerformAddSubMultDiv<rational, rational>(operation, val_a.toRational(), val_b.toRational())),
-                  this);
+      return PerformAddSubMultDiv<rational, rational>(operation, val_a.toRational(), val_b.toRational());
     } else {
-      return NodeValue(NodeValue::kFloat,
-                  PerformAll<float, float>(operation, RetrieveNumber(val_a), RetrieveNumber(val_b)),
-                  this);
+      return PerformAll<float, float>(operation, RetrieveNumber(val_a), RetrieveNumber(val_b));
     }
   }
 
@@ -275,7 +307,7 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
   {
     QMatrix4x4 mat_a = val_a.toMatrix();
     QMatrix4x4 mat_b = val_b.toMatrix();
-    return NodeValue(NodeValue::kMatrix, PerformAddSubMult<QMatrix4x4, QMatrix4x4>(operation, mat_a, mat_b), this);
+    return PerformAddSubMult<QMatrix4x4, QMatrix4x4>(operation, mat_a, mat_b);
   }
 
   case kPairColorColor:
@@ -284,7 +316,7 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
     Color col_b = val_b.toColor();
 
     // Only add and subtract are valid operations
-    return NodeValue(NodeValue::kColor, QVariant::fromValue(PerformAddSub<Color, Color>(operation, col_a, col_b)), this);
+    return PerformAddSub<Color, Color>(operation, col_a, col_b);
   }
 
 
@@ -294,7 +326,7 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
     float num = (val_a.type() == NodeValue::kColor) ? val_b.toDouble() : val_a.toDouble();
 
     // Only multiply and divide are valid operations
-    return NodeValue(NodeValue::kColor, QVariant::fromValue(PerformMult<Color, float>(operation, col, num)), this);
+    return PerformMult<Color, float>(operation, col, num);
   }
 
   case kPairSampleSample:
@@ -303,9 +335,11 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
 
     job.Insert(QStringLiteral("a"), val_a);
     job.Insert(QStringLiteral("b"), val_b);
-    job.Insert(QStringLiteral("pairing"), NodeValue(NodeValue::kInt, int(pairing)));
+    job.Insert(QStringLiteral("operation"), int(operation));
 
-    return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this);
+    job.set_function(MathNodeBase::ProcessSamplesSamples, this);
+
+    return job;
   }
 
   case kPairTextureColor:
@@ -314,13 +348,14 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
   case kPairTextureMatrix:
   {
     ShaderJob job;
+    job.set_function(MathNodeBase::GetShaderCode);
     job.SetShaderID(QStringLiteral("%1.%2.%3.%4").arg(QString::number(operation),
                                                       QString::number(pairing),
                                                       QString::number(val_a.type()),
                                                       QString::number(val_b.type())));
 
-    job.Insert(param_a_in, val_a);
-    job.Insert(param_b_in, val_b);
+    job.Insert(param_a, val_a);
+    job.Insert(param_b, val_b);
 
     bool operation_is_noop = false;
 
@@ -348,8 +383,7 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
         operation_is_noop = true;
       } else {
         // Replace with adjusted matrix
-        job.Insert(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in,
-                        NodeValue(NodeValue::kMatrix, adjusted_matrix, this));
+        job.Insert(val_a.type() == NodeValue::kTexture ? param_b_in : param_a_in, adjusted_matrix);
       }
     }
 
@@ -358,7 +392,7 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
       return texture_val;
     } else {
       // Push shader job
-      return NodeValue(NodeValue::kTexture, Texture::Job(p.vparams(), job), this);
+      return Texture::Job(p.vparams(), job);
     }
     break;
   }
@@ -379,10 +413,12 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
       SampleJob job(p);
 
       job.Insert(QStringLiteral("samples"), sample_val);
-      job.Insert(QStringLiteral("pairing"), NodeValue(NodeValue::kInt, int(pairing)));
-      job.Insert(QStringLiteral("number"), NodeValue(NodeValue::kText, val_a.type() == NodeValue::kSamples ? param_b_in : param_a_in));
+      job.Insert(QStringLiteral("number"), val_a.type() == NodeValue::kSamples ? param_b_in : param_a_in);
+      job.Insert(QStringLiteral("operation"), int(operation));
 
-      return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this);
+      job.set_function(MathNodeBase::ProcessSamplesNumber, this);
+
+      return job;
     }
     break;
   }
@@ -395,8 +431,12 @@ NodeValue MathNodeBase::ValueInternal(Operation operation, Pairing pairing, cons
   return NodeValue();
 }
 
-void MathNodeBase::ProcessSamplesSamplesInternal(const ValueParams &p, Operation operation, const SampleBuffer &samples_a, const SampleBuffer &samples_b, SampleBuffer &mixed_samples) const
+void MathNodeBase::ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuffer &mixed_samples)
 {
+  const SampleBuffer samples_a = job.Get(QStringLiteral("a")).toSamples();
+  const SampleBuffer samples_b = job.Get(QStringLiteral("b")).toSamples();
+  const Operation operation = static_cast<Operation>(job.Get(QStringLiteral("operation")).toInt());
+
   size_t max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
   size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
@@ -416,33 +456,6 @@ void MathNodeBase::ProcessSamplesSamplesInternal(const ValueParams &p, Operation
       memcpy(&mixed_samples.data(i)[min_samples],
              &larger_buffer.data(i)[min_samples],
              remainder * sizeof(float));
-    }
-  }
-}
-
-void MathNodeBase::ProcessSamplesNumberInternal(const ValueParams &p, MathNodeBase::Operation operation, const QString &number_in, const olive::SampleBuffer &input, olive::SampleBuffer &output) const
-{
-  if (IsInputStatic(number_in)) {
-    auto f = GetStandardValue(number_in).toDouble();
-    output = input;
-
-    for (int i=0;i<output.audio_params().channel_count();i++) {
-#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-      // Use SSE instructions for optimization
-      PerformAllOnFloatBufferSSE(operation, output.data(i), f, 0, output.sample_count());
-#else
-      PerformAllOnFloatBuffer(operation, output.data(i), f, 0, output.sample_count());
-#endif
-    }
-  } else {
-    for (size_t j = 0; j < input.sample_count(); j++) {
-      rational this_sample_time = p.time().in() + rational(j, input.audio_params().sample_rate());
-      TimeRange this_sample_range(this_sample_time, this_sample_time + input.audio_params().sample_rate_as_time_base());
-      auto v = GetInputValue(p.time_transformed(this_sample_range), number_in).toDouble();
-
-      for (int i=0;i<output.audio_params().channel_count();i++) {
-        output.data(i)[j] = PerformAll<float, float>(operation, input.data(i)[j], v);
-      }
     }
   }
 }

@@ -42,14 +42,15 @@ public:
 
   virtual NodeValue Value(const ValueParams &p) const override;
 
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
-
   static const QString kTextInput;
   static const QString kHtmlInput;
   static const QString kColorInput;
   static const QString kVAlignInput;
   static const QString kFontInput;
   static const QString kFontSizeInput;
+
+private:
+  static void GenerateFrame(FramePtr frame, const GenerateJob& job);
 
 };
 

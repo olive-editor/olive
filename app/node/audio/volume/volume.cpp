@@ -63,34 +63,7 @@ QString VolumeNode::Description() const
 
 NodeValue VolumeNode::Value(const ValueParams &p) const
 {
-  // Create a sample job
-  NodeValue meta = GetInputValue(p, kSamplesInput);
-
-  if (!IsInputStatic(kVolumeInput) || !qFuzzyCompare(GetInputValue(p, kVolumeInput).toDouble(), 1.0)) {
-    SampleJob job(p);
-
-    job.Insert(kSamplesInput, GetInputValue(p, kSamplesInput));
-
-    return NodeValue(NodeValue::kSamples, job, this);
-  }
-
-  return meta;
-}
-
-void VolumeNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
-{
-  SampleBuffer buffer = job.Get(kSamplesInput).toSamples();
-  const ValueParams &p = job.value_params();
-
-  if (IsInputStatic(kVolumeInput)) {
-    auto volume = GetInputValue(p, kVolumeInput).toDouble();
-
-    if (!qFuzzyCompare(volume, 1.0)) {
-      SampleBuffer::transform_volume(volume, &buffer, &output);
-    }
-  } else {
-    return ProcessSamplesNumberInternal(p, kOpMultiply, kVolumeInput, buffer, output);
-  }
+  return ValueInternal(kOpMultiply, kPairSampleNumber, kSamplesInput, GetInputValue(p, kSamplesInput), kVolumeInput, GetInputValue(p, kVolumeInput), p);
 }
 
 void VolumeNode::Retranslate()

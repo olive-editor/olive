@@ -70,9 +70,8 @@ void DropShadowFilter::Retranslate()
   SetInputName(kFastInput, tr("Faster (Lower Quality)"));
 }
 
-ShaderCode DropShadowFilter::GetShaderCode(const ShaderRequest &request) const
+ShaderCode DropShadowFilter::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/dropshadow.frag"));
 }
 
@@ -81,18 +80,18 @@ NodeValue DropShadowFilter::Value(const ValueParams &p) const
   NodeValue tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
-    ShaderJob job = CreateJob<ShaderJob>(p);
+    ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
     QString iterative = QStringLiteral("previous_iteration_in");
 
-    job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+    job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
     job.Insert(iterative, tex_meta);
 
     if (!qIsNull(GetInputValue(p, kSoftnessInput).toDouble())) {
       job.SetIterations(3, iterative);
     }
 
-    return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+    return tex->toJob(job);
   }
 
   return NodeValue();

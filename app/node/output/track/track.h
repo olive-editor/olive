@@ -387,8 +387,6 @@ public:
 
   int GetArrayIndexFromBlock(Block* block) const;
 
-  virtual void ProcessSamples(const SampleJob &job, SampleBuffer &output) const override;
-
   Sequence *sequence() const
   {
     return sequence_;

@@ -40,6 +40,10 @@ public:
 
   static QString GetOperationName(Operation o);
 
+  static ShaderCode GetShaderCode(const QString &shader_id);
+  static void ProcessSamplesNumber(const void *context, const SampleJob &job, SampleBuffer &mixed_samples);
+  static void ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuffer &mixed_samples);
+
 protected:
   enum Pairing {
     kPairNone = -1,
@@ -102,10 +106,10 @@ protected:
   template<typename T, typename U>
   static T PerformAddSubMultDiv(Operation operation, T a, U b);
 
-  static void PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end);
+  static void PerformAllOnFloatBuffer(Operation operation, const float *input, float *output, float b, size_t start, size_t end);
 
 #if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
-  static void PerformAllOnFloatBufferSSE(Operation operation, float *a, float b, int start, int end);
+  static void PerformAllOnFloatBufferSSE(Operation operation, const float *input, float *output, float b, size_t start, size_t end);
 #endif
 
   static QString GetShaderUniformType(const NodeValue::Type& type);
@@ -118,14 +122,9 @@ protected:
 
   static bool NumberIsNoOp(const Operation& op, const float& number);
 
-  ShaderCode GetShaderCodeInternal(const QString &shader_id, const QString &param_a_in, const QString &param_b_in) const;
-
   NodeValue PushVector(NodeValue::Type type, const QVector4D& vec) const;
 
   NodeValue ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const;
-
-  void ProcessSamplesSamplesInternal(const ValueParams &p, Operation operation, const SampleBuffer& a, const SampleBuffer &b, SampleBuffer &output) const;
-  void ProcessSamplesNumberInternal(const ValueParams &p, Operation operation, const QString& number_in, const SampleBuffer &input, SampleBuffer &output) const;
 
 };
 

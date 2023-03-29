@@ -66,23 +66,18 @@ void ShapeNode::Retranslate()
   SetComboBoxStrings(kTypeInput, {tr("Rectangle"), tr("Ellipse"), tr("Rounded Rectangle")});
 }
 
-ShaderCode ShapeNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode ShapeNode::GetShaderCode(const QString &id)
 {
-  if (request.id == QStringLiteral("shape")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
-  } else {
-    return super::GetShaderCode(request);
-  }
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
 }
 
 NodeValue ShapeNode::Value(const ValueParams &p) const
 {
   TexturePtr base = GetInputValue(p, kBaseInput).toTexture();
 
-  ShaderJob job = CreateJob<ShaderJob>(p);
+  ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, base ? base->virtual_resolution() : p.square_resolution(), this));
-  job.SetShaderID(QStringLiteral("shape"));
+  job.Insert(QStringLiteral("resolution_in"), base ? base->virtual_resolution() : p.square_resolution());
 
   return GetMergableJob(p, Texture::Job(base ? base->params() : p.vparams(), job));
 }

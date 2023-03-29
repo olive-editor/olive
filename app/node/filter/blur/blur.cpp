@@ -111,9 +111,8 @@ void BlurFilterNode::Retranslate()
   SetInputName(kRadialCenterInput, tr("Center"));
 }
 
-ShaderCode BlurFilterNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode BlurFilterNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
@@ -155,12 +154,12 @@ NodeValue BlurFilterNode::Value(const ValueParams &p) const
     }
 
     if (can_push_job) {
-      ShaderJob job = CreateJob<ShaderJob>(p);
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
       job.SetIterations(iterations, kTextureInput);
 
-      return NodeValue(NodeValue::kTexture, tex->toJob(job), this);
+      return tex->toJob(job);
     }
   }
 

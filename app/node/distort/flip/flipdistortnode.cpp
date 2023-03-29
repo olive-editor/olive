@@ -69,9 +69,8 @@ void FlipDistortNode::Retranslate()
   SetInputName(kVerticalInput, tr("Vertical"));
 }
 
-ShaderCode FlipDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode FlipDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 
@@ -83,7 +82,7 @@ NodeValue FlipDistortNode::Value(const ValueParams &p) const
   if (TexturePtr tex = v.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
     if (GetInputValue(p, kHorizontalInput).toBool() || GetInputValue(p, kVerticalInput).toBool()) {
-      return NodeValue(NodeValue::kTexture, tex->toJob(CreateJob<ShaderJob>(p)), this);
+      return tex->toJob(CreateShaderJob(p, GetShaderCode));
     }
   }
 

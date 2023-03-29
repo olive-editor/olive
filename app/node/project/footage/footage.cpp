@@ -262,7 +262,7 @@ NodeValue Footage::Value(const ValueParams &p) const
 
         job.set_video_params(vp);
 
-        return NodeValue(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
+        return Texture::Job(vp, job);
       }
       break;
     case Track::kAudio:
@@ -271,7 +271,7 @@ NodeValue Footage::Value(const ValueParams &p) const
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
-        return NodeValue(NodeValue::kSamples, QVariant::fromValue(job), this, ref.ToString());
+        return NodeValue(NodeValue::kSamples, job);
       }
       break;
     case Track::kSubtitle:

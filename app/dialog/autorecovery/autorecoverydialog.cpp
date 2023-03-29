@@ -27,6 +27,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include "common/filefunctions.h"
 #include "core.h"
 
 namespace olive {

@@ -72,8 +72,7 @@ NodeValue TimeFormatNode::Value(const ValueParams &p) const
   bool time_is_local = GetInputValue(p, kLocalTimeInput).toBool();
   QDateTime dt = QDateTime::fromMSecsSinceEpoch(ms_since_epoch, time_is_local ? Qt::LocalTime : Qt::UTC);
   QString format = GetInputValue(p, kFormatInput).toString();
-  QString output = dt.toString(format);
-  return NodeValue(NodeValue::kText, output, this);
+  return dt.toString(format);
 }
 
 }

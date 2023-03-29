@@ -88,11 +88,6 @@ void MathNode::Retranslate()
   SetComboBoxStrings(kMethodIn, operations);
 }
 
-ShaderCode MathNode::GetShaderCode(const ShaderRequest &request) const
-{
-  return GetShaderCodeInternal(request.id, kParamAIn, kParamBIn);
-}
-
 NodeValue MathNode::Value(const ValueParams &p) const
 {
   // Auto-detect what values to operate with
@@ -121,18 +116,6 @@ NodeValue MathNode::Value(const ValueParams &p) const
   }
 
   return NodeValue();
-}
-
-void MathNode::ProcessSamples(const SampleJob &job, SampleBuffer &output) const
-{
-  const ValueParams &p = job.value_params();
-  int pairing = job.Get(QStringLiteral("pairing")).toInt();
-
-  if (pairing == kPairSampleNumber) {
-    return ProcessSamplesNumberInternal(p, GetOperation(), job.Get(QStringLiteral("number")).toString(), job.Get(QStringLiteral("samples")).toSamples(), output);
-  } else {
-    return ProcessSamplesSamplesInternal(p, GetOperation(), job.Get(QStringLiteral("a")).toSamples(), job.Get(QStringLiteral("b")).toSamples(), output);
-  }
 }
 
 }
