@@ -246,9 +246,6 @@ private:
 
   Node *ctx_;
   ViewerOutput * time_target_;
-
-  ViewerOutput *time_target_;
-
   rational timebase_;
 
   KeyframeView::NodeConnections keyframe_connections_;

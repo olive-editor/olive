@@ -83,7 +83,7 @@ ShaderFilterNode::ShaderFilterNode():
   AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
   SetEffectInput(kTextureInput);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
 }
 
 Node *ShaderFilterNode::copy() const
@@ -193,7 +193,10 @@ void olive::ShaderFilterNode::checkShaderSyntax()
     ok=shader.compileSourceCode( shader_code_);
   } else {
 
-    ok=shader.compileSourceCode( "#version 150\n" + shader_code_);
+    // NOTE: this replicates the preamble added in compilation (see openglrenderer.cpp for reference).
+    // This must be aligned if preamble changes
+    ok=shader.compileSourceCode( "#version 150\n\n"
+                                 "\n\n" + shader_code_);
   }
 
   if (ok == false)
@@ -258,7 +261,12 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
       }
 
       if (GetInputFlags( it->uniform_name) != it->flags) {
-        SetInputFlags( it->uniform_name, it->flags);
+
+        SetInputFlag( it->uniform_name, kInputFlagArray, (it->flags & kInputFlagArray) ? true : false);
+        SetInputFlag(it->uniform_name, kInputFlagNotKeyframable, (it->flags & kInputFlagNotKeyframable) ? true : false);
+        SetInputFlag( it->uniform_name, kInputFlagNotConnectable, (it->flags & kInputFlagNotConnectable) ? true : false);
+        SetInputFlag( it->uniform_name, kInputFlagHidden, (it->flags & kInputFlagHidden) ? true : false);
+        SetInputFlag( it->uniform_name, kInputFlagIgnoreInvalidations, (it->flags & kInputFlagIgnoreInvalidations) ? true : false);
       }
     }
 

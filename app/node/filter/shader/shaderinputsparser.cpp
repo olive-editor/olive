@@ -26,7 +26,7 @@
 #include <limits>
 #include <QVector2D>
 
-#include "render/color.h"
+// #include "core/util/color.h"  // ext\core\include\olive\core\util\color.h
 
 
 namespace olive {
