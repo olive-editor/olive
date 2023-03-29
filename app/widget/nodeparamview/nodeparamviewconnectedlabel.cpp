@@ -166,7 +166,7 @@ void NodeParamViewConnectedLabel::UpdateLabel()
 void NodeParamViewConnectedLabel::UpdateValueTree()
 {
   if (value_tree_ && viewer_ && value_tree_->isVisible()) {
-    value_tree_->SetNode(input_, viewer_->GetPlayhead());
+    value_tree_->SetNode(input_);
   }
 }
 

@@ -64,6 +64,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
 
   workarea_ = new TimelineWorkArea(this);
   markers_ = new TimelineMarkerList(this);
+
+  connect(this, &ViewerOutput::InputArraySizeChanged, this, &ViewerOutput::ArraySizeChanged);
 }
 
 QString ViewerOutput::Name() const
@@ -304,6 +306,20 @@ void ViewerOutput::Retranslate()
   if (HasInputWithID(kSamplesInput)) {
     SetInputName(kSamplesInput, tr("Samples"));
   }
+
+  {
+    int vsc = GetVideoStreamCount();
+    for (int i = 0; i < vsc; i++) {
+      SetOutputName(Track::Reference(Track::kVideo, i).ToString(), tr("Video %1").arg(i + 1));
+    }
+  }
+
+  {
+    int asc = GetAudioStreamCount();
+    for (int i = 0; i < asc; i++) {
+      SetOutputName(Track::Reference(Track::kAudio, i).ToString(), tr("Audio %1").arg(i + 1));
+    }
+  }
 }
 
 void ViewerOutput::VerifyLength()
@@ -410,9 +426,7 @@ NodeValue ViewerOutput::Value(const ValueParams &p) const
   Track::Reference ref = Track::Reference::FromString(p.output());
 
   if (ref.type() == Track::kVideo && HasInputWithID(kTextureInput)) {
-    NodeValue v = GetInputValue(p, kTextureInput);
-    qDebug() << "what the fuck" << v.data();
-    return v;
+    return GetInputValue(p, kTextureInput);
   }
   if (ref.type() == Track::kAudio && HasInputWithID(kSamplesInput)) {
     return GetInputValue(p, kSamplesInput);
@@ -580,6 +594,21 @@ int ViewerOutput::SetStream(Track::Type type, const QVariant &value, int index_i
   SetStandardValue(id, value, index);
 
   return index;
+}
+
+void ViewerOutput::ArraySizeChanged(const QString &id, int old_size, int new_size)
+{
+  if (id == kVideoParamsInput || id == kAudioParamsInput) {
+    Track::Type type = (id == kVideoParamsInput) ? Track::kVideo : Track::kAudio;
+
+    for (int i = old_size; i < new_size; i++) {
+      AddOutput(Track::Reference(type, i).ToString());
+    }
+
+    for (int i = new_size; i < old_size; i++) {
+      RemoveOutput(Track::Reference(type, i).ToString());
+    }
+  }
 }
 
 QVector<VideoParams> ViewerOutput::GetEnabledVideoStreams() const

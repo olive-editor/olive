@@ -49,6 +49,7 @@ Node::Node() :
   caches_enabled_(true)
 {
   AddInput(kEnabledInput, NodeValue::kBoolean, true);
+  AddOutput(QString());
 
   video_cache_ = new FrameHashCache(this);
   thumbnail_cache_ = new ThumbnailCache(this);
@@ -101,6 +102,7 @@ QString Node::Description() const
 void Node::Retranslate()
 {
   SetInputName(kEnabledInput, tr("Enabled"));
+  SetOutputName(QString(), tr("Default"));
 }
 
 QVariant Node::data(const DataType &d) const
@@ -1713,8 +1715,8 @@ void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &
     return;
   }
 
-  if (HasParamWithID(id)) {
-    qWarning() << "Failed to add input to node" << this->id() << "- param with ID" << id << "already exists";
+  if (HasInputWithID(id)) {
+    qWarning() << "Failed to add input to node" << this->id() << "- ID" << id << "already exists";
     return;
   }
 
@@ -1748,6 +1750,34 @@ void Node::RemoveInput(const QString &id)
   input_data_.removeAt(index);
 
   emit InputRemoved(id);
+}
+
+void Node::AddOutput(const QString &id)
+{
+  for (auto it = outputs_.constBegin(); it != outputs_.constEnd(); it++) {
+    if (it->id == id) {
+      qWarning() << "Failed to add output to node" << this->id() << "- ID" << id << "already exists";
+      return;
+    }
+  }
+
+  Output o;
+  o.id = id;
+  outputs_.append(o);
+
+  emit OutputAdded(id);
+}
+
+void Node::RemoveOutput(const QString &id)
+{
+  for (auto it = outputs_.begin(); it != outputs_.end(); it++) {
+    if (it->id == id) {
+      outputs_.erase(it);
+      break;
+    }
+  }
+
+  emit OutputRemoved(id);
 }
 
 void Node::ReportInvalidInput(const char *attempted_action, const QString& id, int element) const
@@ -1843,6 +1873,16 @@ void Node::SetInputName(const QString &id, const QString &name)
     emit InputNameChanged(id, name);
   } else {
     ReportInvalidInput("set name of", id, -1);
+  }
+}
+
+void Node::SetOutputName(const QString &id, const QString &name)
+{
+  for (auto it = outputs_.begin(); it != outputs_.end(); it++) {
+    if (it->id == id) {
+      it->name = name;
+      break;
+    }
   }
 }
 

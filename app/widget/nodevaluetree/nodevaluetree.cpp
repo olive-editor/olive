@@ -2,6 +2,9 @@
 
 #include <QEvent>
 
+#include "core.h"
+#include "node/nodeundo.h"
+
 namespace olive {
 
 #define super QTreeWidget
@@ -10,7 +13,7 @@ NodeValueTree::NodeValueTree(QWidget *parent) :
   super(parent)
 {
   setColumnWidth(0, 0);
-  setColumnCount(4);
+  setColumnCount(2);
 
   QSizePolicy p = sizePolicy();
   p.setHorizontalStretch(1);
@@ -22,38 +25,37 @@ NodeValueTree::NodeValueTree(QWidget *parent) :
   Retranslate();
 }
 
-void NodeValueTree::SetNode(const NodeInput &input, const rational &time)
+void NodeValueTree::SetNode(const NodeInput &input)
 {
-  /*
   clear();
 
-  Node *connected_node = input.GetConnectedOutput();
+  input_ = input;
 
-  ValueParams p(VideoParams(), AudioParams(), time, LoopMode::kLoopModeOff);
-  NodeValue v = connected_node->Value(p);
+  if (Node *connected_node = input.GetConnectedOutput()) {
+    connected_node->Retranslate();
 
-  int index = traverser.GenerateRowValueElementIndex(input.node(), input.input(), input.element(), &table);
+    const QVector<Node::Output> &outputs = connected_node->outputs();
 
-  for (int i=0; i<table.Count(); i++) {
-    const NodeValue &value = table.at(i);
-    QTreeWidgetItem *item = new QTreeWidgetItem(this);
+    Node::ValueHint vh = input.node()->GetValueHintForInput(input.input(), input.element());
 
-    Node::ValueHint hint({value.type()}, table.Count()-1-i, value.tag());
+    for (const Node::Output &o : outputs) {
+      // Add default output
+      QTreeWidgetItem *item = new QTreeWidgetItem(this);
 
-    QRadioButton *radio = new QRadioButton(this);
-    radio->setProperty("input", QVariant::fromValue(input));
-    radio->setProperty("hint", QVariant::fromValue(hint));
-    if (i == index) {
-      radio->setChecked(true);
+      item->setText(1, o.name);
+
+      QRadioButton *radio = new QRadioButton(this);
+      radio->setProperty("input", QVariant::fromValue(input));
+      radio->setProperty("output", o.id);
+      connect(radio, &QRadioButton::clicked, this, &NodeValueTree::RadioButtonChecked);
+
+      if (vh.tag() == o.id) {
+        radio->setChecked(true);
+      }
+
+      setItemWidget(item, 0, radio);
     }
-    connect(radio, &QRadioButton::clicked, this, &NodeValueTree::RadioButtonChecked);
-
-    setItemWidget(item, 0, radio);
-    item->setText(1, NodeValue::GetPrettyDataTypeName(value.type()));
-    item->setText(2, NodeValue::ValueToString(value, false));
-    item->setText(3, value.source()->GetLabelAndName());
   }
-  */
 }
 
 void NodeValueTree::changeEvent(QEvent *event)
@@ -67,18 +69,23 @@ void NodeValueTree::changeEvent(QEvent *event)
 
 void NodeValueTree::Retranslate()
 {
-  setHeaderLabels({QString(), tr("Type"), tr("Value"), tr("Source")});
+  setHeaderLabels({QString(), tr("Output")});
 }
 
 void NodeValueTree::RadioButtonChecked(bool e)
 {
   if (e) {
     QRadioButton *btn = static_cast<QRadioButton*>(sender());
-    Node::ValueHint hint = btn->property("hint").value<Node::ValueHint>();
+    Node::ValueHint hint = btn->property("output").toString();
     NodeInput input = btn->property("input").value<NodeInput>();
 
-    input.node()->SetValueHintForInput(input.input(), hint, input.element());
+    Core::instance()->undo_stack()->push(new NodeSetValueHintCommand(input, hint), tr("Switched Connected Output Parameter"));
   }
+}
+
+void NodeValueTree::Update()
+{
+  SetNode(input_);
 }
 
 }

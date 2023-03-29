@@ -202,8 +202,14 @@ public:
 
   const QVector<QString>& inputs() const { return input_ids_; }
 
+  struct Output
+  {
+    QString id;
+    QString name;
+  };
+  const QVector<Output>& outputs() const { return outputs_; }
+
   bool HasInputWithID(const QString& id) const { return input_ids_.contains(id); }
-  bool HasParamWithID(const QString& id) const { return HasInputWithID(id); }
 
   // Node caches
   FrameHashCache* video_frame_cache() const { return video_cache_; }
@@ -333,6 +339,7 @@ public:
   virtual QString GetInputName(const QString& id) const;
 
   void SetInputName(const QString& id, const QString& name);
+  void SetOutputName(const QString &id, const QString &name);
 
   bool IsInputHidden(const QString& input) const;
   bool IsInputConnectable(const QString& input) const;
@@ -574,21 +581,7 @@ public:
   class ValueHint
   {
   public:
-    explicit ValueHint(const QVector<NodeValue::Type> &types = QVector<NodeValue::Type>(), int index = -1, const QString &tag = QString()) :
-      tag_(tag)
-    {
-    }
-
-    explicit ValueHint(const QVector<NodeValue::Type> &types, const QString &tag) :
-      tag_(tag)
-    {
-    }
-
-    explicit ValueHint(int index)
-    {
-    }
-
-    explicit ValueHint(const QString &tag) :
+    ValueHint(const QString &tag = QString()) :
       tag_(tag)
     {
     }
@@ -886,6 +879,10 @@ protected:
 
   void RemoveInput(const QString& id);
 
+  void AddOutput(const QString &id);
+
+  void RemoveOutput(const QString &id);
+
   void SetComboBoxStrings(const QString& id, const QStringList& strings)
   {
     SetInputProperty(id, QStringLiteral("combo_str"), strings);
@@ -1022,6 +1019,10 @@ signals:
 
   void InputRemoved(const QString& id);
 
+  void OutputAdded(const QString &id);
+
+  void OutputRemoved(const QString &id);
+
   void InputNameChanged(const QString& id, const QString& name);
 
   void InputDataTypeChanged(const QString& id, NodeValue::Type type);
@@ -1142,6 +1143,7 @@ private:
 
   QVector<QString> input_ids_;
   QVector<Input> input_data_;
+  QVector<Output> outputs_;
 
   QMap<QString, NodeInputImmediate*> standard_immediates_;
 

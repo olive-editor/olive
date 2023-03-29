@@ -14,7 +14,7 @@ class NodeValueTree : public QTreeWidget
 public:
   NodeValueTree(QWidget *parent = nullptr);
 
-  void SetNode(const NodeInput &input, const rational &time);
+  void SetNode(const NodeInput &input);
 
 protected:
   virtual void changeEvent(QEvent *event) override;
@@ -22,8 +22,12 @@ protected:
 private:
   void Retranslate();
 
+  NodeInput input_;
+
 private slots:
   void RadioButtonChecked(bool e);
+
+  void Update();
 
 };
 

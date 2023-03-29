@@ -263,6 +263,9 @@ private:
 
   rational playhead_;
 
+private slots:
+  void ArraySizeChanged(const QString &id, int old_size, int new_size);
+
 };
 
 }
