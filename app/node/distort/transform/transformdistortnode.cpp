@@ -33,13 +33,13 @@ const QString TransformDistortNode::kInterpolationInput = QStringLiteral("interp
 
 TransformDistortNode::TransformDistortNode()
 {
-  AddInput(kParentInput, NodeValue::kMatrix);
+  AddInput(kParentInput, TYPE_MATRIX);
 
-  AddInput(kAutoscaleInput, NodeValue::kCombo, 0);
+  AddInput(kAutoscaleInput, TYPE_COMBO, 0);
 
-  AddInput(kInterpolationInput, NodeValue::kCombo, 2);
+  AddInput(kInterpolationInput, TYPE_COMBO, 2);
 
-  PrependInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  PrependInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   // Initiate gizmos
   rotation_gizmo_ = AddDraggableGizmo<ScreenGizmo>();
@@ -87,13 +87,13 @@ ShaderCode TransformDistortNode::GetShaderCode(const QString &id)
   return ShaderCode();
 }
 
-NodeValue TransformDistortNode::Value(const ValueParams &p) const
+value_t TransformDistortNode::Value(const ValueParams &p) const
 {
   // Generate matrix
   QMatrix4x4 generated_matrix = GenerateMatrix(p, false, false, false, GetInputValue(p, kParentInput).toMatrix());
 
   // Pop texture
-  NodeValue texture_meta = GetInputValue(p, kTextureInput);
+  value_t texture_meta = GetInputValue(p, kTextureInput);
 
   TexturePtr job_to_push = nullptr;
 
@@ -196,8 +196,8 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
-    x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-    y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
 
   } else if (gizmo == anchor_gizmo_) {
 
@@ -208,10 +208,10 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
 
     QPointF inverted_movement(gizmo_inverted_transform_.map(QPointF(x, y)));
 
-    x_anchor_drag.Drag(x_anchor_drag.GetStartValue().toDouble() + inverted_movement.x());
-    y_anchor_drag.Drag(y_anchor_drag.GetStartValue().toDouble() + inverted_movement.y());
-    x_pos_drag.Drag(x_pos_drag.GetStartValue().toDouble() + x);
-    y_pos_drag.Drag(y_pos_drag.GetStartValue().toDouble() + y);
+    x_anchor_drag.Drag(x_anchor_drag.GetStartValue().get<double>() + inverted_movement.x());
+    y_anchor_drag.Drag(y_anchor_drag.GetStartValue().get<double>() + inverted_movement.y());
+    x_pos_drag.Drag(x_pos_drag.GetStartValue().get<double>() + x);
+    y_pos_drag.Drag(y_pos_drag.GetStartValue().get<double>() + y);
 
   } else if (gizmo == rotation_gizmo_) {
 
@@ -248,7 +248,7 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
     double rotation_difference = (current_angle - gizmo_start_angle_) * 57.2958;
 
     NodeInputDragger &d = gizmo->GetDraggers()[0];
-    d.Drag(d.GetStartValue().toDouble() + rotation_difference);
+    d.Drag(d.GetStartValue().get<double>() + rotation_difference);
 
   } else if (IsAScaleGizmo(gizmo)) {
 

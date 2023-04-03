@@ -45,26 +45,25 @@ ClipBlock::ClipBlock() :
   out_transition_(nullptr),
   connected_viewer_(nullptr)
 {
-  AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kMediaInInput, TYPE_RATIONAL, kInputFlagNotConnectable | kInputFlagNotKeyframable);
   SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kMediaInInput, QStringLiteral("viewlock"), true);
 
-  AddInput(kSpeedInput, NodeValue::kFloat, 1.0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kSpeedInput, TYPE_DOUBLE, 1.0, kInputFlagNotConnectable | kInputFlagNotKeyframable);
   SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kSpeedInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kReverseInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kMaintainAudioPitchInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kMaintainAudioPitchInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kAutoCacheInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kAutoCacheInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  //SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
+  PrependInput(kBufferIn, kInputFlagNotKeyframable);
 
   SetEffectInput(kBufferIn);
 
-  AddInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kLoopModeInput, TYPE_COMBO, 0, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 }
 
 QString ClipBlock::Name() const
@@ -130,7 +129,7 @@ rational ClipBlock::media_in() const
 
 void ClipBlock::set_media_in(const rational &media_in)
 {
-  SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
+  SetStandardValue(kMediaInInput, media_in);
 
   RequestInvalidatedFromConnected();
 }
@@ -484,7 +483,7 @@ TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, con
   return super::OutputTimeAdjustment(input, element, input_time);
 }
 
-NodeValue ClipBlock::Value(const ValueParams &p) const
+value_t ClipBlock::Value(const ValueParams &p) const
 {
   return GetInputValue(p.loop_mode_edited(this->loop_mode()), kBufferIn);
 }

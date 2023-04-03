@@ -108,9 +108,9 @@ TexturePtr Renderer::InterlaceTexture(TexturePtr top, TexturePtr bottom, const V
   color_cache_mutex_.unlock();
 
   ShaderJob job;
-  job.Insert(QStringLiteral("top_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(top)));
-  job.Insert(QStringLiteral("bottom_tex_in"), NodeValue(NodeValue::kTexture, QVariant::fromValue(bottom)));
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(params.effective_width(), params.effective_height())));
+  job.Insert(QStringLiteral("top_tex_in"), top);
+  job.Insert(QStringLiteral("bottom_tex_in"), bottom);
+  job.Insert(QStringLiteral("resolution_in"), QVector2D(params.effective_width(), params.effective_height()));
 
   TexturePtr output = CreateTexture(params);
 
@@ -293,17 +293,17 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
 
   ShaderJob job;
   job.Insert(QStringLiteral("ove_maintex"), color_job.GetInputTexture());
-  job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, color_job.GetTransformMatrix()));
-  job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
-  job.Insert(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, int(color_job.GetInputAlphaAssociation())));
+  job.Insert(QStringLiteral("ove_mvpmat"), color_job.GetTransformMatrix());
+  job.Insert(QStringLiteral("ove_cropmatrix"), color_job.GetCropMatrix().inverted());
+  job.Insert(QStringLiteral("ove_maintex_alpha"), color_job.GetInputAlphaAssociation());
   job.Insert(color_job.GetValues());
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
-    job.Insert(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
+    job.Insert(l.name, l.texture);
     job.SetInterpolation(l.name, l.interpolation);
   }
   foreach (const ColorContext::LUT& l, color_ctx.lut1d_textures) {
-    job.Insert(l.name, NodeValue(NodeValue::kTexture, QVariant::fromValue(l.texture)));
+    job.Insert(l.name, l.texture);
     job.SetInterpolation(l.name, l.interpolation);
   }
 

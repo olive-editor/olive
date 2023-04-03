@@ -167,17 +167,19 @@ TexturePtr FFmpegDecoder::ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVi
     TexturePtr v_plane = p.renderer->CreateTexture(plane_params, hw_in->data[2], hw_in->linesize[2] / px_size);
 
     ShaderJob job;
-    job.Insert(QStringLiteral("y_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(y_plane)));
-    job.Insert(QStringLiteral("u_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(u_plane)));
-    job.Insert(QStringLiteral("v_channel"), NodeValue(NodeValue::kTexture, QVariant::fromValue(v_plane)));
-    job.Insert(QStringLiteral("bits_per_pixel"), NodeValue(NodeValue::kInt, bits_per_pixel));
-    job.Insert(QStringLiteral("full_range"), NodeValue(NodeValue::kBoolean, hw_in->color_range == AVCOL_RANGE_JPEG));
+    job.Insert(QStringLiteral("y_channel"), y_plane);
+    job.Insert(QStringLiteral("u_channel"), u_plane);
+    job.Insert(QStringLiteral("v_channel"), v_plane);
+    job.Insert(QStringLiteral("bits_per_pixel"), bits_per_pixel);
+    job.Insert(QStringLiteral("full_range"), hw_in->color_range == AVCOL_RANGE_JPEG);
 
     const int *yuv_coeffs = sws_getCoefficients(FFmpegUtils::GetSwsColorspaceFromAVColorSpace(hw_in->colorspace));
-    job.Insert(QStringLiteral("yuv_crv"), NodeValue(NodeValue::kFloat, yuv_coeffs[0]/65536.0));
-    job.Insert(QStringLiteral("yuv_cgu"), NodeValue(NodeValue::kFloat, yuv_coeffs[2]/65536.0));
-    job.Insert(QStringLiteral("yuv_cgv"), NodeValue(NodeValue::kFloat, yuv_coeffs[3]/65536.0));
-    job.Insert(QStringLiteral("yuv_cbu"), NodeValue(NodeValue::kFloat, yuv_coeffs[1]/65536.0));
+    job.Insert(QStringLiteral("yuv_crv"), yuv_coeffs[0]/65536.0);
+    job.Insert(QStringLiteral("yuv_cgu"), yuv_coeffs[2]/65536.0);
+    job.Insert(QStringLiteral("yuv_cgv"), yuv_coeffs[3]/65536.0);
+    job.Insert(QStringLiteral("yuv_cbu"), yuv_coeffs[1]/65536.0);
+
+    qDebug() << "sending job with keys:" << job.GetValues().keys();
 
     tex = p.renderer->CreateTexture(vp);
     p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
@@ -219,9 +221,9 @@ TexturePtr FFmpegDecoder::ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVi
     TexturePtr deinterlaced = p.renderer->CreateTexture(tex->params());
 
     ShaderJob job;
-    job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, tex));
-    job.Insert(QStringLiteral("interlacing"), NodeValue(NodeValue::kInt, interlacing));
-    job.Insert(QStringLiteral("pixel_height"), NodeValue(NodeValue::kInt, original->height));
+    job.Insert(QStringLiteral("ove_maintex"), tex);
+    job.Insert(QStringLiteral("interlacing"), interlacing);
+    job.Insert(QStringLiteral("pixel_height"), original->height);
 
     p.renderer->BlitToTexture(DeinterlaceShader, job, deinterlaced.get(), false);
 

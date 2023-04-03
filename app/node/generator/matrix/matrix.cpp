@@ -37,18 +37,18 @@ const QString MatrixGenerator::kAnchorInput = QStringLiteral("anchor_in");
 
 MatrixGenerator::MatrixGenerator()
 {
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0.0, 0.0));
 
-  AddInput(kRotationInput, NodeValue::kFloat, 0.0);
+  AddInput(kRotationInput, TYPE_DOUBLE, 0.0);
 
-  AddInput(kScaleInput, NodeValue::kVec2, QVector2D(1.0f, 1.0f));
+  AddInput(kScaleInput, TYPE_VEC2, QVector2D(1.0f, 1.0f));
   SetInputProperty(kScaleInput, QStringLiteral("min"), QVector2D(0, 0));
   SetInputProperty(kScaleInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kScaleInput, QStringLiteral("disable1"), true);
 
-  AddInput(kUniformScaleInput, NodeValue::kBoolean, true, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kUniformScaleInput, TYPE_BOOL, true, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kAnchorInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
+  AddInput(kAnchorInput, TYPE_VEC2, QVector2D(0.0, 0.0));
 }
 
 QString MatrixGenerator::Name() const
@@ -87,7 +87,7 @@ void MatrixGenerator::Retranslate()
   SetInputName(kAnchorInput, tr("Anchor Point"));
 }
 
-NodeValue MatrixGenerator::Value(const ValueParams &p) const
+value_t MatrixGenerator::Value(const ValueParams &p) const
 {
   // Push matrix output
   return GenerateMatrix(p, false, false, false, QMatrix4x4());

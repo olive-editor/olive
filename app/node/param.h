@@ -30,131 +30,62 @@ namespace olive {
 class Node;
 class NodeKeyframe;
 
-enum InputFlag : uint64_t {
-  /// By default, inputs are keyframable, connectable, and NOT arrays
-  kInputFlagNormal = 0x0,
-  kInputFlagArray = 0x1,
-  kInputFlagNotKeyframable = 0x2,
-  kInputFlagNotConnectable = 0x4,
-  kInputFlagHidden = 0x8,
-  kInputFlagIgnoreInvalidations = 0x10,
-
-  kInputFlagStatic = kInputFlagNotKeyframable | kInputFlagNotConnectable
-};
-
-class InputFlags {
+class InputFlag
+{
 public:
-  explicit InputFlags()
-  {
-    f_ = kInputFlagNormal;
-  }
+  explicit InputFlag(uint64_t f = 0) noexcept { f_ = f; }
 
-  explicit InputFlags(uint64_t flags)
+  InputFlag &operator|=(const InputFlag &i)
   {
-    f_ = flags;
-  }
+    f_ |= i.f_;
+    return *this;
+  };
 
-  InputFlags operator|(const InputFlags &f) const
+  InputFlag operator|(const InputFlag &rhs) const
   {
-    InputFlags i = *this;
-    i |= f;
-    return i;
-  }
+    InputFlag f = *this;
+    f.f_ |= rhs.f_;
+    return f;
+  };
 
-  InputFlags operator|(const InputFlag &f) const
+  InputFlag &operator&=(const InputFlag &i)
   {
-    InputFlags i = *this;
-    i |= f;
-    return i;
-  }
-
-  InputFlags operator|(const uint64_t &f) const
-  {
-    InputFlags i = *this;
-    i |= f;
-    return i;
-  }
-
-  InputFlags &operator|=(const InputFlags &f)
-  {
-    f_ |= f.f_;
+    f_ &= i.f_;
     return *this;
   }
 
-  InputFlags &operator|=(const InputFlag &f)
+  InputFlag operator&(const InputFlag &rhs) const
   {
-    f_ |= f;
-    return *this;
+    InputFlag f = *this;
+    f.f_ &= rhs.f_;
+    return f;
   }
 
-  InputFlags &operator|=(const uint64_t &f)
+  operator bool() const { return f_; }
+  bool operator!() const { return !f_; }
+
+  InputFlag operator~() const
   {
-    f_ |= f;
-    return *this;
+    return InputFlag(~f_);
   }
 
-  InputFlags operator&(const InputFlags &f) const
-  {
-    InputFlags i = *this;
-    i &= f;
-    return i;
-  }
-
-  InputFlags operator&(const InputFlag &f) const
-  {
-    InputFlags i = *this;
-    i &= f;
-    return i;
-  }
-
-  InputFlags operator&(const uint64_t &f) const
-  {
-    InputFlags i = *this;
-    i &= f;
-    return i;
-  }
-
-  InputFlags &operator&=(const InputFlags &f)
-  {
-    f_ &= f.f_;
-    return *this;
-  }
-
-  InputFlags &operator&=(const InputFlag &f)
-  {
-    f_ &= f;
-    return *this;
-  }
-
-  InputFlags &operator&=(const uint64_t &f)
-  {
-    f_ &= f;
-    return *this;
-  }
-
-  InputFlags operator~() const
-  {
-    InputFlags i = *this;
-    i.f_ = ~i.f_;
-    return i;
-  }
-
-  inline operator bool() const
-  {
-    return f_;
-  }
-
-  inline const uint64_t &value() const
-  {
-    return f_;
-  }
+  const uint64_t &value() const { return f_; }
 
 private:
   uint64_t f_;
 
 };
 
-struct NodeInputPair {
+static const InputFlag kInputFlagNormal = InputFlag(0x0);
+static const InputFlag kInputFlagArray = InputFlag(0x1);
+static const InputFlag kInputFlagNotKeyframable = InputFlag(0x2);
+static const InputFlag kInputFlagNotConnectable = InputFlag(0x4);
+static const InputFlag kInputFlagHidden = InputFlag(0x8);
+static const InputFlag kInputFlagIgnoreInvalidations = InputFlag(0x10);
+static const InputFlag kInputFlagStatic = kInputFlagNotKeyframable | kInputFlagNotConnectable;
+
+struct NodeInputPair
+{
   bool operator==(const NodeInputPair& rhs) const
   {
     return node == rhs.node && input == rhs.input;
@@ -256,26 +187,28 @@ public:
 
   bool IsArray() const;
 
-  InputFlags GetFlags() const;
+  InputFlag GetFlags() const;
 
   QString GetInputName() const;
 
   Node *GetConnectedOutput() const;
 
-  NodeValue::Type GetDataType() const;
+  type_t GetDataType() const;
 
-  QVariant GetDefaultValue() const;
+  value_t GetDefaultValue() const;
+
+  size_t GetChannelCount() const;
 
   QStringList GetComboBoxStrings() const;
 
-  QVariant GetProperty(const QString& key) const;
-  QHash<QString, QVariant> GetProperties() const;
+  value_t GetProperty(const QString& key) const;
+  QHash<QString, value_t> GetProperties() const;
 
-  QVariant GetValueAtTime(const rational& time) const;
+  value_t GetValueAtTime(const rational& time) const;
 
   NodeKeyframe *GetKeyframeAtTimeOnTrack(const rational& time, int track) const;
 
-  QVariant GetSplitDefaultValueForTrack(int track) const;
+  value_t::component_t GetSplitDefaultValueForTrack(int track) const;
 
   int GetArraySize() const;
 

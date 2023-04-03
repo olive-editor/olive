@@ -38,7 +38,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
 };
 

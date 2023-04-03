@@ -30,7 +30,7 @@ const QString GeneratorWithMerge::kBaseInput = QStringLiteral("base_in");
 
 GeneratorWithMerge::GeneratorWithMerge()
 {
-  AddInput(kBaseInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBaseInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
   SetEffectInput(kBaseInput);
   SetFlag(kVideoEffect);
 }
@@ -47,9 +47,9 @@ ShaderCode GeneratorWithMerge::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
-NodeValue GeneratorWithMerge::GetMergableJob(const ValueParams &p, TexturePtr job) const
+value_t GeneratorWithMerge::GetMergableJob(const ValueParams &p, TexturePtr job) const
 {
-  NodeValue tex_meta = GetInputValue(p, kBaseInput);
+  value_t tex_meta = GetInputValue(p, kBaseInput);
 
   if (TexturePtr base = tex_meta.toTexture()) {
     // Push as merge node

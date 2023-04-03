@@ -32,7 +32,8 @@ namespace olive {
 #define OLIVE_CONFIG(x) Config::Current()[QStringLiteral(x)]
 #define OLIVE_CONFIG_STR(x) Config::Current()[x]
 
-class Config {
+class Config
+{
 public:
   static Config& Current();
 
@@ -42,23 +43,14 @@ public:
 
   static void Save();
 
-  QVariant operator[](const QString&) const;
+  value_t operator[](const QString&) const;
 
-  QVariant& operator[](const QString&);
-
-  NodeValue::Type GetConfigEntryType(const QString& key) const;
+  value_t &operator[](const QString&);
 
 private:
   Config();
 
-  struct ConfigEntry {
-    NodeValue::Type type;
-    QVariant data;
-  };
-
-  void SetEntryInternal(const QString& key, NodeValue::Type type, const QVariant& data);
-
-  QMap<QString, ConfigEntry> config_map_;
+  QMap<QString, value_t> config_map_;
 
   static Config current_config_;
 

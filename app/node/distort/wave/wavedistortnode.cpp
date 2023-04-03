@@ -32,13 +32,13 @@ const QString WaveDistortNode::kVerticalInput = QStringLiteral("vertical_in");
 
 WaveDistortNode::WaveDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kFrequencyInput, NodeValue::kFloat, 10);
-  AddInput(kIntensityInput, NodeValue::kFloat, 10);
-  AddInput(kEvolutionInput, NodeValue::kFloat, 0);
+  AddInput(kFrequencyInput, TYPE_DOUBLE, 10);
+  AddInput(kIntensityInput, TYPE_DOUBLE, 10);
+  AddInput(kEvolutionInput, TYPE_DOUBLE, 0);
 
-  AddInput(kVerticalInput, NodeValue::kCombo, false);
+  AddInput(kVerticalInput, TYPE_COMBO, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -81,10 +81,10 @@ ShaderCode WaveDistortNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/wave.frag"));
 }
 
-NodeValue WaveDistortNode::Value(const ValueParams &p) const
+value_t WaveDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr texture = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected

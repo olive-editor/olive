@@ -48,16 +48,16 @@ TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false),
   dont_emit_valign_(false)
 {
-  AddInput(kTextInput, NodeValue::kText, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
+  AddInput(kTextInput, TYPE_STRING, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
   SetInputProperty(kTextInput, QStringLiteral("vieweronly"), true);
 
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
-  AddInput(kVerticalAlignmentInput, NodeValue::kCombo, InputFlags(kInputFlagHidden | kInputFlagStatic));
+  AddInput(kVerticalAlignmentInput, TYPE_COMBO, kInputFlagHidden | kInputFlagStatic);
 
-  AddInput(kUseArgsInput, NodeValue::kBoolean, true, InputFlags(kInputFlagHidden | kInputFlagStatic));
+  AddInput(kUseArgsInput, TYPE_BOOL, true, kInputFlagHidden | kInputFlagStatic);
 
-  AddInput(kArgsInput, NodeValue::kText, InputFlags(kInputFlagArray));
+  AddInput(kArgsInput, TYPE_STRING, kInputFlagArray);
   SetInputProperty(kArgsInput, QStringLiteral("arraystart"), 1);
 
   text_gizmo_ = new TextGizmo(this);
@@ -143,7 +143,7 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job)
   text_doc.documentLayout()->draw(&p, ctx);
 }
 
-NodeValue TextGeneratorV3::Value(const ValueParams &p) const
+value_t TextGeneratorV3::Value(const ValueParams &p) const
 {
   QString text = GetInputValue(p, kTextInput).toString();
 
@@ -160,7 +160,7 @@ NodeValue TextGeneratorV3::Value(const ValueParams &p) const
     }
   }
 
-  NodeValue base_val = GetInputValue(p, kTextInput);
+  value_t base_val = GetInputValue(p, kTextInput);
 
   if (!text.isEmpty()) {
     TexturePtr base = base_val.toTexture();
@@ -170,7 +170,7 @@ NodeValue TextGeneratorV3::Value(const ValueParams &p) const
     text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
     GenerateJob job = CreateGenerateJob(p, GenerateFrame);
-    job.Insert(kTextInput, NodeValue(NodeValue::kText, text));
+    job.Insert(kTextInput, text);
 
     return GetMergableJob(p, Texture::Job(text_params, job));
   }

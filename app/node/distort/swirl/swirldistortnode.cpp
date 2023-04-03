@@ -31,15 +31,15 @@ const QString SwirlDistortNode::kPositionInput = QStringLiteral("pos_in");
 
 SwirlDistortNode::SwirlDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kRadiusInput, NodeValue::kFloat, 200);
+  AddInput(kRadiusInput, TYPE_DOUBLE, 200);
   SetInputProperty(kRadiusInput, QStringLiteral("min"), 0);
 
-  AddInput(kAngleInput, NodeValue::kFloat, 10);
+  AddInput(kAngleInput, TYPE_DOUBLE, 10);
   SetInputProperty(kAngleInput, QStringLiteral("base"), 0.1);
 
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -86,10 +86,10 @@ ShaderCode SwirlDistortNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/swirl.frag"));
 }
 
-NodeValue SwirlDistortNode::Value(const ValueParams &p) const
+value_t SwirlDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
@@ -115,8 +115,8 @@ void SwirlDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   NodeInputDragger &x_drag = gizmo_->GetDraggers()[0];
   NodeInputDragger &y_drag = gizmo_->GetDraggers()[1];
 
-  x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-  y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+  x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
+  y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
 }
 
 }

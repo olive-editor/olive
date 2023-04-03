@@ -130,7 +130,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_interval_->SetMinimum(1);
     autorecovery_interval_->SetMaximum(60);
     autorecovery_interval_->SetFormat(QT_TRANSLATE_N_NOOP("olive::SliderBase", "%n minute(s)"), true);
-    autorecovery_interval_->SetValue(OLIVE_CONFIG("AutorecoveryInterval").toLongLong());
+    autorecovery_interval_->SetValue(OLIVE_CONFIG("AutorecoveryInterval").toInt());
     autorecovery_layout->addWidget(autorecovery_interval_, row, 1);
 
     row++;
@@ -140,7 +140,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     autorecovery_maximum_ = new IntegerSlider();
     autorecovery_maximum_->SetMinimum(1);
     autorecovery_maximum_->SetMaximum(1000);
-    autorecovery_maximum_->SetValue(OLIVE_CONFIG("AutorecoveryMaximum").toLongLong());
+    autorecovery_maximum_->SetValue(OLIVE_CONFIG("AutorecoveryMaximum").toInt());
     autorecovery_layout->addWidget(autorecovery_maximum_, row, 1);
 
     row++;
@@ -159,9 +159,9 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
 
   OLIVE_CONFIG("RectifiedWaveforms") = rectified_waveforms_->isChecked();
 
-  OLIVE_CONFIG("Autoscroll") = autoscroll_method_->currentData();
+  OLIVE_CONFIG("Autoscroll") = autoscroll_method_->currentData().toInt();
 
-  OLIVE_CONFIG("DefaultStillLength") = QVariant::fromValue(default_still_length_->GetValue());
+  OLIVE_CONFIG("DefaultStillLength") = default_still_length_->GetValue();
 
   QString set_language = language_combobox_->currentData().toString();
   if (QLocale::system().name() == set_language) {
@@ -176,8 +176,8 @@ void PreferencesGeneralTab::Accept(MultiUndoCommand *command)
   }
 
   OLIVE_CONFIG("AutorecoveryEnabled") = autorecovery_enabled_->isChecked();
-  OLIVE_CONFIG("AutorecoveryInterval") = QVariant::fromValue(autorecovery_interval_->GetValue());
-  OLIVE_CONFIG("AutorecoveryMaximum") = QVariant::fromValue(autorecovery_maximum_->GetValue());
+  OLIVE_CONFIG("AutorecoveryInterval") = autorecovery_interval_->GetValue();
+  OLIVE_CONFIG("AutorecoveryMaximum") = autorecovery_maximum_->GetValue();
   Core::instance()->SetAutorecoveryInterval(autorecovery_interval_->GetValue());
 }
 

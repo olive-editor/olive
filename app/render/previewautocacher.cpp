@@ -24,6 +24,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/conformmanager.h"
+#include "common/qtutils.h"
 #include "node/inputdragger.h"
 #include "node/project.h"
 #include "render/diskmanager.h"

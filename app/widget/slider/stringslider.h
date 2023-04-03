@@ -43,11 +43,13 @@ signals:
   void ValueChanged(const QString& str);
 
 protected:
-  virtual QString ValueToString(const QVariant& value) const override;
+  virtual QString ValueToString(const InternalType& value) const override;
 
-  virtual QVariant StringToValue(const QString &s, bool *ok) const override;
+  virtual InternalType StringToValue(const QString &s, bool *ok) const override;
 
-  virtual void ValueSignalEvent(const QVariant &value) override;
+  virtual void ValueSignalEvent(const InternalType &value) override;
+
+  virtual bool Equals(const InternalType &a, const InternalType &b) const override;
 
 };
 

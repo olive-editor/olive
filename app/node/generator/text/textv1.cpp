@@ -42,17 +42,17 @@ const QString TextGeneratorV1::kFontSizeInput = QStringLiteral("font_size_in");
 
 TextGeneratorV1::TextGeneratorV1()
 {
-  AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
+  AddInput(kTextInput, TYPE_STRING, tr("Sample Text"));
 
-  AddInput(kHtmlInput, NodeValue::kBoolean, false);
+  AddInput(kHtmlInput, TYPE_BOOL, false);
 
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
+  AddInput(kColorInput, TYPE_COLOR, Color(1.0f, 1.0f, 1.0));
 
-  AddInput(kVAlignInput, NodeValue::kCombo, 1);
+  AddInput(kVAlignInput, TYPE_COMBO, 1);
 
-  AddInput(kFontInput, NodeValue::kFont);
+  AddInput(kFontInput, TYPE_FONT);
 
-  AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
+  AddInput(kFontSizeInput, TYPE_DOUBLE, 72.0f);
 
   SetFlag(kDontShowInCreateMenu);
 }
@@ -163,13 +163,13 @@ void TextGeneratorV1::GenerateFrame(FramePtr frame, const GenerateJob& job)
   }
 }
 
-NodeValue TextGeneratorV1::Value(const ValueParams &p) const
+value_t TextGeneratorV1::Value(const ValueParams &p) const
 {
   if (!GetInputValue(p, kTextInput).toString().isEmpty()) {
     return Texture::Job(p.vparams(), CreateGenerateJob(p, GenerateFrame));
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 }

@@ -37,34 +37,34 @@ const QString BlurFilterNode::kRadialCenterInput = QStringLiteral("radial_center
 
 BlurFilterNode::BlurFilterNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  Method default_method = kGaussian;
+  const Method default_method = kGaussian;
 
-  AddInput(kMethodInput, NodeValue::kCombo, default_method, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  AddInput(kMethodInput, TYPE_COMBO, default_method, kInputFlagNotKeyframable | kInputFlagNotConnectable);
 
-  AddInput(kRadiusInput, NodeValue::kFloat, 10.0);
+  AddInput(kRadiusInput, TYPE_DOUBLE, 10.0);
   SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 
   {
     // Box and gaussian only
-    AddInput(kHorizInput, NodeValue::kBoolean, true);
-    AddInput(kVertInput, NodeValue::kBoolean, true);
+    AddInput(kHorizInput, TYPE_BOOL, true);
+    AddInput(kVertInput, TYPE_BOOL, true);
   }
 
   {
     // Directional only
-    AddInput(kDirectionalDegreesInput, NodeValue::kFloat, 0.0);
+    AddInput(kDirectionalDegreesInput, TYPE_DOUBLE, 0.0);
   }
 
   {
     // Radial only
-    AddInput(kRadialCenterInput, NodeValue::kVec2, QVector2D(0, 0));
+    AddInput(kRadialCenterInput, TYPE_VEC2, QVector2D(0, 0));
   }
 
   UpdateInputs(default_method);
 
-  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
+  AddInput(kRepeatEdgePixelsInput, TYPE_BOOL, true);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -116,10 +116,10 @@ ShaderCode BlurFilterNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
-NodeValue BlurFilterNode::Value(const ValueParams &p) const
+value_t BlurFilterNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
   if (TexturePtr tex = tex_meta.toTexture()) {
     Method method = static_cast<Method>(GetInputValue(p, kMethodInput).toInt());
 
@@ -192,8 +192,8 @@ void BlurFilterNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifie
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
-    x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-    y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
 
   }
 }

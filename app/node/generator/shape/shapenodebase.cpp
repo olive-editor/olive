@@ -37,12 +37,12 @@ const QString ShapeNodeBase::kColorInput = QStringLiteral("color_in");
 
 ShapeNodeBase::ShapeNodeBase(bool create_color_input)
 {
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
-  AddInput(kSizeInput, NodeValue::kVec2, QVector2D(100, 100));
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));
+  AddInput(kSizeInput, TYPE_VEC2, QVector2D(100, 100));
   SetInputProperty(kSizeInput, QStringLiteral("min"), QVector2D(0, 0));
 
   if (create_color_input) {
-    AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0, 0.0, 0.0, 1.0)));
+    AddInput(kColorInput, TYPE_COLOR, Color(1.0, 0.0, 0.0, 1.0));
   }
 
   // Initiate gizmos
@@ -126,8 +126,8 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
   NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
   if (gizmo == poly_gizmo_) {
-    x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-    y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
   } else {
     bool from_center = modifiers & Qt::AltModifier;
     bool keep_ratio = modifiers & Qt::ShiftModifier;
@@ -135,8 +135,8 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
     NodeInputDragger &w_drag = gizmo->GetDraggers()[2];
     NodeInputDragger &h_drag = gizmo->GetDraggers()[3];
 
-    QVector2D gizmo_sz_start(w_drag.GetStartValue().toDouble(), h_drag.GetStartValue().toDouble());
-    QVector2D gizmo_pos_start(x_drag.GetStartValue().toDouble(), y_drag.GetStartValue().toDouble());
+    QVector2D gizmo_sz_start(w_drag.GetStartValue().get<double>(), h_drag.GetStartValue().get<double>());
+    QVector2D gizmo_pos_start(x_drag.GetStartValue().get<double>(), y_drag.GetStartValue().get<double>());
     QVector2D gizmo_half_res = gizmo->GetGlobals().square_resolution()/2;
     QVector2D adjusted_pt(x, y);
     QVector2D new_size;
@@ -147,7 +147,7 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
 
     double original_ratio;
     if (keep_ratio) {
-      original_ratio = w_drag.GetStartValue().toDouble() / h_drag.GetStartValue().toDouble();
+      original_ratio = w_drag.GetStartValue().get<double>() / h_drag.GetStartValue().get<double>();
     }
 
     // Calculate new size

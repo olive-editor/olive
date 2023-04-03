@@ -115,8 +115,8 @@ void PreferencesDiskTab::Accept(MultiUndoCommand *command)
     default_disk_cache_folder_->SetPath(disk_cache_location_->text());
   }
 
-  OLIVE_CONFIG("DiskCacheBehind") = QVariant::fromValue(rational::fromDouble(cache_behind_slider_->GetValue()));
-  OLIVE_CONFIG("DiskCacheAhead") = QVariant::fromValue(rational::fromDouble(cache_ahead_slider_->GetValue()));
+  OLIVE_CONFIG("DiskCacheBehind") = rational::fromDouble(cache_behind_slider_->GetValue());
+  OLIVE_CONFIG("DiskCacheAhead") = rational::fromDouble(cache_ahead_slider_->GetValue());
 }
 
 }

@@ -57,10 +57,10 @@ private:
       QString input_id;
       int input_element;
       QString custom_name;
-      InputFlags custom_flags;
-      NodeValue::Type data_type;
-      QVariant default_val;
-      QHash<QString, QVariant> custom_properties;
+      InputFlag custom_flags;
+      type_t data_type;
+      value_t default_val;
+      QHash<QString, value_t> custom_properties;
     };
 
     QHash<quintptr, Node*> node_ptrs;
@@ -82,7 +82,7 @@ private:
 
   void LoadImmediate(QXmlStreamReader *reader, Node *node, const QString& input, int element, XMLNodeData& xml_node_data) const;
 
-  void LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, NodeValue::Type data_type) const;
+  void LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, type_t data_type) const;
 
   bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos) const;
 

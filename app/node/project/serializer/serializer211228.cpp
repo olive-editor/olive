@@ -496,7 +496,7 @@ void ProjectSerializer211228::LoadImmediate(QXmlStreamReader *reader, Node *node
 {
   Q_UNUSED(xml_node_data)
 
-  NodeValue::Type data_type = node->GetInputDataType(input);
+  type_t data_type = node->GetInputDataType(input);
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("standard")) {
@@ -509,20 +509,20 @@ void ProjectSerializer211228::LoadImmediate(QXmlStreamReader *reader, Node *node
         }
 
         if (reader->name() == QStringLiteral("track")) {
-          QVariant value_on_track;
+          value_t::component_t value_on_track;
 
-          if (data_type == NodeValue::kVideoParams) {
+          if (data_type == ViewerOutput::TYPE_VPARAM) {
             VideoParams vp;
             vp.Load(reader);
-            value_on_track = QVariant::fromValue(vp);
-          } else if (data_type == NodeValue::kAudioParams) {
+            value_on_track = vp;
+          } else if (data_type == ViewerOutput::TYPE_APARAM) {
             AudioParams ap = TypeSerializer::LoadAudioParams(reader);
-            value_on_track = QVariant::fromValue(ap);
+            value_on_track = ap;
           } else {
             QString value_text = reader->readElementText();
 
             if (!value_text.isEmpty()) {
-              value_on_track = NodeValue::StringToValue(data_type, value_text, true);
+              value_on_track = value_t::component_t(value_text).toSerializedString(data_type);
             }
           }
 
@@ -553,7 +553,7 @@ void ProjectSerializer211228::LoadImmediate(QXmlStreamReader *reader, Node *node
               QString key_input;
               rational key_time;
               NodeKeyframe::Type key_type = NodeKeyframe::kLinear;
-              QVariant key_value;
+              value_t::component_t key_value;
               QPointF key_in_handle;
               QPointF key_out_handle;
 
@@ -579,7 +579,7 @@ void ProjectSerializer211228::LoadImmediate(QXmlStreamReader *reader, Node *node
                 }
               }
 
-              key_value = NodeValue::StringToValue(data_type, reader->readElementText(), true);
+              key_value = value_t::component_t::fromSerializedString(data_type, reader->readElementText());
 
               NodeKeyframe* key = new NodeKeyframe(key_time, key_value, key_type, track, element, key_input, node);
               key->set_bezier_control_in(key_in_handle);

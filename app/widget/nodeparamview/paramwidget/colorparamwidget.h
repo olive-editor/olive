@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,16 +18,28 @@
 
 ***/
 
-#ifndef SPLITVALUE_H
-#define SPLITVALUE_H
+#ifndef COLORPARAMWIDGET_H
+#define COLORPARAMWIDGET_H
 
-#include <QVariant>
-#include <QVector>
+#include "abstractparamwidget.h"
 
 namespace olive {
 
-using SplitValue = QVector<QVariant>;
+class ColorParamWidget : public AbstractParamWidget
+{
+  Q_OBJECT
+public:
+  explicit ColorParamWidget(QObject *parent = nullptr);
+
+  virtual void Initialize(QWidget *parent, size_t channels) override;
+
+  virtual void SetValue(const value_t &val) override;
+
+private slots:
+  void Arbitrate();
+
+};
 
 }
 
-#endif // SPLITVALUE_H
+#endif // COLORPARAMWIDGET_H

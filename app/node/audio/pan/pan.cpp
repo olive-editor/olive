@@ -31,9 +31,9 @@ const QString PanNode::kPanningInput = QStringLiteral("panning_in");
 
 PanNode::PanNode()
 {
-  AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kSamplesInput, TYPE_SAMPLES, kInputFlagNotKeyframable);
 
-  AddInput(kPanningInput, NodeValue::kFloat, 0.0);
+  AddInput(kPanningInput, TYPE_DOUBLE, 0.0);
   SetInputProperty(kPanningInput, QStringLiteral("min"), -1.0);
   SetInputProperty(kPanningInput, QStringLiteral("max"), 1.0);
   SetInputProperty(kPanningInput, QStringLiteral("view"), FloatSlider::kPercentage);
@@ -100,10 +100,10 @@ void PanNode::ProcessSamples(const void *context, const SampleJob &job, SampleBu
   }
 }
 
-NodeValue PanNode::Value(const ValueParams &p) const
+value_t PanNode::Value(const ValueParams &p) const
 {
   // Create a sample job
-  NodeValue samples_original = GetInputValue(p, kSamplesInput);
+  value_t samples_original = GetInputValue(p, kSamplesInput);
 
   if (!IsInputStatic(kPanningInput) || !qIsNull(GetInputValue(p, kPanningInput).toDouble())) {
     // Requires sample job

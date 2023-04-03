@@ -32,11 +32,11 @@ const QString DisplayTransformNode::kDirectionInput = QStringLiteral("dir_in");
 
 DisplayTransformNode::DisplayTransformNode()
 {
-  AddInput(kDisplayInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  AddInput(kDisplayInput, TYPE_COMBO, 0, kInputFlagNotKeyframable | kInputFlagNotConnectable);
 
-  AddInput(kViewInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  AddInput(kViewInput, TYPE_COMBO, 0, kInputFlagNotKeyframable | kInputFlagNotConnectable);
 
-  AddInput(kDirectionInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  AddInput(kDirectionInput, TYPE_COMBO, 0, kInputFlagNotKeyframable | kInputFlagNotConnectable);
 }
 
 QString DisplayTransformNode::Name() const

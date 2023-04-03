@@ -50,7 +50,7 @@ void ScopeBase::DrawScope(TexturePtr managed_tex, QVariant pipeline)
 {
   ShaderJob job;
 
-  job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
+  job.Insert(QStringLiteral("ove_maintex"), managed_tex);
 
   renderer()->Blit(pipeline, job, GetViewportParams());
 }

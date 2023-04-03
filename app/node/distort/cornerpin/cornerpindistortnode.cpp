@@ -37,12 +37,12 @@ const QString CornerPinDistortNode::kPerspectiveInput = QStringLiteral("perspect
 
 CornerPinDistortNode::CornerPinDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-  AddInput(kPerspectiveInput, NodeValue::kBoolean, true);
-  AddInput(kTopLeftInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
-  AddInput(kTopRightInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
-  AddInput(kBottomRightInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
-  AddInput(kBottomLeftInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
+  AddInput(kPerspectiveInput, TYPE_BOOL, true);
+  AddInput(kTopLeftInput, TYPE_VEC2, QVector2D(0.0, 0.0));
+  AddInput(kTopRightInput, TYPE_VEC2, QVector2D(0.0, 0.0));
+  AddInput(kBottomRightInput, TYPE_VEC2, QVector2D(0.0, 0.0));
+  AddInput(kBottomLeftInput, TYPE_VEC2, QVector2D(0.0, 0.0));
 
   // Initiate gizmos
   gizmo_whole_rect_ = AddDraggableGizmo<PolygonGizmo>();
@@ -73,10 +73,10 @@ ShaderCode CornerPinDistortNode::GetShaderCode(const QString &id)
                     FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
 }
 
-NodeValue CornerPinDistortNode::Value(const ValueParams &p) const
+value_t CornerPinDistortNode::Value(const ValueParams &p) const
 {
   // If no texture do nothing
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
     // In the special case that all sliders are in their default position just
@@ -143,8 +143,8 @@ void CornerPinDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
   if (gizmo != gizmo_whole_rect_) {
-    gizmo->GetDraggers()[0].Drag(gizmo->GetDraggers()[0].GetStartValue().toDouble() + x);
-    gizmo->GetDraggers()[1].Drag(gizmo->GetDraggers()[1].GetStartValue().toDouble() + y);
+    gizmo->GetDraggers()[0].Drag(gizmo->GetDraggers()[0].GetStartValue().get<double>() + x);
+    gizmo->GetDraggers()[1].Drag(gizmo->GetDraggers()[1].GetStartValue().get<double>() + y);
   }
 }
 

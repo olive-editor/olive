@@ -38,32 +38,32 @@ public:
 
   void SetDragMultiplier(const double& d);
 
-  void SetOffset(const QVariant& v);
+  void SetOffset(const InternalType& v);
 
   bool IsDragging() const;
 
 protected:
-  const QVariant& GetOffset() const
+  const InternalType& GetOffset() const
   {
     return offset_;
   }
 
-  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const;
+  virtual InternalType AdjustDragDistanceInternal(const InternalType &start, const double &drag) const;
 
-  void SetMinimumInternal(const QVariant& v);
+  void SetMinimumInternal(const InternalType& v);
 
-  void SetMaximumInternal(const QVariant& v);
+  void SetMaximumInternal(const InternalType& v);
 
-  virtual bool ValueGreaterThan(const QVariant& lhs, const QVariant& rhs) const;
+  virtual bool ValueGreaterThan(const InternalType& lhs, const InternalType& rhs) const;
 
-  virtual bool ValueLessThan(const QVariant& lhs, const QVariant& rhs) const;
+  virtual bool ValueLessThan(const InternalType& lhs, const InternalType& rhs) const;
 
   virtual bool CanSetValue() const override;
 
 private:
   bool UsingLadders() const;
 
-  virtual QVariant AdjustValue(const QVariant& value) const override;
+  virtual InternalType AdjustValue(const InternalType& value) const override;
 
   SliderLadder* drag_ladder_;
 
@@ -72,16 +72,16 @@ private:
   bool dragged_;
 
   bool has_min_;
-  QVariant min_value_;
+  InternalType min_value_;
 
   bool has_max_;
-  QVariant max_value_;
+  InternalType max_value_;
 
   double dragged_diff_;
 
-  QVariant drag_start_value_;
+  InternalType drag_start_value_;
 
-  QVariant offset_;
+  InternalType offset_;
 
   double drag_multiplier_;
 

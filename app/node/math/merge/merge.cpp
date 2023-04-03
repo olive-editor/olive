@@ -29,9 +29,9 @@ const QString MergeNode::kBlendIn = QStringLiteral("blend_in");
 
 MergeNode::MergeNode()
 {
-  AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBaseIn, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kBlendIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBlendIn, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   SetFlag(kDontShowInParamView);
 }
@@ -70,10 +70,10 @@ ShaderCode MergeNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
-NodeValue MergeNode::Value(const ValueParams &p) const
+value_t MergeNode::Value(const ValueParams &p) const
 {
-  NodeValue base_val = GetInputValue(p, kBaseIn);
-  NodeValue blend_val = GetInputValue(p, kBlendIn);
+  value_t base_val = GetInputValue(p, kBaseIn);
+  value_t blend_val = GetInputValue(p, kBlendIn);
 
   TexturePtr base_tex = base_val.toTexture();
   TexturePtr blend_tex = blend_val.toTexture();
@@ -90,7 +90,7 @@ NodeValue MergeNode::Value(const ValueParams &p) const
     }
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 }

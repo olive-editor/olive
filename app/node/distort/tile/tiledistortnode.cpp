@@ -35,18 +35,18 @@ const QString TileDistortNode::kMirrorYInput = QStringLiteral("mirrory_in");
 
 TileDistortNode::TileDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kScaleInput, NodeValue::kFloat, 0.5);
+  AddInput(kScaleInput, TYPE_DOUBLE, 0.5);
   SetInputProperty(kScaleInput, QStringLiteral("min"), 0);
   SetInputProperty(kScaleInput, QStringLiteral("view"), FloatSlider::kPercentage);
 
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));
 
-  AddInput(kAnchorInput, NodeValue::kCombo, kMiddleCenter);
+  AddInput(kAnchorInput, TYPE_COMBO, kMiddleCenter);
 
-  AddInput(kMirrorXInput, NodeValue::kBoolean, false);
-  AddInput(kMirrorYInput, NodeValue::kBoolean, false);
+  AddInput(kMirrorXInput, TYPE_BOOL, false);
+  AddInput(kMirrorYInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -107,10 +107,10 @@ ShaderCode TileDistortNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/tile.frag"));
 }
 
-NodeValue TileDistortNode::Value(const ValueParams &p) const
+value_t TileDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  NodeValue texture = GetInputValue(p, kTextureInput);
+  value_t texture = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = texture.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
@@ -157,8 +157,8 @@ void TileDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifi
   NodeInputDragger &x_drag = gizmo_->GetDraggers()[0];
   NodeInputDragger &y_drag = gizmo_->GetDraggers()[1];
 
-  x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-  y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+  x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
+  y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
 }
 
 }

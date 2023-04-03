@@ -20,6 +20,7 @@
 
 #include "render.h"
 
+#include "common/qtutils.h"
 #include "node/project/sequence/sequence.h"
 #include "render/rendermanager.h"
 

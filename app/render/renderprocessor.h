@@ -92,7 +92,7 @@ private:
 
   DecoderPtr ResolveDecoderFromInput(const QString &decoder_id, const Decoder::CodecStream& stream);
 
-  void ResolveJobs(NodeValue &value);
+  void ResolveJobs(value_t &value);
 
   const VideoParams &GetCacheVideoParams() const { return vparam_; }
   const AudioParams &GetCacheAudioParams() const { return aparam_; }

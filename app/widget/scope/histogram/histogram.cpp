@@ -71,8 +71,8 @@ void HistogramScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   ShaderJob shader_job;
 
   shader_job.Insert(QStringLiteral("viewport"), QVector2D(width(), height()));
-  shader_job.Insert(QStringLiteral("histogram_scale"), NodeValue(NodeValue::kFloat, histogram_scale));
-  shader_job.Insert(QStringLiteral("histogram_power"), NodeValue(NodeValue::kFloat, histogram_power));
+  shader_job.Insert(QStringLiteral("histogram_scale"), histogram_scale);
+  shader_job.Insert(QStringLiteral("histogram_power"), histogram_power);
 
   if (!texture_row_sums_
       || texture_row_sums_->width() != this->width()

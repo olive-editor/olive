@@ -34,19 +34,19 @@ const QString StrokeFilterNode::kInnerInput = QStringLiteral("inner_in");
 
 StrokeFilterNode::StrokeFilterNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 1.0f, 1.0f, 1.0f)));
+  AddInput(kColorInput, TYPE_COLOR, Color(1.0f, 1.0f, 1.0f, 1.0f));
 
-  AddInput(kRadiusInput, NodeValue::kFloat, 10.0);
+  AddInput(kRadiusInput, TYPE_DOUBLE, 10.0);
   SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kOpacityInput, NodeValue::kFloat, 1.0f);
+  AddInput(kOpacityInput, TYPE_DOUBLE, 1.0f);
   SetInputProperty(kOpacityInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kOpacityInput, QStringLiteral("min"), 0.0f);
   SetInputProperty(kOpacityInput, QStringLiteral("max"), 1.0f);
 
-  AddInput(kInnerInput, NodeValue::kBoolean, false);
+  AddInput(kInnerInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -88,9 +88,9 @@ ShaderCode StrokeFilterNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/stroke.frag"));
 }
 
-NodeValue StrokeFilterNode::Value(const ValueParams &p) const
+value_t StrokeFilterNode::Value(const ValueParams &p) const
 {
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
     if (GetInputValue(p, kRadiusInput).toDouble() > 0.0

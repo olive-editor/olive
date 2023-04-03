@@ -484,7 +484,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
                   painter->setRenderHint(QPainter::SmoothPixmapTransform);
                   painter->setClipRect(preview_rect);
 
-                  if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
+                  if (OLIVE_CONFIG("TimelineThumbnailMode").toInt() == Timeline::kThumbnailOn) {
 
                     Sequence *s = clip->track()->sequence();
                     int width = s->GetVideoParams().width();

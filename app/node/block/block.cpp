@@ -22,6 +22,7 @@
 
 #include <QDebug>
 
+#include "common/qtutils.h"
 #include "node/inputdragger.h"
 #include "node/output/track/track.h"
 #include "transition/transition.h"
@@ -38,8 +39,8 @@ Block::Block() :
   next_(nullptr),
   track_(nullptr)
 {
-  AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden));
-  SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
+  AddInput(kLengthInput, TYPE_RATIONAL, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden);
+  SetInputProperty(kLengthInput, QStringLiteral("min"), rational(0, 1));
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
 
@@ -91,7 +92,7 @@ void Block::InputValueChangedEvent(const QString &input, int element)
 
 void Block::set_length_internal(const rational &length)
 {
-  SetStandardValue(kLengthInput, QVariant::fromValue(length));
+  SetStandardValue(kLengthInput, length);
 }
 
 void Block::Retranslate()

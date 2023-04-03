@@ -1014,7 +1014,7 @@ void NodeView::ProcessMovingAttachedNodes(const QPoint &pos)
       if (new_drop_edge) {
         drop_input_.Reset();
 
-        NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
+        type_t drop_edge_data_type = new_drop_edge->input().GetDataType();
 
         // Determine best input to connect to our new node
         if (attached_node->GetEffectInput().IsValid()) {

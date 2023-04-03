@@ -65,7 +65,7 @@ public:
 
   double TransformCurve(double linear) const;
 
-  virtual NodeValue Value(const ValueParams &globals) const override;
+  virtual value_t Value(const ValueParams &globals) const override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 

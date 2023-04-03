@@ -22,6 +22,8 @@
 
 #include <QEvent>
 
+#include "common/qtutils.h"
+
 namespace olive {
 
 NodeTreeView::NodeTreeView(QWidget *parent) :
@@ -171,7 +173,7 @@ QTreeWidgetItem* NodeTreeView::CreateItem(QTreeWidgetItem *parent, const NodeKey
 
   QString item_name;
   if (ref.track() == -1
-      || NodeValue::get_number_of_keyframe_tracks(ref.input().GetDataType()) == 1
+      || ref.input().GetChannelCount() == 1
       || (ref.input().IsArray() && ref.input().element() == -1)) {
     if (ref.input().element() == -1) {
       item_name = ref.input().name();
@@ -222,7 +224,7 @@ void NodeTreeView::CreateItemsForTracks(QTreeWidgetItem *parent, const NodeInput
 
 bool NodeTreeView::UseRGBAOverXYZW(const NodeKeyframeTrackReference &ref)
 {
-  return ref.input().GetDataType() == NodeValue::kColor;
+  return ref.input().GetProperty(QStringLiteral("subtype")).toString() == QStringLiteral("color");
 }
 
 void NodeTreeView::ItemCheckStateChanged(QTreeWidgetItem *item, int column)

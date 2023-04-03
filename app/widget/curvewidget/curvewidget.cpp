@@ -258,8 +258,8 @@ void CurveWidget::ConnectInput(Node *node, const QString &input, int element)
 void CurveWidget::ConnectInputInternal(Node *node, const QString &input, int element)
 {
   NodeInput input_ref(node, input, element);
-  int track_count = NodeValue::get_number_of_keyframe_tracks(input_ref.GetDataType());
-  for (int i=0; i<track_count; i++) {
+  size_t track_count = input_ref.GetChannelCount();
+  for (size_t i=0; i<track_count; i++) {
     NodeKeyframeTrackReference track_ref(input_ref, i);
     view_->ConnectInput(track_ref);
     selected_tracks_.append(track_ref);

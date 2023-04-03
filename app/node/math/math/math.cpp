@@ -31,13 +31,13 @@ const QString MathNode::kParamCIn = QStringLiteral("param_c_in");
 
 MathNode::MathNode()
 {
-  AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kMethodIn, TYPE_COMBO, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kParamAIn, NodeValue::kFloat, 0.0);
+  AddInput(kParamAIn, TYPE_DOUBLE, 0.0);
   SetInputProperty(kParamAIn, QStringLiteral("decimalplaces"), 8);
   SetInputProperty(kParamAIn, QStringLiteral("autotrim"), true);
 
-  AddInput(kParamBIn, NodeValue::kFloat, 0.0);
+  AddInput(kParamBIn, TYPE_DOUBLE, 0.0);
   SetInputProperty(kParamBIn, QStringLiteral("decimalplaces"), 8);
   SetInputProperty(kParamBIn, QStringLiteral("autotrim"), true);
 }
@@ -88,21 +88,20 @@ void MathNode::Retranslate()
   SetComboBoxStrings(kMethodIn, operations);
 }
 
-NodeValue MathNode::Value(const ValueParams &p) const
+value_t MathNode::Value(const ValueParams &p) const
 {
   // Auto-detect what values to operate with
-  // FIXME: Very inefficient
   auto aval = GetInputValue(p, kParamAIn);
   auto bval = GetInputValue(p, kParamBIn);
 
-  if (!bval.data().isValid()) {
+  if (!bval.isValid()) {
     return aval;
   }
-  if (!aval.data().isValid()) {
+  if (!aval.isValid()) {
     return bval;
   }
 
-  PairingCalculator calc(aval, bval);
+  /*PairingCalculator calc(aval, bval);
 
   // Do nothing if no pairing was found
   if (calc.FoundMostLikelyPairing()) {
@@ -113,9 +112,9 @@ NodeValue MathNode::Value(const ValueParams &p) const
                          kParamBIn,
                          calc.GetMostLikelyValueB(),
                          p);
-  }
+  }*/
 
-  return NodeValue();
+  return value_t();
 }
 
 }

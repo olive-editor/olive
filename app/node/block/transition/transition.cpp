@@ -37,13 +37,13 @@ TransitionBlock::TransitionBlock() :
   connected_out_block_(nullptr),
   connected_in_block_(nullptr)
 {
-  AddInput(kOutBlockInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kOutBlockInput, kInputFlagNotKeyframable);
 
-  AddInput(kInBlockInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kInBlockInput, kInputFlagNotKeyframable);
 
-  AddInput(kCurveInput, NodeValue::kCombo, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  AddInput(kCurveInput, TYPE_COMBO, kInputFlagNotKeyframable | kInputFlagNotConnectable);
 
-  AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  AddInput(kCenterInput, TYPE_RATIONAL, kInputFlagNotKeyframable | kInputFlagNotConnectable);
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
 
@@ -92,7 +92,7 @@ rational TransitionBlock::offset_center() const
 
 void TransitionBlock::set_offset_center(const rational &r)
 {
-  SetStandardValue(kCenterInput, QVariant::fromValue(r));
+  SetStandardValue(kCenterInput, r);
 }
 
 void TransitionBlock::set_offsets_and_length(const rational &in_offset, const rational &out_offset)
@@ -154,27 +154,27 @@ void TransitionBlock::InsertTransitionTimes(AcceleratedJob *job, const double &t
   job->Insert(QStringLiteral("ove_tprog_in"), GetInProgress(time));
 }
 
-NodeValue TransitionBlock::Value(const ValueParams &p) const
+value_t TransitionBlock::Value(const ValueParams &p) const
 {
-  NodeValue out_buffer = GetInputValue(p, kOutBlockInput);
-  NodeValue in_buffer = GetInputValue(p, kInBlockInput);
+  value_t out_buffer = GetInputValue(p, kOutBlockInput);
+  value_t in_buffer = GetInputValue(p, kInBlockInput);
 
-  NodeValue::Type data_type = (out_buffer.type() != NodeValue::kNone) ? out_buffer.type() : in_buffer.type();
+  type_t data_type = (out_buffer.type() != TYPE_NONE) ? out_buffer.type() : in_buffer.type();
 
-  if (data_type == NodeValue::kTexture) {
+  if (data_type == TYPE_TEXTURE) {
     // This must be a visual transition
     ShaderJob job;
 
-    if (out_buffer.type() != NodeValue::kNone) {
+    if (out_buffer.type() != TYPE_NONE) {
       job.Insert(kOutBlockInput, out_buffer);
     } else {
-      job.Insert(kOutBlockInput, NodeValue(NodeValue::kTexture, nullptr));
+      job.Insert(kOutBlockInput, TexturePtr(nullptr));
     }
 
-    if (in_buffer.type() != NodeValue::kNone) {
+    if (in_buffer.type() != TYPE_NONE) {
       job.Insert(kInBlockInput, in_buffer);
     } else {
-      job.Insert(kInBlockInput, NodeValue(NodeValue::kTexture, nullptr));
+      job.Insert(kInBlockInput, TexturePtr(nullptr));
     }
 
     job.Insert(kCurveInput, GetInputValue(p, kCurveInput));
@@ -185,7 +185,7 @@ NodeValue TransitionBlock::Value(const ValueParams &p) const
     ShaderJobEvent(p, &job);
 
     return Texture::Job(p.vparams(), job);
-  } else if (data_type == NodeValue::kSamples) {
+  } else if (data_type == TYPE_SAMPLES) {
     // This must be an audio transition
     SampleJob job(p);
 
@@ -197,7 +197,7 @@ NodeValue TransitionBlock::Value(const ValueParams &p) const
     return job;
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 void TransitionBlock::InvalidateCache(const TimeRange &range, const QString &from, int element, InvalidateCacheOptions options)

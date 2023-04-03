@@ -37,14 +37,14 @@ const QString CropDistortNode::kFeatherInput = QStringLiteral("feather_in");
 
 CropDistortNode::CropDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   CreateCropSideInput(kLeftInput);
   CreateCropSideInput(kTopInput);
   CreateCropSideInput(kRightInput);
   CreateCropSideInput(kBottomInput);
 
-  AddInput(kFeatherInput, NodeValue::kFloat, 0.0);
+  AddInput(kFeatherInput, TYPE_DOUBLE, 0.0);
   SetInputProperty(kFeatherInput, QStringLiteral("min"), 0.0);
 
   // Initiate gizmos
@@ -80,9 +80,9 @@ ShaderCode CropDistortNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
 }
 
-NodeValue CropDistortNode::Value(const ValueParams &p) const
+value_t CropDistortNode::Value(const ValueParams &p) const
 {
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr texture = tex_meta.toTexture()) {
     ShaderJob job = CreateShaderJob(p, GetShaderCode);
@@ -135,7 +135,7 @@ void CropDistortNode::GizmoDragMove(double x_diff, double y_diff, const Qt::Keyb
 
   for (int j=0; j<gizmo->GetDraggers().size(); j++) {
     NodeInputDragger& i = gizmo->GetDraggers()[j];
-    double s = i.GetStartValue().toDouble();
+    double s = i.GetStartValue().get<double>();
     if (i.GetInput().input().input() == kLeftInput) {
       i.Drag(s + x_diff);
     } else if (i.GetInput().input().input() == kTopInput) {
@@ -150,7 +150,7 @@ void CropDistortNode::GizmoDragMove(double x_diff, double y_diff, const Qt::Keyb
 
 void CropDistortNode::CreateCropSideInput(const QString &id)
 {
-  AddInput(id, NodeValue::kFloat, 0.0);
+  AddInput(id, TYPE_DOUBLE, 0.0);
   SetInputProperty(id, QStringLiteral("min"), 0.0);
   SetInputProperty(id, QStringLiteral("max"), 1.0);
   SetInputProperty(id, QStringLiteral("view"), FloatSlider::kPercentage);

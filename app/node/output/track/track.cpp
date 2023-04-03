@@ -50,11 +50,11 @@ Track::Track() :
   arraymap_invalid_(false),
   ignore_arraymap_set_(false)
 {
-  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden | kInputFlagIgnoreInvalidations));
+  AddInput(kBlockInput, kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden | kInputFlagIgnoreInvalidations);
 
-  AddInput(kMutedInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kMutedInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kArrayMapInput, NodeValue::kBinary, InputFlags(kInputFlagStatic | kInputFlagHidden | kInputFlagIgnoreInvalidations));
+  AddInput(kArrayMapInput, TYPE_BINARY, kInputFlagStatic | kInputFlagHidden | kInputFlagIgnoreInvalidations);
 
   // Set default height
   track_height_ = kTrackHeightDefault;
@@ -188,7 +188,7 @@ void ProcessAudio(const void *context, const SampleJob &job, SampleBuffer &block
   }
 }
 
-NodeValue Track::Value(const ValueParams &p) const
+value_t Track::Value(const ValueParams &p) const
 {
   if (!IsMuted() && !blocks_.empty() && p.time().in() < track_length() && p.time().out() > 0) {
     if (this->type() == Track::kVideo) {
@@ -234,7 +234,7 @@ NodeValue Track::Value(const ValueParams &p) const
     }
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const
@@ -750,7 +750,7 @@ void Track::RefreshBlockCacheFromArrayMap()
     disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
   }
 
-  QByteArray bytes = GetStandardValue(kArrayMapInput).toByteArray();
+  QByteArray bytes = GetStandardValue(kArrayMapInput).toBinary();
   block_array_indexes_.resize(bytes.size() / sizeof(uint32_t));
   memcpy(block_array_indexes_.data(), bytes.data(), bytes.size());
   blocks_.clear();

@@ -29,9 +29,9 @@ QString ShapeNode::kRadiusInput = QStringLiteral("radius_in");
 
 ShapeNode::ShapeNode()
 {
-  PrependInput(kTypeInput, NodeValue::kCombo);
+  PrependInput(kTypeInput, TYPE_COMBO);
 
-  AddInput(kRadiusInput, NodeValue::kFloat, 20.0);
+  AddInput(kRadiusInput, TYPE_DOUBLE, 20.0);
   SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 }
 
@@ -71,7 +71,7 @@ ShaderCode ShapeNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
 }
 
-NodeValue ShapeNode::Value(const ValueParams &p) const
+value_t ShapeNode::Value(const ValueParams &p) const
 {
   TexturePtr base = GetInputValue(p, kBaseInput).toTexture();
 

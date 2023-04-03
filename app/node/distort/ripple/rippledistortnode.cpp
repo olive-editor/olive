@@ -33,16 +33,16 @@ const QString RippleDistortNode::kStretchInput = QStringLiteral("stretch_in");
 
 RippleDistortNode::RippleDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kEvolutionInput, NodeValue::kFloat, 0);
-  AddInput(kIntensityInput, NodeValue::kFloat, 100);
+  AddInput(kEvolutionInput, TYPE_DOUBLE, 0);
+  AddInput(kIntensityInput, TYPE_DOUBLE, 100);
 
-  AddInput(kFrequencyInput, NodeValue::kFloat, 1);
+  AddInput(kFrequencyInput, TYPE_DOUBLE, 1);
   SetInputProperty(kFrequencyInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
-  AddInput(kStretchInput, NodeValue::kBoolean, false);
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));
+  AddInput(kStretchInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -91,14 +91,14 @@ ShaderCode RippleDistortNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/ripple.frag"));
 }
 
-NodeValue RippleDistortNode::Value(const ValueParams &p) const
+value_t RippleDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  NodeValue texture = GetInputValue(p, kTextureInput);
+  value_t texture = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = texture.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    NodeValue intensity = GetInputValue(p, kIntensityInput);
+    value_t intensity = GetInputValue(p, kIntensityInput);
 
     if (!qIsNull(intensity.toDouble())) {
       ShaderJob job;
@@ -119,7 +119,7 @@ NodeValue RippleDistortNode::Value(const ValueParams &p) const
     }
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 void RippleDistortNode::UpdateGizmoPositions(const ValueParams &p)
@@ -135,8 +135,8 @@ void RippleDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModi
   NodeInputDragger &x_drag = gizmo_->GetDraggers()[0];
   NodeInputDragger &y_drag = gizmo_->GetDraggers()[1];
 
-  x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-  y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+  x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
+  y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
 }
 
 }

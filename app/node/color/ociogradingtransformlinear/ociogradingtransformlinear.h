@@ -43,7 +43,7 @@ class OCIOGradingTransformLinearNode : public OCIOBaseNode
   virtual void InputValueChangedEvent(const QString &input, int element) override;
   void GenerateProcessor();
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kContrastInput;
   static const QString kOffsetInput;

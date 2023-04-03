@@ -23,6 +23,7 @@
 
 #include <QStackedWidget>
 
+#include "node/value.h"
 #include "sliderlabel.h"
 #include "sliderladder.h"
 #include "widget/focusablelineedit/focusablelineedit.h"
@@ -33,6 +34,8 @@ class SliderBase : public QStackedWidget
 {
   Q_OBJECT
 public:
+  using InternalType = value_t; //QVariant;
+
   SliderBase(QWidget* parent = nullptr);
 
   void SetAlignment(Qt::Alignment alignment);
@@ -45,11 +48,11 @@ public:
 
   bool IsFormatPlural() const;
 
-  void SetDefaultValue(const QVariant& v);
+  void SetDefaultValue(const InternalType& v);
 
-  QString GetFormattedValueToString(const QVariant& v) const;
+  QString GetFormattedValueToString(const InternalType& v) const;
 
-  void InsertLabelSubstitution(const QVariant &value, const QString &label)
+  void InsertLabelSubstitution(const InternalType &value, const QString &label)
   {
     label_substitutions_.append({value, label});
     UpdateLabel();
@@ -60,6 +63,8 @@ public:
     label_->SetColor(c);
   }
 
+  const InternalType& GetValueInternal() const;
+
 public slots:
   void ShowEditor();
 
@@ -67,9 +72,7 @@ protected slots:
   void UpdateLabel();
 
 protected:
-  const QVariant& GetValueInternal() const;
-
-  void SetValueInternal(const QVariant& v);
+  void SetValueInternal(const InternalType& v);
 
   QString GetFormat() const;
 
@@ -77,27 +80,29 @@ protected:
 
   SliderLabel* label() { return label_; }
 
-  virtual QString ValueToString(const QVariant &v) const = 0;
+  virtual QString ValueToString(const InternalType &v) const = 0;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) const = 0;
+  virtual InternalType StringToValue(const QString& s, bool* ok) const = 0;
 
-  virtual QVariant AdjustValue(const QVariant& value) const;
+  virtual InternalType AdjustValue(const InternalType& value) const;
 
   virtual bool CanSetValue() const;
 
-  virtual void ValueSignalEvent(const QVariant& value) = 0;
+  virtual void ValueSignalEvent(const InternalType& value) = 0;
 
   virtual void changeEvent(QEvent* e) override;
 
+  virtual bool Equals(const InternalType &a, const InternalType &b) const = 0;
+
 private:
-  bool GetLabelSubstitution(const QVariant &v, QString *out) const;
+  bool GetLabelSubstitution(const InternalType &v, QString *out) const;
 
   SliderLabel* label_;
 
   FocusableLineEdit* editor_;
 
-  QVariant value_;
-  QVariant default_value_;
+  InternalType value_;
+  InternalType default_value_;
 
   bool tristate_;
 
@@ -105,7 +110,7 @@ private:
 
   bool format_plural_;
 
-  QVector<QPair<QVariant, QString> > label_substitutions_;
+  QVector<QPair<InternalType, QString> > label_substitutions_;
 
 private slots:
   void LineEditConfirmed();

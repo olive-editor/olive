@@ -62,12 +62,12 @@ public:
 
   void SetOverrideID(const QString &id) { id_ = id; }
 
-  const NodeValue &GetInputTexture() const { return input_texture_; }
-  void SetInputTexture(const NodeValue &tex) { input_texture_ = tex; }
+  const value_t &GetInputTexture() const { return input_texture_; }
+  void SetInputTexture(const value_t &tex) { input_texture_ = tex; }
   void SetInputTexture(TexturePtr tex)
   {
     Q_ASSERT(!tex->IsDummy());
-    input_texture_ = NodeValue(NodeValue::kTexture, tex);
+    input_texture_ = tex;
   }
 
   ColorProcessorPtr GetColorProcessor() const { return processor_; }
@@ -95,7 +95,7 @@ private:
   ColorProcessorPtr processor_;
   QString id_;
 
-  NodeValue input_texture_;
+  value_t input_texture_;
 
   ShaderJob::GetShaderCodeFunction_t custom_shader_;
 

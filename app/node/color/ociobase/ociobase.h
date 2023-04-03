@@ -35,7 +35,7 @@ public:
   virtual void AddedToGraphEvent(Project *p)  override;
   virtual void RemovedFromGraphEvent(Project *p) override;
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kTextureInput;
 

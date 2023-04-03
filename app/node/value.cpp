@@ -33,353 +33,204 @@
 
 namespace olive {
 
-QString NodeValue::ValueToString(Type data_type, const QVariant &value, bool value_is_a_key_track)
+std::map<type_t, std::map<type_t, value_t::Converter_t> > value_t::converters_;
+
+QChar CHANNEL_SPLITTER = ':';
+
+value_t::value_t(const SampleJob &samples) :
+  value_t(TYPE_SAMPLES, samples)
 {
-  if (!value_is_a_key_track && data_type == kVec2) {
-    QVector2D vec = value.value<QVector2D>();
+}
 
-    return QStringLiteral("%1:%2").arg(QString::number(vec.x()),
-                                       QString::number(vec.y()));
-  } else if (!value_is_a_key_track && data_type == kVec3) {
-    QVector3D vec = value.value<QVector3D>();
+value_t value_t::fromSerializedString(type_t target_type, const QString &str)
+{
+  QStringList l = str.split(CHANNEL_SPLITTER);
+  value_t v(TYPE_STRING, l.size());
 
-    return QStringLiteral("%1:%2:%3").arg(QString::number(vec.x()),
-                                          QString::number(vec.y()),
-                                          QString::number(vec.z()));
-  } else if (!value_is_a_key_track && data_type == kVec4) {
-    QVector4D vec = value.value<QVector4D>();
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = l[i];
+  }
 
-    return QStringLiteral("%1:%2:%3:%4").arg(QString::number(vec.x()),
-                                             QString::number(vec.y()),
-                                             QString::number(vec.z()),
-                                             QString::number(vec.w()));
-  } else if (!value_is_a_key_track && data_type == kColor) {
-    Color c = value.value<Color>();
+  if (target_type != TYPE_STRING) {
+    v = v.converted(target_type);
+  }
 
-    return QStringLiteral("%1:%2:%3:%4").arg(QString::number(c.red()),
-                                             QString::number(c.green()),
-                                             QString::number(c.blue()),
-                                             QString::number(c.alpha()));
-  } else if (!value_is_a_key_track && data_type == kBezier) {
-    Bezier b = value.value<Bezier>();
+  return v;
+}
 
-    return QStringLiteral("%1:%2:%3:%4:%5:%6").arg(QString::number(b.x()),
-                                                   QString::number(b.y()),
-                                                   QString::number(b.cp1_x()),
-                                                   QString::number(b.cp1_y()),
-                                                   QString::number(b.cp2_x()),
-                                                   QString::number(b.cp2_y()));
-  } else if (data_type == kRational) {
-    return QString::fromStdString(value.value<rational>().toString());
-  } else if (data_type == kTexture
-             || data_type == kSamples
-             || data_type == kNone) {
-    // These data types need no XML representation
-    return QString();
-  } else if (data_type == kInt) {
-    return QString::number(value.value<int64_t>());
-  } else if (data_type == kBinary) {
-    return value.toByteArray().toBase64();
+QString value_t::toSerializedString() const
+{
+  if (this->type() == TYPE_STRING) {
+    QStringList l;
+    for (auto it = data_.cbegin(); it != data_.cend(); it++) {
+      l.append(it->get<QString>());
+    }
+    return l.join(CHANNEL_SPLITTER);
   } else {
-    if (value.canConvert<QString>()) {
-      return value.toString();
-    }
-
-    if (!value.isNull()) {
-      qWarning() << "Failed to convert type" << ToHex(data_type) << "to string";
-    }
-
-    return QString();
+    value_t stringified = this->converted(TYPE_STRING);
+    return stringified.toSerializedString();
   }
 }
 
-QVector<QVariant> NodeValue::split_normal_value_into_track_values(Type type, const QVariant &value)
+value_t value_t::converted(type_t to) const
 {
-  QVector<QVariant> vals(get_number_of_keyframe_tracks(type));
-
-  switch (type) {
-  case kVec2:
-  {
-    QVector2D vec = value.value<QVector2D>();
-    vals.replace(0, vec.x());
-    vals.replace(1, vec.y());
-    break;
-  }
-  case kVec3:
-  {
-    QVector3D vec = value.value<QVector3D>();
-    vals.replace(0, vec.x());
-    vals.replace(1, vec.y());
-    vals.replace(2, vec.z());
-    break;
-  }
-  case kVec4:
-  {
-    QVector4D vec = value.value<QVector4D>();
-    vals.replace(0, vec.x());
-    vals.replace(1, vec.y());
-    vals.replace(2, vec.z());
-    vals.replace(3, vec.w());
-    break;
-  }
-  case kColor:
-  {
-    Color c = value.value<Color>();
-    vals.replace(0, c.red());
-    vals.replace(1, c.green());
-    vals.replace(2, c.blue());
-    vals.replace(3, c.alpha());
-    break;
-  }
-  case kBezier:
-  {
-    Bezier b = value.value<Bezier>();
-    vals.replace(0, b.x());
-    vals.replace(1, b.y());
-    vals.replace(2, b.cp1_x());
-    vals.replace(3, b.cp1_y());
-    vals.replace(4, b.cp2_x());
-    vals.replace(5, b.cp2_y());
-    break;
-  }
-  default:
-    vals.replace(0, value);
+  // No-op if type is already requested
+  if (this->type() == to) {
+    return *this;
   }
 
-  return vals;
+  // Find converter, no-op if none found
+  Converter_t c = converters_[this->type()][to];
+  if (!c) {
+    return *this;
+  }
+
+  // Create new value with new type and same amount of channels
+  value_t v(to, data_.size());
+
+  // Run each channel through converter
+  for (size_t i = 0; i < data_.size(); i++) {
+    v.data_[0] = c(data_[0]);
+  }
+
+  qDebug() << "converted" << this->type().toString() << "to" << to.toString();
+
+  return v;
 }
 
-QVariant NodeValue::combine_track_values_into_normal_value(Type type, const QVector<QVariant> &split)
+value_t::component_t converter_IntegerToString(const value_t::component_t &v)
 {
-  if (split.isEmpty()) {
-    return QVariant();
-  }
-
-  switch (type) {
-  case kVec2:
-  {
-    return QVector2D(split.at(0).toFloat(),
-                     split.at(1).toFloat());
-  }
-  case kVec3:
-  {
-    return QVector3D(split.at(0).toFloat(),
-                     split.at(1).toFloat(),
-                     split.at(2).toFloat());
-  }
-  case kVec4:
-  {
-    return QVector4D(split.at(0).toFloat(),
-                     split.at(1).toFloat(),
-                     split.at(2).toFloat(),
-                     split.at(3).toFloat());
-  }
-  case kColor:
-  {
-    return QVariant::fromValue(Color(split.at(0).toFloat(),
-                                     split.at(1).toFloat(),
-                                     split.at(2).toFloat(),
-                                     split.at(3).toFloat()));
-  }
-  case kBezier:
-    return QVariant::fromValue(Bezier(split.at(0).toDouble(),
-                                      split.at(1).toDouble(),
-                                      split.at(2).toDouble(),
-                                      split.at(3).toDouble(),
-                                      split.at(4).toDouble(),
-                                      split.at(5).toDouble()));
-  default:
-    return split.first();
-  }
+  return QString::number(v.get<int64_t>());
 }
 
-int NodeValue::get_number_of_keyframe_tracks(Type type)
+value_t::component_t converter_StringToInteger(const value_t::component_t &v)
 {
-  switch (type) {
-  case NodeValue::kVec2:
-    return 2;
-  case NodeValue::kVec3:
-    return 3;
-  case NodeValue::kVec4:
-  case NodeValue::kColor:
-    return 4;
-  case NodeValue::kBezier:
-    return 6;
-  default:
-    return 1;
-  }
+  return int64_t(v.get<QString>().toLongLong());
 }
 
-QVariant NodeValue::StringToValue(Type data_type, const QString &string, bool value_is_a_key_track)
+value_t::component_t converter_DoubleToString(const value_t::component_t &v)
 {
-  if (!value_is_a_key_track && data_type == kVec2) {
-    QStringList vals = string.split(':');
+  return QString::number(v.get<double>());
+}
 
-    ValidateVectorString(&vals, 2);
+value_t::component_t converter_StringToDouble(const value_t::component_t &v)
+{
+  return v.get<QString>().toDouble();
+}
 
-    return QVector2D(vals.at(0).toFloat(), vals.at(1).toFloat());
-  } else if (!value_is_a_key_track && data_type == kVec3) {
-    QStringList vals = string.split(':');
+value_t::component_t converter_RationalToString(const value_t::component_t &v)
+{
+  return QString::fromStdString(v.get<rational>().toString());
+}
 
-    ValidateVectorString(&vals, 3);
+value_t::component_t converter_StringToRational(const value_t::component_t &v)
+{
+  return rational::fromString(v.get<QString>().toStdString());
+}
 
-    return QVector3D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat());
-  } else if (!value_is_a_key_track && data_type == kVec4) {
-    QStringList vals = string.split(':');
+value_t::component_t converter_BinaryToString(const value_t::component_t &v)
+{
+  return QString::fromLatin1(v.get<QByteArray>().toBase64());
+}
 
-    ValidateVectorString(&vals, 4);
+value_t::component_t converter_StringToBinary(const value_t::component_t &v)
+{
+  return QByteArray::fromBase64(v.get<QString>().toLatin1());
+}
 
-    return QVector4D(vals.at(0).toFloat(), vals.at(1).toFloat(), vals.at(2).toFloat(), vals.at(3).toFloat());
-  } else if (!value_is_a_key_track && data_type == kColor) {
-    QStringList vals = string.split(':');
+value_t::component_t converter_IntegerToDouble(const value_t::component_t &v)
+{
+  return double(v.get<int64_t>());
+}
 
-    ValidateVectorString(&vals, 4);
+value_t::component_t converter_IntegerToRational(const value_t::component_t &v)
+{
+  return rational(v.get<int64_t>());
+}
 
-    return QVariant::fromValue(Color(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble()));
-  } else if (!value_is_a_key_track && data_type == kBezier) {
-    QStringList vals = string.split(':');
+value_t::component_t converter_DoubleToInteger(const value_t::component_t &v)
+{
+  return int64_t(v.get<double>());
+}
 
-    ValidateVectorString(&vals, 6);
+value_t::component_t converter_DoubleToRational(const value_t::component_t &v)
+{
+  return rational::fromDouble(v.get<double>());
+}
 
-    return QVariant::fromValue(Bezier(vals.at(0).toDouble(), vals.at(1).toDouble(), vals.at(2).toDouble(), vals.at(3).toDouble(), vals.at(4).toDouble(), vals.at(5).toDouble()));
-  } else if (data_type == kInt) {
-    return QVariant::fromValue(string.toLongLong());
-  } else if (data_type == kRational) {
-    return QVariant::fromValue(rational::fromString(string.toStdString()));
-  } else if (data_type == kBinary) {
-    return QByteArray::fromBase64(string.toLatin1());
+value_t::component_t converter_RationalToInteger(const value_t::component_t &v)
+{
+  return int64_t(v.get<rational>().toDouble());
+}
+
+value_t::component_t converter_RationalToDouble(const value_t::component_t &v)
+{
+  return v.get<rational>().toDouble();
+}
+
+void value_t::registerConverter(const type_t &from, const type_t &to, Converter_t converter)
+{
+  if (converters_[from][to]) {
+    qWarning() << "Failed to register converter from" << from.toString() << "to" << to.toString() << "- converter already exists";
+    return;
+  }
+
+  converters_[from][to] = converter;
+}
+
+void value_t::registerDefaultConverters()
+{
+  registerConverter(TYPE_INTEGER, TYPE_STRING, converter_IntegerToString);
+  registerConverter(TYPE_DOUBLE, TYPE_STRING, converter_DoubleToString);
+  registerConverter(TYPE_RATIONAL, TYPE_STRING, converter_RationalToString);
+  registerConverter(TYPE_BINARY, TYPE_STRING, converter_BinaryToString);
+
+  registerConverter(TYPE_STRING, TYPE_INTEGER, converter_StringToInteger);
+  registerConverter(TYPE_STRING, TYPE_DOUBLE, converter_StringToDouble);
+  registerConverter(TYPE_STRING, TYPE_RATIONAL, converter_StringToRational);
+  registerConverter(TYPE_STRING, TYPE_BINARY, converter_StringToBinary);
+
+  registerConverter(TYPE_INTEGER, TYPE_DOUBLE, converter_IntegerToDouble);
+  registerConverter(TYPE_INTEGER, TYPE_RATIONAL, converter_IntegerToRational);
+
+  registerConverter(TYPE_DOUBLE, TYPE_INTEGER, converter_DoubleToInteger);
+  registerConverter(TYPE_DOUBLE, TYPE_RATIONAL, converter_DoubleToRational);
+
+  registerConverter(TYPE_RATIONAL, TYPE_INTEGER, converter_RationalToInteger);
+  registerConverter(TYPE_RATIONAL, TYPE_DOUBLE, converter_RationalToDouble);
+}
+
+value_t::component_t value_t::component_t::converted(type_t from, type_t to) const
+{
+  if (Converter_t c = converters_[from][to]) {
+    return c(*this);
+  }
+
+  return *this;
+}
+
+value_t::component_t value_t::component_t::fromSerializedString(type_t to, const QString &str)
+{
+  component_t c = str;
+  if (to != TYPE_STRING) {
+    c = c.converted(TYPE_STRING, to);
+  }
+  return c;
+}
+
+QString value_t::component_t::toSerializedString(type_t from) const
+{
+  if (from == TYPE_STRING) {
+    return get<QString>();
   } else {
-    return string;
+    component_t c = this->converted(from, TYPE_STRING);
+    return c.get<QString>();
   }
 }
 
-void NodeValue::ValidateVectorString(QStringList* list, int count)
+QDebug operator<<(QDebug dbg, const type_t &t)
 {
-  while (list->size() < count) {
-    list->append(QStringLiteral("0"));
-  }
-}
-
-NodeValue::NodeValue(const SampleJob &samples) :
-  NodeValue(kSamples, samples)
-{
-}
-
-QString NodeValue::GetPrettyDataTypeName(Type type)
-{
-  switch (type) {
-  case kNone:
-    return QCoreApplication::translate("NodeValue", "None");
-  case kInt:
-  case kCombo:
-    return QCoreApplication::translate("NodeValue", "Integer");
-  case kFloat:
-    return QCoreApplication::translate("NodeValue", "Float");
-  case kRational:
-    return QCoreApplication::translate("NodeValue", "Rational");
-  case kBoolean:
-    return QCoreApplication::translate("NodeValue", "Boolean");
-  case kColor:
-    return QCoreApplication::translate("NodeValue", "Color");
-  case kMatrix:
-    return QCoreApplication::translate("NodeValue", "Matrix");
-  case kText:
-    return QCoreApplication::translate("NodeValue", "Text");
-  case kFont:
-    return QCoreApplication::translate("NodeValue", "Font");
-  case kFile:
-    return QCoreApplication::translate("NodeValue", "File");
-  case kTexture:
-    return QCoreApplication::translate("NodeValue", "Texture");
-  case kSamples:
-    return QCoreApplication::translate("NodeValue", "Samples");
-  case kVec2:
-    return QCoreApplication::translate("NodeValue", "Vector 2D");
-  case kVec3:
-    return QCoreApplication::translate("NodeValue", "Vector 3D");
-  case kVec4:
-    return QCoreApplication::translate("NodeValue", "Vector 4D");
-  case kBezier:
-    return QCoreApplication::translate("NodeValue", "Bezier");
-  case kVideoParams:
-    return QCoreApplication::translate("NodeValue", "Video Parameters");
-  case kAudioParams:
-    return QCoreApplication::translate("NodeValue", "Audio Parameters");
-  case kSubtitleParams:
-    return QCoreApplication::translate("NodeValue", "Subtitle Parameters");
-  case kBinary:
-    return QCoreApplication::translate("NodeValue", "Binary");
-
-  case kDataTypeCount:
-    break;
-  }
-
-  return QCoreApplication::translate("NodeValue",  "Unknown");
-}
-
-QString NodeValue::GetDataTypeName(Type type)
-{
-  switch (type) {
-  case kNone:
-    return QStringLiteral("none");
-  case kInt:
-    return QStringLiteral("int");
-  case kCombo:
-    return QStringLiteral("combo");
-  case kFloat:
-    return QStringLiteral("float");
-  case kRational:
-    return QStringLiteral("rational");
-  case kBoolean:
-    return QStringLiteral("bool");
-  case kColor:
-    return QStringLiteral("color");
-  case kMatrix:
-    return QStringLiteral("matrix");
-  case kText:
-    return QStringLiteral("text");
-  case kFont:
-    return QStringLiteral("font");
-  case kFile:
-    return QStringLiteral("file");
-  case kTexture:
-    return QStringLiteral("texture");
-  case kSamples:
-    return QStringLiteral("samples");
-  case kVec2:
-    return QStringLiteral("vec2");
-  case kVec3:
-    return QStringLiteral("vec3");
-  case kVec4:
-    return QStringLiteral("vec4");
-  case kBezier:
-    return QStringLiteral("bezier");
-  case kVideoParams:
-    return QStringLiteral("vparam");
-  case kAudioParams:
-    return QStringLiteral("aparam");
-  case kSubtitleParams:
-    return QStringLiteral("sparam");
-  case kBinary:
-    return QStringLiteral("binary");
-  case kDataTypeCount:
-    break;
-  }
-
-  return QString();
-}
-
-NodeValue::Type NodeValue::GetDataTypeFromName(const QString &n)
-{
-  // Slow but easy to maintain
-  for (int i=0; i<kDataTypeCount; i++) {
-    Type t = static_cast<Type>(i);
-    if (GetDataTypeName(t) == n) {
-      return t;
-    }
-  }
-
-  return NodeValue::kNone;
+  return dbg << t.toString();
 }
 
 }

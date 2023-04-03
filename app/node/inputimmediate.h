@@ -24,7 +24,6 @@
 #include "common/xmlutils.h"
 #include "node/keyframe.h"
 #include "node/value.h"
-#include "splitvalue.h"
 
 namespace olive {
 
@@ -33,7 +32,7 @@ class NodeInput;
 class NodeInputImmediate
 {
 public:
-  NodeInputImmediate(NodeValue::Type type, const SplitValue& default_val);
+  NodeInputImmediate(type_t type, size_t channels);
 
   /**
    * @brief Internal insert function, automatically does an insertion sort based on the keyframe's time
@@ -47,19 +46,19 @@ public:
   /**
    * @brief Get non-keyframed value split into components (the way it's stored)
    */
-  const SplitValue& get_split_standard_value() const
+  const std::vector<value_t::component_t> &get_standard_value() const
   {
     return standard_value_;
   }
 
-  const QVariant& get_split_standard_value_on_track(int track) const
+  value_t::component_t get_split_standard_value_on_track(size_t track) const
   {
     return standard_value_.at(track);
   }
 
-  void set_standard_value_on_track(const QVariant &value, int track);
+  void set_standard_value_on_track(const value_t::component_t &value, size_t track);
 
-  void set_split_standard_value(const SplitValue& value);
+  void set_split_standard_value(const value_t& value);
 
   /**
    * @brief Retrieve a list of keyframe objects for all tracks at a given time
@@ -75,7 +74,7 @@ public:
    *
    * The keyframe object at this time or nullptr if there isn't one or if is_keyframing() is false.
    */
-  NodeKeyframe* get_keyframe_at_time_on_track(const rational& time, int track) const;
+  NodeKeyframe* get_keyframe_at_time_on_track(const rational& time, size_t track) const;
 
   /**
    * @brief Gets the closest keyframe to a time
@@ -150,18 +149,11 @@ public:
     return (!is_keyframing() || keyframe_tracks_.at(track).isEmpty());
   }
 
-  void set_data_type(NodeValue::Type type);
-
 private:
   /**
    * @brief Non-keyframed value
    */
-  SplitValue standard_value_;
-
-  /**
-   * @brief Default value
-   */
-  SplitValue default_value_;
+  std::vector<value_t::component_t> standard_value_;
 
   /**
    * @brief Internal keyframe array

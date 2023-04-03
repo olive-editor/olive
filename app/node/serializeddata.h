@@ -48,10 +48,10 @@ struct SerializedData {
     QString input_id;
     int input_element;
     QString custom_name;
-    InputFlags custom_flags;
-    NodeValue::Type data_type;
-    QVariant default_val;
-    QHash<QString, QVariant> custom_properties;
+    InputFlag custom_flags;
+    type_t data_type;
+    value_t default_val;
+    QHash<QString, value_t> custom_properties;
   };
 
   QMap<Node *, QMap<quintptr, Node::Position> > positions;

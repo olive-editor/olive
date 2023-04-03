@@ -46,11 +46,6 @@ Config::Config()
   SetDefaults();
 }
 
-void Config::SetEntryInternal(const QString &key, NodeValue::Type type, const QVariant &data)
-{
-  config_map_[key] = {type, data};
-}
-
 QString Config::GetConfigFilePath()
 {
   return QDir(FileFunctions::GetConfigurationLocation()).filePath(QStringLiteral("config.xml"));
@@ -64,106 +59,107 @@ Config &Config::Current()
 void Config::SetDefaults()
 {
   config_map_.clear();
-  SetEntryInternal(QStringLiteral("Style"), NodeValue::kText, StyleManager::kDefaultStyle);
-  SetEntryInternal(QStringLiteral("TimecodeDisplay"), NodeValue::kInt, Timecode::kTimecodeDropFrame);
-  SetEntryInternal(QStringLiteral("DefaultStillLength"), NodeValue::kRational, QVariant::fromValue(rational(2)));
-  SetEntryInternal(QStringLiteral("HoverFocus"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("AudioScrubbing"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("AutorecoveryEnabled"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("AutorecoveryInterval"), NodeValue::kInt, 1);
-  SetEntryInternal(QStringLiteral("AutorecoveryMaximum"), NodeValue::kInt, 20);
-  SetEntryInternal(QStringLiteral("DiskCacheSaveInterval"), NodeValue::kInt, 10000);
-  SetEntryInternal(QStringLiteral("Language"), NodeValue::kText, QString());
-  SetEntryInternal(QStringLiteral("ScrollZooms"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("EnableSeekToImport"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("EditToolAlsoSeeks"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("EditToolSelectsLinks"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("EnableDragFilesToTimeline"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("InvertTimelineScrollAxes"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("SelectAlsoSeeks"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("PasteSeeks"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("SeekAlsoSelects"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("AutoSeekToBeginning"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("DropFileOnMediaToReplace"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("AddDefaultEffectsToClips"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("AutoscaleByDefault"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("Autoscroll"), NodeValue::kInt, AutoScroll::kPage);
-  SetEntryInternal(QStringLiteral("AutoSelectDivider"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("SetNameWithMarker"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("RectifiedWaveforms"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("DropWithoutSequenceBehavior"), NodeValue::kInt, ImportTool::kDWSAsk);
-  SetEntryInternal(QStringLiteral("Loop"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("SplitClipsCopyNodes"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("UseGradients"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("AutoMergeTracks"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("UseSliderLadders"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("ShowWelcomeDialog"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("ShowClipWhileDragging"), NodeValue::kBoolean, true);
-  SetEntryInternal(QStringLiteral("StopPlaybackOnLastFrame"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("UseLegacyColorInInputTab"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("ReassocLinToNonLin"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("PreviewNonFloatDontAskAgain"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("UseGLFinish"), NodeValue::kBoolean, false);
 
-  SetEntryInternal(QStringLiteral("TimelineThumbnailMode"), NodeValue::kInt, Timeline::kThumbnailInOut);
-  SetEntryInternal(QStringLiteral("TimelineWaveformMode"), NodeValue::kInt, Timeline::kWaveformsEnabled);
+  OLIVE_CONFIG("Style") = StyleManager::kDefaultStyle;
+  OLIVE_CONFIG("TimecodeDisplay") = Timecode::kTimecodeDropFrame;
+  OLIVE_CONFIG("DefaultStillLength") = rational(2);
+  OLIVE_CONFIG("HoverFocus") = false;
+  OLIVE_CONFIG("AudioScrubbing") = true;
+  OLIVE_CONFIG("AutorecoveryEnabled") = true;
+  OLIVE_CONFIG("AutorecoveryInterval") = 1;
+  OLIVE_CONFIG("AutorecoveryMaximum") = 20;
+  OLIVE_CONFIG("DiskCacheSaveInterval") = 10000;
+  OLIVE_CONFIG("Language") = QString();
+  OLIVE_CONFIG("ScrollZooms") = false;
+  OLIVE_CONFIG("EnableSeekToImport") = false;
+  OLIVE_CONFIG("EditToolAlsoSeeks") = false;
+  OLIVE_CONFIG("EditToolSelectsLinks") = false;
+  OLIVE_CONFIG("EnableDragFilesToTimeline") = true;
+  OLIVE_CONFIG("InvertTimelineScrollAxes") = true;
+  OLIVE_CONFIG("SelectAlsoSeeks") = false;
+  OLIVE_CONFIG("PasteSeeks") = true;
+  OLIVE_CONFIG("SeekAlsoSelects") = false;
+  OLIVE_CONFIG("SetNameWithMarker") = false;
+  OLIVE_CONFIG("AutoSeekToBeginning") = true;
+  OLIVE_CONFIG("DropFileOnMediaToReplace") = false;
+  OLIVE_CONFIG("AddDefaultEffectsToClips") = true;
+  OLIVE_CONFIG("AutoscaleByDefault") = false;
+  OLIVE_CONFIG("Autoscroll") = AutoScroll::kPage;
+  OLIVE_CONFIG("AutoSelectDivider") = true;
+  OLIVE_CONFIG("SetNameWithMarker") = false;
+  OLIVE_CONFIG("RectifiedWaveforms") = true;
+  OLIVE_CONFIG("DropWithoutSequenceBehavior") = ImportTool::kDWSAsk;
+  OLIVE_CONFIG("Loop") = false;
+  OLIVE_CONFIG("SplitClipsCopyNodes") = true;
+  OLIVE_CONFIG("UseGradients") = true;
+  OLIVE_CONFIG("AutoMergeTracks") = true;
+  OLIVE_CONFIG("UseSliderLadders") = true;
+  OLIVE_CONFIG("ShowWelcomeDialog") = true;
+  OLIVE_CONFIG("ShowClipWhileDragging") = true;
+  OLIVE_CONFIG("StopPlaybackOnLastFrame") = false;
+  OLIVE_CONFIG("UseLegacyColorInInputTab") = false;
+  OLIVE_CONFIG("ReassocLinToNonLin") = false;
+  OLIVE_CONFIG("PreviewNonFloatDontAskAgain") = false;
+  OLIVE_CONFIG("UseGLFinish") = false;
 
-  SetEntryInternal(QStringLiteral("DefaultVideoTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
-  SetEntryInternal(QStringLiteral("DefaultAudioTransition"), NodeValue::kText, QStringLiteral("org.olivevideoeditor.Olive.crossdissolve"));
-  SetEntryInternal(QStringLiteral("DefaultTransitionLength"), NodeValue::kRational, QVariant::fromValue(rational(1)));
+  OLIVE_CONFIG("TimelineThumbnailMode") = Timeline::kThumbnailInOut;
+  OLIVE_CONFIG("TimelineWaveformMode") = Timeline::kWaveformsEnabled;
 
-  SetEntryInternal(QStringLiteral("DefaultSubtitleSize"), NodeValue::kInt, 48);
-  SetEntryInternal(QStringLiteral("DefaultSubtitleFamily"), NodeValue::kText, QString());
-  SetEntryInternal(QStringLiteral("DefaultSubtitleWeight"), NodeValue::kInt, QFont::Bold);
-  SetEntryInternal(QStringLiteral("AntialiasSubtitles"), NodeValue::kBoolean, true);
+  OLIVE_CONFIG("DefaultVideoTransition") = QStringLiteral("org.olivevideoeditor.Olive.crossdissolve");
+  OLIVE_CONFIG("DefaultAudioTransition") = QStringLiteral("org.olivevideoeditor.Olive.crossdissolve");
+  OLIVE_CONFIG("DefaultTransitionLength") = rational(1);
 
-  SetEntryInternal(QStringLiteral("AutoCacheDelay"), NodeValue::kInt, 1000);
+  OLIVE_CONFIG("DefaultSubtitleSize") = 48;
+  OLIVE_CONFIG("DefaultSubtitleFamily") = QString();
+  OLIVE_CONFIG("DefaultSubtitleWeight") = QFont::Bold;
+  OLIVE_CONFIG("AntialiasSubtitles") = true;
 
-  SetEntryInternal(QStringLiteral("CatColor0"), NodeValue::kInt, ColorCoding::kRed);
-  SetEntryInternal(QStringLiteral("CatColor1"), NodeValue::kInt, ColorCoding::kMaroon);
-  SetEntryInternal(QStringLiteral("CatColor2"), NodeValue::kInt, ColorCoding::kOrange);
-  SetEntryInternal(QStringLiteral("CatColor3"), NodeValue::kInt, ColorCoding::kBrown);
-  SetEntryInternal(QStringLiteral("CatColor4"), NodeValue::kInt, ColorCoding::kYellow);
-  SetEntryInternal(QStringLiteral("CatColor5"), NodeValue::kInt, ColorCoding::kOlive);
-  SetEntryInternal(QStringLiteral("CatColor6"), NodeValue::kInt, ColorCoding::kLime);
-  SetEntryInternal(QStringLiteral("CatColor7"), NodeValue::kInt, ColorCoding::kGreen);
-  SetEntryInternal(QStringLiteral("CatColor8"), NodeValue::kInt, ColorCoding::kCyan);
-  SetEntryInternal(QStringLiteral("CatColor9"), NodeValue::kInt, ColorCoding::kTeal);
-  SetEntryInternal(QStringLiteral("CatColor10"), NodeValue::kInt, ColorCoding::kBlue);
-  SetEntryInternal(QStringLiteral("CatColor11"), NodeValue::kInt, ColorCoding::kNavy);
+  OLIVE_CONFIG("AutoCacheDelay") = 1000;
 
-  SetEntryInternal(QStringLiteral("AudioOutput"), NodeValue::kText, QString());
-  SetEntryInternal(QStringLiteral("AudioInput"), NodeValue::kText, QString());
+  OLIVE_CONFIG("CatColor0") = ColorCoding::kRed;
+  OLIVE_CONFIG("CatColor1") = ColorCoding::kMaroon;
+  OLIVE_CONFIG("CatColor2") = ColorCoding::kOrange;
+  OLIVE_CONFIG("CatColor3") = ColorCoding::kBrown;
+  OLIVE_CONFIG("CatColor4") = ColorCoding::kYellow;
+  OLIVE_CONFIG("CatColor5") = ColorCoding::kOlive;
+  OLIVE_CONFIG("CatColor6") = ColorCoding::kLime;
+  OLIVE_CONFIG("CatColor7") = ColorCoding::kGreen;
+  OLIVE_CONFIG("CatColor8") = ColorCoding::kCyan;
+  OLIVE_CONFIG("CatColor9") = ColorCoding::kTeal;
+  OLIVE_CONFIG("CatColor10") = ColorCoding::kBlue;
+  OLIVE_CONFIG("CatColor11") = ColorCoding::kNavy;
 
-  SetEntryInternal(QStringLiteral("AudioOutputSampleRate"), NodeValue::kInt, 48000);
-  SetEntryInternal(QStringLiteral("AudioOutputChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
-  SetEntryInternal(QStringLiteral("AudioOutputSampleFormat"), NodeValue::kText, QString::fromStdString(SampleFormat(SampleFormat::S16).to_string()));
+  OLIVE_CONFIG("AudioOutput") = QString();
+  OLIVE_CONFIG("AudioInput") = QString();
 
-  SetEntryInternal(QStringLiteral("AudioRecordingFormat"), NodeValue::kInt, ExportFormat::kFormatWAV);
-  SetEntryInternal(QStringLiteral("AudioRecordingCodec"), NodeValue::kInt, ExportCodec::kCodecPCM);
-  SetEntryInternal(QStringLiteral("AudioRecordingSampleRate"), NodeValue::kInt, 48000);
-  SetEntryInternal(QStringLiteral("AudioRecordingChannelLayout"), NodeValue::kInt, AV_CH_LAYOUT_STEREO);
-  SetEntryInternal(QStringLiteral("AudioRecordingSampleFormat"), NodeValue::kText, QString::fromStdString(SampleFormat(SampleFormat::S16).to_string()));
-  SetEntryInternal(QStringLiteral("AudioRecordingBitRate"), NodeValue::kInt, 320);
+  OLIVE_CONFIG("AudioOutputSampleRate") = 48000;
+  OLIVE_CONFIG("AudioOutputChannelLayout") = int64_t(AV_CH_LAYOUT_STEREO);
+  OLIVE_CONFIG("AudioOutputSampleFormat") = QString::fromStdString(SampleFormat(SampleFormat::S16).to_string());
 
-  SetEntryInternal(QStringLiteral("DiskCacheBehind"), NodeValue::kRational, QVariant::fromValue(rational(0)));
-  SetEntryInternal(QStringLiteral("DiskCacheAhead"), NodeValue::kRational, QVariant::fromValue(rational(60)));
+  OLIVE_CONFIG("AudioRecordingFormat") = ExportFormat::kFormatWAV;
+  OLIVE_CONFIG("AudioRecordingCodec") = ExportCodec::kCodecPCM;
+  OLIVE_CONFIG("AudioRecordingSampleRate") = 48000;
+  OLIVE_CONFIG("AudioRecordingChannelLayout") = int64_t(AV_CH_LAYOUT_STEREO);
+  OLIVE_CONFIG("AudioRecordingSampleFormat") = QString::fromStdString(SampleFormat(SampleFormat::S16).to_string());
+  OLIVE_CONFIG("AudioRecordingBitRate") = 320;
 
-  SetEntryInternal(QStringLiteral("DefaultSequenceWidth"), NodeValue::kInt, 1920);
-  SetEntryInternal(QStringLiteral("DefaultSequenceHeight"), NodeValue::kInt, 1080);
-  SetEntryInternal(QStringLiteral("DefaultSequencePixelAspect"), NodeValue::kRational, QVariant::fromValue(rational(1)));
-  SetEntryInternal(QStringLiteral("DefaultSequenceFrameRate"), NodeValue::kRational, QVariant::fromValue(rational(1001, 30000)));
-  SetEntryInternal(QStringLiteral("DefaultSequenceInterlacing"), NodeValue::kInt, VideoParams::kInterlaceNone);
-  SetEntryInternal(QStringLiteral("DefaultSequenceAutoCache2"), NodeValue::kBoolean, false);
-  SetEntryInternal(QStringLiteral("DefaultSequenceAudioFrequency"), NodeValue::kInt, 48000);
-  SetEntryInternal(QStringLiteral("DefaultSequenceAudioLayout"), NodeValue::kInt, QVariant::fromValue(static_cast<int64_t>(AV_CH_LAYOUT_STEREO)));
+  OLIVE_CONFIG("DiskCacheBehind") = rational(0);
+  OLIVE_CONFIG("DiskCacheAhead") = rational(60);
+
+  OLIVE_CONFIG("DefaultSequenceWidth") = 1920;
+  OLIVE_CONFIG("DefaultSequenceHeight") = 1080;
+  OLIVE_CONFIG("DefaultSequencePixelAspect") = rational(1);
+  OLIVE_CONFIG("DefaultSequenceFrameRate") = rational(1001, 30000);
+  OLIVE_CONFIG("DefaultSequenceInterlacing") = VideoParams::kInterlaceNone;
+  OLIVE_CONFIG("DefaultSequenceAutoCache2") = false;
+  OLIVE_CONFIG("DefaultSequenceAudioFrequency") = 48000;
+  OLIVE_CONFIG("DefaultSequenceAudioLayout") = int64_t(AV_CH_LAYOUT_STEREO);
 
   // Online/offline settings
-  SetEntryInternal(QStringLiteral("OnlinePixelFormat"), NodeValue::kInt, PixelFormat::F32);
-  SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, PixelFormat::F16);
+  OLIVE_CONFIG("OnlinePixelFormat") = PixelFormat::F32;
+  OLIVE_CONFIG("OfflinePixelFormat") = PixelFormat::F16;
 
-  SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kLime);
+  OLIVE_CONFIG("MarkerColor") = ColorCoding::kLime;
 }
 
 void Config::Load()
@@ -221,9 +217,10 @@ void Config::Load()
 
           qDebug() << "  CONFIG: Closest match was" << match.toDouble();
 
-          current_config_[key] = QVariant::fromValue(match.flipped());
+          current_config_[key] = match.flipped();
         } else {
-          current_config_[key] = NodeValue::StringToValue(current_config_.GetConfigEntryType(key), value, false);
+          value_t &v = current_config_[key];
+          v = value_t(value).converted(v.type());
         }
       }
 
@@ -271,17 +268,8 @@ void Config::Save()
   // Anything after the hyphen is considered "unimportant" information
   writer.writeTextElement("Version", QCoreApplication::applicationVersion().split('-').first());
 
-  QMapIterator<QString, ConfigEntry> iterator(current_config_.config_map_);
-  while (iterator.hasNext()) {
-    iterator.next();
-
-    QString value = NodeValue::ValueToString(iterator.value().type, iterator.value().data, false);
-
-    if (iterator.value().type == NodeValue::kNone) {
-      qWarning() << "Config key" << iterator.key() << "had null type and was discarded";
-    } else {
-      writer.writeTextElement(iterator.key(), value);
-    }
+  for (auto it = current_config_.config_map_.cbegin(); it != current_config_.config_map_.cend(); it++) {
+    writer.writeTextElement(it.key(), it.value().converted(TYPE_STRING).toString());
   }
 
   writer.writeEndElement(); // Configuration
@@ -296,19 +284,14 @@ void Config::Save()
   }
 }
 
-QVariant Config::operator[](const QString &key) const
+value_t Config::operator[](const QString &key) const
 {
-  return config_map_[key].data;
+  return config_map_[key];
 }
 
-QVariant &Config::operator[](const QString &key)
+value_t &Config::operator[](const QString &key)
 {
-  return config_map_[key].data;
-}
-
-NodeValue::Type Config::GetConfigEntryType(const QString &key) const
-{
-  return config_map_[key].type;
+  return config_map_[key];
 }
 
 }

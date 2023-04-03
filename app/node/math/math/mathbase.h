@@ -66,28 +66,6 @@ protected:
     kPairCount
   };
 
-  class PairingCalculator
-  {
-  public:
-    PairingCalculator(const NodeValue &table_a, const NodeValue &table_b);
-
-    bool FoundMostLikelyPairing() const;
-    Pairing GetMostLikelyPairing() const;
-
-    const NodeValue& GetMostLikelyValueA() const;
-    const NodeValue& GetMostLikelyValueB() const;
-
-  private:
-    static QVector<int> GetPairLikelihood(const NodeValue &table);
-
-    Pairing most_likely_pairing_;
-
-    NodeValue most_likely_value_a_;
-
-    NodeValue most_likely_value_b_;
-
-  };
-
   template<typename T, typename U>
   static T PerformAll(Operation operation, T a, U b);
 
@@ -112,19 +90,19 @@ protected:
   static void PerformAllOnFloatBufferSSE(Operation operation, const float *input, float *output, float b, size_t start, size_t end);
 #endif
 
-  static QString GetShaderUniformType(const NodeValue::Type& type);
+  static QString GetShaderUniformType(const type_t& type, size_t channels);
 
-  static QString GetShaderVariableCall(const QString& input_id, const NodeValue::Type& type, const QString &coord_op = QString());
+  static QString GetShaderVariableCall(const QString& input_id, const type_t& type, const QString &coord_op = QString());
 
-  static QVector4D RetrieveVector(const NodeValue& val);
+  static QVector4D RetrieveVector(const value_t& val);
 
-  static float RetrieveNumber(const NodeValue& val);
+  static float RetrieveNumber(const value_t& val);
 
   static bool NumberIsNoOp(const Operation& op, const float& number);
 
-  NodeValue PushVector(NodeValue::Type type, const QVector4D& vec) const;
+  value_t PushVector(size_t channels, const QVector4D& vec) const;
 
-  NodeValue ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const NodeValue &val_a, const QString& param_b_in, const NodeValue& val_b, const ValueParams &p) const;
+  value_t ValueInternal(Operation operation, Pairing pairing, const QString& param_a_in, const value_t &val_a, const QString& param_b_in, const value_t& val_b, const ValueParams &p) const;
 
 };
 

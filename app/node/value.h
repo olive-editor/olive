@@ -21,395 +21,291 @@
 #ifndef NODEVALUE_H
 #define NODEVALUE_H
 
+#include <any>
 #include <QMatrix4x4>
-#include <QString>
-#include <QVariant>
-#include <QVector>
 
-#include "common/qtutils.h"
-#include "node/splitvalue.h"
 #include "render/texture.h"
 
 namespace olive {
 
 class Node;
-class NodeValue;
+class value_t;
 class SampleJob;
 
-using NodeValueArray = std::vector<NodeValue>;
+using NodeValueArray = std::vector<value_t>;
 
-class NodeValue
+class type_t
 {
 public:
-  /**
-   * @brief The types of data that can be passed between Nodes
-   */
-  enum Type {
-    kNone,
+  constexpr type_t() : type_(0) {}
+  constexpr type_t(const char *x) : type_(insn_to_num(x)) {}
 
-    /**
-     ****************************** SPECIFIC IDENTIFIERS ******************************
-     */
+  static type_t fromString(const QStringView &s) { return s.toUtf8().constData(); }
+  QString toString() const
+  {
+    const char *c = reinterpret_cast<const char*>(&type_);
+    return QString::fromUtf8(c, strnlen(c, sizeof(type_)));
+  }
 
-    /**
-     * Integer type
-     *
-     * Resolves to int64_t.
-     */
-    kInt,
+  bool operator==(const type_t &t) const { return type_ == t.type_; }
+  bool operator!=(const type_t &t) const { return !(*this == t); }
+  bool operator<(const type_t &t) const { return type_ < t.type_; }
+  bool operator<=(const type_t &t) const { return type_ <= t.type_; }
+  bool operator>(const type_t &t) const { return type_ > t.type_; }
+  bool operator>=(const type_t &t) const { return type_ >= t.type_; }
 
-    /**
-     * Decimal (floating-point) type
-     *
-     * Resolves to `double`.
-     */
-    kFloat,
+private:
+  constexpr uint64_t insn_to_num(const char* x)
+  {
+    return *x ? *x + (insn_to_num(x+1) << 8) : 0;
+  }
 
-    /**
-     * Decimal (rational) type
-     *
-     * Resolves to `double`.
-     */
-    kRational,
+  uint64_t type_;
 
-    /**
-     * Boolean type
-     *
-     * Resolves to `bool`.
-     */
-    kBoolean,
+};
 
-    /**
-     * Floating-point type
-     *
-     * Resolves to `Color`.
-     *
-     * Colors passed around the nodes should always be in reference space and preferably use
-     */
-    kColor,
+QDebug operator<<(QDebug dbg, const type_t &t);
 
-    /**
-     * Matrix type
-     *
-     * Resolves to `QMatrix4x4`.
-     */
-    kMatrix,
+constexpr type_t TYPE_NONE;
+constexpr type_t TYPE_INTEGER = "int";
+constexpr type_t TYPE_DOUBLE = "dbl";
+constexpr type_t TYPE_RATIONAL = "rational";
+constexpr type_t TYPE_STRING = "str";
+constexpr type_t TYPE_TEXTURE = "tex";
+constexpr type_t TYPE_SAMPLES = "smp";
+constexpr type_t TYPE_BINARY = "bin";
+constexpr type_t TYPE_ARRAY = "arr";
+constexpr type_t TYPE_MATRIX = "mat";
 
-    /**
-     * Text type
-     *
-     * Resolves to `QString`.
-     */
-    kText,
+class value_t
+{
+public:
+  class component_t
+  {
+  public:
+    component_t() = default;
 
-    /**
-     * Font type
-     *
-     * Resolves to `QFont`.
-     */
-    kFont,
+    template <typename T>
+    component_t(const T &t)
+    {
+      set(t);
+    }
 
-    /**
-     * File type
-     *
-     * Resolves to a `QString` containing an absolute file path.
-     */
-    kFile,
+    // Bad initializers, must catch these at runtime
+    component_t(const value_t &t) { abort(); }
+    component_t(const QVariant &t) { abort(); }
+    component_t(const std::vector<component_t> &t) { abort(); }
 
-    /**
-     * Image buffer type
-     *
-     * True value type depends on the render engine used.
-     */
-    kTexture,
+    template <typename T>
+    T get(bool *ok = nullptr) const
+    {
+      if (data_.has_value()) {
+        qDebug() << "getting any type" << data_.type().name() << "attempting cast to" << typeid(T).name();
+        return std::any_cast<T>(data_);
+      } else {
+        return T();
+      }
+    }
 
-    /**
-     * Audio samples type
-     *
-     * Resolves to `SampleBufferPtr`.
-     */
-    kSamples,
+    template <typename T>
+    void set(const T &t)
+    {
+      data_ = t;
+    }
 
-    /**
-     * Two-dimensional vector (XY) type
-     *
-     * Resolves to `QVector2D`.
-     */
-    kVec2,
+    const std::any &data() const { return data_; }
 
-    /**
-     * Three-dimensional vector (XYZ) type
-     *
-     * Resolves to `QVector3D`.
-     */
-    kVec3,
+    component_t converted(type_t from, type_t to) const;
 
-    /**
-     * Four-dimensional vector (XYZW) type
-     *
-     * Resolves to `QVector4D`.
-     */
-    kVec4,
+    static component_t fromSerializedString(type_t to, const QString &s);
+    QString toSerializedString(type_t from) const;
 
-    /**
-     * Cubic bezier type that contains three X/Y coordinates, the main point, and two control points
-     *
-     * Resolves to `Bezier`
-     */
-    kBezier,
+  private:
+    std::any data_;
 
-    /**
-     * ComboBox type
-     *
-     * Resolves to `int` - the index currently selected
-     */
-    kCombo,
-
-    /**
-     * Video Parameters type
-     *
-     * Resolves to `VideoParams`
-     */
-    kVideoParams,
-
-    /**
-     * Audio Parameters type
-     *
-     * Resolves to `AudioParams`
-     */
-    kAudioParams,
-
-    /**
-     * Subtitle Parameters type
-     *
-     * Resolves to `SubtitleParams`
-     */
-    kSubtitleParams,
-
-    /**
-     * Binary Data
-     */
-    kBinary,
-
-    /**
-     * End of list
-     */
-    kDataTypeCount
   };
 
+  value_t(const type_t &type, size_t channels = 1) :
+    type_(type)
+  {
+    data_.resize(channels);
+  }
+
+  value_t(const type_t &type, const std::vector<value_t::component_t> &components) :
+    type_(type)
+  {
+    data_ = components;
+  }
+
   template <typename T>
-  NodeValue(Type type, const T& data)
+  value_t(const type_t &type, const T &v) :
+    value_t(type)
   {
-    type_ = type;
-    set_value(data);
-    array_ = false;
+    data_[0] = v;
   }
 
-  NodeValue(Type type, const NodeValueArray &array)
-  {
-    type_ = type;
-    set_value(array);
-    array_ = true;
-  }
+  value_t() :
+    type_(TYPE_NONE)
+  {}
 
-  NodeValue() :
-    NodeValue(kNone, QVariant())
+  value_t(TexturePtr texture) :
+    value_t(TYPE_TEXTURE, texture)
   {
   }
 
-  NodeValue(const QMatrix4x4& data) :
-    NodeValue(NodeValue::kMatrix, data)
+  value_t(const SampleJob &samples);
+
+  value_t(const QVector2D &vec) :
+    value_t(TYPE_DOUBLE, size_t(2))
+  {
+    data_[0] = double(vec.x());
+    data_[1] = double(vec.y());
+  }
+
+  value_t(const QVector3D &vec) :
+    value_t(TYPE_DOUBLE, size_t(3))
+  {
+    data_[0] = double(vec.x());
+    data_[1] = double(vec.y());
+    data_[2] = double(vec.z());
+  }
+
+  value_t(const QVector4D &vec) :
+    value_t(TYPE_DOUBLE, size_t(4))
+  {
+    data_[0] = double(vec.x());
+    data_[1] = double(vec.y());
+    data_[2] = double(vec.z());
+    data_[3] = double(vec.w());
+  }
+
+  value_t(const double &d) :
+    value_t(TYPE_DOUBLE, d)
   {
   }
 
-  NodeValue(TexturePtr texture) :
-    NodeValue(NodeValue::kTexture, texture)
+  value_t(const int64_t &i) :
+    value_t(TYPE_INTEGER, i)
   {
   }
 
-  NodeValue(const SampleJob &samples);
-
-  NodeValue(const SampleBuffer &samples) :
-    NodeValue(NodeValue::kSamples, samples)
+  value_t(const uint64_t &i) :
+    value_t(TYPE_INTEGER, int64_t(i))
   {
   }
 
-  NodeValue(const QVector2D &vec) :
-    NodeValue(NodeValue::kVec2, vec)
+  value_t(const int &i) :
+    value_t(TYPE_INTEGER, int64_t(i))
   {
   }
 
-  NodeValue(const QVector3D &vec) :
-    NodeValue(NodeValue::kVec3, vec)
+  value_t(const bool &i) :
+    value_t(TYPE_INTEGER, int64_t(i))
   {
   }
 
-  NodeValue(const QVector4D &vec) :
-    NodeValue(NodeValue::kVec4, vec)
+  value_t(const Color &i) :
+    value_t(TYPE_DOUBLE, size_t(4))
+  {
+    data_[0] = double(i.red());
+    data_[1] = double(i.green());
+    data_[2] = double(i.blue());
+    data_[3] = double(i.alpha());
+  }
+
+  value_t(const QString &i) :
+    value_t(TYPE_STRING, i)
   {
   }
 
-  NodeValue(const double &d) :
-    NodeValue(NodeValue::kFloat, d)
+  value_t(const char *i) :
+    value_t(TYPE_STRING, QString::fromUtf8(i))
   {
   }
 
-  NodeValue(const int64_t &i) :
-    NodeValue(NodeValue::kInt, i)
+  value_t(const rational &i) :
+    value_t(TYPE_RATIONAL, i)
   {
   }
 
-  NodeValue(const int &i) :
-    NodeValue(NodeValue::kInt, i)
+  value_t(const QByteArray &i) :
+    value_t(TYPE_BINARY, i)
   {
   }
 
-  NodeValue(const bool &i) :
-    NodeValue(NodeValue::kBoolean, i)
+  value_t(const NodeValueArray &i) :
+    value_t(TYPE_ARRAY, i)
   {
   }
 
-  NodeValue(const Color &i) :
-    NodeValue(NodeValue::kColor, i)
+  value_t(const QMatrix4x4 &i) :
+    value_t(TYPE_MATRIX, i)
   {
   }
 
-  NodeValue(const QString &i) :
-    NodeValue(NodeValue::kText, i)
-  {
-  }
-
-  NodeValue(const rational &i) :
-    NodeValue(NodeValue::kRational, i)
-  {
-  }
-
-  Type type() const
+  const type_t &type() const
   {
     return type_;
   }
 
-  template <typename T>
-  T value() const
+  component_t at(size_t channel) const
   {
-    return data_.value<T>();
+    if (channel < data_.size()) {
+      return data_[channel];
+    }
+    return component_t();
   }
 
-  template <typename T>
-  void set_value(const T &v)
-  {
-    data_ = QVariant::fromValue(v);
-  }
-
-  const QVariant &data() const { return data_; }
+  component_t &operator[](size_t i) { return data_[i]; }
+  const component_t &operator[](size_t i) const { return data_[i]; }
 
   template <typename T>
-  bool canConvert() const
+  T value(size_t channel = 0) const
   {
-    return data_.canConvert<T>();
+    return at(channel).get<T>();
   }
 
-  bool array() const
-  {
-    return array_;
-  }
+  size_t size() const { return data_.size(); }
 
-  bool operator==(const NodeValue& rhs) const
-  {
-    return type_ == rhs.type_ && data_ == rhs.data_;
-  }
+  std::vector<component_t> &data() { return data_; }
+  const std::vector<component_t> &data() const { return data_; }
 
-  operator bool() const
-  {
-    return !data_.isNull();
-  }
+  bool isValid() const { return type_ != TYPE_NONE; }
 
-  static QString GetPrettyDataTypeName(Type type);
-
-  static QString GetDataTypeName(Type type);
-  static NodeValue::Type GetDataTypeFromName(const QString &n);
-
-  static QString ValueToString(Type data_type, const QVariant& value, bool value_is_a_key_track);
-  static QString ValueToString(const NodeValue &v, bool value_is_a_key_track)
-  {
-    return ValueToString(v.type_, v.data_, value_is_a_key_track);
-  }
-
-  static QVariant StringToValue(Type data_type, const QString &string, bool value_is_a_key_track);
-
-  static QVector<QVariant> split_normal_value_into_track_values(Type type, const QVariant &value);
-
-  static QVariant combine_track_values_into_normal_value(Type type, const QVector<QVariant>& split);
-
-  SplitValue to_split_value() const
-  {
-    return split_normal_value_into_track_values(type_, data_);
-  }
-
-  /**
-   * @brief Returns whether a data type can be interpolated or not
-   */
-  static bool type_can_be_interpolated(NodeValue::Type type)
-  {
-    return type == kFloat
-        || type == kVec2
-        || type == kVec3
-        || type == kVec4
-        || type == kBezier
-        || type == kColor
-        || type == kRational;
-  }
-
-  static bool type_is_numeric(NodeValue::Type type)
-  {
-    return type == kFloat
-        || type == kInt
-        || type == kRational;
-  }
-
-  static bool type_is_vector(NodeValue::Type type)
-  {
-    return type == kVec2
-        || type == kVec3
-        || type == kVec4;
-  }
-
-  static bool type_is_buffer(NodeValue::Type type)
-  {
-    return type == kTexture
-        || type == kSamples;
-  }
-
-  static int get_number_of_keyframe_tracks(Type type);
-
-  static void ValidateVectorString(QStringList* list, int count);
-
-  TexturePtr toTexture() const { return value<TexturePtr>(); }
-  SampleBuffer toSamples() const { return value<SampleBuffer>(); }
-  bool toBool() const { return value<bool>(); }
+  bool toBool() const { return toInt(); }
   double toDouble() const { return value<double>(); }
   int64_t toInt() const { return value<int64_t>(); }
   rational toRational() const { return value<olive::core::rational>(); }
   QString toString() const { return value<QString>(); }
-  Color toColor() const { return value<olive::core::Color>(); }
+  Color toColor() const { return Color(value<double>(0), value<double>(1), value<double>(2), value<double>(3)); }
+  QVector2D toVec2() const { return QVector2D(value<double>(0), value<double>(1)); }
+  QVector3D toVec3() const { return QVector3D(value<double>(0), value<double>(1), value<double>(2)); }
+  QVector4D toVec4() const { return QVector4D(value<double>(0), value<double>(1), value<double>(2), value<double>(3)); }
   QMatrix4x4 toMatrix() const { return value<QMatrix4x4>(); }
-  VideoParams toVideoParams() const { return value<VideoParams>(); }
-  AudioParams toAudioParams() const { return value<AudioParams>(); }
-  QVector2D toVec2() const { return value<QVector2D>(); }
-  QVector3D toVec3() const { return value<QVector3D>(); }
-  QVector4D toVec4() const { return value<QVector4D>(); }
-  Bezier toBezier() const { return value<Bezier>(); }
+  QByteArray toBinary() const { return value<QByteArray>(); }
   NodeValueArray toArray() const { return value<NodeValueArray>(); }
+  TexturePtr toTexture() const { return value<TexturePtr>(); }
+  SampleBuffer toSamples() const { return value<SampleBuffer>(); }
+
+  static value_t fromSerializedString(type_t target_type, const QString &s);
+  QString toSerializedString() const;
+
+  value_t converted(type_t to) const;
+
+  typedef component_t(*Converter_t)(const component_t &v);
+  static void registerConverter(const type_t &from, const type_t &to, Converter_t converter);
+  static void registerDefaultConverters();
 
 private:
-  Type type_;
-  QVariant data_;
-  bool array_;
+  type_t type_;
+  std::vector<component_t> data_;
+
+  static std::map<type_t, std::map<type_t, Converter_t> > converters_;
 
 };
 
 }
 
-Q_DECLARE_METATYPE(olive::NodeValue)
+Q_DECLARE_METATYPE(olive::value_t)
 
 #endif // NODEVALUE_H

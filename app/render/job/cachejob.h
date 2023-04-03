@@ -33,7 +33,7 @@ class CacheJob : public AcceleratedJob
 {
 public:
   CacheJob() = default;
-  CacheJob(const QString &filename, const NodeValue &fallback = NodeValue())
+  CacheJob(const QString &filename, const value_t &fallback = value_t())
   {
     filename_ = filename;
   }
@@ -41,13 +41,13 @@ public:
   const QString &GetFilename() const { return filename_; }
   void SetFilename(const QString &s) { filename_ = s; }
 
-  const NodeValue &GetFallback() const { return fallback_; }
-  void SetFallback(const NodeValue &val) { fallback_ = val; }
+  const value_t &GetFallback() const { return fallback_; }
+  void SetFallback(const value_t &val) { fallback_ = val; }
 
 private:
   QString filename_;
 
-  NodeValue fallback_;
+  value_t fallback_;
 
 };
 

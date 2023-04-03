@@ -54,7 +54,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 
@@ -459,7 +459,7 @@ private:
 
   int GetBlockIndexAtTime(const rational &time) const;
 
-  NodeValue ProcessAudioTrack(const ValueParams &p) const;
+  value_t ProcessAudioTrack(const ValueParams &p) const;
 
   int ConnectBlock(Block *b);
 

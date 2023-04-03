@@ -34,7 +34,7 @@ class DespillNode : public Node {
 
   virtual void Retranslate() override;
 
-  virtual NodeValue Value(const ValueParams &globals) const override;
+  virtual value_t Value(const ValueParams &globals) const override;
 
   static const QString kTextureInput;
   static const QString kColorInput;

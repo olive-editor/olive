@@ -27,6 +27,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+#include "common/qtutils.h"
 #include "render/videoparams.h"
 
 namespace olive {

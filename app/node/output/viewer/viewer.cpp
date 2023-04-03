@@ -43,20 +43,20 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   autocache_input_audio_(false),
   waveform_requests_enabled_(false)
 {
-  AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
+  AddInput(kVideoParamsInput, TYPE_VPARAM, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden);
 
-  AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
+  AddInput(kAudioParamsInput, TYPE_APARAM, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden);
 
-  AddInput(kSubtitleParamsInput, NodeValue::kSubtitleParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
+  AddInput(kSubtitleParamsInput, TYPE_SPARAM, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden);
 
   if (create_buffer_inputs) {
-    AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-    AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+    AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
+    AddInput(kSamplesInput, TYPE_SAMPLES, kInputFlagNotKeyframable);
   }
 
   if (create_default_streams) {
-    AddStream(Track::kVideo, QVariant());
-    AddStream(Track::kAudio, QVariant());
+    AddStream(Track::kVideo, value_t(TYPE_VPARAM, VideoParams()));
+    AddStream(Track::kAudio, value_t(TYPE_APARAM, AudioParams()));
     set_default_parameters();
   }
 
@@ -217,12 +217,12 @@ void ViewerOutput::set_default_parameters()
                  static_cast<PixelFormat::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
       VideoParams::kInternalChannelCount,
       OLIVE_CONFIG("DefaultSequencePixelAspect").value<rational>(),
-      OLIVE_CONFIG("DefaultSequenceInterlacing").value<VideoParams::Interlacing>(),
+      static_cast<VideoParams::Interlacing>(OLIVE_CONFIG("DefaultSequenceInterlacing").toInt()),
       VideoParams::generate_auto_divider(width, height)
       ));
   SetAudioParams(AudioParams(
       OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
-      OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
+      OLIVE_CONFIG("DefaultSequenceAudioLayout").toInt(),
       kDefaultSampleFormat
       ));
 }
@@ -421,7 +421,7 @@ void ViewerOutput::SetWaveformEnabled(bool e)
   }
 }
 
-NodeValue ViewerOutput::Value(const ValueParams &p) const
+value_t ViewerOutput::Value(const ValueParams &p) const
 {
   Track::Reference ref = Track::Reference::FromString(p.output());
 
@@ -432,7 +432,7 @@ NodeValue ViewerOutput::Value(const ValueParams &p) const
     return GetInputValue(p, kSamplesInput);
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 bool ViewerOutput::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
@@ -565,12 +565,12 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
   }
 }
 
-int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
+int ViewerOutput::AddStream(Track::Type type, const value_t &value)
 {
   return SetStream(type, value, -1);
 }
 
-int ViewerOutput::SetStream(Track::Type type, const QVariant &value, int index_in)
+int ViewerOutput::SetStream(Track::Type type, const value_t &value, int index_in)
 {
   QString id;
 

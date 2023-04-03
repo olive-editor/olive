@@ -72,13 +72,13 @@ void NumericSliderBase::LadderDragged(int value, double multiplier)
   dragged_diff_ += value * multiplier;
 
   // Store current value to try and prevent any unnecessary signalling if the value doesn't change
-  QVariant pre_set_value = GetValueInternal();
+  InternalType pre_set_value = GetValueInternal();
 
   setting_drag_value_ = true;
   SetValueInternal(AdjustDragDistanceInternal(drag_start_value_, dragged_diff_));
   setting_drag_value_ = false;
 
-  if (GetValueInternal() != pre_set_value) {
+  if (!Equals(GetValueInternal(), pre_set_value)) {
     // We retrieve the value instead of storing it ourselves because SetValueInternal may do extra
     // processing (such as clamping).
     drag_ladder_->SetValue(GetFormattedValueToString());
@@ -142,7 +142,7 @@ bool NumericSliderBase::UsingLadders() const
   return ladder_element_count_ > 0 && OLIVE_CONFIG("UseSliderLadders").toBool();
 }
 
-QVariant NumericSliderBase::AdjustValue(const QVariant &value) const
+NumericSliderBase::InternalType NumericSliderBase::AdjustValue(const InternalType &value) const
 {
   // Clamps between min/max
   if (has_min_ && ValueLessThan(value, min_value_)) {
@@ -154,19 +154,19 @@ QVariant NumericSliderBase::AdjustValue(const QVariant &value) const
   return value;
 }
 
-void NumericSliderBase::SetOffset(const QVariant &v)
+void NumericSliderBase::SetOffset(const InternalType &v)
 {
   offset_ = v;
 
   UpdateLabel();
 }
 
-QVariant NumericSliderBase::AdjustDragDistanceInternal(const QVariant &start, const double &drag) const
+NumericSliderBase::InternalType NumericSliderBase::AdjustDragDistanceInternal(const InternalType &start, const double &drag) const
 {
-  return start.toDouble() + drag;
+  return start.value<double>() + drag;
 }
 
-void NumericSliderBase::SetMinimumInternal(const QVariant &v)
+void NumericSliderBase::SetMinimumInternal(const InternalType &v)
 {
   min_value_ = v;
   has_min_ = true;
@@ -177,7 +177,7 @@ void NumericSliderBase::SetMinimumInternal(const QVariant &v)
   }
 }
 
-void NumericSliderBase::SetMaximumInternal(const QVariant &v)
+void NumericSliderBase::SetMaximumInternal(const InternalType &v)
 {
   max_value_ = v;
   has_max_ = true;
@@ -188,14 +188,14 @@ void NumericSliderBase::SetMaximumInternal(const QVariant &v)
   }
 }
 
-bool NumericSliderBase::ValueGreaterThan(const QVariant &lhs, const QVariant &rhs) const
+bool NumericSliderBase::ValueGreaterThan(const InternalType &lhs, const InternalType &rhs) const
 {
-  return lhs.toDouble() > rhs.toDouble();
+  return lhs.value<double>() > rhs.value<double>();
 }
 
-bool NumericSliderBase::ValueLessThan(const QVariant &lhs, const QVariant &rhs) const
+bool NumericSliderBase::ValueLessThan(const InternalType &lhs, const InternalType &rhs) const
 {
-  return lhs.toDouble() < rhs.toDouble();
+  return lhs.value<double>() < rhs.value<double>();
 }
 
 bool NumericSliderBase::CanSetValue() const

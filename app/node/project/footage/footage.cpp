@@ -48,7 +48,7 @@ Footage::Footage(const QString &filename) :
 {
   SetFlag(kIsItem);
 
-  PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  PrependInput(kFilenameInput, TYPE_FILE, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
   Clear();
 
@@ -231,7 +231,7 @@ QString Footage::DescribeSubtitleStream(const SubtitleParams &params)
     .arg(QString::number(params.stream_index()));
 }
 
-NodeValue Footage::Value(const ValueParams &p) const
+value_t Footage::Value(const ValueParams &p) const
 {
   Track::Reference ref = Track::Reference::FromString(p.output());
 
@@ -271,7 +271,7 @@ NodeValue Footage::Value(const ValueParams &p) const
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
-        return NodeValue(NodeValue::kSamples, job);
+        return value_t(TYPE_SAMPLES, job);
       }
       break;
     case Track::kSubtitle:
@@ -281,7 +281,7 @@ NodeValue Footage::Value(const ValueParams &p) const
     }
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 QString Footage::GetStreamTypeName(Track::Type type)
@@ -538,17 +538,17 @@ void Footage::Reprobe()
             }
           }
 
-          SetStream(Track::kVideo, QVariant::fromValue(video_stream), i);
+          SetStream(Track::kVideo, value_t(TYPE_VPARAM, video_stream), i);
         }
 
         InputArrayResize(kAudioParamsInput, footage_info.GetAudioStreams().size());
         for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {
-          SetStream(Track::kAudio, QVariant::fromValue(footage_info.GetAudioStreams().at(i)), i);
+          SetStream(Track::kAudio, value_t(TYPE_APARAM, footage_info.GetAudioStreams().at(i)), i);
         }
 
         InputArrayResize(kSubtitleParamsInput, footage_info.GetSubtitleStreams().size());
         for (int i=0; i<footage_info.GetSubtitleStreams().size(); i++) {
-          SetStream(Track::kSubtitle, QVariant::fromValue(footage_info.GetSubtitleStreams().at(i)), i);
+          SetStream(Track::kSubtitle, value_t(TYPE_SPARAM, footage_info.GetSubtitleStreams().at(i)), i);
         }
 
         total_stream_count_ = footage_info.GetStreamCount();

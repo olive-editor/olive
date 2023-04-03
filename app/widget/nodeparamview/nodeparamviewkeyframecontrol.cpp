@@ -235,9 +235,9 @@ void NodeParamViewKeyframeControl::KeyframeEnableBtnClicked(bool e)
     command->add_child(new NodeParamSetKeyframingCommand(input_, true));
 
     // Create one keyframe across all tracks here
-    const QVector<QVariant>& key_vals = input_.node()->GetSplitStandardValue(input_);
+    const value_t& key_vals = input_.node()->GetStandardValue(input_);
 
-    for (int i=0;i<key_vals.size();i++) {
+    for (size_t i=0;i<key_vals.size();i++) {
       NodeKeyframe* key = new NodeKeyframe(GetCurrentTimeAsNodeTime(),
                                            key_vals.at(i),
                                            NodeKeyframe::kDefaultType,
@@ -257,7 +257,7 @@ void NodeParamViewKeyframeControl::KeyframeEnableBtnClicked(bool e)
                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
       // Store value at this time, we'll set this as the persistent value later
-      const QVector<QVariant>& stored_vals = input_.node()->GetSplitValueAtTime(input_, GetCurrentTimeAsNodeTime());
+      const value_t& stored_vals = input_.node()->GetValueAtTime(input_, GetCurrentTimeAsNodeTime());
 
       // Delete all keyframes
       foreach (const NodeKeyframeTrack& track, input_.node()->GetKeyframeTracks(input_)) {
@@ -267,7 +267,7 @@ void NodeParamViewKeyframeControl::KeyframeEnableBtnClicked(bool e)
       }
 
       // Update standard value
-      for (int i=0;i<stored_vals.size();i++) {
+      for (size_t i=0;i<stored_vals.size();i++) {
         command->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(input_, i), stored_vals.at(i)));
       }
 

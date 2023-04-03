@@ -54,23 +54,19 @@ void WaveformScope::DrawScope(TexturePtr managed_tex, QVariant pipeline)
   ShaderJob job;
 
   // Set viewport size
-  job.Insert(QStringLiteral("viewport"),
-                  NodeValue(NodeValue::kVec2, QVector2D(width(), height())));
+  job.Insert(QStringLiteral("viewport"), QVector2D(width(), height()));
 
   // Set luma coefficients
   double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
   color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-  job.Insert(QStringLiteral("luma_coeffs"),
-                  NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
+  job.Insert(QStringLiteral("luma_coeffs"), QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2]));
 
 
   // Scale of the waveform relative to the viewport surface.
-  job.Insert(QStringLiteral("waveform_scale"),
-                  NodeValue(NodeValue::kFloat, waveform_scale));
+  job.Insert(QStringLiteral("waveform_scale"), waveform_scale);
 
   // Insert source texture
-  job.Insert(QStringLiteral("ove_maintex"),
-                  NodeValue(NodeValue::kTexture, QVariant::fromValue(managed_tex)));
+  job.Insert(QStringLiteral("ove_maintex"), managed_tex);
 
   renderer()->Blit(pipeline, job, GetViewportParams());
 

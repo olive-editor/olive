@@ -1319,9 +1319,9 @@ void TimelineWidget::ShowContextMenu()
       Menu *thumbnail_menu = new Menu(tr("Show Thumbnails"), &menu);
       menu.addMenu(thumbnail_menu);
 
-      thumbnail_menu->AddActionWithData(tr("Disabled"), Timeline::kThumbnailOff, OLIVE_CONFIG("TimelineThumbnailMode"));
-      thumbnail_menu->AddActionWithData(tr("Only At In Points"), Timeline::kThumbnailInOut, OLIVE_CONFIG("TimelineThumbnailMode"));
-      thumbnail_menu->AddActionWithData(tr("Enabled"), Timeline::kThumbnailOn, OLIVE_CONFIG("TimelineThumbnailMode"));
+      thumbnail_menu->AddActionWithData(tr("Disabled"), Timeline::kThumbnailOff, Timeline::ThumbnailMode(OLIVE_CONFIG("TimelineThumbnailMode").toInt()));
+      thumbnail_menu->AddActionWithData(tr("Only At In Points"), Timeline::kThumbnailInOut, Timeline::ThumbnailMode(OLIVE_CONFIG("TimelineThumbnailMode").toInt()));
+      thumbnail_menu->AddActionWithData(tr("Enabled"), Timeline::kThumbnailOn, Timeline::ThumbnailMode(OLIVE_CONFIG("TimelineThumbnailMode").toInt()));
 
       connect(thumbnail_menu, &Menu::triggered, this, &TimelineWidget::SetViewThumbnailsEnabled);
     }
@@ -1390,7 +1390,7 @@ void TimelineWidget::SetViewWaveformsEnabled(bool e)
 
 void TimelineWidget::SetViewThumbnailsEnabled(QAction *action)
 {
-  OLIVE_CONFIG("TimelineThumbnailMode") = action->data();
+  OLIVE_CONFIG("TimelineThumbnailMode") = action->data().toInt();
   UpdateViewports();
 }
 

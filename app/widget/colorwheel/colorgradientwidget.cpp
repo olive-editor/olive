@@ -23,6 +23,7 @@
 #include <QPainter>
 
 #include "common/lerp.h"
+#include "common/qtutils.h"
 #include "node/node.h"
 
 namespace olive {

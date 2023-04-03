@@ -18,9 +18,9 @@ OpacityEffect::OpacityEffect()
 
   SetNodePositionInContext(math, QPointF(0, 0));
 
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kValueInput, NodeValue::kFloat, 1.0);
+  AddInput(kValueInput, TYPE_DOUBLE, 1.0);
   SetInputProperty(kValueInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kValueInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kValueInput, QStringLiteral("max"), 1.0);
@@ -47,11 +47,11 @@ ShaderCode GetNumberShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/opacity.frag"));
 }
 
-NodeValue OpacityEffect::Value(const ValueParams &p) const
+value_t OpacityEffect::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  NodeValue texture = GetInputValue(p, kTextureInput);
-  NodeValue value = GetInputValue(p, kValueInput);
+  value_t texture = GetInputValue(p, kTextureInput);
+  value_t value = GetInputValue(p, kValueInput);
 
   if (TexturePtr tex = texture.toTexture()) {
     if (TexturePtr opacity_tex = value.toTexture()) {

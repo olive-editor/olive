@@ -30,11 +30,11 @@ const QString FlipDistortNode::kVerticalInput = QStringLiteral("vert_in");
 
 FlipDistortNode::FlipDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kHorizontalInput, NodeValue::kBoolean, false);
+  AddInput(kHorizontalInput, TYPE_BOOL, false);
 
-  AddInput(kVerticalInput, NodeValue::kBoolean, false);
+  AddInput(kVerticalInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -74,10 +74,10 @@ ShaderCode FlipDistortNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 
-NodeValue FlipDistortNode::Value(const ValueParams &p) const
+value_t FlipDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  NodeValue v = GetInputValue(p, kTextureInput);
+  value_t v = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = v.toTexture()) {
     // Only run shader if at least one of flip or flop are selected

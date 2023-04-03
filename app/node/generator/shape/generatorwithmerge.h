@@ -36,7 +36,7 @@ public:
   static const QString kBaseInput;
 
 protected:
-  NodeValue GetMergableJob(const ValueParams &p, TexturePtr job) const;
+  value_t GetMergableJob(const ValueParams &p, TexturePtr job) const;
 
 private:
   static ShaderCode GetShaderCode(const QString &id);

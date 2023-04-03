@@ -26,8 +26,9 @@
 #include <QFile>
 
 #include "common/lerp.h"
-#include "core.h"
+#include "common/qtutils.h"
 #include "config/config.h"
+#include "core.h"
 #include "node/group/group.h"
 #include "node/project/serializer/typeserializer.h"
 #include "nodeundo.h"
@@ -48,7 +49,7 @@ Node::Node() :
   flags_(kNone),
   caches_enabled_(true)
 {
-  AddInput(kEnabledInput, NodeValue::kBoolean, true);
+  AddInput(kEnabledInput, TYPE_BOOL, true);
   AddOutput(QString());
 
   video_cache_ = new FrameHashCache(this);
@@ -332,7 +333,7 @@ bool Node::IsUsingStandardValue(const QString &input, int track, int element) co
   }
 }
 
-NodeValue::Type Node::GetInputDataType(const QString &id) const
+type_t Node::GetInputDataType(const QString &id) const
 {
   const Input* i = GetInternalInputData(id);
 
@@ -340,21 +341,22 @@ NodeValue::Type Node::GetInputDataType(const QString &id) const
     return i->type;
   } else {
     ReportInvalidInput("get data type of", id, -1);
-    return NodeValue::kNone;
+    return TYPE_NONE;
   }
 }
 
-void Node::SetInputDataType(const QString &id, const NodeValue::Type &type)
+void Node::SetInputDataType(const QString &id, const type_t &type, size_t channels)
 {
   Input* input_meta = GetInternalInputData(id);
 
   if (input_meta) {
     input_meta->type = type;
+    input_meta->channel_count = channels;
 
-    int array_sz = InputArraySize(id);
+    /*int array_sz = InputArraySize(id);
     for (int i=-1; i<array_sz; i++) {
-      GetImmediate(id, i)->set_data_type(type);
-    }
+      GetImmediate(id, i)->set_data_type(type, input_meta->channel_count);
+    }*/
 
     emit InputDataTypeChanged(id, type);
   } else {
@@ -374,7 +376,7 @@ bool Node::HasInputProperty(const QString &id, const QString &name) const
   }
 }
 
-QHash<QString, QVariant> Node::GetInputProperties(const QString &id) const
+QHash<QString, value_t> Node::GetInputProperties(const QString &id) const
 {
   const Input* i = GetInternalInputData(id);
 
@@ -382,11 +384,11 @@ QHash<QString, QVariant> Node::GetInputProperties(const QString &id) const
     return i->properties;
   } else {
     ReportInvalidInput("get property table of", id, -1);
-    return QHash<QString, QVariant>();
+    return QHash<QString, value_t>();
   }
 }
 
-QVariant Node::GetInputProperty(const QString &id, const QString &name) const
+value_t Node::GetInputProperty(const QString &id, const QString &name) const
 {
   const Input* i = GetInternalInputData(id);
 
@@ -394,11 +396,11 @@ QVariant Node::GetInputProperty(const QString &id, const QString &name) const
     return i->properties.value(name);
   } else {
     ReportInvalidInput("get property of", id, -1);
-    return QVariant();
+    return value_t();
   }
 }
 
-void Node::SetInputProperty(const QString &id, const QString &name, const QVariant &value)
+void Node::SetInputProperty(const QString &id, const QString &name, const value_t &value)
 {
   Input* i = GetInternalInputData(id);
 
@@ -411,20 +413,18 @@ void Node::SetInputProperty(const QString &id, const QString &name, const QVaria
   }
 }
 
-SplitValue Node::GetSplitValueAtTime(const QString &input, const rational &time, int element) const
+value_t Node::GetValueAtTime(const QString &input, const rational &time, int element) const
 {
-  SplitValue vals;
+  value_t v(GetInputDataType(input), GetNumberOfKeyframeTracks(input));
 
-  int nb_tracks = GetNumberOfKeyframeTracks(input);
-
-  for (int i=0;i<nb_tracks;i++) {
-    vals.append(GetSplitValueAtTimeOnTrack(input, time, i, element));
+  for (size_t i = 0; i < v.data().size(); i++) {
+    v.data()[0] = GetSplitValueAtTimeOnTrack(input, time, i, element);
   }
 
-  return vals;
+  return v;
 }
 
-QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &time, int track, int element) const
+value_t::component_t Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &time, int track, int element) const
 {
   if (!IsUsingStandardValue(input, track, element)) {
     const NodeKeyframeTrack& key_track = GetKeyframeTracks(input, element).at(track);
@@ -439,7 +439,7 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
       return key_track.last()->value();
     }
 
-    NodeValue::Type type = GetInputDataType(input);
+    type_t type = GetInputDataType(input);
 
     // If we're here, the time must be somewhere in between the keyframes
     NodeKeyframe *before = nullptr, *after = nullptr;
@@ -462,9 +462,11 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
       }
     }
 
+    bool can_be_interpolated = (type == TYPE_INTEGER || type == TYPE_DOUBLE || type == TYPE_RATIONAL);
+
     if (before) {
       if (before->time() == time
-          || ((!NodeValue::type_can_be_interpolated(type) || before->type() == NodeKeyframe::kHold) && after->time() > time)) {
+          || ((!can_be_interpolated || before->type() == NodeKeyframe::kHold) && after->time() > time)) {
 
         // Time == keyframe time, so value is precise
         return before->value();
@@ -478,12 +480,15 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
         // We must interpolate between these keyframes
 
         double before_val, after_val, interpolated;
-        if (type == NodeValue::kRational) {
-          before_val = before->value().value<rational>().toDouble();
-          after_val = after->value().value<rational>().toDouble();
+        if (type == TYPE_RATIONAL) {
+          before_val = before->value().get<rational>().toDouble();
+          after_val = after->value().get<rational>().toDouble();
+        } else if (type == TYPE_INTEGER) {
+          before_val = before->value().get<int64_t>();
+          after_val = after->value().get<int64_t>();
         } else {
-          before_val = before->value().toDouble();
-          after_val = after->value().toDouble();
+          before_val = before->value().get<double>();
+          after_val = after->value().get<double>();
         }
 
         if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
@@ -521,8 +526,10 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
           interpolated = lerp(before_val, after_val, period_progress);
         }
 
-        if (type == NodeValue::kRational) {
-          return QVariant::fromValue(rational::fromDouble(interpolated));
+        if (type == TYPE_RATIONAL) {
+          return rational::fromDouble(interpolated);
+        } else if (type == TYPE_INTEGER) {
+          return int64_t(std::round(interpolated));
         } else {
           return interpolated;
         }
@@ -535,14 +542,7 @@ QVariant Node::GetSplitValueAtTimeOnTrack(const QString &input, const rational &
   return GetSplitStandardValueOnTrack(input, track, element);
 }
 
-QVariant Node::GetDefaultValue(const QString &input) const
-{
-  NodeValue::Type type = GetInputDataType(input);
-
-  return NodeValue::combine_track_values_into_normal_value(type, GetSplitDefaultValue(input));
-}
-
-SplitValue Node::GetSplitDefaultValue(const QString &input) const
+value_t Node::GetDefaultValue(const QString &input) const
 {
   const Input* i = GetInternalInputData(input);
 
@@ -550,28 +550,21 @@ SplitValue Node::GetSplitDefaultValue(const QString &input) const
     return i->default_value;
   } else {
     ReportInvalidInput("retrieve default value of", input, -1);
-    return SplitValue();
+    return value_t();
   }
 }
 
-QVariant Node::GetSplitDefaultValueOnTrack(const QString &input, int track) const
+value_t::component_t Node::GetSplitDefaultValueOnTrack(const QString &input, size_t track) const
 {
-  SplitValue val = GetSplitDefaultValue(input);
+  value_t val = GetDefaultValue(input);
   if (track < val.size()) {
     return val.at(track);
   } else {
-    return QVariant();
+    return value_t::component_t();
   }
 }
 
-void Node::SetDefaultValue(const QString &input, const QVariant &val)
-{
-  NodeValue::Type type = GetInputDataType(input);
-
-  SetSplitDefaultValue(input, NodeValue::split_normal_value_into_track_values(type, val));
-}
-
-void Node::SetSplitDefaultValue(const QString &input, const SplitValue &val)
+void Node::SetDefaultValue(const QString &input, const value_t &val)
 {
   Input* i = GetInternalInputData(input);
 
@@ -582,7 +575,7 @@ void Node::SetSplitDefaultValue(const QString &input, const SplitValue &val)
   }
 }
 
-void Node::SetSplitDefaultValueOnTrack(const QString &input, const QVariant &val, int track)
+void Node::SetSplitDefaultValueOnTrack(const QString &input, const value_t::component_t &val, size_t track)
 {
   Input* i = GetInternalInputData(input);
 
@@ -636,9 +629,15 @@ NodeKeyframe::Type Node::GetBestKeyframeTypeForTimeOnTrack(const QString &input,
   }
 }
 
-int Node::GetNumberOfKeyframeTracks(const QString &id) const
+size_t Node::GetNumberOfKeyframeTracks(const QString &id) const
 {
-  return NodeValue::get_number_of_keyframe_tracks(GetInputDataType(id));
+  const Input* i = GetInternalInputData(id);
+  if (i) {
+    return i->channel_count;
+  } else {
+    ReportInvalidInput("get number of keyframe tracks of", id, -1);
+    return 1;
+  }
 }
 
 NodeKeyframe *Node::GetEarliestKeyframe(const QString &id, int element) const
@@ -703,29 +702,23 @@ bool Node::HasKeyframeAtTime(const QString &id, const rational &time, int elemen
 
 QStringList Node::GetComboBoxStrings(const QString &id) const
 {
-  return GetInputProperty(id, QStringLiteral("combo_str")).toStringList();
+  return GetInputProperty(id, QStringLiteral("combo_str")).value<QStringList>();
 }
 
-QVariant Node::GetStandardValue(const QString &id, int element) const
+value_t Node::GetStandardValue(const QString &id, int element) const
 {
-  NodeValue::Type type = GetInputDataType(id);
-
-  return NodeValue::combine_track_values_into_normal_value(type, GetSplitStandardValue(id, element));
-}
-
-SplitValue Node::GetSplitStandardValue(const QString &id, int element) const
-{
+  const Input *input = GetInternalInputData(id);
   NodeInputImmediate* imm = GetImmediate(id, element);
 
   if (imm) {
-    return imm->get_split_standard_value();
+    return value_t(input->type, imm->get_standard_value());
   } else {
     ReportInvalidInput("get standard value of", id, element);
-    return SplitValue();
+    return value_t();
   }
 }
 
-QVariant Node::GetSplitStandardValueOnTrack(const QString &input, int track, int element) const
+value_t::component_t Node::GetSplitStandardValueOnTrack(const QString &input, int track, int element) const
 {
   NodeInputImmediate* imm = GetImmediate(input, element);
 
@@ -733,25 +726,18 @@ QVariant Node::GetSplitStandardValueOnTrack(const QString &input, int track, int
     return imm->get_split_standard_value_on_track(track);
   } else {
     ReportInvalidInput("get standard value of", input, element);
-    return QVariant();
+    return value_t::component_t();
   }
 }
 
-void Node::SetStandardValue(const QString &id, const QVariant &value, int element)
-{
-  NodeValue::Type type = GetInputDataType(id);
-
-  SetSplitStandardValue(id, NodeValue::split_normal_value_into_track_values(type, value), element);
-}
-
-void Node::SetSplitStandardValue(const QString &id, const SplitValue &value, int element)
+void Node::SetStandardValue(const QString &id, const value_t &value, int element)
 {
   NodeInputImmediate* imm = GetImmediate(id, element);
 
   if (imm) {
     imm->set_split_standard_value(value);
 
-    for (int i=0; i<value.size(); i++) {
+    for (size_t i=0; i<value.size(); i++) {
       if (IsUsingStandardValue(id, i, element)) {
         // If this standard value is being used, we need to send a value changed signal
         ParameterValueChanged(id, element, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
@@ -763,7 +749,7 @@ void Node::SetSplitStandardValue(const QString &id, const SplitValue &value, int
   }
 }
 
-void Node::SetSplitStandardValueOnTrack(const QString &id, int track, const QVariant &value, int element)
+void Node::SetSplitStandardValueOnTrack(const QString &id, int track, const value_t::component_t &value, int element)
 {
   NodeInputImmediate* imm = GetImmediate(id, element);
 
@@ -866,33 +852,32 @@ int Node::InputArraySize(const QString &id) const
   }
 }
 
-NodeValue Node::GetInputValue(const ValueParams &g, const QString &input, int element) const
+value_t Node::GetInputValue(const ValueParams &g, const QString &input, int element) const
 {
   if (!g.is_cancelled()) {
     if (Node *output = GetConnectedOutput(input, element)) {
       return GetFakeConnectedValue(g, output, input, element);
     } else {
-      NodeValue::Type type = GetInputDataType(input);
       TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
 
       if (element == -1 && InputIsArray(input)) {
         NodeValueArray array(InputArraySize(input));
 
         for (size_t i = 0; i < array.size(); i++) {
-          array[i] = NodeValue(GetInputDataType(input), GetValueAtTime(input, adjusted_time.in(), i));
+          array[i] = GetValueAtTime(input, adjusted_time.in(), i);
         }
 
-        return NodeValue(type, array);
+        return array;
       } else {
-        return NodeValue(type, GetValueAtTime(input, adjusted_time.in(), element));
+        return GetValueAtTime(input, adjusted_time.in(), element);
       }
     }
   }
 
-  return NodeValue();
+  return value_t();
 }
 
-NodeValue Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QString &input, int element) const
+value_t Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QString &input, int element) const
 {
   if (!g.is_cancelled()) {
     TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
@@ -906,7 +891,7 @@ NodeValue Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const 
     }
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int element)
@@ -938,7 +923,7 @@ NodeInputImmediate *Node::GetImmediate(const QString &input, int element) const
   return nullptr;
 }
 
-InputFlags Node::GetInputFlags(const QString &input) const
+InputFlag Node::GetInputFlags(const QString &input) const
 {
   const Input* i = GetInternalInputData(input);
 
@@ -946,7 +931,7 @@ InputFlags Node::GetInputFlags(const QString &input) const
     return i->flags;
   } else {
     ReportInvalidInput("retrieve flags of", input, -1);
-    return InputFlags(kInputFlagNormal);
+    return kInputFlagNormal;
   }
 }
 
@@ -1534,7 +1519,7 @@ void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
 {
   writer->writeAttribute(QStringLiteral("id"), id);
 
-  if (!GetStandardValue(id, -1).isNull()) {
+  if (GetStandardValue(id, -1).isValid()) {
     writer->writeStartElement(QStringLiteral("primary"));
 
     SaveImmediate(writer, id, -1);
@@ -1563,12 +1548,12 @@ void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
 
 bool Node::LoadImmediate(QXmlStreamReader *reader, const QString &input, int element, SerializedData *data)
 {
-  NodeValue::Type data_type = this->GetInputDataType(input);
+  type_t data_type = this->GetInputDataType(input);
 
   // HACK: SubtitleParams contain the actual subtitle data, so loading/replacing it will overwrite
   //       the valid subtitles. We hack around it by simply skipping loading subtitles, we'll see
   //       if this ends up being an issue in the future.
-  if (data_type == NodeValue::kSubtitleParams) {
+  if (data_type == ViewerOutput::TYPE_SPARAM) {
     reader->skipCurrentElement();
     return true;
   }
@@ -1580,20 +1565,20 @@ bool Node::LoadImmediate(QXmlStreamReader *reader, const QString &input, int ele
 
       while (XMLReadNextStartElement(reader)) {
         if (reader->name() == QStringLiteral("track")) {
-          QVariant value_on_track;
+          value_t::component_t value_on_track;
 
-          if (data_type == NodeValue::kVideoParams) {
+          if (data_type == ViewerOutput::TYPE_VPARAM) {
             VideoParams vp;
             vp.Load(reader);
-            value_on_track = QVariant::fromValue(vp);
-          } else if (data_type == NodeValue::kAudioParams) {
+            value_on_track = vp;
+          } else if (data_type == ViewerOutput::TYPE_APARAM) {
             AudioParams ap = TypeSerializer::LoadAudioParams(reader);
-            value_on_track = QVariant::fromValue(ap);
+            value_on_track = ap;
           } else {
             QString value_text = reader->readElementText();
 
             if (!value_text.isEmpty()) {
-              value_on_track = NodeValue::StringToValue(data_type, value_text, true);
+              value_on_track = value_t::component_t(value_text).converted(TYPE_STRING, data_type);
             }
           }
 
@@ -1657,20 +1642,25 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
     writer->writeTextElement(QStringLiteral("keyframing"), QString::number(is_keyframing));
   }
 
-  NodeValue::Type data_type = this->GetInputDataType(input);
+  type_t data_type = this->GetInputDataType(input);
 
   // Write standard value
   writer->writeStartElement(QStringLiteral("standard"));
 
-  foreach (const QVariant& v, this->GetSplitStandardValue(input, element)) {
+  value_t value = this->GetStandardValue(input, element);
+  for (size_t i = 0; i < value.size(); i++) {
+    value_t::component_t v;
+
     writer->writeStartElement(QStringLiteral("track"));
 
-    if (data_type == NodeValue::kVideoParams) {
-      v.value<VideoParams>().Save(writer);
-    } else if (data_type == NodeValue::kAudioParams) {
-      TypeSerializer::SaveAudioParams(writer, v.value<AudioParams>());
+    // FIXME: We now have converters for custom types, so this should be handled with those instead.
+    //        It'll probably require bumping the project version though...
+    if (data_type == ViewerOutput::TYPE_VPARAM) {
+      v.get<VideoParams>().Save(writer);
+    } else if (data_type == ViewerOutput::TYPE_APARAM) {
+      TypeSerializer::SaveAudioParams(writer, v.get<AudioParams>());
     } else {
-      writer->writeCharacters(NodeValue::ValueToString(data_type, v, true));
+      writer->writeCharacters(v.toSerializedString(data_type));
     }
 
     writer->writeEndElement(); // track
@@ -1699,7 +1689,7 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
     writer->writeEndElement(); // keyframes
   }
 
-  if (data_type == NodeValue::kColor) {
+  if (this->HasInputProperty(input, QStringLiteral("col_input"))) {
     // Save color management information
     writer->writeTextElement(QStringLiteral("csinput"), this->GetInputProperty(input, QStringLiteral("col_input")).toString());
     writer->writeTextElement(QStringLiteral("csdisplay"), this->GetInputProperty(input, QStringLiteral("col_display")).toString());
@@ -1708,7 +1698,7 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
   }
 }
 
-void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &default_value, InputFlags flags, int index)
+void Node::InsertInput(const QString &id, type_t type, size_t channel_count, const value_t &default_value, InputFlag flags, int index)
 {
   if (id.isEmpty()) {
     qWarning() << "Rejected adding input with an empty ID on node" << this->id();
@@ -1720,18 +1710,33 @@ void Node::InsertInput(const QString &id, NodeValue::Type type, const QVariant &
     return;
   }
 
+  QString subtype;
+
+  type = ResolveSpecialType(type, channel_count, subtype);
+
   Node::Input i;
 
   i.type = type;
-  i.default_value = NodeValue::split_normal_value_into_track_values(type, default_value);
+  i.default_value = default_value;
   i.flags = flags;
   i.array_size = 0;
+  i.channel_count = channel_count;
+
+  //qDebug() << "creating" << id << "with channels" << i.channel_count;
+
+  if (!subtype.isEmpty()) {
+    i.properties.insert(QStringLiteral("subtype"), subtype);
+  }
 
   input_ids_.insert(index, id);
   input_data_.insert(index, i);
 
   if (!standard_immediates_.value(id, nullptr)) {
-    standard_immediates_.insert(id, CreateImmediate(id));
+    NodeInputImmediate *imm = CreateImmediate(id);
+    standard_immediates_.insert(id, imm);
+    if (default_value.isValid()) {
+      imm->set_split_standard_value(default_value);
+    }
   }
 
   emit InputAdded(id);
@@ -1791,14 +1796,14 @@ NodeInputImmediate *Node::CreateImmediate(const QString &input)
   const Input* i = GetInternalInputData(input);
 
   if (i) {
-    return new NodeInputImmediate(i->type, i->default_value);
+    return new NodeInputImmediate(i->type, i->channel_count);
   } else {
     ReportInvalidInput("create immediate", input, -1);
     return nullptr;
   }
 }
 
-void Node::ArrayResizeInternal(const QString &id, int size)
+void Node::ArrayResizeInternal(const QString &id, size_t size)
 {
   Input* imm = GetInternalInputData(id);
 
@@ -1812,7 +1817,7 @@ void Node::ArrayResizeInternal(const QString &id, int size)
     if (imm->array_size < size) {
       // Size is larger, create any immediates that don't exist
       QVector<NodeInputImmediate*>& subinputs = array_immediates_[id];
-      for (int i=subinputs.size(); i<size; i++) {
+      for (size_t i=subinputs.size(); i<size; i++) {
         subinputs.append(CreateImmediate(id));
       }
 
@@ -1988,11 +1993,11 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
   NodeInput dst_input(dst, input, dst_element);
 
   // Copy standard value
-  SplitValue standard = src->GetSplitStandardValue(input, src_element);
+  value_t standard = src->GetStandardValue(input, src_element);
   if (command) {
     command->add_child(new NodeParamSetSplitStandardValueCommand(dst_input, standard));
   } else {
-    dst->SetSplitStandardValue(input, standard, dst_element);
+    dst->SetStandardValue(input, standard, dst_element);
   }
 
   // Copy keyframes
@@ -2256,7 +2261,43 @@ void Node::ClearElement(const QString& input, int index)
     SetInputIsKeyframing(input, false, index);
   }
 
-  SetSplitStandardValue(input, GetSplitDefaultValue(input), index);
+  SetStandardValue(input, GetDefaultValue(input), index);
+}
+
+type_t Node::ResolveSpecialType(type_t type, size_t &channel_count, QString &subtype)
+{
+  if (type == TYPE_VEC2) {
+    channel_count = 2;
+    return TYPE_DOUBLE;
+  } else if (type == TYPE_VEC3) {
+    channel_count = 3;
+    return TYPE_DOUBLE;
+  } else if (type == TYPE_VEC4) {
+    channel_count = 4;
+    return TYPE_DOUBLE;
+  } else if (type == TYPE_COLOR) {
+    channel_count = 4;
+    subtype = QStringLiteral("color");
+    return TYPE_DOUBLE;
+  } else if (type == TYPE_BOOL) {
+    subtype = QStringLiteral("bool");
+    return TYPE_INTEGER;
+  } else if (type == TYPE_COMBO) {
+    subtype = QStringLiteral("combo");
+    return TYPE_INTEGER;
+  } else if (type == TYPE_FONT) {
+    subtype = QStringLiteral("font");
+    return TYPE_STRING;
+  } else if (type == TYPE_FILE) {
+    subtype = QStringLiteral("file");
+    return TYPE_STRING;
+  } else if (type == TYPE_BEZIER) {
+    channel_count = 6;
+    subtype = QStringLiteral("bezier");
+    return TYPE_DOUBLE;
+  }
+
+  return type;
 }
 
 void Node::InputValueChangedEvent(const QString &input, int element)
@@ -2415,7 +2456,7 @@ void Node::InvalidateFromKeyframeTypeChanged()
   emit KeyframeTypeChanged(key);
 }
 
-void Node::SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
+void Node::SetValueAtTime(const NodeInput &input, const rational &time, const value_t::component_t &value, size_t track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
 {
   if (input.IsKeyframing()) {
     rational node_time = time;
@@ -2426,9 +2467,9 @@ void Node::SetValueAtTime(const NodeInput &input, const rational &time, const QV
       command->add_child(new NodeParamSetKeyframeValueCommand(existing_key, value));
     } else {
       // No existing key, create a new one
-      int nb_tracks = NodeValue::get_number_of_keyframe_tracks(input.node()->GetInputDataType(input.input()));
-      for (int i=0; i<nb_tracks; i++) {
-        QVariant track_value;
+      size_t nb_tracks = input.node()->GetNumberOfKeyframeTracks(input.input());
+      for (size_t i=0; i<nb_tracks; i++) {
+        value_t::component_t track_value;
 
         if (i == track) {
           track_value = value;

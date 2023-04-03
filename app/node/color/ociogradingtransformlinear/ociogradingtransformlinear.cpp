@@ -43,36 +43,36 @@ const QString OCIOGradingTransformLinearNode::kClampWhiteInput = QStringLiteral(
 
 OCIOGradingTransformLinearNode::OCIOGradingTransformLinearNode()
 {
-  AddInput(kContrastInput, NodeValue::kVec4, QVector4D{1.0, 1.0, 1.0, 1.0});
+  AddInput(kContrastInput, TYPE_VEC4, QVector4D{1.0, 1.0, 1.0, 1.0});
   // Minimum based on OCIO::GradingPrimary::validate
   SetInputProperty(kContrastInput, QStringLiteral("min"), QVector4D{0.01f, 0.01f, 0.01f, 0.01f});
   SetInputProperty(kContrastInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kContrastInput);
 
-  AddInput(kOffsetInput, NodeValue::kVec4, QVector4D{0.0, 0.0, 0.0, 0.0});
+  AddInput(kOffsetInput, TYPE_VEC4, QVector4D{0.0, 0.0, 0.0, 0.0});
   SetInputProperty(kOffsetInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kOffsetInput);
 
-  AddInput(kExposureInput, NodeValue::kVec4, QVector4D{0.0, 0.0, 0.0, 0.0});
+  AddInput(kExposureInput, TYPE_VEC4, QVector4D{0.0, 0.0, 0.0, 0.0});
   SetInputProperty(kExposureInput, QStringLiteral("base"), 0.01);
   SetVec4InputColors(kExposureInput);
 
-  AddInput(kSaturationInput, NodeValue::kFloat, 1.0);
+  AddInput(kSaturationInput, TYPE_DOUBLE, 1.0);
   SetInputProperty(kSaturationInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kSaturationInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kPivotInput, NodeValue::kFloat, 0.18); // Default listed in OCIO::GradingPrimary
+  AddInput(kPivotInput, TYPE_DOUBLE, 0.18); // Default listed in OCIO::GradingPrimary
   SetInputProperty(kPivotInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampBlackEnableInput, NodeValue::kBoolean, false);
+  AddInput(kClampBlackEnableInput, TYPE_BOOL, false);
 
-  AddInput(kClampBlackInput, NodeValue::kFloat, 0.0);
+  AddInput(kClampBlackInput, TYPE_DOUBLE, 0.0);
   SetInputProperty(kClampBlackInput, QStringLiteral("enabled"), GetStandardValue(kClampBlackEnableInput).toBool());
   SetInputProperty(kClampBlackInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kClampWhiteEnableInput, NodeValue::kBoolean, false);
+  AddInput(kClampWhiteEnableInput, TYPE_BOOL, false);
 
-  AddInput(kClampWhiteInput, NodeValue::kFloat, 1.0);
+  AddInput(kClampWhiteInput, TYPE_DOUBLE, 1.0);
   SetInputProperty(kClampWhiteInput, QStringLiteral("enabled"), GetStandardValue(kClampWhiteEnableInput).toBool());
   SetInputProperty(kClampWhiteInput, QStringLiteral("base"), 0.01);
 
@@ -153,9 +153,9 @@ void OCIOGradingTransformLinearNode::GenerateProcessor()
   }
 }
 
-NodeValue OCIOGradingTransformLinearNode::Value(const ValueParams &p) const
+value_t OCIOGradingTransformLinearNode::Value(const ValueParams &p) const
 {
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
     if (processor()) {

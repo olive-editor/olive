@@ -422,8 +422,8 @@ void ViewerDisplayWidget::OnPaint()
           }
 
           ShaderJob job;
-          job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
-          job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
+          job.Insert(QStringLiteral("resolution_in"), QVector2D(texture_to_draw->width(), texture_to_draw->height()));
+          job.Insert(QStringLiteral("ove_maintex"), texture_to_draw);
 
           renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
 
@@ -1257,8 +1257,8 @@ void ViewerDisplayWidget::DrawBlank(const VideoParams &device_params)
   }
 
   ShaderJob job;
-  job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
-  job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
+  job.Insert(QStringLiteral("ove_mvpmat"), combined_matrix_flipped_);
+  job.Insert(QStringLiteral("ove_cropmatrix"), crop_matrix_);
 
   renderer()->Blit(blank_shader_, job, device_params, false);
 }

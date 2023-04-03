@@ -34,7 +34,7 @@ StringSlider::StringSlider(QWidget* parent) :
 
 QString StringSlider::GetValue() const
 {
-  return GetValueInternal().toString();
+  return GetValueInternal().value<QString>();
 }
 
 void StringSlider::SetValue(const QString &v)
@@ -47,21 +47,26 @@ void StringSlider::SetDefaultValue(const QString &v)
   super::SetDefaultValue(v);
 }
 
-QString StringSlider::ValueToString(const QVariant &v) const
+QString StringSlider::ValueToString(const InternalType &v) const
 {
-  QString vstr = v.toString();
+  QString vstr = v.value<QString>();
   return (vstr.isEmpty()) ? tr("(none)") : vstr;
 }
 
-QVariant StringSlider::StringToValue(const QString &s, bool *ok) const
+StringSlider::InternalType StringSlider::StringToValue(const QString &s, bool *ok) const
 {
   *ok = true;
   return s;
 }
 
-void StringSlider::ValueSignalEvent(const QVariant &value)
+void StringSlider::ValueSignalEvent(const InternalType &value)
 {
-  emit ValueChanged(value.toString());
+  emit ValueChanged(value.value<QString>());
+}
+
+bool StringSlider::Equals(const InternalType &a, const InternalType &b) const
+{
+  return a.value<QString>() == b.value<QString>();
 }
 
 }

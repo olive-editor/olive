@@ -419,58 +419,30 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     }
 
     // This variable is used in the shader, let's set it
-    const NodeValue& value = it.value();
+    const value_t& value = it.value();
 
-    // Arrays are not currently supported in this system
-    if (value.array()) {
-      continue;
-    }
-
-    switch (value.type()) {
-    case NodeValue::kInt:
+    if (value.type() == TYPE_INTEGER) {
       // kInt technically specifies a LongLong, but OpenGL doesn't support those. This may lead to
       // over/underflows if the number is large enough, but the likelihood of that is quite low.
       functions_->glUniform1i(variable_location, value.toInt());
-      break;
-    case NodeValue::kFloat:
-      // kFloat technically specifies a double but as above, OpenGL doesn't support those.
-      functions_->glUniform1f(variable_location, value.toDouble());
-      break;
-    case NodeValue::kVec2:
-    {
-      QVector2D v = value.toVec2();
-      functions_->glUniform2fv(variable_location, 1, reinterpret_cast<const GLfloat*>(&v));
-      break;
-    }
-    case NodeValue::kVec3:
-    {
-      QVector3D v = value.toVec3();
-      functions_->glUniform3fv(variable_location, 1, reinterpret_cast<const GLfloat*>(&v));
-      break;
-    }
-    case NodeValue::kVec4:
-    {
-      QVector4D v = value.toVec4();
-      functions_->glUniform4fv(variable_location, 1, reinterpret_cast<const GLfloat*>(&v));
-      break;
-    }
-    case NodeValue::kMatrix:
+    } else if (value.type() == TYPE_DOUBLE) {
+      switch (value.size()) {
+      case 1:
+        functions_->glUniform1f(variable_location, value.value<double>(0));
+        break;
+      case 2:
+        functions_->glUniform2f(variable_location, value.value<double>(0), value.value<double>(1));
+        break;
+      case 3:
+        functions_->glUniform3f(variable_location, value.value<double>(0), value.value<double>(1), value.value<double>(2));
+        break;
+      case 4:
+        functions_->glUniform4f(variable_location, value.value<double>(0), value.value<double>(1), value.value<double>(2), value.value<double>(3));
+        break;
+      }
+    } else if (value.type() == TYPE_MATRIX) {
       functions_->glUniformMatrix4fv(variable_location, 1, false, value.toMatrix().constData());
-      break;
-    case NodeValue::kCombo:
-      functions_->glUniform1i(variable_location, value.toInt());
-      break;
-    case NodeValue::kColor:
-    {
-      Color color = value.toColor();
-      functions_->glUniform4f(variable_location, color.red(), color.green(), color.blue(), color.alpha());
-      break;
-    }
-    case NodeValue::kBoolean:
-      functions_->glUniform1i(variable_location, value.toBool());
-      break;
-    case NodeValue::kTexture:
-    {
+    } else if (value.type() == TYPE_TEXTURE) {
       TexturePtr texture = value.toTexture();
 
       // Set value to bound texture
@@ -486,21 +458,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       if (enable_param_location > -1) {
         functions_->glUniform1i(enable_param_location, tex_id > 0);
       }
-      break;
-    }
-    case NodeValue::kSamples:
-    case NodeValue::kText:
-    case NodeValue::kRational:
-    case NodeValue::kFont:
-    case NodeValue::kFile:
-    case NodeValue::kVideoParams:
-    case NodeValue::kAudioParams:
-    case NodeValue::kSubtitleParams:
-    case NodeValue::kBezier:
-    case NodeValue::kBinary:
-    case NodeValue::kNone:
-    case NodeValue::kDataTypeCount:
-      break;
     }
   }
 

@@ -58,13 +58,22 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
 protected:
   virtual void InputValueChangedEvent(const QString &input, int element) override;
 
 private:
-  static const QVector<NodeValue::Type> kSupportedTypes;
+  static QString GetPrettyTypeName(const type_t &id);
+
+  struct Type
+  {
+    type_t our_type;
+    type_t base_type;
+    size_t channel_count;
+  };
+
+  static const QVector<Type> kSupportedTypes;
 
 };
 

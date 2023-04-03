@@ -13,13 +13,13 @@ const QString MultiCamNode::kSequenceTypeInput = QStringLiteral("sequence_type_i
 
 MultiCamNode::MultiCamNode()
 {
-  AddInput(kCurrentInput, NodeValue::kCombo, InputFlags(kInputFlagStatic));
+  AddInput(kCurrentInput, TYPE_COMBO, kInputFlagStatic);
 
-  AddInput(kSourcesInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray));
+  AddInput(kSourcesInput, kInputFlagNotKeyframable | kInputFlagArray);
   SetInputProperty(kSourcesInput, QStringLiteral("arraystart"), 1);
 
-  AddInput(kSequenceInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  AddInput(kSequenceTypeInput, NodeValue::kCombo, InputFlags(kInputFlagStatic | kInputFlagHidden));
+  AddInput(kSequenceInput, kInputFlagNotKeyframable);
+  AddInput(kSequenceTypeInput, TYPE_COMBO, kInputFlagStatic | kInputFlagHidden);
 
   sequence_ = nullptr;
 }
@@ -118,7 +118,7 @@ ShaderCode MultiCamNode::GetShaderCode(const QString &id)
   return ShaderCode(GenerateShaderCode(rows, cols));
 }
 
-NodeValue MultiCamNode::Value(const ValueParams &p) const
+value_t MultiCamNode::Value(const ValueParams &p) const
 {
   if (p.output() == QStringLiteral("all")) {
     // Switcher mode: output a collage of all sources
@@ -135,12 +135,12 @@ NodeValue MultiCamNode::Value(const ValueParams &p) const
       MultiCamNode::IndexToRowCols(i, rows, cols, &r, &c);
 
       if (Node *n = GetSourceNode(i)) {
-        NodeValue v = GetFakeConnectedValue(p, n, kSourcesInput, i);
+        value_t v = GetFakeConnectedValue(p, n, kSourcesInput, i);
         job.Insert(QStringLiteral("tex_%1_%2").arg(QString::number(r), QString::number(c)), v);
       }
     }
 
-    return NodeValue(Texture::Job(p.vparams(), job));
+    return value_t(Texture::Job(p.vparams(), job));
   } else {
     // Default behavior: output currently selected source
     int current = GetInputValue(p, kCurrentInput).toInt();
@@ -150,7 +150,7 @@ NodeValue MultiCamNode::Value(const ValueParams &p) const
     }
   }
 
-  return NodeValue();
+  return value_t();
 }
 
 void MultiCamNode::IndexToRowCols(int index, int total_rows, int total_cols, int *row, int *col)

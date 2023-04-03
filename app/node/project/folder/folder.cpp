@@ -36,7 +36,7 @@ Folder::Folder()
 {
   SetFlag(kIsItem);
 
-  AddInput(kChildInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
+  AddInput(kChildInput, kInputFlagArray | kInputFlagNotKeyframable);
 }
 
 QVariant Folder::data(const DataType &d) const

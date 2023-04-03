@@ -31,7 +31,7 @@ OCIOBaseNode::OCIOBaseNode() :
   manager_(nullptr),
   processor_(nullptr)
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   SetEffectInput(kTextureInput);
 
@@ -53,7 +53,7 @@ void OCIOBaseNode::RemovedFromGraphEvent(Project *p)
   }
 }
 
-NodeValue OCIOBaseNode::Value(const ValueParams &p) const
+value_t OCIOBaseNode::Value(const ValueParams &p) const
 {
   auto tex_met = GetInputValue(p, kTextureInput);
   TexturePtr t = tex_met.toTexture();

@@ -34,7 +34,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kTextureInput;
   static const QString kValueInput;

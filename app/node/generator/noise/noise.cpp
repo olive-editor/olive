@@ -32,13 +32,13 @@ const QString NoiseGeneratorNode::kStrengthInput = QStringLiteral("strength_in")
 
 NoiseGeneratorNode::NoiseGeneratorNode()
 {
-  AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBaseIn, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kStrengthInput, NodeValue::kFloat, 0.2);
+  AddInput(kStrengthInput, TYPE_DOUBLE, 0.2);
   SetInputProperty(kStrengthInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kStrengthInput, QStringLiteral("min"), 0);
 
-  AddInput(kColorInput, NodeValue::kBoolean, false);
+  AddInput(kColorInput, TYPE_BOOL, false);
 
   SetEffectInput(kBaseIn);
   SetFlag(kVideoEffect);
@@ -78,7 +78,7 @@ ShaderCode NoiseGeneratorNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/noise.frag"));
 }
 
-NodeValue NoiseGeneratorNode::Value(const ValueParams &p) const
+value_t NoiseGeneratorNode::Value(const ValueParams &p) const
 {
   ShaderJob job = CreateShaderJob(p, GetShaderCode);
 

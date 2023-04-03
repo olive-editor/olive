@@ -515,7 +515,7 @@ void ViewerWidget::UpdateAudioProcessor()
     ap.set_format(ViewerOutput::kDefaultSampleFormat);
 
     AudioParams packed(OLIVE_CONFIG("AudioOutputSampleRate").toInt(),
-                       OLIVE_CONFIG("AudioOutputChannelLayout").toULongLong(),
+                       OLIVE_CONFIG("AudioOutputChannelLayout").toInt(),
                        SampleFormat::from_string(OLIVE_CONFIG("AudioOutputSampleFormat").toString().toStdString()));
 
     audio_processor_.Open(ap, packed, (playback_speed_ == 0) ? 1 : std::abs(playback_speed_));
@@ -694,12 +694,12 @@ MultiCamNode *ViewerWidget::DetectMulticamNode(const rational &time)
         }
       }
     }
-  }
 
-  if (multicam) {
-    multicam_panel_->SetMulticamNode(GetConnectedNode(), multicam, clip, time);
-  } else {
-    multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, time);
+    if (multicam) {
+      multicam_panel_->SetMulticamNode(GetConnectedNode(), multicam, clip, time);
+    } else {
+      multicam_panel_->SetMulticamNode(nullptr, nullptr, nullptr, time);
+    }
   }
 
   return multicam;
@@ -1225,7 +1225,7 @@ void ViewerWidget::ContextMenuSetPlaybackRes(QAction *action)
   auto vp = GetConnectedNode()->GetVideoParams();
   vp.set_divider(div);
 
-  auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(GetConnectedNode(), ViewerOutput::kVideoParamsInput, 0)), QVariant::fromValue(vp));
+  auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(GetConnectedNode(), ViewerOutput::kVideoParamsInput, 0)), vp);
   Core::instance()->undo_stack()->push(c, tr("Changed Playback Resolution"));
 }
 
@@ -1568,7 +1568,7 @@ void ViewerWidget::Play(bool in_to_out_only)
                                               );
 
     AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(),
-                   OLIVE_CONFIG("AudioRecordingChannelLayout").toULongLong(),
+                   OLIVE_CONFIG("AudioRecordingChannelLayout").toInt(),
                    SampleFormat::from_string(OLIVE_CONFIG("AudioRecordingSampleFormat").toString().toStdString()));
 
     EncodingParams encode_param;

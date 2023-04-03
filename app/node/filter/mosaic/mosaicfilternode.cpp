@@ -30,12 +30,12 @@ const QString MosaicFilterNode::kVertInput = QStringLiteral("vert_in");
 
 MosaicFilterNode::MosaicFilterNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kHorizInput, NodeValue::kFloat, 32.0);
+  AddInput(kHorizInput, TYPE_DOUBLE, 32.0);
   SetInputProperty(kHorizInput, QStringLiteral("min"), 1.0);
 
-  AddInput(kVertInput, NodeValue::kFloat, 18.0);
+  AddInput(kVertInput, TYPE_DOUBLE, 18.0);
   SetInputProperty(kVertInput, QStringLiteral("min"), 1.0);
 
   SetFlag(kVideoEffect);
@@ -56,9 +56,9 @@ ShaderCode MosaicFilterNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/mosaic.frag"));
 }
 
-NodeValue MosaicFilterNode::Value(const ValueParams &p) const
+value_t MosaicFilterNode::Value(const ValueParams &p) const
 {
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr texture = tex_meta.toTexture()) {
     if (texture

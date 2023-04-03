@@ -26,7 +26,7 @@ namespace olive {
 
 const NodeKeyframe::Type NodeKeyframe::kDefaultType = kLinear;
 
-NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, Type type, int track, int element, const QString &input, QObject *parent) :
+NodeKeyframe::NodeKeyframe(const rational &time, const value_t::component_t &value, Type type, int track, int element, const QString &input, QObject *parent) :
   time_(time),
   value_(value),
   type_(type),
@@ -80,12 +80,12 @@ void NodeKeyframe::set_time(const rational &time)
   emit TimeChanged(time_);
 }
 
-const QVariant &NodeKeyframe::value() const
+const value_t::component_t &NodeKeyframe::value() const
 {
   return value_;
 }
 
-void NodeKeyframe::set_value(const QVariant &value)
+void NodeKeyframe::set_value(const value_t::component_t &value)
 {
   value_ = value;
   emit ValueChanged(value_);
@@ -210,7 +210,7 @@ bool NodeKeyframe::has_sibling_at_time(const rational &t) const
   return k && k != this;
 }
 
-bool NodeKeyframe::load(QXmlStreamReader *reader, NodeValue::Type data_type)
+bool NodeKeyframe::load(QXmlStreamReader *reader, type_t data_type)
 {
   QString key_input;
   QPointF key_in_handle;
@@ -234,7 +234,7 @@ bool NodeKeyframe::load(QXmlStreamReader *reader, NodeValue::Type data_type)
     }
   }
 
-  this->set_value(NodeValue::StringToValue(data_type, reader->readElementText(), true));
+  this->set_value(value_t::component_t::fromSerializedString(data_type, reader->readElementText()));
 
   this->set_bezier_control_in(key_in_handle);
   this->set_bezier_control_out(key_out_handle);
@@ -242,7 +242,7 @@ bool NodeKeyframe::load(QXmlStreamReader *reader, NodeValue::Type data_type)
   return true;
 }
 
-void NodeKeyframe::save(QXmlStreamWriter *writer, NodeValue::Type data_type) const
+void NodeKeyframe::save(QXmlStreamWriter *writer, type_t data_type) const
 {
   writer->writeAttribute(QStringLiteral("input"), this->input());
   writer->writeAttribute(QStringLiteral("time"), QString::fromStdString(this->time().toString()));
@@ -252,7 +252,7 @@ void NodeKeyframe::save(QXmlStreamWriter *writer, NodeValue::Type data_type) con
   writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(this->bezier_control_out().x()));
   writer->writeAttribute(QStringLiteral("outhandley"), QString::number(this->bezier_control_out().y()));
 
-  writer->writeCharacters(NodeValue::ValueToString(data_type, this->value(), true));
+  writer->writeCharacters(this->value().toSerializedString(data_type));
 }
 
 }

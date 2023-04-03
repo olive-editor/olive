@@ -50,7 +50,6 @@ set(OLIVE_SOURCES
   node/param.h
   node/project.cpp
   node/project.h
-  node/splitvalue.h
   node/value.cpp
   node/value.h
   PARENT_SCOPE

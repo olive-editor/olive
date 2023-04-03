@@ -36,7 +36,7 @@ class ChromaKeyNode : public OCIOBaseNode {
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   virtual void ConfigChanged() override;
 

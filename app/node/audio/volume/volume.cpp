@@ -31,9 +31,9 @@ const QString VolumeNode::kVolumeInput = QStringLiteral("volume_in");
 
 VolumeNode::VolumeNode()
 {
-  AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kSamplesInput, TYPE_SAMPLES, kInputFlagNotKeyframable);
 
-  AddInput(kVolumeInput, NodeValue::kFloat, 1.0);
+  AddInput(kVolumeInput, TYPE_DOUBLE, 1.0);
   SetInputProperty(kVolumeInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kVolumeInput, QStringLiteral("view"), FloatSlider::kDecibel);
 
@@ -61,7 +61,7 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-NodeValue VolumeNode::Value(const ValueParams &p) const
+value_t VolumeNode::Value(const ValueParams &p) const
 {
   return ValueInternal(kOpMultiply, kPairSampleNumber, kSamplesInput, GetInputValue(p, kSamplesInput), kVolumeInput, GetInputValue(p, kVolumeInput), p);
 }

@@ -34,9 +34,9 @@ MaskDistortNode::MaskDistortNode()
   // Mask should always be (1.0, 1.0, 1.0) for multiply to work correctly
   SetInputFlag(kColorInput, kInputFlagHidden);
 
-  AddInput(kInvertInput, NodeValue::kBoolean, false);
+  AddInput(kInvertInput, TYPE_BOOL, false);
 
-  AddInput(kFeatherInput, NodeValue::kFloat, 0.0);
+  AddInput(kFeatherInput, TYPE_DOUBLE, 0.0);
   SetInputProperty(kFeatherInput, QStringLiteral("min"), 0.0);
 }
 
@@ -64,12 +64,12 @@ void MaskDistortNode::Retranslate()
   SetInputName(kFeatherInput, tr("Feather"));
 }
 
-NodeValue MaskDistortNode::Value(const ValueParams &p) const
+value_t MaskDistortNode::Value(const ValueParams &p) const
 {
   TexturePtr texture = GetInputValue(p, kBaseInput).toTexture();
 
   VideoParams job_params = texture ? texture->params() : p.vparams();
-  NodeValue job = Texture::Job(job_params, GetGenerateJob(p, job_params));
+  value_t job = Texture::Job(job_params, GetGenerateJob(p, job_params));
 
   if (GetInputValue(p, kInvertInput).toBool()) {
     ShaderJob invert;
@@ -104,7 +104,7 @@ NodeValue MaskDistortNode::Value(const ValueParams &p) const
       merge.Insert(QStringLiteral("tex_b"), job);
     }
 
-    return NodeValue(NodeValue::kTexture, Texture::Job(job_params, merge));
+    return Texture::Job(job_params, merge);
   } else {
     return job;
   }

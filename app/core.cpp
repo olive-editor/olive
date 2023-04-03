@@ -108,7 +108,6 @@ Core *Core::instance()
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<olive::core::rational>();
-  qRegisterMetaType<NodeValue>();
   qRegisterMetaType<FramePtr>();
   qRegisterMetaType<SampleBuffer>();
   qRegisterMetaType<AudioParams>();
@@ -125,6 +124,9 @@ void Core::DeclareTypesForQt()
 
 void Core::Start()
 {
+  // Register value conversions
+  value_t::registerDefaultConverters();
+
   // Load application config
   Config::Load();
 
@@ -977,7 +979,7 @@ void Core::SaveAutorecovery()
           realname_file.close();
         }
 
-        int64_t max_recoveries_per_file = OLIVE_CONFIG("AutorecoveryMaximum").toLongLong();
+        int64_t max_recoveries_per_file = OLIVE_CONFIG("AutorecoveryMaximum").toInt();
 
         // Since we write an extra file, increment total allowed files by 1
         max_recoveries_per_file++;

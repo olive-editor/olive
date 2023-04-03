@@ -42,7 +42,6 @@
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
 #include "render/job/shaderjob.h"
-#include "splitvalue.h"
 
 namespace olive {
 
@@ -104,6 +103,16 @@ public:
     kDontShowInCreateMenu = 0x8,
     kIsItem = 0x10
   };
+
+  static constexpr type_t TYPE_VEC2 = "vec2";
+  static constexpr type_t TYPE_VEC3 = "vec3";
+  static constexpr type_t TYPE_VEC4 = "vec4";
+  static constexpr type_t TYPE_BOOL = "bool";
+  static constexpr type_t TYPE_COLOR = "color";
+  static constexpr type_t TYPE_COMBO = "combo";
+  static constexpr type_t TYPE_FONT = "font";
+  static constexpr type_t TYPE_FILE = "file";
+  static constexpr type_t TYPE_BEZIER = "bezier";
 
   struct ContextPair {
     Node *node;
@@ -385,51 +394,36 @@ public:
 
   bool IsUsingStandardValue(const QString& input, int track, int element = -1) const;
 
-  NodeValue::Type GetInputDataType(const QString& id) const;
-  void SetInputDataType(const QString& id, const NodeValue::Type& type);
+  type_t GetInputDataType(const QString& id) const;
+  void SetInputDataType(const QString& id, const type_t& type, size_t channels = 1);
 
   bool HasInputProperty(const QString& id, const QString& name) const;
-  QHash<QString, QVariant> GetInputProperties(const QString& id) const;
-  QVariant GetInputProperty(const QString& id, const QString& name) const;
-  void SetInputProperty(const QString& id, const QString& name, const QVariant& value);
+  QHash<QString, value_t> GetInputProperties(const QString& id) const;
+  value_t GetInputProperty(const QString& id, const QString& name) const;
+  void SetInputProperty(const QString& id, const QString& name, const value_t &value);
 
-  QVariant GetValueAtTime(const QString& input, const rational& time, int element = -1) const
-  {
-    NodeValue::Type type = GetInputDataType(input);
-
-    return NodeValue::combine_track_values_into_normal_value(type, GetSplitValueAtTime(input, time, element));
-  }
-
-  QVariant GetValueAtTime(const NodeInput& input, const rational& time)
+  value_t GetValueAtTime(const QString& input, const rational& time, int element = -1) const;
+  value_t GetValueAtTime(const NodeInput& input, const rational& time)
   {
     return GetValueAtTime(input.input(), time, input.element());
   }
 
-  SplitValue GetSplitValueAtTime(const QString& input, const rational& time, int element = -1) const;
-
-  SplitValue GetSplitValueAtTime(const NodeInput& input, const rational& time)
-  {
-    return GetSplitValueAtTime(input.input(), time, input.element());
-  }
-
-  QVariant GetSplitValueAtTimeOnTrack(const QString& input, const rational& time, int track, int element = -1) const;
-  QVariant GetSplitValueAtTimeOnTrack(const NodeInput& input, const rational& time, int track) const
+  value_t::component_t GetSplitValueAtTimeOnTrack(const QString& input, const rational& time, int track, int element = -1) const;
+  value_t::component_t GetSplitValueAtTimeOnTrack(const NodeInput& input, const rational& time, int track) const
   {
     return GetSplitValueAtTimeOnTrack(input.input(), time, track, input.element());
   }
 
-  QVariant GetSplitValueAtTimeOnTrack(const NodeKeyframeTrackReference& input, const rational& time) const
+  value_t::component_t GetSplitValueAtTimeOnTrack(const NodeKeyframeTrackReference& input, const rational& time) const
   {
     return GetSplitValueAtTimeOnTrack(input.input(), time, input.track());
   }
 
-  QVariant GetDefaultValue(const QString& input) const;
-  SplitValue GetSplitDefaultValue(const QString& input) const;
-  QVariant GetSplitDefaultValueOnTrack(const QString& input, int track) const;
+  value_t GetDefaultValue(const QString& input) const;
+  value_t::component_t GetSplitDefaultValueOnTrack(const QString& input, size_t track) const;
 
-  void SetDefaultValue(const QString& input, const QVariant &val);
-  void SetSplitDefaultValue(const QString& input, const SplitValue &val);
-  void SetSplitDefaultValueOnTrack(const QString& input, const QVariant &val, int track);
+  void SetDefaultValue(const QString& input, const value_t &val);
+  void SetSplitDefaultValueOnTrack(const QString& input, const value_t::component_t &val, size_t track);
 
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const QString& input, int element) const;
   const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const NodeInput& input) const
@@ -466,7 +460,7 @@ public:
     return GetBestKeyframeTypeForTimeOnTrack(input.input(), time, input.track());
   }
 
-  int GetNumberOfKeyframeTracks(const QString& id) const;
+  size_t GetNumberOfKeyframeTracks(const QString& id) const;
   int GetNumberOfKeyframeTracks(const NodeInput& id) const
   {
     return GetNumberOfKeyframeTracks(id.input());
@@ -504,38 +498,26 @@ public:
 
   QStringList GetComboBoxStrings(const QString& id) const;
 
-  QVariant GetStandardValue(const QString& id, int element = -1) const;
-  QVariant GetStandardValue(const NodeInput& id) const
+  value_t GetStandardValue(const QString& id, int element = -1) const;
+  value_t GetStandardValue(const NodeInput& id) const
   {
     return GetStandardValue(id.input(), id.element());
   }
 
-  SplitValue GetSplitStandardValue(const QString& id, int element = -1) const;
-  SplitValue GetSplitStandardValue(const NodeInput& id) const
-  {
-    return GetSplitStandardValue(id.input(), id.element());
-  }
-
-  QVariant GetSplitStandardValueOnTrack(const QString& input, int track, int element = -1) const;
-  QVariant GetSplitStandardValueOnTrack(const NodeKeyframeTrackReference& id) const
+  value_t::component_t GetSplitStandardValueOnTrack(const QString& input, int track, int element = -1) const;
+  value_t::component_t GetSplitStandardValueOnTrack(const NodeKeyframeTrackReference& id) const
   {
     return GetSplitStandardValueOnTrack(id.input().input(), id.track(), id.input().element());
   }
 
-  void SetStandardValue(const QString& id, const QVariant& value, int element = -1);
-  void SetStandardValue(const NodeInput& id, const QVariant& value)
+  void SetStandardValue(const QString& id, const value_t& value, int element = -1);
+  void SetStandardValue(const NodeInput& id, const value_t& value)
   {
     SetStandardValue(id.input(), value, id.element());
   }
 
-  void SetSplitStandardValue(const QString& id, const SplitValue& value, int element = -1);
-  void SetSplitStandardValue(const NodeInput& id, const SplitValue& value)
-  {
-    SetSplitStandardValue(id.input(), value, id.element());
-  }
-
-  void SetSplitStandardValueOnTrack(const QString& id, int track, const QVariant& value, int element = -1);
-  void SetSplitStandardValueOnTrack(const NodeKeyframeTrackReference& id, const QVariant& value)
+  void SetSplitStandardValueOnTrack(const QString& id, int track, const value_t::component_t& value, int element = -1);
+  void SetSplitStandardValueOnTrack(const NodeKeyframeTrackReference& id, const value_t::component_t& value)
   {
     SetSplitStandardValueOnTrack(id.input().input(), id.track(), value, id.input().element());
   }
@@ -563,8 +545,8 @@ public:
 
   int InputArraySize(const QString& id) const;
 
-  NodeValue GetInputValue(const ValueParams &g, const QString &input, int element = -1) const;
-  NodeValue GetFakeConnectedValue(const ValueParams &g, Node *node, const QString &input, int element = -1) const;
+  value_t GetInputValue(const ValueParams &g, const QString &input, int element = -1) const;
+  value_t GetFakeConnectedValue(const ValueParams &g, Node *node, const QString &input, int element = -1) const;
 
   NodeInputImmediate* GetImmediate(const QString& input, int element) const;
 
@@ -775,7 +757,7 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual NodeValue Value(const ValueParams &p) const {return NodeValue();}
+  virtual value_t Value(const ValueParams &p) const {return value_t();}
 
   bool HasGizmos() const
   {
@@ -831,20 +813,20 @@ public:
     folder_ = folder;
   }
 
-  InputFlags GetInputFlags(const QString& input) const;
+  InputFlag GetInputFlags(const QString& input) const;
   void SetInputFlag(const QString &input, InputFlag f, bool on = true);
 
   virtual void LoadFinishedEvent(){}
   virtual void ConnectedToPreviewEvent(){}
 
-  static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+  static void SetValueAtTime(const NodeInput &input, const rational &time, const value_t::component_t &value, size_t track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
   /**
    * @brief Find path starting at `from` that outputs to arrive at `to`
    */
   static std::list<NodeInput> FindPath(Node *from, Node *to, int path_index);
 
-  void ArrayResizeInternal(const QString& id, int size);
+  void ArrayResizeInternal(const QString& id, size_t size);
 
   virtual void AddedToGraphEvent(Project *p){}
   virtual void RemovedFromGraphEvent(Project *p){}
@@ -855,26 +837,50 @@ public:
   static const QString kEnabledInput;
 
 protected:
-  void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
-
-  void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  void InsertInput(const QString& id, type_t type, size_t channel_count, const value_t& default_value, InputFlag flags, int index);
+  void InsertInput(const QString& id, type_t type, const value_t& default_value, InputFlag flags, int index)
   {
-    InsertInput(id, type, default_value, flags, 0);
+    return InsertInput(id, type, 1, default_value, flags, index);
   }
 
-  void PrependInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
+  void PrependInput(const QString& id, type_t type, size_t channel_count, const value_t& default_value, InputFlag flags = kInputFlagNormal)
   {
-    PrependInput(id, type, QVariant(), flags);
+    InsertInput(id, type, channel_count, default_value, flags, 0);
   }
 
-  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
+  void PrependInput(const QString& id, type_t type, const value_t& default_value, InputFlag flags = kInputFlagNormal)
   {
-    InsertInput(id, type, default_value, flags, input_ids_.size());
+    InsertInput(id, type, 1, default_value, flags, 0);
   }
 
-  void AddInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
+  void PrependInput(const QString& id, type_t type, InputFlag flags = kInputFlagNormal)
   {
-    AddInput(id, type, QVariant(), flags);
+    PrependInput(id, type, value_t(), flags);
+  }
+
+  void PrependInput(const QString& id, InputFlag flags = kInputFlagNormal)
+  {
+    PrependInput(id, TYPE_NONE, value_t(), flags);
+  }
+
+  void AddInput(const QString& id, type_t type, size_t channel_count, const value_t& default_value, InputFlag flags = kInputFlagNormal)
+  {
+    InsertInput(id, type, channel_count, default_value, flags, input_ids_.size());
+  }
+
+  void AddInput(const QString& id, type_t type, const value_t& default_value, InputFlag flags = kInputFlagNormal)
+  {
+    return AddInput(id, type, 1, default_value, flags);
+  }
+
+  void AddInput(const QString& id, type_t type, InputFlag flags = kInputFlagNormal)
+  {
+    AddInput(id, type, value_t(), flags);
+  }
+
+  void AddInput(const QString& id, InputFlag flags = kInputFlagNormal)
+  {
+    AddInput(id, TYPE_NONE, value_t(), flags);
   }
 
   void RemoveInput(const QString& id);
@@ -885,7 +891,7 @@ protected:
 
   void SetComboBoxStrings(const QString& id, const QStringList& strings)
   {
-    SetInputProperty(id, QStringLiteral("combo_str"), strings);
+    SetInputProperty(id, QStringLiteral("combo_str"), value_t("strl", strings));
   }
 
   void SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options);
@@ -997,7 +1003,7 @@ signals:
 
   void InputValueHintChanged(const NodeInput& input);
 
-  void InputPropertyChanged(const QString& input, const QString& key, const QVariant& value);
+  void InputPropertyChanged(const QString& input, const QString& key, const value_t& value);
 
   void LinksChanged();
 
@@ -1025,7 +1031,7 @@ signals:
 
   void InputNameChanged(const QString& id, const QString& name);
 
-  void InputDataTypeChanged(const QString& id, NodeValue::Type type);
+  void InputDataTypeChanged(const QString& id, type_t type);
 
   void AddedToGraph(Project* graph);
 
@@ -1037,16 +1043,17 @@ signals:
 
   void NodeRemovedFromContext(Node *node);
 
-  void InputFlagsChanged(const QString &input, const InputFlags &flags);
+  void InputFlagsChanged(const QString &input, const InputFlag &flags);
 
 private:
   struct Input {
-    NodeValue::Type type;
-    InputFlags flags;
-    SplitValue default_value;
-    QHash<QString, QVariant> properties;
+    type_t type;
+    InputFlag flags;
+    value_t default_value;
+    QHash<QString, value_t> properties;
     QString human_name;
-    int array_size;
+    size_t array_size;
+    size_t channel_count;
   };
 
   NodeInputImmediate* CreateImmediate(const QString& input);
@@ -1125,6 +1132,8 @@ private:
   TimeRange GetRangeAroundIndex(const QString& input, int index, int track, int element) const;
 
   void ClearElement(const QString &input, int index);
+
+  type_t ResolveSpecialType(type_t type, size_t &channel_count, QString &subtype);
 
   /**
    * @brief Custom user label for node

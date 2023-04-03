@@ -60,6 +60,7 @@ else()
     -Wextra
     -Wno-unused-parameter
     -Wshadow
+    -Wno-deprecated-declarations
   )
   if (USE_WERROR)
     list(APPEND OLIVE_COMPILE_OPTIONS "-Werror")

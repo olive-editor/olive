@@ -23,6 +23,7 @@
 #include <QPainter>
 #include <QtMath>
 
+#include "common/qtutils.h"
 #include "node/node.h"
 
 namespace olive {

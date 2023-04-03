@@ -244,7 +244,7 @@ protected:
     if (node_->IsInputKeyframable(input_)) {
       is_keyframing_ = node_->IsInputKeyframing(input_, index_);
     }
-    standard_value_ = node_->GetSplitStandardValue(input_, index_);
+    standard_value_ = node_->GetStandardValue(input_, index_);
     keyframes_ = node_->GetKeyframeTracks(input_, index_);
     node_->GetImmediate(input_, index_)->delete_all_keyframes(&memory_manager_);
 
@@ -261,7 +261,7 @@ protected:
         key->setParent(node_);
       }
     }
-    node_->SetSplitStandardValue(input_, standard_value_, index_);
+    node_->SetStandardValue(input_, standard_value_, index_);
 
     if (node_->IsInputKeyframable(input_)) {
       node_->SetInputIsKeyframing(input_, is_keyframing_, index_);
@@ -273,7 +273,7 @@ private:
   QString input_;
   int index_;
 
-  SplitValue standard_value_;
+  value_t standard_value_;
   bool is_keyframing_;
   QVector<NodeKeyframeTrack> keyframes_;
   QObject memory_manager_;
@@ -714,8 +714,8 @@ private:
 class NodeParamSetKeyframeValueCommand : public UndoCommand
 {
 public:
-  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value);
-  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& new_value, const QVariant& old_value);
+  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const value_t::component_t &value);
+  NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const value_t::component_t &new_value, const value_t::component_t &old_value);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -726,16 +726,16 @@ protected:
 private:
   NodeKeyframe* key_;
 
-  QVariant old_value_;
-  QVariant new_value_;
+  value_t::component_t old_value_;
+  value_t::component_t new_value_;
 
 };
 
 class NodeParamSetStandardValueCommand : public UndoCommand
 {
 public:
-  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant& value);
-  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant& new_value, const QVariant& old_value);
+  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const value_t::component_t& value);
+  NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const value_t::component_t& new_value, const value_t::component_t& old_value);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -746,22 +746,22 @@ protected:
 private:
   NodeKeyframeTrackReference ref_;
 
-  QVariant old_value_;
-  QVariant new_value_;
+  value_t::component_t old_value_;
+  value_t::component_t new_value_;
 
 };
 
 class NodeParamSetSplitStandardValueCommand : public UndoCommand
 {
 public:
-  NodeParamSetSplitStandardValueCommand(const NodeInput& input, const SplitValue& new_value, const SplitValue& old_value) :
+  NodeParamSetSplitStandardValueCommand(const NodeInput& input, const value_t& new_value, const value_t& old_value) :
     ref_(input),
     old_value_(old_value),
     new_value_(new_value)
   {}
 
-  NodeParamSetSplitStandardValueCommand(const NodeInput& input, const SplitValue& value) :
-    NodeParamSetSplitStandardValueCommand(input, value, input.node()->GetSplitStandardValue(input.input()))
+  NodeParamSetSplitStandardValueCommand(const NodeInput& input, const value_t& value) :
+    NodeParamSetSplitStandardValueCommand(input, value, input.node()->GetStandardValue(input.input()))
   {}
 
   virtual Project* GetRelevantProject() const override
@@ -772,19 +772,19 @@ public:
 protected:
   virtual void redo() override
   {
-    ref_.node()->SetSplitStandardValue(ref_.input(), new_value_, ref_.element());
+    ref_.node()->SetStandardValue(ref_.input(), new_value_, ref_.element());
   }
 
   virtual void undo() override
   {
-    ref_.node()->SetSplitStandardValue(ref_.input(), old_value_, ref_.element());
+    ref_.node()->SetStandardValue(ref_.input(), old_value_, ref_.element());
   }
 
 private:
   NodeInput ref_;
 
-  SplitValue old_value_;
-  SplitValue new_value_;
+  value_t old_value_;
+  value_t new_value_;
 
 };
 

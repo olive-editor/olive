@@ -32,9 +32,9 @@ const QString TimeFormatNode::kLocalTimeInput = QStringLiteral("localtime_in");
 
 TimeFormatNode::TimeFormatNode()
 {
-  AddInput(kTimeInput, NodeValue::kFloat);
-  AddInput(kFormatInput, NodeValue::kText, QStringLiteral("hh:mm:ss"));
-  AddInput(kLocalTimeInput, NodeValue::kBoolean);
+  AddInput(kTimeInput, TYPE_DOUBLE);
+  AddInput(kFormatInput, TYPE_STRING, QStringLiteral("hh:mm:ss"));
+  AddInput(kLocalTimeInput, TYPE_BOOL);
 }
 
 QString TimeFormatNode::Name() const
@@ -66,7 +66,7 @@ void TimeFormatNode::Retranslate()
   SetInputName(kLocalTimeInput, tr("Interpret time as local time"));
 }
 
-NodeValue TimeFormatNode::Value(const ValueParams &p) const
+value_t TimeFormatNode::Value(const ValueParams &p) const
 {
   qint64 ms_since_epoch = GetInputValue(p, kTimeInput).toDouble()*1000;
   bool time_is_local = GetInputValue(p, kLocalTimeInput).toBool();

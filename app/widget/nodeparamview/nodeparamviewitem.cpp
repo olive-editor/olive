@@ -350,8 +350,10 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
 
     bool is_connected = NodeGroup::ResolveInput(input).IsConnected();
 
-    foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-      w->setVisible(!is_connected);
+    if (ui_objects.widget_bridge->has_widgets()) {
+      foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
+        w->setVisible(!is_connected);
+      }
     }
 
     // Show/hide connection label
@@ -370,21 +372,23 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
 
 void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodeParamViewWidgetBridge *bridge, int row)
 {
-  // Add widgets for this parameter to the layout
-  for (int i=0; i<bridge->widgets().size(); i++) {
-    QWidget* w = bridge->widgets().at(i);
+  if (bridge->has_widgets()) {
+    // Add widgets for this parameter to the layout
+    for (size_t i=0; i<bridge->widgets().size(); i++) {
+      QWidget* w = bridge->widgets().at(i);
 
-    int col = i+kWidgetStartColumn;
+      int col = i+kWidgetStartColumn;
 
-    int colspan;
-    if (i == bridge->widgets().size()-1) {
-      // Span this widget among remaining columns
-      colspan = kMaxWidgetColumn - col;
-    } else {
-      colspan = 1;
+      int colspan;
+      if (i == bridge->widgets().size()-1) {
+        // Span this widget among remaining columns
+        colspan = kMaxWidgetColumn - col;
+      } else {
+        colspan = 1;
+      }
+
+      layout->addWidget(w, row, col, 1, colspan);
     }
-
-    layout->addWidget(w, row, col, 1, colspan);
   }
 }
 
@@ -413,7 +417,9 @@ void NodeParamViewItemBody::InputArraySizeChangedInternal(Node *node, const QStr
         // Our UI count is larger than the size, delete
         InputUI input_ui = input_ui_map_.take({node, input, i});
         delete input_ui.main_label;
-        qDeleteAll(input_ui.widget_bridge->widgets());
+        if (input_ui.widget_bridge->has_widgets()) {
+          qDeleteAll(input_ui.widget_bridge->widgets());
+        }
         delete input_ui.widget_bridge;
         delete input_ui.connected_label;
         delete input_ui.key_control;

@@ -48,7 +48,7 @@ QString TimeInput::Description() const
   return tr("Generates the time (in seconds) at this frame.");
 }
 
-NodeValue TimeInput::Value(const ValueParams &p) const
+value_t TimeInput::Value(const ValueParams &p) const
 {
   return p.time().in().toDouble();
 }

@@ -43,7 +43,7 @@ Sequence::Sequence()
     // Create track input
     QString track_input_id = kTrackInputFormat.arg(i);
 
-    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden | kInputFlagIgnoreInvalidations));
+    AddInput(track_input_id, kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden | kInputFlagIgnoreInvalidations);
 
     TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input_id);
     track_lists_.replace(i, list);

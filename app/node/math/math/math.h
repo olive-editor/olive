@@ -50,7 +50,7 @@ public:
     SetStandardValue(kMethodIn, o);
   }
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kMethodIn;
   static const QString kParamAIn;

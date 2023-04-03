@@ -71,12 +71,12 @@ void SliderBase::SetTristate()
   UpdateLabel();
 }
 
-const QVariant &SliderBase::GetValueInternal() const
+const SliderBase::InternalType &SliderBase::GetValueInternal() const
 {
   return value_;
 }
 
-void SliderBase::SetValueInternal(const QVariant &v)
+void SliderBase::SetValueInternal(const InternalType &v)
 {
   if (!CanSetValue()) {
     return;
@@ -90,7 +90,7 @@ void SliderBase::SetValueInternal(const QVariant &v)
   UpdateLabel();
 }
 
-void SliderBase::SetDefaultValue(const QVariant &v)
+void SliderBase::SetDefaultValue(const InternalType &v)
 {
   default_value_ = v;
 }
@@ -103,10 +103,10 @@ void SliderBase::changeEvent(QEvent *e)
   super::changeEvent(e);
 }
 
-bool SliderBase::GetLabelSubstitution(const QVariant &v, QString *out) const
+bool SliderBase::GetLabelSubstitution(const InternalType &v, QString *out) const
 {
   for (auto it=label_substitutions_.constBegin(); it!=label_substitutions_.constEnd(); it++) {
-    if (it->first == v) {
+    if (Equals(it->first, v)) {
       *out = it->second;
       return true;
     }
@@ -130,7 +130,7 @@ void SliderBase::UpdateLabel()
   label_->setText(s);
 }
 
-QVariant SliderBase::AdjustValue(const QVariant &value) const
+SliderBase::InternalType SliderBase::AdjustValue(const InternalType &value) const
 {
   return value;
 }
@@ -140,7 +140,7 @@ bool SliderBase::CanSetValue() const
   return true;
 }
 
-void SliderBase::ValueSignalEvent(const QVariant &value)
+void SliderBase::ValueSignalEvent(const InternalType &value)
 {
   Q_UNUSED(value)
 }
@@ -162,7 +162,7 @@ void SliderBase::ShowEditor()
 void SliderBase::LineEditConfirmed()
 {
   bool is_valid = true;
-  QVariant test_val = StringToValue(editor_->text(), &is_valid);
+  InternalType test_val = StringToValue(editor_->text(), &is_valid);
 
   // Ensure editor doesn't signal that the focus is lost
   editor_->blockSignals(true);
@@ -241,7 +241,7 @@ QString SliderBase::GetFormattedValueToString() const
   return GetFormattedValueToString(GetValueInternal());
 }
 
-QString SliderBase::GetFormattedValueToString(const QVariant &v) const
+QString SliderBase::GetFormattedValueToString(const InternalType &v) const
 {
   if (format_plural_) {
     return tr(GetFormat().toUtf8().constData(), nullptr, v.toInt());

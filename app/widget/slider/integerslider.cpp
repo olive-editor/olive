@@ -32,35 +32,35 @@ IntegerSlider::IntegerSlider(QWidget* parent) :
 
 int64_t IntegerSlider::GetValue()
 {
-  return GetValueInternal().toLongLong();
+  return GetValueInternal().value<int64_t>();
 }
 
 void IntegerSlider::SetValue(const int64_t &v)
 {
-  SetValueInternal(QVariant::fromValue(v));
+  SetValueInternal(v);
 }
 
 void IntegerSlider::SetMinimum(const int64_t &d)
 {
-  SetMinimumInternal(QVariant::fromValue(d));
+  SetMinimumInternal(d);
 }
 
 void IntegerSlider::SetMaximum(const int64_t &d)
 {
-  SetMaximumInternal(QVariant::fromValue(d));
+  SetMaximumInternal(d);
 }
 
 void IntegerSlider::SetDefaultValue(const int64_t &d)
 {
-  super::SetDefaultValue(QVariant::fromValue(d));
+  super::SetDefaultValue(d);
 }
 
-QString IntegerSlider::ValueToString(const QVariant &v) const
+QString IntegerSlider::ValueToString(const InternalType &v) const
 {
-  return QString::number(v.toLongLong() + GetOffset().toLongLong());
+  return QString::number(v.value<int64_t>() + GetOffset().value<int64_t>());
 }
 
-QVariant IntegerSlider::StringToValue(const QString &s, bool *ok) const
+IntegerSlider::InternalType IntegerSlider::StringToValue(const QString &s, bool *ok) const
 {
   bool valid;
 
@@ -71,24 +71,29 @@ QVariant IntegerSlider::StringToValue(const QString &s, bool *ok) const
     *ok = valid;
   }
 
-  decimal_val -= GetOffset().toLongLong();
+  decimal_val -= GetOffset().value<int64_t>();
 
   if (valid) {
     // But for an integer, we round it
     return qRound(decimal_val);
   }
 
-  return QVariant();
+  return InternalType();
 }
 
-void IntegerSlider::ValueSignalEvent(const QVariant &value)
+void IntegerSlider::ValueSignalEvent(const InternalType &value)
 {
-  emit ValueChanged(value.toInt());
+  emit ValueChanged(value.value<int64_t>());
 }
 
-QVariant IntegerSlider::AdjustDragDistanceInternal(const QVariant &start, const double &drag) const
+IntegerSlider::InternalType IntegerSlider::AdjustDragDistanceInternal(const InternalType &start, const double &drag) const
 {
-  return qRound64(super::AdjustDragDistanceInternal(start, drag).toDouble());
+  return int64_t(super::AdjustDragDistanceInternal(start, drag).value<int64_t>());
+}
+
+bool IntegerSlider::Equals(const InternalType &a, const InternalType &b) const
+{
+  return a.value<int64_t>() == b.value<int64_t>();
 }
 
 }

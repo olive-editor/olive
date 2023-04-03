@@ -47,7 +47,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
@@ -68,6 +68,8 @@ private:
   static void GenerateFrame(FramePtr frame, const GenerateJob &job);
 
   static ShaderCode GetShaderCode(const QString &id);
+
+  static Bezier GetBezier(const value_t &v);
 
   template<typename T>
   void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);

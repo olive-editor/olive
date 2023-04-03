@@ -28,7 +28,7 @@ namespace olive {
 class AcceleratedJob
 {
 public:
-  using NodeValueRow = QHash<QString, NodeValue>;
+  using NodeValueRow = QHash<QString, value_t>;
 
   AcceleratedJob() = default;
 
@@ -44,7 +44,7 @@ public:
     id_ = id;
   }
 
-  NodeValue Get(const QString& input) const
+  value_t Get(const QString& input) const
   {
     return value_map_.value(input);
   }
@@ -54,7 +54,7 @@ public:
     value_map_.insert(input, row.value(input));
   }
 
-  void Insert(const QString& input, const NodeValue& value)
+  void Insert(const QString& input, const value_t& value)
   {
     value_map_.insert(input, value);
   }

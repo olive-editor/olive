@@ -26,6 +26,7 @@
 #include <QVector4D>
 
 #include "audio/audioprocessor.h"
+#include "common/qtutils.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
 #include "node/project.h"
@@ -45,7 +46,7 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 {
   TimeRange range = TimeRange(time, time + frame_length);
 
-  NodeValue tex_val;
+  value_t tex_val;
   if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
     ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), range, ticket_->property("output").toString(), LoopMode::kLoopModeOff, GetCancelPointer());
     tex_val = node->Value(vp);
@@ -216,7 +217,7 @@ void RenderProcessor::Run()
   {
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
-    NodeValue sample_val;
+    value_t sample_val;
     if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
       ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), time, ticket_->property("output").toString(), LoopMode::kLoopModeOff, GetCancelPointer());
       sample_val = node->Value(vp);
@@ -529,29 +530,29 @@ bool RenderProcessor::UseCache() const
   return static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()) == RenderMode::kOffline;
 }
 
-void RenderProcessor::ResolveJobs(NodeValue &val)
+void RenderProcessor::ResolveJobs(value_t &val)
 {
-  if (val.type() == NodeValue::kTexture) {
+  if (val.type() == TYPE_TEXTURE) {
 
     if (TexturePtr job_tex = val.toTexture()) {
       if (AcceleratedJob *base_job = job_tex->job()) {
 
         if (resolved_texture_cache_.contains(job_tex.get())) {
-          val.set_value(resolved_texture_cache_.value(job_tex.get()));
+          val = resolved_texture_cache_.value(job_tex.get());
         } else {
           // Resolve any sub-jobs
           for (auto it=base_job->GetValues().begin(); it!=base_job->GetValues().end(); it++) {
             // Jobs will almost always be submitted with one of these types
-            NodeValue &subval = it.value();
+            value_t &subval = it.value();
             ResolveJobs(subval);
           }
 
           if (CacheJob *cj = dynamic_cast<CacheJob*>(base_job)) {
             TexturePtr tex = ProcessVideoCacheJob(cj);
             if (tex) {
-              val.set_value(tex);
+              val = tex;
             } else {
-              val.set_value(cj->GetFallback());
+              val = cj->GetFallback();
             }
 
           } else if (ColorTransformJob *ctj = dynamic_cast<ColorTransformJob*>(base_job)) {
@@ -563,13 +564,13 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
             TexturePtr dest = CreateTexture(ctj_params);
 
             // Resolve input texture
-            NodeValue v = ctj->GetInputTexture();
+            value_t v = ctj->GetInputTexture();
             ResolveJobs(v);
             ctj->SetInputTexture(v);
 
             ProcessColorTransform(dest, ctj);
 
-            val.set_value(dest);
+            val = dest;
 
           } else if (ShaderJob *sj = dynamic_cast<ShaderJob*>(base_job)) {
 
@@ -579,7 +580,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
 
             ProcessShader(tex, sj);
 
-            val.set_value(tex);
+            val = tex;
 
           } else if (GenerateJob *gj = dynamic_cast<GenerateJob*>(base_job)) {
 
@@ -602,7 +603,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
               tex = dest;
             }
 
-            val.set_value(tex);
+            val = tex;
 
           } else if (FootageJob *fj = dynamic_cast<FootageJob*>(base_job)) {
 
@@ -621,7 +622,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
               ProcessVideoFootage(tex, fj, footage_time);
             }
 
-            val.set_value(tex);
+            val = tex;
 
           }
 
@@ -631,15 +632,16 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
       }
     }
 
-  } else if (val.type() == NodeValue::kSamples) {
+  } else if (val.type() == TYPE_SAMPLES) {
 
-    if (val.canConvert<SampleJob>()) {
+    qDebug() << "disabled handling of samplejobs and audio footagejobs...";
+    /*if (val.canConvert<SampleJob>()) {
 
       SampleJob job = val.value<SampleJob>();
 
       for (auto it=job.GetValues().begin(); it!=job.GetValues().end(); it++) {
         // Jobs will almost always be submitted with one of these types
-        NodeValue &subval = it.value();
+        value_t &subval = it.value();
         ResolveJobs(subval);
       }
 
@@ -654,7 +656,7 @@ void RenderProcessor::ResolveJobs(NodeValue &val)
       ProcessAudioFootage(buffer, &job, job.time());
       val.set_value(buffer);
 
-    }
+    }*/
 
   }
 }

@@ -28,13 +28,13 @@ const QString DespillNode::kPreserveLuminanceInput = QStringLiteral("preserve_lu
 
 DespillNode::DespillNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kColorInput, NodeValue::kCombo, 0);
+  AddInput(kColorInput, TYPE_COMBO, 0);
 
-  AddInput(kMethodInput, NodeValue::kCombo, 0);
+  AddInput(kMethodInput, TYPE_COMBO, 0);
 
-  AddInput(kPreserveLuminanceInput, NodeValue::kBoolean, false);
+  AddInput(kPreserveLuminanceInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -80,9 +80,9 @@ ShaderCode DespillNode::GetShaderCode(const QString &id)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/despill.frag"));
 }
 
-NodeValue DespillNode::Value(const ValueParams &p) const
+value_t DespillNode::Value(const ValueParams &p) const
 {
-  NodeValue tex_meta = GetInputValue(p, kTextureInput);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
 
   if (TexturePtr tex = tex_meta.toTexture()) {
     ShaderJob job = CreateShaderJob(p, GetShaderCode);
@@ -90,8 +90,7 @@ NodeValue DespillNode::Value(const ValueParams &p) const
     // Set luma coefficients
     double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
     project()->color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-    job.Insert(QStringLiteral("luma_coeffs"),
-                    NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
+    job.Insert(QStringLiteral("luma_coeffs"), QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2]));
 
     return tex->toJob(job);
   }

@@ -398,14 +398,14 @@ void NodeParamSetKeyframingCommand::undo()
   input_.node()->SetInputIsKeyframing(input_, old_setting_);
 }
 
-NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value) :
+NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const value_t::component_t& value) :
   key_(key),
   old_value_(key_->value()),
   new_value_(value)
 {
 }
 
-NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant &new_value, const QVariant &old_value) :
+NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const value_t::component_t &new_value, const value_t::component_t &old_value) :
   key_(key),
   old_value_(old_value),
   new_value_(new_value)
@@ -502,14 +502,14 @@ void NodeParamSetKeyframeTimeCommand::undo()
   key_->set_time(old_time_);
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant &value) :
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const value_t::component_t &value) :
   ref_(input),
-  old_value_(ref_.input().node()->GetStandardValue(ref_.input())),
+  old_value_(ref_.input().node()->GetSplitStandardValueOnTrack(ref_)),
   new_value_(value)
 {
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant &new_value, const QVariant &old_value) :
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const value_t::component_t &new_value, const value_t::component_t &old_value) :
   ref_(input),
   old_value_(old_value),
   new_value_(new_value)

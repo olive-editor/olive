@@ -157,7 +157,7 @@ public:
   static QString DescribeAudioStream(const AudioParams& params);
   static QString DescribeSubtitleStream(const SubtitleParams& params);
 
-  virtual NodeValue Value(const ValueParams &p) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static QString GetStreamTypeName(Track::Type type);
 

@@ -7,6 +7,7 @@
 #include <QPen>
 #include <QStyleOptionGraphicsItem>
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "node/block/block.h"
 #include "node/group/group.h"

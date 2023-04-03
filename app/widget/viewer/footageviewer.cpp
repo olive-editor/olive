@@ -64,9 +64,6 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
     return;
   }
 
-  QDrag* drag = new QDrag(this);
-  QMimeData* mimedata = new QMimeData();
-
   QByteArray encoded_data;
   QDataStream data_stream(&encoded_data, QIODevice::WriteOnly);
 
@@ -86,6 +83,9 @@ void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enabl
   }
 
   if (!streams.isEmpty()) {
+    QDrag* drag = new QDrag(this);
+    QMimeData* mimedata = new QMimeData();
+
     data_stream << streams << reinterpret_cast<quintptr>(GetConnectedNode());
 
     mimedata->setData(Project::kItemMimeType, encoded_data);

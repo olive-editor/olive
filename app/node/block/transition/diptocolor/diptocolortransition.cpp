@@ -28,7 +28,7 @@ const QString DipToColorTransition::kColorInput = QStringLiteral("color_in");
 
 DipToColorTransition::DipToColorTransition()
 {
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0, 0, 0)));
+  AddInput(kColorInput, TYPE_COLOR, Color(0, 0, 0));
 }
 
 QString DipToColorTransition::Name() const
