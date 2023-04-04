@@ -100,7 +100,7 @@ public:
     T get(bool *ok = nullptr) const
     {
       if (data_.has_value()) {
-        qDebug() << "getting any type" << data_.type().name() << "attempting cast to" << typeid(T).name();
+        //qDebug() << "getting any type" << data_.type().name() << "attempting cast to" << typeid(T).name();
         return std::any_cast<T>(data_);
       } else {
         return T();

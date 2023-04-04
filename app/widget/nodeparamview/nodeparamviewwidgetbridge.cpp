@@ -120,6 +120,11 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     // Whatever we created, initialize it
     widget_->Initialize(parent, GetChannelCount());
 
+    value_t def = GetInnerInput().GetDefaultValue();
+    if (def.isValid()) {
+      widget_->SetDefaultValue(def);
+    }
+
     // Install event filter to disable widgets picking up scroll events
     foreach (QWidget* w, widget_->GetWidgets()) {
       w->installEventFilter(&scroll_filter_);
@@ -133,8 +138,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     UpdateProperties();
 
     UpdateWidgetValues();
-  } else {
-    qWarning() << "Failed to find matching parameter widget for" << GetInnerInput().node()->id() << GetInnerInput().input();
   }
 }
 
@@ -168,9 +171,6 @@ void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, size_t 
     dragger_.Drag(value);
 
   } else if (dragger_.IsStarted()) {
-
-    // We were dragging and just stopped
-    dragger_.Drag(value);
 
     MultiUndoCommand *command = new MultiUndoCommand();
     dragger_.End(command);

@@ -43,6 +43,13 @@ void IntegerSliderParamWidget::SetValue(const value_t &val)
   }
 }
 
+void IntegerSliderParamWidget::SetDefaultValue(const value_t &val)
+{
+  for (size_t i = 0; i < val.size() && i < GetWidgets().size(); i++) {
+    static_cast<IntegerSlider*>(GetWidgets().at(i))->SetDefaultValue(val.value<int64_t>(i));
+  }
+}
+
 void IntegerSliderParamWidget::SetProperty(const QString &key, const value_t &val)
 {
   if (key == QStringLiteral("min")) {

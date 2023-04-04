@@ -96,4 +96,14 @@ bool IntegerSlider::Equals(const InternalType &a, const InternalType &b) const
   return a.value<int64_t>() == b.value<int64_t>();
 }
 
+bool IntegerSlider::ValueGreaterThan(const InternalType &lhs, const InternalType &rhs) const
+{
+  return lhs.value<int64_t>() > rhs.value<int64_t>();
+}
+
+bool IntegerSlider::ValueLessThan(const InternalType &lhs, const InternalType &rhs) const
+{
+  return lhs.value<int64_t>() < rhs.value<int64_t>();
+}
+
 }

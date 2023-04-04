@@ -179,8 +179,6 @@ TexturePtr FFmpegDecoder::ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVi
     job.Insert(QStringLiteral("yuv_cgv"), yuv_coeffs[3]/65536.0);
     job.Insert(QStringLiteral("yuv_cbu"), yuv_coeffs[1]/65536.0);
 
-    qDebug() << "sending job with keys:" << job.GetValues().keys();
-
     tex = p.renderer->CreateTexture(vp);
     p.renderer->BlitToTexture(Yuv2RgbShader, job, tex.get(), false);
     break;

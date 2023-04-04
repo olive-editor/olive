@@ -43,6 +43,13 @@ void FloatSliderParamWidget::SetValue(const value_t &val)
   }
 }
 
+void FloatSliderParamWidget::SetDefaultValue(const value_t &val)
+{
+  for (size_t i = 0; i < val.size() && i < GetWidgets().size(); i++) {
+    static_cast<FloatSlider*>(GetWidgets().at(i))->SetDefaultValue(val.value<double>(i));
+  }
+}
+
 void FloatSliderParamWidget::SetProperty(const QString &key, const value_t &val)
 {
   if (key == QStringLiteral("min")) {

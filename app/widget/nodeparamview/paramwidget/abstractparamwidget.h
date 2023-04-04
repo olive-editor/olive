@@ -42,6 +42,8 @@ public:
 
   virtual void SetValue(const value_t &val) = 0;
 
+  virtual void SetDefaultValue(const value_t &val) {}
+
   virtual void SetProperty(const QString &key, const value_t &value);
 
   virtual void SetTimebase(const rational &timebase){}

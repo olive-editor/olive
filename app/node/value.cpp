@@ -93,8 +93,6 @@ value_t value_t::converted(type_t to) const
     v.data_[0] = c(data_[0]);
   }
 
-  qDebug() << "converted" << this->type().toString() << "to" << to.toString();
-
   return v;
 }
 

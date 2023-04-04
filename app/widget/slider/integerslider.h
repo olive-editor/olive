@@ -52,6 +52,10 @@ protected:
 
   virtual bool Equals(const InternalType &a, const InternalType &b) const override;
 
+  virtual bool ValueGreaterThan(const InternalType& lhs, const InternalType& rhs) const override;
+
+  virtual bool ValueLessThan(const InternalType& lhs, const InternalType& rhs) const override;
+
 signals:
   void ValueChanged(int64_t);
 

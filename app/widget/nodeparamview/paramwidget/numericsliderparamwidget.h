@@ -41,9 +41,6 @@ protected:
     for (size_t i = 0; i < channels; i++) {
       T *s = new T(parent);
 
-      qDebug() << "no default value set";
-      //s->SetDefaultValue(GetDefaultValue().at(i));
-
       s->SetLadderElementCount(2);
 
       // HACK: Force some spacing between sliders

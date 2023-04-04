@@ -44,6 +44,13 @@ void RationalSliderParamWidget::SetValue(const value_t &val)
   }
 }
 
+void RationalSliderParamWidget::SetDefaultValue(const value_t &val)
+{
+  for (size_t i = 0; i < val.size() && i < GetWidgets().size(); i++) {
+    static_cast<RationalSlider*>(GetWidgets().at(i))->SetDefaultValue(val.value<rational>(i));
+  }
+}
+
 void RationalSliderParamWidget::SetProperty(const QString &key, const value_t &val)
 {
   if (key == QStringLiteral("view")) {

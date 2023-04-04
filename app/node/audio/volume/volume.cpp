@@ -63,7 +63,8 @@ QString VolumeNode::Description() const
 
 value_t VolumeNode::Value(const ValueParams &p) const
 {
-  return ValueInternal(kOpMultiply, kPairSampleNumber, kSamplesInput, GetInputValue(p, kSamplesInput), kVolumeInput, GetInputValue(p, kVolumeInput), p);
+  return GetInputValue(p, kSamplesInput);
+  //return ValueInternal(kOpMultiply, kPairSampleNumber, kSamplesInput, GetInputValue(p, kSamplesInput), kVolumeInput, GetInputValue(p, kVolumeInput), p);
 }
 
 void VolumeNode::Retranslate()

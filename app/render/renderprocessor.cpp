@@ -634,9 +634,7 @@ void RenderProcessor::ResolveJobs(value_t &val)
 
   } else if (val.type() == TYPE_SAMPLES) {
 
-    qDebug() << "disabled handling of samplejobs and audio footagejobs...";
-    /*if (val.canConvert<SampleJob>()) {
-
+    try {
       SampleJob job = val.value<SampleJob>();
 
       for (auto it=job.GetValues().begin(); it!=job.GetValues().end(); it++) {
@@ -647,16 +645,15 @@ void RenderProcessor::ResolveJobs(value_t &val)
 
       SampleBuffer output_buffer = CreateSampleBuffer(job.audio_params(), job.sample_count());
       ProcessSamples(output_buffer, job);
-      val.set_value(QVariant::fromValue(output_buffer));
+      val = value_t(TYPE_SAMPLES, output_buffer);
+    } catch (std::bad_any_cast &e) {}
 
-    } else if (val.canConvert<FootageJob>()) {
-
+    try {
       FootageJob job = val.value<FootageJob>();
       SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
       ProcessAudioFootage(buffer, &job, job.time());
-      val.set_value(buffer);
-
-    }*/
+      val = value_t(TYPE_SAMPLES, buffer);
+    } catch (std::bad_any_cast &e) {}
 
   }
 }

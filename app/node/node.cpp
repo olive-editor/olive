@@ -418,7 +418,7 @@ value_t Node::GetValueAtTime(const QString &input, const rational &time, int ele
   value_t v(GetInputDataType(input), GetNumberOfKeyframeTracks(input));
 
   for (size_t i = 0; i < v.data().size(); i++) {
-    v.data()[0] = GetSplitValueAtTimeOnTrack(input, time, i, element);
+    v.data()[i] = GetSplitValueAtTimeOnTrack(input, time, i, element);
   }
 
   return v;

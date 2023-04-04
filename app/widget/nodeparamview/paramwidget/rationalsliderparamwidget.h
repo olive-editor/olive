@@ -34,6 +34,8 @@ public:
 
   virtual void SetValue(const value_t &val) override;
 
+  virtual void SetDefaultValue(const value_t &val) override;
+
   virtual void SetProperty(const QString &key, const value_t &val) override;
 
   virtual void SetTimebase(const rational &timebase) override;
