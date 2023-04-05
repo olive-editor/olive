@@ -260,7 +260,7 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
         SetInputDataType( it->uniform_name, it->type);
       }
 
-      if (GetInputFlags( it->uniform_name) != it->flags) {
+      if (GetInputFlags( it->uniform_name).value() != it->flags.value()) {
 
         SetInputFlag( it->uniform_name, kInputFlagArray, (it->flags & kInputFlagArray) ? true : false);
         SetInputFlag(it->uniform_name, kInputFlagNotKeyframable, (it->flags & kInputFlagNotKeyframable) ? true : false);
