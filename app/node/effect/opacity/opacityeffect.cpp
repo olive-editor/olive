@@ -12,12 +12,6 @@ const QString OpacityEffect::kValueInput = QStringLiteral("opacity_in");
 
 OpacityEffect::OpacityEffect()
 {
-  MathNode *math = new MathNode();
-
-  math->SetOperation(MathNode::kOpMultiply);
-
-  SetNodePositionInContext(math, QPointF(0, 0));
-
   AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   AddInput(kValueInput, TYPE_DOUBLE, 1.0);

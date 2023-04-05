@@ -21,11 +21,11 @@
 #ifndef VOLUMENODE_H
 #define VOLUMENODE_H
 
-#include "node/math/math/mathbase.h"
+#include "node/node.h"
 
 namespace olive {
 
-class VolumeNode : public MathNodeBase
+class VolumeNode : public Node
 {
   Q_OBJECT
 public:
