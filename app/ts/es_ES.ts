@@ -1046,7 +1046,7 @@ Asegúrese de que una secuencia esté cargada y tenga un nodo Visor conectado.</
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="40"/>
         <source>Disk Cache: %1</source>
-        <translation>Cache de Disco: %1</translation>
+        <translation>Caché de Disco: %1</translation>
     </message>
     <message>
         <location filename="../dialog/diskcache/diskcachedialog.cpp" line="41"/>
@@ -4804,7 +4804,7 @@ What would you like to do with these clips?</source>
         <source>No in or out points are set to cache.</source>
         <translation>No hay puntos de entrada o salida
 definidos en la línea de tiempo
-para agregar a la cache.
+para agregar a la caché.
 Haga uso de las opciones del menú 
 Editar para agregar puntos de entrada
 y salida.</translation>
@@ -4873,7 +4873,7 @@ y salida.</translation>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="912"/>
         <source>Cache Sequence In/Out</source>
-        <translation>Cache de la secuencia de entrada/salida</translation>
+        <translation>Caché de la secuencia de entrada/salida</translation>
     </message>
     <message>
         <location filename="../widget/viewer/viewer.cpp" line="923"/>
