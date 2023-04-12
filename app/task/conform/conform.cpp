@@ -42,6 +42,8 @@ bool ConformTask::Run()
 
   connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
 
+  qDebug() << "Starting conform of" << stream_.filename() << stream_.stream();
+
   bool ret = decoder->ConformAudio(output_filenames_, params_, GetCancelAtom());
 
   decoder->Close();
