@@ -66,6 +66,7 @@ NodeViewItem::NodeViewItem(Node *node, const QString &input, int element, Node *
 
   connect(node_, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
   connect(node_, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
+  connect(node_, &Node::InputListChanged, this, &NodeViewItem::NodeAppearanceChanged);
 
   if (IsOutputItem()) {
     connect(node_, &Node::InputAdded, this, &NodeViewItem::RepopulateInputs);
