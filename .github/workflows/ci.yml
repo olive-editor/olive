@@ -148,6 +148,12 @@ jobs:
             os-arch: x86_64
             os: windows-latest
             cmake-gen: Ninja
+          - build-type: RelWithDebInfo
+            compiler-name: MSVC 16.x
+            os-name: Windows
+            os-arch: x86_64
+            os: windows-2019
+            cmake-gen: Ninja
     name: |
       ${{ matrix.os-name }}
       <${{ matrix.compiler-name }},
