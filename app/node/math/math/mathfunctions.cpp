@@ -103,22 +103,4 @@ value_t Math::MultiplyMatrixMatrix(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::MultiplySamplesDouble(const value_t &a, const value_t &b)
-{
-  SampleJob job(p);
-
-  job.Insert(QStringLiteral("samples"), a);
-  job.Insert(QStringLiteral("number"), val_a.type() == NodeValue::kSamples ? param_b_in : param_a_in);
-  job.Insert(QStringLiteral("operation"), int(operation));
-
-  job.set_function(MathNodeBase::ProcessSamplesNumber, this);
-
-  return job;
-}
-
-value_t Math::MultiplyDoubleSamples(const value_t &a, const value_t &b)
-{
-  return MultiplySamplesDouble(b, a);
-}
-
 }

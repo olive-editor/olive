@@ -57,12 +57,19 @@ public:
   static const QString kParamBIn;
   static const QString kParamCIn;
 
+  static void ProcessSamplesDouble(const void *context, const SampleJob &job, SampleBuffer &mixed_samples);
+
 private:
   typedef value_t (*operation_t)(const value_t &a, const value_t &b);
 
   static std::map<Operation, std::map< type_t, std::map<type_t, operation_t> > > operations_;
 
   static void PopulateOperations();
+
+  static void ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuffer &mixed_samples);
+
+  static void OperateSampleNumber(Operation operation, const float *input, float *output, float b, size_t start, size_t end);
+  static void OperateSampleSample(Operation operation, const float *input, float *output, const float *input2, size_t start, size_t end);
 
 };
 

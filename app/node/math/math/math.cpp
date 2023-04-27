@@ -96,7 +96,7 @@ void MathNode::Retranslate()
   SetComboBoxStrings(kMethodIn, operations);
 }
 
-void ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuffer &mixed_samples)
+void MathNode::ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuffer &mixed_samples)
 {
   const SampleBuffer samples_a = job.Get(QStringLiteral("a")).toSamples();
   const SampleBuffer samples_b = job.Get(QStringLiteral("b")).toSamples();
@@ -106,10 +106,7 @@ void ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuff
   size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
   for (int i=0;i<mixed_samples.audio_params().channel_count();i++) {
-    // Mix samples that are in both buffers
-    for (size_t j=0;j<min_samples;j++) {
-      mixed_samples.data(i)[j] = PerformAll<float, float>(operation, samples_a.data(i)[j], samples_b.data(i)[j]);
-    }
+    OperateSampleSample(operation, samples_a.data(i), mixed_samples.data(i), samples_b.data(i), 0, std::min(samples_a.sample_count(), samples_b.sample_count()));
   }
 
   if (max_samples > min_samples) {
@@ -121,6 +118,166 @@ void ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuff
       memcpy(&mixed_samples.data(i)[min_samples],
              &larger_buffer.data(i)[min_samples],
              remainder * sizeof(float));
+    }
+  }
+}
+
+#if defined(Q_PROCESSOR_X86) || defined(Q_PROCESSOR_ARM)
+#define USE_SSE
+#endif
+
+void MathNode::OperateSampleNumber(Operation operation, const float *input, float *output, float b, size_t start, size_t end)
+{
+  size_t end_divisible_4 =
+#ifdef USE_SSE
+      (end / 4) * 4
+#else
+      0
+#endif
+  ;
+
+  // Load number to multiply by into buffer
+  __m128 mult = _mm_load1_ps(&b);
+
+  switch (operation) {
+  case kOpAdd:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_add_ps(_mm_loadu_ps(input + start + j), mult));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] + b;
+    }
+    break;
+  case kOpSubtract:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_sub_ps(_mm_loadu_ps(input + start + j), mult));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] - b;
+    }
+    break;
+  case kOpMultiply:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_mul_ps(_mm_loadu_ps(input + start + j), mult));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] * b;
+    }
+    break;
+  case kOpDivide:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_div_ps(_mm_loadu_ps(input + start + j), mult));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] / b;
+    }
+    break;
+  case kOpPower:
+    // Can't do pow in SSE, do it manually here instead
+    end_divisible_4 = 0;
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = std::pow(input[start + j], b);
+    }
+    break;
+  }
+}
+
+void MathNode::OperateSampleSample(Operation operation, const float *input, float *output, const float *input2, size_t start, size_t end)
+{
+  size_t end_divisible_4 =
+#ifdef USE_SSE
+      (end / 4) * 4
+#else
+      0
+#endif
+  ;
+
+  switch (operation) {
+  case kOpAdd:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_add_ps(_mm_loadu_ps(input + start + j), _mm_loadu_ps(input2 + start + j)));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] + input2[start + j];
+    }
+    break;
+  case kOpSubtract:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_sub_ps(_mm_loadu_ps(input + start + j), _mm_loadu_ps(input2 + start + j)));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] - input2[start + j];
+    }
+    break;
+  case kOpMultiply:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_mul_ps(_mm_loadu_ps(input + start + j), _mm_loadu_ps(input2 + start + j)));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] * input2[start + j];
+    }
+    break;
+  case kOpDivide:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_div_ps(_mm_loadu_ps(input + start + j), _mm_loadu_ps(input2 + start + j)));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = input[start + j] / input2[start + j];
+    }
+    break;
+  case kOpPower:
+    // Can't do pow in SSE, do it manually here instead
+    end_divisible_4 = 0;
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = std::pow(input[start + j], input2[start + j]);
+    }
+    break;
+  }
+}
+
+void MathNode::ProcessSamplesDouble(const void *context, const SampleJob &job, SampleBuffer &output)
+{
+  const Node *n = static_cast<const Node *>(context);
+
+  const ValueParams &p = job.value_params();
+  const SampleBuffer input = job.Get(QStringLiteral("samples")).toSamples();
+  const QString number_in = job.Get(QStringLiteral("number")).toString();
+  const Operation operation = static_cast<Operation>(job.Get(QStringLiteral("operation")).toInt());
+
+  if (n->IsInputStatic(number_in)) {
+    auto f = n->GetStandardValue(number_in).toDouble();
+
+    for (int i=0;i<output.audio_params().channel_count();i++) {
+      OperateSampleNumber(operation, input.data(i), output.data(i), f, 0, output.sample_count());
+    }
+  } else {
+    std::vector<float> values(input.sample_count());
+
+    for (size_t i = 0; i < values.size(); i++) {
+      rational this_sample_time = p.time().in() + rational(i, input.audio_params().sample_rate());
+      TimeRange this_sample_range(this_sample_time, this_sample_time + input.audio_params().sample_rate_as_time_base());
+      auto v = n->GetInputValue(p.time_transformed(this_sample_range), number_in).toDouble();
+      values[i] = v;
+    }
+
+    for (int i=0;i<output.audio_params().channel_count();i++) {
+      OperateSampleSample(operation, input.data(i), output.data(i), values.data(), 0, input.sample_count());
     }
   }
 }
@@ -151,9 +308,17 @@ value_t MathNode::Value(const ValueParams &p) const
       job.set_function(ProcessSamplesSamples, this);
 
       return job;
+    } else if (aval.type() == TYPE_DOUBLE || bval.type() == TYPE_DOUBLE) {
+      SampleJob job(p);
+
+      job.Insert(QStringLiteral("samples"), aval.type() == TYPE_SAMPLES ? aval : bval);
+      job.Insert(QStringLiteral("number"), aval.type() == TYPE_SAMPLES ? kParamBIn : kParamAIn);
+      job.Insert(QStringLiteral("operation"), int(operation));
+
+      job.set_function(ProcessSamplesDouble, this);
+
+      return job;
     }
-
-
   } else if (aval.type() == TYPE_TEXTURE || bval.type() == TYPE_TEXTURE) {
     // FIXME: Requires a more complex shader job
   } else {

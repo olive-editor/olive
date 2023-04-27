@@ -20,7 +20,7 @@
 
 #include "volume.h"
 
-#include "node/math/math/mathfunctions.h"
+#include "node/math/math/math.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {
@@ -64,7 +64,15 @@ QString VolumeNode::Description() const
 
 value_t VolumeNode::Value(const ValueParams &p) const
 {
-  return Math::MultiplySamplesDouble(GetInputValue(p, kSamplesInput), GetInputValue(p, kVolumeInput));
+  SampleJob job(p);
+
+  job.Insert(QStringLiteral("samples"), GetInputValue(p, kSamplesInput));
+  job.Insert(QStringLiteral("number"), kVolumeInput);
+  job.Insert(QStringLiteral("operation"), MathNode::kOpMultiply);
+
+  job.set_function(MathNode::ProcessSamplesDouble, this);
+
+  return job;
 }
 
 void VolumeNode::Retranslate()
