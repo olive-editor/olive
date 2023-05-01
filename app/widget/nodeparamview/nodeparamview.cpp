@@ -709,6 +709,8 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
   connect(item, &NodeParamViewItem::Clicked, this, &NodeParamView::ItemClicked);
   connect(item, &NodeParamViewItem::RequestEditTextInViewer, this, &NodeParamView::RequestEditTextInViewer);
 
+  connect( n, & Node::InputFlagsChanged, item, & NodeParamViewItem::OnInputFlagsChanged );
+
   item->SetContext(ctx);
   item->SetTimeTarget(GetConnectedNode());
   item->SetTimebase(timebase());

@@ -229,6 +229,9 @@ signals:
 
   void InputArraySizeChanged(const QString &input, int old_size, int new_size);
 
+public slots:
+  void OnInputFlagsChanged(const QString &input, const InputFlags &flags);
+
 protected slots:
   virtual void Retranslate() override;
 

@@ -108,6 +108,25 @@ void NodeParamViewItem::RecreateBody()
 }
 
 
+void NodeParamViewItem::OnInputFlagsChanged(const QString &input, const InputFlags &flags)
+{
+  if (flags & kInputFlagNotKeyframable) {
+
+    // Delete all keyframes
+    MultiUndoCommand* command = new MultiUndoCommand();
+    NodeInput node_input = NodeInput( node_,input);
+
+    foreach (const NodeKeyframeTrack& track, node_->GetKeyframeTracks(node_input)) {
+      for (int i=track.size()-1;i>=0;i--) {
+        command->add_child(new NodeParamRemoveKeyframeCommand(track.at(i)));
+      }
+    }
+
+    Core::instance()->undo_stack()->push(command,
+                                         QString("Remove keyframes for input %1").arg(input));
+  }
+}
+
 void NodeParamViewItem::OnInputListChanged()
 {
   RecreateBody();
