@@ -56,7 +56,7 @@ void ExternalEditorProxy::launch(const QString &start_text)
     // create a file whose name is random but unique for each instance.
     // We can use 'this' pointer as file name.
     // 'QStandardPaths::TempLocation' is guaranteed not to be empty
-    file_path_ = QStandardPaths::standardLocations( QStandardPaths::TempLocation).first();
+    file_path_ = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
     file_path_ += QString("%1%2.frag").arg(QDir::separator()).arg((long long)this);
 
     // create file before watching it

@@ -23,7 +23,7 @@
 
 #include "node/node.h"
 #include "node/gizmo/point.h"
-#include "node/inputdragger.h"
+
 
 namespace olive {
 
