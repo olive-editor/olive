@@ -230,7 +230,7 @@ void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
     message = QString(tr("There are %1 metadata issues.\n").arg(errors.size()));
   }
 
-  for (ShaderInputsParser::Error e : errors ) {
+  for (const ShaderInputsParser::Error & e : errors ) {
     message.append(QString("\"%1\" line %2: %3\n").
                    arg( parser.ShaderName()).arg(e.line).arg(e.issue));
   }
@@ -307,7 +307,7 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
 // Add a point gizmo for each 'kVec2' that does not already have one
 void ShaderFilterNode::updateGizmoList()
 {
-  for (QString aInput : user_input_list_)
+  for (QString & aInput : user_input_list_)
   {
     if (HasInputWithID(aInput)) {
       if (GetInputDataType(aInput) == NodeValue::kVec2) {
@@ -333,7 +333,7 @@ void ShaderFilterNode::updateGizmoList()
 void ShaderFilterNode::checkDeletedInputs(const QStringList & new_inputs)
 {
   // search old inputs that are not present in new inputs
-  for( const QString & input : user_input_list_) {
+  for( QString & input : user_input_list_) {
     if (new_inputs.contains(input) == false) {
       RemoveInput( input);
 
@@ -363,7 +363,7 @@ void ShaderFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
 {
   resolution_  = globals.vparams().resolution();
 
-  for (QString aInput : user_input_list_)
+  for (QString & aInput : user_input_list_)
   {
     if (HasInputWithID(aInput)) {
       if (row[aInput].type() == NodeValue::kVec2) {

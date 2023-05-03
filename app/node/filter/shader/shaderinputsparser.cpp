@@ -408,7 +408,7 @@ ShaderInputsParser::parseInputMin(const QRegularExpressionMatch & match)
 
   if (ok == false) {
     reportError(QObject::tr("%1 is not valid as minimum for type %2").
-                arg(min_str).arg(currentInput.type_string));
+                arg(min_str, currentInput.type_string));
   }
 
   return PARSING;
@@ -432,7 +432,7 @@ ShaderInputsParser::parseInputMax(const QRegularExpressionMatch & match)
 
   if (ok == false) {
     reportError(QObject::tr("%1 is not valid as maximum for type %2").
-                arg(max_str).arg(currentInput.type_string));
+                arg(max_str, currentInput.type_string));
   }
 
   return PARSING;
