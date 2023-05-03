@@ -44,7 +44,6 @@ const Qt::GlobalColor BRACKET_NOT_MATCH_COLOR = Qt::darkRed;
 const int BRACKET_LAST = -2;
 
 // forward declarations
-QString regExpEscape( const QStringView &str);
 QString buildSearchExpression( const QStringView &str, QTextDocument::FindFlags & flags);
 }
 
@@ -500,40 +499,6 @@ int CodeEditor::countTrailingSpaces(int block_position)
 
 namespace {
 
-// This is taken from QT 5.15 source code for "QRegularExpression::escape".
-// Olive must compile with QT 5.9 on.
-QString regExpEscape(const QStringView &str)
-{
-  QString result;
-  const int count = str.size();
-  result.reserve(count * 2);
-  // everything but [a-zA-Z0-9_] gets escaped,
-  // cf. perldoc -f quotemeta
-  for (int i = 0; i < count; ++i) {
-    const QChar current = str.at(i);
-    if (current == QChar::Null) {
-      // unlike Perl, a literal NUL must be escaped with
-      // "\\0" (backslash + 0) and not "\\\0" (backslash + NUL),
-      // because pcre16_compile uses a NUL-terminated string
-      result.append(QLatin1Char('\\'));
-      result.append(QLatin1Char('0'));
-    } else if ( (current < QLatin1Char('a') || current > QLatin1Char('z')) &&
-                (current < QLatin1Char('A') || current > QLatin1Char('Z')) &&
-                (current < QLatin1Char('0') || current > QLatin1Char('9')) &&
-                current != QLatin1Char('_') )
-    {
-      result.append(QLatin1Char('\\'));
-      result.append(current);
-      if (current.isHighSurrogate() && i < (count - 1))
-        result.append(str.at(++i));
-    } else {
-      result.append(current);
-    }
-  }
-  result.squeeze();
-  return result;
-}
-
 // This function is required to search for "whole word". The default QT function considers
 // underscore "_" as a word breaker, so if you searh for "hello" as whole word it will match
 // "hello_world".
@@ -541,7 +506,7 @@ QString regExpEscape(const QStringView &str)
 // from 'flags', if present.
 QString buildSearchExpression( const QStringView &str, QTextDocument::FindFlags & flags)
 {
-  QString regExpString = regExpEscape( str);
+  QString regExpString = QRegularExpression::escape(str);
 
   if (flags & QTextDocument::FindWholeWords) {
     regExpString.prepend("\\b");
