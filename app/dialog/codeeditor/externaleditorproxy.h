@@ -22,10 +22,9 @@
 #define EXTERNALEDITORPROXY_H
 
 
-#include <QFileSystemWatcher>
 #include <QProcess>
+#include <QFileSystemWatcher>
 
-class QProcess;
 
 namespace olive {
 
@@ -47,7 +46,11 @@ public:
 
   // launch an external process, if one is not already running.
   // If a process is running, nothing is done.
-  void launch( const QString & start_text);
+  void Launch( const QString & start_text);
+
+  // associate a file path to edit text with an external viewer.
+  // Olive will listen for changes in that file.
+  void SetFilePath(const QString & path);
 
 signals:
   // emnitted when temporary file is saved
@@ -58,9 +61,10 @@ private:
   void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-  QFileSystemWatcher watcher_;
+  // QFileSystemWatcher watcher_;
   QString file_path_;
   QProcess *process_;
+  QFileSystemWatcher watcher_;
 };
 
 }  // namespace olive

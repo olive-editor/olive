@@ -142,7 +142,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       // check for special type of text
       QString text_type = GetInnerInput().GetProperty(QStringLiteral("text_type")).toString();
       if (text_type == "shader_code") {
-        line_edit->setCodeEditorFlag();
+          const Node * addr =  GetInnerInput().node();
+        line_edit->setCodeEditorFlag( (uint64_t)addr);
       }
       else if (text_type == "shader_issues") {
         line_edit->setCodeIssuesFlag();

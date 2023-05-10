@@ -21,6 +21,8 @@
 #include "nodeparamviewtextedit.h"
 
 #include <QHBoxLayout>
+#include <QFileSystemWatcher>
+#include <QStandardPaths>
 
 #include "dialog/text/text.h"
 #include "dialog/codeeditor/codeeditordialog.h"
@@ -59,9 +61,11 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   SetEditInViewerOnlyMode(false);
 
   ext_editor_proxy_ = new ExternalEditorProxy( this);
+
   connect( ext_editor_proxy_, & ExternalEditorProxy::textChanged,
            this, & NodeParamViewTextEdit::OnTextChangedExternally);
 }
+
 
 void NodeParamViewTextEdit::SetEditInViewerOnlyMode(bool on)
 {
@@ -111,7 +115,7 @@ void olive::NodeParamViewTextEdit::launchCodeEditor(QString & text)
   else {
 
     // external editor
-    ext_editor_proxy_->launch( this->text());
+    ext_editor_proxy_->Launch( this->text());
   }
 }
 
@@ -120,15 +124,25 @@ void NodeParamViewTextEdit::InnerWidgetTextChanged()
   emit textEdited(this->text());
 }
 
-void NodeParamViewTextEdit::OnTextChangedExternally(const QString &new_text)
+void NodeParamViewTextEdit::OnTextChangedExternally(const QString & content)
 {
-  line_edit_->setPlainText( new_text);
-  emit textEdited( new_text);
+  line_edit_->setPlainText( content);
+  emit textEdited( content);
 }
 
-void NodeParamViewTextEdit::setCodeEditorFlag()
+void NodeParamViewTextEdit::setCodeEditorFlag( uint64_t node_id)
 {
   code_editor_flag_ = true;
+
+  // create a file whose name is unique for for the node this instance belongs to.
+  // 'node_id' is based on address of the node this param belongs to
+  // 'QStandardPaths::TempLocation' is guaranteed not to be empty
+  QString file_path = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
+  file_path += QString("/%2.frag").arg(node_id);
+
+  ext_editor_proxy_->SetFilePath(file_path);
+
+  // no need to draw the stopwatch to keyframe this input
   setProperty("is_exapandable", QVariant::fromValue<bool>(true));
 
   // if the text box is a shader code editor, make it read only so that

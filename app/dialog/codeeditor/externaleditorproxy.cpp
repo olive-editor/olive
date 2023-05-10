@@ -25,63 +25,47 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QThread>
 #include <QMessageBox>
+
 
 namespace olive {
 
 ExternalEditorProxy::ExternalEditorProxy(QObject *parent) :
   QObject(parent),
-  process_(nullptr)
+  process_(nullptr),
+  watcher_( this)
 {
-
+  connect( & watcher_, & QFileSystemWatcher::fileChanged, this, & ExternalEditorProxy::onFileChanged);
 }
 
 ExternalEditorProxy::~ExternalEditorProxy()
 {
-  // stop process
-  if (process_ && process_->isOpen()) {
-    process_->kill();
-  }
-
-  // delete temporary file
-  if (QFileInfo::exists(file_path_)) {
-    QFile::remove( file_path_);
-  }
+  // Do not delete "file_path_" bacause it might be read from
+  // another instance of this class. However this leaves a  lot
+  // of files in temporary folder
 }
 
-void ExternalEditorProxy::launch(const QString &start_text)
+void ExternalEditorProxy::Launch(const QString &start_text)
 {
-  if (file_path_ == QString())
-  {
-    // create a file whose name is random but unique for each instance.
-    // We can use 'this' pointer as file name.
-    // 'QStandardPaths::TempLocation' is guaranteed not to be empty
-    file_path_ = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
-    file_path_ += QString("%1%2.frag").arg(QDir::separator()).arg((long long)this);
 
-    // create file before watching it
-    QFile out(file_path_);
-    out.open( QIODevice::WriteOnly);
-    bool ok = false;
+  // create file before watching it
+  QFile out(file_path_);
+  out.open( QIODevice::WriteOnly);
 
-    if (out.isOpen())
-    {
-      ok = watcher_.addPath( file_path_);
-      out.write( start_text.toLatin1());
-      out.close();
-    }
+  if (out.isOpen()) {
+    out.write( start_text.toLatin1());
+    out.close();
 
-    if (ok == false)
-    {
-      QMessageBox::warning( nullptr, "Olive",
-                            tr("Can't send data to external editor"));
-    }
+    // now the file exists. We can watch for changes
+    watcher_.addPath( file_path_);
 
-    connect( & watcher_, & QFileSystemWatcher::fileChanged, this, & ExternalEditorProxy::onFileChanged);
+  } else {
+    QMessageBox::warning( nullptr, "Olive",
+                          tr("Can't send data to external editor"));
   }
 
-  if (process_ == nullptr)
-  {
+  if (process_ == nullptr) {
     process_ = new QProcess(this);
     connect( process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(& QProcess::finished),
              this, &ExternalEditorProxy::onProcessFinished);
@@ -95,6 +79,15 @@ void ExternalEditorProxy::launch(const QString &start_text)
   }
 }
 
+void ExternalEditorProxy::SetFilePath(const QString & path)
+{
+    file_path_ = path;
+
+    // at this point, "file_path_" may or may not exist.
+    // The following instruction is effective when the file exists.
+    watcher_.addPath( file_path_);
+}
+
 void ExternalEditorProxy::onFileChanged(const QString &path)
 {
   // this should always be true
@@ -103,15 +96,20 @@ void ExternalEditorProxy::onFileChanged(const QString &path)
   QFile f(file_path_);
   f.open( QIODevice::ReadOnly);
 
-  if (f.isOpen())
+  if (f.size() > 0)
   {
-    QString content = QString::fromLatin1( f.readAll());
-    emit textChanged( content);
+    if (f.isOpen()) {
+      QString content = QString::fromLatin1( f.readAll());
+      emit textChanged( content);
+      f.close();
+    } else {
+      QMessageBox::warning( nullptr, "Olive", tr("Can't update data from external editor"));
+    }
+  } else {
+    // on some platforms, when the file is saved, it is deleted before
+    // being re-written. In this case, there is a signal of file changed
+    // but it's size is zero. This must be discarded; a new message will arrive later.
     f.close();
-  }
-  else
-  {
-    QMessageBox::warning( nullptr, "Olive", tr("Can't update data from external editor"));
   }
 }
 

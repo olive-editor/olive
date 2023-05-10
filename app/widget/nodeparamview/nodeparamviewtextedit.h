@@ -27,6 +27,7 @@
 
 #include "common/define.h"
 
+
 namespace olive {
 
 class ExternalEditorProxy;
@@ -43,8 +44,9 @@ public:
     return line_edit_->toPlainText();
   }
 
-  // set flag to edit text with code editor
-  void setCodeEditorFlag();
+  // let this instance perform as a code editor.
+  // This input will be edited with a built-in or external code editor.
+  void setCodeEditorFlag(uint64_t node_id);
   // set flag to view text as code issues
   void setCodeIssuesFlag();
 
@@ -95,7 +97,7 @@ private slots:
 
   void InnerWidgetTextChanged();
 
-  void OnTextChangedExternally( const QString & new_text);
+  void OnTextChangedExternally(const QString & content);
 
 };
 
