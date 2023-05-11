@@ -52,6 +52,10 @@ public:
   // Olive will listen for changes in that file.
   void SetFilePath(const QString & path);
 
+  // stop listening to changes of external files.
+  // Used when user switches from external to internal editor
+  void Detach();
+
 signals:
   // emnitted when temporary file is saved
   void textChanged( const QString & new_text);

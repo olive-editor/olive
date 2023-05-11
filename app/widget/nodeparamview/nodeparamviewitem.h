@@ -173,7 +173,6 @@ public:
     time_target_ = target;
 
     body_->SetTimeTarget(target);
-    time_target_ = target;
   }
 
   void SetTimebase(const rational& timebase)
@@ -248,7 +247,9 @@ private:
   NodeParamViewCheckBoxBehavior create_checkboxes_;
 
   Node *ctx_;
-  ViewerOutput * time_target_;
+
+  ViewerOutput *time_target_;
+
   rational timebase_;
 
   KeyframeView::NodeConnections keyframe_connections_;

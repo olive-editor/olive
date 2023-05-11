@@ -619,7 +619,6 @@ void NodeParamViewItemBody::OptionalCheckBoxClicked(bool e)
   }
 }
 
-
 NodeParamViewItemBody::InputUI::InputUI() :
   main_label(nullptr),
   widget_bridge(nullptr),

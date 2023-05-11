@@ -108,6 +108,10 @@ void olive::NodeParamViewTextEdit::launchCodeEditor(QString & text)
     // internal editor
     CodeEditorDialog d(this->text(), this);
 
+    // in case external editor was previously opened but
+    // then user switched to internal editor.
+    ext_editor_proxy_->Detach();
+
     if (d.exec() == QDialog::Accepted) {
       text = d.text();
     }

@@ -81,11 +81,16 @@ void ExternalEditorProxy::Launch(const QString &start_text)
 
 void ExternalEditorProxy::SetFilePath(const QString & path)
 {
-    file_path_ = path;
+  file_path_ = path;
 
-    // at this point, "file_path_" may or may not exist.
-    // The following instruction is effective when the file exists.
-    watcher_.addPath( file_path_);
+  // at this point, "file_path_" may or may not exist.
+  // The following instruction is effective when the file exists.
+  watcher_.addPath( file_path_);
+}
+
+void ExternalEditorProxy::Detach()
+{
+  watcher_.removePath( file_path_);
 }
 
 void ExternalEditorProxy::onFileChanged(const QString &path)
