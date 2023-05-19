@@ -84,7 +84,7 @@ public:
 
   virtual void PostInit() = 0;
 
-  virtual void ClearDestination(olive::Texture *texture = nullptr, double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) = 0;
+  virtual void ClearDestination(olive::Texture *texture = nullptr, double r = 0.0, double g = 0.0, double b = 0.0, double a = 1.0) = 0;
 
   virtual QVariant CreateNativeShader(olive::ShaderCode code) = 0;
 
