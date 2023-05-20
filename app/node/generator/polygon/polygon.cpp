@@ -36,15 +36,15 @@ PolygonGenerator::PolygonGenerator()
 
   AddInput(kColorInput, TYPE_COLOR, Color(1.0, 1.0, 1.0));
 
-  const int kMiddleX = 135;
-  const int kMiddleY = 45;
-  const int kBottomX = 90;
-  const int kBottomY = 120;
-  const int kTopY = 135;
+  const double kMiddleX = 135;
+  const double kMiddleY = 45;
+  const double kBottomX = 90;
+  const double kBottomY = 120;
+  const double kTopY = 135;
 
   // The Default Pentagon(tm)
   InputArrayResize(kPointsInput, 5);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 0, 0);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 0.0, 0);
   SetSplitStandardValueOnTrack(kPointsInput, 1, -kTopY, 0);
   SetSplitStandardValueOnTrack(kPointsInput, 0, kMiddleX, 1);
   SetSplitStandardValueOnTrack(kPointsInput, 1, -kMiddleY, 1);
@@ -210,9 +210,8 @@ void PolygonGenerator::UpdateGizmoPositions(const ValueParams &p)
     bez_gizmo2->SetSmaller(true);
   }
 
-  int pts_sz = InputArraySize(kPointsInput);
   if (!points.empty()) {
-    for (int i=0; i<pts_sz; i++) {
+    for (size_t i=0; i<points.size(); i++) {
       const Bezier &pt = GetBezier(points.at(i));
 
       Imath::V2d main = pt.to_vec() + half_res;
@@ -228,7 +227,7 @@ void PolygonGenerator::UpdateGizmoPositions(const ValueParams &p)
     }
   }
 
-  poly_gizmo_->SetPath(GeneratePath(points, pts_sz).translated(QPointF(half_res.x, half_res.y)));
+  poly_gizmo_->SetPath(GeneratePath(points, points.size()).translated(QPointF(half_res.x, half_res.y)));
 }
 
 void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)
