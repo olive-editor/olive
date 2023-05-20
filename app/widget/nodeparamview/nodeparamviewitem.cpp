@@ -375,7 +375,7 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
     }
 
     // Show/hide connection label
-    ui_objects.connected_label->setVisible(is_connected);
+    ui_objects.connected_label->setVisible(is_connected || !ui_objects.widget_bridge->has_widgets());
 
     if (ui_objects.key_control) {
       ui_objects.key_control->setVisible(!is_connected);

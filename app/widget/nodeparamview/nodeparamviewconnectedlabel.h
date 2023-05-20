@@ -23,6 +23,7 @@
 
 #include "node/param.h"
 #include "widget/clickablelabel/clickablelabel.h"
+#include "widget/collapsebutton/collapsebutton.h"
 #include "widget/nodevaluetree/nodevaluetree.h"
 
 namespace olive {
@@ -54,6 +55,10 @@ private:
   void UpdateValueTree();
 
   void CreateTree();
+
+  CollapseButton *collapse_btn_;
+
+  QLabel *prefix_lbl_;
 
   ClickableLabel* connected_to_lbl_;
 

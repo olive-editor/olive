@@ -26,7 +26,6 @@
 #include "core.h"
 #include "node/node.h"
 #include "node/nodeundo.h"
-#include "widget/collapsebutton/collapsebutton.h"
 #include "widget/menu/menu.h"
 
 namespace olive {
@@ -51,11 +50,12 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   label_layout->setContentsMargins(0, 0, 0, 0);
   layout->addLayout(label_layout);
 
-  CollapseButton *collapse_btn = new CollapseButton(this);
-  collapse_btn->setChecked(false);
-  label_layout->addWidget(collapse_btn);
+  collapse_btn_ = new CollapseButton(this);
+  collapse_btn_->setChecked(false);
+  label_layout->addWidget(collapse_btn_);
 
-  label_layout->addWidget(new QLabel(tr("Connected to"), this));
+  prefix_lbl_ = new QLabel(this);
+  label_layout->addWidget(prefix_lbl_);
 
   connected_to_lbl_ = new ClickableLabel(this);
   connected_to_lbl_->setCursor(Qt::PointingHandCursor);
@@ -83,7 +83,7 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
 
   // Creating the tree is expensive, hold off until the user specifically requests it
   value_tree_ = nullptr;
-  connect(collapse_btn, &CollapseButton::toggled, this, &NodeParamViewConnectedLabel::SetValueTreeVisible);
+  connect(collapse_btn_, &CollapseButton::toggled, this, &NodeParamViewConnectedLabel::SetValueTreeVisible);
 }
 
 void NodeParamViewConnectedLabel::SetViewerNode(ViewerOutput *viewer)
@@ -98,6 +98,15 @@ void NodeParamViewConnectedLabel::SetViewerNode(ViewerOutput *viewer)
     connect(viewer_, &ViewerOutput::PlayheadChanged, this, &NodeParamViewConnectedLabel::UpdateValueTree);
     UpdateValueTree();
   }
+}
+
+bool NodeParamViewConnectedLabel::DeleteSelected()
+{
+  if (value_tree_) {
+    return value_tree_->DeleteSelected();
+  }
+
+  return false;
 }
 
 void NodeParamViewConnectedLabel::CreateTree()
@@ -152,15 +161,16 @@ void NodeParamViewConnectedLabel::ConnectionClicked()
 
 void NodeParamViewConnectedLabel::UpdateLabel()
 {
-  QString s;
+  collapse_btn_->setVisible(connected_node_);
+  connected_to_lbl_->setVisible(connected_node_);
 
   if (connected_node_) {
-    s = connected_node_->Name();
+    prefix_lbl_->setText(tr("Connected to"));
+    connected_to_lbl_->setText(connected_node_->GetLabelAndName());
+    prefix_lbl_->setForegroundRole(QPalette::Text);
   } else {
-    s = tr("Nothing");
+    prefix_lbl_->setText(tr("<font color='gray'>(Not Connected)</font>"));
   }
-
-  connected_to_lbl_->setText(s);
 }
 
 void NodeParamViewConnectedLabel::UpdateValueTree()
