@@ -62,8 +62,8 @@ value_t MosaicFilterNode::Value(const ValueParams &p) const
 
   if (TexturePtr texture = tex_meta.toTexture()) {
     if (texture
-        && GetInputValue(p, kHorizInput).toInt() != texture->width()
-        && GetInputValue(p, kVertInput).toInt() != texture->height()) {
+        && std::floor(GetInputValue(p, kHorizInput).toDouble()) != texture->width()
+        && std::floor(GetInputValue(p, kVertInput).toDouble()) != texture->height()) {
       ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
       // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block

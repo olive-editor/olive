@@ -180,6 +180,11 @@ public:
     data_[3] = double(vec.w());
   }
 
+  value_t(const float &f) :
+    value_t(TYPE_DOUBLE, double(f))
+  {
+  }
+
   value_t(const double &d) :
     value_t(TYPE_DOUBLE, d)
   {

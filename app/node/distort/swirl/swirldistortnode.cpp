@@ -33,10 +33,10 @@ SwirlDistortNode::SwirlDistortNode()
 {
   AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kRadiusInput, TYPE_DOUBLE, 200);
-  SetInputProperty(kRadiusInput, QStringLiteral("min"), 0);
+  AddInput(kRadiusInput, TYPE_DOUBLE, 200.0);
+  SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kAngleInput, TYPE_DOUBLE, 10);
+  AddInput(kAngleInput, TYPE_DOUBLE, 10.0);
   SetInputProperty(kAngleInput, QStringLiteral("base"), 0.1);
 
   AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));

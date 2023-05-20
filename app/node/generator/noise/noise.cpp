@@ -36,7 +36,7 @@ NoiseGeneratorNode::NoiseGeneratorNode()
 
   AddInput(kStrengthInput, TYPE_DOUBLE, 0.2);
   SetInputProperty(kStrengthInput, QStringLiteral("view"), FloatSlider::kPercentage);
-  SetInputProperty(kStrengthInput, QStringLiteral("min"), 0);
+  SetInputProperty(kStrengthInput, QStringLiteral("min"), 0.0);
 
   AddInput(kColorInput, TYPE_BOOL, false);
 

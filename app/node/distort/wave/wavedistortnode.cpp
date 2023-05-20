@@ -34,9 +34,9 @@ WaveDistortNode::WaveDistortNode()
 {
   AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kFrequencyInput, TYPE_DOUBLE, 10);
-  AddInput(kIntensityInput, TYPE_DOUBLE, 10);
-  AddInput(kEvolutionInput, TYPE_DOUBLE, 0);
+  AddInput(kFrequencyInput, TYPE_DOUBLE, 10.0);
+  AddInput(kIntensityInput, TYPE_DOUBLE, 10.0);
+  AddInput(kEvolutionInput, TYPE_DOUBLE, 0.0);
 
   AddInput(kVerticalInput, TYPE_COMBO, false);
 

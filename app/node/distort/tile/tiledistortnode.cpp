@@ -38,7 +38,7 @@ TileDistortNode::TileDistortNode()
   AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   AddInput(kScaleInput, TYPE_DOUBLE, 0.5);
-  SetInputProperty(kScaleInput, QStringLiteral("min"), 0);
+  SetInputProperty(kScaleInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kScaleInput, QStringLiteral("view"), FloatSlider::kPercentage);
 
   AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));

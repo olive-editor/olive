@@ -160,7 +160,7 @@ value_t TextGeneratorV3::Value(const ValueParams &p) const
     }
   }
 
-  value_t base_val = GetInputValue(p, kTextInput);
+  value_t base_val = GetInputValue(p, kBaseInput);
 
   if (!text.isEmpty()) {
     TexturePtr base = base_val.toTexture();

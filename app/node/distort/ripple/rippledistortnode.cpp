@@ -35,10 +35,10 @@ RippleDistortNode::RippleDistortNode()
 {
   AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kEvolutionInput, TYPE_DOUBLE, 0);
-  AddInput(kIntensityInput, TYPE_DOUBLE, 100);
+  AddInput(kEvolutionInput, TYPE_DOUBLE, 0.0);
+  AddInput(kIntensityInput, TYPE_DOUBLE, 100.0);
 
-  AddInput(kFrequencyInput, TYPE_DOUBLE, 1);
+  AddInput(kFrequencyInput, TYPE_DOUBLE, 1.0);
   SetInputProperty(kFrequencyInput, QStringLiteral("base"), 0.01);
 
   AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));

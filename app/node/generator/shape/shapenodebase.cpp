@@ -241,10 +241,10 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
       new_pos = GenerateGizmoAnchor(gizmo_pos_start, gizmo_sz_start, gizmo) + using_size / 2;
     }
 
-    x_drag.Drag(new_pos.x());
-    y_drag.Drag(new_pos.y());
-    w_drag.Drag(new_size.x());
-    h_drag.Drag(new_size.y());
+    x_drag.Drag(double(new_pos.x()));
+    y_drag.Drag(double(new_pos.y()));
+    w_drag.Drag(double(new_size.x()));
+    h_drag.Drag(double(new_size.y()));
   }
 }
 
