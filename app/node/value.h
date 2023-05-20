@@ -99,12 +99,13 @@ public:
     template <typename T>
     T get(bool *ok = nullptr) const
     {
+      T t = T();
+
       if (data_.has_value()) {
-        //qDebug() << "getting any type" << data_.type().name() << "attempting cast to" << typeid(T).name();
-        return std::any_cast<T>(data_);
-      } else {
-        return T();
+        t = std::any_cast<T>(data_);
       }
+
+      return t;
     }
 
     template <typename T>
@@ -115,7 +116,7 @@ public:
 
     const std::any &data() const { return data_; }
 
-    component_t converted(type_t from, type_t to) const;
+    component_t converted(type_t from, type_t to, bool *ok = nullptr) const;
 
     static component_t fromSerializedString(type_t to, const QString &s);
     QString toSerializedString(type_t from) const;
@@ -265,6 +266,7 @@ public:
     return at(channel).get<T>();
   }
 
+  void resize(size_t s) { data_.resize(s); }
   size_t size() const { return data_.size(); }
 
   std::vector<component_t> &data() { return data_; }
@@ -290,7 +292,7 @@ public:
   static value_t fromSerializedString(type_t target_type, const QString &s);
   QString toSerializedString() const;
 
-  value_t converted(type_t to) const;
+  value_t converted(type_t to, bool *ok = nullptr) const;
 
   typedef component_t(*Converter_t)(const component_t &v);
   static void registerConverter(const type_t &from, const type_t &to, Converter_t converter);

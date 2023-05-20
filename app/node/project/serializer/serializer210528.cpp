@@ -597,7 +597,9 @@ void ProjectSerializer210528::PostConnect(const XMLNodeData &xml_node_data) cons
   foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
     if (Node *out = xml_node_data.node_ptrs.value(con.output_node)) {
       // Use output param as hint tag since we grandfathered those in
-      Node::ValueHint hint(con.output_param);
+      Node::ValueHint hint;
+
+      hint.set_tag(con.output_param);
 
       Node::ConnectEdge(out, con.input);
 

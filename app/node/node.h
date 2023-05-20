@@ -35,6 +35,7 @@
 #include "node/keyframe.h"
 #include "node/inputimmediate.h"
 #include "node/param.h"
+#include "node/swizzlemap.h"
 #include "render/audioplaybackcache.h"
 #include "render/audiowaveformcache.h"
 #include "render/framehashcache.h"
@@ -563,19 +564,20 @@ public:
   class ValueHint
   {
   public:
-    ValueHint(const QString &tag = QString()) :
-      tag_(tag)
-    {
-    }
+    ValueHint() = default;
 
     const QString& tag() const { return tag_; }
     void set_tag(const QString &tag) { tag_ = tag; }
+
+    const SwizzleMap &swizzle() const { return swizzle_; }
+    void set_swizzle(const SwizzleMap &m) { swizzle_ = m; }
 
     bool load(QXmlStreamReader *reader);
     void save(QXmlStreamWriter *writer) const;
 
   private:
     QString tag_;
+    SwizzleMap swizzle_;
 
   };
 

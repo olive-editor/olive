@@ -67,21 +67,28 @@ QString value_t::toSerializedString() const
     }
     return l.join(CHANNEL_SPLITTER);
   } else {
-    value_t stringified = this->converted(TYPE_STRING);
-    return stringified.toSerializedString();
+    bool ok;
+    value_t stringified = this->converted(TYPE_STRING, &ok);
+    if (ok) {
+      return stringified.toSerializedString();
+    } else {
+      return QString();
+    }
   }
 }
 
-value_t value_t::converted(type_t to) const
+value_t value_t::converted(type_t to, bool *ok) const
 {
   // No-op if type is already requested
   if (this->type() == to) {
+    if (ok) *ok = true;
     return *this;
   }
 
   // Find converter, no-op if none found
   Converter_t c = converters_[this->type()][to];
   if (!c) {
+    if (ok) *ok = false;
     return *this;
   }
 
@@ -93,6 +100,7 @@ value_t value_t::converted(type_t to) const
     v.data_[0] = c(data_[0]);
   }
 
+  if (ok) *ok = true;
   return v;
 }
 
@@ -198,12 +206,14 @@ void value_t::registerDefaultConverters()
   registerConverter(TYPE_RATIONAL, TYPE_DOUBLE, converter_RationalToDouble);
 }
 
-value_t::component_t value_t::component_t::converted(type_t from, type_t to) const
+value_t::component_t value_t::component_t::converted(type_t from, type_t to, bool *ok) const
 {
   if (Converter_t c = converters_[from][to]) {
+    if (ok) *ok = true;
     return c(*this);
   }
 
+  if (ok) *ok = false;
   return *this;
 }
 

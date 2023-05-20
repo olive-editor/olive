@@ -123,6 +123,8 @@ private:
 
   void SortItemsInContext(NodeParamViewContext *context);
 
+  bool DeleteInsideWidgets();
+
   NodeParamViewContext *GetContextItemFromContext(Node *context);
 
   bool IsGroupMode() const

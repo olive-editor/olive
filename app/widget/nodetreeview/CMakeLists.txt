@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/nodetreeview/nodetreeview.h
   widget/nodetreeview/nodetreeview.cpp
+  widget/nodetreeview/nodetreeview.h
   PARENT_SCOPE
 )

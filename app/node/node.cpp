@@ -884,7 +884,29 @@ value_t Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QS
 
     while (output) {
       if (output->is_enabled()) {
-        return output->Value(g.time_transformed(adjusted_time).output_edited(this->GetValueHintForInput(input, element).tag()));
+        Node::ValueHint vh = this->GetValueHintForInput(input, element);
+        value_t v = output->Value(g.time_transformed(adjusted_time).output_edited(vh.tag()));
+
+        // Perform swizzle if requested
+        const SwizzleMap &swizzle = vh.swizzle();
+        if (!swizzle.empty()) {
+          value_t swiz(v.type(), v.size());
+          for (auto it = swizzle.cbegin(); it != swizzle.cend(); it++) {
+            size_t from = it->second;
+            size_t to = it->first;
+
+            if (from < v.size()) {
+              if (to >= swiz.size()) {
+                swiz.resize(to + 1);
+              }
+
+              swiz[to] = v[from];
+            }
+          }
+          v = swiz;
+        }
+
+        return v;
       } else {
         output = output->GetConnectedOutput(output->GetEffectInput());
       }
@@ -1649,7 +1671,7 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
 
   value_t value = this->GetStandardValue(input, element);
   for (size_t i = 0; i < value.size(); i++) {
-    value_t::component_t v;
+    const value_t::component_t &v = value.at(i);
 
     writer->writeStartElement(QStringLiteral("track"));
 
@@ -1805,20 +1827,22 @@ NodeInputImmediate *Node::CreateImmediate(const QString &input)
 
 void Node::ArrayResizeInternal(const QString &id, size_t size)
 {
-  Input* imm = GetInternalInputData(id);
+  Input* data = GetInternalInputData(id);
 
-  if (!imm) {
+  if (!data) {
     ReportInvalidInput("set array size", id, -1);
     return;
   }
 
-  if (imm->array_size != size) {
+  if (data->array_size != size) {
     // Update array size
-    if (imm->array_size < size) {
+    if (data->array_size < size) {
       // Size is larger, create any immediates that don't exist
       QVector<NodeInputImmediate*>& subinputs = array_immediates_[id];
       for (size_t i=subinputs.size(); i<size; i++) {
-        subinputs.append(CreateImmediate(id));
+        NodeInputImmediate *imm = CreateImmediate(id);
+        imm->set_split_standard_value(data->default_value);
+        subinputs.append(imm);
       }
 
       // Note that we do not delete any immediates when decreasing size since the user might still
@@ -1826,8 +1850,8 @@ void Node::ArrayResizeInternal(const QString &id, size_t size)
       // equal subinputs_.size()
     }
 
-    int old_sz = imm->array_size;
-    imm->array_size = size;
+    int old_sz = data->array_size;
+    data->array_size = size;
     emit InputArraySizeChanged(id, old_sz, size);
     ParameterValueChanged(id, -1, TimeRange(RATIONAL_MIN, RATIONAL_MAX));
   }

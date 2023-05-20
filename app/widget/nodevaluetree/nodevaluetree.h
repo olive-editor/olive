@@ -5,6 +5,7 @@
 #include <QTreeWidget>
 
 #include "node/node.h"
+#include "valueswizzlewidget.h"
 
 namespace olive {
 
@@ -16,11 +17,15 @@ public:
 
   void SetNode(const NodeInput &input);
 
+  bool DeleteSelected();
+
 protected:
   virtual void changeEvent(QEvent *event) override;
 
 private:
   void Retranslate();
+
+  ValueSwizzleWidget *GetSwizzleWidgetFromTopLevelItem(int i);
 
   NodeInput input_;
 
@@ -28,6 +33,10 @@ private slots:
   void RadioButtonChecked(bool e);
 
   void Update();
+
+  void SwizzleChanged(const SwizzleMap &map);
+
+  void ValueHintChanged(const NodeInput &input);
 
 };
 

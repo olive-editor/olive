@@ -51,6 +51,8 @@ class NodeParamViewItemBody : public QWidget {
 public:
   NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
+  virtual ~NodeParamViewItemBody() override;
+
   void SetTimeTarget(ViewerOutput *target);
 
   void Retranslate();
@@ -61,6 +63,8 @@ public:
   void SetTimebase(const rational& timebase);
 
   void SetInputChecked(const NodeInput &input, bool e);
+
+  bool DeleteSelected();
 
 signals:
   void RequestSelectNode(Node *node);
@@ -210,6 +214,8 @@ public:
   {
     keyframe_connections_ = c;
   }
+
+  bool DeleteSelected();
 
 signals:
   void RequestSelectNode(Node *node);

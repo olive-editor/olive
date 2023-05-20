@@ -34,6 +34,8 @@ public:
 
   void SetViewerNode(ViewerOutput *viewer);
 
+  bool DeleteSelected();
+
 signals:
   void RequestSelectNode(Node *n);
 

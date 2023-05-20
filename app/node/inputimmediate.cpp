@@ -211,6 +211,10 @@ NodeKeyframe *NodeInputImmediate::get_latest_keyframe() const
 
 void NodeInputImmediate::insert_keyframe(NodeKeyframe* key)
 {
+  if (key->track() >= keyframe_tracks_.size()) {
+    keyframe_tracks_.resize(key->track() + 1);
+  }
+
   NodeKeyframeTrack& key_track = keyframe_tracks_[key->track()];
 
   int insert_index = key_track.size();

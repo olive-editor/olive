@@ -381,6 +381,8 @@ void NodeParamView::DeleteSelected()
 {
   if (keyframe_view_ && keyframe_view_->hasFocus()) {
     keyframe_view_->DeleteSelected();
+  } else if (DeleteInsideWidgets()) {
+    return;
   } else if (!selected_nodes_.isEmpty()) {
     MultiUndoCommand *c = new MultiUndoCommand();
 
@@ -782,6 +784,11 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
   foreach (auto info, distances) {
     context_item->GetDockArea()->AddItem(info.first);
   }
+}
+
+bool NodeParamView::DeleteInsideWidgets()
+{
+  return focused_node_ && focused_node_->DeleteSelected();
 }
 
 NodeParamViewContext *NodeParamView::GetContextItemFromContext(Node *ctx)

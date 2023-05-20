@@ -79,9 +79,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
     // We assume the first data type is the "primary" type
     type_t t = GetDataType();
-    if (t == TYPE_INTEGER) {
-      QString type = GetOuterInput().GetProperty(QStringLiteral("subtype")).toString();
+    QString type = GetOuterInput().GetProperty(QStringLiteral("subtype")).toString();
 
+    if (t == TYPE_INTEGER) {
       if (type == QStringLiteral("bool")) {
         widget_ = new BoolParamWidget(this);
       } else if (type == QStringLiteral("combo")) {
@@ -92,8 +92,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     } else if (t == TYPE_RATIONAL) {
       widget_ = new RationalSliderParamWidget(this);
     } else if (t == TYPE_DOUBLE) {
-      QString type;
-
       if (type == QStringLiteral("color")) {
         widget_ = new ColorParamWidget(this);
       } else if (type == QStringLiteral("bezier")) {
@@ -102,8 +100,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
         widget_ = new FloatSliderParamWidget(this);
       }
     } else if (t == TYPE_STRING) {
-      QString type;
-
       if (type == QStringLiteral("file")) {
         widget_ = new FileParamWidget(this);
       } else if (type == QStringLiteral("font")) {

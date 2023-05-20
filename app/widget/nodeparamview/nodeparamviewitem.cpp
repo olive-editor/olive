@@ -117,6 +117,15 @@ void NodeParamViewItem::SetInputChecked(const NodeInput &input, bool e)
   body_->SetInputChecked(input, e);
 }
 
+bool NodeParamViewItem::DeleteSelected()
+{
+  if (body_) {
+    return body_->DeleteSelected();
+  }
+
+  return false;
+}
+
 NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   QWidget(parent),
   node_(node),
@@ -174,6 +183,15 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
         insert_row++;
       }
     }
+  }
+}
+
+NodeParamViewItemBody::~NodeParamViewItemBody()
+{
+  for (auto it = input_ui_map_.cbegin(); it != input_ui_map_.cend(); it++) {
+    const InputUI &u = *it;
+
+    delete u.widget_bridge;
   }
 }
 
@@ -532,6 +550,17 @@ void NodeParamViewItemBody::SetInputChecked(const NodeInput &input, bool e)
       cb->setChecked(e);
     }
   }
+}
+
+bool NodeParamViewItemBody::DeleteSelected()
+{
+  for (auto it = input_ui_map_.cbegin(); it != input_ui_map_.cend(); it++) {
+    if (it->connected_label && it->connected_label->DeleteSelected()) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void NodeParamViewItemBody::ReplaceWidgets(const NodeInput &input)

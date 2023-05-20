@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/nodevaluetree/nodevaluetree.cpp
   widget/nodevaluetree/nodevaluetree.h
+  widget/nodevaluetree/valueswizzlewidget.cpp
+  widget/nodevaluetree/valueswizzlewidget.h
   PARENT_SCOPE
 )
