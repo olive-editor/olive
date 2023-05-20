@@ -97,7 +97,7 @@ public:
     component_t(const std::vector<component_t> &t) { abort(); }
 
     template <typename T>
-    T get(bool *ok = nullptr) const
+    T get() const
     {
       T t = T();
 

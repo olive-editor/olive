@@ -462,13 +462,11 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
 
   NodeKeyframe *tip_item = GetSelectedKeyframes().front();
 
-  bool ok;
-  double num_value = tip_item->value().get<double>(&ok);
-
-  if (ok) {
+  try {
+    double num_value = tip_item->value().get<double>();
     tip = QStringLiteral("%1\n");
     tip.append(FloatSlider::ValueToString(num_value + GetOffsetFromKeyframe(tip_item), GetFloatDisplayTypeFromKeyframe(tip_item), 2, true));
-  }
+  } catch (std::bad_any_cast &e) {}
 }
 
 void CurveView::KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command)
