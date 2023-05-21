@@ -36,7 +36,24 @@ public:
     kOpSubtract,
     kOpMultiply,
     kOpDivide,
-    kOpPower
+
+    kOpPower,
+
+    kOpSine,
+    kOpCosine,
+    kOpTangent,
+
+    kOpArcSine,
+    kOpArcCosine,
+    kOpArcTangent,
+
+    kOpHypSine,
+    kOpHypCosine,
+    kOpHypTangent,
+
+    kOpMin,
+    kOpMax,
+    kOpClamp
   };
 
   NODE_DEFAULT_FUNCTIONS(MathNode)
@@ -52,6 +69,8 @@ public:
 
   static QString GetOperationName(Operation o);
 
+  static ShaderCode GetShaderCode(const QString &id);
+
   static const QString kMethodIn;
   static const QString kParamAIn;
   static const QString kParamBIn;
@@ -59,10 +78,13 @@ public:
 
   static void ProcessSamplesDouble(const void *context, const SampleJob &job, SampleBuffer &mixed_samples);
 
-private:
-  typedef value_t (*operation_t)(const value_t &a, const value_t &b);
+protected:
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  static std::map<Operation, std::map< type_t, std::map<type_t, operation_t> > > operations_;
+private:
+  typedef value_t (*operation_t)(const value_t &a, const value_t &b, const value_t &c);
+
+  static std::map<Operation, std::map< type_t, std::map<type_t, std::map<type_t, operation_t>> > > operations_;
 
   static void PopulateOperations();
 
@@ -70,6 +92,12 @@ private:
 
   static void OperateSampleNumber(Operation operation, const float *input, float *output, float b, size_t start, size_t end);
   static void OperateSampleSample(Operation operation, const float *input, float *output, const float *input2, size_t start, size_t end);
+
+  static int GetNumberOfOperands(Operation o);
+
+  Operation GetOperation() const;
+
+  void UpdateInputVisibility();
 
 };
 

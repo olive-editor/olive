@@ -28,20 +28,34 @@ namespace olive {
 class Math
 {
 public:
-  static value_t AddIntegerInteger(const value_t &a, const value_t &b);
+  static value_t AddDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t SubtractDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t MultiplyDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t DivideDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t PowerDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
 
-  static value_t AddDoubleDouble(const value_t &a, const value_t &b);
-  static value_t SubtractDoubleDouble(const value_t &a, const value_t &b);
-  static value_t MultiplyDoubleDouble(const value_t &a, const value_t &b);
-  static value_t DivideDoubleDouble(const value_t &a, const value_t &b);
-  static value_t PowerDoubleDouble(const value_t &a, const value_t &b);
+  static value_t SineDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t CosineDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t TangentDouble(const value_t &a, const value_t &b, const value_t &c);
 
-  static value_t AddMatrixMatrix(const value_t &a, const value_t &b);
-  static value_t SubtractMatrixMatrix(const value_t &a, const value_t &b);
-  static value_t MultiplyMatrixMatrix(const value_t &a, const value_t &b);
+  static value_t ArcSineDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t ArcCosineDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t ArcTangentDouble(const value_t &a, const value_t &b, const value_t &c);
 
-  static value_t MultiplySamplesDouble(const value_t &a, const value_t &b);
-  static value_t MultiplyDoubleSamples(const value_t &a, const value_t &b);
+  static value_t HypSineDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t HypCosineDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t HypTangentDouble(const value_t &a, const value_t &b, const value_t &c);
+
+  static value_t MinDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t MaxDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t ClampDoubleDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+
+  static value_t AddMatrixMatrix(const value_t &a, const value_t &b, const value_t &c);
+  static value_t SubtractMatrixMatrix(const value_t &a, const value_t &b, const value_t &c);
+  static value_t MultiplyMatrixMatrix(const value_t &a, const value_t &b, const value_t &c);
+
+  static value_t MultiplySamplesDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t MultiplyDoubleSamples(const value_t &a, const value_t &b, const value_t &c);
 
 };
 

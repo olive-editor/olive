@@ -31,30 +31,36 @@ const QString MathNode::kParamCIn = QStringLiteral("param_c_in");
 
 #define super Node
 
-std::map<MathNode::Operation, std::map< type_t, std::map<type_t, MathNode::operation_t> > > MathNode::operations_;
+std::map<MathNode::Operation, std::map< type_t, std::map<type_t, std::map<type_t, MathNode::operation_t>> > > MathNode::operations_;
 
 MathNode::MathNode()
 {
   AddInput(kMethodIn, TYPE_COMBO, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kParamAIn, TYPE_DOUBLE, 0.0);
+  AddInput(kParamAIn, TYPE_DOUBLE, 0.0, kInputFlagDontAutoConvert);
   SetInputProperty(kParamAIn, QStringLiteral("decimalplaces"), 8);
   SetInputProperty(kParamAIn, QStringLiteral("autotrim"), true);
 
-  AddInput(kParamBIn, TYPE_DOUBLE, 0.0);
+  AddInput(kParamBIn, TYPE_DOUBLE, 0.0, kInputFlagDontAutoConvert);
   SetInputProperty(kParamBIn, QStringLiteral("decimalplaces"), 8);
   SetInputProperty(kParamBIn, QStringLiteral("autotrim"), true);
+
+  AddInput(kParamCIn, TYPE_DOUBLE, 0.0, kInputFlagDontAutoConvert);
+  SetInputProperty(kParamCIn, QStringLiteral("decimalplaces"), 8);
+  SetInputProperty(kParamCIn, QStringLiteral("autotrim"), true);
 
   if (operations_.empty()) {
     PopulateOperations();
   }
+
+  UpdateInputVisibility();
 }
 
 QString MathNode::Name() const
 {
   // Default to naming after the operation
   if (parent()) {
-    QString name = GetOperationName(static_cast<Operation>(GetStandardValue(kMethodIn).toInt()));
+    QString name = GetOperationName(GetOperation());
     if (!name.isEmpty()) {
       return name;
     }
@@ -83,15 +89,40 @@ void MathNode::Retranslate()
   super::Retranslate();
 
   SetInputName(kMethodIn, tr("Method"));
-  SetInputName(kParamAIn, tr("Value"));
-  SetInputName(kParamBIn, tr("Value"));
 
-  QStringList operations = {GetOperationName(kOpAdd),
-                            GetOperationName(kOpSubtract),
-                            GetOperationName(kOpMultiply),
-                            GetOperationName(kOpDivide),
-                            QString(),
-                            GetOperationName(kOpPower)};
+  SetInputName(kParamAIn, tr("Value"));
+  if (GetOperation() == kOpClamp) {
+    SetInputName(kParamBIn, tr("Minimum"));
+    SetInputName(kParamCIn, tr("Maximum"));
+  } else {
+    SetInputName(kParamBIn, tr("Value"));
+    SetInputName(kParamCIn, tr("Value"));
+  }
+
+  QStringList operations = {
+    GetOperationName(kOpAdd),
+    GetOperationName(kOpSubtract),
+    GetOperationName(kOpMultiply),
+    GetOperationName(kOpDivide),
+    QString(),
+    GetOperationName(kOpPower),
+    QString(),
+    GetOperationName(kOpSine),
+    GetOperationName(kOpCosine),
+    GetOperationName(kOpTangent),
+    QString(),
+    GetOperationName(kOpArcSine),
+    GetOperationName(kOpArcCosine),
+    GetOperationName(kOpArcTangent),
+    QString(),
+    GetOperationName(kOpHypSine),
+    GetOperationName(kOpHypCosine),
+    GetOperationName(kOpHypTangent),
+    QString(),
+    GetOperationName(kOpMin),
+    GetOperationName(kOpMax),
+    GetOperationName(kOpClamp),
+  };
 
   SetComboBoxStrings(kMethodIn, operations);
 }
@@ -187,6 +218,39 @@ void MathNode::OperateSampleNumber(Operation operation, const float *input, floa
       output[start + j] = std::pow(input[start + j], b);
     }
     break;
+  case kOpMin:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_min_ps(_mm_loadu_ps(input + start + j), mult));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = std::min(input[start + j], b);
+    }
+    break;
+  case kOpMax:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_max_ps(_mm_loadu_ps(input + start + j), mult));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = std::max(input[start + j], b);
+    }
+    break;
+
+  // These operations use either more or less than 2 operands and are thus invalid for this function
+  case kOpSine:
+  case kOpCosine:
+  case kOpTangent:
+  case kOpArcSine:
+  case kOpArcCosine:
+  case kOpArcTangent:
+  case kOpHypSine:
+  case kOpHypCosine:
+  case kOpHypTangent:
+  case kOpClamp:
+    break;
   }
 }
 
@@ -248,7 +312,81 @@ void MathNode::OperateSampleSample(Operation operation, const float *input, floa
       output[start + j] = std::pow(input[start + j], input2[start + j]);
     }
     break;
+  case kOpMin:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_min_ps(_mm_loadu_ps(input + start + j), _mm_loadu_ps(input2 + start + j)));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = std::min(input[start + j], input2[start + j]);
+    }
+    break;
+  case kOpMax:
+#ifdef USE_SSE
+    for(size_t j = 0; j < end_divisible_4; j+=4) {
+      _mm_storeu_ps(output + start + j, _mm_max_ps(_mm_loadu_ps(input + start + j), _mm_loadu_ps(input2 + start + j)));
+    }
+#endif
+    for (size_t j = end_divisible_4; j < end; j++) {
+      output[start + j] = std::max(input[start + j], input2[start + j]);
+    }
+    break;
+
+    // These operations use either more or less than 2 operands and are thus invalid for this function
+  case kOpSine:
+  case kOpCosine:
+  case kOpTangent:
+  case kOpArcSine:
+  case kOpArcCosine:
+  case kOpArcTangent:
+  case kOpHypSine:
+  case kOpHypCosine:
+  case kOpHypTangent:
+  case kOpClamp:
+    break;
   }
+}
+
+int MathNode::GetNumberOfOperands(Operation o)
+{
+  switch (o) {
+  case kOpAdd: return 2;
+  case kOpSubtract: return 2;
+  case kOpMultiply: return 2;
+  case kOpDivide: return 2;
+  case kOpPower: return 2;
+  case kOpSine: return 1;
+  case kOpCosine: return 1;
+  case kOpTangent: return 1;
+  case kOpArcSine: return 1;
+  case kOpArcCosine: return 1;
+  case kOpArcTangent: return 1;
+  case kOpHypSine: return 1;
+  case kOpHypCosine: return 1;
+  case kOpHypTangent: return 1;
+  case kOpMin: return 2;
+  case kOpMax: return 2;
+  case kOpClamp: return 3;
+  }
+
+  return 0;
+}
+
+MathNode::Operation MathNode::GetOperation() const
+{
+  return static_cast<Operation>(GetStandardValue(kMethodIn).toInt());
+}
+
+void MathNode::UpdateInputVisibility()
+{
+  int count = GetNumberOfOperands(GetOperation());
+
+  SetInputFlag(kParamAIn, kInputFlagHidden, 0 >= count);
+  SetInputFlag(kParamBIn, kInputFlagHidden, 1 >= count);
+  SetInputFlag(kParamCIn, kInputFlagHidden, 2 >= count);
+
+  Retranslate();
 }
 
 void MathNode::ProcessSamplesDouble(const void *context, const SampleJob &job, SampleBuffer &output)
@@ -282,20 +420,122 @@ void MathNode::ProcessSamplesDouble(const void *context, const SampleJob &job, S
   }
 }
 
+void MathNode::InputValueChangedEvent(const QString &input, int element)
+{
+  if (input == kMethodIn) {
+    UpdateInputVisibility();
+  }
+
+  super::InputValueChangedEvent(input, element);
+}
+
+QString GetShaderUniformType(const type_t &type)
+{
+  if (type == TYPE_TEXTURE) {
+    return QStringLiteral("sampler2D");
+  } else {
+    return QStringLiteral("float");
+  }
+}
+
+QString GetShaderVariableCall(const QString &input_id, const type_t &type, const QString& coord_op = QString())
+{
+  if (type == TYPE_TEXTURE) {
+    return QStringLiteral("texture(%1, ove_texcoord%2)").arg(input_id, coord_op);
+  }
+
+  return input_id;
+}
+
+ShaderCode MathNode::GetShaderCode(const QString &id)
+{
+  QStringList j = id.split(':');
+  if (j.size() != 3) {
+    return ShaderCode();
+  }
+
+  Operation op = static_cast<Operation>(j.at(0).toInt());
+  type_t atype = type_t::fromString(j.at(1));
+  type_t btype = type_t::fromString(j.at(2));
+
+  QString line;
+
+  switch (op) {
+  case kOpAdd: line = QStringLiteral("%1 + %2"); break;
+  case kOpSubtract: line = QStringLiteral("%1 - %2"); break;
+  case kOpMultiply: line = QStringLiteral("%1 * %2"); break;
+  case kOpDivide: line = QStringLiteral("%1 / %2"); break;
+  case kOpPower:
+  case kOpMin:
+  case kOpMax:
+    if (op == kOpPower) {
+      line = QStringLiteral("pow");
+    } else if (op == kOpMin) {
+      line = QStringLiteral("min");
+    } else if (op == kOpMax) {
+      line = QStringLiteral("max");
+    }
+
+    if (atype == TYPE_DOUBLE) {
+      // The "number" in this operation has to be declared a vec4
+      line.append("(%2, vec4(%1))");
+    } else if (btype == TYPE_DOUBLE) {
+      line.append("(%1, vec4(%2))");
+    } else {
+      line.append("(%1, %2)");
+    }
+    break;
+  case kOpSine: line = QStringLiteral("sin(%1)"); break;
+  case kOpCosine: line = QStringLiteral("cos(%1)"); break;
+  case kOpTangent: line = QStringLiteral("tan(%1)"); break;
+  case kOpArcSine: line = QStringLiteral("asin(%1)"); break;
+  case kOpArcCosine: line = QStringLiteral("acos(%1)"); break;
+  case kOpArcTangent: line = QStringLiteral("atan(%1)"); break;
+  case kOpHypSine: line = QStringLiteral("sinh(%1)"); break;
+  case kOpHypCosine: line = QStringLiteral("cosh(%1)"); break;
+  case kOpHypTangent: line = QStringLiteral("tanh(%1)"); break;
+  case kOpClamp:
+    qWarning() << "texture clamping is currently a stub!";
+    break;
+  }
+
+  line = line.arg(GetShaderVariableCall(kParamAIn, atype),
+                  GetShaderVariableCall(kParamBIn, btype));
+
+  static const QString stub =
+      QStringLiteral("uniform %1 %3;\n"
+                     "uniform %2 %4;\n"
+                     "\n"
+                     "in vec2 ove_texcoord;\n"
+                     "out vec4 frag_color;\n"
+                     "\n"
+                     "void main(void) {\n"
+                     "    vec4 c = %5;\n"
+                     "    c.a = clamp(c.a, 0.0, 1.0);\n" // Ensure alpha is between 0.0 and 1.0
+                     "    frag_color = c;\n"
+                     "}\n");
+
+  return stub.arg(GetShaderUniformType(atype),
+                  GetShaderUniformType(btype),
+                  kParamAIn,
+                  kParamBIn,
+                  line);
+}
+
 value_t MathNode::Value(const ValueParams &p) const
 {
   // Auto-detect what values to operate with
   auto aval = GetInputValue(p, kParamAIn);
   auto bval = GetInputValue(p, kParamBIn);
-
-  if (!bval.isValid()) {
-    return aval;
-  }
-  if (!aval.isValid()) {
-    return bval;
-  }
+  auto cval = GetInputValue(p, kParamCIn);
 
   Operation operation = static_cast<Operation>(GetInputValue(p, kMethodIn).toInt());
+  int count = GetNumberOfOperands(operation);
+
+  // Null values if we aren't listening so the function-lookup is more reliable
+  if (count < 1) { aval = value_t(); }
+  if (count < 2) { bval = value_t(); }
+  if (count < 3) { cval = value_t(); }
 
   if (aval.type() == TYPE_SAMPLES || bval.type() == TYPE_SAMPLES) {
     if (aval.type() == TYPE_SAMPLES && bval.type() == TYPE_SAMPLES) {
@@ -320,12 +560,15 @@ value_t MathNode::Value(const ValueParams &p) const
       return job;
     }
   } else if (aval.type() == TYPE_TEXTURE || bval.type() == TYPE_TEXTURE) {
-    // FIXME: Requires a more complex shader job
+    // Produce shader job
+    ShaderJob job = CreateShaderJob(p, GetShaderCode);
+    job.SetShaderID(QStringLiteral("%1:%2:%3").arg(QString::number(operation), aval.type().toString(), bval.type().toString()));
+    return Texture::Job(aval.type() == TYPE_TEXTURE ? aval.toTexture()->params() : bval.toTexture()->params(), job);
   } else {
     // Operation can be done entirely here
-    operation_t func = operations_[operation][aval.type()][bval.type()];
+    operation_t func = operations_[operation][aval.type()][bval.type()][cval.type()];
     if (func) {
-      return func(aval, bval);
+      return func(aval, bval, cval);
     }
   }
 
@@ -340,6 +583,18 @@ QString MathNode::GetOperationName(Operation o)
   case kOpMultiply: return tr("Multiply");
   case kOpDivide: return tr("Divide");
   case kOpPower: return tr("Power");
+  case kOpSine: return tr("Sine");
+  case kOpCosine: return tr("Cosine");
+  case kOpTangent: return tr("Tangent");
+  case kOpArcSine: return tr("Inverse Sine");
+  case kOpArcCosine: return tr("Inverse Cosine");
+  case kOpArcTangent: return tr("Inverse Tangent");
+  case kOpHypSine: return tr("Hyperbolic Sine");
+  case kOpHypCosine: return tr("Hyperbolic Cosine");
+  case kOpHypTangent: return tr("Hyperbolic Tangent");
+  case kOpMin: return tr("Minimum");
+  case kOpMax: return tr("Maximum");
+  case kOpClamp: return tr("Clamp");
   }
 
   return QString();
@@ -347,17 +602,31 @@ QString MathNode::GetOperationName(Operation o)
 
 void MathNode::PopulateOperations()
 {
-  operations_[kOpAdd][TYPE_INTEGER][TYPE_INTEGER] = Math::AddIntegerInteger;
+  operations_[kOpAdd][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::AddDoubleDouble;
+  operations_[kOpSubtract][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::SubtractDoubleDouble;
+  operations_[kOpMultiply][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::MultiplyDoubleDouble;
+  operations_[kOpDivide][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::DivideDoubleDouble;
+  operations_[kOpPower][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::PowerDoubleDouble;
 
-  operations_[kOpAdd][TYPE_DOUBLE][TYPE_DOUBLE] = Math::AddDoubleDouble;
-  operations_[kOpSubtract][TYPE_DOUBLE][TYPE_DOUBLE] = Math::SubtractDoubleDouble;
-  operations_[kOpMultiply][TYPE_DOUBLE][TYPE_DOUBLE] = Math::MultiplyDoubleDouble;
-  operations_[kOpDivide][TYPE_DOUBLE][TYPE_DOUBLE] = Math::DivideDoubleDouble;
-  operations_[kOpPower][TYPE_DOUBLE][TYPE_DOUBLE] = Math::PowerDoubleDouble;
+  operations_[kOpSine][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::SineDouble;
+  operations_[kOpCosine][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::CosineDouble;
+  operations_[kOpTangent][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::TangentDouble;
 
-  operations_[kOpAdd][TYPE_MATRIX][TYPE_MATRIX] = Math::AddMatrixMatrix;
-  operations_[kOpSubtract][TYPE_MATRIX][TYPE_MATRIX] = Math::SubtractMatrixMatrix;
-  operations_[kOpMultiply][TYPE_MATRIX][TYPE_MATRIX] = Math::MultiplyMatrixMatrix;
+  operations_[kOpArcSine][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::ArcSineDouble;
+  operations_[kOpArcCosine][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::ArcCosineDouble;
+  operations_[kOpArcTangent][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::ArcTangentDouble;
+
+  operations_[kOpHypSine][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::HypSineDouble;
+  operations_[kOpHypCosine][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::HypCosineDouble;
+  operations_[kOpHypTangent][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::HypTangentDouble;
+
+  operations_[kOpMin][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::MinDoubleDouble;
+  operations_[kOpMax][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::MaxDoubleDouble;
+  operations_[kOpClamp][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_DOUBLE] = Math::ClampDoubleDoubleDouble;
+
+  operations_[kOpAdd][TYPE_MATRIX][TYPE_MATRIX][TYPE_NONE] = Math::AddMatrixMatrix;
+  operations_[kOpSubtract][TYPE_MATRIX][TYPE_MATRIX][TYPE_NONE] = Math::SubtractMatrixMatrix;
+  operations_[kOpMultiply][TYPE_MATRIX][TYPE_MATRIX][TYPE_NONE] = Math::MultiplyMatrixMatrix;
 }
 
 }

@@ -22,16 +22,7 @@
 
 namespace olive {
 
-value_t Math::AddIntegerInteger(const value_t &a, const value_t &b)
-{
-  value_t v(TYPE_INTEGER, std::max(a.size(), b.size()));
-  for (size_t i = 0; i < v.size(); i++) {
-    v[i] = a.value<int64_t>(i) + b.value<int64_t>(i);
-  }
-  return v;
-}
-
-value_t Math::AddDoubleDouble(const value_t &a, const value_t &b)
+value_t Math::AddDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
@@ -40,7 +31,7 @@ value_t Math::AddDoubleDouble(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::SubtractDoubleDouble(const value_t &a, const value_t &b)
+value_t Math::SubtractDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
@@ -49,7 +40,7 @@ value_t Math::SubtractDoubleDouble(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::MultiplyDoubleDouble(const value_t &a, const value_t &b)
+value_t Math::MultiplyDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
@@ -58,7 +49,7 @@ value_t Math::MultiplyDoubleDouble(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::DivideDoubleDouble(const value_t &a, const value_t &b)
+value_t Math::DivideDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
@@ -67,7 +58,7 @@ value_t Math::DivideDoubleDouble(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::PowerDoubleDouble(const value_t &a, const value_t &b)
+value_t Math::PowerDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
@@ -76,7 +67,115 @@ value_t Math::PowerDoubleDouble(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::AddMatrixMatrix(const value_t &a, const value_t &b)
+value_t Math::SineDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::sin(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::CosineDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::cos(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::TangentDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::tan(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::ArcSineDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::asin(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::ArcCosineDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::acos(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::ArcTangentDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::atan(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::HypSineDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::sinh(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::HypCosineDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::cosh(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::HypTangentDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::tanh(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::MinDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::min(a.value<double>(i), b.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::MaxDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::max(a.value<double>(i), b.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::ClampDoubleDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::clamp(a.value<double>(i), b.value<double>(i), c.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::AddMatrixMatrix(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_MATRIX, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
@@ -85,7 +184,7 @@ value_t Math::AddMatrixMatrix(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::SubtractMatrixMatrix(const value_t &a, const value_t &b)
+value_t Math::SubtractMatrixMatrix(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_MATRIX, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
@@ -94,7 +193,7 @@ value_t Math::SubtractMatrixMatrix(const value_t &a, const value_t &b)
   return v;
 }
 
-value_t Math::MultiplyMatrixMatrix(const value_t &a, const value_t &b)
+value_t Math::MultiplyMatrixMatrix(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_MATRIX, std::max(a.size(), b.size()));
   for (size_t i = 0; i < v.size(); i++) {
