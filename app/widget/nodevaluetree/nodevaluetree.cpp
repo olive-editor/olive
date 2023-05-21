@@ -69,7 +69,7 @@ void NodeValueTree::SetNode(const NodeInput &input)
       swizzler_items->setFlags(Qt::NoItemFlags);
 
       ValueSwizzleWidget *b = new ValueSwizzleWidget();
-      b->set_channels(4, 4);
+      b->set_channels(4, input.GetChannelCount());
       b->set(vh.swizzle());
       connect(b, &ValueSwizzleWidget::value_changed, this, &NodeValueTree::SwizzleChanged);
       this->setItemWidget(swizzler_items, 1, b);
