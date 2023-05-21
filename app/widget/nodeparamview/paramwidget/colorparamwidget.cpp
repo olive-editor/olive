@@ -20,70 +20,59 @@
 
 #include "colorparamwidget.h"
 
+#include "node/project.h"
 #include "widget/colorbutton/colorbutton.h"
 
 namespace olive {
 
-ColorParamWidget::ColorParamWidget(QObject *parent)
-  : AbstractParamWidget{parent}
+ColorParamWidget::ColorParamWidget(const NodeInput &input, QObject *parent)
+  : AbstractParamWidget{parent},
+    input_(input)
 {
 
 }
 
 void ColorParamWidget::Initialize(QWidget *parent, size_t channels)
 {
-  qDebug() << "CPW::Initialize - stub";
-  /*
-  for (size_t i = 0; i < channels; i++) {
-    ColorButton* color_button = new ColorButton(project()->color_manager(), parent);
-    AddWidget(color_button);
-    connect(color_button, &ColorButton::ColorChanged, this, &ColorParamWidget::Arbitrate);
-  }
-  */
+  Q_ASSERT(channels == 4);
+
+  ColorButton* color_button = new ColorButton(input_.node()->project()->color_manager(), parent);
+  AddWidget(color_button);
+  connect(color_button, &ColorButton::ColorChanged, this, &ColorParamWidget::Arbitrate);
 }
 
 void ColorParamWidget::SetValue(const value_t &val)
 {
-  qDebug() << "CPW::SetValue - stub";
-  /*
-  ManagedColor mc = val.value<Color>();
+  ManagedColor mc = val.toColor();
 
-  mc.set_color_input(GetInnerInput().GetProperty("col_input").toString());
+  mc.set_color_input(input_.GetProperty("col_input").toString());
 
-  QString d = GetInnerInput().GetProperty("col_display").toString();
-  QString v = GetInnerInput().GetProperty("col_view").toString();
-  QString l = GetInnerInput().GetProperty("col_look").toString();
+  QString d = input_.GetProperty("col_display").toString();
+  QString v = input_.GetProperty("col_view").toString();
+  QString l = input_.GetProperty("col_look").toString();
 
   mc.set_color_output(ColorTransform(d, v, l));
 
   static_cast<ColorButton*>(GetWidgets().at(0))->SetColor(mc);
-  */
 }
 
 void ColorParamWidget::Arbitrate()
 {
-  qDebug() << "CPW::Arbitrate - stub";
-  /*
   // Sender is a ColorButton
   ManagedColor c = static_cast<ColorButton*>(sender())->GetColor();
 
-  MultiUndoCommand* command = new MultiUndoCommand();
+  emit ChannelValueChanged(0, double(c.red()));
+  emit ChannelValueChanged(1, double(c.green()));
+  emit ChannelValueChanged(2, double(c.blue()));
+  emit ChannelValueChanged(3, double(c.alpha()));
 
-  SetInputValueInternal(c.red(), 0, command, false);
-  SetInputValueInternal(c.green(), 1, command, false);
-  SetInputValueInternal(c.blue(), 2, command, false);
-  SetInputValueInternal(c.alpha(), 3, command, false);
-
-  Node* n = GetInnerInput().node();
+  Node* n = input_.node();
   n->blockSignals(true);
-  n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_input"), c.color_input());
-  n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_display"), c.color_output().display());
-  n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_view"), c.color_output().view());
-  n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_look"), c.color_output().look());
+  n->SetInputProperty(input_.input(), QStringLiteral("col_input"), c.color_input());
+  n->SetInputProperty(input_.input(), QStringLiteral("col_display"), c.color_output().display());
+  n->SetInputProperty(input_.input(), QStringLiteral("col_view"), c.color_output().view());
+  n->SetInputProperty(input_.input(), QStringLiteral("col_look"), c.color_output().look());
   n->blockSignals(false);
-
-  Core::instance()->undo_stack()->push(command, GetCommandName());
-  */
 }
 
 }

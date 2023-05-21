@@ -22,6 +22,7 @@
 #define COLORPARAMWIDGET_H
 
 #include "abstractparamwidget.h"
+#include "node/color/colormanager/colormanager.h"
 
 namespace olive {
 
@@ -29,11 +30,14 @@ class ColorParamWidget : public AbstractParamWidget
 {
   Q_OBJECT
 public:
-  explicit ColorParamWidget(QObject *parent = nullptr);
+  explicit ColorParamWidget(const NodeInput &input, QObject *parent = nullptr);
 
   virtual void Initialize(QWidget *parent, size_t channels) override;
 
   virtual void SetValue(const value_t &val) override;
+
+private:
+  NodeInput input_;
 
 private slots:
   void Arbitrate();

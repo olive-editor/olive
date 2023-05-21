@@ -93,7 +93,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       widget_ = new RationalSliderParamWidget(this);
     } else if (t == TYPE_DOUBLE) {
       if (type == QStringLiteral("color")) {
-        widget_ = new ColorParamWidget(this);
+        widget_ = new ColorParamWidget(GetInnerInput(), this);
       } else if (type == QStringLiteral("bezier")) {
         widget_ = new BezierParamWidget(this);
       } else {

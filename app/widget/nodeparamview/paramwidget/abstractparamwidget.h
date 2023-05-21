@@ -49,8 +49,6 @@ public:
   virtual void SetTimebase(const rational &timebase){}
 
 signals:
-  void ValueChanged(const olive::value_t &val);
-
   void ChannelValueChanged(size_t channel, const olive::value_t::component_t &val);
 
   void SliderDragged(NumericSliderBase *slider, size_t track);
