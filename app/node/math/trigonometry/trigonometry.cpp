@@ -32,6 +32,9 @@ TrigonometryNode::TrigonometryNode()
   AddInput(kMethodIn, TYPE_COMBO, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
   AddInput(kXIn, TYPE_DOUBLE, 0.0);
+
+  // Deprecated: Use Math instead, which implements trig functions now too
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString TrigonometryNode::Name() const

@@ -66,6 +66,9 @@ TransformDistortNode::TransformDistortNode()
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
+
+  // Undo MatrixGenerator deprecation flag for derivative
+  SetFlag(kDontShowInCreateMenu, false);
 }
 
 void TransformDistortNode::Retranslate()

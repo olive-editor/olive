@@ -49,6 +49,9 @@ MatrixGenerator::MatrixGenerator()
   AddInput(kUniformScaleInput, TYPE_BOOL, true, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
   AddInput(kAnchorInput, TYPE_VEC2, QVector2D(0.0, 0.0));
+
+  // Deprecated: Use Transform instead, which now outputs a matrix too
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString MatrixGenerator::Name() const
