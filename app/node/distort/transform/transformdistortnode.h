@@ -86,6 +86,7 @@ public:
   static const QString kTextureInput;
   static const QString kAutoscaleInput;
   static const QString kInterpolationInput;
+  static const QString kMatrixOutput;
 
 protected slots:
   virtual void GizmoDragStart(const olive::ValueParams &p, double x, double y, const olive::rational &time) override;

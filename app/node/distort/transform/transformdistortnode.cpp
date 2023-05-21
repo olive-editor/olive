@@ -28,6 +28,7 @@ const QString TransformDistortNode::kParentInput = QStringLiteral("parent_in");
 const QString TransformDistortNode::kTextureInput = QStringLiteral("tex_in");
 const QString TransformDistortNode::kAutoscaleInput = QStringLiteral("autoscale_in");
 const QString TransformDistortNode::kInterpolationInput = QStringLiteral("interpolation_in");
+const QString TransformDistortNode::kMatrixOutput = QStringLiteral("matrix_out");
 
 #define super MatrixGenerator
 
@@ -67,6 +68,8 @@ TransformDistortNode::TransformDistortNode()
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 
+  AddOutput(kMatrixOutput);
+
   // Undo MatrixGenerator deprecation flag for derivative
   SetFlag(kDontShowInCreateMenu, false);
 }
@@ -82,6 +85,8 @@ void TransformDistortNode::Retranslate()
 
   SetComboBoxStrings(kAutoscaleInput, {tr("None"), tr("Fit"), tr("Fill"), tr("Stretch")});
   SetComboBoxStrings(kInterpolationInput, {tr("Nearest Neighbor"), tr("Bilinear"), tr("Mipmapped Bilinear")});
+
+  SetOutputName(kMatrixOutput, tr("Matrix"));
 }
 
 ShaderCode TransformDistortNode::GetShaderCode(const QString &id)
@@ -95,36 +100,38 @@ value_t TransformDistortNode::Value(const ValueParams &p) const
   // Generate matrix
   QMatrix4x4 generated_matrix = GenerateMatrix(p, false, false, false, GetInputValue(p, kParentInput).toMatrix());
 
-  // Pop texture
-  value_t texture_meta = GetInputValue(p, kTextureInput);
-
-  TexturePtr job_to_push = nullptr;
-
-  // If we have a texture, generate a matrix and make it happen
-  if (TexturePtr texture = texture_meta.toTexture()) {
-    // Adjust our matrix by the resolutions involved
-    QMatrix4x4 real_matrix = GenerateAutoScaledMatrix(generated_matrix, p, texture->params());
-
-    if (!real_matrix.isIdentity()) {
-      // The matrix will transform things
-      ShaderJob job;
-      job.Insert(QStringLiteral("ove_maintex"), texture_meta);
-      job.Insert(QStringLiteral("ove_mvpmat"), real_matrix);
-      job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(GetInputValue(p, kInterpolationInput).toInt()));
-      job.set_function(GetShaderCode);
-
-      // Use global resolution rather than texture resolution because this may result in a size change
-      job_to_push = Texture::Job(p.vparams(), job);
-    }
-  }
-
-  //table->Push(NodeValue::kMatrix, QVariant::fromValue(generated_matrix), this);
-
-  if (!job_to_push) {
-    // Re-push whatever value we received
-    return texture_meta;
+  if (p.output() == kMatrixOutput) {
+    return generated_matrix;
   } else {
-    return job_to_push;
+    // Pop texture
+    value_t texture_meta = GetInputValue(p, kTextureInput);
+
+    TexturePtr job_to_push = nullptr;
+
+    // If we have a texture, generate a matrix and make it happen
+    if (TexturePtr texture = texture_meta.toTexture()) {
+      // Adjust our matrix by the resolutions involved
+      QMatrix4x4 real_matrix = GenerateAutoScaledMatrix(generated_matrix, p, texture->params());
+
+      if (!real_matrix.isIdentity()) {
+        // The matrix will transform things
+        ShaderJob job;
+        job.Insert(QStringLiteral("ove_maintex"), texture_meta);
+        job.Insert(QStringLiteral("ove_mvpmat"), real_matrix);
+        job.SetInterpolation(QStringLiteral("ove_maintex"), static_cast<Texture::Interpolation>(GetInputValue(p, kInterpolationInput).toInt()));
+        job.set_function(GetShaderCode);
+
+        // Use global resolution rather than texture resolution because this may result in a size change
+        job_to_push = Texture::Job(p.vparams(), job);
+      }
+    }
+
+    if (!job_to_push) {
+      // Re-push whatever value we received
+      return texture_meta;
+    } else {
+      return job_to_push;
+    }
   }
 }
 
