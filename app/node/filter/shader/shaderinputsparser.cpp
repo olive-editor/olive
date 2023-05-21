@@ -143,7 +143,7 @@ ShaderInputsParser::ShaderInputsParser( const QString & shader_code) :
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_DEFAULT_REGEX, & ShaderInputsParser::parseInputDefault);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_DESCRIPTION_REGEX, & ShaderInputsParser::parseInputDescription);
 
-  INPUT_PARAM_PARSE_TABLE.insert( & STOP_PARSE_REGEX, & ShaderInputsParser::parseInputUniform);
+  INPUT_PARAM_PARSE_TABLE.insert( & STOP_PARSE_REGEX, & ShaderInputsParser::stopParse);
 }
 
 void ShaderInputsParser::Parse()
