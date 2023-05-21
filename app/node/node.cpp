@@ -906,6 +906,18 @@ value_t Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QS
           v = swiz;
         }
 
+        // Perform conversion if necessary
+        type_t expected_type = this->GetInputDataType(input);
+        if (expected_type != TYPE_NONE && expected_type != v.type() && !(this->GetInputFlags(input) & kInputFlagDontAutoConvert)) {
+          bool ok;
+          v = v.converted(expected_type, &ok);
+          if (!ok) {
+            // Return null value instead of converted value because node is probably not set up to
+            // handle this type (unless kInputFlagDontAutoConvert is specified of course)
+            v = value_t();
+          }
+        }
+
         return v;
       } else {
         output = output->GetConnectedOutput(output->GetEffectInput());

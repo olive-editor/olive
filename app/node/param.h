@@ -82,6 +82,7 @@ static const InputFlag kInputFlagNotKeyframable = InputFlag(0x2);
 static const InputFlag kInputFlagNotConnectable = InputFlag(0x4);
 static const InputFlag kInputFlagHidden = InputFlag(0x8);
 static const InputFlag kInputFlagIgnoreInvalidations = InputFlag(0x10);
+static const InputFlag kInputFlagDontAutoConvert = InputFlag(0x20);
 static const InputFlag kInputFlagStatic = kInputFlagNotKeyframable | kInputFlagNotConnectable;
 
 struct NodeInputPair
