@@ -196,8 +196,8 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
-    x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
-    y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
+    x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
 
   } else if (gizmo == anchor_gizmo_) {
 
@@ -208,10 +208,10 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
 
     QPointF inverted_movement(gizmo_inverted_transform_.map(QPointF(x, y)));
 
-    x_anchor_drag.Drag(x_anchor_drag.GetStartValue().get<double>() + inverted_movement.x());
-    y_anchor_drag.Drag(y_anchor_drag.GetStartValue().get<double>() + inverted_movement.y());
-    x_pos_drag.Drag(x_pos_drag.GetStartValue().get<double>() + x);
-    y_pos_drag.Drag(y_pos_drag.GetStartValue().get<double>() + y);
+    x_anchor_drag.Drag(x_anchor_drag.GetStartValue().value<double>() + inverted_movement.x());
+    y_anchor_drag.Drag(y_anchor_drag.GetStartValue().value<double>() + inverted_movement.y());
+    x_pos_drag.Drag(x_pos_drag.GetStartValue().value<double>() + x);
+    y_pos_drag.Drag(y_pos_drag.GetStartValue().value<double>() + y);
 
   } else if (gizmo == rotation_gizmo_) {
 
@@ -248,7 +248,7 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
     double rotation_difference = (current_angle - gizmo_start_angle_) * 57.2958;
 
     NodeInputDragger &d = gizmo->GetDraggers()[0];
-    d.Drag(d.GetStartValue().get<double>() + rotation_difference);
+    d.Drag(d.GetStartValue().value<double>() + rotation_difference);
 
   } else if (IsAScaleGizmo(gizmo)) {
 

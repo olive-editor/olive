@@ -143,8 +143,8 @@ void CornerPinDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
   if (gizmo != gizmo_whole_rect_) {
-    gizmo->GetDraggers()[0].Drag(gizmo->GetDraggers()[0].GetStartValue().get<double>() + x);
-    gizmo->GetDraggers()[1].Drag(gizmo->GetDraggers()[1].GetStartValue().get<double>() + y);
+    gizmo->GetDraggers()[0].Drag(gizmo->GetDraggers()[0].GetStartValue().value<double>() + x);
+    gizmo->GetDraggers()[1].Drag(gizmo->GetDraggers()[1].GetStartValue().value<double>() + y);
   }
 }
 

@@ -634,27 +634,24 @@ void RenderProcessor::ResolveJobs(value_t &val)
 
   } else if (val.type() == TYPE_SAMPLES) {
 
-    try {
-      SampleJob job = val.value<SampleJob>();
+    SampleJob sjob;
+    FootageJob fjob;
 
-      for (auto it=job.GetValues().begin(); it!=job.GetValues().end(); it++) {
+    if (val.get(&sjob)) {
+      for (auto it=sjob.GetValues().begin(); it!=sjob.GetValues().end(); it++) {
         // Jobs will almost always be submitted with one of these types
         value_t &subval = it.value();
         ResolveJobs(subval);
       }
 
-      SampleBuffer output_buffer = CreateSampleBuffer(job.audio_params(), job.sample_count());
-      ProcessSamples(output_buffer, job);
+      SampleBuffer output_buffer = CreateSampleBuffer(sjob.audio_params(), sjob.sample_count());
+      ProcessSamples(output_buffer, sjob);
       val = value_t(TYPE_SAMPLES, output_buffer);
-    } catch (std::bad_any_cast &e) {}
-
-    try {
-      FootageJob job = val.value<FootageJob>();
-      SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
-      ProcessAudioFootage(buffer, &job, job.time());
+    } else if (val.get(&fjob)) {
+      SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), fjob.time().length());
+      ProcessAudioFootage(buffer, &fjob, fjob.time());
       val = value_t(TYPE_SAMPLES, buffer);
-    } catch (std::bad_any_cast &e) {}
-
+    }
   }
 }
 

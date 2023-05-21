@@ -192,8 +192,8 @@ void BlurFilterNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifie
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
-    x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
-    y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
+    x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
 
   }
 }

@@ -481,14 +481,14 @@ value_t::component_t Node::GetSplitValueAtTimeOnTrack(const QString &input, cons
 
         double before_val, after_val, interpolated;
         if (type == TYPE_RATIONAL) {
-          before_val = before->value().get<rational>().toDouble();
-          after_val = after->value().get<rational>().toDouble();
+          before_val = before->value().value<rational>().toDouble();
+          after_val = after->value().value<rational>().toDouble();
         } else if (type == TYPE_INTEGER) {
-          before_val = before->value().get<int64_t>();
-          after_val = after->value().get<int64_t>();
+          before_val = before->value().value<int64_t>();
+          after_val = after->value().value<int64_t>();
         } else {
-          before_val = before->value().get<double>();
-          after_val = after->value().get<double>();
+          before_val = before->value().value<double>();
+          after_val = after->value().value<double>();
         }
 
         if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
@@ -1678,9 +1678,9 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
     // FIXME: We now have converters for custom types, so this should be handled with those instead.
     //        It'll probably require bumping the project version though...
     if (data_type == ViewerOutput::TYPE_VPARAM) {
-      v.get<VideoParams>().Save(writer);
+      v.value<VideoParams>().Save(writer);
     } else if (data_type == ViewerOutput::TYPE_APARAM) {
-      TypeSerializer::SaveAudioParams(writer, v.get<AudioParams>());
+      TypeSerializer::SaveAudioParams(writer, v.value<AudioParams>());
     } else {
       writer->writeCharacters(v.toSerializedString(data_type));
     }

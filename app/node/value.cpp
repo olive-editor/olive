@@ -63,7 +63,7 @@ QString value_t::toSerializedString() const
   if (this->type() == TYPE_STRING) {
     QStringList l;
     for (auto it = data_.cbegin(); it != data_.cend(); it++) {
-      l.append(it->get<QString>());
+      l.append(it->value<QString>());
     }
     return l.join(CHANNEL_SPLITTER);
   } else {
@@ -106,72 +106,72 @@ value_t value_t::converted(type_t to, bool *ok) const
 
 value_t::component_t converter_IntegerToString(const value_t::component_t &v)
 {
-  return QString::number(v.get<int64_t>());
+  return QString::number(v.value<int64_t>());
 }
 
 value_t::component_t converter_StringToInteger(const value_t::component_t &v)
 {
-  return int64_t(v.get<QString>().toLongLong());
+  return int64_t(v.value<QString>().toLongLong());
 }
 
 value_t::component_t converter_DoubleToString(const value_t::component_t &v)
 {
-  return QString::number(v.get<double>());
+  return QString::number(v.value<double>());
 }
 
 value_t::component_t converter_StringToDouble(const value_t::component_t &v)
 {
-  return v.get<QString>().toDouble();
+  return v.value<QString>().toDouble();
 }
 
 value_t::component_t converter_RationalToString(const value_t::component_t &v)
 {
-  return QString::fromStdString(v.get<rational>().toString());
+  return QString::fromStdString(v.value<rational>().toString());
 }
 
 value_t::component_t converter_StringToRational(const value_t::component_t &v)
 {
-  return rational::fromString(v.get<QString>().toStdString());
+  return rational::fromString(v.value<QString>().toStdString());
 }
 
 value_t::component_t converter_BinaryToString(const value_t::component_t &v)
 {
-  return QString::fromLatin1(v.get<QByteArray>().toBase64());
+  return QString::fromLatin1(v.value<QByteArray>().toBase64());
 }
 
 value_t::component_t converter_StringToBinary(const value_t::component_t &v)
 {
-  return QByteArray::fromBase64(v.get<QString>().toLatin1());
+  return QByteArray::fromBase64(v.value<QString>().toLatin1());
 }
 
 value_t::component_t converter_IntegerToDouble(const value_t::component_t &v)
 {
-  return double(v.get<int64_t>());
+  return double(v.value<int64_t>());
 }
 
 value_t::component_t converter_IntegerToRational(const value_t::component_t &v)
 {
-  return rational(v.get<int64_t>());
+  return rational(v.value<int64_t>());
 }
 
 value_t::component_t converter_DoubleToInteger(const value_t::component_t &v)
 {
-  return int64_t(v.get<double>());
+  return int64_t(v.value<double>());
 }
 
 value_t::component_t converter_DoubleToRational(const value_t::component_t &v)
 {
-  return rational::fromDouble(v.get<double>());
+  return rational::fromDouble(v.value<double>());
 }
 
 value_t::component_t converter_RationalToInteger(const value_t::component_t &v)
 {
-  return int64_t(v.get<rational>().toDouble());
+  return int64_t(v.value<rational>().toDouble());
 }
 
 value_t::component_t converter_RationalToDouble(const value_t::component_t &v)
 {
-  return v.get<rational>().toDouble();
+  return v.value<rational>().toDouble();
 }
 
 void value_t::registerConverter(const type_t &from, const type_t &to, Converter_t converter)
@@ -229,10 +229,10 @@ value_t::component_t value_t::component_t::fromSerializedString(type_t to, const
 QString value_t::component_t::toSerializedString(type_t from) const
 {
   if (from == TYPE_STRING) {
-    return get<QString>();
+    return value<QString>();
   } else {
     component_t c = this->converted(from, TYPE_STRING);
-    return c.get<QString>();
+    return c.value<QString>();
   }
 }
 

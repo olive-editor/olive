@@ -126,8 +126,8 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
   NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
   if (gizmo == poly_gizmo_) {
-    x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
-    y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
+    x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
   } else {
     bool from_center = modifiers & Qt::AltModifier;
     bool keep_ratio = modifiers & Qt::ShiftModifier;
@@ -135,8 +135,8 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
     NodeInputDragger &w_drag = gizmo->GetDraggers()[2];
     NodeInputDragger &h_drag = gizmo->GetDraggers()[3];
 
-    QVector2D gizmo_sz_start(w_drag.GetStartValue().get<double>(), h_drag.GetStartValue().get<double>());
-    QVector2D gizmo_pos_start(x_drag.GetStartValue().get<double>(), y_drag.GetStartValue().get<double>());
+    QVector2D gizmo_sz_start(w_drag.GetStartValue().value<double>(), h_drag.GetStartValue().value<double>());
+    QVector2D gizmo_pos_start(x_drag.GetStartValue().value<double>(), y_drag.GetStartValue().value<double>());
     QVector2D gizmo_half_res = gizmo->GetGlobals().square_resolution()/2;
     QVector2D adjusted_pt(x, y);
     QVector2D new_size;
@@ -147,7 +147,7 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
 
     double original_ratio;
     if (keep_ratio) {
-      original_ratio = w_drag.GetStartValue().get<double>() / h_drag.GetStartValue().get<double>();
+      original_ratio = w_drag.GetStartValue().value<double>() / h_drag.GetStartValue().value<double>();
     }
 
     // Calculate new size

@@ -135,8 +135,8 @@ void RippleDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModi
   NodeInputDragger &x_drag = gizmo_->GetDraggers()[0];
   NodeInputDragger &y_drag = gizmo_->GetDraggers()[1];
 
-  x_drag.Drag(x_drag.GetStartValue().get<double>() + x);
-  y_drag.Drag(y_drag.GetStartValue().get<double>() + y);
+  x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+  y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
 }
 
 }

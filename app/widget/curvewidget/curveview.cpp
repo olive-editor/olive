@@ -435,7 +435,7 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
 
     FloatSlider::DisplayType display = GetFloatDisplayTypeFromKeyframe(key);
     Node* node = key->parent();
-    double original_val = FloatSlider::TransformValueToDisplay(drag_keyframe_values_.at(i).get<double>(), display);
+    double original_val = FloatSlider::TransformValueToDisplay(drag_keyframe_values_.at(i).value<double>(), display);
     const QString& input = key->input();
     double new_val = FloatSlider::TransformDisplayToValue(original_val - scaled_diff, display);
     double limited = new_val;
@@ -457,23 +457,24 @@ void CurveView::KeyframeDragMove(QMouseEvent *event, QString &tip)
   for (size_t i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *key = GetSelectedKeyframes().at(i);
     FloatSlider::DisplayType display = GetFloatDisplayTypeFromKeyframe(key);
-    key->set_value(FloatSlider::TransformDisplayToValue(FloatSlider::TransformValueToDisplay(drag_keyframe_values_.at(i).get<double>(), display) - scaled_diff, display));
+    key->set_value(FloatSlider::TransformDisplayToValue(FloatSlider::TransformValueToDisplay(drag_keyframe_values_.at(i).value<double>(), display) - scaled_diff, display));
   }
 
   NodeKeyframe *tip_item = GetSelectedKeyframes().front();
 
-  try {
-    double num_value = tip_item->value().get<double>();
+  double num_value;
+
+  if (tip_item->value().get(&num_value)) {
     tip = QStringLiteral("%1\n");
     tip.append(FloatSlider::ValueToString(num_value + GetOffsetFromKeyframe(tip_item), GetFloatDisplayTypeFromKeyframe(tip_item), 2, true));
-  } catch (std::bad_any_cast &e) {}
+  }
 }
 
 void CurveView::KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command)
 {
   for (size_t i=0; i<GetSelectedKeyframes().size(); i++) {
     NodeKeyframe *k = GetSelectedKeyframes().at(i);
-    if (!qFuzzyCompare(k->value().get<double>(), drag_keyframe_values_.at(i).get<double>())) {
+    if (!qFuzzyCompare(k->value().value<double>(), drag_keyframe_values_.at(i).value<double>())) {
       command->add_child(new NodeParamSetKeyframeValueCommand(k, k->value(), drag_keyframe_values_.at(i)));
     }
   }
@@ -580,7 +581,7 @@ qreal CurveView::GetItemYFromKeyframeValue(NodeKeyframe *key)
 
 qreal CurveView::GetUnscaledItemYFromKeyframeValue(NodeKeyframe *key)
 {
-  double val = key->value().get<double>();
+  double val = key->value().value<double>();
 
   val = FloatSlider::TransformValueToDisplay(val, GetFloatDisplayTypeFromKeyframe(key));
 
@@ -615,7 +616,7 @@ double CurveView::GetOffsetFromKeyframe(NodeKeyframe *key)
   if (node->HasInputProperty(input, QStringLiteral("offset"))) {
     value_t v = node->GetInputProperty(input, QStringLiteral("offset")).value<value_t>();
 
-    return v.at(key->track()).get<double>();
+    return v.at(key->track()).value<double>();
   }
 
   return 0;

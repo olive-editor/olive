@@ -97,12 +97,29 @@ public:
     component_t(const std::vector<component_t> &t) { abort(); }
 
     template <typename T>
-    T get() const
+    bool get(T *out) const
+    {
+      if (data_.has_value()) {
+        try {
+          *out = std::any_cast<T>(data_);
+          return true;
+        } catch (std::bad_any_cast &e) {}
+      }
+
+      return false;
+    }
+
+    template <typename T>
+    T value() const
     {
       T t = T();
 
       if (data_.has_value()) {
-        t = std::any_cast<T>(data_);
+        try {
+          t = std::any_cast<T>(data_);
+        } catch (std::bad_any_cast &e) {
+          qCritical() << "Failed to cast" << data_.type().name() << "to" << typeid(T).name() << e.what();
+        }
       }
 
       return t;
@@ -266,9 +283,15 @@ public:
   const component_t &operator[](size_t i) const { return data_[i]; }
 
   template <typename T>
+  bool get(T *out, size_t channel = 0) const
+  {
+    return at(channel).get<T>(out);
+  }
+
+  template <typename T>
   T value(size_t channel = 0) const
   {
-    return at(channel).get<T>();
+    return at(channel).value<T>();
   }
 
   void resize(size_t s) { data_.resize(s); }

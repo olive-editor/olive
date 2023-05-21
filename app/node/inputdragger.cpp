@@ -94,7 +94,7 @@ void NodeInputDragger::Drag(value_t::component_t value)
   if (node->HasInputProperty(input, QStringLiteral("min"))) {
     // Assumes the value is a double of some kind
     double min = node->GetInputProperty(input, QStringLiteral("min")).converted(TYPE_DOUBLE).toDouble();
-    double v = value.converted(type, TYPE_DOUBLE).get<double>();
+    double v = value.converted(type, TYPE_DOUBLE).value<double>();
     if (v < min) {
       value = value_t::component_t(min).converted(TYPE_DOUBLE, type);
     }
@@ -102,7 +102,7 @@ void NodeInputDragger::Drag(value_t::component_t value)
 
   if (node->HasInputProperty(input, QStringLiteral("max"))) {
     double max = node->GetInputProperty(input, QStringLiteral("max")).converted(TYPE_DOUBLE).toDouble();
-    double v = value.converted(type, TYPE_DOUBLE).get<double>();
+    double v = value.converted(type, TYPE_DOUBLE).value<double>();
     if (v > max) {
       value = value_t::component_t(max).converted(TYPE_DOUBLE, type);
     }

@@ -48,15 +48,14 @@ value_t OpacityEffect::Value(const ValueParams &p) const
   value_t value = GetInputValue(p, kValueInput);
 
   if (TexturePtr tex = texture.toTexture()) {
-    try {
-      TexturePtr opacity_tex = value.toTexture();
+    TexturePtr opacity_tex;
+
+    if (value.get(&opacity_tex)) {
       ShaderJob job = CreateShaderJob(p, GetRGBShaderCode);
       job.SetShaderID(QStringLiteral("rgbmult"));
       return tex->toJob(job);
-    } catch (std::bad_any_cast &e) {
-      if (!qFuzzyCompare(value.toDouble(), 1.0)) {
-        return tex->toJob(CreateShaderJob(p, GetNumberShaderCode));
-      }
+    } else if (!qFuzzyCompare(value.toDouble(), 1.0)) {
+      return tex->toJob(CreateShaderJob(p, GetNumberShaderCode));
     }
   }
 
