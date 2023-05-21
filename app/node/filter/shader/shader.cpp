@@ -41,6 +41,7 @@ namespace olive {
 namespace  {
 // a default shader that replicates to output a texture input.
 const QString TEMPLATE(
+    "#version 150\n"
     "//OVE shader_name: \n"
     "//OVE shader_description: \n\n"
     "//OVE main_input_name: Input\n"
@@ -51,8 +52,8 @@ const QString TEMPLATE(
     "// output color\n"
     "out vec4 frag_color;\n\n"
     "void main(void) {\n"
-    "   vec4 textureColor = texture2D(tex_in, ove_texcoord);\n"
-    "   frag_color= textureColor.yzxt;\n"
+    "   vec4 textureColor = texture(tex_in, ove_texcoord);\n"
+    "   frag_color= textureColor.brga;\n"
     "}\n");
 
 }  // namespace
@@ -196,7 +197,7 @@ void olive::ShaderFilterNode::checkShaderSyntax()
     // NOTE: this replicates the preamble added in compilation (see openglrenderer.cpp for reference).
     // This must be aligned if preamble changes
     ok=shader.compileSourceCode( "#version 150\n\n"
-                                 "\n\n" + shader_code_);
+                                 "precision highp float;\n\n" + shader_code_);
   }
 
   if (ok == false)
