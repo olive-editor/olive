@@ -163,7 +163,7 @@ void NumericSliderBase::SetOffset(const InternalType &v)
 
 NumericSliderBase::InternalType NumericSliderBase::AdjustDragDistanceInternal(const InternalType &start, const double &drag) const
 {
-  return start.value<double>() + drag;
+  return start.converted(TYPE_DOUBLE).value<double>() + drag;
 }
 
 void NumericSliderBase::SetMinimumInternal(const InternalType &v)

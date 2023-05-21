@@ -88,7 +88,7 @@ void IntegerSlider::ValueSignalEvent(const InternalType &value)
 
 IntegerSlider::InternalType IntegerSlider::AdjustDragDistanceInternal(const InternalType &start, const double &drag) const
 {
-  return int64_t(super::AdjustDragDistanceInternal(start, drag).value<int64_t>());
+  return int64_t(super::AdjustDragDistanceInternal(start, drag).value<double>());
 }
 
 bool IntegerSlider::Equals(const InternalType &a, const InternalType &b) const
