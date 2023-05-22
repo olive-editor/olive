@@ -82,7 +82,7 @@ public:
 
     QVector<Node*> nodes;
 
-    Node::OutputConnections promised_connections;
+    Node::Connections promised_connections;
 
   };
 

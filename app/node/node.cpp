@@ -187,17 +187,29 @@ QBrush Node::brush(qreal top, qreal bottom) const
   }
 }
 
+bool Node::ConnectionExists(Node *output, const NodeInput &input)
+{
+  for (auto it = output->output_connections_.cbegin(); it != output->output_connections_.cend(); it++) {
+    if (it->second == input) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void Node::ConnectEdge(Node *output, const NodeInput &input)
 {
   // Ensure graph is the same
   Q_ASSERT(input.node()->parent() == output->parent());
 
-  // Ensure a connection isn't getting overwritten
-  Q_ASSERT(input.node()->input_connections().find(input) == input.node()->input_connections().end());
+  // Ensure connection doesn't already exist
+  Q_ASSERT(!ConnectionExists(output, input));
 
   // Insert connection on both sides
-  input.node()->input_connections_[input] = output;
-  output->output_connections_.push_back(std::pair<Node*, NodeInput>({output, input}));
+  auto conn = std::pair<Node*, NodeInput>({output, input});
+  input.node()->input_connections_.push_back(conn);
+  output->output_connections_.push_back(conn);
 
   // Call internal events
   input.node()->InputConnectedEvent(input.input(), input.element(), output);
@@ -219,14 +231,16 @@ void Node::DisconnectEdge(Node *output, const NodeInput &input)
   Q_ASSERT(input.node()->parent() == output->parent());
 
   // Ensure connection exists
-  Q_ASSERT(input.node()->input_connections().at(input) == output);
+  Q_ASSERT(ConnectionExists(output, input));
 
   // Remove connection from both sides
-  InputConnections& inputs = input.node()->input_connections_;
-  inputs.erase(inputs.find(input));
+  auto conn = std::pair<Node*, NodeInput>({output, input});
 
-  OutputConnections& outputs = output->output_connections_;
-  outputs.erase(std::find(outputs.begin(), outputs.end(), std::pair<Node*, NodeInput>({output, input})));
+  Connections& inputs = input.node()->input_connections_;
+  inputs.erase(std::find(inputs.begin(), inputs.end(), conn));
+
+  Connections& outputs = output->output_connections_;
+  outputs.erase(std::find(outputs.begin(), outputs.end(), conn));
 
   // Call internal events
   input.node()->InputDisconnectedEvent(input.input(), input.element(), output);
@@ -312,9 +326,10 @@ bool Node::IsInputConnected(const QString &input, int element) const
 
 Node *Node::GetConnectedOutput(const QString &input, int element) const
 {
-  for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-    if (it->first.input() == input && it->first.element() == element) {
-      return it->second;
+  // NOTE: Only returns the first output connected to this input, there may be more than one
+  for (auto it = input_connections_.cbegin(); it != input_connections_.cend(); it++) {
+    if (it->second.input() == input && it->second.element() == element) {
+      return it->first;
     }
   }
 
@@ -776,15 +791,15 @@ void Node::InputArrayInsert(const QString &id, int index)
   ArrayResizeInternal(id, InputArraySize(id) + 1);
 
   // Move connections down
-  InputConnections copied_edges = input_connections();
+  Connections copied_edges = input_connections();
   for (auto it=copied_edges.crbegin(); it!=copied_edges.crend(); it++) {
-    if (it->first.input() == id && it->first.element() >= index) {
+    if (it->second.input() == id && it->second.element() >= index) {
       // Disconnect this and reconnect it one element down
-      NodeInput new_edge = it->first;
+      NodeInput new_edge = it->second;
       new_edge.set_element(new_edge.element() + 1);
 
-      DisconnectEdge(it->second, it->first);
-      ConnectEdge(it->second, new_edge);
+      DisconnectEdge(it->first, it->second);
+      ConnectEdge(it->first, new_edge);
     }
   }
 
@@ -814,17 +829,17 @@ void Node::InputArrayRemove(const QString &id, int index)
   ArrayResizeInternal(id, InputArraySize(id) - 1);
 
   // Move connections up
-  InputConnections copied_edges = input_connections();
+  Connections copied_edges = input_connections();
   for (auto it=copied_edges.cbegin(); it!=copied_edges.cend(); it++) {
-    if (it->first.input() == id && it->first.element() >= index) {
+    if (it->second.input() == id && it->second.element() >= index) {
       // Disconnect this and reconnect it one element up if it's not the element being removed
-      DisconnectEdge(it->second, it->first);
+      DisconnectEdge(it->first, it->second);
 
-      if (it->first.element() > index) {
-        NodeInput new_edge = it->first;
+      if (it->second.element() > index) {
+        NodeInput new_edge = it->second;
         new_edge.set_element(new_edge.element() - 1);
 
-        ConnectEdge(it->second, new_edge);
+        ConnectEdge(it->first, new_edge);
       }
     }
   }
@@ -1058,12 +1073,12 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
 
     for (auto it=src_node->input_connections_.cbegin(); it!=src_node->input_connections_.cend(); it++) {
       // Determine if the connected node is in our src list
-      int connection_index = src.indexOf(it->second);
+      int connection_index = src.indexOf(it->first);
 
       if (connection_index > -1) {
         // Find the equivalent node in the dst list
         Node *copied_output = dst.at(connection_index);
-        NodeInput copied_input = NodeInput(dst_node, it->first.input(), it->first.element());
+        NodeInput copied_input = NodeInput(dst_node, it->second.input(), it->second.element());
 
         if (command) {
           command->add_child(new NodeEdgeAddCommand(copied_output, copied_input));
@@ -1125,8 +1140,8 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
 
   // Go through input connections and copy if non-item and connect if item
   for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
-    NodeInput input = it->first;
-    Node* connected = it->second;
+    NodeInput input = it->second;
+    Node* connected = it->first;
     Node* connected_copy;
 
     if (connected->IsItem()) {
@@ -1181,7 +1196,7 @@ Node *Node::CopyNodeInGraph(Node *node, MultiUndoCommand *command)
 
 void Node::SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options)
 {
-  for (const OutputConnection& conn : output_connections_) {
+  for (const Connection& conn : output_connections_) {
     // Send clear cache signal to the Node
     const NodeInput& in = conn.second;
 
@@ -1409,10 +1424,10 @@ void Node::Save(QXmlStreamWriter *writer) const
     for (auto it=this->input_connections().cbegin(); it!=this->input_connections().cend(); it++) {
       writer->writeStartElement(QStringLiteral("connection"));
 
-      writer->writeAttribute(QStringLiteral("input"), it->first.input());
-      writer->writeAttribute(QStringLiteral("element"), QString::number(it->first.element()));
+      writer->writeAttribute(QStringLiteral("input"), it->second.input());
+      writer->writeAttribute(QStringLiteral("element"), QString::number(it->second.element()));
 
-      writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->second)));
+      writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->first)));
 
       writer->writeEndElement(); // connection
     }
@@ -1887,10 +1902,10 @@ int Node::GetInternalInputArraySize(const QString &input)
 void FindWaysNodeArrivesHereRecursively(const Node *output, const Node *input, QVector<NodeInput> &v)
 {
   for (auto it=input->input_connections().cbegin(); it!=input->input_connections().cend(); it++) {
-    if (it->second == output) {
-      v.append(it->first);
+    if (it->first == output) {
+      v.append(it->second);
     } else {
-      FindWaysNodeArrivesHereRecursively(output, it->second, v);
+      FindWaysNodeArrivesHereRecursively(output, it->first, v);
     }
   }
 }
@@ -2003,12 +2018,12 @@ void Node::CopyInput(const Node *src, Node *dst, const QString &input, bool incl
   if (include_connections) {
     // Copy all connections
     for (auto it=src->input_connections().cbegin(); it!=src->input_connections().cend(); it++) {
-      if (!traverse_arrays && it->first.element() != -1) {
+      if (!traverse_arrays && it->second.element() != -1) {
         continue;
       }
 
-      auto conn_output = it->second;
-      NodeInput conn_input(dst, input, it->first.element());
+      auto conn_output = it->first;
+      NodeInput conn_input(dst, input, it->second.element());
 
       if (command) {
         command->add_child(new NodeEdgeAddCommand(conn_output, conn_input));
@@ -2086,7 +2101,7 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
 void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool traverse, bool exclusive_only)
 {
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node* connected_node = it->second;
+    Node* connected_node = it->first;
 
     if (!exclusive_only || !connected_node->IsItem()) {
       if (!list.contains(connected_node)) {
@@ -2135,7 +2150,7 @@ QVector<Node *> Node::GetImmediateDependencies() const
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-    Node *connected = it->second;
+    Node *connected = it->first;
 
     if (connected == n) {
       return true;
@@ -2150,7 +2165,7 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 bool Node::InputsFrom(const QString &id, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-    Node *connected = it->second;
+    Node *connected = it->first;
 
     if (connected->id() == id) {
       return true;
@@ -2165,13 +2180,13 @@ bool Node::InputsFrom(const QString &id, bool recursively) const
 void Node::DisconnectAll()
 {
   // Disconnect inputs (copy map since internal map will change as we disconnect)
-  InputConnections copy = input_connections_;
+  Connections copy = input_connections_;
   for (auto it=copy.cbegin(); it!=copy.cend(); it++) {
-    DisconnectEdge(it->second, it->first);
+    DisconnectEdge(it->first, it->second);
   }
 
   while (!output_connections_.empty()) {
-    OutputConnection conn = output_connections_.back();
+    Connection conn = output_connections_.back();
     DisconnectEdge(conn.first, conn.second);
   }
 }
@@ -2533,9 +2548,9 @@ void Node::SetValueAtTime(const NodeInput &input, const rational &time, const va
 bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path_index)
 {
   for (auto it = to->input_connections().cbegin(); it != to->input_connections().cend(); it++) {
-    vec.push_front(it->first);
+    vec.push_front(it->second);
 
-    if (it->second == from) {
+    if (it->first == from) {
       // Found a path! Determine if it's the index we want
       if (path_index == 0) {
         // It is!
@@ -2546,7 +2561,7 @@ bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path
       }
     }
 
-    if (FindPathInternal(vec, from, it->second, path_index)) {
+    if (FindPathInternal(vec, from, it->first, path_index)) {
       return true;
     }
 

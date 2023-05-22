@@ -283,7 +283,7 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
 
           if (Node *si = skipped_items.value(sc.output_node)) {
             // Convert this to a promised connection
-            Node::OutputConnection oc = {si, sc.input};
+            Node::Connection oc = {si, sc.input};
             load_data.promised_connections.push_back(oc);
             it = project_data.desired_connections.erase(it);
           } else {

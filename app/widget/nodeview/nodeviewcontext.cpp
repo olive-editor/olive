@@ -319,9 +319,9 @@ void NodeViewContext::AddNodeInternal(Node *node, NodeViewItem *item)
   }
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    if (!it->first.IsHidden()) {
-      if (NodeViewItem *other_item = item_map_.value(it->second)) {
-        AddEdgeInternal(it->second, it->first, other_item, item->GetItemForInput(it->first));
+    if (!it->second.IsHidden()) {
+      if (NodeViewItem *other_item = item_map_.value(it->first)) {
+        AddEdgeInternal(it->first, it->second, other_item, item->GetItemForInput(it->second));
       }
     }
   }

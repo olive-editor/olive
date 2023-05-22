@@ -1641,7 +1641,11 @@ void NodeView::EndEdgeDrag(bool cancel)
           creating_input = input_group->GetInputFromID(creating_input.input());
         }
 
-        if (creating_input.IsConnected()) {
+        if (Node::ConnectionExists(creating_output, creating_input)) {
+          cancel = true;
+        }
+
+        /*if (creating_input.IsConnected()) {
           Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
 
           Node *already_connected_output = creating_input.GetConnectedOutput();
@@ -1657,7 +1661,7 @@ void NodeView::EndEdgeDrag(bool cancel)
           if (!cancel) {
             command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
           }
-        }
+        }*/
 
         if (!cancel) {
           command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));

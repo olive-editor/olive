@@ -337,6 +337,8 @@ public:
     }
   }
 
+  static bool ConnectionExists(Node *output, const NodeInput& input);
+
   static void ConnectEdge(Node *output, const NodeInput& input);
 
   static void DisconnectEdge(Node *output, const NodeInput& input);
@@ -595,7 +597,8 @@ public:
 
   const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
 
-  using InputConnections = std::map<NodeInput, Node*>;
+  using Connection = std::pair<Node*, NodeInput>;
+  using Connections = std::vector<Connection>;
 
   /**
    * @brief Return map of input connections
@@ -603,13 +606,10 @@ public:
    * Inputs can only have one connection, so the key is the input connected and the value is the
    * output that it's connected to.
    */
-  const InputConnections& input_connections() const
+  const Connections& input_connections() const
   {
     return input_connections_;
   }
-
-  using OutputConnection = std::pair<Node*, NodeInput>;
-  using OutputConnections = std::vector<OutputConnection>;
 
   /**
    * @brief Return list of output connections
@@ -617,7 +617,7 @@ public:
    * An output can connect an infinite amount of inputs, so in this map, the key is the output and
    * the value is a vector of inputs.
    */
-  const OutputConnections& output_connections() const
+  const Connections& output_connections() const
   {
     return output_connections_;
   }
@@ -1160,9 +1160,9 @@ private:
 
   QMap<QString, QVector<NodeInputImmediate*> > array_immediates_;
 
-  InputConnections input_connections_;
+  Connections input_connections_;
 
-  OutputConnections output_connections_;
+  Connections output_connections_;
 
   Folder* folder_;
 
@@ -1246,7 +1246,7 @@ template<class T>
 void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list, int maximum)
 {
   for (auto it=n->input_connections_.cbegin(); it!=n->input_connections_.cend(); it++) {
-    FindInputNodesConnectedToInputInternal(it->first, list, maximum);
+    FindInputNodesConnectedToInputInternal(it->second, list, maximum);
   }
 }
 

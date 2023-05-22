@@ -189,16 +189,14 @@ protected:
 
     if (old_size_ > size_) {
       // Decreasing in size, disconnect any extraneous edges
-      for (int i=size_; i<old_size_; i++) {
+      for (auto it = node_->input_connections().cbegin(); it != node_->input_connections().cend(); it++) {
+        Node *output = it->first;
+        const NodeInput &input = it->second;
 
-        try {
-          NodeInput input(node_, input_, i);
-          Node *output = node_->input_connections().at(input);
-
-          removed_connections_[input] = output;
-
+        if (input.input() == input_ && input.element() >= size_) {
+          removed_connections_.push_back({output, input});
           Node::DisconnectEdge(output, input);
-        } catch (std::out_of_range&) {}
+        }
       }
     }
 
@@ -208,7 +206,7 @@ protected:
   virtual void undo() override
   {
     for (auto it=removed_connections_.cbegin(); it!=removed_connections_.cend(); it++) {
-      Node::ConnectEdge(it->second, it->first);
+      Node::ConnectEdge(it->first, it->second);
     }
     removed_connections_.clear();
 
@@ -221,7 +219,7 @@ private:
   int size_;
   int old_size_;
 
-  Node::InputConnections removed_connections_;
+  Node::Connections removed_connections_;
 
 };
 
@@ -310,8 +308,6 @@ class NodeEdgeAddCommand : public UndoCommand {
 public:
   NodeEdgeAddCommand(Node *output, const NodeInput& input);
 
-  virtual ~NodeEdgeAddCommand() override;
-
   virtual Project* GetRelevantProject() const override;
 
 protected:
@@ -321,8 +317,6 @@ protected:
 private:
   Node *output_;
   NodeInput input_;
-
-  NodeEdgeRemoveCommand* remove_command_;
 
 };
 
@@ -618,7 +612,7 @@ protected:
 private:
   QVector<Node::ContextPair> nodes_;
 
-  QVector<Node::OutputConnection> edges_;
+  QVector<Node::Connection> edges_;
 
   struct RemovedNode {
     Node *node;

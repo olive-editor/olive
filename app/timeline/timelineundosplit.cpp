@@ -67,7 +67,7 @@ void BlockSplitCommand::redo()
 
   TransitionBlock* potential_transition = dynamic_cast<TransitionBlock*>(new_block()->next());
   if (potential_transition) {
-    for (const Node::OutputConnection& output : block_->output_connections()) {
+    for (const Node::Connection& output : block_->output_connections()) {
       if (output.second.node() == potential_transition) {
         moved_transition_ = NodeInput(potential_transition, TransitionBlock::kOutBlockInput);
         Node::DisconnectEdge(block_, moved_transition_);

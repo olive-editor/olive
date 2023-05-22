@@ -234,8 +234,8 @@ void Project::childEvent(QChildEvent *event)
 
       // Emit input connections
       for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-        if (nodes().contains(it->second)) {
-          emit InputConnected(it->second, it->first);
+        if (nodes().contains(it->first)) {
+          emit InputConnected(it->first, it->second);
         }
       }
 

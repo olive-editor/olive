@@ -106,7 +106,7 @@ void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *no
   commands_.append(new NodeSetPositionCommand(node_, context_, pos));
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node *output = it->second;
+    Node *output = it->first;
     if (context_->ContextContainsNode(output)) {
       move_recursively(output, diff);
     }
@@ -115,36 +115,18 @@ void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *no
 
 NodeEdgeAddCommand::NodeEdgeAddCommand(Node *output, const NodeInput &input) :
   output_(output),
-  input_(input),
-  remove_command_(nullptr)
+  input_(input)
 {
-}
-
-NodeEdgeAddCommand::~NodeEdgeAddCommand()
-{
-  delete remove_command_;
 }
 
 void NodeEdgeAddCommand::redo()
 {
-  if (input_.IsConnected()) {
-    if (!remove_command_) {
-      remove_command_ = new NodeEdgeRemoveCommand(input_.GetConnectedOutput(), input_);
-    }
-
-    remove_command_->redo_now();
-  }
-
   Node::ConnectEdge(output_, input_);
 }
 
 void NodeEdgeAddCommand::undo()
 {
   Node::DisconnectEdge(output_, input_);
-
-  if (remove_command_) {
-    remove_command_->undo_now();
-  }
 }
 
 Project *NodeEdgeAddCommand::GetRelevantProject() const
@@ -212,10 +194,10 @@ void NodeRemoveAndDisconnectCommand::prepare()
 
   // Disconnect everything
   for (auto it=node_->input_connections().cbegin(); it!=node_->input_connections().cend(); it++) {
-    command_->add_child(new NodeEdgeRemoveCommand(it->second, it->first));
+    command_->add_child(new NodeEdgeRemoveCommand(it->first, it->second));
   }
 
-  for (const Node::OutputConnection& conn : node_->output_connections()) {
+  for (const Node::Connection& conn : node_->output_connections()) {
     command_->add_child(new NodeEdgeRemoveCommand(conn.first, conn.second));
   }
 
@@ -284,8 +266,8 @@ void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
   nodes_.append(p);
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    if (context->ContextContainsNode(it->second)) {
-      AddEdge(it->second, it->first);
+    if (context->ContextContainsNode(it->first)) {
+      AddEdge(it->first, it->second);
     }
   }
 
@@ -298,7 +280,7 @@ void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
 
 void NodeViewDeleteCommand::AddEdge(Node *output, const NodeInput &input)
 {
-  foreach (const Node::OutputConnection &edge, edges_) {
+  foreach (const Node::Connection &edge, edges_) {
     if (edge.first == output && edge.second == input) {
       return;
     }
@@ -333,7 +315,7 @@ Project *NodeViewDeleteCommand::GetRelevantProject() const
 
 void NodeViewDeleteCommand::redo()
 {
-  foreach (const Node::OutputConnection &edge, edges_) {
+  foreach (const Node::Connection &edge, edges_) {
     Node::DisconnectEdge(edge.first, edge.second);
   }
 

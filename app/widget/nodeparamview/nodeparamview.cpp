@@ -740,7 +740,7 @@ int GetDistanceBetweenNodes(Node *start, Node *end)
   }
 
   for (auto it=start->input_connections().cbegin(); it!=start->input_connections().cend(); it++) {
-    int this_node_dist = GetDistanceBetweenNodes(it->second, end);
+    int this_node_dist = GetDistanceBetweenNodes(it->first, end);
     if (this_node_dist != -1) {
       return 1 + this_node_dist;
     }

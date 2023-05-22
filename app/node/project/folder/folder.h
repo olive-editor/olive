@@ -174,7 +174,7 @@ private:
   template<typename T>
   static void ListOutputsOfTypeInternal(const Folder* n, QVector<T*>& list, bool recursive)
   {
-    foreach (const Node::OutputConnection& c, n->output_connections()) {
+    foreach (const Node::Connection& c, n->output_connections()) {
       Node* connected = c.second.node();
 
       T* cast_test = dynamic_cast<T*>(connected);
