@@ -162,6 +162,8 @@ public slots:
     display_widget_->RequestStartEditingText();
   }
 
+  void SetToolBarVisible(bool e);
+
 signals:
   /**
    * @brief Wrapper for ViewerGLWidget::CursorColor()

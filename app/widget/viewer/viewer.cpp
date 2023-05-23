@@ -919,6 +919,13 @@ void ViewerWidget::UpdateTextureFromNode()
   }
 }
 
+void ViewerWidget::SetToolBarVisible(bool e)
+{
+  controls_->setVisible(e);
+  ruler()->setVisible(e);
+  scrollbar()->setVisible(e);
+}
+
 void ViewerWidget::PlayInternal(int speed, bool in_to_out_only)
 {
   Q_ASSERT(speed != 0);
@@ -1506,6 +1513,13 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     show_fps_action->setCheckable(true);
     show_fps_action->setChecked(display_widget_->GetShowFPS());
     connect(show_fps_action, &QAction::triggered, display_widget_, &ViewerDisplayWidget::SetShowFPS);
+  }
+
+  {
+    QAction *show_toolbar = menu.addAction(tr("Show Toolbar"));
+    show_toolbar->setCheckable(true);
+    show_toolbar->setChecked(ruler()->isVisible());
+    connect(show_toolbar, &QAction::triggered, this, &ViewerWidget::SetToolBarVisible);
   }
 
   if (context_menu_widget_ == display_widget_) {
