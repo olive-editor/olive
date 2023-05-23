@@ -23,6 +23,7 @@
 
 #include <QVector2D>
 
+#include "node/value.h"
 #include "render/cancelatom.h"
 #include "render/loopmode.h"
 #include "render/videoparams.h"
@@ -32,22 +33,27 @@ namespace olive {
 class ValueParams
 {
 public:
+  using Cache = QHash<const Node*, QHash<ValueParams, value_t>>;
+
   ValueParams()
   {
+    cache_ = nullptr;
+    cancel_atom_ = nullptr;
   }
 
-  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel) :
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel, Cache *cache) :
     video_params_(vparam),
     audio_params_(aparam),
     time_(time),
     loop_mode_(loop_mode),
+    output_(output),
     cancel_atom_(cancel),
-    output_(output)
+    cache_(cache)
   {
   }
 
-  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const rational &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel) :
-    ValueParams(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), output, loop_mode, cancel)
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const rational &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel, Cache *cache) :
+    ValueParams(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), output, loop_mode, cancel, cache)
   {
   }
 
@@ -66,15 +72,24 @@ public:
   ValueParams output_edited(const QString &output) const;
   ValueParams loop_mode_edited(const LoopMode &lm) const;
 
+  bool get_cached_value(const Node *node, const ValueParams &p, value_t &out) const;
+  void insert_cached_value(const Node *node, const ValueParams &p, const value_t &in) const;
+
+  bool operator==(const ValueParams &p) const;
+
 private:
   VideoParams video_params_;
   AudioParams audio_params_;
   TimeRange time_;
   LoopMode loop_mode_;
-  CancelAtom *cancel_atom_;
   QString output_;
 
+  CancelAtom *cancel_atom_;
+  Cache *cache_;
+
 };
+
+uint qHash(const ValueParams &p, uint seed = 0);
 
 }
 

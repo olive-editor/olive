@@ -451,7 +451,8 @@ void ViewerDisplayWidget::OnPaint()
 
     p.setWorldTransform(gizmo_last_draw_transform_);
 
-    gizmos_->UpdateGizmoPositions(ValueParams(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, QString(), LoopMode::kLoopModeOff, nullptr));
+    ValueParams::Cache cache;
+    gizmos_->UpdateGizmoPositions(ValueParams(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, QString(), LoopMode::kLoopModeOff, nullptr, &cache));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -681,7 +682,8 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform(const TimeRange &range)
 
     for (auto it = list.cbegin(); it != list.cend(); it++) {
       // Transform matrix down the list
-      ValueParams vp(gizmo_params_, gizmo_audio_params_, ranges.front(), QString(), LoopMode::kLoopModeOff, nullptr);
+      ValueParams::Cache cache;
+      ValueParams vp(gizmo_params_, gizmo_audio_params_, ranges.front(), QString(), LoopMode::kLoopModeOff, nullptr, &cache);
       Node *n = (*it).node();
       if (n->is_enabled()) {
         QTransform this_transform = n->GizmoTransformation(vp);
@@ -738,7 +740,9 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const QPointF &p)
 void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
   GenerateGizmoTransforms();
-  gizmos_->UpdateGizmoPositions(ValueParams(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, QString(), LoopMode::kLoopModeOff, nullptr));
+
+  ValueParams::Cache cache;
+  gizmos_->UpdateGizmoPositions(ValueParams(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, QString(), LoopMode::kLoopModeOff, nullptr, &cache));
 
   active_text_gizmo_ = text;
   connect(active_text_gizmo_, &TextGizmo::RectChanged, this, &ViewerDisplayWidget::UpdateActiveTextGizmoSize);
@@ -861,7 +865,9 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
       gizmo_last_drag_ = gizmo_start_drag_;
-      current_gizmo_->SetGlobals(ValueParams(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime(), QString(), LoopMode::kLoopModeOff, nullptr));
+
+      ValueParams::Cache cache;
+      current_gizmo_->SetGlobals(ValueParams(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime(), QString(), LoopMode::kLoopModeOff, nullptr, &cache));
 
     } else {
 
@@ -907,8 +913,9 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
       if (!gizmo_drag_started_) {
         QPointF start = ScreenToScenePoint(gizmo_start_drag_);
 
+        ValueParams::Cache cache;;
         TimeRange gizmo_time = GetGizmoTimeRange();
-        ValueParams p(gizmo_params_, gizmo_audio_params_, gizmo_time, QString(), LoopMode::kLoopModeOff, nullptr);
+        ValueParams p(gizmo_params_, gizmo_audio_params_, gizmo_time, QString(), LoopMode::kLoopModeOff, nullptr, &cache);
 
         draggable->DragStart(p, start.x(), start.y(), gizmo_time.in());
         gizmo_drag_started_ = true;
@@ -1244,7 +1251,8 @@ void ViewerDisplayWidget::GenerateGizmoTransforms()
 {
   gizmo_draw_time_ = GenerateGizmoTime();
 
-  ValueParams p(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, QString(), LoopMode::kLoopModeOff, nullptr);
+  ValueParams::Cache cache;
+  ValueParams p(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, QString(), LoopMode::kLoopModeOff, nullptr, &cache);
 
   gizmo_last_draw_transform_ = GenerateGizmoTransform(gizmo_draw_time_);
   gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted();

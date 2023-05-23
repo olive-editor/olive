@@ -207,6 +207,11 @@ uint qHash(const core::TimeRange &r, uint seed)
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
 }
 
+uint qHash(const AudioParams &r, uint seed)
+{
+  return qHash(r.sample_rate(), seed) ^ qHash(r.channel_layout(), seed) ^ qHash(QString::fromStdString(r.format().to_string()), seed);
+}
+
 
 }
 

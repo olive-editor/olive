@@ -391,6 +391,7 @@ private:
   int effective_depth_;
   int par_width_;
 
+  // Footage values
   bool enabled_;
   int stream_index_;
   Type video_type_;
@@ -404,6 +405,8 @@ private:
   ColorRange color_range_;
 
 };
+
+uint qHash(const VideoParams &p, uint seed = 0);
 
 }
 

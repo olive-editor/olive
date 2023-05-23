@@ -27,6 +27,7 @@ extern "C" {
 #include <QCoreApplication>
 #include <QtMath>
 
+#include "common/qtutils.h"
 #include "core.h"
 
 namespace olive {
@@ -405,6 +406,11 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));
   writer->writeTextElement(QStringLiteral("colorspace"), colorspace_);
   writer->writeTextElement(QStringLiteral("colorrange"), QString::number(color_range_));
+}
+
+uint qHash(const VideoParams &p, uint seed)
+{
+  return qHash(p.width(), seed) ^ qHash(p.height(), seed) ^ qHash(p.depth(), seed) ^ qHash(p.time_base(), seed) ^ qHash(QString::fromUtf8(p.format().to_string()), seed) ^ qHash(p.channel_count(), seed) ^ qHash(p.pixel_aspect_ratio(), seed) ^ qHash(p.interlacing(), seed) ^ qHash(p.divider(), seed);
 }
 
 }

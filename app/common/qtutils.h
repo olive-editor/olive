@@ -99,6 +99,7 @@ namespace core {
 
 uint qHash(const core::rational& r, uint seed = 0);
 uint qHash(const core::TimeRange& r, uint seed = 0);
+uint qHash(const core::AudioParams& r, uint seed = 0);
 
 }
 

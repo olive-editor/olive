@@ -900,7 +900,14 @@ value_t Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QS
     while (output) {
       if (output->is_enabled()) {
         Node::ValueHint vh = this->GetValueHintForInput(input, element);
-        value_t v = output->Value(g.time_transformed(adjusted_time).output_edited(vh.tag()));
+        ValueParams connp = g.time_transformed(adjusted_time).output_edited(vh.tag());
+
+        // Find cached value with this
+        value_t v;
+        if (!g.get_cached_value(output, connp, v)) {
+          v = output->Value(connp);
+          g.insert_cached_value(output, connp, v);
+        }
 
         // Perform swizzle if requested
         const SwizzleMap &swizzle = vh.swizzle();
