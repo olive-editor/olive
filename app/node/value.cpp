@@ -28,6 +28,7 @@
 
 #include "common/tohex.h"
 #include "render/job/samplejob.h"
+#include "render/job/shaderjob.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 
@@ -37,9 +38,77 @@ std::map<type_t, std::map<type_t, value_t::Converter_t> > value_t::converters_;
 
 QChar CHANNEL_SPLITTER = ':';
 
+struct TextureChannel
+{
+  TexturePtr texture;
+  size_t channel;
+};
+
+value_t::value_t(TexturePtr texture) :
+  value_t(TYPE_TEXTURE)
+{
+  if (texture) {
+    data_.resize(texture->channel_count());
+    for (int i = 0; i < texture->channel_count(); i++) {
+      data_[i] = TextureChannel({texture, size_t(i)});
+    }
+  }
+}
+
 value_t::value_t(const SampleJob &samples) :
   value_t(TYPE_SAMPLES, samples)
 {
+}
+
+ShaderCode GetSwizzleShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/swizzle.frag")));
+}
+
+TexturePtr value_t::toTexture() const
+{
+  if (type_ != TYPE_TEXTURE || data_.empty()) {
+    return TexturePtr();
+  }
+
+  bool swizzled = false;
+
+  TextureChannel last;
+  VideoParams vp;
+
+  for (auto it = data_.cbegin(); it != data_.cend(); it++) {
+    const TextureChannel &c = it->value<TextureChannel>();
+
+    if (it != data_.cbegin() && !swizzled) {
+      if (c.texture != last.texture || c.channel != last.channel + 1) {
+        swizzled = true;
+      }
+    }
+
+    if (!vp.is_valid() && c.texture && c.texture->params().is_valid()) {
+      vp = c.texture->params();
+    }
+
+    last = c;
+  }
+
+  if (swizzled) {
+    // Return texture(s) wrapped in a swizzle shader
+    ShaderJob job;
+    job.set_function(GetSwizzleShaderCode);
+    job.Insert(QStringLiteral("red_texture"), this->value<TextureChannel>(0).texture);
+    job.Insert(QStringLiteral("green_texture"), this->value<TextureChannel>(1).texture);
+    job.Insert(QStringLiteral("blue_texture"), this->value<TextureChannel>(2).texture);
+    job.Insert(QStringLiteral("alpha_texture"), this->value<TextureChannel>(3).texture);
+    job.Insert(QStringLiteral("red_channel"), this->value<TextureChannel>(0).channel);
+    job.Insert(QStringLiteral("green_channel"), this->value<TextureChannel>(1).channel);
+    job.Insert(QStringLiteral("blue_channel"), this->value<TextureChannel>(2).channel);
+    job.Insert(QStringLiteral("alpha_channel"), this->value<TextureChannel>(3).channel);
+    return Texture::Job(vp, job);
+  } else {
+    // No swizzling has occurred
+    return last.texture;
+  }
 }
 
 value_t value_t::fromSerializedString(type_t target_type, const QString &str)

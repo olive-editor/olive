@@ -166,10 +166,7 @@ public:
     type_(TYPE_NONE)
   {}
 
-  value_t(TexturePtr texture) :
-    value_t(TYPE_TEXTURE, texture)
-  {
-  }
+  value_t(TexturePtr texture);
 
   value_t(const SampleJob &samples);
 
@@ -314,7 +311,7 @@ public:
   QMatrix4x4 toMatrix() const { return value<QMatrix4x4>(); }
   QByteArray toBinary() const { return value<QByteArray>(); }
   NodeValueArray toArray() const { return value<NodeValueArray>(); }
-  TexturePtr toTexture() const { return value<TexturePtr>(); }
+  TexturePtr toTexture() const;
   SampleBuffer toSamples() const { return value<SampleBuffer>(); }
 
   static value_t fromSerializedString(type_t target_type, const QString &s);
