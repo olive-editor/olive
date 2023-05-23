@@ -952,6 +952,11 @@ void Node::SetValueHintForInput(const QString &input, const ValueHint &hint, int
   InvalidateAll(input, element);
 }
 
+AbstractParamWidget *Node::GetCustomWidget(const QString &input) const
+{
+  return nullptr;
+}
+
 const NodeKeyframeTrack &Node::GetTrackFromKeyframe(NodeKeyframe *key) const
 {
   return GetImmediate(key->input(), key->element())->keyframe_tracks().at(key->track());
@@ -2342,10 +2347,6 @@ type_t Node::ResolveSpecialType(type_t type, size_t &channel_count, QString &sub
   } else if (type == TYPE_FILE) {
     subtype = QStringLiteral("file");
     return TYPE_STRING;
-  } else if (type == TYPE_BEZIER) {
-    channel_count = 6;
-    subtype = QStringLiteral("bezier");
-    return TYPE_DOUBLE;
   }
 
   return type;

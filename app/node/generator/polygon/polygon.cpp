@@ -23,6 +23,8 @@
 #include <QGuiApplication>
 #include <QVector2D>
 
+#include "widget/nodeparamview/paramwidget/bezierparamwidget.h"
+
 namespace olive {
 
 const QString PolygonGenerator::kPointsInput = QStringLiteral("points_in");
@@ -32,7 +34,7 @@ const QString PolygonGenerator::kColorInput = QStringLiteral("color_in");
 
 PolygonGenerator::PolygonGenerator()
 {
-  AddInput(kPointsInput, TYPE_BEZIER, kInputFlagArray);
+  AddInput(kPointsInput, TYPE_DOUBLE, size_t(6), value_t(), kInputFlagArray);
 
   AddInput(kColorInput, TYPE_COLOR, Color(1.0, 1.0, 1.0));
 
@@ -228,6 +230,15 @@ void PolygonGenerator::UpdateGizmoPositions(const ValueParams &p)
   }
 
   poly_gizmo_->SetPath(GeneratePath(points, points.size()).translated(QPointF(half_res.x, half_res.y)));
+}
+
+AbstractParamWidget *PolygonGenerator::GetCustomWidget(const QString &input) const
+{
+  if (input == kPointsInput) {
+    return new BezierParamWidget();
+  } else {
+    return super::GetCustomWidget(input);
+  }
 }
 
 void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)

@@ -51,6 +51,8 @@ public:
 
   virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
+  virtual AbstractParamWidget *GetCustomWidget(const QString &input) const override;
+
   static QPainterPath GeneratePath(const NodeValueArray &points, int size);
 
   static const QString kPointsInput;

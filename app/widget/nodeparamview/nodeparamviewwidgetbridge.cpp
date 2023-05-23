@@ -38,7 +38,6 @@
 #include "widget/colorbutton/colorbutton.h"
 #include "widget/filefield/filefield.h"
 #include "widget/nodeparamview/paramwidget/arrayparamwidget.h"
-#include "widget/nodeparamview/paramwidget/bezierparamwidget.h"
 #include "widget/nodeparamview/paramwidget/boolparamwidget.h"
 #include "widget/nodeparamview/paramwidget/colorparamwidget.h"
 #include "widget/nodeparamview/paramwidget/comboparamwidget.h"
@@ -77,36 +76,39 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
   } else {
 
-    // We assume the first data type is the "primary" type
-    type_t t = GetDataType();
-    QString type = GetOuterInput().GetProperty(QStringLiteral("subtype")).toString();
+    if (AbstractParamWidget *a = GetInnerInput().node()->GetCustomWidget(GetInnerInput().input())) {
+      a->setParent(this);
+      widget_ = a;
+    } else {
+      // We assume the first data type is the "primary" type
+      type_t t = GetDataType();
+      QString type = GetOuterInput().GetProperty(QStringLiteral("subtype")).toString();
 
-    if (t == TYPE_INTEGER) {
-      if (type == QStringLiteral("bool")) {
-        widget_ = new BoolParamWidget(this);
-      } else if (type == QStringLiteral("combo")) {
-        widget_ = new ComboParamWidget(this);
-      } else {
-        widget_ = new IntegerSliderParamWidget(this);
-      }
-    } else if (t == TYPE_RATIONAL) {
-      widget_ = new RationalSliderParamWidget(this);
-    } else if (t == TYPE_DOUBLE) {
-      if (type == QStringLiteral("color")) {
-        widget_ = new ColorParamWidget(GetInnerInput(), this);
-      } else if (type == QStringLiteral("bezier")) {
-        widget_ = new BezierParamWidget(this);
-      } else {
-        widget_ = new FloatSliderParamWidget(this);
-      }
-    } else if (t == TYPE_STRING) {
-      if (type == QStringLiteral("file")) {
-        widget_ = new FileParamWidget(this);
-      } else if (type == QStringLiteral("font")) {
-        widget_ = new FontParamWidget(this);
-      } else {
-        widget_ = new TextParamWidget(this);
-        connect(static_cast<TextParamWidget*>(widget_), &TextParamWidget::RequestEditInViewer, this, &NodeParamViewWidgetBridge::RequestEditTextInViewer);
+      if (t == TYPE_INTEGER) {
+        if (type == QStringLiteral("bool")) {
+          widget_ = new BoolParamWidget(this);
+        } else if (type == QStringLiteral("combo")) {
+          widget_ = new ComboParamWidget(this);
+        } else {
+          widget_ = new IntegerSliderParamWidget(this);
+        }
+      } else if (t == TYPE_RATIONAL) {
+        widget_ = new RationalSliderParamWidget(this);
+      } else if (t == TYPE_DOUBLE) {
+        if (type == QStringLiteral("color")) {
+          widget_ = new ColorParamWidget(GetInnerInput(), this);
+        } else {
+          widget_ = new FloatSliderParamWidget(this);
+        }
+      } else if (t == TYPE_STRING) {
+        if (type == QStringLiteral("file")) {
+          widget_ = new FileParamWidget(this);
+        } else if (type == QStringLiteral("font")) {
+          widget_ = new FontParamWidget(this);
+        } else {
+          widget_ = new TextParamWidget(this);
+          connect(static_cast<TextParamWidget*>(widget_), &TextParamWidget::RequestEditInViewer, this, &NodeParamViewWidgetBridge::RequestEditTextInViewer);
+        }
       }
     }
 

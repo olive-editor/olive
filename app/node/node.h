@@ -43,6 +43,7 @@
 #include "render/job/generatejob.h"
 #include "render/job/samplejob.h"
 #include "render/job/shaderjob.h"
+#include "widget/nodeparamview/paramwidget/abstractparamwidget.h"
 
 namespace olive {
 
@@ -113,7 +114,6 @@ public:
   static constexpr type_t TYPE_COMBO = "combo";
   static constexpr type_t TYPE_FONT = "font";
   static constexpr type_t TYPE_FILE = "file";
-  static constexpr type_t TYPE_BEZIER = "bezier";
 
   struct ContextPair {
     Node *node;
@@ -594,6 +594,8 @@ public:
   }
 
   void SetValueHintForInput(const QString &input, const ValueHint &hint, int element = -1);
+
+  virtual AbstractParamWidget *GetCustomWidget(const QString &input) const;
 
   const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
 
