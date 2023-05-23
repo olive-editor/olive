@@ -24,6 +24,8 @@
 #include <QMouseEvent>
 #include <QScrollBar>
 
+#include "config/config.h"
+
 namespace olive {
 
 #define super QGraphicsView
@@ -233,8 +235,19 @@ void ValueSwizzleWidget::draw_channel(QPainter *p, size_t i, int x)
 
   QRect r(x, i * channel_height_, channel_width_, channel_height_);
 
+  const QColor &main_col = i < kChannelColorCount ? kChannelColors[i] : kDefaultColor;
+  if (OLIVE_CONFIG("UseGradients").toBool()) {
+    QLinearGradient lg(r.topLeft(), r.bottomLeft());
+
+    lg.setColorAt(0.0, main_col.lighter());
+    lg.setColorAt(1.0, main_col);
+
+    p->setBrush(lg);
+  } else {
+    p->setBrush(main_col);
+  }
+
   p->setPen(Qt::black);
-  p->setBrush(i < kChannelColorCount ? kChannelColors[i] : kDefaultColor);
   p->drawRect(r);
 
   p->setPen(Qt::white);
