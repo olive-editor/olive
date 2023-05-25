@@ -146,7 +146,7 @@ public:
 
   bool is_using_standard_value(int track) const
   {
-    return (!is_keyframing() || keyframe_tracks_.at(track).isEmpty());
+    return (!is_keyframing() || track >= keyframe_tracks_.size() || keyframe_tracks_.at(track).isEmpty());
   }
 
 private:
