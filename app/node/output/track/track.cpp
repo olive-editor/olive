@@ -541,7 +541,7 @@ void Track::RippleRemoveBlock(Block *block)
   blocks_.removeAt(index);
   block_array_indexes_.removeAt(index);
 
-  Node::DisconnectEdge(block, NodeInput(this, kBlockInput, array_index));
+  Node::DisconnectEdge(NodeOutput(block), NodeInput(this, kBlockInput, array_index));
   empty_inputs_.push_back(array_index);
   disconnect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
 
@@ -577,8 +577,8 @@ void Track::ReplaceBlock(Block *old, Block *replace)
   int cache_index = blocks_.indexOf(old);
   int index_of_old_block = GetArrayIndexFromCacheIndex(cache_index);
 
-  DisconnectEdge(old, NodeInput(this, kBlockInput, index_of_old_block));
-  ConnectEdge(replace, NodeInput(this, kBlockInput, index_of_old_block));
+  DisconnectEdge(NodeOutput(old), NodeInput(this, kBlockInput, index_of_old_block));
+  ConnectEdge(NodeOutput(replace), NodeInput(this, kBlockInput, index_of_old_block));
   blocks_.replace(cache_index, replace);
   disconnect(old, &Block::LengthChanged, this, &Track::BlockLengthChanged);
   connect(replace, &Block::LengthChanged, this, &Track::BlockLengthChanged);
@@ -641,7 +641,7 @@ void Track::SetLocked(bool e)
   locked_ = e;
 }
 
-void Track::InputConnectedEvent(const QString &input, int element, Node *node)
+void Track::InputConnectedEvent(const QString &input, int element, const NodeOutput &node)
 {
   if (arraymap_invalid_ && input == kBlockInput && element >= 0) {
     RefreshBlockCacheFromArrayMap();
@@ -716,13 +716,13 @@ int Track::ConnectBlock(Block *b)
     int index = empty_inputs_.front();
     empty_inputs_.pop_front();
 
-    Node::ConnectEdge(b, NodeInput(this, kBlockInput, index));
+    Node::ConnectEdge(NodeOutput(b), NodeInput(this, kBlockInput, index));
 
     return index;
   } else {
     int old_sz = InputArraySize(kBlockInput);
     InputArrayAppend(kBlockInput);
-    Node::ConnectEdge(b, NodeInput(this, kBlockInput, old_sz));
+    Node::ConnectEdge(NodeOutput(b), NodeInput(this, kBlockInput, old_sz));
     return old_sz;
   }
 }

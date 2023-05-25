@@ -33,7 +33,6 @@ namespace olive {
 NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input, QWidget *parent) :
   QWidget(parent),
   input_(input),
-  connected_node_(nullptr),
   viewer_(nullptr)
 {
   QVBoxLayout *layout = new QVBoxLayout(this);
@@ -73,9 +72,9 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
   connected_to_lbl_->setFont(link_font);
 
   if (input_.IsConnected()) {
-    InputConnected(input_.GetConnectedOutput(), input_);
+    InputConnected(input_.GetConnectedOutput2(), input_);
   } else {
-    InputDisconnected(nullptr, input_);
+    InputDisconnected(NodeOutput(), input_);
   }
 
   connect(input_.node(), &Node::InputConnected, this, &NodeParamViewConnectedLabel::InputConnected);
@@ -116,18 +115,18 @@ void NodeParamViewConnectedLabel::CreateTree()
   layout()->addWidget(value_tree_);
 }
 
-void NodeParamViewConnectedLabel::InputConnected(Node *output, const NodeInput& input)
+void NodeParamViewConnectedLabel::InputConnected(const NodeOutput &output, const NodeInput& input)
 {
   if (input_ != input) {
     return;
   }
 
-  connected_node_ = output;
+  output_ = output;
 
   UpdateLabel();
 }
 
-void NodeParamViewConnectedLabel::InputDisconnected(Node *output, const NodeInput &input)
+void NodeParamViewConnectedLabel::InputDisconnected(const NodeOutput &output, const NodeInput &input)
 {
   if (input_ != input) {
     return;
@@ -135,7 +134,7 @@ void NodeParamViewConnectedLabel::InputDisconnected(Node *output, const NodeInpu
 
   Q_UNUSED(output)
 
-  connected_node_ = nullptr;
+  output_.Reset();
 
   UpdateLabel();
 }
@@ -146,7 +145,7 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
 
   QAction* disconnect_action = m.addAction(tr("Disconnect"));
   connect(disconnect_action, &QAction::triggered, this, [this](){
-    Core::instance()->undo_stack()->push(new NodeEdgeRemoveCommand(connected_node_, input_), Node::GetDisconnectCommandString(connected_node_, input_));
+    Core::instance()->undo_stack()->push(new NodeEdgeRemoveCommand(output_, input_), Node::GetDisconnectCommandString(output_, input_));
   });
 
   m.exec(QCursor::pos());
@@ -154,19 +153,19 @@ void NodeParamViewConnectedLabel::ShowLabelContextMenu()
 
 void NodeParamViewConnectedLabel::ConnectionClicked()
 {
-  if (connected_node_) {
-    emit RequestSelectNode(connected_node_);
+  if (output_.IsValid()) {
+    emit RequestSelectNode(output_.node());
   }
 }
 
 void NodeParamViewConnectedLabel::UpdateLabel()
 {
-  collapse_btn_->setVisible(connected_node_);
-  connected_to_lbl_->setVisible(connected_node_);
+  collapse_btn_->setVisible(output_.IsValid());
+  connected_to_lbl_->setVisible(output_.IsValid());
 
-  if (connected_node_) {
+  if (output_.IsValid()) {
     prefix_lbl_->setText(tr("Connected to"));
-    connected_to_lbl_->setText(connected_node_->GetLabelAndName());
+    connected_to_lbl_->setText(output_.node()->GetLabelAndName());
     prefix_lbl_->setForegroundRole(QPalette::Text);
   } else {
     prefix_lbl_->setText(tr("<font color='gray'>(Not Connected)</font>"));

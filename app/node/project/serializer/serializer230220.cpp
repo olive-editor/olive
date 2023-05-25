@@ -283,7 +283,7 @@ ProjectSerializer230220::LoadData ProjectSerializer230220::Load(Project *project
 
           if (Node *si = skipped_items.value(sc.output_node)) {
             // Convert this to a promised connection
-            Node::Connection oc = {si, sc.input};
+            Node::Connection oc = {NodeOutput(si, sc.output_param), sc.input};
             load_data.promised_connections.push_back(oc);
             it = project_data.desired_connections.erase(it);
           } else {
@@ -459,7 +459,7 @@ void ProjectSerializer230220::PostConnect(const QVector<Node *> &nodes, Serializ
 {
   foreach (const SerializedData::SerializedConnection& con, project_data->desired_connections) {
     if (Node *out = project_data->node_ptrs.value(con.output_node)) {
-      Node::ConnectEdge(out, con.input);
+      Node::ConnectEdge(NodeOutput(out, con.output_param), con.input);
     }
   }
 

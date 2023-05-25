@@ -190,7 +190,7 @@ protected:
     if (old_size_ > size_) {
       // Decreasing in size, disconnect any extraneous edges
       for (auto it = node_->input_connections().cbegin(); it != node_->input_connections().cend(); it++) {
-        Node *output = it->first;
+        const NodeOutput &output = it->first;
         const NodeInput &input = it->second;
 
         if (input.input() == input_ && input.element() >= size_) {
@@ -285,7 +285,7 @@ private:
  */
 class NodeEdgeRemoveCommand : public UndoCommand {
 public:
-  NodeEdgeRemoveCommand(Node *output, const NodeInput& input);
+  NodeEdgeRemoveCommand(const NodeOutput &output, const NodeInput& input);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -294,7 +294,7 @@ protected:
   virtual void undo() override;
 
 private:
-  Node *output_;
+  NodeOutput output_;
   NodeInput input_;
 
 };
@@ -306,7 +306,7 @@ private:
  */
 class NodeEdgeAddCommand : public UndoCommand {
 public:
-  NodeEdgeAddCommand(Node *output, const NodeInput& input);
+  NodeEdgeAddCommand(const NodeOutput &output, const NodeInput& input);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -315,7 +315,7 @@ protected:
   virtual void undo() override;
 
 private:
-  Node *output_;
+  NodeOutput output_;
   NodeInput input_;
 
 };
@@ -598,7 +598,7 @@ public:
 
   void AddNode(Node *node, Node *context);
 
-  void AddEdge(Node *output, const NodeInput &input);
+  void AddEdge(const NodeOutput &output, const NodeInput &input);
 
   bool ContainsNode(Node *node, Node *context);
 

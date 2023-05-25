@@ -350,7 +350,7 @@ int NodeParamViewItemBody::GetElementY(NodeInput c) const
   return lbl_center.y();
 }
 
-void NodeParamViewItemBody::EdgeChanged(Node *output, const NodeInput& input)
+void NodeParamViewItemBody::EdgeChanged(const NodeOutput &output, const NodeInput& input)
 {
   Q_UNUSED(output)
 

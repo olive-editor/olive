@@ -41,9 +41,9 @@ signals:
   void RequestSelectNode(Node *n);
 
 private slots:
-  void InputConnected(Node *output, const NodeInput &input);
+  void InputConnected(const NodeOutput &output, const NodeInput &input);
 
-  void InputDisconnected(Node *output, const NodeInput &input);
+  void InputDisconnected(const NodeOutput &output, const NodeInput &input);
 
   void ShowLabelContextMenu();
 
@@ -64,7 +64,7 @@ private:
 
   NodeInput input_;
 
-  Node *connected_node_;
+  NodeOutput output_;
 
   NodeValueTree *value_tree_;
 

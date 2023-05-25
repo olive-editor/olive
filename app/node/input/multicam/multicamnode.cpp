@@ -134,8 +134,9 @@ value_t MultiCamNode::Value(const ValueParams &p) const
       int c, r;
       MultiCamNode::IndexToRowCols(i, rows, cols, &r, &c);
 
-      if (Node *n = GetSourceNode(i)) {
-        value_t v = GetFakeConnectedValue(p, n, kSourcesInput, i);
+      NodeOutput o = GetSourceNode(i);
+      if (o.IsValid()) {
+        value_t v = GetFakeConnectedValue(p, o, kSourcesInput, i);
         job.Insert(QStringLiteral("tex_%1_%2").arg(QString::number(r), QString::number(c)), v);
       }
     }
@@ -145,8 +146,9 @@ value_t MultiCamNode::Value(const ValueParams &p) const
     // Default behavior: output currently selected source
     int current = GetInputValue(p, kCurrentInput).toInt();
 
-    if (Node *n = GetSourceNode(current)) {
-      return GetFakeConnectedValue(p, n, kSourcesInput, current);
+    NodeOutput o = GetSourceNode(current);
+    if (o.IsValid()) {
+      return GetFakeConnectedValue(p, o, kSourcesInput, current);
     }
   }
 
@@ -161,17 +163,17 @@ void MultiCamNode::IndexToRowCols(int index, int total_rows, int total_cols, int
   *row = index/total_cols;
 }
 
-void MultiCamNode::InputConnectedEvent(const QString &input, int element, Node *output)
+void MultiCamNode::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kSequenceInput) {
-    if (Sequence *s = dynamic_cast<Sequence*>(output)) {
+    if (Sequence *s = dynamic_cast<Sequence*>(output.node())) {
       SetInputFlag(kSequenceTypeInput, kInputFlagHidden, false);
       sequence_ = s;
     }
   }
 }
 
-void MultiCamNode::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void MultiCamNode::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kSequenceInput) {
     SetInputFlag(kSequenceTypeInput, kInputFlagHidden, true);
@@ -179,12 +181,12 @@ void MultiCamNode::InputDisconnectedEvent(const QString &input, int element, Nod
   }
 }
 
-Node *MultiCamNode::GetSourceNode(int source) const
+NodeOutput MultiCamNode::GetSourceNode(int source) const
 {
   if (sequence_) {
-    return GetTrackList()->GetTrackAt(source);
+    return NodeOutput(GetTrackList()->GetTrackAt(source));
   } else {
-    return GetConnectedOutput(kSourcesInput, source);
+    return GetConnectedOutput2(kSourcesInput, source);
   }
 }
 
@@ -208,8 +210,9 @@ void MultiCamNode::Retranslate()
   names.reserve(name_count);
   for (int i=0; i<name_count; i++) {
     QString src_name;
-    if (Node *n = GetSourceNode(i)) {
-      src_name = n->Name();
+    NodeOutput o = GetSourceNode(i);
+    if (o.IsValid()) {
+      src_name = o.node()->Name();
     }
     names.append(tr("%1: %2").arg(QString::number(i+1), src_name));
   }

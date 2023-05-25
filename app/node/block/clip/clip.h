@@ -212,9 +212,9 @@ public:
 protected:
   virtual void LinkChangeEvent() override;
 
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 

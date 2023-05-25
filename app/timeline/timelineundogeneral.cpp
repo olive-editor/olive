@@ -130,7 +130,7 @@ void TimelineAddTrackCommand::redo()
     track_->SetTrackHeight(timeline_->GetTrackAt(timeline_->GetTrackCount()-1)->GetTrackHeight());
   }
   timeline_->ArrayAppend();
-  Node::ConnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
+  Node::ConnectEdge(NodeOutput(track_), timeline_->track_input(timeline_->ArraySize() - 1));
 
   qreal position_factor = 0.5;
   if (timeline_->type() == Track::kVideo) {
@@ -150,10 +150,10 @@ void TimelineAddTrackCommand::redo()
     merge_->setParent(timeline_->GetParentGraph());
 
     // Connect merge between what used to be here
-    Node::DisconnectEdge(previous_connection, direct_);
-    Node::ConnectEdge(merge_, direct_);
-    Node::ConnectEdge(previous_connection, base_);
-    Node::ConnectEdge(track_, blend_);
+    Node::DisconnectEdge(NodeOutput(previous_connection), direct_);
+    Node::ConnectEdge(NodeOutput(merge_), direct_);
+    Node::ConnectEdge(NodeOutput(previous_connection), base_);
+    Node::ConnectEdge(NodeOutput(track_), blend_);
 
     if (create_pos_command) {
       position_command_->add_child(new NodeSetPositionCommand(track_, sequence, sequence->GetNodePositionInContext(sequence) + QPointF(-1, -position_factor)));
@@ -162,7 +162,7 @@ void TimelineAddTrackCommand::redo()
     }
   } else if (direct_.IsValid() && !direct_.IsConnected()) {
     // If no merge, we have a direct connection, and nothing else is connected, connect this
-    Node::ConnectEdge(track_, direct_);
+    Node::ConnectEdge(NodeOutput(track_), direct_);
 
     if (create_pos_command) {
       // Just position directly next to the context node
@@ -186,18 +186,18 @@ void TimelineAddTrackCommand::undo()
   if (merge_) {
     Node *previous_connection = base_.GetConnectedOutput();
 
-    Node::DisconnectEdge(track_, blend_);
-    Node::DisconnectEdge(previous_connection, base_);
-    Node::DisconnectEdge(merge_, direct_);
-    Node::ConnectEdge(previous_connection, direct_);
+    Node::DisconnectEdge(NodeOutput(track_), blend_);
+    Node::DisconnectEdge(NodeOutput(previous_connection), base_);
+    Node::DisconnectEdge(NodeOutput(merge_), direct_);
+    Node::ConnectEdge(NodeOutput(previous_connection), direct_);
 
     merge_->setParent(&memory_manager_);
   } else if (direct_.IsValid() && direct_.GetConnectedOutput() == track_) {
-    Node::DisconnectEdge(track_, direct_);
+    Node::DisconnectEdge(NodeOutput(track_), direct_);
   }
 
   // Remove track
-  Node::DisconnectEdge(track_, timeline_->track_input(timeline_->ArraySize() - 1));
+  Node::DisconnectEdge(NodeOutput(track_), timeline_->track_input(timeline_->ArraySize() - 1));
   timeline_->ArrayRemoveLast();
   track_->setParent(&memory_manager_);
 }
@@ -224,11 +224,11 @@ void TransitionRemoveCommand::redo()
   }
 
   if (in_block_) {
-    Node::DisconnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
+    Node::DisconnectEdge(NodeOutput(in_block_), NodeInput(block_, TransitionBlock::kInBlockInput));
   }
 
   if (out_block_) {
-    Node::DisconnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
+    Node::DisconnectEdge(NodeOutput(out_block_), NodeInput(block_, TransitionBlock::kOutBlockInput));
   }
 
   track_->RippleRemoveBlock(block_);
@@ -255,11 +255,11 @@ void TransitionRemoveCommand::undo()
   }
 
   if (in_block_) {
-    Node::ConnectEdge(in_block_, NodeInput(block_, TransitionBlock::kInBlockInput));
+    Node::ConnectEdge(NodeOutput(in_block_), NodeInput(block_, TransitionBlock::kInBlockInput));
   }
 
   if (out_block_) {
-    Node::ConnectEdge(out_block_, NodeInput(block_, TransitionBlock::kOutBlockInput));
+    Node::ConnectEdge(NodeOutput(out_block_), NodeInput(block_, TransitionBlock::kOutBlockInput));
   }
 
   // These if statements must be separated because in_offset and out_offset report different things
@@ -629,13 +629,13 @@ void TimelineAddDefaultTransitionCommand::AddTransition(ClipBlock *c, CreateTran
         // Connect
         switch (mode) {
         case kIn:
-          commands_.append(new NodeEdgeAddCommand(c, NodeInput(transition, TransitionBlock::kInBlockInput)));
+          commands_.append(new NodeEdgeAddCommand(NodeOutput(c), NodeInput(transition, TransitionBlock::kInBlockInput)));
           break;
         case kOutDual:
-          commands_.append(new NodeEdgeAddCommand(c->next(), NodeInput(transition, TransitionBlock::kInBlockInput)));
+          commands_.append(new NodeEdgeAddCommand(NodeOutput(c->next()), NodeInput(transition, TransitionBlock::kInBlockInput)));
           /* fall through */
         case kOut:
-          commands_.append(new NodeEdgeAddCommand(c, NodeInput(transition, TransitionBlock::kOutBlockInput)));
+          commands_.append(new NodeEdgeAddCommand(NodeOutput(c), NodeInput(transition, TransitionBlock::kOutBlockInput)));
           break;
         }
       }

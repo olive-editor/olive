@@ -34,6 +34,7 @@ struct SerializedData {
   struct SerializedConnection {
     NodeInput input;
     quintptr output_node;
+    QString output_param;
   };
 
   struct BlockLink {

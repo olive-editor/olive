@@ -56,13 +56,13 @@ public:
   }
 
 protected:
-  virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
-  virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
+  virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
+  virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
 private:
   static ShaderCode GetShaderCode(const QString &id);
 
-  Node *GetSourceNode(int source) const;
+  NodeOutput GetSourceNode(int source) const;
 
   TrackList *GetTrackList() const;
 

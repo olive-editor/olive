@@ -643,7 +643,7 @@ void ProjectSerializer211228::PostConnect(const XMLNodeData &xml_node_data) cons
 {
   foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
     if (Node *out = xml_node_data.node_ptrs.value(con.output_node)) {
-      Node::ConnectEdge(out, con.input);
+      Node::ConnectEdge(NodeOutput(out), con.input);
     }
   }
 
@@ -800,7 +800,8 @@ void ProjectSerializer211228::LoadValueHint(Node::ValueHint *hint, QXmlStreamRea
 {
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("tag")) {
-      hint->set_tag(reader->readElementText());
+      QString output = reader->readElementText();
+      qDebug() << "FIXME: need to propagate output" << output;
     } else {
       reader->skipCurrentElement();
     }

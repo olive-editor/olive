@@ -174,7 +174,7 @@ Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, 
   if (node_to_add) {
     QPointF extra_node_offset(kDefaultDistanceFromOutput, 0);
     command->add_child(new NodeAddCommand(graph, node_to_add));
-    command->add_child(new NodeEdgeAddCommand(node_to_add, NodeInput(clip, ClipBlock::kBufferIn)));
+    command->add_child(new NodeEdgeAddCommand(NodeOutput(node_to_add), NodeInput(clip, ClipBlock::kBufferIn)));
     command->add_child(new NodeSetPositionCommand(node_to_add, clip, extra_node_offset));
 
     if (!rect.isNull()) {

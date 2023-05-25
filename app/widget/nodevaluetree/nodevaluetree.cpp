@@ -40,7 +40,9 @@ void NodeValueTree::SetNode(const NodeInput &input)
 
   input_ = input;
 
-  if (Node *connected_node = input.GetConnectedOutput()) {
+  NodeOutput output = input.GetConnectedOutput2();
+  if (output.IsValid()) {
+    Node *connected_node = output.node();
     connected_node->Retranslate();
     connect(connected_node, &Node::InputValueHintChanged, this, &NodeValueTree::ValueHintChanged);
 
@@ -59,7 +61,7 @@ void NodeValueTree::SetNode(const NodeInput &input)
       radio->setProperty("output", o.id);
       connect(radio, &QRadioButton::clicked, this, &NodeValueTree::RadioButtonChecked);
 
-      if (vh.tag() == o.id) {
+      if (output.output() == o.id) {
         radio->setChecked(true);
       }
 
@@ -69,7 +71,8 @@ void NodeValueTree::SetNode(const NodeInput &input)
       swizzler_items->setFlags(Qt::NoItemFlags);
 
       ValueSwizzleWidget *b = new ValueSwizzleWidget();
-      b->set_channels(4, input.GetChannelCount());
+      //b->set_channels(4, input.GetChannelCount());
+      b->set_channels(4, 4);
       b->set(vh.swizzle());
       connect(b, &ValueSwizzleWidget::value_changed, this, &NodeValueTree::SwizzleChanged);
       this->setItemWidget(swizzler_items, 1, b);
@@ -115,9 +118,14 @@ void NodeValueTree::RadioButtonChecked(bool e)
     QString tag = btn->property("output").toString();
     NodeInput input = btn->property("input").value<NodeInput>();
 
-    Node::ValueHint hint = input.node()->GetValueHintForInput(input.input(), input.element());
-    hint.set_tag(tag);
-    Core::instance()->undo_stack()->push(new NodeSetValueHintCommand(input, hint), tr("Switched Connected Output Parameter"));
+    NodeOutput old_output = input.GetConnectedOutput2();
+    MultiUndoCommand *command = new MultiUndoCommand();
+    command->add_child(new NodeEdgeAddCommand(old_output, input));
+
+    old_output.set_output(tag);
+    command->add_child(new NodeEdgeAddCommand(old_output, input));
+
+    Core::instance()->undo_stack()->push(command, tr("Switched Connected Output Parameter"));
   }
 }
 
@@ -139,11 +147,14 @@ void NodeValueTree::ValueHintChanged(const NodeInput &input)
 {
   if (input == input_) {
     Node::ValueHint vh = input.node()->GetValueHintForInput(input.input(), input.element());
+
+    NodeOutput output = input.GetConnectedOutput2();
+
     for (int i = 0; i < this->topLevelItemCount(); i++) {
       QTreeWidgetItem *item = this->topLevelItem(i);
       QRadioButton *rb = static_cast<QRadioButton *>(this->itemWidget(item, 0));
 
-      if (rb->property("output").toString() == vh.tag()) {
+      if (rb->property("output").toString() == output.output()) {
         rb->setChecked(true);
 
         ValueSwizzleWidget *b = GetSwizzleWidgetFromTopLevelItem(i);

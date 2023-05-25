@@ -52,9 +52,9 @@ public slots:
 
   void RemoveChild(Node *node);
 
-  void ChildInputConnected(Node *output, const NodeInput& input);
+  void ChildInputConnected(const NodeOutput &output, const NodeInput& input);
 
-  bool ChildInputDisconnected(Node *output, const NodeInput& input);
+  bool ChildInputDisconnected(const NodeOutput &output, const NodeInput& input);
 
 signals:
   void ItemAboutToBeDeleted(NodeViewItem *item);
@@ -67,7 +67,7 @@ protected:
 private:
   void AddNodeInternal(Node *node, NodeViewItem *item);
 
-  void AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to);
+  void AddEdgeInternal(const NodeOutput &output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to);
 
   Node *context_;
 

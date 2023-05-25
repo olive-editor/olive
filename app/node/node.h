@@ -337,11 +337,11 @@ public:
     }
   }
 
-  static bool ConnectionExists(Node *output, const NodeInput& input);
+  static bool ConnectionExists(const NodeOutput &output, const NodeInput& input);
 
-  static void ConnectEdge(Node *output, const NodeInput& input);
+  static void ConnectEdge(const NodeOutput &output, const NodeInput& input);
 
-  static void DisconnectEdge(Node *output, const NodeInput& input);
+  static void DisconnectEdge(const NodeOutput &output, const NodeInput& input);
 
   void CopyCacheUuidsFrom(Node *n);
 
@@ -385,7 +385,16 @@ public:
     return IsInputStatic(input.input(), input.element());
   }
 
-  Node *GetConnectedOutput(const QString& input, int element = -1) const;
+  NodeOutput GetConnectedOutput2(const QString& input, int element = -1) const;
+  NodeOutput GetConnectedOutput2(const NodeInput& input) const
+  {
+    return GetConnectedOutput2(input.input(), input.element());
+  }
+
+  Node *GetConnectedOutput(const QString& input, int element = -1) const
+  {
+    return GetConnectedOutput2(input, element).node();
+  }
 
   Node *GetConnectedOutput(const NodeInput& input) const
   {
@@ -549,7 +558,7 @@ public:
   int InputArraySize(const QString& id) const;
 
   value_t GetInputValue(const ValueParams &g, const QString &input, int element = -1) const;
-  value_t GetFakeConnectedValue(const ValueParams &g, Node *node, const QString &input, int element = -1) const;
+  value_t GetFakeConnectedValue(const ValueParams &g, NodeOutput output, const QString &input, int element = -1) const;
 
   NodeInputImmediate* GetImmediate(const QString& input, int element) const;
 
@@ -568,9 +577,6 @@ public:
   public:
     ValueHint() = default;
 
-    const QString& tag() const { return tag_; }
-    void set_tag(const QString &tag) { tag_ = tag; }
-
     const SwizzleMap &swizzle() const { return swizzle_; }
     void set_swizzle(const SwizzleMap &m) { swizzle_ = m; }
 
@@ -578,7 +584,6 @@ public:
     void save(QXmlStreamWriter *writer) const;
 
   private:
-    QString tag_;
     SwizzleMap swizzle_;
 
   };
@@ -599,7 +604,7 @@ public:
 
   const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
 
-  using Connection = std::pair<Node*, NodeInput>;
+  using Connection = std::pair<NodeOutput, NodeInput>;
   using Connections = std::vector<Connection>;
 
   /**
@@ -835,8 +840,8 @@ public:
   virtual void AddedToGraphEvent(Project *p){}
   virtual void RemovedFromGraphEvent(Project *p){}
 
-  static QString GetConnectCommandString(Node *output, const NodeInput &input);
-  static QString GetDisconnectCommandString(Node *output, const NodeInput &input);
+  static QString GetConnectCommandString(const NodeOutput &output, const NodeInput &input);
+  static QString GetDisconnectCommandString(const NodeOutput &output, const NodeInput &input);
 
   static const QString kEnabledInput;
 
@@ -916,9 +921,9 @@ protected:
 
   virtual void InputValueChangedEvent(const QString& input, int element);
 
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output);
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &output);
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output);
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput &output);
 
   virtual void OutputConnectedEvent(const NodeInput& input);
 
@@ -997,13 +1002,13 @@ signals:
 
   void ValueChanged(const NodeInput& input, const TimeRange& range);
 
-  void InputConnected(Node *output, const NodeInput& input);
+  void InputConnected(const NodeOutput &output, const NodeInput& input);
 
-  void InputDisconnected(Node *output, const NodeInput& input);
+  void InputDisconnected(const NodeOutput &output, const NodeInput& input);
 
-  void OutputConnected(Node *output, const NodeInput& input);
+  void OutputConnected(const NodeOutput &output, const NodeInput& input);
 
-  void OutputDisconnected(Node *output, const NodeInput& input);
+  void OutputDisconnected(const NodeOutput &output, const NodeInput& input);
 
   void InputValueHintChanged(const NodeInput& input);
 

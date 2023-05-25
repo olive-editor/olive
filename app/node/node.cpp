@@ -187,10 +187,10 @@ QBrush Node::brush(qreal top, qreal bottom) const
   }
 }
 
-bool Node::ConnectionExists(Node *output, const NodeInput &input)
+bool Node::ConnectionExists(const NodeOutput &output, const NodeInput &input)
 {
-  for (auto it = output->output_connections_.cbegin(); it != output->output_connections_.cend(); it++) {
-    if (it->second == input) {
+  for (auto it = output.node()->output_connections_.cbegin(); it != output.node()->output_connections_.cend(); it++) {
+    if (it->first == output && it->second == input) {
       return true;
     }
   }
@@ -198,26 +198,26 @@ bool Node::ConnectionExists(Node *output, const NodeInput &input)
   return false;
 }
 
-void Node::ConnectEdge(Node *output, const NodeInput &input)
+void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
 {
   // Ensure graph is the same
-  Q_ASSERT(input.node()->parent() == output->parent());
+  Q_ASSERT(input.node()->parent() == output.node()->parent());
 
   // Ensure connection doesn't already exist
   Q_ASSERT(!ConnectionExists(output, input));
 
   // Insert connection on both sides
-  auto conn = std::pair<Node*, NodeInput>({output, input});
+  auto conn = std::pair<NodeOutput, NodeInput>({output, input});
   input.node()->input_connections_.push_back(conn);
-  output->output_connections_.push_back(conn);
+  output.node()->output_connections_.push_back(conn);
 
   // Call internal events
   input.node()->InputConnectedEvent(input.input(), input.element(), output);
-  output->OutputConnectedEvent(input);
+  output.node()->OutputConnectedEvent(input);
 
   // Emit signals
   emit input.node()->InputConnected(output, input);
-  emit output->OutputConnected(output, input);
+  emit output.node()->OutputConnected(output, input);
 
   // Invalidate all if this node isn't ignoring this input
   if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreInvalidations)) {
@@ -225,29 +225,29 @@ void Node::ConnectEdge(Node *output, const NodeInput &input)
   }
 }
 
-void Node::DisconnectEdge(Node *output, const NodeInput &input)
+void Node::DisconnectEdge(const NodeOutput &output, const NodeInput &input)
 {
   // Ensure graph is the same
-  Q_ASSERT(input.node()->parent() == output->parent());
+  Q_ASSERT(input.node()->parent() == output.node()->parent());
 
   // Ensure connection exists
   Q_ASSERT(ConnectionExists(output, input));
 
   // Remove connection from both sides
-  auto conn = std::pair<Node*, NodeInput>({output, input});
+  auto conn = std::pair<NodeOutput, NodeInput>({output, input});
 
   Connections& inputs = input.node()->input_connections_;
   inputs.erase(std::find(inputs.begin(), inputs.end(), conn));
 
-  Connections& outputs = output->output_connections_;
+  Connections& outputs = output.node()->output_connections_;
   outputs.erase(std::find(outputs.begin(), outputs.end(), conn));
 
   // Call internal events
   input.node()->InputDisconnectedEvent(input.input(), input.element(), output);
-  output->OutputDisconnectedEvent(input);
+  output.node()->OutputDisconnectedEvent(input);
 
   emit input.node()->InputDisconnected(output, input);
-  emit output->OutputDisconnected(output, input);
+  emit output.node()->OutputDisconnected(output, input);
 
   if (!(input.node()->GetInputFlags(input.input()) & kInputFlagIgnoreInvalidations)) {
     input.node()->InvalidateAll(input.input(), input.element());
@@ -324,7 +324,7 @@ bool Node::IsInputConnected(const QString &input, int element) const
   return GetConnectedOutput(input, element);
 }
 
-Node *Node::GetConnectedOutput(const QString &input, int element) const
+NodeOutput Node::GetConnectedOutput2(const QString &input, int element) const
 {
   // NOTE: Only returns the first output connected to this input, there may be more than one
   for (auto it = input_connections_.cbegin(); it != input_connections_.cend(); it++) {
@@ -333,7 +333,7 @@ Node *Node::GetConnectedOutput(const QString &input, int element) const
     }
   }
 
-  return nullptr;
+  return NodeOutput();
 }
 
 bool Node::IsUsingStandardValue(const QString &input, int track, int element) const
@@ -870,7 +870,8 @@ int Node::InputArraySize(const QString &id) const
 value_t Node::GetInputValue(const ValueParams &g, const QString &input, int element) const
 {
   if (!g.is_cancelled()) {
-    if (Node *output = GetConnectedOutput(input, element)) {
+    NodeOutput output = GetConnectedOutput2(input, element);
+    if (output.IsValid()) {
       return GetFakeConnectedValue(g, output, input, element);
     } else {
       TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
@@ -892,21 +893,21 @@ value_t Node::GetInputValue(const ValueParams &g, const QString &input, int elem
   return value_t();
 }
 
-value_t Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QString &input, int element) const
+value_t Node::GetFakeConnectedValue(const ValueParams &g, NodeOutput output, const QString &input, int element) const
 {
   if (!g.is_cancelled()) {
     TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
 
-    while (output) {
-      if (output->is_enabled()) {
+    while (output.IsValid()) {
+      if (output.node()->is_enabled()) {
         Node::ValueHint vh = this->GetValueHintForInput(input, element);
-        ValueParams connp = g.time_transformed(adjusted_time).output_edited(vh.tag());
+        ValueParams connp = g.time_transformed(adjusted_time).output_edited(output.output());
 
         // Find cached value with this
         value_t v;
-        if (!g.get_cached_value(output, connp, v)) {
-          v = output->Value(connp);
-          g.insert_cached_value(output, connp, v);
+        if (!g.get_cached_value(output.node(), connp, v)) {
+          v = output.node()->Value(connp);
+          g.insert_cached_value(output.node(), connp, v);
         }
 
         // Perform swizzle if requested
@@ -942,7 +943,7 @@ value_t Node::GetFakeConnectedValue(const ValueParams &g, Node *output, const QS
 
         return v;
       } else {
-        output = output->GetConnectedOutput(output->GetEffectInput());
+        output = output.node()->GetConnectedOutput2(output.node()->GetEffectInput());
       }
     }
   }
@@ -1085,11 +1086,11 @@ void Node::CopyDependencyGraph(const QVector<Node *> &src, const QVector<Node *>
 
     for (auto it=src_node->input_connections_.cbegin(); it!=src_node->input_connections_.cend(); it++) {
       // Determine if the connected node is in our src list
-      int connection_index = src.indexOf(it->first);
+      int connection_index = src.indexOf(it->first.node());
 
       if (connection_index > -1) {
         // Find the equivalent node in the dst list
-        Node *copied_output = dst.at(connection_index);
+        NodeOutput copied_output = NodeOutput(dst.at(connection_index), it->first.output());
         NodeInput copied_input = NodeInput(dst_node, it->second.input(), it->second.element());
 
         if (command) {
@@ -1153,23 +1154,27 @@ Node *Node::CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node*, Node*>& cre
   // Go through input connections and copy if non-item and connect if item
   for (auto it=node->input_connections_.cbegin(); it!=node->input_connections_.cend(); it++) {
     NodeInput input = it->second;
-    Node* connected = it->first;
+    NodeOutput output = it->first;
+    //Node* connected = it->first.node();
     Node* connected_copy;
 
-    if (connected->IsItem()) {
+    if (output.node()->IsItem()) {
       // This is an item and we avoid copying those and just connect to them directly
-      connected_copy = connected;
+      connected_copy = output.node();
     } else {
       // Non-item, we want to clone this too
-      connected_copy = created.value(connected, nullptr);
+      connected_copy = created.value(output.node(), nullptr);
       if (!connected_copy) {
-        connected_copy = CopyNodeAndDependencyGraphMinusItemsInternal(created, connected, command);
+        connected_copy = CopyNodeAndDependencyGraphMinusItemsInternal(created, output.node(), command);
       }
     }
 
     NodeInput copied_input = input;
     copied_input.set_node(copy);
-    command->add_child(new NodeEdgeAddCommand(connected_copy, copied_input));
+
+    NodeOutput copied_output(connected_copy, output.output());
+
+    command->add_child(new NodeEdgeAddCommand(copied_output, copied_input));
     command->add_child(new NodeSetValueHintCommand(copied_input, node->GetValueHintForInput(input.input(), input.element())));
   }
 
@@ -1279,8 +1284,6 @@ bool Node::Load(QXmlStreamReader *reader, SerializedData *data)
     }
   }
 
-  Q_UNUSED(version)
-
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("input")) {
       LoadInput(reader, data);
@@ -1315,17 +1318,29 @@ bool Node::Load(QXmlStreamReader *reader, SerializedData *data)
             }
           }
 
-          QString output_node_id;
+          QString output_node_id, output_param;
 
           while (XMLReadNextStartElement(reader)) {
             if (reader->name() == QStringLiteral("output")) {
-              output_node_id = reader->readElementText();
+              if (version < 2) {
+                output_node_id = reader->readElementText();
+              } else {
+                while (XMLReadNextStartElement(reader)) {
+                  if (reader->name() == QStringLiteral("node")) {
+                    output_node_id = reader->readElementText();
+                  } else if (reader->name() == QStringLiteral("param")) {
+                    output_param = reader->readElementText();
+                  } else {
+                    reader->skipCurrentElement();
+                  }
+                }
+              }
             } else {
               reader->skipCurrentElement();
             }
           }
 
-          data->desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong()});
+          data->desired_connections.append({NodeInput(this, param_id, ele), output_node_id.toULongLong(), output_param});
         } else {
           reader->skipCurrentElement();
         }
@@ -1403,7 +1418,7 @@ bool Node::Load(QXmlStreamReader *reader, SerializedData *data)
 
 void Node::Save(QXmlStreamWriter *writer) const
 {
-  writer->writeAttribute(QStringLiteral("version"), QString::number(1));
+  writer->writeAttribute(QStringLiteral("version"), QString::number(2));
   writer->writeAttribute(QStringLiteral("id"), this->id());
   writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
@@ -1439,7 +1454,10 @@ void Node::Save(QXmlStreamWriter *writer) const
       writer->writeAttribute(QStringLiteral("input"), it->second.input());
       writer->writeAttribute(QStringLiteral("element"), QString::number(it->second.element()));
 
-      writer->writeTextElement(QStringLiteral("output"), QString::number(reinterpret_cast<quintptr>(it->first)));
+      writer->writeStartElement(QStringLiteral("output"));
+      writer->writeTextElement(QStringLiteral("node"), QString::number(reinterpret_cast<quintptr>(it->first.node())));
+      writer->writeTextElement(QStringLiteral("param"), it->first.output());
+      writer->writeEndElement(); // output
 
       writer->writeEndElement(); // connection
     }
@@ -1896,14 +1914,14 @@ void Node::ArrayResizeInternal(const QString &id, size_t size)
   }
 }
 
-QString Node::GetConnectCommandString(Node *output, const NodeInput &input)
+QString Node::GetConnectCommandString(const NodeOutput &output, const NodeInput &input)
 {
-  return tr("Connected %1 to %2 - %3").arg(output->GetLabelAndName(), input.node()->GetLabelAndName(), input.GetInputName());
+  return tr("Connected %1 to %2 - %3").arg(output.node()->GetLabelAndName(), input.node()->GetLabelAndName(), input.GetInputName());
 }
 
-QString Node::GetDisconnectCommandString(Node *output, const NodeInput &input)
+QString Node::GetDisconnectCommandString(const NodeOutput &output, const NodeInput &input)
 {
-  return tr("Disconnected %1 from %2 - %3").arg(output->GetLabelAndName(), input.node()->GetLabelAndName(), input.GetInputName());
+  return tr("Disconnected %1 from %2 - %3").arg(output.node()->GetLabelAndName(), input.node()->GetLabelAndName(), input.GetInputName());
 }
 
 int Node::GetInternalInputArraySize(const QString &input)
@@ -1914,10 +1932,10 @@ int Node::GetInternalInputArraySize(const QString &input)
 void FindWaysNodeArrivesHereRecursively(const Node *output, const Node *input, QVector<NodeInput> &v)
 {
   for (auto it=input->input_connections().cbegin(); it!=input->input_connections().cend(); it++) {
-    if (it->first == output) {
+    if (it->first.node() == output) {
       v.append(it->second);
     } else {
-      FindWaysNodeArrivesHereRecursively(output, it->first, v);
+      FindWaysNodeArrivesHereRecursively(output, it->first.node(), v);
     }
   }
 }
@@ -2113,7 +2131,7 @@ void Node::CopyValuesOfElement(const Node *src, Node *dst, const QString &input,
 void GetDependenciesRecursively(QVector<Node*>& list, const Node* node, bool traverse, bool exclusive_only)
 {
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node* connected_node = it->first;
+    Node* connected_node = it->first.node();
 
     if (!exclusive_only || !connected_node->IsItem()) {
       if (!list.contains(connected_node)) {
@@ -2162,7 +2180,7 @@ QVector<Node *> Node::GetImmediateDependencies() const
 bool Node::InputsFrom(Node *n, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-    Node *connected = it->first;
+    Node *connected = it->first.node();
 
     if (connected == n) {
       return true;
@@ -2177,7 +2195,7 @@ bool Node::InputsFrom(Node *n, bool recursively) const
 bool Node::InputsFrom(const QString &id, bool recursively) const
 {
   for (auto it=input_connections_.cbegin(); it!=input_connections_.cend(); it++) {
-    Node *connected = it->first;
+    Node *connected = it->first.node();
 
     if (connected->id() == id) {
       return true;
@@ -2365,14 +2383,14 @@ void Node::InputValueChangedEvent(const QString &input, int element)
   Q_UNUSED(element)
 }
 
-void Node::InputConnectedEvent(const QString &input, int element, Node *output)
+void Node::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   Q_UNUSED(input)
   Q_UNUSED(element)
   Q_UNUSED(output)
 }
 
-void Node::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void Node::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   Q_UNUSED(input)
   Q_UNUSED(element)
@@ -2558,7 +2576,7 @@ bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path
   for (auto it = to->input_connections().cbegin(); it != to->input_connections().cend(); it++) {
     vec.push_front(it->second);
 
-    if (it->first == from) {
+    if (it->first.node() == from) {
       // Found a path! Determine if it's the index we want
       if (path_index == 0) {
         // It is!
@@ -2569,7 +2587,7 @@ bool FindPathInternal(std::list<NodeInput> &vec, Node *from, Node *to, int &path
       }
     }
 
-    if (FindPathInternal(vec, from, it->first, path_index)) {
+    if (FindPathInternal(vec, from, it->first.node(), path_index)) {
       return true;
     }
 
@@ -2599,7 +2617,10 @@ bool Node::ValueHint::load(QXmlStreamReader *reader)
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("tag")) {
-      this->set_tag(reader->readElementText());
+      QString output = reader->readElementText();
+      qDebug() << "FIXME: need to propagate output" << output;
+    } else if (reader->name() == QStringLiteral("swizzle")) {
+      this->swizzle_.load(reader);
     } else {
       reader->skipCurrentElement();
     }
@@ -2612,7 +2633,13 @@ void Node::ValueHint::save(QXmlStreamWriter *writer) const
 {
   writer->writeAttribute(QStringLiteral("version"), QString::number(2));
 
-  writer->writeTextElement(QStringLiteral("tag"), this->tag());
+  if (!this->swizzle_.empty()) {
+    writer->writeStartElement(QStringLiteral("swizzle"));
+
+    this->swizzle_.save(writer);
+
+    writer->writeEndElement(); // swizzle
+  }
 }
 
 bool Node::Position::load(QXmlStreamReader *reader)

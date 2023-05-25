@@ -447,7 +447,7 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void InputConnectedEvent(const QString& input, int element, Node *node) override;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &node) override;
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:

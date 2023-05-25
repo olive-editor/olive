@@ -96,6 +96,15 @@ Node *NodeInput::GetConnectedOutput() const
   }
 }
 
+NodeOutput NodeInput::GetConnectedOutput2() const
+{
+  if (IsValid()) {
+    return node_->GetConnectedOutput2(*this);
+  } else {
+    return NodeOutput();
+  }
+}
+
 type_t NodeInput::GetDataType() const
 {
   if (IsValid()) {

@@ -79,9 +79,9 @@ protected:
 
   virtual void SampleJobEvent(const ValueParams &p, SampleJob *job) const {}
 
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 

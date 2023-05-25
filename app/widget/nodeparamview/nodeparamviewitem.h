@@ -144,7 +144,7 @@ private:
   static const int kMaxWidgetColumn;
 
 private slots:
-  void EdgeChanged(Node *output, const NodeInput &input);
+  void EdgeChanged(const NodeOutput &output, const NodeInput &input);
 
   void ArrayCollapseBtnPressed(bool checked);
 

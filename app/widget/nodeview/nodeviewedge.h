@@ -39,7 +39,7 @@ class NodeViewItem;
 class NodeViewEdge : public CurvedConnectorItem
 {
 public:
-  NodeViewEdge(Node *output, const NodeInput& input,
+  NodeViewEdge(const NodeOutput &output, const NodeInput& input,
                NodeViewItem* from_item, NodeViewItem* to_item,
                QGraphicsItem* parent = nullptr);
 
@@ -47,8 +47,8 @@ public:
 
   virtual ~NodeViewEdge() override;
 
-  Node *output() const { return output_; }
-  const NodeInput& input() const { return input_; }
+  const NodeOutput &output() const { return output_; }
+  const NodeInput &input() const { return input_; }
   int element() const { return element_; }
   NodeViewItem* from_item() const { return from_item_; }
   NodeViewItem* to_item() const { return to_item_; }
@@ -63,7 +63,7 @@ protected:
   virtual NodeViewCommon::FlowDirection GetToDirection() const override;
 
 private:
-  Node *output_;
+  NodeOutput output_;
 
   NodeInput input_;
 

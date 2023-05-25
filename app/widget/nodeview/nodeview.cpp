@@ -1133,7 +1133,7 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
 
         // Place new edges
         drop_edge_command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
-        drop_edge_command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
+        drop_edge_command->add_child(new NodeEdgeAddCommand(NodeOutput(dropping_node), drop_edge_->input()));
       }
 
       drop_edge_ = nullptr;
@@ -1641,7 +1641,7 @@ void NodeView::EndEdgeDrag(bool cancel)
           creating_input = input_group->GetInputFromID(creating_input.input());
         }
 
-        if (Node::ConnectionExists(creating_output, creating_input)) {
+        if (Node::ConnectionExists(NodeOutput(creating_output), creating_input)) {
           cancel = true;
         }
 
@@ -1664,9 +1664,9 @@ void NodeView::EndEdgeDrag(bool cancel)
         }*/
 
         if (!cancel) {
-          command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
+          command->add_child(new NodeEdgeAddCommand(NodeOutput(creating_output), creating_input));
 
-          command_name = Node::GetConnectCommandString(creating_output, creating_input);
+          command_name = Node::GetConnectCommandString(NodeOutput(creating_output), creating_input);
 
           // If the output is not in the input's context, add it now. We check the item rather than
           // the node itself, because sometimes a node may not be in the context but another node

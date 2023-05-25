@@ -736,12 +736,12 @@ void PointerTool::FinishDrag(TimelineViewMouseEvent *event)
 
           if (og_in_transition && relinks.contains(og_in_transition)) {
             TransitionBlock *cp_in_transition = static_cast<TransitionBlock *>(relinks.value(og_in_transition));
-            command->add_child(new NodeEdgeAddCommand(cp_clip, NodeInput(cp_in_transition, TransitionBlock::kInBlockInput)));
+            command->add_child(new NodeEdgeAddCommand(NodeOutput(cp_clip), NodeInput(cp_in_transition, TransitionBlock::kInBlockInput)));
           }
 
           if (og_out_transition && relinks.contains(og_out_transition)) {
             TransitionBlock *cp_out_transition = static_cast<TransitionBlock *>(relinks.value(og_out_transition));
-            command->add_child(new NodeEdgeAddCommand(cp_clip, NodeInput(cp_out_transition, TransitionBlock::kOutBlockInput)));
+            command->add_child(new NodeEdgeAddCommand(NodeOutput(cp_clip), NodeInput(cp_out_transition, TransitionBlock::kOutBlockInput)));
           }
         }
       }

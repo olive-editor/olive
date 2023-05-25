@@ -597,13 +597,7 @@ void ProjectSerializer210528::PostConnect(const XMLNodeData &xml_node_data) cons
   foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
     if (Node *out = xml_node_data.node_ptrs.value(con.output_node)) {
       // Use output param as hint tag since we grandfathered those in
-      Node::ValueHint hint;
-
-      hint.set_tag(con.output_param);
-
-      Node::ConnectEdge(out, con.input);
-
-      con.input.node()->SetValueHintForInput(con.input.input(), hint, con.input.element());
+      Node::ConnectEdge(NodeOutput(out, con.output_param), con.input);
     }
   }
 
@@ -760,7 +754,8 @@ void ProjectSerializer210528::LoadValueHint(Node::ValueHint *hint, QXmlStreamRea
 {
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("tag")) {
-      hint->set_tag(reader->readElementText());
+      QString output = reader->readElementText();
+      qDebug() << "FIXME: need to propagate output" << output;
     } else {
       reader->skipCurrentElement();
     }

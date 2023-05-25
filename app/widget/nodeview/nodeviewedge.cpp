@@ -38,7 +38,7 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
 {
 }
 
-NodeViewEdge::NodeViewEdge(Node *output, const NodeInput &input,
+NodeViewEdge::NodeViewEdge(const NodeOutput &output, const NodeInput &input,
                            NodeViewItem* from_item, NodeViewItem* to_item,
                            QGraphicsItem* parent) :
   NodeViewEdge(parent)

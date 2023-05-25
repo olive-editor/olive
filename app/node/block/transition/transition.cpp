@@ -230,24 +230,24 @@ double TransitionBlock::TransformCurve(double linear) const
   return linear;
 }
 
-void TransitionBlock::InputConnectedEvent(const QString &input, int element, Node *output)
+void TransitionBlock::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   Q_UNUSED(element)
 
   if (input == kOutBlockInput) {
     // If node is not a block, this will just be null
-    if ((connected_out_block_ = dynamic_cast<ClipBlock*>(output))) {
+    if ((connected_out_block_ = dynamic_cast<ClipBlock*>(output.node()))) {
       connected_out_block_->set_out_transition(this);
     }
   } else if (input == kInBlockInput) {
     // If node is not a block, this will just be null
-    if ((connected_in_block_ = dynamic_cast<ClipBlock*>(output))) {
+    if ((connected_in_block_ = dynamic_cast<ClipBlock*>(output.node()))) {
       connected_in_block_->set_in_transition(this);
     }
   }
 }
 
-void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   Q_UNUSED(element)
   Q_UNUSED(output)

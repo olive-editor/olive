@@ -344,23 +344,23 @@ void ViewerOutput::SetPlayhead(const rational &t)
   emit PlayheadChanged(t);
 }
 
-void ViewerOutput::InputConnectedEvent(const QString &input, int element, Node *output)
+void ViewerOutput::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
   } else if (input == kSamplesInput) {
-    connect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
+    connect(output.node()->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputConnectedEvent(input, element, output);
 }
 
-void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
   } else if (input == kSamplesInput) {
-    disconnect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
+    disconnect(output.node()->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputDisconnectedEvent(input, element, output);

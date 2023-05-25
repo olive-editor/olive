@@ -23,6 +23,10 @@
 
 #include <cstddef>
 #include <map>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+
+#include "common/xmlutils.h"
 
 namespace olive {
 
@@ -43,6 +47,43 @@ public:
   void remove(size_t to)
   {
     map_.erase(to);
+  }
+
+  void load(QXmlStreamReader *reader)
+  {
+    while (XMLReadNextStartElement(reader)) {
+      if (reader->name() == QStringLiteral("entry")) {
+        bool got_from = false, got_to = false;
+        size_t from, to;
+        while (XMLReadNextStartElement(reader)) {
+          if (reader->name() == QStringLiteral("from")) {
+            from = reader->readElementText().toULongLong();
+            got_from = true;
+          } else if (reader->name() == QStringLiteral("to")) {
+            to = reader->readElementText().toULongLong();
+            got_to = true;
+          } else {
+            reader->skipCurrentElement();
+          }
+        }
+
+        if (got_from && got_to) {
+          insert(to, from);
+        }
+      } else {
+        reader->skipCurrentElement();
+      }
+    }
+  }
+
+  void save(QXmlStreamWriter *writer) const
+  {
+    for (auto it = map_.cbegin(); it != map_.cend(); it++) {
+      writer->writeStartElement(QStringLiteral("entry"));
+      writer->writeTextElement(QStringLiteral("to"), QString::number(it->first));
+      writer->writeTextElement(QStringLiteral("from"), QString::number(it->second));
+      writer->writeEndElement(); // entry
+    }
   }
 
   bool operator==(const SwizzleMap &m) const { return map_ == m.map_; }

@@ -166,9 +166,9 @@ signals:
   void EndRemoveItem();
 
 protected:
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
 private:
   template<typename T>

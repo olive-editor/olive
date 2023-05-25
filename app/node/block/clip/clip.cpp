@@ -406,11 +406,12 @@ void ClipBlock::LinkChangeEvent()
   }
 }
 
-void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *output)
+void ClipBlock::InputConnectedEvent(const QString &input, int element, const NodeOutput &o)
 {
-  super::InputConnectedEvent(input, element, output);
+  super::InputConnectedEvent(input, element, o);
 
   if (input == kBufferIn) {
+    Node *output = o.node();
     connect(output->thumbnail_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
     connect(output->waveform_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
     connect(output->video_frame_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
@@ -422,11 +423,12 @@ void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *out
   }
 }
 
-void ClipBlock::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void ClipBlock::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &o)
 {
-  super::InputDisconnectedEvent(input, element, output);
+  super::InputDisconnectedEvent(input, element, o);
 
   if (input == kBufferIn) {
+    Node *output = o.node();
     disconnect(output->thumbnail_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
     disconnect(output->waveform_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
     disconnect(output->video_frame_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);

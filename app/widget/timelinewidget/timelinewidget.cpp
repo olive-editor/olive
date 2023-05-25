@@ -1542,11 +1542,11 @@ void TimelineWidget::MulticamEnabledTriggered(bool e)
           // connect to the multicam instead
           QVector<NodeInput> inputs = c->FindWaysNodeArrivesHere(s);
           for (const NodeInput &i : inputs) {
-            command->add_child(new NodeEdgeRemoveCommand(s, i));
-            command->add_child(new NodeEdgeAddCommand(n, i));
+            command->add_child(new NodeEdgeRemoveCommand(NodeOutput(s), i));
+            command->add_child(new NodeEdgeAddCommand(NodeOutput(n), i));
           }
 
-          command->add_child(new NodeEdgeAddCommand(s, NodeInput(n, n->kSequenceInput)));
+          command->add_child(new NodeEdgeAddCommand(NodeOutput(s), NodeInput(n, n->kSequenceInput)));
 
           // Move sequence node one unit back, and place multicam in sequence's spot
           QPointF sequence_pos = c->GetNodePositionInContext(s);
@@ -1562,7 +1562,7 @@ void TimelineWidget::MulticamEnabledTriggered(bool e)
             if (MultiCamNode *mcn = dynamic_cast<MultiCamNode*>(i.node())) {
               for (auto it=mcn->output_connections().cbegin(); it!=mcn->output_connections().cend(); it++) {
                 command->add_child(new NodeEdgeRemoveCommand(it->first, it->second));
-                command->add_child(new NodeEdgeAddCommand(s, it->second));
+                command->add_child(new NodeEdgeAddCommand(NodeOutput(s), it->second));
               }
 
               command->add_child(new NodeRemoveAndDisconnectCommand(mcn));

@@ -448,19 +448,14 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
 
         dep_pos++;
 
-        Node::ValueHint hint;
-        hint.set_tag(footage_stream.output);
-
         switch (Track::Reference::TypeFromString(footage_stream.output)) {
         case Track::kVideo:
         {
           TransformDistortNode* transform = new TransformDistortNode();
           command->add_child(new NodeAddCommand(dst_graph, transform));
 
-          command->add_child(new NodeSetValueHintCommand(transform, TransformDistortNode::kTextureInput, -1, hint));
-
-          command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(transform, TransformDistortNode::kTextureInput)));
-          command->add_child(new NodeEdgeAddCommand(transform, NodeInput(clip, ClipBlock::kBufferIn)));
+          command->add_child(new NodeEdgeAddCommand(NodeOutput(footage_stream.footage, footage_stream.output), NodeInput(transform, TransformDistortNode::kTextureInput)));
+          command->add_child(new NodeEdgeAddCommand(NodeOutput(transform), NodeInput(clip, ClipBlock::kBufferIn)));
           command->add_child(new NodeSetPositionCommand(transform, clip, QPointF(dep_pos, 0)));
           break;
         }
@@ -469,10 +464,8 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
           VolumeNode* volume_node = new VolumeNode();
           command->add_child(new NodeAddCommand(dst_graph, volume_node));
 
-          command->add_child(new NodeSetValueHintCommand(volume_node, VolumeNode::kSamplesInput, -1, hint));
-
-          command->add_child(new NodeEdgeAddCommand(footage_stream.footage, NodeInput(volume_node, VolumeNode::kSamplesInput)));
-          command->add_child(new NodeEdgeAddCommand(volume_node, NodeInput(clip, ClipBlock::kBufferIn)));
+          command->add_child(new NodeEdgeAddCommand(NodeOutput(footage_stream.footage, footage_stream.output), NodeInput(volume_node, VolumeNode::kSamplesInput)));
+          command->add_child(new NodeEdgeAddCommand(NodeOutput(volume_node), NodeInput(clip, ClipBlock::kBufferIn)));
           command->add_child(new NodeSetPositionCommand(volume_node, clip, QPointF(dep_pos, 0)));
           break;
         }

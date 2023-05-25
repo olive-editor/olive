@@ -106,14 +106,14 @@ void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *no
   commands_.append(new NodeSetPositionCommand(node_, context_, pos));
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node *output = it->first;
+    Node *output = it->first.node();
     if (context_->ContextContainsNode(output)) {
       move_recursively(output, diff);
     }
   }
 }
 
-NodeEdgeAddCommand::NodeEdgeAddCommand(Node *output, const NodeInput &input) :
+NodeEdgeAddCommand::NodeEdgeAddCommand(const NodeOutput &output, const NodeInput &input) :
   output_(output),
   input_(input)
 {
@@ -131,10 +131,10 @@ void NodeEdgeAddCommand::undo()
 
 Project *NodeEdgeAddCommand::GetRelevantProject() const
 {
-  return output_->project();
+  return output_.node()->project();
 }
 
-NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(Node *output, const NodeInput &input) :
+NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(const NodeOutput &output, const NodeInput &input) :
   output_(output),
   input_(input)
 {
@@ -152,7 +152,7 @@ void NodeEdgeRemoveCommand::undo()
 
 Project *NodeEdgeRemoveCommand::GetRelevantProject() const
 {
-  return output_->project();
+  return output_.node()->project();
 }
 
 NodeAddCommand::NodeAddCommand(Project *graph, Node *node) :
@@ -266,7 +266,7 @@ void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
   nodes_.append(p);
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    if (context->ContextContainsNode(it->first)) {
+    if (context->ContextContainsNode(it->first.node())) {
       AddEdge(it->first, it->second);
     }
   }
@@ -278,7 +278,7 @@ void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
   }
 }
 
-void NodeViewDeleteCommand::AddEdge(Node *output, const NodeInput &input)
+void NodeViewDeleteCommand::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
   foreach (const Node::Connection &edge, edges_) {
     if (edge.first == output && edge.second == input) {
@@ -307,7 +307,7 @@ Project *NodeViewDeleteCommand::GetRelevantProject() const
   }
 
   if (!edges_.isEmpty()) {
-    return edges_.first().first->project();
+    return edges_.first().first.node()->project();
   }
 
   return nullptr;

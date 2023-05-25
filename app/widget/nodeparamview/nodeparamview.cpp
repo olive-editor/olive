@@ -372,7 +372,7 @@ void ReconnectOutputsIfNotDeletingNode(MultiUndoCommand *c, NodeViewDeleteComman
       // Uh-oh we're deleting this node too, instead connect to its outputs
       ReconnectOutputsIfNotDeletingNode(c, dc, output, proposed_reconnect.node(), context);
     } else {
-      c->add_child(new NodeEdgeAddCommand(output, it->second));
+      c->add_child(new NodeEdgeAddCommand(it->first, it->second));
     }
   }
 }
@@ -740,7 +740,7 @@ int GetDistanceBetweenNodes(Node *start, Node *end)
   }
 
   for (auto it=start->input_connections().cbegin(); it!=start->input_connections().cend(); it++) {
-    int this_node_dist = GetDistanceBetweenNodes(it->first, end);
+    int this_node_dist = GetDistanceBetweenNodes(it->first.node(), end);
     if (this_node_dist != -1) {
       return 1 + this_node_dist;
     }

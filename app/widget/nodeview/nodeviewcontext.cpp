@@ -105,7 +105,7 @@ void NodeViewContext::RemoveChild(Node *node)
   // be changed...)
   QVector<NodeViewEdge*> edges_to_remove = item->GetAllEdgesRecursively();
   foreach (NodeViewEdge *edge, edges_to_remove) {
-    if (node == item->GetNode() || edge->output() == node || edge->input().node() == node) {
+    if (node == item->GetNode() || edge->output().node() == node || edge->input().node() == node) {
       ChildInputDisconnected(edge->output(), edge->input());
     }
   }
@@ -129,17 +129,17 @@ void NodeViewContext::RemoveChild(Node *node)
   UpdateRect();
 }
 
-void NodeViewContext::ChildInputConnected(Node *output, const NodeInput &input)
+void NodeViewContext::ChildInputConnected(const NodeOutput &output, const NodeInput &input)
 {
   // Add edge
   if (!input.IsHidden()) {
-    if (NodeViewItem* output_item = item_map_.value(output)) {
+    if (NodeViewItem* output_item = item_map_.value(output.node())) {
       AddEdgeInternal(output, input, output_item, item_map_.value(input.node())->GetItemForInput(input));
     }
   }
 }
 
-bool NodeViewContext::ChildInputDisconnected(Node *output, const NodeInput &input)
+bool NodeViewContext::ChildInputDisconnected(const NodeOutput &output, const NodeInput &input)
 {
   // Remove edge
   for (int i=0; i<edges_.size(); i++) {
@@ -313,21 +313,21 @@ void NodeViewContext::AddNodeInternal(Node *node, NodeViewItem *item)
   for (auto it=node->output_connections().cbegin(); it!=node->output_connections().cend(); it++) {
     if (!it->second.IsHidden()) {
       if (NodeViewItem *other_item = item_map_.value(it->second.node())) {
-        AddEdgeInternal(node, it->second, item, other_item->GetItemForInput(it->second));
+        AddEdgeInternal(it->first, it->second, item, other_item->GetItemForInput(it->second));
       }
     }
   }
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
     if (!it->second.IsHidden()) {
-      if (NodeViewItem *other_item = item_map_.value(it->first)) {
+      if (NodeViewItem *other_item = item_map_.value(it->first.node())) {
         AddEdgeInternal(it->first, it->second, other_item, item->GetItemForInput(it->second));
       }
     }
   }
 }
 
-void NodeViewContext::AddEdgeInternal(Node *output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
+void NodeViewContext::AddEdgeInternal(const NodeOutput &output, const NodeInput& input, NodeViewItem *from, NodeViewItem *to)
 {
   if (from == to) {
     return;

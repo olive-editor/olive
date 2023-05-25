@@ -96,6 +96,54 @@ struct NodeInputPair
   QString input;
 };
 
+class NodeOutput
+{
+public:
+  NodeOutput()
+  {
+    node_ = nullptr;
+  }
+
+  explicit NodeOutput(Node *node, const QString &output = QString())
+  {
+    node_ = node;
+    output_ = output;
+  }
+
+  bool operator==(const NodeOutput &rhs) const
+  {
+    return node_ == rhs.node_ && output_ == rhs.output_;
+  }
+
+  bool operator!=(const NodeOutput& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  bool operator<(const NodeOutput& rhs) const
+  {
+    if (node_ != rhs.node_) {
+      return node_ < rhs.node_;
+    }
+
+    return output_ < rhs.output_;
+  }
+
+  Node *node() const { return node_; }
+  const QString &output() const { return output_; }
+  void set_node(Node *n) { node_ = n; }
+  void set_output(const QString &o) { output_ = o; }
+
+  void Reset() { *this = NodeOutput(); }
+
+  bool IsValid() const { return node_; }
+
+private:
+  Node *node_;
+  QString output_;
+
+};
+
 /**
  * @brief Defines a Node input
  */
@@ -193,6 +241,7 @@ public:
   QString GetInputName() const;
 
   Node *GetConnectedOutput() const;
+  NodeOutput GetConnectedOutput2() const;
 
   type_t GetDataType() const;
 
