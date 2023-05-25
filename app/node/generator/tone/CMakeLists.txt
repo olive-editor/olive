@@ -14,15 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(matrix)
-add_subdirectory(noise)
-add_subdirectory(polygon)
-add_subdirectory(shape)
-add_subdirectory(solid)
-add_subdirectory(text)
-add_subdirectory(tone)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/generator/tone/tonegenerator.cpp
+  node/generator/tone/tonegenerator.h
   PARENT_SCOPE
 )

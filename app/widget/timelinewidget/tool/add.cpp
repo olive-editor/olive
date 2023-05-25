@@ -25,6 +25,7 @@
 #include "node/generator/shape/shapenode.h"
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/textv3.h"
+#include "node/generator/tone/tonegenerator.h"
 #include "node/nodeundo.h"
 #include "timeline/timelineundopointer.h"
 #include "widget/timelinewidget/timelinewidget.h"
@@ -158,8 +159,10 @@ Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, 
   case Tool::kAddableTitle:
     node_to_add = new TextGeneratorV3();
     break;
-  case Tool::kAddableBars:
   case Tool::kAddableTone:
+    node_to_add = new ToneGenerator();
+    break;
+  case Tool::kAddableBars:
     // Not implemented yet
     qWarning() << "Unimplemented add object:" << Core::instance()->GetSelectedAddableObject();
     break;
