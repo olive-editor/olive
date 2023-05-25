@@ -71,6 +71,7 @@ public:
   ValueParams time_transformed(const TimeRange &time) const;
   ValueParams output_edited(const QString &output) const;
   ValueParams loop_mode_edited(const LoopMode &lm) const;
+  ValueParams with_cache(Cache *cache) const;
 
   bool get_cached_value(const Node *node, const ValueParams &p, value_t &out) const;
   void insert_cached_value(const Node *node, const ValueParams &p, const value_t &in) const;

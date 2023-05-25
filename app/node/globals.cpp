@@ -45,6 +45,13 @@ ValueParams ValueParams::loop_mode_edited(const LoopMode &lm) const
   return g;
 }
 
+ValueParams ValueParams::with_cache(Cache *cache) const
+{
+  ValueParams g = *this;
+  g.cache_ = cache;
+  return g;
+}
+
 bool ValueParams::get_cached_value(const Node *node, const ValueParams &p, value_t &out) const
 {
   if (cache_) {
