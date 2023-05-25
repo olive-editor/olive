@@ -117,6 +117,7 @@ private:
   CancelAtom *cancel_atom_;
 
   QHash<Texture*, TexturePtr> resolved_texture_cache_;
+  QHash<AudioJob*, value_t> resolved_sample_cache_;
 
 };
 

@@ -636,23 +636,36 @@ void RenderProcessor::ResolveJobs(value_t &val)
 
   } else if (val.type() == TYPE_SAMPLES) {
 
-    SampleJob sjob;
-    FootageJob fjob;
+    if (AudioJobPtr job = val.toAudioJob()) {
+      if (resolved_sample_cache_.contains(job.get())) {
 
-    if (val.get(&sjob)) {
-      for (auto it=sjob.GetValues().begin(); it!=sjob.GetValues().end(); it++) {
-        // Jobs will almost always be submitted with one of these types
-        value_t &subval = it.value();
-        ResolveJobs(subval);
+        val = resolved_sample_cache_.value(job.get());
+
+      } else {
+
+        if (SampleJob *sjob = dynamic_cast<SampleJob *>(job->job())) {
+
+          for (auto it=sjob->GetValues().begin(); it!=sjob->GetValues().end(); it++) {
+            // Jobs will almost always be submitted with one of these types
+            value_t &subval = it.value();
+            ResolveJobs(subval);
+          }
+
+          SampleBuffer output_buffer = CreateSampleBuffer(sjob->audio_params(), sjob->sample_count());
+          ProcessSamples(output_buffer, *sjob);
+          val = output_buffer;
+
+        } else if (FootageJob *fjob = dynamic_cast<FootageJob *>(job->job())) {
+
+          SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), fjob->time().length());
+          ProcessAudioFootage(buffer, fjob, fjob->time());
+          val = buffer;
+
+        }
+
+        resolved_sample_cache_.insert(job.get(), val);
+
       }
-
-      SampleBuffer output_buffer = CreateSampleBuffer(sjob.audio_params(), sjob.sample_count());
-      ProcessSamples(output_buffer, sjob);
-      val = value_t(TYPE_SAMPLES, output_buffer);
-    } else if (val.get(&fjob)) {
-      SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), fjob.time().length());
-      ProcessAudioFootage(buffer, &fjob, fjob.time());
-      val = value_t(TYPE_SAMPLES, buffer);
     }
   }
 }

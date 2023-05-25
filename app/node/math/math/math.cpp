@@ -133,6 +133,10 @@ void MathNode::ProcessSamplesSamples(const void *context, const SampleJob &job, 
   const SampleBuffer samples_b = job.Get(QStringLiteral("b")).toSamples();
   const MathNode::Operation operation = static_cast<MathNode::Operation>(job.Get(QStringLiteral("operation")).toInt());
 
+  if (!samples_a.is_allocated() || !samples_b.is_allocated()) {
+    return;
+  }
+
   size_t max_samples = qMax(samples_a.sample_count(), samples_b.sample_count());
   size_t min_samples = qMin(samples_a.sample_count(), samples_b.sample_count());
 
@@ -397,6 +401,10 @@ void MathNode::ProcessSamplesDouble(const void *context, const SampleJob &job, S
   const SampleBuffer input = job.Get(QStringLiteral("samples")).toSamples();
   const QString number_in = job.Get(QStringLiteral("number")).toString();
   const Operation operation = static_cast<Operation>(job.Get(QStringLiteral("operation")).toInt());
+
+  if (!input.is_allocated()) {
+    return;
+  }
 
   if (n->IsInputStatic(number_in)) {
     auto f = n->GetStandardValue(number_in).toDouble();

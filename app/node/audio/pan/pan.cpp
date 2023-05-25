@@ -67,7 +67,10 @@ void PanNode::ProcessSamples(const void *context, const SampleJob &job, SampleBu
   const PanNode *n = static_cast<const PanNode *>(context);
   const ValueParams &p = job.value_params();
 
-  SampleBuffer input = job.Get(PanNode::kSamplesInput).toSamples();
+  const SampleBuffer input = job.Get(PanNode::kSamplesInput).toSamples();
+  if (!input.is_allocated()) {
+    return;
+  }
 
   // This node is only compatible with stereo audio
   if (job.audio_params().channel_count() == 2) {

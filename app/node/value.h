@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <any>
 #include <QMatrix4x4>
 
+#include "render/job/audiojob.h"
 #include "render/texture.h"
 
 namespace olive {
@@ -168,7 +169,14 @@ public:
 
   value_t(TexturePtr texture);
 
-  value_t(const SampleJob &samples);
+  value_t(AudioJobPtr job);
+
+  value_t(const SampleJob &job);
+
+  value_t(const SampleBuffer &samples) :
+    value_t(TYPE_SAMPLES, samples)
+  {
+  }
 
   value_t(const QVector2D &vec) :
     value_t(TYPE_DOUBLE, size_t(2))
@@ -297,7 +305,7 @@ public:
   std::vector<component_t> &data() { return data_; }
   const std::vector<component_t> &data() const { return data_; }
 
-  bool isValid() const { return type_ != TYPE_NONE; }
+  bool isValid() const { return type_ != TYPE_NONE && !data_.empty(); }
 
   bool toBool() const { return toInt(); }
   double toDouble() const { return value<double>(); }
@@ -313,6 +321,7 @@ public:
   NodeValueArray toArray() const { return value<NodeValueArray>(); }
   TexturePtr toTexture() const;
   SampleBuffer toSamples() const { return value<SampleBuffer>(); }
+  AudioJobPtr toAudioJob() const;
 
   static value_t fromSerializedString(type_t target_type, const QString &s);
   QString toSerializedString() const;

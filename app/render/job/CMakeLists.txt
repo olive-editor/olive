@@ -18,6 +18,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   render/job/acceleratedjob.cpp
   render/job/acceleratedjob.h
+  render/job/audiojob.cpp
+  render/job/audiojob.h
   render/job/footagejob.h
   render/job/generatejob.h
   render/job/samplejob.h

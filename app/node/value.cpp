@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,25 +44,55 @@ struct TextureChannel
   size_t channel;
 };
 
+struct SampleJobChannel
+{
+  AudioJobPtr job;
+  size_t channel;
+};
+
 value_t::value_t(TexturePtr texture) :
   value_t(TYPE_TEXTURE)
 {
   if (texture) {
-    data_.resize(texture->channel_count());
-    for (int i = 0; i < texture->channel_count(); i++) {
-      data_[i] = TextureChannel({texture, size_t(i)});
+    size_t sz = texture->channel_count();
+    data_.resize(sz);
+    for (size_t i = 0; i < sz; i++) {
+      data_[i] = TextureChannel({texture, i});
     }
   }
 }
 
-value_t::value_t(const SampleJob &samples) :
-  value_t(TYPE_SAMPLES, samples)
+value_t::value_t(AudioJobPtr job)
+{
+  if (job) {
+    size_t sz = job->params().channel_count();
+    data_.resize(sz);
+    for (size_t i = 0; i < sz; i++) {
+      data_[i] = SampleJobChannel({job, i});
+    }
+    type_ = TYPE_SAMPLES;
+  }
+}
+
+value_t::value_t(const SampleJob &job) :
+  value_t(AudioJob::Create(job.audio_params(), job))
 {
 }
 
 ShaderCode GetSwizzleShaderCode(const QString &id)
 {
   return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/swizzle.frag")));
+}
+
+void SwizzleAudio(const void *context, const SampleJob &job, SampleBuffer &output)
+{
+  for (int i = 0; i < output.channel_count(); i++) {
+    SampleBuffer b = job.Get(QStringLiteral("b.%1").arg(i)).toSamples();
+    if (b.is_allocated()) {
+      size_t c = job.Get(QStringLiteral("c.%1").arg(i)).toInt();
+      output.fast_set(b, i, c);
+    }
+  }
 }
 
 TexturePtr value_t::toTexture() const
@@ -108,6 +138,65 @@ TexturePtr value_t::toTexture() const
   } else {
     // No swizzling has occurred
     return last.texture;
+  }
+}
+
+AudioJobPtr value_t::toAudioJob() const
+{
+  if (type_ != TYPE_SAMPLES || data_.empty()) {
+    return AudioJobPtr();
+  }
+
+  bool swizzled = false;
+
+  SampleJobChannel last;
+  AudioParams ap;
+  TimeRange time;
+
+  for (auto it = data_.cbegin(); it != data_.cend(); it++) {
+    const SampleJobChannel &c = it->value<SampleJobChannel>();
+
+    if (it != data_.cbegin() && !swizzled) {
+      if (c.job != last.job || c.channel != last.channel + 1) {
+        swizzled = true;
+      }
+    }
+
+    if (c.job) {
+      if (!ap.is_valid() && c.job->params().is_valid()) {
+        ap = c.job->params();
+      }
+
+      if (time.length().isNull()) {
+        time = c.job->time();
+      }
+    }
+
+    last = c;
+  }
+
+  if (swizzled) {
+    if (ap.is_valid()) {
+      // Return texture(s) wrapped in a swizzle shader
+      ap.set_channel_layout(av_get_default_channel_layout(data_.size()));
+
+      SampleJob swizzle(ValueParams(VideoParams(), ap, time, QString(), LoopMode(), nullptr, nullptr));
+
+      for (size_t i = 0; i < data_.size(); i++) {
+        const SampleJobChannel &c = data_.at(i).value<SampleJobChannel>();
+        swizzle.Insert(QStringLiteral("b.%1").arg(i), c.job);
+        swizzle.Insert(QStringLiteral("c.%1").arg(i), c.channel);
+      }
+
+      swizzle.set_function(SwizzleAudio, nullptr);
+
+      return AudioJob::Create(ap, swizzle);
+    } else {
+      return nullptr;
+    }
+  } else {
+    // No swizzling has occurred
+    return last.job;
   }
 }
 

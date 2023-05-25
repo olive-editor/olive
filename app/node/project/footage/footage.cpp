@@ -271,7 +271,7 @@ value_t Footage::Value(const ValueParams &p) const
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
-        return value_t(TYPE_SAMPLES, job);
+        return AudioJob::Create(ap, job);
       }
       break;
     case Track::kSubtitle:
