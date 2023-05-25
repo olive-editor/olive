@@ -44,7 +44,8 @@ void NodeValueTree::SetNode(const NodeInput &input)
   if (output.IsValid()) {
     Node *connected_node = output.node();
     connected_node->Retranslate();
-    connect(connected_node, &Node::InputValueHintChanged, this, &NodeValueTree::ValueHintChanged);
+
+    connect(input_.node(), &Node::InputValueHintChanged, this, &NodeValueTree::ValueHintChanged);
 
     const QVector<Node::Output> &outputs = connected_node->outputs();
 
