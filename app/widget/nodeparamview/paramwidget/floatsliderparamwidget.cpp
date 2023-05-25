@@ -58,7 +58,7 @@ void FloatSliderParamWidget::SetProperty(const QString &key, const value_t &val)
     }
   } else if (key == QStringLiteral("max")) {
     for (size_t i = 0; i < val.size() && i < GetWidgets().size(); i++) {
-      static_cast<FloatSlider*>(GetWidgets().at(i))->SetValue(val.value<double>(i));
+      static_cast<FloatSlider*>(GetWidgets().at(i))->SetMaximum(val.value<double>(i));
     }
   } else if (key == QStringLiteral("view")) {
     FloatSlider::DisplayType display_type = static_cast<FloatSlider::DisplayType>(val.toInt());
