@@ -296,6 +296,7 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
   job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, color_job.GetTransformMatrix()));
   job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
   job.Insert(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, int(color_job.GetInputAlphaAssociation())));
+  job.Insert(QStringLiteral("ove_force_opaque"), NodeValue(NodeValue::kBoolean, color_job.GetForceOpaque()));
   job.Insert(color_job.GetValues());
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {
