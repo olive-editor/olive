@@ -67,6 +67,8 @@ public:
 
   void set_label_type(Labels l) { labels_ = l; }
 
+  void set_type(type_t t);
+
 protected:
   virtual void drawBackground(QPainter *p, const QRectF &r) override;
 

@@ -44,8 +44,7 @@ ValueSwizzleWidget::ValueSwizzleWidget(QWidget *parent) :
   setScene(scene_);
 
   new_item_ = nullptr;
-  //labels_ = kRGBALabels;
-  labels_ = kXYZWLabels;
+  labels_ = kNumberLabels;
 
   channel_height_ = this->fontMetrics().height() * 3 / 2;
   channel_width_ = channel_height_ * 2;
@@ -104,6 +103,19 @@ void ValueSwizzleWidget::set_channels(size_t from, size_t to)
   setFixedHeight(std::max(from, to) * channel_height_);
 
   set(cached_map_);
+}
+
+void ValueSwizzleWidget::set_type(type_t t)
+{
+  if (t == TYPE_TEXTURE) {
+    labels_ = kRGBALabels;
+  } else if (t == TYPE_DOUBLE) {
+    labels_ = kXYZWLabels;
+  } else {
+    labels_ = kNumberLabels;
+  }
+
+  viewport()->update();
 }
 
 void ValueSwizzleWidget::drawBackground(QPainter *p, const QRectF &r)
@@ -225,15 +237,24 @@ void ValueSwizzleWidget::resizeEvent(QResizeEvent *e)
 void ValueSwizzleWidget::draw_channel(QPainter *p, size_t i, int x)
 {
   static const size_t kChannelColorCount = 4;
-  static const QColor kDefaultColor = QColor(32, 32, 32);
-  const QColor kChannelColors[kChannelColorCount] = {
+  static const QColor kDefaultColor = QColor(16, 16, 16);
+  static const QColor kRGBAChannelColors[kChannelColorCount] = {
     QColor(160, 32, 32),
     QColor(32, 160, 32),
     QColor(32, 32, 160),
     QColor(64, 64, 64)
   };
 
+  static const QColor kGrayChannelColors[kChannelColorCount] = {
+    QColor(104, 104, 104),
+    QColor(80, 80, 80),
+    QColor(56, 56, 56),
+    QColor(32, 32, 32),
+  };
+
   QRect r(x, i * channel_height_, channel_width_, channel_height_);
+
+  const QColor *kChannelColors = labels_ == kRGBALabels ? kRGBAChannelColors : kGrayChannelColors;
 
   const QColor &main_col = i < kChannelColorCount ? kChannelColors[i] : kDefaultColor;
   if (OLIVE_CONFIG("UseGradients").toBool()) {
