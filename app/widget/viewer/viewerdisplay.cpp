@@ -437,6 +437,7 @@ void ViewerDisplayWidget::OnPaint()
         ctj.SetClearDestinationEnabled(false);
         ctj.SetTransformMatrix(combined_matrix_flipped_);
         ctj.SetCropMatrix(crop_matrix_);
+        ctj.SetForceOpaque(true);
 
         renderer()->BlitColorManaged(ctj, device_params);
       }

@@ -2,6 +2,7 @@
 uniform sampler2D ove_maintex;
 uniform int ove_maintex_alpha;
 uniform mat4 ove_cropmatrix;
+uniform bool ove_force_opaque;
 
 // Macros defining `ove_maintex_alpha` state
 // Matches `AlphaAssociated` C++ enum
@@ -51,6 +52,10 @@ void main() {
     col = reassoc(col);
   } else if (ove_maintex_alpha == ALPHA_UNASSOC) {
     col = assoc(col);
+  }
+
+  if (ove_force_opaque) {
+    col.a = 1.0;
   }
 
   frag_color = col;
