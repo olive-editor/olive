@@ -867,12 +867,12 @@ int Node::InputArraySize(const QString &id) const
   }
 }
 
-value_t Node::GetInputValue(const ValueParams &g, const QString &input, int element) const
+value_t Node::GetInputValue(const ValueParams &g, const QString &input, int element, bool autoconversion) const
 {
   if (!g.is_cancelled()) {
     NodeOutput output = GetConnectedOutput2(input, element);
     if (output.IsValid()) {
-      return GetFakeConnectedValue(g, output, input, element);
+      return GetFakeConnectedValue(g, output, input, element, autoconversion);
     } else {
       TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
 
@@ -893,7 +893,24 @@ value_t Node::GetInputValue(const ValueParams &g, const QString &input, int elem
   return value_t();
 }
 
-value_t Node::GetFakeConnectedValue(const ValueParams &g, NodeOutput output, const QString &input, int element) const
+void ConvertDoubleToSamples(const void *context, const SampleJob &input, SampleBuffer &output)
+{
+  const Node *n = static_cast<const Node *>(context);
+
+  const QString param = input.Get(QStringLiteral("input")).toString();
+  const int element = input.Get(QStringLiteral("element")).toInt();
+  const TimeRange &time = input.value_params().time();
+
+  for (size_t i = 0; i < output.sample_count(); i++) {
+    TimeRange this_sample_time = time + output.audio_params().sample_rate_as_time_base() * i;
+    value_t v = n->GetInputValue(input.value_params().time_transformed(this_sample_time), param, element, false);
+    for (int j = 0; j < output.channel_count(); j++) {
+      output.data(j)[i] = v.toDouble();
+    }
+  }
+}
+
+value_t Node::GetFakeConnectedValue(const ValueParams &g, NodeOutput output, const QString &input, int element, bool autoconversion) const
 {
   if (!g.is_cancelled()) {
     TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
@@ -931,13 +948,25 @@ value_t Node::GetFakeConnectedValue(const ValueParams &g, NodeOutput output, con
 
         // Perform conversion if necessary
         type_t expected_type = this->GetInputDataType(input);
-        if (expected_type != TYPE_NONE && expected_type != v.type() && !(this->GetInputFlags(input) & kInputFlagDontAutoConvert)) {
-          bool ok;
-          v = v.converted(expected_type, &ok);
-          if (!ok) {
-            // Return null value instead of converted value because node is probably not set up to
-            // handle this type (unless kInputFlagDontAutoConvert is specified of course)
-            v = value_t();
+        if (autoconversion && expected_type != TYPE_NONE && expected_type != v.type() && !(this->GetInputFlags(input) & kInputFlagDontAutoConvert)) {
+          if (v.type() == TYPE_DOUBLE && expected_type == TYPE_SAMPLES) {
+            // Create a job to generate audio from numbers
+            SampleJob job(g);
+
+            job.Insert(QStringLiteral("input"), input);
+            job.Insert(QStringLiteral("element"), element);
+
+            job.set_function(ConvertDoubleToSamples, this);
+
+            v = job;
+          } else {
+            bool ok;
+            v = v.converted(expected_type, &ok);
+            if (!ok) {
+              // Return null value instead of converted value because node is probably not set up to
+              // handle this type (unless kInputFlagDontAutoConvert is specified of course)
+              v = value_t();
+            }
           }
         }
 

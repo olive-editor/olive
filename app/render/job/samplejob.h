@@ -40,7 +40,7 @@ public:
 
   SampleJob(const ValueParams &p, size_t sample_count)
   {
-    value_params_ = p;
+    value_params_ = p.with_cache(nullptr); // Remove cache because it actually slows per-sample ops
     sample_count_ = sample_count;
     function_ = nullptr;
     function_context_ = nullptr;

@@ -557,8 +557,8 @@ public:
 
   int InputArraySize(const QString& id) const;
 
-  value_t GetInputValue(const ValueParams &g, const QString &input, int element = -1) const;
-  value_t GetFakeConnectedValue(const ValueParams &g, NodeOutput output, const QString &input, int element = -1) const;
+  value_t GetInputValue(const ValueParams &g, const QString &input, int element = -1, bool autoconversion = true) const;
+  value_t GetFakeConnectedValue(const ValueParams &g, NodeOutput output, const QString &input, int element = -1, bool autoconversion = true) const;
 
   NodeInputImmediate* GetImmediate(const QString& input, int element) const;
 
