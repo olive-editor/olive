@@ -20,10 +20,10 @@
 
 #include "actionsearch.h"
 
-#include <QVBoxLayout>
 #include <QKeyEvent>
-#include <QMenuBar>
 #include <QLabel>
+#include <QMenuBar>
+#include <QVBoxLayout>
 
 namespace olive {
 
@@ -228,21 +228,35 @@ void ActionSearch::move_selection_down() {
 
 ActionSearchEntry::ActionSearchEntry(QWidget *parent) : QLineEdit(parent) {}
 
-void ActionSearchEntry::keyPressEvent(QKeyEvent * event) {
-
-  // Listen for up/down, otherwise pass the key event to the base class.
-
-  switch (event->key()) {
-  case Qt::Key_Up:
-    emit moveSelectionUp();
+bool ActionSearchEntry::event(QEvent *e)
+{
+  switch (e->type()) {
+  case QEvent::ShortcutOverride:
+    switch (static_cast<QKeyEvent*>(e)->key()) {
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+      e->accept();
+      return true;
+    }
     break;
-  case Qt::Key_Down:
-    emit moveSelectionDown();
+  case QEvent::KeyPress:
+    // Listen for up/down, otherwise pass the key event to the base class.
+    switch (static_cast<QKeyEvent*>(e)->key()) {
+    case Qt::Key_Up:
+      e->accept();
+      emit moveSelectionUp();
+      return true;
+    case Qt::Key_Down:
+      e->accept();
+      emit moveSelectionDown();
+      return true;
+    }
     break;
   default:
-    QLineEdit::keyPressEvent(event);
+    break;
   }
 
+  return QLineEdit::event(e);
 }
 
 ActionSearchList::ActionSearchList(QWidget *parent) : QListWidget(parent) {}

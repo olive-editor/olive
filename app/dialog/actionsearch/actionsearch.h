@@ -169,7 +169,8 @@ protected:
    * @brief Override of QLineEdit's key press event that listens for up/down key presses.
    * @param event
    */
-  void keyPressEvent(QKeyEvent * event);
+  virtual bool event(QEvent *e) override;
+
 signals:
   /**
    * @brief Emitted when the user presses the up arrow key.
