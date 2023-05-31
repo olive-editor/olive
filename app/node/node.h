@@ -1030,6 +1030,8 @@ signals:
 
   void KeyframeEnableChanged(const NodeInput& input, bool enabled);
 
+  void KeyframeTrackAdded(const QString &input, int element, int track);
+
   void InputAdded(const QString& id);
 
   void InputRemoved(const QString& id);

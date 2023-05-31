@@ -228,6 +228,8 @@ signals:
 
   void InputArraySizeChanged(const QString &input, int old_size, int new_size);
 
+  void ElementKeyframeTrackAdded(const QString &input, int element, int track);
+
 protected slots:
   virtual void Retranslate() override;
 

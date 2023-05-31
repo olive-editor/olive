@@ -2444,7 +2444,12 @@ void Node::childEvent(QChildEvent *event)
     NodeInput i(this, key->input(), key->element());
 
     if (event->type() == QEvent::ChildAdded) {
-      GetImmediate(key->input(), key->element())->insert_keyframe(key);
+      NodeInputImmediate *imm = GetImmediate(key->input(), key->element());
+      int old_sz = imm->keyframe_tracks().size();
+      imm->insert_keyframe(key);
+      for (int j = old_sz; j < imm->keyframe_tracks().size(); j++) {
+        emit KeyframeTrackAdded(key->input(), key->element(), j);
+      }
 
       connect(key, &NodeKeyframe::TimeChanged, this, &Node::InvalidateFromKeyframeTimeChange);
       connect(key, &NodeKeyframe::ValueChanged, this, &Node::InvalidateFromKeyframeValueChange);

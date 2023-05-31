@@ -60,6 +60,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
   connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewItem::InputArraySizeChanged);
+  connect(node_, &Node::KeyframeTrackAdded, this, &NodeParamViewItem::ElementKeyframeTrackAdded);
 
   // FIXME: Implemented to pick up when an input is set to hidden or not - DEFINITELY not a fast
   //        way of doing this, but "fine" for now.

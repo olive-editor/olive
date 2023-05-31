@@ -728,6 +728,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
     connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::InputArraySizeChanged, this, &NodeParamView::InputArraySizeChanged);
+    connect(item, &NodeParamViewItem::ElementKeyframeTrackAdded, this, &NodeParamView::ElementKeyframeTrackAdded);
 
     item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
   }
@@ -1028,6 +1029,29 @@ void NodeParamView::InputArraySizeChanged(const QString &input, int, int new_siz
       }
     }
   }
+
+  QueueKeyframePositionUpdate();
+}
+
+void NodeParamView::ElementKeyframeTrackAdded(const QString &input, int element, int track)
+{
+  NodeParamViewItem *sender = static_cast<NodeParamViewItem *>(this->sender());
+
+  KeyframeView::NodeConnections &connections = sender->GetKeyframeConnections();
+  KeyframeView::InputConnections &inputs = connections[input];
+  KeyframeView::ElementConnections &elements = inputs[element + 1];
+
+  auto conn = keyframe_view_->AddKeyframesOfTrack(NodeKeyframeTrackReference(NodeInput(sender->GetNode(), input, element), track));
+
+  if (track >= elements.size()) {
+    int old = elements.size();
+    elements.resize(track + 1);
+    for (int i = old; i < elements.size(); i++) {
+      elements[i] = nullptr;
+    }
+  }
+
+  elements[track] = conn;
 
   QueueKeyframePositionUpdate();
 }
