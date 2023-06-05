@@ -42,6 +42,7 @@ public:
     custom_shader_src_ = nullptr;
     input_alpha_association_ = kAlphaNone;
     clear_destination_ = true;
+    force_opaque_ = false;
   }
 
   ColorTransformJob(const NodeValueRow &row) :
@@ -95,6 +96,9 @@ public:
   const QString &GetFunctionName() const { return function_name_; }
   void SetFunctionName(const QString &function_name = QString()) { function_name_ = function_name; };
 
+  bool GetForceOpaque() const { return force_opaque_; }
+  void SetForceOpaque(bool e) { force_opaque_ = e; }
+
 private:
   ColorProcessorPtr processor_;
   QString id_;
@@ -113,6 +117,8 @@ private:
   QMatrix4x4 crop_matrix_;
 
   QString function_name_;
+
+  bool force_opaque_;
 
 };
 

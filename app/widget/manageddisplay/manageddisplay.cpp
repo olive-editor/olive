@@ -43,6 +43,7 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     // Create OpenGL widget
     inner_widget_ = new ManagedDisplayWidgetOpenGL();
+    inner_widget_->setAttribute(Qt::WA_TranslucentBackground, false);
     connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
             &ManagedDisplayWidgetOpenGL::OnInit,
             this, &ManagedDisplayWidget::OnInit, Qt::DirectConnection);
