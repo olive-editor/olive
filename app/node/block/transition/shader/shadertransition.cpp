@@ -18,46 +18,43 @@
 
 ***/
 
-#include "shader.h"
+#include "shadertransition.h"
 
 #include <QOpenGLShader>
 
-#include "shaderinputsparser.h"
+#include "node/filter/shader/shaderinputsparser.h"
 
+namespace {
+// a default shader transition
+const QString TEMPLATE(
+"#version 150""\n"
+"//OVE end""\n"
+"uniform sampler2D out_block_in;""\n"
+"uniform sampler2D in_block_in;""\n"
+"uniform bool out_block_in_enabled;""\n"
+"uniform bool in_block_in_enabled;""\n"
+"uniform int curve_in;""\n"
+"""\n"
+"uniform float ove_tprog_all;""\n"
+"""\n"
+"in vec2 ove_texcoord;""\n"
+"out vec4 frag_color;""\n"
+"""\n"
+"void main(void) {""\n"
+"    frag_color = texture(in_block_in, ove_texcoord*step( 1.0 - ove_tprog_all, ove_texcoord.xy)) +""\n"
+"                 texture(out_block_in, ove_texcoord*step( ove_tprog_all, ove_texcoord.xy));""\n"
+"}""\n");
+
+}
 
 namespace olive {
 
-#define super Node
+#define super TransitionBlock
 
+const QString ShaderTransition::kShaderCode = QStringLiteral("source");
+const QString ShaderTransition::kOutputMessages = QStringLiteral("issues");
 
-namespace  {
-// a default shader that replicates to output a texture input.
-const QString TEMPLATE(
-    "#version 150\n"
-    "//OVE shader_name: \n"
-    "//OVE shader_description: \n\n"
-    "//OVE main_input_name: Input\n"
-    "uniform sampler2D tex_in;\n\n"
-    "//OVE end\n\n\n"
-    "// pixel coordinates in range [0..1]x[0..1]\n"
-    "in vec2 ove_texcoord;\n"
-    "// output color\n"
-    "out vec4 frag_color;\n\n"
-    "void main(void) {\n"
-    "   vec4 textureColor = texture(tex_in, ove_texcoord);\n"
-    "   frag_color= textureColor.brga;\n"
-    "}\n");
-
-}  // namespace
-
-const QString ShaderFilterNode::kTextureInput = QStringLiteral("tex_in");
-const QString ShaderFilterNode::kShaderCode = QStringLiteral("source");
-const QString ShaderFilterNode::kOutputMessages = QStringLiteral("issues");
-
-
-ShaderFilterNode::ShaderFilterNode():
-  invalidate_code_flag_(false),
-  main_input_name_("Input")
+ShaderTransition::ShaderTransition()
 {
   // Full code of the shader. Inputs to be exposed are defined within the shader code
   // with mark-up comments.
@@ -71,41 +68,24 @@ ShaderFilterNode::ShaderFilterNode():
   SetInputProperty( kShaderCode, QStringLiteral("text_type"), QString("shader_code"));
   // mark this text input as output messages
   SetInputProperty( kOutputMessages, QStringLiteral("text_type"), QString("shader_issues"));
-
-  // A default texture. Must be connected even for shaders that do not require a texture.
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-  SetEffectInput(kTextureInput);
-
-  SetFlag(kVideoEffect);
 }
 
-Node *ShaderFilterNode::copy() const
+QString ShaderTransition::Name() const
 {
-  ShaderFilterNode * new_node = new ShaderFilterNode();
-
-  // copy all inputs not created in constructor
-  CopyInputs( this, new_node, false);
-
-  return new_node;
+  return tr("GLSL Transition");
 }
 
-QString ShaderFilterNode::Name() const
+QString ShaderTransition::id() const
 {
-  return QString("Shader");
+  return QStringLiteral("org.olivevideoeditor.Olive.transitionshader");
 }
 
-QString ShaderFilterNode::id() const
+QVector<Node::CategoryID> ShaderTransition::Category() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.shader");
+  return {kCategoryTransition};
 }
 
-QVector<Node::CategoryID> ShaderFilterNode::Category() const
-{
-  return {kCategoryFilter};
-}
-
-
-void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
+void ShaderTransition::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element)
 
@@ -134,20 +114,19 @@ void ShaderFilterNode::InputValueChangedEvent(const QString &input, int element)
   }
 }
 
-bool ShaderFilterNode::ShaderCodeInvalidateFlag() const
+bool ShaderTransition::ShaderCodeInvalidateFlag() const
 {
   bool invalid = invalidate_code_flag_;
   invalidate_code_flag_ = false;
   return invalid;
 }
 
-
-QString ShaderFilterNode::Description() const
+QString ShaderTransition::Description() const
 {
-  return tr("a filter made by a GLSL shader code");
+  return tr("GLSL user written transition");
 }
 
-void ShaderFilterNode::Retranslate()
+void ShaderTransition::Retranslate()
 {
   super::Retranslate();
 
@@ -157,26 +136,34 @@ void ShaderFilterNode::Retranslate()
   SetInputName( kOutputMessages, tr("Issues"));
 }
 
-ShaderCode ShaderFilterNode::GetShaderCode(const Node::ShaderRequest &request) const
+
+ShaderCode ShaderTransition::GetShaderCode(const Node::ShaderRequest &request) const
 {
   Q_UNUSED(request);
   return ShaderCode(shader_code_);
 }
 
 
-void ShaderFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void ShaderTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const
 {
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-      ShaderJob job(value);
-      job.SetShaderID(GetLabel());  // TBD: label may not be enough to identify a shader univocally
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
+  // add user Inputs
+  for( const QString & name : user_input_list_)
+  {
+    job->Insert( name, value);
   }
+
+  // resolution
+  TexturePtr p = value[QStringLiteral("in_block_in")].toTexture();
+
+  if (p) {
+    job->Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, p->virtual_resolution(), this));
+  }
+
+  job->SetShaderID(GetLabel());  // TBD: label may not be enough to identify a shader univocally
 }
 
 
-
-void ShaderFilterNode::checkShaderSyntax()
+void ShaderTransition::checkShaderSyntax()
 {
   QOpenGLShader shader(QOpenGLShader::Fragment);
   bool ok;
@@ -199,7 +186,7 @@ void ShaderFilterNode::checkShaderSyntax()
 }
 
 
-void ShaderFilterNode::parseShaderCode()
+void ShaderTransition::parseShaderCode()
 {
   ShaderInputsParser parser(shader_code_);
 
@@ -214,7 +201,7 @@ void ShaderFilterNode::parseShaderCode()
   SetLabel( label);
 }
 
-void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
+void ShaderTransition::reportErrorList( const ShaderInputsParser & parser)
 {
   const QList<ShaderInputsParser::Error> & errors = parser.ErrorList();
 
@@ -231,7 +218,7 @@ void ShaderFilterNode::reportErrorList( const ShaderInputsParser & parser)
   output_messages_ += message;
 }
 
-void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
+void ShaderTransition::updateInputList( const ShaderInputsParser & parser)
 {
   const QList< ShaderInputsParser::InputParam> & input_list = parser.InputList();
   QList< ShaderInputsParser::InputParam>::const_iterator it;
@@ -282,9 +269,6 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
     }
   }
 
-  // main input
-  main_input_name_ = (parser.MainInputName().isEmpty()) ? "Input" : parser.MainInputName();
-  SetInputName( kTextureInput, main_input_name_);
 
   // compare 'new_input_list' and 'user_input_list_' to find deleted inputs.
   checkDeletedInputs( new_input_list);
@@ -296,9 +280,29 @@ void ShaderFilterNode::updateInputList( const ShaderInputsParser & parser)
   emit InputListChanged();
 }
 
+
+void ShaderTransition::checkDeletedInputs(const QStringList & new_inputs)
+{
+  // search old inputs that are not present in new inputs
+  for( QString & input : user_input_list_) {
+    if (new_inputs.contains(input) == false) {
+      RemoveInput( input);
+
+      // remove gizmo, if any
+      if (handle_table_.contains(input)) {
+        RemoveGizmo( handle_table_[input]);
+        handle_table_.remove( input);
+        handle_shape_table_.remove( input);
+        handle_color_table_.remove( input);
+      }
+    }
+  }
+}
+
+
 // this function assumes that 'updateInputList' has been called already.
 // Add a point gizmo for each 'kVec2' that does not already have one
-void ShaderFilterNode::updateGizmoList()
+void ShaderTransition::updateGizmoList()
 {
   for (QString & aInput : user_input_list_)
   {
@@ -323,25 +327,8 @@ void ShaderFilterNode::updateGizmoList()
   }
 }
 
-void ShaderFilterNode::checkDeletedInputs(const QStringList & new_inputs)
-{
-  // search old inputs that are not present in new inputs
-  for( QString & input : user_input_list_) {
-    if (new_inputs.contains(input) == false) {
-      RemoveInput( input);
 
-      // remove gizmo, if any
-      if (handle_table_.contains(input)) {
-        RemoveGizmo( handle_table_[input]);
-        handle_table_.remove( input);
-        handle_shape_table_.remove( input);
-        handle_color_table_.remove( input);
-      }
-    }
-  }
-}
-
-void ShaderFilterNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers & /*modifiers*/)
+void ShaderTransition::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers & /*modifiers*/)
 {
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
@@ -352,7 +339,8 @@ void ShaderFilterNode::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   gizmo->GetDraggers()[1].Drag( y/resolution_.y());
 }
 
-void ShaderFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals & globals)
+
+void ShaderTransition::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals & globals)
 {
   resolution_  = globals.vparams().resolution();
 
@@ -369,6 +357,5 @@ void ShaderFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
   }
 }
 
-
-}  // namespace olive
+}  // olive
 

@@ -18,31 +18,26 @@
 
 ***/
 
-#ifndef ShaderFilterNode_H
-#define ShaderFilterNode_H
+#ifndef SHADERTRANSITION_H
+#define SHADERTRANSITION_H
 
-#include "node/node.h"
+#include "node/block/transition/transition.h"
 #include "node/gizmo/point.h"
-
 
 namespace olive {
 
 class ShaderInputsParser;
 
+// TBD There is a lot of code duplication between 'ShaderFilterNode' and 'ShaderTransition'
+// Common code may be factored in a separate class
 
-/** @brief
- * A node that implements a GLSL script. The inputs of this node
- * are defined in GLSL by markup comments
- */
-class ShaderFilterNode : public Node
+class ShaderTransition : public TransitionBlock
 {
   Q_OBJECT
 public:
-  ShaderFilterNode();
+  ShaderTransition();
 
-  NODE_DEFAULT_DESTRUCTOR(ShaderFilterNode)
-
-  virtual Node* copy() const override;
+  NODE_DEFAULT_FUNCTIONS(ShaderTransition)
 
   virtual QString Name() const override;
   virtual QString id() const override;
@@ -50,18 +45,21 @@ public:
   virtual QString Description() const override;
 
   virtual void Retranslate() override;
-
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
   void InputValueChangedEvent(const QString &input, int element) override;
 
   bool ShaderCodeInvalidateFlag() const override;
 
-  static const QString kTextureInput;
   static const QString kShaderCode;
   static const QString kOutputMessages;
+
+protected:
+  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const override;
+
+protected slots:
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
   void parseShaderCode();
@@ -71,12 +69,7 @@ private:
   void updateGizmoList();
   void checkDeletedInputs( const QStringList & new_inputs);
 
-
-protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
-
 private:
-
   // set to true when shader code changes. Must be mutable because
   // it is reset when it is read
   mutable bool invalidate_code_flag_;
@@ -101,4 +94,4 @@ private:
 
 }
 
-#endif // ShaderFilterNode_H
+#endif // SHADERTRANSITION_H

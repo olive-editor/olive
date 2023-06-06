@@ -163,7 +163,7 @@ OLIVE_ADD_TEST(InputColorTest)
   OLIVE_ASSERT_EQUAL( STR(param.uniform_name), STR("tone_in"));
   OLIVE_ASSERT_EQUAL( STR(param.type_string), STR("COLOR"));
   OLIVE_ASSERT_EQUAL( param.type, NodeValue::kColor);
-  OLIVE_ASSERT( param.default_value.value<Color>() == Color(0.5, 0.4, 0.1, 1.0));
+  OLIVE_ASSERT( param.default_value.value<Color>() == Color(0.5f, 0.4f, 0.1f, 1.0f));
 
   OLIVE_TEST_END;
 }
@@ -238,6 +238,7 @@ OLIVE_ADD_TEST(InputPointTest)
 "//OVE name: From""\n"
 "//OVE type: POINT""\n"
 "//OVE default: (0.4,0.2)""\n"
+"//OVE color: RGBA( 0.5,0.5 ,0.0,  1)""\n"
 "//OVE description: gradient start point""\n"
 "uniform vec2 from_in;""\n"
         );
@@ -256,6 +257,7 @@ OLIVE_ADD_TEST(InputPointTest)
   OLIVE_ASSERT_EQUAL( STR(param.uniform_name), STR("from_in"));
   OLIVE_ASSERT_EQUAL( STR(param.type_string), STR("POINT"));
   OLIVE_ASSERT_EQUAL( param.type, NodeValue::kVec2);
+  OLIVE_ASSERT( param.gizmoColor == QColor(127,127,0));
 
   OLIVE_TEST_END;
 }

@@ -22,13 +22,14 @@
 #define PREFERENCESEDITTAB_H
 
 
-#include "dialog/configbase/configdialogbase.h"
+#include "dialog/configbase/configdialogbasetab.h"
 
 class QCheckBox;
 class QGroupBox;
 class QRadioButton;
 class QSpinBox;
 class QLineEdit;
+class QPushButton;
 
 
 namespace olive {
@@ -43,6 +44,9 @@ public:
 
   virtual void Accept(MultiUndoCommand* command) override;
 
+private slots:
+  void onSelectDialogRequest();
+
 private:
   QRadioButton * use_internal_editor_;
   QRadioButton * use_external_editor_;
@@ -55,6 +59,7 @@ private:
 
   // for external editor
   QLineEdit * ext_command_;
+  QPushButton * ext_select_button;
   QLineEdit * ext_params_;
 };
 

@@ -29,6 +29,7 @@
 #include "block/subtitle/subtitle.h"
 #include "block/transition/crossdissolve/crossdissolvetransition.h"
 #include "block/transition/diptocolor/diptocolortransition.h"
+#include "block/transition/shader/shadertransition.h"
 #include "color/displaytransform/displaytransform.h"
 #include "color/ociogradingtransformlinear/ociogradingtransformlinear.h"
 #include "distort/cornerpin/cornerpindistortnode.h"
@@ -256,6 +257,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new CrossDissolveTransition();
   case kDipToColorTransition:
     return new DipToColorTransition();
+  case kShaderTransition:
+    return new ShaderTransition();
   case kMosaicFilter:
     return new MosaicFilterNode();
   case kCropDistort:

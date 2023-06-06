@@ -26,9 +26,10 @@
 #include <QLineEdit>
 #include <QRadioButton>
 #include <QSpinBox>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QStandardPaths>
 
-
-#include "common/filefunctions.h"
 
 namespace olive {
 
@@ -87,9 +88,16 @@ PreferencesEditTab::PreferencesEditTab()
   external_editor_layout->addWidget(
         new QLabel(tr("Command or full file path of external editor.\n"
                       "Use double quotes if executable path has spaces")) );
+  QHBoxLayout * editor_cmd_layout = new QHBoxLayout();
+  external_editor_layout->addLayout( editor_cmd_layout);
   ext_command_ = new QLineEdit();
+  ext_select_button = new QPushButton("...", this);
+  editor_cmd_layout->addWidget( ext_command_);
+  editor_cmd_layout->addWidget( ext_select_button);
+
+  connect( ext_select_button, & QPushButton::clicked, this, & PreferencesEditTab::onSelectDialogRequest);
+
   ext_params_ = new QLineEdit();
-  external_editor_layout->addWidget( ext_command_);
   external_editor_layout->addWidget(
         new QLabel(tr("Parameters of external editor.\n"
                       "Use %FILE and %LINE for file path and line number")) );
@@ -129,4 +137,14 @@ void PreferencesEditTab::Accept(MultiUndoCommand *command)
   Config::Current()["EditorInternalWindowWidth"] = QVariant::fromValue(window_width_->value());
 }
 
+void PreferencesEditTab::onSelectDialogRequest()
+{
+  QString path = QFileDialog::getOpenFileName( this, tr("External editor"),
+                                               QStandardPaths::displayName( QStandardPaths::ApplicationsLocation));
+
+  if (path != QString()) {
+    ext_command_->setText( path);
+  }
 }
+
+}  // olive

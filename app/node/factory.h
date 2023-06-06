@@ -54,6 +54,7 @@ public:
     kTextGeneratorV3,
     kCrossDissolveTransition,
     kDipToColorTransition,
+    kShaderTransition,
     kMosaicFilter,
     kCropDistort,
     kProjectFootage,
