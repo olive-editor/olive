@@ -70,6 +70,7 @@ private:
   {
     type_t our_type;
     type_t base_type;
+    QString subtype;
     size_t channel_count;
   };
 

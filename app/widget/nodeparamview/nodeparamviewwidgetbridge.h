@@ -100,6 +100,8 @@ private:
 
   void UpdateProperties();
 
+  void RecreateWidgets();
+
   QVector<NodeInput> input_hierarchy_;
 
   AbstractParamWidget *widget_;

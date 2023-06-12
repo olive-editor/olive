@@ -41,17 +41,17 @@ constexpr type_t OUR_BOOL = "bool";
 
 const QVector<ValueNode::Type> ValueNode::kSupportedTypes =
 {
-  {OUR_DOUBLE, TYPE_DOUBLE, 1},
-  {OUR_INTEGER, TYPE_INTEGER, 1},
-  {OUR_RATIONAL, TYPE_RATIONAL, 1},
-  {OUR_VEC2, TYPE_DOUBLE, 2},
-  {OUR_VEC3, TYPE_DOUBLE, 3},
-  {OUR_VEC4, TYPE_DOUBLE, 4},
-  {OUR_COLOR, TYPE_DOUBLE, 4},
-  {OUR_STRING, TYPE_STRING, 1},
-  {OUR_MATRIX, TYPE_MATRIX, 1},
-  {OUR_FONT, TYPE_STRING, 1},
-  {OUR_BOOL, TYPE_DOUBLE, 1},
+  {OUR_DOUBLE, TYPE_DOUBLE, QString(), 1},
+  {OUR_INTEGER, TYPE_INTEGER, QString(), 1},
+  {OUR_RATIONAL, TYPE_RATIONAL, QString(), 1},
+  {OUR_VEC2, TYPE_DOUBLE, QString(), 2},
+  {OUR_VEC3, TYPE_DOUBLE, QString(), 3},
+  {OUR_VEC4, TYPE_DOUBLE, QString(), 4},
+  {OUR_COLOR, TYPE_DOUBLE, QStringLiteral("color"), 4},
+  {OUR_STRING, TYPE_STRING, QString(), 1},
+  {OUR_MATRIX, TYPE_MATRIX, QString(), 1},
+  {OUR_FONT, TYPE_STRING, QStringLiteral("font"), 1},
+  {OUR_BOOL, TYPE_INTEGER, QStringLiteral("bool"), 1},
 };
 
 ValueNode::ValueNode()
@@ -74,18 +74,6 @@ void ValueNode::Retranslate()
     type_names.append(GetPrettyTypeName(type.our_type));
   }
 
-  type_names.append(tr("Double"));
-  type_names.append(tr("Integer"));
-  type_names.append(tr("Rational"));
-  type_names.append(tr("Vector 2D"));
-  type_names.append(tr("Vector 3D"));
-  type_names.append(tr("Vector 4D"));
-  type_names.append(tr("Color"));
-  type_names.append(tr("Text"));
-  type_names.append(tr("Matrix"));
-  type_names.append(tr("Font"));
-  type_names.append(tr("Boolean"));
-
   SetComboBoxStrings(kTypeInput, type_names);
 }
 
@@ -102,7 +90,10 @@ void ValueNode::InputValueChangedEvent(const QString &input, int element)
   if (input == kTypeInput) {
     int64_t k = GetStandardValue(kTypeInput).toInt();
 
-    SetInputDataType(kValueInput, kSupportedTypes.at(k).base_type, kSupportedTypes.at(k).channel_count);
+    const Type &t = kSupportedTypes.at(k);
+
+    SetInputProperty(kValueInput, QStringLiteral("subtype"), t.subtype);
+    SetInputDataType(kValueInput, t.base_type, t.channel_count);
   }
 
   super::InputValueChangedEvent(input, element);

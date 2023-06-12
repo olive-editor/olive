@@ -248,7 +248,9 @@ void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const 
 
 void NodeParamViewWidgetBridge::SetProperty(const QString &key, const value_t &value)
 {
-  if (widget_) {
+  if (key == QStringLiteral("subtype")) {
+    //RecreateWidgets();
+  } else if (widget_) {
     widget_->SetProperty(key, value);
   }
 }
@@ -256,14 +258,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const value_t &v
 void NodeParamViewWidgetBridge::InputDataTypeChanged(const QString &input, type_t type)
 {
   if (sender() == GetOuterInput().node() && input == GetOuterInput().input()) {
-    // Delete all widgets
-    delete widget_;
-
-    // Create new widgets
-    CreateWidgets();
-
-    // Signal that widgets are new
-    emit WidgetsRecreated(GetOuterInput());
+    RecreateWidgets();
   }
 }
 
@@ -292,6 +287,19 @@ void NodeParamViewWidgetBridge::UpdateProperties()
       SetProperty(jt.key(), jt.value());
     }
   }
+}
+
+void NodeParamViewWidgetBridge::RecreateWidgets()
+{
+  // Delete all widgets
+  delete widget_;
+  widget_ = nullptr;
+
+  // Create new widgets
+  CreateWidgets();
+
+  // Signal that widgets are new
+  emit WidgetsRecreated(GetOuterInput());
 }
 
 bool NodeParamViewScrollBlocker::eventFilter(QObject *watched, QEvent *event)
