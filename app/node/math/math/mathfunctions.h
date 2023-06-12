@@ -50,6 +50,11 @@ public:
   static value_t MaxDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
   static value_t ClampDoubleDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
 
+  static value_t FloorDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t CeilDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t RoundDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t AbsDouble(const value_t &a, const value_t &b, const value_t &c);
+
   static value_t AddMatrixMatrix(const value_t &a, const value_t &b, const value_t &c);
   static value_t SubtractMatrixMatrix(const value_t &a, const value_t &b, const value_t &c);
   static value_t MultiplyMatrixMatrix(const value_t &a, const value_t &b, const value_t &c);

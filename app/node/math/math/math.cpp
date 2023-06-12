@@ -122,6 +122,11 @@ void MathNode::Retranslate()
     GetOperationName(kOpMin),
     GetOperationName(kOpMax),
     GetOperationName(kOpClamp),
+    QString(),
+    GetOperationName(kOpFloor),
+    GetOperationName(kOpCeil),
+    GetOperationName(kOpRound),
+    GetOperationName(kOpAbs),
   };
 
   SetComboBoxStrings(kMethodIn, operations);
@@ -254,6 +259,10 @@ void MathNode::OperateSampleNumber(Operation operation, const float *input, floa
   case kOpHypCosine:
   case kOpHypTangent:
   case kOpClamp:
+  case kOpFloor:
+  case kOpCeil:
+  case kOpRound:
+  case kOpAbs:
     break;
   }
 }
@@ -348,6 +357,10 @@ void MathNode::OperateSampleSample(Operation operation, const float *input, floa
   case kOpHypCosine:
   case kOpHypTangent:
   case kOpClamp:
+  case kOpFloor:
+  case kOpCeil:
+  case kOpRound:
+  case kOpAbs:
     break;
   }
 }
@@ -355,23 +368,30 @@ void MathNode::OperateSampleSample(Operation operation, const float *input, floa
 int MathNode::GetNumberOfOperands(Operation o)
 {
   switch (o) {
-  case kOpAdd: return 2;
-  case kOpSubtract: return 2;
-  case kOpMultiply: return 2;
-  case kOpDivide: return 2;
-  case kOpPower: return 2;
-  case kOpSine: return 1;
-  case kOpCosine: return 1;
-  case kOpTangent: return 1;
-  case kOpArcSine: return 1;
-  case kOpArcCosine: return 1;
-  case kOpArcTangent: return 1;
-  case kOpHypSine: return 1;
-  case kOpHypCosine: return 1;
-  case kOpHypTangent: return 1;
-  case kOpMin: return 2;
-  case kOpMax: return 2;
-  case kOpClamp: return 3;
+  case kOpSine:
+  case kOpCosine:
+  case kOpTangent:
+  case kOpArcSine:
+  case kOpArcCosine:
+  case kOpArcTangent:
+  case kOpHypSine:
+  case kOpHypCosine:
+  case kOpHypTangent:
+  case kOpFloor:
+  case kOpCeil:
+  case kOpRound:
+  case kOpAbs:
+    return 1;
+  case kOpAdd:
+  case kOpSubtract:
+  case kOpMultiply:
+  case kOpDivide:
+  case kOpPower:
+  case kOpMin:
+  case kOpMax:
+    return 2;
+  case kOpClamp:
+    return 3;
   }
 
   return 0;
@@ -465,6 +485,7 @@ ShaderCode MathNode::GetShaderCode(const QString &id)
   Operation op = static_cast<Operation>(j.at(0).toInt());
   type_t atype = type_t::fromString(j.at(1));
   type_t btype = type_t::fromString(j.at(2));
+  type_t ctype = type_t::fromString(j.at(3));
 
   QString line;
 
@@ -502,32 +523,46 @@ ShaderCode MathNode::GetShaderCode(const QString &id)
   case kOpHypSine: line = QStringLiteral("sinh(%1)"); break;
   case kOpHypCosine: line = QStringLiteral("cosh(%1)"); break;
   case kOpHypTangent: line = QStringLiteral("tanh(%1)"); break;
-  case kOpClamp:
-    qWarning() << "texture clamping is currently a stub!";
+  case kOpFloor: line = QStringLiteral("floor(%1)"); break;
+  case kOpCeil: line = QStringLiteral("ceil(%1)"); break;
+  case kOpRound: line = QStringLiteral("round(%1)"); break;
+  case kOpAbs: line = QStringLiteral("abs(%1)"); break;
+  case kOpClamp: line = QStringLiteral("clamp(%1, %2, %3)"); break;
     break;
   }
 
   line = line.arg(GetShaderVariableCall(kParamAIn, atype),
-                  GetShaderVariableCall(kParamBIn, btype));
+                  GetShaderVariableCall(kParamBIn, btype),
+                  GetShaderVariableCall(kParamCIn, ctype));
 
   static const QString stub =
-      QStringLiteral("uniform %1 %3;\n"
-                     "uniform %2 %4;\n"
+      QStringLiteral("uniform %1 %4;\n"
+                     "uniform %2 %5;\n"
+                     "uniform %3 %6;\n"
                      "\n"
                      "in vec2 ove_texcoord;\n"
                      "out vec4 frag_color;\n"
                      "\n"
                      "void main(void) {\n"
-                     "    vec4 c = %5;\n"
+                     "    vec4 c = %7;\n"
                      "    c.a = clamp(c.a, 0.0, 1.0);\n" // Ensure alpha is between 0.0 and 1.0
                      "    frag_color = c;\n"
                      "}\n");
 
   return stub.arg(GetShaderUniformType(atype),
                   GetShaderUniformType(btype),
+                  GetShaderUniformType(ctype),
                   kParamAIn,
                   kParamBIn,
+                  kParamCIn,
                   line);
+}
+
+void NormalizeNumber(value_t &in)
+{
+  if (in.type() == TYPE_RATIONAL || in.type() == TYPE_INTEGER) {
+    in = in.converted(TYPE_DOUBLE);
+  }
 }
 
 value_t MathNode::Value(const ValueParams &p) const
@@ -544,6 +579,11 @@ value_t MathNode::Value(const ValueParams &p) const
   if (count < 1) { aval = value_t(); }
   if (count < 2) { bval = value_t(); }
   if (count < 3) { cval = value_t(); }
+
+  // Treat integers and rationals as doubles
+  NormalizeNumber(aval);
+  NormalizeNumber(bval);
+  NormalizeNumber(cval);
 
   if (aval.type() == TYPE_SAMPLES || bval.type() == TYPE_SAMPLES) {
     if (aval.type() == TYPE_SAMPLES && bval.type() == TYPE_SAMPLES) {
@@ -570,7 +610,7 @@ value_t MathNode::Value(const ValueParams &p) const
   } else if (aval.type() == TYPE_TEXTURE || bval.type() == TYPE_TEXTURE) {
     // Produce shader job
     ShaderJob job = CreateShaderJob(p, GetShaderCode);
-    job.SetShaderID(QStringLiteral("%1:%2:%3").arg(QString::number(operation), aval.type().toString(), bval.type().toString()));
+    job.SetShaderID(QStringLiteral("%1:%2:%3:%4").arg(QString::number(operation), aval.type().toString(), bval.type().toString(), cval.type().toString()));
     return Texture::Job(aval.type() == TYPE_TEXTURE ? aval.toTexture()->params() : bval.toTexture()->params(), job);
   } else {
     // Operation can be done entirely here
@@ -603,6 +643,10 @@ QString MathNode::GetOperationName(Operation o)
   case kOpMin: return tr("Minimum");
   case kOpMax: return tr("Maximum");
   case kOpClamp: return tr("Clamp");
+  case kOpFloor: return tr("Floor");
+  case kOpCeil: return tr("Ceil");
+  case kOpRound: return tr("Round");
+  case kOpAbs: return tr("Absolute");
   }
 
   return QString();
@@ -631,6 +675,11 @@ void MathNode::PopulateOperations()
   operations_[kOpMin][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::MinDoubleDouble;
   operations_[kOpMax][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::MaxDoubleDouble;
   operations_[kOpClamp][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_DOUBLE] = Math::ClampDoubleDoubleDouble;
+
+  operations_[kOpFloor][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::FloorDouble;
+  operations_[kOpCeil][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::CeilDouble;
+  operations_[kOpRound][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::RoundDouble;
+  operations_[kOpAbs][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::AbsDouble;
 
   operations_[kOpAdd][TYPE_MATRIX][TYPE_MATRIX][TYPE_NONE] = Math::AddMatrixMatrix;
   operations_[kOpSubtract][TYPE_MATRIX][TYPE_MATRIX][TYPE_NONE] = Math::SubtractMatrixMatrix;

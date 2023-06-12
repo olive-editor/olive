@@ -53,7 +53,12 @@ public:
 
     kOpMin,
     kOpMax,
-    kOpClamp
+    kOpClamp,
+
+    kOpFloor,
+    kOpCeil,
+    kOpRound,
+    kOpAbs
   };
 
   NODE_DEFAULT_FUNCTIONS(MathNode)

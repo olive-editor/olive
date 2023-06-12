@@ -175,6 +175,42 @@ value_t Math::ClampDoubleDoubleDouble(const value_t &a, const value_t &b, const 
   return v;
 }
 
+value_t Math::FloorDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::floor(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::CeilDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::ceil(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::RoundDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::round(a.value<double>(i));
+  }
+  return v;
+}
+
+value_t Math::AbsDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::abs(a.value<double>(i));
+  }
+  return v;
+}
+
 value_t Math::AddMatrixMatrix(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_MATRIX, std::max(a.size(), b.size()));
