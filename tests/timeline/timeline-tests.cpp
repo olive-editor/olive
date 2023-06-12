@@ -459,10 +459,10 @@ OLIVE_ADD_TEST(ReplaceBlockWithGap_ClipsAndTransitions)
   b_out->setParent(&project);
   track->AppendBlock(b_out);
 
-  Node::ConnectEdge(a, NodeInput(a_in, UsingTransition::kInBlockInput));
-  Node::ConnectEdge(a, NodeInput(a_to_b, UsingTransition::kOutBlockInput));
-  Node::ConnectEdge(b, NodeInput(a_to_b, UsingTransition::kInBlockInput));
-  Node::ConnectEdge(b, NodeInput(b_out, UsingTransition::kOutBlockInput));
+  Node::ConnectEdge(NodeOutput(a), NodeInput(a_in, UsingTransition::kInBlockInput));
+  Node::ConnectEdge(NodeOutput(a), NodeInput(a_to_b, UsingTransition::kOutBlockInput));
+  Node::ConnectEdge(NodeOutput(b), NodeInput(a_to_b, UsingTransition::kInBlockInput));
+  Node::ConnectEdge(NodeOutput(b), NodeInput(b_out, UsingTransition::kOutBlockInput));
 
   {
     // Replace A with gap

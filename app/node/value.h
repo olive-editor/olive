@@ -104,7 +104,7 @@ public:
         try {
           *out = std::any_cast<T>(data_);
           return true;
-        } catch (std::bad_any_cast &e) {}
+        } catch (std::bad_any_cast &) {}
       }
 
       return false;
