@@ -31,6 +31,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+# Generates a compile_commands.json in the build dir, link that to the repo
+# root to enrich your IDE with clangd language server protocol functionalities
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Sanitizers
 add_library(olive-sanitizers INTERFACE)
 include(cmake/Sanitizers.cmake)
