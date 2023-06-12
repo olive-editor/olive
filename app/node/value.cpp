@@ -130,10 +130,10 @@ TexturePtr value_t::toTexture() const
     job.Insert(QStringLiteral("green_texture"), this->value<TextureChannel>(1).texture);
     job.Insert(QStringLiteral("blue_texture"), this->value<TextureChannel>(2).texture);
     job.Insert(QStringLiteral("alpha_texture"), this->value<TextureChannel>(3).texture);
-    job.Insert(QStringLiteral("red_channel"), this->value<TextureChannel>(0).channel);
-    job.Insert(QStringLiteral("green_channel"), this->value<TextureChannel>(1).channel);
-    job.Insert(QStringLiteral("blue_channel"), this->value<TextureChannel>(2).channel);
-    job.Insert(QStringLiteral("alpha_channel"), this->value<TextureChannel>(3).channel);
+    job.Insert(QStringLiteral("red_channel"), int(this->value<TextureChannel>(0).channel));
+    job.Insert(QStringLiteral("green_channel"), int(this->value<TextureChannel>(1).channel));
+    job.Insert(QStringLiteral("blue_channel"), int(this->value<TextureChannel>(2).channel));
+    job.Insert(QStringLiteral("alpha_channel"), int(this->value<TextureChannel>(3).channel));
     return Texture::Job(vp, job);
   } else {
     // No swizzling has occurred
