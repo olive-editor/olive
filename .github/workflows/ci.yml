@@ -146,7 +146,7 @@ jobs:
             compiler-name: MSVC 16.x
             os-name: Windows
             os-arch: x86_64
-            os: windows-latest
+            os: windows-2019
             cmake-gen: Ninja
     name: |
       ${{ matrix.os-name }}

@@ -1627,13 +1627,11 @@ void Node::SaveInput(QXmlStreamWriter *writer, const QString &id) const
 {
   writer->writeAttribute(QStringLiteral("id"), id);
 
-  if (GetStandardValue(id, -1).isValid()) {
-    writer->writeStartElement(QStringLiteral("primary"));
+  writer->writeStartElement(QStringLiteral("primary"));
 
-    SaveImmediate(writer, id, -1);
+  SaveImmediate(writer, id, -1);
 
-    writer->writeEndElement(); // primary
-  }
+  writer->writeEndElement(); // primary
 
   int arr_sz = this->InputArraySize(id);
 

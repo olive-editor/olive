@@ -206,6 +206,9 @@ FramePtr FrameHashCache::LoadCacheFrame(const QString &fn)
         const int channel_count = 4;
         const rational par(1, 1);
 
+        // Convert to frame (FIXME: might be slow? may be a better way to do this on the GPU)
+        img.convertTo(QImage::Format_RGBA8888_Premultiplied);
+
         frame = Frame::Create();
         frame->set_video_params(VideoParams(img.width() * div,
                                             img.height() * div,
