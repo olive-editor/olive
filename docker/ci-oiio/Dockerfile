@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Build image (default):
-#  docker build -t olivevideoeditor/ci-package-oiio:2.3.13.0 -f ci-oiio/Dockerfile .
+#  docker build -t olivevideoeditor/ci-package-oiio:2.4.5.0 -f ci-oiio/Dockerfile .
 
 ARG ASWF_PKG_ORG=aswftesting
 ARG OLIVE_ORG=olivevideoeditor
 ARG CI_COMMON_VERSION=2
 ARG VFXPLATFORM_VERSION=2022
-ARG OIIO_VERSION=v2.3.13.0
+ARG OIIO_VERSION=v2.4.5.0
 ARG YASM_VERSION=1.3.0
-ARG JPEG_TURBO_VERSION=2.1.3
+ARG JPEG_TURBO_VERSION=2.1.4
 
 FROM ${ASWF_PKG_ORG}/ci-package-boost:${VFXPLATFORM_VERSION} as ci-package-boost
 FROM ${ASWF_PKG_ORG}/ci-package-openexr:${VFXPLATFORM_VERSION} as ci-package-openexr

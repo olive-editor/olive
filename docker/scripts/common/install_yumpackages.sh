@@ -73,12 +73,12 @@ yum install -y epel-release
 # Additional package that are not found initially
 yum install -y \
     rh-git218 \
+    openssl11-devel \
     portaudio-devel
 #   lame-devel
 #   libcaca-devel \
 #   libdb4-devel \
 #   libdc1394-devel \
-#   openssl11-devel \
 #   p7zip \
 #   yasm-devel \
 #   zvbi-devel

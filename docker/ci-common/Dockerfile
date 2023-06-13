@@ -9,7 +9,7 @@ ARG OLIVE_ORG=olivevideoeditor
 ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
 ARG DTS_VERSION=9
-ARG CMAKE_VERSION=3.22.3
+ARG CMAKE_VERSION=3.24.3
 
 FROM ${ASWF_PKG_ORG}/ci-package-clang:${CI_COMMON_VERSION} as ci-package-clang
 FROM ${ASWF_PKG_ORG}/ci-package-ninja:${CI_COMMON_VERSION} as ci-package-ninja

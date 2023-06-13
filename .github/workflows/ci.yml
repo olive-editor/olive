@@ -49,11 +49,11 @@ jobs:
        ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-latest
     container:
-      image: olivevideoeditor/ci-olive:2022.3
+      image: olivevideoeditor/ci-olive:2022.4
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: 'true'
 
@@ -126,11 +126,11 @@ jobs:
           pkgname="${filename/x86_64/Linux-x86_64}"
           mv "${filename}" "${pkgname}"
           basename="${filename%.*}"
-          echo "::set-output name=pkgname::${pkgname}"
-          echo "::set-output name=artifact::${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}"
+          echo "pkgname=${pkgname}" >> $GITHUB_OUTPUT
+          echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
 
       - name: Upload Artifact to GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         continue-on-error: true
         with:
           name: ${{ steps.package.outputs.artifact }}
@@ -155,7 +155,7 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: 'true'
 
@@ -268,13 +268,13 @@ jobs:
           mv olive-editor deploy
 
       - name: Upload Installer Artifact to GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PKGNAME }}-Installer
           path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
 
       - name: Upload Portable Artifact to GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PKGNAME }}-Portable
           path: ${{ runner.workspace }}/build/deploy
@@ -309,7 +309,7 @@ jobs:
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: 'true'
 
@@ -456,7 +456,7 @@ jobs:
           hdiutil convert img.dmg -format UDZO -o $PKGNAME.dmg
 
       - name: Upload Artifact to GitHub
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         continue-on-error: true
         with:
           name: ${{ env.PKGNAME }}

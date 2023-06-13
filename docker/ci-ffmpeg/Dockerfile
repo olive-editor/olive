@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Build image (default):
-#  docker build -t olivevideoeditor/ci-package-ffmpeg:5.0 -f ci-ffmpeg/Dockerfile .
+#  docker build -t olivevideoeditor/ci-package-ffmpeg:5.1.2 -f ci-ffmpeg/Dockerfile .
 
 ARG OLIVE_ORG=olivevideoeditor
 ARG CI_COMMON_VERSION=2
-ARG FFMPEG_VERSION=5.0
+ARG FFMPEG_VERSION=5.1.2
 ARG NASM_VERSION=2.15.05
 ARG YASM_VERSION=1.3.0
 ARG SVTAV1_VERSION=v1.1.0
@@ -15,12 +15,12 @@ ARG OGG_VERSION=1.3.5
 ARG OPUS_VERSION=1.3.1
 ARG VORBIS_VERSION=1.3.7
 ARG THEORA_VERSION=1.1.1
-ARG VPX_VERSION=1.11.0
-ARG WEBP_VERSION=1.2.2
+ARG VPX_VERSION=1.12.0
+ARG WEBP_VERSION=1.2.4
 ARG LAME_VERSION=3.100
 ARG XVID_VERSION=1.3.7
-ARG OPENJPEG_VERSION=2.4.0
-ARG LIBPNG_VERSION=1.6.37
+ARG OPENJPEG_VERSION=2.5.0
+ARG LIBPNG_VERSION=1.6.38
 # TODO: Make version of x264 selectable?
 
 FROM ${OLIVE_ORG}/ci-common:${CI_COMMON_VERSION} as ci-ffmpeg

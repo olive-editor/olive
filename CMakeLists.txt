@@ -67,6 +67,8 @@ else()
   )
   if (USE_WERROR)
     list(APPEND OLIVE_COMPILE_OPTIONS "-Werror")
+    # FFmpeg 5.1 (libavutil 57.24.100) adds new channel layout API and deprecates old one
+    list(APPEND OLIVE_COMPILE_OPTIONS "-Wno-deprecated-declarations")
   endif()
 endif()
 

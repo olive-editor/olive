@@ -1,0 +1,35 @@
+--- ImathTargets.cmake	2022-05-25 22:12:51.000000000 +0000
++++ ImathTargets.cmake	2023-03-10 11:53:26.509209000 +0000
+@@ -16,7 +16,7 @@
+ set(_targetsDefined)
+ set(_targetsNotDefined)
+ set(_expectedTargets)
+-foreach(_expectedTarget Imath::ImathConfig Imath::Imath Imath::PyImathConfig Imath::PyImath_Python3_9)
++foreach(_expectedTarget Imath::ImathConfig Imath::Imath) # Imath::PyImathConfig Imath::PyImath_Python3_9
+   list(APPEND _expectedTargets ${_expectedTarget})
+   if(NOT TARGET ${_expectedTarget})
+     list(APPEND _targetsNotDefined ${_expectedTarget})
+@@ -67,16 +67,16 @@
+ )
+
+ # Create imported target Imath::PyImathConfig
+-add_library(Imath::PyImathConfig INTERFACE IMPORTED)
++#add_library(Imath::PyImathConfig INTERFACE IMPORTED)
+
+ # Create imported target Imath::PyImath_Python3_9
+-add_library(Imath::PyImath_Python3_9 SHARED IMPORTED)
++#add_library(Imath::PyImath_Python3_9 SHARED IMPORTED)
+
+-set_target_properties(Imath::PyImath_Python3_9 PROPERTIES
+-  INTERFACE_COMPILE_FEATURES "cxx_std_14"
+-  INTERFACE_INCLUDE_DIRECTORIES "/usr/local/include"
+-  INTERFACE_LINK_LIBRARIES "Imath::Imath"
+-)
++#set_target_properties(Imath::PyImath_Python3_9 PROPERTIES
++#  INTERFACE_COMPILE_FEATURES "cxx_std_14"
++#  INTERFACE_INCLUDE_DIRECTORIES "/usr/local/include"
++#  INTERFACE_LINK_LIBRARIES "Imath::Imath"
++#)
+
+ if(CMAKE_VERSION VERSION_LESS 3.0.0)
+   message(FATAL_ERROR "This file relies on consumers using CMake 3.0.0 or greater.")

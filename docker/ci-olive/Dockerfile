@@ -12,10 +12,10 @@ ARG OLIVE_ORG=olivevideoeditor
 ARG ASWF_PKG_ORG=aswftesting
 ARG CI_COMMON_VERSION=2
 ARG VFXPLATFORM_VERSION=2022
-ARG OCIO_VERSION=2.1.1
-ARG FFMPEG_VERSION=5.0
-ARG OTIO_VERSION=0.14.1
-ARG OIIO_VERSION=2.3.13.0
+ARG OCIO_VERSION=2.1.3
+ARG FFMPEG_VERSION=5.1.2
+ARG OTIO_VERSION=0.15
+ARG OIIO_VERSION=2.4.5.0
 
 FROM ${ASWF_PKG_ORG}/ci-package-qt:${VFXPLATFORM_VERSION} as ci-package-qt
 FROM ${ASWF_PKG_ORG}/ci-package-python:${VFXPLATFORM_VERSION} as ci-package-python
@@ -71,6 +71,12 @@ COPY --from=ci-package-ffmpeg /. /usr/local/
 COPY --from=ci-package-crashpad /. /usr/local/
 COPY --from=ci-package-otio /. /usr/local/
 COPY scripts/build_olive.sh /tmp/
+
+# HACK: The ASWF Imath is compiled with Python support that we ignore to avoid an error:
+#  set_property could not find TARGET Imath::PyImath_Python3_9.
+COPY scripts/DisableImathPython.patch scripts/DisableImathPythonRelease.patch /tmp/
+RUN patch -u /usr/local/lib64/cmake/Imath/ImathTargets.cmake /tmp/DisableImathPython.patch
+RUN patch -u /usr/local/lib64/cmake/Imath/ImathTargets-release.cmake /tmp/DisableImathPythonRelease.patch
 
 RUN curl --location "https://github.com/probonopd/linuxdeployqt/releases/download/7/linuxdeployqt-7-x86_64.AppImage" \
       -o "/usr/local/linuxdeployqt-x86_64.AppImage" && \

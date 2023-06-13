@@ -79,6 +79,48 @@ mkdir breakpad
 cd breakpad
 fetch breakpad
 cd src
+echo 'diff --git a/src/common/linux/dump_symbols.cc b/src/common/linux/dump_symbols.cc
+index 7e639b0a..ce9c0da5 100644
+--- a/src/common/linux/dump_symbols.cc
++++ b/src/common/linux/dump_symbols.cc
+@@ -35,6 +35,35 @@
+ 
+ #include <assert.h>
+ #include <elf.h>
++#ifndef SHF_COMPRESSED
++  /* glibc elf.h does not define the ELF compression types before version 2.22. */
++  #define SHF_COMPRESSED       (1 << 11)  /* Section with compressed data. */
++
++  /* Section compression header.  Used when SHF_COMPRESSED is set.  */
++
++  typedef struct
++  {
++    Elf32_Word ch_type;        /* Compression format.  */
++    Elf32_Word ch_size;        /* Uncompressed data size.  */
++    Elf32_Word ch_addralign;   /* Uncompressed data alignment.  */
++  } Elf32_Chdr;
++
++  typedef struct
++  {
++    Elf64_Word ch_type;        /* Compression format.  */
++    Elf64_Word ch_reserved;
++    Elf64_Xword ch_size;       /* Uncompressed data size.  */
++    Elf64_Xword ch_addralign;  /* Uncompressed data alignment.  */
++  } Elf64_Chdr;
++
++  /* Legal values for ch_type (compression algorithm).  */
++  #define ELFCOMPRESS_ZLIB 1            /* ZLIB/DEFLATE algorithm.  */
++  #define ELFCOMPRESS_ZSTD 2            /* Zstandard algorithm.  */
++  #define ELFCOMPRESS_LOOS 0x60000000   /* Start of OS-specific.  */
++  #define ELFCOMPRESS_HIOS 0x6fffffff   /* End of OS-specific.  */
++  #define ELFCOMPRESS_LOPROC 0x70000000 /* Start of processor-specific.  */
++  #define ELFCOMPRESS_HIPROC 0x7fffffff /* End of processor-specific.  */
++#endif
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <limits.h>' > elf_shf_compressed.patch
+git apply elf_shf_compressed.patch
+rm elf_shf_compressed.patch
 ./configure --prefix="${OLIVE_INSTALL_PREFIX}"
 make -j$(nproc)
 make install
