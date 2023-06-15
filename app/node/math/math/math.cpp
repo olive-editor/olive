@@ -478,7 +478,7 @@ QString GetShaderVariableCall(const QString &input_id, const type_t &type, const
 ShaderCode MathNode::GetShaderCode(const QString &id)
 {
   QStringList j = id.split(':');
-  if (j.size() != 3) {
+  if (j.size() != 4) {
     return ShaderCode();
   }
 
