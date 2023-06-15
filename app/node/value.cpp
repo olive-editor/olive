@@ -185,7 +185,7 @@ AudioJobPtr value_t::toAudioJob() const
       for (size_t i = 0; i < data_.size(); i++) {
         const SampleJobChannel &c = data_.at(i).value<SampleJobChannel>();
         swizzle.Insert(QStringLiteral("b.%1").arg(i), c.job);
-        swizzle.Insert(QStringLiteral("c.%1").arg(i), c.channel);
+        swizzle.Insert(QStringLiteral("c.%1").arg(i), int(c.channel));
       }
 
       swizzle.set_function(SwizzleAudio, nullptr);
