@@ -122,7 +122,7 @@ void NodeValueTree::RadioButtonChecked(bool e)
 
     NodeOutput old_output = input.GetConnectedOutput2();
     MultiUndoCommand *command = new MultiUndoCommand();
-    command->add_child(new NodeEdgeAddCommand(old_output, input));
+    command->add_child(new NodeEdgeRemoveCommand(old_output, input));
 
     old_output.set_output(tag);
     command->add_child(new NodeEdgeAddCommand(old_output, input));
