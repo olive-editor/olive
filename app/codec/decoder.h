@@ -192,7 +192,7 @@ public:
    *
    * This function is thread safe and can only run while the decoder is open. \see Open()
    */
-  RetrieveAudioStatus RetrieveAudio(SampleBuffer &dest, const TimeRange& range, const AudioParams& params, const QString &cache_path, LoopMode loop_mode, RenderMode::Mode mode);
+  RetrieveAudioStatus RetrieveAudio(SampleBuffer &dest, const rational& time, const QString &cache_path, LoopMode loop_mode, RenderMode::Mode mode);
 
   /**
    * @brief Determine the last time this decoder instance was used in any way
@@ -272,6 +272,11 @@ protected:
    */
   virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p);
 
+  virtual RetrieveAudioStatus RetrieveAudioInternal(SampleBuffer &dest, const rational &time)
+  {
+    return kOK;
+  }
+
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled);
 
   void SignalProcessingProgress(int64_t ts, int64_t duration);
@@ -288,6 +293,8 @@ protected:
 
   virtual rational GetAudioStartOffset() const { return 0; }
 
+  virtual int GetAudioSampleRate() const { return 0; }
+
 signals:
   /**
    * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if
@@ -298,7 +305,7 @@ signals:
 private:
   void UpdateLastAccessed();
 
-  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &params);
+  bool RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, rational time, LoopMode loop_mode);
 
   CodecStream stream_;
 

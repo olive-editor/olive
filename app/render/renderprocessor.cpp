@@ -398,13 +398,11 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
 void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time)
 {
-  DecoderPtr decoder = ResolveDecoderFromInput(stream->decoder(), Decoder::CodecStream(stream->filename(), stream->audio_params().stream_index(), nullptr));
+  DecoderPtr decoder = ResolveDecoderFromInput(stream->decoder(), Decoder::CodecStream(stream->filename(), stream->audio_params().stream_index(), GetCurrentBlock()));
 
   if (decoder) {
-    const AudioParams& audio_params = GetCacheAudioParams();
-
     Decoder::RetrieveAudioStatus status = decoder->RetrieveAudio(destination,
-                                                                 input_time, audio_params,
+                                                                 input_time.in(),
                                                                  stream->cache_path(),
                                                                  stream->loop_mode(),
                                                                  static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));

@@ -123,7 +123,7 @@ TexturePtr Decoder::RetrieveVideo(const RetrieveVideoParams &p)
   return cached_texture_;
 }
 
-Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const TimeRange &range, const AudioParams &params, const QString& cache_path, LoopMode loop_mode, RenderMode::Mode mode)
+Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const rational &time, const QString& cache_path, LoopMode loop_mode, RenderMode::Mode mode)
 {
   QMutexLocker locker(&mutex_);
 
@@ -139,18 +139,24 @@ Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const Ti
     return kInvalid;
   }
 
-  // Get conform state from ConformManager
-  ConformManager::Conform conform = ConformManager::instance()->GetConformState(id(), cache_path, stream_, params, (mode == RenderMode::kOnline));
-  if (conform.state == ConformManager::kConformGenerating) {
-    // If we need the task, it's available in `conform.task`
-    return kWaitingForConform;
-  }
+  const bool use_conforms = false;
 
-  // See if we got the conform
-  if (RetrieveAudioFromConform(dest, conform.filenames, range, loop_mode, params)) {
-    return kOK;
+  if (use_conforms) {
+    // Get conform state from ConformManager
+    ConformManager::Conform conform = ConformManager::instance()->GetConformState(id(), cache_path, stream_, dest.audio_params(), (mode == RenderMode::kOnline));
+    if (conform.state == ConformManager::kConformGenerating) {
+      // If we need the task, it's available in `conform.task`
+      return kWaitingForConform;
+    }
+
+    // See if we got the conform
+    if (RetrieveAudioFromConform(dest, conform.filenames, time, loop_mode)) {
+      return kOK;
+    } else {
+      return kUnknownError;
+    }
   } else {
-    return kUnknownError;
+    return RetrieveAudioInternal(dest, time);
   }
 }
 
@@ -280,14 +286,16 @@ bool Decoder::ConformAudioInternal(const QVector<QString> &filenames, const Audi
   return false;
 }
 
-bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, TimeRange range, LoopMode loop_mode, const AudioParams &input_params)
+bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVector<QString> &conform_filenames, rational time, LoopMode loop_mode)
 {
+  const AudioParams &input_params = sample_buffer.audio_params();
+
   PlanarFileDevice input;
   if (input.open(conform_filenames, QFile::ReadOnly)) {
     // Offset range by audio start offset
-    range -= GetAudioStartOffset();
+    time -= GetAudioStartOffset();
 
-    qint64 read_index = input_params.time_to_bytes(range.in()) / input_params.channel_count();
+    qint64 read_index = input_params.time_to_bytes(time) / input_params.channel_count();
     qint64 write_index = 0;
 
     const qint64 buffer_length_in_bytes = sample_buffer.sample_count() * input_params.bytes_per_sample_per_channel();
