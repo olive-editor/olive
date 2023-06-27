@@ -25,6 +25,7 @@
 
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
+#include "util/cpuoptimize.h"
 
 namespace olive {
 

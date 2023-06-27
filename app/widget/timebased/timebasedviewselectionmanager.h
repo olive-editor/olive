@@ -309,9 +309,8 @@ public:
       display_time = initial_drag_item_->time();
     }
 
-    QString tip = QString::fromStdString(Timecode::time_to_timecode(
-                                           display_time, timebase_,
-                                           Core::instance()->GetTimecodeDisplay(), false));
+    QString tip = Timecode::time_to_timecode(display_time, timebase_,
+                                             Core::instance()->GetTimecodeDisplay(), false);
 
     last_used_tip_format_ = tip_format;
     if (!tip_format.isEmpty()) {

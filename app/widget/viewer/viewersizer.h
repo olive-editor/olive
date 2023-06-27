@@ -21,13 +21,12 @@
 #ifndef VIEWERSIZER_H
 #define VIEWERSIZER_H
 
-#include <olive/core/core.h>
 #include <QScrollBar>
 #include <QWidget>
 
-namespace olive {
+#include "util/rational.h"
 
-using namespace core;
+namespace olive {
 
 /**
  * @brief A container widget that enforces the aspect ratio of a child widget

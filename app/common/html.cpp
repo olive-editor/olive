@@ -248,7 +248,7 @@ void Html::WriteCharFormat(QString *style, const QTextCharFormat &fmt)
   }
 
   if (fmt.foreground().style() != Qt::NoBrush) {
-    const QColor &color = fmt.foreground().color();
+    QColor color = fmt.foreground().color();
     QString cs;
 
     if (color.alpha() == 255) {

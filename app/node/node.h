@@ -1081,7 +1081,7 @@ protected:
   }
 
 protected slots:
-  virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::core::rational &time){}
+  virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const rational &time){}
 
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers){}
 
@@ -1202,8 +1202,8 @@ private:
 
   QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
 
-  void ParameterValueChanged(const QString &input, int element, const olive::core::TimeRange &range);
-  void ParameterValueChanged(const NodeInput& input, const olive::core::TimeRange &range)
+  void ParameterValueChanged(const QString &input, int element, const TimeRange &range);
+  void ParameterValueChanged(const NodeInput& input, const TimeRange &range)
   {
     ParameterValueChanged(input.input(), input.element(), range);
   }

@@ -22,11 +22,11 @@
 #define FRAME_H
 
 #include <memory>
-#include <olive/core/core.h>
 #include <QVector>
 
 #include "common/define.h"
 #include "render/videoparams.h"
+#include "util/color.h"
 
 namespace olive {
 

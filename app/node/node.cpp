@@ -29,7 +29,6 @@
 #include "core.h"
 #include "config/config.h"
 #include "node/group/group.h"
-#include "node/project/serializer/typeserializer.h"
 #include "nodeundo.h"
 #include "project.h"
 #include "serializeddata.h"
@@ -1548,7 +1547,8 @@ bool Node::LoadImmediate(QXmlStreamReader *reader, const QString &input, int ele
             vp.Load(reader);
             value_on_track = QVariant::fromValue(vp);
           } else if (data_type == NodeValue::kAudioParams) {
-            AudioParams ap = TypeSerializer::LoadAudioParams(reader);
+            AudioParams ap;
+            ap.load(reader);
             value_on_track = QVariant::fromValue(ap);
           } else {
             QString value_text = reader->readElementText();
@@ -1629,7 +1629,7 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
     if (data_type == NodeValue::kVideoParams) {
       v.value<VideoParams>().Save(writer);
     } else if (data_type == NodeValue::kAudioParams) {
-      TypeSerializer::SaveAudioParams(writer, v.value<AudioParams>());
+      v.value<AudioParams>().save(writer);
     } else {
       writer->writeCharacters(NodeValue::ValueToString(data_type, v, true));
     }

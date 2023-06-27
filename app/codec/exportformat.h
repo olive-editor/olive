@@ -26,6 +26,7 @@
 
 #include "common/define.h"
 #include "exportcodec.h"
+#include "render/sampleformat.h"
 
 namespace olive {
 

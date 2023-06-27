@@ -118,7 +118,7 @@ QVariant ViewerOutput::data(const DataType &d) const
 
     if (!using_timebase.isNull()) {
       // Return time transformed to timecode
-      return QString::fromStdString(Timecode::time_to_timecode(GetLength(), using_timebase, using_display));
+      return Timecode::time_to_timecode(GetLength(), using_timebase, using_display);
     }
     break;
   }

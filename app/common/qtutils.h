@@ -21,13 +21,18 @@
 #ifndef QTVERSIONABSTRACTION_H
 #define QTVERSIONABSTRACTION_H
 
-#include <olive/core/core.h>
 #include <QComboBox>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QFontMetrics>
 #include <QFrame>
 #include <QMessageBox>
+
+#include "render/samplebuffer.h"
+#include "util/bezier.h"
+#include "util/color.h"
+#include "util/rational.h"
+#include "util/timerange.h"
 
 namespace olive {
 
@@ -74,7 +79,7 @@ public:
     return nullptr;
   }
 
-  static QColor toQColor(const core::Color &c);
+  static QColor toQColor(const Color &c);
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
@@ -95,20 +100,16 @@ public:
 
 };
 
-namespace core {
-
-uint qHash(const core::rational& r, uint seed = 0);
-uint qHash(const core::TimeRange& r, uint seed = 0);
+uint qHash(const rational &r, uint seed = 0);
+uint qHash(const TimeRange &r, uint seed = 0);
 
 }
 
-}
-
-Q_DECLARE_METATYPE(olive::core::rational);
-Q_DECLARE_METATYPE(olive::core::Color);
-Q_DECLARE_METATYPE(olive::core::TimeRange);
-Q_DECLARE_METATYPE(olive::core::Bezier);
-Q_DECLARE_METATYPE(olive::core::AudioParams);
-Q_DECLARE_METATYPE(olive::core::SampleBuffer);
+Q_DECLARE_METATYPE(olive::rational);
+Q_DECLARE_METATYPE(olive::Color);
+Q_DECLARE_METATYPE(olive::TimeRange);
+Q_DECLARE_METATYPE(olive::Bezier);
+Q_DECLARE_METATYPE(olive::AudioParams);
+Q_DECLARE_METATYPE(olive::SampleBuffer);
 
 #endif // QTVERSIONABSTRACTION_H

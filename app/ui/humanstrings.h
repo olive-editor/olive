@@ -1,12 +1,11 @@
 #ifndef HUMANSTRINGS_H
 #define HUMANSTRINGS_H
 
-#include <olive/core/core.h>
 #include <QObject>
 
-namespace olive {
+#include "render/sampleformat.h"
 
-using namespace core;
+namespace olive {
 
 class HumanStrings : public QObject
 {

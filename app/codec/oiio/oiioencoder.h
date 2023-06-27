@@ -34,7 +34,7 @@ public:
 public slots:
   virtual bool Open() override;
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::core::rational time) override;
+  virtual bool WriteFrame(olive::FramePtr frame, rational time) override;
   virtual bool WriteAudio(const SampleBuffer &audio) override;
   virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
 

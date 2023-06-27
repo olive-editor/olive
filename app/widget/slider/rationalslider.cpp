@@ -106,11 +106,11 @@ QString RationalSlider::ValueToString(const QVariant &v) const
 
     switch (display_type_) {
     case kTime:
-      return QString::fromStdString(Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay()));
+      return Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay());
     case kFloat:
       return FloatToString(val, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
     case kRational:
-      return QString::fromStdString(v.value<rational>().toString());
+      return v.value<rational>().toString();
     }
 
     return v.toString();
@@ -125,7 +125,7 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
   switch (display_type_) {
   case kTime:
   {
-    r = Timecode::timecode_to_time(s.toStdString(), timebase_, Core::instance()->GetTimecodeDisplay(), ok);
+    r = Timecode::timecode_to_time(s, timebase_, Core::instance()->GetTimecodeDisplay(), ok);
     break;
   }
   case kFloat:
@@ -141,7 +141,7 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
     break;
   }
   case kRational:
-    r = rational::fromString(s.toStdString(), ok);
+    r = rational::fromString(s, ok);
     break;
   }
 

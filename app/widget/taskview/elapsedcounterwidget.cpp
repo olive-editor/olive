@@ -20,14 +20,13 @@
 
 #include "elapsedcounterwidget.h"
 
-#include <olive/core/core.h>
 #include <QDateTime>
 #include <QHBoxLayout>
 #include <cmath>
 
-namespace olive {
+#include "util/timecodefunctions.h"
 
-using namespace core;
+namespace olive {
 
 ElapsedCounterWidget::ElapsedCounterWidget(QWidget* parent) :
   QWidget(parent),
@@ -88,8 +87,8 @@ void ElapsedCounterWidget::UpdateTimers()
     remaining_ms = 0;
   }
 
-  elapsed_lbl_->setText(tr("Elapsed: %1").arg(QString::fromStdString(Timecode::time_to_string(elapsed_ms))));
-  remaining_lbl_->setText(tr("Remaining: %1").arg(QString::fromStdString(Timecode::time_to_string(remaining_ms))));
+  elapsed_lbl_->setText(tr("Elapsed: %1").arg(Timecode::time_to_string(elapsed_ms)));
+  remaining_lbl_->setText(tr("Remaining: %1").arg(Timecode::time_to_string(remaining_ms)));
 }
 
 }

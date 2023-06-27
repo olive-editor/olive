@@ -30,8 +30,8 @@ NodeViewContext::NodeViewContext(Node *context, QGraphicsItem *item) :
     lbl_ = QCoreApplication::translate("NodeViewContext",
                                        "%1 [%2] :: %3 - %4").arg(block->GetLabelAndName(),
                                                                  Track::Reference::TypeToTranslatedString(block->track()->type()),
-                                                                 QString::fromStdString(Timecode::time_to_timecode(block->in(), timebase, Core::instance()->GetTimecodeDisplay())),
-                                                                 QString::fromStdString(Timecode::time_to_timecode(block->out(), timebase, Core::instance()->GetTimecodeDisplay())));
+                                                                 Timecode::time_to_timecode(block->in(), timebase, Core::instance()->GetTimecodeDisplay()),
+                                                                 Timecode::time_to_timecode(block->out(), timebase, Core::instance()->GetTimecodeDisplay()));
   } else {
     lbl_ = context_->GetLabelAndName();
   }

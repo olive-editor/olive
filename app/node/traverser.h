@@ -25,6 +25,7 @@
 
 #include "codec/decoder.h"
 #include "common/cancelableobject.h"
+#include "common/qtutils.h"
 #include "node/output/track/track.h"
 #include "render/job/cachejob.h"
 #include "render/cancelatom.h"

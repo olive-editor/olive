@@ -2,6 +2,8 @@
 
 #include <QCoreApplication>
 
+#include "common/ffmpegutils.h"
+
 namespace olive {
 
 QString HumanStrings::SampleRateToString(const int &sample_rate)

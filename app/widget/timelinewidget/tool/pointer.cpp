@@ -594,10 +594,10 @@ void PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     QString::fromStdString(Timecode::time_to_timecode(time_movement,
-                                                                       tooltip_timebase,
-                                                                       Core::instance()->GetTimecodeDisplay(),
-                                                                       true)),
+                     Timecode::time_to_timecode(time_movement,
+                                                tooltip_timebase,
+                                                Core::instance()->GetTimecodeDisplay(),
+                                                true),
                      parent());
 }
 

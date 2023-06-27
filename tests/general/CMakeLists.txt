@@ -15,3 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 olive_add_test(General common-tests common-tests.cpp)
+olive_add_test(General rational-tests rational-tests.cpp)
+olive_add_test(General stringutils-tests stringutils-tests.cpp)
+olive_add_test(General timecode-tests timecode-tests.cpp)
+olive_add_test(General timerange-tests timerange-tests.cpp)

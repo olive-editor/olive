@@ -681,7 +681,8 @@ void ProjectSerializer220403::LoadImmediate(QXmlStreamReader *reader, Node *node
             vp.Load(reader);
             value_on_track = QVariant::fromValue(vp);
           } else if (data_type == NodeValue::kAudioParams) {
-            AudioParams ap = TypeSerializer::LoadAudioParams(reader);
+            AudioParams ap;
+            ap.load(reader);
             value_on_track = QVariant::fromValue(ap);
           } else {
             QString value_text = reader->readElementText();
@@ -760,7 +761,7 @@ void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyfram
     if (attr.name() == QStringLiteral("input")) {
       key_input = attr.value().toString();
     } else if (attr.name() == QStringLiteral("time")) {
-      key->set_time(rational::fromString(attr.value().toString().toStdString()));
+      key->set_time(rational::fromString(attr.value().toString()));
     } else if (attr.name() == QStringLiteral("type")) {
       key->set_type_no_bezier_adj(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
     } else if (attr.name() == QStringLiteral("inhandlex")) {
@@ -975,9 +976,9 @@ void ProjectSerializer220403::LoadMarker(QXmlStreamReader *reader, TimelineMarke
     if (attr.name() == QStringLiteral("name")) {
       marker->set_name(attr.value().toString());
     } else if (attr.name() == QStringLiteral("in")) {
-      in = rational::fromString(attr.value().toString().toStdString());
+      in = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("out")) {
-      out = rational::fromString(attr.value().toString().toStdString());
+      out = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("color")) {
       marker->set_color(attr.value().toInt());
     }
@@ -998,9 +999,9 @@ void ProjectSerializer220403::LoadWorkArea(QXmlStreamReader *reader, TimelineWor
     if (attr.name() == QStringLiteral("enabled")) {
       workarea->set_enabled(attr.value() != QStringLiteral("0"));
     } else if (attr.name() == QStringLiteral("in")) {
-      range_in = rational::fromString(attr.value().toString().toStdString());
+      range_in = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("out")) {
-      range_out = rational::fromString(attr.value().toString().toStdString());
+      range_out = rational::fromString(attr.value().toString());
     }
   }
 

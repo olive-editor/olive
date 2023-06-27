@@ -20,6 +20,8 @@
 
 #include "common/ffmpegutils.h"
 
+#include "render/videoparams.h"
+
 namespace olive {
 
 AVPixelFormat FFmpegUtils::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt, PixelFormat maximum)

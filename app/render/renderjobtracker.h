@@ -21,13 +21,10 @@
 #ifndef RENDERJOBTRACKER_H
 #define RENDERJOBTRACKER_H
 
-#include <olive/core/core.h>
-
 #include "common/jobtime.h"
+#include "util/timerange.h"
 
 namespace olive {
-
-using namespace core;
 
 class RenderJobTracker
 {
