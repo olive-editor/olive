@@ -21,6 +21,7 @@
 #include "math.h"
 
 #include "mathfunctions.h"
+#include "util/cpuoptimize.h"
 
 namespace olive {
 

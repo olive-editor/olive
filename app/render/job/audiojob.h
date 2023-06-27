@@ -21,15 +21,15 @@
 #ifndef AUDIOJOB_H
 #define AUDIOJOB_H
 
-#include <olive/core/core.h>
 #include <memory>
 
 #include "common/define.h"
+#include "render/audioparams.h"
+#include "util/timerange.h"
 
 namespace olive {
 
 class AcceleratedJob;
-using namespace core;
 
 class AudioJob;
 using AudioJobPtr = std::shared_ptr<AudioJob>;

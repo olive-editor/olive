@@ -289,7 +289,7 @@ value_t::component_t converter_RationalToString(const value_t::component_t &v)
 
 value_t::component_t converter_StringToRational(const value_t::component_t &v)
 {
-  return v.value<QString>().toStdString();
+  return rational::fromString(v.value<QString>());
 }
 
 value_t::component_t converter_BinaryToString(const value_t::component_t &v)

@@ -29,6 +29,7 @@
 #include "node/gizmo/point.h"
 #include "node/node.h"
 #include "node/inputdragger.h"
+#include "util/bezier.h"
 
 namespace olive {
 

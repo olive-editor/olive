@@ -20,7 +20,7 @@
 
 #include "curvedconnectoritem.h"
 
-#include <olive/core/util/bezier.h>
+#include <cmath>
 #include <QApplication>
 #include <QFont>
 #include <QFontMetrics>
@@ -29,10 +29,9 @@
 #include <QStyleOptionGraphicsItem>
 
 #include "common/lerp.h"
+#include "util/bezier.h"
 
 namespace olive {
-
-using namespace core;
 
 CurvedConnectorItem::CurvedConnectorItem(QGraphicsItem* parent) :
   QGraphicsPathItem(parent)
