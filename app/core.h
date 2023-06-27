@@ -21,12 +21,12 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include <olive/core/core.h>
 #include <QFileInfoList>
 #include <QList>
 #include <QTimer>
 #include <QTranslator>
 
+#include "core.h"
 #include "node/project/footage/footage.h"
 #include "node/project.h"
 #include "node/project/sequence/sequence.h"

@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2023 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,29 +18,45 @@
 
 ***/
 
-#ifndef TYPESERIALIZER_H
-#define TYPESERIALIZER_H
+#ifndef LIBOLIVECORE_TESTS_H
+#define LIBOLIVECORE_TESTS_H
 
-#include <olive/core/core.h>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-
-#include "common/xmlutils.h"
+#include <list>
 
 namespace olive {
 
-using namespace core;
-
-class TypeSerializer
+class Tester
 {
 public:
-  TypeSerializer() = default;
+  Tester() = default;
 
-  static AudioParams LoadAudioParams(QXmlStreamReader *reader);
-  static void SaveAudioParams(QXmlStreamWriter *writer, const AudioParams &a);
+  typedef bool (*test_t)();
+
+  void add(const char *name, test_t test_function)
+  {
+    test_names_.push_back(name);
+    test_functions_.push_back(test_function);
+  }
+
+  bool run();
+
+  int exec()
+  {
+    if (run()) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
+  static void echo(const char *fmt, ...);
+
+private:
+  std::list<const char*> test_names_;
+  std::list<test_t> test_functions_;
 
 };
 
 }
 
-#endif // TYPESERIALIZER_H
+#endif // LIBOLIVECORE_TESTS_H

@@ -45,7 +45,7 @@ public:
 
   virtual bool Open() override;
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::core::rational time) override;
+  virtual bool WriteFrame(olive::FramePtr frame, rational time) override;
 
   virtual bool WriteAudio(const olive::SampleBuffer &audio) override;
 

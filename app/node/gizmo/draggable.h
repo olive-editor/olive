@@ -45,7 +45,7 @@ public:
 
   explicit DraggableGizmo(QObject *parent = nullptr);
 
-  void DragStart(const ValueParams &row, double abs_x, double abs_y, const olive::core::rational &time);
+  void DragStart(const ValueParams &row, double abs_x, double abs_y, const rational &time);
 
   void DragMove(double x, double y, const Qt::KeyboardModifiers &modifiers);
 
@@ -66,7 +66,7 @@ public:
   void SetDragValueBehavior(DragValueBehavior d) { drag_value_behavior_ = d; }
 
 signals:
-  void HandleStart(const olive::ValueParams &p, double x, double y, const olive::core::rational &time);
+  void HandleStart(const olive::ValueParams &p, double x, double y, const rational &time);
 
   void HandleMovement(double x, double y, const Qt::KeyboardModifiers &modifiers);
 

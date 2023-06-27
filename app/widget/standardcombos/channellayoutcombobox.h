@@ -21,14 +21,12 @@
 #ifndef CHANNELLAYOUTCOMBOBOX_H
 #define CHANNELLAYOUTCOMBOBOX_H
 
-#include <olive/core/core.h>
 #include <QComboBox>
 
+#include "render/audioparams.h"
 #include "ui/humanstrings.h"
 
 namespace olive {
-
-using namespace core;
 
 class ChannelLayoutComboBox : public QComboBox
 {

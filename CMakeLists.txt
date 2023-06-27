@@ -31,6 +31,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+# Generates a compile_commands.json in the build dir, link that to the repo
+# root to enrich your IDE with clangd language server protocol functionalities
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Sanitizers
 add_library(olive-sanitizers INTERFACE)
 include(cmake/Sanitizers.cmake)
@@ -98,7 +102,7 @@ list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
 
 # Link Olive
 list(APPEND OLIVE_LIBRARIES olivecore)
-list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ext/core/include)
+list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/lib/olive/include)
 
 # Link Qt
 set(QT_LIBRARIES
@@ -254,6 +258,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext)
 
 add_subdirectory(ext)
+add_subdirectory(lib)
 add_subdirectory(app)
 
 if (BUILD_TESTS)

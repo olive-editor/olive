@@ -27,13 +27,12 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include <olive/core/core.h>
+#include <memory>
 
-#include "render/videoparams.h"
+#include "render/pixelformat.h"
+#include "render/sampleformat.h"
 
 namespace olive {
-
-using namespace core;
 
 class FFmpegUtils {
 public:

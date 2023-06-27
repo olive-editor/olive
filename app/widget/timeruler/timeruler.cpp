@@ -205,7 +205,7 @@ void TimeRuler::drawForeground(QPainter *p, const QRectF &rect)
         if (text_visible_) {
           QRect text_rect;
           Qt::Alignment text_align;
-          QString timecode_str = QString::fromStdString(Timecode::time_to_timecode(SceneToTime(i), timebase(), Core::instance()->GetTimecodeDisplay()));
+          QString timecode_str = Timecode::time_to_timecode(SceneToTime(i), timebase(), Core::instance()->GetTimecodeDisplay());
           int timecode_width = QtUtils::QFontMetricsWidth(fm, timecode_str);
           int timecode_left;
 

@@ -21,14 +21,12 @@
 #ifndef SAMPLERATECOMBOBOX_H
 #define SAMPLERATECOMBOBOX_H
 
-#include <olive/core/core.h>
 #include <QComboBox>
 
+#include "render/audioparams.h"
 #include "ui/humanstrings.h"
 
 namespace olive {
-
-using namespace core;
 
 class SampleRateComboBox : public QComboBox
 {

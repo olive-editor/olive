@@ -21,14 +21,14 @@
 #ifndef TIMELINEWORKAREA_H
 #define TIMELINEWORKAREA_H
 
-#include <olive/core/core.h>
 #include <QObject>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-namespace olive {
+#include "util/rational.h"
+#include "util/timerange.h"
 
-using namespace core;
+namespace olive {
 
 class TimelineWorkArea : public QObject
 {

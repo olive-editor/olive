@@ -121,7 +121,7 @@ private slots:
             r = rational::fromDouble(d, &ok);
           } else {
             // Try converting to rational in case someone formatted that way
-            r = rational::fromString(s.toStdString(), &ok);
+            r = rational::fromString(s, &ok);
           }
 
           if (ok) {

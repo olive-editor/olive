@@ -26,7 +26,9 @@
 #include "node/value.h"
 #include "render/cancelatom.h"
 #include "render/loopmode.h"
+#include "render/audioparams.h"
 #include "render/videoparams.h"
+#include "util/timerange.h"
 
 namespace olive {
 

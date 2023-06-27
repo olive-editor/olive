@@ -25,7 +25,9 @@
 #include <QMatrix4x4>
 
 #include "render/job/audiojob.h"
+#include "render/samplebuffer.h"
 #include "render/texture.h"
+#include "util/color.h"
 
 namespace olive {
 
@@ -310,7 +312,7 @@ public:
   bool toBool() const { return toInt(); }
   double toDouble() const { return value<double>(); }
   int64_t toInt() const { return value<int64_t>(); }
-  rational toRational() const { return value<olive::core::rational>(); }
+  rational toRational() const { return value<olive::rational>(); }
   QString toString() const { return value<QString>(); }
   Color toColor() const { return Color(value<double>(0), value<double>(1), value<double>(2), value<double>(3)); }
   QVector2D toVec2() const { return QVector2D(value<double>(0), value<double>(1)); }

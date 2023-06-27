@@ -125,9 +125,9 @@ void SubtitleParams::Load(QXmlStreamReader *reader)
 
           XMLAttributeLoop(reader, attr) {
             if (attr.name() == QStringLiteral("in")) {
-              in = rational::fromString(attr.value().toString().toStdString());
+              in = rational::fromString(attr.value().toString());
             } else if (attr.name() == QStringLiteral("out")) {
-              out = rational::fromString(attr.value().toString().toStdString());
+              out = rational::fromString(attr.value().toString());
             }
           }
 
@@ -152,8 +152,8 @@ void SubtitleParams::Save(QXmlStreamWriter *writer) const
   writer->writeStartElement(QStringLiteral("subtitles"));
   for (auto it=this->cbegin(); it!=this->cend(); it++) {
     writer->writeStartElement(QStringLiteral("subtitle"));
-    writer->writeAttribute(QStringLiteral("in"), QString::fromStdString(it->time().in().toString()));
-    writer->writeAttribute(QStringLiteral("out"), QString::fromStdString(it->time().out().toString()));
+    writer->writeAttribute(QStringLiteral("in"), it->time().in().toString());
+    writer->writeAttribute(QStringLiteral("out"), it->time().out().toString());
     writer->writeCharacters(it->text());
     writer->writeEndElement(); // subtitle
   }

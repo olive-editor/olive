@@ -134,13 +134,13 @@ void Config::SetDefaults()
 
   OLIVE_CONFIG("AudioOutputSampleRate") = 48000;
   OLIVE_CONFIG("AudioOutputChannelLayout") = int64_t(AV_CH_LAYOUT_STEREO);
-  OLIVE_CONFIG("AudioOutputSampleFormat") = QString::fromStdString(SampleFormat(SampleFormat::S16).to_string());
+  OLIVE_CONFIG("AudioOutputSampleFormat") = SampleFormat(SampleFormat::S16).to_string();
 
   OLIVE_CONFIG("AudioRecordingFormat") = ExportFormat::kFormatWAV;
   OLIVE_CONFIG("AudioRecordingCodec") = ExportCodec::kCodecPCM;
   OLIVE_CONFIG("AudioRecordingSampleRate") = 48000;
   OLIVE_CONFIG("AudioRecordingChannelLayout") = int64_t(AV_CH_LAYOUT_STEREO);
-  OLIVE_CONFIG("AudioRecordingSampleFormat") = QString::fromStdString(SampleFormat(SampleFormat::S16).to_string());
+  OLIVE_CONFIG("AudioRecordingSampleFormat") = SampleFormat(SampleFormat::S16).to_string();
   OLIVE_CONFIG("AudioRecordingBitRate") = 320;
 
   OLIVE_CONFIG("DiskCacheBehind") = rational(0);

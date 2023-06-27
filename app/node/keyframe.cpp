@@ -220,7 +220,7 @@ bool NodeKeyframe::load(QXmlStreamReader *reader, type_t data_type)
     if (attr.name() == QStringLiteral("input")) {
       key_input = attr.value().toString();
     } else if (attr.name() == QStringLiteral("time")) {
-      this->set_time(rational::fromString(attr.value().toString().toStdString()));
+      this->set_time(rational::fromString(attr.value().toString()));
     } else if (attr.name() == QStringLiteral("type")) {
       this->set_type_no_bezier_adj(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
     } else if (attr.name() == QStringLiteral("inhandlex")) {
@@ -245,7 +245,7 @@ bool NodeKeyframe::load(QXmlStreamReader *reader, type_t data_type)
 void NodeKeyframe::save(QXmlStreamWriter *writer, type_t data_type) const
 {
   writer->writeAttribute(QStringLiteral("input"), this->input());
-  writer->writeAttribute(QStringLiteral("time"), QString::fromStdString(this->time().toString()));
+  writer->writeAttribute(QStringLiteral("time"), this->time().toString());
   writer->writeAttribute(QStringLiteral("type"), QString::number(this->type()));
   writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(this->bezier_control_in().x()));
   writer->writeAttribute(QStringLiteral("inhandley"), QString::number(this->bezier_control_in().y()));

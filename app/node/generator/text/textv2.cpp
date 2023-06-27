@@ -20,10 +20,11 @@
 
 #include "textv2.h"
 
-#include <olive/core/core.h>
 #include <QAbstractTextDocumentLayout>
 #include <QDateTime>
 #include <QTextDocument>
+
+#include "util/cpuoptimize.h"
 
 namespace olive {
 

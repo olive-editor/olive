@@ -21,9 +21,8 @@
 #ifndef MANAGEDCOLOR_H
 #define MANAGEDCOLOR_H
 
-#include <olive/core/core.h>
-
 #include "colortransform.h"
+#include "util/color.h"
 
 namespace olive {
 

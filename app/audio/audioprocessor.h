@@ -22,7 +22,6 @@
 #define AUDIOPROCESSOR_H
 
 #include <inttypes.h>
-#include <olive/core/core.h>
 #include <QByteArray>
 
 extern "C" {
@@ -30,10 +29,9 @@ extern "C" {
 }
 
 #include "common/define.h"
+#include "core.h"
 
 namespace olive {
-
-using namespace core;
 
 class AudioProcessor
 {

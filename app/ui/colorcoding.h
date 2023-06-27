@@ -21,12 +21,11 @@
 #ifndef COLORCODING_H
 #define COLORCODING_H
 
-#include <olive/core/core.h>
 #include <QObject>
 
-namespace olive {
+#include "util/color.h"
 
-using namespace core;
+namespace olive {
 
 class ColorCoding : public QObject
 {

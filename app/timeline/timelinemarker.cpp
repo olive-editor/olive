@@ -152,9 +152,9 @@ bool TimelineMarker::load(QXmlStreamReader *reader)
     if (attr.name() == QStringLiteral("name")) {
       this->set_name(attr.value().toString());
     } else if (attr.name() == QStringLiteral("in")) {
-      in = rational::fromString(attr.value().toString().toStdString());
+      in = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("out")) {
-      out = rational::fromString(attr.value().toString().toStdString());
+      out = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("color")) {
       this->set_color(attr.value().toInt());
     }
@@ -171,8 +171,8 @@ bool TimelineMarker::load(QXmlStreamReader *reader)
 void TimelineMarker::save(QXmlStreamWriter *writer) const
 {
   writer->writeAttribute(QStringLiteral("name"), this->name());
-  writer->writeAttribute(QStringLiteral("in"), QString::fromStdString(this->time().in().toString()));
-  writer->writeAttribute(QStringLiteral("out"), QString::fromStdString(this->time().out().toString()));
+  writer->writeAttribute(QStringLiteral("in"), this->time().in().toString());
+  writer->writeAttribute(QStringLiteral("out"), this->time().out().toString());
   writer->writeAttribute(QStringLiteral("color"), QString::number(this->color()));
 }
 

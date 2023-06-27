@@ -107,14 +107,14 @@ Core *Core::instance()
 
 void Core::DeclareTypesForQt()
 {
-  qRegisterMetaType<olive::core::rational>();
+  qRegisterMetaType<olive::rational>();
   qRegisterMetaType<FramePtr>();
   qRegisterMetaType<SampleBuffer>();
   qRegisterMetaType<AudioParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
-  qRegisterMetaType<olive::core::TimeRange>();
-  qRegisterMetaType<olive::core::Color>();
+  qRegisterMetaType<olive::TimeRange>();
+  qRegisterMetaType<olive::Color>();
   qRegisterMetaType<olive::AudioVisualWaveform>();
   qRegisterMetaType<olive::VideoParams>();
   qRegisterMetaType<olive::VideoParams::Interlacing>();

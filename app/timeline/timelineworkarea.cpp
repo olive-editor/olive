@@ -72,9 +72,9 @@ bool TimelineWorkArea::load(QXmlStreamReader *reader)
     if (reader->name() == QStringLiteral("enabled")) {
       this->set_enabled(reader->readElementText() != QStringLiteral("0"));
     } else if (reader->name() == QStringLiteral("in")) {
-      range_in = rational::fromString(reader->readElementText().toStdString());
+      range_in = rational::fromString(reader->readElementText());
     } else if (reader->name() == QStringLiteral("out")) {
-      range_out = rational::fromString(reader->readElementText().toStdString());
+      range_out = rational::fromString(reader->readElementText());
     } else {
       reader->skipCurrentElement();
     }
@@ -94,8 +94,8 @@ void TimelineWorkArea::save(QXmlStreamWriter *writer) const
   writer->writeAttribute(QStringLiteral("version"), QString::number(1));
 
   writer->writeTextElement(QStringLiteral("enabled"), QString::number(this->enabled()));
-  writer->writeTextElement(QStringLiteral("in"), QString::fromStdString(this->in().toString()));
-  writer->writeTextElement(QStringLiteral("out"), QString::fromStdString(this->out().toString()));
+  writer->writeTextElement(QStringLiteral("in"), this->in().toString());
+  writer->writeTextElement(QStringLiteral("out"), this->out().toString());
 }
 
 const rational &TimelineWorkArea::in() const

@@ -284,12 +284,12 @@ value_t::component_t converter_StringToDouble(const value_t::component_t &v)
 
 value_t::component_t converter_RationalToString(const value_t::component_t &v)
 {
-  return QString::fromStdString(v.value<rational>().toString());
+  return v.value<rational>().toString();
 }
 
 value_t::component_t converter_StringToRational(const value_t::component_t &v)
 {
-  return rational::fromString(v.value<QString>().toStdString());
+  return v.value<QString>().toStdString();
 }
 
 value_t::component_t converter_BinaryToString(const value_t::component_t &v)

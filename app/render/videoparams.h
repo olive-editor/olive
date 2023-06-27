@@ -21,14 +21,14 @@
 #ifndef VIDEOPARAMS_H
 #define VIDEOPARAMS_H
 
-#include <olive/core/core.h>
 #include <QVector2D>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-namespace olive {
+#include "render/pixelformat.h"
+#include "util/rational.h"
 
-using namespace core;
+namespace olive {
 
 class VideoParams {
 public:

@@ -21,7 +21,6 @@
 #ifndef FOOTAGE_H
 #define FOOTAGE_H
 
-#include <olive/core/core.h>
 #include <QList>
 #include <QDateTime>
 
@@ -30,6 +29,7 @@
 #include "node/output/viewer/viewer.h"
 #include "render/cancelatom.h"
 #include "render/videoparams.h"
+#include "util/rational.h"
 
 namespace olive {
 
