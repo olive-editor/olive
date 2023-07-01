@@ -24,6 +24,7 @@ extern "C" {
 #include <libavutil/avutil.h>
 }
 
+#include <QCoreApplication>
 #include <QtMath>
 
 #include "core.h"
@@ -69,7 +70,7 @@ VideoParams::VideoParams() :
   width_(0),
   height_(0),
   depth_(0),
-  format_(kFormatInvalid),
+  format_(PixelFormat::INVALID),
   channel_count_(0),
   interlacing_(Interlacing::kInterlaceNone),
   divider_(1)
@@ -77,7 +78,7 @@ VideoParams::VideoParams() :
   set_defaults_for_footage();
 }
 
-VideoParams::VideoParams(int width, int height, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
+VideoParams::VideoParams(int width, int height, PixelFormat format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
   depth_(1),
@@ -92,7 +93,7 @@ VideoParams::VideoParams(int width, int height, Format format, int nb_channels, 
   set_defaults_for_footage();
 }
 
-VideoParams::VideoParams(int width, int height, int depth, Format format, int nb_channels, const rational &pixel_aspect_ratio, VideoParams::Interlacing interlacing, int divider) :
+VideoParams::VideoParams(int width, int height, int depth, PixelFormat format, int nb_channels, const rational &pixel_aspect_ratio, VideoParams::Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
   depth_(depth),
@@ -107,7 +108,7 @@ VideoParams::VideoParams(int width, int height, int depth, Format format, int nb
   set_defaults_for_footage();
 }
 
-VideoParams::VideoParams(int width, int height, const rational &time_base, Format format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
+VideoParams::VideoParams(int width, int height, const rational &time_base, PixelFormat format, int nb_channels, const rational& pixel_aspect_ratio, Interlacing interlacing, int divider) :
   width_(width),
   height_(height),
   depth_(1),
@@ -164,6 +165,7 @@ bool VideoParams::operator==(const VideoParams &rhs) const
   return width() == rhs.width()
       && height() == rhs.height()
       && depth() == rhs.depth()
+      && interlacing() == rhs.interlacing()
       && time_base() == rhs.time_base()
       && format() == rhs.format()
       && pixel_aspect_ratio() == rhs.pixel_aspect_ratio()
@@ -176,25 +178,25 @@ bool VideoParams::operator!=(const VideoParams &rhs) const
   return !(*this == rhs);
 }
 
-int VideoParams::GetBytesPerChannel(VideoParams::Format format)
+int VideoParams::GetBytesPerChannel(PixelFormat format)
 {
   switch (format) {
-  case kFormatInvalid:
-  case kFormatCount:
+  case PixelFormat::INVALID:
+  case PixelFormat::COUNT:
     break;
-  case kFormatUnsigned8:
+  case PixelFormat::U8:
     return 1;
-  case kFormatUnsigned16:
-  case kFormatFloat16:
+  case PixelFormat::U16:
+  case PixelFormat::F16:
     return 2;
-  case kFormatFloat32:
+  case PixelFormat::F32:
     return 4;
   }
 
   return 0;
 }
 
-int VideoParams::GetBytesPerPixel(VideoParams::Format format, int channels)
+int VideoParams::GetBytesPerPixel(PixelFormat format, int channels)
 {
   return GetBytesPerChannel(format) * channels;
 }
@@ -208,35 +210,19 @@ QString VideoParams::GetNameForDivider(int div)
   }
 }
 
-bool VideoParams::FormatIsFloat(VideoParams::Format format)
+QString VideoParams::GetFormatName(PixelFormat format)
 {
   switch (format) {
-  case kFormatFloat16:
-  case kFormatFloat32:
-    return true;
-  case kFormatUnsigned8:
-  case kFormatUnsigned16:
-  case kFormatInvalid:
-  case kFormatCount:
-    break;
-  }
-
-  return false;
-}
-
-QString VideoParams::GetFormatName(VideoParams::Format format)
-{
-  switch (format) {
-  case kFormatUnsigned8:
+  case PixelFormat::U8:
     return QCoreApplication::translate("VideoParams", "8-bit");
-  case kFormatUnsigned16:
+  case PixelFormat::U16:
     return QCoreApplication::translate("VideoParams", "16-bit Integer");
-  case kFormatFloat16:
+  case PixelFormat::F16:
     return QCoreApplication::translate("VideoParams", "Half-Float (16-bit)");
-  case kFormatFloat32:
+  case PixelFormat::F32:
     return QCoreApplication::translate("VideoParams", "Full-Float (32-bit)");
-  case kFormatInvalid:
-  case kFormatCount:
+  case PixelFormat::INVALID:
+  case PixelFormat::COUNT:
     break;
   }
 
@@ -262,7 +248,7 @@ void VideoParams::calculate_effective_size()
 {
   effective_width_ = GetScaledDimension(width(), divider_);
   effective_height_ = GetScaledDimension(height(), divider_);
-  effective_depth_ = GetScaledDimension(depth(), divider_);
+  effective_depth_ = (depth() == 1) ? depth() : GetScaledDimension(depth(), divider_);
   calculate_square_pixel_width();
 }
 
@@ -301,7 +287,7 @@ bool VideoParams::is_valid() const
   return (width() > 0
           && height() > 0
           && !pixel_aspect_ratio_.isNull()
-          && format_ > kFormatInvalid && format_ < kFormatCount
+          && format_ > PixelFormat::INVALID && format_ < PixelFormat::COUNT
           && channel_count_ > 0);
 }
 
@@ -358,13 +344,13 @@ void VideoParams::Load(QXmlStreamReader *reader)
     } else if (reader->name() == QStringLiteral("depth")) {
       set_depth(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("timebase")) {
-      set_time_base(rational::fromString(reader->readElementText()));
+      set_time_base(rational::fromString(reader->readElementText().toStdString()));
     } else if (reader->name() == QStringLiteral("format")) {
-      set_format(static_cast<VideoParams::Format>(reader->readElementText().toInt()));
+      set_format(static_cast<PixelFormat::Format>(reader->readElementText().toInt()));
     } else if (reader->name() == QStringLiteral("channelcount")) {
       set_channel_count(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("pixelaspectratio")) {
-      set_pixel_aspect_ratio(rational::fromString(reader->readElementText()));
+      set_pixel_aspect_ratio(rational::fromString(reader->readElementText().toStdString()));
     } else if (reader->name() == QStringLiteral("interlacing")) {
       set_interlacing(static_cast<VideoParams::Interlacing>(reader->readElementText().toInt()));
     } else if (reader->name() == QStringLiteral("divider")) {
@@ -380,7 +366,7 @@ void VideoParams::Load(QXmlStreamReader *reader)
     } else if (reader->name() == QStringLiteral("videotype")) {
       set_video_type(static_cast<VideoParams::Type>(reader->readElementText().toInt()));
     } else if (reader->name() == QStringLiteral("framerate")) {
-      set_frame_rate(rational::fromString(reader->readElementText()));
+      set_frame_rate(rational::fromString(reader->readElementText().toStdString()));
     } else if (reader->name() == QStringLiteral("starttime")) {
       set_start_time(reader->readElementText().toLongLong());
     } else if (reader->name() == QStringLiteral("duration")) {
@@ -402,10 +388,10 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
   writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
   writer->writeTextElement(QStringLiteral("depth"), QString::number(depth_));
-  writer->writeTextElement(QStringLiteral("timebase"), time_base_.toString());
+  writer->writeTextElement(QStringLiteral("timebase"), QString::fromStdString(time_base_.toString()));
   writer->writeTextElement(QStringLiteral("format"), QString::number(format_));
   writer->writeTextElement(QStringLiteral("channelcount"), QString::number(channel_count_));
-  writer->writeTextElement(QStringLiteral("pixelaspectratio"), pixel_aspect_ratio_.toString());
+  writer->writeTextElement(QStringLiteral("pixelaspectratio"), QString::fromStdString(pixel_aspect_ratio_.toString()));
   writer->writeTextElement(QStringLiteral("interlacing"), QString::number(interlacing_));
   writer->writeTextElement(QStringLiteral("divider"), QString::number(divider_));
   writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled_));
@@ -413,7 +399,7 @@ void VideoParams::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement(QStringLiteral("y"), QString::number(y_));
   writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index_));
   writer->writeTextElement(QStringLiteral("videotype"), QString::number(video_type_));
-  writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
+  writer->writeTextElement(QStringLiteral("framerate"), QString::fromStdString(frame_rate_.toString()));
   writer->writeTextElement(QStringLiteral("starttime"), QString::number(start_time_));
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration_));
   writer->writeTextElement(QStringLiteral("premultipliedalpha"), QString::number(premultiplied_alpha_));

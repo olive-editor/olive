@@ -13,11 +13,7 @@ const QString MultiCamNode::kSequenceTypeInput = QStringLiteral("sequence_type_i
 
 MultiCamNode::MultiCamNode()
 {
-  AddInput(kCurrentInput, NodeValue::kInt, InputFlags(kInputFlagStatic));
-
-  // Make current index start at 1 instead of 0
-  SetInputProperty(kCurrentInput, QStringLiteral("offset"), 1);
-  SetInputProperty(kCurrentInput, QStringLiteral("min"), 0);
+  AddInput(kCurrentInput, NodeValue::kCombo, InputFlags(kInputFlagStatic));
 
   AddInput(kSourcesInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray));
   SetInputProperty(kSourcesInput, QStringLiteral("arraystart"), 1);
@@ -107,7 +103,7 @@ void MultiCamNode::InputConnectedEvent(const QString &input, int element, Node *
 {
   if (input == kSequenceInput) {
     if (Sequence *s = dynamic_cast<Sequence*>(output)) {
-      SetInputFlags(kSequenceTypeInput, GetInputFlags(kSequenceTypeInput) & InputFlag(~kInputFlagHidden));
+      SetInputFlag(kSequenceTypeInput, kInputFlagHidden, false);
       sequence_ = s;
     }
   }
@@ -116,7 +112,7 @@ void MultiCamNode::InputConnectedEvent(const QString &input, int element, Node *
 void MultiCamNode::InputDisconnectedEvent(const QString &input, int element, Node *output)
 {
   if (input == kSequenceInput) {
-    SetInputFlags(kSequenceTypeInput, GetInputFlags(kSequenceTypeInput) | kInputFlagHidden);
+    SetInputFlag(kSequenceTypeInput, kInputFlagHidden, true);
     sequence_ = nullptr;
   }
 }
@@ -135,6 +131,18 @@ void MultiCamNode::Retranslate()
   SetInputName(kSequenceInput, tr("Sequence"));
   SetInputName(kSequenceTypeInput, tr("Sequence Type"));
   SetComboBoxStrings(kSequenceTypeInput, {tr("Video"), tr("Audio")});
+
+  QStringList names;
+  int name_count = GetSourceCount();
+  names.reserve(name_count);
+  for (int i=0; i<name_count; i++) {
+    QString src_name;
+    if (Node *n = GetConnectedRenderOutput(kSourcesInput, i)) {
+      src_name = n->Name();
+    }
+    names.append(tr("%1: %2").arg(QString::number(i+1), src_name));
+  }
+  SetComboBoxStrings(kCurrentInput, names);
 }
 
 int MultiCamNode::GetSourceCount() const

@@ -54,7 +54,7 @@ DropShadowFilter::DropShadowFilter()
   AddInput(kFastInput, NodeValue::kBoolean, false);
 
   SetEffectInput(kTextureInput);
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
 }
 
 void DropShadowFilter::Retranslate()

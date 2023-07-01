@@ -51,9 +51,7 @@ class NodeParamViewItemBody : public QWidget {
 public:
   NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
-  void SetTimeTarget(Node* target);
-
-  void SetTime(const rational& time);
+  void SetTimeTarget(ViewerOutput *target);
 
   void Retranslate();
 
@@ -65,8 +63,6 @@ public:
   void SetInputChecked(const NodeInput &input, bool e);
 
 signals:
-  void RequestSetTime(const rational& time);
-
   void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
@@ -108,6 +104,9 @@ private:
     NodeParamViewArrayButton* append_btn;
   };
 
+  void SetTimeTargetOnInputUI(const InputUI &ui);
+  void SetTimebaseOnInputUI(const InputUI &ui);
+
   Node *node_;
 
   QHash<NodeInputPair, ArrayUI> array_ui_;
@@ -115,6 +114,8 @@ private:
   QHash<NodeInputPair, CollapseButton*> array_collapse_buttons_;
 
   rational timebase_;
+
+  ViewerOutput *time_target_;
 
   NodeParamViewCheckBoxBehavior create_checkboxes_;
 
@@ -167,16 +168,11 @@ class NodeParamViewItem : public NodeParamViewItemBase
 public:
   NodeParamViewItem(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
-  void SetTimeTarget(Node* target)
+  void SetTimeTarget(ViewerOutput* target)
   {
+    time_target_ = target;
+
     body_->SetTimeTarget(target);
-  }
-
-  void SetTime(const rational& time)
-  {
-    time_ = time;
-
-    body_->SetTime(time_);
   }
 
   void SetTimebase(const rational& timebase)
@@ -205,7 +201,7 @@ public:
 
   void SetInputChecked(const NodeInput &input, bool e);
 
-  const KeyframeView::NodeConnections &GetKeyframeConnections() const
+  KeyframeView::NodeConnections &GetKeyframeConnections()
   {
     return keyframe_connections_;
   }
@@ -216,8 +212,6 @@ public:
   }
 
 signals:
-  void RequestSetTime(const rational& time);
-
   void RequestSelectNode(Node *node);
 
   void ArrayExpandedChanged(bool e);
@@ -225,6 +219,8 @@ signals:
   void InputCheckedChanged(const NodeInput &input, bool e);
 
   void RequestEditTextInViewer();
+
+  void InputArraySizeChanged(const QString &input, int old_size, int new_size);
 
 protected slots:
   virtual void Retranslate() override;
@@ -238,7 +234,8 @@ private:
 
   Node *ctx_;
 
-  rational time_;
+  ViewerOutput *time_target_;
+
   rational timebase_;
 
   KeyframeView::NodeConnections keyframe_connections_;

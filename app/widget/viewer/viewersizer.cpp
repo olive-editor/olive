@@ -20,7 +20,12 @@
 
 #include "viewersizer.h"
 
+#include <QApplication>
+#include <QEvent>
 #include <QMatrix4x4>
+#include <QWheelEvent>
+
+#include "widget/handmovableview/handmovableview.h"
 
 namespace olive {
 
@@ -30,7 +35,8 @@ ViewerSizer::ViewerSizer(QWidget *parent) :
   width_(0),
   height_(0),
   pixel_aspect_(1),
-  zoom_(0)
+  zoom_(-1),
+  current_widget_scale_(0)
 {
   horiz_scrollbar_ = new QScrollBar(Qt::Horizontal, this);
   horiz_scrollbar_->setVisible(false);
@@ -52,9 +58,16 @@ void ViewerSizer::SetWidget(QWidget *widget)
 
   if (widget_ != nullptr) {
     widget_->setParent(this);
+    widget_->installEventFilter(this);
 
     UpdateSize();
   }
+}
+
+QSize ViewerSizer::GetContainerSize() const
+{
+  double s = GetRealCurrentZoom();
+  return QSize(std::min(this->width(), int(width_ * s)) - vert_scrollbar_->width(), std::min(int(height_ * s), this->height()) - horiz_scrollbar_->height());
 }
 
 void ViewerSizer::SetChildSize(int width, int height)
@@ -72,11 +85,34 @@ void ViewerSizer::SetPixelAspectRatio(const rational &pixel_aspect)
   UpdateSize();
 }
 
-void ViewerSizer::SetZoom(int percent)
+void ViewerSizer::SetZoom(double percent)
 {
   zoom_ = percent;
 
   UpdateSize();
+}
+
+void ViewerSizer::SetZoomAnchored(double next_scale, double cursor_x, double cursor_y)
+{
+  if (next_scale > 0) {
+    double cur_scale = GetRealCurrentZoom();
+
+    // Clamp scale within safe values
+    next_scale = std::clamp(next_scale, kZoomLevels[0], kZoomLevels[kZoomLevelCount-1]);
+
+    int anchor_x = qRound(double(cursor_x + horiz_scrollbar_->value()) / cur_scale * next_scale - cursor_x);
+    int anchor_y = qRound(double(cursor_y + vert_scrollbar_->value()) / cur_scale * next_scale - cursor_y);
+
+    SetZoom(next_scale);
+
+    horiz_scrollbar_->setValue(anchor_x);
+    vert_scrollbar_->setValue(anchor_y);
+  } else {
+    SetZoom(-1);
+
+    horiz_scrollbar_->setValue(0);
+    vert_scrollbar_->setValue(0);
+  }
 }
 
 void ViewerSizer::HandDragMove(int x, int y)
@@ -88,6 +124,29 @@ void ViewerSizer::HandDragMove(int x, int y)
   if (vert_scrollbar_->isVisible()) {
     vert_scrollbar_->setValue(vert_scrollbar_->value() - y);
   }
+}
+
+bool ViewerSizer::eventFilter(QObject *watched, QEvent *event)
+{
+  if (watched == widget_) {
+    if (event->type() == QEvent::Wheel) {
+      QWheelEvent *w = static_cast<QWheelEvent*>(event);
+
+      if (HandMovableView::WheelEventIsAZoomEvent(w)) {
+        double next_scale = GetRealCurrentZoom() * HandMovableView::GetScrollZoomMultiplier(w);
+        QPointF cursor_pos = w->position();
+        SetZoomAnchored(next_scale, cursor_pos.x(), cursor_pos.y());
+      } else {
+        // Pass scroll values to scrollbars
+        QPoint p = w->pixelDelta();
+        horiz_scrollbar_->setValue(horiz_scrollbar_->value() - p.x());
+        vert_scrollbar_->setValue(vert_scrollbar_->value() - p.y());
+      }
+      return true;
+    }
+  }
+
+  return QWidget::eventFilter(watched, event);
 }
 
 void ViewerSizer::resizeEvent(QResizeEvent *event)
@@ -169,16 +228,13 @@ void ViewerSizer::UpdateSize()
 
   }
 
+  current_widget_scale_ = current_scale;
+
   if (zoom_ > 0) {
 
     // Scale to get to the requested zoom
-    double zoom_diff = (zoom_ * 0.01) / current_scale;
+    double zoom_diff = zoom_ / current_scale;
     child_matrix.scale(zoom_diff, zoom_diff, 1.0);
-
-  } else {
-
-    // Fit - add a small amount of padding
-    child_matrix.scale(0.95f, 0.95f);
 
   }
 
@@ -189,7 +245,18 @@ void ViewerSizer::UpdateSize()
 
 int ViewerSizer::GetZoomedValue(int value)
 {
-  return qRound(value * static_cast<double>(zoom_) * 0.01);
+  return qRound(value * zoom_);
+}
+
+double ViewerSizer::GetRealCurrentZoom() const
+{
+  if (zoom_ < 0) {
+    // Currently set to "fit"
+    return current_widget_scale_;
+  } else {
+    // Explicit zoom set
+    return zoom_;
+  }
 }
 
 void ViewerSizer::ScrollBarMoved()

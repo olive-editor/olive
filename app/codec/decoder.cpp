@@ -22,15 +22,15 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QHash>
 
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/planarfiledevice.h"
 #include "codec/oiio/oiiodecoder.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
-#include "common/timecodefunctions.h"
 #include "conformmanager.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "task/taskmanager.h"
 
 namespace olive {
@@ -45,7 +45,6 @@ Decoder::Decoder() :
 
 void Decoder::IncrementAccessTime(qint64 t)
 {
-  QMutexLocker locker(&mutex_);
   last_accessed_ += t;
 }
 
@@ -113,12 +112,13 @@ TexturePtr Decoder::RetrieveVideo(const RetrieveVideoParams &p)
     return nullptr;
   }
 
-  if (cached_texture_ && cached_time_ == p.time) {
+  if (cached_texture_ && cached_time_ == p.time && cached_divider_ == p.divider) {
     return cached_texture_;
   }
 
   cached_texture_ = RetrieveVideoInternal(p);
   cached_time_ = p.time;
+  cached_divider_ = p.divider;
 
   return cached_texture_;
 }
@@ -156,7 +156,6 @@ Decoder::RetrieveAudioStatus Decoder::RetrieveAudio(SampleBuffer &dest, const Ti
 
 qint64 Decoder::GetLastAccessedTime()
 {
-  QMutexLocker locker(&mutex_);
   return last_accessed_;
 }
 
@@ -213,16 +212,6 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   }
 
   return nullptr;
-}
-
-int64_t Decoder::GetTimeInTimebaseUnits(const rational &time, const rational &timebase, int64_t start_time)
-{
-  return Timecode::time_to_timestamp(time, timebase);
-}
-
-rational Decoder::GetTimestampInTimeUnits(int64_t time, const rational &timebase, int64_t start_time)
-{
-  return Timecode::timestamp_to_time(time, timebase);
 }
 
 void Decoder::SignalProcessingProgress(int64_t ts, int64_t duration)
@@ -304,7 +293,7 @@ bool Decoder::RetrieveAudioFromConform(SampleBuffer &sample_buffer, const QVecto
     const qint64 buffer_length_in_bytes = sample_buffer.sample_count() * input_params.bytes_per_sample_per_channel();
 
     while (write_index < buffer_length_in_bytes) {
-      if (loop_mode == kLoopModeLoop) {
+      if (loop_mode == LoopMode::kLoopModeLoop) {
         while (read_index >= input.size()) {
           read_index -= input.size();
         }
@@ -349,7 +338,7 @@ void Decoder::UpdateLastAccessed()
 
 uint qHash(Decoder::CodecStream stream, uint seed)
 {
-  return qHash(stream.filename(), seed) ^ qHash(stream.stream(), seed) ^ qHash(stream.block(), seed);
+  return qHash(stream.filename(), seed) ^ ::qHash(stream.stream(), seed) ^ qHash(stream.block(), seed);
 }
 
 }

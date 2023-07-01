@@ -86,6 +86,13 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   inner_widget()->installEventFilter( & gizmo_selection_);
 }
 
+ViewerDisplayWidget::~ViewerDisplayWidget()
+{
+  delete text_edit_;
+
+  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;
+}
+
 void ViewerDisplayWidget::SetMatrixTranslate(const QMatrix4x4 &mat)
 {
   translate_matrix_ = mat;
@@ -381,15 +388,7 @@ void ViewerDisplayWidget::OnPaint()
     VideoParams device_params = GetViewportParams();
 
     if (push_mode_ == kPushBlank) {
-      if (blank_shader_.isNull()) {
-        blank_shader_ = renderer()->CreateNativeShader(ShaderCode());
-      }
-
-      ShaderJob job;
-      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
-      job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
-
-      renderer()->Blit(blank_shader_, job, device_params, false);
+      DrawBlank(device_params);
     } else if (color_service()) {
       if (FramePtr frame = load_frame_.value<FramePtr>()) {
         // This is a CPU frame, upload it now
@@ -416,35 +415,40 @@ void ViewerDisplayWidget::OnPaint()
 
       TexturePtr texture_to_draw = texture_;
 
-      if (deinterlace_) {
-        if (deinterlace_shader_.isNull()) {
-          deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+      if (!texture_to_draw || texture_to_draw->IsDummy()) {
+        DrawBlank(device_params);
+      } else {
+        if (deinterlace_) {
+          if (deinterlace_shader_.isNull()) {
+            deinterlace_shader_ = renderer()->CreateNativeShader(ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/deinterlace.frag"))));
+          }
+
+          if (!deinterlace_texture_
+              || deinterlace_texture_->params() != texture_to_draw->params()) {
+            // (Re)create texture
+            deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
+          }
+
+          ShaderJob job;
+          job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
+          job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
+
+          renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
+
+          texture_to_draw = deinterlace_texture_;
         }
 
-        if (!deinterlace_texture_
-            || deinterlace_texture_->params() != texture_to_draw->params()) {
-          // (Re)create texture
-          deinterlace_texture_ = renderer()->CreateTexture(texture_to_draw->params());
-        }
+        ColorTransformJob ctj;
+        ctj.SetColorProcessor(color_service());
+        ctj.SetInputTexture(texture_to_draw);
+        ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
+        ctj.SetClearDestinationEnabled(false);
+        ctj.SetTransformMatrix(combined_matrix_flipped_);
+        ctj.SetCropMatrix(crop_matrix_);
+        ctj.SetForceOpaque(true);
 
-        ShaderJob job;
-        job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture_to_draw->width(), texture_to_draw->height())));
-        job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture_to_draw)));
-
-        renderer()->BlitToTexture(deinterlace_shader_, job, deinterlace_texture_.get());
-
-        texture_to_draw = deinterlace_texture_;
+        renderer()->BlitColorManaged(ctj, device_params);
       }
-
-      ColorTransformJob ctj;
-      ctj.SetColorProcessor(color_service());
-      ctj.SetInputTexture(texture_to_draw);
-      ctj.SetInputAlphaAssociation(OLIVE_CONFIG("ReassocLinToNonLin").toBool() ? kAlphaAssociated : kAlphaNone);
-      ctj.SetClearDestinationEnabled(false);
-      ctj.SetTransformMatrix(combined_matrix_flipped_);
-      ctj.SetCropMatrix(crop_matrix_);
-
-      renderer()->BlitColorManaged(ctj, device_params);
     }
   }
 
@@ -456,7 +460,7 @@ void ViewerDisplayWidget::OnPaint()
 
     p.setWorldTransform(gizmo_last_draw_transform_);
 
-    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_));
+    gizmos_->UpdateGizmoPositions(gizmo_db_, NodeGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, LoopMode::kLoopModeOff));
     foreach (NodeGizmo *gizmo, gizmos_->GetGizmos()) {
       if (gizmo->IsVisible()) {
         gizmo->Draw(&p);
@@ -606,7 +610,7 @@ void ViewerDisplayWidget::DrawTextWithCrudeShadow(QPainter *painter, const QRect
 
 rational ViewerDisplayWidget::GetGizmoTime()
 {
-  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, true);
+  return GetAdjustedTime(GetTimeTarget(), gizmos_, time_, Node::kTransformTowardsInput);
 }
 
 bool ViewerDisplayWidget::IsHandDrag(QMouseEvent *event) const
@@ -684,6 +688,10 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform(NodeTraverser &gt, const 
 
 NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPointF &p)
 {
+  if (!gizmos_) {
+    return nullptr;
+  }
+
   for (auto it=gizmos_->GetGizmos().crbegin(); it!=gizmos_->GetGizmos().crend(); it++) {
     NodeGizmo *gizmo = *it;
     if (gizmo->IsVisible()) {
@@ -711,7 +719,11 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
 
 void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
+  GenerateGizmoTransforms();
+  gizmos_->UpdateGizmoPositions(gizmo_db_, NodeGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, LoopMode::kLoopModeOff));
+
   active_text_gizmo_ = text;
+  connect(active_text_gizmo_, &TextGizmo::RectChanged, this, &ViewerDisplayWidget::UpdateActiveTextGizmoSize);
   text_transform_ = GenerateGizmoTransform();
   text_transform_inverted_ = text_transform_.inverted();
 
@@ -743,16 +755,14 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   connect(text_edit_, &ViewerTextEditor::destroyed, this, &ViewerDisplayWidget::TextEditDestroyed);
 
   // Set text editor's size to logical size
-  QRectF text_rect = text->GetRect();
-  text_edit_pos_ = text_rect.topLeft();
-  text_edit_->setGeometry(text_rect.toRect());
+  QRectF text_rect = UpdateActiveTextGizmoSize();
 
   // Emit text gizmo activation signal
   emit text->Activated();
 
   // Create toolbar
   text_toolbar_ = new ViewerTextEditorToolBar(text_edit_);
-  text_toolbar_->setWindowFlags(Qt::Dialog| Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+  text_toolbar_->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
   connect(text_toolbar_, &ViewerTextEditorToolBar::VerticalAlignmentChanged, text, &TextGizmo::SetVerticalAlignment);
   connect(text, &TextGizmo::VerticalAlignmentChanged, text_toolbar_, &ViewerTextEditorToolBar::SetVerticalAlignment);
   text_toolbar_->SetVerticalAlignment(text->GetVerticalAlignment());
@@ -815,9 +825,9 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
 
     return true;
 
-  } else if (text_edit_) {
+  } else if (text_edit_ && ForwardMouseEventToTextEdit(event, true)) {
 
-    return ForwardMouseEventToTextEdit(event, true);
+    return true;
 
   } else if (event->button() == Qt::LeftButton) {
 
@@ -830,13 +840,12 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       add_band_end_ = add_band_start_;
       add_band_ = true;
 
-    } else if (gizmos_
-               && (current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
+    } else if ((current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
 
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
       gizmo_last_drag_ = gizmo_start_drag_;
-      current_gizmo_->SetGlobals(NodeTraverser::GenerateGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime()));
+      current_gizmo_->SetGlobals(NodeGlobals(gizmo_params_, gizmo_audio_params_, GenerateGizmoTime(), LoopMode::kLoopModeOff));
 
     } else {
 
@@ -868,18 +877,9 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
     return true;
 
-  } else if (text_edit_) {
+  } else if (text_edit_ && ForwardMouseEventToTextEdit(event)) {
 
-    if (event->buttons() == Qt::NoButton) {
-      QPointF mapped = text_transform_inverted_.map(event->pos()) - text_edit_pos_;
-      if (mapped.x() >= 0 && mapped.y() >= 0 && mapped.x() < text_edit_->width() && mapped.y() < text_edit_->height()) {
-        inner_widget()->setCursor(Qt::IBeamCursor);
-      } else {
-        inner_widget()->unsetCursor();
-      }
-    }
-
-    return ForwardMouseEventToTextEdit(event);
+    return true;
 
   } else if (add_band_) {
 
@@ -957,9 +957,9 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
     return true;
 
-  } else if (text_edit_) {
+  } else if (text_edit_ && ForwardMouseEventToTextEdit(e)) {
 
-    return ForwardMouseEventToTextEdit(e);
+    return true;
 
   } else if (add_band_) {
 
@@ -986,7 +986,7 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
           }
         }
       }
-      Core::instance()->undo_stack()->pushIfHasChildren(command);
+      Core::instance()->undo_stack()->push(command, tr("Dragged Gizmo"));
       gizmo_drag_started_ = false;
     }
     current_gizmo_ = nullptr;
@@ -1000,8 +1000,8 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
 bool ViewerDisplayWidget::OnMouseDoubleClick(QMouseEvent *event)
 {
-  if (text_edit_) {
-    return ForwardMouseEventToTextEdit(event);
+  if (text_edit_ && ForwardMouseEventToTextEdit(event)) {
+    return true;
   } else if (event->button() == Qt::LeftButton && gizmos_) {
     QPointF ptr = TransformViewerSpaceToBufferSpace(event->pos());
     foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
@@ -1090,7 +1090,7 @@ void ViewerDisplayWidget::DrawSubtitleTracks()
     f.setFamily(family);
   }
 
-  f.setWeight(OLIVE_CONFIG("DefaultSubtitleWeight").toInt());
+  f.setWeight(static_cast<QFont::Weight>(OLIVE_CONFIG("DefaultSubtitleWeight").toInt()));
 
   bounding_box.adjust(bounding_box.width()/10, bounding_box.height()/10, -bounding_box.width()/10, -bounding_box.height()/10);
 
@@ -1161,7 +1161,8 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
   if constexpr (std::is_same_v<T, QDragLeaveEvent>) {
     text_edit_->dragLeaveEvent(e);
   } else {
-    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->posF())).toPoint(),
+
+    T relay(AdjustPosByVAlign(GetVirtualPosForTextEdit(e->pos())).toPoint(),
             e->possibleActions(),
             e->mimeData(),
             e->mouseButtons(),
@@ -1183,26 +1184,48 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
 
 bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside)
 {
+  if (current_gizmo_) {
+    return false;
+  }
+
   // Transform screen mouse coords to world mouse coords
-  QPointF local_pos = GetVirtualPosForTextEdit(event->localPos());
+  QPointF local_pos = GetVirtualPosForTextEdit(event->pos());
+
+  if (event->type() == QEvent::MouseMove && event->buttons() == Qt::NoButton) {
+    QPointF mapped = text_transform_inverted_.map(event->pos()) - text_edit_pos_;
+    if (mapped.x() >= 0 && mapped.y() >= 0 && mapped.x() < text_edit_->width() && mapped.y() < text_edit_->height()) {
+      inner_widget()->setCursor(Qt::IBeamCursor);
+    } else {
+      inner_widget()->unsetCursor();
+    }
+  }
 
   if (check_if_outside) {
     if (local_pos.x() < 0 || local_pos.x() >= text_edit_->width() || local_pos.y() < 0 || local_pos.y() >= text_edit_->height()) {
-      CloseTextEditor();
-      return true;
+      // Allow clicking other gizmos so the user can resize while the text editor is active
+      if ((current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
+        return false;
+      } else {
+        CloseTextEditor();
+        return true;
+      }
     }
   }
 
   local_pos = AdjustPosByVAlign(local_pos);
 
-  event->setLocalPos(local_pos);
-  return ForwardEventToTextEdit(event);
+  QMouseEvent derived(event->type(), local_pos, event->windowPos(), event->screenPos(), event->button(), event->buttons(), event->modifiers(), event->source());
+  return ForwardEventToTextEdit(&derived);
 }
 
 bool ViewerDisplayWidget::ForwardEventToTextEdit(QEvent *event)
 {
   qApp->sendEvent(text_edit_->viewport(), event);
-  return event->isAccepted();
+  bool e = event->isAccepted();
+  if (e) {
+    update();
+  }
+  return e;
 }
 
 QPointF ViewerDisplayWidget::AdjustPosByVAlign(QPointF p)
@@ -1226,6 +1249,9 @@ void ViewerDisplayWidget::CloseTextEditor()
 {
   text_edit_->deleteLater();
   text_edit_ = nullptr;
+
+  disconnect(active_text_gizmo_, &TextGizmo::RectChanged, this, &ViewerDisplayWidget::UpdateActiveTextGizmoSize);
+  active_text_gizmo_ = nullptr;
 }
 
 void ViewerDisplayWidget::GenerateGizmoTransforms()
@@ -1242,6 +1268,19 @@ void ViewerDisplayWidget::GenerateGizmoTransforms()
 
   gizmo_last_draw_transform_ = GenerateGizmoTransform(gt, gizmo_draw_time_);
   gizmo_last_draw_transform_inverted_ = gizmo_last_draw_transform_.inverted();
+}
+
+void ViewerDisplayWidget::DrawBlank(const VideoParams &device_params)
+{
+  if (blank_shader_.isNull()) {
+    blank_shader_ = renderer()->CreateNativeShader(ShaderCode());
+  }
+
+  ShaderJob job;
+  job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, combined_matrix_flipped_));
+  job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, crop_matrix_));
+
+  renderer()->Blit(blank_shader_, job, device_params, false);
 }
 
 void ViewerDisplayWidget::SetShowFPS(bool e)
@@ -1263,16 +1302,18 @@ void ViewerDisplayWidget::RequestStartEditingText()
   }
 }
 
-void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase)
+void ViewerDisplayWidget::Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase, bool start_updating)
 {
   playback_timebase_ = timebase;
   playback_speed_ = playback_speed;
 
   timer_.Start(start_timestamp, playback_speed, timebase.toDouble());
 
-  connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
+  if (start_updating) {
+    connect(this, &ViewerDisplayWidget::frameSwapped, this, &ViewerDisplayWidget::UpdateFromQueue);
 
-  update();
+    update();
+  }
 }
 
 void ViewerDisplayWidget::Pause()
@@ -1402,6 +1443,12 @@ void ViewerDisplayWidget::FocusChanged(QWidget *old, QWidget *now)
   }
 }
 
-
+QRectF ViewerDisplayWidget::UpdateActiveTextGizmoSize()
+{
+  QRectF text_rect = active_text_gizmo_->GetRect();
+  text_edit_pos_ = text_rect.topLeft();
+  text_edit_->setGeometry(text_rect.toRect());
+  return text_rect;
+}
 
 }

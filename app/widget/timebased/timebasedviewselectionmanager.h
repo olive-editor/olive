@@ -27,8 +27,6 @@
 #include <QToolTip>
 
 #include "common/qtutils.h"
-#include "common/rational.h"
-#include "common/timecodefunctions.h"
 #include "timebasedview.h"
 #include "timebasedwidget.h"
 #include "widget/timetarget/timetarget.h"
@@ -55,9 +53,10 @@ public:
     drawn_objects_.clear();
   }
 
-  void DeclareDrawnObject(T *object, const QRectF &pos)
+  void DeclareDrawnObject(T *object, const QRectF &rect)
   {
-    drawn_objects_.push_back({object, pos});
+    QRectF r(view_->UnscalePoint(rect.topLeft()), view_->UnscalePoint(rect.bottomRight()));
+    drawn_objects_.push_back({object, r});
   }
 
   bool Select(T *key)
@@ -108,9 +107,10 @@ public:
   T *GetObjectAtPoint(const QPointF &scene_pt)
   {
     // Iterate in reverse order because the objects drawn later will appear on top to the user
+    QPointF unscaled = view_->UnscalePoint(scene_pt);
     for (auto it=drawn_objects_.crbegin(); it!=drawn_objects_.crend(); it++) {
       const DrawnObject &kp = *it;
-      if (kp.second.contains(scene_pt)) {
+      if (kp.second.contains(unscaled)) {
         return kp.first;
       }
     }
@@ -206,7 +206,7 @@ public:
       }
     }
 
-    drag_mouse_start_ = view_->mapToScene(event->pos());
+    drag_mouse_start_ = view_->UnscalePoint(view_->mapToScene(event->pos()));
   }
 
   void SnapPoints(rational *movement)
@@ -216,7 +216,7 @@ public:
     if (time_target_) {
       for (size_t i=0; i<copy.size(); i++) {
         if (Node *parent = time_targets_[i]) {
-          copy[i] = time_target_->GetAdjustedTime(parent, time_target_->GetTimeTarget(), copy[i], false);
+          copy[i] = time_target_->GetAdjustedTime(parent, time_target_->GetTimeTarget(), copy[i], Node::kTransformTowardsOutput);
         }
       }
     }
@@ -233,9 +233,9 @@ public:
     }
   }
 
-  void DragMove(QMouseEvent *event, const QString &tip_format = QString())
+  void DragMove(const QPoint &local_pos, const QString &tip_format = QString())
   {
-    rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(event->pos()).x() - drag_mouse_start_.x());
+    rational time_diff = view_->SceneToTimeNoGrid(view_->mapToScene(local_pos).x() - view_->ScalePoint(drag_mouse_start_).x());
 
     // Snap points
     rational presnap_time_diff = time_diff;
@@ -309,20 +309,17 @@ public:
       display_time = initial_drag_item_->time();
     }
 
-    QString tip = Timecode::time_to_timecode(display_time, timebase_,
-                                             Core::instance()->GetTimecodeDisplay(), false);
+    QString tip = QString::fromStdString(Timecode::time_to_timecode(
+                                           display_time, timebase_,
+                                           Core::instance()->GetTimecodeDisplay(), false));
 
+    last_used_tip_format_ = tip_format;
     if (!tip_format.isEmpty()) {
       tip = tip_format.arg(tip);
     }
 
     QToolTip::hideText();
     QToolTip::showText(QCursor::pos(), tip);
-  }
-
-  void DragMove(QMouseEvent *event, TimeTargetObject *target)
-  {
-    return DragMove(event, QString(), target);
   }
 
   void DragStop(MultiUndoCommand *command)
@@ -346,23 +343,24 @@ public:
   void RubberBandStart(QMouseEvent *event)
   {
     if (event->button() == Qt::LeftButton || event->button() == Qt::RightButton) {
-      rubberband_start_ = event->pos();
+      rubberband_scene_start_ = view_->UnscalePoint(view_->mapToScene(event->pos()));
 
       rubberband_ = new QRubberBand(QRubberBand::Rectangle, view_);
-      rubberband_->setGeometry(QRect(rubberband_start_.x(), rubberband_start_.y(), 0, 0));
+      rubberband_->setGeometry(QRect(event->pos().x(), event->pos().y(), 0, 0));
       rubberband_->show();
 
       rubberband_preselected_ = selected_;
     }
   }
 
-  void RubberBandMove(QMouseEvent *event)
+  void RubberBandMove(const QPoint &pos)
   {
     if (IsRubberBanding()) {
-      QRect band_rect = QRect(rubberband_start_, event->pos()).normalized();
-      rubberband_->setGeometry(band_rect);
+      QRectF band_rect = QRectF(view_->mapFromScene(view_->ScalePoint(rubberband_scene_start_)), pos).normalized();
+      rubberband_->setGeometry(band_rect.toRect());
 
-      QRectF scene_rect = view_->mapToScene(band_rect).boundingRect();
+      QPointF current = view_->UnscalePoint(view_->mapToScene(pos));
+      QRectF scene_rect = QRectF(rubberband_scene_start_, current).normalized();
 
       selected_ = rubberband_preselected_;
       foreach (const DrawnObject &kp, drawn_objects_) {
@@ -384,6 +382,18 @@ public:
   bool IsRubberBanding() const
   {
     return rubberband_;
+  }
+
+  void ForceDragUpdate()
+  {
+    if (IsRubberBanding() || IsDragging()) {
+      QPoint local_pos = view_->viewport()->mapFromGlobal(QCursor::pos());
+      if (IsRubberBanding()) {
+        RubberBandMove(local_pos);
+      } else {
+        DragMove(local_pos, last_used_tip_format_);
+      }
+    }
   }
 
 private:
@@ -446,12 +456,14 @@ private:
   rational timebase_;
 
   QRubberBand *rubberband_;
-  QPoint rubberband_start_;
+  QPointF rubberband_scene_start_;
   std::vector<T*> rubberband_preselected_;
 
   TimeBasedWidget::SnapMask snap_mask_;
 
   TimeTargetObject *time_target_;
+
+  QString last_used_tip_format_;
 
 };
 

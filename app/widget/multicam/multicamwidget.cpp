@@ -19,10 +19,12 @@
 ***/
 
 #include "multicamwidget.h"
-#include "qshortcut.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+
+#include <QShortcut>
+
+#include "node/nodeundo.h"
+#include "timeline/timelineundosplit.h"
 #include "widget/timeruler/timeruler.h"
-#include "widget/timelinewidget/undo/timelineundosplit.h"
 
 namespace olive {
 
@@ -74,7 +76,7 @@ void MulticamWidget::SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode 
 
 void MulticamWidget::SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip, const rational &time)
 {
-  if (time.isNaN() || time == GetTime()) {
+  if (time.isNaN() || !GetConnectedNode() || time == GetConnectedNode()->GetPlayhead()) {
     SetMulticamNodeInternal(viewer, n, clip);
     play_queue_.clear();
   } else {
@@ -125,13 +127,13 @@ void MulticamWidget::Switch(int source, bool split_clip)
 
   BlockSplitPreservingLinksCommand *split = nullptr;
 
-  if (clip_ && split_clip && clip_->in() < GetTime() && clip_->out() > GetTime()) {
+  if (clip_ && split_clip && clip_->in() < GetConnectedNode()->GetPlayhead() && clip_->out() > GetConnectedNode()->GetPlayhead()) {
     QVector<Block*> blocks;
 
     blocks.append(clip_);
     blocks.append(clip_->block_links());
 
-    split = new BlockSplitPreservingLinksCommand(blocks, {GetTime()});
+    split = new BlockSplitPreservingLinksCommand(blocks, {GetConnectedNode()->GetPlayhead()});
     split->redo_now();
     command->add_child(split);
 
@@ -150,7 +152,7 @@ void MulticamWidget::Switch(int source, bool split_clip)
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Switched Multi-Camera Source"));
 
   display_->update();
 

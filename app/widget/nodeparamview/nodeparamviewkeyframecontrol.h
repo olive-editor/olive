@@ -46,10 +46,9 @@ public:
 
   void SetInput(const NodeInput& input);
 
-  void SetTime(const rational& time);
-
-signals:
-  void RequestSetTime(const rational& time);
+protected:
+  virtual void TimeTargetDisconnectEvent(ViewerOutput *v) override;
+  virtual void TimeTargetConnectEvent(ViewerOutput *v) override;
 
 private:
   QPushButton* CreateNewToolButton(const QIcon &icon) const;
@@ -66,8 +65,6 @@ private:
   QPushButton* enable_key_btn_;
 
   NodeInput input_;
-
-  rational time_;
 
 private slots:
   void ShowButtonsFromKeyframeEnable(bool e);

@@ -26,8 +26,9 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "dialog/speedduration/speeddurationdialog.h"
+#include "node/group/group.h"
+#include "node/nodeundo.h"
 #include "node/project/sequence/sequence.h"
-#include "nodeparamviewundo.h"
 
 namespace olive {
 
@@ -49,7 +50,8 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
   body_(nullptr),
   node_(node),
   create_checkboxes_(create_checkboxes),
-  ctx_(nullptr)
+  ctx_(nullptr),
+  time_target_(nullptr)
 {
   node_->Retranslate();
 
@@ -57,6 +59,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
   RecreateBody();
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
+  connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewItem::InputArraySizeChanged);
 
   // FIXME: Implemented to pick up when an input is set to hidden or not - DEFINITELY not a fast
   //        way of doing this, but "fine" for now.
@@ -90,13 +93,12 @@ void NodeParamViewItem::RecreateBody()
 
   body_ = new NodeParamViewItemBody(node_, create_checkboxes_, this);
   connect(body_, &NodeParamViewItemBody::RequestSelectNode, this, &NodeParamViewItem::RequestSelectNode);
-  connect(body_, &NodeParamViewItemBody::RequestSetTime, this, &NodeParamViewItem::RequestSetTime);
   connect(body_, &NodeParamViewItemBody::ArrayExpandedChanged, this, &NodeParamViewItem::ArrayExpandedChanged);
   connect(body_, &NodeParamViewItemBody::InputCheckedChanged, this, &NodeParamViewItem::InputCheckedChanged);
   connect(body_, &NodeParamViewItemBody::RequestEditTextInViewer, this, &NodeParamViewItem::RequestEditTextInViewer);
   body_->Retranslate();
-  body_->SetTime(time_);
   body_->SetTimebase(timebase_);
+  body_->SetTimeTarget(time_target_);
   SetBody(body_);
 }
 
@@ -118,6 +120,7 @@ void NodeParamViewItem::SetInputChecked(const NodeInput &input, bool e)
 NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
   QWidget(parent),
   node_(node),
+  time_target_(nullptr),
   create_checkboxes_(create_checkboxes)
 {
   QGridLayout* root_layout = new QGridLayout(this);
@@ -259,7 +262,6 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
     ui_objects.key_control = new NodeParamViewKeyframeControl(this);
     ui_objects.key_control->SetInput(resolved);
     layout->addWidget(ui_objects.key_control, row, kKeyControlColumn);
-    connect(ui_objects.key_control, &NodeParamViewKeyframeControl::RequestSetTime, this, &NodeParamViewItemBody::RequestSetTime);
   }
 
   input_ui_map_.insert(input_ref, ui_objects);
@@ -267,34 +269,30 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   if (node->IsInputConnectable(input)) {
     UpdateUIForEdgeConnection(input_ref);
   }
+
+  SetTimeTargetOnInputUI(ui_objects);
+  SetTimebaseOnInputUI(ui_objects);
 }
 
-void NodeParamViewItemBody::SetTimeTarget(Node *target)
+void NodeParamViewItemBody::SetTimeTarget(ViewerOutput *target)
 {
-  foreach (const InputUI& ui_obj, input_ui_map_) {
-    // Only keyframable inputs have a key control widget
-    if (ui_obj.key_control) {
-      ui_obj.key_control->SetTimeTarget(target);
-    }
+  time_target_ = target;
 
-    ui_obj.widget_bridge->SetTimeTarget(target);
+  foreach (const InputUI& ui_obj, input_ui_map_) {
+    SetTimeTargetOnInputUI(ui_obj);
   }
 }
 
-void NodeParamViewItemBody::SetTime(const rational &time)
+void NodeParamViewItemBody::SetTimeTargetOnInputUI(const InputUI &ui_obj)
 {
-  foreach (const InputUI& ui_obj, input_ui_map_) {
-    // Only keyframable inputs have a key control widget
-    if (ui_obj.key_control) {
-      ui_obj.key_control->SetTime(time);
-    }
-
-    if (ui_obj.connected_label) {
-      ui_obj.connected_label->SetTime(time);
-    }
-
-    ui_obj.widget_bridge->SetTime(time);
+  // Only keyframable inputs have a key control widget
+  if (ui_obj.key_control) {
+    ui_obj.key_control->SetTimeTarget(time_target_);
   }
+  if (ui_obj.connected_label) {
+    ui_obj.connected_label->SetViewerNode(time_target_);
+  }
+  ui_obj.widget_bridge->SetTimeTarget(time_target_);
 }
 
 void NodeParamViewItemBody::Retranslate()
@@ -460,7 +458,8 @@ void NodeParamViewItemBody::ArrayAppendClicked()
   for (auto it=array_ui_.cbegin(); it!=array_ui_.cend(); it++) {
     if (it.value().append_btn == sender()) {
       NodeInput real_input = NodeGroup::ResolveInput(NodeInput(it.key().node, it.key().input));
-      real_input.node()->InputArrayAppend(real_input.input(), true);
+      Core::instance()->undo_stack()->push(new NodeArrayInsertCommand(real_input.node(), real_input.input(), real_input.GetArraySize()),
+                                           tr("Appended Array Element In %1 - %2").arg(real_input.node()->GetLabelAndName(), real_input.GetInputName()));
       break;
     }
   }
@@ -472,7 +471,8 @@ void NodeParamViewItemBody::ArrayInsertClicked()
     if (it.value().array_insert_btn == sender()) {
       // Found our input and element
       NodeInput ic = NodeGroup::ResolveInput(it.key());
-      ic.node()->InputArrayInsert(ic.input(), ic.element(), true);
+      Core::instance()->undo_stack()->push(new NodeArrayInsertCommand(ic.node(), ic.input(), ic.element()),
+                                           tr("Inserted Array Element In %1 - %2").arg(ic.node()->GetLabelAndName(), ic.GetInputName()));
       break;
     }
   }
@@ -484,7 +484,8 @@ void NodeParamViewItemBody::ArrayRemoveClicked()
     if (it.value().array_remove_btn == sender()) {
       // Found our input and element
       NodeInput ic = NodeGroup::ResolveInput(it.key());
-      ic.node()->InputArrayRemove(ic.input(), ic.element(), true);
+      Core::instance()->undo_stack()->push(new NodeArrayRemoveCommand(ic.node(), ic.input(), ic.element()),
+                                           tr("Removed Array Element In %1 - %2").arg(ic.node()->GetLabelAndName(), ic.GetInputName()));
       break;
     }
   }
@@ -508,8 +509,13 @@ void NodeParamViewItemBody::SetTimebase(const rational& timebase)
   timebase_ = timebase;
 
   foreach (const InputUI& ui_obj, input_ui_map_) {
-    ui_obj.widget_bridge->SetTimebase(timebase);
+    SetTimebaseOnInputUI(ui_obj);
   }
+}
+
+void NodeParamViewItemBody::SetTimebaseOnInputUI(const InputUI& ui_obj)
+{
+  ui_obj.widget_bridge->SetTimebase(timebase_);
 }
 
 void NodeParamViewItemBody::SetInputChecked(const NodeInput &input, bool e)

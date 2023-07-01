@@ -27,7 +27,6 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-#include "common/rational.h"
 #include "render/videoparams.h"
 
 namespace olive {
@@ -43,7 +42,7 @@ public:
 
     QHBoxLayout* layout = new QHBoxLayout(this);
     layout->setSpacing(0);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(inner_);
 
     RepopulateList();
@@ -121,7 +120,7 @@ private slots:
             r = rational::fromDouble(d, &ok);
           } else {
             // Try converting to rational in case someone formatted that way
-            r = rational::fromString(s, &ok);
+            r = rational::fromString(s.toStdString(), &ok);
           }
 
           if (ok) {

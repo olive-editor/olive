@@ -39,20 +39,22 @@ const double Track::kTrackHeightInterval = 0.5;
 
 const QString Track::kBlockInput = QStringLiteral("block_in");
 const QString Track::kMutedInput = QStringLiteral("muted_in");
+const QString Track::kArrayMapInput = QStringLiteral("arraymap_in");
 
 Track::Track() :
   track_type_(Track::kNone),
   index_(-1),
   locked_(false),
-  sequence_(nullptr)
+  sequence_(nullptr),
+  ignore_arraymap_(0),
+  arraymap_invalid_(false),
+  ignore_arraymap_set_(false)
 {
-  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden));
-
-  // Since blocks are time based, we can handle the invalidate timing a little more intelligently
-  // on our end
-  IgnoreInvalidationsFrom(kBlockInput);
+  AddInput(kBlockInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable | kInputFlagHidden | kInputFlagIgnoreInvalidations));
 
   AddInput(kMutedInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+
+  AddInput(kArrayMapInput, NodeValue::kBinary, InputFlags(kInputFlagStatic | kInputFlagHidden | kInputFlagIgnoreInvalidations));
 
   // Set default height
   track_height_ = kTrackHeightDefault;
@@ -113,6 +115,10 @@ Node::ActiveElements Track::GetActiveElementsAtTime(const QString &input, const 
         end = blocks_.size()-1;
       }
 
+      if (blocks_.at(end)->in() == r.out()) {
+        end--;
+      }
+
       ActiveElements a;
       for (int i=start; i<=end; i++) {
         Block *b = blocks_.at(i);
@@ -146,17 +152,24 @@ void Track::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeVal
   }
 }
 
-TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
+TimeRange Track::InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const
 {
   if (input == kBlockInput && element >= 0) {
     int cache_index = GetCacheIndexFromArrayIndex(element);
 
     if (cache_index > -1) {
-      return TransformRangeForBlock(blocks_.at(cache_index), input_time);
+      TimeRange r = input_time;
+      Block *b = blocks_.at(cache_index);
+
+      if (clamp) {
+        r.set_range(std::max(r.in(), b->in()), std::min(r.out(), b->out()));
+      }
+
+      return TransformRangeForBlock(b, r);
     }
   }
 
-  return Node::InputTimeAdjustment(input, element, input_time);
+  return Node::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange Track::OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const
@@ -180,136 +193,33 @@ const double &Track::GetTrackHeight() const
 void Track::SetTrackHeight(const double &height)
 {
   track_height_ = height;
-  emit TrackHeightChangedInPixels(GetTrackHeightInPixels());
+  emit TrackHeightChanged(track_height_);
 }
 
-void Track::InputConnectedEvent(const QString &input, int element, Node *output)
+bool Track::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
 {
-  if (input == kBlockInput) {
-    if (element == -1) {
-      // User has replaced the entire array, we will invalidate everything
-      InvalidateAll(kBlockInput, element);
-      return;
+  ignore_arraymap_set_ = true;
+
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("height")) {
+      this->SetTrackHeight(reader->readElementText().toDouble());
+    } else {
+      reader->skipCurrentElement();
     }
-
-    // Check if a block was connected, if not, ignore
-    Block* block = dynamic_cast<Block*>(output);
-
-    if (!block) {
-      return;
-    }
-
-    // Determine where in the cache this block will be
-    int cache_index = -1;
-    Block *previous = nullptr, *next = nullptr;
-
-    int arr_sz = InputArraySize(kBlockInput);
-    for (int i=element+1; i<arr_sz; i++) {
-      // Find next block because this will be the index that we want to insert at
-      cache_index = GetCacheIndexFromArrayIndex(i);
-
-      if (cache_index >= 0) {
-        next = blocks_.at(cache_index);
-        break;
-      }
-    }
-
-    // If there was no next, this will be inserted at the end
-    if (cache_index == -1) {
-      cache_index = blocks_.size();
-    }
-
-    // Determine previous block, either by using next's previous or the last block if there was no
-    // next. If there are neither, they'll both remain null
-    if (next) {
-      previous = next->previous();
-    } else if (!blocks_.isEmpty()) {
-      previous = blocks_.last();
-    }
-
-    // Insert at index
-    blocks_.insert(cache_index, block);
-    block_array_indexes_.insert(cache_index, element);
-
-    // Update previous/next
-    if (previous) {
-      previous->set_next(block);
-      block->set_previous(previous);
-    }
-
-    if (next) {
-      block->set_next(next);
-      next->set_previous(block);
-    }
-
-    block->set_track(this);
-
-    // Update ins/outs
-    UpdateInOutFrom(cache_index);
-
-    // Connect to the block
-    connect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
-
-    // Invalidate cache now that block should have an in point
-    Node::InvalidateCache(TimeRange(block->in(), track_length()), kBlockInput);
-
-    // Emit block added signal
-    emit BlockAdded(block);
   }
+
+  return true;
 }
 
-void Track::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void Track::SaveCustom(QXmlStreamWriter *writer) const
 {
-  if (input == kBlockInput) {
-    if (element == -1) {
-      // User has replaced the entire array, we will invalidate everything
-      InvalidateAll(kBlockInput, element);
-      return;
-    }
+  writer->writeTextElement(QStringLiteral("height"), QString::number(this->GetTrackHeight()));
+}
 
-    Block* b = dynamic_cast<Block*>(output);
-
-    if (!b) {
-      return;
-    }
-
-    emit BlockRemoved(b);
-
-    TimeRange invalidate_range(b->in(), track_length());
-
-    // Get cache index
-    int cache_index = GetCacheIndexFromArrayIndex(element);
-
-    // Remove block here
-    blocks_.removeAt(cache_index);
-    block_array_indexes_.removeAt(cache_index);
-
-    // Update previous/nexts
-    Block* previous = b->previous();
-    Block* next = b->next();
-
-    if (previous) {
-      previous->set_next(next);
-    }
-
-    if (next) {
-      next->set_previous(previous);
-    }
-
-    b->set_previous(nullptr);
-    b->set_next(nullptr);
-    b->set_track(nullptr);
-
-    // Update lengths
-    if (next) {
-      UpdateInOutFrom(blocks_.indexOf(next));
-    }
-    emit TrackLengthChanged();
-
-    disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
-
-    Node::InvalidateCache(invalidate_range, kBlockInput);
-  }
+void Track::PostLoadEvent(SerializedData *data)
+{
+  ignore_arraymap_set_ = false;
+  RefreshBlockCacheFromArrayMap();
 }
 
 void Track::InputValueChangedEvent(const QString &input, int element)
@@ -318,6 +228,12 @@ void Track::InputValueChangedEvent(const QString &input, int element)
 
   if (input == kMutedInput) {
     emit MutedChanged(IsMuted());
+  } else if (input == kArrayMapInput) {
+    if (ignore_arraymap_ > 0) {
+      ignore_arraymap_--;
+    } else {
+      RefreshBlockCacheFromArrayMap();
+    }
   }
 }
 
@@ -477,39 +393,47 @@ void Track::InsertBlockAfter(Block *block, Block *before)
 
     Q_ASSERT(before_index >= 0);
 
-    if (before_index == blocks_.size() - 1) {
-      AppendBlock(block);
-    } else {
-      InsertBlockAtIndex(block, before_index + 1);
-    }
+    InsertBlockAtIndex(block, before_index + 1);
   }
 }
 
 void Track::PrependBlock(Block *block)
 {
-  InputArrayPrepend(kBlockInput);
-  Node::ConnectEdge(block, NodeInput(this, kBlockInput, 0));
-
-  // Everything has shifted at this point
-  Node::InvalidateCache(TimeRange(0, track_length()), kBlockInput);
+  InsertBlockAtIndex(block, 0);
 }
 
 void Track::InsertBlockAtIndex(Block *block, int index)
 {
-  int insert_index = GetArrayIndexFromCacheIndex(index);
-  InputArrayInsert(kBlockInput, insert_index);
-  Node::ConnectEdge(block, NodeInput(this, kBlockInput, insert_index));
+  // Set track
+  Q_ASSERT(block->track() == nullptr);
+  block->set_track(this);
+
+  // Update array
+  int array_index = ConnectBlock(block);
+  blocks_.insert(index, block);
+  block_array_indexes_.insert(index, array_index);
+
+  // Handle previous/next
+  Block *previous = (index > 0) ? blocks_.at(index - 1) : nullptr;
+  Block *next = (index < blocks_.size()-1) ? blocks_.at(index + 1) : nullptr ;
+  Block::set_previous_next(previous, block);
+  Block::set_previous_next(block, next);
+
+  // Update in/out
+  UpdateInOutFrom(index);
+
+  connect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
 
   Node::InvalidateCache(TimeRange(block->in(), track_length()), kBlockInput);
+
+  emit BlockAdded(block);
+
+  UpdateArrayMap();
 }
 
 void Track::AppendBlock(Block *block)
 {
-  InputArrayAppend(kBlockInput);
-  Node::ConnectEdge(block, NodeInput(this, kBlockInput, InputArraySize(kBlockInput) - 1));
-
-  // Invalidate area that block was added to
-  Node::InvalidateCache(TimeRange(block->in(), block->out()), kBlockInput);
+  InsertBlockAtIndex(block, blocks_.size());
 }
 
 void Track::RippleRemoveBlock(Block *block)
@@ -517,24 +441,90 @@ void Track::RippleRemoveBlock(Block *block)
   rational remove_in = block->in();
   rational remove_out = block->out();
 
-  InputArrayRemove(kBlockInput, GetArrayIndexFromBlock(block));
+  emit BlockRemoved(block);
+
+  // Set track
+  Q_ASSERT(block->track() == this);
+  block->set_track(nullptr);
+
+  // Update array
+  int index = blocks_.indexOf(block);
+  Q_ASSERT(index != -1);
+
+  int array_index = block_array_indexes_.at(index);
+
+  blocks_.removeAt(index);
+  block_array_indexes_.removeAt(index);
+
+  Node::DisconnectEdge(block, NodeInput(this, kBlockInput, array_index));
+  empty_inputs_.push_back(array_index);
+  disconnect(block, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+
+  // Handle previous/next
+  Block *previous = (index > 0) ? blocks_.at(index - 1) : nullptr;
+  Block *next = (index < blocks_.size()) ? blocks_.at(index) : nullptr;
+  Block::set_previous_next(previous, next);
+  block->set_previous(nullptr);
+  block->set_next(nullptr);
+  block->set_in(0);
+  block->set_out(block->length());
+
+  // Update in/outs
+  UpdateInOutFrom(index);
 
   Node::InvalidateCache(TimeRange(remove_in, qMax(track_length(), remove_out)), kBlockInput);
+
+  UpdateArrayMap();
 }
 
 void Track::ReplaceBlock(Block *old, Block *replace)
 {
-  int index_of_old_block = GetArrayIndexFromBlock(old);
+  emit BlockRemoved(old);
+
+  // Set track
+  Q_ASSERT(old->track() == this);
+  old->set_track(nullptr);
+
+  Q_ASSERT(replace->track() == nullptr);
+  replace->set_track(this);
+
+  // Update array
+  int cache_index = blocks_.indexOf(old);
+  int index_of_old_block = GetArrayIndexFromCacheIndex(cache_index);
 
   DisconnectEdge(old, NodeInput(this, kBlockInput, index_of_old_block));
-
   ConnectEdge(replace, NodeInput(this, kBlockInput, index_of_old_block));
+  blocks_.replace(cache_index, replace);
+  disconnect(old, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+  connect(replace, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+
+  // Handle previous/next
+  replace->set_previous(old->previous());
+  replace->set_next(old->next());
+  old->set_previous(nullptr);
+  old->set_next(nullptr);
+  if (replace->previous()) {
+    replace->previous()->set_next(replace);
+  }
+  if (replace->next()) {
+    replace->next()->set_previous(replace);
+  }
 
   if (old->length() == replace->length()) {
+    replace->set_in(replace->previous() ? replace->previous()->out() : 0);
+    replace->set_out(replace->in() + replace->length());
+
     Node::InvalidateCache(TimeRange(replace->in(), replace->out()), kBlockInput);
   } else {
+    // Update in/outs
+    UpdateInOutFrom(cache_index);
+
     Node::InvalidateCache(TimeRange(replace->in(), track_length()), kBlockInput);
   }
+
+  emit BlockAdded(replace);
+
+  UpdateArrayMap();
 }
 
 rational Track::track_length() const
@@ -566,6 +556,13 @@ void Track::SetLocked(bool e)
   locked_ = e;
 }
 
+void Track::InputConnectedEvent(const QString &input, int element, Node *node)
+{
+  if (arraymap_invalid_ && input == kBlockInput && element >= 0) {
+    RefreshBlockCacheFromArrayMap();
+  }
+}
+
 void Track::UpdateInOutFrom(int index)
 {
   // Find block just before this one to find the last out point
@@ -580,8 +577,6 @@ void Track::UpdateInOutFrom(int index)
     last_out += b->length();
 
     b->set_out(last_out);
-
-    b->set_index(i);
   }
 
   emit BlocksRefreshed();
@@ -647,16 +642,16 @@ void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &glob
     TimeRange range_for_block(qMax(b->in(), range.in()),
                               qMin(b->out(), range.out()));
 
+    qint64 source_offset = 0;
     qint64 destination_offset = globals.aparams().time_to_samples(range_for_block.in() - range.in());
     qint64 max_dest_sz = globals.aparams().time_to_samples(range_for_block.length());
 
     // Destination buffer
     SampleBuffer samples_from_this_block = it->second.toSamples();
-    ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b);
 
     if (samples_from_this_block.is_allocated()) {
       // If this is a clip, we might have extra speed/reverse information
-      if (clip_cast) {
+      if (ClipBlock *clip_cast = dynamic_cast<ClipBlock*>(b)) {
         double speed_value = clip_cast->speed();
         bool reversed = clip_cast->reverse();
 
@@ -711,16 +706,90 @@ void Track::ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &glob
         }
       }
 
-      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count() - destination_offset));
+      qint64 copy_length = qMin(max_dest_sz, qint64(samples_from_this_block.sample_count() - source_offset));
 
       // Copy samples into destination buffer
       for (int i=0; i<samples_from_this_block.audio_params().channel_count(); i++) {
-        block_range_buffer.set(i, samples_from_this_block.data(i) + destination_offset, destination_offset, copy_length);
+        block_range_buffer.set(i, samples_from_this_block.data(i) + source_offset, destination_offset, copy_length);
       }
     }
   }
 
   table->Push(NodeValue::kSamples, QVariant::fromValue(block_range_buffer), this);
+}
+
+int Track::ConnectBlock(Block *b)
+{
+  if (!empty_inputs_.empty()) {
+    int index = empty_inputs_.front();
+    empty_inputs_.pop_front();
+
+    Node::ConnectEdge(b, NodeInput(this, kBlockInput, index));
+
+    return index;
+  } else {
+    int old_sz = InputArraySize(kBlockInput);
+    InputArrayAppend(kBlockInput);
+    Node::ConnectEdge(b, NodeInput(this, kBlockInput, old_sz));
+    return old_sz;
+  }
+}
+
+void Track::UpdateArrayMap()
+{
+  ignore_arraymap_++;
+  SetStandardValue(kArrayMapInput, QByteArray(reinterpret_cast<const char *>(block_array_indexes_.data()), block_array_indexes_.size() * sizeof(uint32_t)));
+}
+
+void Track::RefreshBlockCacheFromArrayMap()
+{
+  if (ignore_arraymap_set_) {
+    return;
+  }
+
+  // Disconnecting any existing blocks
+  for (Block *b : blocks_) {
+    Q_ASSERT(b->track() == this);
+    b->set_track(nullptr);
+    b->set_previous(nullptr);
+    b->set_next(nullptr);
+    b->set_in(0);
+    b->set_out(b->length());
+    disconnect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+  }
+
+  QByteArray bytes = GetStandardValue(kArrayMapInput).toByteArray();
+  block_array_indexes_.resize(bytes.size() / sizeof(uint32_t));
+  memcpy(block_array_indexes_.data(), bytes.data(), bytes.size());
+  blocks_.clear();
+  blocks_.reserve(block_array_indexes_.size());
+
+  Block *prev = nullptr;
+  arraymap_invalid_ = false;
+
+  for (int i = 0; i < block_array_indexes_.size(); i++) {
+    Block *b = static_cast<Block*>(GetConnectedOutput(kBlockInput, block_array_indexes_.at(i)));
+
+    Block::set_previous_next(prev, b);
+
+    if (b) {
+      b->set_track(this);
+      connect(b, &Block::LengthChanged, this, &Track::BlockLengthChanged);
+
+      blocks_.append(b);
+      prev = b;
+    } else {
+      block_array_indexes_.resize(i);
+      arraymap_invalid_ = true;
+      break;
+    }
+  }
+
+  if (prev) {
+    prev->set_next(nullptr);
+  }
+
+  UpdateInOutFrom(0);
 }
 
 void Track::BlockLengthChanged()

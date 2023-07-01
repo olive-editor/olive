@@ -24,6 +24,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "node/group/group.h"
 #include "node/node.h"
 #include "node/project/serializer/serializer.h"
 #include "nodeparamviewcontext.h"
@@ -47,8 +48,6 @@ public:
   virtual ~NodeParamView() override;
 
   void CloseContextsBelongingToProject(Project *p);
-
-  Node* GetTimeTarget() const;
 
   void DeleteSelected();
 
@@ -95,7 +94,6 @@ protected:
 
   virtual void ScaleChangedEvent(const double &) override;
   virtual void TimebaseChangedEvent(const rational&) override;
-  virtual void TimeChangedEvent(const rational &time) override;
 
   virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
 
@@ -115,8 +113,6 @@ protected:
   }
 
 private:
-  void UpdateItemTime(const rational &time);
-
   void QueueKeyframePositionUpdate();
 
   void AddContext(Node *context);
@@ -159,8 +155,6 @@ private:
   NodeParamViewItem* focused_node_;
   QVector<NodeParamViewItem*> selected_nodes_;
 
-  Node *time_target_;
-
   QVector<Node*> contexts_;
   QVector<Node*> current_contexts_;
 
@@ -172,9 +166,6 @@ private slots:
   void PinNode(bool pin);
 
   //void FocusChanged(QWidget *old, QWidget *now);
-
-  void KeyframeViewDragged(int x, int y);
-  void KeyframeViewReleased();
 
   void NodeAddedToContext(Node *n);
 
@@ -195,6 +186,8 @@ private slots:
   void SelectNodeFromConnectedLink(Node *node);
 
   void RequestEditTextInViewer();
+
+  void InputArraySizeChanged(const QString &input, int old_size, int new_size);
 
 };
 

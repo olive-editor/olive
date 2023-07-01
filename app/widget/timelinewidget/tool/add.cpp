@@ -25,9 +25,9 @@
 #include "node/generator/shape/shapenode.h"
 #include "node/generator/solid/solid.h"
 #include "node/generator/text/textv3.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "node/nodeundo.h"
+#include "timeline/timelineundopointer.h"
 #include "widget/timelinewidget/timelinewidget.h"
-#include "widget/timelinewidget/undo/timelineundopointer.h"
 
 namespace olive {
 
@@ -114,7 +114,7 @@ void AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       CreateAddableClip(command, s, ghost_->GetTrack(), ghost_->GetAdjustedIn(), ghost_->GetAdjustedLength(), r);
 
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, qApp->translate("AddTool", "Added Clip"));
     }
 
     parent()->ClearGhosts();
@@ -134,7 +134,7 @@ Node *AddTool::CreateAddableClip(MultiUndoCommand *command, Sequence *sequence, 
   }
   clip->set_length_and_media_out(length);
 
-  NodeGraph* graph = sequence->parent();
+  Project* graph = sequence->parent();
 
   command->add_child(new NodeAddCommand(graph, clip));
   command->add_child(new NodeSetPositionCommand(clip, clip, QPointF(0, 0)));

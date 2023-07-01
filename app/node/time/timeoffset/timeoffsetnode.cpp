@@ -46,12 +46,12 @@ void TimeOffsetNode::Retranslate()
   SetInputName(kInputInput, QStringLiteral("Input"));
 }
 
-TimeRange TimeOffsetNode::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+TimeRange TimeOffsetNode::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time, bool clamp) const
 {
   if (input == kInputInput) {
     return TimeRange(GetRemappedTime(input_time.in()), GetRemappedTime(input_time.out()));
   } else {
-    return super::InputTimeAdjustment(input, element, input_time);
+    return super::InputTimeAdjustment(input, element, input_time, clamp);
   }
 }
 

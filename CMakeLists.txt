@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2022 Olive Team
+# Copyright (C) 2023 Olive Studios LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 project(olive-editor VERSION 0.2.0 LANGUAGES CXX)
 
+option(BUILD_QT6 "Build with Qt 6 over 5 (experimental)" OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 option(BUILD_TESTS "Build unit tests" OFF)
 option(USE_WERROR "Error on compile warning" OFF)
@@ -29,6 +30,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+
+# Generates a compile_commands.json in the build dir, link that to the repo
+# root to enrich your IDE with clangd language server protocol functionalities
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Sanitizers
 add_library(olive-sanitizers INTERFACE)
@@ -94,7 +99,11 @@ find_package(OpenEXR REQUIRED)
 list(APPEND OLIVE_LIBRARIES ${OPENEXR_LIBRARIES})
 list(APPEND OLIVE_INCLUDE_DIRS ${OPENEXR_INCLUDES})
 
-# Link Qt 5
+# Link Olive
+list(APPEND OLIVE_LIBRARIES olivecore)
+list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ext/core/include)
+
+# Link Qt
 set(QT_LIBRARIES
   Core
   Gui
@@ -106,21 +115,56 @@ set(QT_LIBRARIES
 if (UNIX AND NOT APPLE)
   list(APPEND QT_LIBRARIES DBus)
 endif()
-find_package(Qt5 5.6 REQUIRED
+if (BUILD_QT6)
+  set(QT_NAME Qt6)
+else()
+  set(QT_NAME Qt5)
+endif()
+find_package(QT
+  NAMES
+    ${QT_NAME}
+  REQUIRED
   COMPONENTS
     ${QT_LIBRARIES}
   OPTIONAL_COMPONENTS
     Network
 )
-if (NOT Qt5Network_FOUND)
-  message("   Qt5::Network module not found, crash reporting will be disabled.")
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED
+  COMPONENTS
+    ${QT_LIBRARIES}
+  OPTIONAL_COMPONENTS
+    Network
+)
+if (NOT Qt${QT_VERSION_MAJOR}Network_FOUND)
+  message("   Qt${QT_VERSION_MAJOR}::Network module not found, crash reporting will be disabled.")
 endif()
 list(APPEND OLIVE_LIBRARIES
-  Qt5::Core
-  Qt5::Gui
-  Qt5::Widgets
-  Qt5::OpenGL
-  Qt5::Concurrent
+  Qt${QT_VERSION_MAJOR}::Core
+  Qt${QT_VERSION_MAJOR}::Gui
+  Qt${QT_VERSION_MAJOR}::Widgets
+  Qt${QT_VERSION_MAJOR}::OpenGL
+  Qt${QT_VERSION_MAJOR}::Concurrent
+)
+
+if (${QT_VERSION_MAJOR} EQUAL "6")
+  find_package(Qt${QT_VERSION_MAJOR}
+    REQUIRED
+      OpenGLWidgets
+  )
+
+  list(APPEND OLIVE_LIBRARIES
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
+  )
+
+  # Link KDDockWidgets
+  #find_package(KDDockWidgets-qt6 CONFIG REQUIRED)
+else()
+  # Link KDDockWidgets
+  #find_package(KDDockWidgets CONFIG REQUIRED)
+endif()
+
+list(APPEND OLIVE_LIBRARIES
+  KDAB::kddockwidgets
 )
 
 # Link FFmpeg
@@ -186,7 +230,7 @@ if (WIN32)
 elseif (APPLE)
   list(APPEND OLIVE_LIBRARIES "-framework IOKit")
 elseif(UNIX)
-  list(APPEND OLIVE_LIBRARIES Qt5::DBus)
+  list(APPEND OLIVE_LIBRARIES Qt${QT_VERSION_MAJOR}::DBus)
 endif()
 
 # Generate Git hash
@@ -212,9 +256,10 @@ endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 list(APPEND OLIVE_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext)
 
+add_subdirectory(ext)
 add_subdirectory(app)
 
 if (BUILD_TESTS)
-enable_testing()
-add_subdirectory(tests)
+  enable_testing()
+  add_subdirectory(tests)
 endif()

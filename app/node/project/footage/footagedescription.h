@@ -22,7 +22,6 @@
 #define FOOTAGEDESCRIPTION_H
 
 #include "node/output/track/track.h"
-#include "render/audioparams.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 
@@ -126,23 +125,17 @@ public:
 
   bool Save(const QString& filename) const;
 
-  const QVector<VideoParams>& GetVideoStreams() const
-  {
-    return video_streams_;
-  }
+  const QVector<VideoParams>& GetVideoStreams() const { return video_streams_; }
+  QVector<VideoParams>& GetVideoStreams() { return video_streams_; }
 
-  const QVector<AudioParams>& GetAudioStreams() const
-  {
-    return audio_streams_;
-  }
+  const QVector<AudioParams>& GetAudioStreams() const { return audio_streams_; }
+  QVector<AudioParams>& GetAudioStreams() { return audio_streams_; }
 
-  const QVector<SubtitleParams>& GetSubtitleStreams() const
-  {
-    return subtitle_streams_;
-  }
+  const QVector<SubtitleParams>& GetSubtitleStreams() const { return subtitle_streams_; }
+  QVector<SubtitleParams>& GetSubtitleStreams() { return subtitle_streams_; }
 
 private:
-  static constexpr unsigned kFootageMetaVersion = 5;
+  static constexpr unsigned kFootageMetaVersion = 6;
 
   QString decoder_;
 

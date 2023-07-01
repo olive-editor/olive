@@ -32,6 +32,8 @@ const QString ViewerOutput::kSubtitleParamsInput = QStringLiteral("subtitle_para
 const QString ViewerOutput::kTextureInput = QStringLiteral("tex_in");
 const QString ViewerOutput::kSamplesInput = QStringLiteral("samples_in");
 
+const SampleFormat ViewerOutput::kDefaultSampleFormat = SampleFormat::F32P;
+
 #define super Node
 
 ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_streams) :
@@ -59,7 +61,7 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
     set_default_parameters();
   }
 
-  SetFlags(kDontShowInParamView);
+  SetFlag(kDontShowInParamView);
 
   workarea_ = new TimelineWorkArea(this);
   markers_ = new TimelineMarkerList(this);
@@ -85,56 +87,61 @@ QString ViewerOutput::Description() const
   return tr("Interface between a Viewer panel and the node system.");
 }
 
-QString ViewerOutput::duration() const
+QVariant ViewerOutput::data(const DataType &d) const
 {
-  rational using_timebase;
-  Timecode::Display using_display = Core::instance()->GetTimecodeDisplay();
+  switch (d) {
+  case DURATION:
+  {
+    rational using_timebase;
+    Timecode::Display using_display = Core::instance()->GetTimecodeDisplay();
 
-  // Get first enabled streams
-  VideoParams video = GetFirstEnabledVideoStream();
-  AudioParams audio = GetFirstEnabledAudioStream();
-  SubtitleParams sub = GetFirstEnabledSubtitleStream();
+    // Get first enabled streams
+    VideoParams video = GetFirstEnabledVideoStream();
+    AudioParams audio = GetFirstEnabledAudioStream();
+    SubtitleParams sub = GetFirstEnabledSubtitleStream();
 
-  if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
-    // Prioritize video
-    using_timebase = video.frame_rate_as_time_base();
-  } else if (audio.is_valid()) {
-    // Use audio as a backup
-    // If we're showing in a timecode, we prefer showing audio in seconds instead
-    if (using_display == Timecode::kTimecodeDropFrame
-        || using_display == Timecode::kTimecodeNonDropFrame) {
-      using_display = Timecode::kTimecodeSeconds;
+    if (video.is_valid() && video.video_type() != VideoParams::kVideoTypeStill) {
+      // Prioritize video
+      using_timebase = video.frame_rate_as_time_base();
+    } else if (audio.is_valid()) {
+      // Use audio as a backup
+      // If we're showing in a timecode, we prefer showing audio in seconds instead
+      if (using_display == Timecode::kTimecodeDropFrame
+          || using_display == Timecode::kTimecodeNonDropFrame) {
+        using_display = Timecode::kTimecodeSeconds;
+      }
+
+      using_timebase = audio.sample_rate_as_time_base();
+    } else if (sub.is_valid()) {
+      using_timebase = OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>();
     }
 
-    using_timebase = audio.sample_rate_as_time_base();
-  } else if (sub.is_valid()) {
-    using_timebase = OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>();
+    if (!using_timebase.isNull()) {
+      // Return time transformed to timecode
+      return QString::fromStdString(Timecode::time_to_timecode(GetLength(), using_timebase, using_display));
+    }
+    break;
+  }
+  case FREQUENCY_RATE:
+  {
+    VideoParams video_stream;
+
+    if (HasEnabledVideoStreams()
+        && (video_stream = GetFirstEnabledVideoStream()).video_type() != VideoParams::kVideoTypeStill) {
+      // This is a video editor, prioritize video streams
+      return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
+    } else if (HasEnabledAudioStreams()) {
+      // No video streams, return audio
+      AudioParams audio_stream = GetFirstEnabledAudioStream();
+      return tr("%1 Hz").arg(audio_stream.sample_rate());
+    }
+    break;
+  }
+  default:
+    break;
   }
 
-  if (using_timebase.isNull()) {
-    // No timebase, return null
-    return QString();
-  } else {
-    // Return time transformed to timecode
-    return Timecode::time_to_timecode(GetLength(), using_timebase, using_display);
-  }
-}
-
-QString ViewerOutput::rate() const
-{
-  VideoParams video_stream;
-
-  if (HasEnabledVideoStreams()
-      && (video_stream = GetFirstEnabledVideoStream()).video_type() != VideoParams::kVideoTypeStill) {
-    // This is a video editor, prioritize video streams
-    return tr("%1 FPS").arg(video_stream.frame_rate().toDouble());
-  } else if (HasEnabledAudioStreams()) {
-    // No video streams, return audio
-    AudioParams audio_stream = GetFirstEnabledAudioStream();
-    return tr("%1 Hz").arg(audio_stream.sample_rate());
-  }
-
-  return QString();
+  return super::data(d);
 }
 
 bool ViewerOutput::HasEnabledVideoStreams() const
@@ -206,16 +213,16 @@ void ViewerOutput::set_default_parameters()
                    width,
                    height,
                    OLIVE_CONFIG("DefaultSequenceFrameRate").value<rational>(),
-                 static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
+                 static_cast<PixelFormat::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
       VideoParams::kInternalChannelCount,
       OLIVE_CONFIG("DefaultSequencePixelAspect").value<rational>(),
       OLIVE_CONFIG("DefaultSequenceInterlacing").value<VideoParams::Interlacing>(),
       VideoParams::generate_auto_divider(width, height)
       ));
   SetAudioParams(AudioParams(
-                   OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
-                 OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
-      AudioParams::kInternalFormat
+      OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
+      OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
+      kDefaultSampleFormat
       ));
 }
 
@@ -227,16 +234,16 @@ void ViewerOutput::InvalidateCache(const TimeRange& range, const QString& from, 
     if (from == kTextureInput) {
       //connected->thumbnail_cache()->Request(range.Intersected(max_range), PlaybackCache::kPreviewsOnly);
       if (autocache_input_video_) {
-        TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetVideoLength()));
-        connected->video_frame_cache()->Request(range.Intersected(max_range));
+        TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetVideoLength()), false);
+        connected->video_frame_cache()->Request(this, range.Intersected(max_range));
       }
     } else if (from == kSamplesInput) {
-      TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetAudioLength()));
+      TimeRange max_range = InputTimeAdjustment(from, element, TimeRange(0, GetAudioLength()), false);
       if (waveform_requests_enabled_) {
-        connected->waveform_cache()->Request(range.Intersected(max_range));
+        connected->waveform_cache()->Request(this, range.Intersected(max_range));
       }
       if (autocache_input_audio_) {
-        connected->audio_playback_cache()->Request(range.Intersected(max_range));
+        connected->audio_playback_cache()->Request(this, range.Intersected(max_range));
       }
     }
   }
@@ -314,6 +321,12 @@ void ViewerOutput::VerifyLength()
     last_length_ = real_length;
     emit LengthChanged(last_length_);
   }
+}
+
+void ViewerOutput::SetPlayhead(const rational &t)
+{
+  playhead_ = t;
+  emit PlayheadChanged(t);
 }
 
 void ViewerOutput::InputConnectedEvent(const QString &input, int element, Node *output)
@@ -394,10 +407,10 @@ void ViewerOutput::SetWaveformEnabled(bool e)
 {
   if ((waveform_requests_enabled_ = e)) {
     if (Node *connected = this->GetConnectedSampleOutput()) {
-      TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()));
+      TimeRange max_range = InputTimeAdjustment(kSamplesInput, -1, TimeRange(0, GetAudioLength()), false);
       TimeRangeList invalid = connected->waveform_cache()->GetInvalidatedRanges(max_range);
       for (const TimeRange &r : invalid) {
-        connected->waveform_cache()->Request(r);
+        connected->waveform_cache()->Request(this, r);
       }
     }
   }
@@ -415,6 +428,36 @@ void ViewerOutput::Value(const NodeValueRow &value, const NodeGlobals &globals, 
     repush.set_tag(Track::Reference(Track::kAudio, 0).ToString());
     table->Push(value[kSamplesInput]);
   }
+}
+
+bool ViewerOutput::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("markers")) {
+      if (!this->GetMarkers()->load(reader)) {
+        return false;
+      }
+    } else if (reader->name() == QStringLiteral("workarea")) {
+      if (!this->GetWorkArea()->load(reader)) {
+        return false;
+      }
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
+}
+
+void ViewerOutput::SaveCustom(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement(QStringLiteral("workarea"));
+  this->GetWorkArea()->save(writer);
+  writer->writeEndElement(); // workarea
+
+  writer->writeStartElement(QStringLiteral("markers"));
+  this->GetMarkers()->save(writer);
+  writer->writeEndElement(); // markers
 }
 
 void ViewerOutput::InputValueChangedEvent(const QString &input, int element)
@@ -499,7 +542,7 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
       SetVideoParams(VideoParams(s.width(),
                                    s.height(),
                                    using_timebase,
-                                   static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
+                                   static_cast<PixelFormat::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
                        VideoParams::kInternalChannelCount,
                        s.pixel_aspect_ratio(),
                        s.interlacing(),
@@ -512,7 +555,7 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
 
     if (!audio_streams.isEmpty()) {
       const AudioParams& s = audio_streams.first();
-      SetAudioParams(AudioParams(s.sample_rate(), s.channel_layout(), AudioParams::kInternalFormat));
+      SetAudioParams(AudioParams(s.sample_rate(), s.channel_layout(), kDefaultSampleFormat));
     }
   }
 }

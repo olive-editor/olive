@@ -35,7 +35,7 @@ namespace olive {
 class FootageViewerPanel : public ViewerPanelBase, public FootageManagementPanel {
   Q_OBJECT
 public:
-  FootageViewerPanel(QWidget* parent);
+  FootageViewerPanel();
 
   void OverrideWorkArea(const TimeRange &r);
 

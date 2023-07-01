@@ -9,8 +9,9 @@
 
 #include "core.h"
 #include "node/block/block.h"
-#include "node/graph.h"
+#include "node/group/group.h"
 #include "node/output/track/track.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeviewitem.h"
 #include "ui/colorcoding.h"
@@ -29,8 +30,8 @@ NodeViewContext::NodeViewContext(Node *context, QGraphicsItem *item) :
     lbl_ = QCoreApplication::translate("NodeViewContext",
                                        "%1 [%2] :: %3 - %4").arg(block->GetLabelAndName(),
                                                                  Track::Reference::TypeToTranslatedString(block->track()->type()),
-                                                                 Timecode::time_to_timecode(block->in(), timebase, Core::instance()->GetTimecodeDisplay()),
-                                                                 Timecode::time_to_timecode(block->out(), timebase, Core::instance()->GetTimecodeDisplay()));
+                                                                 QString::fromStdString(Timecode::time_to_timecode(block->in(), timebase, Core::instance()->GetTimecodeDisplay())),
+                                                                 QString::fromStdString(Timecode::time_to_timecode(block->out(), timebase, Core::instance()->GetTimecodeDisplay())));
   } else {
     lbl_ = context_->GetLabelAndName();
   }
@@ -190,8 +191,10 @@ void NodeViewContext::SetCurvedEdges(bool e)
   }
 }
 
-void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
+int NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
 {
+  int count = 0;
+
   // Delete any selected edges
   foreach (NodeViewEdge *edge, edges_) {
     if (edge->isSelected()) {
@@ -203,8 +206,11 @@ void NodeViewContext::DeleteSelected(NodeViewDeleteCommand *command)
   foreach (NodeViewItem *node, item_map_) {
     if (node->isSelected()) {
       command->AddNode(node->GetNode(), context_);
+      count++;
     }
   }
+
+  return count;
 }
 
 void NodeViewContext::Select(const QVector<Node *> &nodes)
@@ -244,7 +250,7 @@ void NodeViewContext::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 {
   // Set pen and brush
   Color color = context_->color();
-  QColor c = color.toQColor();
+  QColor c = QtUtils::toQColor(color);
   QPen pen(c, 2);
   if (option->state & QStyle::State_Selected) {
     pen.setStyle(Qt::DotLine);

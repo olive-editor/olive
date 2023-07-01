@@ -21,20 +21,19 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <olive/core/core.h>
 #include <QFileInfoList>
 #include <QList>
 #include <QTimer>
 #include <QTranslator>
 
-#include "common/rational.h"
-#include "common/timecodefunctions.h"
 #include "node/project/footage/footage.h"
-#include "node/project/project.h"
-#include "node/project/projectviewmodel.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "task/task.h"
 #include "tool/tool.h"
 #include "undo/undostack.h"
+#include "widget/projectexplorer/projectviewmodel.h"
 
 namespace olive {
 
@@ -220,7 +219,6 @@ public:
    * The active Project file, or nullptr if the heuristic couldn't find one.
    */
   Project* GetActiveProject() const;
-  ProjectViewModel* GetActiveProjectModel() const;
   Folder* GetSelectedFolderInActiveProject() const;
 
   /**
@@ -266,23 +264,10 @@ public:
    */
   void OpenProjectFromRecentList(int index);
 
-  enum CloseProjectBehavior {
-    kCloseProjectOnlyOne,
-    kCloseProjectAsk,
-    kCloseProjectSave,
-    kCloseProjectDontSave
-  };
-
   /**
    * @brief Closes a project
    */
-  bool CloseProject(Project* p, bool auto_open_new, CloseProjectBehavior& confirm_behavior);
-  bool CloseProject(Project* p, bool auto_open_new);
-
-  /**
-   * @brief Closes all open projects
-   */
-  bool CloseAllProjects(bool auto_open_new);
+  bool CloseProject(bool auto_open_new, bool ignore_modified = false);
 
   /**
    * @brief Runs a modal cache task on the currently active sequence
@@ -300,11 +285,6 @@ public:
   bool SetLanguage(const QString& locale);
 
   /**
-   * @brief Saves a specific project
-   */
-  bool SaveProject(Project *p);
-
-  /**
    * @brief Show message in main window's status bar
    *
    * Shorthand for Core::instance()->main_window()->statusBar()->showMessage();
@@ -317,7 +297,9 @@ public:
 
   void OpenNodeInViewer(ViewerOutput* viewer);
 
-  void OpenExportDialogForViewer(ViewerOutput *viewer, const rational &time, bool start_still_image);
+  void OpenExportDialogForViewer(ViewerOutput *viewer, bool start_still_image);
+
+  bool IsMagicEnabled() const { return magic_; }
 
 public slots:
   /**
@@ -326,46 +308,16 @@ public slots:
   void OpenProject();
 
   /**
-   * @brief Save the currently active project
-   *
-   * If the project hasn't been saved before, this will be equivalent to calling SaveActiveProjectAs().
+   * @brief Saves the current project
    */
-  bool SaveActiveProject();
+  bool SaveProject();
 
   /**
-   * @brief Save the currently active project with a new filename
+   * @brief Performs a "save as" on the current project
    */
-  bool SaveActiveProjectAs();
+  bool SaveProjectAs();
 
-  /**
-   * @brief Save all currently open projects
-   */
-  bool SaveAllProjects();
-
-  /**
-   * @brief Revert project to last saved state (basically close and open it)
-   */
-  void RevertActiveProject();
-
-  /**
-   * @brief Closes the active project
-   *
-   * If no other projects are open, a new one is created automatically.
-   */
-  bool CloseActiveProject();
-
-  /**
-   * @brief Closes all projects except the active project
-   */
-  bool CloseAllExceptActiveProject();
-
-  /**
-   * @brief Closes all open projects
-   *
-   * Equivalent to `CloseAllProjects(true)`, but useful for the signal/slot system where you may not be able to specify
-   * parameters.
-   */
-  bool CloseAllProjects();
+  void RevertProject();
 
   /**
    * @brief Set the current application-wide tool
@@ -449,21 +401,12 @@ public slots:
 
   void WarnCacheFull();
 
+  void SetMagic(bool e)
+  {
+    magic_ = e;
+  }
+
 signals:
-  /**
-   * @brief Signal emitted when a project is opened
-   *
-   * Connects to main window so its UI can update based on the project
-   *
-   * @param p
-   */
-  void ProjectOpened(Project* p);
-
-  /**
-   * @brief Signal emitted when a project is closed
-   */
-  void ProjectClosed(Project* p);
-
   /**
    * @brief Signal emitted when the tool is changed from somewhere
    */
@@ -518,11 +461,6 @@ private:
   void SetStartupLocale();
 
   /**
-   * @brief Performs a "save as" on a specific project
-   */
-  bool SaveProjectAs(Project *p);
-
-  /**
    * @brief Adds a filename to the top of the recently opened projects list (or moves it if it already exists)
    */
   void PushRecentlyOpenedProject(const QString &s);
@@ -546,18 +484,29 @@ private:
   /**
    * @brief Internal function for saving a project to a file
    */
-  void SaveProjectInternal(Project *project, const QString &override_filename = QString());
+  void SaveProjectInternal(const QString &override_filename = QString());
 
   /**
    * @brief Retrieves the currently most active sequence for exporting
    */
-  bool GetSequenceToExport(ViewerOutput **viewer, rational *time);
+  ViewerOutput *GetSequenceToExport();
 
   static QString GetAutoRecoveryIndexFilename();
 
   void SaveUnrecoveredList();
 
-  bool RevertProjectInternal(Project *p, bool by_opening_existing);
+  bool RevertProjectInternal(bool by_opening_existing);
+
+  void SaveRecentProjectsList();
+
+  /**
+   * @brief Adds a project to the "open projects" list
+   */
+  void AddOpenProject(olive::Project* p, bool add_to_recents = false);
+
+  bool AddOpenProjectFromTask(Task* task, bool add_to_recents);
+
+  void SetActiveProject(Project *p);
 
   /**
    * @brief Internal main window object
@@ -567,7 +516,7 @@ private:
   /**
    * @brief List of currently open projects
    */
-  QList<Project*> open_projects_;
+  Project *open_project_;
 
   /**
    * @brief Currently active tool
@@ -625,6 +574,11 @@ private:
   QVector<QUuid> autorecovered_projects_;
 
   /**
+   * @brief Do something debug related
+   */
+  bool magic_;
+
+  /**
    * @brief How many widgets currently need pixel sampling access
    */
   int pixel_sampling_users_;
@@ -636,12 +590,10 @@ private slots:
 
   void ProjectSaveSucceeded(Task *task);
 
-  /**
-   * @brief Adds a project to the "open projects" list
-   */
-  void AddOpenProject(olive::Project* p);
-
-  bool AddOpenProjectFromTask(Task* task);
+  bool AddOpenProjectFromTaskAndAddToRecents(Task* task)
+  {
+    return AddOpenProjectFromTask(task, true);
+  }
 
   void ImportTaskComplete(Task *task);
 

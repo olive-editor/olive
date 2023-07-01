@@ -97,9 +97,9 @@ void AudioWaveformCache::SetPassthrough(PlaybackCache *cache)
   for (const TimeRange &r : c->GetValidatedRanges()) {
     WaveformPassthrough t = r;
     t.waveform = c->waveforms_;
-    passthroughs_.append(t);
+    passthroughs_.push_back(t);
   }
-  passthroughs_.append(c->passthroughs_);
+  passthroughs_.insert(passthroughs_.end(), c->passthroughs_.begin(), c->passthroughs_.end());
 
   SetParameters(c->GetParameters());
   SetSavingEnabled(c->IsSavingEnabled());

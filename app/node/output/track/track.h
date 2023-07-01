@@ -57,7 +57,7 @@ public:
   virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
   virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
 
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
@@ -101,6 +101,10 @@ public:
   {
     SetTrackHeight(PixelHeightToInternalHeight(h));
   }
+
+  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
+  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+  virtual void PostLoadEvent(SerializedData *data) override;
 
   static int InternalHeightToPixelHeight(double h)
   {
@@ -400,6 +404,7 @@ public:
 
   static const QString kBlockInput;
   static const QString kMutedInput;
+  static const QString kArrayMapInput;
 
 public slots:
   void SetMuted(bool e);
@@ -425,7 +430,7 @@ signals:
   /**
    * @brief Signal emitted when the height of the track has changed
    */
-  void TrackHeightChangedInPixels(int pixel_height);
+  void TrackHeightChanged(qreal virtual_height);
 
   /**
    * @brief Signal emitted when the muted setting changes
@@ -443,10 +448,7 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
-
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
-
+  virtual void InputConnectedEvent(const QString& input, int element, Node *node) override;
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:
@@ -460,10 +462,16 @@ private:
 
   void ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const;
 
+  int ConnectBlock(Block *b);
+
+  void UpdateArrayMap();
+
   TimeRangeList block_length_pending_invalidations_;
 
   QVector<Block*> blocks_;
-  QVector<int> block_array_indexes_;
+  QVector<uint32_t> block_array_indexes_;
+
+  std::list<int> empty_inputs_;
 
   Track::Type track_type_;
 
@@ -475,8 +483,14 @@ private:
 
   Sequence *sequence_;
 
+  int ignore_arraymap_;
+  bool arraymap_invalid_;
+  bool ignore_arraymap_set_;
+
 private slots:
   void BlockLengthChanged();
+
+  void RefreshBlockCacheFromArrayMap();
 
 };
 

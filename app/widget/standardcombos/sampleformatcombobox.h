@@ -21,11 +21,14 @@
 #ifndef SAMPLEFORMATCOMBOBOX_H
 #define SAMPLEFORMATCOMBOBOX_H
 
+#include <olive/core/core.h>
 #include <QComboBox>
 
-#include "render/audioparams.h"
+#include "ui/humanstrings.h"
 
 namespace olive {
+
+using namespace core;
 
 class SampleFormatComboBox : public QComboBox
 {
@@ -39,16 +42,16 @@ public:
 
   void SetAttemptToRestoreFormat(bool e) { attempt_to_restore_format_ = e; }
 
-  void SetAvailableFormats(const std::vector<AudioParams::Format> &formats)
+  void SetAvailableFormats(const std::vector<SampleFormat> &formats)
   {
-    AudioParams::Format tmp = AudioParams::kFormatInvalid;
+    SampleFormat tmp = SampleFormat::INVALID;
 
     if (attempt_to_restore_format_) {
       tmp = GetSampleFormat();
     }
 
     clear();
-    foreach (const AudioParams::Format &of, formats) {
+    foreach (const SampleFormat &of, formats) {
       AddFormatItem(of);
     }
 
@@ -59,15 +62,15 @@ public:
 
   void SetPackedFormats()
   {
-    AudioParams::Format tmp = AudioParams::kFormatInvalid;
+    SampleFormat tmp = SampleFormat::INVALID;
 
     if (attempt_to_restore_format_) {
       tmp = GetSampleFormat();
     }
 
     clear();
-    for (int i=AudioParams::kPackedStart; i<AudioParams::kPackedEnd; i++) {
-      AddFormatItem(static_cast<AudioParams::Format>(i));
+    for (int i=SampleFormat::PACKED_START; i<SampleFormat::PACKED_END; i++) {
+      AddFormatItem(static_cast<SampleFormat::Format>(i));
     }
 
     if (attempt_to_restore_format_) {
@@ -75,12 +78,12 @@ public:
     }
   }
 
-  AudioParams::Format GetSampleFormat() const
+  SampleFormat GetSampleFormat() const
   {
-    return static_cast<AudioParams::Format>(this->currentData().toInt());
+    return static_cast<SampleFormat::Format>(this->currentData().toInt());
   }
 
-  void SetSampleFormat(AudioParams::Format fmt)
+  void SetSampleFormat(SampleFormat fmt)
   {
     for (int i=0; i<this->count(); i++) {
       if (this->itemData(i).toInt() == fmt) {
@@ -91,9 +94,9 @@ public:
   }
 
 private:
-  void AddFormatItem(AudioParams::Format f)
+  void AddFormatItem(SampleFormat f)
   {
-    this->addItem(AudioParams::FormatToString(f), f);
+    this->addItem(HumanStrings::FormatToString(f), static_cast<SampleFormat::Format>(f));
   }
 
   bool attempt_to_restore_format_;

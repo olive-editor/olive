@@ -27,7 +27,7 @@
 #include <opentimelineio/track.h>
 
 #include "common/otioutils.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "task/task.h"
 
 namespace olive {

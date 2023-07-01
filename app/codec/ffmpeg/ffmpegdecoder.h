@@ -134,10 +134,9 @@ private:
    */
   static QString FFmpegError(int error_code);
 
-  bool InitScaler(AVFrame *input, const RetrieveVideoParams &params);
   void FreeScaler();
 
-  static VideoParams::Format GetNativePixelFormat(AVPixelFormat pix_fmt);
+  static PixelFormat GetNativePixelFormat(AVPixelFormat pix_fmt);
   static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
   static uint64_t ValidateChannelLayout(AVStream *stream);
@@ -150,25 +149,26 @@ private:
 
   void ClearFrameCache();
 
-  AVFramePtr RetrieveFrame(const rational &time, VideoParams::Interlacing interlacing, CancelAtom *cancelled);
+  AVFramePtr PreProcessFrame(AVFramePtr f, const RetrieveVideoParams &p);
+
+  TexturePtr ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVideoParams &p, const AVFramePtr original);
+
+  AVFramePtr RetrieveFrame(const rational &time, CancelAtom *cancelled);
 
   void RemoveFirstFrame();
 
-  bool ApplyScaler(AVFrame *in);
-
   static int MaximumQueueSize();
 
-  RetrieveVideoParams filter_params_;
-  AVFilterGraph* filter_graph_;
-  AVFilterContext* buffersrc_ctx_;
-  AVFilterContext* buffersink_ctx_;
-  AVPixelFormat input_fmt_;
-  VideoParams::Format native_internal_pix_fmt_;
-  VideoParams::Format native_output_pix_fmt_;
-  int native_channel_count_;
-  rational frame_rate_tb_;
+  SwsContext *sws_ctx_;
+  int sws_src_width_;
+  int sws_src_height_;
+  AVPixelFormat sws_src_format_;
+  int sws_dst_width_;
+  int sws_dst_height_;
+  AVPixelFormat sws_dst_format_;
+  AVColorRange sws_colrange_;
+  AVColorSpace sws_colspace_;
 
-  AVFrame *working_frame_;
   AVPacket *working_packet_;
 
   int64_t second_ts_;

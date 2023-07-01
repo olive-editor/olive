@@ -25,14 +25,13 @@
 
 #include "config/config.h"
 #include "node/color/colormanager/colormanager.h"
-#include "node/graph.h"
 #include "node/group/group.h"
 #include "node/node.h"
 #include "node/output/viewer/viewer.h"
-#include "node/project/project.h"
-#include "render/audioparams.h"
+#include "node/project.h"
+#include "render/projectcopier.h"
 #include "render/renderjobtracker.h"
-#include "render/rendermanager.h"
+#include "render/renderticket.h"
 
 namespace olive {
 
@@ -49,17 +48,18 @@ public:
 
   virtual ~PreviewAutoCacher() override;
 
-  RenderTicketPtr GetSingleFrame(const rational& t, bool dry = false);
-  RenderTicketPtr GetSingleFrame(Node *n, const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(ViewerOutput *viewer, const rational& t, bool dry = false);
+  RenderTicketPtr GetSingleFrame(Node *n, ViewerOutput *viewer, const rational& t, bool dry = false);
 
-  RenderTicketPtr GetRangeOfAudio(TimeRange range);
+  RenderTicketPtr GetRangeOfAudio(ViewerOutput *viewer, TimeRange range);
 
   void ClearSingleFrameRenders();
+  void ClearSingleFrameRendersThatArentRunning();
 
   /**
    * @brief Set the viewer node to auto-cache
    */
-  void SetViewerNode(ViewerOutput *viewer_node);
+  void SetProject(Project *project);
 
   /**
    * @brief Force a certain range to be cached
@@ -68,7 +68,7 @@ public:
    * times they may want certain non-playhead-related time ranges to be cached (i.e. entire sequence
    * or in/out range), so that can be set here.
    */
-  void ForceCacheRange(const TimeRange& range);
+  void ForceCacheRange(ViewerOutput *context, const TimeRange& range);
 
   /**
    * @brief Updates the range of frames to auto-cache
@@ -109,69 +109,25 @@ signals:
 private:
   void TryRender();
 
-  RenderTicketWatcher *RenderFrame(Node *node, const rational &time, PlaybackCache *cache, bool dry);
+  RenderTicketWatcher *RenderFrame(Node *node, ViewerOutput *context, const rational &time, PlaybackCache *cache, bool dry);
 
-  RenderTicketPtr RenderAudio(Node *node, const TimeRange &range, PlaybackCache *cache);
-
-  /**
-   * @brief Process all changes to internal NodeGraph copy
-   *
-   * PreviewAutoCacher staggers updates to its internal NodeGraph copy, only applying them when the
-   * RenderManager is not reading from it. This function is called when such an opportunity arises.
-   */
-  void ProcessUpdateQueue();
-
-  void AddNode(Node* node);
-  void RemoveNode(Node* node);
-  void AddEdge(Node *output, const NodeInput& input);
-  void RemoveEdge(Node *output, const NodeInput& input);
-  void CopyValue(const NodeInput& input);
-  void CopyValueHint(const NodeInput& input);
-
-  void InsertIntoCopyMap(Node* node, Node* copy);
+  RenderTicketPtr RenderAudio(Node *node, ViewerOutput *context, const TimeRange &range, PlaybackCache *cache);
 
   void ConnectToNodeCache(Node *node);
   void DisconnectFromNodeCache(Node *node);
 
-  void UpdateGraphChangeValue();
-  void UpdateLastSyncedValue();
-
   void CancelQueuedSingleFrameRender();
 
   void StartCachingRange(const TimeRange &range, TimeRangeList *range_list, RenderJobTracker *tracker);
-  void StartCachingVideoRange(PlaybackCache *cache, const TimeRange &range);
-  void StartCachingAudioRange(PlaybackCache *cache, const TimeRange &range);
+  void StartCachingVideoRange(ViewerOutput *context, PlaybackCache *cache, const TimeRange &range);
+  void StartCachingAudioRange(ViewerOutput *context, PlaybackCache *cache, const TimeRange &range);
 
-  void VideoInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
-  void AudioInvalidatedFromNode(PlaybackCache *cache, const olive::TimeRange &range);
+  void VideoInvalidatedFromNode(ViewerOutput *context, PlaybackCache *cache, const olive::TimeRange &range);
+  void AudioInvalidatedFromNode(ViewerOutput *context, PlaybackCache *cache, const olive::TimeRange &range);
 
-  class QueuedJob {
-  public:
-    enum Type {
-      kNodeAdded,
-      kNodeRemoved,
-      kEdgeAdded,
-      kEdgeRemoved,
-      kValueChanged,
-      kValueHintChanged
-    };
+  Project* project_;
 
-    Type type;
-    Node* node;
-    NodeInput input;
-    Node *output;
-  };
-
-  ViewerOutput* viewer_node_;
-
-  Project copied_project_;
-
-  std::list<QueuedJob> graph_update_queue_;
-  QHash<Node*, Node*> copy_map_;
-  QHash<NodeGraph*, NodeGraph*> graph_map_;
-  ViewerOutput* copied_viewer_node_;
-  ColorManager* copied_color_manager_;
-  QVector<Node*> created_nodes_;
+  ProjectCopier *copier_;
 
   TimeRange cache_range_;
 
@@ -184,9 +140,6 @@ private:
   RenderTicketPtr single_frame_render_;
   QMap<RenderTicketWatcher*, QVector<RenderTicketPtr> > video_immediate_passthroughs_;
 
-  JobTime graph_changed_time_;
-  JobTime last_update_time_;
-
   QTimer delayed_requeue_timer_;
 
   JobTime last_conform_task_;
@@ -194,8 +147,11 @@ private:
   QVector<RenderTicketWatcher*> running_video_tasks_;
   QVector<RenderTicketWatcher*> running_audio_tasks_;
 
+  ColorManager* copied_color_manager_;
+
   struct VideoJob {
     Node *node;
+    ViewerOutput *context;
     PlaybackCache *cache;
     TimeRange range;
     TimeRangeListFrameIterator iterator;
@@ -207,6 +163,7 @@ private:
 
   struct AudioJob {
     Node *node;
+    ViewerOutput *context;
     PlaybackCache *cache;
     TimeRange range;
   };
@@ -232,12 +189,12 @@ private slots:
   /**
    * @brief Handler for when the NodeGraph reports a video change over a certain time range
    */
-  void VideoInvalidatedFromCache(const olive::TimeRange &range);
+  void VideoInvalidatedFromCache(ViewerOutput *context, const olive::TimeRange &range);
 
   /**
    * @brief Handler for when the NodeGraph reports a audio change over a certain time range
    */
-  void AudioInvalidatedFromCache(const olive::TimeRange &range);
+  void AudioInvalidatedFromCache(ViewerOutput *context, const olive::TimeRange &range);
 
   void CancelForCache();
 
@@ -250,18 +207,6 @@ private slots:
    * @brief Handler for when the RenderManager has returned rendered video frames
    */
   void VideoRendered();
-
-  void NodeAdded(Node* node);
-
-  void NodeRemoved(Node* node);
-
-  void EdgeAdded(Node *output, const NodeInput& input);
-
-  void EdgeRemoved(Node *output, const NodeInput& input);
-
-  void ValueChanged(const NodeInput& input);
-
-  void ValueHintChanged(const NodeInput &input);
 
   /**
    * @brief Generic function called whenever the frames to render need to be (re)queued

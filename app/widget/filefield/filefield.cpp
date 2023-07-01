@@ -34,7 +34,7 @@ FileField::FileField(QWidget* parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   line_edit_ = new QLineEdit();
   connect(line_edit_, &QLineEdit::textChanged, this, &FileField::LineEditChanged);

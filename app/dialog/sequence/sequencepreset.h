@@ -21,9 +21,9 @@
 #ifndef SEQUENCEPARAM_H
 #define SEQUENCEPARAM_H
 
+#include <olive/core/core.h>
 #include <QXmlStreamWriter>
 
-#include "common/rational.h"
 #include "common/xmlutils.h"
 #include "dialog/sequence/presetmanager.h"
 #include "render/videoparams.h"
@@ -43,7 +43,7 @@ public:
                  int sample_rate,
                  uint64_t channel_layout,
                  int preview_divider,
-                 VideoParams::Format preview_format,
+                 PixelFormat preview_format,
                  bool preview_autocache) :
     width_(width),
     height_(height),
@@ -69,9 +69,9 @@ public:
       } else if (reader->name() == QStringLiteral("height")) {
         height_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("framerate")) {
-        frame_rate_ = rational::fromString(reader->readElementText());
+        frame_rate_ = rational::fromString(reader->readElementText().toStdString());
       } else if (reader->name() == QStringLiteral("pixelaspect")) {
-        pixel_aspect_ = rational::fromString(reader->readElementText());
+        pixel_aspect_ = rational::fromString(reader->readElementText().toStdString());
       } else if (reader->name() == QStringLiteral("interlacing")) {
         interlacing_ = static_cast<VideoParams::Interlacing>(reader->readElementText().toInt());
       } else if (reader->name() == QStringLiteral("samplerate")) {
@@ -81,7 +81,7 @@ public:
       } else if (reader->name() == QStringLiteral("divider")) {
         preview_divider_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("format")) {
-        preview_format_ = static_cast<VideoParams::Format>(reader->readElementText().toInt());
+        preview_format_ = static_cast<PixelFormat::Format>(reader->readElementText().toInt());
       } else if (reader->name() == QStringLiteral("autocache")) {
         preview_autocache_ = reader->readElementText().toInt();
       } else {
@@ -95,8 +95,8 @@ public:
     writer->writeTextElement(QStringLiteral("name"), GetName());
     writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
     writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
-    writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
-    writer->writeTextElement(QStringLiteral("pixelaspect"), pixel_aspect_.toString());
+    writer->writeTextElement(QStringLiteral("framerate"), QString::fromStdString(frame_rate_.toString()));
+    writer->writeTextElement(QStringLiteral("pixelaspect"), QString::fromStdString(pixel_aspect_.toString()));
     writer->writeTextElement(QStringLiteral("interlacing_"), QString::number(interlacing_));
     writer->writeTextElement(QStringLiteral("samplerate"), QString::number(sample_rate_));
     writer->writeTextElement(QStringLiteral("chlayout"), QString::number(channel_layout_));
@@ -145,7 +145,7 @@ public:
     return preview_divider_;
   }
 
-  VideoParams::Format preview_format() const
+  PixelFormat preview_format() const
   {
     return preview_format_;
   }
@@ -164,7 +164,7 @@ private:
   int sample_rate_;
   uint64_t channel_layout_;
   int preview_divider_;
-  VideoParams::Format preview_format_;
+  PixelFormat preview_format_;
   bool preview_autocache_;
 
 };

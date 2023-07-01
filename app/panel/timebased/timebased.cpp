@@ -22,16 +22,16 @@
 
 namespace olive {
 
-TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
-  PanelWidget(object_name, parent),
+TimeBasedPanel::TimeBasedPanel(const QString &object_name) :
+  PanelWidget(object_name),
   widget_(nullptr),
   show_and_raise_on_connect_(false)
 {
 }
 
-rational TimeBasedPanel::GetTime()
+TimeBasedPanel::~TimeBasedPanel()
 {
-  return widget_->GetTime();
+  delete widget_;
 }
 
 const rational& TimeBasedPanel::timebase()
@@ -72,11 +72,6 @@ void TimeBasedPanel::ZoomOut()
 void TimeBasedPanel::SetTimebase(const rational &timebase)
 {
   widget_->SetTimebase(timebase);
-}
-
-void TimeBasedPanel::SetTime(const rational &time)
-{
-  widget_->SetTime(time);
 }
 
 void TimeBasedPanel::GoToPrevCut()
@@ -122,16 +117,12 @@ void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
 {
   if (widget_) {
-    disconnect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
-    disconnect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
     disconnect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 
   widget_ = widget;
 
   if (widget_) {
-    connect(widget_, &TimeBasedWidget::TimeChanged, this, &TimeBasedPanel::TimeChanged);
-    connect(widget_, &TimeBasedWidget::TimebaseChanged, this, &TimeBasedPanel::TimebaseChanged);
     connect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
   }
 

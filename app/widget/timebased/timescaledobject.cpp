@@ -24,7 +24,6 @@
 #include <QtMath>
 
 #include "audio/audiovisualwaveform.h"
-#include "common/clamp.h"
 
 namespace olive {
 
@@ -124,7 +123,7 @@ void TimeScaledObject::SetScale(const double& scale)
 {
   Q_ASSERT(scale > 0);
 
-  scale_ = clamp(scale, min_scale_, max_scale_);
+  scale_ = std::clamp(scale, min_scale_, max_scale_);
 
   ScaleChangedEvent(scale_);
 }

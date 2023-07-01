@@ -30,7 +30,7 @@ class CurvePanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
-  CurvePanel(QWidget* parent);
+  CurvePanel();
 
   virtual void DeleteSelected() override;
 

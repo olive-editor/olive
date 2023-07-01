@@ -21,13 +21,14 @@
 #ifndef TIMELINEWORKAREA_H
 #define TIMELINEWORKAREA_H
 
+#include <olive/core/core.h>
 #include <QObject>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "common/timerange.h"
-
 namespace olive {
+
+using namespace core;
 
 class TimelineWorkArea : public QObject
 {
@@ -43,6 +44,9 @@ public:
   const rational& length() const;
   const TimeRange& range() const;
   void set_range(const TimeRange& range);
+
+  bool load(QXmlStreamReader *reader);
+  void save(QXmlStreamWriter *writer) const;
 
   static const rational kResetIn;
   static const rational kResetOut;

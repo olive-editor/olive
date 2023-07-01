@@ -81,8 +81,9 @@ void TrackList::TrackConnected(Node *node, int element)
   UpdateTrackIndexesFrom(cache_index);
 
   connect(track, &Track::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
-  connect(track, &Track::TrackHeightChangedInPixels, this, [this](int height){
-    emit TrackHeightChanged(static_cast<Track*>(sender()), height);
+  connect(track, &Track::TrackHeightChanged, this, [this](){
+    Track *t = static_cast<Track*>(sender());
+    emit TrackHeightChanged(t, t->GetTrackHeightInPixels());
   });
 
   track->set_type(type_);
@@ -141,7 +142,7 @@ void TrackList::UpdateTrackIndexesFrom(int index)
   }
 }
 
-NodeGraph *TrackList::GetParentGraph() const
+Project *TrackList::GetParentGraph() const
 {
   return parent()->parent();
 }
@@ -166,14 +167,14 @@ int TrackList::ArraySize() const
   return parent()->InputArraySize(track_input());
 }
 
-void TrackList::ArrayAppend(bool undoable)
+void TrackList::ArrayAppend()
 {
-  parent()->InputArrayAppend(track_input(), undoable);
+  parent()->InputArrayAppend(track_input());
 }
 
-void TrackList::ArrayRemoveLast(bool undoable)
+void TrackList::ArrayRemoveLast()
 {
-  parent()->InputArrayRemoveLast(track_input(), undoable);
+  parent()->InputArrayRemoveLast(track_input());
 }
 
 void TrackList::UpdateTotalLength()

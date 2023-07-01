@@ -26,7 +26,6 @@
 #include <QVariant>
 
 #include "common/define.h"
-#include "common/timerange.h"
 #include "node/node.h"
 #include "render/colorprocessor.h"
 #include "render/job/colortransformjob.h"
@@ -85,7 +84,7 @@ public:
 
   virtual void PostInit() = 0;
 
-  virtual void ClearDestination(olive::Texture *texture = nullptr, double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0) = 0;
+  virtual void ClearDestination(olive::Texture *texture = nullptr, double r = 0.0, double g = 0.0, double b = 0.0, double a = 1.0) = 0;
 
   virtual QVariant CreateNativeShader(olive::ShaderCode code) = 0;
 
@@ -106,7 +105,7 @@ protected:
                     olive::VideoParams destination_params,
                     bool clear_destination) = 0;
 
-  virtual QVariant CreateNativeTexture(int width, int height, int depth, olive::VideoParams::Format format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
+  virtual QVariant CreateNativeTexture(int width, int height, int depth, PixelFormat format, int channel_count, const void* data = nullptr, int linesize = 0) = 0;
 
   virtual void DestroyNativeTexture(QVariant texture) = 0;
 
@@ -139,7 +138,7 @@ private:
     int width;
     int height;
     int depth;
-    VideoParams::Format format;
+    PixelFormat format;
     int channel_count;
     QVariant handle;
     qint64 accessed;

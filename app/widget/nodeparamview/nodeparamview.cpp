@@ -26,10 +26,8 @@
 #include <QScrollBar>
 #include <QSplitter>
 
-#include "common/timecodefunctions.h"
+#include "node/nodeundo.h"
 #include "node/output/viewer/viewer.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
 #include "widget/timeruler/timeruler.h"
 
 namespace olive {
@@ -40,13 +38,12 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
   super(true, false, parent),
   last_scroll_val_(0),
   focused_node_(nullptr),
-  time_target_(nullptr),
   show_all_nodes_(false)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   QSplitter* splitter = new QSplitter(Qt::Horizontal);
   layout->addWidget(splitter);
@@ -113,7 +110,7 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     QWidget* keyframe_area = new QWidget();
     QVBoxLayout* keyframe_area_layout = new QVBoxLayout(keyframe_area);
     keyframe_area_layout->setSpacing(0);
-    keyframe_area_layout->setMargin(0);
+    keyframe_area_layout->setContentsMargins(0, 0, 0, 0);
 
     // Create ruler object
     keyframe_area_layout->addWidget(ruler());
@@ -126,14 +123,8 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     keyframe_area_layout->addWidget(keyframe_view_);
 
     // Connect ruler and keyframe view together
-    connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
-    connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
-    connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
-    connect(keyframe_view_, &KeyframeView::Dragged, this, &NodeParamView::KeyframeViewDragged);
-    connect(keyframe_view_, &KeyframeView::Released, this, &NodeParamView::KeyframeViewReleased);
-
-    // Connect keyframe view scaling to this
-    connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
+    connect(keyframe_view_, &KeyframeView::Dragged, this, static_cast<void(NodeParamView::*)(int)>(&NodeParamView::SetCatchUpScrollValue));
+    connect(keyframe_view_, &KeyframeView::Released, this, static_cast<void(NodeParamView::*)()>(&NodeParamView::StopCatchUpScrollTimer));
 
     splitter->addWidget(keyframe_area);
 
@@ -148,8 +139,6 @@ NodeParamView::NodeParamView(bool create_keyframe_view, QWidget *parent) :
     // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
     keyframe_view_->setHorizontalScrollBar(scrollbar());
     keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-    connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
   } else {
     keyframe_view_ = nullptr;
   }
@@ -322,8 +311,7 @@ void NodeParamView::RequestEditTextInViewer()
 {
   NodeParamViewItem *item = static_cast<NodeParamViewItem *>(sender());
 
-  focused_node_ = item;
-  emit FocusedNodeChanged(item->GetNode());
+  SetSelectedNodes({item});
   emit RequestViewerToStartEditingText();
 }
 
@@ -361,19 +349,6 @@ void NodeParamView::TimebaseChangedEvent(const rational &timebase)
   foreach (NodeParamViewContext* ctx, context_items_) {
     ctx->SetTimebase(timebase);
   }
-
-  UpdateItemTime(GetTime());
-}
-
-void NodeParamView::TimeChangedEvent(const rational &time)
-{
-  super::TimeChangedEvent(time);
-
-  if (keyframe_view_) {
-    keyframe_view_->SetTime(time);
-  }
-
-  UpdateItemTime(time);
 }
 
 void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
@@ -386,13 +361,6 @@ void NodeParamView::ConnectedNodeChangeEvent(ViewerOutput *n)
   foreach (NodeParamViewContext* item, context_items_) {
     item->SetTimeTarget(n);
   }
-
-  time_target_ = n;
-}
-
-Node *NodeParamView::GetTimeTarget() const
-{
-  return time_target_;
 }
 
 void ReconnectOutputsIfNotDeletingNode(MultiUndoCommand *c, NodeViewDeleteCommand *dc, Node *output, Node *deleting, Node *context)
@@ -452,7 +420,7 @@ void NodeParamView::DeleteSelected()
       }
     }
 
-    Core::instance()->undo_stack()->push(c);
+    Core::instance()->undo_stack()->push(c, tr("Deleted %1 Node(s)").arg(selected_nodes_.size()));
   }
 }
 
@@ -569,7 +537,7 @@ bool NodeParamView::CopySelected(bool cut)
     return false;
   }
 
-  ProjectSerializer::SaveData sdata(contexts_.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   ProjectSerializer::SerializedProperties properties;
   QVector<Node*> nodes;
 
@@ -590,7 +558,7 @@ bool NodeParamView::CopySelected(bool cut)
   sdata.SetOnlySerializeNodesAndResolveGroups(nodes);
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Copy(sdata, QStringLiteral("nodes"));
+  ProjectSerializer::Copy(sdata);
 
   if (cut) {
     DeleteSelected();
@@ -612,15 +580,15 @@ bool NodeParamView::Paste()
 
 bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(const ProjectSerializer::Result &)> get_existing_map_function)
 {
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  if (res.GetLoadData().nodes.isEmpty()) {
     return false;
   }
 
   // Determine if any nodes of this type are already in the editor
   QHash<Node*, Node*> existing_nodes = get_existing_map_function(res);
 
-  QVector<Node*> nodes_to_paste_as_new = res.GetLoadedNodes();
+  QVector<Node*> nodes_to_paste_as_new = res.GetLoadData().nodes;
   MultiUndoCommand *command = new MultiUndoCommand();
 
   if (!existing_nodes.empty()) {
@@ -678,16 +646,9 @@ bool NodeParamView::Paste(QWidget *parent, std::function<QHash<Node *, Node*>(co
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, tr("Pasted %1 Node(s)").arg(nodes_to_paste_as_new.size()));
 
   return true;
-}
-
-void NodeParamView::UpdateItemTime(const rational &time)
-{
-  foreach (NodeParamViewContext* item, context_items_) {
-    item->SetTime(time);
-  }
 }
 
 void NodeParamView::QueueKeyframePositionUpdate()
@@ -697,12 +658,19 @@ void NodeParamView::QueueKeyframePositionUpdate()
 
 void NodeParamView::AddContext(Node *ctx)
 {
+  NodeParamViewContext *item = GetContextItemFromContext(ctx);
+
+  // TEMP: Creating many NPV items is EXTREMELY slow so limit to one item per context for now.
+  //       I have a better solution in the works to use one UI for several nodes, but I haven't
+  //       done it yet, and this can severely affect productivity.
+  if (item->GetContexts().size() == 1) {
+    return;
+  }
+
   // Queued so that if any further work is done in connecting this node to the context, it'll be
   // done before our sorting function is called
   connect(ctx, &Node::NodeAddedToContext, this, &NodeParamView::NodeAddedToContext, Qt::QueuedConnection);
   connect(ctx, &Node::NodeRemovedFromContext, this, &NodeParamView::NodeRemovedFromContext, Qt::QueuedConnection);
-
-  NodeParamViewContext *item = GetContextItemFromContext(ctx);
 
   item->AddContext(ctx);
   item->setVisible(true);
@@ -735,7 +703,6 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
 
   NodeParamViewItem* item = new NodeParamViewItem(n, IsGroupMode() ? kCheckBoxesOnNonConnected : kNoCheckBoxes, context->GetDockArea());
 
-  connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::SetTimeAndSignal);
   connect(item, &NodeParamViewItem::RequestSelectNode, this, &NodeParamView::SelectNodeFromConnectedLink);
   connect(item, &NodeParamViewItem::PinToggled, this, &NodeParamView::PinNode);
   connect(item, &NodeParamViewItem::InputCheckedChanged, this, &NodeParamView::InputCheckBoxChanged);
@@ -743,9 +710,8 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
   connect(item, &NodeParamViewItem::RequestEditTextInViewer, this, &NodeParamView::RequestEditTextInViewer);
 
   item->SetContext(ctx);
-  item->SetTimeTarget(GetTimeTarget());
+  item->SetTimeTarget(GetConnectedNode());
   item->SetTimebase(timebase());
-  item->SetTime(GetTime());
 
   context->AddNode(item);
 
@@ -759,6 +725,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
     connect(item, &NodeParamViewItem::ArrayExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
+    connect(item, &NodeParamViewItem::InputArraySizeChanged, this, &NodeParamView::InputArraySizeChanged);
 
     item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
   }
@@ -868,7 +835,7 @@ QHash<Node *, Node *> NodeParamView::GenerateExistingPasteMap(const ProjectSeria
 {
   QVector<Node*> ignore_nodes;
   QHash<Node*, Node*> existing_nodes;
-  for (Node *n : r.GetLoadedNodes()) {
+  for (Node *n : r.GetLoadData().nodes) {
     if (Node *existing = GetNodeWithIDAndIgnoreList(n->id(), ignore_nodes)) {
       existing_nodes.insert(existing, n);
       ignore_nodes.append(existing);
@@ -930,18 +897,6 @@ void NodeParamView::PinNode(bool pin)
     parent = parent->parent();
   }
 }*/
-
-void NodeParamView::KeyframeViewDragged(int x, int y)
-{
-  Q_UNUSED(y)
-
-  SetCatchUpScrollValue(x);
-}
-
-void NodeParamView::KeyframeViewReleased()
-{
-  StopCatchUpScrollTimer();
-}
 
 void NodeParamView::UpdateElementY()
 {
@@ -1030,6 +985,44 @@ void NodeParamView::GroupInputPassthroughRemoved(NodeGroup *group, const NodeInp
   foreach (NodeParamViewContext *pvctx, context_items_) {
     pvctx->SetInputChecked(input, false);
   }
+}
+
+void NodeParamView::InputArraySizeChanged(const QString &input, int, int new_size)
+{
+  NodeParamViewItem *sender = static_cast<NodeParamViewItem *>(this->sender());
+
+  KeyframeView::NodeConnections &connections = sender->GetKeyframeConnections();
+  KeyframeView::InputConnections &inputs = connections[input];
+
+  int adj_new_size = new_size + 1;
+
+  if (adj_new_size != inputs.size()) {
+    if (adj_new_size < inputs.size()) {
+      // Remove elements from keyframe view
+      for (int i = adj_new_size; i < inputs.size(); i++) {
+        const KeyframeView::ElementConnections &ec = inputs.at(i);
+        for (auto kc : ec) {
+          keyframe_view_->RemoveKeyframesOfTrack(kc);
+        }
+      }
+
+      // Resize vector to match new size
+      inputs.resize(adj_new_size);
+    } else {
+      // Add elements
+      int old_size = inputs.size();
+
+      // Resize vector to match
+      inputs.resize(adj_new_size);
+
+      // Fill in extra elements
+      for (int i = old_size; i < inputs.size(); i++) {
+        inputs[i] = keyframe_view_->AddKeyframesOfElement(NodeInput(sender->GetNode(), input, i - 1));
+      }
+    }
+  }
+
+  QueueKeyframePositionUpdate();
 }
 
 }

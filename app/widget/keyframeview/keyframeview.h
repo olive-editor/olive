@@ -83,6 +83,8 @@ public:
 
   bool Paste(std::function<Node *(const QString &)> find_node_function);
 
+  virtual void CatchUpScrollEvent() override;
+
 signals:
   void Dragged(int current_x, int current_y);
 
@@ -101,7 +103,7 @@ protected:
 
   virtual void ScaleChangedEvent(const double& scale) override;
 
-  virtual void TimeTargetChangedEvent(Node*) override;
+  virtual void TimeTargetChangedEvent(ViewerOutput *v) override;
 
   virtual void TimebaseChangedEvent(const rational &timebase) override;
 
@@ -163,6 +165,8 @@ private slots:
   void ShowContextMenu();
 
   void ShowKeyframePropertiesDialog();
+
+  void UpdateRubberBandForScroll();
 
 };
 

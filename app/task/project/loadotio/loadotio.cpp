@@ -40,12 +40,12 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
+#include "node/nodeundo.h"
 #include "node/project/folder/folder.h"
 #include "node/project/footage/footage.h"
 #include "node/project/sequence/sequence.h"
+#include "timeline/timelineundogeneral.h"
 #include "window/mainwindow/mainwindowundo.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 
@@ -61,11 +61,13 @@ bool LoadOTIOTask::Run()
   auto root = OTIO::SerializableObjectWithMetadata::from_json_file(GetFilename().toStdString(), &es);
 
   if (es.outcome != OTIO::ErrorStatus::Outcome::OK) {
-    SetError(tr("Failed to load OpenTimelineIO from file \"%1\"").arg(GetFilename()));
+    SetError(tr("Failed to load OpenTimelineIO from file \"%1\" \n\nOpenTimelineIO Error:\n\n%2")
+        .arg(GetFilename(), QString::fromStdString(es.full_description)));
     return false;
   }
 
   project_ = new Project();
+  project_->Initialize();
   project_->set_modified(true);
 
   std::vector<OTIO::Timeline*> timelines;

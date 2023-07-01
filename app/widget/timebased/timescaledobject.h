@@ -21,9 +21,9 @@
 #ifndef TIMELINESCALEDOBJECT_H
 #define TIMELINESCALEDOBJECT_H
 
+#include <olive/core/core.h>
 #include <QWidget>
 
-#include "common/rational.h"
 #include "node/block/block.h"
 
 namespace olive {

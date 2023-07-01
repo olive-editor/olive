@@ -45,15 +45,13 @@ public:
     return snapped_;
   }
 
-  const rational &GetTime() const { return playhead_; }
-
   TimeBasedWidget *GetSnapService() const { return snap_service_; }
   void SetSnapService(TimeBasedWidget* service) { snap_service_ = service; }
 
   const double& GetYScale() const;
   void SetYScale(const double& y_scale);
 
-  bool IsDraggingPlayhead() const
+  virtual bool IsDraggingPlayhead() const
   {
     return dragging_playhead_;
   }
@@ -62,9 +60,14 @@ public:
   virtual void SelectionManagerSelectEvent(void *obj){}
   virtual void SelectionManagerDeselectEvent(void *obj){}
 
-public slots:
-  void SetTime(const rational &time);
+  ViewerOutput *GetViewerNode() const { return viewer_; }
 
+  void SetViewerNode(ViewerOutput *v);
+
+  QPointF ScalePoint(const QPointF &p) const;
+  QPointF UnscalePoint(const QPointF &p) const;
+
+public slots:
   void SetEndTime(const rational& length);
 
   /**
@@ -73,8 +76,6 @@ public slots:
   void UpdateSceneRect();
 
 signals:
-  void TimeChanged(const rational& time);
-
   void ScaleChanged(double scale);
 
 protected:
@@ -109,8 +110,6 @@ protected:
 private:
   qreal GetPlayheadX();
 
-  rational playhead_;
-
   double playhead_scene_left_;
   double playhead_scene_right_;
 
@@ -128,6 +127,8 @@ private:
   bool y_axis_enabled_;
 
   double y_scale_;
+
+  ViewerOutput *viewer_;
 
 };
 

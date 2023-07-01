@@ -24,6 +24,8 @@ namespace olive {
 
 const QString DipToColorTransition::kColorInput = QStringLiteral("color_in");
 
+#define super TransitionBlock
+
 DipToColorTransition::DipToColorTransition()
 {
   AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0, 0, 0)));
@@ -54,6 +56,13 @@ ShaderCode DipToColorTransition::GetShaderCode(const ShaderRequest &request) con
   Q_UNUSED(request)
 
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
+}
+
+void DipToColorTransition::Retranslate()
+{
+  super::Retranslate();
+
+  SetInputName(kColorInput, tr("Color"));
 }
 
 void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const

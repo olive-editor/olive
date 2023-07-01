@@ -20,12 +20,14 @@
 
 #include "elapsedcounterwidget.h"
 
+#include <olive/core/core.h>
 #include <QDateTime>
 #include <QHBoxLayout>
-
-#include "common/timecodefunctions.h"
+#include <cmath>
 
 namespace olive {
+
+using namespace core;
 
 ElapsedCounterWidget::ElapsedCounterWidget(QWidget* parent) :
   QWidget(parent),
@@ -34,7 +36,7 @@ ElapsedCounterWidget::ElapsedCounterWidget(QWidget* parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(layout->spacing() * 8);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   elapsed_lbl_ = new QLabel();
   layout->addWidget(elapsed_lbl_);
@@ -80,14 +82,14 @@ void ElapsedCounterWidget::UpdateTimers()
     double ms_per_progress_unit = elapsed_ms / last_progress_;
     double remaining_progress = 1.0 - last_progress_;
 
-    remaining_ms = qRound64(ms_per_progress_unit * remaining_progress);
+    remaining_ms = std::ceil(ms_per_progress_unit * remaining_progress);
   } else {
     elapsed_ms = 0;
     remaining_ms = 0;
   }
 
-  elapsed_lbl_->setText(tr("Elapsed: %1").arg(Timecode::TimeToString(elapsed_ms)));
-  remaining_lbl_->setText(tr("Remaining: %1").arg(Timecode::TimeToString(remaining_ms)));
+  elapsed_lbl_->setText(tr("Elapsed: %1").arg(QString::fromStdString(Timecode::time_to_string(elapsed_ms))));
+  remaining_lbl_->setText(tr("Remaining: %1").arg(QString::fromStdString(Timecode::time_to_string(remaining_ms))));
 }
 
 }

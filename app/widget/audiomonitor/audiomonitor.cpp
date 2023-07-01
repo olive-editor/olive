@@ -31,18 +31,21 @@
 namespace olive {
 
 const int kDecibelStep = 6;
-const int kDecibelMinimum = -200;
+const int kDecibelMinimum = -198; // Must be divisible by kDecibelStep for infinity to appear
 const int kMaximumSmoothness = 8;
 
 QVector<AudioMonitor*> AudioMonitor::instances_;
 
-AudioMonitor::AudioMonitor() :
+AudioMonitor::AudioMonitor(QWidget *parent) :
+  QOpenGLWidget(parent),
   waveform_(nullptr),
   cached_channels_(0)
 {
   instances_.append(this);
 
   values_.resize(kMaximumSmoothness);
+
+  this->setMinimumWidth(this->fontMetrics().height());
 }
 
 AudioMonitor::~AudioMonitor()
@@ -135,22 +138,75 @@ void AudioMonitor::paintGL()
     return;
   }
 
+  QFont f = p.font();
+  f.setPointSizeF(f.pointSizeF() * 0.75);
+  p.setFont(f);
+
   QFontMetrics fm = p.fontMetrics();
 
-  int peaks_y = 0;
   int font_height = fm.height();
 
-  // Create rect where decibel markings will go on the side
-  QRect db_labels_rect = geometry;
-  db_labels_rect.setWidth(QtUtils::QFontMetricsWidth(p.fontMetrics(), "-00"));
-  db_labels_rect.adjust(0, font_height, 0, 0);
+  bool horizontal = this->width() > this->height();
+
+  int minimum_width = this->fontMetrics().height() * 3;
 
   // Determine rect where the main meter will go
   QRect full_meter_rect = geometry;
-  full_meter_rect.adjust(db_labels_rect.width(), font_height, 0, 0);
+
+  // Create rect where decibel markings will go on the side
+  QRect db_labels_rect;
+  bool draw_text;
 
   // Width of each channel in the meter
-  int channel_width = full_meter_rect.width() / params_.channel_count();
+  int peaks_pos;
+  int channel_size;
+  int db_line_length = fm.horizontalAdvance(QStringLiteral("-"));
+  int db_width = QtUtils::QFontMetricsWidth(p.fontMetrics(), "-00 ");
+  if (horizontal) {
+    // Insert peaks area
+    full_meter_rect.adjust(0, 0, -font_height, 0);
+
+    draw_text = (height() >= minimum_width);
+
+    // Derive dB label rect
+    if (draw_text) {
+      // Insert meter rect
+      full_meter_rect.adjust(db_width/2, 0, 0, -font_height);
+
+      db_labels_rect = full_meter_rect;
+      db_labels_rect.setTop(db_labels_rect.bottom());
+      db_labels_rect.setHeight(font_height + db_line_length);
+    }
+
+    // Divide height by channel count
+    channel_size = full_meter_rect.height() / params_.channel_count();
+
+    // Set peaks Y to right-most
+    peaks_pos = full_meter_rect.right();
+  } else {
+    // Insert peaks rect
+    full_meter_rect.adjust(0, font_height, 0, 0);
+
+    draw_text = (width() >= minimum_width);
+
+    // Derive dB label rect
+    if (draw_text) {
+      int db_width_and_line = db_width + db_line_length;
+
+      // Insert meter rect
+      full_meter_rect.adjust(db_width_and_line, 0, 0, -font_height/2);
+
+      db_labels_rect = full_meter_rect;
+      db_labels_rect.setX(0);
+      db_labels_rect.setWidth(db_width_and_line);
+    }
+
+    // Divide width by channel count
+    channel_size = full_meter_rect.width() / params_.channel_count();
+
+    // Set peaks Y to very top
+    peaks_pos = 0;
+  }
 
   if (cached_background_.size() != size()
       || cached_channels_ != params_.channel_count()) {
@@ -163,7 +219,9 @@ void AudioMonitor::paintGL()
 
     QPainter cached_painter(&cached_background_);
 
-    {
+    if (draw_text) {
+      cached_painter.setFont(f);
+
       // Draw decibel markings
       QRect last_db_marking_rect;
 
@@ -171,23 +229,44 @@ void AudioMonitor::paintGL()
 
       for (int i=0;i>=kDecibelMinimum;i-=kDecibelStep) {
         QString db_label;
+        qreal log_val;
 
-        if (i <= kDecibelMinimum) {
-          db_label = "-∞";
+        if (i == kDecibelMinimum) {
+          db_label = QStringLiteral("-∞ ");
+          log_val = 0;
         } else {
-          db_label = QStringLiteral("%1").arg(i);
+          db_label = QStringLiteral("%1 ").arg(i);
+          log_val = Decibel::toLogarithmic(i);
         }
 
-        qreal log_val = Decibel::toLogarithmic(i);
+        QLine db_line;
+        QRect db_marking_rect;
+        bool overlaps_infinity = false;
 
-        QRect db_marking_rect = db_labels_rect;
-        db_marking_rect.adjust(0, db_labels_rect.height() - qRound(log_val * db_labels_rect.height()), 0, 0);
-        db_marking_rect.setHeight(fm.height());
+        if (horizontal) {
+          int x = db_labels_rect.x() + qRound(log_val * db_labels_rect.width());
+
+          db_marking_rect = QRect(x - db_width/2, db_labels_rect.top() + db_line_length, db_width, db_labels_rect.height() - db_line_length);
+          db_line = QLine(x, db_labels_rect.top(), x, db_labels_rect.top() + db_line_length);
+
+          overlaps_infinity = db_marking_rect.left() < db_labels_rect.left() + db_width/2;
+        } else {
+          int y = db_labels_rect.y() + db_labels_rect.height() - qRound(log_val * db_labels_rect.height());
+
+          db_marking_rect = QRect(db_labels_rect.x(), y - font_height/2, db_labels_rect.width() - db_line_length, font_height);
+          db_line = QLine(db_marking_rect.right()+1, y, db_labels_rect.width(), y);
+
+          overlaps_infinity = db_marking_rect.bottom() >= db_labels_rect.bottom()-font_height;
+        }
+
+        if (overlaps_infinity && i == kDecibelMinimum) {
+          overlaps_infinity = false;
+        }
 
         // Prevent any dB markings overlapping
-        if (i == 0 || !db_marking_rect.intersects(last_db_marking_rect)) {
-          cached_painter.drawText(db_marking_rect, Qt::AlignRight, db_label);
-          cached_painter.drawLine(db_marking_rect.topLeft(), db_marking_rect.topRight());
+        if (i == 0 || (!db_marking_rect.intersects(last_db_marking_rect) && !overlaps_infinity)) {
+          cached_painter.drawText(db_marking_rect, Qt::AlignCenter, db_label);
+          cached_painter.drawLine(db_line);
 
           last_db_marking_rect = db_marking_rect;
         }
@@ -196,7 +275,16 @@ void AudioMonitor::paintGL()
 
     {
       // Draw bars
-      QLinearGradient g(full_meter_rect.topLeft(), full_meter_rect.bottomLeft());
+      QLinearGradient g;
+
+      if (horizontal) {
+        g.setStart(full_meter_rect.topRight());
+        g.setFinalStop(full_meter_rect.topLeft());
+      } else {
+        g.setStart(full_meter_rect.topLeft());
+        g.setFinalStop(full_meter_rect.bottomLeft());
+      }
+
       g.setStops({
                    QGradientStop(0.0, Qt::red),
                    QGradientStop(0.25, Qt::yellow),
@@ -206,13 +294,25 @@ void AudioMonitor::paintGL()
       cached_painter.setPen(Qt::black);
 
       for (int i=0;i<params_.channel_count();i++) {
-        int channel_x = full_meter_rect.x() + channel_width * i;
+        QRect peaks_rect, meter_rect;
 
-        QRect peaks_rect(channel_x, peaks_y, channel_width, font_height);
+        if (horizontal) {
+          int channel_y = full_meter_rect.y() + channel_size * i;
 
-        QRect meter_rect = full_meter_rect;
-        meter_rect.setX(channel_x);
-        meter_rect.setWidth(channel_width);
+          peaks_rect = QRect(peaks_pos, channel_y, font_height, channel_size);
+
+          meter_rect = full_meter_rect;
+          meter_rect.setY(channel_y);
+          meter_rect.setHeight(channel_size);
+        } else {
+          int channel_x = full_meter_rect.x() + channel_size * i;
+
+          peaks_rect = QRect(channel_x, peaks_pos, channel_size, font_height);
+
+          meter_rect = full_meter_rect;
+          meter_rect.setX(channel_x);
+          meter_rect.setWidth(channel_size);
+        }
 
         // Draw peak rects
         cached_painter.setBrush(Qt::red);
@@ -261,14 +361,6 @@ void AudioMonitor::paintGL()
   bool all_zeroes = true;
 
   for (int i=0;i<params_.channel_count();i++) {
-    int channel_x = full_meter_rect.x() + channel_width * i;
-
-    QRect peaks_rect(channel_x, peaks_y, channel_width, font_height);
-
-    QRect meter_rect = full_meter_rect;
-    meter_rect.setX(channel_x);
-    meter_rect.setWidth(channel_width);
-
     // Validate value and whether it peaked
     double vol = vals.at(i);
     if (vol > 1.0) {
@@ -282,7 +374,27 @@ void AudioMonitor::paintGL()
     // Convert val to logarithmic scale
     vol = Decibel::LinearToLogarithmic(vol);
 
-    meter_rect.adjust(0, 0, 0, -qRound(meter_rect.height() * vol));
+    QRect peaks_rect, meter_rect;
+
+    if (horizontal) {
+      int channel_y = full_meter_rect.y() + channel_size * i;
+
+      peaks_rect = QRect(peaks_pos, channel_y, font_height, channel_size);
+
+      meter_rect = full_meter_rect;
+      meter_rect.setY(channel_y);
+      meter_rect.setHeight(channel_size);
+      meter_rect.adjust(qRound(meter_rect.width() * vol), 0, 0, 0);
+    } else {
+      int channel_x = full_meter_rect.x() + channel_size * i;
+
+      peaks_rect = QRect(channel_x, peaks_pos, channel_size, font_height);
+
+      meter_rect = full_meter_rect;
+      meter_rect.setX(channel_x);
+      meter_rect.setWidth(channel_size);
+      meter_rect.adjust(0, 0, 0, -qRound(meter_rect.height() * vol));
+    }
     p.drawRect(meter_rect);
 
     if (!peaked_.at(i)) {

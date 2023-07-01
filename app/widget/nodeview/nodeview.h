@@ -25,7 +25,7 @@
 #include <QTimer>
 
 #include "core.h"
-#include "node/graph.h"
+#include "node/group/group.h"
 #include "nodeviewedge.h"
 #include "nodeviewcontext.h"
 #include "nodeviewminimap.h"
@@ -234,6 +234,8 @@ private:
   bool dont_emit_selection_signals_;
 
   static const double kMinimumScale;
+
+  static const int kMaximumContexts;
 
 private slots:
   /**

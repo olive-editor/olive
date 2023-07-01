@@ -23,10 +23,8 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
-#include "common/cpuoptimize.h"
 #include "common/tohex.h"
 #include "node/distort/transform/transformdistortnode.h"
-#include "render/color.h"
 
 namespace olive {
 
@@ -141,9 +139,9 @@ QVector4D MathNodeBase::RetrieveVector(const NodeValue &val)
   // QVariant doesn't know that QVector*D can convert themselves so we do it here
   switch (val.type()) {
   case NodeValue::kVec2:
-    return val.toVec2();
+    return QVector4D(val.toVec2());
   case NodeValue::kVec3:
-    return val.toVec3();
+    return QVector4D(val.toVec3());
   case NodeValue::kVec4:
   default:
     return val.toVec4();
@@ -165,6 +163,19 @@ void MathNodeBase::PushVector(NodeValueTable *output, olive::NodeValue::Type typ
   default:
     break;
   }
+}
+
+QString MathNodeBase::GetOperationName(Operation o)
+{
+  switch (o) {
+  case kOpAdd: return tr("Add");
+  case kOpSubtract: return tr("Subtract");
+  case kOpMultiply: return tr("Multiply");
+  case kOpDivide: return tr("Divide");
+  case kOpPower: return tr("Power");
+  }
+
+  return QString();
 }
 
 void MathNodeBase::PerformAllOnFloatBuffer(Operation operation, float *a, float b, int start, int end)
@@ -583,7 +594,7 @@ T MathNodeBase::PerformAll(Operation operation, T a, U b)
   case kOpDivide:
     return a / b;
   case kOpPower:
-    return qPow(a, b);
+    return std::pow(a, b);
   }
 
   return a;

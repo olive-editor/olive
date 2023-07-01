@@ -22,7 +22,6 @@
 #define COLORGRADIENTGLWIDGET_H
 
 #include "colorswatchwidget.h"
-#include "render/color.h"
 
 namespace olive {
 

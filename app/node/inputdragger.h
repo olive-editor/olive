@@ -21,7 +21,6 @@
 #ifndef NODEINPUTDRAGGER_H
 #define NODEINPUTDRAGGER_H
 
-#include "common/rational.h"
 #include "node/keyframe.h"
 #include "node/param.h"
 #include "undo/undocommand.h"

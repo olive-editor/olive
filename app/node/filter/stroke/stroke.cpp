@@ -20,7 +20,6 @@
 
 #include "stroke.h"
 
-#include "render/color.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {
@@ -49,7 +48,7 @@ StrokeFilterNode::StrokeFilterNode()
 
   AddInput(kInnerInput, NodeValue::kBoolean, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

@@ -38,7 +38,7 @@ VideoStreamProperties::VideoStreamProperties(Footage *footage, int video_index) 
   video_premultiply_alpha_(nullptr)
 {
   QGridLayout* video_layout = new QGridLayout(this);
-  video_layout->setMargin(0);
+  video_layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 

@@ -28,11 +28,12 @@
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "node/group/group.h"
 #include "node/node.h"
+#include "node/nodeundo.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeparamviewarraywidget.h"
 #include "nodeparamviewtextedit.h"
-#include "nodeparamviewundo.h"
 #include "undo/undostack.h"
 #include "widget/bezier/bezierwidget.h"
 #include "widget/colorbutton/colorbutton.h"
@@ -55,13 +56,6 @@ NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput input, QObject *p
   } while (NodeGroup::GetInner(&input));
 
   CreateWidgets();
-}
-
-void NodeParamViewWidgetBridge::SetTime(const rational &time)
-{
-  time_ = time;
-
-  UpdateWidgetValues();
 }
 
 int GetSliderCount(NodeValue::Type type)
@@ -92,6 +86,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
     case NodeValue::kSubtitleParams:
+    case NodeValue::kBinary:
     case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
@@ -195,7 +190,7 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
   SetInputValueInternal(value, track, command, true);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, GetCommandName());
 }
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
@@ -223,7 +218,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, int sli
 
     MultiUndoCommand *command = new MultiUndoCommand();
     dragger_.End(command);
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, GetCommandName());
 
   } else {
 
@@ -244,6 +239,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kSubtitleParams:
+  case NodeValue::kBinary:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -318,7 +314,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_look"), c.color_output().look());
     n->blockSignals(false);
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, GetCommandName());
     break;
   }
   case NodeValue::kText:
@@ -422,6 +418,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kSubtitleParams:
+  case NodeValue::kBinary:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -528,7 +525,17 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
 
 rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
 {
-  return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), time_, true);
+  if (GetTimeTarget()) {
+    return GetAdjustedTime(GetTimeTarget(), GetInnerInput().node(), GetTimeTarget()->GetPlayhead(), Node::kTransformTowardsInput);
+  } else {
+    return 0;
+  }
+}
+
+QString NodeParamViewWidgetBridge::GetCommandName() const
+{
+  NodeInput i = GetInnerInput();
+  return tr("Edited Value Of %1 - %2").arg(i.node()->GetLabelAndName(), i.node()->GetInputName(i.input()));
 }
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
@@ -538,11 +545,22 @@ void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)
   }
 }
 
+void NodeParamViewWidgetBridge::TimeTargetDisconnectEvent(ViewerOutput *v)
+{
+  disconnect(v, &ViewerOutput::PlayheadChanged, this, &NodeParamViewWidgetBridge::UpdateWidgetValues);
+}
+
+void NodeParamViewWidgetBridge::TimeTargetConnectEvent(ViewerOutput *v)
+{
+  connect(v, &ViewerOutput::PlayheadChanged, this, &NodeParamViewWidgetBridge::UpdateWidgetValues);
+}
+
 void NodeParamViewWidgetBridge::InputValueChanged(const NodeInput &input, const TimeRange &range)
 {
-  if (GetInnerInput() == input
+  if (GetTimeTarget()
+      && GetInnerInput() == input
       && !dragger_.IsStarted()
-      && range.in() <= time_ && range.out() >= time_) {
+      && range.in() <= GetTimeTarget()->GetPlayhead() && range.out() >= GetTimeTarget()->GetPlayhead()) {
     // We'll need to update the widgets because the values have changed on our current time
     UpdateWidgetValues();
   }
@@ -567,7 +585,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
       }
     } else { // set specific track/widget
       bool ok;
-      int element = key.midRef(7).toInt(&ok);
+      int element = key.mid(7).toInt(&ok);
       int tracks = NodeValue::get_number_of_keyframe_tracks(data_type);
 
       if (ok && element >= 0 && element < tracks) {
@@ -686,7 +704,7 @@ void NodeParamViewWidgetBridge::SetProperty(const QString &key, const QVariant &
         }
       } else {
         bool ok;
-        int element = key.midRef(5).toInt(&ok);
+        int element = key.mid(5).toInt(&ok);
         if (ok && element >= 0 && element < tracks) {
           static_cast<SliderBase*>(widgets_.at(element))->SetColor(c);
         }

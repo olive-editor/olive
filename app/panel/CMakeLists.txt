@@ -17,6 +17,7 @@
 add_subdirectory(audiomonitor)
 add_subdirectory(curve)
 add_subdirectory(footageviewer)
+add_subdirectory(history)
 add_subdirectory(multicam)
 add_subdirectory(node)
 add_subdirectory(param)
@@ -33,6 +34,8 @@ add_subdirectory(viewer)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  panel/panel.h
+  panel/panel.cpp
   panel/panelmanager.h
   panel/panelmanager.cpp
   PARENT_SCOPE

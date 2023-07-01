@@ -64,7 +64,7 @@ FootageRelinkDialog::FootageRelinkDialog(const QVector<Footage *> &footage, QWid
     connect(item_browse_btn, &QPushButton::clicked, this, &FootageRelinkDialog::BrowseForFootage);
     item_actions_layout->addWidget(item_browse_btn);
 
-    item->setIcon(0, f->icon());
+    item->setIcon(0, f->data(Node::ICON).value<QIcon>());
     item->setText(0, f->GetLabel());
     item->setText(1, f->filename());
 
@@ -89,7 +89,7 @@ void FootageRelinkDialog::UpdateFootageItem(int index)
 {
   Footage* f = footage_.at(index);
   QTreeWidgetItem* item = table_->topLevelItem(index);
-  item->setIcon(0, f->icon());
+  item->setIcon(0, f->data(Node::ICON).value<QIcon>());
   item->setText(1, f->filename());
 }
 
@@ -102,8 +102,16 @@ void FootageRelinkDialog::BrowseForFootage()
 
   QString new_fn = QFileDialog::getOpenFileName(this,
                                                 tr("Relink \"%1\"").arg(f->GetLabel()),
-                                                info.absolutePath(),
-                                                QStringLiteral("%1;;%2 (**)").arg(info.fileName(), tr("All Files")));
+                                                info.absolutePath());
+
+  // Originally, this function would attempt to filter to the exact filename of the missing file.
+  // However, this would break on Windows if the filename had any spaces in it. The reason is
+  // Windows separates its extensions with ';' while Qt separates them with ' '. Qt isn't
+  // intelligent enough to determine whether it's a list of extensions or a single filename with a
+  // space in it, it just does a global replace of ' ' to ';'. There's no way around it, outside of
+  // bypassing Qt entirely and using Win32's GetOpenFileName() directly. As annoying as it is, I've
+  // just disabled it for now.
+  //QStringLiteral("%1 (\"%1\");;%2 (*)").arg(info.fileName(), tr("All Files")));
 
   // We received a new filename
   if (!new_fn.isEmpty()) {

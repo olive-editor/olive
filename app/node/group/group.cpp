@@ -20,7 +20,7 @@
 
 #include "group.h"
 
-#include "node/graph.h"
+#include "node/serializeddata.h"
 
 namespace olive {
 
@@ -29,7 +29,7 @@ namespace olive {
 NodeGroup::NodeGroup() :
   output_passthrough_(nullptr)
 {
-  SetFlags(kDontShowInCreateMenu);
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString NodeGroup::Name() const
@@ -58,6 +58,153 @@ void NodeGroup::Retranslate()
 
   for (auto it=GetContextPositions().cbegin(); it!=GetContextPositions().cend(); it++) {
     it.key()->Retranslate();
+  }
+}
+
+bool NodeGroup::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
+{
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("inputpassthroughs")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("inputpassthrough")) {
+          SerializedData::GroupLink link;
+
+          link.group = this;
+
+          while (XMLReadNextStartElement(reader)) {
+            if (reader->name() == QStringLiteral("node")) {
+              link.input_node = reader->readElementText().toULongLong();
+            } else if (reader->name() == QStringLiteral("input")) {
+              link.input_id = reader->readElementText();
+            } else if (reader->name() == QStringLiteral("element")) {
+              link.input_element = reader->readElementText().toInt();
+            } else if (reader->name() == QStringLiteral("id")) {
+              link.passthrough_id = reader->readElementText();
+            } else if (reader->name() == QStringLiteral("name")) {
+              link.custom_name = reader->readElementText();
+            } else if (reader->name() == QStringLiteral("flags")) {
+              link.custom_flags = InputFlags(reader->readElementText().toULongLong());
+            } else if (reader->name() == QStringLiteral("type")) {
+              link.data_type = NodeValue::GetDataTypeFromName(reader->readElementText());
+            } else if (reader->name() == QStringLiteral("default")) {
+              link.default_val = NodeValue::StringToValue(link.data_type, reader->readElementText(), false);
+            } else if (reader->name() == QStringLiteral("properties")) {
+              while (XMLReadNextStartElement(reader)) {
+                if (reader->name() == QStringLiteral("property")) {
+                  QString key;
+                  QString value;
+
+                  while (XMLReadNextStartElement(reader)) {
+                    if (reader->name() == QStringLiteral("key")) {
+                      key = reader->readElementText();
+                    } else if (reader->name() == QStringLiteral("value")) {
+                      value = reader->readElementText();
+                    } else {
+                      reader->skipCurrentElement();
+                    }
+                  }
+
+                  if (!key.isEmpty()) {
+                    link.custom_properties.insert(key, value);
+                  }
+                } else {
+                  reader->skipCurrentElement();
+                }
+              }
+            } else {
+              reader->skipCurrentElement();
+            }
+          }
+
+          data->group_input_links.append(link);
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("outputpassthrough")) {
+      data->group_output_links.insert(this, reader->readElementText().toULongLong());
+    } else {
+      reader->skipCurrentElement();
+    }
+  }
+
+  return true;
+}
+
+void NodeGroup::SaveCustom(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement(QStringLiteral("inputpassthroughs"));
+
+  foreach (const NodeGroup::InputPassthrough &ip, this->GetInputPassthroughs()) {
+    writer->writeStartElement(QStringLiteral("inputpassthrough"));
+
+    // Reference to inner input
+    writer->writeTextElement(QStringLiteral("node"), QString::number(reinterpret_cast<quintptr>(ip.second.node())));
+    writer->writeTextElement(QStringLiteral("input"), ip.second.input());
+    writer->writeTextElement(QStringLiteral("element"), QString::number(ip.second.element()));
+
+    // ID of passthrough
+    writer->writeTextElement(QStringLiteral("id"), ip.first);
+
+    // Passthrough-specific details
+    const QString &input = ip.first;
+    writer->writeTextElement(QStringLiteral("name"), this->Node::GetInputName(input));
+
+    writer->writeTextElement(QStringLiteral("flags"), QString::number((GetInputFlags(input) & ~ip.second.GetFlags()).value()));
+
+    NodeValue::Type data_type = GetInputDataType(input);
+    writer->writeTextElement(QStringLiteral("type"), NodeValue::GetDataTypeName(data_type));
+
+    writer->writeTextElement(QStringLiteral("default"), NodeValue::ValueToString(data_type, GetDefaultValue(input), false));
+
+    writer->writeStartElement(QStringLiteral("properties"));
+    auto p = GetInputProperties(input);
+    for (auto it=p.cbegin(); it!=p.cend(); it++) {
+      writer->writeStartElement(QStringLiteral("property"));
+      writer->writeTextElement(QStringLiteral("key"), it.key());
+      writer->writeTextElement(QStringLiteral("value"), it.value().toString());
+      writer->writeEndElement(); // property
+    }
+    writer->writeEndElement(); // properties
+
+    writer->writeEndElement(); // input
+  }
+
+  writer->writeEndElement(); // inputpassthroughs
+
+  writer->writeTextElement(QStringLiteral("outputpassthrough"), QString::number(reinterpret_cast<quintptr>(this->GetOutputPassthrough())));
+}
+
+void NodeGroup::PostLoadEvent(SerializedData *data)
+{
+  super::PostLoadEvent(data);
+
+  foreach (const SerializedData::GroupLink &l, data->group_input_links) {
+    if (Node *input_node = data->node_ptrs.value(l.input_node)) {
+      NodeInput resolved(input_node, l.input_id, l.input_element);
+
+      l.group->AddInputPassthrough(resolved, l.passthrough_id);
+
+      l.group->SetInputFlag(l.passthrough_id, InputFlag(l.custom_flags.value()));
+
+      if (!l.custom_name.isEmpty()) {
+        l.group->SetInputName(l.passthrough_id, l.custom_name);
+      }
+
+      l.group->SetInputDataType(l.passthrough_id, l.data_type);
+
+      l.group->SetDefaultValue(l.passthrough_id, l.default_val);
+
+      for (auto it=l.custom_properties.cbegin(); it!=l.custom_properties.cend(); it++) {
+        l.group->SetInputProperty(l.passthrough_id, it.key(), it.value());
+      }
+    }
+  }
+
+  for (auto it=data->group_output_links.cbegin(); it!=data->group_output_links.cend(); it++) {
+    if (Node *output_node = data->node_ptrs.value(it.value())) {
+      it.key()->SetOutputPassthrough(output_node);
+    }
   }
 }
 
@@ -160,6 +307,10 @@ bool NodeGroup::GetInner(NodeInput *input)
 {
   if (NodeGroup *g = dynamic_cast<NodeGroup*>(input->node())) {
     const NodeInput &passthrough = g->GetInputFromID(input->input());
+    if (!passthrough.IsValid()) {
+      return false;
+    }
+
     input->set_node(passthrough.node());
     input->set_input(passthrough.input());
     return true;

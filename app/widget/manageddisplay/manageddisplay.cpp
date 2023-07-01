@@ -38,11 +38,12 @@ ManagedDisplayWidget::ManagedDisplayWidget(QWidget *parent) :
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   if (RenderManager::instance()->backend() == RenderManager::kOpenGL) {
     // Create OpenGL widget
     inner_widget_ = new ManagedDisplayWidgetOpenGL();
+    inner_widget_->setAttribute(Qt::WA_TranslucentBackground, false);
     connect(static_cast<ManagedDisplayWidgetOpenGL*>(inner_widget_),
             &ManagedDisplayWidgetOpenGL::OnInit,
             this, &ManagedDisplayWidget::OnInit, Qt::DirectConnection);
@@ -92,13 +93,15 @@ void ManagedDisplayWidget::ConnectColorManager(ColorManager *color_manager)
   }
 
   if (color_manager_ != nullptr) {
-    disconnect(color_manager_, &ColorManager::ValueChanged, this, &ManagedDisplayWidget::ColorManagerValueChanged);
+    disconnect(color_manager_, &ColorManager::ConfigChanged, this, &ManagedDisplayWidget::ColorConfigChanged);
+    disconnect(color_manager_, &ColorManager::ReferenceSpaceChanged, this, &ManagedDisplayWidget::ColorConfigChanged);
   }
 
   color_manager_ = color_manager;
 
   if (color_manager_ != nullptr) {
-    connect(color_manager_, &ColorManager::ValueChanged, this, &ManagedDisplayWidget::ColorManagerValueChanged);
+    connect(color_manager_, &ColorManager::ConfigChanged, this, &ManagedDisplayWidget::ColorConfigChanged);
+    connect(color_manager_, &ColorManager::ReferenceSpaceChanged, this, &ManagedDisplayWidget::ColorConfigChanged);
   }
 
   ColorConfigChanged();
@@ -147,7 +150,7 @@ void ManagedDisplayWidget::ColorConfigChanged()
     return;
   }
 
-  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, true));
+  SetColorTransform(color_manager_->GetCompliantColorSpace(color_transform_, false));
 }
 
 ColorProcessorPtr ManagedDisplayWidget::color_service()
@@ -279,7 +282,7 @@ VideoParams ManagedDisplayWidget::GetViewportParams() const
 {
   int device_width = width() * devicePixelRatioF();
   int device_height = height() * devicePixelRatioF();
-  VideoParams::Format device_format = static_cast<VideoParams::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
+  PixelFormat device_format = static_cast<PixelFormat::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt());
   return VideoParams(device_width, device_height, device_format, VideoParams::kInternalChannelCount);
 }
 
@@ -312,11 +315,11 @@ bool ManagedDisplayWidget::eventFilter(QObject *o, QEvent *e)
   {
     // HACK: QWindows don't seem to receive ContextMenu events on right click (only when pressing
     //       the menu button on the keyboard) so we handle it manually here
-    QMouseEvent *ev = static_cast<QMouseEvent*>(e);
+    /*QMouseEvent *ev = static_cast<QMouseEvent*>(e);
     if (ev->button() == Qt::RightButton) {
       emit customContextMenuRequested(ev->pos());
       return true;
-    }
+    }*/
     break;
   }
   default:
@@ -414,15 +417,6 @@ void ManagedDisplayWidget::SetupColorProcessor()
   }
 
   emit ColorProcessorChanged(color_service_);
-}
-
-void ManagedDisplayWidget::ColorManagerValueChanged(const NodeInput &input, const TimeRange &range)
-{
-  Q_UNUSED(range)
-
-  if (input.input() == ColorManager::kConfigFilenameIn || input.input() == ColorManager::kReferenceSpaceIn) {
-    ColorConfigChanged();
-  }
 }
 
 }

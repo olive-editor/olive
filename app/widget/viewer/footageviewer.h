@@ -35,15 +35,8 @@ public:
   void OverrideWorkArea(const TimeRange &r);
   void ResetWorkArea();
 
-protected:
-  virtual void ConnectNodeEvent(ViewerOutput *) override;
-
-  virtual void DisconnectNodeEvent(ViewerOutput *) override;
-
 private:
   void StartFootageDragInternal(bool enable_video, bool enable_audio);
-
-  QHash<ViewerOutput*, rational> cached_timestamps_;
 
   TimelineWorkArea *override_workarea_;
 
@@ -53,6 +46,10 @@ private slots:
   void StartVideoDrag();
 
   void StartAudioDrag();
+
+  void VideoButtonClicked();
+
+  void AudioButtonClicked();
 
 };
 

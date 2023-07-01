@@ -25,7 +25,6 @@
 #include <QScrollBar>
 #include <QTimer>
 
-#include "common/timecodefunctions.h"
 #include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
@@ -38,7 +37,8 @@ TimeBasedView::TimeBasedView(QWidget *parent) :
   snapped_(false),
   snap_service_(nullptr),
   y_axis_enabled_(false),
-  y_scale_(1.0)
+  y_scale_(1.0),
+  viewer_(nullptr)
 {
   // Sets scene to our scene
   setScene(&scene_);
@@ -133,6 +133,8 @@ void TimeBasedView::ZoomIntoCursorPosition(QWheelEvent *event, double scale_mult
 
 void TimeBasedView::SetYScale(const double &y_scale)
 {
+  Q_ASSERT(y_scale > 0);
+
   y_scale_ = y_scale;
 
   if (y_axis_enabled_) {
@@ -142,12 +144,27 @@ void TimeBasedView::SetYScale(const double &y_scale)
   }
 }
 
-void TimeBasedView::SetTime(const rational &time)
+void TimeBasedView::SetViewerNode(ViewerOutput *v)
 {
-  playhead_ = time;
+  if (viewer_) {
+    disconnect(viewer_, &ViewerOutput::PlayheadChanged, viewport(), static_cast<void(QWidget::*)()>(&TimeBasedView::update));
+  }
 
-  // Force redraw for playhead
-  viewport()->update();
+  viewer_ = v;
+
+  if (viewer_) {
+    connect(viewer_, &ViewerOutput::PlayheadChanged, viewport(), static_cast<void(QWidget::*)()>(&TimeBasedView::update));
+  }
+}
+
+QPointF TimeBasedView::ScalePoint(const QPointF &p) const
+{
+  return QPointF(p.x() * GetScale(), p.y() * GetYScale());
+}
+
+QPointF TimeBasedView::UnscalePoint(const QPointF &p) const
+{
+  return QPointF(p.x() / GetScale(), p.y() / GetYScale());
 }
 
 void TimeBasedView::drawForeground(QPainter *painter, const QRectF &rect)
@@ -203,19 +220,20 @@ bool TimeBasedView::PlayheadMove(QMouseEvent *event)
     return false;
   }
 
-  QPointF scene_pos = mapToScene(event->pos());
-  rational mouse_time = qMax(rational(0), SceneToTime(scene_pos.x()));
+  if (viewer_) {
+    QPointF scene_pos = mapToScene(event->pos());
+    rational mouse_time = qMax(rational(0), SceneToTime(scene_pos.x()));
 
-  if (Core::instance()->snapping() && snap_service_) {
-    rational movement;
+    if (Core::instance()->snapping() && snap_service_) {
+      rational movement;
 
-    snap_service_->SnapPoint({mouse_time}, &movement, TimeBasedWidget::kSnapAll & ~TimeBasedWidget::kSnapToPlayhead);
+      snap_service_->SnapPoint({mouse_time}, &movement, TimeBasedWidget::kSnapAll & ~TimeBasedWidget::kSnapToPlayhead);
 
-    mouse_time += movement;
+      mouse_time += movement;
+    }
+
+    viewer_->SetPlayhead(mouse_time);
   }
-
-  SetTime(mouse_time);
-  emit TimeChanged(mouse_time);
 
   return true;
 }
@@ -237,7 +255,11 @@ bool TimeBasedView::PlayheadRelease(QMouseEvent*)
 
 qreal TimeBasedView::GetPlayheadX()
 {
-  return TimeToScene(playhead_);
+  if (viewer_) {
+    return TimeToScene(viewer_->GetPlayhead());
+  } else {
+    return 0;
+  }
 }
 
 void TimeBasedView::SetEndTime(const rational &length)

@@ -36,7 +36,7 @@ FlipDistortNode::FlipDistortNode()
 
   AddInput(kVerticalInput, NodeValue::kBoolean, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 

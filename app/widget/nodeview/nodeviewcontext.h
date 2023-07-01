@@ -5,9 +5,9 @@
 #include <QGraphicsTextItem>
 
 #include "node/node.h"
+#include "node/nodeundo.h"
 #include "nodeviewcommon.h"
 #include "nodeviewedge.h"
-#include "nodeviewundo.h"
 
 namespace olive {
 
@@ -30,7 +30,7 @@ public:
 
   void SetCurvedEdges(bool e);
 
-  void DeleteSelected(NodeViewDeleteCommand *command);
+  int DeleteSelected(NodeViewDeleteCommand *command);
 
   void Select(const QVector<Node*> &nodes);
 

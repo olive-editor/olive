@@ -64,7 +64,7 @@ TransformDistortNode::TransformDistortNode()
     point_gizmo_[i]->SetDragValueBehavior(PointGizmo::kAbsolute);
   }
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 
@@ -179,9 +179,9 @@ void TransformDistortNode::GizmoDragStart(const NodeValueRow &row, double x, dou
   } else if (gizmo == rotation_gizmo_) {
 
     gizmo_anchor_pt_ = (row[kAnchorInput].toVec2() + gizmo->GetGlobals().nonsquare_resolution()/2).toPointF();
-    gizmo_start_angle_ = qAtan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
+    gizmo_start_angle_ = std::atan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
     gizmo_last_angle_ = gizmo_start_angle_;
-    gizmo_last_alt_angle_ = qAtan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
+    gizmo_last_alt_angle_ = std::atan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
     gizmo_rotate_wrap_ = 0;
     gizmo_rotate_last_dir_ = kDirectionNone;
 
@@ -216,8 +216,8 @@ void TransformDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
 
   } else if (gizmo == rotation_gizmo_) {
 
-    double raw_angle = qAtan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
-    double alt_angle = qAtan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
+    double raw_angle = std::atan2(y - gizmo_anchor_pt_.y(), x - gizmo_anchor_pt_.x());
+    double alt_angle = std::atan2(x - gizmo_anchor_pt_.x(), y - gizmo_anchor_pt_.y());
 
     double current_angle = raw_angle;
 
@@ -297,7 +297,7 @@ QMatrix4x4 TransformDistortNode::AdjustMatrixByResolutions(const QMatrix4x4 &mat
   adjusted_matrix.scale(2.0 / sequence_res.x(), 2.0 / sequence_res.y(), 1.0);
 
   // Apply offset if applicable
-  adjusted_matrix.translate(offset);
+  adjusted_matrix.translate(offset.x(), offset.y());
 
   // Adjust by the matrix we generated earlier
   adjusted_matrix *= mat;
@@ -358,7 +358,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
 
   // Fold values into a matrix for the rectangle
   QMatrix4x4 rectangle_matrix;
-  rectangle_matrix.scale(sequence_half_res);
+  rectangle_matrix.scale(sequence_half_res.x(), sequence_half_res.y());
   rectangle_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, false, false, false, row[kParentInput].toMatrix()),
                                                 sequence_res,
                                                 tex_sz,
@@ -378,7 +378,7 @@ void TransformDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const N
 
   // Draw anchor point
   QMatrix4x4 anchor_matrix;
-  anchor_matrix.scale(sequence_half_res);
+  anchor_matrix.scale(sequence_half_res.x(), sequence_half_res.y());
   anchor_matrix *= AdjustMatrixByResolutions(GenerateMatrix(row, true, false, false, row[kParentInput].toMatrix()),
                                              sequence_res,
                                              tex_sz,

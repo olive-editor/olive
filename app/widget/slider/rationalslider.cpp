@@ -20,7 +20,6 @@
 
 #include "rationalslider.h"
 
-#include "common/timecodefunctions.h"
 #include "core.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -98,18 +97,24 @@ void RationalSlider::DisableDisplayType(RationalSlider::DisplayType type)
 
 QString RationalSlider::ValueToString(const QVariant &v) const
 {
-  double val = v.value<rational>().toDouble() + GetOffset().value<rational>().toDouble();
+  rational r = v.value<rational>();
 
-  switch (display_type_) {
-  case kTime:
-    return Timecode::time_to_timecode(v.value<rational>(), timebase_, Core::instance()->GetTimecodeDisplay());
-  case kFloat:
-    return FloatToString(val, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
-  case kRational:
-    return v.value<rational>().toString();
+  if (r.isNaN()) {
+    return tr("NaN");
+  } else {
+    double val = r.toDouble() + GetOffset().value<rational>().toDouble();
+
+    switch (display_type_) {
+    case kTime:
+      return QString::fromStdString(Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay()));
+    case kFloat:
+      return FloatToString(val, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
+    case kRational:
+      return QString::fromStdString(v.value<rational>().toString());
+    }
+
+    return v.toString();
   }
-
-  return v.toString();
 }
 
 QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
@@ -120,7 +125,7 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
   switch (display_type_) {
   case kTime:
   {
-    r = Timecode::timecode_to_time(s, timebase_, Core::instance()->GetTimecodeDisplay(), ok);
+    r = Timecode::timecode_to_time(s.toStdString(), timebase_, Core::instance()->GetTimecodeDisplay(), ok);
     break;
   }
   case kFloat:
@@ -136,7 +141,7 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
     break;
   }
   case kRational:
-    r = rational::fromString(s, ok);
+    r = rational::fromString(s.toStdString(), ok);
     break;
   }
 

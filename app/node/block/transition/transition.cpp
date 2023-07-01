@@ -20,7 +20,6 @@
 
 #include "transition.h"
 
-#include "common/clamp.h"
 #include "node/block/clip/clip.h"
 #include "node/output/track/track.h"
 #include "widget/slider/rationalslider.h"
@@ -47,6 +46,8 @@ TransitionBlock::TransitionBlock() :
   AddInput(kCenterInput, NodeValue::kRational, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
   SetInputProperty(kCenterInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kCenterInput, QStringLiteral("viewlock"), true);
+
+  SetFlag(kDontShowInParamView, false);
 }
 
 void TransitionBlock::Retranslate()
@@ -124,7 +125,7 @@ double TransitionBlock::GetOutProgress(const double &time) const
     return 0;
   }
 
-  return clamp(1.0 - (GetInternalTransitionTime(time) / out_offset().toDouble()), 0.0, 1.0);
+  return std::clamp(1.0 - (GetInternalTransitionTime(time) / out_offset().toDouble()), 0.0, 1.0);
 }
 
 double TransitionBlock::GetInProgress(const double &time) const
@@ -133,7 +134,7 @@ double TransitionBlock::GetInProgress(const double &time) const
     return 0;
   }
 
-  return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
+  return std::clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
 }
 
 double TransitionBlock::GetInternalTransitionTime(const double &time) const
@@ -171,10 +172,14 @@ void TransitionBlock::Value(const NodeValueRow &value, const NodeGlobals &global
 
     if (out_buffer.type() != NodeValue::kNone) {
       job.Insert(kOutBlockInput, out_buffer);
+    } else {
+      job.Insert(kOutBlockInput, NodeValue(NodeValue::kTexture, nullptr));
     }
 
     if (in_buffer.type() != NodeValue::kNone) {
       job.Insert(kInBlockInput, in_buffer);
+    } else {
+      job.Insert(kInBlockInput, NodeValue(NodeValue::kTexture, nullptr));
     }
 
     job.Insert(kCurveInput, value);
@@ -239,7 +244,7 @@ double TransitionBlock::TransformCurve(double linear) const
     linear *= linear;
     break;
   case kLogarithmic:
-    linear = qSqrt(linear);
+    linear = std::sqrt(linear);
     break;
   }
 
@@ -281,16 +286,17 @@ void TransitionBlock::InputDisconnectedEvent(const QString &input, int element, 
   }
 }
 
-TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+TimeRange TransitionBlock::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time, bool clamp) const
 {
   if (input == kInBlockInput || input == kOutBlockInput) {
     Block* block = dynamic_cast<Block*>(GetConnectedOutput(input));
     if (block) {
+      // Retransform time as if it came from the track
       return input_time + in() - block->in();
     }
   }
 
-  return super::InputTimeAdjustment(input, element, input_time);
+  return super::InputTimeAdjustment(input, element, input_time, clamp);
 }
 
 TimeRange TransitionBlock::OutputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const

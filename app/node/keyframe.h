@@ -25,8 +25,6 @@
 #include <QPointF>
 #include <QVariant>
 
-#include "common/rational.h"
-#include "common/timerange.h"
 #include "node/param.h"
 
 namespace olive {
@@ -166,6 +164,9 @@ public:
   }
 
   bool has_sibling_at_time(const rational &t) const;
+
+  bool load(QXmlStreamReader *reader, NodeValue::Type data_type);
+  void save(QXmlStreamWriter *writer, NodeValue::Type data_type) const;
 
 signals:
   /**

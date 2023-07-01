@@ -29,7 +29,7 @@ NodeTableWidget::NodeTableWidget(QWidget* parent) :
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   view_ = new NodeTableView();
   layout->addWidget(view_);

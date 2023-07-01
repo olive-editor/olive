@@ -33,7 +33,7 @@ class TimelinePanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
-  TimelinePanel(QWidget* parent);
+  TimelinePanel(const QString &name);
 
   inline TimelineWidget *timeline_widget() const
   {
@@ -42,9 +42,8 @@ public:
 
   void SplitAtPlayhead();
 
-  QByteArray SaveSplitterState() const;
-
-  void RestoreSplitterState(const QByteArray& state);
+  virtual void LoadData(const Info &info) override;
+  virtual Info SaveData() const override;
 
   virtual void SelectAll() override;
 

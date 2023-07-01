@@ -30,7 +30,6 @@
 
 #include "audio/audioprocessor.h"
 #include "audiowaveformview.h"
-#include "common/rational.h"
 #include "node/output/viewer/viewer.h"
 #include "render/previewaudiodevice.h"
 #include "render/previewautocacher.h"
@@ -103,8 +102,6 @@ public:
   {
     enable_audio_scrubbing_ = e;
   }
-
-  PreviewAutoCacher *GetCacher() const { return auto_cacher_; }
 
   void AddPlaybackDevice(ViewerDisplayWidget *vw)
   {
@@ -219,17 +216,14 @@ protected:
     ignore_scrub_++;
   }
 
-  virtual RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false)
-  {
-    return auto_cacher_->GetSingleFrame(t, dry);
-  }
+  RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false);
 
-  PreviewAutoCacher *auto_cacher() const { return auto_cacher_; }
+  void SetWaveformMode(WaveformMode wf);
 
 private:
   int64_t GetTimestamp() const
   {
-    return Timecode::time_to_timestamp(GetTime(), timebase(), Timecode::kFloor);
+    return Timecode::time_to_timestamp(GetConnectedNode()->GetPlayhead(), timebase(), Timecode::kFloor);
   }
 
   void UpdateTimeInternal(int64_t i);
@@ -278,9 +272,9 @@ private:
 
   void CloseAudioProcessor();
 
-  void SetWaveformMode(WaveformMode wf);
-
   void DetectMulticamNode(const rational &time);
+
+  bool IsVideoVisible() const;
 
   ViewerSizer* sizer_;
 
@@ -317,8 +311,6 @@ private:
 
   int prequeue_length_;
   int prequeue_count_;
-
-  PreviewAutoCacher *auto_cacher_;
 
   QVector<RenderTicketWatcher*> queue_watchers_;
 

@@ -29,7 +29,6 @@
 #include "node/node.h"
 #include "node/output/track/tracklist.h"
 #include "node/traverser.h"
-#include "render/color.h"
 #include "tool/tool.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -69,7 +68,7 @@ public:
    */
   ViewerDisplayWidget(QWidget* parent = nullptr);
 
-  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ViewerDisplayWidget)
+  virtual ~ViewerDisplayWidget() override;
 
   const ViewerSafeMarginInfo& GetSafeMargin() const;
   void SetSafeMargins(const ViewerSafeMarginInfo& safe_margin);
@@ -124,7 +123,7 @@ public:
     return texture_;
   }
 
-  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase);
+  void Play(const int64_t &start_timestamp, const int &playback_speed, const rational &timebase, bool start_updating);
 
   void Pause();
 
@@ -307,6 +306,8 @@ private:
 
   void GenerateGizmoTransforms();
 
+  void DrawBlank(const VideoParams &device_params);
+
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
@@ -439,6 +440,8 @@ private slots:
   void SubtitlesChanged(const TimeRange &r);
 
   void FocusChanged(QWidget *old, QWidget *now);
+
+  QRectF UpdateActiveTextGizmoSize();
 
 
 };

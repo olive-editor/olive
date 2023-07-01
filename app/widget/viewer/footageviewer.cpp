@@ -24,7 +24,7 @@
 #include <QMimeData>
 
 #include "config/config.h"
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 
@@ -36,8 +36,10 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 
   controls_->SetAudioVideoDragButtonsVisible(true);
-  connect(controls_, &PlaybackControls::VideoPressed, this, &FootageViewerWidget::StartVideoDrag);
-  connect(controls_, &PlaybackControls::AudioPressed, this, &FootageViewerWidget::StartAudioDrag);
+  connect(controls_, &PlaybackControls::VideoClicked, this, &FootageViewerWidget::VideoButtonClicked);
+  connect(controls_, &PlaybackControls::AudioClicked, this, &FootageViewerWidget::AudioButtonClicked);
+  connect(controls_, &PlaybackControls::VideoDragged, this, &FootageViewerWidget::StartVideoDrag);
+  connect(controls_, &PlaybackControls::AudioDragged, this, &FootageViewerWidget::StartAudioDrag);
 
   override_workarea_ = new TimelineWorkArea(this);
 }
@@ -54,25 +56,6 @@ void FootageViewerWidget::ResetWorkArea()
   if (GetConnectedWorkArea() == override_workarea_) {
     this->ConnectWorkArea(GetConnectedNode() ? GetConnectedNode()->GetWorkArea() : nullptr);
   }
-}
-
-void FootageViewerWidget::ConnectNodeEvent(ViewerOutput *n)
-{
-  super::ConnectNodeEvent(n);
-
-  IgnoreNextScrubEvent();
-  SetTime(cached_timestamps_.value(n, 0));
-}
-
-void FootageViewerWidget::DisconnectNodeEvent(ViewerOutput *n)
-{
-  // Cache timestamp in case this footage is opened again later
-  cached_timestamps_.insert(n, GetTime());
-
-  super::DisconnectNodeEvent(n);
-
-  IgnoreNextScrubEvent();
-  SetTime(0);
 }
 
 void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)
@@ -125,6 +108,16 @@ void FootageViewerWidget::StartVideoDrag()
 void FootageViewerWidget::StartAudioDrag()
 {
   StartFootageDragInternal(false, true);
+}
+
+void FootageViewerWidget::VideoButtonClicked()
+{
+  this->SetWaveformMode(kWFAutomatic);
+}
+
+void FootageViewerWidget::AudioButtonClicked()
+{
+  this->SetWaveformMode(kWFWaveformOnly);
 }
 
 }

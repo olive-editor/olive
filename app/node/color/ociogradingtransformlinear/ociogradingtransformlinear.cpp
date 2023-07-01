@@ -23,7 +23,7 @@
 #include <iostream>
 
 #include "common/ocioutils.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "render/colorprocessor.h"
 #include "widget/slider/floatslider.h"
 

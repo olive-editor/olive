@@ -111,11 +111,6 @@ signals:
   void SnappingChanged(const bool& b);
 
   /**
-   * @brief Emitted when the addable object is changed from the add tool menu
-   */
-  void AddableObjectChanged(const Tool::AddableObject& obj);
-
-  /**
    * @brief Emitted when the selected transition is changed from the transition tool menu
    */
   void SelectedTransitionChanged(const QString& id);
@@ -224,11 +219,6 @@ private slots:
    * The transition button pops up a list for which transition to create.
    */
   void TransitionButtonClicked();
-
-  /**
-   * @brief Receiver for the menu created by AddButtonClicked()
-   */
-  void AddMenuItemTriggered(QAction* a);
 
   /**
    * @brief Receiver for the menu created by TransitionButtonClicked()

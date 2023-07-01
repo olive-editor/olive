@@ -18,14 +18,13 @@
 
 ***/
 
-#include "widget/timelinewidget/timelinewidget.h"
+#include "slip.h"
 
 #include <QToolTip>
 
-#include "common/timecodefunctions.h"
 #include "config/config.h"
-#include "slip.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
+#include "timeline/timelineundogeneral.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
 
@@ -58,10 +57,10 @@ void SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
   rational tooltip_timebase = parent()->GetTimebaseForTrackType(drag_start_.GetTrack().type());
   QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
-                     Timecode::time_to_timecode(time_movement,
-                                                tooltip_timebase,
-                                                Core::instance()->GetTimecodeDisplay(),
-                                                true),
+                     QString::fromStdString(Timecode::time_to_timecode(time_movement,
+                                                                       tooltip_timebase,
+                                                                       Core::instance()->GetTimecodeDisplay(),
+                                                                       true)),
                      parent());
 }
 
@@ -73,7 +72,7 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
 
   // Find earliest point to ripple around
   foreach (TimelineViewGhostItem* ghost, parent()->GetGhostItems()) {
-    Block* b = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+    Block* b = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
     ClipBlock *cb = dynamic_cast<ClipBlock*>(b);
     if (cb) {
@@ -81,7 +80,7 @@ void SlipTool::FinishDrag(TimelineViewMouseEvent *event)
     }
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, qApp->translate("SlipTool", "Slipped %1 Clip(s)").arg(parent()->GetGhostItems().size()));
 }
 
 }

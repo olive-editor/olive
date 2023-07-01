@@ -26,17 +26,17 @@
 
 namespace olive {
 
-ScopePanel::ScopePanel(QWidget* parent) :
-  PanelWidget(QStringLiteral("ScopePanel"), parent),
+ScopePanel::ScopePanel() :
+  PanelWidget(QStringLiteral("ScopePanel")),
   viewer_(nullptr)
 {
-  QWidget* central = new QWidget();
+  QWidget* central = new QWidget(this);
   setWidget(central);
 
   QVBoxLayout* layout = new QVBoxLayout(central);
 
   QHBoxLayout* toolbar_layout = new QHBoxLayout();
-  toolbar_layout->setMargin(0);
+  toolbar_layout->setContentsMargins(0, 0, 0, 0);
 
   scope_type_combobox_ = new QComboBox();
 

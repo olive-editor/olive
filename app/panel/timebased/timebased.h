@@ -21,7 +21,7 @@
 #ifndef TIMEBASEDPANEL_H
 #define TIMEBASEDPANEL_H
 
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 #include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
@@ -30,7 +30,9 @@ class TimeBasedPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  TimeBasedPanel(const QString& object_name, QWidget *parent = nullptr);
+  TimeBasedPanel(const QString& object_name);
+
+  virtual ~TimeBasedPanel() override;
 
   void ConnectViewerNode(ViewerOutput *node);
 
@@ -38,8 +40,6 @@ public:
   {
     ConnectViewerNode(nullptr);
   }
-
-  rational GetTime();
 
   // Get the timebase of this panels widget
   const rational& timebase();
@@ -111,13 +111,7 @@ public:
 public slots:
   void SetTimebase(const rational& timebase);
 
-  void SetTime(const rational &time);
-
 signals:
-  void TimeChanged(const rational& time);
-
-  void TimebaseChanged(const rational& timebase);
-
   void PlayPauseRequested();
 
   void PlayInToOutRequested();

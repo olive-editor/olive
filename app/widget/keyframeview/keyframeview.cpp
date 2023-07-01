@@ -27,11 +27,12 @@
 #include "common/qtutils.h"
 #include "dialog/keyframeproperties/keyframeproperties.h"
 #include "keyframeviewundo.h"
+#include "node/group/group.h"
 #include "node/node.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
 
 namespace olive {
 
@@ -60,7 +61,7 @@ void KeyframeView::DeleteSelected()
       command->add_child(new NodeParamRemoveKeyframeCommand(key));
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Deleted %1 Keyframe(s)").arg(GetSelectedKeyframes().size()));
   }
 }
 
@@ -187,10 +188,10 @@ void KeyframeView::SelectionManagerDeselectEvent(void *obj)
 bool KeyframeView::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata;
+    ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyKeyframes);
     sdata.SetOnlySerializeKeyframes(selection_manager_.GetSelectedObjects());
 
-    ProjectSerializer::Copy(sdata, QStringLiteral("keyframes"));
+    ProjectSerializer::Copy(sdata);
 
     if (cut) {
       DeleteSelected();
@@ -204,7 +205,11 @@ bool KeyframeView::CopySelected(bool cut)
 
 bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_function)
 {
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("keyframes"));
+  if (!GetViewerNode()) {
+    return false;
+  }
+
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyKeyframes);
   if (res == ProjectSerializer::kSuccess) {
     const ProjectSerializer::SerializedKeyframes &keys = res.GetLoadData().keyframes;
 
@@ -216,7 +221,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
         min = std::min(min, key->time());
       }
     }
-    min -= GetTime();
+    min -= GetViewerNode()->GetPlayhead();
 
     for (auto it=keys.cbegin(); it!=keys.cend(); it++) {
       const QString &paste_id = it.key();
@@ -228,7 +233,7 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
         for (NodeKeyframe *key : it.value()) {
           // Adjust sequence time to node's time
           rational t = key->time() - min;
-          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, true);
+          t = GetAdjustedTime(GetTimeTarget(), node_with_id, t, Node::kTransformTowardsInput);
           key->set_time(t);
 
           if (NodeKeyframe *existing = node_with_id->GetKeyframeAtTimeOnTrack(key->input(), key->time(), key->track(), key->element())) {
@@ -242,11 +247,18 @@ bool KeyframeView::Paste(std::function<Node *(const QString &)> find_node_functi
       }
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Pasted %1 Keyframe(s)").arg(keys.size()));
     return true;
   }
 
   return false;
+}
+
+void KeyframeView::CatchUpScrollEvent()
+{
+  super::CatchUpScrollEvent();
+
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event)
@@ -282,9 +294,9 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
   } else if (selection_manager_.IsDragging()) {
     QString tip;
     KeyframeDragMove(event, tip);
-    selection_manager_.DragMove(event, tip);
+    selection_manager_.DragMove(event->pos(), tip);
   } else if (selection_manager_.IsRubberBanding()) {
-    selection_manager_.RubberBandMove(event);
+    selection_manager_.RubberBandMove(event->pos());
     Redraw();
   }
 
@@ -307,13 +319,14 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     MultiUndoCommand* command = new MultiUndoCommand();
     selection_manager_.DragStop(command);
     KeyframeDragRelease(event, command);
-    Core::instance()->undo_stack()->push(command);
-    emit Released();
+    Core::instance()->undo_stack()->push(command, tr("Moved %1 Keyframe(s)").arg(selection_manager_.GetSelectedObjects().size()));
   } else if (selection_manager_.IsRubberBanding()) {
     selection_manager_.RubberBandStop();
     Redraw();
     emit SelectionChanged();
   }
+
+  emit Released();
 }
 
 int BinarySearchFirstKeyframeAfterOrAt(const QVector<NodeKeyframe*> &keys, const rational &time)
@@ -454,7 +467,7 @@ void KeyframeView::ScaleChangedEvent(const double &scale)
   Redraw();
 }
 
-void KeyframeView::TimeTargetChangedEvent(Node *target)
+void KeyframeView::TimeTargetChangedEvent(ViewerOutput *v)
 {
   Redraw();
 }
@@ -491,12 +504,12 @@ void KeyframeView::DeselectKeyframe(NodeKeyframe *key)
 
 rational KeyframeView::GetUnadjustedKeyframeTime(NodeKeyframe *key, const rational &time)
 {
-  return GetAdjustedTime(GetTimeTarget(), key->parent(), time, true);
+  return GetAdjustedTime(GetTimeTarget(), key->parent(), time, Node::kTransformTowardsInput);
 }
 
 rational KeyframeView::GetAdjustedKeyframeTime(NodeKeyframe *key)
 {
-  return GetAdjustedTime(key->parent(), GetTimeTarget(), key->time(), false);
+  return GetAdjustedTime(key->parent(), GetTimeTarget(), key->time(), Node::kTransformTowardsOutput);
 }
 
 double KeyframeView::GetKeyframeSceneX(NodeKeyframe *key)
@@ -599,7 +612,7 @@ void KeyframeView::ShowContextMenu()
       foreach (NodeKeyframe* item, GetSelectedKeyframes()) {
         command->add_child(new KeyframeSetTypeCommand(item, new_type));
       }
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, tr("Set Type of %1 Keyframe(s)").arg(GetSelectedKeyframes().size()));
     }
   }
 }
@@ -610,6 +623,11 @@ void KeyframeView::ShowKeyframePropertiesDialog()
     KeyframePropertiesDialog kd(GetSelectedKeyframes(), timebase(), this);
     kd.exec();
   }
+}
+
+void KeyframeView::UpdateRubberBandForScroll()
+{
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void KeyframeView::Redraw()

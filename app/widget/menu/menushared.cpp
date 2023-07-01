@@ -20,8 +20,9 @@
 
 #include "menushared.h"
 
+#include <QActionGroup>
+
 #include "core.h"
-#include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 #include "window/mainwindow/mainwindow.h"
@@ -48,6 +49,14 @@ MenuShared::MenuShared()
   edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, &MenuShared::RippleDeleteTriggered, tr("Shift+Del"));
   edit_split_item_ = Menu::CreateItem(this, "split", this, &MenuShared::SplitAtPlayheadTriggered, tr("Ctrl+K"));
   edit_speedduration_item_ = Menu::CreateItem(this, "speeddur", this, &MenuShared::SpeedDurationTriggered, tr("Ctrl+R"));
+
+  // List of addable items
+  for (int i=0;i<Tool::kAddableCount;i++) {
+    Tool::AddableObject t = static_cast<Tool::AddableObject>(i);
+    QAction *a = Menu::CreateItem(this, QStringLiteral("add:%1").arg(Tool::GetAddableObjectID(t)), this, &MenuShared::AddableItemTriggered);
+    a->setData(t);
+    addable_items_.append(a);
+  }
 
   // "In/Out" menu shared items
   inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, &MenuShared::SetInTriggered, tr("I"));
@@ -149,6 +158,14 @@ void MenuShared::AddItemsForEditMenu(Menu *m, bool for_clips)
   }
 }
 
+void MenuShared::AddItemsForAddableObjectsMenu(Menu *m)
+{
+  for (QAction *a : qAsConst(addable_items_)) {
+    a->setChecked((a->data().toInt() == Core::instance()->GetSelectedAddableObject()));
+    m->addAction(a);
+  }
+}
+
 void MenuShared::AddItemsForInOutMenu(Menu *m)
 {
   m->addAction(inout_set_in_item_);
@@ -187,7 +204,7 @@ void MenuShared::AboutToShowTimeRulerActions(const rational& timebase)
   Timecode::Display current_timecode_display = Core::instance()->GetTimecodeDisplay();
 
   // Only show the drop-frame option if the timebase is drop-frame
-  view_timecode_view_dropframe_item_->setVisible(!timebase.isNull() && Timecode::TimebaseIsDropFrame(timebase));
+  view_timecode_view_dropframe_item_->setVisible(!timebase.isNull() && Timecode::timebase_is_drop_frame(timebase));
 
   if (!view_timecode_view_dropframe_item_->isVisible() && current_timecode_display == Timecode::kTimecodeDropFrame) {
     // If the current setting is drop-frame, correct to non-drop frame
@@ -327,6 +344,14 @@ void MenuShared::SpeedDurationTriggered()
   }
 }
 
+void MenuShared::AddableItemTriggered()
+{
+  QAction *a = static_cast<QAction*>(sender());
+  Tool::AddableObject i = static_cast<Tool::AddableObject>(a->data().toInt());
+  Core::instance()->SetTool(Tool::kAdd);
+  Core::instance()->SetSelectedAddableObject(i);
+}
+
 void MenuShared::Retranslate()
 {
   // "New" menu shared items
@@ -345,6 +370,10 @@ void MenuShared::Retranslate()
   edit_ripple_delete_item_->setText(tr("Ripple Delete"));
   edit_split_item_->setText(tr("Split"));
   edit_speedduration_item_->setText(tr("Speed/Duration"));
+
+  for (QAction *a : qAsConst(addable_items_)) {
+    a->setText(Tool::GetAddableObjectName(static_cast<Tool::AddableObject>(a->data().toInt())));
+  }
 
   // "In/Out" menu shared items
   inout_set_in_item_->setText(tr("Set In Point"));

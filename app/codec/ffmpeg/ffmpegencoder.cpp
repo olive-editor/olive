@@ -29,7 +29,6 @@ extern "C" {
 #include <QFile>
 
 #include "common/ffmpegutils.h"
-#include "common/timecodefunctions.h"
 
 namespace olive {
 
@@ -53,7 +52,7 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
 {
   QStringList pix_fmts;
 
-  const AVCodec* codec_info = GetEncoder(c, AudioParams::kFormatInvalid);
+  const AVCodec* codec_info = GetEncoder(c, SampleFormat::INVALID);
 
   if (codec_info) {
     for (int i=0; codec_info->pix_fmts[i]!=-1; i++) {
@@ -70,29 +69,29 @@ QStringList FFmpegEncoder::GetPixelFormatsForCodec(ExportCodec::Codec c) const
   return pix_fmts;
 }
 
-std::vector<AudioParams::Format> FFmpegEncoder::GetSampleFormatsForCodec(ExportCodec::Codec c) const
+std::vector<SampleFormat> FFmpegEncoder::GetSampleFormatsForCodec(ExportCodec::Codec c) const
 {
-  std::vector<AudioParams::Format> f;
+  std::vector<SampleFormat> f;
 
   if (c == ExportCodec::kCodecPCM) {
     // FFmpeg lists these as separate codecs so we need custom functionality here
     // We list signed 16 first because ExportDialog will always use the first element by default
-    // (because first element is the "default" in FFmpeg)
+    // (because first element is the "default" in tFFmpeg)
     f = {
-      AudioParams::kFormatSigned16Packed,
-      AudioParams::kFormatUnsigned8Packed,
-      AudioParams::kFormatSigned32Packed,
-      AudioParams::kFormatSigned64Packed,
-      AudioParams::kFormatFloat32Packed,
-      AudioParams::kFormatFloat64Packed
+      SampleFormat::S16,
+      SampleFormat::U8,
+      SampleFormat::S32,
+      SampleFormat::S64,
+      SampleFormat::F32,
+      SampleFormat::F64
     };
   } else {
-    const AVCodec* codec_info = GetEncoder(c, AudioParams::kFormatInvalid);
+    const AVCodec* codec_info = GetEncoder(c, SampleFormat::INVALID);
 
     if (codec_info && codec_info->sample_fmts) {
       for (int i=0; codec_info->sample_fmts[i]!=-1; i++) {
-        AudioParams::Format this_format = FFmpegUtils::GetNativeSampleFormat(static_cast<AVSampleFormat>(codec_info->sample_fmts[i]));
-        if (this_format != AudioParams::kFormatInvalid) {
+        SampleFormat this_format = FFmpegUtils::GetNativeSampleFormat(static_cast<AVSampleFormat>(codec_info->sample_fmts[i]));
+        if (this_format != SampleFormat::INVALID) {
           f.push_back(this_format);
         }
       }
@@ -130,7 +129,7 @@ bool FFmpegEncoder::Open()
     }
 
     // This is the format we will expect frames received in Write() to be in
-    VideoParams::Format native_pixel_fmt = params().video_params().format();
+    PixelFormat native_pixel_fmt = params().video_params().format();
 
     // This is the format we will need to convert the frame to for swscale to understand it
     video_conversion_fmt_ = FFmpegUtils::GetCompatiblePixelFormat(native_pixel_fmt);
@@ -280,28 +279,43 @@ bool FFmpegEncoder::WriteFrame(FramePtr frame, rational time)
 
 bool FFmpegEncoder::WriteAudio(const SampleBuffer &audio)
 {
-  bool result = true;
-
-  // Create input buffer
-  int input_sample_count = 0;
-  uint8_t** input_data = nullptr;
-  if (audio.is_allocated()) {
-    input_sample_count = audio.sample_count();
-    int input_linesize;
-
-    av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio.audio_params().channel_count(),
-                                       input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio.audio_params().format()), 0);
-
-    for (int i=0; i<audio.audio_params().channel_count(); i++) {
-      memcpy(input_data[i], audio.data(i), input_sample_count * audio.audio_params().bytes_per_sample_per_channel());
-    }
+  if (!audio.is_allocated()) {
+    return true;
   }
 
-  result = WriteAudioData(audio.audio_params().is_valid() ? audio.audio_params() : params().audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
+  bool result = true;
 
-  if (input_data) {
-    av_freep(&input_data[0]);
-    av_freep(&input_data);
+  size_t start = 0;
+  size_t end = audio.sample_count();
+  const size_t max_frame = 48000;
+
+  while (result && start < end) {
+    // Create input buffer
+    uint8_t** input_data = nullptr;
+    size_t input_sample_count = std::min(end - start, max_frame);
+    int input_linesize;
+
+    int r = av_samples_alloc_array_and_samples(&input_data, &input_linesize, audio.audio_params().channel_count(),
+                                               input_sample_count, FFmpegUtils::GetFFmpegSampleFormat(audio.audio_params().format()), 0);
+
+    if (r < 0) {
+      FFmpegError(tr("Failed to allocate sample array"), r);
+      return false;
+    } else {
+      int bpsc = audio.audio_params().bytes_per_sample_per_channel();
+      for (int i=0; i<audio.audio_params().channel_count(); i++) {
+        memcpy(input_data[i], audio.data(i) + start, input_sample_count * bpsc);
+      }
+
+      start += input_sample_count;
+    }
+
+    result = WriteAudioData(audio.audio_params().is_valid() ? audio.audio_params() : params().audio_params(), const_cast<const uint8_t**>(input_data), input_sample_count);
+
+    if (input_data) {
+      av_freep(&input_data[0]);
+      av_freep(&input_data);
+    }
   }
 
   return result;
@@ -596,7 +610,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
   }
 
   if (encoder->type != type) {
-    SetError(tr("Retrieved unexpected codec type %1 for codec %2").arg(QString::number(encoder->type), codec));
+    SetError(tr("Retrieved unexpected codec type %1 for codec %2").arg(QString::number(encoder->type), QString::number(codec)));
     return false;
   }
 
@@ -867,7 +881,7 @@ bool FFmpegEncoder::InitializeResampleContext(const AudioParams &audio)
   return true;
 }
 
-const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c, AudioParams::Format aformat)
+const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c, SampleFormat aformat)
 {
   switch (c) {
   case ExportCodec::kCodecH264:
@@ -884,6 +898,12 @@ const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c, AudioParams::Form
     return avcodec_find_encoder(AV_CODEC_ID_HEVC);
   case ExportCodec::kCodecVP9:
     return avcodec_find_encoder(AV_CODEC_ID_VP9);
+  case ExportCodec::kCodecAV1: {
+    const AVCodec *encoder = avcodec_find_encoder_by_name("libsvtav1");
+    if(!encoder)
+      encoder = avcodec_find_encoder(AV_CODEC_ID_AV1);
+    return encoder;
+  }
   case ExportCodec::kCodecOpenEXR:
     return avcodec_find_encoder(AV_CODEC_ID_EXR);
   case ExportCodec::kCodecPNG:
@@ -898,26 +918,26 @@ const AVCodec *FFmpegEncoder::GetEncoder(ExportCodec::Codec c, AudioParams::Form
     return avcodec_find_encoder(AV_CODEC_ID_AAC);
   case ExportCodec::kCodecPCM:
     switch (aformat) {
-    case AudioParams::kFormatInvalid:
-    case AudioParams::kFormatCount:
-    case AudioParams::kFormatUnsigned8Planar:
-    case AudioParams::kFormatSigned16Planar:
-    case AudioParams::kFormatSigned32Planar:
-    case AudioParams::kFormatSigned64Planar:
-    case AudioParams::kFormatFloat32Planar:
-    case AudioParams::kFormatFloat64Planar:
+    case SampleFormat::INVALID:
+    case SampleFormat::COUNT:
+    case SampleFormat::U8P:
+    case SampleFormat::S16P:
+    case SampleFormat::S32P:
+    case SampleFormat::S64P:
+    case SampleFormat::F32P:
+    case SampleFormat::F64P:
       break;
-    case AudioParams::kFormatUnsigned8Packed:
+    case SampleFormat::U8:
       return avcodec_find_encoder(AV_CODEC_ID_PCM_U8);
-    case AudioParams::kFormatSigned16Packed:
+    case SampleFormat::S16:
       return avcodec_find_encoder(AV_CODEC_ID_PCM_S16LE);
-    case AudioParams::kFormatSigned32Packed:
+    case SampleFormat::S32:
       return avcodec_find_encoder(AV_CODEC_ID_PCM_S32LE);
-    case AudioParams::kFormatSigned64Packed:
+    case SampleFormat::S64:
       return avcodec_find_encoder(AV_CODEC_ID_PCM_S64LE);
-    case AudioParams::kFormatFloat32Packed:
+    case SampleFormat::F32:
       return avcodec_find_encoder(AV_CODEC_ID_PCM_F32LE);
-    case AudioParams::kFormatFloat64Packed:
+    case SampleFormat::F64:
       return avcodec_find_encoder(AV_CODEC_ID_PCM_F64LE);
     }
     break;

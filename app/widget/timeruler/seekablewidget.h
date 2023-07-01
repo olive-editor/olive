@@ -24,7 +24,6 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 
-#include "common/rational.h"
 #include "widget/menu/menu.h"
 #include "widget/timebased/timebasedviewselectionmanager.h"
 
@@ -47,7 +46,7 @@ public:
   void SetMarkers(TimelineMarkerList *markers);
   void SetWorkArea(TimelineWorkArea *workarea);
 
-  bool IsDraggingPlayhead() const
+  virtual bool IsDraggingPlayhead() const override
   {
     return dragging_;
   }
@@ -78,6 +77,8 @@ public:
   virtual void SelectionManagerSelectEvent(void *obj) override;
   virtual void SelectionManagerDeselectEvent(void *obj) override;
 
+  virtual void CatchUpScrollEvent() override;
+
 public slots:
   void SetScroll(int i)
   {
@@ -87,6 +88,8 @@ public slots:
   virtual void TimebaseChangedEvent(const rational &) override;
 
 signals:
+  void DragMoved(int x, int y);
+
   void DragReleased();
 
 protected:
@@ -125,6 +128,8 @@ private:
 
   bool FindResizeHandle(QMouseEvent *event);
 
+  void ClearResizeHandle();
+
   void DragResizeHandle(const QPointF &scene_pos);
 
   void CommitResizeHandle();
@@ -152,6 +157,8 @@ private:
   int marker_bottom_;
 
   bool marker_editing_enabled_;
+
+  QPolygon last_playhead_shape_;
 
 private slots:
   void SetMarkerColor(int c);

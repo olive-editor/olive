@@ -90,13 +90,7 @@ void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, Nod
 void ShapeNode::InputValueChangedEvent(const QString &input, int element)
 {
   if (input == kTypeInput) {
-    InputFlags i = GetInputFlags(kRadiusInput);
-    if (GetStandardValue(kTypeInput).toInt() == kRoundedRectangle) {
-      i &= InputFlag(~kInputFlagHidden);
-    } else {
-      i |= kInputFlagHidden;
-    }
-    SetInputFlags(kRadiusInput, i);
+    SetInputFlag(kRadiusInput, kInputFlagHidden, (GetStandardValue(kTypeInput).toInt() != kRoundedRectangle));
   }
   super::InputValueChangedEvent(input, element);
 }

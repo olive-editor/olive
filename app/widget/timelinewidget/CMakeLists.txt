@@ -16,7 +16,6 @@
 
 add_subdirectory(trackview)
 add_subdirectory(tool)
-add_subdirectory(undo)
 add_subdirectory(view)
 
 set(OLIVE_SOURCES

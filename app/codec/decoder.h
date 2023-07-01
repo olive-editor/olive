@@ -31,12 +31,10 @@ extern "C" {
 #include <QWaitCondition>
 #include <stdint.h>
 
-#include "codec/frame.h"
-#include "codec/samplebuffer.h"
-#include "common/rational.h"
 #include "node/block/block.h"
 #include "node/project/footage/footagedescription.h"
-#include "task/task.h"
+#include "render/cancelatom.h"
+#include "render/rendermodes.h"
 
 namespace olive {
 
@@ -69,12 +67,6 @@ public:
     kReady,
     kFailedToOpen,
     kIndexUnavailable
-  };
-
-  enum LoopMode {
-    kLoopModeOff,
-    kLoopModeLoop,
-    kLoopModeClamp
   };
 
   Decoder();
@@ -167,7 +159,7 @@ public:
     Renderer *renderer = nullptr;
     rational time;
     int divider = 1;
-    VideoParams::Format maximum_format = VideoParams::kFormatInvalid;
+    PixelFormat maximum_format = PixelFormat::INVALID;
     CancelAtom *cancelled = nullptr;
     VideoParams::ColorRange force_range = VideoParams::kColorRangeDefault;
     VideoParams::Interlacing src_interlacing = VideoParams::kInterlaceNone;
@@ -294,9 +286,6 @@ protected:
     return stream_;
   }
 
-  static int64_t GetTimeInTimebaseUnits(const rational& time, const rational& timebase, int64_t start_time);
-  static rational GetTimestampInTimeUnits(int64_t time, const rational& timebase, int64_t start_time);
-
   virtual rational GetAudioStartOffset() const { return 0; }
 
 signals:
@@ -315,10 +304,11 @@ private:
 
   QMutex mutex_;
 
-  qint64 last_accessed_;
+  std::atomic_int64_t last_accessed_;
 
   TexturePtr cached_texture_;
   rational cached_time_;
+  int cached_divider_;
 
 };
 

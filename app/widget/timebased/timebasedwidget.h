@@ -41,8 +41,6 @@ class TimeBasedWidget : public TimelineScaledWidget
 public:
   TimeBasedWidget(bool ruler_text_visible = true, bool ruler_cache_status_visible = false, QWidget* parent = nullptr);
 
-  const rational &GetTime() const;
-
   void ZoomIn();
 
   void ZoomOut();
@@ -59,8 +57,6 @@ public:
   void SetScaleAndCenterOnPlayhead(const double& scale);
 
   TimeRuler* ruler() const;
-
-  virtual bool eventFilter(QObject* object, QEvent* event) override;
 
   using SnapMask = uint32_t;
   enum SnapPoints {
@@ -84,8 +80,6 @@ public:
   virtual bool Paste();
 
 public slots:
-  void SetTime(const rational &time);
-
   void SetTimebase(const rational& timebase);
 
   void SetScale(const double& scale);
@@ -144,12 +138,9 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  void ConnectTimelineView(TimeBasedView* base, bool connect_time_change_event = true);
-
-  void PassWheelEventsToScrollBar(QObject* object);
+  void ConnectTimelineView(TimeBasedView* base);
 
   void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
-  void SetCatchUpScrollValue(int v);
   void StopCatchUpScrollTimer(QScrollBar *b);
 
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
@@ -172,19 +163,20 @@ protected slots:
 
   static void PageScrollInternal(QScrollBar* bar, int maximum, int screen_position, bool whole_page_scroll);
 
-  void SetTimeAndSignal(const olive::rational& t);
-
   void StopCatchUpScrollTimer()
   {
     StopCatchUpScrollTimer(scrollbar_);
   }
 
-signals:
-  void TimeChanged(const rational&);
+  void SetCatchUpScrollValue(int v);
 
+signals:
   void TimebaseChanged(const rational&);
 
   void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
+
+protected slots:
+  virtual void SendCatchUpScrollEvent();
 
 private:
   /**
@@ -228,8 +220,6 @@ private:
 
   bool auto_set_timebase_;
 
-  QVector<QObject*> wheel_passthrough_objects_;
-
   int scrollbar_start_width_;
   double scrollbar_start_value_;
   double scrollbar_start_scale_;
@@ -270,6 +260,8 @@ private slots:
   void AutoUpdateTimebase();
 
   void ConnectedNodeRemovedFromGraph();
+
+  void PlayheadTimeChanged(const rational &time);
 
 };
 

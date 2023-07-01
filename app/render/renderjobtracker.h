@@ -21,10 +21,13 @@
 #ifndef RENDERJOBTRACKER_H
 #define RENDERJOBTRACKER_H
 
+#include <olive/core/core.h>
+
 #include "common/jobtime.h"
-#include "common/timerange.h"
 
 namespace olive {
+
+using namespace core;
 
 class RenderJobTracker
 {
@@ -59,7 +62,7 @@ private:
 
   };
 
-  QVector<TimeRangeWithJob> jobs_;
+  std::vector<TimeRangeWithJob> jobs_;
 
 };
 

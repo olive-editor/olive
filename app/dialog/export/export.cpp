@@ -34,7 +34,7 @@
 #include "common/qtutils.h"
 #include "dialog/task/task.h"
 #include "exportsavepresetdialog.h"
-#include "node/project/project.h"
+#include "node/project.h"
 #include "node/project/sequence/sequence.h"
 #include "task/taskmanager.h"
 #include "ui/icons/icons.h"
@@ -58,7 +58,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
 
   preferences_area_ = new QWidget();
   QGridLayout* preferences_layout = new QGridLayout(preferences_area_);
-  preferences_layout->setMargin(0);
+  preferences_layout->setContentsMargins(0, 0, 0, 0);
 
   int row = 0;
 
@@ -148,6 +148,11 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   video_tab_ = new ExportVideoTab(color_manager_);
   AddPreferencesTab(video_tab_, tr("Video"));
 
+  // Set video tab time and make connections
+  connect(viewer_node, &ViewerOutput::PlayheadChanged, video_tab_, &ExportVideoTab::SetTime);
+  connect(video_tab_, &ExportVideoTab::TimeChanged, viewer_node, &ViewerOutput::SetPlayhead);
+  video_tab_->SetTime(viewer_node->GetPlayhead());
+
   audio_tab_ = new ExportAudioTab();
   AddPreferencesTab(audio_tab_, tr("Audio"));
 
@@ -183,7 +188,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   row++;
 
   QHBoxLayout *btn_layout = new QHBoxLayout();
-  btn_layout->setMargin(0);
+  btn_layout->setContentsMargins(0, 0, 0, 0);
   preferences_layout->addLayout(btn_layout, row, 0, 1, 4);
 
   btn_layout->addStretch();
@@ -206,7 +211,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode, QWi
   preview_viewer_ = new ViewerWidget();
   preview_viewer_->ruler()->SetMarkerEditingEnabled(false);
   preview_viewer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  connect(preview_viewer_, &ViewerWidget::TimeChanged, video_tab_, &ExportVideoTab::SetTime);
   preview_layout->addWidget(preview_viewer_);
   splitter->addWidget(preview_area);
 
@@ -391,7 +395,7 @@ void ExportDialog::ExportFinished()
     // If this task was cancelled, we stay open so the user can potentially queue another export
   } else {
     // Accept this dialog and close
-    if (import_file_after_export_) {
+    if (import_file_after_export_->isEnabled() && import_file_after_export_->isChecked()) {
       QString filename = filename_edit_->text().trimmed();
       emit RequestImportFile(filename);
     }
@@ -437,7 +441,7 @@ void ExportDialog::PresetComboBoxChanged()
   if (loading_presets_) {
     return;
   }
-  
+
   QComboBox *c = static_cast<QComboBox *>(sender());
 
   int preset_number = c->currentData().toInt();
@@ -622,12 +626,13 @@ void ExportDialog::SetDefaults()
   video_tab_->height_slider()->SetDefaultValue(vp.height());
   video_tab_->SetSelectedFrameRate(vp.frame_rate());
   video_tab_->pixel_aspect_combobox()->SetPixelAspectRatio(vp.pixel_aspect_ratio());
-  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<VideoParams::Format>(OLIVE_CONFIG("OnlinePixelFormat").toInt()));
+  video_tab_->pixel_format_field()->SetPixelFormat(static_cast<PixelFormat::Format>(OLIVE_CONFIG("OnlinePixelFormat").toInt()));
   video_tab_->interlaced_combobox()->SetInterlaceMode(vp.interlacing());
   audio_tab_->sample_rate_combobox()->SetSampleRate(ap.sample_rate());
   audio_tab_->sample_format_combobox()->SetAttemptToRestoreFormat(false);
   audio_tab_->channel_layout_combobox()->SetChannelLayout(ap.channel_layout());
   subtitles_enabled_->setChecked(SequenceHasSubtitles());
+  subtitle_tab_->SetSidecarFormat(ExportFormat::kFormatSRT);
 }
 
 EncodingParams ExportDialog::GenerateParams() const

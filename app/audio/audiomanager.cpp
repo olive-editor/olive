@@ -73,7 +73,7 @@ int InputCallback(const void *input, void *output, unsigned long frameCount, con
   FFmpegEncoder *f = static_cast<FFmpegEncoder*>(userData);
 
   AudioParams our_params = f->params().audio_params();
-  our_params.set_format(AudioParams::GetPackedEquivalent(f->params().audio_params().format()));
+  our_params.set_format(f->params().audio_params().format().to_packed_equivalent());
 
   f->WriteAudioData(our_params, reinterpret_cast<const uint8_t**>(&input), frameCount);
 
@@ -119,27 +119,27 @@ void AudioManager::ClearBufferedOutput()
   output_buffer_->clear();
 }
 
-PaSampleFormat AudioManager::GetPortAudioSampleFormat(AudioParams::Format fmt)
+PaSampleFormat AudioManager::GetPortAudioSampleFormat(SampleFormat fmt)
 {
   switch (fmt) {
-  case AudioParams::kFormatUnsigned8Packed:
-  case AudioParams::kFormatUnsigned8Planar:
+  case SampleFormat::U8:
+  case SampleFormat::U8P:
     return paUInt8;
-  case AudioParams::kFormatSigned16Packed:
-  case AudioParams::kFormatSigned16Planar:
+  case SampleFormat::S16:
+  case SampleFormat::S16P:
     return paInt16;
-  case AudioParams::kFormatSigned32Packed:
-  case AudioParams::kFormatSigned32Planar:
+  case SampleFormat::S32:
+  case SampleFormat::S32P:
     return paInt32;
-  case AudioParams::kFormatFloat32Packed:
-  case AudioParams::kFormatFloat32Planar:
+  case SampleFormat::F32:
+  case SampleFormat::F32P:
     return paFloat32;
-  case AudioParams::kFormatSigned64Packed:
-  case AudioParams::kFormatSigned64Planar:
-  case AudioParams::kFormatFloat64Packed:
-  case AudioParams::kFormatFloat64Planar:
-  case AudioParams::kFormatInvalid:
-  case AudioParams::kFormatCount:
+  case SampleFormat::S64:
+  case SampleFormat::S64P:
+  case SampleFormat::F64:
+  case SampleFormat::F64P:
+  case SampleFormat::INVALID:
+  case SampleFormat::COUNT:
     break;
   }
 

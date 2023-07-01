@@ -202,14 +202,10 @@ private:
   QAction* file_open_recent_clear_item_;
   QAction* file_save_item_;
   QAction* file_save_as_item_;
-  QAction* file_save_all_item_;
   QAction* file_revert_item_;
   QAction* file_import_item_;
   Menu* file_export_menu_;
   QAction* file_export_media_item_;
-  QAction* file_close_project_item_;
-  QAction* file_close_all_projects_item_;
-  QAction* file_close_all_except_item_;
   QAction* file_project_properties_item_;
   QAction* file_exit_item_;
 
@@ -266,7 +262,6 @@ private:
   Menu* window_menu_;
   QAction* window_menu_separator_;
   QAction* window_maximize_panel_item_;
-  QAction* window_lock_layout_item_;
   QAction* window_reset_layout_item_;
 
   Menu* tools_menu_;
@@ -286,6 +281,11 @@ private:
   QAction* tools_record_item_;
   QAction* tools_snapping_item_;
   QAction* tools_preferences_item_;
+  Menu *tools_add_item_menu_;
+
+#ifndef NDEBUG
+  QAction* tools_magic_item_;
+#endif
 
   Menu* help_menu_;
   QAction* help_action_search_item_;

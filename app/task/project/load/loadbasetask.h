@@ -21,7 +21,7 @@
 #ifndef PROJECTLOADBASETASK_H
 #define PROJECTLOADBASETASK_H
 
-#include "node/project/project.h"
+#include "node/project.h"
 #include "task/task.h"
 
 namespace olive {
@@ -42,8 +42,15 @@ public:
     return filename_;
   }
 
+  const MainWindowLayoutInfo &GetLoadedLayout() const
+  {
+    return layout_;
+  }
+
 protected:
   Project* project_;
+
+  MainWindowLayoutInfo layout_;
 
 private:
   QString filename_;

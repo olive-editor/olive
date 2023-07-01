@@ -73,6 +73,8 @@ public:
 
   Block* GetItemAtScenePos(const rational& time, int track_index) const;
 
+  QVector<Block*> GetItemsAtSceneRect(const QRectF &rect) const;
+
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
@@ -89,8 +91,6 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
   virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-
-  virtual void wheelEvent(QWheelEvent* event) override;
 
   virtual void dragEnterEvent(QDragEnterEvent *event) override;
   virtual void dragMoveEvent(QDragMoveEvent *event) override;

@@ -78,6 +78,15 @@ InputFlags NodeInput::GetFlags() const
   }
 }
 
+QString NodeInput::GetInputName() const
+{
+  if (IsValid()) {
+    return node_->GetInputName(input_);
+  } else {
+    return QString();
+  }
+}
+
 Node *NodeInput::GetConnectedOutput() const
 {
   if (IsValid()) {
@@ -170,12 +179,12 @@ int NodeInput::GetArraySize() const
 
 uint qHash(const NodeInput &i)
 {
-  return qHash(i.node()) ^ qHash(i.input()) ^ qHash(i.element());
+  return qHash(i.node()) ^ qHash(i.input()) ^ ::qHash(i.element());
 }
 
 uint qHash(const NodeKeyframeTrackReference &i)
 {
-  return qHash(i.input()) & qHash(i.track());
+  return qHash(i.input()) & ::qHash(i.track());
 }
 
 uint qHash(const NodeInputPair &i)

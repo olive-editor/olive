@@ -38,10 +38,9 @@
 #include "task/taskmanager.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "node/nodeundo.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
-#include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
 namespace olive {
@@ -53,7 +52,7 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   // Create layout
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setSpacing(0);
-  layout->setMargin(0);
+  layout->setContentsMargins(0, 0, 0, 0);
 
   // Set up navigation bar
   nav_bar_ = new ProjectExplorerNavigation(this);
@@ -395,7 +394,7 @@ void ProjectExplorer::ShowContextMenu()
       } else {
         foreach (Sequence* i, sequences) {
           QAction* a = proxy_menu->addAction(tr("For \"%1\"").arg(i->GetLabel()));
-          a->setData(Node::PtrToValue(i));
+          a->setData(QtUtils::PtrToValue(i));
         }
 
         connect(proxy_menu, &Menu::triggered, this, &ProjectExplorer::ContextMenuStartProxy);
@@ -478,24 +477,33 @@ void ProjectExplorer::ReplaceSelectedFootage()
 
   QString file = QFileDialog::getOpenFileName(this, tr("Replace Footage"));
   if (!file.isEmpty()) {
-    auto c = new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(footage, Footage::kFilenameInput)), file);
-    Core::instance()->undo_stack()->push(c);
+    auto p = new MultiUndoCommand();
+
+    // Change filename parameter
+    p->add_child(new NodeParamSetStandardValueCommand(NodeKeyframeTrackReference(NodeInput(footage, Footage::kFilenameInput)), file));
+
+    if (QFileInfo(footage->filename()).fileName() == footage->GetLabel()) {
+      // Footage label == filename, change label too
+      p->add_child(new NodeRenameCommand(footage, QFileInfo(file).fileName()));
+    }
+
+    Core::instance()->undo_stack()->push(p, tr("Replaced Footage"));
   }
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewTab()
 {
-  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), false);
+  Core::instance()->main_window()->OpenFolder(static_cast<Folder*>(context_menu_items_.first()), false);
 }
 
 void ProjectExplorer::OpenContextMenuItemInNewWindow()
 {
-  Core::instance()->main_window()->FolderOpen(project(), static_cast<Folder*>(context_menu_items_.first()), true);
+  Core::instance()->main_window()->OpenFolder(static_cast<Folder*>(context_menu_items_.first()), true);
 }
 
 void ProjectExplorer::ContextMenuStartProxy(QAction *a)
 {
-  Sequence* sequence = Node::ValueToPtr<Sequence>(a->data());
+  Sequence* sequence = QtUtils::ValueToPtr<Sequence>(a->data());
 
   // To get here, the `context_menu_items_` must be all kFootage
   foreach (Node* item, context_menu_items_) {
@@ -658,7 +666,7 @@ void ProjectExplorer::DeleteSelected()
   bool check_if_item_is_in_use = true;
 
   if (DeleteItemsInternal(selected, check_if_item_is_in_use, command)) {
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Deleted %1 Item(s)").arg(selected.size()));
   } else {
     delete command;
   }

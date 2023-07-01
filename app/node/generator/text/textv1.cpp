@@ -54,7 +54,7 @@ TextGeneratorV1::TextGeneratorV1()
 
   AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
 
-  SetFlags(kDontShowInCreateMenu);
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString TextGeneratorV1::Name() const

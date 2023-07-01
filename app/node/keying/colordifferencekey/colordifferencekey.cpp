@@ -47,7 +47,7 @@ ColorDifferenceKeyNode::ColorDifferenceKeyNode()
 
   AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 }
 
