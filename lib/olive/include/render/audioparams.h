@@ -29,6 +29,7 @@ extern "C" {
 #include <QXmlStreamWriter>
 #include <vector>
 
+#include "audiochannellayout.h"
 #include "sampleformat.h"
 #include "util/rational.h"
 
@@ -38,25 +39,18 @@ class AudioParams {
 public:
   AudioParams() :
     sample_rate_(0),
-    channel_layout_(0),
     format_(SampleFormat::INVALID)
   {
     set_default_footage_parameters();
-
-    // Cache channel count
-    calculate_channel_count();
   }
 
-  AudioParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat& format) :
+  AudioParams(const int& sample_rate, const AudioChannelLayout& channel_layout, const SampleFormat& format) :
     sample_rate_(sample_rate),
     channel_layout_(channel_layout),
     format_(format)
   {
     set_default_footage_parameters();
     timebase_ = sample_rate_as_time_base();
-
-    // Cache channel count
-    calculate_channel_count();
   }
 
   int sample_rate() const
@@ -69,15 +63,14 @@ public:
     sample_rate_ = sample_rate;
   }
 
-  uint64_t channel_layout() const
+  const AudioChannelLayout &channel_layout() const
   {
     return channel_layout_;
   }
 
-  void set_channel_layout(uint64_t channel_layout)
+  void set_channel_layout(const AudioChannelLayout &channel_layout)
   {
     channel_layout_ = channel_layout;
-    calculate_channel_count();
   }
 
   rational time_base() const
@@ -158,7 +151,7 @@ public:
   bool operator==(const AudioParams& other) const;
   bool operator!=(const AudioParams& other) const;
 
-  static const std::vector<uint64_t> kSupportedChannelLayouts;
+  static const std::vector<AudioChannelLayout> kSupportedChannelLayouts;
   static const std::vector<int> kSupportedSampleRates;
 
 private:
@@ -169,13 +162,9 @@ private:
     duration_ = 0;
   }
 
-  void calculate_channel_count();
-
   int sample_rate_;
 
-  uint64_t channel_layout_;
-
-  int channel_count_;
+  AudioChannelLayout channel_layout_;
 
   SampleFormat format_;
 

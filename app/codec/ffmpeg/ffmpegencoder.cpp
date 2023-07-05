@@ -334,7 +334,7 @@ bool FFmpegEncoder::WriteAudioData(const AudioParams &audio_params, const uint8_
   int output_sample_count = input_sample_count ? swr_get_out_samples(audio_resample_ctx_, input_sample_count) : 102400;
   uint8_t** output_data = nullptr;
   int output_linesize;
-  av_samples_alloc_array_and_samples(&output_data, &output_linesize, audio_stream_->codecpar->channels,
+  av_samples_alloc_array_and_samples(&output_data, &output_linesize, audio_stream_->codecpar->ch_layout.nb_channels,
                                      output_sample_count, static_cast<AVSampleFormat>(audio_stream_->codecpar->format), 0);
 
   // Perform conversion
@@ -349,7 +349,7 @@ bool FFmpegEncoder::WriteAudioData(const AudioParams &audio_params, const uint8_
 
       av_samples_copy(audio_frame_->data, output_data, audio_frame_offset_, i,
                       copy_length,
-                      audio_frame_->channels, static_cast<AVSampleFormat>(audio_frame_->format));
+                      audio_frame_->ch_layout.nb_channels, static_cast<AVSampleFormat>(audio_frame_->format));
 
       audio_frame_offset_ += copy_length;
       i += copy_length;
@@ -690,8 +690,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
 
     // Assume audio stream
     codec_ctx->sample_rate = params().audio_params().sample_rate();
-    codec_ctx->channel_layout = params().audio_params().channel_layout();
-    codec_ctx->channels = av_get_channel_layout_nb_channels(codec_ctx->channel_layout);
+    params().audio_params().channel_layout().exportTo(codec_ctx->ch_layout);
     codec_ctx->sample_fmt = FFmpegUtils::GetFFmpegSampleFormat(params().audio_params().format());
     codec_ctx->time_base = {1, codec_ctx->sample_rate};
 
@@ -829,22 +828,24 @@ bool FFmpegEncoder::InitializeResampleContext(const AudioParams &audio)
   }
 
   // Create resample context
-  audio_resample_ctx_ = swr_alloc_set_opts(nullptr,
-                                           static_cast<int64_t>(audio_codec_ctx_->channel_layout),
-                                           audio_codec_ctx_->sample_fmt,
-                                           audio_codec_ctx_->sample_rate,
-                                           static_cast<int64_t>(audio.channel_layout()),
-                                           FFmpegUtils::GetFFmpegSampleFormat(audio.format()),
-                                           audio.sample_rate(),
-                                           0,
-                                           nullptr);
-  if (!audio_resample_ctx_) {
+  int err;
+  err = swr_alloc_set_opts2(&audio_resample_ctx_,
+                            &audio_codec_ctx_->ch_layout,
+                            audio_codec_ctx_->sample_fmt,
+                            audio_codec_ctx_->sample_rate,
+                            audio.channel_layout().ref(),
+                            FFmpegUtils::GetFFmpegSampleFormat(audio.format()),
+                            audio.sample_rate(),
+                            0,
+                            nullptr);
+  if (err < 0) {
+    FFmpegError(tr("Failed to create resampling context"), err);
     return false;
   }
 
-  int err = swr_init(audio_resample_ctx_);
+  err = swr_init(audio_resample_ctx_);
   if (err < 0) {
-    FFmpegError(tr("Failed to create resampling context"), err);
+    FFmpegError(tr("Failed to initialize resampling context"), err);
     return false;
   }
 
@@ -865,7 +866,7 @@ bool FFmpegEncoder::InitializeResampleContext(const AudioParams &audio)
     return false;
   }
 
-  audio_frame_->channel_layout = audio_codec_ctx_->channel_layout;
+  audio_frame_->ch_layout = audio_codec_ctx_->ch_layout;
   audio_frame_->format = audio_codec_ctx_->sample_fmt;
   audio_frame_->nb_samples = audio_max_samples_;
 

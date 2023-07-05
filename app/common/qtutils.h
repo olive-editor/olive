@@ -106,11 +106,12 @@ uint qHash(const AudioParams& r, uint seed = 0);
 
 }
 
-Q_DECLARE_METATYPE(olive::rational);
-Q_DECLARE_METATYPE(olive::Color);
-Q_DECLARE_METATYPE(olive::TimeRange);
-Q_DECLARE_METATYPE(olive::Bezier);
+Q_DECLARE_METATYPE(olive::AudioChannelLayout);
 Q_DECLARE_METATYPE(olive::AudioParams);
+Q_DECLARE_METATYPE(olive::Bezier);
+Q_DECLARE_METATYPE(olive::Color);
 Q_DECLARE_METATYPE(olive::SampleBuffer);
+Q_DECLARE_METATYPE(olive::TimeRange);
+Q_DECLARE_METATYPE(olive::rational);
 
 #endif // QTVERSIONABSTRACTION_H

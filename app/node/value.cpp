@@ -36,6 +36,9 @@ namespace olive {
 
 std::map<type_t, std::map<type_t, value_t::Converter_t> > value_t::converters_;
 
+const std::vector<type_t> value_t::XYZW_IDS = {"x", "y", "z", "w"};
+const std::vector<type_t> value_t::RGBA_IDS = {"r", "g", "b", "a"};
+
 QChar CHANNEL_SPLITTER = ':';
 
 struct TextureChannel
@@ -59,16 +62,33 @@ value_t::value_t(TexturePtr texture) :
     for (size_t i = 0; i < sz; i++) {
       data_[i] = TextureChannel({texture, i});
     }
+
+    switch (sz) {
+    case 2:
+      data_[1].set_id("a");
+      /* fall-through */
+    case 1:
+      data_[0].set_id("l");
+      break;
+    case 4:
+      data_[3].set_id("a");
+    case 3:
+      data_[0].set_id("r");
+      data_[1].set_id("g");
+      data_[2].set_id("b");
+      break;
+    }
   }
 }
 
 value_t::value_t(AudioJobPtr job)
 {
   if (job) {
+    std::vector<type_t> channel_names = job->params().channel_layout().getChannelNames();
     size_t sz = job->params().channel_count();
     data_.resize(sz);
     for (size_t i = 0; i < sz; i++) {
-      data_[i] = SampleJobChannel({job, i});
+      data_[i] = component_t(SampleJobChannel({job, i}), channel_names.at(i));
     }
     type_ = TYPE_SAMPLES;
   }
@@ -77,6 +97,14 @@ value_t::value_t(AudioJobPtr job)
 value_t::value_t(const SampleJob &job) :
   value_t(AudioJob::Create(job.audio_params(), job))
 {
+}
+
+QString value_t::toString() const
+{
+  if (type_ != TYPE_STRING) {
+    return this->converted(TYPE_STRING).value<QString>();
+  }
+  return value<QString>();
 }
 
 ShaderCode GetSwizzleShaderCode(const QString &id)
@@ -178,7 +206,7 @@ AudioJobPtr value_t::toAudioJob() const
   if (swizzled) {
     if (ap.is_valid()) {
       // Return texture(s) wrapped in a swizzle shader
-      ap.set_channel_layout(av_get_default_channel_layout(data_.size()));
+      ap.set_channel_layout(AudioChannelLayout::fromMask(av_get_default_channel_layout(data_.size())));
 
       SampleJob swizzle(ValueParams(VideoParams(), ap, time, QString(), LoopMode(), nullptr, nullptr));
 

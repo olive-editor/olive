@@ -25,20 +25,26 @@
 
 namespace olive {
 
-NodeInputImmediate::NodeInputImmediate(type_t type, size_t channels) :
+NodeInputImmediate::NodeInputImmediate() :
   keyframing_(false)
 {
-  standard_value_.resize(channels);
 }
 
 void NodeInputImmediate::set_standard_value_on_track(const value_t::component_t &value, size_t track)
 {
+  if (track >= standard_value_.size()) {
+    standard_value_.resize(track + 1);
+  }
   standard_value_[track] = value;
 }
 
 void NodeInputImmediate::set_split_standard_value(const value_t &value)
 {
-  for (size_t i=0; i<value.size() && i<standard_value_.size(); i++) {
+  if (standard_value_.size() < value.size()) {
+    standard_value_.resize(value.size());
+  }
+
+  for (size_t i=0; i<value.size(); i++) {
     standard_value_[i] = value[i];
   }
 }

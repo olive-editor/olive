@@ -383,11 +383,6 @@ Color OpenGLRenderer::GetPixelFromTexture(Texture *texture, const QPointF &pt)
 
   Color c = Color::fromData(data.data(), texture->format(), texture->channel_count());
 
-  if (texture->channel_count() == VideoParams::kRGBChannelCount) {
-    // No alpha channel, set to 1.0
-    c.set_alpha(1.0);
-  }
-
   DetachTextureAsDestination();
 
   return c;
@@ -475,13 +470,6 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
     if (tex_id) {
       PrepareInputTexture(target, t.interpolation);
-
-      if (texture->channel_count() == 1 && destination_params.channel_count() != 1) {
-        // Interpret this texture as a grayscale texture
-        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
-        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-        functions_->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-      }
     }
   }
 

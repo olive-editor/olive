@@ -176,7 +176,7 @@ void SequenceDialog::SetAsDefaultClicked()
     OLIVE_CONFIG("DefaultSequenceFrameRate") = parameter_tab_->GetSelectedVideoFrameRate().flipped();
     OLIVE_CONFIG("DefaultSequenceInterlacing") = parameter_tab_->GetSelectedVideoInterlacingMode();
     OLIVE_CONFIG("DefaultSequenceAudioFrequency") = parameter_tab_->GetSelectedAudioSampleRate();
-    OLIVE_CONFIG("DefaultSequenceAudioLayout") = parameter_tab_->GetSelectedAudioChannelLayout();
+    OLIVE_CONFIG("DefaultSequenceAudioLayout") = parameter_tab_->GetSelectedAudioChannelLayout().toString();
   }
 }
 

@@ -26,6 +26,7 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include "node/globals.h"
 #include "node/swizzlemap.h"
 #include "widget/nodeview/curvedconnectoritem.h"
 
@@ -51,23 +52,11 @@ class ValueSwizzleWidget : public QGraphicsView
 {
   Q_OBJECT
 public:
-  enum Labels
-  {
-    kNumberLabels,
-    kXYZWLabels,
-    kRGBALabels,
-  };
-
   explicit ValueSwizzleWidget(QWidget *parent = nullptr);
 
   bool delete_selected();
 
-  void set(const SwizzleMap &map);
-  void set_channels(size_t from, size_t to);
-
-  void set_label_type(Labels l) { labels_ = l; }
-
-  void set_type(type_t t);
+  void set(const ValueParams &g, const NodeInput &input);
 
 protected:
   virtual void drawBackground(QPainter *p, const QRectF &r) override;
@@ -82,15 +71,18 @@ signals:
   void value_changed(const SwizzleMap &map);
 
 private:
-  QString get_label_text(size_t index) const;
-
-  void draw_channel(QPainter *p, size_t i, int x);
+  void draw_channel(QPainter *p, size_t i, int x, const QString &name);
   inline bool channel_is_from(int x) const { return x < get_left_channel_bound(); }
   inline bool channel_is_to(int x) const { return x >= get_right_channel_bound(); }
   inline bool is_inside_bounds(int x) const { return channel_is_from(x) || channel_is_to(x); }
   inline int get_left_channel_bound() const { return channel_width_; }
   inline int get_right_channel_bound() const { return viewport()->width() - channel_width_ - 1; }
   inline size_t get_channel_index_from_y(int y) const { return y / channel_height_; }
+
+  void set_map(const SwizzleMap &map);
+
+  size_t from_count() const { return from_.size(); }
+  size_t to_count() const;
 
   QPoint get_connect_point_of_channel(bool from, size_t index);
 
@@ -102,18 +94,22 @@ private:
   QGraphicsScene *scene_;
   int channel_width_;
   int channel_height_;
-  size_t from_count_;
-  size_t to_count_;
-  Labels labels_;
   bool drag_from_;
   size_t drag_index_;
   bool new_item_connected_;
+
+  NodeInput input_;
+  std::vector<NodeOutput> outputs_;
+  std::vector<value_t> from_;
 
   SwizzleMap cached_map_;
   SwizzleConnectorItem *new_item_;
   QPoint drag_start_;
 
   std::vector<SwizzleConnectorItem *> connectors_;
+
+private slots:
+  void hint_changed(const NodeInput &input);
 
 };
 

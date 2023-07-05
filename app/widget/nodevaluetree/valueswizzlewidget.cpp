@@ -25,6 +25,7 @@
 #include <QScrollBar>
 
 #include "config/config.h"
+#include "node/node.h"
 
 namespace olive {
 
@@ -44,12 +45,9 @@ ValueSwizzleWidget::ValueSwizzleWidget(QWidget *parent) :
   setScene(scene_);
 
   new_item_ = nullptr;
-  labels_ = kNumberLabels;
 
   channel_height_ = this->fontMetrics().height() * 3 / 2;
   channel_width_ = channel_height_ * 2;
-  from_count_ = 0;
-  to_count_ = 0;
 
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -69,63 +67,56 @@ bool ValueSwizzleWidget::delete_selected()
     map.remove(conn->to());
   }
 
-  set(map);
+  set_map(map);
   emit value_changed(map);
 
   return true;
 }
 
-void ValueSwizzleWidget::set(const SwizzleMap &map)
+void ValueSwizzleWidget::set(const ValueParams &g, const NodeInput &input)
 {
-  clear_all();
-
-  cached_map_ = map;
-
-  if (cached_map_.empty()) {
-    // Connect everything directly for empty maps
-    size_t lim = std::min(from_count_, to_count_);
-    for (size_t i = 0; i < lim; i++) {
-      make_item(i, i);
-    }
-  } else {
-    for (auto it = cached_map_.cbegin(); it != cached_map_.cend(); it++) {
-      make_item(it->second, it->first);
-    }
+  if (input_.IsValid()) {
+    disconnect(input_.node(), &Node::InputValueHintChanged, this, &ValueSwizzleWidget::hint_changed);
   }
 
-  adjust_all();
-}
+  input_ = input;
+  from_.clear();
+  outputs_.clear();
 
-void ValueSwizzleWidget::set_channels(size_t from, size_t to)
-{
-  from_count_ = from;
-  to_count_ = to;
-  setFixedHeight(std::max(from, to) * channel_height_);
+  if (input_.IsValid()) {
+    Node *n = input_.node();
+    outputs_ = n->GetConnectedOutputs(input_);
 
-  set(cached_map_);
-}
+    from_.resize(outputs_.size());
+    for (size_t i = 0; i < from_.size(); i++) {
+      from_[i] = n->GetFakeConnectedValue(g, outputs_[i], input_.input(), input_.element());
+    }
 
-void ValueSwizzleWidget::set_type(type_t t)
-{
-  if (t == TYPE_TEXTURE) {
-    labels_ = kRGBALabels;
-  } else if (t == TYPE_DOUBLE) {
-    labels_ = kXYZWLabels;
-  } else {
-    labels_ = kNumberLabels;
+    set_map(n->GetValueHintForInput(input.input(), input.element()).swizzle());
+
+    connect(input_.node(), &Node::InputValueHintChanged, this, &ValueSwizzleWidget::hint_changed);
   }
 
-  viewport()->update();
+  setFixedHeight(std::max(from_count(), to_count()) * channel_height_);
 }
 
 void ValueSwizzleWidget::drawBackground(QPainter *p, const QRectF &r)
 {
-  for (size_t i = 0; i < from_count_; i++) {
-    draw_channel(p, i, 0);
+  if (!input_.IsValid()) {
+    return;
   }
 
-  for (size_t i = 0; i < to_count_; i++) {
-    draw_channel(p, i, width() - channel_width_ - 1);
+  QFontMetrics fm = p->fontMetrics();
+  p->drawText(0, 0, viewport()->width(), fm.height(), Qt::AlignLeft | Qt::AlignTop, );
+
+
+  for (size_t i = 0; i < from_count(); i++) {
+    draw_channel(p, i, 0, from_.at(i).id().toString());
+  }
+
+  for (size_t i = 0; i < to_count(); i++) {
+    // FIXME: Get naming scheme for this...
+    draw_channel(p, i, width() - channel_width_ - 1, QString());
   }
 }
 
@@ -183,7 +174,7 @@ void ValueSwizzleWidget::mouseMoveEvent(QMouseEvent *e)
       bool is_from = channel_is_from(e->x());
       if (drag_from_ != is_from) {
         size_t index = get_channel_index_from_y(e->y());
-        if ((is_from && index < from_count_) || (!is_from && index < to_count_)) {
+        if ((is_from && index < from_count()) || (!is_from && index < to_count())) {
           end_point = get_connect_point_of_channel(is_from, index);
           new_item_connected_ = true;
           if (drag_from_) {
@@ -218,7 +209,7 @@ void ValueSwizzleWidget::mouseReleaseEvent(QMouseEvent *e)
     delete new_item_;
     new_item_ = nullptr;
 
-    set(map);
+    set_map(map);
     emit value_changed(map);
   } else {
     super::mouseReleaseEvent(e);
@@ -234,7 +225,7 @@ void ValueSwizzleWidget::resizeEvent(QResizeEvent *e)
   super::resizeEvent(e);
 }
 
-void ValueSwizzleWidget::draw_channel(QPainter *p, size_t i, int x)
+void ValueSwizzleWidget::draw_channel(QPainter *p, size_t i, int x, const QString &name)
 {
   static const size_t kChannelColorCount = 4;
   static const QColor kDefaultColor = QColor(16, 16, 16);
@@ -254,7 +245,8 @@ void ValueSwizzleWidget::draw_channel(QPainter *p, size_t i, int x)
 
   QRect r(x, i * channel_height_, channel_width_, channel_height_);
 
-  const QColor *kChannelColors = labels_ == kRGBALabels ? kRGBAChannelColors : kGrayChannelColors;
+  //const QColor *kChannelColors = type_ == TYPE_TEXTURE || type_ == TYPE_COLOR ? kRGBAChannelColors : kGrayChannelColors;
+  const QColor *kChannelColors = kGrayChannelColors;
 
   const QColor &main_col = i < kChannelColorCount ? kChannelColors[i] : kDefaultColor;
   if (OLIVE_CONFIG("UseGradients").toBool()) {
@@ -272,7 +264,36 @@ void ValueSwizzleWidget::draw_channel(QPainter *p, size_t i, int x)
   p->drawRect(r);
 
   p->setPen(Qt::white);
-  p->drawText(r, Qt::AlignCenter, get_label_text(i));
+
+  QString t = (!name.isEmpty()) ? name : QString::number(i);
+  p->drawText(r, Qt::AlignCenter, t);
+}
+
+void ValueSwizzleWidget::set_map(const SwizzleMap &map)
+{
+  clear_all();
+
+  cached_map_ = map;
+
+  if (cached_map_.empty()) {
+    // Connect everything directly for empty maps
+    size_t lim = std::min(from_count(), to_count());
+    for (size_t i = 0; i < lim; i++) {
+      make_item(i, i);
+    }
+  } else {
+    for (auto it = cached_map_.cbegin(); it != cached_map_.cend(); it++) {
+      make_item(it->second, it->first);
+    }
+  }
+
+  adjust_all();
+}
+
+size_t ValueSwizzleWidget::to_count() const
+{
+  return 4;
+  //return std::max(input_.GetChannelCount(), cached_map_.size());
 }
 
 QPoint ValueSwizzleWidget::get_connect_point_of_channel(bool from, size_t index)
@@ -323,30 +344,12 @@ SwizzleMap ValueSwizzleWidget::get_map_from_connectors() const
   return map;
 }
 
-QString ValueSwizzleWidget::get_label_text(size_t index) const
+void ValueSwizzleWidget::hint_changed(const NodeInput &input)
 {
-  switch (labels_) {
-  case kNumberLabels:
-    break;
-  case kXYZWLabels:
-    switch (index) {
-    case 0: return tr("X");
-    case 1: return tr("Y");
-    case 2: return tr("Z");
-    case 3: return tr("W");
-    }
-    break;
-  case kRGBALabels:
-    switch (index) {
-    case 0: return tr("R");
-    case 1: return tr("G");
-    case 2: return tr("B");
-    case 3: return tr("A");
-    }
-    break;
+  if (input_ == input) {
+    Node::ValueHint vh = input.node()->GetValueHintForInput(input.input(), input.element());
+    set_map(vh.swizzle());
   }
-
-  return QString::number(index);
 }
 
 SwizzleConnectorItem::SwizzleConnectorItem(QGraphicsItem *parent) :

@@ -401,6 +401,12 @@ public:
     return GetConnectedOutput(input.input(), input.element());
   }
 
+  std::vector<NodeOutput> GetConnectedOutputs(const QString &input, int element = -1) const;
+  std::vector<NodeOutput> GetConnectedOutputs(const NodeInput &input) const
+  {
+    return GetConnectedOutputs(input.input(), input.element());
+  }
+
   bool is_enabled() const { return GetStandardValue(kEnabledInput).toBool(); }
   void set_enabled(bool e) {  SetStandardValue(kEnabledInput, e); }
 
@@ -1065,6 +1071,7 @@ private:
     QString human_name;
     size_t array_size;
     size_t channel_count;
+    std::vector<type_t> id_map;
   };
 
   NodeInputImmediate* CreateImmediate(const QString& input);
@@ -1095,6 +1102,9 @@ private:
       return &input_data_.at(i);
     }
   }
+
+  void SetInputDataTypeInternal(Node::Input *i, const QString &id, type_t type, size_t channel_count);
+  void SetInputPropertyInternal(Node::Input *i, const QString &id, const QString& name, const value_t &value);
 
   void ReportInvalidInput(const char* attempted_action, const QString &id, int element) const;
 
@@ -1144,7 +1154,7 @@ private:
 
   void ClearElement(const QString &input, int index);
 
-  type_t ResolveSpecialType(type_t type, size_t &channel_count, QString &subtype);
+  type_t ResolveSpecialType(type_t type, size_t &channel_count, QString &subtype, std::vector<type_t> &id_map);
 
   /**
    * @brief Custom user label for node

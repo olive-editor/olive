@@ -32,7 +32,7 @@ class NodeInput;
 class NodeInputImmediate
 {
 public:
-  NodeInputImmediate(type_t type, size_t channels);
+  NodeInputImmediate();
 
   /**
    * @brief Internal insert function, automatically does an insertion sort based on the keyframe's time
@@ -53,7 +53,10 @@ public:
 
   value_t::component_t get_split_standard_value_on_track(size_t track) const
   {
-    return standard_value_.at(track);
+    if (track < standard_value_.size()) {
+      return standard_value_.at(track);
+    }
+    return value_t::component_t();
   }
 
   void set_standard_value_on_track(const value_t::component_t &value, size_t track);

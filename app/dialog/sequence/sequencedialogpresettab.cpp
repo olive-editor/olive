@@ -109,7 +109,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              VideoParams::kPixelAspectSquare,
                                              VideoParams::kInterlaceNone,
                                              48000,
-                                             AV_CH_LAYOUT_STEREO,
+                                             AudioChannelLayout::STEREO,
                                              divider,
                                              default_format,
                                              default_autocache));
@@ -120,7 +120,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              VideoParams::kPixelAspectSquare,
                                              VideoParams::kInterlaceNone,
                                              48000,
-                                             AV_CH_LAYOUT_STEREO,
+                                             AudioChannelLayout::STEREO,
                                              divider,
                                              default_format,
                                              default_autocache));
@@ -131,7 +131,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              VideoParams::kPixelAspectSquare,
                                              VideoParams::kInterlaceNone,
                                              48000,
-                                             AV_CH_LAYOUT_STEREO,
+                                             AudioChannelLayout::STEREO,
                                              divider,
                                              default_format,
                                              default_autocache));
@@ -142,7 +142,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              VideoParams::kPixelAspectSquare,
                                              VideoParams::kInterlaceNone,
                                              48000,
-                                             AV_CH_LAYOUT_STEREO,
+                                             AudioChannelLayout::STEREO,
                                              divider,
                                              default_format,
                                              default_autocache));
@@ -153,7 +153,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateHDPresetFolder(const QString &na
                                              VideoParams::kPixelAspectSquare,
                                              VideoParams::kInterlaceNone,
                                              48000,
-                                             AV_CH_LAYOUT_STEREO,
+                                             AudioChannelLayout::STEREO,
                                              divider,
                                              default_format,
                                              default_autocache));
@@ -173,7 +173,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
                                              standard_par,
                                              VideoParams::kInterlacedBottomFirst,
                                              48000,
-                                             AV_CH_LAYOUT_STEREO,
+                                             AudioChannelLayout::STEREO,
                                              divider,
                                              default_format,
                                              default_autocache));
@@ -184,7 +184,7 @@ QTreeWidgetItem *SequenceDialogPresetTab::CreateSDPresetFolder(const QString &na
                                              wide_par,
                                              VideoParams::kInterlacedBottomFirst,
                                              48000,
-                                             AV_CH_LAYOUT_STEREO,
+                                             AudioChannelLayout::STEREO,
                                              divider,
                                              default_format,
                                              default_autocache));

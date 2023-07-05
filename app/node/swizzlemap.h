@@ -92,6 +92,8 @@ public:
   std::map<size_t, size_t>::const_iterator cbegin() const { return map_.cbegin(); }
   std::map<size_t, size_t>::const_iterator cend() const { return map_.cend(); }
 
+  size_t size() const { return map_.size(); }
+
 private:
   std::map<size_t, size_t> map_;
 

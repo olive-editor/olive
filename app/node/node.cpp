@@ -335,6 +335,19 @@ NodeOutput Node::GetConnectedOutput2(const QString &input, int element) const
   return NodeOutput();
 }
 
+std::vector<NodeOutput> Node::GetConnectedOutputs(const QString &input, int element) const
+{
+  std::vector<NodeOutput> l;
+
+  for (auto it = input_connections_.cbegin(); it != input_connections_.cend(); it++) {
+    if (it->second.input() == input && it->second.element() == element) {
+      l.push_back(it->first);
+    }
+  }
+
+  return l;
+}
+
 bool Node::IsUsingStandardValue(const QString &input, int track, int element) const
 {
   NodeInputImmediate* imm = GetImmediate(input, element);
@@ -364,15 +377,7 @@ void Node::SetInputDataType(const QString &id, const type_t &type, size_t channe
   Input* input_meta = GetInternalInputData(id);
 
   if (input_meta) {
-    input_meta->type = type;
-    input_meta->channel_count = channels;
-
-    /*int array_sz = InputArraySize(id);
-    for (int i=-1; i<array_sz; i++) {
-      GetImmediate(id, i)->set_data_type(type, input_meta->channel_count);
-    }*/
-
-    emit InputDataTypeChanged(id, type);
+    SetInputDataTypeInternal(input_meta, id, type, channels);
   } else {
     ReportInvalidInput("set data type of", id, -1);
   }
@@ -419,9 +424,7 @@ void Node::SetInputProperty(const QString &id, const QString &name, const value_
   Input* i = GetInternalInputData(id);
 
   if (i) {
-    i->properties.insert(name, value);
-
-    emit InputPropertyChanged(id, name, value);
+    SetInputPropertyInternal(i, id, name, value);
   } else {
     ReportInvalidInput("set property of", id, -1);
   }
@@ -429,10 +432,20 @@ void Node::SetInputProperty(const QString &id, const QString &name, const value_
 
 value_t Node::GetValueAtTime(const QString &input, const rational &time, int element) const
 {
-  value_t v(GetInputDataType(input), GetNumberOfKeyframeTracks(input));
+  const Input* in = GetInternalInputData(input);
+  if (!in) {
+    ReportInvalidInput("get value at time of", input, element);
+    return value_t();
+  }
+
+  value_t v(in->type, in->channel_count);
 
   for (size_t i = 0; i < v.data().size(); i++) {
-    v.data()[i] = GetSplitValueAtTimeOnTrack(input, time, i, element);
+    value_t::component_t &c = v.data()[i];
+    c = GetSplitValueAtTimeOnTrack(input, time, i, element);
+    if (i < in->id_map.size() && in->id_map.at(i) != type_t()) {
+      c.set_id(in->id_map.at(i));
+    }
   }
 
   return v;
@@ -1804,6 +1817,31 @@ void Node::SaveImmediate(QXmlStreamWriter *writer, const QString &input, int ele
   }
 }
 
+void Node::SetInputDataTypeInternal(Node::Input *i, const QString &id, type_t type, size_t channel_count)
+{
+  QString subtype;
+  std::vector<type_t> id_map;
+
+  type = ResolveSpecialType(type, channel_count, subtype, id_map);
+
+  i->type = type;
+  i->channel_count = channel_count;
+  i->id_map = id_map;
+
+  if (!subtype.isEmpty()) {
+    SetInputPropertyInternal(i, id, QStringLiteral("subtype"), subtype);
+  }
+
+  emit InputDataTypeChanged(id, type);
+}
+
+void Node::SetInputPropertyInternal(Input *i, const QString &id, const QString &name, const value_t &value)
+{
+  i->properties.insert(name, value);
+
+  emit InputPropertyChanged(id, name, value);
+}
+
 void Node::InsertInput(const QString &id, type_t type, size_t channel_count, const value_t &default_value, InputFlag flags, int index)
 {
   if (id.isEmpty()) {
@@ -1816,23 +1854,13 @@ void Node::InsertInput(const QString &id, type_t type, size_t channel_count, con
     return;
   }
 
-  QString subtype;
-
-  type = ResolveSpecialType(type, channel_count, subtype);
-
   Node::Input i;
 
-  i.type = type;
   i.default_value = default_value;
   i.flags = flags;
   i.array_size = 0;
-  i.channel_count = channel_count;
 
-  //qDebug() << "creating" << id << "with channels" << i.channel_count;
-
-  if (!subtype.isEmpty()) {
-    i.properties.insert(QStringLiteral("subtype"), subtype);
-  }
+  SetInputDataTypeInternal(&i, id, type, channel_count);
 
   input_ids_.insert(index, id);
   input_data_.insert(index, i);
@@ -1902,7 +1930,7 @@ NodeInputImmediate *Node::CreateImmediate(const QString &input)
   const Input* i = GetInternalInputData(input);
 
   if (i) {
-    return new NodeInputImmediate(i->type, i->channel_count);
+    return new NodeInputImmediate();
   } else {
     ReportInvalidInput("create immediate", input, -1);
     return nullptr;
@@ -2372,20 +2400,24 @@ void Node::ClearElement(const QString& input, int index)
   SetStandardValue(input, GetDefaultValue(input), index);
 }
 
-type_t Node::ResolveSpecialType(type_t type, size_t &channel_count, QString &subtype)
+type_t Node::ResolveSpecialType(type_t type, size_t &channel_count, QString &subtype, std::vector<type_t> &id_map)
 {
   if (type == TYPE_VEC2) {
     channel_count = 2;
+    id_map = value_t::XYZW_IDS;
     return TYPE_DOUBLE;
   } else if (type == TYPE_VEC3) {
     channel_count = 3;
+    id_map = value_t::XYZW_IDS;
     return TYPE_DOUBLE;
   } else if (type == TYPE_VEC4) {
     channel_count = 4;
+    id_map = value_t::XYZW_IDS;
     return TYPE_DOUBLE;
   } else if (type == TYPE_COLOR) {
     channel_count = 4;
     subtype = QStringLiteral("color");
+    id_map = value_t::RGBA_IDS;
     return TYPE_DOUBLE;
   } else if (type == TYPE_BOOL) {
     subtype = QStringLiteral("bool");

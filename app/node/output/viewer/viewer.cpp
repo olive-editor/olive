@@ -222,7 +222,7 @@ void ViewerOutput::set_default_parameters()
       ));
   SetAudioParams(AudioParams(
       OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
-      OLIVE_CONFIG("DefaultSequenceAudioLayout").toInt(),
+      AudioChannelLayout::fromString(OLIVE_CONFIG("DefaultSequenceAudioLayout").toString()),
       kDefaultSampleFormat
       ));
 }

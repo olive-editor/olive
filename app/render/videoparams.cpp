@@ -72,7 +72,7 @@ VideoParams::VideoParams() :
   height_(0),
   depth_(0),
   format_(PixelFormat::INVALID),
-  channel_count_(0),
+  channel_count_(kNoChannels),
   interlacing_(Interlacing::kInterlaceNone),
   divider_(1)
 {
@@ -84,7 +84,7 @@ VideoParams::VideoParams(int width, int height, PixelFormat format, int nb_chann
   height_(height),
   depth_(1),
   format_(format),
-  channel_count_(nb_channels),
+  channel_count_(static_cast<ChannelCount>(nb_channels)),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
   divider_(divider)
@@ -99,7 +99,7 @@ VideoParams::VideoParams(int width, int height, int depth, PixelFormat format, i
   height_(height),
   depth_(depth),
   format_(format),
-  channel_count_(nb_channels),
+  channel_count_(static_cast<ChannelCount>(nb_channels)),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
   divider_(divider)
@@ -115,7 +115,7 @@ VideoParams::VideoParams(int width, int height, const rational &time_base, Pixel
   depth_(1),
   time_base_(time_base),
   format_(format),
-  channel_count_(nb_channels),
+  channel_count_(static_cast<ChannelCount>(nb_channels)),
   pixel_aspect_ratio_(pixel_aspect_ratio),
   interlacing_(interlacing),
   divider_(divider),

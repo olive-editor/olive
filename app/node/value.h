@@ -27,6 +27,7 @@
 #include "render/job/audiojob.h"
 #include "render/samplebuffer.h"
 #include "render/texture.h"
+#include "type.h"
 #include "util/color.h"
 
 namespace olive {
@@ -36,36 +37,6 @@ class value_t;
 class SampleJob;
 
 using NodeValueArray = std::vector<value_t>;
-
-class type_t
-{
-public:
-  constexpr type_t() : type_(0) {}
-  constexpr type_t(const char *x) : type_(insn_to_num(x)) {}
-
-  static type_t fromString(const QStringView &s) { return s.toUtf8().constData(); }
-  QString toString() const
-  {
-    const char *c = reinterpret_cast<const char*>(&type_);
-    return QString::fromUtf8(c, strnlen(c, sizeof(type_)));
-  }
-
-  bool operator==(const type_t &t) const { return type_ == t.type_; }
-  bool operator!=(const type_t &t) const { return !(*this == t); }
-  bool operator<(const type_t &t) const { return type_ < t.type_; }
-  bool operator<=(const type_t &t) const { return type_ <= t.type_; }
-  bool operator>(const type_t &t) const { return type_ > t.type_; }
-  bool operator>=(const type_t &t) const { return type_ >= t.type_; }
-
-private:
-  constexpr uint64_t insn_to_num(const char* x)
-  {
-    return *x ? *x + (insn_to_num(x+1) << 8) : 0;
-  }
-
-  uint64_t type_;
-
-};
 
 QDebug operator<<(QDebug dbg, const type_t &t);
 
@@ -89,9 +60,10 @@ public:
     component_t() = default;
 
     template <typename T>
-    component_t(const T &t)
+    component_t(const T &t, const type_t &id = type_t())
     {
       set(t);
+      id_ = id;
     }
 
     // Bad initializers, must catch these at runtime
@@ -135,6 +107,8 @@ public:
     }
 
     const std::any &data() const { return data_; }
+    const type_t &id() const { return id_; }
+    void set_id(const type_t &id) { id_ = id; }
 
     component_t converted(type_t from, type_t to, bool *ok = nullptr) const;
 
@@ -143,6 +117,7 @@ public:
 
   private:
     std::any data_;
+    type_t id_;
 
   };
 
@@ -183,25 +158,25 @@ public:
   value_t(const QVector2D &vec) :
     value_t(TYPE_DOUBLE, size_t(2))
   {
-    data_[0] = double(vec.x());
-    data_[1] = double(vec.y());
+    data_[0] = component_t(double(vec.x()), XYZW_IDS.at(0));
+    data_[1] = component_t(double(vec.y()), XYZW_IDS.at(1));
   }
 
   value_t(const QVector3D &vec) :
     value_t(TYPE_DOUBLE, size_t(3))
   {
-    data_[0] = double(vec.x());
-    data_[1] = double(vec.y());
-    data_[2] = double(vec.z());
+    data_[0] = component_t(double(vec.x()), XYZW_IDS.at(0));
+    data_[1] = component_t(double(vec.y()), XYZW_IDS.at(1));
+    data_[2] = component_t(double(vec.z()), XYZW_IDS.at(2));
   }
 
   value_t(const QVector4D &vec) :
     value_t(TYPE_DOUBLE, size_t(4))
   {
-    data_[0] = double(vec.x());
-    data_[1] = double(vec.y());
-    data_[2] = double(vec.z());
-    data_[3] = double(vec.w());
+    data_[0] = component_t(double(vec.x()), XYZW_IDS.at(0));
+    data_[1] = component_t(double(vec.y()), XYZW_IDS.at(1));
+    data_[2] = component_t(double(vec.z()), XYZW_IDS.at(2));
+    data_[3] = component_t(double(vec.w()), XYZW_IDS.at(3));
   }
 
   value_t(const float &f) :
@@ -237,10 +212,10 @@ public:
   value_t(const Color &i) :
     value_t(TYPE_DOUBLE, size_t(4))
   {
-    data_[0] = double(i.red());
-    data_[1] = double(i.green());
-    data_[2] = double(i.blue());
-    data_[3] = double(i.alpha());
+    data_[0] = component_t(double(i.red()), RGBA_IDS.at(0));
+    data_[1] = component_t(double(i.green()), RGBA_IDS.at(1));
+    data_[2] = component_t(double(i.blue()), RGBA_IDS.at(2));
+    data_[3] = component_t(double(i.alpha()), RGBA_IDS.at(3));
   }
 
   value_t(const QString &i) :
@@ -313,7 +288,7 @@ public:
   double toDouble() const { return value<double>(); }
   int64_t toInt() const { return value<int64_t>(); }
   rational toRational() const { return value<olive::rational>(); }
-  QString toString() const { return value<QString>(); }
+  QString toString() const;
   Color toColor() const { return Color(value<double>(0), value<double>(1), value<double>(2), value<double>(3)); }
   QVector2D toVec2() const { return QVector2D(value<double>(0), value<double>(1)); }
   QVector3D toVec3() const { return QVector3D(value<double>(0), value<double>(1), value<double>(2)); }
@@ -334,9 +309,13 @@ public:
   static void registerConverter(const type_t &from, const type_t &to, Converter_t converter);
   static void registerDefaultConverters();
 
+  static const std::vector<type_t> XYZW_IDS;
+  static const std::vector<type_t> RGBA_IDS;
+
 private:
   type_t type_;
   std::vector<component_t> data_;
+  component_t meta_;
 
   static std::map<type_t, std::map<type_t, Converter_t> > converters_;
 

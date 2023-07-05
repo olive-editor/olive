@@ -52,7 +52,7 @@ SampleBuffer::SampleBuffer(const AudioParams &audio_params, size_t samples_per_c
 SampleBuffer SampleBuffer::rip_channel(int channel) const
 {
   AudioParams p = this->audio_params_;
-  p.set_channel_layout(AV_CH_LAYOUT_MONO);
+  p.set_channel_layout(AVChannelLayout(AV_CHANNEL_LAYOUT_MONO));
 
   SampleBuffer b(p, this->sample_count_per_channel_);
   b.fast_set(*this, 0, channel);

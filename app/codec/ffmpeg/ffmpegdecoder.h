@@ -144,8 +144,6 @@ private:
 
   static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
-  static uint64_t ValidateChannelLayout(AVStream *stream);
-
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
   static bool IsPixelFormatGLSLCompatible(AVPixelFormat f);
@@ -181,10 +179,10 @@ private:
 
   SwrContext *swr_ctx_;
   int swr_irate_;
-  int64_t swr_ichannels_;
+  AudioChannelLayout swr_ichannels_;
   SampleFormat swr_iformat_;
   int swr_orate_;
-  int64_t swr_ochannels_;
+  AudioChannelLayout swr_ochannels_;
   SampleFormat swr_oformat_;
   int64_t swr_time_;
 

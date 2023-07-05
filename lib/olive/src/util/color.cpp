@@ -244,6 +244,25 @@ Color Color::fromData(const char *in, const PixelFormat &format, unsigned int nb
     }
   }
 
+  switch (nb_channels) {
+  case 1:
+    // Convert grayscale channel to RGBA
+    c.set_alpha(1.0);
+    c.set_green(c.red());
+    c.set_blue(c.red());
+    break;
+  case 2:
+    // Map grayscale and alpha to RGBA
+    c.set_alpha(c.green());
+    c.set_green(c.red());
+    c.set_blue(c.red());
+    break;
+  case 3:
+    // Map RGB to RGBA
+    c.set_alpha(1.0);
+    break;
+  }
+
   return c;
 }
 

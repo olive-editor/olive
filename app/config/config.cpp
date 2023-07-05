@@ -133,13 +133,13 @@ void Config::SetDefaults()
   OLIVE_CONFIG("AudioInput") = QString();
 
   OLIVE_CONFIG("AudioOutputSampleRate") = 48000;
-  OLIVE_CONFIG("AudioOutputChannelLayout") = int64_t(AV_CH_LAYOUT_STEREO);
+  OLIVE_CONFIG("AudioOutputChannelLayout") = AudioChannelLayout::STEREO.toString();
   OLIVE_CONFIG("AudioOutputSampleFormat") = SampleFormat(SampleFormat::S16).to_string();
 
   OLIVE_CONFIG("AudioRecordingFormat") = ExportFormat::kFormatWAV;
   OLIVE_CONFIG("AudioRecordingCodec") = ExportCodec::kCodecPCM;
   OLIVE_CONFIG("AudioRecordingSampleRate") = 48000;
-  OLIVE_CONFIG("AudioRecordingChannelLayout") = int64_t(AV_CH_LAYOUT_STEREO);
+  OLIVE_CONFIG("AudioRecordingChannelLayout") = AudioChannelLayout::STEREO.toString();
   OLIVE_CONFIG("AudioRecordingSampleFormat") = SampleFormat(SampleFormat::S16).to_string();
   OLIVE_CONFIG("AudioRecordingBitRate") = 320;
 
@@ -153,7 +153,7 @@ void Config::SetDefaults()
   OLIVE_CONFIG("DefaultSequenceInterlacing") = VideoParams::kInterlaceNone;
   OLIVE_CONFIG("DefaultSequenceAutoCache2") = false;
   OLIVE_CONFIG("DefaultSequenceAudioFrequency") = 48000;
-  OLIVE_CONFIG("DefaultSequenceAudioLayout") = int64_t(AV_CH_LAYOUT_STEREO);
+  OLIVE_CONFIG("DefaultSequenceAudioLayout") = AudioChannelLayout::STEREO.toString();
 
   // Online/offline settings
   OLIVE_CONFIG("OnlinePixelFormat") = PixelFormat::F32;
@@ -164,6 +164,9 @@ void Config::SetDefaults()
 
 void Config::Load()
 {
+  // Reset to defaults
+  current_config_.SetDefaults();
+
   QFile config_file(GetConfigFilePath());
 
   if (!config_file.exists()) {
@@ -174,9 +177,6 @@ void Config::Load()
     qWarning() << "Failed to load application settings. This session will use defaults.";
     return;
   }
-
-  // Reset to defaults
-  current_config_.SetDefaults();
 
   QXmlStreamReader reader(&config_file);
 

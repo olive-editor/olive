@@ -66,15 +66,7 @@ protected:
 private:
   static QString GetPrettyTypeName(const type_t &id);
 
-  struct Type
-  {
-    type_t our_type;
-    type_t base_type;
-    QString subtype;
-    size_t channel_count;
-  };
-
-  static const QVector<Type> kSupportedTypes;
+  static const QVector<type_t> kSupportedTypes;
 
 };
 

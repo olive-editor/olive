@@ -27,31 +27,18 @@ const QString ValueNode::kValueInput = QStringLiteral("value_in");
 
 #define super Node
 
-constexpr type_t OUR_DOUBLE = "dbl";
-constexpr type_t OUR_INTEGER = "int";
-constexpr type_t OUR_RATIONAL = "rational";
-constexpr type_t OUR_VEC2 = "vec2";
-constexpr type_t OUR_VEC3 = "vec3";
-constexpr type_t OUR_VEC4 = "vec4";
-constexpr type_t OUR_COLOR = "color";
-constexpr type_t OUR_STRING = "str";
-constexpr type_t OUR_MATRIX = "mat";
-constexpr type_t OUR_FONT = "font";
-constexpr type_t OUR_BOOL = "bool";
-
-const QVector<ValueNode::Type> ValueNode::kSupportedTypes =
-{
-  {OUR_DOUBLE, TYPE_DOUBLE, QString(), 1},
-  {OUR_INTEGER, TYPE_INTEGER, QString(), 1},
-  {OUR_RATIONAL, TYPE_RATIONAL, QString(), 1},
-  {OUR_VEC2, TYPE_DOUBLE, QString(), 2},
-  {OUR_VEC3, TYPE_DOUBLE, QString(), 3},
-  {OUR_VEC4, TYPE_DOUBLE, QString(), 4},
-  {OUR_COLOR, TYPE_DOUBLE, QStringLiteral("color"), 4},
-  {OUR_STRING, TYPE_STRING, QString(), 1},
-  {OUR_MATRIX, TYPE_MATRIX, QString(), 1},
-  {OUR_FONT, TYPE_STRING, QStringLiteral("font"), 1},
-  {OUR_BOOL, TYPE_INTEGER, QStringLiteral("bool"), 1},
+const QVector<type_t> ValueNode::kSupportedTypes = {
+  TYPE_DOUBLE,
+  TYPE_INTEGER,
+  TYPE_RATIONAL,
+  TYPE_VEC2,
+  TYPE_VEC3,
+  TYPE_VEC4,
+  TYPE_COLOR,
+  TYPE_STRING,
+  TYPE_MATRIX,
+  TYPE_FONT,
+  TYPE_BOOL
 };
 
 ValueNode::ValueNode()
@@ -70,8 +57,8 @@ void ValueNode::Retranslate()
 
   QStringList type_names;
   type_names.reserve(kSupportedTypes.size());
-  for (const Type &type : kSupportedTypes) {
-    type_names.append(GetPrettyTypeName(type.our_type));
+  for (const type_t &type : kSupportedTypes) {
+    type_names.append(GetPrettyTypeName(type));
   }
 
   SetComboBoxStrings(kTypeInput, type_names);
@@ -90,10 +77,9 @@ void ValueNode::InputValueChangedEvent(const QString &input, int element)
   if (input == kTypeInput) {
     int64_t k = GetStandardValue(kTypeInput).toInt();
 
-    const Type &t = kSupportedTypes.at(k);
+    const type_t &t = kSupportedTypes.at(k);
 
-    SetInputProperty(kValueInput, QStringLiteral("subtype"), t.subtype);
-    SetInputDataType(kValueInput, t.base_type, t.channel_count);
+    SetInputDataType(kValueInput, t);
   }
 
   super::InputValueChangedEvent(input, element);
@@ -101,27 +87,27 @@ void ValueNode::InputValueChangedEvent(const QString &input, int element)
 
 QString ValueNode::GetPrettyTypeName(const type_t &id)
 {
-  if (id == OUR_DOUBLE) {
+  if (id == TYPE_DOUBLE) {
     return tr("Double");
-  } else if (id == OUR_INTEGER) {
+  } else if (id == TYPE_INTEGER) {
     return tr("Integer");
-  } else if (id == OUR_RATIONAL) {
+  } else if (id == TYPE_RATIONAL) {
     return tr("Rational");
-  } else if (id == OUR_VEC2) {
+  } else if (id == TYPE_VEC2) {
     return tr("Vector 2D");
-  } else if (id == OUR_VEC3) {
+  } else if (id == TYPE_VEC3) {
     return tr("Vector 3D");
-  } else if (id == OUR_VEC4) {
+  } else if (id == TYPE_VEC4) {
     return tr("Vector 4D");
-  } else if (id == OUR_COLOR) {
+  } else if (id == TYPE_COLOR) {
     return tr("Color");
-  } else if (id == OUR_STRING) {
+  } else if (id == TYPE_STRING) {
     return tr("Text");
-  } else if (id == OUR_MATRIX) {
+  } else if (id == TYPE_MATRIX) {
     return tr("Matrix");
-  } else if (id == OUR_FONT) {
+  } else if (id == TYPE_FONT) {
     return tr("Font");
-  } else if (id == OUR_BOOL) {
+  } else if (id == TYPE_BOOL) {
     return tr("Boolean");
   }
 

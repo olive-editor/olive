@@ -39,12 +39,12 @@ const std::vector<int> AudioParams::kSupportedSampleRates = {
   96000          // 96000 Hz
 };
 
-const std::vector<uint64_t> AudioParams::kSupportedChannelLayouts = {
-  AV_CH_LAYOUT_MONO,
-  AV_CH_LAYOUT_STEREO,
-  AV_CH_LAYOUT_2_1,
-  AV_CH_LAYOUT_5POINT1,
-  AV_CH_LAYOUT_7POINT1
+const std::vector<AudioChannelLayout> AudioParams::kSupportedChannelLayouts = {
+  AVChannelLayout(AV_CHANNEL_LAYOUT_MONO),
+  AVChannelLayout(AV_CHANNEL_LAYOUT_STEREO),
+  AVChannelLayout(AV_CHANNEL_LAYOUT_2_1),
+  AVChannelLayout(AV_CHANNEL_LAYOUT_5POINT1),
+  AVChannelLayout(AV_CHANNEL_LAYOUT_7POINT1)
 };
 
 bool AudioParams::operator==(const AudioParams &other) const
@@ -136,7 +136,7 @@ rational AudioParams::bytes_per_channel_to_time(const int64_t &bytes) const
 
 int AudioParams::channel_count() const
 {
-  return channel_count_;
+  return channel_layout_.count();
 }
 
 int AudioParams::bytes_per_sample_per_channel() const
@@ -152,7 +152,7 @@ int AudioParams::bits_per_sample() const
 bool AudioParams::is_valid() const
 {
   return (!time_base().isNull()
-          && channel_layout() > 0
+          && !channel_layout().isNull()
           && format_ > SampleFormat::INVALID
           && format_ < SampleFormat::COUNT);
 }
@@ -163,7 +163,7 @@ void AudioParams::load(QXmlStreamReader *reader)
     if (reader->name() == QStringLiteral("samplerate")) {
       set_sample_rate(reader->readElementText().toInt());
     } else if (reader->name() == QStringLiteral("channellayout")) {
-      set_channel_layout(reader->readElementText().toULongLong());
+      set_channel_layout(AudioChannelLayout::fromString(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("format")) {
       set_format(SampleFormat::from_string(reader->readElementText()));
     } else if (reader->name() == QStringLiteral("enabled")) {
@@ -183,17 +183,12 @@ void AudioParams::load(QXmlStreamReader *reader)
 void AudioParams::save(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement(QStringLiteral("samplerate"), QString::number(sample_rate()));
-  writer->writeTextElement(QStringLiteral("channellayout"), QString::number(channel_layout()));
+  writer->writeTextElement(QStringLiteral("channellayout"), channel_layout().toString());
   writer->writeTextElement(QStringLiteral("format"), format().to_string());
   writer->writeTextElement(QStringLiteral("enabled"), QString::number(enabled()));
   writer->writeTextElement(QStringLiteral("streamindex"), QString::number(stream_index()));
   writer->writeTextElement(QStringLiteral("duration"), QString::number(duration()));
   writer->writeTextElement(QStringLiteral("timebase"), time_base().toString());
-}
-
-void AudioParams::calculate_channel_count()
-{
-  channel_count_ = av_get_channel_layout_nb_channels(channel_layout());
 }
 
 }

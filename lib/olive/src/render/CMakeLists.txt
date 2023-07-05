@@ -16,6 +16,7 @@
 
 set(OLIVECORE_SOURCES
   ${OLIVECORE_SOURCES}
+  src/render/audiochannellayout.cpp
   src/render/audioparams.cpp
   src/render/samplebuffer.cpp
   PARENT_SCOPE

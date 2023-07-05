@@ -515,7 +515,7 @@ void ViewerWidget::UpdateAudioProcessor()
     ap.set_format(ViewerOutput::kDefaultSampleFormat);
 
     AudioParams packed(OLIVE_CONFIG("AudioOutputSampleRate").toInt(),
-                       OLIVE_CONFIG("AudioOutputChannelLayout").toInt(),
+                       AudioChannelLayout::fromString(OLIVE_CONFIG("AudioOutputChannelLayout").toString()),
                        SampleFormat::from_string(OLIVE_CONFIG("AudioOutputSampleFormat").toString()));
 
     audio_processor_.Open(ap, packed, (playback_speed_ == 0) ? 1 : std::abs(playback_speed_));
@@ -1582,7 +1582,7 @@ void ViewerWidget::Play(bool in_to_out_only)
                                               );
 
     AudioParams ap(OLIVE_CONFIG("AudioRecordingSampleRate").toInt(),
-                   OLIVE_CONFIG("AudioRecordingChannelLayout").toInt(),
+                   AudioChannelLayout::fromString(OLIVE_CONFIG("AudioRecordingChannelLayout").toString()),
                    SampleFormat::from_string(OLIVE_CONFIG("AudioRecordingSampleFormat").toString()));
 
     EncodingParams encode_param;
