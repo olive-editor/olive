@@ -33,13 +33,56 @@ namespace olive {
 class SwizzleMap
 {
 public:
+  class From
+  {
+  public:
+    From() = default;
+
+    From(size_t output, size_t element)
+    {
+      output_ = output;
+      element_ = element;
+    }
+
+    const size_t &output() const { return output_; }
+    const size_t &element() const { return element_; }
+
+    bool operator==(const From &f) const { return output_ == f.output_ && element_ == f.element_; }
+
+  private:
+    size_t output_;
+    size_t element_;
+
+  };
+
+  class To
+  {
+  public:
+    To() = default;
+
+    To(size_t index, type_t tag)
+    {
+      index_ = index;
+      tag_ = tag;
+    }
+
+    const size_t &index() const { return index_; }
+    const type_t &tag() const { return tag_; }
+
+    bool operator==(const To &to) const { return index_ == to.index_ && tag_ == to.tag_; }
+
+  private:
+    size_t index_;
+    type_t tag_;
+  };
+
   SwizzleMap() = default;
 
   bool empty() const { return map_.empty(); }
 
   void clear() { map_.clear(); }
 
-  void insert(size_t to, size_t from)
+  void insert(size_t to, const From &from)
   {
     map_[to] = from;
   }
@@ -53,12 +96,15 @@ public:
   {
     while (XMLReadNextStartElement(reader)) {
       if (reader->name() == QStringLiteral("entry")) {
-        bool got_from = false, got_to = false;
-        size_t from, to;
+        bool got_output = false, got_from = false, got_to = false;
+        size_t from, to, output;
         while (XMLReadNextStartElement(reader)) {
           if (reader->name() == QStringLiteral("from")) {
             from = reader->readElementText().toULongLong();
             got_from = true;
+          } else if (reader->name() == QStringLiteral("output")) {
+            output = reader->readElementText().toULongLong();
+            got_output = true;
           } else if (reader->name() == QStringLiteral("to")) {
             to = reader->readElementText().toULongLong();
             got_to = true;
@@ -67,8 +113,8 @@ public:
           }
         }
 
-        if (got_from && got_to) {
-          insert(to, from);
+        if (got_output && got_from && got_to) {
+          insert(to, From(output, from));
         }
       } else {
         reader->skipCurrentElement();
@@ -81,7 +127,8 @@ public:
     for (auto it = map_.cbegin(); it != map_.cend(); it++) {
       writer->writeStartElement(QStringLiteral("entry"));
       writer->writeTextElement(QStringLiteral("to"), QString::number(it->first));
-      writer->writeTextElement(QStringLiteral("from"), QString::number(it->second));
+      writer->writeTextElement(QStringLiteral("output"), QString::number(it->second.output()));
+      writer->writeTextElement(QStringLiteral("from"), QString::number(it->second.element()));
       writer->writeEndElement(); // entry
     }
   }
@@ -89,13 +136,14 @@ public:
   bool operator==(const SwizzleMap &m) const { return map_ == m.map_; }
   bool operator!=(const SwizzleMap &m) const { return map_ != m.map_; }
 
-  std::map<size_t, size_t>::const_iterator cbegin() const { return map_.cbegin(); }
-  std::map<size_t, size_t>::const_iterator cend() const { return map_.cend(); }
+  std::map<size_t, From>::const_iterator cbegin() const { return map_.cbegin(); }
+  std::map<size_t, From>::const_iterator cend() const { return map_.cend(); }
 
   size_t size() const { return map_.size(); }
 
 private:
-  std::map<size_t, size_t> map_;
+
+  std::map<size_t, From> map_;
 
 };
 

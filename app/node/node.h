@@ -216,6 +216,7 @@ public:
   {
     QString id;
     QString name;
+    type_t type;
   };
   const QVector<Output>& outputs() const { return outputs_; }
 
@@ -337,9 +338,11 @@ public:
     }
   }
 
+  static bool ConnectionExistsNodeOnly(const Node *node, const NodeInput& input);
+
   static bool ConnectionExists(const NodeOutput &output, const NodeInput& input);
 
-  static void ConnectEdge(const NodeOutput &output, const NodeInput& input);
+  static void ConnectEdge(const NodeOutput &output, const NodeInput& input, int64_t index = -1);
 
   static void DisconnectEdge(const NodeOutput &output, const NodeInput& input);
 
@@ -349,6 +352,8 @@ public:
   void SetCachesEnabled(bool e) { caches_enabled_ = e; }
 
   virtual QString GetInputName(const QString& id) const;
+
+  QString GetOutputName(const QString &id) const;
 
   void SetInputName(const QString& id, const QString& name);
   void SetOutputName(const QString &id, const QString &name);
@@ -624,6 +629,8 @@ public:
     return input_connections_;
   }
 
+  int64_t GetInputConnectionIndex(const NodeOutput &output, const NodeInput &i) const;
+
   /**
    * @brief Return list of output connections
    *
@@ -849,6 +856,8 @@ public:
   static QString GetConnectCommandString(const NodeOutput &output, const NodeInput &input);
   static QString GetDisconnectCommandString(const NodeOutput &output, const NodeInput &input);
 
+  std::vector<type_t> GetAcceptableTypesForInput(const QString &id) const;
+
   static const QString kEnabledInput;
 
 protected:
@@ -900,7 +909,7 @@ protected:
 
   void RemoveInput(const QString& id);
 
-  void AddOutput(const QString &id);
+  void AddOutput(const QString &id, const type_t &type = TYPE_NONE);
 
   void RemoveOutput(const QString &id);
 
@@ -908,6 +917,8 @@ protected:
   {
     SetInputProperty(id, QStringLiteral("combo_str"), value_t("strl", strings));
   }
+
+  void AddAcceptableTypeForInput(const QString &id, type_t type);
 
   void SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options);
 
@@ -1064,7 +1075,7 @@ signals:
 
 private:
   struct Input {
-    type_t type;
+    std::vector<type_t> types;
     InputFlag flags;
     value_t default_value;
     QHash<QString, value_t> properties;

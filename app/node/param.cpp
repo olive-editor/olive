@@ -210,4 +210,12 @@ uint qHash(const NodeInputPair &i)
   return qHash(i.node) & qHash(i.input);
 }
 
+QString NodeOutput::GetName() const
+{
+  if (node_) {
+    return node_->GetOutputName(output_);
+  }
+  return QString();
+}
+
 }

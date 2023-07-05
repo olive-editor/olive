@@ -22,9 +22,10 @@
 #define NODEPARAMVIEWCONNECTEDLABEL_H
 
 #include "node/param.h"
+#include "node/output/viewer/viewer.h"
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/collapsebutton/collapsebutton.h"
-#include "widget/nodevaluetree/nodevaluetree.h"
+#include "widget/nodevaluetree/valueswizzlewidget.h"
 
 namespace olive {
 
@@ -66,7 +67,7 @@ private:
 
   NodeOutput output_;
 
-  NodeValueTree *value_tree_;
+  ValueSwizzleWidget *value_tree_;
 
   ViewerOutput *viewer_;
 

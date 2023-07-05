@@ -129,6 +129,8 @@ public:
     return output_ < rhs.output_;
   }
 
+  QString GetName() const;
+
   Node *node() const { return node_; }
   const QString &output() const { return output_; }
   void set_node(Node *n) { node_ = n; }
@@ -349,6 +351,7 @@ uint qHash(const NodeKeyframeTrackReference& i);
 }
 
 Q_DECLARE_METATYPE(olive::NodeInput)
+Q_DECLARE_METATYPE(olive::NodeOutput)
 Q_DECLARE_METATYPE(olive::NodeKeyframeTrackReference)
 
 #endif // NODEPARAM_H

@@ -60,6 +60,8 @@ ClipBlock::ClipBlock() :
   AddInput(kAutoCacheInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
   PrependInput(kBufferIn, kInputFlagNotKeyframable);
+  AddAcceptableTypeForInput(kBufferIn, TYPE_TEXTURE);
+  AddAcceptableTypeForInput(kBufferIn, TYPE_SAMPLES);
 
   SetEffectInput(kBufferIn);
 

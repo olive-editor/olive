@@ -192,6 +192,8 @@ private:
 
   void ResizeOverlay();
 
+  static NodeOutput GuessOutput(Node *output, const NodeInput &input);
+
   NodeViewMiniMap *minimap_;
 
   NodeViewContext *GetContextItemFromNodeItem(NodeViewItem *item);

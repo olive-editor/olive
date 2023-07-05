@@ -68,7 +68,7 @@ TransformDistortNode::TransformDistortNode()
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 
-  AddOutput(kMatrixOutput);
+  AddOutput(kMatrixOutput, TYPE_MATRIX);
 
   // Undo MatrixGenerator deprecation flag for derivative
   SetFlag(kDontShowInCreateMenu, false);

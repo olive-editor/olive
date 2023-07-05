@@ -600,9 +600,10 @@ void ViewerOutput::ArraySizeChanged(const QString &id, int old_size, int new_siz
 {
   if (id == kVideoParamsInput || id == kAudioParamsInput) {
     Track::Type type = (id == kVideoParamsInput) ? Track::kVideo : Track::kAudio;
+    type_t data_type = (id == kVideoParamsInput) ? TYPE_TEXTURE : TYPE_SAMPLES;
 
     for (int i = old_size; i < new_size; i++) {
-      AddOutput(Track::Reference(type, i).ToString());
+      AddOutput(Track::Reference(type, i).ToString(), data_type);
     }
 
     for (int i = new_size; i < old_size; i++) {

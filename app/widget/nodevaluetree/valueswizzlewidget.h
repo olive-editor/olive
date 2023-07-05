@@ -37,13 +37,13 @@ class SwizzleConnectorItem : public CurvedConnectorItem
 public:
   SwizzleConnectorItem(QGraphicsItem *parent = nullptr);
 
-  size_t from() const { return from_index_; }
+  const SwizzleMap::From &from() const { return from_; }
   size_t to() const { return to_index_; }
-  void set_from(size_t f) { from_index_ = f; }
+  void set_from(const SwizzleMap::From &f) { from_ = f; }
   void set_to(size_t t) { to_index_ = t; }
 
 private:
-  size_t from_index_;
+  SwizzleMap::From from_;
   size_t to_index_;
 
 };
@@ -54,7 +54,7 @@ class ValueSwizzleWidget : public QGraphicsView
 public:
   explicit ValueSwizzleWidget(QWidget *parent = nullptr);
 
-  bool delete_selected();
+  bool DeleteSelected();
 
   void set(const ValueParams &g, const NodeInput &input);
 
@@ -67,40 +67,51 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *e) override;
 
-signals:
-  void value_changed(const SwizzleMap &map);
-
 private:
-  void draw_channel(QPainter *p, size_t i, int x, const QString &name);
-  inline bool channel_is_from(int x) const { return x < get_left_channel_bound(); }
-  inline bool channel_is_to(int x) const { return x >= get_right_channel_bound(); }
-  inline bool is_inside_bounds(int x) const { return channel_is_from(x) || channel_is_to(x); }
-  inline int get_left_channel_bound() const { return channel_width_; }
-  inline int get_right_channel_bound() const { return viewport()->width() - channel_width_ - 1; }
-  inline size_t get_channel_index_from_y(int y) const { return y / channel_height_; }
+  QRect draw_channel(QPainter *p, size_t i, int x, int y, const type_t &name);
 
   void set_map(const SwizzleMap &map);
 
-  size_t from_count() const { return from_.size(); }
+  size_t from_count() const { return from_.empty() ? 0 : from_.at(0).size(); }
   size_t to_count() const;
 
-  QPoint get_connect_point_of_channel(bool from, size_t index);
+  QPoint get_connect_point_of_from(const SwizzleMap::From &from);
+  QPoint get_connect_point_of_to(size_t index);
 
   void adjust_all();
-  void make_item(size_t from, size_t to);
+  void make_item(const SwizzleMap::From &from, size_t to);
   void clear_all();
   SwizzleMap get_map_from_connectors() const;
+
+  void refresh_outputs();
+  void refresh_pixmap();
 
   QGraphicsScene *scene_;
   int channel_width_;
   int channel_height_;
   bool drag_from_;
-  size_t drag_index_;
+  union DragSource
+  {
+    SwizzleMap::From from;
+    size_t to;
+  };
+  DragSource drag_source_;
   bool new_item_connected_;
 
   NodeInput input_;
   std::vector<NodeOutput> outputs_;
   std::vector<value_t> from_;
+  std::vector< std::vector< QRect > > from_rects_;
+  std::vector<QRect> to_rects_;
+  ValueParams value_params_;
+
+  struct OutputRect
+  {
+    NodeOutput output;
+    QRect rect;
+  };
+
+  std::vector<OutputRect> output_rects_;
 
   SwizzleMap cached_map_;
   SwizzleConnectorItem *new_item_;
@@ -108,8 +119,16 @@ private:
 
   std::vector<SwizzleConnectorItem *> connectors_;
 
+  QPixmap pixmap_;
+
 private slots:
   void hint_changed(const NodeInput &input);
+
+  void connection_changed(const NodeOutput &output, const NodeInput &input);
+
+  void output_menu_selection(QAction *action);
+
+  void modify_input(const SwizzleMap &map);
 
 };
 

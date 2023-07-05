@@ -306,7 +306,7 @@ private:
  */
 class NodeEdgeAddCommand : public UndoCommand {
 public:
-  NodeEdgeAddCommand(const NodeOutput &output, const NodeInput& input);
+  NodeEdgeAddCommand(const NodeOutput &output, const NodeInput& input, int64_t index = -1);
 
   virtual Project* GetRelevantProject() const override;
 
@@ -317,6 +317,7 @@ protected:
 private:
   NodeOutput output_;
   NodeInput input_;
+  int64_t index_;
 
 };
 

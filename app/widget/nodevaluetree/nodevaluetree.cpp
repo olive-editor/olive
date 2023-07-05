@@ -73,7 +73,7 @@ void NodeValueTree::SetNode(const NodeInput &input)
 
       ValueSwizzleWidget *b = new ValueSwizzleWidget();
       b->set(ValueParams(), input_);
-      connect(b, &ValueSwizzleWidget::value_changed, this, &NodeValueTree::SwizzleChanged);
+      //connect(b, &ValueSwizzleWidget::value_changed, this, &NodeValueTree::SwizzleChanged);
       this->setItemWidget(swizzler_items, 1, b);
     }
   }
@@ -83,7 +83,7 @@ bool NodeValueTree::DeleteSelected()
 {
   for (int i = 0; i < topLevelItemCount(); i++) {
     ValueSwizzleWidget *w = GetSwizzleWidgetFromTopLevelItem(i);
-    if (w->delete_selected()) {
+    if (w->DeleteSelected()) {
       return true;
     }
   }

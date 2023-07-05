@@ -113,15 +113,16 @@ void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *no
   }
 }
 
-NodeEdgeAddCommand::NodeEdgeAddCommand(const NodeOutput &output, const NodeInput &input) :
+NodeEdgeAddCommand::NodeEdgeAddCommand(const NodeOutput &output, const NodeInput &input, int64_t index) :
   output_(output),
-  input_(input)
+  input_(input),
+  index_(index)
 {
 }
 
 void NodeEdgeAddCommand::redo()
 {
-  Node::ConnectEdge(output_, input_);
+  Node::ConnectEdge(output_, input_, index_);
 }
 
 void NodeEdgeAddCommand::undo()

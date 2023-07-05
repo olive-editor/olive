@@ -253,6 +253,8 @@ public:
     return type_;
   }
 
+  void set_type(const type_t &type) { type_ = type; }
+
   component_t at(size_t channel) const
   {
     if (channel < data_.size()) {

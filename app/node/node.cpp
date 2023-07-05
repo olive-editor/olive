@@ -186,6 +186,17 @@ QBrush Node::brush(qreal top, qreal bottom) const
   }
 }
 
+bool Node::ConnectionExistsNodeOnly(const Node *node, const NodeInput &input)
+{
+  for (auto it = node->output_connections_.cbegin(); it != node->output_connections_.cend(); it++) {
+    if (it->first.node() == node && it->second == input) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 bool Node::ConnectionExists(const NodeOutput &output, const NodeInput &input)
 {
   for (auto it = output.node()->output_connections_.cbegin(); it != output.node()->output_connections_.cend(); it++) {
@@ -197,7 +208,7 @@ bool Node::ConnectionExists(const NodeOutput &output, const NodeInput &input)
   return false;
 }
 
-void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
+void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input, int64_t index)
 {
   // Ensure graph is the same
   Q_ASSERT(input.node()->parent() == output.node()->parent());
@@ -207,7 +218,12 @@ void Node::ConnectEdge(const NodeOutput &output, const NodeInput &input)
 
   // Insert connection on both sides
   auto conn = std::pair<NodeOutput, NodeInput>({output, input});
-  input.node()->input_connections_.push_back(conn);
+  Connections &ic = input.node()->input_connections_;
+  if (index == -1) {
+    ic.push_back(conn);
+  } else {
+    ic.insert(ic.begin() + index, conn);
+  }
   output.node()->output_connections_.push_back(conn);
 
   // Call internal events
@@ -271,6 +287,16 @@ QString Node::GetInputName(const QString &id) const
     ReportInvalidInput("get name of", id, -1);
     return QString();
   }
+}
+
+QString Node::GetOutputName(const QString &id) const
+{
+  for (auto it = outputs_.constBegin(); it != outputs_.constEnd(); it++) {
+    if (it->id == id) {
+      return it->name;
+    }
+  }
+  return QString();
 }
 
 bool Node::IsInputHidden(const QString &input) const
@@ -365,7 +391,11 @@ type_t Node::GetInputDataType(const QString &id) const
   const Input* i = GetInternalInputData(id);
 
   if (i) {
-    return i->type;
+    if (i->types.empty()) {
+      return TYPE_NONE;
+    } else {
+      return i->types.front();
+    }
   } else {
     ReportInvalidInput("get data type of", id, -1);
     return TYPE_NONE;
@@ -438,7 +468,7 @@ value_t Node::GetValueAtTime(const QString &input, const rational &time, int ele
     return value_t();
   }
 
-  value_t v(in->type, in->channel_count);
+  value_t v(in->types.empty() ? TYPE_NONE : in->types.front(), in->channel_count);
 
   for (size_t i = 0; i < v.data().size(); i++) {
     value_t::component_t &c = v.data()[i];
@@ -738,7 +768,7 @@ value_t Node::GetStandardValue(const QString &id, int element) const
   NodeInputImmediate* imm = GetImmediate(id, element);
 
   if (imm) {
-    return value_t(input->type, imm->get_standard_value());
+    return value_t(input->types.empty() ? TYPE_NONE : input->types.front(), imm->get_standard_value());
   } else {
     ReportInvalidInput("get standard value of", id, element);
     return value_t();
@@ -882,9 +912,58 @@ int Node::InputArraySize(const QString &id) const
 value_t Node::GetInputValue(const ValueParams &g, const QString &input, int element, bool autoconversion) const
 {
   if (!g.is_cancelled()) {
-    NodeOutput output = GetConnectedOutput2(input, element);
-    if (output.IsValid()) {
-      return GetFakeConnectedValue(g, output, input, element, autoconversion);
+    std::vector<NodeOutput> outputs = GetConnectedOutputs(input, element);
+    if (!outputs.empty()) {
+      Node::ValueHint vh = this->GetValueHintForInput(input, element);
+
+      // Perform swizzle if requested
+      const SwizzleMap &swizzle = vh.swizzle();
+      value_t v;
+
+      if (swizzle.empty()) {
+        // Pass along first value
+        v = GetFakeConnectedValue(g, outputs.front(), input, element, autoconversion);
+      } else {
+        // Swizzle various
+        std::vector<value_t> vals(outputs.size());
+
+        // Retrieve used values
+        for (auto it = swizzle.cbegin(); it != swizzle.cend(); it++) {
+          size_t output_index = it->second.output();
+
+          if (output_index < outputs.size()) {
+            value_t &vi = vals[output_index];
+
+            if (!vi.isValid()) {
+              vi = GetFakeConnectedValue(g, outputs.at(output_index), input, element, autoconversion);
+            }
+          }
+        }
+
+        // Perform swizzle
+        for (auto it = swizzle.cbegin(); it != swizzle.cend(); it++) {
+          const SwizzleMap::From &from = it->second;
+          size_t to = it->first;
+
+          if (from.output() < vals.size()) {
+            const value_t &vi = vals.at(from.output());
+
+            if (from.element() < vi.size()) {
+              if (to >= v.size()) {
+                v.resize(to + 1);
+              }
+
+              if (v.type() == TYPE_NONE) {
+                v.set_type(vi.type());
+              }
+
+              v[to] = vi[from.element()];
+            }
+          }
+        }
+      }
+
+      return v;
     } else {
       TimeRange adjusted_time = InputTimeAdjustment(input, element, g.time(), true);
 
@@ -929,7 +1008,6 @@ value_t Node::GetFakeConnectedValue(const ValueParams &g, NodeOutput output, con
 
     while (output.IsValid()) {
       if (output.node()->is_enabled()) {
-        Node::ValueHint vh = this->GetValueHintForInput(input, element);
         ValueParams connp = g.time_transformed(adjusted_time).output_edited(output.output());
 
         // Find cached value with this
@@ -937,25 +1015,6 @@ value_t Node::GetFakeConnectedValue(const ValueParams &g, NodeOutput output, con
         if (!g.get_cached_value(output.node(), connp, v)) {
           v = output.node()->Value(connp);
           g.insert_cached_value(output.node(), connp, v);
-        }
-
-        // Perform swizzle if requested
-        const SwizzleMap &swizzle = vh.swizzle();
-        if (!swizzle.empty()) {
-          value_t swiz(v.type(), v.size());
-          for (auto it = swizzle.cbegin(); it != swizzle.cend(); it++) {
-            size_t from = it->second;
-            size_t to = it->first;
-
-            if (from < v.size()) {
-              if (to >= swiz.size()) {
-                swiz.resize(to + 1);
-              }
-
-              swiz[to] = v[from];
-            }
-          }
-          v = swiz;
         }
 
         // Perform conversion if necessary
@@ -1009,6 +1068,17 @@ AbstractParamWidget *Node::GetCustomWidget(const QString &input) const
 const NodeKeyframeTrack &Node::GetTrackFromKeyframe(NodeKeyframe *key) const
 {
   return GetImmediate(key->input(), key->element())->keyframe_tracks().at(key->track());
+}
+
+int64_t Node::GetInputConnectionIndex(const NodeOutput &output, const NodeInput &in) const
+{
+  for (size_t i = 0; i < input_connections_.size(); i++) {
+    if (input_connections_.at(i).first == output) {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 NodeInputImmediate *Node::GetImmediate(const QString &input, int element) const
@@ -1824,7 +1894,11 @@ void Node::SetInputDataTypeInternal(Node::Input *i, const QString &id, type_t ty
 
   type = ResolveSpecialType(type, channel_count, subtype, id_map);
 
-  i->type = type;
+  i->types.clear();
+  if (type != TYPE_NONE) {
+    i->types.push_back(type);
+  }
+
   i->channel_count = channel_count;
   i->id_map = id_map;
 
@@ -1891,7 +1965,7 @@ void Node::RemoveInput(const QString &id)
   emit InputRemoved(id);
 }
 
-void Node::AddOutput(const QString &id)
+void Node::AddOutput(const QString &id, const type_t &type)
 {
   for (auto it = outputs_.constBegin(); it != outputs_.constEnd(); it++) {
     if (it->id == id) {
@@ -1902,6 +1976,7 @@ void Node::AddOutput(const QString &id)
 
   Output o;
   o.id = id;
+  o.type = type;
   outputs_.append(o);
 
   emit OutputAdded(id);
@@ -1917,6 +1992,29 @@ void Node::RemoveOutput(const QString &id)
   }
 
   emit OutputRemoved(id);
+}
+
+void Node::AddAcceptableTypeForInput(const QString &id, type_t type)
+{
+  Input* i = GetInternalInputData(id);
+
+  if (i) {
+    i->types.push_back(type);
+  } else {
+    ReportInvalidInput("add acceptable type for", id, -1);
+  }
+}
+
+std::vector<type_t> Node::GetAcceptableTypesForInput(const QString &id) const
+{
+  const Input* i = GetInternalInputData(id);
+
+  if (i) {
+    return i->types;
+  } else {
+    ReportInvalidInput("get acceptable types for", id, -1);
+    return std::vector<type_t>();
+  }
 }
 
 void Node::ReportInvalidInput(const char *attempted_action, const QString& id, int element) const

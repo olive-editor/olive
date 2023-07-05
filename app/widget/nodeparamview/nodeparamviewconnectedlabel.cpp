@@ -88,13 +88,13 @@ NodeParamViewConnectedLabel::NodeParamViewConnectedLabel(const NodeInput &input,
 void NodeParamViewConnectedLabel::SetViewerNode(ViewerOutput *viewer)
 {
   if (viewer_) {
-    disconnect(viewer_, &ViewerOutput::PlayheadChanged, this, &NodeParamViewConnectedLabel::UpdateValueTree);
+    //disconnect(viewer_, &ViewerOutput::PlayheadChanged, this, &NodeParamViewConnectedLabel::UpdateValueTree);
   }
 
   viewer_ = viewer;
 
   if (viewer_) {
-    connect(viewer_, &ViewerOutput::PlayheadChanged, this, &NodeParamViewConnectedLabel::UpdateValueTree);
+    //connect(viewer_, &ViewerOutput::PlayheadChanged, this, &NodeParamViewConnectedLabel::UpdateValueTree);
     UpdateValueTree();
   }
 }
@@ -111,7 +111,7 @@ bool NodeParamViewConnectedLabel::DeleteSelected()
 void NodeParamViewConnectedLabel::CreateTree()
 {
   // Set up table area
-  value_tree_ = new NodeValueTree(this);
+  value_tree_ = new ValueSwizzleWidget(this);
   layout()->addWidget(value_tree_);
 }
 
@@ -175,7 +175,8 @@ void NodeParamViewConnectedLabel::UpdateLabel()
 void NodeParamViewConnectedLabel::UpdateValueTree()
 {
   if (value_tree_ && viewer_ && value_tree_->isVisible()) {
-    value_tree_->SetNode(input_);
+    ValueParams vp(viewer_->GetVideoParams(), viewer_->GetAudioParams(), 0, QString(), LoopMode::kLoopModeOff, nullptr, nullptr);
+    value_tree_->set(vp, input_);
   }
 }
 
