@@ -297,7 +297,13 @@ value_t::component_t converter_IntegerToString(const value_t::component_t &v)
 
 value_t::component_t converter_StringToInteger(const value_t::component_t &v)
 {
-  return int64_t(v.value<QString>().toLongLong());
+  if (!v.value<QString>().compare(QStringLiteral("false"))) {
+    return int64_t(0);
+  } else if (!v.value<QString>().compare(QStringLiteral("true"))) {
+    return int64_t(1);
+  } else {
+    return int64_t(v.value<QString>().toLongLong());
+  }
 }
 
 value_t::component_t converter_DoubleToString(const value_t::component_t &v)
