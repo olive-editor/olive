@@ -29,7 +29,6 @@ const QString ValueNode::kValueInput = QStringLiteral("value_in");
 
 const QVector<type_t> ValueNode::kSupportedTypes = {
   TYPE_DOUBLE,
-  TYPE_INTEGER,
   TYPE_RATIONAL,
   TYPE_VEC2,
   TYPE_VEC3,
