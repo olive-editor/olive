@@ -21,15 +21,13 @@
 #ifndef BEZIERWIDGET_H
 #define BEZIERWIDGET_H
 
-#include <olive/core/core.h>
 #include <QCheckBox>
 #include <QWidget>
 
+#include "util/bezier.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {
-
-using namespace core;
 
 class BezierWidget : public QWidget
 {

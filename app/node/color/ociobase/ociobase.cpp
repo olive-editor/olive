@@ -31,7 +31,7 @@ OCIOBaseNode::OCIOBaseNode() :
   manager_(nullptr),
   processor_(nullptr)
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   SetEffectInput(kTextureInput);
 
@@ -53,9 +53,9 @@ void OCIOBaseNode::RemovedFromGraphEvent(Project *p)
   }
 }
 
-void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t OCIOBaseNode::Value(const ValueParams &p) const
 {
-  auto tex_met = value[kTextureInput];
+  auto tex_met = GetInputValue(p, kTextureInput);
   TexturePtr t = tex_met.toTexture();
   if (t && processor_) {
     ColorTransformJob job;
@@ -63,8 +63,10 @@ void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals, 
     job.SetColorProcessor(processor_);
     job.SetInputTexture(tex_met);
 
-    table->Push(NodeValue::kTexture, t->toJob(job), this);
+    return t->toJob(job);
   }
+
+  return tex_met;
 }
 
 }

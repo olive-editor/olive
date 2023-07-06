@@ -26,14 +26,13 @@
 #include <QVector4D>
 
 #include "audio/audioprocessor.h"
+#include "common/qtutils.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
 #include "node/project.h"
 #include "rendermanager.h"
 
 namespace olive {
-
-#define super NodeTraverser
 
 RenderProcessor::RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache* decoder_cache, ShaderCache *shader_cache) :
   ticket_(ticket),
@@ -47,12 +46,12 @@ TexturePtr RenderProcessor::GenerateTexture(const rational &time, const rational
 {
   TimeRange range = TimeRange(time, time + frame_length);
 
-  NodeValueTable table;
+  value_t tex_val;
   if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
-    table = GenerateTable(node, range);
+    ValueParams::Cache cache;
+    ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), range, ticket_->property("output").toString(), LoopMode::kLoopModeOff, GetCancelPointer(), &cache);
+    tex_val = node->Value(vp);
   }
-
-  NodeValue tex_val = table.Get(NodeValue::kTexture);
 
   ResolveJobs(tex_val);
 
@@ -117,8 +116,8 @@ FramePtr RenderProcessor::GenerateFrame(TexturePtr texture, const rational& time
 
       // No color transform, just blit
       ShaderJob job;
-      job.Insert(QStringLiteral("ove_maintex"), NodeValue(NodeValue::kTexture, QVariant::fromValue(texture)));
-      job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, matrix));
+      job.Insert(QStringLiteral("ove_maintex"), texture);
+      job.Insert(QStringLiteral("ove_mvpmat"), matrix);
 
       render_ctx_->BlitToTexture(render_ctx_->GetDefaultShader(), job, blit_tex.get());
 
@@ -219,12 +218,12 @@ void RenderProcessor::Run()
   {
     TimeRange time = ticket_->property("time").value<TimeRange>();
 
-    NodeValueTable table;
+    value_t sample_val;
     if (Node* node = QtUtils::ValueToPtr<Node>(ticket_->property("node"))) {
-      table = GenerateTable(node, time);
+      ValueParams::Cache cache;
+      ValueParams vp(GetCacheVideoParams(), GetCacheAudioParams(), time, ticket_->property("output").toString(), LoopMode::kLoopModeOff, GetCancelPointer(), &cache);
+      sample_val = node->Value(vp);
     }
-
-    NodeValue sample_val = table.Get(NodeValue::kSamples);
 
     ResolveJobs(sample_val);
 
@@ -294,28 +293,6 @@ DecoderPtr RenderProcessor::ResolveDecoderFromInput(const QString& decoder_id, c
   return dec;
 }
 
-NodeValueDatabase RenderProcessor::GenerateDatabase(const Node *node, const TimeRange &range)
-{
-  NodeValueDatabase db = super::GenerateDatabase(node, range);
-
-  if (const MultiCamNode *multicam = dynamic_cast<const MultiCamNode*>(node)) {
-    if (QtUtils::ValueToPtr<MultiCamNode>(ticket_->property("multicam")) == multicam) {
-      int sz = multicam->GetSourceCount();
-      QVector<TexturePtr> multicam_tex(sz);
-      for (int i=0; i<sz; i++) {
-        NodeValueTable t = GenerateTable(multicam->GetConnectedRenderOutput(multicam->kSourcesInput, i), range, multicam);
-        NodeValue val = GenerateRowValueElement(multicam, multicam->kSourcesInput, i, &t, range);
-        ResolveJobs(val);
-
-        multicam_tex[i] = val.toTexture();
-      }
-      ticket_->setProperty("multicam_output", QVariant::fromValue(multicam_tex));
-    }
-  }
-
-  return db;
-}
-
 void RenderProcessor::Process(RenderTicketPtr ticket, Renderer *render_ctx, DecoderCache *decoder_cache, ShaderCache *shader_cache)
 {
   RenderProcessor p(ticket, render_ctx, decoder_cache, shader_cache);
@@ -343,7 +320,7 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
     qWarning() << "HAVEN'T GOTTEN DEFAULT INPUT COLORSPACE";
   }
 
-  Decoder::CodecStream default_codec_stream(stream->filename(), stream_data.stream_index(), GetCurrentBlock());
+  Decoder::CodecStream default_codec_stream(stream->filename(), stream_data.stream_index(), nullptr);
 
   QString decoder_id = stream->decoder();
 
@@ -421,15 +398,13 @@ void RenderProcessor::ProcessVideoFootage(TexturePtr destination, const FootageJ
 
 void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time)
 {
-  DecoderPtr decoder = ResolveDecoderFromInput(stream->decoder(), Decoder::CodecStream(stream->filename(), stream->audio_params().stream_index(), nullptr));
+  DecoderPtr decoder = ResolveDecoderFromInput(stream->decoder(), Decoder::CodecStream(stream->filename(), stream->audio_params().stream_index(), GetCurrentBlock()));
 
   if (decoder) {
-    const AudioParams& audio_params = GetCacheAudioParams();
-
     Decoder::RetrieveAudioStatus status = decoder->RetrieveAudio(destination,
-                                                                 input_time, audio_params,
+                                                                 input_time.in(),
                                                                  stream->cache_path(),
-                                                                 loop_mode(),
+                                                                 stream->loop_mode(),
                                                                  static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()));
 
     if (status == Decoder::kWaitingForConform) {
@@ -438,13 +413,13 @@ void RenderProcessor::ProcessAudioFootage(SampleBuffer &destination, const Foota
   }
 }
 
-void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job)
+void RenderProcessor::ProcessShader(TexturePtr destination, const ShaderJob *job)
 {
   if (!render_ctx_) {
     return;
   }
 
-  QString full_shader_id = QStringLiteral("%1:%2").arg(node->id(), job->GetShaderID());
+  QString full_shader_id = QStringLiteral("%1:%2").arg(QString::number(reinterpret_cast<quintptr>(job->function())), job->GetShaderID());
 
   QMutexLocker locker(shader_cache_->mutex());
 
@@ -452,7 +427,7 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
 
   if (shader.isNull()) {
     // Since we have shader code, compile it now
-    shader = render_ctx_->CreateNativeShader(node->GetShaderCode(job->GetShaderID()));
+    shader = render_ctx_->CreateNativeShader(job->do_function());
 
     if (shader.isNull()) {
       // Couldn't find or build the shader required
@@ -468,38 +443,12 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
   render_ctx_->BlitToTexture(shader, *job, destination.get());
 }
 
-void RenderProcessor::ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job)
+void RenderProcessor::ProcessSamples(SampleBuffer &destination, const SampleJob &job)
 {
-  if (!job.samples().is_allocated()) {
-    return;
-  }
-
-  NodeValueRow value_db;
-
-  const AudioParams& audio_params = GetCacheAudioParams();
-
-  for (size_t i=0;i<job.samples().sample_count();i++) {
-    // Calculate the exact rational time at this sample
-    double sample_to_second = static_cast<double>(i) / static_cast<double>(audio_params.sample_rate());
-
-    rational this_sample_time = rational::fromDouble(range.in().toDouble() + sample_to_second);
-
-    // Update all non-sample and non-footage inputs
-    for (auto j=job.GetValues().constBegin(); j!=job.GetValues().constEnd(); j++) {
-      TimeRange r = TimeRange(this_sample_time, this_sample_time);
-      NodeValueTable value = ProcessInput(node, j.key(), r);
-
-      value_db.insert(j.key(), GenerateRowValue(node, j.key(), &value, r));
-    }
-
-    node->ProcessSamples(value_db,
-                         job.samples(),
-                         destination,
-                         i);
-  }
+  job.do_function(destination);
 }
 
-void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job)
+void RenderProcessor::ProcessColorTransform(TexturePtr destination, const ColorTransformJob *job)
 {
   if (!render_ctx_) {
     return;
@@ -508,7 +457,7 @@ void RenderProcessor::ProcessColorTransform(TexturePtr destination, const Node *
   render_ctx_->BlitColorManaged(*job, destination.get());
 }
 
-void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job)
+void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const GenerateJob *job)
 {
   if (!render_ctx_) {
     return;
@@ -519,7 +468,7 @@ void RenderProcessor::ProcessFrameGeneration(TexturePtr destination, const Node 
   frame->set_video_params(destination->params());
   frame->allocate();
 
-  node->GenerateFrame(frame, *job);
+  job->do_function(frame);
 
   destination->Upload(frame->data(), frame->linesize_pixels());
 }
@@ -545,10 +494,17 @@ TexturePtr RenderProcessor::ProcessVideoCacheJob(const CacheJob *val)
 TexturePtr RenderProcessor::CreateTexture(const VideoParams &p)
 {
   if (render_ctx_) {
+    // Create real texture with render context
     return render_ctx_->CreateTexture(p);
   } else {
-    return super::CreateTexture(p);
+    // Create dummy texture
+    return CreateDummyTexture(p);
   }
+}
+
+TexturePtr RenderProcessor::CreateDummyTexture(const VideoParams &p)
+{
+  return std::make_shared<Texture>(p);
 }
 
 void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs)
@@ -572,6 +528,144 @@ void RenderProcessor::ConvertToReferenceSpace(TexturePtr destination, TexturePtr
 bool RenderProcessor::UseCache() const
 {
   return static_cast<RenderMode::Mode>(ticket_->property("mode").toInt()) == RenderMode::kOffline;
+}
+
+void RenderProcessor::ResolveJobs(value_t &val)
+{
+  if (val.type() == TYPE_TEXTURE) {
+
+    if (TexturePtr job_tex = val.toTexture()) {
+      if (AcceleratedJob *base_job = job_tex->job()) {
+
+        if (resolved_texture_cache_.contains(job_tex.get())) {
+          val = resolved_texture_cache_.value(job_tex.get());
+        } else {
+          // Resolve any sub-jobs
+          for (auto it=base_job->GetValues().begin(); it!=base_job->GetValues().end(); it++) {
+            // Jobs will almost always be submitted with one of these types
+            value_t &subval = it.value();
+            ResolveJobs(subval);
+          }
+
+          if (CacheJob *cj = dynamic_cast<CacheJob*>(base_job)) {
+            TexturePtr tex = ProcessVideoCacheJob(cj);
+            if (tex) {
+              val = tex;
+            } else {
+              val = cj->GetFallback();
+            }
+
+          } else if (ColorTransformJob *ctj = dynamic_cast<ColorTransformJob*>(base_job)) {
+
+            VideoParams ctj_params = job_tex->params();
+
+            ctj_params.set_format(GetCacheVideoParams().format());
+
+            TexturePtr dest = CreateTexture(ctj_params);
+
+            // Resolve input texture
+            value_t v = ctj->GetInputTexture();
+            ResolveJobs(v);
+            ctj->SetInputTexture(v);
+
+            ProcessColorTransform(dest, ctj);
+
+            val = dest;
+
+          } else if (ShaderJob *sj = dynamic_cast<ShaderJob*>(base_job)) {
+
+            VideoParams tex_params = job_tex->params();
+
+            TexturePtr tex = CreateTexture(tex_params);
+
+            ProcessShader(tex, sj);
+
+            val = tex;
+
+          } else if (GenerateJob *gj = dynamic_cast<GenerateJob*>(base_job)) {
+
+            VideoParams tex_params = job_tex->params();
+
+            TexturePtr tex = CreateTexture(tex_params);
+
+            ProcessFrameGeneration(tex, gj);
+
+            // Convert to reference space
+            const QString &colorspace = tex_params.colorspace();
+            if (!colorspace.isEmpty()) {
+              // Set format to primary format
+              tex_params.set_format(GetCacheVideoParams().format());
+
+              TexturePtr dest = CreateTexture(tex_params);
+
+              ConvertToReferenceSpace(dest, tex, colorspace);
+
+              tex = dest;
+            }
+
+            val = tex;
+
+          } else if (FootageJob *fj = dynamic_cast<FootageJob*>(base_job)) {
+
+            rational footage_time = Footage::AdjustTimeByLoopMode(fj->time().in(), fj->loop_mode(), fj->length(), fj->video_params().video_type(), fj->video_params().frame_rate_as_time_base());
+
+            TexturePtr tex;
+
+            if (footage_time.isNaN()) {
+              // Push dummy texture
+              tex = CreateDummyTexture(fj->video_params());
+            } else {
+              VideoParams managed_params = fj->video_params();
+              managed_params.set_format(GetCacheVideoParams().format());
+
+              tex = CreateTexture(managed_params);
+              ProcessVideoFootage(tex, fj, footage_time);
+            }
+
+            val = tex;
+
+          }
+
+          // Cache resolved value
+          resolved_texture_cache_.insert(job_tex.get(), val.toTexture());
+        }
+      }
+    }
+
+  } else if (val.type() == TYPE_SAMPLES) {
+
+    if (AudioJobPtr job = val.toAudioJob()) {
+      if (resolved_sample_cache_.contains(job.get())) {
+
+        val = resolved_sample_cache_.value(job.get());
+
+      } else {
+
+        if (SampleJob *sjob = dynamic_cast<SampleJob *>(job->job())) {
+
+          for (auto it=sjob->GetValues().begin(); it!=sjob->GetValues().end(); it++) {
+            // Jobs will almost always be submitted with one of these types
+            value_t &subval = it.value();
+            ResolveJobs(subval);
+          }
+
+          SampleBuffer output_buffer = CreateSampleBuffer(sjob->audio_params(), sjob->sample_count());
+          ProcessSamples(output_buffer, *sjob);
+          val = output_buffer;
+
+        } else if (FootageJob *fjob = dynamic_cast<FootageJob *>(job->job())) {
+
+          SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), fjob->time().length());
+          ProcessAudioFootage(buffer, fjob, fjob->time());
+          val = buffer;
+
+        }
+
+        resolved_sample_cache_.insert(job.get(), val);
+
+      }
+    }
+  }
 }
 
 }

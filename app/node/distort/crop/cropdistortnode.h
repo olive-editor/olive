@@ -60,11 +60,9 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   static const QString kTextureInput;
   static const QString kLeftInput;
@@ -77,6 +75,8 @@ protected slots:
   virtual void GizmoDragMove(double delta_x, double delta_y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   void CreateCropSideInput(const QString& id);
 
   // Gizmo variables

@@ -20,10 +20,11 @@
 
 #include "textv2.h"
 
-#include <olive/core/core.h>
 #include <QAbstractTextDocumentLayout>
 #include <QDateTime>
 #include <QTextDocument>
+
+#include "util/cpuoptimize.h"
 
 namespace olive {
 
@@ -43,17 +44,17 @@ const QString TextGeneratorV2::kFontSizeInput = QStringLiteral("font_size_in");
 
 TextGeneratorV2::TextGeneratorV2()
 {
-  AddInput(kTextInput, NodeValue::kText, tr("Sample Text"));
+  AddInput(kTextInput, TYPE_STRING, tr("Sample Text"));
 
-  AddInput(kHtmlInput, NodeValue::kBoolean, false);
+  AddInput(kHtmlInput, TYPE_BOOL, false);
 
-  AddInput(kVAlignInput, NodeValue::kCombo, kVerticalAlignTop);
+  AddInput(kVAlignInput, TYPE_COMBO, kVerticalAlignTop);
 
-  AddInput(kFontInput, NodeValue::kFont);
+  AddInput(kFontInput, TYPE_FONT);
 
-  AddInput(kFontSizeInput, NodeValue::kFloat, 72.0f);
+  AddInput(kFontSizeInput, TYPE_DOUBLE, 72.0f);
 
-  SetStandardValue(kColorInput, QVariant::fromValue(Color(1.0f, 1.0f, 1.0)));
+  SetStandardValue(kColorInput, Color(1.0f, 1.0f, 1.0));
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
   SetFlag(kDontShowInCreateMenu);
@@ -91,17 +92,7 @@ void TextGeneratorV2::Retranslate()
   SetComboBoxStrings(kVAlignInput, {tr("Top"), tr("Center"), tr("Bottom")});
 }
 
-void TextGeneratorV2::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
-{
-  if (!value[kTextInput].toString().isEmpty()) {
-    GenerateJob job(value);
-    auto text_params = globals.vparams();
-    text_params.set_format(PixelFormat::F32);
-    table->Push(NodeValue::kTexture, Texture::Job(text_params, job), this);
-  }
-}
-
-void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) const
+void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job)
 {
   // This could probably be more optimized, but for now we use Qt to draw to a QImage.
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto
@@ -193,6 +184,18 @@ void TextGeneratorV2::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
 #endif
     }
   }
+}
+
+value_t TextGeneratorV2::Value(const ValueParams &p) const
+{
+  if (!GetInputValue(p, kTextInput).toString().isEmpty()) {
+    GenerateJob job = CreateGenerateJob(p, GenerateFrame);
+    auto text_params = p.vparams();
+    text_params.set_format(PixelFormat::F32);
+    return Texture::Job(text_params, job);
+  }
+
+  return value_t();
 }
 
 }

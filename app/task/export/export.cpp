@@ -20,6 +20,7 @@
 
 #include "export.h"
 
+#include "common/qtutils.h"
 #include "node/color/colormanager/colormanager.h"
 
 namespace olive {

@@ -21,7 +21,6 @@
 #ifndef PLAYBACKCACHE_H
 #define PLAYBACKCACHE_H
 
-#include <olive/core/core.h>
 #include <QDir>
 #include <QMutex>
 #include <QObject>
@@ -29,8 +28,7 @@
 #include <QUuid>
 
 #include "common/jobtime.h"
-
-using namespace olive::core;
+#include "util/timerange.h"
 
 namespace olive {
 

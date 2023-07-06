@@ -35,18 +35,18 @@ const QString TileDistortNode::kMirrorYInput = QStringLiteral("mirrory_in");
 
 TileDistortNode::TileDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kScaleInput, NodeValue::kFloat, 0.5);
-  SetInputProperty(kScaleInput, QStringLiteral("min"), 0);
+  AddInput(kScaleInput, TYPE_DOUBLE, 0.5);
+  SetInputProperty(kScaleInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kScaleInput, QStringLiteral("view"), FloatSlider::kPercentage);
 
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));
 
-  AddInput(kAnchorInput, NodeValue::kCombo, kMiddleCenter);
+  AddInput(kAnchorInput, TYPE_COMBO, kMiddleCenter);
 
-  AddInput(kMirrorXInput, NodeValue::kBoolean, false);
-  AddInput(kMirrorYInput, NodeValue::kBoolean, false);
+  AddInput(kMirrorXInput, TYPE_BOOL, false);
+  AddInput(kMirrorYInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -102,37 +102,37 @@ void TileDistortNode::Retranslate()
   });
 }
 
-ShaderCode TileDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode TileDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/tile.frag"));
 }
 
-void TileDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t TileDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  value_t texture = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = texture.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qFuzzyCompare(value[kScaleInput].toDouble(), 1.0)) {
-      ShaderJob job(value);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+    if (!qFuzzyCompare(GetInputValue(p, kScaleInput).toDouble(), 1.0)) {
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
+      return tex->toJob(job);
     }
   }
+
+  return texture;
 }
 
-void TileDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void TileDistortNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+  if (TexturePtr tex = GetInputValue(p, kTextureInput).toTexture()) {
     QPointF res = tex->virtual_resolution().toPointF();
-    QPointF pos = row[kPositionInput].toVec2().toPointF();
+    QPointF pos = GetInputValue(p, kPositionInput).toVec2().toPointF();
     qreal x = pos.x();
     qreal y = pos.y();
 
-    Anchor a = static_cast<Anchor>(row[kAnchorInput].toInt());
+    Anchor a = static_cast<Anchor>(GetInputValue(p, kAnchorInput).toInt());
     if (a == kTopLeft || a == kTopCenter || a == kTopRight) {
       // Do nothing
     } else if (a == kMiddleLeft || a == kMiddleCenter || a == kMiddleRight) {
@@ -157,8 +157,8 @@ void TileDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifi
   NodeInputDragger &x_drag = gizmo_->GetDraggers()[0];
   NodeInputDragger &y_drag = gizmo_->GetDraggers()[1];
 
-  x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-  y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+  x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+  y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
 }
 
 }

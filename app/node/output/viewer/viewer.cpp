@@ -22,7 +22,6 @@
 
 #include "config/config.h"
 #include "core.h"
-#include "node/traverser.h"
 
 namespace olive {
 
@@ -44,20 +43,20 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
   autocache_input_audio_(false),
   waveform_requests_enabled_(false)
 {
-  AddInput(kVideoParamsInput, NodeValue::kVideoParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
+  AddInput(kVideoParamsInput, TYPE_VPARAM, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden);
 
-  AddInput(kAudioParamsInput, NodeValue::kAudioParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
+  AddInput(kAudioParamsInput, TYPE_APARAM, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden);
 
-  AddInput(kSubtitleParamsInput, NodeValue::kSubtitleParams, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden));
+  AddInput(kSubtitleParamsInput, TYPE_SPARAM, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden);
 
   if (create_buffer_inputs) {
-    AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-    AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+    AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
+    AddInput(kSamplesInput, TYPE_SAMPLES, kInputFlagNotKeyframable);
   }
 
   if (create_default_streams) {
-    AddStream(Track::kVideo, QVariant());
-    AddStream(Track::kAudio, QVariant());
+    AddStream(Track::kVideo, value_t(TYPE_VPARAM, VideoParams()));
+    AddStream(Track::kAudio, value_t(TYPE_APARAM, AudioParams()));
     set_default_parameters();
   }
 
@@ -65,6 +64,8 @@ ViewerOutput::ViewerOutput(bool create_buffer_inputs, bool create_default_stream
 
   workarea_ = new TimelineWorkArea(this);
   markers_ = new TimelineMarkerList(this);
+
+  connect(this, &ViewerOutput::InputArraySizeChanged, this, &ViewerOutput::ArraySizeChanged);
 }
 
 QString ViewerOutput::Name() const
@@ -118,7 +119,7 @@ QVariant ViewerOutput::data(const DataType &d) const
 
     if (!using_timebase.isNull()) {
       // Return time transformed to timecode
-      return QString::fromStdString(Timecode::time_to_timecode(GetLength(), using_timebase, using_display));
+      return Timecode::time_to_timecode(GetLength(), using_timebase, using_display);
     }
     break;
   }
@@ -216,12 +217,12 @@ void ViewerOutput::set_default_parameters()
                  static_cast<PixelFormat::Format>(OLIVE_CONFIG("OfflinePixelFormat").toInt()),
       VideoParams::kInternalChannelCount,
       OLIVE_CONFIG("DefaultSequencePixelAspect").value<rational>(),
-      OLIVE_CONFIG("DefaultSequenceInterlacing").value<VideoParams::Interlacing>(),
+      static_cast<VideoParams::Interlacing>(OLIVE_CONFIG("DefaultSequenceInterlacing").toInt()),
       VideoParams::generate_auto_divider(width, height)
       ));
   SetAudioParams(AudioParams(
       OLIVE_CONFIG("DefaultSequenceAudioFrequency").toInt(),
-      OLIVE_CONFIG("DefaultSequenceAudioLayout").toULongLong(),
+      AudioChannelLayout::fromString(OLIVE_CONFIG("DefaultSequenceAudioLayout").toString()),
       kDefaultSampleFormat
       ));
 }
@@ -305,6 +306,20 @@ void ViewerOutput::Retranslate()
   if (HasInputWithID(kSamplesInput)) {
     SetInputName(kSamplesInput, tr("Samples"));
   }
+
+  {
+    int vsc = GetVideoStreamCount();
+    for (int i = 0; i < vsc; i++) {
+      SetOutputName(Track::Reference(Track::kVideo, i).ToString(), tr("Video %1").arg(i + 1));
+    }
+  }
+
+  {
+    int asc = GetAudioStreamCount();
+    for (int i = 0; i < asc; i++) {
+      SetOutputName(Track::Reference(Track::kAudio, i).ToString(), tr("Audio %1").arg(i + 1));
+    }
+  }
 }
 
 void ViewerOutput::VerifyLength()
@@ -329,23 +344,23 @@ void ViewerOutput::SetPlayhead(const rational &t)
   emit PlayheadChanged(t);
 }
 
-void ViewerOutput::InputConnectedEvent(const QString &input, int element, Node *output)
+void ViewerOutput::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
   } else if (input == kSamplesInput) {
-    connect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
+    connect(output.node()->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputConnectedEvent(input, element, output);
 }
 
-void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kTextureInput) {
     emit TextureInputChanged();
   } else if (input == kSamplesInput) {
-    disconnect(output->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
+    disconnect(output.node()->waveform_cache(), &AudioWaveformCache::Validated, this, &ViewerOutput::ConnectedWaveformChanged);
   }
 
   super::InputDisconnectedEvent(input, element, output);
@@ -353,25 +368,15 @@ void ViewerOutput::InputDisconnectedEvent(const QString &input, int element, Nod
 
 rational ViewerOutput::VerifyLengthInternal(Track::Type type) const
 {
-  NodeTraverser traverser;
-
   switch (type) {
   case Track::kVideo:
-    if (IsInputConnected(kTextureInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kTextureInput), TimeRange(0, 0));
-      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).toRational();
-      if (!r.isNaN()) {
-        return r;
-      }
+    if (ViewerOutput *v = dynamic_cast<ViewerOutput *>(GetConnectedOutput(kTextureInput))) {
+      return v->GetVideoLength();
     }
     break;
   case Track::kAudio:
-    if (IsInputConnected(kSamplesInput)) {
-      NodeValueTable t = traverser.GenerateTable(GetConnectedOutput(kSamplesInput), TimeRange(0, 0));
-      rational r = t.Get(NodeValue::kRational, QStringLiteral("length")).toRational();
-      if (!r.isNaN()) {
-        return r;
-      }
+    if (ViewerOutput *v = dynamic_cast<ViewerOutput *>(GetConnectedOutput(kSamplesInput))) {
+      return v->GetAudioLength();
     }
     break;
   case Track::kNone:
@@ -416,18 +421,18 @@ void ViewerOutput::SetWaveformEnabled(bool e)
   }
 }
 
-void ViewerOutput::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t ViewerOutput::Value(const ValueParams &p) const
 {
-  if (HasInputWithID(kTextureInput)) {
-    NodeValue repush = value[kTextureInput];
-    repush.set_tag(Track::Reference(Track::kVideo, 0).ToString());
-    table->Push(repush);
+  Track::Reference ref = Track::Reference::FromString(p.output());
+
+  if (ref.type() == Track::kVideo && HasInputWithID(kTextureInput)) {
+    return GetInputValue(p, kTextureInput);
   }
-  if (HasInputWithID(kSamplesInput)) {
-    NodeValue repush = value[kSamplesInput];
-    repush.set_tag(Track::Reference(Track::kAudio, 0).ToString());
-    table->Push(value[kSamplesInput]);
+  if (ref.type() == Track::kAudio && HasInputWithID(kSamplesInput)) {
+    return GetInputValue(p, kSamplesInput);
   }
+
+  return value_t();
 }
 
 bool ViewerOutput::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
@@ -560,12 +565,12 @@ void ViewerOutput::set_parameters_from_footage(const QVector<ViewerOutput *> foo
   }
 }
 
-int ViewerOutput::AddStream(Track::Type type, const QVariant& value)
+int ViewerOutput::AddStream(Track::Type type, const value_t &value)
 {
   return SetStream(type, value, -1);
 }
 
-int ViewerOutput::SetStream(Track::Type type, const QVariant &value, int index_in)
+int ViewerOutput::SetStream(Track::Type type, const value_t &value, int index_in)
 {
   QString id;
 
@@ -589,6 +594,22 @@ int ViewerOutput::SetStream(Track::Type type, const QVariant &value, int index_i
   SetStandardValue(id, value, index);
 
   return index;
+}
+
+void ViewerOutput::ArraySizeChanged(const QString &id, int old_size, int new_size)
+{
+  if (id == kVideoParamsInput || id == kAudioParamsInput) {
+    Track::Type type = (id == kVideoParamsInput) ? Track::kVideo : Track::kAudio;
+    type_t data_type = (id == kVideoParamsInput) ? TYPE_TEXTURE : TYPE_SAMPLES;
+
+    for (int i = old_size; i < new_size; i++) {
+      AddOutput(Track::Reference(type, i).ToString(), data_type);
+    }
+
+    for (int i = new_size; i < old_size; i++) {
+      RemoveOutput(Track::Reference(type, i).ToString());
+    }
+  }
 }
 
 QVector<VideoParams> ViewerOutput::GetEnabledVideoStreams() const

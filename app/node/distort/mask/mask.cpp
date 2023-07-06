@@ -34,23 +34,25 @@ MaskDistortNode::MaskDistortNode()
   // Mask should always be (1.0, 1.0, 1.0) for multiply to work correctly
   SetInputFlag(kColorInput, kInputFlagHidden);
 
-  AddInput(kInvertInput, NodeValue::kBoolean, false);
+  AddInput(kInvertInput, TYPE_BOOL, false);
 
-  AddInput(kFeatherInput, NodeValue::kFloat, 0.0);
+  AddInput(kFeatherInput, TYPE_DOUBLE, 0.0);
   SetInputProperty(kFeatherInput, QStringLiteral("min"), 0.0);
 }
 
-ShaderCode MaskDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode GetInvertShader(const QString &id)
 {
-  if (request.id == QStringLiteral("mrg")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/multiply.frag")));
-  } else if (request.id == QStringLiteral("feather")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/blur.frag")));
-  } else if (request.id == QStringLiteral("invert")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/invertrgba.frag")));
-  } else {
-    return super::GetShaderCode(request);
-  }
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/invertrgba.frag")));
+}
+
+ShaderCode GetFeatherShader(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/blur.frag")));
+}
+
+ShaderCode GetMergeShader(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/multiply.frag")));
 }
 
 void MaskDistortNode::Retranslate()
@@ -62,49 +64,49 @@ void MaskDistortNode::Retranslate()
   SetInputName(kFeatherInput, tr("Feather"));
 }
 
-void MaskDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t MaskDistortNode::Value(const ValueParams &p) const
 {
-  TexturePtr texture = value[kBaseInput].toTexture();
+  TexturePtr texture = GetInputValue(p, kBaseInput).toTexture();
 
-  VideoParams job_params = texture ? texture->params() : globals.vparams();
-  NodeValue job(NodeValue::kTexture, Texture::Job(job_params, GetGenerateJob(value, job_params)), this);
+  VideoParams job_params = texture ? texture->params() : p.vparams();
+  value_t job = Texture::Job(job_params, GetGenerateJob(p, job_params));
 
-  if (value[kInvertInput].toBool()) {
+  if (GetInputValue(p, kInvertInput).toBool()) {
     ShaderJob invert;
-    invert.SetShaderID(QStringLiteral("invert"));
+    invert.set_function(GetInvertShader);
     invert.Insert(QStringLiteral("tex_in"), job);
-    job.set_value(Texture::Job(job_params, invert));
+    job = Texture::Job(job_params, invert);
   }
 
   if (texture) {
     // Push as merge node
     ShaderJob merge;
 
-    merge.SetShaderID(QStringLiteral("mrg"));
-    merge.Insert(QStringLiteral("tex_a"), value[kBaseInput]);
+    merge.set_function(GetMergeShader);
+    merge.Insert(QStringLiteral("tex_a"), GetInputValue(p, kBaseInput));
 
-    if (value[kFeatherInput].toDouble() > 0.0) {
+    if (GetInputValue(p, kFeatherInput).toDouble() > 0.0) {
       // Nest a blur shader in there too
       ShaderJob feather;
 
-      feather.SetShaderID(QStringLiteral("feather"));
+      feather.set_function(GetFeatherShader);
       feather.Insert(BlurFilterNode::kTextureInput, job);
-      feather.Insert(BlurFilterNode::kMethodInput, NodeValue(NodeValue::kInt, int(BlurFilterNode::kGaussian), this));
-      feather.Insert(BlurFilterNode::kHorizInput, NodeValue(NodeValue::kBoolean, true, this));
-      feather.Insert(BlurFilterNode::kVertInput, NodeValue(NodeValue::kBoolean, true, this));
-      feather.Insert(BlurFilterNode::kRepeatEdgePixelsInput, NodeValue(NodeValue::kBoolean, true, this));
-      feather.Insert(BlurFilterNode::kRadiusInput, NodeValue(NodeValue::kFloat, value[kFeatherInput].toDouble(), this));
+      feather.Insert(BlurFilterNode::kMethodInput, int(BlurFilterNode::kGaussian));
+      feather.Insert(BlurFilterNode::kHorizInput, true);
+      feather.Insert(BlurFilterNode::kVertInput, true);
+      feather.Insert(BlurFilterNode::kRepeatEdgePixelsInput, true);
+      feather.Insert(BlurFilterNode::kRadiusInput, GetInputValue(p, kFeatherInput).toDouble());
       feather.SetIterations(2, BlurFilterNode::kTextureInput);
-      feather.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, texture ? texture->virtual_resolution() : globals.square_resolution(), this));
+      feather.Insert(QStringLiteral("resolution_in"), texture ? texture->virtual_resolution() : p.square_resolution());
 
-      merge.Insert(QStringLiteral("tex_b"), NodeValue(NodeValue::kTexture, Texture::Job(job_params, feather), this));
+      merge.Insert(QStringLiteral("tex_b"), Texture::Job(job_params, feather));
     } else {
       merge.Insert(QStringLiteral("tex_b"), job);
     }
 
-    table->Push(NodeValue::kTexture, Texture::Job(job_params, merge), this);
+    return Texture::Job(job_params, merge);
   } else {
-    table->Push(job);
+    return job;
   }
 }
 

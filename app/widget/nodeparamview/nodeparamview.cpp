@@ -372,7 +372,7 @@ void ReconnectOutputsIfNotDeletingNode(MultiUndoCommand *c, NodeViewDeleteComman
       // Uh-oh we're deleting this node too, instead connect to its outputs
       ReconnectOutputsIfNotDeletingNode(c, dc, output, proposed_reconnect.node(), context);
     } else {
-      c->add_child(new NodeEdgeAddCommand(output, it->second));
+      c->add_child(new NodeEdgeAddCommand(it->first, it->second));
     }
   }
 }
@@ -381,6 +381,8 @@ void NodeParamView::DeleteSelected()
 {
   if (keyframe_view_ && keyframe_view_->hasFocus()) {
     keyframe_view_->DeleteSelected();
+  } else if (DeleteInsideWidgets()) {
+    return;
   } else if (!selected_nodes_.isEmpty()) {
     MultiUndoCommand *c = new MultiUndoCommand();
 
@@ -726,6 +728,7 @@ void NodeParamView::AddNode(Node *n, Node *ctx, NodeParamViewContext *context)
     connect(item, &NodeParamViewItem::ExpandedChanged, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::Moved, this, &NodeParamView::QueueKeyframePositionUpdate);
     connect(item, &NodeParamViewItem::InputArraySizeChanged, this, &NodeParamView::InputArraySizeChanged);
+    connect(item, &NodeParamViewItem::ElementKeyframeTrackAdded, this, &NodeParamView::ElementKeyframeTrackAdded);
 
     item->SetKeyframeConnections(keyframe_view_->AddKeyframesOfNode(n));
   }
@@ -738,7 +741,7 @@ int GetDistanceBetweenNodes(Node *start, Node *end)
   }
 
   for (auto it=start->input_connections().cbegin(); it!=start->input_connections().cend(); it++) {
-    int this_node_dist = GetDistanceBetweenNodes(it->second, end);
+    int this_node_dist = GetDistanceBetweenNodes(it->first.node(), end);
     if (this_node_dist != -1) {
       return 1 + this_node_dist;
     }
@@ -782,6 +785,11 @@ void NodeParamView::SortItemsInContext(NodeParamViewContext *context_item)
   foreach (auto info, distances) {
     context_item->GetDockArea()->AddItem(info.first);
   }
+}
+
+bool NodeParamView::DeleteInsideWidgets()
+{
+  return focused_node_ && focused_node_->DeleteSelected();
 }
 
 NodeParamViewContext *NodeParamView::GetContextItemFromContext(Node *ctx)
@@ -1021,6 +1029,29 @@ void NodeParamView::InputArraySizeChanged(const QString &input, int, int new_siz
       }
     }
   }
+
+  QueueKeyframePositionUpdate();
+}
+
+void NodeParamView::ElementKeyframeTrackAdded(const QString &input, int element, int track)
+{
+  NodeParamViewItem *sender = static_cast<NodeParamViewItem *>(this->sender());
+
+  KeyframeView::NodeConnections &connections = sender->GetKeyframeConnections();
+  KeyframeView::InputConnections &inputs = connections[input];
+  KeyframeView::ElementConnections &elements = inputs[element + 1];
+
+  auto conn = keyframe_view_->AddKeyframesOfTrack(NodeKeyframeTrackReference(NodeInput(sender->GetNode(), input, element), track));
+
+  if (track >= elements.size()) {
+    int old = elements.size();
+    elements.resize(track + 1);
+    for (int i = old; i < elements.size(); i++) {
+      elements[i] = nullptr;
+    }
+  }
+
+  elements[track] = conn;
 
   QueueKeyframePositionUpdate();
 }

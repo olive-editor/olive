@@ -21,7 +21,6 @@
 #ifndef SEQUENCEPARAM_H
 #define SEQUENCEPARAM_H
 
-#include <olive/core/core.h>
 #include <QXmlStreamWriter>
 
 #include "common/xmlutils.h"
@@ -41,7 +40,7 @@ public:
                  const rational& pixel_aspect,
                  VideoParams::Interlacing interlacing,
                  int sample_rate,
-                 uint64_t channel_layout,
+                 const AudioChannelLayout &channel_layout,
                  int preview_divider,
                  PixelFormat preview_format,
                  bool preview_autocache) :
@@ -69,15 +68,15 @@ public:
       } else if (reader->name() == QStringLiteral("height")) {
         height_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("framerate")) {
-        frame_rate_ = rational::fromString(reader->readElementText().toStdString());
+        frame_rate_ = rational::fromString(reader->readElementText());
       } else if (reader->name() == QStringLiteral("pixelaspect")) {
-        pixel_aspect_ = rational::fromString(reader->readElementText().toStdString());
+        pixel_aspect_ = rational::fromString(reader->readElementText());
       } else if (reader->name() == QStringLiteral("interlacing")) {
         interlacing_ = static_cast<VideoParams::Interlacing>(reader->readElementText().toInt());
       } else if (reader->name() == QStringLiteral("samplerate")) {
         sample_rate_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("chlayout")) {
-        channel_layout_ = reader->readElementText().toULongLong();
+        channel_layout_ = AudioChannelLayout::fromString(reader->readElementText());
       } else if (reader->name() == QStringLiteral("divider")) {
         preview_divider_ = reader->readElementText().toInt();
       } else if (reader->name() == QStringLiteral("format")) {
@@ -95,11 +94,11 @@ public:
     writer->writeTextElement(QStringLiteral("name"), GetName());
     writer->writeTextElement(QStringLiteral("width"), QString::number(width_));
     writer->writeTextElement(QStringLiteral("height"), QString::number(height_));
-    writer->writeTextElement(QStringLiteral("framerate"), QString::fromStdString(frame_rate_.toString()));
-    writer->writeTextElement(QStringLiteral("pixelaspect"), QString::fromStdString(pixel_aspect_.toString()));
+    writer->writeTextElement(QStringLiteral("framerate"), frame_rate_.toString());
+    writer->writeTextElement(QStringLiteral("pixelaspect"), pixel_aspect_.toString());
     writer->writeTextElement(QStringLiteral("interlacing_"), QString::number(interlacing_));
     writer->writeTextElement(QStringLiteral("samplerate"), QString::number(sample_rate_));
-    writer->writeTextElement(QStringLiteral("chlayout"), QString::number(channel_layout_));
+    writer->writeTextElement(QStringLiteral("chlayout"), channel_layout_.toString());
     writer->writeTextElement(QStringLiteral("divider"), QString::number(preview_divider_));
     writer->writeTextElement(QStringLiteral("format"), QString::number(preview_format_));
     writer->writeTextElement(QStringLiteral("autocache"), QString::number(preview_autocache_));
@@ -135,7 +134,7 @@ public:
     return sample_rate_;
   }
 
-  uint64_t channel_layout() const
+  const AudioChannelLayout &channel_layout() const
   {
     return channel_layout_;
   }
@@ -162,7 +161,7 @@ private:
   rational pixel_aspect_;
   VideoParams::Interlacing interlacing_;
   int sample_rate_;
-  uint64_t channel_layout_;
+  AudioChannelLayout channel_layout_;
   int preview_divider_;
   PixelFormat preview_format_;
   bool preview_autocache_;

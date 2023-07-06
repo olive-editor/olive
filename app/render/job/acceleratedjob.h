@@ -21,19 +21,30 @@
 #ifndef ACCELERATEDJOB_H
 #define ACCELERATEDJOB_H
 
-#include "node/param.h"
-#include "node/valuedatabase.h"
+#include "node/value.h"
 
 namespace olive {
 
 class AcceleratedJob
 {
 public:
+  using NodeValueRow = QHash<QString, value_t>;
+
   AcceleratedJob() = default;
 
   virtual ~AcceleratedJob(){}
 
-  NodeValue Get(const QString& input) const
+  const QString& GetShaderID() const
+  {
+    return id_;
+  }
+
+  void SetShaderID(const QString& id)
+  {
+    id_ = id;
+  }
+
+  value_t Get(const QString& input) const
   {
     return value_map_.value(input);
   }
@@ -43,7 +54,7 @@ public:
     value_map_.insert(input, row.value(input));
   }
 
-  void Insert(const QString& input, const NodeValue& value)
+  void Insert(const QString& input, const value_t& value)
   {
     value_map_.insert(input, value);
   }
@@ -63,6 +74,8 @@ public:
   NodeValueRow &GetValues() { return value_map_; }
 
 private:
+  QString id_;
+
   NodeValueRow value_map_;
 
 };

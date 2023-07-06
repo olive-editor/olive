@@ -49,7 +49,7 @@ public:
     return audio_sample_rate_field_->GetSampleRate();
   }
 
-  uint64_t GetSelectedAudioChannelLayout() const
+  AudioChannelLayout GetSelectedAudioChannelLayout() const
   {
     return audio_channels_field_->GetChannelLayout();
   }

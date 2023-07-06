@@ -23,6 +23,8 @@
 #include <QGuiApplication>
 #include <QVector2D>
 
+#include "widget/nodeparamview/paramwidget/bezierparamwidget.h"
+
 namespace olive {
 
 const QString PolygonGenerator::kPointsInput = QStringLiteral("points_in");
@@ -32,19 +34,19 @@ const QString PolygonGenerator::kColorInput = QStringLiteral("color_in");
 
 PolygonGenerator::PolygonGenerator()
 {
-  AddInput(kPointsInput, NodeValue::kBezier, QVector2D(0, 0), InputFlags(kInputFlagArray));
+  AddInput(kPointsInput, TYPE_DOUBLE, size_t(6), value_t(), kInputFlagArray);
 
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0, 1.0, 1.0)));
+  AddInput(kColorInput, TYPE_COLOR, Color(1.0, 1.0, 1.0));
 
-  const int kMiddleX = 135;
-  const int kMiddleY = 45;
-  const int kBottomX = 90;
-  const int kBottomY = 120;
-  const int kTopY = 135;
+  const double kMiddleX = 135;
+  const double kMiddleY = 45;
+  const double kBottomX = 90;
+  const double kBottomY = 120;
+  const double kTopY = 135;
 
   // The Default Pentagon(tm)
   InputArrayResize(kPointsInput, 5);
-  SetSplitStandardValueOnTrack(kPointsInput, 0, 0, 0);
+  SetSplitStandardValueOnTrack(kPointsInput, 0, 0.0, 0);
   SetSplitStandardValueOnTrack(kPointsInput, 1, -kTopY, 0);
   SetSplitStandardValueOnTrack(kPointsInput, 0, kMiddleX, 1);
   SetSplitStandardValueOnTrack(kPointsInput, 1, -kMiddleY, 1);
@@ -87,27 +89,7 @@ void PolygonGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderJob PolygonGenerator::GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const
-{
-  VideoParams p = params;
-  p.set_format(PixelFormat::U8);
-  auto job = Texture::Job(p, GenerateJob(value));
-
-  // Conversion to RGB
-  ShaderJob rgb;
-  rgb.SetShaderID(QStringLiteral("rgb"));
-  rgb.Insert(QStringLiteral("texture_in"), NodeValue(NodeValue::kTexture, job, this));
-  rgb.Insert(QStringLiteral("color_in"), value[kColorInput]);
-
-  return rgb;
-}
-
-void PolygonGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
-{
-  PushMergableJob(value, Texture::Job(globals.vparams(), GetGenerateJob(value, globals.vparams())), table);
-}
-
-void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) const
+void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job)
 {
   // This could probably be more optimized, but for now we use Qt to draw to a QImage.
   // QImages only support integer pixels and we use float pixels, so what we do here is draw onto
@@ -118,7 +100,7 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
 
   auto points = job.Get(kPointsInput).toArray();
 
-  QPainterPath path = GeneratePath(points, InputArraySize(kPointsInput));
+  QPainterPath path = GeneratePath(points, points.size());
 
   QPainter p(&img);
   double par = frame->video_params().pixel_aspect_ratio().toDouble();
@@ -128,6 +110,36 @@ void PolygonGenerator::GenerateFrame(FramePtr frame, const GenerateJob &job) con
   p.setPen(Qt::NoPen);
 
   p.drawPath(path);
+}
+
+ShaderCode PolygonGenerator::GetShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgb.frag"));
+}
+
+Bezier PolygonGenerator::GetBezier(const value_t &v)
+{
+  return Bezier(v.value<double>(0), v.value<double>(1), v.value<double>(2), v.value<double>(3), v.value<double>(4), v.value<double>(5));
+}
+
+ShaderJob PolygonGenerator::GetGenerateJob(const ValueParams &p, const VideoParams &params) const
+{
+  VideoParams vp = params;
+  vp.set_format(PixelFormat::U8);
+  auto job = Texture::Job(vp, CreateGenerateJob(p, GenerateFrame));
+
+  // Conversion to RGB
+  ShaderJob rgb;
+  rgb.set_function(GetShaderCode);
+  rgb.Insert(QStringLiteral("texture_in"), job);
+  rgb.Insert(QStringLiteral("color_in"), GetInputValue(p, kColorInput));
+
+  return rgb;
+}
+
+value_t PolygonGenerator::Value(const ValueParams &p) const
+{
+  return GetMergableJob(p, Texture::Job(p.vparams(), GetGenerateJob(p, p.vparams())));
 }
 
 template<typename T>
@@ -164,18 +176,18 @@ void PolygonGenerator::ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz)
   }
 }
 
-void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void PolygonGenerator::UpdateGizmoPositions(const ValueParams &p)
 {
   QVector2D res;
-  if (TexturePtr tex = row[kBaseInput].toTexture()) {
+  if (TexturePtr tex = GetInputValue(p, kBaseInput).toTexture()) {
     res = tex->virtual_resolution();
   } else {
-    res = globals.square_resolution();
+    res = p.square_resolution();
   }
 
   Imath::V2d half_res(res.x()/2, res.y()/2);
 
-  auto points = row[kPointsInput].toArray();
+  auto points = GetInputValue(p, kPointsInput).toArray();
 
   int current_pos_sz = gizmo_position_handles_.size();
 
@@ -200,10 +212,9 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     bez_gizmo2->SetSmaller(true);
   }
 
-  int pts_sz = InputArraySize(kPointsInput);
   if (!points.empty()) {
-    for (int i=0; i<pts_sz; i++) {
-      const Bezier &pt = points.at(i).toBezier();
+    for (size_t i=0; i<points.size(); i++) {
+      const Bezier &pt = GetBezier(points.at(i));
 
       Imath::V2d main = pt.to_vec() + half_res;
       Imath::V2d cp1 = main + pt.control_point_1_to_vec();
@@ -218,15 +229,15 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     }
   }
 
-  poly_gizmo_->SetPath(GeneratePath(points, pts_sz).translated(QPointF(half_res.x, half_res.y)));
+  poly_gizmo_->SetPath(GeneratePath(points, points.size()).translated(QPointF(half_res.x, half_res.y)));
 }
 
-ShaderCode PolygonGenerator::GetShaderCode(const ShaderRequest &request) const
+AbstractParamWidget *PolygonGenerator::GetCustomWidget(const QString &input) const
 {
-  if (request.id == QStringLiteral("rgb")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/rgb.frag"));
+  if (input == kPointsInput) {
+    return new BezierParamWidget();
   } else {
-    return super::GetShaderCode(request);
+    return super::GetCustomWidget(input);
   }
 }
 
@@ -239,8 +250,8 @@ void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   } else {
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
-    x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-    y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
   }
 }
 
@@ -258,15 +269,15 @@ QPainterPath PolygonGenerator::GeneratePath(const NodeValueArray &points, int si
   QPainterPath path;
 
   if (!points.empty()) {
-    const Bezier &first_pt = points.at(0).toBezier();
+    const Bezier &first_pt = GetBezier(points.at(0));
     Imath::V2d v = first_pt.to_vec();
     path.moveTo(QPointF(v.x, v.y));
 
     for (int i=1; i<size; i++) {
-      AddPointToPath(&path, points.at(i-1).toBezier(), points.at(i).toBezier());
+      AddPointToPath(&path, GetBezier(points.at(i-1)), GetBezier(points.at(i)));
     }
 
-    AddPointToPath(&path, points.at(size-1).toBezier(), first_pt);
+    AddPointToPath(&path, GetBezier(points.at(size-1)), first_pt);
   }
 
   return path;

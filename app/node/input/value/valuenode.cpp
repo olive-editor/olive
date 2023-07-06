@@ -24,27 +24,27 @@ namespace olive {
 
 const QString ValueNode::kTypeInput = QStringLiteral("type_in");
 const QString ValueNode::kValueInput = QStringLiteral("value_in");
-const QVector<NodeValue::Type> ValueNode::kSupportedTypes = {
-  NodeValue::kFloat,
-  NodeValue::kInt,
-  NodeValue::kRational,
-  NodeValue::kVec2,
-  NodeValue::kVec3,
-  NodeValue::kVec4,
-  NodeValue::kColor,
-  NodeValue::kText,
-  NodeValue::kMatrix,
-  NodeValue::kFont,
-  NodeValue::kBoolean,
-};
 
 #define super Node
 
+const QVector<type_t> ValueNode::kSupportedTypes = {
+  TYPE_DOUBLE,
+  TYPE_RATIONAL,
+  TYPE_VEC2,
+  TYPE_VEC3,
+  TYPE_VEC4,
+  TYPE_COLOR,
+  TYPE_STRING,
+  TYPE_MATRIX,
+  TYPE_FONT,
+  TYPE_BOOL
+};
+
 ValueNode::ValueNode()
 {
-  AddInput(kTypeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kTypeInput, TYPE_COMBO, 0, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kValueInput, kSupportedTypes.first(), QVariant(), InputFlags(kInputFlagNotConnectable));
+  AddInput(kValueInput, TYPE_DOUBLE, kInputFlagNotConnectable);
 }
 
 void ValueNode::Retranslate()
@@ -56,27 +56,61 @@ void ValueNode::Retranslate()
 
   QStringList type_names;
   type_names.reserve(kSupportedTypes.size());
-  foreach (NodeValue::Type type, kSupportedTypes) {
-    type_names.append(NodeValue::GetPrettyDataTypeName(type));
+  for (const type_t &type : kSupportedTypes) {
+    type_names.append(GetPrettyTypeName(type));
   }
+
   SetComboBoxStrings(kTypeInput, type_names);
 }
 
-void ValueNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t ValueNode::Value(const ValueParams &p) const
 {
-  Q_UNUSED(globals)
+  Q_UNUSED(p)
 
   // Ensure value is pushed onto the table
-  table->Push(value[kValueInput]);
+  return GetInputValue(p, kValueInput);
 }
 
 void ValueNode::InputValueChangedEvent(const QString &input, int element)
 {
   if (input == kTypeInput) {
-    SetInputDataType(kValueInput, kSupportedTypes.at(GetStandardValue(kTypeInput).toInt()));
+    int64_t k = GetStandardValue(kTypeInput).toInt();
+
+    const type_t &t = kSupportedTypes.at(k);
+
+    SetInputDataType(kValueInput, t);
   }
 
   super::InputValueChangedEvent(input, element);
+}
+
+QString ValueNode::GetPrettyTypeName(const type_t &id)
+{
+  if (id == TYPE_DOUBLE) {
+    return tr("Double");
+  } else if (id == TYPE_INTEGER) {
+    return tr("Integer");
+  } else if (id == TYPE_RATIONAL) {
+    return tr("Rational");
+  } else if (id == TYPE_VEC2) {
+    return tr("Vector 2D");
+  } else if (id == TYPE_VEC3) {
+    return tr("Vector 3D");
+  } else if (id == TYPE_VEC4) {
+    return tr("Vector 4D");
+  } else if (id == TYPE_COLOR) {
+    return tr("Color");
+  } else if (id == TYPE_STRING) {
+    return tr("Text");
+  } else if (id == TYPE_MATRIX) {
+    return tr("Matrix");
+  } else if (id == TYPE_FONT) {
+    return tr("Font");
+  } else if (id == TYPE_BOOL) {
+    return tr("Boolean");
+  }
+
+  return QString();
 }
 
 }

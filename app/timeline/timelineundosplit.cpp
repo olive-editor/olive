@@ -67,11 +67,11 @@ void BlockSplitCommand::redo()
 
   TransitionBlock* potential_transition = dynamic_cast<TransitionBlock*>(new_block()->next());
   if (potential_transition) {
-    for (const Node::OutputConnection& output : block_->output_connections()) {
+    for (const Node::Connection& output : block_->output_connections()) {
       if (output.second.node() == potential_transition) {
         moved_transition_ = NodeInput(potential_transition, TransitionBlock::kOutBlockInput);
-        Node::DisconnectEdge(block_, moved_transition_);
-        Node::ConnectEdge(new_block(), moved_transition_);
+        Node::DisconnectEdge(NodeOutput(block_), moved_transition_);
+        Node::ConnectEdge(NodeOutput(new_block()), moved_transition_);
         break;
       }
     }
@@ -83,8 +83,8 @@ void BlockSplitCommand::undo()
   Track* track = block_->track();
 
   if (moved_transition_.IsValid()) {
-    Node::DisconnectEdge(new_block(), moved_transition_);
-    Node::ConnectEdge(block_, moved_transition_);
+    Node::DisconnectEdge(NodeOutput(new_block()), moved_transition_);
+    Node::ConnectEdge(NodeOutput(block_), moved_transition_);
   }
 
   block_->set_length_and_media_out(old_length_);

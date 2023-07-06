@@ -63,7 +63,9 @@ public:
   double GetOutProgress(const double &time) const;
   double GetInProgress(const double &time) const;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  double TransformCurve(double linear) const;
+
+  virtual value_t Value(const ValueParams &globals) const override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
@@ -73,15 +75,13 @@ public:
   static const QString kCenterInput;
 
 protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const {}
+  virtual void ShaderJobEvent(const ValueParams &p, ShaderJob *job) const {}
 
-  virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const {}
+  virtual void SampleJobEvent(const ValueParams &p, SampleJob *job) const {}
 
-  double TransformCurve(double linear) const;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
-
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 

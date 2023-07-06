@@ -32,13 +32,13 @@ const QString NoiseGeneratorNode::kStrengthInput = QStringLiteral("strength_in")
 
 NoiseGeneratorNode::NoiseGeneratorNode()
 {
-  AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBaseIn, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kStrengthInput, NodeValue::kFloat, 0.2);
+  AddInput(kStrengthInput, TYPE_DOUBLE, 0.2);
   SetInputProperty(kStrengthInput, QStringLiteral("view"), FloatSlider::kPercentage);
-  SetInputProperty(kStrengthInput, QStringLiteral("min"), 0);
+  SetInputProperty(kStrengthInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kColorInput, NodeValue::kBoolean, false);
+  AddInput(kColorInput, TYPE_BOOL, false);
 
   SetEffectInput(kBaseIn);
   SetFlag(kVideoEffect);
@@ -73,20 +73,19 @@ void NoiseGeneratorNode::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-ShaderCode NoiseGeneratorNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode NoiseGeneratorNode::GetShaderCode(const QString &id)
 {
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/noise.frag"));
 }
 
-void NoiseGeneratorNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t NoiseGeneratorNode::Value(const ValueParams &p) const
 {
-  ShaderJob job(value);
+  ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
-  job.Insert(value);
-  job.Insert(QStringLiteral("time_in"), NodeValue(NodeValue::kFloat, globals.time().in().toDouble(), this));
+  job.Insert(QStringLiteral("time_in"), p.time().in().toDouble());
 
-  TexturePtr base = value[kBaseIn].toTexture();
+  TexturePtr base = GetInputValue(p, kBaseIn).toTexture();
 
-  table->Push(NodeValue::kTexture, Texture::Job(base ? base->params() : globals.vparams(), job), this);
+  return Texture::Job(base ? base->params() : p.vparams(), job);
 }
 }

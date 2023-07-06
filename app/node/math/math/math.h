@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,15 +21,46 @@
 #ifndef MATHNODE_H
 #define MATHNODE_H
 
-#include "mathbase.h"
+#include "node/node.h"
 
 namespace olive {
 
-class MathNode : public MathNodeBase
+class MathNode : public Node
 {
   Q_OBJECT
 public:
   MathNode();
+
+  enum Operation {
+    kOpAdd,
+    kOpSubtract,
+    kOpMultiply,
+    kOpDivide,
+    kOpModulo,
+
+    kOpPower,
+
+    kOpSine,
+    kOpCosine,
+    kOpTangent,
+
+    kOpArcSine,
+    kOpArcCosine,
+    kOpArcTangent,
+
+    kOpHypSine,
+    kOpHypCosine,
+    kOpHypTangent,
+
+    kOpMin,
+    kOpMax,
+    kOpClamp,
+
+    kOpFloor,
+    kOpCeil,
+    kOpRound,
+    kOpAbs
+  };
 
   NODE_DEFAULT_FUNCTIONS(MathNode)
 
@@ -40,26 +71,39 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
-  Operation GetOperation() const
-  {
-    return static_cast<Operation>(GetStandardValue(kMethodIn).toInt());
-  }
+  static QString GetOperationName(Operation o);
 
-  void SetOperation(Operation o)
-  {
-    SetStandardValue(kMethodIn, o);
-  }
-
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
-
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const override;
+  static ShaderCode GetShaderCode(const QString &id);
 
   static const QString kMethodIn;
   static const QString kParamAIn;
   static const QString kParamBIn;
   static const QString kParamCIn;
+
+  static void ProcessSamplesDouble(const void *context, const SampleJob &job, SampleBuffer &mixed_samples);
+
+protected:
+  virtual void InputValueChangedEvent(const QString& input, int element) override;
+
+private:
+  typedef value_t (*operation_t)(const value_t &a, const value_t &b, const value_t &c);
+
+  static std::map<Operation, std::map< type_t, std::map<type_t, std::map<type_t, operation_t>> > > operations_;
+
+  static void PopulateOperations();
+
+  static void ProcessSamplesSamples(const void *context, const SampleJob &job, SampleBuffer &mixed_samples);
+
+  static void OperateSampleNumber(Operation operation, const float *input, float *output, float b, size_t start, size_t end);
+  static void OperateSampleSample(Operation operation, const float *input, float *output, const float *input2, size_t start, size_t end);
+
+  static int GetNumberOfOperands(Operation o);
+
+  Operation GetOperation() const;
+
+  void UpdateInputVisibility();
 
 };
 

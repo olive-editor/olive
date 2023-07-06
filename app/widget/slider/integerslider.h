@@ -42,13 +42,19 @@ public:
   void SetDefaultValue(const int64_t& d);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) const override;
+  virtual QString ValueToString(const InternalType& v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
+  virtual InternalType StringToValue(const QString& s, bool* ok) const override;
 
-  virtual void ValueSignalEvent(const QVariant &value) override;
+  virtual void ValueSignalEvent(const InternalType &value) override;
 
-  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
+  virtual InternalType AdjustDragDistanceInternal(const InternalType &start, const double &drag) const override;
+
+  virtual bool Equals(const InternalType &a, const InternalType &b) const override;
+
+  virtual bool ValueGreaterThan(const InternalType& lhs, const InternalType& rhs) const override;
+
+  virtual bool ValueLessThan(const InternalType& lhs, const InternalType& rhs) const override;
 
 signals:
   void ValueChanged(int64_t);

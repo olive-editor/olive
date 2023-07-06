@@ -21,15 +21,13 @@
 #ifndef TIMELINEMARKER_H
 #define TIMELINEMARKER_H
 
-#include <olive/core/core.h>
 #include <QPainter>
 #include <QString>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include "util/timerange.h"
 #include "undo/undocommand.h"
-
-using namespace olive::core;
 
 namespace olive {
 

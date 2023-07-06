@@ -99,9 +99,6 @@ public:
     emit TrackChanged(track_);
   }
 
-  bool is_enabled() const;
-  void set_enabled(bool e);
-
   virtual void Retranslate() override;
 
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;

@@ -40,15 +40,16 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
-
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kTextInput;
   static const QString kHtmlInput;
   static const QString kVAlignInput;
   static const QString kFontInput;
   static const QString kFontSizeInput;
+
+private:
+  static void GenerateFrame(FramePtr frame, const GenerateJob& job);
 
 };
 

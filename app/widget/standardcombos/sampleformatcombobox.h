@@ -21,14 +21,11 @@
 #ifndef SAMPLEFORMATCOMBOBOX_H
 #define SAMPLEFORMATCOMBOBOX_H
 
-#include <olive/core/core.h>
 #include <QComboBox>
 
 #include "ui/humanstrings.h"
 
 namespace olive {
-
-using namespace core;
 
 class SampleFormatComboBox : public QComboBox
 {

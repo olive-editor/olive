@@ -48,7 +48,7 @@ Footage::Footage(const QString &filename) :
 {
   SetFlag(kIsItem);
 
-  PrependInput(kFilenameInput, NodeValue::kFile, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  PrependInput(kFilenameInput, TYPE_FILE, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
   Clear();
 
@@ -231,34 +231,30 @@ QString Footage::DescribeSubtitleStream(const SubtitleParams &params)
     .arg(QString::number(params.stream_index()));
 }
 
-void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t Footage::Value(const ValueParams &p) const
 {
-  Q_UNUSED(globals)
+  Track::Reference ref = Track::Reference::FromString(p.output());
 
   // Pop filename from table
-  QString file = value[kFilenameInput].toString();
+  QString file = GetInputValue(p, kFilenameInput).toString();
 
   // If the file exists and the reference is valid, push a footage job to the renderer
   if (QFileInfo::exists(file)) {
-    // Push length
-    table->Push(NodeValue::kRational, QVariant::fromValue(GetLength()), this, QStringLiteral("length"));
+    FootageJob job(p.time(), decoder_, filename(), ref.type(), GetLength(), p.loop_mode());
 
-    // Push each stream as a footage job
-    for (int i=0; i<GetTotalStreamCount(); i++) {
-      Track::Reference ref = GetReferenceFromRealIndex(i);
-      FootageJob job(globals.time(), decoder_, filename(), ref.type(), GetLength(), globals.loop_mode());
-
-      if (ref.type() == Track::kVideo) {
+    switch (ref.type()) {
+    case Track::kVideo:
+      if (ref.index() >= 0 && ref.index() < GetVideoStreamCount()) {
         VideoParams vp = GetVideoParams(ref.index());
 
         // Ensure the colorspace is valid and not empty
         vp.set_colorspace(GetColorspaceToUse(vp));
 
         // Adjust footage job's divider
-        if (globals.vparams().divider() > 1) {
+        if (p.vparams().divider() > 1) {
           // Use a divider appropriate for this target resolution
-          int calculated = VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), globals.vparams().effective_width(), globals.vparams().effective_height());
-          vp.set_divider(std::min(calculated, globals.vparams().divider()));
+          int calculated = VideoParams::GetDividerForTargetResolution(vp.width(), vp.height(), p.vparams().effective_width(), p.vparams().effective_height());
+          vp.set_divider(std::min(calculated, p.vparams().divider()));
         } else {
           // Render everything at full res
           vp.set_divider(1);
@@ -266,16 +262,26 @@ void Footage::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeV
 
         job.set_video_params(vp);
 
-        table->Push(NodeValue::kTexture, Texture::Job(vp, job), this, ref.ToString());
-      } else if (ref.type() == Track::kAudio) {
+        return Texture::Job(vp, job);
+      }
+      break;
+    case Track::kAudio:
+      if (ref.index() >= 0 && ref.index() < GetAudioStreamCount()) {
         AudioParams ap = GetAudioParams(ref.index());
         job.set_audio_params(ap);
         job.set_cache_path(project()->cache_path());
 
-        table->Push(NodeValue::kSamples, QVariant::fromValue(job), this, ref.ToString());
+        return AudioJob::Create(ap, job);
       }
+      break;
+    case Track::kSubtitle:
+    case Track::kNone:
+    case Track::kCount:
+      break;
     }
   }
+
+  return value_t();
 }
 
 QString Footage::GetStreamTypeName(Track::Type type)
@@ -532,17 +538,17 @@ void Footage::Reprobe()
             }
           }
 
-          SetStream(Track::kVideo, QVariant::fromValue(video_stream), i);
+          SetStream(Track::kVideo, value_t(TYPE_VPARAM, video_stream), i);
         }
 
         InputArrayResize(kAudioParamsInput, footage_info.GetAudioStreams().size());
         for (int i=0; i<footage_info.GetAudioStreams().size(); i++) {
-          SetStream(Track::kAudio, QVariant::fromValue(footage_info.GetAudioStreams().at(i)), i);
+          SetStream(Track::kAudio, value_t(TYPE_APARAM, footage_info.GetAudioStreams().at(i)), i);
         }
 
         InputArrayResize(kSubtitleParamsInput, footage_info.GetSubtitleStreams().size());
         for (int i=0; i<footage_info.GetSubtitleStreams().size(); i++) {
-          SetStream(Track::kSubtitle, QVariant::fromValue(footage_info.GetSubtitleStreams().at(i)), i);
+          SetStream(Track::kSubtitle, value_t(TYPE_SPARAM, footage_info.GetSubtitleStreams().at(i)), i);
         }
 
         total_stream_count_ = footage_info.GetStreamCount();

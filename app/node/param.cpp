@@ -69,12 +69,12 @@ bool NodeInput::IsArray() const
   }
 }
 
-InputFlags NodeInput::GetFlags() const
+InputFlag NodeInput::GetFlags() const
 {
   if (IsValid()) {
     return node_->GetInputFlags(input_);
   } else {
-    return InputFlags(kInputFlagNormal);
+    return kInputFlagNormal;
   }
 }
 
@@ -96,21 +96,39 @@ Node *NodeInput::GetConnectedOutput() const
   }
 }
 
-NodeValue::Type NodeInput::GetDataType() const
+NodeOutput NodeInput::GetConnectedOutput2() const
+{
+  if (IsValid()) {
+    return node_->GetConnectedOutput2(*this);
+  } else {
+    return NodeOutput();
+  }
+}
+
+type_t NodeInput::GetDataType() const
 {
   if (IsValid()) {
     return node_->GetInputDataType(input_);
   } else {
-    return NodeValue::kNone;
+    return TYPE_NONE;
   }
 }
 
-QVariant NodeInput::GetDefaultValue() const
+value_t NodeInput::GetDefaultValue() const
 {
   if (IsValid()) {
     return node_->GetDefaultValue(input_);
   } else {
-    return QVariant();
+    return value_t();
+  }
+}
+
+size_t NodeInput::GetChannelCount() const
+{
+  if (IsValid()) {
+    return node_->GetNumberOfKeyframeTracks(input_);
+  } else {
+    return 0;
   }
 }
 
@@ -123,30 +141,30 @@ QStringList NodeInput::GetComboBoxStrings() const
   }
 }
 
-QVariant NodeInput::GetProperty(const QString &key) const
+value_t NodeInput::GetProperty(const QString &key) const
 {
   if (IsValid()) {
     return node_->GetInputProperty(input_, key);
   } else {
-    return QVariant();
+    return value_t();
   }
 }
 
-QHash<QString, QVariant> NodeInput::GetProperties() const
+QHash<QString, value_t> NodeInput::GetProperties() const
 {
   if (IsValid()) {
     return node_->GetInputProperties(input_);
   } else {
-    return QHash<QString, QVariant>();
+    return QHash<QString, value_t>();
   }
 }
 
-QVariant NodeInput::GetValueAtTime(const rational &time) const
+value_t NodeInput::GetValueAtTime(const rational &time) const
 {
   if (IsValid()) {
     return node_->GetValueAtTime(*this, time);
   } else {
-    return QVariant();
+    return value_t();
   }
 }
 
@@ -159,12 +177,12 @@ NodeKeyframe* NodeInput::GetKeyframeAtTimeOnTrack(const rational &time, int trac
   }
 }
 
-QVariant NodeInput::GetSplitDefaultValueForTrack(int track) const
+value_t::component_t NodeInput::GetSplitDefaultValueForTrack(int track) const
 {
   if (IsValid()) {
     return node_->GetSplitDefaultValueOnTrack(input_, track);
   } else {
-    return QVariant();
+    return value_t::component_t();
   }
 }
 
@@ -190,6 +208,14 @@ uint qHash(const NodeKeyframeTrackReference &i)
 uint qHash(const NodeInputPair &i)
 {
   return qHash(i.node) & qHash(i.input);
+}
+
+QString NodeOutput::GetName() const
+{
+  if (node_) {
+    return node_->GetOutputName(output_);
+  }
+  return QString();
 }
 
 }

@@ -37,14 +37,14 @@ const QString CropDistortNode::kFeatherInput = QStringLiteral("feather_in");
 
 CropDistortNode::CropDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   CreateCropSideInput(kLeftInput);
   CreateCropSideInput(kTopInput);
   CreateCropSideInput(kRightInput);
   CreateCropSideInput(kBottomInput);
 
-  AddInput(kFeatherInput, NodeValue::kFloat, 0.0);
+  AddInput(kFeatherInput, TYPE_DOUBLE, 0.0);
   SetInputProperty(kFeatherInput, QStringLiteral("min"), 0.0);
 
   // Initiate gizmos
@@ -75,41 +75,40 @@ void CropDistortNode::Retranslate()
   SetInputName(kFeatherInput, tr("Feather"));
 }
 
-void CropDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+ShaderCode CropDistortNode::GetShaderCode(const QString &id)
 {
-  ShaderJob job;
-  job.Insert(value);
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
+}
 
-  if (TexturePtr texture = job.Get(kTextureInput).toTexture()) {
-    job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, QVector2D(texture->params().width(), texture->params().height()), this));
+value_t CropDistortNode::Value(const ValueParams &p) const
+{
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr texture = tex_meta.toTexture()) {
+    ShaderJob job = CreateShaderJob(p, GetShaderCode);
+    job.Insert(QStringLiteral("resolution_in"), QVector2D(texture->params().width(), texture->params().height()));
 
     if (!qIsNull(job.Get(kLeftInput).toDouble())
         || !qIsNull(job.Get(kRightInput).toDouble())
         || !qIsNull(job.Get(kTopInput).toDouble())
         || !qIsNull(job.Get(kBottomInput).toDouble())) {
-      table->Push(NodeValue::kTexture, texture->toJob(job), this);
-    } else {
-      table->Push(job.Get(kTextureInput));
+      return texture->toJob(job);
     }
   }
+
+  return tex_meta;
 }
 
-ShaderCode CropDistortNode::GetShaderCode(const ShaderRequest &request) const
+void CropDistortNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  Q_UNUSED(request)
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/crop.frag")));
-}
-
-void CropDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
-{
-  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+  if (TexturePtr tex = GetInputValue(p, kTextureInput).toTexture()) {
     const QVector2D &resolution = tex->virtual_resolution();
     temp_resolution_ = resolution;
 
-    double left_pt = resolution.x() * row[kLeftInput].toDouble();
-    double top_pt = resolution.y() * row[kTopInput].toDouble();
-    double right_pt = resolution.x() * (1.0 - row[kRightInput].toDouble());
-    double bottom_pt = resolution.y() * (1.0 - row[kBottomInput].toDouble());
+    double left_pt = resolution.x() * GetInputValue(p, kLeftInput).toDouble();
+    double top_pt = resolution.y() * GetInputValue(p, kTopInput).toDouble();
+    double right_pt = resolution.x() * (1.0 - GetInputValue(p, kRightInput).toDouble());
+    double bottom_pt = resolution.y() * (1.0 - GetInputValue(p, kBottomInput).toDouble());
     double center_x_pt = mid(left_pt, right_pt);
     double center_y_pt = mid(top_pt, bottom_pt);
 
@@ -136,7 +135,7 @@ void CropDistortNode::GizmoDragMove(double x_diff, double y_diff, const Qt::Keyb
 
   for (int j=0; j<gizmo->GetDraggers().size(); j++) {
     NodeInputDragger& i = gizmo->GetDraggers()[j];
-    double s = i.GetStartValue().toDouble();
+    double s = i.GetStartValue().value<double>();
     if (i.GetInput().input().input() == kLeftInput) {
       i.Drag(s + x_diff);
     } else if (i.GetInput().input().input() == kTopInput) {
@@ -151,7 +150,7 @@ void CropDistortNode::GizmoDragMove(double x_diff, double y_diff, const Qt::Keyb
 
 void CropDistortNode::CreateCropSideInput(const QString &id)
 {
-  AddInput(id, NodeValue::kFloat, 0.0);
+  AddInput(id, TYPE_DOUBLE, 0.0);
   SetInputProperty(id, QStringLiteral("min"), 0.0);
   SetInputProperty(id, QStringLiteral("max"), 1.0);
   SetInputProperty(id, QStringLiteral("view"), FloatSlider::kPercentage);

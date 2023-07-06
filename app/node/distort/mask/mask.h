@@ -53,11 +53,9 @@ public:
     return tr("Apply a polygonal mask.");
   }
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kInvertInput;
   static const QString kFeatherInput;

@@ -26,6 +26,7 @@
 #include "node/output/track/track.h"
 #include "render/audioplaybackcache.h"
 #include "render/framehashcache.h"
+#include "render/sampleformat.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 #include "timeline/timelinemarker.h"
@@ -44,6 +45,10 @@ class ViewerOutput : public Node
 {
   Q_OBJECT
 public:
+  static constexpr type_t TYPE_VPARAM = "vparam";
+  static constexpr type_t TYPE_APARAM = "aparam";
+  static constexpr type_t TYPE_SPARAM = "sparam";
+
   ViewerOutput(bool create_buffer_inputs = true, bool create_default_streams = true);
 
   NODE_DEFAULT_FUNCTIONS(ViewerOutput)
@@ -98,17 +103,17 @@ public:
 
   void SetVideoParams(const VideoParams &video, int index = 0)
   {
-    SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
+    SetStandardValue(kVideoParamsInput, value_t(TYPE_VPARAM, video), index);
   }
 
   void SetAudioParams(const AudioParams &audio, int index = 0)
   {
-    SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio), index);
+    SetStandardValue(kAudioParamsInput, value_t(TYPE_APARAM, audio), index);
   }
 
   void SetSubtitleParams(const SubtitleParams &subs, int index = 0)
   {
-    SetStandardValue(kSubtitleParamsInput, QVariant::fromValue(subs), index);
+    SetStandardValue(kSubtitleParamsInput, value_t(TYPE_SPARAM, subs), index);
   }
 
   int GetVideoStreamCount() const
@@ -186,7 +191,7 @@ public:
   bool IsVideoAutoCacheEnabled() const { qDebug() << "sequence ac is a stub"; return false; }
   void SetVideoAutoCacheEnabled(bool e) { qDebug() << "sequence ac is a stub"; }
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   const EncodingParams &GetLastUsedEncodingParams() const { return last_used_encoding_params_; }
   void SetLastUsedEncodingParams(const EncodingParams &p) { last_used_encoding_params_ = p; }
@@ -231,16 +236,16 @@ public slots:
   void SetPlayhead(const rational &t);
 
 protected:
-  virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
+  virtual void InputConnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
-  virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
+  virtual void InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output) override;
 
   virtual rational VerifyLengthInternal(Track::Type type) const;
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
-  int AddStream(Track::Type type, const QVariant &value);
-  int SetStream(Track::Type type, const QVariant &value, int index);
+  int AddStream(Track::Type type, const value_t &value);
+  int SetStream(Track::Type type, const value_t &value, int index);
 
 private:
   rational last_length_;
@@ -262,6 +267,9 @@ private:
   bool waveform_requests_enabled_;
 
   rational playhead_;
+
+private slots:
+  void ArraySizeChanged(const QString &id, int old_size, int new_size);
 
 };
 

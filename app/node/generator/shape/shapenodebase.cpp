@@ -37,12 +37,12 @@ const QString ShapeNodeBase::kColorInput = QStringLiteral("color_in");
 
 ShapeNodeBase::ShapeNodeBase(bool create_color_input)
 {
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
-  AddInput(kSizeInput, NodeValue::kVec2, QVector2D(100, 100));
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));
+  AddInput(kSizeInput, TYPE_VEC2, QVector2D(100, 100));
   SetInputProperty(kSizeInput, QStringLiteral("min"), QVector2D(0, 0));
 
   if (create_color_input) {
-    AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0, 0.0, 0.0, 1.0)));
+    AddInput(kColorInput, TYPE_COLOR, Color(1.0, 0.0, 0.0, 1.0));
   }
 
   // Initiate gizmos
@@ -73,15 +73,15 @@ void ShapeNodeBase::Retranslate()
   }
 }
 
-void ShapeNodeBase::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void ShapeNodeBase::UpdateGizmoPositions(const ValueParams &p)
 {
   // Use offsets to make the appearance of values that start in the top left, even though we
   // really anchor around the center
-  QVector2D center_pt = globals.square_resolution() * 0.5;
+  QVector2D center_pt = p.square_resolution() * 0.5;
   SetInputProperty(kPositionInput, QStringLiteral("offset"), center_pt);
 
-  QVector2D pos = row[kPositionInput].toVec2();
-  QVector2D sz = row[kSizeInput].toVec2();
+  QVector2D pos = GetInputValue(p, kPositionInput).toVec2();
+  QVector2D sz = GetInputValue(p, kSizeInput).toVec2();
   QVector2D half_sz = sz * 0.5;
 
   double left_pt = pos.x() + center_pt.x() - half_sz.x();
@@ -126,8 +126,8 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
   NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
   if (gizmo == poly_gizmo_) {
-    x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-    y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
   } else {
     bool from_center = modifiers & Qt::AltModifier;
     bool keep_ratio = modifiers & Qt::ShiftModifier;
@@ -135,8 +135,8 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
     NodeInputDragger &w_drag = gizmo->GetDraggers()[2];
     NodeInputDragger &h_drag = gizmo->GetDraggers()[3];
 
-    QVector2D gizmo_sz_start(w_drag.GetStartValue().toDouble(), h_drag.GetStartValue().toDouble());
-    QVector2D gizmo_pos_start(x_drag.GetStartValue().toDouble(), y_drag.GetStartValue().toDouble());
+    QVector2D gizmo_sz_start(w_drag.GetStartValue().value<double>(), h_drag.GetStartValue().value<double>());
+    QVector2D gizmo_pos_start(x_drag.GetStartValue().value<double>(), y_drag.GetStartValue().value<double>());
     QVector2D gizmo_half_res = gizmo->GetGlobals().square_resolution()/2;
     QVector2D adjusted_pt(x, y);
     QVector2D new_size;
@@ -147,7 +147,7 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
 
     double original_ratio;
     if (keep_ratio) {
-      original_ratio = w_drag.GetStartValue().toDouble() / h_drag.GetStartValue().toDouble();
+      original_ratio = w_drag.GetStartValue().value<double>() / h_drag.GetStartValue().value<double>();
     }
 
     // Calculate new size
@@ -241,10 +241,10 @@ void ShapeNodeBase::GizmoDragMove(double x, double y, const Qt::KeyboardModifier
       new_pos = GenerateGizmoAnchor(gizmo_pos_start, gizmo_sz_start, gizmo) + using_size / 2;
     }
 
-    x_drag.Drag(new_pos.x());
-    y_drag.Drag(new_pos.y());
-    w_drag.Drag(new_size.x());
-    h_drag.Drag(new_size.y());
+    x_drag.Drag(double(new_pos.x()));
+    y_drag.Drag(double(new_pos.y()));
+    w_drag.Drag(double(new_size.x()));
+    h_drag.Drag(double(new_size.y()));
   }
 }
 

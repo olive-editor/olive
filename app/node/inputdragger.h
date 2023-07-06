@@ -36,7 +36,7 @@ public:
 
   void Start(const NodeKeyframeTrackReference& input, const rational& time, bool create_key_on_all_tracks = true);
 
-  void Drag(QVariant value);
+  void Drag(value_t::component_t value);
 
   void End(MultiUndoCommand *command);
 
@@ -45,7 +45,7 @@ public:
     return input_being_dragged;
   }
 
-  const QVariant &GetStartValue() const
+  const value_t::component_t &GetStartValue() const
   {
     return start_value_;
   }
@@ -65,9 +65,9 @@ private:
 
   rational time_;
 
-  QVariant start_value_;
+  value_t::component_t start_value_;
 
-  QVariant end_value_;
+  value_t::component_t end_value_;
 
   NodeKeyframe* dragging_key_;
   QVector<NodeKeyframe*> created_keys_;

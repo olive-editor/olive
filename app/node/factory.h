@@ -81,6 +81,7 @@ public:
     kTileDistort,
     kSwirlDistort,
     kMulticamNode,
+    kToneGenerator,
 
     // Count value
     kInternalNodeCount

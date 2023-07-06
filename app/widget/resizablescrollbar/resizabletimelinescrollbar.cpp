@@ -25,6 +25,7 @@
 #include <QStyleOptionSlider>
 #include <QtMath>
 
+#include "common/qtutils.h"
 #include "ui/colorcoding.h"
 
 namespace olive {

@@ -28,6 +28,7 @@
 #include "render/alphaassoc.h"
 #include "render/colorprocessor.h"
 #include "render/texture.h"
+#include "shaderjob.h"
 
 namespace olive {
 
@@ -39,7 +40,7 @@ public:
   ColorTransformJob()
   {
     processor_ = nullptr;
-    custom_shader_src_ = nullptr;
+    custom_shader_ = nullptr;
     input_alpha_association_ = kAlphaNone;
     clear_destination_ = true;
     force_opaque_ = false;
@@ -62,12 +63,12 @@ public:
 
   void SetOverrideID(const QString &id) { id_ = id; }
 
-  const NodeValue &GetInputTexture() const { return input_texture_; }
-  void SetInputTexture(const NodeValue &tex) { input_texture_ = tex; }
+  const value_t &GetInputTexture() const { return input_texture_; }
+  void SetInputTexture(const value_t &tex) { input_texture_ = tex; }
   void SetInputTexture(TexturePtr tex)
   {
     Q_ASSERT(!tex->IsDummy());
-    input_texture_ = NodeValue(NodeValue::kTexture, tex);
+    input_texture_ = tex;
   }
 
   ColorProcessorPtr GetColorProcessor() const { return processor_; }
@@ -76,13 +77,8 @@ public:
   const AlphaAssociated &GetInputAlphaAssociation() const { return input_alpha_association_; }
   void SetInputAlphaAssociation(const AlphaAssociated &e) { input_alpha_association_ = e; }
 
-  const Node *CustomShaderSource() const { return custom_shader_src_; }
-  const QString &CustomShaderID() const { return custom_shader_id_; }
-  void SetNeedsCustomShader(const Node *node, const QString &id = QString())
-  {
-    custom_shader_src_ = node;
-    custom_shader_id_ = id;
-  }
+  ShaderJob::GetShaderCodeFunction_t GetCustomShaderFunction() const { return custom_shader_; }
+  void SetCustomShaderFunction(ShaderJob::GetShaderCodeFunction_t shader) { custom_shader_ = shader; }
 
   bool IsClearDestinationEnabled() const { return clear_destination_; }
   void SetClearDestinationEnabled(bool e) { clear_destination_ = e; }
@@ -103,10 +99,9 @@ private:
   ColorProcessorPtr processor_;
   QString id_;
 
-  NodeValue input_texture_;
+  value_t input_texture_;
 
-  const Node *custom_shader_src_;
-  QString custom_shader_id_;
+  ShaderJob::GetShaderCodeFunction_t custom_shader_;
 
   AlphaAssociated input_alpha_association_;
 

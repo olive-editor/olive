@@ -28,7 +28,7 @@ const QString SubtitleBlock::kTextIn = QStringLiteral("text_in");
 
 SubtitleBlock::SubtitleBlock()
 {
-  AddInput(kTextIn, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kTextIn, TYPE_STRING, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
   SetInputFlag(kBufferIn, kInputFlagHidden);
   SetInputFlag(kLengthInput, kInputFlagHidden);

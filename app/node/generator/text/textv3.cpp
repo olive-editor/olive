@@ -48,16 +48,16 @@ TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false),
   dont_emit_valign_(false)
 {
-  AddInput(kTextInput, NodeValue::kText, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
+  AddInput(kTextInput, TYPE_STRING, QStringLiteral("<p style='font-size: 72pt; color: white;'>%1</p>").arg(tr("Sample Text")));
   SetInputProperty(kTextInput, QStringLiteral("vieweronly"), true);
 
   SetStandardValue(kSizeInput, QVector2D(400, 300));
 
-  AddInput(kVerticalAlignmentInput, NodeValue::kCombo, InputFlags(kInputFlagHidden | kInputFlagStatic));
+  AddInput(kVerticalAlignmentInput, TYPE_COMBO, kInputFlagHidden | kInputFlagStatic);
 
-  AddInput(kUseArgsInput, NodeValue::kBoolean, true, InputFlags(kInputFlagHidden | kInputFlagStatic));
+  AddInput(kUseArgsInput, TYPE_BOOL, true, kInputFlagHidden | kInputFlagStatic);
 
-  AddInput(kArgsInput, NodeValue::kText, InputFlags(kInputFlagArray));
+  AddInput(kArgsInput, TYPE_STRING, kInputFlagArray);
   SetInputProperty(kArgsInput, QStringLiteral("arraystart"), 1);
 
   text_gizmo_ = new TextGizmo(this);
@@ -96,40 +96,7 @@ void TextGeneratorV3::Retranslate()
   SetInputName(kArgsInput, tr("Arguments"));
 }
 
-void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
-{
-  QString text = value[kTextInput].toString();
-
-  if (value[kUseArgsInput].toBool()) {
-    auto args = value[kArgsInput].toArray();
-    if (!args.empty()) {
-      QStringList list;
-      list.reserve(args.size());
-      for (size_t i=0; i<args.size(); i++) {
-        list.append(args[i].toString());
-      }
-
-      text = FormatString(text, list);
-    }
-  }
-
-  if (!text.isEmpty()) {
-    TexturePtr base = value[kTextInput].toTexture();
-
-    VideoParams text_params = base ? base->params() : globals.vparams();
-    text_params.set_format(PixelFormat::U8);
-    text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
-
-    GenerateJob job(value);
-    job.Insert(kTextInput, NodeValue(NodeValue::kText, text));
-
-    PushMergableJob(value, Texture::Job(text_params, job), table);
-  } else if (value[kBaseInput].toTexture()) {
-    table->Push(value[kBaseInput]);
-  }
-}
-
-void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) const
+void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job)
 {
   QImage img(reinterpret_cast<uchar*>(frame->data()), frame->width(), frame->height(), frame->linesize_bytes(), QImage::Format_RGBA8888_Premultiplied);
   img.fill(Qt::transparent);
@@ -157,14 +124,14 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
   p.setClipRect(0, 0, size.x(), size.y());
 
-  switch (static_cast<VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
-  case kVAlignTop:
+  switch (static_cast<TextGeneratorV3::VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
+  case TextGeneratorV3::kVAlignTop:
     // Do nothing
     break;
-  case kVAlignMiddle:
+  case TextGeneratorV3::kVAlignMiddle:
     p.translate(0, size.y()/2-text_doc.size().height()/2);
     break;
-  case kVAlignBottom:
+  case TextGeneratorV3::kVAlignBottom:
     p.translate(0, size.y()-text_doc.size().height());
     break;
   }
@@ -176,13 +143,48 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   text_doc.documentLayout()->draw(&p, ctx);
 }
 
-void TextGeneratorV3::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+value_t TextGeneratorV3::Value(const ValueParams &p) const
 {
-  super::UpdateGizmoPositions(row, globals);
+  QString text = GetInputValue(p, kTextInput).toString();
+
+  if (GetInputValue(p, kUseArgsInput).toBool()) {
+    auto args = GetInputValue(p, kArgsInput).toArray();
+    if (!args.empty()) {
+      QStringList list;
+      list.reserve(args.size());
+      for (size_t i=0; i<args.size(); i++) {
+        list.append(args[i].toString());
+      }
+
+      text = FormatString(text, list);
+    }
+  }
+
+  value_t base_val = GetInputValue(p, kBaseInput);
+
+  if (!text.isEmpty()) {
+    TexturePtr base = base_val.toTexture();
+
+    VideoParams text_params = base ? base->params() : p.vparams();
+    text_params.set_format(PixelFormat::U8);
+    text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
+
+    GenerateJob job = CreateGenerateJob(p, GenerateFrame);
+    job.Insert(kTextInput, text);
+
+    return GetMergableJob(p, Texture::Job(text_params, job));
+  }
+
+  return base_val;
+}
+
+void TextGeneratorV3::UpdateGizmoPositions(const ValueParams &p)
+{
+  super::UpdateGizmoPositions(p);
 
   QRectF rect = poly_gizmo()->GetPolygon().boundingRect();
   text_gizmo_->SetRect(rect);
-  text_gizmo_->SetHtml(row[kTextInput].toString());
+  text_gizmo_->SetHtml(GetInputValue(p, kTextInput).toString());
 }
 
 Qt::Alignment TextGeneratorV3::GetQtAlignmentFromOurs(VerticalAlignment v)

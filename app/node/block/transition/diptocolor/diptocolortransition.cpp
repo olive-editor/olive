@@ -28,7 +28,7 @@ const QString DipToColorTransition::kColorInput = QStringLiteral("color_in");
 
 DipToColorTransition::DipToColorTransition()
 {
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0, 0, 0)));
+  AddInput(kColorInput, TYPE_COLOR, Color(0, 0, 0));
 }
 
 QString DipToColorTransition::Name() const
@@ -51,11 +51,9 @@ QString DipToColorTransition::Description() const
   return tr("Transition between clips by dipping to a color.");
 }
 
-ShaderCode DipToColorTransition::GetShaderCode(const ShaderRequest &request) const
+ShaderCode DipToColorTransition::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"));
 }
 
 void DipToColorTransition::Retranslate()
@@ -65,9 +63,10 @@ void DipToColorTransition::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const
+void DipToColorTransition::ShaderJobEvent(const ValueParams &p, ShaderJob *job) const
 {
-  job->Insert(kColorInput, value);
+  job->Insert(kColorInput, GetInputValue(p, kColorInput));
+  job->set_function(GetShaderCode);
 }
 
 }

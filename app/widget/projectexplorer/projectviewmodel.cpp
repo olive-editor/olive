@@ -369,7 +369,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
       if (item != drop_location && item->folder() != drop_location
           && (!dynamic_cast<Folder*>(item) || !ItemIsParentOfChild(static_cast<Folder*>(item), drop_location))) {
-        move_command->add_child(new NodeEdgeRemoveCommand(item, NodeInput(item->folder(), Folder::kChildInput, item->folder()->index_of_child_in_array(item))));
+        move_command->add_child(new NodeEdgeRemoveCommand(NodeOutput(item), NodeInput(item->folder(), Folder::kChildInput, item->folder()->index_of_child_in_array(item))));
         move_command->add_child(new FolderAddChild(drop_location, item));
         count++;
       }

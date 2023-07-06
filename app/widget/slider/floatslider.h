@@ -56,13 +56,15 @@ public:
   static QString ValueToString(double val, DisplayType display, int decimal_places, bool autotrim_decimal_places);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) const override;
+  virtual QString ValueToString(const InternalType& v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
+  virtual InternalType StringToValue(const QString& s, bool* ok) const override;
 
-  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
+  virtual InternalType AdjustDragDistanceInternal(const InternalType &start, const double &drag) const override;
 
-  virtual void ValueSignalEvent(const QVariant &value) override;
+  virtual void ValueSignalEvent(const InternalType &value) override;
+
+  virtual bool Equals(const InternalType &a, const InternalType &b) const override;
 
 signals:
   void ValueChanged(double);

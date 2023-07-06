@@ -33,12 +33,13 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
   static const QString kBaseInput;
 
 protected:
-  void PushMergableJob(const NodeValueRow &value, TexturePtr job, NodeValueTable *table) const;
+  value_t GetMergableJob(const ValueParams &p, TexturePtr job) const;
+
+private:
+  static ShaderCode GetShaderCode(const QString &id);
 
 };
 

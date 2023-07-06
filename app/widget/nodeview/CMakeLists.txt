@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/nodeview/curvedconnectoritem.cpp
+  widget/nodeview/curvedconnectoritem.h
   widget/nodeview/nodeview.cpp
   widget/nodeview/nodeview.h
   widget/nodeview/nodeviewcommon.h

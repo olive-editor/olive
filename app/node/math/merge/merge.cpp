@@ -20,8 +20,6 @@
 
 #include "merge.h"
 
-#include "node/traverser.h"
-
 namespace olive {
 
 const QString MergeNode::kBaseIn = QStringLiteral("base_in");
@@ -31,9 +29,9 @@ const QString MergeNode::kBlendIn = QStringLiteral("blend_in");
 
 MergeNode::MergeNode()
 {
-  AddInput(kBaseIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBaseIn, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kBlendIn, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBlendIn, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
   SetFlag(kDontShowInParamView);
 }
@@ -67,30 +65,32 @@ void MergeNode::Retranslate()
   SetInputName(kBlendIn, tr("Blend"));
 }
 
-ShaderCode MergeNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode MergeNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
-
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
-void MergeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t MergeNode::Value(const ValueParams &p) const
 {
+  value_t base_val = GetInputValue(p, kBaseIn);
+  value_t blend_val = GetInputValue(p, kBlendIn);
 
-  TexturePtr base_tex = value[kBaseIn].toTexture();
-  TexturePtr blend_tex = value[kBlendIn].toTexture();
+  TexturePtr base_tex = base_val.toTexture();
+  TexturePtr blend_tex = blend_val.toTexture();
 
   if (base_tex || blend_tex) {
     if (!base_tex || (blend_tex && blend_tex->channel_count() < VideoParams::kRGBAChannelCount)) {
       // We only have a blend texture or the blend texture is RGB only, no need to alpha over
-      table->Push(value[kBlendIn]);
+      return blend_val;
     } else if (!blend_tex) {
       // We only have a base texture, no need to alpha over
-      table->Push(value[kBaseIn]);
+      return base_val;
     } else {
-      table->Push(NodeValue::kTexture, base_tex->toJob(ShaderJob(value)), this);
+      return base_tex->toJob(CreateShaderJob(p, GetShaderCode));
     }
   }
+
+  return value_t();
 }
 
 }

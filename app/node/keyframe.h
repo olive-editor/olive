@@ -61,7 +61,7 @@ public:
   /**
    * @brief NodeKeyframe Constructor
    */
-  NodeKeyframe(const rational& time, const QVariant& value, Type type, int track, int element, const QString& input, QObject* parent = nullptr);
+  NodeKeyframe(const rational& time, const value_t::component_t& value, Type type, int track, int element, const QString& input, QObject* parent = nullptr);
   NodeKeyframe();
 
   virtual ~NodeKeyframe() override;
@@ -88,8 +88,8 @@ public:
   /**
    * @brief The value of this keyframe (i.e. the value to use at this keyframe's time)
    */
-  const QVariant& value() const;
-  void set_value(const QVariant &value);
+  const value_t::component_t& value() const;
+  void set_value(const value_t::component_t &value);
 
   /**
    * @brief The method of interpolation to use with this keyframe
@@ -165,8 +165,8 @@ public:
 
   bool has_sibling_at_time(const rational &t) const;
 
-  bool load(QXmlStreamReader *reader, NodeValue::Type data_type);
-  void save(QXmlStreamWriter *writer, NodeValue::Type data_type) const;
+  bool load(QXmlStreamReader *reader, type_t data_type);
+  void save(QXmlStreamWriter *writer, type_t data_type) const;
 
 signals:
   /**
@@ -177,7 +177,7 @@ signals:
   /**
    * @brief Signal emitted when this keyframe's value is changed
    */
-  void ValueChanged(const QVariant& value);
+  void ValueChanged(const value_t::component_t &value);
 
   /**
    * @brief Signal emitted when this keyframe's value is changed
@@ -197,7 +197,7 @@ signals:
 private:
   rational time_;
 
-  QVariant value_;
+  value_t::component_t value_;
 
   Type type_;
 

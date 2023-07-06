@@ -38,9 +38,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
-
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   virtual void Retranslate() override;
 
@@ -48,6 +46,8 @@ public:
   static const QString kPanningInput;
 
 private:
+  static void ProcessSamples(const void *context, const SampleJob &job, SampleBuffer &output);
+
   NodeInput* samples_input_;
   NodeInput* panning_input_;
 

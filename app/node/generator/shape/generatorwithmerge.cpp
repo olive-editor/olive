@@ -30,7 +30,7 @@ const QString GeneratorWithMerge::kBaseInput = QStringLiteral("base_in");
 
 GeneratorWithMerge::GeneratorWithMerge()
 {
-  AddInput(kBaseInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kBaseInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
   SetEffectInput(kBaseInput);
   SetFlag(kVideoEffect);
 }
@@ -42,29 +42,28 @@ void GeneratorWithMerge::Retranslate()
   SetInputName(kBaseInput, tr("Base"));
 }
 
-ShaderCode GeneratorWithMerge::GetShaderCode(const ShaderRequest &request) const
+ShaderCode GeneratorWithMerge::GetShaderCode(const QString &id)
 {
-  if (request.id == QStringLiteral("mrg")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
-  }
-
-  return ShaderCode();
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
 }
 
-void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, TexturePtr job, NodeValueTable *table) const
+value_t GeneratorWithMerge::GetMergableJob(const ValueParams &p, TexturePtr job) const
 {
-  if (TexturePtr base = value[kBaseInput].toTexture()) {
+  value_t tex_meta = GetInputValue(p, kBaseInput);
+
+  if (TexturePtr base = tex_meta.toTexture()) {
     // Push as merge node
     ShaderJob merge;
 
     merge.SetShaderID(QStringLiteral("mrg"));
-    merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
-    merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
+    merge.set_function(GetShaderCode);
+    merge.Insert(MergeNode::kBaseIn, tex_meta);
+    merge.Insert(MergeNode::kBlendIn, job);
 
-    table->Push(NodeValue::kTexture, base->toJob(merge), this);
+    return base->toJob(merge);
   } else {
     // Just push generate job
-    table->Push(NodeValue::kTexture, job, this);
+    return job;
   }
 }
 

@@ -37,12 +37,12 @@ const QString CornerPinDistortNode::kPerspectiveInput = QStringLiteral("perspect
 
 CornerPinDistortNode::CornerPinDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-  AddInput(kPerspectiveInput, NodeValue::kBoolean, true);
-  AddInput(kTopLeftInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
-  AddInput(kTopRightInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
-  AddInput(kBottomRightInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
-  AddInput(kBottomLeftInput, NodeValue::kVec2, QVector2D(0.0, 0.0));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
+  AddInput(kPerspectiveInput, TYPE_BOOL, true);
+  AddInput(kTopLeftInput, TYPE_VEC2, QVector2D(0.0, 0.0));
+  AddInput(kTopRightInput, TYPE_VEC2, QVector2D(0.0, 0.0));
+  AddInput(kBottomRightInput, TYPE_VEC2, QVector2D(0.0, 0.0));
+  AddInput(kBottomLeftInput, TYPE_VEC2, QVector2D(0.0, 0.0));
 
   // Initiate gizmos
   gizmo_whole_rect_ = AddDraggableGizmo<PolygonGizmo>();
@@ -67,27 +67,35 @@ void CornerPinDistortNode::Retranslate()
   SetInputName(kBottomLeftInput, tr("Bottom Left"));
 }
 
-void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+ShaderCode CornerPinDistortNode::GetShaderCode(const QString &id)
+{
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),
+                    FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
+}
+
+value_t CornerPinDistortNode::Value(const ValueParams &p) const
 {
   // If no texture do nothing
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
     // In the special case that all sliders are in their default position just
     // push the texture.
-    if (!(value[kTopLeftInput].toVec2().isNull()
-        && value[kTopRightInput].toVec2().isNull() &&
-        value[kBottomRightInput].toVec2().isNull() &&
-        value[kBottomLeftInput].toVec2().isNull())) {
-      ShaderJob job(value);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
+    if (!(GetInputValue(p, kTopLeftInput).toVec2().isNull()
+        && GetInputValue(p, kTopRightInput).toVec2().isNull() &&
+        GetInputValue(p, kBottomRightInput).toVec2().isNull() &&
+        GetInputValue(p, kBottomLeftInput).toVec2().isNull())) {
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
 
       // Convert slider values to their pixel values and then convert to clip space (-1.0 ... 1.0) for overriding the
       // vertex coordinates.
       const QVector2D &resolution = tex->virtual_resolution();
       QVector2D half_resolution = resolution * 0.5;
-      QVector2D top_left = QVector2D(ValueToPixel(0, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
-      QVector2D top_right = QVector2D(ValueToPixel(1, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
-      QVector2D bottom_right = QVector2D(ValueToPixel(2, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
-      QVector2D bottom_left = QVector2D(ValueToPixel(3, value, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+      QVector2D top_left = QVector2D(ValueToPixel(0, p, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+      QVector2D top_right = QVector2D(ValueToPixel(1, p, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+      QVector2D bottom_right = QVector2D(ValueToPixel(2, p, resolution)) / half_resolution - QVector2D(1.0, 1.0);
+      QVector2D bottom_left = QVector2D(ValueToPixel(3, p, resolution)) / half_resolution - QVector2D(1.0, 1.0);
 
       // Override default vertex coordinates.
       QVector<float> adjusted_vertices = {top_left.x(), top_left.y(), 0.0f,
@@ -99,22 +107,14 @@ void CornerPinDistortNode::Value(const NodeValueRow &value, const NodeGlobals &g
                                       bottom_right.x(),  bottom_right.y(), 0.0f};
       job.SetVertexCoordinates(adjusted_vertices);
 
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      table->Push(value[kTextureInput]);
+      return tex->toJob(job);
     }
   }
+
+  return tex_meta;
 }
 
-ShaderCode CornerPinDistortNode::GetShaderCode(const ShaderRequest &request) const
-{
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.frag")),
-                    FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/cornerpin.vert")));
-}
-
-QPointF CornerPinDistortNode::ValueToPixel(int value, const NodeValueRow& row, const QVector2D &resolution) const
+QPointF CornerPinDistortNode::ValueToPixel(int value, const ValueParams& p, const QVector2D &resolution) const
 {
   Q_ASSERT(value >= 0 && value <= 3);
 
@@ -122,16 +122,16 @@ QPointF CornerPinDistortNode::ValueToPixel(int value, const NodeValueRow& row, c
 
   switch (value) {
   case 0: // Top left
-    v = row[kTopLeftInput].toVec2();
+    v = GetInputValue(p, kTopLeftInput).toVec2();
     return QPointF(v.x(), v.y());
   case 1: // Top right
-    v = row[kTopRightInput].toVec2();
+    v = GetInputValue(p, kTopRightInput).toVec2();
     return QPointF(resolution.x() + v.x(), v.y());
   case 2: // Bottom right
-    v = row[kBottomRightInput].toVec2();
+    v = GetInputValue(p, kBottomRightInput).toVec2();
     return QPointF(resolution.x() + v.x(), resolution.y() + v.y());
   case 3: //Bottom left
-    v = row[kBottomLeftInput].toVec2();
+    v = GetInputValue(p, kBottomLeftInput).toVec2();
     return QPointF(v.x(), v.y() + resolution.y());
   default: // We should never get here
     return QPointF();
@@ -143,20 +143,20 @@ void CornerPinDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardM
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
   if (gizmo != gizmo_whole_rect_) {
-    gizmo->GetDraggers()[0].Drag(gizmo->GetDraggers()[0].GetStartValue().toDouble() + x);
-    gizmo->GetDraggers()[1].Drag(gizmo->GetDraggers()[1].GetStartValue().toDouble() + y);
+    gizmo->GetDraggers()[0].Drag(gizmo->GetDraggers()[0].GetStartValue().value<double>() + x);
+    gizmo->GetDraggers()[1].Drag(gizmo->GetDraggers()[1].GetStartValue().value<double>() + y);
   }
 }
 
-void CornerPinDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void CornerPinDistortNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  if (TexturePtr tex = row[kTextureInput].toTexture()) {
+  if (TexturePtr tex = GetInputValue(p, kTextureInput).toTexture()) {
     const QVector2D &resolution = tex->virtual_resolution();
 
-    QPointF top_left = ValueToPixel(0, row, resolution);
-    QPointF top_right = ValueToPixel(1, row, resolution);
-    QPointF bottom_right = ValueToPixel(2, row, resolution);
-    QPointF bottom_left = ValueToPixel(3, row, resolution);
+    QPointF top_left = ValueToPixel(0, p, resolution);
+    QPointF top_right = ValueToPixel(1, p, resolution);
+    QPointF bottom_right = ValueToPixel(2, p, resolution);
+    QPointF bottom_left = ValueToPixel(3, p, resolution);
 
     // Add the correct offset to each slider
     SetInputProperty(kTopLeftInput, QStringLiteral("offset"), QVector2D(0.0, 0.0));

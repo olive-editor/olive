@@ -28,7 +28,6 @@
 #include "node/gizmo/text.h"
 #include "node/node.h"
 #include "node/output/track/tracklist.h"
-#include "node/traverser.h"
 #include "tool/tool.h"
 #include "viewerplaybacktimer.h"
 #include "viewerqueue.h"
@@ -230,12 +229,10 @@ protected:
 
   QTransform GenerateDisplayTransform();
 
-  QTransform GenerateGizmoTransform(NodeTraverser &gt, const TimeRange &range);
+  QTransform GenerateGizmoTransform(const TimeRange &range);
   QTransform GenerateGizmoTransform()
   {
-    NodeTraverser t;
-    t.SetCacheVideoParams(gizmo_params_);
-    return GenerateGizmoTransform(t, GenerateGizmoTime());
+    return GenerateGizmoTransform(GenerateGizmoTime());
   }
 
   TimeRange GenerateGizmoTime()
@@ -267,12 +264,13 @@ private:
   static void DrawTextWithCrudeShadow(QPainter* painter, const QRect& rect, const QString& text, const QTextOption &opt = QTextOption());
 
   rational GetGizmoTime();
+  TimeRange GetGizmoTimeRange();
 
   bool IsHandDrag(QMouseEvent* event) const;
 
   void UpdateMatrix();
 
-  NodeGizmo *TryGizmoPress(const NodeValueRow &row, const QPointF &p);
+  NodeGizmo *TryGizmoPress(const QPointF &p);
 
   void OpenTextGizmo(TextGizmo *text, QMouseEvent *event = nullptr);
 
@@ -353,7 +351,6 @@ private:
   ViewerSafeMarginInfo safe_margin_;
 
   Node* gizmos_;
-  NodeValueRow gizmo_db_;
   VideoParams gizmo_params_;
   AudioParams gizmo_audio_params_;
   QPoint gizmo_start_drag_;

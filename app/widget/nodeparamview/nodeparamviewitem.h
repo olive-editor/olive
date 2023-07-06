@@ -51,6 +51,8 @@ class NodeParamViewItemBody : public QWidget {
 public:
   NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget* parent = nullptr);
 
+  virtual ~NodeParamViewItemBody() override;
+
   void SetTimeTarget(ViewerOutput *target);
 
   void Retranslate();
@@ -61,6 +63,8 @@ public:
   void SetTimebase(const rational& timebase);
 
   void SetInputChecked(const NodeInput &input, bool e);
+
+  bool DeleteSelected();
 
 signals:
   void RequestSelectNode(Node *node);
@@ -140,7 +144,7 @@ private:
   static const int kMaxWidgetColumn;
 
 private slots:
-  void EdgeChanged(Node *output, const NodeInput &input);
+  void EdgeChanged(const NodeOutput &output, const NodeInput &input);
 
   void ArrayCollapseBtnPressed(bool checked);
 
@@ -211,6 +215,8 @@ public:
     keyframe_connections_ = c;
   }
 
+  bool DeleteSelected();
+
 signals:
   void RequestSelectNode(Node *node);
 
@@ -221,6 +227,8 @@ signals:
   void RequestEditTextInViewer();
 
   void InputArraySizeChanged(const QString &input, int old_size, int new_size);
+
+  void ElementKeyframeTrackAdded(const QString &input, int element, int track);
 
 protected slots:
   virtual void Retranslate() override;

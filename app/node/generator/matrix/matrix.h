@@ -44,7 +44,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kPositionInput;
   static const QString kRotationInput;
@@ -53,7 +53,7 @@ public:
   static const QString kAnchorInput;
 
 protected:
-  QMatrix4x4 GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const;
+  QMatrix4x4 GenerateMatrix(const ValueParams &p, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const;
   static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
                                    const float &rot,
                                    const QVector2D &scale,

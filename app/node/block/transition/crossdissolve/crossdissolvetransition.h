@@ -38,12 +38,14 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  //virtual void Retranslate() override;
-
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
 protected:
-  virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const override;
+  virtual void ShaderJobEvent(const ValueParams &p, ShaderJob *job) const override;
+
+  virtual void SampleJobEvent(const ValueParams &p, SampleJob *job) const override;
+
+private:
+  static ShaderCode GetShaderCode(const QString &id);
+  static void ProcessSamples(const void *context, const SampleJob &job, SampleBuffer &out_samples);
 
 };
 

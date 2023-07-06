@@ -176,9 +176,9 @@ signals:
    */
   void NodeRemoved(Node* node);
 
-  void InputConnected(Node *output, const NodeInput& input);
+  void InputConnected(const NodeOutput &output, const NodeInput& input);
 
-  void InputDisconnected(Node *output, const NodeInput& input);
+  void InputDisconnected(const NodeOutput &output, const NodeInput& input);
 
   void ValueChanged(const NodeInput& input);
 

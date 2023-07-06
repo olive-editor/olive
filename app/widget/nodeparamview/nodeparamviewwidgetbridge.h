@@ -24,7 +24,7 @@
 #include <QObject>
 
 #include "node/inputdragger.h"
-#include "widget/slider/base/numericsliderbase.h"
+#include "widget/nodeparamview/paramwidget/abstractparamwidget.h"
 #include "widget/timetarget/timetarget.h"
 
 namespace olive {
@@ -42,10 +42,12 @@ class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 public:
   NodeParamViewWidgetBridge(NodeInput input, QObject* parent);
 
-  const QVector<QWidget*>& widgets() const
+  const std::vector<QWidget*>& widgets() const
   {
-    return widgets_;
+    return widget_->GetWidgets();
   }
+
+  bool has_widgets() const { return widget_; }
 
   // Set the timebase of certain Timebased widgets
   void SetTimebase(const rational& timebase);
@@ -64,20 +66,11 @@ protected:
 private:
   void CreateWidgets();
 
-  void SetInputValue(const QVariant& value, int track);
+  void SetInputValue(const value_t::component_t &value, size_t track);
 
-  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+  void SetInputValueInternal(const value_t::component_t &value, size_t track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
 
-  void ProcessSlider(NumericSliderBase* slider, int slider_track, const QVariant& value);
-  void ProcessSlider(NumericSliderBase* slider, const QVariant& value)
-  {
-    ProcessSlider(slider, widgets_.indexOf(slider), value);
-  }
-
-  void SetProperty(const QString &key, const QVariant &value);
-
-  template <typename T>
-  void CreateSliders(int count, QWidget *parent);
+  void SetProperty(const QString &key, const value_t &value);
 
   void UpdateWidgetValues();
 
@@ -95,29 +88,38 @@ private:
 
   QString GetCommandName() const;
 
-  NodeValue::Type GetDataType() const
+  type_t GetDataType() const
   {
     return GetOuterInput().GetDataType();
   }
 
+  size_t GetChannelCount() const
+  {
+    return GetOuterInput().GetChannelCount();
+  }
+
   void UpdateProperties();
+
+  void RecreateWidgets();
 
   QVector<NodeInput> input_hierarchy_;
 
-  QVector<QWidget*> widgets_;
+  AbstractParamWidget *widget_;
 
   NodeInputDragger dragger_;
 
   NodeParamViewScrollBlocker scroll_filter_;
 
 private slots:
-  void WidgetCallback();
-
   void InputValueChanged(const NodeInput& input, const TimeRange& range);
 
-  void InputDataTypeChanged(const QString& input, NodeValue::Type type);
+  void InputDataTypeChanged(const QString& input, type_t type);
 
-  void PropertyChanged(const QString &input, const QString &key, const QVariant &value);
+  void PropertyChanged(const QString &input, const QString &key, const value_t &value);
+
+  void ProcessSlider(NumericSliderBase* slider, size_t track);
+
+  void ValueChanged(size_t track, const value_t::component_t &val);
 
 };
 

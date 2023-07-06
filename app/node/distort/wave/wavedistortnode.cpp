@@ -32,13 +32,13 @@ const QString WaveDistortNode::kVerticalInput = QStringLiteral("vertical_in");
 
 WaveDistortNode::WaveDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kFrequencyInput, NodeValue::kFloat, 10);
-  AddInput(kIntensityInput, NodeValue::kFloat, 10);
-  AddInput(kEvolutionInput, NodeValue::kFloat, 0);
+  AddInput(kFrequencyInput, TYPE_DOUBLE, 10.0);
+  AddInput(kIntensityInput, TYPE_DOUBLE, 10.0);
+  AddInput(kEvolutionInput, TYPE_DOUBLE, 0.0);
 
-  AddInput(kVerticalInput, NodeValue::kCombo, false);
+  AddInput(kVerticalInput, TYPE_COMBO, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -76,25 +76,24 @@ void WaveDistortNode::Retranslate()
   SetComboBoxStrings(kVerticalInput, {tr("Horizontal"), tr("Vertical")});
 }
 
-ShaderCode WaveDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode WaveDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/wave.frag"));
 }
 
-void WaveDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t WaveDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr texture = value[kTextureInput].toTexture()) {
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr texture = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qIsNull(value[kIntensityInput].toDouble())) {
-      table->Push(NodeValue::kTexture, Texture::Job(texture->params(), ShaderJob(value)), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+    if (!qIsNull(GetInputValue(p, kIntensityInput).toDouble())) {
+      return Texture::Job(texture->params(), CreateShaderJob(p, GetShaderCode));
     }
   }
 
+  return tex_meta;
 }
 
 }

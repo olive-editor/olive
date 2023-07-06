@@ -118,7 +118,7 @@ private:
   QPointF dragging_bezier_point_opposing_start_;
   QPointF drag_start_;
 
-  QVector<QVariant> drag_keyframe_values_;
+  QVector<value_t::component_t> drag_keyframe_values_;
 
 };
 

@@ -60,6 +60,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
 
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
   connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewItem::InputArraySizeChanged);
+  connect(node_, &Node::KeyframeTrackAdded, this, &NodeParamViewItem::ElementKeyframeTrackAdded);
 
   // FIXME: Implemented to pick up when an input is set to hidden or not - DEFINITELY not a fast
   //        way of doing this, but "fine" for now.
@@ -115,6 +116,15 @@ int NodeParamViewItem::GetElementY(const NodeInput &c) const
 void NodeParamViewItem::SetInputChecked(const NodeInput &input, bool e)
 {
   body_->SetInputChecked(input, e);
+}
+
+bool NodeParamViewItem::DeleteSelected()
+{
+  if (body_) {
+    return body_->DeleteSelected();
+  }
+
+  return false;
 }
 
 NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBehavior create_checkboxes, QWidget *parent) :
@@ -174,6 +184,15 @@ NodeParamViewItemBody::NodeParamViewItemBody(Node* node, NodeParamViewCheckBoxBe
         insert_row++;
       }
     }
+  }
+}
+
+NodeParamViewItemBody::~NodeParamViewItemBody()
+{
+  for (auto it = input_ui_map_.cbegin(); it != input_ui_map_.cend(); it++) {
+    const InputUI &u = *it;
+
+    delete u.widget_bridge;
   }
 }
 
@@ -332,7 +351,7 @@ int NodeParamViewItemBody::GetElementY(NodeInput c) const
   return lbl_center.y();
 }
 
-void NodeParamViewItemBody::EdgeChanged(Node *output, const NodeInput& input)
+void NodeParamViewItemBody::EdgeChanged(const NodeOutput &output, const NodeInput& input)
 {
   Q_UNUSED(output)
 
@@ -350,12 +369,14 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
 
     bool is_connected = NodeGroup::ResolveInput(input).IsConnected();
 
-    foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
-      w->setVisible(!is_connected);
+    if (ui_objects.widget_bridge->has_widgets()) {
+      foreach (QWidget* w, ui_objects.widget_bridge->widgets()) {
+        w->setVisible(!is_connected);
+      }
     }
 
     // Show/hide connection label
-    ui_objects.connected_label->setVisible(is_connected);
+    ui_objects.connected_label->setVisible(is_connected || !ui_objects.widget_bridge->has_widgets());
 
     if (ui_objects.key_control) {
       ui_objects.key_control->setVisible(!is_connected);
@@ -370,21 +391,23 @@ void NodeParamViewItemBody::UpdateUIForEdgeConnection(const NodeInput& input)
 
 void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodeParamViewWidgetBridge *bridge, int row)
 {
-  // Add widgets for this parameter to the layout
-  for (int i=0; i<bridge->widgets().size(); i++) {
-    QWidget* w = bridge->widgets().at(i);
+  if (bridge->has_widgets()) {
+    // Add widgets for this parameter to the layout
+    for (size_t i=0; i<bridge->widgets().size(); i++) {
+      QWidget* w = bridge->widgets().at(i);
 
-    int col = i+kWidgetStartColumn;
+      int col = i+kWidgetStartColumn;
 
-    int colspan;
-    if (i == bridge->widgets().size()-1) {
-      // Span this widget among remaining columns
-      colspan = kMaxWidgetColumn - col;
-    } else {
-      colspan = 1;
+      int colspan;
+      if (i == bridge->widgets().size()-1) {
+        // Span this widget among remaining columns
+        colspan = kMaxWidgetColumn - col;
+      } else {
+        colspan = 1;
+      }
+
+      layout->addWidget(w, row, col, 1, colspan);
     }
-
-    layout->addWidget(w, row, col, 1, colspan);
   }
 }
 
@@ -413,7 +436,9 @@ void NodeParamViewItemBody::InputArraySizeChangedInternal(Node *node, const QStr
         // Our UI count is larger than the size, delete
         InputUI input_ui = input_ui_map_.take({node, input, i});
         delete input_ui.main_label;
-        qDeleteAll(input_ui.widget_bridge->widgets());
+        if (input_ui.widget_bridge->has_widgets()) {
+          qDeleteAll(input_ui.widget_bridge->widgets());
+        }
         delete input_ui.widget_bridge;
         delete input_ui.connected_label;
         delete input_ui.key_control;
@@ -526,6 +551,17 @@ void NodeParamViewItemBody::SetInputChecked(const NodeInput &input, bool e)
       cb->setChecked(e);
     }
   }
+}
+
+bool NodeParamViewItemBody::DeleteSelected()
+{
+  for (auto it = input_ui_map_.cbegin(); it != input_ui_map_.cend(); it++) {
+    if (it->connected_label && it->connected_label->DeleteSelected()) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void NodeParamViewItemBody::ReplaceWidgets(const NodeInput &input)

@@ -29,6 +29,7 @@
 #include "node/gizmo/point.h"
 #include "node/node.h"
 #include "node/inputdragger.h"
+#include "util/bezier.h"
 
 namespace olive {
 
@@ -47,19 +48,19 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
+  virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual AbstractParamWidget *GetCustomWidget(const QString &input) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+  static QPainterPath GeneratePath(const NodeValueArray &points, int size);
 
   static const QString kPointsInput;
   static const QString kColorInput;
 
 protected:
-  ShaderJob GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const;
+  ShaderJob GetGenerateJob(const ValueParams &p, const VideoParams &params) const;
 
 protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
@@ -67,7 +68,11 @@ protected slots:
 private:
   static void AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after);
 
-  static QPainterPath GeneratePath(const NodeValueArray &points, int size);
+  static void GenerateFrame(FramePtr frame, const GenerateJob &job);
+
+  static ShaderCode GetShaderCode(const QString &id);
+
+  static Bezier GetBezier(const value_t &v);
 
   template<typename T>
   void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);

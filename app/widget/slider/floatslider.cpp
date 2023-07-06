@@ -38,7 +38,7 @@ FloatSlider::FloatSlider(QWidget *parent) :
 
 double FloatSlider::GetValue() const
 {
-  return GetValueInternal().toDouble();
+  return GetValueInternal().value<double>();
 }
 
 void FloatSlider::SetValue(const double &d)
@@ -120,12 +120,15 @@ QString FloatSlider::ValueToString(double val, FloatSlider::DisplayType display,
   return FloatToString(TransformValueToDisplay(val, display), decimal_places, autotrim_decimal_places);
 }
 
-QString FloatSlider::ValueToString(const QVariant &v) const
+QString FloatSlider::ValueToString(const InternalType &v) const
 {
-  return ValueToString(v.toDouble() + GetOffset().toDouble(), display_type_, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
+  double d = v.converted(TYPE_DOUBLE).value<double>();
+  double o = GetOffset().value<double>();
+
+  return ValueToString(d + o, display_type_, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
 }
 
-QVariant FloatSlider::StringToValue(const QString &s, bool *ok) const
+FloatSlider::InternalType FloatSlider::StringToValue(const QString &s, bool *ok) const
 {
   bool valid;
   double val = s.toDouble(&valid);
@@ -141,10 +144,10 @@ QVariant FloatSlider::StringToValue(const QString &s, bool *ok) const
   }
 
   // Return un-offset value
-  return val - GetOffset().toDouble();
+  return val - GetOffset().value<double>();
 }
 
-QVariant FloatSlider::AdjustDragDistanceInternal(const QVariant &start, const double &drag) const
+FloatSlider::InternalType FloatSlider::AdjustDragDistanceInternal(const InternalType &start, const double &drag) const
 {
   switch (display_type_) {
   case kNormal:
@@ -152,7 +155,7 @@ QVariant FloatSlider::AdjustDragDistanceInternal(const QVariant &start, const do
     break;
   case kDecibel:
   {
-    double current_db = Decibel::fromLinear(start.toDouble());
+    double current_db = Decibel::fromLinear(start.value<double>());
     current_db += drag;
     double adjusted_linear = Decibel::toLinear(current_db);
 
@@ -165,9 +168,14 @@ QVariant FloatSlider::AdjustDragDistanceInternal(const QVariant &start, const do
   return super::AdjustDragDistanceInternal(start, drag);
 }
 
-void FloatSlider::ValueSignalEvent(const QVariant &value)
+void FloatSlider::ValueSignalEvent(const InternalType &value)
 {
-  emit ValueChanged(value.toDouble());
+  emit ValueChanged(value.value<double>());
+}
+
+bool FloatSlider::Equals(const InternalType &a, const InternalType &b) const
+{
+  return qFuzzyCompare(a.value<double>(), b.value<double>());
 }
 
 }

@@ -29,7 +29,7 @@ const QString SolidGenerator::kColorInput = QStringLiteral("color_in");
 SolidGenerator::SolidGenerator()
 {
   // Default to a color that isn't black
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(1.0f, 0.0f, 0.0f, 1.0f)));
+  AddInput(kColorInput, TYPE_COLOR, Color(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
 QString SolidGenerator::Name() const
@@ -59,16 +59,14 @@ void SolidGenerator::Retranslate()
   SetInputName(kColorInput, tr("Color"));
 }
 
-void SolidGenerator::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+ShaderCode SolidGenerator::GetShaderCode(const QString &id)
 {
-  table->Push(NodeValue::kTexture, Texture::Job(globals.vparams(), ShaderJob(value)), this);
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
 }
 
-ShaderCode SolidGenerator::GetShaderCode(const ShaderRequest &request) const
+value_t SolidGenerator::Value(const ValueParams &p) const
 {
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/solid.frag"));
+  return Texture::Job(p.vparams(), CreateShaderJob(p, GetShaderCode));
 }
 
 }

@@ -182,7 +182,7 @@ void QtUtils::SetComboBoxData(QComboBox *cb, const QString &data)
   }
 }
 
-QColor QtUtils::toQColor(const core::Color &i)
+QColor QtUtils::toQColor(const Color &i)
 {
   QColor c;
 
@@ -195,19 +195,19 @@ QColor QtUtils::toQColor(const core::Color &i)
   return c;
 }
 
-namespace core {
-
-uint qHash(const core::rational &r, uint seed)
+uint qHash(const rational &r, uint seed)
 {
   return ::qHash(r.toDouble(), seed);
 }
 
-uint qHash(const core::TimeRange &r, uint seed)
+uint qHash(const TimeRange &r, uint seed)
 {
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
 }
 
-
+uint qHash(const AudioParams &r, uint seed)
+{
+  return qHash(r.sample_rate(), seed) ^ qHash(r.channel_layout(), seed) ^ qHash(r.format().to_string(), seed);
 }
 
 }

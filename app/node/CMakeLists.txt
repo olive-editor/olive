@@ -50,12 +50,8 @@ set(OLIVE_SOURCES
   node/param.h
   node/project.cpp
   node/project.h
-  node/splitvalue.h
-  node/traverser.cpp
-  node/traverser.h
+  node/swizzlemap.h
   node/value.cpp
   node/value.h
-  node/valuedatabase.cpp
-  node/valuedatabase.h
   PARENT_SCOPE
 )

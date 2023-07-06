@@ -33,8 +33,7 @@ class ColorDifferenceKeyNode : public Node {
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals& globals, NodeValueTable* table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   static const QString kTextureInput;
   static const QString kGarbageMatteInput;
@@ -43,6 +42,9 @@ class ColorDifferenceKeyNode : public Node {
   static const QString kShadowsInput;
   static const QString kHighlightsInput;
   static const QString kMaskOnlyInput;
+
+private:
+  static ShaderCode GetShaderCode(const QString &id);
 
 };
 

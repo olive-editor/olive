@@ -25,21 +25,26 @@
 
 namespace olive {
 
-NodeInputImmediate::NodeInputImmediate(NodeValue::Type type, const SplitValue &default_val) :
-  default_value_(default_val),
+NodeInputImmediate::NodeInputImmediate() :
   keyframing_(false)
 {
-  set_data_type(type);
 }
 
-void NodeInputImmediate::set_standard_value_on_track(const QVariant &value, int track)
+void NodeInputImmediate::set_standard_value_on_track(const value_t::component_t &value, size_t track)
 {
-  standard_value_.replace(track, value);
+  if (track >= standard_value_.size()) {
+    standard_value_.resize(track + 1);
+  }
+  standard_value_[track] = value;
 }
 
-void NodeInputImmediate::set_split_standard_value(const SplitValue &value)
+void NodeInputImmediate::set_split_standard_value(const value_t &value)
 {
-  for (int i=0; i<value.size() && i<standard_value_.size(); i++) {
+  if (standard_value_.size() < value.size()) {
+    standard_value_.resize(value.size());
+  }
+
+  for (size_t i=0; i<value.size(); i++) {
     standard_value_[i] = value[i];
   }
 }
@@ -59,7 +64,7 @@ QVector<NodeKeyframe*> NodeInputImmediate::get_keyframe_at_time(const rational &
   return keys;
 }
 
-NodeKeyframe* NodeInputImmediate::get_keyframe_at_time_on_track(const rational &time, int track) const
+NodeKeyframe* NodeInputImmediate::get_keyframe_at_time_on_track(const rational &time, size_t track) const
 {
   if (!is_using_standard_value(track)) {
     foreach (NodeKeyframe* key, keyframe_tracks_.at(track)) {
@@ -174,16 +179,6 @@ bool NodeInputImmediate::has_keyframe_at_time(const rational &time) const
   return false;
 }
 
-void NodeInputImmediate::set_data_type(NodeValue::Type type)
-{
-  int track_size = NodeValue::get_number_of_keyframe_tracks(type);
-
-  keyframe_tracks_.resize(track_size);
-  standard_value_.resize(track_size);
-
-  set_split_standard_value(default_value_);
-}
-
 NodeKeyframe *NodeInputImmediate::get_earliest_keyframe() const
 {
   NodeKeyframe* earliest = nullptr;
@@ -222,6 +217,10 @@ NodeKeyframe *NodeInputImmediate::get_latest_keyframe() const
 
 void NodeInputImmediate::insert_keyframe(NodeKeyframe* key)
 {
+  if (key->track() >= keyframe_tracks_.size()) {
+    keyframe_tracks_.resize(key->track() + 1);
+  }
+
   NodeKeyframeTrack& key_track = keyframe_tracks_[key->track()];
 
   int insert_index = key_track.size();

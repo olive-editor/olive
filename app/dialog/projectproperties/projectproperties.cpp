@@ -29,6 +29,7 @@
 #include <QPushButton>
 
 #include "common/filefunctions.h"
+#include "common/qtutils.h"
 #include "node/color/colormanager/colormanager.h"
 #include "render/diskmanager.h"
 

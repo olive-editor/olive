@@ -36,7 +36,7 @@ Folder::Folder()
 {
   SetFlag(kIsItem);
 
-  AddInput(kChildInput, NodeValue::kNone, InputFlags(kInputFlagArray | kInputFlagNotKeyframable));
+  AddInput(kChildInput, kInputFlagArray | kInputFlagNotKeyframable);
 }
 
 QVariant Folder::data(const DataType &d) const
@@ -103,10 +103,10 @@ int Folder::index_of_child_in_array(Node *item) const
   return item_element_index_.at(index_of_item);
 }
 
-void Folder::InputConnectedEvent(const QString &input, int element, Node *output)
+void Folder::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kChildInput && element != -1) {
-    Node* item = output;
+    Node* item = output.node();
 
     // The insert index is always our "count" because we only support appending in our internal
     // model. For sorting/organizing, a QSortFilterProxyModel is used instead.
@@ -118,10 +118,10 @@ void Folder::InputConnectedEvent(const QString &input, int element, Node *output
   }
 }
 
-void Folder::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void Folder::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   if (input == kChildInput && element != -1) {
-    Node* item = output;
+    Node* item = output.node();
 
     int child_index = item_children_.indexOf(item);
     emit BeginRemoveItem(item, child_index);
@@ -147,12 +147,12 @@ void FolderAddChild::redo()
 {
   int array_index = folder_->InputArraySize(Folder::kChildInput);
   folder_->InputArrayAppend(Folder::kChildInput);
-  Node::ConnectEdge(child_, NodeInput(folder_, Folder::kChildInput, array_index));
+  Node::ConnectEdge(NodeOutput(child_), NodeInput(folder_, Folder::kChildInput, array_index));
 }
 
 void FolderAddChild::undo()
 {
-  Node::DisconnectEdge(child_, NodeInput(folder_, Folder::kChildInput, folder_->InputArraySize(Folder::kChildInput)-1));
+  Node::DisconnectEdge(NodeOutput(child_), NodeInput(folder_, Folder::kChildInput, folder_->InputArraySize(Folder::kChildInput)-1));
   folder_->InputArrayRemoveLast(Folder::kChildInput);
 }
 
@@ -163,7 +163,7 @@ void Folder::RemoveElementCommand::redo()
     if (remove_index_ != -1) {
       NodeInput connected_input(folder_, Folder::kChildInput, remove_index_);
       subcommand_ = new MultiUndoCommand();
-      subcommand_->add_child(new NodeEdgeRemoveCommand(folder_->GetConnectedOutput(connected_input), connected_input));
+      subcommand_->add_child(new NodeEdgeRemoveCommand(NodeOutput(folder_->GetConnectedOutput(connected_input)), connected_input));
       subcommand_->add_child(new NodeArrayRemoveCommand(folder_, Folder::kChildInput, remove_index_));
     }
   }

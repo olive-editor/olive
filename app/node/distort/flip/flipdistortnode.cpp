@@ -30,11 +30,11 @@ const QString FlipDistortNode::kVerticalInput = QStringLiteral("vert_in");
 
 FlipDistortNode::FlipDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kHorizontalInput, NodeValue::kBoolean, false);
+  AddInput(kHorizontalInput, TYPE_BOOL, false);
 
-  AddInput(kVerticalInput, NodeValue::kBoolean, false);
+  AddInput(kVerticalInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -69,24 +69,24 @@ void FlipDistortNode::Retranslate()
   SetInputName(kVerticalInput, tr("Vertical"));
 }
 
-ShaderCode FlipDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode FlipDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 
-void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t FlipDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  value_t v = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = v.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (value[kHorizontalInput].toBool() || value[kVerticalInput].toBool()) {
-      table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+    if (GetInputValue(p, kHorizontalInput).toBool() || GetInputValue(p, kVerticalInput).toBool()) {
+      return tex->toJob(CreateShaderJob(p, GetShaderCode));
     }
   }
+
+  return v;
 }
 
 }

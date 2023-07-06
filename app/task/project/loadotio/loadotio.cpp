@@ -232,7 +232,7 @@ bool LoadOTIOTask::Run()
         // If the previous block was a transition, connect the current block to it
         if (prev_block_transition) {
           TransitionBlock* previous_transition_block = static_cast<TransitionBlock*>(previous_block);
-          Node::ConnectEdge(block, NodeInput(previous_transition_block, TransitionBlock::kInBlockInput));
+          Node::ConnectEdge(NodeOutput(block), NodeInput(previous_transition_block, TransitionBlock::kInBlockInput));
           prev_block_transition = false;
         }
 
@@ -244,7 +244,7 @@ bool LoadOTIOTask::Run()
           transition_block->set_offsets_and_length(rational::fromRationalTime(otio_block_transition->in_offset()), rational::fromRationalTime(otio_block_transition->out_offset()));
 
           if (previous_block) {
-            Node::ConnectEdge(previous_block, NodeInput(transition_block, TransitionBlock::kOutBlockInput));
+            Node::ConnectEdge(NodeOutput(previous_block), NodeInput(transition_block, TransitionBlock::kOutBlockInput));
           }
           prev_block_transition = true;
 
@@ -306,15 +306,15 @@ bool LoadOTIOTask::Run()
               TransformDistortNode* transform = new TransformDistortNode();
               transform->setParent(sequence->parent());
 
-              Node::ConnectEdge(probed_item, NodeInput(transform, TransformDistortNode::kTextureInput));
-              Node::ConnectEdge(transform, NodeInput(block, ClipBlock::kBufferIn));
+              Node::ConnectEdge(NodeOutput(probed_item), NodeInput(transform, TransformDistortNode::kTextureInput));
+              Node::ConnectEdge(NodeOutput(transform), NodeInput(block, ClipBlock::kBufferIn));
               block->SetNodePositionInContext(transform, QPointF(-1, 0));
             } else {
               VolumeNode* volume_node = new VolumeNode();
               volume_node->setParent(sequence->parent());
 
-              Node::ConnectEdge(probed_item, NodeInput(volume_node, VolumeNode::kSamplesInput));
-              Node::ConnectEdge(volume_node, NodeInput(block, ClipBlock::kBufferIn));
+              Node::ConnectEdge(NodeOutput(probed_item), NodeInput(volume_node, VolumeNode::kSamplesInput));
+              Node::ConnectEdge(NodeOutput(volume_node), NodeInput(block, ClipBlock::kBufferIn));
               block->SetNodePositionInContext(volume_node, QPointF(-1, 0));
             }
           }

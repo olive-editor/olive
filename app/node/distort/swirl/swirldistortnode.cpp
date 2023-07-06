@@ -31,15 +31,15 @@ const QString SwirlDistortNode::kPositionInput = QStringLiteral("pos_in");
 
 SwirlDistortNode::SwirlDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kRadiusInput, NodeValue::kFloat, 200);
-  SetInputProperty(kRadiusInput, QStringLiteral("min"), 0);
+  AddInput(kRadiusInput, TYPE_DOUBLE, 200.0);
+  SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kAngleInput, NodeValue::kFloat, 10);
+  AddInput(kAngleInput, TYPE_DOUBLE, 10.0);
   SetInputProperty(kAngleInput, QStringLiteral("base"), 0.1);
 
-  AddInput(kPositionInput, NodeValue::kVec2, QVector2D(0, 0));
+  AddInput(kPositionInput, TYPE_VEC2, QVector2D(0, 0));
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -81,33 +81,33 @@ void SwirlDistortNode::Retranslate()
   SetInputName(kPositionInput, tr("Position"));
 }
 
-ShaderCode SwirlDistortNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode SwirlDistortNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/swirl.frag"));
 }
 
-void SwirlDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t SwirlDistortNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
     // Only run shader if at least one of flip or flop are selected
-    if (!qIsNull(value[kAngleInput].toDouble()) && !qIsNull(value[kRadiusInput].toDouble())) {
-      ShaderJob job(value);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
+    if (!qIsNull(GetInputValue(p, kAngleInput).toDouble()) && !qIsNull(GetInputValue(p, kRadiusInput).toDouble())) {
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
+      return tex->toJob(job);
     }
   }
+
+  return tex_meta;
 }
 
-void SwirlDistortNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void SwirlDistortNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  QPointF half_res(globals.square_resolution().x()/2, globals.square_resolution().y()/2);
+  QPointF half_res(p.square_resolution().x()/2, p.square_resolution().y()/2);
 
-  gizmo_->SetPoint(half_res + row[kPositionInput].toVec2().toPointF());
+  gizmo_->SetPoint(half_res + GetInputValue(p, kPositionInput).toVec2().toPointF());
 }
 
 void SwirlDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)
@@ -115,8 +115,8 @@ void SwirlDistortNode::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   NodeInputDragger &x_drag = gizmo_->GetDraggers()[0];
   NodeInputDragger &y_drag = gizmo_->GetDraggers()[1];
 
-  x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-  y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+  x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+  y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
 }
 
 }

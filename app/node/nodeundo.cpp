@@ -106,53 +106,36 @@ void NodeSetPositionAndDependenciesRecursivelyCommand::move_recursively(Node *no
   commands_.append(new NodeSetPositionCommand(node_, context_, pos));
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    Node *output = it->second;
+    Node *output = it->first.node();
     if (context_->ContextContainsNode(output)) {
       move_recursively(output, diff);
     }
   }
 }
 
-NodeEdgeAddCommand::NodeEdgeAddCommand(Node *output, const NodeInput &input) :
+NodeEdgeAddCommand::NodeEdgeAddCommand(const NodeOutput &output, const NodeInput &input, int64_t index) :
   output_(output),
   input_(input),
-  remove_command_(nullptr)
+  index_(index)
 {
-}
-
-NodeEdgeAddCommand::~NodeEdgeAddCommand()
-{
-  delete remove_command_;
 }
 
 void NodeEdgeAddCommand::redo()
 {
-  if (input_.IsConnected()) {
-    if (!remove_command_) {
-      remove_command_ = new NodeEdgeRemoveCommand(input_.GetConnectedOutput(), input_);
-    }
-
-    remove_command_->redo_now();
-  }
-
-  Node::ConnectEdge(output_, input_);
+  Node::ConnectEdge(output_, input_, index_);
 }
 
 void NodeEdgeAddCommand::undo()
 {
   Node::DisconnectEdge(output_, input_);
-
-  if (remove_command_) {
-    remove_command_->undo_now();
-  }
 }
 
 Project *NodeEdgeAddCommand::GetRelevantProject() const
 {
-  return output_->project();
+  return output_.node()->project();
 }
 
-NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(Node *output, const NodeInput &input) :
+NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(const NodeOutput &output, const NodeInput &input) :
   output_(output),
   input_(input)
 {
@@ -170,7 +153,7 @@ void NodeEdgeRemoveCommand::undo()
 
 Project *NodeEdgeRemoveCommand::GetRelevantProject() const
 {
-  return output_->project();
+  return output_.node()->project();
 }
 
 NodeAddCommand::NodeAddCommand(Project *graph, Node *node) :
@@ -212,10 +195,10 @@ void NodeRemoveAndDisconnectCommand::prepare()
 
   // Disconnect everything
   for (auto it=node_->input_connections().cbegin(); it!=node_->input_connections().cend(); it++) {
-    command_->add_child(new NodeEdgeRemoveCommand(it->second, it->first));
+    command_->add_child(new NodeEdgeRemoveCommand(it->first, it->second));
   }
 
-  for (const Node::OutputConnection& conn : node_->output_connections()) {
+  for (const Node::Connection& conn : node_->output_connections()) {
     command_->add_child(new NodeEdgeRemoveCommand(conn.first, conn.second));
   }
 
@@ -284,8 +267,8 @@ void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
   nodes_.append(p);
 
   for (auto it=node->input_connections().cbegin(); it!=node->input_connections().cend(); it++) {
-    if (context->ContextContainsNode(it->second)) {
-      AddEdge(it->second, it->first);
+    if (context->ContextContainsNode(it->first.node())) {
+      AddEdge(it->first, it->second);
     }
   }
 
@@ -296,9 +279,9 @@ void NodeViewDeleteCommand::AddNode(Node *node, Node *context)
   }
 }
 
-void NodeViewDeleteCommand::AddEdge(Node *output, const NodeInput &input)
+void NodeViewDeleteCommand::AddEdge(const NodeOutput &output, const NodeInput &input)
 {
-  foreach (const Node::OutputConnection &edge, edges_) {
+  foreach (const Node::Connection &edge, edges_) {
     if (edge.first == output && edge.second == input) {
       return;
     }
@@ -325,7 +308,7 @@ Project *NodeViewDeleteCommand::GetRelevantProject() const
   }
 
   if (!edges_.isEmpty()) {
-    return edges_.first().first->project();
+    return edges_.first().first.node()->project();
   }
 
   return nullptr;
@@ -333,7 +316,7 @@ Project *NodeViewDeleteCommand::GetRelevantProject() const
 
 void NodeViewDeleteCommand::redo()
 {
-  foreach (const Node::OutputConnection &edge, edges_) {
+  foreach (const Node::Connection &edge, edges_) {
     Node::DisconnectEdge(edge.first, edge.second);
   }
 
@@ -398,14 +381,14 @@ void NodeParamSetKeyframingCommand::undo()
   input_.node()->SetInputIsKeyframing(input_, old_setting_);
 }
 
-NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant& value) :
+NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const value_t::component_t& value) :
   key_(key),
   old_value_(key_->value()),
   new_value_(value)
 {
 }
 
-NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const QVariant &new_value, const QVariant &old_value) :
+NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframe* key, const value_t::component_t &new_value, const value_t::component_t &old_value) :
   key_(key),
   old_value_(old_value),
   new_value_(new_value)
@@ -502,14 +485,14 @@ void NodeParamSetKeyframeTimeCommand::undo()
   key_->set_time(old_time_);
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant &value) :
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const value_t::component_t &value) :
   ref_(input),
-  old_value_(ref_.input().node()->GetStandardValue(ref_.input())),
+  old_value_(ref_.input().node()->GetSplitStandardValueOnTrack(ref_)),
   new_value_(value)
 {
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const QVariant &new_value, const QVariant &old_value) :
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(const NodeKeyframeTrackReference& input, const value_t::component_t &new_value, const value_t::component_t &old_value) :
   ref_(input),
   old_value_(old_value),
   new_value_(new_value)

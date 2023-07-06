@@ -22,6 +22,7 @@
 
 #include <QDebug>
 
+#include "common/qtutils.h"
 #include "node/inputdragger.h"
 #include "node/output/track/track.h"
 #include "transition/transition.h"
@@ -38,8 +39,8 @@ Block::Block() :
   next_(nullptr),
   track_(nullptr)
 {
-  AddInput(kLengthInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden));
-  SetInputProperty(kLengthInput, QStringLiteral("min"), QVariant::fromValue(rational(0, 1)));
+  AddInput(kLengthInput, TYPE_RATIONAL, kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden);
+  SetInputProperty(kLengthInput, QStringLiteral("min"), rational(0, 1));
   SetInputProperty(kLengthInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kLengthInput, QStringLiteral("viewlock"), true);
 
@@ -78,18 +79,6 @@ void Block::set_length_and_media_in(const rational &length)
   set_length_internal(length);
 }
 
-bool Block::is_enabled() const
-{
-  return GetStandardValue(kEnabledInput).toBool();
-}
-
-void Block::set_enabled(bool e)
-{
-  SetStandardValue(kEnabledInput, e);
-
-  emit EnabledChanged();
-}
-
 void Block::InputValueChangedEvent(const QString &input, int element)
 {
   super::InputValueChangedEvent(input, element);
@@ -103,7 +92,7 @@ void Block::InputValueChangedEvent(const QString &input, int element)
 
 void Block::set_length_internal(const rational &length)
 {
-  SetStandardValue(kLengthInput, QVariant::fromValue(length));
+  SetStandardValue(kLengthInput, length);
 }
 
 void Block::Retranslate()

@@ -25,38 +25,48 @@
 #include <QVector>
 
 #include "acceleratedjob.h"
+#include "common/filefunctions.h"
 #include "render/texture.h"
 
 namespace olive {
 
+class ShaderCode {
+public:
+  ShaderCode(const QString& frag_code = QString(), const QString& vert_code = QString()) :
+    frag_code_(frag_code),
+    vert_code_(vert_code)
+  {
+  }
+
+  const QString& frag_code() const { return frag_code_; }
+  void set_frag_code(const QString &f) { frag_code_ = f; }
+
+  const QString& vert_code() const { return vert_code_; }
+  void set_vert_code(const QString &v) { vert_code_ = v; }
+
+private:
+  QString frag_code_;
+
+  QString vert_code_;
+
+};
+
 class ShaderJob : public AcceleratedJob
 {
 public:
+  typedef ShaderCode (*GetShaderCodeFunction_t)(const QString &id);
+
   ShaderJob()
   {
     iterations_ = 1;
     iterative_input_ = nullptr;
+    function_ = nullptr;
   }
 
   ShaderJob(const NodeValueRow &row) :
     ShaderJob()
   {
     Insert(row);
-  }
-
-  const QString& GetShaderID() const
-  {
-    return shader_id_;
-  }
-
-  void SetShaderID(const QString& id)
-  {
-    shader_id_ = id;
-  }
-
-  void SetIterations(int iterations, const NodeInput& iterative_input)
-  {
-    SetIterations(iterations, iterative_input.input());
   }
 
   void SetIterations(int iterations, const QString& iterative_input)
@@ -85,11 +95,6 @@ public:
     return interpolation_;
   }
 
-  void SetInterpolation(const NodeInput& input, Texture::Interpolation interp)
-  {
-    interpolation_.insert(input.input(), interp);
-  }
-
   void SetInterpolation(const QString& id, Texture::Interpolation interp)
   {
     interpolation_.insert(id, interp);
@@ -105,9 +110,14 @@ public:
     return vertex_overrides_;
   }
 
-private:
-  QString shader_id_;
+  GetShaderCodeFunction_t function() const { return function_; }
+  void set_function(GetShaderCodeFunction_t f) { function_ = f; }
+  ShaderCode do_function() const
+  {
+    return function_ ? function_(GetShaderID()) : ShaderCode();
+  }
 
+private:
   int iterations_;
 
   QString iterative_input_;
@@ -115,6 +125,8 @@ private:
   QHash<QString, Texture::Interpolation> interpolation_;
 
   QVector<float> vertex_overrides_;
+
+  GetShaderCodeFunction_t function_;
 
 };
 

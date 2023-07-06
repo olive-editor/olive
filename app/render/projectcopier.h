@@ -69,8 +69,8 @@ signals:
 private:
   void DoNodeAdd(Node* node);
   void DoNodeRemove(Node* node);
-  void DoEdgeAdd(Node *output, const NodeInput& input);
-  void DoEdgeRemove(Node *output, const NodeInput& input);
+  void DoEdgeAdd(const NodeOutput &output, const NodeInput& input);
+  void DoEdgeRemove(const NodeOutput &output, const NodeInput& input);
   void DoValueChange(const NodeInput& input);
   void DoValueHintChange(const NodeInput &input);
   void DoProjectSettingChange(const QString &key, const QString &value);
@@ -98,7 +98,7 @@ private:
     Type type;
     Node* node;
     NodeInput input;
-    Node *output;
+    NodeOutput output;
 
     QString key;
     QString value;
@@ -117,9 +117,9 @@ private slots:
 
   void QueueNodeRemove(Node* node);
 
-  void QueueEdgeAdd(Node *output, const NodeInput& input);
+  void QueueEdgeAdd(const NodeOutput &output, const NodeInput& input);
 
-  void QueueEdgeRemove(Node *output, const NodeInput& input);
+  void QueueEdgeRemove(const NodeOutput &output, const NodeInput& input);
 
   void QueueValueChange(const NodeInput& input);
 

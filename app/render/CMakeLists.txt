@@ -57,7 +57,6 @@ set(OLIVE_SOURCES
   render/renderprocessor.h
   render/renderticket.cpp
   render/renderticket.h
-  render/shadercode.h
   render/subtitleparams.cpp
   render/subtitleparams.h
   render/texture.cpp

@@ -34,7 +34,6 @@ namespace olive {
 AudioProcessor::AudioProcessor()
 {
   filter_graph_ = nullptr;
-  in_frame_ = nullptr;
   out_frame_ = nullptr;
 }
 
@@ -61,12 +60,12 @@ bool AudioProcessor::Open(const AudioParams &from, const AudioParams &to, double
 
   // Set up audio buffer args
   char filter_args[200];
-  snprintf(filter_args, 200, "time_base=%d/%d:sample_rate=%d:sample_fmt=%d:channel_layout=0x%" PRIx64,
+  snprintf(filter_args, 200, "time_base=%d/%d:sample_rate=%d:sample_fmt=%d:channel_layout=%s",
            1,
            from.sample_rate(),
            from.sample_rate(),
            from_fmt_,
-           from.channel_layout());
+           from.channel_layout().toString().toUtf8().constData());
 
   int r;
 
@@ -120,10 +119,10 @@ bool AudioProcessor::Open(const AudioParams &from, const AudioParams &to, double
       || (to.format().is_planar() && create_tempo)) { // Tempo processor automatically converts to packed,
                                                   // so if the desired output is planar, it'll need
                                                   // to be converted
-    snprintf(filter_args, 200, "sample_fmts=%s:sample_rates=%d:channel_layouts=0x%" PRIx64,
+    snprintf(filter_args, 200, "sample_fmts=%s:sample_rates=%d:channel_layouts=%s",
              av_get_sample_fmt_name(to_fmt_),
              to.sample_rate(),
-             to.channel_layout());
+             to.channel_layout().toString().toUtf8().constData());
 
     AVFilterContext *c;
     r = avfilter_graph_create_filter(&c, avfilter_get_by_name("aformat"), "fmt", filter_args, nullptr, filter_graph_);
@@ -165,19 +164,6 @@ bool AudioProcessor::Open(const AudioParams &from, const AudioParams &to, double
     return false;
   }
 
-  in_frame_ = av_frame_alloc();
-  if (in_frame_) {
-    in_frame_->sample_rate = from.sample_rate();
-    in_frame_->format = from_fmt_;
-    in_frame_->channel_layout = from.channel_layout();
-    in_frame_->channels = from.channel_count();
-    in_frame_->pts = 0;
-  } else {
-    qCritical() << "Failed to allocate input frame";
-    Close();
-    return false;
-  }
-
   out_frame_ = av_frame_alloc();
   if (!out_frame_) {
     qCritical() << "Failed to allocate output frame";
@@ -200,11 +186,6 @@ void AudioProcessor::Close()
     buffersink_ctx_ = nullptr;
   }
 
-  if (in_frame_) {
-    av_frame_free(&in_frame_);
-    in_frame_ = nullptr;
-  }
-
   if (out_frame_) {
     av_frame_free(&out_frame_);
     out_frame_ = nullptr;
@@ -221,14 +202,32 @@ int AudioProcessor::Convert(float **in, int nb_in_samples, AudioProcessor::Buffe
   int r = 0;
 
   if (in && nb_in_samples) {
-    // Set frame parameters
-    in_frame_->nb_samples = nb_in_samples;
-    for (int i=0; i<from_.channel_count(); i++) {
-      in_frame_->data[i] = reinterpret_cast<uint8_t*>(in[i]);
-      in_frame_->linesize[i] = from_.samples_to_bytes(nb_in_samples);
+    // Pass pointers to AVFilter through an AVFrame
+    AVFrame *in_frame = av_frame_alloc();
+    if (!in_frame) {
+      qCritical() << "Failed to allocate input frame";
+      return -1;
     }
 
-    r = av_buffersrc_add_frame_flags(buffersrc_ctx_, in_frame_, AV_BUFFERSRC_FLAG_KEEP_REF);
+    in_frame->sample_rate = from_.sample_rate();
+    in_frame->format = from_fmt_;
+    from_.channel_layout().exportTo(&in_frame->ch_layout);
+    in_frame->pts = 0;
+
+    in_frame->nb_samples = nb_in_samples;
+    for (int i=0; i<from_.channel_count(); i++) {
+      in_frame->data[i] = reinterpret_cast<uint8_t*>(in[i]);
+      in_frame->linesize[i] = from_.samples_to_bytes(nb_in_samples);
+    }
+
+    r = av_buffersrc_add_frame_flags(buffersrc_ctx_, in_frame, AV_BUFFERSRC_FLAG_KEEP_REF);
+
+    for (int i=0; i<from_.channel_count(); i++) {
+      in_frame->data[i] = nullptr;
+      in_frame->linesize[i] = 0;
+    }
+
+    av_frame_free(&in_frame);
     if (r < 0) {
       qCritical() << "Failed to add frame to buffersrc:" << r;
       return r;

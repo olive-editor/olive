@@ -37,8 +37,8 @@ public:
 
   virtual void Draw(QPainter *p) const {}
 
-  const NodeGlobals &GetGlobals() const { return globals_; }
-  void SetGlobals(const NodeGlobals &globals) { globals_ = globals; }
+  const ValueParams &GetGlobals() const { return globals_; }
+  void SetGlobals(const ValueParams &globals) { globals_ = globals; }
 
   bool IsVisible() const { return visible_; }
   void SetVisible(bool e) { visible_ = e; }
@@ -46,7 +46,7 @@ public:
 signals:
 
 private:
-  NodeGlobals globals_;
+  ValueParams globals_;
 
   bool visible_;
 

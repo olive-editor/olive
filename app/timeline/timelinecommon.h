@@ -21,11 +21,7 @@
 #ifndef TIMELINECOMMON_H
 #define TIMELINECOMMON_H
 
-#include <olive/core/core.h>
-
 #include "common/define.h"
-
-using namespace olive::core;
 
 namespace olive {
 

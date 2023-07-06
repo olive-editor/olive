@@ -22,44 +22,58 @@
 #define SAMPLEJOB_H
 
 #include "acceleratedjob.h"
+#include "node/globals.h"
 
 namespace olive {
 
 class SampleJob : public AcceleratedJob
 {
 public:
+  typedef void (*ProcessSamplesCallback_t)(const void *context, const SampleJob &job, SampleBuffer &output);
+
   SampleJob()
   {
+    sample_count_ = 0;
+    function_ = nullptr;
+    function_context_ = nullptr;
   }
 
-  SampleJob(const TimeRange &time, const NodeValue& value)
+  SampleJob(const ValueParams &p, size_t sample_count)
   {
-    samples_ = value.toSamples();
-    time_ = time;
+    value_params_ = p.with_cache(nullptr); // Remove cache because it actually slows per-sample ops
+    sample_count_ = sample_count;
+    function_ = nullptr;
+    function_context_ = nullptr;
   }
 
-  SampleJob(const TimeRange &time, const QString& from, const NodeValueRow& row)
+  SampleJob(const ValueParams &p) :
+    SampleJob(p, p.aparams().time_to_samples(p.time().length()))
   {
-    samples_ = row[from].toSamples();
-    time_ = time;
   }
 
-  const SampleBuffer &samples() const
+  const ValueParams &value_params() const { return value_params_; }
+  const AudioParams &audio_params() const { return value_params_.aparams(); }
+  size_t sample_count() const { return sample_count_; }
+
+  void do_function(SampleBuffer &out) const
   {
-    return samples_;
+    if (function_) {
+      function_(function_context_, *this, out);
+    }
   }
 
-  bool HasSamples() const
+  void set_function(ProcessSamplesCallback_t f, const void *context)
   {
-    return samples_.is_allocated();
+    function_ = f;
+    function_context_ = context;
   }
-
-  const TimeRange &time() const { return time_; }
 
 private:
-  SampleBuffer samples_;
+  ValueParams value_params_;
+  size_t sample_count_;
 
-  TimeRange time_;
+  ProcessSamplesCallback_t function_;
+  const void *function_context_;
 
 };
 

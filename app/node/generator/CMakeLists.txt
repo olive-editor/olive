@@ -20,6 +20,7 @@ add_subdirectory(polygon)
 add_subdirectory(shape)
 add_subdirectory(solid)
 add_subdirectory(text)
+add_subdirectory(tone)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

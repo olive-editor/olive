@@ -48,15 +48,14 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &globals) const override;
 
   Method GetMethod() const
   {
     return static_cast<Method>(GetStandardValue(kMethodInput).toInt());
   }
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   static const QString kTextureInput;
   static const QString kMethodInput;
@@ -76,6 +75,8 @@ protected:
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   void UpdateInputs(Method method);
 
   PointGizmo *radial_center_gizmo_;

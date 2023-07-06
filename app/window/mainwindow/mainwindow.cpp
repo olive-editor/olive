@@ -113,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   connect(PanelManager::instance(), &PanelManager::FocusedPanelChanged, this, &MainWindow::FocusedPanelChanged);
 
-  sequence_viewer_panel_->AddPlaybackDevice(multicam_panel_->GetMulticamWidget()->GetDisplayWidget());
   sequence_viewer_panel_->ConnectMulticamWidget(multicam_panel_->GetMulticamWidget());
 
   scope_panel_->SetViewerPanel(sequence_viewer_panel_);
@@ -451,6 +450,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
 
   scope_panel_->SetViewerPanel(nullptr);
+
+  sequence_viewer_panel_->ConnectMulticamWidget(multicam_panel_->GetMulticamWidget());
 
   PanelManager::instance()->DeleteAllPanels();
 

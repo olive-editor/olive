@@ -67,7 +67,7 @@ void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rati
       created_keys_.append(dragging_key_);
 
       if (create_key_on_all_tracks) {
-        int nb_tracks = NodeValue::get_number_of_keyframe_tracks(input.input().node()->GetInputDataType(input.input().input()));
+        int nb_tracks = input.input().node()->GetNumberOfKeyframeTracks(input.input().input());
         for (int i=0; i<nb_tracks; i++) {
           if (i != input.track()) {
             NodeKeyframeTrackReference this_ref(input.input(), i);
@@ -83,27 +83,28 @@ void NodeInputDragger::Start(const NodeKeyframeTrackReference &input, const rati
   input_being_dragged++;
 }
 
-void NodeInputDragger::Drag(QVariant value)
+void NodeInputDragger::Drag(value_t::component_t value)
 {
   Q_ASSERT(IsStarted());
 
   Node* node = input_.input().node();
   const QString& input = input_.input().input();
+  type_t type = input_.input().GetDataType();
 
   if (node->HasInputProperty(input, QStringLiteral("min"))) {
     // Assumes the value is a double of some kind
-    double min = node->GetInputProperty(input, QStringLiteral("min")).toDouble();
-    double v = value.toDouble();
+    double min = node->GetInputProperty(input, QStringLiteral("min")).converted(TYPE_DOUBLE).toDouble();
+    double v = value.converted(type, TYPE_DOUBLE).value<double>();
     if (v < min) {
-      value = min;
+      value = value_t::component_t(min).converted(TYPE_DOUBLE, type);
     }
   }
 
   if (node->HasInputProperty(input, QStringLiteral("max"))) {
-    double max = node->GetInputProperty(input, QStringLiteral("max")).toDouble();
-    double v = value.toDouble();
+    double max = node->GetInputProperty(input, QStringLiteral("max")).converted(TYPE_DOUBLE).toDouble();
+    double v = value.converted(type, TYPE_DOUBLE).value<double>();
     if (v > max) {
-      value = max;
+      value = value_t::component_t(max).converted(TYPE_DOUBLE, type);
     }
   }
 

@@ -29,9 +29,12 @@ const QString TrigonometryNode::kXIn = QStringLiteral("x_in");
 
 TrigonometryNode::TrigonometryNode()
 {
-  AddInput(kMethodIn, NodeValue::kCombo, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kMethodIn, TYPE_COMBO, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kXIn, NodeValue::kFloat, 0.0);
+  AddInput(kXIn, TYPE_DOUBLE, 0.0);
+
+  // Deprecated: Use Math instead, which implements trig functions now too
+  SetFlag(kDontShowInCreateMenu);
 }
 
 QString TrigonometryNode::Name() const
@@ -77,9 +80,9 @@ void TrigonometryNode::Retranslate()
   SetInputName(kXIn, tr("Value"));
 }
 
-void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t TrigonometryNode::Value(const ValueParams &p) const
 {
-  double x = value[kXIn].toDouble();
+  double x = GetInputValue(p, kXIn).toDouble();
 
   switch (static_cast<Operation>(GetStandardValue(kMethodIn).toInt())) {
   case kOpSine:
@@ -111,7 +114,7 @@ void TrigonometryNode::Value(const NodeValueRow &value, const NodeGlobals &globa
     break;
   }
 
-  table->Push(NodeValue::kFloat, x, this);
+  return x;
 }
 
 }

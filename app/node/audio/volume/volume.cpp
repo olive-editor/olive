@@ -20,6 +20,7 @@
 
 #include "volume.h"
 
+#include "node/math/math/math.h"
 #include "widget/slider/floatslider.h"
 
 namespace olive {
@@ -27,13 +28,13 @@ namespace olive {
 const QString VolumeNode::kSamplesInput = QStringLiteral("samples_in");
 const QString VolumeNode::kVolumeInput = QStringLiteral("volume_in");
 
-#define super MathNodeBase
+#define super Node
 
 VolumeNode::VolumeNode()
 {
-  AddInput(kSamplesInput, NodeValue::kSamples, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kSamplesInput, TYPE_SAMPLES, kInputFlagNotKeyframable);
 
-  AddInput(kVolumeInput, NodeValue::kFloat, 1.0);
+  AddInput(kVolumeInput, TYPE_DOUBLE, 1.0);
   SetInputProperty(kVolumeInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kVolumeInput, QStringLiteral("view"), FloatSlider::kDecibel);
 
@@ -61,33 +62,17 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-void VolumeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t VolumeNode::Value(const ValueParams &p) const
 {
-  // Create a sample job
-  SampleBuffer buffer = value[kSamplesInput].toSamples();
+  SampleJob job(p);
 
-  if (buffer.is_allocated()) {
-    // If the input is static, we can just do it now which will be faster
-    if (IsInputStatic(kVolumeInput)) {
-      auto volume = value[kVolumeInput].toDouble();
+  job.Insert(QStringLiteral("samples"), GetInputValue(p, kSamplesInput));
+  job.Insert(QStringLiteral("number"), kVolumeInput);
+  job.Insert(QStringLiteral("operation"), MathNode::kOpMultiply);
 
-      if (!qFuzzyCompare(volume, 1.0)) {
-        buffer.transform_volume(volume);
-      }
+  job.set_function(MathNode::ProcessSamplesDouble, this);
 
-      table->Push(NodeValue::kSamples, QVariant::fromValue(buffer), this);
-    } else {
-      // Requires job
-      SampleJob job(globals.time(), kSamplesInput, value);
-      job.Insert(kVolumeInput, value);
-      table->Push(NodeValue::kSamples, QVariant::fromValue(job), this);
-    }
-  }
-}
-
-void VolumeNode::ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const
-{
-  return ProcessSamplesInternal(values, kOpMultiply, kSamplesInput, kVolumeInput, input, output, index);
+  return job;
 }
 
 void VolumeNode::Retranslate()

@@ -229,7 +229,7 @@ public:
 public slots:
   virtual bool Open() = 0;
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::core::rational time) = 0;
+  virtual bool WriteFrame(olive::FramePtr frame, rational time) = 0;
   virtual bool WriteAudio(const olive::SampleBuffer &audio) = 0;
   virtual bool WriteSubtitle(const SubtitleBlock *sub_block) = 0;
 

@@ -20,6 +20,7 @@
 
 #include "rationalslider.h"
 
+#include "common/qtutils.h"
 #include "core.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -47,22 +48,22 @@ rational RationalSlider::GetValue()
 
 void RationalSlider::SetValue(const rational &d)
 {
-  SetValueInternal(QVariant::fromValue(d));
+  SetValueInternal(d);
 }
 
 void RationalSlider::SetDefaultValue(const rational &r)
 {
-  super::SetDefaultValue(QVariant::fromValue(r));
+  super::SetDefaultValue(r);
 }
 
 void RationalSlider::SetMinimum(const rational &d)
 {
-  SetMinimumInternal(QVariant::fromValue(d));
+  SetMinimumInternal(d);
 }
 
 void RationalSlider::SetMaximum(const rational &d)
 {
-  SetMaximumInternal(QVariant::fromValue(d));
+  SetMaximumInternal(d);
 }
 
 void RationalSlider::SetTimebase(const rational &timebase)
@@ -95,7 +96,7 @@ void RationalSlider::DisableDisplayType(RationalSlider::DisplayType type)
   disabled_.append(type);
 }
 
-QString RationalSlider::ValueToString(const QVariant &v) const
+QString RationalSlider::ValueToString(const InternalType &v) const
 {
   rational r = v.value<rational>();
 
@@ -106,18 +107,17 @@ QString RationalSlider::ValueToString(const QVariant &v) const
 
     switch (display_type_) {
     case kTime:
-      return QString::fromStdString(Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay()));
+      return Timecode::time_to_timecode(r, timebase_, Core::instance()->GetTimecodeDisplay());
     case kFloat:
       return FloatToString(val, GetDecimalPlaces(), GetAutoTrimDecimalPlaces());
     case kRational:
-      return QString::fromStdString(v.value<rational>().toString());
+    default:
+      return v.value<rational>().toString();
     }
-
-    return v.toString();
   }
 }
 
-QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
+RationalSlider::InternalType RationalSlider::StringToValue(const QString &s, bool *ok) const
 {
   rational r;
   *ok = false;
@@ -125,7 +125,7 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
   switch (display_type_) {
   case kTime:
   {
-    r = Timecode::timecode_to_time(s.toStdString(), timebase_, Core::instance()->GetTimecodeDisplay(), ok);
+    r = Timecode::timecode_to_time(s, timebase_, Core::instance()->GetTimecodeDisplay(), ok);
     break;
   }
   case kFloat:
@@ -141,33 +141,37 @@ QVariant RationalSlider::StringToValue(const QString &s, bool *ok) const
     break;
   }
   case kRational:
-    r = rational::fromString(s.toStdString(), ok);
+    r = rational::fromString(s, ok);
     break;
   }
 
-  //return QVariant::fromValue(r - GetOffset().value<rational>());
-  return QVariant::fromValue(r);
+  return r - GetOffset().value<rational>();
 }
 
-QVariant RationalSlider::AdjustDragDistanceInternal(const QVariant &start, const double &drag) const
+RationalSlider::InternalType RationalSlider::AdjustDragDistanceInternal(const InternalType &start, const double &drag) const
 {
   // Assume we want smallest increment to be timebase or 1 frame
-  return QVariant::fromValue(start.value<rational>() + rational::fromDouble(drag)*timebase_);
+  return start.value<rational>() + rational::fromDouble(drag)*timebase_;
 }
 
-void RationalSlider::ValueSignalEvent(const QVariant &v)
+void RationalSlider::ValueSignalEvent(const InternalType &v)
 {
   emit ValueChanged(v.value<rational>());
 }
 
-bool RationalSlider::ValueGreaterThan(const QVariant &lhs, const QVariant &rhs) const
+bool RationalSlider::ValueGreaterThan(const InternalType &lhs, const InternalType &rhs) const
 {
   return lhs.value<rational>() > rhs.value<rational>();
 }
 
-bool RationalSlider::ValueLessThan(const QVariant &lhs, const QVariant &rhs) const
+bool RationalSlider::ValueLessThan(const InternalType &lhs, const InternalType &rhs) const
 {
   return lhs.value<rational>() < rhs.value<rational>();
+}
+
+bool RationalSlider::Equals(const InternalType &a, const InternalType &b) const
+{
+  return a.value<rational>() == b.value<rational>();
 }
 
 void RationalSlider::ShowDisplayTypeMenu()

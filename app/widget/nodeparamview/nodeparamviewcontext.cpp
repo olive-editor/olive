@@ -171,13 +171,13 @@ void NodeParamViewContext::AddEffectMenuItemTriggered(QAction *a)
       command->add_child(new NodeSetPositionCommand(ctx, ctx, ctx->GetNodePositionInContext(ctx) + QPointF(1, 0)));
 
       if (ctx_input.IsConnected()) {
-        Node *prev_output = ctx_input.GetConnectedOutput();
+        NodeOutput prev_output = ctx_input.GetConnectedOutput2();
 
         command->add_child(new NodeEdgeRemoveCommand(prev_output, ctx_input));
         command->add_child(new NodeEdgeAddCommand(prev_output, new_node_input));
       }
 
-      command->add_child(new NodeEdgeAddCommand(n, ctx_input));
+      command->add_child(new NodeEdgeAddCommand(NodeOutput(n), ctx_input));
     }
 
     Core::instance()->undo_stack()->push(command, tr("Added %1 to Node Chain").arg(n->Name()));

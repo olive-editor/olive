@@ -31,11 +31,11 @@ const QString TimeOffsetNode::kInputInput = QStringLiteral("input_in");
 
 TimeOffsetNode::TimeOffsetNode()
 {
-  AddInput(kTimeInput, NodeValue::kRational, QVariant::fromValue(rational(0)), InputFlags(kInputFlagNotConnectable));
+  AddInput(kTimeInput, TYPE_RATIONAL, rational(0), kInputFlagNotConnectable);
   SetInputProperty(kTimeInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kTimeInput, QStringLiteral("viewlock"), true);
 
-  AddInput(kInputInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kInputInput, kInputFlagNotKeyframable);
 }
 
 void TimeOffsetNode::Retranslate()
@@ -67,9 +67,9 @@ TimeRange TimeOffsetNode::OutputTimeAdjustment(const QString &input, int element
   return super::OutputTimeAdjustment(input, element, input_time);
 }
 
-void TimeOffsetNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t TimeOffsetNode::Value(const ValueParams &p) const
 {
-  table->Push(value[kInputInput]);
+  return GetInputValue(p, kInputInput);
 }
 
 rational TimeOffsetNode::GetRemappedTime(const rational &input) const

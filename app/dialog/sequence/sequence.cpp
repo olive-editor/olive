@@ -172,11 +172,11 @@ void SequenceDialog::SetAsDefaultClicked()
     // Maybe replace with Preset system
     OLIVE_CONFIG("DefaultSequenceWidth") = parameter_tab_->GetSelectedVideoWidth();
     OLIVE_CONFIG("DefaultSequenceHeight") = parameter_tab_->GetSelectedVideoHeight();
-    OLIVE_CONFIG("DefaultSequencePixelAspect") = QVariant::fromValue(parameter_tab_->GetSelectedVideoPixelAspect());
-    OLIVE_CONFIG("DefaultSequenceFrameRate") = QVariant::fromValue(parameter_tab_->GetSelectedVideoFrameRate().flipped());
+    OLIVE_CONFIG("DefaultSequencePixelAspect") = parameter_tab_->GetSelectedVideoPixelAspect();
+    OLIVE_CONFIG("DefaultSequenceFrameRate") = parameter_tab_->GetSelectedVideoFrameRate().flipped();
     OLIVE_CONFIG("DefaultSequenceInterlacing") = parameter_tab_->GetSelectedVideoInterlacingMode();
     OLIVE_CONFIG("DefaultSequenceAudioFrequency") = parameter_tab_->GetSelectedAudioSampleRate();
-    OLIVE_CONFIG("DefaultSequenceAudioLayout") = QVariant::fromValue(parameter_tab_->GetSelectedAudioChannelLayout());
+    OLIVE_CONFIG("DefaultSequenceAudioLayout") = parameter_tab_->GetSelectedAudioChannelLayout().toString();
   }
 }
 

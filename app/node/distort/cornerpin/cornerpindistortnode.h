@@ -59,17 +59,15 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+  virtual void UpdateGizmoPositions(const ValueParams &p) override;
 
   /**
    * @brief Convenience function - converts the 2D slider values from being
    * an offset to the actual pixel value.
    */
-  QPointF ValueToPixel(int value, const NodeValueRow &row, const QVector2D &resolution) const;
+  QPointF ValueToPixel(int value, const ValueParams &p, const QVector2D &resolution) const;
 
   static const QString kTextureInput;
   static const QString kPerspectiveInput;
@@ -82,6 +80,8 @@ protected slots:
   virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
+  static ShaderCode GetShaderCode(const QString &id);
+
   // Gizmo variables
   static const int kGizmoCornerCount = 4;
   PointGizmo *gizmo_resize_handle_[kGizmoCornerCount];

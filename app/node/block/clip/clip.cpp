@@ -45,26 +45,27 @@ ClipBlock::ClipBlock() :
   out_transition_(nullptr),
   connected_viewer_(nullptr)
 {
-  AddInput(kMediaInInput, NodeValue::kRational, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kMediaInInput, TYPE_RATIONAL, kInputFlagNotConnectable | kInputFlagNotKeyframable);
   SetInputProperty(kMediaInInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kMediaInInput, QStringLiteral("viewlock"), true);
 
-  AddInput(kSpeedInput, NodeValue::kFloat, 1.0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kSpeedInput, TYPE_DOUBLE, 1.0, kInputFlagNotConnectable | kInputFlagNotKeyframable);
   SetInputProperty(kSpeedInput, QStringLiteral("view"), FloatSlider::kPercentage);
   SetInputProperty(kSpeedInput, QStringLiteral("min"), 0.0);
 
-  AddInput(kReverseInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kReverseInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kMaintainAudioPitchInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kMaintainAudioPitchInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  AddInput(kAutoCacheInput, NodeValue::kBoolean, false, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kAutoCacheInput, TYPE_BOOL, false, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 
-  PrependInput(kBufferIn, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
-  //SetValueHintForInput(kBufferIn, ValueHint(NodeValue::kBuffer));
+  PrependInput(kBufferIn, kInputFlagNotKeyframable);
+  AddAcceptableTypeForInput(kBufferIn, TYPE_TEXTURE);
+  AddAcceptableTypeForInput(kBufferIn, TYPE_SAMPLES);
 
   SetEffectInput(kBufferIn);
 
-  AddInput(kLoopModeInput, NodeValue::kCombo, 0, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kLoopModeInput, TYPE_COMBO, 0, kInputFlagNotConnectable | kInputFlagNotKeyframable);
 }
 
 QString ClipBlock::Name() const
@@ -130,7 +131,7 @@ rational ClipBlock::media_in() const
 
 void ClipBlock::set_media_in(const rational &media_in)
 {
-  SetStandardValue(kMediaInInput, QVariant::fromValue(media_in));
+  SetStandardValue(kMediaInInput, media_in);
 
   RequestInvalidatedFromConnected();
 }
@@ -407,11 +408,12 @@ void ClipBlock::LinkChangeEvent()
   }
 }
 
-void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *output)
+void ClipBlock::InputConnectedEvent(const QString &input, int element, const NodeOutput &o)
 {
-  super::InputConnectedEvent(input, element, output);
+  super::InputConnectedEvent(input, element, o);
 
   if (input == kBufferIn) {
+    Node *output = o.node();
     connect(output->thumbnail_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
     connect(output->waveform_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
     connect(output->video_frame_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
@@ -423,11 +425,12 @@ void ClipBlock::InputConnectedEvent(const QString &input, int element, Node *out
   }
 }
 
-void ClipBlock::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void ClipBlock::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &o)
 {
-  super::InputDisconnectedEvent(input, element, output);
+  super::InputDisconnectedEvent(input, element, o);
 
   if (input == kBufferIn) {
+    Node *output = o.node();
     disconnect(output->thumbnail_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
     disconnect(output->waveform_cache(), &AudioPlaybackCache::Invalidated, this, &Block::PreviewChanged);
     disconnect(output->video_frame_cache(), &FrameHashCache::Invalidated, this, &Block::PreviewChanged);
@@ -484,17 +487,9 @@ TimeRange ClipBlock::OutputTimeAdjustment(const QString& input, int element, con
   return super::OutputTimeAdjustment(input, element, input_time);
 }
 
-void ClipBlock::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t ClipBlock::Value(const ValueParams &p) const
 {
-  Q_UNUSED(globals)
-
-  // We discard most values here except for the buffer we received
-  NodeValue data = value[kBufferIn];
-
-  table->Clear();
-  if (data.type() != NodeValue::kNone) {
-    table->Push(data);
-  }
+  return GetInputValue(p.loop_mode_edited(this->loop_mode()), kBufferIn);
 }
 
 void ClipBlock::Retranslate()

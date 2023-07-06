@@ -160,7 +160,7 @@ int ProjectExplorer::ConfirmItemDeletion(Node* item)
   msgbox.setIcon(QMessageBox::Warning);
 
   QStringList connected_nodes_names;
-  foreach (const Node::OutputConnection& connected, item->output_connections()) {
+  foreach (const Node::Connection& connected, item->output_connections()) {
     if (!dynamic_cast<Folder*>(connected.second.node())) {
       connected_nodes_names.append(GetHumanReadableNodeName(connected.second.node()));
     }
@@ -190,7 +190,7 @@ bool ProjectExplorer::DeleteItemsInternal(const QVector<Node*>& selected, bool& 
     bool can_delete_item = true;
 
     if (check_if_item_is_in_use) {
-      foreach (const Node::OutputConnection& oc, node->output_connections()) {
+      foreach (const Node::Connection& oc, node->output_connections()) {
         Folder* folder_test = dynamic_cast<Folder*>(oc.second.node());
         if (!folder_test) {
           // This sequence outputs to SOMETHING, confirm the user if they want to delete this

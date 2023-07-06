@@ -30,12 +30,12 @@ const QString MosaicFilterNode::kVertInput = QStringLiteral("vert_in");
 
 MosaicFilterNode::MosaicFilterNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kHorizInput, NodeValue::kFloat, 32.0);
+  AddInput(kHorizInput, TYPE_DOUBLE, 32.0);
   SetInputProperty(kHorizInput, QStringLiteral("min"), 1.0);
 
-  AddInput(kVertInput, NodeValue::kFloat, 18.0);
+  AddInput(kVertInput, TYPE_DOUBLE, 18.0);
   SetInputProperty(kVertInput, QStringLiteral("min"), 1.0);
 
   SetFlag(kVideoEffect);
@@ -51,29 +51,29 @@ void MosaicFilterNode::Retranslate()
   SetInputName(kVertInput, tr("Vertical"));
 }
 
-void MosaicFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+ShaderCode MosaicFilterNode::GetShaderCode(const QString &id)
 {
-  if (TexturePtr texture = value[kTextureInput].toTexture()) {
+  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/mosaic.frag"));
+}
+
+value_t MosaicFilterNode::Value(const ValueParams &p) const
+{
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr texture = tex_meta.toTexture()) {
     if (texture
-        && value[kHorizInput].toInt() != texture->width()
-        && value[kVertInput].toInt() != texture->height()) {
-      ShaderJob job(value);
+        && std::floor(GetInputValue(p, kHorizInput).toDouble()) != texture->width()
+        && std::floor(GetInputValue(p, kVertInput).toDouble()) != texture->height()) {
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
       // Mipmapping makes this look weird, so we just use bilinear for finding the color of each block
       job.SetInterpolation(kTextureInput, Texture::kLinear);
 
-      table->Push(NodeValue::kTexture, texture->toJob(job), this);
-    } else {
-      table->Push(value[kTextureInput]);
+      return texture->toJob(job);
     }
   }
-}
 
-ShaderCode MosaicFilterNode::GetShaderCode(const ShaderRequest &request) const
-{
-  Q_UNUSED(request)
-
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/mosaic.frag"));
+  return tex_meta;
 }
 
 }

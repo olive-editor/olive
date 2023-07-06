@@ -23,6 +23,7 @@
 
 #include <QVariant>
 
+#include "common/qtutils.h"
 #include "node/block/clip/clip.h"
 #include "node/block/transition/transition.h"
 #include "node/output/track/track.h"

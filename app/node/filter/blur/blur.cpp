@@ -37,34 +37,34 @@ const QString BlurFilterNode::kRadialCenterInput = QStringLiteral("radial_center
 
 BlurFilterNode::BlurFilterNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  Method default_method = kGaussian;
+  const Method default_method = kGaussian;
 
-  AddInput(kMethodInput, NodeValue::kCombo, default_method, InputFlags(kInputFlagNotKeyframable | kInputFlagNotConnectable));
+  AddInput(kMethodInput, TYPE_COMBO, default_method, kInputFlagNotKeyframable | kInputFlagNotConnectable);
 
-  AddInput(kRadiusInput, NodeValue::kFloat, 10.0);
+  AddInput(kRadiusInput, TYPE_DOUBLE, 10.0);
   SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 
   {
     // Box and gaussian only
-    AddInput(kHorizInput, NodeValue::kBoolean, true);
-    AddInput(kVertInput, NodeValue::kBoolean, true);
+    AddInput(kHorizInput, TYPE_BOOL, true);
+    AddInput(kVertInput, TYPE_BOOL, true);
   }
 
   {
     // Directional only
-    AddInput(kDirectionalDegreesInput, NodeValue::kFloat, 0.0);
+    AddInput(kDirectionalDegreesInput, TYPE_DOUBLE, 0.0);
   }
 
   {
     // Radial only
-    AddInput(kRadialCenterInput, NodeValue::kVec2, QVector2D(0, 0));
+    AddInput(kRadialCenterInput, TYPE_VEC2, QVector2D(0, 0));
   }
 
   UpdateInputs(default_method);
 
-  AddInput(kRepeatEdgePixelsInput, NodeValue::kBoolean, true);
+  AddInput(kRepeatEdgePixelsInput, TYPE_BOOL, true);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -111,30 +111,30 @@ void BlurFilterNode::Retranslate()
   SetInputName(kRadialCenterInput, tr("Center"));
 }
 
-ShaderCode BlurFilterNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode BlurFilterNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/blur.frag"));
 }
 
-void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t BlurFilterNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-    Method method = static_cast<Method>(value[kMethodInput].toInt());
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+  if (TexturePtr tex = tex_meta.toTexture()) {
+    Method method = static_cast<Method>(GetInputValue(p, kMethodInput).toInt());
 
     bool can_push_job = true;
     int iterations = 1;
 
     // Check if radius is > 0
-    if (value[kRadiusInput].toDouble() > 0.0) {
+    if (GetInputValue(p, kRadiusInput).toDouble() > 0.0) {
       // Method-specific considerations
       switch (method) {
       case kBox:
       case kGaussian:
       {
-        bool horiz = value[kHorizInput].toBool();
-        bool vert = value[kVertInput].toBool();
+        bool horiz = GetInputValue(p, kHorizInput).toBool();
+        bool vert = GetInputValue(p, kVertInput).toBool();
 
         if (!horiz && !vert) {
           // Disable job if horiz and vert are unchecked
@@ -154,27 +154,27 @@ void BlurFilterNode::Value(const NodeValueRow &value, const NodeGlobals &globals
     }
 
     if (can_push_job) {
-      ShaderJob job(value);
-      job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, tex->virtual_resolution(), this));
-      job.SetIterations(iterations, kTextureInput);
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
-    } else {
-      // If we're not performing the blur job, just push the texture
-      table->Push(value[kTextureInput]);
-    }
+      ShaderJob job = CreateShaderJob(p, GetShaderCode);
 
+      job.Insert(QStringLiteral("resolution_in"), tex->virtual_resolution());
+      job.SetIterations(iterations, kTextureInput);
+
+      return tex->toJob(job);
+    }
   }
+
+  return tex_meta;
 }
 
-void BlurFilterNode::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
+void BlurFilterNode::UpdateGizmoPositions(const ValueParams &p)
 {
-  if (TexturePtr tex = row[kTextureInput].toTexture()) {
-    if (row[kMethodInput].toInt() == kRadial) {
+  if (TexturePtr tex = GetInputValue(p, kTextureInput).toTexture()) {
+    if (GetInputValue(p, kMethodInput).toInt() == kRadial) {
       const QVector2D &sequence_res = tex->virtual_resolution();
       QVector2D sequence_half_res = sequence_res * 0.5;
 
       radial_center_gizmo_->SetVisible(true);
-      radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + row[kRadialCenterInput].toVec2().toPointF());
+      radial_center_gizmo_->SetPoint(sequence_half_res.toPointF() + GetInputValue(p, kRadialCenterInput).toVec2().toPointF());
 
       SetInputProperty(kRadialCenterInput, QStringLiteral("offset"), sequence_half_res);
     } else{
@@ -192,8 +192,8 @@ void BlurFilterNode::GizmoDragMove(double x, double y, const Qt::KeyboardModifie
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];
 
-    x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
-    y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    x_drag.Drag(x_drag.GetStartValue().value<double>() + x);
+    y_drag.Drag(y_drag.GetStartValue().value<double>() + y);
 
   }
 }

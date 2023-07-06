@@ -38,7 +38,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
 };
 

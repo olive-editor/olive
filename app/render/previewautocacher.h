@@ -91,8 +91,6 @@ public:
   void SetRendersPaused(bool e);
   void SetThumbnailsPaused(bool e);
 
-  void SetMulticamNode(MultiCamNode *n) { multicam_ = n; }
-
   void SetIgnoreCacheRequests(bool e) { ignore_cache_requests_ = e; }
 
 public slots:
@@ -180,8 +178,6 @@ private:
   QHash<PlaybackCache*, AudioCacheData> audio_cache_data_;
 
   ColorProcessorPtr display_color_processor_;
-
-  MultiCamNode *multicam_;
 
   bool ignore_cache_requests_;
 

@@ -23,26 +23,39 @@
 
 #include <QVector2D>
 
+#include "node/value.h"
+#include "render/cancelatom.h"
 #include "render/loopmode.h"
+#include "render/audioparams.h"
 #include "render/videoparams.h"
+#include "util/timerange.h"
 
 namespace olive {
 
-class NodeGlobals
+class ValueParams
 {
 public:
-  NodeGlobals(){}
+  using Cache = QHash<const Node*, QHash<ValueParams, value_t>>;
 
-  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, LoopMode loop_mode) :
+  ValueParams()
+  {
+    cache_ = nullptr;
+    cancel_atom_ = nullptr;
+  }
+
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel, Cache *cache) :
     video_params_(vparam),
     audio_params_(aparam),
     time_(time),
-    loop_mode_(loop_mode)
+    loop_mode_(loop_mode),
+    output_(output),
+    cancel_atom_(cancel),
+    cache_(cache)
   {
   }
 
-  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const rational &time, LoopMode loop_mode) :
-    NodeGlobals(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), loop_mode)
+  ValueParams(const VideoParams &vparam, const AudioParams &aparam, const rational &time, const QString &output, LoopMode loop_mode, CancelAtom *cancel, Cache *cache) :
+    ValueParams(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), output, loop_mode, cancel, cache)
   {
   }
 
@@ -52,14 +65,34 @@ public:
   const VideoParams &vparams() const { return video_params_; }
   const TimeRange &time() const { return time_; }
   LoopMode loop_mode() const { return loop_mode_; }
+  const QString &output() const { return output_; }
+
+  CancelAtom *cancel_atom() const { return cancel_atom_; }
+  bool is_cancelled() const { return cancel_atom_ && cancel_atom_->IsCancelled(); }
+
+  ValueParams time_transformed(const TimeRange &time) const;
+  ValueParams output_edited(const QString &output) const;
+  ValueParams loop_mode_edited(const LoopMode &lm) const;
+  ValueParams with_cache(Cache *cache) const;
+
+  bool get_cached_value(const Node *node, const ValueParams &p, value_t &out) const;
+  void insert_cached_value(const Node *node, const ValueParams &p, const value_t &in) const;
+
+  bool operator==(const ValueParams &p) const;
 
 private:
   VideoParams video_params_;
   AudioParams audio_params_;
   TimeRange time_;
   LoopMode loop_mode_;
+  QString output_;
+
+  CancelAtom *cancel_atom_;
+  Cache *cache_;
 
 };
+
+uint qHash(const ValueParams &p, uint seed = 0);
 
 }
 

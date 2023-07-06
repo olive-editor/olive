@@ -43,7 +43,7 @@ Sequence::Sequence()
     // Create track input
     QString track_input_id = kTrackInputFormat.arg(i);
 
-    AddInput(track_input_id, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden | kInputFlagIgnoreInvalidations));
+    AddInput(track_input_id, kInputFlagNotKeyframable | kInputFlagArray | kInputFlagHidden | kInputFlagIgnoreInvalidations);
 
     TrackList* list = new TrackList(this, static_cast<Track::Type>(i), track_input_id);
     track_lists_.replace(i, list);
@@ -150,12 +150,12 @@ rational Sequence::VerifyLengthInternal(Track::Type type) const
   return 0;
 }
 
-void Sequence::InputConnectedEvent(const QString &input, int element, Node *output)
+void Sequence::InputConnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   foreach (TrackList* list, track_lists_) {
     if (list->track_input() == input) {
       // Return because we found our input
-      list->TrackConnected(output, element);
+      list->TrackConnected(output.node(), element);
       return;
     }
   }
@@ -163,12 +163,12 @@ void Sequence::InputConnectedEvent(const QString &input, int element, Node *outp
   super::InputConnectedEvent(input, element, output);
 }
 
-void Sequence::InputDisconnectedEvent(const QString &input, int element, Node *output)
+void Sequence::InputDisconnectedEvent(const QString &input, int element, const NodeOutput &output)
 {
   foreach (TrackList* list, track_lists_) {
     if (list->track_input() == input) {
       // Return because we found our input
-      list->TrackDisconnected(output, element);
+      list->TrackDisconnected(output.node(), element);
       return;
     }
   }

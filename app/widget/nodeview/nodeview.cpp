@@ -34,7 +34,6 @@
 #include "node/group/group.h"
 #include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
-#include "node/traverser.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedview.h"
@@ -1015,7 +1014,7 @@ void NodeView::ProcessMovingAttachedNodes(const QPoint &pos)
       if (new_drop_edge) {
         drop_input_.Reset();
 
-        NodeValue::Type drop_edge_data_type = new_drop_edge->input().GetDataType();
+        type_t drop_edge_data_type = new_drop_edge->input().GetDataType();
 
         // Determine best input to connect to our new node
         if (attached_node->GetEffectInput().IsValid()) {
@@ -1134,7 +1133,7 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
 
         // Place new edges
         drop_edge_command->add_child(new NodeEdgeAddCommand(drop_edge_->output(), drop_input_));
-        drop_edge_command->add_child(new NodeEdgeAddCommand(dropping_node, drop_edge_->input()));
+        drop_edge_command->add_child(new NodeEdgeAddCommand(GuessOutput(dropping_node, drop_edge_->input()), drop_edge_->input()));
       }
 
       drop_edge_ = nullptr;
@@ -1632,32 +1631,20 @@ void NodeView::EndEdgeDrag(bool cancel)
     if (creating_input.IsValid()) {
       // Make connection
       if (!reconnected_to_itself) {
-        Node *creating_output = create_edge_output_item_->GetNode();
+        Node *creating_output_node = create_edge_output_item_->GetNode();
 
-        while (NodeGroup *output_group = dynamic_cast<NodeGroup*>(creating_output)) {
-          creating_output = output_group->GetOutputPassthrough();
+        while (NodeGroup *output_group = dynamic_cast<NodeGroup*>(creating_output_node)) {
+          creating_output_node = output_group->GetOutputPassthrough();
         }
+
+        NodeOutput creating_output = GuessOutput(creating_output_node, creating_input);
 
         while (NodeGroup *input_group = dynamic_cast<NodeGroup*>(creating_input.node())) {
           creating_input = input_group->GetInputFromID(creating_input.input());
         }
 
-        if (creating_input.IsConnected()) {
-          Node::OutputConnection existing_edge_to_remove = {creating_input.GetConnectedOutput(), creating_input};
-
-          Node *already_connected_output = creating_input.GetConnectedOutput();
-          NodeViewContext *ctx = GetContextItemFromNodeItem(create_edge_input_item_);
-          if (ctx && !ctx->GetItemFromMap(already_connected_output)) {
-            if (QMessageBox::warning(this, QString(), tr("Input \"%1\" is currently connected to node \"%2\", which is not visible in this context. "
-                                                         "By connecting this, that connection will be removed. Do you wish to continue?").arg(creating_input.name(), already_connected_output->GetLabelAndName()),
-                                     QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
-              cancel = true;
-            }
-          }
-
-          if (!cancel) {
-            command->add_child(new NodeEdgeRemoveCommand(existing_edge_to_remove.first, existing_edge_to_remove.second));
-          }
+        if (Node::ConnectionExists(creating_output, creating_input)) {
+          cancel = true;
         }
 
         if (!cancel) {
@@ -1668,8 +1655,8 @@ void NodeView::EndEdgeDrag(bool cancel)
           // If the output is not in the input's context, add it now. We check the item rather than
           // the node itself, because sometimes a node may not be in the context but another node
           // representing it will be (e.g. groups)
-          if (!scene_.context_map().value(create_edge_input_item_->GetContext())->GetItemFromMap(creating_output)) {
-            command->add_child(new NodeSetPositionCommand(creating_output, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
+          if (!scene_.context_map().value(create_edge_input_item_->GetContext())->GetItemFromMap(creating_output_node)) {
+            command->add_child(new NodeSetPositionCommand(creating_output_node, create_edge_input_item_->GetContext(), scene_.context_map().value(create_edge_input_item_->GetContext())->MapScenePosToNodePosInContext(create_edge_output_item_->scenePos())));
           }
         }
       }
@@ -1735,6 +1722,43 @@ void NodeView::PostPaste(const QVector<Node *> &new_nodes, const Node::PositionM
 void NodeView::ResizeOverlay()
 {
   overlay_view_->resize(this->size());
+}
+
+NodeOutput NodeView::GuessOutput(Node *output, const NodeInput &input)
+{
+  std::vector<type_t> types = input.node()->GetAcceptableTypesForInput(input.input());
+  QString out_id;
+  size_t confidence = SIZE_MAX;
+
+  qDebug() << "guessing output for" << types;
+
+  if (!types.empty()) {
+    for (auto it = output->outputs().constBegin(); it != output->outputs().constEnd(); it++) {
+      type_t output_type = it->type;
+
+      qDebug() << "  got type" << output_type;
+
+      for (size_t i = 0; i < types.size(); i++) {
+        if (output_type == types.at(i)) {
+          size_t this_confidence = i;
+
+          if (this_confidence < confidence) {
+            qDebug() << "    is acceptable, confidence" << this_confidence;
+
+            out_id = it->id;
+            confidence = this_confidence;
+
+            if (confidence == 0) {
+              // LITERALLY CAN'T GET ANY MORE CONFIDENT!
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return NodeOutput(output, out_id);
 }
 
 NodeViewContext *NodeView::GetContextItemFromNodeItem(NodeViewItem *item)

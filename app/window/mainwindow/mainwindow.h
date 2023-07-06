@@ -35,7 +35,6 @@
 #include "panel/param/param.h"
 #include "panel/project/project.h"
 #include "panel/scope/scope.h"
-#include "panel/table/table.h"
 #include "panel/taskmanager/taskmanager.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"

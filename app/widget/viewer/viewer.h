@@ -103,11 +103,6 @@ public:
     enable_audio_scrubbing_ = e;
   }
 
-  void AddPlaybackDevice(ViewerDisplayWidget *vw)
-  {
-    playback_devices_.push_back(vw);
-  }
-
   void SetTimelineSelectedBlocks(const QVector<Block*> &b)
   {
     timeline_selected_blocks_ = b;
@@ -166,6 +161,8 @@ public slots:
   {
     display_widget_->RequestStartEditingText();
   }
+
+  void SetToolBarVisible(bool e);
 
 signals:
   /**
@@ -248,8 +245,6 @@ private:
 
   RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t);
-
   void FinishPlayPreprocess();
 
   int DeterminePlaybackQueueSize();
@@ -272,7 +267,7 @@ private:
 
   void CloseAudioProcessor();
 
-  void DetectMulticamNode(const rational &time);
+  MultiCamNode *DetectMulticamNode(const rational &time);
 
   bool IsVideoVisible() const;
 
@@ -305,7 +300,8 @@ private:
   bool prequeuing_video_;
   int prequeuing_audio_;
 
-  QList<RenderTicketWatcher*> nonqueue_watchers_;
+  std::list<RenderTicketWatcher*> nonqueue_watchers_;
+  std::list<RenderTicketWatcher*> nonqueue_multicam_watchers_;
 
   rational last_length_;
 
@@ -377,6 +373,8 @@ private slots:
   void WindowAboutToClose();
 
   void RendererGeneratedFrame();
+
+  void RendererGeneratedMultiCamFrame();
 
   void RendererGeneratedFrameForQueue();
 

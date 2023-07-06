@@ -53,6 +53,7 @@
 #include "generator/text/textv1.h"
 #include "generator/text/textv2.h"
 #include "generator/text/textv3.h"
+#include "generator/tone/tonegenerator.h"
 #include "input/multicam/multicamnode.h"
 #include "input/time/timeinput.h"
 #include "input/value/valuenode.h"
@@ -309,6 +310,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new RippleDistortNode();
   case kMulticamNode:
     return new MultiCamNode();
+  case kToneGenerator:
+    return new ToneGenerator();
 
   case kInternalNodeCount:
     break;

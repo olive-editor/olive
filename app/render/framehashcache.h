@@ -24,6 +24,7 @@
 #include "codec/frame.h"
 #include "render/playbackcache.h"
 #include "render/videoparams.h"
+#include "util/timecodefunctions.h"
 
 namespace olive {
 

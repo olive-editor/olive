@@ -31,11 +31,11 @@ const QString TimeRemapNode::kInputInput = QStringLiteral("input_in");
 
 TimeRemapNode::TimeRemapNode()
 {
-  AddInput(kTimeInput, NodeValue::kRational, QVariant::fromValue(rational(0)), InputFlags(kInputFlagNotConnectable));
+  AddInput(kTimeInput, TYPE_RATIONAL, rational(0), kInputFlagNotConnectable);
   SetInputProperty(kTimeInput, QStringLiteral("view"), RationalSlider::kTime);
   SetInputProperty(kTimeInput, QStringLiteral("viewlock"), true);
 
-  AddInput(kInputInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kInputInput, kInputFlagNotKeyframable);
 }
 
 QString TimeRemapNode::Name() const
@@ -87,9 +87,9 @@ void TimeRemapNode::Retranslate()
   SetInputName(kInputInput, QStringLiteral("Input"));
 }
 
-void TimeRemapNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t TimeRemapNode::Value(const ValueParams &p) const
 {
-  table->Push(value[kInputInput]);
+  return GetInputValue(p, kInputInput);
 }
 
 rational TimeRemapNode::GetRemappedTime(const rational &input) const

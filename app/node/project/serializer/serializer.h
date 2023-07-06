@@ -25,7 +25,6 @@
 
 #include "common/define.h"
 #include "node/project.h"
-#include "typeserializer.h"
 
 namespace olive {
 
@@ -82,7 +81,7 @@ public:
 
     QVector<Node*> nodes;
 
-    Node::OutputConnections promised_connections;
+    Node::Connections promised_connections;
 
   };
 

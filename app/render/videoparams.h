@@ -21,14 +21,14 @@
 #ifndef VIDEOPARAMS_H
 #define VIDEOPARAMS_H
 
-#include <olive/core/core.h>
 #include <QVector2D>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-namespace olive {
+#include "render/pixelformat.h"
+#include "util/rational.h"
 
-using namespace core;
+namespace olive {
 
 class VideoParams {
 public:
@@ -51,6 +51,14 @@ public:
     kColorRangeDefault = kColorRangeLimited
   };
 
+  enum ChannelCount
+  {
+    kNoChannels,
+    kGrayOnlyChannelCount,
+    kGrayAndAlphaChannelCount,
+    kRGBChannelCount,
+    kRGBAChannelCount
+  };
 
   VideoParams();
   VideoParams(int width, int height, PixelFormat format, int nb_channels,
@@ -169,14 +177,19 @@ public:
     format_ = f;
   }
 
-  int channel_count() const
+  ChannelCount channel_count() const
   {
     return channel_count_;
   }
 
-  void set_channel_count(int c)
+  void set_channel_count(ChannelCount c)
   {
     channel_count_ = c;
+  }
+
+  void set_channel_count(int c)
+  {
+    set_channel_count(static_cast<ChannelCount>(c));
   }
 
   const rational& pixel_aspect_ratio() const
@@ -253,8 +266,6 @@ public:
   static const QVector<int> kSupportedDividers;
 
   static const int kHSVChannelCount = 3;
-  static const int kRGBChannelCount = 3;
-  static const int kRGBAChannelCount = 4;
 
   /**
    * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
@@ -377,7 +388,7 @@ private:
 
   PixelFormat format_;
 
-  int channel_count_;
+  ChannelCount channel_count_;
 
   rational pixel_aspect_ratio_;
 
@@ -391,6 +402,7 @@ private:
   int effective_depth_;
   int par_width_;
 
+  // Footage values
   bool enabled_;
   int stream_index_;
   Type video_type_;
@@ -404,6 +416,8 @@ private:
   ColorRange color_range_;
 
 };
+
+uint qHash(const VideoParams &p, uint seed = 0);
 
 }
 

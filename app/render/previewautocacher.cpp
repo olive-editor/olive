@@ -24,7 +24,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "codec/conformmanager.h"
-#include "node/input/multicam/multicamnode.h"
+#include "common/qtutils.h"
 #include "node/inputdragger.h"
 #include "node/project.h"
 #include "render/diskmanager.h"
@@ -40,7 +40,6 @@ PreviewAutoCacher::PreviewAutoCacher(QObject *parent) :
   pause_thumbnails_(false),
   single_frame_render_(nullptr),
   display_color_processor_(nullptr),
-  multicam_(nullptr),
   ignore_cache_requests_(false)
 {
   copier_ = new ProjectCopier(this);
@@ -235,7 +234,6 @@ void PreviewAutoCacher::VideoRendered()
   QVector<RenderTicketPtr> tickets = video_immediate_passthroughs_.take(watcher);
   foreach (RenderTicketPtr t, tickets) {
     if (watcher->HasResult()) {
-      t->setProperty("multicam_output", watcher->GetTicket()->property("multicam_output"));
       t->Finish(watcher->Get());
     } else {
       t->Finish();
@@ -614,13 +612,14 @@ RenderTicketWatcher* PreviewAutoCacher::RenderFrame(Node *node, ViewerOutput *co
     rvp.AddCache(frame_cache);
   }
 
+  if (dynamic_cast<MultiCamNode*>(node)) {
+    rvp.node_output = QStringLiteral("all");
+  }
+
   rvp.return_type = dry ? RenderManager::kNull : RenderManager::kTexture;
 
   // Allow using cached images for this render job
   rvp.use_cache = true;
-
-  // Multicam
-  rvp.multicam = copier_->GetCopy(multicam_);
 
   watcher->SetTicket(RenderManager::instance()->RenderFrame(rvp));
 
@@ -727,9 +726,6 @@ void PreviewAutoCacher::SetProject(Project *project)
     // Ensure all cache data is cleared
     video_cache_data_.clear();
     audio_cache_data_.clear();
-
-    // Clear multicam reference
-    multicam_ = nullptr;
   }
 
   project_ = project;

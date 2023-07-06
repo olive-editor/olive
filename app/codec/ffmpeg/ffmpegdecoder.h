@@ -65,9 +65,11 @@ protected:
   virtual bool OpenInternal() override;
   virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
   virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
+  virtual RetrieveAudioStatus RetrieveAudioInternal(SampleBuffer &dest, const rational& time) override;
   virtual void CloseInternal() override;
 
   virtual rational GetAudioStartOffset() const override;
+  virtual int GetAudioSampleRate() const override;
 
 private:
   class Instance
@@ -136,10 +138,11 @@ private:
 
   void FreeScaler();
 
-  static PixelFormat GetNativePixelFormat(AVPixelFormat pix_fmt);
-  static int GetNativeChannelCount(AVPixelFormat pix_fmt);
+  void FreeResampler();
 
-  static uint64_t ValidateChannelLayout(AVStream *stream);
+  static PixelFormat GetNativePixelFormat(AVPixelFormat pix_fmt);
+
+  static int GetNativeChannelCount(AVPixelFormat pix_fmt);
 
   static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
 
@@ -157,6 +160,11 @@ private:
 
   void RemoveFirstFrame();
 
+  Decoder::RetrieveAudioStatus ValidateResampler(const AudioParams &output);
+
+  int64_t ts_to_samples(int64_t t) const;
+  int64_t samples_to_ts(int64_t s) const;
+
   static int MaximumQueueSize();
 
   SwsContext *sws_ctx_;
@@ -168,6 +176,15 @@ private:
   AVPixelFormat sws_dst_format_;
   AVColorRange sws_colrange_;
   AVColorSpace sws_colspace_;
+
+  SwrContext *swr_ctx_;
+  int swr_irate_;
+  AudioChannelLayout swr_ichannels_;
+  SampleFormat swr_iformat_;
+  int swr_orate_;
+  AudioChannelLayout swr_ochannels_;
+  SampleFormat swr_oformat_;
+  int64_t swr_time_;
 
   AVPacket *working_packet_;
 

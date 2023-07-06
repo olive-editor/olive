@@ -83,11 +83,11 @@ bool NodeGroup::LoadCustom(QXmlStreamReader *reader, SerializedData *data)
             } else if (reader->name() == QStringLiteral("name")) {
               link.custom_name = reader->readElementText();
             } else if (reader->name() == QStringLiteral("flags")) {
-              link.custom_flags = InputFlags(reader->readElementText().toULongLong());
+              link.custom_flags = InputFlag(reader->readElementText().toULongLong());
             } else if (reader->name() == QStringLiteral("type")) {
-              link.data_type = NodeValue::GetDataTypeFromName(reader->readElementText());
+              link.data_type = type_t::fromString(reader->readElementText());
             } else if (reader->name() == QStringLiteral("default")) {
-              link.default_val = NodeValue::StringToValue(link.data_type, reader->readElementText(), false);
+              link.default_val = value_t(reader->readElementText()).converted(link.data_type);
             } else if (reader->name() == QStringLiteral("properties")) {
               while (XMLReadNextStartElement(reader)) {
                 if (reader->name() == QStringLiteral("property")) {
@@ -152,10 +152,10 @@ void NodeGroup::SaveCustom(QXmlStreamWriter *writer) const
 
     writer->writeTextElement(QStringLiteral("flags"), QString::number((GetInputFlags(input) & ~ip.second.GetFlags()).value()));
 
-    NodeValue::Type data_type = GetInputDataType(input);
-    writer->writeTextElement(QStringLiteral("type"), NodeValue::GetDataTypeName(data_type));
+    type_t data_type = GetInputDataType(input);
+    writer->writeTextElement(QStringLiteral("type"), data_type.toString());
 
-    writer->writeTextElement(QStringLiteral("default"), NodeValue::ValueToString(data_type, GetDefaultValue(input), false));
+    writer->writeTextElement(QStringLiteral("default"), GetDefaultValue(input).toSerializedString());
 
     writer->writeStartElement(QStringLiteral("properties"));
     auto p = GetInputProperties(input);
@@ -185,7 +185,7 @@ void NodeGroup::PostLoadEvent(SerializedData *data)
 
       l.group->AddInputPassthrough(resolved, l.passthrough_id);
 
-      l.group->SetInputFlag(l.passthrough_id, InputFlag(l.custom_flags.value()));
+      l.group->SetInputFlag(l.passthrough_id, l.custom_flags);
 
       if (!l.custom_name.isEmpty()) {
         l.group->SetInputName(l.passthrough_id, l.custom_name);

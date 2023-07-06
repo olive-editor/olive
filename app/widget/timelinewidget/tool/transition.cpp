@@ -132,10 +132,10 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* in_block = (ghost_->GetMode() == Timeline::kTrimIn) ? active_block : friend_block;
 
         // Connect block to transition
-        command->add_child(new NodeEdgeAddCommand(out_block,
+        command->add_child(new NodeEdgeAddCommand(NodeOutput(out_block),
                                                   NodeInput(transition, TransitionBlock::kOutBlockInput)));
 
-        command->add_child(new NodeEdgeAddCommand(in_block,
+        command->add_child(new NodeEdgeAddCommand(NodeOutput(in_block),
                                                   NodeInput(transition, TransitionBlock::kInBlockInput)));
 
         command->add_child(new NodeSetPositionCommand(out_block, transition, QPointF(-1, -0.5)));
@@ -151,7 +151,7 @@ void TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         }
 
         // Connect block to transition
-        command->add_child(new NodeEdgeAddCommand(block_to_transition,
+        command->add_child(new NodeEdgeAddCommand(NodeOutput(block_to_transition),
                                                   NodeInput(transition, transition_input_to_connect)));
 
         command->add_child(new NodeSetPositionCommand(block_to_transition, transition, QPointF(-1, 0)));

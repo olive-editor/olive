@@ -24,6 +24,7 @@
 #include <QtGlobal>
 
 #include "config/config.h"
+#include "util/cpuoptimize.h"
 
 namespace olive {
 

@@ -29,23 +29,23 @@ const QString ColorDifferenceKeyNode::kMaskOnlyInput = QStringLiteral("mask_only
 
 ColorDifferenceKeyNode::ColorDifferenceKeyNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kTextureInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kGarbageMatteInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kCoreMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kCoreMatteInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kColorInput, NodeValue::kCombo, 0);
+  AddInput(kColorInput, TYPE_COMBO, 0);
 
-  AddInput(kHighlightsInput, NodeValue::kFloat, 1.0f);
+  AddInput(kHighlightsInput, TYPE_DOUBLE, 1.0f);
   SetInputProperty(kHighlightsInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kHighlightsInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kShadowsInput, NodeValue::kFloat, 1.0f);
+  AddInput(kShadowsInput, TYPE_DOUBLE, 1.0f);
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kShadowsInput, QStringLiteral("base"), 0.01);
 
-  AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
+  AddInput(kMaskOnlyInput, TYPE_BOOL, false);
 
   SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
@@ -85,20 +85,22 @@ void ColorDifferenceKeyNode::Retranslate()
   SetInputName(kMaskOnlyInput, tr("Show Mask Only"));
 }
 
-ShaderCode ColorDifferenceKeyNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode ColorDifferenceKeyNode::GetShaderCode(const QString &id)
 {
-  Q_UNUSED(request)
   return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/colordifferencekey.frag"));
 }
 
-void ColorDifferenceKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t ColorDifferenceKeyNode::Value(const ValueParams &p) const
 {
   // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-    ShaderJob job;
-    job.Insert(value);
-    table->Push(NodeValue::kTexture, tex->toJob(job), this);
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
+    ShaderJob job = CreateShaderJob(p, GetShaderCode);
+    return tex->toJob(job);
   }
+
+  return tex_meta;
 }
 
 }  // namespace olive

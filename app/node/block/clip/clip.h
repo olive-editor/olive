@@ -72,7 +72,7 @@ public:
 
   virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   virtual void Retranslate() override;
 
@@ -212,9 +212,9 @@ public:
 protected:
   virtual void LinkChangeEvent() override;
 
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
+  virtual void InputDisconnectedEvent(const QString& input, int element, const NodeOutput &output) override;
 
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 

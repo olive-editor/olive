@@ -54,8 +54,7 @@ public:
   virtual QVector<CategoryID> Category() const override;
   virtual QString Description() const override;
 
-  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+  virtual value_t Value(const ValueParams &p) const override;
 
   virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
 
@@ -448,7 +447,7 @@ signals:
   void BlocksRefreshed();
 
 protected:
-  virtual void InputConnectedEvent(const QString& input, int element, Node *node) override;
+  virtual void InputConnectedEvent(const QString& input, int element, const NodeOutput &node) override;
   virtual void InputValueChangedEvent(const QString& input, int element) override;
 
 private:
@@ -460,11 +459,13 @@ private:
 
   int GetBlockIndexAtTime(const rational &time) const;
 
-  void ProcessAudioTrack(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const;
+  value_t ProcessAudioTrack(const ValueParams &p) const;
 
   int ConnectBlock(Block *b);
 
   void UpdateArrayMap();
+
+  TimeRange TransformTimeForBlock(const TimeRange &input_time, int index);
 
   TimeRangeList block_length_pending_invalidations_;
 

@@ -22,8 +22,10 @@
 #define NODEPARAMVIEWCONNECTEDLABEL_H
 
 #include "node/param.h"
+#include "node/output/viewer/viewer.h"
 #include "widget/clickablelabel/clickablelabel.h"
-#include "widget/nodevaluetree/nodevaluetree.h"
+#include "widget/collapsebutton/collapsebutton.h"
+#include "widget/nodevaluetree/valueswizzlewidget.h"
 
 namespace olive {
 
@@ -34,13 +36,15 @@ public:
 
   void SetViewerNode(ViewerOutput *viewer);
 
+  bool DeleteSelected();
+
 signals:
   void RequestSelectNode(Node *n);
 
 private slots:
-  void InputConnected(Node *output, const NodeInput &input);
+  void InputConnected(const NodeOutput &output, const NodeInput &input);
 
-  void InputDisconnected(Node *output, const NodeInput &input);
+  void InputDisconnected(const NodeOutput &output, const NodeInput &input);
 
   void ShowLabelContextMenu();
 
@@ -53,13 +57,17 @@ private:
 
   void CreateTree();
 
+  CollapseButton *collapse_btn_;
+
+  QLabel *prefix_lbl_;
+
   ClickableLabel* connected_to_lbl_;
 
   NodeInput input_;
 
-  Node *connected_node_;
+  NodeOutput output_;
 
-  NodeValueTree *value_tree_;
+  ValueSwizzleWidget *value_tree_;
 
   ViewerOutput *viewer_;
 

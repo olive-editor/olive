@@ -105,9 +105,9 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     Block* b = GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index());
     if (b) {
       setToolTip(tr("In: %1\nOut: %2\nDuration: %3").arg(
-                   QString::fromStdString(Timecode::time_to_timecode(b->in(), timebase(), Core::instance()->GetTimecodeDisplay())),
-                   QString::fromStdString(Timecode::time_to_timecode(b->out(), timebase(), Core::instance()->GetTimecodeDisplay())),
-                   QString::fromStdString(Timecode::time_to_timecode(b->length(), timebase(), Core::instance()->GetTimecodeDisplay()))
+                   Timecode::time_to_timecode(b->in(), timebase(), Core::instance()->GetTimecodeDisplay()),
+                   Timecode::time_to_timecode(b->out(), timebase(), Core::instance()->GetTimecodeDisplay()),
+                   Timecode::time_to_timecode(b->length(), timebase(), Core::instance()->GetTimecodeDisplay())
       ));
     } else {
       setToolTip(QString());
@@ -484,7 +484,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
                   painter->setRenderHint(QPainter::SmoothPixmapTransform);
                   painter->setClipRect(preview_rect);
 
-                  if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
+                  if (OLIVE_CONFIG("TimelineThumbnailMode").toInt() == Timeline::kThumbnailOn) {
 
                     Sequence *s = clip->track()->sequence();
                     int width = s->GetVideoParams().width();

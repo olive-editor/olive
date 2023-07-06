@@ -67,11 +67,6 @@ public:
     GetViewerWidget()->UpdateTextureFromNode();
   }
 
-  void AddPlaybackDevice(ViewerDisplayWidget *vw)
-  {
-    GetViewerWidget()->AddPlaybackDevice(vw);
-  }
-
   void SetTimelineSelectedBlocks(const QVector<Block*> &b)
   {
     GetViewerWidget()->SetTimelineSelectedBlocks(b);

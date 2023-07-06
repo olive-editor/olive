@@ -653,12 +653,12 @@ void ProjectSerializer220403::LoadImmediate(QXmlStreamReader *reader, Node *node
 {
   Q_UNUSED(xml_node_data)
 
-  NodeValue::Type data_type = node->GetInputDataType(input);
+  type_t data_type = node->GetInputDataType(input);
 
   // HACK: SubtitleParams contain the actual subtitle data, so loading/replacing it will overwrite
   //       the valid subtitles. We hack around it by simply skipping loading subtitles, we'll see
   //       if this ends up being an issue in the future.
-  if (data_type == NodeValue::kSubtitleParams) {
+  if (data_type == ViewerOutput::TYPE_SPARAM) {
     reader->skipCurrentElement();
     return;
   }
@@ -674,20 +674,21 @@ void ProjectSerializer220403::LoadImmediate(QXmlStreamReader *reader, Node *node
         }
 
         if (reader->name() == QStringLiteral("track")) {
-          QVariant value_on_track;
+          value_t::component_t value_on_track;
 
-          if (data_type == NodeValue::kVideoParams) {
+          if (data_type == ViewerOutput::TYPE_VPARAM) {
             VideoParams vp;
             vp.Load(reader);
-            value_on_track = QVariant::fromValue(vp);
-          } else if (data_type == NodeValue::kAudioParams) {
-            AudioParams ap = TypeSerializer::LoadAudioParams(reader);
-            value_on_track = QVariant::fromValue(ap);
+            value_on_track = vp;
+          } else if (data_type == ViewerOutput::TYPE_APARAM) {
+            AudioParams ap;
+            ap.load(reader);
+            value_on_track = ap;
           } else {
             QString value_text = reader->readElementText();
 
             if (!value_text.isEmpty()) {
-              value_on_track = NodeValue::StringToValue(data_type, value_text, true);
+              value_on_track = value_t::component_t::fromSerializedString(data_type, value_text);
             }
           }
 
@@ -746,7 +747,7 @@ void ProjectSerializer220403::LoadImmediate(QXmlStreamReader *reader, Node *node
   }
 }
 
-void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, NodeValue::Type data_type) const
+void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyframe *key, type_t data_type) const
 {
   QString key_input;
   QPointF key_in_handle;
@@ -760,7 +761,7 @@ void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyfram
     if (attr.name() == QStringLiteral("input")) {
       key_input = attr.value().toString();
     } else if (attr.name() == QStringLiteral("time")) {
-      key->set_time(rational::fromString(attr.value().toString().toStdString()));
+      key->set_time(rational::fromString(attr.value().toString()));
     } else if (attr.name() == QStringLiteral("type")) {
       key->set_type_no_bezier_adj(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
     } else if (attr.name() == QStringLiteral("inhandlex")) {
@@ -774,7 +775,7 @@ void ProjectSerializer220403::LoadKeyframe(QXmlStreamReader *reader, NodeKeyfram
     }
   }
 
-  key->set_value(NodeValue::StringToValue(data_type, reader->readElementText(), true));
+  key->set_value(value_t::component_t::fromSerializedString(data_type, reader->readElementText()));
 
   key->set_bezier_control_in(key_in_handle);
   key->set_bezier_control_out(key_out_handle);
@@ -815,7 +816,7 @@ void ProjectSerializer220403::PostConnect(const XMLNodeData &xml_node_data) cons
 {
   foreach (const XMLNodeData::SerializedConnection& con, xml_node_data.desired_connections) {
     if (Node *out = xml_node_data.node_ptrs.value(con.output_node)) {
-      Node::ConnectEdge(out, con.input);
+      Node::ConnectEdge(NodeOutput(out), con.input);
     }
   }
 
@@ -904,11 +905,11 @@ void ProjectSerializer220403::LoadNodeCustom(QXmlStreamReader *reader, Node *nod
               } else if (reader->name() == QStringLiteral("name")) {
                 link.custom_name = reader->readElementText();
               } else if (reader->name() == QStringLiteral("flags")) {
-                link.custom_flags = InputFlags(reader->readElementText().toULongLong());
+                link.custom_flags = InputFlag(reader->readElementText().toULongLong());
               } else if (reader->name() == QStringLiteral("type")) {
-                link.data_type = NodeValue::GetDataTypeFromName(reader->readElementText());
+                link.data_type = type_t::fromString(reader->readElementText());
               } else if (reader->name() == QStringLiteral("default")) {
-                link.default_val = NodeValue::StringToValue(link.data_type, reader->readElementText(), false);
+                link.default_val = value_t::fromSerializedString(link.data_type, reader->readElementText());
               } else if (reader->name() == QStringLiteral("properties")) {
                 while (XMLReadNextStartElement(reader)) {
                   if (reader->name() == QStringLiteral("property")) {
@@ -975,9 +976,9 @@ void ProjectSerializer220403::LoadMarker(QXmlStreamReader *reader, TimelineMarke
     if (attr.name() == QStringLiteral("name")) {
       marker->set_name(attr.value().toString());
     } else if (attr.name() == QStringLiteral("in")) {
-      in = rational::fromString(attr.value().toString().toStdString());
+      in = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("out")) {
-      out = rational::fromString(attr.value().toString().toStdString());
+      out = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("color")) {
       marker->set_color(attr.value().toInt());
     }
@@ -998,9 +999,9 @@ void ProjectSerializer220403::LoadWorkArea(QXmlStreamReader *reader, TimelineWor
     if (attr.name() == QStringLiteral("enabled")) {
       workarea->set_enabled(attr.value() != QStringLiteral("0"));
     } else if (attr.name() == QStringLiteral("in")) {
-      range_in = rational::fromString(attr.value().toString().toStdString());
+      range_in = rational::fromString(attr.value().toString());
     } else if (attr.name() == QStringLiteral("out")) {
-      range_out = rational::fromString(attr.value().toString().toStdString());
+      range_out = rational::fromString(attr.value().toString());
     }
   }
 
@@ -1027,27 +1028,14 @@ void ProjectSerializer220403::LoadMarkerList(QXmlStreamReader *reader, TimelineM
 
 void ProjectSerializer220403::LoadValueHint(Node::ValueHint *hint, QXmlStreamReader *reader) const
 {
-  QVector<NodeValue::Type> types;
-
   while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("types")) {
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("type")) {
-          types.append(static_cast<NodeValue::Type>(reader->readElementText().toInt()));
-        } else {
-          reader->skipCurrentElement();
-        }
-      }
-    } else if (reader->name() == QStringLiteral("index")) {
-      hint->set_index(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("tag")) {
-      hint->set_tag(reader->readElementText());
+    if (reader->name() == QStringLiteral("tag")) {
+      QString output = reader->readElementText();
+      qDebug() << "FIXME: need to propagate output" << output;
     } else {
       reader->skipCurrentElement();
     }
   }
-
-  hint->set_type(types);
 }
 
 }

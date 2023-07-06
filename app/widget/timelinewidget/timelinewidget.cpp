@@ -671,7 +671,7 @@ bool TimelineWidget::CopySelected(bool cut)
   }
 
   foreach (Block* block, selected_blocks_) {
-    properties[block][QStringLiteral("in")] = QString::fromStdString((block->in() - earliest_in).toString());
+    properties[block][QStringLiteral("in")] = (block->in() - earliest_in).toString();
     properties[block][QStringLiteral("track")] = block->track()->ToReference().ToString();
   }
 
@@ -1319,9 +1319,9 @@ void TimelineWidget::ShowContextMenu()
       Menu *thumbnail_menu = new Menu(tr("Show Thumbnails"), &menu);
       menu.addMenu(thumbnail_menu);
 
-      thumbnail_menu->AddActionWithData(tr("Disabled"), Timeline::kThumbnailOff, OLIVE_CONFIG("TimelineThumbnailMode"));
-      thumbnail_menu->AddActionWithData(tr("Only At In Points"), Timeline::kThumbnailInOut, OLIVE_CONFIG("TimelineThumbnailMode"));
-      thumbnail_menu->AddActionWithData(tr("Enabled"), Timeline::kThumbnailOn, OLIVE_CONFIG("TimelineThumbnailMode"));
+      thumbnail_menu->AddActionWithData(tr("Disabled"), Timeline::kThumbnailOff, Timeline::ThumbnailMode(OLIVE_CONFIG("TimelineThumbnailMode").toInt()));
+      thumbnail_menu->AddActionWithData(tr("Only At In Points"), Timeline::kThumbnailInOut, Timeline::ThumbnailMode(OLIVE_CONFIG("TimelineThumbnailMode").toInt()));
+      thumbnail_menu->AddActionWithData(tr("Enabled"), Timeline::kThumbnailOn, Timeline::ThumbnailMode(OLIVE_CONFIG("TimelineThumbnailMode").toInt()));
 
       connect(thumbnail_menu, &Menu::triggered, this, &TimelineWidget::SetViewThumbnailsEnabled);
     }
@@ -1390,7 +1390,7 @@ void TimelineWidget::SetViewWaveformsEnabled(bool e)
 
 void TimelineWidget::SetViewThumbnailsEnabled(QAction *action)
 {
-  OLIVE_CONFIG("TimelineThumbnailMode") = action->data();
+  OLIVE_CONFIG("TimelineThumbnailMode") = action->data().toInt();
   UpdateViewports();
 }
 
@@ -1542,11 +1542,11 @@ void TimelineWidget::MulticamEnabledTriggered(bool e)
           // connect to the multicam instead
           QVector<NodeInput> inputs = c->FindWaysNodeArrivesHere(s);
           for (const NodeInput &i : inputs) {
-            command->add_child(new NodeEdgeRemoveCommand(s, i));
-            command->add_child(new NodeEdgeAddCommand(n, i));
+            command->add_child(new NodeEdgeRemoveCommand(NodeOutput(s), i));
+            command->add_child(new NodeEdgeAddCommand(NodeOutput(n), i));
           }
 
-          command->add_child(new NodeEdgeAddCommand(s, NodeInput(n, n->kSequenceInput)));
+          command->add_child(new NodeEdgeAddCommand(NodeOutput(s), NodeInput(n, n->kSequenceInput)));
 
           // Move sequence node one unit back, and place multicam in sequence's spot
           QPointF sequence_pos = c->GetNodePositionInContext(s);
@@ -1562,7 +1562,7 @@ void TimelineWidget::MulticamEnabledTriggered(bool e)
             if (MultiCamNode *mcn = dynamic_cast<MultiCamNode*>(i.node())) {
               for (auto it=mcn->output_connections().cbegin(); it!=mcn->output_connections().cend(); it++) {
                 command->add_child(new NodeEdgeRemoveCommand(it->first, it->second));
-                command->add_child(new NodeEdgeAddCommand(s, it->second));
+                command->add_child(new NodeEdgeAddCommand(NodeOutput(s), it->second));
               }
 
               command->add_child(new NodeRemoveAndDisconnectCommand(mcn));
@@ -1965,7 +1965,7 @@ bool TimelineWidget::PasteInternal(bool insert)
 
     for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
       rational length = static_cast<Block*>(it.key())->length();
-      rational in = rational::fromString(it.value()[QStringLiteral("in")].toStdString());
+      rational in = rational::fromString(it.value()[QStringLiteral("in")]);
 
       paste_end = qMax(paste_end, paste_start + in + length);
     }
@@ -1977,7 +1977,7 @@ bool TimelineWidget::PasteInternal(bool insert)
 
   for (auto it=res.GetLoadData().properties.cbegin(); it!=res.GetLoadData().properties.cend(); it++) {
     Block *block = static_cast<Block*>(it.key());
-    rational in = rational::fromString(it.value()[QStringLiteral("in")].toStdString());
+    rational in = rational::fromString(it.value()[QStringLiteral("in")]);
     Track::Reference track = Track::Reference::FromString(it.value()[QStringLiteral("track")]);
 
     command->add_child(new TrackPlaceBlockCommand(sequence()->track_list(track.type()),

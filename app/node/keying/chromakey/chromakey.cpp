@@ -34,13 +34,13 @@ const QString ChromaKeyNode::kHighlightsInput = QStringLiteral("highlights_in");
 
 ChromaKeyNode::ChromaKeyNode()
 {
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0.0f, 1.0f, 0.0f, 1.0f)));
+  AddInput(kColorInput, TYPE_COLOR, Color(0.0f, 1.0f, 0.0f, 1.0f));
 
-  AddInput(kLowerToleranceInput, NodeValue::kFloat, 5.0);
+  AddInput(kLowerToleranceInput, TYPE_DOUBLE, 5.0);
   SetInputProperty(kLowerToleranceInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kLowerToleranceInput, QStringLiteral("base"), 0.1);
 
-  AddInput(kUpperToleranceInput, NodeValue::kFloat, 25.0);
+  AddInput(kUpperToleranceInput, TYPE_DOUBLE, 25.0);
   SetInputProperty(kUpperToleranceInput, QStringLiteral("base"), 0.1);
 
   // FIXME: Temporarily disabled. This will break if "lower tolerance" is keyframed or connected to
@@ -48,21 +48,21 @@ ChromaKeyNode::ChromaKeyNode()
   //        we can look into re-enabling this.
   //SetInputProperty(kUpperToleranceInput, QStringLiteral("min"), GetStandardValue(kLowerToleranceInput).toDouble());
 
-  AddInput(kGarbageMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kGarbageMatteInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kCoreMatteInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+  AddInput(kCoreMatteInput, TYPE_TEXTURE, kInputFlagNotKeyframable);
 
-  AddInput(kHighlightsInput, NodeValue::kFloat, 100.0f);
+  AddInput(kHighlightsInput, TYPE_DOUBLE, 100.0f);
   SetInputProperty(kHighlightsInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kHighlightsInput, QStringLiteral("base"), 0.1);
 
-  AddInput(kShadowsInput, NodeValue::kFloat, 100.0f);
+  AddInput(kShadowsInput, TYPE_DOUBLE, 100.0f);
   SetInputProperty(kShadowsInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kShadowsInput, QStringLiteral("base"), 0.1);
 
-  AddInput(kInvertInput, NodeValue::kBoolean, false);
+  AddInput(kInvertInput, TYPE_BOOL, false);
 
-  AddInput(kMaskOnlyInput, NodeValue::kBoolean, false);
+  AddInput(kMaskOnlyInput, TYPE_BOOL, false);
 }
 
 QString ChromaKeyNode::Name() const
@@ -113,9 +113,9 @@ void ChromaKeyNode::InputValueChangedEvent(const QString &input, int element)
   GenerateProcessor();
 }
 
-ShaderCode ChromaKeyNode::GetShaderCode(const ShaderRequest &request) const
+ShaderCode GetColorTransformCode(const QString &stub)
 {
-  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/chromakey.frag")).arg(request.stub));
+  return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/chromakey.frag")).arg(stub));
 }
 
 void ChromaKeyNode::GenerateProcessor()
@@ -130,20 +130,24 @@ void ChromaKeyNode::GenerateProcessor()
   }
 }
 
-void ChromaKeyNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+value_t ChromaKeyNode::Value(const ValueParams &p) const
 {
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
+  value_t tex_meta = GetInputValue(p, kTextureInput);
+
+  if (TexturePtr tex = tex_meta.toTexture()) {
     if (processor()) {
-      ColorTransformJob job(value);
+      ColorTransformJob job = CreateColorTransformJob(p);
 
       job.SetColorProcessor(processor());
-      job.SetInputTexture(value[kTextureInput]);
-      job.SetNeedsCustomShader(this);
+      job.SetInputTexture(GetInputValue(p, kTextureInput));
+      job.SetCustomShaderFunction(GetColorTransformCode);
       job.SetFunctionName(QStringLiteral("SceneLinearToCIEXYZ_d65"));
 
-      table->Push(NodeValue::kTexture, tex->toJob(job), this);
+      return tex->toJob(job);
     }
   }
+
+  return tex_meta;
 }
 
 void ChromaKeyNode::ConfigChanged()
