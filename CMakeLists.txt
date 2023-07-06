@@ -168,7 +168,7 @@ list(APPEND OLIVE_LIBRARIES
 )
 
 # Link FFmpeg
-find_package(FFMPEG 3.0 REQUIRED
+find_package(FFMPEG 5.0 REQUIRED
   COMPONENTS
   avutil
   avcodec
