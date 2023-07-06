@@ -32,6 +32,7 @@ public:
   static value_t SubtractDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
   static value_t MultiplyDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
   static value_t DivideDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
+  static value_t ModuloDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
   static value_t PowerDoubleDouble(const value_t &a, const value_t &b, const value_t &c);
 
   static value_t SineDouble(const value_t &a, const value_t &b, const value_t &c);

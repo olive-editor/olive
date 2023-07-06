@@ -36,6 +36,7 @@ public:
     kOpSubtract,
     kOpMultiply,
     kOpDivide,
+    kOpModulo,
 
     kOpPower,
 

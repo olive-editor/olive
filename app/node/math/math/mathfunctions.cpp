@@ -58,6 +58,15 @@ value_t Math::DivideDoubleDouble(const value_t &a, const value_t &b, const value
   return v;
 }
 
+value_t Math::ModuloDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
+{
+  value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));
+  for (size_t i = 0; i < v.size(); i++) {
+    v[i] = std::fmod(a.value<double>(i), b.value<double>(i));
+  }
+  return v;
+}
+
 value_t Math::PowerDoubleDouble(const value_t &a, const value_t &b, const value_t &c)
 {
   value_t v(TYPE_DOUBLE, std::max(a.size(), b.size()));

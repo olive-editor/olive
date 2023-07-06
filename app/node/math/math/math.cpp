@@ -105,6 +105,7 @@ void MathNode::Retranslate()
     GetOperationName(kOpSubtract),
     GetOperationName(kOpMultiply),
     GetOperationName(kOpDivide),
+    GetOperationName(kOpModulo),
     QString(),
     GetOperationName(kOpPower),
     QString(),
@@ -264,6 +265,7 @@ void MathNode::OperateSampleNumber(Operation operation, const float *input, floa
   case kOpCeil:
   case kOpRound:
   case kOpAbs:
+  case kOpModulo:
     break;
   }
 }
@@ -362,6 +364,7 @@ void MathNode::OperateSampleSample(Operation operation, const float *input, floa
   case kOpCeil:
   case kOpRound:
   case kOpAbs:
+  case kOpModulo:
     break;
   }
 }
@@ -390,6 +393,7 @@ int MathNode::GetNumberOfOperands(Operation o)
   case kOpPower:
   case kOpMin:
   case kOpMax:
+  case kOpModulo:
     return 2;
   case kOpClamp:
     return 3;
@@ -495,6 +499,7 @@ ShaderCode MathNode::GetShaderCode(const QString &id)
   case kOpSubtract: line = QStringLiteral("%1 - %2"); break;
   case kOpMultiply: line = QStringLiteral("%1 * %2"); break;
   case kOpDivide: line = QStringLiteral("%1 / %2"); break;
+  case kOpModulo: line = QStringLiteral("mod(%1, %2)"); break;
   case kOpPower:
   case kOpMin:
   case kOpMax:
@@ -631,6 +636,7 @@ QString MathNode::GetOperationName(Operation o)
   case kOpSubtract: return tr("Subtract");
   case kOpMultiply: return tr("Multiply");
   case kOpDivide: return tr("Divide");
+  case kOpModulo: return tr("Modulo");
   case kOpPower: return tr("Power");
   case kOpSine: return tr("Sine");
   case kOpCosine: return tr("Cosine");
@@ -659,6 +665,7 @@ void MathNode::PopulateOperations()
   operations_[kOpSubtract][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::SubtractDoubleDouble;
   operations_[kOpMultiply][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::MultiplyDoubleDouble;
   operations_[kOpDivide][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::DivideDoubleDouble;
+  operations_[kOpModulo][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::ModuloDoubleDouble;
   operations_[kOpPower][TYPE_DOUBLE][TYPE_DOUBLE][TYPE_NONE] = Math::PowerDoubleDouble;
 
   operations_[kOpSine][TYPE_DOUBLE][TYPE_NONE][TYPE_NONE] = Math::SineDouble;
