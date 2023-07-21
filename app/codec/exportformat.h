@@ -26,7 +26,6 @@
 
 #include "common/define.h"
 #include "exportcodec.h"
-#include "render/audioparams.h"
 
 namespace olive {
 
@@ -62,7 +61,7 @@ public:
   static QList<ExportCodec::Codec> GetSubtitleCodecs(ExportFormat::Format f);
 
   static QStringList GetPixelFormatsForCodec(Format f, ExportCodec::Codec c);
-  static std::vector<AudioParams::Format> GetSampleFormatsForCodec(Format f, ExportCodec::Codec c);
+  static std::vector<SampleFormat> GetSampleFormatsForCodec(Format f, ExportCodec::Codec c);
 
 };
 

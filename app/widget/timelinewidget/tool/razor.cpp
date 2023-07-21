@@ -19,8 +19,10 @@
 ***/
 
 #include "razor.h"
+
+#include "node/nodeundo.h"
+#include "timeline/timelineundosplit.h"
 #include "widget/timelinewidget/timelinewidget.h"
-#include "widget/timelinewidget/undo/timelineundosplit.h"
 
 namespace olive {
 
@@ -91,7 +93,7 @@ void RazorTool::MouseRelease(TimelineViewMouseEvent *event)
   split_tracks_.clear();
 
   if (!blocks_to_split.isEmpty()) {
-    Core::instance()->undo_stack()->push(new BlockSplitPreservingLinksCommand(blocks_to_split, {split_time}));
+    Core::instance()->undo_stack()->push(new BlockSplitPreservingLinksCommand(blocks_to_split, {split_time}), qApp->translate("RazorTool", "Split Clips"));
   }
 
   dragging_ = false;

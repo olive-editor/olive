@@ -32,7 +32,7 @@ GeneratorWithMerge::GeneratorWithMerge()
 {
   AddInput(kBaseInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
   SetEffectInput(kBaseInput);
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
 }
 
 void GeneratorWithMerge::Retranslate()

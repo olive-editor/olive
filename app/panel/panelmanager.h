@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QList>
 
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 
 namespace olive {
 
@@ -74,6 +74,8 @@ public:
    */
   PanelWidget* CurrentlyHovered() const;
 
+  PanelWidget *GetPanelWithName(const QString &name) const;
+
   template<class T>
   /**
    * @brief Get most recently focused panel of a certain type
@@ -83,11 +85,6 @@ public:
    * The most recently focused panel of the specified type, or nullptr if none exists
    */
   T* MostRecentlyFocused();
-
-  /**
-   * @brief Get whether panels are currently prevented from moving
-   */
-  bool ArePanelsLocked();
 
   /**
    * @brief Create PanelManager singleton instance
@@ -135,11 +132,6 @@ public slots:
    */
   void FocusChanged(QWidget* old, QWidget* now);
 
-  /**
-   * @brief Sets whether panels should be prevented from moving
-   */
-  void SetPanelsLocked(bool locked);
-
 signals:
   /**
    * @brief Signal emitted when the currently focused panel changes
@@ -151,11 +143,6 @@ private:
    * @brief History array for traversing through (see MostRecentlyFocused())
    */
   QList<PanelWidget*> focus_history_;
-
-  /**
-   * @brief Internal panel movement is locked value
-   */
-  bool locked_;
 
   /**
    * @brief PanelManager singleton instance

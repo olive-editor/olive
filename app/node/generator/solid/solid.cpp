@@ -20,8 +20,6 @@
 
 #include "solid.h"
 
-#include "render/color.h"
-
 namespace olive {
 
 const QString SolidGenerator::kColorInput = QStringLiteral("color_in");

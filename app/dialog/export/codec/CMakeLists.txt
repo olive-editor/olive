@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  dialog/export/codec/av1section.cpp
+  dialog/export/codec/av1section.h
   dialog/export/codec/cineformsection.cpp
   dialog/export/codec/cineformsection.h
   dialog/export/codec/codecsection.cpp

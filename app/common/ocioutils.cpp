@@ -22,22 +22,22 @@
 
 namespace olive {
 
-OCIO::BitDepth OCIOUtils::GetOCIOBitDepthFromPixelFormat(VideoParams::Format format)
+OCIO::BitDepth OCIOUtils::GetOCIOBitDepthFromPixelFormat(PixelFormat format)
 {
   switch (format) {
-  case VideoParams::kFormatUnsigned8:
+  case PixelFormat::U8:
     return OCIO::BIT_DEPTH_UINT8;
-  case VideoParams::kFormatUnsigned16:
+  case PixelFormat::U16:
     return OCIO::BIT_DEPTH_UINT16;
     break;
-  case VideoParams::kFormatFloat16:
+  case PixelFormat::F16:
     return OCIO::BIT_DEPTH_F16;
     break;
-  case VideoParams::kFormatFloat32:
+  case PixelFormat::F32:
     return OCIO::BIT_DEPTH_F32;
     break;
-  case VideoParams::kFormatInvalid:
-  case VideoParams::kFormatCount:
+  case PixelFormat::INVALID:
+  case PixelFormat::COUNT:
     break;
   }
 

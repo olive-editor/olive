@@ -22,8 +22,8 @@
 
 namespace olive {
 
-TimeBasedPanel::TimeBasedPanel(const QString &object_name, QWidget *parent) :
-  PanelWidget(object_name, parent),
+TimeBasedPanel::TimeBasedPanel(const QString &object_name) :
+  PanelWidget(object_name),
   widget_(nullptr),
   show_and_raise_on_connect_(false)
 {

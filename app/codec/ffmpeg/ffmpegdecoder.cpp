@@ -42,7 +42,6 @@ extern "C" {
 #include "codec/planarfiledevice.h"
 #include "common/ffmpegutils.h"
 #include "common/filefunctions.h"
-#include "common/timecodefunctions.h"
 #include "render/renderer.h"
 #include "render/subtitleparams.h"
 
@@ -78,7 +77,7 @@ TexturePtr FFmpegDecoder::ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVi
 {
   // Determine native format
   AVPixelFormat ideal_fmt = FFmpegUtils::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(f->format));
-  VideoParams::Format native_fmt = GetNativePixelFormat(ideal_fmt);
+  PixelFormat native_fmt = GetNativePixelFormat(ideal_fmt);
   int native_channels = GetNativeChannelCount(ideal_fmt);
 
   // Set up video params
@@ -320,6 +319,8 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
     }
 
     // Dump it into the Footage object
+    int video_streams = 0, audio_streams = 0, still_streams = 0;
+
     for (unsigned int i=0;i<fmt_ctx->nb_streams;i++) {
 
       // FFmpeg AVStream
@@ -429,6 +430,12 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
 
           desc.AddVideoStream(stream);
 
+          if (image_is_still) {
+            still_streams++;
+          } else {
+            video_streams++;
+          }
+
         } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
           // Create an audio stream object
@@ -469,10 +476,12 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
           stream.set_stream_index(i);
           stream.set_channel_layout(channel_layout);
           stream.set_sample_rate(avstream->codecpar->sample_rate);
-          stream.set_format(AudioParams::kInternalFormat);
+          stream.set_format(FFmpegUtils::GetNativeSampleFormat(static_cast<AVSampleFormat>(avstream->codecpar->format)));
           stream.set_time_base(avstream->time_base);
           stream.set_duration(avstream->duration);
           desc.AddAudioStream(stream);
+
+          audio_streams++;
 
         } else if (avstream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE) {
 
@@ -508,6 +517,16 @@ FootageDescription FFmpegDecoder::Probe(const QString &filename, CancelAtom *can
     }
 
     desc.SetStreamCount(fmt_ctx->nb_streams);
+
+    if (video_streams == 0 && audio_streams > 0 && still_streams > 0) {
+      // This footage has no video streams, but has audio and image streams. We've probably
+      // imported a song with embedded album art that most people don't care about. We'll keep the
+      // stills referenced in case users do, but we'll default them to disabled so they're
+      // easier to work with.
+      for (VideoParams &vp : desc.GetVideoStreams()) {
+        vp.set_enabled(false);
+      }
+    }
 
   }
 
@@ -642,17 +661,17 @@ bool FFmpegDecoder::ConformAudioInternal(const QVector<QString> &filenames, cons
   return success;
 }
 
-VideoParams::Format FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
+PixelFormat FFmpegDecoder::GetNativePixelFormat(AVPixelFormat pix_fmt)
 {
   switch (pix_fmt) {
   case AV_PIX_FMT_RGB24:
   case AV_PIX_FMT_RGBA:
-    return VideoParams::kFormatUnsigned8;
+    return PixelFormat::U8;
   case AV_PIX_FMT_RGB48:
   case AV_PIX_FMT_RGBA64:
-    return VideoParams::kFormatUnsigned16;
+    return PixelFormat::U16;
   default:
-    return VideoParams::kFormatInvalid;
+    return PixelFormat::INVALID;
   }
 }
 

@@ -29,7 +29,7 @@ class SequenceViewerPanel : public ViewerPanel
 {
   Q_OBJECT
 public:
-  SequenceViewerPanel(QWidget* parent);
+  SequenceViewerPanel();
 
 public slots:
   void StartCapture(const TimeRange &time, const Track::Reference &track);

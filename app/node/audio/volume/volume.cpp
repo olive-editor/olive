@@ -37,7 +37,7 @@ VolumeNode::VolumeNode()
   SetInputProperty(kVolumeInput, QStringLiteral("min"), 0.0);
   SetInputProperty(kVolumeInput, QStringLiteral("view"), FloatSlider::kDecibel);
 
-  SetFlags(kAudioEffect);
+  SetFlag(kAudioEffect);
   SetEffectInput(kSamplesInput);
 }
 

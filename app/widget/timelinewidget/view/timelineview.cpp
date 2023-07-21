@@ -29,7 +29,6 @@
 
 #include "config/config.h"
 #include "common/qtutils.h"
-#include "common/timecodefunctions.h"
 #include "node/project/footage/footage.h"
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
@@ -106,9 +105,9 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
     Block* b = GetItemAtScenePos(timeline_event.GetFrame(), timeline_event.GetTrack().index());
     if (b) {
       setToolTip(tr("In: %1\nOut: %2\nDuration: %3").arg(
-                   Timecode::time_to_timecode(b->in(), timebase(), Core::instance()->GetTimecodeDisplay()),
-                   Timecode::time_to_timecode(b->out(), timebase(), Core::instance()->GetTimecodeDisplay()),
-                   Timecode::time_to_timecode(b->length(), timebase(), Core::instance()->GetTimecodeDisplay())
+                   QString::fromStdString(Timecode::time_to_timecode(b->in(), timebase(), Core::instance()->GetTimecodeDisplay())),
+                   QString::fromStdString(Timecode::time_to_timecode(b->out(), timebase(), Core::instance()->GetTimecodeDisplay())),
+                   QString::fromStdString(Timecode::time_to_timecode(b->length(), timebase(), Core::instance()->GetTimecodeDisplay()))
       ));
     } else {
       setToolTip(QString());
@@ -243,7 +242,7 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
           && !ghost->IsInvisible()) {
         int track_index = ghost->GetAdjustedTrack().index();
 
-        Block *attached = Node::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
+        Block *attached = QtUtils::ValueToPtr<Block>(ghost->GetData(TimelineViewGhostItem::kAttachedBlock));
 
         if (attached && OLIVE_CONFIG("ShowClipWhileDragging").toBool()) {
           int adj_track = ghost->GetAdjustedTrack().index();
@@ -416,7 +415,7 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
              block_right - block_left,
              block_height);
 
-    QColor shadow_color = block->is_enabled() ? block->color().toQColor().darker() : QColor(Qt::darkGray).darker();
+    QColor shadow_color = block->is_enabled() ? QtUtils::toQColor(block->color()).darker() : QColor(Qt::darkGray).darker();
 
     const qreal MINIMUM_RECT_WIDTH = 2;
     const qreal MINIMUM_DETAIL_WIDTH = 8;
@@ -475,45 +474,46 @@ void TimelineView::DrawBlock(QPainter *painter, bool foreground, Block *block, q
 
             // Draw clip thumbnails
             if (clip->GetTrackType() == Track::kVideo
-                && OLIVE_CONFIG("TimelineThumbnailMode").toInt() != Timeline::kThumbnailOff
-                && preview_rect.height() > r.height()/3) {
-              if (const FrameHashCache *thumbs = clip->thumbnails()) {
-                // Start thumbnails underneath clip name
-                preview_rect.adjust(0, text_total_height, 0, 0);
+                && OLIVE_CONFIG("TimelineThumbnailMode").toInt() != Timeline::kThumbnailOff) {
+              // Start thumbnails underneath clip name
+              preview_rect.adjust(0, text_total_height, 0, 0);
 
-                QRect thumb_rect;
-                painter->setRenderHint(QPainter::SmoothPixmapTransform);
-                painter->setClipRect(preview_rect);
+              if (preview_rect.height() > r.height()/3) {
+                if (const FrameHashCache *thumbs = clip->thumbnails()) {
+                  QRect thumb_rect;
+                  painter->setRenderHint(QPainter::SmoothPixmapTransform);
+                  painter->setClipRect(preview_rect);
 
-                if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
+                  if (OLIVE_CONFIG("TimelineThumbnailMode") == Timeline::kThumbnailOn) {
 
-                  Sequence *s = clip->track()->sequence();
-                  int width = s->GetVideoParams().width();
-                  int height = s->GetVideoParams().height();
-                  int start;
-                  if (height > 0) { // Prevent divide by zero/invalid params
-                    double scale = double(preview_rect.height())/double(height);
-                    thumb_rect.setWidth(width * scale);
-                    start = (((preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width()) * thumb_rect.width()) + qFloor(block_in);
+                    Sequence *s = clip->track()->sequence();
+                    int width = s->GetVideoParams().width();
+                    int height = s->GetVideoParams().height();
+                    int start;
+                    if (height > 0) { // Prevent divide by zero/invalid params
+                      double scale = double(preview_rect.height())/double(height);
+                      thumb_rect.setWidth(width * scale);
+                      start = (((preview_rect.left() - int(qFloor(block_in))) / thumb_rect.width()) * thumb_rect.width()) + qFloor(block_in);
+                    } else {
+                      start = preview_rect.left();
+                    }
+
+                    for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
+                      rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
+                      DrawThumbnail(painter, thumbs, time_here, i, preview_rect, &thumb_rect);
+                    }
+
                   } else {
-                    start = preview_rect.left();
+
+                    rational time = clip->media_range().in();
+                    time = Timecode::snap_time_to_timebase(time, thumbs->GetTimebase(), Timecode::kFloor);
+                    DrawThumbnail(painter, thumbs, time, block_left, preview_rect, &thumb_rect);
+
                   }
 
-                  for (int i=start; i<preview_rect.right(); i+=thumb_rect.width()+1) {
-                    rational time_here = SceneToTime(i - block_in, GetScale(), connected_track_list_->parent()->GetVideoParams().frame_rate_as_time_base()) + media_in;
-                    DrawThumbnail(painter, thumbs, time_here, i, preview_rect, &thumb_rect);
-                  }
-
-                } else {
-
-                  rational time = clip->media_range().in();
-                  time = Timecode::snap_time_to_timebase(time, thumbs->GetTimebase(), Timecode::kFloor);
-                  DrawThumbnail(painter, thumbs, time, block_left, preview_rect, &thumb_rect);
+                  painter->setClipping(false);
 
                 }
-
-                painter->setClipping(false);
-
               }
             }
 
@@ -865,6 +865,34 @@ Block *TimelineView::GetItemAtScenePos(const rational &time, int track_index) co
   }
 
   return nullptr;
+}
+
+QVector<Block *> TimelineView::GetItemsAtSceneRect(const QRectF &rect) const
+{
+  QVector<Block *> list;
+
+  if (connected_track_list_) {
+    rational start = this->SceneToTime(rect.left());
+    rational end = this->SceneToTime(rect.right());
+
+    for (int i = 0; i < connected_track_list_->GetTrackCount(); i++) {
+      Track *track = connected_track_list_->GetTrackAt(i);
+      int track_top = GetTrackY(i);
+      int track_bottom = track_top + GetTrackHeight(i);
+
+      if (track) {
+        if (!(track_bottom < rect.top() || track_top > rect.bottom())) {
+          Block *b = track->NearestBlockBeforeOrAt(start);
+          while (b && b->in() < end) {
+            list.append(b);
+            b = b->next();
+          }
+        }
+      }
+    }
+  }
+
+  return list;
 }
 
 void TimelineView::TrackListChanged()

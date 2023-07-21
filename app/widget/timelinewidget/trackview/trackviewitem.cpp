@@ -28,9 +28,9 @@
 #include <QtMath>
 
 #include "core.h"
+#include "timeline/timelineundogeneral.h"
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
-#include "widget/timelinewidget/undo/timelineundogeneral.h"
 
 namespace olive {
 
@@ -146,7 +146,7 @@ void TrackViewItem::ShowContextMenu(const QPoint &p)
 void TrackViewItem::DeleteTrack()
 {
   emit AboutToDeleteTrack(track_);
-  Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_));
+  Core::instance()->undo_stack()->push(new TimelineRemoveTrackCommand(track_), tr("Deleted Track \"%1\"").arg(track_->GetLabelOrName()));
 }
 
 void TrackViewItem::DeleteAllEmptyTracks()
@@ -172,7 +172,7 @@ void TrackViewItem::DeleteAllEmptyTracks()
       foreach (Track *track, tracks_to_remove) {
         command->add_child(new TimelineRemoveTrackCommand(track));
       }
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, tr("Deleted All Empty Tracks"));
     }
   }
 }

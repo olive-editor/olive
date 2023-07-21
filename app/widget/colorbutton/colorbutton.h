@@ -60,6 +60,8 @@ private:
 
   ColorProcessorPtr color_processor_;
 
+  bool dialog_open_;
+
 };
 
 }

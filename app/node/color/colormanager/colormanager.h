@@ -28,37 +28,15 @@
 #include "node/node.h"
 #include "render/colorprocessor.h"
 
-#define OCIO_SET_C_LOCALE_FOR_SCOPE ColorManager::SetLocale d("C")
-
 namespace olive {
 
-class ColorManager : public Node
+class ColorManager : public QObject
 {
   Q_OBJECT
 public:
-  ColorManager();
+  ColorManager(Project *project);
 
-  NODE_DEFAULT_FUNCTIONS(ColorManager)
-
-  virtual QString Name() const override
-  {
-    return tr("Color Manager");
-  }
-
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.colormanager");
-  }
-
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryColor};
-  }
-
-  virtual QString Description() const override
-  {
-    return tr("Color management configuration for project.");
-  }
+  void Init();
 
   OCIO::ConstConfigRcPtr GetConfig() const;
 
@@ -98,46 +76,19 @@ public:
 
   void GetDefaultLumaCoefs(double *rgb) const;
 
-  class SetLocale
-  {
-  public:
-    SetLocale(const char* new_locale);
+  Project *project() const;
 
-    ~SetLocale();
-
-  private:
-    QString old_locale_;
-
-  };
-
-  QMutex* mutex()
-  {
-    return &mutex_;
-  }
-
-  static const QString kConfigFilenameIn;
-  static const QString kDefaultColorspaceIn;
-  static const QString kReferenceSpaceIn;
-
-  virtual void Retranslate() override;
+  void UpdateConfigFromFilename();
 
 signals:
-  void ConfigChanged();
+  void ConfigChanged(const QString &s);
 
-protected:
-  virtual void InputValueChangedEvent(const QString &input, int element) override;
+  void ReferenceSpaceChanged(const QString &s);
+
+  void DefaultInputChanged(const QString &s);
 
 private:
-  enum ReferenceSpace {
-    kSceneLinear,
-    kCompositingLog
-  };
-
-  void SetConfig(OCIO::ConstConfigRcPtr config);
-
   OCIO::ConstConfigRcPtr config_;
-
-  QMutex mutex_;
 
   static OCIO::ConstConfigRcPtr default_config_;
 

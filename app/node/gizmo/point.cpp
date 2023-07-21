@@ -46,7 +46,7 @@ void PointGizmo::Draw(QPainter *p) const
   QRectF rect = GetDrawingRect(p->transform(), GetStandardRadius());
 
   if (shape_ != kAnchorPoint) {
-    p->setPen(Qt::NoPen);
+    p->setPen(QPen(Qt::black, 0));
     p->setBrush(Qt::white);
   }
 

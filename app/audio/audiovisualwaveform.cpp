@@ -24,7 +24,6 @@
 #include <QtGlobal>
 
 #include "config/config.h"
-#include "common/cpuoptimize.h"
 
 namespace olive {
 
@@ -385,6 +384,12 @@ AudioVisualWaveform::Sample AudioVisualWaveform::ReSumSamples(const SamplePerCha
   return summed_samples;
 }
 
+template <typename T>
+inline int round_away_from_zero(T t)
+{
+  return (t < 0) ? std::floor(t) : std::ceil(t);
+}
+
 void AudioVisualWaveform::DrawSample(QPainter *painter, const Sample& sample, int x, int y, int height, bool rectified)
 {
   if (sample.empty()) {
@@ -401,7 +406,7 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const Sample& sample, in
     if (rectified) {
       int channel_bottom = y + channel_height * (i + 1);
 
-      int diff = qRound((max - min) * channel_half_height);
+      int diff = round_away_from_zero((max - min) * channel_half_height);
 
       painter->drawLine(x,
                         channel_bottom - diff,
@@ -413,9 +418,9 @@ void AudioVisualWaveform::DrawSample(QPainter *painter, const Sample& sample, in
       // We subtract the sample so that positive Y values go up on the screen rather than down,
       // which is how waveforms are usually rendered
       painter->drawLine(x,
-                        channel_mid - qRound(min * static_cast<float>(channel_half_height)),
+                        channel_mid - round_away_from_zero(min * static_cast<float>(channel_half_height)),
                         x,
-                        channel_mid - qRound(max * static_cast<float>(channel_half_height)));
+                        channel_mid - round_away_from_zero(max * static_cast<float>(channel_half_height)));
     }
   }
 }
@@ -459,8 +464,8 @@ void AudioVisualWaveform::DrawWaveform(QPainter *painter, const QRect& rect, con
       break;
     }
 
-    next_sample_index = qMin(arr.size(),
-                             start_sample_index + qFloor(rate_dbl * static_cast<double>(i - rect.x() + 1) / scale) * samples.channel_count());
+    next_sample_index = std::min(arr.size(),
+                                 size_t(start_sample_index + std::floor(rate_dbl * static_cast<double>(i - rect.x() + 1) / scale) * samples.channel_count()));
 
     if (summary_index != sample_index) {
       summary = AudioVisualWaveform::ReSumSamples(&arr.at(sample_index),
@@ -480,7 +485,7 @@ size_t AudioVisualWaveform::time_to_samples(const rational &time, double sample_
 
 size_t AudioVisualWaveform::time_to_samples(const double &time, double sample_rate) const
 {
-  return qFloor(time * sample_rate) * channels_;
+  return std::floor(time * sample_rate) * channels_;
 }
 
 std::map<rational, AudioVisualWaveform::Sample>::const_iterator AudioVisualWaveform::GetMipmapForScale(double scale) const

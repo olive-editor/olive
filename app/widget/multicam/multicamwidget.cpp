@@ -19,10 +19,12 @@
 ***/
 
 #include "multicamwidget.h"
-#include "qshortcut.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+
+#include <QShortcut>
+
+#include "node/nodeundo.h"
+#include "timeline/timelineundosplit.h"
 #include "widget/timeruler/timeruler.h"
-#include "widget/timelinewidget/undo/timelineundosplit.h"
 
 namespace olive {
 
@@ -150,7 +152,7 @@ void MulticamWidget::Switch(int source, bool split_clip)
     }
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Switched Multi-Camera Source"));
 
   display_->update();
 

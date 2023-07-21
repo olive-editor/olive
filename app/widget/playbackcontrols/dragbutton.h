@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2023 Olive Studios LLC
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,10 +34,17 @@ public:
   DragButton(QWidget* parent = nullptr);
 
 signals:
-  void MousePressed();
+  void DragStarted();
 
 protected:
   virtual void mousePressEvent(QMouseEvent* event) override;
+
+  virtual void mouseMoveEvent(QMouseEvent* event) override;
+
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+private:
+  bool dragging_;
 
 };
 

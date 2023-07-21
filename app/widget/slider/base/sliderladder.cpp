@@ -31,7 +31,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-#include "common/clamp.h"
 #include "common/lerp.h"
 #include "common/qtutils.h"
 #include "config/config.h"
@@ -211,6 +210,9 @@ void SliderLadder::TimerUpdate()
         int right = screen_->geometry().right();
         int width = right - left;
         if (now_pos <= left || now_pos >= right) {
+          int orig_now_pos = now_pos;
+          int orig_wrap = wrap_count_;
+
           if (now_pos <= left) {
             wrap_count_--;
             now_pos += width;
@@ -218,7 +220,13 @@ void SliderLadder::TimerUpdate()
             wrap_count_++;
             now_pos -= width;
           }
-          QCursor::setPos(now_pos, QCursor::pos().y());
+
+          QPoint p(now_pos, QCursor::pos().y());
+          QCursor::setPos(p);
+          if (QCursor::pos() != p) {
+            wrap_count_ = orig_wrap;
+            now_pos = orig_now_pos;
+          }
         }
       }
 

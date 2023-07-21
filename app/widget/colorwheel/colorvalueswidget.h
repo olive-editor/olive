@@ -27,7 +27,6 @@
 
 #include "colorpreviewbox.h"
 #include "node/color/colormanager/colormanager.h"
-#include "render/color.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/stringslider.h"
 

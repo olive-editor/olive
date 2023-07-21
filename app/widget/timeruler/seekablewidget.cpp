@@ -30,10 +30,10 @@
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/serializer/serializer.h"
+#include "timeline/timelineundoworkarea.h"
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menushared.h"
 #include "widget/timebased/timebasedwidget.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -116,17 +116,17 @@ void SeekableWidget::DeleteSelected()
       command->add_child(new MarkerRemoveCommand(marker));
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Deleted %1 Marker(s)").arg(selection_manager_.GetSelectedObjects().size()));
   }
 }
 
 bool SeekableWidget::CopySelected(bool cut)
 {
   if (!selection_manager_.GetSelectedObjects().empty()) {
-    ProjectSerializer::SaveData sdata;
+    ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyMarkers);
     sdata.SetOnlySerializeMarkers(selection_manager_.GetSelectedObjects());
 
-    ProjectSerializer::Copy(sdata, QStringLiteral("markers"));
+    ProjectSerializer::Copy(sdata);
 
     if (cut) {
       DeleteSelected();
@@ -140,7 +140,7 @@ bool SeekableWidget::CopySelected(bool cut)
 
 bool SeekableWidget::PasteMarkers()
 {
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("markers"));
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyMarkers);
   if (res == ProjectSerializer::kSuccess) {
     const std::vector<TimelineMarker*> &markers = res.GetLoadData().markers;
     if (!markers.empty()) {
@@ -165,7 +165,7 @@ bool SeekableWidget::PasteMarkers()
         command->add_child(new MarkerAddCommand(markers_, m));
       }
 
-      Core::instance()->undo_stack()->push(command);
+      Core::instance()->undo_stack()->push(command, tr("Pasted %1 Marker(s)").arg(markers.size()));
       return true;
     }
   }
@@ -206,10 +206,10 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
   if (HandMove(event)) {
     return;
   } else if (selection_manager_.IsRubberBanding()) {
-    selection_manager_.RubberBandMove(event);
+    selection_manager_.RubberBandMove(event->pos());
     viewport()->update();
   } else if (selection_manager_.IsDragging()) {
-    selection_manager_.DragMove(event);
+    selection_manager_.DragMove(event->pos());
   } else if (dragging_) {
     QPointF scene = mapToScene(event->pos());
     if (resize_item_) {
@@ -228,6 +228,11 @@ void SeekableWidget::mouseMoveEvent(QMouseEvent *event)
       ClearResizeHandle();
     }
   }
+
+  if (event->buttons()) {
+    // Signal cursor pos in case we should scroll to catch up to it
+    emit DragMoved(event->pos().x(), event->pos().y());
+  }
 }
 
 void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -244,7 +249,7 @@ void SeekableWidget::mouseReleaseEvent(QMouseEvent *event)
   if (selection_manager_.IsDragging()) {
     MultiUndoCommand *command = new MultiUndoCommand();
     selection_manager_.DragStop(command);
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Moved %1 Marker(s)").arg(selection_manager_.GetSelectedObjects().size()));
   }
 
   if (GetSnapService()) {
@@ -359,7 +364,7 @@ void SeekableWidget::SetMarkerColor(int c)
     command->add_child(new MarkerChangeColorCommand(marker, c));
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, tr("Changed Color of %1 Marker(s)").arg(selection_manager_.GetSelectedObjects().size()));
 }
 
 void SeekableWidget::ShowMarkerProperties()
@@ -411,6 +416,13 @@ void SeekableWidget::SelectionManagerDeselectEvent(void *obj)
   super::SelectionManagerDeselectEvent(obj);
 
   viewport()->update();
+}
+
+void SeekableWidget::CatchUpScrollEvent()
+{
+  super::CatchUpScrollEvent();
+
+  this->selection_manager_.ForceDragUpdate();
 }
 
 void SeekableWidget::DrawPlayhead(QPainter *p, int x, int y)
@@ -596,13 +608,17 @@ void SeekableWidget::CommitResizeHandle()
 {
   MultiUndoCommand *command = new MultiUndoCommand();
 
+  QString command_name;
+
   if (TimelineMarker *marker = dynamic_cast<TimelineMarker*>(resize_item_)) {
     command->add_child(new MarkerChangeTimeCommand(marker, marker->time(), resize_item_range_));
+    command_name = tr("Changed Marker Length");
   } else if (TimelineWorkArea *workarea = dynamic_cast<TimelineWorkArea*>(resize_item_)) {
     command->add_child(new WorkareaSetRangeCommand(workarea, workarea->range(), resize_item_range_));
+    command_name = tr("Changed Workarea Length");
   }
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, command_name);
 }
 
 }

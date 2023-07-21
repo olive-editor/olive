@@ -91,13 +91,11 @@ set (_crashpad_required
 )
 
 if (WIN32 OR (UNIX AND NOT APPLE))
-  set (_crashpad_components
-    ${_crashpad_components}
+  list(APPEND _crashpad_components
     compat/compat
   )
 
-  set (_crashpad_required
-    ${_crashpad_required}
+  list(APPEND _crashpad_required
     CRASHPAD_COMPAT_LIB
   )
 endif()
@@ -118,36 +116,18 @@ foreach (COMPONENT ${_crashpad_components})
 endforeach()
 
 if (APPLE)
-  # macOS requires a bunch of extra loose object files that aren't made into static libraries
-  # See: https://groups.google.com/a/chromium.org/g/crashpad-dev/c/XVggc7kvlNs/m/msMjHS4KAQAJ
-  set (_crashpad_mach_loose_objects
-    child_portServer
-    #mach_excServer
-    child_portUser
-    #mach_excUser
-    excServer
-    notifyServer
-    excUser
-    notifyUser
+  list(APPEND _crashpad_required
+    MIG_OUTPUT_LIB
   )
 
-  foreach (COMPONENT ${_crashpad_mach_loose_objects})
-    string(TOUPPER ${COMPONENT} UPPER_COMPONENT)
-    set(LIB_NAME CRASHPAD_MACH_${UPPER_COMPONENT}_LIB)
-    find_file(${LIB_NAME}
-      NAMES
-        mig_output.${COMPONENT}.o
-      HINTS
-        "${CRASHPAD_LIBRARY_DIRS}/obj/out/Default/gen/util/mach"
-    )
+  find_library(MIG_OUTPUT_LIB
+    NAMES
+      mig_output
+    HINTS
+      "${CRASHPAD_LIBRARY_DIRS}/obj/util"
+  )
 
-    set (_crashpad_required
-      ${_crashpad_required}
-      ${LIB_NAME}
-    )
-
-    list(APPEND CRASHPAD_LIBRARIES ${${LIB_NAME}})
-  endforeach()
+  list(APPEND CRASHPAD_LIBRARIES ${MIG_OUTPUT_LIB})
 
   list(APPEND CRASHPAD_LIBRARIES
     bsm

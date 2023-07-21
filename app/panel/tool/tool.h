@@ -21,7 +21,7 @@
 #ifndef TOOL_PANEL_H
 #define TOOL_PANEL_H
 
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 
 namespace olive {
 
@@ -32,7 +32,7 @@ class ToolPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  ToolPanel(QWidget* parent);
+  ToolPanel();
 
 private:
   virtual void Retranslate() override;

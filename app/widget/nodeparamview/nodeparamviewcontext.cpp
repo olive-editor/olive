@@ -24,7 +24,7 @@
 
 #include "node/block/clip/clip.h"
 #include "node/factory.h"
-#include "widget/nodeview/nodeviewundo.h"
+#include "node/nodeundo.h"
 
 namespace olive {
 
@@ -157,7 +157,7 @@ void NodeParamViewContext::AddEffectMenuItemTriggered(QAction *a)
     NodeInput new_node_input = n->GetEffectInput();
     MultiUndoCommand *command = new MultiUndoCommand();
 
-    QVector<NodeGraph*> graphs_added_to;
+    QVector<Project*> graphs_added_to;
 
     foreach (Node *ctx, contexts_) {
       NodeInput ctx_input = ctx->GetEffectInput();
@@ -180,7 +180,7 @@ void NodeParamViewContext::AddEffectMenuItemTriggered(QAction *a)
       command->add_child(new NodeEdgeAddCommand(n, ctx_input));
     }
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Added %1 to Node Chain").arg(n->Name()));
   }
 }
 

@@ -21,7 +21,7 @@
 #ifndef TIMEBASEDPANEL_H
 #define TIMEBASEDPANEL_H
 
-#include "widget/panel/panel.h"
+#include "panel/panel.h"
 #include "widget/timebased/timebasedwidget.h"
 
 namespace olive {
@@ -30,7 +30,7 @@ class TimeBasedPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  TimeBasedPanel(const QString& object_name, QWidget *parent = nullptr);
+  TimeBasedPanel(const QString& object_name);
 
   virtual ~TimeBasedPanel() override;
 

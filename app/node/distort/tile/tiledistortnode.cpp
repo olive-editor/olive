@@ -48,7 +48,7 @@ TileDistortNode::TileDistortNode()
   AddInput(kMirrorXInput, NodeValue::kBoolean, false);
   AddInput(kMirrorYInput, NodeValue::kBoolean, false);
 
-  SetFlags(kVideoEffect);
+  SetFlag(kVideoEffect);
   SetEffectInput(kTextureInput);
 
   gizmo_ = AddDraggableGizmo<PointGizmo>({

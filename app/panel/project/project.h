@@ -22,8 +22,8 @@
 #define PROJECT_PANEL_H
 
 #include "footagemanagementpanel.h"
-#include "node/project/project.h"
-#include "widget/panel/panel.h"
+#include "node/project.h"
+#include "panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
 namespace olive {
@@ -35,7 +35,7 @@ class ProjectPanel : public PanelWidget, public FootageManagementPanel
 {
   Q_OBJECT
 public:
-  ProjectPanel(QWidget* parent);
+  ProjectPanel(const QString &unique_name);
 
   Project* project() const;
   void set_project(Project* p);

@@ -22,7 +22,7 @@
 
 #include "core.h"
 #include "node.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "nodeundo.h"
 
 namespace olive {
 

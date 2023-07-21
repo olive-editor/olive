@@ -34,10 +34,9 @@
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/generator/matrix/matrix.h"
 #include "node/math/math/math.h"
+#include "node/nodeundo.h"
 #include "node/project/sequence/sequence.h"
-#include "widget/nodeparamview/nodeparamviewundo.h"
-#include "widget/nodeview/nodeviewundo.h"
-#include "widget/timelinewidget/undo/timelineundopointer.h"
+#include "timeline/timelineundopointer.h"
 #include "window/mainwindow/mainwindow.h"
 #include "window/mainwindow/mainwindowundo.h"
 
@@ -150,9 +149,9 @@ void ImportTool::DragMove(TimelineViewMouseEvent *event)
 
       // Generate tooltip (showing earliest in point of imported clip)
       rational tooltip_timebase = parent()->GetTimebaseForTrackType(event->GetTrack().type());
-      QString tooltip_text = Timecode::time_to_timecode(earliest_ghost,
-                                                        tooltip_timebase,
-                                                        Core::instance()->GetTimecodeDisplay());
+      QString tooltip_text = QString::fromStdString(Timecode::time_to_timecode(earliest_ghost,
+                                                                               tooltip_timebase,
+                                                                               Core::instance()->GetTimecodeDisplay()));
 
       // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
       // of the cursor)
@@ -185,7 +184,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   if (!dragged_footage_.isEmpty()) {
     auto command = new MultiUndoCommand();
     DropGhosts(event->GetModifiers() & Qt::ControlModifier, command);
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, qApp->translate("ImportTool", "Dropped Footage Into Sequence"));
 
     event->accept();
   } else {
@@ -193,7 +192,7 @@ void ImportTool::DragDrop(TimelineViewMouseEvent *event)
   }
 }
 
-void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset)
+void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset, bool jump_to_end)
 {
   DraggedFootageData refs;
 
@@ -201,10 +200,10 @@ void ImportTool::PlaceAt(const QVector<ViewerOutput *> &footage, const rational 
     refs.append({f, f->GetEnabledStreamsAsReferences()});
   }
 
-  PlaceAt(refs, start, insert, command, track_offset);
+  PlaceAt(refs, start, insert, command, track_offset, jump_to_end);
 }
 
-void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset)
+void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &start, bool insert, MultiUndoCommand *command, int track_offset, bool jump_to_end)
 {
   dragged_footage_ = footage;
 
@@ -213,7 +212,19 @@ void ImportTool::PlaceAt(const DraggedFootageData &footage, const rational &star
   }
 
   PrepGhosts(start, track_offset);
+
+  rational max(0);
+  if (jump_to_end) {
+    for (TimelineViewGhostItem* ghost : parent()->GetGhostItems()) {
+      max = std::max(max, ghost->GetAdjustedOut());
+    }
+  }
+
   DropGhosts(insert, command);
+
+  if (jump_to_end) {
+    this->sequence()->SetPlayhead(max);
+  }
 }
 
 void ImportTool::FootageToGhosts(rational ghost_start, const DraggedFootageData &sorted, const rational& dest_tb, const int& track_start)
@@ -302,7 +313,7 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
     command->add_child(c);
   }
 
-  NodeGraph* dst_graph = nullptr;
+  Project* dst_graph = nullptr;
   Sequence* sequence = this->sequence();
   bool open_sequence = false;
 
@@ -425,7 +436,6 @@ void ImportTool::DropGhosts(bool insert, MultiUndoCommand *parent_command)
         ClipBlock* clip = new ClipBlock();
         block = clip;
         clip->set_media_in(ghost->GetMediaIn());
-        clip->SetLabel(footage_stream.footage->GetLabel());
         command->add_child(new NodeAddCommand(dst_graph, clip));
 
         // Position clip in its own context

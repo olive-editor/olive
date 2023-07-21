@@ -26,10 +26,8 @@
 #include <QVariant>
 #include <QVector>
 
-#include "codec/samplebuffer.h"
-#include "common/bezier.h"
+#include "common/qtutils.h"
 #include "node/splitvalue.h"
-#include "render/color.h"
 #include "render/texture.h"
 
 namespace olive {
@@ -190,6 +188,11 @@ public:
     kSubtitleParams,
 
     /**
+     * Binary Data
+     */
+    kBinary,
+
+    /**
      * End of list
      */
     kDataTypeCount
@@ -338,9 +341,9 @@ public:
   bool toBool() const { return value<bool>(); }
   double toDouble() const { return value<double>(); }
   int64_t toInt() const { return value<int64_t>(); }
-  rational toRational() const { return value<rational>(); }
+  rational toRational() const { return value<olive::core::rational>(); }
   QString toString() const { return value<QString>(); }
-  Color toColor() const { return value<Color>(); }
+  Color toColor() const { return value<olive::core::Color>(); }
   QMatrix4x4 toMatrix() const { return value<QMatrix4x4>(); }
   VideoParams toVideoParams() const { return value<VideoParams>(); }
   AudioParams toAudioParams() const { return value<AudioParams>(); }

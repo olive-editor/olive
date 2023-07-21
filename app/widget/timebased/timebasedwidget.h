@@ -141,7 +141,6 @@ protected:
   void ConnectTimelineView(TimeBasedView* base);
 
   void SetCatchUpScrollValue(QScrollBar *b, int v, int maximum);
-  void SetCatchUpScrollValue(int v);
   void StopCatchUpScrollTimer(QScrollBar *b);
 
   virtual const QVector<Block*> *GetSnapBlocks() const { return nullptr; }
@@ -169,10 +168,15 @@ protected slots:
     StopCatchUpScrollTimer(scrollbar_);
   }
 
+  void SetCatchUpScrollValue(int v);
+
 signals:
   void TimebaseChanged(const rational&);
 
   void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
+
+protected slots:
+  virtual void SendCatchUpScrollEvent();
 
 private:
   /**

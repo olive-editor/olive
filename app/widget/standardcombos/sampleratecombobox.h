@@ -21,11 +21,14 @@
 #ifndef SAMPLERATECOMBOBOX_H
 #define SAMPLERATECOMBOBOX_H
 
+#include <olive/core/core.h>
 #include <QComboBox>
 
-#include "render/audioparams.h"
+#include "ui/humanstrings.h"
 
 namespace olive {
+
+using namespace core;
 
 class SampleRateComboBox : public QComboBox
 {
@@ -35,7 +38,7 @@ public:
     QComboBox(parent)
   {
     foreach (int sr, AudioParams::kSupportedSampleRates) {
-      this->addItem(AudioParams::SampleRateToString(sr), sr);
+      this->addItem(HumanStrings::SampleRateToString(sr), sr);
     }
   }
 

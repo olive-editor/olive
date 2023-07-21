@@ -28,11 +28,12 @@
 
 #include "common/qtutils.h"
 #include "core.h"
+#include "node/group/group.h"
 #include "node/node.h"
+#include "node/nodeundo.h"
 #include "node/project/sequence/sequence.h"
 #include "nodeparamviewarraywidget.h"
 #include "nodeparamviewtextedit.h"
-#include "nodeparamviewundo.h"
 #include "undo/undostack.h"
 #include "widget/bezier/bezierwidget.h"
 #include "widget/colorbutton/colorbutton.h"
@@ -85,6 +86,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     case NodeValue::kVideoParams:
     case NodeValue::kAudioParams:
     case NodeValue::kSubtitleParams:
+    case NodeValue::kBinary:
     case NodeValue::kDataTypeCount:
       break;
     case NodeValue::kInt:
@@ -188,7 +190,7 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
   SetInputValueInternal(value, track, command, true);
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, GetCommandName());
 }
 
 void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key)
@@ -216,7 +218,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(NumericSliderBase *slider, int sli
 
     MultiUndoCommand *command = new MultiUndoCommand();
     dragger_.End(command);
-    Core::instance()->undo_stack()->push(command);
+    Core::instance()->undo_stack()->push(command, GetCommandName());
 
   } else {
 
@@ -237,6 +239,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kSubtitleParams:
+  case NodeValue::kBinary:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -311,7 +314,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     n->SetInputProperty(GetInnerInput().input(), QStringLiteral("col_look"), c.color_output().look());
     n->blockSignals(false);
 
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, GetCommandName());
     break;
   }
   case NodeValue::kText:
@@ -415,6 +418,7 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeValue::kVideoParams:
   case NodeValue::kAudioParams:
   case NodeValue::kSubtitleParams:
+  case NodeValue::kBinary:
   case NodeValue::kDataTypeCount:
     break;
   case NodeValue::kInt:
@@ -526,6 +530,12 @@ rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
   } else {
     return 0;
   }
+}
+
+QString NodeParamViewWidgetBridge::GetCommandName() const
+{
+  NodeInput i = GetInnerInput();
+  return tr("Edited Value Of %1 - %2").arg(i.node()->GetLabelAndName(), i.node()->GetInputName(i.input()));
 }
 
 void NodeParamViewWidgetBridge::SetTimebase(const rational& timebase)

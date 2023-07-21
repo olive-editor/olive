@@ -21,7 +21,7 @@
 #ifndef PROJECTSAVEMANAGER_H
 #define PROJECTSAVEMANAGER_H
 
-#include "node/project/project.h"
+#include "node/project.h"
 #include "task/task.h"
 
 namespace olive {
@@ -30,7 +30,7 @@ class ProjectSaveTask : public Task
 {
   Q_OBJECT
 public:
-  ProjectSaveTask(Project* project);
+  ProjectSaveTask(Project* project, bool use_compression);
 
   Project* GetProject() const
   {
@@ -42,6 +42,11 @@ public:
     override_filename_ = filename;
   }
 
+  void SetLayout(const MainWindowLayoutInfo &layout)
+  {
+    layout_ = layout;
+  }
+
 protected:
   virtual bool Run() override;
 
@@ -49,6 +54,10 @@ private:
   Project* project_;
 
   QString override_filename_;
+
+  bool use_compression_;
+
+  MainWindowLayoutInfo layout_;
 
 };
 

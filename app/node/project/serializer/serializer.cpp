@@ -26,11 +26,13 @@
 
 #include "common/xmlutils.h"
 #include "core.h"
+#include "node/group/group.h"
 #include "serializer190219.h"
 #include "serializer210528.h"
 #include "serializer210907.h"
 #include "serializer211228.h"
 #include "serializer220403.h"
+#include "serializer230220.h"
 
 namespace olive {
 
@@ -47,6 +49,7 @@ void ProjectSerializer::Initialize()
   instances_.append(new ProjectSerializer210907);
   instances_.append(new ProjectSerializer211228);
   instances_.append(new ProjectSerializer220403);
+  instances_.append(new ProjectSerializer230220);
 }
 
 void ProjectSerializer::Destroy()
@@ -55,14 +58,25 @@ void ProjectSerializer::Destroy()
   instances_.clear();
 }
 
-ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QString &filename, const QString &type)
+ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QString &filename, LoadType load_type)
 {
   QFile project_file(filename);
 
-  if (project_file.open(QFile::ReadOnly | QFile::Text)) {
-    QXmlStreamReader reader(&project_file);
+  if (project_file.open(QFile::ReadOnly)) {
+    // Some project files are compressed, marked with "OVEC" at the beginning of the file. Check for
+    // that signature now.
+    std::unique_ptr<QXmlStreamReader> reader;
+    if (CheckCompressedID(&project_file)) {
+      // File is compressed, decompress into memory
+      QByteArray b;
+      b = qUncompress(project_file.readAll());
+      reader.reset(new QXmlStreamReader(b));
+    } else {
+      project_file.seek(0);
+      reader.reset(new QXmlStreamReader(&project_file));
+    }
 
-    Result inner_result = Load(project, &reader, type);
+    Result inner_result = Load(project, reader.get(), load_type);
 
     project_file.close();
 
@@ -70,19 +84,19 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, const QStrin
       return inner_result;
     }
 
-    if (reader.hasError()) {
+    if (reader->hasError()) {
       Result r(kXmlError);
-      r.SetDetails(reader.errorString());
+      r.SetDetails(reader->errorString());
       return r;
     } else {
-      return kSuccess;
+      return inner_result;
     }
   } else {
     return kFileError;
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamReader *reader, const QString &type)
+ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamReader *reader, LoadType load_type)
 {
   // Determine project version
   uint version = 0;
@@ -92,24 +106,28 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
     if (reader->name() == QStringLiteral("olive")
         || reader->name() == QStringLiteral("project")) { // 0.1 projects only
 
-      while (XMLReadNextStartElement(reader)) {
-        if (reader->name() == QStringLiteral("version")) {
-          version = reader->readElementText().toUInt();
-        } else if (reader->name() == QStringLiteral("url")) {
-          project->SetSavedURL(reader->readElementText());
-
-          // HACK for 0.1 projects
-          if (version == 190219) {
-            res = LoadWithSerializerVersion(version, project, reader);
-          }
-        } else if (reader->name() == type) {
-          // Found our data
-          res = LoadWithSerializerVersion(version, project, reader);
-        } else {
-          reader->skipCurrentElement();
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("version")) { // 230220+ projects
+          version = attr.value().toUInt();
+        } else if (reader->name() == QStringLiteral("url")) { // 230220+ projects
+          project->SetSavedURL(attr.value().toString());
         }
       }
 
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("version")) { // projects <= 220403
+          version = reader->readElementText().toUInt();
+        } else if (reader->name() == QStringLiteral("url")) { // projects <= 220403
+          if (project) {
+            project->SetSavedURL(reader->readElementText());
+          } else {
+            reader->skipCurrentElement();
+          }
+        } else {
+          // Handle any other value with the serializer
+          res = LoadWithSerializerVersion(version, project, reader, load_type);
+        }
+      }
     } else {
       reader->skipCurrentElement();
     }
@@ -118,7 +136,7 @@ ProjectSerializer::Result ProjectSerializer::Load(Project *project, QXmlStreamRe
   return res;
 }
 
-ProjectSerializer::Result ProjectSerializer::Paste(const QString &type)
+ProjectSerializer::Result ProjectSerializer::Paste(LoadType load_type, Project *project)
 {
   QString clipboard = Core::PasteStringFromClipboard();
   if (clipboard.isEmpty()) {
@@ -127,41 +145,31 @@ ProjectSerializer::Result ProjectSerializer::Paste(const QString &type)
 
   QXmlStreamReader reader(clipboard);
 
-  Project temp;
-  ProjectSerializer::Result res = ProjectSerializer::Load(&temp, &reader, type);
-
-  if (res.code() != ProjectSerializer::kSuccess) {
-    return res;
-  }
-
-  QVector<Node*> pasted_nodes;
-  foreach (Node *n, temp.nodes()) {
-    if (!temp.default_nodes().contains(n)) {
-      // Move nodes out of Project
-      n->setParent(nullptr);
-      pasted_nodes.append(n);
-    }
-  }
-
-  res.SetLoadedNodes(pasted_nodes);
-
-  return res;
+  return ProjectSerializer::Load(project, &reader, load_type);
 }
 
-ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QString &type)
+ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, bool compress)
 {
   QString temp_save = FileFunctions::GetSafeTemporaryFilename(data.GetFilename());
 
   QFile project_file(temp_save);
 
-  if (project_file.open(QFile::WriteOnly | QFile::Text)) {
-    QXmlStreamWriter writer(&project_file);
+  if (project_file.open(QFile::WriteOnly)) {
+    QByteArray b;
+    QXmlStreamWriter writer(&b);
 
-    Result inner_result = Save(&writer, data, type);
+    Result inner_result = Save(&writer, data);
 
     if (writer.hasError()) {
       Result r(kXmlError);
       return r;
+    }
+
+    if (compress) {
+      project_file.write("OVEC");
+      project_file.write(qCompress(b));
+    } else {
+      project_file.write(b);
     }
 
     project_file.close();
@@ -185,7 +193,7 @@ ProjectSerializer::Result ProjectSerializer::Save(const SaveData &data, const QS
   }
 }
 
-ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, const SaveData &data, const QString &type)
+ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, const SaveData &data)
 {
   writer->setAutoFormatting(true);
 
@@ -199,17 +207,13 @@ ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, cons
 
   // Version is stored in YYMMDD from whenever the project format was last changed
   // Allows easy integer math for checking project versions.
-  writer->writeTextElement(QStringLiteral("version"), QString::number(serializer->Version()));
+  writer->writeAttribute(QStringLiteral("version"), QString::number(serializer->Version()));
 
   if (!data.GetFilename().isEmpty()) {
-    writer->writeTextElement("url", data.GetFilename());
+    writer->writeAttribute("url", data.GetFilename());
   }
 
-  writer->writeStartElement(type);
-
   serializer->Save(writer, data, nullptr);
-
-  writer->writeEndElement(); // [type]
 
   writer->writeEndElement(); // olive
 
@@ -222,12 +226,12 @@ ProjectSerializer::Result ProjectSerializer::Save(QXmlStreamWriter *writer, cons
   return kSuccess;
 }
 
-ProjectSerializer::Result ProjectSerializer::Copy(const SaveData &data, const QString &type)
+ProjectSerializer::Result ProjectSerializer::Copy(const SaveData &data)
 {
   QString copy_str;
   QXmlStreamWriter writer(&copy_str);
 
-  ProjectSerializer::Result res = ProjectSerializer::Save(&writer, data, type);
+  ProjectSerializer::Result res = ProjectSerializer::Save(&writer, data);
 
   if (res == kSuccess) {
     Core::CopyStringToClipboard(copy_str);
@@ -236,12 +240,18 @@ ProjectSerializer::Result ProjectSerializer::Copy(const SaveData &data, const QS
   return res;
 }
 
+bool ProjectSerializer::CheckCompressedID(QFile *file)
+{
+  QByteArray b = file->read(4);
+  return !memcmp(b.data(), "OVEC", 4);
+}
+
 bool ProjectSerializer::IsCancelled() const
 {
   return false;
 }
 
-ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader)
+ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint version, Project *project, QXmlStreamReader *reader, LoadType load_type)
 {
   // Failed to find version in file
   if (version == 0) {
@@ -263,7 +273,7 @@ ProjectSerializer::Result ProjectSerializer::LoadWithSerializerVersion(uint vers
   }
 
   if (serializer) {
-    LoadData ld = serializer->Load(project, reader, nullptr);
+    LoadData ld = serializer->Load(project, reader, load_type, nullptr);
     Result r(kSuccess);
     if (reader->hasError()) {
       r = Result(kXmlError);

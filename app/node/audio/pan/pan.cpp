@@ -38,7 +38,7 @@ PanNode::PanNode()
   SetInputProperty(kPanningInput, QStringLiteral("max"), 1.0);
   SetInputProperty(kPanningInput, QStringLiteral("view"), FloatSlider::kPercentage);
 
-  SetFlags(kAudioEffect);
+  SetFlag(kAudioEffect);
   SetEffectInput(kSamplesInput);
 }
 

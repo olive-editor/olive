@@ -26,11 +26,11 @@
 
 namespace olive {
 
-ScopePanel::ScopePanel(QWidget* parent) :
-  PanelWidget(QStringLiteral("ScopePanel"), parent),
+ScopePanel::ScopePanel() :
+  PanelWidget(QStringLiteral("ScopePanel")),
   viewer_(nullptr)
 {
-  QWidget* central = new QWidget();
+  QWidget* central = new QWidget(this);
   setWidget(central);
 
   QVBoxLayout* layout = new QVBoxLayout(central);

@@ -132,6 +132,30 @@ public:
     return QCoreApplication::translate("Tool", "Unknown");
   }
 
+  static QString GetAddableObjectID(const AddableObject& a)
+  {
+    switch (a) {
+    case kAddableEmpty:
+      return QStringLiteral("empty");
+    case kAddableBars:
+      return QStringLiteral("bars");
+    case kAddableShape:
+      return QStringLiteral("shape");
+    case kAddableSolid:
+      return QStringLiteral("solid");
+    case kAddableTitle:
+      return QStringLiteral("title");
+    case kAddableTone:
+      return QStringLiteral("tone");
+    case kAddableSubtitle:
+      return QStringLiteral("subtitle");
+    case kAddableCount:
+      break;
+    }
+
+    return QString();
+  }
+
 };
 
 }

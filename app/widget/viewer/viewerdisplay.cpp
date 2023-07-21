@@ -437,6 +437,7 @@ void ViewerDisplayWidget::OnPaint()
         ctj.SetClearDestinationEnabled(false);
         ctj.SetTransformMatrix(combined_matrix_flipped_);
         ctj.SetCropMatrix(crop_matrix_);
+        ctj.SetForceOpaque(true);
 
         renderer()->BlitColorManaged(ctj, device_params);
       }
@@ -677,6 +678,10 @@ QTransform ViewerDisplayWidget::GenerateGizmoTransform(NodeTraverser &gt, const 
 
 NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPointF &p)
 {
+  if (!gizmos_) {
+    return nullptr;
+  }
+
   for (auto it=gizmos_->GetGizmos().crbegin(); it!=gizmos_->GetGizmos().crend(); it++) {
     NodeGizmo *gizmo = *it;
     if (gizmo->IsVisible()) {
@@ -704,7 +709,11 @@ NodeGizmo *ViewerDisplayWidget::TryGizmoPress(const NodeValueRow &row, const QPo
 
 void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
 {
+  GenerateGizmoTransforms();
+  gizmos_->UpdateGizmoPositions(gizmo_db_, NodeGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, LoopMode::kLoopModeOff));
+
   active_text_gizmo_ = text;
+  connect(active_text_gizmo_, &TextGizmo::RectChanged, this, &ViewerDisplayWidget::UpdateActiveTextGizmoSize);
   text_transform_ = GenerateGizmoTransform();
   text_transform_inverted_ = text_transform_.inverted();
 
@@ -736,9 +745,7 @@ void ViewerDisplayWidget::OpenTextGizmo(TextGizmo *text, QMouseEvent *event)
   connect(text_edit_, &ViewerTextEditor::destroyed, this, &ViewerDisplayWidget::TextEditDestroyed);
 
   // Set text editor's size to logical size
-  QRectF text_rect = text->GetRect();
-  text_edit_pos_ = text_rect.topLeft();
-  text_edit_->setGeometry(text_rect.toRect());
+  QRectF text_rect = UpdateActiveTextGizmoSize();
 
   // Emit text gizmo activation signal
   emit text->Activated();
@@ -808,9 +815,9 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
 
     return true;
 
-  } else if (text_edit_) {
+  } else if (text_edit_ && ForwardMouseEventToTextEdit(event, true)) {
 
-    return ForwardMouseEventToTextEdit(event, true);
+    return true;
 
   } else if (event->button() == Qt::LeftButton) {
 
@@ -821,8 +828,7 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       add_band_end_ = add_band_start_;
       add_band_ = true;
 
-    } else if (gizmos_
-               && (current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
+    } else if ((current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
 
       // Handle gizmo click
       gizmo_start_drag_ = event->pos();
@@ -856,18 +862,9 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
     return true;
 
-  } else if (text_edit_) {
+  } else if (text_edit_ && ForwardMouseEventToTextEdit(event)) {
 
-    if (event->buttons() == Qt::NoButton) {
-      QPointF mapped = text_transform_inverted_.map(event->pos()) - text_edit_pos_;
-      if (mapped.x() >= 0 && mapped.y() >= 0 && mapped.x() < text_edit_->width() && mapped.y() < text_edit_->height()) {
-        inner_widget()->setCursor(Qt::IBeamCursor);
-      } else {
-        inner_widget()->unsetCursor();
-      }
-    }
-
-    return ForwardMouseEventToTextEdit(event);
+    return true;
 
   } else if (add_band_) {
 
@@ -927,9 +924,9 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
     return true;
 
-  } else if (text_edit_) {
+  } else if (text_edit_ && ForwardMouseEventToTextEdit(e)) {
 
-    return ForwardMouseEventToTextEdit(e);
+    return true;
 
   } else if (add_band_) {
 
@@ -950,7 +947,7 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
       if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
         draggable->DragEnd(command);
       }
-      Core::instance()->undo_stack()->pushIfHasChildren(command);
+      Core::instance()->undo_stack()->push(command, tr("Dragged Gizmo"));
       gizmo_drag_started_ = false;
     }
     current_gizmo_ = nullptr;
@@ -964,8 +961,8 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 
 bool ViewerDisplayWidget::OnMouseDoubleClick(QMouseEvent *event)
 {
-  if (text_edit_) {
-    return ForwardMouseEventToTextEdit(event);
+  if (text_edit_ && ForwardMouseEventToTextEdit(event)) {
+    return true;
   } else if (event->button() == Qt::LeftButton && gizmos_) {
     QPointF ptr = TransformViewerSpaceToBufferSpace(event->pos());
     foreach (NodeGizmo *g, gizmos_->GetGizmos()) {
@@ -1148,13 +1145,31 @@ void ViewerDisplayWidget::ForwardDragEventToTextEdit(T *e)
 
 bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool check_if_outside)
 {
+  if (current_gizmo_) {
+    return false;
+  }
+
   // Transform screen mouse coords to world mouse coords
   QPointF local_pos = GetVirtualPosForTextEdit(event->pos());
 
+  if (event->type() == QEvent::MouseMove && event->buttons() == Qt::NoButton) {
+    QPointF mapped = text_transform_inverted_.map(event->pos()) - text_edit_pos_;
+    if (mapped.x() >= 0 && mapped.y() >= 0 && mapped.x() < text_edit_->width() && mapped.y() < text_edit_->height()) {
+      inner_widget()->setCursor(Qt::IBeamCursor);
+    } else {
+      inner_widget()->unsetCursor();
+    }
+  }
+
   if (check_if_outside) {
     if (local_pos.x() < 0 || local_pos.x() >= text_edit_->width() || local_pos.y() < 0 || local_pos.y() >= text_edit_->height()) {
-      CloseTextEditor();
-      return true;
+      // Allow clicking other gizmos so the user can resize while the text editor is active
+      if ((current_gizmo_ = TryGizmoPress(gizmo_db_, gizmo_last_draw_transform_inverted_.map(event->pos())))) {
+        return false;
+      } else {
+        CloseTextEditor();
+        return true;
+      }
     }
   }
 
@@ -1167,7 +1182,11 @@ bool ViewerDisplayWidget::ForwardMouseEventToTextEdit(QMouseEvent *event, bool c
 bool ViewerDisplayWidget::ForwardEventToTextEdit(QEvent *event)
 {
   qApp->sendEvent(text_edit_->viewport(), event);
-  return event->isAccepted();
+  bool e = event->isAccepted();
+  if (e) {
+    update();
+  }
+  return e;
 }
 
 QPointF ViewerDisplayWidget::AdjustPosByVAlign(QPointF p)
@@ -1191,6 +1210,9 @@ void ViewerDisplayWidget::CloseTextEditor()
 {
   text_edit_->deleteLater();
   text_edit_ = nullptr;
+
+  disconnect(active_text_gizmo_, &TextGizmo::RectChanged, this, &ViewerDisplayWidget::UpdateActiveTextGizmoSize);
+  active_text_gizmo_ = nullptr;
 }
 
 void ViewerDisplayWidget::GenerateGizmoTransforms()
@@ -1380,6 +1402,14 @@ void ViewerDisplayWidget::FocusChanged(QWidget *old, QWidget *now)
   if (unfocused) {
     CloseTextEditor();
   }
+}
+
+QRectF ViewerDisplayWidget::UpdateActiveTextGizmoSize()
+{
+  QRectF text_rect = active_text_gizmo_->GetRect();
+  text_edit_pos_ = text_rect.topLeft();
+  text_edit_->setGeometry(text_rect.toRect());
+  return text_rect;
 }
 
 }

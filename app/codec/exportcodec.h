@@ -53,6 +53,7 @@ public:
     kCodecVorbis,
     kCodecFLAC,
     kCodecSRT,
+    kCodecAV1,
 
     kCodecCount
   };

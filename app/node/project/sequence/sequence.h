@@ -59,7 +59,7 @@ public:
 
   void add_default_nodes(MultiUndoCommand *command = nullptr);
 
-  virtual QIcon icon() const override;
+  virtual QVariant data(const DataType &d) const override;
 
   const QVector<Track *> &GetTracks() const
   {
@@ -86,11 +86,6 @@ public:
   virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
 
   static const QString kTrackInputFormat;
-
-  virtual bool IsItem() const override
-  {
-    return true;
-  }
 
 protected:
   virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;

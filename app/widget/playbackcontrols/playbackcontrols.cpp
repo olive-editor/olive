@@ -127,11 +127,11 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   av_btn_layout->setContentsMargins(0, 0, 0, 0);
   video_drag_btn_ = new DragButton();
   connect(video_drag_btn_, &QPushButton::clicked, this, &PlaybackControls::VideoClicked);
-  connect(video_drag_btn_, &DragButton::MousePressed, this, &PlaybackControls::VideoPressed);
+  connect(video_drag_btn_, &DragButton::DragStarted, this, &PlaybackControls::VideoDragged);
   av_btn_layout->addWidget(video_drag_btn_);
   audio_drag_btn_ = new DragButton();
   connect(audio_drag_btn_, &QPushButton::clicked, this, &PlaybackControls::AudioClicked);
-  connect(audio_drag_btn_, &DragButton::MousePressed, this, &PlaybackControls::AudioPressed);
+  connect(audio_drag_btn_, &DragButton::DragStarted, this, &PlaybackControls::AudioDragged);
   av_btn_layout->addWidget(audio_drag_btn_);
   lower_control_layout->addWidget(av_btn_widget);
 
@@ -198,9 +198,9 @@ void PlaybackControls::SetEndTime(const rational &r)
 
   end_time_ = r;
 
-  end_tc_lbl_->setText(Timecode::time_to_timecode(end_time_,
-                                                  time_base_,
-                                                  Core::instance()->GetTimecodeDisplay()));
+  end_tc_lbl_->setText(QString::fromStdString(Timecode::time_to_timecode(end_time_,
+                                                                         time_base_,
+                                                                         Core::instance()->GetTimecodeDisplay())));
 }
 
 void PlaybackControls::ShowPauseButton()

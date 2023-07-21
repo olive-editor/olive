@@ -24,11 +24,11 @@ namespace olive {
 
 #define super ViewerPanelBase
 
-FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
-  super(QStringLiteral("FootageViewerPanel"), parent)
+FootageViewerPanel::FootageViewerPanel() :
+  super(QStringLiteral("FootageViewerPanel"))
 {
   // Set ViewerWidget as the central widget
-  FootageViewerWidget* fvw = new FootageViewerWidget();
+  FootageViewerWidget* fvw = new FootageViewerWidget(this);
   SetViewerWidget(fvw);
 
   // Set strings

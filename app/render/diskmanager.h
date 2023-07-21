@@ -27,7 +27,7 @@
 #include <QTimer>
 
 #include "common/define.h"
-#include "node/project/project.h"
+#include "node/project.h"
 
 namespace olive {
 

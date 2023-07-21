@@ -28,11 +28,11 @@
 #include <QScrollBar>
 #include <QToolTip>
 
-#include "nodeviewundo.h"
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transformdistortnode.h"
 #include "node/factory.h"
 #include "node/group/group.h"
+#include "node/nodeundo.h"
 #include "node/project/serializer/serializer.h"
 #include "node/traverser.h"
 #include "ui/icons/icons.h"
@@ -141,11 +141,13 @@ void NodeView::DeleteSelected()
 {
   NodeViewDeleteCommand* command = new NodeViewDeleteCommand();
 
+  int count = 0;
+
   foreach (NodeViewContext *ctx, scene_.context_map()) {
-    ctx->DeleteSelected(command);
+    count += ctx->DeleteSelected(command);
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Deleted %1 Node(s)").arg(count));
 }
 
 void NodeView::SelectAll()
@@ -225,7 +227,7 @@ void NodeView::CopySelected(bool cut)
   QString copy_str;
   QXmlStreamWriter writer(&copy_str);
 
-  ProjectSerializer::SaveData sdata(selected_nodes_.first()->project());
+  ProjectSerializer::SaveData sdata(ProjectSerializer::kOnlyNodes);
   sdata.SetOnlySerializeNodesAndResolveGroups(selected_nodes_);
 
   ProjectSerializer::SerializedProperties properties;
@@ -244,7 +246,7 @@ void NodeView::CopySelected(bool cut)
 
   sdata.SetProperties(properties);
 
-  ProjectSerializer::Save(&writer, sdata, QStringLiteral("nodes"));
+  ProjectSerializer::Save(&writer, sdata);
 
   Core::CopyStringToClipboard(copy_str);
 
@@ -259,8 +261,8 @@ void NodeView::Paste()
     return;
   }
 
-  ProjectSerializer::Result res = ProjectSerializer::Paste(QStringLiteral("nodes"));
-  if (res.GetLoadedNodes().isEmpty()) {
+  ProjectSerializer::Result res = ProjectSerializer::Paste(ProjectSerializer::kOnlyNodes);
+  if (res.GetLoadData().nodes.isEmpty()) {
     return;
   }
 
@@ -274,12 +276,10 @@ void NodeView::Paste()
     pos.position.setY(node_props.value(QStringLiteral("y")).toDouble());
     pos.expanded = node_props.value(QStringLiteral("expanded")).toDouble();
 
-    qDebug() << it.key() << pos.position;
-
     map.insert(it.key(), pos);
   }
 
-  PostPaste(res.GetLoadedNodes(), map);
+  PostPaste(res.GetLoadData().nodes, map);
 }
 
 void NodeView::Duplicate()
@@ -358,7 +358,7 @@ void NodeView::SetColorLabel(int index)
     command->add_child(new NodeOverrideColorCommand(node, index));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Set Color of %1 Node(s)").arg(selected_nodes_.size()));
 }
 
 void NodeView::ZoomIn()
@@ -413,7 +413,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
         }
       }
     }
-    Core::instance()->undo_stack()->pushIfHasChildren(pos_command);
+    Core::instance()->undo_stack()->push(pos_command, tr("Moved %1 Node(s)").arg(selected_nodes_.size()));
     break;
   }
   case Qt::Key_Escape:
@@ -581,9 +581,10 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
       command->add_child(new NodeSetPositionCommand(i->GetNode(), i->GetContext(), current_pos));
     }
   }
-  dragging_items_.clear();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, tr("Moved %1 Node(s)").arg(dragging_items_.size()));
+
+  dragging_items_.clear();
 
   if (!had_attached_items) {
     super::mouseReleaseEvent(event);
@@ -676,7 +677,7 @@ void NodeView::dropEvent(QDropEvent *event)
   if (Node *drop_ctx = GetContextAtMousePos(event->pos())) {
     MultiUndoCommand *command = new MultiUndoCommand();
     QVector<Node*> select_nodes = ProcessDroppingAttachedNodes(command, drop_ctx, event->pos());
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
+    Core::instance()->undo_stack()->push(command, tr("Dropped %1 Node(s)").arg(select_nodes.size()));
 
     DeselectAll();
     scene_.context_map().value(drop_ctx)->Select(select_nodes);
@@ -1094,6 +1095,9 @@ QVector<Node*> NodeView::ProcessDroppingAttachedNodes(MultiUndoCommand *command,
       // Add node to the same graph that the context is in
       if (ai.node->parent() != select_context->parent()) {
         add_command->add_child(new NodeAddCommand(select_context->parent(), ai.node));
+        if (ai.node->IsItem() && !ai.node->folder()) {
+          add_command->add_child(new FolderAddChild(select_context->parent()->root(), ai.node));
+        }
       }
 
       // Add node to the context
@@ -1430,7 +1434,7 @@ void NodeView::GroupNodes()
   // Do command
   Core::instance()->LabelNodes({group}, command);
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Grouped Nodes"));
 }
 
 void NodeView::UngroupNodes()
@@ -1465,7 +1469,7 @@ void NodeView::UngroupNodes()
     command->add_child(new NodeSetPositionCommand(it.key(), context, group->GetNodePositionDataInContext(it.key())));
   }
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Ungrouped Nodes"));
 }
 
 void NodeView::ShowNodeProperties()
@@ -1621,6 +1625,8 @@ void NodeView::EndEdgeDrag(bool cancel)
     create_edge_input_item_->SetHighlighted(false);
   }
 
+  QString command_name;
+
   NodeInput &creating_input = create_edge_input_;
   if (create_edge_output_item_ && create_edge_input_item_ && !cancel) {
     if (creating_input.IsValid()) {
@@ -1657,6 +1663,8 @@ void NodeView::EndEdgeDrag(bool cancel)
         if (!cancel) {
           command->add_child(new NodeEdgeAddCommand(creating_output, creating_input));
 
+          command_name = Node::GetConnectCommandString(creating_output, creating_input);
+
           // If the output is not in the input's context, add it now. We check the item rather than
           // the node itself, because sometimes a node may not be in the context but another node
           // representing it will be (e.g. groups)
@@ -1679,7 +1687,7 @@ void NodeView::EndEdgeDrag(bool cancel)
   }
   create_edge_expanded_items_.clear();
 
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
+  Core::instance()->undo_stack()->push(command, command_name);
 }
 
 void NodeView::PostPaste(const QVector<Node *> &new_nodes, const Node::PositionMap &map)

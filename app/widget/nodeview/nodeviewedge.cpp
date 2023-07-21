@@ -25,7 +25,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QStyleOptionGraphicsItem>
 
-#include "common/bezier.h"
 #include "common/lerp.h"
 #include "nodeview.h"
 #include "nodeviewitem.h"
@@ -183,7 +182,7 @@ void NodeViewEdge::UpdateCurve()
   QPainterPath path;
   path.moveTo(start);
 
-  double angle = qAtan2(end.y() - start.y(), end.x() - start.x());
+  double angle = std::atan2(end.y() - start.y(), end.x() - start.x());
 
   if (curved_) {
 
@@ -220,7 +219,7 @@ void NodeViewEdge::UpdateCurve()
     path.cubicTo(cp1, cp2, end);
 
     if (!qFuzzyCompare(start.x(), end.x())) {
-      double continue_x = end.x() - qCos(angle);
+      double continue_x = end.x() - std::cos(angle);
 
       double x1 = start.x();
       double x2 = cp1.x();
@@ -241,7 +240,7 @@ void NodeViewEdge::UpdateCurve()
       double t = Bezier::CubicXtoT(continue_x, x1, x2, x3, x4);
       double y = Bezier::CubicTtoY(y1, y2, y3, y4, t);
 
-      angle = qAtan2(end.y() - y, end.x() - continue_x);
+      angle = std::atan2(end.y() - y, end.x() - continue_x);
     }
 
   } else {

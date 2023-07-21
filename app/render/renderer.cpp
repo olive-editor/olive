@@ -229,7 +229,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
       }
 
       // Allocate 3D LUT
-      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, VideoParams::kFormatFloat32, VideoParams::kRGBChannelCount), values);
+      color_ctx.lut3d_textures[i].texture = CreateTexture(VideoParams(edge_len, edge_len, edge_len, PixelFormat::F32, VideoParams::kRGBChannelCount), values);
       color_ctx.lut3d_textures[i].name = sampler_name;
       color_ctx.lut3d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
     }
@@ -259,7 +259,7 @@ bool Renderer::GetColorContext(const ColorTransformJob &color_job, Renderer::Col
       }
 
       // Allocate 1D LUT
-      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, VideoParams::kFormatFloat32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount), values);
+      color_ctx.lut1d_textures[i].texture = CreateTexture(VideoParams(width, height, PixelFormat::F32, (channel == OCIO::GpuShaderDesc::TEXTURE_RED_CHANNEL) ? 1 : VideoParams::kRGBChannelCount), values);
       color_ctx.lut1d_textures[i].name = sampler_name;
       color_ctx.lut1d_textures[i].interpolation = (interpolation == OCIO::INTERP_NEAREST) ? Texture::kNearest : Texture::kLinear;
     }
@@ -296,6 +296,7 @@ void Renderer::BlitColorManaged(const ColorTransformJob &color_job, Texture *des
   job.Insert(QStringLiteral("ove_mvpmat"), NodeValue(NodeValue::kMatrix, color_job.GetTransformMatrix()));
   job.Insert(QStringLiteral("ove_cropmatrix"), NodeValue(NodeValue::kMatrix, color_job.GetCropMatrix().inverted()));
   job.Insert(QStringLiteral("ove_maintex_alpha"), NodeValue(NodeValue::kInt, int(color_job.GetInputAlphaAssociation())));
+  job.Insert(QStringLiteral("ove_force_opaque"), NodeValue(NodeValue::kBoolean, color_job.GetForceOpaque()));
   job.Insert(color_job.GetValues());
 
   foreach (const ColorContext::LUT& l, color_ctx.lut3d_textures) {

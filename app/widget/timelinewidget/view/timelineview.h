@@ -73,6 +73,8 @@ public:
 
   Block* GetItemAtScenePos(const rational& time, int track_index) const;
 
+  QVector<Block*> GetItemsAtSceneRect(const QRectF &rect) const;
+
 signals:
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);

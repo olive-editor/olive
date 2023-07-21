@@ -210,4 +210,49 @@ bool NodeKeyframe::has_sibling_at_time(const rational &t) const
   return k && k != this;
 }
 
+bool NodeKeyframe::load(QXmlStreamReader *reader, NodeValue::Type data_type)
+{
+  QString key_input;
+  QPointF key_in_handle;
+  QPointF key_out_handle;
+
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == QStringLiteral("input")) {
+      key_input = attr.value().toString();
+    } else if (attr.name() == QStringLiteral("time")) {
+      this->set_time(rational::fromString(attr.value().toString().toStdString()));
+    } else if (attr.name() == QStringLiteral("type")) {
+      this->set_type_no_bezier_adj(static_cast<NodeKeyframe::Type>(attr.value().toInt()));
+    } else if (attr.name() == QStringLiteral("inhandlex")) {
+      key_in_handle.setX(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("inhandley")) {
+      key_in_handle.setY(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("outhandlex")) {
+      key_out_handle.setX(attr.value().toDouble());
+    } else if (attr.name() == QStringLiteral("outhandley")) {
+      key_out_handle.setY(attr.value().toDouble());
+    }
+  }
+
+  this->set_value(NodeValue::StringToValue(data_type, reader->readElementText(), true));
+
+  this->set_bezier_control_in(key_in_handle);
+  this->set_bezier_control_out(key_out_handle);
+
+  return true;
+}
+
+void NodeKeyframe::save(QXmlStreamWriter *writer, NodeValue::Type data_type) const
+{
+  writer->writeAttribute(QStringLiteral("input"), this->input());
+  writer->writeAttribute(QStringLiteral("time"), QString::fromStdString(this->time().toString()));
+  writer->writeAttribute(QStringLiteral("type"), QString::number(this->type()));
+  writer->writeAttribute(QStringLiteral("inhandlex"), QString::number(this->bezier_control_in().x()));
+  writer->writeAttribute(QStringLiteral("inhandley"), QString::number(this->bezier_control_in().y()));
+  writer->writeAttribute(QStringLiteral("outhandlex"), QString::number(this->bezier_control_out().x()));
+  writer->writeAttribute(QStringLiteral("outhandley"), QString::number(this->bezier_control_out().y()));
+
+  writer->writeCharacters(NodeValue::ValueToString(data_type, this->value(), true));
+}
+
 }

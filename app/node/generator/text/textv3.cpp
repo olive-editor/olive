@@ -26,10 +26,13 @@
 
 #include "common/html.h"
 #include "core.h"
+
 #include "node/project/project.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
 #include "node/generator/animation/textanimationrender.h"
 
+#include "node/project.h"
+#include "node/nodeundo.h"
 
 namespace olive {
 
@@ -133,7 +136,7 @@ void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &global
     TexturePtr base = value[kTextInput].toTexture();
 
     VideoParams text_params = base ? base->params() : globals.vparams();
-    text_params.set_format(VideoParams::kFormatUnsigned8);
+    text_params.set_format(PixelFormat::U8);
     text_params.set_colorspace(project()->color_manager()->GetDefaultInputColorSpace());
 
     GenerateJob job(value);
@@ -309,7 +312,7 @@ void TextGeneratorV3::GizmoDeactivated()
 
 void TextGeneratorV3::SetVerticalAlignmentUndoable(Qt::Alignment a)
 {
-  Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)));
+  Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)), tr("Set Text Vertical Alignment"));
 }
 
 

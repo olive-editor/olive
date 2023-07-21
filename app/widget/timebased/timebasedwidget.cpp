@@ -24,13 +24,12 @@
 
 #include "common/autoscroll.h"
 #include "common/range.h"
-#include "common/timecodefunctions.h"
 #include "config/config.h"
 #include "core.h"
 #include "dialog/markerproperties/markerpropertiesdialog.h"
 #include "node/project/sequence/sequence.h"
+#include "timeline/timelineundoworkarea.h"
 #include "widget/timeruler/timeruler.h"
-#include "widget/timelinewidget/undo/timelineundoworkarea.h"
 
 namespace olive {
 
@@ -50,6 +49,7 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   ConnectTimelineView(ruler_);
   ruler()->SetSnapService(this);
+  connect(ruler(), &TimeRuler::DragMoved, this, static_cast<void(TimeBasedWidget::*)(int)>(&TimeBasedWidget::SetCatchUpScrollValue));
   connect(ruler(), &TimeRuler::DragReleased, this, static_cast<void(TimeBasedWidget::*)()>(&TimeBasedWidget::StopCatchUpScrollTimer));
 
   catchup_scroll_timer_ = new QTimer(this);
@@ -154,7 +154,7 @@ void TimeBasedWidget::UpdateMaximumScroll()
   rational length = (viewer_node_) ? viewer_node_->GetLength() : 0;
 
   if (auto_max_scrollbar_) {
-    scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(length)) - width()));
+    scrollbar_->setMaximum(std::max(0, int(std::ceil(TimeToScene(length)) - width())));
   }
 
   foreach (TimeBasedView* base, timeline_views_) {
@@ -231,6 +231,15 @@ void TimeBasedWidget::CatchUpTimerTimeout()
     const CatchUpScrollData &d = it.value();
     PageScrollInternal(sb, d.maximum, sb->value() + d.value, false);
   }
+
+  SendCatchUpScrollEvent();
+}
+
+void TimeBasedWidget::SendCatchUpScrollEvent()
+{
+  for (auto v : this->timeline_views_) {
+    v->CatchUpScrollEvent();
+  }
 }
 
 void TimeBasedWidget::AutoUpdateTimebase()
@@ -283,6 +292,8 @@ void TimeBasedWidget::ScaleChangedEvent(const double &scale)
   scrollbar_->SetScale(scale);
 
   UpdateMaximumScroll();
+
+  QMetaObject::invokeMethod(this, &TimeBasedWidget::SendCatchUpScrollEvent, Qt::QueuedConnection);
 
   toggle_show_all_ = false;
 }
@@ -499,7 +510,9 @@ void TimeBasedWidget::GoToEnd()
 
 void TimeBasedWidget::CenterScrollOnPlayhead()
 {
-  scrollbar_->setValue(qRound(TimeToScene(GetConnectedNode()->GetPlayhead())) - scrollbar_->width()/2);
+  if (GetConnectedNode()) {
+    scrollbar_->setValue(qRound(TimeToScene(GetConnectedNode()->GetPlayhead())) - scrollbar_->width()/2);
+  }
 }
 
 void TimeBasedWidget::SetAutoSetTimebase(bool e)
@@ -545,7 +558,7 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   // Set workarea
   command->add_child(new WorkareaSetRangeCommand(points, TimeRange(in_point, out_point)));
 
-  Core::instance()->undo_stack()->push(command);
+  Core::instance()->undo_stack()->push(command, tr("Set In/Out Point"));
 }
 
 void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
@@ -568,7 +581,7 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
     r.set_out(TimelineWorkArea::kResetOut);
   }
 
-  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points, r));
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points, r), tr("Reset In/Out Points"));
 }
 
 void TimeBasedWidget::PageScrollInternal(QScrollBar *bar, int maximum, int screen_position, bool whole_page_scroll)
@@ -635,7 +648,7 @@ void TimeBasedWidget::ClearInOutPoints()
     return;
   }
 
-  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(GetConnectedNode()->project(), GetConnectedNode()->GetWorkArea(), false));
+  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(GetConnectedNode()->project(), GetConnectedNode()->GetWorkArea(), false), tr("Cleared In/Out Points"));
 }
 
 void TimeBasedWidget::SetMarker()
@@ -672,7 +685,7 @@ void TimeBasedWidget::SetMarker()
     }
 
     if (marker) {
-      Core::instance()->undo_stack()->push(new MarkerAddCommand(markers, marker));
+      Core::instance()->undo_stack()->push(new MarkerAddCommand(markers, marker), tr("Added Marker"));
     }
   }
 }
@@ -910,7 +923,7 @@ void TimeBasedWidget::HideSnaps()
 
 bool TimeBasedWidget::CopySelected(bool cut)
 {
-  if (ruler()->hasFocus() && ruler()->CopySelected(cut)) {
+  if (ruler()->CopySelected(cut)) {
     return true;
   }
 
@@ -919,7 +932,7 @@ bool TimeBasedWidget::CopySelected(bool cut)
 
 bool TimeBasedWidget::Paste()
 {
-  if (ruler()->hasFocus() && ruler()->PasteMarkers()) {
+  if (ruler()->PasteMarkers()) {
     return true;
   }
 
