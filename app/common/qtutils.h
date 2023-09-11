@@ -104,11 +104,11 @@ uint qHash(const core::TimeRange& r, uint seed = 0);
 
 }
 
-Q_DECLARE_METATYPE(olive::core::rational);
-Q_DECLARE_METATYPE(olive::core::Color);
-Q_DECLARE_METATYPE(olive::core::TimeRange);
-Q_DECLARE_METATYPE(olive::core::Bezier);
-Q_DECLARE_METATYPE(olive::core::AudioParams);
-Q_DECLARE_METATYPE(olive::core::SampleBuffer);
+Q_DECLARE_METATYPE(olive::core::rational)
+Q_DECLARE_METATYPE(olive::core::Color)
+Q_DECLARE_METATYPE(olive::core::TimeRange)
+Q_DECLARE_METATYPE(olive::core::Bezier)
+Q_DECLARE_METATYPE(olive::core::AudioParams)
+Q_DECLARE_METATYPE(olive::core::SampleBuffer)
 
 #endif // QTVERSIONABSTRACTION_H
