@@ -48,7 +48,7 @@ vec4 CIExyz_to_Lab(vec4 CIE) {
 
 float colorclose(vec4 col, vec4 key, float tola,float tolb) { 
   // Decides if a color is close to the specified hue
-  float temp = sqrt(((key.g-col.g)*(key.g-col.g))+((key.b-col.b)*(key.b-col.b)));
+  float temp = sqrt(((key.g-col.g)*(key.g-col.g))+((key.b-col.b)*(key.b-col.b))+((key.r-col.r)*(key.r-col.r)));
   if (temp < tola) {return (0.0);} 
   if (temp < tolb) {return ((temp-tola)/(tolb-tola));} 
   return (1.0); 
