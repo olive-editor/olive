@@ -90,9 +90,23 @@ public:
     return shader_name_;
   }
 
+  // shader description
+  const QString & ShaderDescription() const {
+    return shader_description_;
+  }
+
+  // shader version
+  const QString & ShaderVersion() const {
+    return shader_version_;
+  }
+
   // name of default input
   const QString & MainInputName() const {
     return main_input_name_;
+  }
+
+  int NumberOfIterations() const {
+    return number_of_iterations_;
   }
 
   // list of issue found in parsing inputs
@@ -111,6 +125,7 @@ private:
      SHADER_COMPLETE
   };
 
+  void clearCurrentInput();
   InputParseState parseSingleLine( const QString & line);
 
   // pointer to a function that parse a line that matches an //OVE comment
@@ -120,6 +135,7 @@ private:
   InputParseState parseShaderDescription( const QRegularExpressionMatch &);
   InputParseState parseShaderVersion( const QRegularExpressionMatch &);
   InputParseState parseMainInputName( const QRegularExpressionMatch &);
+  InputParseState parseNumberOfIterations( const QRegularExpressionMatch &);
   InputParseState parseInputName( const QRegularExpressionMatch &);
   InputParseState parseInputUniform( const QRegularExpressionMatch &);
   InputParseState parseInputType( const QRegularExpressionMatch &);
@@ -135,6 +151,7 @@ private:
 
   QVariant parseColor( const QString & line);
   QVariant parsePoint( const QString & line);
+  void checkConsistentType( const NodeValue::Type & metadata_type, const QString & uniform_type);
   void reportError( const QString & error);
 
 private:
@@ -143,8 +160,14 @@ private:
   QList<Error> error_list_;
   int line_number_;
 
+  // features of the input that's currently being parsed
+  InputParam currentInput_;
+
   QString shader_name_;
+  QString shader_description_;
+  QString shader_version_;
   QString main_input_name_;
+  int number_of_iterations_;
   QMap< const QRegularExpression *, LineParseFunction> INPUT_PARAM_PARSE_TABLE;
 };
 

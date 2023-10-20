@@ -24,11 +24,21 @@
 
 #include "node/filter/shader/shaderinputsparser.h"
 
+
+namespace olive {
+
 namespace {
+const QString DEFAULT_NAME = "My Transition";
+const QString DEFAULT_VERSION = "0.1";
+const QString DEFAULT_DESCRIPTION = "a transition that's still to be implemented";
+}
+
 // a default shader transition
-const QString TEMPLATE(
+const QString olive::ShaderTransition::FRAG_TEMPLATE = QString(
 "#version 150""\n"
-"//OVE shader_name: transition""\n"
+"//OVE shader_name: %1""\n"
+"//OVE shader_description: %2\n"
+"//OVE shader_version: %3\n\n"
 "//OVE end""\n"
 "\n"
 "uniform sampler2D out_block_in;""\n"
@@ -46,29 +56,56 @@ const QString TEMPLATE(
 "void main(void) {""\n"
 "    frag_color = texture(in_block_in, ove_texcoord*step( 1.0 - ove_tprog_all, ove_texcoord.xy)) +""\n"
 "                 texture(out_block_in, ove_texcoord*step( ove_tprog_all, ove_texcoord.xy));""\n"
-"}""\n");
+"}""\n").arg(DEFAULT_NAME, DEFAULT_DESCRIPTION, DEFAULT_VERSION);
 
-}
+const QString olive::ShaderTransition::VERTEX_TEMPLATE = QString(
+    "#version 150\n"
+    "// No metadata will be parsed from this shader\n"
+    "// You can decalre 'uniform' inputs defined in fragment shader\n"
+    "uniform mat4 ove_mvpmat;\n"
+    "\n"
+    "in vec4 a_position;\n"
+    "in vec2 a_texcoord;\n"
+    "\n"
+    "out vec2 ove_texcoord;\n"
+    "\n"
+    "void main() {\n"
+    "    gl_Position = ove_mvpmat * a_position;\n"
+    "    ove_texcoord = a_texcoord;\n"
+    "}\n");
 
-namespace olive {
 
 #define super TransitionBlock
 
-const QString ShaderTransition::kShaderCode = QStringLiteral("source");
+const QString ShaderTransition::kFragShaderCode = QStringLiteral("frag_source");
+const QString ShaderTransition::kUseVertexCode = QStringLiteral("use_vertex");
+const QString ShaderTransition::kVertexShaderCode = QStringLiteral("vertex_source");
 const QString ShaderTransition::kOutputMessages = QStringLiteral("issues");
 
-ShaderTransition::ShaderTransition()
+ShaderTransition::ShaderTransition() :
+  invalidate_code_flag_(false),
+  shader_name_(DEFAULT_NAME),
+  shader_version_(DEFAULT_VERSION),
+  shader_description_(DEFAULT_DESCRIPTION),
+  number_of_iterations_(1),
+  use_vertex_shader(false)
 {
-  // Full code of the shader. Inputs to be exposed are defined within the shader code
+  // Option to use vertex shader. When false, the default vertex shader is used
+  AddInput(kUseVertexCode, NodeValue::kBoolean, QVariant::fromValue<bool>(false),
+           InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
+  AddInput(kVertexShaderCode, NodeValue::kText, QVariant::fromValue<QString>(VERTEX_TEMPLATE),
+           InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable | kInputFlagHidden));
+  // Full code of fragment shader. Inputs to be exposed are defined within the shader code
   // with mark-up comments.
-  AddInput(kShaderCode, NodeValue::kText, QVariant::fromValue<QString>(TEMPLATE),
+  AddInput(kFragShaderCode, NodeValue::kText, QVariant::fromValue<QString>(FRAG_TEMPLATE),
            InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // Output messages of shader parser
   AddInput(kOutputMessages, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // mark this text input as code, so it will be edited with code editor
-  SetInputProperty( kShaderCode, QStringLiteral("text_type"), QString("shader_code"));
+  SetInputProperty( kFragShaderCode, QStringLiteral("text_type"), QString("shader_code"));
+  SetInputProperty( kVertexShaderCode, QStringLiteral("text_type"), QString("shader_code"));
   // mark this text input as output messages
   SetInputProperty( kOutputMessages, QStringLiteral("text_type"), QString("shader_issues"));
 }
@@ -92,20 +129,23 @@ void ShaderTransition::InputValueChangedEvent(const QString &input, int element)
 {
   Q_UNUSED(element)
 
-  if (input == kShaderCode) {
+  if ((input == kFragShaderCode) || (input == kVertexShaderCode)) {
     // for some reason, this function is called more than once for each input
     // of each instance. Parse code only if it has changed
-    QString new_code = GetStandardValue(kShaderCode).value<QString>();
+    QString new_frag_code = GetStandardValue(kFragShaderCode).value<QString>();
+    QString new_vertex_code = GetStandardValue(kVertexShaderCode).value<QString>();
 
-    if (shader_code_ != new_code) {
+    if ((frag_shader_code_ != new_frag_code) ||
+        (vertex_shader_code_ != new_vertex_code)) {
 
-      shader_code_ = new_code;
+      frag_shader_code_ = new_frag_code;
+      vertex_shader_code_ = new_vertex_code;
       output_messages_.clear();
 
       // the code of the shader has changed.
       // Remove all inputs and re-parse the code
       // to fix shader name and input parameters.
-      parseShaderCode();
+      parseShaderMetadata();
 
       // check for syntax
       checkShaderSyntax();
@@ -114,6 +154,13 @@ void ShaderTransition::InputValueChangedEvent(const QString &input, int element)
 
       invalidate_code_flag_ = true;
     }
+  } else if (input == kUseVertexCode) {
+    bool use_vertex_code = GetStandardValue(kUseVertexCode).toBool();
+    // hide or un-hide the widget for vertex shader
+    SetInputFlag( kVertexShaderCode, kInputFlagHidden, ! use_vertex_code);
+
+    // recalculate shader
+    invalidate_code_flag_ = true;
   }
 }
 
@@ -124,9 +171,16 @@ bool ShaderTransition::ShaderCodeInvalidateFlag() const
   return invalid;
 }
 
+void ShaderTransition::getMetadata(QString &name, QString &description, QString &version) const
+{
+  name = shader_name_;
+  description = shader_description_;
+  version = shader_version_;
+}
+
 QString ShaderTransition::Description() const
 {
-  return tr("GLSL user written transition");
+  return tr("a transition made by a GLSL shader code");
 }
 
 void ShaderTransition::Retranslate()
@@ -135,15 +189,18 @@ void ShaderTransition::Retranslate()
 
   // Retranslate only fixed inputs.
   // Other inputs are read from the shader code
-  SetInputName( kShaderCode, tr("Shader code"));
+  SetInputName( kUseVertexCode, tr("Use vertex shader"));
+  SetInputName( kVertexShaderCode, tr("Vertex Shader"));
+  SetInputName( kFragShaderCode, tr("Fragment Shader"));
   SetInputName( kOutputMessages, tr("Issues"));
 }
-
 
 ShaderCode ShaderTransition::GetShaderCode(const Node::ShaderRequest &request) const
 {
   Q_UNUSED(request);
-  return ShaderCode(shader_code_);
+  const QString & vertex_code = (GetStandardValue(kUseVertexCode).toBool()) ? vertex_shader_code_ : QString();
+
+  return ShaderCode(frag_shader_code_, vertex_code);
 }
 
 
@@ -163,35 +220,61 @@ void ShaderTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob *job)
   }
 
   job->SetShaderID(GetLabel());  // TBD: label may not be enough to identify a shader univocally
+
+  if (number_of_iterations_ != 1) {
+    job->SetIterations( number_of_iterations_, kInBlockInput);
+  }
 }
 
 
 void ShaderTransition::checkShaderSyntax()
 {
-  QOpenGLShader shader(QOpenGLShader::Fragment);
   bool ok;
 
-  if (shader_code_.startsWith("#version")) {
+  QOpenGLShader frag_shader(QOpenGLShader::Fragment);
+  ok = compileShaderCode( frag_shader, frag_shader_code_);
 
-    ok=shader.compileSourceCode( shader_code_);
+  if (ok == false)
+  {
+    output_messages_ += QString("Fragment Shader compilation errors:\n") + frag_shader.log();
+  }
+
+  bool use_vertex_code = GetStandardValue(kUseVertexCode).toBool();
+
+  if (use_vertex_code) {
+    QOpenGLShader vertex_shader(QOpenGLShader::Vertex);
+    ok = compileShaderCode( vertex_shader, vertex_shader_code_);
+
+    if (ok == false)
+    {
+      output_messages_ += QString("Vertex Shader compilation errors:\n") + vertex_shader.log();
+    }
+  }
+}
+
+bool ShaderTransition::compileShaderCode( QOpenGLShader & shader, const QString & souce_code)
+{
+  bool ok;
+
+  if (souce_code.startsWith("#version")) {
+
+    ok=shader.compileSourceCode( souce_code);
   } else {
 
     // NOTE: this replicates the preamble added in compilation (see openglrenderer.cpp for reference).
     // This must be aligned if preamble changes
     ok=shader.compileSourceCode( "#version 150\n\n"
-                                 "precision highp float;\n\n" + shader_code_);
+                                 "precision highp float;\n\n" + souce_code);
   }
 
-  if (ok == false)
-  {
-    output_messages_ += QString("Compilation errors:\n") + shader.log();
-  }
+  return ok;
 }
 
 
-void ShaderTransition::parseShaderCode()
+void ShaderTransition::parseShaderMetadata()
 {
-  ShaderInputsParser parser(shader_code_);
+  // only fragment shader has metadata
+  ShaderInputsParser parser(frag_shader_code_);
 
   parser.Parse();
 
@@ -202,6 +285,12 @@ void ShaderTransition::parseShaderCode()
   // update name, if defined in script; otherwise use a default.
   QString label = (parser.ShaderName().isEmpty()) ? "unnamed" : parser.ShaderName();
   SetLabel( label);
+  shader_name_ = label;
+  shader_description_ = parser.ShaderDescription();
+  shader_version_ = parser.ShaderVersion();
+  number_of_iterations_ = parser.NumberOfIterations();
+
+  metadataChanged( shader_name_, shader_description_, shader_version_);
 }
 
 void ShaderTransition::reportErrorList( const ShaderInputsParser & parser)
@@ -283,6 +372,34 @@ void ShaderTransition::updateInputList( const ShaderInputsParser & parser)
   emit InputListChanged();
 }
 
+// this function assumes that 'updateInputList' has been called already.
+// Add a point gizmo for each 'kVec2' that does not already have one
+void ShaderTransition::updateGizmoList()
+{
+  for (QString & aInput : user_input_list_)
+  {
+    if (HasInputWithID(aInput)) {
+      if (GetInputDataType(aInput) == NodeValue::kVec2) {
+
+        // is point new?
+        if (handle_table_.contains(aInput) == false) {
+          PointGizmo * g = AddDraggableGizmo<PointGizmo>();
+          g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 0));
+          g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 1));
+          g->SetDragValueBehavior(PointGizmo::kAbsolute);
+          g->SetVisible( true);
+
+
+          handle_table_.insert( aInput, g);
+        }
+
+        PointGizmo * g = handle_table_[aInput];
+        g->SetShape( handle_shape_table_.value( aInput, PointGizmo::kSquare));
+        g->setProperty("color", QVariant::fromValue<QColor>(handle_color_table_.value(aInput, Qt::white)));
+      }
+    }
+  }
+}
 
 void ShaderTransition::checkDeletedInputs(const QStringList & new_inputs)
 {
@@ -302,35 +419,6 @@ void ShaderTransition::checkDeletedInputs(const QStringList & new_inputs)
   }
 }
 
-
-// this function assumes that 'updateInputList' has been called already.
-// Add a point gizmo for each 'kVec2' that does not already have one
-void ShaderTransition::updateGizmoList()
-{
-  for (QString & aInput : user_input_list_)
-  {
-    if (HasInputWithID(aInput)) {
-      if (GetInputDataType(aInput) == NodeValue::kVec2) {
-
-        // is point new?
-        if (handle_table_.contains(aInput) == false) {
-          PointGizmo * g = AddDraggableGizmo<PointGizmo>();
-          g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 0));
-          g->AddInput(NodeKeyframeTrackReference(NodeInput(this, aInput), 1));
-          g->SetDragValueBehavior(PointGizmo::kAbsolute);
-
-          handle_table_.insert( aInput, g);
-        }
-
-        PointGizmo * g = handle_table_[aInput];
-        g->SetShape( handle_shape_table_.value( aInput, PointGizmo::kSquare));
-        g->setProperty("color", QVariant::fromValue<QColor>(handle_color_table_.value(aInput, Qt::white)));
-      }
-    }
-  }
-}
-
-
 void ShaderTransition::GizmoDragMove(double x, double y, const Qt::KeyboardModifiers & /*modifiers*/)
 {
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
@@ -341,7 +429,6 @@ void ShaderTransition::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   gizmo->GetDraggers()[0].Drag( x/resolution_.x());
   gizmo->GetDraggers()[1].Drag( y/resolution_.y());
 }
-
 
 void ShaderTransition::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals & globals)
 {

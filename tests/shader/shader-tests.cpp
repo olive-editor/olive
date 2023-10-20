@@ -33,17 +33,43 @@ namespace olive {
 OLIVE_ADD_TEST(HeaderTest)
 {
   QString code(
-"#version 150""\n"
-"//OVE shader_name: slide""\n"
-"//OVE shader_description: slide transition""\n"
-"//OVE shader_version: 0.1""\n"
-);
+        "#version 150""\n"
+        "//OVE shader_name: slide""\n"
+        "//OVE shader_description: slide transition""\n"
+        "//OVE shader_version: 0.1""\n"
+        "//OVE number_of_iterations: 2""\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
 
   OLIVE_ASSERT_EQUAL( parser.ErrorList().size(), 0);
   OLIVE_ASSERT_EQUAL( STR(parser.ShaderName()), STR("slide"));
+  OLIVE_ASSERT_EQUAL( STR(parser.ShaderDescription()), STR("slide transition"));
+  OLIVE_ASSERT_EQUAL( STR(parser.ShaderVersion()), STR("0.1"));
+  OLIVE_ASSERT_EQUAL( parser.NumberOfIterations(), 2);
+
+  OLIVE_TEST_END;
+}
+
+// Script description over multiple lines
+OLIVE_ADD_TEST(DescriptionTest)
+{
+  QString code(
+        "#version 150""\n"
+        "//OVE shader_name: slide""\n"
+        "//OVE shader_description:   slide transition   ""\n"
+        "//OVE shader_description:   that works fine.   ""\n"
+        "//OVE shader_version: 0.1""\n"
+        );
+
+  ShaderInputsParser parser(code);
+  parser.Parse();
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().size(), 0);
+  OLIVE_ASSERT_EQUAL( STR(parser.ShaderName()), STR("slide"));
+  OLIVE_ASSERT_EQUAL( STR(parser.ShaderDescription()), STR("slide transition\nthat works fine."));
+  OLIVE_ASSERT_EQUAL( STR(parser.ShaderVersion()), STR("0.1"));
 
   OLIVE_TEST_END;
 }
@@ -53,9 +79,9 @@ OLIVE_ADD_TEST(HeaderTest)
 OLIVE_ADD_TEST(MainInputTest)
 {
   QString code(
-"//OVE main_input_name: dummy""\n"
-"uniform sampler2D dummy;""\n"
-);
+        "//OVE main_input_name: dummy""\n"
+        "uniform sampler2D dummy;""\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
@@ -70,12 +96,12 @@ OLIVE_ADD_TEST(MainInputTest)
 OLIVE_ADD_TEST(InputTextureTest)
 {
   QString code(
-"//OVE name: Base image""\n"
-"//OVE type: TEXTURE""\n"
-"//OVE flag: NOT_KEYFRAMABLE""\n"
-"//OVE description: the base image""\n"
-"uniform sampler2D tex_base;""\n"
-);
+        "//OVE name: Base image""\n"
+        "//OVE type: TEXTURE""\n"
+        "//OVE flag: NOT_KEYFRAMABLE""\n"
+        "//OVE description: the base image""\n"
+        "uniform sampler2D tex_base;""\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
@@ -99,14 +125,14 @@ OLIVE_ADD_TEST(InputTextureTest)
 OLIVE_ADD_TEST(InputFloatTest)
 {
   QString code(
-"//OVE name: Tolerance %%""\n"
-"//OVE type: FLOAT""\n"
-"//OVE min: 1.0""\n"
-"//OVE default: 5.5""\n"
-"//OVE max: 100""\n"
-"//OVE description:   the tolerance of filter""\n"
-"uniform float toler_in;""\n"
-);
+        "//OVE name: Tolerance %%""\n"
+        "//OVE type: FLOAT""\n"
+        "//OVE min: 1.0""\n"
+        "//OVE default: 5.5""\n"
+        "//OVE max: 100""\n"
+        "//OVE description:   the tolerance of filter""\n"
+        "uniform float toler_in;""\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
@@ -121,10 +147,43 @@ OLIVE_ADD_TEST(InputFloatTest)
   OLIVE_ASSERT_EQUAL( param.flags, InputFlags(0));
   OLIVE_ASSERT_EQUAL( STR(param.uniform_name), STR("toler_in"));
   OLIVE_ASSERT_EQUAL( STR(param.type_string), STR("FLOAT"));
-  OLIVE_ASSERT_EQUAL( param.type, NodeValue::kFloat);
-  OLIVE_ASSERT_EQUAL( param.min.toFloat(), 1.);
-  OLIVE_ASSERT_EQUAL( param.max.toFloat(), 100.);
-  OLIVE_ASSERT_EQUAL( param.default_value.toFloat(), 5.5);
+  OLIVE_ASSERT( param.type == NodeValue::kFloat);
+  OLIVE_ASSERT_EQUAL( param.min.toDouble(), 1.);
+  OLIVE_ASSERT_EQUAL( param.max.toDouble(), 100.);
+  OLIVE_ASSERT_EQUAL( param.default_value.toDouble(), 5.5);
+
+  OLIVE_TEST_END;
+}
+
+// An input of kind Float with 'min' and 'max' not specified
+OLIVE_ADD_TEST(InputFloatTestBoundary)
+{
+  QString code(
+        "//OVE name: Tolerance""\n"
+        "//OVE type: FLOAT""\n"
+        "uniform float toler_in;""\n"
+        "//OVE name: Number of bars""\n"
+        "//OVE type: INTEGER""\n"
+        "uniform int bars_in;""\n"
+        );
+
+  ShaderInputsParser parser(code);
+  parser.Parse();
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().size(), 0);
+  OLIVE_ASSERT_EQUAL( parser.InputList().size(), 2);
+
+  const ShaderInputsParser::InputParam & param1 = parser.InputList().at(0);
+
+  OLIVE_ASSERT_EQUAL( STR(param1.human_name), STR("Tolerance"));
+  OLIVE_ASSERT( param1.min.toDouble() < -1e30);
+  OLIVE_ASSERT( param1.max.toDouble() > 1e30);
+
+  const ShaderInputsParser::InputParam & param2 = parser.InputList().at(1);
+
+  OLIVE_ASSERT_EQUAL( STR(param2.human_name), STR("Number of bars"));
+  OLIVE_ASSERT( param2.min.toInt() < -1000000000);
+  OLIVE_ASSERT( param2.max.toInt() > 1000000000);
 
   OLIVE_TEST_END;
 }
@@ -143,12 +202,12 @@ bool operator == (const Color & rhs, const Color & lhs)
 OLIVE_ADD_TEST(InputColorTest)
 {
   QString code(
-"//OVE name: Final tone""\n"
-"//OVE type: COLOR""\n"
-"//OVE default: RGBA( 0.5,0.4 ,0.1,  1)""\n"
-"//OVE description: color applied to the grayscale""\n"
-"uniform vec4 tone_in;""\n"
-);
+        "//OVE name: Final tone""\n"
+        "//OVE type: COLOR""\n"
+        "//OVE default: RGBA( 0.5,0.4 ,0.1,  1)""\n"
+        "//OVE description: color applied to the grayscale""\n"
+        "uniform vec4 tone_in;""\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
@@ -168,16 +227,40 @@ OLIVE_ADD_TEST(InputColorTest)
   OLIVE_TEST_END;
 }
 
+// An input of kind Color with components outside [0..1]
+OLIVE_ADD_TEST(ColorOutOfRangeTest)
+{
+  QString code(
+        "//OVE name: Final tone""\n"
+        "//OVE type: COLOR""\n"
+        "//OVE default: RGBA( 2, 0, 0,  1)""\n"                  //  <-- 2 is outisde range
+        "//OVE description: color applied to the grayscale""\n"
+        "uniform vec4 tone_in;""\n"
+        );
+
+  ShaderInputsParser parser(code);
+  parser.Parse();
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().size(), 1);
+  OLIVE_ASSERT_EQUAL( parser.InputList().size(), 1);  // input is still present
+
+  OLIVE_ASSERT_EQUAL( STR(parser.ErrorList().at(0).issue), STR("Color must be in format 'RGBA(r,g,b,a)' "
+                                                               "where r,g,b,a are in range (0,1)"));
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().at(0).line, 3);
+
+  OLIVE_TEST_END;
+}
+
 // An input of kind Boolean
 OLIVE_ADD_TEST(InputBooleanTest)
 {
   QString code(
-"//OVE name: bypass effect""\n"
-"//OVE type: BOOLEAN""\n"
-"//OVE flag: NOT_CONNECTABLE""\n"
-"//OVE default: false""\n"
-"//OVE description: when True, the input is passed to output as is.""\n"
-"uniform bool disable_in;""\n"
+        "//OVE name: bypass effect""\n"
+        "//OVE type: BOOLEAN""\n"
+        "//OVE flag: NOT_CONNECTABLE""\n"
+        "//OVE default: false""\n"
+        "//OVE description: when True, the input is passed to output as is.""\n"
+        "uniform bool disable_in;""\n"
         );
 
   ShaderInputsParser parser(code);
@@ -203,14 +286,14 @@ OLIVE_ADD_TEST(InputBooleanTest)
 OLIVE_ADD_TEST(InputSelectionTest)
 {
   QString code(
-"//OVE name: mode""\n"
-"//OVE type: SELECTION""\n"
-"//OVE values:  \"ADD\", \"AVERAGE\", \"COLOR BURN\"""\n"
-"//OVE values:  \"COLOR DODGE\"  \"DARKEN\"  \"DIFFERENCE\"""\n"
-"//OVE values:  \"EXCLUSION\" \"GLOW\"""\n"
-"//OVE default: 3""\n"
-"//OVE description: the blend mode""\n"
-"uniform int mode_in; ""\n"
+        "//OVE name: mode""\n"
+        "//OVE type: SELECTION""\n"
+        "//OVE values:  \"ADD\", \"AVERAGE\", \"COLOR BURN\"""\n"
+        "//OVE values:  \"COLOR DODGE\"  \"DARKEN\"  \"DIFFERENCE\"""\n"
+        "//OVE values:  \"EXCLUSION\" \"GLOW\"""\n"
+        "//OVE default: 3""\n"
+        "//OVE description: the blend mode""\n"
+        "uniform int mode_in; ""\n"
         );
 
   ShaderInputsParser parser(code);
@@ -235,12 +318,12 @@ OLIVE_ADD_TEST(InputSelectionTest)
 OLIVE_ADD_TEST(InputPointTest)
 {
   QString code(
-"//OVE name: From""\n"
-"//OVE type: POINT""\n"
-"//OVE default: (0.4,0.2)""\n"
-"//OVE color: RGBA( 0.5,0.5 ,0.0,  1)""\n"
-"//OVE description: gradient start point""\n"
-"uniform vec2 from_in;""\n"
+        "//OVE name: From""\n"
+        "//OVE type: POINT""\n"
+        "//OVE default: (0.4,0.2)""\n"
+        "//OVE color: RGBA( 0.5,0.5 ,0.0,  1)""\n"
+        "//OVE description: gradient start point""\n"
+        "uniform vec2 from_in;""\n"
         );
 
   ShaderInputsParser parser(code);
@@ -266,12 +349,12 @@ OLIVE_ADD_TEST(InputPointTest)
 OLIVE_ADD_TEST(MultipleFlagsTest)
 {
   QString code(
-"//OVE name: From""\n"
-"//OVE type: POINT""\n"
-"//OVE default: (0.4,0.2)""\n"
-"//OVE flag: NOT_KEYFRAMABLE, NOT_CONNECTABLE  HIDDEN""\n"
-"//OVE description: gradient start point""\n"
-"uniform vec2 from_in;""\n"
+        "//OVE name: From""\n"
+        "//OVE type: POINT""\n"
+        "//OVE default: (0.4,0.2)""\n"
+        "//OVE flag: NOT_KEYFRAMABLE, NOT_CONNECTABLE  HIDDEN""\n"
+        "//OVE description: gradient start point""\n"
+        "uniform vec2 from_in;""\n"
         );
 
   ShaderInputsParser parser(code);
@@ -293,14 +376,14 @@ OLIVE_ADD_TEST(MultipleFlagsTest)
 OLIVE_ADD_TEST(InputTypoTest)
 {
   QString code(
-"//OVE name: Tolerance %%""\n"
-"//OVE type: FLOA""\n"                 //  <-- typo: "FLOA" for "FLOAT"
-"//OVE min: 1.0""\n"
-"//OVE default: 5.5""\n"
-"//OVE max: 100""\n"
-"//OVE description:   the tolerance of filter""\n"
-"uniform float toler_in;""\n"
-);
+        "//OVE name: Tolerance %%""\n"
+        "//OVE type: FLOA""\n"                 //  <-- typo: "FLOA" for "FLOAT"
+        "//OVE min: 1.0""\n"
+        "//OVE default: 5.5""\n"
+        "//OVE max: 100""\n"
+        "//OVE description:   the tolerance of filter""\n"
+        "uniform float toler_in;""\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
@@ -332,12 +415,12 @@ OLIVE_ADD_TEST(InputTypoTest)
 OLIVE_ADD_TEST(InputAfterEndTest)
 {
   QString code(
-"//OVE end""\n"                       // <- end
-"//OVE name: Tolerance %%""\n"
-"//OVE type: FLOAT""\n"
-"//OVE description:   the tolerance of filter""\n"
-"uniform float toler_in;""\n"
-);
+        "//OVE end""\n"                       // <- end
+        "//OVE name: Tolerance %%""\n"
+        "//OVE type: FLOAT""\n"
+        "//OVE description:   the tolerance of filter""\n"
+        "uniform float toler_in;""\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
@@ -353,23 +436,23 @@ OLIVE_ADD_TEST(InputAfterEndTest)
 OLIVE_ADD_TEST(InputManyTest)
 {
   QString code(
-"//OVE name: Base image""\n"
-"//OVE type: TEXTURE""\n"
-"//OVE flag: NOT_KEYFRAMABLE""\n"
-"//OVE description: the base image""\n"
-"uniform sampler2D tex_base;""\n"
-"\n"
-"//OVE name: Tolerance %%""\n"
-"//OVE type: FLOAT""\n"
-"//OVE description:   the tolerance of filter""\n"
-"uniform float toler_in;""\n"
-"\n"
-"//OVE name: base color""\n"
-"//OVE type: COLOR""\n"
-"//OVE description:   the final color""\n"
-"uniform vec4 tone_in;""\n"
-"\n"
-);
+        "//OVE name: Base image""\n"
+        "//OVE type: TEXTURE""\n"
+        "//OVE flag: NOT_KEYFRAMABLE""\n"
+        "//OVE description: the base image""\n"
+        "uniform sampler2D tex_base;""\n"
+        "\n"
+        "//OVE name: Tolerance %%""\n"
+        "//OVE type: FLOAT""\n"
+        "//OVE description:   the tolerance of filter""\n"
+        "uniform float toler_in;""\n"
+        "\n"
+        "//OVE name: base color""\n"
+        "//OVE type: COLOR""\n"
+        "//OVE description:   the final color""\n"
+        "uniform vec4 tone_in;""\n"
+        "\n"
+        );
 
   ShaderInputsParser parser(code);
   parser.Parse();
@@ -379,6 +462,77 @@ OLIVE_ADD_TEST(InputManyTest)
 
   OLIVE_TEST_END;
 }
+
+// An input whose type is not consistent with the uniform type
+OLIVE_ADD_TEST(InconsistentTypeTest_1)
+{
+  QString code(
+        "//OVE name: Base image""\n"
+        "//OVE type: TEXTURE""\n"
+        "//OVE description: the base image""\n"
+        "uniform float tex_base;""\n"            // <-- 'float' vs 'TEXTURE'
+        );
+
+  ShaderInputsParser parser(code);
+  parser.Parse();
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().size(), 1);
+  OLIVE_ASSERT_EQUAL( parser.InputList().size(), 1);  // input is still present
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().at(0).line, 4);
+  OLIVE_ASSERT_EQUAL( STR(parser.ErrorList().at(0).issue),
+                      STR("metadata type TEXTURE requires uniform type sampler2D and not float"));
+
+
+  OLIVE_TEST_END;
+}
+
+// An input whose type is not consistent with the uniform type
+OLIVE_ADD_TEST(InconsistentTypeTest_2)
+{
+  QString code(
+        "//OVE name: Gain""\n"
+        "//OVE type: FLOAT""\n"
+        "//OVE description: the base image""\n"
+        "uniform vec2 gain_in;""\n"            // <-- 'vec2' vs 'FLOAT'
+        );
+
+  ShaderInputsParser parser(code);
+  parser.Parse();
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().size(), 1);
+  OLIVE_ASSERT_EQUAL( parser.InputList().size(), 1);  // input is still present
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().at(0).line, 4);
+  OLIVE_ASSERT_EQUAL( STR(parser.ErrorList().at(0).issue),
+                      STR("metadata type FLOAT requires uniform type float and not vec2"));
+
+
+  OLIVE_TEST_END;
+}
+
+// Illegal number of iterations
+OLIVE_ADD_TEST(WrongNumOfIterations)
+{
+  QString code(
+        "#version 150""\n"
+        "//OVE shader_name: slide""\n"
+        "//OVE shader_description: slide transition""\n"
+        "//OVE shader_version: 0.1""\n"
+        "//OVE number_of_iterations: two""\n"
+        );
+
+  ShaderInputsParser parser(code);
+  parser.Parse();
+
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().size(), 1);
+  OLIVE_ASSERT_EQUAL( parser.ErrorList().at(0).line, 5);
+  OLIVE_ASSERT_EQUAL( STR(parser.ErrorList().at(0).issue),
+                      STR("Number of iterations must be a number greater or equal to 1"));
+
+  OLIVE_TEST_END;
+}
+
 
 }  // olive
 

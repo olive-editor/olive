@@ -22,6 +22,7 @@
 #define NODEPARAMVIEWTEXTEDIT_H
 
 #include <QPlainTextEdit>
+#include <QTextEdit>
 #include <QPushButton>
 #include <QWidget>
 
@@ -30,7 +31,8 @@
 
 namespace olive {
 
-class ExternalEditorProxy;
+class Node;
+class NodeParamViewShader;
 
 
 class NodeParamViewTextEdit : public QWidget
@@ -46,7 +48,7 @@ public:
 
   // let this instance perform as a code editor.
   // This input will be edited with a built-in or external code editor.
-  void setCodeEditorFlag(uint64_t node_id);
+  void setCodeEditorFlag(const Node *owner);
   // set flag to view text as code issues
   void setCodeIssuesFlag();
 
@@ -83,11 +85,9 @@ private:
   QPlainTextEdit* line_edit_;
   bool code_editor_flag_;
   bool code_issues_flag_;
-  ExternalEditorProxy * ext_editor_proxy_;
+  NodeParamViewShader * shader_edit_;
 
 private:
-  void launchCodeEditor(QString & text);
-
   QPushButton* edit_btn_;
 
   QPushButton *edit_in_viewer_btn_;

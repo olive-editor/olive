@@ -26,7 +26,6 @@
 #include <limits>
 #include <QVector2D>
 
-// #include "core/util/color.h"  // ext\core\include\olive\core\util\color.h
 
 
 namespace olive {
@@ -49,12 +48,15 @@ QRegularExpression SHADER_VERSION_REGEX("^\\s*//OVE\\s*shader_version:\\s*(?<ver
 // human name for default input
 QRegularExpression SHADER_MAIN_INPUT_NAME_REGEX("^\\s*//OVE\\s*main_input_name:\\s*(?<name>.*)\\s*$");
 
+// number of times the fragment shader is invoked
+QRegularExpression NUM_OF_ITERATIONS_REGEX("^\\s*//OVE\\s*number_of_iterations:\\s*(?<num>.*)\\s*$");
+
 // per Input metadata
 
 // human name of the input
 QRegularExpression INPUT_NAME_REGEX("^\\s*//OVE\\s*name:\\s*(?<name>.*)\\s*$");
 // name of uniform variable
-QRegularExpression INPUT_UNIFORM_REGEX("^\\s*uniform\\s+(.*)\\s+(?<name>[A-Za-z0-9_]+)\\s*;");
+QRegularExpression INPUT_UNIFORM_REGEX("^\\s*uniform\\s+(?<type>[A-Za-z0-9_]+)\\s+(?<name>[A-Za-z0-9_]+)\\s*;");
 // kind of input
 QRegularExpression INPUT_TYPE_REGEX("^\\s*//OVE\\s*type:\\s*(?<type>.*)\\s*$");
 // input flags
@@ -93,35 +95,17 @@ const QMap<NodeValue::Type, QVariant> MINIMUM_TABLE{{NodeValue::kFloat, QVariant
                                                     {NodeValue::kInt, QVariant( std::numeric_limits<int>::lowest())}
                                                    };
 
-const QMap<NodeValue::Type, QVariant> MAXIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<int>::max())},
+const QMap<NodeValue::Type, QVariant> MAXIMUM_TABLE{{NodeValue::kFloat, QVariant( std::numeric_limits<float>::max())},
                                                     {NodeValue::kInt, QVariant( std::numeric_limits<int>::max())}
                                                    };
 
-// features of the input that's currently being parsed
-ShaderInputsParser::InputParam currentInput;
-
-void clearCurrentInput()
-{
-  currentInput.human_name.clear();
-  currentInput.uniform_name.clear();
-  currentInput.description.clear();
-  currentInput.type_string.clear();
-  currentInput.type = NodeValue::kNone;
-  currentInput.flags = InputFlags(kInputFlagNormal);
-  currentInput.values.clear();
-  currentInput.pointShape = PointGizmo::kSquare;
-  currentInput.gizmoColor = Qt::white;
-  currentInput.min = QVariant();
-  currentInput.max = QVariant();
-  currentInput.default_value = QVariant();
-}
-
-}  // namespace
+} // namespace
 
 
 ShaderInputsParser::ShaderInputsParser( const QString & shader_code) :
   shader_code_(shader_code),
-  line_number_(1)
+  line_number_(1),
+  number_of_iterations_(1)
 {
   clearCurrentInput();
 
@@ -130,6 +114,7 @@ ShaderInputsParser::ShaderInputsParser( const QString & shader_code) :
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_DESCRIPTION_REGEX, & ShaderInputsParser::parseShaderDescription);
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_VERSION_REGEX, & ShaderInputsParser::parseShaderVersion);
   INPUT_PARAM_PARSE_TABLE.insert( & SHADER_MAIN_INPUT_NAME_REGEX, & ShaderInputsParser::parseMainInputName);
+  INPUT_PARAM_PARSE_TABLE.insert( & NUM_OF_ITERATIONS_REGEX, & ShaderInputsParser::parseNumberOfIterations);
 
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_NAME_REGEX, & ShaderInputsParser::parseInputName);
   INPUT_PARAM_PARSE_TABLE.insert( & INPUT_UNIFORM_REGEX, & ShaderInputsParser::parseInputUniform);
@@ -159,6 +144,11 @@ void ShaderInputsParser::Parse()
   error_list_.clear();
   line_number_ = 1;
 
+  shader_name_ = QString();
+  shader_description_ = QString();
+  shader_version_ = QString();
+  number_of_iterations_ = 1;
+
   // parse line by line
   while (state != SHADER_COMPLETE) {
 
@@ -183,7 +173,7 @@ void ShaderInputsParser::Parse()
       state = parseSingleLine( line);
 
       if (state == INPUT_COMPLETE) {
-        input_list_.append( currentInput);
+        input_list_.append( currentInput_);
         clearCurrentInput();
       }
     }
@@ -207,6 +197,23 @@ void ShaderInputsParser::Parse()
       }
     }
   }
+}
+
+
+void ShaderInputsParser::clearCurrentInput()
+{
+  currentInput_.human_name.clear();
+  currentInput_.uniform_name.clear();
+  currentInput_.description.clear();
+  currentInput_.type_string.clear();
+  currentInput_.type = NodeValue::kNone;
+  currentInput_.flags = InputFlags(kInputFlagNormal);
+  currentInput_.values.clear();
+  currentInput_.pointShape = PointGizmo::kSquare;
+  currentInput_.gizmoColor = Qt::white;
+  currentInput_.min = QVariant();
+  currentInput_.max = QVariant();
+  currentInput_.default_value = QVariant();
 }
 
 
@@ -242,16 +249,19 @@ ShaderInputsParser::parseShaderName(const QRegularExpressionMatch & match)
 }
 
 ShaderInputsParser::InputParseState
-ShaderInputsParser::parseShaderDescription(const QRegularExpressionMatch & /*match*/)
+ShaderInputsParser::parseShaderDescription(const QRegularExpressionMatch & match)
 {
-  // nothing to do. So far.
+  if (shader_description_.size() > 0) {
+    shader_description_.append(QStringLiteral("\n"));
+  }
+  shader_description_ += match.captured("description");
   return PARSING;
 }
 
 ShaderInputsParser::InputParseState
-ShaderInputsParser::parseShaderVersion(const QRegularExpressionMatch & /*match*/)
+ShaderInputsParser::parseShaderVersion(const QRegularExpressionMatch & match)
 {
-  // nothing to do. So far.
+  shader_version_ = match.captured("version");
   return PARSING;
 }
 
@@ -262,10 +272,25 @@ ShaderInputsParser::parseMainInputName(const QRegularExpressionMatch & match)
   return PARSING;
 }
 
+ShaderInputsParser::InputParseState ShaderInputsParser::parseNumberOfIterations(const QRegularExpressionMatch & match)
+{
+  bool ok = false;
+  int num_iter = match.captured("num").toInt( & ok);
+
+  if (ok && (num_iter >= 1)) {
+    number_of_iterations_ = num_iter;
+  } else {
+    number_of_iterations_ = 1;
+    reportError(QObject::tr("Number of iterations must be a number greater or equal to 1"));
+  }
+
+  return PARSING;
+}
+
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputName(const QRegularExpressionMatch & match)
 {
-  currentInput.human_name = match.captured("name");
+  currentInput_.human_name = match.captured("name");
   return PARSING;
 }
 
@@ -275,8 +300,9 @@ ShaderInputsParser::parseInputUniform(const QRegularExpressionMatch & match)
   ShaderInputsParser::InputParseState state = PARSING;
 
   // not all uniforms are exposed as inputs
-  if (currentInput.type != NodeValue::kNone) {
-    currentInput.uniform_name = match.captured("name");
+  if (currentInput_.type != NodeValue::kNone) {
+    currentInput_.uniform_name = match.captured("name");
+    checkConsistentType( currentInput_.type, match.captured("type"));
     state = INPUT_COMPLETE;
   }
 
@@ -286,16 +312,16 @@ ShaderInputsParser::parseInputUniform(const QRegularExpressionMatch & match)
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputType(const QRegularExpressionMatch & match)
 {
-  currentInput.type_string = match.captured("type");
-  currentInput.type = INPUT_TYPE_TABLE.value( currentInput.type_string, NodeValue::kNone);
+  currentInput_.type_string = match.captured("type");
+  currentInput_.type = INPUT_TYPE_TABLE.value( currentInput_.type_string, NodeValue::kNone);
 
-  if (currentInput.type == NodeValue::kNone) {
-    reportError(QObject::tr("type %1 is invalid").arg(currentInput.type_string));
+  if (currentInput_.type == NodeValue::kNone) {
+    reportError(QObject::tr("type %1 is invalid").arg(currentInput_.type_string));
   }
 
   // preset 'min' and 'max', in case they are not defined
-  currentInput.min = MINIMUM_TABLE.value( currentInput.type, QVariant());
-  currentInput.max = MAXIMUM_TABLE.value( currentInput.type, QVariant());
+  currentInput_.min = MINIMUM_TABLE.value( currentInput_.type, QVariant());
+  currentInput_.max = MAXIMUM_TABLE.value( currentInput_.type, QVariant());
 
   return PARSING;
 }
@@ -321,7 +347,7 @@ ShaderInputsParser::parseInputFlags(const QRegularExpressionMatch & line_match)
     QRegularExpressionMatch flag = flag_match.next();
     QString flag_str = flag.captured(1);
 
-    currentInput.flags |= InputFlags(FLAG_TABLE.value( flag_str, kInputFlagNormal));
+    currentInput_.flags |= InputFlags(FLAG_TABLE.value( flag_str, kInputFlagNormal));
   }
 
   return PARSING;
@@ -342,7 +368,7 @@ ShaderInputsParser::parseInputValueList(const QRegularExpressionMatch & line_mat
     QRegularExpressionMatch value = value_match.next();
     QString value_str = value.captured(1);
 
-    currentInput.values << value_str;
+    currentInput_.values << value_str;
   }
 
   return PARSING;
@@ -361,10 +387,10 @@ ShaderInputsParser::InputParseState ShaderInputsParser::parseInputPointShape(con
     QString shape_str = line_match.captured("shape");
 
     if (INPUT_POINT_SHAPE_TABLE.contains(shape_str)) {
-      currentInput.pointShape = INPUT_POINT_SHAPE_TABLE[shape_str];
+      currentInput_.pointShape = INPUT_POINT_SHAPE_TABLE[shape_str];
     }
     else {
-      currentInput.pointShape = PointGizmo::kSquare;
+      currentInput_.pointShape = PointGizmo::kSquare;
       reportError(QObject::tr("'%1' is not a valid point shape.").
                   arg(shape_str));
     }
@@ -375,16 +401,16 @@ ShaderInputsParser::InputParseState ShaderInputsParser::parseInputPointShape(con
 
 ShaderInputsParser::InputParseState ShaderInputsParser::parseInputGizmoColor(const QRegularExpressionMatch & line_match)
 {
-  if (currentInput.type == NodeValue::kVec2) {
+  if (currentInput_.type == NodeValue::kVec2) {
     QString color_string = line_match.captured("color").trimmed();
     Color ove_color = parseColor( color_string).value<Color>();
-    currentInput.gizmoColor = QColor( int(ove_color.red()*255.0),
-                                      int(ove_color.green()*255.0),
-                                      int(ove_color.blue()*255.0), 255);
+    currentInput_.gizmoColor = QColor( int(ove_color.red()*255.0),
+                                       int(ove_color.green()*255.0),
+                                       int(ove_color.blue()*255.0), 255);
   }
   else {
     reportError( QObject::tr("Attribute 'color' can be used for type POINT, not for %1").
-                 arg(currentInput.type_string));
+                 arg(currentInput_.type_string));
   }
 
   return PARSING;
@@ -396,11 +422,11 @@ ShaderInputsParser::parseInputMin(const QRegularExpressionMatch & match)
   bool ok = false;
   QString min_str = match.captured("min");
 
-  if (currentInput.type == NodeValue::kFloat) {
-    currentInput.min = min_str.toFloat( &ok);
+  if (currentInput_.type == NodeValue::kFloat) {
+    currentInput_.min = min_str.toFloat( &ok);
   }
-  else if (currentInput.type == NodeValue::kInt) {
-    currentInput.min = min_str.toInt( &ok);
+  else if (currentInput_.type == NodeValue::kInt) {
+    currentInput_.min = min_str.toInt( &ok);
   }
   else {
     // this type does not support "min" property
@@ -408,7 +434,7 @@ ShaderInputsParser::parseInputMin(const QRegularExpressionMatch & match)
 
   if (ok == false) {
     reportError(QObject::tr("%1 is not valid as minimum for type %2").
-                arg(min_str, currentInput.type_string));
+                arg(min_str, currentInput_.type_string));
   }
 
   return PARSING;
@@ -420,11 +446,11 @@ ShaderInputsParser::parseInputMax(const QRegularExpressionMatch & match)
   bool ok = false;
   QString max_str = match.captured("max");
 
-  if (currentInput.type == NodeValue::kFloat) {
-    currentInput.max = max_str.toFloat( &ok);
+  if (currentInput_.type == NodeValue::kFloat) {
+    currentInput_.max = max_str.toFloat( &ok);
   }
-  else if (currentInput.type == NodeValue::kInt) {
-    currentInput.max = max_str.toInt( &ok);
+  else if (currentInput_.type == NodeValue::kInt) {
+    currentInput_.max = max_str.toInt( &ok);
   }
   else {
     // this type does not support "max" property
@@ -432,7 +458,7 @@ ShaderInputsParser::parseInputMax(const QRegularExpressionMatch & match)
 
   if (ok == false) {
     reportError(QObject::tr("%1 is not valid as maximum for type %2").
-                arg(max_str, currentInput.type_string));
+                arg(max_str, currentInput_.type_string));
   }
 
   return PARSING;
@@ -446,14 +472,14 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
   float float_value;
   int int_value;
 
-  switch (currentInput.type)
+  switch (currentInput_.type)
   {
   case NodeValue::kFloat:
     float_value = default_string.toFloat( &ok);
 
     if (ok)
     {
-      currentInput.default_value = QVariant::fromValue<float>(float_value);
+      currentInput_.default_value = QVariant::fromValue<float>(float_value);
     }
     else
     {
@@ -467,7 +493,7 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
 
     if (ok)
     {
-      currentInput.default_value = QVariant::fromValue<int>(int_value);
+      currentInput_.default_value = QVariant::fromValue<int>(int_value);
     }
     else
     {
@@ -477,10 +503,10 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
 
   case NodeValue::kBoolean:
     if (default_string == QString::fromLatin1("false")) {
-      currentInput.default_value = QVariant::fromValue<bool>(false);
+      currentInput_.default_value = QVariant::fromValue<bool>(false);
     }
     else if (default_string == QString::fromLatin1("true")) {
-      currentInput.default_value = QVariant::fromValue<bool>(true);
+      currentInput_.default_value = QVariant::fromValue<bool>(true);
     }
     else {
       reportError(QObject::tr("value must be 'true' or 'false'"));
@@ -488,7 +514,7 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
     break;
 
   case NodeValue::kColor:
-    currentInput.default_value = parseColor( default_string);
+    currentInput_.default_value = parseColor( default_string);
     break;
 
   case NodeValue::kCombo:
@@ -496,7 +522,7 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
 
     if (ok)
     {
-      currentInput.default_value = QVariant::fromValue<int>(int_value);
+      currentInput_.default_value = QVariant::fromValue<int>(int_value);
     }
     else
     {
@@ -505,13 +531,13 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
     break;
 
   case NodeValue::kVec2:
-    currentInput.default_value = parsePoint( default_string);
+    currentInput_.default_value = parsePoint( default_string);
     break;
 
   default:
   case NodeValue::kTexture:
   case NodeValue::kNone:
-    reportError(QObject::tr("type %1 does not support a default value").arg(currentInput.type_string));
+    reportError(QObject::tr("type %1 does not support a default value").arg(currentInput_.type_string));
     break;
   }
 
@@ -521,7 +547,7 @@ ShaderInputsParser::parseInputDefault(const QRegularExpressionMatch & match)
 ShaderInputsParser::InputParseState
 ShaderInputsParser::parseInputDescription(const QRegularExpressionMatch & match)
 {
-  currentInput.description.append( match.captured("description"));
+  currentInput_.description.append( match.captured("description"));
   return PARSING;
 }
 
@@ -596,6 +622,26 @@ QVariant ShaderInputsParser::parsePoint(const QString &line)
   }
 
   return point;
+}
+
+void ShaderInputsParser::checkConsistentType(const NodeValue::Type &metadata_type, const QString &uniform_type)
+{
+  static const QMap<QString, QString> UNIFORM_STRING_MAP{{"TEXTURE", "sampler2D"},
+                                                         {"COLOR", "vec4"},
+                                                         {"FLOAT", "float"},
+                                                         {"INTEGER", "int"},
+                                                         {"BOOLEAN", "bool"},
+                                                         {"SELECTION", "int"},
+                                                         {"POINT", "vec2"}
+                                                        };
+
+  QString meta_type_string = INPUT_TYPE_TABLE.key( metadata_type, "-");
+  QString uniform_type_expected = UNIFORM_STRING_MAP.value( meta_type_string, "-");
+
+  if (uniform_type_expected != uniform_type) {
+    reportError(QObject::tr("metadata type %1 requires uniform type %2 and not %3").
+                arg( meta_type_string, uniform_type_expected, uniform_type));
+  }
 }
 
 void ShaderInputsParser::reportError(const QString& error)

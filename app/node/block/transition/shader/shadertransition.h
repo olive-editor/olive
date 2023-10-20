@@ -24,6 +24,8 @@
 #include "node/block/transition/transition.h"
 #include "node/gizmo/point.h"
 
+class QOpenGLShader;
+
 namespace olive {
 
 class ShaderInputsParser;
@@ -31,6 +33,10 @@ class ShaderInputsParser;
 // TBD There is a lot of code duplication between 'ShaderFilterNode' and 'ShaderTransition'
 // Common code may be factored in a separate class
 
+/** @brief
+ * A node that implements a transition with a GLSL script. The inputs of this node
+ * are defined in GLSL by markup comments
+ */
 class ShaderTransition : public TransitionBlock
 {
   Q_OBJECT
@@ -45,6 +51,7 @@ public:
   virtual QString Description() const override;
 
   virtual void Retranslate() override;
+
   virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
 
   virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
@@ -52,22 +59,31 @@ public:
 
   bool ShaderCodeInvalidateFlag() const override;
 
-  static const QString kShaderCode;
+  void getMetadata( QString & name, QString & description, QString & version) const;
+
+  static const QString kFragShaderCode;
+  static const QString kUseVertexCode;
+  static const QString kVertexShaderCode;
   static const QString kOutputMessages;
 
 protected:
   virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const override;
 
-protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+signals:
+  void metadataChanged( const QString & name, const QString & description, const QString & version);
 
 private:
-  void parseShaderCode();
+  void parseShaderMetadata();
   void checkShaderSyntax();
+  bool compileShaderCode( QOpenGLShader &shader, const QString &souce_code);
   void reportErrorList( const ShaderInputsParser & parser);
   void updateInputList( const ShaderInputsParser & parser);
   void updateGizmoList();
   void checkDeletedInputs( const QStringList & new_inputs);
+
+
+protected slots:
+  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
 
 private:
   // set to true when shader code changes. Must be mutable because
@@ -75,11 +91,18 @@ private:
   mutable bool invalidate_code_flag_;
 
   // source GLSL code
-  QString shader_code_;
+  QString frag_shader_code_;
+  QString vertex_shader_code_;
+  // name of filter declared in metadata
+  QString shader_name_;
+  // version decalred in metadata
+  QString shader_version_;
+  // description in metadata
+  QString shader_description_;
   // error in metadata or shader
   QString output_messages_;
-  // name of default texture input
-  QString main_input_name_;
+  // number of times fragment shader is invoked
+  int number_of_iterations_;
   // user defined inputs
   QStringList user_input_list_;
   // input of type vec2 to gizmo map
@@ -88,8 +111,13 @@ private:
   QMap<QString, PointGizmo::Shape> handle_shape_table_;
   // color for points in 'handle_table_'
   QMap<QString, QColor> handle_color_table_;
+  // when false, a default vertex shader is used
+  bool use_vertex_shader;
 
   QVector2D resolution_;
+
+  static const QString FRAG_TEMPLATE;
+  static const QString VERTEX_TEMPLATE;
 };
 
 }

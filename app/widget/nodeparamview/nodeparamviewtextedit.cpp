@@ -21,15 +21,12 @@
 #include "nodeparamviewtextedit.h"
 
 #include <QHBoxLayout>
-#include <QFileSystemWatcher>
-#include <QStandardPaths>
 
 #include "dialog/text/text.h"
-#include "dialog/codeeditor/codeeditordialog.h"
-#include "dialog/codeeditor/externaleditorproxy.h"
+
 #include "dialog/codeeditor/messagehighlighter.h"
 #include "ui/icons/icons.h"
-#include "config/config.h"
+#include "nodeparamviewshader.h"
 
 
 namespace olive {
@@ -47,6 +44,11 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   connect(line_edit_, &QPlainTextEdit::textChanged, this, &NodeParamViewTextEdit::InnerWidgetTextChanged);
   layout->addWidget(line_edit_);
 
+  shader_edit_ = new NodeParamViewShader( *line_edit_, this);
+  layout->addWidget( shader_edit_->widget());
+  connect( shader_edit_, & NodeParamViewShader::OnTextChangedExternally,
+          this, & NodeParamViewTextEdit::OnTextChangedExternally);
+
   edit_btn_ = new QPushButton();
   edit_btn_->setIcon(icon::ToolEdit);
   edit_btn_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
@@ -59,11 +61,6 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   connect(edit_in_viewer_btn_, &QPushButton::clicked, this, &NodeParamViewTextEdit::RequestEditInViewer);
 
   SetEditInViewerOnlyMode(false);
-
-  ext_editor_proxy_ = new ExternalEditorProxy( this);
-
-  connect( ext_editor_proxy_, & ExternalEditorProxy::textChanged,
-           this, & NodeParamViewTextEdit::OnTextChangedExternally);
 }
 
 
@@ -81,9 +78,8 @@ void NodeParamViewTextEdit::ShowTextDialog()
 
   if (code_editor_flag_) {
 
-    launchCodeEditor(text);
-  }
-  else {
+    shader_edit_->launchCodeEditor(text);
+  } else {
     TextDialog d(this->text(), this);
 
     if (code_issues_flag_) {
@@ -101,27 +97,6 @@ void NodeParamViewTextEdit::ShowTextDialog()
   }
 }
 
-void olive::NodeParamViewTextEdit::launchCodeEditor(QString & text)
-{
-  if (Config::Current()["EditorUseInternal"].toBool()) {
-
-    // internal editor
-    CodeEditorDialog d(this->text(), this);
-
-    // in case external editor was previously opened but
-    // then user switched to internal editor.
-    ext_editor_proxy_->Detach();
-
-    if (d.exec() == QDialog::Accepted) {
-      text = d.text();
-    }
-  }
-  else {
-
-    // external editor
-    ext_editor_proxy_->Launch( this->text());
-  }
-}
 
 void NodeParamViewTextEdit::InnerWidgetTextChanged()
 {
@@ -134,31 +109,26 @@ void NodeParamViewTextEdit::OnTextChangedExternally(const QString & content)
   emit textEdited( content);
 }
 
-void NodeParamViewTextEdit::setCodeEditorFlag( uint64_t node_id)
+void NodeParamViewTextEdit::setCodeEditorFlag( const Node * owner)
 {
   code_editor_flag_ = true;
-
-  // create a file whose name is unique for for the node this instance belongs to.
-  // 'node_id' is based on address of the node this param belongs to
-  // 'QStandardPaths::TempLocation' is guaranteed not to be empty
-  QString file_path = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
-  file_path += QString("/%2.frag").arg(node_id);
-
-  ext_editor_proxy_->SetFilePath(file_path);
 
   // no need to draw the stopwatch to keyframe this input
   setProperty("is_exapandable", QVariant::fromValue<bool>(true));
 
-  // if the text box is a shader code editor, make it read only so that
-  // the shader code is not re-parsed on every key pressed by the user.
-  // Please use the Text Dialog to edit code.
+  // as this is a shader code editor, it is edited by a
+  // separate dialog or external editor
   line_edit_->setReadOnly( true);
+  line_edit_->setVisible(false);
+  shader_edit_->attachOwnerNode( owner);
 }
 
 void NodeParamViewTextEdit::setCodeIssuesFlag()
 {
   code_issues_flag_ = true;
   line_edit_->setReadOnly( true);
+
+  // no need to draw the stopwatch to keyframe this input
   setProperty("is_exapandable", QVariant::fromValue<bool>(true));
 
   new MessageSyntaxHighlighter( line_edit_->document());
