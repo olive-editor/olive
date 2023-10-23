@@ -68,14 +68,15 @@ void UndoStack::push(UndoCommand *command, const QString &name)
   }
 
   // Clear any redoable commands
-  this->beginRemoveRows(QModelIndex(), commands_.size(), commands_.size() + undone_commands_.size());
   if (CanRedo()) {
+    this->beginRemoveRows(QModelIndex(), commands_.size(), commands_.size() + undone_commands_.size() - 1);
     for (auto it=undone_commands_.cbegin(); it!=undone_commands_.cend(); it++) {
       delete (*it).command;
     }
+    this->endRemoveRows();
+
     undone_commands_.clear();
   }
-  this->endRemoveRows();
 
   // Do command and push
   this->beginInsertRows(QModelIndex(), commands_.size(), commands_.size());
