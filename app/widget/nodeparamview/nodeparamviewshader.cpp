@@ -32,6 +32,8 @@
 
 namespace olive {
 
+const QString DEFAULT_DESCRIPTION = QObject::tr("No description available");
+
 NodeParamViewShader::NodeParamViewShader(const QPlainTextEdit &content,
                                          QObject *parent) :
   QObject(parent),
@@ -101,12 +103,13 @@ void NodeParamViewShader::onMetadataChanged(const QString &name,
 QString NodeParamViewShader::displayedText() const
 {
   QString version = version_.isEmpty() ? QString() : QString("<i>(%1)</i>").arg(version_);
+  const QString & description = description_.isEmpty() ? DEFAULT_DESCRIPTION : description_;
 
   // We don't display the full shader, but only some metadata
   return QString("<font color=\"#808020\" size=\"+1\">%1</font>"
                  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%2</span>"
                  "<p><font color=\"#E0E0D0\">%3</font></p>").
-      arg( name_, version, description_);
+      arg( name_, version, description);
 }
 
 void NodeParamViewShader::launchCodeEditor(QString & text)
