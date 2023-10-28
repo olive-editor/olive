@@ -21,6 +21,7 @@
 #include <QFileSystemWatcher>
 #include <QStandardPaths>
 #include <QPlainTextEdit>
+#include <QDir>
 
 #include "nodeparamviewshader.h"
 #include "node/filter/shader/shader.h"
@@ -54,11 +55,16 @@ void NodeParamViewShader::attachOwnerNode(const Node *owner)
 {
   summary_->setVisible( true);
 
-  // create a file whose name is unique for for the node this instance belongs to.
-  // 'node_id' is based on address of the node this param belongs to
+  // create a file whose name is unique for the node this instance belongs to.
   // 'QStandardPaths::TempLocation' is guaranteed not to be empty
-  QString file_path = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
-  file_path += QString("/%2.glsl").arg((uint64_t)owner);
+  QString base_dir = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
+  if ( ! QDir(base_dir + QDir::separator() + "olive").exists()) {
+    QDir().mkdir(base_dir + QDir::separator() + "olive");
+  }
+  base_dir += QString(QDir::separator()) + "olive";
+
+  QString file_path = QString("%1%2%3.glsl").arg(base_dir).
+                      arg(QString(QDir::separator())).arg((uint64_t)owner);
 
   ext_editor_proxy_->SetFilePath(file_path);
 
